@@ -259,10 +259,11 @@ template<bool hybridWorkspace, typename FactorPointer>
 inline float mrNumiHumanBilateralFactorRead(
     FactorPointer factorCache,
     device float* hybridBacking,
-    const uint index
+    const uint index,
+    const uint cachedElements
 ) {
     if (hybridWorkspace &&
-        index >= MR_NUMI_HUMAN_STAND_HYBRID_FACTOR_CACHE_ELEMENTS)
+        index >= cachedElements)
         return hybridBacking[index];
     return factorCache[index];
 }
@@ -272,13 +273,29 @@ inline void mrNumiHumanBilateralFactorWrite(
     FactorPointer factorCache,
     device float* hybridBacking,
     const uint index,
-    const float value
+    const float value,
+    const uint cachedElements
 ) {
     if (hybridWorkspace &&
-        index >= MR_NUMI_HUMAN_STAND_HYBRID_FACTOR_CACHE_ELEMENTS)
+        index >= cachedElements)
         hybridBacking[index] = value;
     else
         factorCache[index] = value;
+}
+
+// Select each row's workspace address space before its ordered FMA loop.
+template<typename RowPointer, typename PivotPointer>
+inline bool mrNumiHumanBilateralEliminateRow(
+    RowPointer row, PivotPointer pivot, const uint column, const uint n
+) {
+    row[column] /= pivot[column];
+    if (!isfinite(row[column])) return false;
+    bool finite = true;
+    for (uint j = column + 1u; j < n; ++j) {
+        row[j] = mrNHBilateralFma(-row[column], pivot[j], row[j]);
+        finite = isfinite(row[j]) && finite;
+    }
+    return finite;
 }
 
 // The pivot search and each row's arithmetic stay in their original order.
@@ -301,6 +318,11 @@ inline bool mrNumiHumanBilateralFactorCooperativeWorkspace(
     threadgroup atomic_uint* failure,
     threadgroup uint* selectedPivot
 ) {
+    // Whole rows make the workspace choice invariant within elimination.
+    const uint cachedRows = hybridWorkspace
+        ? min(n, uint(MR_NUMI_HUMAN_STAND_HYBRID_FACTOR_CACHE_ELEMENTS) / n)
+        : n;
+    const uint cacheElements = cachedRows * n;
     constexpr mem_flags workspaceFence = deviceWorkspace || hybridWorkspace
         ? mem_flags::mem_device | mem_flags::mem_threadgroup
         : mem_flags::mem_threadgroup;
@@ -308,10 +330,6 @@ inline bool mrNumiHumanBilateralFactorCooperativeWorkspace(
         atomic_store_explicit(failure, MR_INVALID_INDEX,
                               memory_order_relaxed);
     if (!deviceWorkspace) {
-        const uint cacheElements = hybridWorkspace
-            ? min(n * n,
-                uint(MR_NUMI_HUMAN_STAND_HYBRID_FACTOR_CACHE_ELEMENTS))
-            : n * n;
         for (uint index = lane; index < cacheElements;
              index += threadCount)
             factorCache[index] = matrix[index];
@@ -320,7 +338,7 @@ inline bool mrNumiHumanBilateralFactorCooperativeWorkspace(
 
     for (uint i = lane; i < n; i += threadCount) {
         const float diagonal = mrNumiHumanBilateralFactorRead<hybridWorkspace>(
-            factorCache, hybridBacking, i * n + i);
+            factorCache, hybridBacking, i * n + i, cacheElements);
         if (!(diagonal > 0.0f) || !isfinite(diagonal)) {
             atomic_fetch_min_explicit(failure, i, memory_order_relaxed);
             continue;
@@ -338,10 +356,10 @@ inline bool mrNumiHumanBilateralFactorCooperativeWorkspace(
         const uint j = index - i * n;
         const float value =
             (mrNumiHumanBilateralFactorRead<hybridWorkspace>(
-                 factorCache, hybridBacking, index) * scaleCache[i]) *
+                 factorCache, hybridBacking, index, cacheElements) * scaleCache[i]) *
             scaleCache[j];
         mrNumiHumanBilateralFactorWrite<hybridWorkspace>(
-            factorCache, hybridBacking, index, value);
+            factorCache, hybridBacking, index, value, cacheElements);
         if (!isfinite(value))
             atomic_fetch_min_explicit(failure, index,
                                       memory_order_relaxed);
@@ -355,11 +373,11 @@ inline bool mrNumiHumanBilateralFactorCooperativeWorkspace(
             uint pivot = k;
             float largest = mrNHBilateralAbs(
                 mrNumiHumanBilateralFactorRead<hybridWorkspace>(
-                    factorCache, hybridBacking, k * n + k));
+                    factorCache, hybridBacking, k * n + k, cacheElements));
             for (uint i = k + 1u; i < n; ++i) {
                 const float value = mrNHBilateralAbs(
                     mrNumiHumanBilateralFactorRead<hybridWorkspace>(
-                        factorCache, hybridBacking, i * n + k));
+                        factorCache, hybridBacking, i * n + k, cacheElements));
                 if (value > largest) { largest = value; pivot = i; }
             }
             if (!(largest > 0.0f) || !isfinite(largest))
@@ -380,47 +398,35 @@ inline bool mrNumiHumanBilateralFactorCooperativeWorkspace(
                 const uint pivotEntry = *selectedPivot * n + j;
                 const float value =
                     mrNumiHumanBilateralFactorRead<hybridWorkspace>(
-                        factorCache, hybridBacking, rowEntry);
+                        factorCache, hybridBacking, rowEntry, cacheElements);
                 const float pivotValue =
                     mrNumiHumanBilateralFactorRead<hybridWorkspace>(
-                        factorCache, hybridBacking, pivotEntry);
+                        factorCache, hybridBacking, pivotEntry, cacheElements);
                 mrNumiHumanBilateralFactorWrite<hybridWorkspace>(
-                    factorCache, hybridBacking, rowEntry, pivotValue);
+                    factorCache, hybridBacking, rowEntry, pivotValue, cacheElements);
                 mrNumiHumanBilateralFactorWrite<hybridWorkspace>(
-                    factorCache, hybridBacking, pivotEntry, value);
+                    factorCache, hybridBacking, pivotEntry, value, cacheElements);
             }
         }
         threadgroup_barrier(workspaceFence);
         for (uint i = k + 1u + lane; i < n; i += threadCount) {
-            const uint columnEntry = i * n + k;
-            const float pivot =
-                mrNumiHumanBilateralFactorRead<hybridWorkspace>(
-                    factorCache, hybridBacking, k * n + k);
-            const float value =
-                mrNumiHumanBilateralFactorRead<hybridWorkspace>(
-                    factorCache, hybridBacking, columnEntry) / pivot;
-            mrNumiHumanBilateralFactorWrite<hybridWorkspace>(
-                factorCache, hybridBacking, columnEntry, value);
-            if (!isfinite(value)) {
-                atomic_fetch_min_explicit(failure, i,
-                                          memory_order_relaxed);
-                continue;
+            bool finite;
+            if (hybridWorkspace && i >= cachedRows) {
+                if (k >= cachedRows)
+                    finite = mrNumiHumanBilateralEliminateRow(
+                        hybridBacking + i * n, hybridBacking + k * n, k, n);
+                else
+                    finite = mrNumiHumanBilateralEliminateRow(
+                        hybridBacking + i * n, factorCache + k * n, k, n);
+            } else if (hybridWorkspace && k >= cachedRows) {
+                finite = mrNumiHumanBilateralEliminateRow(
+                    factorCache + i * n, hybridBacking + k * n, k, n);
+            } else {
+                finite = mrNumiHumanBilateralEliminateRow(
+                    factorCache + i * n, factorCache + k * n, k, n);
             }
-            for (uint j = k + 1u; j < n; ++j) {
-                const uint entry = i * n + j;
-                const float value = mrNHBilateralFma(
-                    -mrNumiHumanBilateralFactorRead<hybridWorkspace>(
-                        factorCache, hybridBacking, columnEntry),
-                    mrNumiHumanBilateralFactorRead<hybridWorkspace>(
-                        factorCache, hybridBacking, k * n + j),
-                    mrNumiHumanBilateralFactorRead<hybridWorkspace>(
-                        factorCache, hybridBacking, entry));
-                mrNumiHumanBilateralFactorWrite<hybridWorkspace>(
-                    factorCache, hybridBacking, entry, value);
-                if (!isfinite(value))
-                    atomic_fetch_min_explicit(failure, i,
-                                              memory_order_relaxed);
-            }
+            if (!finite)
+                atomic_fetch_min_explicit(failure, i, memory_order_relaxed);
         }
         threadgroup_barrier(workspaceFence);
         if (atomic_load_explicit(failure, memory_order_relaxed) !=
@@ -428,10 +434,7 @@ inline bool mrNumiHumanBilateralFactorCooperativeWorkspace(
     }
 
     if (!deviceWorkspace) {
-        const uint copyElements = hybridWorkspace
-            ? min(n * n,
-                uint(MR_NUMI_HUMAN_STAND_HYBRID_FACTOR_CACHE_ELEMENTS))
-            : n * n;
+        const uint copyElements = cacheElements;
         for (uint index = lane; index < copyElements;
              index += threadCount)
             matrix[index] = factorCache[index];
