@@ -11,6 +11,10 @@ constant bool kTiledSkinInfluenceLayout [[function_constant(15)]];
 constant bool kUseTiledSkinInfluenceLayout =
     is_function_constant_defined(kTiledSkinInfluenceLayout)
         ? kTiledSkinInfluenceLayout : false;
+constant bool kSkipNonAncestorSupportBodyDofs [[function_constant(43)]];
+constant bool kUseSkipNonAncestorSupportBodyDofs =
+    is_function_constant_defined(kSkipNonAncestorSupportBodyDofs)
+        ? kSkipNonAncestorSupportBodyDofs : false;
 #include "metalrobo/numi_human_support_geometry_gpu.h"
 
 namespace nm_human_resting_support {
@@ -384,6 +388,7 @@ kernel void nm_human_resting_support_publish(
     device const MRArticulatedBodyPoseGPU* bodies [[buffer(11)]],
     device const float4* bodyPositionLow [[buffer(12)]],
     device const float4* normalizedOrientations [[buffer(13)]],
+    device const uchar* bodyDofAncestry [[buffer(14)]],
     uint globalIndex [[thread_position_in_grid]]) {
     const uint regionCount = dispatch.counts.y;
     const uint dofCount = dispatch.counts.z;
@@ -468,9 +473,20 @@ kernel void nm_human_resting_support_publish(
         const uint body = influence.body.x;
         if (body == MR_INVALID_INDEX ||
             body < dispatch.identity.x ||
-            body - dispatch.identity.x >= dispatch.strides.x) {
+            body - dispatch.identity.x >= dispatch.strides.x ||
+            (kUseSkipNonAncestorSupportBodyDofs &&
+             body - dispatch.identity.x >= dispatch.identity.y)) {
             value = as_type<float>(0x7fc00000u);
             break;
+        }
+        // This opt-in mask comes from the validated parent/inbound-joint tree.
+        // The body-probe Jacobian producer applies the same ancestry rule, so
+        // each nonancestor column is exactly zero on valid kinematics. Retain
+        // source influence order and the body-range failure guard above.
+        if (kUseSkipNonAncestorSupportBodyDofs) {
+            const uint ancestryIndex =
+                (body - dispatch.identity.x) * dofCount + dof;
+            if (bodyDofAncestry[ancestryIndex] == 0u) continue;
         }
         const uint probe = dispatch.strides.y +
             4u * (body - dispatch.identity.x);

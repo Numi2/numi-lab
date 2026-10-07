@@ -1728,8 +1728,87 @@ public:
             require(chosen!=MR_INVALID_INDEX,"registered skin Voronoi assignment is invalid");
             regionForVertex[v]=chosen;++regionCounts[chosen];
         }
+        const char* supportAncestryPruningSetting =
+            std::getenv("NUMI_HUMAN_SUPPORT_ANCESTRY_PRUNE");
+        const bool supportAncestryPruning =
+            supportAncestryPruningSetting != nullptr &&
+            std::strcmp(supportAncestryPruningSetting, "1") == 0;
+        std::vector<std::uint8_t> supportBodyDofAncestry;
+        if (supportAncestryPruning) {
+            // Mirror the validated-tree ancestry mask used while producing
+            // body-probe Jacobians; do not infer structural zeros from sampled
+            // Jacobian magnitudes or alter support position/tie selection.
+            const auto& supportArticulation = model.articulations.at(0u);
+            const std::size_t bodyCount = supportArticulation.bodyCount;
+            const std::size_t dofCount = supportArticulation.nv;
+            require(bodyCount > 0u && dofCount > 0u &&
+                        bodyCount <= std::numeric_limits<std::size_t>::max() /
+                            dofCount &&
+                        bodyCount * dofCount <=
+                            std::numeric_limits<std::uint32_t>::max(),
+                    "support ancestry mask dimensions overflow");
+            supportBodyDofAncestry.assign(bodyCount * dofCount, 0u);
+            const std::size_t bodyBegin = supportArticulation.firstBody;
+            const std::size_t bodyEnd = bodyBegin + bodyCount;
+            const std::size_t jointBegin = supportArticulation.firstJoint;
+            const std::size_t jointEnd = jointBegin +
+                supportArticulation.jointCount;
+            const std::size_t velocityBegin = supportArticulation.vOffset;
+            const std::size_t velocityEnd = velocityBegin + dofCount;
+            require(bodyEnd <= model.bodies.size() &&
+                        jointEnd <= model.joints.size() &&
+                        velocityEnd <= model.dofs.size(),
+                    "support ancestry source ranges are invalid");
+            for (std::size_t bodyLocal = 0u; bodyLocal < bodyCount;
+                 ++bodyLocal) {
+                auto* maskRow = supportBodyDofAncestry.data() +
+                    bodyLocal * dofCount;
+                if (supportArticulation.rootType == MR_ROOT_FLOATING) {
+                    require(dofCount >= 6u,
+                            "floating-root support ancestry lacks six root coordinates");
+                    for (std::size_t dof = 0u; dof < 6u; ++dof) {
+                        maskRow[dof] = 1u;
+                    }
+                }
+                std::size_t cursor = bodyBegin + bodyLocal;
+                std::size_t depth = 0u;
+                while (cursor != supportArticulation.rootBody) {
+                    require(cursor >= bodyBegin && cursor < bodyEnd &&
+                                depth++ < bodyCount,
+                            "support ancestry body chain is malformed");
+                    const MRBodyPropertiesGPU& body = model.bodies[cursor];
+                    const std::size_t parent = body.parentBody;
+                    const std::size_t inbound = body.inboundJoint;
+                    require(parent >= bodyBegin && parent < bodyEnd &&
+                                inbound >= jointBegin && inbound < jointEnd,
+                            "support ancestry parent or inbound joint is invalid");
+                    const MRJointDescriptorGPU& joint = model.joints[inbound];
+                    require(joint.parentBody == parent &&
+                                joint.childBody == cursor &&
+                                joint.vOffset >= velocityBegin &&
+                                static_cast<std::size_t>(joint.vOffset) +
+                                    joint.nv <= velocityEnd,
+                            "support ancestry joint/DoF ownership is invalid");
+                    const std::size_t localDof =
+                        static_cast<std::size_t>(joint.vOffset) - velocityBegin;
+                    for (std::size_t local = 0u; local < joint.nv; ++local) {
+                        require(model.dofs[velocityBegin + localDof + local]
+                                    .jointIndex == inbound,
+                                "support ancestry differs from source DoF ownership");
+                        maskRow[localDof + local] = 1u;
+                    }
+                    cursor = parent;
+                }
+            }
+        }
         HumanBrainSourceFingerprint supportIdentity;
         supportIdentity.text("numi.human.full-skin-support.v1");
+        if (supportAncestryPruning) {
+            supportIdentity.text("support-jacobian-ancestry-prune-v1");
+            supportIdentity.bytes(supportBodyDofAncestry.data(),
+                supportBodyDofAncestry.size() *
+                    sizeof(supportBodyDofAncestry.front()));
+        }
         if (skinInfluenceLayout == NumiHumanSkinInfluenceLayout::tile32) {
             supportIdentity.text("runtime-layout:tile32-slot-major-v1");
         }
@@ -1744,11 +1823,13 @@ public:
             std::span<const MRHumanRestingVertexMap>(maps).subspan(skinFirstVertex,skin.header.vertexCount),
             influences,std::span<const MRHumanRestingInfluence>(weights),regionForVertex,regions,
             supportQueries.supportContacts,1u,model.articulations.at(0).firstBody,
-            model.articulations.at(0).bodyCount,supportIdentity.value(),
+            model.articulations.at(0).bodyCount,model.articulations.at(0).nv,
+            supportBodyDofAncestry,supportAncestryPruning,supportIdentity.value(),
             skinFirstVertex*sizeof(MRHumanRestingVertexMap),skinInfluenceLayout);
         std::cout<<"resting_support_geometry=full_registered_skin vertices="<<skin.header.vertexCount
             <<" regions="<<regions.size()<<" full_binding_count="<<skin.bindings.size()
             <<" influence_layout="<<skinInfluenceLayoutName(skinInfluenceLayout)
+            <<" ancestry_prune="<<(supportAncestryPruning?"on":"off")
             <<" region_sizes=[";
         for(unsigned r=0;r<regionCounts.size();++r){if(r)std::cout<<',';std::cout<<regionCounts[r];}
         std::cout<<"] force_owner=existing_metal_stand partition=source_rest_voronoi\n";

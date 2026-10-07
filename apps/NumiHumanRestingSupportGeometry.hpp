@@ -26,6 +26,7 @@ struct NumiHumanSkinInfluencePipelineConfig {
     bool specializeSkinInfluenceLayout = false;
     NumiHumanSkinInfluenceLayout influenceLayout =
         NumiHumanSkinInfluenceLayout::vertexMajor;
+    bool skipNonAncestorSupportBodyDofs = false;
 };
 
 inline id<MTLFunction> numiHumanRestingMakeSkinInfluenceFunction(
@@ -34,7 +35,8 @@ inline id<MTLFunction> numiHumanRestingMakeSkinInfluenceFunction(
     NSError** error
 ) {
     if (!config.validatedStaticSkinInfluences &&
-        !config.specializeSkinInfluenceLayout) {
+        !config.specializeSkinInfluenceLayout &&
+        !config.skipNonAncestorSupportBodyDofs) {
         return [library newFunctionWithName:name];
     }
     MTLFunctionConstantValues* constants =
@@ -49,6 +51,11 @@ inline id<MTLFunction> numiHumanRestingMakeSkinInfluenceFunction(
             NumiHumanSkinInfluenceLayout::tile32;
         [constants setConstantValue:&tiled
                               type:MTLDataTypeBool atIndex:15u];
+    }
+    if (config.skipNonAncestorSupportBodyDofs) {
+        bool skipNonAncestorSupportBodyDofs = true;
+        [constants setConstantValue:&skipNonAncestorSupportBodyDofs
+                              type:MTLDataTypeBool atIndex:43u];
     }
     return [library newFunctionWithName:name
                          constantValues:constants
@@ -75,6 +82,7 @@ class NumiHumanRestingSupportGeometry final {
     __strong id<MTLBuffer> invalidRegionFlags_ = nil;
     __strong id<MTLBuffer> normalizedOrientations_ = nil;
     __strong id<MTLBuffer> rotationZBasis_ = nil;
+    __strong id<MTLBuffer> bodyDofAncestry_ = nil;
     __strong id<MTLBuffer> debugOutput_ = nil;
     std::uint32_t vertexCount_ = 0u;
     std::uint32_t regionCount_ = 0u;
@@ -84,6 +92,8 @@ class NumiHumanRestingSupportGeometry final {
         NumiHumanSkinInfluenceLayout::vertexMajor;
     std::uint32_t validatedFirstBody_ = 0u;
     std::uint32_t validatedBodyCount_ = 0u;
+    std::uint32_t validatedDofCount_ = 0u;
+    bool skipNonAncestorSupportBodyDofs_ = false;
     std::uint32_t orientationStride_ = 0u;
     std::uint64_t orientationElementCount_ = 0u;
     NSUInteger vertexMapOffsetBytes_ = 0u;
@@ -115,13 +125,14 @@ class NumiHumanRestingSupportGeometry final {
         const bool validatedSkinInfluences = false,
         const bool specializeSkinInfluenceLayout = false,
         const NumiHumanSkinInfluenceLayout influenceLayout =
-            NumiHumanSkinInfluenceLayout::vertexMajor
+            NumiHumanSkinInfluenceLayout::vertexMajor,
+        const bool skipNonAncestorSupportBodyDofs = false
     ) {
         NSError* functionError = nil;
         const auto function = numiHumanRestingMakeSkinInfluenceFunction(
             library, name,
             {validatedSkinInfluences, specializeSkinInfluenceLayout,
-             influenceLayout},
+             influenceLayout, skipNonAncestorSupportBodyDofs},
             &functionError);
         require(function != nil,
                 functionError.localizedDescription.UTF8String != nullptr
@@ -221,6 +232,8 @@ class NumiHumanRestingSupportGeometry final {
             pass.environmentCount != environmentCount_ ||
             pass.articulationFirstBody != validatedFirstBody_ ||
             pass.bodyCount != validatedBodyCount_ ||
+            (skipNonAncestorSupportBodyDofs_ &&
+             pass.dofCount != validatedDofCount_) ||
             pass.standContactCount != regionCount_ ||
             pass.bodyCount == 0u || pass.bodyPoseStride < pass.bodyCount ||
             pass.pointWorldStride < pass.pointCount || pass.dofCount == 0u ||
@@ -388,7 +401,16 @@ class NumiHumanRestingSupportGeometry final {
         if (publish == nil) return false;
         publish.label = @"Numi Human weighted skin support queries";
         [publish setComputePipelineState:publishPipeline_];
-        [publish setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
+        if (skipNonAncestorSupportBodyDofs_) {
+            MRHumanRestingSupportDispatchGPU publishDispatch = dispatch;
+            // identity.y is unused by this kernel except for the opt-in
+            // ancestry-mask body bound; other stages retain influenceCount.
+            publishDispatch.identity.y = validatedBodyCount_;
+            [publish setBytes:&publishDispatch
+                       length:sizeof(publishDispatch) atIndex:0u];
+        } else {
+            [publish setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
+        }
         [publish setBuffer:vertexMap_ offset:vertexMapOffsetBytes_ atIndex:1u];
         [publish setBuffer:influences_ offset:0u atIndex:2u];
         [publish setBuffer:regions_ offset:0u atIndex:3u];
@@ -402,6 +424,9 @@ class NumiHumanRestingSupportGeometry final {
         [publish setBuffer:bodies offset:0u atIndex:11u];
         [publish setBuffer:bodyLow offset:0u atIndex:12u];
         [publish setBuffer:normalizedOrientations_ offset:0u atIndex:13u];
+        if (skipNonAncestorSupportBodyDofs_) {
+            [publish setBuffer:bodyDofAncestry_ offset:0u atIndex:14u];
+        }
         const NSUInteger regionElements =
             static_cast<NSUInteger>(regionCount_) * environmentCount_;
         const NSUInteger publishElements = regionElements *
@@ -468,6 +493,9 @@ public:
         const std::uint32_t environmentCount,
         const std::uint32_t validatedFirstBody,
         const std::uint32_t validatedBodyCount,
+        const std::uint32_t validatedDofCount,
+        std::span<const std::uint8_t> bodyDofAncestry,
+        const bool skipNonAncestorSupportBodyDofs,
         const std::uint64_t fingerprint,
         const NSUInteger vertexMapOffsetBytes,
         const NumiHumanSkinInfluenceLayout influenceLayout
@@ -479,6 +507,8 @@ public:
         influenceLayout_(influenceLayout),
         validatedFirstBody_(validatedFirstBody),
         validatedBodyCount_(validatedBodyCount),
+        validatedDofCount_(validatedDofCount),
+        skipNonAncestorSupportBodyDofs_(skipNonAncestorSupportBodyDofs),
         vertexMapOffsetBytes_(vertexMapOffsetBytes),
         fingerprint_(fingerprint), hostRegions_(regions.begin(), regions.end()) {
         const char* diagnosticSetting =
@@ -497,11 +527,24 @@ public:
                     regionForVertex.size() == hostMap.size() && fingerprint_ != 0u &&
                     !hostInfluences.empty() && validatedFirstBody_ != MR_INVALID_INDEX &&
                     validatedBodyCount_ > 0u &&
+                    (!skipNonAncestorSupportBodyDofs_ ||
+                     (validatedDofCount_ > 0u &&
+                      bodyDofAncestry.size() ==
+                          static_cast<std::uint64_t>(validatedBodyCount_) *
+                              validatedDofCount_)) &&
                     static_cast<std::uint64_t>(validatedFirstBody_) +
                         validatedBodyCount_ <=
                             static_cast<std::uint64_t>(
                                 std::numeric_limits<std::uint32_t>::max()) + 1u,
                 "resting support geometry received incomplete source assets");
+        if (skipNonAncestorSupportBodyDofs_) {
+            bodyDofAncestry_ = [device_ newBufferWithBytes:bodyDofAncestry.data()
+                length:bodyDofAncestry.size_bytes()
+                options:MTLResourceStorageModeShared];
+            require(bodyDofAncestry_ != nil &&
+                        sameDevice(device_, bodyDofAncestry_),
+                    "body/DoF support ancestry mask could not be uploaded");
+        }
         require(vertexMapOffsetBytes_ % alignof(MRHumanRestingVertexMap) == 0u &&
                     vertexMapOffsetBytes_ <= vertexMap_.length &&
                     hostMap.size() <= (vertexMap_.length - vertexMapOffsetBytes_) /
@@ -576,7 +619,7 @@ public:
             @"nm_human_resting_support_select");
         publishPipeline_ = makePipeline(device_, library,
             @"nm_human_resting_support_publish", false, true,
-            influenceLayout_);
+            influenceLayout_, skipNonAncestorSupportBodyDofs_);
         if (diagnosticCapture_) {
             debugPipeline_ = makePipeline(device_, library,
                 @"nm_human_resting_support_debug");
