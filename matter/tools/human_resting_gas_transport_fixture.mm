@@ -402,6 +402,65 @@ void verifyRespiratorySubcycling(const char* network,
           "respiratory retry did not reproduce the complete clean accepted state");
 }
 
+void requireVascularPrefixEqual(const RuntimeStateSnapshot& expected,
+                                const RuntimeStateSnapshot& actual,
+                                const char* message) {
+    check(expected.available && actual.available &&
+          expected.vascularState.size() == actual.vascularState.size() &&
+          expected.vascularClock.size() == actual.vascularClock.size() &&
+          (!expected.vascularState.size() ||
+           std::memcmp(expected.vascularState.data(), actual.vascularState.data(),
+                       expected.vascularState.size() * sizeof(nm_float4)) == 0) &&
+          (!expected.vascularClock.size() ||
+           std::memcmp(expected.vascularClock.data(), actual.vascularClock.data(),
+                       expected.vascularClock.size() *
+                           sizeof(NMVascularClockGPU)) == 0),
+          message);
+}
+
+void verifyBrainSuffixStatus(const char* network,
+                             const char* configuration) {
+    // Both paths accept control steps 0 and 1. The second path rejects step 2
+    // inside one batch and then reaches inert suffix step 3 while Matter's
+    // rejection remains latched.
+    auto baseline = makeRig(network, configuration, kSubcyclingDt,
+                            true, true);
+    baseline.run->batch(0u, 2u);
+    const auto baselineMatter = baseline.run->runtime.snapshot();
+    const auto baselineRespiration = *static_cast<const NMHumanRespirationState*>(
+        baseline.run->respiration->accepted.contents);
+    const auto baselineBrain = *static_cast<const NBNumiRespiratoryChemoreflexStateV1*>(
+        baseline.brain->accepted.contents);
+    check(baselineRespiration.status.x == 2u,
+          "respiratory-subcycle baseline did not accept its two-frame prefix");
+
+    auto interrupted = makeRig(network, configuration, kSubcyclingDt,
+                               true, true);
+    interrupted.run->batch(0u, 1u);
+    interrupted.run->batch(1u, 3u, true, 2u);
+    const auto interruptedMatter = interrupted.run->runtime.snapshot();
+    const auto interruptedRespiration = *static_cast<const NMHumanRespirationState*>(
+        interrupted.run->respiration->accepted.contents);
+    const auto interruptedBrain = *static_cast<const NBNumiRespiratoryChemoreflexStateV1*>(
+        interrupted.brain->accepted.contents);
+    const auto inertSuffix = *static_cast<const NMHumanRespirationState*>(
+        interrupted.run->respiration->candidate.contents);
+    requireVascularPrefixEqual(baselineMatter, interruptedMatter,
+        "rejected respiratory suffix changed accepted vascular state or clock");
+    check(std::memcmp(&baselineRespiration, &interruptedRespiration,
+                      sizeof(baselineRespiration)) == 0 &&
+          std::memcmp(&baselineBrain, &interruptedBrain,
+                      sizeof(baselineBrain)) == 0,
+          "multi-frame respiratory rejection changed the accepted two-frame prefix");
+    check(interruptedRespiration.status.x == 2u &&
+          inertSuffix.status.x == 2u && inertSuffix.status.w == 1u &&
+          (!std::isfinite(inertSuffix.control.x) ||
+           inertSuffix.control.x < 0.0f || inertSuffix.control.x > 1.0f ||
+           !std::isfinite(inertSuffix.control.y) ||
+           inertSuffix.control.y < 0.0f || inertSuffix.control.y > 1.0f),
+          "latched rejection lost invalid excitation status on inert suffix frame");
+}
+
 void verifySubcyclingAndTransactions(const char* network,
                                     const char* configuration) {
     id<MTLDevice> device = MTLCreateSystemDefaultDevice();
@@ -611,9 +670,11 @@ int main(int argc, const char* argv[]) { @autoreleasepool { try {
     verifySingleSubstepEquivalence(argv[1], argv[2]);
     verifySubcyclingAndTransactions(argv[1], argv[2]);
     verifyRespiratorySubcycling(argv[1], argv[2]);
+    verifyBrainSuffixStatus(argv[1], argv[2]);
     std::cout << "human_gas_transport_subcycling_fixture=passed n1=bitwise "
               << "n_gt_1=positive_conservative rejection_retry=exact "
               << "respiratory_mechanics=fine-step-exact steady_drive=no_chatter "
+              << "brain_suffix=accepted-prefix-exact invalid-inert-status=retained "
               << "cap=fail_closed_32\n";
     return 0;
 } catch (const std::exception& error) {
