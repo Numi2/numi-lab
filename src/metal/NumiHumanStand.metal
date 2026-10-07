@@ -855,7 +855,8 @@ kernel void mr_numi_human_stand_step(
                 MR_NUMI_HUMAN_STAND_RESPONSES_READY |
                 MR_NUMI_HUMAN_STAND_REDUCED_PROJECTED_RESPONSES |
                 MR_NUMI_HUMAN_STAND_REDUCED_SOURCE_UPPER_TRIANGLE |
-                MR_NUMI_HUMAN_STAND_ANALYTIC_BODY_SPATIAL_JACOBIANS
+                MR_NUMI_HUMAN_STAND_ANALYTIC_BODY_SPATIAL_JACOBIANS |
+                MR_NUMI_HUMAN_STAND_COMPENSATED_BODY_SUM
             )) != 0u ||
             ((dispatch.flags & MR_NUMI_HUMAN_STAND_REDUCED_SOURCE_UPPER_TRIANGLE) != 0u &&
              (dispatch.flags & MR_NUMI_HUMAN_STAND_REDUCED_PROJECTED_RESPONSES) == 0u) ||
@@ -1136,6 +1137,9 @@ kernel void mr_numi_human_stand_step(
 
     for (uint row = lane; row < nv; row += threadCount) {
         float value = 0.0f;
+        MRCompensatedScalar bodySum{0.0f, 0.0f};
+        const bool compensated = (dispatch.flags &
+            MR_NUMI_HUMAN_STAND_COMPENSATED_BODY_SUM) != 0u;
         for (uint localBody = 0u; localBody < bodyCount; ++localBody) {
             const uint globalBody = articulation.firstBody + localBody;
             device const MRBodyPropertiesGPU& body = bodies[globalBody];
@@ -1163,8 +1167,13 @@ kernel void mr_numi_human_stand_step(
             const float3 requiredForce =
                 -body.massAndInverseMass.x * world.gravityAndTimestep.xyz +
                 body.dampingAndSpeedLimits.x * linear;
-            value += dot(jw, requiredTorque) + dot(jv, requiredForce);
+            const float contribution =
+                dot(jw, requiredTorque) + dot(jv, requiredForce);
+            if (compensated)
+                bodySum = mrCompensatedAdd(bodySum, {contribution, 0.0f});
+            else value += contribution;
         }
+        if (compensated) value = bodySum.high + bodySum.low;
         device const MRDofPropertiesGPU& dof =
             dofs[articulation.vOffset + row];
         // MyoSim joint damping is passive generalized resistance. The Human
@@ -1206,6 +1215,9 @@ kernel void mr_numi_human_stand_step(
         const uint row = index / nv;
         const uint column = index - row * nv;
         float value = 0.0f;
+        MRCompensatedScalar bodySum{0.0f, 0.0f};
+        const bool compensated = (dispatch.flags &
+            MR_NUMI_HUMAN_STAND_COMPENSATED_BODY_SUM) != 0u;
         for (uint localBody = 0u; localBody < bodyCount; ++localBody) {
             const uint globalBody = articulation.firstBody + localBody;
             device const MRBodyPropertiesGPU& body = bodies[globalBody];
@@ -1231,9 +1243,13 @@ kernel void mr_numi_human_stand_step(
                 spatialJacobianScratch[base + 4u * nv + column],
                 spatialJacobianScratch[base + 5u * nv + column],
             };
-            value += dot(leftAngular, rightInertiaWeighted) +
+            const float contribution = dot(leftAngular, rightInertiaWeighted) +
                 body.massAndInverseMass.x * dot(leftLinear, rightLinear);
+            if (compensated)
+                bodySum = mrCompensatedAdd(bodySum, {contribution, 0.0f});
+            else value += contribution;
         }
+        if (compensated) value = bodySum.high + bodySum.low;
         if (row == column) {
             device const MRDofPropertiesGPU& dof =
                 dofs[articulation.vOffset + row];
@@ -2838,6 +2854,9 @@ kernel void mr_numi_human_stand_mass_assemble(
         MR_NUMI_HUMAN_STAND_SPATIAL_SCRATCH_ROWS * nv;
     const uint inertiaWeightedBase = spatialBase + bodyCount * 6u * nv;
     float value = 0.0f;
+    MRCompensatedScalar bodySum{0.0f, 0.0f};
+    const bool compensated = (dispatch.flags &
+        MR_NUMI_HUMAN_STAND_COMPENSATED_BODY_SUM) != 0u;
     for (uint localBody = 0u; localBody < bodyCount; ++localBody) {
         const uint globalBody = articulation.firstBody + localBody;
         device const MRBodyPropertiesGPU& body = bodies[globalBody];
@@ -2864,9 +2883,13 @@ kernel void mr_numi_human_stand_mass_assemble(
             spatialJacobianScratch[base + 4u * nv + column],
             spatialJacobianScratch[base + 5u * nv + column],
         };
-        value += dot(leftAngular, rightInertiaWeighted) +
+        const float contribution = dot(leftAngular, rightInertiaWeighted) +
             body.massAndInverseMass.x * dot(leftLinear, rightLinear);
+        if (compensated)
+            bodySum = mrCompensatedAdd(bodySum, {contribution, 0.0f});
+        else value += contribution;
     }
+    if (compensated) value = bodySum.high + bodySum.low;
     if (row == column) {
         device const MRDofPropertiesGPU& dof =
             dofs[articulation.vOffset + row];

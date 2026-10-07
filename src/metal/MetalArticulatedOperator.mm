@@ -6415,6 +6415,11 @@ struct MetalBufferRegion {
         dispatch.flags |=
             MR_NUMI_HUMAN_STAND_ANALYTIC_BODY_SPATIAL_JACOBIANS;
     }
+    const char* compensatedBodySum = std::getenv(
+        "NUMI_HUMAN_STAND_COMPENSATED_BODY_SUM");
+    if (compensatedBodySum != nullptr &&
+        std::strcmp(compensatedBodySum, "1") == 0)
+        dispatch.flags |= MR_NUMI_HUMAN_STAND_COMPENSATED_BODY_SUM;
     dispatch.groundPointAndTimestep = {
         input.stand.groundPoint.x,
         input.stand.groundPoint.y,

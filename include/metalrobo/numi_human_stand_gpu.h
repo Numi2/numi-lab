@@ -75,6 +75,8 @@ enum MRNumiHumanStandFlags {
     // The six source spatial-J rows are already present in the first six
     // rows of spatial scratch; retain the existing point-J fallback by default.
     MR_NUMI_HUMAN_STAND_ANALYTIC_BODY_SPATIAL_JACOBIANS = 1u << 20u,
+    // Optional accurate body-ordered reductions; the physical terms are unchanged.
+    MR_NUMI_HUMAN_STAND_COMPENSATED_BODY_SUM = 1u << 21u,
 };
 
 // One source-authored support witness. The point-query index addresses the
