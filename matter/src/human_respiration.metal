@@ -854,8 +854,8 @@ kernel void nm_human_respiration_exchange(
     // volumes, consistent with the circuit's backward-Euler volume balance.
     // No controller, body, circuit, or accepted cursor advances here.
     uint gasSubsteps=1u;
+    float outgoing[21];
     if(kUseGasTransportSubcycling) {
-        float outgoing[21];
         for(uint row=0;row<21;++row) outgoing[row]=0.0f;
         for(uint edge=0;edge<p.topology.w;++edge) {
             const auto con=connections[edge];
@@ -874,12 +874,14 @@ kernel void nm_human_respiration_exchange(
             }
             required=max(required,ceil(dt*outgoing[row]/(0.1f*minimumVolume)));
         }
-        required=max(required,ceil(dt*abs(n.mechanics.w)/(0.1f*p.lung.y)));
-        if(!isfinite(required)||required>32.0f) {
-            n.status.w=4u;statuses[env].code=NM_STATUS_MULTIPHYSICS_FAILURE;
+        const float airwayRequired=ceil(dt*abs(n.mechanics.w)/(0.1f*p.lung.y));
+        if(!isfinite(required)||required>32.0f||
+           !isfinite(airwayRequired)||airwayRequired>32.0f) {
+            n.status.w=(!isfinite(required)||required>32.0f)?4u:6u;
+            statuses[env].code=NM_STATUS_MULTIPHYSICS_FAILURE;
             candidate[env]=n;return;
         }
-        gasSubsteps=uint(required);
+        gasSubsteps=uint(max(required,airwayRequired));
     }
     const float gasDt=dt/float(gasSubsteps);
     float pulmonaryO2=0;
@@ -889,6 +891,18 @@ kernel void nm_human_respiration_exchange(
         const float alpha=float(substep)/float(gasSubsteps);
         float2 delta[21];
         for(uint row=0;row<21;++row) delta[row]=0;
+        // Check the actual rounded aggregate fraction, not just the count
+        // estimate or each individual edge at a branching vascular node.
+        if(kUseGasTransportSubcycling) {
+            for(uint row=0;row<21;++row) {
+                const float before=human_respiration::physical(vascularBefore,unknowns,base,row);
+                const float donorVolume=gasSubsteps==1u?before:mix(before,
+                    human_respiration::physical(vascularAfter,unknowns,base,row),alpha);
+                if(!(donorVolume>0.0f)||gasDt*outgoing[row]>0.1f*donorVolume)
+                    n.status.w=4u;
+            }
+            if(n.status.w) break;
+        }
         float2 alveolarDelta=0;
         const float lungVolume=gasSubsteps==1u?old.mechanics.x:
             mix(old.mechanics.x,n.mechanics.x,alpha);
