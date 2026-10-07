@@ -2232,7 +2232,7 @@ kernel void mr_numi_human_stand_equality_prepare(
         device atomic_uint* statusFlags =
             reinterpret_cast<device atomic_uint*>(&status.flags);
         atomic_fetch_or_explicit(statusFlags,
-            MR_NUMI_HUMAN_STAND_REDUCED_PROJECTION_READY,
+            uint(MR_NUMI_HUMAN_STAND_REDUCED_PROJECTION_READY),
             memory_order_relaxed);
     }
 }
@@ -2694,7 +2694,7 @@ kernel void mr_numi_human_stand_projected_response_cooperative(
                             reinterpret_cast<device atomic_uint*>(
                                 &status.flags);
                         atomic_fetch_or_explicit(statusFlags,
-                            MR_NUMI_HUMAN_STAND_REDUCED_PROJECTION_USED,
+                            uint(MR_NUMI_HUMAN_STAND_REDUCED_PROJECTION_USED),
                             memory_order_relaxed);
                     }
                 }
