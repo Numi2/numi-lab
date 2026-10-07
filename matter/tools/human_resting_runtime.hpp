@@ -24,6 +24,7 @@ struct Respiration {
     id<MTLComputePipelineState> commonCoordinatesSolvePipeline=nil,commonCoordinateStatusPipeline=nil;
     id<MTLBuffer> commonGeometryParameters=nil,commonGeometryBoxes=nil,commonCandidateCoordinates=nil;
     bool commonGeometryGateEnabled=false;
+    bool parallelRespiratoryMuscles=false;
     NMHumanRespirationParameters parameters;
     NMHumanRespirationDispatch dispatch{};
     // Probe-only fault selector. The accepted-step dispatch is copied locally
@@ -50,6 +51,9 @@ struct Respiration {
         };
         const bool subcycle=enabled("NUMI_HUMAN_GAS_TRANSPORT_SUBCYCLING");
         const bool respiratorySubcycle=enabled("NUMI_HUMAN_RESPIRATORY_SUBCYCLING");
+        parallelRespiratoryMuscles=enabled("NUMI_HUMAN_PARALLEL_RESPIRATORY_MUSCLES");
+        need(!parallelRespiratoryMuscles||respiratorySubcycle,
+             "parallel respiratory muscles require respiratory subcycling");
         need(!respiratorySubcycle||subcycle,
              "respiratory subcycling requires gas transport subcycling");
         {
@@ -57,6 +61,7 @@ struct Respiration {
             auto constants=[[MTLFunctionConstantValues alloc] init];
             [constants setConstantValue:&subcycle type:MTLDataTypeBool atIndex:40];
             [constants setConstantValue:&respiratorySubcycle type:MTLDataTypeBool atIndex:41];
+            [constants setConstantValue:&parallelRespiratoryMuscles type:MTLDataTypeBool atIndex:44];
             auto specialized=[&](NSString* name) {
                 auto f=[library newFunctionWithName:name constantValues:constants error:&error];
                 auto result=f?[device newComputePipelineStateWithFunction:f error:&error]:nil;
@@ -65,9 +70,12 @@ struct Respiration {
             };
             predict=specialized(@"nm_human_respiration_predict");
             exchange=specialized(@"nm_human_respiration_exchange");
+            need(!parallelRespiratoryMuscles||exchange.threadExecutionWidth>=2,
+                 "parallel respiratory muscles require at least two SIMD lanes");
         }
         std::cerr<<"resting_gas_transport_subcycling="<<(subcycle?1:0)
                  <<" respiratory_mechanics_subcycling="<<(respiratorySubcycle?1:0)
+                 <<" parallel_respiratory_muscles="<<(parallelRespiratoryMuscles?1:0)
                  <<" maximum_internal_mechanics_dt_s=0.002"
                  <<" maximum_substeps=32 donor_fraction_bound=0.1"
                  <<" physical_controller_clock_substeps=1\n";
@@ -123,8 +131,12 @@ struct Respiration {
             // Exchange must execute before switching this encoder to the
             // common-coordinate solver/status pipelines. This propagates any
             // respiratory candidate failure into the Matter transaction.
-            [enc dispatchThreads:MTLSizeMake(dispatch.environmentCount,1,1)
-                threadsPerThreadgroup:MTLSizeMake(1,1,1)];
+            if(parallelRespiratoryMuscles)
+                [enc dispatchThreadgroups:MTLSizeMake(dispatch.environmentCount,1,1)
+                    threadsPerThreadgroup:MTLSizeMake(exchange.threadExecutionWidth,1,1)];
+            else
+                [enc dispatchThreads:MTLSizeMake(dispatch.environmentCount,1,1)
+                    threadsPerThreadgroup:MTLSizeMake(1,1,1)];
             dispatched = true;
             if(commonGeometryGateEnabled) {
                 [enc memoryBarrierWithScope:MTLBarrierScopeBuffers];
@@ -186,6 +198,10 @@ struct RespiratoryBrain {
             for(std::size_t i=0;i<count;++i){rootProgramIdentity^=p[i];rootProgramIdentity*=1099511628211ull;}
         };
         mix(&body.parameters,sizeof(body.parameters));mix(&parameters,sizeof(parameters));
+        if(body.parallelRespiratoryMuscles) {
+            constexpr char mode[]="numi.respiratory.parallel-muscles.v1";
+            mix(mode,sizeof(mode));
+        }
         if(bodySourceIdentity)mix(&bodySourceIdentity,sizeof(bodySourceIdentity));
         NSData* libraryBytes=[NSData dataWithContentsOfFile:@(NUMI_HUMAN_RESPIRATION_METALLIB)];
         mix(libraryBytes.bytes,libraryBytes.length);

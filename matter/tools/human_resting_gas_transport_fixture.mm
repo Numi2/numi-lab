@@ -105,11 +105,13 @@ struct Rig {
 
 Rig makeRig(const char* network, const char* configuration, float dt,
             bool subcycling, bool respiratorySubcycling = false,
-            VascularProbe* probe = nullptr, bool useBrain = true) {
+            VascularProbe* probe = nullptr, bool useBrain = true,
+            bool parallelMuscles = false) {
     setenv("NUMI_HUMAN_RESTING_TIMESTEP_SENSITIVITY", "1", 1);
     setenv("NUMI_HUMAN_GAS_TRANSPORT_SUBCYCLING", subcycling ? "1" : "0", 1);
     setenv("NUMI_HUMAN_RESPIRATORY_SUBCYCLING",
            respiratorySubcycling ? "1" : "0", 1);
+    setenv("NUMI_HUMAN_PARALLEL_RESPIRATORY_MUSCLES", parallelMuscles ? "1" : "0", 1);
     Rig result;
     result.run = std::make_unique<RestingRun>(network, configuration, dt);
     if (useBrain) result.brain = std::make_unique<RespiratoryBrain>(
@@ -660,10 +662,37 @@ void verifyBoundedCap(RestingRun& run, const VascularProbe& probe) {
     check(std::memcmp(&initial, &stillAccepted, sizeof(initial)) == 0,
           "required>32 candidate mutated its accepted respiration input");
 }
+void verifyParallelRespiratoryMuscles(const char* network,const char* configuration) {
+    auto scalar=makeRig(network,configuration,kSubcyclingDt,true,true,nullptr,false,false);
+    auto parallel=makeRig(network,configuration,kSubcyclingDt,true,true,nullptr,false,true);
+    const nm_float4 drive{0.25f,0.10f,0.0f,0.0f};
+    for(auto* rig:{&scalar,&parallel})
+        std::memcpy(rig->run->respiration->excitation.contents,&drive,sizeof(drive));
+    scalar.run->batch(0u,32u);
+    parallel.run->batch(0u,32u);
+    auto state=[](Rig& rig) {
+        return *static_cast<const NMHumanRespirationState*>(rig.run->respiration->accepted.contents);
+    };
+    const auto reference=state(scalar),actual=state(parallel);
+    check(actual.status.x==32u&&actual.status.w==0u&&
+          std::memcmp(&reference,&actual,sizeof(actual))==0,
+          "parallel respiratory muscle solve changed the complete coupled state");
+    parallel.run->batch(32u,1u,true,32u);
+    const auto rejected=state(parallel);
+    check(std::memcmp(&actual,&rejected,sizeof(actual))==0,
+          "parallel respiratory muscle rejection changed accepted history");
+    parallel.run->respiration->dispatch.reject=0u;
+    scalar.run->batch(32u,1u);
+    parallel.run->batch(32u,1u);
+    const auto referenceRetry=state(scalar),actualRetry=state(parallel);
+    check(std::memcmp(&referenceRetry,&actualRetry,sizeof(actualRetry))==0,
+          "parallel respiratory muscle retry differs from uninterrupted scalar state");
+}
 } // namespace
 
 int main(int argc, const char* argv[]) { @autoreleasepool { try {
     need(argc == 3, "usage: numi-human-gas-transport-fixture NETWORK.json RESPIRATION.json");
+    EnvironmentValue parallelEnv("NUMI_HUMAN_PARALLEL_RESPIRATORY_MUSCLES");
     EnvironmentValue gasEnv("NUMI_HUMAN_GAS_TRANSPORT_SUBCYCLING");
     EnvironmentValue respiratoryEnv("NUMI_HUMAN_RESPIRATORY_SUBCYCLING");
     EnvironmentValue sensitivityEnv("NUMI_HUMAN_RESTING_TIMESTEP_SENSITIVITY");
@@ -671,11 +700,12 @@ int main(int argc, const char* argv[]) { @autoreleasepool { try {
     verifySubcyclingAndTransactions(argv[1], argv[2]);
     verifyRespiratorySubcycling(argv[1], argv[2]);
     verifyBrainSuffixStatus(argv[1], argv[2]);
+    verifyParallelRespiratoryMuscles(argv[1],argv[2]);
     std::cout << "human_gas_transport_subcycling_fixture=passed n1=bitwise "
               << "n_gt_1=positive_conservative rejection_retry=exact "
               << "respiratory_mechanics=fine-step-exact steady_drive=no_chatter "
               << "brain_suffix=accepted-prefix-exact invalid-inert-status=retained "
-              << "cap=fail_closed_32\n";
+              << "parallel_muscles=bitwise-rejection-retry cap=fail_closed_32\n";
     return 0;
 } catch (const std::exception& error) {
     std::cerr << "human_gas_transport_subcycling_fixture=failed reason="

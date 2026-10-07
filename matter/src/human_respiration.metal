@@ -16,6 +16,14 @@ constant bool kRespiratorySubcycling [[function_constant(41)]];
 constant bool kUseRespiratorySubcycling =
     is_function_constant_defined(kRespiratorySubcycling) ? kRespiratorySubcycling : false;
 
+// Two independent MyoSim respiratory actuators share one SIMD group. The
+// remainder of the candidate is identical in every lane and lane zero alone
+// publishes it, so accepted state and failure ownership remain unchanged.
+constant bool kParallelRespiratoryMuscles [[function_constant(44)]];
+constant bool kUseParallelRespiratoryMuscles =
+    is_function_constant_defined(kParallelRespiratoryMuscles)
+        ? kParallelRespiratoryMuscles : false;
+
 inline float3 restingRotate(float4 q,float3 v) {
     return v+2.0f*cross(q.xyz,cross(q.xyz,v)+q.w*v);
 }
@@ -781,28 +789,63 @@ inline float physical(device const float4* values,
 }
 }
 
+struct NMRespiratoryMuscleCandidate {
+    float4 state;
+    float pressure;
+    uint failure;
+};
+
+inline NMRespiratoryMuscleCandidate evaluateHumanRespiratoryMuscle(
+    thread const NMHumanRespirationState& n,
+    constant NMHumanRespirationParameters& p, const float dt, const uint m) {
+    auto muscle=p.muscles[m];
+    auto state=n.muscles[m];
+    float excitation=n.control[m];
+    NMRespiratoryMuscleCandidate result{state.excitationAndActivation,0.0f,0u};
+    if (!isfinite(excitation) || excitation<0 || excitation>1) {
+        result.failure=1u;return result;
+    }
+    float a=state.excitationAndActivation.y;
+    float derivative=activationDerivative(muscle,excitation,a);
+    float tau=derivative!=0 ? (excitation-a)/derivative : 1;
+    float nextA=excitation-(excitation-a)*exp(-dt/tau);
+    const float area=p.geometry[m+2];
+    const float path=muscle.compliantArchitecture0.x+muscle.compliantArchitecture0.y-n.motion[m]/area;
+    float fibre,velocity,tension,residual;
+    if (!solveCompliantFiber(path,-n.motion[m+2]/area,dt,nextA,state,muscle,
+                             fibre,velocity,tension,residual) || abs(residual)>1.e-3f) {
+        result.failure=2u;return result;
+    }
+    result.state=float4(excitation,nextA,fibre,velocity);
+    result.pressure=tension*forceScale(muscle.gainParameters,muscle.lengthRangeAndAcceleration.z)/area;
+    return result;
+}
+
 inline void advanceHumanRespiratoryMechanics(
     thread NMHumanRespirationState& n,
-    constant NMHumanRespirationParameters& p, const float dt, const bool reject) {
+    constant NMHumanRespirationParameters& p, const float dt, const bool reject,
+    const uint lane=0u, const bool cooperative=false) {
     float2 pressure=0;
-    for(uint m=0; m<2; ++m) {
-        auto muscle=p.muscles[m];
-        auto state=n.muscles[m];
-        float excitation=n.control[m];
-        if (!isfinite(excitation) || excitation<0 || excitation>1) {n.status.w=1;break;}
-        float a=state.excitationAndActivation.y;
-        float derivative=activationDerivative(muscle,excitation,a);
-        float tau=derivative!=0 ? (excitation-a)/derivative : 1;
-        float nextA=excitation-(excitation-a)*exp(-dt/tau);
-        const float area=p.geometry[m+2];
-        const float path=muscle.compliantArchitecture0.x+muscle.compliantArchitecture0.y-n.motion[m]/area;
-        float fibre,velocity,tension,residual;
-        if (!solveCompliantFiber(path,-n.motion[m+2]/area,dt,nextA,state,muscle,
-                                 fibre,velocity,tension,residual) || abs(residual)>1.e-3f) {
-            n.status.w=2;break;
+    if (cooperative) {
+        NMRespiratoryMuscleCandidate pair{float4(0.0f),0.0f,0u};
+        if (lane<2u) pair=evaluateHumanRespiratoryMuscle(n,p,dt,lane);
+        // Preserve first-failure precedence and each actuator's publication
+        // order, including the case where only the second actuator fails.
+        for(uint m=0u;m<2u;++m) {
+            const uint failure=simd_broadcast(pair.failure,m);
+            const float4 state=simd_broadcast(pair.state,m);
+            const float force=simd_broadcast(pair.pressure,m);
+            if(failure) {n.status.w=failure;break;}
+            n.muscles[m].excitationAndActivation=state;
+            pressure[m]=force;
         }
-        n.muscles[m].excitationAndActivation=float4(excitation,nextA,fibre,velocity);
-        pressure[m]=tension*forceScale(muscle.gainParameters,muscle.lengthRangeAndAcceleration.z)/area;
+    } else {
+        for(uint m=0u;m<2u;++m) {
+            const auto result=evaluateHumanRespiratoryMuscle(n,p,dt,m);
+            if(result.failure) {n.status.w=result.failure;break;}
+            n.muscles[m].excitationAndActivation=result.state;
+            pressure[m]=result.pressure;
+        }
     }
     // Backward Euler for two muscle-driven thoracic volume coordinates.
     // Lung recoil and mouth resistance act on their sum, giving a symmetric
@@ -864,7 +907,11 @@ kernel void nm_human_respiration_exchange(
     device NMMatterStatusGPU* statuses [[buffer(8)]],
     device const NMVascularCompartmentGPU* compartments [[buffer(9)]],
     device const float* elastance [[buffer(10)]],
-    uint env [[thread_position_in_grid]]) {
+    uint globalIndex [[thread_position_in_grid]],
+    uint lane [[thread_index_in_simdgroup]],
+    uint simdWidth [[threads_per_simdgroup]]) {
+    const uint env=kUseParallelRespiratoryMuscles?globalIndex/simdWidth:globalIndex;
+    const bool publish=!kUseParallelRespiratoryMuscles||lane==0u;
     if(env>=d.environmentCount) return;
     NMHumanRespirationState n=candidate[env];
     if(statuses[env].code!=NM_STATUS_SUCCESS) return;
@@ -891,8 +938,9 @@ kernel void nm_human_respiration_exchange(
             const float after=human_respiration::physical(vascularAfter,unknowns,base,row);
             const float minimumVolume=min(before,after);
             if(!(minimumVolume>0.0f)||!isfinite(outgoing[row])) {
-                n.status.w=4u;statuses[env].code=NM_STATUS_MULTIPHYSICS_FAILURE;
-                candidate[env]=n;return;
+                n.status.w=4u;
+                if(publish) {statuses[env].code=NM_STATUS_MULTIPHYSICS_FAILURE;candidate[env]=n;}
+                return;
             }
             required=max(required,ceil(dt*outgoing[row]/(0.1f*minimumVolume)));
         }
@@ -900,8 +948,8 @@ kernel void nm_human_respiration_exchange(
         if(!isfinite(required)||required>32.0f||
            !isfinite(airwayRequired)||airwayRequired>32.0f) {
             n.status.w=(!isfinite(required)||required>32.0f)?4u:6u;
-            statuses[env].code=NM_STATUS_MULTIPHYSICS_FAILURE;
-            candidate[env]=n;return;
+            if(publish) {statuses[env].code=NM_STATUS_MULTIPHYSICS_FAILURE;candidate[env]=n;}
+            return;
         }
         gasSubsteps=uint(max(required,airwayRequired));
     }
@@ -915,7 +963,7 @@ kernel void nm_human_respiration_exchange(
         const float mechanicsStartVolume=n.mechanics.x;
         if(kUseRespiratorySubcycling) {
             if(n.status.w) break;
-            advanceHumanRespiratoryMechanics(n,p,gasDt,false);
+            advanceHumanRespiratoryMechanics(n,p,gasDt,false,lane,kUseParallelRespiratoryMuscles);
             if(n.status.w) break;
             n.breath.x=max(n.breath.x,n.mechanics.x);
             n.breath.y=min(n.breath.y,n.mechanics.x);
@@ -1105,8 +1153,10 @@ kernel void nm_human_respiration_exchange(
     if(!all(isfinite(n.observation))||!all(isfinite(n.alveolarGas))||
        any(n.alveolarGas.xy<0)||any(n.deadSpaceGas.xy<0)||
        maxAirwayTransport>0.1f*p.lung.y*p.environment.z) n.status.w=6;
-    if(n.status.w) {statuses[env].code=NM_STATUS_MULTIPHYSICS_FAILURE;}
-    candidate[env]=n;
+    if(publish) {
+        if(n.status.w) statuses[env].code=NM_STATUS_MULTIPHYSICS_FAILURE;
+        candidate[env]=n;
+    }
 }
 
 kernel void nm_human_respiration_resolve(
