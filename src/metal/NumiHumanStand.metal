@@ -79,6 +79,12 @@ constant bool kDeferredStandEqualityDiagnostics
 constant bool kUseDeferredStandEqualityDiagnostics =
     is_function_constant_defined(kDeferredStandEqualityDiagnostics)
         ? kDeferredStandEqualityDiagnostics : false;
+// Opt-in read-only per-limit-column attribution. Undefined/false leaves the
+// ordinary projected-response pipeline and argument layout unchanged.
+constant bool kReducedResponseDiagnostics [[function_constant(11)]];
+constant bool kUseReducedResponseDiagnostics =
+    is_function_constant_defined(kReducedResponseDiagnostics)
+        ? kReducedResponseDiagnostics : false;
 inline float standContactAdmissionDistanceMeters(
     const MRNumiHumanStandContactGPU support
 ) {
@@ -2687,6 +2693,7 @@ kernel void mr_numi_human_stand_projected_response_cooperative(
     device const MRNumiHumanJointEqualityGPU* jointEqualities [[buffer(20)]],
     device const float4* pointPositionLow [[buffer(23)]],
     device const uint* sparseGraph [[buffer(28), function_constant(kUseSparseStandOperator)]],
+    device uint* reducedResponseDiagnostics [[buffer(29), function_constant(kUseReducedResponseDiagnostics)]],
     uint3 group [[threadgroup_position_in_grid]],
     uint lane [[thread_index_in_threadgroup]],
     uint3 groupSize [[threads_per_threadgroup]]
@@ -2824,7 +2831,13 @@ kernel void mr_numi_human_stand_projected_response_cooperative(
     threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
 
     bool useReducedResponse = false;
+    bool diagnosticAttempted = false;
+    bool diagnosticWeakFallback = false;
+    bool diagnosticOtherFallback = false;
+    float diagnosticReducedDiagonal = 0.0f;
     if (reducedResponseRequested && projectEquality && !projectedRawReady) {
+        if (kUseReducedResponseDiagnostics && !contactColumn)
+            diagnosticAttempted = true;
         const uint legacyStride = standLegacyResponseStride(
             nv, dispatch.supportContactCount, equalityCount);
         device float* reducedArena =
@@ -2902,8 +2915,12 @@ kernel void mr_numi_human_stand_projected_response_cooperative(
                 threadgroup_barrier(mem_flags::mem_threadgroup);
                 if (atomic_load_explicit(&reducedFailure,
                         memory_order_relaxed) == 0u) {
+                    if (!contactColumn)
+                        diagnosticReducedDiagonal = reducedLift[limitDof];
                     if (!contactColumn &&
                         !(reducedLift[limitDof] > 1.0e-6f * rawDiagonal)) {
+                        if (kUseReducedResponseDiagnostics)
+                            diagnosticWeakFallback = true;
                         for (uint dof = lane; dof < nv; dof += threadCount)
                             reducedLift[dof] = rawResponse[dof];
                         for (uint row = lane; row < equalityCount;
@@ -2928,8 +2945,14 @@ kernel void mr_numi_human_stand_projected_response_cooperative(
                             uint(MR_NUMI_HUMAN_STAND_REDUCED_PROJECTION_USED),
                             memory_order_relaxed);
                     }
+                } else if (kUseReducedResponseDiagnostics && !contactColumn) {
+                    diagnosticOtherFallback = true;
                 }
+            } else if (kUseReducedResponseDiagnostics && !contactColumn) {
+                diagnosticOtherFallback = true;
             }
+        } else if (kUseReducedResponseDiagnostics && !contactColumn) {
+            diagnosticOtherFallback = true;
         }
     }
 
@@ -3011,6 +3034,20 @@ kernel void mr_numi_human_stand_projected_response_cooperative(
     }
     threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
     if (conditionValid == 0u) return;
+    if (kUseReducedResponseDiagnostics && lane == 0u && !contactColumn &&
+        projectEquality && reducedResponseRequested && !projectedRawReady) {
+        const uint diagnosticBase =
+            (environment * nv + limitDof) * 4u;
+        reducedResponseDiagnostics[diagnosticBase + 0u] = as_type<uint>(rawDiagonal);
+        reducedResponseDiagnostics[diagnosticBase + 1u] =
+            as_type<uint>(diagnosticReducedDiagonal);
+        reducedResponseDiagnostics[diagnosticBase + 2u] = 1u |
+            (diagnosticAttempted ? 2u : 0u) |
+            (useReducedResponse && !diagnosticWeakFallback ? 4u : 0u) |
+            (diagnosticWeakFallback ? 8u : 0u) |
+            (diagnosticOtherFallback ? 16u : 0u);
+        reducedResponseDiagnostics[diagnosticBase + 3u] = 0u;
+    }
     for (uint dof = lane; dof < nv; dof += threadCount)
         response[dof] = rhs[dof];
 }

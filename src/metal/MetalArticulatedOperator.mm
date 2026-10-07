@@ -711,6 +711,8 @@ struct MetalArticulatedOperatorContextState {
         }
         finishCounterRoots =
             humanDiagnosticRoots("NUMI_HUMAN_STAND_FINISH_COUNTER_ROOTS");
+        reducedResponseDiagnosticRoots = humanDiagnosticRoots(
+            "NUMI_HUMAN_STAND_REDUCED_RESPONSE_DIAGNOSTIC_ROOTS");
     }
     ~MetalArticulatedOperatorContextState();
 
@@ -721,6 +723,7 @@ struct MetalArticulatedOperatorContextState {
     bool sparseCaptureEncoded = false;
     __strong id<MTLBuffer> sparseCaptureBuffer = nil;
     std::vector<std::uint32_t> finishCounterRoots;
+    std::vector<std::uint32_t> reducedResponseDiagnosticRoots;
     mutable std::mutex mutex;
     bool initialized = false;
     bool inFlight = false;
@@ -749,6 +752,7 @@ struct MetalArticulatedOperatorContextState {
     __strong id<MTLComputePipelineState> standResponsePipeline = nil;
     __strong id<MTLComputePipelineState> standEqualityPipeline = nil;
     __strong id<MTLComputePipelineState> standProjectedResponsePipeline = nil;
+    __strong id<MTLComputePipelineState> standProjectedResponseDiagnosticPipeline = nil;
     __strong id<MTLComputePipelineState> standFinishPipeline = nil;
     __strong id<MTLComputePipelineState> standCachedFinishPipeline = nil;
     __strong id<MTLComputePipelineState> standFinishCounterPipeline = nil;
@@ -4090,6 +4094,7 @@ MetalArticulatedOperatorDiagnostics initializeContext(
     id<MTLComputePipelineState> standResponsePipeline = nil;
     id<MTLComputePipelineState> standEqualityPipeline = nil;
     id<MTLComputePipelineState> standProjectedResponsePipeline = nil;
+    id<MTLComputePipelineState> standProjectedResponseDiagnosticPipeline = nil;
     id<MTLComputePipelineState> standFinishPipeline = nil;
     id<MTLComputePipelineState> standCachedFinishPipeline = nil;
     id<MTLComputePipelineState> standFinishCounterPipeline = nil;
@@ -4152,10 +4157,22 @@ MetalArticulatedOperatorDiagnostics initializeContext(
                 "failed to create Numi Human equality preparation pipeline: " +
                     describeError(error));
         }
+        MTLFunctionConstantValues* projectedResponseConstants =
+            [[MTLFunctionConstantValues alloc] init];
+        [projectedResponseConstants setConstantValue:&sparseOperator
+                                                type:MTLDataTypeBool atIndex:2u];
+        [projectedResponseConstants setConstantValue:
+            &speculativeContactAdmissionDistanceMeters
+            type:MTLDataTypeFloat atIndex:8u];
+        [projectedResponseConstants setConstantValue:
+            &deferStandEqualityDiagnostics type:MTLDataTypeBool atIndex:9u];
+        bool reducedResponseDiagnosticsEnabled = false;
+        [projectedResponseConstants setConstantValue:
+            &reducedResponseDiagnosticsEnabled type:MTLDataTypeBool atIndex:11u];
         id<MTLFunction> standProjectedResponseFunction = [library
             newFunctionWithName:
                 @"mr_numi_human_stand_projected_response_cooperative"
-                constantValues:operatorConstants error:&error];
+                constantValues:projectedResponseConstants error:&error];
         error = nil;
         standProjectedResponsePipeline = standProjectedResponseFunction == nil
             ? nil : [device newComputePipelineStateWithFunction:
@@ -4167,6 +4184,37 @@ MetalArticulatedOperatorDiagnostics initializeContext(
                 MetalArticulatedOperatorHostStatus::metalPipelineFailure,
                 "failed to create Numi Human projected response pipeline: " +
                     describeError(error));
+        }
+        if (context.config.reducedStandProjectedResponses &&
+            !context.reducedResponseDiagnosticRoots.empty()) {
+            MTLFunctionConstantValues* diagnosticConstants =
+                [[MTLFunctionConstantValues alloc] init];
+            [diagnosticConstants setConstantValue:&sparseOperator
+                                             type:MTLDataTypeBool atIndex:2u];
+            [diagnosticConstants setConstantValue:
+                &speculativeContactAdmissionDistanceMeters
+                type:MTLDataTypeFloat atIndex:8u];
+            [diagnosticConstants setConstantValue:
+                &deferStandEqualityDiagnostics type:MTLDataTypeBool atIndex:9u];
+            bool diagnosticsEnabled = true;
+            [diagnosticConstants setConstantValue:&diagnosticsEnabled
+                                             type:MTLDataTypeBool atIndex:11u];
+            error = nil;
+            id<MTLFunction> diagnosticFunction = [library
+                newFunctionWithName:
+                    @"mr_numi_human_stand_projected_response_cooperative"
+                constantValues:diagnosticConstants error:&error];
+            standProjectedResponseDiagnosticPipeline = diagnosticFunction == nil
+                ? nil : [device newComputePipelineStateWithFunction:
+                    diagnosticFunction error:&error];
+            if (standProjectedResponseDiagnosticPipeline == nil ||
+                standProjectedResponseDiagnosticPipeline.maxTotalThreadsPerThreadgroup <
+                    kStandResponseThreadsPerThreadgroup) {
+                return reject(std::move(diagnostics),
+                    MetalArticulatedOperatorHostStatus::metalPipelineFailure,
+                    "failed to create reduced-response column diagnostics pipeline: " +
+                        describeError(error));
+            }
         }
         MTLFunctionConstantValues* finishConstants =
             [[MTLFunctionConstantValues alloc] init];
@@ -4392,6 +4440,8 @@ MetalArticulatedOperatorDiagnostics initializeContext(
     context.standEqualityPipeline = standEqualityPipeline;
     context.standProjectedResponsePipeline =
         standProjectedResponsePipeline;
+    context.standProjectedResponseDiagnosticPipeline =
+        standProjectedResponseDiagnosticPipeline;
     context.standFinishPipeline = standFinishPipeline;
     context.standCachedFinishPipeline = standCachedFinishPipeline;
     context.standFinishCounterPipeline = standFinishCounterPipeline;
@@ -13680,6 +13730,13 @@ MetalArticulatedOperatorContext::submit(
                         parallelMass && input.environmentCount == 1u &&
                         authoritativeStep == state_->sparseCaptureRoot &&
                         !state_->sparseCapturePath.empty();
+                    const bool sampleReducedResponseDiagnostics =
+                        parallelMass && reducedProjectedResponses && phase == 5u &&
+                        state_->standProjectedResponseDiagnosticPipeline != nil &&
+                        std::binary_search(
+                            state_->reducedResponseDiagnosticRoots.begin(),
+                            state_->reducedResponseDiagnosticRoots.end(),
+                            authoritativeStep);
                     const NSUInteger sparseMatrixBytes =
                         NSUInteger(articulation.nv) * articulation.nv * sizeof(float);
                     const NSUInteger sparseResponseBytes =
@@ -13704,6 +13761,22 @@ MetalArticulatedOperatorContext::submit(
                         !oneHandoff && phase == standPhaseCount - 1u &&
                         std::binary_search(state_->finishCounterRoots.begin(),
                             state_->finishCounterRoots.end(), authoritativeStep);
+                    id<MTLBuffer> reducedResponseDiagnosticBuffer = nil;
+                    if (sampleReducedResponseDiagnostics) {
+                        const NSUInteger diagnosticBytes =
+                            static_cast<NSUInteger>(input.environmentCount) *
+                            articulation.nv * 4u * sizeof(std::uint32_t);
+                        reducedResponseDiagnosticBuffer = [state_->device
+                            newBufferWithLength:diagnosticBytes
+                            options:MTLResourceStorageModeShared];
+                        if (reducedResponseDiagnosticBuffer == nil ||
+                            reducedResponseDiagnosticBuffer.contents == nullptr)
+                            return reject(std::move(diagnostics),
+                                MetalArticulatedOperatorHostStatus::metalBufferFailure,
+                                "failed to allocate reduced-response column diagnostics");
+                        std::memset(reducedResponseDiagnosticBuffer.contents, 0,
+                                    reducedResponseDiagnosticBuffer.length);
+                    }
                     id<MTLBuffer> finishWorkBuffer = nil;
                     if (sampleFinishWork) {
                         finishWorkBuffer = [state_->device newBufferWithLength:
@@ -13753,7 +13826,9 @@ MetalArticulatedOperatorContext::submit(
                             : parallelMass && phase == 4u
                                 ? state_->standEqualityPipeline
                             : parallelMass && phase == 5u
-                                ? state_->standProjectedResponsePipeline
+                                ? (sampleReducedResponseDiagnostics
+                                    ? state_->standProjectedResponseDiagnosticPipeline
+                                    : state_->standProjectedResponsePipeline)
                             : splitStand &&
                                 (phase == standPhaseCount - 1u ||
                                  (freeSplit && phase == 6u))
@@ -13769,6 +13844,9 @@ MetalArticulatedOperatorContext::submit(
                         [standEncoder setBuffer:
                             state_->standBuffers[kStandSparseGraphBuffer]
                             offset:0u atIndex:28u];
+                    if (sampleReducedResponseDiagnostics)
+                        [standEncoder setBuffer:reducedResponseDiagnosticBuffer
+                            offset:0u atIndex:29u];
                     if (cachedFinish)
                         [standEncoder setBuffer:
                             state_->standBuffers[kStandLimitEqualityResponseBuffer]
@@ -13867,6 +13945,45 @@ MetalArticulatedOperatorContext::submit(
                                 1u, 1u)];
                     }
                     [standEncoder endEncoding];
+                    if (sampleReducedResponseDiagnostics) {
+                        const auto environments = input.environmentCount;
+                        const auto nv = articulation.nv;
+                        const auto root = authoritativeStep;
+                        id<MTLBuffer> captured = reducedResponseDiagnosticBuffer;
+                        [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> finished) {
+                            if (finished.status != MTLCommandBufferStatusCompleted) return;
+                            const auto* values = static_cast<const std::uint32_t*>(
+                                captured.contents);
+                            std::uint32_t active = 0u, attempted = 0u;
+                            std::uint32_t reduced = 0u, weakFallback = 0u;
+                            std::uint32_t otherFallback = 0u;
+                            for (std::uint32_t environment = 0u;
+                                 environment < environments; ++environment) {
+                                for (std::uint32_t dof = 0u; dof < nv; ++dof) {
+                                    const std::size_t base =
+                                        (static_cast<std::size_t>(environment) * nv + dof) * 4u;
+                                    const std::uint32_t flags = values[base + 2u];
+                                    if ((flags & 1u) == 0u) continue;
+                                    float rawDiagonal = 0.0f, reducedDiagonal = 0.0f;
+                                    std::memcpy(&rawDiagonal, &values[base + 0u], sizeof(float));
+                                    std::memcpy(&reducedDiagonal, &values[base + 1u], sizeof(float));
+                                    ++active;
+                                    if ((flags & 2u) != 0u) ++attempted;
+                                    if ((flags & 4u) != 0u) ++reduced;
+                                    if ((flags & 8u) != 0u) ++weakFallback;
+                                    if ((flags & 16u) != 0u) ++otherFallback;
+                                    std::fprintf(stderr,
+                                        "human_stand_reduced_response_column root=%u environment=%u dof=%u raw_diagonal=%.9g reduced_diagonal=%.9g used_reduced=%u weak_fallback=%u other_fallback=%u\n",
+                                        root, environment, dof, rawDiagonal, reducedDiagonal,
+                                        (flags & 4u) != 0u, (flags & 8u) != 0u,
+                                        (flags & 16u) != 0u);
+                                }
+                            }
+                            std::fprintf(stderr,
+                                "human_stand_reduced_response_columns root=%u active=%u attempted=%u used_reduced=%u weak_fallback=%u other_fallback=%u\n",
+                                root, active, attempted, reduced, weakFallback, otherFallback);
+                        }];
+                    }
                     if (sampleFinishWork) {
                         const auto environments = input.environmentCount;
                         const auto root = authoritativeStep;
