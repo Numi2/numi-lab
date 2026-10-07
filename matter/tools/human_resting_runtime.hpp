@@ -26,6 +26,10 @@ struct Respiration {
     bool commonGeometryGateEnabled=false;
     NMHumanRespirationParameters parameters;
     NMHumanRespirationDispatch dispatch{};
+    // Probe-only fault selector. The accepted-step dispatch is copied locally
+    // for each callback; this selector never mutates persistent dispatch or
+    // accepted controller history and is inert unless explicitly set.
+    std::uint32_t diagnosticRejectAtControlStep = NM_INVALID_INDEX;
     std::function<bool(AcceptedStepExtensionPhase,const AcceptedStepExtensionView&)> brain;
     explicit Respiration(id<MTLDevice> dev,const CompiledWorld& world,const char* config,float dt):device(dev) {
         parameters=readRespirationParameters(config,dt);
@@ -81,6 +85,9 @@ struct Respiration {
         if(v.microtickCount!=1||v.environmentCount!=dispatch.environmentCount||v.vascularStateStride!=45||
            v.microstepTimestepSeconds!=parameters.environment.w) return false;
         if(brain&&!brain(phase,v)) return false;
+        NMHumanRespirationDispatch stepDispatch = dispatch;
+        if(diagnosticRejectAtControlStep != NM_INVALID_INDEX)
+            stepDispatch.reject = v.controlStep == diagnosticRejectAtControlStep ? 1u : 0u;
         id<MTLCommandBuffer> cb=(__bridge id<MTLCommandBuffer>)v.commandBuffer;
         if(phase==AcceptedStepExtensionPhase::microstepComplete) return true;
         const char* stage=phase==AcceptedStepExtensionPhase::frameBegin?"respiratory_mechanics":
@@ -90,7 +97,7 @@ struct Respiration {
         if(phase==AcceptedStepExtensionPhase::frameBegin) {
             [enc setComputePipelineState:predict];
             [enc setBytes:&parameters length:sizeof(parameters) atIndex:0];
-            [enc setBytes:&dispatch length:sizeof(dispatch) atIndex:1];
+            [enc setBytes:&stepDispatch length:sizeof(dispatch) atIndex:1];
             [enc setBuffer:accepted offset:0 atIndex:2];
             [enc setBuffer:candidate offset:0 atIndex:3];
             [enc setBuffer:excitation offset:0 atIndex:4];
@@ -103,7 +110,7 @@ struct Respiration {
             }
             [enc setComputePipelineState:exchange];
             [enc setBytes:&parameters length:sizeof(parameters) atIndex:0];
-            [enc setBytes:&dispatch length:sizeof(dispatch) atIndex:1];
+            [enc setBytes:&stepDispatch length:sizeof(dispatch) atIndex:1];
             [enc setBuffer:accepted offset:0 atIndex:2];
             [enc setBuffer:candidate offset:0 atIndex:3];
             [enc setBuffer:buffer(v.vascularAccepted) offset:0 atIndex:4];
@@ -137,7 +144,7 @@ struct Respiration {
             }
         } else if(phase==AcceptedStepExtensionPhase::frameComplete) {
             [enc setComputePipelineState:resolve];
-            [enc setBytes:&dispatch length:sizeof(dispatch) atIndex:0];
+            [enc setBytes:&stepDispatch length:sizeof(dispatch) atIndex:0];
             [enc setBuffer:candidate offset:0 atIndex:1];
             [enc setBuffer:accepted offset:0 atIndex:2];
             [enc setBuffer:buffer(v.matterStatuses) offset:0 atIndex:3];

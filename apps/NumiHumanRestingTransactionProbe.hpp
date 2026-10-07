@@ -265,6 +265,21 @@ struct PhysicalSnapshot {
     return snapshot;
 }
 
+inline void readPhysicalSnapshotBuffers(PhysicalSnapshot& snapshot) {
+    snapshot.rootValues.resize(snapshot.rootCount);
+    snapshot.qValues.resize(snapshot.qCount);
+    snapshot.vValues.resize(snapshot.vCount);
+    snapshot.muscleValues.resize(snapshot.muscleCount);
+    std::memcpy(snapshot.rootValues.data(), snapshot.roots.contents,
+                snapshot.rootValues.size() * sizeof(snapshot.rootValues.front()));
+    std::memcpy(snapshot.qValues.data(), snapshot.q.contents,
+                snapshot.qValues.size() * sizeof(float));
+    std::memcpy(snapshot.vValues.data(), snapshot.v.contents,
+                snapshot.vValues.size() * sizeof(float));
+    std::memcpy(snapshot.muscleValues.data(), snapshot.muscles.contents,
+                snapshot.muscleValues.size() * sizeof(snapshot.muscleValues.front()));
+}
+
 [[nodiscard]] inline bool samePhysicalState(
     const PhysicalSnapshot& first,
     const PhysicalSnapshot& second
@@ -284,6 +299,77 @@ struct PhysicalSnapshot {
         first.physicsSubstep == second.physicsSubstep &&
         sameBytes(first.vascularState, second.vascularState) &&
         sameBytes(first.vascularClock, second.vascularClock);
+}
+
+// Compare continuation-authoritative Matter state, omitting completion status
+// and solver certificates that may describe the rejected attempt itself.
+[[nodiscard]] inline bool sameMatterAcceptedState(
+    const RuntimeStateSnapshot& first,
+    const RuntimeStateSnapshot& second
+) noexcept {
+    return first.available && second.available &&
+        first.sourcePhysicsFingerprint == second.sourcePhysicsFingerprint &&
+        first.deviceProgramFingerprint == second.deviceProgramFingerprint &&
+        first.controlStep == second.controlStep &&
+        first.physicsSubstep == second.physicsSubstep &&
+        first.identificationGeneration == second.identificationGeneration &&
+        first.identificationCheckpoint == second.identificationCheckpoint &&
+        first.identificationAdvanced == second.identificationAdvanced &&
+        sameBytes(first.sutureProxyEdges, second.sutureProxyEdges) &&
+        first.sutureProxyBindingRevision == second.sutureProxyBindingRevision &&
+        first.coupledTimestepMultiplier == second.coupledTimestepMultiplier &&
+        first.coupledTimestepDivisor == second.coupledTimestepDivisor &&
+        first.fgmresIterationBudgetOverride == second.fgmresIterationBudgetOverride &&
+        first.newtonIterationBudgetOverride == second.newtonIterationBudgetOverride &&
+        sameBytes(first.particles, second.particles) &&
+        sameBytes(first.femNodes, second.femNodes) &&
+        sameBytes(first.femFields, second.femFields) &&
+        sameBytes(first.vascularState, second.vascularState) &&
+        sameBytes(first.vascularClock, second.vascularClock) &&
+        sameBytes(first.femTopologyNodes, second.femTopologyNodes) &&
+        sameBytes(first.femTopologyTetrahedra, second.femTopologyTetrahedra) &&
+        sameBytes(first.cohesiveFaces, second.cohesiveFaces) &&
+        sameBytes(first.punctureChannels, second.punctureChannels) &&
+        sameBytes(first.topologyStates, second.topologyStates) &&
+        first.allocationGeneration == second.allocationGeneration &&
+        sameBytes(first.mpmActiveNodeIndices, second.mpmActiveNodeIndices) &&
+        sameBytes(first.mpmNodeToActive, second.mpmNodeToActive) &&
+        sameBytes(first.mpmActiveNodeCounts, second.mpmActiveNodeCounts) &&
+        sameBytes(first.rigidGeneralizedCandidate, second.rigidGeneralizedCandidate) &&
+        sameBytes(first.learnedWeights, second.learnedWeights) &&
+        first.learnedWeightRevision == second.learnedWeightRevision &&
+        sameBytes(first.adaptive, second.adaptive) &&
+        sameBytes(first.schedulers, second.schedulers) &&
+        sameBytes(first.reactions, second.reactions) &&
+        sameBytes(first.rigidStates, second.rigidStates) &&
+        sameBytes(first.contactHistories, second.contactHistories) &&
+        sameBytes(first.humanSupportHistories, second.humanSupportHistories) &&
+        sameBytes(first.humanSupportConsequences, second.humanSupportConsequences) &&
+        sameBytes(first.deformableContactHistories, second.deformableContactHistories) &&
+        first.materialStateStride == second.materialStateStride &&
+        sameBytes(first.particleMaterialState, second.particleMaterialState) &&
+        sameBytes(first.femMaterialState, second.femMaterialState) &&
+        sameBytes(first.identification, second.identification) &&
+        sameBytes(first.environmentParameters, second.environmentParameters);
+}
+
+[[nodiscard]] inline bool sameAcceptedCouplingMemory(
+    const CouplingMemoryImage& first,
+    const CouplingMemoryImage& second
+) noexcept {
+    return sameBytes(first.respirationAccepted, second.respirationAccepted) &&
+        sameBytes(first.brainAccepted, second.brainAccepted) &&
+        sameBytes(first.presentationBodies, second.presentationBodies) &&
+        sameBytes(first.presentationRespiration, second.presentationRespiration) &&
+        sameBytes(first.presentationCommonCoordinates,
+                  second.presentationCommonCoordinates) &&
+        sameBytes(first.acceptedCommonCoordinates,
+                  second.acceptedCommonCoordinates) &&
+        sameBytes(first.presentationFrameCommonCoordinates,
+                  second.presentationFrameCommonCoordinates) &&
+        first.commonAcceptedCoordinatesInitialized ==
+            second.commonAcceptedCoordinatesInitialized &&
+        first.presentedStep == second.presentedStep;
 }
 
 inline void requireAcceptedStep(
@@ -319,6 +405,14 @@ inline void run(
     const RuntimeStateSnapshot originalMatter = physiology.runtime.snapshot();
     need(originalMatter.available, "resting rejection probe lacks an initial Matter snapshot");
     const auto originalDispatch = respiration.dispatch;
+    const auto originalDiagnosticReject = respiration.diagnosticRejectAtControlStep;
+    __strong id<MTLBuffer> originalProbeRoots = coupling.transactionProbeRoots;
+    __strong id<MTLBuffer> originalProbeQ = coupling.transactionProbeQ;
+    __strong id<MTLBuffer> originalProbeV = coupling.transactionProbeV;
+    __strong id<MTLBuffer> originalProbeMuscles = coupling.transactionProbeMuscles;
+    const auto originalProbeCaptureStep = coupling.transactionProbeCaptureControlStep;
+    const bool originalProbeCaptured = coupling.transactionProbeCaptured;
+    const auto originalProbeCapturedStep = coupling.transactionProbeCapturedStep;
     respiration.dispatch.reject = 0u;
 
     auto restoreInitialCoupling = [&]() {
@@ -327,6 +421,14 @@ inline void run(
              restored.message);
         restoreCouplingMemory(coupling, originalMemory);
         respiration.dispatch = originalDispatch;
+        respiration.diagnosticRejectAtControlStep = originalDiagnosticReject;
+        coupling.transactionProbeRoots = originalProbeRoots;
+        coupling.transactionProbeQ = originalProbeQ;
+        coupling.transactionProbeV = originalProbeV;
+        coupling.transactionProbeMuscles = originalProbeMuscles;
+        coupling.transactionProbeCaptureControlStep = originalProbeCaptureStep;
+        coupling.transactionProbeCaptured = originalProbeCaptured;
+        coupling.transactionProbeCapturedStep = originalProbeCapturedStep;
     };
 
     auto program = coupling.program();
@@ -357,6 +459,15 @@ inline void run(
             input.stand.v = {};
             input.mujoco.states = {};
         }
+        return input;
+    };
+    auto makeSegmentInput = [&](bool resident, std::uint64_t transaction,
+                                std::uint64_t generation, std::uint32_t offset,
+                                std::uint32_t count, bool fullCollection) {
+        auto input = makeInput(resident, transaction, generation, fullCollection);
+        input.stand.authoritativeStepCount = 6u;
+        input.stand.stepIndexOffset = offset;
+        input.stand.stepCount = count;
         return input;
     };
     const std::size_t qCount = model.articulations[seedInput.articulationIndex].nq;
@@ -732,10 +843,186 @@ inline void run(
              sameBytes(cursorBaselineBrain, cursorRejectedBrain),
          "same-command-buffer rejection did not retain exactly the accepted two-frame prefix");
     restoreInitialCoupling();
+    respiration.dispatch.reject = 0u;
+
+    // Exercise a rejected multi-root Human continuation as one submission.
+    // The rejection is injected at global control step 4; step 5 is the inert
+    // suffix. Raw physical buffers are copied by the coupling callback because
+    // a failed submission deliberately does not publish a resident token.
+    metalrobo::MetalArticulatedOperatorContext multiBaselineContext(config);
+    auto multiBaseline2Input = makeSegmentInput(false, 0u, 0u, 0u, 2u, true);
+    metalrobo::MetalArticulatedOperatorResult multiBaseline2Result;
+    const auto multiBaseline2Diagnostics = multiBaselineContext.run(
+        model, multiBaseline2Input, multiBaseline2Result);
+    requireAcceptedStep(multiBaseline2Diagnostics, multiBaseline2Result, 2u,
+                        qCount, vCount, muscleCount);
+    const auto multiBaseline2Matter = physiology.runtime.snapshot();
+    const auto multiBaseline2Memory = captureCouplingMemory(coupling);
+    const PhysicalSnapshot multiBaseline2Physical = observePhysicalState(
+        multiBaselineContext, physical,
+        multiBaseline2Diagnostics.residentStateTransactionFingerprint,
+        multiBaseline2Diagnostics.residentStateGeneration);
+
+    auto multiBaseline4Input = makeSegmentInput(
+        true, multiBaseline2Diagnostics.residentStateTransactionFingerprint,
+        multiBaseline2Diagnostics.residentStateGeneration, 2u, 2u, true);
+    metalrobo::MetalArticulatedOperatorResult multiBaseline4Result;
+    const auto multiBaseline4Diagnostics = multiBaselineContext.run(
+        model, multiBaseline4Input, multiBaseline4Result);
+    requireAcceptedStep(multiBaseline4Diagnostics, multiBaseline4Result, 4u,
+                        qCount, vCount, muscleCount);
+    const auto multiBaseline4Matter = physiology.runtime.snapshot();
+    const auto multiBaseline4Memory = captureCouplingMemory(coupling);
+    const PhysicalSnapshot multiBaseline4Physical = observePhysicalState(
+        multiBaselineContext, physical,
+        multiBaseline4Diagnostics.residentStateTransactionFingerprint,
+        multiBaseline4Diagnostics.residentStateGeneration);
+
+    auto multiBaseline6Input = makeSegmentInput(
+        true, multiBaseline4Diagnostics.residentStateTransactionFingerprint,
+        multiBaseline4Diagnostics.residentStateGeneration, 4u, 2u, true);
+    metalrobo::MetalArticulatedOperatorResult multiBaseline6Result;
+    const auto multiBaseline6Diagnostics = multiBaselineContext.run(
+        model, multiBaseline6Input, multiBaseline6Result);
+    requireAcceptedStep(multiBaseline6Diagnostics, multiBaseline6Result, 6u,
+                        qCount, vCount, muscleCount);
+    const auto multiBaseline6Matter = physiology.runtime.snapshot();
+    const auto multiBaseline6Memory = captureCouplingMemory(coupling);
+    const PhysicalSnapshot multiBaseline6Physical = observePhysicalState(
+        multiBaselineContext, physical,
+        multiBaseline6Diagnostics.residentStateTransactionFingerprint,
+        multiBaseline6Diagnostics.residentStateGeneration);
+
+    restoreInitialCoupling();
+    respiration.dispatch.reject = 0u;
+    metalrobo::MetalArticulatedOperatorContext multiFailureContext(config);
+    auto multiTrial2Input = makeSegmentInput(false, 0u, 0u, 0u, 2u, true);
+    metalrobo::MetalArticulatedOperatorResult multiTrial2Result;
+    const auto multiTrial2Diagnostics = multiFailureContext.run(
+        model, multiTrial2Input, multiTrial2Result);
+    requireAcceptedStep(multiTrial2Diagnostics, multiTrial2Result, 2u,
+                        qCount, vCount, muscleCount);
+    const auto multiTrial2Matter = physiology.runtime.snapshot();
+    const auto multiTrial2Memory = captureCouplingMemory(coupling);
+    const PhysicalSnapshot multiTrial2Physical = observePhysicalState(
+        multiFailureContext, physical,
+        multiTrial2Diagnostics.residentStateTransactionFingerprint,
+        multiTrial2Diagnostics.residentStateGeneration);
+    need(samePhysicalState(multiBaseline2Physical, multiTrial2Physical) &&
+             sameMatterAcceptedState(multiBaseline2Matter, multiTrial2Matter) &&
+             sameAcceptedCouplingMemory(multiBaseline2Memory, multiTrial2Memory),
+         "multi-step Human transaction prefix did not replay its accepted two-root seed");
+
+    PhysicalSnapshot multiFailedRawPhysical(
+        coupling.physiology.device, model, seedInput);
+    coupling.transactionProbeRoots = multiFailedRawPhysical.roots;
+    coupling.transactionProbeQ = multiFailedRawPhysical.q;
+    coupling.transactionProbeV = multiFailedRawPhysical.v;
+    coupling.transactionProbeMuscles = multiFailedRawPhysical.muscles;
+    coupling.transactionProbeCaptureControlStep = 5u;
+    coupling.transactionProbeCaptured = false;
+    coupling.transactionProbeCapturedStep = MR_INVALID_INDEX;
+    respiration.diagnosticRejectAtControlStep = 4u;
+    auto multiRejectedInput = makeSegmentInput(
+        true, multiTrial2Diagnostics.residentStateTransactionFingerprint,
+        multiTrial2Diagnostics.residentStateGeneration, 2u, 4u, false);
+    metalrobo::MetalArticulatedOperatorResult multiRejectedResult;
+    multiRejectedResult.standQ = {-903.0f};
+    const auto multiRejectedDiagnostics = multiFailureContext.run(
+        model, multiRejectedInput, multiRejectedResult);
+    const bool capturedInertSuffix = coupling.transactionProbeCaptured &&
+        coupling.transactionProbeCapturedStep == 5u;
+    coupling.transactionProbeRoots = nil;
+    coupling.transactionProbeQ = nil;
+    coupling.transactionProbeV = nil;
+    coupling.transactionProbeMuscles = nil;
+    coupling.transactionProbeCaptureControlStep = MR_INVALID_INDEX;
+    coupling.transactionProbeCaptured = false;
+    coupling.transactionProbeCapturedStep = MR_INVALID_INDEX;
+    respiration.diagnosticRejectAtControlStep = NM_INVALID_INDEX;
+    const auto multiFailedMatter = physiology.runtime.snapshot();
+    const auto multiFailedMemory = captureCouplingMemory(coupling);
+    readPhysicalSnapshotBuffers(multiFailedRawPhysical);
+    const bool rejectedAtGlobalStep4 = !multiRejectedDiagnostics.succeeded() &&
+        multiRejectedDiagnostics.dispatched && !multiRejectedDiagnostics.published &&
+        multiRejectedDiagnostics.firstStandGPUStatusCode ==
+            MR_NUMI_HUMAN_STAND_EXTERNAL_PHYSICS_FAILED &&
+        multiRejectedDiagnostics.completedStandSteps == 4u &&
+        multiRejectedResult.standQ == std::vector<float>{-903.0f};
+    const bool acceptedPrefixAtFour =
+        samePhysicalState(multiBaseline4Physical, multiFailedRawPhysical) &&
+        sameMatterAcceptedState(multiBaseline4Matter, multiFailedMatter) &&
+        sameAcceptedCouplingMemory(multiBaseline4Memory, multiFailedMemory);
+    if (!rejectedAtGlobalStep4 || !capturedInertSuffix || !acceptedPrefixAtFour) {
+        std::cerr << "resting_multistep_prefix_diagnostic"
+                  << " reject_step4=" << rejectedAtGlobalStep4
+                  << " captured_suffix5=" << capturedInertSuffix
+                  << " completed=" << multiRejectedDiagnostics.completedStandSteps
+                  << " unpublished=" << !multiRejectedDiagnostics.published
+                  << " physical=" << samePhysicalState(multiBaseline4Physical, multiFailedRawPhysical)
+                  << " matter=" << sameMatterAcceptedState(multiBaseline4Matter, multiFailedMatter)
+                  << " coupled=" << sameAcceptedCouplingMemory(multiBaseline4Memory, multiFailedMemory)
+                  << " q_diff=" << firstDifferingByte(multiBaseline4Physical.qValues, multiFailedRawPhysical.qValues)
+                  << " v_diff=" << firstDifferingByte(multiBaseline4Physical.vValues, multiFailedRawPhysical.vValues)
+                  << " root_diff=" << firstDifferingByte(multiBaseline4Physical.rootValues, multiFailedRawPhysical.rootValues)
+                  << " muscle_diff=" << firstDifferingByte(multiBaseline4Physical.muscleValues, multiFailedRawPhysical.muscleValues)
+                  << " matter_vascular_diff=" << firstDifferingByte(multiBaseline4Matter.vascularState, multiFailedMatter.vascularState)
+                  << " matter_clock_diff=" << firstDifferingByte(multiBaseline4Matter.vascularClock, multiFailedMatter.vascularClock)
+                  << " respiration_diff=" << firstDifferingByte(multiBaseline4Memory.respirationAccepted, multiFailedMemory.respirationAccepted)
+                  << " brain_diff=" << firstDifferingByte(multiBaseline4Memory.brainAccepted, multiFailedMemory.brainAccepted)
+                  << " presentation_body_diff=" << firstDifferingByte(multiBaseline4Memory.presentationBodies, multiFailedMemory.presentationBodies)
+                  << " presentation_resp_diff=" << firstDifferingByte(multiBaseline4Memory.presentationRespiration, multiFailedMemory.presentationRespiration)
+                  << " presentation_common_diff=" << firstDifferingByte(multiBaseline4Memory.presentationCommonCoordinates, multiFailedMemory.presentationCommonCoordinates)
+                  << " accepted_common_diff=" << firstDifferingByte(multiBaseline4Memory.acceptedCommonCoordinates, multiFailedMemory.acceptedCommonCoordinates)
+                  << " frame_common_diff=" << firstDifferingByte(multiBaseline4Memory.presentationFrameCommonCoordinates, multiFailedMemory.presentationFrameCommonCoordinates)
+                  << '\n';
+    }
+    need(rejectedAtGlobalStep4 && capturedInertSuffix,
+         "multi-step Human rejection did not occur at global step 4 before an inert step-5 suffix: " +
+             multiRejectedDiagnostics.message);
+    need(acceptedPrefixAtFour,
+         "failed multi-step Human submission did not retain one coherent accepted four-root physical and coupled prefix");
+
+    // The failed continuation is terminal on its original context by contract.
+    // Recreate the accepted two-root prefix in a fresh context, then replay the
+    // same four-root continuation and compare against the uninterrupted run.
+    restoreInitialCoupling();
+    respiration.dispatch.reject = 0u;
+    metalrobo::MetalArticulatedOperatorContext multiRetryContext(config);
+    auto multiRetry2Input = makeSegmentInput(false, 0u, 0u, 0u, 2u, true);
+    metalrobo::MetalArticulatedOperatorResult multiRetry2Result;
+    const auto multiRetry2Diagnostics = multiRetryContext.run(
+        model, multiRetry2Input, multiRetry2Result);
+    requireAcceptedStep(multiRetry2Diagnostics, multiRetry2Result, 2u,
+                        qCount, vCount, muscleCount);
+    auto multiRetry6Input = makeSegmentInput(
+        true, multiRetry2Diagnostics.residentStateTransactionFingerprint,
+        multiRetry2Diagnostics.residentStateGeneration, 2u, 4u, true);
+    metalrobo::MetalArticulatedOperatorResult multiRetry6Result;
+    const auto multiRetry6Diagnostics = multiRetryContext.run(
+        model, multiRetry6Input, multiRetry6Result);
+    requireAcceptedStep(multiRetry6Diagnostics, multiRetry6Result, 6u,
+                        qCount, vCount, muscleCount);
+    const auto multiRetryMatter = physiology.runtime.snapshot();
+    const auto multiRetryMemory = captureCouplingMemory(coupling);
+    const PhysicalSnapshot multiRetryPhysical = observePhysicalState(
+        multiRetryContext, physical,
+        multiRetry6Diagnostics.residentStateTransactionFingerprint,
+        multiRetry6Diagnostics.residentStateGeneration);
+    need(samePhysicalState(multiBaseline6Physical, multiRetryPhysical) &&
+             sameMatterAcceptedState(multiBaseline6Matter, multiRetryMatter) &&
+             sameAcceptedCouplingMemory(multiBaseline6Memory, multiRetryMemory),
+         "fresh-context multi-step replay did not reproduce the uninterrupted six-root coupled endpoint");
+
+    restoreInitialCoupling();
     std::cout << "resting_integrated_rejection=pass rejected_after_accepted_predecessor=true"
                  " body_q_v_root_myo_unchanged=true circulation_and_clock_unchanged=true"
                  " respiration_brain_history_unchanged=true retry_matches_uninterrupted_replay=true"
-                 " same_command_buffer_reject=pass accepted_prefix=2 rejected_step=2 inert_suffix=1\n";
+                 " same_command_buffer_reject=pass accepted_prefix=2 rejected_step=2 inert_suffix=1"
+                 " multistep_reject=pass accepted_prefix=4 rejected_global_step=4 inert_suffix_global_step=5"
+                 " raw_failed_submission_snapshot=pass all_owners_match_uninterrupted_prefix=true"
+                 " retry=fresh_context_reseed_and_replay_matches_six_root_baseline"
+                 " same_context_retry=unsupported\n";
 }
 
 } // namespace numi::human::transaction_probe

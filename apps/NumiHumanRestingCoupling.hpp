@@ -21,6 +21,14 @@ public:
     id<MTLBuffer> presentationCandidateBodies, presentationCandidateRespiration;
     id<MTLBuffer> presentationCommonCoordinates, presentationCandidateCommonCoordinates;
     id<MTLBuffer> acceptedCommonCoordinates, presentationFrameCommonCoordinates;
+    // Optional probe-only raw snapshot for an in-flight multi-root rejection.
+    // The public accepted-state observer is intentionally unavailable when a
+    // submission fails before publishing a new resident-generation identity.
+    id<MTLBuffer> transactionProbeRoots=nil, transactionProbeQ=nil;
+    id<MTLBuffer> transactionProbeV=nil, transactionProbeMuscles=nil;
+    std::uint32_t transactionProbeCaptureControlStep=MR_INVALID_INDEX;
+    bool transactionProbeCaptured=false;
+    std::uint32_t transactionProbeCapturedStep=MR_INVALID_INDEX;
     bool commonAcceptedCoordinatesInitialized = false;
     unsigned presentedStep = 0;
     std::string error;
@@ -269,6 +277,36 @@ public:
             [e setBuffer:acceptedCommonCoordinates offset:0 atIndex:9];
             [e setBuffer:numi::human::buffer(physiology.runtime.statusBuffer()) offset:0 atIndex:10];
             [e dispatchThreads:MTLSizeMake(p.bodyCount,1,1) threadsPerThreadgroup:MTLSizeMake(64,1,1)];[e endEncoding];
+        }
+        if(p.phase==metalrobo::MetalNumanXTransactionPhase::postDynamics&&
+           p.stepIndex==transactionProbeCaptureControlStep) {
+            const auto rootBytes=static_cast<std::size_t>(p.rootTranslationElementCount)*
+                sizeof(MRCompensatedRootTranslationGPU);
+            const auto qBytes=static_cast<std::size_t>(p.qElementCount)*sizeof(float);
+            const auto vBytes=static_cast<std::size_t>(p.vElementCount)*sizeof(float);
+            const auto muscleBytes=static_cast<std::size_t>(p.mujocoStateElementCount)*
+                sizeof(MRMujocoMuscleStateGPU);
+            need(transactionProbeRoots&&transactionProbeQ&&transactionProbeV&&
+                     transactionProbeMuscles&&p.rootTranslation&&p.q&&p.v&&
+                     p.mujocoStates&&p.commandBuffer&&
+                     transactionProbeRoots.length==rootBytes&&
+                     transactionProbeQ.length==qBytes&&
+                     transactionProbeV.length==vBytes&&
+                     transactionProbeMuscles.length==muscleBytes,
+                 "multi-step rejection probe raw physical snapshot is incomplete");
+            auto snapshot=[cb blitCommandEncoder];
+            need(snapshot!=nil,"multi-step rejection probe snapshot encoder");
+            [snapshot copyFromBuffer:numi::human::buffer(p.rootTranslation) sourceOffset:0
+                toBuffer:transactionProbeRoots destinationOffset:0 size:rootBytes];
+            [snapshot copyFromBuffer:numi::human::buffer(p.q) sourceOffset:0
+                toBuffer:transactionProbeQ destinationOffset:0 size:qBytes];
+            [snapshot copyFromBuffer:numi::human::buffer(p.v) sourceOffset:0
+                toBuffer:transactionProbeV destinationOffset:0 size:vBytes];
+            [snapshot copyFromBuffer:numi::human::buffer(p.mujocoStates) sourceOffset:0
+                toBuffer:transactionProbeMuscles destinationOffset:0 size:muscleBytes];
+            [snapshot endEncoding];
+            transactionProbeCaptured=true;
+            transactionProbeCapturedStep=p.stepIndex;
         }
         return true;
     }
