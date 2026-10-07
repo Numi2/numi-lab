@@ -710,6 +710,8 @@ class Native310sPreparationTests(unittest.TestCase):
             ("NUMI_HUMAN_ACCEPTED_Q_INTEGRATION_AUDIT", "1", "Q_INTEGRATION_AUDIT=0"),
             ("NUMI_HUMAN_ACCEPTED_COM_MOMENTUM_AUDIT_SEGMENT_STEPS", "1", "SEGMENT_STEPS=8"),
             ("NUMI_HUMAN_STAND_CONTACT_WARMSTART", "1", "CONTACT_WARMSTART=0"),
+            ("NUMI_HUMAN_STAND_REDUCED_RESPONSE_DIAGNOSTIC_ROOTS", "0", "diagnostic root setting"),
+            ("NUMI_HUMAN_STAND_CPU_ACCELERATE_FACTOR", "", "CPU stand solver"),
             ("NUMI_HUMAN_RESIDENT_PHYSICS_PILOT", "8", "single-Human scene"),
         ):
             bad = dict(invocation)

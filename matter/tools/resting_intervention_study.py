@@ -1255,11 +1255,12 @@ def validate_native_310s_invocation(invocation: dict[str, Any]) -> None:
     for key, expected in NATIVE_310S_DISABLED_EXPERIMENTS.items():
         if environment.get(key, expected) != expected:
             raise ValueError(f"310 s invocation requires exploratory setting {key}={expected}")
-    reduced_diagnostic_roots = environment.get(
-        "NUMI_HUMAN_STAND_REDUCED_RESPONSE_DIAGNOSTIC_ROOTS", "")
-    if reduced_diagnostic_roots:
-        raise ValueError("310 s invocation requires reduced-response diagnostic roots to be unset or empty")
-    if any(key.startswith("NUMI_HUMAN_STAND_CPU_") and value == "1"
+    for key in ("NUMI_HUMAN_STAND_REDUCED_RESPONSE_DIAGNOSTIC_ROOTS",
+                "NUMI_HUMAN_STAND_FINISH_COUNTER_ROOTS"):
+        if environment.get(key, ""):
+            raise ValueError(f"310 s invocation requires diagnostic root setting {key} to be unset or empty")
+    if any(key.startswith("NUMI_HUMAN_STAND_CPU_") and
+           (value == "1" or key == "NUMI_HUMAN_STAND_CPU_ACCELERATE_FACTOR")
            for key, value in environment.items()):
         raise ValueError("310 s invocation cannot enable a CPU stand solver")
     if "NUMI_HUMAN_RESIDENT_PHYSICS_PILOT" in environment:
