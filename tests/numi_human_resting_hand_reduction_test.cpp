@@ -186,5 +186,225 @@ int main() {
     badQ=q;badQ[81]=2;rejected(source,badQ,dofs);
     auto badDofs=dofs;badDofs[42].qIndex=42;rejected(source,q,badDofs);
     badDofs=dofs;badDofs[80].flags=0;rejected(source,q,badDofs);
+    // Source-specific linear POSITION_LIMIT consolidation fixture. The fake
+    // rows exercise the compiler's exact topology gate and independent F32
+    // endpoint logic; the runtime-only flag remains off in ordinary tests.
+    auto linearSource = source;
+    linearSource.records.assign(51u, MRNumiHumanJointEqualityGPU{});
+    linearSource.records[13].indices = {
+        10u, 9u, MR_INVALID_INDEX, MR_INVALID_INDEX};
+    linearSource.records[14].indices = {
+        11u, 10u, MR_INVALID_INDEX, MR_INVALID_INDEX};
+    auto linearSourceDofs = dofs;
+    for (std::uint32_t v = 0u; v < linearSourceDofs.size(); ++v) {
+        linearSourceDofs[v].limits.z = 2.0f + static_cast<float>(v);
+        linearSourceDofs[v].limits.w = 3.0f + static_cast<float>(v);
+    }
+    for (const auto& expected : detail::kNumiHumanRestingLinearBoundSourceRows) {
+        auto& row = linearSource.records[expected.equalityIndex];
+        row.indices = {expected.dependentQIndex,
+            expected.dependentQIndex - 1u, expected.masterQIndex,
+            expected.masterQIndex - 1u};
+        const float slope = (expected.equalityIndex % 2u) == 0u
+            ? 1.25f : -1.5f;
+        row.referencesAndCoefficients0 = {0.0f, 0.0f, 0.0f, slope};
+        row.coefficients1 = {0.0f, 0.0f, 0.0f, 0.0f};
+        auto& dependent = linearSourceDofs[expected.dependentQIndex - 1u];
+        dependent.limits.x = expected.equalityIndex == 1u ? -0.1f : -0.4f;
+        dependent.limits.y = expected.equalityIndex == 1u ? 0.2f : 0.6f;
+        auto& master = linearSourceDofs[expected.masterQIndex - 1u];
+        master.limits.x = -2.0f;
+        master.limits.y = 2.0f;
+    }
+    for (std::uint32_t i = 0u; i < 14u; ++i) {
+        const std::uint32_t rowIndex = 37u + i;
+        const std::uint32_t dependentQ = 104u + i;
+        const std::uint32_t masterQ = 120u + (i % 8u);
+        auto& row = linearSource.records[rowIndex];
+        row.indices = {dependentQ, dependentQ - 1u,
+            masterQ, masterQ - 1u};
+        row.referencesAndCoefficients0 = {0.0f, 0.0f, 0.01f, 0.2f};
+        row.coefficients1 = {0.1f, 0.0f, 0.0f, 0.0f};
+    }
+    const auto originalLinearSourceDofs = linearSourceDofs;
+    const auto originalLinearSourceRows = linearSource.records;
+    std::vector<MRNumiHumanJointEqualityGPU> linearEqualities;
+    require(compileNumiHumanRestingHandReduction(
+                linearSource, q, linearSourceDofs, linearEqualities, error),
+            "linear-bound source fixture failed rigid-hand admission");
+    const auto sourcePayloadSHA =
+        kNumiHumanRestingReferenceNHEQPayloadSHA256;
+    std::vector<MRDofPropertiesGPU> linearDerivedDofs;
+    std::vector<NumiHumanRestingLinearBoundReceiptRecord> linearReceipt;
+    require(compileNumiHumanRestingLinearBoundConsolidation(
+                linearSource, sourcePayloadSHA, q, linearSourceDofs,
+                linearSourceDofs, linearEqualities, linearDerivedDofs,
+                linearReceipt, error),
+            "valid linear source bounds were not consolidated");
+    require(error.empty() && linearReceipt.size() == 35u,
+            "linear-bound receipt count/error");
+    require(std::memcmp(linearSourceDofs.data(),
+                originalLinearSourceDofs.data(),
+                linearSourceDofs.size() * sizeof(MRDofPropertiesGPU)) == 0 &&
+            std::memcmp(linearSource.records.data(),
+                originalLinearSourceRows.data(),
+                linearSource.records.size() *
+                    sizeof(MRNumiHumanJointEqualityGPU)) == 0,
+            "linear-bound consolidation mutated source records or DoFs");
+    std::array<std::uint8_t, 128u> seenLinearMasters{};
+    std::size_t linearMasterCount = 0u;
+    bool sawNegativeSlope = false;
+    for (const auto& record : linearReceipt) {
+        const auto& equality = linearSource.records[record.equalityIndex];
+        const auto& originalDependent =
+            linearSourceDofs[record.dependentVIndex];
+        const auto& derivedDependent = linearDerivedDofs[record.dependentVIndex];
+        const auto& originalMaster = linearSourceDofs[record.masterVIndex];
+        const auto& derivedMaster = linearDerivedDofs[record.masterVIndex];
+        sawNegativeSlope = sawNegativeSlope ||
+            equality.referencesAndCoefficients0.w < 0.0f;
+        require((derivedDependent.flags & MR_DOF_FLAG_POSITION_LIMIT) == 0u &&
+                derivedDependent.limits.x == 0.0f &&
+                derivedDependent.limits.y == 0.0f &&
+                derivedDependent.limits.z == originalDependent.limits.z &&
+                derivedDependent.limits.w == originalDependent.limits.w,
+                "dependent limit consolidation changed non-position metadata");
+        require(derivedMaster.flags == originalMaster.flags &&
+                derivedMaster.limits.x == record.derivedMasterLower &&
+                derivedMaster.limits.y == record.derivedMasterUpper &&
+                derivedMaster.limits.z == originalMaster.limits.z &&
+                derivedMaster.limits.w == originalMaster.limits.w,
+                "master interval consolidation changed flags or velocity/effort bounds");
+        if (seenLinearMasters[record.masterVIndex] == 0u) {
+            seenLinearMasters[record.masterVIndex] = 1u;
+            ++linearMasterCount;
+        } else {
+            require(derivedMaster.limits.x == record.derivedMasterLower &&
+                    derivedMaster.limits.y == record.derivedMasterUpper,
+                    "shared master did not receive one common intersection");
+        }
+        float lowerTarget = 0.0f;
+        float upperTarget = 0.0f;
+        require(detail::evaluateLinearSourceTargetF32(
+                    equality, record.inverseMasterLower, lowerTarget) &&
+                detail::evaluateLinearSourceTargetF32(
+                    equality, record.inverseMasterUpper, upperTarget) &&
+                lowerTarget >= record.sourceLower &&
+                lowerTarget <= record.sourceUpper &&
+                upperTarget >= record.sourceLower &&
+                upperTarget <= record.sourceUpper,
+                "inverse endpoint does not satisfy the exact source interval");
+        if (record.inverseMasterLower > record.sourceMasterLower) {
+            const float prior = std::nextafter(
+                record.inverseMasterLower,
+                -std::numeric_limits<float>::infinity());
+            float target = 0.0f;
+            require(detail::evaluateLinearSourceTargetF32(
+                        equality, prior, target) &&
+                    (target < record.sourceLower || target > record.sourceUpper),
+                    "lower inverse endpoint has a preceding representable source-valid value");
+        }
+        if (record.inverseMasterUpper < record.sourceMasterUpper) {
+            const float next = std::nextafter(
+                record.inverseMasterUpper,
+                std::numeric_limits<float>::infinity());
+            float target = 0.0f;
+            require(detail::evaluateLinearSourceTargetF32(
+                        equality, next, target) &&
+                    (target < record.sourceLower || target > record.sourceUpper),
+                    "upper inverse endpoint has a following representable source-valid value");
+        }
+    }
+    require(linearMasterCount == 7u && sawNegativeSlope,
+            "linear-bound compiler missed shared or negative-slope masters");
+
+    const auto rejectsLinearWithoutMutation = [&](const auto& invalidSource,
+            const auto& invalidPayloadSHA, const auto& invalidDofSource,
+            const auto& invalidEqualities, const char* reason) {
+        auto untouchedDofs = linearDerivedDofs;
+        std::vector<NumiHumanRestingLinearBoundReceiptRecord> untouchedReceipt(1u);
+        untouchedReceipt[0].equalityIndex = 99u;
+        untouchedReceipt[0].inverseMasterLower = -123.0f;
+        const auto beforeDofs = untouchedDofs;
+        const auto beforeReceipt = untouchedReceipt;
+        const bool acceptedLinear = compileNumiHumanRestingLinearBoundConsolidation(
+            invalidSource, invalidPayloadSHA, q, invalidDofSource,
+            invalidDofSource, invalidEqualities, untouchedDofs,
+            untouchedReceipt, error);
+        require(!acceptedLinear, reason);
+        require(untouchedDofs.size() == beforeDofs.size() &&
+                std::memcmp(untouchedDofs.data(), beforeDofs.data(),
+                    beforeDofs.size() * sizeof(MRDofPropertiesGPU)) == 0,
+                "failed linear-bound compilation mutated derived DoFs");
+        require(untouchedReceipt.size() == beforeReceipt.size() &&
+                std::memcmp(untouchedReceipt.data(), beforeReceipt.data(),
+                    sizeof(beforeReceipt[0])) == 0,
+                "failed linear-bound compilation mutated its receipt");
+        require(!error.empty(), "failed linear-bound compilation omitted a reason");
+    };
+    auto unknownPayloadSHA = sourcePayloadSHA;
+    unknownPayloadSHA[0] ^= 1u;
+    rejectsLinearWithoutMutation(linearSource, unknownPayloadSHA,
+        linearSourceDofs, linearEqualities,
+        "unknown NHEQ payload was admitted for bound consolidation");
+    auto zeroSlopeSource = linearSource;
+    zeroSlopeSource.records[0].referencesAndCoefficients0.w = 0.0f;
+    std::vector<MRNumiHumanJointEqualityGPU> zeroSlopeEqualities;
+    require(compileNumiHumanRestingHandReduction(
+                zeroSlopeSource, q, linearSourceDofs,
+                zeroSlopeEqualities, error),
+            "zero-slope fixture failed before source-bound validation");
+    rejectsLinearWithoutMutation(zeroSlopeSource, sourcePayloadSHA,
+        linearSourceDofs, zeroSlopeEqualities,
+        "zero-slope bounded dependency was admitted");
+    auto nonfiniteSource = linearSource;
+    nonfiniteSource.records[0].referencesAndCoefficients0.w =
+        std::numeric_limits<float>::infinity();
+    std::vector<MRNumiHumanJointEqualityGPU> nonfiniteEqualities;
+    require(compileNumiHumanRestingHandReduction(
+                nonfiniteSource, q, linearSourceDofs,
+                nonfiniteEqualities, error),
+            "nonfinite-slope fixture failed before source-bound validation");
+    rejectsLinearWithoutMutation(nonfiniteSource, sourcePayloadSHA,
+        linearSourceDofs, nonfiniteEqualities,
+        "nonfinite bounded dependency was admitted");
+    auto missingMasterDofs = linearSourceDofs;
+    missingMasterDofs[6].flags &= ~MR_DOF_FLAG_POSITION_LIMIT;
+    std::vector<MRNumiHumanJointEqualityGPU> missingMasterEqualities;
+    require(compileNumiHumanRestingHandReduction(
+                linearSource, q, missingMasterDofs,
+                missingMasterEqualities, error),
+            "missing-master fixture failed before bound validation");
+    rejectsLinearWithoutMutation(linearSource, sourcePayloadSHA,
+        missingMasterDofs, missingMasterEqualities,
+        "source master without an active interval was admitted");
+    auto chainedSource = linearSource;
+    chainedSource.records[37].indices.x = 7u;
+    chainedSource.records[37].indices.y = 6u;
+    std::vector<MRNumiHumanJointEqualityGPU> chainedEqualities;
+    require(compileNumiHumanRestingHandReduction(
+                chainedSource, q, linearSourceDofs,
+                chainedEqualities, error),
+            "chained-master fixture failed before topology validation");
+    rejectsLinearWithoutMutation(chainedSource, sourcePayloadSHA,
+        linearSourceDofs, chainedEqualities,
+        "a master that is itself a dependent was admitted");
+    auto degenerateDofs = linearSourceDofs;
+    const float smallest = std::numeric_limits<float>::denorm_min();
+    degenerateDofs[6].limits.x = 0.0f;
+    degenerateDofs[6].limits.y = 2.0f * smallest;
+    degenerateDofs[11].limits.x = 1.0e-7f;
+    degenerateDofs[11].limits.y = 1.5e-7f;
+    auto degenerateSource = linearSource;
+    degenerateSource.records[0].referencesAndCoefficients0.w = 1.0e38f;
+    std::vector<MRNumiHumanJointEqualityGPU> degenerateEqualities;
+    require(compileNumiHumanRestingHandReduction(
+                degenerateSource, q, degenerateDofs,
+                degenerateEqualities, error),
+            "degenerate-interval fixture failed before endpoint validation");
+    rejectsLinearWithoutMutation(degenerateSource, sourcePayloadSHA,
+        degenerateDofs, degenerateEqualities,
+        "single-F32 inverse interval was admitted as a valid source bound");
+
     std::cout << "resting_hand_reduction checks=" << checks << " passed\n";
 }

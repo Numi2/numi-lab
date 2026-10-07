@@ -22503,8 +22503,20 @@ int main(int argc, char** argv) {
             const bool eliminateRestingFixedBounds =
                 fixedBoundEliminationSetting != nullptr &&
                 std::strcmp(fixedBoundEliminationSetting, "1") == 0;
+            const char* linearBoundConsolidationSetting =
+                std::getenv("NUMI_HUMAN_RESTING_CONSOLIDATE_LINEAR_BOUNDS");
+            require(linearBoundConsolidationSetting == nullptr ||
+                        linearBoundConsolidationSetting[0] == '\0' ||
+                        std::strcmp(linearBoundConsolidationSetting, "0") == 0 ||
+                        std::strcmp(linearBoundConsolidationSetting, "1") == 0,
+                    "NUMI_HUMAN_RESTING_CONSOLIDATE_LINEAR_BOUNDS must be 0 or 1");
+            const bool consolidateRestingLinearBounds =
+                linearBoundConsolidationSetting != nullptr &&
+                std::strcmp(linearBoundConsolidationSetting, "1") == 0;
             require(!eliminateRestingFixedBounds || restingRigidHands,
                     "fixed-bound elimination requires --resting-rigid-hands");
+            require(!consolidateRestingLinearBounds || restingRigidHands,
+                    "linear-bound consolidation requires --resting-rigid-hands");
             if(restingScene.has_value()) {
                 require(persistentMetalStand&&muscleStepSeconds.has_value()&&muscleStepCount.has_value()&&
                     supportContactPayload.has_value()&&jointEqualityPayload.has_value()&&requestedRootPose.has_value()&&tendonPayloadPath.has_value()&&
@@ -22512,24 +22524,40 @@ int main(int argc, char** argv) {
                     "resting scene requires explicit supported root pose, native contact/equality/tendon payloads and bounded native steps");
                 std::vector<metalrobo::NumiHumanRestingFixedBoundReceiptRecord>
                     restingFixedBoundReceipt;
+                std::vector<metalrobo::NumiHumanRestingLinearBoundReceiptRecord>
+                    restingLinearBoundReceipt;
                 if(restingRigidHands) {
                     const char* cachePath=std::getenv("NUMI_HUMAN_STATIC_EQUILIBRIUM_CACHE_PATH");
                     require(cachePath==nullptr||cachePath[0]=='\0',
                         "rigid-hand reduction requires fresh source equilibrium initialization");
                     const auto sourceEqualities = jointEqualityPayload->payload;
+                    const auto sourceDofs = rigid.model.dofs;
                     std::vector<MRNumiHumanJointEqualityGPU> reduced;
                     std::string reductionError;
                     require(metalrobo::compileNumiHumanRestingHandReduction(
                         sourceEqualities,rigid.model.defaultQ,
-                        rigid.model.dofs,reduced,reductionError),reductionError);
+                        sourceDofs,reduced,reductionError),reductionError);
+                    auto derivedDofs = sourceDofs;
                     if (eliminateRestingFixedBounds) {
-                        std::vector<MRDofPropertiesGPU> derivedDofs;
+                        std::vector<MRDofPropertiesGPU> fixedDerivedDofs;
                         require(metalrobo::compileNumiHumanRestingFixedBoundElimination(
-                            sourceEqualities,rigid.model.defaultQ,rigid.model.dofs,
-                            reduced,derivedDofs,restingFixedBoundReceipt,reductionError),
-                            reductionError);
-                        rigid.model.dofs=std::move(derivedDofs);
+                            sourceEqualities,rigid.model.defaultQ,sourceDofs,
+                            reduced,fixedDerivedDofs,restingFixedBoundReceipt,
+                            reductionError),reductionError);
+                        derivedDofs = std::move(fixedDerivedDofs);
                     }
+                    if (consolidateRestingLinearBounds) {
+                        std::vector<MRDofPropertiesGPU> linearDerivedDofs;
+                        require(metalrobo::compileNumiHumanRestingLinearBoundConsolidation(
+                            sourceEqualities,jointEqualityPayload->payloadSha256,
+                            rigid.model.defaultQ,sourceDofs,derivedDofs,reduced,
+                            linearDerivedDofs,restingLinearBoundReceipt,
+                            reductionError),reductionError);
+                        derivedDofs = std::move(linearDerivedDofs);
+                    }
+                    if (eliminateRestingFixedBounds ||
+                        consolidateRestingLinearBounds)
+                        rigid.model.dofs = std::move(derivedDofs);
                     jointEqualityPayload->payload.records=std::move(reduced);
                     std::cout<<"resting_hand_model=rigid_reference_digits source_equalities=51 "
                         "derived_internal_equalities=40 wrist_dofs=free root_constraint_rows=0 "
@@ -22561,6 +22589,63 @@ int main(int argc, char** argv) {
                             }
                         }
                         std::cout<<"],\"eliminated_count\":"<<eliminatedCount
+                            <<",\"finite_sweep_trajectory_equivalence\":false}\n";
+                    }
+                    if (consolidateRestingLinearBounds) {
+                        std::array<std::uint8_t, 128u> seenMasters{};
+                        std::size_t uniqueMasters = 0u;
+                        std::size_t changedMasters = 0u;
+                        for (const auto& record : restingLinearBoundReceipt) {
+                            require(record.dependentVIndex < rigid.model.dofs.size() &&
+                                    record.masterVIndex < rigid.model.dofs.size(),
+                                "linear-bound receipt references a missing DoF");
+                            const auto& dependent =
+                                rigid.model.dofs[record.dependentVIndex];
+                            const auto& master =
+                                rigid.model.dofs[record.masterVIndex];
+                            require((dependent.flags & MR_DOF_FLAG_POSITION_LIMIT) == 0u &&
+                                    dependent.limits.x == 0.0f &&
+                                    dependent.limits.y == 0.0f,
+                                "linear-bound receipt does not match the derived dependent DoF");
+                            require(master.flags == record.masterFlags &&
+                                    master.limits.x == record.derivedMasterLower &&
+                                    master.limits.y == record.derivedMasterUpper,
+                                "linear-bound receipt does not match the derived master interval");
+                            if (seenMasters[record.masterVIndex] == 0u) {
+                                seenMasters[record.masterVIndex] = 1u;
+                                ++uniqueMasters;
+                                if (record.sourceMasterLower != record.derivedMasterLower ||
+                                    record.sourceMasterUpper != record.derivedMasterUpper)
+                                    ++changedMasters;
+                            }
+                        }
+                        require(restingLinearBoundReceipt.size() == 35u &&
+                                uniqueMasters == 7u,
+                            "linear-bound receipt does not contain 35 rows on seven masters");
+                        std::cout<<std::setprecision(std::numeric_limits<float>::max_digits10)
+                            <<"resting_linear_bound_consolidation={\"schema\":\"numi.human.resting.linear-bound-consolidation.v1\",\"source_nheq_payload_sha256\":\""
+                            <<loadedKneeSHA256Hex(jointEqualityPayload->payloadSha256)
+                            <<"\",\"source_bound_files_unchanged\":true,\"records\":[";
+                        for (std::size_t i=0;i<restingLinearBoundReceipt.size();++i) {
+                            const auto& record=restingLinearBoundReceipt[i];
+                            if (i) std::cout<<',';
+                            std::cout<<"{\"equality_index\":"<<record.equalityIndex
+                                <<",\"dependent_q\":"<<record.dependentQIndex
+                                <<",\"dependent_v\":"<<record.dependentVIndex
+                                <<",\"source_bounds\":["<<record.sourceLower<<','<<record.sourceUpper<<']'
+                                <<",\"dependent_flags_before\":"<<record.dependentOriginalFlags
+                                <<",\"dependent_flags_after\":"<<record.dependentDerivedFlags
+                                <<",\"master_q\":"<<record.masterQIndex
+                                <<",\"master_v\":"<<record.masterVIndex
+                                <<",\"master_source_bounds\":["<<record.sourceMasterLower<<','<<record.sourceMasterUpper<<']'
+                                <<",\"inverse_master_bounds\":["<<record.inverseMasterLower<<','<<record.inverseMasterUpper<<']'
+                                <<",\"master_derived_bounds\":["<<record.derivedMasterLower<<','<<record.derivedMasterUpper<<']'
+                                <<",\"master_flags\":"<<record.masterFlags
+                                <<",\"action\":\"consolidated\"}";
+                        }
+                        std::cout<<"],\"consolidated_count\":"<<restingLinearBoundReceipt.size()
+                            <<",\"unique_master_count\":"<<uniqueMasters
+                            <<",\"changed_master_count\":"<<changedMasters
                             <<",\"finite_sweep_trajectory_equivalence\":false}\n";
                     }
                 }
@@ -22780,6 +22865,12 @@ int main(int argc, char** argv) {
                     appendSource("resting_rigid_hand_fixed_bound_receipt_v1",
                         std::as_bytes(std::span(restingFixedBoundReceipt)));
                     appendSource("resting_rigid_hand_derived_dofs_v1",
+                        std::as_bytes(std::span(rigid.model.dofs)));
+                }
+                if(consolidateRestingLinearBounds) {
+                    appendSource("resting_rigid_hand_linear_bound_receipt_v1",
+                        std::as_bytes(std::span(restingLinearBoundReceipt)));
+                    appendSource("resting_rigid_hand_linear_bound_derived_dofs_v1",
                         std::as_bytes(std::span(rigid.model.dofs)));
                 }
                 appendSource("NHTENDON",payloadBytes(*tendonPayloadPath));
