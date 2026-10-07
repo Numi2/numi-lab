@@ -2732,6 +2732,20 @@ void borrowedNativeEncoderSetLabel(void* context, const char* label) {
     encoder.label = @(label);
 }
 
+void borrowedNativeEncoderSampleCounters(
+    void* context,
+    void* sampleBuffer,
+    const std::uint32_t sampleIndex,
+    const bool withBarrier
+) {
+    id<MTLComputeCommandEncoder> encoder =
+        (__bridge id<MTLComputeCommandEncoder>)context;
+    [encoder sampleCountersInBuffer:
+        (__bridge id<MTLCounterSampleBuffer>)sampleBuffer
+        atSampleIndex:static_cast<NSUInteger>(sampleIndex)
+        withBarrier:withBarrier ? YES : NO];
+}
+
 void borrowedNativeEncoderUseHeap(void* context, void* heap) {
     id<MTLComputeCommandEncoder> encoder =
         (__bridge id<MTLComputeCommandEncoder>)context;
@@ -2821,6 +2835,7 @@ public:
         : native_(encoder) {
         nativeCallbacks_.context = (__bridge void*)encoder;
         nativeCallbacks_.setLabel = borrowedNativeEncoderSetLabel;
+        nativeCallbacks_.sampleCounters = borrowedNativeEncoderSampleCounters;
         nativeCallbacks_.useHeap = borrowedNativeEncoderUseHeap;
         nativeCallbacks_.setPipeline = borrowedNativeEncoderSetPipeline;
         nativeCallbacks_.setBuffer = borrowedNativeEncoderSetBuffer;

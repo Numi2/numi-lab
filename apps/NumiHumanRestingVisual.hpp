@@ -4,6 +4,7 @@
 #include "NumiHumanRestingSurfaceAuditDiagnostic.hpp"
 #include <charconv>
 #include <bit>
+#include <cstdio>
 #include <filesystem>
 #include <set>
 #include <string_view>
@@ -38,6 +39,9 @@ class NumiHumanRestingVisual {
     bool complete=false;
     bool rigidHands=false;
     bool profileTiming=false;
+    bool profileGpuTiming=false,gpuTimingUnavailableReported=false;
+    id<MTLCounterSampleBuffer> viewerGpuTimingSamples=nil;
+    unsigned viewerGpuTimingStep=0;
     unsigned auditCount=0;
     std::vector<unsigned> auditStableIds;
     unsigned cardiacWallVertexCount=0,cardiacWallAuditIndex=MR_INVALID_INDEX;
@@ -513,6 +517,46 @@ public:
         }
     }
 
+    static id<MTLCounterSampleBuffer> makeViewerGpuTimingSamples(id<MTLDevice> device) {
+        if(!device||![device supportsCounterSampling:MTLCounterSamplingPointAtDispatchBoundary])return nil;
+        for(id<MTLCounterSet> set in device.counterSets) {
+            if(![set.name isEqualToString:MTLCommonCounterSetTimestamp])continue;
+            MTLCounterSampleBufferDescriptor* descriptor=[MTLCounterSampleBufferDescriptor new];
+            descriptor.counterSet=set;descriptor.storageMode=MTLStorageModeShared;descriptor.sampleCount=4u;
+            return [device newCounterSampleBufferWithDescriptor:descriptor error:nil];
+        }
+        return nil;
+    }
+
+    // Sample indices 0..3 mark frame entry, post-deformation, post-audit, and post-render.
+    static void sampleViewerGpuTimingBoundary(
+        const metalrobo::MetalHybridComputeEncoderCallbacks* encoder,
+        id<MTLCounterSampleBuffer> samples,unsigned index) {
+        if(!encoder||!encoder->sampleCounters||!samples)return;
+        encoder->sampleCounters(encoder->context,(__bridge void*)samples,index,true);
+    }
+
+    static void reportViewerGpuTiming(id<MTLCounterSampleBuffer> samples,unsigned step) {
+        if(!samples)return;
+        NSData* data=[samples resolveCounterRange:NSMakeRange(0u,4u)];
+        if(data.length!=4u*sizeof(MTLCounterResultTimestamp)) {
+            std::fprintf(stderr,"resting_viewer_gpu_timing sampling=unavailable step=%u\n",step);return;
+        }
+        const auto* stamps=static_cast<const MTLCounterResultTimestamp*>(data.bytes);
+        for(unsigned i=0;i<4u;++i)if(stamps[i].timestamp==0u||stamps[i].timestamp==MTLCounterErrorValue) {
+            std::fprintf(stderr,"resting_viewer_gpu_timing sampling=unavailable step=%u\n",step);return;
+        }
+        for(unsigned i=1;i<4u;++i)if(stamps[i].timestamp<stamps[i-1u].timestamp) {
+            std::fprintf(stderr,"resting_viewer_gpu_timing sampling=unavailable step=%u\n",step);return;
+        }
+        std::fprintf(stderr,
+            "resting_viewer_gpu_timing step=%u deformation_ns=%llu audit_ns=%llu renderer_ns=%llu total_ns=%llu\n",
+            step,static_cast<unsigned long long>(stamps[1].timestamp-stamps[0].timestamp),
+            static_cast<unsigned long long>(stamps[2].timestamp-stamps[1].timestamp),
+            static_cast<unsigned long long>(stamps[3].timestamp-stamps[2].timestamp),
+            static_cast<unsigned long long>(stamps[3].timestamp-stamps[0].timestamp));
+    }
+
     NumiHumanRestingVisual(NumiHumanRestingCoupling& owner,metalrobo::VisualAssetPackV2 pack,
         const metalrobo::EngineModel& model,const LoadedSkin& skin,const LoadedSoftTissues* tissues,
         const std::vector<MRBodyStateGPU>& initialBodies,const std::vector<MRBodyStateGPU>& restBodies,
@@ -525,6 +569,10 @@ public:
         require(!profileSetting||!profileSetting[0]||std::strcmp(profileSetting,"0")==0||
             std::strcmp(profileSetting,"1")==0,"NUMI_HUMAN_TRAINING_PROFILE must be 0 or 1");
         profileTiming=profileSetting&&std::strcmp(profileSetting,"1")==0;
+        const char* gpuTimingSetting=std::getenv("NUMI_HUMAN_GPU_TIMING");
+        require(!gpuTimingSetting||!gpuTimingSetting[0]||std::strcmp(gpuTimingSetting,"0")==0||
+            std::strcmp(gpuTimingSetting,"1")==0,"NUMI_HUMAN_GPU_TIMING must be 0 or 1");
+        profileGpuTiming=gpuTimingSetting&&std::strcmp(gpuTimingSetting,"1")==0;
         commonCardiacGeometry=functional.commonCardiacGeometry;
         commonFieldVertexCount=unsigned(functional.commonFieldMap.size());
         commonFieldSourcePayloadSHA256=functional.commonFieldAnatomyPayloadSHA256;
@@ -1429,6 +1477,7 @@ public:
             e.setBuffer(e.context,lease.meshIndices,0,3);e.setBuffer(e.context,lease.meshVertices,0,4);
             e.dispatchThreads(e.context,airwayCount,64);
         }
+        sampleViewerGpuTimingBoundary(lease.encoder,self.viewerGpuTimingSamples,1u);
         e.setPipeline(e.context,(__bridge void*)self.volumePipeline);e.setBytes(e.context,&d,sizeof(d),0);
         e.setBuffer(e.context,(__bridge void*)self.surfaceAudits,0,1);e.setBuffer(e.context,lease.meshIndices,0,2);
         e.setBuffer(e.context,lease.meshVertices,0,3);e.setBuffer(e.context,(__bridge void*)self.coupled.presentationRespiration,0,4);
@@ -1478,6 +1527,7 @@ public:
             e.setBytes(e.context,&count,sizeof(count),2);
             e.dispatchThreads(e.context,count,64);self.captureKernelEncoded=true;
         }
+        sampleViewerGpuTimingBoundary(lease.encoder,self.viewerGpuTimingSamples,2u);
         return true;
     }
     NumiHumanRestingFrame render(unsigned camera,unsigned selectedLayer) {
@@ -1507,10 +1557,18 @@ public:
         state.meshDeformation=&request;
         const double encodeStart=profileTiming?CACurrentMediaTime():0;
         auto cb=[queue commandBuffer];auto enc=[cb computeCommandEncoder];
+        viewerGpuTimingStep=captureStep;
+        viewerGpuTimingSamples=profileGpuTiming?makeViewerGpuTimingSamples(coupled.physiology.device):nil;
+        if(viewerGpuTimingSamples) [enc sampleCountersInBuffer:viewerGpuTimingSamples atSampleIndex:0u withBarrier:YES];
+        else if(profileGpuTiming&&!gpuTimingUnavailableReported) {
+            std::fprintf(stderr,"resting_viewer_gpu_timing sampling=unavailable\n");gpuTimingUnavailableReported=true;
+        }
         auto result=renderer->encode(worlds,state,camera,(__bridge void*)enc);require(result.succeeded(),result.message);
+        if(viewerGpuTimingSamples) [enc sampleCountersInBuffer:viewerGpuTimingSamples atSampleIndex:3u withBarrier:YES];
         [enc endEncoding];
         const double commandStart=profileTiming?CACurrentMediaTime():0;
         [cb commit];[cb waitUntilCompleted];require(cb.status==MTLCommandBufferStatusCompleted,"resting native renderer failed");
+        if(viewerGpuTimingSamples) {reportViewerGpuTiming(viewerGpuTimingSamples,viewerGpuTimingStep);viewerGpuTimingSamples=nil;}
         const double commandEnd=profileTiming?CACurrentMediaTime():0;
         const bool geometryExportRequested=captureThisFrame;
         if(captureThisFrame)require(captureKernelEncoded,

@@ -212,6 +212,13 @@ struct MetalHybridComputeEncoderCallbacks {
         std::size_t offset,
         std::size_t threadsPerThreadgroup
     ) = nullptr;
+    // Optional, call-scoped counter sample on the borrowed compute encoder.
+    void (*sampleCounters)(
+        void* context,
+        void* sampleBuffer,
+        std::uint32_t sampleIndex,
+        bool withBarrier
+    ) = nullptr;
 
     [[nodiscard]] bool valid() const noexcept {
         return context != nullptr &&
