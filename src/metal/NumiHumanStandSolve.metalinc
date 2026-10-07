@@ -796,44 +796,7 @@
                 finishCounts.contactResponseCoefficients += 3u * nv;
             }
             device const MRNumiHumanStandContactGPU& support = contacts[contact];
-            // The opt-in cached finish uses one SIMD group for all three axes.
-            // Each axis still accumulates dofs in lane, lane+32, ... order
-            // before the same simd_sum used by the three-group path.
-            const bool singleSimdContactContraction =
-                kUseCachedLimitEqualityResponse &&
-                threadCount == simdWidth && nv == 128u &&
-                equalityCount <= 96u;
-            if (singleSimdContactContraction) {
-                float velocityX = 0.0f;
-                float velocityY = 0.0f;
-                float velocityZ = 0.0f;
-                for (uint dof = lane; dof < nv; dof += simdWidth) {
-                    const float candidate = candidateV[dof];
-                    velocityX += pointJacobianAxis(
-                        pointJacobians, pointJacobianBase,
-                        support.pointQueryIndex, nv, dof,
-                        directions[0u]
-                    ) * candidate;
-                    velocityY += pointJacobianAxis(
-                        pointJacobians, pointJacobianBase,
-                        support.pointQueryIndex, nv, dof,
-                        directions[1u]
-                    ) * candidate;
-                    velocityZ += pointJacobianAxis(
-                        pointJacobians, pointJacobianBase,
-                        support.pointQueryIndex, nv, dof,
-                        directions[2u]
-                    ) * candidate;
-                }
-                const float reducedX = simd_sum(velocityX);
-                const float reducedY = simd_sum(velocityY);
-                const float reducedZ = simd_sum(velocityZ);
-                if (lane == 0u) {
-                    cooperativeContactVelocities[0u] = reducedX;
-                    cooperativeContactVelocities[1u] = reducedY;
-                    cooperativeContactVelocities[2u] = reducedZ;
-                }
-            } else if (threadCount >= 3u * simdWidth && nv > simdWidth) {
+            if (threadCount >= 3u * simdWidth && nv > simdWidth) {
                 // Give each contact axis a SIMD group. The previous path
                 // loaded all nv Jacobian entries on only three lanes.
                 // Small models retain their ordered scalar contraction;
@@ -867,12 +830,8 @@
                     cooperativeContactVelocities[axis] = velocity;
                 }
             }
-            // In the one-SIMD path lane zero is both the sole publisher and
-            // sole reader of these slots; the later projection barrier still
-            // publishes its result to every lane. Other contractions retain
-            // the cross-lane publication barrier.
-            if (!singleSimdContactContraction)
-                threadgroup_barrier(mem_flags::mem_threadgroup);
+            // Only the three threadgroup velocity slots cross lanes here.
+            threadgroup_barrier(mem_flags::mem_threadgroup);
             if (lane == 0u) {
                 auto projectContact = [&]() {
                     const float gap = cooperativeContactGap[contact];

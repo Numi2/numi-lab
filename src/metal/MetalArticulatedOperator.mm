@@ -643,10 +643,6 @@ struct MetalArticulatedOperatorContextState {
         if (equalityCache != nullptr)
             config.cacheStandLimitEqualityResponses =
                 std::strcmp(equalityCache, "1") == 0;
-        const char* finishSimd32 =
-            std::getenv("NUMI_HUMAN_STAND_FINISH_SIMD32");
-        standFinishSimd32 = finishSimd32 != nullptr &&
-            std::strcmp(finishSimd32, "1") == 0;
         const char* sparseOperator =
             std::getenv("NUMI_HUMAN_STAND_SPARSE_OPERATOR");
         if (sparseOperator != nullptr)
@@ -669,7 +665,6 @@ struct MetalArticulatedOperatorContextState {
     ~MetalArticulatedOperatorContextState();
 
     MetalArticulatedOperatorConfig config;
-    bool standFinishSimd32 = false;
     StandSparseGraphCache standSparseGraphCache;
     std::string sparseCapturePath;
     std::uint32_t sparseCaptureRoot = 0u;
@@ -13160,14 +13155,6 @@ MetalArticulatedOperatorContext::submit(
                         !oneHandoff && phase == standPhaseCount - 1u &&
                         std::binary_search(state_->finishCounterRoots.begin(),
                             state_->finishCounterRoots.end(), authoritativeStep);
-                    // This opt-in only narrows the cached cooperative finish
-                    // launch for the measured 128-DOF, <=96-equality shape.
-                    // Every other owner dispatch keeps its original group size.
-                    const bool simd32Finish = state_->standFinishSimd32 &&
-                        parallelMass && cachedFinish &&
-                        phase == standPhaseCount - 1u &&
-                        articulation.nv == 128u &&
-                        standDispatch.jointEqualityCount <= 96u;
                     id<MTLBuffer> finishWorkBuffer = nil;
                     if (sampleFinishWork) {
                         finishWorkBuffer = [state_->device newBufferWithLength:
@@ -13323,13 +13310,11 @@ MetalArticulatedOperatorContext::submit(
                                 static_cast<NSUInteger>(input.environmentCount),
                                 1u, 1u)
                             threadsPerThreadgroup:MTLSizeMake(
-                                simd32Finish
-                                    ? kStandResponseThreadsPerThreadgroup
-                                    : splitStand &&
-                                        (phase == standPhaseCount - 1u ||
-                                         (freeSplit && phase == 6u))
-                                        ? kStandFinishThreadsPerThreadgroup
-                                        : kStandThreadsPerThreadgroup,
+                                splitStand &&
+                                    (phase == standPhaseCount - 1u ||
+                                     (freeSplit && phase == 6u))
+                                    ? kStandFinishThreadsPerThreadgroup
+                                    : kStandThreadsPerThreadgroup,
                                 1u, 1u)];
                     }
                     [standEncoder endEncoding];
