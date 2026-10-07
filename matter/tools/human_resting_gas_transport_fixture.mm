@@ -106,12 +106,13 @@ struct Rig {
 Rig makeRig(const char* network, const char* configuration, float dt,
             bool subcycling, bool respiratorySubcycling = false,
             VascularProbe* probe = nullptr, bool useBrain = true,
-            bool parallelMuscles = false) {
+            bool parallelMuscles = false, bool parallelGas = false) {
     setenv("NUMI_HUMAN_RESTING_TIMESTEP_SENSITIVITY", "1", 1);
     setenv("NUMI_HUMAN_GAS_TRANSPORT_SUBCYCLING", subcycling ? "1" : "0", 1);
     setenv("NUMI_HUMAN_RESPIRATORY_SUBCYCLING",
            respiratorySubcycling ? "1" : "0", 1);
     setenv("NUMI_HUMAN_PARALLEL_RESPIRATORY_MUSCLES", parallelMuscles ? "1" : "0", 1);
+    setenv("NUMI_HUMAN_PARALLEL_RESPIRATORY_GAS", parallelGas ? "1" : "0", 1);
     Rig result;
     result.run = std::make_unique<RestingRun>(network, configuration, dt);
     if (useBrain) result.brain = std::make_unique<RespiratoryBrain>(
@@ -643,8 +644,12 @@ void verifyBoundedCap(RestingRun& run, const VascularProbe& probe) {
     [encoder setBuffer:statusBuffer offset:0 atIndex:8];
     [encoder setBuffer:compartmentBuffer offset:0 atIndex:9];
     [encoder setBuffer:elastanceBuffer offset:0 atIndex:10];
-    [encoder dispatchThreads:MTLSizeMake(1u,1u,1u)
-        threadsPerThreadgroup:MTLSizeMake(1u,1u,1u)];
+    if(run.respiration->parallelRespiratoryMuscles)
+        [encoder dispatchThreadgroups:MTLSizeMake(1u,1u,1u)
+            threadsPerThreadgroup:MTLSizeMake(run.respiration->exchange.threadExecutionWidth,1u,1u)];
+    else
+        [encoder dispatchThreads:MTLSizeMake(1u,1u,1u)
+            threadsPerThreadgroup:MTLSizeMake(1u,1u,1u)];
     [encoder endEncoding];
     [command commit];
     [command waitUntilCompleted];
@@ -663,8 +668,10 @@ void verifyBoundedCap(RestingRun& run, const VascularProbe& probe) {
           "required>32 candidate mutated its accepted respiration input");
 }
 void verifyParallelRespiratoryMuscles(const char* network,const char* configuration) {
+    for(bool parallelGas:{false,true}) {
     auto scalar=makeRig(network,configuration,kSubcyclingDt,true,true,nullptr,false,false);
-    auto parallel=makeRig(network,configuration,kSubcyclingDt,true,true,nullptr,false,true);
+    VascularProbe probe(MTLCreateSystemDefaultDevice(),31u);
+    auto parallel=makeRig(network,configuration,kSubcyclingDt,true,true,&probe,false,true,parallelGas);
     const nm_float4 drive{0.25f,0.10f,0.0f,0.0f};
     for(auto* rig:{&scalar,&parallel})
         std::memcpy(rig->run->respiration->excitation.contents,&drive,sizeof(drive));
@@ -677,6 +684,7 @@ void verifyParallelRespiratoryMuscles(const char* network,const char* configurat
     check(actual.status.x==32u&&actual.status.w==0u&&
           std::memcmp(&reference,&actual,sizeof(actual))==0,
           "parallel respiratory muscle solve changed the complete coupled state");
+    verifyBoundedCap(*parallel.run,probe);
     parallel.run->batch(32u,1u,true,32u);
     const auto rejected=state(parallel);
     check(std::memcmp(&actual,&rejected,sizeof(actual))==0,
@@ -687,11 +695,13 @@ void verifyParallelRespiratoryMuscles(const char* network,const char* configurat
     const auto referenceRetry=state(scalar),actualRetry=state(parallel);
     check(std::memcmp(&referenceRetry,&actualRetry,sizeof(actualRetry))==0,
           "parallel respiratory muscle retry differs from uninterrupted scalar state");
+    }
 }
 } // namespace
 
 int main(int argc, const char* argv[]) { @autoreleasepool { try {
     need(argc == 3, "usage: numi-human-gas-transport-fixture NETWORK.json RESPIRATION.json");
+    EnvironmentValue parallelGasEnv("NUMI_HUMAN_PARALLEL_RESPIRATORY_GAS");
     EnvironmentValue parallelEnv("NUMI_HUMAN_PARALLEL_RESPIRATORY_MUSCLES");
     EnvironmentValue gasEnv("NUMI_HUMAN_GAS_TRANSPORT_SUBCYCLING");
     EnvironmentValue respiratoryEnv("NUMI_HUMAN_RESPIRATORY_SUBCYCLING");
@@ -705,7 +715,7 @@ int main(int argc, const char* argv[]) { @autoreleasepool { try {
               << "n_gt_1=positive_conservative rejection_retry=exact "
               << "respiratory_mechanics=fine-step-exact steady_drive=no_chatter "
               << "brain_suffix=accepted-prefix-exact invalid-inert-status=retained "
-              << "parallel_muscles=bitwise-rejection-retry cap=fail_closed_32\n";
+              << "parallel_muscles_and_gas=bitwise-rejection-retry cap=fail_closed_32\n";
     return 0;
 } catch (const std::exception& error) {
     std::cerr << "human_gas_transport_subcycling_fixture=failed reason="

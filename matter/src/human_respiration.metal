@@ -24,6 +24,14 @@ constant bool kUseParallelRespiratoryMuscles =
     is_function_constant_defined(kParallelRespiratoryMuscles)
         ? kParallelRespiratoryMuscles : false;
 
+// With one SIMD group per environment, a lane owns each blood compartment.
+// Edge order is unchanged; shuffles gather donor content without a dynamically
+// indexed private delta array. No parallel atomic gas accumulation is used.
+constant bool kParallelRespiratoryGas [[function_constant(46)]];
+constant bool kUseParallelRespiratoryGas =
+    is_function_constant_defined(kParallelRespiratoryGas)
+        ? kParallelRespiratoryGas : false;
+
 inline float3 restingRotate(float4 q,float3 v) {
     return v+2.0f*cross(q.xyz,cross(q.xyz,v)+q.w*v);
 }
@@ -954,6 +962,8 @@ kernel void nm_human_respiration_exchange(
         gasSubsteps=uint(max(required,airwayRequired));
     }
     const float gasDt=dt/float(gasSubsteps);
+    float4 compartmentGas=float4(0.0f);
+    if(kUseParallelRespiratoryGas&&lane<21u) compartmentGas=n.bloodGas[lane];
     float pulmonaryO2=0;
     float totalPulmonaryO2=0;
     float netSweptVolume=0.0f, inspiredVolume=0.0f, maxDonorFraction=0.0f;
@@ -971,7 +981,9 @@ kernel void nm_human_respiration_exchange(
         netSweptVolume+=gasDt*n.mechanics.w;
         inspiredVolume+=gasDt*max(0.0f,n.mechanics.w);
         float2 delta[21];
-        for(uint row=0;row<21;++row) delta[row]=0;
+        float2 compartmentDelta=0.0f;
+        if(!kUseParallelRespiratoryGas)
+            for(uint row=0;row<21;++row) delta[row]=0;
         // Check the actual rounded aggregate fraction, not just the count
         // estimate or each individual edge at a branching vascular node.
         for(uint row=0;row<21;++row) {
@@ -1001,15 +1013,21 @@ kernel void nm_human_respiration_exchange(
             const float before=human_respiration::physical(vascularBefore,unknowns,base,from);
             const float fromVolume=gasSubsteps==1u?before:mix(before,
                 human_respiration::physical(vascularAfter,unknowns,base,from),alpha);
-            const float2 content=n.bloodGas[from].xy/fromVolume;
+            const float2 donorGas=kUseParallelRespiratoryGas
+                ?simd_shuffle(compartmentGas.xy,from):n.bloodGas[from].xy;
+            const float2 content=donorGas/fromVolume;
             const float2 transported=gasDt*abs(flow)*content;
-            delta[from]-=transported;
-            delta[to]+=transported;
+            if(kUseParallelRespiratoryGas) {
+                if(lane==from) compartmentDelta-=transported;
+                if(lane==to) compartmentDelta+=transported;
+            } else {delta[from]-=transported;delta[to]+=transported;}
             if(edge==p.topology.x && flow>0) {
                 // Same perfusion-limited exchange; its amount cancels exactly
                 // between the destination blood and alveolar reservoirs.
                 const float2 exchange=gasDt*flow*p.carbonDioxide.z*(capillaryContent-content);
-                delta[to]+=exchange;
+                if(kUseParallelRespiratoryGas) {
+                    if(lane==to) compartmentDelta+=exchange;
+                } else delta[to]+=exchange;
                 alveolarDelta-=exchange;
                 if(gasSubsteps==1u) pulmonaryO2=exchange.x/dt;
                 else totalPulmonaryO2+=exchange.x;
@@ -1018,7 +1036,9 @@ kernel void nm_human_respiration_exchange(
         }
         for(uint bed=0;bed<4;++bed) {
             const float2 demand=gasDt*p.metabolism.zw*p.tissueFractions[bed];
-            delta[p.tissueRows[bed]]+=float2(-demand.x,demand.y);
+            if(kUseParallelRespiratoryGas) {
+                if(lane==p.tissueRows[bed]) compartmentDelta+=float2(-demand.x,demand.y);
+            } else delta[p.tissueRows[bed]]+=float2(-demand.x,demand.y);
         }
         human_respiration::addGas(n.metabolicGas,gasDt*p.metabolism.zw);
         const float subTransport=gasDt*n.mechanics.w*p.environment.z;
@@ -1028,15 +1048,27 @@ kernel void nm_human_respiration_exchange(
         human_respiration::addGas(n.environmentGas,outsideFlux);
         human_respiration::addGas(n.deadSpaceGas,outsideFlux-airwayFlux);
         human_respiration::addGas(n.alveolarGas,airwayFlux+alveolarDelta);
-        for(uint row=0;row<21;++row) {
-            human_respiration::addGas(n.bloodGas[row],delta[row]);
-            if(!all(isfinite(n.bloodGas[row]))||any(n.bloodGas[row].xy<0)) n.status.w=5;
+        if(kUseParallelRespiratoryGas) {
+            bool invalid=false;
+            if(lane<21u) {
+                human_respiration::addGas(compartmentGas,compartmentDelta);
+                invalid=!all(isfinite(compartmentGas))||any(compartmentGas.xy<0);
+            }
+            if(simd_any(invalid)) n.status.w=5;
+        } else {
+            for(uint row=0;row<21;++row) {
+                human_respiration::addGas(n.bloodGas[row],delta[row]);
+                if(!all(isfinite(n.bloodGas[row]))||any(n.bloodGas[row].xy<0)) n.status.w=5;
+            }
         }
         if(!all(isfinite(n.alveolarGas))||any(n.alveolarGas.xy<0)||
            any(n.deadSpaceGas.xy<0)||
            abs(subTransport)>0.1f*p.lung.y*p.environment.z) n.status.w=6;
         if(n.status.w) break;
     }
+    if(kUseParallelRespiratoryGas)
+        for(uint row=0u;row<21u;++row)
+            n.bloodGas[row]=simd_broadcast(compartmentGas,row);
     if(gasSubsteps>1u) pulmonaryO2=totalPulmonaryO2/dt;
     n.transportStep=float4(netSweptVolume,
         (n.mechanics.x-old.mechanics.x)-netSweptVolume,

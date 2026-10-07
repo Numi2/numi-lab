@@ -24,7 +24,7 @@ struct Respiration {
     id<MTLComputePipelineState> commonCoordinatesSolvePipeline=nil,commonCoordinateStatusPipeline=nil;
     id<MTLBuffer> commonGeometryParameters=nil,commonGeometryBoxes=nil,commonCandidateCoordinates=nil;
     bool commonGeometryGateEnabled=false;
-    bool parallelRespiratoryMuscles=false;
+    bool parallelRespiratoryMuscles=false,parallelRespiratoryGas=false;
     NMHumanRespirationParameters parameters;
     NMHumanRespirationDispatch dispatch{};
     // Probe-only fault selector. The accepted-step dispatch is copied locally
@@ -52,6 +52,9 @@ struct Respiration {
         const bool subcycle=enabled("NUMI_HUMAN_GAS_TRANSPORT_SUBCYCLING");
         const bool respiratorySubcycle=enabled("NUMI_HUMAN_RESPIRATORY_SUBCYCLING");
         parallelRespiratoryMuscles=enabled("NUMI_HUMAN_PARALLEL_RESPIRATORY_MUSCLES");
+        parallelRespiratoryGas=enabled("NUMI_HUMAN_PARALLEL_RESPIRATORY_GAS");
+        need(!parallelRespiratoryGas||parallelRespiratoryMuscles,
+             "parallel respiratory gas requires parallel respiratory muscles");
         need(!parallelRespiratoryMuscles||respiratorySubcycle,
              "parallel respiratory muscles require respiratory subcycling");
         need(!respiratorySubcycle||subcycle,
@@ -62,6 +65,7 @@ struct Respiration {
             [constants setConstantValue:&subcycle type:MTLDataTypeBool atIndex:40];
             [constants setConstantValue:&respiratorySubcycle type:MTLDataTypeBool atIndex:41];
             [constants setConstantValue:&parallelRespiratoryMuscles type:MTLDataTypeBool atIndex:44];
+            [constants setConstantValue:&parallelRespiratoryGas type:MTLDataTypeBool atIndex:46];
             auto specialized=[&](NSString* name) {
                 auto f=[library newFunctionWithName:name constantValues:constants error:&error];
                 auto result=f?[device newComputePipelineStateWithFunction:f error:&error]:nil;
@@ -72,10 +76,13 @@ struct Respiration {
             exchange=specialized(@"nm_human_respiration_exchange");
             need(!parallelRespiratoryMuscles||exchange.threadExecutionWidth>=2,
                  "parallel respiratory muscles require at least two SIMD lanes");
+            need(!parallelRespiratoryGas||exchange.threadExecutionWidth>=21,
+                 "parallel respiratory gas requires at least 21 SIMD lanes");
         }
         std::cerr<<"resting_gas_transport_subcycling="<<(subcycle?1:0)
                  <<" respiratory_mechanics_subcycling="<<(respiratorySubcycle?1:0)
                  <<" parallel_respiratory_muscles="<<(parallelRespiratoryMuscles?1:0)
+                 <<" parallel_respiratory_gas="<<(parallelRespiratoryGas?1:0)
                  <<" maximum_internal_mechanics_dt_s=0.002"
                  <<" maximum_substeps=32 donor_fraction_bound=0.1"
                  <<" physical_controller_clock_substeps=1\n";
@@ -200,6 +207,10 @@ struct RespiratoryBrain {
         mix(&body.parameters,sizeof(body.parameters));mix(&parameters,sizeof(parameters));
         if(body.parallelRespiratoryMuscles) {
             constexpr char mode[]="numi.respiratory.parallel-muscles.v1";
+            mix(mode,sizeof(mode));
+        }
+        if(body.parallelRespiratoryGas) {
+            constexpr char mode[]="numi.respiratory.parallel-gas.v1";
             mix(mode,sizeof(mode));
         }
         if(bodySourceIdentity)mix(&bodySourceIdentity,sizeof(bodySourceIdentity));
