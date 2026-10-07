@@ -601,13 +601,19 @@ void testAnalyticBodySpatialReference() {
     definition.axes[0] = unitAxis(
         {0.0, 0.0, 1.0}, 0u,
         {.kind = OpenSimFunctionKind::linear, .coefficients = {1.0, 0.0}});
+    // SpatialTransform requires each angular and translation triplet to have
+    // pairwise independent axes. Keep the unused angular axis orthogonal to
+    // the active Z rotation and default Y axis.
+    definition.axes[2] = unitAxis(
+        {1.0, 0.0, 0.0}, kOpenSimNoCoordinate,
+        {.kind = OpenSimFunctionKind::constant, .coefficients = {0.0}});
     // One source coordinate drives both rotation and translation, while the
     // second controls an independent translation axis.
     definition.axes[3] = unitAxis(
         {1.0, 0.0, 0.0}, 0u,
         {.kind = OpenSimFunctionKind::linear, .coefficients = {0.4, 0.1}});
     definition.axes[5] = unitAxis(
-        {0.0, 1.0, 0.0}, 1u,
+        {0.0, 0.0, 1.0}, 1u,
         {.kind = OpenSimFunctionKind::linear, .coefficients = {0.2, -0.03}});
     const auto compiled = compileOpenSimSpatialTransform(definition);
     require(compiled.succeeded(), "analytic body reference transform did not compile");
