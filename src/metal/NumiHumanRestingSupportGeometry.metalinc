@@ -167,8 +167,10 @@ inline MRCompensatedScalar skinWorldZBasis(
         const float4 bodyLow = bodyPositionLow[bodyOffset];
         const MRHumanRestingSupportRotationZBasisGPU basis =
             rotationZBasis[bodyOffset];
-        if (!all(isfinite(pose.position)) || !all(isfinite(bodyLow)) ||
-            !all(isfinite(basis.high)) || !all(isfinite(basis.low))) {
+        // The pose prepass validates these dynamic values once per body and
+        // stores the result in the otherwise-unused high.w lane. Keep this
+        // check after the influence/body-index guards above.
+        if (basis.high.w != 1.0f) {
             const float nan = as_type<float>(0x7fc00000u);
             return {nan, nan};
         }
@@ -199,6 +201,7 @@ kernel void nm_human_resting_support_normalize_poses(
     device const MRArticulatedBodyPoseGPU* bodies [[buffer(1)]],
     device float4* normalizedOrientations [[buffer(2)]],
     device MRHumanRestingSupportRotationZBasisGPU* rotationZBasis [[buffer(3)]],
+    device const float4* bodyPositionLow [[buffer(4)]],
     uint globalIndex [[thread_position_in_grid]]) {
     const uint bodyStride = dispatch.strides.x;
     const uint environmentCount = dispatch.counts.w;
@@ -211,7 +214,9 @@ kernel void nm_human_resting_support_normalize_poses(
         const float nan = as_type<float>(0x7fc00000u);
         normalizedOrientations[globalIndex] = float4(nan);
         rotationZBasis[globalIndex].high = float4(nan);
+        rotationZBasis[globalIndex].high.w = 0.0f;
         rotationZBasis[globalIndex].low = float4(nan);
+        rotationZBasis[globalIndex].low.w = 0.0f;
         return;
     }
     const float4 normalized = orientation * rsqrt(normSquared);
@@ -222,8 +227,16 @@ kernel void nm_human_resting_support_normalize_poses(
         normalized, float4(0.0f, 1.0f, 0.0f, 0.0f));
     const MRCompensatedPositionGPU axisZ = mrCompensatedQuaternionRotate(
         normalized, float4(0.0f, 0.0f, 1.0f, 0.0f));
+    const MRArticulatedBodyPoseGPU pose = bodies[globalIndex];
+    const float4 bodyLow = bodyPositionLow[globalIndex];
+    const bool finitePose = all(isfinite(pose.position)) &&
+        all(isfinite(bodyLow)) &&
+        isfinite(axisX.high.z) && isfinite(axisY.high.z) &&
+        isfinite(axisZ.high.z) && isfinite(axisX.low.z) &&
+        isfinite(axisY.low.z) && isfinite(axisZ.low.z);
     rotationZBasis[globalIndex] = {
-        float4(axisX.high.z, axisY.high.z, axisZ.high.z, 0.0f),
+        float4(axisX.high.z, axisY.high.z, axisZ.high.z,
+               finitePose ? 1.0f : 0.0f),
         float4(axisX.low.z, axisY.low.z, axisZ.low.z, 0.0f),
     };
 }

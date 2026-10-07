@@ -280,6 +280,7 @@ class NumiHumanRestingSupportGeometry final {
         [orientation setBuffer:bodies offset:0u atIndex:1u];
         [orientation setBuffer:normalizedOrientations_ offset:0u atIndex:2u];
         [orientation setBuffer:rotationZBasis_ offset:0u atIndex:3u];
+        [orientation setBuffer:bodyLow offset:0u atIndex:4u];
         const NSUInteger bodyPoseCount = static_cast<NSUInteger>(bodyPoseElements);
         [orientation dispatchThreadgroups:MTLSizeMake(
              (bodyPoseCount + threadsPerGroup_ - 1u) / threadsPerGroup_, 1u, 1u)
