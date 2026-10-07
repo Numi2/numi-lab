@@ -79,21 +79,42 @@ inline MRNumiHumanFrictionImpulse mrNumiHumanTryInteriorFrictionDisk(
     return {x, y, true};
 }
 
-inline MRNumiHumanFrictionImpulse mrNumiHumanFrictionShiftedSolve(
-    float a, float b, float d, float gx, float gy, float shift
+// The trial and its Newton derivative use the same shifted 2x2 matrix.
+// Keep its original arithmetic once, then apply it to the two different RHSs.
+struct MRNumiHumanShiftedFrictionFactor {
+    float a, b, d, scale, determinant;
+    bool valid;
+};
+
+inline MRNumiHumanShiftedFrictionFactor mrNumiHumanPrepareShiftedFrictionFactor(
+    float a, float b, float d, float shift
 ) {
-    // Scaling avoids squaring a large dual shift in the determinant.
     const float scale = shift > 1.0f ? shift : 1.0f;
     a = a / scale + shift / scale;
     b /= scale;
     d = d / scale + shift / scale;
-    gx /= scale;
-    gy /= scale;
     const float determinant = mrNumiHumanFusedMultiplyAdd(a, d, -b * b);
-    if (!(determinant > 0.0f)) return {0.0f, 0.0f, false};
-    const float x = mrNumiHumanFusedMultiplyAdd(d, gx, -b * gy) / determinant;
-    const float y = mrNumiHumanFusedMultiplyAdd(a, gy, -b * gx) / determinant;
+    return {a, b, d, scale, determinant, determinant > 0.0f};
+}
+
+inline MRNumiHumanFrictionImpulse mrNumiHumanApplyShiftedFrictionFactor(
+    const MRNumiHumanShiftedFrictionFactor factor, float gx, float gy
+) {
+    if (!factor.valid) return {0.0f, 0.0f, false};
+    gx /= factor.scale;
+    gy /= factor.scale;
+    const float x = mrNumiHumanFusedMultiplyAdd(
+        factor.d, gx, -factor.b * gy) / factor.determinant;
+    const float y = mrNumiHumanFusedMultiplyAdd(
+        factor.a, gy, -factor.b * gx) / factor.determinant;
     return {x, y, mrNumiHumanFrictionFinite(x) && mrNumiHumanFrictionFinite(y)};
+}
+
+inline MRNumiHumanFrictionImpulse mrNumiHumanFrictionShiftedSolve(
+    float a, float b, float d, float gx, float gy, float shift
+) {
+    return mrNumiHumanApplyShiftedFrictionFactor(
+        mrNumiHumanPrepareShiftedFrictionFactor(a, b, d, shift), gx, gy);
 }
 
 template<bool CollectIterations>
@@ -126,7 +147,9 @@ inline MRNumiHumanFrictionImpulse mrNumiHumanSolveFrictionDiskCore(
     float upper = mrNumiHumanFrictionNorm(gx, gy) / radius;
     if (!(upper > 0.0f) || !mrNumiHumanFrictionFinite(upper)) return invalid;
     float lower = 0.0f;
-    auto accepted = mrNumiHumanFrictionShiftedSolve(a, b, d, gx, gy, upper);
+    const auto initialFactor = mrNumiHumanPrepareShiftedFrictionFactor(
+        a, b, d, upper);
+    auto accepted = mrNumiHumanApplyShiftedFrictionFactor(initialFactor, gx, gy);
     if (!accepted.valid) return invalid;
     // Safeguarded Newton iteration on the reciprocal impulse norm. For
     // p=(W+sI)^-1*g and u=p/||p||, the Newton increment is
@@ -140,8 +163,10 @@ inline MRNumiHumanFrictionImpulse mrNumiHumanSolveFrictionDiskCore(
         if constexpr (CollectIterations) ++boundaryIterations;
         // The first Newton trial is exactly the feasible upper solve above.
         // Reuse it without changing the bracket, iteration count, or solver path.
+        const auto trialFactor = iteration == 0u ? initialFactor :
+            mrNumiHumanPrepareShiftedFrictionFactor(a, b, d, trialShift);
         const auto trial = iteration == 0u ? accepted :
-            mrNumiHumanFrictionShiftedSolve(a, b, d, gx, gy, trialShift);
+            mrNumiHumanApplyShiftedFrictionFactor(trialFactor, gx, gy);
         if (!trial.valid) break;
         const float norm = mrNumiHumanFrictionNorm(trial.x, trial.y);
         if (!(norm > 0.0f) || !mrNumiHumanFrictionFinite(norm)) break;
@@ -156,8 +181,8 @@ inline MRNumiHumanFrictionImpulse mrNumiHumanSolveFrictionDiskCore(
             lower = trialShift;
         }
         const float ux = trial.x / norm, uy = trial.y / norm;
-        const auto derivative = mrNumiHumanFrictionShiftedSolve(
-            a, b, d, ux, uy, trialShift);
+        const auto derivative = mrNumiHumanApplyShiftedFrictionFactor(
+            trialFactor, ux, uy);
         const float slope = mrNumiHumanFusedMultiplyAdd(
             ux, derivative.x, uy * derivative.y);
         const float proposal = trialShift + (norm / radius - 1.0f) / slope;
