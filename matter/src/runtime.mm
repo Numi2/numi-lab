@@ -5006,10 +5006,26 @@ RuntimeDiagnostics Runtime::encodeImpl(
             ++diagnostics.simdgroupDispatchCount;
             diagnostics.requestedThreadgroupCount +=
                 static_cast<std::uint64_t>(groupCount);
+            const char* denseTiming = std::getenv("NUMI_MATTER_GPU_TIMING_DENSE45");
+            const bool profileDense = request.controlStep == 100u &&
+                denseTiming && std::strcmp(denseTiming, "1") == 0 &&
+                std::strcmp(name, "nm_vascular_dense_solve") == 0;
+            if (profileDense) {
+                [encoder endEncoding];
+                encoder = detail::timedEncoder(commandBuffer, state.device,
+                    "vascular_dense45", request.controlStep);
+                primalResourcesEncoder = nil;
+            }
             [encoder setComputePipelineState:state.pipeline(name)];
             bind();
             [encoder dispatchThreadgroups:MTLSizeMake(groupCount, 1u, 1u)
                 threadsPerThreadgroup:MTLSizeMake(32u, 1u, 1u)];
+            if (profileDense) {
+                [encoder endEncoding];
+                encoder = detail::timedEncoder(commandBuffer, state.device,
+                    "matter_after_dense45", request.controlStep);
+                primalResourcesEncoder = nil;
+            }
         };
         const auto dispatchIndirect = [&](
             const char* name,
