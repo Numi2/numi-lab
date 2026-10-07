@@ -982,18 +982,8 @@
             if (status.code != MR_NUMI_HUMAN_STAND_SUCCESS) return;
             // A DOF keeps the normal, tangent0, tangent1 update order of the
             // scalar projected Gauss-Seidel contact solve.
-            // Limit rows already skip exact-zero impulses. Both limit rows
-            // and contact axes apply delta-lambda times a response vector; a
-            // zero impulse on a finite row contributes no velocity change.
-            // Skip it only for equality-projected rows, whose response entries
-            // were checked finite during response conditioning. Keep the raw
-            // path's multiply-by-zero behavior for fail-closed propagation.
-            // Nonzero axes retain their order; signed-zero bits may differ.
             for (uint dof = lane; dof < nv; dof += threadCount) {
                 for (uint axis = 0u; axis < 3u; ++axis) {
-                    if (useProjectedContacts &&
-                        cooperativeContactApplied[axis] == 0.0f)
-                        continue;
                     device const float* response = responseScratch + responseBase +
                         (3u * contact + axis) * nv;
                     candidateV[dof] +=
