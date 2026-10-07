@@ -136,6 +136,11 @@ int main() {
         require(!error.empty(), "failed elimination omitted a reason");
     };
 
+    auto zeroWidthDofs = dofs;
+    zeroWidthDofs[9].limits = {0.0f, 0.0f, 0.0f, 0.0f};
+    preservesOutputsOnFailure(source, output, zeroWidthDofs,
+        "zero-width source interval was accepted for fixed-bound elimination");
+
     auto malformedSource = source;
     malformedSource.records[0].indices.y = 8u;
     std::vector<MRNumiHumanJointEqualityGPU> malformedEqualities;

@@ -145,7 +145,7 @@ inline bool compileNumiHumanRestingFixedBoundElimination(
             return fail("fixed equality target is nonfinite");
         if ((dof.flags & MR_DOF_FLAG_POSITION_LIMIT) == 0u) continue;
         if (!std::isfinite(dof.limits.x) || !std::isfinite(dof.limits.y) ||
-            dof.limits.x > dof.limits.y)
+            dof.limits.x >= dof.limits.y)
             return fail("fixed equality source position interval is invalid");
         const bool inside = target >= dof.limits.x && target <= dof.limits.y;
         const std::uint32_t derivedFlags = inside
