@@ -138,8 +138,10 @@ inline MRNumiHumanFrictionImpulse mrNumiHumanSolveFrictionDiskCore(
     bool normConverged = false;
     for (unsigned iteration = 0u; iteration < 8u; ++iteration) {
         if constexpr (CollectIterations) ++boundaryIterations;
-        const auto trial = mrNumiHumanFrictionShiftedSolve(
-            a, b, d, gx, gy, trialShift);
+        // The first Newton trial is exactly the feasible upper solve above.
+        // Reuse it without changing the bracket, iteration count, or solver path.
+        const auto trial = iteration == 0u ? accepted :
+            mrNumiHumanFrictionShiftedSolve(a, b, d, gx, gy, trialShift);
         if (!trial.valid) break;
         const float norm = mrNumiHumanFrictionNorm(trial.x, trial.y);
         if (!(norm > 0.0f) || !mrNumiHumanFrictionFinite(norm)) break;
