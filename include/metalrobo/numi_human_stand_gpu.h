@@ -84,6 +84,11 @@ enum MRNumiHumanStandFlags {
     MR_NUMI_HUMAN_STAND_DEFERRED_EQUALITY_DIAGNOSTICS_USED = 1u << 22u,
     // Status-only proof that equality factorization used the hybrid cache.
     MR_NUMI_HUMAN_STAND_HYBRID_FACTOR_CACHE_USED = 1u << 23u,
+    // Accepted prior contact history matched the static source basis and was
+    // consumed as an initial impulse guess in this finish.
+    MR_NUMI_HUMAN_STAND_CONTACT_WARMSTART_HIT = 1u << 24u,
+    // The accepted guess changed the cold source seed and was applied to v.
+    MR_NUMI_HUMAN_STAND_CONTACT_WARMSTART_USED = 1u << 25u,
 };
 
 // One source-authored support witness. The point-query index addresses the
@@ -100,6 +105,25 @@ typedef struct MR_ALIGN16 MRNumiHumanStandContactGPU {
     // support force in N. A zero force retains cold-start contact.
     mr_float4 frictionSlopAndStabilization;
 } MRNumiHumanStandContactGPU;
+
+// Accepted split-finish contact impulses are retained only after the
+// existing accepted-state reconciliation gate. A request identity is transient
+// submission input and is kept outside this accepted record so diagnostics can
+// compare exactly the committed history bytes.
+typedef struct MR_ALIGN16 MRNumiHumanStandContactWarmStartGPU {
+    mr_uint4 identity;
+    // x = support-contact count, y = valid, z/w reserved.
+    mr_uint4 metadata;
+    // [normal, tangent0, tangent1] in the prior accepted root's basis.
+    mr_float4 impulses[MR_NUMI_HUMAN_STAND_MAX_CONTACTS];
+} MRNumiHumanStandContactWarmStartGPU;
+
+typedef struct MR_ALIGN16 MRNumiHumanStandContactWarmStartSlotGPU {
+    MRNumiHumanStandContactWarmStartGPU accepted;
+    mr_uint4 requestedIdentity;
+    // x = request enabled, y/z/w reserved.
+    mr_uint4 requestState;
+} MRNumiHumanStandContactWarmStartSlotGPU;
 
 typedef struct MR_ALIGN16 MRNumiHumanStandDispatchGPU {
     mr_u32 abiVersion;
@@ -230,6 +254,8 @@ typedef struct MR_ALIGN16 MRNumiHumanStandStatusGPU {
 
 #if !defined(__METAL_VERSION__)
 static_assert(sizeof(MRNumiHumanStandContactGPU) == 32);
+static_assert(sizeof(MRNumiHumanStandContactWarmStartGPU) == 544);
+static_assert(sizeof(MRNumiHumanStandContactWarmStartSlotGPU) == 576);
 static_assert(sizeof(MRNumiHumanStandDispatchGPU) == 192);
 static_assert(sizeof(MRNumiHumanStandStatusGPU) == 272);
 #endif

@@ -5833,6 +5833,11 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             const char* requested = std::getenv("NUMI_HUMAN_SPLIT_STAND");
             return requested != nullptr && std::strcmp(requested, "1") == 0;
         }(),
+        .standContactWarmStart = [] {
+            const char* requested =
+                std::getenv("NUMI_HUMAN_STAND_CONTACT_WARMSTART");
+            return requested != nullptr && std::strcmp(requested, "1") == 0;
+        }(),
     };
     std::cout << "human_stand_solver_path="
               << (config.splitStandSolve ? "split_candidate" : "monolithic")
@@ -8589,6 +8594,18 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                             continuumTransaction->adapter->snapshot())),
                 "persistent Human continuum accepted state is unavailable or stale");
     }
+    const bool standContactWarmStartExpected =
+        config.standContactWarmStart && config.splitStandSolve &&
+        input.stand.enableContact && !input.stand.contacts.empty() &&
+        !input.stand.numanXHumanMatterProgram.valid();
+    std::vector<std::uint8_t> acceptedContactWarmStartRecords;
+    if (standContactWarmStartExpected) {
+        std::string warmStartError;
+        require(context.copyStandContactWarmStartHistoryForDiagnostics(
+                    acceptedContactWarmStartRecords, warmStartError),
+                "persistent Human accepted contact history is unavailable: " +
+                    warmStartError);
+    }
     double deterministicReplayElapsedMilliseconds = 0.0;
     bool deterministicReplayVerified = false;
     if (verifyDeterminism) {
@@ -8700,9 +8717,22 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             std::memcmp(replayResult.standRootTranslations.data(),
                         metalResult.standRootTranslations.data(),
                         sizeof(MRCompensatedRootTranslationGPU)) == 0;
+        bool sameContactWarmStart = true;
+        if (standContactWarmStartExpected) {
+            std::vector<std::uint8_t> replayContactWarmStartRecords;
+            std::string warmStartError;
+            require(context.copyStandContactWarmStartHistoryForDiagnostics(
+                        replayContactWarmStartRecords, warmStartError),
+                    "persistent Human replay contact history is unavailable: " +
+                        warmStartError);
+            sameContactWarmStart =
+                replayContactWarmStartRecords == acceptedContactWarmStartRecords;
+        }
         require(sameQ && sameV && sameStatus && sameTendonTransfers &&
-                    sameTendonCorrections && sameRoots,
-                "persistent Human stand replay was not bitwise deterministic");
+                    sameTendonCorrections && sameRoots && sameContactWarmStart,
+                "persistent Human stand replay was not bitwise deterministic, including accepted contact history");
+        if (standContactWarmStartExpected)
+            std::cout << "human_stand_contact_warmstart_replay=bitwise\n";
         if (continuumTransaction != nullptr) {
             const auto replayContinuum =
                 continuumTransaction->runtime->snapshot();

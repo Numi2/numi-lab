@@ -717,66 +717,211 @@
                 }
             }
 #endif
-            // Every step starts with a new free velocity. Initialize the
-            // matching total impulse and apply it exactly once; retaining an
-            // unapplied previous-step lambda would corrupt complementarity.
-            const float seed = mrNumiHumanSupportSeedImpulse(
+            // The static source load remains the cold-start floor. An opt-in
+            // prior accepted impulse may improve that initial guess, but only
+            // for the same immutable model/contact basis/timestep key. Reset
+            // roots ignore history; final PGS sweeps remain the owner of the
+            // result and accepted reconciliation is the only history writer.
+            const float sourceSeed = mrNumiHumanSupportSeedImpulse(
                 support.frictionSlopAndStabilization.w, timestep, gap,
                 support.frictionSlopAndStabilization.y);
-            if (!isfinite(seed)) {
+            if (!isfinite(sourceSeed)) {
                 fail(status, MR_NUMI_HUMAN_STAND_NONFINITE_RESULT, contact);
                 return;
             }
-            lambdas[3u * contact + 0u] = seed;
-            lambdas[3u * contact + 1u] = 0.0f;
-            lambdas[3u * contact + 2u] = 0.0f;
-            device const float* normalResponse = responseScratch +
-                responseBase + (3u * contact) * nv;
-            float normalVelocityBeforeSeed = 0.0f;
-            for (uint dof = 0u; dof < nv; ++dof) {
-                normalVelocityBeforeSeed += pointJacobianAxis(
-                    pointJacobians, pointJacobianBase,
-                    support.pointQueryIndex, nv, dof, normal
-                ) * candidateV[dof];
-            }
-            for (uint dof = 0u; dof < nv; ++dof) {
-                candidateV[dof] += seed * normalResponse[dof];
-            }
-            if (useProjectedContacts) {
-#if defined(MR_NH_COOPERATIVE_FINISH)
-                const float inducedWork = seed *
-                    cooperativeContactEqualityWork[3u * contact];
-#else
-                device const float* reaction =
-                    projectedContactEquality + 3u * contact * equalityCount;
-                float inducedWork = 0.0f;
-                for (uint row = 0u; row < equalityCount; ++row) {
-                    const float induced = seed * reaction[row];
-                    equalityLambdas[row] += induced;
-                    inducedWork = fma(induced,
-                        equalityTargetVelocityCache[row], inducedWork);
+            float3 seedImpulse{sourceSeed, 0.0f, 0.0f};
+            bool useWarmStartSeed = false;
+            if (kUseStandContactWarmStart && dispatch.stepIndex != 0u) {
+                device MRNumiHumanStandContactWarmStartSlotGPU& slot =
+                    contactWarmStartHistory[environment];
+                device const MRNumiHumanStandContactWarmStartGPU& accepted =
+                    slot.accepted;
+                const bool matchingIdentity =
+                    slot.requestState.x == 1u &&
+                    all(accepted.identity == slot.requestedIdentity);
+                if (matchingIdentity && accepted.metadata.y == 1u) {
+                    if (accepted.metadata.x != dispatch.supportContactCount ||
+                        accepted.metadata.z != 0u ||
+                        accepted.metadata.w != 0u ||
+                        slot.requestState.y != 0u ||
+                        slot.requestState.z != 0u ||
+                        slot.requestState.w != 0u) {
+                        fail(status, MR_NUMI_HUMAN_STAND_INVALID_DISPATCH,
+                             contact);
+                        return;
+                    }
+                    const float4 previous = accepted.impulses[contact];
+                    if (!all(isfinite(previous)) || previous.x < 0.0f) {
+                        fail(status, MR_NUMI_HUMAN_STAND_NONFINITE_RESULT,
+                             contact);
+                        return;
+                    }
+                    status.flags |=
+                        MR_NUMI_HUMAN_STAND_CONTACT_WARMSTART_HIT;
+                    seedImpulse.x = max(sourceSeed, previous.x);
+                    seedImpulse.yz = previous.yz;
+                    const float friction =
+                        support.frictionSlopAndStabilization.x;
+                    const float tangentMagnitude = length(seedImpulse.yz);
+                    const float tangentRadius = friction * seedImpulse.x;
+                    if (friction == 0.0f) {
+                        seedImpulse.yz = float2(0.0f);
+                    } else if (tangentMagnitude > tangentRadius &&
+                               tangentMagnitude > 0.0f) {
+                        seedImpulse.yz *= tangentRadius / tangentMagnitude;
+                    }
+                    useWarmStartSeed =
+                        seedImpulse.x != sourceSeed ||
+                        seedImpulse.y != 0.0f ||
+                        seedImpulse.z != 0.0f;
+                    if (useWarmStartSeed)
+                        status.flags |=
+                            MR_NUMI_HUMAN_STAND_CONTACT_WARMSTART_USED;
                 }
+            }
+            if (!all(isfinite(seedImpulse))) {
+                fail(status, MR_NUMI_HUMAN_STAND_NONFINITE_RESULT, contact);
+                return;
+            }
+            if (!useWarmStartSeed) {
+                // Preserve the original source-only normal seed arithmetic
+                // exactly when history is disabled, cold, or unchanged.
+                lambdas[3u * contact + 0u] = sourceSeed;
+                lambdas[3u * contact + 1u] = 0.0f;
+                lambdas[3u * contact + 2u] = 0.0f;
+                device const float* normalResponse = responseScratch +
+                    responseBase + (3u * contact) * nv;
+                float normalVelocityBeforeSeed = 0.0f;
+                for (uint dof = 0u; dof < nv; ++dof) {
+                    normalVelocityBeforeSeed += pointJacobianAxis(
+                        pointJacobians, pointJacobianBase,
+                        support.pointQueryIndex, nv, dof, normal
+                    ) * candidateV[dof];
+                }
+                for (uint dof = 0u; dof < nv; ++dof) {
+                    candidateV[dof] += sourceSeed * normalResponse[dof];
+                }
+                if (useProjectedContacts) {
+#if defined(MR_NH_COOPERATIVE_FINISH)
+                    const float inducedWork = sourceSeed *
+                        cooperativeContactEqualityWork[3u * contact];
+#else
+                    device const float* reaction =
+                        projectedContactEquality +
+                            3u * contact * equalityCount;
+                    float inducedWork = 0.0f;
+                    for (uint row = 0u; row < equalityCount; ++row) {
+                        const float induced = sourceSeed * reaction[row];
+                        equalityLambdas[row] += induced;
+                        inducedWork = fma(induced,
+                            equalityTargetVelocityCache[row], inducedWork);
+                    }
 #endif
-                if (!isfinite(inducedWork)) {
+                    if (!isfinite(inducedWork)) {
+                        fail(status, MR_NUMI_HUMAN_STAND_NONFINITE_RESULT,
+                             contact);
+                        return;
+                    }
+                    equalityImpulseWork += inducedWork;
+                    equalityAbsoluteImpulseWork += abs(inducedWork);
+                }
+                const float normalVelocityAfterSeed = fma(
+                    sourceSeed, matrix[0u] - kResponseRegularization,
+                    normalVelocityBeforeSeed
+                );
+                const float seedWork = 0.5f * sourceSeed *
+                    (normalVelocityBeforeSeed + normalVelocityAfterSeed);
+                if (!isfinite(seedWork)) {
                     fail(status, MR_NUMI_HUMAN_STAND_NONFINITE_RESULT,
                          contact);
                     return;
                 }
-                equalityImpulseWork += inducedWork;
-                equalityAbsoluteImpulseWork += abs(inducedWork);
+                contactNormalImpulseWork += seedWork;
+                contactNormalAbsoluteImpulseWork += abs(seedWork);
+            } else {
+                lambdas[3u * contact + 0u] = seedImpulse.x;
+                lambdas[3u * contact + 1u] = seedImpulse.y;
+                lambdas[3u * contact + 2u] = seedImpulse.z;
+                float3 seedVelocityBefore{0.0f};
+                for (uint axis = 0u; axis < 3u; ++axis) {
+                    float value = 0.0f;
+                    for (uint dof = 0u; dof < nv; ++dof) {
+                        value += pointJacobianAxis(
+                            pointJacobians, pointJacobianBase,
+                            support.pointQueryIndex, nv, dof,
+                            directions[axis]
+                        ) * candidateV[dof];
+                    }
+                    seedVelocityBefore[axis] = value;
+                }
+                for (uint axis = 0u; axis < 3u; ++axis) {
+                    device const float* response = responseScratch +
+                        responseBase + (3u * contact + axis) * nv;
+                    for (uint dof = 0u; dof < nv; ++dof) {
+                        candidateV[dof] +=
+                            seedImpulse[axis] * response[dof];
+                    }
+                    if (useProjectedContacts) {
+#if defined(MR_NH_COOPERATIVE_FINISH)
+                        const float inducedWork = seedImpulse[axis] *
+                            cooperativeContactEqualityWork[
+                                3u * contact + axis];
+#else
+                        device const float* reaction =
+                            projectedContactEquality +
+                                (3u * contact + axis) * equalityCount;
+                        float inducedWork = 0.0f;
+                        for (uint row = 0u; row < equalityCount; ++row) {
+                            const float induced =
+                                seedImpulse[axis] * reaction[row];
+                            equalityLambdas[row] += induced;
+                            inducedWork = fma(induced,
+                                equalityTargetVelocityCache[row],
+                                inducedWork);
+                        }
+#endif
+                        if (!isfinite(inducedWork)) {
+                            fail(status,
+                                MR_NUMI_HUMAN_STAND_NONFINITE_RESULT,
+                                contact);
+                            return;
+                        }
+                        equalityImpulseWork += inducedWork;
+                        equalityAbsoluteImpulseWork += abs(inducedWork);
+                    }
+                }
+                float3 seedVelocityAfter = seedVelocityBefore;
+                for (uint row = 0u; row < 3u; ++row) {
+                    for (uint column = 0u; column < 3u; ++column) {
+                        const float effective =
+                            matrix[3u * row + column] -
+                            (row == column
+                                ? kResponseRegularization : 0.0f);
+                        seedVelocityAfter[row] = fma(
+                            effective, seedImpulse[column],
+                            seedVelocityAfter[row]);
+                    }
+                }
+                const float normalSeedWork = 0.5f * seedImpulse.x *
+                    (seedVelocityBefore.x + seedVelocityAfter.x);
+                const float tangentialSeedWork = 0.5f * (
+                    seedImpulse.y *
+                        (seedVelocityBefore.y + seedVelocityAfter.y) +
+                    seedImpulse.z *
+                        (seedVelocityBefore.z + seedVelocityAfter.z));
+                if (!all(isfinite(seedVelocityAfter)) ||
+                    !isfinite(normalSeedWork) ||
+                    !isfinite(tangentialSeedWork)) {
+                    fail(status, MR_NUMI_HUMAN_STAND_NONFINITE_RESULT,
+                         contact);
+                    return;
+                }
+                contactNormalImpulseWork += normalSeedWork;
+                contactNormalAbsoluteImpulseWork += abs(normalSeedWork);
+                contactTangentialImpulseWork += tangentialSeedWork;
+                contactTangentialAbsoluteImpulseWork +=
+                    abs(tangentialSeedWork);
             }
-            const float normalVelocityAfterSeed = fma(
-                seed, matrix[0u] - kResponseRegularization,
-                normalVelocityBeforeSeed
-            );
-            const float seedWork = 0.5f * seed *
-                (normalVelocityBeforeSeed + normalVelocityAfterSeed);
-            if (!isfinite(seedWork)) {
-                fail(status, MR_NUMI_HUMAN_STAND_NONFINITE_RESULT, contact);
-                return;
-            }
-            contactNormalImpulseWork += seedWork;
-            contactNormalAbsoluteImpulseWork += abs(seedWork);
         }
         }
 #if defined(MR_NH_COOPERATIVE_FINISH)
@@ -2577,7 +2722,9 @@
         (MR_NUMI_HUMAN_STAND_REDUCED_PROJECTION_READY |
          MR_NUMI_HUMAN_STAND_REDUCED_PROJECTION_USED |
          MR_NUMI_HUMAN_STAND_DEFERRED_EQUALITY_DIAGNOSTICS_USED |
-         MR_NUMI_HUMAN_STAND_HYBRID_FACTOR_CACHE_USED);
+         MR_NUMI_HUMAN_STAND_HYBRID_FACTOR_CACHE_USED |
+         MR_NUMI_HUMAN_STAND_CONTACT_WARMSTART_HIT |
+         MR_NUMI_HUMAN_STAND_CONTACT_WARMSTART_USED);
     status.flags = (dispatch.flags &
         ~(MR_NUMI_HUMAN_STAND_FREE_READY |
           MR_NUMI_HUMAN_STAND_CPU_FINISH_READY)) | finishPathEvidence;

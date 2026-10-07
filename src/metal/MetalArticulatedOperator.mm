@@ -5,6 +5,7 @@
 #include <dispatch/dispatch.h>
 
 #include "metalrobo/MetalArticulatedOperator.hpp"
+#include "metalrobo/MetalWorld.hpp"
 #include "metalrobo/MetalNumanXHumanIO.hpp"
 #include "metalrobo/NumanXExactTransaction.hpp"
 #include "metalrobo/numanx_human_matter_adapter_gpu.h"
@@ -250,8 +251,9 @@ id<MTLComputeCommandEncoder> humanTimedEncoder(
 // occupies slots 16..23 in the same command buffer. The MyoSim sidecar owns
 // slots 24..30 and consumes the same private pose/Jacobian output directly.
 constexpr std::size_t kRawBufferCount = 31u;
-constexpr std::size_t kStandBufferCount = 25u;
+constexpr std::size_t kStandBufferCount = 26u;
 constexpr std::size_t kStandSparseGraphBuffer = 24u;
+constexpr std::size_t kStandContactWarmStartBuffer = 25u;
 constexpr std::size_t kStandPassiveJointBuffer = 22u;
 constexpr std::size_t kStandLimitEqualityResponseBuffer = 23u;
 constexpr std::size_t kStandRootTranslationBuffer = 18u;
@@ -615,6 +617,71 @@ void visitSplitStandBoundary(
     appendSplitStandValue(sink, input.stand.timedRootForce);
 }
 
+[[nodiscard]] bool standContactWarmStartArenaApplicable(
+    const MetalArticulatedOperatorConfig& config,
+    const MetalArticulatedOperatorInput& input
+) noexcept {
+    return config.standContactWarmStart && config.splitStandSolve &&
+        input.stand.enabled() && input.stand.enableContact &&
+        !input.stand.contacts.empty();
+}
+
+[[nodiscard]] bool standContactWarmStartApplicable(
+    const MetalArticulatedOperatorConfig& config,
+    const MetalArticulatedOperatorInput& input
+) noexcept {
+    return standContactWarmStartArenaApplicable(config, input) &&
+        !input.stand.numanXHumanMatterProgram.valid();
+}
+
+[[nodiscard]] mr_uint4 standContactWarmStartIdentity(
+    const EngineModel& model,
+    const MetalArticulatedOperatorInput& input,
+    const float timestepSeconds
+) noexcept {
+    CC_SHA256_CTX context{};
+    CC_SHA256_Init(&context);
+    constexpr std::array<std::uint8_t, 32u> domain{{
+        'm','r','n','x','.','s','t','a','n','d','.','c','o','n','t','a',
+        'c','t','.','w','a','r','m','s','t','a','r','t','.','v','2',0}};
+    appendSplitStandFingerprint(context, domain.data(), domain.size());
+    const auto appendValue = [&context](const auto& value) {
+        appendSplitStandFingerprint(context, &value, sizeof(value));
+    };
+    const std::uint64_t modelFingerprint = engineModelFingerprint(model);
+    const std::uint32_t contactCount = static_cast<std::uint32_t>(
+        input.stand.contacts.size());
+    const std::uint32_t environmentCount = input.environmentCount;
+    const std::uint32_t articulationIndex = input.articulationIndex;
+    const std::uint8_t contactEnabled = input.stand.enableContact ? 1u : 0u;
+    appendValue(modelFingerprint);
+    appendValue(articulationIndex);
+    appendValue(environmentCount);
+    appendValue(contactCount);
+    appendValue(contactEnabled);
+    appendValue(input.stand.contactIterationCount);
+    appendValue(input.stand.groundPoint);
+    appendValue(input.stand.groundNormal);
+    appendValue(input.stand.supportGeometryProgram.fingerprint);
+    appendValue(timestepSeconds);
+    // Bind ordered source bodies/regions/query-row bindings and their authored
+    // contact law. The point-query payload and current world anchor are omitted:
+    // current Jacobians/responses own those changing coordinates each root.
+    for (const auto& contact : input.stand.contacts) {
+        appendValue(contact.bodyIndex);
+        appendValue(contact.pointQueryIndex);
+        appendValue(contact.sourceGeometryIndex);
+        appendValue(contact.frictionSlopAndStabilization);
+    }
+    std::array<std::uint8_t, CC_SHA256_DIGEST_LENGTH> digest{};
+    CC_SHA256_Final(digest.data(), &context);
+    mr_uint4 identity{};
+    std::memcpy(&identity, digest.data(), sizeof(identity));
+    if (identity.x == 0u && identity.y == 0u &&
+        identity.z == 0u && identity.w == 0u) identity.x = 1u;
+    return identity;
+}
+
 [[nodiscard]] std::uint64_t splitStandBoundaryFingerprint(
     SplitStandBoundaryCache& cache,
     const MetalArticulatedOperatorInput& input,
@@ -672,6 +739,11 @@ struct MetalArticulatedOperatorContextState {
         if (firstSimdContactSweep != nullptr)
             config.firstSimdStandContactSweep =
                 std::strcmp(firstSimdContactSweep, "1") == 0;
+        const char* standContactWarmStart =
+            std::getenv("NUMI_HUMAN_STAND_CONTACT_WARMSTART");
+        if (standContactWarmStart != nullptr)
+            config.standContactWarmStart =
+                std::strcmp(standContactWarmStart, "1") == 0;
         const char* onePassStandLimits =
             std::getenv("NUMI_HUMAN_STAND_ONE_PASS_ORDERED_LIMITS");
         if (onePassStandLimits != nullptr)
@@ -801,6 +873,8 @@ struct MetalArticulatedOperatorContextState {
     std::array<std::size_t, kRawBufferCount> capacities{};
     std::array<std::size_t, kStandBufferCount> standCapacities{};
     std::array<std::size_t, kHumanMatterBufferCount> humanMatterCapacities{};
+    std::size_t standContactWarmStartEnvironmentCount = 0u;
+    std::size_t standContactWarmStartInitializedEnvironmentCount = 0u;
     struct SplitStandHorizonState {
         bool active = false;
         const EngineModel* model = nullptr;
@@ -2596,6 +2670,12 @@ bool buildRequirements(
             layout.standJointEqualityElements,
             requirements.standEntries[kStandJointEqualitiesBuffer]
         ) ||
+        !makeRequirement<MRNumiHumanStandContactWarmStartSlotGPU>(
+            "Numi Human accepted contact warm starts",
+            standContactWarmStartArenaApplicable(config, input)
+                ? layout.standStatusElements : 0u,
+            requirements.standEntries[kStandContactWarmStartBuffer]
+        ) ||
         !makeRequirement<MRCompensatedRootTranslationGPU>("Human root translation", hasCompensatedGeometry(layout) ? layout.statusElements : 0u,
             requirements.standEntries[kStandRootTranslationBuffer]) ||
         !makeRequirement<MRCompensatedRootTranslationGPU>("Human root translation checkpoint", layout.standStatusElements,
@@ -2732,6 +2812,9 @@ bool buildRequirements(
         requirements.standEntries[kStandLimitEqualityResponseBuffer].allocationBytes = 0u;
     if (sparseGraphElements == 0u)
         requirements.standEntries[kStandSparseGraphBuffer].allocationBytes = 0u;
+    if (!standContactWarmStartArenaApplicable(config, input))
+        requirements.standEntries[
+            kStandContactWarmStartBuffer].allocationBytes = 0u;
 
     // Read-only paired geometry borrows only the root/body/point slots from the
     // private arena. Keep all physical Stand/checkpoint slots lazy, and preserve
@@ -4294,6 +4377,11 @@ MetalArticulatedOperatorDiagnostics initializeContext(
             context.config.deferStandEqualityDiagnostics;
         [finishConstants setConstantValue:&deferStandEqualityDiagnostics
                                     type:MTLDataTypeBool atIndex:9u];
+        bool contactWarmStartSpecialized =
+            context.config.standContactWarmStart &&
+            context.config.splitStandSolve;
+        [finishConstants setConstantValue:&contactWarmStartSpecialized
+                                    type:MTLDataTypeBool atIndex:13u];
         [finishConstants setConstantValue:
             &speculativeContactAdmissionDistanceMeters
             type:MTLDataTypeFloat atIndex:8u];
@@ -4378,6 +4466,9 @@ MetalArticulatedOperatorDiagnostics initializeContext(
         cpuFinishSpecialized = true;
         [finishConstants setConstantValue:&cpuFinishSpecialized
                                     type:MTLDataTypeBool atIndex:0u];
+        contactWarmStartSpecialized = false;
+        [finishConstants setConstantValue:&contactWarmStartSpecialized
+                                    type:MTLDataTypeBool atIndex:13u];
         deferStandEqualityDiagnostics = false;
         [finishConstants setConstantValue:&deferStandEqualityDiagnostics
                                     type:MTLDataTypeBool atIndex:9u];
@@ -4953,6 +5044,13 @@ MetalArticulatedOperatorDiagnostics ensureBufferArena(
         ++context.stats.bufferAllocationCount;
         context.standBuffers[index] = standReplacements[index];
         context.standCapacities[index] = standProposed[index];
+        if (index == kStandContactWarmStartBuffer &&
+            requirements.standEntries[index].allocationBytes != 0u) {
+            // A replacement arena is a fresh/reset contact-history context.
+            std::memset(context.standBuffers[index].contents, 0,
+                requirements.standEntries[index].allocationBytes);
+            context.standContactWarmStartInitializedEnvironmentCount = 0u;
+        }
     }
     for (std::size_t index = 0u;
          index < kHumanMatterBufferCount; ++index) {
@@ -5253,11 +5351,45 @@ void uploadBatch(
         for (std::size_t index = kStandSpatialJacobianBuffer;
              index < kStandBufferCount; ++index) {
             if (index == kStandRootTranslationBuffer && reusePublishedResidentState) continue;
+            if (index == kStandContactWarmStartBuffer) continue;
             std::memset(
                 context.standBuffers[index].contents,
                 0,
                 requirements.standEntries[index].allocationBytes
             );
+        }
+        if (context.standBuffers[kStandContactWarmStartBuffer] != nil &&
+            context.standCapacities[kStandContactWarmStartBuffer] >=
+                input.environmentCount *
+                    sizeof(MRNumiHumanStandContactWarmStartSlotGPU)) {
+            auto* slots = static_cast<
+                MRNumiHumanStandContactWarmStartSlotGPU*>(
+                    context.standBuffers[
+                        kStandContactWarmStartBuffer].contents);
+            const std::size_t initializedCount =
+                std::min(input.environmentCount,
+                    context.standContactWarmStartInitializedEnvironmentCount);
+            for (std::size_t environment = initializedCount;
+                 environment < input.environmentCount; ++environment) {
+                std::memset(&slots[environment].accepted, 0,
+                    sizeof(slots[environment].accepted));
+            }
+            context.standContactWarmStartInitializedEnvironmentCount =
+                std::max(
+                    context.standContactWarmStartInitializedEnvironmentCount,
+                    input.environmentCount);
+            for (std::size_t environment = 0u;
+                 environment < input.environmentCount; ++environment) {
+                slots[environment].requestedIdentity =
+                    contactWarmStartRequested
+                        ? contactWarmStartIdentity : mr_uint4{};
+                slots[environment].requestState = {
+                    contactWarmStartRequested ? 1u : 0u, 0u, 0u, 0u};
+            }
+            context.standContactWarmStartEnvironmentCount =
+                contactWarmStartRequested ? input.environmentCount : 0u;
+        } else {
+            context.standContactWarmStartEnvironmentCount = 0u;
         }
         copyToBuffer(context.standBuffers[kStandSparseGraphBuffer],
             requirements.sparseStandGraph.empty() ? nullptr :
@@ -10186,6 +10318,14 @@ MetalArticulatedOperatorContext::submit(
             hasExplicitAuthoritativeHorizon
                 ? residentProgramFingerprint
                 : 0u;
+        const bool contactWarmStartRequested =
+            standContactWarmStartApplicable(state_->config, input);
+        const mr_uint4 contactWarmStartIdentity =
+            contactWarmStartRequested
+                ? standContactWarmStartIdentity(
+                      model, input,
+                      state_->config.mujocoActivationTimestepSeconds)
+                : mr_uint4{};
         if (reusePublishedResidentState) {
             const auto& resident = state_->publishedResident;
             const auto& program = input.stand.numanXHumanMatterProgram;
@@ -13898,6 +14038,13 @@ MetalArticulatedOperatorContext::submit(
                                 : state_->standPipeline];
                     if (sampleFinishWork)
                         [standEncoder setBuffer:finishWorkBuffer offset:0u atIndex:29u];
+                    if (state_->config.standContactWarmStart &&
+                        state_->config.splitStandSolve && splitStand &&
+                        !cpuFinish && phase == standPhaseCount - 1u &&
+                        state_->standBuffers[
+                            kStandContactWarmStartBuffer] != nil)
+                        [standEncoder setBuffer:state_->standBuffers[
+                            kStandContactWarmStartBuffer] offset:0u atIndex:30u];
                     if (state_->config.sparseStandOperator)
                         [standEncoder setBuffer:
                             state_->standBuffers[kStandSparseGraphBuffer]
@@ -14297,8 +14444,16 @@ MetalArticulatedOperatorContext::submit(
                         authoritativeStep,
                         static_cast<std::uint32_t>(input.mujoco.muscles.size()),
                         static_cast<std::uint32_t>(diagnostics.layout.standVectorElements / input.environmentCount)};
-                    const mr_uint4 strides = {standDispatch.qStride, standDispatch.vStride, 0u, 0u};
+                    const mr_uint4 strides = {
+                        standDispatch.qStride, standDispatch.vStride,
+                        standDispatch.supportContactCount,
+                        contactWarmStartRequested ? 1u : 0u};
                     [reconcile setComputePipelineState:state_->standReconcilePipeline];
+                    [reconcile setBuffer:
+                        state_->standBuffers[kStandContactWarmStartBuffer] != nil
+                            ? state_->standBuffers[kStandContactWarmStartBuffer]
+                            : state_->standBuffers[kStandVectorBuffer]
+                        offset:0u atIndex:14u];
                     [reconcile setBuffer:state_->standBuffers[kStandRootTranslationBuffer] offset:0u atIndex:12u];
                     [reconcile setBuffer:state_->standBuffers[kStandRootTranslationCheckpointBuffer] offset:0u atIndex:13u];
                     [reconcile setBytes:&shape length:sizeof(shape) atIndex:0u];
@@ -14657,6 +14812,57 @@ MetalArticulatedOperatorContext::run(
         return diagnostics;
     }
     return submission.wait(result);
+}
+
+bool MetalArticulatedOperatorContext::
+copyStandContactWarmStartHistoryForDiagnostics(
+    std::vector<std::uint8_t>& acceptedRecords,
+    std::string& error
+) const {
+    acceptedRecords.clear();
+    if (state_ == nullptr) {
+        error = "operator context was moved from";
+        return false;
+    }
+    try {
+        const std::lock_guard lock(state_->mutex);
+        const std::size_t environmentCount =
+            state_->standContactWarmStartEnvironmentCount;
+        std::size_t slotBytes = 0u;
+        std::size_t recordBytes = 0u;
+        if (!state_->initialized || state_->inFlight ||
+            environmentCount == 0u ||
+            state_->standBuffers[kStandContactWarmStartBuffer] == nil ||
+            !checkedMultiply(environmentCount,
+                sizeof(MRNumiHumanStandContactWarmStartSlotGPU), slotBytes) ||
+            !checkedMultiply(environmentCount,
+                sizeof(MRNumiHumanStandContactWarmStartGPU), recordBytes) ||
+            state_->standCapacities[kStandContactWarmStartBuffer] < slotBytes) {
+            error = "accepted contact history requires a quiescent warm-start context";
+            return false;
+        }
+        const auto* slots = static_cast<const
+            MRNumiHumanStandContactWarmStartSlotGPU*>(
+                state_->standBuffers[kStandContactWarmStartBuffer].contents);
+        acceptedRecords.reserve(recordBytes);
+        for (std::size_t environment = 0u;
+             environment < environmentCount; ++environment) {
+            const auto* bytes = reinterpret_cast<const std::uint8_t*>(
+                &slots[environment].accepted);
+            acceptedRecords.insert(acceptedRecords.end(), bytes,
+                bytes + sizeof(MRNumiHumanStandContactWarmStartGPU));
+        }
+        error.clear();
+        return true;
+    } catch (const std::exception& exception) {
+        error = exception.what();
+        acceptedRecords.clear();
+        return false;
+    } catch (...) {
+        error = "accepted contact history diagnostic exception";
+        acceptedRecords.clear();
+        return false;
+    }
 }
 
 MetalArticulatedOperatorContextStats

@@ -91,6 +91,12 @@ constant bool kReducedResponseDiagnostics [[function_constant(11)]];
 constant bool kUseReducedResponseDiagnostics =
     is_function_constant_defined(kReducedResponseDiagnostics)
         ? kReducedResponseDiagnostics : false;
+// Default-off accepted contact-impulse guess. The PGS law and sweep count
+// are unchanged; only a validated prior accepted impulse can seed lambda.
+constant bool kStandContactWarmStart [[function_constant(13)]];
+constant bool kUseStandContactWarmStart =
+    is_function_constant_defined(kStandContactWarmStart)
+        ? kStandContactWarmStart : false;
 inline float standContactAdmissionDistanceMeters(
     const MRNumiHumanStandContactGPU support
 ) {
@@ -989,6 +995,8 @@ kernel void mr_numi_human_stand_step(
     device const float* passiveJointProgram [[buffer(24)]],
     device float* sourceDynamicsWitness [[buffer(25)]],
     device const uint* sparseGraph [[buffer(28), function_constant(kUseSparseStandOperator)]],
+    device MRNumiHumanStandContactWarmStartSlotGPU* contactWarmStartHistory
+        [[buffer(30), function_constant(kUseStandContactWarmStart)]],
     uint environment [[threadgroup_position_in_grid]],
     uint lane [[thread_index_in_threadgroup]],
     uint threadCount [[threads_per_threadgroup]]
@@ -3307,6 +3315,8 @@ kernel void mr_numi_human_stand_finish(
     device float* cachedLimitEqualityResponse [[buffer(27), function_constant(kUseCachedLimitEqualityResponse)]],
     device const uint* sparseGraph [[buffer(28), function_constant(kUseSparseStandOperator)]],
     device uint* finishWorkCounters [[buffer(29)]],
+    device MRNumiHumanStandContactWarmStartSlotGPU* contactWarmStartHistory
+        [[buffer(30), function_constant(kUseStandContactWarmStart)]],
     uint environment [[threadgroup_position_in_grid]],
     uint lane [[thread_index_in_threadgroup]],
     uint threadCount [[threads_per_threadgroup]],
@@ -3521,12 +3531,37 @@ kernel void mr_numi_human_stand_reconcile(
     device const float* acceptedVectors [[buffer(11)]],
     device MRCompensatedRootTranslationGPU* rootTranslations [[buffer(12)]],
     device const MRCompensatedRootTranslationGPU* acceptedRootTranslations [[buffer(13)]],
+    device MRNumiHumanStandContactWarmStartSlotGPU* contactWarmStartHistory [[buffer(14)]],
     uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= shape.x) return;
     const MRNumiHumanStandStatusGPU attempt = statuses[environment];
     if (attempt.code == MR_NUMI_HUMAN_STAND_SUCCESS &&
-        attempt.environment == environment && attempt.completedSteps == shape.y + 1u) return;
+        attempt.environment == environment &&
+        attempt.completedSteps == shape.y + 1u) {
+        if (strides.w != 0u &&
+            contactWarmStartHistory[environment].requestState.x == 1u) {
+            device MRNumiHumanStandContactWarmStartSlotGPU& slot =
+                contactWarmStartHistory[environment];
+            slot.accepted.identity = slot.requestedIdentity;
+            slot.accepted.metadata = {strides.z, 1u, 0u, 0u};
+            const uint lambdaBase = environment * shape.w +
+                4u * strides.y;
+            for (uint contact = 0u;
+                 contact < MR_NUMI_HUMAN_STAND_MAX_CONTACTS; ++contact) {
+                float4 impulse{0.0f};
+                if (contact < strides.z) {
+                    impulse = float4(
+                        vectors[lambdaBase + 3u * contact + 0u],
+                        vectors[lambdaBase + 3u * contact + 1u],
+                        vectors[lambdaBase + 3u * contact + 2u],
+                        0.0f);
+                }
+                slot.accepted.impulses[contact] = impulse;
+            }
+        }
+        return;
+    }
     rootTranslations[environment] = acceptedRootTranslations[environment];
     for (uint i=0u; i<strides.x; ++i) q[environment*strides.x+i] = acceptedQ[environment*strides.x+i];
     for (uint i=0u; i<strides.y; ++i) v[environment*strides.y+i] = acceptedV[environment*strides.y+i];

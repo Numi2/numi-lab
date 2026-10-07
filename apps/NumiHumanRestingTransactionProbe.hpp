@@ -422,6 +422,35 @@ inline void captureCompletedTransactionProbePhysical(
         first.presentedStep == second.presentedStep;
 }
 
+[[nodiscard]] inline std::vector<std::uint8_t>
+captureAcceptedContactWarmStart(
+    metalrobo::MetalArticulatedOperatorContext& context,
+    const char* label
+) {
+    std::vector<std::uint8_t> records;
+    std::string error;
+    need(context.copyStandContactWarmStartHistoryForDiagnostics(
+             records, error),
+         std::string("resting transaction probe could not capture ") +
+             label + ": " + error);
+    need(!records.empty() &&
+             records.size() % sizeof(MRNumiHumanStandContactWarmStartGPU) == 0u,
+         std::string("resting transaction probe captured no complete accepted ") +
+             label + " records");
+    for (std::size_t offset = 0u; offset < records.size();
+         offset += sizeof(MRNumiHumanStandContactWarmStartGPU)) {
+        MRNumiHumanStandContactWarmStartGPU record{};
+        std::memcpy(&record, records.data() + offset, sizeof(record));
+        need(record.metadata.y == 1u &&
+                 record.metadata.z == 0u && record.metadata.w == 0u &&
+                 (record.identity.x | record.identity.y |
+                  record.identity.z | record.identity.w) != 0u,
+             std::string("resting transaction probe found an uncommitted ") +
+                 label + " record");
+    }
+    return records;
+}
+
 inline void requireAcceptedStep(
     const metalrobo::MetalArticulatedOperatorDiagnostics& diagnostics,
     const metalrobo::MetalArticulatedOperatorResult& result,
@@ -441,6 +470,28 @@ inline void requireAcceptedStep(
              result.mujocoActivationStates.size() == muscleCount,
          "resting transaction probe could not publish an accepted full body step: " +
              diagnostics.message);
+}
+
+inline void requireContactWarmStartUseReceipt(
+    const metalrobo::MetalArticulatedOperatorResult& result,
+    const std::uint32_t acceptedRoots,
+    const char* label
+) {
+    need(result.standStatuses.size() == 1u &&
+             result.standStatuses.front().code == MR_NUMI_HUMAN_STAND_SUCCESS,
+         std::string("resting transaction probe lacks a successful ") +
+             label + " contact warm-start status");
+    const std::uint32_t flags = result.standStatuses.front().flags;
+    need((flags & MR_NUMI_HUMAN_STAND_CONTACT_WARMSTART_HIT) != 0u,
+         std::string("resting transaction probe had no accepted-history hit in ") +
+             label);
+    std::cerr << "resting_contact_warmstart_receipt"
+              << " segment=" << label
+              << " accepted_roots=" << acceptedRoots
+              << " history_hit=1"
+              << " seed_changed="
+              << ((flags & MR_NUMI_HUMAN_STAND_CONTACT_WARMSTART_USED) != 0u)
+              << '\n';
 }
 
 inline void run(
@@ -920,8 +971,12 @@ inline void run(
     metalrobo::MetalArticulatedOperatorResult multiBaseline2Result;
     const auto multiBaseline2Diagnostics = multiBaselineContext.run(
         model, multiBaseline2Input, multiBaseline2Result);
+    const auto multiBaseline2WarmStart = captureAcceptedContactWarmStart(
+        multiBaselineContext, "two-root contact history");
     requireAcceptedStep(multiBaseline2Diagnostics, multiBaseline2Result, 2u,
                         qCount, vCount, muscleCount);
+    requireContactWarmStartUseReceipt(
+        multiBaseline2Result, 2u, "two-root-baseline");
     const auto multiBaseline2Matter = physiology.runtime.snapshot();
     const auto multiBaseline2Memory = captureCouplingMemory(coupling);
     const PhysicalSnapshot multiBaseline2Physical = observePhysicalState(
@@ -935,8 +990,12 @@ inline void run(
     metalrobo::MetalArticulatedOperatorResult multiBaseline4Result;
     const auto multiBaseline4Diagnostics = multiBaselineContext.run(
         model, multiBaseline4Input, multiBaseline4Result);
+    const auto multiBaseline4WarmStart = captureAcceptedContactWarmStart(
+        multiBaselineContext, "four-root contact history");
     requireAcceptedStep(multiBaseline4Diagnostics, multiBaseline4Result, 4u,
                         qCount, vCount, muscleCount);
+    requireContactWarmStartUseReceipt(
+        multiBaseline4Result, 2u, "continuation-baseline");
     const auto multiBaseline4Matter = physiology.runtime.snapshot();
     const auto multiBaseline4Memory = captureCouplingMemory(coupling);
     const PhysicalSnapshot multiBaseline4Physical = observePhysicalState(
@@ -950,6 +1009,8 @@ inline void run(
     metalrobo::MetalArticulatedOperatorResult multiBaseline6Result;
     const auto multiBaseline6Diagnostics = multiBaselineContext.run(
         model, multiBaseline6Input, multiBaseline6Result);
+    const auto multiBaseline6WarmStart = captureAcceptedContactWarmStart(
+        multiBaselineContext, "six-root contact history");
     requireAcceptedStep(multiBaseline6Diagnostics, multiBaseline6Result, 6u,
                         qCount, vCount, muscleCount);
     const auto multiBaseline6Matter = physiology.runtime.snapshot();
@@ -966,6 +1027,8 @@ inline void run(
     metalrobo::MetalArticulatedOperatorResult multiTrial2Result;
     const auto multiTrial2Diagnostics = multiFailureContext.run(
         model, multiTrial2Input, multiTrial2Result);
+    const auto multiTrial2WarmStart = captureAcceptedContactWarmStart(
+        multiFailureContext, "trial two-root contact history");
     requireAcceptedStep(multiTrial2Diagnostics, multiTrial2Result, 2u,
                         qCount, vCount, muscleCount);
     const auto multiTrial2Matter = physiology.runtime.snapshot();
@@ -976,7 +1039,8 @@ inline void run(
         multiTrial2Diagnostics.residentStateGeneration);
     need(samePhysicalState(multiBaseline2Physical, multiTrial2Physical) &&
              sameMatterAcceptedState(multiBaseline2Matter, multiTrial2Matter) &&
-             sameAcceptedCouplingMemory(multiBaseline2Memory, multiTrial2Memory),
+             sameAcceptedCouplingMemory(multiBaseline2Memory, multiTrial2Memory) &&
+             sameBytes(multiBaseline2WarmStart, multiTrial2WarmStart),
          "multi-step Human transaction prefix did not replay its accepted two-root seed");
 
     PhysicalSnapshot multiFailedRawPhysical(
@@ -1027,6 +1091,8 @@ inline void run(
     respiration.diagnosticRejectAtControlStep = NM_INVALID_INDEX;
     const auto multiFailedMatter = physiology.runtime.snapshot();
     const auto multiFailedMemory = captureCouplingMemory(coupling);
+    const auto multiFailedWarmStart = captureAcceptedContactWarmStart(
+        multiFailureContext, "rejected four-root accepted-prefix contact history");
     const bool rejectedAtGlobalStep4 = !multiRejectedDiagnostics.succeeded() &&
         multiRejectedDiagnostics.dispatched && !multiRejectedDiagnostics.published &&
         multiRejectedDiagnostics.firstStandGPUStatusCode ==
@@ -1036,7 +1102,8 @@ inline void run(
     const bool acceptedPrefixAtFour =
         samePhysicalState(multiBaseline4Physical, multiFailedRawPhysical) &&
         sameMatterAcceptedState(multiBaseline4Matter, multiFailedMatter) &&
-        sameAcceptedCouplingMemory(multiBaseline4Memory, multiFailedMemory);
+        sameAcceptedCouplingMemory(multiBaseline4Memory, multiFailedMemory) &&
+        sameBytes(multiBaseline4WarmStart, multiFailedWarmStart);
     if (!rejectedAtGlobalStep4 || !capturedInertSuffix || !acceptedPrefixAtFour) {
         std::cerr << "resting_multistep_prefix_diagnostic"
                   << " reject_step4=" << rejectedAtGlobalStep4
@@ -1047,6 +1114,7 @@ inline void run(
                   << " physical=" << samePhysicalState(multiBaseline4Physical, multiFailedRawPhysical)
                   << " matter=" << sameMatterAcceptedState(multiBaseline4Matter, multiFailedMatter)
                   << " coupled=" << sameAcceptedCouplingMemory(multiBaseline4Memory, multiFailedMemory)
+                  << " warmstart=" << sameBytes(multiBaseline4WarmStart, multiFailedWarmStart)
                   << " q_diff=" << firstDifferingByte(multiBaseline4Physical.qValues, multiFailedRawPhysical.qValues)
                   << " v_diff=" << firstDifferingByte(multiBaseline4Physical.vValues, multiFailedRawPhysical.vValues)
                   << " root_diff=" << firstDifferingByte(multiBaseline4Physical.rootValues, multiFailedRawPhysical.rootValues)
@@ -1086,6 +1154,8 @@ inline void run(
     metalrobo::MetalArticulatedOperatorResult multiRetry6Result;
     const auto multiRetry6Diagnostics = multiRetryContext.run(
         model, multiRetry6Input, multiRetry6Result);
+    const auto multiRetry6WarmStart = captureAcceptedContactWarmStart(
+        multiRetryContext, "fresh-context six-root contact history");
     requireAcceptedStep(multiRetry6Diagnostics, multiRetry6Result, 6u,
                         qCount, vCount, muscleCount);
     const auto multiRetryMatter = physiology.runtime.snapshot();
@@ -1096,7 +1166,8 @@ inline void run(
         multiRetry6Diagnostics.residentStateGeneration);
     need(samePhysicalState(multiBaseline6Physical, multiRetryPhysical) &&
              sameMatterAcceptedState(multiBaseline6Matter, multiRetryMatter) &&
-             sameAcceptedCouplingMemory(multiBaseline6Memory, multiRetryMemory),
+             sameAcceptedCouplingMemory(multiBaseline6Memory, multiRetryMemory) &&
+             sameBytes(multiBaseline6WarmStart, multiRetry6WarmStart),
          "fresh-context multi-step replay did not reproduce the uninterrupted six-root coupled endpoint");
 
     restoreInitialCoupling();
@@ -1105,7 +1176,7 @@ inline void run(
                  " respiration_brain_history_unchanged=true retry_matches_uninterrupted_replay=true"
                  " same_command_buffer_reject=pass accepted_prefix=2 rejected_step=2 inert_suffix=1"
                  " multistep_reject=pass accepted_prefix=4 rejected_global_step=4 inert_suffix_global_step=5"
-                 " raw_failed_submission_snapshot=pass all_owners_match_uninterrupted_prefix=true"
+                 " raw_failed_submission_snapshot=pass all_owners_and_contact_history_match_uninterrupted_prefix=true"
                  " retry=fresh_context_reseed_and_replay_matches_six_root_baseline"
                  " same_context_retry=unsupported\n";
 }

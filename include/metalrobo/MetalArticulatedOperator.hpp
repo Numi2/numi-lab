@@ -1892,6 +1892,10 @@ struct MetalArticulatedOperatorConfig {
     bool deferStandEqualityDiagnostics = false;
     // Opt-in 7,800-float threadgroup prefix for 65-96-row equality LU.
     bool hybridStandEqualityFactorCache = false;
+    // Default-off source contact impulse guess retained by the existing
+    // accepted-state transaction. Only split GPU finish reads it; final PGS
+    // sweeps, ordering, and stopping rules remain unchanged.
+    bool standContactWarmStart = false;
     // Optional speculative-contact candidate admission override. Zero retains
     // the source contact activation distance and warm-start policy.
     float speculativeContactAdmissionDistanceMeters = 0.0f;
@@ -2322,6 +2326,14 @@ public:
 
     [[nodiscard]] MetalArticulatedOperatorContextStats stats()
         const noexcept;
+
+    // Copies only the accepted contact-history records, excluding transient
+    // request identities. Requires a quiescent context and is intended for
+    // transaction diagnostics.
+    [[nodiscard]] bool copyStandContactWarmStartHistoryForDiagnostics(
+        std::vector<std::uint8_t>& acceptedRecords,
+        std::string& error
+    ) const;
 
 private:
     std::shared_ptr<
