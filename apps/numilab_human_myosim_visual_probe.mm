@@ -22784,6 +22784,10 @@ int main(int argc, char** argv) {
                 // trace writes, audits, rendering, and export all remain included.
                 std::optional<std::chrono::steady_clock::time_point> restingThroughputStart;
                 std::uint32_t restingThroughputStartStep = 0u;
+                const char* restingObserverProfileSetting =
+                    std::getenv("NUMI_HUMAN_TRAINING_PROFILE");
+                const bool trainingProfile = restingObserverProfileSetting != nullptr &&
+                    std::strcmp(restingObserverProfileSetting, "1") == 0;
                 struct RestingObserverProfile {
                     std::uint64_t callbacks = 0u;
                     double totalMilliseconds = 0.0;
