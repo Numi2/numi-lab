@@ -11962,6 +11962,7 @@ MetalArticulatedOperatorContext::submit(
                 const bool cpuFactorShadowFreeProbe =
                     cpuFactorShadowRequested && freeSplit && !cpuFinish &&
                     authoritativeStep == 0u && input.environmentCount == 1u &&
+                    input.stand.stepCount == 1u &&
                     articulation.nv == detail::stand_cpu_pilot::kDofs &&
                     (standDispatch.flags &
                      MR_NUMI_HUMAN_STAND_ENABLE_CONTACT) == 0u &&
@@ -11970,10 +11971,29 @@ MetalArticulatedOperatorContext::submit(
                      MR_NUMI_HUMAN_STAND_ENABLE_ROOT_ASSISTANCE) == 0u;
                 if (cpuFactorShadowRequested && !cpuFinish &&
                     !cpuFactorShadowFreeProbe) {
+                    const std::string reason =
+                        "CPU factor shadow probe eligibility failed freeSplit=" +
+                        std::to_string(freeSplit ? 1u : 0u) +
+                        " authoritativeStep=" + std::to_string(authoritativeStep) +
+                        " environments=" + std::to_string(input.environmentCount) +
+                        " stepCount=" + std::to_string(input.stand.stepCount) +
+                        " nv=" + std::to_string(articulation.nv) +
+                        " supportContacts=" +
+                            std::to_string(standDispatch.supportContactCount) +
+                        " contactEnabled=" + std::to_string(
+                            (standDispatch.flags &
+                             MR_NUMI_HUMAN_STAND_ENABLE_CONTACT) != 0u ? 1u : 0u) +
+                        " equalities=" +
+                            std::to_string(standDispatch.jointEqualityCount) +
+                        " rootAssistance=" + std::to_string(
+                            (standDispatch.flags &
+                             MR_NUMI_HUMAN_STAND_ENABLE_ROOT_ASSISTANCE) != 0u
+                                ? 1u : 0u) +
+                        " cpuFinish=" + std::to_string(cpuFinish ? 1u : 0u);
                     return reject(
                         std::move(diagnostics),
                         MetalArticulatedOperatorHostStatus::invalidDimensions,
-                        "CPU factor shadow requires the bounded one-step 128-DOF free parity probe"
+                        reason
                     );
                 }
                 const bool cpuFree = cpuFreeRequested && cpuFinish;
