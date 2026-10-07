@@ -1499,7 +1499,7 @@ public:
         cardiacQPipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_cardiac_q"] error:&e];
         cardiacWallQPipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_cardiac_wall_q"] error:&e];
         cardiacWallNormalsPipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_cardiac_wall_normals"] error:&e];
-        commonCoordinatesPipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_common_coordinates"] error:&e];
+        commonCoordinatesPipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_common_coordinates_simd"] error:&e];
         commonCoordinateStatusPipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_common_coordinate_status_gate"] error:&e];
         layerPipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_layers"] error:&e];
         volumeAuditPartialPipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_audit_volume_partials"] error:&e];

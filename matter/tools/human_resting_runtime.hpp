@@ -99,7 +99,10 @@ struct Respiration {
                 [enc setBuffer:commonGeometryParameters offset:0 atIndex:1];
                 [enc setBuffer:commonGeometryBoxes offset:0 atIndex:2];
                 [enc setBuffer:commonCandidateCoordinates offset:0 atIndex:3];
-                [enc dispatchThreads:MTLSizeMake(1,1,1) threadsPerThreadgroup:MTLSizeMake(1,1,1)];
+                const NSUInteger solverWidth=commonCoordinatesSolvePipeline.threadExecutionWidth;
+                if(solverWidth<7u) { [enc endEncoding]; return false; }
+                [enc dispatchThreadgroups:MTLSizeMake(1,1,1)
+                    threadsPerThreadgroup:MTLSizeMake(solverWidth,1,1)];
                 [enc setComputePipelineState:commonCoordinateStatusPipeline];
                 [enc setBuffer:commonCandidateCoordinates offset:0 atIndex:0];
                 [enc setBuffer:buffer(v.matterStatuses) offset:0 atIndex:1];

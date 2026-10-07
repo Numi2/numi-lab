@@ -108,7 +108,10 @@ public:
         [encoder setBuffer:respiration.commonGeometryParameters offset:0 atIndex:1];
         [encoder setBuffer:respiration.commonGeometryBoxes offset:0 atIndex:2];
         [encoder setBuffer:acceptedCommonCoordinates offset:0 atIndex:3];
-        [encoder dispatchThreads:MTLSizeMake(1,1,1) threadsPerThreadgroup:MTLSizeMake(1,1,1)];
+        const NSUInteger initialSolverWidth=respiration.commonCoordinatesSolvePipeline.threadExecutionWidth;
+        need(initialSolverWidth>=7u,"common-coordinate SIMD width is below seven rows");
+        [encoder dispatchThreadgroups:MTLSizeMake(1,1,1)
+            threadsPerThreadgroup:MTLSizeMake(initialSolverWidth,1,1)];
         [encoder setComputePipelineState:respiration.commonCoordinateStatusPipeline];
         [encoder setBuffer:acceptedCommonCoordinates offset:0 atIndex:0];
         [encoder setBuffer:numi::human::buffer(physiology.runtime.statusBuffer()) offset:0 atIndex:1];
@@ -213,7 +216,10 @@ public:
                     [solve setBuffer:respiration.commonGeometryParameters offset:0 atIndex:1];
                     [solve setBuffer:respiration.commonGeometryBoxes offset:0 atIndex:2];
                     [solve setBuffer:acceptedCommonCoordinates offset:0 atIndex:3];
-                    [solve dispatchThreads:MTLSizeMake(1,1,1) threadsPerThreadgroup:MTLSizeMake(1,1,1)];
+                    const NSUInteger initialSolverWidth=respiration.commonCoordinatesSolvePipeline.threadExecutionWidth;
+                    need(initialSolverWidth>=7u,"common-coordinate SIMD width is below seven rows");
+                    [solve dispatchThreadgroups:MTLSizeMake(1,1,1)
+                        threadsPerThreadgroup:MTLSizeMake(initialSolverWidth,1,1)];
                     [solve setComputePipelineState:respiration.commonCoordinateStatusPipeline];
                     [solve setBuffer:acceptedCommonCoordinates offset:0 atIndex:0];
                     [solve setBuffer:numi::human::buffer(physiology.runtime.statusBuffer()) offset:0 atIndex:1];

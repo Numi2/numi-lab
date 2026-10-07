@@ -36,6 +36,28 @@ kernel void nm_human_resting_common_coordinates(
     output[0].status=uint4(status,iterations,matched,0);
     output[0].diagnostics=float4(residual,0,0,0);
 }
+// SIMD variant used by the integrated frame path. The scalar kernel above
+// remains the reference path for fixture comparisons and failure receipts.
+kernel void nm_human_resting_common_coordinates_simd(
+    device const NMHumanRespirationState* respiration [[buffer(0)]],
+    constant MRHumanRestingCommonFieldGPU& parameters [[buffer(1)]],
+    device const MRHumanRestingCommonCoordinateBoxGPU* boxes [[buffer(2)]],
+    device MRHumanRestingCommonCoordinatesGPU* output [[buffer(3)]],
+    uint lane [[thread_index_in_simdgroup]]) {
+    const auto state=respiration[0];
+    const float targets[7]={state.chamberVolumes.x,state.chamberVolumes.y,state.chamberVolumes.z,
+        state.chamberVolumes.w,parameters.materialTargetVolumes.x,parameters.materialTargetVolumes.y,
+        parameters.materialTargetVolumes.z};
+    float coordinates[7]={0,0,0,0,0,0,0},residual=INFINITY;
+    uint iterations=0,matched=MR_INVALID_INDEX;
+    const uint status=nmHumanRestingCommonSolveSimd(
+        parameters,boxes,targets,coordinates,lane,iterations,matched,residual);
+    if(lane!=0u) return;
+    output[0].first=status?float4(NAN):float4(coordinates[0],coordinates[1],coordinates[2],coordinates[3]);
+    output[0].second=status?float4(NAN):float4(coordinates[4],coordinates[5],coordinates[6],0);
+    output[0].status=uint4(status,iterations,matched,0);
+    output[0].diagnostics=float4(residual,0,0,0);
+}
 kernel void nm_human_resting_common_coordinate_status_gate(
     device const MRHumanRestingCommonCoordinatesGPU* coordinates [[buffer(0)]],
     device NMMatterStatusGPU* statuses [[buffer(1)]],uint lane [[thread_position_in_grid]]) {

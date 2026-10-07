@@ -1,5 +1,6 @@
 #import <Foundation/Foundation.h>
 #import <Metal/Metal.h>
+#include <CommonCrypto/CommonDigest.h>
 #include "metalrobo/numi_human_resting_common_field_math.hpp"
 #include <algorithm>
 #include <array>
@@ -7,7 +8,10 @@
 #include <fstream>
 #include <cstring>
 #include <iostream>
+#include <limits>
+#include <iomanip>
 #include <stdexcept>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -65,12 +69,36 @@ kernel void common_field_solver_fixture(
     output[lane].diagnostics=float4(residual,0,0,0);
 }
 )MSL";
+constexpr const char* simdFixtureKernel=R"MSL(
+kernel void common_field_solver_simd_fixture(
+    constant MRHumanRestingCommonFieldGPU& p [[buffer(0)]],
+    device const MRHumanRestingCommonCoordinateBoxGPU* boxes [[buffer(1)]],
+    device const float* targetInput [[buffer(2)]],
+    device MRHumanRestingCommonCoordinatesGPU* output [[buffer(3)]],
+    constant uint& mode [[buffer(4)]],constant uint& targetCount [[buffer(5)]],
+    uint3 groupPosition [[threadgroup_position_in_grid]],
+    uint lane [[thread_index_in_simdgroup]]) {
+    const uint targetIndex=groupPosition.x;
+    if(targetIndex>=targetCount)return;
+    float target[7];for(uint i=0;i<7;++i)target[i]=targetInput[targetIndex*7+i];
+    if(mode==1u&&targetIndex==0u)target[5]=NAN;
+    float x[7]={0,0,0,0,0,0,0},residual=INFINITY;
+    uint iterations=0,box=0xffffffffu;
+    const uint status=nmHumanRestingCommonSolveSimd(
+        p,boxes,target,x,lane,iterations,box,residual);
+    if(lane!=0u)return;
+    output[targetIndex].first=status?float4(NAN):float4(x[0],x[1],x[2],x[3]);
+    output[targetIndex].second=status?float4(NAN):float4(x[4],x[5],x[6],0);
+    output[targetIndex].status=uint4(status,iterations,box,0);
+    output[targetIndex].diagnostics=float4(residual,0,0,0);
+}
+)MSL";
 void run(id<MTLComputePipelineState> pipeline,id<MTLCommandQueue> queue,
     id<MTLBuffer> parameters,id<MTLBuffer> boxes,id<MTLBuffer> targets,id<MTLBuffer> output,
     id<MTLBuffer> mode,id<MTLBuffer> targetCount) {
     id<MTLCommandBuffer> command=[queue commandBuffer];
     id<MTLComputeCommandEncoder> encoder=[command computeCommandEncoder];
-    check(command&&encoder,"Metal command creation failed");
+    check(command&&encoder,"Metal common-field command creation failed");
     [encoder setComputePipelineState:pipeline];
     [encoder setBuffer:parameters offset:0 atIndex:0];
     [encoder setBuffer:boxes offset:0 atIndex:1];
@@ -83,6 +111,63 @@ void run(id<MTLComputePipelineState> pipeline,id<MTLCommandQueue> queue,
     [encoder dispatchThreads:MTLSizeMake(count,1,1) threadsPerThreadgroup:MTLSizeMake(width,1,1)];
     [encoder endEncoding];[command commit];[command waitUntilCompleted];
     check(command.status==MTLCommandBufferStatusCompleted,"Metal common-field solver command failed");
+}
+void runSimd(id<MTLComputePipelineState> pipeline,id<MTLCommandQueue> queue,
+    id<MTLBuffer> parameters,id<MTLBuffer> boxes,id<MTLBuffer> targets,id<MTLBuffer> output,
+    id<MTLBuffer> mode,id<MTLBuffer> targetCount) {
+    const NSUInteger width=pipeline.threadExecutionWidth;
+    check(width>=7u&&width<=pipeline.maxTotalThreadsPerThreadgroup,
+        "SIMD common-field fixture requires at least seven lanes");
+    const uint count=*static_cast<const uint*>(targetCount.contents);
+    id<MTLCommandBuffer> command=[queue commandBuffer];
+    id<MTLComputeCommandEncoder> encoder=[command computeCommandEncoder];
+    check(command&&encoder,"Metal SIMD common-field command creation failed");
+    [encoder setComputePipelineState:pipeline];
+    [encoder setBuffer:parameters offset:0 atIndex:0];
+    [encoder setBuffer:boxes offset:0 atIndex:1];
+    [encoder setBuffer:targets offset:0 atIndex:2];
+    [encoder setBuffer:output offset:0 atIndex:3];
+    [encoder setBuffer:mode offset:0 atIndex:4];
+    [encoder setBuffer:targetCount offset:0 atIndex:5];
+    [encoder dispatchThreadgroups:MTLSizeMake(count,1,1)
+        threadsPerThreadgroup:MTLSizeMake(width,1,1)];
+    [encoder endEncoding];[command commit];[command waitUntilCompleted];
+    check(command.status==MTLCommandBufferStatusCompleted,"Metal SIMD common-field solver command failed");
+}
+void runAndCompare(id<MTLComputePipelineState> scalar,id<MTLComputePipelineState> simd,
+    id<MTLCommandQueue> queue,id<MTLBuffer> parameters,id<MTLBuffer> boxes,
+    id<MTLBuffer> targets,id<MTLBuffer> output,id<MTLBuffer> mode,
+    id<MTLBuffer> targetCount,const char* label) {
+    const uint count=*static_cast<const uint*>(targetCount.contents);
+    run(scalar,queue,parameters,boxes,targets,output,mode,targetCount);
+    const auto* outputData=static_cast<const MRHumanRestingCommonCoordinatesGPU*>(output.contents);
+    std::vector<MRHumanRestingCommonCoordinatesGPU> scalarResults(outputData,outputData+count);
+    runSimd(simd,queue,parameters,boxes,targets,output,mode,targetCount);
+    const auto* simdResults=static_cast<const MRHumanRestingCommonCoordinatesGPU*>(output.contents);
+    unsigned exactAccepted=0;
+    for(uint i=0;i<count;++i) {
+        const auto& a=scalarResults[i];const auto& b=simdResults[i];
+        check(std::memcmp(&a.status,&b.status,sizeof(a.status))==0,
+            std::string(label)+" scalar/SIMD status mismatch at row "+std::to_string(i));
+        check(std::memcmp(&a.diagnostics,&b.diagnostics,sizeof(a.diagnostics))==0,
+            std::string(label)+" scalar/SIMD residual/diagnostic mismatch at row "+std::to_string(i));
+        if(a.status.x==0u) {
+            check(std::memcmp(&a.first,&b.first,sizeof(a.first))==0&&
+                  std::memcmp(&a.second,&b.second,sizeof(a.second))==0,
+                std::string(label)+" scalar/SIMD coordinates mismatch at row "+std::to_string(i));
+            ++exactAccepted;
+        } else {
+            for(uint c=0;c<4;++c) {
+                check(std::isnan(reinterpret_cast<const float*>(&a.first)[c])&&
+                      std::isnan(reinterpret_cast<const float*>(&b.first)[c])&&
+                      std::isnan(reinterpret_cast<const float*>(&a.second)[c])&&
+                      std::isnan(reinterpret_cast<const float*>(&b.second)[c]),
+                    std::string(label)+" rejected scalar/SIMD coordinates were published at row "+std::to_string(i));
+            }
+        }
+    }
+    std::cout<<"common_field_scalar_vs_simd=EXACT fixture="<<label
+        <<" rows="<<count<<" accepted_coordinates="<<exactAccepted<<"\n";
 }
 std::array<float,7> readCoordinates(const MRHumanRestingCommonCoordinatesGPU& result) {
     return {result.first.x,result.first.y,result.first.z,result.first.w,
@@ -97,7 +182,9 @@ std::vector<std::uint8_t> readFile(const std::string& path,std::size_t expected)
     std::vector<std::uint8_t> bytes(expected);in.seekg(0);in.read(reinterpret_cast<char*>(bytes.data()),std::streamsize(bytes.size()));
     check(bool(in),std::string("phase fixture file could not be read: ")+path);return bytes;
 }
-void runPhaseFixture(id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLComputePipelineState> pipeline,const std::string& dir) {
+void runPhaseFixture(id<MTLDevice> device,id<MTLCommandQueue> queue,
+    id<MTLComputePipelineState> pipeline,id<MTLComputePipelineState> simdPipeline,
+    const std::string& dir) {
     constexpr unsigned boxCount=125,rowCount=1987;
     const auto polyBytes=readFile(dir+"/polynomials-f32-normalized.bin",7u*120u*sizeof(float));
     const auto referenceBytes=readFile(dir+"/source-reference-volumes-f32.bin",7u*sizeof(float));
@@ -126,7 +213,8 @@ void runPhaseFixture(id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLComput
     buffers[4]=[device newBufferWithBytes:&mode length:sizeof(mode) options:MTLResourceStorageModeShared];
     buffers[5]=[device newBufferWithBytes:&count length:sizeof(count) options:MTLResourceStorageModeShared];
     for(auto buffer:buffers)check(buffer!=nil,"phase fixture Metal buffer allocation failed");
-    run(pipeline,queue,buffers[0],buffers[1],buffers[2],buffers[3],buffers[4],buffers[5]);
+    runAndCompare(pipeline,simdPipeline,queue,buffers[0],buffers[1],buffers[2],
+        buffers[3],buffers[4],buffers[5],"retained_phase");
     const auto* results=static_cast<const MRHumanRestingCommonCoordinatesGPU*>(buffers[3].contents);
     unsigned maxIterations=0;float maxResidual=0.0f;
     for(unsigned row=0;row<rowCount;++row){
@@ -149,14 +237,25 @@ int main(int argc,char** argv) {
             NSString* include=[NSString stringWithContentsOfFile:incPath encoding:NSUTF8StringEncoding error:&error];
             check(include!=nil,"common-field shared Metal include could not be read");
             std::string source="#include <metal_stdlib>\nusing namespace metal;\n";
-            source+=structs;source+="\n";source+=[include UTF8String];source+="\n";source+=fixtureKernel;
+            source+=structs;source+="\n";source+=[include UTF8String];source+="\n";source+=fixtureKernel;source+=simdFixtureKernel;
             NSString* shader=[NSString stringWithUTF8String:source.c_str()];
             id<MTLLibrary> library=[device newLibraryWithSource:shader options:nil error:&error];
             if(!library) throw std::runtime_error(error.localizedDescription.UTF8String);
+            unsigned char shaderDigest[CC_SHA256_DIGEST_LENGTH]{};
+            check(source.size()<=static_cast<std::size_t>(std::numeric_limits<CC_LONG>::max()),"fixture shader source exceeds SHA256 bounds");
+            check(CC_SHA256(source.data(),static_cast<CC_LONG>(source.size()),shaderDigest)!=nullptr,
+                "fixture shader-source SHA256 failed");
+            std::ostringstream shaderSHA;shaderSHA<<std::hex<<std::setfill('0');
+            for(const auto byte:shaderDigest)shaderSHA<<std::setw(2)<<unsigned(byte);
+            std::cout<<"common_field_fixture_shader_source_sha256="<<shaderSHA.str()<<"\n";
             id<MTLFunction> function=[library newFunctionWithName:@"common_field_solver_fixture"];
             check(function!=nil,"shared common-field fixture kernel is absent");
             id<MTLComputePipelineState> pipeline=[device newComputePipelineStateWithFunction:function error:&error];
             if(!pipeline) throw std::runtime_error(error.localizedDescription.UTF8String);
+            id<MTLFunction> simdFunction=[library newFunctionWithName:@"common_field_solver_simd_fixture"];
+            check(simdFunction!=nil,"SIMD common-field fixture kernel is absent");
+            id<MTLComputePipelineState> simdPipeline=[device newComputePipelineStateWithFunction:simdFunction error:&error];
+            if(!simdPipeline) throw std::runtime_error(error.localizedDescription.UTF8String);
 
             MRHumanRestingCommonFieldGPU p{};
             p.countsAndFlags={1,1,0,0};p.solver={1.0e-6f,0,0,0};
@@ -195,7 +294,8 @@ int main(int argc,char** argv) {
             for(auto buffer:buffers)check(buffer!=nil,"common-field test buffer allocation failed");
             std::memset(buffers[4].contents,0,buffers[4].length);
             *static_cast<std::uint32_t*>(buffers[5].contents)=1u;
-            run(pipeline,queue,buffers[0],buffers[1],buffers[2],buffers[3],buffers[4],buffers[5]);
+            runAndCompare(pipeline,simdPipeline,queue,buffers[0],buffers[1],buffers[2],
+        buffers[3],buffers[4],buffers[5],"synthetic");
             auto result=*static_cast<MRHumanRestingCommonCoordinatesGPU*>(buffers[3].contents);
             check(result.status.x==0,"coupled common-field Newton solve did not converge");
             const auto solved=readCoordinates(result);
@@ -206,7 +306,8 @@ int main(int argc,char** argv) {
             box.lower[0]={-.01f,-.01f,-.01f,-.01f};box.lower[1]={-.01f,-.01f,-.01f,0};
             box.upper[0]={.01f,.01f,.01f,.01f};box.upper[1]={.01f,.01f,.01f,0};
             std::memcpy(buffers[1].contents,&box,sizeof(box));
-            run(pipeline,queue,buffers[0],buffers[1],buffers[2],buffers[3],buffers[4],buffers[5]);
+            runAndCompare(pipeline,simdPipeline,queue,buffers[0],buffers[1],buffers[2],
+        buffers[3],buffers[4],buffers[5],"certified_box_reject");
             result=*static_cast<MRHumanRestingCommonCoordinatesGPU*>(buffers[3].contents);
             check(result.status.x==5,"solution outside certified-box union was not rejected");
 
@@ -214,11 +315,12 @@ int main(int argc,char** argv) {
             box.upper[0]={.3f,.3f,.3f,.3f};box.upper[1]={.3f,.3f,.3f,0};
             std::memcpy(buffers[1].contents,&box,sizeof(box));
             *static_cast<std::uint32_t*>(buffers[4].contents)=1u;
-            run(pipeline,queue,buffers[0],buffers[1],buffers[2],buffers[3],buffers[4],buffers[5]);
+            runAndCompare(pipeline,simdPipeline,queue,buffers[0],buffers[1],buffers[2],
+        buffers[3],buffers[4],buffers[5],"nonfinite_reject");
             result=*static_cast<MRHumanRestingCommonCoordinatesGPU*>(buffers[3].contents);
             check(result.status.x==1&&!std::isfinite(result.first.x),
                 "nonfinite target was not rejected with an invalid coordinate result");
-            if(argc==3&&std::string(argv[1])=="--phase-fixture")runPhaseFixture(device,queue,pipeline,argv[2]);
+            if(argc==3&&std::string(argv[1])=="--phase-fixture")runPhaseFixture(device,queue,pipeline,simdPipeline,argv[2]);
             std::cout<<"common_field_metal=PASS coupled_cross_terms=7x120 certified_union_guard=PASS nonfinite_rejection=PASS\n";
         } catch(const std::exception& e) {
             std::cerr<<"common_field_metal=FAIL "<<e.what()<<"\n";return 1;
