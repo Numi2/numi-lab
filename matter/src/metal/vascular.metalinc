@@ -992,6 +992,45 @@ kernel void nm_vascular_dense_solve(
             value, elastance[environment * graph.counts.x + lane]);
     }
     threadgroup_barrier(mem_flags::mem_threadgroup);
+    // This specialization contains only vascular equations. The publication
+    // certificate is each authored, scaled equation tolerance, not a mechanical
+    // residual norm. After two completed Newton corrections, stop only when the
+    // original physical equations (without working-set row substitution) and
+    // admissibility checks already satisfy that unchanged certificate. This
+    // avoids repeating floating-point-limit corrections in the fixed GPU tail.
+    // Final nm_vascular_certify still independently validates publication.
+    if (microstep.solverIteration >= 2u &&
+        isfinite(states[environment].nonlinear.z)) {
+        bool certified = true;
+        for (uint row = lane; row < unknownCount; row += 32u) {
+            const float value = vascularEquation(
+                graph, microstep.time.x, row, base, directionBase, false,
+                unknowns, compartments, connections, tissues, exchanges,
+                connectionIncidence, connectionRanges, bloodExchangeIncidence,
+                bloodExchangeRanges, tissueExchangeIncidence,
+                tissueExchangeRanges, accepted, candidate, direction, elastance,
+                workingSet, false, cavities, cavityFaces, compartmentCavity,
+                femCandidate, femAccepted, environment * dispatch.femNodeCount,
+                0.0f, NM_INVALID_INDEX, preparedPressure).x;
+            const float4 state = candidate[base + row];
+            certified = certified && isfinite(value) &&
+                abs(value) <= unknowns[row].initialAndScaling.w &&
+                all(state.yzw == float3(0.0f)) &&
+                vascularAdmissible(graph, row, state.x, compartments,
+                    connections, unknowns) &&
+                workingSet[base + row] != 1u &&
+                (workingSet[base + row] == 0u || state.x == 0.0f);
+        }
+        if (simd_all(certified)) {
+            for (uint row = lane; row < unknownCount; row += 32u)
+                output[directionBase + row] = float4(0.0f);
+            if (lane == 0u) {
+                states[environment].diagnostics.z = 1.0f;
+                states[environment].diagnostics.w = 0.0f;
+            }
+            return;
+        }
+    }
     // Initialize structural zeros, then ask the ordinary JVP for every
     // potentially nonzero entry. In this validated vascular-only graph a
     // continuity row depends on its volume and incident edge flows; an edge
