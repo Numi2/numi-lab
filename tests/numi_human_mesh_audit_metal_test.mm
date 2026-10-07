@@ -28,10 +28,7 @@ int main() { @autoreleasepool { try {
     id<MTLComputePipelineState> reduce=[device newComputePipelineStateWithFunction:
         [library newFunctionWithName:@"nm_human_resting_reduce_mesh_audit"] error:&error];
     check(partial&&reduce,"compiled mesh audit kernels unavailable");
-    constexpr unsigned groupSize=256,trianglesPerLane=8;
-    constexpr unsigned trianglesPerGroup=groupSize*trianglesPerLane;
-    const unsigned count=16391,groups=count/trianglesPerGroup+
-        unsigned(count%trianglesPerGroup!=0u);
+    const unsigned count=16391,groups=64;
     std::vector<MRVisualVertexGPUV2> vertices(3*count);
     std::vector<unsigned> indices(3*count);
     std::iota(indices.begin(),indices.end(),0u);
@@ -82,12 +79,12 @@ int main() { @autoreleasepool { try {
     };
     vertices[16].position=vertices[15].position; // Exact coincident vertex.
     vertices[3*255+2].position={1.255f,0,0,1}; // Distinct collinear triangle.
-    vertices[3*(count-1)].position.x=std::numeric_limits<float>::quiet_NaN(); // Last triangle in the partial tail.
+    vertices[3*16386].position.x=std::numeric_limits<float>::quiet_NaN(); // Beyond one grid stride.
     run(count,2,1,5,MR_HUMAN_RESTING_TRIANGLE_FAILURE_EXACT_ZERO_AREA);
     vertices=clean;
     run(count,0,0,MR_HUMAN_RESTING_TRIANGLE_FAILURE_NO_TRIANGLE,0);
-    vertices[3*(count-1)].position.x=std::numeric_limits<float>::quiet_NaN();
-    run(count,0,1,count-1,MR_HUMAN_RESTING_TRIANGLE_FAILURE_NONFINITE_AREA);
+    vertices[3*16386].position.x=std::numeric_limits<float>::quiet_NaN();
+    run(count,0,1,16386,MR_HUMAN_RESTING_TRIANGLE_FAILURE_NONFINITE_AREA);
     vertices=clean;
     run(1,0,0,MR_HUMAN_RESTING_TRIANGLE_FAILURE_NO_TRIANGLE,0);
     run(0,0,0,MR_HUMAN_RESTING_TRIANGLE_FAILURE_NO_TRIANGLE,0);

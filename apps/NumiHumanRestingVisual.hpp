@@ -28,11 +28,7 @@ class NumiHumanRestingVisual {
     id<MTLBuffer> meshAuditPartials,meshAuditResult;
     id<MTLComputePipelineState> meshAuditPipeline,meshAuditReducePipeline;
     std::vector<MRVisualPrimitiveGPUV2> auditedMeshPrimitives;
-    static constexpr unsigned meshAuditGroupSize=256;
-    static constexpr unsigned meshAuditTrianglesPerLane=8;
-    static constexpr unsigned meshAuditTrianglesPerGroup=
-        meshAuditGroupSize*meshAuditTrianglesPerLane;
-    unsigned meshAuditGroupCount=1;
+    static constexpr unsigned meshAuditGroupCount=64;
     id<MTLComputePipelineState> skinPipeline, layerPipeline, volumeAuditPartialPipeline, volumeAuditReducePipeline;
     id<MTLComputePipelineState> skinAuditPipeline, cardiacQPipeline, bodyAuditPipeline;
     id<MTLComputePipelineState> cardiacWallQPipeline, cardiacWallNormalsPipeline;
@@ -1382,14 +1378,10 @@ public:
         metalrobo::MetalHybridRendererConfig config;config.width=size;config.height=size;
         config.clearColorAndDepth={.012f,.019f,.03f,1e30f};renderer=std::make_unique<metalrobo::MetalHybridRenderer>(config);
         auto rc=renderer->compile(std::move(manifest.renderScene),metalrobo::VisualRendererProfileV1::sensorFast(),1);require(rc.succeeded(),rc.message);
-        const auto compiledMeshLayout=renderer->layout();
-        const unsigned meshTriangleCount=compiledMeshLayout.meshTriangleCount;
-        meshAuditGroupCount=std::max(1u,meshTriangleCount/meshAuditTrianglesPerGroup+
-            unsigned(meshTriangleCount%meshAuditTrianglesPerGroup!=0u));
-        require(compiledMeshLayout.meshVertexCount==maps.size(),"resting compiled vertex order changed");
+        require(renderer->layout().meshVertexCount==maps.size(),"resting compiled vertex order changed");
         auditedMeshPrimitives=pack.primitives;
         auto device=coupled.physiology.device;queue=[device newCommandQueue];
-        meshAuditPartials=[device newBufferWithLength:std::size_t(meshAuditGroupCount)*sizeof(mr_uint4) options:MTLResourceStorageModeShared];
+        meshAuditPartials=[device newBufferWithLength:meshAuditGroupCount*sizeof(mr_uint4) options:MTLResourceStorageModeShared];
         meshAuditResult=[device newBufferWithLength:sizeof(mr_uint4)+sizeof(MRHumanRestingSurfaceFailureGPU) options:MTLResourceStorageModeShared];
         mapping=[device newBufferWithBytes:maps.data() length:maps.size()*sizeof(maps.front()) options:MTLResourceStorageModeShared];
         influences=[device newBufferWithBytes:weights.data() length:weights.size()*sizeof(weights.front()) options:MTLResourceStorageModeShared];
@@ -1639,12 +1631,12 @@ public:
            !lease.encoder->splitCommandEncoder(lease.encoder->context))return false;
         // Every rendered triangle is checked in the existing presentation command.
         // The CPU receives only counts and one exact binary32 failure witness.
-        const mr_uint4 meshAuditDimensions={lease.meshTriangleCount,self.meshAuditGroupCount,0,0};
+        const mr_uint4 meshAuditDimensions={lease.meshTriangleCount,meshAuditGroupCount,0,0};
         e.setPipeline(e.context,(__bridge void*)self.meshAuditPipeline);
         e.setBytes(e.context,&meshAuditDimensions,sizeof(meshAuditDimensions),0);
         e.setBuffer(e.context,lease.meshIndices,0,1);e.setBuffer(e.context,lease.meshVertices,0,2);
         e.setBuffer(e.context,(__bridge void*)self.meshAuditPartials,0,3);
-        e.dispatchThreads(e.context,std::size_t(self.meshAuditGroupCount)*meshAuditGroupSize,meshAuditGroupSize);
+        e.dispatchThreads(e.context,meshAuditGroupCount*256,256);
         e.setPipeline(e.context,(__bridge void*)self.meshAuditReducePipeline);
         e.setBytes(e.context,&meshAuditDimensions,sizeof(meshAuditDimensions),0);
         e.setBuffer(e.context,(__bridge void*)self.meshAuditPartials,0,1);
