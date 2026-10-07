@@ -6345,6 +6345,52 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                       tendonProgram.bindings.size())),
             "persistent Human stand Metal one-step parity transaction failed: " +
                 parityDiagnostics.message);
+    const char* forceParityDiagnostic = std::getenv(
+        "NUMI_HUMAN_STAND_FORCE_PARITY_DIAGNOSTIC");
+    if (forceParityDiagnostic != nullptr &&
+        std::strcmp(forceParityDiagnostic, "1") == 0) {
+        const auto& nativeForce = parityResult.mujocoGeneralizedForces;
+        const std::size_t compared = std::min(
+            parityGeneralizedForce.size(), nativeForce.size());
+        double maximumForceDelta = 0.0;
+        std::size_t maximumForceDeltaDof = 0u;
+        for (std::size_t dof = 0u; dof < compared; ++dof) {
+            const double delta = std::abs(
+                static_cast<double>(nativeForce[dof]) -
+                parityGeneralizedForce[dof]);
+            if (!std::isfinite(delta) || delta > maximumForceDelta) {
+                maximumForceDelta = delta;
+                maximumForceDeltaDof = dof;
+            }
+        }
+        constexpr std::size_t forceProbeDof = 15u;
+        const bool hasForceProbeDof = forceProbeDof < compared;
+        std::cerr << std::setprecision(17)
+                  << "human_stand_force_parity_compare"
+                  << " source_count=" << parityGeneralizedForce.size()
+                  << " native_count=" << nativeForce.size()
+                  << " compared_count=" << compared
+                  << " max_abs_delta=" << maximumForceDelta
+                  << " max_dof=" << maximumForceDeltaDof
+                  << " source_dof15="
+                  << (forceProbeDof < parityGeneralizedForce.size()
+                          ? parityGeneralizedForce[forceProbeDof]
+                          : std::numeric_limits<double>::quiet_NaN())
+                  << " native_dof15="
+                  << (forceProbeDof < nativeForce.size()
+                          ? static_cast<double>(nativeForce[forceProbeDof])
+                          : std::numeric_limits<double>::quiet_NaN())
+                  << " delta_dof15="
+                  << (hasForceProbeDof
+                          ? static_cast<double>(nativeForce[forceProbeDof]) -
+                                parityGeneralizedForce[forceProbeDof]
+                          : std::numeric_limits<double>::quiet_NaN())
+                  << " compiled_source_dof15="
+                  << (forceProbeDof < compiledActivation.generalizedMuscleForce.size()
+                          ? compiledActivation.generalizedMuscleForce[forceProbeDof]
+                          : std::numeric_limits<double>::quiet_NaN())
+                  << '\n';
+    }
     double parityMaximumQError = 0.0;
     double parityMaximumVError = 0.0;
     std::size_t parityMaximumQErrorIndex = 0u;

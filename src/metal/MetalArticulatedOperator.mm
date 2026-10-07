@@ -12988,8 +12988,17 @@ MetalArticulatedOperatorContext::submit(
                                         }
                                     }
                                     double maxVelocityDelta = 0.0;
+                                    std::size_t maxVelocityDeltaDof = 0u;
                                     double maxFp64EquationResidual = 0.0;
                                     double rhsInfinity = 0.0;
+                                    double gpuFreeVelocityDof15 =
+                                        std::numeric_limits<double>::quiet_NaN();
+                                    double fp64FreeVelocityDof15 =
+                                        std::numeric_limits<double>::quiet_NaN();
+                                    double rhsDof15 =
+                                        std::numeric_limits<double>::quiet_NaN();
+                                    double initialVelocityDof15 =
+                                        std::numeric_limits<double>::quiet_NaN();
                                     const double dt = factorDispatch.groundPointAndTimestep.w;
                                     for (std::size_t row = 0u; row < n; ++row) {
                                         const double v0 = (*freeProbeVelocity)[row];
@@ -12997,10 +13006,22 @@ MetalArticulatedOperatorContext::submit(
                                             sourceVector[n + row]);
                                         const double rhs = (*freeProbeRhs)[row];
                                         rhsInfinity = std::max(rhsInfinity, std::abs(rhs));
-                                        if (factor64Ok)
-                                            maxVelocityDelta = std::max(maxVelocityDelta,
-                                                std::abs(gpuFreeVelocity -
-                                                    (v0 + dt * solution[row])));
+                                        if (factor64Ok) {
+                                            const double fp64FreeVelocity =
+                                                v0 + dt * solution[row];
+                                            const double delta = std::abs(
+                                                gpuFreeVelocity - fp64FreeVelocity);
+                                            if (delta > maxVelocityDelta) {
+                                                maxVelocityDelta = delta;
+                                                maxVelocityDeltaDof = row;
+                                            }
+                                            if (row == 15u) {
+                                                gpuFreeVelocityDof15 = gpuFreeVelocity;
+                                                fp64FreeVelocityDof15 = fp64FreeVelocity;
+                                                rhsDof15 = rhs;
+                                                initialVelocityDof15 = v0;
+                                            }
+                                        }
                                         double residual = -rhs;
                                         if (factor64Ok) {
                                             for (std::size_t column = 0u;
@@ -13022,10 +13043,15 @@ MetalArticulatedOperatorContext::submit(
                                         "human_stand_free_solver_diagnostic "
                                         "step=%u nv=%zu fp64_ok=%u "
                                         "gpu_vs_fp64_free_velocity_max_abs=%.9g "
+                                        "max_dof=%zu "
+                                        "gpu_free_v15=%.17g fp64_free_v15=%.17g "
+                                        "rhs15=%.17g v0_15=%.17g "
                                         "fp64_equation_residual_inf=%.9g "
                                         "rhs_inf=%.9g\n",
                                         probeStep, n, factor64Ok ? 1u : 0u,
-                                        maxVelocityDelta,
+                                        maxVelocityDelta, maxVelocityDeltaDof,
+                                        gpuFreeVelocityDof15, fp64FreeVelocityDof15,
+                                        rhsDof15, initialVelocityDof15,
                                         maxFp64EquationResidual, rhsInfinity);
                                 }];
                         }
