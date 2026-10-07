@@ -45,6 +45,92 @@ int main() { @autoreleasepool { try {
     id<MTLBuffer> result=[device newBufferWithLength:sizeof(mr_uint4)+sizeof(MRHumanRestingSurfaceFailureGPU) options:MTLResourceStorageModeShared];
     id<MTLCommandQueue> queue=[device newCommandQueue];
     check(vb&&ib&&parts&&result&&queue,"Metal fixture allocation failed");
+    id<MTLComputePipelineState> skinReference=[device newComputePipelineStateWithFunction:
+        [library newFunctionWithName:@"nm_human_resting_audit_skin"] error:&error];
+    id<MTLComputePipelineState> skinPartial=[device newComputePipelineStateWithFunction:
+        [library newFunctionWithName:@"nm_human_resting_audit_skin_partials"] error:&error];
+    id<MTLComputePipelineState> skinReduce=[device newComputePipelineStateWithFunction:
+        [library newFunctionWithName:@"nm_human_resting_reduce_skin_audit"] error:&error];
+    check(skinReference&&skinPartial&&skinReduce,"scalar/parallel skin audit kernels unavailable");
+    auto runSkinAudit=[&](unsigned vertexCount,
+            const std::vector<std::pair<unsigned,float>>& zOverrides,
+            const std::vector<unsigned>& nanNormalIndices,bool allSkin,
+            float expectedMinimum,unsigned expectedOwner,unsigned expectedBelow,unsigned expectedInvalid) {
+        std::vector<MRHumanRestingVertexMap> skinMap(vertexCount);
+        std::vector<MRVisualVertexGPUV2> skinVertices(vertexCount);
+        for(unsigned i=0;i<vertexCount;++i) {
+            skinMap[i].deformationKind=allSkin?3u:0u;
+            skinVertices[i].position={0.1f,0.2f,1.0f,1.0f};
+            skinVertices[i].normalAndTangentSign={0.0f,0.0f,1.0f,1.0f};
+        }
+        for(const auto& [index,z]:zOverrides) {
+            check(index<vertexCount,"skin audit fixture override index out of range");
+            skinMap[index].deformationKind=3u;
+            skinVertices[index].position.z=z;
+        }
+        const float nan=std::numeric_limits<float>::quiet_NaN();
+        for(const unsigned index:nanNormalIndices) {
+            check(index<vertexCount,"skin audit fixture normal index out of range");
+            skinVertices[index].normalAndTangentSign.x=nan;
+        }
+        const unsigned groups=(vertexCount+255u)/256u;
+        id<MTLBuffer> skinMapBuffer=[device newBufferWithBytes:skinMap.data()
+            length:skinMap.size()*sizeof(skinMap.front()) options:MTLResourceStorageModeShared];
+        id<MTLBuffer> skinVerticesBuffer=[device newBufferWithBytes:skinVertices.data()
+            length:skinVertices.size()*sizeof(skinVertices.front()) options:MTLResourceStorageModeShared];
+        id<MTLBuffer> skinPartialBuffer=[device newBufferWithLength:groups*sizeof(mr_uint4)
+            options:MTLResourceStorageModeShared];
+        id<MTLBuffer> skinResultBuffer=[device newBufferWithLength:2u*sizeof(mr_float4)
+            options:MTLResourceStorageModeShared];
+        check(skinMapBuffer&&skinVerticesBuffer&&skinPartialBuffer&&skinResultBuffer,
+            "skin scalar/parallel Metal fixture allocation failed");
+        std::memset(skinPartialBuffer.contents,0xa5,skinPartialBuffer.length);
+        std::memset(skinResultBuffer.contents,0x5a,skinResultBuffer.length);
+        const mr_uint4 referenceDimensions={vertexCount,0,0,0};
+        const mr_uint4 partialDimensions={vertexCount,groups,0,0};
+        const mr_uint4 reduceDimensions={groups,1u,0,0};
+        id<MTLCommandBuffer> command=[queue commandBuffer];
+        id<MTLComputeCommandEncoder> encoder=[command computeCommandEncoder];
+        [encoder setComputePipelineState:skinReference];
+        [encoder setBytes:&referenceDimensions length:sizeof(referenceDimensions) atIndex:0];
+        [encoder setBuffer:skinMapBuffer offset:0 atIndex:1];
+        [encoder setBuffer:skinVerticesBuffer offset:0 atIndex:2];
+        [encoder setBuffer:skinResultBuffer offset:0 atIndex:3];
+        [encoder dispatchThreads:MTLSizeMake(256,1,1) threadsPerThreadgroup:MTLSizeMake(256,1,1)];
+        [encoder setComputePipelineState:skinPartial];
+        [encoder setBytes:&partialDimensions length:sizeof(partialDimensions) atIndex:0];
+        [encoder setBuffer:skinMapBuffer offset:0 atIndex:1];
+        [encoder setBuffer:skinVerticesBuffer offset:0 atIndex:2];
+        [encoder setBuffer:skinPartialBuffer offset:0 atIndex:3];
+        [encoder dispatchThreads:MTLSizeMake(groups*256u,1,1)
+            threadsPerThreadgroup:MTLSizeMake(256,1,1)];
+        [encoder setComputePipelineState:skinReduce];
+        [encoder setBytes:&reduceDimensions length:sizeof(reduceDimensions) atIndex:0];
+        [encoder setBuffer:skinPartialBuffer offset:0 atIndex:1];
+        [encoder setBuffer:skinResultBuffer offset:0 atIndex:2];
+        [encoder dispatchThreads:MTLSizeMake(256,1,1) threadsPerThreadgroup:MTLSizeMake(256,1,1)];
+        [encoder endEncoding];[command commit];[command waitUntilCompleted];
+        check(command.status==MTLCommandBufferStatusCompleted,"scalar/parallel skin audit GPU command failed");
+        const auto* rows=static_cast<const mr_float4*>(skinResultBuffer.contents);
+        const mr_float4 expected={expectedMinimum,float(expectedOwner),float(expectedBelow),float(expectedInvalid)};
+        check(std::memcmp(&rows[0],&rows[1],sizeof(mr_float4))==0,
+            "parallel skin audit differs bitwise from retained scalar kernel");
+        check(std::memcmp(&rows[0],&expected,sizeof(expected))==0,
+            "skin audit minimum bits, exact counts, or witness ID differs from fixture");
+        check(std::memcmp(skinMapBuffer.contents,skinMap.data(),skinMapBuffer.length)==0&&
+            std::memcmp(skinVerticesBuffer.contents,skinVertices.data(),skinVerticesBuffer.length)==0,
+            "skin audit mutated submitted maps or vertices");
+    };
+    const float positiveInfinity=std::numeric_limits<float>::infinity();
+    const float negativeInfinity=-std::numeric_limits<float>::infinity();
+    runSkinAudit(257u,{{256u,-0.01f}},{255u},true,-0.01f,256u,1u,1u);
+    runSkinAudit(513u,{{512u,-0.01f}},{511u},true,-0.01f,512u,1u,1u);
+    runSkinAudit(513u,{{37u,0.0f},{176u,-0.0f}},{},true,-0.0f,176u,0u,0u);
+    runSkinAudit(513u,{{256u,negativeInfinity},{512u,negativeInfinity}},{},false,
+        negativeInfinity,256u,2u,2u);
+    runSkinAudit(257u,{{37u,positiveInfinity},{176u,positiveInfinity}},{},false,
+        positiveInfinity,MR_INVALID_INDEX,0u,2u);
+    std::cout<<"scalar_parallel_skin_audit_metal_test=passed cases=5 sizes=257,513 ties=signed-zero,negative-infinity positive-infinity=unselected tail=256,512 nan-normal=255,511\n";
     auto run=[&](unsigned triangles,unsigned zero,unsigned nonfinite,unsigned first,unsigned kind) {
         std::memcpy(vb.contents,vertices.data(),vb.length);
         std::memset(parts.contents,0xab,parts.length);
