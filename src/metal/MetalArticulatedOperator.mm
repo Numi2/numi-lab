@@ -1223,6 +1223,7 @@ struct MetalArticulatedOperatorSubmissionState {
     std::size_t standTendonEnvelopeBindingCount = 0u;
     std::size_t standContactCount = 0u;
     std::size_t standJointEqualityCount = 0u;
+    bool standEqualityDeferralFaultRequested = false;
     bool publishAcceptedResidentState = false;
     bool collectFullResultToHost = true;
     bool reusedLegacyResidentState = false;
@@ -9841,8 +9842,7 @@ MetalArticulatedOperatorSubmission::wait(
                     );
                 }
                 if (stand.code == MR_NUMI_HUMAN_STAND_SUCCESS &&
-                    pending->context->config.standEqualityDeferralFault !=
-                        MetalStandEqualityDeferralFault::none &&
+                    pending->standEqualityDeferralFaultRequested &&
                     (!equalityDataDeferred || !equalityDataFallbackUsed)) {
                     return reject(
                         std::move(diagnostics),
@@ -12819,9 +12819,15 @@ MetalArticulatedOperatorContext::submit(
                     !oneHandoff &&
                     (standDispatch.flags &
                      MR_NUMI_HUMAN_STAND_PREDICT_VELOCITY_ONLY) == 0u;
-                if (state_->config.standEqualityDeferralFault !=
+                // An unconstrained reference/parity submission shares this
+                // context but has no equality fallback to exercise. Require
+                // fault delivery only for the constrained contact solve.
+                const bool equalityDeferralFaultRequested =
+                    state_->config.standEqualityDeferralFault !=
                         MetalStandEqualityDeferralFault::none &&
-                    !deferEqualityData) {
+                    input.stand.enableContact &&
+                    !input.stand.jointEqualities.empty();
+                if (equalityDeferralFaultRequested && !deferEqualityData) {
                     return reject(std::move(diagnostics),
                         MetalArticulatedOperatorHostStatus::invalidDimensions,
                         "equality deferral fault injection requires the GPU reduced-response path");
@@ -14934,6 +14940,11 @@ MetalArticulatedOperatorContext::submit(
             pending->standContactCount = input.stand.contacts.size();
             pending->standJointEqualityCount =
                 input.stand.jointEqualities.size();
+            pending->standEqualityDeferralFaultRequested =
+                state_->config.standEqualityDeferralFault !=
+                    MetalStandEqualityDeferralFault::none &&
+                input.stand.enableContact &&
+                !input.stand.jointEqualities.empty();
             if (input.stand.numanXHumanMatterProgram.valid()) {
                 const MetalNumanXHumanMatterProgram& program =
                     input.stand.numanXHumanMatterProgram;
