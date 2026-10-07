@@ -128,7 +128,44 @@ inline MRNumiHumanFrictionImpulse mrNumiHumanSolveFrictionDiskCore(
     float lower = 0.0f;
     auto accepted = mrNumiHumanFrictionShiftedSolve(a, b, d, gx, gy, upper);
     if (!accepted.valid) return invalid;
-    for (unsigned iteration = 0u; iteration < 40u; ++iteration) {
+    // Safeguarded Newton iteration on the reciprocal impulse norm. For
+    // p=(W+sI)^-1*g and u=p/||p||, the Newton increment is
+    // (||p||/radius-1)/(u^T*(W+sI)^-1*u). The SPD metric makes the
+    // denominator positive. Keep the feasible upper endpoint and retain
+    // bisection whenever the proposal leaves the bracket or is nonfinite.
+    // This is the same Coulomb-disk optimum; no compliance is introduced.
+    float trialShift = upper;
+    bool normConverged = false;
+    for (unsigned iteration = 0u; iteration < 8u; ++iteration) {
+        if constexpr (CollectIterations) ++boundaryIterations;
+        const auto trial = mrNumiHumanFrictionShiftedSolve(
+            a, b, d, gx, gy, trialShift);
+        if (!trial.valid) break;
+        const float norm = mrNumiHumanFrictionNorm(trial.x, trial.y);
+        if (!(norm > 0.0f) || !mrNumiHumanFrictionFinite(norm)) break;
+        if (norm <= radius) {
+            upper = trialShift;
+            accepted = trial;
+            if (norm >= radius * (1.0f - 8.0f * 1.1920928955078125e-7f)) {
+                normConverged = true;
+                break;
+            }
+        } else {
+            lower = trialShift;
+        }
+        const float ux = trial.x / norm, uy = trial.y / norm;
+        const auto derivative = mrNumiHumanFrictionShiftedSolve(
+            a, b, d, ux, uy, trialShift);
+        const float slope = mrNumiHumanFusedMultiplyAdd(
+            ux, derivative.x, uy * derivative.y);
+        const float proposal = trialShift + (norm / radius - 1.0f) / slope;
+        trialShift = derivative.valid && slope > 0.0f &&
+            mrNumiHumanFrictionFinite(proposal) &&
+            proposal > lower && proposal < upper
+            ? proposal : 0.5f * lower + 0.5f * upper;
+        if (trialShift == lower || trialShift == upper) break;
+    }
+    for (unsigned iteration = 0u; !normConverged && iteration < 40u; ++iteration) {
         const float middle = 0.5f * lower + 0.5f * upper;
         if (middle == lower || middle == upper) break;
         if constexpr (CollectIterations) ++boundaryIterations;

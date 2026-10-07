@@ -11,6 +11,7 @@ namespace {
 std::size_t checks = 0;
 std::size_t preparedInteriorCases = 0;
 std::size_t preparedFallbackCases = 0;
+std::size_t boundaryCases = 0, boundaryIterations = 0;
 void require(bool value, const char* message) {
     ++checks;
     if (!value) throw std::runtime_error(message);
@@ -42,6 +43,14 @@ std::array<long double, 2> oracle(long double a, long double b, long double d,
 void exercise(float a,float b,float d,float rx,float ry,float r) {
     auto result=mrNumiHumanSolveFrictionDisk(a,b,d,rx,ry,r);
     require(result.valid,"SPD friction solve rejected valid inputs");
+    unsigned iterations = 0;
+    const auto counted = mrNumiHumanSolveFrictionDiskCounted(a,b,d,rx,ry,r,iterations);
+    require(counted.valid == result.valid &&
+            std::memcmp(&counted.x,&result.x,sizeof(float)) == 0 &&
+            std::memcmp(&counted.y,&result.y,sizeof(float)) == 0,
+            "counted friction changes the physical result");
+    boundaryCases += iterations != 0;
+    boundaryIterations += iterations;
     const auto prepared=mrNumiHumanPrepareFrictionMetric(a,b,d);
     const auto interior=mrNumiHumanTryInteriorFrictionDisk(prepared,rx,ry,r);
     if(interior.valid) {
@@ -105,5 +114,6 @@ int main() {
         require(preparedInteriorCases>0 && preparedFallbackCases>0,
                 "prepared friction did not cover interior and fallback cases");
         std::cout<<"Human friction metric: "<<checks<<" checks passed\n";
+        std::cout << "boundary_cases=" << boundaryCases << " boundary_iterations=" << boundaryIterations << "\n";
     } catch(const std::exception& error) { std::cerr<<error.what()<<'\n';return 1; }
 }
