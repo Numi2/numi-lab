@@ -4004,14 +4004,8 @@ MetalArticulatedOperatorDiagnostics initializeContext(
                 "failed to create Numi Human parallel response pipeline: " +
                     describeError(error));
         }
-        MTLFunctionConstantValues* scalarFactorConstants =
-            [[MTLFunctionConstantValues alloc] init];
-        bool registerOwnedFactorDisabled = false;
-        [scalarFactorConstants setConstantValue:&registerOwnedFactorDisabled
-                                          type:MTLDataTypeBool atIndex:5u];
         id<MTLFunction> standEqualityFunction = [library
-            newFunctionWithName:@"mr_numi_human_stand_equality_prepare"
-                constantValues:scalarFactorConstants error:&error];
+            newFunctionWithName:@"mr_numi_human_stand_equality_prepare"];
         error = nil;
         standEqualityPipeline = standEqualityFunction == nil
             ? nil : [device newComputePipelineStateWithFunction:
