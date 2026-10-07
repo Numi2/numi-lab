@@ -72,6 +72,9 @@ int main() {
                 NumiHumanRestingFixedBoundAction::eliminated)) {
             ++eliminatedCount;
             require(record.derivedFlags == 0, "implied bound flag was not cleared");
+            require(eliminatedDofs[record.vIndex].limits.x == 0.0f &&
+                    eliminatedDofs[record.vIndex].limits.y == 0.0f,
+                    "inactive derived position interval was not cleared");
         } else {
             ++retainedCount;
             require(false, "inside-interval fixture retained a fixed bound");
@@ -113,6 +116,9 @@ int main() {
             "outside-interval retention was not recorded");
     require(outsideReceipt[0].derivedFlags == outsideReceipt[0].originalFlags,
             "outside-interval retained flags changed");
+    require(outsideDofs[9].limits.x == -1.0f &&
+            outsideDofs[9].limits.y == 1.0f,
+            "outside-interval source limits changed");
 
     const auto preservesOutputsOnFailure = [&](const auto& invalidSource,
             const auto& invalidEqualities, const auto& invalidDofs,

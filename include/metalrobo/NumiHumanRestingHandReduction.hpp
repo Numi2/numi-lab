@@ -151,6 +151,13 @@ inline bool compileNumiHumanRestingFixedBoundElimination(
         const std::uint32_t derivedFlags = inside
             ? (dof.flags & ~MR_DOF_FLAG_POSITION_LIMIT) : dof.flags;
         candidateDofs[v].flags = derivedFlags;
+        if (inside) {
+            // EngineModel requires inactive position bounds to be zero.
+            // Preserve the authored interval in the receipt and clear only
+            // its derived-model representation alongside the flag.
+            candidateDofs[v].limits.x = 0.0f;
+            candidateDofs[v].limits.y = 0.0f;
+        }
         candidateReceipt.push_back({
             .vIndex = v, .qIndex = q, .target = target,
             .sourceLower = dof.limits.x, .sourceUpper = dof.limits.y,
