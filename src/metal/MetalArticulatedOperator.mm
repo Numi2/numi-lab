@@ -765,6 +765,11 @@ struct MetalArticulatedOperatorContextState {
         if (zeroContactResponseFastPath != nullptr)
             standZeroContactResponseFastPath =
                 std::strcmp(zeroContactResponseFastPath, "1") == 0;
+        const char* cacheContactJacobian = std::getenv(
+            "NUMI_HUMAN_STAND_CACHE_CONTACT_JACOBIAN");
+        if (cacheContactJacobian != nullptr)
+            standCacheContactJacobian =
+                std::strcmp(cacheContactJacobian, "1") == 0;
         const char* onePassStandLimits =
             std::getenv("NUMI_HUMAN_STAND_ONE_PASS_ORDERED_LIMITS");
         if (onePassStandLimits != nullptr)
@@ -913,6 +918,7 @@ struct MetalArticulatedOperatorContextState {
     std::size_t standContactWarmStartEnvironmentCount = 0u;
     std::size_t standContactWarmStartInitializedEnvironmentCount = 0u;
     bool standZeroContactResponseFastPath = false;
+    bool standCacheContactJacobian = false;
     struct SplitStandHorizonState {
         bool active = false;
         const EngineModel* model = nullptr;
@@ -4435,6 +4441,9 @@ MetalArticulatedOperatorDiagnostics initializeContext(
             context.standZeroContactResponseFastPath;
         [finishConstants setConstantValue:&zeroContactResponseFastPath
                                     type:MTLDataTypeBool atIndex:14u];
+        bool cacheContactJacobian = context.standCacheContactJacobian;
+        [finishConstants setConstantValue:&cacheContactJacobian
+                                    type:MTLDataTypeBool atIndex:16u];
         [finishConstants setConstantValue:
             &speculativeContactAdmissionDistanceMeters
             type:MTLDataTypeFloat atIndex:8u];
@@ -4530,6 +4539,9 @@ MetalArticulatedOperatorDiagnostics initializeContext(
         zeroContactResponseFastPath = false;
         [finishConstants setConstantValue:&zeroContactResponseFastPath
                                     type:MTLDataTypeBool atIndex:14u];
+        cacheContactJacobian = false;
+        [finishConstants setConstantValue:&cacheContactJacobian
+                                    type:MTLDataTypeBool atIndex:16u];
         deferStandEqualityDiagnostics = false;
         [finishConstants setConstantValue:&deferStandEqualityDiagnostics
                                     type:MTLDataTypeBool atIndex:9u];

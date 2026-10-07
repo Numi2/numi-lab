@@ -953,6 +953,24 @@
     }
     threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
     if (status.code != MR_NUMI_HUMAN_STAND_SUCCESS) return;
+    // Contact gaps and active flags are fixed for this accepted q. Fill a
+    // root-local projected-J tail once from the exact source helper arithmetic;
+    // each active contact/axis/DOF owns one disjoint cache entry.
+    if (useContactJacobianCache && coupledSweep == 0u) {
+        for (uint index = lane; index < contactJacobianCacheElements;
+             index += threadCount) {
+            const uint contact = index / (3u * nv);
+            if (cooperativeContactActive[contact] == 0u) continue;
+            const uint axis = (index / nv) % 3u;
+            const uint dof = index % nv;
+            const MRNumiHumanStandContactGPU support = contacts[contact];
+            contactJacobianCacheScratch[
+                contactJacobianCacheOffset + index] = pointJacobianAxis(
+                    pointJacobians, pointJacobianBase,
+                    support.pointQueryIndex, nv, dof, directions[axis]);
+        }
+        threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+    }
     auto projectContact = [&](const uint contact, const float3 velocity) {
         device const MRNumiHumanStandContactGPU& support = contacts[contact];
         const float gap = cooperativeContactGap[contact];
@@ -1125,19 +1143,27 @@
                     float3 velocity{0.0f};
                     for (uint axis = 0u; axis < 3u; ++axis) {
                         float contraction = 0.0f;
-                        contraction += pointJacobianAxis(
+                        contraction += standContactJacobianAxis(
+                            useContactJacobianCache, contactJacobianCacheScratch,
+                            contactJacobianCacheOffset, contact, axis,
                             pointJacobians, pointJacobianBase,
                             support.pointQueryIndex, nv, dof0,
                             directions[axis]) * candidate0;
-                        contraction += pointJacobianAxis(
+                        contraction += standContactJacobianAxis(
+                            useContactJacobianCache, contactJacobianCacheScratch,
+                            contactJacobianCacheOffset, contact, axis,
                             pointJacobians, pointJacobianBase,
                             support.pointQueryIndex, nv, dof1,
                             directions[axis]) * candidate1;
-                        contraction += pointJacobianAxis(
+                        contraction += standContactJacobianAxis(
+                            useContactJacobianCache, contactJacobianCacheScratch,
+                            contactJacobianCacheOffset, contact, axis,
                             pointJacobians, pointJacobianBase,
                             support.pointQueryIndex, nv, dof2,
                             directions[axis]) * candidate2;
-                        contraction += pointJacobianAxis(
+                        contraction += standContactJacobianAxis(
+                            useContactJacobianCache, contactJacobianCacheScratch,
+                            contactJacobianCacheOffset, contact, axis,
                             pointJacobians, pointJacobianBase,
                             support.pointQueryIndex, nv, dof3,
                             directions[axis]) * candidate3;
@@ -1207,7 +1233,10 @@
                         float velocity = 0.0f;
                         for (uint dof = simdLane; dof < nv;
                              dof += simdWidth) {
-                            velocity += pointJacobianAxis(
+                            velocity += standContactJacobianAxis(
+                                useContactJacobianCache,
+                                contactJacobianCacheScratch,
+                                contactJacobianCacheOffset, contact, axis,
                                 pointJacobians, pointJacobianBase,
                                 support.pointQueryIndex, nv, dof,
                                 directions[axis]
@@ -1221,7 +1250,10 @@
                     for (uint axis = lane; axis < 3u; axis += threadCount) {
                         float velocity = 0.0f;
                         for (uint dof = 0u; dof < nv; ++dof) {
-                            velocity += pointJacobianAxis(
+                            velocity += standContactJacobianAxis(
+                                useContactJacobianCache,
+                                contactJacobianCacheScratch,
+                                contactJacobianCacheOffset, contact, axis,
                                 pointJacobians, pointJacobianBase,
                                 support.pointQueryIndex, nv, dof,
                                 directions[axis]
@@ -2385,15 +2417,23 @@
                 float velocityTangentZ = 0.0f;
                 for (uint dof = 0u; dof < nv; ++dof) {
                     const float value = candidateV[dof];
-                    velocityNormal += pointJacobianAxis(
+                    velocityNormal += standContactJacobianAxis(
+                        useContactJacobianCache, contactJacobianCacheScratch,
+                        contactJacobianCacheOffset, contact, 0u,
                         pointJacobians, pointJacobianBase,
                         support.pointQueryIndex, nv, dof, normal) * value;
-                    velocityTangentY += pointJacobianAxis(
+                    velocityTangentY += standContactJacobianAxis(
+                        useContactJacobianCache, contactJacobianCacheScratch,
+                        contactJacobianCacheOffset, contact, 1u,
                         pointJacobians, pointJacobianBase,
-                        support.pointQueryIndex, nv, dof, directions[1u]) * value;
-                    velocityTangentZ += pointJacobianAxis(
+                        support.pointQueryIndex, nv, dof,
+                        directions[1u]) * value;
+                    velocityTangentZ += standContactJacobianAxis(
+                        useContactJacobianCache, contactJacobianCacheScratch,
+                        contactJacobianCacheOffset, contact, 2u,
                         pointJacobians, pointJacobianBase,
-                        support.pointQueryIndex, nv, dof, directions[2u]) * value;
+                        support.pointQueryIndex, nv, dof,
+                        directions[2u]) * value;
                 }
                 const float targetNormalVelocity =
                     contactTargetNormalVelocityForPostProjection[contact];

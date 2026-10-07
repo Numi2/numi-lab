@@ -103,6 +103,11 @@ constant bool kZeroContactResponseFastPath [[function_constant(14)]];
 constant bool kUseZeroContactResponseFastPath =
     is_function_constant_defined(kZeroContactResponseFastPath)
         ? kZeroContactResponseFastPath : false;
+// Cache exact projected contact Jacobian entries in unused root-local scratch.
+constant bool kCacheContactJacobian [[function_constant(16)]];
+constant bool kUseContactJacobianCache =
+    is_function_constant_defined(kCacheContactJacobian)
+        ? kCacheContactJacobian : false;
 // A positive value enables a full coupled-sweep convergence check in the
 // cooperative projected finish. Zero keeps the configured fixed sweep count.
 constant float kCooperativeStandVelocityResidualTolerance
@@ -904,6 +909,25 @@ inline float pointJacobianAxis(
     return direction.x * pointJacobians[pointBase + 0u * nv + dof] +
         direction.y * pointJacobians[pointBase + 1u * nv + dof] +
         direction.z * pointJacobians[pointBase + 2u * nv + dof];
+}
+
+inline float standContactJacobianAxis(
+    const bool useCache,
+    device const float* cacheScratch,
+    const uint cacheOffset,
+    const uint contact,
+    const uint axis,
+    device const float* pointJacobians,
+    const uint pointJacobianBase,
+    const uint point,
+    const uint nv,
+    const uint dof,
+    const float3 direction
+) {
+    if (useCache)
+        return cacheScratch[cacheOffset + (3u * contact + axis) * nv + dof];
+    return pointJacobianAxis(pointJacobians, pointJacobianBase,
+        point, nv, dof, direction);
 }
 
 inline bool evaluateJointEquality(
@@ -3443,6 +3467,26 @@ kernel void mr_numi_human_stand_finish(
         bodyCount * MR_NUMI_HUMAN_STAND_SPATIAL_SCRATCH_ROWS * nv >=
             (2u + equalityCount) * nv +
             3u * dispatch.supportContactCount * equalityCount;
+    // The unused tail follows derivative/target, DOF-major equality response,
+    // and projected-contact/equality scratch. The host has bounded the full
+    // spatial allocation to uint-addressable elements; subtraction keeps this
+    // optional tail check overflow-safe.
+    const uint contactJacobianCacheOffset =
+        (2u + equalityCount) * nv +
+        3u * dispatch.supportContactCount * equalityCount;
+    const uint contactJacobianCacheElements =
+        3u * dispatch.supportContactCount * nv;
+    const uint spatialScratchCapacityElements =
+        bodyCount * MR_NUMI_HUMAN_STAND_SPATIAL_SCRATCH_ROWS * nv;
+    const bool useContactJacobianCache =
+        kUseContactJacobianCache &&
+        (dispatch.flags & MR_NUMI_HUMAN_STAND_ENABLE_CONTACT) != 0u &&
+        dispatch.supportContactCount != 0u &&
+        contactJacobianCacheOffset <= spatialScratchCapacityElements &&
+        contactJacobianCacheElements <=
+            spatialScratchCapacityElements - contactJacobianCacheOffset;
+    device float* contactJacobianCacheScratch =
+        spatialJacobianScratch + spatialBase;
     const bool useCooperativePgsResidualExit =
         kUseCooperativeStandVelocityResidualTolerance > 0.0f &&
         !kCpuFinishSpecialized && useProjectedContacts;
