@@ -2732,20 +2732,6 @@ void borrowedNativeEncoderSetLabel(void* context, const char* label) {
     encoder.label = @(label);
 }
 
-void borrowedNativeEncoderSampleCounters(
-    void* context,
-    void* sampleBuffer,
-    const std::uint32_t sampleIndex,
-    const bool withBarrier
-) {
-    id<MTLComputeCommandEncoder> encoder =
-        (__bridge id<MTLComputeCommandEncoder>)context;
-    [encoder sampleCountersInBuffer:
-        (__bridge id<MTLCounterSampleBuffer>)sampleBuffer
-        atSampleIndex:static_cast<NSUInteger>(sampleIndex)
-        withBarrier:withBarrier ? YES : NO];
-}
-
 void borrowedNativeEncoderUseHeap(void* context, void* heap) {
     id<MTLComputeCommandEncoder> encoder =
         (__bridge id<MTLComputeCommandEncoder>)context;
@@ -2835,7 +2821,6 @@ public:
         : native_(encoder) {
         nativeCallbacks_.context = (__bridge void*)encoder;
         nativeCallbacks_.setLabel = borrowedNativeEncoderSetLabel;
-        nativeCallbacks_.sampleCounters = borrowedNativeEncoderSampleCounters;
         nativeCallbacks_.useHeap = borrowedNativeEncoderUseHeap;
         nativeCallbacks_.setPipeline = borrowedNativeEncoderSetPipeline;
         nativeCallbacks_.setBuffer = borrowedNativeEncoderSetBuffer;
@@ -3024,6 +3009,12 @@ public:
             threadsPerThreadgroup
         );
         return true;
+    }
+
+    bool splitCommandEncoder() {
+        return native_ != nil || callbacks_ == nullptr ||
+            callbacks_->splitCommandEncoder == nullptr ||
+            callbacks_->splitCommandEncoder(callbacks_->context);
     }
 
 private:
@@ -3616,6 +3607,13 @@ MetalHybridRendererDiagnostics encodeLocked(
                 MetalHybridRendererStatus::metalCommandFailure,
                 "accepted-state mesh deformation encoder rejected its "
                 "borrowed lease"
+            );
+        }
+        if (!encoder.splitCommandEncoder()) {
+            return reject(
+                std::move(diagnostics),
+                MetalHybridRendererStatus::metalCommandFailure,
+                "diagnostic compute encoder split failed after mesh audit"
             );
         }
 
@@ -6432,7 +6430,8 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::encodeGraph(
     const HybridDeviceStateBatch& liveState,
     const std::uint32_t cameraIndex,
     const MetalHybridComputeEncoderCallbacks& callbacks,
-    const HybridDeviceObservationBuffers& outputs
+    const HybridDeviceObservationBuffers& outputs,
+    const bool physicalExposure
 ) {
     if (state_ == nullptr) {
         return reject(
@@ -6567,7 +6566,7 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::encodeGraph(
         // the same exposure setup as the owned-command-buffer render path.
         // Without it, the presentation graph can bypass the scene's physical
         // camera response even though it produces an RGB buffer.
-        options.physicalExposure = true;
+        options.physicalExposure = physicalExposure;
         options.outputs = &outputs;
         return encodeLocked(
             *state_,

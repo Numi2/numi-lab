@@ -212,13 +212,10 @@ struct MetalHybridComputeEncoderCallbacks {
         std::size_t offset,
         std::size_t threadsPerThreadgroup
     ) = nullptr;
-    // Optional, call-scoped counter sample on the borrowed compute encoder.
-    void (*sampleCounters)(
-        void* context,
-        void* sampleBuffer,
-        std::uint32_t sampleIndex,
-        bool withBarrier
-    ) = nullptr;
+    // Optional diagnostic boundary. The callback closes the current encoder,
+    // orders untracked-resource hazards, opens the next encoder, and rebinds
+    // heaps; subsequent pipeline and buffer state is set by the renderer.
+    bool (*splitCommandEncoder)(void* context) = nullptr;
 
     [[nodiscard]] bool valid() const noexcept {
         return context != nullptr &&
@@ -370,7 +367,8 @@ public:
         const HybridDeviceStateBatch& liveState,
         std::uint32_t cameraIndex,
         const MetalHybridComputeEncoderCallbacks& encoder,
-        const HybridDeviceObservationBuffers& outputs
+        const HybridDeviceObservationBuffers& outputs,
+        bool physicalExposure = true
     );
 
     // Physical-exposure path. Motion samples cover exposure open through

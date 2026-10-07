@@ -40,8 +40,6 @@ class NumiHumanRestingVisual {
     bool rigidHands=false;
     bool profileTiming=false;
     bool profileGpuTiming=false,gpuTimingUnavailableReported=false;
-    id<MTLCounterSampleBuffer> viewerGpuTimingSamples=nil;
-    unsigned viewerGpuTimingStep=0;
     unsigned auditCount=0;
     std::vector<unsigned> auditStableIds;
     unsigned cardiacWallVertexCount=0,cardiacWallAuditIndex=MR_INVALID_INDEX;
@@ -517,44 +515,125 @@ public:
         }
     }
 
+    struct ViewerTimedEncoderContext {
+        __strong id<MTLCommandBuffer> command = nil;
+        __strong id<MTLComputeCommandEncoder> encoder = nil;
+        __strong id<MTLCounterSampleBuffer> samples = nil;
+        __strong id<MTLFence> fence = nil;
+        __strong id<MTLHeap> heap = nil;
+        __strong NSString* label = nil;
+        unsigned stage = 0u;
+    };
+
     static id<MTLCounterSampleBuffer> makeViewerGpuTimingSamples(id<MTLDevice> device) {
-        if(!device||![device supportsCounterSampling:MTLCounterSamplingPointAtDispatchBoundary])return nil;
+        if(!device||![device supportsCounterSampling:MTLCounterSamplingPointAtStageBoundary])return nil;
         for(id<MTLCounterSet> set in device.counterSets) {
             if(![set.name isEqualToString:MTLCommonCounterSetTimestamp])continue;
             MTLCounterSampleBufferDescriptor* descriptor=[MTLCounterSampleBufferDescriptor new];
-            descriptor.counterSet=set;descriptor.storageMode=MTLStorageModeShared;descriptor.sampleCount=4u;
+            descriptor.counterSet=set;descriptor.storageMode=MTLStorageModeShared;descriptor.sampleCount=6u;
             return [device newCounterSampleBufferWithDescriptor:descriptor error:nil];
         }
         return nil;
     }
 
-    // Sample indices 0..3 mark frame entry, post-deformation, post-audit, and post-render.
-    static void sampleViewerGpuTimingBoundary(
-        const metalrobo::MetalHybridComputeEncoderCallbacks* encoder,
-        id<MTLCounterSampleBuffer> samples,unsigned index) {
-        if(!encoder||!encoder->sampleCounters||!samples)return;
-        encoder->sampleCounters(encoder->context,(__bridge void*)samples,index,true);
+    static bool beginViewerTimedEncoder(ViewerTimedEncoderContext& context) {
+        if(context.command==nil||context.samples==nil||context.fence==nil||context.stage>=3u)return false;
+        MTLComputePassDescriptor* pass=[MTLComputePassDescriptor computePassDescriptor];
+        pass.sampleBufferAttachments[0].sampleBuffer=context.samples;
+        pass.sampleBufferAttachments[0].startOfEncoderSampleIndex=context.stage*2u;
+        pass.sampleBufferAttachments[0].endOfEncoderSampleIndex=context.stage*2u+1u;
+        context.encoder=[context.command computeCommandEncoderWithDescriptor:pass];
+        if(context.encoder==nil)return false;
+        if(context.stage>0u)[context.encoder waitForFence:context.fence];
+        context.encoder.label=context.label;
+        if(context.heap!=nil)[context.encoder useHeap:context.heap];
+        return true;
+    }
+
+    static ViewerTimedEncoderContext& viewerTimedContext(void* opaque) {
+        return *static_cast<ViewerTimedEncoderContext*>(opaque);
+    }
+    static void viewerTimedSetLabel(void* opaque,const char* label) {
+        auto& context=viewerTimedContext(opaque);
+        context.label=[NSString stringWithUTF8String:label];
+        context.encoder.label=context.label;
+    }
+    static void viewerTimedUseHeap(void* opaque,void* heap) {
+        auto& context=viewerTimedContext(opaque);
+        context.heap=(__bridge id<MTLHeap>)heap;
+        [context.encoder useHeap:context.heap];
+    }
+    static void viewerTimedSetPipeline(void* opaque,void* pipeline) {
+        [viewerTimedContext(opaque).encoder setComputePipelineState:(__bridge id<MTLComputePipelineState>)pipeline];
+    }
+    static void viewerTimedSetBuffer(void* opaque,void* buffer,std::size_t offset,std::uint32_t index) {
+        [viewerTimedContext(opaque).encoder setBuffer:(__bridge id<MTLBuffer>)buffer offset:offset atIndex:index];
+    }
+    static void viewerTimedSetBytes(void* opaque,const void* bytes,std::size_t length,std::uint32_t index) {
+        [viewerTimedContext(opaque).encoder setBytes:bytes length:length atIndex:index];
+    }
+    static void viewerTimedDispatchThreads(void* opaque,std::size_t count,std::size_t perGroup) {
+        [viewerTimedContext(opaque).encoder dispatchThreads:MTLSizeMake(count,1u,1u)
+            threadsPerThreadgroup:MTLSizeMake(perGroup,1u,1u)];
+    }
+    static void viewerTimedDispatchThreadgroups(void* opaque,std::size_t count,std::size_t perGroup) {
+        [viewerTimedContext(opaque).encoder dispatchThreadgroups:MTLSizeMake(count,1u,1u)
+            threadsPerThreadgroup:MTLSizeMake(perGroup,1u,1u)];
+    }
+    static void viewerTimedDispatchIndirect(void* opaque,void* arguments,std::size_t offset,std::size_t perGroup) {
+        [viewerTimedContext(opaque).encoder dispatchThreadgroupsWithIndirectBuffer:(__bridge id<MTLBuffer>)arguments
+            indirectBufferOffset:offset threadsPerThreadgroup:MTLSizeMake(perGroup,1u,1u)];
+    }
+    static bool viewerTimedSplitEncoder(void* opaque) {
+        auto& context=viewerTimedContext(opaque);
+        if(context.encoder==nil||context.fence==nil||context.stage>=2u)return false;
+        [context.encoder updateFence:context.fence];
+        [context.encoder endEncoding];context.encoder=nil;++context.stage;
+        context.label=context.stage==1u
+            ?@"Numi Human surface and functional volume audits"
+            :@"Numi Human mesh renderer";
+        return beginViewerTimedEncoder(context);
+    }
+    static metalrobo::MetalHybridComputeEncoderCallbacks viewerTimedCallbacks(
+        ViewerTimedEncoderContext& context) {
+        metalrobo::MetalHybridComputeEncoderCallbacks callbacks;
+        callbacks.context=&context;
+        callbacks.setLabel=&viewerTimedSetLabel;
+        callbacks.useHeap=&viewerTimedUseHeap;
+        callbacks.setPipeline=&viewerTimedSetPipeline;
+        callbacks.setBuffer=&viewerTimedSetBuffer;
+        callbacks.setBytes=&viewerTimedSetBytes;
+        callbacks.dispatchThreads=&viewerTimedDispatchThreads;
+        callbacks.dispatchThreadgroups=&viewerTimedDispatchThreadgroups;
+        callbacks.dispatchThreadgroupsIndirect=&viewerTimedDispatchIndirect;
+        callbacks.splitCommandEncoder=&viewerTimedSplitEncoder;
+        return callbacks;
     }
 
     static void reportViewerGpuTiming(id<MTLCounterSampleBuffer> samples,unsigned step) {
         if(!samples)return;
-        NSData* data=[samples resolveCounterRange:NSMakeRange(0u,4u)];
-        if(data.length!=4u*sizeof(MTLCounterResultTimestamp)) {
+        NSData* data=[samples resolveCounterRange:NSMakeRange(0u,6u)];
+        if(data.length!=6u*sizeof(MTLCounterResultTimestamp)) {
             std::fprintf(stderr,"resting_viewer_gpu_timing sampling=unavailable step=%u\n",step);return;
         }
         const auto* stamps=static_cast<const MTLCounterResultTimestamp*>(data.bytes);
-        for(unsigned i=0;i<4u;++i)if(stamps[i].timestamp==0u||stamps[i].timestamp==MTLCounterErrorValue) {
+        for(unsigned i=0;i<6u;++i)if(stamps[i].timestamp==0u||stamps[i].timestamp==MTLCounterErrorValue) {
             std::fprintf(stderr,"resting_viewer_gpu_timing sampling=unavailable step=%u\n",step);return;
         }
-        for(unsigned i=1;i<4u;++i)if(stamps[i].timestamp<stamps[i-1u].timestamp) {
+        for(unsigned i=1;i<6u;++i)if(stamps[i].timestamp<stamps[i-1u].timestamp) {
             std::fprintf(stderr,"resting_viewer_gpu_timing sampling=unavailable step=%u\n",step);return;
         }
+        const auto deformation=stamps[1].timestamp-stamps[0].timestamp;
+        const auto audit=stamps[3].timestamp-stamps[2].timestamp;
+        const auto renderer=stamps[5].timestamp-stamps[4].timestamp;
+        const auto gaps=(stamps[2].timestamp-stamps[1].timestamp)+
+            (stamps[4].timestamp-stamps[3].timestamp);
         std::fprintf(stderr,
-            "resting_viewer_gpu_timing step=%u deformation_ns=%llu audit_ns=%llu renderer_ns=%llu total_ns=%llu\n",
-            step,static_cast<unsigned long long>(stamps[1].timestamp-stamps[0].timestamp),
-            static_cast<unsigned long long>(stamps[2].timestamp-stamps[1].timestamp),
-            static_cast<unsigned long long>(stamps[3].timestamp-stamps[2].timestamp),
-            static_cast<unsigned long long>(stamps[3].timestamp-stamps[0].timestamp));
+            "resting_viewer_gpu_timing step=%u deformation_ns=%llu audit_ns=%llu renderer_ns=%llu encoder_gaps_ns=%llu total_ns=%llu\n",
+            step,static_cast<unsigned long long>(deformation),
+            static_cast<unsigned long long>(audit),static_cast<unsigned long long>(renderer),
+            static_cast<unsigned long long>(gaps),
+            static_cast<unsigned long long>(stamps[5].timestamp-stamps[0].timestamp));
     }
 
     NumiHumanRestingVisual(NumiHumanRestingCoupling& owner,metalrobo::VisualAssetPackV2 pack,
@@ -1477,7 +1556,8 @@ public:
             e.setBuffer(e.context,lease.meshIndices,0,3);e.setBuffer(e.context,lease.meshVertices,0,4);
             e.dispatchThreads(e.context,airwayCount,64);
         }
-        sampleViewerGpuTimingBoundary(lease.encoder,self.viewerGpuTimingSamples,1u);
+        if(lease.encoder->splitCommandEncoder&&
+           !lease.encoder->splitCommandEncoder(lease.encoder->context))return false;
         e.setPipeline(e.context,(__bridge void*)self.volumePipeline);e.setBytes(e.context,&d,sizeof(d),0);
         e.setBuffer(e.context,(__bridge void*)self.surfaceAudits,0,1);e.setBuffer(e.context,lease.meshIndices,0,2);
         e.setBuffer(e.context,lease.meshVertices,0,3);e.setBuffer(e.context,(__bridge void*)self.coupled.presentationRespiration,0,4);
@@ -1527,7 +1607,6 @@ public:
             e.setBytes(e.context,&count,sizeof(count),2);
             e.dispatchThreads(e.context,count,64);self.captureKernelEncoded=true;
         }
-        sampleViewerGpuTimingBoundary(lease.encoder,self.viewerGpuTimingSamples,2u);
         return true;
     }
     NumiHumanRestingFrame render(unsigned camera,unsigned selectedLayer) {
@@ -1556,19 +1635,45 @@ public:
         request.expectedMeshTriangleCount=layout.meshTriangleCount;request.expectedMeshPrimitiveCount=layout.meshPrimitiveCount;request.expectedMeshInstanceCount=layout.meshInstanceCount;
         state.meshDeformation=&request;
         const double encodeStart=profileTiming?CACurrentMediaTime():0;
-        auto cb=[queue commandBuffer];auto enc=[cb computeCommandEncoder];
-        viewerGpuTimingStep=captureStep;
-        viewerGpuTimingSamples=profileGpuTiming?makeViewerGpuTimingSamples(coupled.physiology.device):nil;
-        if(viewerGpuTimingSamples) [enc sampleCountersInBuffer:viewerGpuTimingSamples atSampleIndex:0u withBarrier:YES];
-        else if(profileGpuTiming&&!gpuTimingUnavailableReported) {
-            std::fprintf(stderr,"resting_viewer_gpu_timing sampling=unavailable\n");gpuTimingUnavailableReported=true;
+        auto cb=[queue commandBuffer];
+        id<MTLCounterSampleBuffer> timingSamples=profileGpuTiming
+            ?makeViewerGpuTimingSamples(coupled.physiology.device):nil;
+        bool timedEncode=false;
+        metalrobo::MetalHybridRendererDiagnostics result;
+        if(timingSamples) {
+            ViewerTimedEncoderContext timing;
+            timing.command=cb;timing.samples=timingSamples;timing.stage=0u;
+            timing.fence=[coupled.physiology.device newFence];
+            if(beginViewerTimedEncoder(timing)) {
+                auto callbacks=viewerTimedCallbacks(timing);
+                metalrobo::HybridDeviceObservationBuffers outputs;
+                outputs.rgb=renderer->nativeBuffer(metalrobo::MetalHybridRendererBuffer::rgb);
+                outputs.depth=renderer->nativeBuffer(metalrobo::MetalHybridRendererBuffer::depth);
+                outputs.segmentation=renderer->nativeBuffer(metalrobo::MetalHybridRendererBuffer::segmentation);
+                outputs.identities=renderer->nativeBuffer(metalrobo::MetalHybridRendererBuffer::identities);
+                outputs.normals=renderer->nativeBuffer(metalrobo::MetalHybridRendererBuffer::normals);
+                outputs.motion=renderer->nativeBuffer(metalrobo::MetalHybridRendererBuffer::motion);
+                outputs.validity=renderer->nativeBuffer(metalrobo::MetalHybridRendererBuffer::validity);
+                result=renderer->encodeGraph(worlds,state,camera,callbacks,outputs,false);
+                if(timing.encoder!=nil)[timing.encoder endEncoding];
+                timedEncode=true;
+            } else {
+                timingSamples=nil;
+            }
         }
-        auto result=renderer->encode(worlds,state,camera,(__bridge void*)enc);require(result.succeeded(),result.message);
-        if(viewerGpuTimingSamples) [enc sampleCountersInBuffer:viewerGpuTimingSamples atSampleIndex:3u withBarrier:YES];
-        [enc endEncoding];
+        if(!timedEncode) {
+            auto enc=[cb computeCommandEncoder];
+            result=renderer->encode(worlds,state,camera,(__bridge void*)enc);
+            [enc endEncoding];
+            if(profileGpuTiming&&!gpuTimingUnavailableReported) {
+                std::fprintf(stderr,"resting_viewer_gpu_timing sampling=unavailable\n");
+                gpuTimingUnavailableReported=true;
+            }
+        }
+        require(result.succeeded(),result.message);
         const double commandStart=profileTiming?CACurrentMediaTime():0;
         [cb commit];[cb waitUntilCompleted];require(cb.status==MTLCommandBufferStatusCompleted,"resting native renderer failed");
-        if(viewerGpuTimingSamples) {reportViewerGpuTiming(viewerGpuTimingSamples,viewerGpuTimingStep);viewerGpuTimingSamples=nil;}
+        if(timingSamples)reportViewerGpuTiming(timingSamples,captureStep);
         const double commandEnd=profileTiming?CACurrentMediaTime():0;
         const bool geometryExportRequested=captureThisFrame;
         if(captureThisFrame)require(captureKernelEncoded,
