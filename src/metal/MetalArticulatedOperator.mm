@@ -14330,24 +14330,24 @@ MetalArticulatedOperatorContext::submit(
                         std::memset(finishWorkBuffer.contents, 0, finishWorkBuffer.length);
                     }
                     const char* stageName = parallelMass
-                        ? (phase == 0u ? stand_prework :
-                           phase == 1u ? stand_mass :
-                           phase == 2u ? stand_factor :
-                           phase == 3u ? stand_equality_responses :
-                           phase == 4u ? stand_equality_factor :
-                           phase == 5u ? stand_projected_responses :
+                        ? (phase == 0u ? "stand_prework" :
+                           phase == 1u ? "stand_mass" :
+                           phase == 2u ? "stand_factor" :
+                           phase == 3u ? "stand_equality_responses" :
+                           phase == 4u ? "stand_equality_factor" :
+                           phase == 5u ? "stand_projected_responses" :
                            deferEqualityData && phase == 6u
-                               ? stand_equality_response_rebuild :
+                               ? "stand_equality_response_rebuild" :
                            deferEqualityData && phase == 7u
-                               ? stand_equality_factor_rebuild :
+                               ? "stand_equality_factor_rebuild" :
                            deferEqualityData && phase == 8u
-                               ? stand_projected_response_fallback :
+                               ? "stand_projected_response_fallback" :
                            freeSplit && phase == standFreePreludePhase
-                               ? stand_free_prelude :
-                           (cachedFinish ? stand_finish_cached : stand_finish))
-                        : (!splitStand ? stand :
-                           (phase == 0u ? stand_prepare :
-                            cachedFinish ? stand_finish_cached : stand_finish));
+                               ? "stand_free_prelude" :
+                           (cachedFinish ? "stand_finish_cached" : "stand_finish"))
+                        : (!splitStand ? "stand" :
+                           (phase == 0u ? "stand_prepare" :
+                            cachedFinish ? "stand_finish_cached" : "stand_finish"));
                     id<MTLComputeCommandEncoder> standEncoder =
                         humanTimedEncoder(commandBuffer, state_->device,
                                           stageName, authoritativeStep);
