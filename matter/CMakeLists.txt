@@ -633,6 +633,11 @@ if(APPLE)
             "${CMAKE_CURRENT_SOURCE_DIR}/tools/fixtures/cvsim21.native.v3.json"
             "${CMAKE_CURRENT_SOURCE_DIR}/tools/fixtures/cvsim21-continuous-reference-64ms.csv")
         set_tests_properties(matter.metal.cvsim_source PROPERTIES LABELS "matter;metal;human;vascular" TIMEOUT 60)
+        add_test(NAME matter.metal.cvsim_source_dense45 COMMAND numi-matter-cvsim-check
+            "${CMAKE_CURRENT_SOURCE_DIR}/tools/fixtures/cvsim21.native.v3.json"
+            "${CMAKE_CURRENT_SOURCE_DIR}/tools/fixtures/cvsim21-continuous-reference-64ms.csv"
+            --vascular-dense45)
+        set_tests_properties(matter.metal.cvsim_source_dense45 PROPERTIES LABELS "matter;metal;human;vascular" TIMEOUT 60)
         find_package(Python3 COMPONENTS Interpreter QUIET)
         if(Python3_Interpreter_FOUND)
             add_test(NAME matter.compiler.cvsim_admission

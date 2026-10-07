@@ -21,7 +21,7 @@ constexpr unsigned count=45;
 constexpr std::array<const char*,21> labels={"ascending_aorta","brachiocephalic_arteries","upper_body_arteries","upper_body_veins","superior_vena_cava","descending_thoracic_aorta","abdominal_aorta","renal_arteries","renal_veins","splanchnic_arteries","splanchnic_veins","lower_body_arteries","lower_body_veins","abdominal_veins","inferior_vena_cava","right_atrium","right_ventricle","pulmonary_arteries","pulmonary_veins","left_atrium","left_ventricle"};
 struct Run {
     CompiledWorld world;Runtime runtime;id<MTLDevice> device;id<MTLCommandQueue> queue;id<MTLBuffer> statuses;
-    explicit Run(const VascularNetworkSource& n,double dt,unsigned newton=12,unsigned krylov=64) {
+    explicit Run(const VascularNetworkSource& n,double dt,unsigned newton=12,unsigned krylov=64,bool dense45=false) {
         need(n.compartments.size()==21&&n.connections.size()==24&&n.species.empty()&&n.tissues.empty()&&n.exchanges.empty(),"expected pinned full-loop source topology");
         for(unsigned i=0;i<21;++i)need(n.compartments[i].anatomicalIdentifier==std::string("source_aggregate:CVSim21:")+labels[i],"source-to-reference mapping differs");
         WorldSource s;s.environmentCount=2;s.frameTimestep=dt;s.gravity={0,0,0};s.vascular=n;
@@ -35,9 +35,9 @@ struct Run {
         device=MTLCreateSystemDefaultDevice();need(device!=nil,"Metal device missing");
         need([[device name] rangeOfString:@"Apple"].location!=NSNotFound&&[[device name] rangeOfString:@"Paravirtual"].location==NSNotFound,"physical Apple Metal required");
         queue=[device newCommandQueue];statuses=[device newBufferWithLength:2*sizeof(MRMetalWorldStatusGPU) options:MTLResourceStorageModeShared];
-        RuntimeConfiguration cfg;cfg.metallib=NUMI_MATTER_METALLIB;cfg.environmentCount=2;cfg.captureEvents=false;cfg.captureDiagnostics=true;cfg.adaptiveTransfer=false;
+        RuntimeConfiguration cfg;cfg.metallib=NUMI_MATTER_METALLIB;cfg.environmentCount=2;cfg.captureEvents=false;cfg.captureDiagnostics=true;cfg.adaptiveTransfer=false;cfg.enableVascularDense45=dense45;
         const auto init=runtime.initialize(world,cfg);need(init.encoded,init.message);
-        std::cout<<"cvsim_device="<<[device name].UTF8String<<" abi="<<NM_MATTER_ABI_VERSION<<" world_fingerprint="<<world.fingerprint<<'\n';
+        std::cout<<"cvsim_device="<<[device name].UTF8String<<" abi="<<NM_MATTER_ABI_VERSION<<" world_fingerprint="<<world.fingerprint<<" dense45="<<(dense45?"true":"false")<<'\n';
     }
     RuntimeStateSnapshot state(){auto s=runtime.snapshot();need(s.available,s.message);return s;}
     void step(unsigned index) {
@@ -80,16 +80,18 @@ struct Reference {
 };
 }
 int main(int argc,const char* argv[]){@autoreleasepool{try{
-    need(argc>=3,"usage: numi-matter-cvsim-check INPUT REFERENCE.csv [--steps N] [--dt SECONDS] [--trace FILE] [--volume-coordinates upstream_equation|heldt_table_aligned]");
-    unsigned steps=64;double dt=.001;std::string tracePath,checkpointPath;bool aligned=false;
-    for(int i=3;i<argc;i+=2){need(i+1<argc,"missing option value");std::string key=argv[i];
-        if(key=="--steps")steps=unsigned(std::stoul(argv[i+1]));else if(key=="--dt")dt=std::stod(argv[i+1]);
-        else if(key=="--trace")tracePath=argv[i+1];else if(key=="--checkpoint")checkpointPath=argv[i+1];
-        else if(key=="--volume-coordinates"){std::string value=argv[i+1];need(value=="upstream_equation"||value=="heldt_table_aligned","unknown volume coordinates");aligned=value=="heldt_table_aligned";}
+    need(argc>=3,"usage: numi-matter-cvsim-check INPUT REFERENCE.csv [--steps N] [--dt SECONDS] [--trace FILE] [--volume-coordinates upstream_equation|heldt_table_aligned] [--vascular-dense45]");
+    unsigned steps=64;double dt=.001;std::string tracePath,checkpointPath;bool aligned=false,dense45=false;
+    for(int i=3;i<argc;){std::string key=argv[i++];
+        if(key=="--vascular-dense45"){dense45=true;continue;}
+        need(i<argc,"missing option value");const char* optionValue=argv[i++];
+        if(key=="--steps")steps=unsigned(std::stoul(optionValue));else if(key=="--dt")dt=std::stod(optionValue);
+        else if(key=="--trace")tracePath=optionValue;else if(key=="--checkpoint")checkpointPath=optionValue;
+        else if(key=="--volume-coordinates"){std::string value=optionValue;need(value=="upstream_equation"||value=="heldt_table_aligned","unknown volume coordinates");aligned=value=="heldt_table_aligned";}
         else need(false,"unknown option");}
     need(steps>0&&steps<=1000000&&std::isfinite(dt)&&dt>0&&dt<=.01,"invalid bounded qualification request");
     VascularNetworkSource n;std::string error;need(readHumanPhysiologyNetwork(argv[1],n,&error),error);
-    std::cout<<std::setprecision(17)<<std::unitbuf;const auto begin=std::chrono::steady_clock::now();Run run(n,dt);Reference reference(argv[2],aligned);
+    std::cout<<std::setprecision(17)<<std::unitbuf;const auto begin=std::chrono::steady_clock::now();Run run(n,dt,12,64,dense45);Reference reference(argv[2],aligned);
     const auto start=run.state();const auto first=physical(run,start);need(start.vascularClock.size()==2,"accepted clock absent");
     for(unsigned i=0;i<count;++i)need(std::abs(first[i]-reference.state[i])/run.world.vascular.unknowns[i].initialAndScaling.y<5e-6,"initial source state mismatch row="+std::to_string(i));
     const double initialVolume=std::accumulate(first.begin(),first.begin()+21,0.0);
@@ -128,6 +130,6 @@ int main(int argc,const char* argv[]){@autoreleasepool{try{
         if((step+1)%500u==0u)std::cout<<"cvsim_progress accepted_steps="<<step+1<<" time_seconds="<<time<<" max_volume_error_m3="<<maxVolume<<" max_flow_error_m3_per_s="<<maxFlow<<'\n';
     }}
     const double elapsed=std::chrono::duration<double>(std::chrono::steady_clock::now()-begin).count();
-    std::cout<<"cvsim_source_run=pass accepted_steps="<<steps<<" environments=2 failed_steps=0 dt_seconds="<<run.runtime.timestepSeconds()<<" duration_seconds="<<steps*double(run.runtime.timestepSeconds())<<" clock=exact_binary_128_rational_period replay_pair=bitwise snapshot_replay=bitwise max_volume_error_m3="<<maxVolume<<" max_flow_error_m3_per_s="<<maxFlow<<" scaled_state_rms_error="<<std::sqrt(squareError/observations)<<" relative_blood_volume_invariant_error="<<maxInvariant<<" wall_seconds="<<elapsed<<" qualification=source_variant_numerical_comparison biological_calibration=unqualified\n";
+    std::cout<<"cvsim_source_run=pass dense45="<<(dense45?"true":"false")<<" accepted_steps="<<steps<<" environments=2 failed_steps=0 dt_seconds="<<run.runtime.timestepSeconds()<<" duration_seconds="<<steps*double(run.runtime.timestepSeconds())<<" clock=exact_binary_128_rational_period replay_pair=bitwise snapshot_replay=bitwise max_volume_error_m3="<<maxVolume<<" max_flow_error_m3_per_s="<<maxFlow<<" scaled_state_rms_error="<<std::sqrt(squareError/observations)<<" relative_blood_volume_invariant_error="<<maxInvariant<<" wall_seconds="<<elapsed<<" qualification=source_variant_numerical_comparison biological_calibration=unqualified\n";
     return 0;
 }catch(const std::exception& e){std::cerr<<"cvsim_source_run=failed reason="<<e.what()<<'\n';return 1;}}}
