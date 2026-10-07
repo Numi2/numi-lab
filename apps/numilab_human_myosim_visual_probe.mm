@@ -22581,7 +22581,7 @@ int main(int argc, char** argv) {
                 std::ofstream trace(std::filesystem::path(positional.back())/"resting-coupled.csv");
                 require(trace.good(),"resting trace path unavailable");
                 trace<<std::setprecision(12);numi::human::writeRespirationTraceHeader(trace);
-                trace<<",step,min_contact_gap_m,peak_penetration_m,normal_impulse_ns,root_assistance_n,root_assistance_nm,diaphragm_excitation,intercostal_excitation,diaphragm_activation,intercostal_activation\n";
+                trace<<",step,min_contact_gap_m,peak_penetration_m,normal_impulse_ns,root_assistance_n,root_assistance_nm,diaphragm_excitation,intercostal_excitation,diaphragm_activation,intercostal_activation,pre_projection_contact_residual_m_s,pre_projection_limit_residual_generalized_s,pre_projection_equality_residual_generalized_s,post_projection_contact_residual_m_s,post_projection_limit_residual_generalized_s,post_projection_equality_residual_generalized_s,equality_position_projection_max_generalized,equality_velocity_projection_max_generalized_s,contact_sweeps\n";
                 const char* comMomentumAuditSetting =
                     std::getenv("NUMI_HUMAN_ACCEPTED_COM_MOMENTUM_AUDIT");
                 require(comMomentumAuditSetting == nullptr ||
@@ -22881,7 +22881,12 @@ int main(int argc, char** argv) {
                         trace<<','<<step<<','
                              <<b.contactAndAcceleration.x<<','<<b.contactAndAcceleration.y<<','<<b.contactAndAcceleration.z<<','
                              <<b.factorAndAssistance.z<<','<<b.factorAndAssistance.w<<','<<p.control.x<<','<<p.control.y<<','
-                             <<p.muscles[0].excitationAndActivation.y<<','<<p.muscles[1].excitationAndActivation.y<<'\n';
+                             <<p.muscles[0].excitationAndActivation.y<<','<<p.muscles[1].excitationAndActivation.y<<','
+                             <<b.preProjectionPreStepConstraintDiagnostics.x<<','<<b.preProjectionPreStepConstraintDiagnostics.y<<','
+                             <<b.preProjectionPreStepConstraintDiagnostics.z<<','<<b.postProjectionPreStepConstraintDiagnostics.x<<','
+                             <<b.postProjectionPreStepConstraintDiagnostics.y<<','<<b.postProjectionPreStepConstraintDiagnostics.z<<','
+                             <<b.jointEqualityProjectionDiagnostics.x<<','<<b.jointEqualityProjectionDiagnostics.z<<','
+                             <<b.contactIterations<<'\n';
                         trace.flush();
                         if (trainingProfile) {
                             restingObserverProfile.respirationTraceMilliseconds +=
