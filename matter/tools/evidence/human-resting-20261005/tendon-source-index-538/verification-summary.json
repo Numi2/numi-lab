@@ -1,0 +1,35 @@
+{
+  "scope": "Native viewer source-index correspondence regression. Does not admit complete tendon/anatomy geometry or qualify physiology.",
+  "parent_revision": "5df562f62d99bec5e9ade2a608592971084845a5",
+  "source_file_sha256": "65fe7fd2adcd44425a0de3623844cf679c502b0417cb36d42fe35e6226c60b4d",
+  "native_run_path": "/Users/n/numi-human-resting-evidence-20261005/native-tendon-source-index-regression-538",
+  "runtime_metadata_sha256": "df428e368c9b23cfbc2a75ae92b2c6e758671ac5eee372dad6216147db3b8ead",
+  "regression_report_sha256": "2e68f4e6fe0f8fc2b0ff79d02ca609d437b0877a2e0a0a22c31a4240dc5b68c8",
+  "cardiac_volume_report_sha256": "b260d0c211a6939bc29bd09e71329c26ddf5301149dac9c5675e30f21784937f",
+  "source_index_correspondence_sha256": "828a82e035d7d6cc8a91277b4d41fc8460d659db95e58bcf2c22686451c11dba",
+  "index_fix_pass": true,
+  "unaffected_native_surfaces_bit_identical": 859,
+  "remaining_exact_self_intersection_pairs": [
+    {
+      "step": 0,
+      "stable_id": 7,
+      "count": 115
+    },
+    {
+      "step": 0,
+      "stable_id": 8,
+      "count": 64
+    },
+    {
+      "step": 31,
+      "stable_id": 7,
+      "count": 71
+    },
+    {
+      "step": 31,
+      "stable_id": 8,
+      "count": 19
+    }
+  ],
+  "complete_anatomy_accepted": false
+}

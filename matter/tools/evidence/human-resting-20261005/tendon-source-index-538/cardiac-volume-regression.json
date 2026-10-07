@@ -1,0 +1,227 @@
+{
+  "scope": "Independent Float64 integration of actual GPU-deformed accepted triangle buffers, not physiological validation. Runtime threshold is retained at 2e-4 relative volume error.",
+  "driver_sha256": "da21d3c9cd69e6910dbe65fed3c11009b1e68290dbff8ab189bb1d8960c82bcb",
+  "reader_sha256": "9016a1845a43d7f40c7805b85b6798ffbad8ffe9613d0a6322231e51c757ba27",
+  "receipt_sha256": "d557836d87d24a3857f050b65ea3b42d0d65f7d0bf030af7b9391c4c4c08dac3",
+  "run_metadata_sha256": "df428e368c9b23cfbc2a75ae92b2c6e758671ac5eee372dad6216147db3b8ead",
+  "frames": [
+    {
+      "step": 0,
+      "time_s": 0.0,
+      "accepted_receipt": {
+        "path": "/Users/n/numi-human-resting-evidence-20261005/native-tendon-source-index-regression-538/accepted-geometry/step-0.receipt.json",
+        "sha256": "1db836e57b659f185effba1a89b2c0029b31ce7e8bb042d5f352160d279c7ecc",
+        "accepted_step": 0,
+        "accepted_time_s": 0,
+        "accepted_root_fingerprint": 11062446951853914313,
+        "accepted_root_fingerprint_hex": "0x9985b4e42fdaf8c9",
+        "accepted_transaction_fingerprint": 11062446951853914313,
+        "accepted_body_state_sha256": "0481da5c1b06085a1081185f6e54e2f51293b0b1a7a0dbb6fa33b3cc60a90734",
+        "accepted_respiration_state_sha256": "c321d4844866f1c00204e2d4aa8b40067bf65512c65e720b38c5054fc84e5548",
+        "base_pack_content_hash": "sha256:001b5d1be3e467aae796064744e9749cc44e552bcfd701a787e1a086021cc042",
+        "base_pack_file_sha256": "cda9a2acd7cf33f298486f2fce1d26aaa744fd2bcede2be3d198206f05cdd69b",
+        "anatomy_layer_index": 0,
+        "captured_vertex_buffer_sha256": "52e6db01b3025d19469c4f522891934395855e0f27f84f3a77e69ba38abeea27"
+      },
+      "surfaces": [
+        {
+          "stable_id": 318,
+          "target_ml": 32.2639498336,
+          "target_source": "synchronized accepted native trace",
+          "vertices": 41817,
+          "triangles": 83630,
+          "signed_volume_ml": 32.26395332552412,
+          "relative_error": 1.0822990169392022e-07,
+          "zero_area_triangles": 0,
+          "pass_": true
+        },
+        {
+          "stable_id": 319,
+          "target_ml": 138.358649565,
+          "target_source": "synchronized accepted native trace",
+          "vertices": 61077,
+          "triangles": 122150,
+          "signed_volume_ml": 138.3586710648496,
+          "relative_error": 1.5539216133194723e-07,
+          "zero_area_triangles": 0,
+          "pass_": true
+        },
+        {
+          "stable_id": 320,
+          "target_ml": 47.7374887851,
+          "target_source": "synchronized accepted native trace",
+          "vertices": 27587,
+          "triangles": 55170,
+          "signed_volume_ml": 47.73752135256516,
+          "relative_error": 6.822199070548606e-07,
+          "zero_area_triangles": 0,
+          "pass_": true
+        },
+        {
+          "stable_id": 321,
+          "target_ml": 118.755349831,
+          "target_source": "synchronized accepted native trace",
+          "vertices": 56300,
+          "triangles": 112596,
+          "signed_volume_ml": 118.75535631505377,
+          "relative_error": 5.460009826570125e-08,
+          "zero_area_triangles": 0,
+          "pass_": true
+        },
+        {
+          "stable_id": 1,
+          "target_ml": 23.289401724468917,
+          "target_source": "source-bound conserved material target, serialized to native Float32",
+          "vertices": 98920,
+          "triangles": 197852,
+          "signed_volume_ml": 23.28940575634388,
+          "relative_error": 1.731205897685251e-07,
+          "zero_area_triangles": 0,
+          "pass_": true
+        },
+        {
+          "stable_id": 23,
+          "target_ml": 164.01289030909538,
+          "target_source": "source-bound conserved material target, serialized to native Float32",
+          "vertices": 229869,
+          "triangles": 459742,
+          "signed_volume_ml": 164.0129238838501,
+          "relative_error": 2.0470802423341167e-07,
+          "zero_area_triangles": 0,
+          "pass_": true
+        },
+        {
+          "stable_id": 24,
+          "target_ml": 31.686162401456386,
+          "target_source": "source-bound conserved material target, serialized to native Float32",
+          "vertices": 70593,
+          "triangles": 141206,
+          "signed_volume_ml": 31.68622740608606,
+          "relative_error": 2.051514754356172e-06,
+          "zero_area_triangles": 0,
+          "pass_": true
+        }
+      ],
+      "pass": true,
+      "common_coordinates": [
+        -3.89657252526e-05,
+        0.000101759884274,
+        -0.000365718093235,
+        0.000144327306771,
+        6.08834961895e-05,
+        -0.000109183340101,
+        0.000994517584331
+      ]
+    },
+    {
+      "step": 31,
+      "time_s": 0.0620000029448,
+      "accepted_receipt": {
+        "path": "/Users/n/numi-human-resting-evidence-20261005/native-tendon-source-index-regression-538/accepted-geometry/step-31.receipt.json",
+        "sha256": "34b97aae02469ed40fed5920635b9b4557ff3d4d05c58fa98b4fc0c0ef8f7120",
+        "accepted_step": 31,
+        "accepted_time_s": 0.06200000294484198,
+        "accepted_root_fingerprint": 12768278417390960195,
+        "accepted_root_fingerprint_hex": "0xb132099245dffe43",
+        "accepted_transaction_fingerprint": 12768278417390960195,
+        "accepted_body_state_sha256": "0f15ba0b86c5518584528fbc57cc89aa54b87ce427ba1a01b43e1327c7be22a4",
+        "accepted_respiration_state_sha256": "4ed238297734bb5bc91d111cacef9c5cc9f2a61b5854c1eaa0afc71ea919099e",
+        "base_pack_content_hash": "sha256:001b5d1be3e467aae796064744e9749cc44e552bcfd701a787e1a086021cc042",
+        "base_pack_file_sha256": "cda9a2acd7cf33f298486f2fce1d26aaa744fd2bcede2be3d198206f05cdd69b",
+        "anatomy_layer_index": 0,
+        "captured_vertex_buffer_sha256": "d2e950dfcf4e6046b8536ab0120ff93d53899d969aa822ecb295e58fde08dc2f"
+      },
+      "surfaces": [
+        {
+          "stable_id": 318,
+          "target_ml": 28.6943213723,
+          "target_source": "synchronized accepted native trace",
+          "vertices": 41817,
+          "triangles": 83630,
+          "signed_volume_ml": 28.694517484370497,
+          "relative_error": 6.834525478164825e-06,
+          "zero_area_triangles": 0,
+          "pass_": true
+        },
+        {
+          "stable_id": 319,
+          "target_ml": 145.909027196,
+          "target_source": "synchronized accepted native trace",
+          "vertices": 61077,
+          "triangles": 122150,
+          "signed_volume_ml": 145.90899976689585,
+          "relative_error": 1.8798771187762813e-07,
+          "zero_area_triangles": 0,
+          "pass_": true
+        },
+        {
+          "stable_id": 320,
+          "target_ml": 46.7807112727,
+          "target_source": "synchronized accepted native trace",
+          "vertices": 27587,
+          "triangles": 55170,
+          "signed_volume_ml": 46.780685223807595,
+          "relative_error": 5.568297638011144e-07,
+          "zero_area_triangles": 0,
+          "pass_": true
+        },
+        {
+          "stable_id": 321,
+          "target_ml": 124.165206216,
+          "target_source": "synchronized accepted native trace",
+          "vertices": 56300,
+          "triangles": 112596,
+          "signed_volume_ml": 124.16522176809482,
+          "relative_error": 1.2525324361455403e-07,
+          "zero_area_triangles": 0,
+          "pass_": true
+        },
+        {
+          "stable_id": 1,
+          "target_ml": 23.289401724468917,
+          "target_source": "source-bound conserved material target, serialized to native Float32",
+          "vertices": 98920,
+          "triangles": 197852,
+          "signed_volume_ml": 23.2894218329621,
+          "relative_error": 8.634181942318396e-07,
+          "zero_area_triangles": 0,
+          "pass_": true
+        },
+        {
+          "stable_id": 23,
+          "target_ml": 164.01289030909538,
+          "target_source": "source-bound conserved material target, serialized to native Float32",
+          "vertices": 229869,
+          "triangles": 459742,
+          "signed_volume_ml": 164.01289675249572,
+          "relative_error": 3.9285938596575865e-08,
+          "zero_area_triangles": 0,
+          "pass_": true
+        },
+        {
+          "stable_id": 24,
+          "target_ml": 31.686162401456386,
+          "target_source": "source-bound conserved material target, serialized to native Float32",
+          "vertices": 70593,
+          "triangles": 141206,
+          "signed_volume_ml": 31.68615550979705,
+          "relative_error": 2.174974440998807e-07,
+          "zero_area_triangles": 0,
+          "pass_": true
+        }
+      ],
+      "pass": true,
+      "common_coordinates": [
+        -0.0483600944281,
+        0.0301770884544,
+        -0.0106702130288,
+        0.028008537367,
+        0.0274285450578,
+        -0.012308685109,
+        0.0122040295973
+      ]
+    }
+  ],
+  "pass": true,
+  "maximum_relative_error": 6.834525478164825e-06
+}

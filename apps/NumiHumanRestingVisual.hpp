@@ -944,6 +944,39 @@ public:
             if(tissues&&(instance.identity.x==kMuscleSurfaceSemantic||instance.identity.x==kTendonSurfaceSemantic)) {
                 auto found=std::find_if(tissues->records.begin(),tissues->records.end(),[&](const auto& t){return t.stableId==instance.identity.w;});
                 require(found!=tissues->records.end(),"resting tissue source identity missing");tissue=&*found;
+                // appendSoftTissueGeometry preserves the complete source vertex
+                // allocation, including unused leading vertices. The first
+                // referenced mesh vertex therefore need not be source vertex 0.
+                // Recover that allocation base from the exact source index
+                // correspondence before reading deformation bindings.
+                require(instance.geometry.y==1,"resting tissue requires one source primitive");
+                const auto& primitive=pack.primitives.at(instance.geometry.x);
+                require(primitive.geometry.y==tissue->indexCount&&tissue->indexCount>0,
+                    "resting tissue source index count differs from its native primitive");
+                const unsigned sourceFirst=tissues->indices.at(tissue->firstIndex);
+                require(sourceFirst>=tissue->firstVertex&&
+                    sourceFirst-tissue->firstVertex<tissue->vertexCount,
+                    "resting tissue first source index is outside its vertex allocation");
+                const unsigned sourceOffset=sourceFirst-tissue->firstVertex;
+                const unsigned meshFirst=pack.indices.at(primitive.geometry.x);
+                require(meshFirst>=sourceOffset,"resting tissue source vertex base underflows");
+                const unsigned sourceBase=meshFirst-sourceOffset;
+                require(sourceBase<=pack.vertices.size()&&
+                    tissue->vertexCount<=pack.vertices.size()-sourceBase,
+                    "resting tissue source vertex allocation exceeds the native pack");
+                for(unsigned j=0;j<tissue->indexCount;++j) {
+                    const unsigned sourceIndex=tissues->indices.at(tissue->firstIndex+j);
+                    require(sourceIndex>=tissue->firstVertex&&
+                        sourceIndex-tissue->firstVertex<tissue->vertexCount&&
+                        pack.indices.at(primitive.geometry.x+j)==
+                            sourceBase+(sourceIndex-tissue->firstVertex),
+                        "resting tissue native topology differs from its source vertex order");
+                }
+                if(sourceBase!=base)
+                    std::cout<<"resting_soft_tissue_source_range stable_id="<<tissue->stableId
+                        <<" pack_source_base="<<sourceBase<<" first_referenced_vertex="<<base
+                        <<" unused_leading_vertices="<<(base-sourceBase)<<"\n";
+                base=sourceBase;
             }
             for(unsigned v:vertices) {
                 require(!maps.at(v).influenceCount,"resting anatomy vertices have multiple owners");

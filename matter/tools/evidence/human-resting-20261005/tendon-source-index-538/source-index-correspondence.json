@@ -1,0 +1,1529 @@
+{
+  "scope": "Exact topology correspondence between source NHTISS4 triangles and native pack. Current viewer infers source vertex base from minimum referenced vertex, which is wrong when leading source vertices are unused.",
+  "payload_sha256": "9340447e7874366033f544ee8e56e9c09bdf4efecf52b0fa3b16d7b4d5489c33",
+  "pack_sha256": "fbdebbe595866a3acdaf1007348bfbdcfe300b705ab8c51c05fe20a9885b36ca",
+  "rows": [
+    {
+      "stable_id": 1,
+      "layer": 1,
+      "vertex_count": 1748,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 252167,
+      "current_inferred_base": 252167,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 2,
+      "layer": 1,
+      "vertex_count": 1746,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 253915,
+      "current_inferred_base": 253915,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 3,
+      "layer": 1,
+      "vertex_count": 2263,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 255661,
+      "current_inferred_base": 255661,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 4,
+      "layer": 1,
+      "vertex_count": 2264,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 257924,
+      "current_inferred_base": 257924,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 5,
+      "layer": 1,
+      "vertex_count": 2674,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 260188,
+      "current_inferred_base": 260188,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 6,
+      "layer": 1,
+      "vertex_count": 2674,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 262862,
+      "current_inferred_base": 262862,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 7,
+      "layer": 2,
+      "vertex_count": 2353,
+      "first_referenced_source_vertex": 43,
+      "actual_pack_source_base": 265536,
+      "current_inferred_base": 265579,
+      "incorrect_source_shift": 43,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 8,
+      "layer": 2,
+      "vertex_count": 2353,
+      "first_referenced_source_vertex": 43,
+      "actual_pack_source_base": 267889,
+      "current_inferred_base": 267932,
+      "incorrect_source_shift": 43,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 9,
+      "layer": 1,
+      "vertex_count": 1091,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 270242,
+      "current_inferred_base": 270242,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 10,
+      "layer": 1,
+      "vertex_count": 1089,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 271333,
+      "current_inferred_base": 271333,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 11,
+      "layer": 1,
+      "vertex_count": 1536,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 272422,
+      "current_inferred_base": 272422,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 12,
+      "layer": 1,
+      "vertex_count": 1536,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 273958,
+      "current_inferred_base": 273958,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 13,
+      "layer": 1,
+      "vertex_count": 4560,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 275494,
+      "current_inferred_base": 275494,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 14,
+      "layer": 1,
+      "vertex_count": 4562,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 280054,
+      "current_inferred_base": 280054,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 15,
+      "layer": 1,
+      "vertex_count": 1600,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 284616,
+      "current_inferred_base": 284616,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 16,
+      "layer": 1,
+      "vertex_count": 1597,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 286216,
+      "current_inferred_base": 286216,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 17,
+      "layer": 1,
+      "vertex_count": 2838,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 287813,
+      "current_inferred_base": 287813,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 18,
+      "layer": 1,
+      "vertex_count": 2837,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 290651,
+      "current_inferred_base": 290651,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 19,
+      "layer": 1,
+      "vertex_count": 1211,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 293488,
+      "current_inferred_base": 293488,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 20,
+      "layer": 1,
+      "vertex_count": 1215,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 294699,
+      "current_inferred_base": 294699,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 21,
+      "layer": 1,
+      "vertex_count": 3964,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 295914,
+      "current_inferred_base": 295914,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 22,
+      "layer": 1,
+      "vertex_count": 3965,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 299878,
+      "current_inferred_base": 299878,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 23,
+      "layer": 1,
+      "vertex_count": 1043,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 303843,
+      "current_inferred_base": 303843,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 24,
+      "layer": 1,
+      "vertex_count": 1044,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 304886,
+      "current_inferred_base": 304886,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 25,
+      "layer": 1,
+      "vertex_count": 3037,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 305930,
+      "current_inferred_base": 305930,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 26,
+      "layer": 1,
+      "vertex_count": 3039,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 308967,
+      "current_inferred_base": 308967,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 27,
+      "layer": 1,
+      "vertex_count": 1676,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 312006,
+      "current_inferred_base": 312006,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 28,
+      "layer": 1,
+      "vertex_count": 1676,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 313682,
+      "current_inferred_base": 313682,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 29,
+      "layer": 1,
+      "vertex_count": 2053,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 315358,
+      "current_inferred_base": 315358,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 30,
+      "layer": 1,
+      "vertex_count": 2053,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 317411,
+      "current_inferred_base": 317411,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 31,
+      "layer": 1,
+      "vertex_count": 2312,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 319464,
+      "current_inferred_base": 319464,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 32,
+      "layer": 1,
+      "vertex_count": 2308,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 321776,
+      "current_inferred_base": 321776,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 33,
+      "layer": 1,
+      "vertex_count": 3066,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 324084,
+      "current_inferred_base": 324084,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 34,
+      "layer": 1,
+      "vertex_count": 3066,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 327150,
+      "current_inferred_base": 327150,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 35,
+      "layer": 1,
+      "vertex_count": 2086,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 330216,
+      "current_inferred_base": 330216,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 36,
+      "layer": 1,
+      "vertex_count": 2085,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 332302,
+      "current_inferred_base": 332302,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 37,
+      "layer": 1,
+      "vertex_count": 2447,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 334387,
+      "current_inferred_base": 334387,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 38,
+      "layer": 1,
+      "vertex_count": 2452,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 336834,
+      "current_inferred_base": 336834,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 39,
+      "layer": 1,
+      "vertex_count": 1605,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 339286,
+      "current_inferred_base": 339286,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 40,
+      "layer": 1,
+      "vertex_count": 1605,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 340891,
+      "current_inferred_base": 340891,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 41,
+      "layer": 1,
+      "vertex_count": 2946,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 342496,
+      "current_inferred_base": 342496,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 42,
+      "layer": 1,
+      "vertex_count": 2947,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 345442,
+      "current_inferred_base": 345442,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 43,
+      "layer": 1,
+      "vertex_count": 798,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 348389,
+      "current_inferred_base": 348389,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 44,
+      "layer": 1,
+      "vertex_count": 796,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 349187,
+      "current_inferred_base": 349187,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 45,
+      "layer": 1,
+      "vertex_count": 3632,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 349983,
+      "current_inferred_base": 349983,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 46,
+      "layer": 1,
+      "vertex_count": 3634,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 353615,
+      "current_inferred_base": 353615,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 47,
+      "layer": 1,
+      "vertex_count": 3326,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 357249,
+      "current_inferred_base": 357249,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 48,
+      "layer": 1,
+      "vertex_count": 3326,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 360575,
+      "current_inferred_base": 360575,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 49,
+      "layer": 1,
+      "vertex_count": 2630,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 363901,
+      "current_inferred_base": 363901,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 50,
+      "layer": 1,
+      "vertex_count": 2633,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 366531,
+      "current_inferred_base": 366531,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 51,
+      "layer": 1,
+      "vertex_count": 2588,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 369164,
+      "current_inferred_base": 369164,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 52,
+      "layer": 1,
+      "vertex_count": 2588,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 371752,
+      "current_inferred_base": 371752,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 53,
+      "layer": 1,
+      "vertex_count": 1812,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 374340,
+      "current_inferred_base": 374340,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 54,
+      "layer": 1,
+      "vertex_count": 1808,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 376152,
+      "current_inferred_base": 376152,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 55,
+      "layer": 1,
+      "vertex_count": 1087,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 377960,
+      "current_inferred_base": 377960,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 56,
+      "layer": 1,
+      "vertex_count": 1087,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 379047,
+      "current_inferred_base": 379047,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 57,
+      "layer": 1,
+      "vertex_count": 2204,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 380134,
+      "current_inferred_base": 380134,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 58,
+      "layer": 1,
+      "vertex_count": 2206,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 382338,
+      "current_inferred_base": 382338,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 59,
+      "layer": 1,
+      "vertex_count": 5039,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 384544,
+      "current_inferred_base": 384544,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 60,
+      "layer": 1,
+      "vertex_count": 5037,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 389583,
+      "current_inferred_base": 389583,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 61,
+      "layer": 1,
+      "vertex_count": 2748,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 394620,
+      "current_inferred_base": 394620,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 62,
+      "layer": 1,
+      "vertex_count": 2744,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 397368,
+      "current_inferred_base": 397368,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 63,
+      "layer": 1,
+      "vertex_count": 3975,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 400112,
+      "current_inferred_base": 400112,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 64,
+      "layer": 1,
+      "vertex_count": 3974,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 404087,
+      "current_inferred_base": 404087,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 65,
+      "layer": 1,
+      "vertex_count": 2773,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 408061,
+      "current_inferred_base": 408061,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 66,
+      "layer": 1,
+      "vertex_count": 2772,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 410834,
+      "current_inferred_base": 410834,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 67,
+      "layer": 1,
+      "vertex_count": 63907,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 413606,
+      "current_inferred_base": 413606,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 68,
+      "layer": 1,
+      "vertex_count": 63893,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 477513,
+      "current_inferred_base": 477513,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 69,
+      "layer": 1,
+      "vertex_count": 1019,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 541406,
+      "current_inferred_base": 541406,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 70,
+      "layer": 1,
+      "vertex_count": 1019,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 542425,
+      "current_inferred_base": 542425,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 71,
+      "layer": 1,
+      "vertex_count": 1492,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 543444,
+      "current_inferred_base": 543444,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 72,
+      "layer": 1,
+      "vertex_count": 1495,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 544936,
+      "current_inferred_base": 544936,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 73,
+      "layer": 1,
+      "vertex_count": 5480,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 546431,
+      "current_inferred_base": 546431,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 74,
+      "layer": 1,
+      "vertex_count": 5466,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 551911,
+      "current_inferred_base": 551911,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 75,
+      "layer": 1,
+      "vertex_count": 916,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 557377,
+      "current_inferred_base": 557377,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 76,
+      "layer": 1,
+      "vertex_count": 918,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 558293,
+      "current_inferred_base": 558293,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 77,
+      "layer": 1,
+      "vertex_count": 2592,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 559211,
+      "current_inferred_base": 559211,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 78,
+      "layer": 1,
+      "vertex_count": 2604,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 561803,
+      "current_inferred_base": 561803,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 79,
+      "layer": 1,
+      "vertex_count": 1665,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 564407,
+      "current_inferred_base": 564407,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 80,
+      "layer": 1,
+      "vertex_count": 1678,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 566072,
+      "current_inferred_base": 566072,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 81,
+      "layer": 1,
+      "vertex_count": 843,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 567750,
+      "current_inferred_base": 567750,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 82,
+      "layer": 1,
+      "vertex_count": 842,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 568593,
+      "current_inferred_base": 568593,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 83,
+      "layer": 1,
+      "vertex_count": 743,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 569435,
+      "current_inferred_base": 569435,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 84,
+      "layer": 1,
+      "vertex_count": 738,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 570178,
+      "current_inferred_base": 570178,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 85,
+      "layer": 1,
+      "vertex_count": 2775,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 570916,
+      "current_inferred_base": 570916,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 86,
+      "layer": 1,
+      "vertex_count": 2759,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 573691,
+      "current_inferred_base": 573691,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 87,
+      "layer": 1,
+      "vertex_count": 1044,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 576450,
+      "current_inferred_base": 576450,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 88,
+      "layer": 1,
+      "vertex_count": 1052,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 577494,
+      "current_inferred_base": 577494,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 89,
+      "layer": 1,
+      "vertex_count": 392,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 578546,
+      "current_inferred_base": 578546,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 90,
+      "layer": 1,
+      "vertex_count": 391,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 578938,
+      "current_inferred_base": 578938,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 91,
+      "layer": 1,
+      "vertex_count": 451,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 579329,
+      "current_inferred_base": 579329,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 92,
+      "layer": 1,
+      "vertex_count": 449,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 579780,
+      "current_inferred_base": 579780,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 93,
+      "layer": 1,
+      "vertex_count": 1105,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 580229,
+      "current_inferred_base": 580229,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 94,
+      "layer": 1,
+      "vertex_count": 1109,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 581334,
+      "current_inferred_base": 581334,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 95,
+      "layer": 1,
+      "vertex_count": 1678,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 582443,
+      "current_inferred_base": 582443,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 96,
+      "layer": 1,
+      "vertex_count": 1676,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 584121,
+      "current_inferred_base": 584121,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 97,
+      "layer": 1,
+      "vertex_count": 620,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 585797,
+      "current_inferred_base": 585797,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 98,
+      "layer": 1,
+      "vertex_count": 617,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 586417,
+      "current_inferred_base": 586417,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 99,
+      "layer": 1,
+      "vertex_count": 1105,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 587034,
+      "current_inferred_base": 587034,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 100,
+      "layer": 1,
+      "vertex_count": 1106,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 588139,
+      "current_inferred_base": 588139,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 101,
+      "layer": 1,
+      "vertex_count": 2368,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 589245,
+      "current_inferred_base": 589245,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 102,
+      "layer": 1,
+      "vertex_count": 2379,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 591613,
+      "current_inferred_base": 591613,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 103,
+      "layer": 1,
+      "vertex_count": 1053,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 593992,
+      "current_inferred_base": 593992,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 104,
+      "layer": 1,
+      "vertex_count": 1039,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 595045,
+      "current_inferred_base": 595045,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 105,
+      "layer": 1,
+      "vertex_count": 1739,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 596084,
+      "current_inferred_base": 596084,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 106,
+      "layer": 1,
+      "vertex_count": 1743,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 597823,
+      "current_inferred_base": 597823,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 107,
+      "layer": 1,
+      "vertex_count": 1266,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 599566,
+      "current_inferred_base": 599566,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 108,
+      "layer": 1,
+      "vertex_count": 1256,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 600832,
+      "current_inferred_base": 600832,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 109,
+      "layer": 1,
+      "vertex_count": 3270,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 602088,
+      "current_inferred_base": 602088,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 110,
+      "layer": 1,
+      "vertex_count": 3272,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 605358,
+      "current_inferred_base": 605358,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 111,
+      "layer": 1,
+      "vertex_count": 1696,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 608630,
+      "current_inferred_base": 608630,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 112,
+      "layer": 1,
+      "vertex_count": 1702,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 610326,
+      "current_inferred_base": 610326,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 113,
+      "layer": 1,
+      "vertex_count": 1564,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 612028,
+      "current_inferred_base": 612028,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 114,
+      "layer": 1,
+      "vertex_count": 1564,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 613592,
+      "current_inferred_base": 613592,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 115,
+      "layer": 1,
+      "vertex_count": 1114,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 615156,
+      "current_inferred_base": 615156,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 116,
+      "layer": 1,
+      "vertex_count": 1116,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 616270,
+      "current_inferred_base": 616270,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 117,
+      "layer": 1,
+      "vertex_count": 819,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 617386,
+      "current_inferred_base": 617386,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 118,
+      "layer": 1,
+      "vertex_count": 819,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 618205,
+      "current_inferred_base": 618205,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 119,
+      "layer": 1,
+      "vertex_count": 1887,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 619024,
+      "current_inferred_base": 619024,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 120,
+      "layer": 1,
+      "vertex_count": 1884,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 620911,
+      "current_inferred_base": 620911,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 121,
+      "layer": 1,
+      "vertex_count": 1715,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 622795,
+      "current_inferred_base": 622795,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 122,
+      "layer": 1,
+      "vertex_count": 1717,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 624510,
+      "current_inferred_base": 624510,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 123,
+      "layer": 1,
+      "vertex_count": 4471,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 626227,
+      "current_inferred_base": 626227,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 124,
+      "layer": 1,
+      "vertex_count": 4469,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 630698,
+      "current_inferred_base": 630698,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 125,
+      "layer": 1,
+      "vertex_count": 1588,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 635167,
+      "current_inferred_base": 635167,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 126,
+      "layer": 1,
+      "vertex_count": 1599,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 636755,
+      "current_inferred_base": 636755,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 127,
+      "layer": 1,
+      "vertex_count": 791,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 638354,
+      "current_inferred_base": 638354,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 128,
+      "layer": 1,
+      "vertex_count": 791,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 639145,
+      "current_inferred_base": 639145,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 129,
+      "layer": 1,
+      "vertex_count": 2257,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 639936,
+      "current_inferred_base": 639936,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 130,
+      "layer": 1,
+      "vertex_count": 2259,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 642193,
+      "current_inferred_base": 642193,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 131,
+      "layer": 1,
+      "vertex_count": 6109,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 644452,
+      "current_inferred_base": 644452,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 132,
+      "layer": 1,
+      "vertex_count": 6106,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 650561,
+      "current_inferred_base": 650561,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 133,
+      "layer": 1,
+      "vertex_count": 3857,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 656667,
+      "current_inferred_base": 656667,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 134,
+      "layer": 1,
+      "vertex_count": 3852,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 660524,
+      "current_inferred_base": 660524,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 135,
+      "layer": 1,
+      "vertex_count": 1781,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 664376,
+      "current_inferred_base": 664376,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 136,
+      "layer": 1,
+      "vertex_count": 1783,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 666157,
+      "current_inferred_base": 666157,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 137,
+      "layer": 1,
+      "vertex_count": 3355,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 667940,
+      "current_inferred_base": 667940,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 138,
+      "layer": 1,
+      "vertex_count": 3350,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 671295,
+      "current_inferred_base": 671295,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 139,
+      "layer": 1,
+      "vertex_count": 1014,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 674645,
+      "current_inferred_base": 674645,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 140,
+      "layer": 1,
+      "vertex_count": 1017,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 675659,
+      "current_inferred_base": 675659,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 141,
+      "layer": 1,
+      "vertex_count": 690,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 676676,
+      "current_inferred_base": 676676,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 142,
+      "layer": 1,
+      "vertex_count": 692,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 677366,
+      "current_inferred_base": 677366,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 143,
+      "layer": 1,
+      "vertex_count": 1177,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 678058,
+      "current_inferred_base": 678058,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 144,
+      "layer": 1,
+      "vertex_count": 1178,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 679235,
+      "current_inferred_base": 679235,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 145,
+      "layer": 1,
+      "vertex_count": 846,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 680413,
+      "current_inferred_base": 680413,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 146,
+      "layer": 1,
+      "vertex_count": 846,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 681259,
+      "current_inferred_base": 681259,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 147,
+      "layer": 1,
+      "vertex_count": 1439,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 682105,
+      "current_inferred_base": 682105,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 148,
+      "layer": 1,
+      "vertex_count": 1439,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 683544,
+      "current_inferred_base": 683544,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 149,
+      "layer": 1,
+      "vertex_count": 1015,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 684983,
+      "current_inferred_base": 684983,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 150,
+      "layer": 1,
+      "vertex_count": 1015,
+      "first_referenced_source_vertex": 0,
+      "actual_pack_source_base": 685998,
+      "current_inferred_base": 685998,
+      "incorrect_source_shift": 0,
+      "full_index_correspondence": true
+    }
+  ],
+  "shifted_rows": [
+    {
+      "stable_id": 7,
+      "layer": 2,
+      "vertex_count": 2353,
+      "first_referenced_source_vertex": 43,
+      "actual_pack_source_base": 265536,
+      "current_inferred_base": 265579,
+      "incorrect_source_shift": 43,
+      "full_index_correspondence": true
+    },
+    {
+      "stable_id": 8,
+      "layer": 2,
+      "vertex_count": 2353,
+      "first_referenced_source_vertex": 43,
+      "actual_pack_source_base": 267889,
+      "current_inferred_base": 267932,
+      "incorrect_source_shift": 43,
+      "full_index_correspondence": true
+    }
+  ]
+}
