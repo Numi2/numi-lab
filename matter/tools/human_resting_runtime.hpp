@@ -39,7 +39,22 @@ struct Respiration {
             need(result!=nil,std::string("respiration pipeline: ")+name.UTF8String);return result;
         };
         predict=pipeline(@"nm_human_respiration_predict");
-        exchange=pipeline(@"nm_human_respiration_exchange");
+        const char* subcycleSetting=std::getenv("NUMI_HUMAN_GAS_TRANSPORT_SUBCYCLING");
+        need(!subcycleSetting||std::strcmp(subcycleSetting,"0")==0||
+             std::strcmp(subcycleSetting,"1")==0,
+             "NUMI_HUMAN_GAS_TRANSPORT_SUBCYCLING must be 0 or 1");
+        const bool subcycle=subcycleSetting&&std::strcmp(subcycleSetting,"1")==0;
+        if(subcycle) {
+            auto constants=[[MTLFunctionConstantValues alloc] init];
+            [constants setConstantValue:&subcycle type:MTLDataTypeBool atIndex:40];
+            auto f=[library newFunctionWithName:@"nm_human_respiration_exchange"
+                constantValues:constants error:&error];
+            exchange=f?[device newComputePipelineStateWithFunction:f error:&error]:nil;
+            need(exchange!=nil,"respiration gas subcycling pipeline");
+        } else exchange=pipeline(@"nm_human_respiration_exchange");
+        std::cerr<<"resting_gas_transport_subcycling="<<(subcycle?1:0)
+                 <<" maximum_substeps=32 donor_fraction_bound=0.1"
+                 <<" physical_controller_clock_substeps=1\n";
         resolve=pipeline(@"nm_human_respiration_resolve");
         auto s=initializeRespiration(parameters,world);
         accepted=[device newBufferWithLength:sizeof(s)*dispatch.environmentCount options:MTLResourceStorageModeShared];

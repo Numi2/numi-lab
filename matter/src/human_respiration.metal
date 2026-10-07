@@ -8,6 +8,10 @@
 #include "NumiHumanRestingCommonField.metalinc"
 #include "NumiHumanRestingSupportGeometry.metalinc"
 
+constant bool kGasTransportSubcycling [[function_constant(40)]];
+constant bool kUseGasTransportSubcycling =
+    is_function_constant_defined(kGasTransportSubcycling) ? kGasTransportSubcycling : false;
+
 inline float3 restingRotate(float4 q,float3 v) {
     return v+2.0f*cross(q.xyz,cross(q.xyz,v)+q.w*v);
 }
@@ -845,53 +849,99 @@ kernel void nm_human_respiration_exchange(
     const NMHumanRespirationState old=accepted[env];
     const float dt=p.environment.w;
     const uint base=env*d.vascularStride;
-    float2 delta[21];
-    for(uint row=0;row<21;++row) delta[row]=0;
-    float2 alveolarDelta=0;
-    const float alveolarVolume=old.mechanics.x-p.lung.y;
-    const float2 alveolarFraction=old.alveolarGas.xy/(alveolarVolume*p.environment.z);
-    const float2 deadFraction=old.deadSpaceGas.xy/(p.lung.y*p.environment.z);
-    const float2 alveolarPressure=alveolarFraction*(p.environment.y/133.322387415f);
-    const float2 capillaryContent=float2(human_respiration::oxygenContent(alveolarPressure.x,p),
-        p.carbonDioxide.x+p.carbonDioxide.y*(alveolarPressure.y-40.0f));
-    float pulmonaryO2=0;
-    for(uint edge=0;edge<p.topology.w;++edge) {
-        const auto con=connections[edge];
-        const float flow=human_respiration::physical(vascularAfter,unknowns,base,21+edge);
-        const uint from=flow>=0?con.identity.y:con.identity.z;
-        const uint to=flow>=0?con.identity.z:con.identity.y;
-        const float fromVolume=human_respiration::physical(vascularBefore,unknowns,base,from);
-        const float2 content=old.bloodGas[from].xy/fromVolume;
-        const float2 transported=dt*abs(flow)*content;
-        delta[from]-=transported;
-        delta[to]+=transported;
-        if(edge==p.topology.x && flow>0) {
-            // Perfusion-limited capillary equilibration; an explicit finite
-            // effectiveness allows a matched diffusion sensitivity check.
-            const float2 exchange=dt*flow*p.carbonDioxide.z*(capillaryContent-content);
-            delta[to]+=exchange;
-            alveolarDelta-=exchange;
-            pulmonaryO2=exchange.x/dt;
+    // Gas advection is local to this candidate. Every substep uses the same
+    // accepted cardiovascular flow and linearly interpolated compartment
+    // volumes, consistent with the circuit's backward-Euler volume balance.
+    // No controller, body, circuit, or accepted cursor advances here.
+    uint gasSubsteps=1u;
+    if(kUseGasTransportSubcycling) {
+        float outgoing[21];
+        for(uint row=0;row<21;++row) outgoing[row]=0.0f;
+        for(uint edge=0;edge<p.topology.w;++edge) {
+            const auto con=connections[edge];
+            const float flow=human_respiration::physical(vascularAfter,unknowns,base,21+edge);
+            const uint from=flow>=0?con.identity.y:con.identity.z;
+            outgoing[from]+=abs(flow);
         }
-        if(dt*abs(flow)>0.1f*fromVolume || !all(isfinite(transported))) n.status.w=4;
+        float required=1.0f;
+        for(uint row=0;row<21;++row) {
+            const float before=human_respiration::physical(vascularBefore,unknowns,base,row);
+            const float after=human_respiration::physical(vascularAfter,unknowns,base,row);
+            const float minimumVolume=min(before,after);
+            if(!(minimumVolume>0.0f)||!isfinite(outgoing[row])) {
+                n.status.w=4u;statuses[env].code=NM_STATUS_MULTIPHYSICS_FAILURE;
+                candidate[env]=n;return;
+            }
+            required=max(required,ceil(dt*outgoing[row]/(0.1f*minimumVolume)));
+        }
+        required=max(required,ceil(dt*abs(n.mechanics.w)/(0.1f*p.lung.y)));
+        if(!isfinite(required)||required>32.0f) {
+            n.status.w=4u;statuses[env].code=NM_STATUS_MULTIPHYSICS_FAILURE;
+            candidate[env]=n;return;
+        }
+        gasSubsteps=uint(required);
     }
-    for(uint bed=0;bed<4;++bed) {
-        const float2 demand=dt*p.metabolism.zw*p.tissueFractions[bed];
-        delta[p.tissueRows[bed]]+=float2(-demand.x,demand.y);
-    }
-    human_respiration::addGas(n.metabolicGas,dt*p.metabolism.zw);
-    // Explicit upwind exchange with one anatomical dead-space reservoir.
-    // The same flux leaves one reservoir and enters the next.
+    const float gasDt=dt/float(gasSubsteps);
+    float pulmonaryO2=0;
+    float totalPulmonaryO2=0;
     const float transport=dt*n.mechanics.w*p.environment.z;
-    const float2 outsideFlux=transport*(transport>=0?p.metabolism.xy:deadFraction);
-    const float2 airwayFlux=transport*(transport>=0?deadFraction:alveolarFraction);
-    human_respiration::addGas(n.environmentGas,outsideFlux);
-    human_respiration::addGas(n.deadSpaceGas,outsideFlux-airwayFlux);
-    human_respiration::addGas(n.alveolarGas,airwayFlux+alveolarDelta);
-    for(uint row=0;row<21;++row) {
-        human_respiration::addGas(n.bloodGas[row],delta[row]);
-        if(!all(isfinite(n.bloodGas[row]))||any(n.bloodGas[row].xy<0)) n.status.w=5;
+    for(uint substep=0u;substep<gasSubsteps;++substep) {
+        const float alpha=float(substep)/float(gasSubsteps);
+        float2 delta[21];
+        for(uint row=0;row<21;++row) delta[row]=0;
+        float2 alveolarDelta=0;
+        const float lungVolume=gasSubsteps==1u?old.mechanics.x:
+            mix(old.mechanics.x,n.mechanics.x,alpha);
+        const float alveolarVolume=lungVolume-p.lung.y;
+        const float2 alveolarFraction=n.alveolarGas.xy/(alveolarVolume*p.environment.z);
+        const float2 deadFraction=n.deadSpaceGas.xy/(p.lung.y*p.environment.z);
+        const float2 alveolarPressure=alveolarFraction*(p.environment.y/133.322387415f);
+        const float2 capillaryContent=float2(human_respiration::oxygenContent(alveolarPressure.x,p),
+            p.carbonDioxide.x+p.carbonDioxide.y*(alveolarPressure.y-40.0f));
+        for(uint edge=0;edge<p.topology.w;++edge) {
+            const auto con=connections[edge];
+            const float flow=human_respiration::physical(vascularAfter,unknowns,base,21+edge);
+            const uint from=flow>=0?con.identity.y:con.identity.z;
+            const uint to=flow>=0?con.identity.z:con.identity.y;
+            const float before=human_respiration::physical(vascularBefore,unknowns,base,from);
+            const float fromVolume=gasSubsteps==1u?before:mix(before,
+                human_respiration::physical(vascularAfter,unknowns,base,from),alpha);
+            const float2 content=n.bloodGas[from].xy/fromVolume;
+            const float2 transported=gasDt*abs(flow)*content;
+            delta[from]-=transported;
+            delta[to]+=transported;
+            if(edge==p.topology.x && flow>0) {
+                // Same perfusion-limited exchange; its amount cancels exactly
+                // between the destination blood and alveolar reservoirs.
+                const float2 exchange=gasDt*flow*p.carbonDioxide.z*(capillaryContent-content);
+                delta[to]+=exchange;
+                alveolarDelta-=exchange;
+                if(gasSubsteps==1u) pulmonaryO2=exchange.x/dt;
+                else totalPulmonaryO2+=exchange.x;
+            }
+            if(gasDt*abs(flow)>0.1f*fromVolume || !all(isfinite(transported))) n.status.w=4;
+        }
+        for(uint bed=0;bed<4;++bed) {
+            const float2 demand=gasDt*p.metabolism.zw*p.tissueFractions[bed];
+            delta[p.tissueRows[bed]]+=float2(-demand.x,demand.y);
+        }
+        human_respiration::addGas(n.metabolicGas,gasDt*p.metabolism.zw);
+        const float subTransport=gasDt*n.mechanics.w*p.environment.z;
+        const float2 outsideFlux=subTransport*(subTransport>=0?p.metabolism.xy:deadFraction);
+        const float2 airwayFlux=subTransport*(subTransport>=0?deadFraction:alveolarFraction);
+        human_respiration::addGas(n.environmentGas,outsideFlux);
+        human_respiration::addGas(n.deadSpaceGas,outsideFlux-airwayFlux);
+        human_respiration::addGas(n.alveolarGas,airwayFlux+alveolarDelta);
+        for(uint row=0;row<21;++row) {
+            human_respiration::addGas(n.bloodGas[row],delta[row]);
+            if(!all(isfinite(n.bloodGas[row]))||any(n.bloodGas[row].xy<0)) n.status.w=5;
+        }
+        if(!all(isfinite(n.alveolarGas))||any(n.alveolarGas.xy<0)||
+           any(n.deadSpaceGas.xy<0)||
+           abs(subTransport)>0.1f*p.lung.y*p.environment.z) n.status.w=6;
+        if(n.status.w) break;
     }
+    if(gasSubsteps>1u) pulmonaryO2=totalPulmonaryO2/dt;
     const uint sensed=p.topology.y;
     const float volume=human_respiration::physical(vascularAfter,unknowns,base,sensed);
     const float2 content=n.bloodGas[sensed].xy/volume;
@@ -1002,7 +1052,7 @@ kernel void nm_human_respiration_exchange(
     ++n.status.x;
     if(!all(isfinite(n.observation))||!all(isfinite(n.alveolarGas))||
        any(n.alveolarGas.xy<0)||any(n.deadSpaceGas.xy<0)||
-       abs(transport)>0.1f*p.lung.y*p.environment.z) n.status.w=6;
+       abs(transport)/float(gasSubsteps)>0.1f*p.lung.y*p.environment.z) n.status.w=6;
     if(n.status.w) {statuses[env].code=NM_STATUS_MULTIPHYSICS_FAILURE;}
     candidate[env]=n;
 }
