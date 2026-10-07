@@ -1,0 +1,11 @@
+[  0%] Built target metalrobo_visual_kernel_hashes
+[  0%] Built target numi_matter_shaders
+[  0%] Built target metalrobo_shaders
+[  7%] Built target numi_matter_compiler_objects
+[  7%] Built target metalrobo_neuron_culture_shaders
+[  7%] Built target metalrobo_hyper_policy_shaders
+[  7%] Built target numi_human_respiration_shaders
+[ 11%] Built target numi_matter_runtime_objects
+[100%] Built target metalrobo
+[100%] Built target numi-human-native
+make: *** No rule to make target `numi_human_common_field_test'.  Stop.

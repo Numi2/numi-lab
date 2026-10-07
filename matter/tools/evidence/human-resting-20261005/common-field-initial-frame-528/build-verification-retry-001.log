@@ -1,0 +1,6 @@
+[  0%] Building CXX object CMakeFiles/metalrobo_numi_human_common_field_test.dir/tests/numi_human_common_field_test.cpp.o
+[100%] Linking CXX executable metalrobo_numi_human_common_field_test
+[100%] Built target metalrobo_numi_human_common_field_test
+Building OBJCXX object CMakeFiles/metalrobo_numi_human_common_field_metal_test.dir/tests/numi_human_common_field_metal_test.mm.o
+Linking OBJCXX executable metalrobo_numi_human_common_field_metal_test
+Built target metalrobo_numi_human_common_field_metal_test

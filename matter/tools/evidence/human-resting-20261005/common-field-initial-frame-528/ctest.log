@@ -1,0 +1,16 @@
+Test project /Users/n/numi-human-com-momentum-build-006
+    Start 15: numi_human_common_field_layout
+1/2 Test #15: numi_human_common_field_layout ...   Passed    0.51 sec
+    Start 16: numi_human_common_field_metal
+2/2 Test #16: numi_human_common_field_metal ....   Passed    0.38 sec
+
+100% tests passed out of 2
+
+Label Time Summary:
+cardiac         =   0.89 sec*proc (2 tests)
+common-field    =   0.89 sec*proc (2 tests)
+cpu             =   0.51 sec*proc (1 test)
+metal           =   0.38 sec*proc (1 test)
+numi-human      =   0.89 sec*proc (2 tests)
+
+Total Test time (real) =   0.89 sec

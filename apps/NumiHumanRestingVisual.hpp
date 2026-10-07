@@ -1314,6 +1314,10 @@ public:
             respiration.commonGeometryParameters=commonFieldParameters;
             respiration.commonGeometryBoxes=commonFieldBoxes;
             respiration.commonCandidateCoordinates=coupled.presentationCandidateCommonCoordinates;
+            // The initial accepted respiratory state needs its registered
+            // geometry before any window can render. This invokes the same GPU
+            // volume owner without advancing physiology or body dynamics.
+            coupled.initializeInitialCommonCoordinates();
         }
         if(!requestedGeometrySteps.empty()) {
             if(commonCardiacGeometry)writeCommonFieldIdentity(output,functional);

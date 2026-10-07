@@ -1,0 +1,32 @@
+{
+  "scope": "Startup-initialization change: existing fixture415 first32 physical steps compared against retained build005 paired12s baseline. This comparison is numerical regression, not anatomy qualification.",
+  "baseline": "/Users/n/numi-human-resting-evidence-20261005/cardiac-com-momentum-cadence-005/arm-32-rebuilt-001/native-output",
+  "candidate": "/Users/n/numi-human-resting-evidence-20261005/integrated-initialization-regression-528/legacy-006",
+  "baseline_run_duration_s": 12,
+  "candidate_run_duration_s": 0.064,
+  "compared_step": 32,
+  "comparisons": {
+    "resting-coupled.csv": {
+      "baseline_rows_at_step32": 1,
+      "candidate_rows": 1,
+      "column_count": 47,
+      "exact": true,
+      "differences": []
+    },
+    "resting-com-momentum-diagnostic.csv": {
+      "baseline_rows_at_step32": 1,
+      "candidate_rows": 1,
+      "column_count": 44,
+      "exact": true,
+      "differences": []
+    },
+    "resting-com-support-impulses.csv": {
+      "baseline_rows_at_step32": 32,
+      "candidate_rows": 32,
+      "column_count": 21,
+      "exact": true,
+      "differences": []
+    }
+  },
+  "pass": true
+}

@@ -3,6 +3,10 @@
 #include "metalrobo/MetalArticulatedOperator.hpp"
 #include "metalrobo/numi_human_stand_gpu.h"
 #include "metalrobo/numi_human_resting_visual_gpu.h"
+#include <algorithm>
+#include <array>
+#include <cmath>
+#include <cstring>
 
 // The existing articulated owner remains responsible for gravity, MyoSim,
 // tendons, equalities and unilateral support. Its existing post-validation
@@ -73,6 +77,76 @@ public:
              "resting presentation allocation");
         fingerprint=brain.rootProgramIdentity^0x4e48524553543031ull;
         if(!fingerprint)fingerprint=1;
+    }
+    void initializeInitialCommonCoordinates() {
+        using numi::human::need;
+        auto& respiration=*physiology.respiration;
+        if(!respiration.commonGeometryGateEnabled)return;
+        if(commonAcceptedCoordinatesInitialized)return;
+        need(respiration.commonCoordinatesSolvePipeline&&respiration.commonCoordinateStatusPipeline&&
+             respiration.commonGeometryParameters&&respiration.commonGeometryBoxes&&respiration.accepted&&
+             acceptedCommonCoordinates&&presentationCommonCoordinates&&presentationCandidateCommonCoordinates&&
+             presentationFrameCommonCoordinates,
+             "initial accepted common coordinates lack the registered solver or buffers");
+        need(respiration.accepted.length>=sizeof(NMHumanRespirationState)&&
+             respiration.commonGeometryParameters.length==sizeof(MRHumanRestingCommonFieldGPU)&&
+             respiration.commonGeometryBoxes.length%sizeof(MRHumanRestingCommonCoordinateBoxGPU)==0,
+             "initial accepted common-coordinate buffers have invalid sizes");
+        const auto* parameters=static_cast<const MRHumanRestingCommonFieldGPU*>(
+            respiration.commonGeometryParameters.contents);
+        const auto boxCount=respiration.commonGeometryBoxes.length/sizeof(MRHumanRestingCommonCoordinateBoxGPU);
+        need(parameters->countsAndFlags.x==boxCount&&boxCount>0,
+             "initial common-coordinate domain boxes do not match their admitted count");
+        id<MTLCommandQueue> queue=[physiology.device newCommandQueue];
+        need(queue!=nil,"initial accepted common-coordinate command queue is unavailable");
+        id<MTLCommandBuffer> command=[queue commandBuffer];
+        need(command!=nil,"initial accepted common-coordinate command buffer is unavailable");
+        auto encoder=[command computeCommandEncoder];
+        need(encoder!=nil,"initial accepted common-coordinate solver encoder is unavailable");
+        [encoder setComputePipelineState:respiration.commonCoordinatesSolvePipeline];
+        [encoder setBuffer:respiration.accepted offset:0 atIndex:0];
+        [encoder setBuffer:respiration.commonGeometryParameters offset:0 atIndex:1];
+        [encoder setBuffer:respiration.commonGeometryBoxes offset:0 atIndex:2];
+        [encoder setBuffer:acceptedCommonCoordinates offset:0 atIndex:3];
+        [encoder dispatchThreads:MTLSizeMake(1,1,1) threadsPerThreadgroup:MTLSizeMake(1,1,1)];
+        [encoder setComputePipelineState:respiration.commonCoordinateStatusPipeline];
+        [encoder setBuffer:acceptedCommonCoordinates offset:0 atIndex:0];
+        [encoder setBuffer:numi::human::buffer(physiology.runtime.statusBuffer()) offset:0 atIndex:1];
+        [encoder dispatchThreads:MTLSizeMake(1,1,1) threadsPerThreadgroup:MTLSizeMake(1,1,1)];
+        [encoder endEncoding];
+        auto blit=[command blitCommandEncoder];
+        need(blit!=nil,"initial accepted common-coordinate buffer-copy encoder is unavailable");
+        [blit copyFromBuffer:acceptedCommonCoordinates sourceOffset:0 toBuffer:presentationCommonCoordinates destinationOffset:0 size:sizeof(MRHumanRestingCommonCoordinatesGPU)];
+        [blit copyFromBuffer:acceptedCommonCoordinates sourceOffset:0 toBuffer:presentationCandidateCommonCoordinates destinationOffset:0 size:sizeof(MRHumanRestingCommonCoordinatesGPU)];
+        [blit copyFromBuffer:acceptedCommonCoordinates sourceOffset:0 toBuffer:presentationFrameCommonCoordinates destinationOffset:0 size:sizeof(MRHumanRestingCommonCoordinatesGPU)];
+        [blit endEncoding];
+        [command commit];
+        [command waitUntilCompleted];
+        need(command.status==MTLCommandBufferStatusCompleted,
+             std::string("initial accepted common-coordinate GPU solve failed: ")+
+                 (command.error?command.error.localizedDescription.UTF8String:"command buffer did not complete"));
+        const auto solved=*static_cast<const MRHumanRestingCommonCoordinatesGPU*>(acceptedCommonCoordinates.contents);
+        const std::array<float,7> coordinates{{solved.first.x,solved.first.y,solved.first.z,solved.first.w,
+            solved.second.x,solved.second.y,solved.second.z}};
+        const bool finiteCoordinates=std::all_of(coordinates.begin(),coordinates.end(),
+            [](float value){return std::isfinite(value);});
+        need(solved.status.x==0u&&solved.status.z<boxCount&&finiteCoordinates&&
+             std::isfinite(solved.diagnostics.x)&&std::isfinite(parameters->solver.x)&&parameters->solver.x>0.0f&&
+             solved.diagnostics.x<=parameters->solver.x,
+             "initial accepted common-coordinate solve failed status/domain/residual validation");
+        need(presentationCommonCoordinates.length==sizeof(solved)&&
+             presentationCandidateCommonCoordinates.length==sizeof(solved)&&
+             presentationFrameCommonCoordinates.length==sizeof(solved)&&
+             std::memcmp(presentationCommonCoordinates.contents,&solved,sizeof(solved))==0&&
+             std::memcmp(presentationCandidateCommonCoordinates.contents,&solved,sizeof(solved))==0&&
+             std::memcmp(presentationFrameCommonCoordinates.contents,&solved,sizeof(solved))==0,
+             "initial accepted common-coordinate GPU copies differ from the validated solution");
+        commonAcceptedCoordinatesInitialized=true;
+        std::cout<<"resting_common_initialization=accepted_t0 solver_status="<<solved.status.x
+            <<" iterations="<<solved.status.y<<" domain_box="<<solved.status.z
+            <<" normalized_residual="<<solved.diagnostics.x
+            <<" coordinates=["<<coordinates[0]<<','<<coordinates[1]<<','<<coordinates[2]<<','<<coordinates[3]
+            <<','<<coordinates[4]<<','<<coordinates[5]<<','<<coordinates[6]<<"] physical_steps_advanced=0\n";
     }
     metalrobo::MetalNumanXTransactionProgram program() {
         metalrobo::MetalNumanXTransactionProgram p;

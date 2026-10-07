@@ -1,0 +1,24 @@
+{
+  "source_receipt": "/Users/n/numi-human-resting-evidence-20261005/integrated-anatomy-provisional-526/resting-anatomy-receipt.json",
+  "source_receipt_sha256": "14d88a6241641cec1c9fa80fd87c53cae07270db761b7b5c26b86fd42de124a6",
+  "invalid_receipt_sha256": "330d6334404d47be35e3a4123b392b36e0bea2c2fd76894606796f5bc78aff6f",
+  "changed_parameter": "common_field.material_target_volumes_m3[2]",
+  "before_m3": 3.168616208085903e-05,
+  "invalid_m3": 0.009,
+  "expected": "GPU initial common-coordinate solve rejects before initial frame or physical/controller time advance",
+  "shared_payloads": "Hardlinks to immutable source526, no contents changed",
+  "source_reference_volumes_m3": [
+    3.226394975921794e-05,
+    0.00013835865492368974,
+    4.7716547127487605e-05,
+    0.00011875535572210299,
+    2.3289402237128774e-05,
+    0.0001640042997176584,
+    3.161752954781031e-05
+  ],
+  "original_material_target_volumes_m3": [
+    2.3289402269236042e-05,
+    0.00016401288967912695,
+    3.168616208085903e-05
+  ]
+}

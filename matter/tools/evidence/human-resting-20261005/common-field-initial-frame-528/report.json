@@ -1,0 +1,86 @@
+{
+  "scope": "Native Apple Metal startup regression. These short runs are engineering verification, not final anatomical or five-minute physiological qualification.",
+  "host": "macmini",
+  "source_base_revision": "a4233bf40f33a839f936b59fada71b1c6f8f2875",
+  "tested_source_files_sha256": {
+    "/Users/n/numi-human-com-momentum-source-006/apps/NumiHumanRestingCoupling.hpp": "1e87d7075194aca47e160248b021e591999786f5c04850c0c9d5a255f9b13be5",
+    "/Users/n/numi-human-com-momentum-source-006/apps/NumiHumanRestingVisual.hpp": "01d0f51a7f11c64bf46dc6b8577616ca4d01a2ad6ce3c49cd81fea428dcd4971"
+  },
+  "tested_patch_sha256": "569bf10a0db4c85b772d27876c433f42cb1c17b7eb361e436d7bb3494763ad20",
+  "build_files_sha256": {
+    "/Users/n/numi-human-com-momentum-build-006/bin/numi-human-native": "5e4ae99594ce5a7065b036c1a98059217693ab4d2612c772b161dcb7dc4ba470",
+    "/Users/n/numi-human-com-momentum-build-006/lib/libmetalrobo.dylib": "d062e0db2e37ab203b5a3eb086f150da261020afdbdb9c7fa272ab78636d7c02",
+    "/Users/n/numi-human-com-momentum-build-006/matter/shaders/HumanRespiration.metallib": "9e4b3861807ac451aae89cd4797598982ef5606173913a7c09450662e24403a6",
+    "/Users/n/numi-human-com-momentum-build-006/shaders/MetalRobo.metallib": "85a011fe7ed38365957bd1adc69e5b47ac3405710e785002066e3c2a07cf1060",
+    "/Users/n/numi-human-com-momentum-build-006/CMakeCache.txt": "f80079a9d766e3356a41bffea050b424adc7eba1c50900994ccc4e13dd816080"
+  },
+  "failure_before_fix": {
+    "run": "/Users/n/numi-human-resting-evidence-20261005/integrated-anatomy-native-preflight-527",
+    "failure_receipt_sha256": "538836ba1584f532c167ca06491923fde4c9c156419a673e864a74b4f3fcbe57",
+    "stable_id": 24,
+    "time_s": 0,
+    "relative_material_volume_error": 0.0021654851734638214,
+    "explanation": "The first frame used zero common coordinates before the existing GPU solver ran. Source459 left atrial material volume differs from the conserved403 material target."
+  },
+  "valid_case": {
+    "run": "/Users/n/numi-human-resting-evidence-20261005/integrated-initialization-regression-528/valid-006",
+    "run_metadata_sha256": "1f94fcb0897a0d59050b41d36d5378b8023d6c72376f8386051507a1c4549644",
+    "native_log_sha256": "1e72ac2fef9d8c80054a6d05b48863a70a69e3ef8e7adf4dbf61ab0799d2766d",
+    "physical_steps": 32,
+    "simulated_s": 0.064,
+    "volume_check_sha256": "14df03a9621f1d8cde3386a20a9a4a8de5091e331ec1d03258f1da4d07ca8505",
+    "captured_steps": [
+      0,
+      31
+    ],
+    "maximum_independent_relative_volume_error": 6.834525478164825e-06,
+    "initial_common_coordinates": [
+      -3.89657252526e-05,
+      0.000101759884274,
+      -0.000365718093235,
+      0.000144327306771,
+      6.08834961895e-05,
+      -0.000109183340101,
+      0.000994517584331
+    ],
+    "common_domain_rejection_probe": "pass",
+    "integrated_rejection_retry_probe": "pass",
+    "loaded_runtime_verified": true,
+    "source_files_changed_during_run": []
+  },
+  "invalid_case": {
+    "fixture_report_sha256": "114f5eb0f674b0facdfdb0d5c9300d528de722004b5d27edf919d170cffe0412",
+    "run": "/Users/n/numi-human-resting-evidence-20261005/integrated-initialization-regression-528/invalid-006",
+    "run_metadata_sha256": "ec6f1031b32e09668a6b8077e51e6f4c7995268ebdda8a6d002acc6133c8d495",
+    "native_log_sha256": "8570fac37bb50dc8bbcec483c2de689e161afead5b08df855d49fc7e016171e5",
+    "expected_failure_observed": true,
+    "physical_segment_started": false,
+    "displayed_surface_rows": 0,
+    "movie_created": false,
+    "accepted_capture_created": false
+  },
+  "legacy_case": {
+    "run": "/Users/n/numi-human-resting-evidence-20261005/integrated-initialization-regression-528/legacy-006",
+    "run_metadata_sha256": "2ddb133eb71d36d5768ff8809d5210ad1a781d89fa902d6870a61eb46305337e",
+    "physical_comparison_sha256": "144a68d35db667f2bd6a2574f99585705a409c9f09872275d07b17b039e01bae",
+    "exact_first32_step_columns": {
+      "coupled": 47,
+      "COM": 44,
+      "contact_rows": 32,
+      "contact_columns": 21
+    }
+  },
+  "existing_tests": {
+    "ctest_sha256": "86f0de0a060bad41104690f527b295c8129a9e9954a836127c197a15798d5cf5",
+    "result": "2/2 common-field layout and Metal tests passed"
+  },
+  "visual_check": {
+    "image_path": "/Users/n/numi-human-resting-evidence-20261005/integrated-initialization-regression-528/valid-006/frame-final.png",
+    "image_sha256": "57e6b1e4c97b10d10d821fc53f1a01626fdd6ea67e9275a67f641f684857352a",
+    "observed": "Whole supported human with synchronized native physiological HUD at accepted time0.06s. This is the native framebuffer recording; interactive desktop presentation remains unverified without a logged-in GUI session."
+  },
+  "retained_failed_tooling_attempts": [
+    "build-verification.log requested two CMake targets without their metalrobo_ prefix; corrected build-verification-retry-001.log succeeded."
+  ],
+  "pass": true
+}
