@@ -1880,6 +1880,9 @@ struct MetalArticulatedOperatorConfig {
     // Opt-in equilibrated Cholesky attempt for its small reduced SPD factor.
     // A rejected candidate falls back to the default pivoted bilateral factor.
     bool reducedStandCholesky = false;
+    // Experimental SIMD32 contact-family sweep for the 128-DOF cooperative
+    // finish. Prep and all non-contact constraints retain the 128-thread path.
+    bool firstSimdStandContactSweep = false;
 };
 
 enum class MetalArticulatedOperatorHostStatus : std::uint32_t {

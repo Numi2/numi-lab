@@ -786,212 +786,307 @@
     }
     threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
     if (status.code != MR_NUMI_HUMAN_STAND_SUCCESS) return;
+    auto projectContact = [&](const uint contact, const float3 velocity) {
+        device const MRNumiHumanStandContactGPU& support = contacts[contact];
+        const float gap = cooperativeContactGap[contact];
+        const float targetNormalVelocity =
+            mrNumiHumanContactVelocityTarget(gap, timestep,
+                support.frictionSlopAndStabilization.z);
+        if (coupledSweep + 1u == coupledSweepCount) {
+            contactActiveForPostProjection[contact] = 1u;
+            contactTargetNormalVelocityForPostProjection[contact] =
+                targetNormalVelocity;
+        }
+        device float* matrix = contactMatrices + 9u * contact;
+        const float normalMass = matrix[0u];
+        const float tangentDeterminant =
+            matrix[4u] * matrix[8u] - matrix[5u] * matrix[7u];
+        if (!(normalMass > kResponseRegularization) ||
+            !isfinite(normalMass) ||
+            (support.frictionSlopAndStabilization.x > 0.0f &&
+             (!(tangentDeterminant > kResponseRegularization) ||
+              !isfinite(tangentDeterminant)))) {
+            fail(status, MR_NUMI_HUMAN_STAND_CONTACT_FAILED, contact);
+            return;
+        }
+        const float3 oldLambda{
+            lambdas[3u * contact + 0u],
+            lambdas[3u * contact + 1u],
+            lambdas[3u * contact + 2u],
+        };
+        const float normalDelta =
+            (targetNormalVelocity - velocity.x) / normalMass;
+        float3 newLambda = oldLambda;
+        newLambda.x = max(oldLambda.x + normalDelta, 0.0f);
+        const float appliedNormal = newLambda.x - oldLambda.x;
+        const float tangentialVelocityY =
+            velocity.y + matrix[3u] * appliedNormal;
+        const float tangentialVelocityZ =
+            velocity.z + matrix[6u] * appliedNormal;
+        if (support.frictionSlopAndStabilization.x > 0.0f &&
+            newLambda.x > 0.0f) {
+            const float rhsY = matrix[4u] * oldLambda.y +
+                matrix[5u] * oldLambda.z - tangentialVelocityY;
+            const float rhsZ = matrix[7u] * oldLambda.y +
+                matrix[8u] * oldLambda.z - tangentialVelocityZ;
+            const float radius =
+                support.frictionSlopAndStabilization.x * newLambda.x;
+            auto tangent = mrNumiHumanTryInteriorFrictionDisk(
+                cooperativeFrictionMetrics[contact], rhsY, rhsZ,
+                radius);
+            if (!tangent.valid) {
+                if (kUseFinishWorkCounters) {
+                    ++finishCounts.frictionBoundary;
+                    unsigned iterations = 0u;
+                    tangent = mrNumiHumanSolveFrictionDiskCounted(
+                        matrix[4u],
+                        0.5f * matrix[5u] + 0.5f * matrix[7u],
+                        matrix[8u], rhsY, rhsZ, radius, iterations);
+                    finishCounts.frictionBoundaryIterations += iterations;
+                } else {
+                    tangent = mrNumiHumanSolveFrictionDisk(
+                        matrix[4u],
+                        0.5f * matrix[5u] + 0.5f * matrix[7u],
+                        matrix[8u], rhsY, rhsZ, radius);
+                }
+            } else if (kUseFinishWorkCounters) {
+                ++finishCounts.frictionInterior;
+            }
+            if (!tangent.valid) {
+                fail(status, MR_NUMI_HUMAN_STAND_CONTACT_FAILED,
+                     contact);
+                return;
+            }
+            newLambda.y = tangent.x;
+            newLambda.z = tangent.y;
+        } else {
+            newLambda.y = 0.0f;
+            newLambda.z = 0.0f;
+        }
+        const float3 applied = newLambda - oldLambda;
+        if (kUseFinishWorkCounters) {
+            finishCounts.normalChanges += applied.x != 0.0f ? 1u : 0u;
+            finishCounts.tangentChanges += applied.y != 0.0f ? 1u : 0u;
+            finishCounts.tangentChanges += applied.z != 0.0f ? 1u : 0u;
+            finishCounts.zeroContactChanges += all(applied == float3(0.0f)) ? 1u : 0u;
+        }
+        lambdas[3u * contact + 0u] = newLambda.x;
+        lambdas[3u * contact + 1u] = newLambda.y;
+        lambdas[3u * contact + 2u] = newLambda.z;
+        if (useProjectedContacts) {
+            float inducedWork = 0.0f;
+            for (uint axis = 0u; axis < 3u; ++axis)
+                inducedWork = fma(applied[axis],
+                    cooperativeContactEqualityWork[
+                        3u * contact + axis], inducedWork);
+            if (!isfinite(inducedWork)) {
+                fail(status, MR_NUMI_HUMAN_STAND_NONFINITE_RESULT,
+                     contact);
+                return;
+            }
+            equalityImpulseWork += inducedWork;
+            equalityAbsoluteImpulseWork += abs(inducedWork);
+        }
+        cooperativeContactApplied[0u] = applied.x;
+        cooperativeContactApplied[1u] = applied.y;
+        cooperativeContactApplied[2u] = applied.z;
+        const float normalVelocityAfter = fma(
+            applied.x, matrix[0u] - kResponseRegularization,
+            velocity.x);
+        const float2 tangentialVelocityBefore{
+            fma(applied.x, matrix[3u], velocity.y),
+            fma(applied.x, matrix[6u], velocity.z),
+        };
+        float2 tangentialVelocityAfter = tangentialVelocityBefore;
+        tangentialVelocityAfter.x = fma(
+            applied.y, matrix[4u] - kResponseRegularization,
+            tangentialVelocityAfter.x);
+        tangentialVelocityAfter.x = fma(
+            applied.z, matrix[5u], tangentialVelocityAfter.x);
+        tangentialVelocityAfter.y = fma(
+            applied.y, matrix[7u], tangentialVelocityAfter.y);
+        tangentialVelocityAfter.y = fma(
+            applied.z, matrix[8u] - kResponseRegularization,
+            tangentialVelocityAfter.y);
+        const float normalWork = 0.5f * applied.x *
+            (velocity.x + normalVelocityAfter);
+        const float tangentialWork = 0.5f * (
+            applied.y *
+                (tangentialVelocityBefore.x + tangentialVelocityAfter.x) +
+            applied.z *
+                (tangentialVelocityBefore.y + tangentialVelocityAfter.y));
+        if (!isfinite(normalWork) || !isfinite(tangentialWork)) {
+            fail(status, MR_NUMI_HUMAN_STAND_NONFINITE_RESULT,
+                 contact);
+            return;
+        }
+        contactNormalImpulseWork += normalWork;
+        contactTangentialImpulseWork += tangentialWork;
+        contactNormalAbsoluteImpulseWork += abs(normalWork);
+        contactTangentialAbsoluteImpulseWork += abs(tangentialWork);
+    };
+    const bool useFirstSimdContactSweep =
+        kUseFirstSimdContactSweep && !kCpuFinishSpecialized &&
+        threadCount == 128u && simdWidth == 32u && nv == 128u;
     if ((dispatch.flags & MR_NUMI_HUMAN_STAND_ENABLE_CONTACT) != 0u) {
-        for (uint contact = 0u;
-             contact < dispatch.supportContactCount; ++contact) {
-            if (cooperativeContactActive[contact] == 0u) continue;
-            if (kUseFinishWorkCounters && lane == 0u) {
-                ++finishCounts.contactDecisions;
-                finishCounts.contactContractions += 3u;
-                finishCounts.contactResponseCoefficients += 3u * nv;
-            }
-            device const MRNumiHumanStandContactGPU& support = contacts[contact];
-            if (threadCount >= 3u * simdWidth && nv > simdWidth) {
-                // Give each contact axis a SIMD group. The previous path
-                // loaded all nv Jacobian entries on only three lanes.
-                // Small models retain their ordered scalar contraction;
-                // a SIMD reduction changes its cancellation order.
-                const uint axis = lane / simdWidth;
-                const uint simdLane = lane % simdWidth;
-                if (axis < 3u) {
-                    float velocity = 0.0f;
-                    for (uint dof = simdLane; dof < nv;
-                         dof += simdWidth) {
-                        velocity += pointJacobianAxis(
-                            pointJacobians, pointJacobianBase,
-                            support.pointQueryIndex, nv, dof,
-                            directions[axis]
-                        ) * candidateV[dof];
+        if (useFirstSimdContactSweep) {
+            // Keep the four candidate velocities owned by each lane in
+            // registers across the ordered contact family. Only the first
+            // SIMD group performs contact work; the other 96 threads remain
+            // available to the surrounding 128-thread finish phases.
+            if (lane < simdWidth) {
+                const uint dof0 = lane;
+                const uint dof1 = lane + simdWidth;
+                const uint dof2 = lane + 2u * simdWidth;
+                const uint dof3 = lane + 3u * simdWidth;
+                float candidate0 = candidateV[dof0];
+                float candidate1 = candidateV[dof1];
+                float candidate2 = candidateV[dof2];
+                float candidate3 = candidateV[dof3];
+                bool contactSweepSucceeded = true;
+                for (uint contact = 0u;
+                     contact < dispatch.supportContactCount; ++contact) {
+                    if (cooperativeContactActive[contact] == 0u) continue;
+                    if (kUseFinishWorkCounters && lane == 0u) {
+                        ++finishCounts.contactDecisions;
+                        finishCounts.contactContractions += 3u;
+                        finishCounts.contactResponseCoefficients += 3u * nv;
                     }
-                    const float reduced = simd_sum(velocity);
-                    if (simdLane == 0u)
-                        cooperativeContactVelocities[axis] = reduced;
-                }
-            } else {
-                for (uint axis = lane; axis < 3u; axis += threadCount) {
-                    float velocity = 0.0f;
-                    for (uint dof = 0u; dof < nv; ++dof) {
-                        velocity += pointJacobianAxis(
+                    device const MRNumiHumanStandContactGPU& support =
+                        contacts[contact];
+                    float3 velocity{0.0f};
+                    for (uint axis = 0u; axis < 3u; ++axis) {
+                        float contraction = 0.0f;
+                        contraction += pointJacobianAxis(
                             pointJacobians, pointJacobianBase,
-                            support.pointQueryIndex, nv, dof,
-                            directions[axis]
-                        ) * candidateV[dof];
+                            support.pointQueryIndex, nv, dof0,
+                            directions[axis]) * candidate0;
+                        contraction += pointJacobianAxis(
+                            pointJacobians, pointJacobianBase,
+                            support.pointQueryIndex, nv, dof1,
+                            directions[axis]) * candidate1;
+                        contraction += pointJacobianAxis(
+                            pointJacobians, pointJacobianBase,
+                            support.pointQueryIndex, nv, dof2,
+                            directions[axis]) * candidate2;
+                        contraction += pointJacobianAxis(
+                            pointJacobians, pointJacobianBase,
+                            support.pointQueryIndex, nv, dof3,
+                            directions[axis]) * candidate3;
+                        velocity[axis] = simd_sum(contraction);
                     }
-                    cooperativeContactVelocities[axis] = velocity;
+                    float appliedX = 0.0f;
+                    float appliedY = 0.0f;
+                    float appliedZ = 0.0f;
+                    uint projectedStatus = lane == 0u
+                        ? MR_NUMI_HUMAN_STAND_SUCCESS : 0u;
+                    if (lane == 0u) {
+                        projectContact(contact, velocity);
+                        projectedStatus = status.code;
+                        if (projectedStatus == MR_NUMI_HUMAN_STAND_SUCCESS) {
+                            appliedX = cooperativeContactApplied[0u];
+                            appliedY = cooperativeContactApplied[1u];
+                            appliedZ = cooperativeContactApplied[2u];
+                        }
+                    }
+                    // The status and impulses cross only the first SIMD group
+                    // through registers. On error every lane exits this local
+                    // loop, then all 128 lanes meet the existing family barrier
+                    // before the uniform status return.
+                    projectedStatus = simd_broadcast(projectedStatus, 0u);
+                    if (projectedStatus != MR_NUMI_HUMAN_STAND_SUCCESS) {
+                        contactSweepSucceeded = false;
+                        break;
+                    }
+                    appliedX = simd_broadcast(appliedX, 0u);
+                    appliedY = simd_broadcast(appliedY, 0u);
+                    appliedZ = simd_broadcast(appliedZ, 0u);
+                    const float3 applied{appliedX, appliedY, appliedZ};
+                    for (uint axis = 0u; axis < 3u; ++axis) {
+                        device const float* response = responseScratch +
+                            responseBase + (3u * contact + axis) * nv;
+                        candidate0 += applied[axis] * response[dof0];
+                        candidate1 += applied[axis] * response[dof1];
+                        candidate2 += applied[axis] * response[dof2];
+                        candidate3 += applied[axis] * response[dof3];
+                    }
+                }
+                if (contactSweepSucceeded) {
+                    candidateV[dof0] = candidate0;
+                    candidateV[dof1] = candidate1;
+                    candidateV[dof2] = candidate2;
+                    candidateV[dof3] = candidate3;
                 }
             }
-            // Only the three threadgroup velocity slots cross lanes here.
-            threadgroup_barrier(mem_flags::mem_threadgroup);
-            if (lane == 0u) {
-                auto projectContact = [&]() {
-                    const float gap = cooperativeContactGap[contact];
+        } else {
+            for (uint contact = 0u;
+                 contact < dispatch.supportContactCount; ++contact) {
+                if (cooperativeContactActive[contact] == 0u) continue;
+                if (kUseFinishWorkCounters && lane == 0u) {
+                    ++finishCounts.contactDecisions;
+                    finishCounts.contactContractions += 3u;
+                    finishCounts.contactResponseCoefficients += 3u * nv;
+                }
+                device const MRNumiHumanStandContactGPU& support = contacts[contact];
+                if (threadCount >= 3u * simdWidth && nv > simdWidth) {
+                    // Give each contact axis a SIMD group. The previous path
+                    // loaded all nv Jacobian entries on only three lanes.
+                    // Small models retain their ordered scalar contraction;
+                    // a SIMD reduction changes its cancellation order.
+                    const uint axis = lane / simdWidth;
+                    const uint simdLane = lane % simdWidth;
+                    if (axis < 3u) {
+                        float velocity = 0.0f;
+                        for (uint dof = simdLane; dof < nv;
+                             dof += simdWidth) {
+                            velocity += pointJacobianAxis(
+                                pointJacobians, pointJacobianBase,
+                                support.pointQueryIndex, nv, dof,
+                                directions[axis]
+                            ) * candidateV[dof];
+                        }
+                        const float reduced = simd_sum(velocity);
+                        if (simdLane == 0u)
+                            cooperativeContactVelocities[axis] = reduced;
+                    }
+                } else {
+                    for (uint axis = lane; axis < 3u; axis += threadCount) {
+                        float velocity = 0.0f;
+                        for (uint dof = 0u; dof < nv; ++dof) {
+                            velocity += pointJacobianAxis(
+                                pointJacobians, pointJacobianBase,
+                                support.pointQueryIndex, nv, dof,
+                                directions[axis]
+                            ) * candidateV[dof];
+                        }
+                        cooperativeContactVelocities[axis] = velocity;
+                    }
+                }
+                // Only the three threadgroup velocity slots cross lanes here.
+                threadgroup_barrier(mem_flags::mem_threadgroup);
+                if (lane == 0u) {
                     const float3 velocity{
                         cooperativeContactVelocities[0u],
                         cooperativeContactVelocities[1u],
                         cooperativeContactVelocities[2u],
                     };
-                    const float targetNormalVelocity =
-                        mrNumiHumanContactVelocityTarget(gap, timestep,
-                            support.frictionSlopAndStabilization.z);
-                    if (coupledSweep + 1u == coupledSweepCount) {
-                        contactActiveForPostProjection[contact] = 1u;
-                        contactTargetNormalVelocityForPostProjection[contact] =
-                            targetNormalVelocity;
-                    }
-                    device float* matrix = contactMatrices + 9u * contact;
-                    const float normalMass = matrix[0u];
-                    const float tangentDeterminant =
-                        matrix[4u] * matrix[8u] - matrix[5u] * matrix[7u];
-                    if (!(normalMass > kResponseRegularization) ||
-                        !isfinite(normalMass) ||
-                        (support.frictionSlopAndStabilization.x > 0.0f &&
-                         (!(tangentDeterminant > kResponseRegularization) ||
-                          !isfinite(tangentDeterminant)))) {
-                        fail(status, MR_NUMI_HUMAN_STAND_CONTACT_FAILED, contact);
-                        return;
-                    }
-                    const float3 oldLambda{
-                        lambdas[3u * contact + 0u],
-                        lambdas[3u * contact + 1u],
-                        lambdas[3u * contact + 2u],
-                    };
-                    const float normalDelta =
-                        (targetNormalVelocity - velocity.x) / normalMass;
-                    float3 newLambda = oldLambda;
-                    newLambda.x = max(oldLambda.x + normalDelta, 0.0f);
-                    const float appliedNormal = newLambda.x - oldLambda.x;
-                    const float tangentialVelocityY =
-                        velocity.y + matrix[3u] * appliedNormal;
-                    const float tangentialVelocityZ =
-                        velocity.z + matrix[6u] * appliedNormal;
-                    if (support.frictionSlopAndStabilization.x > 0.0f &&
-                        newLambda.x > 0.0f) {
-                        const float rhsY = matrix[4u] * oldLambda.y +
-                            matrix[5u] * oldLambda.z - tangentialVelocityY;
-                        const float rhsZ = matrix[7u] * oldLambda.y +
-                            matrix[8u] * oldLambda.z - tangentialVelocityZ;
-                        const float radius =
-                            support.frictionSlopAndStabilization.x * newLambda.x;
-                        auto tangent = mrNumiHumanTryInteriorFrictionDisk(
-                            cooperativeFrictionMetrics[contact], rhsY, rhsZ,
-                            radius);
-                        if (!tangent.valid) {
-                            if (kUseFinishWorkCounters) {
-                                ++finishCounts.frictionBoundary;
-                                unsigned iterations = 0u;
-                                tangent = mrNumiHumanSolveFrictionDiskCounted(
-                                    matrix[4u],
-                                    0.5f * matrix[5u] + 0.5f * matrix[7u],
-                                    matrix[8u], rhsY, rhsZ, radius, iterations);
-                                finishCounts.frictionBoundaryIterations += iterations;
-                            } else {
-                                tangent = mrNumiHumanSolveFrictionDisk(
-                                    matrix[4u],
-                                    0.5f * matrix[5u] + 0.5f * matrix[7u],
-                                    matrix[8u], rhsY, rhsZ, radius);
-                            }
-                        } else if (kUseFinishWorkCounters) {
-                            ++finishCounts.frictionInterior;
-                        }
-                        if (!tangent.valid) {
-                            fail(status, MR_NUMI_HUMAN_STAND_CONTACT_FAILED,
-                                 contact);
-                            return;
-                        }
-                        newLambda.y = tangent.x;
-                        newLambda.z = tangent.y;
-                    } else {
-                        newLambda.y = 0.0f;
-                        newLambda.z = 0.0f;
-                    }
-                    const float3 applied = newLambda - oldLambda;
-                    if (kUseFinishWorkCounters) {
-                        finishCounts.normalChanges += applied.x != 0.0f ? 1u : 0u;
-                        finishCounts.tangentChanges += applied.y != 0.0f ? 1u : 0u;
-                        finishCounts.tangentChanges += applied.z != 0.0f ? 1u : 0u;
-                        finishCounts.zeroContactChanges += all(applied == float3(0.0f)) ? 1u : 0u;
-                    }
-                    lambdas[3u * contact + 0u] = newLambda.x;
-                    lambdas[3u * contact + 1u] = newLambda.y;
-                    lambdas[3u * contact + 2u] = newLambda.z;
-                    if (useProjectedContacts) {
-                        float inducedWork = 0.0f;
-                        for (uint axis = 0u; axis < 3u; ++axis)
-                            inducedWork = fma(applied[axis],
-                                cooperativeContactEqualityWork[
-                                    3u * contact + axis], inducedWork);
-                        if (!isfinite(inducedWork)) {
-                            fail(status, MR_NUMI_HUMAN_STAND_NONFINITE_RESULT,
-                                 contact);
-                            return;
-                        }
-                        equalityImpulseWork += inducedWork;
-                        equalityAbsoluteImpulseWork += abs(inducedWork);
-                    }
-                    cooperativeContactApplied[0u] = applied.x;
-                    cooperativeContactApplied[1u] = applied.y;
-                    cooperativeContactApplied[2u] = applied.z;
-                    const float normalVelocityAfter = fma(
-                        applied.x, matrix[0u] - kResponseRegularization,
-                        velocity.x);
-                    const float2 tangentialVelocityBefore{
-                        fma(applied.x, matrix[3u], velocity.y),
-                        fma(applied.x, matrix[6u], velocity.z),
-                    };
-                    float2 tangentialVelocityAfter = tangentialVelocityBefore;
-                    tangentialVelocityAfter.x = fma(
-                        applied.y, matrix[4u] - kResponseRegularization,
-                        tangentialVelocityAfter.x);
-                    tangentialVelocityAfter.x = fma(
-                        applied.z, matrix[5u], tangentialVelocityAfter.x);
-                    tangentialVelocityAfter.y = fma(
-                        applied.y, matrix[7u], tangentialVelocityAfter.y);
-                    tangentialVelocityAfter.y = fma(
-                        applied.z, matrix[8u] - kResponseRegularization,
-                        tangentialVelocityAfter.y);
-                    const float normalWork = 0.5f * applied.x *
-                        (velocity.x + normalVelocityAfter);
-                    const float tangentialWork = 0.5f * (
-                        applied.y *
-                            (tangentialVelocityBefore.x + tangentialVelocityAfter.x) +
-                        applied.z *
-                            (tangentialVelocityBefore.y + tangentialVelocityAfter.y));
-                    if (!isfinite(normalWork) || !isfinite(tangentialWork)) {
-                        fail(status, MR_NUMI_HUMAN_STAND_NONFINITE_RESULT,
-                             contact);
-                        return;
-                    }
-                    contactNormalImpulseWork += normalWork;
-                    contactTangentialImpulseWork += tangentialWork;
-                    contactNormalAbsoluteImpulseWork += abs(normalWork);
-                    contactTangentialAbsoluteImpulseWork += abs(tangentialWork);
-                };
-                projectContact();
-            }
-            threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
-            if (status.code != MR_NUMI_HUMAN_STAND_SUCCESS) return;
-            // A DOF keeps the normal, tangent0, tangent1 update order of the
-            // scalar projected Gauss-Seidel contact solve.
-            for (uint dof = lane; dof < nv; dof += threadCount) {
-                for (uint axis = 0u; axis < 3u; ++axis) {
-                    device const float* response = responseScratch + responseBase +
-                        (3u * contact + axis) * nv;
-                    candidateV[dof] +=
-                        cooperativeContactApplied[axis] * response[dof];
+                    projectContact(contact, velocity);
                 }
+                threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+                if (status.code != MR_NUMI_HUMAN_STAND_SUCCESS) return;
+                // A DOF keeps the normal, tangent0, tangent1 update order of the
+                // scalar projected Gauss-Seidel contact solve.
+                for (uint dof = lane; dof < nv; dof += threadCount) {
+                    for (uint axis = 0u; axis < 3u; ++axis) {
+                        device const float* response = responseScratch + responseBase +
+                            (3u * contact + axis) * nv;
+                        candidateV[dof] +=
+                            cooperativeContactApplied[axis] * response[dof];
+                    }
+                }
+                // candidateV is threadgroup-local; responses are read-only.
+                threadgroup_barrier(mem_flags::mem_threadgroup);
             }
-            // candidateV is threadgroup-local; responses are read-only.
-            threadgroup_barrier(mem_flags::mem_threadgroup);
         }
     }
 #else

@@ -50,6 +50,13 @@ constant bool kReducedStandCholesky [[function_constant(5)]];
 constant bool kUseReducedStandCholesky =
     is_function_constant_defined(kReducedStandCholesky)
         ? kReducedStandCholesky : false;
+// Experimental contact-only single-SIMD family sweep. The host specializes
+// every finish pipeline explicitly; undefined/false keep the cooperative
+// 128-thread contact loop unchanged.
+constant bool kFirstSimdContactSweep [[function_constant(6)]];
+constant bool kUseFirstSimdContactSweep =
+    is_function_constant_defined(kFirstSimdContactSweep)
+        ? kFirstSimdContactSweep : false;
 
 inline uint standLegacyResponseStride(
     const uint nv, const uint contactCount, const uint equalityCount

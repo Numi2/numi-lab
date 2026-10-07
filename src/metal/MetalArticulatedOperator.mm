@@ -656,6 +656,11 @@ struct MetalArticulatedOperatorContextState {
         if (reducedCholesky != nullptr)
             config.reducedStandCholesky =
                 std::strcmp(reducedCholesky, "1") == 0;
+        const char* firstSimdContactSweep =
+            std::getenv("NUMI_HUMAN_STAND_FIRST_SIMD_CONTACT_SWEEP");
+        if (firstSimdContactSweep != nullptr)
+            config.firstSimdStandContactSweep =
+                std::strcmp(firstSimdContactSweep, "1") == 0;
         const char* sparseOperator =
             std::getenv("NUMI_HUMAN_STAND_SPARSE_OPERATOR");
         if (sparseOperator != nullptr)
@@ -4101,6 +4106,10 @@ MetalArticulatedOperatorDiagnostics initializeContext(
         bool cacheLimitEqualitySpecialized = false;
         [finishConstants setConstantValue:&cacheLimitEqualitySpecialized
                                     type:MTLDataTypeBool atIndex:1u];
+        bool firstSimdContactSweep =
+            context.config.firstSimdStandContactSweep;
+        [finishConstants setConstantValue:&firstSimdContactSweep
+                                    type:MTLDataTypeBool atIndex:6u];
         error = nil;
         id<MTLFunction> standFinishFunction = [library
             newFunctionWithName:@"mr_numi_human_stand_finish"
@@ -4171,6 +4180,9 @@ MetalArticulatedOperatorDiagnostics initializeContext(
                                         type:MTLDataTypeBool atIndex:1u];
         }
         bool cpuSparseOperator = false;
+        firstSimdContactSweep = false;
+        [finishConstants setConstantValue:&firstSimdContactSweep
+                                    type:MTLDataTypeBool atIndex:6u];
         [finishConstants setConstantValue:&cpuSparseOperator
                                     type:MTLDataTypeBool atIndex:2u];
         cpuFinishSpecialized = true;
