@@ -822,6 +822,10 @@ inline bool validDispatch(
           (dispatch.flags & MR_ARTICULATED_OPERATOR_COMPENSATED_TRANSLATION) == 0u ||
           (dispatch.flags & MR_ARTICULATED_OPERATOR_KINEMATICS_CACHE_PREPARE) != 0u &&
           (dispatch.flags & MR_ARTICULATED_OPERATOR_KINEMATICS_CACHE_CONSUME) != 0u)) ||
+        ((dispatch.flags &
+          MR_ARTICULATED_OPERATOR_WRITE_BODY_SPATIAL_JACOBIANS) != 0u &&
+         (dispatch.flags &
+          MR_ARTICULATED_OPERATOR_KINEMATICS_CACHE_PREPARE) != 0u) ||
 #endif
         ((dispatch.flags &
           MR_ARTICULATED_OPERATOR_WRITE_DIAGNOSTIC_MASS) != 0u &&
