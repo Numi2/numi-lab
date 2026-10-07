@@ -355,6 +355,9 @@ if(APPLE)
             "${NUMI_MATTER_SHADER_DIR}/HumanRespiration.air"
             -o "${NUMI_HUMAN_RESPIRATION_METALLIB}"
         DEPENDS src/human_respiration.metal include/numi/matter/human_respiration.h
+            src/NumiHumanRestingCommonField.metalinc
+            ../src/metal/PairedSourceGeometry.metalinc
+            ../include/metalrobo/compensated_geometry_gpu.h
             include/numi/matter/shared.h ../src/metal/MujocoMuscleReference.metal
             ../include/metalrobo/mujoco_muscle_gpu.h
             ../include/metalrobo/numi_human_stand_gpu.h
