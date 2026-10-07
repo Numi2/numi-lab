@@ -29,7 +29,7 @@ class NumiHumanRestingSupportGeometry final {
     __strong id<MTLBuffer> influences_ = nil;
     __strong id<MTLBuffer> regionForVertex_ = nil;
     __strong id<MTLBuffer> regions_ = nil;
-    __strong id<MTLBuffer> positions_ = nil;
+    __strong id<MTLBuffer> worldZKeys_ = nil;
     __strong id<MTLBuffer> minimumHeightKeys_ = nil;
     __strong id<MTLBuffer> selectedVertices_ = nil;
     __strong id<MTLBuffer> invalidRegionFlags_ = nil;
@@ -298,7 +298,7 @@ class NumiHumanRestingSupportGeometry final {
         [positions setBuffer:bodies offset:0u atIndex:3u];
         [positions setBuffer:bodyLow offset:0u atIndex:4u];
         [positions setBuffer:regionForVertex_ offset:0u atIndex:5u];
-        [positions setBuffer:positions_ offset:0u atIndex:6u];
+        [positions setBuffer:worldZKeys_ offset:0u atIndex:6u];
         [positions setBuffer:minimumHeightKeys_ offset:0u atIndex:7u];
         [positions setBuffer:invalidRegionFlags_ offset:0u atIndex:8u];
         [positions setBuffer:normalizedOrientations_ offset:0u atIndex:9u];
@@ -317,7 +317,7 @@ class NumiHumanRestingSupportGeometry final {
         [select setComputePipelineState:selectPipeline_];
         [select setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
         [select setBuffer:regionForVertex_ offset:0u atIndex:1u];
-        [select setBuffer:positions_ offset:0u atIndex:2u];
+        [select setBuffer:worldZKeys_ offset:0u atIndex:2u];
         [select setBuffer:minimumHeightKeys_ offset:0u atIndex:3u];
         [select setBuffer:selectedVertices_ offset:0u atIndex:4u];
         [select dispatchThreadgroups:MTLSizeMake(
@@ -335,7 +335,7 @@ class NumiHumanRestingSupportGeometry final {
         [publish setBuffer:influences_ offset:0u atIndex:2u];
         [publish setBuffer:regions_ offset:0u atIndex:3u];
         [publish setBuffer:selectedVertices_ offset:0u atIndex:4u];
-        [publish setBuffer:positions_ offset:0u atIndex:5u];
+        [publish setBuffer:worldZKeys_ offset:0u atIndex:5u];
         [publish setBuffer:contacts offset:0u atIndex:6u];
         [publish setBuffer:pointWorld offset:0u atIndex:7u];
         [publish setBuffer:pointLow offset:0u atIndex:8u];
@@ -495,9 +495,9 @@ public:
                                        debugPipeline_.maxTotalThreadsPerThreadgroup)))));
         require(threadsPerGroup_ > 0u,
                 "resting support pipelines expose no dispatch lanes");
-        positions_ = [device_ newBufferWithLength:
+        worldZKeys_ = [device_ newBufferWithLength:
             static_cast<NSUInteger>(environmentCount_) * vertexCount_ *
-                sizeof(MRHumanRestingSupportPositionGPU)
+                sizeof(std::uint32_t)
             options:MTLResourceStorageModePrivate];
         const NSUInteger regionBytes = static_cast<NSUInteger>(environmentCount_) *
             regionCount_ * sizeof(std::uint32_t);
@@ -516,7 +516,7 @@ public:
                     sizeof(MRHumanRestingSupportDebugGPU)
                 options:MTLResourceStorageModeShared];
         }
-        require(positions_ != nil && minimumHeightKeys_ != nil &&
+        require(worldZKeys_ != nil && minimumHeightKeys_ != nil &&
                     selectedVertices_ != nil && invalidRegionFlags_ != nil &&
                     (!diagnosticCapture_ || debugOutput_ != nil),
                 "resting support transient GPU buffers could not be allocated");

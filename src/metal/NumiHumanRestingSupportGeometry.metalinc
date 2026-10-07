@@ -250,7 +250,7 @@ kernel void nm_human_resting_support_positions(
     device const MRArticulatedBodyPoseGPU* bodies [[buffer(3)]],
     device const float4* bodyPositionLow [[buffer(4)]],
     device const uint* regionForVertex [[buffer(5)]],
-    device MRHumanRestingSupportPositionGPU* positions [[buffer(6)]],
+    device uint* positionKeys [[buffer(6)]],
     device atomic_uint* minimumHeightKeys [[buffer(7)]],
     device atomic_uint* invalidRegionFlags [[buffer(8)]],
     device const float4* normalizedOrientations [[buffer(9)]],
@@ -271,6 +271,7 @@ kernel void nm_human_resting_support_positions(
         return;
     }
     if (mappedVertex.deformationKind != 3u || mappedVertex.influenceCount == 0u) {
+        positionKeys[globalIndex] = 0xffffffffu;
         atomic_store_explicit(invalidRegionFlags + flagsBase + region,
                               1u, memory_order_relaxed);
         return;
@@ -280,24 +281,26 @@ kernel void nm_human_resting_support_positions(
             mappedVertex, influences, bodies, bodyPositionLow,
             rotationZBasis, dispatch, environment
         );
-    positions[globalIndex] = {
-        float4(0.0f, 0.0f, positionZ.high, 0.0f),
-        float4(0.0f, 0.0f, positionZ.low, 0.0f)
-    };
     if (!isfinite(positionZ.high) || !isfinite(positionZ.low)) {
+        positionKeys[globalIndex] = 0xffffffffu;
         atomic_store_explicit(invalidRegionFlags + flagsBase + region,
                               1u, memory_order_relaxed);
         return;
     }
     const float worldZ = positionZ.high + positionZ.low;
     if (!isfinite(worldZ)) {
+        positionKeys[globalIndex] = 0xffffffffu;
         atomic_store_explicit(invalidRegionFlags + flagsBase + region,
                               1u, memory_order_relaxed);
         return;
     }
+    // Selection needs only this exact rounded ordering key. Full compensated
+    // XYZ is recomputed from source influences in the publication stage.
+    const uint worldZKey = nm_human_resting_support::orderedFloat(worldZ);
+    positionKeys[globalIndex] = worldZKey;
     atomic_fetch_min_explicit(
         minimumHeightKeys + environment * regionCount + region,
-        nm_human_resting_support::orderedFloat(worldZ),
+        worldZKey,
         memory_order_relaxed
     );
 }
@@ -307,7 +310,7 @@ kernel void nm_human_resting_support_positions(
 kernel void nm_human_resting_support_select(
     constant MRHumanRestingSupportDispatchGPU& dispatch [[buffer(0)]],
     device const uint* regionForVertex [[buffer(1)]],
-    device const MRHumanRestingSupportPositionGPU* positions [[buffer(2)]],
+    device const uint* positionKeys [[buffer(2)]],
     device const atomic_uint* minimumHeightKeys [[buffer(3)]],
     device atomic_uint* selectedVertices [[buffer(4)]],
     uint globalIndex [[thread_position_in_grid]]) {
@@ -319,11 +322,11 @@ kernel void nm_human_resting_support_select(
     const uint vertexIndex = globalIndex - environment * vertexCount;
     const uint region = regionForVertex[vertexIndex];
     if (region >= regionCount) return;
-    const auto position = positions[globalIndex];
-    const float worldZ = position.high.z + position.low.z;
-    if (!isfinite(worldZ)) return;
+    const uint key = positionKeys[globalIndex];
+    // The reserved key is written for invalid/nonfinite candidates and cannot
+    // be produced by orderedFloat for a finite binary32 value.
+    if (key == 0xffffffffu) return;
     const uint regionIndex = environment * regionCount + region;
-    const uint key = nm_human_resting_support::orderedFloat(worldZ);
     if (key == atomic_load_explicit(minimumHeightKeys + regionIndex,
                                     memory_order_relaxed)) {
         atomic_fetch_min_explicit(selectedVertices + regionIndex,
@@ -341,7 +344,7 @@ kernel void nm_human_resting_support_publish(
     device const MRHumanRestingInfluence* influences [[buffer(2)]],
     device const MRHumanRestingSupportRegionGPU* regions [[buffer(3)]],
     device const atomic_uint* selectedVertices [[buffer(4)]],
-    device const MRHumanRestingSupportPositionGPU* positions [[buffer(5)]],
+    device const uint* positionKeys [[buffer(5)]],
     device const MRNumiHumanStandContactGPU* contacts [[buffer(6)]],
     device MRArticulatedPointWorldGPU* pointWorld [[buffer(7)]],
     device float4* pointPositionLow [[buffer(8)]],
