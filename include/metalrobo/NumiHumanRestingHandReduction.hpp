@@ -3,8 +3,15 @@
 #include "metalrobo/NumiHumanJointEquality.hpp"
 
 #include <algorithm>
+#include <array>
 #include <cmath>
+#include <cstddef>
+#include <cstdint>
+#include <cstring>
+#include <span>
 #include <string>
+#include <utility>
+#include <vector>
 
 namespace metalrobo {
 
@@ -60,6 +67,103 @@ inline bool compileNumiHumanRestingHandReduction(
         }
     }
     output = std::move(candidate);
+    error.clear();
+    return true;
+}
+
+
+// Receipt actions are stable values so the derived model identity is
+// deterministic across runs and independent of host bool/padding layout.
+enum class NumiHumanRestingFixedBoundAction : std::uint32_t {
+    eliminated = 1u,
+    retainedOutsideSourceInterval = 2u,
+};
+struct NumiHumanRestingFixedBoundReceiptRecord {
+    std::uint32_t vIndex = MR_INVALID_INDEX;
+    std::uint32_t qIndex = MR_INVALID_INDEX;
+    float target = 0.0f;
+    float sourceLower = 0.0f;
+    float sourceUpper = 0.0f;
+    std::uint32_t originalFlags = 0u;
+    std::uint32_t derivedFlags = 0u;
+    std::uint32_t action = 0u;
+};
+static_assert(sizeof(NumiHumanRestingFixedBoundReceiptRecord) == 32u);
+static_assert(offsetof(NumiHumanRestingFixedBoundReceiptRecord, target) == 8u);
+static_assert(offsetof(NumiHumanRestingFixedBoundReceiptRecord, action) == 28u);
+// Clear only source POSITION_LIMIT flags whose scalar coordinate is exactly
+// fixed by a fixed-master row in the verified rigid-hand equality program.
+// Source intervals and source payload stay untouched. Coupled rows do not
+// qualify; finite-sweep trajectories may change as redundant rows are removed.
+inline bool compileNumiHumanRestingFixedBoundElimination(
+    const NumiHumanJointEqualityPayload& source,
+    const std::span<const float> referenceQ,
+    const std::span<const MRDofPropertiesGPU> sourceDofs,
+    const std::span<const MRNumiHumanJointEqualityGPU> compiledEqualities,
+    std::vector<MRDofPropertiesGPU>& derivedDofs,
+    std::vector<NumiHumanRestingFixedBoundReceiptRecord>& receipt,
+    std::string& error
+) {
+    const auto fail = [&error](const char* message) { error = message; return false; };
+    std::vector<MRNumiHumanJointEqualityGPU> expectedEqualities;
+    std::string reductionError;
+    if (!compileNumiHumanRestingHandReduction(
+            source, referenceQ, sourceDofs, expectedEqualities, reductionError))
+        return fail("fixed-bound elimination requires the admitted rigid-hand reduction");
+    if (compiledEqualities.size() != expectedEqualities.size() ||
+        std::memcmp(compiledEqualities.data(), expectedEqualities.data(),
+                    expectedEqualities.size() * sizeof(MRNumiHumanJointEqualityGPU)) != 0)
+        return fail("fixed-bound elimination equality program differs from the admitted rigid-hand reduction");
+
+    std::vector<MRDofPropertiesGPU> candidateDofs(sourceDofs.begin(), sourceDofs.end());
+    std::vector<NumiHumanRestingFixedBoundReceiptRecord> candidateReceipt;
+    std::vector<std::uint8_t> seenFixedV(sourceDofs.size(), 0u);
+    for (const MRNumiHumanJointEqualityGPU& equality : compiledEqualities) {
+        const bool fixed = equality.indices.z == MR_INVALID_INDEX &&
+            equality.indices.w == MR_INVALID_INDEX;
+        const bool coupled = equality.indices.z < source.nq &&
+            equality.indices.w < source.nv &&
+            equality.indices.x != equality.indices.z &&
+            equality.indices.y != equality.indices.w;
+        if (equality.indices.x >= source.nq ||
+            equality.indices.y >= source.nv || (!fixed && !coupled))
+            return fail("fixed-bound elimination encountered malformed equality indices");
+        if (!fixed) continue;
+        const std::uint32_t q = equality.indices.x;
+        const std::uint32_t v = equality.indices.y;
+        const MRDofPropertiesGPU& dof = sourceDofs[v];
+        if (dof.qIndex != q || dof.vIndex != v || dof.articulationIndex != 0u)
+            return fail("fixed equality q/v indices do not match the source scalar DoF");
+        if (seenFixedV[v] != 0u)
+            return fail("fixed-bound elimination encountered duplicate fixed coordinates");
+        seenFixedV[v] = 1u;
+        // Mirrors evaluateJointEquality's fixed-master FP32 target: delta is
+        // zero, so polynomial is referencesAndCoefficients0.z.
+        const float target = equality.referencesAndCoefficients0.x +
+            equality.referencesAndCoefficients0.z;
+        if (!std::isfinite(target))
+            return fail("fixed equality target is nonfinite");
+        if ((dof.flags & MR_DOF_FLAG_POSITION_LIMIT) == 0u) continue;
+        if (!std::isfinite(dof.limits.x) || !std::isfinite(dof.limits.y) ||
+            dof.limits.x > dof.limits.y)
+            return fail("fixed equality source position interval is invalid");
+        const bool inside = target >= dof.limits.x && target <= dof.limits.y;
+        const std::uint32_t derivedFlags = inside
+            ? (dof.flags & ~MR_DOF_FLAG_POSITION_LIMIT) : dof.flags;
+        candidateDofs[v].flags = derivedFlags;
+        candidateReceipt.push_back({
+            .vIndex = v, .qIndex = q, .target = target,
+            .sourceLower = dof.limits.x, .sourceUpper = dof.limits.y,
+            .originalFlags = dof.flags, .derivedFlags = derivedFlags,
+            .action = static_cast<std::uint32_t>(inside
+                ? NumiHumanRestingFixedBoundAction::eliminated
+                : NumiHumanRestingFixedBoundAction::retainedOutsideSourceInterval),
+        });
+    }
+    std::sort(candidateReceipt.begin(), candidateReceipt.end(),
+        [](const auto& a, const auto& b) { return a.vIndex < b.vIndex; });
+    derivedDofs = std::move(candidateDofs);
+    receipt = std::move(candidateReceipt);
     error.clear();
     return true;
 }

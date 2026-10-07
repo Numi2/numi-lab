@@ -22396,24 +22396,76 @@ int main(int argc, char** argv) {
                     "--resting-release-initialization requires --resting-scene");
             require(!restingRigidHands || restingScene.has_value(),
                     "--resting-rigid-hands requires --resting-scene");
+            const char* fixedBoundEliminationSetting =
+                std::getenv("NUMI_HUMAN_RESTING_ELIMINATE_FIXED_BOUNDS");
+            require(fixedBoundEliminationSetting == nullptr ||
+                        fixedBoundEliminationSetting[0] == '\0' ||
+                        std::strcmp(fixedBoundEliminationSetting, "0") == 0 ||
+                        std::strcmp(fixedBoundEliminationSetting, "1") == 0,
+                    "NUMI_HUMAN_RESTING_ELIMINATE_FIXED_BOUNDS must be 0 or 1");
+            const bool eliminateRestingFixedBounds =
+                fixedBoundEliminationSetting != nullptr &&
+                std::strcmp(fixedBoundEliminationSetting, "1") == 0;
+            require(!eliminateRestingFixedBounds || restingRigidHands,
+                    "fixed-bound elimination requires --resting-rigid-hands");
             if(restingScene.has_value()) {
                 require(persistentMetalStand&&muscleStepSeconds.has_value()&&muscleStepCount.has_value()&&
                     supportContactPayload.has_value()&&jointEqualityPayload.has_value()&&requestedRootPose.has_value()&&tendonPayloadPath.has_value()&&
                     !standRootAssistance&&!standRemoveAssistance&&!standBrainLibraryPath.has_value(),
                     "resting scene requires explicit supported root pose, native contact/equality/tendon payloads and bounded native steps");
+                std::vector<metalrobo::NumiHumanRestingFixedBoundReceiptRecord>
+                    restingFixedBoundReceipt;
                 if(restingRigidHands) {
                     const char* cachePath=std::getenv("NUMI_HUMAN_STATIC_EQUILIBRIUM_CACHE_PATH");
                     require(cachePath==nullptr||cachePath[0]=='\0',
                         "rigid-hand reduction requires fresh source equilibrium initialization");
+                    const auto sourceEqualities = jointEqualityPayload->payload;
                     std::vector<MRNumiHumanJointEqualityGPU> reduced;
                     std::string reductionError;
                     require(metalrobo::compileNumiHumanRestingHandReduction(
-                        jointEqualityPayload->payload,rigid.model.defaultQ,
+                        sourceEqualities,rigid.model.defaultQ,
                         rigid.model.dofs,reduced,reductionError),reductionError);
+                    if (eliminateRestingFixedBounds) {
+                        std::vector<MRDofPropertiesGPU> derivedDofs;
+                        require(metalrobo::compileNumiHumanRestingFixedBoundElimination(
+                            sourceEqualities,rigid.model.defaultQ,rigid.model.dofs,
+                            reduced,derivedDofs,restingFixedBoundReceipt,reductionError),
+                            reductionError);
+                        rigid.model.dofs=std::move(derivedDofs);
+                    }
                     jointEqualityPayload->payload.records=std::move(reduced);
                     std::cout<<"resting_hand_model=rigid_reference_digits source_equalities=51 "
                         "derived_internal_equalities=40 wrist_dofs=free root_constraint_rows=0 "
                         "hand_function_simulated=0 body_mass_inertia_preserved=1\n";
+                    if (eliminateRestingFixedBounds) {
+                        std::size_t eliminatedCount = 0u;
+                        for (const auto& record : restingFixedBoundReceipt)
+                            if (record.action == static_cast<std::uint32_t>(
+                                    metalrobo::NumiHumanRestingFixedBoundAction::eliminated))
+                                ++eliminatedCount;
+                        std::cout<<std::setprecision(std::numeric_limits<float>::max_digits10)
+                            <<"resting_fixed_bound_elimination={\"schema\":\"numi.human.resting.fixed-bound-elimination.v1\",\"source_nheq_sha256\":\""
+                            <<loadedKneeSHA256Hex(jointEqualityPayload->payloadSha256)
+                            <<"\",\"source_nheq_file_unchanged\":true,\"records\":[";
+                        for (std::size_t i=0;i<restingFixedBoundReceipt.size();++i) {
+                            const auto& record=restingFixedBoundReceipt[i];
+                            if (i) std::cout<<',';
+                            const bool eliminated = record.action == static_cast<std::uint32_t>(
+                                metalrobo::NumiHumanRestingFixedBoundAction::eliminated);
+                            std::cout<<"{\"v\":"<<record.vIndex<<",\"q\":"<<record.qIndex
+                                <<",\"target\":"<<record.target
+                                <<",\"source_bounds\":["<<record.sourceLower<<','<<record.sourceUpper<<']'
+                                <<",\"flags_before\":"<<record.originalFlags
+                                <<",\"flags_after\":"<<record.derivedFlags
+                                <<",\"action\":\""<<(eliminated?"eliminated":"retained_outside_source_interval")<<"\"}";
+                            if (eliminated) {
+                                require((record.derivedFlags & MR_DOF_FLAG_POSITION_LIMIT)==0u,
+                                    "fixed-bound receipt does not match derived DoF flags");
+                            }
+                        }
+                        std::cout<<"],\"eliminated_count\":"<<eliminatedCount
+                            <<",\"finite_sweep_trajectory_equivalence\":false}\n";
+                    }
                 }
                 const bool restingTimestepSensitivity =
                     humanRestingTimestepSensitivityEnabledForApp();
@@ -22627,6 +22679,12 @@ int main(int argc, char** argv) {
                 appendSource("NHEQ",payloadBytes(*jointEqualityPayloadPath));
                 if(restingRigidHands)appendSource("resting_rigid_hand_reference_reduction_v1",
                     std::as_bytes(std::span(jointEqualityPayload->payload.records)));
+                if(eliminateRestingFixedBounds) {
+                    appendSource("resting_rigid_hand_fixed_bound_receipt_v1",
+                        std::as_bytes(std::span(restingFixedBoundReceipt)));
+                    appendSource("resting_rigid_hand_derived_dofs_v1",
+                        std::as_bytes(std::span(rigid.model.dofs)));
+                }
                 appendSource("NHTENDON",payloadBytes(*tendonPayloadPath));
                 if(!restingAnatomyReceipt.empty())appendSource("resting_functional_anatomy",payloadBytes(restingAnatomyReceipt));
                 if(torsoAnatomyPayloadPath)appendSource("NHANATOMY",payloadBytes(*torsoAnatomyPayloadPath));
