@@ -528,6 +528,10 @@ enum MRArticulatedOperatorFlags : mr_u32 {
     // articulated poses; the second reuses them across independent point tiles.
     MR_ARTICULATED_OPERATOR_KINEMATICS_CACHE_PREPARE = 1u << 7u,
     MR_ARTICULATED_OPERATOR_KINEMATICS_CACHE_CONSUME = 1u << 8u,
+    // Opt-in Human/Stand sidecar: publish analytic world angular and COM-linear
+    // Jacobians for the canonical four-point body-probe block. reserved0 names
+    // that block's first point; ordinary point-J rows remain unchanged.
+    MR_ARTICULATED_OPERATOR_WRITE_BODY_SPATIAL_JACOBIANS = 1u << 9u,
 };
 
 // One dispatch describes a batch of states for one immutable articulation.
@@ -547,6 +551,8 @@ typedef struct MR_ALIGN16 MRArticulatedOperatorDispatchGPU {
     mr_u32 massMatrixStride;
     mr_u32 pointJacobianStride;
     mr_u32 generalizedStride;
+    // Zero unless WRITE_BODY_SPATIAL_JACOBIANS is set; then first canonical
+    // COM probe query in the point stream. ABI width and layout are unchanged.
     mr_u32 reserved0;
 } MRArticulatedOperatorDispatchGPU;
 

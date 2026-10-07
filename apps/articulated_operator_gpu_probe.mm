@@ -409,6 +409,8 @@ MetalResult runMetal(
         [encoder setBuffer:deltaBuffer offset:0 atIndex:13];
         [encoder setBuffer:statusBuffer offset:0 atIndex:14];
         [encoder setBuffer:functionBuffer offset:0 atIndex:15];
+        // The optional Human/Stand sidecar binding is unused in this probe.
+        [encoder setBuffer:jacobianBuffer offset:0 atIndex:21];
         [encoder
             setThreadgroupMemoryLength:threadgroupBytes
                               atIndex:0u];

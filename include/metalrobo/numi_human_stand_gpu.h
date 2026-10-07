@@ -72,6 +72,9 @@ enum MRNumiHumanStandFlags {
     // projected response actually used the reduced path.
     MR_NUMI_HUMAN_STAND_REDUCED_PROJECTION_READY = 1u << 18u,
     MR_NUMI_HUMAN_STAND_REDUCED_PROJECTION_USED = 1u << 19u,
+    // The six source spatial-J rows are already present in the first six
+    // rows of spatial scratch; retain the existing point-J fallback by default.
+    MR_NUMI_HUMAN_STAND_ANALYTIC_BODY_SPATIAL_JACOBIANS = 1u << 20u,
 };
 
 // One source-authored support witness. The point-query index addresses the

@@ -854,7 +854,8 @@ kernel void mr_numi_human_stand_step(
                 MR_NUMI_HUMAN_STAND_FACTOR_ONLY |
                 MR_NUMI_HUMAN_STAND_RESPONSES_READY |
                 MR_NUMI_HUMAN_STAND_REDUCED_PROJECTED_RESPONSES |
-                MR_NUMI_HUMAN_STAND_REDUCED_SOURCE_UPPER_TRIANGLE
+                MR_NUMI_HUMAN_STAND_REDUCED_SOURCE_UPPER_TRIANGLE |
+                MR_NUMI_HUMAN_STAND_ANALYTIC_BODY_SPATIAL_JACOBIANS
             )) != 0u ||
             ((dispatch.flags & MR_NUMI_HUMAN_STAND_REDUCED_SOURCE_UPPER_TRIANGLE) != 0u &&
              (dispatch.flags & MR_NUMI_HUMAN_STAND_REDUCED_PROJECTED_RESPONSES) == 0u) ||
@@ -1051,33 +1052,47 @@ kernel void mr_numi_human_stand_step(
         const uint dof = index - localBody * nv;
         const uint probe = dispatch.bodyJacobianPointOffset + 4u * localBody;
         const uint probeBase = pointJacobianBase + probe * 3u * nv;
-        const float3 linear{
-            pointJacobians[probeBase + 0u * nv + dof],
-            pointJacobians[probeBase + 1u * nv + dof],
-            pointJacobians[probeBase + 2u * nv + dof],
-        };
-        const float3 dx{
-            pointJacobians[probeBase + 3u * nv + 0u * nv + dof] - linear.x,
-            pointJacobians[probeBase + 3u * nv + 1u * nv + dof] - linear.y,
-            pointJacobians[probeBase + 3u * nv + 2u * nv + dof] - linear.z,
-        };
-        const float3 dy{
-            pointJacobians[probeBase + 6u * nv + 0u * nv + dof] - linear.x,
-            pointJacobians[probeBase + 6u * nv + 1u * nv + dof] - linear.y,
-            pointJacobians[probeBase + 6u * nv + 2u * nv + dof] - linear.z,
-        };
-        const float3 dz{
-            pointJacobians[probeBase + 9u * nv + 0u * nv + dof] - linear.x,
-            pointJacobians[probeBase + 9u * nv + 1u * nv + dof] - linear.y,
-            pointJacobians[probeBase + 9u * nv + 2u * nv + dof] - linear.z,
-        };
+        float3 linear;
+        float3 angular;
         const float4 orientation = bodyPoses[bodyPoseBase + localBody].orientation;
-        const float3 axisX = quaternionRotate(orientation, float3(1.0f, 0.0f, 0.0f));
-        const float3 axisY = quaternionRotate(orientation, float3(0.0f, 1.0f, 0.0f));
-        const float3 axisZ = quaternionRotate(orientation, float3(0.0f, 0.0f, 1.0f));
-        const float3 angular = 0.5f * (
-            cross(axisX, dx) + cross(axisY, dy) + cross(axisZ, dz)
-        );
+        if ((dispatch.flags &
+             MR_NUMI_HUMAN_STAND_ANALYTIC_BODY_SPATIAL_JACOBIANS) != 0u) {
+            const uint base = spatialBase + localBody * 6u * nv + dof;
+            angular = float3(
+                spatialJacobianScratch[base + 0u * nv],
+                spatialJacobianScratch[base + 1u * nv],
+                spatialJacobianScratch[base + 2u * nv]);
+            linear = float3(
+                spatialJacobianScratch[base + 3u * nv],
+                spatialJacobianScratch[base + 4u * nv],
+                spatialJacobianScratch[base + 5u * nv]);
+        } else {
+            linear = float3(
+                pointJacobians[probeBase + 0u * nv + dof],
+                pointJacobians[probeBase + 1u * nv + dof],
+                pointJacobians[probeBase + 2u * nv + dof]);
+            const float3 dx{
+                pointJacobians[probeBase + 3u * nv + 0u * nv + dof] - linear.x,
+                pointJacobians[probeBase + 3u * nv + 1u * nv + dof] - linear.y,
+                pointJacobians[probeBase + 3u * nv + 2u * nv + dof] - linear.z,
+            };
+            const float3 dy{
+                pointJacobians[probeBase + 6u * nv + 0u * nv + dof] - linear.x,
+                pointJacobians[probeBase + 6u * nv + 1u * nv + dof] - linear.y,
+                pointJacobians[probeBase + 6u * nv + 2u * nv + dof] - linear.z,
+            };
+            const float3 dz{
+                pointJacobians[probeBase + 9u * nv + 0u * nv + dof] - linear.x,
+                pointJacobians[probeBase + 9u * nv + 1u * nv + dof] - linear.y,
+                pointJacobians[probeBase + 9u * nv + 2u * nv + dof] - linear.z,
+            };
+            const float3 axisX = quaternionRotate(orientation, float3(1.0f, 0.0f, 0.0f));
+            const float3 axisY = quaternionRotate(orientation, float3(0.0f, 1.0f, 0.0f));
+            const float3 axisZ = quaternionRotate(orientation, float3(0.0f, 0.0f, 1.0f));
+            angular = 0.5f * (
+                cross(axisX, dx) + cross(axisY, dy) + cross(axisZ, dz)
+            );
+        }
         const uint base = spatialBase + localBody * 6u * nv + dof;
         spatialJacobianScratch[base + 0u * nv] = angular.x;
         spatialJacobianScratch[base + 1u * nv] = angular.y;

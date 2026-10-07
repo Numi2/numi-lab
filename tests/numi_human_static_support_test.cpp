@@ -553,10 +553,328 @@ void testSourceCompliantPreparation() {
         result.state.generalizedPositionLimitForce[2]<0,"source upper stop did not acquire its loaded deformation");
 }
 
+
+void testAnalyticBodySpatialReference() {
+    using namespace metalrobo;
+    EngineModel model;
+    MRArticulationGPU articulation{};
+    articulation.rootBody = 0u;
+    articulation.rootType = MR_ROOT_FLOATING;
+    articulation.firstBody = 0u;
+    articulation.bodyCount = 4u;
+    articulation.firstJoint = 0u;
+    articulation.jointCount = 3u;
+    articulation.qOffset = 0u;
+    articulation.nq = 9u;
+    articulation.vOffset = 0u;
+    articulation.nv = 8u;
+    model.articulations.push_back(articulation);
+
+    model.bodies.push_back(body(MR_INVALID_INDEX, MR_INVALID_INDEX, 2.0, {0.8, 1.1, 1.4}));
+    model.bodies.push_back(body(0u, 2u, 1.5, {0.7, 0.9, 1.2}));
+    model.bodies.push_back(body(1u, 0u, 1.1, {0.6, 0.8, 1.0}));
+    model.bodies.push_back(body(2u, 1u, 0.9, {0.5, 0.7, 0.9}));
+    model.bodies[1].centerOfMass = f4(0.03, -0.02, 0.01);
+    model.bodies[2].centerOfMass = f4(-0.04, 0.01, 0.02);
+    model.bodies[3].centerOfMass = f4(0.02, 0.03, -0.01);
+
+    const auto unitAxis = [](const std::array<double, 3> axis,
+                             const std::uint32_t coordinate,
+                             const OpenSimFunctionDefinition function) {
+        return OpenSimSpatialAxisDefinition{
+            .axis = axis,
+            .coordinateIndex = coordinate,
+            .function = function,
+        };
+    };
+    OpenSimSpatialTransformDefinition definition{};
+    definition.coordinateCount = 2u;
+    for (std::size_t axis = 0u; axis < definition.axes.size(); ++axis) {
+        const std::array<double, 3> direction =
+            axis % 3u == 0u ? std::array<double, 3>{1.0, 0.0, 0.0} :
+            axis % 3u == 1u ? std::array<double, 3>{0.0, 1.0, 0.0} :
+                              std::array<double, 3>{0.0, 0.0, 1.0};
+        definition.axes[axis] = unitAxis(
+            direction, kOpenSimNoCoordinate,
+            {.kind = OpenSimFunctionKind::constant, .coefficients = {0.0}});
+    }
+    definition.axes[0] = unitAxis(
+        {0.0, 0.0, 1.0}, 0u,
+        {.kind = OpenSimFunctionKind::linear, .coefficients = {1.0, 0.0}});
+    // One source coordinate drives both rotation and translation, while the
+    // second controls an independent translation axis.
+    definition.axes[3] = unitAxis(
+        {1.0, 0.0, 0.0}, 0u,
+        {.kind = OpenSimFunctionKind::linear, .coefficients = {0.4, 0.1}});
+    definition.axes[5] = unitAxis(
+        {0.0, 1.0, 0.0}, 1u,
+        {.kind = OpenSimFunctionKind::linear, .coefficients = {0.2, -0.03}});
+    const auto compiled = compileOpenSimSpatialTransform(definition);
+    require(compiled.succeeded(), "analytic body reference transform did not compile");
+
+    const auto identity = f4(0.0, 0.0, 0.0, 1.0);
+    const auto fixed = [&](const std::uint32_t parent,
+                           const std::uint32_t child,
+                           const std::uint32_t qOffset,
+                           const std::uint32_t vOffset,
+                           const mr_float4 parentAnchor,
+                           const mr_float4 childAnchor) {
+        MRJointDescriptorGPU joint{};
+        joint.parentBody = parent;
+        joint.childBody = child;
+        joint.jointType = MR_JOINT_FIXED;
+        joint.qOffset = qOffset;
+        joint.vOffset = vOffset;
+        joint.parentAnchor = parentAnchor;
+        joint.childAnchor = childAnchor;
+        joint.parentRotation = identity;
+        joint.childRotation = identity;
+        return joint;
+    };
+    MRJointDescriptorGPU functionJoint{};
+    functionJoint.parentBody = 1u;
+    functionJoint.childBody = 2u;
+    functionJoint.jointType = MR_JOINT_FUNCTION_BASED;
+    functionJoint.qOffset = 7u;
+    functionJoint.nq = 2u;
+    functionJoint.vOffset = 6u;
+    functionJoint.nv = 2u;
+    functionJoint.axis0 = f4(0.0, 0.0, 1.0);
+    functionJoint.axis1 = f4(1.0, 0.0, 0.0);
+    functionJoint.parentAnchor = f4(0.08, -0.03, 0.05);
+    functionJoint.childAnchor = f4(-0.02, 0.04, -0.01);
+    functionJoint.parentRotation = identity;
+    functionJoint.childRotation = identity;
+    // Deliberately non-root-order: the function-based child is recorded before
+    // its fixed parent link, and a fixed descendant follows that transform.
+    model.joints.push_back(functionJoint); // parent 1 -> child 2
+    model.joints.push_back(fixed(2u, 3u, 9u, 8u,
+                                 f4(0.03, 0.02, -0.01),
+                                 f4(-0.05, 0.01, 0.02)));
+    model.joints.push_back(fixed(0u, 1u, 9u, 8u,
+                                 f4(0.11, -0.07, 0.06),
+                                 f4(-0.04, 0.02, 0.03)));
+    model.functionBasedJointPrograms.push_back({0u, compiled.transform});
+
+    for (std::uint32_t dof = 0u; dof < 6u; ++dof) {
+        model.dofs.push_back(rootDof(dof));
+    }
+    for (std::uint32_t local = 0u; local < 2u; ++local) {
+        MRDofPropertiesGPU dof{};
+        dof.articulationIndex = 0u;
+        dof.jointIndex = 0u;
+        dof.qIndex = 7u + local;
+        dof.vIndex = 6u + local;
+        dof.localDof = local;
+        model.dofs.push_back(dof);
+    }
+
+    constexpr double rootAngle = 0.71;
+    const double half = rootAngle * 0.5;
+    std::vector<double> q{
+        0.31, -0.24, 0.18,
+        0.0, std::sin(half), 0.0, std::cos(half),
+        0.27, -0.19,
+    };
+    model.defaultQ.reserve(q.size());
+    for (const double value : q) model.defaultQ.push_back(static_cast<float>(value));
+    model.defaultV.assign(8u, 0.0f);
+    model.world.abiVersion = MR_ENGINE_ABI_VERSION;
+    model.world.gravityAndTimestep = {0.0f, 0.0f, -9.81f, 0.001f};
+    model.world.bodyCount = static_cast<mr_u32>(model.bodies.size());
+    model.world.jointCount = static_cast<mr_u32>(model.joints.size());
+    model.world.articulationCount = 1u;
+    model.world.nq = 9u;
+    model.world.nv = 8u;
+    model.world.contactCapacity = 1u;
+    model.world.constraintCapacity = 1u;
+    model.world.islandCapacity = 1u;
+    model.world.pairCapacity = 1u;
+    std::string modelReason;
+    require(model.valid(&modelReason),
+            "analytic spatial reference model invalid: " + modelReason);
+
+    constexpr std::size_t bodyCount = 4u;
+    constexpr std::size_t nv = 8u;
+    std::vector<ArticulatedBodyKinematics> poses(bodyCount);
+    const std::vector<double> zeroVelocity(nv, 0.0);
+    require(computeArticulatedBodyKinematics(
+                model, 0u, q, zeroVelocity, poses).succeeded(),
+            "analytic spatial reference base pose failed");
+
+    // This is the CPU source for the candidate's first six sidecar rows:
+    // direct angular and COM-linear columns for every generalized velocity.
+    // It invokes the FP64 tree-motion recursion with unit velocities rather
+    // than inferring angular velocity from four rounded point-J rows.
+    std::vector<double> sourceColumns(bodyCount * 6u * nv);
+    for (std::size_t column = 0u; column < nv; ++column) {
+        std::vector<double> unitVelocity(nv, 0.0);
+        unitVelocity[column] = 1.0;
+        std::vector<ArticulatedBodyKinematics> motion(bodyCount);
+        require(computeArticulatedBodyKinematics(
+                    model, 0u, q, unitVelocity, motion).succeeded(),
+                "analytic source column failed");
+        for (std::size_t bodyIndex = 0u; bodyIndex < bodyCount; ++bodyIndex) {
+            for (std::size_t row = 0u; row < 3u; ++row) {
+                sourceColumns[(bodyIndex * 6u + row) * nv + column] =
+                    motion[bodyIndex].angularVelocity[row];
+                sourceColumns[(bodyIndex * 6u + 3u + row) * nv + column] =
+                    motion[bodyIndex].linearVelocity[row];
+            }
+        }
+    }
+
+    const auto crossProduct = [](const std::array<double, 3>& a,
+                                 const std::array<double, 3>& b) {
+        return std::array<double, 3>{
+            a[1] * b[2] - a[2] * b[1],
+            a[2] * b[0] - a[0] * b[2],
+            a[0] * b[1] - a[1] * b[0],
+        };
+    };
+    const auto rotate = [](const std::array<double, 4>& quaternion,
+                           const std::array<double, 3>& value) {
+        const std::array<double, 3> u{
+            quaternion[0], quaternion[1], quaternion[2]};
+        const std::array<double, 3> uxv{
+            u[1] * value[2] - u[2] * value[1],
+            u[2] * value[0] - u[0] * value[2],
+            u[0] * value[1] - u[1] * value[0],
+        };
+        const std::array<double, 3> uxu{
+            u[1] * uxv[2] - u[2] * uxv[1],
+            u[2] * uxv[0] - u[0] * uxv[2],
+            u[0] * uxv[1] - u[1] * uxv[0],
+        };
+        return std::array<double, 3>{
+            value[0] + 2.0 * (quaternion[3] * uxv[0] + uxu[0]),
+            value[1] + 2.0 * (quaternion[3] * uxv[1] + uxu[1]),
+            value[2] + 2.0 * (quaternion[3] * uxv[2] + uxu[2]),
+        };
+    };
+    for (std::size_t column = 0u; column < 3u; ++column) {
+        for (std::size_t bodyIndex = 0u; bodyIndex < bodyCount; ++bodyIndex) {
+            for (std::size_t row = 0u; row < 3u; ++row) {
+                require(near(sourceColumns[(bodyIndex * 6u + row) * nv + column],
+                             0.0, 1.0e-12),
+                        "floating-root translation gained angular motion");
+                require(near(sourceColumns[(bodyIndex * 6u + 3u + row) * nv + column],
+                             row == column ? 1.0 : 0.0, 1.0e-12),
+                        "floating-root translation did not reach descendant COM");
+            }
+        }
+    }
+    for (std::size_t rotation = 0u; rotation < 3u; ++rotation) {
+        std::array<double, 3> axis{};
+        axis[rotation] = 1.0;
+        for (std::size_t bodyIndex = 0u; bodyIndex < bodyCount; ++bodyIndex) {
+            const auto expectedLinear = crossProduct(
+                axis,
+                std::array<double, 3>{
+                    poses[bodyIndex].centerOfMassPosition[0] -
+                        poses[0].centerOfMassPosition[0],
+                    poses[bodyIndex].centerOfMassPosition[1] -
+                        poses[0].centerOfMassPosition[1],
+                    poses[bodyIndex].centerOfMassPosition[2] -
+                        poses[0].centerOfMassPosition[2],
+                });
+            for (std::size_t row = 0u; row < 3u; ++row) {
+                require(near(sourceColumns[
+                                 (bodyIndex * 6u + row) * nv + 3u + rotation],
+                             axis[row], 1.0e-10),
+                        "rotated floating root lost its world angular basis");
+                require(near(sourceColumns[
+                                 (bodyIndex * 6u + 3u + row) * nv + 3u + rotation],
+                             expectedLinear[row], 1.0e-10),
+                        "offset-COM root column disagrees with analytic screw motion");
+            }
+        }
+    }
+
+    const auto transformState = evaluateOpenSimSpatialTransform(
+        compiled.transform, {q[7], q[8]}, {0.0, 0.0});
+    require(transformState.succeeded(),
+            "coupled source transform evaluation failed");
+    const auto& functionParentOrientation = poses[1].orientation;
+    const auto expectedTipPositionDelta = std::array<double, 3>{
+        poses[3].centerOfMassPosition[0] - poses[2].centerOfMassPosition[0],
+        poses[3].centerOfMassPosition[1] - poses[2].centerOfMassPosition[1],
+        poses[3].centerOfMassPosition[2] - poses[2].centerOfMassPosition[2],
+    };
+    for (std::size_t local = 0u; local < 2u; ++local) {
+        const std::size_t column = 6u + local;
+        const auto localAngular = transformState.motionSubspace[local].angular;
+        const auto localLinear = transformState.motionSubspace[local].linear;
+        const auto worldAngular = rotate(functionParentOrientation, localAngular);
+        const auto worldJointLinear = rotate(functionParentOrientation, localLinear);
+        const auto parentAnchor = rotate(
+            functionParentOrientation,
+            std::array<double, 3>{0.08, -0.03, 0.05});
+        const auto functionTranslation = rotate(
+            functionParentOrientation, transformState.translation);
+        const std::array<double, 3> jointPoint{
+            poses[1].centerOfMassPosition[0] + parentAnchor[0] + functionTranslation[0],
+            poses[1].centerOfMassPosition[1] + parentAnchor[1] + functionTranslation[1],
+            poses[1].centerOfMassPosition[2] + parentAnchor[2] + functionTranslation[2],
+        };
+        const std::array<double, 3> body2FromJoint{
+            poses[2].centerOfMassPosition[0] - jointPoint[0],
+            poses[2].centerOfMassPosition[1] - jointPoint[1],
+            poses[2].centerOfMassPosition[2] - jointPoint[2],
+        };
+        const auto expectedBody2Offset = crossProduct(worldAngular, body2FromJoint);
+        const auto expectedBody3Offset = crossProduct(worldAngular, expectedTipPositionDelta);
+        for (std::size_t row = 0u; row < 3u; ++row) {
+            require(near(sourceColumns[(2u * 6u + row) * nv + column],
+                         worldAngular[row], 1.0e-9),
+                    "function-based joint angular column disagrees with its source H");
+            require(near(sourceColumns[(2u * 6u + 3u + row) * nv + column],
+                         worldJointLinear[row] + expectedBody2Offset[row],
+                         1.0e-9),
+                    "function-based joint linear column lost its COM anchor offset");
+            require(near(sourceColumns[(3u * 6u + row) * nv + column],
+                         worldAngular[row], 1.0e-9),
+                    "fixed descendant lost coupled joint angular ancestry");
+            require(near(sourceColumns[(3u * 6u + 3u + row) * nv + column],
+                         sourceColumns[(2u * 6u + 3u + row) * nv + column] +
+                             expectedBody3Offset[row],
+                         1.0e-9),
+                    "fixed descendant COM column disagrees with the source screw");
+
+            // The sidecar linear row is the COM point Jacobian. A separate
+            // arbitrary point obeys v_point = v_COM + omega x r, without
+            // differencing point probes or using a runtime GPU result as oracle.
+            const std::array<double, 3> localPoint{0.13, -0.07, 0.09};
+            const auto worldOffset = rotate(poses[3].orientation, localPoint);
+            const auto pointOffset = crossProduct(worldAngular, worldOffset);
+            const ArticulatedPointQuery query{3u, localPoint};
+            std::array<ArticulatedPointKinematics, 1u> point{};
+            std::array<double, 3u * nv> pointJacobian{};
+            const std::vector<double> unitVelocity = [&] {
+                std::vector<double> value(nv, 0.0);
+                value[column] = 1.0;
+                return value;
+            }();
+            require(computeArticulatedPointJacobians(
+                        model, 0u, q, unitVelocity,
+                        std::span(&query, 1u), point, pointJacobian).succeeded(),
+                    "offset point query failed for spatial reference");
+            for (std::size_t row = 0u; row < 3u; ++row) {
+                require(near(pointJacobian[row * nv + column],
+                             sourceColumns[(3u * 6u + 3u + row) * nv + column] +
+                                 pointOffset[row],
+                             1.0e-9),
+                        "analytic body sidecar does not reconstruct the arbitrary-point Jacobian");
+            }
+        }
+    }
+}
+
 int main() {
     testSourceCompliantPreparation();
     testCurvedSupport();
     testPointQuerySourceWidening();
+    testAnalyticBodySpatialReference();
     using namespace metalrobo;
     Fixture fixture;
     const NumiHumanStaticSupportContact touching{.bodyIndex = 0u};
@@ -1123,6 +1441,7 @@ int main() {
               << " source_compliant_preparation=passed compliant_recruitment=passed"
               << " coupled_recruitment=passed recruitment_bounds=passed"
               << " coupled_posture=passed"
+              << " analytic_body_spatial_reference=passed"
               << " coupled_limit_reactions=passed dependent_acceleration=passed"
               << " balance_preserving_stop_refinement=passed redundant_stop_unloading=passed"
               << " analytic_weight_n=" << replay.supportNormalForce[0]

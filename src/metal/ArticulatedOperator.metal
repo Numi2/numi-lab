@@ -791,7 +791,9 @@ inline bool validDispatch(
     if (world.abiVersion != MR_ENGINE_ABI_VERSION ||
         dispatch.articulationIndex >= world.articulationCount ||
         dispatch.environmentCount == 0u ||
-        dispatch.reserved0 != 0u ||
+        (((dispatch.flags &
+          MR_ARTICULATED_OPERATOR_WRITE_BODY_SPATIAL_JACOBIANS) == 0u) &&
+         dispatch.reserved0 != 0u) ||
         (dispatch.flags &
          ~(
              MR_ARTICULATED_OPERATOR_WRITE_DIAGNOSTIC_MASS |
@@ -799,7 +801,8 @@ inline bool validDispatch(
              MR_ARTICULATED_OPERATOR_KINEMATICS_ONLY |
              MR_ARTICULATED_OPERATOR_IMPLICIT_DRIVES |
              MR_ARTICULATED_OPERATOR_KINEMATICS_JACOBIANS_ONLY |
-             MR_ARTICULATED_OPERATOR_IGNORE_FOREIGN_POINTS
+             MR_ARTICULATED_OPERATOR_IGNORE_FOREIGN_POINTS |
+             MR_ARTICULATED_OPERATOR_WRITE_BODY_SPATIAL_JACOBIANS
 #if MR_ARTICULATED_OPERATOR_HAS_COMPENSATED_TRANSLATION
              | MR_ARTICULATED_OPERATOR_COMPENSATED_TRANSLATION
              | MR_ARTICULATED_OPERATOR_KINEMATICS_CACHE_PREPARE
@@ -807,7 +810,8 @@ inline bool validDispatch(
 #endif
          )) != 0u ||
         ((dispatch.flags &
-          MR_ARTICULATED_OPERATOR_IGNORE_FOREIGN_POINTS) != 0u &&
+          (MR_ARTICULATED_OPERATOR_IGNORE_FOREIGN_POINTS |
+           MR_ARTICULATED_OPERATOR_WRITE_BODY_SPATIAL_JACOBIANS)) != 0u &&
          (dispatch.flags &
           MR_ARTICULATED_OPERATOR_KINEMATICS_JACOBIANS_ONLY) == 0u) ||
 #if MR_ARTICULATED_OPERATOR_HAS_COMPENSATED_TRANSLATION
@@ -908,6 +912,15 @@ inline bool validModelAndLayout(
                 : MR_ARTICULATED_OPERATOR_INVALID_MODEL,
             MR_INVALID_INDEX
         );
+        return false;
+    }
+    if ((dispatch.flags &
+         MR_ARTICULATED_OPERATOR_WRITE_BODY_SPATIAL_JACOBIANS) != 0u &&
+        (dispatch.reserved0 > dispatch.pointCount ||
+         articulation.bodyCount >
+             (dispatch.pointCount - dispatch.reserved0) / 4u)) {
+        setFailure(status, MR_ARTICULATED_OPERATOR_INVALID_DISPATCH,
+                   MR_INVALID_INDEX);
         return false;
     }
 
@@ -1783,6 +1796,7 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
     device float4* pointPositionLow [[buffer(19)]],
     device uchar* kinematicsCacheBytes [[buffer(20)]],
 #endif
+    device float* bodySpatialJacobians [[buffer(21)]],
     threadgroup uchar* scratch [[threadgroup(0)]],
     uint3 workGroup [[threadgroup_position_in_grid]],
     uint3 groupCount [[threadgroups_per_grid]],
@@ -2314,6 +2328,25 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
                     const float3 pointLinear =
                         bodyMotion.linear +
                         cross(bodyMotion.angular, pointOffset);
+                    if ((dispatch.flags &
+                         MR_ARTICULATED_OPERATOR_WRITE_BODY_SPATIAL_JACOBIANS) != 0u &&
+                        point == dispatch.reserved0 + 4u * localBody) {
+                        const uint bodyRows = environment *
+                            articulation.bodyCount * 9u * articulation.nv +
+                            localBody * 6u * articulation.nv;
+                        bodySpatialJacobians[bodyRows + 0u * articulation.nv + dof] =
+                            bodyMotion.angular.x;
+                        bodySpatialJacobians[bodyRows + 1u * articulation.nv + dof] =
+                            bodyMotion.angular.y;
+                        bodySpatialJacobians[bodyRows + 2u * articulation.nv + dof] =
+                            bodyMotion.angular.z;
+                        bodySpatialJacobians[bodyRows + 3u * articulation.nv + dof] =
+                            bodyMotion.linear.x;
+                        bodySpatialJacobians[bodyRows + 4u * articulation.nv + dof] =
+                            bodyMotion.linear.y;
+                        bodySpatialJacobians[bodyRows + 5u * articulation.nv + dof] =
+                            bodyMotion.linear.z;
+                    }
                     pointJacobians[
                         jacobianBase +
                         (point * 3u + 0u) * articulation.nv +

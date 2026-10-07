@@ -6289,6 +6289,8 @@ struct MetalBufferRegion {
                      offset:0u atIndex:14u];
     [kinematics setBuffer:context.state->buffers[15u]
                      offset:0u atIndex:15u];
+    [kinematics setBuffer:context.state->buffers[10u]
+                     offset:0u atIndex:21u];
     [kinematics setThreadgroupMemoryLength:
         detail::articulatedOperatorThreadgroupBytes(
             context.bodyCount, context.nv, false, true)
@@ -6351,7 +6353,8 @@ struct MetalBufferRegion {
     const MRArticulationGPU& articulation,
     const float timestepSeconds,
     const std::uint32_t stepIndex,
-    const bool exportSourceLimitImpulses
+    const bool exportSourceLimitImpulses,
+    const bool useAnalyticBodySpatialJacobians = false
 ) noexcept {
     MRNumiHumanStandDispatchGPU dispatch{};
     dispatch.abiVersion = MR_NUMI_HUMAN_STAND_ABI_VERSION;
@@ -6407,6 +6410,10 @@ struct MetalBufferRegion {
     }
     if (exportSourceLimitImpulses) {
         dispatch.flags |= MR_NUMI_HUMAN_STAND_EXPORT_SOURCE_LIMIT_IMPULSES;
+    }
+    if (useAnalyticBodySpatialJacobians) {
+        dispatch.flags |=
+            MR_NUMI_HUMAN_STAND_ANALYTIC_BODY_SPATIAL_JACOBIANS;
     }
     dispatch.groundPointAndTimestep = {
         input.stand.groundPoint.x,
@@ -10380,6 +10387,26 @@ MetalArticulatedOperatorContext::submit(
             const MRArticulationGPU& articulation =
                 model.articulations[input.articulationIndex];
             const bool pairedGeometry = hasCompensatedGeometry(diagnostics.layout);
+            const char* analyticBodySpatialSetting =
+                std::getenv("NUMI_HUMAN_STAND_ANALYTIC_BODY_SPATIAL_JACOBIANS");
+            const bool analyticBodySpatialRequested =
+                analyticBodySpatialSetting != nullptr &&
+                std::strcmp(analyticBodySpatialSetting, "1") == 0;
+            const bool analyticBodySpatialJacobians =
+                analyticBodySpatialRequested && input.stand.enabled() &&
+                state_->config.pointJacobiansOnly && pairedGeometry &&
+                input.mujoco.bodyJacobianPointOffset != MR_INVALID_INDEX &&
+                input.mujoco.bodyJacobianPointOffset <= input.pointCount &&
+                articulation.bodyCount <=
+                    (input.pointCount - input.mujoco.bodyJacobianPointOffset) / 4u;
+            if (analyticBodySpatialRequested &&
+                !analyticBodySpatialJacobians) {
+                return reject(
+                    std::move(diagnostics),
+                    MetalArticulatedOperatorHostStatus::invalidInput,
+                    "analytic body spatial Jacobians require paired point-J-only Stand and a complete canonical COM probe block"
+                );
+            }
             const char* geometryOverlapSetting =
                 std::getenv("NUMI_HUMAN_OVERLAP_GEOMETRY");
             // The launcher also uses this operator for source fibre
@@ -11208,6 +11235,8 @@ MetalArticulatedOperatorContext::submit(
                             offset:0u atIndex:19u];
                 [prepare setBuffer:state_->kinematicsCache
                             offset:0u atIndex:20u];
+                [prepare setBuffer:state_->buffers[10u]
+                            offset:0u atIndex:21u];
                 [prepare setThreadgroupMemoryLength:kinematicsScratchBytes
                                             atIndex:0u];
                 [prepare dispatchThreadgroups:MTLSizeMake(
@@ -11244,14 +11273,27 @@ MetalArticulatedOperatorContext::submit(
                                        ? state_->kinematicsCache
                                        : state_->buffers[8u]
                              offset:0u atIndex:20u];
-                if (shareKinematics) {
-                    MRArticulatedOperatorDispatchGPU consumeDispatch =
-                        diagnostics.layout.dispatch;
-                    consumeDispatch.flags |=
-                        MR_ARTICULATED_OPERATOR_KINEMATICS_CACHE_CONSUME;
-                    [encoder setBytes:&consumeDispatch
-                               length:sizeof(consumeDispatch) atIndex:5u];
-                }
+            }
+            [encoder setBuffer:analyticBodySpatialJacobians
+                    ? state_->standBuffers[kStandSpatialJacobianBuffer]
+                    : state_->buffers[10u]
+                   offset:0u atIndex:21u];
+            MRArticulatedOperatorDispatchGPU activeKinematicsDispatch =
+                diagnostics.layout.dispatch;
+            if (analyticBodySpatialJacobians) {
+                activeKinematicsDispatch.flags |=
+                    MR_ARTICULATED_OPERATOR_WRITE_BODY_SPATIAL_JACOBIANS;
+                activeKinematicsDispatch.reserved0 =
+                    input.mujoco.bodyJacobianPointOffset;
+            }
+            if (shareKinematics) {
+                activeKinematicsDispatch.flags |=
+                    MR_ARTICULATED_OPERATOR_KINEMATICS_CACHE_CONSUME;
+                [encoder setBytes:&activeKinematicsDispatch
+                           length:sizeof(activeKinematicsDispatch) atIndex:5u];
+            } else if (analyticBodySpatialJacobians) {
+                [encoder setBytes:&activeKinematicsDispatch
+                           length:sizeof(activeKinematicsDispatch) atIndex:5u];
             }
             [encoder
                 setThreadgroupMemoryLength:
@@ -11894,7 +11936,8 @@ MetalArticulatedOperatorContext::submit(
                         articulation,
                         state_->config.mujocoActivationTimestepSeconds,
                         authoritativeStep,
-                        state_->config.readStandConstraintDiagnostics
+                        state_->config.readStandConstraintDiagnostics,
+                        analyticBodySpatialJacobians
                     );
                 const bool splitStand = state_->config.splitStandSolve;
                 const char* parallelMassSetting =
@@ -13773,6 +13816,7 @@ MetalArticulatedOperatorContext::submit(
                     [refresh setBuffer:state_->standBuffers[kStandBodyPositionLowBuffer] offset:0u atIndex:18u];
                     [refresh setBuffer:state_->standBuffers[kStandPointPositionLowBuffer] offset:0u atIndex:19u];
                     [refresh setBuffer:state_->buffers[8u] offset:0u atIndex:20u];
+                    [refresh setBuffer:state_->buffers[10u] offset:0u atIndex:21u];
                     [refresh setThreadgroupMemoryLength:detail::articulatedOperatorThreadgroupBytes(
                         articulation.bodyCount, articulation.nv, false, true) atIndex:0u];
                     [refresh dispatchThreadgroups:MTLSizeMake(input.environmentCount,1u,1u)
