@@ -172,11 +172,21 @@ inline MRNumiHumanFrictionImpulse mrNumiHumanSolveFrictionDiskCore(
         if (middle == lower || middle == upper) break;
         if constexpr (CollectIterations) ++boundaryIterations;
         const auto candidate = mrNumiHumanFrictionShiftedSolve(a, b, d, gx, gy, middle);
-        if (!candidate.valid || mrNumiHumanFrictionNorm(candidate.x, candidate.y) > radius) {
+        if (!candidate.valid) {
             lower = middle;
         } else {
-            upper = middle;
-            accepted = candidate;
+            const float candidateNorm = mrNumiHumanFrictionNorm(candidate.x, candidate.y);
+            if (candidateNorm > radius) {
+                lower = middle;
+            } else {
+                upper = middle;
+                accepted = candidate;
+                // Use the same feasible-norm convergence criterion as the
+                // safeguarded-Newton phase; further bisection cannot improve the
+                // already accepted impulse beyond its existing relative tolerance.
+                if (candidateNorm >= radius *
+                        (1.0f - 8.0f * 1.1920928955078125e-7f)) break;
+            }
         }
     }
     // Correct only final FP32 norm roundoff at the feasible endpoint.
