@@ -11963,7 +11963,8 @@ MetalArticulatedOperatorContext::submit(
                     cpuFactorShadowRequested && freeSplit && !cpuFinish &&
                     authoritativeStep == 0u && input.environmentCount == 1u &&
                     articulation.nv == detail::stand_cpu_pilot::kDofs &&
-                    standDispatch.supportContactCount == 0u &&
+                    (standDispatch.flags &
+                     MR_NUMI_HUMAN_STAND_ENABLE_CONTACT) == 0u &&
                     standDispatch.jointEqualityCount == 0u &&
                     (standDispatch.flags &
                      MR_NUMI_HUMAN_STAND_ENABLE_ROOT_ASSISTANCE) == 0u;
