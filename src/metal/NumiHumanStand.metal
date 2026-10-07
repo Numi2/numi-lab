@@ -2224,19 +2224,22 @@ inline bool prepareReducedStandProjection(
                      coordinateIndex < freeDofs; ++coordinateIndex)
                     coordinateOffsets[coordinateIndex + 1u] +=
                         coordinateOffsets[coordinateIndex];
-                for (uint coordinateIndex = 0u;
-                     coordinateIndex < freeDofs; ++coordinateIndex) {
-                    uint output = coordinateOffsets[coordinateIndex];
-                    for (uint dof = 0u; dof < nv; ++dof)
-                        if (coordinateForDof[dof] == coordinateIndex)
-                            coordinateDofs[output++] = dof;
-                }
                 *ready = 1u;
             }
         }
     }
     threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
     if (*ready == 0u) return false;
+    // Each coordinate owns a disjoint packed range. Preserve ascending source
+    // DOF order while distributing independent scans across the existing group.
+    for (uint coordinateIndex = lane; coordinateIndex < freeDofs;
+         coordinateIndex += threadCount) {
+        uint output = coordinateOffsets[coordinateIndex];
+        for (uint dof = 0u; dof < nv; ++dof)
+            if (coordinateForDof[dof] == coordinateIndex)
+                coordinateDofs[output++] = dof;
+    }
+    threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
 
     const uint matrixElements = freeDofs * freeDofs;
     for (uint index = lane; index < matrixElements; index += threadCount) {
