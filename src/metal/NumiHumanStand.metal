@@ -57,6 +57,12 @@ constant bool kFirstSimdContactSweep [[function_constant(6)]];
 constant bool kUseFirstSimdContactSweep =
     is_function_constant_defined(kFirstSimdContactSweep)
         ? kFirstSimdContactSweep : false;
+// Experimental replacement for the repeated SIMD ballot preview scans.
+// Undefined/false preserve the existing preview-and-select path.
+constant bool kOnePassOrderedLimits [[function_constant(7)]];
+constant bool kUseOnePassOrderedLimits =
+    is_function_constant_defined(kOnePassOrderedLimits)
+        ? kOnePassOrderedLimits : false;
 
 inline uint standLegacyResponseStride(
     const uint nv, const uint contactCount, const uint equalityCount
@@ -111,7 +117,7 @@ struct MRStandFinishWorkCounters {
     uint frictionInterior, frictionBoundary, frictionBoundaryIterations;
     uint limitPreviews, limitPreviewBlocks, limitNonzero, limitSelectedZero;
     uint contactResponseCoefficients, limitResponseCoefficients;
-    uint equalityResponseCoefficients;
+    uint equalityResponseCoefficients, onePassLimitRoutes;
 };
 
 // Forward substitution keeps each row's original increasing-column FMA
@@ -3297,7 +3303,7 @@ kernel void mr_numi_human_stand_finish(
 #include "NumiHumanStandSolve.metalinc"
 #undef MR_NH_COOPERATIVE_FINISH
     if (kUseFinishWorkCounters && lane == 0u) {
-        const uint base = environment * (16u + nv);
+        const uint base = environment * (17u + nv);
         finishWorkCounters[base + 0u] = finishCounts.sweeps;
         finishWorkCounters[base + 1u] = finishCounts.contactDecisions;
         finishWorkCounters[base + 2u] = finishCounts.contactContractions;
@@ -3314,6 +3320,7 @@ kernel void mr_numi_human_stand_finish(
         finishWorkCounters[base + 13u] = finishCounts.contactResponseCoefficients;
         finishWorkCounters[base + 14u] = finishCounts.limitResponseCoefficients;
         finishWorkCounters[base + 15u] = finishCounts.equalityResponseCoefficients;
+        finishWorkCounters[base + 16u] = finishCounts.onePassLimitRoutes;
     }
 }
 

@@ -1883,6 +1883,9 @@ struct MetalArticulatedOperatorConfig {
     // Experimental SIMD32 contact-family sweep for the 128-DOF cooperative
     // finish. Prep and all non-contact constraints retain the 128-thread path.
     bool firstSimdStandContactSweep = false;
+    // Default-off ordered one-pass limit projection, retaining authored row
+    // order and all existing checks/work accounting.
+    bool onePassStandOrderedLimits = false;
 };
 
 enum class MetalArticulatedOperatorHostStatus : std::uint32_t {

@@ -1362,6 +1362,10 @@
             // Every DOF still receives the same ordered response FMAs.
             if (lane < simdWidth) {
                 const uint simdLane = lane;
+                if (kUseFinishWorkCounters && simdLane == 0u &&
+                    coupledSweep == 0u && cooperativeLimitCount != 0u &&
+                    kUseOnePassOrderedLimits && !kCpuFinishSpecialized)
+                    ++finishCounts.onePassLimitRoutes;
                 const uint dof0 = simdLane < nv
                     ? cooperativeVelocityDofs[simdLane] : nv;
                 const uint dof1 = simdLane + simdWidth < nv
@@ -1428,62 +1432,73 @@
                         equalityVelocity2 = fma(-equalityDerivative2,
                             candidateV[equalityOtherDof2], equalityVelocity2);
                 }
-                // A zero projected increment leaves every later row's input
-                // unchanged. Find the next nonzero row across SIMD lanes,
-                // apply it in ascending order, then rescan the remainder
-                // against the updated velocity. Invalid rows are selected so
-                // their original fail-closed checks still run in order.
+                // A zero projected increment leaves later rows unchanged.
+                // The default route selects the next nonzero row across SIMD
+                // lanes and rescans the remainder. Both routes still visit
+                // malformed rows in authored order and fail closed.
                 for (uint cursor = 0u; cursor < cooperativeLimitCount;) {
                     uint nextActive = cooperativeLimitCount;
-                    for (uint block = (cursor / simdWidth) * simdWidth;
-                         block < cooperativeLimitCount;
-                         block += simdWidth) {
-                        const uint preview = block + simdLane;
-                        if (kUseFinishWorkCounters && simdLane == 0u) {
-                            ++finishCounts.limitPreviewBlocks;
-                            finishCounts.limitPreviews +=
-                                min(block + simdWidth, cooperativeLimitCount) - max(block, cursor);
-                        }
-                        bool blockHasWork = false;
-                        if (preview >= cursor &&
-                            preview < cooperativeLimitCount) {
-                            const float previewMass =
-                                limitEffectiveMass[preview];
-                            const float previewLower =
-                                limitLowerVelocity[preview];
-                            const float previewUpper =
-                                limitUpperVelocity[preview];
-                            const float previewPrevious =
-                                limitAccumulatedImpulses[preview];
-                            blockHasWork = !(previewMass >
-                                kResponseRegularization) ||
-                                !isfinite(previewMass) ||
-                                !isfinite(previewLower) ||
-                                !isfinite(previewUpper) ||
-                                previewLower > previewUpper ||
-                                !isfinite(previewPrevious);
-                            if (!blockHasWork) {
-                                const uint slot = block / simdWidth;
-                                const float previewVelocity = slot == 0u
-                                    ? velocity0 : slot == 1u
-                                    ? velocity1 : slot == 2u
-                                    ? velocity2 : velocity3;
-                                const float next =
-                                    mrNumiHumanProjectIntervalImpulse(
-                                        previewPrevious, previewVelocity,
-                                        previewLower, previewUpper,
-                                        previewMass);
-                                blockHasWork = !isfinite(next) ||
-                                    next - previewPrevious != 0.0f;
+                    if (kUseOnePassOrderedLimits && !kCpuFinishSpecialized &&
+                        cooperativeLimitCount != 0u) {
+                        // A single authored-order pass is equivalent to the
+                        // preview search: each valid zero impulse leaves later
+                        // rows unchanged, while each nonzero row is applied
+                        // before the next row. Malformed rows are still visited
+                        // and fail at their original ordinal.
+                        nextActive = cursor;
+                        if (kUseFinishWorkCounters && simdLane == 0u)
+                            ++finishCounts.limitPreviews;
+                    } else {
+                        for (uint block = (cursor / simdWidth) * simdWidth;
+                             block < cooperativeLimitCount;
+                             block += simdWidth) {
+                            const uint preview = block + simdLane;
+                            if (kUseFinishWorkCounters && simdLane == 0u) {
+                                ++finishCounts.limitPreviewBlocks;
+                                finishCounts.limitPreviews +=
+                                    min(block + simdWidth, cooperativeLimitCount) - max(block, cursor);
                             }
-                        }
-                        // A ballot selects the first authored limit in this
-                        // SIMD block without reducing 32 integer indices.
-                        const simd_vote activeRows = simd_ballot(blockHasWork);
-                        if (activeRows.any()) {
-                            nextActive = block + ctz(
-                                static_cast<simd_vote::vote_t>(activeRows));
-                            break;
+                            bool blockHasWork = false;
+                            if (preview >= cursor &&
+                                preview < cooperativeLimitCount) {
+                                const float previewMass =
+                                    limitEffectiveMass[preview];
+                                const float previewLower =
+                                    limitLowerVelocity[preview];
+                                const float previewUpper =
+                                    limitUpperVelocity[preview];
+                                const float previewPrevious =
+                                    limitAccumulatedImpulses[preview];
+                                blockHasWork = !(previewMass >
+                                    kResponseRegularization) ||
+                                    !isfinite(previewMass) ||
+                                    !isfinite(previewLower) ||
+                                    !isfinite(previewUpper) ||
+                                    previewLower > previewUpper ||
+                                    !isfinite(previewPrevious);
+                                if (!blockHasWork) {
+                                    const uint slot = block / simdWidth;
+                                    const float previewVelocity = slot == 0u
+                                        ? velocity0 : slot == 1u
+                                        ? velocity1 : slot == 2u
+                                        ? velocity2 : velocity3;
+                                    const float next =
+                                        mrNumiHumanProjectIntervalImpulse(
+                                            previewPrevious, previewVelocity,
+                                            previewLower, previewUpper,
+                                            previewMass);
+                                    blockHasWork = !isfinite(next) ||
+                                        next - previewPrevious != 0.0f;
+                                }
+                            }
+                            // A ballot selects the first authored limit in this
+                            // SIMD block without reducing 32 integer indices.
+                            const simd_vote activeRows = simd_ballot(blockHasWork);
+                            if (activeRows.any()) {
+                                nextActive = block + ctz(
+                                    static_cast<simd_vote::vote_t>(activeRows));
+                                break;
+                            }
                         }
                     }
                     if (nextActive == cooperativeLimitCount) break;
@@ -1529,7 +1544,7 @@
                         if (impulse == 0.0f) ++finishCounts.limitSelectedZero;
                         else {
                             ++finishCounts.limitNonzero;
-                    ++finishWorkCounters[environment * (16u + nv) + 16u + dof];
+                    ++finishWorkCounters[environment * (17u + nv) + 17u + dof];
                             finishCounts.limitResponseCoefficients += nv;
                             finishCounts.equalityResponseCoefficients += equalityCount;
                         }
@@ -1692,7 +1707,7 @@
                 if (impulse == 0.0f) ++finishCounts.limitSelectedZero;
                 else {
                     ++finishCounts.limitNonzero;
-                    ++finishWorkCounters[environment * (16u + nv) + 16u + dof];
+                    ++finishWorkCounters[environment * (17u + nv) + 17u + dof];
                     finishCounts.limitResponseCoefficients += nv;
                     finishCounts.equalityResponseCoefficients += equalityCount;
                 }

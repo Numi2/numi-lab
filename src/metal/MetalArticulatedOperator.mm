@@ -661,6 +661,11 @@ struct MetalArticulatedOperatorContextState {
         if (firstSimdContactSweep != nullptr)
             config.firstSimdStandContactSweep =
                 std::strcmp(firstSimdContactSweep, "1") == 0;
+        const char* onePassStandLimits =
+            std::getenv("NUMI_HUMAN_STAND_ONE_PASS_ORDERED_LIMITS");
+        if (onePassStandLimits != nullptr)
+            config.onePassStandOrderedLimits =
+                std::strcmp(onePassStandLimits, "1") == 0;
         const char* sparseOperator =
             std::getenv("NUMI_HUMAN_STAND_SPARSE_OPERATOR");
         if (sparseOperator != nullptr)
@@ -4110,6 +4115,9 @@ MetalArticulatedOperatorDiagnostics initializeContext(
             context.config.firstSimdStandContactSweep;
         [finishConstants setConstantValue:&firstSimdContactSweep
                                     type:MTLDataTypeBool atIndex:6u];
+        bool onePassStandLimits = context.config.onePassStandOrderedLimits;
+        [finishConstants setConstantValue:&onePassStandLimits
+                                    type:MTLDataTypeBool atIndex:7u];
         error = nil;
         id<MTLFunction> standFinishFunction = [library
             newFunctionWithName:@"mr_numi_human_stand_finish"
@@ -4183,6 +4191,9 @@ MetalArticulatedOperatorDiagnostics initializeContext(
         firstSimdContactSweep = false;
         [finishConstants setConstantValue:&firstSimdContactSweep
                                     type:MTLDataTypeBool atIndex:6u];
+        onePassStandLimits = false;
+        [finishConstants setConstantValue:&onePassStandLimits
+                                    type:MTLDataTypeBool atIndex:7u];
         [finishConstants setConstantValue:&cpuSparseOperator
                                     type:MTLDataTypeBool atIndex:2u];
         cpuFinishSpecialized = true;
@@ -13593,7 +13604,7 @@ MetalArticulatedOperatorContext::submit(
                     if (sampleFinishWork) {
                         finishWorkBuffer = [state_->device newBufferWithLength:
                             static_cast<NSUInteger>(input.environmentCount) *
-                                (16u + articulation.nv) * sizeof(std::uint32_t)
+                                (17u + articulation.nv) * sizeof(std::uint32_t)
                             options:MTLResourceStorageModeShared];
                         if (finishWorkBuffer == nil)
                             return reject(std::move(diagnostics),
@@ -13760,13 +13771,13 @@ MetalArticulatedOperatorContext::submit(
                         const auto equalities = standDispatch.jointEqualityCount;
                         [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> finished) {
                             if (finished.status != MTLCommandBufferStatusCompleted) return;
-                            static constexpr std::array<const char*, 16u> names{
+                            static constexpr std::array<const char*, 17u> names{
                                 "sweeps", "contact_decisions", "contact_axis_contractions",
                                 "normal_impulse_changes", "tangent_impulse_changes", "zero_contact_changes",
                                 "friction_interior", "friction_boundary", "friction_boundary_iterations",
                                 "limit_previews", "limit_preview_blocks", "limit_nonzero", "limit_selected_zero",
                                 "contact_response_coefficients", "limit_response_coefficients",
-                                "equality_response_coefficients"};
+                                "equality_response_coefficients", "one_pass_ordered_limit_routes"};
                             const auto* values = static_cast<const std::uint32_t*>(finishWorkBuffer.contents);
                             for (std::uint32_t environment = 0u; environment < environments; ++environment) {
                                 std::string line = "human_stand_finish_work root=" + std::to_string(root) +
