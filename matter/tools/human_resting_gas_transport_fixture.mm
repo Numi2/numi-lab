@@ -104,12 +104,15 @@ struct Rig {
 };
 
 Rig makeRig(const char* network, const char* configuration, float dt,
-            bool subcycling, VascularProbe* probe = nullptr) {
+            bool subcycling, bool respiratorySubcycling = false,
+            VascularProbe* probe = nullptr, bool useBrain = true) {
     setenv("NUMI_HUMAN_RESTING_TIMESTEP_SENSITIVITY", "1", 1);
     setenv("NUMI_HUMAN_GAS_TRANSPORT_SUBCYCLING", subcycling ? "1" : "0", 1);
+    setenv("NUMI_HUMAN_RESPIRATORY_SUBCYCLING",
+           respiratorySubcycling ? "1" : "0", 1);
     Rig result;
     result.run = std::make_unique<RestingRun>(network, configuration, dt);
-    result.brain = std::make_unique<RespiratoryBrain>(
+    if (useBrain) result.brain = std::make_unique<RespiratoryBrain>(
         *result.run->respiration, result.run->world, configuration);
     if (probe) {
         auto previous = result.run->respiration->brain;
@@ -188,7 +191,7 @@ void verifySingleSubstepEquivalence(const char* network,
     id<MTLDevice> device = MTLCreateSystemDefaultDevice();
     VascularProbe legacyProbe(device, 0u);
     VascularProbe candidateProbe(device, 0u);
-    auto legacy = makeRig(network, configuration, kLegacyDt, false, &legacyProbe);
+    auto legacy = makeRig(network, configuration, kLegacyDt, false, false, &legacyProbe);
     legacy.run->batch(0u, 1u);
     const auto legacyState =
         *static_cast<const NMHumanRespirationState*>(legacy.run->respiration->accepted.contents);
@@ -199,7 +202,7 @@ void verifySingleSubstepEquivalence(const char* network,
                            legacyCandidate, legacyProbe) == 1.0,
           "legacy one-step fixture unexpectedly requires gas subcycling");
 
-    auto candidate = makeRig(network, configuration, kLegacyDt, true, &candidateProbe);
+    auto candidate = makeRig(network, configuration, kLegacyDt, true, false, &candidateProbe);
     candidate.run->batch(0u, 1u);
     const auto candidateState =
         *static_cast<const NMHumanRespirationState*>(candidate.run->respiration->accepted.contents);
@@ -216,11 +219,194 @@ void verifySingleSubstepEquivalence(const char* network,
           "N=1 subcycling changed accepted vascular state or clock");
 }
 
+void predictMechanicsOnly(RestingRun& run, const nm_float4& control) {
+    auto& respiration = *run.respiration;
+    std::memcpy(respiration.excitation.contents, &control, sizeof(control));
+    respiration.dispatch.reject = 0u;
+    id<MTLCommandBuffer> command = [run.queue commandBuffer];
+    check(command != nil, "mechanics reference command allocation failed");
+    id<MTLComputeCommandEncoder> encoder = [command computeCommandEncoder];
+    check(encoder != nil, "mechanics reference encoder allocation failed");
+    [encoder setComputePipelineState:respiration.predict];
+    [encoder setBytes:&respiration.parameters length:sizeof(respiration.parameters)
+              atIndex:0];
+    [encoder setBytes:&respiration.dispatch length:sizeof(respiration.dispatch)
+              atIndex:1];
+    [encoder setBuffer:respiration.accepted offset:0 atIndex:2];
+    [encoder setBuffer:respiration.candidate offset:0 atIndex:3];
+    [encoder setBuffer:respiration.excitation offset:0 atIndex:4];
+    [encoder dispatchThreads:MTLSizeMake(1u,1u,1u)
+        threadsPerThreadgroup:MTLSizeMake(1u,1u,1u)];
+    [encoder endEncoding];
+    [command commit];
+    [command waitUntilCompleted];
+    check(command.status == MTLCommandBufferStatusCompleted,
+          "mechanics reference Metal command failed");
+    const auto candidate = *static_cast<const NMHumanRespirationState*>(
+        respiration.candidate.contents);
+    check(candidate.status.w == 0u,
+          "mechanics-only reference rejected a fine step");
+    std::memcpy(respiration.accepted.contents, &candidate, sizeof(candidate));
+}
+
+struct RespiratoryHistoryProbe {
+    Respiration& respiration;
+    id<MTLBuffer> samples = nil;
+    unsigned capacity = 0u;
+
+    RespiratoryHistoryProbe(Respiration& r, unsigned count):
+        respiration(r), capacity(count) {
+        samples = [r.device newBufferWithLength:
+            size_t(count) * sizeof(NMHumanRespirationState)
+            options:MTLResourceStorageModeShared];
+        check(samples != nil, "respiratory history probe allocation failed");
+    }
+
+    bool encode(AcceptedStepExtensionPhase phase,
+                const AcceptedStepExtensionView& view) {
+        if (phase != AcceptedStepExtensionPhase::frameBegin ||
+            view.controlStep >= capacity) return true;
+        id<MTLCommandBuffer> command =
+            (__bridge id<MTLCommandBuffer>)view.commandBuffer;
+        id<MTLBlitCommandEncoder> blit = [command blitCommandEncoder];
+        check(blit != nil, "respiratory history probe could not encode snapshot");
+        [blit copyFromBuffer:respiration.accepted sourceOffset:0 toBuffer:samples
+            destinationOffset:size_t(view.controlStep) *
+                sizeof(NMHumanRespirationState)
+            size:sizeof(NMHumanRespirationState)];
+        [blit endEncoding];
+        return true;
+    }
+};
+
+void attachHistoryProbe(RestingRun& run, RespiratoryHistoryProbe& probe) {
+    auto previous = run.respiration->brain;
+    run.respiration->brain = [previous, &probe](
+        AcceptedStepExtensionPhase phase, const AcceptedStepExtensionView& view) {
+        if (previous && !previous(phase, view)) return false;
+        return probe.encode(phase, view);
+    };
+}
+
+void verifyRespiratorySubcycling(const char* network,
+                                 const char* configuration) {
+    const nm_float4 constantDrive{0.25f, 0.10f, 0.0f, 0.0f};
+    auto integrated = makeRig(network, configuration, kSubcyclingDt,
+                              true, true, nullptr, false);
+    std::memcpy(integrated.run->respiration->excitation.contents,
+                &constantDrive, sizeof(constantDrive));
+    const auto initial = *static_cast<const NMHumanRespirationState*>(
+        integrated.run->respiration->accepted.contents);
+    integrated.run->batch(0u, 1u);
+    const auto integratedState = *static_cast<const NMHumanRespirationState*>(
+        integrated.run->respiration->accepted.contents);
+    const unsigned substeps = static_cast<unsigned>(
+        std::lround(integratedState.transportStep.w));
+    check(integratedState.status.x == 1u && integratedState.status.w == 0u &&
+          substeps >= 4u && substeps <= kMaximumGasSubsteps &&
+          integratedState.transportStep.w == float(substeps),
+          "integrated respiratory candidate lacked its bounded substep trace");
+    check(std::isfinite(integratedState.transportStep.x) &&
+          std::isfinite(integratedState.transportStep.y) &&
+          std::isfinite(integratedState.transportStep.z) &&
+          integratedState.transportStep.z <= 0.100001f,
+          "integrated respiratory transport telemetry is invalid");
+
+    // The native 8 ms candidate uses one solved circuit flow vector. A fine
+    // predictor-only reference holds excitation fixed and isolates mechanics;
+    // no gas or vascular parity is claimed across the different circuit dt.
+    auto fine = makeRig(network, configuration,
+        kSubcyclingDt / float(substeps), false, false, nullptr, false);
+    std::memcpy(fine.run->respiration->accepted.contents, &initial, sizeof(initial));
+    for (unsigned i = 0; i < substeps; ++i)
+        predictMechanicsOnly(*fine.run, constantDrive);
+    const auto mechanicsReference = *static_cast<const NMHumanRespirationState*>(
+        fine.run->respiration->accepted.contents);
+    check(std::memcmp(&integratedState.mechanics, &mechanicsReference.mechanics,
+                      sizeof(integratedState.mechanics)) == 0 &&
+          std::memcmp(&integratedState.motion, &mechanicsReference.motion,
+                      sizeof(integratedState.motion)) == 0 &&
+          std::memcmp(integratedState.muscles, mechanicsReference.muscles,
+                      sizeof(integratedState.muscles)) == 0 &&
+          std::memcmp(&integratedState.control, &mechanicsReference.control,
+                      sizeof(integratedState.control)) == 0,
+          "internal respiratory mechanics differ from fine frozen-drive steps");
+
+    constexpr unsigned steadySteps = 251u;
+    auto steady = makeRig(network, configuration, kSubcyclingDt,
+                          true, true, nullptr, false);
+    std::memcpy(steady.run->respiration->excitation.contents,
+                &constantDrive, sizeof(constantDrive));
+    RespiratoryHistoryProbe history(*steady.run->respiration, steadySteps);
+    attachHistoryProbe(*steady.run, history);
+    steady.run->batch(0u, steadySteps);
+    const auto steadyFinal = *static_cast<const NMHumanRespirationState*>(
+        steady.run->respiration->accepted.contents);
+    const auto* samples = static_cast<const NMHumanRespirationState*>(
+        history.samples.contents);
+    unsigned inspirationRises = 0u;
+    for (unsigned i = 0; i < steadySteps; ++i) {
+        check(samples[i].status.x == i && samples[i].status.w == 0u,
+              "constant-drive history contains a rejected or skipped outer step");
+        if (i > 0u && samples[i - 1u].status.z == 0u &&
+            samples[i].status.z != 0u) ++inspirationRises;
+        if (i > 0u) {
+            check(std::isfinite(samples[i].transportStep.z) &&
+                  samples[i].transportStep.z <= 0.100001f &&
+                  samples[i].transportStep.w >= 4.0f &&
+                  samples[i].transportStep.w <= float(kMaximumGasSubsteps),
+                  "constant-drive step violated substep or donor-fraction bounds");
+        }
+    }
+    check(steadyFinal.status.x == steadySteps && steadyFinal.status.w == 0u &&
+          inspirationRises <= 1u && steadyFinal.status.y <= 1u,
+          "constant activation produced repeated airflow-threshold breath events");
+
+    auto retry = makeRig(network, configuration, kSubcyclingDt,
+                         true, true, nullptr, false);
+    std::memcpy(retry.run->respiration->excitation.contents,
+                &constantDrive, sizeof(constantDrive));
+    const auto beforeReject = *static_cast<const NMHumanRespirationState*>(
+        retry.run->respiration->accepted.contents);
+    const auto checkpointBefore = retry.run->runtime.snapshot();
+    retry.run->batch(0u, 1u, true, 0u);
+    const auto afterReject = *static_cast<const NMHumanRespirationState*>(
+        retry.run->respiration->accepted.contents);
+    const auto rejectedCandidate = *static_cast<const NMHumanRespirationState*>(
+        retry.run->respiration->candidate.contents);
+    const auto checkpointAfter = retry.run->runtime.snapshot();
+    requireSnapshotPhysicalEqual(checkpointBefore, checkpointAfter,
+        "respiratory substep rejection advanced vascular state or clock");
+    check(std::memcmp(&beforeReject, &afterReject, sizeof(beforeReject)) == 0 &&
+          rejectedCandidate.status.w != 0u,
+          "respiratory substep rejection changed the complete accepted state");
+    retry.run->respiration->dispatch.reject = 0u;
+    retry.run->batch(0u, 1u);
+    const auto retried = *static_cast<const NMHumanRespirationState*>(
+        retry.run->respiration->accepted.contents);
+    const auto retrySnapshot = retry.run->runtime.snapshot();
+
+    auto clean = makeRig(network, configuration, kSubcyclingDt,
+                         true, true, nullptr, false);
+    std::memcpy(clean.run->respiration->excitation.contents,
+                &constantDrive, sizeof(constantDrive));
+    clean.run->batch(0u, 1u);
+    const auto cleanState = *static_cast<const NMHumanRespirationState*>(
+        clean.run->respiration->accepted.contents);
+    const auto cleanSnapshot = clean.run->runtime.snapshot();
+    requireSnapshotPhysicalEqual(retrySnapshot, cleanSnapshot,
+        "respiratory retry changed vascular state or clock versus clean run");
+    check(std::memcmp(&retried, &cleanState, sizeof(retried)) == 0 &&
+          retried.transportStep.w >= 4.0f &&
+          retried.transportStep.w <= float(kMaximumGasSubsteps),
+          "respiratory retry did not reproduce the complete clean accepted state");
+}
+
 void verifySubcyclingAndTransactions(const char* network,
                                     const char* configuration) {
     id<MTLDevice> device = MTLCreateSystemDefaultDevice();
     VascularProbe legacyProbe(device, kTransitionStep);
-    auto legacy = makeRig(network, configuration, kSubcyclingDt, false, &legacyProbe);
+    auto legacy = makeRig(network, configuration, kSubcyclingDt, false, false, &legacyProbe);
     legacy.run->batch(0u, kPrefixSteps);
     const auto prefixState =
         *static_cast<const NMHumanRespirationState*>(legacy.run->respiration->accepted.contents);
@@ -250,7 +436,7 @@ void verifySubcyclingAndTransactions(const char* network,
           "legacy CFL rejection advanced respiration or controller history");
 
     VascularProbe subcycleProbe(device, kTransitionStep);
-    auto subcycled = makeRig(network, configuration, kSubcyclingDt, true, &subcycleProbe);
+    auto subcycled = makeRig(network, configuration, kSubcyclingDt, true, false, &subcycleProbe);
     subcycled.run->batch(0u, kPrefixSteps);
     subcycled.run->batch(kTransitionStep, 1u);
     const auto accepted =
@@ -420,11 +606,14 @@ void verifyBoundedCap(RestingRun& run, const VascularProbe& probe) {
 int main(int argc, const char* argv[]) { @autoreleasepool { try {
     need(argc == 3, "usage: numi-human-gas-transport-fixture NETWORK.json RESPIRATION.json");
     EnvironmentValue gasEnv("NUMI_HUMAN_GAS_TRANSPORT_SUBCYCLING");
+    EnvironmentValue respiratoryEnv("NUMI_HUMAN_RESPIRATORY_SUBCYCLING");
     EnvironmentValue sensitivityEnv("NUMI_HUMAN_RESTING_TIMESTEP_SENSITIVITY");
     verifySingleSubstepEquivalence(argv[1], argv[2]);
     verifySubcyclingAndTransactions(argv[1], argv[2]);
+    verifyRespiratorySubcycling(argv[1], argv[2]);
     std::cout << "human_gas_transport_subcycling_fixture=passed n1=bitwise "
               << "n_gt_1=positive_conservative rejection_retry=exact "
+              << "respiratory_mechanics=fine-step-exact steady_drive=no_chatter "
               << "cap=fail_closed_32\n";
     return 0;
 } catch (const std::exception& error) {
