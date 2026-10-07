@@ -852,7 +852,8 @@ kernel void mr_numi_human_stand_step(
                 MR_NUMI_HUMAN_STAND_MASS_PREREQUISITES_ONLY |
                 MR_NUMI_HUMAN_STAND_MASS_READY |
                 MR_NUMI_HUMAN_STAND_FACTOR_ONLY |
-                MR_NUMI_HUMAN_STAND_RESPONSES_READY
+                MR_NUMI_HUMAN_STAND_RESPONSES_READY |
+                MR_NUMI_HUMAN_STAND_REDUCED_PROJECTED_RESPONSES
             )) != 0u ||
             (massPrerequisitesOnly &&
              ((dispatch.flags & MR_NUMI_HUMAN_STAND_PREPARE_ONLY) == 0u ||
