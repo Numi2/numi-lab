@@ -1434,6 +1434,7 @@
                         if (impulse == 0.0f) ++finishCounts.limitSelectedZero;
                         else {
                             ++finishCounts.limitNonzero;
+                    ++finishWorkCounters[environment * (16u + nv) + 16u + dof];
                             finishCounts.limitResponseCoefficients += nv;
                             finishCounts.equalityResponseCoefficients += equalityCount;
                         }
@@ -1596,6 +1597,7 @@
                 if (impulse == 0.0f) ++finishCounts.limitSelectedZero;
                 else {
                     ++finishCounts.limitNonzero;
+                    ++finishWorkCounters[environment * (16u + nv) + 16u + dof];
                     finishCounts.limitResponseCoefficients += nv;
                     finishCounts.equalityResponseCoefficients += equalityCount;
                 }

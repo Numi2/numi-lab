@@ -2710,7 +2710,7 @@ kernel void mr_numi_human_stand_finish(
 #include "NumiHumanStandSolve.metalinc"
 #undef MR_NH_COOPERATIVE_FINISH
     if (kUseFinishWorkCounters && lane == 0u) {
-        const uint base = environment * 16u;
+        const uint base = environment * (16u + nv);
         finishWorkCounters[base + 0u] = finishCounts.sweeps;
         finishWorkCounters[base + 1u] = finishCounts.contactDecisions;
         finishWorkCounters[base + 2u] = finishCounts.contactContractions;

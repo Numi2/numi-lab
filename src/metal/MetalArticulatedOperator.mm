@@ -103,8 +103,11 @@ bool humanTimingSelected(const char* stage, std::uint32_t step) {
             ? step < kHumanCycleTimingStages.size() * 8u
             : std::binary_search(timingRoots.begin(), timingRoots.end(), step);
         if (!sampledCycleRoot) return false;
+        // Cached finish is the same logical stage in the cycle schedule.
+        const char* cycleStage = std::strcmp(stage, "stand_finish_cached") == 0
+            ? "stand_finish" : stage;
         return std::strcmp(kHumanCycleTimingStages[
-            step % kHumanCycleTimingStages.size()], stage) == 0;
+            step % kHumanCycleTimingStages.size()], cycleStage) == 0;
     }
     const bool sampledRoot = timingRoots.empty() ? step < 8u :
         std::binary_search(timingRoots.begin(), timingRoots.end(), step);
@@ -13159,7 +13162,7 @@ MetalArticulatedOperatorContext::submit(
                     if (sampleFinishWork) {
                         finishWorkBuffer = [state_->device newBufferWithLength:
                             static_cast<NSUInteger>(input.environmentCount) *
-                                16u * sizeof(std::uint32_t)
+                                (16u + articulation.nv) * sizeof(std::uint32_t)
                             options:MTLResourceStorageModeShared];
                         if (finishWorkBuffer == nil)
                             return reject(std::move(diagnostics),
@@ -13340,7 +13343,18 @@ MetalArticulatedOperatorContext::submit(
                                     " contacts=" + std::to_string(contacts) + " equalities=" + std::to_string(equalities);
                                 for (std::size_t i = 0u; i < names.size(); ++i)
                                     line += " " + std::string(names[i]) + "=" +
-                                        std::to_string(values[environment * names.size() + i]);
+                                        std::to_string(values[environment * (names.size() + nv) + i]);
+                                line += " limit_nonzero_by_dof=[";
+                                bool firstDof = true;
+                                for (std::uint32_t dof = 0u; dof < nv; ++dof) {
+                                    const auto count = values[
+                                        environment * (names.size() + nv) + names.size() + dof];
+                                    if (count == 0u) continue;
+                                    if (!firstDof) line += ",";
+                                    line += "[" + std::to_string(dof) + "," + std::to_string(count) + "]";
+                                    firstDof = false;
+                                }
+                                line += "]";
                                 std::fprintf(stderr, "%s\n", line.c_str());
                             }
                         }];
