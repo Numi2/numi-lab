@@ -1,0 +1,4 @@
+Built target numi_human_respiration_shaders
+Building OBJCXX object CMakeFiles/metalrobo_numi_human_mesh_audit_metal_test.dir/tests/numi_human_mesh_audit_metal_test.mm.o
+Linking OBJCXX executable metalrobo_numi_human_mesh_audit_metal_test
+Built target metalrobo_numi_human_mesh_audit_metal_test

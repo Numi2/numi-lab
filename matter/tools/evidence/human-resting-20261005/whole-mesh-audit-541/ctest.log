@@ -1,0 +1,12 @@
+Test project /Users/n/numi-human-mesh-audit-build-010
+    Start 17: numi_human_mesh_audit_metal
+1/1 Test #17: numi_human_mesh_audit_metal ......   Passed    0.45 sec
+
+100% tests passed out of 1
+
+Label Time Summary:
+geometry      =   0.45 sec*proc (1 test)
+metal         =   0.45 sec*proc (1 test)
+numi-human    =   0.45 sec*proc (1 test)
+
+Total Test time (real) =   0.46 sec

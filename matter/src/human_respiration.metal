@@ -307,6 +307,62 @@ kernel void nm_human_resting_audit_volumes(
     failureResults[i]=firstFailure;
 }
 
+// Whole native mesh validity is independent of which surfaces own a volume.
+// Bounded parallel reductions leave only counts and the first witness on host.
+kernel void nm_human_resting_audit_mesh_triangles(
+    constant uint4& d [[buffer(0)]],device const uint* indices [[buffer(1)]],
+    device const MRVisualVertexGPUV2* vertices [[buffer(2)]],
+    device uint4* partials [[buffer(3)]],
+    uint lane [[thread_index_in_threadgroup]],uint3 group [[threadgroup_position_in_grid]]) {
+    threadgroup uint zero[256],nonfinite[256],first[256];
+    uint z=0,n=0,f=MR_HUMAN_RESTING_TRIANGLE_FAILURE_NO_TRIANGLE;
+    for(uint t=group.x*256u+lane;t<d.x;t+=d.y*256u) {
+        const float3 a=vertices[indices[3u*t]].position.xyz;
+        const float3 b=vertices[indices[3u*t+1u]].position.xyz;
+        const float3 c=vertices[indices[3u*t+2u]].position.xyz;
+        const float3 area=cross(b-a,c-a);
+        const bool bad=!all(isfinite(area));
+        const bool collapsed=!bad&&all(area==float3(0));
+        z+=uint(collapsed);n+=uint(bad);
+        if(bad||collapsed)f=min(f,t);
+    }
+    zero[lane]=z;nonfinite[lane]=n;first[lane]=f;
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    for(uint stride=128;stride;stride>>=1) {
+        if(lane<stride) {
+            zero[lane]+=zero[lane+stride];nonfinite[lane]+=nonfinite[lane+stride];
+            first[lane]=min(first[lane],first[lane+stride]);
+        }
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+    }
+    if(!lane)partials[group.x]=uint4(zero[0],nonfinite[0],first[0],0);
+}
+kernel void nm_human_resting_reduce_mesh_audit(
+    constant uint4& d [[buffer(0)]],device const uint4* partials [[buffer(1)]],
+    device const uint* indices [[buffer(2)]],device const MRVisualVertexGPUV2* vertices [[buffer(3)]],
+    device uint4* result [[buffer(4)]],device MRHumanRestingSurfaceFailureGPU* failure [[buffer(5)]],
+    uint i [[thread_position_in_grid]]) {
+    if(i)return;
+    uint4 sum=uint4(0,0,MR_HUMAN_RESTING_TRIANGLE_FAILURE_NO_TRIANGLE,d.x);
+    for(uint j=0;j<d.y;++j) {sum.xy+=partials[j].xy;sum.z=min(sum.z,partials[j].z);}
+    result[0]=sum;
+    MRHumanRestingSurfaceFailureGPU witness;
+    witness.surfaceTriangleKind=uint4(MR_HUMAN_RESTING_TRIANGLE_FAILURE_NO_TRIANGLE,0,0,0);
+    witness.vertexIndices=uint4(0);
+    for(uint k=0;k<3;++k)witness.renderedPositions[k]=float4(0);
+    if(sum.z<d.x) {
+        const uint3 ids=uint3(indices[3u*sum.z],indices[3u*sum.z+1u],indices[3u*sum.z+2u]);
+        const float3 a=vertices[ids.x].position.xyz,b=vertices[ids.y].position.xyz,c=vertices[ids.z].position.xyz;
+        const float3 area=cross(b-a,c-a);
+        const uint kind=!all(isfinite(area))?MR_HUMAN_RESTING_TRIANGLE_FAILURE_NONFINITE_AREA:
+            MR_HUMAN_RESTING_TRIANGLE_FAILURE_EXACT_ZERO_AREA;
+        witness.surfaceTriangleKind=uint4(0,sum.z,kind,0);
+        witness.vertexIndices=uint4(ids,0);
+        witness.renderedPositions[0]=float4(a,0);witness.renderedPositions[1]=float4(b,0);
+        witness.renderedPositions[2]=float4(c,0);
+    }
+    failure[0]=witness;
+}
 kernel void nm_human_resting_audit_skin(
     constant uint4& d [[buffer(0)]], device const MRHumanRestingVertexMap* map [[buffer(1)]],
     device const MRVisualVertexGPUV2* vertices [[buffer(2)]],device float4* result [[buffer(3)]],

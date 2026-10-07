@@ -1,0 +1,4 @@
+{
+  "scope": "Verifier-only expectation mismatch, no simulation mutation",
+  "error": "First verifier expected JSON null; existing surfaceAuditJSONNumber serializes a nonfinite float as the string NaN. Final verifier requires that existing sentinel and explicit applicability false."
+}

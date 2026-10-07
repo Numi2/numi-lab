@@ -23,6 +23,10 @@ class NumiHumanRestingVisual {
     id<MTLBuffer> commonFieldMapBuffer, commonFieldParameters, commonFieldBoxes, commonFieldCoordinates;
     id<MTLBuffer> commonFieldNormalRanges, commonFieldIncidentTriangles;
     id<MTLBuffer> airwayNormalRanges, airwayIncidentTriangles;
+    id<MTLBuffer> meshAuditPartials,meshAuditResult;
+    id<MTLComputePipelineState> meshAuditPipeline,meshAuditReducePipeline;
+    std::vector<MRVisualPrimitiveGPUV2> auditedMeshPrimitives;
+    static constexpr unsigned meshAuditGroupCount=64;
     id<MTLComputePipelineState> skinPipeline, layerPipeline, volumePipeline, skinAuditPipeline, cardiacQPipeline, bodyAuditPipeline;
     id<MTLComputePipelineState> cardiacWallQPipeline, cardiacWallNormalsPipeline;
     id<MTLComputePipelineState> commonCoordinatesPipeline=nil,commonCoordinateStatusPipeline=nil;
@@ -420,7 +424,8 @@ class NumiHumanRestingVisual {
         std::uint64_t transaction,std::uint64_t timestamp,unsigned auditIndex,unsigned stableId,
         unsigned status,float relativeError,unsigned indexBufferStart,
         const MRHumanRestingSurfaceFailureGPU& firstFailure,bool captureRequested,
-        const RejectedGeometryDiagnostic& diagnostic) {
+        const RejectedGeometryDiagnostic& diagnostic,unsigned semantic=0,
+        const char* auditScope="functional_volume") {
         NSMutableDictionary* triangle=[NSMutableDictionary dictionary];
         const bool haveTriangle=firstFailure.surfaceTriangleKind.x==auditIndex&&
             firstFailure.surfaceTriangleKind.z!=MR_HUMAN_RESTING_TRIANGLE_FAILURE_NONE;
@@ -458,7 +463,9 @@ class NumiHumanRestingVisual {
             @"source_pack_file_sha256":loadedKneeNSString(initialPackFileSHA256),
             @"source_pack_path":loadedKneeNSString(initialPackPath.string()),
             @"surface_stable_id":@(stableId),@"surface_audit_index":@(auditIndex),
+            @"surface_semantic":@(semantic),@"surface_audit_scope":loadedKneeNSString(auditScope),
             @"surface_status":@(status),@"volume_relative_error":surfaceAuditJSONNumber(relativeError),
+            @"volume_relative_error_applicable":@(std::strcmp(auditScope,"functional_volume")==0),
             @"volume_owner_mismatch":@((status&1u)!=0),
             @"invalid_triangle_present":@((status&2u)!=0),
             @"first_invalid_triangle_available":@(haveTriangle),
@@ -524,7 +531,7 @@ public:
         requestedGeometrySteps=geometryExportStepsFromEnvironment();
         require(requestedGeometrySteps.empty()||presentWindow,
             "accepted MRVPack export requires the native viewer path");
-        surfaceTrace<<"time_s,step,min_skin_bed_gap_m,vertices_below_1mm,nonfinite_skin_vertices,max_functional_volume_relative_error,q_ra,q_rv,q_la,q_lv,ra_target_ml,rv_target_ml,la_target_ml,lv_target_ml,diaphragm_swept_ml,rib_swept_ml,lung_target_ml,body_com_x_m,body_com_y_m,body_com_z_m,represented_body_mass_kg,ventricular_wall_bound,ventricular_material_ml,ventricular_material_target_ml,ventricular_closure_mm,ventricular_material_status,functional_geometry_status,geometry_mode,common_coordinate_RA,common_coordinate_RV,common_coordinate_LA,common_coordinate_LV,common_coordinate_RA_material,common_coordinate_ventricular_material,common_coordinate_LA_material,common_coordinate_solver_status,common_coordinate_solver_iterations,common_coordinate_domain_box,common_coordinate_normalized_residual,ventricular_closure_mm_applicable\n";
+        surfaceTrace<<"time_s,step,min_skin_bed_gap_m,vertices_below_1mm,nonfinite_skin_vertices,max_functional_volume_relative_error,q_ra,q_rv,q_la,q_lv,ra_target_ml,rv_target_ml,la_target_ml,lv_target_ml,diaphragm_swept_ml,rib_swept_ml,lung_target_ml,body_com_x_m,body_com_y_m,body_com_z_m,represented_body_mass_kg,ventricular_wall_bound,ventricular_material_ml,ventricular_material_target_ml,ventricular_closure_mm,ventricular_material_status,functional_geometry_status,geometry_mode,common_coordinate_RA,common_coordinate_RV,common_coordinate_LA,common_coordinate_LV,common_coordinate_RA_material,common_coordinate_ventricular_material,common_coordinate_LA_material,common_coordinate_solver_status,common_coordinate_solver_iterations,common_coordinate_domain_box,common_coordinate_normalized_residual,ventricular_closure_mm_applicable,mesh_zero_area_triangles,mesh_nonfinite_area_triangles,mesh_triangles_checked\n";
         require(initialBodies.size()*sizeof(MRBodyStateGPU)==coupled.presentationBodies.length,
             "initial native frame does not match the body owner");
         std::memcpy(coupled.presentationBodies.contents,initialBodies.data(),coupled.presentationBodies.length);
@@ -1238,7 +1245,10 @@ public:
         config.clearColorAndDepth={.012f,.019f,.03f,1e30f};renderer=std::make_unique<metalrobo::MetalHybridRenderer>(config);
         auto rc=renderer->compile(std::move(manifest.renderScene),metalrobo::VisualRendererProfileV1::sensorFast(),1);require(rc.succeeded(),rc.message);
         require(renderer->layout().meshVertexCount==maps.size(),"resting compiled vertex order changed");
+        auditedMeshPrimitives=pack.primitives;
         auto device=coupled.physiology.device;queue=[device newCommandQueue];
+        meshAuditPartials=[device newBufferWithLength:meshAuditGroupCount*sizeof(mr_uint4) options:MTLResourceStorageModeShared];
+        meshAuditResult=[device newBufferWithLength:sizeof(mr_uint4)+sizeof(MRHumanRestingSurfaceFailureGPU) options:MTLResourceStorageModeShared];
         mapping=[device newBufferWithBytes:maps.data() length:maps.size()*sizeof(maps.front()) options:MTLResourceStorageModeShared];
         influences=[device newBufferWithBytes:weights.data() length:weights.size()*sizeof(weights.front()) options:MTLResourceStorageModeShared];
         anatomyParameters=[device newBufferWithBytes:&anatomyGPU length:sizeof(anatomyGPU) options:MTLResourceStorageModeShared];
@@ -1330,6 +1340,9 @@ public:
         volumePipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_audit_volumes"] error:&e];
         skinAuditPipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_audit_skin"] error:&e];
         bodyAuditPipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_audit_body"] error:&e];
+        meshAuditPipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_audit_mesh_triangles"] error:&e];
+        meshAuditReducePipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_reduce_mesh_audit"] error:&e];
+        require(meshAuditPartials&&meshAuditResult&&meshAuditPipeline&&meshAuditReducePipeline,"whole-mesh GPU triangle audit setup failed");
         if(!requestedGeometrySteps.empty()) {
             vertexCapturePipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_capture_vertices"] error:&e];
             vertexCaptureBuffer=[device newBufferWithLength:maps.size()*sizeof(MRVisualVertexGPUV2) options:MTLResourceStorageModeShared];
@@ -1426,6 +1439,21 @@ public:
         e.setBuffer(e.context,(__bridge void*)self.commonFieldParameters,0,9);
         e.setBuffer(e.context,(__bridge void*)self.commonFieldCoordinates,0,10);
         e.dispatchThreads(e.context,self.auditCount,1);
+        // Every rendered triangle is checked in the existing presentation command.
+        // The CPU receives only counts and one exact binary32 failure witness.
+        const mr_uint4 meshAuditDimensions={lease.meshTriangleCount,meshAuditGroupCount,0,0};
+        e.setPipeline(e.context,(__bridge void*)self.meshAuditPipeline);
+        e.setBytes(e.context,&meshAuditDimensions,sizeof(meshAuditDimensions),0);
+        e.setBuffer(e.context,lease.meshIndices,0,1);e.setBuffer(e.context,lease.meshVertices,0,2);
+        e.setBuffer(e.context,(__bridge void*)self.meshAuditPartials,0,3);
+        e.dispatchThreads(e.context,meshAuditGroupCount*256,256);
+        e.setPipeline(e.context,(__bridge void*)self.meshAuditReducePipeline);
+        e.setBytes(e.context,&meshAuditDimensions,sizeof(meshAuditDimensions),0);
+        e.setBuffer(e.context,(__bridge void*)self.meshAuditPartials,0,1);
+        e.setBuffer(e.context,lease.meshIndices,0,2);e.setBuffer(e.context,lease.meshVertices,0,3);
+        e.setBuffer(e.context,(__bridge void*)self.meshAuditResult,0,4);
+        e.setBuffer(e.context,(__bridge void*)self.meshAuditResult,sizeof(mr_uint4),5);
+        e.dispatchThreads(e.context,1,1);
         e.setPipeline(e.context,(__bridge void*)self.skinAuditPipeline);e.setBytes(e.context,&d,sizeof(d),0);
         e.setBuffer(e.context,(__bridge void*)self.mapping,0,1);e.setBuffer(e.context,lease.meshVertices,0,2);
         e.setBuffer(e.context,(__bridge void*)self.volumeResults,0,3);e.dispatchThreads(e.context,256,256);
@@ -1501,6 +1529,8 @@ public:
         for(unsigned i=0;i<auditCount;++i) {
             maxRelativeError=std::max(maxRelativeError,volumes[i].z);geometryStatus|=unsigned(volumes[i].w);
         }
+        const auto meshAudit=*static_cast<const mr_uint4*>(meshAuditResult.contents);
+        require(meshAudit.w==layout.meshTriangleCount,"whole-mesh GPU triangle audit is incomplete");
         const auto skinAudit=volumes[auditCount];
         const auto bodyAudit=volumes[auditCount+1];
         require(std::isfinite(bodyAudit.x)&&std::isfinite(bodyAudit.y)&&std::isfinite(bodyAudit.z)&&
@@ -1518,7 +1548,8 @@ public:
             <<commonCoordinatesValue.second.x<<','<<commonCoordinatesValue.second.y<<','
             <<commonCoordinatesValue.second.z<<','<<commonCoordinatesValue.status.x<<','
             <<commonCoordinatesValue.status.y<<','<<commonCoordinatesValue.status.z<<','
-            <<commonCoordinatesValue.diagnostics.x<<','<<(!commonCardiacGeometry)<<'\n';
+            <<commonCoordinatesValue.diagnostics.x<<','<<(!commonCardiacGeometry)
+            <<','<<meshAudit.x<<','<<meshAudit.y<<','<<meshAudit.w<<'\n';
         surfaceTrace.flush();
         unsigned firstFailedAudit=MR_INVALID_INDEX;
         for(unsigned i=0;i<auditCount;++i)if(unsigned(volumes[i].w)!=0u){firstFailedAudit=i;break;}
@@ -1531,7 +1562,7 @@ public:
                 static_cast<const MRHumanRestingSurfaceAuditGPU*>(surfaceAudits.contents)[firstFailedAudit].indicesAndOwner.x,status,volumes[firstFailedAudit].z,
                 failure,initialPackContentHash);
             RejectedGeometryDiagnostic diagnostic{};
-            if(captureThisFrame&&captureKernelEncoded)
+            if(captureThisFrame&&captureKernelEncoded&&skinAudit.w==0&&meshAudit.y==0)
                 diagnostic=exportRejectedGeometryDiagnostic(step,time,state.acceptedRootFingerprint,
                     state.acceptedTransactionFingerprint,state.acceptedTimestampMicroseconds,
                     auditStableIds.at(firstFailedAudit),status,volumes[firstFailedAudit].z);
@@ -1544,11 +1575,43 @@ public:
             captureThisFrame=false;captureKernelEncoded=false;
             require(false,message);
         }
+        if(meshAudit.x||meshAudit.y) {
+            const float volumeErrorNotApplicable=std::numeric_limits<float>::quiet_NaN();
+            const unsigned triangleIndex=meshAudit.z,indexOffset=3u*triangleIndex;
+            const auto found=std::find_if(auditedMeshPrimitives.begin(),auditedMeshPrimitives.end(),
+                [&](const auto& primitive){return indexOffset>=primitive.geometry.x&&
+                    indexOffset-primitive.geometry.x<primitive.geometry.y;});
+            require(triangleIndex<layout.meshTriangleCount&&found!=auditedMeshPrimitives.end(),
+                "whole-mesh triangle failure has no source primitive");
+            const unsigned primitiveIndex=unsigned(found-auditedMeshPrimitives.begin());
+            auto failure=*reinterpret_cast<const MRHumanRestingSurfaceFailureGPU*>(
+                static_cast<const unsigned char*>(meshAuditResult.contents)+sizeof(mr_uint4));
+            failure.surfaceTriangleKind.x=primitiveIndex;
+            failure.surfaceTriangleKind.y=(indexOffset-found->geometry.x)/3u;
+            const unsigned step=static_cast<unsigned>(p.status.x);
+            RejectedGeometryDiagnostic diagnostic{};
+            if(captureThisFrame&&captureKernelEncoded&&skinAudit.w==0&&meshAudit.y==0)
+                diagnostic=exportRejectedGeometryDiagnostic(step,time,state.acceptedRootFingerprint,
+                    state.acceptedTransactionFingerprint,state.acceptedTimestampMicroseconds,
+                    found->identity.w,2u,volumeErrorNotApplicable);
+            writeSurfaceAuditFailureReceipt(step,time,state.acceptedRootFingerprint,
+                state.acceptedTransactionFingerprint,state.acceptedTimestampMicroseconds,
+                primitiveIndex,found->identity.w,2u,volumeErrorNotApplicable,found->geometry.x,failure,
+                captureThisFrame,diagnostic,found->identity.x,"all_rendered_triangles");
+            captureThisFrame=false;captureKernelEncoded=false;
+            std::ostringstream message;
+            message<<"whole native mesh contains invalid triangles: zero_area="<<meshAudit.x
+                <<" nonfinite_area="<<meshAudit.y<<" semantic="<<found->identity.x
+                <<" stable_id="<<found->identity.w<<" local_triangle="<<failure.surfaceTriangleKind.y;
+            require(false,message.str());
+        }
         if(captureThisFrame) {
             NSDictionary* surfaceAuditOutcome=@{
                 @"schema":@"numi.human.accepted_surface_audit.v1",
                 @"physical_endpoint":@"accepted",@"surface_audit_endpoint":@"passed",
-                @"functional_surface_count":@(auditCount),@"functional_surface_status":@(geometryStatus)};
+                @"functional_surface_count":@(auditCount),@"functional_surface_status":@(geometryStatus),
+                @"mesh_triangles_checked":@(meshAudit.w),@"mesh_zero_area_triangles":@(meshAudit.x),
+                @"mesh_nonfinite_area_triangles":@(meshAudit.y)};
             exportAcceptedGeometry(captureStep,time,captureRootFingerprint,captureTransactionFingerprint,
                 captureTimestampMicroseconds,surfaceAuditOutcome);
             captureThisFrame=false;

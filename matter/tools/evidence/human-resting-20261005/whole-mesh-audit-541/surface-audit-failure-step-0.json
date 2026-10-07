@@ -1,0 +1,77 @@
+{
+  "accepted_geometry_capture_requested" : true,
+  "accepted_geometry_capture_skipped_reason" : "surface_audit_rejected",
+  "accepted_geometry_capture_written" : false,
+  "accepted_root_fingerprint" : 5386591128488104709,
+  "accepted_root_fingerprint_hex" : "4ac104178bcdd305",
+  "accepted_step" : 0,
+  "accepted_time_s" : 0,
+  "accepted_timestamp_microseconds" : 0,
+  "accepted_transaction_fingerprint" : 5386591128488104709,
+  "accepted_transaction_fingerprint_hex" : "4ac104178bcdd305",
+  "first_invalid_triangle" : {
+    "area_failure_kind" : "exact_zero_area",
+    "index_buffer_offset" : 13346391,
+    "mesh_vertex_indices" : [
+      2581508,
+      2581511,
+      2577675
+    ],
+    "rendered_positions_f32_bits_hex" : [
+      [
+        "bd81ecda",
+        "be14b359",
+        "3e5c4658"
+      ],
+      [
+        "bd81eccc",
+        "be14b359",
+        "3e5c4658"
+      ],
+      [
+        "bd81eca3",
+        "be14b359",
+        "3e5c4658"
+      ]
+    ],
+    "rendered_positions_m" : [
+      [
+        -0.063440039753913879,
+        -0.14521540701389313,
+        0.21511209011077881
+      ],
+      [
+        -0.063439935445785522,
+        -0.14521540701389313,
+        0.21511209011077881
+      ],
+      [
+        -0.063439629971981049,
+        -0.14521540701389313,
+        0.21511209011077881
+      ]
+    ],
+    "triangle_index_in_surface" : 568
+  },
+  "first_invalid_triangle_available" : true,
+  "invalid_triangle_present" : true,
+  "physical_endpoint" : "accepted",
+  "rejected_geometry_diagnostic_content_hash" : "sha256:226508a2365b1e3f88e2db1417f22a83bc1fdcfca0f707d7be782a0c967078f9",
+  "rejected_geometry_diagnostic_mrvpack_path" : "\/Users\/n\/numi-human-resting-evidence-20261005\/native-whole-mesh-audit-541\/native-negative-receipt-002\/rejected-surface-audit\/step-0.mrvpack",
+  "rejected_geometry_diagnostic_mrvpack_sha256" : "319c7df1e1d23de2dabed7036ac906ff42ae649e63e4471221d63c10fdb9effb",
+  "rejected_geometry_diagnostic_written" : true,
+  "rejection_stage" : "post_accept_surface_presentation",
+  "schema" : "numi.human.accepted_surface_audit_failure.v1",
+  "source_pack_content_hash" : "sha256:001b5d1be3e467aae796064744e9749cc44e552bcfd701a787e1a086021cc042",
+  "source_pack_file_sha256" : "cda9a2acd7cf33f298486f2fce1d26aaa744fd2bcede2be3d198206f05cdd69b",
+  "source_pack_path" : "\/Users\/n\/numi-human-resting-evidence-20261005\/native-whole-mesh-audit-541\/native-negative-receipt-002\/resting-human.mrvpack",
+  "surface_audit_endpoint" : "rejected",
+  "surface_audit_index" : 722,
+  "surface_audit_scope" : "all_rendered_triangles",
+  "surface_semantic" : 51010,
+  "surface_stable_id" : 387,
+  "surface_status" : 2,
+  "volume_owner_mismatch" : false,
+  "volume_relative_error" : "NaN",
+  "volume_relative_error_applicable" : false
+}

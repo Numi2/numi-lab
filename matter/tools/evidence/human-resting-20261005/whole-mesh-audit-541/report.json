@@ -1,0 +1,30 @@
+{
+  "scope": "Whole-rendered-mesh zero/nonfinite triangle admission. Does not test self intersections, anatomical placement, physiology, or long-horizon operation.",
+  "parent_revision": "5834357fbe9a541c997c35847860de85d94f5a30",
+  "source_sha256": {
+    "apps/NumiHumanRestingVisual.hpp": "e4d2bdf6997e75b98b5da292d1ee1ffb1e1e06acfb99bac1d3877c84b526122e",
+    "matter/src/human_respiration.metal": "10c25c86ce2da45bc869eed94489f4158f9aa9dc0fb89fa95611243a9adbd992",
+    "tests/numi_human_mesh_audit_metal_test.mm": "1544bf0881902a1dc715ac295d0519f3b4d65af35deed15b763e0fbfde7f6f99",
+    "CMakeLists.txt": "f29d59f602213b37d58c1b259f74d7c335063d8c98bce65c2b4f970753849d4f"
+  },
+  "native_negative_run_metadata_sha256": "395882afbce8d7181931ea9c68f3a39aa2651907a1e0c5027f802c110aeb0642",
+  "failure_receipt_sha256": "399c1d7390cd87dab48b3d6f3d7af029026dbc9f530c74b6dfa74991293a651a",
+  "known_scene_defect_rejected": true,
+  "zero_area_triangles": 9,
+  "nonfinite_area_triangles": 0,
+  "triangles_checked": 4914282,
+  "physical_steps_advanced": 0,
+  "accepted_geometry_exported": false,
+  "failing_semantic": 51010,
+  "failing_stable_id": 387,
+  "failing_local_triangle": 568,
+  "positive_and_negative_compiled_metal_cases": [
+    "16391 triangles with coincident and collinear failures plus nonfinite beyond one grid stride",
+    "same allocated buffers reused for valid geometry with no stale counts or witness",
+    "late nonfinite witness with exact binary32 positions",
+    "one valid triangle with empty reduction groups",
+    "zero triangles"
+  ],
+  "initial_vertex_buffer_noninterference_report_sha256": "12bb6139e933799c78365c088cc810416a25958961365872db087b32cbd2579c",
+  "remaining_validation": "A complete successful integrated run requires the actual source eye and other geometry repairs; this negative scene is deliberately not admitted."
+}

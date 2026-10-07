@@ -1,0 +1,16 @@
+{
+  "scope": "Whole-mesh audit is observational on actual native initial geometry; rejected pack provenance differs, complete binary32 vertex buffer is identical.",
+  "frames": [
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/native-tendon-source-index-regression-538/accepted-geometry/step-0.mrvpack",
+      "vertices": 2833965,
+      "vertex_buffer_sha256": "52e6db01b3025d19469c4f522891934395855e0f27f84f3a77e69ba38abeea27"
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/native-whole-mesh-audit-541/native-negative-531/rejected-surface-audit/step-0.mrvpack",
+      "vertices": 2833965,
+      "vertex_buffer_sha256": "52e6db01b3025d19469c4f522891934395855e0f27f84f3a77e69ba38abeea27"
+    }
+  ],
+  "pass": true
+}
