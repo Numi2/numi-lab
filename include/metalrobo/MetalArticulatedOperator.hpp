@@ -1896,9 +1896,10 @@ struct MetalArticulatedOperatorConfig {
     // accepted-state transaction. Only split GPU finish reads it; final PGS
     // sweeps, ordering, and stopping rules remain unchanged.
     bool standContactWarmStart = false;
-    // Opt-in cooperative projected-PGS stop threshold in generalized velocity
-    // units. Zero retains the configured fixed sweep count; accepted values are
-    // bounded by 1e-6 and are included in the split-stand boundary identity.
+    // Opt-in per-row PGS stop bound: contact/linear rows use m/s and angular
+    // rows use rad/s. The same numeric SI bound applies independently to each;
+    // this is not a dimensionally uniform norm or physiological tolerance.
+    // Zero retains fixed sweeps. Values up to 1e-6 enter continuation identity.
     float standPgsVelocityResidualTolerance = 0.0f;
     // Optional speculative-contact candidate admission override. Zero retains
     // the source contact activation distance and warm-start policy.

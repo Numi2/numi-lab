@@ -67,12 +67,12 @@ void exercise(float a,float b,float d,float rx,float ry,float r) {
             a, b, d, rx, ry, result.x, result.y, r);
     require(projectedResidual.valid,
             "projected-gradient residual rejected a valid friction solution");
-    const float residualScale =
+    const float projectedResidualScale =
         std::abs(a * result.x) + std::abs(b * result.y) +
         std::abs(b * result.x) + std::abs(d * result.y) +
         std::abs(rx) + std::abs(ry);
     require(projectedResidual.value <=
-                2.0e-5f * residualScale + 2.0e-7f,
+                2.0e-5f * projectedResidualScale + 2.0e-7f,
             "friction solution has a nonzero velocity-unit disk KKT residual");
     const long double norm=std::hypot(result.x,result.y);
     const long double referenceNorm=std::hypot(expected[0],expected[1]);
