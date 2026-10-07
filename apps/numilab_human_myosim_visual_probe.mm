@@ -6269,6 +6269,8 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                 " tolerance=" + std::to_string(forceParityTolerance)
         );
     }
+    const std::vector<double> parityInitialQ = parityQ;
+    const std::vector<double> parityInitialV = parityV;
     metalrobo::ArticulatedDynamicsConfig parityConfig;
     parityConfig.gravity = {
         model.world.gravityAndTimestep.x,
@@ -6345,22 +6347,66 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                 parityDiagnostics.message);
     double parityMaximumQError = 0.0;
     double parityMaximumVError = 0.0;
+    std::size_t parityMaximumQErrorIndex = 0u;
+    std::size_t parityMaximumVErrorIndex = 0u;
     for (std::size_t index = 0u; index < parityQ.size(); ++index) {
-        parityMaximumQError = std::max(
-            parityMaximumQError,
-            std::abs(static_cast<double>(parityResult.standQ[index]) - parityQ[index])
-        );
+        const double delta = std::abs(
+            static_cast<double>(parityResult.standQ[index]) - parityQ[index]);
+        if (!std::isfinite(delta)) {
+            parityMaximumQError = std::numeric_limits<double>::infinity();
+            parityMaximumQErrorIndex = index;
+        } else if (delta > parityMaximumQError) {
+            parityMaximumQError = delta;
+            parityMaximumQErrorIndex = index;
+        }
     }
     for (std::size_t index = 0u; index < parityV.size(); ++index) {
-        parityMaximumVError = std::max(
-            parityMaximumVError,
-            std::abs(static_cast<double>(parityResult.standV[index]) - parityV[index])
-        );
+        const double delta = std::abs(
+            static_cast<double>(parityResult.standV[index]) - parityV[index]);
+        if (!std::isfinite(delta)) {
+            parityMaximumVError = std::numeric_limits<double>::infinity();
+            parityMaximumVErrorIndex = index;
+        } else if (delta > parityMaximumVError) {
+            parityMaximumVError = delta;
+            parityMaximumVErrorIndex = index;
+        }
     }
-    require(std::isfinite(parityMaximumQError) &&
-                std::isfinite(parityMaximumVError) &&
-                parityMaximumQError <= 2.0e-6 &&
-                parityMaximumVError <= 2.0e-3,
+    const bool parityPassed = std::isfinite(parityMaximumQError) &&
+        std::isfinite(parityMaximumVError) &&
+        parityMaximumQError <= 2.0e-6 &&
+        parityMaximumVError <= 2.0e-3;
+    if (!parityPassed) {
+        std::cerr << std::setprecision(17)
+                  << "human_stand_one_step_parity_failure"
+                  << " q_index=" << parityMaximumQErrorIndex
+                  << " q_initial=" << parityInitialQ[parityMaximumQErrorIndex]
+                  << " q_cpu=" << parityQ[parityMaximumQErrorIndex]
+                  << " q_gpu=" << parityResult.standQ[parityMaximumQErrorIndex]
+                  << " q_abs_error=" << parityMaximumQError
+                  << " v_index=" << parityMaximumVErrorIndex
+                  << " v_initial=" << parityInitialV[parityMaximumVErrorIndex]
+                  << " v_cpu=" << parityV[parityMaximumVErrorIndex]
+                  << " v_gpu=" << parityResult.standV[parityMaximumVErrorIndex]
+                  << " v_abs_error=" << parityMaximumVError;
+        if (parityMaximumVErrorIndex < parityGeneralizedForce.size()) {
+            std::cerr << " source_generalized_force_n="
+                      << parityGeneralizedForce[parityMaximumVErrorIndex];
+            if (parityMaximumVErrorIndex <
+                compiledActivation.generalizedMuscleForce.size()) {
+                std::cerr << " compiled_muscle_force_n="
+                          << compiledActivation.generalizedMuscleForce[
+                              parityMaximumVErrorIndex]
+                          << " source_force_delta_n="
+                          << parityGeneralizedForce[parityMaximumVErrorIndex] -
+                              compiledActivation.generalizedMuscleForce[
+                                  parityMaximumVErrorIndex];
+            }
+        } else {
+            std::cerr << " source_generalized_force_n=unavailable";
+        }
+        std::cerr << '\n';
+    }
+    require(parityPassed,
             "persistent Human stand one-step Metal/FP64 parity exceeded tolerance: q=" +
                 std::to_string(parityMaximumQError) + " v=" +
                 std::to_string(parityMaximumVError));
