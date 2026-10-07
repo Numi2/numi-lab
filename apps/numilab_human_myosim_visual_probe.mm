@@ -22674,6 +22674,12 @@ int main(int argc, char** argv) {
                 std::uint32_t previousComSampleStep = 0u;
                 std::array<double, 3u> previousComMomentum{};
                 bool havePreviousComSample = false;
+                // Measure the integrated loop after its first accepted observer,
+                // excluding load/compile/parity initialization. The endpoint is
+                // after final presentation and geometry export, so GPU scheduling,
+                // trace writes, audits, rendering, and export all remain included.
+                std::optional<std::chrono::steady_clock::time_point> restingThroughputStart;
+                std::uint32_t restingThroughputStartStep = 0u;
                 const std::function<void(
                     std::uint32_t,
                     std::span<const float>,
@@ -23019,6 +23025,26 @@ int main(int argc, char** argv) {
                                 step == *muscleStepCount;
                             if (presentAcceptedPose)
                                 liveVisual->present(step == *muscleStepCount);
+                        }
+                        if (!restingThroughputStart.has_value()) {
+                            restingThroughputStart = std::chrono::steady_clock::now();
+                            restingThroughputStartStep = step;
+                        } else if (step == *muscleStepCount) {
+                            const double measuredWall = std::chrono::duration<double>(
+                                std::chrono::steady_clock::now() -
+                                *restingThroughputStart).count();
+                            const double measuredSimulation =
+                                double(step - restingThroughputStartStep) *
+                                double(coupled.physiology.runtime.timestepSeconds());
+                            std::cout << "resting_integrated_throughput"
+                                << " accepted_start_step=" << restingThroughputStartStep
+                                << " accepted_end_step=" << step
+                                << " simulated_s=" << measuredSimulation
+                                << " wall_s=" << measuredWall
+                                << " real_time_factor=" << measuredSimulation / measuredWall
+                                << " includes=physics_physiology_controller_audits_trace_viewer_movie_geometry_export"
+                                << " excludes=load_compile_initial_parity_and_first_accepted_observer"
+                                << std::endl;
                         }
                     };
                 const auto start=std::chrono::steady_clock::now();
