@@ -44,6 +44,12 @@ constant bool kFinishWorkCounters [[function_constant(4)]];
 constant bool kUseFinishWorkCounters =
     is_function_constant_defined(kFinishWorkCounters)
         ? kFinishWorkCounters : false;
+// Opt-in reuse of the unused large-equality threadgroup factor storage for
+// per-contact Jacobian-axis contractions in one bounded cooperative shape.
+constant bool kFinishContactJacobianCache [[function_constant(5)]];
+constant bool kUseFinishContactJacobianCache =
+    is_function_constant_defined(kFinishContactJacobianCache)
+        ? kFinishContactJacobianCache : false;
 struct MRStandFinishWorkCounters {
     uint sweeps, contactDecisions, contactContractions;
     uint normalChanges, tangentChanges, zeroContactChanges;
@@ -2595,6 +2601,8 @@ kernel void mr_numi_human_stand_finish(
     threadgroup float cooperativeLimitEqualityVelocities[
         MR_NUMI_HUMAN_STAND_MAX_DOFS];
     threadgroup uint cooperativeContactActive[
+        MR_NUMI_HUMAN_STAND_MAX_CONTACTS];
+    threadgroup uint cooperativeContactJacobianCacheSlot[
         MR_NUMI_HUMAN_STAND_MAX_CONTACTS];
     threadgroup float cooperativeContactGap[
         MR_NUMI_HUMAN_STAND_MAX_CONTACTS];

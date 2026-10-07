@@ -786,6 +786,47 @@
     }
     threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
     if (status.code != MR_NUMI_HUMAN_STAND_SUCCESS) return;
+    const bool useContactJacobianAxisCache =
+        kUseFinishContactJacobianCache && !cpuReady && useProjectedContacts &&
+        equalityCount > kCachedEqualityCapacity && nv == 128u;
+    if (useContactJacobianAxisCache) {
+        // This branch is restricted to equalityCount > 64, where the
+        // threadgroup equality factor is no longer read by the bilateral
+        // solver. Assign cache slots in original contact order.
+        if (lane == 0u) {
+            uint cacheSlot = 0u;
+            for (uint contact = 0u;
+                 contact < dispatch.supportContactCount; ++contact) {
+                cooperativeContactJacobianCacheSlot[contact] =
+                    MR_INVALID_INDEX;
+                if (cooperativeContactActive[contact] != 0u &&
+                    cacheSlot < 10u) {
+                    cooperativeContactJacobianCacheSlot[contact] = cacheSlot;
+                    ++cacheSlot;
+                }
+            }
+        }
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+        const uint cacheBuildEntryCount =
+            3u * nv * dispatch.supportContactCount;
+        for (uint entry = lane; entry < cacheBuildEntryCount;
+             entry += threadCount) {
+            const uint contact = entry / (3u * nv);
+            const uint cacheSlot =
+                cooperativeContactJacobianCacheSlot[contact];
+            if (cacheSlot == MR_INVALID_INDEX) continue;
+            const uint axis = (entry / nv) % 3u;
+            const uint dof = entry % nv;
+            device const MRNumiHumanStandContactGPU& support = contacts[contact];
+            equalityFactorStorage[
+                (cacheSlot * 3u + axis) * nv + dof] = pointJacobianAxis(
+                    pointJacobians, pointJacobianBase,
+                    support.pointQueryIndex, nv, dof, directions[axis]);
+        }
+        // Cache writes are threadgroup-local; every lane waits before any
+        // contact velocity contraction can consume a cached entry.
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+    }
     if ((dispatch.flags & MR_NUMI_HUMAN_STAND_ENABLE_CONTACT) != 0u) {
         for (uint contact = 0u;
              contact < dispatch.supportContactCount; ++contact) {
@@ -803,29 +844,54 @@
                 // a SIMD reduction changes its cancellation order.
                 const uint axis = lane / simdWidth;
                 const uint simdLane = lane % simdWidth;
+                const uint cacheSlot = useContactJacobianAxisCache
+                    ? cooperativeContactJacobianCacheSlot[contact]
+                    : MR_INVALID_INDEX;
                 if (axis < 3u) {
                     float velocity = 0.0f;
-                    for (uint dof = simdLane; dof < nv;
-                         dof += simdWidth) {
-                        velocity += pointJacobianAxis(
-                            pointJacobians, pointJacobianBase,
-                            support.pointQueryIndex, nv, dof,
-                            directions[axis]
-                        ) * candidateV[dof];
+                    if (cacheSlot != MR_INVALID_INDEX) {
+                        for (uint dof = simdLane; dof < nv;
+                             dof += simdWidth) {
+                            const uint cacheIndex =
+                                (cacheSlot * 3u + axis) * nv + dof;
+                            velocity += equalityFactorStorage[cacheIndex] *
+                                candidateV[dof];
+                        }
+                    } else {
+                        for (uint dof = simdLane; dof < nv;
+                             dof += simdWidth) {
+                            velocity += pointJacobianAxis(
+                                pointJacobians, pointJacobianBase,
+                                support.pointQueryIndex, nv, dof,
+                                directions[axis]
+                            ) * candidateV[dof];
+                        }
                     }
                     const float reduced = simd_sum(velocity);
                     if (simdLane == 0u)
                         cooperativeContactVelocities[axis] = reduced;
                 }
             } else {
+                const uint cacheSlot = useContactJacobianAxisCache
+                    ? cooperativeContactJacobianCacheSlot[contact]
+                    : MR_INVALID_INDEX;
                 for (uint axis = lane; axis < 3u; axis += threadCount) {
                     float velocity = 0.0f;
-                    for (uint dof = 0u; dof < nv; ++dof) {
-                        velocity += pointJacobianAxis(
-                            pointJacobians, pointJacobianBase,
-                            support.pointQueryIndex, nv, dof,
-                            directions[axis]
-                        ) * candidateV[dof];
+                    if (cacheSlot != MR_INVALID_INDEX) {
+                        for (uint dof = 0u; dof < nv; ++dof) {
+                            const uint cacheIndex =
+                                (cacheSlot * 3u + axis) * nv + dof;
+                            velocity += equalityFactorStorage[cacheIndex] *
+                                candidateV[dof];
+                        }
+                    } else {
+                        for (uint dof = 0u; dof < nv; ++dof) {
+                            velocity += pointJacobianAxis(
+                                pointJacobians, pointJacobianBase,
+                                support.pointQueryIndex, nv, dof,
+                                directions[axis]
+                            ) * candidateV[dof];
+                        }
                     }
                     cooperativeContactVelocities[axis] = velocity;
                 }

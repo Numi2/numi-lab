@@ -646,6 +646,11 @@ struct MetalArticulatedOperatorContextState {
         if (equalityCache != nullptr)
             config.cacheStandLimitEqualityResponses =
                 std::strcmp(equalityCache, "1") == 0;
+        const char* contactJacobianCache =
+            std::getenv("NUMI_HUMAN_STAND_CACHE_CONTACT_JACOBIAN");
+        if (contactJacobianCache != nullptr)
+            config.cacheStandContactJacobianAxes =
+                std::strcmp(contactJacobianCache, "1") == 0;
         const char* sparseOperator =
             std::getenv("NUMI_HUMAN_STAND_SPARSE_OPERATOR");
         if (sparseOperator != nullptr)
@@ -4039,6 +4044,10 @@ MetalArticulatedOperatorDiagnostics initializeContext(
         bool cacheLimitEqualitySpecialized = false;
         [finishConstants setConstantValue:&cacheLimitEqualitySpecialized
                                     type:MTLDataTypeBool atIndex:1u];
+        bool cacheContactJacobianAxes =
+            context.config.cacheStandContactJacobianAxes;
+        [finishConstants setConstantValue:&cacheContactJacobianAxes
+                                    type:MTLDataTypeBool atIndex:5u];
         error = nil;
         id<MTLFunction> standFinishFunction = [library
             newFunctionWithName:@"mr_numi_human_stand_finish"
