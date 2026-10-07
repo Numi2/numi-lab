@@ -10390,6 +10390,7 @@ MetalArticulatedOperatorContext::submit(
             const char* analyticBodySpatialSetting =
                 std::getenv("NUMI_HUMAN_STAND_ANALYTIC_BODY_SPATIAL_JACOBIANS");
             const bool analyticBodySpatialRequested =
+                input.stand.enabled() &&
                 analyticBodySpatialSetting != nullptr &&
                 std::strcmp(analyticBodySpatialSetting, "1") == 0;
             const bool analyticBodySpatialJacobians =
@@ -10403,7 +10404,7 @@ MetalArticulatedOperatorContext::submit(
                 !analyticBodySpatialJacobians) {
                 return reject(
                     std::move(diagnostics),
-                    MetalArticulatedOperatorHostStatus::invalidInput,
+                    MetalArticulatedOperatorHostStatus::invalidDimensions,
                     "analytic body spatial Jacobians require paired point-J-only Stand and a complete canonical COM probe block"
                 );
             }
