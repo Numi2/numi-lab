@@ -117,7 +117,7 @@ int main() {
     const auto preservesOutputsOnFailure = [&](const auto& invalidSource,
             const auto& invalidEqualities, const auto& invalidDofs,
             const char* reason) {
-        auto untouchedDofs = dofs;
+        auto untouchedDofs = invalidDofs;
         std::vector<NumiHumanRestingFixedBoundReceiptRecord> untouchedReceipt(1);
         untouchedReceipt[0].vIndex = 77u;
         const auto beforeReceipt = untouchedReceipt;
