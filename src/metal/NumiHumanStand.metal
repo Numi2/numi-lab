@@ -252,6 +252,35 @@ inline bool mrNumiHumanBilateralSolveCooperative(
     return *succeeded != 0u;
 }
 
+// Route hybrid indices through the existing device factor allocation only
+// after the threadgroup-cached prefix. The false specialization directly
+// accesses the original single workspace.
+template<bool hybridWorkspace, typename FactorPointer>
+inline float mrNumiHumanBilateralFactorRead(
+    FactorPointer factorCache,
+    device float* hybridBacking,
+    const uint index
+) {
+    if (hybridWorkspace &&
+        index >= MR_NUMI_HUMAN_STAND_HYBRID_FACTOR_CACHE_ELEMENTS)
+        return hybridBacking[index];
+    return factorCache[index];
+}
+
+template<bool hybridWorkspace, typename FactorPointer>
+inline void mrNumiHumanBilateralFactorWrite(
+    FactorPointer factorCache,
+    device float* hybridBacking,
+    const uint index,
+    const float value
+) {
+    if (hybridWorkspace &&
+        index >= MR_NUMI_HUMAN_STAND_HYBRID_FACTOR_CACHE_ELEMENTS)
+        hybridBacking[index] = value;
+    else
+        factorCache[index] = value;
+}
+
 // The pivot search and each row's arithmetic stay in their original order.
 // Independent scaling, swaps, and elimination rows run across one SIMD group.
 // The optional hybrid specialization keeps a contiguous prefix in threadgroup
