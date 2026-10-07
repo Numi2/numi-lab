@@ -5351,7 +5351,9 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     require(!acceptedComMomentumAudit || restingProgram != nullptr,
             "accepted COM momentum audit requires the resting owner");
     const double maximumTimestepSeconds = restingProgram == nullptr
-        ? 1.0e-3 : 2.0e-3;
+        ? 1.0e-3
+        : (numi::matter::humanRestingTimestepSensitivityEnabled()
+            ? 8.0e-3 : 2.0e-3);
     require(std::isfinite(timestepSeconds) && timestepSeconds >= 1.0e-6 &&
                 timestepSeconds <= maximumTimestepSeconds && stepCount >= 1u &&
                 stepCount <= MR_NUMI_HUMAN_STAND_MAX_HORIZON_STEPS &&

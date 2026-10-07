@@ -4,9 +4,20 @@
 #include "numi/matter/matter.hpp"
 #include <cmath>
 #include <array>
+#include <cstdlib>
+#include <cstring>
 #include <stdexcept>
 
 namespace numi::matter {
+inline bool humanRestingTimestepSensitivityEnabled() {
+    const char* setting = std::getenv("NUMI_HUMAN_RESTING_TIMESTEP_SENSITIVITY");
+    if (setting == nullptr || setting[0] == '\0' || std::strcmp(setting, "0") == 0)
+        return false;
+    if (std::strcmp(setting, "1") == 0) return true;
+    throw std::runtime_error(
+        "NUMI_HUMAN_RESTING_TIMESTEP_SENSITIVITY must be 0 or 1");
+}
+
 // Asset/config loading only. No CPU respiratory stepping implementation.
 inline NMHumanRespirationParameters readRespirationParameters(const char* path, float dt) {
     NSData* bytes=[NSData dataWithContentsOfFile:@(path)];
@@ -45,7 +56,9 @@ inline NMHumanRespirationParameters readRespirationParameters(const char* path, 
         muscle.compliantArchitecture0={optimal,slack,number(@"tendon_strain_at_unit_force"),number(@"tendon_normalized_stiffness")};
         muscle.compliantArchitecture1={number(@"tendon_force_at_toe"),0.5f,number(@"fibre_damping"),0};
     }
-    if(!(dt>0&&dt<=.0021f&&p.lung.x>p.lung.y&&p.lung.y>0&&p.lung.z>0&&p.lung.w>0&&
+    const float maximumAdmittedTimestep =
+        humanRestingTimestepSensitivityEnabled() ? 0.008f : 0.0021f;
+    if(!(dt>0&&dt<=maximumAdmittedTimestep&&p.lung.x>p.lung.y&&p.lung.y>0&&p.lung.z>0&&p.lung.w>0&&
          p.chest.x>0&&p.chest.y>0&&p.chest.z>=0&&p.chest.w>=0&&
          p.geometry.x>=0&&p.geometry.y>=0&&p.geometry.z>0&&p.geometry.w>0&&
          p.environment.y>0&&p.environment.z>0&&p.environment.z<=1&&p.oxygen.x>0&&p.oxygen.y>0&&p.oxygen.z>0&&p.oxygen.w>0&&
