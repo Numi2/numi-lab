@@ -1639,12 +1639,12 @@ public:
            !lease.encoder->splitCommandEncoder(lease.encoder->context))return false;
         // Every rendered triangle is checked in the existing presentation command.
         // The CPU receives only counts and one exact binary32 failure witness.
-        const mr_uint4 meshAuditDimensions={lease.meshTriangleCount,meshAuditGroupCount,0,0};
+        const mr_uint4 meshAuditDimensions={lease.meshTriangleCount,self.meshAuditGroupCount,0,0};
         e.setPipeline(e.context,(__bridge void*)self.meshAuditPipeline);
         e.setBytes(e.context,&meshAuditDimensions,sizeof(meshAuditDimensions),0);
         e.setBuffer(e.context,lease.meshIndices,0,1);e.setBuffer(e.context,lease.meshVertices,0,2);
         e.setBuffer(e.context,(__bridge void*)self.meshAuditPartials,0,3);
-        e.dispatchThreads(e.context,std::size_t(meshAuditGroupCount)*meshAuditGroupSize,meshAuditGroupSize);
+        e.dispatchThreads(e.context,std::size_t(self.meshAuditGroupCount)*meshAuditGroupSize,meshAuditGroupSize);
         e.setPipeline(e.context,(__bridge void*)self.meshAuditReducePipeline);
         e.setBytes(e.context,&meshAuditDimensions,sizeof(meshAuditDimensions),0);
         e.setBuffer(e.context,(__bridge void*)self.meshAuditPartials,0,1);
