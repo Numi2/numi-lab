@@ -635,7 +635,9 @@ def native_body_trace_consistency(trace: Path, steps: int, dt: float) -> dict[st
     return {"root_assistance_observed": False, "maximum_contact_penetration_m": maximum_penetration}
 
 
-def native_surface_trace_consistency(trace: Path, steps: int, dt: float) -> dict[str, Any]:
+def native_surface_trace_consistency(trace: Path, steps: int, dt: float, *,
+                                        require_whole_mesh: bool = False,
+                                        presentation_period_s: float = 0.064) -> dict[str, Any]:
     """Validate every retained displayed state, whose clock precedes its accepted segment end.
 
     The renderer captures step n-1 before step n is evaluated and publishes it
@@ -643,7 +645,10 @@ def native_surface_trace_consistency(trace: Path, steps: int, dt: float) -> dict
     physiology row: its own chamber/lung target columns are authoritative.
     These checks cover numerical geometry consistency, not tissue interfaces.
     """
-    expected_steps = [0] + list(range(31, steps, 32))
+    frame_interval = round(presentation_period_s / dt)
+    if frame_interval <= 0 or abs(frame_interval * dt - presentation_period_s) > max(1e-9, presentation_period_s * 1e-7):
+        raise ValueError("native surface cadence is not an integer number of native steps")
+    expected_steps = [0] + [step for step in range(frame_interval - 1, steps, frame_interval) if step != 0]
     if expected_steps[-1] != steps - 1:
         expected_steps.append(steps - 1)
     minimum_gap, maximum_volume_error, count = math.inf, 0.0, 0
@@ -679,6 +684,10 @@ def native_surface_trace_consistency(trace: Path, steps: int, dt: float) -> dict
         if present_wall_columns and present_wall_columns != wall_columns:
             raise ValueError("native surface trace has an incomplete ventricular material diagnostic")
         present_mesh_columns = mesh_columns.intersection(reader.fieldnames or [])
+        if require_whole_mesh and present_mesh_columns != mesh_columns:
+            raise ValueError("native surface trace lacks the required whole-mesh area audit")
+        if require_whole_mesh and "functional_geometry_status" not in (reader.fieldnames or []):
+            raise ValueError("native surface trace lacks the required functional-geometry audit status")
         if present_mesh_columns and present_mesh_columns != mesh_columns:
             raise ValueError("native surface trace has an incomplete whole-mesh audit")
         wall_status_present = "ventricular_material_status" in (reader.fieldnames or [])
@@ -927,7 +936,8 @@ def execute_native_scene_arm(args: argparse.Namespace) -> dict[str, Any]:
     if not movie.is_file() or movie.stat().st_size == 0 or not surfaces.is_file():
         raise ValueError("native scene did not retain its continuous movie and surface trace")
     result.update(native_body_trace_consistency(output / "resting-coupled.csv", args.steps, args.dt))
-    result.update(native_surface_trace_consistency(surfaces, args.steps, args.dt))
+    result.update(native_surface_trace_consistency(
+        surfaces, args.steps, args.dt, require_whole_mesh=True))
     parameters = Path(command[command.index("--resting-scene") + 2])
     result.update(native_respiration_trace_consistency(output / "resting-coupled.csv", parameters,
         {name: result[name + "_window_s"] for name in ("pre", "dose", "recovery")}))
@@ -1178,6 +1188,319 @@ def prepare_native(args: argparse.Namespace) -> Path:
     return out / "plan.json"
 
 
+NATIVE_310S_STEPS = 155_000
+NATIVE_310S_DT = 0.002
+NATIVE_310S_START_S = 60.0
+NATIVE_310S_END_S = 100.0
+NATIVE_310S_SCALE = 0.5
+NATIVE_310S_WINDOW_S = 30.0
+
+NATIVE_310S_REQUIRED_ENVIRONMENT = {
+    "NUMI_HUMAN_SPLIT_STAND": "1",
+    "NUMI_HUMAN_EXECUTION_STAGES": "1",
+    "NUMI_HUMAN_TRAINING_PROFILE": "1",
+    "NUMI_HUMAN_RESTING_TRANSACTION_PROBE": "1",
+    "NUMI_HUMAN_ACCEPTED_COM_MOMENTUM_AUDIT": "1",
+    "NUMI_HUMAN_ACCEPTED_COM_MOMENTUM_AUDIT_SEGMENT_STEPS": "8",
+    "NUMI_HUMAN_ACCEPTED_Q_INTEGRATION_AUDIT": "0",
+    "NUMI_HUMAN_STAND_SPARSE_OPERATOR": "1",
+    "NUMI_HUMAN_STAND_CACHE_LIMIT_EQUALITY": "1",
+    "NUMI_HUMAN_STAND_REDUCED_PROJECTED_RESPONSES": "1",
+    "NUMI_HUMAN_STAND_REDUCED_CHOLESKY": "1",
+    "NUMI_HUMAN_STAND_REDUCED_BASE_PROJECTION": "1",
+    "NUMI_HUMAN_STAND_DEFER_EQUALITY_DATA": "1",
+    "NUMI_HUMAN_STAND_DEFER_EQUALITY_DIAGNOSTICS": "0",
+    "NUMI_HUMAN_STAND_EQUALITY_DEFERRAL_FAULT": "none",
+    "NUMI_HUMAN_STAND_COMPENSATED_BODY_SUM": "1",
+    "NUMI_HUMAN_RESTING_ELIMINATE_FIXED_BOUNDS": "1",
+    "NUMI_HUMAN_RESTING_CONSOLIDATE_LINEAR_BOUNDS": "1",
+    "NUMI_HUMAN_SUPPORT_ANCESTRY_PRUNE": "1",
+    "NUMI_HUMAN_PARALLEL_RESPIRATORY_MUSCLES": "1",
+    "NUMI_HUMAN_PARALLEL_RESPIRATORY_GAS": "0",
+    "NUMI_HUMAN_GAS_TRANSPORT_SUBCYCLING": "1",
+    "NUMI_HUMAN_RESPIRATORY_SUBCYCLING": "1",
+}
+
+NATIVE_310S_DISABLED_EXPERIMENTS = {
+    "NUMI_HUMAN_STAND_ANALYTIC_BODY_SPATIAL_JACOBIANS": "0",
+    "NUMI_HUMAN_STAND_CACHE_CONTACT_JACOBIAN": "0",
+    "NUMI_HUMAN_STAND_CONTACT_WARMSTART": "0",
+    "NUMI_HUMAN_STAND_FIRST_SIMD_CONTACT_SWEEP": "0",
+    "NUMI_HUMAN_STAND_FUSE_CANONICAL_BODY_PROBES": "0",
+    "NUMI_HUMAN_STAND_HYBRID_EQUALITY_FACTOR_CACHE": "0",
+    "NUMI_HUMAN_STAND_ONE_PASS_ORDERED_LIMITS": "0",
+    "NUMI_HUMAN_STAND_PGS_VELOCITY_RESIDUAL_TOLERANCE": "0.0",
+    "NUMI_HUMAN_STAND_SPECULATIVE_CONTACT_DISTANCE_M": "0.0",
+    "NUMI_HUMAN_STAND_ZERO_CONTACT_RESPONSE_FASTPATH": "0",
+    "NUMI_HUMAN_STAND_FORCE_PARITY_DIAGNOSTIC": "0",
+    "NUMI_HUMAN_STAND_SOURCE_ASSEMBLY_DUMP": "0",
+    "NUMI_HUMAN_SKIN_INFLUENCE_TILE32": "0",
+}
+
+
+def validate_native_310s_invocation(invocation: dict[str, Any]) -> None:
+    """Require a real owner invocation with the admitted 2 ms GPU configuration."""
+    environment = invocation.get("environment")
+    argv = invocation.get("argv")
+    if not isinstance(environment, dict) or not isinstance(argv, list):
+        raise ValueError("310 s preparation requires a Human owner invocation receipt")
+    if (invocation.get("qualification") !=
+            "native execution receipt; physiological and anatomical acceptance require separate audits" or
+            invocation.get("machine") != "arm64" or
+            not str(invocation.get("system", "")).startswith("Darwin")):
+        raise ValueError("310 s preparation requires a completed Apple-silicon Human owner run receipt")
+    for key, expected in NATIVE_310S_REQUIRED_ENVIRONMENT.items():
+        if environment.get(key) != expected:
+            raise ValueError(f"310 s invocation requires {key}={expected}")
+    for key, expected in NATIVE_310S_DISABLED_EXPERIMENTS.items():
+        if environment.get(key, expected) != expected:
+            raise ValueError(f"310 s invocation requires exploratory setting {key}={expected}")
+    reduced_diagnostic_roots = environment.get(
+        "NUMI_HUMAN_STAND_REDUCED_RESPONSE_DIAGNOSTIC_ROOTS", "")
+    if reduced_diagnostic_roots:
+        raise ValueError("310 s invocation requires reduced-response diagnostic roots to be unset or empty")
+    if any(key.startswith("NUMI_HUMAN_STAND_CPU_") and value == "1"
+           for key, value in environment.items()):
+        raise ValueError("310 s invocation cannot enable a CPU stand solver")
+    if "NUMI_HUMAN_RESIDENT_PHYSICS_PILOT" in environment:
+        raise ValueError("310 s paired study requires the single-Human scene, not the resident physics pilot")
+    if not argv or Path(str(argv[0])).name != "numi-human-native":
+        raise ValueError("310 s invocation must use the native Human executable")
+    try:
+        dt = float(argv[argv.index("--muscle-step-seconds") + 1])
+        steps = int(argv[argv.index("--muscle-step-count") + 1])
+    except (ValueError, IndexError, TypeError) as exc:
+        raise ValueError("310 s invocation is missing its native timestep or step count") from exc
+    if dt != NATIVE_310S_DT or steps <= 0:
+        raise ValueError("310 s invocation must be a real 2 ms native run")
+    if "--resting-movie" not in argv or "--mechanics-only" in argv:
+        raise ValueError("310 s invocation must retain the native anatomical viewer movie")
+    if "--resting-drive-intervention" in argv:
+        raise ValueError("310 s invocation must be an unmodified baseline owner receipt")
+    for key in ("NUMI_HUMAN_GPU_TIMING", "NUMI_MATTER_GPU_TIMING",
+                "NUMI_HUMAN_SUPPORT_GPU_TIMING", "NUMI_MATTER_GPU_TIMING_DENSE45"):
+        if environment.get(key, "0") not in ("0", "false", "False"):
+            raise ValueError(f"310 s invocation must disable profiling setting {key}")
+
+
+def _reference_execution(path: Path, label: str) -> dict[str, Any]:
+    if path.is_symlink() or not path.is_file():
+        raise ValueError(f"{label} reference is not a regular file: {path}")
+    path = path.resolve()
+    record = json.loads(path.read_text(encoding="utf-8"))
+    if record.get("exit_code") != 0:
+        raise ValueError(f"{label} reference did not complete successfully")
+    return record
+
+
+def native_310s_reference_manifest(args: argparse.Namespace) -> tuple[dict[str, Any], list[str]]:
+    """Pin the distinct segment-8 and full-q references without equating their scopes."""
+    segment_path = Path(args.segment8_reference)
+    q_path = Path(args.full_q_reference)
+    runtime_path = Path(args.runtime_correctness_reference)
+    if any(path.is_symlink() for path in (segment_path, q_path, runtime_path)):
+        raise ValueError("audit-schedule references must not be symlinks")
+    segment_path, q_path, runtime_path = (path.resolve() for path in (segment_path, q_path, runtime_path))
+    segment = _reference_execution(segment_path, "segment-8")
+    q_full = _reference_execution(q_path, "full-q")
+    if runtime_path.is_symlink() or not runtime_path.is_file():
+        raise ValueError(f"runtime correctness pin is not a regular file: {runtime_path}")
+    runtime = json.loads(runtime_path.read_text(encoding="utf-8"))
+    segment_env = segment.get("environment", {})
+    segment_run = segment.get("run_configuration", {})
+    if (segment_env.get("NUMI_HUMAN_ACCEPTED_COM_MOMENTUM_AUDIT") != "1" or
+            segment_env.get("NUMI_HUMAN_ACCEPTED_COM_MOMENTUM_AUDIT_SEGMENT_STEPS") != "8" or
+            segment_env.get("NUMI_HUMAN_ACCEPTED_Q_INTEGRATION_AUDIT") != "0" or
+            segment_run.get("accepted_com_audit_segment_steps") != 8 or
+            segment_run.get("full_accepted_q_audit") is not False or
+            segment_run.get("requested_dt_s") != "0.008" or
+            segment_run.get("requested_step_count") != 250 or
+            segment_run.get("presentation_period_s") != 0.064):
+        raise ValueError("segment-8 reference no longer matches the retained 752 diagnostic schedule")
+    q_env = q_full.get("environment", {})
+    q_run = q_full.get("run_configuration", {})
+    if (q_env.get("NUMI_HUMAN_ACCEPTED_Q_INTEGRATION_AUDIT") != "1" or
+            q_run.get("full_accepted_q_audit") is not True or
+            q_run.get("requested_dt_s") != "0.002" or
+            q_run.get("requested_step_count") != 1000 or
+            q_run.get("presentation_period_s") != 0.064 or
+            q_run.get("transaction_probe") is not True):
+        raise ValueError("full-q reference no longer matches the retained 801 2 ms audit")
+    q_dir = q_path.parent
+    q_csv = q_dir / "resting-com-q-integration.csv"
+    q_surface = q_dir / "resting-surface-audit.csv"
+    if q_csv.is_symlink() or not q_csv.is_file():
+        raise ValueError("full-q reference must retain its accepted 2 ms q-audit CSV")
+    with q_csv.open(encoding="utf-8") as stream:
+        q_audit_rows = sum(1 for _ in stream) - 1
+    if q_audit_rows != 1000:
+        raise ValueError("full-q reference must retain all 1000 accepted 2 ms q-audit rows")
+    if q_surface.is_symlink() or not q_surface.is_file():
+        raise ValueError("full-q reference must retain its 64 ms presentation surface trace")
+    with q_surface.open(newline="", encoding="utf-8") as stream:
+        surface_rows = list(csv.DictReader(stream))
+    surface_steps = [int(row["step"]) for row in surface_rows]
+    if (len(surface_steps) != 33 or surface_steps[0] != 0 or surface_steps[-1] != 999 or
+            any(b - a > 32 for a, b in zip(surface_steps, surface_steps[1:]))):
+        raise ValueError("full-q reference must retain the 64 ms presentation schedule")
+    expected_q = {"path": str(q_path), "sha256": sha256_file(q_path)}
+    evidence = runtime.get("evidence", {}).get(
+        "integrated-final-runtime-2ms-check-801/execution.json", {})
+    if (evidence.get("path") != str(q_dir / "execution.json") or
+            evidence.get("sha256") != expected_q["sha256"] or
+            runtime.get("integrated_2ms_check", {}).get("accepted_steps") != 1000):
+        raise ValueError("runtime correctness pin does not match the retained 801 full-q run")
+    segment_dir = segment_path.parent
+    segment_surface_metrics = native_surface_trace_consistency(
+        segment_dir / "resting-surface-audit.csv", 250, 0.008, require_whole_mesh=True)
+    q_surface_metrics = native_surface_trace_consistency(
+        q_surface, 1000, 0.002, require_whole_mesh=True)
+    required_files = [
+        segment_path, segment_dir / "resting-coupled.csv",
+        segment_dir / "resting-surface-audit.csv",
+        segment_dir / "resting-com-support-impulses.csv",
+        segment_dir / "resting-com-momentum-diagnostic.csv",
+        q_path, q_dir / "resting-coupled.csv", q_csv, q_surface, runtime_path,
+    ]
+    for path in required_files:
+        if path.is_symlink() or not path.is_file():
+            raise ValueError(f"missing regular audit-schedule reference artifact: {path}")
+    manifest = {
+        "segment8_schedule_reference": {
+            "execution_json": str(segment_path),
+            "execution_sha256": sha256_file(segment_path),
+            "physiology_trace_sha256": sha256_file(segment_dir / "resting-coupled.csv"),
+            "surface_trace_sha256": sha256_file(segment_dir / "resting-surface-audit.csv"),
+            "aggregate_support_impulses_sha256": sha256_file(segment_dir / "resting-com-support-impulses.csv"),
+            "com_momentum_diagnostics_sha256": sha256_file(segment_dir / "resting-com-momentum-diagnostic.csv"),
+            "scope": ("Retained 752 run reported exact physiology/surface outputs and aggregate contact "
+                      "extrema/impulse accounting while using the segment-8 observer schedule for its 2 s, "
+                      "8 ms condition; its displayed frames retain whole-mesh area and functional-volume checks. "
+                      "It does not qualify 8 ms temporal accuracy or the 310 s pair."),
+            "displayed_surface_frames": segment_surface_metrics["displayed_accepted_frames"],
+            "whole_mesh_triangles_checked_per_frame": segment_surface_metrics["whole_mesh_area_audit"]["triangles_checked_per_frame"],
+            "maximum_functional_volume_relative_error": segment_surface_metrics["maximum_rendered_functional_volume_relative_error"]},
+        "full_q_2ms_reference": {
+            "execution_json": str(q_path), "execution_sha256": sha256_file(q_path),
+            "q_integration_trace_sha256": sha256_file(q_csv),
+            "physiology_trace_sha256": sha256_file(q_dir / "resting-coupled.csv"),
+            "surface_trace_sha256": sha256_file(q_surface),
+            "runtime_correctness_pin": str(runtime_path),
+            "runtime_correctness_pin_sha256": sha256_file(runtime_path),
+            "full_q_audit_rows": q_audit_rows,
+            "displayed_surface_frames": len(surface_steps),
+            "whole_mesh_triangles_checked_per_frame": q_surface_metrics["whole_mesh_area_audit"]["triangles_checked_per_frame"],
+            "maximum_functional_volume_relative_error": q_surface_metrics["maximum_rendered_functional_volume_relative_error"],
+            "presentation_period_s": 0.064,
+            "scope": ("Retained 801 run has 1000 accepted full-q audit rows at 2 ms, whole-mesh area and "
+                      "functional-volume checks on its 33 displayed surface frames, and a 64 ms display cadence; "
+                      "it is a bounded 2 s runtime check, not 310 s endurance or physiological qualification.")},
+    }
+    artifacts = [str(path) for path in required_files]
+    return manifest, artifacts
+
+
+def prepare_native_310s(args: argparse.Namespace) -> Path:
+    """Create the fixed 310 s, 2 ms baseline/intervention v2 plan; never launch or register."""
+    raw_paths = [Path(args.invocation), Path(args.source_hashes), Path(args.source_revisions)]
+    for path in raw_paths:
+        if path.is_symlink() or not path.is_file():
+            raise ValueError(f"310 s preparation input must be a regular file: {path}")
+    invocation_path, source_hashes_path, source_revisions_path = (
+        path.resolve() for path in raw_paths)
+    invocation = json.loads(invocation_path.read_text(encoding="utf-8"))
+    validate_native_310s_invocation(invocation)
+    run_metadata_path = invocation_path.with_name("run-metadata.json")
+    if run_metadata_path.is_symlink() or not run_metadata_path.is_file():
+        raise ValueError("310 s preparation requires the completed Human owner run-metadata receipt")
+    run_metadata = json.loads(run_metadata_path.read_text(encoding="utf-8"))
+    if (run_metadata.get("exit_code") != 0 or
+            run_metadata.get("loaded_metal_runtime", {}).get("verified") is not True or
+            run_metadata.get("source_files_changed_during_run") != [] or
+            run_metadata.get("argv") != invocation.get("argv") or
+            run_metadata.get("asset_sha256") != invocation.get("asset_sha256") or
+            run_metadata.get("environment") != invocation.get("environment")):
+        raise ValueError("completed Human owner run does not verify the selected invocation and loaded runtime")
+    native_log_path = invocation_path.with_name("native.log")
+    if native_log_path.is_symlink() or not native_log_path.is_file():
+        raise ValueError("completed Human owner run is missing its native log")
+    native_preflight = native_scene_summary(native_log_path.read_text(encoding="utf-8", errors="replace"))
+    try:
+        requested_steps = int(invocation["argv"][invocation["argv"].index("--muscle-step-count") + 1])
+        requested_dt = float(invocation["argv"][invocation["argv"].index("--muscle-step-seconds") + 1])
+    except (ValueError, IndexError, TypeError, KeyError) as exc:
+        raise ValueError("Human owner receipt does not declare its actual preflight horizon") from exc
+    if (native_preflight["accepted_steps"] != requested_steps or requested_dt != NATIVE_310S_DT or
+            abs(native_preflight["simulated_s"] - requested_steps * requested_dt) > 1e-5 or
+            native_preflight["world_fingerprint"] != args.world_fingerprint or
+            native_preflight["coupled_program_fingerprint"] != args.control_program_fingerprint):
+        raise ValueError("completed Human owner preflight differs from the pinned 2 ms control program")
+    if not isinstance(json.loads(source_hashes_path.read_text(encoding="utf-8")), dict):
+        raise ValueError("source hash inventory must be a JSON object")
+    if not source_hashes_path.is_file() or not source_revisions_path.is_file():
+        raise ValueError("310 s preparation requires explicit source and revision pins")
+    references, reference_artifacts = native_310s_reference_manifest(args)
+    args.steps = NATIVE_310S_STEPS
+    args.dt = NATIVE_310S_DT
+    args.start_s = NATIVE_310S_START_S
+    args.end_s = NATIVE_310S_END_S
+    args.scale = NATIVE_310S_SCALE
+    args.window_s = NATIVE_310S_WINDOW_S
+    source_hashes = json.loads(source_hashes_path.read_text(encoding="utf-8"))
+    if not isinstance(source_hashes, dict):
+        raise ValueError("source hash inventory must be a JSON object")
+    output = Path(args.directory).resolve()
+    identity, calibration, plan = native_plan_components(
+        args, invocation, source_hashes, Path(__file__).resolve())
+    audit_schedule = {
+        "physical_timestep_s": NATIVE_310S_DT,
+        "accepted_native_steps": NATIVE_310S_STEPS,
+        "duration_s": NATIVE_310S_STEPS * NATIVE_310S_DT,
+        "initialization_exclusion_s": 10.0,
+        "post_initialization_observation_s": 300.0,
+        "body_physiology_controller_update": "every accepted native root at 2 ms",
+        "presentation_period_s": 0.064,
+        "accepted_com_momentum_audit": {
+            "enabled": True, "segment_steps": 8,
+            "scope": "diagnostic aggregation only; no change to physical integration cadence"},
+        "accepted_q_integration_audit": {
+            "enabled": False,
+            "scope": "disabled for the long pair; full-q audit is separately pinned to the 2 ms 1000-step 801 run"},
+        "presented_surface_geometry_audit": {
+            "enabled": True, "cadence_s": 0.064,
+            "scope": ("At every scheduled displayed accepted state, retain the complete visible-surface skin/bed "
+                      "and finiteness checks, whole-mesh triangle area counts, functional geometry status and "
+                      "functional-volume consistency. This samples presentation states; it is not a per-root "
+                      "q integration audit or a tissue-interface qualification.")},
+        "references": references,
+    }
+    identity["configuration"]["audit_schedule"] = audit_schedule
+    identity["configuration"]["physical_step_contract"] = (
+        "The body, circulation, respiration and brain controller continue to execute each accepted 2 ms "
+        "native root. COM audit segments and 64 ms display cadence are observer schedules, not timestep coarsening.")
+    plan["design"]["native_audit_schedule"] = audit_schedule
+    plan["design"]["native_step_contract"] = identity["configuration"]["physical_step_contract"]
+    plan.setdefault("validity", []).append({"path": ["timestep_s"], "equals": NATIVE_310S_DT})
+    plan["artifacts"] = list(dict.fromkeys([*plan["artifacts"], *reference_artifacts]))
+    plan["limitations"] += (
+        " The 310 s pair is planned at 155000 physical 2 ms roots after a 10 s initialization exclusion; "
+        "the 64 ms movie cadence and eight-root COM diagnostic segments do not alter physics/controller timestep. "
+        "The long pair disables the full q integration audit; the separate 801 reference is a 1000-root 2 ms "
+        "full-q check, while 752 only supports segment-8 observer scheduling at its 8 ms condition. "
+        "Neither reference demonstrates 310 s endurance or physiological/anatomical qualification. "
+        "The observation retains complete-breath windows, cumulative aortic/pulmonary ejection, and complete "
+        "filling/ejection-cycle counts, but the exploratory plan's validity gates do not require a minimum "
+        "number of completed breaths or repeated cardiac ejections; inspect those retained measures before "
+        "making any physiological claim.")
+    output.mkdir(parents=True, exist_ok=False)
+    write_json(output / "native-build-identity.json", identity)
+    write_json(output / "model.json", plan["model"])
+    write_json(output / "calibration.json", calibration)
+    write_json(output / "plan.json", plan)
+    print(output / "plan.json")
+    return output / "plan.json"
+
+
 def get_git_identity(repository: Path) -> dict[str, str]:
     def git(*argv: str) -> str:
         return subprocess.check_output(["git", "-C", str(repository), *argv], text=True).strip()
@@ -1424,6 +1747,25 @@ def main() -> int:
     native_prep.add_argument("--end-s", type=float, default=100.0)
     native_prep.add_argument("--scale", type=float, default=0.5)
     native_prep.add_argument("--window-s", type=float, default=30.0)
+    native_310s = sub.add_parser("prepare-native-310s",
+                                 help="prepare fixed 310 s paired study plan at 2 ms; never registers or launches")
+    native_310s.add_argument("--repository", required=True)
+    native_310s.add_argument("--directory", required=True)
+    native_310s.add_argument("--invocation", required=True,
+                             help="genuine Human owner invocation.json from the selected 2 ms GPU path")
+    native_310s.add_argument("--source-hashes", required=True)
+    native_310s.add_argument("--source-revisions", required=True)
+    native_310s.add_argument("--parser-fixture", required=True)
+    native_310s.add_argument("--world-fingerprint", required=True)
+    native_310s.add_argument("--control-program-fingerprint", required=True)
+    native_310s.add_argument("--treatment-program-fingerprint", required=True)
+    native_310s.add_argument("--device", default="Apple M4 Pro")
+    native_310s.add_argument("--segment8-reference", default=
+        "/Users/n/numi-human-resting-evidence-20261005/integrated-parallel-contact-batched-752/execution.json")
+    native_310s.add_argument("--full-q-reference", default=
+        "/Users/n/numi-human-resting-evidence-20261005/integrated-final-runtime-2ms-check-801/execution.json")
+    native_310s.add_argument("--runtime-correctness-reference", default=
+        "/Users/n/numi-human-performance-source-014/docs/evidence/human-resting/2026-10-07-native-runtime.json")
     receipt = sub.add_parser("receipt", help="capture exact source, binary, library, input, and repository identity after a native build")
     receipt.add_argument("--repository", required=True)
     receipt.add_argument("--brain-root", required=True)
@@ -1447,6 +1789,8 @@ def main() -> int:
             execute_native_scene_arm(args)
         elif args.command == "prepare-native":
             prepare_native(args)
+        elif args.command == "prepare-native-310s":
+            prepare_native_310s(args)
         elif args.command == "receipt":
             repository = Path(args.repository).resolve()
             brain_root = Path(args.brain_root).resolve()

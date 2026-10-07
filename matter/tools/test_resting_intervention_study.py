@@ -612,6 +612,212 @@ class NativeV2PlanPreparationTests(unittest.TestCase):
 
 
 
+class Native310sPreparationTests(unittest.TestCase):
+    @staticmethod
+    def invocation():
+        environment = dict(adapter.NATIVE_310S_REQUIRED_ENVIRONMENT)
+        environment.update(adapter.NATIVE_310S_DISABLED_EXPERIMENTS)
+        return {
+            "qualification": "native execution receipt; physiological and anatomical acceptance require separate audits",
+            "machine": "arm64", "system": "Darwin-26.6-arm64",
+            "environment": environment,
+            "argv": ["/native/build/bin/numi-human-native", "--muscle-step-seconds", "0.002",
+                     "--muscle-step-count", "1000", "--resting-movie", "/preflight/native-viewer.mov"],
+            "asset_sha256": {},
+        }
+
+    @staticmethod
+    def write_surface_fixture(path, steps, dt, *, include_whole_mesh=True):
+        columns = ["step", "time_s", "min_skin_bed_gap_m", "vertices_below_1mm",
+                   "nonfinite_skin_vertices", "max_functional_volume_relative_error",
+                   "q_ra", "q_rv", "q_la", "q_lv", "ra_target_ml", "rv_target_ml",
+                   "la_target_ml", "lv_target_ml", "diaphragm_swept_ml", "rib_swept_ml",
+                   "lung_target_ml", "functional_geometry_status"]
+        if include_whole_mesh:
+            columns += ["mesh_zero_area_triangles", "mesh_nonfinite_area_triangles",
+                        "mesh_triangles_checked"]
+        frame_interval = round(0.064 / dt)
+        selected = [0, *[step for step in range(frame_interval - 1, steps, frame_interval) if step != 0]]
+        if selected[-1] != steps - 1:
+            selected.append(steps - 1)
+        with path.open("w", newline="", encoding="utf-8") as stream:
+            writer = csv.DictWriter(stream, fieldnames=columns)
+            writer.writeheader()
+            for step in selected:
+                row = {"step": step, "time_s": step * dt, "min_skin_bed_gap_m": 0.001,
+                       "vertices_below_1mm": 0, "nonfinite_skin_vertices": 0,
+                       "max_functional_volume_relative_error": 0, "q_ra": 1, "q_rv": 1,
+                       "q_la": 1, "q_lv": 1, "ra_target_ml": 1, "rv_target_ml": 1,
+                       "la_target_ml": 1, "lv_target_ml": 1, "diaphragm_swept_ml": 0,
+                       "rib_swept_ml": 0, "lung_target_ml": 1, "functional_geometry_status": 0}
+                if include_whole_mesh:
+                    row.update(mesh_zero_area_triangles=0, mesh_nonfinite_area_triangles=0,
+                               mesh_triangles_checked=100)
+                writer.writerow(row)
+
+    def reference_fixture(self, root):
+        segment_dir = root / "segment8"
+        segment_dir.mkdir()
+        segment_path = segment_dir / "execution.json"
+        segment = {
+            "exit_code": 0,
+            "environment": {"NUMI_HUMAN_ACCEPTED_COM_MOMENTUM_AUDIT": "1",
+                            "NUMI_HUMAN_ACCEPTED_COM_MOMENTUM_AUDIT_SEGMENT_STEPS": "8",
+                            "NUMI_HUMAN_ACCEPTED_Q_INTEGRATION_AUDIT": "0"},
+            "run_configuration": {"accepted_com_audit_segment_steps": 8,
+                                  "full_accepted_q_audit": False,
+                                  "requested_dt_s": "0.008", "requested_step_count": 250,
+                                  "presentation_period_s": 0.064, "transaction_probe": True,
+                                  "root_assistance_requested": False},
+        }
+        segment_path.write_text(json.dumps(segment), encoding="utf-8")
+        for name in ("resting-coupled.csv", "resting-com-support-impulses.csv",
+                     "resting-com-momentum-diagnostic.csv"):
+            (segment_dir / name).write_text("retained segment reference\n", encoding="utf-8")
+        self.write_surface_fixture(segment_dir / "resting-surface-audit.csv", 250, 0.008)
+
+        q_dir = root / "full-q"
+        q_dir.mkdir()
+        q_path = q_dir / "execution.json"
+        q = {
+            "exit_code": 0,
+            "environment": {"NUMI_HUMAN_ACCEPTED_COM_MOMENTUM_AUDIT": "1",
+                            "NUMI_HUMAN_ACCEPTED_COM_MOMENTUM_AUDIT_SEGMENT_STEPS": "1",
+                            "NUMI_HUMAN_ACCEPTED_Q_INTEGRATION_AUDIT": "1"},
+            "run_configuration": {"accepted_com_audit_segment_steps": 1,
+                                  "full_accepted_q_audit": True,
+                                  "requested_dt_s": "0.002", "requested_step_count": 1000,
+                                  "presentation_period_s": 0.064, "transaction_probe": True,
+                                  "root_assistance_requested": False},
+        }
+        q_path.write_text(json.dumps(q), encoding="utf-8")
+        (q_dir / "resting-coupled.csv").write_text("retained 2ms physiology\n", encoding="utf-8")
+        q_csv = q_dir / "resting-com-q-integration.csv"
+        q_csv.write_text("step\n" + "".join(f"{step}\n" for step in range(1000)), encoding="utf-8")
+        self.write_surface_fixture(q_dir / "resting-surface-audit.csv", 1000, 0.002)
+        runtime_path = root / "runtime-correctness.json"
+        runtime_path.write_text(json.dumps({
+            "evidence": {"integrated-final-runtime-2ms-check-801/execution.json": {
+                "path": str(q_path.resolve()), "sha256": hashlib.sha256(q_path.read_bytes()).hexdigest()}},
+            "integrated_2ms_check": {"accepted_steps": 1000},
+        }), encoding="utf-8")
+        return segment_path, q_path, runtime_path
+
+    def test_310s_plan_requires_exact_2ms_gpu_path_and_diagnostic_only_coarsening(self):
+        invocation = self.invocation()
+        adapter.validate_native_310s_invocation(invocation)
+        for key, value, expected_error in (
+            ("NUMI_HUMAN_ACCEPTED_Q_INTEGRATION_AUDIT", "1", "Q_INTEGRATION_AUDIT=0"),
+            ("NUMI_HUMAN_ACCEPTED_COM_MOMENTUM_AUDIT_SEGMENT_STEPS", "1", "SEGMENT_STEPS=8"),
+            ("NUMI_HUMAN_STAND_CONTACT_WARMSTART", "1", "CONTACT_WARMSTART=0"),
+            ("NUMI_HUMAN_RESIDENT_PHYSICS_PILOT", "8", "single-Human scene"),
+        ):
+            bad = dict(invocation)
+            bad["environment"] = dict(invocation["environment"], **{key: value})
+            with self.subTest(key=key), self.assertRaisesRegex(ValueError, expected_error):
+                adapter.validate_native_310s_invocation(bad)
+        bad = dict(invocation)
+        bad["argv"] = list(invocation["argv"])
+        bad["argv"][bad["argv"].index("--muscle-step-seconds") + 1] = "0.008"
+        with self.assertRaisesRegex(ValueError, "real 2 ms native run"):
+            adapter.validate_native_310s_invocation(bad)
+
+    def test_surface_audit_rejects_missing_whole_mesh_area_columns_when_required(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "surface.csv"
+            self.write_surface_fixture(path, 64, 0.002, include_whole_mesh=False)
+            with self.assertRaisesRegex(ValueError, "required whole-mesh area audit"):
+                adapter.native_surface_trace_consistency(path, 64, 0.002, require_whole_mesh=True)
+
+    def test_310s_plan_pins_segment8_and_full_q_references_with_distinct_scopes(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            segment, full_q, runtime = self.reference_fixture(root)
+            manifest, artifacts = adapter.native_310s_reference_manifest(Namespace(
+                segment8_reference=str(segment), full_q_reference=str(full_q),
+                runtime_correctness_reference=str(runtime)))
+            self.assertEqual(manifest["segment8_schedule_reference"]["execution_sha256"],
+                             hashlib.sha256(segment.read_bytes()).hexdigest())
+            self.assertEqual(manifest["full_q_2ms_reference"]["full_q_audit_rows"], 1000)
+            self.assertEqual(manifest["full_q_2ms_reference"]["displayed_surface_frames"], 33)
+            self.assertEqual(manifest["full_q_2ms_reference"]["whole_mesh_triangles_checked_per_frame"], 100)
+            self.assertEqual(manifest["segment8_schedule_reference"]["displayed_surface_frames"], 33)
+            self.assertIn("does not qualify 8 ms temporal accuracy",
+                          manifest["segment8_schedule_reference"]["scope"])
+            self.assertIn("not 310 s endurance",
+                          manifest["full_q_2ms_reference"]["scope"])
+            self.assertIn(str(segment.resolve()), artifacts)
+            self.assertIn(str((full_q.parent / "resting-com-q-integration.csv").resolve()), artifacts)
+            invalid = json.loads(segment.read_text())
+            invalid["run_configuration"]["requested_dt_s"] = "0.002"
+            segment.write_text(json.dumps(invalid), encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "segment-8 reference no longer matches"):
+                adapter.native_310s_reference_manifest(Namespace(
+                    segment8_reference=str(segment), full_q_reference=str(full_q),
+                    runtime_correctness_reference=str(runtime)))
+
+    def test_310s_plan_wrapper_fixes_physics_horizon_and_only_prepares_v2_plan(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            invocation = self.invocation()
+            invocation_path = root / "invocation.json"
+            invocation_path.write_text(json.dumps(invocation), encoding="utf-8")
+            (root / "run-metadata.json").write_text(json.dumps({
+                "exit_code": 0, "loaded_metal_runtime": {"verified": True},
+                "source_files_changed_during_run": [], "argv": invocation["argv"],
+                "asset_sha256": invocation["asset_sha256"],
+                "environment": invocation["environment"],
+            }), encoding="utf-8")
+            (root / "native.log").write_text(
+                "runtime=device=Apple M4 Pro world_fingerprint=123 eligible dense45 vascular solve\n"
+                "resting_body_source_fingerprint=111 coupled_program_fingerprint=456\n"
+                'stand_terminal_state={"root_assistance":false,"step_count":1000,"q":[],"v":[]}\n'
+                "resting_integrated_body=completed simulated_s=2 wall_s=20 real_time_factor=0.1 "
+                "physiology_body_clock=matched root_assistance=false\n", encoding="utf-8")
+            source_hashes = root / "source-hashes.json"
+            source_hashes.write_text("{}", encoding="utf-8")
+            source_revisions = root / "source-revisions.json"
+            source_revisions.write_text("{}", encoding="utf-8")
+            segment, full_q, runtime = self.reference_fixture(root)
+            args = Namespace(
+                invocation=str(invocation_path), source_hashes=str(source_hashes),
+                source_revisions=str(source_revisions), directory=str(root / "plan"),
+                segment8_reference=str(segment), full_q_reference=str(full_q),
+                runtime_correctness_reference=str(runtime), repository=str(root),
+                parser_fixture=str(root / "parser.csv"), world_fingerprint="123",
+                control_program_fingerprint="456", treatment_program_fingerprint="789",
+                device="Apple M4 Pro")
+            identity = {"configuration": {}}
+            calibration = {"schema": "numi.science.calibration.v1"}
+            plan = {"schema": "numi.science.plan.v2", "model": {}, "artifacts": [],
+                    "design": {}, "limitations": "", "validity": []}
+            with patch.object(adapter, "native_plan_components",
+                              return_value=(identity, calibration, plan)) as build:
+                plan_path = adapter.prepare_native_310s(args)
+            called = build.call_args.args[0]
+            self.assertEqual(called.steps, 155000)
+            self.assertEqual(called.dt, 0.002)
+            self.assertEqual(called.start_s, 60.0)
+            self.assertEqual(called.end_s, 100.0)
+            self.assertEqual(called.scale, 0.5)
+            self.assertEqual(called.window_s, 30.0)
+            emitted = json.loads(plan_path.read_text())
+            emitted_identity = json.loads((root / "plan" / "native-build-identity.json").read_text())
+            schedule = emitted_identity["configuration"]["audit_schedule"]
+            self.assertEqual(schedule["accepted_com_momentum_audit"]["segment_steps"], 8)
+            self.assertFalse(schedule["accepted_q_integration_audit"]["enabled"])
+            self.assertTrue(schedule["presented_surface_geometry_audit"]["enabled"])
+            self.assertEqual(schedule["presented_surface_geometry_audit"]["cadence_s"], 0.064)
+            self.assertEqual(schedule["physical_timestep_s"], 0.002)
+            self.assertEqual(schedule["presentation_period_s"], 0.064)
+            self.assertIn("each accepted 2 ms native root",
+                          emitted_identity["configuration"]["physical_step_contract"])
+            self.assertEqual(emitted["schema"], "numi.science.plan.v2")
+            self.assertIn({"path": ["timestep_s"], "equals": 0.002}, emitted["validity"])
+            self.assertIn("do not require a minimum", emitted["limitations"])
+            self.assertFalse((root / "plan" / "study").exists())
+
+
 class NativeFailureEvidenceIsolationTests(unittest.TestCase):
     def test_failed_arm_cannot_overwrite_preflight_failure_evidence(self):
         # Exercise an actual failing child and its environment without launching
