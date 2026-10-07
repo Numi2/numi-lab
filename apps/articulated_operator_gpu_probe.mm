@@ -1339,6 +1339,50 @@ int main() {
             "invalid armature did not preserve transactional output"
         );
 
+        const MRArticulationGPU& g1Articulation =
+            g1.articulations.front();
+        require(6u >= g1Articulation.firstBody &&
+                    6u < g1Articulation.firstBody +
+                        g1Articulation.bodyCount &&
+                    6u != g1Articulation.rootBody,
+                "body-6 inertia fixture is not a non-root G1 record");
+
+        // runMetal uploads EngineModel records directly; its host-side checks
+        // cover only buffer shape. Compare the same malformed body bytes via
+        // the serial and point-Jacobians cooperative validator paths.
+        const auto requireBodyValidationParity =
+            [&](const metalrobo::EngineModel& invalidModel,
+                const std::uint32_t expectedBody,
+                const std::string& label) {
+                const MetalResult serial = runMetal(
+                    invalidModel, g1Q, g1Points, 0u, false, false);
+                const MetalResult cooperative = runMetal(
+                    invalidModel, g1Q, g1Points, 0u, false, true);
+                require(serial.statuses.size() == cooperative.statuses.size(),
+                        label + " status batch size differs");
+                require(serial.payloadUntouched() &&
+                            cooperative.payloadUntouched(),
+                        label + " published output for invalid body");
+                for (std::size_t environment = 0u;
+                     environment < serial.statuses.size();
+                     ++environment) {
+                    const auto& a = serial.statuses[environment];
+                    const auto& b = cooperative.statuses[environment];
+                    require(a.code == MR_ARTICULATED_OPERATOR_INVALID_MODEL &&
+                                b.code == a.code &&
+                                a.failingIndex == expectedBody &&
+                                b.failingIndex == a.failingIndex &&
+                                a.environment == b.environment &&
+                                a.articulationIndex == b.articulationIndex &&
+                                a.bodyCount == b.bodyCount &&
+                                a.nq == b.nq && a.nv == b.nv &&
+                                a.pointCount == b.pointCount &&
+                                std::memcmp(&a.diagnostics, &b.diagnostics,
+                                            sizeof(a.diagnostics)) == 0,
+                            label + " changed serial failure status/index");
+                }
+            };
+
         metalrobo::EngineModel invalidInverseInertia = g1;
         invalidInverseInertia.bodies[6].inverseInertiaRow0 = {};
         std::string invalidInverseReason;
@@ -1346,20 +1390,8 @@ int main() {
             !invalidInverseInertia.valid(&invalidInverseReason),
             "CPU model validator accepted a singular inverse inertia"
         );
-        const MetalResult invalidInverseGpu =
-            runMetal(invalidInverseInertia, g1Q, g1Points);
-        require(
-            std::all_of(
-                invalidInverseGpu.statuses.begin(),
-                invalidInverseGpu.statuses.end(),
-                [](const MRArticulatedOperatorStatusGPU& status) {
-                    return status.code ==
-                        MR_ARTICULATED_OPERATOR_INVALID_MODEL;
-                }
-            ) &&
-                invalidInverseGpu.payloadUntouched(),
-            "Metal accepted a singular inverse inertia"
-        );
+        requireBodyValidationParity(
+            invalidInverseInertia, 6u, "singular inverse inertia");
 
         metalrobo::EngineModel indefiniteInertia = g1;
         MRBodyPropertiesGPU& indefiniteBody =
@@ -1378,20 +1410,39 @@ int main() {
             !indefiniteInertia.valid(&indefiniteReason),
             "CPU model validator accepted indefinite inertia"
         );
-        const MetalResult indefiniteGpu =
-            runMetal(indefiniteInertia, g1Q, g1Points);
-        require(
-            std::all_of(
-                indefiniteGpu.statuses.begin(),
-                indefiniteGpu.statuses.end(),
-                [](const MRArticulatedOperatorStatusGPU& status) {
-                    return status.code ==
-                        MR_ARTICULATED_OPERATOR_INVALID_MODEL;
-                }
-            ) &&
-                indefiniteGpu.payloadUntouched(),
-            "Metal accepted indefinite inertia with positive diagonal"
-        );
+        requireBodyValidationParity(
+            indefiniteInertia, 6u,
+            "indefinite inertia with positive diagonal");
+
+        const std::uint32_t rootLocal =
+            g1Articulation.rootBody - g1Articulation.firstBody;
+        std::uint32_t firstNonRootLocal =
+            rootLocal == 0u ? 1u : 0u;
+        std::uint32_t laterNonRootLocal =
+            g1Articulation.bodyCount - 1u;
+        while (laterNonRootLocal == rootLocal ||
+               laterNonRootLocal <= firstNonRootLocal) {
+            require(laterNonRootLocal > 0u,
+                    "G1 has no ordered pair of non-root bodies");
+            --laterNonRootLocal;
+        }
+        const std::uint32_t firstOwnershipFailure =
+            g1Articulation.firstBody + firstNonRootLocal;
+        const std::uint32_t laterInertiaFailure =
+            g1Articulation.firstBody + laterNonRootLocal;
+        metalrobo::EngineModel ownershipAndLaterSPD = g1;
+        ownershipAndLaterSPD.bodies[firstOwnershipFailure].parentBody =
+            firstOwnershipFailure;
+        ownershipAndLaterSPD.bodies[laterInertiaFailure].inertiaRow0 =
+            f4(-1.0f, 0.0f, 0.0f);
+        ownershipAndLaterSPD.bodies[laterInertiaFailure].inertiaRow1 =
+            f4(0.0f, 1.0f, 0.0f);
+        ownershipAndLaterSPD.bodies[laterInertiaFailure].inertiaRow2 =
+            f4(0.0f, 0.0f, 1.0f);
+        requireBodyValidationParity(
+            ownershipAndLaterSPD,
+            firstOwnershipFailure,
+            "earlier body ownership over later indefinite inertia");
 
         std::cout
             << "MetalRobo generic articulated operator probe passed on "
