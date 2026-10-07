@@ -1,0 +1,93 @@
+{
+  "scope": "Accepted observer only; existing GPU solver-iterate work accumulators, not endpoint-energy or momentum closure; no new GPU work or readback.",
+  "verification": {
+    "32": {
+      "rows": 8,
+      "physiology_endpoint_columns_identical": 45,
+      "q_v_root_fingerprints_identical": true,
+      "COM_position_velocity_identical": true,
+      "work_columns": [
+        "contact_normal_solver_iterate_work_segment_j",
+        "contact_tangent_solver_iterate_work_segment_j",
+        "equality_solver_iterate_work_segment_j",
+        "source_limit_solver_iterate_work_segment_j",
+        "contact_normal_absolute_solver_iterate_work_segment_j",
+        "contact_tangent_absolute_solver_iterate_work_segment_j",
+        "equality_absolute_solver_iterate_work_segment_j",
+        "source_limit_absolute_solver_iterate_work_segment_j"
+      ],
+      "sum_work_j": [
+        -7.893112003803253,
+        -6.499896138906479,
+        -278.56899642944336,
+        -0.5747356358915567,
+        10.195702195167542,
+        10.858398497104645,
+        278.56899642944336,
+        0.5748703442513943
+      ],
+      "launcher": {
+        "exit_code": 0,
+        "output": "/Users/n/numi-human-resting-evidence-20261005/native-contact-work-observer-556/mechanics-cap32-256/native-output",
+        "changed_sources": [],
+        "loaded_runtime_verified": true
+      },
+      "transaction_rejection_checks": [
+        "resting_common_domain_rejection=pass status=5 accepted_physical_and_circulation_unchanged=true controller_history_and_common_presentation_unchanged=true retry_predecessor_generation=1",
+        "resting_integrated_rejection=pass rejected_after_accepted_predecessor=true body_q_v_root_myo_unchanged=true circulation_and_clock_unchanged=true respiration_brain_history_unchanged=true retry_matches_uninterrupted_replay=true same_command_buffer_reject=pass accepted_prefix=2 rejected_step=2 inert_suffix=1"
+      ]
+    },
+    "1": {
+      "rows": 256,
+      "physiology_endpoint_columns_identical": 47,
+      "q_v_root_fingerprints_identical": true,
+      "COM_position_velocity_identical": true,
+      "work_columns": [
+        "contact_normal_solver_iterate_work_segment_j",
+        "contact_tangent_solver_iterate_work_segment_j",
+        "equality_solver_iterate_work_segment_j",
+        "source_limit_solver_iterate_work_segment_j",
+        "contact_normal_absolute_solver_iterate_work_segment_j",
+        "contact_tangent_absolute_solver_iterate_work_segment_j",
+        "equality_absolute_solver_iterate_work_segment_j",
+        "source_limit_absolute_solver_iterate_work_segment_j"
+      ],
+      "sum_work_j": [
+        -7.893111887329724,
+        -6.49989634717349,
+        -278.56900388002396,
+        -0.574735725793289,
+        10.19570259586908,
+        10.85839861095883,
+        278.56900388002396,
+        0.5748704289144371
+      ],
+      "launcher": {
+        "exit_code": 0,
+        "output": "/Users/n/numi-human-resting-evidence-20261005/native-contact-work-observer-556/mechanics-cap1-256/native-output",
+        "changed_sources": [],
+        "loaded_runtime_verified": true
+      },
+      "transaction_rejection_checks": [
+        "resting_common_domain_rejection=pass status=5 accepted_physical_and_circulation_unchanged=true controller_history_and_common_presentation_unchanged=true retry_predecessor_generation=1",
+        "resting_integrated_rejection=pass rejected_after_accepted_predecessor=true body_q_v_root_myo_unchanged=true circulation_and_clock_unchanged=true respiration_brain_history_unchanged=true retry_matches_uninterrupted_replay=true same_command_buffer_reject=pass accepted_prefix=2 rejected_step=2 inert_suffix=1"
+      ]
+    }
+  },
+  "cap32_vs_sum_cap1": {
+    "max_absolute_error_j": [
+      3.3812830224633217e-07,
+      2.086162567138672e-07,
+      9.5367431640625e-06,
+      1.1530937626957893e-07,
+      2.60770320892334e-07,
+      1.73225998878479e-07,
+      9.5367431640625e-06,
+      1.0320218279957771e-07
+    ],
+    "pass": true,
+    "tolerance": "2e-5 * max(1, abs(sum)); existing float32 segment accumulations differ from float64 evidence sums"
+  },
+  "source_patch_sha256": "3bd6d48998feb7b156ff04733fcd3cd9e558b543feae3f872ab0e235d9089f0f",
+  "source_revision_parent": "e3d2e1930341485ea166f330930a327b78e121fe"
+}

@@ -22434,7 +22434,11 @@ int main(int argc, char** argv) {
                         << "world_contact_impulse_x_ns,world_contact_impulse_y_ns,world_contact_impulse_z_ns,"
                         << "unaccounted_delta_p_x_ns,unaccounted_delta_p_y_ns,unaccounted_delta_p_z_ns,"
                         << "stand_q_fingerprint_fnv64,stand_v_fingerprint_fnv64,root_translation_fingerprint_fnv64,"
-                        << "momentum_residual_status\n";
+                        << "momentum_residual_status,"
+                        << "contact_normal_solver_iterate_work_segment_j,contact_tangent_solver_iterate_work_segment_j,"
+                        << "equality_solver_iterate_work_segment_j,source_limit_solver_iterate_work_segment_j,"
+                        << "contact_normal_absolute_solver_iterate_work_segment_j,contact_tangent_absolute_solver_iterate_work_segment_j,"
+                        << "equality_absolute_solver_iterate_work_segment_j,source_limit_absolute_solver_iterate_work_segment_j\n";
                     supportImpulseTrace.open(std::filesystem::path(positional.back())/
                         "resting-com-support-impulses.csv");
                     require(supportImpulseTrace.good(),
@@ -22447,6 +22451,7 @@ int main(int argc, char** argv) {
                     std::cout << "resting_com_momentum_audit=enabled cadence=accepted_segment_endpoint "
                               << "segment_cap_steps=" << restingComMomentumAuditSegmentSteps << " "
                               << "kinematics=CPU_evidence_only contact_impulses=per_contact_pre_step_basis_and_world_sum_final_physical_step_per_segment "
+                              << "constraint_work=GPU_solver_iterate_segment_sum_not_endpoint_energy_balance "
                               << "full_3d_interval_residual=unavailable_without_time_integrated_other_external_impulses"
                               << std::endl;
                 }
@@ -22877,7 +22882,30 @@ int main(int argc, char** argv) {
                                 << vFingerprint << ',' << rootFingerprint << ','
                                 << (hasPerStepRemainder
                                     ? "per_step_delta_p_minus_gravity_and_contact_only"
-                                    : "not_per_step_or_initial_sample") << '\n';
+                                    : "not_per_step_or_initial_sample");
+                            // These existing GPU accumulators use the contact solver's
+                            // actual skin-support Jacobians. They are sums over the
+                            // accepted segment's solver iterates, not an endpoint
+                            // mechanical-energy balance or a static contact proxy.
+                            const auto& work = b.constraintImpulseWorkDiagnostics;
+                            const auto& absoluteWork = b.constraintImpulseAbsoluteWorkDiagnostics;
+                            const std::array<double, 4u> signedValues{
+                                work.x, work.y, work.z, work.w};
+                            const std::array<double, 4u> absoluteValues{
+                                absoluteWork.x, absoluteWork.y, absoluteWork.z, absoluteWork.w};
+                            for (std::size_t family = 0u; family < signedValues.size(); ++family) {
+                                require(std::isfinite(signedValues[family]) &&
+                                            std::isfinite(absoluteValues[family]) &&
+                                            absoluteValues[family] >= 0.0 &&
+                                            absoluteValues[family] + 1.0e-6 *
+                                                std::max(1.0, absoluteValues[family]) >=
+                                                std::abs(signedValues[family]),
+                                        "accepted solver-iterate work diagnostic is invalid");
+                                comMomentumTrace << ',' << signedValues[family];
+                            }
+                            for (const double value : absoluteValues)
+                                comMomentumTrace << ',' << value;
+                            comMomentumTrace << '\n';
                             for (std::size_t contact = 0u;
                                  contact < supportContactPayload->records.size(); ++contact) {
                                 const auto& sourceContact =
