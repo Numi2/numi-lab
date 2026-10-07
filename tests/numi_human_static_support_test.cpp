@@ -815,7 +815,10 @@ void testAnalyticBodySpatialReference() {
         const auto worldJointLinear = rotate(functionParentOrientation, localLinear);
         const auto parentAnchor = rotate(
             functionParentOrientation,
-            std::array<double, 3>{0.08, -0.03, 0.05});
+            std::array<double, 3>{
+                static_cast<double>(functionJoint.parentAnchor.x),
+                static_cast<double>(functionJoint.parentAnchor.y),
+                static_cast<double>(functionJoint.parentAnchor.z)});
         const auto functionTranslation = rotate(
             functionParentOrientation, transformState.translation);
         const std::array<double, 3> jointPoint{
