@@ -113,6 +113,19 @@ typedef struct MR_ALIGN16 MRHumanRestingSurfaceAuditGPU {
     mr_uint4 indicesAndOwner; // first index, count, kind (1 lung / 2 cavity), channel
     mr_float4 reference; // x: source enclosed volume m^3, y: source lobe swept area m^2
 } MRHumanRestingSurfaceAuditGPU;
+#define MR_HUMAN_RESTING_VOLUME_AUDIT_GROUP_THREADS 256u
+typedef struct MR_ALIGN16 MRHumanRestingVolumeAuditGroupGPU {
+    mr_uint4 surfaceAndTriangleRange; // surface row, first local triangle, triangle count, reserved
+} MRHumanRestingVolumeAuditGroupGPU;
+typedef struct MR_ALIGN16 MRHumanRestingVolumeAuditRangeGPU {
+    mr_uint4 groupRange; // first partial group, group count, reserved, reserved
+} MRHumanRestingVolumeAuditRangeGPU;
+typedef struct MR_ALIGN16 MRHumanRestingVolumeAuditPartialGPU {
+    float signedVolume;
+    mr_u32 invalidTriangleCount;
+    mr_u32 firstInvalidTriangle;
+    mr_u32 reserved;
+} MRHumanRestingVolumeAuditPartialGPU;
 #define MR_HUMAN_RESTING_TRIANGLE_FAILURE_NONE 0u
 #define MR_HUMAN_RESTING_TRIANGLE_FAILURE_NONFINITE_AREA 1u
 #define MR_HUMAN_RESTING_TRIANGLE_FAILURE_EXACT_ZERO_AREA 2u
@@ -126,3 +139,8 @@ typedef struct MR_ALIGN16 MRHumanRestingSurfaceFailureGPU {
     mr_uint4 vertexIndices;
     mr_float4 renderedPositions[3];
 } MRHumanRestingSurfaceFailureGPU;
+#if defined(__cplusplus)
+static_assert(sizeof(MRHumanRestingVolumeAuditGroupGPU)==16);
+static_assert(sizeof(MRHumanRestingVolumeAuditRangeGPU)==16);
+static_assert(sizeof(MRHumanRestingVolumeAuditPartialGPU)==16);
+#endif

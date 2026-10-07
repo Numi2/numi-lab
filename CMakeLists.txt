@@ -1700,7 +1700,7 @@ if(BUILD_TESTING)
     add_test(NAME numi_human_common_field_metal COMMAND metalrobo_numi_human_common_field_metal_test)
     set_tests_properties(numi_human_common_field_metal PROPERTIES LABELS "numi-human;cardiac;common-field;metal" TIMEOUT 90)
     add_executable(metalrobo_numi_human_mesh_audit_metal_test tests/numi_human_mesh_audit_metal_test.mm)
-    target_include_directories(metalrobo_numi_human_mesh_audit_metal_test PRIVATE include)
+    target_include_directories(metalrobo_numi_human_mesh_audit_metal_test PRIVATE include matter/include)
     target_compile_features(metalrobo_numi_human_mesh_audit_metal_test PRIVATE cxx_std_20)
     target_compile_definitions(metalrobo_numi_human_mesh_audit_metal_test PRIVATE
         NUMI_HUMAN_RESPIRATION_METALLIB="${CMAKE_CURRENT_BINARY_DIR}/matter/shaders/HumanRespiration.metallib")

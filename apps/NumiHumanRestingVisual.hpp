@@ -20,6 +20,7 @@ class NumiHumanRestingVisual {
     std::unique_ptr<metalrobo::MetalHybridRenderer> renderer;
     metalrobo::MetalWorldFamilyContext worlds;
     id<MTLBuffer> mapping, influences, anatomyParameters, surfaceAudits, volumeResults, instanceLayers, cardiacQ;
+    id<MTLBuffer> volumeAuditGroups,volumeAuditRanges,volumeAuditPartials;
     id<MTLBuffer> cardiacWallMap, cardiacWallParameters, cardiacWallQ, cardiacWallNormalRanges, cardiacWallIncidentTriangles;
     id<MTLBuffer> commonFieldMapBuffer, commonFieldParameters, commonFieldBoxes, commonFieldCoordinates;
     id<MTLBuffer> commonFieldNormalRanges, commonFieldIncidentTriangles;
@@ -28,7 +29,8 @@ class NumiHumanRestingVisual {
     id<MTLComputePipelineState> meshAuditPipeline,meshAuditReducePipeline;
     std::vector<MRVisualPrimitiveGPUV2> auditedMeshPrimitives;
     static constexpr unsigned meshAuditGroupCount=64;
-    id<MTLComputePipelineState> skinPipeline, layerPipeline, volumePipeline, skinAuditPipeline, cardiacQPipeline, bodyAuditPipeline;
+    id<MTLComputePipelineState> skinPipeline, layerPipeline, volumeAuditPartialPipeline, volumeAuditReducePipeline;
+    id<MTLComputePipelineState> skinAuditPipeline, cardiacQPipeline, bodyAuditPipeline;
     id<MTLComputePipelineState> cardiacWallQPipeline, cardiacWallNormalsPipeline;
     id<MTLComputePipelineState> commonCoordinatesPipeline=nil,commonCoordinateStatusPipeline=nil;
     id<MTLComputePipelineState> vertexCapturePipeline=nil;
@@ -40,7 +42,7 @@ class NumiHumanRestingVisual {
     bool rigidHands=false;
     bool profileTiming=false;
     bool profileGpuTiming=false,gpuTimingUnavailableReported=false;
-    unsigned auditCount=0;
+    unsigned auditCount=0,volumeAuditGroupCount=0;
     std::vector<unsigned> auditStableIds;
     unsigned cardiacWallVertexCount=0,cardiacWallAuditIndex=MR_INVALID_INDEX;
     bool commonCardiacGeometry=false;
@@ -1385,11 +1387,42 @@ public:
         influences=[device newBufferWithBytes:weights.data() length:weights.size()*sizeof(weights.front()) options:MTLResourceStorageModeShared];
         anatomyParameters=[device newBufferWithBytes:&anatomyGPU length:sizeof(anatomyGPU) options:MTLResourceStorageModeShared];
         auditCount=unsigned(audits.size());
+        std::vector<MRHumanRestingVolumeAuditGroupGPU> volumeGroups;
+        std::vector<MRHumanRestingVolumeAuditRangeGPU> volumeRanges;
+        volumeRanges.reserve(audits.size());
+        for(unsigned surface=0;surface<auditCount;++surface) {
+            const auto& owner=audits[surface].indicesAndOwner;
+            require(owner.y>0u&&owner.y%3u==0u,
+                "functional volume audit source must contain complete triangles");
+            const unsigned triangleCount=owner.y/3u;
+            require(triangleCount<=std::numeric_limits<unsigned>::max()-
+                MR_HUMAN_RESTING_VOLUME_AUDIT_GROUP_THREADS,
+                "functional volume audit triangle count overflows group bounds");
+            const unsigned firstGroup=unsigned(volumeGroups.size());
+            for(unsigned firstTriangle=0;firstTriangle<triangleCount;
+                firstTriangle+=MR_HUMAN_RESTING_VOLUME_AUDIT_GROUP_THREADS) {
+                const unsigned count=std::min<unsigned>(
+                    MR_HUMAN_RESTING_VOLUME_AUDIT_GROUP_THREADS,
+                    triangleCount-firstTriangle);
+                volumeGroups.push_back({{surface,firstTriangle,count,0u}});
+            }
+            require(volumeGroups.size()<=std::numeric_limits<unsigned>::max(),
+                "functional volume audit group count exceeds the Metal dispatch range");
+            volumeRanges.push_back({{firstGroup,
+                unsigned(volumeGroups.size())-firstGroup,0u,0u}});
+        }
+        volumeAuditGroupCount=unsigned(volumeGroups.size());
         const unsigned expectedAuditCount=commonCardiacGeometry?unsigned(functional.lungs.size()+7):
             9+unsigned(cardiacWallVertexCount>0);
         require(auditCount==expectedAuditCount,
             "functional anatomy volume audit did not bind its lung, chamber and material surfaces");
         surfaceAudits=[device newBufferWithBytes:audits.data() length:audits.size()*sizeof(audits.front()) options:MTLResourceStorageModeShared];
+        volumeAuditGroups=[device newBufferWithBytes:volumeGroups.data()
+            length:volumeGroups.size()*sizeof(volumeGroups.front()) options:MTLResourceStorageModeShared];
+        volumeAuditRanges=[device newBufferWithBytes:volumeRanges.data()
+            length:volumeRanges.size()*sizeof(volumeRanges.front()) options:MTLResourceStorageModeShared];
+        volumeAuditPartials=[device newBufferWithLength:volumeGroups.size()*
+            sizeof(MRHumanRestingVolumeAuditPartialGPU) options:MTLResourceStorageModeShared];
         volumeResults=[device newBufferWithLength:(auditCount+2)*sizeof(mr_float4)+
             auditCount*sizeof(MRHumanRestingSurfaceFailureGPU) options:MTLResourceStorageModeShared];
         cardiacQ=[device newBufferWithLength:4*sizeof(float) options:MTLResourceStorageModeShared];
@@ -1469,18 +1502,24 @@ public:
         commonCoordinatesPipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_common_coordinates"] error:&e];
         commonCoordinateStatusPipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_common_coordinate_status_gate"] error:&e];
         layerPipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_layers"] error:&e];
-        volumePipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_audit_volumes"] error:&e];
+        volumeAuditPartialPipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_audit_volume_partials"] error:&e];
+        volumeAuditReducePipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_reduce_volume_audits"] error:&e];
         skinAuditPipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_audit_skin"] error:&e];
         bodyAuditPipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_audit_body"] error:&e];
         meshAuditPipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_audit_mesh_triangles"] error:&e];
         meshAuditReducePipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_reduce_mesh_audit"] error:&e];
         require(meshAuditPartials&&meshAuditResult&&meshAuditPipeline&&meshAuditReducePipeline,"whole-mesh GPU triangle audit setup failed");
+        require(volumeAuditGroups&&volumeAuditRanges&&volumeAuditPartials&&
+            volumeAuditPartialPipeline&&volumeAuditReducePipeline,
+            "parallel functional volume audit setup failed");
         if(!requestedGeometrySteps.empty()) {
             vertexCapturePipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_capture_vertices"] error:&e];
             vertexCaptureBuffer=[device newBufferWithLength:maps.size()*sizeof(MRVisualVertexGPUV2) options:MTLResourceStorageModeShared];
             vertexCaptureBuffer.label=@"Numi Human selected accepted render vertices";
         }
-        require(mapping&&influences&&anatomyParameters&&surfaceAudits&&volumeResults&&instanceLayers&&cardiacQ&&skinPipeline&&cardiacQPipeline&&layerPipeline&&volumePipeline&&skinAuditPipeline&&bodyAuditPipeline,"resting GPU anatomy setup failed");
+        require(mapping&&influences&&anatomyParameters&&surfaceAudits&&volumeResults&&instanceLayers&&cardiacQ&&
+            skinPipeline&&cardiacQPipeline&&layerPipeline&&skinAuditPipeline&&bodyAuditPipeline,
+            "resting GPU anatomy setup failed");
         require(cardiacWallMap&&cardiacWallParameters&&cardiacWallQ&&cardiacWallNormalRanges&&cardiacWallIncidentTriangles&&
             cardiacWallQPipeline&&cardiacWallNormalsPipeline,"resting GPU cardiac material setup failed");
         require(commonFieldMapBuffer&&commonFieldParameters&&commonFieldBoxes&&commonFieldCoordinates&&
@@ -1563,15 +1602,30 @@ public:
         }
         if(lease.encoder->splitCommandEncoder&&
            !lease.encoder->splitCommandEncoder(lease.encoder->context))return false;
-        e.setPipeline(e.context,(__bridge void*)self.volumePipeline);e.setBytes(e.context,&d,sizeof(d),0);
-        e.setBuffer(e.context,(__bridge void*)self.surfaceAudits,0,1);e.setBuffer(e.context,lease.meshIndices,0,2);
-        e.setBuffer(e.context,lease.meshVertices,0,3);e.setBuffer(e.context,(__bridge void*)self.coupled.presentationRespiration,0,4);
-        e.setBuffer(e.context,(__bridge void*)self.anatomyParameters,0,5);e.setBuffer(e.context,(__bridge void*)self.volumeResults,0,6);
-        e.setBuffer(e.context,(__bridge void*)self.cardiacWallParameters,0,7);
+        const mr_uint4 volumeAuditDimensions={self.volumeAuditGroupCount,self.auditCount,0u,0u};
+        e.setPipeline(e.context,(__bridge void*)self.volumeAuditPartialPipeline);
+        e.setBytes(e.context,&volumeAuditDimensions,sizeof(volumeAuditDimensions),0);
+        e.setBuffer(e.context,(__bridge void*)self.surfaceAudits,0,1);
+        e.setBuffer(e.context,lease.meshIndices,0,2);e.setBuffer(e.context,lease.meshVertices,0,3);
+        e.setBuffer(e.context,(__bridge void*)self.volumeAuditGroups,0,4);
+        e.setBuffer(e.context,(__bridge void*)self.volumeAuditPartials,0,5);
+        e.dispatchThreads(e.context,std::size_t(self.volumeAuditGroupCount)*
+            MR_HUMAN_RESTING_VOLUME_AUDIT_GROUP_THREADS,
+            MR_HUMAN_RESTING_VOLUME_AUDIT_GROUP_THREADS);
+        e.setPipeline(e.context,(__bridge void*)self.volumeAuditReducePipeline);
+        e.setBytes(e.context,&volumeAuditDimensions,sizeof(volumeAuditDimensions),0);
+        e.setBuffer(e.context,(__bridge void*)self.surfaceAudits,0,1);
+        e.setBuffer(e.context,lease.meshIndices,0,2);e.setBuffer(e.context,lease.meshVertices,0,3);
+        e.setBuffer(e.context,(__bridge void*)self.volumeAuditRanges,0,4);
+        e.setBuffer(e.context,(__bridge void*)self.volumeAuditPartials,0,5);
+        e.setBuffer(e.context,(__bridge void*)self.coupled.presentationRespiration,0,6);
+        e.setBuffer(e.context,(__bridge void*)self.anatomyParameters,0,7);
+        e.setBuffer(e.context,(__bridge void*)self.volumeResults,0,8);
+        e.setBuffer(e.context,(__bridge void*)self.cardiacWallParameters,0,9);
         e.setBuffer(e.context,(__bridge void*)self.volumeResults,
-            (self.auditCount+2)*sizeof(mr_float4),8);
-        e.setBuffer(e.context,(__bridge void*)self.commonFieldParameters,0,9);
-        e.setBuffer(e.context,(__bridge void*)self.commonFieldCoordinates,0,10);
+            (self.auditCount+2)*sizeof(mr_float4),10);
+        e.setBuffer(e.context,(__bridge void*)self.commonFieldParameters,0,11);
+        e.setBuffer(e.context,(__bridge void*)self.commonFieldCoordinates,0,12);
         e.dispatchThreads(e.context,self.auditCount,1);
         if(lease.encoder->splitCommandEncoder&&
            !lease.encoder->splitCommandEncoder(lease.encoder->context))return false;

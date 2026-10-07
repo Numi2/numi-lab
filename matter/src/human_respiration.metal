@@ -250,49 +250,102 @@ kernel void nm_human_resting_layers(
     instances[i].binding.w=visible?bits:0;
 }
 
-// Verify the actual submitted anatomical triangles against their mechanical
-// volume coordinates. Compact diagnostic readback only; no CPU deformation.
-kernel void nm_human_resting_audit_volumes(
+// Parallelize each functional surface volume without dropping any source
+// triangle. The CPU-built descriptors assign each group a bounded contiguous
+// range; 256 lanes each evaluate one triangle and reduce compact partials.
+kernel void nm_human_resting_audit_volume_partials(
     constant uint4& d [[buffer(0)]],
     device const MRHumanRestingSurfaceAuditGPU* surfaces [[buffer(1)]],
     device const uint* indices [[buffer(2)]],
     device const MRVisualVertexGPUV2* vertices [[buffer(3)]],
-    device const NMHumanRespirationState* respiration [[buffer(4)]],
-    constant MRHumanRestingAnatomyGPU& anatomy [[buffer(5)]],
-    device float4* result [[buffer(6)]],constant MRHumanRestingCardiacWallGPU& wall [[buffer(7)]],
-    device MRHumanRestingSurfaceFailureGPU* failureResults [[buffer(8)]],
-    constant MRHumanRestingCommonFieldGPU& common [[buffer(9)]],
-    device const MRHumanRestingCommonCoordinatesGPU* commonCoordinates [[buffer(10)]],
-    uint i [[thread_position_in_grid]]) {
-    if(i>=d.w)return;
-    const auto surface=surfaces[i];const uint4 owner=surface.indicesAndOwner;
+    device const MRHumanRestingVolumeAuditGroupGPU* groups [[buffer(4)]],
+    device MRHumanRestingVolumeAuditPartialGPU* partials [[buffer(5)]],
+    uint lane [[thread_index_in_threadgroup]],uint3 group [[threadgroup_position_in_grid]]) {
+    if(group.x>=d.x)return;
+    const auto descriptor=groups[group.x].surfaceAndTriangleRange;
+    const auto surface=surfaces[descriptor.x];
+    const uint4 owner=surface.indicesAndOwner;
     const float3 origin=vertices[indices[owner.x]].position.xyz;
+    threadgroup float volumes[MR_HUMAN_RESTING_VOLUME_AUDIT_GROUP_THREADS];
+    threadgroup uint invalid[MR_HUMAN_RESTING_VOLUME_AUDIT_GROUP_THREADS];
+    threadgroup uint first[MR_HUMAN_RESTING_VOLUME_AUDIT_GROUP_THREADS];
+    float volume=0;uint invalidCount=0;
+    uint firstInvalid=MR_HUMAN_RESTING_TRIANGLE_FAILURE_NO_TRIANGLE;
+    for(uint local=lane;local<descriptor.z;local+=MR_HUMAN_RESTING_VOLUME_AUDIT_GROUP_THREADS) {
+        const uint triangle=descriptor.y+local;
+        const uint j=owner.x+3u*triangle;
+        const float3 pa=vertices[indices[j]].position.xyz;
+        const float3 pb=vertices[indices[j+1u]].position.xyz;
+        const float3 pc=vertices[indices[j+2u]].position.xyz;
+        const float3 area=cross(pb-pa,pc-pa);
+        const bool bad=!all(isfinite(area));
+        const bool collapsed=!bad&&all(area==float3(0));
+        if(bad||collapsed) {++invalidCount;firstInvalid=min(firstInvalid,triangle);}
+        const float3 a=pa-origin,b=pb-origin,c=pc-origin;
+        volume+=dot(a,cross(b,c))/6.0f;
+    }
+    volumes[lane]=volume;invalid[lane]=invalidCount;first[lane]=firstInvalid;
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    for(uint stride=MR_HUMAN_RESTING_VOLUME_AUDIT_GROUP_THREADS/2u;stride;stride>>=1u) {
+        if(lane<stride) {
+            volumes[lane]+=volumes[lane+stride];
+            invalid[lane]+=invalid[lane+stride];
+            first[lane]=min(first[lane],first[lane+stride]);
+        }
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+    }
+    if(!lane)partials[group.x]={volumes[0],invalid[0],first[0],0u};
+}
+
+// Finish the per-surface compensated sum, preserve the original expected
+// volume/status rules, and reconstruct the same first invalid-triangle witness.
+kernel void nm_human_resting_reduce_volume_audits(
+    constant uint4& d [[buffer(0)]],
+    device const MRHumanRestingSurfaceAuditGPU* surfaces [[buffer(1)]],
+    device const uint* indices [[buffer(2)]],
+    device const MRVisualVertexGPUV2* vertices [[buffer(3)]],
+    device const MRHumanRestingVolumeAuditRangeGPU* groupRanges [[buffer(4)]],
+    device const MRHumanRestingVolumeAuditPartialGPU* partials [[buffer(5)]],
+    device const NMHumanRespirationState* respiration [[buffer(6)]],
+    constant MRHumanRestingAnatomyGPU& anatomy [[buffer(7)]],
+    device float4* result [[buffer(8)]],
+    constant MRHumanRestingCardiacWallGPU& wall [[buffer(9)]],
+    device MRHumanRestingSurfaceFailureGPU* failureResults [[buffer(10)]],
+    constant MRHumanRestingCommonFieldGPU& common [[buffer(11)]],
+    device const MRHumanRestingCommonCoordinatesGPU* commonCoordinates [[buffer(12)]],
+    uint i [[thread_position_in_grid]]) {
+    if(i>=d.y)return;
+    const auto surface=surfaces[i];const uint4 owner=surface.indicesAndOwner;
+    const uint4 groupRange=groupRanges[i].groupRange;
     float volume=0,compensation=0;uint invalidTriangles=0;
+    uint firstInvalid=MR_HUMAN_RESTING_TRIANGLE_FAILURE_NO_TRIANGLE;
+    for(uint g=groupRange.x;g<groupRange.x+groupRange.y;++g) {
+        const auto partial=partials[g];
+        const float y=partial.signedVolume-compensation;
+        const float next=volume+y;compensation=(next-volume)-y;volume=next;
+        invalidTriangles+=partial.invalidTriangleCount;
+        firstInvalid=min(firstInvalid,partial.firstInvalidTriangle);
+    }
     MRHumanRestingSurfaceFailureGPU firstFailure;
     firstFailure.surfaceTriangleKind=uint4(MR_HUMAN_RESTING_TRIANGLE_FAILURE_NO_TRIANGLE,0,0,0);
     firstFailure.vertexIndices=uint4(0);
-    firstFailure.renderedPositions[0]=float4(0);firstFailure.renderedPositions[1]=float4(0);
+    firstFailure.renderedPositions[0]=float4(0);
+    firstFailure.renderedPositions[1]=float4(0);
     firstFailure.renderedPositions[2]=float4(0);
-    for(uint j=owner.x;j<owner.x+owner.y;j+=3) {
-        const float3 pa=vertices[indices[j]].position.xyz,pb=vertices[indices[j+1]].position.xyz,
-            pc=vertices[indices[j+2]].position.xyz;
-        const float3 a=pa-origin,b=pb-origin,c=pc-origin;
+    if(firstInvalid<owner.y/3u) {
+        const uint j=owner.x+3u*firstInvalid;
+        const uint3 ids=uint3(indices[j],indices[j+1u],indices[j+2u]);
+        const float3 pa=vertices[ids.x].position.xyz;
+        const float3 pb=vertices[ids.y].position.xyz;
+        const float3 pc=vertices[ids.z].position.xyz;
         const float3 area=cross(pb-pa,pc-pa);
         const uint areaFailure=!all(isfinite(area))?MR_HUMAN_RESTING_TRIANGLE_FAILURE_NONFINITE_AREA:
-            all(area==float3(0))?MR_HUMAN_RESTING_TRIANGLE_FAILURE_EXACT_ZERO_AREA:
-            MR_HUMAN_RESTING_TRIANGLE_FAILURE_NONE;
-        if(areaFailure!=MR_HUMAN_RESTING_TRIANGLE_FAILURE_NONE) {
-            ++invalidTriangles;
-            if(firstFailure.surfaceTriangleKind.x==MR_HUMAN_RESTING_TRIANGLE_FAILURE_NO_TRIANGLE) {
-                firstFailure.surfaceTriangleKind=uint4(i,(j-owner.x)/3,areaFailure,0);
-                firstFailure.vertexIndices=uint4(indices[j],indices[j+1],indices[j+2],0);
-                firstFailure.renderedPositions[0]=float4(pa,0);
-                firstFailure.renderedPositions[1]=float4(pb,0);
-                firstFailure.renderedPositions[2]=float4(pc,0);
-            }
-        }
-        const float y=dot(a,cross(b,c))/6.0f-compensation;
-        const float next=volume+y;compensation=(next-volume)-y;volume=next;
+            MR_HUMAN_RESTING_TRIANGLE_FAILURE_EXACT_ZERO_AREA;
+        firstFailure.surfaceTriangleKind=uint4(i,firstInvalid,areaFailure,0);
+        firstFailure.vertexIndices=uint4(ids,0);
+        firstFailure.renderedPositions[0]=float4(pa,0);
+        firstFailure.renderedPositions[1]=float4(pb,0);
+        firstFailure.renderedPositions[2]=float4(pc,0);
     }
     const auto state=respiration[0];
     const float afterDiaphragm=anatomy.lungAnchorAndVolume.w+state.motion.x;
