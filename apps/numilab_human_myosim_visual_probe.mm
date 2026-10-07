@@ -6391,6 +6391,57 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                           : std::numeric_limits<double>::quiet_NaN())
                   << '\n';
     }
+    const char* assemblyDump = std::getenv(
+        "NUMI_HUMAN_STAND_SOURCE_ASSEMBLY_DUMP");
+    if (assemblyDump != nullptr && std::strcmp(assemblyDump, "1") == 0) {
+        // Initial one-step diagnosis only. These FP64 values never feed the
+        // native solver or replace the original source-parity acceptance gate.
+        for (unsigned quantized = 0u; quantized < 2u; ++quantized) {
+            auto referenceQ = parityInitialQ;
+            auto referenceV = parityInitialV;
+            if (quantized) {
+                for (auto& value : referenceQ) value = static_cast<float>(value);
+                for (auto& value : referenceV) value = static_cast<float>(value);
+            }
+            const std::size_t n = referenceV.size();
+            std::vector<double> matrix(n * n), zero(n, 0.0), bias(n);
+            const auto massDiagnostic = metalrobo::computeArticulatedMassMatrix(
+                model, 0u, referenceQ, matrix, parityConfig);
+            const auto biasDiagnostic = metalrobo::computeArticulatedInverseDynamics(
+                model, 0u, referenceQ, referenceV, zero, {}, bias, parityConfig);
+            require(massDiagnostic.succeeded() && biasDiagnostic.succeeded(),
+                    "initial source assembly diagnostic failed");
+            for (std::size_t row = 0u; row < n; ++row) {
+                const auto& dof = model.dofs[model.articulations.front().vOffset + row];
+                if ((dof.flags & MR_DOF_FLAG_DRIVE) == 0u)
+                    matrix[row * n + row] += parityConfig.timestep * dof.drive.y;
+                std::cerr << std::setprecision(17)
+                          << "human_stand_cpu_assembly quantized=" << quantized
+                          << " row=" << row
+                          << " rhs=" << parityGeneralizedForce[row] - bias[row]
+                          << " bias=" << bias[row] << " a=[";
+                for (std::size_t col = 0u; col < n; ++col)
+                    std::cerr << (col ? "," : "") << matrix[row * n + col];
+                std::cerr << "]\n";
+            }
+            const auto referenceStep = metalrobo::integrateArticulatedState(
+                model, 0u, referenceQ, referenceV, parityGeneralizedForce, {}, parityConfig);
+            require(referenceStep.succeeded(), "quantized source parity diagnostic failed");
+            double maxQ = 0.0, maxV = 0.0, maxInitialQ = 0.0;
+            for (std::size_t i = 0u; i < referenceQ.size(); ++i) {
+                maxQ = std::max(maxQ, std::abs(double(parityResult.standQ[i]) - referenceQ[i]));
+                maxInitialQ = std::max(maxInitialQ,
+                    std::abs(double(float(parityInitialQ[i])) - parityInitialQ[i]));
+            }
+            for (std::size_t i = 0u; i < n; ++i)
+                maxV = std::max(maxV, std::abs(double(parityResult.standV[i]) - referenceV[i]));
+            std::cerr << std::setprecision(17)
+                      << "human_stand_quantized_parity quantized=" << quantized
+                      << " max_q_error=" << maxQ << " max_v_error=" << maxV
+                      << " max_initial_q_rounding=" << maxInitialQ
+                      << " cpu_v15=" << (n > 15u ? referenceV[15u] : 0.0) << '\n';
+        }
+    }
     double parityMaximumQError = 0.0;
     double parityMaximumVError = 0.0;
     std::size_t parityMaximumQErrorIndex = 0u;

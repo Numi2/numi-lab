@@ -12982,6 +12982,21 @@ MetalArticulatedOperatorContext::submit(
                                                 MR_NUMI_HUMAN_STAND_NONFINITE_RESULT);
                                         return;
                                     }
+                                    const char* assemblyDump = std::getenv(
+                                        "NUMI_HUMAN_STAND_SOURCE_ASSEMBLY_DUMP");
+                                    if (assemblyDump != nullptr &&
+                                        std::strcmp(assemblyDump, "1") == 0) {
+                                        for (std::size_t row = 0u; row < n; ++row) {
+                                            std::fprintf(stderr,
+                                                "human_stand_gpu_assembly row=%zu rhs=%.17g v0=%.17g a=[",
+                                                row, (*freeProbeRhs)[row],
+                                                (*freeProbeVelocity)[row]);
+                                            for (std::size_t col = 0u; col < n; ++col)
+                                                std::fprintf(stderr, "%s%.17g", col ? "," : "",
+                                                    (*freeProbeMatrix)[row * n + col]);
+                                            std::fprintf(stderr, "]\n");
+                                        }
+                                    }
                                     std::vector<double> factor64(n * n, 0.0);
                                     std::copy(freeProbeMatrix->begin(),
                                               freeProbeMatrix->end(),
