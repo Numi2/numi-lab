@@ -95,6 +95,16 @@ enum MRNumiHumanStandFlags {
     // Status-only proof that a bilateral base refinement used the validated
     // reduced-coordinate correction rather than the full Schur fallback.
     MR_NUMI_HUMAN_STAND_REDUCED_BASE_PROJECTION_USED = 1u << 27u,
+    // Status-only receipt that the opt-in path initially omitted legacy
+    // equality responses and the full Schur factor.
+    MR_NUMI_HUMAN_STAND_REDUCED_EQUALITY_DATA_DEFERRED_USED = 1u << 28u,
+    // Split dispatch option and fallback-stage markers. These are submitted
+    // only after the initial status dispatch; the status receipt above is
+    // published separately by the GPU owner.
+    MR_NUMI_HUMAN_STAND_DEFERRED_EQUALITY_DATA = 1u << 29u,
+    MR_NUMI_HUMAN_STAND_REBUILD_DEFERRED_EQUALITY_DATA = 1u << 30u,
+    MR_NUMI_HUMAN_STAND_DEFERRED_EQUALITY_FALLBACK_USED = 1u << 30u,
+    MR_NUMI_HUMAN_STAND_DEFERRED_RESPONSE_FALLBACK_ONLY = 1u << 31u,
 };
 
 // One source-authored support witness. The point-query index addresses the

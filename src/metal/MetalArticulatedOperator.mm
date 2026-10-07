@@ -576,11 +576,13 @@ void visitSplitStandBoundary(
     const float standPgsVelocityResidualTolerance,
     const bool contactWarmStart,
     const bool reducedBaseProjection,
-    const bool canonicalBodyProbeFusion
+    const bool canonicalBodyProbeFusion,
+    const bool deferStandEqualityData,
+    const MetalStandEqualityDeferralFault equalityDeferralFault
 ) {
     constexpr std::array<std::uint8_t, 30u> domain{{
         'm','r','n','x','.','s','p','l','i','t','-','s','t','a','n','d','.',
-        'b','o','u','n','d','a','r','y','.','v','7',0,0}};
+        'b','o','u','n','d','a','r','y','.','v','8',0,0}};
     sink.append(domain.data(), domain.size());
     appendSplitStandValue(sink, input.articulationIndex);
     appendSplitStandValue(sink, input.environmentCount);
@@ -612,6 +614,8 @@ void visitSplitStandBoundary(
     appendSplitStandValue(sink, contactWarmStart);
     appendSplitStandValue(sink, reducedBaseProjection);
     appendSplitStandValue(sink, canonicalBodyProbeFusion);
+    appendSplitStandValue(sink, deferStandEqualityData);
+    appendSplitStandValue(sink, equalityDeferralFault);
     const std::uint8_t contact = input.stand.enableContact ? 1u : 0u;
     const std::uint8_t assistance =
         input.stand.enableRootAssistance ? 1u : 0u;
@@ -706,7 +710,9 @@ void visitSplitStandBoundary(
     const float standPgsVelocityResidualTolerance,
     const bool contactWarmStart,
     const bool reducedBaseProjection,
-    const bool canonicalBodyProbeFusion
+    const bool canonicalBodyProbeFusion,
+    const bool deferStandEqualityData,
+    const MetalStandEqualityDeferralFault equalityDeferralFault
 ) {
     if (cache.fingerprint != 0u) {
         SplitStandBoundaryCompare compare{cache.bytes};
@@ -714,7 +720,8 @@ void visitSplitStandBoundary(
             speculativeContactAdmissionDistanceMeters,
             hybridEqualityFactorCache,
             standPgsVelocityResidualTolerance, contactWarmStart,
-            reducedBaseProjection, canonicalBodyProbeFusion);
+            reducedBaseProjection, canonicalBodyProbeFusion, deferStandEqualityData,
+            equalityDeferralFault);
         if (compare.exact && compare.offset == cache.bytes.size())
             return cache.fingerprint;
     }
@@ -723,7 +730,8 @@ void visitSplitStandBoundary(
         speculativeContactAdmissionDistanceMeters,
         hybridEqualityFactorCache,
         standPgsVelocityResidualTolerance, contactWarmStart,
-        reducedBaseProjection, canonicalBodyProbeFusion);
+        reducedBaseProjection, canonicalBodyProbeFusion, deferStandEqualityData,
+        equalityDeferralFault);
     std::array<std::uint8_t, CC_SHA256_DIGEST_LENGTH> digest{};
     CC_SHA256_Final(digest.data(), &capture.context);
     std::uint64_t fingerprint = 0u;
@@ -760,6 +768,46 @@ struct MetalArticulatedOperatorContextState {
                 std::strcmp(reducedBase, "1") == 0;
         if (config.reducedStandBaseProjection)
             config.reducedStandProjectedResponses = true;
+        const char* deferEqualityData = std::getenv(
+            "NUMI_HUMAN_STAND_DEFER_EQUALITY_DATA");
+        if (deferEqualityData != nullptr) {
+            if (std::strcmp(deferEqualityData, "1") == 0)
+                config.deferStandEqualityData = true;
+            else if (std::strcmp(deferEqualityData, "0") == 0)
+                config.deferStandEqualityData = false;
+            else
+                standEqualityDeferralSettingInvalid = true;
+        }
+        const char* equalityDeferralFault = std::getenv(
+            "NUMI_HUMAN_STAND_EQUALITY_DEFERRAL_FAULT");
+        if (equalityDeferralFault != nullptr) {
+            if (std::strcmp(equalityDeferralFault, "unavailable-map") == 0)
+                config.standEqualityDeferralFault =
+                    MetalStandEqualityDeferralFault::unavailableReducedMap;
+            else if (std::strcmp(equalityDeferralFault, "projected-column") == 0)
+                config.standEqualityDeferralFault =
+                    MetalStandEqualityDeferralFault::projectedColumnFallback;
+            else if (std::strcmp(equalityDeferralFault, "late-base") == 0)
+                config.standEqualityDeferralFault =
+                    MetalStandEqualityDeferralFault::lateBaseFallback;
+            else if (std::strcmp(equalityDeferralFault, "none") == 0 ||
+                     std::strcmp(equalityDeferralFault, "0") == 0)
+                config.standEqualityDeferralFault =
+                    MetalStandEqualityDeferralFault::none;
+            else
+                config.standEqualityDeferralFault =
+                    MetalStandEqualityDeferralFault::invalid;
+        }
+        if (config.standEqualityDeferralFault !=
+            MetalStandEqualityDeferralFault::none) {
+            config.deferStandEqualityData = true;
+            config.reducedStandBaseProjection = true;
+            config.reducedStandProjectedResponses = true;
+        }
+        if (config.deferStandEqualityData) {
+            config.reducedStandBaseProjection = true;
+            config.reducedStandProjectedResponses = true;
+        }
         const char* reducedCholesky =
             std::getenv("NUMI_HUMAN_STAND_REDUCED_CHOLESKY");
         if (reducedCholesky != nullptr)
@@ -868,6 +916,7 @@ struct MetalArticulatedOperatorContextState {
 
     MetalArticulatedOperatorConfig config;
     bool invalidCanonicalBodyProbeFusionEnvironment = false;
+    bool standEqualityDeferralSettingInvalid = false;
     StandSparseGraphCache standSparseGraphCache;
     std::string sparseCapturePath;
     std::uint32_t sparseCaptureRoot = 0u;
@@ -3431,7 +3480,13 @@ MetalArticulatedOperatorDiagnostics validateAndBuildLayout(
                 !checkedAdd(reducedWorkspace, term, reducedWorkspace) ||
                 !checkedMultiply(articulation.nv, 3u, term) ||
                 !checkedAdd(reducedWorkspace, term, reducedWorkspace) ||
-                !checkedAdd(reducedWorkspace, 2u, reducedWorkspace) ||
+                !checkedAdd(reducedWorkspace, 3u, reducedWorkspace) ||
+                (config.deferStandEqualityData &&
+                 (!checkedMultiply(input.stand.contacts.size(), 3u, term) ||
+                  !checkedAdd(term, articulation.nv, term) ||
+                  !checkedAdd(term, 31u, term) ||
+                  !checkedAdd(reducedWorkspace, term / 32u,
+                              reducedWorkspace))) ||
                 !checkedAdd(responsePerEnvironment, reducedWorkspace,
                             responsePerEnvironment)) {
                 return reject(
@@ -4228,6 +4283,10 @@ MetalArticulatedOperatorDiagnostics initializeContext(
     bool deferStandEqualityDiagnostics = false;
     [operatorConstants setConstantValue:&deferStandEqualityDiagnostics
                                    type:MTLDataTypeBool atIndex:9u];
+    bool deferStandEqualityDataSpecialized =
+        context.config.deferStandEqualityData;
+    [operatorConstants setConstantValue:
+        &deferStandEqualityDataSpecialized type:MTLDataTypeBool atIndex:18u];
     id<MTLFunction> standFunction = [library
         newFunctionWithName:@"mr_numi_human_stand_step"
             constantValues:operatorConstants error:&error];
@@ -4298,6 +4357,9 @@ MetalArticulatedOperatorDiagnostics initializeContext(
                 "failed to create Numi Human parallel mass pipeline: " +
                     describeError(error));
         }
+        [operatorConstants setConstantValue:
+            &deferStandEqualityDataSpecialized
+            type:MTLDataTypeBool atIndex:18u];
         id<MTLFunction> standResponseFunction = [library
             newFunctionWithName:@"mr_numi_human_stand_equality_response_cooperative"
                 constantValues:operatorConstants error:&error];
@@ -4330,6 +4392,9 @@ MetalArticulatedOperatorDiagnostics initializeContext(
                                        type:MTLDataTypeBool atIndex:9u];
         [equalityConstants setConstantValue:&hybridEqualityFactorCache
                                        type:MTLDataTypeBool atIndex:10u];
+        [equalityConstants setConstantValue:
+            &deferStandEqualityDataSpecialized
+            type:MTLDataTypeBool atIndex:18u];
         error = nil;
         id<MTLFunction> standEqualityFunction = [library
             newFunctionWithName:@"mr_numi_human_stand_equality_prepare"
@@ -4395,6 +4460,8 @@ MetalArticulatedOperatorDiagnostics initializeContext(
             type:MTLDataTypeFloat atIndex:8u];
         [projectedResponseConstants setConstantValue:
             &deferStandEqualityDiagnostics type:MTLDataTypeBool atIndex:9u];
+        [projectedResponseConstants setConstantValue:
+            &deferStandEqualityDataSpecialized type:MTLDataTypeBool atIndex:18u];
         bool reducedResponseDiagnosticsEnabled = false;
         [projectedResponseConstants setConstantValue:
             &reducedResponseDiagnosticsEnabled type:MTLDataTypeBool atIndex:11u];
@@ -4425,6 +4492,8 @@ MetalArticulatedOperatorDiagnostics initializeContext(
                 type:MTLDataTypeFloat atIndex:8u];
             [diagnosticConstants setConstantValue:
                 &deferStandEqualityDiagnostics type:MTLDataTypeBool atIndex:9u];
+            [diagnosticConstants setConstantValue:
+                &deferStandEqualityDataSpecialized type:MTLDataTypeBool atIndex:18u];
             bool diagnosticsEnabled = true;
             [diagnosticConstants setConstantValue:&diagnosticsEnabled
                                              type:MTLDataTypeBool atIndex:11u];
@@ -4452,6 +4521,8 @@ MetalArticulatedOperatorDiagnostics initializeContext(
             context.config.reducedStandProjectedResponses;
         [finishConstants setConstantValue:&reducedStandBaseProjection
                                     type:MTLDataTypeBool atIndex:17u];
+        [finishConstants setConstantValue:
+            &deferStandEqualityDataSpecialized type:MTLDataTypeBool atIndex:18u];
         [finishConstants setConstantValue:&sparseOperator
                                     type:MTLDataTypeBool atIndex:2u];
         bool cpuFinishSpecialized = false;
@@ -4575,6 +4646,9 @@ MetalArticulatedOperatorDiagnostics initializeContext(
         reducedStandBaseProjection = false;
         [finishConstants setConstantValue:&reducedStandBaseProjection
                                     type:MTLDataTypeBool atIndex:17u];
+        deferStandEqualityDataSpecialized = false;
+        [finishConstants setConstantValue:
+            &deferStandEqualityDataSpecialized type:MTLDataTypeBool atIndex:18u];
         contactWarmStartSpecialized = false;
         [finishConstants setConstantValue:&contactWarmStartSpecialized
                                     type:MTLDataTypeBool atIndex:13u];
@@ -9749,6 +9823,33 @@ MetalArticulatedOperatorSubmission::wait(
                         "GPU returned a malformed Numi Human stand status"
                     );
                 }
+                const bool equalityDataDeferred =
+                    (stand.flags &
+                     MR_NUMI_HUMAN_STAND_DEFERRED_EQUALITY_DATA) != 0u;
+                const bool equalityDataDeferredUsed =
+                    (stand.flags &
+                     MR_NUMI_HUMAN_STAND_REDUCED_EQUALITY_DATA_DEFERRED_USED) != 0u;
+                const bool equalityDataFallbackUsed =
+                    (stand.flags &
+                     MR_NUMI_HUMAN_STAND_DEFERRED_EQUALITY_FALLBACK_USED) != 0u;
+                if (stand.code == MR_NUMI_HUMAN_STAND_SUCCESS &&
+                    equalityDataDeferred && !equalityDataDeferredUsed) {
+                    return reject(
+                        std::move(diagnostics),
+                        MetalArticulatedOperatorHostStatus::internalFailure,
+                        "deferred Human equality data was admitted without its GPU use receipt"
+                    );
+                }
+                if (stand.code == MR_NUMI_HUMAN_STAND_SUCCESS &&
+                    pending->context->config.standEqualityDeferralFault !=
+                        MetalStandEqualityDeferralFault::none &&
+                    (!equalityDataDeferred || !equalityDataFallbackUsed)) {
+                    return reject(
+                        std::move(diagnostics),
+                        MetalArticulatedOperatorHostStatus::internalFailure,
+                        "deferred Human equality fault injection did not reach its legacy fallback"
+                    );
+                }
                 if (pending->context->config.reducedStandProjectedResponses) {
                     const bool reducedAdmitted =
                         (stand.flags &
@@ -9778,7 +9879,9 @@ MetalArticulatedOperatorSubmission::wait(
                     std::fprintf(stderr,
                         "human_stand_reduced_response root_step=%u environment=%zu "
                         "requested=1 admitted=%u ready=%u used=%u "
-                        "base_requested=%u base_used=%u free_dofs=%zu source_triangle=%s\n",
+                        "base_requested=%u base_used=%u free_dofs=%zu source_triangle=%s "
+                        "defer_requested=%u defer_admitted=%u defer_used=%u "
+                        "legacy_fallback=%u defer_fault=%u\n",
                         stand.completedSteps, environment,
                         reducedAdmitted ? 1u : 0u,
                         reducedReady ? 1u : 0u, reducedUsed ? 1u : 0u,
@@ -9786,7 +9889,12 @@ MetalArticulatedOperatorSubmission::wait(
                             ? 1u : 0u,
                         reducedBaseUsed ? 1u : 0u, freeDofs,
                         pending->context->config.sparseStandOperator
-                            ? "upper" : "lower");
+                            ? "upper" : "lower",
+                        pending->context->config.deferStandEqualityData ? 1u : 0u,
+                        equalityDataDeferred ? 1u : 0u,
+                        equalityDataDeferredUsed ? 1u : 0u,
+                        equalityDataFallbackUsed ? 1u : 0u,
+                        static_cast<unsigned>(pending->context->config.standEqualityDeferralFault));
                 }
                 diagnostics.completedStandSteps = std::min(
                     diagnostics.completedStandSteps == 0u
@@ -10380,6 +10488,18 @@ MetalArticulatedOperatorContext::submit(
         );
     }
 
+    if (state_->standEqualityDeferralSettingInvalid) {
+        return reject(std::move(diagnostics),
+            MetalArticulatedOperatorHostStatus::invalidDimensions,
+            "NUMI_HUMAN_STAND_DEFER_EQUALITY_DATA must be exactly 0 or 1");
+    }
+    if (state_->config.standEqualityDeferralFault ==
+        MetalStandEqualityDeferralFault::invalid) {
+        return reject(std::move(diagnostics),
+            MetalArticulatedOperatorHostStatus::invalidDimensions,
+            "unknown NUMI_HUMAN_STAND_EQUALITY_DEFERRAL_FAULT value");
+    }
+
     RequiredBuffers requirements{};
     try {
         diagnostics = validateAndBuildLayout(
@@ -10453,7 +10573,9 @@ MetalArticulatedOperatorContext::submit(
                       state_->config.standPgsVelocityResidualTolerance,
                       state_->config.standContactWarmStart,
                       state_->config.reducedStandBaseProjection,
-                      state_->config.fuseCanonicalBodyProbes)
+                      state_->config.fuseCanonicalBodyProbes,
+                      state_->config.deferStandEqualityData,
+                      state_->config.standEqualityDeferralFault)
                 : 0u;
         const std::uint64_t standBoundaryFingerprint =
             hasExplicitAuthoritativeHorizon
@@ -12691,6 +12813,19 @@ MetalArticulatedOperatorContext::submit(
                 }
                 const bool cpuFree = cpuFreeRequested && cpuFinish;
                 const bool oneHandoff = oneHandoffRequested && cpuFinish;
+                const bool deferEqualityData =
+                    state_->config.deferStandEqualityData && parallelMass &&
+                    reducedProjectedResponses && !cpuStandDiagnosticRequested &&
+                    !oneHandoff &&
+                    (standDispatch.flags &
+                     MR_NUMI_HUMAN_STAND_PREDICT_VELOCITY_ONLY) == 0u;
+                if (state_->config.standEqualityDeferralFault !=
+                        MetalStandEqualityDeferralFault::none &&
+                    !deferEqualityData) {
+                    return reject(std::move(diagnostics),
+                        MetalArticulatedOperatorHostStatus::invalidDimensions,
+                        "equality deferral fault injection requires the GPU reduced-response path");
+                }
                 const bool cpuEqualityFactor =
                     cpuEqualityFactorRequested && cpuFinish;
                 if (cpuEqualityFactor &&
@@ -12765,8 +12900,13 @@ MetalArticulatedOperatorContext::submit(
                     static_cast<MRNumiHumanStandCpuFinishGPU*>(
                         state_->standCpuFinishBuffer.contents)->abiVersion = 0u;
                 }
+                constexpr std::uint32_t deferredEqualityRecoveryPhaseCount = 3u;
+                const std::uint32_t deferredEqualityRecoveryPhases =
+                    deferEqualityData ? deferredEqualityRecoveryPhaseCount : 0u;
+                const std::uint32_t standFreePreludePhase =
+                    6u + deferredEqualityRecoveryPhases;
                 const std::uint32_t standPhaseCount = parallelMass ?
-                    (freeSplit ? 8u : 7u) :
+                    (freeSplit ? 8u : 7u) + deferredEqualityRecoveryPhases :
                     (splitStand ? 2u : 1u);
                 constexpr std::size_t freeProbeDofs =
                     detail::stand_cpu_pilot::kDofs;
@@ -14065,6 +14205,33 @@ MetalArticulatedOperatorContext::submit(
                             phaseDispatch.flags |=
                                 MR_NUMI_HUMAN_STAND_REDUCED_SOURCE_UPPER_TRIANGLE;
                     }
+                    if (deferEqualityData && phase >= 1u) {
+                        phaseDispatch.flags |=
+                            MR_NUMI_HUMAN_STAND_DEFERRED_EQUALITY_DATA;
+                        if (phase == 4u &&
+                            state_->config.standEqualityDeferralFault ==
+                                MetalStandEqualityDeferralFault::unavailableReducedMap)
+                            phaseDispatch.flags |=
+                                MR_NUMI_HUMAN_STAND_DEFERRED_RESPONSE_FALLBACK_ONLY;
+                        if (phase == 4u &&
+                            state_->config.standEqualityDeferralFault ==
+                                MetalStandEqualityDeferralFault::lateBaseFallback)
+                            phaseDispatch.flags |=
+                                MR_NUMI_HUMAN_STAND_REBUILD_DEFERRED_EQUALITY_DATA |
+                                MR_NUMI_HUMAN_STAND_DEFERRED_RESPONSE_FALLBACK_ONLY;
+                        if (phase == 5u &&
+                            state_->config.standEqualityDeferralFault ==
+                                MetalStandEqualityDeferralFault::projectedColumnFallback)
+                            phaseDispatch.flags |=
+                                MR_NUMI_HUMAN_STAND_REBUILD_DEFERRED_EQUALITY_DATA |
+                                MR_NUMI_HUMAN_STAND_DEFERRED_RESPONSE_FALLBACK_ONLY;
+                        if (phase == 6u || phase == 7u)
+                            phaseDispatch.flags |=
+                                MR_NUMI_HUMAN_STAND_REBUILD_DEFERRED_EQUALITY_DATA;
+                        if (phase == 8u)
+                            phaseDispatch.flags |=
+                                MR_NUMI_HUMAN_STAND_DEFERRED_RESPONSE_FALLBACK_ONLY;
+                    }
                     if (parallelMass) {
                         if (phase == 0u) {
                             phaseDispatch.flags |= MR_NUMI_HUMAN_STAND_PREPARE_ONLY |
@@ -14077,9 +14244,14 @@ MetalArticulatedOperatorContext::submit(
                                 cpuFinish)
                                 phaseDispatch.flags |=
                                     MR_NUMI_HUMAN_STAND_PROJECTED_RAW_READY;
-                        } else if (freeSplit && phase == 6u) {
+                        } else if (deferEqualityData && phase >= 6u &&
+                                   phase <= 8u) {
+                            phaseDispatch.flags |= MR_NUMI_HUMAN_STAND_PREPARE_ONLY |
+                                MR_NUMI_HUMAN_STAND_MASS_READY |
+                                MR_NUMI_HUMAN_STAND_FACTOR_ONLY;
+                        } else if (freeSplit && phase == standFreePreludePhase) {
                             phaseDispatch.flags |= MR_NUMI_HUMAN_STAND_FREE_ONLY;
-                        } else if (freeSplit && phase == 7u) {
+                        } else if (freeSplit && phase == standPhaseCount - 1u) {
                             phaseDispatch.flags |= MR_NUMI_HUMAN_STAND_FREE_READY;
                             if (cpuFinish)
                                 phaseDispatch.flags |=
@@ -14158,17 +14330,24 @@ MetalArticulatedOperatorContext::submit(
                         std::memset(finishWorkBuffer.contents, 0, finishWorkBuffer.length);
                     }
                     const char* stageName = parallelMass
-                        ? (phase == 0u ? "stand_prework" :
-                           phase == 1u ? "stand_mass" :
-                           phase == 2u ? "stand_factor" :
-                           phase == 3u ? "stand_equality_responses" :
-                           phase == 4u ? "stand_equality_factor" :
-                           phase == 5u ? "stand_projected_responses" :
-                           freeSplit && phase == 6u ? "stand_free_prelude" :
-                           (cachedFinish ? "stand_finish_cached" : "stand_finish"))
-                        : (!splitStand ? "stand" :
-                           (phase == 0u ? "stand_prepare" :
-                            cachedFinish ? "stand_finish_cached" : "stand_finish"));
+                        ? (phase == 0u ? stand_prework :
+                           phase == 1u ? stand_mass :
+                           phase == 2u ? stand_factor :
+                           phase == 3u ? stand_equality_responses :
+                           phase == 4u ? stand_equality_factor :
+                           phase == 5u ? stand_projected_responses :
+                           deferEqualityData && phase == 6u
+                               ? stand_equality_response_rebuild :
+                           deferEqualityData && phase == 7u
+                               ? stand_equality_factor_rebuild :
+                           deferEqualityData && phase == 8u
+                               ? stand_projected_response_fallback :
+                           freeSplit && phase == standFreePreludePhase
+                               ? stand_free_prelude :
+                           (cachedFinish ? stand_finish_cached : stand_finish))
+                        : (!splitStand ? stand :
+                           (phase == 0u ? stand_prepare :
+                            cachedFinish ? stand_finish_cached : stand_finish));
                     id<MTLComputeCommandEncoder> standEncoder =
                         humanTimedEncoder(commandBuffer, state_->device,
                                           stageName, authoritativeStep);
@@ -14189,6 +14368,12 @@ MetalArticulatedOperatorContext::submit(
                             :
                         parallelMass && phase == 1u
                             ? state_->standMassPipeline
+                            : parallelMass && deferEqualityData && phase == 6u
+                                ? state_->standResponsePipeline
+                            : parallelMass && deferEqualityData && phase == 7u
+                                ? state_->standEqualityPipeline
+                            : parallelMass && deferEqualityData && phase == 8u
+                                ? state_->standProjectedResponsePipeline
                             : parallelMass && phase == 3u
                                 ? state_->standResponsePipeline
                             : parallelMass && phase == 4u
@@ -14199,7 +14384,7 @@ MetalArticulatedOperatorContext::submit(
                                     : state_->standProjectedResponsePipeline)
                             : splitStand &&
                                 (phase == standPhaseCount - 1u ||
-                                 (freeSplit && phase == 6u))
+                                 (freeSplit && phase == standFreePreludePhase))
                                 ? (oneHandoff && phase == standPhaseCount - 1u
                                     ? state_->standCpuFinishPipeline
                                     : cachedFinish
@@ -14272,7 +14457,8 @@ MetalArticulatedOperatorContext::submit(
                         kStandTendonTransfersBuffer] offset:0u atIndex:19u];
                     [standEncoder setBuffer:state_->standBuffers[
                         kStandJointEqualitiesBuffer] offset:0u atIndex:20u];
-                    if (parallelMass && phase == 4u) {
+                    if (parallelMass && (phase == 4u ||
+                        (deferEqualityData && phase == 7u))) {
                         const bool useHybridFactorWorkspace =
                             state_->config.hybridStandEqualityFactorCache &&
                             standDispatch.jointEqualityCount > 64u &&
@@ -14318,7 +14504,17 @@ MetalArticulatedOperatorContext::submit(
                                 1u, 1u)
                             threadsPerThreadgroup:MTLSizeMake(
                                 kStandResponseThreadsPerThreadgroup, 1u, 1u)];
-                    } else if (parallelMass && phase == 5u) {
+                    } else if (parallelMass && deferEqualityData && phase == 6u) {
+                        const NSUInteger responseColumns =
+                            static_cast<NSUInteger>(
+                                standDispatch.jointEqualityCount);
+                        [standEncoder dispatchThreadgroups:MTLSizeMake(
+                                std::max<NSUInteger>(1u, responseColumns),
+                                static_cast<NSUInteger>(input.environmentCount), 1u)
+                            threadsPerThreadgroup:MTLSizeMake(
+                                kStandResponseThreadsPerThreadgroup, 1u, 1u)];
+                    } else if (parallelMass && (phase == 5u ||
+                               (deferEqualityData && phase == 8u))) {
                         const NSUInteger projectedColumns =
                             3u * static_cast<NSUInteger>(
                                 standDispatch.supportContactCount) +
@@ -14335,7 +14531,7 @@ MetalArticulatedOperatorContext::submit(
                             threadsPerThreadgroup:MTLSizeMake(
                                 splitStand &&
                                     (phase == standPhaseCount - 1u ||
-                                     (freeSplit && phase == 6u))
+                                     (freeSplit && phase == standFreePreludePhase))
                                     ? kStandFinishThreadsPerThreadgroup
                                     : kStandThreadsPerThreadgroup,
                                 1u, 1u)];

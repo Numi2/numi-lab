@@ -103,6 +103,12 @@ constant bool kReducedStandBaseProjection [[function_constant(17)]];
 constant bool kUseReducedStandBaseProjection =
     is_function_constant_defined(kReducedStandBaseProjection)
         ? kReducedStandBaseProjection : false;
+// Default-off elision of legacy equality responses/factorization. This is
+// enabled only on the split GPU path with reduced projected responses.
+constant bool kDeferStandEqualityData [[function_constant(18)]];
+constant bool kUseDeferStandEqualityData =
+    is_function_constant_defined(kDeferStandEqualityData)
+        ? kDeferStandEqualityData : false;
 // Skip exact no-op contact response terms when candidate velocity is finite
 // and nonzero. Undefined/false retains the original three-axis update loop.
 constant bool kZeroContactResponseFastPath [[function_constant(14)]];
@@ -140,15 +146,112 @@ inline uint standLegacyResponseStride(
         nv * equalityCount;
 }
 
-inline uint standReducedResponseWorkspaceElements(
+inline bool standDeferredDispatchFlagsValid(
+    constant const MRNumiHumanStandDispatchGPU& dispatch
+) {
+    const uint deferred =
+        dispatch.flags & MR_NUMI_HUMAN_STAND_DEFERRED_EQUALITY_DATA;
+    const uint stages = dispatch.flags &
+        (MR_NUMI_HUMAN_STAND_REBUILD_DEFERRED_EQUALITY_DATA |
+         MR_NUMI_HUMAN_STAND_DEFERRED_RESPONSE_FALLBACK_ONLY);
+    const bool reducedAdmission =
+        (dispatch.flags & MR_NUMI_HUMAN_STAND_REDUCED_PROJECTED_RESPONSES) != 0u &&
+        (dispatch.flags & MR_NUMI_HUMAN_STAND_ENABLE_CONTACT) != 0u &&
+        (dispatch.flags & MR_NUMI_HUMAN_STAND_HAS_JOINT_EQUALITIES) != 0u &&
+        dispatch.supportContactCount != 0u &&
+        dispatch.supportContactCount <= MR_NUMI_HUMAN_STAND_MAX_CONTACTS &&
+        dispatch.jointEqualityCount != 0u;
+    return (deferred == 0u ||
+            (kUseDeferStandEqualityData && reducedAdmission)) &&
+        (stages == 0u || deferred != 0u);
+}
+
+inline bool standDeferredDispatchShapeValid(
+    constant const MRNumiHumanStandDispatchGPU& dispatch,
+    const uint nv
+) {
+    if ((dispatch.flags & MR_NUMI_HUMAN_STAND_DEFERRED_EQUALITY_DATA) == 0u)
+        return true;
+    const uint equalityCount = dispatch.jointEqualityCount;
+    return nv != 0u && nv <= MR_NUMI_HUMAN_STAND_MAX_DOFS &&
+        equalityCount < nv && nv - equalityCount <= 64u;
+}
+
+inline uint standDeferredResponseBitmapWords(
+    constant const MRNumiHumanStandDispatchGPU& dispatch, const uint nv
+) {
+    // The host reserves this tail per environment whenever FC18 is enabled,
+    // including phases before the deferred dispatch flag is first submitted.
+    if (!kUseDeferStandEqualityData ||
+        (dispatch.flags & MR_NUMI_HUMAN_STAND_REDUCED_PROJECTED_RESPONSES) == 0u)
+        return 0u;
+    const uint responseColumns = 3u * dispatch.supportContactCount + nv;
+    return (responseColumns + 31u) / 32u;
+}
+
+inline uint standReducedMapReadyOffset(
     const uint nv, const uint equalityCount
+) {
+    const uint freeDofs = nv - equalityCount;
+    return nv * nv + freeDofs * freeDofs + 3u * freeDofs + 3u * nv + 1u;
+}
+
+inline uint standDeferredStateOffset(
+    const uint nv, const uint equalityCount
+) {
+    // The map-ready word is owned by the coordinate map. Keep fallback state
+    // and its per-column failure bitmap in the two following arena regions.
+    return standReducedMapReadyOffset(nv, equalityCount) + 1u;
+}
+
+inline device uint* standReducedMapReadyWord(
+    constant const MRNumiHumanStandDispatchGPU& dispatch,
+    const uint nv,
+    device float* responseScratch,
+    const uint responseBase
+) {
+    const uint legacyStride = standLegacyResponseStride(
+        nv, dispatch.supportContactCount, dispatch.jointEqualityCount);
+    device float* reducedArena = responseScratch + responseBase + legacyStride;
+    return reinterpret_cast<device uint*>(reducedArena +
+        standReducedMapReadyOffset(nv, dispatch.jointEqualityCount));
+}
+
+inline device uint* standDeferredStateWord(
+    constant const MRNumiHumanStandDispatchGPU& dispatch,
+    const uint nv,
+    device float* responseScratch,
+    const uint responseBase
+) {
+    const uint legacyStride = standLegacyResponseStride(
+        nv, dispatch.supportContactCount, dispatch.jointEqualityCount);
+    device float* reducedArena = responseScratch + responseBase + legacyStride;
+    return reinterpret_cast<device uint*>(reducedArena +
+        standDeferredStateOffset(nv, dispatch.jointEqualityCount));
+}
+
+inline device uint* standReducedResponseFailureBitmap(
+    constant const MRNumiHumanStandDispatchGPU& dispatch,
+    const uint nv,
+    device float* responseScratch,
+    const uint responseBase
+) {
+    return standDeferredStateWord(
+        dispatch, nv, responseScratch, responseBase) + 1u;
+}
+
+inline uint standReducedResponseWorkspaceElements(
+    constant const MRNumiHumanStandDispatchGPU& dispatch,
+    const uint nv,
+    const uint equalityCount
 ) {
     if (equalityCount > nv) return 0u;
     const uint freeDofs = nv - equalityCount;
     // Source A, reduced factor, scale/pivot vectors, coordinate map,
-    // coefficients, grouped member offsets/indices, and readiness word.
+    // coefficients, grouped member offsets/indices, map-ready word,
+    // deferred-fallback word, and per-column failure bitmap.
     return nv * nv + freeDofs * freeDofs + 3u * freeDofs +
-        3u * nv + 2u;
+        3u * nv + 3u + standDeferredResponseBitmapWords(dispatch, nv);
 }
 
 inline uint standResponseStride(
@@ -159,7 +262,7 @@ inline uint standResponseStride(
     return (dispatch.flags &
             MR_NUMI_HUMAN_STAND_REDUCED_PROJECTED_RESPONSES) != 0u
         ? legacy + standReducedResponseWorkspaceElements(
-            nv, dispatch.jointEqualityCount)
+            dispatch, nv, dispatch.jointEqualityCount)
         : legacy;
 }
 
@@ -994,6 +1097,28 @@ inline void fail(
     }
 }
 
+inline void failInvalidStandDispatch(
+    device MRNumiHumanStandStatusGPU& status,
+    const uint environment,
+    constant const MRNumiHumanStandDispatchGPU& dispatch
+) {
+    if (dispatch.stepIndex == 0u) {
+        status = {};
+        status.code = MR_NUMI_HUMAN_STAND_SUCCESS;
+        status.environment = environment;
+        status.failingIndex = MR_INVALID_INDEX;
+        status.jointEqualityCounts.w = MR_INVALID_INDEX;
+        status.constraintImpulseOwners = uint4(MR_INVALID_INDEX);
+        status.velocityDiagnosticOwners = uint4(MR_INVALID_INDEX);
+        status.contactAndAcceleration.x =
+            (dispatch.flags & MR_NUMI_HUMAN_STAND_ENABLE_CONTACT) != 0u &&
+                dispatch.supportContactCount != 0u
+                ? INFINITY : 0.0f;
+        status.factorAndAssistance.x = INFINITY;
+    }
+    fail(status, MR_NUMI_HUMAN_STAND_INVALID_DISPATCH, MR_INVALID_INDEX);
+}
+
 inline void publishParallelResponseFailure(
     device MRNumiHumanStandStatusGPU& status, uint ordinal
 ) {
@@ -1047,12 +1172,22 @@ kernel void mr_numi_human_stand_step(
 ) {
     if (environment >= dispatch.environmentCount) return;
     device MRNumiHumanStandStatusGPU& status = statuses[environment];
+    if (!standDeferredDispatchFlagsValid(dispatch)) {
+        if (lane == 0u)
+            failInvalidStandDispatch(status, environment, dispatch);
+        return;
+    }
     device const MRWorldGPU& world = worlds[0];
     device const MRArticulationGPU& articulation =
         articulations[dispatch.articulationIndex];
     const uint bodyCount = articulation.bodyCount;
     const uint nv = articulation.nv;
     const uint nq = articulation.nq;
+    if (!standDeferredDispatchShapeValid(dispatch, nv)) {
+        if (lane == 0u)
+            failInvalidStandDispatch(status, environment, dispatch);
+        return;
+    }
     const uint qBase = environment * dispatch.qStride;
     const uint vBase = environment * dispatch.vStride;
     const uint bodyPoseBase = environment * dispatch.bodyPoseStride;
@@ -1215,6 +1350,7 @@ kernel void mr_numi_human_stand_step(
                 MR_NUMI_HUMAN_STAND_RESPONSES_READY |
                 MR_NUMI_HUMAN_STAND_REDUCED_PROJECTED_RESPONSES |
                 MR_NUMI_HUMAN_STAND_REDUCED_SOURCE_UPPER_TRIANGLE |
+                MR_NUMI_HUMAN_STAND_DEFERRED_EQUALITY_DATA |
                 MR_NUMI_HUMAN_STAND_ANALYTIC_BODY_SPATIAL_JACOBIANS |
                 MR_NUMI_HUMAN_STAND_COMPENSATED_BODY_SUM
             )) != 0u ||
@@ -2156,6 +2292,11 @@ kernel void mr_numi_human_stand_response_assemble(
     const uint environment = position.y;
     if (environment >= dispatch.environmentCount) return;
     device MRNumiHumanStandStatusGPU& status = statuses[environment];
+    if (!standDeferredDispatchFlagsValid(dispatch)) {
+        if (position.x == 0u)
+            fail(status, MR_NUMI_HUMAN_STAND_INVALID_DISPATCH, MR_INVALID_INDEX);
+        return;
+    }
     if (status.code != MR_NUMI_HUMAN_STAND_SUCCESS ||
         (dispatch.flags & (MR_NUMI_HUMAN_STAND_PREPARE_ONLY |
                            MR_NUMI_HUMAN_STAND_MASS_READY |
@@ -2166,6 +2307,11 @@ kernel void mr_numi_human_stand_response_assemble(
     device const MRArticulationGPU& articulation =
         articulations[dispatch.articulationIndex];
     const uint nv = articulation.nv;
+    if (!standDeferredDispatchShapeValid(dispatch, nv)) {
+        if (position.x == 0u)
+            fail(status, MR_NUMI_HUMAN_STAND_INVALID_DISPATCH, MR_INVALID_INDEX);
+        return;
+    }
     const uint equalityCount = dispatch.jointEqualityCount;
     const uint contactColumns = 3u * dispatch.supportContactCount;
     const uint equalityColumnsEnd = contactColumns + equalityCount;
@@ -2255,9 +2401,13 @@ kernel void mr_numi_human_stand_equality_response_cooperative(
     const uint environment = group.y;
     const uint equalityIndex = group.x;
     const uint threadCount = groupSize.x;
-    if (environment >= dispatch.environmentCount ||
-        equalityIndex >= dispatch.jointEqualityCount) return;
+    if (environment >= dispatch.environmentCount) return;
     device MRNumiHumanStandStatusGPU& status = statuses[environment];
+    if (!standDeferredDispatchFlagsValid(dispatch)) {
+        if (group.x == 0u && lane == 0u)
+            fail(status, MR_NUMI_HUMAN_STAND_INVALID_DISPATCH, MR_INVALID_INDEX);
+        return;
+    }
     if (status.code != MR_NUMI_HUMAN_STAND_SUCCESS ||
         (dispatch.flags & (MR_NUMI_HUMAN_STAND_PREPARE_ONLY |
                            MR_NUMI_HUMAN_STAND_MASS_READY |
@@ -2268,14 +2418,38 @@ kernel void mr_numi_human_stand_equality_response_cooperative(
     device const MRArticulationGPU& articulation =
         articulations[dispatch.articulationIndex];
     const uint nv = articulation.nv;
+    if (!standDeferredDispatchShapeValid(dispatch, nv)) {
+        if (group.x == 0u && lane == 0u)
+            fail(status, MR_NUMI_HUMAN_STAND_INVALID_DISPATCH, MR_INVALID_INDEX);
+        return;
+    }
+    if (equalityIndex >= dispatch.jointEqualityCount) return;
     const uint equalityCount = dispatch.jointEqualityCount;
+    const bool deferredEqualityPath = kUseDeferStandEqualityData &&
+        (dispatch.flags & MR_NUMI_HUMAN_STAND_DEFERRED_EQUALITY_DATA) != 0u;
+    const bool deferredEqualityRebuild = deferredEqualityPath &&
+        (dispatch.flags & MR_NUMI_HUMAN_STAND_REBUILD_DEFERRED_EQUALITY_DATA) != 0u &&
+        (dispatch.flags & MR_NUMI_HUMAN_STAND_DEFERRED_RESPONSE_FALLBACK_ONLY) == 0u;
+    if (deferredEqualityPath && !deferredEqualityRebuild) return;
     const uint contactColumns = 3u * dispatch.supportContactCount;
     const uint column = contactColumns + equalityIndex;
     const uint responseColumns =
         (contactColumns + equalityCount + nv) * nv;
     const uint responseStride = standResponseStride(dispatch, nv);
-    device float* response = responseScratch +
-        environment * responseStride + column * nv;
+    const uint responseBase = environment * responseStride;
+    device float* response = responseScratch + responseBase + column * nv;
+    if (deferredEqualityRebuild) {
+        device uint* ready = standDeferredStateWord(
+            dispatch, nv, responseScratch, responseBase);
+        if ((*ready & 2u) == 0u) return;
+        if (lane == 0u) {
+            device atomic_uint* flags =
+                reinterpret_cast<device atomic_uint*>(&status.flags);
+            atomic_fetch_or_explicit(flags,
+                uint(MR_NUMI_HUMAN_STAND_DEFERRED_EQUALITY_FALLBACK_USED),
+                memory_order_relaxed);
+        }
+    }
     threadgroup float rhs[MR_NUMI_HUMAN_STAND_MAX_DOFS];
     threadgroup float workspace[MR_NUMI_HUMAN_STAND_MAX_DOFS];
     threadgroup uint rhsValid = 0u;
@@ -2483,11 +2657,21 @@ kernel void mr_numi_human_stand_equality_prepare(
 ) {
     if (environment >= dispatch.environmentCount) return;
     device MRNumiHumanStandStatusGPU& status = statuses[environment];
+    if (!standDeferredDispatchFlagsValid(dispatch)) {
+        if (lane == 0u)
+            fail(status, MR_NUMI_HUMAN_STAND_INVALID_DISPATCH, MR_INVALID_INDEX);
+        return;
+    }
     if (status.code != MR_NUMI_HUMAN_STAND_SUCCESS) return;
     device const MRArticulationGPU& articulation =
         articulations[dispatch.articulationIndex];
     const uint nv = articulation.nv;
     const uint nq = articulation.nq;
+    if (!standDeferredDispatchShapeValid(dispatch, nv)) {
+        if (lane == 0u)
+            fail(status, MR_NUMI_HUMAN_STAND_INVALID_DISPATCH, MR_INVALID_INDEX);
+        return;
+    }
     const uint equalityCount = dispatch.jointEqualityCount;
     const uint contactColumns = 3u * dispatch.supportContactCount;
     if (status.failingIndex != MR_INVALID_INDEX) {
@@ -2503,6 +2687,37 @@ kernel void mr_numi_human_stand_equality_prepare(
         (contactColumns + equalityCount + nv) * nv;
     const uint responseStride = standResponseStride(dispatch, nv);
     const uint responseBase = environment * responseStride;
+    const bool deferredEqualityPath = kUseDeferStandEqualityData &&
+        (dispatch.flags & MR_NUMI_HUMAN_STAND_DEFERRED_EQUALITY_DATA) != 0u;
+    const bool deferredEqualityRebuild = deferredEqualityPath &&
+        (dispatch.flags & MR_NUMI_HUMAN_STAND_REBUILD_DEFERRED_EQUALITY_DATA) != 0u &&
+        (dispatch.flags & MR_NUMI_HUMAN_STAND_DEFERRED_RESPONSE_FALLBACK_ONLY) == 0u;
+    const bool deferredEqualityInitial = deferredEqualityPath &&
+        !deferredEqualityRebuild;
+    const bool forceUnavailableReducedMap = deferredEqualityInitial &&
+        (dispatch.flags & MR_NUMI_HUMAN_STAND_REBUILD_DEFERRED_EQUALITY_DATA) == 0u &&
+        (dispatch.flags & MR_NUMI_HUMAN_STAND_DEFERRED_RESPONSE_FALLBACK_ONLY) != 0u;
+    const bool forceLateBaseFallback = deferredEqualityInitial &&
+        (dispatch.flags & MR_NUMI_HUMAN_STAND_REBUILD_DEFERRED_EQUALITY_DATA) != 0u &&
+        (dispatch.flags & MR_NUMI_HUMAN_STAND_DEFERRED_RESPONSE_FALLBACK_ONLY) != 0u;
+    device uint* reducedReady = deferredEqualityPath
+        ? standDeferredStateWord(dispatch, nv, responseScratch, responseBase)
+        : nullptr;
+    device uint* failureBitmap = deferredEqualityPath
+        ? standReducedResponseFailureBitmap(
+            dispatch, nv, responseScratch, responseBase) : nullptr;
+    if (deferredEqualityRebuild && (*reducedReady & 2u) == 0u) return;
+    if (deferredEqualityInitial) {
+        if (lane == 0u) {
+            *reducedReady = 0u;
+            *standReducedMapReadyWord(
+                dispatch, nv, responseScratch, responseBase) = 0u;
+        }
+        const uint bitmapWords = standDeferredResponseBitmapWords(dispatch, nv);
+        for (uint word = lane; word < bitmapWords; word += threadCount)
+            failureBitmap[word] = 0u;
+        threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+    }
     device float* equalityFactor =
         responseScratch + responseBase + responseColumns;
     device float* equalityScale =
@@ -2521,7 +2736,7 @@ kernel void mr_numi_human_stand_equality_prepare(
     device float* equalityResponseByDof = targetVelocityCache + nv;
     const uint qBase = environment * dispatch.qStride;
     const float timestep = dispatch.groundPointAndTimestep.w;
-    if (lane == 0u) {
+    if (lane == 0u && !deferredEqualityRebuild) {
         for (uint equalityIndex = 0u; equalityIndex < equalityCount;
              ++equalityIndex) {
             float target = 0.0f, derivative = 0.0f, error = 0.0f;
@@ -2539,6 +2754,7 @@ kernel void mr_numi_human_stand_equality_prepare(
     }
     threadgroup_barrier(mem_flags::mem_device);
     if (status.code != MR_NUMI_HUMAN_STAND_SUCCESS) return;
+    if (!deferredEqualityInitial) {
     for (uint row = lane; row < equalityCount; row += threadCount) {
         device const auto& equality = jointEqualities[row];
         const float derivative = derivativeCache[row];
@@ -2609,6 +2825,30 @@ kernel void mr_numi_human_stand_equality_prepare(
             uint(MR_NUMI_HUMAN_STAND_HYBRID_FACTOR_CACHE_USED),
             memory_order_relaxed);
     }
+    }
+    if (deferredEqualityRebuild) {
+        if (lane == 0u) {
+            atomic_fetch_or_explicit(
+                reinterpret_cast<device atomic_uint*>(reducedReady), 4u,
+                memory_order_relaxed);
+            atomic_fetch_or_explicit(
+                reinterpret_cast<device atomic_uint*>(&status.flags),
+                uint(MR_NUMI_HUMAN_STAND_DEFERRED_EQUALITY_FALLBACK_USED),
+                memory_order_relaxed);
+        }
+        threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+        return;
+    }
+    if (deferredEqualityInitial && lane == 0u)
+        atomic_fetch_or_explicit(
+            reinterpret_cast<device atomic_uint*>(&status.flags),
+            uint(MR_NUMI_HUMAN_STAND_REDUCED_EQUALITY_DATA_DEFERRED_USED),
+            memory_order_relaxed);
+    if (forceUnavailableReducedMap) {
+        if (lane == 0u) *reducedReady = 2u;
+        threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+        return;
+    }
     if ((dispatch.flags &
          MR_NUMI_HUMAN_STAND_REDUCED_PROJECTED_RESPONSES) == 0u)
         return;
@@ -2628,7 +2868,7 @@ kernel void mr_numi_human_stand_equality_prepare(
     device uint* coordinateOffsets =
         reinterpret_cast<device uint*>(coefficientForDof + nv);
     device uint* coordinateDofs = coordinateOffsets + freeDofs + 1u;
-    device uint* reducedReady = coordinateDofs + nv;
+    device uint* mapReady = coordinateDofs + nv;
     const bool upperTriangle =
         (dispatch.flags &
          MR_NUMI_HUMAN_STAND_REDUCED_SOURCE_UPPER_TRIANGLE) != 0u;
@@ -2637,14 +2877,27 @@ kernel void mr_numi_human_stand_equality_prepare(
         upperTriangle, lane, threadCount, reducedFactor, reducedScale,
         reducedPivots,
         coordinateForDof, coefficientForDof, coordinateOffsets,
-        coordinateDofs, reducedReady, factorCache, scaleCache, pivotCache,
+        coordinateDofs, mapReady, factorCache, scaleCache, pivotCache,
         &factorFailure, &selectedPivot);
-    if (lane == 0u && reducedReadyForRoot) {
-        device atomic_uint* statusFlags =
-            reinterpret_cast<device atomic_uint*>(&status.flags);
-        atomic_fetch_or_explicit(statusFlags,
-            uint(MR_NUMI_HUMAN_STAND_REDUCED_PROJECTION_READY),
-            memory_order_relaxed);
+    if (lane == 0u) {
+        if (deferredEqualityInitial) {
+            if (reducedReadyForRoot) {
+                *mapReady |= 1u;
+                if (forceLateBaseFallback)
+                    atomic_fetch_or_explicit(
+                        reinterpret_cast<device atomic_uint*>(reducedReady),
+                        8u, memory_order_relaxed);
+            } else {
+                *reducedReady = 2u;
+            }
+        }
+        if (reducedReadyForRoot) {
+            device atomic_uint* statusFlags =
+                reinterpret_cast<device atomic_uint*>(&status.flags);
+            atomic_fetch_or_explicit(statusFlags,
+                uint(MR_NUMI_HUMAN_STAND_REDUCED_PROJECTION_READY),
+                memory_order_relaxed);
+        }
     }
 }
 
@@ -2670,10 +2923,20 @@ kernel void mr_numi_human_stand_projected_response_assemble(
     const uint environment = position.y;
     if (environment >= dispatch.environmentCount) return;
     device MRNumiHumanStandStatusGPU& status = statuses[environment];
+    if (!standDeferredDispatchFlagsValid(dispatch)) {
+        if (position.x == 0u)
+            fail(status, MR_NUMI_HUMAN_STAND_INVALID_DISPATCH, MR_INVALID_INDEX);
+        return;
+    }
     if (status.code != MR_NUMI_HUMAN_STAND_SUCCESS) return;
     device const MRArticulationGPU& articulation =
         articulations[dispatch.articulationIndex];
     const uint nv = articulation.nv;
+    if (!standDeferredDispatchShapeValid(dispatch, nv)) {
+        if (position.x == 0u)
+            fail(status, MR_NUMI_HUMAN_STAND_INVALID_DISPATCH, MR_INVALID_INDEX);
+        return;
+    }
     const uint equalityCount = dispatch.jointEqualityCount;
     const uint contactColumns = 3u * dispatch.supportContactCount;
     const uint equalityColumnsEnd = contactColumns + equalityCount;
@@ -2876,10 +3139,20 @@ kernel void mr_numi_human_stand_projected_response_cooperative(
     const uint positionIndex = group.x;
     if (environment >= dispatch.environmentCount) return;
     device MRNumiHumanStandStatusGPU& status = statuses[environment];
+    if (!standDeferredDispatchFlagsValid(dispatch)) {
+        if (group.x == 0u && lane == 0u)
+            fail(status, MR_NUMI_HUMAN_STAND_INVALID_DISPATCH, MR_INVALID_INDEX);
+        return;
+    }
     if (status.code != MR_NUMI_HUMAN_STAND_SUCCESS) return;
     device const MRArticulationGPU& articulation =
         articulations[dispatch.articulationIndex];
     const uint nv = articulation.nv;
+    if (!standDeferredDispatchShapeValid(dispatch, nv)) {
+        if (group.x == 0u && lane == 0u)
+            fail(status, MR_NUMI_HUMAN_STAND_INVALID_DISPATCH, MR_INVALID_INDEX);
+        return;
+    }
     const uint equalityCount = dispatch.jointEqualityCount;
     const uint contactColumns = 3u * dispatch.supportContactCount;
     const uint equalityColumnsEnd = contactColumns + equalityCount;
@@ -2889,6 +3162,20 @@ kernel void mr_numi_human_stand_projected_response_cooperative(
     const uint responseColumns = (equalityColumnsEnd + nv) * nv;
     const uint responseStride = standResponseStride(dispatch, nv);
     const uint responseBase = environment * responseStride;
+    const bool deferredEqualityPath = kUseDeferStandEqualityData &&
+        (dispatch.flags & MR_NUMI_HUMAN_STAND_DEFERRED_EQUALITY_DATA) != 0u;
+    const bool deferredFallbackOnly = deferredEqualityPath &&
+        (dispatch.flags & MR_NUMI_HUMAN_STAND_DEFERRED_RESPONSE_FALLBACK_ONLY) != 0u &&
+        (dispatch.flags & MR_NUMI_HUMAN_STAND_REBUILD_DEFERRED_EQUALITY_DATA) == 0u;
+    const bool forcedProjectedColumnFallback = deferredEqualityPath &&
+        (dispatch.flags & MR_NUMI_HUMAN_STAND_REBUILD_DEFERRED_EQUALITY_DATA) != 0u &&
+        (dispatch.flags & MR_NUMI_HUMAN_STAND_DEFERRED_RESPONSE_FALLBACK_ONLY) != 0u;
+    device uint* deferredReady = deferredEqualityPath
+        ? standDeferredStateWord(dispatch, nv, responseScratch, responseBase)
+        : nullptr;
+    device uint* failureBitmap = deferredEqualityPath
+        ? standReducedResponseFailureBitmap(
+            dispatch, nv, responseScratch, responseBase) : nullptr;
     device float* response = responseScratch + responseBase + column * nv;
     device float* equalityFactor =
         responseScratch + responseBase + responseColumns;
@@ -2931,7 +3218,11 @@ kernel void mr_numi_human_stand_projected_response_cooperative(
     threadgroup atomic_uint correctionFailed;
     threadgroup atomic_uint reducedFailure;
     if (lane == 0u) {
-        if (positionIndex < contactColumns) {
+        if (deferredFallbackOnly) {
+            const uint word = positionIndex >> 5u;
+            const uint mask = 1u << (positionIndex & 31u);
+            responseActive = (failureBitmap[word] & mask) != 0u ? 1u : 0u;
+        } else if (positionIndex < contactColumns) {
             if (contactEnabled) {
                 device const auto& support = contacts[positionIndex / 3u];
                 const uint pointIndex = pointBase + support.pointQueryIndex;
@@ -2961,9 +3252,9 @@ kernel void mr_numi_human_stand_projected_response_cooperative(
     }
     threadgroup_barrier(mem_flags::mem_threadgroup);
     if (responseActive == 0u) return;
-    const bool projectedRawReady =
+    const bool projectedRawReady = deferredFallbackOnly ||
         (dispatch.flags & MR_NUMI_HUMAN_STAND_PROJECTED_RAW_READY) != 0u;
-    const bool reducedResponseRequested =
+    const bool reducedResponseRequested = !deferredFallbackOnly &&
         (dispatch.flags &
          MR_NUMI_HUMAN_STAND_REDUCED_PROJECTED_RESPONSES) != 0u;
     for (uint dof = lane; dof < nv; dof += threadCount) {
@@ -3029,10 +3320,10 @@ kernel void mr_numi_human_stand_projected_response_cooperative(
         device const uint* coordinateOffsets =
             reinterpret_cast<device const uint*>(coefficientForDof + nv);
         device const uint* coordinateDofs = coordinateOffsets + freeDofs + 1u;
-        device const uint* reducedReady = coordinateDofs + nv;
+        device const uint* mapReady = coordinateDofs + nv;
         const bool useUpperTriangle = (dispatch.flags &
             MR_NUMI_HUMAN_STAND_REDUCED_SOURCE_UPPER_TRIANGLE) != 0u;
-        if (*reducedReady != 0u) {
+        if (!forcedProjectedColumnFallback && (*mapReady & 1u) != 0u) {
             for (uint coordinate = lane; coordinate < freeDofs;
                  coordinate += threadCount) {
                 float value = 0.0f;
@@ -3130,6 +3421,23 @@ kernel void mr_numi_human_stand_projected_response_cooperative(
         }
     }
 
+    if (deferredEqualityPath && !deferredFallbackOnly && projectEquality &&
+        !useReducedResponse) {
+        for (uint dof = lane; dof < nv; dof += threadCount)
+            response[dof] = rhs[dof];
+        threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+        if (lane == 0u) {
+            const uint word = positionIndex >> 5u;
+            const uint mask = 1u << (positionIndex & 31u);
+            atomic_fetch_or_explicit(
+                reinterpret_cast<device atomic_uint*>(&failureBitmap[word]),
+                mask, memory_order_relaxed);
+            atomic_fetch_or_explicit(
+                reinterpret_cast<device atomic_uint*>(deferredReady), 2u,
+                memory_order_relaxed);
+        }
+        return;
+    }
     if (projectEquality && !useReducedResponse) {
         // Restore complete legacy reactions when the candidate factor or
         // response is ineligible; the original Schur correction stays intact.
@@ -3246,12 +3554,22 @@ kernel void mr_numi_human_stand_mass_assemble(
     const uint environment = position.y;
     if (environment >= dispatch.environmentCount) return;
     device MRNumiHumanStandStatusGPU& status = statuses[environment];
+    if (!standDeferredDispatchFlagsValid(dispatch)) {
+        if (position.x == 0u)
+            fail(status, MR_NUMI_HUMAN_STAND_INVALID_DISPATCH, MR_INVALID_INDEX);
+        return;
+    }
     if (status.code != MR_NUMI_HUMAN_STAND_SUCCESS ||
         (status.flags & MR_NUMI_HUMAN_STAND_MASS_PREREQUISITES_ONLY) == 0u)
         return;
     device const MRArticulationGPU& articulation =
         articulations[dispatch.articulationIndex];
     const uint nv = articulation.nv;
+    if (!standDeferredDispatchShapeValid(dispatch, nv)) {
+        if (position.x == 0u)
+            fail(status, MR_NUMI_HUMAN_STAND_INVALID_DISPATCH, MR_INVALID_INDEX);
+        return;
+    }
     const uint index = position.x;
     if (index >= nv * nv) return;
     const uint row = index / nv;
@@ -3368,11 +3686,21 @@ kernel void mr_numi_human_stand_finish(
 ) {
     if (environment >= dispatch.environmentCount) return;
     device MRNumiHumanStandStatusGPU& status = statuses[environment];
+    if (!standDeferredDispatchFlagsValid(dispatch)) {
+        if (lane == 0u)
+            fail(status, MR_NUMI_HUMAN_STAND_INVALID_DISPATCH, MR_INVALID_INDEX);
+        return;
+    }
     device const MRArticulationGPU& articulation =
         articulations[dispatch.articulationIndex];
     const uint bodyCount = articulation.bodyCount;
     const uint nv = articulation.nv;
     const uint nq = articulation.nq;
+    if (!standDeferredDispatchShapeValid(dispatch, nv)) {
+        if (lane == 0u)
+            fail(status, MR_NUMI_HUMAN_STAND_INVALID_DISPATCH, MR_INVALID_INDEX);
+        return;
+    }
     const uint qBase = environment * dispatch.qStride;
     const uint vBase = environment * dispatch.vStride;
     const uint pointBase = environment * dispatch.pointWorldStride;
@@ -3392,6 +3720,11 @@ kernel void mr_numi_human_stand_finish(
     const uint responseColumns = (dispatch.supportContactCount * 3u + equalityCount + nv) * nv;
     const uint responseStride = standResponseStride(dispatch, nv);
     const uint responseBase = environment * responseStride;
+    const bool deferredEqualityDataPath = kUseDeferStandEqualityData &&
+        (dispatch.flags & MR_NUMI_HUMAN_STAND_DEFERRED_EQUALITY_DATA) != 0u;
+    device uint* deferredEqualityReady = deferredEqualityDataPath
+        ? standDeferredStateWord(dispatch, nv, responseScratch, responseBase)
+        : nullptr;
     device float* equalityFactor = responseScratch + responseBase + responseColumns;
     device float* equalityScale = equalityFactor + equalityCount * equalityCount;
     device float* equalityPivots = equalityScale + equalityCount;
@@ -3404,6 +3737,10 @@ kernel void mr_numi_human_stand_finish(
         kCachedEqualityCapacity * kCachedEqualityCapacity];
     threadgroup float candidateVStorage[MR_NUMI_HUMAN_STAND_MAX_DOFS];
     threadgroup float workspaceStorage[MR_NUMI_HUMAN_STAND_MAX_DOFS];
+    threadgroup float deferredEqualityScaleCache[MR_NUMI_HUMAN_STAND_MAX_DOFS];
+    threadgroup float deferredEqualityPivotCache[MR_NUMI_HUMAN_STAND_MAX_DOFS];
+    threadgroup atomic_uint deferredEqualityFactorFailure;
+    threadgroup uint deferredEqualitySelectedPivot;
     threadgroup uint cooperativeFreeSolveSucceeded;
     threadgroup uint cooperativeEqualitySucceeded;
     threadgroup uint cooperativePgsSweepReceipt;
@@ -3458,7 +3795,7 @@ kernel void mr_numi_human_stand_finish(
     if (status.code != MR_NUMI_HUMAN_STAND_SUCCESS) return;
     device float* equalityDerivativeCache = spatialJacobianScratch + spatialBase;
     device float* equalityTargetVelocityCache = equalityDerivativeCache + nv;
-    device const float* equalityResponseByDof =
+    device float* equalityResponseByDof =
         equalityTargetVelocityCache + nv;
     const bool cacheEqualityResponseByDof =
         bodyCount * MR_NUMI_HUMAN_STAND_SPATIAL_SCRATCH_ROWS >=
@@ -3549,7 +3886,10 @@ kernel void mr_numi_human_stand_finish(
             maximumEqualityPositionError = max(
                 maximumEqualityPositionError, abs(error));
         }
-        if (equalityCount <= kCachedEqualityCapacity) {
+        const bool deferredLegacyReady = !deferredEqualityDataPath ||
+            ((*deferredEqualityReady & 4u) != 0u);
+        if (equalityCount <= kCachedEqualityCapacity &&
+            deferredLegacyReady) {
             for (uint index = 0u; index < equalityCount * equalityCount;
                  ++index) {
                 equalityFactorStorage[index] = equalityFactor[index];

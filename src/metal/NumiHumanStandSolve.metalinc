@@ -459,7 +459,7 @@
                     (dispatch.flags &
                      MR_NUMI_HUMAN_STAND_REDUCED_SOURCE_UPPER_TRIANGLE) != 0u;
 
-                if (freeDofs != 0u && *reducedReady != 0u) {
+                if (freeDofs != 0u && (*reducedReady & 1u) != 0u) {
                     reducedBaseAttempted = true;
                     // Lane zero published the current row residuals above.
                     // All lanes must observe those writes before clearing q.
@@ -560,6 +560,15 @@
                                     }
                                 }
                             }
+                            if (cooperativeEqualitySucceeded != 0u &&
+                                deferredEqualityDataPath && refinement == 0u &&
+                                (*deferredEqualityReady & 8u) != 0u) {
+                                atomic_fetch_and_explicit(
+                                    reinterpret_cast<device atomic_uint*>(
+                                        deferredEqualityReady), ~8u,
+                                    memory_order_relaxed);
+                                cooperativeEqualitySucceeded = 0u;
+                            }
                             if (cooperativeEqualitySucceeded != 0u) {
                                 status.flags |=
                                     MR_NUMI_HUMAN_STAND_REDUCED_BASE_PROJECTION_USED;
@@ -625,6 +634,121 @@
             }
 
             if (!reducedBaseApplied) {
+                const bool deferredLegacyMissing =
+                    deferredEqualityDataPath &&
+                    (*deferredEqualityReady & 4u) == 0u;
+                if (deferredLegacyMissing) {
+                    const uint contactColumns =
+                        3u * dispatch.supportContactCount;
+                    for (uint equalityIndex = 0u;
+                         equalityIndex < equalityCount; ++equalityIndex) {
+                        for (uint dof = lane; dof < nv; dof += threadCount)
+                            equalityRhs[dof] = 0.0f;
+                        threadgroup_barrier(mem_flags::mem_threadgroup);
+                        if (lane == 0u) {
+                            device const MRNumiHumanJointEqualityGPU& equality =
+                                jointEqualities[equalityIndex];
+                            equalityRhs[equality.indices.y] = 1.0f;
+                            if (equality.indices.w != MR_INVALID_INDEX)
+                                equalityRhs[equality.indices.w] =
+                                    -equalityDerivativeCache[equalityIndex];
+                        }
+                        threadgroup_barrier(mem_flags::mem_threadgroup);
+                        const bool responseSolved =
+                            solveFactorCooperativeForward(
+                                factor, workspace, equalityRhs, nv, lane,
+                                threadCount, &cooperativeEqualitySucceeded,
+                                sparseGraph);
+                        if (!responseSolved && lane == 0u)
+                            fail(status,
+                                MR_NUMI_HUMAN_STAND_JOINT_EQUALITY_FAILED,
+                                equalityIndex);
+                        threadgroup_barrier(
+                            mem_flags::mem_device | mem_flags::mem_threadgroup);
+                        if (status.code != MR_NUMI_HUMAN_STAND_SUCCESS)
+                            return;
+                        for (uint dof = lane; dof < nv; dof += threadCount) {
+                            const float value = equalityRhs[dof];
+                            responseScratch[responseBase +
+                                (contactColumns + equalityIndex) * nv + dof] =
+                                    value;
+                            if (cacheEqualityResponseByDof)
+                                equalityResponseByDof[dof * equalityCount +
+                                    equalityIndex] = value;
+                        }
+                        threadgroup_barrier(mem_flags::mem_device |
+                                            mem_flags::mem_threadgroup);
+                    }
+                    for (uint row = lane; row < equalityCount;
+                         row += threadCount) {
+                        device const MRNumiHumanJointEqualityGPU& equality =
+                            jointEqualities[row];
+                        const float derivative = equalityDerivativeCache[row];
+                        for (uint column = 0u; column < equalityCount; ++column) {
+                            device const float* response = responseScratch +
+                                responseBase + (contactColumns + column) * nv;
+                            float value = response[equality.indices.y];
+                            if (equality.indices.w != MR_INVALID_INDEX)
+                                value = fma(-derivative,
+                                    response[equality.indices.w], value);
+                            equalityFactor[row * equalityCount + column] = value;
+                        }
+                    }
+                    threadgroup_barrier(mem_flags::mem_device |
+                                        mem_flags::mem_threadgroup);
+                    bool legacyFactored = false;
+                    if (equalityCount <= kCachedEqualityCapacity) {
+                        legacyFactored =
+                            mrNumiHumanBilateralFactorCooperative<false>(
+                                equalityFactor, equalityScale, equalityPivots,
+                                equalityCount, lane, threadCount,
+                                equalityFactorStorage,
+                                deferredEqualityScaleCache,
+                                deferredEqualityPivotCache,
+                                &deferredEqualityFactorFailure,
+                                &deferredEqualitySelectedPivot);
+                    } else {
+                        legacyFactored =
+                            mrNumiHumanBilateralFactorCooperative<true>(
+                                equalityFactor, equalityScale, equalityPivots,
+                                equalityCount, lane, threadCount,
+                                equalityFactor,
+                                deferredEqualityScaleCache,
+                                deferredEqualityPivotCache,
+                                &deferredEqualityFactorFailure,
+                                &deferredEqualitySelectedPivot);
+                    }
+                    if (!legacyFactored && lane == 0u)
+                        fail(status,
+                            MR_NUMI_HUMAN_STAND_JOINT_EQUALITY_FAILED,
+                            MR_INVALID_INDEX);
+                    threadgroup_barrier(
+                        mem_flags::mem_device | mem_flags::mem_threadgroup);
+                    if (status.code != MR_NUMI_HUMAN_STAND_SUCCESS)
+                        return;
+                    if (equalityCount <= kCachedEqualityCapacity) {
+                        for (uint index = lane;
+                             index < equalityCount * equalityCount;
+                             index += threadCount)
+                            equalityFactorStorage[index] =
+                                equalityFactor[index];
+                        threadgroup_barrier(
+                            mem_flags::mem_device | mem_flags::mem_threadgroup);
+                    }
+                    if (lane == 0u) {
+                        atomic_fetch_or_explicit(
+                            reinterpret_cast<device atomic_uint*>(
+                                deferredEqualityReady), 4u,
+                            memory_order_relaxed);
+                        atomic_fetch_or_explicit(
+                            reinterpret_cast<device atomic_uint*>(
+                                &status.flags),
+                            uint(MR_NUMI_HUMAN_STAND_DEFERRED_EQUALITY_FALLBACK_USED),
+                            memory_order_relaxed);
+                    }
+                    threadgroup_barrier(
+                        mem_flags::mem_device | mem_flags::mem_threadgroup);
+                }
                 // A rejected reduced solve may have consumed the residual
                 // vector and q scratch. Reconstruct the exact legacy RHS before
                 // the unchanged full Schur solve.
@@ -3220,6 +3344,8 @@
          MR_NUMI_HUMAN_STAND_DEFERRED_EQUALITY_DIAGNOSTICS_USED |
          MR_NUMI_HUMAN_STAND_HYBRID_FACTOR_CACHE_USED |
          MR_NUMI_HUMAN_STAND_REDUCED_BASE_PROJECTION_USED |
+         MR_NUMI_HUMAN_STAND_REDUCED_EQUALITY_DATA_DEFERRED_USED |
+         MR_NUMI_HUMAN_STAND_DEFERRED_EQUALITY_FALLBACK_USED |
          MR_NUMI_HUMAN_STAND_CONTACT_WARMSTART_HIT |
          MR_NUMI_HUMAN_STAND_CONTACT_WARMSTART_USED);
 #if defined(MR_NH_COOPERATIVE_FINISH)

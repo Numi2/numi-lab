@@ -1835,6 +1835,14 @@ struct MetalArticulatedOperatorInput {
     bool collectFullResultToHost = true;
 };
 
+enum class MetalStandEqualityDeferralFault : std::uint8_t {
+    none = 0u,
+    unavailableReducedMap = 1u,
+    projectedColumnFallback = 2u,
+    lateBaseFallback = 3u,
+    invalid = 255u,
+};
+
 struct MetalArticulatedOperatorConfig {
     // The dense mass matrix is a correctness diagnostic. The factor-backed
     // impulse solve always runs; disabling this avoids its output bandwidth.
@@ -1885,6 +1893,13 @@ struct MetalArticulatedOperatorConfig {
     // This changes only the evaluation path and is bound to continuation
     // identity when an authoritative Stand horizon is configured.
     bool fuseCanonicalBodyProbes = false;
+    // Default-off GPU-predicated omission of legacy equality responses and
+    // full Schur factor, with in-command-buffer fallback reconstruction.
+    bool deferStandEqualityData = false;
+    // Diagnostic-only forcing of one deferred-path recovery branch. The
+    // selected branch always resolves through the unchanged legacy equations.
+    MetalStandEqualityDeferralFault standEqualityDeferralFault =
+        MetalStandEqualityDeferralFault::none;
     // Opt-in equilibrated Cholesky attempt for its small reduced SPD factor.
     // A rejected candidate falls back to the default pivoted bilateral factor.
     bool reducedStandCholesky = false;
