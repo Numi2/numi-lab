@@ -630,9 +630,11 @@ void visitSplitStandBoundary(
     const MetalArticulatedOperatorConfig& config,
     const MetalArticulatedOperatorInput& input
 ) noexcept {
+    // The finish pipeline is specialized with buffer 30 for every enabled
+    // split Stand input. Keep one slot per environment bound even when this
+    // particular request has no contacts or cannot use the cache.
     return config.standContactWarmStart && config.splitStandSolve &&
-        input.stand.enabled() && input.stand.enableContact &&
-        !input.stand.contacts.empty();
+        input.stand.enabled();
 }
 
 [[nodiscard]] bool standContactWarmStartApplicable(
@@ -640,6 +642,7 @@ void visitSplitStandBoundary(
     const MetalArticulatedOperatorInput& input
 ) noexcept {
     return standContactWarmStartArenaApplicable(config, input) &&
+        input.stand.enableContact && !input.stand.contacts.empty() &&
         !input.stand.numanXHumanMatterProgram.valid();
 }
 

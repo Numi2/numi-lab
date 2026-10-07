@@ -755,7 +755,8 @@
                     all(accepted.identity == slot.requestedIdentity);
                 if (matchingIdentity && accepted.metadata.y == 1u) {
                     if (accepted.metadata.x != dispatch.supportContactCount ||
-                        accepted.metadata.z != 0u ||
+                        accepted.metadata.z == 0u ||
+                        accepted.metadata.z > dispatch.stepIndex ||
                         accepted.metadata.w != 0u ||
                         slot.requestState.y != 0u ||
                         slot.requestState.z != 0u ||
@@ -764,33 +765,39 @@
                              contact);
                         return;
                     }
-                    const float4 previous = accepted.impulses[contact];
-                    if (!all(isfinite(previous)) || previous.x < 0.0f) {
-                        fail(status, MR_NUMI_HUMAN_STAND_NONFINITE_RESULT,
-                             contact);
-                        return;
-                    }
-                    status.flags |=
-                        MR_NUMI_HUMAN_STAND_CONTACT_WARMSTART_HIT;
-                    seedImpulse.x = max(sourceSeed, previous.x);
-                    seedImpulse.yz = previous.yz;
-                    const float friction =
-                        support.frictionSlopAndStabilization.x;
-                    const float tangentMagnitude = length(seedImpulse.yz);
-                    const float tangentRadius = friction * seedImpulse.x;
-                    if (friction == 0.0f) {
-                        seedImpulse.yz = float2(0.0f);
-                    } else if (tangentMagnitude > tangentRadius &&
-                               tangentMagnitude > 0.0f) {
-                        seedImpulse.yz *= tangentRadius / tangentMagnitude;
-                    }
-                    useWarmStartSeed =
-                        seedImpulse.x != sourceSeed ||
-                        seedImpulse.y != 0.0f ||
-                        seedImpulse.z != 0.0f;
-                    if (useWarmStartSeed)
+                    // An accepted no-contact or external-physics root may
+                    // leave older history bytes in the slot. Reuse is legal
+                    // only when that record is the immediately preceding
+                    // accepted global step for this dispatch.
+                    if (accepted.metadata.z == dispatch.stepIndex) {
+                        const float4 previous = accepted.impulses[contact];
+                        if (!all(isfinite(previous)) || previous.x < 0.0f) {
+                            fail(status, MR_NUMI_HUMAN_STAND_NONFINITE_RESULT,
+                                 contact);
+                            return;
+                        }
                         status.flags |=
-                            MR_NUMI_HUMAN_STAND_CONTACT_WARMSTART_USED;
+                            MR_NUMI_HUMAN_STAND_CONTACT_WARMSTART_HIT;
+                        seedImpulse.x = max(sourceSeed, previous.x);
+                        seedImpulse.yz = previous.yz;
+                        const float friction =
+                            support.frictionSlopAndStabilization.x;
+                        const float tangentMagnitude = length(seedImpulse.yz);
+                        const float tangentRadius = friction * seedImpulse.x;
+                        if (friction == 0.0f) {
+                            seedImpulse.yz = float2(0.0f);
+                        } else if (tangentMagnitude > tangentRadius &&
+                                   tangentMagnitude > 0.0f) {
+                            seedImpulse.yz *= tangentRadius / tangentMagnitude;
+                        }
+                        useWarmStartSeed =
+                            seedImpulse.x != sourceSeed ||
+                            seedImpulse.y != 0.0f ||
+                            seedImpulse.z != 0.0f;
+                        if (useWarmStartSeed)
+                            status.flags |=
+                                MR_NUMI_HUMAN_STAND_CONTACT_WARMSTART_USED;
+                    }
                 }
             }
             if (!all(isfinite(seedImpulse))) {

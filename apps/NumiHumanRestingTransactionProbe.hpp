@@ -425,6 +425,7 @@ inline void captureCompletedTransactionProbePhysical(
 [[nodiscard]] inline std::vector<std::uint8_t>
 captureAcceptedContactWarmStart(
     metalrobo::MetalArticulatedOperatorContext& context,
+    const std::uint32_t expectedCompletedSteps,
     const char* label
 ) {
     std::vector<std::uint8_t> records;
@@ -442,10 +443,11 @@ captureAcceptedContactWarmStart(
         MRNumiHumanStandContactWarmStartGPU record{};
         std::memcpy(&record, records.data() + offset, sizeof(record));
         need(record.metadata.y == 1u &&
-                 record.metadata.z == 0u && record.metadata.w == 0u &&
+                 record.metadata.z == expectedCompletedSteps &&
+                 record.metadata.w == 0u &&
                  (record.identity.x | record.identity.y |
                   record.identity.z | record.identity.w) != 0u,
-             std::string("resting transaction probe found an uncommitted ") +
+             std::string("resting transaction probe found an invalid accepted-step count in ") +
                  label + " record");
     }
     return records;
@@ -972,7 +974,7 @@ inline void run(
     const auto multiBaseline2Diagnostics = multiBaselineContext.run(
         model, multiBaseline2Input, multiBaseline2Result);
     const auto multiBaseline2WarmStart = captureAcceptedContactWarmStart(
-        multiBaselineContext, "two-root contact history");
+        multiBaselineContext, 2u, "two-root contact history");
     requireAcceptedStep(multiBaseline2Diagnostics, multiBaseline2Result, 2u,
                         qCount, vCount, muscleCount);
     requireContactWarmStartUseReceipt(
@@ -991,7 +993,7 @@ inline void run(
     const auto multiBaseline4Diagnostics = multiBaselineContext.run(
         model, multiBaseline4Input, multiBaseline4Result);
     const auto multiBaseline4WarmStart = captureAcceptedContactWarmStart(
-        multiBaselineContext, "four-root contact history");
+        multiBaselineContext, 4u, "four-root contact history");
     requireAcceptedStep(multiBaseline4Diagnostics, multiBaseline4Result, 4u,
                         qCount, vCount, muscleCount);
     requireContactWarmStartUseReceipt(
@@ -1010,7 +1012,7 @@ inline void run(
     const auto multiBaseline6Diagnostics = multiBaselineContext.run(
         model, multiBaseline6Input, multiBaseline6Result);
     const auto multiBaseline6WarmStart = captureAcceptedContactWarmStart(
-        multiBaselineContext, "six-root contact history");
+        multiBaselineContext, 6u, "six-root contact history");
     requireAcceptedStep(multiBaseline6Diagnostics, multiBaseline6Result, 6u,
                         qCount, vCount, muscleCount);
     const auto multiBaseline6Matter = physiology.runtime.snapshot();
@@ -1028,7 +1030,7 @@ inline void run(
     const auto multiTrial2Diagnostics = multiFailureContext.run(
         model, multiTrial2Input, multiTrial2Result);
     const auto multiTrial2WarmStart = captureAcceptedContactWarmStart(
-        multiFailureContext, "trial two-root contact history");
+        multiFailureContext, 2u, "trial two-root contact history");
     requireAcceptedStep(multiTrial2Diagnostics, multiTrial2Result, 2u,
                         qCount, vCount, muscleCount);
     const auto multiTrial2Matter = physiology.runtime.snapshot();
@@ -1092,7 +1094,7 @@ inline void run(
     const auto multiFailedMatter = physiology.runtime.snapshot();
     const auto multiFailedMemory = captureCouplingMemory(coupling);
     const auto multiFailedWarmStart = captureAcceptedContactWarmStart(
-        multiFailureContext, "rejected four-root accepted-prefix contact history");
+        multiFailureContext, 4u, "rejected four-root accepted-prefix contact history");
     const bool rejectedAtGlobalStep4 = !multiRejectedDiagnostics.succeeded() &&
         multiRejectedDiagnostics.dispatched && !multiRejectedDiagnostics.published &&
         multiRejectedDiagnostics.firstStandGPUStatusCode ==
@@ -1155,7 +1157,7 @@ inline void run(
     const auto multiRetry6Diagnostics = multiRetryContext.run(
         model, multiRetry6Input, multiRetry6Result);
     const auto multiRetry6WarmStart = captureAcceptedContactWarmStart(
-        multiRetryContext, "fresh-context six-root contact history");
+        multiRetryContext, 6u, "fresh-context six-root contact history");
     requireAcceptedStep(multiRetry6Diagnostics, multiRetry6Result, 6u,
                         qCount, vCount, muscleCount);
     const auto multiRetryMatter = physiology.runtime.snapshot();

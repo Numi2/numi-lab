@@ -3560,7 +3560,7 @@ kernel void mr_numi_human_stand_reconcile(
             device MRNumiHumanStandContactWarmStartSlotGPU& slot =
                 contactWarmStartHistory[environment];
             slot.accepted.identity = slot.requestedIdentity;
-            slot.accepted.metadata = {strides.z, 1u, 0u, 0u};
+            slot.accepted.metadata = {strides.z, 1u, attempt.completedSteps, 0u};
             const uint lambdaBase = environment * shape.w +
                 4u * strides.y;
             for (uint contact = 0u;

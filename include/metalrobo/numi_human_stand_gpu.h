@@ -115,7 +115,8 @@ typedef struct MR_ALIGN16 MRNumiHumanStandContactGPU {
 // compare exactly the committed history bytes.
 typedef struct MR_ALIGN16 MRNumiHumanStandContactWarmStartGPU {
     mr_uint4 identity;
-    // x = support-contact count, y = valid, z/w reserved.
+    // x = support-contact count, y = valid, z = last accepted completed
+    // step count (the required predecessor for dispatch.stepIndex), w reserved.
     mr_uint4 metadata;
     // [normal, tangent0, tangent1] in the prior accepted root's basis.
     mr_float4 impulses[MR_NUMI_HUMAN_STAND_MAX_CONTACTS];
