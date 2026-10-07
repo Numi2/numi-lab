@@ -401,15 +401,11 @@ class NumiHumanRestingSupportGeometry final {
         if (publish == nil) return false;
         publish.label = @"Numi Human weighted skin support queries";
         [publish setComputePipelineState:publishPipeline_];
+        [publish setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
         if (skipNonAncestorSupportBodyDofs_) {
-            MRHumanRestingSupportDispatchGPU publishDispatch = dispatch;
-            // identity.y is unused by this kernel except for the opt-in
-            // ancestry-mask body bound; other stages retain influenceCount.
-            publishDispatch.identity.y = validatedBodyCount_;
-            [publish setBytes:&publishDispatch
-                       length:sizeof(publishDispatch) atIndex:0u];
-        } else {
-            [publish setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
+            const std::uint32_t ancestryBodyCount = validatedBodyCount_;
+            [publish setBytes:&ancestryBodyCount
+                       length:sizeof(ancestryBodyCount) atIndex:15u];
         }
         [publish setBuffer:vertexMap_ offset:vertexMapOffsetBytes_ atIndex:1u];
         [publish setBuffer:influences_ offset:0u atIndex:2u];

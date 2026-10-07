@@ -389,6 +389,7 @@ kernel void nm_human_resting_support_publish(
     device const float4* bodyPositionLow [[buffer(12)]],
     device const float4* normalizedOrientations [[buffer(13)]],
     device const uchar* bodyDofAncestry [[buffer(14)]],
+    constant uint* ancestryBodyCount [[buffer(15)]],
     uint globalIndex [[thread_position_in_grid]]) {
     const uint regionCount = dispatch.counts.y;
     const uint dofCount = dispatch.counts.z;
@@ -475,7 +476,7 @@ kernel void nm_human_resting_support_publish(
             body < dispatch.identity.x ||
             body - dispatch.identity.x >= dispatch.strides.x ||
             (kUseSkipNonAncestorSupportBodyDofs &&
-             body - dispatch.identity.x >= dispatch.identity.y)) {
+             body - dispatch.identity.x >= ancestryBodyCount[0])) {
             value = as_type<float>(0x7fc00000u);
             break;
         }
