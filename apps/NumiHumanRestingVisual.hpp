@@ -1804,7 +1804,7 @@ public:
         HumanBrainSourceFingerprint supportIdentity;
         supportIdentity.text("numi.human.full-skin-support.v1");
         if (supportAncestryPruning) {
-            supportIdentity.text("support-jacobian-ancestry-prune-v1");
+            supportIdentity.text("support-jacobian-ancestry-prune-v2");
             supportIdentity.bytes(supportBodyDofAncestry.data(),
                 supportBodyDofAncestry.size() *
                     sizeof(supportBodyDofAncestry.front()));

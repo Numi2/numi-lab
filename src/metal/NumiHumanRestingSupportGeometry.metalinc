@@ -401,8 +401,20 @@ kernel void nm_human_resting_support_publish(
     const bool publishPosition = globalIndex < regionElements;
     const uint element = publishPosition
         ? globalIndex : globalIndex - regionElements;
-    const uint regionElement = publishPosition
-        ? element : element / (3u * dofCount);
+    // The ancestry mask depends on DOF, not region. Put equal DOFs across
+    // consecutive regions in a SIMD group so nonancestor branches agree.
+    // Each scalar still visits its original influence sequence and writes the
+    // same query/axis/DOF entry; this only changes independent lane ownership.
+    const uint scalarsPerRegion = 3u * dofCount;
+    const uint scalarsPerEnvironment = regionCount * scalarsPerRegion;
+    const uint localElement = element % scalarsPerEnvironment;
+    const uint regionElement = publishPosition ? element :
+        (kUseSkipNonAncestorSupportBodyDofs
+            ? (element / scalarsPerEnvironment) * regionCount +
+                localElement % regionCount
+            : element / scalarsPerRegion);
+    const uint ownedJacobianIndex = kUseSkipNonAncestorSupportBodyDofs
+        ? localElement / regionCount : element % scalarsPerRegion;
     const uint environment = regionElement / regionCount;
     const uint region = regionElement - environment * regionCount;
     const uint query = regions[region].pointQueryIndex;
@@ -428,7 +440,7 @@ kernel void nm_human_resting_support_publish(
             pointWorld[pointBase].position = float4(nan, nan, nan, 1.0f);
             pointPositionLow[pointBase] = float4(nan, nan, nan, 0.0f);
         } else {
-            const uint jacobianIndex = element % (3u * dofCount);
+            const uint jacobianIndex = ownedJacobianIndex;
             const uint axis = jacobianIndex / dofCount;
             const uint dof = jacobianIndex - axis * dofCount;
             pointJacobians[environment * dispatch.strides.w +
@@ -459,7 +471,7 @@ kernel void nm_human_resting_support_publish(
     // source influence order, while parallelizing independent rows/DOFs
     // across the 32 contact regions instead of serially writing 384 entries
     // from each of only 32 lanes.
-    const uint jacobianIndex = element % (3u * dofCount);
+    const uint jacobianIndex = ownedJacobianIndex;
     const uint axis = jacobianIndex / dofCount;
     const uint dof = jacobianIndex - axis * dofCount;
     const MRHumanRestingVertexMap mappedVertex = vertexMap[vertexIndex];
