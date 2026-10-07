@@ -38,21 +38,35 @@ struct Respiration {
             auto result=f?[device newComputePipelineStateWithFunction:f error:&error]:nil;
             need(result!=nil,std::string("respiration pipeline: ")+name.UTF8String);return result;
         };
-        predict=pipeline(@"nm_human_respiration_predict");
-        const char* subcycleSetting=std::getenv("NUMI_HUMAN_GAS_TRANSPORT_SUBCYCLING");
-        need(!subcycleSetting||std::strcmp(subcycleSetting,"0")==0||
-             std::strcmp(subcycleSetting,"1")==0,
-             "NUMI_HUMAN_GAS_TRANSPORT_SUBCYCLING must be 0 or 1");
-        const bool subcycle=subcycleSetting&&std::strcmp(subcycleSetting,"1")==0;
-        if(subcycle) {
+        auto enabled=[](const char* name) {
+            const char* setting=std::getenv(name);
+            need(!setting||std::strcmp(setting,"0")==0||std::strcmp(setting,"1")==0,
+                 std::string(name)+" must be 0 or 1");
+            return setting&&std::strcmp(setting,"1")==0;
+        };
+        const bool subcycle=enabled("NUMI_HUMAN_GAS_TRANSPORT_SUBCYCLING");
+        const bool respiratorySubcycle=enabled("NUMI_HUMAN_RESPIRATORY_SUBCYCLING");
+        need(!respiratorySubcycle||subcycle,
+             "respiratory subcycling requires gas transport subcycling");
+        if(subcycle||respiratorySubcycle) {
             auto constants=[[MTLFunctionConstantValues alloc] init];
             [constants setConstantValue:&subcycle type:MTLDataTypeBool atIndex:40];
-            auto f=[library newFunctionWithName:@"nm_human_respiration_exchange"
-                constantValues:constants error:&error];
-            exchange=f?[device newComputePipelineStateWithFunction:f error:&error]:nil;
-            need(exchange!=nil,"respiration gas subcycling pipeline");
-        } else exchange=pipeline(@"nm_human_respiration_exchange");
+            [constants setConstantValue:&respiratorySubcycle type:MTLDataTypeBool atIndex:41];
+            auto specialized=[&](NSString* name) {
+                auto f=[library newFunctionWithName:name constantValues:constants error:&error];
+                auto result=f?[device newComputePipelineStateWithFunction:f error:&error]:nil;
+                need(result!=nil,std::string("respiration subcycling pipeline: ")+name.UTF8String);
+                return result;
+            };
+            predict=specialized(@"nm_human_respiration_predict");
+            exchange=specialized(@"nm_human_respiration_exchange");
+        } else {
+            predict=pipeline(@"nm_human_respiration_predict");
+            exchange=pipeline(@"nm_human_respiration_exchange");
+        }
         std::cerr<<"resting_gas_transport_subcycling="<<(subcycle?1:0)
+                 <<" respiratory_mechanics_subcycling="<<(respiratorySubcycle?1:0)
+                 <<" maximum_internal_mechanics_dt_s=0.002"
                  <<" maximum_substeps=32 donor_fraction_bound=0.1"
                  <<" physical_controller_clock_substeps=1\n";
         resolve=pipeline(@"nm_human_respiration_resolve");
@@ -289,6 +303,7 @@ struct RestingRun {
 inline void writeRespirationTraceHeader(std::ostream& trace) {
     trace<<"time_s,lung_volume_ml,airflow_ml_s,alveolar_pa,pleural_pa,diaphragm_mm,rib_mm,PaO2_mmhg,PaCO2_mmhg,SaO2,oxygen_balance_error_stpd_ml,co2_balance_error_stpd_ml,breaths,tidal_ml,lv_mmhg,rv_mmhg,aorta_mmhg,pulmonary_artery_mmhg,lv_ml,rv_ml,blood_ml,blood_error_ml,aortic_ejected_ml,pulmonary_ejected_ml,complete_filling_ejection_cycles,last_lv_stroke_ml,right_atrium_ml,left_atrium_ml,blood_continuity_residual_accum_ml,blood_physical_delta_accum_ml,blood_residual_minus_physical_ml,blood_endpoint_minus_physical_ml";
     trace<<",inspired_volume_accum_ml,last_inspiration_step,last_inspiration_time_s,last_inspiration_volume_accum_ml,last_complete_breath_inspired_ml";
+    trace<<",respiratory_net_volume_ml,respiratory_volume_balance_ml,gas_max_donor_fraction,respiratory_gas_substeps";
 }
 inline void writeRespirationTraceSample(std::ostream& trace,const NMHumanRespirationState& s,
     const NMHumanRespirationParameters& parameters) {
@@ -309,6 +324,7 @@ inline void writeRespirationTraceSample(std::ostream& trace,const NMHumanRespira
          <<(double(s.breath.w)-double(s.breathAccounting.y))*1e6<<','
          <<s.breathTiming.x<<','<<double(s.breathTiming.x)*parameters.environment.w<<','
          <<(double(s.breathAccounting.x)-double(s.breathAccounting.w))*1e6<<','
-         <<s.breathAccounting.z*1e6;
+         <<s.breathAccounting.z*1e6<<','<<s.transportStep.x*1e6<<','
+         <<s.transportStep.y*1e6<<','<<s.transportStep.z<<','<<s.transportStep.w;
 }
 } // namespace numi::human

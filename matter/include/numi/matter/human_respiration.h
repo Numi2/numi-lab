@@ -81,6 +81,10 @@ typedef struct NM_ALIGN16 NMHumanRespirationState {
     // last complete event-interval inspiration, last event compensation (m3).
     // Observer bookkeeping only; these fields do not drive physiology.
     nm_float4 breathAccounting;
+    // Net swept air volume in this accepted physical step, its volume-balance
+    // residual (m3), maximum blood donor fraction, and gas substep count.
+    // Endpoint airflow/pressures remain in mechanics; this records its integral.
+    nm_float4 transportStep;
 } NMHumanRespirationState;
 
 typedef struct NM_ALIGN16 NMHumanRespirationDispatch {

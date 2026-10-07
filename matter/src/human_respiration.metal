@@ -12,6 +12,10 @@ constant bool kGasTransportSubcycling [[function_constant(40)]];
 constant bool kUseGasTransportSubcycling =
     is_function_constant_defined(kGasTransportSubcycling) ? kGasTransportSubcycling : false;
 
+constant bool kRespiratorySubcycling [[function_constant(41)]];
+constant bool kUseRespiratorySubcycling =
+    is_function_constant_defined(kRespiratorySubcycling) ? kRespiratorySubcycling : false;
+
 inline float3 restingRotate(float4 q,float3 v) {
     return v+2.0f*cross(q.xyz,cross(q.xyz,v)+q.w*v);
 }
@@ -774,23 +778,14 @@ inline float physical(device const float4* values,
 }
 }
 
-kernel void nm_human_respiration_predict(
-    constant NMHumanRespirationParameters& p [[buffer(0)]],
-    constant NMHumanRespirationDispatch& d [[buffer(1)]],
-    device const NMHumanRespirationState* accepted [[buffer(2)]],
-    device NMHumanRespirationState* candidate [[buffer(3)]],
-    device const float4* excitations [[buffer(4)]],
-    uint env [[thread_position_in_grid]]) {
-    if (env>=d.environmentCount) return;
-    NMHumanRespirationState n=accepted[env];
-    n.control=excitations[env];
-    n.status.w=0;
-    const float dt=p.environment.w;
+inline void advanceHumanRespiratoryMechanics(
+    thread NMHumanRespirationState& n,
+    constant NMHumanRespirationParameters& p, const float dt, const bool reject) {
     float2 pressure=0;
     for(uint m=0; m<2; ++m) {
         auto muscle=p.muscles[m];
         auto state=n.muscles[m];
-        float excitation=excitations[env][m];
+        float excitation=n.control[m];
         if (!isfinite(excitation) || excitation<0 || excitation>1) {n.status.w=1;break;}
         float a=state.excitationAndActivation.y;
         float derivative=activationDerivative(muscle,excitation,a);
@@ -826,7 +821,26 @@ kernel void nm_human_respiration_predict(
     n.mechanics=float4(volume,alveolarPressure,
         p.environment.x+alveolarPressure-lungE*(volume-p.lung.x),flow);
     if (!all(isfinite(n.motion)) || !all(isfinite(n.mechanics)) ||
-        !(volume>p.lung.y) || volume>0.008f || determinant<=0 || d.reject) n.status.w=3;
+        !(volume>p.lung.y) || volume>0.008f || determinant<=0 || reject) n.status.w=3;
+}
+
+kernel void nm_human_respiration_predict(
+    constant NMHumanRespirationParameters& p [[buffer(0)]],
+    constant NMHumanRespirationDispatch& d [[buffer(1)]],
+    device const NMHumanRespirationState* accepted [[buffer(2)]],
+    device NMHumanRespirationState* candidate [[buffer(3)]],
+    device const float4* excitations [[buffer(4)]],
+    uint env [[thread_position_in_grid]]) {
+    if (env>=d.environmentCount) return;
+    NMHumanRespirationState n=accepted[env];
+    n.control=excitations[env];
+    n.status.w=0;
+    if(kUseRespiratorySubcycling) {
+        // Circuit physics does not consume respiratory mechanics at frameBegin.
+        // Stage the drive now; the exchange kernel integrates mechanics and gas
+        // together with the solved circuit flow before the common geometry gate.
+        if(d.reject) n.status.w=3u;
+    } else advanceHumanRespiratoryMechanics(n,p,p.environment.w,d.reject!=0u);
     candidate[env]=n;
 }
 
@@ -855,15 +869,15 @@ kernel void nm_human_respiration_exchange(
     // No controller, body, circuit, or accepted cursor advances here.
     uint gasSubsteps=1u;
     float outgoing[21];
+    for(uint row=0;row<21;++row) outgoing[row]=0.0f;
+    for(uint edge=0;edge<p.topology.w;++edge) {
+        const auto con=connections[edge];
+        const float flow=human_respiration::physical(vascularAfter,unknowns,base,21+edge);
+        const uint from=flow>=0?con.identity.y:con.identity.z;
+        outgoing[from]+=abs(flow);
+    }
     if(kUseGasTransportSubcycling) {
-        for(uint row=0;row<21;++row) outgoing[row]=0.0f;
-        for(uint edge=0;edge<p.topology.w;++edge) {
-            const auto con=connections[edge];
-            const float flow=human_respiration::physical(vascularAfter,unknowns,base,21+edge);
-            const uint from=flow>=0?con.identity.y:con.identity.z;
-            outgoing[from]+=abs(flow);
-        }
-        float required=1.0f;
+        float required=kUseRespiratorySubcycling?max(1.0f,ceil(dt/0.002f)):1.0f;
         for(uint row=0;row<21;++row) {
             const float before=human_respiration::physical(vascularBefore,unknowns,base,row);
             const float after=human_respiration::physical(vascularAfter,unknowns,base,row);
@@ -886,26 +900,37 @@ kernel void nm_human_respiration_exchange(
     const float gasDt=dt/float(gasSubsteps);
     float pulmonaryO2=0;
     float totalPulmonaryO2=0;
-    const float transport=dt*n.mechanics.w*p.environment.z;
+    float netSweptVolume=0.0f, inspiredVolume=0.0f, maxDonorFraction=0.0f;
+    float maxAirwayTransport=0.0f;
     for(uint substep=0u;substep<gasSubsteps;++substep) {
         const float alpha=float(substep)/float(gasSubsteps);
+        const float mechanicsStartVolume=n.mechanics.x;
+        if(kUseRespiratorySubcycling) {
+            if(n.status.w) break;
+            advanceHumanRespiratoryMechanics(n,p,gasDt,false);
+            if(n.status.w) break;
+            n.breath.x=max(n.breath.x,n.mechanics.x);
+            n.breath.y=min(n.breath.y,n.mechanics.x);
+        }
+        netSweptVolume+=gasDt*n.mechanics.w;
+        inspiredVolume+=gasDt*max(0.0f,n.mechanics.w);
         float2 delta[21];
         for(uint row=0;row<21;++row) delta[row]=0;
         // Check the actual rounded aggregate fraction, not just the count
         // estimate or each individual edge at a branching vascular node.
-        if(kUseGasTransportSubcycling) {
-            for(uint row=0;row<21;++row) {
-                const float before=human_respiration::physical(vascularBefore,unknowns,base,row);
-                const float donorVolume=gasSubsteps==1u?before:mix(before,
-                    human_respiration::physical(vascularAfter,unknowns,base,row),alpha);
-                if(!(donorVolume>0.0f)||gasDt*outgoing[row]>0.1f*donorVolume)
-                    n.status.w=4u;
-            }
-            if(n.status.w) break;
+        for(uint row=0;row<21;++row) {
+            const float before=human_respiration::physical(vascularBefore,unknowns,base,row);
+            const float donorVolume=gasSubsteps==1u?before:mix(before,
+                human_respiration::physical(vascularAfter,unknowns,base,row),alpha);
+            maxDonorFraction=max(maxDonorFraction,gasDt*outgoing[row]/donorVolume);
+            if(kUseGasTransportSubcycling&&
+               (!(donorVolume>0.0f)||gasDt*outgoing[row]>0.1f*donorVolume))
+                n.status.w=4u;
         }
+        if(kUseGasTransportSubcycling&&n.status.w) break;
         float2 alveolarDelta=0;
-        const float lungVolume=gasSubsteps==1u?old.mechanics.x:
-            mix(old.mechanics.x,n.mechanics.x,alpha);
+        const float lungVolume=kUseRespiratorySubcycling?mechanicsStartVolume:
+            (gasSubsteps==1u?old.mechanics.x:mix(old.mechanics.x,n.mechanics.x,alpha));
         const float alveolarVolume=lungVolume-p.lung.y;
         const float2 alveolarFraction=n.alveolarGas.xy/(alveolarVolume*p.environment.z);
         const float2 deadFraction=n.deadSpaceGas.xy/(p.lung.y*p.environment.z);
@@ -941,6 +966,7 @@ kernel void nm_human_respiration_exchange(
         }
         human_respiration::addGas(n.metabolicGas,gasDt*p.metabolism.zw);
         const float subTransport=gasDt*n.mechanics.w*p.environment.z;
+        maxAirwayTransport=max(maxAirwayTransport,abs(subTransport));
         const float2 outsideFlux=subTransport*(subTransport>=0?p.metabolism.xy:deadFraction);
         const float2 airwayFlux=subTransport*(subTransport>=0?deadFraction:alveolarFraction);
         human_respiration::addGas(n.environmentGas,outsideFlux);
@@ -956,6 +982,9 @@ kernel void nm_human_respiration_exchange(
         if(n.status.w) break;
     }
     if(gasSubsteps>1u) pulmonaryO2=totalPulmonaryO2/dt;
+    n.transportStep=float4(netSweptVolume,
+        (n.mechanics.x-old.mechanics.x)-netSweptVolume,
+        maxDonorFraction,float(gasSubsteps));
     const uint sensed=p.topology.y;
     const float volume=human_respiration::physical(vascularAfter,unknowns,base,sensed);
     const float2 content=n.bloodGas[sensed].xy/volume;
@@ -1040,7 +1069,8 @@ kernel void nm_human_respiration_exchange(
     if(any(abs(balance)>5.e-5f*n.gasBudget.xy)) n.status.w=7;
     n.breath.x=max(n.breath.x,n.mechanics.x);
     n.breath.y=min(n.breath.y,n.mechanics.x);
-    const float inspiredAdjusted=dt*max(0.0f,n.mechanics.w)-n.breathAccounting.y;
+    const float inspiredAdjusted=(kUseRespiratorySubcycling?inspiredVolume:
+        dt*max(0.0f,n.mechanics.w))-n.breathAccounting.y;
     const float inspiredNext=n.breath.w+inspiredAdjusted;
     n.breathAccounting.y=(inspiredNext-n.breath.w)-inspiredAdjusted;
     n.breath.w=inspiredNext;
@@ -1066,7 +1096,7 @@ kernel void nm_human_respiration_exchange(
     ++n.status.x;
     if(!all(isfinite(n.observation))||!all(isfinite(n.alveolarGas))||
        any(n.alveolarGas.xy<0)||any(n.deadSpaceGas.xy<0)||
-       abs(transport)/float(gasSubsteps)>0.1f*p.lung.y*p.environment.z) n.status.w=6;
+       maxAirwayTransport>0.1f*p.lung.y*p.environment.z) n.status.w=6;
     if(n.status.w) {statuses[env].code=NM_STATUS_MULTIPHYSICS_FAILURE;}
     candidate[env]=n;
 }
