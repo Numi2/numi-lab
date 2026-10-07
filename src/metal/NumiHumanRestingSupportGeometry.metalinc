@@ -48,6 +48,48 @@ inline uint orderedFloat(float value) {
     return (bits & 0x80000000u) != 0u ? ~bits : (bits ^ 0x80000000u);
 }
 
+inline MRCompensatedPositionGPU skinInfluencePosition(
+    const MRHumanRestingInfluence influence,
+    device const MRArticulatedBodyPoseGPU* bodies,
+    device const float4* bodyPositionLow,
+    device const float4* normalizedOrientations,
+    const MRHumanRestingSupportDispatchGPU dispatch,
+    const uint environment, thread bool& valid
+) {
+    valid = true;
+        const uint bodyIndex = influence.body.x;
+        if (bodyIndex == MR_INVALID_INDEX ||
+            bodyIndex < dispatch.identity.x ||
+            bodyIndex - dispatch.identity.x >= dispatch.strides.x ||
+            !all(isfinite(influence.positionAndWeight)) ||
+            !(influence.positionAndWeight.w > 0.0f)) {
+            const float nan = as_type<float>(0x7fc00000u);
+            valid = false;
+            return {{nan, nan, nan, 0.0f}, {nan, nan, nan, 0.0f}};
+        }
+        const uint localBody = bodyIndex - dispatch.identity.x;
+        const uint bodyOffset = environment * dispatch.strides.x + localBody;
+        const MRArticulatedBodyPoseGPU pose = bodies[bodyOffset];
+        const float4 orientation = normalizedOrientations[bodyOffset];
+        if (!all(isfinite(orientation))) {
+            const float nan = as_type<float>(0x7fc00000u);
+            valid = false;
+            return {{nan, nan, nan, 0.0f}, {nan, nan, nan, 0.0f}};
+        }
+        const MRCompensatedPositionGPU bodyPoint =
+            mrCompensatedVectorAdd(
+                MRCompensatedPositionGPU{
+                    pose.position,
+                    bodyPositionLow[bodyOffset]
+                },
+                mrCompensatedQuaternionRotate(
+                    orientation, influence.positionAndWeight
+                )
+            );
+    return mrCompensatedVectorScale(
+        bodyPoint, {influence.positionAndWeight.w, 0.0f});
+}
+
 inline MRCompensatedPositionGPU skinPosition(
     const MRHumanRestingVertexMap mappedVertex,
     device const MRHumanRestingInfluence* influences,
@@ -68,39 +110,52 @@ inline MRCompensatedPositionGPU skinPosition(
         const MRHumanRestingInfluence influence =
             influences[nm_human_resting_support::skinInfluenceIndex(
                 mappedVertex, influenceIndex)];
-        const uint bodyIndex = influence.body.x;
-        if (bodyIndex == MR_INVALID_INDEX ||
-            bodyIndex < dispatch.identity.x ||
-            bodyIndex - dispatch.identity.x >= dispatch.strides.x ||
-            !all(isfinite(influence.positionAndWeight)) ||
-            !(influence.positionAndWeight.w > 0.0f)) {
-            const float nan = as_type<float>(0x7fc00000u);
-            return {{nan, nan, nan, 0.0f}, {nan, nan, nan, 0.0f}};
+        bool valid = true;
+        const auto weighted = skinInfluencePosition(influence, bodies,
+            bodyPositionLow, normalizedOrientations, dispatch, environment, valid);
+        if (!valid) return weighted;
+        result = mrCompensatedVectorAdd(result, weighted);
+    }
+    return result;
+}
+
+// Independent influence transforms run across one SIMD group; every lane
+// then adds the transformed terms in the original ascending source order.
+// This preserves the canonical compensated sum and avoids serializing all
+// 86 quaternion transforms in one selected-point lane.
+inline MRCompensatedPositionGPU skinPositionSimd(
+    const MRHumanRestingVertexMap mappedVertex,
+    device const MRHumanRestingInfluence* influences,
+    device const MRArticulatedBodyPoseGPU* bodies,
+    device const float4* bodyPositionLow,
+    device const float4* normalizedOrientations,
+    const MRHumanRestingSupportDispatchGPU dispatch,
+    const uint environment, const uint lane, const uint width
+) {
+    MRCompensatedPositionGPU result = mrCompensatedVector(float4(0.0f));
+    if (!validSkinInfluenceRange(mappedVertex, dispatch.identity.y)) {
+        const float nan = as_type<float>(0x7fc00000u);
+        return {{nan, nan, nan, 0.0f}, {nan, nan, nan, 0.0f}};
+    }
+    for(uint first=0u;first<mappedVertex.influenceCount;first+=width) {
+        const uint count=min(width,mappedVertex.influenceCount-first);
+        MRCompensatedPositionGPU weighted = mrCompensatedVector(float4(0.0f));
+        bool valid=true;
+        if(lane<count) {
+            const auto influence=influences[skinInfluenceIndex(mappedVertex,first+lane)];
+            weighted=skinInfluencePosition(influence,bodies,bodyPositionLow,
+                normalizedOrientations,dispatch,environment,valid);
         }
-        const uint localBody = bodyIndex - dispatch.identity.x;
-        const uint bodyOffset = environment * dispatch.strides.x + localBody;
-        const MRArticulatedBodyPoseGPU pose = bodies[bodyOffset];
-        const float4 orientation = normalizedOrientations[bodyOffset];
-        if (!all(isfinite(orientation))) {
-            const float nan = as_type<float>(0x7fc00000u);
-            return {{nan, nan, nan, 0.0f}, {nan, nan, nan, 0.0f}};
+        if(!simd_all(valid)) {
+            const float nan=as_type<float>(0x7fc00000u);
+            return {{nan,nan,nan,0.0f},{nan,nan,nan,0.0f}};
         }
-        const MRCompensatedPositionGPU bodyPoint =
-            mrCompensatedVectorAdd(
-                MRCompensatedPositionGPU{
-                    pose.position,
-                    bodyPositionLow[bodyOffset]
-                },
-                mrCompensatedQuaternionRotate(
-                    orientation, influence.positionAndWeight
-                )
-            );
-        result = mrCompensatedVectorAdd(
-            result,
-            mrCompensatedVectorScale(
-                bodyPoint, {influence.positionAndWeight.w, 0.0f}
-            )
-        );
+        for(uint sourceLane=0u;sourceLane<count;++sourceLane) {
+            const MRCompensatedPositionGPU term{
+                simd_broadcast(weighted.high,sourceLane),
+                simd_broadcast(weighted.low,sourceLane)};
+            result=mrCompensatedVectorAdd(result,term);
+        }
     }
     return result;
 }
@@ -390,17 +445,21 @@ kernel void nm_human_resting_support_publish(
     device const float4* normalizedOrientations [[buffer(13)]],
     device const uchar* bodyDofAncestry [[buffer(14)]],
     constant uint* ancestryBodyCount [[buffer(15)]],
-    uint globalIndex [[thread_position_in_grid]]) {
+    uint globalIndex [[thread_position_in_grid]],
+    uint lane [[thread_index_in_simdgroup]],
+    uint simdWidth [[threads_per_simdgroup]]) {
     const uint regionCount = dispatch.counts.y;
     const uint dofCount = dispatch.counts.z;
     const uint environmentCount = dispatch.counts.w;
     const uint regionElements = environmentCount * regionCount;
     const uint jacobianElements = regionElements * 3u * dofCount;
+    const uint positionWidth = kUseSkipNonAncestorSupportBodyDofs ? simdWidth : 1u;
+    const uint positionElements = regionElements * positionWidth;
     if (regionCount == 0u || dofCount == 0u ||
-        globalIndex >= regionElements + jacobianElements) return;
-    const bool publishPosition = globalIndex < regionElements;
+        globalIndex >= positionElements + jacobianElements) return;
+    const bool publishPosition = globalIndex < positionElements;
     const uint element = publishPosition
-        ? globalIndex : globalIndex - regionElements;
+        ? globalIndex / positionWidth : globalIndex - positionElements;
     // The ancestry mask depends on DOF, not region. Put equal DOFs across
     // consecutive regions in a SIMD group so nonancestor branches agree.
     // Each scalar still visits its original influence sequence and writes the
@@ -437,6 +496,7 @@ kernel void nm_human_resting_support_publish(
     if (!valid) {
         const float nan = as_type<float>(0x7fc00000u);
         if (publishPosition) {
+            if (kUseSkipNonAncestorSupportBodyDofs && lane != 0u) return;
             pointWorld[pointBase].position = float4(nan, nan, nan, 1.0f);
             pointPositionLow[pointBase] = float4(nan, nan, nan, 0.0f);
         } else {
@@ -449,10 +509,14 @@ kernel void nm_human_resting_support_publish(
         return;
     }
     if (publishPosition) {
-        const MRCompensatedPositionGPU point =
-            nm_human_resting_support::skinPosition(
+        const MRCompensatedPositionGPU point = kUseSkipNonAncestorSupportBodyDofs
+            ? nm_human_resting_support::skinPositionSimd(
+                vertexMap[vertexIndex], influences, bodies, bodyPositionLow,
+                normalizedOrientations, dispatch, environment, lane, simdWidth)
+            : nm_human_resting_support::skinPosition(
                 vertexMap[vertexIndex], influences, bodies, bodyPositionLow,
                 normalizedOrientations, dispatch, environment);
+        if (kUseSkipNonAncestorSupportBodyDofs && lane != 0u) return;
         const MRHumanRestingSupportPositionGPU position = {
             point.high, point.low
         };

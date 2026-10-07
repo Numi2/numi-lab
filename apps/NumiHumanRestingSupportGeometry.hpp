@@ -425,8 +425,10 @@ class NumiHumanRestingSupportGeometry final {
         }
         const NSUInteger regionElements =
             static_cast<NSUInteger>(regionCount_) * environmentCount_;
+        const NSUInteger positionWidth = skipNonAncestorSupportBodyDofs_
+            ? publishPipeline_.threadExecutionWidth : 1u;
         const NSUInteger publishElements = regionElements *
-            (1u + 3u * static_cast<NSUInteger>(pass.dofCount));
+            (positionWidth + 3u * static_cast<NSUInteger>(pass.dofCount));
         [publish dispatchThreadgroups:MTLSizeMake(
              (publishElements + threadsPerGroup_ - 1u) / threadsPerGroup_, 1u, 1u)
             threadsPerThreadgroup:MTLSizeMake(threadsPerGroup_, 1u, 1u)];
@@ -616,6 +618,10 @@ public:
         publishPipeline_ = makePipeline(device_, library,
             @"nm_human_resting_support_publish", false, true,
             influenceLayout_, skipNonAncestorSupportBodyDofs_);
+        require(!skipNonAncestorSupportBodyDofs_ ||
+                    (publishPipeline_.threadExecutionWidth > 0u &&
+                     threadsPerGroup_ % publishPipeline_.threadExecutionWidth == 0u),
+                "cooperative support positions require complete SIMD groups");
         if (diagnosticCapture_) {
             debugPipeline_ = makePipeline(device_, library,
                 @"nm_human_resting_support_debug");
