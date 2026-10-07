@@ -21,7 +21,7 @@ owner-receipt paths; do not use a receipt from the 8 ms sensitivity run.
 ```sh
 NUMI_LAB_ROOT=/Users/n/numi-human-performance-source-014 \
 NUMI_BUILD_DIR=/Users/n/numi-human-performance-build-014 \
-NUMI_HUMAN_ROOT=/Users/n/numi-human-resting-profile-001 \
+NUMI_HUMAN_ROOT=/Users/n/numi-human-delivery-source-20261008 \
 NUMI_HUMAN_EXECUTION_STAGES=1 \
 NUMI_HUMAN_TRAINING_PROFILE=1 \
 NUMI_HUMAN_RESTING_TRANSACTION_PROBE=1 \
@@ -90,11 +90,15 @@ python3 matter/tools/resting_intervention_study.py prepare-native-310s \
   --invocation <new-2ms-owner-preflight-directory>/invocation.json \
   --source-hashes <final-compiled-source-hashes.json> \
   --source-revisions <final-owner-revisions.json> \
-  --parser-fixture <retained-native-csv-fixture.csv> \
+  --parser-fixture /Users/n/numi-human-resting-evidence-20261005/dense45-pair-004/fgmres-6s.csv \
   --world-fingerprint <native-world-fingerprint> \
   --control-program-fingerprint <preflight-control-program-fingerprint> \
   --treatment-program-fingerprint <owner-reported-intervention-program-fingerprint>
 ```
+
+The parser calibration requires the pinned six-second fixture shown above;
+its fixed expected endpoint is a parser regression check, not an endurance
+result. An arbitrary retained trajectory is not an interchangeable fixture.
 
 The command writes the existing `numi.science.plan.v2` draft, native identity,
 model, and parser calibration. It refuses a different physical timestep,
