@@ -302,11 +302,14 @@ class NumiHumanRestingSupportGeometry final {
         [positions setBuffer:invalidRegionFlags_ offset:0u atIndex:8u];
         [positions setBuffer:normalizedOrientations_ offset:0u atIndex:9u];
         [positions setBuffer:rotationZBasis_ offset:0u atIndex:10u];
+        const NSUInteger positionGroupsPerEnvironment =
+            (static_cast<NSUInteger>(vertexCount_) + threadsPerGroup_ - 1u) /
+            threadsPerGroup_;
+        [positions dispatchThreadgroups:MTLSizeMake(
+             positionGroupsPerEnvironment, environmentCount_, 1u)
+            threadsPerThreadgroup:MTLSizeMake(threadsPerGroup_, 1u, 1u)];
         const NSUInteger positionCount =
             static_cast<NSUInteger>(vertexCount_) * environmentCount_;
-        [positions dispatchThreadgroups:MTLSizeMake(
-             (positionCount + threadsPerGroup_ - 1u) / threadsPerGroup_, 1u, 1u)
-            threadsPerThreadgroup:MTLSizeMake(threadsPerGroup_, 1u, 1u)];
         [positions endEncoding];
 
         id<MTLComputeCommandEncoder> select = timedSupportEncoder(
