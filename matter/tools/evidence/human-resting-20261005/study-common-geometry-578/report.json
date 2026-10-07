@@ -1,0 +1,73 @@
+{
+  "scope": "Observer-only compatibility and rejection tests. Physics, rendered geometry, and native binaries unchanged. Does not qualify anatomical interfaces.",
+  "parent_revision": "d8a882c1b4263d1d507bf4c9298539a588fccb9f",
+  "parent_real_trace_result": {
+    "rejected": true,
+    "error": "nonfinite value for q_ra"
+  },
+  "updated_real_trace_result": {
+    "displayed_accepted_frames": 1001,
+    "minimum_full_skin_bed_gap_m": -0.000110551714897,
+    "maximum_rendered_functional_volume_relative_error": 2.62789926637e-05,
+    "displayed_state_lag_steps": 1,
+    "whole_body_interfaces_qualified": false,
+    "geometry_mode": "common_seven_coordinate_v1",
+    "common_cardiac_geometry": {
+      "coordinate_count": 7,
+      "solver_status": 0,
+      "maximum_normalized_residual": 1.9371509552e-05,
+      "legacy_coordinates_and_closure_applicable": false
+    },
+    "whole_mesh_area_audit": {
+      "triangles_checked_per_frame": 4910160,
+      "zero_area_triangles": 0,
+      "nonfinite_area_triangles": 0,
+      "scope": "presented-frame triangle area only; not self-intersection or interface qualification"
+    },
+    "body_center_of_mass": {
+      "first_m": [
+        -0.0250191260129,
+        -0.756986141205,
+        0.115114875138
+      ],
+      "last_m": [
+        -0.02494943887,
+        -0.742319583893,
+        0.0988054648042
+      ],
+      "displacement_m": [
+        6.96871428999997e-05,
+        0.01466655731199995,
+        -0.016309410333800012
+      ],
+      "represented_mass_kg": 72.0,
+      "qualification": "diagnostic displacement; stationary rest and drift are not inferred from endpoints"
+    },
+    "ventricular_material": {
+      "bound": true,
+      "target_ml": 164.012890309,
+      "legacy_wall_bound": false,
+      "representation": "common_seven_coordinate_v1",
+      "gpu_degenerate_triangle_check_recorded": true,
+      "maximum_volume_relative_error": 7.63028441019468e-06,
+      "closure_range_mm": null,
+      "qualification": "rendered material volume consistency; wall topology and interfaces require separate checks"
+    }
+  },
+  "test_argv": [
+    "/usr/bin/python3",
+    "-m",
+    "unittest",
+    "test_resting_intervention_study",
+    "-v"
+  ],
+  "tests_passed": 25,
+  "files": {
+    "/Users/n/numi-human-study-geometry-source-013/matter/tools/resting_intervention_study.py": "deac76e58a8f069a04d419e8a1351428ddd14882d654b57a47fd00dff899f3c9",
+    "/Users/n/numi-human-study-geometry-source-013/matter/tools/test_resting_intervention_study.py": "a1ba03d1daeca1635a39745a929a1edc398d671c99b145290c43711837eb657d",
+    "/Users/n/numi-human-study-geometry-source-013/matter/tools/fixtures/resting-common-geometry-native-64-steps.csv": "d71234460d06ce20e363908da2bfe32e2aaa184341fbf71c7ce9db6c3006b311",
+    "/Users/n/numi-human-resting-evidence-20261005/integrated-native-extended-engineering-577/native-output/resting-surface-audit.csv": "1c0c10abd7f5424a4210918446b3f6c475988ce076940dafd5029e6801ee21fe",
+    "/Users/n/numi-human-resting-evidence-20261005/native-study-common-geometry-578/suite.log": "8f3c84a91f0fab9267b6ab72aca156242acd1ba60ec4a741c93262acf3d15ddc",
+    "/Users/n/numi-human-resting-evidence-20261005/native-study-common-geometry-578/fixture-origin.json": "864537b2f5b7f42d73a52f2d99d3b3fc042baa0ce466b6566cb68ec96d34066b"
+  }
+}

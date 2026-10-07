@@ -249,6 +249,84 @@ class NativeSceneBindingTests(unittest.TestCase):
                 native_body_trace_consistency(trace, 96, .002)
 
 
+class CommonCardiacSurfaceTraceTests(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.path = Path(self.tmp.name) / "surfaces.csv"
+        fixture = Path(__file__).parent / "fixtures/resting-common-geometry-native-64-steps.csv"
+        with fixture.open() as stream:
+            reader = csv.DictReader(stream)
+            self.columns = reader.fieldnames
+            self.rows = list(reader)
+
+    def check_trace(self):
+        with self.path.open("w", newline="") as stream:
+            writer = csv.DictWriter(stream, fieldnames=self.columns)
+            writer.writeheader()
+            writer.writerows(self.rows)
+        return adapter.native_surface_trace_consistency(self.path, 64, .002)
+
+    def test_captured_common_coordinates_replace_only_inapplicable_legacy_fields(self):
+        result = self.check_trace()
+        self.assertEqual(result["geometry_mode"], "common_seven_coordinate_v1")
+        self.assertEqual(result["common_cardiac_geometry"]["coordinate_count"], 7)
+        self.assertFalse(result["common_cardiac_geometry"]["legacy_coordinates_and_closure_applicable"])
+        material = result["ventricular_material"]
+        self.assertTrue(material["bound"])
+        self.assertFalse(material["legacy_wall_bound"])
+        self.assertGreater(material["target_ml"], 0)
+        self.assertIsNone(material["closure_range_mm"])
+        self.assertEqual(result["whole_mesh_area_audit"]["triangles_checked_per_frame"], 4910160)
+        self.assertFalse(result["whole_body_interfaces_qualified"])
+
+    def test_active_common_geometry_failures_are_never_treated_as_nan_sentinels(self):
+        cases = [
+            ("geometry_mode", "unknown"),
+            ("geometry_mode", "legacy_ventricular_wall_v2"),
+            ("common_coordinate_solver_status", "5"),
+            ("common_coordinate_solver_iterations", "-1"),
+            ("common_coordinate_domain_box", "4294967295"),
+            ("common_coordinate_normalized_residual", "nan"),
+            ("common_coordinate_normalized_residual", "0.0001"),
+            ("ventricular_closure_mm_applicable", "1"),
+            ("ventricular_wall_bound", "1"),
+            ("ventricular_material_ml", "nan"),
+            ("ventricular_material_ml", "165"),
+            ("ventricular_material_target_ml", "165"),
+            ("ventricular_material_status", "2"),
+            ("functional_geometry_status", "2"),
+            ("q_ra", "inf"),
+            ("ventricular_closure_mm", "0"),
+            ("mesh_zero_area_triangles", "1"),
+            ("mesh_nonfinite_area_triangles", "1"),
+            ("mesh_triangles_checked", "0"),
+            ("mesh_triangles_checked", "4910159"),
+        ]
+        cases.extend(("common_coordinate_" + key, "nan") for key in
+                     ("RA", "RV", "LA", "LV", "RA_material", "ventricular_material", "LA_material"))
+        for key, value in cases:
+            with self.subTest(key=key, value=value):
+                before = self.rows[1][key]
+                self.rows[1][key] = value
+                with self.assertRaises(ValueError):
+                    self.check_trace()
+                self.rows[1][key] = before
+
+    def test_incomplete_common_or_mesh_diagnostics_are_rejected(self):
+        for key in ("common_coordinate_LA_material", "ventricular_material_status",
+                    "ventricular_closure_mm_applicable", "mesh_triangles_checked"):
+            with self.subTest(key=key):
+                index = self.columns.index(key)
+                self.columns.remove(key)
+                values = [row.pop(key) for row in self.rows]
+                with self.assertRaises(ValueError):
+                    self.check_trace()
+                self.columns.insert(index, key)
+                for row, value in zip(self.rows, values):
+                    row[key] = value
+
+
 class NativeSurfaceTraceTests(unittest.TestCase):
     def test_ventricular_material_cannot_hide_an_intermediate_volume_or_binding_failure(self):
         columns = ("step,time_s,min_skin_bed_gap_m,vertices_below_1mm,nonfinite_skin_vertices,"

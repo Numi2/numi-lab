@@ -653,6 +653,17 @@ def native_surface_trace_consistency(trace: Path, steps: int, dt: float) -> dict
                     "ventricular_closure_mm"}
     wall_bound, wall_target = None, None
     wall_error, wall_min_closure, wall_max_closure = 0.0, math.inf, -math.inf
+    geometry_mode, maximum_common_residual, mesh_triangles = None, 0.0, None
+    common_coordinates = tuple("common_coordinate_" + name for name in
+                               ("RA", "RV", "LA", "LV", "RA_material",
+                                "ventricular_material", "LA_material"))
+    common_columns = set(common_coordinates) | {
+        "common_coordinate_solver_status", "common_coordinate_solver_iterations",
+        "common_coordinate_domain_box", "common_coordinate_normalized_residual",
+        "ventricular_closure_mm_applicable", "ventricular_material_status",
+        "functional_geometry_status"}
+    mesh_columns = {"mesh_zero_area_triangles", "mesh_nonfinite_area_triangles",
+                    "mesh_triangles_checked"}
     with trace.open(newline="") as stream:
         reader = csv.DictReader(stream)
         required = {"step", "time_s", "min_skin_bed_gap_m", "vertices_below_1mm", "nonfinite_skin_vertices",
@@ -667,10 +678,58 @@ def native_surface_trace_consistency(trace: Path, steps: int, dt: float) -> dict
         present_wall_columns = wall_columns.intersection(reader.fieldnames or [])
         if present_wall_columns and present_wall_columns != wall_columns:
             raise ValueError("native surface trace has an incomplete ventricular material diagnostic")
+        present_mesh_columns = mesh_columns.intersection(reader.fieldnames or [])
+        if present_mesh_columns and present_mesh_columns != mesh_columns:
+            raise ValueError("native surface trace has an incomplete whole-mesh audit")
         wall_status_present = "ventricular_material_status" in (reader.fieldnames or [])
         if wall_status_present and not present_wall_columns:
             raise ValueError("native surface trace material status lacks its ventricular diagnostic")
         for row in reader:
+            mode = row.get("geometry_mode", "legacy_ventricular_wall_v2")
+            if mode not in ("legacy_ventricular_wall_v2", "common_seven_coordinate_v1"):
+                raise ValueError("native surface trace has an unknown cardiac geometry mode")
+            if geometry_mode is not None and mode != geometry_mode:
+                raise ValueError("native surface trace cardiac geometry mode changes")
+            geometry_mode = mode
+            common_geometry = mode == "common_seven_coordinate_v1"
+            if common_geometry:
+                if not (common_columns | wall_columns).issubset(reader.fieldnames or []):
+                    raise ValueError("native surface trace lacks common cardiac geometry diagnostics")
+                for key in common_coordinates:
+                    finite_float(row[key], key)
+                if finite_float(row["common_coordinate_solver_status"], "common solver status") != 0:
+                    raise ValueError("native surface trace common cardiac solve failed")
+                for key in ("common_coordinate_solver_iterations", "common_coordinate_domain_box"):
+                    value = finite_float(row[key], key)
+                    if value != int(value) or not 0 <= value < 4294967295:
+                        raise ValueError("native surface trace has invalid common solve provenance")
+                residual = finite_float(row["common_coordinate_normalized_residual"], "common residual")
+                # NumiHumanRestingAnatomy bounds this owner solver tolerance at 2e-5.
+                if not 0 <= residual <= 2e-5:
+                    raise ValueError("native surface trace exceeds the common solver tolerance")
+                maximum_common_residual = max(maximum_common_residual, residual)
+                if finite_float(row["ventricular_closure_mm_applicable"], "closure applicable") != 0:
+                    raise ValueError("common cardiac geometry incorrectly declares legacy closure")
+                # The native owner deliberately emits NaN for inapplicable legacy
+                # coordinates/closure. This exemption never applies to active state.
+                for key in ("q_ra", "q_rv", "q_la", "q_lv", "ventricular_closure_mm"):
+                    if not math.isnan(float(row[key])):
+                        raise ValueError("common cardiac geometry lacks its legacy NaN sentinel")
+            else:
+                for key in ("q_ra", "q_rv", "q_la", "q_lv"):
+                    finite_float(row[key], key)
+                if ("ventricular_closure_mm_applicable" in row and
+                        finite_float(row["ventricular_closure_mm_applicable"], "closure applicable") != 1):
+                    raise ValueError("legacy cardiac geometry incorrectly disables closure")
+            if present_mesh_columns:
+                for key in ("mesh_zero_area_triangles", "mesh_nonfinite_area_triangles"):
+                    if finite_float(row[key], key) != 0:
+                        raise ValueError("native surface trace contains invalid whole-mesh triangles")
+                triangles = finite_float(row["mesh_triangles_checked"], "mesh triangles")
+                if (triangles != int(triangles) or triangles <= 0 or
+                        (mesh_triangles is not None and triangles != mesh_triangles)):
+                    raise ValueError("native surface trace whole-mesh audit count changes or is invalid")
+                mesh_triangles = int(triangles)
             step = int(row["step"])
             if count >= len(expected_steps) or step != expected_steps[count]:
                 raise ValueError("native surface trace skipped or duplicated a displayed accepted step")
@@ -685,7 +744,7 @@ def native_surface_trace_consistency(trace: Path, steps: int, dt: float) -> dict
             error = finite_float(row["max_functional_volume_relative_error"], "max_functional_volume_relative_error")
             if gap < -.001 or not 0 <= error <= 2e-4:
                 raise ValueError("native surface trace exceeds the existing GPU geometry tolerance")
-            for key in ("q_ra", "q_rv", "q_la", "q_lv", "diaphragm_swept_ml", "rib_swept_ml"):
+            for key in ("diaphragm_swept_ml", "rib_swept_ml"):
                 finite_float(row[key], key)
             for key in ("ra_target_ml", "rv_target_ml", "la_target_ml", "lv_target_ml", "lung_target_ml"):
                 if finite_float(row[key], key) <= 0:
@@ -704,18 +763,21 @@ def native_surface_trace_consistency(trace: Path, steps: int, dt: float) -> dict
                 bound = finite_float(row["ventricular_wall_bound"], "ventricular_wall_bound")
                 material = finite_float(row["ventricular_material_ml"], "ventricular_material_ml")
                 target = finite_float(row["ventricular_material_target_ml"], "ventricular_material_target_ml")
-                closure = finite_float(row["ventricular_closure_mm"], "ventricular_closure_mm")
+                closure = None if common_geometry else finite_float(row["ventricular_closure_mm"], "ventricular_closure_mm")
                 if bound not in (0, 1) or (wall_bound is not None and bound != wall_bound):
                     raise ValueError("native surface trace ventricular binding changes or is invalid")
                 wall_bound = bound
-                if bound:
+                if common_geometry and bound != 0:
+                    raise ValueError("common cardiac geometry incorrectly binds the legacy wall")
+                if bound or common_geometry:
                     if target <= 0 or material <= 0 or (wall_target is not None and abs(target - wall_target) > 1e-5):
                         raise ValueError("native surface trace ventricular material target is nonpositive or changes")
                     relative = abs(material - target) / target
                     if relative > 2e-4:
                         raise ValueError("native surface trace ventricular material exceeds the GPU volume tolerance")
                     wall_target, wall_error = target, max(wall_error, relative)
-                    wall_min_closure, wall_max_closure = min(wall_min_closure, closure), max(wall_max_closure, closure)
+                    if closure is not None:
+                        wall_min_closure, wall_max_closure = min(wall_min_closure, closure), max(wall_max_closure, closure)
                 elif material != 0 or target != 0 or closure != 0:
                     raise ValueError("native surface trace unbound ventricular wall reports material state")
             minimum_gap = min(minimum_gap, gap)
@@ -725,16 +787,29 @@ def native_surface_trace_consistency(trace: Path, steps: int, dt: float) -> dict
         raise ValueError("native surface trace does not reach the final displayed accepted state")
     result = {"displayed_accepted_frames": count, "minimum_full_skin_bed_gap_m": minimum_gap,
             "maximum_rendered_functional_volume_relative_error": maximum_volume_error,
-            "displayed_state_lag_steps": 1, "whole_body_interfaces_qualified": False}
+            "displayed_state_lag_steps": 1, "whole_body_interfaces_qualified": False,
+            "geometry_mode": geometry_mode}
+    if geometry_mode == "common_seven_coordinate_v1":
+        result["common_cardiac_geometry"] = {
+            "coordinate_count": 7, "solver_status": 0,
+            "maximum_normalized_residual": maximum_common_residual,
+            "legacy_coordinates_and_closure_applicable": False}
+    if mesh_triangles is not None:
+        result["whole_mesh_area_audit"] = {
+            "triangles_checked_per_frame": mesh_triangles,
+            "zero_area_triangles": 0, "nonfinite_area_triangles": 0,
+            "scope": "presented-frame triangle area only; not self-intersection or interface qualification"}
     if body_first is not None:
         result["body_center_of_mass"] = {"first_m": body_first, "last_m": body_last,
             "displacement_m": [last - first for first, last in zip(body_first, body_last)],
             "represented_mass_kg": body_mass,
             "qualification": "diagnostic displacement; stationary rest and drift are not inferred from endpoints"}
     if wall_bound is not None:
-        result["ventricular_material"] = {"bound": bool(wall_bound), "target_ml": wall_target,
+        material_bound = bool(wall_bound) or geometry_mode == "common_seven_coordinate_v1"
+        result["ventricular_material"] = {"bound": material_bound, "target_ml": wall_target,
+            "legacy_wall_bound": bool(wall_bound), "representation": geometry_mode,
             "gpu_degenerate_triangle_check_recorded": wall_status_present,
-            "maximum_volume_relative_error": wall_error if wall_bound else None,
+            "maximum_volume_relative_error": wall_error if material_bound else None,
             "closure_range_mm": [wall_min_closure, wall_max_closure] if wall_bound else None,
             "qualification": "rendered material volume consistency; wall topology and interfaces require separate checks"}
     return result

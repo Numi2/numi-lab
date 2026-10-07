@@ -1,0 +1,6 @@
+{
+  "source": "/Users/n/numi-human-resting-evidence-20261005/integrated-native-extended-engineering-577/native-output/resting-surface-audit.csv",
+  "source_sha256": "1c0c10abd7f5424a4210918446b3f6c475988ce076940dafd5029e6801ee21fe",
+  "fixture": "/Users/n/numi-human-study-geometry-source-013/matter/tools/fixtures/resting-common-geometry-native-64-steps.csv",
+  "selection": "Unmodified CSV header plus first 3 owner frame rows, steps0/31/63. Run completed64seconds; fixture covers first64 physical steps only."
+}
