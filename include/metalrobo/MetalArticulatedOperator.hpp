@@ -2117,6 +2117,10 @@ struct MetalArticulatedOperatorDiagnostics {
     MetalArticulatedOperatorLayout layout{};
     bool dispatched = false;
     bool published = false;
+    // Pipeline specialization and per-submission use of exact canonical body
+    // probe fusion. The dispatch flag is the device-side usage identity.
+    bool canonicalBodyProbeFusionPipelineEnabled = false;
+    bool canonicalBodyProbeFusionUsed = false;
     std::uint32_t successfulEnvironmentCount = 0u;
     std::uint32_t failedEnvironmentCount = 0u;
     std::uint32_t firstFailingEnvironment = MR_INVALID_INDEX;

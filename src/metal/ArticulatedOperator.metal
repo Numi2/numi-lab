@@ -6,6 +6,9 @@
 
 using namespace metal;
 
+// Reserved for the exact canonical Human body-probe fusion path.
+constant bool kCanonicalBodyProbeFusion [[function_constant(45)]];
+
 #ifndef MR_ARTICULATED_OPERATOR_KERNEL_NAME
 #define MR_ARTICULATED_OPERATOR_KERNEL_NAME mr_articulated_operator
 #endif
@@ -791,8 +794,12 @@ inline bool validDispatch(
     if (world.abiVersion != MR_ENGINE_ABI_VERSION ||
         dispatch.articulationIndex >= world.articulationCount ||
         dispatch.environmentCount == 0u ||
+        ((dispatch.flags &
+          MR_ARTICULATED_OPERATOR_FUSE_CANONICAL_BODY_PROBES) != 0u &&
+         !kCanonicalBodyProbeFusion) ||
         (((dispatch.flags &
-          MR_ARTICULATED_OPERATOR_WRITE_BODY_SPATIAL_JACOBIANS) == 0u) &&
+          (MR_ARTICULATED_OPERATOR_WRITE_BODY_SPATIAL_JACOBIANS |
+           MR_ARTICULATED_OPERATOR_FUSE_CANONICAL_BODY_PROBES)) == 0u) &&
          dispatch.reserved0 != 0u) ||
         (dispatch.flags &
          ~(
@@ -802,7 +809,8 @@ inline bool validDispatch(
              MR_ARTICULATED_OPERATOR_IMPLICIT_DRIVES |
              MR_ARTICULATED_OPERATOR_KINEMATICS_JACOBIANS_ONLY |
              MR_ARTICULATED_OPERATOR_IGNORE_FOREIGN_POINTS |
-             MR_ARTICULATED_OPERATOR_WRITE_BODY_SPATIAL_JACOBIANS
+             MR_ARTICULATED_OPERATOR_WRITE_BODY_SPATIAL_JACOBIANS |
+             MR_ARTICULATED_OPERATOR_FUSE_CANONICAL_BODY_PROBES
 #if MR_ARTICULATED_OPERATOR_HAS_COMPENSATED_TRANSLATION
              | MR_ARTICULATED_OPERATOR_COMPENSATED_TRANSLATION
              | MR_ARTICULATED_OPERATOR_KINEMATICS_CACHE_PREPARE
@@ -811,7 +819,8 @@ inline bool validDispatch(
          )) != 0u ||
         ((dispatch.flags &
           (MR_ARTICULATED_OPERATOR_IGNORE_FOREIGN_POINTS |
-           MR_ARTICULATED_OPERATOR_WRITE_BODY_SPATIAL_JACOBIANS)) != 0u &&
+           MR_ARTICULATED_OPERATOR_WRITE_BODY_SPATIAL_JACOBIANS |
+           MR_ARTICULATED_OPERATOR_FUSE_CANONICAL_BODY_PROBES)) != 0u &&
          (dispatch.flags &
           MR_ARTICULATED_OPERATOR_KINEMATICS_JACOBIANS_ONLY) == 0u) ||
 #if MR_ARTICULATED_OPERATOR_HAS_COMPENSATED_TRANSLATION
@@ -823,7 +832,8 @@ inline bool validDispatch(
           (dispatch.flags & MR_ARTICULATED_OPERATOR_KINEMATICS_CACHE_PREPARE) != 0u &&
           (dispatch.flags & MR_ARTICULATED_OPERATOR_KINEMATICS_CACHE_CONSUME) != 0u)) ||
         ((dispatch.flags &
-          MR_ARTICULATED_OPERATOR_WRITE_BODY_SPATIAL_JACOBIANS) != 0u &&
+          (MR_ARTICULATED_OPERATOR_WRITE_BODY_SPATIAL_JACOBIANS |
+           MR_ARTICULATED_OPERATOR_FUSE_CANONICAL_BODY_PROBES)) != 0u &&
          (dispatch.flags &
           MR_ARTICULATED_OPERATOR_KINEMATICS_CACHE_PREPARE) != 0u) ||
 #endif
@@ -919,7 +929,8 @@ inline bool validModelAndLayout(
         return false;
     }
     if ((dispatch.flags &
-         MR_ARTICULATED_OPERATOR_WRITE_BODY_SPATIAL_JACOBIANS) != 0u &&
+         (MR_ARTICULATED_OPERATOR_WRITE_BODY_SPATIAL_JACOBIANS |
+          MR_ARTICULATED_OPERATOR_FUSE_CANONICAL_BODY_PROBES)) != 0u &&
         (dispatch.reserved0 > dispatch.pointCount ||
          articulation.bodyCount >
              (dispatch.pointCount - dispatch.reserved0) / 4u)) {
@@ -1742,6 +1753,31 @@ inline bool invalidPointQuery(
         query.worldImpulse.w != 0.0f;
 }
 
+inline bool canonicalBodyProbeBlock(
+    device const MRArticulatedPointImpulseGPU* points,
+    const uint pointBase,
+    const uint firstProbe,
+    const uint expectedBody
+) {
+    for (uint probe = 0u; probe < 4u; ++probe) {
+        device const MRArticulatedPointImpulseGPU& query =
+            points[pointBase + firstProbe + probe];
+        const float4 expectedPoint = probe == 0u
+            ? float4(0.0f)
+            : (probe == 1u ? float4(1.0f, 0.0f, 0.0f, 0.0f)
+                : (probe == 2u ? float4(0.0f, 1.0f, 0.0f, 0.0f)
+                               : float4(0.0f, 0.0f, 1.0f, 0.0f)));
+        if (query.bodyIndex != expectedBody || query.flags != 0u ||
+            query.localPoint.x != expectedPoint.x ||
+            query.localPoint.y != expectedPoint.y ||
+            query.localPoint.z != expectedPoint.z ||
+            query.localPoint.w != expectedPoint.w) {
+            return false;
+        }
+    }
+    return true;
+}
+
 inline bool validatePoints(
     const uint environment,
     device const MRArticulationGPU& articulation,
@@ -2270,6 +2306,34 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
                  point += tileCount * simdGroupCount) {
                 device const MRArticulatedPointImpulseGPU& query =
                     points[pointBase + point];
+                uint fusedLocalBody = MR_INVALID_INDEX;
+                uint fusedProbeOrdinal = MR_INVALID_INDEX;
+                if (kCanonicalBodyProbeFusion &&
+                    (dispatch.flags &
+                     MR_ARTICULATED_OPERATOR_FUSE_CANONICAL_BODY_PROBES) != 0u &&
+                    point >= dispatch.reserved0) {
+                    const uint probeOffset = point - dispatch.reserved0;
+                    const uint candidateBody = probeOffset / 4u;
+                    const uint firstProbe = dispatch.reserved0 + 4u * candidateBody;
+                    if (candidateBody < articulation.bodyCount &&
+                        firstProbe <= dispatch.pointStride &&
+                        dispatch.pointStride - firstProbe >= 4u &&
+                        canonicalBodyProbeBlock(
+                            points, pointBase, firstProbe,
+                            articulation.firstBody + candidateBody)) {
+                        fusedLocalBody = candidateBody;
+                        fusedProbeOrdinal = probeOffset & 3u;
+                    }
+                }
+                // The unique COM group emits the three axis rows too. Their
+                // own groups skip only after revalidating the complete block;
+                // malformed or unauthenticated records retain the generic path.
+                if (fusedLocalBody != MR_INVALID_INDEX &&
+                    fusedProbeOrdinal != 0u) {
+                    continue;
+                }
+                const bool fusedCanonicalBody =
+                    fusedLocalBody != MR_INVALID_INDEX;
                 const bool foreign =
                     query.bodyIndex < articulation.firstBody ||
                     query.bodyIndex - articulation.firstBody >=
@@ -2279,30 +2343,43 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
                     (((dispatch.flags &
                        MR_ARTICULATED_OPERATOR_IGNORE_FOREIGN_POINTS) != 0u) &&
                      foreign);
-                const uint localBody = inactive
-                    ? articulation.rootBody - articulation.firstBody
-                    : query.bodyIndex - articulation.firstBody;
-                const float3 ownOffset = simdLane == 0u
-                    ? pointSurfaceOffset(bodyRotation[localBody], query)
-                    : float3(0.0f);
-                const float3 pointOffset = simd_broadcast_first(ownOffset);
-                if (simdLane == 0u) {
-                    MRArticulatedPointWorldGPU worldPoint;
-                    worldPoint.position = float4(
-                        worldTranslation + (bodyPosition[localBody] + pointOffset),
-                        1.0f
-                    );
+                const uint localBody = fusedCanonicalBody
+                    ? fusedLocalBody
+                    : (inactive
+                        ? articulation.rootBody - articulation.firstBody
+                        : query.bodyIndex - articulation.firstBody);
+                const uint fusedPointCount = fusedCanonicalBody ? 4u : 1u;
+                float3 pointOffsets[4];
+                for (uint probe = 0u; probe < fusedPointCount; ++probe) {
+                    const uint outputPoint = point + probe;
+                    device const MRArticulatedPointImpulseGPU& probeQuery =
+                        points[pointBase + outputPoint];
+                    const float3 ownOffset = simdLane == 0u
+                        ? pointSurfaceOffset(bodyRotation[localBody], probeQuery)
+                        : float3(0.0f);
+                    pointOffsets[probe] = simd_broadcast_first(ownOffset);
+                    if (simdLane == 0u) {
+                        MRArticulatedPointWorldGPU worldPoint;
+                        worldPoint.position = float4(
+                            worldTranslation + (bodyPosition[localBody] +
+                                pointOffsets[probe]),
+                            1.0f
+                        );
 #if MR_ARTICULATED_OPERATOR_HAS_COMPENSATED_TRANSLATION
-                    if (compensatedTranslation) {
-                        const auto paired = mrCompensatedTranslationPositionPair(translation,
-                            bodyPosition[localBody] + pointSurfaceOffsetPair(bodyRotation[localBody],query));
-                        worldPoint.position = float4(paired.high.xyz, worldPoint.position.w);
-                        pointPositionLow[pointWorldBase + point] = paired.low;
-                    }
+                        if (compensatedTranslation) {
+                            const auto paired = mrCompensatedTranslationPositionPair(
+                                translation,
+                                bodyPosition[localBody] +
+                                    pointSurfaceOffsetPair(
+                                        bodyRotation[localBody], probeQuery));
+                            worldPoint.position = float4(
+                                paired.high.xyz, worldPoint.position.w);
+                            pointPositionLow[pointWorldBase + outputPoint] =
+                                paired.low;
+                        }
 #endif
-                    pointWorld[
-                        pointWorldBase + point
-                    ] = worldPoint;
+                        pointWorld[pointWorldBase + outputPoint] = worldPoint;
+                    }
                 }
                 for (uint dof = simdLane;
                      dof < articulation.nv;
@@ -2329,9 +2406,6 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
                             parentLocal,
                             knownAncestor
                         );
-                    const float3 pointLinear =
-                        bodyMotion.linear +
-                        cross(bodyMotion.angular, pointOffset);
                     if ((dispatch.flags &
                          MR_ARTICULATED_OPERATOR_WRITE_BODY_SPATIAL_JACOBIANS) != 0u &&
                         point == dispatch.reserved0 + 4u * localBody) {
@@ -2351,21 +2425,28 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
                         bodySpatialJacobians[bodyRows + 5u * articulation.nv + dof] =
                             bodyMotion.linear.z;
                     }
-                    pointJacobians[
-                        jacobianBase +
-                        (point * 3u + 0u) * articulation.nv +
-                        dof
-                    ] = pointLinear.x;
-                    pointJacobians[
-                        jacobianBase +
-                        (point * 3u + 1u) * articulation.nv +
-                        dof
-                    ] = pointLinear.y;
-                    pointJacobians[
-                        jacobianBase +
-                        (point * 3u + 2u) * articulation.nv +
-                        dof
-                    ] = pointLinear.z;
+                    for (uint probe = 0u; probe < fusedPointCount; ++probe) {
+                        const uint outputPoint = fusedCanonicalBody
+                            ? point + probe : point;
+                        const float3 pointLinear = bodyMotion.linear +
+                            cross(bodyMotion.angular,
+                                  pointOffsets[probe]);
+                        pointJacobians[
+                            jacobianBase +
+                            (outputPoint * 3u + 0u) * articulation.nv +
+                            dof
+                        ] = pointLinear.x;
+                        pointJacobians[
+                            jacobianBase +
+                            (outputPoint * 3u + 1u) * articulation.nv +
+                            dof
+                        ] = pointLinear.y;
+                        pointJacobians[
+                            jacobianBase +
+                            (outputPoint * 3u + 2u) * articulation.nv +
+                            dof
+                        ] = pointLinear.z;
+                    }
                 }
             }
             const uint generalizedBase =

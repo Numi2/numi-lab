@@ -532,6 +532,9 @@ enum MRArticulatedOperatorFlags : mr_u32 {
     // Jacobians for the canonical four-point body-probe block. reserved0 names
     // that block's first point; ordinary point-J rows remain unchanged.
     MR_ARTICULATED_OPERATOR_WRITE_BODY_SPATIAL_JACOBIANS = 1u << 9u,
+    // Opt-in exact fusion for a host-validated canonical COM/+axis probe block.
+    // reserved0 names the first probe; all four public point rows are emitted.
+    MR_ARTICULATED_OPERATOR_FUSE_CANONICAL_BODY_PROBES = 1u << 10u,
 };
 
 // One dispatch describes a batch of states for one immutable articulation.

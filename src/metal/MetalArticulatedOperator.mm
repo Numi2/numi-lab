@@ -767,6 +767,10 @@ struct MetalArticulatedOperatorContextState {
         if (firstSimdContactSweep != nullptr)
             config.firstSimdStandContactSweep =
                 std::strcmp(firstSimdContactSweep, "1") == 0;
+        const char* canonicalBodyProbeFusion = std::getenv(
+            "NUMI_HUMAN_STAND_FUSE_CANONICAL_BODY_PROBES");
+        canonicalBodyProbeFusionEnabled = canonicalBodyProbeFusion != nullptr &&
+            std::strcmp(canonicalBodyProbeFusion, "1") == 0;
         const char* standContactWarmStart =
             std::getenv("NUMI_HUMAN_STAND_CONTACT_WARMSTART");
         if (standContactWarmStart != nullptr)
@@ -853,6 +857,7 @@ struct MetalArticulatedOperatorContextState {
     ~MetalArticulatedOperatorContextState();
 
     MetalArticulatedOperatorConfig config;
+    bool canonicalBodyProbeFusionEnabled = false;
     StandSparseGraphCache standSparseGraphCache;
     std::string sparseCapturePath;
     std::uint32_t sparseCaptureRoot = 0u;
@@ -4044,8 +4049,15 @@ MetalArticulatedOperatorDiagnostics initializeContext(
                 describeError(error)
         );
     }
+    MTLFunctionConstantValues* articulatedConstants =
+        [[MTLFunctionConstantValues alloc] init];
+    bool canonicalBodyProbeFusion =
+        context.canonicalBodyProbeFusionEnabled;
+    [articulatedConstants setConstantValue:&canonicalBodyProbeFusion
+                                      type:MTLDataTypeBool atIndex:45u];
     id<MTLFunction> function = [library
-        newFunctionWithName:@"mr_articulated_operator"];
+        newFunctionWithName:@"mr_articulated_operator"
+            constantValues:articulatedConstants error:&error];
     if (function == nil) {
         return reject(
             std::move(diagnostics),
@@ -4626,7 +4638,9 @@ MetalArticulatedOperatorDiagnostics initializeContext(
     context.device = device;
     context.queue = queue;
     context.library = library;
-    id<MTLFunction> compensatedFunction = [library newFunctionWithName:@"mr_articulated_operator_compensated"];
+    id<MTLFunction> compensatedFunction = [library
+        newFunctionWithName:@"mr_articulated_operator_compensated"
+            constantValues:articulatedConstants error:&error];
     if (compensatedFunction == nil) return reject(std::move(diagnostics),
         MetalArticulatedOperatorHostStatus::metalLibraryFailure,
         "metallib lacks compensated articulated operator");
@@ -10361,6 +10375,8 @@ MetalArticulatedOperatorContext::submit(
         if (!diagnostics.succeeded()) {
             return diagnostics;
         }
+        diagnostics.canonicalBodyProbeFusionPipelineEnabled =
+            state_->canonicalBodyProbeFusionEnabled;
         if (input.stand.enabled() && input.stand.enableContact &&
             !input.stand.contacts.empty() && input.stand.stepIndexOffset == 0u) {
             std::fprintf(stderr,
@@ -10883,6 +10899,17 @@ MetalArticulatedOperatorContext::submit(
             const bool analyticBodySpatialJacobians =
                 analyticBodySpatialRequested && input.stand.enabled() &&
                 state_->config.pointJacobiansOnly && pairedGeometry &&
+                input.mujoco.bodyJacobianPointOffset != MR_INVALID_INDEX &&
+                input.mujoco.bodyJacobianPointOffset <= input.pointCount &&
+                articulation.bodyCount <=
+                    (input.pointCount - input.mujoco.bodyJacobianPointOffset) / 4u;
+            // validateAndBuildLayout/validNumiHumanStand has already checked
+            // the exact COM,+X,+Y,+Z records for every environment. This
+            // dispatch-only opt-in reuses their point-independent MotionColumn.
+            const bool canonicalBodyProbeFusionUsed =
+                state_->canonicalBodyProbeFusionEnabled &&
+                input.stand.enabled() && state_->config.pointJacobiansOnly &&
+                input.mujoco.enabled() &&
                 input.mujoco.bodyJacobianPointOffset != MR_INVALID_INDEX &&
                 input.mujoco.bodyJacobianPointOffset <= input.pointCount &&
                 articulation.bodyCount <=
@@ -11774,12 +11801,28 @@ MetalArticulatedOperatorContext::submit(
                 activeKinematicsDispatch.reserved0 =
                     input.mujoco.bodyJacobianPointOffset;
             }
+            if (canonicalBodyProbeFusionUsed) {
+                activeKinematicsDispatch.flags |=
+                    MR_ARTICULATED_OPERATOR_FUSE_CANONICAL_BODY_PROBES;
+                activeKinematicsDispatch.reserved0 =
+                    input.mujoco.bodyJacobianPointOffset;
+                diagnostics.canonicalBodyProbeFusionUsed = true;
+                if (input.stand.stepIndexOffset == 0u) {
+                    std::fprintf(stderr,
+                        "human_canonical_body_probe_fusion pipeline_fc=45 dispatch_flag=10 "
+                        "body_count=%u nv=%u first_probe=%u environments=%zu\n",
+                        articulation.bodyCount, articulation.nv,
+                        input.mujoco.bodyJacobianPointOffset,
+                        input.environmentCount);
+                }
+            }
             if (shareKinematics) {
                 activeKinematicsDispatch.flags |=
                     MR_ARTICULATED_OPERATOR_KINEMATICS_CACHE_CONSUME;
                 [encoder setBytes:&activeKinematicsDispatch
                            length:sizeof(activeKinematicsDispatch) atIndex:5u];
-            } else if (analyticBodySpatialJacobians) {
+            } else if (analyticBodySpatialJacobians ||
+                       canonicalBodyProbeFusionUsed) {
                 [encoder setBytes:&activeKinematicsDispatch
                            length:sizeof(activeKinematicsDispatch) atIndex:5u];
             }
@@ -14418,6 +14461,12 @@ MetalArticulatedOperatorContext::submit(
                     MRArticulatedOperatorDispatchGPU refreshed = diagnostics.layout.dispatch;
                     refreshed.flags = MR_ARTICULATED_OPERATOR_KINEMATICS_JACOBIANS_ONLY |
                         MR_ARTICULATED_OPERATOR_COMPENSATED_TRANSLATION;
+                    if (canonicalBodyProbeFusionUsed) {
+                        refreshed.flags |=
+                            MR_ARTICULATED_OPERATOR_FUSE_CANONICAL_BODY_PROBES;
+                        refreshed.reserved0 =
+                            input.mujoco.bodyJacobianPointOffset;
+                    }
                     id<MTLComputeCommandEncoder> refresh = [commandBuffer computeCommandEncoder];
                     if (refresh == nil) return reject(std::move(diagnostics),
                         MetalArticulatedOperatorHostStatus::metalCommandFailure,
@@ -15121,8 +15170,14 @@ MetalArticulatedOperatorDiagnostics runMetalArticulatedOperator(
                         describeError(error)
                 );
             }
+            MTLFunctionConstantValues* articulatedConstants =
+                [[MTLFunctionConstantValues alloc] init];
+            bool canonicalBodyProbeFusion = false;
+            [articulatedConstants setConstantValue:&canonicalBodyProbeFusion
+                                              type:MTLDataTypeBool atIndex:45u];
             id<MTLFunction> function = [library
-                newFunctionWithName:@"mr_articulated_operator"];
+                newFunctionWithName:@"mr_articulated_operator"
+                    constantValues:articulatedConstants error:&error];
             if (function == nil) {
                 return reject(
                     std::move(diagnostics),
