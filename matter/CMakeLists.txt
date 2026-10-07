@@ -380,6 +380,18 @@ if(APPLE)
         NUMI_MATTER_METALLIB="${NUMI_MATTER_METALLIB}"
         NUMI_HUMAN_RESPIRATION_METALLIB="${NUMI_HUMAN_RESPIRATION_METALLIB}")
     target_link_libraries(numi-human-resting PRIVATE numi_matter_runtime "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    # Explicit bounded GPU regression fixture for the existing RestingRun owner.
+    add_executable(numi-human-gas-transport-fixture EXCLUDE_FROM_ALL
+        tools/human_resting_gas_transport_fixture.mm)
+    add_dependencies(numi-human-gas-transport-fixture numi_human_respiration_shaders)
+    target_include_directories(numi-human-gas-transport-fixture PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../include")
+    target_include_directories(numi-human-gas-transport-fixture PRIVATE "${NUMI_BRAIN_ROOT}/Sources/NumiBrainABI/include")
+    target_compile_options(numi-human-gas-transport-fixture PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic)
+    target_compile_definitions(numi-human-gas-transport-fixture PRIVATE
+        NUMI_MATTER_METALLIB="${NUMI_MATTER_METALLIB}"
+        NUMI_HUMAN_RESPIRATION_METALLIB="${NUMI_HUMAN_RESPIRATION_METALLIB}")
+    target_link_libraries(numi-human-gas-transport-fixture PRIVATE
+        numi_matter_runtime "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
     target_include_directories(
         numi_matter_runtime
         PUBLIC
