@@ -6289,7 +6289,7 @@ struct MetalBufferRegion {
                      offset:0u atIndex:14u];
     [kinematics setBuffer:context.state->buffers[15u]
                      offset:0u atIndex:15u];
-    [kinematics setBuffer:context.state->buffers[10u]
+    [kinematics setBuffer:context.state->buffers[14u]
                      offset:0u atIndex:21u];
     [kinematics setThreadgroupMemoryLength:
         detail::articulatedOperatorThreadgroupBytes(
@@ -11235,7 +11235,7 @@ MetalArticulatedOperatorContext::submit(
                             offset:0u atIndex:19u];
                 [prepare setBuffer:state_->kinematicsCache
                             offset:0u atIndex:20u];
-                [prepare setBuffer:state_->buffers[10u]
+                [prepare setBuffer:state_->buffers[14u]
                             offset:0u atIndex:21u];
                 [prepare setThreadgroupMemoryLength:kinematicsScratchBytes
                                             atIndex:0u];
@@ -11276,7 +11276,7 @@ MetalArticulatedOperatorContext::submit(
             }
             [encoder setBuffer:analyticBodySpatialJacobians
                     ? state_->standBuffers[kStandSpatialJacobianBuffer]
-                    : state_->buffers[10u]
+                    : state_->buffers[14u]
                    offset:0u atIndex:21u];
             MRArticulatedOperatorDispatchGPU activeKinematicsDispatch =
                 diagnostics.layout.dispatch;
@@ -13816,7 +13816,7 @@ MetalArticulatedOperatorContext::submit(
                     [refresh setBuffer:state_->standBuffers[kStandBodyPositionLowBuffer] offset:0u atIndex:18u];
                     [refresh setBuffer:state_->standBuffers[kStandPointPositionLowBuffer] offset:0u atIndex:19u];
                     [refresh setBuffer:state_->buffers[8u] offset:0u atIndex:20u];
-                    [refresh setBuffer:state_->buffers[10u] offset:0u atIndex:21u];
+                    [refresh setBuffer:state_->buffers[14u] offset:0u atIndex:21u];
                     [refresh setThreadgroupMemoryLength:detail::articulatedOperatorThreadgroupBytes(
                         articulation.bodyCount, articulation.nv, false, true) atIndex:0u];
                     [refresh dispatchThreadgroups:MTLSizeMake(input.environmentCount,1u,1u)
