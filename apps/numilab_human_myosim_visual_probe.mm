@@ -5327,7 +5327,13 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     const std::uint32_t standBrainSeed = 0x4e554d49u,
     const std::span<const float> seedPoseQ = {},
     const metalrobo::MetalNumanXTransactionProgram* restingProgram = nullptr,
-    const std::function<void(std::uint32_t,const metalrobo::MetalArticulatedOperatorResult&)>* acceptedObserver = nullptr,
+    const std::function<void(
+        std::uint32_t,
+        std::span<const float>,
+        std::span<const float>,
+        const MRCompensatedRootTranslationGPU&,
+        const metalrobo::MetalArticulatedOperatorResult&
+    )>* acceptedObserver = nullptr,
     const metalrobo::MetalNumiHumanSupportGeometryProgram* supportGeometryProgram = nullptr,
     const bool restingReleaseInitialization = false,
     const bool acceptedComMomentumAudit = false,
@@ -7636,7 +7642,13 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                         "loaded-knee authoritative callback/status index did not advance globally");
                 capturedSteps->push_back(std::move(captured));
             }
-            if(acceptedObserver != nullptr)(*acceptedObserver)(completedSteps + segmentSteps,segmentResult);
+            if (acceptedObserver != nullptr) {
+                require(currentRoots.size() == 1u,
+                        "accepted q-integration observer lacks the pre-step compensated root");
+                (*acceptedObserver)(
+                    completedSteps + segmentSteps, currentQ, currentV,
+                    currentRoots.front(), segmentResult);
+            }
             if (!haveStatus) {
                 aggregateStatus = segmentResult.standStatuses.front();
                 haveStatus = true;
@@ -22385,8 +22397,24 @@ int main(int argc, char** argv) {
                             "NUMI_HUMAN_ACCEPTED_COM_MOMENTUM_AUDIT_SEGMENT_STEPS must be an integer in [1, 32]");
                     restingComMomentumAuditSegmentSteps = parsed;
                 }
+                const char* qIntegrationAuditSetting =
+                    std::getenv("NUMI_HUMAN_ACCEPTED_Q_INTEGRATION_AUDIT");
+                require(qIntegrationAuditSetting == nullptr ||
+                            qIntegrationAuditSetting[0] == '\0' ||
+                            std::strcmp(qIntegrationAuditSetting, "0") == 0 ||
+                            std::strcmp(qIntegrationAuditSetting, "1") == 0,
+                        "NUMI_HUMAN_ACCEPTED_Q_INTEGRATION_AUDIT must be 0 or 1");
+                const bool restingQIntegrationAudit =
+                    qIntegrationAuditSetting != nullptr &&
+                    std::strcmp(qIntegrationAuditSetting, "1") == 0;
+                require(!restingQIntegrationAudit ||
+                            (restingComMomentumAudit &&
+                             restingComMomentumAuditSegmentSteps == 1u),
+                        "accepted q-integration audit requires COM observer cadence cap 1");
                 std::ofstream comMomentumTrace;
                 std::ofstream supportImpulseTrace;
+                std::ofstream qIntegrationTrace;
+                std::ofstream qIndexMapTrace;
                 if (restingComMomentumAudit) {
                     comMomentumTrace.open(std::filesystem::path(positional.back())/
                         "resting-com-momentum-diagnostic.csv");
@@ -22421,6 +22449,95 @@ int main(int argc, char** argv) {
                               << "kinematics=CPU_evidence_only contact_impulses=per_contact_pre_step_basis_and_world_sum_final_physical_step_per_segment "
                               << "full_3d_interval_residual=unavailable_without_time_integrated_other_external_impulses"
                               << std::endl;
+                }
+                std::uint32_t qIntegrationAcceptedRows = 0u;
+                if (restingQIntegrationAudit) {
+                    qIntegrationTrace.open(std::filesystem::path(positional.back()) /
+                        "resting-com-q-integration.csv");
+                    require(qIntegrationTrace.good(),
+                            "accepted q-integration trace path unavailable");
+                    qIntegrationTrace << std::setprecision(
+                        std::numeric_limits<float>::max_digits10)
+                        << "accepted_step,time_s,dt_s,configuration_count,velocity_count,"
+                        << "q_before_f32_semicolon,v_before_f32_semicolon,"
+                        << "q_preprojection_f32_semicolon,v_preprojection_f32_semicolon,"
+                        << "q_accepted_f32_semicolon,v_accepted_f32_semicolon,"
+                        << "root_before_reference_displacement_correction_xyzw_semicolon,"
+                        << "root_after_reference_displacement_correction_xyzw_semicolon,"
+                        << "q_before_fingerprint_fnv64,v_before_fingerprint_fnv64,"
+                        << "q_preprojection_fingerprint_fnv64,v_preprojection_fingerprint_fnv64,"
+                        << "q_accepted_fingerprint_fnv64,v_accepted_fingerprint_fnv64\n";
+                    const auto writeCsvString = [](std::ostream& output,
+                                                   const std::string& value) {
+                        output << '"';
+                        for (const char ch : value) {
+                            if (ch == '"') output << '"';
+                            output << ch;
+                        }
+                        output << '"';
+                    };
+                    qIndexMapTrace.open(std::filesystem::path(positional.back()) /
+                        "resting-com-q-index-map.csv");
+                    require(qIndexMapTrace.good(),
+                            "accepted q-index map path unavailable");
+                    qIndexMapTrace << "record_kind,local_q_index,global_q_index,local_v_index,global_v_index,"
+                                   << "joint_index,joint_name,dof_name,local_dof,q_index_valid\n";
+                    const auto& articulation = rigid.model.articulations.front();
+                    std::vector<std::uint32_t> qIndexOwners(articulation.nq, 0u);
+                    for (std::uint32_t localV = 0u; localV < articulation.nv; ++localV) {
+                        const std::uint32_t globalV = articulation.vOffset + localV;
+                        require(globalV < rigid.model.dofs.size(),
+                                "accepted q-index map DoF range is invalid");
+                        const auto& dof = rigid.model.dofs[globalV];
+                        const bool validQ = dof.qIndex != MR_INVALID_INDEX &&
+                            dof.qIndex >= articulation.qOffset &&
+                            dof.qIndex < articulation.qOffset + articulation.nq;
+                        const std::uint32_t localQ = validQ
+                            ? dof.qIndex - articulation.qOffset
+                            : MR_INVALID_INDEX;
+                        const std::string jointName = dof.jointIndex <
+                            rigid.model.jointNames.size()
+                            ? rigid.model.jointNames[dof.jointIndex] : "unnamed";
+                        const std::string dofName = globalV <
+                            rigid.model.dofNames.size()
+                            ? rigid.model.dofNames[globalV] : "unnamed";
+                        if (validQ) {
+                            require(++qIndexOwners[localQ] == 1u,
+                                    "accepted q-index map has duplicate scalar velocity owners");
+                        }
+                        qIndexMapTrace << (validQ ? "scalar_dof" : "velocity_only") << ','
+                            << (validQ ? std::to_string(localQ) : std::string{}) << ','
+                            << (validQ ? std::to_string(dof.qIndex) : std::string{}) << ','
+                            << localV << ',' << globalV << ',' << dof.jointIndex << ',';
+                        writeCsvString(qIndexMapTrace, jointName);
+                        qIndexMapTrace << ',';
+                        writeCsvString(qIndexMapTrace, dofName);
+                        qIndexMapTrace << ',' << dof.localDof << ','
+                            << (validQ ? 1 : 0) << '\n';
+                    }
+                    for (std::uint32_t localQ = 0u; localQ < articulation.nq; ++localQ) {
+                        if (qIndexOwners[localQ] != 0u) continue;
+                        const std::string empty;
+                        qIndexMapTrace << "configuration_without_direct_velocity,"
+                            << localQ << ',' << articulation.qOffset + localQ
+                            << ",,,,";
+                        writeCsvString(qIndexMapTrace, empty);
+                        qIndexMapTrace << ',';
+                        writeCsvString(qIndexMapTrace, empty);
+                        qIndexMapTrace << ",,0\n";
+                    }
+                    qIndexMapTrace.flush();
+                    const double actualDt = static_cast<double>(
+                        static_cast<float>(*muscleStepSeconds));
+                    std::cout << "resting_com_q_integration_audit=enabled"
+                              << " accepted_only=1 segment_cap_steps=1"
+                              << " actual_float_dt_s=" << std::setprecision(17)
+                              << actualDt
+                              << " rows_file=resting-com-q-integration.csv"
+                              << " q_index_map=resting-com-q-index-map.csv"
+                              << " arrays=before,preprojection,accepted"
+                              << " root=compensated_reference_displacement_correction"
+                              << " observer_only=1" << std::endl;
                 }
                 const auto payloadBytes=[](const std::filesystem::path& path) {
                     NSData* bytes=[NSData dataWithContentsOfFile:@(path.c_str())];
@@ -22484,8 +22601,18 @@ int main(int argc, char** argv) {
                 std::uint32_t previousComSampleStep = 0u;
                 std::array<double, 3u> previousComMomentum{};
                 bool havePreviousComSample = false;
-                const std::function<void(std::uint32_t,const metalrobo::MetalArticulatedOperatorResult&)> observer=
-                    [&](unsigned step,const metalrobo::MetalArticulatedOperatorResult& result) {
+                const std::function<void(
+                    std::uint32_t,
+                    std::span<const float>,
+                    std::span<const float>,
+                    const MRCompensatedRootTranslationGPU&,
+                    const metalrobo::MetalArticulatedOperatorResult&
+                )> observer =
+                    [&](std::uint32_t step,
+                        std::span<const float> qBefore,
+                        std::span<const float> vBefore,
+                        const MRCompensatedRootTranslationGPU& rootBefore,
+                        const metalrobo::MetalArticulatedOperatorResult& result) {
                         const auto& p=*static_cast<const NMHumanRespirationState*>(coupled.physiology.respiration->accepted.contents);
                         require(p.status.x==step&&!p.status.w,"body/respiratory accepted clocks differ");
                         const auto& b=result.standStatuses.front();
@@ -22510,6 +22637,72 @@ int main(int argc, char** argv) {
                             const auto& root = result.standRootTranslations.front();
                             require(mrCompensatedTranslationValid(root),
                                     "accepted COM audit root translation is invalid");
+                            if (restingQIntegrationAudit) {
+                                require(restingComMomentumAuditSegmentSteps == 1u &&
+                                            step == qIntegrationAcceptedRows + 1u &&
+                                            result.standPreProjectionQ.size() ==
+                                                articulation.nq &&
+                                            result.standPreProjectionV.size() ==
+                                                articulation.nv &&
+                                            qBefore.size() == articulation.nq &&
+                                            vBefore.size() == articulation.nv,
+                                        "accepted q-integration audit lacks one complete adjacent transition");
+                                const auto writeFloatArray = [](std::ostream& output,
+                                                                std::span<const float> values) {
+                                    output << std::setprecision(
+                                        std::numeric_limits<float>::max_digits10);
+                                    for (std::size_t i = 0u; i < values.size(); ++i) {
+                                        if (i != 0u) output << ';';
+                                        output << values[i];
+                                    }
+                                };
+                                const auto writeRootVector = [](std::ostream& output,
+                                                                const MRCompensatedRootTranslationGPU& value) {
+                                    output << std::setprecision(
+                                        std::numeric_limits<float>::max_digits10)
+                                        << value.reference.x << ';' << value.reference.y << ';'
+                                        << value.reference.z << ';' << value.reference.w << ';'
+                                        << value.displacement.x << ';' << value.displacement.y << ';'
+                                        << value.displacement.z << ';' << value.displacement.w << ';'
+                                        << value.correction.x << ';' << value.correction.y << ';'
+                                        << value.correction.z << ';' << value.correction.w;
+                                };
+                                const auto payloadFingerprint = [](std::span<const float> values) {
+                                    return metalrobo::numiHumanRuntimePayloadFingerprint(
+                                        std::as_bytes(values));
+                                };
+                                qIntegrationTrace << step << ','
+                                    << std::setprecision(17)
+                                    << step * double(coupled.physiology.runtime.timestepSeconds()) << ','
+                                    << static_cast<double>(static_cast<float>(*muscleStepSeconds)) << ','
+                                    << result.standQ.size() << ',' << result.standV.size() << ',';
+                                writeFloatArray(qIntegrationTrace, qBefore);
+                                qIntegrationTrace << ',';
+                                writeFloatArray(qIntegrationTrace, vBefore);
+                                qIntegrationTrace << ',';
+                                writeFloatArray(qIntegrationTrace, result.standPreProjectionQ);
+                                qIntegrationTrace << ',';
+                                writeFloatArray(qIntegrationTrace, result.standPreProjectionV);
+                                qIntegrationTrace << ',';
+                                writeFloatArray(qIntegrationTrace, result.standQ);
+                                qIntegrationTrace << ',';
+                                writeFloatArray(qIntegrationTrace, result.standV);
+                                qIntegrationTrace << ',';
+                                writeRootVector(qIntegrationTrace, rootBefore);
+                                qIntegrationTrace << ',';
+                                writeRootVector(qIntegrationTrace, root);
+                                qIntegrationTrace << ','
+                                    << payloadFingerprint(qBefore) << ','
+                                    << payloadFingerprint(vBefore) << ','
+                                    << payloadFingerprint(result.standPreProjectionQ) << ','
+                                    << payloadFingerprint(result.standPreProjectionV) << ','
+                                    << payloadFingerprint(result.standQ) << ','
+                                    << payloadFingerprint(result.standV) << '\n';
+                                qIntegrationTrace.flush();
+                                require(qIntegrationTrace.good(),
+                                        "accepted q-integration trace write failed");
+                                ++qIntegrationAcceptedRows;
+                            }
                             std::vector<double> q(result.standQ.begin(), result.standQ.end());
                             q[0] = double(root.reference.x) + root.displacement.x + root.correction.x;
                             q[1] = double(root.reference.y) + root.displacement.y + root.correction.y;
@@ -22740,6 +22933,22 @@ int main(int argc, char** argv) {
                     restingComMomentumAuditSegmentSteps);
                 (void)final;
                 const double wall=std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count();
+                if (restingQIntegrationAudit) {
+                    require(qIntegrationAcceptedRows == *muscleStepCount,
+                            "accepted q-integration trace did not retain every physical step");
+                    qIntegrationTrace.flush();
+                    qIndexMapTrace.flush();
+                    std::cout << "resting_com_q_integration_rows="
+                              << qIntegrationAcceptedRows
+                              << " final_accepted_step=" << qIntegrationAcceptedRows
+                              << " actual_float_dt_s="
+                              << std::setprecision(17)
+                              << static_cast<double>(static_cast<float>(*muscleStepSeconds))
+                              << " formula_scalar_q=\"q += dt * candidateV; equality projection follows\""
+                              << " quaternion_q=\"native quaternion increment\""
+                              << " root_translation=\"compensated advance then projection\""
+                              << std::endl;
+                }
                 std::cout<<"resting_integrated_body=completed simulated_s="<<*muscleStepCount*double(coupled.physiology.runtime.timestepSeconds())
                     <<" wall_s="<<wall<<" real_time_factor="<<*muscleStepCount*double(coupled.physiology.runtime.timestepSeconds())/wall
                     <<" physiology_body_clock=matched root_assistance=false presentation_qualification=pending\n";
