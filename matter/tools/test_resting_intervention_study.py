@@ -533,5 +533,52 @@ class NativeV2PlanPreparationTests(unittest.TestCase):
             self.assertEqual(result['dose_to_recovery_PaCO2_change_mmhg'], -3.)
 
 
+
+class NativeFailureEvidenceIsolationTests(unittest.TestCase):
+    def test_failed_arm_cannot_overwrite_preflight_failure_evidence(self):
+        # Exercise an actual failing child and its environment without launching
+        # GPU physics. Both frozen and inherited diagnostic paths must be local
+        # to the new trial, while the original receipt stays unchanged.
+        import os
+        import sys
+        key = "NUMI_HUMAN_RESTING_COMMON_FAILURE_RECEIPT"
+        for inherited in (False, True):
+            with self.subTest(inherited=inherited), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory).resolve()
+                prior = root / "preflight-failure.json"
+                prior.write_text("retained preflight evidence")
+                bound = root / "frozen-input"
+                bound.write_text("unchanged input")
+                invocation = {"argv": [], "asset_sha256": {
+                    str(bound): hashlib.sha256(bound.read_bytes()).hexdigest()},
+                    "environment": {} if inherited else {key: str(prior)}}
+                reference = root / "reference.json"
+                reference.write_text(json.dumps(invocation))
+                reference_before = reference.read_bytes()
+                output = root / "scene"
+                args = Namespace(invocation=str(reference), output=str(output),
+                                 steps=160000, dt=.002, start_s=60., end_s=100.,
+                                 scale=.5, window_s=30.)
+                child = [sys.executable, "-c",
+                         "import os,pathlib,sys; "
+                         "pathlib.Path(os.environ['" + key + "']).write_text('native failure fixture'); "
+                         "sys.exit(3)"]
+                cwd = Path.cwd()
+                try:
+                    os.chdir(root)
+                    with patch.dict(os.environ, {key: str(prior)}), \
+                         patch.object(adapter, "native_scene_command", return_value=child):
+                        with self.assertRaisesRegex(ValueError, "native scene failed with status 3"):
+                            adapter.execute_native_scene_arm(args)
+                finally:
+                    os.chdir(cwd)
+                self.assertEqual(prior.read_text(), "retained preflight evidence")
+                self.assertEqual(reference.read_bytes(), reference_before)
+                self.assertEqual((output / "common-field-failure.json").read_text(),
+                                 "native failure fixture")
+                recorded = json.loads((output / "invocation.json").read_text())
+                self.assertEqual(recorded["environment"][key],
+                                 str(output / "common-field-failure.json"))
+
 if __name__ == '__main__':
     unittest.main()

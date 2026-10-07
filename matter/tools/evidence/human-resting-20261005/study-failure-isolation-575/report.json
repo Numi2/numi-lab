@@ -1,0 +1,19 @@
+{
+  "status": "passed_failure_evidence_isolation_regression",
+  "parent_revision": "8a8c5900c6f8066747a93e46743d4da458150ab0",
+  "problem": "Paired native arm reused preflight common-field failure receipt path, allowing a failed arm to overwrite retained evidence.",
+  "change": "Rebind enabled common-field failure receipt to the arm output directory, including inherited environment settings, and record the effective output path in its invocation receipt.",
+  "verification": {
+    "parent_regression": "Both explicit and inherited preflight paths were overwritten by a real failing child process. Regression fails against the parent implementation.",
+    "updated_suite": "All 22 focused intervention-study tests pass, including both path sources and unchanged preflight invocation/evidence."
+  },
+  "physics_changes": false,
+  "native_build_required": false,
+  "native_build_reason": "Only Python study orchestration and its regression test changed. Native C++/Metal build011 remains unchanged and independently bound by inventory559.",
+  "files": {
+    "parent-regression.log": "7cf7376a52038685dff6baecb90a792e554dc2851928f346eeb016f1becec776",
+    "updated-suite.log": "77dab01c7ce6f86d292ea0b5f1a90a9ac842227f6427ae4b9be6dc4252c570af",
+    "runs.json": "e1f007875f208a45873dfd8f01108f88a55ecedbc60e9e653d46c623e1cf0f51",
+    "source.patch": "efc4ad72ef2ab664cbe8e978b9787bbf2169c09d5fae4efc7ee058c82d02e4c0"
+  }
+}

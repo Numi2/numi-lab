@@ -817,11 +817,19 @@ def execute_native_scene_arm(args: argparse.Namespace) -> dict[str, Any]:
 
     verify_bindings()
     env = os.environ.copy()
-    env.update(invocation.get("environment", {}))
+    recorded_environment = dict(invocation.get("environment", {}))
+    env.update(recorded_environment)
+    # This is an output, not a frozen input. A replayed preflight receipt must
+    # not let an arm overwrite evidence in the preflight or another trial.
+    failure_receipt_key = "NUMI_HUMAN_RESTING_COMMON_FAILURE_RECEIPT"
+    if env.get(failure_receipt_key):
+        recorded_environment[failure_receipt_key] = str(output / "common-field-failure.json")
+        env[failure_receipt_key] = recorded_environment[failure_receipt_key]
     if any(k.startswith("NUMI_HUMAN_STAND_CPU_") and v == "1" for k, v in env.items()):
         raise ValueError("CPU stepping is not admitted for the native scene")
     output.mkdir()
     write_json(output / "invocation.json", {**invocation, "argv": command,
+               "environment": recorded_environment,
                "reference_invocation_sha256": sha256_file(invocation_path)})
     log_path = output / "native.log"
     with log_path.open("w", encoding="utf-8") as stream:

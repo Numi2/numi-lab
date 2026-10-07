@@ -1,0 +1,32 @@
+test_failed_arm_cannot_overwrite_preflight_failure_evidence (test_resting_intervention_study.NativeFailureEvidenceIsolationTests.test_failed_arm_cannot_overwrite_preflight_failure_evidence) ... 
+  test_failed_arm_cannot_overwrite_preflight_failure_evidence (test_resting_intervention_study.NativeFailureEvidenceIsolationTests.test_failed_arm_cannot_overwrite_preflight_failure_evidence) (inherited=False) ... FAIL
+  test_failed_arm_cannot_overwrite_preflight_failure_evidence (test_resting_intervention_study.NativeFailureEvidenceIsolationTests.test_failed_arm_cannot_overwrite_preflight_failure_evidence) (inherited=True) ... FAIL
+
+======================================================================
+FAIL: test_failed_arm_cannot_overwrite_preflight_failure_evidence (test_resting_intervention_study.NativeFailureEvidenceIsolationTests.test_failed_arm_cannot_overwrite_preflight_failure_evidence) (inherited=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/n/numi-human-study-isolation-source-012/matter/tools/test_resting_intervention_study.py", line 575, in test_failed_arm_cannot_overwrite_preflight_failure_evidence
+    self.assertEqual(prior.read_text(), "retained preflight evidence")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'native failure fixture' != 'retained preflight evidence'
+- native failure fixture
++ retained preflight evidence
+
+
+======================================================================
+FAIL: test_failed_arm_cannot_overwrite_preflight_failure_evidence (test_resting_intervention_study.NativeFailureEvidenceIsolationTests.test_failed_arm_cannot_overwrite_preflight_failure_evidence) (inherited=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/n/numi-human-study-isolation-source-012/matter/tools/test_resting_intervention_study.py", line 575, in test_failed_arm_cannot_overwrite_preflight_failure_evidence
+    self.assertEqual(prior.read_text(), "retained preflight evidence")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'native failure fixture' != 'retained preflight evidence'
+- native failure fixture
++ retained preflight evidence
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.030s
+
+FAILED (failures=2)
