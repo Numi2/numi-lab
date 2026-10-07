@@ -1,0 +1,101 @@
+{
+  "purpose": "Retained correctness evidence for completed native runtime changes. Further optimization stopped at user request.",
+  "host": "ssh macmini; Apple M4 Pro; 24 GB; macOS 26.6",
+  "implementation_revision": "c1c97c4a420ed6c20021f406869fb79dfd927317",
+  "runtime_sha256": {
+    "/Users/n/numi-human-performance-build-014/bin/numi-human-native": {
+      "bytes": 2223312,
+      "sha256": "cb25359009efd9181612a97629e298ce542ea1b5155d618c6ebbd2a997827c8b"
+    },
+    "/Users/n/numi-human-performance-build-014/lib/libmetalrobo.dylib": {
+      "bytes": 7832192,
+      "sha256": "6bccfc4044d825423e66bc2f60ba3cf59eaa9a4936773ab08182f58a09927092"
+    },
+    "/Users/n/numi-human-performance-build-014/matter/shaders/HumanRespiration.metallib": {
+      "bytes": 388629,
+      "sha256": "8a3fb8e890655b2ff360d078b0898a893978f658315d64e475f3dec3690a322e"
+    },
+    "/Users/n/numi-human-performance-build-014/matter/shaders/NumiMatter.metallib": {
+      "bytes": 3129683,
+      "sha256": "38d4b64ed55cef2e0e0f243616d0db5bd21441f232ca38bca439108c1d6130f9"
+    },
+    "/Users/n/numi-human-performance-build-014/matter/shaders/NumiMatterPhysicalStateDigest.metallib": {
+      "bytes": 80076,
+      "sha256": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68"
+    },
+    "/Users/n/numi-human-performance-build-014/shaders/MetalRobo.metallib": {
+      "bytes": 5261407,
+      "sha256": "3077d063dc23475d75cda795620cda8750402d1a2159267a241a5e2b65986043"
+    },
+    "/Users/n/numi-human-performance-build-014/shaders/MetalRoboHyperPolicy.metallib": {
+      "bytes": 48434,
+      "sha256": "f227836841015b40467a20c47a9fa38cf44eb8e1132cad1de4e65fa79c55d309"
+    },
+    "/Users/n/numi-human-performance-build-014/shaders/NumiNeuron.metallib": {
+      "bytes": 66974,
+      "sha256": "4ccbb796a6bfd5bdb18f7d37c8e18e0d767c9489d16047c523c97f679da33f1d"
+    }
+  },
+  "evidence": {
+    "integrated-deferred-equality-review-792/report.json": {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/integrated-deferred-equality-review-792/report.json",
+      "sha256": "13a37192539df65048a939ae33c8be582e37202fcf1bb41e3400a78679755e42"
+    },
+    "integrated-deferred-fault-review-799/report.json": {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/integrated-deferred-fault-review-799/report.json",
+      "sha256": "290e023496caa87d3f78f9e51305df6c86f3c2058603ffe4d05cf8f8c2d696ef"
+    },
+    "integrated-performance-build-606/test-final-correctness.log": {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/integrated-performance-build-606/test-final-correctness.log",
+      "sha256": "af43908cf7ea79dfe37d9b415a5c9742b718a9e55a6afc19465f708c08954a5e"
+    },
+    "integrated-performance-build-606/test-parallel-respiratory-gas-cap.log": {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/integrated-performance-build-606/test-parallel-respiratory-gas-cap.log",
+      "sha256": "65f27576f7b657610f96082c4c3834dcd9d621ec52d6cf4690e498d4bab03eee"
+    },
+    "integrated-final-runtime-2ms-check-801/execution.json": {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/integrated-final-runtime-2ms-check-801/execution.json",
+      "sha256": "549ca1fb0b7f5f7f5eb6d6d5182af9893aee8f58b1adc156b47786057a257608"
+    }
+  },
+  "targeted_ctest": "6/6 passed: common_field_metal, resting_hand_reduction, runtime_identity, static_support, friction, bilateral",
+  "forced_fallback_tests": {
+    "modes": [
+      "unavailable-map",
+      "projected-column",
+      "late-base"
+    ],
+    "all_passed": true,
+    "required": "constrained GPU submissions report defer_used=1 and legacy_fallback=1; accepted-state rejection and replay pass",
+    "retained_prior_failure": "/Users/n/numi-human-resting-evidence-20261005/integrated-deferred-fault-unavailable-map-793",
+    "repair": "fault admission applies to constrained contact/equality submissions; unconstrained parity remains active"
+  },
+  "normal_deferral_comparison": {
+    "duration_s": 2,
+    "dt_s": 0.008,
+    "all_six_csv_byte_exact": true,
+    "scope": "diagnostic; 8 ms is not accuracy-qualified"
+  },
+  "integrated_2ms_check": {
+    "path": "/Users/n/numi-human-resting-evidence-20261005/integrated-final-runtime-2ms-check-801",
+    "accepted_steps": 1000,
+    "final_time_s": 2.00000009499,
+    "surface_frames": 33,
+    "max_root_assistance_n": 0.0,
+    "max_root_assistance_nm": 0.0,
+    "max_nonfinite_skin_vertices": 0.0,
+    "max_zero_area_triangles": 0.0,
+    "max_nonfinite_area_triangles": 0.0,
+    "max_functional_volume_relative_error": 1.98427478608e-05,
+    "inputs_unchanged": true,
+    "runtime_unchanged": true,
+    "source_unchanged": true
+  },
+  "limits": [
+    "Two seconds do not demonstrate a complete breath or five-minute endurance.",
+    "Anatomy repairs and five-minute baseline/intervention remain pending.",
+    "Fresh-context reseed/replay matches; same-context retry is unsupported.",
+    "Native framebuffer recording is available; interactive logged-in desktop operation has not been verified.",
+    "8 ms timestep has unresolved toe-state differences versus 2 ms; acceptance will use 2 ms."
+  ]
+}
