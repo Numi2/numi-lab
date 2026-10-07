@@ -132,29 +132,56 @@ inline float nmHumanRestingCommonPower(float x,uint exponent) {
 inline float nmHumanRestingCommonMonomial(thread const float* x,constant const uchar* e) {
     float r=1.0f; for(uint i=0;i<7;++i) r*=nmHumanRestingCommonPower(x[i],e[i]); return r;
 }
-inline bool nmHumanRestingCommonEvaluate(constant MRHumanRestingCommonFieldGPU& p,
-    thread const float* x,thread float* values,thread float* jacobian) {
+inline void nmHumanRestingCommonPowers(thread const float* x,thread float* powers) {
+    for(uint k=0;k<7;++k) {
+        powers[k*4]=1.0f;
+        for(uint exponent=1;exponent<4;++exponent)
+            powers[k*4+exponent]=powers[k*4+exponent-1]*x[k];
+    }
+}
+inline bool nmHumanRestingCommonEvaluateValues(constant MRHumanRestingCommonFieldGPU& p,
+    thread const float* powers,thread float* values) {
     for(uint r=0;r<7;++r) values[r]=0.0f;
+    for(uint term=0;term<120;++term) {
+        constant const uchar* e=nmHumanRestingCommonExponents[term];
+        float monomial=1.0f;
+        for(uint k=0;k<7;++k) monomial*=powers[k*4+e[k]];
+        for(uint r=0;r<7;++r)
+            values[r]+=nmHumanRestingCommonCoefficient(p,r,term)*monomial;
+    }
+    for(uint r=0;r<7;++r) if(!isfinite(values[r])) return false;
+    return true;
+}
+inline bool nmHumanRestingCommonEvaluateJacobian(constant MRHumanRestingCommonFieldGPU& p,
+    thread const float* powers,thread float* jacobian) {
     for(uint r=0;r<7;++r) for(uint c=0;c<7;++c) jacobian[r*7+c]=0.0f;
     for(uint term=0;term<120;++term) {
         constant const uchar* e=nmHumanRestingCommonExponents[term];
-        const float monomial=nmHumanRestingCommonMonomial(x,e);
+        float derivatives[7];
+        for(uint c=0;c<7;++c) {
+            const uint power=e[c];
+            if(!power) { derivatives[c]=0.0f; continue; }
+            float derivative=float(power);
+            for(uint k=0;k<7;++k)
+                derivative*=powers[k*4+e[k]-(k==c?1u:0u)];
+            derivatives[c]=derivative;
+        }
         for(uint r=0;r<7;++r) {
             const float coefficient=nmHumanRestingCommonCoefficient(p,r,term);
-            values[r]+=coefficient*monomial;
-            for(uint c=0;c<7;++c) {
-                const uint power=e[c]; if(!power) continue;
-                float derivative=float(power);
-                for(uint k=0;k<7;++k) derivative*=nmHumanRestingCommonPower(x[k],e[k]-(k==c?1u:0u));
-                jacobian[r*7+c]+=coefficient*derivative;
-            }
+            for(uint c=0;c<7;++c) if(e[c])
+                jacobian[r*7+c]+=coefficient*derivatives[c];
         }
     }
-    for(uint r=0;r<7;++r) {
-        if(!isfinite(values[r])) return false;
+    for(uint r=0;r<7;++r)
         for(uint c=0;c<7;++c) if(!isfinite(jacobian[r*7+c])) return false;
-    }
     return true;
+}
+inline bool nmHumanRestingCommonEvaluate(constant MRHumanRestingCommonFieldGPU& p,
+    thread const float* x,thread float* values,thread float* jacobian) {
+    float powers[28];
+    nmHumanRestingCommonPowers(x,powers);
+    return nmHumanRestingCommonEvaluateValues(p,powers,values)&&
+        nmHumanRestingCommonEvaluateJacobian(p,powers,jacobian);
 }
 inline float nmHumanRestingCommonResidual(thread const float* value,thread const float* target) {
     float result=0.0f; for(uint i=0;i<7;++i) result=max(result,abs(value[i]-target[i])); return result;
@@ -181,7 +208,7 @@ inline uint nmHumanRestingCommonSolve(constant MRHumanRestingCommonFieldGPU& p,
     device const MRHumanRestingCommonCoordinateBoxGPU* boxes,thread const float* targetVolumes,
     thread float* x,thread uint& iterations,thread uint& matched,thread float& residualOut) {
     if(p.countsAndFlags.y!=1u||p.countsAndFlags.x==0u||!isfinite(p.solver.x)||p.solver.x<=0.0f) return 1u;
-    float target[7],values[7],jacobian[49],augmented[56],delta[7],trial[7],trialValues[7],trialJacobian[49];
+    float target[7],values[7],jacobian[49],augmented[56],delta[7],trial[7],trialValues[7],trialPowers[28];
     for(uint i=0;i<7;++i) {
         const float reference=i<4?p.sourceReferenceVolumes[0][i]:p.sourceReferenceVolumes[1][i-4];
         if(!isfinite(targetVolumes[i])||!isfinite(reference)||reference<=0.0f) return 1u;
@@ -216,10 +243,16 @@ inline uint nmHumanRestingCommonSolve(constant MRHumanRestingCommonFieldGPU& p,
         bool accepted=false; float scale=1.0f;
         for(uint backtrack=0;backtrack<maxBacktracks;++backtrack) {
             for(uint i=0;i<7;++i) trial[i]=x[i]-scale*delta[i];
-            if(nmHumanRestingCommonInsideTrial(p,trial)&&
-               nmHumanRestingCommonEvaluate(p,trial,trialValues,trialJacobian)) {
-                const float next=nmHumanRestingCommonResidual(trialValues,target);
-                if(isfinite(next)&&next<residual) { for(uint i=0;i<7;++i) x[i]=trial[i]; accepted=true; break; }
+            if(nmHumanRestingCommonInsideTrial(p,trial)) {
+                nmHumanRestingCommonPowers(trial,trialPowers);
+                if(nmHumanRestingCommonEvaluateValues(p,trialPowers,trialValues)) {
+                    const float next=nmHumanRestingCommonResidual(trialValues,target);
+                    if(isfinite(next)&&next<residual&&
+                       nmHumanRestingCommonEvaluateJacobian(p,trialPowers,jacobian)) {
+                        for(uint i=0;i<7;++i) x[i]=trial[i];
+                        accepted=true; break;
+                    }
+                }
             } scale*=.5f;
         } if(!accepted) return 3u;
     }
