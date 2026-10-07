@@ -44,6 +44,12 @@ constant bool kFinishWorkCounters [[function_constant(4)]];
 constant bool kUseFinishWorkCounters =
     is_function_constant_defined(kFinishWorkCounters)
         ? kFinishWorkCounters : false;
+// Experimental factor-only path for the small SPD R^T A R block. Undefined
+// and false preserve the existing pivoted bilateral factor exactly.
+constant bool kReducedStandCholesky [[function_constant(5)]];
+constant bool kUseReducedStandCholesky =
+    is_function_constant_defined(kReducedStandCholesky)
+        ? kReducedStandCholesky : false;
 
 inline uint standLegacyResponseStride(
     const uint nv, const uint contactCount, const uint equalityCount
@@ -311,6 +317,161 @@ inline bool mrNumiHumanBilateralFactorCooperative(
         inverseScale[index] = scaleCache[index];
         pivots[index] = pivotCache[index];
     }
+    return true;
+}
+
+
+// Attempt an equilibrated Cholesky factor for the symmetric positive-definite
+// reduced operator. This is only a candidate: on any invalid or non-positive
+// pivot it leaves matrix untouched, allowing the caller to run the original
+// pivoted bilateral factor and preserve its acceptance behavior.
+//
+// The existing bilateral solve consumes unit-lower L followed by upper U,
+// whereas Cholesky naturally produces Lc Lc^T. Encode the equivalent no-pivot
+// LU as L[i,j] = Lc[i,j]/Lc[j,j], U[i,j] = Lc[i,i]*Lc[j,i], and U[i,i] =
+// Lc[i,i]^2. Thus L U = Lc Lc^T, and the existing scaled cooperative solve
+// needs no alternate RHS, tolerance, or state path.
+inline bool mrNumiHumanReducedCholeskyFactorCooperative(
+    device float* matrix,
+    device float* inverseScale,
+    device float* pivots,
+    const uint n,
+    const uint lane,
+    const uint threadCount,
+    threadgroup float* factorCache,
+    threadgroup float* scaleCache,
+    threadgroup atomic_uint* failure
+) {
+    constexpr uint cacheElements =
+        kCachedEqualityCapacity * kCachedEqualityCapacity;
+    // Keep both the Cholesky factor and its converted LU in the existing
+    // 16-KiB threadgroup arena. Larger reduced blocks use the old factor.
+    if (n == 0u || n > MR_NUMI_HUMAN_STAND_MAX_DOFS ||
+        2u * n * n > cacheElements) return false;
+
+    if (lane == 0u)
+        atomic_store_explicit(failure, MR_INVALID_INDEX,
+                              memory_order_relaxed);
+    const uint matrixElements = n * n;
+    for (uint index = lane; index < matrixElements; index += threadCount)
+        factorCache[index] = matrix[index];
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    for (uint index = lane; index < matrixElements; index += threadCount)
+        if (!isfinite(factorCache[index]))
+            atomic_fetch_min_explicit(failure, index,
+                                      memory_order_relaxed);
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    if (atomic_load_explicit(failure, memory_order_relaxed) !=
+        MR_INVALID_INDEX) return false;
+
+    for (uint i = lane; i < n; i += threadCount) {
+        const float diagonal = factorCache[i * n + i];
+        if (!(diagonal > 0.0f) || !isfinite(diagonal)) {
+            atomic_fetch_min_explicit(failure, i, memory_order_relaxed);
+            continue;
+        }
+        scaleCache[i] = 1.0f / mrNHBilateralSqrt(diagonal);
+        if (!(scaleCache[i] > 0.0f) || !isfinite(scaleCache[i]))
+            atomic_fetch_min_explicit(failure, i, memory_order_relaxed);
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    if (atomic_load_explicit(failure, memory_order_relaxed) !=
+        MR_INVALID_INDEX) return false;
+
+    for (uint index = lane; index < matrixElements; index += threadCount) {
+        const uint row = index / n;
+        const uint column = index - row * n;
+        if (row < column) continue;
+        const float value =
+            (factorCache[index] * scaleCache[row]) * scaleCache[column];
+        factorCache[index] = value;
+        if (!isfinite(value))
+            atomic_fetch_min_explicit(failure, index,
+                                      memory_order_relaxed);
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    if (atomic_load_explicit(failure, memory_order_relaxed) !=
+        MR_INVALID_INDEX) return false;
+
+    // Each step computes one positive Cholesky diagonal on lane zero and
+    // distributes the independent lower-column updates over the group.
+    for (uint column = 0u; column < n; ++column) {
+        if (lane == 0u) {
+            float diagonal = factorCache[column * n + column];
+            for (uint inner = 0u; inner < column; ++inner) {
+                const float value = factorCache[column * n + inner];
+                diagonal -= value * value;
+            }
+            if (!(diagonal > 0.0f) || !isfinite(diagonal)) {
+                atomic_fetch_min_explicit(failure, column,
+                                          memory_order_relaxed);
+            } else {
+                const float pivot = mrNHBilateralSqrt(diagonal);
+                if (!(pivot > 0.0f) || !isfinite(pivot))
+                    atomic_fetch_min_explicit(failure, column,
+                                              memory_order_relaxed);
+                else
+                    factorCache[column * n + column] = pivot;
+            }
+        }
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+        if (atomic_load_explicit(failure, memory_order_relaxed) !=
+            MR_INVALID_INDEX) return false;
+
+        const float pivot = factorCache[column * n + column];
+        for (uint row = column + 1u + lane; row < n;
+             row += threadCount) {
+            float value = factorCache[row * n + column];
+            for (uint inner = 0u; inner < column; ++inner)
+                value -= factorCache[row * n + inner] *
+                    factorCache[column * n + inner];
+            value /= pivot;
+            if (!isfinite(value)) {
+                atomic_fetch_min_explicit(failure, row,
+                                          memory_order_relaxed);
+                continue;
+            }
+            factorCache[row * n + column] = value;
+        }
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+        if (atomic_load_explicit(failure, memory_order_relaxed) !=
+            MR_INVALID_INDEX) return false;
+    }
+
+    // Preserve the unmodified Cholesky values in the unused tail of the same
+    // cache before writing the solve-compatible LU representation in place.
+    const uint choleskyBase = matrixElements;
+    for (uint index = lane; index < matrixElements; index += threadCount)
+        factorCache[choleskyBase + index] = factorCache[index];
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    for (uint index = lane; index < matrixElements; index += threadCount) {
+        const uint row = index / n;
+        const uint column = index - row * n;
+        threadgroup const float* cholesky = factorCache + choleskyBase;
+        float value = cholesky[index];
+        if (row > column)
+            value /= cholesky[column * n + column];
+        else if (row < column)
+            value = cholesky[row * n + row] *
+                cholesky[column * n + row];
+        else
+            value *= value;
+        factorCache[index] = value;
+        if (!isfinite(value) || (row == column && !(value > 0.0f)))
+            atomic_fetch_min_explicit(failure, index,
+                                      memory_order_relaxed);
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    if (atomic_load_explicit(failure, memory_order_relaxed) !=
+        MR_INVALID_INDEX) return false;
+
+    for (uint index = lane; index < matrixElements; index += threadCount)
+        matrix[index] = factorCache[index];
+    for (uint i = lane; i < n; i += threadCount) {
+        inverseScale[i] = scaleCache[i];
+        pivots[i] = float(i);
+    }
+    threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
     return true;
 }
 
@@ -2101,10 +2262,16 @@ inline bool prepareReducedStandProjection(
         reducedFactor[column * freeDofs + row] = value;
     }
     threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
-    const bool factored = mrNumiHumanBilateralFactorCooperative<false>(
-        reducedFactor, reducedScale, reducedPivots, freeDofs, lane,
-        threadCount, factorCache, scaleCache, pivotCache, factorFailure,
-        selectedPivot);
+    bool factored = false;
+    if (kUseReducedStandCholesky)
+        factored = mrNumiHumanReducedCholeskyFactorCooperative(
+            reducedFactor, reducedScale, reducedPivots, freeDofs, lane,
+            threadCount, factorCache, scaleCache, factorFailure);
+    if (!factored)
+        factored = mrNumiHumanBilateralFactorCooperative<false>(
+            reducedFactor, reducedScale, reducedPivots, freeDofs, lane,
+            threadCount, factorCache, scaleCache, pivotCache, factorFailure,
+            selectedPivot);
     if (lane == 0u) *ready = factored ? 1u : 0u;
     threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
     return *ready != 0u;

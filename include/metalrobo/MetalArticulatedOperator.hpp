@@ -1877,6 +1877,9 @@ struct MetalArticulatedOperatorConfig {
     // equality graphs. The source-matrix snapshot lives only through phases
     // 1, 4, and 5 of one root command buffer; it is derived scratch.
     bool reducedStandProjectedResponses = false;
+    // Opt-in equilibrated Cholesky attempt for its small reduced SPD factor.
+    // A rejected candidate falls back to the default pivoted bilateral factor.
+    bool reducedStandCholesky = false;
 };
 
 enum class MetalArticulatedOperatorHostStatus : std::uint32_t {

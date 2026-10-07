@@ -651,6 +651,11 @@ struct MetalArticulatedOperatorContextState {
         if (reducedProjected != nullptr)
             config.reducedStandProjectedResponses =
                 std::strcmp(reducedProjected, "1") == 0;
+        const char* reducedCholesky =
+            std::getenv("NUMI_HUMAN_STAND_REDUCED_CHOLESKY");
+        if (reducedCholesky != nullptr)
+            config.reducedStandCholesky =
+                std::strcmp(reducedCholesky, "1") == 0;
         const char* sparseOperator =
             std::getenv("NUMI_HUMAN_STAND_SPARSE_OPERATOR");
         if (sparseOperator != nullptr)
@@ -4049,8 +4054,17 @@ MetalArticulatedOperatorDiagnostics initializeContext(
                 "failed to create Numi Human parallel response pipeline: " +
                     describeError(error));
         }
+        bool reducedStandCholesky =
+            context.config.reducedStandCholesky &&
+            context.config.reducedStandProjectedResponses;
+        MTLFunctionConstantValues* equalityConstants =
+            [[MTLFunctionConstantValues alloc] init];
+        [equalityConstants setConstantValue:&reducedStandCholesky
+                                       type:MTLDataTypeBool atIndex:5u];
+        error = nil;
         id<MTLFunction> standEqualityFunction = [library
-            newFunctionWithName:@"mr_numi_human_stand_equality_prepare"];
+            newFunctionWithName:@"mr_numi_human_stand_equality_prepare"
+                constantValues:equalityConstants error:&error];
         error = nil;
         standEqualityPipeline = standEqualityFunction == nil
             ? nil : [device newComputePipelineStateWithFunction:

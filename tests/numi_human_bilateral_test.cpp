@@ -94,6 +94,140 @@ bool solveReference(
     return true;
 }
 
+// CPU reference for the Metal candidate's solve-compatible, equilibrated
+// Cholesky encoding. The production factor is not called by this oracle.
+bool factorReducedCholeskyAsBilateralReference(
+    const std::vector<float>& matrix, unsigned n,
+    std::vector<float>& factor, std::vector<float>& inverseScale,
+    std::vector<float>& pivots
+) {
+    if (n == 0u || matrix.size() != std::size_t(n) * n) return false;
+    std::vector<float> cholesky(matrix);
+    inverseScale.assign(n, 0.0f);
+    pivots.resize(n);
+    for (unsigned i = 0u; i < n; ++i) {
+        const float diagonal = cholesky[i*n+i];
+        if (!(diagonal > 0.0f) || !std::isfinite(diagonal)) return false;
+        inverseScale[i] = 1.0f / std::sqrt(diagonal);
+        if (!(inverseScale[i] > 0.0f) || !std::isfinite(inverseScale[i]))
+            return false;
+    }
+    for (unsigned row = 0u; row < n; ++row)
+        for (unsigned column = 0u; column <= row; ++column) {
+            const auto index = row*n+column;
+            cholesky[index] =
+                (cholesky[index] * inverseScale[row]) * inverseScale[column];
+            if (!std::isfinite(cholesky[index])) return false;
+        }
+    for (unsigned column = 0u; column < n; ++column) {
+        float diagonal = cholesky[column*n+column];
+        for (unsigned inner = 0u; inner < column; ++inner)
+            diagonal -= cholesky[column*n+inner] *
+                cholesky[column*n+inner];
+        if (!(diagonal > 0.0f) || !std::isfinite(diagonal)) return false;
+        cholesky[column*n+column] = std::sqrt(diagonal);
+        const float pivot = cholesky[column*n+column];
+        if (!(pivot > 0.0f) || !std::isfinite(pivot)) return false;
+        for (unsigned row = column+1u; row < n; ++row) {
+            float value = cholesky[row*n+column];
+            for (unsigned inner = 0u; inner < column; ++inner)
+                value -= cholesky[row*n+inner] *
+                    cholesky[column*n+inner];
+            value /= pivot;
+            if (!std::isfinite(value)) return false;
+            cholesky[row*n+column] = value;
+        }
+    }
+    const std::vector<float> lower = cholesky;
+    factor.assign(std::size_t(n)*n, 0.0f);
+    for (unsigned row = 0u; row < n; ++row)
+        for (unsigned column = 0u; column < n; ++column) {
+            float value = lower[row*n+column];
+            if (row > column) value /= lower[column*n+column];
+            else if (row < column)
+                value = lower[row*n+row] * lower[column*n+row];
+            else value *= value;
+            if (!std::isfinite(value)) return false;
+            factor[row*n+column] = value;
+        }
+    for (unsigned i = 0u; i < n; ++i) pivots[i] = float(i);
+    return true;
+}
+
+void testReducedCholeskyReferenceAndFallback() {
+    constexpr unsigned n = 3u;
+    const std::vector<double> asymmetric{
+        4.0, 1.001, 0.400,
+        1.000, 5.0, 0.700,
+        0.200, 0.600, 3.0};
+    std::vector<std::vector<float>> selectedOperators;
+    for (const bool upper : {false, true}) {
+        std::vector<float> selected(n*n, 0.0f);
+        for (unsigned row = 0u; row < n; ++row)
+            for (unsigned column = 0u; column < n; ++column) {
+                const unsigned storedRow =
+                    upper ? std::min(row, column) : std::max(row, column);
+                const unsigned storedColumn =
+                    upper ? std::max(row, column) : std::min(row, column);
+                selected[row*n+column] = static_cast<float>(
+                    asymmetric[storedRow*n+storedColumn]);
+            }
+        // Fix coordinate 1; the two remaining coordinates form the exact
+        // selected-triangle R^T A R principal submatrix.
+        const std::vector<float> reduced{
+            selected[0], selected[2],
+            selected[2*n], selected[2*n+2]};
+        std::vector<float> factor, scale, pivots;
+        require(factorReducedCholeskyAsBilateralReference(
+                    reduced, 2u, factor, scale, pivots),
+                "selected-triangle SPD reduced factor rejected");
+        std::vector<float> rhs{0.8f, -0.5f};
+        const auto original = rhs;
+        require(mrNumiHumanBilateralSolve(
+                    factor.data(), scale.data(), pivots.data(), rhs.data(), 2u),
+                "Cholesky-equivalent bilateral solve rejected");
+        std::vector<double> exact;
+        require(solveReference(
+                    {double(reduced[0]), double(reduced[1]),
+                     double(reduced[2]), double(reduced[3])},
+                    {double(original[0]), double(original[1])}, 2u, exact),
+                "selected-triangle Gaussian reference failed");
+        for (unsigned i = 0u; i < 2u; ++i)
+            require(std::abs(double(rhs[i])-exact[i]) <
+                        2.0e-6*(1.0+std::abs(exact[i])),
+                    "scaled Cholesky LU encoding changed the solve");
+        selectedOperators.push_back(reduced);
+    }
+    require(std::abs(selectedOperators[0][1] - selectedOperators[1][1]) >
+                1.0e-5f,
+            "reduced Cholesky reference ignored selected source triangle");
+
+    // This symmetric indefinite matrix is nonsingular and is accepted by the
+    // original pivoted factor. The Cholesky attempt must reject it and leave
+    // the unchanged fallback able to solve it.
+    const std::vector<float> indefinite{1.0f, 2.0f, 2.0f, 1.0f};
+    std::vector<float> candidate, scale(2u), pivots(2u);
+    require(!factorReducedCholeskyAsBilateralReference(
+                indefinite, 2u, candidate, scale, pivots),
+            "indefinite reduced operator passed Cholesky candidate");
+    auto fallbackFactor = indefinite;
+    require(mrNumiHumanBilateralFactor(
+                fallbackFactor.data(), scale.data(), pivots.data(), 2u),
+            "pivoted fallback rejected Cholesky-ineligible nonsingular matrix");
+    std::vector<float> rhs{0.25f, -1.0f};
+    const std::vector<double> exactInput{0.25, -1.0};
+    std::vector<double> exact;
+    require(solveReference({1.0, 2.0, 2.0, 1.0}, exactInput, 2u, exact),
+            "indefinite fallback reference failed");
+    require(mrNumiHumanBilateralSolve(
+                fallbackFactor.data(), scale.data(), pivots.data(),
+                rhs.data(), 2u),
+            "pivoted fallback solve failed after candidate rejection");
+    for (unsigned i = 0u; i < 2u; ++i)
+        require(std::abs(double(rhs[i])-exact[i]) < 1.0e-6,
+                "pivoted fallback result changed");
+}
+
 void testReducedSourceTriangleSelection() {
     constexpr unsigned nv = 3u;
     // Deliberately asymmetric rounding distinguishes the triangles consumed
@@ -207,6 +341,14 @@ void testReducedResponseReference() {
         for (unsigned j = 0u; j < freeDofs; ++j)
             require(reduced[i*freeDofs+j] == reduced[j*freeDofs+i],
                     "R^T A R fixture lost symmetry");
+    std::vector<float> reducedFloat(reduced.size());
+    for (std::size_t i = 0u; i < reduced.size(); ++i)
+        reducedFloat[i] = static_cast<float>(reduced[i]);
+    std::vector<float> reducedFactor, reducedScale, reducedPivots;
+    require(factorReducedCholeskyAsBilateralReference(
+                reducedFloat, freeDofs, reducedFactor,
+                reducedScale, reducedPivots),
+            "coupled-graph R^T A R failed SPD Cholesky reference");
 
     const auto checkForce = [&](const std::vector<double>& force) {
         std::vector<double> unconstrained;
@@ -256,6 +398,22 @@ void testReducedResponseReference() {
         require(solveReference(reduced, reducedRhs, freeDofs,
                                reducedCoordinates),
                 "R^T A R reference solve failed");
+        std::vector<float> choleskyRhs(freeDofs);
+        for (unsigned coordinateIndex = 0u;
+             coordinateIndex < freeDofs; ++coordinateIndex)
+            choleskyRhs[coordinateIndex] =
+                static_cast<float>(reducedRhs[coordinateIndex]);
+        require(mrNumiHumanBilateralSolve(
+                    reducedFactor.data(), reducedScale.data(),
+                    reducedPivots.data(), choleskyRhs.data(), freeDofs),
+                "coupled-graph Cholesky-equivalent solve failed");
+        for (unsigned coordinateIndex = 0u;
+             coordinateIndex < freeDofs; ++coordinateIndex)
+            require(std::abs(double(choleskyRhs[coordinateIndex]) -
+                        reducedCoordinates[coordinateIndex]) <
+                        3.0e-5 *
+                            (1.0 + std::abs(reducedCoordinates[coordinateIndex])),
+                    "coupled-graph Cholesky solve differs from Gaussian reference");
         std::vector<double> projected(nv, 0.0);
         for (unsigned dof = 0u; dof < nv; ++dof)
             if (coordinate[dof] >= 0)
@@ -318,6 +476,7 @@ void testReducedResponseReference() {
 int main() {
     testReducedResponseReference();
     testReducedSourceTriangleSelection();
+    testReducedCholeskyReferenceAndFallback();
     checkSystem({2.0f},{-3.0f});
     // Two successive pivot swaps, including previously computed L columns.
     checkSystem({1,9,1, 2,1,8, 5,2,1},{1,-2,3});
