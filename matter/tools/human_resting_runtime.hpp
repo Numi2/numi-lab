@@ -48,7 +48,8 @@ struct Respiration {
         const bool respiratorySubcycle=enabled("NUMI_HUMAN_RESPIRATORY_SUBCYCLING");
         need(!respiratorySubcycle||subcycle,
              "respiratory subcycling requires gas transport subcycling");
-        if(subcycle||respiratorySubcycle) {
+        {
+            // Metal requires specialization even when both options are false.
             auto constants=[[MTLFunctionConstantValues alloc] init];
             [constants setConstantValue:&subcycle type:MTLDataTypeBool atIndex:40];
             [constants setConstantValue:&respiratorySubcycle type:MTLDataTypeBool atIndex:41];
@@ -60,9 +61,6 @@ struct Respiration {
             };
             predict=specialized(@"nm_human_respiration_predict");
             exchange=specialized(@"nm_human_respiration_exchange");
-        } else {
-            predict=pipeline(@"nm_human_respiration_predict");
-            exchange=pipeline(@"nm_human_respiration_exchange");
         }
         std::cerr<<"resting_gas_transport_subcycling="<<(subcycle?1:0)
                  <<" respiratory_mechanics_subcycling="<<(respiratorySubcycle?1:0)
