@@ -13219,7 +13219,11 @@ MetalArticulatedOperatorContext::submit(
                             "failed to create Numi Human stand encoder"
                         );
                     }
+                    const char* rowFactorSetting =
+                        std::getenv("NUMI_HUMAN_STAND_ROW_FACTOR");
                     const bool rowFactorEquality =
+                        rowFactorSetting != nullptr &&
+                        std::strcmp(rowFactorSetting, "1") == 0 &&
                         parallelMass && phase == 4u &&
                         standDispatch.jointEqualityCount >
                             kStandCachedEqualityCapacity &&
