@@ -426,9 +426,11 @@ inline void captureCompletedTransactionProbePhysical(
 captureAcceptedContactWarmStart(
     metalrobo::MetalArticulatedOperatorContext& context,
     const std::uint32_t expectedCompletedSteps,
-    const char* label
+    const char* label,
+    const bool enabled
 ) {
     std::vector<std::uint8_t> records;
+    if (!enabled) return records;
     std::string error;
     need(context.copyStandContactWarmStartHistoryForDiagnostics(
              records, error),
@@ -477,8 +479,10 @@ inline void requireAcceptedStep(
 inline void requireContactWarmStartUseReceipt(
     const metalrobo::MetalArticulatedOperatorResult& result,
     const std::uint32_t acceptedRoots,
-    const char* label
+    const char* label,
+    const bool enabled
 ) {
+    if (!enabled) return;
     need(result.standStatuses.size() == 1u &&
              result.standStatuses.front().code == MR_NUMI_HUMAN_STAND_SUCCESS,
          std::string("resting transaction probe lacks a successful ") +
@@ -974,11 +978,11 @@ inline void run(
     const auto multiBaseline2Diagnostics = multiBaselineContext.run(
         model, multiBaseline2Input, multiBaseline2Result);
     const auto multiBaseline2WarmStart = captureAcceptedContactWarmStart(
-        multiBaselineContext, 2u, "two-root contact history");
+        multiBaselineContext, 2u, "two-root contact history", config.standContactWarmStart);
     requireAcceptedStep(multiBaseline2Diagnostics, multiBaseline2Result, 2u,
                         qCount, vCount, muscleCount);
     requireContactWarmStartUseReceipt(
-        multiBaseline2Result, 2u, "two-root-baseline");
+        multiBaseline2Result, 2u, "two-root-baseline", config.standContactWarmStart);
     const auto multiBaseline2Matter = physiology.runtime.snapshot();
     const auto multiBaseline2Memory = captureCouplingMemory(coupling);
     const PhysicalSnapshot multiBaseline2Physical = observePhysicalState(
@@ -993,11 +997,11 @@ inline void run(
     const auto multiBaseline4Diagnostics = multiBaselineContext.run(
         model, multiBaseline4Input, multiBaseline4Result);
     const auto multiBaseline4WarmStart = captureAcceptedContactWarmStart(
-        multiBaselineContext, 4u, "four-root contact history");
+        multiBaselineContext, 4u, "four-root contact history", config.standContactWarmStart);
     requireAcceptedStep(multiBaseline4Diagnostics, multiBaseline4Result, 4u,
                         qCount, vCount, muscleCount);
     requireContactWarmStartUseReceipt(
-        multiBaseline4Result, 2u, "continuation-baseline");
+        multiBaseline4Result, 2u, "continuation-baseline", config.standContactWarmStart);
     const auto multiBaseline4Matter = physiology.runtime.snapshot();
     const auto multiBaseline4Memory = captureCouplingMemory(coupling);
     const PhysicalSnapshot multiBaseline4Physical = observePhysicalState(
@@ -1012,7 +1016,7 @@ inline void run(
     const auto multiBaseline6Diagnostics = multiBaselineContext.run(
         model, multiBaseline6Input, multiBaseline6Result);
     const auto multiBaseline6WarmStart = captureAcceptedContactWarmStart(
-        multiBaselineContext, 6u, "six-root contact history");
+        multiBaselineContext, 6u, "six-root contact history", config.standContactWarmStart);
     requireAcceptedStep(multiBaseline6Diagnostics, multiBaseline6Result, 6u,
                         qCount, vCount, muscleCount);
     const auto multiBaseline6Matter = physiology.runtime.snapshot();
@@ -1030,7 +1034,7 @@ inline void run(
     const auto multiTrial2Diagnostics = multiFailureContext.run(
         model, multiTrial2Input, multiTrial2Result);
     const auto multiTrial2WarmStart = captureAcceptedContactWarmStart(
-        multiFailureContext, 2u, "trial two-root contact history");
+        multiFailureContext, 2u, "trial two-root contact history", config.standContactWarmStart);
     requireAcceptedStep(multiTrial2Diagnostics, multiTrial2Result, 2u,
                         qCount, vCount, muscleCount);
     const auto multiTrial2Matter = physiology.runtime.snapshot();
@@ -1042,7 +1046,7 @@ inline void run(
     need(samePhysicalState(multiBaseline2Physical, multiTrial2Physical) &&
              sameMatterAcceptedState(multiBaseline2Matter, multiTrial2Matter) &&
              sameAcceptedCouplingMemory(multiBaseline2Memory, multiTrial2Memory) &&
-             sameBytes(multiBaseline2WarmStart, multiTrial2WarmStart),
+             (!config.standContactWarmStart || sameBytes(multiBaseline2WarmStart, multiTrial2WarmStart)),
          "multi-step Human transaction prefix did not replay its accepted two-root seed");
 
     PhysicalSnapshot multiFailedRawPhysical(
@@ -1094,7 +1098,7 @@ inline void run(
     const auto multiFailedMatter = physiology.runtime.snapshot();
     const auto multiFailedMemory = captureCouplingMemory(coupling);
     const auto multiFailedWarmStart = captureAcceptedContactWarmStart(
-        multiFailureContext, 4u, "rejected four-root accepted-prefix contact history");
+        multiFailureContext, 4u, "rejected four-root accepted-prefix contact history", config.standContactWarmStart);
     const bool rejectedAtGlobalStep4 = !multiRejectedDiagnostics.succeeded() &&
         multiRejectedDiagnostics.dispatched && !multiRejectedDiagnostics.published &&
         multiRejectedDiagnostics.firstStandGPUStatusCode ==
@@ -1105,7 +1109,11 @@ inline void run(
         samePhysicalState(multiBaseline4Physical, multiFailedRawPhysical) &&
         sameMatterAcceptedState(multiBaseline4Matter, multiFailedMatter) &&
         sameAcceptedCouplingMemory(multiBaseline4Memory, multiFailedMemory) &&
-        sameBytes(multiBaseline4WarmStart, multiFailedWarmStart);
+        (!config.standContactWarmStart || sameBytes(multiBaseline4WarmStart, multiFailedWarmStart));
+    const char* warmStartComparison = config.standContactWarmStart
+        ? (sameBytes(multiBaseline4WarmStart, multiFailedWarmStart)
+            ? "match" : "mismatch")
+        : "disabled";
     if (!rejectedAtGlobalStep4 || !capturedInertSuffix || !acceptedPrefixAtFour) {
         std::cerr << "resting_multistep_prefix_diagnostic"
                   << " reject_step4=" << rejectedAtGlobalStep4
@@ -1116,7 +1124,7 @@ inline void run(
                   << " physical=" << samePhysicalState(multiBaseline4Physical, multiFailedRawPhysical)
                   << " matter=" << sameMatterAcceptedState(multiBaseline4Matter, multiFailedMatter)
                   << " coupled=" << sameAcceptedCouplingMemory(multiBaseline4Memory, multiFailedMemory)
-                  << " warmstart=" << sameBytes(multiBaseline4WarmStart, multiFailedWarmStart)
+                  << " warmstart=" << warmStartComparison
                   << " q_diff=" << firstDifferingByte(multiBaseline4Physical.qValues, multiFailedRawPhysical.qValues)
                   << " v_diff=" << firstDifferingByte(multiBaseline4Physical.vValues, multiFailedRawPhysical.vValues)
                   << " root_diff=" << firstDifferingByte(multiBaseline4Physical.rootValues, multiFailedRawPhysical.rootValues)
@@ -1157,7 +1165,7 @@ inline void run(
     const auto multiRetry6Diagnostics = multiRetryContext.run(
         model, multiRetry6Input, multiRetry6Result);
     const auto multiRetry6WarmStart = captureAcceptedContactWarmStart(
-        multiRetryContext, 6u, "fresh-context six-root contact history");
+        multiRetryContext, 6u, "fresh-context six-root contact history", config.standContactWarmStart);
     requireAcceptedStep(multiRetry6Diagnostics, multiRetry6Result, 6u,
                         qCount, vCount, muscleCount);
     const auto multiRetryMatter = physiology.runtime.snapshot();
@@ -1169,7 +1177,7 @@ inline void run(
     need(samePhysicalState(multiBaseline6Physical, multiRetryPhysical) &&
              sameMatterAcceptedState(multiBaseline6Matter, multiRetryMatter) &&
              sameAcceptedCouplingMemory(multiBaseline6Memory, multiRetryMemory) &&
-             sameBytes(multiBaseline6WarmStart, multiRetry6WarmStart),
+             (!config.standContactWarmStart || sameBytes(multiBaseline6WarmStart, multiRetry6WarmStart)),
          "fresh-context multi-step replay did not reproduce the uninterrupted six-root coupled endpoint");
 
     restoreInitialCoupling();
@@ -1178,8 +1186,13 @@ inline void run(
                  " respiration_brain_history_unchanged=true retry_matches_uninterrupted_replay=true"
                  " same_command_buffer_reject=pass accepted_prefix=2 rejected_step=2 inert_suffix=1"
                  " multistep_reject=pass accepted_prefix=4 rejected_global_step=4 inert_suffix_global_step=5"
-                 " raw_failed_submission_snapshot=pass all_owners_and_contact_history_match_uninterrupted_prefix=true"
-                 " retry=fresh_context_reseed_and_replay_matches_six_root_baseline"
+                 " raw_failed_submission_snapshot=pass ";
+    if (config.standContactWarmStart) {
+        std::cout << "all_owners_and_contact_history_match_uninterrupted_prefix=true ";
+    } else {
+        std::cout << "all_owners_match_uninterrupted_prefix=true accepted_contact_history=disabled ";
+    }
+    std::cout << "retry=fresh_context_reseed_and_replay_matches_six_root_baseline"
                  " same_context_retry=unsupported\n";
 }
 
