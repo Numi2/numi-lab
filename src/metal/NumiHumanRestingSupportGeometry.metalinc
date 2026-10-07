@@ -247,8 +247,7 @@ kernel void nm_human_resting_support_positions(
     device const MRHumanRestingSupportRotationZBasisGPU* rotationZBasis [[buffer(10)]],
     uint3 workgroupPosition [[threadgroup_position_in_grid]],
     uint lane [[thread_index_in_threadgroup]],
-    uint3 groupSize [[threads_per_threadgroup]]) {
-    const uint threadgroupSize = groupSize.x;
+    uint threadgroupSize [[threads_per_threadgroup]]) {
     const uint vertexCount = dispatch.counts.x;
     const uint regionCount = dispatch.counts.y;
     const uint environmentCount = dispatch.counts.w;
