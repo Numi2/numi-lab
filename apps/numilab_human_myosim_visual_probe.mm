@@ -22784,6 +22784,22 @@ int main(int argc, char** argv) {
                 // trace writes, audits, rendering, and export all remain included.
                 std::optional<std::chrono::steady_clock::time_point> restingThroughputStart;
                 std::uint32_t restingThroughputStartStep = 0u;
+                struct RestingObserverProfile {
+                    std::uint64_t callbacks = 0u;
+                    double totalMilliseconds = 0.0;
+                    double respirationTraceMilliseconds = 0.0;
+                    double qIntegrationCsvMilliseconds = 0.0;
+                    double comCpuKinematicsMilliseconds = 0.0;
+                    double comMomentumCsvMilliseconds = 0.0;
+                    double supportImpulseCsvMilliseconds = 0.0;
+                    double csvFlushMilliseconds = 0.0;
+                    double presentationMilliseconds = 0.0;
+                } restingObserverProfile;
+                const auto profileElapsedMilliseconds = [](
+                    const std::chrono::steady_clock::time_point start) {
+                    return std::chrono::duration<double, std::milli>(
+                        std::chrono::steady_clock::now() - start).count();
+                };
                 const std::function<void(
                     std::uint32_t,
                     std::span<const float>,
@@ -22796,15 +22812,26 @@ int main(int argc, char** argv) {
                         std::span<const float> vBefore,
                         const MRCompensatedRootTranslationGPU& rootBefore,
                         const metalrobo::MetalArticulatedOperatorResult& result) {
+                        const auto observerProfileStart = trainingProfile
+                            ? std::chrono::steady_clock::now()
+                            : std::chrono::steady_clock::time_point{};
+                        if (trainingProfile) ++restingObserverProfile.callbacks;
                         const auto& p=*static_cast<const NMHumanRespirationState*>(coupled.physiology.respiration->accepted.contents);
                         require(p.status.x==step&&!p.status.w,"body/respiratory accepted clocks differ");
                         const auto& b=result.standStatuses.front();
+                        const auto respirationTraceProfileStart = trainingProfile
+                            ? std::chrono::steady_clock::now()
+                            : std::chrono::steady_clock::time_point{};
                         numi::human::writeRespirationTraceSample(trace,p,coupled.physiology.respiration->parameters);
                         trace<<','<<step<<','
                              <<b.contactAndAcceleration.x<<','<<b.contactAndAcceleration.y<<','<<b.contactAndAcceleration.z<<','
                              <<b.factorAndAssistance.z<<','<<b.factorAndAssistance.w<<','<<p.control.x<<','<<p.control.y<<','
                              <<p.muscles[0].excitationAndActivation.y<<','<<p.muscles[1].excitationAndActivation.y<<'\n';
                         trace.flush();
+                        if (trainingProfile) {
+                            restingObserverProfile.respirationTraceMilliseconds +=
+                                profileElapsedMilliseconds(respirationTraceProfileStart);
+                        }
                         if (restingComMomentumAudit) {
                             // This is a post-acceptance CPU observation only.
                             // It never feeds q/v, the controller, or the next
@@ -22854,6 +22881,9 @@ int main(int argc, char** argv) {
                                     return metalrobo::numiHumanRuntimePayloadFingerprint(
                                         std::as_bytes(values));
                                 };
+                                const auto qIntegrationCsvProfileStart = trainingProfile
+                                    ? std::chrono::steady_clock::now()
+                                    : std::chrono::steady_clock::time_point{};
                                 qIntegrationTrace << step << ','
                                     << std::setprecision(17)
                                     << step * double(coupled.physiology.runtime.timestepSeconds()) << ','
@@ -22885,7 +22915,14 @@ int main(int argc, char** argv) {
                                 require(qIntegrationTrace.good(),
                                         "accepted q-integration trace write failed");
                                 ++qIntegrationAcceptedRows;
+                                if (trainingProfile) {
+                                    restingObserverProfile.qIntegrationCsvMilliseconds +=
+                                        profileElapsedMilliseconds(qIntegrationCsvProfileStart);
+                                }
                             }
+                            const auto comCpuProfileStart = trainingProfile
+                                ? std::chrono::steady_clock::now()
+                                : std::chrono::steady_clock::time_point{};
                             std::vector<double> q(result.standQ.begin(), result.standQ.end());
                             q[0] = double(root.reference.x) + root.displacement.x + root.correction.x;
                             q[1] = double(root.reference.y) + root.displacement.y + root.correction.y;
@@ -22933,6 +22970,10 @@ int main(int argc, char** argv) {
                             const std::array<double, 3u> comMomentum{
                                 totalMass * comVelocity[0], totalMass * comVelocity[1],
                                 totalMass * comVelocity[2]};
+                            if (trainingProfile) {
+                                restingObserverProfile.comCpuKinematicsMilliseconds +=
+                                    profileElapsedMilliseconds(comCpuProfileStart);
+                            }
                             const bool deltaValid = havePreviousComSample &&
                                 step > previousComSampleStep;
                             const std::uint32_t sampleStartStep =
@@ -23018,6 +23059,9 @@ int main(int argc, char** argv) {
                                         worldContactImpulse[axis];
                                 }
                             }
+                            const auto comCsvProfileStart = trainingProfile
+                                ? std::chrono::steady_clock::now()
+                                : std::chrono::steady_clock::time_point{};
                             comMomentumTrace << sampleStartStep << ','
                                 << step << ','
                                 << step * double(coupled.physiology.runtime.timestepSeconds()) << ','
@@ -23084,6 +23128,13 @@ int main(int argc, char** argv) {
                             for (const double value : absoluteValues)
                                 comMomentumTrace << ',' << value;
                             comMomentumTrace << '\n';
+                            if (trainingProfile) {
+                                restingObserverProfile.comMomentumCsvMilliseconds +=
+                                    profileElapsedMilliseconds(comCsvProfileStart);
+                            }
+                            const auto supportCsvProfileStart = trainingProfile
+                                ? std::chrono::steady_clock::now()
+                                : std::chrono::steady_clock::time_point{};
                             for (std::size_t contact = 0u;
                                  contact < supportContactPayload->records.size(); ++contact) {
                                 const auto& sourceContact =
@@ -23109,8 +23160,19 @@ int main(int argc, char** argv) {
                                     << tangent0[2] << ',' << tangent1[0] << ','
                                     << tangent1[1] << ',' << tangent1[2] << '\n';
                             }
+                            if (trainingProfile) {
+                                restingObserverProfile.supportImpulseCsvMilliseconds +=
+                                    profileElapsedMilliseconds(supportCsvProfileStart);
+                            }
+                            const auto csvFlushProfileStart = trainingProfile
+                                ? std::chrono::steady_clock::now()
+                                : std::chrono::steady_clock::time_point{};
                             comMomentumTrace.flush();
                             supportImpulseTrace.flush();
+                            if (trainingProfile) {
+                                restingObserverProfile.csvFlushMilliseconds +=
+                                    profileElapsedMilliseconds(csvFlushProfileStart);
+                            }
                             previousComSampleStep = step;
                             previousComMomentum = comMomentum;
                             havePreviousComSample = true;
@@ -23127,8 +23189,16 @@ int main(int argc, char** argv) {
                                     restingPresentationCadenceSteps ||
                                 step % restingPresentationCadenceSteps == 0u ||
                                 step == *muscleStepCount;
-                            if (presentAcceptedPose)
+                            if (presentAcceptedPose) {
+                                const auto presentationProfileStart = trainingProfile
+                                    ? std::chrono::steady_clock::now()
+                                    : std::chrono::steady_clock::time_point{};
                                 liveVisual->present(step == *muscleStepCount);
+                                if (trainingProfile) {
+                                    restingObserverProfile.presentationMilliseconds +=
+                                        profileElapsedMilliseconds(presentationProfileStart);
+                                }
+                            }
                         }
                         if (!restingThroughputStart.has_value()) {
                             restingThroughputStart = std::chrono::steady_clock::now();
@@ -23150,6 +23220,10 @@ int main(int argc, char** argv) {
                                 << " excludes=load_compile_initial_parity_first_accepted_observer_movie_finalization"
                                 << std::endl;
                         }
+                        if (trainingProfile) {
+                            restingObserverProfile.totalMilliseconds +=
+                                profileElapsedMilliseconds(observerProfileStart);
+                        }
                     };
                 const auto start=std::chrono::steady_clock::now();
                 auto final=integratePersistentMetalHumanState(rigid.model,musclePayload,*supportContactPayload,*jointEqualityPayload,
@@ -23160,6 +23234,41 @@ int main(int argc, char** argv) {
                     restingReleaseInitialization,restingComMomentumAudit,
                     restingComMomentumAuditSegmentSteps);
                 (void)final;
+                if (trainingProfile && restingObserverProfile.callbacks > 0u) {
+                    const double profiledMilliseconds =
+                        restingObserverProfile.respirationTraceMilliseconds +
+                        restingObserverProfile.qIntegrationCsvMilliseconds +
+                        restingObserverProfile.comCpuKinematicsMilliseconds +
+                        restingObserverProfile.comMomentumCsvMilliseconds +
+                        restingObserverProfile.supportImpulseCsvMilliseconds +
+                        restingObserverProfile.csvFlushMilliseconds +
+                        restingObserverProfile.presentationMilliseconds;
+                    const auto previousPrecision = std::cout.precision();
+                    std::cout << std::setprecision(9)
+                              << "resting_integrated_observer_profile"
+                              << " accepted_callbacks=" << restingObserverProfile.callbacks
+                              << " total_ms=" << restingObserverProfile.totalMilliseconds
+                              << " mean_ms=" << restingObserverProfile.totalMilliseconds /
+                                    restingObserverProfile.callbacks
+                              << " respiration_trace_csv_ms="
+                              << restingObserverProfile.respirationTraceMilliseconds
+                              << " q_integration_csv_ms="
+                              << restingObserverProfile.qIntegrationCsvMilliseconds
+                              << " com_cpu_kinematics_ms="
+                              << restingObserverProfile.comCpuKinematicsMilliseconds
+                              << " com_momentum_csv_ms="
+                              << restingObserverProfile.comMomentumCsvMilliseconds
+                              << " support_impulse_csv_ms="
+                              << restingObserverProfile.supportImpulseCsvMilliseconds
+                              << " csv_flush_ms="
+                              << restingObserverProfile.csvFlushMilliseconds
+                              << " presentation_ms="
+                              << restingObserverProfile.presentationMilliseconds
+                              << " observer_other_ms="
+                              << restingObserverProfile.totalMilliseconds - profiledMilliseconds
+                              << std::endl;
+                    std::cout.precision(previousPrecision);
+                }
                 const double wall=std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count();
                 if (restingQIntegrationAudit) {
                     require(qIntegrationAcceptedRows == *muscleStepCount,
