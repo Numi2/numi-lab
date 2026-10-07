@@ -1313,6 +1313,24 @@
                         limitUpperVelocity[limitCount] =
                             mrNumiHumanUpperLimitVelocityTarget(
                                 position, properties.limits.y, timestep);
+                        // The mass and interval are immutable for all sweeps
+                        // of this accepted-root candidate. Validate once in
+                        // authored order rather than in every SIMD preview.
+                        if (!(limitEffectiveMass[limitCount] >
+                              kResponseRegularization) ||
+                            !isfinite(limitEffectiveMass[limitCount])) {
+                            fail(status, MR_NUMI_HUMAN_STAND_FACTORIZATION_FAILED,
+                                 dof);
+                            return;
+                        }
+                        if (!isfinite(limitLowerVelocity[limitCount]) ||
+                            !isfinite(limitUpperVelocity[limitCount]) ||
+                            limitLowerVelocity[limitCount] >
+                                limitUpperVelocity[limitCount]) {
+                            fail(status, MR_NUMI_HUMAN_STAND_NONFINITE_RESULT,
+                                 dof);
+                            return;
+                        }
                         ++limitCount;
                     }
                     uint velocitySlot = limitCount;
@@ -1469,13 +1487,7 @@
                                     limitUpperVelocity[preview];
                                 const float previewPrevious =
                                     limitAccumulatedImpulses[preview];
-                                blockHasWork = !(previewMass >
-                                    kResponseRegularization) ||
-                                    !isfinite(previewMass) ||
-                                    !isfinite(previewLower) ||
-                                    !isfinite(previewUpper) ||
-                                    previewLower > previewUpper ||
-                                    !isfinite(previewPrevious);
+                                blockHasWork = !isfinite(previewPrevious);
                                 if (!blockHasWork) {
                                     const uint slot = block / simdWidth;
                                     const float previewVelocity = slot == 0u
@@ -1506,20 +1518,8 @@
                     cursor = limit + 1u;
                     const uint dof = limitDofs[limit];
                     const float effectiveMass = limitEffectiveMass[limit];
-                    if (!(effectiveMass > kResponseRegularization) ||
-                        !isfinite(effectiveMass)) {
-                        if (simdLane == 0u)
-                            fail(status, MR_NUMI_HUMAN_STAND_FACTORIZATION_FAILED, dof);
-                        break;
-                    }
                     const float lowerVelocity = limitLowerVelocity[limit];
                     const float upperVelocity = limitUpperVelocity[limit];
-                    if (!isfinite(lowerVelocity) || !isfinite(upperVelocity) ||
-                        lowerVelocity > upperVelocity) {
-                        if (simdLane == 0u)
-                            fail(status, MR_NUMI_HUMAN_STAND_NONFINITE_RESULT, dof);
-                        break;
-                    }
                     const uint owner = limit % simdWidth;
                     const uint slot = limit / simdWidth;
                     float ownedVelocity = 0.0f;
