@@ -72,7 +72,7 @@ constant float kUseSpeculativeContactAdmissionDistanceMeters =
     is_function_constant_defined(kSpeculativeContactAdmissionDistanceMeters)
         ? kSpeculativeContactAdmissionDistanceMeters : 0.0f;
 inline float standContactAdmissionDistanceMeters(
-    const MRNumiHumanStandContactGPU& support
+    const MRNumiHumanStandContactGPU support
 ) {
     return kUseSpeculativeContactAdmissionDistanceMeters > 0.0f
         ? max(support.frictionSlopAndStabilization.y,
