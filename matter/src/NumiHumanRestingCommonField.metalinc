@@ -141,6 +141,9 @@ inline void nmHumanRestingCommonPowers(thread const float* x,thread float* power
 }
 inline bool nmHumanRestingCommonEvaluateValues(constant MRHumanRestingCommonFieldGPU& p,
     thread const float* powers,thread float* values) {
+#if defined(__clang__)
+#pragma clang fp contract(off)
+#endif
     for(uint r=0;r<7;++r) values[r]=0.0f;
     for(uint term=0;term<120;++term) {
         constant const uchar* e=nmHumanRestingCommonExponents[term];
@@ -154,6 +157,9 @@ inline bool nmHumanRestingCommonEvaluateValues(constant MRHumanRestingCommonFiel
 }
 inline bool nmHumanRestingCommonEvaluateJacobian(constant MRHumanRestingCommonFieldGPU& p,
     thread const float* powers,thread float* jacobian) {
+#if defined(__clang__)
+#pragma clang fp contract(off)
+#endif
     for(uint r=0;r<7;++r) for(uint c=0;c<7;++c) jacobian[r*7+c]=0.0f;
     for(uint term=0;term<120;++term) {
         constant const uchar* e=nmHumanRestingCommonExponents[term];
@@ -184,6 +190,9 @@ inline bool nmHumanRestingCommonEvaluate(constant MRHumanRestingCommonFieldGPU& 
         nmHumanRestingCommonEvaluateJacobian(p,powers,jacobian);
 }
 inline float nmHumanRestingCommonResidual(thread const float* value,thread const float* target) {
+#if defined(__clang__)
+#pragma clang fp contract(off)
+#endif
     float result=0.0f; for(uint i=0;i<7;++i) result=max(result,abs(value[i]-target[i])); return result;
 }
 inline bool nmHumanRestingCommonInsideTrial(constant MRHumanRestingCommonFieldGPU& p,thread const float* x) {
@@ -207,6 +216,9 @@ inline bool nmHumanRestingCommonInCertifiedUnion(device const MRHumanRestingComm
 inline uint nmHumanRestingCommonSolve(constant MRHumanRestingCommonFieldGPU& p,
     device const MRHumanRestingCommonCoordinateBoxGPU* boxes,thread const float* targetVolumes,
     thread float* x,thread uint& iterations,thread uint& matched,thread float& residualOut) {
+#if defined(__clang__)
+#pragma clang fp contract(off)
+#endif
     if(p.countsAndFlags.y!=1u||p.countsAndFlags.x==0u||!isfinite(p.solver.x)||p.solver.x<=0.0f) return 1u;
     float target[7],values[7],jacobian[49],augmented[56],delta[7],trial[7],trialValues[7],trialPowers[28];
     for(uint i=0;i<7;++i) {
@@ -266,6 +278,9 @@ inline uint nmHumanRestingCommonSolve(constant MRHumanRestingCommonFieldGPU& p,
 inline bool nmHumanRestingCommonEvaluateValuesSimd(
     constant MRHumanRestingCommonFieldGPU& p,thread const float* powers,uint lane,
     thread float& rowValue) {
+#if defined(__clang__)
+#pragma clang fp contract(off)
+#endif
     rowValue=0.0f;
     if(lane<7u) {
         for(uint term=0;term<120;++term) {
@@ -281,6 +296,9 @@ inline bool nmHumanRestingCommonEvaluateValuesSimd(
 inline bool nmHumanRestingCommonEvaluateJacobianSimd(
     constant MRHumanRestingCommonFieldGPU& p,thread const float* powers,uint lane,
     thread float* rowJacobian) {
+#if defined(__clang__)
+#pragma clang fp contract(off)
+#endif
     for(uint c=0;c<7;++c) rowJacobian[c]=0.0f;
     if(lane<7u) {
         for(uint term=0;term<120;++term) {
@@ -305,6 +323,9 @@ inline bool nmHumanRestingCommonEvaluateJacobianSimd(
     return simd_all(finiteRow);
 }
 inline float nmHumanRestingCommonResidualSimd(float rowValue,thread const float* target) {
+#if defined(__clang__)
+#pragma clang fp contract(off)
+#endif
     float result=0.0f;
     for(uint row=0;row<7;++row) {
         const float value=simd_broadcast(rowValue,row);
@@ -320,6 +341,9 @@ inline uint nmHumanRestingCommonSolveSimd(
     device const MRHumanRestingCommonCoordinateBoxGPU* boxes,
     thread const float* targetVolumes,thread float* x,uint lane,
     thread uint& iterations,thread uint& matched,thread float& residualOut) {
+#if defined(__clang__)
+#pragma clang fp contract(off)
+#endif
     if(p.countsAndFlags.y!=1u||p.countsAndFlags.x==0u||
        !isfinite(p.solver.x)||p.solver.x<=0.0f) return 1u;
     float target[7],powers[28],trialPowers[28],rowValue=0.0f;
