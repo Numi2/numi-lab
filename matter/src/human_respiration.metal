@@ -836,6 +836,11 @@ kernel void nm_human_respiration_predict(
     n.control=excitations[env];
     n.status.w=0;
     if(kUseRespiratorySubcycling) {
+        // Validate drive at staging even when mechanics are deferred. A latched
+        // physical rejection skips exchange for the remaining command-buffer
+        // suffix, so invalid Brain delivery must remain a rejected candidate.
+        if(!all(isfinite(n.control.xy)) || any(n.control.xy<0.0f) ||
+           any(n.control.xy>1.0f)) n.status.w=1u;
         // Circuit physics does not consume respiratory mechanics at frameBegin.
         // Stage the drive now; the exchange kernel integrates mechanics and gas
         // together with the solved circuit flow before the common geometry gate.
