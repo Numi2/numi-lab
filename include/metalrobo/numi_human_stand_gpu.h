@@ -8,6 +8,8 @@
 #define MR_NUMI_HUMAN_STAND_SPATIAL_SCRATCH_ROWS 9u
 #define MR_NUMI_HUMAN_STAND_MAX_BODIES 192u
 #define MR_NUMI_HUMAN_STAND_MAX_DOFS 160u
+// Prefix of the opt-in hybrid equality factor cache; its tail remains in the arena.
+#define MR_NUMI_HUMAN_STAND_HYBRID_FACTOR_CACHE_ELEMENTS 7800u
 #define MR_NUMI_HUMAN_STAND_MAX_Q 161u
 #define MR_NUMI_HUMAN_STAND_MAX_CONTACTS 32u
 #define MR_NUMI_HUMAN_STAND_MAX_STEPS 4096u
@@ -80,6 +82,8 @@ enum MRNumiHumanStandFlags {
     // Status-only proof that the opt-in per-sweep equality diagnostic replay
     // was selected for this finish. This is never an input dispatch flag.
     MR_NUMI_HUMAN_STAND_DEFERRED_EQUALITY_DIAGNOSTICS_USED = 1u << 22u,
+    // Status-only proof that equality factorization used the hybrid cache.
+    MR_NUMI_HUMAN_STAND_HYBRID_FACTOR_CACHE_USED = 1u << 23u,
 };
 
 // One source-authored support witness. The point-query index addresses the

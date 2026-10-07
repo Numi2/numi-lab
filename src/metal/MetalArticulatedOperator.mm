@@ -569,7 +569,8 @@ template <typename Sink>
 void visitSplitStandBoundary(
     Sink& sink,
     const MetalArticulatedOperatorInput& input,
-    const float speculativeContactAdmissionDistanceMeters
+    const float speculativeContactAdmissionDistanceMeters,
+    const bool hybridEqualityFactorCache
 ) {
     constexpr std::array<std::uint8_t, 30u> domain{{
         'm','r','n','x','.','s','p','l','i','t','-','s','t','a','n','d','.',
@@ -600,6 +601,7 @@ void visitSplitStandBoundary(
         sink, input.stand.numanXTransactionProgram.fingerprint);
     appendSplitStandValue(sink, input.stand.contactIterationCount);
     appendSplitStandValue(sink, speculativeContactAdmissionDistanceMeters);
+    appendSplitStandValue(sink, hybridEqualityFactorCache);
     const std::uint8_t contact = input.stand.enableContact ? 1u : 0u;
     const std::uint8_t assistance =
         input.stand.enableRootAssistance ? 1u : 0u;
@@ -616,18 +618,21 @@ void visitSplitStandBoundary(
 [[nodiscard]] std::uint64_t splitStandBoundaryFingerprint(
     SplitStandBoundaryCache& cache,
     const MetalArticulatedOperatorInput& input,
-    const float speculativeContactAdmissionDistanceMeters
+    const float speculativeContactAdmissionDistanceMeters,
+    const bool hybridEqualityFactorCache
 ) {
     if (cache.fingerprint != 0u) {
         SplitStandBoundaryCompare compare{cache.bytes};
         visitSplitStandBoundary(compare, input,
-            speculativeContactAdmissionDistanceMeters);
+            speculativeContactAdmissionDistanceMeters,
+            hybridEqualityFactorCache);
         if (compare.exact && compare.offset == cache.bytes.size())
             return cache.fingerprint;
     }
     SplitStandBoundaryCapture capture(cache.bytes);
     visitSplitStandBoundary(capture, input,
-        speculativeContactAdmissionDistanceMeters);
+        speculativeContactAdmissionDistanceMeters,
+        hybridEqualityFactorCache);
     std::array<std::uint8_t, CC_SHA256_DIGEST_LENGTH> digest{};
     CC_SHA256_Final(digest.data(), &capture.context);
     std::uint64_t fingerprint = 0u;
@@ -677,6 +682,11 @@ struct MetalArticulatedOperatorContextState {
         if (deferStandEqualityDiagnostics != nullptr)
             config.deferStandEqualityDiagnostics =
                 std::strcmp(deferStandEqualityDiagnostics, "1") == 0;
+        const char* hybridEqualityFactorCache = std::getenv(
+            "NUMI_HUMAN_STAND_HYBRID_EQUALITY_FACTOR_CACHE");
+        if (hybridEqualityFactorCache != nullptr)
+            config.hybridStandEqualityFactorCache =
+                std::strcmp(hybridEqualityFactorCache, "1") == 0;
         const char* speculativeContactAdmission = std::getenv(
             "NUMI_HUMAN_STAND_SPECULATIVE_CONTACT_DISTANCE_M");
         if (speculativeContactAdmission != nullptr) {
@@ -4134,6 +4144,9 @@ MetalArticulatedOperatorDiagnostics initializeContext(
         bool reducedStandCholesky =
             context.config.reducedStandCholesky &&
             context.config.reducedStandProjectedResponses;
+        const bool requestedHybridEqualityFactorCache =
+            context.config.hybridStandEqualityFactorCache;
+        bool hybridEqualityFactorCache = false;
         MTLFunctionConstantValues* equalityConstants =
             [[MTLFunctionConstantValues alloc] init];
         [equalityConstants setConstantValue:&reducedStandCholesky
@@ -4143,6 +4156,8 @@ MetalArticulatedOperatorDiagnostics initializeContext(
             type:MTLDataTypeFloat atIndex:8u];
         [equalityConstants setConstantValue:&deferStandEqualityDiagnostics
                                        type:MTLDataTypeBool atIndex:9u];
+        [equalityConstants setConstantValue:&hybridEqualityFactorCache
+                                       type:MTLDataTypeBool atIndex:10u];
         error = nil;
         id<MTLFunction> standEqualityFunction = [library
             newFunctionWithName:@"mr_numi_human_stand_equality_prepare"
@@ -4156,6 +4171,48 @@ MetalArticulatedOperatorDiagnostics initializeContext(
                 MetalArticulatedOperatorHostStatus::metalPipelineFailure,
                 "failed to create Numi Human equality preparation pipeline: " +
                     describeError(error));
+        }
+        const NSUInteger legacyFactorCacheBytes =
+            64u * 64u * sizeof(float);
+        const NSUInteger hybridFactorCacheBytes =
+            MR_NUMI_HUMAN_STAND_HYBRID_FACTOR_CACHE_ELEMENTS * sizeof(float);
+        const NSUInteger maximumThreadgroupBytes =
+            device.maxThreadgroupMemoryLength;
+        const NSUInteger equalityStaticBytes =
+            standEqualityPipeline.staticThreadgroupMemoryLength;
+        if (standEqualityPipeline.maxTotalThreadsPerThreadgroup <
+                kStandResponseThreadsPerThreadgroup ||
+            equalityStaticBytes > maximumThreadgroupBytes ||
+            legacyFactorCacheBytes >
+                maximumThreadgroupBytes - equalityStaticBytes) {
+            return reject(std::move(diagnostics),
+                MetalArticulatedOperatorHostStatus::metalDeviceUnsupported,
+                "device cannot execute the Numi Human equality workspace");
+        }
+        context.config.hybridStandEqualityFactorCache = false;
+        if (requestedHybridEqualityFactorCache) {
+            hybridEqualityFactorCache = true;
+            [equalityConstants setConstantValue:&hybridEqualityFactorCache
+                                           type:MTLDataTypeBool atIndex:10u];
+            error = nil;
+            id<MTLFunction> hybridEqualityFunction = [library
+                newFunctionWithName:@"mr_numi_human_stand_equality_prepare"
+                    constantValues:equalityConstants error:&error];
+            error = nil;
+            id<MTLComputePipelineState> hybridEqualityPipeline =
+                hybridEqualityFunction == nil ? nil :
+                [device newComputePipelineStateWithFunction:
+                    hybridEqualityFunction error:&error];
+            if (hybridEqualityPipeline != nil &&
+                hybridEqualityPipeline.maxTotalThreadsPerThreadgroup >=
+                    kStandResponseThreadsPerThreadgroup &&
+                hybridEqualityPipeline.staticThreadgroupMemoryLength <=
+                    maximumThreadgroupBytes &&
+                hybridFactorCacheBytes <= maximumThreadgroupBytes -
+                    hybridEqualityPipeline.staticThreadgroupMemoryLength) {
+                standEqualityPipeline = hybridEqualityPipeline;
+                context.config.hybridStandEqualityFactorCache = true;
+            }
         }
         MTLFunctionConstantValues* projectedResponseConstants =
             [[MTLFunctionConstantValues alloc] init];
@@ -10122,7 +10179,8 @@ MetalArticulatedOperatorContext::submit(
             input.stand.enabled()
                 ? splitStandBoundaryFingerprint(
                       state_->splitStandBoundaryCache, input,
-                      state_->config.speculativeContactAdmissionDistanceMeters)
+                      state_->config.speculativeContactAdmissionDistanceMeters,
+                      state_->config.hybridStandEqualityFactorCache)
                 : 0u;
         const std::uint64_t standBoundaryFingerprint =
             hasExplicitAuthoritativeHorizon
@@ -13897,6 +13955,18 @@ MetalArticulatedOperatorContext::submit(
                         kStandTendonTransfersBuffer] offset:0u atIndex:19u];
                     [standEncoder setBuffer:state_->standBuffers[
                         kStandJointEqualitiesBuffer] offset:0u atIndex:20u];
+                    if (parallelMass && phase == 4u) {
+                        const bool useHybridFactorWorkspace =
+                            state_->config.hybridStandEqualityFactorCache &&
+                            standDispatch.jointEqualityCount > 64u &&
+                            standDispatch.jointEqualityCount <= 96u;
+                        const NSUInteger factorCacheElements =
+                            useHybridFactorWorkspace
+                                ? MR_NUMI_HUMAN_STAND_HYBRID_FACTOR_CACHE_ELEMENTS
+                                : 64u * 64u;
+                        [standEncoder setThreadgroupMemoryLength:
+                            factorCacheElements * sizeof(float) atIndex:0u];
+                    }
                     if (parallelMass && phase == 1u) {
                         const NSUInteger matrixElements =
                             static_cast<NSUInteger>(articulation.nv) *

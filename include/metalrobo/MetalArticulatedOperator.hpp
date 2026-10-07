@@ -1890,6 +1890,8 @@ struct MetalArticulatedOperatorConfig {
     // bookkeeping to an ordered replay within each coupled sweep. Candidate
     // velocity updates retain their existing order and arithmetic.
     bool deferStandEqualityDiagnostics = false;
+    // Opt-in 7,800-float threadgroup prefix for 65-96-row equality LU.
+    bool hybridStandEqualityFactorCache = false;
     // Optional speculative-contact candidate admission override. Zero retains
     // the source contact activation distance and warm-start policy.
     float speculativeContactAdmissionDistanceMeters = 0.0f;

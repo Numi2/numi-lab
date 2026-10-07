@@ -79,6 +79,12 @@ constant bool kDeferredStandEqualityDiagnostics
 constant bool kUseDeferredStandEqualityDiagnostics =
     is_function_constant_defined(kDeferredStandEqualityDiagnostics)
         ? kDeferredStandEqualityDiagnostics : false;
+// Optional hybrid LU workspace for medium-sized equality blocks. False
+// keeps the existing threadgroup/device workspace selection.
+constant bool kHybridEqualityFactorCache [[function_constant(10)]];
+constant bool kUseHybridEqualityFactorCache =
+    is_function_constant_defined(kHybridEqualityFactorCache)
+        ? kHybridEqualityFactorCache : false;
 // Opt-in read-only per-limit-column attribution. Undefined/false leaves the
 // ordinary projected-response pipeline and argument layout unchanged.
 constant bool kReducedResponseDiagnostics [[function_constant(11)]];
@@ -248,10 +254,11 @@ inline bool mrNumiHumanBilateralSolveCooperative(
 
 // The pivot search and each row's arithmetic stay in their original order.
 // Independent scaling, swaps, and elimination rows run across one SIMD group.
-// Blocks beyond the 16 KiB cache use the existing device factor allocation.
-// Only independent rows are parallelized; pivot and FMA ordering are unchanged.
-template<bool deviceWorkspace, typename FactorPointer>
-inline bool mrNumiHumanBilateralFactorCooperative(
+// The optional hybrid specialization keeps a contiguous prefix in threadgroup
+// memory and stores the remainder in the existing device factor allocation.
+template<bool deviceWorkspace, bool hybridWorkspace = false,
+         typename FactorPointer>
+inline bool mrNumiHumanBilateralFactorCooperativeWorkspace(
     device float* matrix,
     device float* inverseScale,
     device float* pivots,
@@ -259,24 +266,32 @@ inline bool mrNumiHumanBilateralFactorCooperative(
     const uint lane,
     const uint threadCount,
     FactorPointer factorCache,
+    device float* hybridBacking,
     threadgroup float* scaleCache,
     threadgroup float* pivotCache,
     threadgroup atomic_uint* failure,
     threadgroup uint* selectedPivot
 ) {
-    constexpr mem_flags workspaceFence = deviceWorkspace
+    constexpr mem_flags workspaceFence = deviceWorkspace || hybridWorkspace
         ? mem_flags::mem_device | mem_flags::mem_threadgroup
         : mem_flags::mem_threadgroup;
     if (lane == 0u)
         atomic_store_explicit(failure, MR_INVALID_INDEX,
                               memory_order_relaxed);
-    if (!deviceWorkspace)
-        for (uint index = lane; index < n * n; index += threadCount)
+    if (!deviceWorkspace) {
+        const uint cacheElements = hybridWorkspace
+            ? min(n * n,
+                uint(MR_NUMI_HUMAN_STAND_HYBRID_FACTOR_CACHE_ELEMENTS))
+            : n * n;
+        for (uint index = lane; index < cacheElements;
+             index += threadCount)
             factorCache[index] = matrix[index];
+    }
     threadgroup_barrier(workspaceFence);
 
     for (uint i = lane; i < n; i += threadCount) {
-        const float diagonal = factorCache[i * n + i];
+        const float diagonal = mrNumiHumanBilateralFactorRead<hybridWorkspace>(
+            factorCache, hybridBacking, i * n + i);
         if (!(diagonal > 0.0f) || !isfinite(diagonal)) {
             atomic_fetch_min_explicit(failure, i, memory_order_relaxed);
             continue;
@@ -292,9 +307,13 @@ inline bool mrNumiHumanBilateralFactorCooperative(
     for (uint index = lane; index < n * n; index += threadCount) {
         const uint i = index / n;
         const uint j = index - i * n;
-        factorCache[index] =
-            (factorCache[index] * scaleCache[i]) * scaleCache[j];
-        if (!isfinite(factorCache[index]))
+        const float value =
+            (mrNumiHumanBilateralFactorRead<hybridWorkspace>(
+                 factorCache, hybridBacking, index) * scaleCache[i]) *
+            scaleCache[j];
+        mrNumiHumanBilateralFactorWrite<hybridWorkspace>(
+            factorCache, hybridBacking, index, value);
+        if (!isfinite(value))
             atomic_fetch_min_explicit(failure, index,
                                       memory_order_relaxed);
     }
@@ -305,10 +324,13 @@ inline bool mrNumiHumanBilateralFactorCooperative(
     for (uint k = 0u; k < n; ++k) {
         if (lane == 0u) {
             uint pivot = k;
-            float largest = mrNHBilateralAbs(factorCache[k * n + k]);
+            float largest = mrNHBilateralAbs(
+                mrNumiHumanBilateralFactorRead<hybridWorkspace>(
+                    factorCache, hybridBacking, k * n + k));
             for (uint i = k + 1u; i < n; ++i) {
-                const float value =
-                    mrNHBilateralAbs(factorCache[i * n + k]);
+                const float value = mrNHBilateralAbs(
+                    mrNumiHumanBilateralFactorRead<hybridWorkspace>(
+                        factorCache, hybridBacking, i * n + k));
                 if (value > largest) { largest = value; pivot = i; }
             }
             if (!(largest > 0.0f) || !isfinite(largest))
@@ -325,25 +347,48 @@ inline bool mrNumiHumanBilateralFactorCooperative(
 
         if (*selectedPivot != k) {
             for (uint j = lane; j < n; j += threadCount) {
-                const float value = factorCache[k * n + j];
-                factorCache[k * n + j] =
-                    factorCache[*selectedPivot * n + j];
-                factorCache[*selectedPivot * n + j] = value;
+                const uint rowEntry = k * n + j;
+                const uint pivotEntry = *selectedPivot * n + j;
+                const float value =
+                    mrNumiHumanBilateralFactorRead<hybridWorkspace>(
+                        factorCache, hybridBacking, rowEntry);
+                const float pivotValue =
+                    mrNumiHumanBilateralFactorRead<hybridWorkspace>(
+                        factorCache, hybridBacking, pivotEntry);
+                mrNumiHumanBilateralFactorWrite<hybridWorkspace>(
+                    factorCache, hybridBacking, rowEntry, pivotValue);
+                mrNumiHumanBilateralFactorWrite<hybridWorkspace>(
+                    factorCache, hybridBacking, pivotEntry, value);
             }
         }
         threadgroup_barrier(workspaceFence);
         for (uint i = k + 1u + lane; i < n; i += threadCount) {
-            factorCache[i * n + k] /= factorCache[k * n + k];
-            if (!isfinite(factorCache[i * n + k])) {
+            const uint columnEntry = i * n + k;
+            const float pivot =
+                mrNumiHumanBilateralFactorRead<hybridWorkspace>(
+                    factorCache, hybridBacking, k * n + k);
+            const float value =
+                mrNumiHumanBilateralFactorRead<hybridWorkspace>(
+                    factorCache, hybridBacking, columnEntry) / pivot;
+            mrNumiHumanBilateralFactorWrite<hybridWorkspace>(
+                factorCache, hybridBacking, columnEntry, value);
+            if (!isfinite(value)) {
                 atomic_fetch_min_explicit(failure, i,
                                           memory_order_relaxed);
                 continue;
             }
             for (uint j = k + 1u; j < n; ++j) {
-                factorCache[i * n + j] = mrNHBilateralFma(
-                    -factorCache[i * n + k], factorCache[k * n + j],
-                    factorCache[i * n + j]);
-                if (!isfinite(factorCache[i * n + j]))
+                const uint entry = i * n + j;
+                const float value = mrNHBilateralFma(
+                    -mrNumiHumanBilateralFactorRead<hybridWorkspace>(
+                        factorCache, hybridBacking, columnEntry),
+                    mrNumiHumanBilateralFactorRead<hybridWorkspace>(
+                        factorCache, hybridBacking, k * n + j),
+                    mrNumiHumanBilateralFactorRead<hybridWorkspace>(
+                        factorCache, hybridBacking, entry));
+                mrNumiHumanBilateralFactorWrite<hybridWorkspace>(
+                    factorCache, hybridBacking, entry, value);
+                if (!isfinite(value))
                     atomic_fetch_min_explicit(failure, i,
                                               memory_order_relaxed);
             }
@@ -353,14 +398,41 @@ inline bool mrNumiHumanBilateralFactorCooperative(
             MR_INVALID_INDEX) return false;
     }
 
-    if (!deviceWorkspace)
-        for (uint index = lane; index < n * n; index += threadCount)
+    if (!deviceWorkspace) {
+        const uint copyElements = hybridWorkspace
+            ? min(n * n,
+                uint(MR_NUMI_HUMAN_STAND_HYBRID_FACTOR_CACHE_ELEMENTS))
+            : n * n;
+        for (uint index = lane; index < copyElements;
+             index += threadCount)
             matrix[index] = factorCache[index];
+    }
     for (uint index = lane; index < n; index += threadCount) {
         inverseScale[index] = scaleCache[index];
         pivots[index] = pivotCache[index];
     }
     return true;
+}
+
+// Keep existing callers on the original single-workspace specialization.
+template<bool deviceWorkspace, typename FactorPointer>
+inline bool mrNumiHumanBilateralFactorCooperative(
+    device float* matrix,
+    device float* inverseScale,
+    device float* pivots,
+    const uint n,
+    const uint lane,
+    const uint threadCount,
+    FactorPointer factorCache,
+    threadgroup float* scaleCache,
+    threadgroup float* pivotCache,
+    threadgroup atomic_uint* failure,
+    threadgroup uint* selectedPivot
+) {
+    return mrNumiHumanBilateralFactorCooperativeWorkspace<
+        deviceWorkspace, false>(matrix, inverseScale, pivots, n, lane,
+            threadCount, factorCache, matrix, scaleCache, pivotCache,
+            failure, selectedPivot);
 }
 
 
@@ -2320,6 +2392,7 @@ kernel void mr_numi_human_stand_equality_prepare(
     device float* responseScratch [[buffer(16)]],
     device MRNumiHumanStandStatusGPU* statuses [[buffer(17)]],
     device const MRNumiHumanJointEqualityGPU* jointEqualities [[buffer(20)]],
+    threadgroup float* factorCache [[threadgroup(0)]],
     uint environment [[threadgroup_position_in_grid]],
     uint lane [[thread_index_in_threadgroup]],
     uint threadCount [[threads_per_threadgroup]]
@@ -2351,8 +2424,6 @@ kernel void mr_numi_human_stand_equality_prepare(
     device float* equalityScale =
         equalityFactor + equalityCount * equalityCount;
     device float* equalityPivots = equalityScale + equalityCount;
-    threadgroup float factorCache[
-        kCachedEqualityCapacity * kCachedEqualityCapacity];
     threadgroup float scaleCache[MR_NUMI_HUMAN_STAND_MAX_DOFS];
     threadgroup float pivotCache[MR_NUMI_HUMAN_STAND_MAX_DOFS];
     threadgroup atomic_uint factorFailure;
@@ -2408,7 +2479,19 @@ kernel void mr_numi_human_stand_equality_prepare(
         }
     }
     threadgroup_barrier(mem_flags::mem_device);
-    if (equalityCount <= kCachedEqualityCapacity) {
+    const bool useHybridEqualityFactorCache =
+        kUseHybridEqualityFactorCache &&
+        equalityCount > kCachedEqualityCapacity && equalityCount <= 96u;
+    if (useHybridEqualityFactorCache) {
+        if (!mrNumiHumanBilateralFactorCooperativeWorkspace<false, true>(
+                equalityFactor, equalityScale, equalityPivots,
+                equalityCount, lane, threadCount, factorCache,
+                equalityFactor, scaleCache, pivotCache, &factorFailure,
+                &selectedPivot) && lane == 0u) {
+            fail(status, MR_NUMI_HUMAN_STAND_JOINT_EQUALITY_FAILED,
+                 MR_INVALID_INDEX);
+        }
+    } else if (equalityCount <= kCachedEqualityCapacity) {
         if (!mrNumiHumanBilateralFactorCooperative<false>(
                 equalityFactor, equalityScale, equalityPivots,
                 equalityCount, lane, threadCount, factorCache,
@@ -2434,8 +2517,15 @@ kernel void mr_numi_human_stand_equality_prepare(
              MR_INVALID_INDEX);
     }
     threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
-    if (status.code != MR_NUMI_HUMAN_STAND_SUCCESS ||
-        (dispatch.flags &
+    if (status.code != MR_NUMI_HUMAN_STAND_SUCCESS) return;
+    if (lane == 0u && useHybridEqualityFactorCache) {
+        device atomic_uint* statusFlags =
+            reinterpret_cast<device atomic_uint*>(&status.flags);
+        atomic_fetch_or_explicit(statusFlags,
+            uint(MR_NUMI_HUMAN_STAND_HYBRID_FACTOR_CACHE_USED),
+            memory_order_relaxed);
+    }
+    if ((dispatch.flags &
          MR_NUMI_HUMAN_STAND_REDUCED_PROJECTED_RESPONSES) == 0u)
         return;
     const uint legacyStride = standLegacyResponseStride(
