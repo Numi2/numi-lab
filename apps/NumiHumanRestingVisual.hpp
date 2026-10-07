@@ -33,6 +33,7 @@ class NumiHumanRestingVisual {
     unsigned dimension,layer=0;
     bool complete=false;
     bool rigidHands=false;
+    bool profileTiming=false;
     unsigned auditCount=0;
     std::vector<unsigned> auditStableIds;
     unsigned cardiacWallVertexCount=0,cardiacWallAuditIndex=MR_INVALID_INDEX;
@@ -513,6 +514,10 @@ public:
         coupled(owner),dimension(size),outputDirectory(output),acceptedGeometryDirectory(output/"accepted-geometry"),
         surfaceTrace(output/"resting-surface-audit.csv") {
         require(surfaceTrace.good(),"resting surface audit output unavailable");
+        const char* profileSetting=std::getenv("NUMI_HUMAN_TRAINING_PROFILE");
+        require(!profileSetting||!profileSetting[0]||std::strcmp(profileSetting,"0")==0||
+            std::strcmp(profileSetting,"1")==0,"NUMI_HUMAN_TRAINING_PROFILE must be 0 or 1");
+        profileTiming=profileSetting&&std::strcmp(profileSetting,"1")==0;
         commonCardiacGeometry=functional.commonCardiacGeometry;
         commonFieldVertexCount=unsigned(functional.commonFieldMap.size());
         commonFieldSourcePayloadSHA256=functional.commonFieldAnatomyPayloadSHA256;
@@ -1448,6 +1453,7 @@ public:
         return true;
     }
     NumiHumanRestingFrame render(unsigned camera,unsigned selectedLayer) {
+        const double renderStart=profileTiming?CACurrentMediaTime():0;
         layer=selectedLayer;
         const auto& p=*static_cast<const NMHumanRespirationState*>(coupled.presentationRespiration.contents);
         const double time=p.status.x*double(coupled.physiology.runtime.timestepSeconds());
@@ -1471,9 +1477,14 @@ public:
         request.expectedMeshVertexCount=layout.meshVertexCount;request.expectedMeshIndexCount=layout.meshIndexCount;
         request.expectedMeshTriangleCount=layout.meshTriangleCount;request.expectedMeshPrimitiveCount=layout.meshPrimitiveCount;request.expectedMeshInstanceCount=layout.meshInstanceCount;
         state.meshDeformation=&request;
+        const double encodeStart=profileTiming?CACurrentMediaTime():0;
         auto cb=[queue commandBuffer];auto enc=[cb computeCommandEncoder];
         auto result=renderer->encode(worlds,state,camera,(__bridge void*)enc);require(result.succeeded(),result.message);
-        [enc endEncoding];[cb commit];[cb waitUntilCompleted];require(cb.status==MTLCommandBufferStatusCompleted,"resting native renderer failed");
+        [enc endEncoding];
+        const double commandStart=profileTiming?CACurrentMediaTime():0;
+        [cb commit];[cb waitUntilCompleted];require(cb.status==MTLCommandBufferStatusCompleted,"resting native renderer failed");
+        const double commandEnd=profileTiming?CACurrentMediaTime():0;
+        const bool geometryExportRequested=captureThisFrame;
         if(captureThisFrame)require(captureKernelEncoded,
             "selected accepted step did not encode its geometry snapshot");
         const auto* volumes=static_cast<const mr_float4*>(volumeResults.contents);
@@ -1552,11 +1563,28 @@ public:
             <<(time>0?p.cardiacFlow.x*60e3/time:0)<<" L/min\n"
             <<"Mixed-source reference anatomy; passive structures remain inspection geometry.";
         if(rigidHands)metrics<<" Rigid digits; wrists free; hand function not simulated.";
+        if(profileTiming) {
+            const double renderEnd=CACurrentMediaTime();
+            std::cout<<"resting_render_profile step="<<p.status.x
+                <<" vertices="<<layout.meshVertexCount<<" triangles="<<layout.meshTriangleCount
+                <<" geometry_export="<<geometryExportRequested
+                <<" encode_wall_ms="<<(commandStart-encodeStart)*1e3
+                <<" command_wall_ms="<<(commandEnd-commandStart)*1e3
+                <<" gpu_ms="<<(cb.GPUEndTime-cb.GPUStartTime)*1e3
+                <<" audit_export_wall_ms="<<(renderEnd-commandEnd)*1e3
+                <<" total_render_wall_ms="<<(renderEnd-renderStart)*1e3<<'\n';
+        }
         return {(__bridge id<MTLBuffer>)renderer->nativeBuffer(metalrobo::MetalHybridRendererBuffer::rgb),dimension,dimension,metrics.str(),time,complete};
     }
     void declareRigidHands(){rigidHands=true;}
     void present(bool finished=false){
+        const double presentStart=profileTiming?CACurrentMediaTime():0;
         complete=finished;[window renderFrameNow];
+        if(profileTiming) {
+            const auto& state=*static_cast<const NMHumanRespirationState*>(coupled.presentationRespiration.contents);
+            std::cout<<"resting_present_profile step="<<state.status.x
+                <<" finished="<<finished<<" total_present_wall_ms="<<(CACurrentMediaTime()-presentStart)*1e3<<'\n';
+        }
         if(finished)for(unsigned step:requestedGeometrySteps)require(completedGeometrySteps.contains(step),
             "requested accepted geometry step was not presented: "+std::to_string(step));
     }

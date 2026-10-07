@@ -1,0 +1,150 @@
+{
+  "scope": "Read-only complete native render/presentation timing on the integrated scene; 128 steps during initial settling. Not a long-run real-time factor, geometry admission, or clinical qualification.",
+  "parent_revision": "f9c08c4e500afb00493b2ce9805fab4ff48a3967",
+  "source_file_sha256": "ed52ed2b657baf79fb44194ae2b34a3d40e3c881472e41546499074796460318",
+  "run_metadata_sha256": "601450c97ffa0a143bebaf784b3313d74182b21a0ae4fe1888c0fd6eb91893df",
+  "native_exit_code": 0,
+  "physical_prefix_noninterference": {
+    "resting-coupled.csv": {
+      "rows": 4,
+      "columns": 47,
+      "mismatches": []
+    },
+    "resting-com-momentum-diagnostic.csv": {
+      "rows": 4,
+      "columns": 44,
+      "mismatches": []
+    },
+    "resting-com-support-impulses.csv": {
+      "rows": 128,
+      "columns": 21,
+      "mismatches": []
+    }
+  },
+  "initial_native_pack_bit_identical_to_538": true,
+  "render_frames": [
+    {
+      "step": 0.0,
+      "vertices": 2833965.0,
+      "triangles": 4914282.0,
+      "geometry_export": 1.0,
+      "encode_wall_ms": 0.1241248101,
+      "command_wall_ms": 252.430500463,
+      "gpu_ms": 239.087000489,
+      "audit_export_wall_ms": 1908.40575006,
+      "total_render_wall_ms": 2160.96587572
+    },
+    {
+      "step": 31.0,
+      "vertices": 2833965.0,
+      "triangles": 4914282.0,
+      "geometry_export": 0.0,
+      "encode_wall_ms": 0.0445414334536,
+      "command_wall_ms": 230.261041783,
+      "gpu_ms": 225.911666639,
+      "audit_export_wall_ms": 0.760874710977,
+      "total_render_wall_ms": 231.068749912
+    },
+    {
+      "step": 63.0,
+      "vertices": 2833965.0,
+      "triangles": 4914282.0,
+      "geometry_export": 0.0,
+      "encode_wall_ms": 0.0459998846054,
+      "command_wall_ms": 226.415041834,
+      "gpu_ms": 226.172166876,
+      "audit_export_wall_ms": 0.0595422461629,
+      "total_render_wall_ms": 226.524500176
+    },
+    {
+      "step": 95.0,
+      "vertices": 2833965.0,
+      "triangles": 4914282.0,
+      "geometry_export": 0.0,
+      "encode_wall_ms": 0.0488329678774,
+      "command_wall_ms": 226.404000074,
+      "gpu_ms": 225.80962535,
+      "audit_export_wall_ms": 0.0630831345916,
+      "total_render_wall_ms": 226.518083364
+    },
+    {
+      "step": 127.0,
+      "vertices": 2833965.0,
+      "triangles": 4914282.0,
+      "geometry_export": 1.0,
+      "encode_wall_ms": 0.045333057642,
+      "command_wall_ms": 230.529333465,
+      "gpu_ms": 228.447250091,
+      "audit_export_wall_ms": 1919.30583306,
+      "total_render_wall_ms": 2149.88241624
+    }
+  ],
+  "physical_segments": [
+    {
+      "step": 32.0,
+      "command_ms": 785.342833,
+      "gpu_ms": 784.651416354,
+      "host_copy_ms": 1.213167,
+      "full_state_readback": 1.0
+    },
+    {
+      "step": 64.0,
+      "command_ms": 935.660833,
+      "gpu_ms": 934.994875453,
+      "host_copy_ms": 1.104709,
+      "full_state_readback": 1.0
+    },
+    {
+      "step": 96.0,
+      "command_ms": 944.073458,
+      "gpu_ms": 943.494750187,
+      "host_copy_ms": 1.173417,
+      "full_state_readback": 1.0
+    },
+    {
+      "step": 128.0,
+      "command_ms": 932.373333,
+      "gpu_ms": 931.691417471,
+      "host_copy_ms": 1.17975,
+      "full_state_readback": 1.0
+    }
+  ],
+  "presentations": [
+    {
+      "step": 0.0,
+      "finished": 0.0,
+      "total_present_wall_ms": 2279.60395813
+    },
+    {
+      "step": 31.0,
+      "finished": 0.0,
+      "total_present_wall_ms": 235.468416475
+    },
+    {
+      "step": 63.0,
+      "finished": 0.0,
+      "total_present_wall_ms": 230.334833264
+    },
+    {
+      "step": 95.0,
+      "finished": 0.0,
+      "total_present_wall_ms": 230.330917053
+    },
+    {
+      "step": 127.0,
+      "finished": 1.0,
+      "total_present_wall_ms": 2179.48104162
+    }
+  ],
+  "uncaptured_frame_mean_gpu_ms": 225.96448628833335,
+  "uncaptured_frame_mean_render_wall_ms": 228.03711115066668,
+  "uncaptured_frame_mean_extra_presentation_wall_ms": 4.007611113333335,
+  "physical_mean_gpu_ms_after_first_segment": 936.7270143703333,
+  "limitations": [
+    "The CPU geometry export time includes hashing and writing exact GPU snapshot evidence.",
+    "The presentation remainder includes native window/HUD/framebuffer recording work; it is not attributed entirely to video encoding.",
+    "Concurrent CPU-only geometry work was present; no competing native GPU simulation was launched.",
+    "Existing normal and volume reductions may depend on floating-point reduction order; physical q/v/controller traces are compared directly."
+  ],
+  "observational_noninterference_pass": true
+}
