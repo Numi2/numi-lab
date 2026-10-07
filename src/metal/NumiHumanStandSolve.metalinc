@@ -1242,13 +1242,34 @@
                 threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
                 if (status.code != MR_NUMI_HUMAN_STAND_SUCCESS) return;
                 // A DOF keeps the normal, tangent0, tangent1 update order of the
-                // scalar projected Gauss-Seidel contact solve.
-                for (uint dof = lane; dof < nv; dof += threadCount) {
-                    for (uint axis = 0u; axis < 3u; ++axis) {
-                        device const float* response = responseScratch + responseBase +
-                            (3u * contact + axis) * nv;
-                        candidateV[dof] +=
-                            cooperativeContactApplied[axis] * response[dof];
+                // scalar projected Gauss-Seidel contact solve. When lambda did
+                // not change, adding 0*finite leaves a finite nonzero velocity
+                // bit-identical. Preserve the original operations for signed
+                // zero and nonfinite values, and retain the barrier below because
+                // those lanes may still write candidateV.
+                const bool zeroImpulseUpdate =
+                    cooperativeContactApplied[0u] == 0.0f &&
+                    cooperativeContactApplied[1u] == 0.0f &&
+                    cooperativeContactApplied[2u] == 0.0f;
+                if (kUseZeroContactResponseFastPath && zeroImpulseUpdate) {
+                    for (uint dof = lane; dof < nv; dof += threadCount) {
+                        const float current = candidateV[dof];
+                        if (isfinite(current) && current != 0.0f) continue;
+                        for (uint axis = 0u; axis < 3u; ++axis) {
+                            device const float* response = responseScratch +
+                                responseBase + (3u * contact + axis) * nv;
+                            candidateV[dof] += cooperativeContactApplied[axis] *
+                                response[dof];
+                        }
+                    }
+                } else {
+                    for (uint dof = lane; dof < nv; dof += threadCount) {
+                        for (uint axis = 0u; axis < 3u; ++axis) {
+                            device const float* response = responseScratch + responseBase +
+                                (3u * contact + axis) * nv;
+                            candidateV[dof] +=
+                                cooperativeContactApplied[axis] * response[dof];
+                        }
                     }
                 }
                 // candidateV is threadgroup-local; responses are read-only.

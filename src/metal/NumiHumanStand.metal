@@ -97,6 +97,12 @@ constant bool kStandContactWarmStart [[function_constant(13)]];
 constant bool kUseStandContactWarmStart =
     is_function_constant_defined(kStandContactWarmStart)
         ? kStandContactWarmStart : false;
+// Skip exact no-op contact response terms when candidate velocity is finite
+// and nonzero. Undefined/false retains the original three-axis update loop.
+constant bool kZeroContactResponseFastPath [[function_constant(14)]];
+constant bool kUseZeroContactResponseFastPath =
+    is_function_constant_defined(kZeroContactResponseFastPath)
+        ? kZeroContactResponseFastPath : false;
 // A positive value enables a full coupled-sweep convergence check in the
 // cooperative projected finish. Zero keeps the configured fixed sweep count.
 constant float kCooperativeStandVelocityResidualTolerance

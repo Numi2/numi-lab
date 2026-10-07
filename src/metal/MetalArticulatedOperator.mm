@@ -760,6 +760,11 @@ struct MetalArticulatedOperatorContextState {
         if (standContactWarmStart != nullptr)
             config.standContactWarmStart =
                 std::strcmp(standContactWarmStart, "1") == 0;
+        const char* zeroContactResponseFastPath = std::getenv(
+            "NUMI_HUMAN_STAND_ZERO_CONTACT_RESPONSE_FASTPATH");
+        if (zeroContactResponseFastPath != nullptr)
+            standZeroContactResponseFastPath =
+                std::strcmp(zeroContactResponseFastPath, "1") == 0;
         const char* onePassStandLimits =
             std::getenv("NUMI_HUMAN_STAND_ONE_PASS_ORDERED_LIMITS");
         if (onePassStandLimits != nullptr)
@@ -907,6 +912,7 @@ struct MetalArticulatedOperatorContextState {
     std::array<std::size_t, kHumanMatterBufferCount> humanMatterCapacities{};
     std::size_t standContactWarmStartEnvironmentCount = 0u;
     std::size_t standContactWarmStartInitializedEnvironmentCount = 0u;
+    bool standZeroContactResponseFastPath = false;
     struct SplitStandHorizonState {
         bool active = false;
         const EngineModel* model = nullptr;
@@ -4425,6 +4431,10 @@ MetalArticulatedOperatorDiagnostics initializeContext(
             context.config.splitStandSolve;
         [finishConstants setConstantValue:&contactWarmStartSpecialized
                                     type:MTLDataTypeBool atIndex:13u];
+        bool zeroContactResponseFastPath =
+            context.standZeroContactResponseFastPath;
+        [finishConstants setConstantValue:&zeroContactResponseFastPath
+                                    type:MTLDataTypeBool atIndex:14u];
         [finishConstants setConstantValue:
             &speculativeContactAdmissionDistanceMeters
             type:MTLDataTypeFloat atIndex:8u];
@@ -4517,6 +4527,9 @@ MetalArticulatedOperatorDiagnostics initializeContext(
         contactWarmStartSpecialized = false;
         [finishConstants setConstantValue:&contactWarmStartSpecialized
                                     type:MTLDataTypeBool atIndex:13u];
+        zeroContactResponseFastPath = false;
+        [finishConstants setConstantValue:&zeroContactResponseFastPath
+                                    type:MTLDataTypeBool atIndex:14u];
         deferStandEqualityDiagnostics = false;
         [finishConstants setConstantValue:&deferStandEqualityDiagnostics
                                     type:MTLDataTypeBool atIndex:9u];
