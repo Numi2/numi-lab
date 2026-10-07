@@ -228,11 +228,8 @@ kernel void nm_human_resting_support_normalize_poses(
     };
 }
 
-// Stage 1: evaluate every registered skin vertex and find the lowest
-// current world-Z key for its derived Voronoi support region. Integer min of
-// ordered-float keys is exact and associative, so each threadgroup reduces its
-// touched regions before issuing device-scoped minimum updates. Validation
-// flags remain region-wide and are still published for every invalid input.
+// Stage 1: evaluate every registered skin vertex and atomically find the
+// lowest current world-Z key for its derived Voronoi support region.
 kernel void nm_human_resting_support_positions(
     constant MRHumanRestingSupportDispatchGPU& dispatch [[buffer(0)]],
     device const MRHumanRestingVertexMap* vertexMap [[buffer(1)]],
@@ -245,79 +242,51 @@ kernel void nm_human_resting_support_positions(
     device atomic_uint* invalidRegionFlags [[buffer(8)]],
     device const float4* normalizedOrientations [[buffer(9)]],
     device const MRHumanRestingSupportRotationZBasisGPU* rotationZBasis [[buffer(10)]],
-    uint3 workgroupPosition [[threadgroup_position_in_grid]],
-    uint lane [[thread_index_in_threadgroup]],
-    uint threadgroupSize [[threads_per_threadgroup]]) {
+    uint globalIndex [[thread_position_in_grid]]) {
     const uint vertexCount = dispatch.counts.x;
     const uint regionCount = dispatch.counts.y;
     const uint environmentCount = dispatch.counts.w;
-    const uint environment = workgroupPosition.y;
-    const uint vertexIndex = workgroupPosition.x * threadgroupSize + lane;
-    const bool active = environment < environmentCount && vertexIndex < vertexCount;
-    threadgroup atomic_uint groupMinimumHeightKeys[
-        MR_NUMI_HUMAN_STAND_MAX_CONTACTS];
-    for (uint region = lane; region < regionCount; region += threadgroupSize) {
-        atomic_store_explicit(&groupMinimumHeightKeys[region], 0xffffffffu,
-                              memory_order_relaxed);
+    if (vertexCount == 0u || globalIndex >= vertexCount * environmentCount) return;
+    const uint environment = globalIndex / vertexCount;
+    const uint vertexIndex = globalIndex - environment * vertexCount;
+    const uint region = regionForVertex[vertexIndex];
+    const MRHumanRestingVertexMap mappedVertex = vertexMap[vertexIndex];
+    const uint flagsBase = environment * (regionCount + 1u);
+    if (region >= regionCount) {
+        atomic_store_explicit(invalidRegionFlags + flagsBase + regionCount,
+                              1u, memory_order_relaxed);
+        return;
     }
-    threadgroup_barrier(mem_flags::mem_threadgroup);
-
-    if (active) {
-        const uint globalIndex = environment * vertexCount + vertexIndex;
-        const uint region = regionForVertex[vertexIndex];
-        const MRHumanRestingVertexMap mappedVertex = vertexMap[vertexIndex];
-        const uint flagsBase = environment * (regionCount + 1u);
-        if (region >= regionCount) {
-            atomic_store_explicit(invalidRegionFlags + flagsBase + regionCount,
-                                  1u, memory_order_relaxed);
-        } else if (mappedVertex.deformationKind != 3u ||
-                   mappedVertex.influenceCount == 0u) {
-            atomic_store_explicit(invalidRegionFlags + flagsBase + region,
-                                  1u, memory_order_relaxed);
-        } else {
-            const MRCompensatedScalar positionZ =
-                nm_human_resting_support::skinWorldZBasis(
-                    mappedVertex, influences, bodies, bodyPositionLow,
-                    rotationZBasis, dispatch, environment
-                );
-            positions[globalIndex] = {
-                float4(0.0f, 0.0f, positionZ.high, 0.0f),
-                float4(0.0f, 0.0f, positionZ.low, 0.0f)
-            };
-            if (!isfinite(positionZ.high) || !isfinite(positionZ.low)) {
-                atomic_store_explicit(invalidRegionFlags + flagsBase + region,
-                                      1u, memory_order_relaxed);
-            } else {
-                const float worldZ = positionZ.high + positionZ.low;
-                if (!isfinite(worldZ)) {
-                    atomic_store_explicit(invalidRegionFlags + flagsBase + region,
-                                          1u, memory_order_relaxed);
-                } else {
-                    atomic_fetch_min_explicit(
-                        &groupMinimumHeightKeys[region],
-                        nm_human_resting_support::orderedFloat(worldZ),
-                        memory_order_relaxed
-                    );
-                }
-            }
-        }
+    if (mappedVertex.deformationKind != 3u || mappedVertex.influenceCount == 0u) {
+        atomic_store_explicit(invalidRegionFlags + flagsBase + region,
+                              1u, memory_order_relaxed);
+        return;
     }
-
-    threadgroup_barrier(mem_flags::mem_threadgroup);
-    if (environment < environmentCount) {
-        for (uint region = lane; region < regionCount;
-             region += threadgroupSize) {
-            const uint groupKey = atomic_load_explicit(
-                &groupMinimumHeightKeys[region], memory_order_relaxed);
-            if (groupKey != 0xffffffffu) {
-                atomic_fetch_min_explicit(
-                    minimumHeightKeys + environment * regionCount + region,
-                    groupKey,
-                    memory_order_relaxed
-                );
-            }
-        }
+    const MRCompensatedScalar positionZ =
+        nm_human_resting_support::skinWorldZBasis(
+            mappedVertex, influences, bodies, bodyPositionLow,
+            rotationZBasis, dispatch, environment
+        );
+    positions[globalIndex] = {
+        float4(0.0f, 0.0f, positionZ.high, 0.0f),
+        float4(0.0f, 0.0f, positionZ.low, 0.0f)
+    };
+    if (!isfinite(positionZ.high) || !isfinite(positionZ.low)) {
+        atomic_store_explicit(invalidRegionFlags + flagsBase + region,
+                              1u, memory_order_relaxed);
+        return;
     }
+    const float worldZ = positionZ.high + positionZ.low;
+    if (!isfinite(worldZ)) {
+        atomic_store_explicit(invalidRegionFlags + flagsBase + region,
+                              1u, memory_order_relaxed);
+        return;
+    }
+    atomic_fetch_min_explicit(
+        minimumHeightKeys + environment * regionCount + region,
+        nm_human_resting_support::orderedFloat(worldZ),
+        memory_order_relaxed
+    );
 }
 
 // Stage 2: choose the smallest source vertex index at the minimum height.
