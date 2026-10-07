@@ -13965,10 +13965,12 @@ MetalArticulatedOperatorContext::submit(
                                 standDispatch.jointEqualityCount) *
                             static_cast<NSUInteger>(
                                 standDispatch.jointEqualityCount);
+                        const NSUInteger alignedEqualityMatrixElements =
+                            (equalityMatrixElements + 3u) & ~NSUInteger(3u);
                         const NSUInteger factorCacheElements =
                             useHybridFactorWorkspace
                                 ? std::min<NSUInteger>(
-                                    equalityMatrixElements,
+                                    alignedEqualityMatrixElements,
                                     MR_NUMI_HUMAN_STAND_HYBRID_FACTOR_CACHE_ELEMENTS)
                                 : 64u * 64u;
                         [standEncoder setThreadgroupMemoryLength:
