@@ -651,6 +651,20 @@
         }
     }
 #endif
+#if defined(MR_NH_COOPERATIVE_FINISH)
+    if (useCooperativePgsResidualExit) {
+        if (lane == 0u) {
+            cooperativePgsSweepReceipt = 0u;
+            cooperativePgsResidualConverged = 0u;
+            cooperativePgsEarlyExitUsed = 0u;
+            atomic_store_explicit(&cooperativePgsResidualMaxBits, 0u,
+                                  memory_order_relaxed);
+            atomic_store_explicit(&cooperativePgsResidualFailure,
+                                  MR_INVALID_INDEX, memory_order_relaxed);
+        }
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+    }
+#endif
     for (uint coupledSweep = 0u;
          coupledSweep < coupledSweepCount;
          ++coupledSweep) {
@@ -937,7 +951,8 @@
         const float targetNormalVelocity =
             mrNumiHumanContactVelocityTarget(gap, timestep,
                 support.frictionSlopAndStabilization.z);
-        if (coupledSweep + 1u == coupledSweepCount) {
+        if (coupledSweep + 1u == coupledSweepCount ||
+            useCooperativePgsResidualExit) {
             contactActiveForPostProjection[contact] = 1u;
             contactTargetNormalVelocityForPostProjection[contact] =
                 targetNormalVelocity;
@@ -2300,6 +2315,195 @@
 
     }
 #endif
+#if defined(MR_NH_COOPERATIVE_FINISH)
+    if (useCooperativePgsResidualExit) {
+        if (lane == 0u) {
+            cooperativePgsSweepReceipt = coupledSweep + 1u;
+            cooperativePgsResidualConverged = 0u;
+            atomic_store_explicit(&cooperativePgsResidualMaxBits, 0u,
+                                  memory_order_relaxed);
+            atomic_store_explicit(&cooperativePgsResidualFailure,
+                                  MR_INVALID_INDEX, memory_order_relaxed);
+        }
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+
+        // Check only complete groups of eight coupled sweeps. Independent
+        // constraint rows share the finish group; each contact contraction
+        // keeps its ascending-DOF accumulation order.
+        if ((coupledSweep + 1u) >= 8u &&
+            ((coupledSweep + 1u) % 8u) == 0u) {
+            for (uint contact = lane;
+                 contact < dispatch.supportContactCount;
+                 contact += threadCount) {
+                if (contactActiveForPostProjection[contact] == 0u) continue;
+                device const MRNumiHumanStandContactGPU& support =
+                    contacts[contact];
+                device const float* matrix = contactMatrices + 9u * contact;
+                const float normalMass = matrix[0u];
+                const float normalImpulse = lambdas[3u * contact];
+                const float tangentImpulseY = lambdas[3u * contact + 1u];
+                const float tangentImpulseZ = lambdas[3u * contact + 2u];
+                if (!(normalMass > kResponseRegularization) ||
+                    !isfinite(normalMass) || !isfinite(normalImpulse) ||
+                    normalImpulse < 0.0f || !isfinite(tangentImpulseY) ||
+                    !isfinite(tangentImpulseZ)) {
+                    atomic_fetch_min_explicit(&cooperativePgsResidualFailure,
+                        contact, memory_order_relaxed);
+                    continue;
+                }
+                float velocityNormal = 0.0f;
+                float velocityTangentY = 0.0f;
+                float velocityTangentZ = 0.0f;
+                for (uint dof = 0u; dof < nv; ++dof) {
+                    const float value = candidateV[dof];
+                    velocityNormal += pointJacobianAxis(
+                        pointJacobians, pointJacobianBase,
+                        support.pointQueryIndex, nv, dof, normal) * value;
+                    velocityTangentY += pointJacobianAxis(
+                        pointJacobians, pointJacobianBase,
+                        support.pointQueryIndex, nv, dof, directions[1u]) * value;
+                    velocityTangentZ += pointJacobianAxis(
+                        pointJacobians, pointJacobianBase,
+                        support.pointQueryIndex, nv, dof, directions[2u]) * value;
+                }
+                const float targetNormalVelocity =
+                    contactTargetNormalVelocityForPostProjection[contact];
+                const float normalDelta =
+                    (targetNormalVelocity - velocityNormal) / normalMass;
+                const float projectedNormalImpulse = max(
+                    normalImpulse + normalDelta, 0.0f);
+                const float appliedNormal =
+                    projectedNormalImpulse - normalImpulse;
+                const float normalResidual =
+                    abs(appliedNormal * normalMass);
+                if (!isfinite(velocityNormal) ||
+                    !isfinite(velocityTangentY) ||
+                    !isfinite(velocityTangentZ) ||
+                    !isfinite(targetNormalVelocity) ||
+                    !isfinite(normalDelta) ||
+                    !isfinite(projectedNormalImpulse) ||
+                    !isfinite(normalResidual)) {
+                    atomic_fetch_min_explicit(&cooperativePgsResidualFailure,
+                        contact, memory_order_relaxed);
+                    continue;
+                }
+                const float frictionA = matrix[4u];
+                const float frictionB =
+                    0.5f * matrix[5u] + 0.5f * matrix[7u];
+                const float frictionD = matrix[8u];
+                const float rhsY = matrix[4u] * tangentImpulseY +
+                    matrix[5u] * tangentImpulseZ -
+                    (velocityTangentY + matrix[3u] * appliedNormal);
+                const float rhsZ = matrix[7u] * tangentImpulseY +
+                    matrix[8u] * tangentImpulseZ -
+                    (velocityTangentZ + matrix[6u] * appliedNormal);
+                const float frictionRadius =
+                    support.frictionSlopAndStabilization.x *
+                    projectedNormalImpulse;
+                const auto frictionResidual =
+                    mrNumiHumanFrictionDiskProjectedGradientResidual(
+                        frictionA, frictionB, frictionD, rhsY, rhsZ,
+                        tangentImpulseY, tangentImpulseZ, frictionRadius);
+                if (!frictionResidual.valid) {
+                    atomic_fetch_min_explicit(&cooperativePgsResidualFailure,
+                        contact, memory_order_relaxed);
+                    continue;
+                }
+                const float contactResidual = max(normalResidual,
+                    frictionResidual.value);
+                if (!isfinite(contactResidual)) {
+                    atomic_fetch_min_explicit(&cooperativePgsResidualFailure,
+                        contact, memory_order_relaxed);
+                    continue;
+                }
+                atomic_fetch_max_explicit(&cooperativePgsResidualMaxBits,
+                    as_type<uint>(contactResidual), memory_order_relaxed);
+            }
+            for (uint limit = lane; limit < limitCount;
+                 limit += threadCount) {
+                const uint dof = limitDofs[limit];
+                const float previous = limitAccumulatedImpulses[limit];
+                const float effectiveMass = limitEffectiveMass[limit];
+                const float lowerVelocity = limitLowerVelocity[limit];
+                const float upperVelocity = limitUpperVelocity[limit];
+                const float next = mrNumiHumanProjectIntervalImpulse(
+                    previous, candidateV[dof], lowerVelocity,
+                    upperVelocity, effectiveMass);
+                const float residual = abs((next - previous) * effectiveMass);
+                if (!isfinite(previous) || !isfinite(effectiveMass) ||
+                    !(effectiveMass > kResponseRegularization) ||
+                    !isfinite(lowerVelocity) || !isfinite(upperVelocity) ||
+                    lowerVelocity > upperVelocity || !isfinite(candidateV[dof]) ||
+                    !isfinite(next) || !isfinite(residual)) {
+                    atomic_fetch_min_explicit(&cooperativePgsResidualFailure,
+                        dispatch.supportContactCount + limit,
+                        memory_order_relaxed);
+                    continue;
+                }
+                atomic_fetch_max_explicit(&cooperativePgsResidualMaxBits,
+                    as_type<uint>(residual), memory_order_relaxed);
+            }
+            for (uint row = lane; row < equalityCount;
+                 row += threadCount) {
+                device const MRNumiHumanJointEqualityGPU& equality =
+                    jointEqualities[row];
+                float velocity = candidateV[equality.indices.y];
+                if (equality.indices.w != MR_INVALID_INDEX)
+                    velocity = fma(-equalityDerivativeCache[row],
+                        candidateV[equality.indices.w], velocity);
+                const float target = equalityTargetVelocityCache[row];
+                const float residual = abs(velocity - target);
+                if (!isfinite(velocity) || !isfinite(target) ||
+                    !isfinite(residual)) {
+                    atomic_fetch_min_explicit(&cooperativePgsResidualFailure,
+                        dispatch.supportContactCount + limitCount + row,
+                        memory_order_relaxed);
+                    continue;
+                }
+                atomic_fetch_max_explicit(&cooperativePgsResidualMaxBits,
+                    as_type<uint>(residual), memory_order_relaxed);
+            }
+            threadgroup_barrier(mem_flags::mem_threadgroup);
+            if (lane == 0u) {
+                const uint failure = atomic_load_explicit(
+                    &cooperativePgsResidualFailure, memory_order_relaxed);
+                if (failure != MR_INVALID_INDEX) {
+                    const uint contactEnd = dispatch.supportContactCount;
+                    const uint limitEnd = contactEnd + limitCount;
+                    if (failure < contactEnd) {
+                        fail(status, MR_NUMI_HUMAN_STAND_CONTACT_FAILED,
+                             failure);
+                    } else if (failure < limitEnd) {
+                        const uint limit = failure - contactEnd;
+                        fail(status, MR_NUMI_HUMAN_STAND_NONFINITE_RESULT,
+                             limitDofs[limit]);
+                    } else {
+                        fail(status,
+                            MR_NUMI_HUMAN_STAND_JOINT_EQUALITY_FAILED,
+                            failure - limitEnd);
+                    }
+                } else {
+                    const float maximumResidual = as_type<float>(
+                        atomic_load_explicit(
+                            &cooperativePgsResidualMaxBits,
+                            memory_order_relaxed));
+                    if (!isfinite(maximumResidual)) {
+                        fail(status, MR_NUMI_HUMAN_STAND_NONFINITE_RESULT,
+                             MR_INVALID_INDEX);
+                    } else if (maximumResidual <=
+                            kUseCooperativeStandVelocityResidualTolerance) {
+                        cooperativePgsResidualConverged = 1u;
+                        if (coupledSweep + 1u < coupledSweepCount)
+                            cooperativePgsEarlyExitUsed = 1u;
+                    }
+                }
+            }
+            threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+            if (status.code != MR_NUMI_HUMAN_STAND_SUCCESS) return;
+            if (cooperativePgsResidualConverged != 0u) break;
+        }
+    }
+#endif
 
     }
 
@@ -2717,17 +2921,27 @@
     status.maximumActiveContactCount = max(
         status.maximumActiveContactCount, activeContacts
     );
-    status.contactIterations = dispatch.contactIterationCount;
-    const uint finishPathEvidence = status.flags &
+    uint finishPathEvidence = status.flags &
         (MR_NUMI_HUMAN_STAND_REDUCED_PROJECTION_READY |
          MR_NUMI_HUMAN_STAND_REDUCED_PROJECTION_USED |
          MR_NUMI_HUMAN_STAND_DEFERRED_EQUALITY_DIAGNOSTICS_USED |
          MR_NUMI_HUMAN_STAND_HYBRID_FACTOR_CACHE_USED |
          MR_NUMI_HUMAN_STAND_CONTACT_WARMSTART_HIT |
          MR_NUMI_HUMAN_STAND_CONTACT_WARMSTART_USED);
+#if defined(MR_NH_COOPERATIVE_FINISH)
+    if (useCooperativePgsResidualExit &&
+        cooperativePgsEarlyExitUsed != 0u) {
+        finishPathEvidence |= MR_NUMI_HUMAN_STAND_PGS_EARLY_EXIT_USED;
+        status.contactIterations = cooperativePgsSweepReceipt;
+    } else
+#endif
+    {
+        status.contactIterations = dispatch.contactIterationCount;
+    }
     status.flags = (dispatch.flags &
         ~(MR_NUMI_HUMAN_STAND_FREE_READY |
-          MR_NUMI_HUMAN_STAND_CPU_FINISH_READY)) | finishPathEvidence;
+          MR_NUMI_HUMAN_STAND_CPU_FINISH_READY |
+          MR_NUMI_HUMAN_STAND_PGS_EARLY_EXIT_USED)) | finishPathEvidence;
     status.contactAndAcceleration.x = min(
         status.contactAndAcceleration.x, minimumGap
     );

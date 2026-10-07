@@ -42,6 +42,74 @@ inline float mrNumiHumanFrictionNorm(float x, float y) {
 #endif
 }
 
+struct MRNumiHumanFrictionProjectedGradientResidual {
+    float value;
+    bool valid;
+};
+
+// Velocity-unit projected-gradient mapping for the symmetric tangent metric.
+// L is the maximum absolute row sum, an upper bound on the SPD operator norm.
+// This local residual evaluates one contact's disk KKT conditions; it is not a
+// global optimality claim for a coupled system with hard Coulomb contact.
+inline MRNumiHumanFrictionProjectedGradientResidual
+mrNumiHumanFrictionDiskProjectedGradientResidual(
+    float a, float b, float d, float rhsX, float rhsY,
+    float impulseX, float impulseY, float radius
+) {
+    const auto invalid = MRNumiHumanFrictionProjectedGradientResidual{
+        0.0f, false};
+    if (!mrNumiHumanFrictionFinite(a) ||
+        !mrNumiHumanFrictionFinite(b) ||
+        !mrNumiHumanFrictionFinite(d) ||
+        !mrNumiHumanFrictionFinite(rhsX) ||
+        !mrNumiHumanFrictionFinite(rhsY) ||
+        !mrNumiHumanFrictionFinite(impulseX) ||
+        !mrNumiHumanFrictionFinite(impulseY) ||
+        !mrNumiHumanFrictionFinite(radius) ||
+        !(a > 0.0f) || !(d > 0.0f) || radius < 0.0f)
+        return invalid;
+    const float determinant =
+        mrNumiHumanFusedMultiplyAdd(a, d, -b * b);
+    if (!(determinant > 0.0f) ||
+        !mrNumiHumanFrictionFinite(determinant)) return invalid;
+    const float absA = a < 0.0f ? -a : a;
+    const float absB = b < 0.0f ? -b : b;
+    const float absD = d < 0.0f ? -d : d;
+    const float row0 = absA + absB;
+    const float row1 = absB + absD;
+    const float lipschitz = row0 > row1 ? row0 : row1;
+    if (!(lipschitz > 0.0f) || !mrNumiHumanFrictionFinite(lipschitz))
+        return invalid;
+
+    const float gradientX = mrNumiHumanFusedMultiplyAdd(
+        a, impulseX, mrNumiHumanFusedMultiplyAdd(
+            b, impulseY, -rhsX));
+    const float gradientY = mrNumiHumanFusedMultiplyAdd(
+        b, impulseX, mrNumiHumanFusedMultiplyAdd(
+            d, impulseY, -rhsY));
+    if (!mrNumiHumanFrictionFinite(gradientX) ||
+        !mrNumiHumanFrictionFinite(gradientY))
+        return invalid;
+    const float trialX = impulseX - gradientX / lipschitz;
+    const float trialY = impulseY - gradientY / lipschitz;
+    if (!mrNumiHumanFrictionFinite(trialX) ||
+        !mrNumiHumanFrictionFinite(trialY))
+        return invalid;
+    float projectedX = trialX;
+    float projectedY = trialY;
+    const float trialNorm = mrNumiHumanFrictionNorm(trialX, trialY);
+    if (!mrNumiHumanFrictionFinite(trialNorm)) return invalid;
+    if (trialNorm > radius) {
+        if (!(trialNorm > 0.0f)) return invalid;
+        const float projectionScale = radius / trialNorm;
+        projectedX *= projectionScale;
+        projectedY *= projectionScale;
+    }
+    const float value = lipschitz * mrNumiHumanFrictionNorm(
+        impulseX - projectedX, impulseY - projectedY);
+    return {value, mrNumiHumanFrictionFinite(value)};
+}
+
 // The contact response metric stays fixed during all coupled sweeps. Prepare
 // its normalization and determinant once; fall back to the general solver
 // whenever the unconstrained friction impulse reaches the disk boundary.

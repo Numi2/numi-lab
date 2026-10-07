@@ -97,6 +97,14 @@ constant bool kStandContactWarmStart [[function_constant(13)]];
 constant bool kUseStandContactWarmStart =
     is_function_constant_defined(kStandContactWarmStart)
         ? kStandContactWarmStart : false;
+// A positive value enables a full coupled-sweep convergence check in the
+// cooperative projected finish. Zero keeps the configured fixed sweep count.
+constant float kCooperativeStandVelocityResidualTolerance
+    [[function_constant(12)]];
+constant float kUseCooperativeStandVelocityResidualTolerance =
+    is_function_constant_defined(
+        kCooperativeStandVelocityResidualTolerance)
+        ? kCooperativeStandVelocityResidualTolerance : 0.0f;
 inline float standContactAdmissionDistanceMeters(
     const MRNumiHumanStandContactGPU support
 ) {
@@ -3362,6 +3370,11 @@ kernel void mr_numi_human_stand_finish(
     threadgroup float workspaceStorage[MR_NUMI_HUMAN_STAND_MAX_DOFS];
     threadgroup uint cooperativeFreeSolveSucceeded;
     threadgroup uint cooperativeEqualitySucceeded;
+    threadgroup uint cooperativePgsSweepReceipt;
+    threadgroup uint cooperativePgsResidualConverged;
+    threadgroup uint cooperativePgsEarlyExitUsed;
+    threadgroup atomic_uint cooperativePgsResidualMaxBits;
+    threadgroup atomic_uint cooperativePgsResidualFailure;
     // Lanes evaluate ordered unilateral decisions together; lane zero owns
     // impulse history, and disjoint lanes apply each accepted response.
     threadgroup uint cooperativeLimitCount;
@@ -3424,6 +3437,9 @@ kernel void mr_numi_human_stand_finish(
         bodyCount * MR_NUMI_HUMAN_STAND_SPATIAL_SCRATCH_ROWS * nv >=
             (2u + equalityCount) * nv +
             3u * dispatch.supportContactCount * equalityCount;
+    const bool useCooperativePgsResidualExit =
+        kUseCooperativeStandVelocityResidualTolerance > 0.0f &&
+        !kCpuFinishSpecialized && useProjectedContacts;
     const float timestep = dispatch.groundPointAndTimestep.w;
     float minimumPivot = INFINITY;
     float maximumPivot = 0.0f;

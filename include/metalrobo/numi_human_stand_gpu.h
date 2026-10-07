@@ -89,6 +89,9 @@ enum MRNumiHumanStandFlags {
     MR_NUMI_HUMAN_STAND_CONTACT_WARMSTART_HIT = 1u << 24u,
     // The accepted guess changed the cold source seed and was applied to v.
     MR_NUMI_HUMAN_STAND_CONTACT_WARMSTART_USED = 1u << 25u,
+    // Status-only receipt that the cooperative projected-PGS residual met its
+    // requested threshold before the configured sweep limit.
+    MR_NUMI_HUMAN_STAND_PGS_EARLY_EXIT_USED = 1u << 26u,
 };
 
 // One source-authored support witness. The point-query index addresses the

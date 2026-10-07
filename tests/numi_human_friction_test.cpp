@@ -62,6 +62,18 @@ void exercise(float a,float b,float d,float rx,float ry,float r) {
         ++preparedFallbackCases;
     }
     const auto expected=oracle(a,b,d,rx,ry,r);
+    const auto projectedResidual =
+        mrNumiHumanFrictionDiskProjectedGradientResidual(
+            a, b, d, rx, ry, result.x, result.y, r);
+    require(projectedResidual.valid,
+            "projected-gradient residual rejected a valid friction solution");
+    const float residualScale =
+        std::abs(a * result.x) + std::abs(b * result.y) +
+        std::abs(b * result.x) + std::abs(d * result.y) +
+        std::abs(rx) + std::abs(ry);
+    require(projectedResidual.value <=
+                2.0e-5f * residualScale + 2.0e-7f,
+            "friction solution has a nonzero velocity-unit disk KKT residual");
     const long double norm=std::hypot(result.x,result.y);
     const long double referenceNorm=std::hypot(expected[0],expected[1]);
     const long double error=std::hypot(result.x-expected[0],result.y-expected[1]);
@@ -107,6 +119,51 @@ int main() {
             require(!mrNumiHumanSolveFrictionDisk(bad,0,1,1,1,1).valid,"nonfinite metric accepted");
             require(!mrNumiHumanSolveFrictionDisk(1,0,1,bad,1,1).valid,"nonfinite force accepted");
             require(!mrNumiHumanSolveFrictionDisk(1,0,1,1,1,bad).valid,"nonfinite radius accepted");
+        }
+        const auto anisotropic = mrNumiHumanSolveFrictionDisk(
+            1.5f, 0.45f, 3.0f, -2.0f, 0.7f, 0.8f);
+        const auto anisotropicResidual =
+            mrNumiHumanFrictionDiskProjectedGradientResidual(
+                1.5f, 0.45f, 3.0f, -2.0f, 0.7f,
+                anisotropic.x, anisotropic.y, 0.8f);
+        require(anisotropic.valid && anisotropicResidual.valid &&
+                    anisotropicResidual.value < 2.0e-5f,
+                "anisotropic friction KKT residual is not zero at its solution");
+        const auto perturbedResidual =
+            mrNumiHumanFrictionDiskProjectedGradientResidual(
+                1.5f, 0.45f, 3.0f, -2.0f, 0.7f,
+                anisotropic.x + 0.013f, anisotropic.y - 0.007f, 0.8f);
+        require(perturbedResidual.valid &&
+                    perturbedResidual.value > anisotropicResidual.value,
+                "friction KKT residual did not detect a perturbed impulse");
+        const auto noSlip = mrNumiHumanSolveFrictionDisk(
+            2.0f, 0.25f, 1.5f, 0.0f, 0.0f, 0.5f);
+        const auto noSlipResidual =
+            mrNumiHumanFrictionDiskProjectedGradientResidual(
+                2.0f, 0.25f, 1.5f, 0.0f, 0.0f,
+                noSlip.x, noSlip.y, 0.5f);
+        require(noSlip.valid && noSlip.x == 0.0f && noSlip.y == 0.0f &&
+                    noSlipResidual.valid && noSlipResidual.value == 0.0f,
+                "no-slip zero solution has nonzero friction residual");
+        const auto zeroDiskResidual =
+            mrNumiHumanFrictionDiskProjectedGradientResidual(
+                2.0f, 0.25f, 1.5f, 3.0f, -4.0f, 0.0f, 0.0f, 0.0f);
+        require(zeroDiskResidual.valid && zeroDiskResidual.value == 0.0f,
+                "unilateral zero-radius disk has nonzero residual at zero impulse");
+        require(!mrNumiHumanFrictionDiskProjectedGradientResidual(
+                    1.0f, 2.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f).valid,
+                "indefinite tangent metric accepted by projected-gradient residual");
+        for (float bad : {std::numeric_limits<float>::quiet_NaN(),
+                          std::numeric_limits<float>::infinity()}) {
+            require(!mrNumiHumanFrictionDiskProjectedGradientResidual(
+                        bad, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f).valid,
+                    "nonfinite metric accepted by projected-gradient residual");
+            require(!mrNumiHumanFrictionDiskProjectedGradientResidual(
+                        1.0f, 0.0f, 1.0f, bad, 0.0f, 0.0f, 0.0f, 1.0f).valid,
+                    "nonfinite RHS accepted by projected-gradient residual");
+            require(!mrNumiHumanFrictionDiskProjectedGradientResidual(
+                        1.0f, 0.0f, 1.0f, 0.0f, 0.0f, bad, 0.0f, 1.0f).valid,
+                    "nonfinite impulse accepted by projected-gradient residual");
         }
         require(!mrNumiHumanSolveFrictionDisk(1,2,1,1,1,1).valid,"indefinite metric accepted");
         require(!mrNumiHumanSolveFrictionDisk(1,1,1,1,1,1).valid,"singular metric accepted");

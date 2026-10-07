@@ -572,11 +572,12 @@ void visitSplitStandBoundary(
     Sink& sink,
     const MetalArticulatedOperatorInput& input,
     const float speculativeContactAdmissionDistanceMeters,
-    const bool hybridEqualityFactorCache
+    const bool hybridEqualityFactorCache,
+    const float standPgsVelocityResidualTolerance
 ) {
     constexpr std::array<std::uint8_t, 30u> domain{{
         'm','r','n','x','.','s','p','l','i','t','-','s','t','a','n','d','.',
-        'b','o','u','n','d','a','r','y','.','v','4',0,0}};
+        'b','o','u','n','d','a','r','y','.','v','5',0,0}};
     sink.append(domain.data(), domain.size());
     appendSplitStandValue(sink, input.articulationIndex);
     appendSplitStandValue(sink, input.environmentCount);
@@ -615,6 +616,11 @@ void visitSplitStandBoundary(
     appendSplitStandValue(sink, input.stand.targetRootOrientation);
     appendSplitStandValue(sink, input.stand.assistanceGains);
     appendSplitStandValue(sink, input.stand.timedRootForce);
+    if (standPgsVelocityResidualTolerance > 0.0f) {
+        const std::uint8_t residualStopEnabled = 1u;
+        appendSplitStandValue(sink, residualStopEnabled);
+        appendSplitStandValue(sink, standPgsVelocityResidualTolerance);
+    }
 }
 
 [[nodiscard]] bool standContactWarmStartArenaApplicable(
@@ -686,20 +692,23 @@ void visitSplitStandBoundary(
     SplitStandBoundaryCache& cache,
     const MetalArticulatedOperatorInput& input,
     const float speculativeContactAdmissionDistanceMeters,
-    const bool hybridEqualityFactorCache
+    const bool hybridEqualityFactorCache,
+    const float standPgsVelocityResidualTolerance
 ) {
     if (cache.fingerprint != 0u) {
         SplitStandBoundaryCompare compare{cache.bytes};
         visitSplitStandBoundary(compare, input,
             speculativeContactAdmissionDistanceMeters,
-            hybridEqualityFactorCache);
+            hybridEqualityFactorCache,
+            standPgsVelocityResidualTolerance);
         if (compare.exact && compare.offset == cache.bytes.size())
             return cache.fingerprint;
     }
     SplitStandBoundaryCapture capture(cache.bytes);
     visitSplitStandBoundary(capture, input,
         speculativeContactAdmissionDistanceMeters,
-        hybridEqualityFactorCache);
+        hybridEqualityFactorCache,
+        standPgsVelocityResidualTolerance);
     std::array<std::uint8_t, CC_SHA256_DIGEST_LENGTH> digest{};
     CC_SHA256_Final(digest.data(), &capture.context);
     std::uint64_t fingerprint = 0u;
@@ -759,6 +768,22 @@ struct MetalArticulatedOperatorContextState {
         if (hybridEqualityFactorCache != nullptr)
             config.hybridStandEqualityFactorCache =
                 std::strcmp(hybridEqualityFactorCache, "1") == 0;
+        const char* standPgsResidualTolerance = std::getenv(
+            "NUMI_HUMAN_STAND_PGS_VELOCITY_RESIDUAL_TOLERANCE");
+        if (standPgsResidualTolerance != nullptr) {
+            char* end = nullptr;
+            errno = 0;
+            const float parsed = std::strtof(
+                standPgsResidualTolerance, &end);
+            if (end == standPgsResidualTolerance || *end != '\0' ||
+                errno == ERANGE || !std::isfinite(parsed) ||
+                parsed < 0.0f || parsed > 1.0e-6f) {
+                config.standPgsVelocityResidualTolerance =
+                    std::numeric_limits<float>::quiet_NaN();
+            } else {
+                config.standPgsVelocityResidualTolerance = parsed;
+            }
+        }
         const char* speculativeContactAdmission = std::getenv(
             "NUMI_HUMAN_STAND_SPECULATIVE_CONTACT_DISTANCE_M");
         if (speculativeContactAdmission != nullptr) {
@@ -2882,6 +2907,15 @@ MetalArticulatedOperatorDiagnostics validateAndBuildLayout(
     diagnostics.speculativeContactAdmissionOverrideRequestedMeters =
         config.speculativeContactAdmissionDistanceMeters;
 
+    if (!std::isfinite(config.standPgsVelocityResidualTolerance) ||
+        config.standPgsVelocityResidualTolerance < 0.0f ||
+        config.standPgsVelocityResidualTolerance > 1.0e-6f) {
+        return reject(
+            std::move(diagnostics),
+            MetalArticulatedOperatorHostStatus::invalidDimensions,
+            "stand cooperative PGS velocity residual tolerance must be finite and within [0, 1e-6] generalized velocity units"
+        );
+    }
     if (!std::isfinite(config.speculativeContactAdmissionDistanceMeters) ||
         config.speculativeContactAdmissionDistanceMeters < 0.0f ||
         config.speculativeContactAdmissionDistanceMeters > 0.02f) {
@@ -4385,6 +4419,11 @@ MetalArticulatedOperatorDiagnostics initializeContext(
         [finishConstants setConstantValue:
             &speculativeContactAdmissionDistanceMeters
             type:MTLDataTypeFloat atIndex:8u];
+        float standPgsVelocityResidualTolerance =
+            context.config.standPgsVelocityResidualTolerance;
+        [finishConstants setConstantValue:
+            &standPgsVelocityResidualTolerance
+            type:MTLDataTypeFloat atIndex:12u];
         error = nil;
         id<MTLFunction> standFinishFunction = [library
             newFunctionWithName:@"mr_numi_human_stand_finish"
@@ -4472,6 +4511,10 @@ MetalArticulatedOperatorDiagnostics initializeContext(
         deferStandEqualityDiagnostics = false;
         [finishConstants setConstantValue:&deferStandEqualityDiagnostics
                                     type:MTLDataTypeBool atIndex:9u];
+        standPgsVelocityResidualTolerance = 0.0f;
+        [finishConstants setConstantValue:
+            &standPgsVelocityResidualTolerance
+            type:MTLDataTypeFloat atIndex:12u];
         error = nil;
         id<MTLFunction> standCpuFinishFunction = [library
             newFunctionWithName:@"mr_numi_human_stand_finish"
@@ -10314,7 +10357,8 @@ MetalArticulatedOperatorContext::submit(
                 ? splitStandBoundaryFingerprint(
                       state_->splitStandBoundaryCache, input,
                       state_->config.speculativeContactAdmissionDistanceMeters,
-                      state_->config.hybridStandEqualityFactorCache)
+                      state_->config.hybridStandEqualityFactorCache,
+                      state_->config.standPgsVelocityResidualTolerance)
                 : 0u;
         const std::uint64_t standBoundaryFingerprint =
             hasExplicitAuthoritativeHorizon
