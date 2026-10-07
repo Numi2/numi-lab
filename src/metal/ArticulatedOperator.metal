@@ -1437,8 +1437,6 @@ inline bool buildKinematicsCooperative(
     threadgroup float4* bodyRotation,
     threadgroup MRKinematicPosition* jointPosition,
     threadgroup float3* jointAxis,
-    threadgroup uint* inboundJoint,
-    threadgroup uint* parentLocal,
     threadgroup uchar* known,
     threadgroup atomic_uint* failed,
     threadgroup uint* maximumDepth,
@@ -1464,69 +1462,42 @@ inline bool buildKinematicsCooperative(
             bodyRotation[rootLocal] = float4(0.0f, 0.0f, 0.0f, 1.0f);
         }
         known[rootLocal] = 1u;
-    }
-    threadgroup_barrier(mem_flags::mem_threadgroup);
-
-    // validModelAndLayout has already checked every source joint and populated
-    // one inbound joint and parent for each non-root body. Build the
-    // source-constant parent-first depth schedule in parallel: walking parent
-    // links is bounded by bodyCount, so malformed disconnected/cyclic trees
-    // fail closed and replay the original ordered validator below.
-    if (atomic_load_explicit(failed, memory_order_relaxed) == 0u) {
-        for (uint body = lane; body < articulation.bodyCount;
-             body += threadCount) {
-            if (body == rootLocal) continue;
-            uint current = body;
-            uint depth = 1u;
-            bool reachedRoot = false;
-            for (uint step = 0u; step < articulation.bodyCount; ++step) {
-                if (current == rootLocal) {
-                    reachedRoot = true;
-                    break;
-                }
-                if (current >= articulation.bodyCount) break;
-                const uint parent = parentLocal[current];
-                if (parent >= articulation.bodyCount || parent == current)
-                    break;
-                current = parent;
-                ++depth;
-            }
-            if (!reachedRoot || depth > 255u) {
-                known[body] = 0u;
-                atomic_store_explicit(failed, 1u, memory_order_relaxed);
-            } else {
-                known[body] = uchar(depth);
-            }
-        }
-    }
-    threadgroup_barrier(mem_flags::mem_threadgroup);
-    if (lane == 0u) {
+        uint discovered = 1u;
         uint deepest = 1u;
         if (atomic_load_explicit(failed, memory_order_relaxed) == 0u) {
-            for (uint body = 0u; body < articulation.bodyCount; ++body) {
-                if (known[body] == 0u) {
-                    atomic_store_explicit(failed, 1u, memory_order_relaxed);
-                    break;
+            for (uint pass = 0u;
+                 pass < articulation.bodyCount && discovered < articulation.bodyCount;
+                 ++pass) {
+                bool progressed = false;
+                for (uint localJoint = 0u; localJoint < articulation.jointCount;
+                     ++localJoint) {
+                    device const MRJointDescriptorGPU& joint =
+                        joints[articulation.firstJoint + localJoint];
+                    const uint parent = joint.parentBody - articulation.firstBody;
+                    const uint child = joint.childBody - articulation.firstBody;
+                    if (known[parent] == 0u || known[child] != 0u) continue;
+                    const uint depth = uint(known[parent]) + 1u;
+                    known[child] = uchar(depth);
+                    deepest = max(deepest, depth);
+                    ++discovered;
+                    progressed = true;
                 }
-                deepest = max(deepest, uint(known[body]));
+                if (!progressed) break;
             }
+            if (discovered != articulation.bodyCount || deepest > 255u)
+                atomic_store_explicit(failed, 1u, memory_order_relaxed);
         }
         *maximumDepth = deepest;
     }
     threadgroup_barrier(mem_flags::mem_threadgroup);
-
     if (atomic_load_explicit(failed, memory_order_relaxed) == 0u) {
         for (uint depth = 2u; depth <= *maximumDepth; ++depth) {
-            for (uint child = lane; child < articulation.bodyCount;
-                 child += threadCount) {
+            for (uint localJoint = lane; localJoint < articulation.jointCount;
+                 localJoint += threadCount) {
+                const uint globalJoint = articulation.firstJoint + localJoint;
+                device const MRJointDescriptorGPU& joint = joints[globalJoint];
+                const uint child = joint.childBody - articulation.firstBody;
                 if (known[child] != depth) continue;
-                const uint globalJoint = inboundJoint[child];
-                if (globalJoint < articulation.firstJoint ||
-                    globalJoint >= articulation.firstJoint +
-                                       articulation.jointCount) {
-                    atomic_store_explicit(failed, 1u, memory_order_relaxed);
-                    continue;
-                }
                 MRArticulatedOperatorStatusGPU localStatus = status;
                 if (!evaluateKinematicJoint(
                         globalJoint, articulation, joints, functionPrograms,
@@ -2034,8 +2005,8 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
 #endif
         kinematicsSucceeded = buildKinematicsCooperative(
             articulation, joints, functionPrograms, environmentQ,
-            bodyPosition, bodyRotation, jointPosition, jointAxis,
-            inboundJoint, parentLocal, known, &cooperativeKinematicsFailed,
+            bodyPosition, bodyRotation, jointPosition, jointAxis, known,
+            &cooperativeKinematicsFailed,
             &cooperativeKinematicsMaximumDepth,
             lane, threadsPerThreadgroup, status);
         if (!kinematicsSucceeded) {
