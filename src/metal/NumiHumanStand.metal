@@ -2181,84 +2181,73 @@ inline bool prepareReducedStandProjection(
         equalityCount <= nv ? nv - equalityCount : 0u;
     if (lane == 0u) {
         *ready = 0u;
-        bool valid = equalityCount <= nv &&
-            freeDofs != 0u && freeDofs <= 64u;
-        if (valid) {
-            for (uint dof = 0u; dof < nv; ++dof) {
-                coordinateForDof[dof] = MR_INVALID_INDEX;
-                coefficientForDof[dof] = 0.0f;
-            }
-            // Mark all dependents first so every chained source relation rejects.
-            for (uint row = 0u; row < equalityCount && valid; ++row) {
-                const uint dependent = jointEqualities[row].indices.y;
-                if (dependent >= nv ||
-                    coordinateForDof[dependent] != MR_INVALID_INDEX) {
-                    valid = false;
-                    break;
-                }
-                coordinateForDof[dependent] = nv;
-            }
-            for (uint row = 0u; row < equalityCount && valid; ++row) {
-                device const auto& equality = jointEqualities[row];
-                const bool fixed = equality.indices.z == MR_INVALID_INDEX &&
-                    equality.indices.w == MR_INVALID_INDEX;
-                const bool coupled =
-                    equality.indices.z != MR_INVALID_INDEX &&
-                    equality.indices.w < nv;
-                if ((!fixed && !coupled) ||
-                    (coupled &&
-                     (coordinateForDof[equality.indices.w] == nv ||
-                      !isfinite(derivativeCache[row]))))
-                    valid = false;
-            }
-            uint coordinate = 0u;
-            for (uint dof = 0u; dof < nv && valid; ++dof) {
-                if (coordinateForDof[dof] == MR_INVALID_INDEX) {
-                    if (coordinate >= freeDofs) {
-                        valid = false;
-                        break;
-                    }
-                    coordinateForDof[dof] = coordinate++;
-                    coefficientForDof[dof] = 1.0f;
-                }
-            }
-            valid = valid && coordinate == freeDofs;
-            for (uint row = 0u; row < equalityCount && valid; ++row) {
-                device const auto& equality = jointEqualities[row];
-                const uint dependent = equality.indices.y;
-                if (equality.indices.w == MR_INVALID_INDEX) {
-                    coordinateForDof[dependent] = MR_INVALID_INDEX;
-                    coefficientForDof[dependent] = 0.0f;
-                } else {
-                    const uint master = equality.indices.w;
-                    const uint masterCoordinate = coordinateForDof[master];
-                    if (master >= nv || masterCoordinate >= freeDofs ||
-                        !isfinite(derivativeCache[row])) {
-                        valid = false;
-                        break;
-                    }
-                    coordinateForDof[dependent] = masterCoordinate;
-                    coefficientForDof[dependent] = derivativeCache[row];
-                }
-            }
-            if (valid) {
-                for (uint index = 0u; index <= freeDofs; ++index)
-                    coordinateOffsets[index] = 0u;
-                for (uint dof = 0u; dof < nv; ++dof) {
-                    const uint coordinateIndex = coordinateForDof[dof];
-                    if (coordinateIndex != MR_INVALID_INDEX)
-                        ++coordinateOffsets[coordinateIndex + 1u];
-                }
-                for (uint coordinateIndex = 0u;
-                     coordinateIndex < freeDofs; ++coordinateIndex)
-                    coordinateOffsets[coordinateIndex + 1u] +=
-                        coordinateOffsets[coordinateIndex];
-                *ready = 1u;
-            }
-        }
+        atomic_store_explicit(factorFailure, 0u, memory_order_relaxed);
     }
     threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
-    if (*ready == 0u) return false;
+    if (equalityCount > nv || freeDofs == 0u || freeDofs > 64u)
+        return false;
+
+    // Reuse the factor cache before factorization for immutable dependency
+    // tags. Each DOF has one writer. The scans retain the authored equality
+    // order, but independent DOFs no longer serialize on lane zero.
+    threadgroup uint* dependencyRows =
+        reinterpret_cast<threadgroup uint*>(factorCache);
+    for (uint dof = lane; dof < nv; dof += threadCount) {
+        uint dependentRow = MR_INVALID_INDEX;
+        for (uint row = 0u; row < equalityCount; ++row) {
+            if (jointEqualities[row].indices.y != dof) continue;
+            if (dependentRow != MR_INVALID_INDEX)
+                atomic_store_explicit(factorFailure, 1u, memory_order_relaxed);
+            dependentRow = row;
+        }
+        dependencyRows[dof] = dependentRow;
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    for (uint row = lane; row < equalityCount; row += threadCount) {
+        device const auto& equality = jointEqualities[row];
+        const uint master = equality.indices.w;
+        const bool fixed = equality.indices.z == MR_INVALID_INDEX &&
+            master == MR_INVALID_INDEX;
+        const bool coupled = equality.indices.z != MR_INVALID_INDEX &&
+            master < nv;
+        if (equality.indices.y >= nv || (!fixed && !coupled) ||
+            (coupled && (dependencyRows[master] != MR_INVALID_INDEX ||
+                         !isfinite(derivativeCache[row]))))
+            atomic_store_explicit(factorFailure, 1u, memory_order_relaxed);
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    if (atomic_load_explicit(factorFailure, memory_order_relaxed) != 0u)
+        return false;
+
+    for (uint dof = lane; dof < nv; dof += threadCount) {
+        const uint row = dependencyRows[dof];
+        const uint master = row == MR_INVALID_INDEX
+            ? dof : jointEqualities[row].indices.w;
+        uint coordinate = MR_INVALID_INDEX;
+        float coefficient = 0.0f;
+        if (master != MR_INVALID_INDEX) {
+            coordinate = 0u;
+            for (uint predecessor = 0u; predecessor < master; ++predecessor)
+                coordinate += dependencyRows[predecessor] == MR_INVALID_INDEX
+                    ? 1u : 0u;
+            coefficient = row == MR_INVALID_INDEX
+                ? 1.0f : derivativeCache[row];
+        }
+        coordinateForDof[dof] = coordinate;
+        coefficientForDof[dof] = coefficient;
+    }
+    threadgroup_barrier(mem_flags::mem_device);
+    // A coordinate offset is the count of earlier active source DOFs.
+    // These integer counts exactly match the previous serial prefix sum.
+    for (uint coordinate = lane; coordinate <= freeDofs;
+         coordinate += threadCount) {
+        uint offset = 0u;
+        for (uint dof = 0u; dof < nv; ++dof)
+            offset += coordinateForDof[dof] < coordinate ? 1u : 0u;
+        coordinateOffsets[coordinate] = offset;
+    }
+    if (lane == 0u) *ready = 1u;
+    threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
     // Each coordinate owns a disjoint packed range. Preserve ascending source
     // DOF order while distributing independent scans across the existing group.
     for (uint coordinateIndex = lane; coordinateIndex < freeDofs;
