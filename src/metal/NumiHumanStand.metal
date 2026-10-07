@@ -44,6 +44,12 @@ constant bool kFinishWorkCounters [[function_constant(4)]];
 constant bool kUseFinishWorkCounters =
     is_function_constant_defined(kFinishWorkCounters)
         ? kFinishWorkCounters : false;
+// Opt-in n=65...128 equality factor path. One lane owns each matrix row;
+// the host selects this specialization only with a 128-thread group.
+constant bool kRegisterOwnedBilateralFactor [[function_constant(5)]];
+constant bool kUseRegisterOwnedBilateralFactor =
+    is_function_constant_defined(kRegisterOwnedBilateralFactor)
+        ? kRegisterOwnedBilateralFactor : false;
 struct MRStandFinishWorkCounters {
     uint sweeps, contactDecisions, contactContractions;
     uint normalChanges, tangentChanges, zeroContactChanges;
@@ -147,6 +153,144 @@ inline bool mrNumiHumanBilateralSolveCooperative(
     }
     threadgroup_barrier(mem_flags::mem_threadgroup);
     return *succeeded != 0u;
+}
+
+// For medium dense blocks, each lane retains one complete row in private
+// storage rather than round-tripping the Schur matrix through device memory on
+// every pivot. Three 128-float threadgroup vectors publish the pivot column
+// and exchange the two pivot rows. Pivot scan/tie order, scaling order,
+// division, and each row's increasing-column FMA sequence match the fallback.
+// The 128-float private row is the main register-pressure risk; callers gate
+// this path to an opt-in 128-thread pipeline and n<=128.
+inline bool mrNumiHumanBilateralFactorRows128(
+    device float* matrix,
+    device float* inverseScale,
+    device float* pivots,
+    const uint n,
+    const uint lane,
+    const uint threadCount,
+    thread float* rowValues,
+    threadgroup float* scaleCache,
+    threadgroup float* pivotCache,
+    threadgroup float* pivotColumn,
+    threadgroup float* swapFirst,
+    threadgroup float* swapSecond,
+    threadgroup atomic_uint* failure,
+    threadgroup uint* selectedPivot
+) {
+    constexpr mem_flags workspaceFence =
+        mem_flags::mem_device | mem_flags::mem_threadgroup;
+    if (lane == 0u)
+        atomic_store_explicit(failure, MR_INVALID_INDEX,
+                              memory_order_relaxed);
+    if (lane == 0u &&
+        (n == 0u || n > 128u || threadCount != 128u))
+        atomic_fetch_min_explicit(failure, 0u, memory_order_relaxed);
+    threadgroup_barrier(workspaceFence);
+    if (atomic_load_explicit(failure, memory_order_relaxed) !=
+        MR_INVALID_INDEX) return false;
+
+    if (lane < n) {
+        const float diagonal = matrix[lane * n + lane];
+        if (!(diagonal > 0.0f) || !isfinite(diagonal))
+            atomic_fetch_min_explicit(failure, lane, memory_order_relaxed);
+        else {
+            scaleCache[lane] = 1.0f / mrNHBilateralSqrt(diagonal);
+            if (!isfinite(scaleCache[lane]))
+                atomic_fetch_min_explicit(failure, lane,
+                                          memory_order_relaxed);
+        }
+    }
+    threadgroup_barrier(workspaceFence);
+    if (atomic_load_explicit(failure, memory_order_relaxed) !=
+        MR_INVALID_INDEX) return false;
+
+    if (lane < n) {
+        for (uint column = 0u; column < n; ++column) {
+            const uint index = lane * n + column;
+            rowValues[column] =
+                (matrix[index] * scaleCache[lane]) * scaleCache[column];
+            if (!isfinite(rowValues[column]))
+                atomic_fetch_min_explicit(failure, index,
+                                          memory_order_relaxed);
+        }
+    }
+    threadgroup_barrier(workspaceFence);
+    if (atomic_load_explicit(failure, memory_order_relaxed) !=
+        MR_INVALID_INDEX) return false;
+
+    for (uint k = 0u; k < n; ++k) {
+        if (lane < n) pivotColumn[lane] = rowValues[k];
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+        if (lane == 0u) {
+            uint pivot = k;
+            float largest = mrNHBilateralAbs(pivotColumn[k]);
+            for (uint row = k + 1u; row < n; ++row) {
+                const float value = mrNHBilateralAbs(pivotColumn[row]);
+                if (value > largest) { largest = value; pivot = row; }
+            }
+            if (!(largest > 0.0f) || !isfinite(largest))
+                atomic_fetch_min_explicit(failure, k,
+                                          memory_order_relaxed);
+            else {
+                pivotCache[k] = float(pivot);
+                *selectedPivot = pivot;
+            }
+        }
+        threadgroup_barrier(workspaceFence);
+        if (atomic_load_explicit(failure, memory_order_relaxed) !=
+            MR_INVALID_INDEX) return false;
+
+        if (*selectedPivot != k) {
+            if (lane == k)
+                for (uint column = 0u; column < n; ++column)
+                    swapFirst[column] = rowValues[column];
+            if (lane == *selectedPivot)
+                for (uint column = 0u; column < n; ++column)
+                    swapSecond[column] = rowValues[column];
+            threadgroup_barrier(mem_flags::mem_threadgroup);
+            if (lane == k)
+                for (uint column = 0u; column < n; ++column)
+                    rowValues[column] = swapSecond[column];
+            if (lane == *selectedPivot)
+                for (uint column = 0u; column < n; ++column)
+                    rowValues[column] = swapFirst[column];
+            threadgroup_barrier(mem_flags::mem_threadgroup);
+        }
+        if (lane == k)
+            for (uint column = 0u; column < n; ++column)
+                swapSecond[column] = rowValues[column];
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+
+        if (lane > k && lane < n) {
+            rowValues[k] /= swapSecond[k];
+            if (!isfinite(rowValues[k]))
+                atomic_fetch_min_explicit(failure, lane,
+                                          memory_order_relaxed);
+            else {
+                for (uint column = k + 1u; column < n; ++column) {
+                    rowValues[column] = mrNHBilateralFma(
+                        -rowValues[k], swapSecond[column],
+                        rowValues[column]);
+                    if (!isfinite(rowValues[column]))
+                        atomic_fetch_min_explicit(failure, lane,
+                                                  memory_order_relaxed);
+                }
+            }
+        }
+        threadgroup_barrier(workspaceFence);
+        if (atomic_load_explicit(failure, memory_order_relaxed) !=
+            MR_INVALID_INDEX) return false;
+    }
+
+    if (lane < n) {
+        for (uint column = 0u; column < n; ++column)
+            matrix[lane * n + column] = rowValues[column];
+        inverseScale[lane] = scaleCache[lane];
+        pivots[lane] = pivotCache[lane];
+    }
+    threadgroup_barrier(workspaceFence);
+    return true;
 }
 
 // The pivot search and each row's arithmetic stay in their original order.
@@ -1925,6 +2069,9 @@ kernel void mr_numi_human_stand_equality_prepare(
         kCachedEqualityCapacity * kCachedEqualityCapacity];
     threadgroup float scaleCache[MR_NUMI_HUMAN_STAND_MAX_DOFS];
     threadgroup float pivotCache[MR_NUMI_HUMAN_STAND_MAX_DOFS];
+    threadgroup float rowPivotColumn[128];
+    threadgroup float rowSwapFirst[128];
+    threadgroup float rowSwapSecond[128];
     threadgroup atomic_uint factorFailure;
     threadgroup uint selectedPivot;
     const uint bodyCount = articulation.bodyCount;
@@ -1978,7 +2125,20 @@ kernel void mr_numi_human_stand_equality_prepare(
         }
     }
     threadgroup_barrier(mem_flags::mem_device);
-    if (equalityCount <= kCachedEqualityCapacity) {
+    if (kUseRegisterOwnedBilateralFactor &&
+        threadCount == 128u && equalityCount > kCachedEqualityCapacity &&
+        equalityCount <= 128u) {
+        thread float rowValues[128];
+        if (!mrNumiHumanBilateralFactorRows128(
+                equalityFactor, equalityScale, equalityPivots,
+                equalityCount, lane, threadCount, rowValues,
+                scaleCache, pivotCache, rowPivotColumn,
+                rowSwapFirst, rowSwapSecond, &factorFailure,
+                &selectedPivot) && lane == 0u) {
+            fail(status, MR_NUMI_HUMAN_STAND_JOINT_EQUALITY_FAILED,
+                 MR_INVALID_INDEX);
+        }
+    } else if (equalityCount <= kCachedEqualityCapacity) {
         if (!mrNumiHumanBilateralFactorCooperative<false>(
                 equalityFactor, equalityScale, equalityPivots,
                 equalityCount, lane, threadCount, factorCache,

@@ -316,6 +316,9 @@ constexpr NSUInteger kStandResponseThreadsPerThreadgroup = 32u;
 // Four SIMD groups share the existing ordered constraint solve while its
 // independent velocity/response updates use all lanes.
 constexpr NSUInteger kStandFinishThreadsPerThreadgroup = 128u;
+// Keep these host dispatch bounds aligned with NumiHumanStand.metal.
+constexpr NSUInteger kStandCachedEqualityCapacity = 64u;
+constexpr NSUInteger kStandRegisterOwnedEqualityCapacity = 128u;
 constexpr float kQuaternionHostTolerance = 1.9e-5f;
 constexpr std::uint64_t kShaderAddressableElements =
     static_cast<std::uint64_t>(
@@ -698,6 +701,8 @@ struct MetalArticulatedOperatorContextState {
     __strong id<MTLComputePipelineState> standMassPipeline = nil;
     __strong id<MTLComputePipelineState> standResponsePipeline = nil;
     __strong id<MTLComputePipelineState> standEqualityPipeline = nil;
+    __strong id<MTLComputePipelineState>
+        standEqualityRowFactorPipeline = nil;
     __strong id<MTLComputePipelineState> standProjectedResponsePipeline = nil;
     __strong id<MTLComputePipelineState> standFinishPipeline = nil;
     __strong id<MTLComputePipelineState> standCachedFinishPipeline = nil;
@@ -3961,6 +3966,7 @@ MetalArticulatedOperatorDiagnostics initializeContext(
     id<MTLComputePipelineState> standMassPipeline = nil;
     id<MTLComputePipelineState> standResponsePipeline = nil;
     id<MTLComputePipelineState> standEqualityPipeline = nil;
+    id<MTLComputePipelineState> standEqualityRowFactorPipeline = nil;
     id<MTLComputePipelineState> standProjectedResponsePipeline = nil;
     id<MTLComputePipelineState> standFinishPipeline = nil;
     id<MTLComputePipelineState> standCachedFinishPipeline = nil;
@@ -4009,6 +4015,28 @@ MetalArticulatedOperatorDiagnostics initializeContext(
                 MetalArticulatedOperatorHostStatus::metalPipelineFailure,
                 "failed to create Numi Human equality preparation pipeline: " +
                     describeError(error));
+        }
+        // This optional specialization owns one dense factor row per lane.
+        // Keep the established 32-thread/device-workspace pipeline as the
+        // fallback if specialization or the 128-thread limit is unavailable.
+        MTLFunctionConstantValues* rowFactorConstants =
+            [[MTLFunctionConstantValues alloc] init];
+        bool registerOwnedFactor = true;
+        [rowFactorConstants setConstantValue:&registerOwnedFactor
+                                       type:MTLDataTypeBool atIndex:5u];
+        error = nil;
+        id<MTLFunction> standEqualityRowFactorFunction = [library
+            newFunctionWithName:@"mr_numi_human_stand_equality_prepare"
+                constantValues:rowFactorConstants error:&error];
+        if (standEqualityRowFactorFunction != nil) {
+            error = nil;
+            id<MTLComputePipelineState> candidate = [device
+                newComputePipelineStateWithFunction:
+                    standEqualityRowFactorFunction error:&error];
+            if (candidate != nil &&
+                candidate.maxTotalThreadsPerThreadgroup >=
+                    kStandRegisterOwnedEqualityCapacity)
+                standEqualityRowFactorPipeline = candidate;
         }
         id<MTLFunction> standProjectedResponseFunction = [library
             newFunctionWithName:
@@ -4225,6 +4253,8 @@ MetalArticulatedOperatorDiagnostics initializeContext(
     context.standMassPipeline = standMassPipeline;
     context.standResponsePipeline = standResponsePipeline;
     context.standEqualityPipeline = standEqualityPipeline;
+    context.standEqualityRowFactorPipeline =
+        standEqualityRowFactorPipeline;
     context.standProjectedResponsePipeline =
         standProjectedResponsePipeline;
     context.standFinishPipeline = standFinishPipeline;
@@ -13189,6 +13219,13 @@ MetalArticulatedOperatorContext::submit(
                             "failed to create Numi Human stand encoder"
                         );
                     }
+                    const bool rowFactorEquality =
+                        parallelMass && phase == 4u &&
+                        standDispatch.jointEqualityCount >
+                            kStandCachedEqualityCapacity &&
+                        standDispatch.jointEqualityCount <=
+                            kStandRegisterOwnedEqualityCapacity &&
+                        state_->standEqualityRowFactorPipeline != nil;
                     [standEncoder setComputePipelineState:
                         sampleFinishWork
                             ? (cachedFinish ? state_->standCachedFinishCounterPipeline
@@ -13202,7 +13239,9 @@ MetalArticulatedOperatorContext::submit(
                             : parallelMass && phase == 3u
                                 ? state_->standResponsePipeline
                             : parallelMass && phase == 4u
-                                ? state_->standEqualityPipeline
+                                ? (rowFactorEquality
+                                    ? state_->standEqualityRowFactorPipeline
+                                    : state_->standEqualityPipeline)
                             : parallelMass && phase == 5u
                                 ? state_->standProjectedResponsePipeline
                             : splitStand &&
@@ -13294,7 +13333,10 @@ MetalArticulatedOperatorContext::submit(
                                 static_cast<NSUInteger>(input.environmentCount),
                                 1u, 1u)
                             threadsPerThreadgroup:MTLSizeMake(
-                                kStandResponseThreadsPerThreadgroup, 1u, 1u)];
+                                rowFactorEquality
+                                    ? kStandRegisterOwnedEqualityCapacity
+                                    : kStandResponseThreadsPerThreadgroup,
+                                1u, 1u)];
                     } else if (parallelMass && phase == 5u) {
                         const NSUInteger projectedColumns =
                             3u * static_cast<NSUInteger>(
