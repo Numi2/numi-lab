@@ -1719,6 +1719,16 @@ if(BUILD_TESTING)
         COMMAND metalrobo_numi_human_surface_audit_diagnostic_test)
     set_tests_properties(numi_human_surface_audit_diagnostic PROPERTIES
         LABELS "numi-human;surface-audit;diagnostic;cpu" TIMEOUT 30)
+    add_executable(metalrobo_numi_human_retired_inspection_layers_test
+        tests/numi_human_retired_inspection_layers_test.cpp)
+    target_include_directories(metalrobo_numi_human_retired_inspection_layers_test PRIVATE apps)
+    target_compile_features(metalrobo_numi_human_retired_inspection_layers_test PRIVATE cxx_std_23)
+    target_compile_options(metalrobo_numi_human_retired_inspection_layers_test PRIVATE
+        -Wall -Wextra -Wpedantic -Werror)
+    add_test(NAME numi_human_retired_inspection_layers
+        COMMAND metalrobo_numi_human_retired_inspection_layers_test)
+    set_tests_properties(numi_human_retired_inspection_layers PROPERTIES
+        LABELS "numi-human;anatomy;inspection-layers;cpu" TIMEOUT 30)
     add_executable(metalrobo_numi_human_accepted_geometry_cadence_test
         tests/numi_human_accepted_geometry_cadence_test.cpp)
     target_compile_options(metalrobo_numi_human_accepted_geometry_cadence_test PRIVATE
