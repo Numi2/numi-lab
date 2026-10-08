@@ -1,0 +1,104 @@
+{
+  "scope": "Native source-state capture regression; geometry and physical states unchanged over64steps. Not a full breathing cycle or endurance qualification.",
+  "native_exit_code": 0,
+  "wall_seconds": 10.359989542,
+  "traces": {
+    "resting-coupled.csv": {
+      "rows": 64,
+      "exact_prefix_of_909": true,
+      "sha256": "dd2f3f975e9f01165ef9a23e6e399bbf0368abb8a95b745cc3ab72aae6c363a2",
+      "reference_sha256": "aa3b6f12f482f09becbdf20185240d9bb27a945df21dd0771096aac0243faffd"
+    },
+    "resting-com-q-integration.csv": {
+      "rows": 64,
+      "exact_prefix_of_909": true,
+      "sha256": "fb503c2bbb0efa2272c0aae5c0830365136636c04e22507f30b710d8e803c3e0",
+      "reference_sha256": "955617301439851d4c7a420b12e44410cc0a59df5162bf0f07d0dc9ac1563894"
+    },
+    "resting-com-momentum-diagnostic.csv": {
+      "rows": 64,
+      "exact_prefix_of_909": true,
+      "sha256": "e051669e72209cda673ab4a74b810263425501f0362ab5bc4be564b56bee9303",
+      "reference_sha256": "cc837c8b48c0b0dc019df493656b3cc2625616218a16a1f8d40d7c5928515981"
+    },
+    "resting-com-support-impulses.csv": {
+      "rows": 2048,
+      "exact_prefix_of_909": true,
+      "sha256": "4d26e103259d89b9df8efa4ffb2528abcaaf16d68479d6865aa585bdffe7c2b6",
+      "reference_sha256": "2dd7c879d41a5d017c311593f2f60393e6b251f6928f1018036eed9eedf72d9e"
+    }
+  },
+  "captures": [
+    {
+      "step": 0,
+      "receipt_sha256": "1a8316515168876cac1c765df8061fc855eb19e8320cdb123ebe5ba71206ca81",
+      "skin_binding_owner_count": 86,
+      "accepted_body_pose_count": 86,
+      "all_skin_owners_covered_once": true,
+      "skin_source_mapping": {
+        "anatomy_parameter_type": "MRHumanRestingAnatomyGPU",
+        "anatomy_parameters": {
+          "bytes": 1008,
+          "path": "/Users/n/numi-human-resting-evidence-20261005/native-skin-source-capture-912/skin-source-anatomy-parameters.bin",
+          "sha256": "ef7a80c590057a8073df76a4ef107f11c2fc5ab440eb93880d8c315a65753fb7"
+        },
+        "meaning": "Exact load-time uploaded records in NHSKIN source vertex order; accepted poses and respiratory motion are recorded separately.",
+        "pack_first_vertex": 685317,
+        "source_vertex_count": 54949,
+        "vertex_map": {
+          "bytes": 2637552,
+          "path": "/Users/n/numi-human-resting-evidence-20261005/native-skin-source-capture-912/skin-source-vertex-map.bin",
+          "sha256": "2fb21b8ef08594fbd83eeb3088b02ec42cc8c1c41014478aa3b440550f1ba584"
+        },
+        "vertex_map_record_stride_bytes": 48,
+        "vertex_map_record_type": "MRHumanRestingVertexMap"
+      },
+      "respiratory_motion": {
+        "diaphragm_swept_volume_m3": 0,
+        "diaphragm_volume_velocity_m3_s": 0,
+        "rib_swept_volume_m3": 0,
+        "rib_volume_velocity_m3_s": 0
+      },
+      "exact_step0_reference_keys": {
+        "captured_vertex_buffer_sha256": true,
+        "accepted_body_state_sha256": true,
+        "accepted_respiration_state_sha256": true,
+        "accepted_root_fingerprint": true,
+        "accepted_transaction_fingerprint": true
+      }
+    },
+    {
+      "step": 63,
+      "receipt_sha256": "bd7c867e8dc8c53ad46ee790d6f9a42d24c8b64cdc76abb4e5716799688e4351",
+      "skin_binding_owner_count": 86,
+      "accepted_body_pose_count": 86,
+      "all_skin_owners_covered_once": true,
+      "skin_source_mapping": {
+        "anatomy_parameter_type": "MRHumanRestingAnatomyGPU",
+        "anatomy_parameters": {
+          "bytes": 1008,
+          "path": "/Users/n/numi-human-resting-evidence-20261005/native-skin-source-capture-912/skin-source-anatomy-parameters.bin",
+          "sha256": "ef7a80c590057a8073df76a4ef107f11c2fc5ab440eb93880d8c315a65753fb7"
+        },
+        "meaning": "Exact load-time uploaded records in NHSKIN source vertex order; accepted poses and respiratory motion are recorded separately.",
+        "pack_first_vertex": 685317,
+        "source_vertex_count": 54949,
+        "vertex_map": {
+          "bytes": 2637552,
+          "path": "/Users/n/numi-human-resting-evidence-20261005/native-skin-source-capture-912/skin-source-vertex-map.bin",
+          "sha256": "2fb21b8ef08594fbd83eeb3088b02ec42cc8c1c41014478aa3b440550f1ba584"
+        },
+        "vertex_map_record_stride_bytes": 48,
+        "vertex_map_record_type": "MRHumanRestingVertexMap"
+      },
+      "respiratory_motion": {
+        "diaphragm_swept_volume_m3": 3.558782918844372e-05,
+        "diaphragm_volume_velocity_m3_s": 0.0004498610505834222,
+        "rib_swept_volume_m3": 8.002213576219219e-07,
+        "rib_volume_velocity_m3_s": 6.489844963653013e-05
+      }
+    }
+  ],
+  "native_sha256": "e29f7dd642693f1d49338fa07d996b9ab0d40820d1ff8f1cd2015e941281d0ac",
+  "build_manifest_sha256": "e304d12f03424147d14ddbaf625e9fc8297fd479381c365995f033cbff667ef9"
+}

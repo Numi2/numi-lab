@@ -1,0 +1,17 @@
+{
+  "scope": "Capture diagnostic only: same907source, same15shader and14physics; publish source-owner poses, accepted respiratory motion, and exact uploaded skin ABI maps via existing accepted-state receipt. 64-step prefix consistency check; not endurance or anatomy qualification.",
+  "driver": "/Users/n/numi-human-resting-evidence-20261005/native-skin-source-capture-912.py",
+  "driver_sha256": "664289a0e4881a2dbdc5bc953caa95030d935393195a34a67dc1672a765e2b67",
+  "compiled_source_checkout": "/Users/n/numi-human-area-audit-fma-fix-001",
+  "compiled_source_head": "37f762de13f517aed2569e2075a7352aad17e3a2",
+  "compiled_source_patch": "/Users/n/numi-human-source-capture-build-016/evidence/capture-source.patch",
+  "compiled_source_patch_sha256": "d48e68c2b4ff2a7a271edbad645caeb3f93d5526d4843d792e1973773777a444",
+  "capture_steps": [
+    0,
+    63
+  ],
+  "command": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/n/numi-human-resting-evidence-20261005/native-skin-source-capture-912.py"
+  ]
+}

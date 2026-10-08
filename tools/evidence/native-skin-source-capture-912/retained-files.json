@@ -1,0 +1,47 @@
+{
+  "launch.py": {
+    "source_path": "/Users/n/numi-human-resting-evidence-20261005/native-skin-source-capture-912.py",
+    "bytes": 1954,
+    "sha256": "664289a0e4881a2dbdc5bc953caa95030d935393195a34a67dc1672a765e2b67"
+  },
+  "declaration.json": {
+    "source_path": "/Users/n/numi-human-resting-evidence-20261005/native-skin-source-capture-912.declaration.json",
+    "bytes": 1023,
+    "sha256": "ee762e801759463be46305dda1f9b485318a196d14ef32937f906bd4c993122d"
+  },
+  "verification.json": {
+    "source_path": "/Users/n/numi-human-resting-evidence-20261005/native-skin-source-capture-review-912/verification.json",
+    "bytes": 4772,
+    "sha256": "a4346d342904b376e2f1ac47fba49b9789039400fc8768da76394f04e57fb6df"
+  },
+  "verify.py": {
+    "source_path": "/Users/n/numi-human-resting-evidence-20261005/native-skin-source-capture-review-912/verify.py",
+    "bytes": 3084,
+    "sha256": "df60e0c206f04dfc50c13fe2c701245ee4f57be8f52f994f2737d2853cbf03b0"
+  },
+  "invocation.json": {
+    "source_path": "/Users/n/numi-human-resting-evidence-20261005/native-skin-source-capture-912/invocation.json",
+    "bytes": 10055,
+    "sha256": "658ace7917f38c92b6fcce1812b5892d9cac301c9498e91ef4535d8d1f47e7b3"
+  },
+  "run-metadata.json": {
+    "source_path": "/Users/n/numi-human-resting-evidence-20261005/native-skin-source-capture-912/run-metadata.json",
+    "bytes": 10695,
+    "sha256": "df5c8a34a3c3b23c12b84a7dd811afe4aae568ed234745329ea6cd56d42a44e1"
+  },
+  "build-manifest.json": {
+    "source_path": "/Users/n/numi-human-source-capture-build-016/evidence/build-manifest.json",
+    "bytes": 2093,
+    "sha256": "e304d12f03424147d14ddbaf625e9fc8297fd479381c365995f033cbff667ef9"
+  },
+  "build-native-viewer.sh": {
+    "source_path": "/Users/n/numi-human-source-capture-build-016/evidence/build-native-viewer.sh",
+    "bytes": 2544,
+    "sha256": "222ca0d8e8d51378dc0960bf56b2aff784f95caac0a9b2cf5f592f2f21216912"
+  },
+  "capture-source.patch": {
+    "source_path": "/Users/n/numi-human-source-capture-build-016/evidence/capture-source.patch",
+    "bytes": 7746,
+    "sha256": "d48e68c2b4ff2a7a271edbad645caeb3f93d5526d4843d792e1973773777a444"
+  }
+}

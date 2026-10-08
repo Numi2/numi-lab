@@ -1,0 +1,45 @@
+{
+  "compiled_source_head": "37f762de13f517aed2569e2075a7352aad17e3a2",
+  "files": [
+    {
+      "path": "/Users/n/numi-human-source-capture-build-016/bin/numi-human-native",
+      "resolved_path": "/Users/n/numi-human-source-capture-build-016/bin/numi-human-native",
+      "sha256": "e29f7dd642693f1d49338fa07d996b9ab0d40820d1ff8f1cd2015e941281d0ac",
+      "bytes": 2242336
+    },
+    {
+      "path": "/Users/n/numi-human-source-capture-build-016/matter/shaders/HumanRespiration.metallib",
+      "resolved_path": "/Users/n/numi-human-area-audit-build-015/matter/shaders/HumanRespiration.metallib",
+      "sha256": "0218e2328789dc40961597c999f2e28422e70629cde1b413d076c28436e6c394",
+      "bytes": 409109
+    },
+    {
+      "path": "/Users/n/numi-human-source-capture-build-016/lib/libmetalrobo.dylib",
+      "resolved_path": "/Users/n/numi-human-performance-build-014/lib/libmetalrobo.dylib",
+      "sha256": "6bccfc4044d825423e66bc2f60ba3cf59eaa9a4936773ab08182f58a09927092",
+      "bytes": 7832192
+    },
+    {
+      "path": "/Users/n/numi-human-source-capture-build-016/evidence/build-native-viewer.sh",
+      "resolved_path": "/Users/n/numi-human-source-capture-build-016/evidence/build-native-viewer.sh",
+      "sha256": "222ca0d8e8d51378dc0960bf56b2aff784f95caac0a9b2cf5f592f2f21216912",
+      "bytes": 2544
+    },
+    {
+      "path": "/Users/n/numi-human-source-capture-build-016/evidence/capture-source.patch",
+      "resolved_path": "/Users/n/numi-human-source-capture-build-016/evidence/capture-source.patch",
+      "sha256": "d48e68c2b4ff2a7a271edbad645caeb3f93d5526d4843d792e1973773777a444",
+      "bytes": 7746
+    },
+    {
+      "path": "/Users/n/numi-human-area-audit-fma-fix-001/apps/NumiHumanRestingVisual.hpp",
+      "resolved_path": "/Users/n/numi-human-area-audit-fma-fix-001/apps/NumiHumanRestingVisual.hpp",
+      "sha256": "d7fde60bdc7530d5b3d9a2c8d462ff1597ddc02b8a32fdc87fca5aa1fc389632",
+      "bytes": 169565
+    }
+  ],
+  "build_exit_code": 0,
+  "physical_runtime": "frozen014",
+  "respiratory_shader": "unchangedguard015",
+  "scope": "source-state capture only"
+}

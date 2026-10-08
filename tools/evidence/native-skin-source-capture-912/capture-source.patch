@@ -1,0 +1,103 @@
+diff --git a/apps/NumiHumanRestingVisual.hpp b/apps/NumiHumanRestingVisual.hpp
+index dfca696..f99653e 100644
+--- a/apps/NumiHumanRestingVisual.hpp
++++ b/apps/NumiHumanRestingVisual.hpp
+@@ -60,6 +60,7 @@ class NumiHumanRestingVisual {
+     std::string commonFieldMapSHA256,commonFieldParametersSHA256,commonFieldPolynomialSHA256,
+         commonFieldBoxesSHA256,commonFieldBundleSHA256,commonFieldIdentityReceiptSHA256,commonFieldSourcePayloadSHA256;
+     NSDictionary* initialAnatomicalRegistration=nil;
++    NSDictionary* capturedSkinSourceMapping=nil;
+     std::set<unsigned> registrationBodyIndices;
+     std::set<unsigned> requestedGeometrySteps, completedGeometrySteps;
+     bool captureThisFrame=false, captureKernelEncoded=false;
+@@ -318,12 +319,19 @@ class NumiHumanRestingVisual {
+         const auto respirationSHA=loadedKneeSHA256Hex(loadedKneeSHA256(coupled.presentationRespiration.contents,
+             coupled.presentationRespiration.length));
+         // Opt-in geometry capture already hashes these completed presentation
+-        // buffers. Expose the few anatomical registration poses from the same
+-        // bytes, so offline interface audits need no fitted body transforms.
++        // buffers. Expose every source skin owner pose from the same bytes:
++        // respiratory-deformed ribs cannot supply a fitted rigid torso pose.
+         NSMutableArray* registeredPoses=[NSMutableArray array];
+         const auto* presentedBodies=static_cast<const MRBodyStateGPU*>(coupled.presentationBodies.contents);
+         for(unsigned index:registrationBodyIndices)
+             [registeredPoses addObject:bodyPose(index,presentedBodies[index])];
++        const auto& presentedRespiration=
++            *static_cast<const NMHumanRespirationState*>(coupled.presentationRespiration.contents);
++        NSDictionary* respiratoryMotion=@{
++            @"diaphragm_swept_volume_m3":@(presentedRespiration.motion.x),
++            @"rib_swept_volume_m3":@(presentedRespiration.motion.y),
++            @"diaphragm_volume_velocity_m3_s":@(presentedRespiration.motion.z),
++            @"rib_volume_velocity_m3_s":@(presentedRespiration.motion.w)};
+         NSError* jsonError=nil;
+         NSDictionary* receipt=@{
+             @"schema":@"numi.human.accepted-render-geometry.v1",
+@@ -334,10 +342,12 @@ class NumiHumanRestingVisual {
+             @"camera_index":@(captureCamera),@"anatomy_layer_index":@(captureLayer),
+             @"accepted_body_state_sha256":loadedKneeNSString(bodySHA),
+             @"accepted_registered_body_poses":registeredPoses,
++            @"skin_source_mapping":capturedSkinSourceMapping?capturedSkinSourceMapping:@{},
+             @"initial_anatomical_registration":initialAnatomicalRegistration?initialAnatomicalRegistration:@{},
+             @"physical_endpoint":@"accepted",@"surface_audit_endpoint":@"passed",
+             @"surface_audit":surfaceAuditOutcome,
+             @"accepted_respiration_state_sha256":loadedKneeNSString(respirationSHA),
++            @"accepted_respiratory_motion":respiratoryMotion,
+             @"ventricular_wall_map_sha256":loadedKneeNSString(cardiacWallMapSHA256),
+             @"ventricular_wall_parameters_sha256":loadedKneeNSString(cardiacWallParametersSHA256),
+             @"ventricular_wall_coefficient_bundle_sha256":loadedKneeNSString(cardiacWallBundleSHA256),
+@@ -938,6 +948,11 @@ public:
+         NSMutableArray* registrationRows=[NSMutableArray array];
+         registrationBodyIndices.insert(anatomyGPU.bodyAndFlags.x);
+         if(!functional.passiveViscera.empty())registrationBodyIndices.insert(functional.passivePelvicBody);
++        for(const auto& binding:skin.bindings) {
++            require(binding.bodyIndex<initialBodies.size(),
++                "source skin owner lacks an initial native body transform");
++            registrationBodyIndices.insert(binding.bodyIndex);
++        }
+         for(const auto& instance:pack.instances)if(instance.identity.x==kOrganSurfaceSemantic&&
+             (upperVisceralAnchors.contains(instance.identity.w)||pelvicVisceralAnchors.contains(instance.identity.w))) {
+             require(instance.binding.z==MR_VISUAL_BINDING_ARTICULATED_LINK&&instance.binding.y<initialBodies.size(),
+@@ -1638,6 +1653,43 @@ public:
+         mapping=[device newBufferWithBytes:maps.data() length:maps.size()*sizeof(maps.front()) options:MTLResourceStorageModeShared];
+         influences=[device newBufferWithBytes:weights.data() length:weights.size()*sizeof(weights.front()) options:MTLResourceStorageModeShared];
+         anatomyParameters=[device newBufferWithBytes:&anatomyGPU length:sizeof(anatomyGPU) options:MTLResourceStorageModeShared];
++        if(!requestedGeometrySteps.empty()) {
++            // Retain the existing uploaded ABI records once for offline source
++            // registration. This is load-time evidence, not a simulation path.
++            const std::size_t count=skin.header.vertexCount;
++            require(skinFirstVertex!=MR_INVALID_INDEX&&skinFirstVertex<=maps.size()&&
++                count<=maps.size()-skinFirstVertex,"skin source map capture range is invalid");
++            require(mapping&&mapping.contents&&anatomyParameters&&anatomyParameters.contents,
++                "skin source map capture buffers are unavailable");
++            const auto* source=maps.data()+skinFirstVertex;
++            const auto* uploaded=static_cast<const MRHumanRestingVertexMap*>(mapping.contents)+skinFirstVertex;
++            const std::size_t bytes=count*sizeof(MRHumanRestingVertexMap);
++            require(mapping.contents&&anatomyParameters.contents&&
++                std::memcmp(source,uploaded,bytes)==0&&
++                std::memcmp(&anatomyGPU,anatomyParameters.contents,sizeof(anatomyGPU))==0,
++                "skin source capture differs from uploaded native ABI buffers");
++            const auto writeBuffer=[&](const char* name,const void* data,std::size_t size) {
++                const auto path=output/name;
++                require(!std::filesystem::exists(path),"refusing to overwrite skin source map evidence");
++                const auto digest=loadedKneeSHA256Hex(loadedKneeSHA256(data,size));
++                NSData* blob=[NSData dataWithBytes:data length:size];NSError* error=nil;
++                require([blob writeToURL:[NSURL fileURLWithPath:loadedKneeNSString(path.string())]
++                    options:NSDataWritingAtomic error:&error],"skin source map evidence write failed");
++                require(loadedKneeSHA256Hex(loadedKneeFileSHA256(path))==digest,
++                    "skin source map evidence file differs from uploaded bytes");
++                return @{@"path":loadedKneeNSString(path.string()),@"sha256":loadedKneeNSString(digest),
++                    @"bytes":@(size)};
++            };
++            capturedSkinSourceMapping=@{
++                @"vertex_map":writeBuffer("skin-source-vertex-map.bin",uploaded,bytes),
++                @"anatomy_parameters":writeBuffer("skin-source-anatomy-parameters.bin",
++                    anatomyParameters.contents,sizeof(anatomyGPU)),
++                @"vertex_map_record_type":@"MRHumanRestingVertexMap",
++                @"vertex_map_record_stride_bytes":@(sizeof(MRHumanRestingVertexMap)),
++                @"source_vertex_count":@(count),@"pack_first_vertex":@(skinFirstVertex),
++                @"anatomy_parameter_type":@"MRHumanRestingAnatomyGPU",
++                @"meaning":@"Exact load-time uploaded records in NHSKIN source vertex order; accepted poses and respiratory motion are recorded separately."};
++        }
+         auditCount=unsigned(audits.size());
+         std::vector<MRHumanRestingVolumeAuditGroupGPU> volumeGroups;
+         std::vector<MRHumanRestingVolumeAuditRangeGPU> volumeRanges;
