@@ -1,0 +1,86 @@
+{
+  "default_entrypoint": "prepare_final_plan.py",
+  "entrypoint_bytes_identical": true,
+  "files": [
+    {
+      "byte_identical": true,
+      "package_sha256": "9f76b4d06ea650a4a9e32fed5d0c54a47cb43b7759e08e36456ab3a3750cd492",
+      "relative_path": "prepare_final_plan-v006.py",
+      "source_path": "/Users/n/numi-human-resting-evidence-20261005/final-integrated-study-readiness-917/prepare_final_plan-v006.py",
+      "source_sha256": "9f76b4d06ea650a4a9e32fed5d0c54a47cb43b7759e08e36456ab3a3750cd492"
+    },
+    {
+      "byte_identical": true,
+      "package_sha256": "9f76b4d06ea650a4a9e32fed5d0c54a47cb43b7759e08e36456ab3a3750cd492",
+      "relative_path": "prepare_final_plan.py",
+      "source_path": "/Users/n/numi-human-resting-evidence-20261005/final-integrated-study-readiness-917/prepare_final_plan-v006.py",
+      "source_sha256": "9f76b4d06ea650a4a9e32fed5d0c54a47cb43b7759e08e36456ab3a3750cd492"
+    },
+    {
+      "byte_identical": true,
+      "package_sha256": "4d47e2a979f93da441794c794cbd54a8125f3b11a706c4b08e8d0ce408d4e134",
+      "relative_path": "analyze_final_pair.py",
+      "source_path": "/Users/n/numi-human-resting-evidence-20261005/final-integrated-study-readiness-917/analyze_final_pair.py",
+      "source_sha256": "4d47e2a979f93da441794c794cbd54a8125f3b11a706c4b08e8d0ce408d4e134"
+    },
+    {
+      "byte_identical": true,
+      "package_sha256": "51ee89eff7d914c043dae7ee14effbbfd80838ee51afa60112bfbad6ef2219ac",
+      "relative_path": "record_treatment_program_probe.py",
+      "source_path": "/Users/n/numi-human-resting-evidence-20261005/final-integrated-study-readiness-917/record_treatment_program_probe.py",
+      "source_sha256": "51ee89eff7d914c043dae7ee14effbbfd80838ee51afa60112bfbad6ef2219ac"
+    },
+    {
+      "byte_identical": true,
+      "package_sha256": "b8eee724bd2eb4e5d6db445c82fc80154da831c221976a56ffe396c1d7f70526",
+      "relative_path": "test_terminal_capture_plan.py",
+      "source_path": "/Users/n/numi-human-resting-evidence-20261005/final-integrated-study-readiness-917/test_terminal_capture_plan.py",
+      "source_sha256": "b8eee724bd2eb4e5d6db445c82fc80154da831c221976a56ffe396c1d7f70526"
+    },
+    {
+      "byte_identical": true,
+      "package_sha256": "4b3d913811aa350ea6e34e44b43ecd9e0b8fe9dff52e2da9a34c9536e626014a",
+      "relative_path": "test_owner_invocation_lineage.py",
+      "source_path": "/Users/n/numi-human-resting-evidence-20261005/final-integrated-study-readiness-917/test_owner_invocation_lineage.py",
+      "source_sha256": "4b3d913811aa350ea6e34e44b43ecd9e0b8fe9dff52e2da9a34c9536e626014a"
+    },
+    {
+      "byte_identical": true,
+      "package_sha256": "3c746aeb4e570ac25afc362102682f5b16ebaefbaaf89766559a1972ba6c3a70",
+      "relative_path": "test_record_treatment_program_probe.py",
+      "source_path": "/Users/n/numi-human-resting-evidence-20261005/final-integrated-study-readiness-917/test_record_treatment_program_probe.py",
+      "source_sha256": "3c746aeb4e570ac25afc362102682f5b16ebaefbaaf89766559a1972ba6c3a70"
+    },
+    {
+      "byte_identical": true,
+      "package_sha256": "0239554786fc4fa2616094e31b634d0bbd385dca064e1517fadfad718b72aab8",
+      "relative_path": "test_final_scene_assembly_lineage-v006.py",
+      "source_path": "/Users/n/numi-human-resting-evidence-20261005/final-integrated-study-readiness-917/test_final_scene_assembly_lineage-v006.py",
+      "source_sha256": "0239554786fc4fa2616094e31b634d0bbd385dca064e1517fadfad718b72aab8"
+    },
+    {
+      "byte_identical": true,
+      "package_sha256": "c6ab2a2032a8dbb202ca632fc17c5f2bc53f98e07159b4028f5ef7f99784e1f5",
+      "relative_path": "README-v006.md",
+      "source_path": "/Users/n/numi-human-resting-evidence-20261005/final-integrated-study-readiness-917/README-v006.md",
+      "source_sha256": "c6ab2a2032a8dbb202ca632fc17c5f2bc53f98e07159b4028f5ef7f99784e1f5"
+    },
+    {
+      "byte_identical": true,
+      "package_sha256": "c6ab2a2032a8dbb202ca632fc17c5f2bc53f98e07159b4028f5ef7f99784e1f5",
+      "relative_path": "README.md",
+      "source_path": "/Users/n/numi-human-resting-evidence-20261005/final-integrated-study-readiness-917/README-v006.md",
+      "source_sha256": "c6ab2a2032a8dbb202ca632fc17c5f2bc53f98e07159b4028f5ef7f99784e1f5"
+    }
+  ],
+  "package_directory": "/Users/n/numi-human-resting-evidence-20261005/final-integrated-study-readiness-917/package-v006",
+  "revision_derivation": {
+    "final_package_revision": "source revision copied, then extended with package_v006 provenance and validation fields",
+    "initial_package_copy_sha256": "324ff7a1554f80f10b6932d10ea72692469a31a6e3b01d9e318db53dc2901a71",
+    "source_path": "/Users/n/numi-human-resting-evidence-20261005/final-integrated-study-readiness-917/revision-006.json",
+    "source_sha256": "324ff7a1554f80f10b6932d10ea72692469a31a6e3b01d9e318db53dc2901a71"
+  },
+  "schema": "numi.human.readiness-v006-package-copy.v1",
+  "source_directory": "/Users/n/numi-human-resting-evidence-20261005/final-integrated-study-readiness-917",
+  "versioned_entrypoint": "prepare_final_plan-v006.py"
+}

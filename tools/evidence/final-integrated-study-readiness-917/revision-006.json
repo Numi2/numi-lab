@@ -1,0 +1,154 @@
+{
+  "changes": [
+    "Bind a supplied native scene to its adjacent non-fixture 936 assembly report, dynamic corrected skin/manifest, dynamic NHA/receipt, actual runtime scene/support assets, owner CLI invocation, source checkout identities, and exact report hashes.",
+    "Keep source-preparation hash bindings distinct from final scene/support runtime-asset bindings, which are independently checked through report scene fields and owner_cli.asset_sha256.",
+    "Read assembled root pose from scene.root_pose and validate exact argv coordinates.",
+    "Reject legacy 907 fixture lineage, missing assembly report, receipt mismatch, or invocation asset mismatch."
+  ],
+  "created_utc": "2026-10-08",
+  "file_sha256": {
+    "/Users/n/numi-human-resting-evidence-20261005/final-integrated-study-readiness-917/README-v005.md": "11764c59205c108bb14ec8f8b6236ea1ab3ed48d0b0d7354460bbeeb4378a1cf",
+    "/Users/n/numi-human-resting-evidence-20261005/final-integrated-study-readiness-917/README-v006.md": "c6ab2a2032a8dbb202ca632fc17c5f2bc53f98e07159b4028f5ef7f99784e1f5",
+    "/Users/n/numi-human-resting-evidence-20261005/final-integrated-study-readiness-917/actual-936-preflight-probe-preview-v006-failure-01-empty-output.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/Users/n/numi-human-resting-evidence-20261005/final-integrated-study-readiness-917/actual-936-preflight-probe-preview-v006-failure-02-empty-output.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/Users/n/numi-human-resting-evidence-20261005/final-integrated-study-readiness-917/actual-936-preflight-probe-preview-v006-rerun1.stderr": "0de4202b289a66ca430e7ee2b7c811a9ef0e920e30335596736f493a36b64977",
+    "/Users/n/numi-human-resting-evidence-20261005/final-integrated-study-readiness-917/actual-936-preflight-probe-preview-v006-rerun2.txt": "7bceea6e28255cb4d054392fa68dce32be2f97644987f25f1f40ca8e8e07d6f7",
+    "/Users/n/numi-human-resting-evidence-20261005/final-integrated-study-readiness-917/actual-936-preflight-probe-preview-v006.json": "0f25ed1b4d109c5ed468b520caeb53ad3df2ccce4c2af674c6ae68885110ee58",
+    "/Users/n/numi-human-resting-evidence-20261005/final-integrated-study-readiness-917/actual-936-preflight-probe-preview-v006.stderr": "f0dba80ba5d7631a1568c963448cc11f2b22cc0ebe94364294796695e692c5b2",
+    "/Users/n/numi-human-resting-evidence-20261005/final-integrated-study-readiness-917/prepare_final_plan-v005.py": "b70fc5b68ed1228e9041cb277f20a56462303ca9970391cd51790653545727d5",
+    "/Users/n/numi-human-resting-evidence-20261005/final-integrated-study-readiness-917/prepare_final_plan-v006.py": "9f76b4d06ea650a4a9e32fed5d0c54a47cb43b7759e08e36456ab3a3750cd492",
+    "/Users/n/numi-human-resting-evidence-20261005/final-integrated-study-readiness-917/revision-005-v005.json": "3d2ee3f247355dfe1fb49f0447a195c382d35acaf4d878cd27e86c88b81c5613",
+    "/Users/n/numi-human-resting-evidence-20261005/final-integrated-study-readiness-917/test-suite-v006.log": "e1d6b930a5b79439b731da2eb30e15e71520b32b2636c5b6664b21ef46aeaae4",
+    "/Users/n/numi-human-resting-evidence-20261005/final-integrated-study-readiness-917/test_final_scene_assembly_lineage-v006.py": "0239554786fc4fa2616094e31b634d0bbd385dca064e1517fadfad718b72aab8",
+    "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-current-lung-924/anatomy/resting-anatomy-receipt.json": "e2f818888bf292120992072d5c02b14ba9b4a078820ccf8514b86351305d7b56",
+    "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-current-lung-924/assembly-preflight.json": "a15fd3a56d0077f7f3d53b5707ad4f299959a5e442f0b290b0a7a282fef22c29",
+    "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-current-lung-924/native-run/invocation.json": "85e1f81f2576a7ac89e454311424e4d217f56ef9f45f8485a4c119cda83b9b6b",
+    "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-current-lung-924/native-run/native.log": "406f3856291b0408ee24bd3d733e0850c11bb724291e42c9cf046b38c17a4f06",
+    "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-current-lung-924/native-run/run-metadata.json": "cbdb057b8499b8e25978ca5a0dd0420f4346e38e66afa12c55bbf3089b08a5d4",
+    "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-current-lung-924/resting-scene/myosim-fullbody-resting-bed-support.nhcnt": "bcfece8e5da553b98694b724644234407fa4c38383b1e18d3c24d7caefa28927",
+    "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-current-lung-924/resting-scene/resting-supine-scene.manifest.json": "cbc338738315f06150beab6653720fecb81a73fb2bb7e1ef38ca3a3e376698fa",
+    "/Users/n/numi-human-resting-evidence-20261005/native-common-skin-multipose-clearance-candidate-927/asset-candidate-001/bodyparts3d-myosim-skinned-shell.nhskin": "bd4bfbbf0e071e24a1bb9eea7b9cd9f34ef862ef20417b5891cd24cec1b009d1",
+    "/Users/n/numi-human-resting-evidence-20261005/native-common-skin-multipose-clearance-candidate-927/asset-candidate-001/common-atlas-skin-geometry-registration.manifest.json": "120b78369a8b74a4719eccc9ef416a44086574dc5ddcddbc55b721e2d06ccf99"
+  },
+  "package_v006": {
+    "all_copied_prerequisite_bytes_match": true,
+    "copy_manifest_path": "/Users/n/numi-human-resting-evidence-20261005/final-integrated-study-readiness-917/package-v006/package-copy-manifest.json",
+    "copy_manifest_schema": "numi.human.readiness-v006-package-copy.v1",
+    "copy_manifest_sha256": "c0955e933717cf10e288182c637afcd5b1777220227c1160cc9027199f94ed9a",
+    "default_entrypoint": "/Users/n/numi-human-resting-evidence-20261005/final-integrated-study-readiness-917/package-v006/prepare_final_plan.py",
+    "entrypoint_bytes_identical": true,
+    "entrypoint_sha256": "9f76b4d06ea650a4a9e32fed5d0c54a47cb43b7759e08e36456ab3a3750cd492",
+    "initial_copied_revision_sha256": "324ff7a1554f80f10b6932d10ea72692469a31a6e3b01d9e318db53dc2901a71",
+    "package_path": "/Users/n/numi-human-resting-evidence-20261005/final-integrated-study-readiness-917/package-v006",
+    "source_revision_path": "/Users/n/numi-human-resting-evidence-20261005/final-integrated-study-readiness-917/revision-006.json",
+    "source_revision_sha256": "324ff7a1554f80f10b6932d10ea72692469a31a6e3b01d9e318db53dc2901a71",
+    "validation": {
+      "actual_scene_preview": {
+        "composed_receipt_sha256": "e2f818888bf292120992072d5c02b14ba9b4a078820ccf8514b86351305d7b56",
+        "full_stdout_path": "/Users/n/numi-human-resting-evidence-20261005/final-integrated-study-readiness-917/package-v006/actual-936-preflight-probe-preview-v006-package.txt",
+        "full_stdout_sha256": "714283661b8ff23a3c00c429f740e41d5a936422f54949098f380d5dc1055949",
+        "native_invocation_sha256": "85e1f81f2576a7ac89e454311424e4d217f56ef9f45f8485a4c119cda83b9b6b",
+        "nha_sha256": "3c444be7736c066a992988cc32b687917e1c4c5c3968a16b4d5f0106d5b5024e",
+        "output_json_path": "/Users/n/numi-human-resting-evidence-20261005/final-integrated-study-readiness-917/package-v006/actual-936-preflight-probe-preview-v006-package.json",
+        "output_json_sha256": "0f25ed1b4d109c5ed468b520caeb53ad3df2ccce4c2af674c6ae68885110ee58",
+        "recorder_command_points_to_package_copy": true,
+        "recorder_executed": false,
+        "scene_assembly_path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-current-lung-924/assembly-preflight.json",
+        "scene_assembly_sha256": "a15fd3a56d0077f7f3d53b5707ad4f299959a5e442f0b290b0a7a282fef22c29",
+        "skin_sha256": "bd4bfbbf0e071e24a1bb9eea7b9cd9f34ef862ef20417b5891cd24cec1b009d1",
+        "status": "planned_not_run",
+        "treatment_program_probe_directory_created": false
+      },
+      "focused_tests": "24 passed, 0 failed",
+      "python39_compile": "passed",
+      "test_log_path": "/Users/n/numi-human-resting-evidence-20261005/final-integrated-study-readiness-917/package-v006/test-suite-v006-package.log",
+      "test_log_sha256": "3b0b3d37489cc5f363809b740703e7ac70e2fea7e2dc89ccfab03eb30ee8baf7"
+    },
+    "versioned_entrypoint": "/Users/n/numi-human-resting-evidence-20261005/final-integrated-study-readiness-917/package-v006/prepare_final_plan-v006.py",
+    "versioned_entrypoint_sha256": "9f76b4d06ea650a4a9e32fed5d0c54a47cb43b7759e08e36456ab3a3750cd492"
+  },
+  "preserved_v005": {
+    "prepare_sha256": "b70fc5b68ed1228e9041cb277f20a56462303ca9970391cd51790653545727d5",
+    "readme_sha256": "11764c59205c108bb14ec8f8b6236ea1ab3ed48d0b0d7354460bbeeb4378a1cf",
+    "revision_sha256": "3d2ee3f247355dfe1fb49f0447a195c382d35acaf4d878cd27e86c88b81c5613"
+  },
+  "revision": 6,
+  "schema": "numi.human.final-integrated-study-readiness.revision.v1",
+  "scope": "Readiness preparation only; no registered draft, treatment identity execution, 310 s arm, or pair run.",
+  "source_identity": {
+    "frozen_science_owner": {
+      "brain": "a1cf7218fae5d26f9aed9d845047fc6c472ad596",
+      "human": "b354949c258106d00f2bd3dd6ac91216d5a3d409",
+      "lab": "d550d8ad88a76fdee5bb6e028286fd24e962571f"
+    },
+    "scene_builder": {
+      "human_revision": "935cc7d332b9118f41c719e2d2f9c7c568a3d41f",
+      "lab_revision": "d550d8ad88a76fdee5bb6e028286fd24e962571f",
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/final_scene_936-v011.py",
+      "sha256": "8a327d30a0b604055a75c80ff84b4538c11009439e9fa62429df95750cb70391"
+    },
+    "terminal_capture_build": "017 pinned as in readiness script; physical runtime remains 014"
+  },
+  "status": "cpu_scene_preflight_verified_treatment_probe_not_run",
+  "verification": {
+    "actual_scene_check_command": [
+      "/Applications/Xcode-26.6.0.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/bin/python3.9",
+      "/Users/n/numi-human-resting-evidence-20261005/final-integrated-study-readiness-917/prepare_final_plan-v006.py",
+      "--scene-preflight-dir",
+      "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-current-lung-924/native-run",
+      "--anatomy-receipt",
+      "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-current-lung-924/anatomy/resting-anatomy-receipt.json",
+      "--print-treatment-probe-command"
+    ],
+    "actual_scene_check_exit_code": 0,
+    "candidate_scene": {
+      "nha_sha256": "3c444be7736c066a992988cc32b687917e1c4c5c3968a16b4d5f0106d5b5024e",
+      "receipt_path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-current-lung-924/anatomy/resting-anatomy-receipt.json",
+      "receipt_sha256": "e2f818888bf292120992072d5c02b14ba9b4a078820ccf8514b86351305d7b56",
+      "resting_scene_manifest_sha256": "cbc338738315f06150beab6653720fecb81a73fb2bb7e1ef38ca3a3e376698fa",
+      "skin_manifest_path": "/Users/n/numi-human-resting-evidence-20261005/native-common-skin-multipose-clearance-candidate-927/asset-candidate-001/common-atlas-skin-geometry-registration.manifest.json",
+      "skin_manifest_sha256": "120b78369a8b74a4719eccc9ef416a44086574dc5ddcddbc55b721e2d06ccf99",
+      "skin_path": "/Users/n/numi-human-resting-evidence-20261005/native-common-skin-multipose-clearance-candidate-927/asset-candidate-001/bodyparts3d-myosim-skinned-shell.nhskin",
+      "skin_sha256": "bd4bfbbf0e071e24a1bb9eea7b9cd9f34ef862ef20417b5891cd24cec1b009d1",
+      "support_payload_sha256": "bcfece8e5da553b98694b724644234407fa4c38383b1e18d3c24d7caefa28927"
+    },
+    "failure_history": [
+      {
+        "attempt": "initial actual 936 check",
+        "reason": "validator incorrectly required final runtime scene/support assets in source_sha256 instead of separately bound owner_cli.asset_sha256"
+      },
+      {
+        "attempt": "second actual 936 check",
+        "reason": "validator looked for scene.pose; actual 936 schema stores the root transform in scene.root_pose"
+      }
+    ],
+    "focused_unittest": "24 passed, 0 failed",
+    "focused_unittest_log": "/Users/n/numi-human-resting-evidence-20261005/final-integrated-study-readiness-917/test-suite-v006.log",
+    "native_control_preflight": {
+      "exit_code": 0,
+      "invocation_sha256": "85e1f81f2576a7ac89e454311424e4d217f56ef9f45f8485a4c119cda83b9b6b",
+      "loaded_metal_runtime_verified": true,
+      "metadata_sha256": "cbdb057b8499b8e25978ca5a0dd0420f4346e38e66afa12c55bbf3089b08a5d4",
+      "native_log_sha256": "406f3856291b0408ee24bd3d733e0850c11bb724291e42c9cf046b38c17a4f06",
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-current-lung-924/native-run",
+      "requested_steps": 10000,
+      "requested_timestep_s": 0.002,
+      "source_files_changed_during_run": [],
+      "terminal_accepted_steps": 10000
+    },
+    "python39_py_compile": "passed",
+    "scene_preflight_report": {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-current-lung-924/assembly-preflight.json",
+      "sha256": "a15fd3a56d0077f7f3d53b5707ad4f299959a5e442f0b290b0a7a282fef22c29",
+      "status": "assembled_owner_cli_validated_native_not_run"
+    },
+    "treatment_identity_preview": {
+      "dose_observed": false,
+      "preview_full_stdout": "/Users/n/numi-human-resting-evidence-20261005/final-integrated-study-readiness-917/actual-936-preflight-probe-preview-v006-rerun2.txt",
+      "preview_json": "/Users/n/numi-human-resting-evidence-20261005/final-integrated-study-readiness-917/actual-936-preflight-probe-preview-v006.json",
+      "recorder_command_printed": true,
+      "recorder_executed": false,
+      "status": "planned_not_run"
+    }
+  }
+}

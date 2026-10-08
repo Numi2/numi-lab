@@ -1,0 +1,29 @@
+test_binding_updates_plan_templates_and_calibration (numi-human-resting-evidence-20261005.final-integrated-study-readiness-917.package-v006.test_terminal_capture_plan.TerminalCapturePlanTests) ... ok
+test_each_arm_has_seven_interior_steps_and_true_terminal (numi-human-resting-evidence-20261005.final-integrated-study-readiness-917.package-v006.test_terminal_capture_plan.TerminalCapturePlanTests) ... ok
+test_exact_predeclared_ids_and_times (numi-human-resting-evidence-20261005.final-integrated-study-readiness-917.package-v006.test_terminal_capture_plan.TerminalCapturePlanTests) ... ok
+test_only_capture_environment_delta_is_authorized (numi-human-resting-evidence-20261005.final-integrated-study-readiness-917.package-v006.test_terminal_capture_plan.TerminalCapturePlanTests) ... ok
+test_parent_capture_selection_must_follow_pinned_017_cadence (numi-human-resting-evidence-20261005.final-integrated-study-readiness-917.package-v006.test_terminal_capture_plan.TerminalCapturePlanTests) ... ok
+test_readiness_owned_paths_follow_the_checked_out_package (numi-human-resting-evidence-20261005.final-integrated-study-readiness-917.package-v006.test_terminal_capture_plan.TerminalCapturePlanTests) ... ok
+test_terminal_receipt_must_be_N_at_310_seconds (numi-human-resting-evidence-20261005.final-integrated-study-readiness-917.package-v006.test_terminal_capture_plan.TerminalCapturePlanTests) ... ok
+test_frozen_human_runtime_helper_verifies_a_retained_native_scene_log (numi-human-resting-evidence-20261005.final-integrated-study-readiness-917.package-v006.test_owner_invocation_lineage.OwnerInvocationLineageTests) ... ok
+test_frozen_owner_serializes_derived_template_hash_in_both_outputs (numi-human-resting-evidence-20261005.final-integrated-study-readiness-917.package-v006.test_owner_invocation_lineage.OwnerInvocationLineageTests) ... ok
+test_wrapper_schema_matches_observation_emitted_by_frozen_owner (numi-human-resting-evidence-20261005.final-integrated-study-readiness-917.package-v006.test_owner_invocation_lineage.OwnerInvocationLineageTests) ... ok
+test_matching_probe_has_zero_recorder_status (numi-human-resting-evidence-20261005.final-integrated-study-readiness-917.package-v006.test_record_treatment_program_probe.IdentityProbeRecorderTests) ... ok
+test_missing_control_fails_before_creating_probe_output (numi-human-resting-evidence-20261005.final-integrated-study-readiness-917.package-v006.test_record_treatment_program_probe.IdentityProbeRecorderTests) ... ok
+test_native_environment_drops_unrecorded_prefixes_and_preserves_path (numi-human-resting-evidence-20261005.final-integrated-study-readiness-917.package-v006.test_record_treatment_program_probe.IdentityProbeRecorderTests) ... ok
+test_nonzero_native_exit_is_preserved (numi-human-resting-evidence-20261005.final-integrated-study-readiness-917.package-v006.test_record_treatment_program_probe.IdentityProbeRecorderTests) ... ok
+test_pinned_parser_accepts_future_interval_without_run_duration_bound (numi-human-resting-evidence-20261005.final-integrated-study-readiness-917.package-v006.test_record_treatment_program_probe.IdentityProbeRecorderTests) ... ok
+test_readiness_prints_recorder_command_not_raw_native_command (numi-human-resting-evidence-20261005.final-integrated-study-readiness-917.package-v006.test_record_treatment_program_probe.IdentityProbeRecorderTests) ... ok
+test_rejects_control_with_preexisting_intervention (numi-human-resting-evidence-20261005.final-integrated-study-readiness-917.package-v006.test_record_treatment_program_probe.IdentityProbeRecorderTests) ... ok
+test_treatment_is_appended_beyond_twenty_second_probe (numi-human-resting-evidence-20261005.final-integrated-study-readiness-917.package-v006.test_record_treatment_program_probe.IdentityProbeRecorderTests) ... ok
+test_zero_native_exit_does_not_hide_failed_validation (numi-human-resting-evidence-20261005.final-integrated-study-readiness-917.package-v006.test_record_treatment_program_probe.IdentityProbeRecorderTests) ... ok
+test_accepts_candidate_with_dynamic_non924_nha_and_receipt (numi-human-resting-evidence-20261005.final-integrated-study-readiness-917.package-v006.test_final_scene_assembly_lineage-v006.FinalSceneAssemblyLineageTests) ... ok
+test_rejects_invocation_asset_mismatch (numi-human-resting-evidence-20261005.final-integrated-study-readiness-917.package-v006.test_final_scene_assembly_lineage-v006.FinalSceneAssemblyLineageTests) ... ok
+test_rejects_legacy_907_fixture_report (numi-human-resting-evidence-20261005.final-integrated-study-readiness-917.package-v006.test_final_scene_assembly_lineage-v006.FinalSceneAssemblyLineageTests) ... ok
+test_rejects_missing_adjacent_assembly_report (numi-human-resting-evidence-20261005.final-integrated-study-readiness-917.package-v006.test_final_scene_assembly_lineage-v006.FinalSceneAssemblyLineageTests) ... ok
+test_rejects_receipt_not_selected_by_936_report (numi-human-resting-evidence-20261005.final-integrated-study-readiness-917.package-v006.test_final_scene_assembly_lineage-v006.FinalSceneAssemblyLineageTests) ... ok
+
+----------------------------------------------------------------------
+Ran 24 tests in 0.241s
+
+OK
