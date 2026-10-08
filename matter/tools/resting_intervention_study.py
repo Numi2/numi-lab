@@ -689,12 +689,14 @@ def native_body_trace_consistency(trace: Path, steps: int, dt: float) -> dict[st
 
 def native_surface_trace_consistency(trace: Path, steps: int, dt: float, *,
                                         require_whole_mesh: bool = False,
-                                        presentation_period_s: float = 0.064) -> dict[str, Any]:
-    """Validate every retained displayed state, whose clock precedes its accepted segment end.
+                                        presentation_period_s: float = 0.064,
+                                        terminal_accepted_capture: bool = False) -> dict[str, Any]:
+    """Validate pre-step displayed states and, when requested, the exact terminal accepted capture.
 
     The renderer captures step n-1 before step n is evaluated and publishes it
     only after that step is accepted. Never pair this trace with the next
     physiology row: its own chamber/lung target columns are authoritative.
+    The optional final step N row is a separate query-only accepted capture.
     These checks cover numerical geometry consistency, not tissue interfaces.
     """
     frame_interval = round(presentation_period_s / dt)
@@ -703,6 +705,8 @@ def native_surface_trace_consistency(trace: Path, steps: int, dt: float, *,
     expected_steps = [0] + [step for step in range(frame_interval - 1, steps, frame_interval) if step != 0]
     if expected_steps[-1] != steps - 1:
         expected_steps.append(steps - 1)
+    if terminal_accepted_capture:
+        expected_steps.append(steps)
     minimum_gap, maximum_volume_error, count = math.inf, 0.0, 0
     body_columns = {"body_com_x_m", "body_com_y_m", "body_com_z_m", "represented_body_mass_kg"}
     body_first, body_last, body_mass = None, None, None
@@ -848,8 +852,8 @@ def native_surface_trace_consistency(trace: Path, steps: int, dt: float, *,
         raise ValueError("native surface trace does not reach the final displayed accepted state")
     result = {"displayed_accepted_frames": count, "minimum_full_skin_bed_gap_m": minimum_gap,
             "maximum_rendered_functional_volume_relative_error": maximum_volume_error,
-            "displayed_state_lag_steps": 1, "whole_body_interfaces_qualified": False,
-            "geometry_mode": geometry_mode}
+            "displayed_state_lag_steps": 1, "terminal_accepted_capture_included": terminal_accepted_capture,
+            "whole_body_interfaces_qualified": False, "geometry_mode": geometry_mode}
     if geometry_mode == "common_seven_coordinate_v1":
         result["common_cardiac_geometry"] = {
             "coordinate_count": 7, "solver_status": 0,
@@ -1345,6 +1349,548 @@ def _reference_execution(path: Path, label: str) -> dict[str, Any]:
     return record
 
 
+
+FULL_Q_INTEGRATION_FIELDS = (
+    "accepted_step", "time_s", "dt_s", "configuration_count", "velocity_count",
+    "q_before_f32_semicolon", "v_before_f32_semicolon",
+    "q_preprojection_f32_semicolon", "v_preprojection_f32_semicolon",
+    "q_accepted_f32_semicolon", "v_accepted_f32_semicolon",
+    "root_before_reference_displacement_correction_xyzw_semicolon",
+    "root_after_reference_displacement_correction_xyzw_semicolon",
+    "q_before_fingerprint_fnv64", "v_before_fingerprint_fnv64",
+    "q_preprojection_fingerprint_fnv64", "v_preprojection_fingerprint_fnv64",
+    "q_accepted_fingerprint_fnv64", "v_accepted_fingerprint_fnv64",
+    "source_body_linear_momentum_before_x_kg_m_s",
+    "source_body_linear_momentum_before_y_kg_m_s",
+    "source_body_linear_momentum_before_z_kg_m_s",
+    "source_body_linear_momentum_free_same_q_x_kg_m_s",
+    "source_body_linear_momentum_free_same_q_y_kg_m_s",
+    "source_body_linear_momentum_free_same_q_z_kg_m_s",
+    "source_body_linear_momentum_preprojection_velocity_same_q_x_kg_m_s",
+    "source_body_linear_momentum_preprojection_velocity_same_q_y_kg_m_s",
+    "source_body_linear_momentum_preprojection_velocity_same_q_z_kg_m_s",
+    "source_body_linear_momentum_preprojection_qv_x_kg_m_s",
+    "source_body_linear_momentum_preprojection_qv_y_kg_m_s",
+    "source_body_linear_momentum_preprojection_qv_z_kg_m_s",
+    "source_body_linear_momentum_accepted_qv_x_kg_m_s",
+    "source_body_linear_momentum_accepted_qv_y_kg_m_s",
+    "source_body_linear_momentum_accepted_qv_z_kg_m_s",
+)
+FULL_Q_VECTOR_FIELDS = (
+    "q_before_f32_semicolon", "q_preprojection_f32_semicolon",
+    "q_accepted_f32_semicolon",
+)
+FULL_V_VECTOR_FIELDS = (
+    "v_before_f32_semicolon", "v_preprojection_f32_semicolon",
+    "v_accepted_f32_semicolon",
+)
+FULL_ROOT_VECTOR_FIELDS = (
+    "root_before_reference_displacement_correction_xyzw_semicolon",
+    "root_after_reference_displacement_correction_xyzw_semicolon",
+)
+FULL_Q_FINGERPRINT_FIELDS = (
+    "q_before_fingerprint_fnv64", "v_before_fingerprint_fnv64",
+    "q_preprojection_fingerprint_fnv64", "v_preprojection_fingerprint_fnv64",
+    "q_accepted_fingerprint_fnv64", "v_accepted_fingerprint_fnv64",
+)
+
+
+def native_full_q_integration_trace_consistency(trace: Path, steps: int, requested_dt: float,
+                                                actual_dt: float) -> dict[str, Any]:
+    """Validate the exact accepted-q CSV schema, every root, and every numeric payload."""
+    if trace.is_symlink() or not trace.is_file():
+        raise ValueError("full-q reference is missing its regular accepted q-audit CSV")
+    previous_time = None
+    q_count = v_count = root_count = None
+    count = 0
+    momentum_fields = tuple(field for field in FULL_Q_INTEGRATION_FIELDS
+                            if field.startswith("source_body_linear_momentum_"))
+    with trace.open("r", encoding="utf-8", newline="") as stream:
+        reader = csv.DictReader(stream)
+        if tuple(reader.fieldnames or ()) != FULL_Q_INTEGRATION_FIELDS:
+            raise ValueError("full-q reference has an unexpected accepted q-audit header")
+        for row in reader:
+            if None in row or count >= steps:
+                raise ValueError("full-q reference has malformed or excess accepted q-audit rows")
+            step = count + 1
+            try:
+                accepted_step = int(row["accepted_step"])
+            except (TypeError, ValueError) as exc:
+                raise ValueError("full-q reference has a malformed accepted-step field") from exc
+            if accepted_step != step:
+                raise ValueError("full-q reference does not contain every accepted root in order")
+            row_dt = finite_float(row["dt_s"], "accepted q dt_s")
+            row_time = finite_float(row["time_s"], "accepted q time_s")
+            if abs(row_dt - actual_dt) > 1e-12 or abs(row_dt - requested_dt) > 1e-6:
+                raise ValueError("full-q reference accepted timestep differs from its native invocation")
+            if abs(row_time - step * row_dt) > 1e-8:
+                raise ValueError("full-q reference accepted q clock does not match its root index")
+            if previous_time is not None and row_time <= previous_time:
+                raise ValueError("full-q reference accepted q clock is not strictly increasing")
+            previous_time = row_time
+            try:
+                row_q_count = int(row["configuration_count"])
+                row_v_count = int(row["velocity_count"])
+            except (TypeError, ValueError) as exc:
+                raise ValueError("full-q reference has invalid q/v dimensions") from exc
+            if row_q_count <= 0 or row_v_count <= 0:
+                raise ValueError("full-q reference has empty q/v dimensions")
+            if q_count is None:
+                q_count, v_count = row_q_count, row_v_count
+            elif (row_q_count, row_v_count) != (q_count, v_count):
+                raise ValueError("full-q reference q/v dimensions change between accepted roots")
+            for field in FULL_Q_VECTOR_FIELDS:
+                values = row[field].split(";")
+                if len(values) != row_q_count:
+                    raise ValueError(f"full-q reference {field} length differs from configuration_count")
+                for value in values:
+                    finite_float(value, field)
+            for field in FULL_V_VECTOR_FIELDS:
+                values = row[field].split(";")
+                if len(values) != row_v_count:
+                    raise ValueError(f"full-q reference {field} length differs from velocity_count")
+                for value in values:
+                    finite_float(value, field)
+            for field in FULL_ROOT_VECTOR_FIELDS:
+                values = row[field].split(";")
+                if not values or any(value == "" for value in values):
+                    raise ValueError(f"full-q reference {field} is empty")
+                if root_count is None:
+                    root_count = len(values)
+                elif len(values) != root_count:
+                    raise ValueError(f"full-q reference {field} dimension changes")
+                for value in values:
+                    finite_float(value, field)
+            for field in momentum_fields:
+                finite_float(row[field], field)
+            for field in FULL_Q_FINGERPRINT_FIELDS:
+                value = row[field]
+                if not value.isdecimal() or int(value) > 0xFFFFFFFFFFFFFFFF:
+                    raise ValueError(f"full-q reference {field} is not an unsigned 64-bit fingerprint")
+            count += 1
+    if count != steps:
+        raise ValueError("full-q reference does not retain every accepted q-audit row")
+    return {
+        "accepted_rows": count, "first_accepted_step": 1,
+        "last_accepted_step": count, "configuration_count": q_count,
+        "velocity_count": v_count, "root_observer_component_count": root_count,
+        "actual_float_dt_s": actual_dt, "schema_fields": len(FULL_Q_INTEGRATION_FIELDS),
+        "all_numeric_values_finite": True,
+    }
+
+
+
+
+FULL_Q_INDEX_MAP_FIELDS = (
+    "record_kind", "local_q_index", "global_q_index", "local_v_index", "global_v_index",
+    "joint_index", "joint_name", "dof_name", "local_dof", "q_index_valid",
+)
+
+
+def native_full_q_index_map_consistency(path: Path, q_count: int, v_count: int) -> dict[str, Any]:
+    """Validate the owner-emitted component map used to interpret the q/v columns."""
+    if path.is_symlink() or not path.is_file():
+        raise ValueError("full-q reference is missing its regular q/v index map")
+    q_indices, v_indices = set(), set()
+    record_count = 0
+    with path.open("r", encoding="utf-8", newline="") as stream:
+        reader = csv.DictReader(stream)
+        if tuple(reader.fieldnames or ()) != FULL_Q_INDEX_MAP_FIELDS:
+            raise ValueError("full-q reference has an unexpected q/v index-map header")
+        for row in reader:
+            if None in row:
+                raise ValueError("full-q q/v index map has malformed extra fields")
+            record_count += 1
+            kind = row["record_kind"]
+            try:
+                q_valid = int(row["q_index_valid"])
+            except (TypeError, ValueError) as exc:
+                raise ValueError("full-q q/v index map has an invalid validity bit") from exc
+            if q_valid not in (0, 1):
+                raise ValueError("full-q q/v index map validity bit is not binary")
+            q_value, v_value = row["global_q_index"], row["global_v_index"]
+            if kind == "scalar_dof":
+                if q_valid != 1 or not q_value.isdecimal() or not v_value.isdecimal():
+                    raise ValueError("full-q scalar DOF mapping is incomplete")
+                q_index, v_index = int(q_value), int(v_value)
+                if q_index in q_indices or v_index in v_indices:
+                    raise ValueError("full-q q/v index map duplicates a scalar index")
+                q_indices.add(q_index)
+                v_indices.add(v_index)
+            elif kind == "configuration_without_direct_velocity":
+                if q_valid != 0 or not q_value.isdecimal() or v_value:
+                    raise ValueError("full-q configuration-only mapping is malformed")
+                q_index = int(q_value)
+                if q_index in q_indices:
+                    raise ValueError("full-q q/v index map duplicates a configuration index")
+                q_indices.add(q_index)
+            elif kind == "velocity_only":
+                if q_valid != 0 or q_value or not v_value.isdecimal():
+                    raise ValueError("full-q velocity-only mapping is malformed")
+                v_index = int(v_value)
+                if v_index in v_indices:
+                    raise ValueError("full-q q/v index map duplicates a velocity index")
+                v_indices.add(v_index)
+            else:
+                raise ValueError("full-q q/v index map has an unknown record kind")
+    if (not record_count or q_indices != set(range(q_count)) or
+            v_indices != set(range(v_count))):
+        raise ValueError("full-q q/v index map does not cover its declared component dimensions")
+    return {"q_components": len(q_indices), "v_components": len(v_indices),
+            "mapping_records": record_count,
+            "scope": "Owner-provided component index map for interpreting accepted q/v vectors."}
+
+def _unique_native_arg(argv: list[Any], flag: str) -> str:
+    positions = [index for index, value in enumerate(argv) if value == flag]
+    if len(positions) != 1 or positions[0] + 1 >= len(argv):
+        raise ValueError(f"modern full-q invocation requires exactly one {flag} value")
+    return str(argv[positions[0] + 1])
+
+
+def _modern_full_q_reference_manifest(q_path: Path, verification_path: Path, runtime_path: Path) -> tuple[dict[str, Any], list[str]]:
+    """Pin a modern native run directly; never manufacture an execution receipt."""
+    q_dir = q_path.parent
+    invocation_path = q_dir / "invocation.json"
+    native_log_path = q_dir / "native.log"
+    q_csv = q_dir / "resting-com-q-integration.csv"
+    q_index_map = q_dir / "resting-com-q-index-map.csv"
+    physiology_csv = q_dir / "resting-coupled.csv"
+    surface_csv = q_dir / "resting-surface-audit.csv"
+    momentum_csv = q_dir / "resting-com-momentum-diagnostic.csv"
+    support_csv = q_dir / "resting-com-support-impulses.csv"
+    terminal_pack = q_dir / "accepted-geometry" / "step-10000.mrvpack"
+    terminal_receipt = q_dir / "accepted-geometry" / "step-10000.receipt.json"
+    files = [
+        (q_path, "modern full-q run metadata"),
+        (invocation_path, "modern full-q invocation"),
+        (native_log_path, "modern full-q native log"),
+        (verification_path, "modern full-q terminal-cycle verification"),
+        (q_csv, "modern full-q integration trace"),
+        (q_index_map, "modern full-q component index map"),
+        (physiology_csv, "modern full-q physiology trace"),
+        (surface_csv, "modern full-q presented surface trace"),
+        (momentum_csv, "modern full-q momentum diagnostics"),
+        (support_csv, "modern full-q support impulse diagnostics"),
+        (terminal_pack, "modern full-q terminal accepted geometry pack"),
+        (terminal_receipt, "modern full-q terminal accepted geometry receipt"),
+        (runtime_path, "modern full-q runtime correctness reference"),
+    ]
+    for path, label in files:
+        if path.is_symlink() or not path.is_file():
+            raise ValueError(f"{label} is not a regular retained artifact: {path}")
+    metadata = json.loads(q_path.read_text(encoding="utf-8"))
+    invocation = json.loads(invocation_path.read_text(encoding="utf-8"))
+    verification = json.loads(verification_path.read_text(encoding="utf-8"))
+    if (metadata.get("exit_code") != 0 or metadata.get("source_files_changed_during_run") != [] or
+            metadata.get("qualification") !=
+            "native execution receipt; physiological and anatomical acceptance require separate audits" or
+            metadata.get("machine") != "arm64" or
+            not str(metadata.get("system", "")).startswith(("Darwin", "macOS-"))):
+        raise ValueError("modern full-q metadata does not attest a completed unchanged Apple-silicon run")
+    for key in ("argv", "environment", "asset_sha256"):
+        if metadata.get(key) != invocation.get(key):
+            raise ValueError(f"modern full-q run metadata {key} differs from its invocation")
+    argv = invocation.get("argv")
+    environment = invocation.get("environment")
+    assets = invocation.get("asset_sha256")
+    if not isinstance(argv, list) or not isinstance(environment, dict) or not isinstance(assets, dict):
+        raise ValueError("modern full-q invocation has malformed argv/environment/asset bindings")
+    if not argv or Path(str(argv[0])).name != "numi-human-native":
+        raise ValueError("modern full-q invocation is not from the native Human executable")
+    binary_path = Path(str(argv[0]))
+    build_root = binary_path.resolve().parent.parent
+    build_pins_path = build_root / "evidence" / "build-pins.json"
+    source_pins_path = build_root / "evidence" / "source-pins.json"
+    for path in (binary_path, build_pins_path, source_pins_path):
+        if path.is_symlink() or not path.is_file():
+            raise ValueError(f"modern full-q build provenance is not a regular retained file: {path}")
+    build_pins = json.loads(build_pins_path.read_text(encoding="utf-8"))
+    source_pins = json.loads(source_pins_path.read_text(encoding="utf-8"))
+    if not isinstance(build_pins, dict) or not isinstance(source_pins, dict):
+        raise ValueError("modern full-q build/source pins must be JSON objects")
+    expected_source_pins = {key: value for key, value in build_pins.items() if key != "artifacts"}
+    if source_pins != expected_source_pins:
+        raise ValueError("modern full-q build and source-file pins disagree")
+    source_file_hashes = {
+        key: value for key, value in source_pins.items()
+        if key not in ("source_revision", "build_script_sha256")
+    }
+    if (not source_file_hashes or
+            any(not isinstance(value, str) or not re.fullmatch(r"[0-9a-f]{64}", value)
+                for value in source_file_hashes.values()) or
+            not re.fullmatch(r"[0-9a-f]{40}", str(source_pins.get("source_revision", ""))) or
+            not re.fullmatch(r"[0-9a-f]{64}", str(source_pins.get("build_script_sha256", "")))):
+        raise ValueError("modern full-q source pins lack exact source/build-script SHA-256 identities")
+    artifact_pins = build_pins.get("artifacts")
+    if not isinstance(artifact_pins, dict):
+        raise ValueError("modern full-q build pins lack compiled artifact hashes")
+    binary_sha = sha256_file(binary_path)
+    if artifact_pins.get(str(binary_path.resolve())) != binary_sha:
+        raise ValueError("modern full-q executable differs from its retained build pin")
+    respiration_metallib = build_root / "matter" / "shaders" / "HumanRespiration.metallib"
+    if (respiration_metallib.is_symlink() or not respiration_metallib.is_file() or
+            artifact_pins.get(str(respiration_metallib.resolve())) != sha256_file(respiration_metallib)):
+        raise ValueError("modern full-q respiration metallib differs from its retained build pin")
+    built_library = build_root / "lib" / "libmetalrobo.dylib"
+    if (not built_library.is_file() or
+            artifact_pins.get(str(built_library)) != sha256_file(built_library)):
+        raise ValueError("modern full-q MetalRobo library differs from its retained build pin")
+    try:
+        requested_dt = float(_unique_native_arg(argv, "--muscle-step-seconds"))
+        requested_steps = int(_unique_native_arg(argv, "--muscle-step-count"))
+    except (ValueError, TypeError) as exc:
+        raise ValueError("modern full-q invocation has invalid timestep or accepted root count") from exc
+    if requested_dt != NATIVE_310S_DT or requested_steps != 10000:
+        raise ValueError("modern full-q reference must retain 10000 accepted roots at 2 ms")
+    if len(argv) <= 4 or Path(str(argv[4])).resolve() != q_dir.resolve():
+        raise ValueError("modern full-q invocation output path does not identify its retained run directory")
+    for flag in ("--persistent-metal-stand", "--resting-movie", "--resting-release-initialization"):
+        if flag not in argv:
+            raise ValueError(f"modern full-q invocation is missing {flag}")
+    if "--mechanics-only" in argv or "--resting-drive-intervention" in argv:
+        raise ValueError("modern full-q reference must be the unmodified coupled control")
+    if (environment.get("NUMI_HUMAN_ACCEPTED_Q_INTEGRATION_AUDIT") != "1" or
+            environment.get("NUMI_HUMAN_ACCEPTED_COM_MOMENTUM_AUDIT") != "1" or
+            environment.get("NUMI_HUMAN_ACCEPTED_COM_MOMENTUM_AUDIT_SEGMENT_STEPS") != "1" or
+            environment.get("NUMI_HUMAN_RESTING_TRANSACTION_PROBE") != "1" or
+            environment.get("NUMI_HUMAN_RESTING_INSPECTION_TOUR") != "1"):
+        raise ValueError("modern full-q invocation lacks accepted-q, transaction, or inspection probe settings")
+    loaded = metadata.get("loaded_metal_runtime", {})
+    library_path = Path(str(loaded.get("expected_path", "")))
+    library_sha = loaded.get("expected_sha256")
+    observed_images = loaded.get("observed_images", [])
+    if (loaded.get("verified") is not True or not library_sha or
+            library_path.is_symlink() or not library_path.is_file() or
+            sha256_file(library_path) != library_sha or
+            assets.get(str(library_path.resolve())) != library_sha or
+            not any(isinstance(image, dict) and image.get("path") == str(library_path)
+                    for image in observed_images)):
+        raise ValueError("modern full-q metadata lacks a hash-bound loaded Metal runtime")
+    runtime_reference = json.loads(runtime_path.read_text(encoding="utf-8"))
+    runtime_hashes = runtime_reference.get("runtime_sha256", {})
+    runtime_entry = runtime_hashes.get(str(library_path.resolve())) if isinstance(runtime_hashes, dict) else None
+    runtime_record = (runtime_entry.get("sha256") if isinstance(runtime_entry, dict) else None)
+    if (runtime_record != library_sha or
+            runtime_reference.get("integrated_2ms_check", {}).get("accepted_steps") != 1000):
+        raise ValueError("modern full-q loaded library does not match the retained runtime correctness reference")
+    native_log = native_log_path.read_text(encoding="utf-8", errors="replace")
+    scene = native_scene_summary(native_log)
+    if scene["accepted_steps"] != requested_steps or scene["device"] != "Apple M4 Pro":
+        raise ValueError("modern full-q native terminal summary differs from its retained 10000-root Apple run")
+    q_start = re.search(
+        r"^resting_com_q_integration_audit=enabled accepted_only=1 segment_cap_steps=1 "
+        r"actual_float_dt_s=([^ ]+) rows_file=resting-com-q-integration\.csv "
+        r"q_index_map=resting-com-q-index-map\.csv arrays=before,preprojection,accepted "
+        r"root=compensated_reference_displacement_correction observer_only=1$",
+        native_log, re.MULTILINE)
+    q_end = re.search(
+        r"^resting_com_q_integration_rows=(\d+) final_accepted_step=(\d+) actual_float_dt_s=([^ ]+)",
+        native_log, re.MULTILINE)
+    presentation = re.search(
+        r"^resting_terminal_presentation=accepted step=(\d+) body_count=(\d+) respiratory_status=(\d+) "
+        r"common_coordinates=accepted_buffer_copied physical_steps_advanced=0 controller_steps_advanced=0 "
+        r"fk_owner=MetalArticulatedOperator_query_only$",
+        native_log, re.MULTILINE)
+    capture = re.search(
+        r"^resting_terminal_capture_identity=accepted_step_(\d+) "
+        r"q_source=exact_final_accepted_float32 root_source=exact_final_compensated_translation "
+        r"fk=MetalArticulatedOperator_pointJacobiansOnly terminal_physical_steps_advanced=0$",
+        native_log, re.MULTILINE)
+    integrated = re.search(
+        r"^resting_integrated_body=completed simulated_s=([^ ]+).*"
+        r"physiology_body_clock=matched root_assistance=false(?: |$)",
+        native_log, re.MULTILINE)
+    throughput = re.search(
+        r"^resting_integrated_throughput accepted_start_step=1 accepted_end_step=(\d+) ",
+        native_log, re.MULTILINE)
+    if not all((q_start, q_end, presentation, capture, integrated, throughput)):
+        raise ValueError("modern full-q native log lacks accepted-q, shared-clock, or terminal query proof")
+    transaction_probe = re.search(
+        r"^resting_integrated_rejection=pass .*"
+        r"rejected_after_accepted_predecessor=true .*"
+        r"body_q_v_root_myo_unchanged=true .*"
+        r"circulation_and_clock_unchanged=true .*"
+        r"respiration_brain_history_unchanged=true .*"
+        r"retry_matches_uninterrupted_replay=true .*"
+        r"all_owners_match_uninterrupted_prefix=true .*"
+        r"retry=fresh_context_reseed_and_replay_matches_six_root_baseline "
+        r"same_context_retry=unsupported$",
+        native_log, re.MULTILINE)
+    if transaction_probe is None:
+        raise ValueError("modern full-q native log lacks the completed transaction rejection/replay probe")
+    actual_dt = finite_float(q_start.group(1), "modern full-q logged dt")
+    if (q_end.group(1) != str(requested_steps) or q_end.group(2) != str(requested_steps) or
+            abs(finite_float(q_end.group(3), "modern full-q terminal dt") - actual_dt) > 1e-12 or
+            presentation.group(1) != str(requested_steps) or int(presentation.group(2)) <= 0 or
+            presentation.group(3) != str(requested_steps) or
+            capture.group(1) != str(requested_steps) or throughput.group(1) != str(requested_steps)):
+        raise ValueError("modern full-q native log does not terminate at the exact accepted root")
+    terminal_time = finite_float(integrated.group(1), "modern full-q terminal time")
+    q_metrics = native_full_q_integration_trace_consistency(q_csv, requested_steps, requested_dt, actual_dt)
+    index_map_metrics = native_full_q_index_map_consistency(
+        q_index_map, q_metrics["configuration_count"], q_metrics["velocity_count"])
+    if (q_metrics["configuration_count"] != 129 or
+            q_metrics["velocity_count"] != 128 or
+            q_metrics["root_observer_component_count"] != 12):
+        raise ValueError("modern full-q trace dimensions differ from the pinned native scene observer")
+    if abs(terminal_time - requested_steps * actual_dt) > 1e-6:
+        raise ValueError("modern full-q native clock differs from its requested accepted horizon")
+    surface_metrics = native_surface_trace_consistency(
+        surface_csv, requested_steps, requested_dt, require_whole_mesh=True,
+        terminal_accepted_capture=True)
+    if (surface_metrics["displayed_state_lag_steps"] != 1 or
+            surface_metrics["terminal_accepted_capture_included"] is not True):
+        raise ValueError("modern full-q surface trace lacks pre-step frames or its exact terminal accepted capture")
+    metadata_sha = sha256_file(q_path)
+    verification_sha = sha256_file(verification_path)
+    candidate = verification.get("runs", {}).get(q_dir.name)
+    if (verification.get("pass") is not True or
+            verification.get("scope") !=
+            "Exact accepted-state terminal presentation; not anatomical or physiological qualification" or
+            not isinstance(candidate, dict) or candidate.get("metadata_sha256") != metadata_sha or
+            candidate.get("argv") != argv):
+        raise ValueError("modern full-q verification does not bind the selected successful native run")
+    trace_files = {
+        "resting-coupled.csv": physiology_csv,
+        "resting-com-q-integration.csv": q_csv,
+        "resting-com-momentum-diagnostic.csv": momentum_csv,
+        "resting-com-support-impulses.csv": support_csv,
+    }
+    traces = verification.get("traces", {})
+    if set(traces) != set(trace_files):
+        raise ValueError("modern full-q verification has an incomplete or unexpected trace set")
+    trace_metrics = {}
+    for name, path in trace_files.items():
+        row = traces[name]
+        if (not isinstance(row, dict) or row.get("candidate_sha256") != sha256_file(path) or
+                row.get("candidate_rows") != row.get("reference_rows") or
+                row.get("shared_row_differences") != 0 or row.get("candidate_rows", 0) <= 0):
+            raise ValueError(f"modern full-q verification does not match {name}")
+        if name in ("resting-coupled.csv", "resting-com-q-integration.csv") and row["candidate_rows"] != requested_steps:
+            raise ValueError(f"modern full-q verification has incomplete {name}")
+        trace_metrics[name] = {
+            "candidate_rows": row["candidate_rows"], "reference_rows": row["reference_rows"],
+            "shared_row_differences": row["shared_row_differences"],
+            "candidate_sha256": row["candidate_sha256"],
+        }
+    terminal = verification.get("terminal", {})
+    accepted_time = finite_float(str(terminal.get("accepted_time_s")), "verified terminal accepted time")
+    timestamp = terminal.get("accepted_timestamp_microseconds")
+    if (terminal.get("accepted_step") != requested_steps or
+            terminal.get("matches_final_physical_trace_time") is not True or
+            terminal.get("no_additional_physical_or_controller_step") is not True or
+            abs(accepted_time - terminal_time) > 1e-8 or timestamp != round(accepted_time * 1e6)):
+        raise ValueError("modern full-q verification lacks the exact terminal accepted state with no extra step")
+    with surface_csv.open("r", encoding="utf-8", newline="") as stream:
+        surface_rows = list(csv.DictReader(stream))
+    terminal_surface_row = surface_rows[-1] if surface_rows else {}
+    if (int(terminal_surface_row.get("step", -1)) != requested_steps or
+            abs(finite_float(terminal_surface_row.get("time_s", ""), "terminal surface accepted time") -
+                accepted_time) > 1e-8):
+        raise ValueError("modern full-q surface trace does not end at the exact accepted terminal state")
+    if (terminal.get("accepted_body_state_sha256") is None or
+            terminal.get("accepted_respiration_state_sha256") is None or
+            terminal.get("pack_file_sha256") != sha256_file(terminal_pack) or
+            terminal.get("receipt_sha256") != sha256_file(terminal_receipt)):
+        raise ValueError("modern full-q terminal state/geometry hashes do not match retained outputs")
+    receipt = json.loads(terminal_receipt.read_text(encoding="utf-8"))
+    if (receipt.get("schema") != "numi.human.accepted-render-geometry.v1" or
+            receipt.get("accepted_step") != requested_steps or
+            receipt.get("physical_endpoint") != "accepted" or
+            receipt.get("surface_audit_endpoint") != "passed" or
+            receipt.get("pack_file_sha256") != sha256_file(terminal_pack) or
+            receipt.get("accepted_body_state_sha256") != terminal.get("accepted_body_state_sha256") or
+            receipt.get("accepted_respiration_state_sha256") != terminal.get("accepted_respiration_state_sha256") or
+            abs(finite_float(str(receipt.get("accepted_time_s")), "terminal receipt time") - accepted_time) > 1e-8):
+        raise ValueError("modern full-q accepted geometry receipt differs from its terminal verification")
+    terminal_surface = terminal.get("surface_audit", {})
+    if (terminal_surface.get("physical_endpoint") != "accepted" or
+            terminal_surface.get("surface_audit_endpoint") != "passed" or
+            terminal_surface.get("mesh_zero_area_triangles") != 0 or
+            terminal_surface.get("mesh_nonfinite_area_triangles") != 0):
+        raise ValueError("modern full-q terminal surface audit did not pass")
+    required_files = [
+        q_path, invocation_path, native_log_path, q_csv, q_index_map, physiology_csv, surface_csv,
+        momentum_csv, support_csv, verification_path, terminal_pack, terminal_receipt, library_path,
+        binary_path, build_pins_path, source_pins_path, respiration_metallib,
+        built_library, runtime_path,
+    ]
+    file_pins = {str(path.resolve()): sha256_file(path) for path in required_files}
+    manifest = {
+        "full_q_2ms_reference": {
+            "reference_kind": "modern native run-metadata, invocation, native-log, and terminal-cycle verification",
+            "run_metadata_path": str(q_path), "run_metadata_sha256": metadata_sha,
+            "invocation_path": str(invocation_path), "invocation_sha256": sha256_file(invocation_path),
+            "native_log_path": str(native_log_path), "native_log_sha256": sha256_file(native_log_path),
+            "verification_report_path": str(verification_path), "verification_report_sha256": verification_sha,
+            "retained_file_sha256": file_pins,
+            "native_build": {
+                "binary_path": str(binary_path.resolve()), "binary_sha256": binary_sha,
+                "build_pins_path": str(build_pins_path.resolve()),
+                "build_pins_sha256": sha256_file(build_pins_path),
+                "source_pins_path": str(source_pins_path.resolve()),
+                "source_pins_sha256": sha256_file(source_pins_path),
+                "source_revision": source_pins["source_revision"],
+                "build_script_sha256": source_pins["build_script_sha256"],
+                "source_file_sha256": source_file_hashes,
+                "respiration_metallib_path": str(respiration_metallib.resolve()),
+                "respiration_metallib_sha256": sha256_file(respiration_metallib),
+                "built_library_path": str(built_library),
+                "built_library_sha256": sha256_file(built_library),
+            },
+            "runtime_correctness_reference": {
+                "path": str(runtime_path.resolve()), "sha256": sha256_file(runtime_path),
+                "loaded_library_sha256": runtime_record,
+                "scope": "Independent retained runtime identity check; does not assert the viewer source or shader identity.",
+            },
+            "requested_run": {
+                "requested_step_count": requested_steps, "requested_dt_s": requested_dt,
+                "accepted_step_count": scene["accepted_steps"], "accepted_terminal_time_s": terminal_time,
+                "device": scene["device"], "world_fingerprint": scene["world_fingerprint"],
+                "body_source_fingerprint": scene["body_source_fingerprint"],
+                "coupled_program_fingerprint": scene["coupled_program_fingerprint"],
+                "transaction_probe_setting": environment["NUMI_HUMAN_RESTING_TRANSACTION_PROBE"],
+                "transaction_probe_log_record": {
+                    "rejection_after_accepted_predecessor": True,
+                    "all_owner_state_unchanged": True,
+                    "fresh_context_replay_matches": True,
+                    "source_line": transaction_probe.group(0),
+                },
+                "accepted_q_audit_setting": environment["NUMI_HUMAN_ACCEPTED_Q_INTEGRATION_AUDIT"],
+                "loaded_metal_runtime": {
+                    "path": str(library_path.resolve()), "sha256": library_sha,
+                    "observed_images": observed_images, "verified": True,
+                },
+            },
+            "q_integration_audit": {
+                **q_metrics, "trace_sha256": sha256_file(q_csv),
+                "component_index_map_path": str(q_index_map.resolve()),
+                "component_index_map_sha256": sha256_file(q_index_map),
+                "component_index_map": index_map_metrics,
+                "native_terminal_row_count": int(q_end.group(1)),
+            },
+            "presented_surface_audit": {
+                **surface_metrics, "presentation_period_s": 0.064,
+                "scope": "Owner-validated pre-step displayed states and whole-mesh checks; not tissue-interface qualification.",
+            },
+            "terminal_capture": {
+                "accepted_step": requested_steps, "accepted_time_s": accepted_time,
+                "accepted_timestamp_microseconds": timestamp, "pack_path": str(terminal_pack),
+                "receipt_path": str(terminal_receipt), "no_additional_physical_or_controller_step": True,
+                "scope": "Exact terminal accepted state from the GPU viewer owner; not physiology or anatomy qualification.",
+            },
+            "verified_trace_comparisons": trace_metrics,
+            "scope": (
+                "Retained 931 run has a full accepted-q audit over 10000 roots at requested 2 ms, "
+                "a separately verified query-only terminal capture, and owner-validated 64 ms surface samples. "
+                "Its comparison verifies output/runtime identity against the retained 925 reference; it is not a "
+                "310 s endurance result or physiological/anatomical qualification."
+            ),
+        },
+    }
+    return manifest, [str(path.resolve()) for path in required_files]
+
+
 def native_310s_reference_manifest(args: argparse.Namespace) -> tuple[dict[str, Any], list[str]]:
     """Pin the distinct segment-8 and full-q references without equating their scopes."""
     segment_path = Path(args.segment8_reference)
@@ -1354,7 +1900,15 @@ def native_310s_reference_manifest(args: argparse.Namespace) -> tuple[dict[str, 
         raise ValueError("audit-schedule references must not be symlinks")
     segment_path, q_path, runtime_path = (path.resolve() for path in (segment_path, q_path, runtime_path))
     segment = _reference_execution(segment_path, "segment-8")
-    q_full = _reference_execution(q_path, "full-q")
+    modern_q = q_path.name == "run-metadata.json"
+    q_full = None if modern_q else _reference_execution(q_path, "full-q")
+    verification_arg = getattr(args, "full_q_verification", None)
+    if modern_q and not verification_arg:
+        raise ValueError("modern full-q run-metadata requires --full-q-verification")
+    if not modern_q and verification_arg:
+        raise ValueError("--full-q-verification is only valid with modern run-metadata")
+    if modern_q and Path(verification_arg).is_symlink():
+        raise ValueError("modern full-q verification reference must not be a symlink")
     if runtime_path.is_symlink() or not runtime_path.is_file():
         raise ValueError(f"runtime correctness pin is not a regular file: {runtime_path}")
     runtime = json.loads(runtime_path.read_text(encoding="utf-8"))
@@ -1369,6 +1923,40 @@ def native_310s_reference_manifest(args: argparse.Namespace) -> tuple[dict[str, 
             segment_run.get("requested_step_count") != 250 or
             segment_run.get("presentation_period_s") != 0.064):
         raise ValueError("segment-8 reference no longer matches the retained 752 diagnostic schedule")
+    if modern_q:
+        modern_manifest, modern_artifacts = _modern_full_q_reference_manifest(
+            q_path, Path(args.full_q_verification).resolve(), runtime_path)
+        segment_dir = segment_path.parent
+        segment_surface_metrics = native_surface_trace_consistency(
+            segment_dir / "resting-surface-audit.csv", 250, 0.008, require_whole_mesh=True)
+        segment_required = [
+            segment_path, segment_dir / "resting-coupled.csv",
+            segment_dir / "resting-surface-audit.csv",
+            segment_dir / "resting-com-support-impulses.csv",
+            segment_dir / "resting-com-momentum-diagnostic.csv",
+        ]
+        for path in segment_required:
+            if path.is_symlink() or not path.is_file():
+                raise ValueError(f"missing regular audit-schedule reference artifact: {path}")
+        manifest = {
+            "segment8_schedule_reference": {
+                "execution_json": str(segment_path),
+                "execution_sha256": sha256_file(segment_path),
+                "physiology_trace_sha256": sha256_file(segment_dir / "resting-coupled.csv"),
+                "surface_trace_sha256": sha256_file(segment_dir / "resting-surface-audit.csv"),
+                "aggregate_support_impulses_sha256": sha256_file(segment_dir / "resting-com-support-impulses.csv"),
+                "com_momentum_diagnostics_sha256": sha256_file(segment_dir / "resting-com-momentum-diagnostic.csv"),
+                "scope": ("Retained 752 run reported physiology, surface, and aggregate contact diagnostics with "
+                          "the segment-8 observer schedule for its 2 s, 8 ms condition. It does not qualify 8 ms "
+                          "temporal accuracy or the 310 s pair."),
+                "displayed_surface_frames": segment_surface_metrics["displayed_accepted_frames"],
+                "whole_mesh_triangles_checked_per_frame": segment_surface_metrics["whole_mesh_area_audit"]["triangles_checked_per_frame"],
+                "maximum_functional_volume_relative_error": segment_surface_metrics["maximum_rendered_functional_volume_relative_error"],
+            },
+            **modern_manifest,
+        }
+        return manifest, list(dict.fromkeys([*(str(path.resolve()) for path in segment_required),
+                                             *modern_artifacts]))
     q_env = q_full.get("environment", {})
     q_run = q_full.get("run_configuration", {})
     if (q_env.get("NUMI_HUMAN_ACCEPTED_Q_INTEGRATION_AUDIT") != "1" or
@@ -1504,6 +2092,20 @@ def prepare_native_310s(args: argparse.Namespace) -> Path:
     output = Path(args.directory).resolve()
     identity, calibration, plan = native_plan_components(
         args, invocation, source_hashes, Path(__file__).resolve())
+    modern_full_q = "run_metadata_path" in references["full_q_2ms_reference"]
+    if modern_full_q:
+        q_reference_scope = (
+            "The separately pinned modern 10000-root 2 ms full-q reference is a bounded "
+            "runtime integration check, not a long-run q audit.")
+        q_limitation = (
+            "The long pair disables the full q integration audit; its separately pinned modern reference "
+            "retains 10000 roots at 2 ms but is not 310 s endurance or physiological/anatomical qualification.")
+    else:
+        q_reference_scope = (
+            "The full-q audit is separately pinned to the 2 ms 1000-step 801 reference.")
+        q_limitation = (
+            "The long pair disables the full q integration audit; the separate 801 reference is a "
+            "1000-root 2 ms full-q check.")
     audit_schedule = {
         "physical_timestep_s": NATIVE_310S_DT,
         "accepted_native_steps": NATIVE_310S_STEPS,
@@ -1517,7 +2119,7 @@ def prepare_native_310s(args: argparse.Namespace) -> Path:
             "scope": "diagnostic aggregation only; no change to physical integration cadence"},
         "accepted_q_integration_audit": {
             "enabled": False,
-            "scope": "disabled for the long pair; full-q audit is separately pinned to the 2 ms 1000-step 801 run"},
+            "scope": "disabled for the long pair; " + q_reference_scope},
         "presented_surface_geometry_audit": {
             "enabled": True, "cadence_s": 0.064,
             "scope": ("At every scheduled displayed accepted state, retain the complete visible-surface skin/bed "
@@ -1539,8 +2141,8 @@ def prepare_native_310s(args: argparse.Namespace) -> Path:
     plan["limitations"] += (
         " The 310 s pair is planned at 155000 physical 2 ms roots after a 10 s initialization exclusion; "
         "the 64 ms movie cadence and eight-root COM diagnostic segments do not alter physics/controller timestep. "
-        "The long pair disables the full q integration audit; the separate 801 reference is a 1000-root 2 ms "
-        "full-q check, while 752 only supports segment-8 observer scheduling at its 8 ms condition. "
+        + q_limitation + " "
+        "The 752 reference only supports segment-8 observer scheduling at its 8 ms condition. "
         "Neither reference demonstrates 310 s endurance or physiological/anatomical qualification. "
         "The duration/cycle gate requires 300 observed seconds after initialization, repeated complete breaths, "
         "repeated filling/ejection cycles with positive stroke volume, and positive forward ejection into both "
@@ -1817,6 +2419,8 @@ def main() -> int:
         "/Users/n/numi-human-resting-evidence-20261005/integrated-parallel-contact-batched-752/execution.json")
     native_310s.add_argument("--full-q-reference", default=
         "/Users/n/numi-human-resting-evidence-20261005/integrated-final-runtime-2ms-check-801/execution.json")
+    native_310s.add_argument("--full-q-verification", default=None,
+                             help="existing terminal-cycle verification JSON for a modern run-metadata full-q reference")
     native_310s.add_argument("--runtime-correctness-reference", default=
         "/Users/n/numi-human-performance-source-014/docs/evidence/human-resting/2026-10-07-native-runtime.json")
     receipt = sub.add_parser("receipt", help="capture exact source, binary, library, input, and repository identity after a native build")

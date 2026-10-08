@@ -965,3 +965,147 @@ class NativeFailureEvidenceIsolationTests(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class ModernFullQReferenceTests(unittest.TestCase):
+    @staticmethod
+    def write_q_trace(path, steps=2, *, mutate=None, header=None):
+        fields = adapter.FULL_Q_INTEGRATION_FIELDS if header is None else header
+        momentum = [field for field in adapter.FULL_Q_INTEGRATION_FIELDS
+                    if field.startswith("source_body_linear_momentum_")]
+        with path.open("w", newline="", encoding="utf-8") as stream:
+            writer = csv.DictWriter(stream, fieldnames=fields)
+            writer.writeheader()
+            for step in range(1, steps + 1):
+                row = {field: "0" for field in fields}
+                row.update({
+                    "accepted_step": str(step), "time_s": str(step * 0.0020000000949949026),
+                    "dt_s": "0.0020000000949949026", "configuration_count": "2",
+                    "velocity_count": "1", "q_before_f32_semicolon": "1;2",
+                    "q_preprojection_f32_semicolon": "1;2", "q_accepted_f32_semicolon": "1;2",
+                    "v_before_f32_semicolon": "3", "v_preprojection_f32_semicolon": "3",
+                    "v_accepted_f32_semicolon": "3",
+                    "root_before_reference_displacement_correction_xyzw_semicolon":
+                        "0;0;0;1;0;0;0;0;0;0;0;0",
+                    "root_after_reference_displacement_correction_xyzw_semicolon":
+                        "0;0;0;1;0;0;0;0;0;0;0;0",
+                })
+                for index, field in enumerate(adapter.FULL_Q_FINGERPRINT_FIELDS, start=101):
+                    row[field] = str(index)
+                for field in momentum:
+                    row[field] = "0"
+                if mutate:
+                    mutate(row, step)
+                writer.writerow({field: row.get(field, "") for field in fields})
+
+    def test_full_q_csv_requires_complete_exact_schema_clock_and_finite_numbers(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            good = root / "good.csv"
+            self.write_q_trace(good, 2)
+            parsed = adapter.native_full_q_integration_trace_consistency(
+                good, 2, 0.002, 0.0020000000949949026)
+            self.assertEqual(parsed["accepted_rows"], 2)
+            self.assertEqual(parsed["configuration_count"], 2)
+            missing = root / "missing.csv"
+            self.write_q_trace(missing, 1)
+            with self.assertRaisesRegex(ValueError, "every accepted q-audit row"):
+                adapter.native_full_q_integration_trace_consistency(
+                    missing, 2, 0.002, 0.0020000000949949026)
+            skipped = root / "skipped.csv"
+            self.write_q_trace(skipped, 2, mutate=lambda row, step: row.update(
+                accepted_step="2" if step == 1 else "3"))
+            with self.assertRaisesRegex(ValueError, "every accepted root"):
+                adapter.native_full_q_integration_trace_consistency(
+                    skipped, 2, 0.002, 0.0020000000949949026)
+            nonfinite = root / "nonfinite.csv"
+            self.write_q_trace(nonfinite, 2, mutate=lambda row, step: row.update(
+                source_body_linear_momentum_before_x_kg_m_s="nan") if step == 1 else None)
+            with self.assertRaisesRegex(ValueError, "finite"):
+                adapter.native_full_q_integration_trace_consistency(
+                    nonfinite, 2, 0.002, 0.0020000000949949026)
+            wrong_dt = root / "wrong-dt.csv"
+            self.write_q_trace(wrong_dt, 2, mutate=lambda row, step: row.update(
+                dt_s="0.008") if step == 1 else None)
+            with self.assertRaisesRegex(ValueError, "timestep"):
+                adapter.native_full_q_integration_trace_consistency(
+                    wrong_dt, 2, 0.002, 0.0020000000949949026)
+            wrong_header = root / "wrong-header.csv"
+            self.write_q_trace(wrong_header, 2, header=adapter.FULL_Q_INTEGRATION_FIELDS[:-1])
+            with self.assertRaisesRegex(ValueError, "unexpected accepted q-audit header"):
+                adapter.native_full_q_integration_trace_consistency(
+                    wrong_header, 2, 0.002, 0.0020000000949949026)
+
+    def test_q_index_map_requires_complete_unique_component_coverage(self):
+        fields = adapter.FULL_Q_INDEX_MAP_FIELDS
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "map.csv"
+            with path.open("w", newline="", encoding="utf-8") as stream:
+                writer = csv.DictWriter(stream, fieldnames=fields)
+                writer.writeheader()
+                writer.writerow(dict(record_kind="scalar_dof", local_q_index="0", global_q_index="0",
+                    local_v_index="0", global_v_index="0", joint_index="0", joint_name="j",
+                    dof_name="x", local_dof="0", q_index_valid="1"))
+                writer.writerow(dict(record_kind="configuration_without_direct_velocity",
+                    local_q_index="1", global_q_index="1", local_v_index="", global_v_index="",
+                    joint_index="", joint_name="", dof_name="", local_dof="", q_index_valid="0"))
+            self.assertEqual(adapter.native_full_q_index_map_consistency(path, 2, 1)["mapping_records"], 2)
+            with path.open("a", encoding="utf-8") as stream:
+                stream.write("unknown,,,,,,,,,0\n")
+            with self.assertRaisesRegex(ValueError, "unknown record kind"):
+                adapter.native_full_q_index_map_consistency(path, 2, 1)
+
+    def test_real_931_modern_full_q_reference_is_hash_and_terminal_bound(self):
+        evidence = Path("/Users/n/numi-human-resting-evidence-20261005")
+        run = evidence / "native-terminal-cycle-931"
+        verification = evidence / "native-terminal-cycle-review-931/verification.json"
+        runtime = Path("/Users/n/numi-human-performance-source-014/docs/evidence/human-resting/2026-10-07-native-runtime.json")
+        segment = evidence / "integrated-parallel-contact-batched-752/execution.json"
+        if not all(path.is_file() for path in (
+                run / "run-metadata.json", verification, runtime, segment)):
+            self.skipTest("retained Mac mini 931/752 integration fixture is unavailable")
+        args = Namespace(segment8_reference=str(segment),
+                         full_q_reference=str(run / "run-metadata.json"),
+                         full_q_verification=str(verification),
+                         runtime_correctness_reference=str(runtime))
+        manifest, artifacts = adapter.native_310s_reference_manifest(args)
+        full = manifest["full_q_2ms_reference"]
+        self.assertEqual(full["reference_kind"],
+                         "modern native run-metadata, invocation, native-log, and terminal-cycle verification")
+        self.assertEqual(full["q_integration_audit"]["accepted_rows"], 10000)
+        self.assertEqual(full["q_integration_audit"]["schema_fields"], 34)
+        self.assertEqual(full["q_integration_audit"]["component_index_map"],
+                         {"q_components": 129, "v_components": 128, "mapping_records": 132,
+                          "scope": "Owner-provided component index map for interpreting accepted q/v vectors."})
+        self.assertEqual(full["presented_surface_audit"]["displayed_accepted_frames"], 315)
+        self.assertTrue(full["presented_surface_audit"]["terminal_accepted_capture_included"])
+        self.assertEqual(full["terminal_capture"]["accepted_step"], 10000)
+        self.assertEqual(full["requested_run"]["accepted_step_count"], 10000)
+        self.assertEqual(full["requested_run"]["loaded_metal_runtime"]["sha256"],
+                         "6bccfc4044d825423e66bc2f60ba3cf59eaa9a4936773ab08182f58a09927092")
+        self.assertEqual(full["native_build"]["source_revision"],
+                         "b091d7dcead509a325194563ed38261319118a88")
+        self.assertGreaterEqual(len(full["native_build"]["source_file_sha256"]), 6)
+        self.assertIn(str((run / "resting-com-q-index-map.csv").resolve()), artifacts)
+        self.assertIn(str(verification.resolve()), artifacts)
+
+    def test_modern_metadata_requires_terminal_verification_and_rejects_verification_drift(self):
+        evidence = Path("/Users/n/numi-human-resting-evidence-20261005")
+        run = evidence / "native-terminal-cycle-931"
+        verification = evidence / "native-terminal-cycle-review-931/verification.json"
+        runtime = Path("/Users/n/numi-human-performance-source-014/docs/evidence/human-resting/2026-10-07-native-runtime.json")
+        segment = evidence / "integrated-parallel-contact-batched-752/execution.json"
+        if not all(path.is_file() for path in (
+                run / "run-metadata.json", verification, runtime, segment)):
+            self.skipTest("retained Mac mini 931/752 integration fixture is unavailable")
+        base = dict(segment8_reference=str(segment), full_q_reference=str(run / "run-metadata.json"),
+                    runtime_correctness_reference=str(runtime))
+        with self.assertRaisesRegex(ValueError, "requires --full-q-verification"):
+            adapter.native_310s_reference_manifest(Namespace(**base))
+        with tempfile.TemporaryDirectory() as directory:
+            wrong = Path(directory) / "verification.json"
+            data = json.loads(verification.read_text(encoding="utf-8"))
+            data["terminal"]["accepted_step"] = 9999
+            wrong.write_text(json.dumps(data), encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "exact terminal accepted state"):
+                adapter._modern_full_q_reference_manifest(run / "run-metadata.json", wrong, runtime)
