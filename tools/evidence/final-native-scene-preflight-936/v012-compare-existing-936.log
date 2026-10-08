@@ -1,0 +1,17 @@
+{
+  "status": "measured_no_parity_assumed",
+  "out": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/v012-compare-existing-936",
+  "capture_steps": [
+    "0",
+    "4991",
+    "5375",
+    "5759",
+    "6111",
+    "6495",
+    "7743",
+    "10000"
+  ],
+  "trace_observations": 1250,
+  "cadence_fields_exact": true,
+  "generalized_q": "not emitted under q0"
+}

@@ -1,0 +1,48 @@
+{
+  "cpu_assembly": {
+    "assets": 25,
+    "native_run": false,
+    "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/v012-explicit-924-cpu-fixture",
+    "root_delta_xyz_m": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "support_sha256": "bcfece8e5da553b98694b724644234407fa4c38383b1e18d3c24d7caefa28927"
+  },
+  "current_script_sha256": "f0409de28663144368880147be9ff599dc2b3cf4f9f28340687c5ad780400558",
+  "existing_native_reanalysis": {
+    "all_values_exact": true,
+    "new_native_run": false,
+    "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-current-lung-924/native-run",
+    "values": 75000
+  },
+  "limits": [
+    "No new NHA candidate accepted by these checks",
+    "No new GPU or native run",
+    "No change to physical or geometry qualification gates"
+  ],
+  "outputs": {
+    "README-v012.md": "5aa3618658cfa7ed6f052497befa5d3fb022a198a3f7f7f29006acd6735140b8",
+    "final_scene_936-v012.py": "f0409de28663144368880147be9ff599dc2b3cf4f9f28340687c5ad780400558",
+    "test_final_scene_936_v012.py": "ffa656dc9afa4b87cfb3dd1cec2f56af985070d6dd920f4a42747bcd6be160b6",
+    "v012-compare-existing-936.log": "32faa51a23e9b1371d137dcc916988cec4e714bc5e4692d07d51c18b7fd02f14",
+    "v012-compare-existing-936/comparison.json": "90d255b902adcaa72996f1066a465916079bf957cfc35156dc2f44bf04dcd4f0",
+    "v012-explicit-924-cpu-fixture.log": "31d13414417a425187db346a72ec92d49d2543f95c92dc7294612f967b5693d1",
+    "v012-explicit-924-cpu-fixture/assembly-preflight.json": "871945b780410124e588ea7a22afd392d7fa9da9eef8d5d4544f966698af46de",
+    "v012-explicit-924-cpu-fixture/launch-command.sh": "01290da0e68aca9367c3893d9079bcec44eb673fe1041db2eb6988a19e144eec",
+    "v012-unit-test-attempt1-failed.log": "d5e6a9b735a28ed81cc8cdab9698022c7cd30145bad2bd1e329764ea58f5ec84",
+    "v012-unit-test.log": "ce0b0e292e75e4e94a6fbd9c442d59b4faf69a5682de9a4d4134878fdf1fc6c5"
+  },
+  "previous_v011_script_sha256": "8a327d30a0b604055a75c80ff84b4538c11009439e9fa62429df95750cb70391",
+  "revision": 12,
+  "schema": "numi.human.final-native-scene-preflight-revision.v1",
+  "source_pins": {
+    "build_pins_sha256": "ed576aba3b330574de7d9afa83474f8b33f51df48770532862e56e0c69e69984",
+    "build_source_pins_sha256": "ccbfa7e27f51b8635d0e075945cb672084c4793b0153df33c9093747c9c919ba",
+    "human": "935cc7d332b9118f41c719e2d2f9c7c568a3d41f",
+    "lab": "d550d8ad88a76fdee5bb6e028286fd24e962571f"
+  },
+  "status": "cpu_explicit_anatomy_assembly_and_existing_run_reanalysis_passed_no_new_native_run",
+  "test_summary": "12 focused tests passed; actual owner assembly accepted exact 924 NHA/receipt through override path; existing936 native run reanalysis retains 75000 exact values and 8 sets of 86 poses."
+}

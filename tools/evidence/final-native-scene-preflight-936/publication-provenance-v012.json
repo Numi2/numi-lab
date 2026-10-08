@@ -1,0 +1,63 @@
+{
+  "copied_files": [
+    {
+      "path": "final_scene_936-v012.py",
+      "published_sha256": "f0409de28663144368880147be9ff599dc2b3cf4f9f28340687c5ad780400558",
+      "source_sha256": "f0409de28663144368880147be9ff599dc2b3cf4f9f28340687c5ad780400558"
+    },
+    {
+      "path": "test_final_scene_936_v012.py",
+      "published_sha256": "3541643e0e7bbc353c45fb6c2a49e81eae528c34d8a571b6ae4eaca05f3ca3aa",
+      "source_sha256": "ffa656dc9afa4b87cfb3dd1cec2f56af985070d6dd920f4a42747bcd6be160b6"
+    },
+    {
+      "path": "README-v012.md",
+      "published_sha256": "5aa3618658cfa7ed6f052497befa5d3fb022a198a3f7f7f29006acd6735140b8",
+      "source_sha256": "5aa3618658cfa7ed6f052497befa5d3fb022a198a3f7f7f29006acd6735140b8"
+    },
+    {
+      "path": "revision-012.json",
+      "published_sha256": "06d5b7ea299b81007f1cccade0832873146dace71171e29f163ed105370163aa",
+      "source_sha256": "06d5b7ea299b81007f1cccade0832873146dace71171e29f163ed105370163aa"
+    },
+    {
+      "path": "v012-unit-test.log",
+      "published_sha256": "ce0b0e292e75e4e94a6fbd9c442d59b4faf69a5682de9a4d4134878fdf1fc6c5",
+      "source_sha256": "ce0b0e292e75e4e94a6fbd9c442d59b4faf69a5682de9a4d4134878fdf1fc6c5"
+    },
+    {
+      "path": "v012-unit-test-attempt1-failed.log",
+      "published_sha256": "d5e6a9b735a28ed81cc8cdab9698022c7cd30145bad2bd1e329764ea58f5ec84",
+      "source_sha256": "d5e6a9b735a28ed81cc8cdab9698022c7cd30145bad2bd1e329764ea58f5ec84"
+    },
+    {
+      "path": "v012-explicit-924-cpu-fixture.log",
+      "published_sha256": "31d13414417a425187db346a72ec92d49d2543f95c92dc7294612f967b5693d1",
+      "source_sha256": "31d13414417a425187db346a72ec92d49d2543f95c92dc7294612f967b5693d1"
+    },
+    {
+      "path": "v012-explicit-924-cpu-fixture/assembly-preflight.json",
+      "published_sha256": "871945b780410124e588ea7a22afd392d7fa9da9eef8d5d4544f966698af46de",
+      "source_sha256": "871945b780410124e588ea7a22afd392d7fa9da9eef8d5d4544f966698af46de"
+    },
+    {
+      "path": "v012-explicit-924-cpu-fixture/launch-command.sh",
+      "published_sha256": "01290da0e68aca9367c3893d9079bcec44eb673fe1041db2eb6988a19e144eec",
+      "source_sha256": "01290da0e68aca9367c3893d9079bcec44eb673fe1041db2eb6988a19e144eec"
+    },
+    {
+      "path": "v012-compare-existing-936.log",
+      "published_sha256": "32faa51a23e9b1371d137dcc916988cec4e714bc5e4692d07d51c18b7fd02f14",
+      "source_sha256": "32faa51a23e9b1371d137dcc916988cec4e714bc5e4692d07d51c18b7fd02f14"
+    },
+    {
+      "path": "v012-compare-existing-936/comparison.json",
+      "published_sha256": "90d255b902adcaa72996f1066a465916079bf957cfc35156dc2f44bf04dcd4f0",
+      "source_sha256": "90d255b902adcaa72996f1066a465916079bf957cfc35156dc2f44bf04dcd4f0"
+    }
+  ],
+  "new_native_run": false,
+  "retained_full_cpu_assembly": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/v012-explicit-924-cpu-fixture",
+  "source_directory": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936",
+  "test_path_adjustment": "Only SCRIPT path changed to adjacent repository copy; original source/test hashes retained in revision012."
+}

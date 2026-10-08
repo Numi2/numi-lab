@@ -1,0 +1,15 @@
+{
+  "status": "assembled_owner_cli_validated_native_not_run",
+  "out": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/v012-explicit-924-cpu-fixture",
+  "root_delta_xyz_m": [
+    0.0,
+    0.0,
+    0.0
+  ],
+  "support_counts": [
+    32,
+    32
+  ],
+  "asset_count": 25,
+  "native_run": false
+}

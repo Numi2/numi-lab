@@ -1,0 +1,60 @@
+test_comparator_binds_assembled_anatomy_and_rejects_missing_identity (__main__.AnatomyIdentityTests) ... ERROR
+test_fixture_override_rejected (__main__.AnatomyIdentityTests) ... ok
+test_partial_override_rejected (__main__.AnatomyIdentityTests) ... ok
+test_payload_mutation_rejected (__main__.AnatomyIdentityTests) ... ok
+test_receipt_alias_path_rejected_even_with_same_bytes (__main__.AnatomyIdentityTests) ... ok
+test_selected_candidate_requires_exact_receipt_binding (__main__.AnatomyIdentityTests) ... FAIL
+test_exact_owner_assets_tour_and_runtime_pass (__main__.CompareContractTests) ... ok
+test_missing_critical_asset_fails (__main__.CompareContractTests) ... ok
+test_wrong_runtime_fails (__main__.CompareContractTests) ... ok
+test_wrong_tour_fails (__main__.CompareContractTests) ... ok
+test_final_candidate_composes_onto_924_and_uses_composed_receipt (__main__.CompositionBranchTests) ... ok
+test_legacy_fixture_composes_against_003_but_uses_existing_924_receipt (__main__.CompositionBranchTests) ... ERROR
+
+======================================================================
+ERROR: test_comparator_binds_assembled_anatomy_and_rejects_missing_identity (__main__.AnatomyIdentityTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/test_final_scene_936_v012.py", line 123, in test_comparator_binds_assembled_anatomy_and_rejects_missing_identity
+    self.assertEqual(module.anatomy_assets_from_assembly(a),{str(self.nha):self.args.anatomy_sha,str(self.receipt):self.args.anatomy_receipt_sha})
+  File "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/final_scene_936-v012.py", line 111, in anatomy_assets_from_assembly
+    raise RuntimeError("assembled anatomy missing from immutable source identities")
+RuntimeError: assembled anatomy missing from immutable source identities
+
+======================================================================
+ERROR: test_legacy_fixture_composes_against_003_but_uses_existing_924_receipt (__main__.CompositionBranchTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/test_final_scene_936_v012.py", line 20, in test_legacy_fixture_composes_against_003_but_uses_existing_924_receipt
+    base, directory, emitted, native, result=module.compose_for_scene(compose,True,skin,manifest,out)
+  File "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/final_scene_936-v012.py", line 51, in compose_for_scene
+    native_receipt=anatomy_receipt if fixture else composed_receipt
+NameError: name 'anatomy_receipt' is not defined
+
+======================================================================
+FAIL: test_selected_candidate_requires_exact_receipt_binding (__main__.AnatomyIdentityTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/test_final_scene_936_v012.py", line 99, in test_selected_candidate_requires_exact_receipt_binding
+    self.assertEqual(module.select_anatomy(self.args),(self.nha,self.args.anatomy_sha,self.receipt,self.args.anatomy_receipt_sha))
+AssertionError: Tuples differ: (PosixPath('/private/var/folders/ks/sfmz3dh91_7c9_vyd_[268 chars]bb2') != (PosixPath('/var/folders/ks/sfmz3dh91_7c9_vyd_3lzj1000[252 chars]bb2')
+
+First differing element 0:
+PosixPath('/private/var/folders/ks/sfmz3dh91_7c9_vyd_[35 chars]nha')
+PosixPath('/var/folders/ks/sfmz3dh91_7c9_vyd_3lzj1000[27 chars]nha')
+
+- (PosixPath('/private/var/folders/ks/sfmz3dh91_7c9_vyd_3lzj100000gn/T/tmpuo6rhbtg/anatomy.nha'),
+?             --------
+
++ (PosixPath('/var/folders/ks/sfmz3dh91_7c9_vyd_3lzj100000gn/T/tmpuo6rhbtg/anatomy.nha'),
+   '808bb9714c00a5da44c0f1ca81907fc9cd9403560c16f795f46cb8e576e09e5b',
+-  PosixPath('/private/var/folders/ks/sfmz3dh91_7c9_vyd_3lzj100000gn/T/tmpuo6rhbtg/receipt.json'),
+?             --------
+
++  PosixPath('/var/folders/ks/sfmz3dh91_7c9_vyd_3lzj100000gn/T/tmpuo6rhbtg/receipt.json'),
+   '519ee9ce9d34838db212e5e7f3d4b5edc02d6bb9a4c47e53df8bad1af1e58bb2')
+
+----------------------------------------------------------------------
+Ran 12 tests in 0.006s
+
+FAILED (failures=1, errors=2)

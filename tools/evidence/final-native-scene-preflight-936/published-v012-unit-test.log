@@ -1,0 +1,17 @@
+test_comparator_binds_assembled_anatomy_and_rejects_missing_identity (__main__.AnatomyIdentityTests) ... ok
+test_fixture_override_rejected (__main__.AnatomyIdentityTests) ... ok
+test_partial_override_rejected (__main__.AnatomyIdentityTests) ... ok
+test_payload_mutation_rejected (__main__.AnatomyIdentityTests) ... ok
+test_receipt_alias_path_rejected_even_with_same_bytes (__main__.AnatomyIdentityTests) ... ok
+test_selected_candidate_requires_exact_receipt_binding (__main__.AnatomyIdentityTests) ... ok
+test_exact_owner_assets_tour_and_runtime_pass (__main__.CompareContractTests) ... ok
+test_missing_critical_asset_fails (__main__.CompareContractTests) ... ok
+test_wrong_runtime_fails (__main__.CompareContractTests) ... ok
+test_wrong_tour_fails (__main__.CompareContractTests) ... ok
+test_final_candidate_composes_onto_924_and_uses_composed_receipt (__main__.CompositionBranchTests) ... ok
+test_legacy_fixture_composes_against_003_but_uses_existing_924_receipt (__main__.CompositionBranchTests) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 0.005s
+
+OK
