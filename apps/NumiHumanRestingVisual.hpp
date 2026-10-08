@@ -1,5 +1,6 @@
 #pragma once
 #include "NumiHumanRestingAnatomy.hpp"
+#include "NumiHumanRestingInspectionLayers.hpp"
 #include "NumiHumanRestingSupportGeometry.hpp"
 #include "NumiHumanRestingSurfaceAuditDiagnostic.hpp"
 #include "NumiHumanAcceptedGeometryCadence.hpp"
@@ -1207,7 +1208,9 @@ public:
             if(semantic==kVesselSurfaceSemantic||semantic==kPulmonaryArterySurfaceSemantic||semantic==kPulmonaryVeinSurfaceSemantic)
                 visibility|=64u;
             if(deformation==4||deformation==7)visibility=2u|16u;
-            visibleLayers.push_back(visibility);
+            visibleLayers.push_back(numiHumanRestingInspectionLayerMask(
+                semantic,instance.identity.w,visibility,kOrganSurfaceSemantic,
+                functional.retiredInspectionStableIDs));
             if(deformation==2||(deformation==12&&commonChannel<4))for(unsigned p=instance.geometry.x;p<instance.geometry.x+instance.geometry.y;++p)
                 pack.primitives.at(p).geometry.z=cardiacMaterials.at(chamber);
             if(deformation==11&&instance.identity.w==31) {
@@ -1754,6 +1757,21 @@ public:
             length:std::max(std::size_t(1),functional.commonFieldBoxes.size())*sizeof(emptyCommonBox) options:MTLResourceStorageModeShared];
         commonFieldCoordinates=coupled.presentationCommonCoordinates;
         commonFieldNormalRanges=cardiacWallNormalRanges;commonFieldIncidentTriangles=cardiacWallIncidentTriangles;
+        require(visibleLayers.size()==pack.instances.size(),
+            "inspection layer-mask count differs from packed visual instances");
+        for(unsigned retiredID:functional.retiredInspectionStableIDs) {
+            unsigned matchCount=0,retiredMask=std::numeric_limits<unsigned>::max();
+            for(std::size_t index=0;index<pack.instances.size();++index) {
+                const auto& instance=pack.instances[index];
+                if(instance.identity.w==retiredID&&instance.identity.x==kOrganSurfaceSemantic) {
+                    ++matchCount;retiredMask=visibleLayers[index];
+                }
+            }
+            require(matchCount==1&&retiredMask==0,
+                "receipt-retired source alias must have one retained payload instance and zero inspection mask");
+            std::cout<<"resting_retired_inspection_source semantic="<<kOrganSurfaceSemantic
+                <<" stable_id="<<retiredID<<" layer_mask=0 payload_retained=true geometry_retained=true\n";
+        }
         instanceLayers=[device newBufferWithBytes:visibleLayers.data() length:visibleLayers.size()*sizeof(unsigned) options:MTLResourceStorageModeShared];
         NSError* e=nil;auto lib=[device newLibraryWithURL:[NSURL fileURLWithPath:@(NUMI_HUMAN_RESPIRATION_METALLIB)] error:&e];
         require(skinFirstVertex!=MR_INVALID_INDEX,"resting support has no registered skin range");

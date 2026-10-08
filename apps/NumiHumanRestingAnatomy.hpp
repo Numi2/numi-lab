@@ -26,6 +26,8 @@ struct NumiHumanRestingAnatomy {
     std::map<unsigned,float> enclosedVolumes;
     std::map<unsigned,float> respiratorySweptAreas;
     std::set<unsigned> passiveViscera;
+    // Receipt-validated source aliases that remain packed for identity/provenance but must not be inspected as surfaces.
+    std::set<unsigned> retiredInspectionStableIDs;
     unsigned passivePelvicBody=MR_INVALID_INDEX;
     std::array<float,2> passiveTransition{}; // caudal zero and cranial unit weight, m
     struct RespiratoryBasis {
@@ -388,6 +390,12 @@ struct NumiHumanRestingAnatomy {
                 NSDictionary* liverSourceMap=[provenance isKindOfClass:NSDictionary.class]?provenance[@"source_id_map"]:nil;
                 require([liverSourceMap isKindOfClass:NSDictionary.class]&&liverSourceMap[@"22"]==nil,
                     "retired liver source ID 22 must not remain a rendered source-map record");
+                const unsigned retiredAliasStableID=22;
+                const auto aliasRecordCount=std::count_if(anatomy.records.begin(),anatomy.records.end(),
+                    [&](const auto& record){return record.stableId==retiredAliasStableID;});
+                require(aliasRecordCount==1&&surface(retiredAliasStableID).layer==1,
+                    "retired liver alias must resolve to one organ-layer payload instance");
+                retiredInspectionStableIDs.insert(retiredAliasStableID);
                 const std::string patchRole="one open surface patch of a single closed aggregate shell; no independent segment volume";
                 const std::string patchInterpretation="inferred display identity; no internal segment partition or segment volume";
                 for(unsigned idValue:declaredLiverIDs) {
