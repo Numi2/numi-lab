@@ -1,0 +1,7 @@
+# Retired liver alias inspection-layer visibility patch (018 attempt 2)
+
+This is the semantic-scoped correction to attempt 1, based on Lab commit `b091d7dcead509a325194563ed38261319118a88`. Stable IDs are semantic-scoped. Receipt validation still marks organ semantic 51010 / stable ID 22 as the retired liver alias, but the render mask predicate now keys on both semantic and stable ID. The actual non-organ identities `(51004,22,137,22)` (bone) and `(51005,22,UINT_MAX,22)` (muscle surface) keep their existing inspection masks. The organ alias `(51010,22,20,22)` receives mask zero. Liver payload and geometry remain packed.
+
+The focused CPU regression passed: active organ patches 14–21 remain selectable only in the organ layer; the retired organ alias is absent from all seven layer selections; both exact non-organ stable-ID collisions retain their masks/selections; and an organ identity is not hidden without a receipt retirement entry. The native viewer compiled to `/Users/n/numi-human-retired-alias-visibility-build-018-attempt2/bin/numi-human-native`. The HumanRespiration metallib was copied byte-identically from build 017 (`4b61361f…1c426`) and the binary links the frozen014 dylib (`6bccfc40…7092`). No native/GPU run was performed.
+
+Attempt 1 review is retained in `review-finding-001.md`; its source/build/test evidence at `native-retired-alias-visibility-018/` and its build directory are unchanged. The attempt 2 source patch, build inputs, outputs, and test binary are pinned in `build-pins.json` and `source-delta.patch`.

@@ -1,0 +1,209 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index b6f1c1d..d0293fc 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -1719,6 +1719,16 @@ if(BUILD_TESTING)
+         COMMAND metalrobo_numi_human_surface_audit_diagnostic_test)
+     set_tests_properties(numi_human_surface_audit_diagnostic PROPERTIES
+         LABELS "numi-human;surface-audit;diagnostic;cpu" TIMEOUT 30)
++    add_executable(metalrobo_numi_human_retired_inspection_layers_test
++        tests/numi_human_retired_inspection_layers_test.cpp)
++    target_include_directories(metalrobo_numi_human_retired_inspection_layers_test PRIVATE apps)
++    target_compile_features(metalrobo_numi_human_retired_inspection_layers_test PRIVATE cxx_std_23)
++    target_compile_options(metalrobo_numi_human_retired_inspection_layers_test PRIVATE
++        -Wall -Wextra -Wpedantic -Werror)
++    add_test(NAME numi_human_retired_inspection_layers
++        COMMAND metalrobo_numi_human_retired_inspection_layers_test)
++    set_tests_properties(numi_human_retired_inspection_layers PROPERTIES
++        LABELS "numi-human;anatomy;inspection-layers;cpu" TIMEOUT 30)
+     add_executable(metalrobo_numi_human_accepted_geometry_cadence_test
+         tests/numi_human_accepted_geometry_cadence_test.cpp)
+     target_compile_options(metalrobo_numi_human_accepted_geometry_cadence_test PRIVATE
+diff --git a/apps/NumiHumanRestingAnatomy.hpp b/apps/NumiHumanRestingAnatomy.hpp
+index e58bf79..683ce5a 100644
+--- a/apps/NumiHumanRestingAnatomy.hpp
++++ b/apps/NumiHumanRestingAnatomy.hpp
+@@ -26,6 +26,8 @@ struct NumiHumanRestingAnatomy {
+     std::map<unsigned,float> enclosedVolumes;
+     std::map<unsigned,float> respiratorySweptAreas;
+     std::set<unsigned> passiveViscera;
++    // Receipt-validated source aliases that remain packed for identity/provenance but must not be inspected as surfaces.
++    std::set<unsigned> retiredInspectionStableIDs;
+     unsigned passivePelvicBody=MR_INVALID_INDEX;
+     std::array<float,2> passiveTransition{}; // caudal zero and cranial unit weight, m
+     struct RespiratoryBasis {
+@@ -388,6 +390,12 @@ struct NumiHumanRestingAnatomy {
+                 NSDictionary* liverSourceMap=[provenance isKindOfClass:NSDictionary.class]?provenance[@"source_id_map"]:nil;
+                 require([liverSourceMap isKindOfClass:NSDictionary.class]&&liverSourceMap[@"22"]==nil,
+                     "retired liver source ID 22 must not remain a rendered source-map record");
++                const unsigned retiredAliasStableID=22;
++                const auto aliasRecordCount=std::count_if(anatomy.records.begin(),anatomy.records.end(),
++                    [&](const auto& record){return record.stableId==retiredAliasStableID;});
++                require(aliasRecordCount==1&&surface(retiredAliasStableID).layer==1,
++                    "retired liver alias must resolve to one organ-layer payload instance");
++                retiredInspectionStableIDs.insert(retiredAliasStableID);
+                 const std::string patchRole="one open surface patch of a single closed aggregate shell; no independent segment volume";
+                 const std::string patchInterpretation="inferred display identity; no internal segment partition or segment volume";
+                 for(unsigned idValue:declaredLiverIDs) {
+diff --git a/apps/NumiHumanRestingVisual.hpp b/apps/NumiHumanRestingVisual.hpp
+index ba29b32..4c24c98 100644
+--- a/apps/NumiHumanRestingVisual.hpp
++++ b/apps/NumiHumanRestingVisual.hpp
+@@ -1,5 +1,6 @@
+ #pragma once
+ #include "NumiHumanRestingAnatomy.hpp"
++#include "NumiHumanRestingInspectionLayers.hpp"
+ #include "NumiHumanRestingSupportGeometry.hpp"
+ #include "NumiHumanRestingSurfaceAuditDiagnostic.hpp"
+ #include "NumiHumanAcceptedGeometryCadence.hpp"
+@@ -1207,7 +1208,9 @@ public:
+             if(semantic==kVesselSurfaceSemantic||semantic==kPulmonaryArterySurfaceSemantic||semantic==kPulmonaryVeinSurfaceSemantic)
+                 visibility|=64u;
+             if(deformation==4||deformation==7)visibility=2u|16u;
+-            visibleLayers.push_back(visibility);
++            visibleLayers.push_back(numiHumanRestingInspectionLayerMask(
++                semantic,instance.identity.w,visibility,kOrganSurfaceSemantic,
++                functional.retiredInspectionStableIDs));
+             if(deformation==2||(deformation==12&&commonChannel<4))for(unsigned p=instance.geometry.x;p<instance.geometry.x+instance.geometry.y;++p)
+                 pack.primitives.at(p).geometry.z=cardiacMaterials.at(chamber);
+             if(deformation==11&&instance.identity.w==31) {
+@@ -1754,6 +1757,21 @@ public:
+             length:std::max(std::size_t(1),functional.commonFieldBoxes.size())*sizeof(emptyCommonBox) options:MTLResourceStorageModeShared];
+         commonFieldCoordinates=coupled.presentationCommonCoordinates;
+         commonFieldNormalRanges=cardiacWallNormalRanges;commonFieldIncidentTriangles=cardiacWallIncidentTriangles;
++        require(visibleLayers.size()==pack.instances.size(),
++            "inspection layer-mask count differs from packed visual instances");
++        for(unsigned retiredID:functional.retiredInspectionStableIDs) {
++            unsigned matchCount=0,retiredMask=std::numeric_limits<unsigned>::max();
++            for(std::size_t index=0;index<pack.instances.size();++index) {
++                const auto& instance=pack.instances[index];
++                if(instance.identity.w==retiredID&&instance.identity.x==kOrganSurfaceSemantic) {
++                    ++matchCount;retiredMask=visibleLayers[index];
++                }
++            }
++            require(matchCount==1&&retiredMask==0,
++                "receipt-retired source alias must have one retained payload instance and zero inspection mask");
++            std::cout<<"resting_retired_inspection_source semantic="<<kOrganSurfaceSemantic
++                <<" stable_id="<<retiredID<<" layer_mask=0 payload_retained=true geometry_retained=true\n";
++        }
+         instanceLayers=[device newBufferWithBytes:visibleLayers.data() length:visibleLayers.size()*sizeof(unsigned) options:MTLResourceStorageModeShared];
+         NSError* e=nil;auto lib=[device newLibraryWithURL:[NSURL fileURLWithPath:@(NUMI_HUMAN_RESPIRATION_METALLIB)] error:&e];
+         require(skinFirstVertex!=MR_INVALID_INDEX,"resting support has no registered skin range");
+diff --git a/Users/n/numi-human-retired-alias-visibility-018/apps/NumiHumanRestingInspectionLayers.hpp b/Users/n/numi-human-retired-alias-visibility-018/apps/NumiHumanRestingInspectionLayers.hpp
+new file mode 100644
+index 0000000..4ee12c5
+--- /dev/null
++++ b/Users/n/numi-human-retired-alias-visibility-018/apps/NumiHumanRestingInspectionLayers.hpp
+@@ -0,0 +1,16 @@
++#pragma once
++#include <cstdint>
++#include <set>
++
++// Receipt-validated retired source identities remain in the visual pack for
++// provenance, but must never acquire a selectable inspection-layer bit.
++inline std::uint32_t numiHumanRestingInspectionLayerMask(
++    std::uint32_t semantic,
++    std::uint32_t stableId,
++    std::uint32_t sourceLayerMask,
++    std::uint32_t retiredSemantic,
++    const std::set<unsigned>& retiredInspectionStableIDs) noexcept {
++    const bool retiredIdentity = semantic == retiredSemantic &&
++        retiredInspectionStableIDs.count(stableId) != 0u;
++    return retiredIdentity ? 0u : sourceLayerMask;
++}
+diff --git a/Users/n/numi-human-retired-alias-visibility-018/tests/numi_human_retired_inspection_layers_test.cpp b/Users/n/numi-human-retired-alias-visibility-018/tests/numi_human_retired_inspection_layers_test.cpp
+new file mode 100644
+index 0000000..5622dd3
+--- /dev/null
++++ b/Users/n/numi-human-retired-alias-visibility-018/tests/numi_human_retired_inspection_layers_test.cpp
+@@ -0,0 +1,90 @@
++#include <array>
++#include <cstdint>
++#include <iostream>
++#include <limits>
++#include <set>
++#include "NumiHumanRestingInspectionLayers.hpp"
++
++struct TestVisualInstance {
++    std::array<std::uint32_t, 4> identity;
++    std::uint32_t inspectionMask;
++};
++
++int main() {
++    constexpr std::uint32_t boneSemantic = 51004u;
++    constexpr std::uint32_t muscleSemantic = 51005u;
++    constexpr std::uint32_t organSemantic = 51010u;
++    constexpr std::uint32_t organInspectionBit = 1u << 3u;
++    constexpr std::uint32_t boneInspectionMask = 6u;
++    constexpr std::uint32_t muscleInspectionMask = 2u;
++    const std::set<unsigned> receiptValidatedRetiredIDs{22u};
++    const auto layerSelected = [](std::uint32_t mask, unsigned layer) {
++        return layer < 7u && (mask & (1u << layer)) != 0u;
++    };
++
++    for (unsigned activePatch = 14u; activePatch <= 21u; ++activePatch) {
++        const auto mask = numiHumanRestingInspectionLayerMask(
++            organSemantic, activePatch, organInspectionBit, organSemantic,
++            receiptValidatedRetiredIDs);
++        if (mask != organInspectionBit) {
++            std::cerr << "active liver patch lost its organ inspection mask: " << activePatch << "\n";
++            return 1;
++        }
++        for (unsigned layer = 0; layer < 7u; ++layer) {
++            if (layerSelected(mask, layer) != (layer == 3u)) {
++                std::cerr << "active patch visibility differs at layer " << layer << "\n";
++                return 1;
++            }
++        }
++    }
++
++    const TestVisualInstance retiredOrgan{{organSemantic, 22u, 20u, 22u}, organInspectionBit};
++    const auto retiredMask = numiHumanRestingInspectionLayerMask(
++        retiredOrgan.identity[0], retiredOrgan.identity[3], retiredOrgan.inspectionMask,
++        organSemantic, receiptValidatedRetiredIDs);
++    if (retiredMask != 0u) {
++        std::cerr << "receipt-retired organ alias retained a selectable inspection mask\n";
++        return 1;
++    }
++    for (unsigned layer = 0; layer < 7u; ++layer) {
++        if (layerSelected(retiredMask, layer)) {
++            std::cerr << "retired organ alias is visible in inspection layer " << layer << "\n";
++            return 1;
++        }
++    }
++
++    const TestVisualInstance boneCollision{{boneSemantic, 22u, 137u, 22u}, boneInspectionMask};
++    const TestVisualInstance muscleCollision{{muscleSemantic, 22u,
++        std::numeric_limits<std::uint32_t>::max(), 22u}, muscleInspectionMask};
++    if (boneCollision.identity != std::array<std::uint32_t, 4>{51004u, 22u, 137u, 22u} ||
++        muscleCollision.identity != std::array<std::uint32_t, 4>{
++            51005u, 22u, std::numeric_limits<std::uint32_t>::max(), 22u}) {
++        std::cerr << "semantic-collision regression fixtures changed identity tuples\n";
++        return 1;
++    }
++    for (const TestVisualInstance* collision : {&boneCollision, &muscleCollision}) {
++        const auto mask = numiHumanRestingInspectionLayerMask(
++            collision->identity[0], collision->identity[3], collision->inspectionMask,
++            organSemantic, receiptValidatedRetiredIDs);
++        if (mask != collision->inspectionMask) {
++            std::cerr << "non-organ semantic collision was hidden for semantic "
++                      << collision->identity[0] << "\n";
++            return 1;
++        }
++        for (unsigned layer = 0; layer < 7u; ++layer) {
++            const bool expected = (collision->inspectionMask & (1u << layer)) != 0u;
++            if (layerSelected(mask, layer) != expected) {
++                std::cerr << "non-organ semantic collision changed selection at layer " << layer << "\n";
++                return 1;
++            }
++        }
++    }
++
++    const std::set<unsigned> noRetirementReceipt;
++    if (numiHumanRestingInspectionLayerMask(
++            organSemantic, 22u, organInspectionBit, organSemantic, noRetirementReceipt) != organInspectionBit) {
++        std::cerr << "unregistered organ identity was hidden without receipt retirement\n";
++        return 1;
++    }
++    return 0;
++}

@@ -1,0 +1,5 @@
+PASS: active organ patches 14-21 retain organ-layer selection.
+PASS: receipt-retired organ identity (51010,22,20,22) has zero mask across all seven layer selections.
+PASS: bone collision (51004,22,137,22) retains mask 6 and its layer selections.
+PASS: muscle collision (51005,22,UINT_MAX,22) retains mask 2 and its layer selections.
+PASS: organ identity remains visible without a receipt-retired identity set.

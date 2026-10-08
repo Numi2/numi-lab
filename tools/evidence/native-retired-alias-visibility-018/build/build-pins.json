@@ -1,0 +1,56 @@
+{
+  "artifacts": {
+    "/Users/n/numi-human-performance-build-014/lib/libmetalrobo.dylib": "6bccfc4044d825423e66bc2f60ba3cf59eaa9a4936773ab08182f58a09927092",
+    "/Users/n/numi-human-resting-evidence-20261005/native-retired-alias-visibility-018-attempt2/build.log": "b3f933d429df933bea37c56d8468d77539e9d968e8bcc4d3d916e7f450e3ac88",
+    "/Users/n/numi-human-resting-evidence-20261005/native-retired-alias-visibility-018-attempt2/focused-test.log": "69e933d4e43664579c4adc2ff61a60df21dd53da5efc141028db91714d96024b",
+    "/Users/n/numi-human-resting-evidence-20261005/native-retired-alias-visibility-018-attempt2/numi_human_retired_inspection_layers_test": "7b61202aff36c377e1e511cc94ebf4c191d3552404dab2f91d1f48b4b6ac2c6a",
+    "/Users/n/numi-human-resting-evidence-20261005/native-retired-alias-visibility-018-attempt2/source-delta.patch": "e7acace57f332c0ae202f47cd8f8afe59242f7ebbab97499f5cc5cfbc58f52fa",
+    "/Users/n/numi-human-retired-alias-visibility-build-018-attempt2/bin/numi-human-native": "486442abe2070168a902fb06669469e8b6cc612a9a6ef65ddb3d54957308d906",
+    "/Users/n/numi-human-retired-alias-visibility-build-018-attempt2/matter/shaders/HumanRespiration.metallib": "4b61361f513bf0996d687398498b85ba4e379edca91c36f134e1b0398f31c426",
+    "/Users/n/numi-human-retired-alias-visibility-build-018-attempt2/obj/numilab_human_myosim_visual_probe.mm.o": "a3d0d0441aa4ec7731c7e431df5608f90a62557a4e9ff78e87764db927f956d5"
+  },
+  "attempt": 2,
+  "attempt1_preserved": {
+    "build_pins_sha256": "c6ec30cdd4884111a5a37331ab03cee3936075caa5885836d6c468f663e4dcbb",
+    "source_patch_sha256": "3b3620b2d09622c16827b079cd4a473161751e2cd1059598d950b06016909bca",
+    "viewer_sha256": "b3c5cb47a4d58d234e52f5e012a31c827c12804f6dd41d3ebdd60cd7badaeae2"
+  },
+  "branch": "codex/retired-alias-layer-visibility-018",
+  "build_recipe": "build-native-viewer-018-attempt2.sh; copy 017 HumanRespiration.metallib byte-identically; compile ObjC++ viewer and link frozen014 libmetalrobo.dylib",
+  "checks": {
+    "focused_semantic_collision_cpu_test": "passed",
+    "native_or_gpu_run": "not performed",
+    "native_viewer_cpu_compile": "passed",
+    "source_diff_check": "passed"
+  },
+  "parent_017_build_pins_sha256": "ed576aba3b330574de7d9afa83474f8b33f51df48770532862e56e0c69e69984",
+  "parent_017_build_recipe_sha256": "2275aadd362378244042c4f9fd1b4faf31849bbd0f0a714c701d04bf837d9d62",
+  "parent_017_source_pins_sha256": "ccbfa7e27f51b8635d0e075945cb672084c4793b0153df33c9093747c9c919ba",
+  "review_finding": "attempt1 semantic collision bug corrected by predicate keyed on (semantic, stable ID)",
+  "source_files": {
+    "/Users/n/numi-human-performance-build-014/lib/libmetalrobo.dylib": "6bccfc4044d825423e66bc2f60ba3cf59eaa9a4936773ab08182f58a09927092",
+    "/Users/n/numi-human-performance-build-014/matter/shaders/NumiMatter.metallib": "38d4b64ed55cef2e0e0f243616d0db5bd21441f232ca38bca439108c1d6130f9",
+    "/Users/n/numi-human-performance-build-014/shaders/MetalRobo.metallib": "3077d063dc23475d75cda795620cda8750402d1a2159267a241a5e2b65986043",
+    "/Users/n/numi-human-performance-source-014/matter/materials/human_anterior_abdominal_wall_composite_effective.nmatter": "4ba2e5ecf8cfc207632762d29d2faeb87232cbe506ad5199386bdde14ee43569",
+    "/Users/n/numi-human-performance-source-014/matter/materials/human_myofascia_regional_transverse_isotropic.nmatter": "38b23df6bd18174dc6058d4748e56e995027cef2ab4494cdf5ded2c887b03ac0",
+    "/Users/n/numi-human-performance-source-014/matter/materials/human_pectoralis_fascia_goh_uniaxial.nmatter": "2113a53cacbad3312f13e57b68652b175293ef77787bcbe25d04c58981411e2c",
+    "/Users/n/numi-human-performance-source-014/matter/materials/human_plantar_fascia_reduced.nmatter": "4405f2b3b9ea16e25ce092bd89d881edec73051fb6b3d4bdc4f7f990074a230e",
+    "/Users/n/numi-human-performance-source-014/matter/materials/human_thoracolumbar_fascia_effective_isotropic.nmatter": "65be29f8dece02de30c8869df3fbe3dbbde2069e0bf56a76396a9eb6f93c3326",
+    "/Users/n/numi-human-performance-source-014/matter/materials/open_knee_ligament_febio_exp_linear.nmatter": "c5166dfcdbcb8402cd107d087ac5071e548f8154b41f088bee3924e40ac9871e",
+    "/Users/n/numi-human-performance-source-014/matter/materials/passive_skeletal_muscle_unqualified.nmatter": "04d5f0139cb22b9c874976d96f193113092ecd861a7d64aed8945ff6eb54d817",
+    "/Users/n/numi-human-resting-evidence-20261005/native-retired-alias-visibility-018-attempt2/build-native-viewer-018-attempt2.sh": "f82d8646914ea94189cb767b87bbea30bdb3c0fbb9c921066de502a1bc253cee",
+    "/Users/n/numi-human-resting-evidence-20261005/native-retired-alias-visibility-018-attempt2/initial-build-directory-failure.log": "b8ec0ff87e85a188591b813b76d2126d1efd0273784aa9a14eb263bbadccfc92",
+    "/Users/n/numi-human-resting-integration-20261005/numi-brain/Sources/NumiBrainABI/include": "7bcac3a30f08ca552b6ab1c7b76d58f9c026e5a070a99bae80c1bc567f87b816",
+    "/Users/n/numi-human-retired-alias-visibility-018/CMakeLists.txt": "41b1cb968cb4731e726486e1441777f43cba6e285383603b782a9fd78f190ef6",
+    "/Users/n/numi-human-retired-alias-visibility-018/apps/NumiHumanAcceptedGeometryCadence.hpp": "a68d865d487ca19840322271db885aa2e693ebf545d008c820707cb90d396e13",
+    "/Users/n/numi-human-retired-alias-visibility-018/apps/NumiHumanRestingAnatomy.hpp": "3f6737bae25f8b4553180a55a9e19a9289cb1c3e8b2e4c7d8f838cf91ccb1428",
+    "/Users/n/numi-human-retired-alias-visibility-018/apps/NumiHumanRestingCoupling.hpp": "595b2991fe9124df2bb736a581aa28a16e335da69aac9ea1a10c8626da301fc2",
+    "/Users/n/numi-human-retired-alias-visibility-018/apps/NumiHumanRestingInspectionLayers.hpp": "7e5b2621e0f97cbb9ff6393a9b86bc07694bb74f7e224a8cf81a29e113ef32e0",
+    "/Users/n/numi-human-retired-alias-visibility-018/apps/NumiHumanRestingVisual.hpp": "92e30eb1bac1dbcc6a816efbe12fdb7811f1abc30fe81e2373b050e0095ab8c7",
+    "/Users/n/numi-human-retired-alias-visibility-018/apps/numilab_human_myosim_visual_probe.mm": "88208ce586cfabc6dfb2e644dcfbf21dac4fbc09e83d3483836a7af9a6aaf0d2",
+    "/Users/n/numi-human-retired-alias-visibility-018/matter/src/human_respiration.metal": "8ec33f7495e086618a294ecf900a571ed4f55091baae92989874c5dc1f045973",
+    "/Users/n/numi-human-retired-alias-visibility-018/tests/numi_human_retired_inspection_layers_test.cpp": "fa1c9743e951c703aa128f32aef82c8055c2495f3eb28bc225942f0d5031b1c0"
+  },
+  "source_revision": "b091d7dcead509a325194563ed38261319118a88",
+  "worktree": "/Users/n/numi-human-retired-alias-visibility-018"
+}
