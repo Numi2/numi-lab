@@ -1,0 +1,20 @@
+{
+  "status": "continuous native movie decoded; one initial black frame retained",
+  "frames_decoded": 316,
+  "nonblank_frames": 315,
+  "surface_audit_rows": 315,
+  "pts_monotonic": true,
+  "movie_duration_s": 194.36,
+  "last_nonblank_pts_s": 193.18166666666667,
+  "median_frame_gap_s": 0.5849999999999795,
+  "max_frame_gap_s": 2.2216666666666667,
+  "gaps_after_startup_gt_1_5_median": 7,
+  "sampling_note": "Wall-time recording; geometry exports cause visible timing gaps, retained in source report. No frames removed or resequenced.",
+  "visual_inspection": {
+    "last_frame": "Whole human on the contact plane; Skin and Whole body selected; accepted time20.00s, breaths3,beats23, LVstroke70.04mL; mixed-source/passive-geometry and rigid-digit limitations visible.",
+    "middle_frame": "Lungs/chest layer at accepted10.24s; respiratory and cardiac state visible in native HUD."
+  },
+  "scope": "Recording and terminal HUD verification only; does not clear the known skin or lung seam defects",
+  "source_report_sha256": "ec74792197e0c41219a56a48627f1d0985f1cc7106451b83f713dd3c2ff82a8d",
+  "source_movie_sha256": "d44c0d7a0cc366d1aa9621dc83eef225add6925f2da7815e98c4f7f8796a9685"
+}
