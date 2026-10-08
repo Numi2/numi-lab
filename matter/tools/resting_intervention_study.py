@@ -546,6 +546,59 @@ def observation(args: argparse.Namespace, trace: Path, native: dict[str, Any], l
     return result
 
 
+def native_scene_runtime_dependency_bindings(invocation: dict[str, Any]) -> list[dict[str, Any]]:
+    """Resolve build-layout dependencies to the exact invocation-bound files."""
+    command = invocation.get("argv")
+    bindings = invocation.get("asset_sha256")
+    if not isinstance(command, list) or not command or not isinstance(bindings, dict):
+        raise ValueError("native invocation lacks argv or asset hash bindings")
+    binary = Path(str(command[0]))
+    if binary.parent.name != "bin":
+        raise ValueError("native invocation does not use the Human owner build layout")
+    build = binary.parent.parent
+    relatives = ("lib/libmetalrobo.dylib", "shaders/MetalRobo.metallib",
+                 "shaders/MetalRoboHyperPolicy.metallib", "shaders/NumiNeuron.metallib",
+                 "matter/shaders/HumanRespiration.metallib", "matter/shaders/NumiMatter.metallib",
+                 "matter/shaders/NumiMatterPhysicalStateDigest.metallib")
+    records = []
+    for relative in relatives:
+        configured = build / relative
+        if not configured.is_file():
+            raise ValueError(f"native runtime dependency is missing: {configured}")
+        try:
+            target = configured.resolve(strict=True)
+        except (OSError, RuntimeError) as exc:
+            raise ValueError(f"native runtime dependency target cannot be resolved: {configured}") from exc
+        target_path = str(target)
+        components = [build]
+        for component in Path(relative).parts:
+            components.append(components[-1] / component)
+        symlink_components = [str(component) for component in components if component.is_symlink()]
+        requires_resolved_binding = bool(symlink_components)
+        bound_path = (target_path if requires_resolved_binding or target_path in bindings
+                      else str(configured))
+        expected = bindings.get(bound_path)
+        if not isinstance(expected, str) or not re.fullmatch(r"[0-9a-f]{64}", expected):
+            raise ValueError(f"native runtime dependency target is not hash-bound: {configured} -> {target}")
+        actual = sha256_file(target)
+        if actual != expected:
+            raise ValueError(f"native runtime dependency target hash changed: {configured} -> {target}")
+        records.append({"configured_path": str(configured), "resolved_path": target_path,
+                        "asset_binding_path": bound_path,
+                        "is_symlink": configured.is_symlink(),
+                        "symlink_components": symlink_components, "sha256": actual})
+    return records
+
+
+def verify_native_scene_runtime_dependency_resolution(
+        invocation: dict[str, Any],
+        expected: list[dict[str, Any]] | None = None) -> list[dict[str, Any]]:
+    records = native_scene_runtime_dependency_bindings(invocation)
+    if expected is not None and records != expected:
+        raise ValueError("native runtime dependency symlink target changed since preflight")
+    return records
+
+
 def native_scene_command(invocation: dict[str, Any], output: Path, args: argparse.Namespace) -> list[str]:
     """Rebind the existing Human launch receipt to one preregistered arm."""
     command = list(invocation["argv"])
@@ -569,15 +622,7 @@ def native_scene_command(invocation: dict[str, Any], output: Path, args: argpars
     # These dependencies are loaded by the native executable, not named in
     # argv. Match the existing Human launcher's build layout so a manually
     # assembled reference cannot silently omit a mutable runtime library.
-    build = Path(command[0]).parent.parent
-    if Path(command[0]).parent.name != "bin":
-        raise ValueError("native invocation does not use the Human owner build layout")
-    for relative in ("lib/libmetalrobo.dylib", "shaders/MetalRobo.metallib",
-                     "shaders/MetalRoboHyperPolicy.metallib", "shaders/NumiNeuron.metallib",
-                     "matter/shaders/HumanRespiration.metallib", "matter/shaders/NumiMatter.metallib",
-                     "matter/shaders/NumiMatterPhysicalStateDigest.metallib"):
-        if str(build / relative) not in bindings:
-            raise ValueError(f"native invocation has an unbound runtime dependency: {build / relative}")
+    verify_native_scene_runtime_dependency_resolution(invocation)
     # Every consumed file must be bound. Outputs are the only absolute paths
     # allowed to be absent from the owner's manifest.
     outputs = {str(output), str(output / "native-viewer.mov")}
@@ -940,6 +985,30 @@ def native_respiration_trace_consistency(trace: Path, parameters: Path,
         "qualification": "Observed volume, pressure-flow and pressure-compliance identities; not independent proof of causal response, anatomy, or physiological plausibility."}}
 
 
+def prepared_native_runtime_dependency_resolution(args: argparse.Namespace,
+                                                    invocation_path: Path,
+                                                    invocation: dict[str, Any]) -> list[dict[str, Any]]:
+    identity_path = Path(args.native_build_identity).resolve()
+    expected_sha256 = args.native_build_identity_sha256
+    if (not isinstance(expected_sha256, str) or not re.fullmatch(r"[0-9a-f]{64}", expected_sha256)
+            or sha256_file(identity_path) != expected_sha256):
+        raise ValueError("prepared native build identity hash changed")
+    identity = json.loads(identity_path.read_text(encoding="utf-8"))
+    if not isinstance(identity, dict) or identity.get("schema") != "numi.human-resting.native-paired-build-identity.v1":
+        raise ValueError("prepared native build identity has an unexpected schema")
+    native_invocation = identity.get("native_invocation", {})
+    if not isinstance(native_invocation, dict):
+        raise ValueError("prepared native build identity has no invocation mapping")
+    if (native_invocation.get("path") != str(invocation_path)
+            or native_invocation.get("sha256") != sha256_file(invocation_path)
+            or native_invocation.get("asset_sha256") != invocation.get("asset_sha256")):
+        raise ValueError("prepared native build identity does not bind this exact invocation")
+    expected_resolution = identity.get("runtime_dependency_resolution")
+    if not isinstance(expected_resolution, list) or len(expected_resolution) != 7:
+        raise ValueError("prepared native build identity lacks all seven runtime dependency resolutions")
+    return verify_native_scene_runtime_dependency_resolution(invocation, expected_resolution)
+
+
 def execute_native_scene_arm(args: argparse.Namespace) -> dict[str, Any]:
     validate_windows(args)
     work, output = Path.cwd().resolve(), Path(args.output).resolve()
@@ -947,6 +1016,8 @@ def execute_native_scene_arm(args: argparse.Namespace) -> dict[str, Any]:
         raise ValueError("native scene output must be a new child of the notebook run directory")
     invocation_path = Path(args.invocation).resolve()
     invocation = json.loads(invocation_path.read_text())
+    runtime_dependency_resolution = prepared_native_runtime_dependency_resolution(
+        args, invocation_path, invocation)
     command = native_scene_command(invocation, output, args)
     bindings = invocation["asset_sha256"]
 
@@ -954,6 +1025,7 @@ def execute_native_scene_arm(args: argparse.Namespace) -> dict[str, Any]:
         for path, digest in bindings.items():
             if sha256_file(Path(path)) != digest:
                 raise ValueError(f"preregistered native binary/library/asset changed: {path}")
+        verify_native_scene_runtime_dependency_resolution(invocation, runtime_dependency_resolution)
 
     verify_bindings()
     recorded_environment = dict(invocation.get("environment", {}))
@@ -967,6 +1039,7 @@ def execute_native_scene_arm(args: argparse.Namespace) -> dict[str, Any]:
     output.mkdir()
     write_json(output / "invocation.json", {**invocation, "argv": command,
                "environment": recorded_environment,
+               "runtime_dependency_resolution": runtime_dependency_resolution,
                "reference_invocation_sha256": sha256_file(invocation_path)})
     log_path = output / "native.log"
     with log_path.open("w", encoding="utf-8") as stream:
@@ -998,6 +1071,7 @@ def execute_native_scene_arm(args: argparse.Namespace) -> dict[str, Any]:
         {name: result[name + "_window_s"] for name in ("pre", "dose", "recovery")}))
     result.update(native_whole_body_executed=True,
                   common_asset_identity=digest_json(bindings),
+                  runtime_dependency_resolution=runtime_dependency_resolution,
                   body_source_fingerprint=native["body_source_fingerprint"],
                   coupled_program_fingerprint=native["coupled_program_fingerprint"],
                   recording_sha256=sha256_file(movie), surface_trace_sha256=sha256_file(surfaces),
@@ -1064,6 +1138,7 @@ def native_plan_components(args: argparse.Namespace, invocation: dict[str, Any],
     fixture = Path(args.parser_fixture).resolve()
     if not fixture.is_file():
         raise ValueError("a retained accepted native CSV fixture is required for parser calibration")
+    runtime_dependency_resolution = verify_native_scene_runtime_dependency_resolution(invocation)
     for arm in ("control", "treatment"):
         preflight_args = argparse.Namespace(steps=args.steps, dt=args.dt, arm=arm,
                                             start_s=args.start_s, end_s=args.end_s, scale=args.scale)
@@ -1071,6 +1146,7 @@ def native_plan_components(args: argparse.Namespace, invocation: dict[str, Any],
     unit_basis = {"source_revisions": source_revisions,
                   "source_files": source_hashes,
                   "common_assets": bindings,
+                  "runtime_dependency_resolution": runtime_dependency_resolution,
                   "world_fingerprint": args.world_fingerprint,
                   "invocation_sha256": sha256_file(invocation_path),
                   "device": args.device, "steps": args.steps, "dt": args.dt}
@@ -1137,6 +1213,7 @@ def native_plan_components(args: argparse.Namespace, invocation: dict[str, Any],
                 "native_invocation": {"path": str(invocation_path),
                                       "sha256": sha256_file(invocation_path),
                                       "asset_sha256": bindings},
+                "runtime_dependency_resolution": runtime_dependency_resolution,
                 "world_fingerprint": args.world_fingerprint,
                 "coupled_program_fingerprint_by_arm": {
                     "control": args.control_program_fingerprint,
@@ -1154,6 +1231,10 @@ def native_plan_components(args: argparse.Namespace, invocation: dict[str, Any],
                   "solver": "existing native Matter Dense45 circulation and accepted-state body coupling",
                                   "controller": "existing NumiBrain respiratory chemoreflex"},
                 "scope": "Frozen native whole-body scene input identity; this is not physiological or clinical qualification."}
+    identity_sha256 = hashlib.sha256((json.dumps(identity, sort_keys=True, indent=2, allow_nan=False) + "\n").encode("utf-8")).hexdigest()
+    for trial in trials:
+        trial["argv"].extend(("--native-build-identity", str(native_identity_path),
+                              "--native-build-identity-sha256", identity_sha256))
     plan = {
         "schema": "numi.science.plan.v2", "purpose": "exploration",
         "question": (f"In the frozen native resting human scene, does reducing delivered respiratory excitation "
@@ -2349,6 +2430,10 @@ def main() -> int:
     run.add_argument("--window-s", type=float, default=5.0)
     native_run = sub.add_parser("run-native", help="execute the existing anatomical native viewer from its frozen launch receipt")
     native_run.add_argument("--invocation", required=True)
+    native_run.add_argument("--native-build-identity", required=True,
+                            help="registered native-build-identity.json from the prepared paired plan")
+    native_run.add_argument("--native-build-identity-sha256", required=True,
+                            help="exact prepared identity digest embedded in the registered trial command")
     native_run.add_argument("--unit-id", required=True)
     native_run.add_argument("--world-fingerprint", required=True, help="expected fingerprint for this specific arm")
     native_run.add_argument("--program-fingerprint", required=True,

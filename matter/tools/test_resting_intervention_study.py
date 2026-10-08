@@ -252,19 +252,50 @@ class NativeRespiratoryMechanicalTests(unittest.TestCase):
 
 
 class NativeSceneBindingTests(unittest.TestCase):
+    DEPENDENCIES = (
+        "lib/libmetalrobo.dylib",
+        "shaders/MetalRobo.metallib",
+        "shaders/MetalRoboHyperPolicy.metallib",
+        "shaders/NumiNeuron.metallib",
+        "matter/shaders/HumanRespiration.metallib",
+        "matter/shaders/NumiMatter.metallib",
+        "matter/shaders/NumiMatterPhysicalStateDigest.metallib",
+    )
+
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp.cleanup)
+        self.root = Path(self.temp.name)
+        self.build = self.root / "build"
+        for rel in self.DEPENDENCIES:
+            path = self.build / rel
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(("fixture:" + rel).encode("utf-8"))
+        binary = self.build / "bin/numi-human-native"
+        binary.parent.mkdir(parents=True, exist_ok=True)
+        binary.write_bytes(b"native fixture")
+        self.input_assets = {}
+        for name in ("rigid", "myo", "bones", "network", "respiration", "anatomy", "skin", "tendon"):
+            path = self.root / "inputs" / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(("fixture:" + name).encode("utf-8"))
+            self.input_assets[name] = str(path)
+
     def invocation(self):
-        return {"argv": ["/build/bin/numi-human-native", "/rigid", "/myo", "/bones", "/old-output",
-                         "--persistent-metal-stand", "--resting-scene", "/network", "/respiration",
-                         "--vascular-dense45", "--resting-anatomy-receipt", "/anatomy",
-                         "--skin-payload", "/skin", "--tendon-payload", "/tendon",
+        binary = self.build / "bin/numi-human-native"
+        runtime = {str((self.build / rel).resolve()): hashlib.sha256(
+            (self.build / rel).read_bytes()).hexdigest() for rel in self.DEPENDENCIES}
+        assets = {str(binary): hashlib.sha256(binary.read_bytes()).hexdigest(),
+                  **{path: hashlib.sha256(Path(path).read_bytes()).hexdigest()
+                     for path in self.input_assets.values()}, **runtime}
+        item = self.input_assets
+        return {"argv": [str(binary), item["rigid"], item["myo"], item["bones"], "/old-output",
+                         "--persistent-metal-stand", "--resting-scene", item["network"], item["respiration"],
+                         "--vascular-dense45", "--resting-anatomy-receipt", item["anatomy"],
+                         "--skin-payload", item["skin"], "--tendon-payload", item["tendon"],
                          "--muscle-step-count", "64", "--muscle-step-seconds", ".001",
                          "--resting-movie", "/old-output/native-viewer.mov"],
-                "asset_sha256": {p: "bound" for p in ("/build/bin/numi-human-native", "/rigid", "/myo",
-                    "/bones", "/network", "/respiration", "/anatomy", "/skin", "/tendon",
-                    "/build/lib/libmetalrobo.dylib", "/build/shaders/MetalRobo.metallib",
-                    "/build/shaders/MetalRoboHyperPolicy.metallib", "/build/shaders/NumiNeuron.metallib",
-                    "/build/matter/shaders/HumanRespiration.metallib", "/build/matter/shaders/NumiMatter.metallib",
-                    "/build/matter/shaders/NumiMatterPhysicalStateDigest.metallib")}}
+                "asset_sha256": assets}
 
     def args(self):
         return Namespace(steps=155000, dt=.002, arm="treatment", start_s=120., end_s=180., scale=.5)
@@ -279,7 +310,7 @@ class NativeSceneBindingTests(unittest.TestCase):
 
     def test_unbound_consumed_anatomy_and_preintervened_reference_are_rejected(self):
         original = self.invocation()
-        del original["asset_sha256"]["/anatomy"]
+        del original["asset_sha256"][self.input_assets["anatomy"]]
         with self.assertRaisesRegex(ValueError, "unbound file"):
             native_scene_command(original, Path("/new"), self.args())
         original = self.invocation()
@@ -287,16 +318,114 @@ class NativeSceneBindingTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "no intervention"):
             native_scene_command(original, Path("/new"), self.args())
 
-    def test_implicit_runtime_dependencies_must_be_preregistered(self):
-        for path in ("/build/lib/libmetalrobo.dylib", "/build/shaders/MetalRobo.metallib",
-                     "/build/shaders/MetalRoboHyperPolicy.metallib", "/build/shaders/NumiNeuron.metallib",
-                     "/build/matter/shaders/HumanRespiration.metallib", "/build/matter/shaders/NumiMatter.metallib",
-                     "/build/matter/shaders/NumiMatterPhysicalStateDigest.metallib"):
-            with self.subTest(path=path):
-                original = self.invocation()
-                del original["asset_sha256"][path]
-                with self.assertRaisesRegex(ValueError, "unbound runtime dependency"):
-                    native_scene_command(original, Path("/new"), self.args())
+    def test_implicit_runtime_dependencies_must_be_hash_bound_and_unchanged(self):
+        original = self.invocation()
+        rel = self.DEPENDENCIES[0]
+        key = str((self.build / rel).resolve())
+        del original["asset_sha256"][key]
+        with self.assertRaisesRegex(ValueError, "not hash-bound"):
+            native_scene_command(original, Path("/new"), self.args())
+        original = self.invocation()
+        original["asset_sha256"][key] = "0" * 64
+        with self.assertRaisesRegex(ValueError, "target hash changed"):
+            native_scene_command(original, Path("/new"), self.args())
+
+    def test_runtime_dependency_symlink_resolves_to_bound_target_and_is_recorded(self):
+        original = self.invocation()
+        rel = self.DEPENDENCIES[0]
+        alias = self.build / rel
+        original_key = str(alias.resolve())
+        alias.unlink()
+        alias.parent.rmdir()
+        target_dir = self.root / "frozen-runtime014"
+        target_dir.mkdir()
+        target = target_dir / "libmetalrobo.dylib"
+        target.write_bytes(b"exact frozen runtime")
+        alias.parent.symlink_to(target_dir)
+        original["asset_sha256"].pop(original_key)
+        target_hash = hashlib.sha256(target.read_bytes()).hexdigest()
+        original["asset_sha256"][str(target.resolve())] = target_hash
+        records = adapter.native_scene_runtime_dependency_bindings(original)
+        record = next(item for item in records if item["configured_path"] == str(alias))
+        self.assertEqual(record["resolved_path"], str(target.resolve()))
+        self.assertEqual(record["asset_binding_path"], str(target.resolve()))
+        self.assertEqual(record["sha256"], target_hash)
+        self.assertFalse(record["is_symlink"])
+        self.assertEqual(record["symlink_components"], [str(alias.parent)])
+        self.assertEqual(native_scene_command(original, Path("/new"), self.args())[4], "/new")
+
+    def test_symlink_target_drift_even_to_another_bound_asset_is_rejected(self):
+        original = self.invocation()
+        rel = self.DEPENDENCIES[0]
+        alias = self.build / rel
+        original_key = str(alias.resolve())
+        first = self.root / "runtime-one.dylib"
+        second = self.root / "runtime-two.dylib"
+        first.write_bytes(b"runtime one")
+        second.write_bytes(b"runtime two")
+        alias.unlink()
+        alias.symlink_to(first)
+        original["asset_sha256"].pop(original_key)
+        original["asset_sha256"][str(first.resolve())] = hashlib.sha256(first.read_bytes()).hexdigest()
+        original["asset_sha256"][str(second.resolve())] = hashlib.sha256(second.read_bytes()).hexdigest()
+        expected = adapter.verify_native_scene_runtime_dependency_resolution(original)
+        alias.unlink()
+        alias.symlink_to(second)
+        with self.assertRaisesRegex(ValueError, "changed since preflight"):
+            adapter.verify_native_scene_runtime_dependency_resolution(original, expected)
+        unbound = self.root / "runtime-unbound.dylib"
+        unbound.write_bytes(b"unbound runtime")
+        alias.unlink()
+        alias.symlink_to(unbound)
+        with self.assertRaisesRegex(ValueError, "not hash-bound"):
+            native_scene_command(original, Path("/new"), self.args())
+        alias.unlink()
+        alias.symlink_to(self.root / "missing-runtime.dylib")
+        with self.assertRaisesRegex(ValueError, "is missing"):
+            adapter.native_scene_runtime_dependency_bindings(original)
+
+    def test_run_refuses_runtime_symlink_drift_from_prepared_identity_before_subprocess(self):
+        import os
+        invocation = self.invocation()
+        alias = self.build / self.DEPENDENCIES[0]
+        original_target = alias.resolve()
+        first = self.root / "runtime-first.dylib"
+        second = self.root / "runtime-second.dylib"
+        first.write_bytes(b"runtime first")
+        second.write_bytes(b"runtime second")
+        alias.unlink()
+        alias.symlink_to(first)
+        invocation["asset_sha256"].pop(str(original_target))
+        invocation["asset_sha256"][str(first.resolve())] = hashlib.sha256(first.read_bytes()).hexdigest()
+        invocation["asset_sha256"][str(second.resolve())] = hashlib.sha256(second.read_bytes()).hexdigest()
+        invocation_path = self.root / "invocation.json"
+        invocation_path.write_text(json.dumps(invocation), encoding="utf-8")
+        resolution = adapter.verify_native_scene_runtime_dependency_resolution(invocation)
+        identity = {"schema": "numi.human-resting.native-paired-build-identity.v1",
+                    "native_invocation": {"path": str(invocation_path.resolve()),
+                                          "sha256": hashlib.sha256(invocation_path.read_bytes()).hexdigest(),
+                                          "asset_sha256": invocation["asset_sha256"]},
+                    "runtime_dependency_resolution": resolution}
+        identity_path = self.root / "native-build-identity.json"
+        identity_path.write_text(json.dumps(identity, sort_keys=True, indent=2) + "\n", encoding="utf-8")
+        identity_sha = hashlib.sha256(identity_path.read_bytes()).hexdigest()
+        alias.unlink()
+        alias.symlink_to(second)
+        args = Namespace(invocation=str(invocation_path), native_build_identity=str(identity_path),
+                         native_build_identity_sha256=identity_sha, output=str(self.root / "scene"),
+                         steps=155000, dt=.002, start_s=60., end_s=100., scale=.5, window_s=30.,
+                         arm="treatment", device="Apple M4 Pro", world_fingerprint="1",
+                         program_fingerprint="2")
+        cwd = Path.cwd()
+        try:
+            os.chdir(self.root)
+            with patch.object(adapter.subprocess, "run") as run:
+                with self.assertRaisesRegex(ValueError, "changed since preflight"):
+                    adapter.execute_native_scene_arm(args)
+                run.assert_not_called()
+        finally:
+            os.chdir(cwd)
+        self.assertFalse((self.root / "scene").exists())
 
     def test_incomplete_and_assisted_native_logs_are_rejected(self):
         log = ('runtime=Numi Matter runtime initialized with eligible dense45 vascular solve '
@@ -584,7 +713,17 @@ class NativeV2PlanPreparationTests(unittest.TestCase):
             with patch.object(adapter, "known_parser_calibration", return_value=calibration):
                 plan_path = adapter.prepare_native(args)
             plan = json.loads(plan_path.read_text())
-            identity = json.loads((output / "native-build-identity.json").read_text())
+            identity_path = output / "native-build-identity.json"
+            identity = json.loads(identity_path.read_text())
+            identity_sha256 = hashlib.sha256(identity_path.read_bytes()).hexdigest()
+            self.assertEqual(len(identity["runtime_dependency_resolution"]), 7)
+            for trial in plan["trials"]:
+                argv = trial["argv"]
+                self.assertEqual(argv[argv.index("--native-build-identity") + 1], str(identity_path.resolve()))
+                self.assertEqual(argv[argv.index("--native-build-identity-sha256") + 1], identity_sha256)
+            self.assertTrue(all({"configured_path", "resolved_path", "asset_binding_path",
+                                 "sha256", "symlink_components"}.issubset(row)
+                                for row in identity["runtime_dependency_resolution"]))
             validate_plan(plan, live=False)
             calibration_report = json.loads((output / "calibration.json").read_text())
             artifact_hashes = {path: hashlib.sha256(Path(path).read_bytes()).hexdigest()
@@ -933,9 +1072,17 @@ class NativeFailureEvidenceIsolationTests(unittest.TestCase):
                 reference = root / "reference.json"
                 reference.write_text(json.dumps(invocation))
                 reference_before = reference.read_bytes()
+                identity = {"schema": "numi.human-resting.native-paired-build-identity.v1",
+                            "native_invocation": {"path": str(reference.resolve()),
+                                                  "sha256": hashlib.sha256(reference.read_bytes()).hexdigest(),
+                                                  "asset_sha256": invocation["asset_sha256"]},
+                            "runtime_dependency_resolution": [{} for _ in range(7)]}
+                identity_path = root / "native-build-identity.json"
+                identity_path.write_text(json.dumps(identity, sort_keys=True, indent=2) + "\n")
                 output = root / "scene"
-                args = Namespace(invocation=str(reference), output=str(output),
-                                 steps=160000, dt=.002, start_s=60., end_s=100.,
+                args = Namespace(invocation=str(reference), native_build_identity=str(identity_path),
+                                 native_build_identity_sha256=hashlib.sha256(identity_path.read_bytes()).hexdigest(),
+                                 output=str(output), steps=160000, dt=.002, start_s=60., end_s=100.,
                                  scale=.5, window_s=30.)
                 child = [sys.executable, "-c",
                          "import os,pathlib,sys; "
@@ -946,7 +1093,8 @@ class NativeFailureEvidenceIsolationTests(unittest.TestCase):
                 try:
                     os.chdir(root)
                     with patch.dict(os.environ, {key: str(prior)}), \
-                         patch.object(adapter, "native_scene_command", return_value=child):
+                         patch.object(adapter, "native_scene_command", return_value=child), \
+                         patch.object(adapter, "verify_native_scene_runtime_dependency_resolution", return_value=[]):
                         with self.assertRaisesRegex(ValueError, "native scene failed with status 3"):
                             adapter.execute_native_scene_arm(args)
                 finally:
