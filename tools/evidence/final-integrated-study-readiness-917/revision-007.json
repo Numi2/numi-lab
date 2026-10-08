@@ -1,0 +1,110 @@
+{
+  "analysis_regression": {
+    "protocol_effect_gates_changed": false,
+    "raw_trace_crosscheck_mmhg": 1.835244624837813,
+    "registered_analysis_path": "/Users/n/numi-human-resting-evidence-20261005/native-coupled-endurance-study-867/analysis.json",
+    "registered_analysis_sha256": "0ec32d374fab91f29e85f73ac3cc7004eb788be36995859146f228a3760b8214",
+    "registered_primary_difference_mmhg": 1.835244624837813,
+    "study_inputs_modified": false,
+    "study_registration_path": "/Users/n/numi-human-resting-evidence-20261005/native-coupled-endurance-study-867/registration.json",
+    "study_registration_sha256": "78900a94e8fd96a5ddc503213dfb0b51bbe8d35c503d03bf66d31b7d46fa8dc3",
+    "supplemental_872_report_path": "/Users/n/numi-human-resting-evidence-20261005/native-paired-physiology-audit-872/completed-pair-867-verified/paired-physiology.md",
+    "supplemental_872_report_sha256": "e91fb0090051895653af643da288c5db6fc8c7e489bcbc816fd8d1ffda27b604",
+    "tolerance_mmhg": 1e-09
+  },
+  "files": {
+    "README-v007.md": "895a2376d585cac39aa872be692d32919dd5167fe4439ed8d1112a867b9537d0",
+    "README.md": "895a2376d585cac39aa872be692d32919dd5167fe4439ed8d1112a867b9537d0",
+    "analyze_final_pair.py": "74cdaa68f4491915b906d467882e0a4b388f6fe421f4818b5dc8d46bb04e0aca",
+    "package-copy-manifest-v007.json": "9f1b8aad5bd517dd583f384074af741906b66825281c0cd126817a594456ff0a",
+    "prepare_final_plan-v006.py": "9f76b4d06ea650a4a9e32fed5d0c54a47cb43b7759e08e36456ab3a3750cd492",
+    "prepare_final_plan-v007.py": "8a40957d6c4581dc9dd756a9958fee8f0ed6700e10afafcb766a4082b37a52f3",
+    "prepare_final_plan.py": "8a40957d6c4581dc9dd756a9958fee8f0ed6700e10afafcb766a4082b37a52f3",
+    "python39-compile-v007.log": "4e7aa5301968716c478bd078c062b547574e80b8435634641b0496e41516fd00",
+    "revision-006.json": "9d154e04ba80d1ec098c1f208453316c0091f75334dd5583a83487955f93d666",
+    "root-test-suite-v007.log": "62b5a37a8c98a234dbabb78afe41d27c70c8e91285c5840c447970087c77aaa1",
+    "test-suite-v007.log": "0ba6254b46f9e6a1d096f552a43e35a1635ef1fcca58268ecdd18c397faa0040",
+    "test_final_pair_diagnostic_validation_v007.py": "1b47e7e3ceffb8c8cf6f86eff4a3d9b17b115b444f233cfa9d912425a5dfc58d",
+    "test_final_scene_assembly_lineage-v006.py": "0239554786fc4fa2616094e31b634d0bbd385dca064e1517fadfad718b72aab8",
+    "test_final_scene_assembly_lineage_v007.py": "7bbdc0b7feb52bd862522da6c8b25fe47225eb869e6b07ed96d09f022360c3e5",
+    "test_owner_invocation_lineage.py": "4b3d913811aa350ea6e34e44b43ecd9e0b8fe9dff52e2da9a34c9536e626014a",
+    "test_record_treatment_program_probe.py": "3c746aeb4e570ac25afc362102682f5b16ebaefbaaf89766559a1972ba6c3a70",
+    "test_terminal_capture_plan.py": "b8eee724bd2eb4e5d6db445c82fc80154da831c221976a56ffe396c1d7f70526",
+    "v006-lineage-tests-v007-package.log": "fc37d8c0dd9dd2a4b4c622ae4c5c7a824cc7eb5ce36297219da0d289026cceb5"
+  },
+  "numerical_diagnostics": {
+    "header_occurrence": "each required analysis/diagnostic field must occur exactly once",
+    "post_init_values": "all required parser numerical fields and nine diagnostic fields must be finite on every selected row",
+    "reported_summary": "maximum absolute value across post-initialization samples including exact accepted terminal row for each of nine fields; no sum across rows",
+    "required_fields": [
+      "respiratory_net_volume_ml",
+      "respiratory_volume_balance_ml",
+      "oxygen_balance_error_stpd_ml",
+      "co2_balance_error_stpd_ml",
+      "blood_error_ml",
+      "blood_continuity_residual_accum_ml",
+      "blood_physical_delta_accum_ml",
+      "blood_residual_minus_physical_ml",
+      "blood_endpoint_minus_physical_ml"
+    ],
+    "trace_completion": "one row at exact accepted step N=155000 is mandatory after exact owner terminal-count proof",
+    "windows": "pre/dose/recovery windows must each contain samples"
+  },
+  "package_copy_manifest": {
+    "identical_v006_file_count": 13,
+    "path": "/Users/n/numi-human-resting-evidence-20261005/final-integrated-study-readiness-917/package-v007/package-copy-manifest-v007.json",
+    "sha256": "9f1b8aad5bd517dd583f384074af741906b66825281c0cd126817a594456ff0a"
+  },
+  "regressions": {
+    "compile_log": "/Users/n/numi-human-resting-evidence-20261005/final-integrated-study-readiness-917/package-v007/python39-compile-v007.log",
+    "compile_log_sha256": "4e7aa5301968716c478bd078c062b547574e80b8435634641b0496e41516fd00",
+    "focused_tests": "35 passed after root terminal-inclusion correction",
+    "historical_lineage_log": "/Users/n/numi-human-resting-evidence-20261005/final-integrated-study-readiness-917/package-v007/v006-lineage-tests-v007-package.log",
+    "historical_lineage_log_sha256": "fc37d8c0dd9dd2a4b4c622ae4c5c7a824cc7eb5ce36297219da0d289026cceb5",
+    "historical_v006_scene_lineage_tests": "5 passed",
+    "negative_cases": [
+      "missing required diagnostic header",
+      "duplicate required diagnostic header",
+      "nonfinite diagnostic sample",
+      "missing exact terminal row",
+      "empty analysis window"
+    ],
+    "py_compile": "passed",
+    "python": "3.9",
+    "test_log": "/Users/n/numi-human-resting-evidence-20261005/final-integrated-study-readiness-917/package-v007/test-suite-v007.log",
+    "test_log_sha256": "0ba6254b46f9e6a1d096f552a43e35a1635ef1fcca58268ecdd18c397faa0040"
+  },
+  "revision": 7,
+  "root_terminal_inclusion_review": {
+    "change": "Numerical diagnostic summary additionally selects exact accepted terminal-step row; protocol windows unchanged.",
+    "new_regressions": [
+      "Terminal-only maximum included",
+      "Nonfinite terminal diagnostic rejected"
+    ],
+    "pre_review_revision_sha256": "57d49e4ed90f4db70b056228585c7e35e9a9d400a38c1a56c3f8d447356792bb",
+    "problem": "Nominal duration cut excluded the Float32-time terminal sample from numerical maxima.",
+    "test_log": "root-test-suite-v007.log",
+    "test_log_sha256": "62b5a37a8c98a234dbabb78afe41d27c70c8e91285c5840c447970087c77aaa1",
+    "tests_passed": 35
+  },
+  "scene_builder_pin": {
+    "candidate_scene_status": "no final corrected NHA/receipt/native preflight accepted yet",
+    "expected_human_source": "935cc7d332b9118f41c719e2d2f9c7c568a3d41f",
+    "expected_lab_source": "d550d8ad88a76fdee5bb6e028286fd24e962571f",
+    "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/final_scene_936-v012.py",
+    "readme_path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/README-v012.md",
+    "readme_sha256": "5aa3618658cfa7ed6f052497befa5d3fb022a198a3f7f7f29006acd6735140b8",
+    "revision_path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/revision-012.json",
+    "revision_sha256": "06d5b7ea299b81007f1cccade0832873146dace71171e29f163ed105370163aa",
+    "sha256": "f0409de28663144368880147be9ff599dc2b3cf4f9f28340687c5ad780400558"
+  },
+  "schema": "numi.human.final-integrated-study-readiness.revision.v1",
+  "scope": "Analyzer and readiness-package hardening only. No native/GPU execution, no registered-plan change, no modification to study 867, and no publication.",
+  "source_package": {
+    "analyzer_sha256": "4d47e2a979f93da441794c794cbd54a8125f3b11a706c4b08e8d0ce408d4e134",
+    "copy_manifest_sha256": "c0955e933717cf10e288182c637afcd5b1777220227c1160cc9027199f94ed9a",
+    "path": "/Users/n/numi-human-resting-evidence-20261005/final-integrated-study-readiness-917/package-v006",
+    "prepare_sha256": "9f76b4d06ea650a4a9e32fed5d0c54a47cb43b7759e08e36456ab3a3750cd492"
+  },
+  "status": "cpu_analyzer_regressions_passed_v012_builder_pinned_final_scene_pending"
+}

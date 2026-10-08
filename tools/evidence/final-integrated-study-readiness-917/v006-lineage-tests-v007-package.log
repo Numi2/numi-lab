@@ -1,0 +1,10 @@
+test_accepts_candidate_with_dynamic_non924_nha_and_receipt (__main__.FinalSceneAssemblyLineageTests) ... ok
+test_rejects_invocation_asset_mismatch (__main__.FinalSceneAssemblyLineageTests) ... ok
+test_rejects_legacy_907_fixture_report (__main__.FinalSceneAssemblyLineageTests) ... ok
+test_rejects_missing_adjacent_assembly_report (__main__.FinalSceneAssemblyLineageTests) ... ok
+test_rejects_receipt_not_selected_by_936_report (__main__.FinalSceneAssemblyLineageTests) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.182s
+
+OK

@@ -1,0 +1,40 @@
+test_duplicate_required_diagnostic_header_fails (test_final_pair_diagnostic_validation_v007.FinalPairDiagnosticValidationTests) ... ok
+test_empty_selected_window_fails (test_final_pair_diagnostic_validation_v007.FinalPairDiagnosticValidationTests) ... ok
+test_exact_nine_numerical_fields_are_finite_and_summarized (test_final_pair_diagnostic_validation_v007.FinalPairDiagnosticValidationTests) ... ok
+test_medlineplus_band_and_field_semantics_are_explicit (test_final_pair_diagnostic_validation_v007.FinalPairDiagnosticValidationTests) ... ok
+test_medlineplus_band_is_added_to_retained_per_arm_report (test_final_pair_diagnostic_validation_v007.FinalPairDiagnosticValidationTests) ... ok
+test_missing_exact_terminal_sample_fails (test_final_pair_diagnostic_validation_v007.FinalPairDiagnosticValidationTests) ... ok
+test_missing_required_diagnostic_header_fails (test_final_pair_diagnostic_validation_v007.FinalPairDiagnosticValidationTests) ... ok
+test_nonfinite_required_diagnostic_fails_closed (test_final_pair_diagnostic_validation_v007.FinalPairDiagnosticValidationTests) ... ok
+test_nonfinite_terminal_budget_value_cannot_be_dropped (test_final_pair_diagnostic_validation_v007.FinalPairDiagnosticValidationTests) ... ok
+test_retained_867_primary_trace_calculation_is_unchanged (test_final_pair_diagnostic_validation_v007.FinalPairDiagnosticValidationTests) ... ok
+test_terminal_only_budget_peak_is_included_despite_float32_time (test_final_pair_diagnostic_validation_v007.FinalPairDiagnosticValidationTests) ... ok
+test_accepts_candidate_with_dynamic_non924_nha_and_receipt (test_final_scene_assembly_lineage_v007.FinalSceneAssemblyLineageTests) ... ok
+test_rejects_invocation_asset_mismatch (test_final_scene_assembly_lineage_v007.FinalSceneAssemblyLineageTests) ... ok
+test_rejects_legacy_907_fixture_report (test_final_scene_assembly_lineage_v007.FinalSceneAssemblyLineageTests) ... ok
+test_rejects_missing_adjacent_assembly_report (test_final_scene_assembly_lineage_v007.FinalSceneAssemblyLineageTests) ... ok
+test_rejects_receipt_not_selected_by_936_report (test_final_scene_assembly_lineage_v007.FinalSceneAssemblyLineageTests) ... ok
+test_frozen_human_runtime_helper_verifies_a_retained_native_scene_log (test_owner_invocation_lineage.OwnerInvocationLineageTests) ... ok
+test_frozen_owner_serializes_derived_template_hash_in_both_outputs (test_owner_invocation_lineage.OwnerInvocationLineageTests) ... ok
+test_wrapper_schema_matches_observation_emitted_by_frozen_owner (test_owner_invocation_lineage.OwnerInvocationLineageTests) ... ok
+test_matching_probe_has_zero_recorder_status (test_record_treatment_program_probe.IdentityProbeRecorderTests) ... ok
+test_missing_control_fails_before_creating_probe_output (test_record_treatment_program_probe.IdentityProbeRecorderTests) ... ok
+test_native_environment_drops_unrecorded_prefixes_and_preserves_path (test_record_treatment_program_probe.IdentityProbeRecorderTests) ... ok
+test_nonzero_native_exit_is_preserved (test_record_treatment_program_probe.IdentityProbeRecorderTests) ... ok
+test_pinned_parser_accepts_future_interval_without_run_duration_bound (test_record_treatment_program_probe.IdentityProbeRecorderTests) ... ok
+test_readiness_prints_recorder_command_not_raw_native_command (test_record_treatment_program_probe.IdentityProbeRecorderTests) ... ok
+test_rejects_control_with_preexisting_intervention (test_record_treatment_program_probe.IdentityProbeRecorderTests) ... ok
+test_treatment_is_appended_beyond_twenty_second_probe (test_record_treatment_program_probe.IdentityProbeRecorderTests) ... ok
+test_zero_native_exit_does_not_hide_failed_validation (test_record_treatment_program_probe.IdentityProbeRecorderTests) ... ok
+test_binding_updates_plan_templates_and_calibration (test_terminal_capture_plan.TerminalCapturePlanTests) ... ok
+test_each_arm_has_seven_interior_steps_and_true_terminal (test_terminal_capture_plan.TerminalCapturePlanTests) ... ok
+test_exact_predeclared_ids_and_times (test_terminal_capture_plan.TerminalCapturePlanTests) ... ok
+test_only_capture_environment_delta_is_authorized (test_terminal_capture_plan.TerminalCapturePlanTests) ... ok
+test_parent_capture_selection_must_follow_pinned_017_cadence (test_terminal_capture_plan.TerminalCapturePlanTests) ... ok
+test_readiness_owned_paths_follow_the_checked_out_package (test_terminal_capture_plan.TerminalCapturePlanTests) ... ok
+test_terminal_receipt_must_be_N_at_310_seconds (test_terminal_capture_plan.TerminalCapturePlanTests) ... ok
+
+----------------------------------------------------------------------
+Ran 35 tests in 1.191s
+
+OK

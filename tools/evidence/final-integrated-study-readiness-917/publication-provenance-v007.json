@@ -1,0 +1,37 @@
+{
+  "changes": "Exact copies; root terminal-inclusion correction is documented in revision007. No GPU run or registered study changed.",
+  "files": {
+    "README-v007.md": "895a2376d585cac39aa872be692d32919dd5167fe4439ed8d1112a867b9537d0",
+    "README.md": "895a2376d585cac39aa872be692d32919dd5167fe4439ed8d1112a867b9537d0",
+    "analyze_final_pair.py": "74cdaa68f4491915b906d467882e0a4b388f6fe421f4818b5dc8d46bb04e0aca",
+    "package-copy-manifest-v007.json": "9f1b8aad5bd517dd583f384074af741906b66825281c0cd126817a594456ff0a",
+    "prepare_final_plan-v007.py": "8a40957d6c4581dc9dd756a9958fee8f0ed6700e10afafcb766a4082b37a52f3",
+    "prepare_final_plan.py": "8a40957d6c4581dc9dd756a9958fee8f0ed6700e10afafcb766a4082b37a52f3",
+    "python39-compile-v007.log": "4e7aa5301968716c478bd078c062b547574e80b8435634641b0496e41516fd00",
+    "revision-007.json": "9d02cdb417c4a54196f4e6092ab55977a49db801bd011ca59e66ffaf4b9faf6c",
+    "root-test-suite-v007.log": "62b5a37a8c98a234dbabb78afe41d27c70c8e91285c5840c447970087c77aaa1",
+    "test-suite-v007.log": "0ba6254b46f9e6a1d096f552a43e35a1635ef1fcca58268ecdd18c397faa0040",
+    "test_final_pair_diagnostic_validation_v007.py": "1b47e7e3ceffb8c8cf6f86eff4a3d9b17b115b444f233cfa9d912425a5dfc58d",
+    "test_final_scene_assembly_lineage_v007.py": "7bbdc0b7feb52bd862522da6c8b25fe47225eb869e6b07ed96d09f022360c3e5",
+    "v006-lineage-tests-v007-package.log": "fc37d8c0dd9dd2a4b4c622ae4c5c7a824cc7eb5ce36297219da0d289026cceb5"
+  },
+  "root_review_prior_files": [
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-integrated-study-readiness-917/package-v007/analyze_final_pair.py.before-terminal-inclusion",
+      "sha256": "cf58dc521f0401282762ff84da4d44bf0b7017493f84a896f3ed9e89e8a2aa98"
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-integrated-study-readiness-917/package-v007/revision-007.json.before-terminal-inclusion",
+      "sha256": "57d49e4ed90f4db70b056228585c7e35e9a9d400a38c1a56c3f8d447356792bb"
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-integrated-study-readiness-917/package-v007/test-suite-v007.log.before-terminal-inclusion",
+      "sha256": "0ba6254b46f9e6a1d096f552a43e35a1635ef1fcca58268ecdd18c397faa0040"
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-integrated-study-readiness-917/package-v007/test_final_pair_diagnostic_validation_v007.py.before-terminal-inclusion",
+      "sha256": "7f39f9e5bfde316369c680b0aac293f6b4853175c541bcf5ca07e9db5a8b79e3"
+    }
+  ],
+  "source_directory": "/Users/n/numi-human-resting-evidence-20261005/final-integrated-study-readiness-917/package-v007"
+}

@@ -40,6 +40,30 @@ from numilab_human.resting_run import loaded_metal_runtime as human_loaded_metal
 
 OWNER_OBSERVATION_SCHEMA = "numi.human-resting.intervention-observation.v1"
 
+# Require all parser inputs before writing a report so schema drift cannot
+# silently remove a numerical, conservation, or physiology diagnostic.
+NUMERICAL_DIAGNOSTIC_FIELDS = (
+    "respiratory_net_volume_ml",
+    "respiratory_volume_balance_ml",
+    "oxygen_balance_error_stpd_ml",
+    "co2_balance_error_stpd_ml",
+    "blood_error_ml",
+    "blood_continuity_residual_accum_ml",
+    "blood_physical_delta_accum_ml",
+    "blood_residual_minus_physical_ml",
+    "blood_endpoint_minus_physical_ml",
+)
+TRACE_ANALYSIS_FIELDS = (
+    "time_s", "step", "PaO2_mmhg", "PaCO2_mmhg", "SaO2",
+    "aorta_mmhg", "pulmonary_artery_mmhg",
+    "complete_filling_ejection_cycles", "last_lv_stroke_ml",
+    "aortic_ejected_ml", "pulmonary_ejected_ml",
+    "last_inspiration_step", "last_inspiration_time_s",
+    "last_inspiration_volume_accum_ml", "last_complete_breath_inspired_ml",
+    "inspired_volume_accum_ml", "airflow_ml_s", "alveolar_pa", "lung_volume_ml",
+) + NUMERICAL_DIAGNOSTIC_FIELDS
+NUMERICAL_DIAGNOSTIC_SUMMARY_FIELDS = NUMERICAL_DIAGNOSTIC_FIELDS
+
 
 def require(ok, message):
     if not ok:
@@ -368,17 +392,74 @@ def support_summary(path, receipt_files, duration):
     }
 
 
-def budget_highwater(rows, duration):
-    fields = ("respiratory_volume_balance_ml", "oxygen_balance_error_stpd_ml",
-              "co2_balance_error_stpd_ml", "blood_error_ml",
-              "blood_continuity_residual_accum_ml", "blood_residual_minus_physical_ml",
-              "blood_endpoint_minus_physical_ml")
-    result = {}
+def validate_trace_fields(header, rows, duration):
+    missing_or_duplicate = [key for key in TRACE_ANALYSIS_FIELDS if header.count(key) != 1]
+    require(not missing_or_duplicate,
+            "trace header is missing or duplicates required parser fields: " +
+            ", ".join(missing_or_duplicate))
     post = [r for r in rows if 10.0 <= finite(r, "time_s") < duration]
-    for key in fields:
-        xs = [abs(x) for x in (audit.n(r, key) for r in post) if x is not None]
-        if xs:
-            result[key] = max(xs)
+    require(post, "no post-initialization trace samples in [10, duration)")
+    for row in post:
+        for key in TRACE_ANALYSIS_FIELDS:
+            finite(row, key)
+    return post
+
+
+def validate_sampled_terminal(rows, horizon, expected_steps):
+    step_values = [audit.iv(row, "step") for row in rows]
+    step_values = [step for step in step_values if step is not None]
+    require(step_values and max(step_values) == expected_steps and
+            horizon.get("max_step") == expected_steps,
+            "sampled trace does not contain the exact accepted terminal step")
+    terminal = [row for row in rows if audit.iv(row, "step") == expected_steps]
+    require(len(terminal) == 1, "sampled trace must contain exactly one terminal-step row")
+    finite(terminal[0], "time_s")
+    for key in TRACE_ANALYSIS_FIELDS:
+        finite(terminal[0], key)
+    return terminal[0]
+
+
+def annotate_per_arm_report(report, rows, duration):
+    post = [r for r in rows if 10.0 <= finite(r, "time_s") < duration]
+    require(post, "cannot summarize PaO2 references without post-init samples")
+    pao2 = [finite(row, "PaO2_mmhg") for row in post]
+    below_75 = sum(x < 75.0 for x in pao2)
+    between_75_80 = sum(75.0 <= x < 80.0 for x in pao2)
+    above_100 = sum(x > 100.0 for x in pao2)
+    note = (
+        "| PaO2 (MedlinePlus ABG) | %.3f [%.3f, %.3f] (n=%d) mmHg | "
+        "75-100 mmHg; below 75: %d, 75-<80: %d, above 100: %d samples |"
+        % (statistics.fmean(pao2), min(pao2), max(pao2), len(pao2),
+           below_75, between_75_80, above_100)
+    )
+    anchor = "\n| SaO2 |"
+    require(report.count(anchor) == 1, "per-arm physiology table layout changed")
+    report = report.replace(anchor, "\n" + note + anchor)
+    semantics = (
+        "## Diagnostic-field semantics\n\n"
+        "The diagnostic summary reports maximum absolute sampled values and never sums a diagnostic column across rows. "
+        "O2/CO2 balance-error fields and blood_error_ml are owner-maintained running maxima. "
+        "respiratory_net_volume_ml and respiratory_volume_balance_ml describe one physical step: integrated swept "
+        "volume and mechanics-delta minus integrated swept volume, respectively. Blood continuity and physical-delta "
+        "fields are compensated cumulative sums; their difference compares normalized with physical volume updates, "
+        "while blood_endpoint_minus_physical_ml compares current endpoint volume with accumulated physical change."
+    )
+    ref_anchor = "\n## References\n"
+    require(report.count(ref_anchor) == 1, "per-arm references section layout changed")
+    return report.replace(ref_anchor, "\n" + semantics + "\n\n## References\n")
+
+def numerical_diagnostic_highwater(rows, duration, terminal_step):
+    # The runtime's Float32 dt makes terminal time slightly greater than the
+    # nominal horizon. Include its exact accepted-step identity explicitly.
+    post = [r for r in rows if 10.0 <= finite(r, "time_s") and
+            (finite(r, "time_s") < duration or audit.iv(r, "step") == terminal_step)]
+    require(post, "no post-init samples available for numerical diagnostics")
+    result = {}
+    for key in NUMERICAL_DIAGNOSTIC_SUMMARY_FIELDS:
+        xs = [abs(finite(r, key)) for r in post]
+        result[key] = max(xs)
+    require(tuple(result) == NUMERICAL_DIAGNOSTIC_FIELDS,
+            "numerical diagnostic summary does not contain the exact registered field set")
     return result
 
 
@@ -525,7 +606,7 @@ def main():
     windows = {}
     support = {}
     capture_reports = {}
-    budgets = {}
+    numerical_diagnostics = {}
     reports = {}
     for trial_id, arm in (("resting-baseline", "control"), ("resting-drive-half", "treatment")):
         trial = study / "trials" / trial_id
@@ -557,16 +638,23 @@ def main():
                     "treatment observation does not report the registered half-drive dose")
         hdr, rows = audit.load_csv(item["csv"])
         horizon = audit.check_horizon(rows, steps, dt)
+        require(horizon["steps"] == steps,
+                trial_id + " sampled trace horizon differs from the exact accepted count")
+        validate_sampled_terminal(rows, horizon, steps)
+        validate_trace_fields(hdr, rows, horizon["duration"])
         ev = audit.breath_events(rows)
         breaths = audit.respiratory(rows, ev)
         hearts = audit.cardiac(rows)
+        require(breaths, trial_id + " has no complete post-init respiratory cycles to analyze")
+        require(hearts, trial_id + " has no complete post-init cardiac-counter intervals to analyze")
         args_for_report = argparse.Namespace(expected_source_revision=EXPECTED_REVISION)
         text, detail = audit.report(args_for_report, item["csv"], item["inv_path"], item["inv"],
                                     item["trial"], item["started"], None, rows, horizon, breaths, hearts)
+        text = annotate_per_arm_report(text, rows, horizon["duration"])
         loaded[arm] = item
         rows_by_arm[arm] = rows
         cycles[arm] = {"breaths": breaths, "hearts": hearts, "horizon": horizon, "detail": detail}
-        budgets[arm] = budget_highwater(rows, horizon["duration"])
+        numerical_diagnostics[arm] = numerical_diagnostic_highwater(rows, horizon["duration"], steps)
         receipt_files = item["receipt"].get("files", {})
         capture_reports[arm] = accepted_geometry_summary(item, capture_schedule, arm)
         support_path = trial / "output" / "scene" / "resting-com-momentum-diagnostic.csv"
@@ -669,7 +757,7 @@ def main():
         physical = sum(x["has_both_flow_signs"] and x["volume_excursion_nonzero"] for x in b)
         cardiac_good = sum(x["lv_stroke_positive"] and x["aortic_ejection_positive"] and x["pulmonary_ejection_positive"] for x in h)
         lines.append("- **%s:** %d complete ledger breath intervals after initialization; %d have both positive/negative measured airflow and a nonzero sampled lung-volume excursion. %d cardiac counter intervals; %d have positive LV stroke and positive integrated aortic and pulmonary ejection. Per-cycle evidence is in `%s` and `%s`." % (arm, len(b), physical, len(h), cardiac_good, arm + "-cycles.csv", arm + "-physiology.md"))
-        lines.append("- **%s maximum absolute exported residuals:** `%s` (high-watermarks across samples; never sum these running cumulative error fields)." % (arm, json.dumps(budgets[arm], sort_keys=True)))
+        lines.append("- **%s per-field maximum absolute numerical-diagnostic values:** %s. This exact nine-field set includes per-step volumes, owner-maintained running maxima, and compensated cumulative blood-volume quantities. Maxima include the exact accepted terminal sample as well as post-init rows; exported rows are never summed." % (arm, json.dumps(numerical_diagnostics[arm], sort_keys=True)))
     lines += ["", "## Accepted geometry captures", "", "Each arm has five shared historical phase samples, two arm-specific late-cycle samples, and a separate terminal capture. Ordinary frame identity is its accepted step ID. Receipt time uses the runtime Float32 representation of the requested 2 ms timestep; nominal times use accepted step ID * 0.002 s. The terminal is exactly accepted N=155000 (nominal 310.000 s; native receipt time about 310.000014724 s); N-1 is not labeled terminal. The seven interior IDs were selected from prior-867 phase evidence, not fitted to these outcomes. Sparse captures do not establish whole-cycle anatomy clearance; the historical global rib-volume minimum near 65.168 s remains unsampled under the eight-frame limit.", ""]
     for arm in ("control", "treatment"):
         cp = capture_reports[arm]

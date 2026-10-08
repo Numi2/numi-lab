@@ -1,0 +1,73 @@
+{
+  "new_or_revised_v007_files": [
+    "README.md",
+    "README-v007.md",
+    "analyze_final_pair.py",
+    "prepare_final_plan.py",
+    "prepare_final_plan-v007.py",
+    "test_final_pair_diagnostic_validation_v007.py",
+    "test_final_scene_assembly_lineage_v007.py",
+    "test-suite-v007.log",
+    "python39-compile-v007.log",
+    "v006-lineage-tests-v007-package.log"
+  ],
+  "package": "/Users/n/numi-human-resting-evidence-20261005/final-integrated-study-readiness-917/package-v007",
+  "preserved_files_from_v006": [
+    {
+      "path": "README-v006.md",
+      "sha256": "c6ab2a2032a8dbb202ca632fc17c5f2bc53f98e07159b4028f5ef7f99784e1f5"
+    },
+    {
+      "path": "actual-936-preflight-probe-preview-v006-package.json",
+      "sha256": "0f25ed1b4d109c5ed468b520caeb53ad3df2ccce4c2af674c6ae68885110ee58"
+    },
+    {
+      "path": "actual-936-preflight-probe-preview-v006-package.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "actual-936-preflight-probe-preview-v006-package.txt",
+      "sha256": "714283661b8ff23a3c00c429f740e41d5a936422f54949098f380d5dc1055949"
+    },
+    {
+      "path": "package-copy-manifest.json",
+      "sha256": "c0955e933717cf10e288182c637afcd5b1777220227c1160cc9027199f94ed9a"
+    },
+    {
+      "path": "prepare_final_plan-v006.py",
+      "sha256": "9f76b4d06ea650a4a9e32fed5d0c54a47cb43b7759e08e36456ab3a3750cd492"
+    },
+    {
+      "path": "record_treatment_program_probe.py",
+      "sha256": "51ee89eff7d914c043dae7ee14effbbfd80838ee51afa60112bfbad6ef2219ac"
+    },
+    {
+      "path": "revision-006.json",
+      "sha256": "9d154e04ba80d1ec098c1f208453316c0091f75334dd5583a83487955f93d666"
+    },
+    {
+      "path": "test-suite-v006-package.log",
+      "sha256": "3b0b3d37489cc5f363809b740703e7ac70e2fea7e2dc89ccfab03eb30ee8baf7"
+    },
+    {
+      "path": "test_final_scene_assembly_lineage-v006.py",
+      "sha256": "0239554786fc4fa2616094e31b634d0bbd385dca064e1517fadfad718b72aab8"
+    },
+    {
+      "path": "test_owner_invocation_lineage.py",
+      "sha256": "4b3d913811aa350ea6e34e44b43ecd9e0b8fe9dff52e2da9a34c9536e626014a"
+    },
+    {
+      "path": "test_record_treatment_program_probe.py",
+      "sha256": "3c746aeb4e570ac25afc362102682f5b16ebaefbaaf89766559a1972ba6c3a70"
+    },
+    {
+      "path": "test_terminal_capture_plan.py",
+      "sha256": "b8eee724bd2eb4e5d6db445c82fc80154da831c221976a56ffe396c1d7f70526"
+    }
+  ],
+  "revision": 7,
+  "schema": "numi.human.readiness-v007-package-copy.v1",
+  "scope": "Copy lineage only; v006 package and original study artifacts are unchanged.",
+  "source_package": "/Users/n/numi-human-resting-evidence-20261005/final-integrated-study-readiness-917/package-v006"
+}
