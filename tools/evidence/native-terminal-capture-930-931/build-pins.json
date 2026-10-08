@@ -1,0 +1,16 @@
+{
+  "CMakeLists.txt": "245bc5abf408aaa2d1eed9ce86c70aac97acaf06fbeda20ea4dd5c05e97d64c7",
+  "apps/NumiHumanRestingCoupling.hpp": "595b2991fe9124df2bb736a581aa28a16e335da69aac9ea1a10c8626da301fc2",
+  "apps/NumiHumanRestingVisual.hpp": "2c564efdb5edf668e971396481bc656dce9e864c3b4b20ee49c0c996b176b923",
+  "apps/numilab_human_myosim_visual_probe.mm": "88208ce586cfabc6dfb2e644dcfbf21dac4fbc09e83d3483836a7af9a6aaf0d2",
+  "matter/src/human_respiration.metal": "8ec33f7495e086618a294ecf900a571ed4f55091baae92989874c5dc1f045973",
+  "apps/NumiHumanAcceptedGeometryCadence.hpp": "a68d865d487ca19840322271db885aa2e693ebf545d008c820707cb90d396e13",
+  "tests/numi_human_accepted_geometry_cadence_test.cpp": "90453c184c4b2607b589d74a1c511fa51da069679c635b0848c5bba9369074b6",
+  "source_revision": "b091d7dcead509a325194563ed38261319118a88",
+  "build_script_sha256": "2275aadd362378244042c4f9fd1b4faf31849bbd0f0a714c701d04bf837d9d62",
+  "artifacts": {
+    "/Users/n/numi-human-terminal-capture-build-017/bin/numi-human-native": "11733b5d10f3354df54416d1941281ad4feeb73c2b3e5baee8ebd1be22518ba2",
+    "/Users/n/numi-human-terminal-capture-build-017/matter/shaders/HumanRespiration.metallib": "4b61361f513bf0996d687398498b85ba4e379edca91c36f134e1b0398f31c426",
+    "/Users/n/numi-human-terminal-capture-build-017/lib/libmetalrobo.dylib": "6bccfc4044d825423e66bc2f60ba3cf59eaa9a4936773ab08182f58a09927092"
+  }
+}

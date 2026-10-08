@@ -1,0 +1,86 @@
+{
+  "/Users/n/numi-human-resting-evidence-20261005/native-terminal-reference-929/run-metadata.json": {
+    "sha256": "1277046c8e6a222ed0264d850124f76490081493a413b515a684c0c9abea0abe",
+    "bytes": 10641
+  },
+  "/Users/n/numi-human-resting-evidence-20261005/native-terminal-reference-929/invocation.json": {
+    "sha256": "3861831a296ccef5c0667e7b47e917abadf40514911fd48a166cac1c0a110506",
+    "bytes": 9995
+  },
+  "/Users/n/numi-human-resting-evidence-20261005/native-terminal-reference-929/native-viewer.mov": {
+    "sha256": "47d8c10235b067b6a611ee9d886e4f4976ae6d1026dc1108b0bf11101cfeee6e",
+    "bytes": 58650
+  },
+  "/Users/n/numi-human-resting-evidence-20261005/native-terminal-reference-929/resting-coupled.csv": {
+    "sha256": "bf9b6d7bb8c3788fa6458cb7699774543b5af8837ecf6330c4df156a8a352cef",
+    "bytes": 49496
+  },
+  "/Users/n/numi-human-resting-evidence-20261005/native-terminal-reference-929/resting-com-q-integration.csv": {
+    "sha256": "278ef842f1884dff0e764c50de339a6f12c7e8e68eafd9a626ca5dec2886143b",
+    "bytes": 564019
+  },
+  "/Users/n/numi-human-resting-evidence-20261005/native-terminal-reference-929/resting-com-momentum-diagnostic.csv": {
+    "sha256": "44c2bd93a9dcd746b7b5e80ec6ea1c3a8f10f2168bf4cace455b8fc193a9afb2",
+    "bytes": 58618
+  },
+  "/Users/n/numi-human-resting-evidence-20261005/native-terminal-reference-929/resting-com-support-impulses.csv": {
+    "sha256": "ea164d808143bd597351efddf902ce1f24025200b4856faafaf961f07c63dbe7",
+    "bytes": 657419
+  },
+  "/Users/n/numi-human-resting-evidence-20261005/native-terminal-candidate-930/run-metadata.json": {
+    "sha256": "e2ab4e90c769cc4ed1306f177f00a85065d0da2ee33669495160b71520c11c27",
+    "bytes": 10653
+  },
+  "/Users/n/numi-human-resting-evidence-20261005/native-terminal-candidate-930/invocation.json": {
+    "sha256": "104d8ee720dca196289ea86ca80f76cfe2a8b22fa7f324b97d19e2675fc4ed07",
+    "bytes": 10007
+  },
+  "/Users/n/numi-human-resting-evidence-20261005/native-terminal-candidate-930/native-viewer.mov": {
+    "sha256": "567bc0f577b6ed9c64519fc580dfbcdc13509d8673c129b65878ab2f35131b97",
+    "bytes": 58577
+  },
+  "/Users/n/numi-human-resting-evidence-20261005/native-terminal-candidate-930/resting-coupled.csv": {
+    "sha256": "dd2f3f975e9f01165ef9a23e6e399bbf0368abb8a95b745cc3ab72aae6c363a2",
+    "bytes": 48761
+  },
+  "/Users/n/numi-human-resting-evidence-20261005/native-terminal-candidate-930/resting-com-q-integration.csv": {
+    "sha256": "fb503c2bbb0efa2272c0aae5c0830365136636c04e22507f30b710d8e803c3e0",
+    "bytes": 555328
+  },
+  "/Users/n/numi-human-resting-evidence-20261005/native-terminal-candidate-930/resting-com-momentum-diagnostic.csv": {
+    "sha256": "e051669e72209cda673ab4a74b810263425501f0362ab5bc4be564b56bee9303",
+    "bytes": 57727
+  },
+  "/Users/n/numi-human-resting-evidence-20261005/native-terminal-candidate-930/resting-com-support-impulses.csv": {
+    "sha256": "4d26e103259d89b9df8efa4ffb2528abcaaf16d68479d6865aa585bdffe7c2b6",
+    "bytes": 647062
+  },
+  "/Users/n/numi-human-resting-evidence-20261005/native-terminal-cycle-931/run-metadata.json": {
+    "sha256": "d09f717e98e86208773afc63412db67eb59752766ab600f4d140dbc58d6489f0",
+    "bytes": 10669
+  },
+  "/Users/n/numi-human-resting-evidence-20261005/native-terminal-cycle-931/invocation.json": {
+    "sha256": "1842eb1f8dba4f83b0ff4e86d491e1936a386eaba91ae06fb5acf84400123175",
+    "bytes": 10028
+  },
+  "/Users/n/numi-human-resting-evidence-20261005/native-terminal-cycle-931/native-viewer.mov": {
+    "sha256": "d44c0d7a0cc366d1aa9621dc83eef225add6925f2da7815e98c4f7f8796a9685",
+    "bytes": 2623613
+  },
+  "/Users/n/numi-human-resting-evidence-20261005/native-terminal-cycle-931/resting-coupled.csv": {
+    "sha256": "aa3b6f12f482f09becbdf20185240d9bb27a945df21dd0771096aac0243faffd",
+    "bytes": 8127202
+  },
+  "/Users/n/numi-human-resting-evidence-20261005/native-terminal-cycle-931/resting-com-q-integration.csv": {
+    "sha256": "955617301439851d4c7a420b12e44410cc0a59df5162bf0f07d0dc9ac1563894",
+    "bytes": 90040171
+  },
+  "/Users/n/numi-human-resting-evidence-20261005/native-terminal-cycle-931/resting-com-momentum-diagnostic.csv": {
+    "sha256": "cc837c8b48c0b0dc019df493656b3cc2625616218a16a1f8d40d7c5928515981",
+    "bytes": 9277418
+  },
+  "/Users/n/numi-human-resting-evidence-20261005/native-terminal-cycle-931/resting-com-support-impulses.csv": {
+    "sha256": "2dd7c879d41a5d017c311593f2f60393e6b251f6928f1018036eed9eedf72d9e",
+    "bytes": 116319917
+  }
+}

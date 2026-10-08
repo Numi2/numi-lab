@@ -1,0 +1,11 @@
+# Exact accepted terminal presentation
+
+The viewer formerly exported state N−1 at the end of an N-step run. Explicit geometry requests now accept the true terminal state N. After the final successful transaction, a query-only call to the existing Metal articulated operator computes body poses from exact accepted Float32 q and compensated root translation. The existing GPU capture kernel and a terminal presentation commit publish those poses, accepted respiration, and the already accepted common cardiac coordinates. This does not solve or advance physiology, controller history, or physical state.
+
+The physical runtime remains build 014. Build 017 changes native presentation and its respiratory Metal library; its exact source commit is b091d7dcead509a325194563ed38261319118a88. Build/source/library hashes and commands are bundled. The final query/export is excluded from the inner simulation timing and included in the outer run receipt timing.
+
+The 64-root candidate captures state 64 identically to the original 65-root run's ordinary capture of state 64. The 20-second, 10,000-root candidate matches all four original cycle CSVs exactly and all seven shared body/respiration/geometry snapshots. Every non-metadata MRVPACK section matches byte for byte. New shader identity changes the accepted root fingerprint and dependent pack content hash; precisely those two metadata strings are permitted to differ. Terminal state 10,000 has the final accepted trace timestamp (20.000000949949026 seconds, using the actual Float32 dt), no zero/nonfinite triangles, and no extra physical/controller step.
+
+Focused cadence/status and surface-diagnostic tests pass. The 20-second candidate took 197.310 seconds including loading and presentation (about 0.101×); performance tuning remains stopped. Full movies, traces, receipts, packs, the original overly strict whole-pack comparison, and its explicit correction remain on the SSH Mac mini at the hash-bound locations in external-evidence.json.
+
+This establishes terminal presentation and unchanged simulation behavior. It does not establish whole-body anatomical clearance, long-horizon endurance, physiological normality, or clinical validation. Skin intersections and lung-seam deformation remain separate active failures.

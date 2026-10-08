@@ -1,0 +1,47 @@
+{
+  "earlier_invocation_error": "surface test compile initially omitted -Iinclude, missing engine_types.h; corrected command below",
+  "results": [
+    {
+      "test": "accepted-geometry-cadence",
+      "compile_argv": [
+        "/usr/bin/clang++",
+        "-std=c++23",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-Iinclude",
+        "-Imatter/include",
+        "tests/numi_human_accepted_geometry_cadence_test.cpp",
+        "-o",
+        "/Users/n/numi-human-terminal-capture-build-017/bin/accepted-geometry-cadence"
+      ],
+      "compile_exit": 0,
+      "compile_output": "",
+      "test_exit": 0,
+      "test_output": ""
+    },
+    {
+      "test": "surface-audit-diagnostic",
+      "compile_argv": [
+        "/usr/bin/clang++",
+        "-std=c++23",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-Iinclude",
+        "-Imatter/include",
+        "tests/numi_human_surface_audit_diagnostic_test.cpp",
+        "-o",
+        "/Users/n/numi-human-terminal-capture-build-017/bin/surface-audit-diagnostic"
+      ],
+      "compile_exit": 0,
+      "compile_output": "",
+      "test_exit": 0,
+      "test_output": ""
+    }
+  ]
+}
