@@ -1,0 +1,103 @@
+{
+  "analysis_window": {
+    "complete_breath_start_at_or_after_s": 10,
+    "end_s": 24,
+    "init_excluded_seconds": 10,
+    "primary_metric": "mean inspired-volume ledger difference vs baseline across complete breaths wholly in window; retain absent or contrary responses"
+  },
+  "anatomy_receipt": {
+    "path": "/Users/n/numi-human-resting-evidence-20261005/lung-choroid-composition-924/final-v2/resting-anatomy-receipt.json",
+    "sha256": "40652ad554565f27713d6023af3327994f9c226e5471eddbd3b77d1baaaace3e"
+  },
+  "arms": [
+    {
+      "arm_id": "baseline",
+      "multipliers": {},
+      "parameter_sha256": "c518926bf47fba945cef52bb952ed6c559d604508988082c5b641b720bda503d",
+      "parameters": "/Users/n/numi-human-resting-evidence-20261005/integrated-reference-sensitivity-926/baseline.parameters.json"
+    },
+    {
+      "arm_id": "lung-compliance-0p8",
+      "multipliers": {
+        "lung_compliance_m3_per_pa": 0.8
+      },
+      "parameter_sha256": "4da1237d4c6d2f671c8cd367c7ae0fff0d1f0de5c230a858cf5368ba3f9426df",
+      "parameters": "/Users/n/numi-human-resting-evidence-20261005/integrated-reference-sensitivity-926/lung-compliance-0p8.parameters.json"
+    },
+    {
+      "arm_id": "lung-compliance-1p2",
+      "multipliers": {
+        "lung_compliance_m3_per_pa": 1.2
+      },
+      "parameter_sha256": "4f64bda4a67f6cf133ac3aa15e8b3c8e52a9f226d1fb50d9111aeade08814f0b",
+      "parameters": "/Users/n/numi-human-resting-evidence-20261005/integrated-reference-sensitivity-926/lung-compliance-1p2.parameters.json"
+    },
+    {
+      "arm_id": "airway-resistance-0p5",
+      "multipliers": {
+        "airway_resistance_pa_s_per_m3": 0.5
+      },
+      "parameter_sha256": "92995a9a4ab34c914eb836b5e03b2d17ffda725b7656a12690ba97e4d96e8ccf",
+      "parameters": "/Users/n/numi-human-resting-evidence-20261005/integrated-reference-sensitivity-926/airway-resistance-0p5.parameters.json"
+    },
+    {
+      "arm_id": "airway-resistance-2",
+      "multipliers": {
+        "airway_resistance_pa_s_per_m3": 2.0
+      },
+      "parameter_sha256": "2a71b6c53d1901f6754957fa33831b4cc7aa02dce301c70a0340610261a42f6c",
+      "parameters": "/Users/n/numi-human-resting-evidence-20261005/integrated-reference-sensitivity-926/airway-resistance-2.parameters.json"
+    },
+    {
+      "arm_id": "muscle-force-0p8",
+      "multipliers": {
+        "diaphragm_maximum_force_n": 0.8,
+        "intercostal_maximum_force_n": 0.8
+      },
+      "parameter_sha256": "782816d27e2496225488d5cd89e2469046958294e8c050cc7b5b8b7fd1b865ed",
+      "parameters": "/Users/n/numi-human-resting-evidence-20261005/integrated-reference-sensitivity-926/muscle-force-0p8.parameters.json"
+    },
+    {
+      "arm_id": "muscle-force-1p2",
+      "multipliers": {
+        "diaphragm_maximum_force_n": 1.2,
+        "intercostal_maximum_force_n": 1.2
+      },
+      "parameter_sha256": "1c6ebdfa79ffbdee184a118dc3920563a25f9b649222ea75612ba235c2bd8bac",
+      "parameters": "/Users/n/numi-human-resting-evidence-20261005/integrated-reference-sensitivity-926/muscle-force-1p2.parameters.json"
+    }
+  ],
+  "baseline_parameters": {
+    "path": "/Users/n/numi-human-resting-evidence-20261005/integrated-anatomy-engineering-lung-edge-collapse-761/resting-reference-respiration.json",
+    "sha256": "c518926bf47fba945cef52bb952ed6c559d604508988082c5b641b720bda503d"
+  },
+  "clinical_validation": false,
+  "declared_utc": "2026-10-08T10:50:43.592538+00:00",
+  "dt_s": 0.002,
+  "extension_reason": "920 had no fully post-init complete breath. Only observation horizon and current repaired lung/choroid anatomy change; parameters, expected directions and numerical gates remain fixed. Results are short transient sensitivity, not steady state.",
+  "host": "ssh macmini",
+  "network": "/Users/n/numi-human-resting-evidence-20261005/reference-circulation-001/resting_reference_lv15.native.v3.json",
+  "no_retries_or_exclusions": "Failed or contrary arms stay in the report. A source/build failure requires a separately named superseding run.",
+  "numerical_admission": {
+    "every_requested_step_accepted": true,
+    "maximum_blood_volume_error_ml": 0.1,
+    "maximum_gas_balance_error_STPD_ml": 0.01
+  },
+  "observations": [
+    "complete accepted breath boundaries and inspiratory airflow integral",
+    "tidal volume",
+    "arterial O2 and CO2",
+    "blood and gas volume ledgers",
+    "forward aortic and pulmonary flow"
+  ],
+  "old_sensitivity_note": "Earlier standalone sensitivity used diaphragm area0.025m2; current anatomy-derived parameter is0.018687047064304352m2. These arms explicitly refresh current parameter behavior.",
+  "owner": "numi-human-resting",
+  "predicted_directions": "Holding all other parameters and feedback laws fixed, greater lung compliance or aggregate maximum muscle force is expected to increase early complete-breath volume; greater airway resistance is expected to reduce it. Closed-loop compensation and finite initialization can modify magnitudes; retain contrary results.",
+  "reference_sha256": "c518926bf47fba945cef52bb952ed6c559d604508988082c5b641b720bda503d",
+  "reference_source": "/Users/n/numi-human-resting-evidence-20261005/integrated-anatomy-engineering-lung-edge-collapse-761/resting-reference-respiration.json",
+  "scope": "Extended short integrated sensitivity check with two expected complete breaths after the unchanged 10s initialization cutoff. Same parameter arms as920; its descriptive early-cycle results are already known. Current907 moving skin remains invalid, so this does not qualify anatomy/endurance or clinical behavior.",
+  "seconds_per_arm": 24,
+  "simulated_seconds_per_arm": 24,
+  "source_capture_comparison": "Baseline compare shared accepted steps to925 after exact physiological state identity of925 vs914 verified; parameter file paths differ and no input fingerprint equality is claimed.",
+  "steps": 12000
+}

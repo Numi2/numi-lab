@@ -1,0 +1,790 @@
+{
+  "context_and_scope": {
+    "anatomy_limit": "This sensitivity run did not export held-out moving skin geometry. The current skin remains unqualified and this report cannot establish anatomical clearance.",
+    "claim_limit": "24-second transient parameter-response checks only. No steady-state, anatomy, clinical, or 310-second endurance qualification.",
+    "current_diaphragm_area_m2": 0.018687047064304352,
+    "current_protocol": {
+      "analysis_window": {
+        "complete_breath_start_at_or_after_s": 10,
+        "end_s": 24,
+        "init_excluded_seconds": 10,
+        "primary_metric": "mean inspired-volume ledger difference vs baseline across complete breaths wholly in window; retain absent or contrary responses"
+      },
+      "anatomy_receipt": {
+        "path": "/Users/n/numi-human-resting-evidence-20261005/lung-choroid-composition-924/final-v2/resting-anatomy-receipt.json",
+        "sha256": "40652ad554565f27713d6023af3327994f9c226e5471eddbd3b77d1baaaace3e"
+      },
+      "arms": [
+        {
+          "arm_id": "baseline",
+          "multipliers": {},
+          "parameter_sha256": "c518926bf47fba945cef52bb952ed6c559d604508988082c5b641b720bda503d",
+          "parameters": "/Users/n/numi-human-resting-evidence-20261005/integrated-reference-sensitivity-926/baseline.parameters.json"
+        },
+        {
+          "arm_id": "lung-compliance-0p8",
+          "multipliers": {
+            "lung_compliance_m3_per_pa": 0.8
+          },
+          "parameter_sha256": "4da1237d4c6d2f671c8cd367c7ae0fff0d1f0de5c230a858cf5368ba3f9426df",
+          "parameters": "/Users/n/numi-human-resting-evidence-20261005/integrated-reference-sensitivity-926/lung-compliance-0p8.parameters.json"
+        },
+        {
+          "arm_id": "lung-compliance-1p2",
+          "multipliers": {
+            "lung_compliance_m3_per_pa": 1.2
+          },
+          "parameter_sha256": "4f64bda4a67f6cf133ac3aa15e8b3c8e52a9f226d1fb50d9111aeade08814f0b",
+          "parameters": "/Users/n/numi-human-resting-evidence-20261005/integrated-reference-sensitivity-926/lung-compliance-1p2.parameters.json"
+        },
+        {
+          "arm_id": "airway-resistance-0p5",
+          "multipliers": {
+            "airway_resistance_pa_s_per_m3": 0.5
+          },
+          "parameter_sha256": "92995a9a4ab34c914eb836b5e03b2d17ffda725b7656a12690ba97e4d96e8ccf",
+          "parameters": "/Users/n/numi-human-resting-evidence-20261005/integrated-reference-sensitivity-926/airway-resistance-0p5.parameters.json"
+        },
+        {
+          "arm_id": "airway-resistance-2",
+          "multipliers": {
+            "airway_resistance_pa_s_per_m3": 2.0
+          },
+          "parameter_sha256": "2a71b6c53d1901f6754957fa33831b4cc7aa02dce301c70a0340610261a42f6c",
+          "parameters": "/Users/n/numi-human-resting-evidence-20261005/integrated-reference-sensitivity-926/airway-resistance-2.parameters.json"
+        },
+        {
+          "arm_id": "muscle-force-0p8",
+          "multipliers": {
+            "diaphragm_maximum_force_n": 0.8,
+            "intercostal_maximum_force_n": 0.8
+          },
+          "parameter_sha256": "782816d27e2496225488d5cd89e2469046958294e8c050cc7b5b8b7fd1b865ed",
+          "parameters": "/Users/n/numi-human-resting-evidence-20261005/integrated-reference-sensitivity-926/muscle-force-0p8.parameters.json"
+        },
+        {
+          "arm_id": "muscle-force-1p2",
+          "multipliers": {
+            "diaphragm_maximum_force_n": 1.2,
+            "intercostal_maximum_force_n": 1.2
+          },
+          "parameter_sha256": "1c6ebdfa79ffbdee184a118dc3920563a25f9b649222ea75612ba235c2bd8bac",
+          "parameters": "/Users/n/numi-human-resting-evidence-20261005/integrated-reference-sensitivity-926/muscle-force-1p2.parameters.json"
+        }
+      ],
+      "baseline_parameters": {
+        "path": "/Users/n/numi-human-resting-evidence-20261005/integrated-anatomy-engineering-lung-edge-collapse-761/resting-reference-respiration.json",
+        "sha256": "c518926bf47fba945cef52bb952ed6c559d604508988082c5b641b720bda503d"
+      },
+      "clinical_validation": false,
+      "declared_utc": "2026-10-08T10:50:43.592538+00:00",
+      "dt_s": 0.002,
+      "extension_reason": "920 had no fully post-init complete breath. Only observation horizon and current repaired lung/choroid anatomy change; parameters, expected directions and numerical gates remain fixed. Results are short transient sensitivity, not steady state.",
+      "host": "ssh macmini",
+      "network": "/Users/n/numi-human-resting-evidence-20261005/reference-circulation-001/resting_reference_lv15.native.v3.json",
+      "no_retries_or_exclusions": "Failed or contrary arms stay in the report. A source/build failure requires a separately named superseding run.",
+      "numerical_admission": {
+        "every_requested_step_accepted": true,
+        "maximum_blood_volume_error_ml": 0.1,
+        "maximum_gas_balance_error_STPD_ml": 0.01
+      },
+      "observations": [
+        "complete accepted breath boundaries and inspiratory airflow integral",
+        "tidal volume",
+        "arterial O2 and CO2",
+        "blood and gas volume ledgers",
+        "forward aortic and pulmonary flow"
+      ],
+      "old_sensitivity_note": "Earlier standalone sensitivity used diaphragm area0.025m2; current anatomy-derived parameter is0.018687047064304352m2. These arms explicitly refresh current parameter behavior.",
+      "owner": "numi-human-resting",
+      "predicted_directions": "Holding all other parameters and feedback laws fixed, greater lung compliance or aggregate maximum muscle force is expected to increase early complete-breath volume; greater airway resistance is expected to reduce it. Closed-loop compensation and finite initialization can modify magnitudes; retain contrary results.",
+      "reference_sha256": "c518926bf47fba945cef52bb952ed6c559d604508988082c5b641b720bda503d",
+      "reference_source": "/Users/n/numi-human-resting-evidence-20261005/integrated-anatomy-engineering-lung-edge-collapse-761/resting-reference-respiration.json",
+      "scope": "Extended short integrated sensitivity check with two expected complete breaths after the unchanged 10s initialization cutoff. Same parameter arms as920; its descriptive early-cycle results are already known. Current907 moving skin remains invalid, so this does not qualify anatomy/endurance or clinical behavior.",
+      "seconds_per_arm": 24,
+      "simulated_seconds_per_arm": 24,
+      "source_capture_comparison": "Baseline compare shared accepted steps to925 after exact physiological state identity of925 vs914 verified; parameter file paths differ and no input fingerprint equality is claimed.",
+      "steps": 12000
+    },
+    "historical_template_protocol_path": "/Users/n/numi-human-resting-evidence-20261005/integrated-reference-sensitivity-920/protocol.json",
+    "historical_template_protocol_sha256": "9c7b4f7465773420e7ab4da19fc0d9a1e0b6f54599a8f71472f0a1b8ed5593dd",
+    "old_quantitative_sensitivity_transfer": "none; all reported responses come from the current 0.0186870470643 m2 anatomy-derived parameter arms",
+    "old_standalone_area_m2": 0.025,
+    "predicted_directions": "Holding all other parameters and feedback laws fixed, greater lung compliance or aggregate maximum muscle force is expected to increase early complete-breath volume; greater airway resistance is expected to reduce it. Closed-loop compensation and finite initialization can modify magnitudes; retain contrary results."
+  },
+  "declared_analysis_window_s": [
+    10.0,
+    24.0
+  ],
+  "arm_completion": [
+    {
+      "arm_id": "baseline",
+      "exit_code": 0,
+      "wall_seconds": 214.9721523746848
+    },
+    {
+      "arm_id": "lung-compliance-0p8",
+      "exit_code": 0,
+      "wall_seconds": 215.1233639586717
+    },
+    {
+      "arm_id": "lung-compliance-1p2",
+      "exit_code": 0,
+      "wall_seconds": 215.41859745886177
+    },
+    {
+      "arm_id": "airway-resistance-0p5",
+      "exit_code": 0,
+      "wall_seconds": 215.49999445769936
+    },
+    {
+      "arm_id": "airway-resistance-2",
+      "exit_code": 0,
+      "wall_seconds": 215.36172383278608
+    },
+    {
+      "arm_id": "muscle-force-0p8",
+      "exit_code": 0,
+      "wall_seconds": 215.10266516637057
+    },
+    {
+      "arm_id": "muscle-force-1p2",
+      "exit_code": 0,
+      "wall_seconds": 215.21785274986178
+    }
+  ],
+  "cumulative_inventory_residual_high_watermarks_abs": {
+    "airway-resistance-0p5": {
+      "blood_continuity_residual_accum_ml": 0.00771748975836,
+      "blood_endpoint_minus_physical_ml": 0.00139152689371,
+      "blood_error_ml": 0.00884756445885,
+      "blood_residual_minus_physical_ml": 0.000134117564277,
+      "co2_balance_error_stpd_ml": 0.000465661287308,
+      "oxygen_balance_error_stpd_ml": 0.000232830643654,
+      "respiratory_volume_balance_ml": 0.000417453183132
+    },
+    "airway-resistance-2": {
+      "blood_continuity_residual_accum_ml": 0.00771748975836,
+      "blood_endpoint_minus_physical_ml": 0.00139152689371,
+      "blood_error_ml": 0.00884756445885,
+      "blood_residual_minus_physical_ml": 0.000134117564277,
+      "co2_balance_error_stpd_ml": 0.000465661287308,
+      "oxygen_balance_error_stpd_ml": 0.000232830643654,
+      "respiratory_volume_balance_ml": 0.00041563907871
+    },
+    "baseline": {
+      "blood_continuity_residual_accum_ml": 0.00771748975836,
+      "blood_endpoint_minus_physical_ml": 0.00139152689371,
+      "blood_error_ml": 0.00884756445885,
+      "blood_residual_minus_physical_ml": 0.000134117564277,
+      "co2_balance_error_stpd_ml": 0.000465661287308,
+      "oxygen_balance_error_stpd_ml": 0.000232830643654,
+      "respiratory_volume_balance_ml": 0.000367661456835
+    },
+    "lung-compliance-0p8": {
+      "blood_continuity_residual_accum_ml": 0.00771748975836,
+      "blood_endpoint_minus_physical_ml": 0.00139152689371,
+      "blood_error_ml": 0.00884756445885,
+      "blood_residual_minus_physical_ml": 0.000134117564277,
+      "co2_balance_error_stpd_ml": 0.000465661287308,
+      "oxygen_balance_error_stpd_ml": 0.000232830643654,
+      "respiratory_volume_balance_ml": 0.000399239752369
+    },
+    "lung-compliance-1p2": {
+      "blood_continuity_residual_accum_ml": 0.00771748975836,
+      "blood_endpoint_minus_physical_ml": 0.00139152689371,
+      "blood_error_ml": 0.00884756445885,
+      "blood_residual_minus_physical_ml": 0.000134117564277,
+      "co2_balance_error_stpd_ml": 0.000465661287308,
+      "oxygen_balance_error_stpd_ml": 0.000232830643654,
+      "respiratory_volume_balance_ml": 0.000401769284508
+    },
+    "muscle-force-0p8": {
+      "blood_continuity_residual_accum_ml": 0.00771748975836,
+      "blood_endpoint_minus_physical_ml": 0.00139152689371,
+      "blood_error_ml": 0.00884756445885,
+      "blood_residual_minus_physical_ml": 0.000134117564277,
+      "co2_balance_error_stpd_ml": 0.000465661287308,
+      "oxygen_balance_error_stpd_ml": 0.000232830643654,
+      "respiratory_volume_balance_ml": 0.000387616910791
+    },
+    "muscle-force-1p2": {
+      "blood_continuity_residual_accum_ml": 0.00771748975836,
+      "blood_endpoint_minus_physical_ml": 0.00139152689371,
+      "blood_error_ml": 0.00884756445885,
+      "blood_residual_minus_physical_ml": 0.000134117564277,
+      "co2_balance_error_stpd_ml": 0.000465661287308,
+      "oxygen_balance_error_stpd_ml": 0.000232830643654,
+      "respiratory_volume_balance_ml": 0.000458765470057
+    }
+  },
+  "predicted_parameter_responses": {
+    "airway-resistance-0p5": {
+      "baseline_complete_breath_count": 2,
+      "baseline_mean_ledger_inspired_ml": 527.3614078759999,
+      "complete_breath_count": 2,
+      "complete_breath_mean_window_s": [
+        10.0,
+        24.0
+      ],
+      "declared_multipliers": {
+        "airway_resistance_pa_s_per_m3": 0.5
+      },
+      "direction_prediction": "Holding all other parameters and feedback laws fixed, greater lung compliance or aggregate maximum muscle force is expected to increase early complete-breath volume; greater airway resistance is expected to reduce it. Closed-loop compensation and finite initialization can modify magnitudes; retain contrary results.",
+      "gas_differences_are_observed_only": true,
+      "mean_PaCO2_difference_mmhg": -0.05350601101083896,
+      "mean_PaO2_difference_mmhg": 0.16223099896274107,
+      "mean_RR_difference_bpm": -0.04941074261369671,
+      "mean_VE_difference_l_min": 0.025571668951472226,
+      "mean_ledger_inspired_ml": 532.0053605825001,
+      "mean_tidal_volume_difference_l": 0.004643952706499976,
+      "predeclared_direction": "increase",
+      "primary_direction_matches_prediction": true,
+      "primary_mean_ledger_difference_ml": 4.6439527065001585,
+      "primary_observed_direction": "increase"
+    },
+    "airway-resistance-2": {
+      "baseline_complete_breath_count": 2,
+      "baseline_mean_ledger_inspired_ml": 527.3614078759999,
+      "complete_breath_count": 2,
+      "complete_breath_mean_window_s": [
+        10.0,
+        24.0
+      ],
+      "declared_multipliers": {
+        "airway_resistance_pa_s_per_m3": 2.0
+      },
+      "direction_prediction": "Holding all other parameters and feedback laws fixed, greater lung compliance or aggregate maximum muscle force is expected to increase early complete-breath volume; greater airway resistance is expected to reduce it. Closed-loop compensation and finite initialization can modify magnitudes; retain contrary results.",
+      "gas_differences_are_observed_only": true,
+      "mean_PaCO2_difference_mmhg": 0.14305906806337987,
+      "mean_PaO2_difference_mmhg": -0.40337579189385053,
+      "mean_RR_difference_bpm": 0.11703911682391599,
+      "mean_VE_difference_l_min": -0.09187195356692435,
+      "mean_ledger_inspired_ml": 513.746024808,
+      "mean_tidal_volume_difference_l": -0.013615383068000031,
+      "predeclared_direction": "decrease",
+      "primary_direction_matches_prediction": true,
+      "primary_mean_ledger_difference_ml": -13.615383067999915,
+      "primary_observed_direction": "decrease"
+    },
+    "lung-compliance-0p8": {
+      "baseline_complete_breath_count": 2,
+      "baseline_mean_ledger_inspired_ml": 527.3614078759999,
+      "complete_breath_count": 2,
+      "complete_breath_mean_window_s": [
+        10.0,
+        24.0
+      ],
+      "declared_multipliers": {
+        "lung_compliance_m3_per_pa": 0.8
+      },
+      "direction_prediction": "Holding all other parameters and feedback laws fixed, greater lung compliance or aggregate maximum muscle force is expected to increase early complete-breath volume; greater airway resistance is expected to reduce it. Closed-loop compensation and finite initialization can modify magnitudes; retain contrary results.",
+      "gas_differences_are_observed_only": true,
+      "mean_PaCO2_difference_mmhg": 0.3293945308281465,
+      "mean_PaO2_difference_mmhg": -0.8359895728760023,
+      "mean_RR_difference_bpm": 0.24076566011795109,
+      "mean_VE_difference_l_min": -0.27309683404997465,
+      "mean_ledger_inspired_ml": 492.27438285,
+      "mean_tidal_volume_difference_l": -0.03508702502600003,
+      "predeclared_direction": "decrease",
+      "primary_direction_matches_prediction": true,
+      "primary_mean_ledger_difference_ml": -35.087025025999935,
+      "primary_observed_direction": "decrease"
+    },
+    "lung-compliance-1p2": {
+      "baseline_complete_breath_count": 2,
+      "baseline_mean_ledger_inspired_ml": 527.3614078759999,
+      "complete_breath_count": 2,
+      "complete_breath_mean_window_s": [
+        10.0,
+        24.0
+      ],
+      "declared_multipliers": {
+        "lung_compliance_m3_per_pa": 1.2
+      },
+      "direction_prediction": "Holding all other parameters and feedback laws fixed, greater lung compliance or aggregate maximum muscle force is expected to increase early complete-breath volume; greater airway resistance is expected to reduce it. Closed-loop compensation and finite initialization can modify magnitudes; retain contrary results.",
+      "gas_differences_are_observed_only": true,
+      "mean_PaCO2_difference_mmhg": -0.2453849430924535,
+      "mean_PaO2_difference_mmhg": 0.62076753853583,
+      "mean_RR_difference_bpm": -0.19043225262103824,
+      "mean_VE_difference_l_min": 0.18830364343237704,
+      "mean_ledger_inspired_ml": 553.6717944775,
+      "mean_tidal_volume_difference_l": 0.02631038660149998,
+      "predeclared_direction": "increase",
+      "primary_direction_matches_prediction": true,
+      "primary_mean_ledger_difference_ml": 26.310386601500113,
+      "primary_observed_direction": "increase"
+    },
+    "muscle-force-0p8": {
+      "baseline_complete_breath_count": 2,
+      "baseline_mean_ledger_inspired_ml": 527.3614078759999,
+      "complete_breath_count": 2,
+      "complete_breath_mean_window_s": [
+        10.0,
+        24.0
+      ],
+      "declared_multipliers": {
+        "diaphragm_maximum_force_n": 0.8,
+        "intercostal_maximum_force_n": 0.8
+      },
+      "direction_prediction": "Holding all other parameters and feedback laws fixed, greater lung compliance or aggregate maximum muscle force is expected to increase early complete-breath volume; greater airway resistance is expected to reduce it. Closed-loop compensation and finite initialization can modify magnitudes; retain contrary results.",
+      "gas_differences_are_observed_only": true,
+      "mean_PaCO2_difference_mmhg": 0.5928476148877166,
+      "mean_PaO2_difference_mmhg": -1.5169022214577268,
+      "mean_RR_difference_bpm": 0.42981235920771965,
+      "mean_VE_difference_l_min": -0.497356862974204,
+      "mean_ledger_inspired_ml": 464.8930189435,
+      "mean_tidal_volume_difference_l": -0.06246838893250006,
+      "predeclared_direction": "decrease",
+      "primary_direction_matches_prediction": true,
+      "primary_mean_ledger_difference_ml": -62.46838893249992,
+      "primary_observed_direction": "decrease"
+    },
+    "muscle-force-1p2": {
+      "baseline_complete_breath_count": 2,
+      "baseline_mean_ledger_inspired_ml": 527.3614078759999,
+      "complete_breath_count": 2,
+      "complete_breath_mean_window_s": [
+        10.0,
+        24.0
+      ],
+      "declared_multipliers": {
+        "diaphragm_maximum_force_n": 1.2,
+        "intercostal_maximum_force_n": 1.2
+      },
+      "direction_prediction": "Holding all other parameters and feedback laws fixed, greater lung compliance or aggregate maximum muscle force is expected to increase early complete-breath volume; greater airway resistance is expected to reduce it. Closed-loop compensation and finite initialization can modify magnitudes; retain contrary results.",
+      "gas_differences_are_observed_only": true,
+      "mean_PaCO2_difference_mmhg": -0.5254136916061185,
+      "mean_PaO2_difference_mmhg": 1.3378225238181471,
+      "mean_RR_difference_bpm": -0.412383317912397,
+      "mean_VE_difference_l_min": 0.38186119855546075,
+      "mean_ledger_inspired_ml": 583.090499276,
+      "mean_tidal_volume_difference_l": 0.05572909139999993,
+      "predeclared_direction": "increase",
+      "primary_direction_matches_prediction": true,
+      "primary_mean_ledger_difference_ml": 55.729091400000016,
+      "primary_observed_direction": "increase"
+    }
+  },
+  "baseline_vs_925_matched_physiology": {
+    "fields": {
+      "PaCO2_mmhg": {
+        "max_absolute_difference": 0.0,
+        "mean_absolute_difference": 0.0,
+        "mean_signed_926_minus_925": 0.0,
+        "n": 1250
+      },
+      "PaO2_mmhg": {
+        "max_absolute_difference": 0.0,
+        "mean_absolute_difference": 0.0,
+        "mean_signed_926_minus_925": 0.0,
+        "n": 1250
+      },
+      "SaO2": {
+        "max_absolute_difference": 0.0,
+        "mean_absolute_difference": 0.0,
+        "mean_signed_926_minus_925": 0.0,
+        "n": 1250
+      },
+      "airflow_ml_s": {
+        "max_absolute_difference": 0.0,
+        "mean_absolute_difference": 0.0,
+        "mean_signed_926_minus_925": 0.0,
+        "n": 1250
+      },
+      "alveolar_pa": {
+        "max_absolute_difference": 0.0,
+        "mean_absolute_difference": 0.0,
+        "mean_signed_926_minus_925": 0.0,
+        "n": 1250
+      },
+      "aorta_mmhg": {
+        "max_absolute_difference": 0.0,
+        "mean_absolute_difference": 0.0,
+        "mean_signed_926_minus_925": 0.0,
+        "n": 1250
+      },
+      "aortic_ejected_ml": {
+        "max_absolute_difference": 0.0,
+        "mean_absolute_difference": 0.0,
+        "mean_signed_926_minus_925": 0.0,
+        "n": 1250
+      },
+      "blood_continuity_residual_accum_ml": {
+        "max_absolute_difference": 0.0,
+        "mean_absolute_difference": 0.0,
+        "mean_signed_926_minus_925": 0.0,
+        "n": 1250
+      },
+      "blood_endpoint_minus_physical_ml": {
+        "max_absolute_difference": 0.0,
+        "mean_absolute_difference": 0.0,
+        "mean_signed_926_minus_925": 0.0,
+        "n": 1250
+      },
+      "blood_error_ml": {
+        "max_absolute_difference": 0.0,
+        "mean_absolute_difference": 0.0,
+        "mean_signed_926_minus_925": 0.0,
+        "n": 1250
+      },
+      "blood_ml": {
+        "max_absolute_difference": 0.0,
+        "mean_absolute_difference": 0.0,
+        "mean_signed_926_minus_925": 0.0,
+        "n": 1250
+      },
+      "blood_physical_delta_accum_ml": {
+        "max_absolute_difference": 0.0,
+        "mean_absolute_difference": 0.0,
+        "mean_signed_926_minus_925": 0.0,
+        "n": 1250
+      },
+      "blood_residual_minus_physical_ml": {
+        "max_absolute_difference": 0.0,
+        "mean_absolute_difference": 0.0,
+        "mean_signed_926_minus_925": 0.0,
+        "n": 1250
+      },
+      "co2_balance_error_stpd_ml": {
+        "max_absolute_difference": 0.0,
+        "mean_absolute_difference": 0.0,
+        "mean_signed_926_minus_925": 0.0,
+        "n": 1250
+      },
+      "complete_filling_ejection_cycles": {
+        "max_absolute_difference": 0.0,
+        "mean_absolute_difference": 0.0,
+        "mean_signed_926_minus_925": 0.0,
+        "n": 1250
+      },
+      "diaphragm_mm": {
+        "max_absolute_difference": 0.0,
+        "mean_absolute_difference": 0.0,
+        "mean_signed_926_minus_925": 0.0,
+        "n": 1250
+      },
+      "inspired_volume_accum_ml": {
+        "max_absolute_difference": 0.0,
+        "mean_absolute_difference": 0.0,
+        "mean_signed_926_minus_925": 0.0,
+        "n": 1250
+      },
+      "last_complete_breath_inspired_ml": {
+        "max_absolute_difference": 0.0,
+        "mean_absolute_difference": 0.0,
+        "mean_signed_926_minus_925": 0.0,
+        "n": 1250
+      },
+      "last_lv_stroke_ml": {
+        "max_absolute_difference": 0.0,
+        "mean_absolute_difference": 0.0,
+        "mean_signed_926_minus_925": 0.0,
+        "n": 1250
+      },
+      "left_atrium_ml": {
+        "max_absolute_difference": 0.0,
+        "mean_absolute_difference": 0.0,
+        "mean_signed_926_minus_925": 0.0,
+        "n": 1250
+      },
+      "lung_volume_ml": {
+        "max_absolute_difference": 0.0,
+        "mean_absolute_difference": 0.0,
+        "mean_signed_926_minus_925": 0.0,
+        "n": 1250
+      },
+      "lv_ml": {
+        "max_absolute_difference": 0.0,
+        "mean_absolute_difference": 0.0,
+        "mean_signed_926_minus_925": 0.0,
+        "n": 1250
+      },
+      "lv_mmhg": {
+        "max_absolute_difference": 0.0,
+        "mean_absolute_difference": 0.0,
+        "mean_signed_926_minus_925": 0.0,
+        "n": 1250
+      },
+      "oxygen_balance_error_stpd_ml": {
+        "max_absolute_difference": 0.0,
+        "mean_absolute_difference": 0.0,
+        "mean_signed_926_minus_925": 0.0,
+        "n": 1250
+      },
+      "pleural_pa": {
+        "max_absolute_difference": 0.0,
+        "mean_absolute_difference": 0.0,
+        "mean_signed_926_minus_925": 0.0,
+        "n": 1250
+      },
+      "pulmonary_artery_mmhg": {
+        "max_absolute_difference": 0.0,
+        "mean_absolute_difference": 0.0,
+        "mean_signed_926_minus_925": 0.0,
+        "n": 1250
+      },
+      "pulmonary_ejected_ml": {
+        "max_absolute_difference": 0.0,
+        "mean_absolute_difference": 0.0,
+        "mean_signed_926_minus_925": 0.0,
+        "n": 1250
+      },
+      "respiratory_net_volume_ml": {
+        "max_absolute_difference": 0.0,
+        "mean_absolute_difference": 0.0,
+        "mean_signed_926_minus_925": 0.0,
+        "n": 1250
+      },
+      "respiratory_volume_balance_ml": {
+        "max_absolute_difference": 0.0,
+        "mean_absolute_difference": 0.0,
+        "mean_signed_926_minus_925": 0.0,
+        "n": 1250
+      },
+      "rib_mm": {
+        "max_absolute_difference": 0.0,
+        "mean_absolute_difference": 0.0,
+        "mean_signed_926_minus_925": 0.0,
+        "n": 1250
+      },
+      "right_atrium_ml": {
+        "max_absolute_difference": 0.0,
+        "mean_absolute_difference": 0.0,
+        "mean_signed_926_minus_925": 0.0,
+        "n": 1250
+      },
+      "rv_ml": {
+        "max_absolute_difference": 0.0,
+        "mean_absolute_difference": 0.0,
+        "mean_signed_926_minus_925": 0.0,
+        "n": 1250
+      },
+      "rv_mmhg": {
+        "max_absolute_difference": 0.0,
+        "mean_absolute_difference": 0.0,
+        "mean_signed_926_minus_925": 0.0,
+        "n": 1250
+      }
+    },
+    "fingerprint_policy": "No parameter/invocation fingerprint equality claim is made; the comparison is limited to output fields at matched simulation steps.",
+    "match_key": "exact integer step; matched time difference <= 1 microsecond",
+    "matched_samples": 1250,
+    "matched_step_range": [
+      8,
+      10000
+    ],
+    "max_matched_time_difference_s": 0.0,
+    "reference_path": "/Users/n/numi-human-resting-evidence-20261005/native-lung-seam-cycle-925/resting-coupled.csv",
+    "reference_sha256": "aa3b6f12f482f09becbdf20185240d9bb27a945df21dd0771096aac0243faffd"
+  },
+  "protocol_sha256": "a3d23d6d5d16545d2d6e563d5c3ba8d92c4e0395f0b30b22d303976368086b61",
+  "analysis_source_pin_sha256": "5bc6021779f985a35f6654f7a21cff2766d6afe4c5ef95fa538bdcbf47910960",
+  "post_init_breath_aggregates": {
+    "airway-resistance-0p5": {
+      "breath_end_times_s": [
+        15.5320007377,
+        20.9920009971
+      ],
+      "breath_start_times_s": [
+        10.1880004839,
+        15.5320007377
+      ],
+      "complete_breath_count": 2,
+      "mean_PaCO2_mmhg": 38.93359585487761,
+      "mean_PaO2_mmhg": 102.71710681229874,
+      "mean_ledger_inspired_ml": 532.0053605825001,
+      "mean_rr_bpm": 11.108277421943841,
+      "mean_tidal_volume_l": 0.5320053605825,
+      "mean_ve_l_min": 5.909879917496148,
+      "window_s": [
+        10.0,
+        24.0
+      ]
+    },
+    "airway-resistance-2": {
+      "breath_end_times_s": [
+        15.432000733,
+        20.7980009879
+      ],
+      "breath_start_times_s": [
+        10.1540004823,
+        15.432000733
+      ],
+      "complete_breath_count": 2,
+      "mean_PaCO2_mmhg": 39.13016093395183,
+      "mean_PaO2_mmhg": 102.15150002144215,
+      "mean_ledger_inspired_ml": 513.746024808,
+      "mean_rr_bpm": 11.274727281381454,
+      "mean_tidal_volume_l": 0.513746024808,
+      "mean_ve_l_min": 5.792436294977751,
+      "window_s": [
+        10.0,
+        24.0
+      ]
+    },
+    "baseline": {
+      "breath_end_times_s": [
+        15.5000007362,
+        20.9320009942
+      ],
+      "breath_start_times_s": [
+        10.1760004833,
+        15.5000007362
+      ],
+      "complete_breath_count": 2,
+      "mean_PaCO2_mmhg": 38.98710186588845,
+      "mean_PaO2_mmhg": 102.554875813336,
+      "mean_ledger_inspired_ml": 527.3614078759999,
+      "mean_rr_bpm": 11.157688164557538,
+      "mean_tidal_volume_l": 0.527361407876,
+      "mean_ve_l_min": 5.884308248544675,
+      "window_s": [
+        10.0,
+        24.0
+      ]
+    },
+    "lung-compliance-0p8": {
+      "breath_end_times_s": [
+        15.3820007306,
+        20.6720009819
+      ],
+      "breath_start_times_s": [
+        10.1440004818,
+        15.3820007306
+      ],
+      "complete_breath_count": 2,
+      "mean_PaCO2_mmhg": 39.316496396716595,
+      "mean_PaO2_mmhg": 101.71888624046,
+      "mean_ledger_inspired_ml": 492.27438285,
+      "mean_rr_bpm": 11.398453824675489,
+      "mean_tidal_volume_l": 0.49227438285,
+      "mean_ve_l_min": 5.611211414494701,
+      "window_s": [
+        10.0,
+        24.0
+      ]
+    },
+    "lung-compliance-1p2": {
+      "breath_end_times_s": [
+        15.5900007405,
+        21.1420010042
+      ],
+      "breath_start_times_s": [
+        10.1980004844,
+        15.5900007405
+      ],
+      "complete_breath_count": 2,
+      "mean_PaCO2_mmhg": 38.741716922795995,
+      "mean_PaO2_mmhg": 103.17564335187183,
+      "mean_ledger_inspired_ml": 553.6717944775,
+      "mean_rr_bpm": 10.9672559119365,
+      "mean_tidal_volume_l": 0.5536717944775,
+      "mean_ve_l_min": 6.072611891977052,
+      "window_s": [
+        10.0,
+        24.0
+      ]
+    },
+    "muscle-force-0p8": {
+      "breath_end_times_s": [
+        15.2900007262,
+        20.4740009725
+      ],
+      "breath_start_times_s": [
+        10.1180004806,
+        15.2900007262
+      ],
+      "complete_breath_count": 2,
+      "mean_PaCO2_mmhg": 39.579949480776165,
+      "mean_PaO2_mmhg": 101.03797359187827,
+      "mean_ledger_inspired_ml": 464.8930189435,
+      "mean_rr_bpm": 11.587500523765257,
+      "mean_tidal_volume_l": 0.4648930189435,
+      "mean_ve_l_min": 5.386951385570471,
+      "window_s": [
+        10.0,
+        24.0
+      ]
+    },
+    "muscle-force-1p2": {
+      "breath_end_times_s": [
+        15.706000746,
+        21.4020010165
+      ],
+      "breath_start_times_s": [
+        10.2300004859,
+        15.706000746
+      ],
+      "complete_breath_count": 2,
+      "mean_PaCO2_mmhg": 38.46168817428233,
+      "mean_PaO2_mmhg": 103.89269833715414,
+      "mean_ledger_inspired_ml": 583.090499276,
+      "mean_rr_bpm": 10.74530484664514,
+      "mean_tidal_volume_l": 0.583090499276,
+      "mean_ve_l_min": 6.266169447100136,
+      "window_s": [
+        10.0,
+        24.0
+      ]
+    }
+  },
+  "forward_ejection_summary": {
+    "airway-resistance-0p5": {
+      "complete_postinit_cardiac_cycles": 15,
+      "positive_LV_stroke_cycles": 15,
+      "positive_aortic_ejection_cycles": 15,
+      "positive_pulmonary_ejection_cycles": 15,
+      "total_aortic_ejected_ml": 1050.7552069590001,
+      "total_pulmonary_ejected_ml": 1050.440769175
+    },
+    "airway-resistance-2": {
+      "complete_postinit_cardiac_cycles": 15,
+      "positive_LV_stroke_cycles": 15,
+      "positive_aortic_ejection_cycles": 15,
+      "positive_pulmonary_ejection_cycles": 15,
+      "total_aortic_ejected_ml": 1050.7552069590001,
+      "total_pulmonary_ejected_ml": 1050.440769175
+    },
+    "baseline": {
+      "complete_postinit_cardiac_cycles": 15,
+      "positive_LV_stroke_cycles": 15,
+      "positive_aortic_ejection_cycles": 15,
+      "positive_pulmonary_ejection_cycles": 15,
+      "total_aortic_ejected_ml": 1050.7552069590001,
+      "total_pulmonary_ejected_ml": 1050.440769175
+    },
+    "lung-compliance-0p8": {
+      "complete_postinit_cardiac_cycles": 15,
+      "positive_LV_stroke_cycles": 15,
+      "positive_aortic_ejection_cycles": 15,
+      "positive_pulmonary_ejection_cycles": 15,
+      "total_aortic_ejected_ml": 1050.7552069590001,
+      "total_pulmonary_ejected_ml": 1050.440769175
+    },
+    "lung-compliance-1p2": {
+      "complete_postinit_cardiac_cycles": 15,
+      "positive_LV_stroke_cycles": 15,
+      "positive_aortic_ejection_cycles": 15,
+      "positive_pulmonary_ejection_cycles": 15,
+      "total_aortic_ejected_ml": 1050.7552069590001,
+      "total_pulmonary_ejected_ml": 1050.440769175
+    },
+    "muscle-force-0p8": {
+      "complete_postinit_cardiac_cycles": 15,
+      "positive_LV_stroke_cycles": 15,
+      "positive_aortic_ejection_cycles": 15,
+      "positive_pulmonary_ejection_cycles": 15,
+      "total_aortic_ejected_ml": 1050.7552069590001,
+      "total_pulmonary_ejected_ml": 1050.440769175
+    },
+    "muscle-force-1p2": {
+      "complete_postinit_cardiac_cycles": 15,
+      "positive_LV_stroke_cycles": 15,
+      "positive_aortic_ejection_cycles": 15,
+      "positive_pulmonary_ejection_cycles": 15,
+      "total_aortic_ejected_ml": 1050.7552069590001,
+      "total_pulmonary_ejected_ml": 1050.440769175
+    }
+  }
+}

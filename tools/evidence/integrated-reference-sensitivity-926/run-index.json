@@ -1,0 +1,44 @@
+[
+  {
+    "arm_id": "baseline",
+    "exit_code": 0,
+    "wall_seconds": 214.9721523746848,
+    "output": "/Users/n/numi-human-resting-evidence-20261005/integrated-reference-sensitivity-926/arms/baseline"
+  },
+  {
+    "arm_id": "lung-compliance-0p8",
+    "exit_code": 0,
+    "wall_seconds": 215.1233639586717,
+    "output": "/Users/n/numi-human-resting-evidence-20261005/integrated-reference-sensitivity-926/arms/lung-compliance-0p8"
+  },
+  {
+    "arm_id": "lung-compliance-1p2",
+    "exit_code": 0,
+    "wall_seconds": 215.41859745886177,
+    "output": "/Users/n/numi-human-resting-evidence-20261005/integrated-reference-sensitivity-926/arms/lung-compliance-1p2"
+  },
+  {
+    "arm_id": "airway-resistance-0p5",
+    "exit_code": 0,
+    "wall_seconds": 215.49999445769936,
+    "output": "/Users/n/numi-human-resting-evidence-20261005/integrated-reference-sensitivity-926/arms/airway-resistance-0p5"
+  },
+  {
+    "arm_id": "airway-resistance-2",
+    "exit_code": 0,
+    "wall_seconds": 215.36172383278608,
+    "output": "/Users/n/numi-human-resting-evidence-20261005/integrated-reference-sensitivity-926/arms/airway-resistance-2"
+  },
+  {
+    "arm_id": "muscle-force-0p8",
+    "exit_code": 0,
+    "wall_seconds": 215.10266516637057,
+    "output": "/Users/n/numi-human-resting-evidence-20261005/integrated-reference-sensitivity-926/arms/muscle-force-0p8"
+  },
+  {
+    "arm_id": "muscle-force-1p2",
+    "exit_code": 0,
+    "wall_seconds": 215.21785274986178,
+    "output": "/Users/n/numi-human-resting-evidence-20261005/integrated-reference-sensitivity-926/arms/muscle-force-1p2"
+  }
+]
