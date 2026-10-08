@@ -151,6 +151,9 @@ int main() { @autoreleasepool { try {
         const auto r=*static_cast<const mr_uint4*>(result.contents);
         const auto& f=*reinterpret_cast<const MRHumanRestingSurfaceFailureGPU*>(
             static_cast<const unsigned char*>(result.contents)+sizeof(mr_uint4));
+        if(!(r.x==zero&&r.y==nonfinite&&r.z==first&&r.w==triangles))
+            std::cerr<<"mesh audit actual="<<r.x<<","<<r.y<<","<<r.z<<","<<r.w
+                <<" expected="<<zero<<","<<nonfinite<<","<<first<<","<<triangles<<"\n";
         check(r.x==zero&&r.y==nonfinite&&r.z==first&&r.w==triangles,"mesh audit counts/first triangle differ");
         if(first<triangles) {
             check(f.surfaceTriangleKind.y==first&&f.surfaceTriangleKind.z==kind,"first failure identity differs");
@@ -164,7 +167,9 @@ int main() { @autoreleasepool { try {
             std::memcmp(ib.contents,indices.data(),ib.length)==0,"mesh audit mutated geometry");
     };
     vertices[16].position=vertices[15].position; // Exact coincident vertex.
-    vertices[3*255+2].position={1.255f,0,0,1}; // Distinct collinear triangle.
+    vertices[3*255].position={0,0,0,1};
+    vertices[3*255+1].position={1,0,0,1};
+    vertices[3*255+2].position={2,0,0,1}; // Distinct exactly representable collinear triangle.
     vertices[3*16386].position.x=std::numeric_limits<float>::quiet_NaN(); // Beyond one grid stride.
     run(count,2,1,5,MR_HUMAN_RESTING_TRIANGLE_FAILURE_EXACT_ZERO_AREA);
     vertices=clean;
@@ -173,6 +178,57 @@ int main() { @autoreleasepool { try {
     run(count,0,1,16386,MR_HUMAN_RESTING_TRIANGLE_FAILURE_NONFINITE_AREA);
     vertices=clean;
     run(1,0,0,MR_HUMAN_RESTING_TRIANGLE_FAILURE_NO_TRIANGLE,0);
+    auto runTriangle=[&](const std::array<mr_float4,3>& points,unsigned expectedZero,unsigned expectedFirst) {
+        vertices=clean;
+        for(unsigned i=0;i<3;++i)vertices[i].position=points[i];
+        run(1,expectedZero,0,expectedFirst,
+            expectedZero?MR_HUMAN_RESTING_TRIANGLE_FAILURE_EXACT_ZERO_AREA:
+                MR_HUMAN_RESTING_TRIANGLE_FAILURE_NO_TRIANGLE);
+    };
+    const std::array<mr_float4,3> fmaWitness{{
+        {0.03748244047164917f,-0.39636877179145813f,0.09854736924171448f,1},
+        {0.03771711140871048f,-0.3969446122646332f,0.09887465834617615f,1},
+        {0.03795178234577179f,-0.3975204527378082f,0.09920194745063782f,1}}};
+    runTriangle(fmaWitness,1,0);
+    auto oneUlp=fmaWitness;
+    oneUlp[2].x=std::nextafter(oneUlp[2].x,std::numeric_limits<float>::infinity());
+    runTriangle(oneUlp,0,MR_HUMAN_RESTING_TRIANGLE_FAILURE_NO_TRIANGLE);
+    oneUlp=fmaWitness;
+    oneUlp[2].y=std::nextafter(oneUlp[2].y,std::numeric_limits<float>::infinity());
+    runTriangle(oneUlp,0,MR_HUMAN_RESTING_TRIANGLE_FAILURE_NO_TRIANGLE);
+    oneUlp=fmaWitness;
+    oneUlp[2].z=std::nextafter(oneUlp[2].z,std::numeric_limits<float>::infinity());
+    runTriangle(oneUlp,0,MR_HUMAN_RESTING_TRIANGLE_FAILURE_NO_TRIANGLE);
+    const std::array<mr_float4,3> powerTwoScaled{{
+        {0.07496488094329834f,-0.7927375435829163f,0.19709473848342896f,1},
+        {0.07543422281742096f,-0.7938892245292664f,0.1977493166923523f,1},
+        {0.07590356469154358f,-0.7950409054756165f,0.19840389490127563f,1}}};
+    runTriangle(powerTwoScaled,1,0);
+    const std::array<mr_float4,3> translatedScaled{{
+        {-0.23125877976417542f,0.051815614104270935f,-0.07572631537914276f,1},
+        {-0.23114144802093506f,0.05152769386768341f,-0.07556267082691193f,1},
+        {-0.2310241162776947f,0.051239773631095886f,-0.07539902627468109f,1}}};
+    runTriangle(translatedScaled,1,0);
+    const std::array<mr_float4,3> roundedTranslated{{
+        {0.5749648809432983f,-1.7927374839782715f,0.44709473848342896f,1},
+        {0.5754342079162598f,-1.7938892841339111f,0.4477493166923523f,1},
+        {0.5759035348892212f,-1.7950408458709717f,0.44840389490127563f,1}}};
+    runTriangle(roundedTranslated,0,MR_HUMAN_RESTING_TRIANGLE_FAILURE_NO_TRIANGLE);
+    const float tinyEdge=0x1p-80f;
+    const std::array<mr_float4,3> underflowNonzero{{
+        {0,0,0,1},{tinyEdge,0,0,1},{0,tinyEdge,0,1}}};
+    runTriangle(underflowNonzero,0,MR_HUMAN_RESTING_TRIANGLE_FAILURE_NO_TRIANGLE);
+    const std::array<mr_float4,3> underflowCollinear{{
+        {0,0,0,1},{tinyEdge,tinyEdge,tinyEdge,1},{2*tinyEdge,2*tinyEdge,2*tinyEdge,1}}};
+    runTriangle(underflowCollinear,1,0);
+    const float large=0x1p60f;
+    const std::array<mr_float4,3> inexactOriginNonzero{{
+        {large,0,0,1},{1,1,0,1},{-large,2,0,1}}};
+    runTriangle(inexactOriginNonzero,0,MR_HUMAN_RESTING_TRIANGLE_FAILURE_NO_TRIANGLE);
+    const std::array<mr_float4,3> inexactOriginCollinear{{
+        {large,large,0,1},{1,1,0,1},{-large,-large,0,1}}};
+    runTriangle(inexactOriginCollinear,1,0);
+    std::cout<<"fma_resistant_mesh_area_audit_metal_test=passed cases=11 exact_collinear=5 one_ulp_controls=3 rounded_translation_control=1 underflow_cases=2 inexact_origin_controls=2\n";
     run(0,0,0,MR_HUMAN_RESTING_TRIANGLE_FAILURE_NO_TRIANGLE,0);
     id<MTLComputePipelineState> volumePartial=[device newComputePipelineStateWithFunction:
         [library newFunctionWithName:@"nm_human_resting_audit_volume_partials"] error:&error];
@@ -319,6 +375,16 @@ int main() { @autoreleasepool { try {
     };
     checkVolumeResult(0u,expected0);checkVolumeResult(1u,expected1);
     const auto originalVolumeVertices=volumeVertices;
+    const auto originalExpected0=expected0;
+    const std::array<mr_float4,3> fmaVolumeWitness{{
+        {0.03748244047164917f,-0.39636877179145813f,0.09854736924171448f,1},
+        {0.03771711140871048f,-0.3969446122646332f,0.09887465834617615f,1},
+        {0.03795178234577179f,-0.3975204527378082f,0.09920194745063782f,1}}};
+    for(unsigned i=0;i<3u;++i)volumeVertices[volumeIndices[i]].position=fmaVolumeWitness[i];
+    expected0=oldScalarAndExact(0u);
+    runVolumeAudit(2u,0u,0u,0u,MR_HUMAN_RESTING_TRIANGLE_FAILURE_EXACT_ZERO_AREA,expected0.first);
+    checkVolumeResult(0u,expected0);checkVolumeResult(1u,expected1);
+    volumeVertices=originalVolumeVertices;expected0=originalExpected0;
     const unsigned zeroTriangleIndex=volumeIndices[1];
     const unsigned zeroMatchIndex=volumeIndices[2];
     volumeVertices[zeroTriangleIndex].position=volumeVertices[zeroMatchIndex].position;
@@ -332,7 +398,7 @@ int main() { @autoreleasepool { try {
     volumeVertices=originalVolumeVertices;
     runVolumeAudit(1u,0u,volumeSurfaces.size(),0u,0u,0.0f);
     std::cout<<"parallel_volume_audit_metal_test=passed surfaces=2 triangles="<<volumeIndices.size()/3u
-        <<" cases=4 groups="<<volumeGroups.size()<<"\n";
+        <<" cases=5 groups="<<volumeGroups.size()<<"\n";
     std::cout<<"whole_native_mesh_metal_test=passed triangles="<<count<<" cases=5\n";
     return 0;
 } catch(const std::exception& e) {std::cerr<<e.what()<<'\n';return 1;} } }

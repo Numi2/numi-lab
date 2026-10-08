@@ -302,6 +302,130 @@ kernel void nm_human_resting_layers(
 // Parallelize each functional surface volume without dropping any source
 // triangle. The CPU-built descriptors assign each group a bounded contiguous
 // range; 256 lanes each evaluate one triangle and reduce compact partials.
+// Whole native mesh validity is independent of which surfaces own a volume.
+// Bounded parallel reductions leave only counts and the first witness on host.
+// The rendered vertices are binary32. A fused multiply-subtract can leave a
+// nonzero residual for an exactly collinear cross product, so confirm an
+// apparent zero with product residuals. The integer fallback handles exact
+// products and subnormal residuals without losing low bits.
+inline bool nm_human_exact_binary32_products_equal(float a,float b,float c,float d) {
+    if(!isfinite(a)||!isfinite(b)||!isfinite(c)||!isfinite(d))return false;
+    const float ab=a*b,cd=c*d;
+    if(ab!=cd)return false;
+    const float abError=fma(a,b,-ab),cdError=fma(c,d,-cd);
+    const float minimumNormal=0x1p-126f;
+    if(isfinite(abError)&&isfinite(cdError)&&abError!=0.0f&&cdError!=0.0f&&
+       abs(abError)>=minimumNormal&&abs(cdError)>=minimumNormal)return abError==cdError;
+
+    const uint aBits=as_type<uint>(a),bBits=as_type<uint>(b);
+    const uint cBits=as_type<uint>(c),dBits=as_type<uint>(d);
+    const uint aExponent=(aBits>>23u)&0xffu,bExponent=(bBits>>23u)&0xffu;
+    const uint cExponent=(cBits>>23u)&0xffu,dExponent=(dBits>>23u)&0xffu;
+    if(aExponent==0xffu||bExponent==0xffu||cExponent==0xffu||dExponent==0xffu)return false;
+    ulong aSignificand=ulong(aBits&0x7fffffu),bSignificand=ulong(bBits&0x7fffffu);
+    ulong cSignificand=ulong(cBits&0x7fffffu),dSignificand=ulong(dBits&0x7fffffu);
+    int aPower=-149,bPower=-149,cPower=-149,dPower=-149;
+    if(aExponent){aSignificand|=0x800000ul;aPower=int(aExponent)-150;}
+    if(bExponent){bSignificand|=0x800000ul;bPower=int(bExponent)-150;}
+    if(cExponent){cSignificand|=0x800000ul;cPower=int(cExponent)-150;}
+    if(dExponent){dSignificand|=0x800000ul;dPower=int(dExponent)-150;}
+    ulong abSignificand=aSignificand*bSignificand,cdSignificand=cSignificand*dSignificand;
+    if(abSignificand==0ul||cdSignificand==0ul)return abSignificand==cdSignificand;
+    const bool abNegative=((aBits^bBits)&0x80000000u)!=0u;
+    const bool cdNegative=((cBits^dBits)&0x80000000u)!=0u;
+    if(abNegative!=cdNegative)return false;
+    int abPower=aPower+bPower,cdPower=cPower+dPower;
+    while((abSignificand&1ul)==0ul){abSignificand>>=1u;++abPower;}
+    while((cdSignificand&1ul)==0ul){cdSignificand>>=1u;++cdPower;}
+    return abSignificand==cdSignificand&&abPower==cdPower;
+}
+inline bool nm_human_binary32_requires_point_fallback(float value) {
+    const uint bits=as_type<uint>(value);
+    const uint exponent=(bits>>23u)&0xffu;
+    const uint fraction=bits&0x7fffffu;
+    // Metal may flush subnormal intermediate residuals. Below biased exponent
+    // 25, an exact subtraction tail can be subnormal even when both inputs are
+    // normal, so use the original-coordinate integer determinant directly.
+    return (exponent==0u&&fraction!=0u)||(exponent>0u&&exponent<25u);
+}
+inline float nm_human_binary32_difference_tail(float a,float b,float difference) {
+    const float bVirtual=a-difference;
+    const float aVirtual=difference+bVirtual;
+    const float bRound=bVirtual-b;
+    const float aRound=a-aVirtual;
+    return aRound+bRound;
+}
+inline void nm_human_add_binary32_word(thread ulong* accumulator,uint limb,ulong word) {
+    while(word!=0ul&&limb<9u) {
+        const ulong previous=accumulator[limb];
+        accumulator[limb]=previous+word;
+        word=accumulator[limb]<previous?1ul:0ul;
+        ++limb;
+    }
+}
+inline void nm_human_accumulate_binary32_product(
+    thread ulong* positive,thread ulong* negative,float a,float b,bool negate) {
+    const uint aBits=as_type<uint>(a),bBits=as_type<uint>(b);
+    const uint aExponent=(aBits>>23u)&0xffu,bExponent=(bBits>>23u)&0xffu;
+    if(aExponent==0xffu||bExponent==0xffu)return;
+    ulong aSignificand=ulong(aBits&0x7fffffu),bSignificand=ulong(bBits&0x7fffffu);
+    int aPower=-149,bPower=-149;
+    if(aExponent){aSignificand|=0x800000ul;aPower=int(aExponent)-150;}
+    if(bExponent){bSignificand|=0x800000ul;bPower=int(bExponent)-150;}
+    const ulong significand=aSignificand*bSignificand;
+    if(significand==0ul)return;
+    const int power=aPower+bPower;
+    const uint shift=uint(power+298);
+    const uint limb=shift>>6u,bit=shift&63u;
+    const ulong low=significand<<bit;
+    const ulong high=bit?significand>>(64u-bit):0ul;
+    const bool negativeProduct=(((aBits^bBits)&0x80000000u)!=0u)!=negate;
+    thread ulong* accumulator=negativeProduct?negative:positive;
+    nm_human_add_binary32_word(accumulator,limb,low);
+    if(high)nm_human_add_binary32_word(accumulator,limb+1u,high);
+}
+inline bool nm_human_exact_binary32_point_area_component_is_zero(
+    float a0,float b0,float c0,float a1,float b1,float c1) {
+    thread ulong positive[9],negative[9];
+    for(uint i=0;i<9u;++i){positive[i]=0ul;negative[i]=0ul;}
+    // Expand (b0-a0)*(c1-a1) - (b1-a1)*(c0-a0).
+    // The equal a0*a1 terms cancel exactly and are omitted.
+    nm_human_accumulate_binary32_product(positive,negative,b0,c1,false);
+    nm_human_accumulate_binary32_product(positive,negative,b0,a1,true);
+    nm_human_accumulate_binary32_product(positive,negative,a0,c1,true);
+    nm_human_accumulate_binary32_product(positive,negative,b1,c0,true);
+    nm_human_accumulate_binary32_product(positive,negative,b1,a0,false);
+    nm_human_accumulate_binary32_product(positive,negative,a1,c0,false);
+    for(uint i=0;i<9u;++i)if(positive[i]!=negative[i])return false;
+    return true;
+}
+inline bool nm_human_exact_binary32_triangle_is_zero(float3 a,float3 b,float3 c) {
+    const float3 u=b-a,v=c-a;
+    const bool safeCompensatedRange=
+        !nm_human_binary32_requires_point_fallback(a.x)&&!nm_human_binary32_requires_point_fallback(a.y)&&
+        !nm_human_binary32_requires_point_fallback(a.z)&&!nm_human_binary32_requires_point_fallback(b.x)&&
+        !nm_human_binary32_requires_point_fallback(b.y)&&!nm_human_binary32_requires_point_fallback(b.z)&&
+        !nm_human_binary32_requires_point_fallback(c.x)&&!nm_human_binary32_requires_point_fallback(c.y)&&
+        !nm_human_binary32_requires_point_fallback(c.z)&&all(isfinite(u))&&all(isfinite(v));
+    const bool exactEdges=safeCompensatedRange&&
+        nm_human_binary32_difference_tail(b.x,a.x,u.x)==0.0f&&
+        nm_human_binary32_difference_tail(b.y,a.y,u.y)==0.0f&&
+        nm_human_binary32_difference_tail(b.z,a.z,u.z)==0.0f&&
+        nm_human_binary32_difference_tail(c.x,a.x,v.x)==0.0f&&
+        nm_human_binary32_difference_tail(c.y,a.y,v.y)==0.0f&&
+        nm_human_binary32_difference_tail(c.z,a.z,v.z)==0.0f;
+    if(!exactEdges) {
+        // Full dyadic point-coordinate determinant fallback: exact even when
+        // subtracting the origin rounded away low bits or products underflow.
+        return nm_human_exact_binary32_point_area_component_is_zero(a.y,b.y,c.y,a.z,b.z,c.z)&&
+            nm_human_exact_binary32_point_area_component_is_zero(a.z,b.z,c.z,a.x,b.x,c.x)&&
+            nm_human_exact_binary32_point_area_component_is_zero(a.x,b.x,c.x,a.y,b.y,c.y);
+    }
+    return nm_human_exact_binary32_products_equal(u.y,v.z,u.z,v.y)&&
+        nm_human_exact_binary32_products_equal(u.z,v.x,u.x,v.z)&&
+        nm_human_exact_binary32_products_equal(u.x,v.y,u.y,v.x);
+}
+
 kernel void nm_human_resting_audit_volume_partials(
     constant uint4& d [[buffer(0)]],
     device const MRHumanRestingSurfaceAuditGPU* surfaces [[buffer(1)]],
@@ -326,9 +450,10 @@ kernel void nm_human_resting_audit_volume_partials(
         const float3 pa=vertices[indices[j]].position.xyz;
         const float3 pb=vertices[indices[j+1u]].position.xyz;
         const float3 pc=vertices[indices[j+2u]].position.xyz;
-        const float3 area=cross(pb-pa,pc-pa);
+        const float3 u=pb-pa,v=pc-pa;
+        const float3 area=cross(u,v);
         const bool bad=!all(isfinite(area));
-        const bool collapsed=!bad&&all(area==float3(0));
+        const bool collapsed=!bad&&nm_human_exact_binary32_triangle_is_zero(pa,pb,pc);
         if(bad||collapsed) {++invalidCount;firstInvalid=min(firstInvalid,triangle);}
         const float3 a=pa-origin,b=pb-origin,c=pc-origin;
         volume+=dot(a,cross(b,c))/6.0f;
@@ -387,9 +512,12 @@ kernel void nm_human_resting_reduce_volume_audits(
         const float3 pa=vertices[ids.x].position.xyz;
         const float3 pb=vertices[ids.y].position.xyz;
         const float3 pc=vertices[ids.z].position.xyz;
-        const float3 area=cross(pb-pa,pc-pa);
-        const uint areaFailure=!all(isfinite(area))?MR_HUMAN_RESTING_TRIANGLE_FAILURE_NONFINITE_AREA:
-            MR_HUMAN_RESTING_TRIANGLE_FAILURE_EXACT_ZERO_AREA;
+        const float3 u=pb-pa,v=pc-pa;
+        const float3 area=cross(u,v);
+        const bool bad=!all(isfinite(area));
+        const uint areaFailure=bad?MR_HUMAN_RESTING_TRIANGLE_FAILURE_NONFINITE_AREA:
+            (nm_human_exact_binary32_triangle_is_zero(pa,pb,pc)?MR_HUMAN_RESTING_TRIANGLE_FAILURE_EXACT_ZERO_AREA:
+                MR_HUMAN_RESTING_TRIANGLE_FAILURE_NONE);
         firstFailure.surfaceTriangleKind=uint4(i,firstInvalid,areaFailure,0);
         firstFailure.vertexIndices=uint4(ids,0);
         firstFailure.renderedPositions[0]=float4(pa,0);
@@ -409,8 +537,6 @@ kernel void nm_human_resting_reduce_volume_audits(
     failureResults[i]=firstFailure;
 }
 
-// Whole native mesh validity is independent of which surfaces own a volume.
-// Bounded parallel reductions leave only counts and the first witness on host.
 kernel void nm_human_resting_audit_mesh_triangles(
     constant uint4& d [[buffer(0)]],device const uint* indices [[buffer(1)]],
     device const MRVisualVertexGPUV2* vertices [[buffer(2)]],
@@ -422,9 +548,10 @@ kernel void nm_human_resting_audit_mesh_triangles(
         const float3 a=vertices[indices[3u*t]].position.xyz;
         const float3 b=vertices[indices[3u*t+1u]].position.xyz;
         const float3 c=vertices[indices[3u*t+2u]].position.xyz;
-        const float3 area=cross(b-a,c-a);
+        const float3 u=b-a,v=c-a;
+        const float3 area=cross(u,v);
         const bool bad=!all(isfinite(area));
-        const bool collapsed=!bad&&all(area==float3(0));
+        const bool collapsed=!bad&&nm_human_exact_binary32_triangle_is_zero(a,b,c);
         z+=uint(collapsed);n+=uint(bad);
         if(bad||collapsed)f=min(f,t);
     }
@@ -455,9 +582,12 @@ kernel void nm_human_resting_reduce_mesh_audit(
     if(sum.z<d.x) {
         const uint3 ids=uint3(indices[3u*sum.z],indices[3u*sum.z+1u],indices[3u*sum.z+2u]);
         const float3 a=vertices[ids.x].position.xyz,b=vertices[ids.y].position.xyz,c=vertices[ids.z].position.xyz;
-        const float3 area=cross(b-a,c-a);
-        const uint kind=!all(isfinite(area))?MR_HUMAN_RESTING_TRIANGLE_FAILURE_NONFINITE_AREA:
-            MR_HUMAN_RESTING_TRIANGLE_FAILURE_EXACT_ZERO_AREA;
+        const float3 u=b-a,v=c-a;
+        const float3 area=cross(u,v);
+        const bool bad=!all(isfinite(area));
+        const uint kind=bad?MR_HUMAN_RESTING_TRIANGLE_FAILURE_NONFINITE_AREA:
+            (nm_human_exact_binary32_triangle_is_zero(a,b,c)?MR_HUMAN_RESTING_TRIANGLE_FAILURE_EXACT_ZERO_AREA:
+                MR_HUMAN_RESTING_TRIANGLE_FAILURE_NONE);
         witness.surfaceTriangleKind=uint4(0,sum.z,kind,0);
         witness.vertexIndices=uint4(ids,0);
         witness.renderedPositions[0]=float4(a,0);witness.renderedPositions[1]=float4(b,0);
