@@ -42,7 +42,7 @@ public:
     std::string error;
     id<MTLBuffer> commonFailureCaptureBuffer=nil;
 private:
-    id<MTLComputePipelineState> prepareWorld, validateBody, validateMatter, capture, publishFrame;
+    id<MTLComputePipelineState> prepareWorld, validateBody, validateMatter, capture, publishFrame, publishTerminalFrame;
     id<MTLComputePipelineState> latchCommonFailure=nil;
     bool commonFailureCaptureEnabled=false;
     id<MTLBuffer> bodyTemplate;
@@ -64,6 +64,7 @@ public:
         latchCommonFailure=pipeline(@"nm_human_resting_latch_common_failure");
         capture=pipeline(@"nm_human_resting_capture");
         publishFrame=pipeline(@"nm_human_resting_present_commit");
+        publishTerminalFrame=pipeline(@"nm_human_resting_terminal_present_commit");
         std::vector<MRBodyStateGPU> initial(model.bodies.size());
         for(unsigned i=0;i<initial.size();++i) {
             initial[i].linearVelocityAndInverseMass.w=model.bodies[i].massAndInverseMass.y;
@@ -166,6 +167,140 @@ public:
             <<" normalized_residual="<<solved.diagnostics.x
             <<" coordinates=["<<coordinates[0]<<','<<coordinates[1]<<','<<coordinates[2]<<','<<coordinates[3]
             <<','<<coordinates[4]<<','<<coordinates[5]<<','<<coordinates[6]<<"] physical_steps_advanced=0\n";
+    }
+    void publishTerminalSnapshot(
+        const std::uint32_t expectedTerminalStep,
+        const std::span<const MRArticulatedBodyPoseGPU> acceptedBodyPoses,
+        const MRNumiHumanStandStatusGPU& acceptedStandStatus
+    ) {
+        using numi::human::need;
+        auto& respiration=*physiology.respiration;
+        need(expectedTerminalStep>0u&&acceptedStandStatus.completedSteps==expectedTerminalStep&&
+             acceptedStandStatus.code==MR_NUMI_HUMAN_STAND_SUCCESS&&
+             respiration.accepted&&respiration.accepted.length>=sizeof(NMHumanRespirationState)&&
+             respiration.accepted.contents,
+             "terminal frame requires the successful exact-N accepted physical state");
+        const NMHumanRespirationState acceptedRespirationSnapshot=
+            *static_cast<const NMHumanRespirationState*>(respiration.accepted.contents);
+        need(acceptedRespirationSnapshot.status.x==expectedTerminalStep&&
+             acceptedRespirationSnapshot.status.w==0u,
+             "terminal frame requires the exact-N accepted respiratory state");
+        need(bodyTemplate&&acceptedBodyPoses.size()==bodyTemplate.length/sizeof(MRBodyStateGPU)&&
+             presentationBodies&&presentationCandidateBodies&&presentationRespiration&&
+             presentationCandidateRespiration&&
+             presentationBodies.length==bodyTemplate.length&&
+             presentationCandidateBodies.length==bodyTemplate.length&&
+             presentationRespiration.length==sizeof(NMHumanRespirationState)&&
+             presentationCandidateRespiration.length==sizeof(NMHumanRespirationState),
+             "terminal GPU pose capture does not match the registered body presentation layout");
+
+        MRHumanRestingCommonCoordinatesGPU acceptedCommonSnapshot{};
+        const bool hasTerminalCommon=respiration.commonGeometryGateEnabled;
+        if(hasTerminalCommon) {
+            need(commonAcceptedCoordinatesInitialized&&respiration.commonGeometryParameters&&
+                 respiration.commonGeometryParameters.contents&&respiration.commonGeometryBoxes&&
+                 presentationFrameCommonCoordinates&&presentationCommonCoordinates&&
+                 acceptedCommonCoordinates,
+                 "terminal common-coordinate publication lacks its registered owner or buffers");
+            need(presentationFrameCommonCoordinates.length==sizeof(MRHumanRestingCommonCoordinatesGPU)&&
+                 presentationCommonCoordinates.length==sizeof(MRHumanRestingCommonCoordinatesGPU)&&
+                 acceptedCommonCoordinates.length==sizeof(MRHumanRestingCommonCoordinatesGPU)&&
+                 respiration.commonGeometryParameters.length==sizeof(MRHumanRestingCommonFieldGPU)&&
+                 respiration.commonGeometryBoxes.length%sizeof(MRHumanRestingCommonCoordinateBoxGPU)==0&&
+                 acceptedCommonCoordinates.contents!=nullptr,
+                 "terminal common-coordinate buffers have invalid sizes or are not host-visible");
+            const auto* parameters=static_cast<const MRHumanRestingCommonFieldGPU*>(
+                respiration.commonGeometryParameters.contents);
+            const auto boxCount=respiration.commonGeometryBoxes.length/
+                sizeof(MRHumanRestingCommonCoordinateBoxGPU);
+            need(parameters->countsAndFlags.x==boxCount&&boxCount>0u,
+                 "terminal common-coordinate boxes do not match their admitted count");
+            acceptedCommonSnapshot=*static_cast<const MRHumanRestingCommonCoordinatesGPU*>(
+                acceptedCommonCoordinates.contents);
+            const std::array<float,7> coordinates{{acceptedCommonSnapshot.first.x,
+                acceptedCommonSnapshot.first.y,acceptedCommonSnapshot.first.z,
+                acceptedCommonSnapshot.first.w,acceptedCommonSnapshot.second.x,
+                acceptedCommonSnapshot.second.y,acceptedCommonSnapshot.second.z}};
+            const bool finiteCoordinates=std::all_of(coordinates.begin(),coordinates.end(),
+                [](float value){return std::isfinite(value);});
+            need(acceptedCommonSnapshot.status.x==0u&&acceptedCommonSnapshot.status.z<boxCount&&
+                 finiteCoordinates&&std::isfinite(acceptedCommonSnapshot.diagnostics.x)&&
+                 std::isfinite(parameters->solver.x)&&parameters->solver.x>0.0f&&
+                 acceptedCommonSnapshot.diagnostics.x<=parameters->solver.x,
+                 "terminal accepted common coordinates fail status/domain/residual validation");
+        }
+
+        id<MTLBuffer> poseBuffer=[physiology.device newBufferWithBytes:acceptedBodyPoses.data()
+            length:acceptedBodyPoses.size_bytes() options:MTLResourceStorageModeShared];
+        id<MTLBuffer> statusBuffer=[physiology.device newBufferWithBytes:&acceptedStandStatus
+            length:sizeof(acceptedStandStatus) options:MTLResourceStorageModeShared];
+        need(poseBuffer&&statusBuffer,"terminal accepted pose/status buffer allocation failed");
+        id<MTLCommandQueue> queue=[physiology.device newCommandQueue];
+        need(queue!=nil,"terminal accepted presentation command queue is unavailable");
+        id<MTLCommandBuffer> command=[queue commandBuffer];
+        need(command!=nil,"terminal accepted presentation command buffer is unavailable");
+        const mr_uint4 d={expectedTerminalStep,
+            static_cast<std::uint32_t>(acceptedBodyPoses.size()),hasTerminalCommon?1u:0u,0u};
+        auto captureEncoder=[command computeCommandEncoder];
+        need(captureEncoder!=nil,"terminal body capture encoder is unavailable");
+        [captureEncoder setComputePipelineState:capture];
+        [captureEncoder setBytes:&d length:sizeof(d) atIndex:0];
+        [captureEncoder setBuffer:poseBuffer offset:0 atIndex:1];
+        [captureEncoder setBuffer:bodyTemplate offset:0 atIndex:2];
+        [captureEncoder setBuffer:presentationCandidateBodies offset:0 atIndex:3];
+        [captureEncoder setBuffer:respiration.accepted offset:0 atIndex:4];
+        [captureEncoder setBuffer:presentationCandidateRespiration offset:0 atIndex:5];
+        [captureEncoder setBuffer:statusBuffer offset:0 atIndex:6];
+        [captureEncoder dispatchThreads:MTLSizeMake(acceptedBodyPoses.size(),1,1)
+            threadsPerThreadgroup:MTLSizeMake(64,1,1)];
+        [captureEncoder endEncoding];
+        auto commitEncoder=[command computeCommandEncoder];
+        need(commitEncoder!=nil,"terminal frame commit encoder is unavailable");
+        [commitEncoder setComputePipelineState:publishTerminalFrame];
+        [commitEncoder setBytes:&d length:sizeof(d) atIndex:0];
+        [commitEncoder setBuffer:presentationCandidateBodies offset:0 atIndex:1];
+        [commitEncoder setBuffer:presentationCandidateRespiration offset:0 atIndex:2];
+        [commitEncoder setBuffer:presentationBodies offset:0 atIndex:3];
+        [commitEncoder setBuffer:presentationRespiration offset:0 atIndex:4];
+        [commitEncoder setBuffer:statusBuffer offset:0 atIndex:5];
+        [commitEncoder setBuffer:presentationFrameCommonCoordinates offset:0 atIndex:6];
+        [commitEncoder setBuffer:presentationCommonCoordinates offset:0 atIndex:7];
+        [commitEncoder setBuffer:acceptedCommonCoordinates offset:0 atIndex:8];
+        [commitEncoder dispatchThreads:MTLSizeMake(acceptedBodyPoses.size(),1,1)
+            threadsPerThreadgroup:MTLSizeMake(64,1,1)];
+        [commitEncoder endEncoding];
+        [command commit];
+        [command waitUntilCompleted];
+        need(command.status==MTLCommandBufferStatusCompleted,
+             std::string("terminal accepted presentation failed: ")+
+                 (command.error?command.error.localizedDescription.UTF8String:
+                  "command buffer did not complete"));
+        need(std::memcmp(presentationBodies.contents,presentationCandidateBodies.contents,
+                         presentationBodies.length)==0&&
+             std::memcmp(presentationRespiration.contents,presentationCandidateRespiration.contents,
+                         sizeof(NMHumanRespirationState))==0,
+             "terminal accepted presentation commit did not publish the GPU-captured frame");
+        const auto& published=*static_cast<const NMHumanRespirationState*>(
+            presentationRespiration.contents);
+        need(published.status.x==expectedTerminalStep&&published.status.w==0u&&
+             std::memcmp(&published,&acceptedRespirationSnapshot,sizeof(published))==0&&
+             std::memcmp(respiration.accepted.contents,&acceptedRespirationSnapshot,
+                         sizeof(acceptedRespirationSnapshot))==0,
+             "terminal presentation differs from, or mutated, the final accepted respiration state");
+        if(hasTerminalCommon) {
+            need(std::memcmp(presentationFrameCommonCoordinates.contents,&acceptedCommonSnapshot,
+                             sizeof(acceptedCommonSnapshot))==0&&
+                 std::memcmp(presentationCommonCoordinates.contents,&acceptedCommonSnapshot,
+                             sizeof(acceptedCommonSnapshot))==0&&
+                 std::memcmp(acceptedCommonCoordinates.contents,&acceptedCommonSnapshot,
+                             sizeof(acceptedCommonSnapshot))==0,
+                 "terminal common-coordinate presentation differs from, or mutated, the accepted state");
+        }
+        std::cout<<"resting_terminal_presentation=accepted step="<<expectedTerminalStep
+            <<" body_count="<<acceptedBodyPoses.size()
+            <<" respiratory_status="<<published.status.x
+            <<" common_coordinates="<<(hasTerminalCommon?"accepted_buffer_copied":"disabled")
+            <<" physical_steps_advanced=0 controller_steps_advanced=0 fk_owner=MetalArticulatedOperator_query_only\n";
     }
     metalrobo::MetalNumanXTransactionProgram program() {
         metalrobo::MetalNumanXTransactionProgram p;

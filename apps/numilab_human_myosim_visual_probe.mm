@@ -23017,6 +23017,12 @@ int main(int argc, char** argv) {
                     return std::chrono::duration<double, std::milli>(
                         std::chrono::steady_clock::now() - start).count();
                 };
+                const bool terminalGeometryRequested=liveVisual&&!mechanicsOnly&&
+                    liveVisual->requestsTerminalGeometryStep(*muscleStepCount);
+                bool terminalAcceptedSnapshotObserved=false;
+                std::vector<float> terminalAcceptedQ;
+                MRCompensatedRootTranslationGPU terminalAcceptedRoot{};
+                MRNumiHumanStandStatusGPU terminalAcceptedStandStatus{};
                 const std::function<void(
                     std::uint32_t,
                     std::span<const float>,
@@ -23038,6 +23044,19 @@ int main(int argc, char** argv) {
                         const auto& p=*static_cast<const NMHumanRespirationState*>(coupled.physiology.respiration->accepted.contents);
                         require(p.status.x==step&&!p.status.w,"body/respiratory accepted clocks differ");
                         const auto& b=result.standStatuses.front();
+                        if(terminalGeometryRequested&&step==*muscleStepCount) {
+                            require(result.standStatuses.size()==1u&&
+                                    result.standQ.size()==rigid.model.articulations.front().nq&&
+                                    result.standRootTranslations.size()==1u&&
+                                    b.code==MR_NUMI_HUMAN_STAND_SUCCESS&&
+                                    b.completedSteps==*muscleStepCount&&
+                                    mrCompensatedTranslationValid(result.standRootTranslations.front()),
+                                    "terminal accepted-state capture lacks exact-N q/root/status");
+                            terminalAcceptedQ=result.standQ;
+                            terminalAcceptedRoot=result.standRootTranslations.front();
+                            terminalAcceptedStandStatus=b;
+                            terminalAcceptedSnapshotObserved=true;
+                        }
                         const auto respirationTraceProfileStart = trainingProfile
                             ? std::chrono::steady_clock::now()
                             : std::chrono::steady_clock::time_point{};
@@ -23633,7 +23652,7 @@ int main(int argc, char** argv) {
                                 const auto presentationProfileStart = trainingProfile
                                     ? std::chrono::steady_clock::now()
                                     : std::chrono::steady_clock::time_point{};
-                                liveVisual->present(step == *muscleStepCount);
+                                liveVisual->present(step == *muscleStepCount&&!terminalGeometryRequested);
                                 if (trainingProfile) {
                                     restingObserverProfile.presentationMilliseconds +=
                                         profileElapsedMilliseconds(presentationProfileStart);
@@ -23656,8 +23675,10 @@ int main(int argc, char** argv) {
                                 << " simulated_s=" << measuredSimulation
                                 << " wall_s=" << measuredWall
                                 << " real_time_factor=" << measuredSimulation / measuredWall
-                                << " includes=physics_physiology_controller_audits_trace_viewer_movie_frames_geometry_export"
-                                << " excludes=load_compile_initial_parity_first_accepted_observer_movie_finalization"
+                                << " includes=physics_physiology_controller_audits_trace_viewer_movie_frames_cadence_geometry_export"
+                                << (terminalGeometryRequested
+                                    ? " excludes=terminal_query_fk_terminal_frame_render_terminal_geometry_export_load_compile_initial_parity_first_accepted_observer_movie_finalization"
+                                    : " excludes=load_compile_initial_parity_first_accepted_observer_movie_finalization")
                                 << std::endl;
                         }
                         if (trainingProfile) {
@@ -23673,7 +23694,49 @@ int main(int argc, char** argv) {
                     poseQ,&restingProgram,&observer,liveVisual?&skinSupportProgram:nullptr,
                     restingReleaseInitialization,restingComMomentumAudit,
                     restingComMomentumAuditSegmentSteps);
-                (void)final;
+                if(terminalGeometryRequested) {
+                    const std::uint32_t terminalStep=*muscleStepCount;
+                    require(terminalAcceptedSnapshotObserved&&
+                            final.persistentCompletedSteps==terminalStep&&
+                            final.q.size()==terminalAcceptedQ.size()&&
+                            (!final.q.size()||std::memcmp(final.q.data(),terminalAcceptedQ.data(),
+                                final.q.size()*sizeof(float))==0),
+                            "terminal presentation requires the final fully accepted native body state");
+                    const auto& acceptedRespiration=*static_cast<const NMHumanRespirationState*>(
+                        coupled.physiology.respiration->accepted.contents);
+                    require(numiHumanRestingAcceptedGeometry::terminalSnapshotReady(
+                                terminalStep,terminalAcceptedStandStatus.completedSteps,
+                                terminalAcceptedStandStatus.code==MR_NUMI_HUMAN_STAND_SUCCESS,
+                                acceptedRespiration.status.x,acceptedRespiration.status.w==0u),
+                            "terminal body/respiration accepted-state identities do not match exact N");
+                    std::array<MRCompensatedRootTranslationGPU,1u> terminalRoots{{terminalAcceptedRoot}};
+                    metalrobo::MetalArticulatedOperatorInput terminalInput;
+                    terminalInput.articulationIndex=0u;
+                    terminalInput.environmentCount=1u;
+                    terminalInput.q=std::span<const float>(terminalAcceptedQ);
+                    terminalInput.rootTranslations=std::span<const MRCompensatedRootTranslationGPU>(terminalRoots);
+                    metalrobo::MetalArticulatedOperatorConfig terminalConfig;
+                    terminalConfig.pointJacobiansOnly=true;
+                    metalrobo::MetalArticulatedOperatorResult terminalPose;
+                    const auto terminalStatus=metalrobo::runMetalArticulatedOperator(
+                        rigid.model,terminalInput,terminalPose,terminalConfig);
+                    require(terminalStatus.succeeded(),terminalStatus.message);
+                    require(terminalPose.bodyPoses.size()==rigid.model.bodies.size()&&
+                            terminalPose.rootTranslations.size()==1u&&
+                            std::memcmp(terminalPose.rootTranslations.data(),terminalRoots.data(),
+                                sizeof(MRCompensatedRootTranslationGPU))==0,
+                            "query-only terminal FK did not preserve the exact accepted root and body layout");
+                    coupled.publishTerminalSnapshot(terminalStep,terminalPose.bodyPoses,
+                        terminalAcceptedStandStatus);
+                    const auto& publishedRespiration=*static_cast<const NMHumanRespirationState*>(
+                        coupled.presentationRespiration.contents);
+                    require(publishedRespiration.status.x==terminalStep&&publishedRespiration.status.w==0u,
+                            "terminal GPU presentation did not publish accepted state N");
+                    std::cout<<"resting_terminal_capture_identity=accepted_step_"<<terminalStep
+                        <<" q_source=exact_final_accepted_float32 root_source=exact_final_compensated_translation"
+                        <<" fk=MetalArticulatedOperator_pointJacobiansOnly terminal_physical_steps_advanced=0\n";
+                    liveVisual->present(true);
+                }
                 if (trainingProfile && restingObserverProfile.callbacks > 0u) {
                     const double profiledMilliseconds =
                         restingObserverProfile.respirationTraceMilliseconds +

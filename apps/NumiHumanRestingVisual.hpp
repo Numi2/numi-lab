@@ -2,6 +2,7 @@
 #include "NumiHumanRestingAnatomy.hpp"
 #include "NumiHumanRestingSupportGeometry.hpp"
 #include "NumiHumanRestingSurfaceAuditDiagnostic.hpp"
+#include "NumiHumanAcceptedGeometryCadence.hpp"
 #include <charconv>
 #include <bit>
 #include <cstdio>
@@ -523,13 +524,11 @@ public:
         require(totalAcceptedSteps>0&&submissionSteps>0,
             "accepted geometry capture requires a nonempty native horizon and submission cadence");
         for(const unsigned step:steps) {
-            require(step<totalAcceptedSteps,
-                "accepted geometry step is outside the requested native horizon: "+std::to_string(step));
-            const bool initial=step==0;
-            const bool submissionEnd=(step+1u)%submissionSteps==0u;
-            const bool terminal=step+1u==totalAcceptedSteps;
-            require(initial||submissionEnd||terminal,
-                "accepted geometry step is not presented by the native submission cadence: "+std::to_string(step));
+            const auto classification=numiHumanRestingAcceptedGeometry::classifyCaptureStep(
+                step,totalAcceptedSteps,submissionSteps);
+            require(classification!=numiHumanRestingAcceptedGeometry::CaptureStepClass::invalid,
+                "accepted geometry step is not an initial, submission-cadence, or true terminal accepted state: "+
+                    std::to_string(step));
         }
     }
 
@@ -2278,6 +2277,9 @@ public:
         return {(__bridge id<MTLBuffer>)renderer->nativeBuffer(metalrobo::MetalHybridRendererBuffer::rgb),dimension,dimension,metrics.str(),time,complete};
     }
     void declareRigidHands(){rigidHands=true;}
+    bool requestsTerminalGeometryStep(unsigned totalAcceptedSteps) const {
+        return requestedGeometrySteps.contains(totalAcceptedSteps);
+    }
     void present(bool finished=false){
         const double presentStart=profileTiming?CACurrentMediaTime():0;
         complete=finished;[window renderFrameNow];

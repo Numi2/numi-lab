@@ -854,6 +854,31 @@ kernel void nm_human_resting_present_commit(
     }
 }
 
+kernel void nm_human_resting_terminal_present_commit(
+    constant uint4& d [[buffer(0)]], device const MRBodyStateGPU* candidateBodies [[buffer(1)]],
+    device const NMHumanRespirationState* candidateRespiration [[buffer(2)]],
+    device MRBodyStateGPU* bodies [[buffer(3)]], device NMHumanRespirationState* respiration [[buffer(4)]],
+    device const MRNumiHumanStandStatusGPU* statuses [[buffer(5)]],
+    device MRHumanRestingCommonCoordinatesGPU* frameCommonCoordinates [[buffer(6)]],
+    device MRHumanRestingCommonCoordinatesGPU* commonCoordinates [[buffer(7)]],
+    device const MRHumanRestingCommonCoordinatesGPU* acceptedCommonCoordinates [[buffer(8)]],
+    uint i [[thread_position_in_grid]]) {
+    if(i>=d.y||statuses[0].code!=MR_NUMI_HUMAN_STAND_SUCCESS||
+       statuses[0].completedSteps!=d.x||candidateRespiration[0].status.x!=d.x||
+       candidateRespiration[0].status.w!=0u)return;
+    bodies[i]=candidateBodies[i];
+    if(i==0u) {
+        respiration[0]=candidateRespiration[0];
+        if(d.z) {
+            // The final accepted transaction already advanced this
+            // registered GPU-owned buffer with the accepted respiration state.
+            // Terminal publication only catches the presentation snapshot up.
+            frameCommonCoordinates[0]=acceptedCommonCoordinates[0];
+            commonCoordinates[0]=acceptedCommonCoordinates[0];
+        }
+    }
+}
+
 kernel void nm_human_respiration_brain_observe(
     constant NMHumanRespirationBrainDispatch& d [[buffer(0)]],
     device const NMHumanRespirationState* accepted [[buffer(1)]],
