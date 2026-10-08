@@ -1,0 +1,1774 @@
+{
+  "asset_role": "caller-pinned NHSKIN and exact receipt-bound NHA; assembly is not geometry qualification",
+  "base_nha_sha256": "3c444be7736c066a992988cc32b687917e1c4c5c3968a16b4d5f0106d5b5024e",
+  "launch_command": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/launch-command.sh",
+  "limits": [
+    "20 s and sparse captures do not qualify 310 s anatomy or physiology",
+    "contact is reduced 32-region point contact derived from the complete registered skin each step; NHCNT rows seed those regions, not triangle-mesh collision"
+  ],
+  "native_command_executable": true,
+  "native_receipt": {
+    "NHA_sha256": "3c444be7736c066a992988cc32b687917e1c4c5c3968a16b4d5f0106d5b5024e",
+    "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/anatomy/resting-anatomy-receipt.json",
+    "sha256": "fca3c96b1c71f1bb2c4e14ed4a924dff2b9fe436f3f81c8ce6a321506585a84e",
+    "source": "owner-composed selected anatomy receipt"
+  },
+  "native_run": false,
+  "owner_checkouts": [
+    {
+      "clean": true,
+      "head": "935cc7d332b9118f41c719e2d2f9c7c568a3d41f",
+      "path": "/Users/n/numi-human-resting-final-integration-001"
+    },
+    {
+      "clean": true,
+      "head": "d550d8ad88a76fdee5bb6e028286fd24e962571f",
+      "path": "/Users/n/numi-human-performance-source-014"
+    },
+    {
+      "clean": true,
+      "head": "41b254605e66035a4e3966e5a1ae790197431605",
+      "path": "/Users/n/numi-human-retired-alias-visibility-018"
+    }
+  ],
+  "owner_cli": {
+    "asset_bytes": 279996953,
+    "asset_count": 25,
+    "asset_sha256": {
+      "/Users/n/numi-human-performance-build-014/lib/libmetalrobo.dylib": "6bccfc4044d825423e66bc2f60ba3cf59eaa9a4936773ab08182f58a09927092",
+      "/Users/n/numi-human-performance-build-014/matter/shaders/NumiMatter.metallib": "38d4b64ed55cef2e0e0f243616d0db5bd21441f232ca38bca439108c1d6130f9",
+      "/Users/n/numi-human-performance-build-014/matter/shaders/NumiMatterPhysicalStateDigest.metallib": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68",
+      "/Users/n/numi-human-performance-build-014/shaders/MetalRobo.metallib": "3077d063dc23475d75cda795620cda8750402d1a2159267a241a5e2b65986043",
+      "/Users/n/numi-human-performance-build-014/shaders/MetalRoboHyperPolicy.metallib": "f227836841015b40467a20c47a9fa38cf44eb8e1132cad1de4e65fa79c55d309",
+      "/Users/n/numi-human-performance-build-014/shaders/NumiNeuron.metallib": "4ccbb796a6bfd5bdb18f7d37c8e18e0d767c9489d16047c523c97f679da33f1d",
+      "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/current-bone-registration-b1b410ad/bodyparts3d-myosim-major-bones.nhbones": "7d94e2f28ac6cea30c6c11a79919077acc40281636eb20b11b50b50aebd3ec49",
+      "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-core-reference.nhrigid": "2c78cb4150b97cea6e8169dad9e8f5dd59af667b247e07b56e48e857435560e4",
+      "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-joint-equalities.nheq": "0e3c593792a8c4ccd619f1999f6685b68e6ff0fd5ae5f6f0bca66b594a0e9b88",
+      "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-muscle-reference.nhmyo": "e5bb8a8168706bb3b23cf42b1d849659569ba2e6027bcc85729c3110fdbb8c4b",
+      "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/anatomy/common-cardiac-domains-f32.bin": "7652785c9ea164b16ee96f64a3dcf940398af36cfd535a5f9b7a7d6bd2c7a611",
+      "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/anatomy/common-cardiac-map-f32.bin": "c0b0811fe2e2fb45dc37201205e36af39cf092739cfb52c56fdbad9a67dbb858",
+      "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/anatomy/common-cardiac-volumes-f32.bin": "7be4f62996c996c6cfdd49480d27766c8253387bb24aeb504fef73cd553ae699",
+      "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/anatomy/resting-anatomy-receipt.json": "fca3c96b1c71f1bb2c4e14ed4a924dff2b9fe436f3f81c8ce6a321506585a84e",
+      "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/resting-scene/myosim-fullbody-resting-bed-support.nhcnt": "bcfece8e5da553b98694b724644234407fa4c38383b1e18d3c24d7caefa28927",
+      "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/resting-scene/resting-supine-scene.manifest.json": "6bb0ee85bf5a228190ee80f471d87c23e40d359bca278bccdf66a7ab75c82c01",
+      "/Users/n/numi-human-resting-evidence-20261005/integrated-anatomy-engineering-lung-edge-collapse-761/resting-reference-respiration.json": "c518926bf47fba945cef52bb952ed6c559d604508988082c5b641b720bda503d",
+      "/Users/n/numi-human-resting-evidence-20261005/lung-choroid-composition-924/choroid-v2/resting-thorax.nhanatomy": "3c444be7736c066a992988cc32b687917e1c4c5c3968a16b4d5f0106d5b5024e",
+      "/Users/n/numi-human-resting-evidence-20261005/native-common-skin-multipose-clearance-candidate-927/asset-candidate-001/bodyparts3d-myosim-skinned-shell.nhskin": "bd4bfbbf0e071e24a1bb9eea7b9cd9f34ef862ef20417b5891cd24cec1b009d1",
+      "/Users/n/numi-human-resting-evidence-20261005/passive-tissue-achilles-clearance-039-composed-001/bodyparts3d-myosim-fullbody-muscle-surfaces.manifest.json": "82cdd937e0f2daf0a8704fb21246353c38148527f8602d674ac865f935264dde",
+      "/Users/n/numi-human-resting-evidence-20261005/passive-tissue-achilles-clearance-039-composed-001/bodyparts3d-myosim-fullbody-muscle-surfaces.nhtissue": "b3d0381f73e05b04ed7ea1ba23eb6559073ad20aa0d9e2ad0f97a18fab3359bd",
+      "/Users/n/numi-human-resting-evidence-20261005/reference-circulation-001/resting_reference_lv15.native.v3.json": "43ff6b49daf1d42cf9e88d85d8577f70e112dfcc3756ec43954e544a3e4bc0dc",
+      "/Users/n/numi-human-resting-evidence-20261005/tendon-semantic-foot-migration-834/numi-human-tendon-attachments.nhtendon": "49daaf61421254cb18f3aa32f1d332b1810537afd4c4ef813abd2f0d118dcecc",
+      "/Users/n/numi-human-retired-alias-visibility-build-018-attempt2/bin/numi-human-native": "486442abe2070168a902fb06669469e8b6cc612a9a6ef65ddb3d54957308d906",
+      "/Users/n/numi-human-retired-alias-visibility-build-018-attempt2/matter/shaders/HumanRespiration.metallib": "4b61361f513bf0996d687398498b85ba4e379edca91c36f134e1b0398f31c426"
+    },
+    "expected_runtime_environment": {
+      "DYLD_LIBRARY_PATH": "/Users/n/numi-human-performance-build-014/lib:/Users/n/numi-human-retired-alias-visibility-build-018-attempt2/matter",
+      "DYLD_PRINT_LIBRARIES": "1",
+      "inspection": "owner CLI sets tour=1, period=2.5s"
+    },
+    "requested": {
+      "COM_segment_steps": 8,
+      "activation_cap": 0.01,
+      "captures": [
+        0,
+        4991,
+        5375,
+        5759,
+        6111,
+        6495,
+        7743,
+        10000
+      ],
+      "contact_iterations": 64,
+      "dimension": 512,
+      "dt": 0.002,
+      "inspection_period_s": 2.5,
+      "inspection_tour": true,
+      "nominal_seconds": 20,
+      "q_audit": 0,
+      "release_init": true,
+      "rigid_hands": true,
+      "steps": 10000
+    },
+    "resolved_native_argv": [
+      "/Users/n/numi-human-retired-alias-visibility-build-018-attempt2/bin/numi-human-native",
+      "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-core-reference.nhrigid",
+      "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-muscle-reference.nhmyo",
+      "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/current-bone-registration-b1b410ad/bodyparts3d-myosim-major-bones.nhbones",
+      "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/native-run",
+      "--persistent-metal-stand",
+      "--muscle-step-seconds",
+      "0.002",
+      "--muscle-step-count",
+      "10000",
+      "--support-contact-payload",
+      "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/resting-scene/myosim-fullbody-resting-bed-support.nhcnt",
+      "--joint-equality-payload",
+      "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-joint-equalities.nheq",
+      "--tendon-payload",
+      "/Users/n/numi-human-resting-evidence-20261005/tendon-semantic-foot-migration-834/numi-human-tendon-attachments.nhtendon",
+      "--root-pose",
+      "-0.05000000074505806",
+      "0.20000000298023224",
+      "0.10571993142366409",
+      "-0.7009092642998509",
+      "0.0",
+      "0.0",
+      "0.7132504491541817",
+      "--resting-scene",
+      "/Users/n/numi-human-resting-evidence-20261005/reference-circulation-001/resting_reference_lv15.native.v3.json",
+      "/Users/n/numi-human-resting-evidence-20261005/integrated-anatomy-engineering-lung-edge-collapse-761/resting-reference-respiration.json",
+      "--vascular-dense45",
+      "--resting-reference-mass-kg",
+      "72.0",
+      "--skin-payload",
+      "/Users/n/numi-human-resting-evidence-20261005/native-common-skin-multipose-clearance-candidate-927/asset-candidate-001/bodyparts3d-myosim-skinned-shell.nhskin",
+      "--soft-tissue-payload",
+      "/Users/n/numi-human-resting-evidence-20261005/passive-tissue-achilles-clearance-039-composed-001/bodyparts3d-myosim-fullbody-muscle-surfaces.nhtissue",
+      "--torso-anatomy-payload",
+      "/Users/n/numi-human-resting-evidence-20261005/lung-choroid-composition-924/choroid-v2/resting-thorax.nhanatomy",
+      "--resting-anatomy-receipt",
+      "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/anatomy/resting-anatomy-receipt.json",
+      "--dimension",
+      "512",
+      "--resting-movie",
+      "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/native-run/native-viewer.mov",
+      "--muscle-activation",
+      "0.01",
+      "--resting-release-initialization",
+      "--resting-rigid-hands",
+      "--stand-contact-iterations",
+      "64"
+    ],
+    "validated_by": "resting_run.command"
+  },
+  "post_run_comparison": "Use --compare-run/--compare-out; candidate is bound to its adjacent assembly report and exact owner argv/assets; 931 one-root data is compared to q0/COM8 endpoint and window extrema. q0 omits generalized-q trace.",
+  "preflight_script_sha256": "8972ddba951766714637fb58621e113797a6a8b3f934dd1bb526abd6c2aec496",
+  "scene": {
+    "bed": {
+      "contact_scope": "NHCNT1 point witnesses bound to dominant articulated bodies; the NHSKIN1 shell itself is not collision geometry",
+      "friction": 1.0,
+      "maximum_bed_penetration_m": 0.0,
+      "minimum_source_skin_gap_m": 1.0001455400310277e-05,
+      "normal": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "plane_point_m": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "support_witness_count": 32,
+      "support_witnesses": [
+        {
+          "core_body_index": 23,
+          "dominant_binding_error_m": 5.034847217040703e-08,
+          "local_point_m": [
+            0.011108513921499252,
+            0.04005918651819229,
+            -0.05770348012447357
+          ],
+          "plane_gap_m": 0.029077217190006444,
+          "region": "head",
+          "region_minimum_world_z_m": 1.9233572857663424,
+          "rest_frame_witness_fit_error_m": 1.4134588816155927e-09,
+          "source_shell_gap_from_global_min_m": 0.029067215734606133,
+          "vertex_index": 25847,
+          "world_witness_m": [
+            -0.03603286440884298,
+            -0.11387700382971228,
+            0.0
+          ]
+        },
+        {
+          "core_body_index": 20,
+          "dominant_binding_error_m": 1.0843519664245525e-08,
+          "local_point_m": [
+            -0.09247101098299026,
+            0.031006038188934326,
+            0.07214028388261795
+          ],
+          "plane_gap_m": 0.0031856451386489404,
+          "region": "thorax",
+          "region_minimum_world_z_m": 1.8974657137149848,
+          "rest_frame_witness_fit_error_m": 2.780550795136319e-09,
+          "source_shell_gap_from_global_min_m": 0.00317564368324863,
+          "vertex_index": 17764,
+          "world_witness_m": [
+            -0.0971402866248633,
+            -0.41009738290445996,
+            0.0
+          ]
+        },
+        {
+          "core_body_index": 20,
+          "dominant_binding_error_m": 3.929840324910255e-08,
+          "local_point_m": [
+            -0.09246320277452469,
+            0.03232644125819206,
+            -0.07166293263435364
+          ],
+          "plane_gap_m": 0.003216499374563808,
+          "region": "thorax",
+          "region_minimum_world_z_m": 1.8974657137149848,
+          "rest_frame_witness_fit_error_m": 3.59218497229095e-09,
+          "source_shell_gap_from_global_min_m": 0.003206497919163498,
+          "vertex_index": 37607,
+          "world_witness_m": [
+            0.0466629350616497,
+            -0.4087773157804582,
+            0.0
+          ]
+        },
+        {
+          "core_body_index": 20,
+          "dominant_binding_error_m": 1.076483208376445e-08,
+          "local_point_m": [
+            -0.0886995792388916,
+            -0.00016314156528096646,
+            0.0942484438419342
+          ],
+          "plane_gap_m": 0.0064125300733643975,
+          "region": "thorax",
+          "region_minimum_world_z_m": 1.8974657137149848,
+          "rest_frame_witness_fit_error_m": 4.483172835983078e-09,
+          "source_shell_gap_from_global_min_m": 0.006402528617964087,
+          "vertex_index": 15823,
+          "world_witness_m": [
+            -0.11924844719448198,
+            -0.44132763624258686,
+            0.0
+          ]
+        },
+        {
+          "core_body_index": 128,
+          "dominant_binding_error_m": 4.205255296270422e-08,
+          "local_point_m": [
+            -0.11727438867092133,
+            -0.027596019208431244,
+            -0.04347643628716469
+          ],
+          "plane_gap_m": 1.0001455400310277e-05,
+          "region": "pelvis",
+          "region_minimum_world_z_m": 1.8942900700317362,
+          "rest_frame_witness_fit_error_m": 9.263514982590466e-09,
+          "source_shell_gap_from_global_min_m": 0.0,
+          "vertex_index": 34318,
+          "world_witness_m": [
+            0.018327292721052213,
+            -0.8560611311665247,
+            0.0
+          ]
+        },
+        {
+          "core_body_index": 128,
+          "dominant_binding_error_m": 4.266599538718599e-08,
+          "local_point_m": [
+            -0.11706652492284775,
+            -0.021499112248420715,
+            0.042534373700618744
+          ],
+          "plane_gap_m": 0.00038786716814764866,
+          "region": "pelvis",
+          "region_minimum_world_z_m": 1.8942900700317362,
+          "rest_frame_witness_fit_error_m": 6.592389017257652e-09,
+          "source_shell_gap_from_global_min_m": 0.0003778657127473384,
+          "vertex_index": 21161,
+          "world_witness_m": [
+            -0.06768332532239778,
+            -0.8499696754303661,
+            0.0
+          ]
+        },
+        {
+          "core_body_index": 1,
+          "dominant_binding_error_m": 3.198641220668234e-08,
+          "local_point_m": [
+            -0.02350720576941967,
+            0.18377089500427246,
+            -0.035730309784412384
+          ],
+          "plane_gap_m": 0.004099136612215171,
+          "region": "pelvis",
+          "region_minimum_world_z_m": 1.8942900700317362,
+          "rest_frame_witness_fit_error_m": 4.344375836511616e-09,
+          "source_shell_gap_from_global_min_m": 0.00408913515681486,
+          "vertex_index": 33528,
+          "world_witness_m": [
+            0.010730309151313927,
+            -0.8218893157382297,
+            0.0
+          ]
+        },
+        {
+          "core_body_index": 128,
+          "dominant_binding_error_m": 3.9876887274014246e-08,
+          "local_point_m": [
+            -0.11216958612203598,
+            0.014342189766466618,
+            0.04863922297954559
+          ],
+          "plane_gap_m": 0.0058859621000939555,
+          "region": "pelvis",
+          "region_minimum_world_z_m": 1.8942900700317362,
+          "rest_frame_witness_fit_error_m": 2.9339047943427454e-09,
+          "source_shell_gap_from_global_min_m": 0.005875960644693645,
+          "vertex_index": 20346,
+          "world_witness_m": [
+            -0.07378427345248122,
+            -0.8142149907249565,
+            0.0
+          ]
+        },
+        {
+          "core_body_index": 42,
+          "dominant_binding_error_m": 1.8017469864998952e-08,
+          "local_point_m": [
+            -0.037932273000478745,
+            0.054727703332901,
+            -0.09295903146266937
+          ],
+          "plane_gap_m": 0.06118265829651981,
+          "region": "right_arm",
+          "region_minimum_world_z_m": 1.9554627268728557,
+          "rest_frame_witness_fit_error_m": 7.219289375295431e-09,
+          "source_shell_gap_from_global_min_m": 0.0611726568411195,
+          "vertex_index": 7240,
+          "world_witness_m": [
+            -0.23506656275408327,
+            -0.610955382776602,
+            0.0
+          ]
+        },
+        {
+          "core_body_index": 92,
+          "dominant_binding_error_m": 2.380045199183951e-08,
+          "local_point_m": [
+            -0.038501475006341934,
+            0.05883726105093956,
+            0.1003464087843895
+          ],
+          "plane_gap_m": 0.06006418475861741,
+          "region": "left_arm",
+          "region_minimum_world_z_m": 1.9543442533349533,
+          "rest_frame_witness_fit_error_m": 2.5407681601827935e-09,
+          "source_shell_gap_from_global_min_m": 0.0600541833032171,
+          "vertex_index": 47752,
+          "world_witness_m": [
+            0.18712166038936218,
+            -0.6028122020368574,
+            0.0
+          ]
+        },
+        {
+          "core_body_index": 136,
+          "dominant_binding_error_m": 1.250854414466447e-08,
+          "local_point_m": [
+            -0.08626224100589752,
+            0.012694374658167362,
+            0.03275838494300842
+          ],
+          "plane_gap_m": 0.031053028431228036,
+          "region": "right_leg",
+          "region_minimum_world_z_m": 1.925333097007564,
+          "rest_frame_witness_fit_error_m": 2.1202440700265184e-09,
+          "source_shell_gap_from_global_min_m": 0.031043026975827726,
+          "vertex_index": 18299,
+          "world_witness_m": [
+            -0.09291939600038215,
+            -1.421906944611588,
+            0.0
+          ]
+        },
+        {
+          "core_body_index": 150,
+          "dominant_binding_error_m": 2.3808075059694707e-09,
+          "local_point_m": [
+            -0.08736058324575424,
+            -0.011988996528089046,
+            0.03755750507116318
+          ],
+          "plane_gap_m": 0.030770124044845915,
+          "region": "left_leg",
+          "region_minimum_world_z_m": 1.9250501926211818,
+          "rest_frame_witness_fit_error_m": 8.045591582238618e-09,
+          "source_shell_gap_from_global_min_m": 0.030760122589445604,
+          "vertex_index": 36233,
+          "world_witness_m": [
+            0.03836364342502786,
+            -1.417154364715032,
+            0.0
+          ]
+        },
+        {
+          "core_body_index": 42,
+          "dominant_binding_error_m": 2.1863543524647218e-08,
+          "local_point_m": [
+            -0.03697820380330086,
+            0.061629265546798706,
+            -0.08536645025014877
+          ],
+          "plane_gap_m": 0.06229411448849276,
+          "region": "ulna_r",
+          "region_minimum_world_z_m": 1.9565741830648287,
+          "rest_frame_witness_fit_error_m": 5.5133031491273105e-09,
+          "source_shell_gap_from_global_min_m": 0.06228411303309245,
+          "vertex_index": 6889,
+          "world_witness_m": [
+            -0.24370956748692071,
+            -0.6164555858801809,
+            0.0
+          ]
+        },
+        {
+          "core_body_index": 62,
+          "dominant_binding_error_m": 1.2795462397582895e-08,
+          "local_point_m": [
+            0.025552324950695038,
+            0.03337669372558594,
+            0.05101057514548302
+          ],
+          "plane_gap_m": 0.14165400224299152,
+          "region": "thirdmc_r",
+          "region_minimum_world_z_m": 2.0359340708193274,
+          "rest_frame_witness_fit_error_m": 1.7162980926979872e-09,
+          "source_shell_gap_from_global_min_m": 0.1416440007875912,
+          "vertex_index": 3412,
+          "world_witness_m": [
+            -0.2883795768653018,
+            -0.8914096445790187,
+            0.0
+          ]
+        },
+        {
+          "core_body_index": 72,
+          "dominant_binding_error_m": 1.3156726923781174e-08,
+          "local_point_m": [
+            0.053915560245513916,
+            0.029704341664910316,
+            0.03736692667007446
+          ],
+          "plane_gap_m": 0.14765875380518212,
+          "region": "fifthmc_r",
+          "region_minimum_world_z_m": 2.041938822381518,
+          "rest_frame_witness_fit_error_m": 2.0377346037254535e-09,
+          "source_shell_gap_from_global_min_m": 0.1476487523497818,
+          "vertex_index": 5298,
+          "world_witness_m": [
+            -0.2631409303727375,
+            -0.8906306758298403,
+            0.0
+          ]
+        },
+        {
+          "core_body_index": 54,
+          "dominant_binding_error_m": 3.394039231067082e-08,
+          "local_point_m": [
+            0.12426703423261642,
+            0.0641164556145668,
+            -0.08420045673847198
+          ],
+          "plane_gap_m": 0.190026967741856,
+          "region": "distal_thumb_r",
+          "region_minimum_world_z_m": 2.084307036318192,
+          "rest_frame_witness_fit_error_m": 2.402495397760856e-08,
+          "source_shell_gap_from_global_min_m": 0.1900169662864557,
+          "vertex_index": 519,
+          "world_witness_m": [
+            -0.34924639519101025,
+            -0.9301348098488393,
+            0.0
+          ]
+        },
+        {
+          "core_body_index": 61,
+          "dominant_binding_error_m": 8.508877642639003e-09,
+          "local_point_m": [
+            0.061771586537361145,
+            0.025181958451867104,
+            0.09498194605112076
+          ],
+          "plane_gap_m": 0.2046530685073491,
+          "region": "distph2_r",
+          "region_minimum_world_z_m": 2.098933137083685,
+          "rest_frame_witness_fit_error_m": 3.7241228733313003e-09,
+          "source_shell_gap_from_global_min_m": 0.2046430670519488,
+          "vertex_index": 753,
+          "world_witness_m": [
+            -0.34217194106732485,
+            -0.9935044161368467,
+            0.0
+          ]
+        },
+        {
+          "core_body_index": 66,
+          "dominant_binding_error_m": 2.0721195030298524e-08,
+          "local_point_m": [
+            0.09474456310272217,
+            0.014700712636113167,
+            0.05523575842380524
+          ],
+          "plane_gap_m": 0.21202692286939717,
+          "region": "distph3_r",
+          "region_minimum_world_z_m": 2.106306991445733,
+          "rest_frame_witness_fit_error_m": 2.130944214441234e-09,
+          "source_shell_gap_from_global_min_m": 0.21201692141399686,
+          "vertex_index": 2758,
+          "world_witness_m": [
+            -0.30256675332402255,
+            -1.0108800417190404,
+            0.0
+          ]
+        },
+        {
+          "core_body_index": 71,
+          "dominant_binding_error_m": 9.46072721536682e-09,
+          "local_point_m": [
+            0.12270965427160263,
+            0.007300877943634987,
+            0.03853730484843254
+          ],
+          "plane_gap_m": 0.2165755921014454,
+          "region": "distph4_r",
+          "region_minimum_world_z_m": 2.1108556606777813,
+          "rest_frame_witness_fit_error_m": 1.2134712361865966e-09,
+          "source_shell_gap_from_global_min_m": 0.21656559064604508,
+          "vertex_index": 4378,
+          "world_witness_m": [
+            -0.273777303564945,
+            -1.0088239335075087,
+            0.0
+          ]
+        },
+        {
+          "core_body_index": 76,
+          "dominant_binding_error_m": 2.8230807002573516e-08,
+          "local_point_m": [
+            0.12454646825790405,
+            0.010895601473748684,
+            0.03416777774691582
+          ],
+          "plane_gap_m": 0.2068495914498083,
+          "region": "distph5_r",
+          "region_minimum_world_z_m": 2.101129660026144,
+          "rest_frame_witness_fit_error_m": 3.1655775961939367e-09,
+          "source_shell_gap_from_global_min_m": 0.206839589994408,
+          "vertex_index": 6104,
+          "world_witness_m": [
+            -0.2533237748021503,
+            -0.9881582842925483,
+            0.0
+          ]
+        },
+        {
+          "core_body_index": 138,
+          "dominant_binding_error_m": 8.189780119511877e-09,
+          "local_point_m": [
+            -0.017299244180321693,
+            -0.019360654056072235,
+            -0.10011416673660278
+          ],
+          "plane_gap_m": 0.037634673188673196,
+          "region": "calcn_r",
+          "region_minimum_world_z_m": 1.931914741765009,
+          "rest_frame_witness_fit_error_m": 7.2064645196292525e-09,
+          "source_shell_gap_from_global_min_m": 0.037624671733272885,
+          "vertex_index": 20233,
+          "world_witness_m": [
+            -0.09611700705597434,
+            -1.7211748386934047,
+            0.0
+          ]
+        },
+        {
+          "core_body_index": 136,
+          "dominant_binding_error_m": 6.0660011324394146e-09,
+          "local_point_m": [
+            -0.08646713197231293,
+            0.010290647856891155,
+            0.03679191321134567
+          ],
+          "plane_gap_m": 0.03110275103626825,
+          "region": "tibia_r",
+          "region_minimum_world_z_m": 1.9253828196126042,
+          "rest_frame_witness_fit_error_m": 5.020827236916791e-09,
+          "source_shell_gap_from_global_min_m": 0.03109274958086794,
+          "vertex_index": 18300,
+          "world_witness_m": [
+            -0.09527016672705363,
+            -1.4178374671149363,
+            0.0
+          ]
+        },
+        {
+          "core_body_index": 92,
+          "dominant_binding_error_m": 2.184382992577983e-08,
+          "local_point_m": [
+            -0.03837700933218002,
+            0.05545354261994362,
+            0.0980638861656189
+          ],
+          "plane_gap_m": 0.060435686856727955,
+          "region": "ulna_l",
+          "region_minimum_world_z_m": 1.9547157554330639,
+          "rest_frame_witness_fit_error_m": 2.893402936681125e-09,
+          "source_shell_gap_from_global_min_m": 0.060425685401327645,
+          "vertex_index": 47595,
+          "world_witness_m": [
+            0.18444343561548854,
+            -0.6058722736687827,
+            0.0
+          ]
+        },
+        {
+          "core_body_index": 112,
+          "dominant_binding_error_m": 7.976020667487285e-09,
+          "local_point_m": [
+            0.025459613651037216,
+            0.034845784306526184,
+            -0.055127374827861786
+          ],
+          "plane_gap_m": 0.1415869436574262,
+          "region": "thirdmc_l",
+          "region_minimum_world_z_m": 2.035867012233762,
+          "rest_frame_witness_fit_error_m": 1.234272022027148e-09,
+          "source_shell_gap_from_global_min_m": 0.14157694220202588,
+          "vertex_index": 51582,
+          "world_witness_m": [
+            0.24249637820004932,
+            -0.8899391598554915,
+            0.0
+          ]
+        },
+        {
+          "core_body_index": 122,
+          "dominant_binding_error_m": 8.348763209334185e-09,
+          "local_point_m": [
+            0.05411708354949951,
+            0.022016335278749466,
+            -0.03987663611769676
+          ],
+          "plane_gap_m": 0.14772607301067797,
+          "region": "fifthmc_l",
+          "region_minimum_world_z_m": 2.042006141587014,
+          "rest_frame_witness_fit_error_m": 1.0828976475388173e-09,
+          "source_shell_gap_from_global_min_m": 0.14771607155527766,
+          "vertex_index": 49891,
+          "world_witness_m": [
+            0.2156506284529479,
+            -0.8983210293109654,
+            0.0
+          ]
+        },
+        {
+          "core_body_index": 104,
+          "dominant_binding_error_m": 4.910326446520485e-08,
+          "local_point_m": [
+            0.12696929275989532,
+            -0.06410583108663559,
+            -0.07713285088539124
+          ],
+          "plane_gap_m": 0.19472788884554904,
+          "region": "distal_thumb_l",
+          "region_minimum_world_z_m": 2.089007957421885,
+          "rest_frame_witness_fit_error_m": 1.1034358285173517e-08,
+          "source_shell_gap_from_global_min_m": 0.19471788739014873,
+          "vertex_index": 54176,
+          "world_witness_m": [
+            0.2982657155311407,
+            -0.9359822932364033,
+            0.0
+          ]
+        },
+        {
+          "core_body_index": 111,
+          "dominant_binding_error_m": 1.8441101702027168e-09,
+          "local_point_m": [
+            0.06239529326558113,
+            0.02915600873529911,
+            -0.07250591367483139
+          ],
+          "plane_gap_m": 0.2053460362380437,
+          "region": "distph2_l",
+          "region_minimum_world_z_m": 2.0996261048143796,
+          "rest_frame_witness_fit_error_m": 2.814184376952216e-09,
+          "source_shell_gap_from_global_min_m": 0.2053360347826434,
+          "vertex_index": 52654,
+          "world_witness_m": [
+            0.2696959176891119,
+            -0.9895418566626792,
+            0.0
+          ]
+        },
+        {
+          "core_body_index": 116,
+          "dominant_binding_error_m": 2.6838395136664258e-08,
+          "local_point_m": [
+            0.0949622169137001,
+            0.014450816437602043,
+            -0.05503500625491142
+          ],
+          "plane_gap_m": 0.21224017902407777,
+          "region": "distph3_l",
+          "region_minimum_world_z_m": 2.1065202476004137,
+          "rest_frame_witness_fit_error_m": 1.8737943322094474e-09,
+          "source_shell_gap_from_global_min_m": 0.21223017756867746,
+          "vertex_index": 51773,
+          "world_witness_m": [
+            0.2523660019032759,
+            -1.0111336981776562,
+            0.0
+          ]
+        },
+        {
+          "core_body_index": 121,
+          "dominant_binding_error_m": 1.5526734367399537e-08,
+          "local_point_m": [
+            0.11691084504127502,
+            0.010056690312922001,
+            -0.040376946330070496
+          ],
+          "plane_gap_m": 0.21082576292218036,
+          "region": "distph4_l",
+          "region_minimum_world_z_m": 2.1051058314985163,
+          "rest_frame_witness_fit_error_m": 1.8966457757739383e-09,
+          "source_shell_gap_from_global_min_m": 0.21081576146678005,
+          "vertex_index": 50654,
+          "world_witness_m": [
+            0.22561694822776096,
+            -1.0059673378816854,
+            0.0
+          ]
+        },
+        {
+          "core_body_index": 126,
+          "dominant_binding_error_m": 6.652506378170309e-09,
+          "local_point_m": [
+            0.12197303026914597,
+            0.014510953798890114,
+            -0.027540503069758415
+          ],
+          "plane_gap_m": 0.20433963851422998,
+          "region": "distph5_l",
+          "region_minimum_world_z_m": 2.098619707090566,
+          "rest_frame_witness_fit_error_m": 7.618671689602197e-10,
+          "source_shell_gap_from_global_min_m": 0.20432963705882967,
+          "vertex_index": 47935,
+          "world_witness_m": [
+            0.19669650370639397,
+            -0.9844985697217778,
+            0.0
+          ]
+        },
+        {
+          "core_body_index": 152,
+          "dominant_binding_error_m": 6.7367138575908876e-09,
+          "local_point_m": [
+            -0.018763460218906403,
+            0.021846240386366844,
+            -0.10085511952638626
+          ],
+          "plane_gap_m": 0.036448506026704575,
+          "region": "calcn_l",
+          "region_minimum_world_z_m": 1.9307285746030405,
+          "rest_frame_witness_fit_error_m": 2.668040839618814e-09,
+          "source_shell_gap_from_global_min_m": 0.036438504571304264,
+          "vertex_index": 34830,
+          "world_witness_m": [
+            0.04347616447321681,
+            -1.7225284890771768,
+            0.0
+          ]
+        },
+        {
+          "core_body_index": 150,
+          "dominant_binding_error_m": 1.9576530729334653e-09,
+          "local_point_m": [
+            -0.08733058720827103,
+            -0.006980405654758215,
+            0.04041958600282669
+          ],
+          "plane_gap_m": 0.03078582479326486,
+          "region": "tibia_l",
+          "region_minimum_world_z_m": 1.9250658933696008,
+          "rest_frame_witness_fit_error_m": 8.196331571873623e-09,
+          "source_shell_gap_from_global_min_m": 0.03077582333786455,
+          "vertex_index": 36890,
+          "world_witness_m": [
+            0.04332964677321499,
+            -1.4142189014196245,
+            0.0
+          ]
+        }
+      ]
+    },
+    "comparison_to_907": {
+      "added_support_vertex_ids": [],
+      "new_min_full_skin_gap_m": 1.0001455400310277e-05,
+      "new_nhcnt_sha256": "bcfece8e5da553b98694b724644234407fa4c38383b1e18d3c24d7caefa28927",
+      "new_nhcnt_support_rows": [
+        {
+          "bed_witness_m": [
+            -0.03603286296129227,
+            -0.11387700587511063,
+            0.0
+          ],
+          "body_index": 23,
+          "friction": 1.0,
+          "geometry_id": 25848,
+          "local_point_m": [
+            0.011108513921499252,
+            0.04005918651819229,
+            -0.05770348012447357
+          ],
+          "vertex_index": 25847
+        },
+        {
+          "bed_witness_m": [
+            -0.09714028984308243,
+            -0.4100973904132843,
+            0.0
+          ],
+          "body_index": 20,
+          "friction": 1.0,
+          "geometry_id": 17765,
+          "local_point_m": [
+            -0.09247101098299026,
+            0.031006038188934326,
+            0.07214028388261795
+          ],
+          "vertex_index": 17764
+        },
+        {
+          "bed_witness_m": [
+            0.04666293412446976,
+            -0.4087773263454437,
+            0.0
+          ],
+          "body_index": 20,
+          "friction": 1.0,
+          "geometry_id": 37608,
+          "local_point_m": [
+            -0.09246320277452469,
+            0.03232644125819206,
+            -0.07166293263435364
+          ],
+          "vertex_index": 37607
+        },
+        {
+          "bed_witness_m": [
+            -0.11924844980239868,
+            -0.44132763147354126,
+            0.0
+          ],
+          "body_index": 20,
+          "friction": 1.0,
+          "geometry_id": 15824,
+          "local_point_m": [
+            -0.0886995792388916,
+            -0.00016314156528096646,
+            0.0942484438419342
+          ],
+          "vertex_index": 15823
+        },
+        {
+          "bed_witness_m": [
+            0.018327292054891586,
+            -0.8560611605644226,
+            0.0
+          ],
+          "body_index": 128,
+          "friction": 1.0,
+          "geometry_id": 34319,
+          "local_point_m": [
+            -0.11727438867092133,
+            -0.027596019208431244,
+            -0.04347643628716469
+          ],
+          "vertex_index": 34318
+        },
+        {
+          "bed_witness_m": [
+            -0.06768332421779633,
+            -0.8499696850776672,
+            0.0
+          ],
+          "body_index": 128,
+          "friction": 1.0,
+          "geometry_id": 21162,
+          "local_point_m": [
+            -0.11706652492284775,
+            -0.021499112248420715,
+            0.042534373700618744
+          ],
+          "vertex_index": 21161
+        },
+        {
+          "bed_witness_m": [
+            0.010730309411883354,
+            -0.821889340877533,
+            0.0
+          ],
+          "body_index": 1,
+          "friction": 1.0,
+          "geometry_id": 33529,
+          "local_point_m": [
+            -0.02350720576941967,
+            0.18377089500427246,
+            -0.035730309784412384
+          ],
+          "vertex_index": 33528
+        },
+        {
+          "bed_witness_m": [
+            -0.07378427684307098,
+            -0.8142150044441223,
+            0.0
+          ],
+          "body_index": 128,
+          "friction": 1.0,
+          "geometry_id": 20347,
+          "local_point_m": [
+            -0.11216958612203598,
+            0.014342189766466618,
+            0.04863922297954559
+          ],
+          "vertex_index": 20346
+        },
+        {
+          "bed_witness_m": [
+            -0.23506656289100647,
+            -0.6109553575515747,
+            0.0
+          ],
+          "body_index": 42,
+          "friction": 1.0,
+          "geometry_id": 7241,
+          "local_point_m": [
+            -0.037932273000478745,
+            0.054727703332901,
+            -0.09295903146266937
+          ],
+          "vertex_index": 7240
+        },
+        {
+          "bed_witness_m": [
+            0.1871216595172882,
+            -0.6028122305870056,
+            0.0
+          ],
+          "body_index": 92,
+          "friction": 1.0,
+          "geometry_id": 47753,
+          "local_point_m": [
+            -0.038501475006341934,
+            0.05883726105093956,
+            0.1003464087843895
+          ],
+          "vertex_index": 47752
+        },
+        {
+          "bed_witness_m": [
+            -0.09291939437389374,
+            -1.4219069480895996,
+            0.0
+          ],
+          "body_index": 136,
+          "friction": 1.0,
+          "geometry_id": 18300,
+          "local_point_m": [
+            -0.08626224100589752,
+            0.012694374658167362,
+            0.03275838494300842
+          ],
+          "vertex_index": 18299
+        },
+        {
+          "bed_witness_m": [
+            0.03836364299058914,
+            -1.417154312133789,
+            0.0
+          ],
+          "body_index": 150,
+          "friction": 1.0,
+          "geometry_id": 36234,
+          "local_point_m": [
+            -0.08736058324575424,
+            -0.011988996528089046,
+            0.03755750507116318
+          ],
+          "vertex_index": 36233
+        },
+        {
+          "bed_witness_m": [
+            -0.24370956420898438,
+            -0.616455614566803,
+            0.0
+          ],
+          "body_index": 42,
+          "friction": 1.0,
+          "geometry_id": 6890,
+          "local_point_m": [
+            -0.03697820380330086,
+            0.061629265546798706,
+            -0.08536645025014877
+          ],
+          "vertex_index": 6889
+        },
+        {
+          "bed_witness_m": [
+            -0.28837957978248596,
+            -0.8914096355438232,
+            0.0
+          ],
+          "body_index": 62,
+          "friction": 1.0,
+          "geometry_id": 3413,
+          "local_point_m": [
+            0.025552324950695038,
+            0.03337669372558594,
+            0.05101057514548302
+          ],
+          "vertex_index": 3412
+        },
+        {
+          "bed_witness_m": [
+            -0.2631409168243408,
+            -0.8906306624412537,
+            0.0
+          ],
+          "body_index": 72,
+          "friction": 1.0,
+          "geometry_id": 5299,
+          "local_point_m": [
+            0.053915560245513916,
+            0.029704341664910316,
+            0.03736692667007446
+          ],
+          "vertex_index": 5298
+        },
+        {
+          "bed_witness_m": [
+            -0.34924638271331787,
+            -0.9301348328590393,
+            0.0
+          ],
+          "body_index": 54,
+          "friction": 1.0,
+          "geometry_id": 520,
+          "local_point_m": [
+            0.12426703423261642,
+            0.0641164556145668,
+            -0.08420045673847198
+          ],
+          "vertex_index": 519
+        },
+        {
+          "bed_witness_m": [
+            -0.34217193722724915,
+            -0.9935044050216675,
+            0.0
+          ],
+          "body_index": 61,
+          "friction": 1.0,
+          "geometry_id": 754,
+          "local_point_m": [
+            0.061771586537361145,
+            0.025181958451867104,
+            0.09498194605112076
+          ],
+          "vertex_index": 753
+        },
+        {
+          "bed_witness_m": [
+            -0.3025667667388916,
+            -1.0108799934387207,
+            0.0
+          ],
+          "body_index": 66,
+          "friction": 1.0,
+          "geometry_id": 2759,
+          "local_point_m": [
+            0.09474456310272217,
+            0.014700712636113167,
+            0.05523575842380524
+          ],
+          "vertex_index": 2758
+        },
+        {
+          "bed_witness_m": [
+            -0.2737773060798645,
+            -1.0088239908218384,
+            0.0
+          ],
+          "body_index": 71,
+          "friction": 1.0,
+          "geometry_id": 4379,
+          "local_point_m": [
+            0.12270965427160263,
+            0.007300877943634987,
+            0.03853730484843254
+          ],
+          "vertex_index": 4378
+        },
+        {
+          "bed_witness_m": [
+            -0.2533237636089325,
+            -0.9881582856178284,
+            0.0
+          ],
+          "body_index": 76,
+          "friction": 1.0,
+          "geometry_id": 6105,
+          "local_point_m": [
+            0.12454646825790405,
+            0.010895601473748684,
+            0.03416777774691582
+          ],
+          "vertex_index": 6104
+        },
+        {
+          "bed_witness_m": [
+            -0.09611700475215912,
+            -1.7211748361587524,
+            0.0
+          ],
+          "body_index": 138,
+          "friction": 1.0,
+          "geometry_id": 20234,
+          "local_point_m": [
+            -0.017299244180321693,
+            -0.019360654056072235,
+            -0.10011416673660278
+          ],
+          "vertex_index": 20233
+        },
+        {
+          "bed_witness_m": [
+            -0.09527016431093216,
+            -1.4178375005722046,
+            0.0
+          ],
+          "body_index": 136,
+          "friction": 1.0,
+          "geometry_id": 18301,
+          "local_point_m": [
+            -0.08646713197231293,
+            0.010290647856891155,
+            0.03679191321134567
+          ],
+          "vertex_index": 18300
+        },
+        {
+          "bed_witness_m": [
+            0.1844434291124344,
+            -0.6058722734451294,
+            0.0
+          ],
+          "body_index": 92,
+          "friction": 1.0,
+          "geometry_id": 47596,
+          "local_point_m": [
+            -0.03837700933218002,
+            0.05545354261994362,
+            0.0980638861656189
+          ],
+          "vertex_index": 47595
+        },
+        {
+          "bed_witness_m": [
+            0.24249637126922607,
+            -0.8899391889572144,
+            0.0
+          ],
+          "body_index": 112,
+          "friction": 1.0,
+          "geometry_id": 51583,
+          "local_point_m": [
+            0.025459613651037216,
+            0.034845784306526184,
+            -0.055127374827861786
+          ],
+          "vertex_index": 51582
+        },
+        {
+          "bed_witness_m": [
+            0.21565063297748566,
+            -0.8983210325241089,
+            0.0
+          ],
+          "body_index": 122,
+          "friction": 1.0,
+          "geometry_id": 49892,
+          "local_point_m": [
+            0.05411708354949951,
+            0.022016335278749466,
+            -0.03987663611769676
+          ],
+          "vertex_index": 49891
+        },
+        {
+          "bed_witness_m": [
+            0.2982657253742218,
+            -0.9359822869300842,
+            0.0
+          ],
+          "body_index": 104,
+          "friction": 1.0,
+          "geometry_id": 54177,
+          "local_point_m": [
+            0.12696929275989532,
+            -0.06410583108663559,
+            -0.07713285088539124
+          ],
+          "vertex_index": 54176
+        },
+        {
+          "bed_witness_m": [
+            0.269695907831192,
+            -0.9895418286323547,
+            0.0
+          ],
+          "body_index": 111,
+          "friction": 1.0,
+          "geometry_id": 52655,
+          "local_point_m": [
+            0.06239529326558113,
+            0.02915600873529911,
+            -0.07250591367483139
+          ],
+          "vertex_index": 52654
+        },
+        {
+          "bed_witness_m": [
+            0.25236600637435913,
+            -1.0111336708068848,
+            0.0
+          ],
+          "body_index": 116,
+          "friction": 1.0,
+          "geometry_id": 51774,
+          "local_point_m": [
+            0.0949622169137001,
+            0.014450816437602043,
+            -0.05503500625491142
+          ],
+          "vertex_index": 51773
+        },
+        {
+          "bed_witness_m": [
+            0.2256169468164444,
+            -1.005967378616333,
+            0.0
+          ],
+          "body_index": 121,
+          "friction": 1.0,
+          "geometry_id": 50655,
+          "local_point_m": [
+            0.11691084504127502,
+            0.010056690312922001,
+            -0.040376946330070496
+          ],
+          "vertex_index": 50654
+        },
+        {
+          "bed_witness_m": [
+            0.19669650495052338,
+            -0.9844985604286194,
+            0.0
+          ],
+          "body_index": 126,
+          "friction": 1.0,
+          "geometry_id": 47936,
+          "local_point_m": [
+            0.12197303026914597,
+            0.014510953798890114,
+            -0.027540503069758415
+          ],
+          "vertex_index": 47935
+        },
+        {
+          "bed_witness_m": [
+            0.0434761643409729,
+            -1.7225284576416016,
+            0.0
+          ],
+          "body_index": 152,
+          "friction": 1.0,
+          "geometry_id": 34831,
+          "local_point_m": [
+            -0.018763460218906403,
+            0.021846240386366844,
+            -0.10085511952638626
+          ],
+          "vertex_index": 34830
+        },
+        {
+          "bed_witness_m": [
+            0.043329644948244095,
+            -1.4142189025878906,
+            0.0
+          ],
+          "body_index": 150,
+          "friction": 1.0,
+          "geometry_id": 36891,
+          "local_point_m": [
+            -0.08733058720827103,
+            -0.006980405654758215,
+            0.04041958600282669
+          ],
+          "vertex_index": 36890
+        }
+      ],
+      "new_quaternion_xyzw": [
+        -0.7009092642998509,
+        0.0,
+        0.0,
+        0.7132504491541817
+      ],
+      "new_root_xyz_m": [
+        -0.05000000074505806,
+        0.20000000298023224,
+        0.10571993142366409
+      ],
+      "new_support_vertex_ids": [
+        519,
+        753,
+        2758,
+        3412,
+        4378,
+        5298,
+        6104,
+        6889,
+        7240,
+        15823,
+        17764,
+        18299,
+        18300,
+        20233,
+        20346,
+        21161,
+        25847,
+        33528,
+        34318,
+        34830,
+        36233,
+        36890,
+        37607,
+        47595,
+        47752,
+        47935,
+        49891,
+        50654,
+        51582,
+        51773,
+        52654,
+        54176
+      ],
+      "old_min_full_skin_gap_m": 1.0001455400310277e-05,
+      "old_nhcnt_sha256": "bcfece8e5da553b98694b724644234407fa4c38383b1e18d3c24d7caefa28927",
+      "old_quaternion_xyzw": [
+        -0.7009092642998509,
+        0.0,
+        0.0,
+        0.7132504491541817
+      ],
+      "old_root_xyz_m": [
+        -0.05000000074505806,
+        0.20000000298023224,
+        0.10571993142366409
+      ],
+      "old_support_vertex_ids": [
+        519,
+        753,
+        2758,
+        3412,
+        4378,
+        5298,
+        6104,
+        6889,
+        7240,
+        15823,
+        17764,
+        18299,
+        18300,
+        20233,
+        20346,
+        21161,
+        25847,
+        33528,
+        34318,
+        34830,
+        36233,
+        36890,
+        37607,
+        47595,
+        47752,
+        47935,
+        49891,
+        50654,
+        51582,
+        51773,
+        52654,
+        54176
+      ],
+      "removed_support_vertex_ids": [],
+      "root_translation_delta_m": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "same_vertex_body_changes": [],
+      "same_vertex_local_point_deltas_m": {},
+      "scope": "reduced 32-region point contact derived from the complete registered skin each step; NHCNT records initial region seeds, not triangle-mesh collision"
+    },
+    "manifest": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/resting-scene/resting-supine-scene.manifest.json",
+    "manifest_sha256": "6bb0ee85bf5a228190ee80f471d87c23e40d359bca278bccdf66a7ab75c82c01",
+    "root_pose": {
+      "initial_generalized_velocity": "zero",
+      "kind": "supine",
+      "root_delta_quaternion_xyzw": [
+        -0.7009092642998509,
+        0.0,
+        0.0,
+        0.7132504491541817
+      ],
+      "root_pitch_degrees": -89.0,
+      "root_translation_xyz_m": [
+        -0.05000000074505806,
+        0.20000000298023224,
+        0.10571993142366409
+      ],
+      "source_torso_anterior_world": [
+        0.0,
+        -0.01745240643728352,
+        0.9998476951563914
+      ]
+    },
+    "support_payload": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/resting-scene/myosim-fullbody-resting-bed-support.nhcnt",
+    "support_sha256": "bcfece8e5da553b98694b724644234407fa4c38383b1e18d3c24d7caefa28927"
+  },
+  "schema": "numi.human.final-native-scene-preflight.v1",
+  "skin_composition": {
+    "base_receipt_path": "/Users/n/numi-human-resting-evidence-20261005/lung-choroid-composition-924/final-v2/resting-anatomy-receipt.json",
+    "base_receipt_sha256": "40652ad554565f27713d6023af3327994f9c226e5471eddbd3b77d1baaaace3e",
+    "composed_receipt_path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/anatomy/resting-anatomy-receipt.json",
+    "composed_receipt_sha256": "fca3c96b1c71f1bb2c4e14ed4a924dff2b9fe436f3f81c8ce6a321506585a84e",
+    "composed_skin_sha256": "bd4bfbbf0e071e24a1bb9eea7b9cd9f34ef862ef20417b5891cd24cec1b009d1",
+    "composition_base_nha_sha256": "3c444be7736c066a992988cc32b687917e1c4c5c3968a16b4d5f0106d5b5024e",
+    "owner_result": {
+      "anatomy_payload_unchanged": true,
+      "base_receipt_path": "/Users/n/numi-human-resting-evidence-20261005/lung-choroid-composition-924/final-v2/resting-anatomy-receipt.json",
+      "base_receipt_sha256": "40652ad554565f27713d6023af3327994f9c226e5471eddbd3b77d1baaaace3e",
+      "candidate_manifest_path": "/Users/n/numi-human-resting-evidence-20261005/native-common-skin-multipose-clearance-candidate-927/asset-candidate-001/common-atlas-skin-geometry-registration.manifest.json",
+      "candidate_manifest_sha256": "120b78369a8b74a4719eccc9ef416a44086574dc5ddcddbc55b721e2d06ccf99",
+      "candidate_skin_path": "/Users/n/numi-human-resting-evidence-20261005/native-common-skin-multipose-clearance-candidate-927/asset-candidate-001/bodyparts3d-myosim-skinned-shell.nhskin",
+      "candidate_skin_sha256": "bd4bfbbf0e071e24a1bb9eea7b9cd9f34ef862ef20417b5891cd24cec1b009d1",
+      "functional_bindings_unchanged": true,
+      "manifest_path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/anatomy/resting-anatomy-manifest.json",
+      "manifest_sha256": "53e64cb0d8f192ec67691576e3709784b19cfa6b43f656f074bea852bb174252",
+      "mass_geometry_accounting": {
+        "apparent_density_kg_m3": null,
+        "basis": "72 kg is an explicitly declared generic adult reference mass, not a measured participant. The source rigid mass/inertia distribution is uniformly rebased. The current visual shell has open boundaries, so its signed surface integral is not admitted as a geometric volume or density.",
+        "closed_skin_volume_m3": null,
+        "nhtiss4_common_atlas_source_identity_sha256": "cf5b7bb103aa4b0536b1b872ecc9ac4bcc0afe5926dbab38cdeb7543053272a1",
+        "open_surface_signed_integral_m3_diagnostic_only": 0.07131871564457325,
+        "reference_total_mass_kg": 72.0,
+        "skin_boundary_branch_vertex_count": 0,
+        "skin_boundary_edge_count": 115,
+        "skin_boundary_loop_count": 2,
+        "skin_boundary_repair": {
+          "added_triangle_count": 28,
+          "boundary_edges_after_exact_weld": 171,
+          "boundary_edges_after_small_caps": 115,
+          "coordinates_normals_weights_vertex_ids_unchanged": true,
+          "exact_coordinate_weight_identical_seam_vertices": 286,
+          "qualification": "topology repair only; ocular openings retained; not a closed body-volume or self-intersection certificate",
+          "retained_anatomical_interfaces": [
+            {
+              "bounds_world_m": [
+                [
+                  -0.070671413168695,
+                  0.08369642792926407,
+                  1.648014981319725
+                ],
+                [
+                  -0.043790965560770057,
+                  0.0921603717450362,
+                  1.658635257443761
+                ]
+              ],
+              "interface": "ocular surface opening; passive eyeball interface",
+              "source_vertex_ids": [
+                20578,
+                20582,
+                20584,
+                20583,
+                54728,
+                20585,
+                20586,
+                54731,
+                54732,
+                54733,
+                21350,
+                54734,
+                21352,
+                54736,
+                54743,
+                22109,
+                22111,
+                22113,
+                22892,
+                22899,
+                23651,
+                23652,
+                54762,
+                23653,
+                23654,
+                54763,
+                54769,
+                24683,
+                54770,
+                24682,
+                24681,
+                54766,
+                24680,
+                24679,
+                54761,
+                54760,
+                23645,
+                54758,
+                54756,
+                54750,
+                54749,
+                22886,
+                22885,
+                22883,
+                54748,
+                22882,
+                54747,
+                22880,
+                54746,
+                54738,
+                54741,
+                54740,
+                54739,
+                22151,
+                54730,
+                54729,
+                21348,
+                21347,
+                20580,
+                20579
+              ]
+            },
+            {
+              "bounds_world_m": [
+                [
+                  -0.007142334682133583,
+                  0.08369642884036155,
+                  1.648055357510074
+                ],
+                [
+                  0.0196546833489656,
+                  0.09221579012352119,
+                  1.6586352639235085
+                ]
+              ],
+              "interface": "ocular surface opening; passive eyeball interface",
+              "source_vertex_ids": [
+                30035,
+                30036,
+                54779,
+                54781,
+                54786,
+                30730,
+                30732,
+                30731,
+                54787,
+                30734,
+                54788,
+                30735,
+                30737,
+                54799,
+                54801,
+                31511,
+                31517,
+                32246,
+                32248,
+                32250,
+                32981,
+                32982,
+                54814,
+                32984,
+                32986,
+                33743,
+                33744,
+                33745,
+                33741,
+                33742,
+                33740,
+                54830,
+                54828,
+                33737,
+                32980,
+                54811,
+                32978,
+                54807,
+                54806,
+                54805,
+                54797,
+                31508,
+                31507,
+                54796,
+                54795,
+                31504,
+                54794,
+                54785,
+                30723,
+                54784,
+                54783,
+                54782,
+                54780,
+                30037,
+                54778
+              ]
+            }
+          ],
+          "source_triangle_count": 109183
+        },
+        "skin_boundary_repair_receipt": "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/output/skin-boundaries-001/bodyparts3d-myosim-skinned-shell.boundary-repair.json",
+        "skin_boundary_repair_receipt_sha256": "1690346dad91395507378c2543bd197148be0f781ace302d89e425d199db1bbd",
+        "skin_geometry_registration_manifest": "/Users/n/numi-human-resting-evidence-20261005/native-common-skin-multipose-clearance-candidate-927/asset-candidate-001/common-atlas-skin-geometry-registration.manifest.json",
+        "skin_geometry_registration_manifest_sha256": "120b78369a8b74a4719eccc9ef416a44086574dc5ddcddbc55b721e2d06ccf99",
+        "skin_geometry_status": "open_surface_volume_rejected",
+        "skin_nonmanifold_edge_count": 0,
+        "skin_orientation_error_count": 0,
+        "skin_payload_path": "/Users/n/numi-human-resting-evidence-20261005/native-common-skin-multipose-clearance-candidate-927/asset-candidate-001/bodyparts3d-myosim-skinned-shell.nhskin",
+        "skin_payload_sha256": "bd4bfbbf0e071e24a1bb9eea7b9cd9f34ef862ef20417b5891cd24cec1b009d1",
+        "skin_self_intersection": "not assessed by this closure/volume check",
+        "skin_source_path": "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/output/skin-boundaries-001/bodyparts3d-myosim-skinned-shell.nhskin",
+        "skin_source_sha256": "1de6422eed1a681fb5f37df1e5355c0474016634c342516753a1058c4d0f4334",
+        "source_dynamic_body_count": 96,
+        "source_rigid_body_count": 157,
+        "source_rigid_mass_kg": 97.13195069110952,
+        "uniform_mass_and_inertia_scale": 0.7412596935169979
+      },
+      "receipt_path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/anatomy/resting-anatomy-receipt.json",
+      "receipt_sha256": "fca3c96b1c71f1bb2c4e14ed4a924dff2b9fe436f3f81c8ce6a321506585a84e",
+      "status": "skin_receipt_composed_with_recomputed_open_surface_accounting"
+    },
+    "scope": "final candidate composed onto selected anatomy receipt; composed receipt is used by scene CLI",
+    "used_by_native_cli": true
+  },
+  "source_sha256": {
+    "/Users/n/numi-human-performance-build-014/lib/libmetalrobo.dylib": "6bccfc4044d825423e66bc2f60ba3cf59eaa9a4936773ab08182f58a09927092",
+    "/Users/n/numi-human-performance-build-014/matter/shaders/NumiMatter.metallib": "38d4b64ed55cef2e0e0f243616d0db5bd21441f232ca38bca439108c1d6130f9",
+    "/Users/n/numi-human-performance-build-014/shaders/MetalRobo.metallib": "3077d063dc23475d75cda795620cda8750402d1a2159267a241a5e2b65986043",
+    "/Users/n/numi-human-performance-source-014/matter/materials/human_anterior_abdominal_wall_composite_effective.nmatter": "4ba2e5ecf8cfc207632762d29d2faeb87232cbe506ad5199386bdde14ee43569",
+    "/Users/n/numi-human-performance-source-014/matter/materials/human_myofascia_regional_transverse_isotropic.nmatter": "38b23df6bd18174dc6058d4748e56e995027cef2ab4494cdf5ded2c887b03ac0",
+    "/Users/n/numi-human-performance-source-014/matter/materials/human_pectoralis_fascia_goh_uniaxial.nmatter": "2113a53cacbad3312f13e57b68652b175293ef77787bcbe25d04c58981411e2c",
+    "/Users/n/numi-human-performance-source-014/matter/materials/human_plantar_fascia_reduced.nmatter": "4405f2b3b9ea16e25ce092bd89d881edec73051fb6b3d4bdc4f7f990074a230e",
+    "/Users/n/numi-human-performance-source-014/matter/materials/human_thoracolumbar_fascia_effective_isotropic.nmatter": "65be29f8dece02de30c8869df3fbe3dbbde2069e0bf56a76396a9eb6f93c3326",
+    "/Users/n/numi-human-performance-source-014/matter/materials/open_knee_ligament_febio_exp_linear.nmatter": "c5166dfcdbcb8402cd107d087ac5071e548f8154b41f088bee3924e40ac9871e",
+    "/Users/n/numi-human-performance-source-014/matter/materials/passive_skeletal_muscle_unqualified.nmatter": "04d5f0139cb22b9c874976d96f193113092ecd861a7d64aed8945ff6eb54d817",
+    "/Users/n/numi-human-performance-source-014/matter/tools/resting_intervention_study.py": "b06bb5a1cd14d86be362a5d0603f68546ba590bf038f9586c4cf89946fc39c1e",
+    "/Users/n/numi-human-performance-source-014/numi/commands/human-resting": "77693c89dfb3bdc368b15d192d7e86f44ede696c516fa5a80e796f8ec8c3ce81",
+    "/Users/n/numi-human-performance-source-014/tools/numi": "2e971e7c3680ec809c7e9ac71355b89502f710f835bc3c69725a91dbbdb01074",
+    "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-core-reference.nhrigid": "2c78cb4150b97cea6e8169dad9e8f5dd59af667b247e07b56e48e857435560e4",
+    "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-reference.manifest.json": "844d05330104a43f6c45867020f2abd493adec35d6e2f8f90fc636ee9bec04e7",
+    "/Users/n/numi-human-resting-evidence-20261005/common-atlas-skin-composition-907/bodyparts3d-myosim-skinned-shell.nhskin": "898990d49a3f1dfa0cbe85b10765bf62fa0cc3c834a3371f5503c83facfacba2",
+    "/Users/n/numi-human-resting-evidence-20261005/common-atlas-skin-composition-907/common-atlas-skin-geometry-registration.manifest.json": "f3aab90ecbd0751e984143b9e7a270312d880e09bde803f12e2a0d4bd9073d9c",
+    "/Users/n/numi-human-resting-evidence-20261005/common-atlas-skin-composition-907/resting-scene/myosim-fullbody-resting-bed-support.nhcnt": "bcfece8e5da553b98694b724644234407fa4c38383b1e18d3c24d7caefa28927",
+    "/Users/n/numi-human-resting-evidence-20261005/common-atlas-skin-composition-907/resting-scene/resting-supine-scene.manifest.json": "8802260236813440c200c7723bd78a36112f7722b007f4160d0ac9c5aaf16f36",
+    "/Users/n/numi-human-resting-evidence-20261005/common-atlas-skin-registration-003/resting-anatomy-composition-001/resting-anatomy-receipt.json": "a52e3184e77bca568ce603831cfd5d3b2bafdf46453634637a9c85fb6ffbed71",
+    "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/anatomy/resting-anatomy-receipt.json": "fca3c96b1c71f1bb2c4e14ed4a924dff2b9fe436f3f81c8ce6a321506585a84e",
+    "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/v014/final_scene_936-v014.py": "8972ddba951766714637fb58621e113797a6a8b3f934dd1bb526abd6c2aec496",
+    "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/v014/test_final_scene_936_v014.py": "1c42c78a05097370d78b4158155ead9e0b57fe274aeb7d84fb2d3003df58594c",
+    "/Users/n/numi-human-resting-evidence-20261005/integrated-anatomy-engineering-lung-edge-collapse-761/resting-reference-respiration.json": "c518926bf47fba945cef52bb952ed6c559d604508988082c5b641b720bda503d",
+    "/Users/n/numi-human-resting-evidence-20261005/lung-choroid-composition-924/choroid-v2/resting-thorax.nhanatomy": "3c444be7736c066a992988cc32b687917e1c4c5c3968a16b4d5f0106d5b5024e",
+    "/Users/n/numi-human-resting-evidence-20261005/lung-choroid-composition-924/final-v2/resting-anatomy-receipt.json": "40652ad554565f27713d6023af3327994f9c226e5471eddbd3b77d1baaaace3e",
+    "/Users/n/numi-human-resting-evidence-20261005/native-common-skin-multipose-clearance-candidate-927/asset-candidate-001/bodyparts3d-myosim-skinned-shell.nhskin": "bd4bfbbf0e071e24a1bb9eea7b9cd9f34ef862ef20417b5891cd24cec1b009d1",
+    "/Users/n/numi-human-resting-evidence-20261005/native-common-skin-multipose-clearance-candidate-927/asset-candidate-001/common-atlas-skin-geometry-registration.manifest.json": "120b78369a8b74a4719eccc9ef416a44086574dc5ddcddbc55b721e2d06ccf99",
+    "/Users/n/numi-human-resting-evidence-20261005/native-retired-alias-visibility-018-attempt2/build-native-viewer-018-attempt2.sh": "f82d8646914ea94189cb767b87bbea30bdb3c0fbb9c921066de502a1bc253cee",
+    "/Users/n/numi-human-resting-evidence-20261005/native-retired-alias-visibility-018-attempt2/initial-build-directory-failure.log": "b8ec0ff87e85a188591b813b76d2126d1efd0273784aa9a14eb263bbadccfc92",
+    "/Users/n/numi-human-resting-evidence-20261005/native-terminal-cycle-931/resting-coupled.csv": "aa3b6f12f482f09becbdf20185240d9bb27a945df21dd0771096aac0243faffd",
+    "/Users/n/numi-human-resting-evidence-20261005/native-terminal-cycle-931/run-metadata.json": "d09f717e98e86208773afc63412db67eb59752766ab600f4d140dbc58d6489f0",
+    "/Users/n/numi-human-resting-evidence-20261005/reference-circulation-001/resting_reference_lv15.native.v3.json": "43ff6b49daf1d42cf9e88d85d8577f70e112dfcc3756ec43954e544a3e4bc0dc",
+    "/Users/n/numi-human-resting-evidence-20261005/tendon-semantic-foot-migration-834/numi-human-tendon-attachments.nhtendon": "49daaf61421254cb18f3aa32f1d332b1810537afd4c4ef813abd2f0d118dcecc",
+    "/Users/n/numi-human-resting-final-integration-001/src/numilab_human/resting_anatomy.py": "350f6c42517408de2f8c73729f35dd26b80bdd2a54d77fbca4ae63ef66182551",
+    "/Users/n/numi-human-resting-final-integration-001/src/numilab_human/resting_run.py": "f6bc12635fcf41227a79b4d67e058b36f392a4147d083ce24366f8c3ef41c412",
+    "/Users/n/numi-human-resting-final-integration-001/src/numilab_human/resting_scene.py": "373cbc4777b9c4e9bb0c43254e66effdff69d8bf05686847c793294392363188",
+    "/Users/n/numi-human-resting-integration-20261005/numi-brain/Sources/NumiBrainABI/include": "7bcac3a30f08ca552b6ab1c7b76d58f9c026e5a070a99bae80c1bc567f87b816",
+    "/Users/n/numi-human-retired-alias-visibility-018/CMakeLists.txt": "41b1cb968cb4731e726486e1441777f43cba6e285383603b782a9fd78f190ef6",
+    "/Users/n/numi-human-retired-alias-visibility-018/apps/NumiHumanAcceptedGeometryCadence.hpp": "a68d865d487ca19840322271db885aa2e693ebf545d008c820707cb90d396e13",
+    "/Users/n/numi-human-retired-alias-visibility-018/apps/NumiHumanRestingAnatomy.hpp": "3f6737bae25f8b4553180a55a9e19a9289cb1c3e8b2e4c7d8f838cf91ccb1428",
+    "/Users/n/numi-human-retired-alias-visibility-018/apps/NumiHumanRestingCoupling.hpp": "595b2991fe9124df2bb736a581aa28a16e335da69aac9ea1a10c8626da301fc2",
+    "/Users/n/numi-human-retired-alias-visibility-018/apps/NumiHumanRestingInspectionLayers.hpp": "7e5b2621e0f97cbb9ff6393a9b86bc07694bb74f7e224a8cf81a29e113ef32e0",
+    "/Users/n/numi-human-retired-alias-visibility-018/apps/NumiHumanRestingVisual.hpp": "92e30eb1bac1dbcc6a816efbe12fdb7811f1abc30fe81e2373b050e0095ab8c7",
+    "/Users/n/numi-human-retired-alias-visibility-018/apps/numilab_human_myosim_visual_probe.mm": "88208ce586cfabc6dfb2e644dcfbf21dac4fbc09e83d3483836a7af9a6aaf0d2",
+    "/Users/n/numi-human-retired-alias-visibility-018/matter/src/human_respiration.metal": "8ec33f7495e086618a294ecf900a571ed4f55091baae92989874c5dc1f045973",
+    "/Users/n/numi-human-retired-alias-visibility-018/tests/numi_human_retired_inspection_layers_test.cpp": "fa1c9743e951c703aa128f32aef82c8055c2495f3eb28bc225942f0d5031b1c0",
+    "/Users/n/numi-human-retired-alias-visibility-build-018-attempt2/bin/numi-human-native": "486442abe2070168a902fb06669469e8b6cc612a9a6ef65ddb3d54957308d906",
+    "/Users/n/numi-human-retired-alias-visibility-build-018-attempt2/evidence/build-pins.json": "cb883675ac1fc6735c80c49769ea6e0065181b427181bb99ea947e35d6952fdd",
+    "/Users/n/numi-human-retired-alias-visibility-build-018-attempt2/evidence/source-delta.patch": "e7acace57f332c0ae202f47cd8f8afe59242f7ebbab97499f5cc5cfbc58f52fa",
+    "/Users/n/numi-human-retired-alias-visibility-build-018-attempt2/evidence/source-pins.json": "a2066150f3dedb1c40b64a74c8476bfa9b0bd76b5110a35f018a71859b008c2f",
+    "/Users/n/numi-human-retired-alias-visibility-build-018-attempt2/matter/shaders/HumanRespiration.metallib": "4b61361f513bf0996d687398498b85ba4e379edca91c36f134e1b0398f31c426"
+  },
+  "status": "assembled_owner_cli_validated_native_not_run",
+  "viewer_build_binding": {
+    "binary_sha256": "486442abe2070168a902fb06669469e8b6cc612a9a6ef65ddb3d54957308d906",
+    "build_base_revision": "b091d7dcead509a325194563ed38261319118a88",
+    "build_pins_path": "/Users/n/numi-human-retired-alias-visibility-build-018-attempt2/evidence/build-pins.json",
+    "build_source_file_and_directory_pins_verified": 22,
+    "build_source_provenance": {
+      "base_revision": "b091d7dcead509a325194563ed38261319118a88",
+      "binary_sha256": "486442abe2070168a902fb06669469e8b6cc612a9a6ef65ddb3d54957308d906",
+      "dirty_source_delta_sha256": "e7acace57f332c0ae202f47cd8f8afe59242f7ebbab97499f5cc5cfbc58f52fa",
+      "source_tree_clean_at_build": false
+    },
+    "compiled_source_byte_equivalence": {
+      "CMakeLists.txt": "41b1cb968cb4731e726486e1441777f43cba6e285383603b782a9fd78f190ef6",
+      "apps/NumiHumanAcceptedGeometryCadence.hpp": "a68d865d487ca19840322271db885aa2e693ebf545d008c820707cb90d396e13",
+      "apps/NumiHumanRestingAnatomy.hpp": "3f6737bae25f8b4553180a55a9e19a9289cb1c3e8b2e4c7d8f838cf91ccb1428",
+      "apps/NumiHumanRestingCoupling.hpp": "595b2991fe9124df2bb736a581aa28a16e335da69aac9ea1a10c8626da301fc2",
+      "apps/NumiHumanRestingInspectionLayers.hpp": "7e5b2621e0f97cbb9ff6393a9b86bc07694bb74f7e224a8cf81a29e113ef32e0",
+      "apps/NumiHumanRestingVisual.hpp": "92e30eb1bac1dbcc6a816efbe12fdb7811f1abc30fe81e2373b050e0095ab8c7",
+      "apps/numilab_human_myosim_visual_probe.mm": "88208ce586cfabc6dfb2e644dcfbf21dac4fbc09e83d3483836a7af9a6aaf0d2",
+      "matter/src/human_respiration.metal": "8ec33f7495e086618a294ecf900a571ed4f55091baae92989874c5dc1f045973",
+      "tests/numi_human_retired_inspection_layers_test.cpp": "fa1c9743e951c703aa128f32aef82c8055c2495f3eb28bc225942f0d5031b1c0"
+    },
+    "current_source_commit": "41b254605e66035a4e3966e5a1ae790197431605",
+    "current_source_tree_clean": true,
+    "directory_hash_algorithm": "SHA-256 over sorted regular-file rows '<sha256>  <absolute path>\n'; symlinks excluded",
+    "dirty_source_delta_sha256": "e7acace57f332c0ae202f47cd8f8afe59242f7ebbab97499f5cc5cfbc58f52fa",
+    "source_pin_path_checks": {
+      "/Users/n/numi-human-performance-build-014/lib/libmetalrobo.dylib": "6bccfc4044d825423e66bc2f60ba3cf59eaa9a4936773ab08182f58a09927092",
+      "/Users/n/numi-human-performance-build-014/matter/shaders/NumiMatter.metallib": "38d4b64ed55cef2e0e0f243616d0db5bd21441f232ca38bca439108c1d6130f9",
+      "/Users/n/numi-human-performance-build-014/shaders/MetalRobo.metallib": "3077d063dc23475d75cda795620cda8750402d1a2159267a241a5e2b65986043",
+      "/Users/n/numi-human-performance-source-014/matter/materials/human_anterior_abdominal_wall_composite_effective.nmatter": "4ba2e5ecf8cfc207632762d29d2faeb87232cbe506ad5199386bdde14ee43569",
+      "/Users/n/numi-human-performance-source-014/matter/materials/human_myofascia_regional_transverse_isotropic.nmatter": "38b23df6bd18174dc6058d4748e56e995027cef2ab4494cdf5ded2c887b03ac0",
+      "/Users/n/numi-human-performance-source-014/matter/materials/human_pectoralis_fascia_goh_uniaxial.nmatter": "2113a53cacbad3312f13e57b68652b175293ef77787bcbe25d04c58981411e2c",
+      "/Users/n/numi-human-performance-source-014/matter/materials/human_plantar_fascia_reduced.nmatter": "4405f2b3b9ea16e25ce092bd89d881edec73051fb6b3d4bdc4f7f990074a230e",
+      "/Users/n/numi-human-performance-source-014/matter/materials/human_thoracolumbar_fascia_effective_isotropic.nmatter": "65be29f8dece02de30c8869df3fbe3dbbde2069e0bf56a76396a9eb6f93c3326",
+      "/Users/n/numi-human-performance-source-014/matter/materials/open_knee_ligament_febio_exp_linear.nmatter": "c5166dfcdbcb8402cd107d087ac5071e548f8154b41f088bee3924e40ac9871e",
+      "/Users/n/numi-human-performance-source-014/matter/materials/passive_skeletal_muscle_unqualified.nmatter": "04d5f0139cb22b9c874976d96f193113092ecd861a7d64aed8945ff6eb54d817",
+      "/Users/n/numi-human-resting-evidence-20261005/native-retired-alias-visibility-018-attempt2/build-native-viewer-018-attempt2.sh": "f82d8646914ea94189cb767b87bbea30bdb3c0fbb9c921066de502a1bc253cee",
+      "/Users/n/numi-human-resting-evidence-20261005/native-retired-alias-visibility-018-attempt2/initial-build-directory-failure.log": "b8ec0ff87e85a188591b813b76d2126d1efd0273784aa9a14eb263bbadccfc92",
+      "/Users/n/numi-human-resting-integration-20261005/numi-brain/Sources/NumiBrainABI/include": "7bcac3a30f08ca552b6ab1c7b76d58f9c026e5a070a99bae80c1bc567f87b816",
+      "CMakeLists.txt": "41b1cb968cb4731e726486e1441777f43cba6e285383603b782a9fd78f190ef6",
+      "apps/NumiHumanAcceptedGeometryCadence.hpp": "a68d865d487ca19840322271db885aa2e693ebf545d008c820707cb90d396e13",
+      "apps/NumiHumanRestingAnatomy.hpp": "3f6737bae25f8b4553180a55a9e19a9289cb1c3e8b2e4c7d8f838cf91ccb1428",
+      "apps/NumiHumanRestingCoupling.hpp": "595b2991fe9124df2bb736a581aa28a16e335da69aac9ea1a10c8626da301fc2",
+      "apps/NumiHumanRestingInspectionLayers.hpp": "7e5b2621e0f97cbb9ff6393a9b86bc07694bb74f7e224a8cf81a29e113ef32e0",
+      "apps/NumiHumanRestingVisual.hpp": "92e30eb1bac1dbcc6a816efbe12fdb7811f1abc30fe81e2373b050e0095ab8c7",
+      "apps/numilab_human_myosim_visual_probe.mm": "88208ce586cfabc6dfb2e644dcfbf21dac4fbc09e83d3483836a7af9a6aaf0d2",
+      "matter/src/human_respiration.metal": "8ec33f7495e086618a294ecf900a571ed4f55091baae92989874c5dc1f045973",
+      "tests/numi_human_retired_inspection_layers_test.cpp": "fa1c9743e951c703aa128f32aef82c8055c2495f3eb28bc225942f0d5031b1c0"
+    },
+    "source_pins_path": "/Users/n/numi-human-retired-alias-visibility-build-018-attempt2/evidence/source-pins.json",
+    "source_tree_clean_at_build": false
+  }
+}

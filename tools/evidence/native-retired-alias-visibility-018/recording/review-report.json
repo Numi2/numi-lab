@@ -1,0 +1,336 @@
+{
+  "geometry_identity_reference": {
+    "path": "/Users/n/numi-human-resting-evidence-20261005/native-retired-alias-geometry-identity-018/comparison.json",
+    "sha256": "0712bd1c95c8362ebc9aee3df404f1906d77d51c6cbf8459445277069217fdf8"
+  },
+  "inputs_sha256": {
+    "coupled_csv": "5c4f129103fbf23010cfe47b99367c30d8497f70e525b4c97ca61b53c3ca90e6",
+    "dense_sample_decoder": "87d07c27448c7593692143c584a6456e9f141be0c93271dc3f0453766697a429",
+    "movie": "46c72bc48cbb49e65bd521554d8fdd0f9f78ab5464664d22e39a746c7d06b5e8",
+    "native_log": "842f13feba65008893f831cdabda2379295b693cf01b509487f4a0d9382a7929",
+    "pinned_decoder": "dad3a672ad34fb0f46d9c5c8a1cb6f457097ae95ccd44c1ad4f946b941d1a58c",
+    "run_metadata": "3fd01323c05051d093394bc91632134e282bc8b3943488fb551e697ead4db4fa",
+    "surface_audit_csv": "8a2a614e0e12e9af5ff8fbc667a58ad0b88742efb6b5d2be36b17a7113af26c1"
+  },
+  "launcher_wall_seconds": 191.31769125,
+  "limits": [
+    "PTS is monotonic but variable; the decoder verifies complete readable output and nonblank count alignment, not constant frame rate.",
+    "The PNGs show only the native GPU layer route at the selected frames.",
+    "No claim that the native layer mask deletes alias geometry from arbitrary MRVPacks.",
+    "Rendered appearance, 20-second counters, and long-horizon physiological/anatomical acceptance are separate evidence."
+  ],
+  "loaded_metal_runtime_verified": true,
+  "movie_decode": {
+    "dimensions": "1280x900",
+    "first_decoded_frame_is_black": true,
+    "first_nonblank_pts_s": 1.43,
+    "frames_decoded": 316,
+    "gap_after_startup_gt_1_5x_median_count": 7,
+    "gap_after_startup_max_s": 1.6883333333333326,
+    "gap_max_s": 2.0683333333333334,
+    "gap_median_s": 0.5666666666666629,
+    "last_nonblank_pts_s": 187.02333333333334,
+    "movie_duration_s": 188.09166666666667,
+    "nonblank_count_matches_surface_rows": true,
+    "nonblank_decoded_frames": 315,
+    "pts_first_s": 0,
+    "pts_last_s": 187.02333333333334,
+    "pts_monotonic": true,
+    "second_pass_pts_sequence_exact_match": true,
+    "status": "complete_avfoundation_pixel_decode",
+    "surface_audit_rows": 315
+  },
+  "native_layer_mask": {
+    "geometry_retained": true,
+    "layer_mask": 0,
+    "log_record": "resting_retired_inspection_source semantic=51010 stable_id=22 layer_mask=0 payload_retained=true geometry_retained=true",
+    "note": "mask is on the native GPU inspection/render route; MRVPacks may still contain the alias geometry",
+    "payload_retained": true,
+    "semantic_id": 51010,
+    "stable_id": 22
+  },
+  "native_timing": {
+    "accepted_steps": 10000,
+    "body_completion_log": "resting_integrated_body=completed simulated_s=20.000000949949026 wall_s=185.607530666 real_time_factor=0.10775425371042162 physiology_body_clock=matched root_assistance=false presentation_qualification=pending",
+    "full_body_rtf": 0.10775425371042162,
+    "full_body_simulated_s": 20.000000949949026,
+    "full_body_wall_s": 185.607530666,
+    "launcher_wall_seconds": 191.31769125,
+    "requested_dt_s": 0.002,
+    "throughput_log": "resting_integrated_throughput accepted_start_step=8 accepted_end_step=10000 simulated_s=19.9840009492 wall_s=182.792998125 real_time_factor=0.109325855772 includes=physics_physiology_controller_audits_trace_viewer_movie_frames_cadence_geometry_export excludes=terminal_query_fk_terminal_frame_render_terminal_geometry_export_load_compile_initial_parity_first_accepted_observer_movie_finalization"
+  },
+  "physiology_trace": {
+    "breath_counter_transitions": [
+      {
+        "step": 2512,
+        "time_s": 5.02400023863,
+        "value": 1
+      },
+      {
+        "step": 5088,
+        "time_s": 10.1760004833,
+        "value": 2
+      },
+      {
+        "step": 7752,
+        "time_s": 15.5040007364,
+        "value": 3
+      }
+    ],
+    "complete_filling_ejection_cycles": 23,
+    "completed_breath_counter": 3,
+    "cycle_counter_transitions": [
+      {
+        "step": 200,
+        "time_s": 0.400000018999,
+        "value": 1
+      },
+      {
+        "step": 632,
+        "time_s": 1.26400006004,
+        "value": 2
+      },
+      {
+        "step": 1056,
+        "time_s": 2.11200010031,
+        "value": 3
+      },
+      {
+        "step": 1488,
+        "time_s": 2.97600014135,
+        "value": 4
+      },
+      {
+        "step": 1920,
+        "time_s": 3.84000018239,
+        "value": 5
+      },
+      {
+        "step": 2344,
+        "time_s": 4.68800022267,
+        "value": 6
+      },
+      {
+        "step": 2776,
+        "time_s": 5.55200026371,
+        "value": 7
+      },
+      {
+        "step": 3200,
+        "time_s": 6.40000030398,
+        "value": 8
+      },
+      {
+        "step": 3632,
+        "time_s": 7.26400034502,
+        "value": 9
+      },
+      {
+        "step": 4056,
+        "time_s": 8.1120003853,
+        "value": 10
+      },
+      {
+        "step": 4488,
+        "time_s": 8.97600042634,
+        "value": 11
+      },
+      {
+        "step": 4920,
+        "time_s": 9.84000046737,
+        "value": 12
+      },
+      {
+        "step": 5344,
+        "time_s": 10.6880005077,
+        "value": 13
+      },
+      {
+        "step": 5776,
+        "time_s": 11.5520005487,
+        "value": 14
+      },
+      {
+        "step": 6200,
+        "time_s": 12.400000589,
+        "value": 15
+      },
+      {
+        "step": 6632,
+        "time_s": 13.26400063,
+        "value": 16
+      },
+      {
+        "step": 7056,
+        "time_s": 14.1120006703,
+        "value": 17
+      },
+      {
+        "step": 7488,
+        "time_s": 14.9760007113,
+        "value": 18
+      },
+      {
+        "step": 7920,
+        "time_s": 15.8400007524,
+        "value": 19
+      },
+      {
+        "step": 8344,
+        "time_s": 16.6880007926,
+        "value": 20
+      },
+      {
+        "step": 8776,
+        "time_s": 17.5520008337,
+        "value": 21
+      },
+      {
+        "step": 9200,
+        "time_s": 18.400000874,
+        "value": 22
+      },
+      {
+        "step": 9632,
+        "time_s": 19.264000915,
+        "value": 23
+      }
+    ],
+    "end_step": 10000,
+    "end_time_s": 20.0000009499,
+    "rows": 1250,
+    "scope": "native model counters, not clinical validation",
+    "start_step": 8,
+    "start_time_s": 0.01600000076,
+    "summary": {
+      "SaO2": {
+        "first": 0.972220122814,
+        "last": 0.974376678467,
+        "max_finite": 0.974376678467,
+        "min_finite": 0.972220122814
+      },
+      "airflow_ml_s": {
+        "first": 55.9179970878,
+        "last": -0.00514184250733,
+        "max_finite": 721.895834431,
+        "min_finite": -879.27619461
+      },
+      "aortic_ejected_ml": {
+        "first": 0.0,
+        "last": 1670.20526715,
+        "max_finite": 1670.20526715,
+        "min_finite": 0.0
+      },
+      "last_complete_breath_inspired_ml": {
+        "first": 0.0,
+        "last": 528.915494215,
+        "max_finite": 536.159262992,
+        "min_finite": 0.0
+      },
+      "last_lv_stroke_ml": {
+        "first": 0.0,
+        "last": 70.0404343661,
+        "max_finite": 74.0071191103,
+        "min_finite": 0.0
+      },
+      "lung_volume_ml": {
+        "first": 2500.35943463,
+        "last": 2500.00250526,
+        "max_finite": 3036.15373559,
+        "min_finite": 2500.00157394
+      },
+      "pulmonary_ejected_ml": {
+        "first": 0.0,
+        "last": 1663.76039851,
+        "max_finite": 1663.76039851,
+        "min_finite": 0.0
+      },
+      "root_assistance_n": {
+        "first": 0.0,
+        "last": 0.0,
+        "max_finite": 0.0,
+        "min_finite": 0.0
+      },
+      "root_assistance_nm": {
+        "first": 0.0,
+        "last": 0.0,
+        "max_finite": 0.0,
+        "min_finite": 0.0
+      }
+    }
+  },
+  "representative_layer_frames": {
+    "heart": {
+      "decoded_frame_index": 208,
+      "decoded_pts_s": 125.32666666666667,
+      "file": "/Users/n/numi-human-resting-evidence-20261005/native-viewer018-recording-review-960/selected-scene-layers/heart.png",
+      "nonblack_fraction": 1,
+      "png_dimensions": [
+        1280,
+        900
+      ],
+      "sha256": "5966ba41dce05521893d438aed0bed813450b66a6420652ed4bb20f8095874dd",
+      "ui_layer_seen_in_frame": "Heart detail"
+    },
+    "lungs": {
+      "decoded_frame_index": 161,
+      "decoded_pts_s": 94.38166666666666,
+      "file": "/Users/n/numi-human-resting-evidence-20261005/native-viewer018-recording-review-960/selected-scene-layers/lungs.png",
+      "nonblack_fraction": 0.9999446902654867,
+      "png_dimensions": [
+        1280,
+        900
+      ],
+      "sha256": "10c82289242073e6f33634347ed0a0d58f4c4cc233fdc09c7f4251c0571e3cf2",
+      "ui_layer_seen_in_frame": "Lungs"
+    },
+    "vessels": {
+      "decoded_frame_index": 261,
+      "decoded_pts_s": 156.36333333333334,
+      "file": "/Users/n/numi-human-resting-evidence-20261005/native-viewer018-recording-review-960/selected-scene-layers/vessels.png",
+      "nonblack_fraction": 1,
+      "png_dimensions": [
+        1280,
+        900
+      ],
+      "sha256": "828aec2dbc8baeab81ce4b5237bde1daf3676810d283c1374ed1c8299ae8a2f7",
+      "ui_layer_seen_in_frame": "Vessels"
+    },
+    "viscera": {
+      "decoded_frame_index": 122,
+      "decoded_pts_s": 71.15,
+      "file": "/Users/n/numi-human-resting-evidence-20261005/native-viewer018-recording-review-960/selected-scene-layers/viscera-organs.png",
+      "nonblack_fraction": 1,
+      "png_dimensions": [
+        1280,
+        900
+      ],
+      "sha256": "1e82577bf10c74cfca9813c347bf9c251f77e2d45086140d55328b32fa2cb481",
+      "ui_layer_seen_in_frame": "Organs"
+    },
+    "wholebody": {
+      "decoded_frame_index": 315,
+      "decoded_pts_s": 187.02333333333334,
+      "file": "/Users/n/numi-human-resting-evidence-20261005/native-viewer018-recording-review-960/selected-scene-layers/wholebody.png",
+      "nonblack_fraction": 1,
+      "png_dimensions": [
+        1280,
+        900
+      ],
+      "sha256": "741b0bc623d146d2bdcac43702b1030d672502df767a4ca5b77f8ff658452609",
+      "ui_layer_seen_in_frame": "Whole body"
+    }
+  },
+  "run_directory": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/native-run",
+  "run_exit_code": 0,
+  "schema": "numi.human.native-viewer-recording-review.v1",
+  "surface_audit": {
+    "first_step": 0,
+    "first_time_s": 0.0,
+    "last_step": 10000,
+    "last_time_s": 20.0000009499,
+    "mapping_note": "decode order has one black startup image plus one nonblank image per surface-audit row; movie PTS is not the audit simulation-time coordinate",
+    "median_sim_time_interval_s": 0.06400000303999998,
+    "rows": 315
+  }
+}

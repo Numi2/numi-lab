@@ -1,0 +1,814 @@
+{
+  "attribution_source": {
+    "path": "/Users/n/numi-human-resting-evidence-20261005/final-scene-source-attribution-944/ATTRIBUTION.md",
+    "sha256": "e586ff8fc3e3b2f71008d3ec9a19f8c364157cf7ae5396c6188315cf4864b55a"
+  },
+  "bundle_source": {
+    "checksums_sha256": "0fbf0ee1e9619b06ef803b15a7079811fdbddbd82986375c799057548bc270b4",
+    "path": "/Users/n/numi-human-resting-evidence-20261005/native-retired-alias-publication-018"
+  },
+  "copied_inputs": [
+    {
+      "bytes": 39938,
+      "copy": "preflight/final_scene_936-v014.py",
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/v014/final_scene_936-v014.py",
+      "sha256": "8972ddba951766714637fb58621e113797a6a8b3f934dd1bb526abd6c2aec496"
+    },
+    {
+      "bytes": 12335,
+      "copy": "preflight/test_final_scene_936_v014.py",
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/v014/test_final_scene_936_v014.py",
+      "sha256": "1c42c78a05097370d78b4158155ead9e0b57fe274aeb7d84fb2d3003df58594c"
+    },
+    {
+      "bytes": 7567,
+      "copy": "preflight/revision-014.json",
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/v014/revision-014.json",
+      "sha256": "b4c82d7d94cceb77783fe73d2a7012dde19f199a5f73b2b45640f54619607430"
+    },
+    {
+      "bytes": 2420,
+      "copy": "preflight/README-v014.md",
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/v014/README-v014.md",
+      "sha256": "ef34413c46d1d066fcdd451975de16493b4871a22bb24ca89e70907af15c9c3e"
+    },
+    {
+      "bytes": 99,
+      "copy": "preflight/v014-unit-test.log",
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/v014/v014-unit-test.log",
+      "sha256": "d55b9edecbfab5daacbd85aebb56380fc75911788e01a69d3528633c333b06b6"
+    },
+    {
+      "bytes": 469,
+      "copy": "preflight/assembly-attempt-001.failure.txt",
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/v014/assembly-attempt-001.failure.txt",
+      "sha256": "72375f0278cd7f71fe23244f8fba3fe6b55f2f99232180b259b72ad3f782a471"
+    },
+    {
+      "bytes": 6482,
+      "copy": "build/build-pins.json",
+      "path": "/Users/n/numi-human-resting-evidence-20261005/native-retired-alias-visibility-018-attempt2/build-pins.json",
+      "sha256": "cb883675ac1fc6735c80c49769ea6e0065181b427181bb99ea947e35d6952fdd"
+    },
+    {
+      "bytes": 11765,
+      "copy": "build/source-delta.patch",
+      "path": "/Users/n/numi-human-resting-evidence-20261005/native-retired-alias-visibility-018-attempt2/source-delta.patch",
+      "sha256": "e7acace57f332c0ae202f47cd8f8afe59242f7ebbab97499f5cc5cfbc58f52fa"
+    },
+    {
+      "bytes": 3643,
+      "copy": "build/build-native-viewer-018-attempt2.sh",
+      "path": "/Users/n/numi-human-resting-evidence-20261005/native-retired-alias-visibility-018-attempt2/build-native-viewer-018-attempt2.sh",
+      "sha256": "f82d8646914ea94189cb767b87bbea30bdb3c0fbb9c921066de502a1bc253cee"
+    },
+    {
+      "bytes": 410,
+      "copy": "build/focused-test.log",
+      "path": "/Users/n/numi-human-resting-evidence-20261005/native-retired-alias-visibility-018-attempt2/focused-test.log",
+      "sha256": "69e933d4e43664579c4adc2ff61a60df21dd53da5efc141028db91714d96024b"
+    },
+    {
+      "bytes": 1083,
+      "copy": "build/review-finding-001.md",
+      "path": "/Users/n/numi-human-resting-evidence-20261005/native-retired-alias-visibility-018-attempt2/review-finding-001.md",
+      "sha256": "f859e7047f65273904429eb329945d539dfec464dd1da621feeee05a910b9d57"
+    },
+    {
+      "bytes": 1551,
+      "copy": "build/README.md",
+      "path": "/Users/n/numi-human-resting-evidence-20261005/native-retired-alias-visibility-018-attempt2/README.md",
+      "sha256": "c44f6287c4f81b71188ef6d16f91995b924bbfba615c85997775e85be1d2bdc5"
+    },
+    {
+      "bytes": 3833,
+      "copy": "build/source-pins.json",
+      "path": "/Users/n/numi-human-retired-alias-visibility-build-018-attempt2/evidence/source-pins.json",
+      "sha256": "a2066150f3dedb1c40b64a74c8476bfa9b0bd76b5110a35f018a71859b008c2f"
+    },
+    {
+      "bytes": 74303,
+      "copy": "scene/assembly-preflight.json",
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/assembly-preflight.json",
+      "sha256": "585658d84f351ca0bb2d95c6bacb6c4405858408fec42334d8592321d063dd6b"
+    },
+    {
+      "bytes": 3292,
+      "copy": "scene/launch-command.sh",
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/launch-command.sh",
+      "sha256": "ab1f54c2e769bf31c46fd2f2f6e61fa3f21575bc9337bf7ed61eed7335a84eb0"
+    },
+    {
+      "bytes": 509994,
+      "copy": "scene/anatomy/resting-anatomy-manifest.json",
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/anatomy/resting-anatomy-manifest.json",
+      "sha256": "53e64cb0d8f192ec67691576e3709784b19cfa6b43f656f074bea852bb174252"
+    },
+    {
+      "bytes": 23911,
+      "copy": "scene/resting-scene/resting-supine-scene.manifest.json",
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/resting-scene/resting-supine-scene.manifest.json",
+      "sha256": "6bb0ee85bf5a228190ee80f471d87c23e40d359bca278bccdf66a7ab75c82c01"
+    },
+    {
+      "bytes": 11419,
+      "copy": "native/run-metadata.json",
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/native-run/run-metadata.json",
+      "sha256": "3fd01323c05051d093394bc91632134e282bc8b3943488fb551e697ead4db4fa"
+    },
+    {
+      "bytes": 10779,
+      "copy": "native/invocation.json",
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/native-run/invocation.json",
+      "sha256": "98e4ec56d5fededb8794e515d8c3cd27a8a794a50a8a4778653bb1157ca7e2c9"
+    },
+    {
+      "bytes": 1992616,
+      "copy": "native/native.log",
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/native-run/native.log",
+      "sha256": "842f13feba65008893f831cdabda2379295b693cf01b509487f4a0d9382a7929"
+    },
+    {
+      "bytes": 1017464,
+      "copy": "native/resting-coupled.csv",
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/native-run/resting-coupled.csv",
+      "sha256": "5c4f129103fbf23010cfe47b99367c30d8497f70e525b4c97ca61b53c3ca90e6"
+    },
+    {
+      "bytes": 140668,
+      "copy": "native/resting-surface-audit.csv",
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/native-run/resting-surface-audit.csv",
+      "sha256": "8a2a614e0e12e9af5ff8fbc667a58ad0b88742efb6b5d2be36b17a7113af26c1"
+    },
+    {
+      "bytes": 1008,
+      "copy": "native/skin-source-anatomy-parameters.bin",
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/native-run/skin-source-anatomy-parameters.bin",
+      "sha256": "ef7a80c590057a8073df76a4ef107f11c2fc5ab440eb93880d8c315a65753fb7"
+    },
+    {
+      "bytes": 68143,
+      "copy": "native/accepted-geometry/step-0.receipt.json",
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/native-run/accepted-geometry/step-0.receipt.json",
+      "sha256": "83dc6911d9b4f4ed0f9ff240e04f50b460503d3e9e0aaf67904f8cc1da37fa30"
+    },
+    {
+      "bytes": 68228,
+      "copy": "native/accepted-geometry/step-4991.receipt.json",
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/native-run/accepted-geometry/step-4991.receipt.json",
+      "sha256": "55605f948e0b41e40f65b59035b2d1c211053f61059f791990ea329dca1be7f6"
+    },
+    {
+      "bytes": 68246,
+      "copy": "native/accepted-geometry/step-5375.receipt.json",
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/native-run/accepted-geometry/step-5375.receipt.json",
+      "sha256": "698b8816921f4b987dd0c050e58c9407037bdf9a2d3e2b16b354ea169458d082"
+    },
+    {
+      "bytes": 68260,
+      "copy": "native/accepted-geometry/step-5759.receipt.json",
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/native-run/accepted-geometry/step-5759.receipt.json",
+      "sha256": "a983f1f4d505fd0e0b487e9bc99f5f3bd2177151e814535e12a8bfcca8ed0ddc"
+    },
+    {
+      "bytes": 68184,
+      "copy": "native/accepted-geometry/step-6111.receipt.json",
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/native-run/accepted-geometry/step-6111.receipt.json",
+      "sha256": "3a5438bf1641c983d92d0ebd094a427ccb3c4f5401e881de8328d168d6c717d1"
+    },
+    {
+      "bytes": 68218,
+      "copy": "native/accepted-geometry/step-6495.receipt.json",
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/native-run/accepted-geometry/step-6495.receipt.json",
+      "sha256": "ff0aa1de06596f048e6d43e7101706e7c028a97f7c9eaae3c95459c6b089a47a"
+    },
+    {
+      "bytes": 68243,
+      "copy": "native/accepted-geometry/step-7743.receipt.json",
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/native-run/accepted-geometry/step-7743.receipt.json",
+      "sha256": "095fad99adecd19f7c253b2b0ecebcabf2db5d03399fe5690e3826365e8147de"
+    },
+    {
+      "bytes": 68248,
+      "copy": "native/accepted-geometry/step-10000.receipt.json",
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/native-run/accepted-geometry/step-10000.receipt.json",
+      "sha256": "864d565c63d0298b4b9eda28a9ffb5272e11355ed3f669b275b8deb9e8ce4699"
+    },
+    {
+      "bytes": 28649,
+      "copy": "regression/trace-comparison.json",
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/v014-native-comparison/comparison.json",
+      "sha256": "64db87dbaefed917204694fd83a4b4c232a17ba440cecbcfaffe3e2e0cc3f933"
+    },
+    {
+      "bytes": 3398,
+      "copy": "regression/geometry-compare_geometry.py",
+      "path": "/Users/n/numi-human-resting-evidence-20261005/native-retired-alias-geometry-identity-018/compare_geometry.py",
+      "sha256": "acc8bacf85a4b2e583b959c9e2438c96a2b648e1f1cad4b73ced7a6245175815"
+    },
+    {
+      "bytes": 29623,
+      "copy": "regression/geometry-comparison.json",
+      "path": "/Users/n/numi-human-resting-evidence-20261005/native-retired-alias-geometry-identity-018/comparison.json",
+      "sha256": "0712bd1c95c8362ebc9aee3df404f1906d77d51c6cbf8459445277069217fdf8"
+    },
+    {
+      "bytes": 10594,
+      "copy": "recording/review-report.json",
+      "path": "/Users/n/numi-human-resting-evidence-20261005/native-viewer018-recording-review-960/review-report.json",
+      "sha256": "57b734b8f1db5c1e82fd441eb0de543b99ad50978859a3b931ec8e6bac67104a"
+    },
+    {
+      "bytes": 10591,
+      "copy": "recording/review-report.pre-hash-correction.json",
+      "path": "/Users/n/numi-human-resting-evidence-20261005/native-viewer018-recording-review-960/review-report.pre-hash-correction.json",
+      "sha256": "4e6cc773ec00e343d58f431593dd00c7c220cb2bd06a751bfd89eaf70270d6ce"
+    },
+    {
+      "bytes": 3173,
+      "copy": "recording/README.md",
+      "path": "/Users/n/numi-human-resting-evidence-20261005/native-viewer018-recording-review-960/README.md",
+      "sha256": "0d56d451efd48f80890f9a6b621a0017b7c1c2450cbfb22655d690859c59c1fc"
+    },
+    {
+      "bytes": 6645,
+      "copy": "recording/build-review-report.py",
+      "path": "/Users/n/numi-human-resting-evidence-20261005/native-viewer018-recording-review-960/build-review-report.py",
+      "sha256": "e9bf56962a77e7a25cb62d1ddef499194f9267610f446f6486ef19efeac21897"
+    },
+    {
+      "bytes": 3368,
+      "copy": "recording/movie-continuity-full-decode.json",
+      "path": "/Users/n/numi-human-resting-evidence-20261005/native-viewer018-recording-review-960/movie-continuity-full-decode.json",
+      "sha256": "a3081af3a2f41b7e08e43377c2941e6d4a4918edabfc52c177f565945aa76bd1"
+    },
+    {
+      "bytes": 3201,
+      "copy": "recording/even-content-samples.json",
+      "path": "/Users/n/numi-human-resting-evidence-20261005/native-viewer018-recording-review-960/even-content-samples.json",
+      "sha256": "e7dbe1523d455cdfff482b0e4298d7f9a67b690a0936b7477ef1b57bd2dc5f84"
+    }
+  ],
+  "external_inputs": [
+    {
+      "bytes": 7832192,
+      "path": "/Users/n/numi-human-performance-build-014/lib/libmetalrobo.dylib",
+      "sha256": "6bccfc4044d825423e66bc2f60ba3cf59eaa9a4936773ab08182f58a09927092"
+    },
+    {
+      "bytes": 3129683,
+      "path": "/Users/n/numi-human-performance-build-014/matter/shaders/NumiMatter.metallib",
+      "sha256": "38d4b64ed55cef2e0e0f243616d0db5bd21441f232ca38bca439108c1d6130f9"
+    },
+    {
+      "bytes": 80076,
+      "path": "/Users/n/numi-human-performance-build-014/matter/shaders/NumiMatterPhysicalStateDigest.metallib",
+      "sha256": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68"
+    },
+    {
+      "bytes": 5261407,
+      "path": "/Users/n/numi-human-performance-build-014/shaders/MetalRobo.metallib",
+      "sha256": "3077d063dc23475d75cda795620cda8750402d1a2159267a241a5e2b65986043"
+    },
+    {
+      "bytes": 48434,
+      "path": "/Users/n/numi-human-performance-build-014/shaders/MetalRoboHyperPolicy.metallib",
+      "sha256": "f227836841015b40467a20c47a9fa38cf44eb8e1132cad1de4e65fa79c55d309"
+    },
+    {
+      "bytes": 66974,
+      "path": "/Users/n/numi-human-performance-build-014/shaders/NumiNeuron.metallib",
+      "sha256": "4ccbb796a6bfd5bdb18f7d37c8e18e0d767c9489d16047c523c97f679da33f1d"
+    },
+    {
+      "bytes": 1641,
+      "path": "/Users/n/numi-human-performance-source-014/matter/materials/human_anterior_abdominal_wall_composite_effective.nmatter",
+      "sha256": "4ba2e5ecf8cfc207632762d29d2faeb87232cbe506ad5199386bdde14ee43569"
+    },
+    {
+      "bytes": 3165,
+      "path": "/Users/n/numi-human-performance-source-014/matter/materials/human_myofascia_regional_transverse_isotropic.nmatter",
+      "sha256": "38b23df6bd18174dc6058d4748e56e995027cef2ab4494cdf5ded2c887b03ac0"
+    },
+    {
+      "bytes": 1722,
+      "path": "/Users/n/numi-human-performance-source-014/matter/materials/human_pectoralis_fascia_goh_uniaxial.nmatter",
+      "sha256": "2113a53cacbad3312f13e57b68652b175293ef77787bcbe25d04c58981411e2c"
+    },
+    {
+      "bytes": 1527,
+      "path": "/Users/n/numi-human-performance-source-014/matter/materials/human_plantar_fascia_reduced.nmatter",
+      "sha256": "4405f2b3b9ea16e25ce092bd89d881edec73051fb6b3d4bdc4f7f990074a230e"
+    },
+    {
+      "bytes": 1640,
+      "path": "/Users/n/numi-human-performance-source-014/matter/materials/human_thoracolumbar_fascia_effective_isotropic.nmatter",
+      "sha256": "65be29f8dece02de30c8869df3fbe3dbbde2069e0bf56a76396a9eb6f93c3326"
+    },
+    {
+      "bytes": 2702,
+      "path": "/Users/n/numi-human-performance-source-014/matter/materials/open_knee_ligament_febio_exp_linear.nmatter",
+      "sha256": "c5166dfcdbcb8402cd107d087ac5071e548f8154b41f088bee3924e40ac9871e"
+    },
+    {
+      "bytes": 884,
+      "path": "/Users/n/numi-human-performance-source-014/matter/materials/passive_skeletal_muscle_unqualified.nmatter",
+      "sha256": "04d5f0139cb22b9c874976d96f193113092ecd861a7d64aed8945ff6eb54d817"
+    },
+    {
+      "bytes": 124576,
+      "path": "/Users/n/numi-human-performance-source-014/matter/tools/resting_intervention_study.py",
+      "sha256": "b06bb5a1cd14d86be362a5d0603f68546ba590bf038f9586c4cf89946fc39c1e"
+    },
+    {
+      "bytes": 781,
+      "path": "/Users/n/numi-human-performance-source-014/numi/commands/human-resting",
+      "sha256": "77693c89dfb3bdc368b15d192d7e86f44ede696c516fa5a80e796f8ec8c3ce81"
+    },
+    {
+      "bytes": 17957,
+      "path": "/Users/n/numi-human-performance-source-014/tools/numi",
+      "sha256": "2e971e7c3680ec809c7e9ac71355b89502f710f835bc3c69725a91dbbdb01074"
+    },
+    {
+      "bytes": 11577432,
+      "path": "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/current-bone-registration-b1b410ad/bodyparts3d-myosim-major-bones.nhbones",
+      "sha256": "7d94e2f28ac6cea30c6c11a79919077acc40281636eb20b11b50b50aebd3ec49"
+    },
+    {
+      "bytes": 60324,
+      "path": "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-core-reference.nhrigid",
+      "sha256": "2c78cb4150b97cea6e8169dad9e8f5dd59af667b247e07b56e48e857435560e4"
+    },
+    {
+      "bytes": 4976,
+      "path": "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-joint-equalities.nheq",
+      "sha256": "0e3c593792a8c4ccd619f1999f6685b68e6ff0fd5ae5f6f0bca66b594a0e9b88"
+    },
+    {
+      "bytes": 149372,
+      "path": "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-muscle-reference.nhmyo",
+      "sha256": "e5bb8a8168706bb3b23cf42b1d849659569ba2e6027bcc85729c3110fdbb8c4b"
+    },
+    {
+      "bytes": 600128,
+      "path": "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-reference.manifest.json",
+      "sha256": "844d05330104a43f6c45867020f2abd493adec35d6e2f8f90fc636ee9bec04e7"
+    },
+    {
+      "bytes": 23293288,
+      "path": "/Users/n/numi-human-resting-evidence-20261005/common-atlas-skin-composition-907/bodyparts3d-myosim-skinned-shell.nhskin",
+      "sha256": "898990d49a3f1dfa0cbe85b10765bf62fa0cc3c834a3371f5503c83facfacba2"
+    },
+    {
+      "bytes": 297726,
+      "path": "/Users/n/numi-human-resting-evidence-20261005/common-atlas-skin-composition-907/common-atlas-skin-geometry-registration.manifest.json",
+      "sha256": "f3aab90ecbd0751e984143b9e7a270312d880e09bde803f12e2a0d4bd9073d9c"
+    },
+    {
+      "bytes": 1620,
+      "path": "/Users/n/numi-human-resting-evidence-20261005/common-atlas-skin-composition-907/resting-scene/myosim-fullbody-resting-bed-support.nhcnt",
+      "sha256": "bcfece8e5da553b98694b724644234407fa4c38383b1e18d3c24d7caefa28927"
+    },
+    {
+      "bytes": 23824,
+      "path": "/Users/n/numi-human-resting-evidence-20261005/common-atlas-skin-composition-907/resting-scene/resting-supine-scene.manifest.json",
+      "sha256": "8802260236813440c200c7723bd78a36112f7722b007f4160d0ac9c5aaf16f36"
+    },
+    {
+      "bytes": 9054671,
+      "path": "/Users/n/numi-human-resting-evidence-20261005/common-atlas-skin-registration-003/resting-anatomy-composition-001/resting-anatomy-receipt.json",
+      "sha256": "a52e3184e77bca568ce603831cfd5d3b2bafdf46453634637a9c85fb6ffbed71"
+    },
+    {
+      "bytes": 285409280,
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-current-lung-924/native-run/accepted-geometry/step-0.mrvpack",
+      "sha256": "56a45cbf74570eaac816d0f0269b96d7c18f64a1247d95def2084a631f8636fb"
+    },
+    {
+      "bytes": 68049,
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-current-lung-924/native-run/accepted-geometry/step-0.receipt.json",
+      "sha256": "0fb6830c85b4a1d5d310b30dcfd4d66d4d749fbbd355331170c67cb7974be558"
+    },
+    {
+      "bytes": 285409280,
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-current-lung-924/native-run/accepted-geometry/step-10000.mrvpack",
+      "sha256": "f27fbe5c683685823a11540c9756fb7c0b5aa38850e5fb384c352677ef3c378e"
+    },
+    {
+      "bytes": 68154,
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-current-lung-924/native-run/accepted-geometry/step-10000.receipt.json",
+      "sha256": "cfbd698cde1cbb2c6a52110a20aa56d01799bf5e40a6c941dccd50fa72ee0945"
+    },
+    {
+      "bytes": 285409280,
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-current-lung-924/native-run/accepted-geometry/step-4991.mrvpack",
+      "sha256": "f2a2f81106ee72f3b8523c9da17b6c3abf71e31819b6db916f897751ebccc491"
+    },
+    {
+      "bytes": 68138,
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-current-lung-924/native-run/accepted-geometry/step-4991.receipt.json",
+      "sha256": "32aacbcb3a8ba4064f9716e2c4ec170f1f58d26e8540f569fe6ee73bd3d9b113"
+    },
+    {
+      "bytes": 285409280,
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-current-lung-924/native-run/accepted-geometry/step-5375.mrvpack",
+      "sha256": "f018595c6f1b8cbcb024cb983af2e08e4a32245e4156dcb9119b23e5f98ee32d"
+    },
+    {
+      "bytes": 68154,
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-current-lung-924/native-run/accepted-geometry/step-5375.receipt.json",
+      "sha256": "6db387249996f7f735dfec9ebcffc88dae9adaacadf0953dc0d2b265af4b8172"
+    },
+    {
+      "bytes": 285409280,
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-current-lung-924/native-run/accepted-geometry/step-5759.mrvpack",
+      "sha256": "159c4598a88eed42a6dca8749abdfe2144527d1cb187cc8dc807a3e906a4ab22"
+    },
+    {
+      "bytes": 68166,
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-current-lung-924/native-run/accepted-geometry/step-5759.receipt.json",
+      "sha256": "2ee4c1760098ae93db6636a0e5ca4e9b987b252d35e247bdf90962f409137034"
+    },
+    {
+      "bytes": 285409280,
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-current-lung-924/native-run/accepted-geometry/step-6111.mrvpack",
+      "sha256": "6c1d862ded18b420312a5632f81d17ef7c533995d3ab5e3d9e0153c8451a03ef"
+    },
+    {
+      "bytes": 68094,
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-current-lung-924/native-run/accepted-geometry/step-6111.receipt.json",
+      "sha256": "d8b30fe8076568047745ccac13dccd5a222fbce89be21e016db2aa1b2f4e65cf"
+    },
+    {
+      "bytes": 285409280,
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-current-lung-924/native-run/accepted-geometry/step-6495.mrvpack",
+      "sha256": "053bab1e060de1d00d225b6e6b93f4c35baf49c4bfcd29df81da2babfc9358e7"
+    },
+    {
+      "bytes": 68124,
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-current-lung-924/native-run/accepted-geometry/step-6495.receipt.json",
+      "sha256": "af516bcce4a066ea0a232a71993ec95774c77ca007a883eb5d465afb15d80b45"
+    },
+    {
+      "bytes": 285409280,
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-current-lung-924/native-run/accepted-geometry/step-7743.mrvpack",
+      "sha256": "30b8edd36a53207c00b19304a7c1847fb609290c0f089b2b2d2efd58636e326e"
+    },
+    {
+      "bytes": 68147,
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-current-lung-924/native-run/accepted-geometry/step-7743.receipt.json",
+      "sha256": "ec0dd195e71b5adc96f7a2051c1b2324c62931be9400273502b45c9ceadeaa99"
+    },
+    {
+      "bytes": 8000,
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/anatomy/common-cardiac-domains-f32.bin",
+      "sha256": "7652785c9ea164b16ee96f64a3dcf940398af36cfd535a5f9b7a7d6bd2c7a611"
+    },
+    {
+      "bytes": 69520416,
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/anatomy/common-cardiac-map-f32.bin",
+      "sha256": "c0b0811fe2e2fb45dc37201205e36af39cf092739cfb52c56fdbad9a67dbb858"
+    },
+    {
+      "bytes": 3360,
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/anatomy/common-cardiac-volumes-f32.bin",
+      "sha256": "7be4f62996c996c6cfdd49480d27766c8253387bb24aeb504fef73cd553ae699"
+    },
+    {
+      "bytes": 29218960,
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/anatomy/resting-anatomy-receipt.json",
+      "sha256": "fca3c96b1c71f1bb2c4e14ed4a924dff2b9fe436f3f81c8ce6a321506585a84e"
+    },
+    {
+      "bytes": 285409280,
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/native-run/accepted-geometry/step-0.mrvpack",
+      "sha256": "46e269161eb4006d1d4fb20090bae51d91757fdec9726862c1a200a553c3e3c7"
+    },
+    {
+      "bytes": 68143,
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/native-run/accepted-geometry/step-0.receipt.json",
+      "sha256": "83dc6911d9b4f4ed0f9ff240e04f50b460503d3e9e0aaf67904f8cc1da37fa30"
+    },
+    {
+      "bytes": 285409280,
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/native-run/accepted-geometry/step-10000.mrvpack",
+      "sha256": "b38cb90ebfa57f39811d549dd5262ac759a1cceb2e6024a2db77661122ffbfd1"
+    },
+    {
+      "bytes": 68248,
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/native-run/accepted-geometry/step-10000.receipt.json",
+      "sha256": "864d565c63d0298b4b9eda28a9ffb5272e11355ed3f669b275b8deb9e8ce4699"
+    },
+    {
+      "bytes": 285409280,
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/native-run/accepted-geometry/step-4991.mrvpack",
+      "sha256": "c6956bead871b9d8cc53575083484fb1be733b3ae33069ce0876b9d48a4d0842"
+    },
+    {
+      "bytes": 68228,
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/native-run/accepted-geometry/step-4991.receipt.json",
+      "sha256": "55605f948e0b41e40f65b59035b2d1c211053f61059f791990ea329dca1be7f6"
+    },
+    {
+      "bytes": 285409280,
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/native-run/accepted-geometry/step-5375.mrvpack",
+      "sha256": "5b85f77bc165bf36220821a96e4096a6c81cc2004e964a505350fc0bd0f3d04e"
+    },
+    {
+      "bytes": 68246,
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/native-run/accepted-geometry/step-5375.receipt.json",
+      "sha256": "698b8816921f4b987dd0c050e58c9407037bdf9a2d3e2b16b354ea169458d082"
+    },
+    {
+      "bytes": 285409280,
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/native-run/accepted-geometry/step-5759.mrvpack",
+      "sha256": "61180ab25cbd79f5299a08f0dd3939a06c1b8861faae34ff96eb3d4f0258ef77"
+    },
+    {
+      "bytes": 68260,
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/native-run/accepted-geometry/step-5759.receipt.json",
+      "sha256": "a983f1f4d505fd0e0b487e9bc99f5f3bd2177151e814535e12a8bfcca8ed0ddc"
+    },
+    {
+      "bytes": 285409280,
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/native-run/accepted-geometry/step-6111.mrvpack",
+      "sha256": "9b56848ce0efa756782ab2d958e7573b2791cea9a7ca0edfdef22ce8c45cde0c"
+    },
+    {
+      "bytes": 68184,
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/native-run/accepted-geometry/step-6111.receipt.json",
+      "sha256": "3a5438bf1641c983d92d0ebd094a427ccb3c4f5401e881de8328d168d6c717d1"
+    },
+    {
+      "bytes": 285409280,
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/native-run/accepted-geometry/step-6495.mrvpack",
+      "sha256": "a7298c0406373a8d5c3dd69f4fd9ce20ef132bcf54475efb2acaf3b5a7236900"
+    },
+    {
+      "bytes": 68218,
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/native-run/accepted-geometry/step-6495.receipt.json",
+      "sha256": "ff0aa1de06596f048e6d43e7101706e7c028a97f7c9eaae3c95459c6b089a47a"
+    },
+    {
+      "bytes": 285409280,
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/native-run/accepted-geometry/step-7743.mrvpack",
+      "sha256": "18b790a1daff2fd615e606882ab98063ebed1223b8316238a342558fc815d682"
+    },
+    {
+      "bytes": 68243,
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/native-run/accepted-geometry/step-7743.receipt.json",
+      "sha256": "095fad99adecd19f7c253b2b0ecebcabf2db5d03399fe5690e3826365e8147de"
+    },
+    {
+      "bytes": 2623047,
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/native-run/native-viewer.mov",
+      "sha256": "46c72bc48cbb49e65bd521554d8fdd0f9f78ab5464664d22e39a746c7d06b5e8"
+    },
+    {
+      "bytes": 1045449,
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/native-run/resting-com-momentum-diagnostic.csv",
+      "sha256": "be8708957990c08b357e54b28ca070ef93f0495183db57c7adf6041a7f80de32"
+    },
+    {
+      "bytes": 3587319,
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/native-run/resting-com-support-impulses.csv",
+      "sha256": "82eeb9dfb1336a7e576df87cd6305679e673dd1759d315c12de8d0d16148480c"
+    },
+    {
+      "bytes": 1620,
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/resting-scene/myosim-fullbody-resting-bed-support.nhcnt",
+      "sha256": "bcfece8e5da553b98694b724644234407fa4c38383b1e18d3c24d7caefa28927"
+    },
+    {
+      "bytes": 23911,
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/resting-scene/resting-supine-scene.manifest.json",
+      "sha256": "6bb0ee85bf5a228190ee80f471d87c23e40d359bca278bccdf66a7ab75c82c01"
+    },
+    {
+      "bytes": 39938,
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/v014/final_scene_936-v014.py",
+      "sha256": "8972ddba951766714637fb58621e113797a6a8b3f934dd1bb526abd6c2aec496"
+    },
+    {
+      "bytes": 12335,
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/v014/test_final_scene_936_v014.py",
+      "sha256": "1c42c78a05097370d78b4158155ead9e0b57fe274aeb7d84fb2d3003df58594c"
+    },
+    {
+      "bytes": 9419,
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-scene-source-attribution-944/ATTRIBUTION.md",
+      "sha256": "e586ff8fc3e3b2f71008d3ec9a19f8c364157cf7ae5396c6188315cf4864b55a"
+    },
+    {
+      "bytes": 4870,
+      "path": "/Users/n/numi-human-resting-evidence-20261005/integrated-anatomy-engineering-lung-edge-collapse-761/resting-reference-respiration.json",
+      "sha256": "c518926bf47fba945cef52bb952ed6c559d604508988082c5b641b720bda503d"
+    },
+    {
+      "bytes": 94712512,
+      "path": "/Users/n/numi-human-resting-evidence-20261005/lung-choroid-composition-924/choroid-v2/resting-thorax.nhanatomy",
+      "sha256": "3c444be7736c066a992988cc32b687917e1c4c5c3968a16b4d5f0106d5b5024e"
+    },
+    {
+      "bytes": 29218593,
+      "path": "/Users/n/numi-human-resting-evidence-20261005/lung-choroid-composition-924/final-v2/resting-anatomy-receipt.json",
+      "sha256": "40652ad554565f27713d6023af3327994f9c226e5471eddbd3b77d1baaaace3e"
+    },
+    {
+      "bytes": 23293288,
+      "path": "/Users/n/numi-human-resting-evidence-20261005/native-common-skin-multipose-clearance-candidate-927/asset-candidate-001/bodyparts3d-myosim-skinned-shell.nhskin",
+      "sha256": "bd4bfbbf0e071e24a1bb9eea7b9cd9f34ef862ef20417b5891cd24cec1b009d1"
+    },
+    {
+      "bytes": 537565,
+      "path": "/Users/n/numi-human-resting-evidence-20261005/native-common-skin-multipose-clearance-candidate-927/asset-candidate-001/common-atlas-skin-geometry-registration.manifest.json",
+      "sha256": "120b78369a8b74a4719eccc9ef416a44086574dc5ddcddbc55b721e2d06ccf99"
+    },
+    {
+      "bytes": 3643,
+      "path": "/Users/n/numi-human-resting-evidence-20261005/native-retired-alias-visibility-018-attempt2/build-native-viewer-018-attempt2.sh",
+      "sha256": "f82d8646914ea94189cb767b87bbea30bdb3c0fbb9c921066de502a1bc253cee"
+    },
+    {
+      "bytes": 281,
+      "path": "/Users/n/numi-human-resting-evidence-20261005/native-retired-alias-visibility-018-attempt2/initial-build-directory-failure.log",
+      "sha256": "b8ec0ff87e85a188591b813b76d2126d1efd0273784aa9a14eb263bbadccfc92"
+    },
+    {
+      "bytes": 8127202,
+      "path": "/Users/n/numi-human-resting-evidence-20261005/native-terminal-cycle-931/resting-coupled.csv",
+      "sha256": "aa3b6f12f482f09becbdf20185240d9bb27a945df21dd0771096aac0243faffd"
+    },
+    {
+      "bytes": 10669,
+      "path": "/Users/n/numi-human-resting-evidence-20261005/native-terminal-cycle-931/run-metadata.json",
+      "sha256": "d09f717e98e86208773afc63412db67eb59752766ab600f4d140dbc58d6489f0"
+    },
+    {
+      "bytes": 237708,
+      "path": "/Users/n/numi-human-resting-evidence-20261005/native-viewer018-recording-review-960/selected-scene-layers/heart.png",
+      "sha256": "5966ba41dce05521893d438aed0bed813450b66a6420652ed4bb20f8095874dd"
+    },
+    {
+      "bytes": 269109,
+      "path": "/Users/n/numi-human-resting-evidence-20261005/native-viewer018-recording-review-960/selected-scene-layers/lungs.png",
+      "sha256": "10c82289242073e6f33634347ed0a0d58f4c4cc233fdc09c7f4251c0571e3cf2"
+    },
+    {
+      "bytes": 181780,
+      "path": "/Users/n/numi-human-resting-evidence-20261005/native-viewer018-recording-review-960/selected-scene-layers/vessels.png",
+      "sha256": "828aec2dbc8baeab81ce4b5237bde1daf3676810d283c1374ed1c8299ae8a2f7"
+    },
+    {
+      "bytes": 187969,
+      "path": "/Users/n/numi-human-resting-evidence-20261005/native-viewer018-recording-review-960/selected-scene-layers/viscera-organs.png",
+      "sha256": "1e82577bf10c74cfca9813c347bf9c251f77e2d45086140d55328b32fa2cb481"
+    },
+    {
+      "bytes": 214043,
+      "path": "/Users/n/numi-human-resting-evidence-20261005/native-viewer018-recording-review-960/selected-scene-layers/wholebody.png",
+      "sha256": "741b0bc623d146d2bdcac43702b1030d672502df767a4ca5b77f8ff658452609"
+    },
+    {
+      "bytes": 377934,
+      "path": "/Users/n/numi-human-resting-evidence-20261005/passive-tissue-achilles-clearance-039-composed-001/bodyparts3d-myosim-fullbody-muscle-surfaces.manifest.json",
+      "sha256": "82cdd937e0f2daf0a8704fb21246353c38148527f8602d674ac865f935264dde"
+    },
+    {
+      "bytes": 31817964,
+      "path": "/Users/n/numi-human-resting-evidence-20261005/passive-tissue-achilles-clearance-039-composed-001/bodyparts3d-myosim-fullbody-muscle-surfaces.nhtissue",
+      "sha256": "b3d0381f73e05b04ed7ea1ba23eb6559073ad20aa0d9e2ad0f97a18fab3359bd"
+    },
+    {
+      "bytes": 25901,
+      "path": "/Users/n/numi-human-resting-evidence-20261005/reference-circulation-001/resting_reference_lv15.native.v3.json",
+      "sha256": "43ff6b49daf1d42cf9e88d85d8577f70e112dfcc3756ec43954e544a3e4bc0dc"
+    },
+    {
+      "bytes": 101200,
+      "path": "/Users/n/numi-human-resting-evidence-20261005/tendon-semantic-foot-migration-834/numi-human-tendon-attachments.nhtendon",
+      "sha256": "49daaf61421254cb18f3aa32f1d332b1810537afd4c4ef813abd2f0d118dcecc"
+    },
+    {
+      "bytes": 93186,
+      "path": "/Users/n/numi-human-resting-final-integration-001/src/numilab_human/resting_anatomy.py",
+      "sha256": "350f6c42517408de2f8c73729f35dd26b80bdd2a54d77fbca4ae63ef66182551"
+    },
+    {
+      "bytes": 19410,
+      "path": "/Users/n/numi-human-resting-final-integration-001/src/numilab_human/resting_run.py",
+      "sha256": "f6bc12635fcf41227a79b4d67e058b36f392a4147d083ce24366f8c3ef41c412"
+    },
+    {
+      "bytes": 28692,
+      "path": "/Users/n/numi-human-resting-final-integration-001/src/numilab_human/resting_scene.py",
+      "sha256": "373cbc4777b9c4e9bb0c43254e66effdff69d8bf05686847c793294392363188"
+    },
+    {
+      "bytes": 41517,
+      "path": "/Users/n/numi-human-resting-integration-20261005/numi-brain/Sources/NumiBrainABI/include/NumiBrainABI.h",
+      "sha256": "1d3b04b20f208b5a1ceae0ca79535aa79241b37dd502376f6174660c1d308ae4"
+    },
+    {
+      "bytes": 3393,
+      "path": "/Users/n/numi-human-resting-integration-20261005/numi-brain/Sources/NumiBrainABI/include/NumiBrainHumanStandingABI.h",
+      "sha256": "7d1d66b542d2aaba5d5d7c17e6a20fb7508d4704e821e988af250a66396ee593"
+    },
+    {
+      "bytes": 16937,
+      "path": "/Users/n/numi-human-resting-integration-20261005/numi-brain/Sources/NumiBrainABI/include/NumiBrainNumanXExactOutboundABI.h",
+      "sha256": "2fea24c6d6c30823b5e522921bfe378ae7126ba3c7ef074ba76d20c9c41441a8"
+    },
+    {
+      "bytes": 16192,
+      "path": "/Users/n/numi-human-resting-integration-20261005/numi-brain/Sources/NumiBrainABI/include/NumiBrainNumanXHumanMatterABI.h",
+      "sha256": "a6a458dcb6e14c214317f197d152cb85eaafd63a7bbf08e5b98ff364f710946b"
+    },
+    {
+      "bytes": 6877,
+      "path": "/Users/n/numi-human-resting-integration-20261005/numi-brain/Sources/NumiBrainABI/include/NumiBrainNumanXMotorReadyABI.h",
+      "sha256": "299fe1f7331ae142688593afe9d1e8726a6aff3795593a41bee34b379a2ee41d"
+    },
+    {
+      "bytes": 5683,
+      "path": "/Users/n/numi-human-resting-integration-20261005/numi-brain/Sources/NumiBrainABI/include/NumiBrainRespiratoryChemoreflexV1.h",
+      "sha256": "0d7ac6e2b8438cbd0b4cb9fdc5c169585421dd8542ac071d47c3002401892248"
+    },
+    {
+      "bytes": 223782,
+      "path": "/Users/n/numi-human-retired-alias-visibility-018/CMakeLists.txt",
+      "sha256": "41b1cb968cb4731e726486e1441777f43cba6e285383603b782a9fd78f190ef6"
+    },
+    {
+      "bytes": 1244,
+      "path": "/Users/n/numi-human-retired-alias-visibility-018/apps/NumiHumanAcceptedGeometryCadence.hpp",
+      "sha256": "a68d865d487ca19840322271db885aa2e693ebf545d008c820707cb90d396e13"
+    },
+    {
+      "bytes": 113867,
+      "path": "/Users/n/numi-human-retired-alias-visibility-018/apps/NumiHumanRestingAnatomy.hpp",
+      "sha256": "3f6737bae25f8b4553180a55a9e19a9289cb1c3e8b2e4c7d8f838cf91ccb1428"
+    },
+    {
+      "bytes": 33678,
+      "path": "/Users/n/numi-human-retired-alias-visibility-018/apps/NumiHumanRestingCoupling.hpp",
+      "sha256": "595b2991fe9124df2bb736a581aa28a16e335da69aac9ea1a10c8626da301fc2"
+    },
+    {
+      "bytes": 626,
+      "path": "/Users/n/numi-human-retired-alias-visibility-018/apps/NumiHumanRestingInspectionLayers.hpp",
+      "sha256": "7e5b2621e0f97cbb9ff6393a9b86bc07694bb74f7e224a8cf81a29e113ef32e0"
+    },
+    {
+      "bytes": 170890,
+      "path": "/Users/n/numi-human-retired-alias-visibility-018/apps/NumiHumanRestingVisual.hpp",
+      "sha256": "92e30eb1bac1dbcc6a816efbe12fdb7811f1abc30fe81e2373b050e0095ab8c7"
+    },
+    {
+      "bytes": 1477192,
+      "path": "/Users/n/numi-human-retired-alias-visibility-018/apps/numilab_human_myosim_visual_probe.mm",
+      "sha256": "88208ce586cfabc6dfb2e644dcfbf21dac4fbc09e83d3483836a7af9a6aaf0d2"
+    },
+    {
+      "bytes": 77009,
+      "path": "/Users/n/numi-human-retired-alias-visibility-018/matter/src/human_respiration.metal",
+      "sha256": "8ec33f7495e086618a294ecf900a571ed4f55091baae92989874c5dc1f045973"
+    },
+    {
+      "bytes": 3965,
+      "path": "/Users/n/numi-human-retired-alias-visibility-018/tests/numi_human_retired_inspection_layers_test.cpp",
+      "sha256": "fa1c9743e951c703aa128f32aef82c8055c2495f3eb28bc225942f0d5031b1c0"
+    },
+    {
+      "bytes": 2259056,
+      "path": "/Users/n/numi-human-retired-alias-visibility-build-018-attempt2/bin/numi-human-native",
+      "sha256": "486442abe2070168a902fb06669469e8b6cc612a9a6ef65ddb3d54957308d906"
+    },
+    {
+      "bytes": 6482,
+      "path": "/Users/n/numi-human-retired-alias-visibility-build-018-attempt2/evidence/build-pins.json",
+      "sha256": "cb883675ac1fc6735c80c49769ea6e0065181b427181bb99ea947e35d6952fdd"
+    },
+    {
+      "bytes": 11765,
+      "path": "/Users/n/numi-human-retired-alias-visibility-build-018-attempt2/evidence/source-delta.patch",
+      "sha256": "e7acace57f332c0ae202f47cd8f8afe59242f7ebbab97499f5cc5cfbc58f52fa"
+    },
+    {
+      "bytes": 3833,
+      "path": "/Users/n/numi-human-retired-alias-visibility-build-018-attempt2/evidence/source-pins.json",
+      "sha256": "a2066150f3dedb1c40b64a74c8476bfa9b0bd76b5110a35f018a71859b008c2f"
+    },
+    {
+      "bytes": 417091,
+      "path": "/Users/n/numi-human-retired-alias-visibility-build-018-attempt2/matter/shaders/HumanRespiration.metallib",
+      "sha256": "4b61361f513bf0996d687398498b85ba4e379edca91c36f134e1b0398f31c426"
+    }
+  ],
+  "limits": [
+    "External source assets, native binaries, movie, extracted images and accepted MRVPacks remain on macmini.",
+    "Copied preflight scripts retain their exact original machine-bound paths."
+  ],
+  "schema": "numi.human.retained-artifacts.v1"
+}

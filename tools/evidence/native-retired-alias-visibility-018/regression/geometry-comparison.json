@@ -1,0 +1,630 @@
+{
+  "candidate_run": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/native-run",
+  "captures": [
+    {
+      "all_geometry_sections_byte_identical": true,
+      "candidate": {
+        "accepted_body_state_sha256": "b063191a425cdfc7939d83f7ba3fcf9ada59823b2cb24c826b3322549d12979c",
+        "accepted_respiration_state_sha256": "c58986f0ab93aa412ca6b39a9217a178b1787d137568d6e2519098caa5846cb7",
+        "accepted_step": 0,
+        "accepted_time_s": 0,
+        "pack_path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/native-run/accepted-geometry/step-0.mrvpack",
+        "pack_sha256": "46e269161eb4006d1d4fb20090bae51d91757fdec9726862c1a200a553c3e3c7",
+        "receipt_path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/native-run/accepted-geometry/step-0.receipt.json",
+        "receipt_sha256": "83dc6911d9b4f4ed0f9ff240e04f50b460503d3e9e0aaf67904f8cc1da37fa30",
+        "sections": {
+          "2": {
+            "bytes": 226340560,
+            "count": 2829257,
+            "sha256": "aea5c2c056f60ea9ec890bc44435d9619815e1b0f10ba7dfbab6a452957ce872",
+            "stride": 80
+          },
+          "3": {
+            "bytes": 58923084,
+            "count": 14730771,
+            "sha256": "e9236230b569dbe130098d43fca5e7b0ad7260b24a9e9622b5b6242283168f99",
+            "stride": 4
+          },
+          "4": {
+            "bytes": 55104,
+            "count": 861,
+            "sha256": "f4a19a2e36204626b281be77c0246ad878b65f565710147bc76069b9da502232",
+            "stride": 64
+          },
+          "5": {
+            "bytes": 68880,
+            "count": 861,
+            "sha256": "f0cf993bd7552cfc6cbc5cea8661e06cc4f66b9997e766e478d3fc1db8f496ac",
+            "stride": 80
+          }
+        }
+      },
+      "reference": {
+        "accepted_body_state_sha256": "b063191a425cdfc7939d83f7ba3fcf9ada59823b2cb24c826b3322549d12979c",
+        "accepted_respiration_state_sha256": "c58986f0ab93aa412ca6b39a9217a178b1787d137568d6e2519098caa5846cb7",
+        "accepted_step": 0,
+        "accepted_time_s": 0,
+        "pack_path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-current-lung-924/native-run/accepted-geometry/step-0.mrvpack",
+        "pack_sha256": "56a45cbf74570eaac816d0f0269b96d7c18f64a1247d95def2084a631f8636fb",
+        "receipt_path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-current-lung-924/native-run/accepted-geometry/step-0.receipt.json",
+        "receipt_sha256": "0fb6830c85b4a1d5d310b30dcfd4d66d4d749fbbd355331170c67cb7974be558",
+        "sections": {
+          "2": {
+            "bytes": 226340560,
+            "count": 2829257,
+            "sha256": "aea5c2c056f60ea9ec890bc44435d9619815e1b0f10ba7dfbab6a452957ce872",
+            "stride": 80
+          },
+          "3": {
+            "bytes": 58923084,
+            "count": 14730771,
+            "sha256": "e9236230b569dbe130098d43fca5e7b0ad7260b24a9e9622b5b6242283168f99",
+            "stride": 4
+          },
+          "4": {
+            "bytes": 55104,
+            "count": 861,
+            "sha256": "f4a19a2e36204626b281be77c0246ad878b65f565710147bc76069b9da502232",
+            "stride": 64
+          },
+          "5": {
+            "bytes": 68880,
+            "count": 861,
+            "sha256": "f0cf993bd7552cfc6cbc5cea8661e06cc4f66b9997e766e478d3fc1db8f496ac",
+            "stride": 80
+          }
+        }
+      },
+      "step": 0
+    },
+    {
+      "all_geometry_sections_byte_identical": true,
+      "candidate": {
+        "accepted_body_state_sha256": "c8d8836a5d3cb3adeef845b3b6629d99d39b4e9d535a0c11fd9e54f612b0cd09",
+        "accepted_respiration_state_sha256": "435cff34c6b7369149b5bdc197fc1ef1f054f791676e5d4f504d603d03101724",
+        "accepted_step": 4991,
+        "accepted_time_s": 9.982000474119559,
+        "pack_path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/native-run/accepted-geometry/step-4991.mrvpack",
+        "pack_sha256": "c6956bead871b9d8cc53575083484fb1be733b3ae33069ce0876b9d48a4d0842",
+        "receipt_path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/native-run/accepted-geometry/step-4991.receipt.json",
+        "receipt_sha256": "55605f948e0b41e40f65b59035b2d1c211053f61059f791990ea329dca1be7f6",
+        "sections": {
+          "2": {
+            "bytes": 226340560,
+            "count": 2829257,
+            "sha256": "04c9142a78bcc4e19113b27e55dfc27386640c9b866112d20133d15a9ddae748",
+            "stride": 80
+          },
+          "3": {
+            "bytes": 58923084,
+            "count": 14730771,
+            "sha256": "e9236230b569dbe130098d43fca5e7b0ad7260b24a9e9622b5b6242283168f99",
+            "stride": 4
+          },
+          "4": {
+            "bytes": 55104,
+            "count": 861,
+            "sha256": "8106e046e9a470a9fbd170789960045a04de91a489e846211861eb6fe6b92a35",
+            "stride": 64
+          },
+          "5": {
+            "bytes": 68880,
+            "count": 861,
+            "sha256": "f0cf993bd7552cfc6cbc5cea8661e06cc4f66b9997e766e478d3fc1db8f496ac",
+            "stride": 80
+          }
+        }
+      },
+      "reference": {
+        "accepted_body_state_sha256": "c8d8836a5d3cb3adeef845b3b6629d99d39b4e9d535a0c11fd9e54f612b0cd09",
+        "accepted_respiration_state_sha256": "435cff34c6b7369149b5bdc197fc1ef1f054f791676e5d4f504d603d03101724",
+        "accepted_step": 4991,
+        "accepted_time_s": 9.982000474119559,
+        "pack_path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-current-lung-924/native-run/accepted-geometry/step-4991.mrvpack",
+        "pack_sha256": "f2a2f81106ee72f3b8523c9da17b6c3abf71e31819b6db916f897751ebccc491",
+        "receipt_path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-current-lung-924/native-run/accepted-geometry/step-4991.receipt.json",
+        "receipt_sha256": "32aacbcb3a8ba4064f9716e2c4ec170f1f58d26e8540f569fe6ee73bd3d9b113",
+        "sections": {
+          "2": {
+            "bytes": 226340560,
+            "count": 2829257,
+            "sha256": "04c9142a78bcc4e19113b27e55dfc27386640c9b866112d20133d15a9ddae748",
+            "stride": 80
+          },
+          "3": {
+            "bytes": 58923084,
+            "count": 14730771,
+            "sha256": "e9236230b569dbe130098d43fca5e7b0ad7260b24a9e9622b5b6242283168f99",
+            "stride": 4
+          },
+          "4": {
+            "bytes": 55104,
+            "count": 861,
+            "sha256": "8106e046e9a470a9fbd170789960045a04de91a489e846211861eb6fe6b92a35",
+            "stride": 64
+          },
+          "5": {
+            "bytes": 68880,
+            "count": 861,
+            "sha256": "f0cf993bd7552cfc6cbc5cea8661e06cc4f66b9997e766e478d3fc1db8f496ac",
+            "stride": 80
+          }
+        }
+      },
+      "step": 4991
+    },
+    {
+      "all_geometry_sections_byte_identical": true,
+      "candidate": {
+        "accepted_body_state_sha256": "86bd8af1d4d6f5167a00eaabae3db07ced37fe87c01f24b1a2a3b4afe9520294",
+        "accepted_respiration_state_sha256": "dd103520390e63345cea3b8074f2937e8c94445a08167667c9a72e21c546ca65",
+        "accepted_step": 5375,
+        "accepted_time_s": 10.750000510597602,
+        "pack_path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/native-run/accepted-geometry/step-5375.mrvpack",
+        "pack_sha256": "5b85f77bc165bf36220821a96e4096a6c81cc2004e964a505350fc0bd0f3d04e",
+        "receipt_path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/native-run/accepted-geometry/step-5375.receipt.json",
+        "receipt_sha256": "698b8816921f4b987dd0c050e58c9407037bdf9a2d3e2b16b354ea169458d082",
+        "sections": {
+          "2": {
+            "bytes": 226340560,
+            "count": 2829257,
+            "sha256": "2d3a658fb3ca8c1f4df20ee043fed505ef9d3a43f0713ae7b7139af03c2c05d6",
+            "stride": 80
+          },
+          "3": {
+            "bytes": 58923084,
+            "count": 14730771,
+            "sha256": "e9236230b569dbe130098d43fca5e7b0ad7260b24a9e9622b5b6242283168f99",
+            "stride": 4
+          },
+          "4": {
+            "bytes": 55104,
+            "count": 861,
+            "sha256": "79479ad76926e613a4eb65645f2bdd81e7142fbe8e0acd31f20ba4b41a2fbd3e",
+            "stride": 64
+          },
+          "5": {
+            "bytes": 68880,
+            "count": 861,
+            "sha256": "f0cf993bd7552cfc6cbc5cea8661e06cc4f66b9997e766e478d3fc1db8f496ac",
+            "stride": 80
+          }
+        }
+      },
+      "reference": {
+        "accepted_body_state_sha256": "86bd8af1d4d6f5167a00eaabae3db07ced37fe87c01f24b1a2a3b4afe9520294",
+        "accepted_respiration_state_sha256": "dd103520390e63345cea3b8074f2937e8c94445a08167667c9a72e21c546ca65",
+        "accepted_step": 5375,
+        "accepted_time_s": 10.750000510597602,
+        "pack_path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-current-lung-924/native-run/accepted-geometry/step-5375.mrvpack",
+        "pack_sha256": "f018595c6f1b8cbcb024cb983af2e08e4a32245e4156dcb9119b23e5f98ee32d",
+        "receipt_path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-current-lung-924/native-run/accepted-geometry/step-5375.receipt.json",
+        "receipt_sha256": "6db387249996f7f735dfec9ebcffc88dae9adaacadf0953dc0d2b265af4b8172",
+        "sections": {
+          "2": {
+            "bytes": 226340560,
+            "count": 2829257,
+            "sha256": "2d3a658fb3ca8c1f4df20ee043fed505ef9d3a43f0713ae7b7139af03c2c05d6",
+            "stride": 80
+          },
+          "3": {
+            "bytes": 58923084,
+            "count": 14730771,
+            "sha256": "e9236230b569dbe130098d43fca5e7b0ad7260b24a9e9622b5b6242283168f99",
+            "stride": 4
+          },
+          "4": {
+            "bytes": 55104,
+            "count": 861,
+            "sha256": "79479ad76926e613a4eb65645f2bdd81e7142fbe8e0acd31f20ba4b41a2fbd3e",
+            "stride": 64
+          },
+          "5": {
+            "bytes": 68880,
+            "count": 861,
+            "sha256": "f0cf993bd7552cfc6cbc5cea8661e06cc4f66b9997e766e478d3fc1db8f496ac",
+            "stride": 80
+          }
+        }
+      },
+      "step": 5375
+    },
+    {
+      "all_geometry_sections_byte_identical": true,
+      "candidate": {
+        "accepted_body_state_sha256": "0609a78af388edf4701acfc3c8ab32e0b40630115aceec28e2fa42b90f57b150",
+        "accepted_respiration_state_sha256": "39b8dc30025ac46d8608403da3dd7baa6bd8ab8f158794fb24908af5f9901a8d",
+        "accepted_step": 5759,
+        "accepted_time_s": 11.518000547075644,
+        "pack_path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/native-run/accepted-geometry/step-5759.mrvpack",
+        "pack_sha256": "61180ab25cbd79f5299a08f0dd3939a06c1b8861faae34ff96eb3d4f0258ef77",
+        "receipt_path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/native-run/accepted-geometry/step-5759.receipt.json",
+        "receipt_sha256": "a983f1f4d505fd0e0b487e9bc99f5f3bd2177151e814535e12a8bfcca8ed0ddc",
+        "sections": {
+          "2": {
+            "bytes": 226340560,
+            "count": 2829257,
+            "sha256": "1972a68d98da4ceb2cc3c60a32bc03c671d52e0d71cd0a1532f64b5178ba24f1",
+            "stride": 80
+          },
+          "3": {
+            "bytes": 58923084,
+            "count": 14730771,
+            "sha256": "e9236230b569dbe130098d43fca5e7b0ad7260b24a9e9622b5b6242283168f99",
+            "stride": 4
+          },
+          "4": {
+            "bytes": 55104,
+            "count": 861,
+            "sha256": "2c8c4e9bb2663973700583a3228c033f4cd0f7730654fee0694324cf177a85e1",
+            "stride": 64
+          },
+          "5": {
+            "bytes": 68880,
+            "count": 861,
+            "sha256": "f0cf993bd7552cfc6cbc5cea8661e06cc4f66b9997e766e478d3fc1db8f496ac",
+            "stride": 80
+          }
+        }
+      },
+      "reference": {
+        "accepted_body_state_sha256": "0609a78af388edf4701acfc3c8ab32e0b40630115aceec28e2fa42b90f57b150",
+        "accepted_respiration_state_sha256": "39b8dc30025ac46d8608403da3dd7baa6bd8ab8f158794fb24908af5f9901a8d",
+        "accepted_step": 5759,
+        "accepted_time_s": 11.518000547075644,
+        "pack_path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-current-lung-924/native-run/accepted-geometry/step-5759.mrvpack",
+        "pack_sha256": "159c4598a88eed42a6dca8749abdfe2144527d1cb187cc8dc807a3e906a4ab22",
+        "receipt_path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-current-lung-924/native-run/accepted-geometry/step-5759.receipt.json",
+        "receipt_sha256": "2ee4c1760098ae93db6636a0e5ca4e9b987b252d35e247bdf90962f409137034",
+        "sections": {
+          "2": {
+            "bytes": 226340560,
+            "count": 2829257,
+            "sha256": "1972a68d98da4ceb2cc3c60a32bc03c671d52e0d71cd0a1532f64b5178ba24f1",
+            "stride": 80
+          },
+          "3": {
+            "bytes": 58923084,
+            "count": 14730771,
+            "sha256": "e9236230b569dbe130098d43fca5e7b0ad7260b24a9e9622b5b6242283168f99",
+            "stride": 4
+          },
+          "4": {
+            "bytes": 55104,
+            "count": 861,
+            "sha256": "2c8c4e9bb2663973700583a3228c033f4cd0f7730654fee0694324cf177a85e1",
+            "stride": 64
+          },
+          "5": {
+            "bytes": 68880,
+            "count": 861,
+            "sha256": "f0cf993bd7552cfc6cbc5cea8661e06cc4f66b9997e766e478d3fc1db8f496ac",
+            "stride": 80
+          }
+        }
+      },
+      "step": 5759
+    },
+    {
+      "all_geometry_sections_byte_identical": true,
+      "candidate": {
+        "accepted_body_state_sha256": "88e376d5c297b03f2dc895b6a9de4c6e3ff78c5f282d7d138cb85e734366ce12",
+        "accepted_respiration_state_sha256": "8e3da102523f66738a95b4579d14e07c036d925d9d30a9f53163b87a2781baf0",
+        "accepted_step": 6111,
+        "accepted_time_s": 12.22200058051385,
+        "pack_path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/native-run/accepted-geometry/step-6111.mrvpack",
+        "pack_sha256": "9b56848ce0efa756782ab2d958e7573b2791cea9a7ca0edfdef22ce8c45cde0c",
+        "receipt_path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/native-run/accepted-geometry/step-6111.receipt.json",
+        "receipt_sha256": "3a5438bf1641c983d92d0ebd094a427ccb3c4f5401e881de8328d168d6c717d1",
+        "sections": {
+          "2": {
+            "bytes": 226340560,
+            "count": 2829257,
+            "sha256": "bcfa444876bac4d155cdf090b340241f89280277f1071d40adf4b97dd22b803b",
+            "stride": 80
+          },
+          "3": {
+            "bytes": 58923084,
+            "count": 14730771,
+            "sha256": "e9236230b569dbe130098d43fca5e7b0ad7260b24a9e9622b5b6242283168f99",
+            "stride": 4
+          },
+          "4": {
+            "bytes": 55104,
+            "count": 861,
+            "sha256": "028b8d30b29447823d77f0b3ae346fd8e2877f6e9e2b9d185adfe7e6640fcaef",
+            "stride": 64
+          },
+          "5": {
+            "bytes": 68880,
+            "count": 861,
+            "sha256": "f0cf993bd7552cfc6cbc5cea8661e06cc4f66b9997e766e478d3fc1db8f496ac",
+            "stride": 80
+          }
+        }
+      },
+      "reference": {
+        "accepted_body_state_sha256": "88e376d5c297b03f2dc895b6a9de4c6e3ff78c5f282d7d138cb85e734366ce12",
+        "accepted_respiration_state_sha256": "8e3da102523f66738a95b4579d14e07c036d925d9d30a9f53163b87a2781baf0",
+        "accepted_step": 6111,
+        "accepted_time_s": 12.22200058051385,
+        "pack_path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-current-lung-924/native-run/accepted-geometry/step-6111.mrvpack",
+        "pack_sha256": "6c1d862ded18b420312a5632f81d17ef7c533995d3ab5e3d9e0153c8451a03ef",
+        "receipt_path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-current-lung-924/native-run/accepted-geometry/step-6111.receipt.json",
+        "receipt_sha256": "d8b30fe8076568047745ccac13dccd5a222fbce89be21e016db2aa1b2f4e65cf",
+        "sections": {
+          "2": {
+            "bytes": 226340560,
+            "count": 2829257,
+            "sha256": "bcfa444876bac4d155cdf090b340241f89280277f1071d40adf4b97dd22b803b",
+            "stride": 80
+          },
+          "3": {
+            "bytes": 58923084,
+            "count": 14730771,
+            "sha256": "e9236230b569dbe130098d43fca5e7b0ad7260b24a9e9622b5b6242283168f99",
+            "stride": 4
+          },
+          "4": {
+            "bytes": 55104,
+            "count": 861,
+            "sha256": "028b8d30b29447823d77f0b3ae346fd8e2877f6e9e2b9d185adfe7e6640fcaef",
+            "stride": 64
+          },
+          "5": {
+            "bytes": 68880,
+            "count": 861,
+            "sha256": "f0cf993bd7552cfc6cbc5cea8661e06cc4f66b9997e766e478d3fc1db8f496ac",
+            "stride": 80
+          }
+        }
+      },
+      "step": 6111
+    },
+    {
+      "all_geometry_sections_byte_identical": true,
+      "candidate": {
+        "accepted_body_state_sha256": "1c5bda48c5d8251a298495409bb9d741a2741760724de75eeab654610dc0dc3a",
+        "accepted_respiration_state_sha256": "593504acd903c13a82cb371253050080fc9aeebf564cb5708874c8004e26b778",
+        "accepted_step": 6495,
+        "accepted_time_s": 12.990000616991892,
+        "pack_path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/native-run/accepted-geometry/step-6495.mrvpack",
+        "pack_sha256": "a7298c0406373a8d5c3dd69f4fd9ce20ef132bcf54475efb2acaf3b5a7236900",
+        "receipt_path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/native-run/accepted-geometry/step-6495.receipt.json",
+        "receipt_sha256": "ff0aa1de06596f048e6d43e7101706e7c028a97f7c9eaae3c95459c6b089a47a",
+        "sections": {
+          "2": {
+            "bytes": 226340560,
+            "count": 2829257,
+            "sha256": "839e5f59fa4efaa50abdebf177836c73a5bbee8a77a905667586b0d023fe4d5e",
+            "stride": 80
+          },
+          "3": {
+            "bytes": 58923084,
+            "count": 14730771,
+            "sha256": "e9236230b569dbe130098d43fca5e7b0ad7260b24a9e9622b5b6242283168f99",
+            "stride": 4
+          },
+          "4": {
+            "bytes": 55104,
+            "count": 861,
+            "sha256": "ef6a48f319e9aebd98f55deda76441c3b8cbf413a9a391970e9fcfb04c010814",
+            "stride": 64
+          },
+          "5": {
+            "bytes": 68880,
+            "count": 861,
+            "sha256": "f0cf993bd7552cfc6cbc5cea8661e06cc4f66b9997e766e478d3fc1db8f496ac",
+            "stride": 80
+          }
+        }
+      },
+      "reference": {
+        "accepted_body_state_sha256": "1c5bda48c5d8251a298495409bb9d741a2741760724de75eeab654610dc0dc3a",
+        "accepted_respiration_state_sha256": "593504acd903c13a82cb371253050080fc9aeebf564cb5708874c8004e26b778",
+        "accepted_step": 6495,
+        "accepted_time_s": 12.990000616991892,
+        "pack_path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-current-lung-924/native-run/accepted-geometry/step-6495.mrvpack",
+        "pack_sha256": "053bab1e060de1d00d225b6e6b93f4c35baf49c4bfcd29df81da2babfc9358e7",
+        "receipt_path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-current-lung-924/native-run/accepted-geometry/step-6495.receipt.json",
+        "receipt_sha256": "af516bcce4a066ea0a232a71993ec95774c77ca007a883eb5d465afb15d80b45",
+        "sections": {
+          "2": {
+            "bytes": 226340560,
+            "count": 2829257,
+            "sha256": "839e5f59fa4efaa50abdebf177836c73a5bbee8a77a905667586b0d023fe4d5e",
+            "stride": 80
+          },
+          "3": {
+            "bytes": 58923084,
+            "count": 14730771,
+            "sha256": "e9236230b569dbe130098d43fca5e7b0ad7260b24a9e9622b5b6242283168f99",
+            "stride": 4
+          },
+          "4": {
+            "bytes": 55104,
+            "count": 861,
+            "sha256": "ef6a48f319e9aebd98f55deda76441c3b8cbf413a9a391970e9fcfb04c010814",
+            "stride": 64
+          },
+          "5": {
+            "bytes": 68880,
+            "count": 861,
+            "sha256": "f0cf993bd7552cfc6cbc5cea8661e06cc4f66b9997e766e478d3fc1db8f496ac",
+            "stride": 80
+          }
+        }
+      },
+      "step": 6495
+    },
+    {
+      "all_geometry_sections_byte_identical": true,
+      "candidate": {
+        "accepted_body_state_sha256": "81809c1d1aa93819e42ab97fd4767b2b392596e87791130125be78c44c9094b0",
+        "accepted_respiration_state_sha256": "e841256675d7d94c0a17f82ec00b7d93afb472bfa0b53a6affd7120e4a6807bd",
+        "accepted_step": 7743,
+        "accepted_time_s": 15.486000735545531,
+        "pack_path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/native-run/accepted-geometry/step-7743.mrvpack",
+        "pack_sha256": "18b790a1daff2fd615e606882ab98063ebed1223b8316238a342558fc815d682",
+        "receipt_path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/native-run/accepted-geometry/step-7743.receipt.json",
+        "receipt_sha256": "095fad99adecd19f7c253b2b0ecebcabf2db5d03399fe5690e3826365e8147de",
+        "sections": {
+          "2": {
+            "bytes": 226340560,
+            "count": 2829257,
+            "sha256": "4f4c2a1de4062facec021153f7207fcab068bf8a5d9b19e1c51400f05e162f72",
+            "stride": 80
+          },
+          "3": {
+            "bytes": 58923084,
+            "count": 14730771,
+            "sha256": "e9236230b569dbe130098d43fca5e7b0ad7260b24a9e9622b5b6242283168f99",
+            "stride": 4
+          },
+          "4": {
+            "bytes": 55104,
+            "count": 861,
+            "sha256": "0cf5804f1b5667f679503c2b1b8cada6655b29cad878f0887c598a73c637ac31",
+            "stride": 64
+          },
+          "5": {
+            "bytes": 68880,
+            "count": 861,
+            "sha256": "f0cf993bd7552cfc6cbc5cea8661e06cc4f66b9997e766e478d3fc1db8f496ac",
+            "stride": 80
+          }
+        }
+      },
+      "reference": {
+        "accepted_body_state_sha256": "81809c1d1aa93819e42ab97fd4767b2b392596e87791130125be78c44c9094b0",
+        "accepted_respiration_state_sha256": "e841256675d7d94c0a17f82ec00b7d93afb472bfa0b53a6affd7120e4a6807bd",
+        "accepted_step": 7743,
+        "accepted_time_s": 15.486000735545531,
+        "pack_path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-current-lung-924/native-run/accepted-geometry/step-7743.mrvpack",
+        "pack_sha256": "30b8edd36a53207c00b19304a7c1847fb609290c0f089b2b2d2efd58636e326e",
+        "receipt_path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-current-lung-924/native-run/accepted-geometry/step-7743.receipt.json",
+        "receipt_sha256": "ec0dd195e71b5adc96f7a2051c1b2324c62931be9400273502b45c9ceadeaa99",
+        "sections": {
+          "2": {
+            "bytes": 226340560,
+            "count": 2829257,
+            "sha256": "4f4c2a1de4062facec021153f7207fcab068bf8a5d9b19e1c51400f05e162f72",
+            "stride": 80
+          },
+          "3": {
+            "bytes": 58923084,
+            "count": 14730771,
+            "sha256": "e9236230b569dbe130098d43fca5e7b0ad7260b24a9e9622b5b6242283168f99",
+            "stride": 4
+          },
+          "4": {
+            "bytes": 55104,
+            "count": 861,
+            "sha256": "0cf5804f1b5667f679503c2b1b8cada6655b29cad878f0887c598a73c637ac31",
+            "stride": 64
+          },
+          "5": {
+            "bytes": 68880,
+            "count": 861,
+            "sha256": "f0cf993bd7552cfc6cbc5cea8661e06cc4f66b9997e766e478d3fc1db8f496ac",
+            "stride": 80
+          }
+        }
+      },
+      "step": 7743
+    },
+    {
+      "all_geometry_sections_byte_identical": true,
+      "candidate": {
+        "accepted_body_state_sha256": "1d13e67a0fb3785e418bb1240258c88d5755345ff60bf78354197e9c8bc41680",
+        "accepted_respiration_state_sha256": "efce4e8d4720f73ccc14996aa1590f80747b45570a8ddbfbf165d97f277b03e4",
+        "accepted_step": 10000,
+        "accepted_time_s": 20.000000949949026,
+        "pack_path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/native-run/accepted-geometry/step-10000.mrvpack",
+        "pack_sha256": "b38cb90ebfa57f39811d549dd5262ac759a1cceb2e6024a2db77661122ffbfd1",
+        "receipt_path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-924-viewer-018-v014-final-attempt3/native-run/accepted-geometry/step-10000.receipt.json",
+        "receipt_sha256": "864d565c63d0298b4b9eda28a9ffb5272e11355ed3f669b275b8deb9e8ce4699",
+        "sections": {
+          "2": {
+            "bytes": 226340560,
+            "count": 2829257,
+            "sha256": "19b6fe02dc22e24f7d299d98e4a4603d26bfa896af8674526140598d446f22ba",
+            "stride": 80
+          },
+          "3": {
+            "bytes": 58923084,
+            "count": 14730771,
+            "sha256": "e9236230b569dbe130098d43fca5e7b0ad7260b24a9e9622b5b6242283168f99",
+            "stride": 4
+          },
+          "4": {
+            "bytes": 55104,
+            "count": 861,
+            "sha256": "389cbbaa0b4a305f06c8a4a6ea5f81b004e9807dcf88b2b392419fc44e8002a1",
+            "stride": 64
+          },
+          "5": {
+            "bytes": 68880,
+            "count": 861,
+            "sha256": "f0cf993bd7552cfc6cbc5cea8661e06cc4f66b9997e766e478d3fc1db8f496ac",
+            "stride": 80
+          }
+        }
+      },
+      "reference": {
+        "accepted_body_state_sha256": "1d13e67a0fb3785e418bb1240258c88d5755345ff60bf78354197e9c8bc41680",
+        "accepted_respiration_state_sha256": "efce4e8d4720f73ccc14996aa1590f80747b45570a8ddbfbf165d97f277b03e4",
+        "accepted_step": 10000,
+        "accepted_time_s": 20.000000949949026,
+        "pack_path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-current-lung-924/native-run/accepted-geometry/step-10000.mrvpack",
+        "pack_sha256": "f27fbe5c683685823a11540c9756fb7c0b5aa38850e5fb384c352677ef3c378e",
+        "receipt_path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-current-lung-924/native-run/accepted-geometry/step-10000.receipt.json",
+        "receipt_sha256": "cfbd698cde1cbb2c6a52110a20aa56d01799bf5e40a6c941dccd50fa72ee0945",
+        "sections": {
+          "2": {
+            "bytes": 226340560,
+            "count": 2829257,
+            "sha256": "19b6fe02dc22e24f7d299d98e4a4603d26bfa896af8674526140598d446f22ba",
+            "stride": 80
+          },
+          "3": {
+            "bytes": 58923084,
+            "count": 14730771,
+            "sha256": "e9236230b569dbe130098d43fca5e7b0ad7260b24a9e9622b5b6242283168f99",
+            "stride": 4
+          },
+          "4": {
+            "bytes": 55104,
+            "count": 861,
+            "sha256": "389cbbaa0b4a305f06c8a4a6ea5f81b004e9807dcf88b2b392419fc44e8002a1",
+            "stride": 64
+          },
+          "5": {
+            "bytes": 68880,
+            "count": 861,
+            "sha256": "f0cf993bd7552cfc6cbc5cea8661e06cc4f66b9997e766e478d3fc1db8f496ac",
+            "stride": 80
+          }
+        }
+      },
+      "step": 10000
+    }
+  ],
+  "limits": [
+    "Eight stored accepted captures only; no continuous-time or later-time geometry claim.",
+    "Live layer selection uses the GPU instance-layer mask. Exported packs retain the retired alias and base flags.",
+    "Whole-pack hashes differ because their metadata binds different run paths; section equality is the geometry claim."
+  ],
+  "reader_path": "/Users/n/numi-human-resting-evidence-20261005/cardiac-wall-native-self-audit-001/accepted_mrvpack_surface_audit.py",
+  "reader_sha256": "eb9e5c762cdbab1e9b3f98c63a1580a21acba54637b105c28e2bc0a39187ba17",
+  "reference_run": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-current-lung-924/native-run",
+  "schema": "numi.human.native-geometry-regression.v1",
+  "script_sha256": "acc8bacf85a4b2e583b959c9e2438c96a2b648e1f1cad4b73ced7a6245175815",
+  "section_meanings": {
+    "2": "vertices including positions normals tangents",
+    "3": "indices",
+    "4": "primitives",
+    "5": "instances"
+  },
+  "status": "passed"
+}
