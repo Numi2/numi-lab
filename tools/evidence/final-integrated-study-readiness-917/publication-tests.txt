@@ -1,0 +1,26 @@
+.....F............                                                       [100%]
+=================================== FAILURES ===================================
+_ IdentityProbeRecorderTests.test_readiness_prints_recorder_command_not_raw_native_command _
+
+self = <test_record_treatment_program_probe.IdentityProbeRecorderTests testMethod=test_readiness_prints_recorder_command_not_raw_native_command>
+
+    def test_readiness_prints_recorder_command_not_raw_native_command(self):
+        import contextlib
+        import io
+        scene = Path("/tmp/numi-final-control-command")
+        control = control_invocation()
+        predicted = {
+            "treatment_program_fingerprint_predicted": 123456,
+            "treatment_body_source_fingerprint_predicted": 654321,
+        }
+        stream = io.StringIO()
+        with contextlib.redirect_stdout(stream):
+            readiness.print_probe_command(control, scene, predicted)
+        output = stream.getvalue()
+>       self.assertIn(str(recorder.ROOT / "record_treatment_program_probe.py"), output)
+E       AssertionError: '/Users/n/numi-human-area-audit-fma-fix-001/tools/evidence/final-integrated-study-readiness-917/record_treatment_program_probe.py' not found in '{\n  "accepted_steps": 10000,\n  "device": "Apple M4 Pro",\n  "expected_body_source_fingerprint": 654321,\n  "expected_program_fingerprint": 123456,\n  "instructions": "Run the printed command through the readiness-owned direct-native recorder, preserving invocation.json, run-metadata.json, native.log, and before/after source hashes under output_directory. The intervention begins at 60 s, so this 20 s probe verifies program identity only; it does not exercise dose response. Do not register or launch the 310 s pair until the actual native treatment fingerprint matches this prediction.",\n  "native_argv": [\n    "/Users/n/numi-human-terminal-capture-build-017/bin/numi-human-native",\n    "--resting-scene",\n    "/evidence/scene.json",\n    "unused-position-3",\n    "/private/tmp/numi-final-control-command/treatment-program-probe",\n    "--resting-movie",\n    "/private/tmp/numi-final-control-command/treatment-program-probe/native-viewer.mov",\n    "--resting-anatomy-receipt",\n    "/evidence/resting-anatomy-receipt.json",\n    "--torso-anatomy-payload",\n    "/evidence/NHANATOMY",\n    "--muscle-step-count",\n    "10000",\n    "--muscle-step-seconds",\n    "0.002",\n    "--resting-drive-intervention",\n    "60.0",\n    "100.0",\n    "0.5"\n  ],\n  "native_environment": {\n    "DYLD_LIBRARY_PATH": "/build/lib:/build/matter",\n    "DYLD_PRINT_LIBRARIES": "1",\n    "NUMI_HUMAN_RESTING_COMMON_FAILURE_RECEIPT": "/private/tmp/numi-final-control-command/treatment-program-probe/common-field-failure.json"\n  },\n  "output_directory": "/private/tmp/numi-final-control-command/treatment-program-probe",\n  "status": "planned_not_run",\n  "timestep_s": 0.002,\n  "working_directory": "/private/tmp/numi-final-control-command"\n}\nDirect-native identity probe recorder command (not executed):\n/Applications/Xcode-26.6.0.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/bin/python3.9 /Users/n/numi-human-resting-evidence-20261005/final-integrated-study-readiness-917/record_treatment_program_probe.py --scene-preflight-dir /private/tmp/numi-final-control-command --anatomy-receipt /evidence/resting-anatomy-receipt.json --execute\nThe recorder will retain invocation.json, run-metadata.json, native.log, and before/after source hashes; it will not use the duration-bounded Human intervention builder.\n'
+
+test_record_treatment_program_probe.py:117: AssertionError
+=========================== short test summary info ============================
+FAILED test_record_treatment_program_probe.py::IdentityProbeRecorderTests::test_readiness_prints_recorder_command_not_raw_native_command
+1 failed, 17 passed in 0.07s

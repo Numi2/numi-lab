@@ -1,0 +1,42 @@
+{
+  "package": "final-integrated-study-readiness-917",
+  "preserved_snapshot": {
+    "path": "/Users/n/numi-human-resting-evidence-20261005/final-integrated-study-readiness-917/snapshot-v003.json",
+    "sha256": "9e53399b209735cbe3cad800c1a8c92bd1423296ba6123008785fe63a7f9e53f"
+  },
+  "reason": "Align observation schema validation with the frozen Lab owner and independently verify the actual loaded MetalRobo runtime in each final arm using the pinned Human runtime helper.",
+  "revised_files": {
+    "README.md": {
+      "previous_sha256": "791e33554e680e82012af7bed6d62288936d3d029db93475d53f9632558aa48e",
+      "sha256": "2245f381de9cb1da4f9ff968d86f30da575b4ed119404b35ba21a9afe5182a88"
+    },
+    "analyze_final_pair.py": {
+      "previous_sha256": "73f4d3f051f0a4f1aed914e9ec55bea27f561cefe76f0f527d0c22404469d0f6",
+      "sha256": "4d47e2a979f93da441794c794cbd54a8125f3b11a706c4b08e8d0ce408d4e134"
+    },
+    "prepare_final_plan.py": {
+      "previous_sha256": "754b91af0119ef32af4ef988b04a445c86d6f686608725de86a6871c8b028e60",
+      "sha256": "b89da16aa962f49fd8b3d4648f9734c14955d4a27caff8fe67c218994fcf16b8"
+    },
+    "test_owner_invocation_lineage.py": {
+      "previous_sha256": "298e9af586cb655a46c7cd840311a2dd377ac4521f6fb3813e5d0cccebd6edcf",
+      "sha256": "4b3d913811aa350ea6e34e44b43ecd9e0b8fe9dff52e2da9a34c9536e626014a"
+    }
+  },
+  "revision": 4,
+  "schema": "numi.human.resting-readiness-revision.v1",
+  "scientific_inputs": {
+    "human_loaded_runtime_helper": {
+      "path": "/Users/n/numi-human-lung-triangulation-candidate-003/src/numilab_human/resting_run.py",
+      "sha256": "f6bc12635fcf41227a79b4d67e058b36f392a4147d083ce24366f8c3ef41c412"
+    },
+    "retained_native_log_fixture_931": {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/native-terminal-cycle-931/native.log",
+      "sha256": "17319decc6d30e29db54e79a43c99d254ce52598512883c983eaaa51ca26c999"
+    }
+  },
+  "supersedes": {
+    "path": "/Users/n/numi-human-resting-evidence-20261005/final-integrated-study-readiness-917/revision-003.json",
+    "sha256": "43f52f4b98b124785d7b732aeecc7e3bd7f76072b3231aaa06fc6611f4538b86"
+  }
+}

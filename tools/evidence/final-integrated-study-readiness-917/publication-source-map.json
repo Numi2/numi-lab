@@ -1,0 +1,20 @@
+{
+  "external_source": "/Users/n/numi-human-resting-evidence-20261005/final-integrated-study-readiness-917",
+  "file_sha256": {
+    "README.md": "11764c59205c108bb14ec8f8b6236ea1ab3ed48d0b0d7354460bbeeb4378a1cf",
+    "prepare_final_plan.py": "b70fc5b68ed1228e9041cb277f20a56462303ca9970391cd51790653545727d5",
+    "analyze_final_pair.py": "4d47e2a979f93da441794c794cbd54a8125f3b11a706c4b08e8d0ce408d4e134",
+    "record_treatment_program_probe.py": "51ee89eff7d914c043dae7ee14effbbfd80838ee51afa60112bfbad6ef2219ac",
+    "test_record_treatment_program_probe.py": "3c746aeb4e570ac25afc362102682f5b16ebaefbaaf89766559a1972ba6c3a70",
+    "test_terminal_capture_plan.py": "b8eee724bd2eb4e5d6db445c82fc80154da831c221976a56ffe396c1d7f70526",
+    "test_owner_invocation_lineage.py": "4b3d913811aa350ea6e34e44b43ecd9e0b8fe9dff52e2da9a34c9536e626014a",
+    "revision-005.json": "3d2ee3f247355dfe1fb49f0447a195c382d35acaf4d878cd27e86c88b81c5613",
+    "snapshot-v004.json": "394bb6693e871289bc5f0593a0c70ced2c0e0dada310448518c9f6e4c849b3ff",
+    "snapshot-v005.json": "59dfa6f5044ac94ec47e5f7d4fe195e1e9c9d41e2a4179f980023b9adc94c51e"
+  },
+  "current_publication_test_report": "publication-tests-v005.txt",
+  "current_test_count": 19,
+  "initial_publication_failure_retained": "publication-tests.txt",
+  "scope": "Prepared existing science-v2 owner workflow. Corrected anatomy, matching20s preflight/future-dose identity probe and final310s pair are still required; no registered final execution is claimed.",
+  "preserved_versions": "Versioned prior source snapshots remain under external_source; snapshot manifests are bundled."
+}

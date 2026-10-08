@@ -1,0 +1,12 @@
+{
+  "files": {
+    "README-v002.md": "c70e7320b6c3006392cb77d00668f8ccdcc00d2b69c4280c9722bde597c2ba3a",
+    "analyze_final_pair-v002.py": "f3ee56c552b931ff592f1b13e900cc99cb2d2e5615b6b3161f87d96b18eafa01",
+    "prepare_final_plan-v002.py": "377ab3b0e0dfa7be281ded039b6120a6362204c8282689afd372fd59282df79e",
+    "record_treatment_program_probe-v002.py": "51ee89eff7d914c043dae7ee14effbbfd80838ee51afa60112bfbad6ef2219ac",
+    "revision-002-v002.json": "4b1afe171fb6d11830869df688ce12b938d93e5581adb1b714419e582fe58295",
+    "test_record_treatment_program_probe-v002.py": "3c746aeb4e570ac25afc362102682f5b16ebaefbaaf89766559a1972ba6c3a70",
+    "test_terminal_capture_plan-v002.py": "f913bb4bf9a5584e4a835588716e32545816f4dedfcafcf652a11b948acc0be0"
+  },
+  "schema": "numi.human.resting-readiness-snapshot.v1"
+}

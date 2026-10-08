@@ -1,0 +1,28 @@
+{
+  "package": "final-integrated-study-readiness-917",
+  "preserved_snapshot": {
+    "path": "/Users/n/numi-human-resting-evidence-20261005/final-integrated-study-readiness-917/snapshot-v004.json",
+    "sha256": "394bb6693e871289bc5f0593a0c70ced2c0e0dada310448518c9f6e4c849b3ff"
+  },
+  "reason": "Make readiness-owned scripts, manifests, command output, and supplemental output resolve from the checked-out package directory so the same package works from its evidence source and publication checkout. External source, asset, runtime, and evidence inputs remain pinned.",
+  "revised_files": {
+    "README.md": {
+      "previous_sha256": "2245f381de9cb1da4f9ff968d86f30da575b4ed119404b35ba21a9afe5182a88",
+      "sha256": "11764c59205c108bb14ec8f8b6236ea1ab3ed48d0b0d7354460bbeeb4378a1cf"
+    },
+    "prepare_final_plan.py": {
+      "previous_sha256": "b89da16aa962f49fd8b3d4648f9734c14955d4a27caff8fe67c218994fcf16b8",
+      "sha256": "b70fc5b68ed1228e9041cb277f20a56462303ca9970391cd51790653545727d5"
+    },
+    "test_terminal_capture_plan.py": {
+      "previous_sha256": "b87475fcbaa5bc6fc49aa41794ff32c96c0f46bc2930d412964194cdcf67a2a1",
+      "sha256": "b8eee724bd2eb4e5d6db445c82fc80154da831c221976a56ffe396c1d7f70526"
+    }
+  },
+  "revision": 5,
+  "schema": "numi.human.resting-readiness-revision.v1",
+  "supersedes": {
+    "path": "/Users/n/numi-human-resting-evidence-20261005/final-integrated-study-readiness-917/revision-004.json",
+    "sha256": "1b4c99b62c18871df567dbdefcd9d2e3a7e31908533e88cf5fdfd2f48f854169"
+  }
+}

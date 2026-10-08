@@ -1,0 +1,11 @@
+{
+  "files": {
+    "README-v003.md": "791e33554e680e82012af7bed6d62288936d3d029db93475d53f9632558aa48e",
+    "analyze_final_pair-v003.py": "73f4d3f051f0a4f1aed914e9ec55bea27f561cefe76f0f527d0c22404469d0f6",
+    "prepare_final_plan-v003.py": "754b91af0119ef32af4ef988b04a445c86d6f686608725de86a6871c8b028e60",
+    "revision-003-v003.json": "43f52f4b98b124785d7b732aeecc7e3bd7f76072b3231aaa06fc6611f4538b86",
+    "test_owner_invocation_lineage-v003.py": "298e9af586cb655a46c7cd840311a2dd377ac4521f6fb3813e5d0cccebd6edcf",
+    "test_terminal_capture_plan-v003.py": "b87475fcbaa5bc6fc49aa41794ff32c96c0f46bc2930d412964194cdcf67a2a1"
+  },
+  "schema": "numi.human.resting-readiness-snapshot.v1"
+}

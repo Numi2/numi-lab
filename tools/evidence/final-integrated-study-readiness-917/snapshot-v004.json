@@ -1,0 +1,13 @@
+{
+  "files": {
+    "README-v004.md": "2245f381de9cb1da4f9ff968d86f30da575b4ed119404b35ba21a9afe5182a88",
+    "analyze_final_pair-v004.py": "4d47e2a979f93da441794c794cbd54a8125f3b11a706c4b08e8d0ce408d4e134",
+    "prepare_final_plan-v004.py": "b89da16aa962f49fd8b3d4648f9734c14955d4a27caff8fe67c218994fcf16b8",
+    "record_treatment_program_probe-v004.py": "51ee89eff7d914c043dae7ee14effbbfd80838ee51afa60112bfbad6ef2219ac",
+    "revision-004-v004.json": "1b4c99b62c18871df567dbdefcd9d2e3a7e31908533e88cf5fdfd2f48f854169",
+    "test_owner_invocation_lineage-v004.py": "4b3d913811aa350ea6e34e44b43ecd9e0b8fe9dff52e2da9a34c9536e626014a",
+    "test_record_treatment_program_probe-v004.py": "3c746aeb4e570ac25afc362102682f5b16ebaefbaaf89766559a1972ba6c3a70",
+    "test_terminal_capture_plan-v004.py": "b87475fcbaa5bc6fc49aa41794ff32c96c0f46bc2930d412964194cdcf67a2a1"
+  },
+  "schema": "numi.human.resting-readiness-snapshot.v1"
+}
