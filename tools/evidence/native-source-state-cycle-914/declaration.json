@@ -1,0 +1,8 @@
+{
+  "purpose": "Receipt-complete 20-second reproduction of 909; unchanged physics/assets, exact skin source map, all 86 binding body poses and accepted respiratory motion captured for offline source correction",
+  "parent_driver": "/Users/n/numi-human-resting-evidence-20261005/native-composed-resting-cycle-909.py",
+  "parent_driver_sha256": "2a1f018557aaf00084713a287577a8fa2f3185ff0df032b72f322ad70b909f5b",
+  "driver_sha256": "0ce450bda9591e4dfc1a4d95f74d75c802424ed369f21f9fa408dbc96d0f3e94",
+  "utc": "2026-10-08T09:41:30.917098+00:00",
+  "endurance_qualification": false
+}
