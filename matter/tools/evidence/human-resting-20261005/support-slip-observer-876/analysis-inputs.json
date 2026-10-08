@@ -1,0 +1,74 @@
+{
+  "analysis_files": {
+    "README.md": "e7736008a188d9e0714834b8af14302068195e054a7b5a154f4dfb614880a5bf",
+    "analysis.json": "27cd2275b1ff9b747c8b00f70d731e9d4c89285f981eabccd8cb3fc5d2926a9a"
+  },
+  "analysis_path": "/Users/n/numi-human-resting-evidence-20261005/native-support-drift-diagnostic-876/observer-analysis-20s",
+  "comparison_declaration": {
+    "driver_path": "/Users/n/numi-human-resting-evidence-20261005/native-contact-convergence-883/run-20s.py",
+    "driver_sha256": "a7e8fc92b8d65ea321700b2aba5642acfc88bfd30cbfd56b72256fa91eba762d",
+    "path": "/Users/n/numi-human-resting-evidence-20261005/native-contact-convergence-883/prelaunch-prediction.json",
+    "sha256": "506d66604bf273db258265c96aca556458b8c2d1ded56a5839dee5e98034d045",
+    "status": "declared before launch; comparison outcome pending terminal receipt"
+  },
+  "native_inputs": {
+    "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/current-bone-registration-b1b410ad/bodyparts3d-myosim-major-bones.nhbones": "7d94e2f28ac6cea30c6c11a79919077acc40281636eb20b11b50b50aebd3ec49",
+    "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-core-reference.nhrigid": "2c78cb4150b97cea6e8169dad9e8f5dd59af667b247e07b56e48e857435560e4",
+    "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-joint-equalities.nheq": "0e3c593792a8c4ccd619f1999f6685b68e6ff0fd5ae5f6f0bca66b594a0e9b88",
+    "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-muscle-reference.nhmyo": "e5bb8a8168706bb3b23cf42b1d849659569ba2e6027bcc85729c3110fdbb8c4b",
+    "/Users/n/numi-human-resting-evidence-20261005/integrated-anatomy-engineering-lung-edge-collapse-761/resting-reference-respiration.json": "c518926bf47fba945cef52bb952ed6c559d604508988082c5b641b720bda503d",
+    "/Users/n/numi-human-resting-evidence-20261005/lung-precision-retriangulation-preflight-859/conditioned-candidate-001/final/common-cardiac-domains-f32.bin": "7652785c9ea164b16ee96f64a3dcf940398af36cfd535a5f9b7a7d6bd2c7a611",
+    "/Users/n/numi-human-resting-evidence-20261005/lung-precision-retriangulation-preflight-859/conditioned-candidate-001/final/common-cardiac-map-f32.bin": "c0b0811fe2e2fb45dc37201205e36af39cf092739cfb52c56fdbad9a67dbb858",
+    "/Users/n/numi-human-resting-evidence-20261005/lung-precision-retriangulation-preflight-859/conditioned-candidate-001/final/common-cardiac-volumes-f32.bin": "7be4f62996c996c6cfdd49480d27766c8253387bb24aeb504fef73cd553ae699",
+    "/Users/n/numi-human-resting-evidence-20261005/lung-precision-retriangulation-preflight-859/conditioned-candidate-001/final/resting-anatomy-receipt.json": "2a4f5241b051562858049d6d81af814aa7a0c0e744ff04343e8f40abf0642801",
+    "/Users/n/numi-human-resting-evidence-20261005/lung-precision-retriangulation-preflight-859/conditioned-candidate-001/final/resting-thorax.nhanatomy": "e082d44b0668c7c406a70711efea188e1993a0cca90e9406dc31da91b9f60139",
+    "/Users/n/numi-human-resting-evidence-20261005/passive-tissue-achilles-clearance-039-composed-001/bodyparts3d-myosim-fullbody-muscle-surfaces.manifest.json": "82cdd937e0f2daf0a8704fb21246353c38148527f8602d674ac865f935264dde",
+    "/Users/n/numi-human-resting-evidence-20261005/passive-tissue-achilles-clearance-039-composed-001/bodyparts3d-myosim-fullbody-muscle-surfaces.nhtissue": "b3d0381f73e05b04ed7ea1ba23eb6559073ad20aa0d9e2ad0f97a18fab3359bd",
+    "/Users/n/numi-human-resting-evidence-20261005/reference-circulation-001/resting_reference_lv15.native.v3.json": "43ff6b49daf1d42cf9e88d85d8577f70e112dfcc3756ec43954e544a3e4bc0dc",
+    "/Users/n/numi-human-resting-evidence-20261005/skin-lowerlimb-anchor-rebind-004/bodyparts3d-myosim-skinned-shell.nhskin": "431a1106cc9d5ab13a0b1cb21384ddb604ed8d936ef1acef9d9170b828519058",
+    "/Users/n/numi-human-resting-evidence-20261005/skin-lowerlimb-anchor-rebind-004/resting-scene-recook/myosim-fullbody-resting-bed-support.nhcnt": "c5e1612a273d5a7a2750acc1164664783039f6608829683c524f3993452d85ae",
+    "/Users/n/numi-human-resting-evidence-20261005/skin-lowerlimb-anchor-rebind-004/resting-scene-recook/resting-supine-scene.manifest.json": "eb467fe8d3c639022ee3ae8537b166cf4df2fb44a0f47adcef299f3321f7d751",
+    "/Users/n/numi-human-resting-evidence-20261005/tendon-semantic-foot-migration-834/numi-human-tendon-attachments.nhtendon": "49daaf61421254cb18f3aa32f1d332b1810537afd4c4ef813abd2f0d118dcecc",
+    "/Users/n/numi-human-support-drift-audit-build-876/bin/numi-human-native": "abae2561cb09f75680f975adedaa66736c451d7786b7b7d879b9179b40aa3bf0",
+    "/Users/n/numi-human-support-drift-audit-build-876/lib/libmetalrobo.dylib": "816019f74a6f08000b349524c957821e54d7801ec6c1281b45ed3b3825e7aedc",
+    "/Users/n/numi-human-support-drift-audit-build-876/matter/shaders/HumanRespiration.metallib": "8a3fb8e890655b2ff360d078b0898a893978f658315d64e475f3dec3690a322e",
+    "/Users/n/numi-human-support-drift-audit-build-876/matter/shaders/NumiMatter.metallib": "38d4b64ed55cef2e0e0f243616d0db5bd21441f232ca38bca439108c1d6130f9",
+    "/Users/n/numi-human-support-drift-audit-build-876/matter/shaders/NumiMatterPhysicalStateDigest.metallib": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68",
+    "/Users/n/numi-human-support-drift-audit-build-876/shaders/MetalRobo.metallib": "3077d063dc23475d75cda795620cda8750402d1a2159267a241a5e2b65986043",
+    "/Users/n/numi-human-support-drift-audit-build-876/shaders/MetalRoboHyperPolicy.metallib": "f227836841015b40467a20c47a9fa38cf44eb8e1132cad1de4e65fa79c55d309",
+    "/Users/n/numi-human-support-drift-audit-build-876/shaders/NumiNeuron.metallib": "4ccbb796a6bfd5bdb18f7d37c8e18e0d767c9489d16047c523c97f679da33f1d"
+  },
+  "native_outputs": {
+    "native.log": "f295759575a2a582e0a31e7c2bc4ec4ef774e96baf8dd791616970da3f76b25a",
+    "resting-com-momentum-diagnostic.csv": "fbc79a059dd60f8a7c3d35c5087e9d3908ffa401996e3d11a1f6051e0beedde5",
+    "resting-com-q-integration.csv": "bed080435d937f2c19731cb47ec7261ba8817f6960be2778fed2dd9ab0eb654b",
+    "resting-com-support-impulses.csv": "565260cf5369cfcbf6ce14075b1d187f3a1bf5e31acb2b3c4fe9b0443b6a87e2",
+    "resting-coupled.csv": "57acd6e416a106d25fe3922482597811944c48fb701147429ef4c2d52e90bbac",
+    "resting-surface-audit.csv": "48f0e1168951f324599fb7695c831e7501ee2037267f004ce3419d945d3c474f",
+    "run-metadata.json": "4ff0a32b0804f0c737efe02ed35494ea99081814840a32808fa737cbb99052dd"
+  },
+  "parity_reference_outputs": {
+    "838": {
+      "resting-com-momentum-diagnostic.csv": "fbc79a059dd60f8a7c3d35c5087e9d3908ffa401996e3d11a1f6051e0beedde5",
+      "resting-com-q-integration.csv": "3ba2da9904d2948551546c5f53510d15dab0911b15a9f716fb9d5bd8eb6614da",
+      "resting-com-support-impulses.csv": "351a6b8e893293e731b7756720c2bcdb6f56008b03bcde7a3b0727e9862e9f06",
+      "resting-coupled.csv": "57acd6e416a106d25fe3922482597811944c48fb701147429ef4c2d52e90bbac",
+      "resting-surface-audit.csv": "48f0e1168951f324599fb7695c831e7501ee2037267f004ce3419d945d3c474f"
+    },
+    "878": {
+      "resting-com-momentum-diagnostic.csv": "fbc79a059dd60f8a7c3d35c5087e9d3908ffa401996e3d11a1f6051e0beedde5",
+      "resting-com-q-integration.csv": "3ba2da9904d2948551546c5f53510d15dab0911b15a9f716fb9d5bd8eb6614da",
+      "resting-com-support-impulses.csv": "351a6b8e893293e731b7756720c2bcdb6f56008b03bcde7a3b0727e9862e9f06",
+      "resting-coupled.csv": "57acd6e416a106d25fe3922482597811944c48fb701147429ef4c2d52e90bbac",
+      "resting-surface-audit.csv": "48f0e1168951f324599fb7695c831e7501ee2037267f004ce3419d945d3c474f"
+    }
+  },
+  "schema": "numi.read-only-observer-analysis-manifest.v1",
+  "source_and_binary": {
+    "binary": "/Users/n/numi-human-support-drift-audit-build-876/bin/numi-human-native",
+    "binary_sha256": "abae2561cb09f75680f975adedaa66736c451d7786b7b7d879b9179b40aa3bf0",
+    "source": "/Users/n/numi-human-support-drift-audit-876/apps/numilab_human_myosim_visual_probe.mm",
+    "source_sha256": "3b77635d675b60dadf7322f777a1a5d7ace8512adda523ff7a48689f680da862"
+  },
+  "write_scope": "new evidence directory only; source/native output/frozen study inputs unchanged"
+}

@@ -1,0 +1,371 @@
+{
+  "accepted_com_postinit_motion": {
+    "displacement_mm_xyz": [
+      -0.030995628148761112,
+      0.10479757416903546,
+      0.054399024472656654
+    ],
+    "displacement_norm_mm": 0.12207585502312673,
+    "first_time_s": 10.000000474974513,
+    "last_time_s": 19.99800094985403,
+    "mean_velocity_m_s_xyz": [
+      -3.0960598893142738e-06,
+      8.957745172009864e-06,
+      4.1411545498785327e-07
+    ],
+    "ols_trend_mm_per_min_xyz": [
+      -0.23556397866894466,
+      0.7023193223358709,
+      0.3790542407582597
+    ],
+    "samples_strictly_inside_10_20_s": 5000
+  },
+  "causal_assessment": {
+    "excluded_or_bounded": [
+      "No root assistance or timed-root-force argument; terminal says root_assistance=false.",
+      "NHRIGID payload body linear/angular damping and root-DOF damping are zero (prior read-only payload decode); source formula nevertheless includes body damping at NumiHumanStand.metal:1662-1665.",
+      "After post-init window, q-advance and final-acceptance whole-body momentum changes are near 1e-7 kg m/s maximum per step, so large projection/q-advance impulse is not supported.",
+      "Free velocity-stage change tracks gravity; same-q contact velocity-stage change tracks summed support impulse to few-micro-N-s per-step residuals."
+    ],
+    "remaining_limits": [
+      "This is partial stage accounting, not whole-interval momentum or energy closure; internal generalized muscle/tendon/equality/limit forces are not independently tallied.",
+      "Nonroot passive damping and armature remain present in payload; they can shape articulated motion but should not directly change net world linear momentum under exact action-reaction assembly.",
+      "The emitted accepted tangential speed reuses the pre-step weighted-contact Jacobian/witness; accepted endpoint selected-skin slip was not emitted.",
+      "The small nonzero pre-step Jv and smooth COM drift are consistent with low-level contact/constraint creep or slow articulated settling, but this run cannot causally separate them; use the predeclared matched 32-versus-64 contact-iteration arm.",
+      "This 20s run does not diagnose the full 310s COM trend."
+    ]
+  },
+  "comparison_plan": {
+    "baseline_contact_iterations": 64,
+    "candidate_contact_iterations": 32,
+    "predeclared_prediction": "If convergence-limited creep explains motion, 32 iterations should increase post-init accepted pre-step-J tangential slip, COM displacement/trend, and constrained \u0394P\u2212summed-contact-impulse residual; similar 32/64 values weaken that explanation. Compare identical post-init window and do not change assets, dt, physics, or observer settings.",
+    "prelaunch_prediction_path": "/Users/n/numi-human-resting-evidence-20261005/native-contact-convergence-883/prelaunch-prediction.json",
+    "prelaunch_prediction_sha256": "506d66604bf273db258265c96aca556458b8c2d1ded56a5839dee5e98034d045",
+    "previous_attempt_882": "Rejected before native launch because owner validation only accepts 1..64; no GPU output and no outcome data.",
+    "prior_attempt_882": "Rejected before native launch by the owner 1..64 iteration bound; failure retained; no GPU/native output.",
+    "supported_arm": "Awaiting separately registered 32-iteration arm against 876 64-iteration baseline.",
+    "supported_arm_path": "/Users/n/numi-human-resting-evidence-20261005/native-contact-convergence-883"
+  },
+  "completion": {
+    "native_completed_line": "resting_integrated_body=completed simulated_s=20.000000949949026 wall_s=175.93705320800001 real_time_factor=0.11367702587529532 physiology_body_clock=matched root_assistance=false presentation_qualification=pending",
+    "native_terminal_dt_s": 0.002,
+    "native_terminal_root_assistance": false,
+    "native_terminal_step_count": 10000,
+    "real_time_factor": 0.11367702587529532,
+    "registered_runner_receipt_exit_code": 0,
+    "simulated_seconds": 20.000000949949026,
+    "wall_seconds": 175.937053208
+  },
+  "identity": {
+    "binary_path": "/Users/n/numi-human-support-drift-audit-build-876/bin/numi-human-native",
+    "binary_sha256": "abae2561cb09f75680f975adedaa66736c451d7786b7b7d879b9179b40aa3bf0",
+    "input_asset_sha256": {
+      "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/current-bone-registration-b1b410ad/bodyparts3d-myosim-major-bones.nhbones": "7d94e2f28ac6cea30c6c11a79919077acc40281636eb20b11b50b50aebd3ec49",
+      "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-core-reference.nhrigid": "2c78cb4150b97cea6e8169dad9e8f5dd59af667b247e07b56e48e857435560e4",
+      "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-joint-equalities.nheq": "0e3c593792a8c4ccd619f1999f6685b68e6ff0fd5ae5f6f0bca66b594a0e9b88",
+      "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-muscle-reference.nhmyo": "e5bb8a8168706bb3b23cf42b1d849659569ba2e6027bcc85729c3110fdbb8c4b",
+      "/Users/n/numi-human-resting-evidence-20261005/integrated-anatomy-engineering-lung-edge-collapse-761/resting-reference-respiration.json": "c518926bf47fba945cef52bb952ed6c559d604508988082c5b641b720bda503d",
+      "/Users/n/numi-human-resting-evidence-20261005/lung-precision-retriangulation-preflight-859/conditioned-candidate-001/final/common-cardiac-domains-f32.bin": "7652785c9ea164b16ee96f64a3dcf940398af36cfd535a5f9b7a7d6bd2c7a611",
+      "/Users/n/numi-human-resting-evidence-20261005/lung-precision-retriangulation-preflight-859/conditioned-candidate-001/final/common-cardiac-map-f32.bin": "c0b0811fe2e2fb45dc37201205e36af39cf092739cfb52c56fdbad9a67dbb858",
+      "/Users/n/numi-human-resting-evidence-20261005/lung-precision-retriangulation-preflight-859/conditioned-candidate-001/final/common-cardiac-volumes-f32.bin": "7be4f62996c996c6cfdd49480d27766c8253387bb24aeb504fef73cd553ae699",
+      "/Users/n/numi-human-resting-evidence-20261005/lung-precision-retriangulation-preflight-859/conditioned-candidate-001/final/resting-anatomy-receipt.json": "2a4f5241b051562858049d6d81af814aa7a0c0e744ff04343e8f40abf0642801",
+      "/Users/n/numi-human-resting-evidence-20261005/lung-precision-retriangulation-preflight-859/conditioned-candidate-001/final/resting-thorax.nhanatomy": "e082d44b0668c7c406a70711efea188e1993a0cca90e9406dc31da91b9f60139",
+      "/Users/n/numi-human-resting-evidence-20261005/passive-tissue-achilles-clearance-039-composed-001/bodyparts3d-myosim-fullbody-muscle-surfaces.manifest.json": "82cdd937e0f2daf0a8704fb21246353c38148527f8602d674ac865f935264dde",
+      "/Users/n/numi-human-resting-evidence-20261005/passive-tissue-achilles-clearance-039-composed-001/bodyparts3d-myosim-fullbody-muscle-surfaces.nhtissue": "b3d0381f73e05b04ed7ea1ba23eb6559073ad20aa0d9e2ad0f97a18fab3359bd",
+      "/Users/n/numi-human-resting-evidence-20261005/reference-circulation-001/resting_reference_lv15.native.v3.json": "43ff6b49daf1d42cf9e88d85d8577f70e112dfcc3756ec43954e544a3e4bc0dc",
+      "/Users/n/numi-human-resting-evidence-20261005/skin-lowerlimb-anchor-rebind-004/bodyparts3d-myosim-skinned-shell.nhskin": "431a1106cc9d5ab13a0b1cb21384ddb604ed8d936ef1acef9d9170b828519058",
+      "/Users/n/numi-human-resting-evidence-20261005/skin-lowerlimb-anchor-rebind-004/resting-scene-recook/myosim-fullbody-resting-bed-support.nhcnt": "c5e1612a273d5a7a2750acc1164664783039f6608829683c524f3993452d85ae",
+      "/Users/n/numi-human-resting-evidence-20261005/skin-lowerlimb-anchor-rebind-004/resting-scene-recook/resting-supine-scene.manifest.json": "eb467fe8d3c639022ee3ae8537b166cf4df2fb44a0f47adcef299f3321f7d751",
+      "/Users/n/numi-human-resting-evidence-20261005/tendon-semantic-foot-migration-834/numi-human-tendon-attachments.nhtendon": "49daaf61421254cb18f3aa32f1d332b1810537afd4c4ef813abd2f0d118dcecc",
+      "/Users/n/numi-human-support-drift-audit-build-876/bin/numi-human-native": "abae2561cb09f75680f975adedaa66736c451d7786b7b7d879b9179b40aa3bf0",
+      "/Users/n/numi-human-support-drift-audit-build-876/lib/libmetalrobo.dylib": "816019f74a6f08000b349524c957821e54d7801ec6c1281b45ed3b3825e7aedc",
+      "/Users/n/numi-human-support-drift-audit-build-876/matter/shaders/HumanRespiration.metallib": "8a3fb8e890655b2ff360d078b0898a893978f658315d64e475f3dec3690a322e",
+      "/Users/n/numi-human-support-drift-audit-build-876/matter/shaders/NumiMatter.metallib": "38d4b64ed55cef2e0e0f243616d0db5bd21441f232ca38bca439108c1d6130f9",
+      "/Users/n/numi-human-support-drift-audit-build-876/matter/shaders/NumiMatterPhysicalStateDigest.metallib": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68",
+      "/Users/n/numi-human-support-drift-audit-build-876/shaders/MetalRobo.metallib": "3077d063dc23475d75cda795620cda8750402d1a2159267a241a5e2b65986043",
+      "/Users/n/numi-human-support-drift-audit-build-876/shaders/MetalRoboHyperPolicy.metallib": "f227836841015b40467a20c47a9fa38cf44eb8e1132cad1de4e65fa79c55d309",
+      "/Users/n/numi-human-support-drift-audit-build-876/shaders/NumiNeuron.metallib": "4ccbb796a6bfd5bdb18f7d37c8e18e0d767c9489d16047c523c97f679da33f1d"
+    },
+    "native_log_sha256": "f295759575a2a582e0a31e7c2bc4ec4ef774e96baf8dd791616970da3f76b25a",
+    "run_metadata_sha256": "4ff0a32b0804f0c737efe02ed35494ea99081814840a32808fa737cbb99052dd",
+    "runner_receipt_sha256": "f4152544ad5ae7a59734566c96441cbd29578ef024b3db3a6ef5c20077c26f84",
+    "source_path": "/Users/n/numi-human-support-drift-audit-876/apps/numilab_human_myosim_visual_probe.mm",
+    "source_sha256": "3b77635d675b60dadf7322f777a1a5d7ace8512adda523ff7a48689f680da862"
+  },
+  "partial_impulse_accounting_Ns": {
+    "contact": {
+      "per_step_residual_norm": {
+        "max": 1.1364112230321882e-05,
+        "mean": 3.609733499956727e-06,
+        "median": 3.430336669738706e-06,
+        "n": 5000,
+        "p95": 6.809096555356065e-06
+      },
+      "sum_delta_p_ns": [
+        0.0002402882759369103,
+        -0.005005679995384487,
+        7063.204811776024
+      ],
+      "sum_impulse_ns": [
+        0.00021097892377497374,
+        0.004693789227225409,
+        7063.2146155435985
+      ],
+      "sum_residual_norm_ns": 0.01379109934538044,
+      "sum_residual_ns": [
+        2.9309352161933617e-05,
+        -0.009699469222609912,
+        -0.009803767587803769
+      ]
+    },
+    "gravity": {
+      "per_step_residual_norm": {
+        "max": 1.2526563589807996e-05,
+        "mean": 3.562558436698546e-06,
+        "median": 3.271247374060923e-06,
+        "n": 5000,
+        "p95": 7.0660843267345005e-06
+      },
+      "sum_delta_p_ns": [
+        -0.0002907527699516869,
+        0.004941019474229794,
+        -7063.204383106989
+      ],
+      "sum_impulse_ns": [
+        0.0,
+        0.0,
+        -7063.200578645326
+      ],
+      "sum_residual_norm_ns": 0.006242767268457946,
+      "sum_residual_ns": [
+        -0.0002907527699516869,
+        0.004941019474229794,
+        -0.0038044621893478237
+      ]
+    }
+  },
+  "pre_step_contact_tangent_Jv_m_s": {
+    "accepted": {
+      "max": 0.0023272633204320537,
+      "mean": 8.036514439635368e-06,
+      "median": 4.320535642855192e-06,
+      "n": 50611,
+      "p95": 2.541333353611644e-05
+    },
+    "before": {
+      "max": 0.0023272508566429028,
+      "mean": 8.02480907409443e-06,
+      "median": 4.358720897905281e-06,
+      "n": 50611,
+      "p95": 2.5328936885209284e-05
+    },
+    "free": {
+      "max": 0.17648601388766913,
+      "mean": 0.04166430915548464,
+      "median": 0.007516692204481322,
+      "n": 50611,
+      "p95": 0.17575731024930114
+    },
+    "preprojection_velocity_same_q": {
+      "max": 0.0023272638748867845,
+      "mean": 8.036521192485079e-06,
+      "median": 4.320653506374313e-06,
+      "n": 50611,
+      "p95": 2.541319141339368e-05
+    }
+  },
+  "schema": "numi.support-drift-observer-review.v1",
+  "scope": "20 s completed 876 observer run only; 64 support iterations; no paired convergence conclusion",
+  "stage_momentum_delta_norms_kg_m_s": {
+    "contact_velocity_stage": {
+      "max_norm": 1.4203692968440922,
+      "mean_norm": 1.4126414111050125,
+      "n": 5000,
+      "p95_norm": 1.415695967676213
+    },
+    "final_acceptance": {
+      "max_norm": 1.3749223377861582e-07,
+      "mean_norm": 2.721229878491095e-08,
+      "n": 5000,
+      "p95_norm": 6.468779623704923e-08
+    },
+    "gravity_velocity_stage": {
+      "max_norm": 1.4126525965943857,
+      "mean_norm": 1.4126408766232323,
+      "n": 5000,
+      "p95_norm": 1.4126462527053842
+    },
+    "q_advance": {
+      "max_norm": 1.3872193429194988e-07,
+      "mean_norm": 7.554261781171975e-09,
+      "n": 5000,
+      "p95_norm": 2.5242292358735012e-08
+    }
+  },
+  "trace": {
+    "active_contact_rows_normal_impulse_gt_1e-9_Ns": 50611,
+    "appended_pre_step_Jv_columns": 12,
+    "appended_q_momentum_columns": 15,
+    "legacy_q_projection_columns": 19,
+    "legacy_support_projection_columns": 21,
+    "new_columns_finite": true,
+    "post_init_stage_rows": 5000,
+    "post_init_stage_step_interval_inclusive": [
+      5001,
+      10000
+    ],
+    "q_columns": 34,
+    "q_rows": 10000,
+    "shared_output_parity_vs_838_and_878": {
+      "838": {
+        "resting-com-momentum-diagnostic.csv": {
+          "byte_identical": true,
+          "sha876": "fbc79a059dd60f8a7c3d35c5087e9d3908ffa401996e3d11a1f6051e0beedde5",
+          "sha_ref": "fbc79a059dd60f8a7c3d35c5087e9d3908ffa401996e3d11a1f6051e0beedde5"
+        },
+        "resting-com-q-integration.csv": {
+          "columns_compared": 19,
+          "compared_columns": [
+            "accepted_step",
+            "time_s",
+            "dt_s",
+            "configuration_count",
+            "velocity_count",
+            "q_before_f32_semicolon",
+            "v_before_f32_semicolon",
+            "q_preprojection_f32_semicolon",
+            "v_preprojection_f32_semicolon",
+            "q_accepted_f32_semicolon",
+            "v_accepted_f32_semicolon",
+            "root_before_reference_displacement_correction_xyzw_semicolon",
+            "root_after_reference_displacement_correction_xyzw_semicolon",
+            "q_before_fingerprint_fnv64",
+            "v_before_fingerprint_fnv64",
+            "q_preprojection_fingerprint_fnv64",
+            "v_preprojection_fingerprint_fnv64",
+            "q_accepted_fingerprint_fnv64",
+            "v_accepted_fingerprint_fnv64"
+          ],
+          "equal": true,
+          "first_mismatch_row_zero_based": null,
+          "rows": 10000
+        },
+        "resting-com-support-impulses.csv": {
+          "columns_compared": 21,
+          "compared_columns": [
+            "sample_start_step",
+            "accepted_step",
+            "segment_steps",
+            "contact_index",
+            "body_index",
+            "source_geometry_index",
+            "normal_impulse_ns",
+            "tangent0_impulse_ns",
+            "tangent1_impulse_ns",
+            "impulse_world_x_ns",
+            "impulse_world_y_ns",
+            "impulse_world_z_ns",
+            "normal_x",
+            "normal_y",
+            "normal_z",
+            "tangent0_x",
+            "tangent0_y",
+            "tangent0_z",
+            "tangent1_x",
+            "tangent1_y",
+            "tangent1_z"
+          ],
+          "equal": true,
+          "first_mismatch_row_zero_based": null,
+          "rows": 320000
+        },
+        "resting-coupled.csv": {
+          "byte_identical": true,
+          "sha876": "57acd6e416a106d25fe3922482597811944c48fb701147429ef4c2d52e90bbac",
+          "sha_ref": "57acd6e416a106d25fe3922482597811944c48fb701147429ef4c2d52e90bbac"
+        },
+        "resting-surface-audit.csv": {
+          "byte_identical": true,
+          "sha876": "48f0e1168951f324599fb7695c831e7501ee2037267f004ce3419d945d3c474f",
+          "sha_ref": "48f0e1168951f324599fb7695c831e7501ee2037267f004ce3419d945d3c474f"
+        }
+      },
+      "878": {
+        "resting-com-momentum-diagnostic.csv": {
+          "byte_identical": true,
+          "sha876": "fbc79a059dd60f8a7c3d35c5087e9d3908ffa401996e3d11a1f6051e0beedde5",
+          "sha_ref": "fbc79a059dd60f8a7c3d35c5087e9d3908ffa401996e3d11a1f6051e0beedde5"
+        },
+        "resting-com-q-integration.csv": {
+          "columns_compared": 19,
+          "compared_columns": [
+            "accepted_step",
+            "time_s",
+            "dt_s",
+            "configuration_count",
+            "velocity_count",
+            "q_before_f32_semicolon",
+            "v_before_f32_semicolon",
+            "q_preprojection_f32_semicolon",
+            "v_preprojection_f32_semicolon",
+            "q_accepted_f32_semicolon",
+            "v_accepted_f32_semicolon",
+            "root_before_reference_displacement_correction_xyzw_semicolon",
+            "root_after_reference_displacement_correction_xyzw_semicolon",
+            "q_before_fingerprint_fnv64",
+            "v_before_fingerprint_fnv64",
+            "q_preprojection_fingerprint_fnv64",
+            "v_preprojection_fingerprint_fnv64",
+            "q_accepted_fingerprint_fnv64",
+            "v_accepted_fingerprint_fnv64"
+          ],
+          "equal": true,
+          "first_mismatch_row_zero_based": null,
+          "rows": 10000
+        },
+        "resting-com-support-impulses.csv": {
+          "columns_compared": 21,
+          "compared_columns": [
+            "sample_start_step",
+            "accepted_step",
+            "segment_steps",
+            "contact_index",
+            "body_index",
+            "source_geometry_index",
+            "normal_impulse_ns",
+            "tangent0_impulse_ns",
+            "tangent1_impulse_ns",
+            "impulse_world_x_ns",
+            "impulse_world_y_ns",
+            "impulse_world_z_ns",
+            "normal_x",
+            "normal_y",
+            "normal_z",
+            "tangent0_x",
+            "tangent0_y",
+            "tangent0_z",
+            "tangent1_x",
+            "tangent1_y",
+            "tangent1_z"
+          ],
+          "equal": true,
+          "first_mismatch_row_zero_based": null,
+          "rows": 320000
+        },
+        "resting-coupled.csv": {
+          "byte_identical": true,
+          "sha876": "57acd6e416a106d25fe3922482597811944c48fb701147429ef4c2d52e90bbac",
+          "sha_ref": "57acd6e416a106d25fe3922482597811944c48fb701147429ef4c2d52e90bbac"
+        },
+        "resting-surface-audit.csv": {
+          "byte_identical": true,
+          "sha876": "48f0e1168951f324599fb7695c831e7501ee2037267f004ce3419d945d3c474f",
+          "sha_ref": "48f0e1168951f324599fb7695c831e7501ee2037267f004ce3419d945d3c474f"
+        }
+      }
+    },
+    "support_columns": 33,
+    "support_rows": 320000,
+    "support_rows_per_step": 32
+  }
+}

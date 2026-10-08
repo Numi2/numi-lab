@@ -1,0 +1,8 @@
+{
+  "base_commit": "d550d8ad88a76fdee5bb6e028286fd24e962571f",
+  "patch_sha256": "a796e8fa60733d9170be6ab8534cdcfa4007c484688e2ffade1c17925dc2f76a",
+  "source_sha256": "3b77635d675b60dadf7322f777a1a5d7ace8512adda523ff7a48689f680da862",
+  "binary_sha256": "abae2561cb09f75680f975adedaa66736c451d7786b7b7d879b9179b40aa3bf0",
+  "successful_build_log": "build-2.log",
+  "failed_initial_build_log_retained": "build.log"
+}

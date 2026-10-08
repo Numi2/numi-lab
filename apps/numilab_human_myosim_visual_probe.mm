@@ -5340,7 +5340,8 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         std::span<const float>,
         std::span<const float>,
         const MRCompensatedRootTranslationGPU&,
-        const metalrobo::MetalArticulatedOperatorResult&
+        const metalrobo::MetalArticulatedOperatorResult&,
+        const MetalMujocoVisualQueries&
     )>* acceptedObserver = nullptr,
     const metalrobo::MetalNumiHumanSupportGeometryProgram* supportGeometryProgram = nullptr,
     const bool restingReleaseInitialization = false,
@@ -6891,7 +6892,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                                            continuumTransaction,
                                            timestepSeconds, muscleFeedback, musclePathFeedback, endpointEnergy, &muscles,
                                            &passiveEnergyAt,
-                                           restingProgram, acceptedObserver, supportGeometryProgram, maximumSubmissionSteps, acceptedComMomentumAudit](
+                                           restingProgram, acceptedObserver, supportGeometryProgram, maximumSubmissionSteps, acceptedComMomentumAudit, &queries](
         metalrobo::MetalArticulatedOperatorInput horizonInput,
         metalrobo::MetalArticulatedOperatorResult& horizonResult,
         std::vector<HumanTendonContinuumTransaction::AcceptedStep>*
@@ -7817,7 +7818,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                         "accepted q-integration observer lacks the pre-step compensated root");
                 (*acceptedObserver)(
                     completedSteps + segmentSteps, currentQ, currentV,
-                    currentRoots.front(), segmentResult);
+                    currentRoots.front(), segmentResult, queries);
             }
             if (!haveStatus) {
                 aggregateStatus = segmentResult.standStatuses.front();
@@ -22793,7 +22794,20 @@ int main(int argc, char** argv) {
                         << "sample_start_step,accepted_step,segment_steps,contact_index,body_index,source_geometry_index,"
                         << "normal_impulse_ns,tangent0_impulse_ns,tangent1_impulse_ns,"
                         << "impulse_world_x_ns,impulse_world_y_ns,impulse_world_z_ns,"
-                        << "normal_x,normal_y,normal_z,tangent0_x,tangent0_y,tangent0_z,tangent1_x,tangent1_y,tangent1_z\n";
+                        << "normal_x,normal_y,normal_z,tangent0_x,tangent0_y,tangent0_z,tangent1_x,tangent1_y,tangent1_z";
+                    if (restingQIntegrationAudit) {
+                        constexpr std::array<const char*, 4u> slipStages{
+                            "pre_step_contact_J_v_before", "pre_step_contact_J_v_free",
+                            "pre_step_contact_J_v_preprojection_velocity_same_q",
+                            "pre_step_contact_J_v_accepted"};
+                        for (const char* stage : slipStages) {
+                            supportImpulseTrace << ",point_slip_" << stage
+                                << "_tangent0_m_s,point_slip_" << stage
+                                << "_tangent1_m_s,point_slip_" << stage
+                                << "_speed_m_s";
+                        }
+                    }
+                    supportImpulseTrace << '\n';
                     std::cout << "resting_com_momentum_audit=enabled cadence=accepted_segment_endpoint "
                               << "segment_cap_steps=" << restingComMomentumAuditSegmentSteps << " "
                               << "kinematics=CPU_evidence_only contact_impulses=per_contact_pre_step_basis_and_world_sum_final_physical_step_per_segment "
@@ -22817,7 +22831,12 @@ int main(int argc, char** argv) {
                         << "root_after_reference_displacement_correction_xyzw_semicolon,"
                         << "q_before_fingerprint_fnv64,v_before_fingerprint_fnv64,"
                         << "q_preprojection_fingerprint_fnv64,v_preprojection_fingerprint_fnv64,"
-                        << "q_accepted_fingerprint_fnv64,v_accepted_fingerprint_fnv64\n";
+                        << "q_accepted_fingerprint_fnv64,v_accepted_fingerprint_fnv64,"
+                        << "source_body_linear_momentum_before_x_kg_m_s,source_body_linear_momentum_before_y_kg_m_s,source_body_linear_momentum_before_z_kg_m_s,"
+                        << "source_body_linear_momentum_free_same_q_x_kg_m_s,source_body_linear_momentum_free_same_q_y_kg_m_s,source_body_linear_momentum_free_same_q_z_kg_m_s,"
+                        << "source_body_linear_momentum_preprojection_velocity_same_q_x_kg_m_s,source_body_linear_momentum_preprojection_velocity_same_q_y_kg_m_s,source_body_linear_momentum_preprojection_velocity_same_q_z_kg_m_s,"
+                        << "source_body_linear_momentum_preprojection_qv_x_kg_m_s,source_body_linear_momentum_preprojection_qv_y_kg_m_s,source_body_linear_momentum_preprojection_qv_z_kg_m_s,"
+                        << "source_body_linear_momentum_accepted_qv_x_kg_m_s,source_body_linear_momentum_accepted_qv_y_kg_m_s,source_body_linear_momentum_accepted_qv_z_kg_m_s\n";
                     const auto writeCsvString = [](std::ostream& output,
                                                    const std::string& value) {
                         output << '"';
@@ -22961,6 +22980,14 @@ int main(int argc, char** argv) {
                 }
                 auto restingProgram=coupled.program();
                 const auto skinSupportProgram=liveVisual?liveVisual->supportProgram():metalrobo::MetalNumiHumanSupportGeometryProgram{};
+                if (restingQIntegrationAudit) {
+                    std::cout << "resting_q_audit_support_slip=pre_step_contact_query_J_times_stage_velocity "
+                              << "weighted_skin_support_callback_active="
+                              << (skinSupportProgram.valid() ? 1 : 0) << ' '
+                              << "contact_row_body_geometry=source_region_mapping_not_selected_witness_body "
+                              << "exact_selected_skin_witness_host_readback=unavailable "
+                              << "accepted_endpoint_skin_slip=not_emitted" << std::endl;
+                }
                 std::uint32_t previousComSampleStep = 0u;
                 std::array<double, 3u> previousComMomentum{};
                 bool havePreviousComSample = false;
@@ -22995,13 +23022,15 @@ int main(int argc, char** argv) {
                     std::span<const float>,
                     std::span<const float>,
                     const MRCompensatedRootTranslationGPU&,
-                    const metalrobo::MetalArticulatedOperatorResult&
+                    const metalrobo::MetalArticulatedOperatorResult&,
+                    const MetalMujocoVisualQueries&
                 )> observer =
                     [&](std::uint32_t step,
                         std::span<const float> qBefore,
                         std::span<const float> vBefore,
                         const MRCompensatedRootTranslationGPU& rootBefore,
-                        const metalrobo::MetalArticulatedOperatorResult& result) {
+                        const metalrobo::MetalArticulatedOperatorResult& result,
+                        const MetalMujocoVisualQueries& queries) {
                         const auto observerProfileStart = trainingProfile
                             ? std::chrono::steady_clock::now()
                             : std::chrono::steady_clock::time_point{};
@@ -23042,6 +23071,12 @@ int main(int argc, char** argv) {
                             const auto& root = result.standRootTranslations.front();
                             require(mrCompensatedTranslationValid(root),
                                     "accepted COM audit root translation is invalid");
+                            std::vector<metalrobo::ArticulatedBodyKinematics>
+                                qAuditAcceptedBodyKinematics;
+                            std::vector<std::array<std::array<double, 3u>, 4u>>
+                                qAuditSupportPointSlip;
+                            std::array<std::array<double, 3u>, 5u>
+                                qAuditSourceBodyLinearMomentum{};
                             if (restingQIntegrationAudit) {
                                 require(restingComMomentumAuditSegmentSteps == 1u &&
                                             step == qIntegrationAcceptedRows + 1u &&
@@ -23049,9 +23084,194 @@ int main(int argc, char** argv) {
                                                 articulation.nq &&
                                             result.standPreProjectionV.size() ==
                                                 articulation.nv &&
+                                            result.standFreeVelocity.size() ==
+                                                articulation.nv &&
                                             qBefore.size() == articulation.nq &&
-                                            vBefore.size() == articulation.nv,
-                                        "accepted q-integration audit lacks one complete adjacent transition");
+                                            vBefore.size() == articulation.nv &&
+                                            result.pointJacobians.size() ==
+                                                queries.points.size() * 3u * articulation.nv &&
+                                            queries.supportContacts.size() ==
+                                                supportContactPayload->records.size(),
+                                        "accepted q-integration audit lacks a complete adjacent state, velocity, or point-Jacobian set");
+                                const auto worldConfiguration = [](
+                                    const std::span<const float> source,
+                                    const MRCompensatedRootTranslationGPU& rootState) {
+                                    require(source.size() >= 3u &&
+                                                mrCompensatedTranslationValid(rootState),
+                                            "stage momentum q/root translation is incomplete");
+                                    std::vector<double> q(source.begin(), source.end());
+                                    q[0] = double(rootState.reference.x) +
+                                        rootState.displacement.x + rootState.correction.x;
+                                    q[1] = double(rootState.reference.y) +
+                                        rootState.displacement.y + rootState.correction.y;
+                                    q[2] = double(rootState.reference.z) +
+                                        rootState.displacement.z + rootState.correction.z;
+                                    return q;
+                                };
+                                const auto widenedVelocity = [](
+                                    const std::span<const float> source) {
+                                    return std::vector<double>(source.begin(), source.end());
+                                };
+                                const std::vector<double> qBeforeWorld =
+                                    worldConfiguration(qBefore, rootBefore);
+                                const std::vector<double> qPreprojectionWorld =
+                                    worldConfiguration(result.standPreProjectionQ, root);
+                                const std::vector<double> qAcceptedWorld =
+                                    worldConfiguration(result.standQ, root);
+                                const std::vector<double> vBeforeWorld =
+                                    widenedVelocity(vBefore);
+                                const std::vector<double> vFreeWorld =
+                                    widenedVelocity(result.standFreeVelocity);
+                                const std::vector<double> vPreprojectionWorld =
+                                    widenedVelocity(result.standPreProjectionV);
+                                const std::vector<double> vAcceptedWorld =
+                                    widenedVelocity(result.standV);
+                                metalrobo::ArticulatedDynamicsConfig auditKinematicsConfig;
+                                auditKinematicsConfig.gravity = {
+                                    rigid.model.world.gravityAndTimestep.x,
+                                    rigid.model.world.gravityAndTimestep.y,
+                                    rigid.model.world.gravityAndTimestep.z};
+                                auditKinematicsConfig.timestep =
+                                    double(static_cast<float>(*muscleStepSeconds));
+                                const auto sourceLinearMomentum = [&] (
+                                    const std::span<const double> qState,
+                                    const std::span<const double> vState,
+                                    std::vector<metalrobo::ArticulatedBodyKinematics>*
+                                        capturedBodyKinematics = nullptr) {
+                                    std::vector<metalrobo::ArticulatedBodyKinematics>
+                                        bodyKinematics(articulation.bodyCount);
+                                    require(metalrobo::computeArticulatedBodyKinematics(
+                                                rigid.model, 0u, qState, vState,
+                                                bodyKinematics,
+                                                auditKinematicsConfig).succeeded(),
+                                            "accepted q-integration stage momentum kinematics failed");
+                                    std::array<double, 3u> momentum{};
+                                    double totalMass = 0.0;
+                                    for (std::size_t body = 0u;
+                                         body < bodyKinematics.size(); ++body) {
+                                        const std::size_t bodyIndex =
+                                            articulation.firstBody + body;
+                                        const double mass = rigid.model.bodies[bodyIndex]
+                                            .massAndInverseMass.x;
+                                        require(std::isfinite(mass) && mass >= 0.0,
+                                                "stage momentum body mass is invalid");
+                                        totalMass += mass;
+                                        for (std::size_t axis = 0u; axis < 3u; ++axis)
+                                            momentum[axis] += mass *
+                                                bodyKinematics[body].linearVelocity[axis];
+                                    }
+                                    require(std::isfinite(totalMass) && totalMass > 0.0 &&
+                                                std::all_of(momentum.begin(), momentum.end(),
+                                                    [](const double value) {
+                                                        return std::isfinite(value);
+                                                    }),
+                                            "stage source-body linear momentum is invalid");
+                                    if (capturedBodyKinematics != nullptr)
+                                        *capturedBodyKinematics = std::move(bodyKinematics);
+                                    return momentum;
+                                };
+                                qAuditSourceBodyLinearMomentum[0] =
+                                    sourceLinearMomentum(qBeforeWorld, vBeforeWorld);
+                                qAuditSourceBodyLinearMomentum[1] =
+                                    sourceLinearMomentum(qBeforeWorld, vFreeWorld);
+                                qAuditSourceBodyLinearMomentum[2] =
+                                    sourceLinearMomentum(qBeforeWorld, vPreprojectionWorld);
+                                qAuditSourceBodyLinearMomentum[3] =
+                                    sourceLinearMomentum(qPreprojectionWorld,
+                                        vPreprojectionWorld);
+                                qAuditSourceBodyLinearMomentum[4] =
+                                    sourceLinearMomentum(qAcceptedWorld, vAcceptedWorld,
+                                        &qAuditAcceptedBodyKinematics);
+                                const std::array<double, 3u> auditNormal =
+                                    normalizedVector({
+                                        supportContactPayload->header.groundNormalX,
+                                        supportContactPayload->header.groundNormalY,
+                                        supportContactPayload->header.groundNormalZ},
+                                        "q-integration audit support normal");
+                                const std::array<double, 3u> auditTangentReference =
+                                    std::abs(auditNormal[0]) < 0.8
+                                        ? std::array<double, 3u>{1.0, 0.0, 0.0}
+                                        : std::array<double, 3u>{0.0, 1.0, 0.0};
+                                const double auditProjection =
+                                    auditNormal[0] * auditTangentReference[0] +
+                                    auditNormal[1] * auditTangentReference[1] +
+                                    auditNormal[2] * auditTangentReference[2];
+                                const std::array<double, 3u> auditTangent0 =
+                                    normalizedVector({
+                                        auditTangentReference[0] - auditProjection * auditNormal[0],
+                                        auditTangentReference[1] - auditProjection * auditNormal[1],
+                                        auditTangentReference[2] - auditProjection * auditNormal[2]},
+                                        "q-integration audit support tangent0");
+                                const std::array<double, 3u> auditTangent1 =
+                                    crossProduct(auditNormal, auditTangent0);
+                                const auto tangentialSlip = [&] (
+                                    const std::array<double, 3u>& velocity) {
+                                    require(std::all_of(velocity.begin(), velocity.end(),
+                                                [](const double value) {
+                                                    return std::isfinite(value);
+                                                }),
+                                            "q-integration support-point velocity is non-finite");
+                                    const double tangent0Velocity =
+                                        velocity[0] * auditTangent0[0] +
+                                        velocity[1] * auditTangent0[1] +
+                                        velocity[2] * auditTangent0[2];
+                                    const double tangent1Velocity =
+                                        velocity[0] * auditTangent1[0] +
+                                        velocity[1] * auditTangent1[1] +
+                                        velocity[2] * auditTangent1[2];
+                                    const std::array<double, 3u> slip{
+                                        tangent0Velocity, tangent1Velocity,
+                                        std::hypot(tangent0Velocity, tangent1Velocity)};
+                                    require(std::all_of(slip.begin(), slip.end(),
+                                                [](const double value) {
+                                                    return std::isfinite(value);
+                                                }),
+                                            "q-integration support-point slip is non-finite");
+                                    return slip;
+                                };
+                                qAuditSupportPointSlip.resize(
+                                    queries.supportContacts.size());
+                                const std::array<std::span<const double>, 4u>
+                                    linearizationStageVelocities{
+                                        vBeforeWorld, vFreeWorld,
+                                        vPreprojectionWorld, vAcceptedWorld};
+                                for (std::size_t contact = 0u;
+                                     contact < queries.supportContacts.size(); ++contact) {
+                                    const auto& supportContact =
+                                        queries.supportContacts[contact];
+                                    const auto& sourceContact =
+                                        supportContactPayload->records[contact];
+                                    // These identity fields bind the support-region row
+                                    // to its contact-query slot. They do not imply that
+                                    // the dynamic weighted-skin witness is a one-body
+                                    // contact; the pre-step operator Jacobian for this
+                                    // slot is the authoritative measured linearization.
+                                    require(supportContact.bodyIndex ==
+                                                sourceContact.bodyIndex &&
+                                                supportContact.sourceGeometryIndex ==
+                                                    sourceContact.sourceGeometryIndex &&
+                                                supportContact.pointQueryIndex <
+                                                    queries.points.size() &&
+                                                queries.points[
+                                                    supportContact.pointQueryIndex].bodyIndex ==
+                                                    sourceContact.bodyIndex,
+                                            "q-integration support point query is not aligned with its source contact row");
+                                    const std::uint32_t pointIndex =
+                                        supportContact.pointQueryIndex;
+                                    for (std::size_t stage = 0u; stage <
+                                            linearizationStageVelocities.size(); ++stage) {
+                                        std::array<double, 3u> pointVelocity{};
+                                        for (std::size_t axis = 0u; axis < 3u; ++axis)
+                                            for (std::size_t dof = 0u; dof < articulation.nv; ++dof)
+                                                pointVelocity[axis] +=
+                                                    double(result.pointJacobians[
+                                                        (std::size_t(pointIndex) * 3u + axis) *
+                                                            articulation.nv + dof]) *
+                                                    linearizationStageVelocities[stage][dof];
+                                        qAuditSupportPointSlip[contact][stage] =
+                                            tangentialSlip(pointVelocity);
+                                    }
+                                }
                                 const auto writeFloatArray = [](std::ostream& output,
                                                                 std::span<const float> values) {
                                     output << std::setprecision(
@@ -23105,7 +23325,14 @@ int main(int argc, char** argv) {
                                     << payloadFingerprint(result.standPreProjectionQ) << ','
                                     << payloadFingerprint(result.standPreProjectionV) << ','
                                     << payloadFingerprint(result.standQ) << ','
-                                    << payloadFingerprint(result.standV) << '\n';
+                                    << payloadFingerprint(result.standV);
+                                qIntegrationTrace << std::setprecision(
+                                    std::numeric_limits<double>::max_digits10);
+                                for (const auto& stageMomentum :
+                                     qAuditSourceBodyLinearMomentum)
+                                    for (const double component : stageMomentum)
+                                        qIntegrationTrace << ',' << component;
+                                qIntegrationTrace << '\n';
                                 qIntegrationTrace.flush();
                                 require(qIntegrationTrace.good(),
                                         "accepted q-integration trace write failed");
@@ -23123,19 +23350,27 @@ int main(int argc, char** argv) {
                             q[1] = double(root.reference.y) + root.displacement.y + root.correction.y;
                             q[2] = double(root.reference.z) + root.displacement.z + root.correction.z;
                             const std::vector<double> v(result.standV.begin(), result.standV.end());
-                            std::vector<metalrobo::ArticulatedBodyKinematics> bodyKinematics(
-                                articulation.bodyCount);
-                            metalrobo::ArticulatedDynamicsConfig kinematicsConfig;
-                            kinematicsConfig.gravity = {
-                                rigid.model.world.gravityAndTimestep.x,
-                                rigid.model.world.gravityAndTimestep.y,
-                                rigid.model.world.gravityAndTimestep.z};
-                            kinematicsConfig.timestep =
-                                double(static_cast<float>(*muscleStepSeconds));
-                            require(metalrobo::computeArticulatedBodyKinematics(
-                                        rigid.model, 0u, q, v, bodyKinematics,
-                                        kinematicsConfig).succeeded(),
-                                    "accepted COM CPU kinematics evaluation failed");
+                            std::vector<metalrobo::ArticulatedBodyKinematics> bodyKinematics;
+                            if (restingQIntegrationAudit) {
+                                require(qAuditAcceptedBodyKinematics.size() ==
+                                            articulation.bodyCount,
+                                        "accepted q-audit kinematics were not retained for COM");
+                                bodyKinematics = std::move(
+                                    qAuditAcceptedBodyKinematics);
+                            } else {
+                                bodyKinematics.resize(articulation.bodyCount);
+                                metalrobo::ArticulatedDynamicsConfig kinematicsConfig;
+                                kinematicsConfig.gravity = {
+                                    rigid.model.world.gravityAndTimestep.x,
+                                    rigid.model.world.gravityAndTimestep.y,
+                                    rigid.model.world.gravityAndTimestep.z};
+                                kinematicsConfig.timestep =
+                                    double(static_cast<float>(*muscleStepSeconds));
+                                require(metalrobo::computeArticulatedBodyKinematics(
+                                            rigid.model, 0u, q, v, bodyKinematics,
+                                            kinematicsConfig).succeeded(),
+                                        "accepted COM CPU kinematics evaluation failed");
+                            }
                             std::array<double, 3u> comPosition{};
                             std::array<double, 3u> comVelocity{};
                             double totalMass = 0.0;
@@ -23353,7 +23588,17 @@ int main(int argc, char** argv) {
                                     << normal[0] << ',' << normal[1] << ',' << normal[2] << ','
                                     << tangent0[0] << ',' << tangent0[1] << ','
                                     << tangent0[2] << ',' << tangent1[0] << ','
-                                    << tangent1[1] << ',' << tangent1[2] << '\n';
+                                    << tangent1[1] << ',' << tangent1[2];
+                                if (restingQIntegrationAudit) {
+                                    require(qAuditSupportPointSlip.size() ==
+                                                supportContactPayload->records.size(),
+                                            "accepted q-audit support-point slip rows are incomplete");
+                                    for (const auto& slip :
+                                         qAuditSupportPointSlip[contact])
+                                        supportImpulseTrace << ',' << slip[0] << ','
+                                            << slip[1] << ',' << slip[2];
+                                }
+                                supportImpulseTrace << '\n';
                             }
                             if (trainingProfile) {
                                 restingObserverProfile.supportImpulseCsvMilliseconds +=
