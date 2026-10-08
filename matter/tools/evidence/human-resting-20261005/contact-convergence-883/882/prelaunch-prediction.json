@@ -1,0 +1,25 @@
+{
+  "purpose": "Bounded numerical contact-convergence diagnostic; no physiological or anatomical qualification",
+  "baseline": "native-support-drift-diagnostic-876/native-output",
+  "candidate_contact_iterations": 128,
+  "baseline_contact_iterations": 64,
+  "controlled_change": "Only contact iteration count; same 2 ms dt, 20 s horizon, assets, observer, release and support configuration",
+  "analysis_window_seconds": [
+    10,
+    20
+  ],
+  "prediction": "If iteration-limited contact creep drives drift, increasing iterations decreases active-contact accepted pre-step-J tangent slip, post-initialization COM displacement and trend, and constrained-stage momentum minus summed world contact impulses. Persistence weakens that explanation.",
+  "controls": [
+    "free-stage momentum minus gravity",
+    "q-advance momentum change",
+    "final acceptance momentum change",
+    "physiological state and conservation",
+    "zero root assistance"
+  ],
+  "limitations": [
+    "Pre-step contact-J velocity is not accepted endpoint skin slip",
+    "Body linear momentum excludes an independently decomposed internal armature budget",
+    "This 20-second sensitivity is not a 300-second equilibrium qualification"
+  ],
+  "driver_sha256": "c5e3aca21d295e399edd7d08d6153d5b45c00f1a7167113f8bbff26fea755be7"
+}

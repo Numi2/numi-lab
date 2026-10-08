@@ -1,0 +1,1007 @@
+{
+  "arms": {
+    "32": {
+      "com_postinit": {
+        "displacement_mm_xyz": [
+          -0.3086322167204017,
+          -0.18687767700698021,
+          0.009673603033541478
+        ],
+        "displacement_norm_mm": 0.36093031177351226,
+        "first_time_s": 10.000000474974513,
+        "last_time_s": 19.99800094985403,
+        "mean_velocity_m_s_xyz": [
+          -3.0892144886349644e-05,
+          -2.04060460730459e-05,
+          -4.666253356611931e-06
+        ],
+        "n": 5000,
+        "ols_trend_mm_per_min_xyz": [
+          -1.8880068806656867,
+          -1.1960634749824026,
+          0.034957848096885465
+        ]
+      },
+      "completion": {
+        "dt_s": 0.002,
+        "native_step_count": 10000,
+        "real_time_factor": 0.13185979147860227,
+        "root_assistance": false,
+        "runner_exit_code": 0,
+        "simulated_s": 20.000000949949026,
+        "wall_s": 151.676267084
+      },
+      "identity": {
+        "argv": [
+          "/Users/n/numi-human-support-drift-audit-build-876/bin/numi-human-native",
+          "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-core-reference.nhrigid",
+          "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-muscle-reference.nhmyo",
+          "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/current-bone-registration-b1b410ad/bodyparts3d-myosim-major-bones.nhbones",
+          "/Users/n/numi-human-resting-evidence-20261005/native-contact-convergence-883/native-output",
+          "--persistent-metal-stand",
+          "--muscle-step-seconds",
+          "0.002",
+          "--muscle-step-count",
+          "10000",
+          "--support-contact-payload",
+          "/Users/n/numi-human-resting-evidence-20261005/skin-lowerlimb-anchor-rebind-004/resting-scene-recook/myosim-fullbody-resting-bed-support.nhcnt",
+          "--joint-equality-payload",
+          "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-joint-equalities.nheq",
+          "--tendon-payload",
+          "/Users/n/numi-human-resting-evidence-20261005/tendon-semantic-foot-migration-834/numi-human-tendon-attachments.nhtendon",
+          "--root-pose",
+          "-0.05000000074505806",
+          "0.20000000298023224",
+          "0.10571993142366409",
+          "-0.7009092642998509",
+          "0.0",
+          "0.0",
+          "0.7132504491541817",
+          "--resting-scene",
+          "/Users/n/numi-human-resting-evidence-20261005/reference-circulation-001/resting_reference_lv15.native.v3.json",
+          "/Users/n/numi-human-resting-evidence-20261005/integrated-anatomy-engineering-lung-edge-collapse-761/resting-reference-respiration.json",
+          "--vascular-dense45",
+          "--resting-reference-mass-kg",
+          "72.0",
+          "--skin-payload",
+          "/Users/n/numi-human-resting-evidence-20261005/skin-lowerlimb-anchor-rebind-004/bodyparts3d-myosim-skinned-shell.nhskin",
+          "--soft-tissue-payload",
+          "/Users/n/numi-human-resting-evidence-20261005/passive-tissue-achilles-clearance-039-composed-001/bodyparts3d-myosim-fullbody-muscle-surfaces.nhtissue",
+          "--torso-anatomy-payload",
+          "/Users/n/numi-human-resting-evidence-20261005/lung-precision-retriangulation-preflight-859/conditioned-candidate-001/final/resting-thorax.nhanatomy",
+          "--resting-anatomy-receipt",
+          "/Users/n/numi-human-resting-evidence-20261005/lung-precision-retriangulation-preflight-859/conditioned-candidate-001/final/resting-anatomy-receipt.json",
+          "--dimension",
+          "512",
+          "--resting-movie",
+          "/Users/n/numi-human-resting-evidence-20261005/native-contact-convergence-883/native-output/native-viewer.mov",
+          "--muscle-activation",
+          "0.01",
+          "--resting-release-initialization",
+          "--resting-rigid-hands",
+          "--stand-contact-iterations",
+          "32"
+        ],
+        "asset_sha256": {
+          "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/current-bone-registration-b1b410ad/bodyparts3d-myosim-major-bones.nhbones": "7d94e2f28ac6cea30c6c11a79919077acc40281636eb20b11b50b50aebd3ec49",
+          "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-core-reference.nhrigid": "2c78cb4150b97cea6e8169dad9e8f5dd59af667b247e07b56e48e857435560e4",
+          "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-joint-equalities.nheq": "0e3c593792a8c4ccd619f1999f6685b68e6ff0fd5ae5f6f0bca66b594a0e9b88",
+          "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-muscle-reference.nhmyo": "e5bb8a8168706bb3b23cf42b1d849659569ba2e6027bcc85729c3110fdbb8c4b",
+          "/Users/n/numi-human-resting-evidence-20261005/integrated-anatomy-engineering-lung-edge-collapse-761/resting-reference-respiration.json": "c518926bf47fba945cef52bb952ed6c559d604508988082c5b641b720bda503d",
+          "/Users/n/numi-human-resting-evidence-20261005/lung-precision-retriangulation-preflight-859/conditioned-candidate-001/final/common-cardiac-domains-f32.bin": "7652785c9ea164b16ee96f64a3dcf940398af36cfd535a5f9b7a7d6bd2c7a611",
+          "/Users/n/numi-human-resting-evidence-20261005/lung-precision-retriangulation-preflight-859/conditioned-candidate-001/final/common-cardiac-map-f32.bin": "c0b0811fe2e2fb45dc37201205e36af39cf092739cfb52c56fdbad9a67dbb858",
+          "/Users/n/numi-human-resting-evidence-20261005/lung-precision-retriangulation-preflight-859/conditioned-candidate-001/final/common-cardiac-volumes-f32.bin": "7be4f62996c996c6cfdd49480d27766c8253387bb24aeb504fef73cd553ae699",
+          "/Users/n/numi-human-resting-evidence-20261005/lung-precision-retriangulation-preflight-859/conditioned-candidate-001/final/resting-anatomy-receipt.json": "2a4f5241b051562858049d6d81af814aa7a0c0e744ff04343e8f40abf0642801",
+          "/Users/n/numi-human-resting-evidence-20261005/lung-precision-retriangulation-preflight-859/conditioned-candidate-001/final/resting-thorax.nhanatomy": "e082d44b0668c7c406a70711efea188e1993a0cca90e9406dc31da91b9f60139",
+          "/Users/n/numi-human-resting-evidence-20261005/passive-tissue-achilles-clearance-039-composed-001/bodyparts3d-myosim-fullbody-muscle-surfaces.manifest.json": "82cdd937e0f2daf0a8704fb21246353c38148527f8602d674ac865f935264dde",
+          "/Users/n/numi-human-resting-evidence-20261005/passive-tissue-achilles-clearance-039-composed-001/bodyparts3d-myosim-fullbody-muscle-surfaces.nhtissue": "b3d0381f73e05b04ed7ea1ba23eb6559073ad20aa0d9e2ad0f97a18fab3359bd",
+          "/Users/n/numi-human-resting-evidence-20261005/reference-circulation-001/resting_reference_lv15.native.v3.json": "43ff6b49daf1d42cf9e88d85d8577f70e112dfcc3756ec43954e544a3e4bc0dc",
+          "/Users/n/numi-human-resting-evidence-20261005/skin-lowerlimb-anchor-rebind-004/bodyparts3d-myosim-skinned-shell.nhskin": "431a1106cc9d5ab13a0b1cb21384ddb604ed8d936ef1acef9d9170b828519058",
+          "/Users/n/numi-human-resting-evidence-20261005/skin-lowerlimb-anchor-rebind-004/resting-scene-recook/myosim-fullbody-resting-bed-support.nhcnt": "c5e1612a273d5a7a2750acc1164664783039f6608829683c524f3993452d85ae",
+          "/Users/n/numi-human-resting-evidence-20261005/skin-lowerlimb-anchor-rebind-004/resting-scene-recook/resting-supine-scene.manifest.json": "eb467fe8d3c639022ee3ae8537b166cf4df2fb44a0f47adcef299f3321f7d751",
+          "/Users/n/numi-human-resting-evidence-20261005/tendon-semantic-foot-migration-834/numi-human-tendon-attachments.nhtendon": "49daaf61421254cb18f3aa32f1d332b1810537afd4c4ef813abd2f0d118dcecc",
+          "/Users/n/numi-human-support-drift-audit-build-876/bin/numi-human-native": "abae2561cb09f75680f975adedaa66736c451d7786b7b7d879b9179b40aa3bf0",
+          "/Users/n/numi-human-support-drift-audit-build-876/lib/libmetalrobo.dylib": "816019f74a6f08000b349524c957821e54d7801ec6c1281b45ed3b3825e7aedc",
+          "/Users/n/numi-human-support-drift-audit-build-876/matter/shaders/HumanRespiration.metallib": "8a3fb8e890655b2ff360d078b0898a893978f658315d64e475f3dec3690a322e",
+          "/Users/n/numi-human-support-drift-audit-build-876/matter/shaders/NumiMatter.metallib": "38d4b64ed55cef2e0e0f243616d0db5bd21441f232ca38bca439108c1d6130f9",
+          "/Users/n/numi-human-support-drift-audit-build-876/matter/shaders/NumiMatterPhysicalStateDigest.metallib": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68",
+          "/Users/n/numi-human-support-drift-audit-build-876/shaders/MetalRobo.metallib": "3077d063dc23475d75cda795620cda8750402d1a2159267a241a5e2b65986043",
+          "/Users/n/numi-human-support-drift-audit-build-876/shaders/MetalRoboHyperPolicy.metallib": "f227836841015b40467a20c47a9fa38cf44eb8e1132cad1de4e65fa79c55d309",
+          "/Users/n/numi-human-support-drift-audit-build-876/shaders/NumiNeuron.metallib": "4ccbb796a6bfd5bdb18f7d37c8e18e0d767c9489d16047c523c97f679da33f1d"
+        },
+        "binary_sha256": "abae2561cb09f75680f975adedaa66736c451d7786b7b7d879b9179b40aa3bf0",
+        "native_log_sha256": "09dba9dbf76779399c1e7dca0f8865c736f8ca773d948d249b2a56b6c11b2982",
+        "output_sha256": {
+          "native.log": "09dba9dbf76779399c1e7dca0f8865c736f8ca773d948d249b2a56b6c11b2982",
+          "resting-com-momentum-diagnostic.csv": "ff3971aa1aa745ee516e6c67a43ef8e24993bb23b9e22035ff361ec9abdbd17a",
+          "resting-com-q-integration.csv": "990b9afb1248b8eeefdb617410510979f2b1d3b4d145089def0958849f441362",
+          "resting-com-support-impulses.csv": "6297531a219157473ab3505fa087f361f9518d2963f1c34b19f751b5fe1243e2",
+          "resting-coupled.csv": "52c0745268ce28a6fd7c1bb8021557532a6c0b993676df546e6c0ccb23bd5ca2",
+          "resting-surface-audit.csv": "7a66572167545ec7f1c2c82539e2bae7d2ae869dc22201af8043d0c0541eb51b",
+          "run-metadata.json": "f7302ef9a853500c14f8318cf46ef2aa028aa67a3283ca6cc5b03f2f2a86243d"
+        },
+        "run_metadata_sha256": "f7302ef9a853500c14f8318cf46ef2aa028aa67a3283ca6cc5b03f2f2a86243d",
+        "runner_receipt_sha256": "3a440e6a5cf9f14c4b984fc048ccaa76646b056e1829411e6f85fc07c034e9a3",
+        "source_sha256": "3b77635d675b60dadf7322f777a1a5d7ace8512adda523ff7a48689f680da862"
+      },
+      "label": "32",
+      "partial_impulse_accounting": {
+        "contact": {
+          "per_step_residual_norm_ns": {
+            "max": 1.1875105697469649e-05,
+            "mean": 3.9013770755951884e-06,
+            "median": 3.720681883019293e-06,
+            "n": 5000,
+            "p95": 7.418054681200429e-06
+          },
+          "sum_delta_p_ns": [
+            -0.0011878950587881562,
+            -0.005150755675311804,
+            7063.206082475187
+          ],
+          "sum_impulse_ns": [
+            -0.0016528592073288273,
+            0.004358702102969736,
+            7063.218528235072
+          ],
+          "sum_per_step_residual_norm_ns": 0.015669809109005648,
+          "sum_per_step_residual_ns": [
+            0.00046496414854067255,
+            -0.009509457778281528,
+            -0.012445759864963213
+          ]
+        },
+        "gravity": {
+          "per_step_residual_norm_ns": {
+            "max": 1.3857906002597548e-05,
+            "mean": 3.6582777648681016e-06,
+            "median": 3.3599317715668683e-06,
+            "n": 5000,
+            "p95": 7.293457725774131e-06
+          },
+          "sum_delta_p_ns": [
+            -0.001416355621052634,
+            0.0032540932799483336,
+            -7063.205644720246
+          ],
+          "sum_impulse_ns": [
+            0.0,
+            0.0,
+            -7063.200578645326
+          ],
+          "sum_per_step_residual_norm_ns": 0.006185491630486343,
+          "sum_per_step_residual_ns": [
+            -0.001416355621052634,
+            0.0032540932799483336,
+            -0.005066075442679896
+          ]
+        }
+      },
+      "physiology_summary_10_20s": {
+        "max_abs_CO2_budget_residual_stpd_ml": 0.000465661287308,
+        "max_abs_blood_continuity_residual_accum_ml": 0.00772794894743,
+        "max_abs_oxygen_budget_residual_stpd_ml": 0.000232830643654,
+        "max_abs_respiratory_volume_balance_ml": 0.000410295797337,
+        "mean_PaCO2_mmhg": 38.9946347763066,
+        "mean_PaO2_mmhg": 102.492851182557,
+        "rows_strictly_inside_10_20s": 5000
+      },
+      "pre_step_contact_J_tangent_speed_m_s": {
+        "accepted": {
+          "max": 0.002315220033519958,
+          "mean": 7.64762652897503e-05,
+          "median": 4.832889007985311e-05,
+          "n": 57835,
+          "p95": 0.0002473234071539009
+        },
+        "before": {
+          "max": 0.0023152133125936302,
+          "mean": 7.655334131053033e-05,
+          "median": 4.846592488575513e-05,
+          "n": 57835,
+          "p95": 0.000247394665180908
+        },
+        "free": {
+          "max": 0.18254664947870997,
+          "mean": 0.037195992674633215,
+          "median": 0.007161304998636026,
+          "n": 57835,
+          "p95": 0.18149939872751858
+        },
+        "preprojection_velocity_same_q": {
+          "max": 0.0023152201593294635,
+          "mean": 7.647626238581776e-05,
+          "median": 4.832886288317855e-05,
+          "n": 57835,
+          "p95": 0.0002473233067825041
+        }
+      },
+      "stage_delta_p_norm_kg_m_s": {
+        "contact_velocity_stage": {
+          "max": 1.421971129414731,
+          "mean": 1.4126443193623779,
+          "median": 1.412392760663769,
+          "n": 5000,
+          "p95": 1.4175842914526828
+        },
+        "final_acceptance": {
+          "max": 1.6232400508907482e-07,
+          "mean": 3.310604564576804e-08,
+          "median": 2.7595891292846196e-08,
+          "n": 5000,
+          "p95": 7.813275828787231e-08
+        },
+        "gravity_velocity_stage": {
+          "max": 1.4126537527729337,
+          "mean": 1.4126411289458374,
+          "median": 1.4126411147905893,
+          "n": 5000,
+          "p95": 1.412646710621908
+        },
+        "q_advance": {
+          "max": 1.3605919072006868e-07,
+          "mean": 5.118089864039912e-08,
+          "median": 5.4580069433742446e-08,
+          "n": 5000,
+          "p95": 7.880091761587076e-08
+        }
+      },
+      "trace_dimensions": {
+        "active_contact_rows": 57835,
+        "com_momentum_rows": 10000,
+        "physiology_rows": 10000,
+        "postinit_step_interval_inclusive": [
+          5001,
+          10000
+        ],
+        "q_columns": 34,
+        "q_rows": 10000,
+        "support_columns": 33,
+        "support_rows": 320000
+      }
+    },
+    "64": {
+      "com_postinit": {
+        "displacement_mm_xyz": [
+          -0.030995628148761112,
+          0.10479757416903546,
+          0.054399024472656654
+        ],
+        "displacement_norm_mm": 0.12207585502312673,
+        "first_time_s": 10.000000474974513,
+        "last_time_s": 19.99800094985403,
+        "mean_velocity_m_s_xyz": [
+          -3.0960598893142738e-06,
+          8.957745172009864e-06,
+          4.1411545498785327e-07
+        ],
+        "n": 5000,
+        "ols_trend_mm_per_min_xyz": [
+          -0.23556397866894466,
+          0.7023193223358709,
+          0.3790542407582597
+        ]
+      },
+      "completion": {
+        "dt_s": 0.002,
+        "native_step_count": 10000,
+        "real_time_factor": 0.11367702587529532,
+        "root_assistance": false,
+        "runner_exit_code": 0,
+        "simulated_s": 20.000000949949026,
+        "wall_s": 175.937053208
+      },
+      "identity": {
+        "argv": [
+          "/Users/n/numi-human-support-drift-audit-build-876/bin/numi-human-native",
+          "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-core-reference.nhrigid",
+          "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-muscle-reference.nhmyo",
+          "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/current-bone-registration-b1b410ad/bodyparts3d-myosim-major-bones.nhbones",
+          "/Users/n/numi-human-resting-evidence-20261005/native-support-drift-diagnostic-876/native-output",
+          "--persistent-metal-stand",
+          "--muscle-step-seconds",
+          "0.002",
+          "--muscle-step-count",
+          "10000",
+          "--support-contact-payload",
+          "/Users/n/numi-human-resting-evidence-20261005/skin-lowerlimb-anchor-rebind-004/resting-scene-recook/myosim-fullbody-resting-bed-support.nhcnt",
+          "--joint-equality-payload",
+          "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-joint-equalities.nheq",
+          "--tendon-payload",
+          "/Users/n/numi-human-resting-evidence-20261005/tendon-semantic-foot-migration-834/numi-human-tendon-attachments.nhtendon",
+          "--root-pose",
+          "-0.05000000074505806",
+          "0.20000000298023224",
+          "0.10571993142366409",
+          "-0.7009092642998509",
+          "0.0",
+          "0.0",
+          "0.7132504491541817",
+          "--resting-scene",
+          "/Users/n/numi-human-resting-evidence-20261005/reference-circulation-001/resting_reference_lv15.native.v3.json",
+          "/Users/n/numi-human-resting-evidence-20261005/integrated-anatomy-engineering-lung-edge-collapse-761/resting-reference-respiration.json",
+          "--vascular-dense45",
+          "--resting-reference-mass-kg",
+          "72.0",
+          "--skin-payload",
+          "/Users/n/numi-human-resting-evidence-20261005/skin-lowerlimb-anchor-rebind-004/bodyparts3d-myosim-skinned-shell.nhskin",
+          "--soft-tissue-payload",
+          "/Users/n/numi-human-resting-evidence-20261005/passive-tissue-achilles-clearance-039-composed-001/bodyparts3d-myosim-fullbody-muscle-surfaces.nhtissue",
+          "--torso-anatomy-payload",
+          "/Users/n/numi-human-resting-evidence-20261005/lung-precision-retriangulation-preflight-859/conditioned-candidate-001/final/resting-thorax.nhanatomy",
+          "--resting-anatomy-receipt",
+          "/Users/n/numi-human-resting-evidence-20261005/lung-precision-retriangulation-preflight-859/conditioned-candidate-001/final/resting-anatomy-receipt.json",
+          "--dimension",
+          "512",
+          "--resting-movie",
+          "/Users/n/numi-human-resting-evidence-20261005/native-support-drift-diagnostic-876/native-output/native-viewer.mov",
+          "--muscle-activation",
+          "0.01",
+          "--resting-release-initialization",
+          "--resting-rigid-hands",
+          "--stand-contact-iterations",
+          "64"
+        ],
+        "asset_sha256": {
+          "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/current-bone-registration-b1b410ad/bodyparts3d-myosim-major-bones.nhbones": "7d94e2f28ac6cea30c6c11a79919077acc40281636eb20b11b50b50aebd3ec49",
+          "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-core-reference.nhrigid": "2c78cb4150b97cea6e8169dad9e8f5dd59af667b247e07b56e48e857435560e4",
+          "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-joint-equalities.nheq": "0e3c593792a8c4ccd619f1999f6685b68e6ff0fd5ae5f6f0bca66b594a0e9b88",
+          "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-muscle-reference.nhmyo": "e5bb8a8168706bb3b23cf42b1d849659569ba2e6027bcc85729c3110fdbb8c4b",
+          "/Users/n/numi-human-resting-evidence-20261005/integrated-anatomy-engineering-lung-edge-collapse-761/resting-reference-respiration.json": "c518926bf47fba945cef52bb952ed6c559d604508988082c5b641b720bda503d",
+          "/Users/n/numi-human-resting-evidence-20261005/lung-precision-retriangulation-preflight-859/conditioned-candidate-001/final/common-cardiac-domains-f32.bin": "7652785c9ea164b16ee96f64a3dcf940398af36cfd535a5f9b7a7d6bd2c7a611",
+          "/Users/n/numi-human-resting-evidence-20261005/lung-precision-retriangulation-preflight-859/conditioned-candidate-001/final/common-cardiac-map-f32.bin": "c0b0811fe2e2fb45dc37201205e36af39cf092739cfb52c56fdbad9a67dbb858",
+          "/Users/n/numi-human-resting-evidence-20261005/lung-precision-retriangulation-preflight-859/conditioned-candidate-001/final/common-cardiac-volumes-f32.bin": "7be4f62996c996c6cfdd49480d27766c8253387bb24aeb504fef73cd553ae699",
+          "/Users/n/numi-human-resting-evidence-20261005/lung-precision-retriangulation-preflight-859/conditioned-candidate-001/final/resting-anatomy-receipt.json": "2a4f5241b051562858049d6d81af814aa7a0c0e744ff04343e8f40abf0642801",
+          "/Users/n/numi-human-resting-evidence-20261005/lung-precision-retriangulation-preflight-859/conditioned-candidate-001/final/resting-thorax.nhanatomy": "e082d44b0668c7c406a70711efea188e1993a0cca90e9406dc31da91b9f60139",
+          "/Users/n/numi-human-resting-evidence-20261005/passive-tissue-achilles-clearance-039-composed-001/bodyparts3d-myosim-fullbody-muscle-surfaces.manifest.json": "82cdd937e0f2daf0a8704fb21246353c38148527f8602d674ac865f935264dde",
+          "/Users/n/numi-human-resting-evidence-20261005/passive-tissue-achilles-clearance-039-composed-001/bodyparts3d-myosim-fullbody-muscle-surfaces.nhtissue": "b3d0381f73e05b04ed7ea1ba23eb6559073ad20aa0d9e2ad0f97a18fab3359bd",
+          "/Users/n/numi-human-resting-evidence-20261005/reference-circulation-001/resting_reference_lv15.native.v3.json": "43ff6b49daf1d42cf9e88d85d8577f70e112dfcc3756ec43954e544a3e4bc0dc",
+          "/Users/n/numi-human-resting-evidence-20261005/skin-lowerlimb-anchor-rebind-004/bodyparts3d-myosim-skinned-shell.nhskin": "431a1106cc9d5ab13a0b1cb21384ddb604ed8d936ef1acef9d9170b828519058",
+          "/Users/n/numi-human-resting-evidence-20261005/skin-lowerlimb-anchor-rebind-004/resting-scene-recook/myosim-fullbody-resting-bed-support.nhcnt": "c5e1612a273d5a7a2750acc1164664783039f6608829683c524f3993452d85ae",
+          "/Users/n/numi-human-resting-evidence-20261005/skin-lowerlimb-anchor-rebind-004/resting-scene-recook/resting-supine-scene.manifest.json": "eb467fe8d3c639022ee3ae8537b166cf4df2fb44a0f47adcef299f3321f7d751",
+          "/Users/n/numi-human-resting-evidence-20261005/tendon-semantic-foot-migration-834/numi-human-tendon-attachments.nhtendon": "49daaf61421254cb18f3aa32f1d332b1810537afd4c4ef813abd2f0d118dcecc",
+          "/Users/n/numi-human-support-drift-audit-build-876/bin/numi-human-native": "abae2561cb09f75680f975adedaa66736c451d7786b7b7d879b9179b40aa3bf0",
+          "/Users/n/numi-human-support-drift-audit-build-876/lib/libmetalrobo.dylib": "816019f74a6f08000b349524c957821e54d7801ec6c1281b45ed3b3825e7aedc",
+          "/Users/n/numi-human-support-drift-audit-build-876/matter/shaders/HumanRespiration.metallib": "8a3fb8e890655b2ff360d078b0898a893978f658315d64e475f3dec3690a322e",
+          "/Users/n/numi-human-support-drift-audit-build-876/matter/shaders/NumiMatter.metallib": "38d4b64ed55cef2e0e0f243616d0db5bd21441f232ca38bca439108c1d6130f9",
+          "/Users/n/numi-human-support-drift-audit-build-876/matter/shaders/NumiMatterPhysicalStateDigest.metallib": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68",
+          "/Users/n/numi-human-support-drift-audit-build-876/shaders/MetalRobo.metallib": "3077d063dc23475d75cda795620cda8750402d1a2159267a241a5e2b65986043",
+          "/Users/n/numi-human-support-drift-audit-build-876/shaders/MetalRoboHyperPolicy.metallib": "f227836841015b40467a20c47a9fa38cf44eb8e1132cad1de4e65fa79c55d309",
+          "/Users/n/numi-human-support-drift-audit-build-876/shaders/NumiNeuron.metallib": "4ccbb796a6bfd5bdb18f7d37c8e18e0d767c9489d16047c523c97f679da33f1d"
+        },
+        "binary_sha256": "abae2561cb09f75680f975adedaa66736c451d7786b7b7d879b9179b40aa3bf0",
+        "native_log_sha256": "f295759575a2a582e0a31e7c2bc4ec4ef774e96baf8dd791616970da3f76b25a",
+        "output_sha256": {
+          "native.log": "f295759575a2a582e0a31e7c2bc4ec4ef774e96baf8dd791616970da3f76b25a",
+          "resting-com-momentum-diagnostic.csv": "fbc79a059dd60f8a7c3d35c5087e9d3908ffa401996e3d11a1f6051e0beedde5",
+          "resting-com-q-integration.csv": "bed080435d937f2c19731cb47ec7261ba8817f6960be2778fed2dd9ab0eb654b",
+          "resting-com-support-impulses.csv": "565260cf5369cfcbf6ce14075b1d187f3a1bf5e31acb2b3c4fe9b0443b6a87e2",
+          "resting-coupled.csv": "57acd6e416a106d25fe3922482597811944c48fb701147429ef4c2d52e90bbac",
+          "resting-surface-audit.csv": "48f0e1168951f324599fb7695c831e7501ee2037267f004ce3419d945d3c474f",
+          "run-metadata.json": "4ff0a32b0804f0c737efe02ed35494ea99081814840a32808fa737cbb99052dd"
+        },
+        "run_metadata_sha256": "4ff0a32b0804f0c737efe02ed35494ea99081814840a32808fa737cbb99052dd",
+        "runner_receipt_sha256": "f4152544ad5ae7a59734566c96441cbd29578ef024b3db3a6ef5c20077c26f84",
+        "source_sha256": "3b77635d675b60dadf7322f777a1a5d7ace8512adda523ff7a48689f680da862"
+      },
+      "label": "64",
+      "partial_impulse_accounting": {
+        "contact": {
+          "per_step_residual_norm_ns": {
+            "max": 1.1364112230321882e-05,
+            "mean": 3.609733499956727e-06,
+            "median": 3.430336669738706e-06,
+            "n": 5000,
+            "p95": 6.809096555356065e-06
+          },
+          "sum_delta_p_ns": [
+            0.0002402882759369103,
+            -0.005005679995384487,
+            7063.204811776024
+          ],
+          "sum_impulse_ns": [
+            0.00021097892377497374,
+            0.004693789227225409,
+            7063.2146155435985
+          ],
+          "sum_per_step_residual_norm_ns": 0.01379109934538044,
+          "sum_per_step_residual_ns": [
+            2.9309352161933617e-05,
+            -0.009699469222609912,
+            -0.009803767587803769
+          ]
+        },
+        "gravity": {
+          "per_step_residual_norm_ns": {
+            "max": 1.2526563589807996e-05,
+            "mean": 3.562558436698546e-06,
+            "median": 3.271247374060923e-06,
+            "n": 5000,
+            "p95": 7.0660843267345005e-06
+          },
+          "sum_delta_p_ns": [
+            -0.0002907527699516869,
+            0.004941019474229794,
+            -7063.204383106989
+          ],
+          "sum_impulse_ns": [
+            0.0,
+            0.0,
+            -7063.200578645326
+          ],
+          "sum_per_step_residual_norm_ns": 0.006242767268457946,
+          "sum_per_step_residual_ns": [
+            -0.0002907527699516869,
+            0.004941019474229794,
+            -0.0038044621893478237
+          ]
+        }
+      },
+      "physiology_summary_10_20s": {
+        "max_abs_CO2_budget_residual_stpd_ml": 0.000465661287308,
+        "max_abs_blood_continuity_residual_accum_ml": 0.00772794894743,
+        "max_abs_oxygen_budget_residual_stpd_ml": 0.000232830643654,
+        "max_abs_respiratory_volume_balance_ml": 0.000410295797337,
+        "mean_PaCO2_mmhg": 38.9946347763066,
+        "mean_PaO2_mmhg": 102.492851182557,
+        "rows_strictly_inside_10_20s": 5000
+      },
+      "pre_step_contact_J_tangent_speed_m_s": {
+        "accepted": {
+          "max": 0.0023272633204320537,
+          "mean": 8.036514439635368e-06,
+          "median": 4.320535642855192e-06,
+          "n": 50611,
+          "p95": 2.541333353611644e-05
+        },
+        "before": {
+          "max": 0.0023272508566429028,
+          "mean": 8.02480907409443e-06,
+          "median": 4.358720897905281e-06,
+          "n": 50611,
+          "p95": 2.5328936885209284e-05
+        },
+        "free": {
+          "max": 0.17648601388766913,
+          "mean": 0.04166430915548464,
+          "median": 0.007516692204481322,
+          "n": 50611,
+          "p95": 0.17575731024930114
+        },
+        "preprojection_velocity_same_q": {
+          "max": 0.0023272638748867845,
+          "mean": 8.036521192485079e-06,
+          "median": 4.320653506374313e-06,
+          "n": 50611,
+          "p95": 2.541319141339368e-05
+        }
+      },
+      "stage_delta_p_norm_kg_m_s": {
+        "contact_velocity_stage": {
+          "max": 1.4203692968440922,
+          "mean": 1.4126414111050125,
+          "median": 1.4126531742069584,
+          "n": 5000,
+          "p95": 1.415695967676213
+        },
+        "final_acceptance": {
+          "max": 1.3749223377861582e-07,
+          "mean": 2.721229878491095e-08,
+          "median": 2.2940252582374052e-08,
+          "n": 5000,
+          "p95": 6.468779623704923e-08
+        },
+        "gravity_velocity_stage": {
+          "max": 1.4126525965943857,
+          "mean": 1.4126408766232323,
+          "median": 1.4126407946813977,
+          "n": 5000,
+          "p95": 1.4126462527053842
+        },
+        "q_advance": {
+          "max": 1.3872193429194988e-07,
+          "mean": 7.554261781171975e-09,
+          "median": 4.7024994375077175e-09,
+          "n": 5000,
+          "p95": 2.5242292358735012e-08
+        }
+      },
+      "trace_dimensions": {
+        "active_contact_rows": 50611,
+        "com_momentum_rows": 10000,
+        "physiology_rows": 10000,
+        "postinit_step_interval_inclusive": [
+          5001,
+          10000
+        ],
+        "q_columns": 34,
+        "q_rows": 10000,
+        "support_columns": 33,
+        "support_rows": 320000
+      }
+    }
+  },
+  "classification": "predeclared numerical diagnostic; not a numi science registered study and not physiological qualification",
+  "controlled_comparison": {
+    "baseline": "876",
+    "candidate": "883",
+    "normalized_argv_equal_except_output_movie_and_iteration_value": true,
+    "only_declared_physics_change": "--stand-contact-iterations: 64 to 32",
+    "same_binary_sha256": true,
+    "same_input_asset_sha256": true,
+    "same_observer_source_sha256": true,
+    "same_source_binary_assets_dt_horizon_and_other_args": true
+  },
+  "controls": {
+    "final_acceptance": {
+      "32": {
+        "max": 1.6232400508907482e-07,
+        "mean": 3.310604564576804e-08,
+        "median": 2.7595891292846196e-08,
+        "n": 5000,
+        "p95": 7.813275828787231e-08
+      },
+      "64": {
+        "max": 1.3749223377861582e-07,
+        "mean": 2.721229878491095e-08,
+        "median": 2.2940252582374052e-08,
+        "n": 5000,
+        "p95": 6.468779623704923e-08
+      }
+    },
+    "gravity_residual": {
+      "32": {
+        "max": 1.3857906002597548e-05,
+        "mean": 3.6582777648681016e-06,
+        "median": 3.3599317715668683e-06,
+        "n": 5000,
+        "p95": 7.293457725774131e-06
+      },
+      "64": {
+        "max": 1.2526563589807996e-05,
+        "mean": 3.562558436698546e-06,
+        "median": 3.271247374060923e-06,
+        "n": 5000,
+        "p95": 7.0660843267345005e-06
+      }
+    },
+    "physiology_trace_comparison": {
+      "PaCO2_mmhg": {
+        "max_abs_difference": 0.0,
+        "mean_abs_difference": 0.0
+      },
+      "PaO2_mmhg": {
+        "max_abs_difference": 0.0,
+        "mean_abs_difference": 0.0
+      },
+      "airflow_ml_s": {
+        "max_abs_difference": 0.0,
+        "mean_abs_difference": 0.0
+      },
+      "aortic_ejected_ml": {
+        "max_abs_difference": 0.0,
+        "mean_abs_difference": 0.0
+      },
+      "blood_continuity_residual_accum_ml": {
+        "max_abs_difference": 0.0,
+        "mean_abs_difference": 0.0
+      },
+      "breaths": {
+        "max_abs_difference": 0.0,
+        "mean_abs_difference": 0.0
+      },
+      "co2_balance_error_stpd_ml": {
+        "max_abs_difference": 0.0,
+        "mean_abs_difference": 0.0
+      },
+      "different_columns": {
+        "contact_sweeps": {
+          "different_rows": 10000,
+          "first_pair": [
+            "64",
+            "32"
+          ],
+          "max_abs_difference": 32.0
+        },
+        "equality_position_projection_max_generalized": {
+          "different_rows": 6282,
+          "first_pair": [
+            "6.98491930962e-10",
+            "2.32830643654e-10"
+          ],
+          "max_abs_difference": 2.97636280066673e-08
+        },
+        "equality_velocity_projection_max_generalized_s": {
+          "different_rows": 9991,
+          "first_pair": [
+            "1.04308128357e-07",
+            "7.45058059692e-08"
+          ],
+          "max_abs_difference": 1.5199184417769e-06
+        },
+        "min_contact_gap_m": {
+          "different_rows": 9997,
+          "first_pair": [
+            "-5.9526781115e-05",
+            "-5.95266610617e-05"
+          ],
+          "max_abs_difference": 1.131408771467e-05
+        },
+        "normal_impulse_ns": {
+          "different_rows": 9999,
+          "first_pair": [
+            "0.107008829713",
+            "0.107009008527"
+          ],
+          "max_abs_difference": 0.9267401695199999
+        },
+        "peak_penetration_m": {
+          "different_rows": 9961,
+          "first_pair": [
+            "5.9526781115e-05",
+            "5.95266610617e-05"
+          ],
+          "max_abs_difference": 1.131408771467e-05
+        },
+        "post_projection_contact_residual_m_s": {
+          "different_rows": 9992,
+          "first_pair": [
+            "1.86264514923e-08",
+            "1.67638063431e-08"
+          ],
+          "max_abs_difference": 0.00014822144782986998
+        },
+        "post_projection_equality_residual_generalized_s": {
+          "different_rows": 9998,
+          "first_pair": [
+            "2.97370661428e-09",
+            "7.2324581879e-09"
+          ],
+          "max_abs_difference": 2.434263279837e-08
+        },
+        "post_projection_limit_residual_generalized_s": {
+          "different_rows": 10000,
+          "first_pair": [
+            "9.1155832882e-11",
+            "9.13332881547e-11"
+          ],
+          "max_abs_difference": 5.1613765208491e-05
+        },
+        "pre_projection_contact_residual_m_s": {
+          "different_rows": 9994,
+          "first_pair": [
+            "1.95577740669e-08",
+            "1.76951289177e-08"
+          ],
+          "max_abs_difference": 0.000148230208197034
+        },
+        "pre_projection_equality_residual_generalized_s": {
+          "different_rows": 9998,
+          "first_pair": [
+            "1.18796720017e-07",
+            "8.47356460554e-08"
+          ],
+          "max_abs_difference": 2.9591491479382997e-06
+        },
+        "pre_projection_limit_residual_generalized_s": {
+          "different_rows": 10000,
+          "first_pair": [
+            "9.1155832882e-11",
+            "9.13332881547e-11"
+          ],
+          "max_abs_difference": 5.1613765208491e-05
+        }
+      },
+      "lung_volume_ml": {
+        "max_abs_difference": 0.0,
+        "mean_abs_difference": 0.0
+      },
+      "oxygen_balance_error_stpd_ml": {
+        "max_abs_difference": 0.0,
+        "mean_abs_difference": 0.0
+      },
+      "pulmonary_ejected_ml": {
+        "max_abs_difference": 0.0,
+        "mean_abs_difference": 0.0
+      },
+      "respiratory_volume_balance_ml": {
+        "max_abs_difference": 0.0,
+        "mean_abs_difference": 0.0
+      },
+      "tidal_ml": {
+        "max_abs_difference": 0.0,
+        "mean_abs_difference": 0.0
+      },
+      "whole_coupled_csv_byte_identical": false
+    },
+    "q_advance": {
+      "32": {
+        "max": 1.3605919072006868e-07,
+        "mean": 5.118089864039912e-08,
+        "median": 5.4580069433742446e-08,
+        "n": 5000,
+        "p95": 7.880091761587076e-08
+      },
+      "64": {
+        "max": 1.3872193429194988e-07,
+        "mean": 7.554261781171975e-09,
+        "median": 4.7024994375077175e-09,
+        "n": 5000,
+        "p95": 2.5242292358735012e-08
+      }
+    }
+  },
+  "failed_attempt_882": {
+    "classification": "separate predeclared diagnostic, not numi science registered",
+    "failure_reason": "owner rejects contact iterations outside [1, 64]",
+    "failure_receipt_path": "/Users/n/numi-human-resting-evidence-20261005/native-contact-convergence-882/native-run.log",
+    "failure_receipt_sha256": "9c896b829fbd16312223e1c45b159f591371cd27d8d8c4170786276dc362bd82",
+    "outcome": "128 iterations was rejected before native launch; no native/GPU outcome data.",
+    "prelaunch_declaration_path": "/Users/n/numi-human-resting-evidence-20261005/native-contact-convergence-882/prelaunch-prediction.json",
+    "prelaunch_declaration_sha256": "f29c606f9c65553db1c4d3b2e64c0d22d078c67e701489f1d522739843f96fc7"
+  },
+  "interpretation_limits": [
+    "The contact Jacobian slip is a pre-step weighted-contact linearization reused against accepted velocity; it is not the accepted endpoint selected-skin witness.",
+    "The stage impulse checks are partial, not whole-interval momentum or energy closure.",
+    "COM motion includes articulated mass distribution; it is not identical to root translation.",
+    "This 20-second comparison is a bounded numerical sensitivity, not a 310-second equilibrium qualification or clinical/biological acceptance test.",
+    "No arbitrary threshold was introduced after seeing the results."
+  ],
+  "predeclared_metrics": {
+    "accepted_pre_step_Jv_p95_ratio_32_over_64": 9.73203325736132,
+    "com_postinit": {
+      "32": {
+        "displacement_mm_xyz": [
+          -0.3086322167204017,
+          -0.18687767700698021,
+          0.009673603033541478
+        ],
+        "displacement_norm_mm": 0.36093031177351226,
+        "first_time_s": 10.000000474974513,
+        "last_time_s": 19.99800094985403,
+        "mean_velocity_m_s_xyz": [
+          -3.0892144886349644e-05,
+          -2.04060460730459e-05,
+          -4.666253356611931e-06
+        ],
+        "n": 5000,
+        "ols_trend_mm_per_min_xyz": [
+          -1.8880068806656867,
+          -1.1960634749824026,
+          0.034957848096885465
+        ]
+      },
+      "64": {
+        "displacement_mm_xyz": [
+          -0.030995628148761112,
+          0.10479757416903546,
+          0.054399024472656654
+        ],
+        "displacement_norm_mm": 0.12207585502312673,
+        "first_time_s": 10.000000474974513,
+        "last_time_s": 19.99800094985403,
+        "mean_velocity_m_s_xyz": [
+          -3.0960598893142738e-06,
+          8.957745172009864e-06,
+          4.1411545498785327e-07
+        ],
+        "n": 5000,
+        "ols_trend_mm_per_min_xyz": [
+          -0.23556397866894466,
+          0.7023193223358709,
+          0.3790542407582597
+        ]
+      }
+    },
+    "constrained_residual_p95_ratio_32_over_64": 1.089433028433905,
+    "final_acceptance_max_ratio_32_over_64": 1.180604901295313,
+    "partial_impulse_accounting": {
+      "32": {
+        "contact": {
+          "per_step_residual_norm_ns": {
+            "max": 1.1875105697469649e-05,
+            "mean": 3.9013770755951884e-06,
+            "median": 3.720681883019293e-06,
+            "n": 5000,
+            "p95": 7.418054681200429e-06
+          },
+          "sum_delta_p_ns": [
+            -0.0011878950587881562,
+            -0.005150755675311804,
+            7063.206082475187
+          ],
+          "sum_impulse_ns": [
+            -0.0016528592073288273,
+            0.004358702102969736,
+            7063.218528235072
+          ],
+          "sum_per_step_residual_norm_ns": 0.015669809109005648,
+          "sum_per_step_residual_ns": [
+            0.00046496414854067255,
+            -0.009509457778281528,
+            -0.012445759864963213
+          ]
+        },
+        "gravity": {
+          "per_step_residual_norm_ns": {
+            "max": 1.3857906002597548e-05,
+            "mean": 3.6582777648681016e-06,
+            "median": 3.3599317715668683e-06,
+            "n": 5000,
+            "p95": 7.293457725774131e-06
+          },
+          "sum_delta_p_ns": [
+            -0.001416355621052634,
+            0.0032540932799483336,
+            -7063.205644720246
+          ],
+          "sum_impulse_ns": [
+            0.0,
+            0.0,
+            -7063.200578645326
+          ],
+          "sum_per_step_residual_norm_ns": 0.006185491630486343,
+          "sum_per_step_residual_ns": [
+            -0.001416355621052634,
+            0.0032540932799483336,
+            -0.005066075442679896
+          ]
+        }
+      },
+      "64": {
+        "contact": {
+          "per_step_residual_norm_ns": {
+            "max": 1.1364112230321882e-05,
+            "mean": 3.609733499956727e-06,
+            "median": 3.430336669738706e-06,
+            "n": 5000,
+            "p95": 6.809096555356065e-06
+          },
+          "sum_delta_p_ns": [
+            0.0002402882759369103,
+            -0.005005679995384487,
+            7063.204811776024
+          ],
+          "sum_impulse_ns": [
+            0.00021097892377497374,
+            0.004693789227225409,
+            7063.2146155435985
+          ],
+          "sum_per_step_residual_norm_ns": 0.01379109934538044,
+          "sum_per_step_residual_ns": [
+            2.9309352161933617e-05,
+            -0.009699469222609912,
+            -0.009803767587803769
+          ]
+        },
+        "gravity": {
+          "per_step_residual_norm_ns": {
+            "max": 1.2526563589807996e-05,
+            "mean": 3.562558436698546e-06,
+            "median": 3.271247374060923e-06,
+            "n": 5000,
+            "p95": 7.0660843267345005e-06
+          },
+          "sum_delta_p_ns": [
+            -0.0002907527699516869,
+            0.004941019474229794,
+            -7063.204383106989
+          ],
+          "sum_impulse_ns": [
+            0.0,
+            0.0,
+            -7063.200578645326
+          ],
+          "sum_per_step_residual_norm_ns": 0.006242767268457946,
+          "sum_per_step_residual_ns": [
+            -0.0002907527699516869,
+            0.004941019474229794,
+            -0.0038044621893478237
+          ]
+        }
+      }
+    },
+    "postinit_com_displacement_ratio_32_over_64": 2.956606871237032,
+    "pre_step_contact_J_tangent_speed_m_s": {
+      "32": {
+        "accepted": {
+          "max": 0.002315220033519958,
+          "mean": 7.64762652897503e-05,
+          "median": 4.832889007985311e-05,
+          "n": 57835,
+          "p95": 0.0002473234071539009
+        },
+        "before": {
+          "max": 0.0023152133125936302,
+          "mean": 7.655334131053033e-05,
+          "median": 4.846592488575513e-05,
+          "n": 57835,
+          "p95": 0.000247394665180908
+        },
+        "free": {
+          "max": 0.18254664947870997,
+          "mean": 0.037195992674633215,
+          "median": 0.007161304998636026,
+          "n": 57835,
+          "p95": 0.18149939872751858
+        },
+        "preprojection_velocity_same_q": {
+          "max": 0.0023152201593294635,
+          "mean": 7.647626238581776e-05,
+          "median": 4.832886288317855e-05,
+          "n": 57835,
+          "p95": 0.0002473233067825041
+        }
+      },
+      "64": {
+        "accepted": {
+          "max": 0.0023272633204320537,
+          "mean": 8.036514439635368e-06,
+          "median": 4.320535642855192e-06,
+          "n": 50611,
+          "p95": 2.541333353611644e-05
+        },
+        "before": {
+          "max": 0.0023272508566429028,
+          "mean": 8.02480907409443e-06,
+          "median": 4.358720897905281e-06,
+          "n": 50611,
+          "p95": 2.5328936885209284e-05
+        },
+        "free": {
+          "max": 0.17648601388766913,
+          "mean": 0.04166430915548464,
+          "median": 0.007516692204481322,
+          "n": 50611,
+          "p95": 0.17575731024930114
+        },
+        "preprojection_velocity_same_q": {
+          "max": 0.0023272638748867845,
+          "mean": 8.036521192485079e-06,
+          "median": 4.320653506374313e-06,
+          "n": 50611,
+          "p95": 2.541319141339368e-05
+        }
+      }
+    },
+    "predeclared_directional_metrics_all_increased_at_32_iterations": true,
+    "q_advance_max_ratio_32_over_64": 0.9808051726969343,
+    "q_advance_mean_ratio_32_over_64": 6.775102600754574
+  },
+  "predeclared_prediction_assessment": "All three declared directional quantities increased at 32 iterations. This supports a convergence-sensitive contribution in this 20 s diagnostic but does not uniquely establish that endpoint contact slip caused COM drift.",
+  "prelaunch_declaration": {
+    "declaration_contents": {
+      "analysis_window_seconds": [
+        10,
+        20
+      ],
+      "baseline": "native-support-drift-diagnostic-876/native-output",
+      "baseline_contact_iterations": 64,
+      "candidate_contact_iterations": 32,
+      "controlled_change": "Only contact iteration count64 to32; same2ms dt,20s horizon, assets, observer, release and support configuration",
+      "controls": [
+        "free-stage momentum minus gravity",
+        "q-advance momentum change",
+        "final acceptance momentum change",
+        "physiological state and conservation",
+        "zero root assistance"
+      ],
+      "driver_sha256": "a7e8fc92b8d65ea321700b2aba5642acfc88bfd30cbfd56b72256fa91eba762d",
+      "limitations": [
+        "Pre-step contact-J velocity is not accepted endpoint skin slip",
+        "Body linear momentum excludes an independently decomposed internal armature budget",
+        "This 20-second sensitivity is not a 300-second equilibrium qualification"
+      ],
+      "prediction": "If iteration-limited contact creep drives drift, decreasing iterations from64 to32 increases active-contact accepted pre-step-J tangent slip, post-initialization COM displacement and trend, and constrained-stage momentum minus summed world contact impulses. Similar results weaken that explanation.",
+      "prior_attempt": "882 rejected by existing owner [1,64] bound before native launch; failure retained",
+      "purpose": "Bounded numerical contact-convergence diagnostic; no physiological or anatomical qualification"
+    },
+    "declared_baseline_iterations": 64,
+    "declared_candidate_iterations": 32,
+    "declared_prediction": "If iteration-limited contact creep drives drift, decreasing iterations from64 to32 increases active-contact accepted pre-step-J tangent slip, post-initialization COM displacement and trend, and constrained-stage momentum minus summed world contact impulses. Similar results weaken that explanation.",
+    "path": "/Users/n/numi-human-resting-evidence-20261005/native-contact-convergence-883/prelaunch-prediction.json",
+    "sha256": "506d66604bf273db258265c96aca556458b8c2d1ded56a5839dee5e98034d045"
+  },
+  "registration_distinction": "The 867 endurance comparison is the registered numi science study. 883 is a timestamped predeclared diagnostic against existing 876 baseline data; it is not numi science registered. 882 was a separate timestamped predeclared diagnostic rejected before native launch; it is not an outcome.",
+  "schema": "numi.predeclared-contact-convergence-diagnostic-comparison.v1"
+}

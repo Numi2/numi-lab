@@ -1,0 +1,57 @@
+{
+  "analysis_files": {
+    "README.md": "f67cdcf8e053df9b29ef2a007c754dc13010dc75ab80493c16a1908f5ae448bb",
+    "analysis.json": "9460ced52a4120501fb0682d098566d06f498d7635321d23fb9e2a64d0364968"
+  },
+  "arms": {
+    "32": {
+      "binary_sha256": "abae2561cb09f75680f975adedaa66736c451d7786b7b7d879b9179b40aa3bf0",
+      "native_log_sha256": "09dba9dbf76779399c1e7dca0f8865c736f8ca773d948d249b2a56b6c11b2982",
+      "output_sha256": {
+        "native.log": "09dba9dbf76779399c1e7dca0f8865c736f8ca773d948d249b2a56b6c11b2982",
+        "resting-com-momentum-diagnostic.csv": "ff3971aa1aa745ee516e6c67a43ef8e24993bb23b9e22035ff361ec9abdbd17a",
+        "resting-com-q-integration.csv": "990b9afb1248b8eeefdb617410510979f2b1d3b4d145089def0958849f441362",
+        "resting-com-support-impulses.csv": "6297531a219157473ab3505fa087f361f9518d2963f1c34b19f751b5fe1243e2",
+        "resting-coupled.csv": "52c0745268ce28a6fd7c1bb8021557532a6c0b993676df546e6c0ccb23bd5ca2",
+        "resting-surface-audit.csv": "7a66572167545ec7f1c2c82539e2bae7d2ae869dc22201af8043d0c0541eb51b",
+        "run-metadata.json": "f7302ef9a853500c14f8318cf46ef2aa028aa67a3283ca6cc5b03f2f2a86243d"
+      },
+      "root": "/Users/n/numi-human-resting-evidence-20261005/native-contact-convergence-883",
+      "run_metadata_sha256": "f7302ef9a853500c14f8318cf46ef2aa028aa67a3283ca6cc5b03f2f2a86243d",
+      "runner_receipt_sha256": "3a440e6a5cf9f14c4b984fc048ccaa76646b056e1829411e6f85fc07c034e9a3",
+      "source_sha256": "3b77635d675b60dadf7322f777a1a5d7ace8512adda523ff7a48689f680da862"
+    },
+    "64": {
+      "binary_sha256": "abae2561cb09f75680f975adedaa66736c451d7786b7b7d879b9179b40aa3bf0",
+      "native_log_sha256": "f295759575a2a582e0a31e7c2bc4ec4ef774e96baf8dd791616970da3f76b25a",
+      "output_sha256": {
+        "native.log": "f295759575a2a582e0a31e7c2bc4ec4ef774e96baf8dd791616970da3f76b25a",
+        "resting-com-momentum-diagnostic.csv": "fbc79a059dd60f8a7c3d35c5087e9d3908ffa401996e3d11a1f6051e0beedde5",
+        "resting-com-q-integration.csv": "bed080435d937f2c19731cb47ec7261ba8817f6960be2778fed2dd9ab0eb654b",
+        "resting-com-support-impulses.csv": "565260cf5369cfcbf6ce14075b1d187f3a1bf5e31acb2b3c4fe9b0443b6a87e2",
+        "resting-coupled.csv": "57acd6e416a106d25fe3922482597811944c48fb701147429ef4c2d52e90bbac",
+        "resting-surface-audit.csv": "48f0e1168951f324599fb7695c831e7501ee2037267f004ce3419d945d3c474f",
+        "run-metadata.json": "4ff0a32b0804f0c737efe02ed35494ea99081814840a32808fa737cbb99052dd"
+      },
+      "root": "/Users/n/numi-human-resting-evidence-20261005/native-support-drift-diagnostic-876",
+      "run_metadata_sha256": "4ff0a32b0804f0c737efe02ed35494ea99081814840a32808fa737cbb99052dd",
+      "runner_receipt_sha256": "f4152544ad5ae7a59734566c96441cbd29578ef024b3db3a6ef5c20077c26f84",
+      "source_sha256": "3b77635d675b60dadf7322f777a1a5d7ace8512adda523ff7a48689f680da862"
+    }
+  },
+  "classification": "predeclared diagnostic; not numi science registered",
+  "prelaunch_declaration": {
+    "path": "/Users/n/numi-human-resting-evidence-20261005/native-contact-convergence-883/prelaunch-prediction.json",
+    "sha256": "506d66604bf273db258265c96aca556458b8c2d1ded56a5839dee5e98034d045"
+  },
+  "prior_882_prelaunch_declaration": {
+    "path": "/Users/n/numi-human-resting-evidence-20261005/native-contact-convergence-882/prelaunch-prediction.json",
+    "sha256": "f29c606f9c65553db1c4d3b2e64c0d22d078c67e701489f1d522739843f96fc7"
+  },
+  "schema": "numi.predeclared-contact-convergence-diagnostic-manifest.v1",
+  "script": {
+    "path": "/Users/n/numi-human-resting-evidence-20261005/native-contact-convergence-883/comparison-876-883/compare_diagnostics.py",
+    "sha256": "6e9deb121f41570f56acd4b8170a2d3d466ab1af9acd7b1f619a3c740d05449a"
+  },
+  "write_scope": "new comparison directory only; frozen source/binary/native outputs unchanged"
+}

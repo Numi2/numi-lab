@@ -1,0 +1,14 @@
+Traceback (most recent call last):
+  File "/Applications/Xcode-26.6.0.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/runpy.py", line 197, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/Applications/Xcode-26.6.0.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/runpy.py", line 87, in _run_code
+    exec(code, run_globals)
+  File "/Users/n/numi-human-lung-triangulation-candidate-003/src/numilab_human/resting_run.py", line 326, in <module>
+    raise SystemExit(run(p.parse_args()))
+  File "/Users/n/numi-human-lung-triangulation-candidate-003/src/numilab_human/resting_run.py", line 248, in run
+    argv, assets = command(args)
+  File "/Users/n/numi-human-lung-triangulation-candidate-003/src/numilab_human/resting_run.py", line 214, in command
+    _require(type(contact_iterations) is int and 1 <= contact_iterations <= 64,
+  File "/Users/n/numi-human-lung-triangulation-candidate-003/src/numilab_human/resting_run.py", line 91, in _require
+    raise HumanImportError("resting run: " + message)
+numilab_human.model.ImportError: resting run: contact iterations must be an integer within [1, 64]

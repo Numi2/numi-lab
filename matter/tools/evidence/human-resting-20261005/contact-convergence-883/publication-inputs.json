@@ -1,0 +1,50 @@
+{
+  "876/run-metadata.json": {
+    "retained_source": "/Users/n/numi-human-resting-evidence-20261005/native-support-drift-diagnostic-876/native-output/run-metadata.json",
+    "sha256": "4ff0a32b0804f0c737efe02ed35494ea99081814840a32808fa737cbb99052dd"
+  },
+  "882/native-run.log": {
+    "retained_source": "/Users/n/numi-human-resting-evidence-20261005/native-contact-convergence-882/native-run.log",
+    "sha256": "9c896b829fbd16312223e1c45b159f591371cd27d8d8c4170786276dc362bd82"
+  },
+  "882/prelaunch-prediction.json": {
+    "retained_source": "/Users/n/numi-human-resting-evidence-20261005/native-contact-convergence-882/prelaunch-prediction.json",
+    "sha256": "f29c606f9c65553db1c4d3b2e64c0d22d078c67e701489f1d522739843f96fc7"
+  },
+  "882/run-20s.py": {
+    "retained_source": "/Users/n/numi-human-resting-evidence-20261005/native-contact-convergence-882/run-20s.py",
+    "sha256": "c5e3aca21d295e399edd7d08d6153d5b45c00f1a7167113f8bbff26fea755be7"
+  },
+  "883/native-run.log": {
+    "retained_source": "/Users/n/numi-human-resting-evidence-20261005/native-contact-convergence-883/native-run.log",
+    "sha256": "3a440e6a5cf9f14c4b984fc048ccaa76646b056e1829411e6f85fc07c034e9a3"
+  },
+  "883/prelaunch-prediction.json": {
+    "retained_source": "/Users/n/numi-human-resting-evidence-20261005/native-contact-convergence-883/prelaunch-prediction.json",
+    "sha256": "506d66604bf273db258265c96aca556458b8c2d1ded56a5839dee5e98034d045"
+  },
+  "883/run-20s.py": {
+    "retained_source": "/Users/n/numi-human-resting-evidence-20261005/native-contact-convergence-883/run-20s.py",
+    "sha256": "a7e8fc92b8d65ea321700b2aba5642acfc88bfd30cbfd56b72256fa91eba762d"
+  },
+  "883/run-metadata.json": {
+    "retained_source": "/Users/n/numi-human-resting-evidence-20261005/native-contact-convergence-883/native-output/run-metadata.json",
+    "sha256": "f7302ef9a853500c14f8318cf46ef2aa028aa67a3283ca6cc5b03f2f2a86243d"
+  },
+  "analysis/README.md": {
+    "retained_source": "/Users/n/numi-human-resting-evidence-20261005/native-contact-convergence-883/comparison-876-883/README.md",
+    "sha256": "f67cdcf8e053df9b29ef2a007c754dc13010dc75ab80493c16a1908f5ae448bb"
+  },
+  "analysis/analysis.json": {
+    "retained_source": "/Users/n/numi-human-resting-evidence-20261005/native-contact-convergence-883/comparison-876-883/analysis.json",
+    "sha256": "9460ced52a4120501fb0682d098566d06f498d7635321d23fb9e2a64d0364968"
+  },
+  "analysis/compare_diagnostics.py": {
+    "retained_source": "/Users/n/numi-human-resting-evidence-20261005/native-contact-convergence-883/comparison-876-883/compare_diagnostics.py",
+    "sha256": "6e9deb121f41570f56acd4b8170a2d3d466ab1af9acd7b1f619a3c740d05449a"
+  },
+  "analysis/manifest.json": {
+    "retained_source": "/Users/n/numi-human-resting-evidence-20261005/native-contact-convergence-883/comparison-876-883/manifest.json",
+    "sha256": "9d63ee0722f1c6e92d3ada8baa89117ae314fa61ba1af65e5a28c1173bfe6397"
+  }
+}
