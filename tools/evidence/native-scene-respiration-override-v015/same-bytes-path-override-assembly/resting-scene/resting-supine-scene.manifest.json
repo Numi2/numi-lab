@@ -1,0 +1,731 @@
+{
+  "bed": {
+    "contact_scope": "NHCNT1 point witnesses bound to dominant articulated bodies; the NHSKIN1 shell itself is not collision geometry",
+    "friction": 1.0,
+    "maximum_bed_penetration_m": 0.0,
+    "minimum_source_skin_gap_m": 1.0001455400310277e-05,
+    "normal": [
+      0.0,
+      0.0,
+      1.0
+    ],
+    "plane_point_m": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "support_witness_count": 32,
+    "support_witnesses": [
+      {
+        "core_body_index": 23,
+        "dominant_binding_error_m": 5.034847217040703e-08,
+        "local_point_m": [
+          0.011108513921499252,
+          0.04005918651819229,
+          -0.05770348012447357
+        ],
+        "plane_gap_m": 0.029077217190006444,
+        "region": "head",
+        "region_minimum_world_z_m": 1.9233572857663424,
+        "rest_frame_witness_fit_error_m": 1.4134588816155927e-09,
+        "source_shell_gap_from_global_min_m": 0.029067215734606133,
+        "vertex_index": 25847,
+        "world_witness_m": [
+          -0.03603286440884298,
+          -0.11387700382971228,
+          0.0
+        ]
+      },
+      {
+        "core_body_index": 20,
+        "dominant_binding_error_m": 1.0843519664245525e-08,
+        "local_point_m": [
+          -0.09247101098299026,
+          0.031006038188934326,
+          0.07214028388261795
+        ],
+        "plane_gap_m": 0.0031856451386489404,
+        "region": "thorax",
+        "region_minimum_world_z_m": 1.8974657137149848,
+        "rest_frame_witness_fit_error_m": 2.780550795136319e-09,
+        "source_shell_gap_from_global_min_m": 0.00317564368324863,
+        "vertex_index": 17764,
+        "world_witness_m": [
+          -0.0971402866248633,
+          -0.41009738290445996,
+          0.0
+        ]
+      },
+      {
+        "core_body_index": 20,
+        "dominant_binding_error_m": 3.929840324910255e-08,
+        "local_point_m": [
+          -0.09246320277452469,
+          0.03232644125819206,
+          -0.07166293263435364
+        ],
+        "plane_gap_m": 0.003216499374563808,
+        "region": "thorax",
+        "region_minimum_world_z_m": 1.8974657137149848,
+        "rest_frame_witness_fit_error_m": 3.59218497229095e-09,
+        "source_shell_gap_from_global_min_m": 0.003206497919163498,
+        "vertex_index": 37607,
+        "world_witness_m": [
+          0.0466629350616497,
+          -0.4087773157804582,
+          0.0
+        ]
+      },
+      {
+        "core_body_index": 20,
+        "dominant_binding_error_m": 1.076483208376445e-08,
+        "local_point_m": [
+          -0.0886995792388916,
+          -0.00016314156528096646,
+          0.0942484438419342
+        ],
+        "plane_gap_m": 0.0064125300733643975,
+        "region": "thorax",
+        "region_minimum_world_z_m": 1.8974657137149848,
+        "rest_frame_witness_fit_error_m": 4.483172835983078e-09,
+        "source_shell_gap_from_global_min_m": 0.006402528617964087,
+        "vertex_index": 15823,
+        "world_witness_m": [
+          -0.11924844719448198,
+          -0.44132763624258686,
+          0.0
+        ]
+      },
+      {
+        "core_body_index": 128,
+        "dominant_binding_error_m": 4.205255296270422e-08,
+        "local_point_m": [
+          -0.11727438867092133,
+          -0.027596019208431244,
+          -0.04347643628716469
+        ],
+        "plane_gap_m": 1.0001455400310277e-05,
+        "region": "pelvis",
+        "region_minimum_world_z_m": 1.8942900700317362,
+        "rest_frame_witness_fit_error_m": 9.263514982590466e-09,
+        "source_shell_gap_from_global_min_m": 0.0,
+        "vertex_index": 34318,
+        "world_witness_m": [
+          0.018327292721052213,
+          -0.8560611311665247,
+          0.0
+        ]
+      },
+      {
+        "core_body_index": 128,
+        "dominant_binding_error_m": 4.266599538718599e-08,
+        "local_point_m": [
+          -0.11706652492284775,
+          -0.021499112248420715,
+          0.042534373700618744
+        ],
+        "plane_gap_m": 0.00038786716814764866,
+        "region": "pelvis",
+        "region_minimum_world_z_m": 1.8942900700317362,
+        "rest_frame_witness_fit_error_m": 6.592389017257652e-09,
+        "source_shell_gap_from_global_min_m": 0.0003778657127473384,
+        "vertex_index": 21161,
+        "world_witness_m": [
+          -0.06768332532239778,
+          -0.8499696754303661,
+          0.0
+        ]
+      },
+      {
+        "core_body_index": 1,
+        "dominant_binding_error_m": 3.198641220668234e-08,
+        "local_point_m": [
+          -0.02350720576941967,
+          0.18377089500427246,
+          -0.035730309784412384
+        ],
+        "plane_gap_m": 0.004099136612215171,
+        "region": "pelvis",
+        "region_minimum_world_z_m": 1.8942900700317362,
+        "rest_frame_witness_fit_error_m": 4.344375836511616e-09,
+        "source_shell_gap_from_global_min_m": 0.00408913515681486,
+        "vertex_index": 33528,
+        "world_witness_m": [
+          0.010730309151313927,
+          -0.8218893157382297,
+          0.0
+        ]
+      },
+      {
+        "core_body_index": 128,
+        "dominant_binding_error_m": 3.9876887274014246e-08,
+        "local_point_m": [
+          -0.11216958612203598,
+          0.014342189766466618,
+          0.04863922297954559
+        ],
+        "plane_gap_m": 0.0058859621000939555,
+        "region": "pelvis",
+        "region_minimum_world_z_m": 1.8942900700317362,
+        "rest_frame_witness_fit_error_m": 2.9339047943427454e-09,
+        "source_shell_gap_from_global_min_m": 0.005875960644693645,
+        "vertex_index": 20346,
+        "world_witness_m": [
+          -0.07378427345248122,
+          -0.8142149907249565,
+          0.0
+        ]
+      },
+      {
+        "core_body_index": 42,
+        "dominant_binding_error_m": 1.8017469864998952e-08,
+        "local_point_m": [
+          -0.037932273000478745,
+          0.054727703332901,
+          -0.09295903146266937
+        ],
+        "plane_gap_m": 0.06118265829651981,
+        "region": "right_arm",
+        "region_minimum_world_z_m": 1.9554627268728557,
+        "rest_frame_witness_fit_error_m": 7.219289375295431e-09,
+        "source_shell_gap_from_global_min_m": 0.0611726568411195,
+        "vertex_index": 7240,
+        "world_witness_m": [
+          -0.23506656275408327,
+          -0.610955382776602,
+          0.0
+        ]
+      },
+      {
+        "core_body_index": 92,
+        "dominant_binding_error_m": 2.380045199183951e-08,
+        "local_point_m": [
+          -0.038501475006341934,
+          0.05883726105093956,
+          0.1003464087843895
+        ],
+        "plane_gap_m": 0.06006418475861741,
+        "region": "left_arm",
+        "region_minimum_world_z_m": 1.9543442533349533,
+        "rest_frame_witness_fit_error_m": 2.5407681601827935e-09,
+        "source_shell_gap_from_global_min_m": 0.0600541833032171,
+        "vertex_index": 47752,
+        "world_witness_m": [
+          0.18712166038936218,
+          -0.6028122020368574,
+          0.0
+        ]
+      },
+      {
+        "core_body_index": 136,
+        "dominant_binding_error_m": 1.250854414466447e-08,
+        "local_point_m": [
+          -0.08626224100589752,
+          0.012694374658167362,
+          0.03275838494300842
+        ],
+        "plane_gap_m": 0.031053028431228036,
+        "region": "right_leg",
+        "region_minimum_world_z_m": 1.925333097007564,
+        "rest_frame_witness_fit_error_m": 2.1202440700265184e-09,
+        "source_shell_gap_from_global_min_m": 0.031043026975827726,
+        "vertex_index": 18299,
+        "world_witness_m": [
+          -0.09291939600038215,
+          -1.421906944611588,
+          0.0
+        ]
+      },
+      {
+        "core_body_index": 150,
+        "dominant_binding_error_m": 2.3808075059694707e-09,
+        "local_point_m": [
+          -0.08736058324575424,
+          -0.011988996528089046,
+          0.03755750507116318
+        ],
+        "plane_gap_m": 0.030770124044845915,
+        "region": "left_leg",
+        "region_minimum_world_z_m": 1.9250501926211818,
+        "rest_frame_witness_fit_error_m": 8.045591582238618e-09,
+        "source_shell_gap_from_global_min_m": 0.030760122589445604,
+        "vertex_index": 36233,
+        "world_witness_m": [
+          0.03836364342502786,
+          -1.417154364715032,
+          0.0
+        ]
+      },
+      {
+        "core_body_index": 42,
+        "dominant_binding_error_m": 2.1863543524647218e-08,
+        "local_point_m": [
+          -0.03697820380330086,
+          0.061629265546798706,
+          -0.08536645025014877
+        ],
+        "plane_gap_m": 0.06229411448849276,
+        "region": "ulna_r",
+        "region_minimum_world_z_m": 1.9565741830648287,
+        "rest_frame_witness_fit_error_m": 5.5133031491273105e-09,
+        "source_shell_gap_from_global_min_m": 0.06228411303309245,
+        "vertex_index": 6889,
+        "world_witness_m": [
+          -0.24370956748692071,
+          -0.6164555858801809,
+          0.0
+        ]
+      },
+      {
+        "core_body_index": 62,
+        "dominant_binding_error_m": 1.2795462397582895e-08,
+        "local_point_m": [
+          0.025552324950695038,
+          0.03337669372558594,
+          0.05101057514548302
+        ],
+        "plane_gap_m": 0.14165400224299152,
+        "region": "thirdmc_r",
+        "region_minimum_world_z_m": 2.0359340708193274,
+        "rest_frame_witness_fit_error_m": 1.7162980926979872e-09,
+        "source_shell_gap_from_global_min_m": 0.1416440007875912,
+        "vertex_index": 3412,
+        "world_witness_m": [
+          -0.2883795768653018,
+          -0.8914096445790187,
+          0.0
+        ]
+      },
+      {
+        "core_body_index": 72,
+        "dominant_binding_error_m": 1.3156726923781174e-08,
+        "local_point_m": [
+          0.053915560245513916,
+          0.029704341664910316,
+          0.03736692667007446
+        ],
+        "plane_gap_m": 0.14765875380518212,
+        "region": "fifthmc_r",
+        "region_minimum_world_z_m": 2.041938822381518,
+        "rest_frame_witness_fit_error_m": 2.0377346037254535e-09,
+        "source_shell_gap_from_global_min_m": 0.1476487523497818,
+        "vertex_index": 5298,
+        "world_witness_m": [
+          -0.2631409303727375,
+          -0.8906306758298403,
+          0.0
+        ]
+      },
+      {
+        "core_body_index": 54,
+        "dominant_binding_error_m": 3.394039231067082e-08,
+        "local_point_m": [
+          0.12426703423261642,
+          0.0641164556145668,
+          -0.08420045673847198
+        ],
+        "plane_gap_m": 0.190026967741856,
+        "region": "distal_thumb_r",
+        "region_minimum_world_z_m": 2.084307036318192,
+        "rest_frame_witness_fit_error_m": 2.402495397760856e-08,
+        "source_shell_gap_from_global_min_m": 0.1900169662864557,
+        "vertex_index": 519,
+        "world_witness_m": [
+          -0.34924639519101025,
+          -0.9301348098488393,
+          0.0
+        ]
+      },
+      {
+        "core_body_index": 61,
+        "dominant_binding_error_m": 8.508877642639003e-09,
+        "local_point_m": [
+          0.061771586537361145,
+          0.025181958451867104,
+          0.09498194605112076
+        ],
+        "plane_gap_m": 0.2046530685073491,
+        "region": "distph2_r",
+        "region_minimum_world_z_m": 2.098933137083685,
+        "rest_frame_witness_fit_error_m": 3.7241228733313003e-09,
+        "source_shell_gap_from_global_min_m": 0.2046430670519488,
+        "vertex_index": 753,
+        "world_witness_m": [
+          -0.34217194106732485,
+          -0.9935044161368467,
+          0.0
+        ]
+      },
+      {
+        "core_body_index": 66,
+        "dominant_binding_error_m": 2.0721195030298524e-08,
+        "local_point_m": [
+          0.09474456310272217,
+          0.014700712636113167,
+          0.05523575842380524
+        ],
+        "plane_gap_m": 0.21202692286939717,
+        "region": "distph3_r",
+        "region_minimum_world_z_m": 2.106306991445733,
+        "rest_frame_witness_fit_error_m": 2.130944214441234e-09,
+        "source_shell_gap_from_global_min_m": 0.21201692141399686,
+        "vertex_index": 2758,
+        "world_witness_m": [
+          -0.30256675332402255,
+          -1.0108800417190404,
+          0.0
+        ]
+      },
+      {
+        "core_body_index": 71,
+        "dominant_binding_error_m": 9.46072721536682e-09,
+        "local_point_m": [
+          0.12270965427160263,
+          0.007300877943634987,
+          0.03853730484843254
+        ],
+        "plane_gap_m": 0.2165755921014454,
+        "region": "distph4_r",
+        "region_minimum_world_z_m": 2.1108556606777813,
+        "rest_frame_witness_fit_error_m": 1.2134712361865966e-09,
+        "source_shell_gap_from_global_min_m": 0.21656559064604508,
+        "vertex_index": 4378,
+        "world_witness_m": [
+          -0.273777303564945,
+          -1.0088239335075087,
+          0.0
+        ]
+      },
+      {
+        "core_body_index": 76,
+        "dominant_binding_error_m": 2.8230807002573516e-08,
+        "local_point_m": [
+          0.12454646825790405,
+          0.010895601473748684,
+          0.03416777774691582
+        ],
+        "plane_gap_m": 0.2068495914498083,
+        "region": "distph5_r",
+        "region_minimum_world_z_m": 2.101129660026144,
+        "rest_frame_witness_fit_error_m": 3.1655775961939367e-09,
+        "source_shell_gap_from_global_min_m": 0.206839589994408,
+        "vertex_index": 6104,
+        "world_witness_m": [
+          -0.2533237748021503,
+          -0.9881582842925483,
+          0.0
+        ]
+      },
+      {
+        "core_body_index": 138,
+        "dominant_binding_error_m": 8.189780119511877e-09,
+        "local_point_m": [
+          -0.017299244180321693,
+          -0.019360654056072235,
+          -0.10011416673660278
+        ],
+        "plane_gap_m": 0.037634673188673196,
+        "region": "calcn_r",
+        "region_minimum_world_z_m": 1.931914741765009,
+        "rest_frame_witness_fit_error_m": 7.2064645196292525e-09,
+        "source_shell_gap_from_global_min_m": 0.037624671733272885,
+        "vertex_index": 20233,
+        "world_witness_m": [
+          -0.09611700705597434,
+          -1.7211748386934047,
+          0.0
+        ]
+      },
+      {
+        "core_body_index": 136,
+        "dominant_binding_error_m": 6.0660011324394146e-09,
+        "local_point_m": [
+          -0.08646713197231293,
+          0.010290647856891155,
+          0.03679191321134567
+        ],
+        "plane_gap_m": 0.03110275103626825,
+        "region": "tibia_r",
+        "region_minimum_world_z_m": 1.9253828196126042,
+        "rest_frame_witness_fit_error_m": 5.020827236916791e-09,
+        "source_shell_gap_from_global_min_m": 0.03109274958086794,
+        "vertex_index": 18300,
+        "world_witness_m": [
+          -0.09527016672705363,
+          -1.4178374671149363,
+          0.0
+        ]
+      },
+      {
+        "core_body_index": 92,
+        "dominant_binding_error_m": 2.184382992577983e-08,
+        "local_point_m": [
+          -0.03837700933218002,
+          0.05545354261994362,
+          0.0980638861656189
+        ],
+        "plane_gap_m": 0.060435686856727955,
+        "region": "ulna_l",
+        "region_minimum_world_z_m": 1.9547157554330639,
+        "rest_frame_witness_fit_error_m": 2.893402936681125e-09,
+        "source_shell_gap_from_global_min_m": 0.060425685401327645,
+        "vertex_index": 47595,
+        "world_witness_m": [
+          0.18444343561548854,
+          -0.6058722736687827,
+          0.0
+        ]
+      },
+      {
+        "core_body_index": 112,
+        "dominant_binding_error_m": 7.976020667487285e-09,
+        "local_point_m": [
+          0.025459613651037216,
+          0.034845784306526184,
+          -0.055127374827861786
+        ],
+        "plane_gap_m": 0.1415869436574262,
+        "region": "thirdmc_l",
+        "region_minimum_world_z_m": 2.035867012233762,
+        "rest_frame_witness_fit_error_m": 1.234272022027148e-09,
+        "source_shell_gap_from_global_min_m": 0.14157694220202588,
+        "vertex_index": 51582,
+        "world_witness_m": [
+          0.24249637820004932,
+          -0.8899391598554915,
+          0.0
+        ]
+      },
+      {
+        "core_body_index": 122,
+        "dominant_binding_error_m": 8.348763209334185e-09,
+        "local_point_m": [
+          0.05411708354949951,
+          0.022016335278749466,
+          -0.03987663611769676
+        ],
+        "plane_gap_m": 0.14772607301067797,
+        "region": "fifthmc_l",
+        "region_minimum_world_z_m": 2.042006141587014,
+        "rest_frame_witness_fit_error_m": 1.0828976475388173e-09,
+        "source_shell_gap_from_global_min_m": 0.14771607155527766,
+        "vertex_index": 49891,
+        "world_witness_m": [
+          0.2156506284529479,
+          -0.8983210293109654,
+          0.0
+        ]
+      },
+      {
+        "core_body_index": 104,
+        "dominant_binding_error_m": 4.910326446520485e-08,
+        "local_point_m": [
+          0.12696929275989532,
+          -0.06410583108663559,
+          -0.07713285088539124
+        ],
+        "plane_gap_m": 0.19472788884554904,
+        "region": "distal_thumb_l",
+        "region_minimum_world_z_m": 2.089007957421885,
+        "rest_frame_witness_fit_error_m": 1.1034358285173517e-08,
+        "source_shell_gap_from_global_min_m": 0.19471788739014873,
+        "vertex_index": 54176,
+        "world_witness_m": [
+          0.2982657155311407,
+          -0.9359822932364033,
+          0.0
+        ]
+      },
+      {
+        "core_body_index": 111,
+        "dominant_binding_error_m": 1.8441101702027168e-09,
+        "local_point_m": [
+          0.06239529326558113,
+          0.02915600873529911,
+          -0.07250591367483139
+        ],
+        "plane_gap_m": 0.2053460362380437,
+        "region": "distph2_l",
+        "region_minimum_world_z_m": 2.0996261048143796,
+        "rest_frame_witness_fit_error_m": 2.814184376952216e-09,
+        "source_shell_gap_from_global_min_m": 0.2053360347826434,
+        "vertex_index": 52654,
+        "world_witness_m": [
+          0.2696959176891119,
+          -0.9895418566626792,
+          0.0
+        ]
+      },
+      {
+        "core_body_index": 116,
+        "dominant_binding_error_m": 2.6838395136664258e-08,
+        "local_point_m": [
+          0.0949622169137001,
+          0.014450816437602043,
+          -0.05503500625491142
+        ],
+        "plane_gap_m": 0.21224017902407777,
+        "region": "distph3_l",
+        "region_minimum_world_z_m": 2.1065202476004137,
+        "rest_frame_witness_fit_error_m": 1.8737943322094474e-09,
+        "source_shell_gap_from_global_min_m": 0.21223017756867746,
+        "vertex_index": 51773,
+        "world_witness_m": [
+          0.2523660019032759,
+          -1.0111336981776562,
+          0.0
+        ]
+      },
+      {
+        "core_body_index": 121,
+        "dominant_binding_error_m": 1.5526734367399537e-08,
+        "local_point_m": [
+          0.11691084504127502,
+          0.010056690312922001,
+          -0.040376946330070496
+        ],
+        "plane_gap_m": 0.21082576292218036,
+        "region": "distph4_l",
+        "region_minimum_world_z_m": 2.1051058314985163,
+        "rest_frame_witness_fit_error_m": 1.8966457757739383e-09,
+        "source_shell_gap_from_global_min_m": 0.21081576146678005,
+        "vertex_index": 50654,
+        "world_witness_m": [
+          0.22561694822776096,
+          -1.0059673378816854,
+          0.0
+        ]
+      },
+      {
+        "core_body_index": 126,
+        "dominant_binding_error_m": 6.652506378170309e-09,
+        "local_point_m": [
+          0.12197303026914597,
+          0.014510953798890114,
+          -0.027540503069758415
+        ],
+        "plane_gap_m": 0.20433963851422998,
+        "region": "distph5_l",
+        "region_minimum_world_z_m": 2.098619707090566,
+        "rest_frame_witness_fit_error_m": 7.618671689602197e-10,
+        "source_shell_gap_from_global_min_m": 0.20432963705882967,
+        "vertex_index": 47935,
+        "world_witness_m": [
+          0.19669650370639397,
+          -0.9844985697217778,
+          0.0
+        ]
+      },
+      {
+        "core_body_index": 152,
+        "dominant_binding_error_m": 6.7367138575908876e-09,
+        "local_point_m": [
+          -0.018763460218906403,
+          0.021846240386366844,
+          -0.10085511952638626
+        ],
+        "plane_gap_m": 0.036448506026704575,
+        "region": "calcn_l",
+        "region_minimum_world_z_m": 1.9307285746030405,
+        "rest_frame_witness_fit_error_m": 2.668040839618814e-09,
+        "source_shell_gap_from_global_min_m": 0.036438504571304264,
+        "vertex_index": 34830,
+        "world_witness_m": [
+          0.04347616447321681,
+          -1.7225284890771768,
+          0.0
+        ]
+      },
+      {
+        "core_body_index": 150,
+        "dominant_binding_error_m": 1.9576530729334653e-09,
+        "local_point_m": [
+          -0.08733058720827103,
+          -0.006980405654758215,
+          0.04041958600282669
+        ],
+        "plane_gap_m": 0.03078582479326486,
+        "region": "tibia_l",
+        "region_minimum_world_z_m": 1.9250658933696008,
+        "rest_frame_witness_fit_error_m": 8.196331571873623e-09,
+        "source_shell_gap_from_global_min_m": 0.03077582333786455,
+        "vertex_index": 36890,
+        "world_witness_m": [
+          0.04332964677321499,
+          -1.4142189014196245,
+          0.0
+        ]
+      }
+    ]
+  },
+  "license_and_provenance": {
+    "BodyParts3D": "CC-BY-4.0; FJ2810 exterior shell, current NHSKIN1 manifest contains source asset identities",
+    "MyoSim": "Apache-2.0; archive SHA bound in NHRIGID2",
+    "mixed_source_reference": true
+  },
+  "outputs": {
+    "initial_state": null,
+    "support_contact": {
+      "abi": 1,
+      "bytes": 1620,
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/v015/same-bytes-path-override-assembly/resting-scene/myosim-fullbody-resting-bed-support.nhcnt",
+      "record_count": 32,
+      "sha256": "bcfece8e5da553b98694b724644234407fa4c38383b1e18d3c24d7caefa28927"
+    }
+  },
+  "pose": {
+    "initial_generalized_velocity": "zero",
+    "kind": "supine",
+    "root_delta_quaternion_xyzw": [
+      -0.7009092642998509,
+      0.0,
+      0.0,
+      0.7132504491541817
+    ],
+    "root_pitch_degrees": -89.0,
+    "root_translation_xyz_m": [
+      -0.05000000074505806,
+      0.20000000298023224,
+      0.10571993142366409
+    ],
+    "source_torso_anterior_world": [
+      0.0,
+      -0.01745240643728352,
+      0.9998476951563914
+    ]
+  },
+  "qualification": {
+    "bed_nonpenetration_of_visual_shell_at_seed": true,
+    "clinical_registration": false,
+    "dynamic_contact": false,
+    "force_balance": false,
+    "source_skin_reconstruction": true,
+    "sustained_resting": false
+  },
+  "schema": "numi.human.resting-supine-source-scene.v1",
+  "source": {
+    "rigid": {
+      "body_count": 157,
+      "joint_count": 156,
+      "nq": 129,
+      "nv": 128,
+      "path": "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-core-reference.nhrigid",
+      "sha256": "2c78cb4150b97cea6e8169dad9e8f5dd59af667b247e07b56e48e857435560e4",
+      "source_archive_sha256": "280d297aa496acccf3f1c5373a1304d23f9569362c2d6960910128bfba144975",
+      "source_body_count": 103,
+      "source_rigid_body_mass_kg": 97.13195069110952,
+      "zero_inertia_serial_transform_carriers": 54
+    },
+    "skin": {
+      "binding_count": 86,
+      "max_dominant_binding_witness_error_m": 5.034847217040703e-08,
+      "meaning": "distance between exact full-weight ABI-5 rest vertex and its single dominant body-bound source witness",
+      "path": "/Users/n/numi-human-resting-evidence-20261005/native-common-skin-multipose-clearance-candidate-927/asset-candidate-001/bodyparts3d-myosim-skinned-shell.nhskin",
+      "registration_fingerprint32": "b1b410ad",
+      "sha256": "bd4bfbbf0e071e24a1bb9eea7b9cd9f34ef862ef20417b5891cd24cec1b009d1",
+      "triangle_count": 109211,
+      "vertex_count": 54949
+    }
+  },
+  "status": "prepared_source_skin_witnesses_not_mechanical_equilibrium"
+}

@@ -1,0 +1,12 @@
+[
+  {
+    "bytes": 29218937,
+    "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/v015/default-924-assembly/anatomy/resting-anatomy-receipt.json",
+    "sha256": "271b888d3b3323d62a01facf0afaa86bc83d3c80b2f0f18d7eeb222846043ed3"
+  },
+  {
+    "bytes": 29218950,
+    "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/v015/same-bytes-path-override-assembly/anatomy/resting-anatomy-receipt.json",
+    "sha256": "e4132e798164bfce27689d259915d03670dfabb75d69d84d43a69c33208c0dfd"
+  }
+]
