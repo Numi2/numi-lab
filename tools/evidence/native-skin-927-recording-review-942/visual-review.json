@@ -1,0 +1,22 @@
+{
+  "status": "continuous native movie decoded; initial black frame retained",
+  "frames_decoded": 316,
+  "nonblank_frames": 315,
+  "surface_audit_rows": 315,
+  "pts_monotonic": true,
+  "movie_duration_s": 188.40333333333334,
+  "last_nonblank_pts_s": 187.31666666666666,
+  "median_frame_gap_s": 0.568333333333328,
+  "max_frame_gap_s": 2.0683333333333334,
+  "gaps_after_startup_gt_1_5_median": 7,
+  "sampling_note": "Wall-time recording; capture export pauses remain. No frames removed or resequenced.",
+  "visual_inspection": {
+    "last_frame": "Corrected skin on whole reference adult supported by bed plane; native Skin/Whole body selection and accepted time20.00s; breaths3,beats23,tidal528.92mL,LVstroke70.04mL; mixed-source/passive geometry and rigid-digit limitations visible.",
+    "middle_frame": "Native Lungs/Chest view at accepted10.24s with respiratory/cardio measurements.",
+    "heart_frame": "Native Heart/Heart detail at13.25s, LV59.54mL/107.34mmHg andstroke70.08mL.",
+    "vessel_frame": "Native Vessels/Whole body at16.57s; arterial/venous layers registered with whole-body frame."
+  },
+  "scope": "Movie/HUD verification only. Skin intersection audit941 and lung interface correction remain separate; not five-minute acceptance.",
+  "source_report_sha256": "27fd52668a93e336045a992103e800b05a319ceca8fedecbb0832444c0e10983",
+  "source_movie_sha256": "74669abf392ec7a82ab656eb6c3cd122c897438cbec65b54af857e463feb322c"
+}

@@ -1,0 +1,104 @@
+{
+  "all_black_frame_pts_s" : [
+    0
+  ],
+  "all_sampled_frames_nonblank" : false,
+  "decode_status" : "complete_avfoundation_pixel_decode",
+  "decoded_minus_surface_rows" : 1,
+  "dimensions" : "1280x900",
+  "dimensions_uniform" : true,
+  "first_decoded_frame_is_black" : true,
+  "first_decoded_frame_pts_s" : 0,
+  "first_nonblank_pts_s" : 1.3166666666666667,
+  "frame_mean_luma_max" : 45.477684668143638,
+  "frame_mean_luma_median" : 33.149391139380114,
+  "frame_mean_luma_min" : 0,
+  "frame_mean_luma_p01" : 31.274251095132559,
+  "frames_decoded" : 316,
+  "frames_with_all_sampled_pixels_near_black" : 1,
+  "gap_after_startup_gt_1_5x_median_count" : 7,
+  "gap_after_startup_max_s" : 1.63333333333334,
+  "gap_gt_1_5x_median_count" : 9,
+  "gap_gt_1_5x_median_examples" : [
+    {
+      "from_pts_s" : 0,
+      "gap_s" : 1.3166666666666667,
+      "to_pts_s" : 1.3166666666666667
+    },
+    {
+      "from_pts_s" : 1.3166666666666667,
+      "gap_s" : 2.0683333333333334,
+      "to_pts_s" : 3.3849999999999998
+    },
+    {
+      "from_pts_s" : 90.641666666666666,
+      "gap_s" : 1.63333333333334,
+      "to_pts_s" : 92.275000000000006
+    },
+    {
+      "from_pts_s" : 98.549999999999997,
+      "gap_s" : 1.6283333333333303,
+      "to_pts_s" : 100.17833333333333
+    },
+    {
+      "from_pts_s" : 106.43666666666667,
+      "gap_s" : 1.6283333333333303,
+      "to_pts_s" : 108.065
+    },
+    {
+      "from_pts_s" : 113.73333333333333,
+      "gap_s" : 1.6299999999999955,
+      "to_pts_s" : 115.36333333333333
+    },
+    {
+      "from_pts_s" : 121.60833333333333,
+      "gap_s" : 1.6283333333333303,
+      "to_pts_s" : 123.23666666666666
+    },
+    {
+      "from_pts_s" : 144.89666666666668,
+      "gap_s" : 1.618333333333311,
+      "to_pts_s" : 146.51499999999999
+    },
+    {
+      "from_pts_s" : 186.22999999999999,
+      "gap_s" : 1.0866666666666731,
+      "to_pts_s" : 187.31666666666666
+    }
+  ],
+  "gap_gt_1_5x_median_max_s" : 2.0683333333333334,
+  "gap_max_s" : 2.0683333333333334,
+  "gap_median_s" : 0.56833333333332803,
+  "image_extraction_error" : null,
+  "image_extraction_status" : "complete_forward_avassetreader_pixelbuffer_pass",
+  "image_files" : [
+    "first-decoded-frame.png",
+    "content-even-00.png",
+    "content-even-01.png",
+    "content-even-02.png",
+    "content-even-03.png",
+    "content-even-04.png",
+    "content-even-05.png",
+    "content-even-06.png"
+  ],
+  "last_nonblank_pts_s" : 187.31666666666666,
+  "movie_duration_s" : 188.40333333333334,
+  "movie_path" : "\/Users\/n\/numi-human-resting-evidence-20261005\/final-native-scene-preflight-936\/skin-927-current-lung-924\/native-run\/native-viewer.mov",
+  "nonblank_count_matches_surface_rows" : true,
+  "nonblank_decoded_frames" : 315,
+  "nonblank_sampled_mean_luma_min" : 31.251143871681222,
+  "per_frame_sampled_luma_max" : 254.99999999999997,
+  "per_frame_sampled_luma_min" : 0,
+  "pts_first_s" : 0,
+  "pts_last_s" : 187.31666666666666,
+  "pts_monotonic" : true,
+  "sample_grid" : "every 8 pixels in x and y, BGRA decoded to Rec.709 luma",
+  "sampled_nonblack_fraction_max" : 1,
+  "sampled_nonblack_fraction_min" : 0,
+  "second_pass_frame_count" : 316,
+  "second_pass_pts_sequence_exact_match" : true,
+  "second_pass_timing_markers" : 0,
+  "status" : "complete_avfoundation_pixel_decode",
+  "surface_audit_rows" : 315,
+  "zero_sample_timing_markers" : 0
+}

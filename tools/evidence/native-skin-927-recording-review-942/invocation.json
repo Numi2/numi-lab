@@ -1,0 +1,10 @@
+{
+  "argv": [
+    "/usr/bin/swift",
+    "/Users/n/numi-human-resting-evidence-20261005/native-current-recording-review-873/movie-continuity-even-samples.swift",
+    "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-current-lung-924/native-run",
+    "/Users/n/numi-human-resting-evidence-20261005/native-skin-927-recording-review-942"
+  ],
+  "script_sha256": "dad3a672ad34fb0f46d9c5c8a1cb6f457097ae95ccd44c1ad4f946b941d1a58c",
+  "purpose": "Continuously decode skin927 native movie; match nonblank frames to surface audit and retain seven native inspection samples including final frame."
+}

@@ -1,0 +1,33 @@
+/Users/n/numi-human-resting-evidence-20261005/native-current-recording-review-873/movie-continuity-even-samples.swift:56:29: warning: 'tracks(withMediaType:)' was deprecated in macOS 13.0: Use loadTracks(withMediaType:) instead [#DeprecatedDeclaration]
+ 54 |     let expected = surfaceCSV.split(separator: "\n").count - 1
+ 55 |     let reader = try AVAssetReader(asset: asset)
+ 56 |     guard let track = asset.tracks(withMediaType: .video).first else { throw NSError(domain:"missing-track",code:1) }
+    |                             `- warning: 'tracks(withMediaType:)' was deprecated in macOS 13.0: Use loadTracks(withMediaType:) instead [#DeprecatedDeclaration]
+ 57 |     let settings: [String: Any] = [kCVPixelBufferPixelFormatTypeKey as String: kCVPixelFormatType_32BGRA]
+ 58 |     let output = AVAssetReaderTrackOutput(track: track, outputSettings: settings)
+
+/Users/n/numi-human-resting-evidence-20261005/native-current-recording-review-873/movie-continuity-even-samples.swift:118:34: warning: 'duration' was deprecated in macOS 13.0: Use load(.duration) instead [#DeprecatedDeclaration]
+116 |         "pts_first_s":frames.first!.pts,
+117 |         "pts_last_s":frames.last!.pts,
+118 |         "movie_duration_s":asset.duration.seconds,
+    |                                  `- warning: 'duration' was deprecated in macOS 13.0: Use load(.duration) instead [#DeprecatedDeclaration]
+119 |         "pts_monotonic":true,
+120 |         "gap_median_s":medianGap,
+
+/Users/n/numi-human-resting-evidence-20261005/native-current-recording-review-873/movie-continuity-even-samples.swift:179:40: warning: 'tracks(withMediaType:)' was deprecated in macOS 13.0: Use loadTracks(withMediaType:) instead [#DeprecatedDeclaration]
+177 |         }
+178 |         let extractReader = try AVAssetReader(asset: asset)
+179 |         guard let extractTrack = asset.tracks(withMediaType: .video).first else {
+    |                                        `- warning: 'tracks(withMediaType:)' was deprecated in macOS 13.0: Use loadTracks(withMediaType:) instead [#DeprecatedDeclaration]
+180 |             throw NSError(domain: "missing-extraction-track", code: 9)
+181 |         }
+
+[#DeprecatedDeclaration]: <https://docs.swift.org/compiler/documentation/diagnostics/deprecated-declaration>
+frames_read=316 expected=315 timing_markers=0 reader_status=2
+extracted_even_content_index=0 pts=1.3166666666666667
+extracted_even_content_index=52 pts=32.1
+extracted_even_content_index=107 pts=63.223333333333336
+extracted_even_content_index=160 pts=94.56833333333333
+extracted_even_content_index=207 pts=125.52333333333333
+extracted_even_content_index=259 pts=156.125
+extracted_even_content_index=314 pts=187.31666666666666

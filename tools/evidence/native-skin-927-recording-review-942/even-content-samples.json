@@ -1,0 +1,95 @@
+{
+  "content_samples" : [
+    {
+      "decoded_content_count" : 315,
+      "decoded_content_index" : 0,
+      "decoded_frame_index" : 1,
+      "decoded_pts_s" : 1.3166666666666667,
+      "extracted_pts_s" : 1.3166666666666667,
+      "file" : "content-even-00.png",
+      "mean_luma" : 33.28659570796075,
+      "nonblack_fraction" : 0.99933628318584067,
+      "sample_ordinal" : 0,
+      "target_pts_s" : 1.3166666666666667
+    },
+    {
+      "decoded_content_count" : 315,
+      "decoded_content_index" : 52,
+      "decoded_frame_index" : 53,
+      "decoded_pts_s" : 32.100000000000001,
+      "extracted_pts_s" : 32.100000000000001,
+      "file" : "content-even-01.png",
+      "mean_luma" : 31.883692499999668,
+      "nonblack_fraction" : 1,
+      "sample_ordinal" : 1,
+      "target_pts_s" : 32.31666666666667
+    },
+    {
+      "decoded_content_count" : 315,
+      "decoded_content_index" : 107,
+      "decoded_frame_index" : 108,
+      "decoded_pts_s" : 63.223333333333336,
+      "extracted_pts_s" : 63.223333333333336,
+      "file" : "content-even-02.png",
+      "mean_luma" : 32.564990066371294,
+      "nonblack_fraction" : 1,
+      "sample_ordinal" : 2,
+      "target_pts_s" : 63.31666666666667
+    },
+    {
+      "decoded_content_count" : 315,
+      "decoded_content_index" : 160,
+      "decoded_frame_index" : 161,
+      "decoded_pts_s" : 94.568333333333328,
+      "extracted_pts_s" : 94.568333333333328,
+      "file" : "content-even-03.png",
+      "mean_luma" : 45.228557964603787,
+      "nonblack_fraction" : 0.99994469026548671,
+      "sample_ordinal" : 3,
+      "target_pts_s" : 94.316666666666663
+    },
+    {
+      "decoded_content_count" : 315,
+      "decoded_content_index" : 207,
+      "decoded_frame_index" : 208,
+      "decoded_pts_s" : 125.52333333333333,
+      "extracted_pts_s" : 125.52333333333333,
+      "file" : "content-even-04.png",
+      "mean_luma" : 45.093587345134317,
+      "nonblack_fraction" : 1,
+      "sample_ordinal" : 4,
+      "target_pts_s" : 125.31666666666666
+    },
+    {
+      "decoded_content_count" : 315,
+      "decoded_content_index" : 259,
+      "decoded_frame_index" : 260,
+      "decoded_pts_s" : 156.125,
+      "extracted_pts_s" : 156.125,
+      "file" : "content-even-05.png",
+      "mean_luma" : 31.356574280973227,
+      "nonblack_fraction" : 0.99994469026548671,
+      "sample_ordinal" : 5,
+      "target_pts_s" : 156.31666666666666
+    },
+    {
+      "decoded_content_count" : 315,
+      "decoded_content_index" : 314,
+      "decoded_frame_index" : 315,
+      "decoded_pts_s" : 187.31666666666666,
+      "extracted_pts_s" : 187.31666666666666,
+      "file" : "content-even-06.png",
+      "mean_luma" : 33.247287665928745,
+      "nonblack_fraction" : 1,
+      "sample_ordinal" : 6,
+      "target_pts_s" : 187.31666666666666
+    }
+  ],
+  "initial_frame" : {
+    "file" : "first-decoded-frame.png",
+    "is_all_black" : true,
+    "pts_s" : 0,
+    "sampled_nonblack_fraction" : 0
+  },
+  "selection_rule" : "seven equally spaced PTS targets over nonblank content; nearest decoded frame selected in AVAssetReader order, then images written from matching CVPixelBuffers in a second forward-only AVAssetReader pass with exact PTS sequence checks"
+}

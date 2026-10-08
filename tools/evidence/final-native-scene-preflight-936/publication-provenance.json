@@ -1,0 +1,7 @@
+{
+  "retained_evidence": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936",
+  "test_original_sha256": "7184b599c0a37e1f8d6d3034a5acfad57df77964061ef2e8ddc14bb6e9347033",
+  "test_published_sha256": "074cd533973fe147588495e3e3c02ee862ad30f8f4388d22d05d82106f3763f7",
+  "test_change": "Resolve adjacent published v011 script instead of absolute evidence script. No test cases changed.",
+  "script_sha256": "8a327d30a0b604055a75c80ff84b4538c11009439e9fa62429df95750cb70391"
+}

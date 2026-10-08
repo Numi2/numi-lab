@@ -1,0 +1,397 @@
+{
+  "status": "q0_com8_semantics_pass",
+  "comparison": {
+    "reference_rows": 64,
+    "candidate_rows": 8,
+    "reference_root_count": 64,
+    "segment_steps": 8,
+    "candidate_accepted_steps": [
+      8,
+      16,
+      24,
+      32,
+      40,
+      48,
+      56,
+      64
+    ],
+    "endpoint_field_count": 50,
+    "window_aggregate_fields": [
+      "min_contact_gap_m",
+      "peak_penetration_m",
+      "pre_projection_contact_residual_m_s",
+      "pre_projection_limit_residual_generalized_s",
+      "pre_projection_equality_residual_generalized_s",
+      "post_projection_contact_residual_m_s",
+      "post_projection_limit_residual_generalized_s",
+      "post_projection_equality_residual_generalized_s",
+      "equality_position_projection_max_generalized",
+      "equality_velocity_projection_max_generalized_s"
+    ],
+    "aggregation": "min for min_contact_gap_m; max for the other nine; direct accepted endpoint for all remaining fields",
+    "compared_values": 480,
+    "all_values_exact": true,
+    "columns": {
+      "time_s": {
+        "exact_equal": 8,
+        "max_abs_delta": 0.0,
+        "samples": 8,
+        "mean_signed_delta": 0.0
+      },
+      "lung_volume_ml": {
+        "exact_equal": 8,
+        "max_abs_delta": 0.0,
+        "samples": 8,
+        "mean_signed_delta": 0.0
+      },
+      "airflow_ml_s": {
+        "exact_equal": 8,
+        "max_abs_delta": 0.0,
+        "samples": 8,
+        "mean_signed_delta": 0.0
+      },
+      "alveolar_pa": {
+        "exact_equal": 8,
+        "max_abs_delta": 0.0,
+        "samples": 8,
+        "mean_signed_delta": 0.0
+      },
+      "pleural_pa": {
+        "exact_equal": 8,
+        "max_abs_delta": 0.0,
+        "samples": 8,
+        "mean_signed_delta": 0.0
+      },
+      "diaphragm_mm": {
+        "exact_equal": 8,
+        "max_abs_delta": 0.0,
+        "samples": 8,
+        "mean_signed_delta": 0.0
+      },
+      "rib_mm": {
+        "exact_equal": 8,
+        "max_abs_delta": 0.0,
+        "samples": 8,
+        "mean_signed_delta": 0.0
+      },
+      "PaO2_mmhg": {
+        "exact_equal": 8,
+        "max_abs_delta": 0.0,
+        "samples": 8,
+        "mean_signed_delta": 0.0
+      },
+      "PaCO2_mmhg": {
+        "exact_equal": 8,
+        "max_abs_delta": 0.0,
+        "samples": 8,
+        "mean_signed_delta": 0.0
+      },
+      "SaO2": {
+        "exact_equal": 8,
+        "max_abs_delta": 0.0,
+        "samples": 8,
+        "mean_signed_delta": 0.0
+      },
+      "oxygen_balance_error_stpd_ml": {
+        "exact_equal": 8,
+        "max_abs_delta": 0.0,
+        "samples": 8,
+        "mean_signed_delta": 0.0
+      },
+      "co2_balance_error_stpd_ml": {
+        "exact_equal": 8,
+        "max_abs_delta": 0.0,
+        "samples": 8,
+        "mean_signed_delta": 0.0
+      },
+      "breaths": {
+        "exact_equal": 8,
+        "max_abs_delta": 0.0,
+        "samples": 8,
+        "mean_signed_delta": 0.0
+      },
+      "tidal_ml": {
+        "exact_equal": 8,
+        "max_abs_delta": 0.0,
+        "samples": 8,
+        "mean_signed_delta": 0.0
+      },
+      "lv_mmhg": {
+        "exact_equal": 8,
+        "max_abs_delta": 0.0,
+        "samples": 8,
+        "mean_signed_delta": 0.0
+      },
+      "rv_mmhg": {
+        "exact_equal": 8,
+        "max_abs_delta": 0.0,
+        "samples": 8,
+        "mean_signed_delta": 0.0
+      },
+      "aorta_mmhg": {
+        "exact_equal": 8,
+        "max_abs_delta": 0.0,
+        "samples": 8,
+        "mean_signed_delta": 0.0
+      },
+      "pulmonary_artery_mmhg": {
+        "exact_equal": 8,
+        "max_abs_delta": 0.0,
+        "samples": 8,
+        "mean_signed_delta": 0.0
+      },
+      "lv_ml": {
+        "exact_equal": 8,
+        "max_abs_delta": 0.0,
+        "samples": 8,
+        "mean_signed_delta": 0.0
+      },
+      "rv_ml": {
+        "exact_equal": 8,
+        "max_abs_delta": 0.0,
+        "samples": 8,
+        "mean_signed_delta": 0.0
+      },
+      "blood_ml": {
+        "exact_equal": 8,
+        "max_abs_delta": 0.0,
+        "samples": 8,
+        "mean_signed_delta": 0.0
+      },
+      "blood_error_ml": {
+        "exact_equal": 8,
+        "max_abs_delta": 0.0,
+        "samples": 8,
+        "mean_signed_delta": 0.0
+      },
+      "aortic_ejected_ml": {
+        "exact_equal": 8,
+        "max_abs_delta": 0.0,
+        "samples": 8,
+        "mean_signed_delta": 0.0
+      },
+      "pulmonary_ejected_ml": {
+        "exact_equal": 8,
+        "max_abs_delta": 0.0,
+        "samples": 8,
+        "mean_signed_delta": 0.0
+      },
+      "complete_filling_ejection_cycles": {
+        "exact_equal": 8,
+        "max_abs_delta": 0.0,
+        "samples": 8,
+        "mean_signed_delta": 0.0
+      },
+      "last_lv_stroke_ml": {
+        "exact_equal": 8,
+        "max_abs_delta": 0.0,
+        "samples": 8,
+        "mean_signed_delta": 0.0
+      },
+      "right_atrium_ml": {
+        "exact_equal": 8,
+        "max_abs_delta": 0.0,
+        "samples": 8,
+        "mean_signed_delta": 0.0
+      },
+      "left_atrium_ml": {
+        "exact_equal": 8,
+        "max_abs_delta": 0.0,
+        "samples": 8,
+        "mean_signed_delta": 0.0
+      },
+      "blood_continuity_residual_accum_ml": {
+        "exact_equal": 8,
+        "max_abs_delta": 0.0,
+        "samples": 8,
+        "mean_signed_delta": 0.0
+      },
+      "blood_physical_delta_accum_ml": {
+        "exact_equal": 8,
+        "max_abs_delta": 0.0,
+        "samples": 8,
+        "mean_signed_delta": 0.0
+      },
+      "blood_residual_minus_physical_ml": {
+        "exact_equal": 8,
+        "max_abs_delta": 0.0,
+        "samples": 8,
+        "mean_signed_delta": 0.0
+      },
+      "blood_endpoint_minus_physical_ml": {
+        "exact_equal": 8,
+        "max_abs_delta": 0.0,
+        "samples": 8,
+        "mean_signed_delta": 0.0
+      },
+      "inspired_volume_accum_ml": {
+        "exact_equal": 8,
+        "max_abs_delta": 0.0,
+        "samples": 8,
+        "mean_signed_delta": 0.0
+      },
+      "last_inspiration_step": {
+        "exact_equal": 8,
+        "max_abs_delta": 0.0,
+        "samples": 8,
+        "mean_signed_delta": 0.0
+      },
+      "last_inspiration_time_s": {
+        "exact_equal": 8,
+        "max_abs_delta": 0.0,
+        "samples": 8,
+        "mean_signed_delta": 0.0
+      },
+      "last_inspiration_volume_accum_ml": {
+        "exact_equal": 8,
+        "max_abs_delta": 0.0,
+        "samples": 8,
+        "mean_signed_delta": 0.0
+      },
+      "last_complete_breath_inspired_ml": {
+        "exact_equal": 8,
+        "max_abs_delta": 0.0,
+        "samples": 8,
+        "mean_signed_delta": 0.0
+      },
+      "respiratory_net_volume_ml": {
+        "exact_equal": 8,
+        "max_abs_delta": 0.0,
+        "samples": 8,
+        "mean_signed_delta": 0.0
+      },
+      "respiratory_volume_balance_ml": {
+        "exact_equal": 8,
+        "max_abs_delta": 0.0,
+        "samples": 8,
+        "mean_signed_delta": 0.0
+      },
+      "gas_max_donor_fraction": {
+        "exact_equal": 8,
+        "max_abs_delta": 0.0,
+        "samples": 8,
+        "mean_signed_delta": 0.0
+      },
+      "respiratory_gas_substeps": {
+        "exact_equal": 8,
+        "max_abs_delta": 0.0,
+        "samples": 8,
+        "mean_signed_delta": 0.0
+      },
+      "step": {
+        "exact_equal": 8,
+        "max_abs_delta": 0.0,
+        "samples": 8,
+        "mean_signed_delta": 0.0
+      },
+      "min_contact_gap_m": {
+        "exact_equal": 8,
+        "max_abs_delta": 0.0,
+        "samples": 8,
+        "mean_signed_delta": 0.0
+      },
+      "peak_penetration_m": {
+        "exact_equal": 8,
+        "max_abs_delta": 0.0,
+        "samples": 8,
+        "mean_signed_delta": 0.0
+      },
+      "normal_impulse_ns": {
+        "exact_equal": 8,
+        "max_abs_delta": 0.0,
+        "samples": 8,
+        "mean_signed_delta": 0.0
+      },
+      "root_assistance_n": {
+        "exact_equal": 8,
+        "max_abs_delta": 0.0,
+        "samples": 8,
+        "mean_signed_delta": 0.0
+      },
+      "root_assistance_nm": {
+        "exact_equal": 8,
+        "max_abs_delta": 0.0,
+        "samples": 8,
+        "mean_signed_delta": 0.0
+      },
+      "diaphragm_excitation": {
+        "exact_equal": 8,
+        "max_abs_delta": 0.0,
+        "samples": 8,
+        "mean_signed_delta": 0.0
+      },
+      "intercostal_excitation": {
+        "exact_equal": 8,
+        "max_abs_delta": 0.0,
+        "samples": 8,
+        "mean_signed_delta": 0.0
+      },
+      "diaphragm_activation": {
+        "exact_equal": 8,
+        "max_abs_delta": 0.0,
+        "samples": 8,
+        "mean_signed_delta": 0.0
+      },
+      "intercostal_activation": {
+        "exact_equal": 8,
+        "max_abs_delta": 0.0,
+        "samples": 8,
+        "mean_signed_delta": 0.0
+      },
+      "pre_projection_contact_residual_m_s": {
+        "exact_equal": 8,
+        "max_abs_delta": 0.0,
+        "samples": 8,
+        "mean_signed_delta": 0.0
+      },
+      "pre_projection_limit_residual_generalized_s": {
+        "exact_equal": 8,
+        "max_abs_delta": 0.0,
+        "samples": 8,
+        "mean_signed_delta": 0.0
+      },
+      "pre_projection_equality_residual_generalized_s": {
+        "exact_equal": 8,
+        "max_abs_delta": 0.0,
+        "samples": 8,
+        "mean_signed_delta": 0.0
+      },
+      "post_projection_contact_residual_m_s": {
+        "exact_equal": 8,
+        "max_abs_delta": 0.0,
+        "samples": 8,
+        "mean_signed_delta": 0.0
+      },
+      "post_projection_limit_residual_generalized_s": {
+        "exact_equal": 8,
+        "max_abs_delta": 0.0,
+        "samples": 8,
+        "mean_signed_delta": 0.0
+      },
+      "post_projection_equality_residual_generalized_s": {
+        "exact_equal": 8,
+        "max_abs_delta": 0.0,
+        "samples": 8,
+        "mean_signed_delta": 0.0
+      },
+      "equality_position_projection_max_generalized": {
+        "exact_equal": 8,
+        "max_abs_delta": 0.0,
+        "samples": 8,
+        "mean_signed_delta": 0.0
+      },
+      "equality_velocity_projection_max_generalized_s": {
+        "exact_equal": 8,
+        "max_abs_delta": 0.0,
+        "samples": 8,
+        "mean_signed_delta": 0.0
+      },
+      "contact_sweeps": {
+        "exact_equal": 8,
+        "max_abs_delta": 0.0,
+        "samples": 8,
+        "mean_signed_delta": 0.0
+      }
+    }
+  }
+}

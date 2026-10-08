@@ -1,0 +1,73 @@
+{
+  "cadence_fixture": {
+    "930_reference_csv_sha256": "dd2f3f975e9f01165ef9a23e6e399bbf0368abb8a95b745cc3ab72aae6c363a2",
+    "932_candidate_csv_sha256": "96cdfa7d392b316ce3a579721dcdce0993b1f00cdc6472b2624f542a05099485",
+    "all_values_exact": true,
+    "candidate_rows": 8,
+    "compared_values": 480,
+    "endpoint_fields": 50,
+    "missing_column_rejected": true,
+    "nonfinite_value_rejected": true,
+    "reference_roots": 64,
+    "window_extrema_fields": 10
+  },
+  "current_script_sha256": "8a327d30a0b604055a75c80ff84b4538c11009439e9fa62429df95750cb70391",
+  "failed_or_superseded_snapshots_retained": [
+    "v005 undefined hash helper in cadence test",
+    "v007 stale tools/numi file hash",
+    "v008 fixture receipt mismatch",
+    "v010 final branch incorrectly used legacy composition base; missing os import"
+  ],
+  "legacy_fixture": {
+    "NHCNT_rows": 32,
+    "NHCNT_sha256": "bcfece8e5da553b98694b724644234407fa4c38383b1e18d3c24d7caefa28927",
+    "composition_base_receipt_sha256": "a52e3184e77bca568ce603831cfd5d3b2bafdf46453634637a9c85fb6ffbed71",
+    "composition_used_by_cli": false,
+    "help_only_check_sha256": "e5ed842f3f5714e9828140f95bcab99d4c5ce5a50ced85e7b50a7357bef950d1",
+    "native_receipt_sha256": "40652ad554565f27713d6023af3327994f9c226e5471eddbd3b77d1baaaace3e",
+    "native_run": false,
+    "output": "legacy-907-cpu-fixture-v011",
+    "owner_admitted_asset_bytes": 279996526,
+    "owner_admitted_assets": 25,
+    "period_s": 2.5,
+    "root_pose_exact_to_907": true,
+    "status": "fixture_907_legacy_unqualified_cpu_only",
+    "support_witnesses_exact_to_907": true,
+    "tour": true
+  },
+  "limits": [
+    "907 is a legacy fixture, not corrected geometry",
+    "No GPU/native run or final 310-second paired study",
+    "Full-skin regional point contact is distinct from triangle-mesh collision and from initial NHCNT seed identity"
+  ],
+  "outputs": {
+    "README-v004.md": "7b43d4c5ce6b4f3db5b935e745cae78eafe74116a27f48408d64b24fe12090ed",
+    "cadence-self-test-v011.json": "d53bd8eeed08e096b9b435d1019bed3958bbd2f25164cee49c7b2fb11520266b",
+    "final_scene_936-v004.py": "274a93efe58429fe3b2abe887d8aa7f11fb74b5c20680639304e8abc737a374a",
+    "final_scene_936-v010.py": "d9837e82571056f7407de8333c92ba057b048d0af71f89632f99c5add8d5cf33",
+    "final_scene_936-v011.py": "8a327d30a0b604055a75c80ff84b4538c11009439e9fa62429df95750cb70391",
+    "legacy-907-cpu-fixture-v011/assembly-preflight.json": "7ee8ec7fbc03dbdf9bc0600c5d99fc1aab295e0f8313b8a1fc49e6fdd1f0e0c1",
+    "legacy-907-cpu-fixture-v011/help-only-check.json": "e5ed842f3f5714e9828140f95bcab99d4c5ce5a50ced85e7b50a7357bef950d1",
+    "legacy-907-cpu-fixture-v011/review-only-owner-command.txt": "c5e5a97226f5fa2a7f0893cef4f44c2289b15d67e5b118d01992532fb2537d26",
+    "reference-self-test-v011.json": "89256e49ed9aa452b84b774812001964bfa99bb6e242983ca8dd1f4a11521409",
+    "test_final_scene_936_v011.log": "5d1a06bf188f8f6fc31b52c0a9cc1cbff6cc5e40d69bd8e209fba4d7319ce12e",
+    "test_final_scene_936_v011.py": "7184b599c0a37e1f8d6d3034a5acfad57df77964061ef2e8ddc14bb6e9347033"
+  },
+  "previous_v004_preserved": {
+    "readme_sha256": "7b43d4c5ce6b4f3db5b935e745cae78eafe74116a27f48408d64b24fe12090ed",
+    "script_sha256": "274a93efe58429fe3b2abe887d8aa7f11fb74b5c20680639304e8abc737a374a"
+  },
+  "previous_v010_script_sha256": "d9837e82571056f7407de8333c92ba057b048d0af71f89632f99c5add8d5cf33",
+  "readme_sha256": "1cc0fbe47887ee9981201a9ad1c4aa5a3b2a626d80f6404bfae0b3201536f383",
+  "revision": 11,
+  "schema": "numi.human.final-native-scene-preflight-revision.v1",
+  "source_pins": {
+    "build_pins_sha256": "ed576aba3b330574de7d9afa83474f8b33f51df48770532862e56e0c69e69984",
+    "build_source_pins_sha256": "ccbfa7e27f51b8635d0e075945cb672084c4793b0153df33c9093747c9c919ba",
+    "human": "935cc7d332b9118f41c719e2d2f9c7c568a3d41f",
+    "lab": "d550d8ad88a76fdee5bb6e028286fd24e962571f"
+  },
+  "status": "cpu_legacy_fixture_and_contract_tests_passed_native_not_run",
+  "test_script_sha256": "7184b599c0a37e1f8d6d3034a5acfad57df77964061ef2e8ddc14bb6e9347033",
+  "test_summary": "6 tests passed: final and fixture composition branch selections, comparison contract accept path, missing critical asset rejection, wrong tour rejection, wrong runtime rejection."
+}
