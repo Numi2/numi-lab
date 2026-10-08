@@ -1,0 +1,48 @@
+{
+  "scope": "Terminal presentation under final-study diagnostics cadence; not anatomical clearance or endurance",
+  "pass": true,
+  "source_revision": "b091d7dcead509a325194563ed38261319118a88",
+  "runtime_metadata_sha256": "6e2eabdd6f60ba3789d910b08e539ad922c8fab0d6c746016ee291f604d5f80c",
+  "wall_seconds": 10.287132667,
+  "q_integration_audit": 0,
+  "com_segment_steps": 8,
+  "com_observations": 8,
+  "captures_byte_identical_to_q1_com1_run930": {
+    "0": {
+      "pack_sha256": "a88fcb852681e75d6453a5db2719f4201d454b68cda71ca4bf07ace3c5691a4c",
+      "receipt_sha256": "f7090c2092d512ce382795c2ddd165c09f039d64ac47b563a9bda72eaab79e30",
+      "accepted_time_s": 0
+    },
+    "63": {
+      "pack_sha256": "8422cb46bcef9251d359e26dfb331a3e7dfa8a2960963428266a797fc15614a1",
+      "receipt_sha256": "21456d6aeff36b15e434a32c9f22f202cacbd18eef257b99c85f0c969ef91eb3",
+      "accepted_time_s": 0.12600000598467886
+    },
+    "64": {
+      "pack_sha256": "2bcd55d5b75c353e6c412bf7ded0457947810e6656d4b809574d23efabd6e358",
+      "receipt_sha256": "858d501e4746bb20c782cea3f6776541ddbd835694e16e04f8186688bf77f1e2",
+      "accepted_time_s": 0.12800000607967377
+    }
+  },
+  "reference_trace_rows": 64,
+  "candidate_trace_rows": 8,
+  "identical_endpoint_columns": 50,
+  "exact_window_aggregated_columns": [
+    "min_contact_gap_m",
+    "peak_penetration_m",
+    "pre_projection_contact_residual_m_s",
+    "pre_projection_limit_residual_generalized_s",
+    "pre_projection_equality_residual_generalized_s",
+    "post_projection_contact_residual_m_s",
+    "post_projection_limit_residual_generalized_s",
+    "post_projection_equality_residual_generalized_s",
+    "equality_position_projection_max_generalized",
+    "equality_velocity_projection_max_generalized_s"
+  ],
+  "window_aggregation": "minimum for min_contact_gap_m; maximum for the other nine diagnostic columns",
+  "physiology_sha256": "96cdfa7d392b316ce3a579721dcdce0993b1f00cdc6472b2624f542a05099485",
+  "movie_sha256": "667c40a7808f57d6b1a321c0785760fa3d110b25d36456ae209261287cd6716e",
+  "external_root": "/Users/n/numi-human-resting-evidence-20261005/native-terminal-production-audits-932",
+  "driver_sha256": "1aa2baeeca0f86920c813faf7eaa5681af0aca67f550d1e0354f2bae636d800c",
+  "initial_comparison_correction": "An initial whole-CSV identity assertion failed because q0/COM8 emits eight observations and aggregates ten diagnostics over each eight-root window. Explicit endpoint and window-extrema comparison passes all 60 fields; no physical state changed."
+}
