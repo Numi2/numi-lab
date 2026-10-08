@@ -1,0 +1,71 @@
+{
+  "behavior": {
+    "exact_fallback": "If any original coordinate is subnormal or has biased exponent 1..24, or any computed edge is nonfinite, expands each 2D determinant into six exact products from original coordinates and compares positive/negative 576-bit limb sums.",
+    "fast_path": "Uses FMA product residuals only when both residuals are finite and normal. Uses exact integer product comparison when the residual is zero, subnormal, or nonfinite.",
+    "gate": "The existing nonfinite float-cross check remains first and rejecting; exact-zero logic does not make overflowing area vectors admissible."
+  },
+  "checks": {
+    "captured_witness": {
+      "candidate_library": "HumanRespiration.metallib",
+      "candidate_result": "zero=1 nonfinite=0 first=0 triangles=1",
+      "frozen_library": "/Users/n/numi-human-performance-build-014/matter/shaders/HumanRespiration.metallib",
+      "frozen_library_sha256": "8a3fb8e890655b2ff360d078b0898a893978f658315d64e475f3dec3690a322e",
+      "frozen_result": "zero=0 nonfinite=0 first=UINT32_MAX triangles=1",
+      "log": "frozen-witness.log; candidate-witness.log"
+    },
+    "fraction_oracle_gpu": {
+      "cases": 688,
+      "driver": "triangle-predicate-gpu-test.mm",
+      "expected_nonzero": 560,
+      "expected_zero": 128,
+      "generator": "generate_fraction_cases.py",
+      "inputs_sha256": "b0db0f1c1caf1c35603f314d8a02bb4211a9af5c5f5d8bc311935904db58d01c",
+      "kernel": "triangle_predicate_gpu_test.metal (predicate helper extracted from candidate source at test time)",
+      "log": "fraction-gpu-oracle.log",
+      "oracle": "Python Fraction exact determinant on the exact represented binary32 coordinates",
+      "result": "passed on Apple M4 Pro"
+    },
+    "full_metal_shader": {
+      "command": "xcrun -sdk macosx metal -std=metal4.0 -O3 -fno-fast-math -I <worktree>/matter/include -I <worktree>/include -I <worktree>/src/metal -I <Brain>/Sources/NumiBrainABI/include -I <Brain>/Sources/NumiBrainMetal/Shaders -c <worktree>/matter/src/human_respiration.metal -o <evidence>/HumanRespiration.air; xcrun -sdk macosx metallib <evidence>/HumanRespiration.air -o <evidence>/HumanRespiration.metallib",
+      "log": "metal-compile.log",
+      "metallib_sha256": "0218e2328789dc40961597c999f2e28422e70629cde1b413d076c28436e6c394",
+      "result": "success; two pre-existing unused-variable warnings in MujocoMuscleReference.metal"
+    },
+    "host_diagnostic": {
+      "command": "clang++ -std=c++20 -Wall -Wextra -Wpedantic -Werror -fno-fast-math -ffp-contract=off -I include tests/numi_human_surface_audit_diagnostic_test.cpp -o <evidence>/surface-audit-diagnostic-test && <evidence>/surface-audit-diagnostic-test",
+      "log": "host-diagnostic.log",
+      "result": "exit 0"
+    },
+    "production_metal_fixtures": {
+      "command": "clang++ ... mesh-audit-metal-test.mm -framework Foundation -framework Metal; <evidence>/mesh-audit-metal-test",
+      "log": "metal-test.log",
+      "result": "passed; 11 area cases, 5 functional volume cases, full mesh 16,391 triangles"
+    }
+  },
+  "limits": [
+    "The randomized oracle fixture tests the predicate, not the full physiology pipeline.",
+    "The finite-cross audit\u2019s captured regression is covered by production kernels; the overflowing 2^100 collinear control is rejected as nonfinite before exact-zero classification, as required by the existing guard."
+  ],
+  "pinned_brain_include": {
+    "commit": "a1cf7218fae5d26f9aed9d845047fc6c472ad596",
+    "files": {
+      "Sources/NumiBrainABI/include/NumiBrainRespiratoryChemoreflexV1.h": "0d7ac6e2b8438cbd0b4cb9fdc5c169585421dd8542ac071d47c3002401892248",
+      "Sources/NumiBrainMetal/Shaders/RespiratoryChemoreflexV1.metal": "495d3b51dc679ecf20c69e6c6f095d7d3c59d731216093c6ce790c0d0a6357cc"
+    },
+    "repository": "/Users/n/numi-human-resting-integration-20261005/numi-brain"
+  },
+  "schema": "numi.human.surface-area-audit-exact-binary32-fix-report.v1",
+  "scope": "Targeted source and Metal-kernel correctness checks only; no full resting simulation or whole-scene native acceptance run.",
+  "source": {
+    "base_commit": "a6a9d532c3765c3e85eedf7c2dd643e4b85c514f",
+    "candidate_commit": "d0787e4",
+    "candidate_commit_full": "d0787e45320fdd997b537d60e1737276856efb5e",
+    "files": {
+      "apps/NumiHumanRestingSurfaceAuditDiagnostic.hpp": "3900fd0939c5d4c3592466e58c76eedb1aa0bf127f07d9c8316f6861a3f1c82f",
+      "matter/src/human_respiration.metal": "5a57ef5bc1b1e57b99a0c382b0df0889f6f52fb600cbc094dab8247a08b91d9b",
+      "tests/numi_human_mesh_audit_metal_test.mm": "07518067d63e27acefaaebc50d8f4239610604b33abca22b6f5131e4c5f0d9a8",
+      "tests/numi_human_surface_audit_diagnostic_test.cpp": "dc0f98d56facba0b62eaa2290149aca1d8c3e5fbec8955cf937cf11173903ec0"
+    },
+    "repository": "/Users/n/numi-human-area-audit-fma-fix-001"
+  }
+}

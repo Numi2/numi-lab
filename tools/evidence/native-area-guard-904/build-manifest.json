@@ -1,0 +1,82 @@
+{
+  "brain_include": {
+    "commit": "a1cf7218fae5d26f9aed9d845047fc6c472ad596",
+    "repository": "/Users/n/numi-human-resting-integration-20261005/numi-brain"
+  },
+  "build_root": "/Users/n/numi-human-area-audit-build-015",
+  "evidence": {
+    "binary_types": "/Users/n/numi-human-area-audit-build-015/evidence/file-report.txt",
+    "build_size": "/Users/n/numi-human-area-audit-build-015/evidence/build-size.txt",
+    "host_test": "/Users/n/numi-human-area-audit-build-015/evidence/host-diagnostic.log",
+    "linked_dependencies": "/Users/n/numi-human-area-audit-build-015/evidence/otool-dependencies.txt",
+    "runtime_path_literals": "/Users/n/numi-human-area-audit-build-015/evidence/runtime-path-strings.txt",
+    "surface_audit_report": "/Users/n/numi-human-resting-evidence-20261005/area-audit-fma-fix-902/oracle-and-test-report.json",
+    "surface_audit_report_sha256": "b259739a71fdddf267295950e4e83baf7620cf0fe011639915e03f856fb2a811"
+  },
+  "limits": [
+    "No native executable or physical simulation was launched.",
+    "Runtime dynamic library and non-respiratory Metal libraries intentionally resolve to unchanged build-014 paths.",
+    "This build is a targeted launchable viewer integration artifact, not a full project rebuild or native qualification run."
+  ],
+  "outputs": {
+    "cpu_diagnostic": {
+      "path": "/Users/n/numi-human-area-audit-build-015/bin/surface-audit-diagnostic-test",
+      "result": "exit=0",
+      "sha256": "3a2b32c32ccd8021704d0192c3e138e9225ce60c14aaa78bb5f78c0e851cfa31"
+    },
+    "native": {
+      "file": "arm64 Mach-O executable",
+      "path": "/Users/n/numi-human-area-audit-build-015/bin/numi-human-native",
+      "sha256": "865278d5e703fd8256d3c8958464d350a0d22b18e2c0140ccae560d07e1e4e6d"
+    },
+    "object": {
+      "path": "/Users/n/numi-human-area-audit-build-015/obj/numilab_human_myosim_visual_probe.mm.o",
+      "sha256": "2060d69f727e6924c84d9c3ff638245499fc0398fc9216447feafa98e6788586"
+    }
+  },
+  "reproducible_build_script": "/Users/n/numi-human-area-audit-build-015/evidence/build-native-viewer.sh",
+  "reused_frozen_014": {
+    "artifacts": {
+      "HumanRespiration.metallib": {
+        "path": "/Users/n/numi-human-performance-build-014/matter/shaders/HumanRespiration.metallib",
+        "sha256": "8a3fb8e890655b2ff360d078b0898a893978f658315d64e475f3dec3690a322e"
+      },
+      "MetalRobo.metallib": {
+        "path": "/Users/n/numi-human-performance-build-014/shaders/MetalRobo.metallib",
+        "sha256": "3077d063dc23475d75cda795620cda8750402d1a2159267a241a5e2b65986043"
+      },
+      "NumiMatter.metallib": {
+        "path": "/Users/n/numi-human-performance-build-014/matter/shaders/NumiMatter.metallib",
+        "sha256": "38d4b64ed55cef2e0e0f243616d0db5bd21441f232ca38bca439108c1d6130f9"
+      },
+      "metalrobo_dylib": {
+        "path": "/Users/n/numi-human-performance-build-014/lib/libmetalrobo.dylib",
+        "sha256": "6bccfc4044d825423e66bc2f60ba3cf59eaa9a4936773ab08182f58a09927092"
+      },
+      "original_native": {
+        "path": "/Users/n/numi-human-performance-build-014/bin/numi-human-native",
+        "sha256": "cb25359009efd9181612a97629e298ce542ea1b5155d618c6ebbd2a997827c8b"
+      }
+    },
+    "build_root": "/Users/n/numi-human-performance-build-014",
+    "source_commit": "d550d8ad88a76fdee5bb6e028286fd24e962571f"
+  },
+  "schema": "numi.human.area-audit-integrated-viewer-build.v1",
+  "shader": {
+    "build_source_pin": "d0787e45320fdd997b537d60e1737276856efb5e",
+    "compile_log": "/Users/n/numi-human-resting-evidence-20261005/area-audit-fma-fix-902/metal-compile.log",
+    "path": "/Users/n/numi-human-area-audit-build-015/matter/shaders/HumanRespiration.metallib",
+    "sha256": "0218e2328789dc40961597c999f2e28422e70629cde1b413d076c28436e6c394"
+  },
+  "source": {
+    "commit": "d0787e45320fdd997b537d60e1737276856efb5e",
+    "files": {
+      "apps/NumiHumanRestingSurfaceAuditDiagnostic.hpp": "3900fd0939c5d4c3592466e58c76eedb1aa0bf127f07d9c8316f6861a3f1c82f",
+      "apps/NumiHumanRestingVisual.hpp": "670a4ac1ad873e5ee5dd9b338d9f1945c02997f854aec58589f76ed1d39c92e1",
+      "apps/numilab_human_myosim_visual_probe.mm": "3b77635d675b60dadf7322f777a1a5d7ace8512adda523ff7a48689f680da862",
+      "matter/src/human_respiration.metal": "5a57ef5bc1b1e57b99a0c382b0df0889f6f52fb600cbc094dab8247a08b91d9b"
+    },
+    "repository": "/Users/n/numi-human-area-audit-fma-fix-001"
+  },
+  "status": "launchable binary and CPU diagnostic helper compiled; no native simulation was launched"
+}

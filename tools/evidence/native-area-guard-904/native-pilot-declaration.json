@@ -1,0 +1,43 @@
+{
+  "scope": "20s integrated native correctness check for exact GPU triangle-degeneracy guard d0787e; all simulation math and assets identical to900. Known canonical003 skin crossings remain; not final anatomical qualification.",
+  "parent_driver": "/Users/n/numi-human-resting-evidence-20261005/native-final-lung-source-cycle-900.py",
+  "driver_sha256": "24d7bb403aedd5b1fe572cea74a7062106e142822031c390313b3145b4a8938c",
+  "build_manifest_sha256": "c0360b495a1c9c0ffa83efb0a093e1ce06d62729cb54c6c7103adb62fc078618",
+  "dependency_links": [
+    {
+      "path": "/Users/n/numi-human-area-audit-build-015/lib/libmetalrobo.dylib",
+      "target": "/Users/n/numi-human-performance-build-014/lib/libmetalrobo.dylib",
+      "sha256": "6bccfc4044d825423e66bc2f60ba3cf59eaa9a4936773ab08182f58a09927092"
+    },
+    {
+      "path": "/Users/n/numi-human-area-audit-build-015/shaders/MetalRobo.metallib",
+      "target": "/Users/n/numi-human-performance-build-014/shaders/MetalRobo.metallib",
+      "sha256": "3077d063dc23475d75cda795620cda8750402d1a2159267a241a5e2b65986043"
+    },
+    {
+      "path": "/Users/n/numi-human-area-audit-build-015/shaders/MetalRoboHyperPolicy.metallib",
+      "target": "/Users/n/numi-human-performance-build-014/shaders/MetalRoboHyperPolicy.metallib",
+      "sha256": "f227836841015b40467a20c47a9fa38cf44eb8e1132cad1de4e65fa79c55d309"
+    },
+    {
+      "path": "/Users/n/numi-human-area-audit-build-015/shaders/NumiNeuron.metallib",
+      "target": "/Users/n/numi-human-performance-build-014/shaders/NumiNeuron.metallib",
+      "sha256": "4ccbb796a6bfd5bdb18f7d37c8e18e0d767c9489d16047c523c97f679da33f1d"
+    },
+    {
+      "path": "/Users/n/numi-human-area-audit-build-015/matter/shaders/NumiMatter.metallib",
+      "target": "/Users/n/numi-human-performance-build-014/matter/shaders/NumiMatter.metallib",
+      "sha256": "38d4b64ed55cef2e0e0f243616d0db5bd21441f232ca38bca439108c1d6130f9"
+    },
+    {
+      "path": "/Users/n/numi-human-area-audit-build-015/matter/shaders/NumiMatterPhysicalStateDigest.metallib",
+      "target": "/Users/n/numi-human-performance-build-014/matter/shaders/NumiMatterPhysicalStateDigest.metallib",
+      "sha256": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68"
+    }
+  ],
+  "capture_steps": [
+    0,
+    6111,
+    9999
+  ]
+}
