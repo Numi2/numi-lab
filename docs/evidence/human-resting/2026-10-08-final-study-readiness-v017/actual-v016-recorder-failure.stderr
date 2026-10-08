@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/Users/n/numi-human-resting-evidence-20261005/final-integrated-study-readiness-917/package-v016/record_treatment_program_probe.py", line 510, in <module>
+    raise SystemExit(main())
+  File "/Users/n/numi-human-resting-evidence-20261005/final-integrated-study-readiness-917/package-v016/record_treatment_program_probe.py", line 332, in main
+    source_hashes, source_revisions = readiness.source_pin_files(
+ValueError: too many values to unpack (expected 2)

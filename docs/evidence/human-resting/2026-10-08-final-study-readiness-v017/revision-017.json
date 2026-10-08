@@ -1,0 +1,49 @@
+{
+  "checks": {
+    "actual_1078_plan_only_recorder_entrypoint": "passed with pinned Python3.9; no output directory or physical steps",
+    "physical_gpu_probe": "not yet executed",
+    "python39_compile": "passed",
+    "readiness_pytest": "51 passed, 19 subtests passed",
+    "retained_first_test_attempt": "main invoked under prep Python3.13; strict platform string rejected different SDK presentation. Regression now invokes actual pinned Python3.9.",
+    "science_registration_or_run": "not performed"
+  },
+  "files": {
+    "README-v017.md": "196b00797f669e6eabd985503aafc29f614cd16d628e37b8beeadf35e55168c5",
+    "analyze_final_pair.py": "ee478dee84aaa8d045f95ae1e13a91157ca0ce206159bc7ea8a9264380b7d7de",
+    "prepare_final_plan-v017.py": "ec4d79c005790c1daa5584551a49a60eab4263de684ecd5d1ee7bef29cba13e2",
+    "prepare_final_plan.py": "ec4d79c005790c1daa5584551a49a60eab4263de684ecd5d1ee7bef29cba13e2",
+    "record_treatment_program_probe.py": "dcf962cd622bdf012ea81aa6c1c9f2a2e21dffc93e41d6fca5a87c743e24c32e",
+    "test-suite-v017-first-interpreter-mismatch.log": "92db0267c3afe1e6b528105670fbd28cb2842bf83ab24b4908c6d9869bc2343f",
+    "test-suite-v017.log": "63211b721210a506c0fd7c1488d29be164664977073d02cda80cf00ce67df453",
+    "test_current_git_revision_identity_v013.py": "39b1a852ea50e98b6411b8b106a97fc9fc15d6f8139bd7496c24706581cbb78a",
+    "test_final_instrument_calibration_bindings_v015.py": "cc4d54defcd22c3ee42b39d1738735798e254c3127c15065971bdf2201882766",
+    "test_final_pair_diagnostic_validation_v007.py": "1b47e7e3ceffb8c8cf6f86eff4a3d9b17b115b444f233cfa9d912425a5dfc58d",
+    "test_final_pair_viewer_binding_v016.py": "3346dc40eb8f3605a224d1e59a185f8b975260f8291ff7a3b45a3aa1a882a112",
+    "test_owner_invocation_lineage.py": "4b3d913811aa350ea6e34e44b43ecd9e0b8fe9dff52e2da9a34c9536e626014a",
+    "test_owner_summary_identity_normalization.py": "9ad2c59cf910db5f830ddd588286926466d65d6dce5b74b3dc856a0e3a48e2a7",
+    "test_probe_recorder_entrypoint_v017.py": "8b95fb58884442738859e5b1db56962eb6aba37841d7db8120d87628ff3358b2",
+    "test_record_treatment_program_probe_v015.py": "53a32b712345c7aedf91bc9627e81b3d63d90a842496bbc2e28a289a163ec557",
+    "test_terminal_capture_plan.py": "f5e909d659134a4b09f4d1d5a06123b31b8eeaccd9fd74455b79a74843617de1",
+    "test_v015_dynamic_scene_readiness.py": "23500a95b8ba8af4b1a027beb6bc66c2821188ccb3ba8996290c595daac006de"
+  },
+  "owners": {
+    "brain_source": "a1cf7218fae5d26f9aed9d845047fc6c472ad596",
+    "frozen_physical_and_science_owner": "Lab014 d550d8ad88a76fdee5bb6e028286fd24e962571f",
+    "human_source": "b354949c258106d00f2bd3dd6ac91216d5a3d409",
+    "preparation_owner_revision": "d81e236663e0d3427956a6253ac44900409c145a",
+    "retired_alias_viewer_source": "41b254605e66035a4e3966e5a1ae790197431605",
+    "terminal_capture_source": "b091d7dcead509a325194563ed38261319118a88",
+    "v015_scene_builder_revision": "7b1960ddf5a5f0c652f954fb9844456750a74a9cc7007581809ce1df91bb666e"
+  },
+  "parent_revision_sha256": "61615caacb9ede051d0794d98de7e9e96fb99894fd8d8ce3f135dcf37040e16b",
+  "reference_931": {
+    "invocation_path": "/Users/n/numi-human-resting-evidence-20261005/native-terminal-cycle-931/invocation.json",
+    "invocation_sha256": "1842eb1f8dba4f83b0ff4e86d491e1936a386eaba91ae06fb5acf84400123175",
+    "respiration_config_path": "/Users/n/numi-human-resting-evidence-20261005/integrated-anatomy-engineering-lung-edge-collapse-761/resting-reference-respiration.json",
+    "respiration_config_sha256": "c518926bf47fba945cef52bb952ed6c559d604508988082c5b641b720bda503d"
+  },
+  "schema": "numi.human.final-integrated-study-readiness-revision.v1",
+  "scope": "Fix direct-native recorder source-pin return contract; unchanged model and final protocol",
+  "status": "cpu_tests_and_actual_plan_only_entrypoint_passed_no_physical_probe_or_final_study",
+  "version": "v017"
+}

@@ -1,0 +1,48 @@
+{
+  "checks": {
+    "native_or_gpu_run": "not performed",
+    "preparation_owner_pytest": "41 passed",
+    "python39_compile": "passed",
+    "readiness_pytest": "50 passed, 19 subtests passed",
+    "science_registration_or_run": "not performed",
+    "undefined_global_reference_review": "none in preparation, recorder, or analyzer"
+  },
+  "files": {
+    "README-v016.md": "29e37701174faa2d1dfa013aad20dfd64f832538b43c1ac605fac9abf6ebb21c",
+    "analyze_final_pair.py": "ee478dee84aaa8d045f95ae1e13a91157ca0ce206159bc7ea8a9264380b7d7de",
+    "preparation-owner-tests-v015.log": "a944a8d7ca3b953c5c92e30dde6af1519976e1ec4a7b74fdb79b063407e6b961",
+    "prepare_final_plan-v016.py": "52a07be626031a9601286b5998e58ab5ccb49681475923416610dc70e49dcd68",
+    "prepare_final_plan.py": "52a07be626031a9601286b5998e58ab5ccb49681475923416610dc70e49dcd68",
+    "record_treatment_program_probe.py": "be85e8590b3a19219facbea1fddf99003e0b7180311cd58d038cf9ff7d73e6ae",
+    "test-suite-v016.log": "f933fe44a64d92ee7c6fb1427c92d011703dd7e2118c04d13a3034bada3cecc3",
+    "test_current_git_revision_identity_v013.py": "39b1a852ea50e98b6411b8b106a97fc9fc15d6f8139bd7496c24706581cbb78a",
+    "test_final_instrument_calibration_bindings_v015.py": "cc4d54defcd22c3ee42b39d1738735798e254c3127c15065971bdf2201882766",
+    "test_final_pair_diagnostic_validation_v007.py": "1b47e7e3ceffb8c8cf6f86eff4a3d9b17b115b444f233cfa9d912425a5dfc58d",
+    "test_final_pair_viewer_binding_v016.py": "3346dc40eb8f3605a224d1e59a185f8b975260f8291ff7a3b45a3aa1a882a112",
+    "test_owner_invocation_lineage.py": "4b3d913811aa350ea6e34e44b43ecd9e0b8fe9dff52e2da9a34c9536e626014a",
+    "test_owner_summary_identity_normalization.py": "9ad2c59cf910db5f830ddd588286926466d65d6dce5b74b3dc856a0e3a48e2a7",
+    "test_record_treatment_program_probe_v015.py": "53a32b712345c7aedf91bc9627e81b3d63d90a842496bbc2e28a289a163ec557",
+    "test_terminal_capture_plan.py": "f5e909d659134a4b09f4d1d5a06123b31b8eeaccd9fd74455b79a74843617de1",
+    "test_v015_dynamic_scene_readiness.py": "23500a95b8ba8af4b1a027beb6bc66c2821188ccb3ba8996290c595daac006de"
+  },
+  "owners": {
+    "brain_source": "a1cf7218fae5d26f9aed9d845047fc6c472ad596",
+    "frozen_physical_and_science_owner": "Lab014 d550d8ad88a76fdee5bb6e028286fd24e962571f",
+    "human_source": "b354949c258106d00f2bd3dd6ac91216d5a3d409",
+    "preparation_owner_revision": "d81e236663e0d3427956a6253ac44900409c145a",
+    "retired_alias_viewer_source": "41b254605e66035a4e3966e5a1ae790197431605",
+    "terminal_capture_source": "b091d7dcead509a325194563ed38261319118a88",
+    "v015_scene_builder_revision": "7b1960ddf5a5f0c652f954fb9844456750a74a9cc7007581809ce1df91bb666e"
+  },
+  "parent_revision_sha256": "184b70c6c0b5413d322126f432ec283418a2ecde0adf37062ed1a4d8894bd9b4",
+  "reference_931": {
+    "invocation_path": "/Users/n/numi-human-resting-evidence-20261005/native-terminal-cycle-931/invocation.json",
+    "invocation_sha256": "1842eb1f8dba4f83b0ff4e86d491e1936a386eaba91ae06fb5acf84400123175",
+    "respiration_config_path": "/Users/n/numi-human-resting-evidence-20261005/integrated-anatomy-engineering-lung-edge-collapse-761/resting-reference-respiration.json",
+    "respiration_config_sha256": "c518926bf47fba945cef52bb952ed6c559d604508988082c5b641b720bda503d"
+  },
+  "schema": "numi.human.final-integrated-study-readiness-revision.v1",
+  "scope": "v015 caller-pinned final scene preparation plus corrected viewer018 and uint64 completion analysis; no new native execution or registration",
+  "status": "cpu_readiness_and_completion_analysis_tested_no_final_study",
+  "version": "v016"
+}

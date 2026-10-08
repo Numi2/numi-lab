@@ -1,0 +1,6 @@
+{
+  "pid": 33094,
+  "utc": "2026-10-08T21:31:55.613221+00:00",
+  "reason": "Independent exact native-pose scan found three row307 self intersections at accepted step0. Stop unnecessary identity probe while diagnosing this candidate; no completed identity-probe claim.",
+  "signal": "SIGINT"
+}

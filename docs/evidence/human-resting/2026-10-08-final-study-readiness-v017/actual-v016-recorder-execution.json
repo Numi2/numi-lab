@@ -1,0 +1,27 @@
+{
+  "argv": [
+    "/Applications/Xcode-26.6.0.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/bin/python3.9",
+    "/Users/n/numi-human-resting-evidence-20261005/final-integrated-study-readiness-917/package-v016/record_treatment_program_probe.py",
+    "--scene-preflight-dir",
+    "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-1078-viewer-018-v015-attempt1/native-run",
+    "--nha",
+    "/Users/n/numi-human-resting-evidence-20261005/native-lung-conditioned-final-compose-1078/final/resting-thorax.nhanatomy",
+    "--nha-sha",
+    "7f6a8175e3cadb93a6dfc43535467b6896cf1b8bacfd0334df7b5bb03c414e92",
+    "--base-anatomy-receipt",
+    "/Users/n/numi-human-resting-evidence-20261005/native-lung-conditioned-final-compose-1078/final/resting-anatomy-receipt.json",
+    "--base-anatomy-receipt-sha",
+    "bea11d334575aceff2dd3151f1c38d3eafe8b825c0dbf9bef42633777fe4f9db",
+    "--anatomy-receipt",
+    "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-1078-viewer-018-v015-attempt1/anatomy/resting-anatomy-receipt.json",
+    "--anatomy-receipt-sha",
+    "b1538059788b1f28db4beba0326edab8d01c64eb88d7cf9fe7ef4153985dc5f8",
+    "--respiration-config",
+    "/Users/n/numi-human-resting-evidence-20261005/native-lung-conditioned-final-compose-1078/final/resting-reference-respiration.json",
+    "--respiration-config-sha",
+    "3598d6402697f2bf4de9575afb5b7f30d4c4b05d7712a8c85a078c3ddd592222",
+    "--execute"
+  ],
+  "returncode": 1,
+  "wall_s": 1.3894265
+}

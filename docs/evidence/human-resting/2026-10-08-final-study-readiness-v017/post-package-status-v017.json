@@ -1,0 +1,41 @@
+{
+  "frozen_package_revision_sha256": "2317a6596e5957e5161f077966582d29b2199fe07955403cbb04e5b905bef872",
+  "frozen_package_source": "/Users/n/numi-human-resting-evidence-20261005/final-integrated-study-readiness-917/package-v017",
+  "package": "v017",
+  "post_package_v017_attempt": {
+    "direct_native_probe_passed": false,
+    "execution_file": "actual-v017-probe-execution.json",
+    "execution_returncode": 254,
+    "execution_sha256": "e5b6fb8d79e15d285f3d30a8ee3fc3cc6903f63f89d7de4dee041e46867fe3f6",
+    "native_exit_code": -2,
+    "run_metadata_file": "actual-v017-probe-run-metadata.json",
+    "run_metadata_sha256": "4111883909fdb8778a43ebdb4c6a3904a261e10410803aa5efe0c3d331be9f19",
+    "scope": "recorder passed source/asset/runtime verification and launched the native attempt; this does not qualify the scene or intervention",
+    "stop_file": "actual-v017-probe-stop.json",
+    "stop_reason": "Independent exact native-pose scan found three row307 self intersections at accepted step0. Stop unnecessary identity probe while diagnosing this candidate; no completed identity-probe claim.",
+    "stop_sha256": "731b50eb2af9f5e310faeaa334634cbc4765d485817398294f4598dd457e614e"
+  },
+  "schema": "numi.human.final-integrated-study-readiness-publication-update.v1",
+  "source_bound_v016_failure": {
+    "argv_file": "actual-probe-launch-argv.json",
+    "argv_sha256": "c9922f84ca098acc03c4ba90f7e27f6e65eda01c35a99d44a20a1309f5bd5eaa",
+    "execution_file": "actual-v016-recorder-execution.json",
+    "execution_returncode": 1,
+    "execution_sha256": "2b207fdba3f79a9323a0da6990756534026b53d84e659e66a02c856fa1cdb9a8",
+    "failure": "ValueError: too many values to unpack (expected 2); recorder line 332 unpacked source_pin_files result into two names, while the pinned preparation owner line 1567 returns hashes, revisions, build_source_identity, viewer_source_identity.",
+    "scope": "actual native recorder invocation failed before physics launch; preserved as observed stderr and execution metadata",
+    "stderr_file": "actual-v016-recorder-failure.stderr",
+    "stderr_sha256": "69ee5a951e496fe5321ba56c9eb6d5b98d100c455453f92d07f8c86758119498",
+    "v016_preparation_sha256": "52a07be626031a9601286b5998e58ab5ccb49681475923416610dc70e49dcd68",
+    "v016_preparation_source": "prepare_final_plan-v016.py",
+    "v016_recorder_sha256": "be85e8590b3a19219facbea1fddf99003e0b7180311cd58d038cf9ff7d73e6ae",
+    "v016_recorder_source": "record_treatment_program_probe-v016.py"
+  },
+  "test_history": {
+    "final": "51 passed, 19 subtests passed; the first attempt used Python 3.13 and rejected the SDK platform string; corrected test invokes pinned Xcode Python 3.9",
+    "final_test_sha256": "63211b721210a506c0fd7c1488d29be164664977073d02cda80cf00ce67df453",
+    "final_v017_test_log": "test-suite-v017.log",
+    "first_attempt_sha256": "92db0267c3afe1e6b528105670fbd28cb2842bf83ab24b4908c6d9869bc2343f",
+    "first_v017_test_attempt": "test-suite-v017-first-interpreter-mismatch.log"
+  }
+}
