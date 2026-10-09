@@ -3,7 +3,7 @@
 #include "metalrobo/engine_types.h"
 #include "metalrobo/numi_human_timed_root_force.h"
 
-#define MR_NUMI_HUMAN_STAND_ABI_VERSION 15u
+#define MR_NUMI_HUMAN_STAND_ABI_VERSION 16u
 // Six spatial Jacobian rows plus three cached world-inertia products.
 #define MR_NUMI_HUMAN_STAND_SPATIAL_SCRATCH_ROWS 9u
 #define MR_NUMI_HUMAN_STAND_MAX_BODIES 192u
@@ -142,6 +142,26 @@ typedef struct MR_ALIGN16 MRNumiHumanStandContactWarmStartSlotGPU {
     mr_uint4 requestState;
 } MRNumiHumanStandContactWarmStartSlotGPU;
 
+// Optional convex unilateral periarticular reference term. Coordinates are
+// scalar generalized positions selected through each local DOF's qIndex.
+// U(g) = A/3 max(g,0)^3 + B/4 max(g,0)^4; A,B >= 0.
+typedef struct MR_ALIGN16 MRNumiHumanHipCapsuleTermGPU {
+    mr_u32 dofIndex0;
+    mr_u32 dofIndex1;
+    mr_u32 reserved0;
+    mr_u32 reserved1;
+    float coordinate0;
+    float coordinate1;
+    float threshold;
+    float toeQuadratic;
+    float toeCubic;
+    float reservedFloat0;
+    float reservedFloat1;
+    float reservedFloat2;
+} MRNumiHumanHipCapsuleTermGPU;
+
+#define MR_NUMI_HUMAN_HIP_CAPSULE_MAX_TERMS 6u
+
 typedef struct MR_ALIGN16 MRNumiHumanStandDispatchGPU {
     mr_u32 abiVersion;
     mr_u32 environmentCount;
@@ -180,6 +200,11 @@ typedef struct MR_ALIGN16 MRNumiHumanStandDispatchGPU {
     mr_float4 assistanceGains;
     // Immutable external disturbance, independent of root assistance/state.
     MRNumiHumanTimedRootForceGPU timedRootForce;
+    // A zero count leaves the historical dispatch arithmetic unchanged.
+    mr_u32 hipCapsuleTermCount;
+    mr_u32 hipCapsuleReserved[3];
+    MRNumiHumanHipCapsuleTermGPU hipCapsuleTerms[
+        MR_NUMI_HUMAN_HIP_CAPSULE_MAX_TERMS];
 } MRNumiHumanStandDispatchGPU;
 
 typedef struct MR_ALIGN16 MRNumiHumanStandStatusGPU {
@@ -273,6 +298,7 @@ typedef struct MR_ALIGN16 MRNumiHumanStandStatusGPU {
 static_assert(sizeof(MRNumiHumanStandContactGPU) == 32);
 static_assert(sizeof(MRNumiHumanStandContactWarmStartGPU) == 544);
 static_assert(sizeof(MRNumiHumanStandContactWarmStartSlotGPU) == 576);
-static_assert(sizeof(MRNumiHumanStandDispatchGPU) == 192);
+static_assert(sizeof(MRNumiHumanHipCapsuleTermGPU) == 48);
+static_assert(sizeof(MRNumiHumanStandDispatchGPU) == 496);
 static_assert(sizeof(MRNumiHumanStandStatusGPU) == 272);
 #endif

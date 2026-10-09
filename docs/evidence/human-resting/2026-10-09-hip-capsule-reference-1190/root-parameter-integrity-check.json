@@ -1,0 +1,8 @@
+{
+  "review_path": "/Users/n/numi-human-retained-delivery-20261009/hip-capsule-reference-1190/parameter-and-axis-review-v3.json",
+  "review_sha256": "6076bac062335b2f325d3d81f29135fff78e2b457356ae9320c2c677a1554bd0",
+  "all_pinned_inputs_verified": 6,
+  "reference_torque_Nm": 4.999999999999999,
+  "reference_tangent_Nm_per_rad": 45.83662361046585,
+  "scope": "Root independent file integrity and algebra check; model fit and native validation remain separate."
+}

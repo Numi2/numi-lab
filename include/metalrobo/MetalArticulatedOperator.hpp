@@ -1698,6 +1698,8 @@ struct MetalNumiHumanStandInput {
     // rows/columns. Each device step includes K(q-r)+hKv in the bias and h^2K
     // in the SAME effective factor used for constraint response columns.
     std::span<const float> passiveJointProgram{};
+    // Optional fixed-capacity convex unilateral periarticular reference terms.
+    std::span<const MRNumiHumanHipCapsuleTermGPU> hipCapsuleTerms{};
     std::span<const MRNumiHumanStandContactGPU> contacts{};
     // Exact scalar joint manifold imported from the source model. These rows
     // carry bilateral reaction impulses during dynamics; dependent q/v are

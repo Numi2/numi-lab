@@ -1699,6 +1699,21 @@ if(BUILD_TESTING)
     target_link_libraries(metalrobo_numi_human_common_field_metal_test PRIVATE "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
     add_test(NAME numi_human_common_field_metal COMMAND metalrobo_numi_human_common_field_metal_test)
     set_tests_properties(numi_human_common_field_metal PROPERTIES LABELS "numi-human;cardiac;common-field;metal" TIMEOUT 90)
+    add_executable(metalrobo_numi_human_hip_capsule_metal_test
+        tests/numi_human_hip_capsule_metal_test.mm)
+    target_include_directories(metalrobo_numi_human_hip_capsule_metal_test PRIVATE include)
+    target_compile_features(metalrobo_numi_human_hip_capsule_metal_test PRIVATE cxx_std_20)
+    target_compile_options(metalrobo_numi_human_hip_capsule_metal_test PRIVATE
+        -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
+    target_link_libraries(metalrobo_numi_human_hip_capsule_metal_test PRIVATE
+        "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    add_dependencies(metalrobo_numi_human_hip_capsule_metal_test metalrobo_shaders)
+    add_test(NAME numi_human_hip_capsule_metal
+        COMMAND metalrobo_numi_human_hip_capsule_metal_test
+        "${CMAKE_CURRENT_BINARY_DIR}/shaders/MetalRobo.metallib")
+    set_tests_properties(numi_human_hip_capsule_metal PROPERTIES
+        LABELS "numi-human;hip-capsule;metal" TIMEOUT 90)
+
     add_executable(metalrobo_numi_human_mesh_audit_metal_test tests/numi_human_mesh_audit_metal_test.mm)
     target_include_directories(metalrobo_numi_human_mesh_audit_metal_test PRIVATE include matter/include)
     target_compile_features(metalrobo_numi_human_mesh_audit_metal_test PRIVATE cxx_std_20)

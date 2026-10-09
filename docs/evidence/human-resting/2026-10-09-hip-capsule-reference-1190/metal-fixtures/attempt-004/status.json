@@ -1,0 +1,7 @@
+{
+  "status": "not_run",
+  "attempt": "004",
+  "observed_error": "The first hash command referenced /Users/n/numi-human-hip-capsule-build-1190/lib/MetalRobo.metallib, which did not exist.",
+  "correct_artifact": "/Users/n/numi-human-hip-capsule-build-1190/shaders/MetalRobo.metallib",
+  "kernel_execution": "none"
+}

@@ -595,6 +595,7 @@ void visitSplitStandBoundary(
     appendSplitStandValue(sink, input.mujoco.bodyJacobianPointOffset);
     appendSplitStandSpan(sink, input.stand.preloadedGeneralizedForce);
     appendSplitStandSpan(sink, input.stand.passiveJointProgram);
+    appendSplitStandSpan(sink, input.stand.hipCapsuleTerms);
     appendSplitStandSpan(sink, input.stand.contacts);
     appendSplitStandSpan(sink, input.stand.jointEqualities);
     appendSplitStandSpan(sink, input.stand.tendonBindings);
@@ -1949,6 +1950,7 @@ bool validNumiHumanStand(
             !stand.jointEqualities.empty() ||
             !stand.preloadedGeneralizedForce.empty() ||
             !stand.passiveJointProgram.empty() ||
+            !stand.hipCapsuleTerms.empty() ||
             !stand.tendonBindings.empty() || !stand.tendonEnvelopes.empty() ||
             stand.tendonLoadProgram.configured() ||
             stand.numanXTransactionProgram.configured() ||
@@ -2045,6 +2047,24 @@ bool validNumiHumanStand(
         })) {
         reason = "stand velocity stream is not finite environment-major nv state";
         return false;
+    }
+    if (!stand.hipCapsuleTerms.empty()) {
+        if (!validateNumiHumanHipCapsuleTerms(
+                stand.hipCapsuleTerms, articulation.nv, reason)) return false;
+        for (const auto& term : stand.hipCapsuleTerms) {
+            for (const auto localDof : {term.dofIndex0, term.dofIndex1}) {
+                const auto& source = model.dofs[articulation.vOffset + localDof];
+                if (source.qIndex < articulation.qOffset + 7u ||
+                    source.qIndex >= articulation.qOffset + articulation.nq) {
+                    reason = "hip-capsule term does not address scalar source coordinates";
+                    return false;
+                }
+            }
+        }
+        if (stand.numanXHumanMatterProgram.configured()) {
+            reason = "hip-capsule tangent is not admitted to the Human/Matter ABI";
+            return false;
+        }
     }
     if (!stand.passiveJointProgram.empty()) {
         if (!validateNumiHumanPassiveJointProgram(
@@ -2387,6 +2407,11 @@ bool compileStandSparseGraph(
                 if (passive[std::size_t(r) * nv + c] != 0.0f)
                     connect(r, c);
     }
+    for (const auto& term : input.stand.hipCapsuleTerms) {
+        connect(term.dofIndex0, term.dofIndex0);
+        connect(term.dofIndex0, term.dofIndex1);
+        connect(term.dofIndex1, term.dofIndex1);
+    }
     for (std::uint32_t r = 0u; r < nv; ++r) connect(r, r);
     for (std::uint32_t reverse = 0u; reverse < nv; ++reverse) {
         const std::uint32_t column = nv - 1u - reverse;
@@ -2504,6 +2529,7 @@ bool cachedStandSparseGraph(
     appendSpan(model.joints);
     appendSpan(model.dofs);
     appendSpan(input.stand.passiveJointProgram);
+    appendSpan(input.stand.hipCapsuleTerms);
     const std::lock_guard lock(cache->mutex);
     if (!cache->graph.empty() && cache->key == key) {
         graph = cache->graph;
@@ -6982,6 +7008,11 @@ struct MetalBufferRegion {
     dispatch.targetRootOrientation = input.stand.targetRootOrientation;
     dispatch.assistanceGains = input.stand.assistanceGains;
     dispatch.timedRootForce = input.stand.timedRootForce;
+    dispatch.hipCapsuleTermCount = static_cast<mr_u32>(
+        input.stand.hipCapsuleTerms.size());
+    std::copy(input.stand.hipCapsuleTerms.begin(),
+              input.stand.hipCapsuleTerms.end(),
+              dispatch.hipCapsuleTerms);
     return dispatch;
 }
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "metalrobo/NumiHumanMuscleEquilibrium.hpp"
+#include "metalrobo/numi_human_stand_gpu.h"
 
 #include <algorithm>
 #include <cmath>
@@ -12,6 +13,44 @@
 #include <vector>
 
 namespace metalrobo {
+
+// Validate the fixed-capacity ABI descriptor independently of any model.
+// The application additionally validates source-specific DOF identity and
+// slack at its compiled initial configuration.
+inline bool validateNumiHumanHipCapsuleTerms(
+    const std::span<const MRNumiHumanHipCapsuleTermGPU> terms,
+    const std::size_t nv,
+    std::string& error
+) {
+    const auto fail = [&error](const char* message) {
+        error = message;
+        return false;
+    };
+    if (nv < 6u || nv > MR_NUMI_HUMAN_STAND_MAX_DOFS ||
+        terms.size() > MR_NUMI_HUMAN_HIP_CAPSULE_MAX_TERMS)
+        return fail("hip-capsule term count or DoF count exceeds the stand ABI");
+    for (const auto& term : terms) {
+        if (term.dofIndex0 < 6u || term.dofIndex1 < 6u ||
+            term.dofIndex0 >= nv || term.dofIndex1 >= nv ||
+            term.dofIndex0 == term.dofIndex1)
+            return fail("hip-capsule term must address two distinct internal scalar DoFs");
+        if (term.reserved0 != 0u || term.reserved1 != 0u ||
+            term.reservedFloat0 != 0.0f || term.reservedFloat1 != 0.0f ||
+            term.reservedFloat2 != 0.0f)
+            return fail("hip-capsule term reserved fields must be zero");
+        if (!std::isfinite(term.coordinate0) ||
+            !std::isfinite(term.coordinate1) ||
+            !std::isfinite(term.threshold) ||
+            !std::isfinite(term.toeQuadratic) ||
+            !std::isfinite(term.toeCubic) ||
+            term.toeQuadratic < 0.0f || term.toeCubic < 0.0f ||
+            (term.coordinate0 == 0.0f && term.coordinate1 == 0.0f) ||
+            (term.toeQuadratic == 0.0f && term.toeCubic == 0.0f))
+            return fail("hip-capsule term has invalid coordinates or toe coefficients");
+    }
+    error.clear();
+    return true;
+}
 
 // Immutable shared program: nv*nv row-major FP32 K followed by nv rest
 // coordinates. The native owner maps each scalar DoF through its source qIndex.

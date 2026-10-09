@@ -166,15 +166,64 @@ inline bool standDeferredDispatchFlagsValid(
         (stages == 0u || deferred != 0u);
 }
 
+inline bool standHipCapsuleDispatchValid(
+    constant const MRNumiHumanStandDispatchGPU& dispatch,
+    const uint nv
+) {
+    if (dispatch.hipCapsuleTermCount > MR_NUMI_HUMAN_HIP_CAPSULE_MAX_TERMS ||
+        any(uint3(dispatch.hipCapsuleReserved[0],
+                  dispatch.hipCapsuleReserved[1],
+                  dispatch.hipCapsuleReserved[2]) != uint3(0u)))
+        return false;
+    for (uint i = 0u; i < dispatch.hipCapsuleTermCount; ++i) {
+        const MRNumiHumanHipCapsuleTermGPU term = dispatch.hipCapsuleTerms[i];
+        if (term.dofIndex0 < 6u || term.dofIndex1 < 6u ||
+            term.dofIndex0 >= nv || term.dofIndex1 >= nv ||
+            term.dofIndex0 == term.dofIndex1 ||
+            term.reserved0 != 0u || term.reserved1 != 0u ||
+            term.reservedFloat0 != 0.0f || term.reservedFloat1 != 0.0f ||
+            term.reservedFloat2 != 0.0f ||
+            !isfinite(term.coordinate0) || !isfinite(term.coordinate1) ||
+            !isfinite(term.threshold) || !isfinite(term.toeQuadratic) ||
+            !isfinite(term.toeCubic) || term.toeQuadratic < 0.0f ||
+            term.toeCubic < 0.0f ||
+            (term.coordinate0 == 0.0f && term.coordinate1 == 0.0f) ||
+            (term.toeQuadratic == 0.0f && term.toeCubic == 0.0f))
+            return false;
+    }
+    return true;
+}
+
 inline bool standDeferredDispatchShapeValid(
     constant const MRNumiHumanStandDispatchGPU& dispatch,
     const uint nv
 ) {
+    if (nv == 0u || nv > MR_NUMI_HUMAN_STAND_MAX_DOFS ||
+        !standHipCapsuleDispatchValid(dispatch, nv))
+        return false;
     if ((dispatch.flags & MR_NUMI_HUMAN_STAND_DEFERRED_EQUALITY_DATA) == 0u)
         return true;
     const uint equalityCount = dispatch.jointEqualityCount;
-    return nv != 0u && nv <= MR_NUMI_HUMAN_STAND_MAX_DOFS &&
-        equalityCount < nv && nv - equalityCount <= 64u;
+    return equalityCount < nv && nv - equalityCount <= 64u;
+}
+
+inline float standHipCapsuleCoefficient(
+    const MRNumiHumanHipCapsuleTermGPU term, const uint dof
+) {
+    return mrNumiHumanHipCapsuleCoefficient(term, dof);
+}
+
+inline float standHipCapsuleGap(
+    const MRNumiHumanHipCapsuleTermGPU term,
+    device const float* qState, const uint qBase,
+    const MRArticulationGPU articulation,
+    device const MRDofPropertiesGPU* dofs
+) {
+    const uint q0 = dofs[articulation.vOffset + term.dofIndex0].qIndex;
+    const uint q1 = dofs[articulation.vOffset + term.dofIndex1].qIndex;
+    return mrNumiHumanHipCapsuleGap(
+        term, qState[qBase + q0 - articulation.qOffset],
+        qState[qBase + q1 - articulation.qOffset]);
 }
 
 inline uint standDeferredResponseBitmapWords(
@@ -1690,6 +1739,21 @@ kernel void mr_numi_human_stand_step(
                     vState[vBase + column], dispatch.groundPointAndTimestep.w);
             }
         }
+        for (uint termIndex = 0u;
+             termIndex < dispatch.hipCapsuleTermCount; ++termIndex) {
+            const MRNumiHumanHipCapsuleTermGPU term =
+                dispatch.hipCapsuleTerms[termIndex];
+            const float coordinate = standHipCapsuleCoefficient(term, row);
+            if (coordinate == 0.0f) continue;
+            const float gap = standHipCapsuleGap(
+                term, qState, qBase, articulation, dofs);
+            const float generalizedVelocity =
+                term.coordinate0 * vState[vBase + term.dofIndex0] +
+                term.coordinate1 * vState[vBase + term.dofIndex1];
+            value += mrNumiHumanHipCapsuleImplicitBias(
+                term, gap, generalizedVelocity,
+                dispatch.groundPointAndTimestep.w, row);
+        }
         bias[row] = value;
         if (captureSourceDynamics) {
             // Preserve the raw device bias before the vector row becomes the
@@ -1758,6 +1822,18 @@ kernel void mr_numi_human_stand_step(
         if ((dispatch.flags & MR_NUMI_HUMAN_STAND_HAS_PASSIVE_JOINT_PROGRAM) != 0u) {
             value += mrNumiHumanPassiveEffectiveInertia(
                 passiveJointProgram[index], dispatch.groundPointAndTimestep.w);
+        }
+        for (uint termIndex = 0u;
+             termIndex < dispatch.hipCapsuleTermCount; ++termIndex) {
+            const MRNumiHumanHipCapsuleTermGPU term =
+                dispatch.hipCapsuleTerms[termIndex];
+            const float rowCoordinate = standHipCapsuleCoefficient(term, row);
+            const float columnCoordinate = standHipCapsuleCoefficient(term, column);
+            if (rowCoordinate == 0.0f || columnCoordinate == 0.0f) continue;
+            const float gap = standHipCapsuleGap(
+                term, qState, qBase, articulation, dofs);
+            value += mrNumiHumanHipCapsuleEffectiveInertia(
+                term, gap, dispatch.groundPointAndTimestep.w, row, column);
         }
         factor[index] = value;
         if (captureSourceDynamics && row == column) {
@@ -3542,6 +3618,7 @@ kernel void mr_numi_human_stand_mass_assemble(
     device const MRDofPropertiesGPU* dofs [[buffer(2)]],
     device const MRBodyPropertiesGPU* bodies [[buffer(3)]],
     constant const MRNumiHumanStandDispatchGPU& dispatch [[buffer(4)]],
+    device const float* qState [[buffer(5)]],
     device const float* spatialJacobianScratch [[buffer(12)]],
     device float* factorScratch [[buffer(14)]],
     device float* responseScratch [[buffer(16)]],
@@ -3565,6 +3642,7 @@ kernel void mr_numi_human_stand_mass_assemble(
     device const MRArticulationGPU& articulation =
         articulations[dispatch.articulationIndex];
     const uint nv = articulation.nv;
+    const uint qBase = environment * dispatch.qStride;
     if (!standDeferredDispatchShapeValid(dispatch, nv)) {
         if (position.x == 0u)
             fail(status, MR_NUMI_HUMAN_STAND_INVALID_DISPATCH, MR_INVALID_INDEX);
@@ -3625,6 +3703,18 @@ kernel void mr_numi_human_stand_mass_assemble(
     if ((dispatch.flags & MR_NUMI_HUMAN_STAND_HAS_PASSIVE_JOINT_PROGRAM) != 0u)
         value += mrNumiHumanPassiveEffectiveInertia(
             passiveJointProgram[index], dispatch.groundPointAndTimestep.w);
+    for (uint termIndex = 0u;
+         termIndex < dispatch.hipCapsuleTermCount; ++termIndex) {
+        const MRNumiHumanHipCapsuleTermGPU term =
+            dispatch.hipCapsuleTerms[termIndex];
+        const float rowCoordinate = standHipCapsuleCoefficient(term, row);
+        const float columnCoordinate = standHipCapsuleCoefficient(term, column);
+        if (rowCoordinate == 0.0f || columnCoordinate == 0.0f) continue;
+        const float gap = standHipCapsuleGap(
+            term, qState, qBase, articulation, dofs);
+        value += mrNumiHumanHipCapsuleEffectiveInertia(
+            term, gap, dispatch.groundPointAndTimestep.w, row, column);
+    }
     factorScratch[environment * nv * nv + index] = value;
     if ((dispatch.flags &
          MR_NUMI_HUMAN_STAND_REDUCED_PROJECTED_RESPONSES) != 0u) {

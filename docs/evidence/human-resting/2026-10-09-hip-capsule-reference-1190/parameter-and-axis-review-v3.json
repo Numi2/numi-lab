@@ -1,0 +1,253 @@
+{
+  "schema": "numi.human.hip-capsule-reference-axis-review.v1",
+  "status": "review only; proposal not implemented or physically qualified",
+  "date_utc": "2026-10-09",
+  "primary_reference": {
+    "title": "The envelope of passive motion allowed by the capsular ligaments of the hip",
+    "authors": [
+      "Richard J. van Arkel",
+      "Andrew A. Amis",
+      "Jonathan R. T. Jeffers"
+    ],
+    "journal": "Journal of Biomechanics 48(14), 3803-3809 (2015)",
+    "doi": "10.1016/j.jbiomech.2015.09.002",
+    "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4655836/",
+    "sample_and_protocol": "Nine normal cadaveric left hips; aggregate intact peri-articular restraint, functional loading, 5 Nm rotational restraint. Not specimen-specific calibration.",
+    "pinned_pdf": {
+      "path": "/Users/n/numi-human-retained-delivery-20261009/hip-capsule-reference-1190/van-arkel-2015-ccby4.pdf",
+      "sha256": "89cbf22479a1d737573c865dc707e661c17a3797ad35d0b16d9868adcf63c445"
+    },
+    "figure_pages": [
+      {
+        "figure": 4,
+        "local_image": "/Users/n/numi-human-retained-delivery-20261009/hip-capsule-reference-1190/page-4.jpg",
+        "sha256": "9bda3e80e6db3b29bd54ff7cc24ada4ec1aa427de63eeecd8367f926fbd5802f"
+      },
+      {
+        "figures": "5 and 6",
+        "local_image": "/Users/n/numi-human-retained-delivery-20261009/hip-capsule-reference-1190/page-5.jpg",
+        "sha256": "6a77bc6660750b034ba1c008a56482aae452be3a87e89b05cc2fde3d50d16c35"
+      }
+    ]
+  },
+  "separate_2017_reference": {
+    "title": "Effects of hip joint transverse plane range of motion with a modeled effusion and capsular tear: A cadaveric study",
+    "doi": "10.1016/j.clinbiomech.2017.01.016",
+    "url": "https://www.sciencedirect.com/science/article/abs/pii/S026800331730027X",
+    "context": "Ten hips; 1.5 Nm endpoint. Full extension: external 27.3 +/- 5.2 deg, internal 21.1 +/- 4.5 deg. At 90 deg flexion: external 27.4 +/- 4.4 deg, internal 38.8 +/- 5.9 deg.",
+    "distinction": "Different specimens, protocol and lower torque endpoint. Keep separate; do not blend into the 2015 5 Nm toe fit."
+  },
+  "graph_read": {
+    "coordinate": "f is flexion in degrees; extension negative; F0 = 0 deg; A0 neutral ab/adduction",
+    "mid_slack_center": {
+      "equation_deg": "c(f) = 5.7 - 0.21*f",
+      "source": "Figure 5 printed A0 regression",
+      "domain_deg": [
+        -12,
+        0
+      ]
+    },
+    "slack_width": {
+      "approximate_total_width_deg": {
+        "extension_near_minus_12": 6,
+        "F0": 27
+      },
+      "inferred_half_width_equation_deg": "h(f) = 13.5 + 0.875*f",
+      "domain_deg": [
+        -12,
+        0
+      ],
+      "caveat": "Linear interpolation of approximate Figure 4 reads; not a published regression, CI or measured law."
+    },
+    "toe_tangent": {
+      "proposed_F0_nominal": {
+        "x5_deg": 14.5,
+        "tangent_Nm_per_deg": 0.8
+      },
+      "approximate_EXT_figure6_read": {
+        "x5_deg": 19,
+        "tangent_Nm_per_deg": 0.67
+      },
+      "caveat": "Reusing the rounded F0 point across extension is explicit inference, not an EXT fit; it reaches 5 Nm about 4.5 deg earlier than the EXT graph read and is not uniformly conservative.",
+      "direction_choice": "Same toe and tangent on both rotational branches is a reduced symmetric-toe assumption; only mid-slack center preserves the measured shift. Not full direction-specific capsule behavior."
+    }
+  },
+  "reduced_candidate_equations": {
+    "boundaries_deg": {
+      "internal": "c(f)+h(f)",
+      "external": "c(f)-h(f)"
+    },
+    "branch_gaps_rad": {
+      "internal": "gI=max(0,theta-radians(c+h))",
+      "external": "gE=max(0,radians(c-h)-theta)"
+    },
+    "potential": "U(g)=A*g^3/3+B*g^4/4",
+    "resisting_torque_magnitude": "T(g)=A*g^2+B*g^3; applied generalized torque opposes increasing g",
+    "nominal": {
+      "x5_rad": 0.2530727415391778,
+      "K_Nm_per_rad": 45.83662361046586,
+      "Kx_Nm": 11.6,
+      "A_Nm_per_rad2": 53.086999239191066,
+      "B_Nm_per_rad3": 98.71516441119235,
+      "equations": "A=(15-K*x)/x^2; B=(K*x-10)/x^3; at x=x5 these give T=5 Nm and dT/dg=K",
+      "positive_coefficients_condition": "10 < K*x < 15 Nm"
+    },
+    "sensitivity_probes_not_confidence_limits": [
+      {
+        "x5_deg": 12.5,
+        "K_Nm_per_deg": 0.95,
+        "A_Nm_per_rad2": 65.65612700023487,
+        "B_Nm_per_rad3": 180.56731086184266
+      },
+      {
+        "x5_deg": 17,
+        "K_Nm_per_deg": 0.7,
+        "A_Nm_per_rad2": 35.21349371984915,
+        "B_Nm_per_rad3": 72.74024073832625
+      }
+    ],
+    "limitations": [
+      "Approximate aggregate figure reads with sampling spread; not patient-specific.",
+      "Only near-neutral extension through F0 and A0. No flexion beyond F0, off-neutral ab/adduction, translation, combined-axis coupling, or individual capsule anatomy is supported.",
+      "No law implementation or native/physical validation is claimed."
+    ]
+  },
+  "source_axis_sign_check": {
+    "source_xml": {
+      "path": "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/output/nhtiss-source-prep-20261005/project/Sources/myosim/checkout/myo_sim/models/leg/assets/myolegs_chain.xml",
+      "sha256": "98e514ce869683e273a18794f6494df0c64dec13eec636b683a165cf30109b29",
+      "pelvis_local_frame": "Pelvis authored Euler 1.57 -1.57 0. ASI x=+0.0095 and PSI x=-0.155 support +X anterior; side markers use right z positive and left z negative.",
+      "right": {
+        "joint": "hip_rotation_r",
+        "axis_local": [
+          0,
+          1,
+          0
+        ],
+        "source_line": 112
+      },
+      "left": {
+        "joint": "hip_rotation_l",
+        "axis_local": [
+          0,
+          -1,
+          0
+        ],
+        "source_line": 326
+      }
+    },
+    "compiled_mapping": {
+      "report": "/Users/n/numi-human-retained-delivery-20261009/native-initial-force-report-smoke-1187/diagnostic-review-v2.json",
+      "sha256": "06f658364f0f289c0113649b43c51e1ee03350cf8c13167fff5c053e0332a845",
+      "right": {
+        "joint_index": 130,
+        "q_index": 103,
+        "velocity_index": 102,
+        "axis_parent_frame": [
+          0,
+          1,
+          0
+        ],
+        "q_range_rad": [
+          -0.698132,
+          0.698132
+        ]
+      },
+      "left": {
+        "joint_index": 144,
+        "q_index": 117,
+        "velocity_index": 116,
+        "axis_parent_frame": [
+          0,
+          -1,
+          0
+        ],
+        "q_range_rad": [
+          -0.698132,
+          0.698132
+        ]
+      }
+    },
+    "derivation": {
+      "right": "(+Y) cross (+X anterior) = -Z; right lateral is +Z, so positive q moves anterior toward medial.",
+      "left": "(-Y) cross (+X anterior) = +Z; left lateral is -Z, so positive q moves anterior toward medial.",
+      "result": "Positive compiled hip-rotation q is internal on both sides, verified from each authored axis and side landmarks rather than assumed mirrored signs."
+    },
+    "core_manifest": {
+      "path": "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-reference.manifest.json",
+      "sha256": "844d05330104a43f6c45867020f2abd493adec35d6e2f8f90fc636ee9bec04e7",
+      "femur_r_rest_q_xyzw": [
+        0.0006252045291090389,
+        -0.0011875702137383892,
+        -0.7068241834583907,
+        0.7073879928827344
+      ],
+      "femur_l_rest_q_xyzw": [
+        -0.0011885162844611139,
+        0.0006247068601174715,
+        -0.7068249050408255,
+        0.707387270725455
+      ],
+      "pelvis_default_inertial_quaternion_world_xyzw": [
+        0.49999984146591736,
+        -0.49999984146591736,
+        -0.4996018366446334,
+        0.5003981633553667
+      ]
+    },
+    "mapped_rest_frame_check": {
+      "method": "Rotate each compiled parent-frame axis, authored anterior +X and the side-specific lateral +/-Z by the pinned pelvis XYZW orientation, then evaluate axis cross anterior and its dot with medial (-lateral).",
+      "right": {
+        "axis_world_from_pelvis_rest_quaternion": [
+          0.0,
+          0.0007963267107330418,
+          0.9999996829318348
+        ],
+        "anterior_world_from_pelvis_rest_quaternion": [
+          0.0007963267107330418,
+          -0.99999936586377,
+          0.000796326458243457
+        ],
+        "lateral_world_from_side_marker": [
+          -0.9999996829318348,
+          -0.000796326458243457,
+          6.341362299711051e-07
+        ],
+        "positive_q_anterior_motion_world": [
+          0.999999682931835,
+          0.0007963264582431928,
+          -6.341362302269057e-07
+        ],
+        "dot_with_medial_world": 1.0000000000000007
+      },
+      "left": {
+        "axis_world_from_pelvis_rest_quaternion": [
+          0.0,
+          -0.0007963267107330418,
+          -0.9999996829318348
+        ],
+        "anterior_world_from_pelvis_rest_quaternion": [
+          0.0007963267107330418,
+          -0.99999936586377,
+          0.000796326458243457
+        ],
+        "lateral_world_from_side_marker": [
+          0.9999996829318348,
+          0.000796326458243457,
+          -6.341362299711051e-07
+        ],
+        "positive_q_anterior_motion_world": [
+          -0.999999682931835,
+          -0.0007963264582431928,
+          6.341362302269057e-07
+        ],
+        "dot_with_medial_world": 1.0000000000000007
+      },
+      "interpretation": "Both dot products are +1 within floating-point roundoff, confirming positive compiled q moves anterior medially in the mapped rest frame on each side.",
+      "orientation_source_note": "The source pelvis inertial declaration has no quat, and the femur child bodies are translation-only with the hip joints at default q=0. In this source the pelvis default inertial world quaternion therefore gives the pelvis/body orientation used for the zero-pose axis mapping. The separate compiled axis_parent_frame and q-index rows remain the authoritative source-to-runtime mapping."
+    },
+    "v1_report_sha256": "70d551160e65841d8b3ae66da83c051c169c64d014a0a8bd5318cf88b3aa265c",
+    "v2_report_sha256": "033ab3688002768afac3cde54a9580b24d7ed5da558261b0bc9c0039980f61a8"
+  },
+  "qualification_boundary": "Literature/source sign review only. No code changed; no capsule parameter implemented, native run performed, or physical qualification claimed."
+}

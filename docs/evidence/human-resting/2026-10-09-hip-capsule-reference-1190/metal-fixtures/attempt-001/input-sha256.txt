@@ -1,0 +1,3 @@
+7c7a6047879fe6e02750ddd5bab68999b71094fb52a4d3f5f6b8e102a4de8217  /Users/n/numi-human-hip-capsule-source-1190/tests/numi_human_hip_capsule_metal_test.mm
+ba2ba50255c34c418e248ebfe81547e8179180892e6041b786194a6ae1b210c5  /tmp/numi_human_hip_capsule_metal_test_1190
+616f3aeebc34061622b0e0f8cf4437a7746e44dcb1edef9890b44c012081d89d  /Users/n/numi-human-hip-capsule-build-1190/shaders/MetalRobo.metallib

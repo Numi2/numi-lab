@@ -1046,6 +1046,125 @@ void require(const bool condition, const std::string& message) {
     }
 }
 
+#ifdef NUMI_HUMAN_RESTING_SCENE
+std::vector<MRNumiHumanHipCapsuleTermGPU> makeRestingHipCapsuleReferenceTerms(
+    const metalrobo::EngineModel& model,
+    const std::span<const float> initialQ,
+    const double scale
+) {
+    require(std::isfinite(scale) && scale > 0.0,
+            "resting hip-capsule scale must be finite and positive");
+    require(model.world.bodyCount == 157u && model.world.nq == 129u &&
+                model.world.nv == 128u && model.articulations.size() == 1u,
+            "periarticular reference preset requires the pinned 157-body 129q/128v Human source model");
+    const auto& articulation = model.articulations.front();
+    require(articulation.rootType == MR_ROOT_FLOATING &&
+                articulation.bodyCount == 157u && articulation.nq == 129u &&
+                articulation.nv == 128u && initialQ.size() == articulation.nq,
+            "periarticular reference preset does not match the source articulation");
+    struct SourceAxis {
+        std::uint32_t v;
+        std::uint32_t q;
+        std::uint32_t joint;
+        std::uint32_t parent;
+        std::uint32_t child;
+        std::array<float, 3u> axis;
+        const char* name;
+    };
+    constexpr std::array<SourceAxis, 4u> sourceAxes{{
+        {100u,101u,128u,128u,129u,{0.0f,0.0f,1.0f},"hip_flexion_r"},
+        {102u,103u,130u,130u,131u,{0.0f,1.0f,0.0f},"hip_rotation_r"},
+        {114u,115u,142u,128u,143u,{0.0f,0.0f,1.0f},"hip_flexion_l"},
+        {116u,117u,144u,144u,145u,{0.0f,-1.0f,0.0f},"hip_rotation_l"},
+    }};
+    for (const auto& expected : sourceAxes) {
+        const std::uint32_t globalV = articulation.vOffset + expected.v;
+        require(globalV < model.dofs.size(),
+                "periarticular source DoF index is outside the model");
+        const auto& dof = model.dofs[globalV];
+        require(dof.articulationIndex == 0u && dof.vIndex == globalV &&
+                    dof.qIndex == articulation.qOffset + expected.q &&
+                    dof.jointIndex == expected.joint &&
+                    expected.joint < model.joints.size(),
+                std::string("periarticular source coordinate identity mismatch: ") +
+                    expected.name);
+        const auto& joint = model.joints[expected.joint];
+        require(joint.jointType == MR_JOINT_REVOLUTE &&
+                    joint.parentBody == expected.parent &&
+                    joint.childBody == expected.child &&
+                    std::abs(joint.axis0.x - expected.axis[0]) <= 1.0e-6f &&
+                    std::abs(joint.axis0.y - expected.axis[1]) <= 1.0e-6f &&
+                    std::abs(joint.axis0.z - expected.axis[2]) <= 1.0e-6f,
+                std::string("periarticular source joint axis/ownership mismatch: ") +
+                    expected.name);
+    }
+
+    constexpr double degreesToRadians = std::numbers::pi / 180.0;
+    constexpr double x5 = 14.5 * degreesToRadians;
+    constexpr double stiffnessNmPerRadian = 0.8 / degreesToRadians;
+    const double aDouble = (15.0 - stiffnessNmPerRadian * x5) / (x5 * x5);
+    const double bDouble =
+        (stiffnessNmPerRadian * x5 - 10.0) / (x5 * x5 * x5);
+    const float a = static_cast<float>(aDouble * scale);
+    const float b = static_cast<float>(bDouble * scale);
+    require(std::isfinite(a) && std::isfinite(b) && a > 0.0f && b > 0.0f,
+            "derived hip-capsule toe coefficients are not representable");
+    const float d = static_cast<float>(degreesToRadians);
+    std::vector<MRNumiHumanHipCapsuleTermGPU> terms(4u);
+    const auto makeTerm = [&](const std::uint32_t flex, const std::uint32_t rotation,
+                              const float flexCoefficient,
+                              const float rotationCoefficient,
+                              const float thresholdDegrees) {
+        MRNumiHumanHipCapsuleTermGPU term{};
+        term.dofIndex0 = flex;
+        term.dofIndex1 = rotation;
+        term.coordinate0 = flexCoefficient;
+        term.coordinate1 = rotationCoefficient;
+        term.threshold = thresholdDegrees * d;
+        term.toeQuadratic = a;
+        term.toeCubic = b;
+        return term;
+    };
+    terms[0] = makeTerm(100u,102u,-0.665f, 1.0f,19.2f);
+    terms[1] = makeTerm(100u,102u,-1.085f,-1.0f, 7.8f);
+    terms[2] = makeTerm(114u,116u,-0.665f, 1.0f,19.2f);
+    terms[3] = makeTerm(114u,116u,-1.085f,-1.0f, 7.8f);
+
+    std::string validationError;
+    require(metalrobo::validateNumiHumanHipCapsuleTerms(
+                terms, articulation.nv, validationError),
+            "derived hip-capsule preset failed ABI validation: " + validationError);
+    for (const auto& term : terms) {
+        const auto q0 = model.dofs[
+            articulation.vOffset + term.dofIndex0].qIndex - articulation.qOffset;
+        const auto q1 = model.dofs[
+            articulation.vOffset + term.dofIndex1].qIndex - articulation.qOffset;
+        const double gap = static_cast<double>(term.coordinate0) * initialQ[q0] +
+            static_cast<double>(term.coordinate1) * initialQ[q1] -
+            static_cast<double>(term.threshold);
+        require(std::isfinite(gap) && gap <= 0.0,
+                "resting initial hip pose is outside the source-free slack region; refuse nonlinear initialization mismatch");
+    }
+    std::cout << std::setprecision(17)
+        << "resting_hip_capsule_reference=enabled"
+        << " model=source_myosim_157body_129q_128v"
+        << " interpretation=aggregate_periarticular_reference_not_person_specific"
+        << " terms=4 scale=" << scale
+        << " x5_reference_rad=" << x5
+        << " reference_endpoint_torque_nm=5 reference_stiffness_nm_per_degree=0.8"
+        << " scaled_reference_endpoint_torque_nm=" << 5.0*scale
+        << " scaled_reference_stiffness_nm_per_degree=" << 0.8*scale
+        << " toe_A_unscaled_nm_per_rad2_double=" << aDouble
+        << " toe_B_unscaled_nm_per_rad3_double=" << bDouble
+        << " toe_A_scaled_nm_per_rad2_f32=" << a
+        << " toe_B_scaled_nm_per_rad3_f32=" << b
+        << " calibration_scope=neutral_ab_ad_flexion_minus12_to_0deg"
+        << " beyond_scope=extrapolation_not_measurement"
+        << std::endl;
+    return terms;
+}
+#endif
+
 std::string supportSHA256Hex(
     const metalrobo::NumiHumanSupportPayloadIdentity& identity
 ) {
@@ -5237,6 +5356,7 @@ std::uint64_t humanBrainSourceFingerprint(
     std::span<const MRMujocoMuscleStateGPU> preparedStates,
     std::span<const MRMujocoMuscleResultGPU> preparedResults,
     std::span<const float> passiveJointProgram,
+    std::span<const MRNumiHumanHipCapsuleTermGPU> hipCapsuleTerms,
     const std::uint32_t timestepMicroseconds,
     const std::uint32_t headBodyIdentifier
 ) {
@@ -5287,6 +5407,12 @@ std::uint64_t humanBrainSourceFingerprint(
     }
     fingerprint.integer(static_cast<std::uint64_t>(passiveJointProgram.size()));
     for (const float value : passiveJointProgram) fingerprint.floating(value);
+    if (!hipCapsuleTerms.empty()) {
+        fingerprint.text("aggregate-periarticular-reference-c2-toe.v1");
+        fingerprint.integer(static_cast<std::uint64_t>(hipCapsuleTerms.size()));
+        for (const auto& term : hipCapsuleTerms)
+            fingerprint.bytes(&term, sizeof(term));
+    }
     fingerprint.integer(static_cast<std::uint64_t>(supportContacts.records.size()));
     for (const auto& contact : supportContacts.records) {
         fingerprint.integer(contact.bodyIndex);
@@ -5347,7 +5473,8 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     const metalrobo::MetalNumiHumanSupportGeometryProgram* supportGeometryProgram = nullptr,
     const bool restingReleaseInitialization = false,
     const bool acceptedComMomentumAudit = false,
-    const std::uint32_t acceptedComMomentumAuditSegmentSteps = 32u
+    const std::uint32_t acceptedComMomentumAuditSegmentSteps = 32u,
+    const std::span<const MRNumiHumanHipCapsuleTermGPU> hipCapsuleTerms = {}
 ) {
     require(restingProgram == nullptr ||
                 (restingProgram->valid() && acceptedObserver != nullptr &&
@@ -5360,6 +5487,18 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             "dynamic release initialization requires the resting owner");
     require(!acceptedComMomentumAudit || restingProgram != nullptr,
             "accepted COM momentum audit requires the resting owner");
+    if (!hipCapsuleTerms.empty()) {
+        require(restingProgram != nullptr && acceptedObserver != nullptr &&
+                    standBrainLibraryPath == std::nullopt &&
+                    continuumTransaction == nullptr &&
+                    additionalTendonLoadProgram == nullptr &&
+                    !capturePersistentStandTrace && !endpointEnergy,
+                "hip-capsule reference is limited to the resting source-only accepted-state owner");
+        std::string hipValidationError;
+        require(metalrobo::validateNumiHumanHipCapsuleTerms(
+                    hipCapsuleTerms, model.world.nv, hipValidationError),
+                "invalid hip-capsule reference program: " + hipValidationError);
+    }
     const double maximumTimestepSeconds = restingProgram == nullptr
         ? 1.0e-3
         : (humanRestingTimestepSensitivityEnabledForApp()
@@ -5705,38 +5844,79 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     }
     // Evaluate only for initial parity/trace diagnostics. Runtime force and
     // tangent are evaluated from live q/v in the production Metal kernel.
-    const auto passiveForceAt = [&model, &passiveJointProgram](
+    const auto passiveForceAt = [&model, &passiveJointProgram, &hipCapsuleTerms](
         const std::span<const float> configuration) {
         const std::size_t nv = model.world.nv;
         const auto& articulation = model.articulations.front();
         std::vector<double> force(nv, 0.0);
-        if (passiveJointProgram.empty()) return force;
-        for (std::size_t row = 6u; row < nv; ++row)
-            for (std::size_t column = 6u; column < nv; ++column) {
-                const double stiffness = passiveJointProgram[row * nv + column];
-                if (stiffness == 0.0) continue;
-                const auto sourceQ = model.dofs[articulation.vOffset + column].qIndex;
-                require(sourceQ >= articulation.qOffset + 7u &&
-                            sourceQ - articulation.qOffset < configuration.size(),
-                        "passive joint trace references a non-scalar coordinate");
-                force[row] -= stiffness *
-                    (static_cast<double>(configuration[sourceQ - articulation.qOffset]) -
-                     passiveJointProgram[nv * nv + column]);
+        if (!passiveJointProgram.empty()) {
+            for (std::size_t row = 6u; row < nv; ++row)
+                for (std::size_t column = 6u; column < nv; ++column) {
+                    const double stiffness = passiveJointProgram[row * nv + column];
+                    if (stiffness == 0.0) continue;
+                    const auto sourceQ = model.dofs[articulation.vOffset + column].qIndex;
+                    require(sourceQ >= articulation.qOffset + 7u &&
+                                sourceQ - articulation.qOffset < configuration.size(),
+                            "passive joint trace references a non-scalar coordinate");
+                    force[row] -= stiffness *
+                        (static_cast<double>(configuration[sourceQ - articulation.qOffset]) -
+                         passiveJointProgram[nv * nv + column]);
+                }
+        }
+        if (!hipCapsuleTerms.empty()) {
+            const auto& articulation = model.articulations.front();
+            for (const auto& term : hipCapsuleTerms) {
+                const auto localQ0 = model.dofs[
+                    articulation.vOffset + term.dofIndex0].qIndex -
+                    articulation.qOffset;
+                const auto localQ1 = model.dofs[
+                    articulation.vOffset + term.dofIndex1].qIndex -
+                    articulation.qOffset;
+                const double gap =
+                    double(term.coordinate0) * configuration[localQ0] +
+                    double(term.coordinate1) * configuration[localQ1] -
+                    double(term.threshold);
+                const double magnitude =
+                    double(term.toeQuadratic) * std::max(0.0,gap) * std::max(0.0,gap) +
+                    double(term.toeCubic) * std::pow(std::max(0.0,gap),3.0);
+                force[term.dofIndex0] -= double(term.coordinate0) * magnitude;
+                force[term.dofIndex1] -= double(term.coordinate1) * magnitude;
             }
+        }
         return force;
     };
-    const auto passiveEnergyAt = [&model, &passiveJointProgram, &passiveForceAt](
+    const auto passiveEnergyAt = [&model, &passiveJointProgram, &hipCapsuleTerms,
+                                  &passiveForceAt](
         const std::span<const float> configuration) {
-        if (passiveJointProgram.empty()) return 0.0;
+        if (passiveJointProgram.empty() && hipCapsuleTerms.empty()) return 0.0;
         const auto force = passiveForceAt(configuration);
         const auto& articulation = model.articulations.front();
         double energy = 0.0;
-        for (std::size_t dof = 6u; dof < force.size(); ++dof) {
+        for (std::size_t dof = 6u;
+             !passiveJointProgram.empty() && dof < force.size(); ++dof) {
             if (force[dof] == 0.0) continue;
             const auto sourceQ = model.dofs[articulation.vOffset + dof].qIndex;
             const double displacement = static_cast<double>(configuration[sourceQ - articulation.qOffset]) -
                 passiveJointProgram[force.size() * force.size() + dof];
             energy -= 0.5 * force[dof] * displacement;
+        }
+        if (!hipCapsuleTerms.empty()) {
+            const auto& articulation = model.articulations.front();
+            for (const auto& term : hipCapsuleTerms) {
+                const auto localQ0 = model.dofs[
+                    articulation.vOffset + term.dofIndex0].qIndex -
+                    articulation.qOffset;
+                const auto localQ1 = model.dofs[
+                    articulation.vOffset + term.dofIndex1].qIndex -
+                    articulation.qOffset;
+                const double gap =
+                    double(term.coordinate0) * configuration[localQ0] +
+                    double(term.coordinate1) * configuration[localQ1] -
+                    double(term.threshold);
+                const double positive = std::max(0.0,gap);
+                energy += double(term.toeQuadratic) * positive*positive*positive / 3.0 +
+                    double(term.toeCubic) * positive*positive*positive*positive / 4.0;
+            }
         }
         require(std::isfinite(energy), "passive joint potential is non-finite");
         return energy;
@@ -5863,6 +6043,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         .stand = {
             .v = v,
             .passiveJointProgram = passiveJointProgram,
+            .hipCapsuleTerms = hipCapsuleTerms,
             .contacts = queries.supportContacts,
             .jointEqualities = jointEqualities.payload.records,
             .tendonBindings = tendonProgram.bindings,
@@ -6016,7 +6197,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         const std::uint64_t sourceFingerprint = humanBrainSourceFingerprint(
             muscles, supportContacts, jointEqualities, q, v, states,
             initialFiberEquilibrium.force.muscleResults, passiveJointProgram,
-            timestepMicroseconds, headBodyIdentifier);
+            hipCapsuleTerms, timestepMicroseconds, headBodyIdentifier);
         std::map<std::pair<std::uint32_t, std::uint32_t>, std::uint32_t>
             touchReceptorByGeometry;
         std::vector<numi_human_brain::ContactBinding> touchBindings;
@@ -20675,6 +20856,8 @@ int main(int argc, char** argv) {
             bool restingDenseVascular=false;
             std::optional<double> restingReferenceMassKg;
             std::optional<std::array<double,3>> restingDriveIntervention;
+            bool restingHipCapsuleReference = false;
+            std::optional<double> restingHipCapsuleScale;
 #endif
             for (int index = 1; index < argc; ++index) {
                 const std::string argument{argv[index]};
@@ -20698,6 +20881,21 @@ int main(int argc, char** argv) {
                 if(argument=="--resting-anatomy-receipt") {
                     require(index+1<argc&&restingAnatomyReceipt.empty(),"--resting-anatomy-receipt requires one source-bound receipt");
                     restingAnatomyReceipt=argv[++index];continue;
+                }
+                if(argument=="--resting-hip-capsule-reference") {
+                    require(!restingHipCapsuleReference,
+                            "--resting-hip-capsule-reference may be given only once");
+                    restingHipCapsuleReference = true;
+                    continue;
+                }
+                if(argument=="--resting-hip-capsule-scale") {
+                    require(index+1<argc&&!restingHipCapsuleScale.has_value(),
+                            "--resting-hip-capsule-scale requires one positive scale");
+                    const double scale=std::stod(argv[++index]);
+                    require(std::isfinite(scale)&&scale>0.0,
+                            "--resting-hip-capsule-scale must be finite and positive");
+                    restingHipCapsuleScale=scale;
+                    continue;
                 }
                 if(argument=="--resting-release-initialization") {
                     require(!restingReleaseInitialization, "duplicate resting release initialization flag");
@@ -21118,7 +21316,7 @@ int main(int argc, char** argv) {
                           << " [--muscle-step-count <1.."
                           << MR_NUMI_HUMAN_STAND_MAX_HORIZON_STEPS << "; extended horizons require unassisted persistent stand>]"
                           << " [--muscle-activation <0..1>]"
-                          << " [--resting-release-initialization] [--persistent-metal-stand] [--mechanics-only] [--persistent-source-passive-joint-tissue] [--persistent-runtime-without-passive-joint-tissue] [--selected-tendon-control] [--stand-root-assistance] [--stand-remove-assistance] [--stand-deterministic-replay] [--persistent-stand-trace] [--stand-endpoint-energy] [--stand-contact-iterations <1..64>] [--stand-muscle-feedback <length-gain> <velocity-gain-seconds>] [--stand-muscle-path-feedback <length-gain> <velocity-gain-seconds>]"
+                          << " [--resting-release-initialization] [--resting-hip-capsule-reference] [--resting-hip-capsule-scale <finite-positive>] [--persistent-metal-stand] [--mechanics-only] [--persistent-source-passive-joint-tissue] [--persistent-runtime-without-passive-joint-tissue] [--selected-tendon-control] [--stand-root-assistance] [--stand-remove-assistance] [--stand-deterministic-replay] [--persistent-stand-trace] [--stand-endpoint-energy] [--stand-contact-iterations <1..64>] [--stand-muscle-feedback <length-gain> <velocity-gain-seconds>] [--stand-muscle-path-feedback <length-gain> <velocity-gain-seconds>]"
                           << " [--stand-push <start-step> <duration-steps> <fx-N> <fy-N> <fz-N>]"
                           << " [--stand-brain-library <NumiBrainHumanStanding.dylib>]"
                           << " [--stand-brain-program <source-bound-MuscleLocomotorProgram.json>]"
@@ -21807,6 +22005,13 @@ int main(int argc, char** argv) {
                         (openKneeLiveTissueFEM && muscleStepCount.has_value() &&
                          *muscleStepCount >= 8u),
                     "--open-knee-sustained-certificate requires live Open Knee mechanics and at least eight Human steps");
+            require(!restingHipCapsuleReference ||
+                        (restingScene.has_value() && persistentMetalStand &&
+                         !persistentRuntimeWithoutPassiveJointTissue),
+                    "--resting-hip-capsule-reference requires a resting scene with the persistent source passive-joint owner");
+            require(!restingHipCapsuleScale.has_value() ||
+                        restingHipCapsuleReference,
+                    "--resting-hip-capsule-scale requires --resting-hip-capsule-reference");
             require(!persistentMetalStand ||
                         (muscleStepSeconds.has_value() &&
                          supportContactPayload.has_value() &&
@@ -22984,6 +23189,11 @@ int main(int argc, char** argv) {
                               << " root=compensated_reference_displacement_correction"
                               << " observer_only=1" << std::endl;
                 }
+                std::vector<MRNumiHumanHipCapsuleTermGPU> restingHipCapsuleTerms;
+                if (restingHipCapsuleReference) {
+                    restingHipCapsuleTerms = makeRestingHipCapsuleReferenceTerms(
+                        rigid.model, poseQ, restingHipCapsuleScale.value_or(1.0));
+                }
                 const auto payloadBytes=[](const std::filesystem::path& path) {
                     NSData* bytes=[NSData dataWithContentsOfFile:@(path.c_str())];
                     require(bytes!=nil,"resting source identity file unavailable: "+path.string());
@@ -23021,6 +23231,28 @@ int main(int argc, char** argv) {
                     double(standContactIterationCount.value_or(16u)),double(persistentSourcePassiveJointTissue),
                     double(persistentRuntimeWithoutPassiveJointTissue),double(restingDenseVascular),double(restingReleaseInitialization)};
                 appendSource("resting_native_options",std::as_bytes(std::span(settings)));
+                if (!restingHipCapsuleTerms.empty()) {
+                    std::vector<std::byte> descriptor;
+                    const auto appendCanonical = [&descriptor](const auto& value) {
+                        const auto bytes = std::as_bytes(std::span(&value, 1u));
+                        descriptor.insert(descriptor.end(), bytes.begin(), bytes.end());
+                    };
+                    const std::uint32_t termCount = static_cast<std::uint32_t>(
+                        restingHipCapsuleTerms.size());
+                    const double referenceScale = restingHipCapsuleScale.value_or(1.0);
+                    appendCanonical(termCount);
+                    appendCanonical(referenceScale);
+                    for (const auto& term : restingHipCapsuleTerms) {
+                        appendCanonical(term.dofIndex0);
+                        appendCanonical(term.dofIndex1);
+                        appendCanonical(term.coordinate0);
+                        appendCanonical(term.coordinate1);
+                        appendCanonical(term.threshold);
+                        appendCanonical(term.toeQuadratic);
+                        appendCanonical(term.toeCubic);
+                    }
+                    appendSource("resting_hip_capsule_reference.c2_toe.v1", descriptor);
+                }
                 if(restingDriveIntervention)appendSource("resting_drive_intervention",std::as_bytes(std::span(*restingDriveIntervention)));
                 NumiHumanRestingCoupling coupled(restingScene->first.c_str(),restingScene->second.c_str(),float(*muscleStepSeconds),
                     rigid.model,sourceIdentity,restingDenseVascular);
@@ -23102,6 +23334,26 @@ int main(int argc, char** argv) {
                 };
                 const bool terminalGeometryRequested=liveVisual&&!mechanicsOnly&&
                     liveVisual->requestsTerminalGeometryStep(*muscleStepCount);
+                struct HipCapsuleAcceptedHighwater {
+                    std::uint32_t acceptedStates = 0u;
+                    std::uint32_t samplesOutsideFlexionFitInterval = 0u;
+                    double rightFlexionMinRad = INFINITY;
+                    double rightFlexionMaxRad = -INFINITY;
+                    double leftFlexionMinRad = INFINITY;
+                    double leftFlexionMaxRad = -INFINITY;
+                    double maxPositiveBranchGapRad = 0.0;
+                    double maxPositiveBranchGapOverBase5NmGap = 0.0;
+                    double maxHipTorqueNormNm = 0.0;
+                    double maxPotentialEnergyJ = 0.0;
+                } hipCapsuleHighwater;
+                double hipCapsuleBase5NmGapRad = 0.0;
+                if (!restingHipCapsuleTerms.empty()) {
+                    // This is the unscaled literature-fit gap, independent of
+                    // the requested sensitivity scale. The nominal toe fit is
+                    // calibrated at 14.5 degrees; a uniform force scale changes
+                    // the torque at that point, not this reference denominator.
+                    hipCapsuleBase5NmGapRad=14.5*std::numbers::pi/180.0;
+                }
                 bool terminalAcceptedSnapshotObserved=false;
                 std::vector<float> terminalAcceptedQ;
                 MRCompensatedRootTranslationGPU terminalAcceptedRoot{};
@@ -23127,6 +23379,72 @@ int main(int argc, char** argv) {
                         const auto& p=*static_cast<const NMHumanRespirationState*>(coupled.physiology.respiration->accepted.contents);
                         require(p.status.x==step&&!p.status.w,"body/respiratory accepted clocks differ");
                         const auto& b=result.standStatuses.front();
+                        if (!restingHipCapsuleTerms.empty()) {
+                            const auto& articulation=rigid.model.articulations.front();
+                            require(result.standQ.size()==articulation.nq,
+                                    "hip-capsule highwater lacks the accepted q state");
+                            std::array<double,128u> generalizedTorque{};
+                            const auto rightFlexionQ = rigid.model.dofs[
+                                articulation.vOffset + 100u].qIndex - articulation.qOffset;
+                            const auto leftFlexionQ = rigid.model.dofs[
+                                articulation.vOffset + 114u].qIndex - articulation.qOffset;
+                            const double rightFlexion = result.standQ[rightFlexionQ];
+                            const double leftFlexion = result.standQ[leftFlexionQ];
+                            require(std::isfinite(rightFlexion) &&
+                                        std::isfinite(leftFlexion),
+                                    "hip-capsule highwater received nonfinite accepted flexion");
+                            hipCapsuleHighwater.rightFlexionMinRad = std::min(
+                                hipCapsuleHighwater.rightFlexionMinRad, rightFlexion);
+                            hipCapsuleHighwater.rightFlexionMaxRad = std::max(
+                                hipCapsuleHighwater.rightFlexionMaxRad, rightFlexion);
+                            hipCapsuleHighwater.leftFlexionMinRad = std::min(
+                                hipCapsuleHighwater.leftFlexionMinRad, leftFlexion);
+                            hipCapsuleHighwater.leftFlexionMaxRad = std::max(
+                                hipCapsuleHighwater.leftFlexionMaxRad, leftFlexion);
+                            constexpr double fitMinimumFlexionRad = -12.0 *
+                                std::numbers::pi / 180.0;
+                            if (rightFlexion < fitMinimumFlexionRad || rightFlexion > 0.0 ||
+                                leftFlexion < fitMinimumFlexionRad || leftFlexion > 0.0)
+                                ++hipCapsuleHighwater.samplesOutsideFlexionFitInterval;
+                            double statePotential=0.0;
+                            for (const auto& term : restingHipCapsuleTerms) {
+                                const auto q0=rigid.model.dofs[
+                                    articulation.vOffset+term.dofIndex0].qIndex-
+                                    articulation.qOffset;
+                                const auto q1=rigid.model.dofs[
+                                    articulation.vOffset+term.dofIndex1].qIndex-
+                                    articulation.qOffset;
+                                const double gap=double(term.coordinate0)*result.standQ[q0]+
+                                    double(term.coordinate1)*result.standQ[q1]-
+                                    double(term.threshold);
+                                const double positive=std::max(0.0,gap);
+                                hipCapsuleHighwater.maxPositiveBranchGapRad=
+                                    std::max(hipCapsuleHighwater.maxPositiveBranchGapRad,positive);
+                                const double square=positive*positive;
+                                const double magnitude=double(term.toeQuadratic)*square+
+                                    double(term.toeCubic)*square*positive;
+                                statePotential+=double(term.toeQuadratic)*square*positive/3.0+
+                                    double(term.toeCubic)*square*square/4.0;
+                                generalizedTorque[term.dofIndex0]-=
+                                    double(term.coordinate0)*magnitude;
+                                generalizedTorque[term.dofIndex1]-=
+                                    double(term.coordinate1)*magnitude;
+                            }
+                            if (hipCapsuleBase5NmGapRad>0.0)
+                                hipCapsuleHighwater.maxPositiveBranchGapOverBase5NmGap=
+                                    std::max(hipCapsuleHighwater.maxPositiveBranchGapOverBase5NmGap,
+                                        hipCapsuleHighwater.maxPositiveBranchGapRad/
+                                            hipCapsuleBase5NmGapRad);
+                            hipCapsuleHighwater.maxHipTorqueNormNm=std::max(
+                                hipCapsuleHighwater.maxHipTorqueNormNm,
+                                std::hypot(generalizedTorque[100],generalizedTorque[102]));
+                            hipCapsuleHighwater.maxHipTorqueNormNm=std::max(
+                                hipCapsuleHighwater.maxHipTorqueNormNm,
+                                std::hypot(generalizedTorque[114],generalizedTorque[116]));
+                            hipCapsuleHighwater.maxPotentialEnergyJ=std::max(
+                                hipCapsuleHighwater.maxPotentialEnergyJ,statePotential);
+                            ++hipCapsuleHighwater.acceptedStates;
+                        }
                         if(terminalGeometryRequested&&step==*muscleStepCount) {
                             require(result.standStatuses.size()==1u&&
                                     result.standQ.size()==rigid.model.articulations.front().nq&&
@@ -23919,7 +24237,47 @@ int main(int argc, char** argv) {
                     persistentRuntimeWithoutPassiveJointTissue,std::nullopt,false,false,{},std::nullopt,std::nullopt,std::nullopt,0x4e554d49u,
                     poseQ,&restingProgram,&observer,liveVisual?&skinSupportProgram:nullptr,
                     restingReleaseInitialization,restingComMomentumAudit,
-                    restingComMomentumAuditSegmentSteps);
+                    restingComMomentumAuditSegmentSteps, restingHipCapsuleTerms);
+                if (!restingHipCapsuleTerms.empty()) {
+                    double terminalHipPotential=0.0;
+                    const auto& articulation=rigid.model.articulations.front();
+                    for (const auto& term : restingHipCapsuleTerms) {
+                        const auto q0=rigid.model.dofs[
+                            articulation.vOffset+term.dofIndex0].qIndex-
+                            articulation.qOffset;
+                        const auto q1=rigid.model.dofs[
+                            articulation.vOffset+term.dofIndex1].qIndex-
+                            articulation.qOffset;
+                        const double gap=double(term.coordinate0)*final.q[q0]+
+                            double(term.coordinate1)*final.q[q1]-double(term.threshold);
+                        const double positive=std::max(0.0,gap);
+                        terminalHipPotential+=double(term.toeQuadratic)*
+                            positive*positive*positive/3.0+
+                            double(term.toeCubic)*positive*positive*positive*positive/4.0;
+                    }
+                    std::cout << std::setprecision(17)
+                        << "resting_hip_capsule_accepted_state_diagnostics"
+                        << " accepted_states=" << hipCapsuleHighwater.acceptedStates
+                        << " right_flexion_min_rad=" << hipCapsuleHighwater.rightFlexionMinRad
+                        << " right_flexion_max_rad=" << hipCapsuleHighwater.rightFlexionMaxRad
+                        << " left_flexion_min_rad=" << hipCapsuleHighwater.leftFlexionMinRad
+                        << " left_flexion_max_rad=" << hipCapsuleHighwater.leftFlexionMaxRad
+                        << " samples_outside_neutral_ab_ad_flexion_fit_interval="
+                        << hipCapsuleHighwater.samplesOutsideFlexionFitInterval
+                        << " flexion_fit_interval_rad=[-0.20943951023931953,0]"
+                        << " abduction_adduction=not_parameterized"
+                        << " max_positive_branch_gap_rad="
+                        << hipCapsuleHighwater.maxPositiveBranchGapRad
+                        << " max_gap_over_unscaled_5Nm_fit_gap="
+                        << hipCapsuleHighwater.maxPositiveBranchGapOverBase5NmGap
+                        << " max_per_side_flexion_rotation_torque_norm_nm="
+                        << hipCapsuleHighwater.maxHipTorqueNormNm
+                        << " max_total_potential_energy_j="
+                        << hipCapsuleHighwater.maxPotentialEnergyJ
+                        << " terminal_hip_potential_energy_j=" << terminalHipPotential
+                        << " horizon_bound=accepted-observer-samples-only"
+                        << std::endl;
+                }
                 if(terminalGeometryRequested) {
                     const std::uint32_t terminalStep=*muscleStepCount;
                     require(terminalAcceptedSnapshotObserved&&

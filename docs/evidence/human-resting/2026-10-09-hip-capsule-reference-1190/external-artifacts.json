@@ -1,0 +1,263 @@
+{
+  "build_artifacts": [
+    {
+      "path": "/Users/n/numi-human-hip-capsule-build-1190/bin/numi-human-native",
+      "sha256": "a410d759ebf777711024e0ae4131238842f9b37e9389163a6498219f9fbcf143"
+    },
+    {
+      "path": "/Users/n/numi-human-hip-capsule-build-1190/lib/libmetalrobo.dylib",
+      "sha256": "6713f86e9afcd39032702c9c6b633db764a7231495e3731c91758543974c34ae"
+    },
+    {
+      "path": "/Users/n/numi-human-hip-capsule-build-1190/shaders/MetalRobo.metallib",
+      "sha256": "616f3aeebc34061622b0e0f8cf4437a7746e44dcb1edef9890b44c012081d89d"
+    },
+    {
+      "path": "/Users/n/numi-human-hip-capsule-build-1190/matter/shaders/HumanRespiration.metallib",
+      "sha256": "4b61361f513bf0996d687398498b85ba4e379edca91c36f134e1b0398f31c426"
+    },
+    {
+      "path": "/tmp/numi_human_hip_capsule_metal_test_1190_refine2",
+      "sha256": "84cc3a9c4c024dd3004c9d818d0280e73e0face2dca20152c16e0782e812a7a9"
+    },
+    {
+      "path": "/tmp/numi_human_passive_joint_test_1190",
+      "sha256": "460c716d4c728a747ab951759610b8654c771dd9c2475df3c630bebbe2101083"
+    }
+  ],
+  "disabled_parity_1192": {
+    "baseline_run_directory": "/Users/n/numi-human-retained-delivery-20261009/native-lung1178-thumb1187-smoke-1191/native-run",
+    "execution": {
+      "path": "/Users/n/numi-human-retained-delivery-20261009/native-hip-reference-disabled-parity-1192/execution.json",
+      "published_copy": "disabled-reference-1192/execution.json",
+      "sha256": "2b0c583038d12f085be940a8fa5f17e49e978b2a93538afbb2b1f8713a1149cf"
+    },
+    "raw_outputs_duplicated": false,
+    "raw_run_directory": "/Users/n/numi-human-retained-delivery-20261009/native-hip-reference-disabled-parity-1192/native-run",
+    "report": {
+      "path": "/Users/n/numi-human-retained-delivery-20261009/native-hip-reference-disabled-parity-1192/parity-comparison.json",
+      "published_copy": "disabled-reference-1192/parity-comparison.json",
+      "sha256": "3076d4cbea6e79fb107e35906c5881234d1fb5353502955d8027d1bf1470037f"
+    },
+    "run_declaration": {
+      "path": "/Users/n/numi-human-retained-delivery-20261009/native-hip-reference-disabled-parity-1192/run-declaration.json",
+      "published_copy": "disabled-reference-1192/run-declaration.json",
+      "sha256": "8746587f2f175bb52994b65c41c0b78c92a4aac56744f487dc954f89bc8abbbb"
+    }
+  },
+  "nominal_enabled_native_1193": {
+    "attempt_001": {
+      "declaration": {
+        "path": "/Users/n/numi-human-retained-delivery-20261009/native-hip-reference-nominal-1193/run-declaration.json",
+        "sha256": "2899d927476d168d1f1eb67b706fc7f51e7ecfd78658026a3006152c247f18ce"
+      },
+      "execution": {
+        "path": "/Users/n/numi-human-retained-delivery-20261009/native-hip-reference-nominal-1193/execution.json",
+        "published_copy": "nominal-enabled-1193-attempt001/execution.json",
+        "returncode": 1,
+        "sha256": "a2f14991ed6cc17b30a0da3435f31f2dbede7a2657398d1ed5f7747925e7dda9",
+        "wall_seconds": 0.988255084
+      },
+      "failure": "accepted geometry step 10000 rejected as non-cadence/non-terminal; no physical step advanced.",
+      "native_log": {
+        "path": "/Users/n/numi-human-retained-delivery-20261009/native-hip-reference-nominal-1193/native-run/native.log",
+        "sha256": "72df93fb70adf945c5f06e1f9232e0c2bd6681529f069810e9ddab0f0a992d55"
+      },
+      "path": "/Users/n/numi-human-retained-delivery-20261009/native-hip-reference-nominal-1193",
+      "status": "capture-admission-failure_before_physical_step"
+    },
+    "attempt_002": {
+      "declaration": {
+        "path": "/Users/n/numi-human-retained-delivery-20261009/native-hip-reference-nominal-1193-attempt002/run-declaration.json",
+        "published_copy": "enabled-nominal-1193-attempt002/run-declaration.json",
+        "sha256": "f049e73fae0a4d9a539cf5a48711ecd930fb49733d204588c4d019aaa36ae0bd"
+      },
+      "execution": {
+        "path": "/Users/n/numi-human-retained-delivery-20261009/native-hip-reference-nominal-1193-attempt002/execution.json",
+        "published_copy": "enabled-nominal-1193-attempt002/execution.json",
+        "sha256": "f0e07b13fbbb51c1a4e94620f888f4a798679e9c78c97c3c03b201b736e04c57"
+      },
+      "geometry_audit": {
+        "auditor_path": "/Users/n/numi-human-resting-evidence-20261005/native-lung-late-skin-audit-runner-1172/revision-003/audit_full_skin_cycle_1172.py",
+        "auditor_sha256": "b1b9be5959610325067f703c32bd55e2f568c11124ec232f0d066ed75a6fdcbb",
+        "captures": [
+          {
+            "accepted_step": 0,
+            "accepted_time_s": 0.0,
+            "crossing_witnesses_bytes": 0,
+            "crossing_witnesses_path": "/Users/n/numi-human-retained-delivery-20261009/native-hip-reference-nominal-1193-attempt002/skin-audit-1193-attempt002/step-0.crossing-witnesses.jsonl",
+            "crossing_witnesses_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "degenerate_faces": 0,
+            "invalid_target_surfaces": 0,
+            "invalid_target_triangles": 0,
+            "invalid_triangles_bytes": 0,
+            "invalid_triangles_path": "/Users/n/numi-human-retained-delivery-20261009/native-hip-reference-nominal-1193-attempt002/skin-audit-1193-attempt002/step-0.invalid-triangles.jsonl",
+            "invalid_triangles_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "nonocular_crossing_pairs": 0,
+            "ocular_crossing_pairs": 0,
+            "result_copy": "enabled-nominal-1193-attempt002/geometry-audit/step-0.result.json",
+            "result_path": "/Users/n/numi-human-retained-delivery-20261009/native-hip-reference-nominal-1193-attempt002/skin-audit-1193-attempt002/step-0.result.json",
+            "result_sha256": "3d5ce48f7f5e17388bc2a5b5a830d4d4e336ed87f51ced7e3717b267405d36dc",
+            "self_witnesses_bytes": 0,
+            "self_witnesses_path": "/Users/n/numi-human-retained-delivery-20261009/native-hip-reference-nominal-1193-attempt002/skin-audit-1193-attempt002/step-0.self-witnesses.jsonl",
+            "self_witnesses_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "skin_self_crossing_pairs": 0,
+            "skin_target_crossing_pairs": 0,
+            "targets_bytes": 242213,
+            "targets_path": "/Users/n/numi-human-retained-delivery-20261009/native-hip-reference-nominal-1193-attempt002/skin-audit-1193-attempt002/step-0.targets.jsonl",
+            "targets_sha256": "42445bf01b64e27426ac940aed16e211d635c296f8562599491236d507cadb98"
+          },
+          {
+            "accepted_step": 9983,
+            "accepted_time_s": 19.966,
+            "crossing_witnesses_bytes": 2704299,
+            "crossing_witnesses_path": "/Users/n/numi-human-retained-delivery-20261009/native-hip-reference-nominal-1193-attempt002/skin-audit-1193-attempt002/step-9983.crossing-witnesses.jsonl",
+            "crossing_witnesses_sha256": "3dccd4b9e416cdbb273f9b78a55ce1a3d0d9d2ef67e3de299b36b0dc8781c36d",
+            "degenerate_faces": 0,
+            "invalid_target_surfaces": 0,
+            "invalid_target_triangles": 0,
+            "invalid_triangles_bytes": 0,
+            "invalid_triangles_path": "/Users/n/numi-human-retained-delivery-20261009/native-hip-reference-nominal-1193-attempt002/skin-audit-1193-attempt002/step-9983.invalid-triangles.jsonl",
+            "invalid_triangles_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "nonocular_crossing_pairs": 3164,
+            "ocular_crossing_pairs": 0,
+            "result_copy": "enabled-nominal-1193-attempt002/geometry-audit/step-9983.result.json",
+            "result_path": "/Users/n/numi-human-retained-delivery-20261009/native-hip-reference-nominal-1193-attempt002/skin-audit-1193-attempt002/step-9983.result.json",
+            "result_sha256": "8b16fb78e0b5f4c06b0ad2c6bc6141f79e60db1d3843567bedafa306e63a3e38",
+            "self_witnesses_bytes": 425010,
+            "self_witnesses_path": "/Users/n/numi-human-retained-delivery-20261009/native-hip-reference-nominal-1193-attempt002/skin-audit-1193-attempt002/step-9983.self-witnesses.jsonl",
+            "self_witnesses_sha256": "e0bc62daeee8a44b952e34fa767c789fbd860f4bef28c129612e6d9ccdd7a1ff",
+            "skin_self_crossing_pairs": 493,
+            "skin_target_crossing_pairs": 3164,
+            "targets_bytes": 242332,
+            "targets_path": "/Users/n/numi-human-retained-delivery-20261009/native-hip-reference-nominal-1193-attempt002/skin-audit-1193-attempt002/step-9983.targets.jsonl",
+            "targets_sha256": "3044f8118c9e7695d94a375355c639e5d3d0e81cec6d508988a82b57852afcb6"
+          },
+          {
+            "accepted_step": 20000,
+            "accepted_time_s": 40.00000189989805,
+            "crossing_witnesses_bytes": 2628139,
+            "crossing_witnesses_path": "/Users/n/numi-human-retained-delivery-20261009/native-hip-reference-nominal-1193-attempt002/skin-audit-1193-attempt002/step-20000.crossing-witnesses.jsonl",
+            "crossing_witnesses_sha256": "698a6d4691a4a087b50180b708273901d6f7048bc5e9b2d8e10269cd88457632",
+            "degenerate_faces": 0,
+            "invalid_target_surfaces": 0,
+            "invalid_target_triangles": 0,
+            "invalid_triangles_bytes": 0,
+            "invalid_triangles_path": "/Users/n/numi-human-retained-delivery-20261009/native-hip-reference-nominal-1193-attempt002/skin-audit-1193-attempt002/step-20000.invalid-triangles.jsonl",
+            "invalid_triangles_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "nonocular_crossing_pairs": 3073,
+            "ocular_crossing_pairs": 0,
+            "result_copy": "enabled-nominal-1193-attempt002/geometry-audit/step-20000.result.json",
+            "result_path": "/Users/n/numi-human-retained-delivery-20261009/native-hip-reference-nominal-1193-attempt002/skin-audit-1193-attempt002/step-20000.result.json",
+            "result_sha256": "75485b82c2c048857472d3b837aabc481588c9c8c693ba304bd8a39cacb82472",
+            "self_witnesses_bytes": 496134,
+            "self_witnesses_path": "/Users/n/numi-human-retained-delivery-20261009/native-hip-reference-nominal-1193-attempt002/skin-audit-1193-attempt002/step-20000.self-witnesses.jsonl",
+            "self_witnesses_sha256": "878f269bceab4b064ab5fa3d03712e18b7837854a59aeb938cd7310fc906b32f",
+            "skin_self_crossing_pairs": 575,
+            "skin_target_crossing_pairs": 3073,
+            "targets_bytes": 242338,
+            "targets_path": "/Users/n/numi-human-retained-delivery-20261009/native-hip-reference-nominal-1193-attempt002/skin-audit-1193-attempt002/step-20000.targets.jsonl",
+            "targets_sha256": "bf5251cd4c286f8740741cd4c09fba32c9e6bb3fe906fa98d2a4da64f28eb9e1"
+          }
+        ],
+        "declaration_sha256": "7d51cb56fb2c3351b6ee389929d6ba3ced5a7fa89248d72c3cc1a8994f29c2b8",
+        "full_asset_packs_copied": false,
+        "path": "/Users/n/numi-human-retained-delivery-20261009/native-hip-reference-nominal-1193-attempt002/skin-audit-1193-attempt002",
+        "published_summary": "enabled-nominal-1193-attempt002/geometry-audit/summary.json",
+        "raw_witness_ledgers_copied": false,
+        "summary_sha256": "1077b498e1abc1b77a0f5b5a4569c1ce4a43296a91d5b403191889c0b8742cb2"
+      },
+      "invocation": {
+        "path": "/Users/n/numi-human-retained-delivery-20261009/native-hip-reference-nominal-1193-attempt002/native-run/invocation.json",
+        "published_copy": "enabled-nominal-1193-attempt002/invocation.json",
+        "sha256": "37d0b14fb00a08cdf03c301f83b4da73e6a5b71a3d3d20d1729a0411bc791d12"
+      },
+      "measured": {
+        "accepted_observer_samples": 2500,
+        "fit_interval_degrees": [
+          -12.0,
+          0.0
+        ],
+        "minimum_sampled_left_hip_flexion_rad": -0.3901206,
+        "minimum_sampled_right_hip_flexion_rad": -0.3922994,
+        "native_internal_wall_seconds": 334.84671475,
+        "native_real_time_factor": 0.11945765073359751,
+        "outside_fit_interval": 2490,
+        "sampled_max_per_side_flexion_rotation_torque_norm_nm": 6.90762,
+        "sampled_max_potential_energy_j": 0.66436,
+        "simulated_seconds": 40.00000189989805,
+        "terminal_potential_energy_j": 0.11672
+      },
+      "native_log": {
+        "path": "/Users/n/numi-human-retained-delivery-20261009/native-hip-reference-nominal-1193-attempt002/native-run/native.log",
+        "sha256": "c1652f9237fe48c2e38c0b2a3563776d96f77cb309441f769265ad7f15a1a551"
+      },
+      "path": "/Users/n/numi-human-retained-delivery-20261009/native-hip-reference-nominal-1193-attempt002",
+      "qualification": "Not adopted. Exact three-capture geometry audit records nonocular skin-target and skin-self intersections; most flexion samples are beyond the declared fit interval.",
+      "run_metadata": {
+        "path": "/Users/n/numi-human-retained-delivery-20261009/native-hip-reference-nominal-1193-attempt002/native-run/run-metadata.json",
+        "published_copy": "enabled-nominal-1193-attempt002/run-metadata.json",
+        "sha256": "9ed735c9b3e2a64dddf8dc5462bfede35c2ccf25db81609cc33be58ba9c7a6e4"
+      },
+      "status": "native_complete_geometry_audit_failed"
+    }
+  },
+  "publication_checkout_base_commit": "7572b9619d881bd62362ece7c57b6e56f457e2f8",
+  "reference_review": {
+    "path": "/Users/n/numi-human-retained-delivery-20261009/hip-capsule-reference-1190/parameter-and-axis-review-v3.json",
+    "published_copy": "parameter-and-axis-review-v3.json",
+    "sha256": "6076bac062335b2f325d3d81f29135fff78e2b457356ae9320c2c677a1554bd0"
+  },
+  "root_integrity_check": {
+    "path": "/Users/n/numi-human-retained-delivery-20261009/hip-capsule-reference-1190/root-parameter-integrity-check.json",
+    "published_copy": "root-parameter-integrity-check.json",
+    "sha256": "bd5873729a80e690aabcba106b099dc0c9b4710288c95dbf7ab5e4c856b63cbf"
+  },
+  "schema": "numi.human.hip-capsule-reference-evidence.external-artifacts.v1",
+  "source_worktree": {
+    "base_commit": "7572b9619d881bd62362ece7c57b6e56f457e2f8",
+    "files": [
+      {
+        "path": "/Users/n/numi-human-hip-capsule-source-1190/apps/numilab_human_myosim_visual_probe.mm",
+        "sha256": "56f21bff4b1a04cf46dbb301b50661cf00c7b62df8016729a7423441a96482ab"
+      },
+      {
+        "path": "/Users/n/numi-human-hip-capsule-source-1190/include/metalrobo/NumiHumanPassiveJoint.hpp",
+        "sha256": "eebb0b7b82c85fd418618684b747fdbf5a69250705b2fedeb99173a5bce9a34a"
+      },
+      {
+        "path": "/Users/n/numi-human-hip-capsule-source-1190/include/metalrobo/numi_human_passive_joint.h",
+        "sha256": "14e4b1e183af1452609d6990faf94b970d7ae1a3d3947413a923c65f2bfe8337"
+      },
+      {
+        "path": "/Users/n/numi-human-hip-capsule-source-1190/include/metalrobo/numi_human_stand_gpu.h",
+        "sha256": "6b415de0b76da868bcdc36b4bb494fe4bf50c31de411cf3ef6322e695aa722c9"
+      },
+      {
+        "path": "/Users/n/numi-human-hip-capsule-source-1190/include/metalrobo/MetalArticulatedOperator.hpp",
+        "sha256": "d48374a3ed42d14fa7d82a95df7aaa2140064b189c7b878fc8e892d36090b83e"
+      },
+      {
+        "path": "/Users/n/numi-human-hip-capsule-source-1190/src/metal/MetalArticulatedOperator.mm",
+        "sha256": "db1917d33167d0b3d0a676cc65a9ab415bcbad5d70efb9f181ffbf7afa89d22c"
+      },
+      {
+        "path": "/Users/n/numi-human-hip-capsule-source-1190/src/metal/NumiHumanStand.metal",
+        "sha256": "e408c811deb4b9a951523ff39a3fb88507ee865c81da7b0edaef374dd48be7e3"
+      },
+      {
+        "path": "/Users/n/numi-human-hip-capsule-source-1190/tests/numi_human_passive_joint_test.cpp",
+        "sha256": "0648e9857352e8776d36662038dd7866be4c02a71d1cf96c38a33694b288a340"
+      },
+      {
+        "path": "/Users/n/numi-human-hip-capsule-source-1190/tests/numi_human_hip_capsule_metal_test.mm",
+        "sha256": "bd84aa6c677867dbf782b367c4febcfe33ab531b1ba41bd0d4c6b24b1f44a316"
+      },
+      {
+        "path": "/Users/n/numi-human-hip-capsule-source-1190/CMakeLists.txt",
+        "sha256": "b0738a51a0d637fb3759631615336b58f0df8d0b02d7ecc77240aec7c9b9739a"
+      }
+    ],
+    "path": "/Users/n/numi-human-hip-capsule-source-1190"
+  }
+}

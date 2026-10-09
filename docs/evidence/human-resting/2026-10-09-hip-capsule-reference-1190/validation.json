@@ -1,0 +1,128 @@
+{
+  "cpu_test": {
+    "checks": 658,
+    "command": "clang++ -std=c++20 -Wall -Wextra -Werror -fno-fast-math -Iinclude tests/numi_human_passive_joint_test.cpp",
+    "source": "tests/numi_human_passive_joint_test.cpp",
+    "source_sha256": "0648e9857352e8776d36662038dd7866be4c02a71d1cf96c38a33694b288a340",
+    "status": "passed"
+  },
+  "default_disabled_native_1192": {
+    "execution": "disabled-reference-1192/execution.json",
+    "execution_sha256": "2b0c583038d12f085be940a8fa5f17e49e978b2a93538afbb2b1f8713a1149cf",
+    "report": "disabled-reference-1192/parity-comparison.json",
+    "report_sha256": "3076d4cbea6e79fb107e35906c5881234d1fb5353502955d8027d1bf1470037f",
+    "scope": "default-disabled byte parity against 1191; not enabled-model qualification",
+    "status": "passed",
+    "transaction_rejection_pass": true
+  },
+  "final_fixture": "metal-fixtures/attempt-006/run.log",
+  "final_fixture_sha256": "d75adfc7adb62931166990f6d4cade1953478c3f943af69436436398e9c4c0f9",
+  "historical_fixture_attempts": [
+    {
+      "attempt": "001",
+      "observed": "Metal rejected an unspecialized function entry point; final harness retrieves specialized production functions with function constants.",
+      "status": "failed"
+    },
+    {
+      "attempt": "002",
+      "observed": "monolithic production step assertion failed; raw log retained; final harness follows accepted stepIndex/stepCount sequence.",
+      "status": "failed"
+    },
+    {
+      "attempt": "003",
+      "observed": "monolithic production step assertion failed; raw log retained; final harness uses the accepted-step sequence and explicit split-mass preparation flags.",
+      "status": "failed"
+    },
+    {
+      "attempt": "004",
+      "observed": "fixture setup used a nonexistent guessed metallib path; no kernel executed.",
+      "status": "not_run"
+    },
+    {
+      "attempt": "005",
+      "checks": 312,
+      "limitation": "two steps per timestep only; different elapsed horizons, so not temporal convergence.",
+      "status": "passed"
+    }
+  ],
+  "metal_fixture": {
+    "checks": 1993,
+    "device": "Apple M4 Pro",
+    "executable_path": "/tmp/numi_human_hip_capsule_metal_test_1190_refine2",
+    "executable_sha256": "84cc3a9c4c024dd3004c9d818d0280e73e0face2dca20152c16e0782e812a7a9",
+    "metallib_path": "/Users/n/numi-human-hip-capsule-build-1190/shaders/MetalRobo.metallib",
+    "metallib_sha256": "616f3aeebc34061622b0e0f8cf4437a7746e44dcb1edef9890b44c012081d89d",
+    "monolithic_checks": 168,
+    "reference_timestep_s": 1.5625e-05,
+    "refinement": [
+      {
+        "horizon_s": 0.02,
+        "max_abs_oracle_energy_change_j": 0.000144953,
+        "max_gpu_oracle_energy_error_j": 1.11598e-06,
+        "max_linf_error_to_double_reference": 0.000131527,
+        "max_positive_oracle_energy_change_j": 0.0,
+        "steps": 10
+      },
+      {
+        "horizon_s": 0.02,
+        "max_abs_oracle_energy_change_j": 7.99308e-05,
+        "max_gpu_oracle_energy_error_j": 8.20866e-07,
+        "max_linf_error_to_double_reference": 7.19727e-05,
+        "max_positive_oracle_energy_change_j": 0.0,
+        "steps": 20
+      },
+      {
+        "horizon_s": 0.02,
+        "max_abs_oracle_energy_change_j": 4.18385e-05,
+        "max_gpu_oracle_energy_error_j": 6.40662e-07,
+        "max_linf_error_to_double_reference": 3.70784e-05,
+        "max_positive_oracle_energy_change_j": 0.0,
+        "steps": 40
+      }
+    ],
+    "refinement_checks": 1681,
+    "refinement_horizon_s": 0.02,
+    "scope": "synthetic reduced two-coordinate toe fixture; not a full Human trajectory",
+    "source": "tests/numi_human_hip_capsule_metal_test.mm",
+    "source_sha256": "bd84aa6c677867dbf782b367c4febcfe33ab531b1ba41bd0d4c6b24b1f44a316",
+    "split_mass_checks": 144,
+    "status": "passed"
+  },
+  "nominal_enabled_native_1193": {
+    "all_captured_geometry_gates_pass": false,
+    "attempt_001_execution": "nominal-enabled-1193-attempt001/execution.json",
+    "attempt_001_failure": "capture admission rejected step 10000 before physical stepping",
+    "captured_pose_counts": {
+      "step_0": {
+        "skin_self": 0,
+        "skin_target": 0
+      },
+      "step_20000": {
+        "skin_self": 575,
+        "skin_target": 3073
+      },
+      "step_9983": {
+        "skin_self": 493,
+        "skin_target": 3164
+      }
+    },
+    "claimed_acceptance": false,
+    "execution": "enabled-nominal-1193-attempt002/execution.json",
+    "execution_sha256": "f0e07b13fbbb51c1a4e94620f888f4a798679e9c78c97c3c03b201b736e04c57",
+    "flexion_fit_samples_outside": 2490,
+    "flexion_fit_samples_total": 2500,
+    "geometry_audit": "enabled-nominal-1193-attempt002/geometry-audit/summary.json",
+    "geometry_audit_sha256": "1077b498e1abc1b77a0f5b5a4569c1ce4a43296a91d5b403191889c0b8742cb2",
+    "native_returncode": 0,
+    "result_index": "enabled-nominal-1193-attempt002/result-index.json",
+    "result_index_sha256": "2c76af60dfa74db5d34a45f01fb6f40bdfab31ecbcb2fea3ad4a12cbfa976465",
+    "scope": "Three exported captures only; geometry fails at both late captures; nearly all flexion samples are outside the declared fit interval; no enabled-model or anatomical acceptance.",
+    "simulated_seconds": 40.00000189989805,
+    "status": "completed_but_failed_captured_geometry_audit"
+  },
+  "schema": "numi.human.hip-capsule-reference.validation.v1",
+  "source_revision": {
+    "base_commit": "7572b9619d881bd62362ece7c57b6e56f457e2f8",
+    "status": "implementation changes are staged in this evidence checkout; no commit made"
+  }
+}

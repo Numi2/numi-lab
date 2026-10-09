@@ -1,0 +1,100 @@
+{
+  "schema": "numi.human.hip-capsule-reference.validation.v1",
+  "source_revision": {
+    "base_commit": "7572b9619d881bd62362ece7c57b6e56f457e2f8",
+    "status": "implementation changes are staged in this evidence checkout; no commit made"
+  },
+  "cpu_test": {
+    "status": "passed",
+    "checks": 658,
+    "source": "tests/numi_human_passive_joint_test.cpp",
+    "source_sha256": "0648e9857352e8776d36662038dd7866be4c02a71d1cf96c38a33694b288a340",
+    "command": "clang++ -std=c++20 -Wall -Wextra -Werror -fno-fast-math -Iinclude tests/numi_human_passive_joint_test.cpp"
+  },
+  "metal_fixture": {
+    "status": "passed",
+    "device": "Apple M4 Pro",
+    "checks": 1993,
+    "monolithic_checks": 168,
+    "split_mass_checks": 144,
+    "refinement_checks": 1681,
+    "source": "tests/numi_human_hip_capsule_metal_test.mm",
+    "source_sha256": "bd84aa6c677867dbf782b367c4febcfe33ab531b1ba41bd0d4c6b24b1f44a316",
+    "executable_path": "/tmp/numi_human_hip_capsule_metal_test_1190_refine2",
+    "executable_sha256": "84cc3a9c4c024dd3004c9d818d0280e73e0face2dca20152c16e0782e812a7a9",
+    "metallib_path": "/Users/n/numi-human-hip-capsule-build-1190/shaders/MetalRobo.metallib",
+    "metallib_sha256": "616f3aeebc34061622b0e0f8cf4437a7746e44dcb1edef9890b44c012081d89d",
+    "refinement_horizon_s": 0.02,
+    "reference_timestep_s": 1.5625e-05,
+    "refinement": [
+      {
+        "horizon_s": 0.02,
+        "steps": 10,
+        "max_linf_error_to_double_reference": 0.000131527,
+        "max_gpu_oracle_energy_error_j": 1.11598e-06,
+        "max_abs_oracle_energy_change_j": 0.000144953,
+        "max_positive_oracle_energy_change_j": 0.0
+      },
+      {
+        "horizon_s": 0.02,
+        "steps": 20,
+        "max_linf_error_to_double_reference": 7.19727e-05,
+        "max_gpu_oracle_energy_error_j": 8.20866e-07,
+        "max_abs_oracle_energy_change_j": 7.99308e-05,
+        "max_positive_oracle_energy_change_j": 0.0
+      },
+      {
+        "horizon_s": 0.02,
+        "steps": 40,
+        "max_linf_error_to_double_reference": 3.70784e-05,
+        "max_gpu_oracle_energy_error_j": 6.40662e-07,
+        "max_abs_oracle_energy_change_j": 4.18385e-05,
+        "max_positive_oracle_energy_change_j": 0.0
+      }
+    ],
+    "scope": "synthetic reduced two-coordinate toe fixture; not a full Human trajectory"
+  },
+  "default_disabled_native_1192": {
+    "status": "passed",
+    "report": "disabled-reference-1192/parity-comparison.json",
+    "report_sha256": "3076d4cbea6e79fb107e35906c5881234d1fb5353502955d8027d1bf1470037f",
+    "execution": "disabled-reference-1192/execution.json",
+    "execution_sha256": "2b0c583038d12f085be940a8fa5f17e49e978b2a93538afbb2b1f8713a1149cf",
+    "transaction_rejection_pass": true,
+    "scope": "default-disabled byte parity against 1191; not enabled-model qualification"
+  },
+  "nominal_enabled_native_1193": {
+    "status": "running_at_bundle_creation",
+    "claimed_result": false
+  },
+  "historical_fixture_attempts": [
+    {
+      "attempt": "001",
+      "status": "failed",
+      "observed": "Metal rejected an unspecialized function entry point; final harness retrieves specialized production functions with function constants."
+    },
+    {
+      "attempt": "002",
+      "status": "failed",
+      "observed": "monolithic production step assertion failed; raw log retained; final harness follows accepted stepIndex/stepCount sequence."
+    },
+    {
+      "attempt": "003",
+      "status": "failed",
+      "observed": "monolithic production step assertion failed; raw log retained; final harness uses the accepted-step sequence and explicit split-mass preparation flags."
+    },
+    {
+      "attempt": "004",
+      "status": "not_run",
+      "observed": "fixture setup used a nonexistent guessed metallib path; no kernel executed."
+    },
+    {
+      "attempt": "005",
+      "status": "passed",
+      "checks": 312,
+      "limitation": "two steps per timestep only; different elapsed horizons, so not temporal convergence."
+    }
+  ],
+  "final_fixture": "metal-fixtures/attempt-006/run.log",
+  "final_fixture_sha256": "d75adfc7adb62931166990f6d4cade1953478c3f943af69436436398e9c4c0f9"
+}

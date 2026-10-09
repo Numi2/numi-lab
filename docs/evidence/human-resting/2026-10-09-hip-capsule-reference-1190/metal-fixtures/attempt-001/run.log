@@ -1,0 +1,4 @@
+validateWithDevice:1530: failed assertion `Compute Pipeline Descriptor Validation
+function mr_numi_human_stand_step cannot be used to build a pipeline state. Use newFunctionWithName:constantValues:... to get the specialized function
+'
+exit_code=

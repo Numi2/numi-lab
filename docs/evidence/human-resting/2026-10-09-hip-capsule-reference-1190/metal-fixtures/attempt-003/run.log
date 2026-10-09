@@ -1,0 +1,17 @@
+Test project /Users/n/numi-human-hip-capsule-build-1190
+    Start 17: numi_human_hip_capsule_metal
+1/1 Test #17: numi_human_hip_capsule_metal .....***Failed    0.42 sec
+monolithic production step failed
+
+
+0% tests passed, 1 tests failed out of 1
+
+Label Time Summary:
+hip-capsule    =   0.42 sec*proc (1 test)
+metal          =   0.42 sec*proc (1 test)
+numi-human     =   0.42 sec*proc (1 test)
+
+Total Test time (real) =   0.42 sec
+
+The following tests FAILED:
+	 17 - numi_human_hip_capsule_metal (Failed)             hip-capsule metal numi-human

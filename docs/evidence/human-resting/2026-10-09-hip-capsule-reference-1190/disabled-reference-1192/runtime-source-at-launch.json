@@ -1,0 +1,18 @@
+{
+  "base_revision": "7572b9619d881bd62362ece7c57b6e56f457e2f8",
+  "scope": "Runtime source files changed from base at native1192 launch; test-only development may continue independently. Compiled runtime artifacts remain immutable for the run.",
+  "patch_sha256": "74f9c3c0c91cf47a807c961092e7a79cdc6d1acfc4ebc1f51bf6af64f6a730a3",
+  "runtime_source_files": {
+    "apps/numilab_human_myosim_visual_probe.mm": "56f21bff4b1a04cf46dbb301b50661cf00c7b62df8016729a7423441a96482ab",
+    "include/metalrobo/MetalArticulatedOperator.hpp": "d48374a3ed42d14fa7d82a95df7aaa2140064b189c7b878fc8e892d36090b83e",
+    "include/metalrobo/NumiHumanPassiveJoint.hpp": "eebb0b7b82c85fd418618684b747fdbf5a69250705b2fedeb99173a5bce9a34a",
+    "include/metalrobo/numi_human_passive_joint.h": "14e4b1e183af1452609d6990faf94b970d7ae1a3d3947413a923c65f2bfe8337",
+    "include/metalrobo/numi_human_stand_gpu.h": "6b415de0b76da868bcdc36b4bb494fe4bf50c31de411cf3ef6322e695aa722c9",
+    "src/metal/MetalArticulatedOperator.mm": "db1917d33167d0b3d0a676cc65a9ab415bcbad5d70efb9f181ffbf7afa89d22c",
+    "src/metal/NumiHumanStand.metal": "e408c811deb4b9a951523ff39a3fb88507ee865c81da7b0edaef374dd48be7e3"
+  },
+  "build_files": {
+    "/Users/n/numi-human-hip-capsule-build-1190/CMakeCache.txt": "e6085865af2268d2395c2e98e453eb73b7bcdbb53b9110eecf5a2bc23bc99529",
+    "/Users/n/numi-human-hip-capsule-build-1190/compile_commands.json": "390af47252e127812f3d35b586edfb8f538bb342017c286bd759fd569dc90d6c"
+  }
+}

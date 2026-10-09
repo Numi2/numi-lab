@@ -1,0 +1,95 @@
+{
+  "scope": "Disabled-hip reference rebuild parity, unchanged assets/configuration/capture cadence vs1191. No enabled-model or long-run acceptance.",
+  "baseline": "/Users/n/numi-human-retained-delivery-20261009/native-lung1178-thumb1187-smoke-1191/native-run",
+  "candidate": "/Users/n/numi-human-retained-delivery-20261009/native-hip-reference-disabled-parity-1192/native-run",
+  "csv": {
+    "resting-coupled.csv": {
+      "rows_baseline": 1250,
+      "rows_candidate": 1250,
+      "all_rows_equal": true,
+      "first_mismatch": null,
+      "baseline_sha256": "5c4f129103fbf23010cfe47b99367c30d8497f70e525b4c97ca61b53c3ca90e6",
+      "candidate_sha256": "5c4f129103fbf23010cfe47b99367c30d8497f70e525b4c97ca61b53c3ca90e6"
+    },
+    "resting-com-momentum-diagnostic.csv": {
+      "rows_baseline": 1250,
+      "rows_candidate": 1250,
+      "all_rows_equal": true,
+      "first_mismatch": null,
+      "baseline_sha256": "be8708957990c08b357e54b28ca070ef93f0495183db57c7adf6041a7f80de32",
+      "candidate_sha256": "be8708957990c08b357e54b28ca070ef93f0495183db57c7adf6041a7f80de32"
+    },
+    "resting-com-support-impulses.csv": {
+      "rows_baseline": 40000,
+      "rows_candidate": 40000,
+      "all_rows_equal": true,
+      "first_mismatch": null,
+      "baseline_sha256": "82eeb9dfb1336a7e576df87cd6305679e673dd1759d315c12de8d0d16148480c",
+      "candidate_sha256": "82eeb9dfb1336a7e576df87cd6305679e673dd1759d315c12de8d0d16148480c"
+    },
+    "resting-surface-audit.csv": {
+      "rows_baseline": 315,
+      "rows_candidate": 315,
+      "all_rows_equal": true,
+      "first_mismatch": null,
+      "baseline_sha256": "8076b081e33b85a17dd07a5322e8b1625ecaab57f3dd5adf113253b254c1cb5e",
+      "candidate_sha256": "8076b081e33b85a17dd07a5322e8b1625ecaab57f3dd5adf113253b254c1cb5e"
+    }
+  },
+  "packs": {
+    "step-0.mrvpack": {
+      "baseline_sha256": "68dd2aecebd5febb561738e586cb9093813aee61309ccf1c0ceae5a535751bef",
+      "candidate_sha256": "68dd2aecebd5febb561738e586cb9093813aee61309ccf1c0ceae5a535751bef",
+      "bytes_equal": true
+    },
+    "step-10000.mrvpack": {
+      "baseline_sha256": "28a7bfc7a8160f24ec2371eb2b2e4f2dcdb650d2150a00d83dd379613c23b704",
+      "candidate_sha256": "28a7bfc7a8160f24ec2371eb2b2e4f2dcdb650d2150a00d83dd379613c23b704",
+      "bytes_equal": true
+    },
+    "step-4991.mrvpack": {
+      "baseline_sha256": "1e92f5668a5fa1e3a44fb6e829c279e9647c84034e753827508a4dab33d71312",
+      "candidate_sha256": "1e92f5668a5fa1e3a44fb6e829c279e9647c84034e753827508a4dab33d71312",
+      "bytes_equal": true
+    },
+    "step-5375.mrvpack": {
+      "baseline_sha256": "6892440f598634ca8e445bc92f1400954f16f695a1845dbcde14272b25e77d83",
+      "candidate_sha256": "6892440f598634ca8e445bc92f1400954f16f695a1845dbcde14272b25e77d83",
+      "bytes_equal": true
+    },
+    "step-5759.mrvpack": {
+      "baseline_sha256": "b71a22652ea2a4892786783120b2c9be118ee9255f839a05a4668d1b03ffbf74",
+      "candidate_sha256": "b71a22652ea2a4892786783120b2c9be118ee9255f839a05a4668d1b03ffbf74",
+      "bytes_equal": true
+    },
+    "step-6111.mrvpack": {
+      "baseline_sha256": "6cf14b9b1be347747a404284a76fa87eaa1f19641f9c09a35edffe37368a09fd",
+      "candidate_sha256": "6cf14b9b1be347747a404284a76fa87eaa1f19641f9c09a35edffe37368a09fd",
+      "bytes_equal": true
+    },
+    "step-6495.mrvpack": {
+      "baseline_sha256": "473fdf5b76c4f04dc648fff82ae5ea3a47454f125724189ccdd4a1c222fdb5eb",
+      "candidate_sha256": "473fdf5b76c4f04dc648fff82ae5ea3a47454f125724189ccdd4a1c222fdb5eb",
+      "bytes_equal": true
+    },
+    "step-7743.mrvpack": {
+      "baseline_sha256": "28869caeda537c4669f8aeda74a28e89c2096fdd82ac9050cd1c6f596f0da49d",
+      "candidate_sha256": "28869caeda537c4669f8aeda74a28e89c2096fdd82ac9050cd1c6f596f0da49d",
+      "bytes_equal": true
+    }
+  },
+  "pins": {
+    "/Users/n/numi-human-retained-delivery-20261009/native-hip-reference-disabled-parity-1192/native-run/run-metadata.json": "dddd7c0e48ab1fec28251331272ed1ecb8c9697bd92b40b950cf5dcb349b070a",
+    "/Users/n/numi-human-retained-delivery-20261009/native-hip-reference-disabled-parity-1192/native-run/invocation.json": "b5bf00fde8bfb9fc3602cba3910aeefb930873bf3d6502f3ca699b8d69e58230",
+    "/Users/n/numi-human-retained-delivery-20261009/native-hip-reference-disabled-parity-1192/native-run/native.log": "cecd0dc95740e038c0dabaad015140e4f17285662dab23d6282834f01e6e2d29",
+    "/Users/n/numi-human-retained-delivery-20261009/native-hip-reference-disabled-parity-1192/run-declaration.json": "8746587f2f175bb52994b65c41c0b78c92a4aac56744f487dc954f89bc8abbbb"
+  },
+  "run_success": true,
+  "transaction_rejection_line": "resting_integrated_rejection=pass rejected_after_accepted_predecessor=true body_q_v_root_myo_unchanged=true circulation_and_clock_unchanged=true respiration_brain_history_unchanged=true retry_matches_uninterrupted_replay=true same_command_buffer_reject=pass accepted_prefix=2 rejected_step=2 inert_suffix=1 multistep_reject=pass accepted_prefix=4 rejected_global_step=4 inert_suffix_global_step=5 raw_failed_submission_snapshot=pass all_owners_match_uninterrupted_prefix=true accepted_contact_history=disabled retry=fresh_context_reseed_and_replay_matches_six_root_baseline same_context_retry=unsupported",
+  "rejection_checks_pass": true,
+  "native_hip_reference_enabled_line_present": false,
+  "wall_seconds": 195.16924833299998,
+  "accepted_physical_seconds": 20.0000009499,
+  "real_time_factor": 0.10247516512322562,
+  "status": "pass"
+}
