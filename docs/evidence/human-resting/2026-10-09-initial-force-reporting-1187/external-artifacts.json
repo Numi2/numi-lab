@@ -1,0 +1,158 @@
+{
+  "all_entries_rehashed": true,
+  "artifact_count": 21,
+  "artifacts": [
+    {
+      "matches_prior_report_pin": true,
+      "path": "/Users/n/numi-human-retained-delivery-20261009/native-initial-force-report-smoke-1187/serializer-fix.diff",
+      "prior_report_sha256": "8df59a1448cb63b29c8f0e9e3a8f8783f02ce7bfb8fbd914ff9ecadbbb28e424",
+      "role": "source serializer patch",
+      "sha256_rechecked": "8df59a1448cb63b29c8f0e9e3a8f8783f02ce7bfb8fbd914ff9ecadbbb28e424",
+      "size_bytes": 5707
+    },
+    {
+      "path": "/Users/n/numi-human-retained-delivery-20261009/native-initial-force-report-smoke-1187/diagnostic-review-v2.json",
+      "role": "source diagnostic review",
+      "sha256_rechecked": "06f658364f0f289c0113649b43c51e1ee03350cf8c13167fff5c053e0332a845",
+      "size_bytes": 79111
+    },
+    {
+      "path": "/Users/n/numi-human-retained-delivery-20261009/native-initial-force-report-smoke-1187/result.json",
+      "role": "eight-step native result",
+      "sha256_rechecked": "4bd9fbd776c38cb3f8bb698212dc1bf930eb98dfb8059236b47520de68b558bf",
+      "size_bytes": 53401
+    },
+    {
+      "matches_prior_report_pin": true,
+      "path": "/Users/n/numi-human-retained-delivery-20261009/native-initial-force-report-smoke-1187/native-run/native.log",
+      "prior_report_sha256": "1ffc2552196cb672f00d78cb6d6c467a39534b3e0ea51803aede362553429a5f",
+      "role": "eight-step native log",
+      "sha256_rechecked": "1ffc2552196cb672f00d78cb6d6c467a39534b3e0ea51803aede362553429a5f",
+      "size_bytes": 288528
+    },
+    {
+      "path": "/Users/n/numi-human-retained-delivery-20261009/native-initial-force-report-smoke-1187/native-run/invocation-derived.json",
+      "role": "eight-step invocation",
+      "sha256_rechecked": "dca47aa2c53d353f188c419392b745f476a09796075524568684024b584787ca",
+      "size_bytes": 11821
+    },
+    {
+      "path": "/Users/n/numi-human-retained-delivery-20261009/native-initial-force-report-smoke-1187/native-run/resting-coupled.csv",
+      "role": "eight-step resting trace",
+      "sha256_rechecked": "ae9494888756a3bcadf938ccfa920581518e9a2c485b4b5838efae6b87b3c094",
+      "size_bytes": 2053
+    },
+    {
+      "path": "/Users/n/numi-human-retained-delivery-20261009/native-initial-force-report-smoke-1187/native-run/accepted-geometry/step-0.mrvpack",
+      "role": "eight-step step-zero MRV pack",
+      "sha256_rechecked": "ee52f91eea9ba2b8ca41f75903a79ab751a2034a5883fd90159dba672c0d6346",
+      "size_bytes": 285442048
+    },
+    {
+      "path": "/Users/n/numi-human-retained-delivery-20261009/native-initial-force-report-smoke-1187-16step-corrected/result.json",
+      "role": "sixteen-step corrected native result",
+      "sha256_rechecked": "5baa71ed847ee59aa6ef396f7ce288e4996446e63f2ab51184c67a482263a867",
+      "size_bytes": 59841
+    },
+    {
+      "matches_prior_report_pin": true,
+      "path": "/Users/n/numi-human-retained-delivery-20261009/native-initial-force-report-smoke-1187-16step-corrected/native-run/native.log",
+      "prior_report_sha256": "ef1bc4b2f89a5adcf8e4fb9f6a2fb3303884e1572d8aeb48ad5fcd378808675b",
+      "role": "sixteen-step corrected native log",
+      "sha256_rechecked": "ef1bc4b2f89a5adcf8e4fb9f6a2fb3303884e1572d8aeb48ad5fcd378808675b",
+      "size_bytes": 290253
+    },
+    {
+      "path": "/Users/n/numi-human-retained-delivery-20261009/native-initial-force-report-smoke-1187-16step-corrected/native-run/invocation-derived.json",
+      "role": "sixteen-step corrected invocation",
+      "sha256_rechecked": "acee4eecaaaca7e4cd5c99cc06ce102242f09d2b1aa55fe4ba6b2cd8dca38278",
+      "size_bytes": 11249
+    },
+    {
+      "matches_prior_report_pin": true,
+      "path": "/Users/n/numi-human-retained-delivery-20261009/native-initial-force-report-smoke-1187-16step-corrected/native-run/resting-coupled.csv",
+      "prior_report_sha256": "ddb072a646a3109d813956e7d04617f1db7b65c57e4df0b288564681c66a7759",
+      "role": "sixteen-step corrected resting trace",
+      "sha256_rechecked": "ddb072a646a3109d813956e7d04617f1db7b65c57e4df0b288564681c66a7759",
+      "size_bytes": 2804
+    },
+    {
+      "matches_prior_report_pin": true,
+      "path": "/Users/n/numi-human-retained-delivery-20261009/native-initial-force-report-smoke-1187-16step-corrected/native-run/accepted-geometry/step-0.mrvpack",
+      "prior_report_sha256": "ee52f91eea9ba2b8ca41f75903a79ab751a2034a5883fd90159dba672c0d6346",
+      "role": "sixteen-step corrected step-zero MRV pack",
+      "sha256_rechecked": "ee52f91eea9ba2b8ca41f75903a79ab751a2034a5883fd90159dba672c0d6346",
+      "size_bytes": 285442048
+    },
+    {
+      "path": "/Users/n/numi-human-retained-delivery-20261009/native-initial-force-report-smoke-1187-16step/native-run/invocation-derived.json",
+      "role": "failed cadence invocation",
+      "sha256_rechecked": "4fc4eaba522a620fe59d008d2824f73ea2682ab812d1340969e67adedb7db28a",
+      "size_bytes": 11221
+    },
+    {
+      "path": "/Users/n/numi-human-retained-delivery-20261009/native-initial-force-report-smoke-1187-16step/native-run/native.log",
+      "role": "failed cadence native log",
+      "sha256_rechecked": "20698d3c10047a7651067a6b4784c786ebb10195b14004218716dd8bf56f8d50",
+      "size_bytes": 104642
+    },
+    {
+      "matches_prior_report_pin": true,
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-1178-viewer-018-v015-attempt3/native-run/resting-coupled.csv",
+      "prior_report_sha256": "5c4f129103fbf23010cfe47b99367c30d8497f70e525b4c97ca61b53c3ca90e6",
+      "role": "baseline 1178 resting trace",
+      "sha256_rechecked": "5c4f129103fbf23010cfe47b99367c30d8497f70e525b4c97ca61b53c3ca90e6",
+      "size_bytes": 1017464
+    },
+    {
+      "matches_prior_report_pin": true,
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-1178-viewer-018-v015-attempt3/native-run/accepted-geometry/step-0.mrvpack",
+      "prior_report_sha256": "ee52f91eea9ba2b8ca41f75903a79ab751a2034a5883fd90159dba672c0d6346",
+      "role": "baseline 1178 step-zero MRV pack",
+      "sha256_rechecked": "ee52f91eea9ba2b8ca41f75903a79ab751a2034a5883fd90159dba672c0d6346",
+      "size_bytes": 285442048
+    },
+    {
+      "matches_prior_report_pin": true,
+      "path": "/Users/n/numi-human-retained-delivery-20261009/native-initial-force-report-source-1187/apps/numilab_human_myosim_visual_probe.mm",
+      "prior_report_sha256": "b7ba11d06145c0e7ab467fa82fcf6b5cc88ce240847dc17432198a25bc83092d",
+      "role": "tested source file",
+      "sha256_rechecked": "b7ba11d06145c0e7ab467fa82fcf6b5cc88ce240847dc17432198a25bc83092d",
+      "size_bytes": 1492079
+    },
+    {
+      "matches_prior_report_pin": true,
+      "path": "/Users/n/numi-human-retained-delivery-20261009/native-initial-force-report-build-1187/build-native-observer-1187.sh",
+      "prior_report_sha256": "4b60d982fdb829fa95a606e318998a26fd4a36a79e4738527a3fbb609fdf391a",
+      "role": "build script",
+      "sha256_rechecked": "4b60d982fdb829fa95a606e318998a26fd4a36a79e4738527a3fbb609fdf391a",
+      "size_bytes": 3231
+    },
+    {
+      "matches_prior_report_pin": true,
+      "path": "/Users/n/numi-human-retained-delivery-20261009/native-initial-force-report-build-1187/build.log",
+      "prior_report_sha256": "4fdff372438cc40da648e9a13b38e947a022acd00b5da07400140c0c01ca0528",
+      "role": "build log",
+      "sha256_rechecked": "4fdff372438cc40da648e9a13b38e947a022acd00b5da07400140c0c01ca0528",
+      "size_bytes": 6351
+    },
+    {
+      "matches_prior_report_pin": true,
+      "path": "/Users/n/numi-human-retained-delivery-20261009/native-initial-force-report-build-1187/build/bin/numi-human-native",
+      "prior_report_sha256": "7780446808407c76e7c4d15f70fbc624b7dd512ec396e7947b7441aef2c48e26",
+      "role": "built native binary",
+      "sha256_rechecked": "7780446808407c76e7c4d15f70fbc624b7dd512ec396e7947b7441aef2c48e26",
+      "size_bytes": 2278048
+    },
+    {
+      "matches_prior_report_pin": true,
+      "path": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-1178-viewer-018-v015-attempt3/native-run/invocation.json",
+      "prior_report_sha256": "4e99e30555a4fa64cfcdc3611413964ecc899924e815642d4e23dc0fc3faa76c",
+      "role": "1178 source invocation",
+      "sha256_rechecked": "4e99e30555a4fa64cfcdc3611413964ecc899924e815642d4e23dc0fc3faa76c",
+      "size_bytes": 10860
+    }
+  ],
+  "recorded_pin_policy": "Every listed hash was computed from the retained path during this publication preparation. matches_prior_report_pin is present only where an independent prior report hash exists and was checked.",
+  "schema": "numi.human.initial_force_reporting_serializer.external_artifacts.v1"
+}

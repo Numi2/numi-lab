@@ -1,0 +1,143 @@
+{
+  "baseline_identity": {
+    "baseline_step0_mrvpack_sha256": "ee52f91eea9ba2b8ca41f75903a79ab751a2034a5883fd90159dba672c0d6346",
+    "candidate_and_baseline_resting_trace_sha256": [
+      "ddb072a646a3109d813956e7d04617f1db7b65c57e4df0b288564681c66a7759",
+      "5c4f129103fbf23010cfe47b99367c30d8497f70e525b4c97ca61b53c3ca90e6"
+    ],
+    "first_two_cadence_rows_exactly_equal": true,
+    "initial_step0_mrvpack_byte_identical": true,
+    "initial_step0_mrvpack_sha256": "ee52f91eea9ba2b8ca41f75903a79ab751a2034a5883fd90159dba672c0d6346",
+    "step0_receipt_equal_after_output_path_normalization": true
+  },
+  "behavior": {
+    "force_math_changed": false,
+    "generic_branch": "uses same shared serializer",
+    "legacy_force_field_suffix": "_force_n",
+    "physics_changed": false,
+    "resting_branch": "calls shared existing serializer on final initialized state before returning",
+    "runtime_library_changed": false,
+    "shader_changed": false,
+    "unit_note": "Generalized force rows have mixed units: translational coordinates in N; rotational coordinates in N m. Historical JSON keys ending in _force_n are retained for compatibility and must not imply homogeneous units."
+  },
+  "build": {
+    "binary_sha256": "7780446808407c76e7c4d15f70fbc624b7dd512ec396e7947b7441aef2c48e26",
+    "build_log_sha256": "4fdff372438cc40da648e9a13b38e947a022acd00b5da07400140c0c01ca0528",
+    "build_script_sha256": "4b60d982fdb829fa95a606e318998a26fd4a36a79e4738527a3fbb609fdf391a",
+    "compiled_respiratory_metallib_017_sha256": "4b61361f513bf0996d687398498b85ba4e379edca91c36f134e1b0398f31c426",
+    "existing_test_build_returncode": 0,
+    "linked_libmetalrobo_014_sha256": "6bccfc4044d825423e66bc2f60ba3cf59eaa9a4936773ab08182f58a09927092",
+    "publication_checkout_rebuilt": false
+  },
+  "change": {
+    "application_note": "The retained patch was applied with -p5 after the publication base file hash matched; the resulting source SHA equals the tested 1187 source file SHA.",
+    "applied_patch_matches_tested_source": true,
+    "applied_patch_sha256": "8df59a1448cb63b29c8f0e9e3a8f8783f02ce7bfb8fbd914ff9ecadbbb28e424",
+    "base_revision": "d757e1990c70e9c195209726cdacc2941fdf348a",
+    "kind": "serializer-only reporting fix",
+    "path": "apps/numilab_human_myosim_visual_probe.mm",
+    "reviewed_patch_sha256": "8df59a1448cb63b29c8f0e9e3a8f8783f02ce7bfb8fbd914ff9ecadbbb28e424",
+    "source_sha256_after": "b7ba11d06145c0e7ab467fa82fcf6b5cc88ce240847dc17432198a25bc83092d",
+    "source_sha256_before": "58f85961a908bce622d77f2e6e42768c01c4b16a1f62be0ff8d70c0447bf6f8a"
+  },
+  "copied_files": [
+    {
+      "bundle_path": "serializer-fix.diff",
+      "bundle_sha256": "8df59a1448cb63b29c8f0e9e3a8f8783f02ce7bfb8fbd914ff9ecadbbb28e424",
+      "byte_identical": true,
+      "size_bytes": 5707,
+      "source_path": "/Users/n/numi-human-retained-delivery-20261009/native-initial-force-report-smoke-1187/serializer-fix.diff",
+      "source_sha256": "8df59a1448cb63b29c8f0e9e3a8f8783f02ce7bfb8fbd914ff9ecadbbb28e424"
+    },
+    {
+      "bundle_path": "diagnostic-review-v2.json",
+      "bundle_sha256": "06f658364f0f289c0113649b43c51e1ee03350cf8c13167fff5c053e0332a845",
+      "byte_identical": true,
+      "size_bytes": 79111,
+      "source_path": "/Users/n/numi-human-retained-delivery-20261009/native-initial-force-report-smoke-1187/diagnostic-review-v2.json",
+      "source_sha256": "06f658364f0f289c0113649b43c51e1ee03350cf8c13167fff5c053e0332a845"
+    },
+    {
+      "bundle_path": "smoke-8-step-result.json",
+      "bundle_sha256": "4bd9fbd776c38cb3f8bb698212dc1bf930eb98dfb8059236b47520de68b558bf",
+      "byte_identical": true,
+      "size_bytes": 53401,
+      "source_path": "/Users/n/numi-human-retained-delivery-20261009/native-initial-force-report-smoke-1187/result.json",
+      "source_sha256": "4bd9fbd776c38cb3f8bb698212dc1bf930eb98dfb8059236b47520de68b558bf"
+    },
+    {
+      "bundle_path": "smoke-16-step-result.json",
+      "bundle_sha256": "5baa71ed847ee59aa6ef396f7ce288e4996446e63f2ab51184c67a482263a867",
+      "byte_identical": true,
+      "size_bytes": 59841,
+      "source_path": "/Users/n/numi-human-retained-delivery-20261009/native-initial-force-report-smoke-1187-16step-corrected/result.json",
+      "source_sha256": "5baa71ed847ee59aa6ef396f7ce288e4996446e63f2ab51184c67a482263a867"
+    },
+    {
+      "bundle_path": "failed-cadence-16-step/invocation-derived.json",
+      "bundle_sha256": "4fc4eaba522a620fe59d008d2824f73ea2682ab812d1340969e67adedb7db28a",
+      "byte_identical": true,
+      "size_bytes": 11221,
+      "source_path": "/Users/n/numi-human-retained-delivery-20261009/native-initial-force-report-smoke-1187-16step/native-run/invocation-derived.json",
+      "source_sha256": "4fc4eaba522a620fe59d008d2824f73ea2682ab812d1340969e67adedb7db28a"
+    },
+    {
+      "bundle_path": "failed-cadence-16-step/native.log",
+      "bundle_sha256": "20698d3c10047a7651067a6b4784c786ebb10195b14004218716dd8bf56f8d50",
+      "byte_identical": true,
+      "size_bytes": 104642,
+      "source_path": "/Users/n/numi-human-retained-delivery-20261009/native-initial-force-report-smoke-1187-16step/native-run/native.log",
+      "source_sha256": "20698d3c10047a7651067a6b4784c786ebb10195b14004218716dd8bf56f8d50"
+    }
+  ],
+  "external_artifact_index": "external-artifacts.json",
+  "force_reference": {
+    "all_numeric_fields_finite": true,
+    "exact_recomputation_error": 0.0,
+    "initial_reference_identical_between_8_and_16_steps": true,
+    "interpretation_limit": "Initialized generalized-force split only; not a time-resolved trajectory or causal settling diagnosis.",
+    "maximum_absolute_numeric_residual": 353.94573209502767,
+    "one_record_per_smoke": true,
+    "rows": 128,
+    "schema": "numi.human.persistent-initial-force-reference.v1"
+  },
+  "limits": [
+    "8/16-step native smokes verify serializer presence, not a long run or physiological cause.",
+    "The failed cadence run is retained unchanged; it is not treated as a force-reporting failure.",
+    "No new native or GPU run and no publication build was performed in this checkout."
+  ],
+  "preserved_failed_cadence": {
+    "invocation_bundle_path": "failed-cadence-16-step/invocation-derived.json",
+    "invocation_sha256": "4fc4eaba522a620fe59d008d2824f73ea2682ab812d1340969e67adedb7db28a",
+    "log_bundle_path": "failed-cadence-16-step/native.log",
+    "log_sha256": "20698d3c10047a7651067a6b4784c786ebb10195b14004218716dd8bf56f8d50",
+    "reason": "viewer rejected accepted geometry step 8 as not initial, submission-cadence, or true terminal state",
+    "returncode": 1,
+    "steps": 16
+  },
+  "schema": "numi.human.initial_force_reporting_serializer_publication.v1",
+  "smokes": [
+    {
+      "invocation_path": "/Users/n/numi-human-retained-delivery-20261009/native-initial-force-report-smoke-1187/native-run/invocation-derived.json",
+      "invocation_sha256": "dca47aa2c53d353f188c419392b745f476a09796075524568684024b584787ca",
+      "log_path": "/Users/n/numi-human-retained-delivery-20261009/native-initial-force-report-smoke-1187/native-run/native.log",
+      "log_sha256": "1ffc2552196cb672f00d78cb6d6c467a39534b3e0ea51803aede362553429a5f",
+      "result_bundle_path": "smoke-8-step-result.json",
+      "result_sha256": "4bd9fbd776c38cb3f8bb698212dc1bf930eb98dfb8059236b47520de68b558bf",
+      "returncode": 0,
+      "rows": 128,
+      "steps": 8
+    },
+    {
+      "invocation_path": "/Users/n/numi-human-retained-delivery-20261009/native-initial-force-report-smoke-1187-16step-corrected/native-run/invocation-derived.json",
+      "invocation_sha256": "acee4eecaaaca7e4cd5c99cc06ce102242f09d2b1aa55fe4ba6b2cd8dca38278",
+      "log_path": "/Users/n/numi-human-retained-delivery-20261009/native-initial-force-report-smoke-1187-16step-corrected/native-run/native.log",
+      "log_sha256": "ef1bc4b2f89a5adcf8e4fb9f6a2fb3303884e1572d8aeb48ad5fcd378808675b",
+      "result_bundle_path": "smoke-16-step-result.json",
+      "result_sha256": "5baa71ed847ee59aa6ef396f7ce288e4996446e63f2ab51184c67a482263a867",
+      "returncode": 0,
+      "rows": 128,
+      "steps": 16
+    }
+  ]
+}

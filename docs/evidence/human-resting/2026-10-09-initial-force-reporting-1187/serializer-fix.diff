@@ -1,0 +1,82 @@
+--- /Users/n/numi-human-support-drift-observer-020/apps/numilab_human_myosim_visual_probe.mm	2026-10-09 08:08:15
++++ /Users/n/numi-human-retained-delivery-20261009/native-initial-force-report-source-1187/apps/numilab_human_myosim_visual_probe.mm	2026-10-09 12:10:19
+@@ -22355,6 +22355,35 @@
+                     << " boundary=static_unilateral_floating_base_wrench_only_not_internal_muscle_balance_dynamic_contact_or_sustained_standing\n";
+                 return 0;
+             }
++            const auto emitPersistentInitialForceReference =
++                [](const MuscleDrivenVisualState& state) {
++                    if (state.persistentDynamicForceAudit.empty()) return;
++                    std::cout << std::setprecision(17)
++                              << "persistent_initial_force_reference={\"schema\":\"numi.human.persistent-initial-force-reference.v1\""
++                              << ",\"maximum_abs_residual_n\":"
++                              << state.persistentDynamicMaximumForceResidual
++                              << ",\"rows\":[";
++                    for (std::size_t index = 0u;
++                         index < state.persistentDynamicForceAudit.size();
++                         ++index) {
++                        if (index != 0u) std::cout << ',';
++                        const auto& row = state.persistentDynamicForceAudit[index];
++                        std::cout << "{\"dof\":" << row.dof
++                                  << ",\"joint_index\":" << row.jointIndex
++                                  << ",\"child_body_index\":" << row.childBodyIndex
++                                  << ",\"name\":\"" << row.name << "\""
++                                  << ",\"metal_muscle_force_n\":" << row.metalMuscleForce
++                                  << ",\"support_force_n\":" << row.supportForce
++                                  << ",\"equality_force_n\":" << row.equalityForce
++                                  << ",\"limit_force_n\":" << row.limitForce
++                                  << ",\"passive_force_n\":" << row.passiveForce
++                                  << ",\"compiled_passive_force_n\":"
++                                  << row.compiledPassiveForce
++                                  << ",\"gravity_target_n\":" << row.gravityTarget
++                                  << ",\"residual_n\":" << row.residual << '}';
++                    }
++                    std::cout << "]}\n";
++                };
+             std::optional<MuscleDrivenVisualState> muscleDrivenState;
+             std::vector<float> overriddenPoseQ;
+             std::string projectedRangeFailure;
+@@ -23989,6 +24018,7 @@
+                               << " root_translation=\"compensated advance then projection\""
+                               << std::endl;
+                 }
++                emitPersistentInitialForceReference(final);
+                 std::cout<<"resting_integrated_body=completed simulated_s="<<*muscleStepCount*double(coupled.physiology.runtime.timestepSeconds())
+                     <<" wall_s="<<wall<<" real_time_factor="<<*muscleStepCount*double(coupled.physiology.runtime.timestepSeconds())/wall
+                     <<" physiology_body_clock=matched root_assistance=false presentation_qualification=pending\n";
+@@ -26368,33 +26398,8 @@
+                                   : "cpu_fp64_mujoco_tangent_and_wrapped_arc_centreline_at_same_q_not_an_anatomical_tendon_surface_or_bodyparts3d_surface_attachment_certificate")
+                               : "hidden_until_a_source_route_centreline_inspection_is_requested")
+                       << '\n';
+-            if (muscleDrivenState.has_value() &&
+-                !muscleDrivenState->persistentDynamicForceAudit.empty()) {
+-                std::cout << std::setprecision(17)
+-                          << "persistent_initial_force_reference={\"schema\":\"numi.human.persistent-initial-force-reference.v1\""
+-                          << ",\"maximum_abs_residual_n\":"
+-                          << muscleDrivenState->persistentDynamicMaximumForceResidual
+-                          << ",\"rows\":[";
+-                for (std::size_t index = 0u;
+-                     index < muscleDrivenState->persistentDynamicForceAudit.size();
+-                     ++index) {
+-                    if (index != 0u) std::cout << ',';
+-                    const auto& row = muscleDrivenState->persistentDynamicForceAudit[index];
+-                    std::cout << "{\"dof\":" << row.dof
+-                              << ",\"joint_index\":" << row.jointIndex
+-                              << ",\"child_body_index\":" << row.childBodyIndex
+-                              << ",\"name\":\"" << row.name << "\""
+-                              << ",\"metal_muscle_force_n\":" << row.metalMuscleForce
+-                              << ",\"support_force_n\":" << row.supportForce
+-                              << ",\"equality_force_n\":" << row.equalityForce
+-                              << ",\"limit_force_n\":" << row.limitForce
+-                              << ",\"passive_force_n\":" << row.passiveForce
+-                              << ",\"compiled_passive_force_n\":"
+-                              << row.compiledPassiveForce
+-                              << ",\"gravity_target_n\":" << row.gravityTarget
+-                              << ",\"residual_n\":" << row.residual << '}';
+-                }
+-                std::cout << "]}\n";
++            if (muscleDrivenState.has_value()) {
++                emitPersistentInitialForceReference(*muscleDrivenState);
+             }
+             if (muscleDrivenState.has_value() &&
+                 muscleDrivenState->persistentStandTraceCaptured) {
