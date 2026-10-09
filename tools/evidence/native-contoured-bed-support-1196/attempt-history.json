@@ -1,0 +1,58 @@
+{
+  "audit_tool_attempts": [
+    {
+      "attempt": 1,
+      "log_sha256": "386c5700a29dff8ee1081782315d339587f180a640af76ad019211e553c02e04",
+      "path": "/Users/n/numi-human-retained-delivery-20261009/contoured-bed-reference-1196/terminal-launch-attempt001",
+      "result": "failed in audit startup: imported skin runner lacked RUNNER attribute"
+    },
+    {
+      "attempt": 2,
+      "log_sha256": "317523cccf7c0e0613e3d608fb2ab5f5e6659723c26f8195bea9eca7c6ac7de5",
+      "path": "/Users/n/numi-human-retained-delivery-20261009/contoured-bed-reference-1196/terminal-launch-attempt002",
+      "result": "preflight passed; no geometry scan in this attempt"
+    },
+    {
+      "attempt": 3,
+      "log_sha256": "b856a8236d5769ce4a6d267bfbf67f6b47a6a5a9aba23711455890f4d860c428",
+      "path": "/Users/n/numi-human-retained-delivery-20261009/contoured-bed-reference-1196/terminal-launch-attempt003",
+      "result": "terminal-only scan completed and exposed anatomy failure; full eight-capture scan not run"
+    }
+  ],
+  "native_attempts": [
+    {
+      "accepted_steps": 0,
+      "attempt": "1197 flat/disabled attempt 001",
+      "diagnosis_sha256": "9cb12ae58fdc5ca55b09b0750e50b4ab0a338e977231e0eac92dd684ac1d7ce8",
+      "execution_sha256": "4e981f9bb594760340b24abcf4e789a54320eddc4b5510e52973a5a55cad9ee9",
+      "path": "/Users/n/numi-human-retained-delivery-20261009/native-bed-disabled-parity-1197",
+      "result": "failed before physical integration; optional bed audit Metal function required explicit specialization even in disabled mode"
+    },
+    {
+      "attempt": "1197 flat/disabled attempt 002",
+      "execution_sha256": "7da1f1e86c44e3f81cafd01408d6b1c712f2c86044f4c62067a5343844ffe0ac",
+      "parity_sha256": "c2d80ee5db5106ba40c7fae49ae0010ca971995dcc4e5c97d1655ac354bc7844",
+      "path": "/Users/n/numi-human-retained-delivery-20261009/native-bed-disabled-parity-1197-attempt002",
+      "result": "completed 10,000 accepted steps; disabled parity/reference run"
+    },
+    {
+      "accepted_steps": 0,
+      "attempt": "1198 contoured attempt 001",
+      "diagnosis_sha256": "6ed67f7ed3b8376ca1b456ff3963a8003fa48f5b6ea0acc34be9e4c488d5d380",
+      "execution_sha256": "f87979c325bd7ee01116fbe1abc391355f0efabec9a8baef656c7ba64860af39",
+      "path": "/Users/n/numi-human-retained-delivery-20261009/native-contoured-bed-smoke-1198",
+      "result": "failed before physical integration; recomputed shaded normal retained a nonorthogonal +X tangent"
+    },
+    {
+      "accepted_steps": 10000,
+      "attempt": "1198 contoured attempt 002",
+      "contact_trace_sha256": "cf41e2113758611ab5219b1c49de0d1ab8ab7b50538e5f77af39e6bff007f0a3",
+      "declaration_sha256": "e9b711ea0490f19b5351cde1b20f80b1a6e1f83ba8068a6a4e1664614e8b667a",
+      "execution_sha256": "807154868d33a5c5c06d3c9161cb31077757ec5f02ee8c5b60abb0c07631134b",
+      "path": "/Users/n/numi-human-retained-delivery-20261009/native-contoured-bed-smoke-1198-attempt002",
+      "result": "completed 10,000 accepted steps; contact trace passed; terminal anatomy audit failed with 3,727 skin-target intersections across 26 surfaces and zero self intersections",
+      "terminal_anatomy_summary_sha256": "ad3307b61da3c576cfaf94dd182f85f57cfd2f8ec3b56e2efc597fa272f4b1ca"
+    }
+  ],
+  "schema": "numi.fixed-bed-attempt-history.v1"
+}

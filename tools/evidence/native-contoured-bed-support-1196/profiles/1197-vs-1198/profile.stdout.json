@@ -1,0 +1,147 @@
+{
+  "report_path": "/Users/n/numi-human-retained-delivery-20261009/native-bed-profile-comparison-1198/profile-comparison.json",
+  "report_sha256": "9751229c9962a58315ce22a8bdd2614d438266765f582a23c3122c0b7e9a93e7",
+  "script_sha256": "0f1ded514a354cf5e55317c487138bd2f9db4e121b1dad536bdfbae3fe36a8d5",
+  "comparison": {
+    "execution.wall_seconds": {
+      "flat": 192.67338462499998,
+      "contoured_bed": 250.407721292,
+      "absolute_delta": 57.73433666700001,
+      "relative_change_percent": 29.96487386120729
+    },
+    "profile.integrated_body.wall_s": {
+      "flat": 185.683796041,
+      "contoured_bed": 242.943613875,
+      "absolute_delta": 57.25981783400002,
+      "relative_change_percent": 30.837272317158323
+    },
+    "profile.integrated_body.real_time_factor": {
+      "flat": 0.10770999611367767,
+      "contoured_bed": 0.08232363317127356,
+      "absolute_delta": -0.02538636294240411,
+      "relative_change_percent": -23.569180074624843
+    },
+    "profile.native_command_ms.mean_ms": {
+      "flat": 130.8721650768,
+      "contoured_bed": 177.342384636,
+      "absolute_delta": 46.47021955919999,
+      "relative_change_percent": 35.50810023806802
+    },
+    "profile.native_gpu_ms.mean_ms": {
+      "flat": 130.31635665894623,
+      "contoured_bed": 176.7755011618216,
+      "absolute_delta": 46.459144502875375,
+      "relative_change_percent": 35.651046187904576
+    },
+    "profile.native_host_copy_ms.mean_ms": {
+      "flat": 0.0404083352,
+      "contoured_bed": 0.047896328,
+      "absolute_delta": 0.007487992800000003,
+      "relative_change_percent": 18.53081242505631
+    },
+    "profile.render_regular_wall_ms.mean_ms": {
+      "flat": 13.253312406253746,
+      "contoured_bed": 13.47886619585798,
+      "absolute_delta": 0.2255537896042341,
+      "relative_change_percent": 1.7018672969468647
+    },
+    "profile.render_regular_gpu_ms.mean_ms": {
+      "flat": 12.933205500706515,
+      "contoured_bed": 13.139359376936808,
+      "absolute_delta": 0.20615387623029235,
+      "relative_change_percent": 1.593989024755159
+    },
+    "profile.geometry_export_audit_ms.mean_ms": {
+      "flat": 1480.919656112948,
+      "contoured_bed": 1616.1749113505832,
+      "absolute_delta": 135.2552552376353,
+      "relative_change_percent": 9.133193328843193
+    },
+    "profile.geometry_export_total_wall_ms.mean_ms": {
+      "flat": 1499.369485171851,
+      "contoured_bed": 1635.4113444108789,
+      "absolute_delta": 136.04185923902787,
+      "relative_change_percent": 9.073271170610449
+    },
+    "profile.presentation_wall_ms.mean_ms": {
+      "flat": 54.47666464937822,
+      "contoured_bed": 58.273401839879256,
+      "absolute_delta": 3.796737190501034,
+      "relative_change_percent": 6.969474388598364
+    }
+  },
+  "observer_phase_deltas": {
+    "accepted_callbacks": {
+      "flat": 1250.0,
+      "contoured_bed": 1250.0,
+      "delta": 0.0,
+      "relative_change_percent": 0.0
+    },
+    "body_motion_csv_ms": {
+      "flat": 0.0,
+      "contoured_bed": 0.0,
+      "delta": 0.0,
+      "relative_change_percent": null
+    },
+    "com_cpu_kinematics_ms": {
+      "flat": 34.256764,
+      "contoured_bed": 34.944663,
+      "delta": 0.6878990000000016,
+      "relative_change_percent": 2.008067662199505
+    },
+    "com_momentum_csv_ms": {
+      "flat": 15.957848,
+      "contoured_bed": 16.349219,
+      "delta": 0.39137100000000125,
+      "relative_change_percent": 2.452529940127273
+    },
+    "csv_flush_ms": {
+      "flat": 25.758927,
+      "contoured_bed": 19.536912,
+      "delta": -6.222014999999999,
+      "relative_change_percent": -24.15479107495432
+    },
+    "mean_ms": {
+      "flat": 11.3556515,
+      "contoured_bed": 12.0615541,
+      "delta": 0.7059025999999999,
+      "relative_change_percent": 6.21631088273535
+    },
+    "observer_other_ms": {
+      "flat": 5.382436,
+      "contoured_bed": 6.678968,
+      "delta": 1.296532,
+      "relative_change_percent": 24.08820095584973
+    },
+    "presentation_ms": {
+      "flat": 14023.105,
+      "contoured_bed": 14827.033,
+      "delta": 803.9279999999999,
+      "relative_change_percent": 5.732881555119212
+    },
+    "q_integration_csv_ms": {
+      "flat": 0.0,
+      "contoured_bed": 0.0,
+      "delta": 0.0,
+      "relative_change_percent": null
+    },
+    "respiration_trace_csv_ms": {
+      "flat": 23.415861,
+      "contoured_bed": 22.301954,
+      "delta": -1.113907000000001,
+      "relative_change_percent": -4.757061890656086
+    },
+    "support_impulse_csv_ms": {
+      "flat": 66.687488,
+      "contoured_bed": 150.097917,
+      "delta": 83.410429,
+      "relative_change_percent": 125.07657958266472
+    },
+    "total_ms": {
+      "flat": 14194.5644,
+      "contoured_bed": 15076.9426,
+      "delta": 882.378200000001,
+      "relative_change_percent": 6.216310519539444
+    }
+  }
+}

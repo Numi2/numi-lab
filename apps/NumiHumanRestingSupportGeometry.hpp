@@ -5,6 +5,7 @@
 #include "metalrobo/MetalArticulatedOperator.hpp"
 #include "metalrobo/numi_human_motion_observer.hpp"
 #include "metalrobo/numi_human_support_geometry_gpu.h"
+#include "metalrobo/numi_human_resting_bed_gpu.h"
 
 #include <algorithm>
 #include <cstdio>
@@ -31,6 +32,7 @@ struct NumiHumanSkinInfluencePipelineConfig {
     NumiHumanSkinInfluenceLayout influenceLayout =
         NumiHumanSkinInfluenceLayout::vertexMajor;
     bool skipNonAncestorSupportBodyDofs = false;
+    bool contouredBed = false;
 };
 
 inline id<MTLFunction> numiHumanRestingMakeSkinInfluenceFunction(
@@ -38,13 +40,12 @@ inline id<MTLFunction> numiHumanRestingMakeSkinInfluenceFunction(
     const NumiHumanSkinInfluencePipelineConfig config,
     NSError** error
 ) {
-    if (!config.validatedStaticSkinInfluences &&
-        !config.specializeSkinInfluenceLayout &&
-        !config.skipNonAncestorSupportBodyDofs) {
-        return [library newFunctionWithName:name];
-    }
     MTLFunctionConstantValues* constants =
         [[MTLFunctionConstantValues alloc] init];
+    // Optional Metal arguments require a specialized function in both modes.
+    // Explicit false removes the bed buffers from the legacy pipeline.
+    const bool contouredBed = config.contouredBed;
+    [constants setConstantValue:&contouredBed type:MTLDataTypeBool atIndex:47u];
     if (config.validatedStaticSkinInfluences) {
         bool validated = true;
         [constants setConstantValue:&validated
@@ -76,6 +77,8 @@ class NumiHumanRestingSupportGeometry final {
     __strong id<MTLComputePipelineState> selectPipeline_ = nil;
     __strong id<MTLComputePipelineState> publishPipeline_ = nil;
     __strong id<MTLComputePipelineState> debugPipeline_ = nil;
+    MRHumanRestingBedGPU bed_{};
+    __strong id<MTLBuffer> bedHeights_ = nil;
     __strong id<MTLBuffer> vertexMap_ = nil;
     __strong id<MTLBuffer> influences_ = nil;
     __strong id<MTLBuffer> regionForVertex_ = nil;
@@ -136,13 +139,14 @@ class NumiHumanRestingSupportGeometry final {
         const bool specializeSkinInfluenceLayout = false,
         const NumiHumanSkinInfluenceLayout influenceLayout =
             NumiHumanSkinInfluenceLayout::vertexMajor,
-        const bool skipNonAncestorSupportBodyDofs = false
+        const bool skipNonAncestorSupportBodyDofs = false,
+        const bool contouredBed = false
     ) {
         NSError* functionError = nil;
         const auto function = numiHumanRestingMakeSkinInfluenceFunction(
             library, name,
             {validatedSkinInfluences, specializeSkinInfluenceLayout,
-             influenceLayout, skipNonAncestorSupportBodyDofs},
+             influenceLayout, skipNonAncestorSupportBodyDofs, contouredBed},
             &functionError);
         require(function != nil,
                 functionError.localizedDescription.UTF8String != nullptr
@@ -233,7 +237,7 @@ class NumiHumanRestingSupportGeometry final {
             static_cast<std::uint64_t>(regionCount_) * pass.environmentCount;
         const std::uint64_t publishLanesPerRegion =
             1ull + 3ull * pass.dofCount;
-        if (pass.abiVersion != 1u ||
+        if (pass.abiVersion != 2u ||
             pass.structSize != sizeof(pass) ||
             pass.commandBuffer == nullptr || pass.bodyPoses == nullptr ||
             pass.bodyPositionLow == nullptr || pass.pointWorld == nullptr ||
@@ -384,6 +388,10 @@ class NumiHumanRestingSupportGeometry final {
         [positions setBuffer:invalidRegionFlags_ offset:0u atIndex:8u];
         [positions setBuffer:normalizedOrientations_ offset:0u atIndex:9u];
         [positions setBuffer:rotationZBasis_ offset:0u atIndex:10u];
+        if (bed_.counts.z) {
+            [positions setBytes:&bed_ length:sizeof(bed_) atIndex:11u];
+            [positions setBuffer:bedHeights_ offset:0u atIndex:12u];
+        }
         const NSUInteger positionCount =
             static_cast<NSUInteger>(vertexCount_) * environmentCount_;
         [positions dispatchThreadgroups:MTLSizeMake(
@@ -430,6 +438,10 @@ class NumiHumanRestingSupportGeometry final {
         [publish setBuffer:bodies offset:0u atIndex:11u];
         [publish setBuffer:bodyLow offset:0u atIndex:12u];
         [publish setBuffer:normalizedOrientations_ offset:0u atIndex:13u];
+        if (bed_.counts.z) {
+            [publish setBytes:&bed_ length:sizeof(bed_) atIndex:16u];
+            [publish setBuffer:bedHeights_ offset:0u atIndex:17u];
+        }
         if (skipNonAncestorSupportBodyDofs_) {
             [publish setBuffer:bodyDofAncestry_ offset:0u atIndex:14u];
         }
@@ -578,7 +590,8 @@ public:
         const bool skipNonAncestorSupportBodyDofs,
         const std::uint64_t fingerprint,
         const NSUInteger vertexMapOffsetBytes,
-        const NumiHumanSkinInfluenceLayout influenceLayout
+        const NumiHumanSkinInfluenceLayout influenceLayout,
+        const MRHumanRestingBedGPU& bed = {}, id<MTLBuffer> bedHeights = nil
     ) : device_(device), vertexMap_(vertexMap), influences_(influences),
         vertexCount_(static_cast<std::uint32_t>(hostMap.size())),
         regionCount_(static_cast<std::uint32_t>(regions.size())),
@@ -591,6 +604,13 @@ public:
         skipNonAncestorSupportBodyDofs_(skipNonAncestorSupportBodyDofs),
         vertexMapOffsetBytes_(vertexMapOffsetBytes),
         fingerprint_(fingerprint), hostRegions_(regions.begin(), regions.end()) {
+        bed_=bed; bedHeights_=bedHeights;
+        require(bed_.counts.z==0u ||
+            (bed_.counts.z==1u && bed_.counts.w==1u && environmentCount_==1u &&
+             bed_.counts.x>=2u && bed_.counts.y>=2u &&
+             sameDevice(device_,bedHeights_) &&
+             bedHeights_.length==size_t(bed_.counts.x)*bed_.counts.y*sizeof(float)),
+             "contoured bed requires one environment and one complete fixed height buffer");
         const char* diagnosticSetting =
             std::getenv("NUMI_HUMAN_SUPPORT_DIAGNOSTICS");
         diagnosticCapture_ = diagnosticSetting != nullptr &&
@@ -700,14 +720,14 @@ public:
         // invalid-region publication remain in the shader.
         positionsPipeline_ = makePipeline(device_, library,
             @"nm_human_resting_support_positions", true, true,
-            influenceLayout_);
+            influenceLayout_, false, bed_.counts.z!=0u);
         orientationPipeline_ = makePipeline(device_, library,
             @"nm_human_resting_support_normalize_poses");
         selectPipeline_ = makePipeline(device_, library,
             @"nm_human_resting_support_select");
         publishPipeline_ = makePipeline(device_, library,
             @"nm_human_resting_support_publish", false, true,
-            influenceLayout_, skipNonAncestorSupportBodyDofs_);
+            influenceLayout_, skipNonAncestorSupportBodyDofs_, bed_.counts.z!=0u);
         if (diagnosticCapture_ || motionObserverRequested_) {
             debugPipeline_ = makePipeline(device_, library,
                 @"nm_human_resting_support_debug");
@@ -767,6 +787,7 @@ public:
             .encodePreDynamics = &encodeCallback,
             .abort = &abortCallback,
             .fingerprint = fingerprint_,
+            .usePerContactSupportPlanes = bed_.counts.z!=0u,
         };
     }
 };

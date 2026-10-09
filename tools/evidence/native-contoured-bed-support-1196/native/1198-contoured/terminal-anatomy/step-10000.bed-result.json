@@ -1,0 +1,40 @@
+{
+  "accepted_step": 10000,
+  "bed_manifest_sha256": "189ffb56c3b3b6de3426627068b17e049134dca8efa3551fb4c37c0c92fb5c2c",
+  "exact_triangle_intersection": {
+    "aabb_candidate_pairs": 17324,
+    "bed_faces": 239200,
+    "degenerate_bed_face_rows": [],
+    "degenerate_skin_face_rows": [],
+    "intersecting_triangle_pairs": 430,
+    "predicate": "pinned cardiac_cavity_intersections._audit_pair on actual captured NHSKIN Float32 triangles and reconstructed rendered Float32 bed facets; no contact exemptions",
+    "skin_faces": 109211,
+    "witness_count": 430,
+    "witness_file": "/Users/n/numi-human-retained-delivery-20261009/contoured-bed-reference-1196/skin-bed-audit-1198-attempt002-terminal-scan/step-10000.bed-crossing-witnesses.jsonl",
+    "witness_sha256": "9abee8798848da62128a80c48352a86642af9b2f22aa3c1727616c284b4fd5b3"
+  },
+  "query": {
+    "median_signed_facet_gap_m": 0.053442783653736115,
+    "method": "production fixed-world node/cell/facet selection reproduced with Float32 inputs and exact FMA node reconstruction; CPU Float32 signed plane gap",
+    "minimum_signed_facet_gap_m": -7.608556188642979e-06,
+    "negative_signed_gap_vertices": 10,
+    "outside_finite_bounds": 0,
+    "p01_signed_facet_gap_m": 0.001445663277991116,
+    "queried_skin_vertices": 54663,
+    "selected_facets": 54663
+  },
+  "runtime_grid": {
+    "heightfield_triangle_count": 239200,
+    "heightfield_vertex_count": 120321,
+    "nx": 261,
+    "ny": 461,
+    "spacing_xy_f32_m": [
+      0.004999999888241291,
+      0.004999999888241291
+    ]
+  },
+  "skin_face_count": 109211,
+  "skin_vertex_count": 54663,
+  "source_capture_sha256": "68dd2aecebd5febb561738e586cb9093813aee61309ccf1c0ceae5a535751bef",
+  "status": "complete_bed_pose_geometry"
+}

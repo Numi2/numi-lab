@@ -568,6 +568,36 @@ void appendSplitStandSpan(
 }
 
 template <typename Sink>
+void appendSplitStandContacts(
+    Sink& sink,
+    const std::span<const MRNumiHumanStandContactGPU> contacts,
+    const bool includePlanes
+) {
+    const std::uint64_t size = contacts.size();
+    appendSplitStandValue(sink, size);
+    for (const auto& contact : contacts) {
+        // Preserve the exact legacy 32-byte source contact serialization when
+        // plane mode is off; the new record tail is deliberately conditional.
+        appendSplitStandValue(sink, contact.bodyIndex);
+        appendSplitStandValue(sink, contact.pointQueryIndex);
+        appendSplitStandValue(sink, contact.sourceGeometryIndex);
+        appendSplitStandValue(sink, contact.reserved0);
+        appendSplitStandValue(sink, contact.frictionSlopAndStabilization);
+        // Plane values are regenerated per pose; the immutable provider fingerprint
+        // binds their source, not these transient values.
+    }
+    if (includePlanes) {
+        constexpr std::array<std::uint8_t, 24u> domain{{
+            'm', 'r', 'n', 'x', '.', 's', 'u', 'p', 'p', 'o', 'r', 't', '.', 'p', 'l',
+            'a', 'n', 'e', 's', '.', 'v', '1', 0u, 0u}};
+        sink.append(domain.data(), domain.size());
+        const std::uint32_t mode =
+            MR_NUMI_HUMAN_STAND_SUPPORT_PLANE_PER_CONTACT;
+        appendSplitStandValue(sink, mode);
+    }
+}
+
+template <typename Sink>
 void visitSplitStandBoundary(
     Sink& sink,
     const MetalArticulatedOperatorInput& input,
@@ -596,7 +626,9 @@ void visitSplitStandBoundary(
     appendSplitStandSpan(sink, input.stand.preloadedGeneralizedForce);
     appendSplitStandSpan(sink, input.stand.passiveJointProgram);
     appendSplitStandSpan(sink, input.stand.hipCapsuleTerms);
-    appendSplitStandSpan(sink, input.stand.contacts);
+    appendSplitStandContacts(
+        sink, input.stand.contacts,
+        input.stand.usePerContactSupportPlanes);
     appendSplitStandSpan(sink, input.stand.jointEqualities);
     appendSplitStandSpan(sink, input.stand.tendonBindings);
     appendSplitStandSpan(sink, input.stand.tendonEnvelopes);
@@ -643,7 +675,8 @@ void visitSplitStandBoundary(
     // split Stand input. Keep one slot per environment bound even when this
     // particular request has no contacts or cannot use the cache.
     return config.standContactWarmStart && config.splitStandSolve &&
-        input.stand.enabled();
+        input.stand.enabled() &&
+        !input.stand.usePerContactSupportPlanes;
 }
 
 [[nodiscard]] bool standContactWarmStartApplicable(
@@ -652,6 +685,7 @@ void visitSplitStandBoundary(
 ) noexcept {
     return standContactWarmStartArenaApplicable(config, input) &&
         input.stand.enableContact && !input.stand.contacts.empty() &&
+        !input.stand.usePerContactSupportPlanes &&
         !input.stand.numanXHumanMatterProgram.valid();
 }
 
@@ -685,6 +719,11 @@ void visitSplitStandBoundary(
     appendValue(input.stand.groundNormal);
     appendValue(input.stand.supportGeometryProgram.fingerprint);
     appendValue(timestepSeconds);
+    if (input.stand.usePerContactSupportPlanes) {
+        const std::uint32_t mode =
+            MR_NUMI_HUMAN_STAND_SUPPORT_PLANE_PER_CONTACT;
+        appendValue(mode);
+    }
     // Bind ordered source bodies/regions/query-row bindings and their authored
     // contact law. The point-query payload and current world anchor are omitted:
     // current Jacobians/responses own those changing coordinates each root.
@@ -1223,6 +1262,7 @@ struct MetalArticulatedOperatorSubmissionState {
     std::size_t standTendonBindingCount = 0u;
     std::size_t standTendonEnvelopeBindingCount = 0u;
     std::size_t standContactCount = 0u;
+    bool standUsePerContactSupportPlanes = false;
     std::size_t standJointEqualityCount = 0u;
     bool standEqualityDeferralFaultRequested = false;
     bool publishAcceptedResidentState = false;
@@ -1955,6 +1995,7 @@ bool validNumiHumanStand(
             stand.tendonLoadProgram.configured() ||
             stand.numanXTransactionProgram.configured() ||
             stand.numanXHumanMatterProgram.configured() ||
+            stand.usePerContactSupportPlanes ||
             mrNumiHumanTimedRootForceConfigured(stand.timedRootForce) ||
             stand.stepIndexOffset != 0u ||
             stand.authoritativeStepCount != 0u) {
@@ -2035,6 +2076,19 @@ bool validNumiHumanStand(
         stand.contacts.size() > MR_NUMI_HUMAN_STAND_MAX_CONTACTS ||
         stand.jointEqualities.size() > articulation.nv) {
         reason = "stand step, contact, or iteration count exceeds the device ABI";
+        return false;
+    }
+    if (stand.usePerContactSupportPlanes !=
+        stand.supportGeometryProgram.usePerContactSupportPlanes) {
+        reason = "stand plane mode must match the registered support-geometry provider";
+        return false;
+    }
+    if (stand.usePerContactSupportPlanes &&
+        (!stand.enableContact || stand.contacts.empty() ||
+         input.environmentCount != 1u ||
+         !stand.supportGeometryProgram.valid() ||
+         config.standContactWarmStart)) {
+        reason = "per-contact support planes require a one-environment GPU support callback with contacts and no warm-start";
         return false;
     }
     std::size_t expectedVelocityCount = 0u;
@@ -7013,6 +7067,12 @@ struct MetalBufferRegion {
     std::copy(input.stand.hipCapsuleTerms.begin(),
               input.stand.hipCapsuleTerms.end(),
               dispatch.hipCapsuleTerms);
+    if (input.stand.usePerContactSupportPlanes) {
+        dispatch.supportContactPlaneMode =
+            MR_NUMI_HUMAN_STAND_SUPPORT_PLANE_PER_CONTACT;
+        dispatch.supportContactPlaneCount =
+            dispatch.supportContactCount;
+    }
     return dispatch;
 }
 
@@ -10071,6 +10131,43 @@ MetalArticulatedOperatorSubmission::wait(
             const auto* spatial = static_cast<const float*>(
                 pending->context->standBuffers[kStandSpatialJacobianBuffer].contents);
             staged.standContactImpulses.resize(environments * 3u * contacts);
+            if (pending->standUsePerContactSupportPlanes) {
+                if (environments != 1u || contacts != pending->standContactCount) {
+                    return reject(std::move(diagnostics),
+                        MetalArticulatedOperatorHostStatus::internalFailure,
+                        "per-contact support-plane readback shape is invalid");
+                }
+                id<MTLBuffer> contactBuffer = pending->context->standBuffers[
+                    kStandContactsBuffer];
+                if (contactBuffer == nil || contactBuffer.contents == nullptr ||
+                    contactBuffer.length < contacts *
+                        sizeof(MRNumiHumanStandContactGPU)) {
+                    return reject(std::move(diagnostics),
+                        MetalArticulatedOperatorHostStatus::metalBufferFailure,
+                        "accepted per-contact support-plane buffer is unavailable");
+                }
+                const auto* contactRecords = static_cast<const
+                    MRNumiHumanStandContactGPU*>(contactBuffer.contents);
+                staged.standContactPlaneNormals.reserve(contacts);
+                for (std::size_t contact = 0u; contact < contacts; ++contact) {
+                    const mr_float4 normal = contactRecords[contact].planeNormal;
+                    const double normSquared =
+                        double(normal.x) * normal.x +
+                        double(normal.y) * normal.y +
+                        double(normal.z) * normal.z;
+                    if (!std::isfinite(normal.x) ||
+                        !std::isfinite(normal.y) ||
+                        !std::isfinite(normal.z) ||
+                        !std::isfinite(normal.w) || normal.w != 0.0f ||
+                        !std::isfinite(normSquared) ||
+                        std::abs(normSquared - 1.0) > 2.0e-4) {
+                        return reject(std::move(diagnostics),
+                            MetalArticulatedOperatorHostStatus::internalFailure,
+                            "accepted per-contact support-plane normal is invalid");
+                    }
+                    staged.standContactPlaneNormals.push_back(normal);
+                }
+            }
             staged.standJointEqualityImpulses.resize(environments * equalities);
             staged.standSourceLimitImpulses.resize(environments * nv);
             staged.standJointEqualityDerivatives.resize(environments * equalities);
@@ -12659,6 +12756,7 @@ MetalArticulatedOperatorContext::submit(
                     std::strcmp(freeSplitSetting, "1") == 0;
                 if (freeSplitRequested &&
                     (!parallelMass || input.environmentCount != 1u ||
+                     input.stand.usePerContactSupportPlanes ||
                      (standDispatch.flags &
                       MR_NUMI_HUMAN_STAND_PREDICT_VELOCITY_ONLY) != 0u)) {
                     return reject(
@@ -12727,6 +12825,19 @@ MetalArticulatedOperatorContext::submit(
                 const bool neonConditionRequested =
                     neonConditionSetting != nullptr &&
                     std::strcmp(neonConditionSetting, "1") == 0;
+                if (input.stand.usePerContactSupportPlanes &&
+                    (handoffProbeRequested || cpuShadowRequested ||
+                     cpuFinishRequested || cpuFactorShadowRequested ||
+                     cpuFactorRequested || cpuEqualityShadowRequested ||
+                     cpuEqualityRequested || cpuEqualityFactorRequested ||
+                     cpuProjectedRequested || cpuFreeRequested ||
+                     oneHandoffRequested || neonConditionRequested)) {
+                    return reject(
+                        std::move(diagnostics),
+                        MetalArticulatedOperatorHostStatus::invalidDimensions,
+                        "per-contact support planes require the GPU stand solve"
+                    );
+                }
                 if (neonConditionRequested && !oneHandoffRequested) {
                     return reject(
                         std::move(diagnostics),
@@ -14969,6 +15080,8 @@ MetalArticulatedOperatorContext::submit(
                     }
                 ));
             pending->standContactCount = input.stand.contacts.size();
+            pending->standUsePerContactSupportPlanes =
+                input.stand.usePerContactSupportPlanes;
             pending->standJointEqualityCount =
                 input.stand.jointEqualities.size();
             pending->standEqualityDeferralFaultRequested =

@@ -1,0 +1,126 @@
+{
+  "schema": "numi.human.registered-recording-review.v1",
+  "registered_trial": false,
+  "scope": "Closed20-second fixed-contoured-bed1198 native recording; bounded viewer and recording verification, no long-run acceptance.",
+  "run": "/Users/n/numi-human-retained-delivery-20261009/native-contoured-bed-smoke-1198-attempt002/native-run",
+  "decoded_scope": "All compressed samples read; ten selected frames decoded exactly with AVAssetImageGenerator. Not every image frame decoded.",
+  "inspector": {
+    "argv": [
+      "/usr/bin/swift",
+      "/Users/n/numi-human-resting-final-source-028/matter/tools/inspect_resting_movie.swift",
+      "/Users/n/numi-human-retained-delivery-20261009/native-contoured-bed-smoke-1198-attempt002/recording-review",
+      "2.5",
+      "7"
+    ],
+    "returncode": 0
+  },
+  "movie": {
+    "frames": "315",
+    "timing_markers": "5",
+    "first_wall_s": "1.715",
+    "last_wall_s": "244.65166666666667",
+    "max_gap_wall_s": "2.7750000000000004",
+    "duration_wall_s": "246.54"
+  },
+  "snapshots": [
+    {
+      "frame": "initial",
+      "index": "0",
+      "simulated_s": "0.0",
+      "wall_s": "1.715",
+      "width": "1280",
+      "height": "900"
+    },
+    {
+      "frame": "middle",
+      "index": "157",
+      "simulated_s": "10.0460004772",
+      "wall_s": "122.13333333333334",
+      "width": "1280",
+      "height": "900"
+    },
+    {
+      "frame": "final",
+      "index": "314",
+      "simulated_s": "20.0000009499",
+      "wall_s": "244.65166666666667",
+      "width": "1280",
+      "height": "900"
+    },
+    {
+      "frame": "skin",
+      "index": "20",
+      "simulated_s": "1.2780000607",
+      "wall_s": "19.37",
+      "width": "1280",
+      "height": "900"
+    },
+    {
+      "frame": "muscles",
+      "index": "59",
+      "simulated_s": "3.77400017926",
+      "wall_s": "49.105",
+      "width": "1280",
+      "height": "900"
+    },
+    {
+      "frame": "skeleton",
+      "index": "98",
+      "simulated_s": "6.27000029781",
+      "wall_s": "77.47833333333334",
+      "width": "1280",
+      "height": "900"
+    },
+    {
+      "frame": "organs",
+      "index": "137",
+      "simulated_s": "8.76600041636",
+      "wall_s": "105.94",
+      "width": "1280",
+      "height": "900"
+    },
+    {
+      "frame": "lungs",
+      "index": "176",
+      "simulated_s": "11.2620005349",
+      "wall_s": "137.52166666666668",
+      "width": "1280",
+      "height": "900"
+    },
+    {
+      "frame": "heart",
+      "index": "215",
+      "simulated_s": "13.7580006535",
+      "wall_s": "170.66",
+      "width": "1280",
+      "height": "900"
+    },
+    {
+      "frame": "vessels",
+      "index": "254",
+      "simulated_s": "16.254000772",
+      "wall_s": "200.725",
+      "width": "1280",
+      "height": "900"
+    }
+  ],
+  "source_hashes": {
+    "/Users/n/numi-human-resting-final-source-028/matter/tools/inspect_resting_movie.swift": "2d6704dd5f06bffd0b8aa0072171af805fdb3dd00dcc11c02e0b692513b21649",
+    "/Users/n/numi-human-retained-delivery-20261009/native-contoured-bed-smoke-1198-attempt002/native-run/native-viewer.mov": "baf10909a0c87d38a1cf69cbf5a798c92a30e1f1d8f54389ff9c4510cfea7297",
+    "/Users/n/numi-human-retained-delivery-20261009/native-contoured-bed-smoke-1198-attempt002/native-run/resting-surface-audit.csv": "1dcc263e8ada426c387699960006748866a9f452c21e1187bc4109ff1080e5a4",
+    "/Users/n/numi-human-retained-delivery-20261009/native-contoured-bed-smoke-1198-attempt002/execution.json": "807154868d33a5c5c06d3c9161cb31077757ec5f02ee8c5b60abb0c07631134b",
+    "/Users/n/numi-human-retained-delivery-20261009/native-contoured-bed-smoke-1198-attempt002/run-declaration.json": "e9b711ea0490f19b5351cde1b20f80b1a6e1f83ba8068a6a4e1664614e8b667a"
+  },
+  "snapshot_hashes": {
+    "frame-initial.png": "a8a1d129251c04e43f8322cfc904b5ee7c0782a0db326d33571d3aaf8e5b4b5a",
+    "frame-vessels.png": "39412a2bf78c8257ace3dabc705cbeb05e4e5cd272b99a6767f3edc52ed3b782",
+    "frame-lungs.png": "d3def6d0a8eff4981774d87e1520b159f02d462a674d70819804ba9b0f2ded66",
+    "frame-skin.png": "fd059c8cf98c9ddbf03e785a12173ecfbd0b9406a91a4c949ab806bb4ef5258a",
+    "frame-middle.png": "4932c847d5cd6e99cdf03bbb322f1b17b4da0a4a6f275383d1f2ba11dbb20132",
+    "frame-organs.png": "a769d79b5900c2381f57e90dbfc29918cd4bbfbdb20262500a029e17cb3caf9f",
+    "frame-muscles.png": "0e62004316e1737454ec51734daaf96068b15556429ca29b8299a395973483fc",
+    "frame-heart.png": "b8c6a2617cd55d18ccc45e16f2a02b7ebcdd7e8b0bb460cfcc7df42e51fa33d1",
+    "frame-skeleton.png": "432d4b4add5c82114650fe61196afb7597a3b05fe65f3bd47ba53d3ab77dc62c",
+    "frame-final.png": "7b8f06e807ac571712fc22ffd5ffe88264c567325bfada82c04a2b4b2ca864ad"
+  }
+}

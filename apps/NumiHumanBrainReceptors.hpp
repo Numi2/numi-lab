@@ -603,7 +603,7 @@ kernel void human_brain_body_touch(
 static_assert(sizeof(ContactBinding) == 16u);
 static_assert(sizeof(MRArticulatedBodyPoseGPU) == 2u * sizeof(mr_float4));
 static_assert(offsetof(MRArticulatedBodyPoseGPU, orientation) == sizeof(mr_float4));
-static_assert(sizeof(MRNumiHumanStandContactGPU) == 2u * sizeof(mr_uint4));
+static_assert(sizeof(MRNumiHumanStandContactGPU) == 4u * sizeof(mr_uint4));
 static_assert(offsetof(MRNumiHumanStandStatusGPU, code) == 0u);
 static_assert(offsetof(MRNumiHumanStandStatusGPU, environment) == sizeof(std::uint32_t));
 

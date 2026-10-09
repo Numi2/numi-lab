@@ -1,0 +1,132 @@
+{
+  "base_revision": "fcc6c7ebb92d8dc9b3e33d9f06f9dc6160244b8f",
+  "branch": "codex/native-contoured-bed-1196",
+  "repository": "/Users/n/numi-human-contoured-bed-source-1196",
+  "schema": "numi.fixed-bed-source-pins.v1",
+  "tested_build_cmake_cache_sha256": "08c8f745a4fa7a05315183e93d35bfa2c7ea2d3e3328bc4eb151c4c11d7a8e4d",
+  "tested_build_dir": "/Users/n/numi-human-contoured-bed-build-1196",
+  "tested_cmake_home_directory": "/Users/n/numi-human-contoured-bed-source-1196",
+  "working_tree_source_test_count": 20,
+  "working_tree_source_test_files": [
+    {
+      "git_state": "modified",
+      "path": "CMakeLists.txt",
+      "sha256": "891559b6cdb66eeca8e2255d45222f6af27fe583b9cb312026af1e28025a7fdb",
+      "size_bytes": 229366
+    },
+    {
+      "git_state": "modified",
+      "path": "apps/NumiHumanBrainReceptors.hpp",
+      "sha256": "2cf28b8ba3f7055a02f685b94d7c2ad884584cbb47264598d7223c8ff51480bf",
+      "size_bytes": 36364
+    },
+    {
+      "git_state": "untracked",
+      "path": "apps/NumiHumanRestingBedSurface.hpp",
+      "sha256": "a1fe30a211dad9b54975b9aaa4ce0551d7003bf6f48af46a2a0732f271d8aef4",
+      "size_bytes": 5148
+    },
+    {
+      "git_state": "modified",
+      "path": "apps/NumiHumanRestingSupportGeometry.hpp",
+      "sha256": "ace36261c5d90f972253ffd691968da37bfb7c6c746795e3678c6642137dfa8b",
+      "size_bytes": 42329
+    },
+    {
+      "git_state": "modified",
+      "path": "apps/NumiHumanRestingVisual.hpp",
+      "sha256": "51af221fa4039b3dc313d9deec4e0a34850f71f791868c60254d68e34b113b99",
+      "size_bytes": 176221
+    },
+    {
+      "git_state": "modified",
+      "path": "apps/numilab_human_myosim_visual_probe.mm",
+      "sha256": "c803f1917c2b7e5c0c3b3aa58a3868bcaaaabc0e9c89385ba258cdea9d573dca",
+      "size_bytes": 1515807
+    },
+    {
+      "git_state": "modified",
+      "path": "include/metalrobo/MetalArticulatedOperator.hpp",
+      "sha256": "af08bdcf12b1aa6ca505f81f63871cc4e7654a990ef859d854ecd24f76e3cb01",
+      "size_bytes": 111451
+    },
+    {
+      "git_state": "untracked",
+      "path": "include/metalrobo/numi_human_resting_bed_gpu.h",
+      "sha256": "7bb95ca969c5fe844f41971a0296f0fbaee472d70ea8ae99ff87bcece1f8001a",
+      "size_bytes": 497
+    },
+    {
+      "git_state": "modified",
+      "path": "include/metalrobo/numi_human_stand_gpu.h",
+      "sha256": "5fc615bb82e282fe8cd1f08e3e441b0da165cc1c913fd0384a82e30baaf1404b",
+      "size_bytes": 16049
+    },
+    {
+      "git_state": "modified",
+      "path": "matter/CMakeLists.txt",
+      "sha256": "b70479b1f094c9f1c904cf1bfe8a90d8a560b47247a11c3ce48679b43ccaaef4",
+      "size_bytes": 48798
+    },
+    {
+      "git_state": "modified",
+      "path": "matter/src/human_respiration.metal",
+      "sha256": "bf984a88ff542f528753d368d9b4f884a74319a9d2e24ac8d6dc5ccb5040bc54",
+      "size_bytes": 77423
+    },
+    {
+      "git_state": "modified",
+      "path": "src/metal/MetalArticulatedOperator.mm",
+      "sha256": "086233bfc47b8c950b5ad6b5ea2ae3349ffa8039524d8429ba9b5b1d755ac080",
+      "size_bytes": 825623
+    },
+    {
+      "git_state": "untracked",
+      "path": "src/metal/NumiHumanRestingBed.metalinc",
+      "sha256": "47ee93f2c41d6741d45f974fa335ba4b2f1d00ba24a3cb6313ef626738d9c700",
+      "size_bytes": 2660
+    },
+    {
+      "git_state": "modified",
+      "path": "src/metal/NumiHumanRestingSupportGeometry.metalinc",
+      "sha256": "4592aa32978e928ae6c816c30166423e0c5eee72d8a45e13d8216663925cab82",
+      "size_bytes": 32548
+    },
+    {
+      "git_state": "modified",
+      "path": "src/metal/NumiHumanStand.metal",
+      "sha256": "abfc82c1f4bf694e6920f7a08c778f873de925620cd1c7196a7e8efe9becfb41",
+      "size_bytes": 203900
+    },
+    {
+      "git_state": "modified",
+      "path": "src/metal/NumiHumanStandSolve.metalinc",
+      "sha256": "6d1802737e89aaf6d8ae6f70046ca868eec290fadc01af3be5e69d2beadae6f7",
+      "size_bytes": 183642
+    },
+    {
+      "git_state": "untracked",
+      "path": "tests/numi_human_per_contact_plane_metal_test.mm",
+      "sha256": "e10cf7f8fed6124d46f6700421e809407f3b2c34b84de17731e6ae0c3e05f86f",
+      "size_bytes": 13049
+    },
+    {
+      "git_state": "untracked",
+      "path": "tests/numi_human_resting_bed_admission_test.mm",
+      "sha256": "1a103a5027cb4e70153cdd9f259feb2794b38820feb550a3ec25fb225646625c",
+      "size_bytes": 7244
+    },
+    {
+      "git_state": "untracked",
+      "path": "tests/numi_human_resting_bed_query.metal",
+      "sha256": "518f25ec42eb98d6d1076b116f86ddd881add33f7bb59038e1595a99c69cebfa",
+      "size_bytes": 690
+    },
+    {
+      "git_state": "untracked",
+      "path": "tests/numi_human_resting_bed_query_test.mm",
+      "sha256": "8e1917358d56b083e32029131eff0b7cb74858f3ac3997735aaef222eaab7318",
+      "size_bytes": 6372
+    }
+  ]
+}

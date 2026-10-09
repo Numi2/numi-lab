@@ -1,0 +1,72 @@
+{
+  "authorship": "Authored fixed environment derived from one accepted source-pose skin capture; not a measured bed or participant-specific pressure surface.",
+  "bed_arrays_path": "/Users/n/numi-human-retained-delivery-20261009/contoured-bed-reference-1196/heightfields-runtime-f32-5mm.npz",
+  "bed_arrays_sha256": "18d624cd90855b55d3351f851ccc0bb203ad4df60851ca4242dfcbe20d57165a",
+  "bed_manifest_path": "/Users/n/numi-human-retained-delivery-20261009/contoured-bed-reference-1196/resting-supine-scene-contoured-5mm.manifest.json",
+  "bed_manifest_sha256": "189ffb56c3b3b6de3426627068b17e049134dca8efa3551fb4c37c0c92fb5c2c",
+  "license_and_provenance": {
+    "BodyParts3D": "CC-BY-4.0; FJ2810 exterior shell, current NHSKIN1 manifest contains source asset identities",
+    "MyoSim": "Apache-2.0; archive SHA bound in NHRIGID2",
+    "mixed_source_reference": true
+  },
+  "qualification": {
+    "bed_nonpenetration_of_visual_shell_at_seed": true,
+    "clinical_registration": false,
+    "dynamic_contact": false,
+    "force_balance": false,
+    "source_skin_reconstruction": true,
+    "sustained_resting": false
+  },
+  "runtime_grid": {
+    "endpoint_minus_parent_bounds_m": [
+      0.0,
+      0.0
+    ],
+    "height_array_order": "ny rows by nx columns; row-major y, x fastest",
+    "max_abs_difference_from_prior_linspace_nodes_m": {
+      "x": 5.960464477539063e-08,
+      "y": 1.1920928955078125e-07
+    },
+    "nx_cells": 260,
+    "nx_nodes": 261,
+    "ny_cells": 460,
+    "ny_nodes": 461,
+    "origin_xy_f32": [
+      -0.6755141019821167,
+      -2.035484552383423
+    ],
+    "rule": "node[i]=float32(float64(float32(origin))+float64(i)*float64(float32(spacing)))",
+    "spacing_xy_f32": [
+      0.004999999888241291,
+      0.004999999888241291
+    ],
+    "strict_monotonic_nodes": true,
+    "triangulation": "00_10_01__10_11_01"
+  },
+  "schema": "numi.fixed-bed-provenance-summary.v1",
+  "scope_note": "Authored fixed world surface derived from one accepted source-pose NHSKIN capture; it is not a measured mattress, pressure surface, participant-specific bed, or clinically validated contour.",
+  "source": {
+    "rigid": {
+      "body_count": 157,
+      "joint_count": 156,
+      "nq": 129,
+      "nv": 128,
+      "path": "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-core-reference.nhrigid",
+      "sha256": "2c78cb4150b97cea6e8169dad9e8f5dd59af667b247e07b56e48e857435560e4",
+      "source_archive_sha256": "280d297aa496acccf3f1c5373a1304d23f9569362c2d6960910128bfba144975",
+      "source_body_count": 103,
+      "source_rigid_body_mass_kg": 97.13195069110952,
+      "zero_inertia_serial_transform_carriers": 54
+    },
+    "skin": {
+      "binding_count": 86,
+      "max_dominant_binding_witness_error_m": 5.034847217040703e-08,
+      "meaning": "distance between exact full-weight ABI-5 rest vertex and its single dominant body-bound source witness",
+      "path": "/Users/n/numi-human-resting-evidence-20261005/native-skin-epl143-clearance-1187/attempt-006/bodyparts3d-myosim-skinned-shell-epl143-candidate.nhskin",
+      "registration_fingerprint32": "b1b410ad",
+      "sha256": "b2d235e32c1c7d7f753eb83d1e8e9d045a1fd62be9c5c6da65dfde8844e2622b",
+      "triangle_count": 109211,
+      "vertex_count": 54949
+    }
+  }
+}

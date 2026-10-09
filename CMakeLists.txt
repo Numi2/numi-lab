@@ -1714,6 +1714,21 @@ if(BUILD_TESTING)
     set_tests_properties(numi_human_hip_capsule_metal PROPERTIES
         LABELS "numi-human;hip-capsule;metal" TIMEOUT 90)
 
+    add_executable(metalrobo_numi_human_per_contact_plane_metal_test
+        tests/numi_human_per_contact_plane_metal_test.mm)
+    target_include_directories(metalrobo_numi_human_per_contact_plane_metal_test PRIVATE include)
+    target_compile_features(metalrobo_numi_human_per_contact_plane_metal_test PRIVATE cxx_std_20)
+    target_compile_options(metalrobo_numi_human_per_contact_plane_metal_test PRIVATE
+        -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
+    target_link_libraries(metalrobo_numi_human_per_contact_plane_metal_test PRIVATE
+        "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    add_dependencies(metalrobo_numi_human_per_contact_plane_metal_test metalrobo_shaders)
+    add_test(NAME numi_human_per_contact_plane_metal
+        COMMAND metalrobo_numi_human_per_contact_plane_metal_test
+        "${CMAKE_CURRENT_BINARY_DIR}/shaders/MetalRobo.metallib")
+    set_tests_properties(numi_human_per_contact_plane_metal PROPERTIES
+        LABELS "numi-human;resting-bed;metal" TIMEOUT 90)
+
     add_executable(metalrobo_numi_human_mesh_audit_metal_test tests/numi_human_mesh_audit_metal_test.mm)
     target_include_directories(metalrobo_numi_human_mesh_audit_metal_test PRIVATE include matter/include)
     target_compile_features(metalrobo_numi_human_mesh_audit_metal_test PRIVATE cxx_std_20)
@@ -6356,3 +6371,46 @@ set_target_properties(
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
 )
+
+# Exact fixed-bed query checks use the production Metal include.
+if(APPLE)
+    set(NUMI_HUMAN_BED_QUERY_METALLIB "${CMAKE_CURRENT_BINARY_DIR}/shaders/HumanBedQueryCheck.metallib")
+    add_custom_command(OUTPUT "${NUMI_HUMAN_BED_QUERY_METALLIB}"
+        COMMAND "${CMAKE_COMMAND}" -E make_directory "${CMAKE_CURRENT_BINARY_DIR}/shaders"
+        COMMAND xcrun -sdk macosx metal -std=metal4.0 -O3 -fno-fast-math
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include" -I "${CMAKE_CURRENT_SOURCE_DIR}/src/metal"
+            -c "${CMAKE_CURRENT_SOURCE_DIR}/tests/numi_human_resting_bed_query.metal"
+            -o "${CMAKE_CURRENT_BINARY_DIR}/shaders/HumanBedQueryCheck.air"
+        COMMAND xcrun -sdk macosx metallib "${CMAKE_CURRENT_BINARY_DIR}/shaders/HumanBedQueryCheck.air"
+            -o "${NUMI_HUMAN_BED_QUERY_METALLIB}"
+        DEPENDS tests/numi_human_resting_bed_query.metal
+            src/metal/NumiHumanRestingBed.metalinc include/metalrobo/numi_human_resting_bed_gpu.h
+            include/metalrobo/engine_types.h include/metalrobo/gpu_types.h
+        VERBATIM)
+    add_custom_target(numi_human_bed_query_shader DEPENDS "${NUMI_HUMAN_BED_QUERY_METALLIB}")
+    add_executable(numi-human-resting-bed-query-check EXCLUDE_FROM_ALL tests/numi_human_resting_bed_query_test.mm)
+    target_include_directories(numi-human-resting-bed-query-check PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
+    target_compile_options(numi-human-resting-bed-query-check PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic)
+    target_link_libraries(numi-human-resting-bed-query-check PRIVATE "-framework Foundation" "-framework Metal")
+    add_dependencies(numi-human-resting-bed-query-check numi_human_bed_query_shader)
+    if(BUILD_TESTING)
+        add_test(NAME human.metal.resting_bed_query
+            COMMAND numi-human-resting-bed-query-check "${NUMI_HUMAN_BED_QUERY_METALLIB}")
+        set_tests_properties(human.metal.resting_bed_query PROPERTIES LABELS "human;metal;resting" TIMEOUT 60)
+    endif()
+
+    # CPU-only Foundation parser coverage for the resting-scene bed manifest.
+    add_executable(numi-human-resting-bed-admission-check EXCLUDE_FROM_ALL
+        tests/numi_human_resting_bed_admission_test.mm)
+    target_include_directories(numi-human-resting-bed-admission-check PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/apps" "${CMAKE_CURRENT_SOURCE_DIR}/include")
+    target_compile_options(numi-human-resting-bed-admission-check PRIVATE
+        -fobjc-arc -Wall -Wextra -Wpedantic)
+    target_link_libraries(numi-human-resting-bed-admission-check PRIVATE "-framework Foundation")
+    if(BUILD_TESTING)
+        add_test(NAME human.resting_bed_manifest_admission
+            COMMAND numi-human-resting-bed-admission-check)
+        set_tests_properties(human.resting_bed_manifest_admission PROPERTIES
+            LABELS "human;resting;admission" TIMEOUT 30)
+    endif()
+endif()

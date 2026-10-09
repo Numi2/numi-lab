@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/Users/n/numi-human-retained-delivery-20261009/contoured-bed-reference-1196/audit_fixed_bed_full_body_captures_1198.py", line 540, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "/Users/n/numi-human-retained-delivery-20261009/contoured-bed-reference-1196/audit_fixed_bed_full_body_captures_1198.py", line 481, in main
+    'predicates': {'skin_runner': str(runner.RUNNER), 'skin_runner_sha256': runner.RUNNER_SHA,
+                                      ^^^^^^^^^^^^^
+AttributeError: module '_skin_exact_audit_1172_for_1193_attempt002' has no attribute 'RUNNER'

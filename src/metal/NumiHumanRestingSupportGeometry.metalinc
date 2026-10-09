@@ -1,3 +1,4 @@
+#include "NumiHumanRestingBed.metalinc"
 // Current-pose support witnesses derived from the complete registered skin
 // and its untruncated LBS weights. The existing stand solver remains the sole
 // owner of unilateral contact forces and impulses.
@@ -345,6 +346,8 @@ kernel void nm_human_resting_support_positions(
     device atomic_uint* invalidRegionFlags [[buffer(8)]],
     device const float4* normalizedOrientations [[buffer(9)]],
     device const MRHumanRestingSupportRotationZBasisGPU* rotationZBasis [[buffer(10)]],
+    constant MRHumanRestingBedGPU& bed [[buffer(11), function_constant(kUseRestingContouredBed)]],
+    device const float* bedHeights [[buffer(12), function_constant(kUseRestingContouredBed)]],
     uint globalIndex [[thread_position_in_grid]]) {
     const uint vertexCount = dispatch.counts.x;
     const uint regionCount = dispatch.counts.y;
@@ -366,27 +369,30 @@ kernel void nm_human_resting_support_positions(
                               1u, memory_order_relaxed);
         return;
     }
-    const MRCompensatedScalar positionZ =
-        nm_human_resting_support::skinWorldZBasis(
-            mappedVertex, influences, bodies, bodyPositionLow,
-            rotationZBasis, dispatch, environment
-        );
-    if (!isfinite(positionZ.high) || !isfinite(positionZ.low)) {
+    float orderingValue;
+    if (kUseRestingContouredBed) {
+        const MRCompensatedPositionGPU point =
+            nm_human_resting_support::skinPosition(mappedVertex, influences,
+                bodies, bodyPositionLow, normalizedOrientations, dispatch, environment);
+        const auto hit = nmHumanRestingBedQuery(bed, bedHeights,
+            point.high.xyz + point.low.xyz);
+        orderingValue = hit.valid ? hit.signedGap : NAN;
+    } else {
+        const MRCompensatedScalar positionZ =
+            nm_human_resting_support::skinWorldZBasis(
+                mappedVertex, influences, bodies, bodyPositionLow,
+                rotationZBasis, dispatch, environment);
+        orderingValue = isfinite(positionZ.high) && isfinite(positionZ.low)
+            ? positionZ.high + positionZ.low : NAN;
+    }
+    if (!isfinite(orderingValue)) {
         positionKeys[globalIndex] = 0xffffffffu;
         atomic_store_explicit(invalidRegionFlags + flagsBase + region,
                               1u, memory_order_relaxed);
         return;
     }
-    const float worldZ = positionZ.high + positionZ.low;
-    if (!isfinite(worldZ)) {
-        positionKeys[globalIndex] = 0xffffffffu;
-        atomic_store_explicit(invalidRegionFlags + flagsBase + region,
-                              1u, memory_order_relaxed);
-        return;
-    }
-    // Selection needs only this exact rounded ordering key. Full compensated
-    // XYZ is recomputed from source influences in the publication stage.
-    const uint worldZKey = nm_human_resting_support::orderedFloat(worldZ);
+    // Stable minimum signed distance to the same fixed bed shown by the viewer.
+    const uint worldZKey = nm_human_resting_support::orderedFloat(orderingValue);
     positionKeys[globalIndex] = worldZKey;
     atomic_fetch_min_explicit(
         minimumHeightKeys + environment * regionCount + region,
@@ -435,7 +441,7 @@ kernel void nm_human_resting_support_publish(
     device const MRHumanRestingSupportRegionGPU* regions [[buffer(3)]],
     device const atomic_uint* selectedVertices [[buffer(4)]],
     device const uint* positionKeys [[buffer(5)]],
-    device const MRNumiHumanStandContactGPU* contacts [[buffer(6)]],
+    device MRNumiHumanStandContactGPU* contacts [[buffer(6)]],
     device MRArticulatedPointWorldGPU* pointWorld [[buffer(7)]],
     device float4* pointPositionLow [[buffer(8)]],
     device float* pointJacobians [[buffer(9)]],
@@ -445,6 +451,8 @@ kernel void nm_human_resting_support_publish(
     device const float4* normalizedOrientations [[buffer(13)]],
     device const uchar* bodyDofAncestry [[buffer(14)]],
     constant uint* ancestryBodyCount [[buffer(15)]],
+    constant MRHumanRestingBedGPU& bed [[buffer(16), function_constant(kUseRestingContouredBed)]],
+    device const float* bedHeights [[buffer(17), function_constant(kUseRestingContouredBed)]],
     uint globalIndex [[thread_position_in_grid]],
     uint lane [[thread_index_in_simdgroup]],
     uint simdWidth [[threads_per_simdgroup]]) {
@@ -528,6 +536,13 @@ kernel void nm_human_resting_support_publish(
         }
         pointWorld[pointBase].position = float4(position.high.xyz, 1.0f);
         pointPositionLow[pointBase] = float4(position.low.xyz, 0.0f);
+        if (kUseRestingContouredBed) {
+            const auto hit = nmHumanRestingBedQuery(bed, bedHeights,
+                position.high.xyz+position.low.xyz);
+            contacts[region].planePoint = float4(hit.point, 0.0f);
+            contacts[region].planeNormal = hit.valid
+                ? float4(hit.normal, 0.0f) : float4(NAN);
+        }
         return;
     }
 

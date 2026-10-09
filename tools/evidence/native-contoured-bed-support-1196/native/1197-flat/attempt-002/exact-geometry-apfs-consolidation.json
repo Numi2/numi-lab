@@ -1,0 +1,89 @@
+{
+  "scope": "APFS copy-on-write consolidation of identical geometry sections with exact candidate header/metadata restored. Every candidate file hash, path, mode and mtime is preserved. No hardlinks.",
+  "parity_report_sha256": "4679cdf43c7cb86d74766a3629529d6ca28c85a8acae760bb1a9c2ed2479d17b",
+  "free_before": 3304390656,
+  "items": [
+    {
+      "source": "/Users/n/numi-human-retained-delivery-20261009/native-lung1178-thumb1187-smoke-1191/native-run/accepted-geometry/step-0.mrvpack",
+      "destination": "/Users/n/numi-human-retained-delivery-20261009/native-bed-disabled-parity-1197-attempt002/native-run/accepted-geometry/step-0.mrvpack",
+      "sha256": "232072c2a8025b03d74a0ea4f205a4b6397b7f27b35ab8b203e272bb601139f9",
+      "bytes": 285442048,
+      "old_inode": 11404346,
+      "new_inode": 11404432,
+      "source_inode": 11379985,
+      "restored_prefix_bytes": 8192
+    },
+    {
+      "source": "/Users/n/numi-human-retained-delivery-20261009/native-lung1178-thumb1187-smoke-1191/native-run/accepted-geometry/step-10000.mrvpack",
+      "destination": "/Users/n/numi-human-retained-delivery-20261009/native-bed-disabled-parity-1197-attempt002/native-run/accepted-geometry/step-10000.mrvpack",
+      "sha256": "afaee6a8c9c99eca41c3e8d5bc7d8c7c3cc82874a9057efb85d75a6dd35f5829",
+      "bytes": 285442048,
+      "old_inode": 11404412,
+      "new_inode": 11404434,
+      "source_inode": 11380045,
+      "restored_prefix_bytes": 8192
+    },
+    {
+      "source": "/Users/n/numi-human-retained-delivery-20261009/native-lung1178-thumb1187-smoke-1191/native-run/accepted-geometry/step-4991.mrvpack",
+      "destination": "/Users/n/numi-human-retained-delivery-20261009/native-bed-disabled-parity-1197-attempt002/native-run/accepted-geometry/step-4991.mrvpack",
+      "sha256": "d69ef938ad416d727e8debd174b49d284303b904c4018223563f7f6f1bc4f607",
+      "bytes": 285442048,
+      "old_inode": 11404351,
+      "new_inode": 11404436,
+      "source_inode": 11380015,
+      "restored_prefix_bytes": 8192
+    },
+    {
+      "source": "/Users/n/numi-human-retained-delivery-20261009/native-lung1178-thumb1187-smoke-1191/native-run/accepted-geometry/step-5375.mrvpack",
+      "destination": "/Users/n/numi-human-retained-delivery-20261009/native-bed-disabled-parity-1197-attempt002/native-run/accepted-geometry/step-5375.mrvpack",
+      "sha256": "09990222a2e88911b49da5ef91c6eb040d7b9a2fd3f58bc855e1f24dddfd15cf",
+      "bytes": 285442048,
+      "old_inode": 11404353,
+      "new_inode": 11404438,
+      "source_inode": 11380018,
+      "restored_prefix_bytes": 8192
+    },
+    {
+      "source": "/Users/n/numi-human-retained-delivery-20261009/native-lung1178-thumb1187-smoke-1191/native-run/accepted-geometry/step-5759.mrvpack",
+      "destination": "/Users/n/numi-human-retained-delivery-20261009/native-bed-disabled-parity-1197-attempt002/native-run/accepted-geometry/step-5759.mrvpack",
+      "sha256": "8caead26c861974a358c348d3ffee328976ad75a8a6585374ee4c0928f47e8b7",
+      "bytes": 285442048,
+      "old_inode": 11404356,
+      "new_inode": 11404440,
+      "source_inode": 11380021,
+      "restored_prefix_bytes": 8192
+    },
+    {
+      "source": "/Users/n/numi-human-retained-delivery-20261009/native-lung1178-thumb1187-smoke-1191/native-run/accepted-geometry/step-6111.mrvpack",
+      "destination": "/Users/n/numi-human-retained-delivery-20261009/native-bed-disabled-parity-1197-attempt002/native-run/accepted-geometry/step-6111.mrvpack",
+      "sha256": "b830133cfbd58bab24384df4f8cfc30603a6acf09f50c0c80f6f3eb03abd366e",
+      "bytes": 285442048,
+      "old_inode": 11404358,
+      "new_inode": 11404442,
+      "source_inode": 11380024,
+      "restored_prefix_bytes": 8192
+    },
+    {
+      "source": "/Users/n/numi-human-retained-delivery-20261009/native-lung1178-thumb1187-smoke-1191/native-run/accepted-geometry/step-6495.mrvpack",
+      "destination": "/Users/n/numi-human-retained-delivery-20261009/native-bed-disabled-parity-1197-attempt002/native-run/accepted-geometry/step-6495.mrvpack",
+      "sha256": "aced31e15ba8e97e741c4fe3013d2187c568580559135c41de5e5b0b0eeb0639",
+      "bytes": 285442048,
+      "old_inode": 11404360,
+      "new_inode": 11404444,
+      "source_inode": 11380026,
+      "restored_prefix_bytes": 8192
+    },
+    {
+      "source": "/Users/n/numi-human-retained-delivery-20261009/native-lung1178-thumb1187-smoke-1191/native-run/accepted-geometry/step-7743.mrvpack",
+      "destination": "/Users/n/numi-human-retained-delivery-20261009/native-bed-disabled-parity-1197-attempt002/native-run/accepted-geometry/step-7743.mrvpack",
+      "sha256": "4356e1002f928902f6360f4ffff5eeb2f1ad14fefde885401818682a61154a99",
+      "bytes": 285442048,
+      "old_inode": 11404363,
+      "new_inode": 11404446,
+      "source_inode": 11380030,
+      "restored_prefix_bytes": 8192
+    }
+  ],
+  "free_after": 5589254144,
+  "reclaimed_bytes": 2284863488
+}

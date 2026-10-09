@@ -188,12 +188,18 @@ struct MetalNumiHumanTendonLoadProgram {
 // after current-step kinematics, MyoSim/tendon evaluation, and the Human/Matter
 // pre-dynamics apply, immediately before the existing stand contact solver.
 // It may write only the pointWorld, pointPositionLow, and pointJacobians rows
-// addressed by the immutable stand.contacts pointQueryIndex values. Body
-// poses, paired body positions, support rows, and every other point row are
-// borrowed read-only. Implementations append work to the same command buffer;
-// they must not commit, wait, retain, read back, or replace borrowed resources.
+// addressed by the immutable stand.contacts pointQueryIndex values. When the
+// registered provider opts into per-contact fixed planes, it may additionally
+// overwrite only planePoint/planeNormal on those contact records. Contact IDs,
+// source geometry, friction/rest parameters, body poses, paired body positions,
+// and every other point row remain read-only. Plane fields are transient derived
+// data, not rollback state: regenerate them before every stand use. After a rejected
+// attempt, rerun the callback from restored current-pose inputs before the solver
+// can read those fields again. Implementations append work to the same
+// command buffer; they must not commit, wait, retain, read back, or replace
+// borrowed resources.
 struct MetalNumiHumanSupportGeometryPass {
-    std::uint32_t abiVersion = 1u;
+    std::uint32_t abiVersion = 2u;
     std::uint32_t structSize = sizeof(MetalNumiHumanSupportGeometryPass);
     void* commandBuffer = nullptr;
     void* bodyPoses = nullptr;
@@ -232,6 +238,8 @@ struct MetalNumiHumanSupportGeometryProgram {
     MetalNumiHumanSupportGeometryEncode encodePreDynamics = nullptr;
     MetalNumiHumanSupportGeometryAbort abort = nullptr;
     std::uint64_t fingerprint = 0u;
+    // The provider regenerates fixed-environment facet planes on the GPU.
+    bool usePerContactSupportPlanes = false;
 
     [[nodiscard]] bool valid() const noexcept {
         return context != nullptr && encodePreDynamics != nullptr &&
@@ -239,7 +247,7 @@ struct MetalNumiHumanSupportGeometryProgram {
     }
     [[nodiscard]] bool configured() const noexcept {
         return context != nullptr || encodePreDynamics != nullptr ||
-            abort != nullptr || fingerprint != 0u;
+            abort != nullptr || fingerprint != 0u || usePerContactSupportPlanes;
     }
 };
 
@@ -1701,6 +1709,10 @@ struct MetalNumiHumanStandInput {
     // Optional fixed-capacity convex unilateral periarticular reference terms.
     std::span<const MRNumiHumanHipCapsuleTermGPU> hipCapsuleTerms{};
     std::span<const MRNumiHumanStandContactGPU> contacts{};
+    // The pre-dynamics support geometry callback writes one fixed-world bed
+    // plane point/normal into each contact record on GPU for this pose.
+    // Currently admitted only for one environment and without warm-start.
+    bool usePerContactSupportPlanes = false;
     // Exact scalar joint manifold imported from the source model. These rows
     // carry bilateral reaction impulses during dynamics; dependent q/v are
     // projected back onto the same polynomial after each accepted step.
@@ -2122,6 +2134,11 @@ struct MetalArticulatedOperatorResult {
     // impulses indexed by DOF. Equality reactions induced by limits remain
     // in standJointEqualityImpulses and are not folded into this array.
     std::vector<float> standContactImpulses;
+    // Present only for an accepted per-contact-plane stand result with
+    // constraint diagnostics enabled. Aligned with standContactImpulses by
+    // source contact index; these are the exact GPU-written world normals
+    // used to interpret [normal, tangent0, tangent1] impulse components.
+    std::vector<mr_float4> standContactPlaneNormals;
     std::vector<float> standJointEqualityImpulses;
     std::vector<float> standSourceLimitImpulses;
     std::vector<float> standJointEqualityDerivatives;

@@ -1,0 +1,676 @@
+{
+  "comparison": {
+    "execution.wall_seconds": {
+      "absolute_delta": 57.73433666700001,
+      "contoured_bed": 250.407721292,
+      "flat": 192.67338462499998,
+      "relative_change_percent": 29.96487386120729
+    },
+    "profile.geometry_export_audit_ms.mean_ms": {
+      "absolute_delta": 135.2552552376353,
+      "contoured_bed": 1616.1749113505832,
+      "flat": 1480.919656112948,
+      "relative_change_percent": 9.133193328843193
+    },
+    "profile.geometry_export_total_wall_ms.mean_ms": {
+      "absolute_delta": 136.04185923902787,
+      "contoured_bed": 1635.4113444108789,
+      "flat": 1499.369485171851,
+      "relative_change_percent": 9.073271170610449
+    },
+    "profile.integrated_body.real_time_factor": {
+      "absolute_delta": -0.02538636294240411,
+      "contoured_bed": 0.08232363317127356,
+      "flat": 0.10770999611367767,
+      "relative_change_percent": -23.569180074624843
+    },
+    "profile.integrated_body.wall_s": {
+      "absolute_delta": 57.25981783400002,
+      "contoured_bed": 242.943613875,
+      "flat": 185.683796041,
+      "relative_change_percent": 30.837272317158323
+    },
+    "profile.native_command_ms.mean_ms": {
+      "absolute_delta": 46.47021955919999,
+      "contoured_bed": 177.342384636,
+      "flat": 130.8721650768,
+      "relative_change_percent": 35.50810023806802
+    },
+    "profile.native_gpu_ms.mean_ms": {
+      "absolute_delta": 46.459144502875375,
+      "contoured_bed": 176.7755011618216,
+      "flat": 130.31635665894623,
+      "relative_change_percent": 35.651046187904576
+    },
+    "profile.native_host_copy_ms.mean_ms": {
+      "absolute_delta": 0.007487992800000003,
+      "contoured_bed": 0.047896328,
+      "flat": 0.0404083352,
+      "relative_change_percent": 18.53081242505631
+    },
+    "profile.presentation_wall_ms.mean_ms": {
+      "absolute_delta": 3.796737190501034,
+      "contoured_bed": 58.273401839879256,
+      "flat": 54.47666464937822,
+      "relative_change_percent": 6.969474388598364
+    },
+    "profile.render_regular_gpu_ms.mean_ms": {
+      "absolute_delta": 0.20615387623029235,
+      "contoured_bed": 13.139359376936808,
+      "flat": 12.933205500706515,
+      "relative_change_percent": 1.593989024755159
+    },
+    "profile.render_regular_wall_ms.mean_ms": {
+      "absolute_delta": 0.2255537896042341,
+      "contoured_bed": 13.47886619585798,
+      "flat": 13.253312406253746,
+      "relative_change_percent": 1.7018672969468647
+    }
+  },
+  "input_file_hashes": {
+    "/Users/n/numi-human-retained-delivery-20261009/native-bed-disabled-parity-1197-attempt002/execution.json": {
+      "sha256": "7da1f1e86c44e3f81cafd01408d6b1c712f2c86044f4c62067a5343844ffe0ac",
+      "size_bytes": 176
+    },
+    "/Users/n/numi-human-retained-delivery-20261009/native-bed-disabled-parity-1197-attempt002/native-run/invocation.json": {
+      "sha256": "a9953a57c4acd7362113ff1e0163b254f7515d59b10f474d715c028b38b979e5",
+      "size_bytes": 10705
+    },
+    "/Users/n/numi-human-retained-delivery-20261009/native-bed-disabled-parity-1197-attempt002/native-run/native.log": {
+      "sha256": "8f32b64eb23f3b17bded1806fc1ccc05433255f6e542ed0f75a474932580d82e",
+      "size_bytes": 2032777
+    },
+    "/Users/n/numi-human-retained-delivery-20261009/native-bed-disabled-parity-1197-attempt002/native-run/run-metadata.json": {
+      "sha256": "462f82d75532c25f83f27bcccc05d76e077049e3da506b2a57387136efe4f18b",
+      "size_bytes": 11352
+    },
+    "/Users/n/numi-human-retained-delivery-20261009/native-bed-disabled-parity-1197-attempt002/owner-stdout.log": {
+      "sha256": "1d3cdfa4fbb8096e0137d465294a04ddcec448f28cd0644a94e64a10b99dfb51",
+      "size_bytes": 187
+    },
+    "/Users/n/numi-human-retained-delivery-20261009/native-bed-disabled-parity-1197-attempt002/run-declaration.json": {
+      "sha256": "9236ec6826d2f9024ef3eeebbe1545530c5e7c969195b885d762328965f60f5f",
+      "size_bytes": 71437
+    },
+    "/Users/n/numi-human-retained-delivery-20261009/native-bed-disabled-parity-1197-attempt002/runtime-source-at-launch.json": {
+      "sha256": "f69aa48a1c47c7d640822cc0513948d3e129ed8db16630190a4eb84bed4e2d49",
+      "size_bytes": 3273
+    },
+    "/Users/n/numi-human-retained-delivery-20261009/native-bed-disabled-parity-1197-attempt002/runtime-source-at-launch.patch": {
+      "sha256": "13cbdc2d938fbfa2cc0167dc64c196ecfb2756d9e5a35e8b1b6a78e0a3192c75",
+      "size_bytes": 92141
+    },
+    "/Users/n/numi-human-retained-delivery-20261009/native-contoured-bed-smoke-1198-attempt002/execution.json": {
+      "sha256": "807154868d33a5c5c06d3c9161cb31077757ec5f02ee8c5b60abb0c07631134b",
+      "size_bytes": 171
+    },
+    "/Users/n/numi-human-retained-delivery-20261009/native-contoured-bed-smoke-1198-attempt002/native-run/invocation.json": {
+      "sha256": "43ec89f32626fed115bb1fdfa3ec0055b04514c450785a62109496e02a3a479c",
+      "size_bytes": 11038
+    },
+    "/Users/n/numi-human-retained-delivery-20261009/native-contoured-bed-smoke-1198-attempt002/native-run/native.log": {
+      "sha256": "825498190248d64d813cbf8f3ce5e79c87df7f392de738626f1aebc089ec40ec",
+      "size_bytes": 2042483
+    },
+    "/Users/n/numi-human-retained-delivery-20261009/native-contoured-bed-smoke-1198-attempt002/native-run/run-metadata.json": {
+      "sha256": "d1402d190755c4653ce3a60a3eaa7006ef8bea39289eacefdde436ab479b1c3e",
+      "size_bytes": 11685
+    },
+    "/Users/n/numi-human-retained-delivery-20261009/native-contoured-bed-smoke-1198-attempt002/owner-stdout.log": {
+      "sha256": "dcefd866f208b22b3cd988cc0f44a8310b74c25e1a564003ceae4c6e7b773c9d",
+      "size_bytes": 187
+    },
+    "/Users/n/numi-human-retained-delivery-20261009/native-contoured-bed-smoke-1198-attempt002/run-declaration.json": {
+      "sha256": "e9b711ea0490f19b5351cde1b20f80b1a6e1f83ba8068a6a4e1664614e8b667a",
+      "size_bytes": 71761
+    },
+    "/Users/n/numi-human-retained-delivery-20261009/native-contoured-bed-smoke-1198-attempt002/runtime-source-at-launch.json": {
+      "sha256": "c8f98cd79a3a58b00a628a7f6e92dd330a64158e97f01905900a72a91bba2e0e",
+      "size_bytes": 3273
+    },
+    "/Users/n/numi-human-retained-delivery-20261009/native-contoured-bed-smoke-1198-attempt002/runtime-source-at-launch.patch": {
+      "sha256": "aa8fb6f09cc8fca1e70dd84b2eaa6b3700a3729fc020118c28c6c2f4176b41dd",
+      "size_bytes": 92787
+    }
+  },
+  "instrumentation_limit": "1250 per-segment native command/GPU/host-copy samples, 315 render/present samples, and aggregate accepted-observer callback phase totals are available. The logs do not separately time the bed query/contact-plane update kernel, so GPU delta is mode-associated, not per-kernel attribution.",
+  "launch_comparison": {
+    "added_native_flags": [
+      "--resting-bed-surface"
+    ],
+    "base_revision": "fcc6c7ebb92d8dc9b3e33d9f06f9dc6160244b8f",
+    "contoured_surface_flag_added": true,
+    "environment_differences": {
+      "NUMI_HUMAN_RESTING_COMMON_FAILURE_RECEIPT": [
+        "/Users/n/numi-human-retained-delivery-20261009/native-bed-disabled-parity-1197-attempt002/native-run/common-field-failure.json",
+        "/Users/n/numi-human-retained-delivery-20261009/native-contoured-bed-smoke-1198-attempt002/native-run/common-field-failure.json"
+      ]
+    },
+    "environment_differences_after_normalizing_failure_receipt_path": {},
+    "native_binary_hashes_differ": true,
+    "native_command_equal_after_normalizing_output_scene_movie_paths_and_removing_declared_bed_option": true,
+    "removed_native_flags": [],
+    "runtime_patch_sha256": {
+      "contoured": "aa8fb6f09cc8fca1e70dd84b2eaa6b3700a3729fc020118c28c6c2f4176b41dd",
+      "flat": "13cbdc2d938fbfa2cc0167dc64c196ecfb2756d9e5a35e8b1b6a78e0a3192c75"
+    },
+    "same_base_revision": true,
+    "same_loaded_metalrobo_hash": true,
+    "source_delta_summary": "Both launch snapshots share the same base revision and match in native argv after normalizing run-output/movie paths and removing the declared --resting-bed-surface option. Their retained source patches differ in the contoured-bed mesh shading tangent construction (attempt002 contains the orthonormal tangent fix) and line-offset metadata. The native executable hashes differ; loaded MetalRobo dylib and shader-library pins match. The contoured invocation adds the bed manifest and --resting-bed-surface; the failure-receipt environment value also points to each run own output directory.",
+    "source_patch_diff_excerpt": [
+      "--- \n",
+      "+++ \n",
+      "@@ -232 +232 @@\n",
+      "-index f200376..b98db23 100644",
+      "+index f200376..f744543 100644",
+      "@@ -265 +265 @@\n",
+      "-@@ -1577,20 +1582,57 @@ public:",
+      "+@@ -1577,20 +1582,66 @@ public:",
+      "@@ -293 +293,10 @@\n",
+      "-+                pack.vertices[i].normalAndTangentSign={n.x/norm,n.y/norm,n.z/norm,1};",
+      "++                const mr_float4 unit{n.x/norm,n.y/norm,n.z/norm,0};",
+      "++                pack.vertices[i].normalAndTangentSign={unit.x,unit.y,unit.z,1};",
+      "++                const mr_float4 reference=std::abs(unit.x)<.8f",
+      "++                    ?mr_float4{1,0,0,0}:mr_float4{0,1,0,0};",
+      "++                const auto tangent=subtractPoint(reference,scalePoint(unit,dotPoint(reference,unit)));",
+      "++                const float tangentNorm=std::sqrt(dotPoint(tangent,tangent));",
+      "++                require(tangentNorm>0&&std::isfinite(tangentNorm),",
+      "++                    \"contoured bed has a degenerate shading tangent\");",
+      "++                pack.vertices[i].tangent={tangent.x/tangentNorm,",
+      "++                    tangent.y/tangentNorm,tangent.z/tangentNorm,0};"
+    ],
+    "source_patch_diff_stat_lines": 35
+  },
+  "observer_phase_deltas": {
+    "accepted_callbacks": {
+      "contoured_bed": 1250.0,
+      "delta": 0.0,
+      "flat": 1250.0,
+      "relative_change_percent": 0.0
+    },
+    "body_motion_csv_ms": {
+      "contoured_bed": 0.0,
+      "delta": 0.0,
+      "flat": 0.0,
+      "relative_change_percent": null
+    },
+    "com_cpu_kinematics_ms": {
+      "contoured_bed": 34.944663,
+      "delta": 0.6878990000000016,
+      "flat": 34.256764,
+      "relative_change_percent": 2.008067662199505
+    },
+    "com_momentum_csv_ms": {
+      "contoured_bed": 16.349219,
+      "delta": 0.39137100000000125,
+      "flat": 15.957848,
+      "relative_change_percent": 2.452529940127273
+    },
+    "csv_flush_ms": {
+      "contoured_bed": 19.536912,
+      "delta": -6.222014999999999,
+      "flat": 25.758927,
+      "relative_change_percent": -24.15479107495432
+    },
+    "mean_ms": {
+      "contoured_bed": 12.0615541,
+      "delta": 0.7059025999999999,
+      "flat": 11.3556515,
+      "relative_change_percent": 6.21631088273535
+    },
+    "observer_other_ms": {
+      "contoured_bed": 6.678968,
+      "delta": 1.296532,
+      "flat": 5.382436,
+      "relative_change_percent": 24.08820095584973
+    },
+    "presentation_ms": {
+      "contoured_bed": 14827.033,
+      "delta": 803.9279999999999,
+      "flat": 14023.105,
+      "relative_change_percent": 5.732881555119212
+    },
+    "q_integration_csv_ms": {
+      "contoured_bed": 0.0,
+      "delta": 0.0,
+      "flat": 0.0,
+      "relative_change_percent": null
+    },
+    "respiration_trace_csv_ms": {
+      "contoured_bed": 22.301954,
+      "delta": -1.113907000000001,
+      "flat": 23.415861,
+      "relative_change_percent": -4.757061890656086
+    },
+    "support_impulse_csv_ms": {
+      "contoured_bed": 150.097917,
+      "delta": 83.410429,
+      "flat": 66.687488,
+      "relative_change_percent": 125.07657958266472
+    },
+    "total_ms": {
+      "contoured_bed": 15076.9426,
+      "delta": 882.378200000001,
+      "flat": 14194.5644,
+      "relative_change_percent": 6.216310519539444
+    }
+  },
+  "qualification_limit": "1198 is a 20 s profile only; later anatomy audit reported 3,727 skin-target crossings across 26 surfaces and zero self-intersections. This comparison does not qualify anatomy or long-horizon timing.",
+  "runs": {
+    "contoured_bed": {
+      "assets": {
+        "/Users/n/numi-human-contoured-bed-build-1196/bin/numi-human-native": "5dd7f7fb3b10146a64dbad191d8b53451c146b9128d94e1673dc8fce66f63e1a",
+        "/Users/n/numi-human-contoured-bed-build-1196/lib/libmetalrobo.dylib": "8edaa58f5d53645e9e5e608772a134a5db58fc3bbdae58604a3cc847edfa8b61",
+        "/Users/n/numi-human-contoured-bed-build-1196/matter/shaders/HumanRespiration.metallib": "8444ba02aa176fb54a4331806aac39a372311852708d9bdb2698ba37dd71fa8b",
+        "/Users/n/numi-human-contoured-bed-build-1196/matter/shaders/NumiMatter.metallib": "38d4b64ed55cef2e0e0f243616d0db5bd21441f232ca38bca439108c1d6130f9",
+        "/Users/n/numi-human-contoured-bed-build-1196/matter/shaders/NumiMatterPhysicalStateDigest.metallib": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68",
+        "/Users/n/numi-human-contoured-bed-build-1196/shaders/MetalRobo.metallib": "239dbe46fc723f6ea71ba533f981daaf25dea27eb42ed31f9c6b46dd2b616a34",
+        "/Users/n/numi-human-contoured-bed-build-1196/shaders/MetalRoboHyperPolicy.metallib": "f227836841015b40467a20c47a9fa38cf44eb8e1132cad1de4e65fa79c55d309",
+        "/Users/n/numi-human-contoured-bed-build-1196/shaders/NumiNeuron.metallib": "4ccbb796a6bfd5bdb18f7d37c8e18e0d767c9489d16047c523c97f679da33f1d",
+        "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/current-bone-registration-b1b410ad/bodyparts3d-myosim-major-bones.nhbones": "7d94e2f28ac6cea30c6c11a79919077acc40281636eb20b11b50b50aebd3ec49",
+        "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-core-reference.nhrigid": "2c78cb4150b97cea6e8169dad9e8f5dd59af667b247e07b56e48e857435560e4",
+        "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-joint-equalities.nheq": "0e3c593792a8c4ccd619f1999f6685b68e6ff0fd5ae5f6f0bca66b594a0e9b88",
+        "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-muscle-reference.nhmyo": "e5bb8a8168706bb3b23cf42b1d849659569ba2e6027bcc85729c3110fdbb8c4b",
+        "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-1178-viewer-018-v015-attempt3/resting-scene/myosim-fullbody-resting-bed-support.nhcnt": "bcfece8e5da553b98694b724644234407fa4c38383b1e18d3c24d7caefa28927",
+        "/Users/n/numi-human-resting-evidence-20261005/native-lung-free-apex-two-family-composition-1178/composition-024-attempt5/final/resting-reference-respiration.json": "70f4d235b988f9466b80e795ac0e793a82d6b13d03ebb01b84a313f0ad398e8a",
+        "/Users/n/numi-human-resting-evidence-20261005/native-lung-free-apex-two-family-composition-1178/composition-024-attempt5/final/resting-thorax.nhanatomy": "1c0c37af76ab3f8e86870fd6cd3abab00b7bcdae51fe934e3461722ca306c241",
+        "/Users/n/numi-human-resting-evidence-20261005/native-skin-epl143-clearance-1187/attempt-006/bodyparts3d-myosim-skinned-shell-epl143-candidate.nhskin": "b2d235e32c1c7d7f753eb83d1e8e9d045a1fd62be9c5c6da65dfde8844e2622b",
+        "/Users/n/numi-human-resting-evidence-20261005/native-skin-epl143-clearance-1187/package-003/attempt-010/admission-output/composed-anatomy/common-cardiac-domains-f32.bin": "7652785c9ea164b16ee96f64a3dcf940398af36cfd535a5f9b7a7d6bd2c7a611",
+        "/Users/n/numi-human-resting-evidence-20261005/native-skin-epl143-clearance-1187/package-003/attempt-010/admission-output/composed-anatomy/common-cardiac-map-f32.bin": "c0b0811fe2e2fb45dc37201205e36af39cf092739cfb52c56fdbad9a67dbb858",
+        "/Users/n/numi-human-resting-evidence-20261005/native-skin-epl143-clearance-1187/package-003/attempt-010/admission-output/composed-anatomy/common-cardiac-volumes-f32.bin": "7be4f62996c996c6cfdd49480d27766c8253387bb24aeb504fef73cd553ae699",
+        "/Users/n/numi-human-resting-evidence-20261005/native-skin-epl143-clearance-1187/package-003/attempt-010/admission-output/composed-anatomy/resting-anatomy-receipt.json": "1d3c364a8f5b66f6c88412a193b801d57a75de1ff797f9d61247da684810e2cd",
+        "/Users/n/numi-human-resting-evidence-20261005/passive-tissue-achilles-clearance-039-composed-001/bodyparts3d-myosim-fullbody-muscle-surfaces.manifest.json": "82cdd937e0f2daf0a8704fb21246353c38148527f8602d674ac865f935264dde",
+        "/Users/n/numi-human-resting-evidence-20261005/passive-tissue-achilles-clearance-039-composed-001/bodyparts3d-myosim-fullbody-muscle-surfaces.nhtissue": "b3d0381f73e05b04ed7ea1ba23eb6559073ad20aa0d9e2ad0f97a18fab3359bd",
+        "/Users/n/numi-human-resting-evidence-20261005/reference-circulation-001/resting_reference_lv15.native.v3.json": "43ff6b49daf1d42cf9e88d85d8577f70e112dfcc3756ec43954e544a3e4bc0dc",
+        "/Users/n/numi-human-resting-evidence-20261005/tendon-semantic-foot-migration-834/numi-human-tendon-attachments.nhtendon": "49daaf61421254cb18f3aa32f1d332b1810537afd4c4ef813abd2f0d118dcecc",
+        "/Users/n/numi-human-retained-delivery-20261009/contoured-bed-reference-1196/resting-supine-scene-contoured-5mm.manifest.json": "189ffb56c3b3b6de3426627068b17e049134dca8efa3551fb4c37c0c92fb5c2c",
+        "/Users/n/numi-human-retained-delivery-20261009/native-lung1178-thumb1187-smoke-1191/native-run/accepted-geometry/step-0.mrvpack": "68dd2aecebd5febb561738e586cb9093813aee61309ccf1c0ceae5a535751bef"
+      },
+      "execution": {
+        "changed_inputs": {},
+        "declaration_sha256": "e9b711ea0490f19b5351cde1b20f80b1a6e1f83ba8068a6a4e1664614e8b667a",
+        "returncode": 0,
+        "wall_seconds": 250.407721292
+      },
+      "profile": {
+        "full_geometry_exports": 8,
+        "geometry_export_audit_ms": {
+          "count": 8,
+          "max_ms": 1861.499291844666,
+          "mean_ms": 1616.1749113505832,
+          "median_ms": 1585.344396065,
+          "min_ms": 1498.91829,
+          "p95_ms": 1963.2383606852322,
+          "sum_ms": 12929.399290804666
+        },
+        "geometry_export_total_wall_ms": {
+          "count": 8,
+          "max_ms": 1878.8415836170316,
+          "mean_ms": 1635.4113444108789,
+          "median_ms": 1603.07806218,
+          "min_ms": 1530.10588,
+          "p95_ms": 1980.673121285899,
+          "sum_ms": 13083.290755287031
+        },
+        "geometry_triangles": [
+          5150005.0
+        ],
+        "geometry_vertices": [
+          2949849.0
+        ],
+        "integrated_body": {
+          "real_time_factor": 0.08232363317127356,
+          "simulated_s": 20.000000949949026,
+          "wall_s": 242.943613875
+        },
+        "integrated_throughput": {
+          "accepted_end_step": 10000.0,
+          "accepted_start_step": 8.0,
+          "excludes": "terminal_query_fk_terminal_frame_render_terminal_geometry_export_load_compile_initial_parity_first_accepted_observer_movie_finalization",
+          "includes": "physics_physiology_controller_audits_trace_viewer_movie_frames_cadence_geometry_export",
+          "real_time_factor": 0.0836699319343,
+          "simulated_s": 19.9840009492,
+          "wall_s": 238.843279625
+        },
+        "native_command_ms": {
+          "count": 1250,
+          "max_ms": 199.549167,
+          "mean_ms": 177.342384636,
+          "median_ms": 175.7518335,
+          "min_ms": 170.149541,
+          "p95_ms": 192.23122485,
+          "sum_ms": 221677.98079499998
+        },
+        "native_gpu_ms": {
+          "count": 1250,
+          "max_ms": 198.885416612,
+          "mean_ms": 176.7755011618216,
+          "median_ms": 175.183957908,
+          "min_ms": 169.722874649,
+          "p95_ms": 191.54977500409998,
+          "sum_ms": 220969.37645227704
+        },
+        "native_host_copy_ms": {
+          "count": 1250,
+          "max_ms": 6.921625,
+          "mean_ms": 0.047896328,
+          "median_ms": 0.036125,
+          "min_ms": 0.033583,
+          "p95_ms": 0.046283149999999995,
+          "sum_ms": 59.87040999999996
+        },
+        "observer": {
+          "accepted_callbacks": 1250.0,
+          "body_motion_csv_ms": 0.0,
+          "com_cpu_kinematics_ms": 34.944663,
+          "com_momentum_csv_ms": 16.349219,
+          "csv_flush_ms": 19.536912,
+          "mean_ms": 12.0615541,
+          "observer_other_ms": 6.678968,
+          "presentation_ms": 14827.033,
+          "q_integration_csv_ms": 0.0,
+          "respiration_trace_csv_ms": 22.301954,
+          "support_impulse_csv_ms": 150.097917,
+          "total_ms": 15076.9426
+        },
+        "presentation_count": 315,
+        "presentation_wall_ms": {
+          "count": 315,
+          "max_ms": 1891.8191250413656,
+          "mean_ms": 58.273401839879256,
+          "median_ms": 16.5684996173,
+          "min_ms": 15.6985409558,
+          "p95_ms": 20.13231664892,
+          "sum_ms": 18356.121579561965
+        },
+        "render_regular_command_ms": {
+          "count": 307,
+          "max_ms": 17.5540409982,
+          "mean_ms": 13.41481733132899,
+          "median_ms": 13.4539175779,
+          "min_ms": 12.8129171208,
+          "p95_ms": 13.85397538542,
+          "sum_ms": 4118.348920717999
+        },
+        "render_regular_count": 307,
+        "render_regular_gpu_ms": {
+          "count": 307,
+          "max_ms": 13.9425005764,
+          "mean_ms": 13.139359376936808,
+          "median_ms": 13.2144996896,
+          "min_ms": 12.646375224,
+          "p95_ms": 13.58230020852,
+          "sum_ms": 4033.7833287196
+        },
+        "render_regular_wall_ms": {
+          "count": 307,
+          "max_ms": 17.6401250064,
+          "mean_ms": 13.47886619585798,
+          "median_ms": 13.509166427,
+          "min_ms": 12.8738749772,
+          "p95_ms": 13.9364168048,
+          "sum_ms": 4138.011922128402
+        }
+      },
+      "run_metadata_summary": {
+        "exit_code": 0,
+        "loaded_metal_runtime": {
+          "expected_path": "/Users/n/numi-human-contoured-bed-build-1196/lib/libmetalrobo.dylib",
+          "expected_sha256": "8edaa58f5d53645e9e5e608772a134a5db58fc3bbdae58604a3cc847edfa8b61",
+          "observed_images": [
+            {
+              "dyld_uuid": "74ec5506-eefd-38f6-aaa0-eafe3c80f1ac",
+              "path": "/Users/n/numi-human-contoured-bed-build-1196/lib/libmetalrobo.dylib"
+            }
+          ],
+          "scope": "Loaded MetalRobo image path and unchanged file hash; source and shader identities remain separate bindings",
+          "verified": true
+        },
+        "source_files_changed_during_run": [],
+        "wall_seconds": 249.804735334
+      },
+      "run_path": "/Users/n/numi-human-retained-delivery-20261009/native-contoured-bed-smoke-1198-attempt002",
+      "runtime": {
+        "base_revision": "fcc6c7ebb92d8dc9b3e33d9f06f9dc6160244b8f",
+        "loaded_metalrobo_sha256": "8edaa58f5d53645e9e5e608772a134a5db58fc3bbdae58604a3cc847edfa8b61",
+        "native_binary_sha256": "5dd7f7fb3b10146a64dbad191d8b53451c146b9128d94e1673dc8fce66f63e1a",
+        "native_source_file_hashes": {
+          "CMakeLists.txt": "891559b6cdb66eeca8e2255d45222f6af27fe583b9cb312026af1e28025a7fdb",
+          "apps/NumiHumanBrainReceptors.hpp": "2cf28b8ba3f7055a02f685b94d7c2ad884584cbb47264598d7223c8ff51480bf",
+          "apps/NumiHumanRestingBedSurface.hpp": "a1fe30a211dad9b54975b9aaa4ce0551d7003bf6f48af46a2a0732f271d8aef4",
+          "apps/NumiHumanRestingSupportGeometry.hpp": "ace36261c5d90f972253ffd691968da37bfb7c6c746795e3678c6642137dfa8b",
+          "apps/NumiHumanRestingVisual.hpp": "51af221fa4039b3dc313d9deec4e0a34850f71f791868c60254d68e34b113b99",
+          "apps/numilab_human_myosim_visual_probe.mm": "c803f1917c2b7e5c0c3b3aa58a3868bcaaaabc0e9c89385ba258cdea9d573dca",
+          "include/metalrobo/MetalArticulatedOperator.hpp": "af08bdcf12b1aa6ca505f81f63871cc4e7654a990ef859d854ecd24f76e3cb01",
+          "include/metalrobo/numi_human_resting_bed_gpu.h": "7bb95ca969c5fe844f41971a0296f0fbaee472d70ea8ae99ff87bcece1f8001a",
+          "include/metalrobo/numi_human_stand_gpu.h": "5fc615bb82e282fe8cd1f08e3e441b0da165cc1c913fd0384a82e30baaf1404b",
+          "matter/CMakeLists.txt": "b70479b1f094c9f1c904cf1bfe8a90d8a560b47247a11c3ce48679b43ccaaef4",
+          "matter/src/human_respiration.metal": "bf984a88ff542f528753d368d9b4f884a74319a9d2e24ac8d6dc5ccb5040bc54",
+          "src/metal/MetalArticulatedOperator.mm": "086233bfc47b8c950b5ad6b5ea2ae3349ffa8039524d8429ba9b5b1d755ac080",
+          "src/metal/NumiHumanRestingBed.metalinc": "47ee93f2c41d6741d45f974fa335ba4b2f1d00ba24a3cb6313ef626738d9c700",
+          "src/metal/NumiHumanRestingSupportGeometry.metalinc": "4592aa32978e928ae6c816c30166423e0c5eee72d8a45e13d8216663925cab82",
+          "src/metal/NumiHumanStand.metal": "abfc82c1f4bf694e6920f7a08c778f873de925620cd1c7196a7e8efe9becfb41",
+          "src/metal/NumiHumanStandSolve.metalinc": "6d1802737e89aaf6d8ae6f70046ca868eec290fadc01af3be5e69d2beadae6f7",
+          "tests/numi_human_per_contact_plane_metal_test.mm": "e10cf7f8fed6124d46f6700421e809407f3b2c34b84de17731e6ae0c3e05f86f",
+          "tests/numi_human_resting_bed_admission_test.mm": "1a103a5027cb4e70153cdd9f259feb2794b38820feb550a3ec25fb225646625c",
+          "tests/numi_human_resting_bed_query.metal": "518f25ec42eb98d6d1076b116f86ddd881add33f7bb59038e1595a99c69cebfa",
+          "tests/numi_human_resting_bed_query_test.mm": "8e1917358d56b083e32029131eff0b7cb74858f3ac3997735aaef222eaab7318"
+        },
+        "profile_rows": {
+          "native": 1250,
+          "present": 315,
+          "render": 315
+        },
+        "runtime_patch_sha256": "aa8fb6f09cc8fca1e70dd84b2eaa6b3700a3729fc020118c28c6c2f4176b41dd"
+      }
+    },
+    "flat_reference": {
+      "assets": {
+        "/Users/n/numi-human-contoured-bed-build-1196/bin/numi-human-native": "a60fbd2a1389d74d61b7f0a3a9d89830fed69eb17949155a7caac9411682fbff",
+        "/Users/n/numi-human-contoured-bed-build-1196/lib/libmetalrobo.dylib": "8edaa58f5d53645e9e5e608772a134a5db58fc3bbdae58604a3cc847edfa8b61",
+        "/Users/n/numi-human-contoured-bed-build-1196/matter/shaders/HumanRespiration.metallib": "8444ba02aa176fb54a4331806aac39a372311852708d9bdb2698ba37dd71fa8b",
+        "/Users/n/numi-human-contoured-bed-build-1196/matter/shaders/NumiMatter.metallib": "38d4b64ed55cef2e0e0f243616d0db5bd21441f232ca38bca439108c1d6130f9",
+        "/Users/n/numi-human-contoured-bed-build-1196/matter/shaders/NumiMatterPhysicalStateDigest.metallib": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68",
+        "/Users/n/numi-human-contoured-bed-build-1196/shaders/MetalRobo.metallib": "239dbe46fc723f6ea71ba533f981daaf25dea27eb42ed31f9c6b46dd2b616a34",
+        "/Users/n/numi-human-contoured-bed-build-1196/shaders/MetalRoboHyperPolicy.metallib": "f227836841015b40467a20c47a9fa38cf44eb8e1132cad1de4e65fa79c55d309",
+        "/Users/n/numi-human-contoured-bed-build-1196/shaders/NumiNeuron.metallib": "4ccbb796a6bfd5bdb18f7d37c8e18e0d767c9489d16047c523c97f679da33f1d",
+        "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/current-bone-registration-b1b410ad/bodyparts3d-myosim-major-bones.nhbones": "7d94e2f28ac6cea30c6c11a79919077acc40281636eb20b11b50b50aebd3ec49",
+        "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-core-reference.nhrigid": "2c78cb4150b97cea6e8169dad9e8f5dd59af667b247e07b56e48e857435560e4",
+        "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-joint-equalities.nheq": "0e3c593792a8c4ccd619f1999f6685b68e6ff0fd5ae5f6f0bca66b594a0e9b88",
+        "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-muscle-reference.nhmyo": "e5bb8a8168706bb3b23cf42b1d849659569ba2e6027bcc85729c3110fdbb8c4b",
+        "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-1178-viewer-018-v015-attempt3/resting-scene/myosim-fullbody-resting-bed-support.nhcnt": "bcfece8e5da553b98694b724644234407fa4c38383b1e18d3c24d7caefa28927",
+        "/Users/n/numi-human-resting-evidence-20261005/native-lung-free-apex-two-family-composition-1178/composition-024-attempt5/final/resting-reference-respiration.json": "70f4d235b988f9466b80e795ac0e793a82d6b13d03ebb01b84a313f0ad398e8a",
+        "/Users/n/numi-human-resting-evidence-20261005/native-lung-free-apex-two-family-composition-1178/composition-024-attempt5/final/resting-thorax.nhanatomy": "1c0c37af76ab3f8e86870fd6cd3abab00b7bcdae51fe934e3461722ca306c241",
+        "/Users/n/numi-human-resting-evidence-20261005/native-skin-epl143-clearance-1187/attempt-006/bodyparts3d-myosim-skinned-shell-epl143-candidate.nhskin": "b2d235e32c1c7d7f753eb83d1e8e9d045a1fd62be9c5c6da65dfde8844e2622b",
+        "/Users/n/numi-human-resting-evidence-20261005/native-skin-epl143-clearance-1187/package-003/attempt-010/admission-output/composed-anatomy/common-cardiac-domains-f32.bin": "7652785c9ea164b16ee96f64a3dcf940398af36cfd535a5f9b7a7d6bd2c7a611",
+        "/Users/n/numi-human-resting-evidence-20261005/native-skin-epl143-clearance-1187/package-003/attempt-010/admission-output/composed-anatomy/common-cardiac-map-f32.bin": "c0b0811fe2e2fb45dc37201205e36af39cf092739cfb52c56fdbad9a67dbb858",
+        "/Users/n/numi-human-resting-evidence-20261005/native-skin-epl143-clearance-1187/package-003/attempt-010/admission-output/composed-anatomy/common-cardiac-volumes-f32.bin": "7be4f62996c996c6cfdd49480d27766c8253387bb24aeb504fef73cd553ae699",
+        "/Users/n/numi-human-resting-evidence-20261005/native-skin-epl143-clearance-1187/package-003/attempt-010/admission-output/composed-anatomy/resting-anatomy-receipt.json": "1d3c364a8f5b66f6c88412a193b801d57a75de1ff797f9d61247da684810e2cd",
+        "/Users/n/numi-human-resting-evidence-20261005/native-skin-epl143-clearance-1187/package-003/attempt-010/admission-output/resting-supine-scene.manifest.json": "9c248cc090ada144e02770fbb6e53ebd9e480306dc439262388eb8014602a68a",
+        "/Users/n/numi-human-resting-evidence-20261005/passive-tissue-achilles-clearance-039-composed-001/bodyparts3d-myosim-fullbody-muscle-surfaces.manifest.json": "82cdd937e0f2daf0a8704fb21246353c38148527f8602d674ac865f935264dde",
+        "/Users/n/numi-human-resting-evidence-20261005/passive-tissue-achilles-clearance-039-composed-001/bodyparts3d-myosim-fullbody-muscle-surfaces.nhtissue": "b3d0381f73e05b04ed7ea1ba23eb6559073ad20aa0d9e2ad0f97a18fab3359bd",
+        "/Users/n/numi-human-resting-evidence-20261005/reference-circulation-001/resting_reference_lv15.native.v3.json": "43ff6b49daf1d42cf9e88d85d8577f70e112dfcc3756ec43954e544a3e4bc0dc",
+        "/Users/n/numi-human-resting-evidence-20261005/tendon-semantic-foot-migration-834/numi-human-tendon-attachments.nhtendon": "49daaf61421254cb18f3aa32f1d332b1810537afd4c4ef813abd2f0d118dcecc"
+      },
+      "execution": {
+        "changed_inputs": {},
+        "declaration_sha256": "9236ec6826d2f9024ef3eeebbe1545530c5e7c969195b885d762328965f60f5f",
+        "returncode": 0,
+        "wall_seconds": 192.67338462499998
+      },
+      "profile": {
+        "full_geometry_exports": 8,
+        "geometry_export_audit_ms": {
+          "count": 8,
+          "max_ms": 1557.93816689,
+          "mean_ms": 1480.919656112948,
+          "median_ms": 1471.922521015,
+          "min_ms": 1427.13241652,
+          "p95_ms": 1577.9303460785297,
+          "sum_ms": 11847.357248903581
+        },
+        "geometry_export_total_wall_ms": {
+          "count": 8,
+          "max_ms": 1574.92833398,
+          "mean_ms": 1499.369485171851,
+          "median_ms": 1488.92691685,
+          "min_ms": 1444.24737524,
+          "p95_ms": 1595.260344813855,
+          "sum_ms": 11994.955881374808
+        },
+        "geometry_triangles": [
+          4910807.0
+        ],
+        "geometry_vertices": [
+          2829532.0
+        ],
+        "integrated_body": {
+          "real_time_factor": 0.10770999611367767,
+          "simulated_s": 20.000000949949026,
+          "wall_s": 185.683796041
+        },
+        "integrated_throughput": {
+          "accepted_end_step": 10000.0,
+          "accepted_start_step": 8.0,
+          "excludes": "terminal_query_fk_terminal_frame_render_terminal_geometry_export_load_compile_initial_parity_first_accepted_observer_movie_finalization",
+          "includes": "physics_physiology_controller_audits_trace_viewer_movie_frames_cadence_geometry_export",
+          "real_time_factor": 0.111074867058,
+          "simulated_s": 19.9840009492,
+          "wall_s": 179.914696083
+        },
+        "native_command_ms": {
+          "count": 1250,
+          "max_ms": 148.6175,
+          "mean_ms": 130.8721650768,
+          "median_ms": 131.199521,
+          "min_ms": 93.27975,
+          "p95_ms": 135.4103026,
+          "sum_ms": 163590.20634599985
+        },
+        "native_gpu_ms": {
+          "count": 1250,
+          "max_ms": 148.106500506,
+          "mean_ms": 130.31635665894623,
+          "median_ms": 130.6541250085,
+          "min_ms": 92.7020004019,
+          "p95_ms": 134.84559385134997,
+          "sum_ms": 162895.44582368268
+        },
+        "native_host_copy_ms": {
+          "count": 1250,
+          "max_ms": 4.496834,
+          "mean_ms": 0.0404083352,
+          "median_ms": 0.035,
+          "min_ms": 0.032209,
+          "p95_ms": 0.043954349999999996,
+          "sum_ms": 50.51041899999989
+        },
+        "observer": {
+          "accepted_callbacks": 1250.0,
+          "body_motion_csv_ms": 0.0,
+          "com_cpu_kinematics_ms": 34.256764,
+          "com_momentum_csv_ms": 15.957848,
+          "csv_flush_ms": 25.758927,
+          "mean_ms": 11.3556515,
+          "observer_other_ms": 5.382436,
+          "presentation_ms": 14023.105,
+          "q_integration_csv_ms": 0.0,
+          "respiration_trace_csv_ms": 23.415861,
+          "support_impulse_csv_ms": 66.687488,
+          "total_ms": 14194.5644
+        },
+        "presentation_count": 315,
+        "presentation_wall_ms": {
+          "count": 315,
+          "max_ms": 1586.85783,
+          "mean_ms": 54.47666464937822,
+          "median_ms": 16.212916933,
+          "min_ms": 15.389832668,
+          "p95_ms": 19.93654165414,
+          "sum_ms": 17160.149364554134
+        },
+        "render_regular_command_ms": {
+          "count": 307,
+          "max_ms": 16.7451659217,
+          "mean_ms": 13.184103404900652,
+          "median_ms": 13.2721671835,
+          "min_ms": 12.612791732,
+          "p95_ms": 13.553699851,
+          "sum_ms": 4047.5197453045002
+        },
+        "render_regular_count": 307,
+        "render_regular_gpu_ms": {
+          "count": 307,
+          "max_ms": 13.4889166802,
+          "mean_ms": 12.933205500706515,
+          "median_ms": 12.9715418443,
+          "min_ms": 12.4434577301,
+          "p95_ms": 13.3392414078,
+          "sum_ms": 3970.4940887168987
+        },
+        "render_regular_wall_ms": {
+          "count": 307,
+          "max_ms": 17.5390420482,
+          "mean_ms": 13.253312406253746,
+          "median_ms": 13.3302910253,
+          "min_ms": 12.659708038,
+          "p95_ms": 13.647216930999999,
+          "sum_ms": 4068.7669087198997
+        }
+      },
+      "run_metadata_summary": {
+        "exit_code": 0,
+        "loaded_metal_runtime": {
+          "expected_path": "/Users/n/numi-human-contoured-bed-build-1196/lib/libmetalrobo.dylib",
+          "expected_sha256": "8edaa58f5d53645e9e5e608772a134a5db58fc3bbdae58604a3cc847edfa8b61",
+          "observed_images": [
+            {
+              "dyld_uuid": "74ec5506-eefd-38f6-aaa0-eafe3c80f1ac",
+              "path": "/Users/n/numi-human-contoured-bed-build-1196/lib/libmetalrobo.dylib"
+            }
+          ],
+          "scope": "Loaded MetalRobo image path and unchanged file hash; source and shader identities remain separate bindings",
+          "verified": true
+        },
+        "source_files_changed_during_run": [],
+        "wall_seconds": 192.308938584
+      },
+      "run_path": "/Users/n/numi-human-retained-delivery-20261009/native-bed-disabled-parity-1197-attempt002",
+      "runtime": {
+        "base_revision": "fcc6c7ebb92d8dc9b3e33d9f06f9dc6160244b8f",
+        "loaded_metalrobo_sha256": "8edaa58f5d53645e9e5e608772a134a5db58fc3bbdae58604a3cc847edfa8b61",
+        "native_binary_sha256": "a60fbd2a1389d74d61b7f0a3a9d89830fed69eb17949155a7caac9411682fbff",
+        "native_source_file_hashes": {
+          "CMakeLists.txt": "891559b6cdb66eeca8e2255d45222f6af27fe583b9cb312026af1e28025a7fdb",
+          "apps/NumiHumanBrainReceptors.hpp": "2cf28b8ba3f7055a02f685b94d7c2ad884584cbb47264598d7223c8ff51480bf",
+          "apps/NumiHumanRestingBedSurface.hpp": "a1fe30a211dad9b54975b9aaa4ce0551d7003bf6f48af46a2a0732f271d8aef4",
+          "apps/NumiHumanRestingSupportGeometry.hpp": "ace36261c5d90f972253ffd691968da37bfb7c6c746795e3678c6642137dfa8b",
+          "apps/NumiHumanRestingVisual.hpp": "88c751f798ba56fc247b56c486b08898861751b9ed66095bb36b6239ce8ebe81",
+          "apps/numilab_human_myosim_visual_probe.mm": "c803f1917c2b7e5c0c3b3aa58a3868bcaaaabc0e9c89385ba258cdea9d573dca",
+          "include/metalrobo/MetalArticulatedOperator.hpp": "af08bdcf12b1aa6ca505f81f63871cc4e7654a990ef859d854ecd24f76e3cb01",
+          "include/metalrobo/numi_human_resting_bed_gpu.h": "7bb95ca969c5fe844f41971a0296f0fbaee472d70ea8ae99ff87bcece1f8001a",
+          "include/metalrobo/numi_human_stand_gpu.h": "5fc615bb82e282fe8cd1f08e3e441b0da165cc1c913fd0384a82e30baaf1404b",
+          "matter/CMakeLists.txt": "b70479b1f094c9f1c904cf1bfe8a90d8a560b47247a11c3ce48679b43ccaaef4",
+          "matter/src/human_respiration.metal": "bf984a88ff542f528753d368d9b4f884a74319a9d2e24ac8d6dc5ccb5040bc54",
+          "src/metal/MetalArticulatedOperator.mm": "086233bfc47b8c950b5ad6b5ea2ae3349ffa8039524d8429ba9b5b1d755ac080",
+          "src/metal/NumiHumanRestingBed.metalinc": "47ee93f2c41d6741d45f974fa335ba4b2f1d00ba24a3cb6313ef626738d9c700",
+          "src/metal/NumiHumanRestingSupportGeometry.metalinc": "4592aa32978e928ae6c816c30166423e0c5eee72d8a45e13d8216663925cab82",
+          "src/metal/NumiHumanStand.metal": "abfc82c1f4bf694e6920f7a08c778f873de925620cd1c7196a7e8efe9becfb41",
+          "src/metal/NumiHumanStandSolve.metalinc": "6d1802737e89aaf6d8ae6f70046ca868eec290fadc01af3be5e69d2beadae6f7",
+          "tests/numi_human_per_contact_plane_metal_test.mm": "e10cf7f8fed6124d46f6700421e809407f3b2c34b84de17731e6ae0c3e05f86f",
+          "tests/numi_human_resting_bed_admission_test.mm": "1a103a5027cb4e70153cdd9f259feb2794b38820feb550a3ec25fb225646625c",
+          "tests/numi_human_resting_bed_query.metal": "518f25ec42eb98d6d1076b116f86ddd881add33f7bb59038e1595a99c69cebfa",
+          "tests/numi_human_resting_bed_query_test.mm": "8e1917358d56b083e32029131eff0b7cb74858f3ac3997735aaef222eaab7318"
+        },
+        "profile_rows": {
+          "native": 1250,
+          "present": 315,
+          "render": 315
+        },
+        "runtime_patch_sha256": "13cbdc2d938fbfa2cc0167dc64c196ecfb2756d9e5a35e8b1b6a78e0a3192c75"
+      }
+    }
+  },
+  "schema": "numi.native-contoured-bed-profile-comparison.v1",
+  "scope": "Retained complete 20 s runs; measured run-to-run bed-mode profile difference, not a repeated controlled benchmark and not single-kernel attribution. No GPU or source edits."
+}

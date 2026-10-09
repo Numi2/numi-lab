@@ -1,0 +1,122 @@
+{
+  "all_external_inputs_match": true,
+  "bundle_path": "/Users/n/numi-human-retained-delivery-20261009/native-bed-profile-comparison-1198",
+  "external_inputs": {
+    "/Users/n/numi-human-retained-delivery-20261009/native-bed-disabled-parity-1197-attempt002/execution.json": {
+      "actual_sha256": "7da1f1e86c44e3f81cafd01408d6b1c712f2c86044f4c62067a5343844ffe0ac",
+      "expected_sha256": "7da1f1e86c44e3f81cafd01408d6b1c712f2c86044f4c62067a5343844ffe0ac",
+      "matches": true,
+      "size_bytes": 176
+    },
+    "/Users/n/numi-human-retained-delivery-20261009/native-bed-disabled-parity-1197-attempt002/native-run/invocation.json": {
+      "actual_sha256": "a9953a57c4acd7362113ff1e0163b254f7515d59b10f474d715c028b38b979e5",
+      "expected_sha256": "a9953a57c4acd7362113ff1e0163b254f7515d59b10f474d715c028b38b979e5",
+      "matches": true,
+      "size_bytes": 10705
+    },
+    "/Users/n/numi-human-retained-delivery-20261009/native-bed-disabled-parity-1197-attempt002/native-run/native.log": {
+      "actual_sha256": "8f32b64eb23f3b17bded1806fc1ccc05433255f6e542ed0f75a474932580d82e",
+      "expected_sha256": "8f32b64eb23f3b17bded1806fc1ccc05433255f6e542ed0f75a474932580d82e",
+      "matches": true,
+      "size_bytes": 2032777
+    },
+    "/Users/n/numi-human-retained-delivery-20261009/native-bed-disabled-parity-1197-attempt002/native-run/run-metadata.json": {
+      "actual_sha256": "462f82d75532c25f83f27bcccc05d76e077049e3da506b2a57387136efe4f18b",
+      "expected_sha256": "462f82d75532c25f83f27bcccc05d76e077049e3da506b2a57387136efe4f18b",
+      "matches": true,
+      "size_bytes": 11352
+    },
+    "/Users/n/numi-human-retained-delivery-20261009/native-bed-disabled-parity-1197-attempt002/owner-stdout.log": {
+      "actual_sha256": "1d3cdfa4fbb8096e0137d465294a04ddcec448f28cd0644a94e64a10b99dfb51",
+      "expected_sha256": "1d3cdfa4fbb8096e0137d465294a04ddcec448f28cd0644a94e64a10b99dfb51",
+      "matches": true,
+      "size_bytes": 187
+    },
+    "/Users/n/numi-human-retained-delivery-20261009/native-bed-disabled-parity-1197-attempt002/run-declaration.json": {
+      "actual_sha256": "9236ec6826d2f9024ef3eeebbe1545530c5e7c969195b885d762328965f60f5f",
+      "expected_sha256": "9236ec6826d2f9024ef3eeebbe1545530c5e7c969195b885d762328965f60f5f",
+      "matches": true,
+      "size_bytes": 71437
+    },
+    "/Users/n/numi-human-retained-delivery-20261009/native-bed-disabled-parity-1197-attempt002/runtime-source-at-launch.json": {
+      "actual_sha256": "f69aa48a1c47c7d640822cc0513948d3e129ed8db16630190a4eb84bed4e2d49",
+      "expected_sha256": "f69aa48a1c47c7d640822cc0513948d3e129ed8db16630190a4eb84bed4e2d49",
+      "matches": true,
+      "size_bytes": 3273
+    },
+    "/Users/n/numi-human-retained-delivery-20261009/native-bed-disabled-parity-1197-attempt002/runtime-source-at-launch.patch": {
+      "actual_sha256": "13cbdc2d938fbfa2cc0167dc64c196ecfb2756d9e5a35e8b1b6a78e0a3192c75",
+      "expected_sha256": "13cbdc2d938fbfa2cc0167dc64c196ecfb2756d9e5a35e8b1b6a78e0a3192c75",
+      "matches": true,
+      "size_bytes": 92141
+    },
+    "/Users/n/numi-human-retained-delivery-20261009/native-contoured-bed-smoke-1198-attempt002/execution.json": {
+      "actual_sha256": "807154868d33a5c5c06d3c9161cb31077757ec5f02ee8c5b60abb0c07631134b",
+      "expected_sha256": "807154868d33a5c5c06d3c9161cb31077757ec5f02ee8c5b60abb0c07631134b",
+      "matches": true,
+      "size_bytes": 171
+    },
+    "/Users/n/numi-human-retained-delivery-20261009/native-contoured-bed-smoke-1198-attempt002/native-run/invocation.json": {
+      "actual_sha256": "43ec89f32626fed115bb1fdfa3ec0055b04514c450785a62109496e02a3a479c",
+      "expected_sha256": "43ec89f32626fed115bb1fdfa3ec0055b04514c450785a62109496e02a3a479c",
+      "matches": true,
+      "size_bytes": 11038
+    },
+    "/Users/n/numi-human-retained-delivery-20261009/native-contoured-bed-smoke-1198-attempt002/native-run/native.log": {
+      "actual_sha256": "825498190248d64d813cbf8f3ce5e79c87df7f392de738626f1aebc089ec40ec",
+      "expected_sha256": "825498190248d64d813cbf8f3ce5e79c87df7f392de738626f1aebc089ec40ec",
+      "matches": true,
+      "size_bytes": 2042483
+    },
+    "/Users/n/numi-human-retained-delivery-20261009/native-contoured-bed-smoke-1198-attempt002/native-run/run-metadata.json": {
+      "actual_sha256": "d1402d190755c4653ce3a60a3eaa7006ef8bea39289eacefdde436ab479b1c3e",
+      "expected_sha256": "d1402d190755c4653ce3a60a3eaa7006ef8bea39289eacefdde436ab479b1c3e",
+      "matches": true,
+      "size_bytes": 11685
+    },
+    "/Users/n/numi-human-retained-delivery-20261009/native-contoured-bed-smoke-1198-attempt002/owner-stdout.log": {
+      "actual_sha256": "dcefd866f208b22b3cd988cc0f44a8310b74c25e1a564003ceae4c6e7b773c9d",
+      "expected_sha256": "dcefd866f208b22b3cd988cc0f44a8310b74c25e1a564003ceae4c6e7b773c9d",
+      "matches": true,
+      "size_bytes": 187
+    },
+    "/Users/n/numi-human-retained-delivery-20261009/native-contoured-bed-smoke-1198-attempt002/run-declaration.json": {
+      "actual_sha256": "e9b711ea0490f19b5351cde1b20f80b1a6e1f83ba8068a6a4e1664614e8b667a",
+      "expected_sha256": "e9b711ea0490f19b5351cde1b20f80b1a6e1f83ba8068a6a4e1664614e8b667a",
+      "matches": true,
+      "size_bytes": 71761
+    },
+    "/Users/n/numi-human-retained-delivery-20261009/native-contoured-bed-smoke-1198-attempt002/runtime-source-at-launch.json": {
+      "actual_sha256": "c8f98cd79a3a58b00a628a7f6e92dd330a64158e97f01905900a72a91bba2e0e",
+      "expected_sha256": "c8f98cd79a3a58b00a628a7f6e92dd330a64158e97f01905900a72a91bba2e0e",
+      "matches": true,
+      "size_bytes": 3273
+    },
+    "/Users/n/numi-human-retained-delivery-20261009/native-contoured-bed-smoke-1198-attempt002/runtime-source-at-launch.patch": {
+      "actual_sha256": "aa8fb6f09cc8fca1e70dd84b2eaa6b3700a3729fc020118c28c6c2f4176b41dd",
+      "expected_sha256": "aa8fb6f09cc8fca1e70dd84b2eaa6b3700a3729fc020118c28c6c2f4176b41dd",
+      "matches": true,
+      "size_bytes": 92787
+    }
+  },
+  "files": {
+    "README.md": {
+      "sha256": "6c6280ca5b3e23df8e9797945d690c57ea7c1689dc5423bfb19e655fbd0ff9c4",
+      "size_bytes": 2720
+    },
+    "compare_profile.py": {
+      "sha256": "020c6d4919e67d4bbc1efb482fd9a503765fb5d00d55240a02e08a65fdf0b755",
+      "size_bytes": 9631
+    },
+    "profile-comparison.json": {
+      "sha256": "60b43d64c1285a53c315a0c3bee55a575d9013260192ffdcc912b1925a0c9372",
+      "size_bytes": 39150
+    },
+    "profile.stdout.json": {
+      "sha256": "5763db1f8ec988770e1eac0c4f008c0896772d1076241117a8b56285dc0d55a2",
+      "size_bytes": 4801
+    }
+  },
+  "schema": "numi.profile-comparison-checksums.v1",
+  "unmatched_external_inputs": []
+}

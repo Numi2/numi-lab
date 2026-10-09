@@ -1,0 +1,224 @@
+{
+  "NHA_sha256": "1c0c37af76ab3f8e86870fd6cd3abab00b7bcdae51fe934e3461722ca306c241",
+  "accepted_receipt": {
+    "accepted_body_state_sha256": "d53d123cdb285da176b857e268307bcb4845fe1fabd40f3ee591453bbf48e08a",
+    "accepted_respiration_state_sha256": "efce4e8d4720f73ccc14996aa1590f80747b45570a8ddbfbf165d97f277b03e4",
+    "accepted_root_fingerprint": 4929621095300717497,
+    "accepted_root_fingerprint_hex": "0x4469884496abdbb9",
+    "accepted_step": 10000,
+    "accepted_time_s": 20.000000949949026,
+    "accepted_transaction_fingerprint": 4929621095300717497,
+    "anatomy_layer_index": 0,
+    "base_pack_content_hash": "sha256:369f07084869e2246e1fd539a3847c2b26fb916c222e7d6c5a17283876232347",
+    "base_pack_file_sha256": "aa312140c01b64b81367a315cb324f31365a868fae7ccff7ca743cae4cd7de0c",
+    "captured_vertex_buffer_sha256": "1abda20c218df33d48aa44af229d9b846625f74133b3fbeb42ec96af629dc4d5",
+    "path": "/Users/n/numi-human-retained-delivery-20261009/native-contoured-bed-smoke-1198-attempt002/native-run/accepted-geometry/step-10000.receipt.json",
+    "sha256": "fb8df637f31fc7da5b34663c388de65cbf2c429dd00dd220fdbe9b6ee2668006"
+  },
+  "accepted_step": 10000,
+  "all_skin_crossing_pair_count": 3727,
+  "contact_exemptions": [],
+  "crossing_witnesses_sha256": "96847fce80ee36b88b4ce349afa4a77421eba117c5e20783cb174b0de4c99270",
+  "elapsed_s": 126.08580991718918,
+  "hit_surfaces": [
+    {
+      "pairs": 7,
+      "surface": [
+        51004,
+        18
+      ]
+    },
+    {
+      "pairs": 23,
+      "surface": [
+        51004,
+        19
+      ]
+    },
+    {
+      "pairs": 311,
+      "surface": [
+        51011,
+        517
+      ]
+    },
+    {
+      "pairs": 160,
+      "surface": [
+        51011,
+        518
+      ]
+    },
+    {
+      "pairs": 106,
+      "surface": [
+        51005,
+        5
+      ]
+    },
+    {
+      "pairs": 76,
+      "surface": [
+        51005,
+        6
+      ]
+    },
+    {
+      "pairs": 67,
+      "surface": [
+        51005,
+        17
+      ]
+    },
+    {
+      "pairs": 33,
+      "surface": [
+        51005,
+        18
+      ]
+    },
+    {
+      "pairs": 137,
+      "surface": [
+        51005,
+        21
+      ]
+    },
+    {
+      "pairs": 123,
+      "surface": [
+        51005,
+        22
+      ]
+    },
+    {
+      "pairs": 105,
+      "surface": [
+        51005,
+        35
+      ]
+    },
+    {
+      "pairs": 82,
+      "surface": [
+        51005,
+        36
+      ]
+    },
+    {
+      "pairs": 141,
+      "surface": [
+        51005,
+        41
+      ]
+    },
+    {
+      "pairs": 154,
+      "surface": [
+        51005,
+        42
+      ]
+    },
+    {
+      "pairs": 76,
+      "surface": [
+        51005,
+        51
+      ]
+    },
+    {
+      "pairs": 175,
+      "surface": [
+        51005,
+        53
+      ]
+    },
+    {
+      "pairs": 131,
+      "surface": [
+        51005,
+        54
+      ]
+    },
+    {
+      "pairs": 179,
+      "surface": [
+        51005,
+        57
+      ]
+    },
+    {
+      "pairs": 158,
+      "surface": [
+        51005,
+        58
+      ]
+    },
+    {
+      "pairs": 370,
+      "surface": [
+        51005,
+        63
+      ]
+    },
+    {
+      "pairs": 377,
+      "surface": [
+        51005,
+        64
+      ]
+    },
+    {
+      "pairs": 198,
+      "surface": [
+        51005,
+        118
+      ]
+    },
+    {
+      "pairs": 179,
+      "surface": [
+        51005,
+        120
+      ]
+    },
+    {
+      "pairs": 147,
+      "surface": [
+        51005,
+        124
+      ]
+    },
+    {
+      "pairs": 170,
+      "surface": [
+        51005,
+        132
+      ]
+    },
+    {
+      "pairs": 42,
+      "surface": [
+        51006,
+        7
+      ]
+    }
+  ],
+  "invalid_target_surface_count": 0,
+  "invalid_target_triangle_count": 0,
+  "invalid_triangles_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "nonocular_crossing_pair_count": 3727,
+  "ocular_crossing_pair_count": 0,
+  "ocular_target_count": 17,
+  "pair_coverage_complete": true,
+  "predicate": "exact_float32_lattice_triangle_intersection",
+  "rss_peak_bytes": 743374848,
+  "scene_path": "/Users/n/numi-human-retained-delivery-20261009/native-contoured-bed-smoke-1198-attempt002/native-run",
+  "self_witnesses_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "skin_degenerate_face_rows": [],
+  "skin_self_crossing_pair_count": 0,
+  "skin_sha256": "b2d235e32c1c7d7f753eb83d1e8e9d045a1fd62be9c5c6da65dfde8844e2622b",
+  "status": "complete_pair_coverage",
+  "surface_target_count": 859,
+  "targets_sha256": "9218972bffd1662c1f2ded90f484eb10656b91b14e6ec3b2ba32fbb626d79e2a"
+}

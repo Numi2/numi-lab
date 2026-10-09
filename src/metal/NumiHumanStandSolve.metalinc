@@ -969,10 +969,8 @@
             }
             const uint pointIndex = pointBase + support.pointQueryIndex;
             const float3 point = pointWorld[pointIndex].position.xyz;
-            const float gap = dot(mrCompensatedPositionDifference(
-                float4(point, 0.0f), pointPositionLow[pointIndex],
-                dispatch.groundPointAndTimestep, float4(0.0f)).xyz,
-                normal);
+            const float gap = standContactGap(float4(point, 0.0f), pointPositionLow[pointIndex],
+                dispatch, support.planePoint, support.planeNormal, normal);
             if (gap > standContactAdmissionDistanceMeters(support)) {
                 contactMatrices[entry] = 0.0f;
                 continue;
@@ -983,7 +981,7 @@
             for (uint dof = 0u; dof < nv; ++dof) {
                 value += pointJacobianAxis(pointJacobians,
                     pointJacobianBase, support.pointQueryIndex, nv, dof,
-                    directions[row]) * response[dof];
+                    standContactDirection(dispatch, support.planeNormal, row, directions[row])) * response[dof];
             }
             contactMatrices[entry] = value;
         }
@@ -1045,10 +1043,10 @@
             const float3 point = pointWorld[
                 pointBase + support.pointQueryIndex
             ].position.xyz;
-            const float gap = dot(
-                mrCompensatedPositionDifference(float4(point,0.0f), pointPositionLow[pointBase + support.pointQueryIndex],
-                    dispatch.groundPointAndTimestep, float4(0.0f)).xyz, normal
-            );
+            const float gap = standContactGap(
+                float4(point, 0.0f),
+                pointPositionLow[pointBase + support.pointQueryIndex],
+                dispatch, support.planePoint, support.planeNormal, normal);
 #if defined(MR_NH_COOPERATIVE_FINISH)
             cooperativeContactGap[contact] = gap;
             cooperativeContactActive[contact] =
@@ -1073,7 +1071,7 @@
                     for (uint dof = 0u; dof < nv; ++dof) {
                         value += pointJacobianAxis(
                             pointJacobians, pointJacobianBase,
-                            support.pointQueryIndex, nv, dof, directions[row]
+                            support.pointQueryIndex, nv, dof, standContactDirection(dispatch, support.planeNormal, row, directions[row])
                         ) * response[dof];
                     }
                     matrix[3u * row + column] = value;
@@ -1219,7 +1217,7 @@
                         value += pointJacobianAxis(
                             pointJacobians, pointJacobianBase,
                             support.pointQueryIndex, nv, dof,
-                            directions[axis]
+                            standContactDirection(dispatch, support.planeNormal, axis, directions[axis])
                         ) * candidateV[dof];
                     }
                     seedVelocityBefore[axis] = value;
@@ -1315,7 +1313,7 @@
             contactJacobianCacheScratch[
                 contactJacobianCacheOffset + index] = pointJacobianAxis(
                     pointJacobians, pointJacobianBase,
-                    support.pointQueryIndex, nv, dof, directions[axis]);
+                    support.pointQueryIndex, nv, dof, standContactDirection(dispatch, support.planeNormal, axis, directions[axis]));
         }
         threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
     }
@@ -1496,25 +1494,25 @@
                             contactJacobianCacheOffset, contact, axis,
                             pointJacobians, pointJacobianBase,
                             support.pointQueryIndex, nv, dof0,
-                            directions[axis]) * candidate0;
+                            standContactDirection(dispatch, support.planeNormal, axis, directions[axis])) * candidate0;
                         contraction += standContactJacobianAxis(
                             useContactJacobianCache, contactJacobianCacheScratch,
                             contactJacobianCacheOffset, contact, axis,
                             pointJacobians, pointJacobianBase,
                             support.pointQueryIndex, nv, dof1,
-                            directions[axis]) * candidate1;
+                            standContactDirection(dispatch, support.planeNormal, axis, directions[axis])) * candidate1;
                         contraction += standContactJacobianAxis(
                             useContactJacobianCache, contactJacobianCacheScratch,
                             contactJacobianCacheOffset, contact, axis,
                             pointJacobians, pointJacobianBase,
                             support.pointQueryIndex, nv, dof2,
-                            directions[axis]) * candidate2;
+                            standContactDirection(dispatch, support.planeNormal, axis, directions[axis])) * candidate2;
                         contraction += standContactJacobianAxis(
                             useContactJacobianCache, contactJacobianCacheScratch,
                             contactJacobianCacheOffset, contact, axis,
                             pointJacobians, pointJacobianBase,
                             support.pointQueryIndex, nv, dof3,
-                            directions[axis]) * candidate3;
+                            standContactDirection(dispatch, support.planeNormal, axis, directions[axis])) * candidate3;
                         velocity[axis] = simd_sum(contraction);
                     }
                     float appliedX = 0.0f;
@@ -1587,7 +1585,7 @@
                                 contactJacobianCacheOffset, contact, axis,
                                 pointJacobians, pointJacobianBase,
                                 support.pointQueryIndex, nv, dof,
-                                directions[axis]
+                                standContactDirection(dispatch, support.planeNormal, axis, directions[axis])
                             ) * candidateV[dof];
                         }
                         const float reduced = simd_sum(velocity);
@@ -1604,7 +1602,7 @@
                                 contactJacobianCacheOffset, contact, axis,
                                 pointJacobians, pointJacobianBase,
                                 support.pointQueryIndex, nv, dof,
-                                directions[axis]
+                                standContactDirection(dispatch, support.planeNormal, axis, directions[axis])
                             ) * candidateV[dof];
                         }
                         cooperativeContactVelocities[axis] = velocity;
@@ -1667,17 +1665,17 @@
                 const float3 point = pointWorld[
                     pointBase + support.pointQueryIndex
                 ].position.xyz;
-                const float gap = dot(
-                    mrCompensatedPositionDifference(float4(point,0.0f), pointPositionLow[pointBase + support.pointQueryIndex],
-                    dispatch.groundPointAndTimestep, float4(0.0f)).xyz, normal
-                );
+                const float gap = standContactGap(
+                    float4(point, 0.0f),
+                    pointPositionLow[pointBase + support.pointQueryIndex],
+                    dispatch, support.planePoint, support.planeNormal, normal);
                 if (gap > standContactAdmissionDistanceMeters(support)) continue;
                 float3 velocity{0.0f};
                 for (uint axis = 0u; axis < 3u; ++axis) {
                     for (uint dof = 0u; dof < nv; ++dof) {
                         velocity[axis] += pointJacobianAxis(
                             pointJacobians, pointJacobianBase,
-                            support.pointQueryIndex, nv, dof, directions[axis]
+                            support.pointQueryIndex, nv, dof, standContactDirection(dispatch, support.planeNormal, axis, directions[axis])
                         ) * candidateV[dof];
                     }
                 }
@@ -2769,19 +2767,20 @@
                         useContactJacobianCache, contactJacobianCacheScratch,
                         contactJacobianCacheOffset, contact, 0u,
                         pointJacobians, pointJacobianBase,
-                        support.pointQueryIndex, nv, dof, normal) * value;
+                        support.pointQueryIndex, nv, dof,
+                        standContactPlaneNormal(dispatch, support.planeNormal, normal)) * value;
                     velocityTangentY += standContactJacobianAxis(
                         useContactJacobianCache, contactJacobianCacheScratch,
                         contactJacobianCacheOffset, contact, 1u,
                         pointJacobians, pointJacobianBase,
                         support.pointQueryIndex, nv, dof,
-                        directions[1u]) * value;
+                        standContactDirection(dispatch, support.planeNormal, 1u, directions[1u])) * value;
                     velocityTangentZ += standContactJacobianAxis(
                         useContactJacobianCache, contactJacobianCacheScratch,
                         contactJacobianCacheOffset, contact, 2u,
                         pointJacobians, pointJacobianBase,
                         support.pointQueryIndex, nv, dof,
-                        directions[2u]) * value;
+                        standContactDirection(dispatch, support.planeNormal, 2u, directions[2u])) * value;
                 }
                 const float targetNormalVelocity =
                     contactTargetNormalVelocityForPostProjection[contact];

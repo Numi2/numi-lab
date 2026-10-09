@@ -364,6 +364,8 @@ if(APPLE)
             ../include/metalrobo/numi_human_resting_visual_gpu.h
             ../include/metalrobo/numi_human_support_geometry_gpu.h
             ../src/metal/NumiHumanRestingSupportGeometry.metalinc
+            ../src/metal/NumiHumanRestingBed.metalinc
+            ../include/metalrobo/numi_human_resting_bed_gpu.h
             "${NUMI_BRAIN_ROOT}/Sources/NumiBrainABI/include/NumiBrainRespiratoryChemoreflexV1.h"
             "${NUMI_BRAIN_ROOT}/Sources/NumiBrainMetal/Shaders/RespiratoryChemoreflexV1.metal"
         VERBATIM

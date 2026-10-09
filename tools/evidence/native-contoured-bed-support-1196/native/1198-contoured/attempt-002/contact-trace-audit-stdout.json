@@ -1,0 +1,42 @@
+{
+  "audit_status": "pass",
+  "errors": [],
+  "report_path": "/Users/n/numi-human-retained-delivery-20261009/native-contoured-bed-contact-trace-audit-1198-attempt002/contact-trace-audit.json",
+  "report_sha256": "cf41e2113758611ab5219b1c49de0d1ab8ab7b50538e5f77af39e6bff007f0a3",
+  "script_sha256": "61e010d70c9a440b4d112685d1685c8c2e1449210fa16f7ea4388fda29ff97d1",
+  "counts": {
+    "coupled": 1250,
+    "contact": 40000,
+    "com": 1250,
+    "surface": 315
+  },
+  "metrics": {
+    "count": 40000,
+    "contact_count_per_endpoint": 32,
+    "unique_identity_count": 32,
+    "all_samples_have_contact_indices_0_through_31": true,
+    "pinned_payload": {
+      "magic": "NHCNT1\u0000\u0000",
+      "abi": 1,
+      "body_count": 157,
+      "source_record_count": 32,
+      "expanded_contact_count": 32,
+      "source_rigid_sha256": "280d297aa496acccf3f1c5373a1304d23f9569362c2d6960910128bfba144975",
+      "friction_min": 1.0,
+      "friction_max": 1.0
+    },
+    "basis_max_unit_error": 5.3562795421235876e-08,
+    "basis_max_pairwise_dot_abs": 7.085547337748466e-08,
+    "max_normal_xy_magnitude_relative_to_static_plus_z": 0.7070628641703992,
+    "normal_impulse_min_ns": 0.0,
+    "normal_impulse_max_ns": 1.2889596223831177,
+    "negative_normal_impulse_rows_over_1e-8": 0,
+    "maximum_coulomb_disk_utilization": 1.0000001253516577,
+    "friction_cone_violations_over_1e-5": 0,
+    "max_per_contact_component_to_world_vector_abs_error_ns": 1.1102230246251565e-16,
+    "max_com_aggregate_world_impulse_vs_per_contact_sum_abs_error_ns": 2.220446049250313e-16,
+    "max_contact_normal_sum_vs_coupled_and_com_normal_impulse_abs_error_ns": 2.682237285611677e-07,
+    "max_com_normal_force_vs_final_segment_impulse_over_dt_abs_error_n": 0.00015917422251732205,
+    "active_contacts_max": 22
+  }
+}

@@ -3,7 +3,7 @@
 #include "metalrobo/engine_types.h"
 #include "metalrobo/numi_human_timed_root_force.h"
 
-#define MR_NUMI_HUMAN_STAND_ABI_VERSION 16u
+#define MR_NUMI_HUMAN_STAND_ABI_VERSION 17u
 // Six spatial Jacobian rows plus three cached world-inertia products.
 #define MR_NUMI_HUMAN_STAND_SPATIAL_SCRATCH_ROWS 9u
 #define MR_NUMI_HUMAN_STAND_MAX_BODIES 192u
@@ -16,6 +16,11 @@
 // Total accepted horizon across bounded submissions. This is not permission
 // to encode this many steps in one command buffer.
 #define MR_NUMI_HUMAN_STAND_MAX_HORIZON_STEPS 1000000u
+
+enum MRNumiHumanStandSupportContactPlaneMode {
+    MR_NUMI_HUMAN_STAND_SUPPORT_PLANE_GLOBAL = 0u,
+    MR_NUMI_HUMAN_STAND_SUPPORT_PLANE_PER_CONTACT = 1u,
+};
 
 enum MRNumiHumanStandStatusCode {
     MR_NUMI_HUMAN_STAND_SUCCESS = 0u,
@@ -120,6 +125,13 @@ typedef struct MR_ALIGN16 MRNumiHumanStandContactGPU {
     // z = normal stabilization fraction, w = source static normal
     // support force in N. A zero force retains cold-start contact.
     mr_float4 frictionSlopAndStabilization;
+
+    // Dynamic fixed-world support plane written by the registered support
+    // geometry callback before the stand solve. xyz is the plane point in m
+    // and the unit normal; w is reserved and must remain zero. In global
+    // plane mode these appended lanes are ignored.
+    mr_float4 planePoint;
+    mr_float4 planeNormal;
 } MRNumiHumanStandContactGPU;
 
 // Accepted split-finish contact impulses are retained only after the
@@ -205,6 +217,12 @@ typedef struct MR_ALIGN16 MRNumiHumanStandDispatchGPU {
     mr_u32 hipCapsuleReserved[3];
     MRNumiHumanHipCapsuleTermGPU hipCapsuleTerms[
         MR_NUMI_HUMAN_HIP_CAPSULE_MAX_TERMS];
+    // Versioned support-plane selection. Global mode preserves the historical
+    // dispatch plane and requires count/reserved to be zero. Per-contact mode
+    // requires count == supportContactCount and one environment.
+    mr_u32 supportContactPlaneMode;
+    mr_u32 supportContactPlaneCount;
+    mr_u32 supportContactPlaneReserved[2];
 } MRNumiHumanStandDispatchGPU;
 
 typedef struct MR_ALIGN16 MRNumiHumanStandStatusGPU {
@@ -295,10 +313,10 @@ typedef struct MR_ALIGN16 MRNumiHumanStandStatusGPU {
 } MRNumiHumanStandStatusGPU;
 
 #if !defined(__METAL_VERSION__)
-static_assert(sizeof(MRNumiHumanStandContactGPU) == 32);
 static_assert(sizeof(MRNumiHumanStandContactWarmStartGPU) == 544);
 static_assert(sizeof(MRNumiHumanStandContactWarmStartSlotGPU) == 576);
 static_assert(sizeof(MRNumiHumanHipCapsuleTermGPU) == 48);
-static_assert(sizeof(MRNumiHumanStandDispatchGPU) == 496);
+static_assert(sizeof(MRNumiHumanStandContactGPU) == 64);
+static_assert(sizeof(MRNumiHumanStandDispatchGPU) == 512);
 static_assert(sizeof(MRNumiHumanStandStatusGPU) == 272);
 #endif

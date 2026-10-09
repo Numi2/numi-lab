@@ -2,6 +2,7 @@
 #include "NumiHumanRestingAnatomy.hpp"
 #include "NumiHumanRestingInspectionLayers.hpp"
 #include "NumiHumanRestingSupportGeometry.hpp"
+#include "NumiHumanRestingBedSurface.hpp"
 #include "NumiHumanRestingSurfaceAuditDiagnostic.hpp"
 #include "NumiHumanAcceptedGeometryCadence.hpp"
 #include <charconv>
@@ -21,6 +22,8 @@ static_assert(alignof(MRHumanRestingSurfaceFailureGPU)==16);
 class NumiHumanRestingVisual {
     NumiHumanRestingCoupling& coupled;
     std::unique_ptr<NumiHumanRestingSupportGeometry> skinSupport;
+    MRHumanRestingBedGPU bedParameters{};
+    id<MTLBuffer> bedHeights=nil;
     std::unique_ptr<metalrobo::MetalHybridRenderer> renderer;
     metalrobo::MetalWorldFamilyContext worlds;
     id<MTLBuffer> mapping, influences, anatomyParameters, surfaceAudits, volumeResults, instanceLayers, cardiacQ;
@@ -870,9 +873,11 @@ public:
         const metalrobo::EngineModel& model,const LoadedSkin& skin,const LoadedSoftTissues* tissues,
         const std::vector<MRBodyStateGPU>& initialBodies,const std::vector<MRBodyStateGPU>& restBodies,
         const LoadedSupportContacts& support,const NumiHumanRestingAnatomy& functional,
-        const std::filesystem::path& output,unsigned size,const std::string& movie,bool presentWindow=true):
+        const std::filesystem::path& output,unsigned size,const std::string& movie,bool presentWindow=true,
+        const NumiHumanRestingBedSurface* bedSurface=nullptr):
         coupled(owner),dimension(size),outputDirectory(output),acceptedGeometryDirectory(output/"accepted-geometry"),
         surfaceTrace(output/"resting-surface-audit.csv") {
+        if(bedSurface)bedParameters=bedSurface->gpu;
         const char* influenceLayoutSetting =
             std::getenv("NUMI_HUMAN_SKIN_INFLUENCE_TILE32");
         require(!influenceLayoutSetting || !influenceLayoutSetting[0] ||
@@ -1577,20 +1582,66 @@ public:
         const float z=support.header.groundPointZ;
         require(z==0,"resting full-skin audit requires the authored zero-height bed plane");
         const unsigned first=unsigned(pack.vertices.size()),index=unsigned(pack.indices.size()),instance=unsigned(pack.instances.size());
+        if(bedSurface) {
+            const auto& grid=bedSurface->gpu;
+            for(unsigned y=0;y<grid.counts.y;++y)for(unsigned x=0;x<grid.counts.x;++x) {
+                const float height=bedSurface->heights[y*grid.counts.x+x];
+                const mr_float4 p{std::fma(float(x),grid.originSpacing.z,grid.originSpacing.x),
+                    std::fma(float(y),grid.originSpacing.w,grid.originSpacing.y),height,1};
+                pack.vertices.push_back({p,{0,0,1,1},{1,0,0,0},{0,0,0,0},{1,1,1,1}});
+            }
+            for(unsigned y=0;y+1<grid.counts.y;++y)for(unsigned x=0;x+1<grid.counts.x;++x) {
+                const unsigned a=first+y*grid.counts.x+x,b=a+1,c=a+grid.counts.x,d=c+1;
+                pack.indices.insert(pack.indices.end(),{a,b,c,b,d,c});
+            }
+            // Static shading normals follow the same authored triangles.
+            std::vector<mr_float4> accumulated(pack.vertices.size()-first,mr_float4{});
+            for(unsigned i=index;i<pack.indices.size();i+=3) {
+                const auto a=pack.indices[i],b=pack.indices[i+1],c=pack.indices[i+2];
+                const auto p0=pack.vertices[a].position,p1=pack.vertices[b].position,p2=pack.vertices[c].position;
+                const auto u=subtractPoint(p1,p0),v=subtractPoint(p2,p0);
+                const mr_float4 n{u.y*v.z-u.z*v.y,u.z*v.x-u.x*v.z,u.x*v.y-u.y*v.x,0};
+                for(unsigned vertex:{a,b,c})accumulated[vertex-first]=addPoint(accumulated[vertex-first],n);
+            }
+            for(unsigned i=first;i<pack.vertices.size();++i) {
+                const auto n=accumulated[i-first];const float norm=std::sqrt(dotPoint(n,n));
+                require(norm>0&&std::isfinite(norm),"contoured bed has a degenerate normal");
+                const mr_float4 unit{n.x/norm,n.y/norm,n.z/norm,0};
+                pack.vertices[i].normalAndTangentSign={unit.x,unit.y,unit.z,1};
+                const mr_float4 reference=std::abs(unit.x)<.8f
+                    ?mr_float4{1,0,0,0}:mr_float4{0,1,0,0};
+                const auto tangent=subtractPoint(reference,scalePoint(unit,dotPoint(reference,unit)));
+                const float tangentNorm=std::sqrt(dotPoint(tangent,tangent));
+                require(tangentNorm>0&&std::isfinite(tangentNorm),
+                    "contoured bed has a degenerate shading tangent");
+                pack.vertices[i].tangent={tangent.x/tangentNorm,
+                    tangent.y/tangentNorm,tangent.z/tangentNorm,0};
+            }
+        } else {
         for(const auto& p:std::array<mr_float4,4>{{{framing.center.x-.65f,framing.center.y-1.15f,z,1},{framing.center.x+.65f,framing.center.y-1.15f,z,1},{framing.center.x+.65f,framing.center.y+1.15f,z,1},{framing.center.x-.65f,framing.center.y+1.15f,z,1}}})
             pack.vertices.push_back({p,{0,0,1,1},{1,0,0,0},{0,0,0,0},{1,1,1,1}});
-        maps.resize(pack.vertices.size());
         pack.indices.insert(pack.indices.end(),{first,first+1,first+2,first,first+2,first+3});
+        }
+        maps.resize(pack.vertices.size());
         const unsigned bedMaterial=unsigned(pack.materials.size());
         pack.materials.push_back(makeMaterial({.045f,.065f,.09f,1},{0,0,0,0},.9f));
-        MRVisualPrimitiveGPUV2 primitive{};primitive.geometry={index,6,bedMaterial,instance};primitive.identity={51999,1,MR_INVALID_INDEX,1};
+        MRVisualPrimitiveGPUV2 primitive{};primitive.geometry={index,unsigned(pack.indices.size())-index,bedMaterial,instance};primitive.identity={51999,1,MR_INVALID_INDEX,1};
         primitive.boundsMinimum=pack.vertices[first].position;primitive.boundsMaximum=pack.vertices[first+2].position;
+        if(bedSurface)for(unsigned i=first;i<pack.vertices.size();++i) {
+            const auto p=pack.vertices[i].position;
+            primitive.boundsMinimum={std::min(primitive.boundsMinimum.x,p.x),std::min(primitive.boundsMinimum.y,p.y),
+                std::min(primitive.boundsMinimum.z,p.z),1};
+            primitive.boundsMaximum={std::max(primitive.boundsMaximum.x,p.x),std::max(primitive.boundsMaximum.y,p.y),
+                std::max(primitive.boundsMaximum.z,p.z),1};
+        }
         MRVisualInstanceGPUV2 bed{};bed.translationAndScale={0,0,0,1};bed.orientation={0,0,0,1};
         bed.binding={0,MR_INVALID_INDEX,MR_VISUAL_BINDING_WORLD,MR_VISUAL_INSTANCE_VISIBLE_TO_SENSOR|MR_VISUAL_INSTANCE_RECEIVES_SHADOW};
         bed.identity=primitive.identity;bed.geometry={unsigned(pack.primitives.size()),1,0,0};
         pack.primitives.push_back(primitive);pack.instances.push_back(bed);
         visibleLayers.push_back(127u);
-        pack.preprocessingProvenance+="/accepted_native_body_skinning_no_truncated_weights/visible_native_contact_plane";
+        pack.preprocessingProvenance+=bedSurface
+            ? "/accepted_native_body_skinning_no_truncated_weights/fixed_world_contoured_contact_bed"
+            : "/accepted_native_body_skinning_no_truncated_weights/visible_native_contact_plane";
         pack.contentHash=metalrobo::computeVisualAssetPackContentHash(pack);
         const auto packPath=output/"resting-human.mrvpack";std::string error;
         require(metalrobo::writeVisualAssetPack(pack,packPath,&error),error);
@@ -1647,6 +1698,12 @@ public:
                 <<" source_asset_identity=unchanged\n";
         }
         auto device=coupled.physiology.device;queue=[device newCommandQueue];
+        if(bedSurface) {
+            bedHeights=[device newBufferWithBytes:bedSurface->heights.data()
+                length:bedSurface->heights.size()*sizeof(float) options:MTLResourceStorageModeShared];
+            require(bedHeights!=nil,"fixed contoured bed height upload failed");
+            bedHeights.label=@"Numi Human immutable bed shared by contact and inspection";
+        }
         meshAuditPartials=[device newBufferWithLength:meshAuditGroupCount*sizeof(mr_uint4) options:MTLResourceStorageModeShared];
         meshAuditResult=[device newBufferWithLength:sizeof(mr_uint4)+sizeof(MRHumanRestingSurfaceFailureGPU) options:MTLResourceStorageModeShared];
         skinAuditPartials=[device newBufferWithLength:std::size_t(skinAuditGroupCount)*sizeof(mr_uint4)
@@ -1881,6 +1938,11 @@ public:
         if (skinInfluenceLayout == NumiHumanSkinInfluenceLayout::tile32) {
             supportIdentity.text("runtime-layout:tile32-slot-major-v1");
         }
+        if(bedSurface) {
+            supportIdentity.text("fixed-world-triangulated-bed-v1");
+            supportIdentity.bytes(&bedParameters,sizeof(bedParameters));
+            supportIdentity.bytes(bedSurface->heights.data(),bedSurface->heights.size()*sizeof(float));
+        }
         supportIdentity.integer(coupled.brain.rootProgramIdentity);
         supportIdentity.integer(skinFirstVertex*sizeof(MRHumanRestingVertexMap));
         supportIdentity.integer(skin.header.vertexCount);
@@ -1894,7 +1956,12 @@ public:
             supportQueries.supportContacts,1u,model.articulations.at(0).firstBody,
             model.articulations.at(0).bodyCount,model.articulations.at(0).nv,
             supportBodyDofAncestry,supportAncestryPruning,supportIdentity.value(),
-            skinFirstVertex*sizeof(MRHumanRestingVertexMap),skinInfluenceLayout);
+            skinFirstVertex*sizeof(MRHumanRestingVertexMap),skinInfluenceLayout,bedParameters,bedHeights);
+        if(bedSurface)std::cout<<"resting_bed_surface=fixed_world_triangulated"
+            <<" grid_nx="<<bedParameters.counts.x<<" grid_ny="<<bedParameters.counts.y
+            <<" source_capture_sha256="<<bedSurface->sourceCaptureSHA256
+            <<" contact_owner=existing_metal_stand outside_finite_bounds=reject"
+            <<" body_following=0 root_assistance=0\n";
         std::cout<<"resting_support_geometry=full_registered_skin vertices="<<skin.header.vertexCount
             <<" regions="<<regions.size()<<" full_binding_count="<<skin.bindings.size()
             <<" influence_layout="<<skinInfluenceLayoutName(skinInfluenceLayout)
@@ -1922,7 +1989,10 @@ public:
         layerPipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_layers"] error:&e];
         volumeAuditPartialPipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_audit_volume_partials"] error:&e];
         volumeAuditReducePipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_reduce_volume_audits"] error:&e];
-        skinAuditPipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_audit_skin_partials"] error:&e];
+        NumiHumanSkinInfluencePipelineConfig bedAuditConfig{};
+        bedAuditConfig.contouredBed=bedSurface!=nullptr;
+        skinAuditPipeline=[device newComputePipelineStateWithFunction:
+            numiHumanRestingMakeSkinInfluenceFunction(lib,@"nm_human_resting_audit_skin_partials",bedAuditConfig,&e) error:&e];
         skinAuditReducePipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_reduce_skin_audit"] error:&e];
         bodyAuditPipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_audit_body"] error:&e];
         meshAuditPipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_audit_mesh_triangles"] error:&e];
@@ -2070,6 +2140,10 @@ public:
         e.setBytes(e.context,&skinAuditPartialDimensions,sizeof(skinAuditPartialDimensions),0);
         e.setBuffer(e.context,(__bridge void*)self.mapping,0,1);e.setBuffer(e.context,lease.meshVertices,0,2);
         e.setBuffer(e.context,(__bridge void*)self.skinAuditPartials,0,3);
+        if(self.bedParameters.counts.z) {
+            e.setBytes(e.context,&self.bedParameters,sizeof(self.bedParameters),4);
+            e.setBuffer(e.context,(__bridge void*)self.bedHeights,0,5);
+        }
         e.dispatchThreads(e.context,std::size_t(self.skinAuditGroupCount)*skinAuditGroupThreads,
             skinAuditGroupThreads);
         const mr_uint4 skinAuditReduceDimensions={self.skinAuditGroupCount,d.w,0,0};

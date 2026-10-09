@@ -640,6 +640,8 @@ inline bool nmHumanRestingSkinAuditOwnerBefore(uint candidate,uint current) {
 kernel void nm_human_resting_audit_skin_partials(
     constant uint4& d [[buffer(0)]],device const MRHumanRestingVertexMap* map [[buffer(1)]],
     device const MRVisualVertexGPUV2* vertices [[buffer(2)]],device uint4* partials [[buffer(3)]],
+    constant MRHumanRestingBedGPU& bed [[buffer(4), function_constant(kUseRestingContouredBed)]],
+    device const float* bedHeights [[buffer(5), function_constant(kUseRestingContouredBed)]],
     uint lane [[thread_index_in_threadgroup]],uint3 group [[threadgroup_position_in_grid]]) {
     threadgroup float minimum[256];threadgroup uint owner[256],below[256],invalid[256];
     float value=INFINITY;uint index=MR_INVALID_INDEX,count=0,nonfinite=0;
@@ -647,7 +649,12 @@ kernel void nm_human_resting_audit_skin_partials(
     if(i<d.x) {
         if(!all(isfinite(vertices[i].position))||!all(isfinite(vertices[i].normalAndTangentSign)))++nonfinite;
         if(map[i].deformationKind==3u) {
-            const float z=vertices[i].position.z;
+            float z=vertices[i].position.z;
+            if(kUseRestingContouredBed) {
+                const auto hit=nmHumanRestingBedQuery(bed,bedHeights,vertices[i].position.xyz);
+                if(!hit.valid)++nonfinite;
+                z=hit.signedGap;
+            }
             if(z<value){value=z;index=i;}
             if(z<-.001f)++count;
         }

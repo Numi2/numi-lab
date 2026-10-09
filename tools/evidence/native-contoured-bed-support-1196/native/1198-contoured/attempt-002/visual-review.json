@@ -1,0 +1,37 @@
+{
+  "scope": "Visual inspection of ten selected native frame derivatives; numerical geometry and physiology are separate checks.",
+  "recording_review_sha256": "6e397bda5a1958f490e9661bc0908910cf25dbdb7d893e0a0bdca6fc527ec179",
+  "whole_human_and_fixed_bed_visible": true,
+  "layers_reviewed": [
+    "skin",
+    "muscles",
+    "skeleton",
+    "organs",
+    "lungs",
+    "heart",
+    "vessels"
+  ],
+  "synchronized_hud_visible": true,
+  "final_accepted_s_display": 20.0,
+  "final_completed_breaths_display": 3,
+  "final_beats_display": 23,
+  "final_blood_L_display": 5.15,
+  "final_CO_mean_L_min_display": 5.01,
+  "limitations": [
+    "Some long footer text is clipped in certain layer views; key measured values and layer controls remain visible.",
+    "The bed is an authored fixed reference surface, not a measured mattress; its faceted lighting is visible.",
+    "Selected-frame appearance does not establish sustained anatomical clearance."
+  ],
+  "derivatives": {
+    "frame-initial.png": "a8a1d129251c04e43f8322cfc904b5ee7c0782a0db326d33571d3aaf8e5b4b5a",
+    "frame-vessels.png": "39412a2bf78c8257ace3dabc705cbeb05e4e5cd272b99a6767f3edc52ed3b782",
+    "frame-lungs.png": "d3def6d0a8eff4981774d87e1520b159f02d462a674d70819804ba9b0f2ded66",
+    "frame-skin.png": "fd059c8cf98c9ddbf03e785a12173ecfbd0b9406a91a4c949ab806bb4ef5258a",
+    "frame-middle.png": "4932c847d5cd6e99cdf03bbb322f1b17b4da0a4a6f275383d1f2ba11dbb20132",
+    "frame-organs.png": "a769d79b5900c2381f57e90dbfc29918cd4bbfbdb20262500a029e17cb3caf9f",
+    "frame-muscles.png": "0e62004316e1737454ec51734daaf96068b15556429ca29b8299a395973483fc",
+    "frame-heart.png": "b8c6a2617cd55d18ccc45e16f2a02b7ebcdd7e8b0bb460cfcc7df42e51fa33d1",
+    "frame-skeleton.png": "432d4b4add5c82114650fe61196afb7597a3b05fe65f3bd47ba53d3ab77dc62c",
+    "frame-final.png": "7b8f06e807ac571712fc22ffd5ffe88264c567325bfada82c04a2b4b2ca864ad"
+  }
+}

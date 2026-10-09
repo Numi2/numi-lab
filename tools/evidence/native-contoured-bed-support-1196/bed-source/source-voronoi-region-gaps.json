@@ -1,0 +1,599 @@
+{
+  "exact_partition_reconstruction": true,
+  "minimum_gaps": [
+    {
+      "heightfield_z_m": 0.02906731143593788,
+      "minimum_step0_skin_vertex_index": 25847,
+      "minimum_vertical_gap_m": 1.000240445137024e-05,
+      "point_query_index": 23,
+      "region_index": 0,
+      "skin0_xyz_m": [
+        -0.036032892763614655,
+        -0.11387687921524048,
+        0.02907731384038925
+      ],
+      "source_geometry_index": 25848,
+      "source_region_label": "head",
+      "source_seed_vertex_index": 25847,
+      "source_vertex_count": 6907
+    },
+    {
+      "heightfield_z_m": 0.003175426973029971,
+      "minimum_step0_skin_vertex_index": 17764,
+      "minimum_vertical_gap_m": 1.0001705959439278e-05,
+      "point_query_index": 20,
+      "region_index": 1,
+      "skin0_xyz_m": [
+        -0.0971403494477272,
+        -0.4100971519947052,
+        0.0031854286789894104
+      ],
+      "source_geometry_index": 17765,
+      "source_region_label": "thorax",
+      "source_seed_vertex_index": 17764,
+      "source_vertex_count": 1221
+    },
+    {
+      "heightfield_z_m": 0.0032063096296042204,
+      "minimum_step0_skin_vertex_index": 37607,
+      "minimum_vertical_gap_m": 1.0001705959439278e-05,
+      "point_query_index": 20,
+      "region_index": 2,
+      "skin0_xyz_m": [
+        0.04666291922330856,
+        -0.408777117729187,
+        0.0032163113355636597
+      ],
+      "source_geometry_index": 37608,
+      "source_region_label": "thorax",
+      "source_seed_vertex_index": 37607,
+      "source_vertex_count": 2792
+    },
+    {
+      "heightfield_z_m": 0.05136900647846396,
+      "minimum_step0_skin_vertex_index": 7599,
+      "minimum_vertical_gap_m": 0.0006328944924718638,
+      "point_query_index": 20,
+      "region_index": 3,
+      "skin0_xyz_m": [
+        -0.22289206087589264,
+        -0.4876921772956848,
+        0.05200190097093582
+      ],
+      "source_geometry_index": 15824,
+      "source_region_label": "thorax",
+      "source_seed_vertex_index": 15823,
+      "source_vertex_count": 2043
+    },
+    {
+      "heightfield_z_m": -0.0001164330096798949,
+      "minimum_step0_skin_vertex_index": 34318,
+      "minimum_vertical_gap_m": 1.000146585283801e-05,
+      "point_query_index": 128,
+      "region_index": 4,
+      "skin0_xyz_m": [
+        0.018327204510569572,
+        -0.8561059832572937,
+        -0.00010643154382705688
+      ],
+      "source_geometry_index": 34319,
+      "source_region_label": "pelvis",
+      "source_seed_vertex_index": 34318,
+      "source_vertex_count": 1773
+    },
+    {
+      "heightfield_z_m": 0.0002622948959469795,
+      "minimum_step0_skin_vertex_index": 21161,
+      "minimum_vertical_gap_m": 1.0001473128795624e-05,
+      "point_query_index": 128,
+      "region_index": 5,
+      "skin0_xyz_m": [
+        -0.06768346577882767,
+        -0.8500135540962219,
+        0.00027229636907577515
+      ],
+      "source_geometry_index": 21162,
+      "source_region_label": "pelvis",
+      "source_seed_vertex_index": 21161,
+      "source_vertex_count": 1182
+    },
+    {
+      "heightfield_z_m": 0.00015199849226567105,
+      "minimum_step0_skin_vertex_index": 34324,
+      "minimum_vertical_gap_m": 0.0009508587994327848,
+      "point_query_index": 1,
+      "region_index": 6,
+      "skin0_xyz_m": [
+        0.018487317487597466,
+        -0.83507239818573,
+        0.0011028572916984558
+      ],
+      "source_geometry_index": 33529,
+      "source_region_label": "pelvis",
+      "source_seed_vertex_index": 33528,
+      "source_vertex_count": 721
+    },
+    {
+      "heightfield_z_m": 0.04658662748023655,
+      "minimum_step0_skin_vertex_index": 24974,
+      "minimum_vertical_gap_m": 0.0008599698872885503,
+      "point_query_index": 128,
+      "region_index": 7,
+      "skin0_xyz_m": [
+        -0.04351414740085602,
+        -0.6967105269432068,
+        0.0474465973675251
+      ],
+      "source_geometry_index": 20347,
+      "source_region_label": "pelvis",
+      "source_seed_vertex_index": 20346,
+      "source_vertex_count": 771
+    },
+    {
+      "heightfield_z_m": 0.05106271803379059,
+      "minimum_step0_skin_vertex_index": 7592,
+      "minimum_vertical_gap_m": 1.0006129741668701e-05,
+      "point_query_index": 42,
+      "region_index": 8,
+      "skin0_xyz_m": [
+        -0.22201713919639587,
+        -0.52752286195755,
+        0.05107272416353226
+      ],
+      "source_geometry_index": 7241,
+      "source_region_label": "right_arm",
+      "source_seed_vertex_index": 7240,
+      "source_vertex_count": 1874
+    },
+    {
+      "heightfield_z_m": 0.051244378089904785,
+      "minimum_step0_skin_vertex_index": 47107,
+      "minimum_vertical_gap_m": 1.0006129741668701e-05,
+      "point_query_index": 92,
+      "region_index": 9,
+      "skin0_xyz_m": [
+        0.1673203408718109,
+        -0.4982796311378479,
+        0.051254384219646454
+      ],
+      "source_geometry_index": 47753,
+      "source_region_label": "left_arm",
+      "source_seed_vertex_index": 47752,
+      "source_vertex_count": 1260
+    },
+    {
+      "heightfield_z_m": 0.031131777912378318,
+      "minimum_step0_skin_vertex_index": 18299,
+      "minimum_vertical_gap_m": 1.00024044513633e-05,
+      "point_query_index": 136,
+      "region_index": 10,
+      "skin0_xyz_m": [
+        -0.09291934221982956,
+        -1.4220044612884521,
+        0.03114178031682968
+      ],
+      "source_geometry_index": 18300,
+      "source_region_label": "right_leg",
+      "source_seed_vertex_index": 18299,
+      "source_vertex_count": 680
+    },
+    {
+      "heightfield_z_m": 0.030847217887639996,
+      "minimum_step0_skin_vertex_index": 36233,
+      "minimum_vertical_gap_m": 1.0002404451373709e-05,
+      "point_query_index": 150,
+      "region_index": 11,
+      "skin0_xyz_m": [
+        0.03836376219987869,
+        -1.4172542095184326,
+        0.03085722029209137
+      ],
+      "source_geometry_index": 36234,
+      "source_region_label": "left_leg",
+      "source_seed_vertex_index": 36233,
+      "source_vertex_count": 635
+    },
+    {
+      "heightfield_z_m": 0.062455326318740845,
+      "minimum_step0_skin_vertex_index": 7057,
+      "minimum_vertical_gap_m": 1.0006129741668701e-05,
+      "point_query_index": 42,
+      "region_index": 12,
+      "skin0_xyz_m": [
+        -0.2414345145225525,
+        -0.6527649164199829,
+        0.06246533244848251
+      ],
+      "source_geometry_index": 6890,
+      "source_region_label": "ulna_r",
+      "source_seed_vertex_index": 6889,
+      "source_vertex_count": 879
+    },
+    {
+      "heightfield_z_m": 0.1513230092852815,
+      "minimum_step0_skin_vertex_index": 1711,
+      "minimum_vertical_gap_m": 0.004978220906902947,
+      "point_query_index": 62,
+      "region_index": 13,
+      "skin0_xyz_m": [
+        -0.32340019941329956,
+        -0.9102673530578613,
+        0.15630123019218445
+      ],
+      "source_geometry_index": 3413,
+      "source_region_label": "thirdmc_r",
+      "source_seed_vertex_index": 3412,
+      "source_vertex_count": 483
+    },
+    {
+      "heightfield_z_m": 0.11797750291548911,
+      "minimum_step0_skin_vertex_index": 4561,
+      "minimum_vertical_gap_m": 0.008010324862373436,
+      "point_query_index": 72,
+      "region_index": 14,
+      "skin0_xyz_m": [
+        -0.27169209718704224,
+        -0.8511654138565063,
+        0.12598782777786255
+      ],
+      "source_geometry_index": 5299,
+      "source_region_label": "fifthmc_r",
+      "source_seed_vertex_index": 5298,
+      "source_vertex_count": 1293
+    },
+    {
+      "heightfield_z_m": 0.15969569778202503,
+      "minimum_step0_skin_vertex_index": 1695,
+      "minimum_vertical_gap_m": 0.003607141020312621,
+      "point_query_index": 54,
+      "region_index": 15,
+      "skin0_xyz_m": [
+        -0.3244915306568146,
+        -0.9437687397003174,
+        0.16330283880233765
+      ],
+      "source_geometry_index": 520,
+      "source_region_label": "distal_thumb_r",
+      "source_seed_vertex_index": 519,
+      "source_vertex_count": 1266
+    },
+    {
+      "heightfield_z_m": 0.17238907304389878,
+      "minimum_step0_skin_vertex_index": 1421,
+      "minimum_vertical_gap_m": 0.009853946298523708,
+      "point_query_index": 61,
+      "region_index": 16,
+      "skin0_xyz_m": [
+        -0.33231252431869507,
+        -0.9757412672042847,
+        0.18224301934242249
+      ],
+      "source_geometry_index": 754,
+      "source_region_label": "distph2_r",
+      "source_seed_vertex_index": 753,
+      "source_vertex_count": 835
+    },
+    {
+      "heightfield_z_m": 0.14976192548705128,
+      "minimum_step0_skin_vertex_index": 2821,
+      "minimum_vertical_gap_m": 0.027964671106805533,
+      "point_query_index": 66,
+      "region_index": 17,
+      "skin0_xyz_m": [
+        -0.30189478397369385,
+        -0.9739864468574524,
+        0.1777265965938568
+      ],
+      "source_geometry_index": 2759,
+      "source_region_label": "distph3_r",
+      "source_seed_vertex_index": 2758,
+      "source_vertex_count": 700
+    },
+    {
+      "heightfield_z_m": 0.07225460979078636,
+      "minimum_step0_skin_vertex_index": 12131,
+      "minimum_vertical_gap_m": 0.01877718743945732,
+      "point_query_index": 71,
+      "region_index": 18,
+      "skin0_xyz_m": [
+        -0.15790368616580963,
+        -1.161528468132019,
+        0.09103179723024368
+      ],
+      "source_geometry_index": 4379,
+      "source_region_label": "distph4_r",
+      "source_seed_vertex_index": 4378,
+      "source_vertex_count": 891
+    },
+    {
+      "heightfield_z_m": 0.04542961980974066,
+      "minimum_step0_skin_vertex_index": 17079,
+      "minimum_vertical_gap_m": 0.000696239212399842,
+      "point_query_index": 76,
+      "region_index": 19,
+      "skin0_xyz_m": [
+        -0.1020112931728363,
+        -1.0848963260650635,
+        0.0461258590221405
+      ],
+      "source_geometry_index": 6105,
+      "source_region_label": "distph5_r",
+      "source_seed_vertex_index": 6104,
+      "source_vertex_count": 3168
+    },
+    {
+      "heightfield_z_m": 0.03764176368713378,
+      "minimum_step0_skin_vertex_index": 20233,
+      "minimum_vertical_gap_m": 1.000612974167564e-05,
+      "point_query_index": 138,
+      "region_index": 20,
+      "skin0_xyz_m": [
+        -0.0961170345544815,
+        -1.7211799621582031,
+        0.03765176981687546
+      ],
+      "source_geometry_index": 20234,
+      "source_region_label": "calcn_r",
+      "source_seed_vertex_index": 20233,
+      "source_vertex_count": 4306
+    },
+    {
+      "heightfield_z_m": 0.03113177791237831,
+      "minimum_step0_skin_vertex_index": 18300,
+      "minimum_vertical_gap_m": 5.7209283113479614e-05,
+      "point_query_index": 136,
+      "region_index": 21,
+      "skin0_xyz_m": [
+        -0.09527011215686798,
+        -1.4179353713989258,
+        0.03118898719549179
+      ],
+      "source_geometry_index": 18301,
+      "source_region_label": "tibia_r",
+      "source_seed_vertex_index": 18300,
+      "source_vertex_count": 2166
+    },
+    {
+      "heightfield_z_m": 0.062493979930877686,
+      "minimum_step0_skin_vertex_index": 47747,
+      "minimum_vertical_gap_m": 1.0006129741668701e-05,
+      "point_query_index": 92,
+      "region_index": 22,
+      "skin0_xyz_m": [
+        0.1911720484495163,
+        -0.6535009145736694,
+        0.06250398606061935
+      ],
+      "source_geometry_index": 47596,
+      "source_region_label": "ulna_l",
+      "source_seed_vertex_index": 47595,
+      "source_vertex_count": 1884
+    },
+    {
+      "heightfield_z_m": 0.14895161366899265,
+      "minimum_step0_skin_vertex_index": 52801,
+      "minimum_vertical_gap_m": 0.00537992143194424,
+      "point_query_index": 112,
+      "region_index": 23,
+      "skin0_xyz_m": [
+        0.26554250717163086,
+        -0.9145664572715759,
+        0.1543315351009369
+      ],
+      "source_geometry_index": 51583,
+      "source_region_label": "thirdmc_l",
+      "source_seed_vertex_index": 51582,
+      "source_vertex_count": 578
+    },
+    {
+      "heightfield_z_m": 0.05130920008798698,
+      "minimum_step0_skin_vertex_index": 43008,
+      "minimum_vertical_gap_m": 0.013141086240805594,
+      "point_query_index": 122,
+      "region_index": 24,
+      "skin0_xyz_m": [
+        0.10709825158119202,
+        -0.9918016791343689,
+        0.06445028632879257
+      ],
+      "source_geometry_index": 49892,
+      "source_region_label": "fifthmc_l",
+      "source_seed_vertex_index": 49891,
+      "source_vertex_count": 1184
+    },
+    {
+      "heightfield_z_m": 0.1589785370626412,
+      "minimum_step0_skin_vertex_index": 52791,
+      "minimum_vertical_gap_m": 0.002840146084789219,
+      "point_query_index": 104,
+      "region_index": 25,
+      "skin0_xyz_m": [
+        0.2700687348842621,
+        -0.9458320140838623,
+        0.16181868314743042
+      ],
+      "source_geometry_index": 54177,
+      "source_region_label": "distal_thumb_l",
+      "source_seed_vertex_index": 54176,
+      "source_vertex_count": 1219
+    },
+    {
+      "heightfield_z_m": 0.16865091147296712,
+      "minimum_step0_skin_vertex_index": 53270,
+      "minimum_vertical_gap_m": 0.009705348588296914,
+      "point_query_index": 111,
+      "region_index": 26,
+      "skin0_xyz_m": [
+        0.27836036682128906,
+        -0.9709360599517822,
+        0.17835626006126404
+      ],
+      "source_geometry_index": 52655,
+      "source_region_label": "distph2_l",
+      "source_seed_vertex_index": 52654,
+      "source_vertex_count": 962
+    },
+    {
+      "heightfield_z_m": 0.1803584381672593,
+      "minimum_step0_skin_vertex_index": 53447,
+      "minimum_vertical_gap_m": 0.042451651420905984,
+      "point_query_index": 116,
+      "region_index": 27,
+      "skin0_xyz_m": [
+        0.2827495038509369,
+        -1.0133556127548218,
+        0.22281008958816528
+      ],
+      "source_geometry_index": 51774,
+      "source_region_label": "distph3_l",
+      "source_seed_vertex_index": 51773,
+      "source_vertex_count": 632
+    },
+    {
+      "heightfield_z_m": 0.07477281435813261,
+      "minimum_step0_skin_vertex_index": 43556,
+      "minimum_vertical_gap_m": 0.026134340023142563,
+      "point_query_index": 121,
+      "region_index": 28,
+      "skin0_xyz_m": [
+        0.11271736025810242,
+        -1.1605150699615479,
+        0.10090715438127518
+      ],
+      "source_geometry_index": 50655,
+      "source_region_label": "distph4_l",
+      "source_seed_vertex_index": 50654,
+      "source_vertex_count": 876
+    },
+    {
+      "heightfield_z_m": 0.04435162180279954,
+      "minimum_step0_skin_vertex_index": 38051,
+      "minimum_vertical_gap_m": 0.0010107128956391015,
+      "point_query_index": 126,
+      "region_index": 29,
+      "skin0_xyz_m": [
+        0.05129881203174591,
+        -1.0929183959960938,
+        0.045362334698438644
+      ],
+      "source_geometry_index": 47936,
+      "source_region_label": "distph5_l",
+      "source_seed_vertex_index": 47935,
+      "source_vertex_count": 3276
+    },
+    {
+      "heightfield_z_m": 0.03645632416009903,
+      "minimum_step0_skin_vertex_index": 34830,
+      "minimum_vertical_gap_m": 1.0006129741668701e-05,
+      "point_query_index": 152,
+      "region_index": 30,
+      "skin0_xyz_m": [
+        0.04347624629735947,
+        -1.7225338220596313,
+        0.0364663302898407
+      ],
+      "source_geometry_index": 34831,
+      "source_region_label": "calcn_l",
+      "source_seed_vertex_index": 34830,
+      "source_vertex_count": 4297
+    },
+    {
+      "heightfield_z_m": 0.03084721788764,
+      "minimum_step0_skin_vertex_index": 36890,
+      "minimum_vertical_gap_m": 2.3614615201950073e-05,
+      "point_query_index": 150,
+      "region_index": 31,
+      "skin0_xyz_m": [
+        0.04332976043224335,
+        -1.4143187999725342,
+        0.03087083250284195
+      ],
+      "source_geometry_index": 36891,
+      "source_region_label": "tibia_l",
+      "source_seed_vertex_index": 36890,
+      "source_vertex_count": 2195
+    }
+  ],
+  "native_log_region_counts": [
+    6907,
+    1221,
+    2792,
+    2043,
+    1773,
+    1182,
+    721,
+    771,
+    1874,
+    1260,
+    680,
+    635,
+    879,
+    483,
+    1293,
+    1266,
+    835,
+    700,
+    891,
+    3168,
+    4306,
+    2166,
+    1884,
+    578,
+    1184,
+    1219,
+    962,
+    632,
+    876,
+    3276,
+    4297,
+    2195
+  ],
+  "owner_code_sha256": {
+    "/Users/n/numi-human-performance-source-014/apps/NumiHumanRestingSupportGeometry.hpp": "b81717f7f846af2e7dbe9c794cf71498d71af530d303c2ec759b18b883f7537c",
+    "/Users/n/numi-human-performance-source-014/apps/NumiHumanRestingVisual.hpp": "670a4ac1ad873e5ee5dd9b338d9f1945c02997f854aec58589f76ed1d39c92e1",
+    "/Users/n/numi-human-performance-source-014/include/metalrobo/numi_human_support_geometry_gpu.h": "fc2da71cd12e18e7f1fb6dc59d65a83eb4c872ae7cf5da38cbd7dbf36ecbe416",
+    "/Users/n/numi-human-performance-source-014/src/metal/NumiHumanRestingSupportGeometry.metalinc": "95f170532be011627368e558cb3946d8ddbad1fce3d482ee6524a8fd83b01a41"
+  },
+  "partition_algorithm": "nearest source-rest full-weight skinRestWorld vertex to ordered NHCNT seed vertices; Float32 distance squared; strict less-than tie-break preserves first seed",
+  "partition_region_counts": [
+    6907,
+    1221,
+    2792,
+    2043,
+    1773,
+    1182,
+    721,
+    771,
+    1874,
+    1260,
+    680,
+    635,
+    879,
+    483,
+    1293,
+    1266,
+    835,
+    700,
+    891,
+    3168,
+    4306,
+    2166,
+    1884,
+    578,
+    1184,
+    1219,
+    962,
+    632,
+    876,
+    3276,
+    4297,
+    2195
+  ],
+  "qualification": "per-region vertical mesh gap at one accepted step-0 skin capture; no dynamic contact or force claim",
+  "schema": "numi.human.resting.source-voronoi-bed-gap-report.v1",
+  "skin_payload_sha256": "b2d235e32c1c7d7f753eb83d1e8e9d045a1fd62be9c5c6da65dfde8844e2622b",
+  "source_capture_path": "/Users/n/numi-human-retained-delivery-20261009/native-lung1178-thumb1187-smoke-1191/native-run/accepted-geometry/step-0.mrvpack",
+  "source_capture_sha256": "68dd2aecebd5febb561738e586cb9093813aee61309ccf1c0ceae5a535751bef",
+  "status": "cpu_reconstruction_cardinality_matches_native",
+  "support_payload_sha256": "bcfece8e5da553b98694b724644234407fa4c38383b1e18d3c24d7caefa28927"
+}

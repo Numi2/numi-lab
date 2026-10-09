@@ -1,0 +1,37 @@
+{
+  "binary_sha256": "c28d74765770e518a883ab1c04251c440cebf157e52bd21fc716dd5e3c8be03c",
+  "fixture": {
+    "argv": [
+      "/tmp/numi-human-resting-bed-admission-check-1196"
+    ],
+    "returncode": 0,
+    "stderr": "",
+    "stdout": "checks=18 status=passed scope=native_bed_manifest_reader\n",
+    "wall_seconds": 0.03621525
+  },
+  "frozen_manifest_case": {
+    "argv": [
+      "/tmp/numi-human-resting-bed-admission-check-1196",
+      "--manifest",
+      "/Users/n/numi-human-retained-delivery-20261009/contoured-bed-reference-1196/resting-supine-scene-contoured-5mm.manifest.json",
+      "b2d235e32c1c7d7f753eb83d1e8e9d045a1fd62be9c5c6da65dfde8844e2622b",
+      "bcfece8e5da553b98694b724644234407fa4c38383b1e18d3c24d7caefa28927"
+    ],
+    "returncode": 0,
+    "stderr": "",
+    "stdout": "checks=21 status=passed scope=native_bed_manifest_reader including_frozen_manifest\n",
+    "wall_seconds": 0.051708041999999996
+  },
+  "inputs": {
+    "/Users/n/numi-human-contoured-bed-source-1196/tests/numi_human_resting_bed_admission_test.mm": "1a103a5027cb4e70153cdd9f259feb2794b38820feb550a3ec25fb225646625c",
+    "/Users/n/numi-human-retained-delivery-20261009/contoured-bed-reference-1196/heightfield-runtime-audit-5mm.json": "dd31cc93cd01e8f69163f8abc670d1afc003dbe7ba7c664ec3fad073a040d04a",
+    "/Users/n/numi-human-retained-delivery-20261009/contoured-bed-reference-1196/heightfields-runtime-f32-5mm.npz": "18d624cd90855b55d3351f851ccc0bb203ad4df60851ca4242dfcbe20d57165a",
+    "/Users/n/numi-human-retained-delivery-20261009/contoured-bed-reference-1196/resting-supine-scene-contoured-5mm.manifest.json": "189ffb56c3b3b6de3426627068b17e049134dca8efa3551fb4c37c0c92fb5c2c",
+    "/Users/n/numi-human-retained-delivery-20261009/contoured-bed-reference-1196/source-voronoi-region-gaps-5mm.json": "a9bf4a344c96038211f4566d8c0d975cf6fd440e1f146d466de1465863264002",
+    "/tmp/numi-human-resting-bed-admission-check-1196": "c28d74765770e518a883ab1c04251c440cebf157e52bd21fc716dd5e3c8be03c"
+  },
+  "manifest_sha256": "189ffb56c3b3b6de3426627068b17e049134dca8efa3551fb4c37c0c92fb5c2c",
+  "schema": "numi.human.resting-bed-admission-test.execution.v1",
+  "scope": "CPU-only native bed-manifest parser fixture; no simulator/GPU execution",
+  "source_sha256": "1a103a5027cb4e70153cdd9f259feb2794b38820feb550a3ec25fb225646625c"
+}

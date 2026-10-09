@@ -1,0 +1,10 @@
+{"step": 10000, "completed_targets": 100, "rss_peak_bytes": 603455488}
+{"step": 10000, "completed_targets": 200, "rss_peak_bytes": 603455488}
+{"step": 10000, "completed_targets": 300, "rss_peak_bytes": 743374848}
+{"step": 10000, "completed_targets": 400, "rss_peak_bytes": 743374848}
+{"step": 10000, "completed_targets": 500, "rss_peak_bytes": 743374848}
+{"step": 10000, "completed_targets": 600, "rss_peak_bytes": 743374848}
+{"step": 10000, "completed_targets": 700, "rss_peak_bytes": 743374848}
+{"step": 10000, "completed_targets": 800, "rss_peak_bytes": 743374848}
+{"accepted_step": 10000, "surface_target_count": 859, "all_skin_crossing_pair_count": 3727, "nonocular_crossing_pair_count": 3727, "ocular_crossing_pair_count": 0, "skin_self_crossing_pair_count": 0, "invalid_target_surface_count": 0, "invalid_target_triangle_count": 0, "pair_coverage_complete": true, "elapsed_s": 126.08580991718918, "rss_peak_bytes": 743374848}
+{"exact_intersection_free_on_declared_captures": false, "input_hashes_unchanged": true, "out": "/Users/n/numi-human-retained-delivery-20261009/contoured-bed-reference-1196/skin-bed-audit-1198-attempt002-terminal-scan", "partial_selected_capture_only": true, "selected_capture_intersection_free": false, "status": "partial_selected_capture_complete_with_intersections_or_invalid_geometry", "steps": [10000]}

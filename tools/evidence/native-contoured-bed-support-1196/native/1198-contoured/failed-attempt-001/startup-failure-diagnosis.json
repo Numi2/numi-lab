@@ -1,0 +1,6 @@
+{
+  "status": "failed before physical integration",
+  "cause": "Bed shaded normals were recomputed but their rendering tangents retained +X; visual asset admission correctly rejects nonorthogonal normal and tangent.",
+  "accepted_steps": 0,
+  "binary_sha256": "a60fbd2a1389d74d61b7f0a3a9d89830fed69eb17949155a7caac9411682fbff"
+}

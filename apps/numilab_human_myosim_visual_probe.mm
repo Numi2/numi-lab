@@ -4104,6 +4104,30 @@ std::array<double, 3u> normalizedVector(
     return {value[0] / length, value[1] / length, value[2] / length};
 }
 
+// Read-only evidence reconstruction from the exact final-step GPU plane.
+std::array<std::array<double,3u>,3u> acceptedContactBasis(
+    const metalrobo::MetalArticulatedOperatorResult& result, const std::size_t contact,
+    const std::size_t count, const bool perContact,
+    const std::array<double,3u>& globalNormal
+) {
+    std::array<double,3u> normal=globalNormal;
+    if(perContact) {
+        require(result.standContactPlaneNormals.size()==count && contact<count,
+            "accepted contact evidence lacks the same-step GPU plane normals");
+        const auto& n=result.standContactPlaneNormals[contact];
+        normal={n.x,n.y,n.z};
+        require(std::isfinite(n.x)&&std::isfinite(n.y)&&std::isfinite(n.z)&&n.w==0.0f,
+            "accepted contact evidence has an invalid GPU plane normal");
+    }
+    const std::array<double,3u> reference=std::abs(normal[0])<0.8
+        ?std::array<double,3u>{1,0,0}:std::array<double,3u>{0,1,0};
+    const double projection=normal[0]*reference[0]+normal[1]*reference[1]+normal[2]*reference[2];
+    const auto tangent=normalizedVector({reference[0]-projection*normal[0],
+        reference[1]-projection*normal[1],reference[2]-projection*normal[2]},
+        "accepted contact evidence tangent");
+    return {normal,tangent,crossProduct(normal,tangent)};
+}
+
 struct GroundAlignedSupport {
     std::vector<double> q;
     std::uint32_t witnessCount = 0u;
@@ -5267,17 +5291,10 @@ HumanEndpointEnergy measureHumanEndpointEnergy(
                     (bodies0[body].angularVelocity[axis] + bodies1[body].angularVelocity[axis]));
         }
     }
-    const std::array<double, 3u> normal{input.stand.groundNormal.x,
-        input.stand.groundNormal.y, input.stand.groundNormal.z};
-    const std::array<double, 3u> reference = std::abs(normal[0]) < 0.8
-        ? std::array<double, 3u>{1.0, 0.0, 0.0} : std::array<double, 3u>{0.0, 1.0, 0.0};
-    const double projection = normal[0] * reference[0] + normal[1] * reference[1];
-    const auto tangent0 = normalizedVector({reference[0] - projection * normal[0],
-        reference[1] - projection * normal[1], reference[2] - projection * normal[2]},
-        "endpoint energy contact tangent");
-    const auto tangent1 = crossProduct(normal, tangent0);
-    const std::array<std::array<double, 3u>, 3u> directions{normal, tangent0, tangent1};
     for (std::size_t contact = 0u; contact < input.stand.contacts.size(); ++contact) {
+        const auto directions=acceptedContactBasis(accepted,contact,input.stand.contacts.size(),
+            input.stand.usePerContactSupportPlanes,
+            {input.stand.groundNormal.x,input.stand.groundNormal.y,input.stand.groundNormal.z});
         const auto point = input.stand.contacts[contact].pointQueryIndex;
         require((std::size_t(point) + 1u) * 3u * nv <= accepted.pointJacobians.size(),
                 "endpoint energy contact Jacobian is absent");
@@ -5725,12 +5742,23 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                 "persistent Human stand default velocity is non-finite");
         v.push_back(static_cast<float>(velocity));
     }
-    const MetalMujocoVisualQueries queries =
+    MetalMujocoVisualQueries queries =
         makeMetalMujocoVisualQueries(
             model,
             &supportContacts,
             compiledActivation.supportNormalForce
         );
+    if (supportGeometryProgram && supportGeometryProgram->usePerContactSupportPlanes) {
+        for (auto& contact : queries.supportContacts) {
+            contact.planePoint={supportContacts.header.groundPointX,
+                supportContacts.header.groundPointY,supportContacts.header.groundPointZ,0};
+            contact.planeNormal={supportContacts.header.groundNormalX,
+                supportContacts.header.groundNormalY,supportContacts.header.groundNormalZ,0};
+        }
+        std::cout<<"resting_initial_force_report_contact_scope=legacy_plane_initialization_only"
+            <<" accepted_contact_owner=gpu_fixed_bed_facets"
+            <<" initial_equilibrium_claim=0\n";
+    }
     // Audit the generalized support wrench through the same articulated
     // point-Jacobian owner used by the runtime contact query. This catches a
     // source/static versus runtime support-force ownership mismatch before the
@@ -7106,7 +7134,10 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                 "segmented Human horizon requires complete authoritative state");
         horizonInput.stand.authoritativeStepCount = requestedSteps;
         if(restingProgram != nullptr)horizonInput.stand.numanXTransactionProgram=*restingProgram;
-        if(supportGeometryProgram != nullptr)horizonInput.stand.supportGeometryProgram=*supportGeometryProgram;
+        if(supportGeometryProgram != nullptr) {
+            horizonInput.stand.supportGeometryProgram=*supportGeometryProgram;
+            horizonInput.stand.usePerContactSupportPlanes=supportGeometryProgram->usePerContactSupportPlanes;
+        }
 #ifdef NUMI_HUMAN_RESTING_SCENE
         const char* transactionProbe=std::getenv("NUMI_HUMAN_RESTING_TRANSACTION_PROBE");
         if(restingProgram&&transactionProbe&&std::strcmp(transactionProbe,"1")==0)
@@ -7251,6 +7282,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                 segmentResult.standStatuses.size() != 1u ||
                 segmentResult.standStatuses.front().code !=
                     MR_NUMI_HUMAN_STAND_SUCCESS) {
+#ifdef NUMI_HUMAN_RESTING_SCENE
                 if (restingProgram != nullptr && restingProgram->context != nullptr) {
                     auto& coupled = *static_cast<NumiHumanRestingCoupling*>(
                         restingProgram->context);
@@ -7574,6 +7606,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                         }
                     }
                 }
+#endif
                 segmentDiagnostics.elapsedMilliseconds = elapsedMilliseconds;
                 segmentDiagnostics.message =
                     "segmented authoritative Human horizon failed after " +
@@ -7935,7 +7968,8 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                           << std::sqrt(double(acceptedV[0]) * acceptedV[0] +
                                        double(acceptedV[1]) * acceptedV[1] +
                                        double(acceptedV[2]) * acceptedV[2])
-                          << " support_force_n="
+                          << (horizonInput.stand.usePerContactSupportPlanes
+                              ? " sum_contact_normal_force_n=" : " support_force_n=")
                           << accepted.contactAndAcceleration.z / timestepSeconds
                           << " penetration_m=" << accepted.contactAndAcceleration.y
                           << " contact_count=" << accepted.activeContactCount
@@ -20852,6 +20886,7 @@ int main(int argc, char** argv) {
             std::optional<std::pair<std::string,std::string>> restingScene;
             std::string restingMovie;
             std::string restingAnatomyReceipt;
+            std::string restingBedSurface;
             std::string inspectTerminalState;
             bool restingDenseVascular=false;
             std::optional<double> restingReferenceMassKg;
@@ -20866,6 +20901,11 @@ int main(int argc, char** argv) {
                     require(index+2<argc&&!restingScene.has_value(),"--resting-scene requires network and respiration JSON once");
                     std::string network=argv[++index];std::string respiration=argv[++index];
                     restingScene.emplace(network,respiration);continue;
+                }
+                if(argument=="--resting-bed-surface") {
+                    require(index+1<argc&&restingBedSurface.empty(),
+                        "--resting-bed-surface requires one existing source-scene manifest");
+                    restingBedSurface=argv[++index];continue;
                 }
                 if(argument=="--resting-movie") {
                     require(index+1<argc&&restingMovie.empty(),"--resting-movie requires one new movie path");
@@ -22005,6 +22045,11 @@ int main(int argc, char** argv) {
                         (openKneeLiveTissueFEM && muscleStepCount.has_value() &&
                          *muscleStepCount >= 8u),
                     "--open-knee-sustained-certificate requires live Open Knee mechanics and at least eight Human steps");
+#ifdef NUMI_HUMAN_RESTING_SCENE
+            require(restingBedSurface.empty() ||
+                        (restingScene.has_value() && persistentMetalStand && restingReleaseInitialization &&
+                         skinPayloadPath.has_value()),
+                    "--resting-bed-surface requires resting full-skin contact and explicit release initialization");
             require(!restingHipCapsuleReference ||
                         (restingScene.has_value() && persistentMetalStand &&
                          !persistentRuntimeWithoutPassiveJointTissue),
@@ -22012,6 +22057,7 @@ int main(int argc, char** argv) {
             require(!restingHipCapsuleScale.has_value() ||
                         restingHipCapsuleReference,
                     "--resting-hip-capsule-scale requires --resting-hip-capsule-reference");
+#endif
             require(!persistentMetalStand ||
                         (muscleStepSeconds.has_value() &&
                          supportContactPayload.has_value() &&
@@ -23054,7 +23100,9 @@ int main(int argc, char** argv) {
                         << "delta_com_px_kg_m_s,delta_com_py_kg_m_s,delta_com_pz_kg_m_s,"
                         << "delta_com_valid,gravity_impulse_x_ns,gravity_impulse_y_ns,gravity_impulse_z_ns,"
                         << "root_vx_m_s,root_vy_m_s,root_vz_m_s,"
-                        << "support_normal_x,support_normal_y,support_normal_z,"
+                        << (restingBedSurface.empty()
+                            ? "support_normal_x,support_normal_y,support_normal_z,"
+                            : "reference_plane_normal_x,reference_plane_normal_y,reference_plane_normal_z,")
                         << "normal_impulse_last_physical_step_ns,normal_force_last_physical_step_n,"
                         << "max_normal_contact_impulse_segment_ns,max_tangent_contact_impulse_segment_ns,"
                         << "active_contact_count,contact_impulse_vector_elements,contact_impulse_vector_available,"
@@ -23223,6 +23271,13 @@ int main(int argc, char** argv) {
                 }
                 appendSource("NHTENDON",payloadBytes(*tendonPayloadPath));
                 if(!restingAnatomyReceipt.empty())appendSource("resting_functional_anatomy",payloadBytes(restingAnatomyReceipt));
+                std::optional<NumiHumanRestingBedSurface> fixedBed;
+                if(!restingBedSurface.empty()) {
+                    fixedBed.emplace(restingBedSurface,
+                        loadedKneeSHA256Hex(loadedKneeFileSHA256(*skinPayloadPath)),
+                        loadedKneeSHA256Hex(loadedKneeFileSHA256(*supportContactPayloadPath)));
+                    appendSource("resting_fixed_world_contact_bed",payloadBytes(restingBedSurface));
+                }
                 if(torsoAnatomyPayloadPath)appendSource("NHANATOMY",payloadBytes(*torsoAnatomyPayloadPath));
                 if(skinPayloadPath)appendSource("NHSKIN_full_surface_contact",payloadBytes(*skinPayloadPath));
                 appendSource("resting_initial_q",std::as_bytes(std::span(poseQ)));
@@ -23281,7 +23336,8 @@ int main(int argc, char** argv) {
                         &*torsoAnatomyPayload,0xffffffffu,{},initialBodies,restBodies,nullptr,nullptr,false,{},{},{},false,false,false,nullptr,
                         counts[0],counts[1],counts[2],counts[3],counts[4],counts[5],counts[6],counts[7],counts[8],counts[9],true);
                     liveVisual=std::make_unique<NumiHumanRestingVisual>(coupled,std::move(pack),rigid.model,*skinPayload,&*softTissuePayload,
-                        initialBodies,restBodies,*supportContactPayload,functional,positional.back(),frameDimension,restingMovie,!mechanicsOnly);
+                        initialBodies,restBodies,*supportContactPayload,functional,positional.back(),frameDimension,restingMovie,!mechanicsOnly,
+                        fixedBed?&*fixedBed:nullptr);
                     if (restingAcceptedBodyMotionAudit) {
                         liveVisual->configureSupportMotionObserver(
                             std::filesystem::path(positional.back()) /
@@ -23602,30 +23658,10 @@ int main(int argc, char** argv) {
                                 qAuditSourceBodyLinearMomentum[4] =
                                     sourceLinearMomentum(qAcceptedWorld, vAcceptedWorld,
                                         &qAuditAcceptedBodyKinematics);
-                                const std::array<double, 3u> auditNormal =
-                                    normalizedVector({
-                                        supportContactPayload->header.groundNormalX,
-                                        supportContactPayload->header.groundNormalY,
-                                        supportContactPayload->header.groundNormalZ},
-                                        "q-integration audit support normal");
-                                const std::array<double, 3u> auditTangentReference =
-                                    std::abs(auditNormal[0]) < 0.8
-                                        ? std::array<double, 3u>{1.0, 0.0, 0.0}
-                                        : std::array<double, 3u>{0.0, 1.0, 0.0};
-                                const double auditProjection =
-                                    auditNormal[0] * auditTangentReference[0] +
-                                    auditNormal[1] * auditTangentReference[1] +
-                                    auditNormal[2] * auditTangentReference[2];
-                                const std::array<double, 3u> auditTangent0 =
-                                    normalizedVector({
-                                        auditTangentReference[0] - auditProjection * auditNormal[0],
-                                        auditTangentReference[1] - auditProjection * auditNormal[1],
-                                        auditTangentReference[2] - auditProjection * auditNormal[2]},
-                                        "q-integration audit support tangent0");
-                                const std::array<double, 3u> auditTangent1 =
-                                    crossProduct(auditNormal, auditTangent0);
                                 const auto tangentialSlip = [&] (
-                                    const std::array<double, 3u>& velocity) {
+                                    const std::array<double, 3u>& velocity,
+                                    const std::array<std::array<double,3u>,3u>& basis) {
+                                    const auto& auditTangent0=basis[1];const auto& auditTangent1=basis[2];
                                     require(std::all_of(velocity.begin(), velocity.end(),
                                                 [](const double value) {
                                                     return std::isfinite(value);
@@ -23689,7 +23725,11 @@ int main(int argc, char** argv) {
                                                             articulation.nv + dof]) *
                                                     linearizationStageVelocities[stage][dof];
                                         qAuditSupportPointSlip[contact][stage] =
-                                            tangentialSlip(pointVelocity);
+                                            tangentialSlip(pointVelocity,acceptedContactBasis(
+                                                result,contact,queries.supportContacts.size(),!restingBedSurface.empty(),
+                                                {supportContactPayload->header.groundNormalX,
+                                                 supportContactPayload->header.groundNormalY,
+                                                 supportContactPayload->header.groundNormalZ}));
                                     }
                                 }
                                 const auto writeFloatArray = [](std::ostream& output,
@@ -23896,7 +23936,9 @@ int main(int argc, char** argv) {
                                             result.pointJacobians,
                                             contactQuery.pointQueryIndex,
                                             static_cast<std::uint32_t>(nv),
-                                            result.standPreviousVelocity, groundNormal);
+                                            result.standPreviousVelocity, acceptedContactBasis(
+                                                result,contact,queries.supportContacts.size(),
+                                                !restingBedSurface.empty(),groundNormal)[0]);
                                     const auto& point =
                                         result.pointWorld[contactQuery.pointQueryIndex].position;
                                     const auto& low =
@@ -23989,25 +24031,13 @@ int main(int argc, char** argv) {
                                 3u * supportContactPayload->records.size();
                             require(fullContactVector,
                                     "accepted COM audit lacks every support-contact impulse triple");
-                            const std::array<double, 3u> normal{
-                                supportNormal.groundNormalX, supportNormal.groundNormalY,
-                                supportNormal.groundNormalZ};
-                            const std::array<double, 3u> reference = std::abs(normal[0]) < 0.8
-                                ? std::array<double, 3u>{1.0, 0.0, 0.0}
-                                : std::array<double, 3u>{0.0, 1.0, 0.0};
-                            const double projection = normal[0] * reference[0] +
-                                normal[1] * reference[1] + normal[2] * reference[2];
-                            const auto tangent0 = normalizedVector({
-                                reference[0] - projection * normal[0],
-                                reference[1] - projection * normal[1],
-                                reference[2] - projection * normal[2]},
-                                "accepted COM support tangent");
-                            const auto tangent1 = crossProduct(normal, tangent0);
-                            const std::array<std::array<double, 3u>, 3u> impulseBasis{
-                                normal, tangent0, tangent1};
+                            const std::array<double,3u> referencePlaneNormal{
+                                supportNormal.groundNormalX,supportNormal.groundNormalY,supportNormal.groundNormalZ};
                             std::array<double, 3u> worldContactImpulse{};
                             for (std::size_t contact = 0u;
                                  contact < supportContactPayload->records.size(); ++contact) {
+                                const auto impulseBasis=acceptedContactBasis(result,contact,
+                                    supportContactPayload->records.size(),!restingBedSurface.empty(),referencePlaneNormal);
                                 const double normalComponent =
                                     result.standContactImpulses[3u * contact];
                                 const double tangent0Component =
@@ -24136,6 +24166,10 @@ int main(int argc, char** argv) {
                                     result.standContactImpulses[3u * contact],
                                     result.standContactImpulses[3u * contact + 1u],
                                     result.standContactImpulses[3u * contact + 2u]};
+                                const auto impulseBasis=acceptedContactBasis(result,contact,
+                                    supportContactPayload->records.size(),!restingBedSurface.empty(),referencePlaneNormal);
+                                const auto& normal=impulseBasis[0];
+                                const auto& tangent0=impulseBasis[1];const auto& tangent1=impulseBasis[2];
                                 std::array<double, 3u> contactWorld{};
                                 for (std::size_t axis = 0u; axis < 3u; ++axis)
                                     for (std::size_t basis = 0u; basis < 3u; ++basis)

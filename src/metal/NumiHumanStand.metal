@@ -137,6 +137,84 @@ inline float standContactAdmissionDistanceMeters(
         : support.frictionSlopAndStabilization.y;
 }
 
+inline float3 standContactPlaneNormal(
+    constant const MRNumiHumanStandDispatchGPU& dispatch,
+    const float4 contactPlaneNormal,
+    const float3 legacyNormal
+) {
+    return dispatch.supportContactPlaneMode ==
+            MR_NUMI_HUMAN_STAND_SUPPORT_PLANE_PER_CONTACT
+        ? contactPlaneNormal.xyz : legacyNormal;
+}
+
+inline float3 standContactDirection(
+    constant const MRNumiHumanStandDispatchGPU& dispatch,
+    const float4 contactPlaneNormal,
+    const uint axis,
+    const float3 legacyDirection
+) {
+    if (dispatch.supportContactPlaneMode !=
+        MR_NUMI_HUMAN_STAND_SUPPORT_PLANE_PER_CONTACT)
+        return legacyDirection;
+    const float3 normal = contactPlaneNormal.xyz;
+    const float3 reference = abs(normal.x) < 0.8f
+        ? float3(1.0f, 0.0f, 0.0f)
+        : float3(0.0f, 1.0f, 0.0f);
+    const float3 tangent0 = normalize(
+        reference - dot(reference, normal) * normal);
+    return axis == 0u ? normal :
+        axis == 1u ? tangent0 : cross(normal, tangent0);
+}
+
+inline float standContactGap(
+    const float4 point,
+    const float4 pointLow,
+    constant const MRNumiHumanStandDispatchGPU& dispatch,
+    const float4 contactPlanePoint,
+    const float4 contactPlaneNormal,
+    const float3 legacyNormal
+) {
+    if (dispatch.supportContactPlaneMode ==
+        MR_NUMI_HUMAN_STAND_SUPPORT_PLANE_PER_CONTACT) {
+        const float4 plane = float4(
+            contactPlanePoint.xyz, dispatch.groundPointAndTimestep.w);
+        return dot(mrCompensatedPositionDifference(
+            point, pointLow, plane, float4(0.0f)).xyz,
+            contactPlaneNormal.xyz);
+    }
+    return dot(mrCompensatedPositionDifference(
+        point, pointLow, dispatch.groundPointAndTimestep,
+        float4(0.0f)).xyz, legacyNormal);
+}
+
+inline bool standSupportContactPlaneDispatchValid(
+    constant const MRNumiHumanStandDispatchGPU& dispatch
+) {
+    if (dispatch.supportContactPlaneMode >
+            MR_NUMI_HUMAN_STAND_SUPPORT_PLANE_PER_CONTACT ||
+        any(uint2(dispatch.supportContactPlaneReserved[0],
+                  dispatch.supportContactPlaneReserved[1]) != uint2(0u)))
+        return false;
+    if (dispatch.supportContactPlaneMode ==
+        MR_NUMI_HUMAN_STAND_SUPPORT_PLANE_GLOBAL)
+        return dispatch.supportContactPlaneCount == 0u;
+    return dispatch.environmentCount == 1u &&
+        dispatch.supportContactCount != 0u &&
+        dispatch.supportContactPlaneCount == dispatch.supportContactCount &&
+        (dispatch.flags & MR_NUMI_HUMAN_STAND_ENABLE_CONTACT) != 0u;
+}
+
+inline bool validPerContactSupportPlane(
+    const float4 point,
+    const float4 normal
+) {
+    const float normalLengthSquared = dot(normal.xyz, normal.xyz);
+    return all(isfinite(point)) && all(isfinite(normal)) &&
+        point.w == 0.0f && normal.w == 0.0f &&
+        isfinite(normalLengthSquared) &&
+        abs(normalLengthSquared - 1.0f) <= 2.0e-4f;
+}
+
 inline uint standLegacyResponseStride(
     const uint nv, const uint contactCount, const uint equalityCount
 ) {
@@ -161,7 +239,8 @@ inline bool standDeferredDispatchFlagsValid(
         dispatch.supportContactCount != 0u &&
         dispatch.supportContactCount <= MR_NUMI_HUMAN_STAND_MAX_CONTACTS &&
         dispatch.jointEqualityCount != 0u;
-    return (deferred == 0u ||
+    return standSupportContactPlaneDispatchValid(dispatch) &&
+        (deferred == 0u ||
             (kUseDeferStandEqualityData && reducedAdmission)) &&
         (stages == 0u || deferred != 0u);
 }
@@ -1363,6 +1442,7 @@ kernel void mr_numi_human_stand_step(
             dispatch.pointJacobianStride /
                 max(3u * nv, 1u) < dispatch.pointWorldStride ||
             dispatch.supportContactCount > MR_NUMI_HUMAN_STAND_MAX_CONTACTS ||
+            !standSupportContactPlaneDispatchValid(dispatch) ||
             dispatch.jointEqualityCount > nv ||
             dispatch.contactIterationCount == 0u ||
             dispatch.contactIterationCount > 64u ||
@@ -1437,6 +1517,20 @@ kernel void mr_numi_human_stand_step(
             if (!isfinite(normalLengthSquared) ||
                 abs(normalLengthSquared - 1.0f) > 2.0e-4f) {
                 fail(status, MR_NUMI_HUMAN_STAND_INVALID_DISPATCH, MR_INVALID_INDEX);
+            }
+        }
+        if (status.code == MR_NUMI_HUMAN_STAND_SUCCESS &&
+            dispatch.supportContactPlaneMode ==
+                MR_NUMI_HUMAN_STAND_SUPPORT_PLANE_PER_CONTACT) {
+            for (uint contact = 0u;
+                 contact < dispatch.supportContactPlaneCount; ++contact) {
+                if (!validPerContactSupportPlane(
+                        contacts[contact].planePoint,
+                        contacts[contact].planeNormal)) {
+                    fail(status, MR_NUMI_HUMAN_STAND_INVALID_DISPATCH,
+                         contact);
+                    break;
+                }
             }
         }
     }
@@ -2053,13 +2147,14 @@ kernel void mr_numi_human_stand_step(
                 if (!contactEnabled) continue;
                 device const auto& support = contacts[column / 3u];
                 const uint pointIndex = pointBase + support.pointQueryIndex;
-                const float gap = dot(mrCompensatedPositionDifference(
-                    pointWorld[pointIndex].position, pointPositionLow[pointIndex],
-                    dispatch.groundPointAndTimestep, float4(0.0f)).xyz, responseNormal);
+                const float gap = standContactGap(pointWorld[pointIndex].position,
+                    pointPositionLow[pointIndex], dispatch,
+                    support.planePoint, support.planeNormal, responseNormal);
                 if (gap > standContactAdmissionDistanceMeters(support)) continue;
                 for (uint dof = 0u; dof < nv; ++dof)
                     response[dof] = pointJacobianAxis(pointJacobians, pointJacobianBase,
-                        support.pointQueryIndex, nv, dof, responseDirections[column % 3u]);
+                        support.pointQueryIndex, nv, dof, standContactDirection(dispatch, support.planeNormal,
+                            column % 3u, responseDirections[column % 3u]));
             } else if (column < equalityColumnsEnd) {
                 device const auto& equality = jointEqualities[column - contactColumns];
                 float target = 0.0f, derivative = 0.0f, error = 0.0f;
@@ -2168,10 +2263,9 @@ kernel void mr_numi_human_stand_step(
              column += threadCount) {
             device const auto& support = contacts[column / 3u];
             const uint pointIndex = pointBase + support.pointQueryIndex;
-            const float gap = dot(mrCompensatedPositionDifference(
-                pointWorld[pointIndex].position,
-                pointPositionLow[pointIndex],
-                dispatch.groundPointAndTimestep, float4(0.0f)).xyz,
+            const float gap = standContactGap(pointWorld[pointIndex].position,
+                pointPositionLow[pointIndex], dispatch,
+                support.planePoint, support.planeNormal,
                 dispatch.groundNormal.xyz);
             if (gap > standContactAdmissionDistanceMeters(support)) continue;
             device float* response = responseScratch + responseBase +
@@ -2408,10 +2502,11 @@ kernel void mr_numi_human_stand_response_assemble(
         if (!contactEnabled) return;
         device const auto& support = contacts[column / 3u];
         const uint pointIndex = pointBase + support.pointQueryIndex;
-        const float3 normal = dispatch.groundNormal.xyz;
-        const float gap = dot(mrCompensatedPositionDifference(
-            pointWorld[pointIndex].position, pointPositionLow[pointIndex],
-            dispatch.groundPointAndTimestep, float4(0.0f)).xyz, normal);
+        const float3 normal = standContactPlaneNormal(
+            dispatch, support.planeNormal, dispatch.groundNormal.xyz);
+        const float gap = standContactGap(pointWorld[pointIndex].position,
+            pointPositionLow[pointIndex], dispatch,
+            support.planePoint, support.planeNormal, normal);
         if (gap > standContactAdmissionDistanceMeters(support)) return;
         const float3 reference = abs(normal.x) < 0.8f
             ? float3(1.0f, 0.0f, 0.0f)
@@ -3054,10 +3149,11 @@ kernel void mr_numi_human_stand_projected_response_assemble(
         if (!contactEnabled) return;
         device const auto& support = contacts[positionIndex / 3u];
         const uint pointIndex = pointBase + support.pointQueryIndex;
-        const float3 normal = dispatch.groundNormal.xyz;
-        const float gap = dot(mrCompensatedPositionDifference(
-            pointWorld[pointIndex].position, pointPositionLow[pointIndex],
-            dispatch.groundPointAndTimestep, float4(0.0f)).xyz, normal);
+        const float3 normal = standContactPlaneNormal(
+            dispatch, support.planeNormal, dispatch.groundNormal.xyz);
+        const float gap = standContactGap(pointWorld[pointIndex].position,
+            pointPositionLow[pointIndex], dispatch,
+            support.planePoint, support.planeNormal, normal);
         if (gap > standContactAdmissionDistanceMeters(support)) return;
         const float3 reference = abs(normal.x) < 0.8f
             ? float3(1.0f, 0.0f, 0.0f)
@@ -3302,11 +3398,12 @@ kernel void mr_numi_human_stand_projected_response_cooperative(
             if (contactEnabled) {
                 device const auto& support = contacts[positionIndex / 3u];
                 const uint pointIndex = pointBase + support.pointQueryIndex;
-                const float3 normal = dispatch.groundNormal.xyz;
-                const float gap = dot(mrCompensatedPositionDifference(
-                    pointWorld[pointIndex].position, pointPositionLow[pointIndex],
-                    dispatch.groundPointAndTimestep, float4(0.0f)).xyz,
-                    normal);
+                const float3 normal = standContactPlaneNormal(
+                    dispatch, support.planeNormal, dispatch.groundNormal.xyz);
+                const float gap = standContactGap(
+                    pointWorld[pointIndex].position,
+                    pointPositionLow[pointIndex], dispatch,
+                    support.planePoint, support.planeNormal, normal);
                 if (gap <= standContactAdmissionDistanceMeters(support)) {
                     const float3 reference = abs(normal.x) < 0.8f
                         ? float3(1.0f, 0.0f, 0.0f)

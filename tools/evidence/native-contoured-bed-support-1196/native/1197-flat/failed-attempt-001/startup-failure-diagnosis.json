@@ -1,0 +1,8 @@
+{
+  "status": "failed before physical integration",
+  "native_exit_code": -6,
+  "cause": "Metal pipeline validation requires explicit specialization for the optional bed audit function even in disabled mode.",
+  "binary_retained": "/Users/n/numi-human-retained-delivery-20261009/native-bed-disabled-parity-1197/numi-human-native-at-launch",
+  "binary_sha256": "6823717da6d292da43cb7001b1d606cea88a0c4accb75112951340a45e3800a1",
+  "accepted_steps": 0
+}
