@@ -1,0 +1,233 @@
+{
+  "conclusion": "All three scales fail the final-step exact geometry gate: target-surface crossings and unallowed skin self-intersections remain. No scale is selected or adopted. All 859 target surfaces and skin self-pairs were covered; no degenerate skin faces or invalid target triangles/surfaces were found.",
+  "fit_domain_conclusion": "Each arm logged 2,500 accepted observer samples, with 2,490 outside the neutral ab/ad flexion fit interval [-12 degrees, 0 degrees]. These are observer samples every eight 0.002-second steps, not every physical step or empirical fit observations. Abduction/adduction is not parameterized.",
+  "nominal_additional_captured_steps": [
+    {
+      "invalid_triangles": 0,
+      "skin_self_unallowed_pairs": 0,
+      "step": 0,
+      "target_crossing_pairs": 0
+    },
+    {
+      "invalid_triangles": 0,
+      "skin_self_unallowed_pairs": 493,
+      "step": 9983,
+      "target_crossing_pairs": 3164
+    }
+  ],
+  "nominal_disabled_counterfactual_limit": "The disabled reference covers 20 s only, and 1193 capture step 9983 is 17 roots (34 ms) before disabled step 10000. No disabled 40 s counterfactual exists, so the comparison associates the new bilateral crossings with the enabled condition but does not isolate a 40 s causal effect.",
+  "nominal_region_diagnostic_status": "read_only_diagnostic_not_anatomical_or_physiological_qualification",
+  "predicate": "exact_float32_lattice_triangle_intersection",
+  "runs": [
+    {
+      "accepted_capture": {
+        "captured_vertex_buffer_sha256": "65dddc293bcf79d9832843574a741dee5b8899cfb045a01a5a62771a93e943ae",
+        "pack_file_sha256": "13616c976e971cd95e2b934110ece00d815d9eef7ac17370a34c378863d17b82",
+        "receipt_path": "/Users/n/numi-human-retained-delivery-20261009/native-hip-reference-nominal-1193-attempt002/native-run/accepted-geometry/step-20000.receipt.json",
+        "receipt_sha256": "ffdd9b3d567b128ebcf7de32daf057ae206324f42fbd3568371868a1735ccc7e",
+        "step": 20000,
+        "time_s": 40.00000189989805
+      },
+      "accepted_observer_fit_domain_diagnostic": {
+        "abduction_adduction": "not_parameterized",
+        "accepted_observer_samples": 2500,
+        "flexion_fit_interval_deg": [
+          -12.0,
+          0.0
+        ],
+        "flexion_fit_interval_rad": [
+          -0.20943951023931953,
+          0.0
+        ],
+        "native_log_path": "/Users/n/numi-human-retained-delivery-20261009/native-hip-reference-nominal-1193-attempt002/native-run/native.log",
+        "native_log_sha256": "c1652f9237fe48c2e38c0b2a3563776d96f77cb309441f769265ad7f15a1a551",
+        "outside_neutral_ab_ad_flexion_fit_interval_samples": 2490,
+        "raw_native_log_line": "resting_hip_capsule_accepted_state_diagnostics accepted_states=2500 right_flexion_min_rad=-0.39229944348335266 right_flexion_max_rad=-0.014616141095757484 left_flexion_min_rad=-0.39012056589126587 left_flexion_max_rad=-0.015251242555677891 samples_outside_neutral_ab_ad_flexion_fit_interval=2490 flexion_fit_interval_rad=[-0.20943951023931953,0] abduction_adduction=not_parameterized max_positive_branch_gap_rad=0.245982566730504 max_gap_over_unscaled_5Nm_fit_gap=0.9719836487898631 max_per_side_flexion_rotation_torque_norm_nm=6.9076205099015366 max_total_potential_energy_j=0.66435585842028888 terminal_hip_potential_energy_j=0.11671854082843261 horizon_bound=accepted-observer-samples-only",
+        "sampling_note": "accepted observer samples every 8 physical steps (0.016 s at dt=0.002 s); not every native step and not empirical fit observations"
+      },
+      "execution": {
+        "returncode": 0,
+        "wall_seconds": 341.284066542
+      },
+      "geometry_audit": {
+        "audit_summary_sha256": "1077b498e1abc1b77a0f5b5a4569c1ce4a43296a91d5b403191889c0b8742cb2",
+        "crossing_witnesses_sha256": "698a6d4691a4a087b50180b708273901d6f7048bc5e9b2d8e10269cd88457632",
+        "final_step_result_sha256": "75485b82c2c048857472d3b837aabc481588c9c8c693ba304bd8a39cacb82472",
+        "geometry_gate_passed": false,
+        "invalid_target_surfaces": 0,
+        "invalid_target_triangles": 0,
+        "nonocular_target_crossing_pairs": 3073,
+        "ocular_target_crossing_pairs": 0,
+        "pair_coverage_complete": true,
+        "predicate": "exact_float32_lattice_triangle_intersection",
+        "self_witnesses_sha256": "878f269bceab4b064ab5fa3d03712e18b7837854a59aeb938cd7310fc906b32f",
+        "skin_degenerate_face_count": 0,
+        "skin_self_unallowed_pairs": 575,
+        "target_crossing_pairs": 3073,
+        "target_surface_count": 859
+      },
+      "hip_capsule_reference": {
+        "enabled": true,
+        "scale": 1.0
+      },
+      "input_hashes_unchanged_during_audit": true,
+      "run_id": "1193",
+      "run_name": "nominal-1p0",
+      "source_geometry_hashes": {
+        "NHA": "1c0c37af76ab3f8e86870fd6cd3abab00b7bcdae51fe934e3461722ca306c241",
+        "NHSKIN": "b2d235e32c1c7d7f753eb83d1e8e9d045a1fd62be9c5c6da65dfde8844e2622b",
+        "NHTISS": "b3d0381f73e05b04ed7ea1ba23eb6559073ad20aa0d9e2ad0f97a18fab3359bd"
+      }
+    },
+    {
+      "accepted_capture": {
+        "captured_vertex_buffer_sha256": "9cae9f89b45557ca7f5627cc8689c326664f253fcac63c948762a49f08ba8d53",
+        "pack_file_sha256": "13616c976e971cd95e2b934110ece00d815d9eef7ac17370a34c378863d17b82",
+        "receipt_path": "/Users/n/numi-human-retained-delivery-20261009/native-hip-reference-scale05-1194/native-run/accepted-geometry/step-20000.receipt.json",
+        "receipt_sha256": "768c628f26bc1ced163dd07bc245bdc22c75ac386d7b3d4191b1a3e470550933",
+        "step": 20000,
+        "time_s": 40.00000189989805
+      },
+      "accepted_observer_fit_domain_diagnostic": {
+        "abduction_adduction": "not_parameterized",
+        "accepted_observer_samples": 2500,
+        "flexion_fit_interval_deg": [
+          -12.0,
+          0.0
+        ],
+        "flexion_fit_interval_rad": [
+          -0.20943951023931953,
+          0.0
+        ],
+        "native_log_path": "/Users/n/numi-human-retained-delivery-20261009/native-hip-reference-scale05-1194/native-run/native.log",
+        "native_log_sha256": "bed440bf4675ecef5c7c8939fa130e4f5752ffa7ef7ea86c7241cd2b5634db76",
+        "outside_neutral_ab_ad_flexion_fit_interval_samples": 2490,
+        "raw_native_log_line": "resting_hip_capsule_accepted_state_diagnostics accepted_states=2500 right_flexion_min_rad=-0.39175465703010559 right_flexion_max_rad=-0.014616141095757484 left_flexion_min_rad=-0.38965803384780884 left_flexion_max_rad=-0.015251242555677891 samples_outside_neutral_ab_ad_flexion_fit_interval=2490 flexion_fit_interval_rad=[-0.20943951023931953,0] abduction_adduction=not_parameterized max_positive_branch_gap_rad=0.31161075172184383 max_gap_over_unscaled_5Nm_fit_gap=1.2313090292800415 max_per_side_flexion_rotation_torque_norm_nm=6.0067245128961266 max_total_potential_energy_j=0.7243312126647119 terminal_hip_potential_energy_j=0.1017305091775719 horizon_bound=accepted-observer-samples-only",
+        "sampling_note": "accepted observer samples every 8 physical steps (0.016 s at dt=0.002 s); not every native step and not empirical fit observations"
+      },
+      "execution": {
+        "returncode": 0,
+        "wall_seconds": 344.533537208
+      },
+      "geometry_audit": {
+        "audit_summary_sha256": "18c2324190c932a43e538f253c03a9c3d75eb1d0ee68048c1bc4601ae5bf2cc7",
+        "crossing_witnesses_sha256": "219ee78db385c66e03f1641acc500d23fff8f227c08d95c85685aff3344dc66e",
+        "final_step_result_sha256": "eef188da9c501e2e12dbf3248ca9fa654052bb243e5efa7a7df5022f071eb0ff",
+        "geometry_gate_passed": false,
+        "invalid_target_surfaces": 0,
+        "invalid_target_triangles": 0,
+        "nonocular_target_crossing_pairs": 2817,
+        "ocular_target_crossing_pairs": 0,
+        "pair_coverage_complete": true,
+        "predicate": "exact_float32_lattice_triangle_intersection",
+        "self_witnesses_sha256": "1dca758010afc093a0896d494b57680d9196919b24b8425127c6d60cbd035fd3",
+        "skin_degenerate_face_count": 0,
+        "skin_self_unallowed_pairs": 340,
+        "target_crossing_pairs": 2817,
+        "target_surface_count": 859
+      },
+      "hip_capsule_reference": {
+        "enabled": true,
+        "scale": 0.5
+      },
+      "input_hashes_unchanged_during_audit": true,
+      "run_id": "1194",
+      "run_name": "scale-0p5",
+      "source_geometry_hashes": {
+        "NHA": "1c0c37af76ab3f8e86870fd6cd3abab00b7bcdae51fe934e3461722ca306c241",
+        "NHSKIN": "b2d235e32c1c7d7f753eb83d1e8e9d045a1fd62be9c5c6da65dfde8844e2622b",
+        "NHTISS": "b3d0381f73e05b04ed7ea1ba23eb6559073ad20aa0d9e2ad0f97a18fab3359bd"
+      }
+    },
+    {
+      "accepted_capture": {
+        "captured_vertex_buffer_sha256": "71c512a3d57dc2f55b4aebde80be9bd7d36a4b49adba268631acfc69eafac2bf",
+        "pack_file_sha256": "13616c976e971cd95e2b934110ece00d815d9eef7ac17370a34c378863d17b82",
+        "receipt_path": "/Users/n/numi-human-retained-delivery-20261009/native-hip-reference-scale2-1195/native-run/accepted-geometry/step-20000.receipt.json",
+        "receipt_sha256": "ab3bf6396b307ea85f1c7e8fd1056e0586a52fe0bf4c4c3959ef2e465cc4bc62",
+        "step": 20000,
+        "time_s": 40.00000189989805
+      },
+      "accepted_observer_fit_domain_diagnostic": {
+        "abduction_adduction": "not_parameterized",
+        "accepted_observer_samples": 2500,
+        "flexion_fit_interval_deg": [
+          -12.0,
+          0.0
+        ],
+        "flexion_fit_interval_rad": [
+          -0.20943951023931953,
+          0.0
+        ],
+        "native_log_path": "/Users/n/numi-human-retained-delivery-20261009/native-hip-reference-scale2-1195/native-run/native.log",
+        "native_log_sha256": "b384eabfad817e18d2f5600894058d2fad44cd5c4b0893f83c4a7fc09176bbf6",
+        "outside_neutral_ab_ad_flexion_fit_interval_samples": 2490,
+        "raw_native_log_line": "resting_hip_capsule_accepted_state_diagnostics accepted_states=2500 right_flexion_min_rad=-0.39316534996032715 right_flexion_max_rad=-0.014616141095757484 left_flexion_min_rad=-0.39088195562362671 left_flexion_max_rad=-0.015251242555677891 samples_outside_neutral_ab_ad_flexion_fit_interval=2490 flexion_fit_interval_rad=[-0.20943951023931953,0] abduction_adduction=not_parameterized max_positive_branch_gap_rad=0.18993796496337723 max_gap_over_unscaled_5Nm_fit_gap=0.75052715597967001 max_per_side_flexion_rotation_torque_norm_nm=7.6480713310295316 max_total_potential_energy_j=0.60009806023219148 terminal_hip_potential_energy_j=0.20924159549627677 horizon_bound=accepted-observer-samples-only",
+        "sampling_note": "accepted observer samples every 8 physical steps (0.016 s at dt=0.002 s); not every native step and not empirical fit observations"
+      },
+      "execution": {
+        "returncode": 0,
+        "wall_seconds": 340.68644462500004
+      },
+      "geometry_audit": {
+        "audit_summary_sha256": "308e5f4dfc5aaf5675d4e7543391face95c508727788ea59af842e56143f2e44",
+        "crossing_witnesses_sha256": "b70c7af59511877f8a3d8ea39d4e685c8d3de1631167013996f76631a7094e00",
+        "final_step_result_sha256": "aec9a2454dd72329b6ea4b39bbc5ef5eee50f6c4598a4ef00dcf50ddb9e5c74f",
+        "geometry_gate_passed": false,
+        "invalid_target_surfaces": 0,
+        "invalid_target_triangles": 0,
+        "nonocular_target_crossing_pairs": 3776,
+        "ocular_target_crossing_pairs": 0,
+        "pair_coverage_complete": true,
+        "predicate": "exact_float32_lattice_triangle_intersection",
+        "self_witnesses_sha256": "b6f236f999af01718dc22e02542333affc210a3e9bed7fe5f69dc8231c0481fe",
+        "skin_degenerate_face_count": 0,
+        "skin_self_unallowed_pairs": 691,
+        "target_crossing_pairs": 3776,
+        "target_surface_count": 859
+      },
+      "hip_capsule_reference": {
+        "enabled": true,
+        "scale": 2.0
+      },
+      "input_hashes_unchanged_during_audit": true,
+      "run_id": "1195",
+      "run_name": "scale-2p0",
+      "source_geometry_hashes": {
+        "NHA": "1c0c37af76ab3f8e86870fd6cd3abab00b7bcdae51fe934e3461722ca306c241",
+        "NHSKIN": "b2d235e32c1c7d7f753eb83d1e8e9d045a1fd62be9c5c6da65dfde8844e2622b",
+        "NHTISS": "b3d0381f73e05b04ed7ea1ba23eb6559073ad20aa0d9e2ad0f97a18fab3359bd"
+      }
+    }
+  ],
+  "scale_sensitivity_report_sha256": "04649de98f35028716347e8030872c3012d70634965b9199204a7104aa75dd08",
+  "schema": "numi.human.hip-reference-follow-up-final-geometry-summary.v1",
+  "scope": "Exact native captured geometry at final accepted step 20000 for three 40-second hip-capsule scales; nominal also has captures at steps 0 and 9983.",
+  "source_full_audit_summary_sha256": {
+    "1193": "1077b498e1abc1b77a0f5b5a4569c1ce4a43296a91d5b403191889c0b8742cb2",
+    "1194": "18c2324190c932a43e538f253c03a9c3d75eb1d0ee68048c1bc4601ae5bf2cc7",
+    "1195": "308e5f4dfc5aaf5675d4e7543391face95c508727788ea59af842e56143f2e44"
+  },
+  "study_design": {
+    "common_run_parameters": {
+      "capture_steps": [
+        0,
+        9983,
+        20000
+      ],
+      "contact_iterations": 64,
+      "dt_seconds": 0.002,
+      "lab_dirty_patch_sha256": "b927feb65cc9a12fb94a9d801d52101391bdb74ca466baf5bee3c11f17187d2c",
+      "lab_revision": "7572b9619d881bd62362ece7c57b6e56f457e2f8",
+      "postural_activation_cap": 0.01,
+      "seconds": 40.0
+    },
+    "immutable_asset_count": 255,
+    "same_immutable_asset_map_across_all_three_scales": true,
+    "scale_only_sensitivity_values": [
+      1.0,
+      0.5,
+      2.0
+    ]
+  }
+}

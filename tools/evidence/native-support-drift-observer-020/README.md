@@ -10,3 +10,8 @@ This change adds an opt-in, read-only observer for the accepted whole-body suppo
 - `observer-019-parity-validation.json` retains the earlier observer-on/off and reference comparison. It is supplemental history; the 020 profile-fix validation is the relevant post-fix run.
 
 Build and test records: `build-attempt-002.log`, `build-pins.json`, and `publication-source.patch.gz` (the archived patch bytes are preserved exactly after decompression). The long 310 s drift-observer diagnostic is separate and is not used to claim static equilibrium, physical qualification, or performance improvement.
+
+
+## Hip-capsule reference sensitivity follow-up (1193–1195)
+
+The nominal 1.0, lower 0.5, and higher 2.0 native hip-capsule scales all completed their 40 s runs, but all three failed the exact final geometry gate. Across arms, 2,490 of 2,500 accepted observer samples were outside the neutral ab/ad flexion fit interval [-12°, 0°]; these are 8-step observer samples, not all physical steps or empirical fit data. No scale was adopted. See the compact follow-up bundle at hip-reference-follow-up-1193-1195/README.md for declarations, executions, metadata, final-step geometry counts, the 1193 region diagnosis, scripts, and hash pins.

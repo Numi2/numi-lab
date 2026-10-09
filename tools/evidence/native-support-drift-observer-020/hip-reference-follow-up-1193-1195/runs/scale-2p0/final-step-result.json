@@ -1,0 +1,336 @@
+{
+  "NHA_sha256": "1c0c37af76ab3f8e86870fd6cd3abab00b7bcdae51fe934e3461722ca306c241",
+  "accepted_receipt": {
+    "accepted_body_state_sha256": "cd177b1f6c35c34b22eecaf2b6b2f0c05b3a10ca244ea698081c35bee04706dd",
+    "accepted_respiration_state_sha256": "3da6f1f6d8162b8886001a4b31c3205f337ad96080d78a54d9ea4c4b9af1f14e",
+    "accepted_root_fingerprint": 1049375922879734897,
+    "accepted_root_fingerprint_hex": "0x0e9021d78f182471",
+    "accepted_step": 20000,
+    "accepted_time_s": 40.00000189989805,
+    "accepted_transaction_fingerprint": 1049375922879734897,
+    "anatomy_layer_index": 1,
+    "base_pack_content_hash": "sha256:7f093397531b472099901670fa7cea0b244ba99208d59543175240b99e35c047",
+    "base_pack_file_sha256": "13616c976e971cd95e2b934110ece00d815d9eef7ac17370a34c378863d17b82",
+    "captured_vertex_buffer_sha256": "71c512a3d57dc2f55b4aebde80be9bd7d36a4b49adba268631acfc69eafac2bf",
+    "path": "/Users/n/numi-human-retained-delivery-20261009/native-hip-reference-scale2-1195/native-run/accepted-geometry/step-20000.receipt.json",
+    "sha256": "ab3bf6396b307ea85f1c7e8fd1056e0586a52fe0bf4c4c3959ef2e465cc4bc62"
+  },
+  "accepted_step": 20000,
+  "all_skin_crossing_pair_count": 3776,
+  "contact_exemptions": [],
+  "crossing_witnesses_sha256": "b70c7af59511877f8a3d8ea39d4e685c8d3de1631167013996f76631a7094e00",
+  "elapsed_s": 120.8101916667074,
+  "hit_surfaces": [
+    {
+      "pairs": 9,
+      "surface": [
+        51004,
+        18
+      ]
+    },
+    {
+      "pairs": 14,
+      "surface": [
+        51004,
+        19
+      ]
+    },
+    {
+      "pairs": 53,
+      "surface": [
+        51004,
+        126
+      ]
+    },
+    {
+      "pairs": 37,
+      "surface": [
+        51004,
+        127
+      ]
+    },
+    {
+      "pairs": 53,
+      "surface": [
+        51004,
+        131
+      ]
+    },
+    {
+      "pairs": 92,
+      "surface": [
+        51004,
+        132
+      ]
+    },
+    {
+      "pairs": 41,
+      "surface": [
+        51004,
+        133
+      ]
+    },
+    {
+      "pairs": 91,
+      "surface": [
+        51004,
+        145
+      ]
+    },
+    {
+      "pairs": 10,
+      "surface": [
+        51004,
+        150
+      ]
+    },
+    {
+      "pairs": 31,
+      "surface": [
+        51004,
+        151
+      ]
+    },
+    {
+      "pairs": 108,
+      "surface": [
+        51004,
+        152
+      ]
+    },
+    {
+      "pairs": 96,
+      "surface": [
+        51004,
+        153
+      ]
+    },
+    {
+      "pairs": 74,
+      "surface": [
+        51004,
+        154
+      ]
+    },
+    {
+      "pairs": 19,
+      "surface": [
+        51011,
+        474
+      ]
+    },
+    {
+      "pairs": 39,
+      "surface": [
+        51011,
+        475
+      ]
+    },
+    {
+      "pairs": 29,
+      "surface": [
+        51011,
+        476
+      ]
+    },
+    {
+      "pairs": 49,
+      "surface": [
+        51011,
+        477
+      ]
+    },
+    {
+      "pairs": 79,
+      "surface": [
+        51011,
+        486
+      ]
+    },
+    {
+      "pairs": 131,
+      "surface": [
+        51011,
+        488
+      ]
+    },
+    {
+      "pairs": 79,
+      "surface": [
+        51011,
+        503
+      ]
+    },
+    {
+      "pairs": 127,
+      "surface": [
+        51011,
+        504
+      ]
+    },
+    {
+      "pairs": 33,
+      "surface": [
+        51011,
+        517
+      ]
+    },
+    {
+      "pairs": 101,
+      "surface": [
+        51005,
+        3
+      ]
+    },
+    {
+      "pairs": 105,
+      "surface": [
+        51005,
+        4
+      ]
+    },
+    {
+      "pairs": 23,
+      "surface": [
+        51005,
+        5
+      ]
+    },
+    {
+      "pairs": 170,
+      "surface": [
+        51005,
+        11
+      ]
+    },
+    {
+      "pairs": 160,
+      "surface": [
+        51005,
+        12
+      ]
+    },
+    {
+      "pairs": 31,
+      "surface": [
+        51005,
+        21
+      ]
+    },
+    {
+      "pairs": 23,
+      "surface": [
+        51005,
+        23
+      ]
+    },
+    {
+      "pairs": 70,
+      "surface": [
+        51005,
+        24
+      ]
+    },
+    {
+      "pairs": 47,
+      "surface": [
+        51005,
+        25
+      ]
+    },
+    {
+      "pairs": 44,
+      "surface": [
+        51005,
+        26
+      ]
+    },
+    {
+      "pairs": 182,
+      "surface": [
+        51005,
+        27
+      ]
+    },
+    {
+      "pairs": 62,
+      "surface": [
+        51005,
+        28
+      ]
+    },
+    {
+      "pairs": 83,
+      "surface": [
+        51005,
+        35
+      ]
+    },
+    {
+      "pairs": 138,
+      "surface": [
+        51005,
+        36
+      ]
+    },
+    {
+      "pairs": 33,
+      "surface": [
+        51005,
+        56
+      ]
+    },
+    {
+      "pairs": 805,
+      "surface": [
+        51005,
+        67
+      ]
+    },
+    {
+      "pairs": 366,
+      "surface": [
+        51005,
+        68
+      ]
+    },
+    {
+      "pairs": 14,
+      "surface": [
+        51005,
+        109
+      ]
+    },
+    {
+      "pairs": 7,
+      "surface": [
+        51005,
+        110
+      ]
+    },
+    {
+      "pairs": 18,
+      "surface": [
+        51005,
+        111
+      ]
+    }
+  ],
+  "invalid_target_surface_count": 0,
+  "invalid_target_triangle_count": 0,
+  "invalid_triangles_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "nonocular_crossing_pair_count": 3776,
+  "ocular_crossing_pair_count": 0,
+  "ocular_target_count": 17,
+  "pair_coverage_complete": true,
+  "predicate": "exact_float32_lattice_triangle_intersection",
+  "rss_peak_bytes": 716701696,
+  "scene_path": "/Users/n/numi-human-retained-delivery-20261009/native-hip-reference-scale2-1195/native-run",
+  "self_witnesses_sha256": "b6f236f999af01718dc22e02542333affc210a3e9bed7fe5f69dc8231c0481fe",
+  "skin_degenerate_face_rows": [],
+  "skin_self_crossing_pair_count": 691,
+  "skin_sha256": "b2d235e32c1c7d7f753eb83d1e8e9d045a1fd62be9c5c6da65dfde8844e2622b",
+  "status": "complete_pair_coverage",
+  "surface_target_count": 859,
+  "targets_sha256": "ab18a2abb3a8dffc66d82f5ca553686b45ecba48c438d250dee555317f80b269"
+}

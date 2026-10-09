@@ -1,0 +1,187 @@
+{
+  "interpretation": "At this captured state, scale 0.5 lowers the raw pair counts relative to 1.0, while scale 2.0 increases them; all three still have unallowed skin self-intersections and/or target crossings. This is bounded sensitivity evidence, not a selected or qualified mechanics setting. No conclusion is made about continuous-time behavior or the uncaptured interval.",
+  "schema": "numi.human.hip-reference-scale-sensitivity-step20000-comparison.v1",
+  "scope": "Single accepted native capture at step 20000 (40.00000189989805 s) only. Same NHSKIN, NHA, NHTISS, 859 target inventory, exact Float32-lattice intersection predicate, full-skin self audit, and degeneracy gate. No native run was launched by this audit; scales 0.5 and 2.0 were already closed runs.",
+  "shared_geometry_inputs": {
+    "NHA_sha256": "1c0c37af76ab3f8e86870fd6cd3abab00b7bcdae51fe934e3461722ca306c241",
+    "NHSKIN_sha256": "b2d235e32c1c7d7f753eb83d1e8e9d045a1fd62be9c5c6da65dfde8844e2622b",
+    "NHTISS_sha256": "b3d0381f73e05b04ed7ea1ba23eb6559073ad20aa0d9e2ad0f97a18fab3359bd",
+    "predicate_path": "/Users/n/numi-human-resting-final-integration-001/src/numilab_human/cardiac_cavity_intersections.py",
+    "predicate_sha256": "11f042cc4809a27735c02b66a8fb07ebc92ee66597d7e1814a75231e2cf2d2bb",
+    "target_surface_count": 859
+  },
+  "status": "all_variants_retain_exact_geometry_failures_no_scale_selected",
+  "variants": [
+    {
+      "accepted_capture": {
+        "pack": {
+          "path": "/Users/n/numi-human-retained-delivery-20261009/native-hip-reference-scale05-1194/native-run/accepted-geometry/step-20000.mrvpack",
+          "sha256": "213002a2ef4743127f5a2e8d079d56e4d9b0362d052c025f494427a4ad2c71d1"
+        },
+        "receipt": {
+          "path": "/Users/n/numi-human-retained-delivery-20261009/native-hip-reference-scale05-1194/native-run/accepted-geometry/step-20000.receipt.json",
+          "sha256": "768c628f26bc1ced163dd07bc245bdc22c75ac386d7b3d4191b1a3e470550933"
+        },
+        "step": 20000,
+        "time_s": 40.00000189989805
+      },
+      "audit_script": {
+        "path": "/Users/n/numi-human-retained-delivery-20261009/native-hip-reference-scale05-1194/audit_skin_1194_step20000.py",
+        "sha256": "9209f5570184c67d5fe8ccbe09503b2c7e9217f91d4d698db398e71f60f1abc8"
+      },
+      "audit_summary": {
+        "path": "/Users/n/numi-human-retained-delivery-20261009/native-hip-reference-scale05-1194/skin-audit-1194-step20000-exact/summary.json",
+        "sha256": "18c2324190c932a43e538f253c03a9c3d75eb1d0ee68048c1bc4601ae5bf2cc7"
+      },
+      "declaration": {
+        "path": "/Users/n/numi-human-retained-delivery-20261009/native-hip-reference-scale05-1194/skin-audit-1194-step20000-exact/declaration.json",
+        "sha256": "a419b35bb5cf9b2c7d971e2de5f3750e0ece5ccedf0f9561685359d5d6efa3b8"
+      },
+      "exact_audit": {
+        "all_859_target_and_self_pair_coverage_complete": true,
+        "all_inputs_unchanged": true,
+        "audit_elapsed_s": 120.3838927494362,
+        "crossing_witnesses_sha256": "219ee78db385c66e03f1641acc500d23fff8f227c08d95c85685aff3344dc66e",
+        "degenerate_skin_faces": 0,
+        "invalid_target_triangles": 0,
+        "nonocular_target_pairs": 2817,
+        "ocular_target_pairs": 0,
+        "peak_rss_bytes": 713736192,
+        "predicate": "exact_float32_lattice_triangle_intersection",
+        "self_witnesses_sha256": "1dca758010afc093a0896d494b57680d9196919b24b8425127c6d60cbd035fd3",
+        "skin_self_unallowed_pairs": 340,
+        "status": "complete_with_intersections_or_invalid_geometry",
+        "target_crossing_pairs": 2817,
+        "targets_scanned": 859
+      },
+      "hip_capsule_reference": {
+        "enabled": true,
+        "scale": 0.5
+      },
+      "invocation": {
+        "path": "/Users/n/numi-human-retained-delivery-20261009/native-hip-reference-scale05-1194/native-run/invocation.json",
+        "sha256": "31305e07d72535116935b134ced6cfdbbd0f75fb71d9693523f535a15fee6d16"
+      },
+      "run": "/Users/n/numi-human-retained-delivery-20261009/native-hip-reference-scale05-1194/native-run",
+      "run_metadata": {
+        "path": "/Users/n/numi-human-retained-delivery-20261009/native-hip-reference-scale05-1194/native-run/run-metadata.json",
+        "sha256": "506f8589353a6ef222a48296b24663fd2ade30f80f8415d48cc3e9fae1af40c6"
+      },
+      "variant": "scale_0.5"
+    },
+    {
+      "accepted_capture": {
+        "pack": {
+          "path": "/Users/n/numi-human-retained-delivery-20261009/native-hip-reference-nominal-1193-attempt002/native-run/accepted-geometry/step-20000.mrvpack",
+          "sha256": "4d9d06b1f9d048f237914726269606df563afb581883f1112996735b07329a81"
+        },
+        "receipt": {
+          "path": "/Users/n/numi-human-retained-delivery-20261009/native-hip-reference-nominal-1193-attempt002/native-run/accepted-geometry/step-20000.receipt.json",
+          "sha256": "ffdd9b3d567b128ebcf7de32daf057ae206324f42fbd3568371868a1735ccc7e"
+        },
+        "step": 20000,
+        "time_s": 40.00000189989805
+      },
+      "audit_script": {
+        "path": "/Users/n/numi-human-retained-delivery-20261009/native-hip-reference-nominal-1193-attempt002/audit_skin_1193_attempt002.py",
+        "sha256": "4c9e121530900e2c5fce74d41dbcaf891a139c50f1c187cbd6a8e03d89270782"
+      },
+      "audit_summary": {
+        "path": "/Users/n/numi-human-retained-delivery-20261009/native-hip-reference-nominal-1193-attempt002/skin-audit-1193-attempt002/summary.json",
+        "sha256": "1077b498e1abc1b77a0f5b5a4569c1ce4a43296a91d5b403191889c0b8742cb2"
+      },
+      "declaration": {
+        "path": "/Users/n/numi-human-retained-delivery-20261009/native-hip-reference-nominal-1193-attempt002/skin-audit-1193-attempt002/declaration.json",
+        "sha256": "7d51cb56fb2c3351b6ee389929d6ba3ced5a7fa89248d72c3cc1a8994f29c2b8"
+      },
+      "exact_audit": {
+        "all_859_target_and_self_pair_coverage_complete": true,
+        "all_inputs_unchanged": true,
+        "audit_elapsed_s": 122.11725708469748,
+        "crossing_witnesses_sha256": "698a6d4691a4a087b50180b708273901d6f7048bc5e9b2d8e10269cd88457632",
+        "degenerate_skin_faces": 0,
+        "invalid_target_triangles": 0,
+        "nonocular_target_pairs": 3073,
+        "ocular_target_pairs": 0,
+        "peak_rss_bytes": 943505408,
+        "predicate": "exact_float32_lattice_triangle_intersection",
+        "self_witnesses_sha256": "878f269bceab4b064ab5fa3d03712e18b7837854a59aeb938cd7310fc906b32f",
+        "skin_self_unallowed_pairs": 575,
+        "status": "complete_with_intersections_or_invalid_geometry",
+        "target_crossing_pairs": 3073,
+        "targets_scanned": 859
+      },
+      "hip_capsule_reference": {
+        "enabled": true,
+        "scale": 1.0
+      },
+      "invocation": {
+        "path": "/Users/n/numi-human-retained-delivery-20261009/native-hip-reference-nominal-1193-attempt002/native-run/invocation.json",
+        "sha256": "37d0b14fb00a08cdf03c301f83b4da73e6a5b71a3d3d20d1729a0411bc791d12"
+      },
+      "run": "/Users/n/numi-human-retained-delivery-20261009/native-hip-reference-nominal-1193-attempt002/native-run",
+      "run_metadata": {
+        "path": "/Users/n/numi-human-retained-delivery-20261009/native-hip-reference-nominal-1193-attempt002/native-run/run-metadata.json",
+        "sha256": "9ed735c9b3e2a64dddf8dc5462bfede35c2ccf25db81609cc33be58ba9c7a6e4"
+      },
+      "variant": "scale_1.0"
+    },
+    {
+      "accepted_capture": {
+        "pack": {
+          "path": "/Users/n/numi-human-retained-delivery-20261009/native-hip-reference-scale2-1195/native-run/accepted-geometry/step-20000.mrvpack",
+          "sha256": "151a280d44e5081b62699bee11cd2f95f54c03db6de05f340af42fe4ec4f5b91"
+        },
+        "receipt": {
+          "path": "/Users/n/numi-human-retained-delivery-20261009/native-hip-reference-scale2-1195/native-run/accepted-geometry/step-20000.receipt.json",
+          "sha256": "ab3bf6396b307ea85f1c7e8fd1056e0586a52fe0bf4c4c3959ef2e465cc4bc62"
+        },
+        "step": 20000,
+        "time_s": 40.00000189989805
+      },
+      "audit_script": {
+        "path": "/Users/n/numi-human-retained-delivery-20261009/native-hip-reference-scale2-1195/audit_skin_1195_step20000.py",
+        "sha256": "8ede86825a17836edc7231243214793bf6a4be3018b2e9d4adb1317d4856ec04"
+      },
+      "audit_summary": {
+        "path": "/Users/n/numi-human-retained-delivery-20261009/native-hip-reference-scale2-1195/skin-audit-1195-step20000-exact/summary.json",
+        "sha256": "308e5f4dfc5aaf5675d4e7543391face95c508727788ea59af842e56143f2e44"
+      },
+      "declaration": {
+        "path": "/Users/n/numi-human-retained-delivery-20261009/native-hip-reference-scale2-1195/skin-audit-1195-step20000-exact/declaration.json",
+        "sha256": "454b894b2ec83653cde765a2e0e563b9f06ca6f97cb235de72f70eb742227f01"
+      },
+      "exact_audit": {
+        "all_859_target_and_self_pair_coverage_complete": true,
+        "all_inputs_unchanged": true,
+        "audit_elapsed_s": 120.8101916667074,
+        "crossing_witnesses_sha256": "b70c7af59511877f8a3d8ea39d4e685c8d3de1631167013996f76631a7094e00",
+        "degenerate_skin_faces": 0,
+        "invalid_target_triangles": 0,
+        "nonocular_target_pairs": 3776,
+        "ocular_target_pairs": 0,
+        "peak_rss_bytes": 716701696,
+        "predicate": "exact_float32_lattice_triangle_intersection",
+        "self_witnesses_sha256": "b6f236f999af01718dc22e02542333affc210a3e9bed7fe5f69dc8231c0481fe",
+        "skin_self_unallowed_pairs": 691,
+        "status": "complete_with_intersections_or_invalid_geometry",
+        "target_crossing_pairs": 3776,
+        "targets_scanned": 859
+      },
+      "hip_capsule_reference": {
+        "enabled": true,
+        "scale": 2.0
+      },
+      "invocation": {
+        "path": "/Users/n/numi-human-retained-delivery-20261009/native-hip-reference-scale2-1195/native-run/invocation.json",
+        "sha256": "a94ab82bf41788e374892d9844c534a0c3a87759d89e7ae1668769ae247b639f"
+      },
+      "run": "/Users/n/numi-human-retained-delivery-20261009/native-hip-reference-scale2-1195/native-run",
+      "run_metadata": {
+        "path": "/Users/n/numi-human-retained-delivery-20261009/native-hip-reference-scale2-1195/native-run/run-metadata.json",
+        "sha256": "1aa4e405b49deb2d104f230d6945b7678e357a51847d9ef2ea5fb1e0b7a21775"
+      },
+      "variant": "scale_2.0"
+    }
+  ]
+}
