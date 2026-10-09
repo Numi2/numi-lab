@@ -1794,6 +1794,18 @@ if(BUILD_TESTING)
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib")
     add_test(NAME numi_human_static_support COMMAND metalrobo_numi_human_static_support_test)
     set_tests_properties(numi_human_static_support PROPERTIES LABELS "numi-human;mechanics;support")
+    add_executable(metalrobo_numi_human_motion_observer_test
+        tests/numi_human_motion_observer_test.cpp)
+    target_link_libraries(metalrobo_numi_human_motion_observer_test PRIVATE metalrobo)
+    target_compile_options(metalrobo_numi_human_motion_observer_test
+        PRIVATE -Wall -Wextra -Wpedantic -Werror -fno-fast-math -ffp-contract=off)
+    set_target_properties(metalrobo_numi_human_motion_observer_test PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib")
+    add_test(NAME numi_human_motion_observer
+        COMMAND metalrobo_numi_human_motion_observer_test)
+    set_tests_properties(numi_human_motion_observer
+        PROPERTIES LABELS "numi-human;observer;support")
     add_executable(metalrobo_numi_human_friction_test tests/numi_human_friction_test.cpp)
     target_include_directories(metalrobo_numi_human_friction_test PRIVATE include)
     target_compile_options(metalrobo_numi_human_friction_test PRIVATE -Wall -Wextra -Wpedantic -Werror -fno-fast-math -ffp-contract=off)

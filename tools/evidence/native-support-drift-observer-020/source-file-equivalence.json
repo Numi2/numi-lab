@@ -1,0 +1,61 @@
+{
+  "all_pinned_sources_byte_identical": true,
+  "build_base_revision": "41b254605e66035a4e3966e5a1ae790197431605",
+  "build_source_checkout": "/Users/n/numi-human-support-drift-observer-020",
+  "compiled_binary_sha256": "96840312562e761e4847d6d6f10c2d0aca565d0fc9d4d9bdf2f9f09f3ac79369",
+  "published_checkout": "/Users/n/numi-lab-observer-profile-publication-020",
+  "published_parent_revision": "f4f1d1d4c35ea31bce7669c329a6071176c30afd",
+  "schema": "numi.human.support-drift-observer-source-equivalence.v1",
+  "scope": "Source file equality only; compiled binary identity is separately pinned in build-pins.json.",
+  "source_files": [
+    {
+      "build_snapshot_sha256": "a9fe10556c9e00b32a27df32b43a4e1431a0e7e4a5e19cc62f23f1845ab7eb0c",
+      "byte_identical": true,
+      "expected_build_pin_matches": true,
+      "path": "CMakeLists.txt",
+      "published_checkout_sha256": "a9fe10556c9e00b32a27df32b43a4e1431a0e7e4a5e19cc62f23f1845ab7eb0c"
+    },
+    {
+      "build_snapshot_sha256": "6a9d43045770e538b45b8e55242dc51853b8ceda9bc9be85c044723b93e062e5",
+      "byte_identical": true,
+      "expected_build_pin_matches": true,
+      "path": "apps/NumiHumanRestingSupportGeometry.hpp",
+      "published_checkout_sha256": "6a9d43045770e538b45b8e55242dc51853b8ceda9bc9be85c044723b93e062e5"
+    },
+    {
+      "build_snapshot_sha256": "7f39cfb3e7c171077f031d4a82663917e2a1a0598a45cb640272b47fac5c35e9",
+      "byte_identical": true,
+      "expected_build_pin_matches": true,
+      "path": "apps/NumiHumanRestingVisual.hpp",
+      "published_checkout_sha256": "7f39cfb3e7c171077f031d4a82663917e2a1a0598a45cb640272b47fac5c35e9"
+    },
+    {
+      "build_snapshot_sha256": "58f85961a908bce622d77f2e6e42768c01c4b16a1f62be0ff8d70c0447bf6f8a",
+      "byte_identical": true,
+      "expected_build_pin_matches": true,
+      "path": "apps/numilab_human_myosim_visual_probe.mm",
+      "published_checkout_sha256": "58f85961a908bce622d77f2e6e42768c01c4b16a1f62be0ff8d70c0447bf6f8a"
+    },
+    {
+      "build_snapshot_sha256": "c146d5ce095200cf9df95d8df6f7c7dff76e49d2fdff99b18126c8f15ae8f90b",
+      "byte_identical": true,
+      "expected_build_pin_matches": true,
+      "path": "include/metalrobo/numi_human_motion_observer.hpp",
+      "published_checkout_sha256": "c146d5ce095200cf9df95d8df6f7c7dff76e49d2fdff99b18126c8f15ae8f90b"
+    },
+    {
+      "build_snapshot_sha256": "eadb212e18f7ef039b18d3a3a51869b5f7e059249f0b3ae39fe9fdb4dc4e8bbc",
+      "byte_identical": true,
+      "expected_build_pin_matches": true,
+      "path": "tests/numi_human_motion_observer_test.cpp",
+      "published_checkout_sha256": "eadb212e18f7ef039b18d3a3a51869b5f7e059249f0b3ae39fe9fdb4dc4e8bbc"
+    },
+    {
+      "build_snapshot_sha256": "d7a3cb20de3599d46093ea5d7b7792a74136bda68aea5ccf53f861287c64a848",
+      "byte_identical": true,
+      "expected_build_pin_matches": true,
+      "path": "tools/evidence/native-support-drift-observer-020/build-native-observer.sh",
+      "published_checkout_sha256": "d7a3cb20de3599d46093ea5d7b7792a74136bda68aea5ccf53f861287c64a848"
+    }
+  ]
+}

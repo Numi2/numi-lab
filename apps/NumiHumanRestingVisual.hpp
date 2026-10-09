@@ -2309,6 +2309,14 @@ public:
         if(finished)for(unsigned step:requestedGeometrySteps)require(completedGeometrySteps.contains(step),
             "requested accepted geometry step was not presented: "+std::to_string(step));
     }
+    void configureSupportMotionObserver(const std::filesystem::path& outputPath,
+                                        const unsigned cadenceSteps,
+                                        const double timestepSeconds) {
+        require(skinSupport != nullptr,
+            "support motion observer requires the registered skin support owner");
+        skinSupport->configureMotionObserver(outputPath, cadenceSteps,
+                                             timestepSeconds);
+    }
     metalrobo::MetalNumiHumanSupportGeometryProgram supportProgram(){return skinSupport->program();}
     ~NumiHumanRestingVisual(){[window finishRecording];}
 };

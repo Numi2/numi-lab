@@ -3,6 +3,7 @@
 #include <Metal/Metal.h>
 
 #include "metalrobo/MetalArticulatedOperator.hpp"
+#include "metalrobo/numi_human_motion_observer.hpp"
 #include "metalrobo/numi_human_support_geometry_gpu.h"
 
 #include <algorithm>
@@ -10,6 +11,9 @@
 #include <cstdlib>
 #include <cstring>
 #include <cstdint>
+#include <filesystem>
+#include <fstream>
+#include <iomanip>
 #include <cmath>
 #include <limits>
 #include <span>
@@ -99,8 +103,14 @@ class NumiHumanRestingSupportGeometry final {
     NSUInteger vertexMapOffsetBytes_ = 0u;
     std::uint64_t fingerprint_ = 0u;
     NSUInteger threadsPerGroup_ = 0u;
+    NSUInteger debugThreadsPerGroup_ = 0u;
     std::vector<MRHumanRestingSupportRegionGPU> hostRegions_;
     bool diagnosticCapture_ = false;
+    bool motionObserverRequested_ = false;
+    bool motionObserverCapture_ = false;
+    std::uint32_t motionObserverCadenceSteps_ = 0u;
+    double motionObserverTimestepSeconds_ = 0.0;
+    std::ofstream motionObserverTrace_;
 
     static void require(bool condition, const char* message) {
         if (!condition) throw std::runtime_error(message);
@@ -434,11 +444,19 @@ class NumiHumanRestingSupportGeometry final {
             threadsPerThreadgroup:MTLSizeMake(threadsPerGroup_, 1u, 1u)];
         [publish endEncoding];
 
-        if (diagnosticCapture_ && pass.stepIndex == 0u) {
+        const bool firstStepDiagnostic =
+            diagnosticCapture_ && pass.stepIndex == 0u;
+        const bool motionObserverSample =
+            motionObserverCapture_ &&
+            pass.stepIndex % motionObserverCadenceSteps_ ==
+                motionObserverCadenceSteps_ - 1u;
+        if (firstStepDiagnostic || motionObserverSample) {
             id<MTLComputeCommandEncoder> debug =
                 [command computeCommandEncoder];
             if (debug == nil) return false;
-            debug.label = @"Numi Human first-step support diagnostics";
+            debug.label = motionObserverSample
+                ? @"Numi Human accepted support selector observer"
+                : @"Numi Human first-step support diagnostics";
             [debug setComputePipelineState:debugPipeline_];
             [debug setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
             [debug setBuffer:regions_ offset:0u atIndex:1u];
@@ -449,13 +467,17 @@ class NumiHumanRestingSupportGeometry final {
             [debug setBuffer:pointJacobian offset:0u atIndex:6u];
             [debug setBuffer:debugOutput_ offset:0u atIndex:7u];
             [debug dispatchThreadgroups:MTLSizeMake(
-                 (regionElements + threadsPerGroup_ - 1u) / threadsPerGroup_,
+                 (regionElements + debugThreadsPerGroup_ - 1u) / debugThreadsPerGroup_,
                  1u, 1u)
-                threadsPerThreadgroup:MTLSizeMake(threadsPerGroup_, 1u, 1u)];
+                threadsPerThreadgroup:MTLSizeMake(debugThreadsPerGroup_, 1u, 1u)];
             [debug endEncoding];
             id<MTLBuffer> output = debugOutput_;
             const std::uint32_t count = regionCount_;
             const std::uint32_t step = pass.stepIndex;
+            const std::uint32_t firstMapIndex = static_cast<std::uint32_t>(
+                vertexMapOffsetBytes_ / sizeof(MRHumanRestingVertexMap));
+            const auto regions = hostRegions_;
+            const bool emitMotionSample = motionObserverSample;
             [command addCompletedHandler:^(id<MTLCommandBuffer> completed) {
                 if (completed.status != MTLCommandBufferStatusCompleted ||
                     output.contents == nullptr) {
@@ -466,14 +488,51 @@ class NumiHumanRestingSupportGeometry final {
                 }
                 const auto* records = static_cast<const
                     MRHumanRestingSupportDebugGPU*>(output.contents);
-                for (std::uint32_t region = 0u; region < count; ++region) {
-                    const auto& record = records[region];
-                    std::fprintf(stderr,
-                        "resting_support_debug step=%u region=%u selected=%u region_error=%u global_error=%u nonfinite_j=%u point=(%.9g,%.9g,%.9g) max_abs_j=%.9g\n",
-                        step, region, record.status.x, record.status.y,
-                        record.status.z, record.status.w,
-                        record.position.x, record.position.y,
-                        record.position.z, record.jacobian.x);
+                if (emitMotionSample) {
+                    if (!motionObserverTrace_.good() || regions.size() != count) {
+                        std::fprintf(stderr,
+                            "resting_support_motion_observer_write=failed step=%u\n",
+                            step + 1u);
+                        return;
+                    }
+                    for (std::uint32_t region = 0u; region < count; ++region) {
+                        const auto& record = records[region];
+                        const std::uint32_t selected = record.status.x;
+                        motionObserverTrace_ << step + 1u << ','
+                            << double(step + 1u) * motionObserverTimestepSeconds_
+                            << ',' << step << ','
+                            << double(step) * motionObserverTimestepSeconds_
+                            << ',' << region << ','
+                            << regions[region].sourceGeometryIndex
+                            << ',' << regions[region].pointQueryIndex << ','
+                            << selected << ',';
+                        if (selected < vertexCount_) {
+                            motionObserverTrace_ << firstMapIndex + selected;
+                        }
+                        motionObserverTrace_ << ',' << record.status.y << ','
+                            << record.status.z << ',' << record.status.w << ','
+                            << std::setprecision(17) << record.position.x << ','
+                            << record.position.y << ',' << record.position.z << ','
+                            << record.jacobian.x << '\n';
+                    }
+                    motionObserverTrace_.flush();
+                    if (!motionObserverTrace_.good()) {
+                        std::fprintf(stderr,
+                            "resting_support_motion_observer_write=failed step=%u\n",
+                            step + 1u);
+                        return;
+                    }
+                }
+                if (firstStepDiagnostic) {
+                    for (std::uint32_t region = 0u; region < count; ++region) {
+                        const auto& record = records[region];
+                        std::fprintf(stderr,
+                            "resting_support_debug step=%u region=%u selected=%u region_error=%u global_error=%u nonfinite_j=%u point=(%.9g,%.9g,%.9g) max_abs_j=%.9g\n",
+                            step, region, record.status.x, record.status.y,
+                            record.status.z, record.status.w,
+                            record.position.x, record.position.y,
+                            record.position.z, record.jacobian.x);
+                    }
                 }
             }];
         }
@@ -481,6 +540,29 @@ class NumiHumanRestingSupportGeometry final {
     }
 
 public:
+    void configureMotionObserver(const std::filesystem::path& outputPath,
+                                 const std::uint32_t cadenceSteps,
+                                 const double timestepSeconds) {
+        require(motionObserverRequested_,
+                "support motion observer configuration requires its opt-in");
+        require(!motionObserverCapture_ && cadenceSteps > 0u &&
+                    cadenceSteps <= 32u && std::isfinite(timestepSeconds) &&
+                    timestepSeconds > 0.0 && !outputPath.empty() &&
+                    !std::filesystem::exists(outputPath),
+                "support motion observer output or cadence is invalid");
+        motionObserverTrace_.open(outputPath, std::ios::out);
+        require(motionObserverTrace_.good(),
+                "support motion observer output could not be opened");
+        motionObserverTrace_ << std::setprecision(17)
+            << metalrobo::human::observer::kSupportSelectorCsvHeader << '\n';
+        motionObserverTrace_.flush();
+        require(motionObserverTrace_.good(),
+                "support motion observer header write failed");
+        motionObserverCadenceSteps_ = cadenceSteps;
+        motionObserverTimestepSeconds_ = timestepSeconds;
+        motionObserverCapture_ = true;
+    }
+
     NumiHumanRestingSupportGeometry(
         id<MTLDevice> device, id<MTLLibrary> library,
         id<MTLBuffer> vertexMap, std::span<const MRHumanRestingVertexMap> hostMap,
@@ -513,6 +595,14 @@ public:
             std::getenv("NUMI_HUMAN_SUPPORT_DIAGNOSTICS");
         diagnosticCapture_ = diagnosticSetting != nullptr &&
             std::strcmp(diagnosticSetting, "1") == 0;
+        const char* motionSetting =
+            std::getenv("NUMI_HUMAN_ACCEPTED_BODY_MOTION_AUDIT");
+        require(motionSetting == nullptr || motionSetting[0] == '\0' ||
+                    std::strcmp(motionSetting, "0") == 0 ||
+                    std::strcmp(motionSetting, "1") == 0,
+                "NUMI_HUMAN_ACCEPTED_BODY_MOTION_AUDIT must be 0 or 1");
+        motionObserverRequested_ = motionSetting != nullptr &&
+            std::strcmp(motionSetting, "1") == 0;
         require(device_ != nil && library != nil && sameDevice(device_, vertexMap_) &&
                     sameDevice(device_, influences_) && environmentCount_ > 0u &&
                     hostMap.size() > 0u &&
@@ -618,24 +708,31 @@ public:
         publishPipeline_ = makePipeline(device_, library,
             @"nm_human_resting_support_publish", false, true,
             influenceLayout_, skipNonAncestorSupportBodyDofs_);
+        if (diagnosticCapture_ || motionObserverRequested_) {
+            debugPipeline_ = makePipeline(device_, library,
+                @"nm_human_resting_support_debug");
+        }
+        const NSUInteger supportThreadsPerGroup = std::min<NSUInteger>(
+            128u, std::min(orientationPipeline_.maxTotalThreadsPerThreadgroup,
+                std::min(positionsPipeline_.maxTotalThreadsPerThreadgroup,
+                std::min(selectPipeline_.maxTotalThreadsPerThreadgroup,
+                         publishPipeline_.maxTotalThreadsPerThreadgroup))));
+        debugThreadsPerGroup_ = supportThreadsPerGroup;
+        if (debugPipeline_ != nil) {
+            debugThreadsPerGroup_ = std::min<NSUInteger>(
+                supportThreadsPerGroup, debugPipeline_.maxTotalThreadsPerThreadgroup);
+        }
+        // Keep the historical diagnostic mode's dispatch specialization exact.
+        // The new motion observer's read-only kernel must not constrain or alter
+        // the physical support-geometry dispatch size.
+        threadsPerGroup_ = diagnosticCapture_ && debugPipeline_ != nil
+            ? debugThreadsPerGroup_ : supportThreadsPerGroup;
+        require(threadsPerGroup_ > 0u && debugThreadsPerGroup_ > 0u,
+                "resting support pipelines expose no dispatch lanes");
         require(!skipNonAncestorSupportBodyDofs_ ||
                     (publishPipeline_.threadExecutionWidth > 0u &&
                      threadsPerGroup_ % publishPipeline_.threadExecutionWidth == 0u),
                 "cooperative support positions require complete SIMD groups");
-        if (diagnosticCapture_) {
-            debugPipeline_ = makePipeline(device_, library,
-                @"nm_human_resting_support_debug");
-        }
-        threadsPerGroup_ = std::min<NSUInteger>(
-            128u, std::min(orientationPipeline_.maxTotalThreadsPerThreadgroup,
-                std::min(positionsPipeline_.maxTotalThreadsPerThreadgroup,
-                std::min(selectPipeline_.maxTotalThreadsPerThreadgroup,
-                         debugPipeline_ == nil
-                            ? publishPipeline_.maxTotalThreadsPerThreadgroup
-                            : std::min(publishPipeline_.maxTotalThreadsPerThreadgroup,
-                                       debugPipeline_.maxTotalThreadsPerThreadgroup)))));
-        require(threadsPerGroup_ > 0u,
-                "resting support pipelines expose no dispatch lanes");
         worldZKeys_ = [device_ newBufferWithLength:
             static_cast<NSUInteger>(environmentCount_) * vertexCount_ *
                 sizeof(std::uint32_t)
@@ -651,7 +748,7 @@ public:
             options:MTLResourceStorageModePrivate];
         invalidRegionFlags_ = [device_ newBufferWithLength:invalidFlagBytes
             options:MTLResourceStorageModePrivate];
-        if (diagnosticCapture_) {
+        if (diagnosticCapture_ || motionObserverRequested_) {
             debugOutput_ = [device_ newBufferWithLength:
                 static_cast<NSUInteger>(regionCount_) *
                     sizeof(MRHumanRestingSupportDebugGPU)
@@ -659,7 +756,8 @@ public:
         }
         require(worldZKeys_ != nil && minimumHeightKeys_ != nil &&
                     selectedVertices_ != nil && invalidRegionFlags_ != nil &&
-                    (!diagnosticCapture_ || debugOutput_ != nil),
+                    (!(diagnosticCapture_ || motionObserverRequested_) ||
+                     debugOutput_ != nil),
                 "resting support transient GPU buffers could not be allocated");
     }
 

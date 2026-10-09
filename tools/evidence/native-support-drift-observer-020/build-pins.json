@@ -1,0 +1,49 @@
+{
+  "build": {
+    "binary_path": "/Users/n/numi-human-support-drift-observer-build-020/bin/numi-human-native",
+    "binary_sha256": "96840312562e761e4847d6d6f10c2d0aca565d0fc9d4d9bdf2f9f09f3ac79369",
+    "build_script_sha256": "d7a3cb20de3599d46093ea5d7b7792a74136bda68aea5ccf53f861287c64a848",
+    "command": "/bin/bash /Users/n/numi-human-support-drift-observer-020/tools/evidence/native-support-drift-observer-020/build-native-observer.sh",
+    "compiled_object_sha256": "bc537b7c0c12f5b560acbae2df77dfe2c9b0cfeeb9df0db729a6d683005b5d77",
+    "log_path": "/Users/n/numi-human-support-drift-observer-build-020/evidence/build-attempt-002.log",
+    "log_sha256": "9f39a73f8b490287a96161849087d06794e8fe5e08fbf0f68f29851983e5bbf6",
+    "test_binary_sha256": "e17fa5cd741aab1eb2788939808546a7c795a9a98a65f48c2dc207faced91b8f",
+    "test_command": "xcrun clang++ -std=c++23 -Wall -Wextra -Wpedantic -Werror -I/Users/n/numi-human-support-drift-observer-020/include -I/Users/n/numi-human-support-drift-observer-020/matter/include /Users/n/numi-human-support-drift-observer-020/tests/numi_human_motion_observer_test.cpp -o /Users/n/numi-human-support-drift-observer-build-020/evidence/numi_human_motion_observer_test && /Users/n/numi-human-support-drift-observer-build-020/evidence/numi_human_motion_observer_test",
+    "test_log_sha256": "890051444e5678cdb40108760715ac9b7cfe1133bdd6b901652f11738cf35081"
+  },
+  "qualification": "opt-in observer build and 20 s parity smoke; no dynamics change or long-run qualification",
+  "schema": "numi.human.support-drift-observer-build-pins.v1",
+  "smoke": {
+    "exit_code": 0,
+    "invocation_sha256": "9b07dafdad2b0b481a76afbec5686b98ee64ad3cc949cf25e906a8fb269606f0",
+    "launch_sha256": "a0a6dc41d2c2533e7d9115166b3d647353dde7a909d01f6ec25fb332098e3f66",
+    "native_log_sha256": "8bc2ee81a32f819fc7c99ec3f91de294779f4d1342a8a15c777938f02ec962f2",
+    "path": "/Users/n/numi-human-retained-delivery-20261009/support-drift-observer-020/observer-on/attempt-002/native-run",
+    "run_metadata_sha256": "1b069ad69596280e1be29b32ac8c6a1db69e8cfdf7d424a1bc56d4236262b681",
+    "runtime_verified": true,
+    "source_files_changed": [],
+    "validation_report_sha256": "b0c7f02243584f0e734712092a965de4666524c1e678f008daf47ceaf96ad88e",
+    "wall_seconds": 193.460877792
+  },
+  "source_checkout": {
+    "base_revision": "41b254605e66035a4e3966e5a1ae790197431605",
+    "branch": "codex/support-drift-observer-profile-fix-020",
+    "files_sha256": {
+      "CMakeLists.txt": "a9fe10556c9e00b32a27df32b43a4e1431a0e7e4a5e19cc62f23f1845ab7eb0c",
+      "apps/NumiHumanRestingSupportGeometry.hpp": "6a9d43045770e538b45b8e55242dc51853b8ceda9bc9be85c044723b93e062e5",
+      "apps/NumiHumanRestingVisual.hpp": "7f39cfb3e7c171077f031d4a82663917e2a1a0598a45cb640272b47fac5c35e9",
+      "apps/numilab_human_myosim_visual_probe.mm": "58f85961a908bce622d77f2e6e42768c01c4b16a1f62be0ff8d70c0447bf6f8a",
+      "include/metalrobo/numi_human_motion_observer.hpp": "c146d5ce095200cf9df95d8df6f7c7dff76e49d2fdff99b18126c8f15ae8f90b",
+      "tests/numi_human_motion_observer_test.cpp": "eadb212e18f7ef039b18d3a3a51869b5f7e059249f0b3ae39fe9fdb4dc4e8bbc",
+      "tools/evidence/native-support-drift-observer-020/build-native-observer.sh": "d7a3cb20de3599d46093ea5d7b7792a74136bda68aea5ccf53f861287c64a848"
+    },
+    "observer_019_patch_sha256": "de9e1f3e765a8883eff93d3e72a363df96567461cb7d274ea548d9332d27e395",
+    "path": "/Users/n/numi-human-support-drift-observer-020",
+    "profile_timing_fix_diff_sha256": "c939f751a1afdf9b85de2997133c5e2f86803977c86c36f33855257227e3ec56",
+    "tracked_diff_sha256": "5e2f3435386bb07904b49229cb1e6b36561e0c9bf7ccb006ea02d13f5808b8fe"
+  },
+  "unchanged_runtime": {
+    "physical_dylib_sha256": "6bccfc4044d825423e66bc2f60ba3cf59eaa9a4936773ab08182f58a09927092",
+    "respiration_metallib_sha256": "4b61361f513bf0996d687398498b85ba4e379edca91c36f134e1b0398f31c426"
+  }
+}

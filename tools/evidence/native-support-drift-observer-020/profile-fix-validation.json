@@ -1,0 +1,221 @@
+{
+  "accepted_geometry_pack_sha256": {
+    "0": {
+      "off": "40cf01fcb704476dda10dc54d49c1ba57e2e2b6fc50e188803e902e8d88d7ac9",
+      "old_observer_on": "40cf01fcb704476dda10dc54d49c1ba57e2e2b6fc50e188803e902e8d88d7ac9",
+      "profile_fixed_observer_on": "40cf01fcb704476dda10dc54d49c1ba57e2e2b6fc50e188803e902e8d88d7ac9",
+      "reference": "40cf01fcb704476dda10dc54d49c1ba57e2e2b6fc50e188803e902e8d88d7ac9"
+    },
+    "10000": {
+      "off": "f9ba5e50be5cfda047a8f26e112dbcfc91b4d2d3df48a89f5f375ba7ea875fb0",
+      "old_observer_on": "f9ba5e50be5cfda047a8f26e112dbcfc91b4d2d3df48a89f5f375ba7ea875fb0",
+      "profile_fixed_observer_on": "f9ba5e50be5cfda047a8f26e112dbcfc91b4d2d3df48a89f5f375ba7ea875fb0",
+      "reference": "f9ba5e50be5cfda047a8f26e112dbcfc91b4d2d3df48a89f5f375ba7ea875fb0"
+    },
+    "4991": {
+      "off": "3d5ea635c8186f5fa84c28bd7aabdc76ad98ea5bc48ae78b388be8e31c43383e",
+      "old_observer_on": "3d5ea635c8186f5fa84c28bd7aabdc76ad98ea5bc48ae78b388be8e31c43383e",
+      "profile_fixed_observer_on": "3d5ea635c8186f5fa84c28bd7aabdc76ad98ea5bc48ae78b388be8e31c43383e",
+      "reference": "3d5ea635c8186f5fa84c28bd7aabdc76ad98ea5bc48ae78b388be8e31c43383e"
+    },
+    "5375": {
+      "off": "86078036d24a73a1f6e2e1060af709edfa4989ff9536fcab684b5049fc110772",
+      "old_observer_on": "86078036d24a73a1f6e2e1060af709edfa4989ff9536fcab684b5049fc110772",
+      "profile_fixed_observer_on": "86078036d24a73a1f6e2e1060af709edfa4989ff9536fcab684b5049fc110772",
+      "reference": "86078036d24a73a1f6e2e1060af709edfa4989ff9536fcab684b5049fc110772"
+    },
+    "5759": {
+      "off": "fa702f69566d58f16ed649d4570160ee8c6e10c30af4f618e86d7c82f7c4fd37",
+      "old_observer_on": "fa702f69566d58f16ed649d4570160ee8c6e10c30af4f618e86d7c82f7c4fd37",
+      "profile_fixed_observer_on": "fa702f69566d58f16ed649d4570160ee8c6e10c30af4f618e86d7c82f7c4fd37",
+      "reference": "fa702f69566d58f16ed649d4570160ee8c6e10c30af4f618e86d7c82f7c4fd37"
+    },
+    "6111": {
+      "off": "528c38c91a8deb345bca19b7ae43260785dd76282956985cab763e5ebe5c2819",
+      "old_observer_on": "528c38c91a8deb345bca19b7ae43260785dd76282956985cab763e5ebe5c2819",
+      "profile_fixed_observer_on": "528c38c91a8deb345bca19b7ae43260785dd76282956985cab763e5ebe5c2819",
+      "reference": "528c38c91a8deb345bca19b7ae43260785dd76282956985cab763e5ebe5c2819"
+    },
+    "6495": {
+      "off": "cb220fa236aded7d247000243d0d56e11fe4b758c3b37ed96bb6a1ac0b3dadd6",
+      "old_observer_on": "cb220fa236aded7d247000243d0d56e11fe4b758c3b37ed96bb6a1ac0b3dadd6",
+      "profile_fixed_observer_on": "cb220fa236aded7d247000243d0d56e11fe4b758c3b37ed96bb6a1ac0b3dadd6",
+      "reference": "cb220fa236aded7d247000243d0d56e11fe4b758c3b37ed96bb6a1ac0b3dadd6"
+    },
+    "7743": {
+      "off": "a1380a1ff2999affddacbe8dd0971fead4a03f58be95b68a84a9f13d6a5416dd",
+      "old_observer_on": "a1380a1ff2999affddacbe8dd0971fead4a03f58be95b68a84a9f13d6a5416dd",
+      "profile_fixed_observer_on": "a1380a1ff2999affddacbe8dd0971fead4a03f58be95b68a84a9f13d6a5416dd",
+      "reference": "a1380a1ff2999affddacbe8dd0971fead4a03f58be95b68a84a9f13d6a5416dd"
+    }
+  },
+  "accepted_geometry_receipt_sha256": {
+    "0": {
+      "equal_after_run_path_normalization": true,
+      "sha256": {
+        "off": "97822079950b285fc83640844ac5cb5cc47f43cbe06cc6661012e2d923b9030f",
+        "old_observer_on": "32aa0a9e3b8fd659688f400b02d48aa31b87079ae393756a3f7cd7df66edfd75",
+        "profile_fixed_observer_on": "2523640cbfe4792ef0c8c47d520bbebed13c63ede9b4a581bf55db1198d13937",
+        "reference": "929cc5480a8c887a5cdba13583a24332ed2d2250200c48ed3ce434a94e17d680"
+      }
+    },
+    "10000": {
+      "equal_after_run_path_normalization": true,
+      "sha256": {
+        "off": "d164495efdfba4b6dcc3437ca55e110bff9a45205aff47114f254281c5621b3b",
+        "old_observer_on": "395bdd6b587d666646c4da74e386162527c3749119f175724e0f0acd41d72c14",
+        "profile_fixed_observer_on": "b8a00960db149930d09217896c8db1acca6ad92fef8db3f19275bbee7191e3e2",
+        "reference": "1811657b025109210cfbd9f79c17476806cf4e7879012d6457c26161bad6c2e6"
+      }
+    },
+    "4991": {
+      "equal_after_run_path_normalization": true,
+      "sha256": {
+        "off": "57e8da93a2b1887378c6d5b5ccfe46f67487e0c6f31be03e8d568ee16d0dc371",
+        "old_observer_on": "55ad2465b530f1049524a268d12ff749c97d22df0b74647b673afca6bcd70e28",
+        "profile_fixed_observer_on": "1b5f444be7d0e5ac695c8be9d1314968311ca6698634007c1615389480f10d11",
+        "reference": "c8bf83d7dc9bc18689a424c709d215554294e3c1fdea9909c6ed5ddad0dc53d8"
+      }
+    },
+    "5375": {
+      "equal_after_run_path_normalization": true,
+      "sha256": {
+        "off": "088c056fd968323fc109f7f7a52d3a6185483b68747b1b6cf86f451f08a675e7",
+        "old_observer_on": "c56d666ad0dc8502f10890b70895d1196f3a461dcba1ecc051b63a97596d44cb",
+        "profile_fixed_observer_on": "3c55890be4dd6fe079ec15e93aa787f4829225aefbfaade9e6472d320b9ec8f2",
+        "reference": "8b4c86f57d75cec0b7bc981f38f2df046498c16c9426f6dd4a02d47a270cc6cb"
+      }
+    },
+    "5759": {
+      "equal_after_run_path_normalization": true,
+      "sha256": {
+        "off": "211db0119de98b03c8b8e2736bd6c2f6d4064270822430d922cede8ece123119",
+        "old_observer_on": "225584ab8ecb2acc15e1415a8f153f4e1ff992cf5b84ff872ca09331c6ee1926",
+        "profile_fixed_observer_on": "654ac8995d7c3457b16a70baf23aa4056492e7076912d3e234ba9502bbef5af7",
+        "reference": "655772300b8011933f2d294fd4af2aac895877426dd07d0767261ee97cc872a1"
+      }
+    },
+    "6111": {
+      "equal_after_run_path_normalization": true,
+      "sha256": {
+        "off": "6a40004cae8730b8b4add9ce93671577a2a991f3086de434b911904c8e8f68cb",
+        "old_observer_on": "da8872741212d8c883ecebd0e88a89679194a865f8548f76cd7d8db477e4891e",
+        "profile_fixed_observer_on": "2dea9618394518502c69989c9e65ce24a7a178333b714f5f81bb06b28fb6e736",
+        "reference": "10c89ea35aeab06a8c16f6dfa400e3cd7c2e44ee0fb2b9bc4bff8e6fa8de7035"
+      }
+    },
+    "6495": {
+      "equal_after_run_path_normalization": true,
+      "sha256": {
+        "off": "58ad7545eb8b9e197e3a3b4b21a441a8123ecaeee272ee5ee2405051e36751c8",
+        "old_observer_on": "9c070e9b2c0f7e2a20ae95a72a9f4f853863bd77beb91adaca3770c091e436ed",
+        "profile_fixed_observer_on": "58c1cfb6214e1d2cb0907673ce58ac9df484937d31bd9931372a4097a222bd27",
+        "reference": "e7863da3667ef06267d470f31564658c2a5014871f19b3a4af743295a83b6027"
+      }
+    },
+    "7743": {
+      "equal_after_run_path_normalization": true,
+      "sha256": {
+        "off": "99dc8c83e32a2dc64e4013243b0edb199c9ce2f7b2a940f0f4ed1e398295eb70",
+        "old_observer_on": "92cd8b308329c361135890b5c81f33e0f02087516bc90c51c4d4bbb4f2710426",
+        "profile_fixed_observer_on": "d2e72cefae58a71366d494a08847b1cce9986793a67bc3d10f2eed808565c300",
+        "reference": "6ebf10eb8759109610acc4960ebcca8ffe72718498082d0fbf6f159ae7e7bad0"
+      }
+    }
+  },
+  "binary_sha256": "96840312562e761e4847d6d6f10c2d0aca565d0fc9d4d9bdf2f9f09f3ac79369",
+  "build_log_sha256": "9f39a73f8b490287a96161849087d06794e8fe5e08fbf0f68f29851983e5bbf6",
+  "default_off": "/Users/n/numi-human-retained-delivery-20261009/support-drift-observer-019/default-off/native-run",
+  "environment_note": "Run owner metadata does not whitelist the new observer environment key; the explicitly hashed launch template binds NUMI_HUMAN_ACCEPTED_BODY_MOTION_AUDIT=1.",
+  "launch_template_sha256": "a0a6dc41d2c2533e7d9115166b3d647353dde7a909d01f6ec25fb332098e3f66",
+  "legacy_csv_sha256": {
+    "resting-com-momentum-diagnostic.csv": {
+      "off": "be8708957990c08b357e54b28ca070ef93f0495183db57c7adf6041a7f80de32",
+      "old_observer_on": "be8708957990c08b357e54b28ca070ef93f0495183db57c7adf6041a7f80de32",
+      "profile_fixed_observer_on": "be8708957990c08b357e54b28ca070ef93f0495183db57c7adf6041a7f80de32",
+      "reference": "be8708957990c08b357e54b28ca070ef93f0495183db57c7adf6041a7f80de32"
+    },
+    "resting-com-support-impulses.csv": {
+      "off": "82eeb9dfb1336a7e576df87cd6305679e673dd1759d315c12de8d0d16148480c",
+      "old_observer_on": "82eeb9dfb1336a7e576df87cd6305679e673dd1759d315c12de8d0d16148480c",
+      "profile_fixed_observer_on": "82eeb9dfb1336a7e576df87cd6305679e673dd1759d315c12de8d0d16148480c",
+      "reference": "82eeb9dfb1336a7e576df87cd6305679e673dd1759d315c12de8d0d16148480c"
+    },
+    "resting-coupled.csv": {
+      "off": "5c4f129103fbf23010cfe47b99367c30d8497f70e525b4c97ca61b53c3ca90e6",
+      "old_observer_on": "5c4f129103fbf23010cfe47b99367c30d8497f70e525b4c97ca61b53c3ca90e6",
+      "profile_fixed_observer_on": "5c4f129103fbf23010cfe47b99367c30d8497f70e525b4c97ca61b53c3ca90e6",
+      "reference": "5c4f129103fbf23010cfe47b99367c30d8497f70e525b4c97ca61b53c3ca90e6"
+    },
+    "resting-surface-audit.csv": {
+      "off": "92fe2ab59650b113a007483ed07f41a5f01cf60836a9a5fa17ee2d2656b1f720",
+      "old_observer_on": "92fe2ab59650b113a007483ed07f41a5f01cf60836a9a5fa17ee2d2656b1f720",
+      "profile_fixed_observer_on": "92fe2ab59650b113a007483ed07f41a5f01cf60836a9a5fa17ee2d2656b1f720",
+      "reference": "92fe2ab59650b113a007483ed07f41a5f01cf60836a9a5fa17ee2d2656b1f720"
+    }
+  },
+  "observer_csv_sha256_old_vs_fixed": {
+    "resting-body-motion-partition.csv": {
+      "fixed_020": "8b4705a91987a93dbf1e8714ad13f432d331d27b280d95105018197da569c155",
+      "old_019": "8b4705a91987a93dbf1e8714ad13f432d331d27b280d95105018197da569c155"
+    },
+    "resting-support-point-motion.csv": {
+      "fixed_020": "f55b47322b459a746a1c65cc347e29decbb9e59b889a1e5a24f97c4dc60013c4",
+      "old_019": "f55b47322b459a746a1c65cc347e29decbb9e59b889a1e5a24f97c4dc60013c4"
+    },
+    "resting-support-selected-skin-witness.csv": {
+      "fixed_020": "3653c0490059ac3cdd25961e6aea4d2a345f9f07dfeca93bbb5d35e88f1f9d56",
+      "old_019": "3653c0490059ac3cdd25961e6aea4d2a345f9f07dfeca93bbb5d35e88f1f9d56"
+    }
+  },
+  "old_observer_on": "/Users/n/numi-human-retained-delivery-20261009/support-drift-observer-019/observer-on/native-run",
+  "profile_fix": "subtracts the opt-in body-motion CSV interval nested inside COM CPU timing, so profile buckets are exclusive; no physics or observer values changed",
+  "profile_fixed_observer_on": "/Users/n/numi-human-retained-delivery-20261009/support-drift-observer-020/observer-on/attempt-002/native-run",
+  "qualification": "20 s observer-on parity smoke only; no long-run drift, anatomical, physiological, or performance qualification",
+  "reference": "/Users/n/numi-human-resting-evidence-20261005/final-native-scene-preflight-936/skin-927-lung-1159-viewer-018-v015-attempt1/native-run",
+  "run": {
+    "exit_code": 0,
+    "observer_profile": {
+      "accepted_callbacks": 1250.0,
+      "body_motion_csv_ms": 1562.7107,
+      "com_cpu_kinematics_ms": 39.326678,
+      "com_momentum_csv_ms": 15.381777,
+      "csv_flush_ms": 11.298663,
+      "mean_ms": 11.6581124,
+      "observer_other_ms": 5.174768,
+      "presentation_ms": 12849.0435,
+      "q_integration_csv_ms": 0.0,
+      "respiration_trace_csv_ms": 23.51031,
+      "support_impulse_csv_ms": 66.19408,
+      "total_ms": 14572.6405
+    },
+    "observer_profile_line": "resting_integrated_observer_profile accepted_callbacks=1250 total_ms=14572.6405 mean_ms=11.6581124 respiration_trace_csv_ms=23.51031 q_integration_csv_ms=0 com_cpu_kinematics_ms=39.326678 body_motion_csv_ms=1562.7107 com_momentum_csv_ms=15.381777 support_impulse_csv_ms=66.19408 csv_flush_ms=11.298663 presentation_ms=12849.0435 observer_other_ms=5.174768",
+    "realtime_factor": {
+      "off": 0.10266119324676028,
+      "profile_fixed_observer_on": 0.10338007471207206
+    },
+    "runtime_verified": {
+      "off": true,
+      "old_observer_on": true,
+      "profile_fixed_observer_on": true,
+      "reference": true
+    },
+    "source_files_changed": {
+      "off": [],
+      "old_observer_on": [],
+      "profile_fixed_observer_on": [],
+      "reference": []
+    },
+    "wall_seconds": {
+      "off": 194.815580917,
+      "profile_fixed_observer_on": 193.460877792
+    }
+  },
+  "schema": "numi.human.support-drift-observer-profile-fix-020-smoke.v1",
+  "source_sha256": {
+    "focused_test": "eadb212e18f7ef039b18d3a3a51869b5f7e059249f0b3ae39fe9fdb4dc4e8bbc",
+    "native_probe": "58f85961a908bce622d77f2e6e42768c01c4b16a1f62be0ff8d70c0447bf6f8a",
+    "observer_header": "c146d5ce095200cf9df95d8df6f7c7dff76e49d2fdff99b18126c8f15ae8f90b"
+  },
+  "status": "pass"
+}

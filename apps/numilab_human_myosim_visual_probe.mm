@@ -5,6 +5,7 @@
 #import <Metal/Metal.h>
 
 #include "metalrobo/ArticulatedDynamics.hpp"
+#include "metalrobo/numi_human_motion_observer.hpp"
 #include "metalrobo/MetalArticulatedOperator.hpp"
 #include "metalrobo/MetalHybridRenderer.hpp"
 #include "metalrobo/MetalMultiArticulatedContact.hpp"
@@ -22722,6 +22723,11 @@ int main(int argc, char** argv) {
                 const bool restingComMomentumAudit =
                     comMomentumAuditSetting != nullptr &&
                     std::strcmp(comMomentumAuditSetting, "1") == 0;
+                const bool restingAcceptedBodyMotionAudit =
+                    metalrobo::human::observer::enabledFromEnvironment(
+                        std::getenv("NUMI_HUMAN_ACCEPTED_BODY_MOTION_AUDIT"));
+                require(!restingAcceptedBodyMotionAudit || restingComMomentumAudit,
+                        "accepted body motion audit requires the COM momentum observer");
                 const char* comMomentumSegmentSetting =
                     std::getenv("NUMI_HUMAN_ACCEPTED_COM_MOMENTUM_AUDIT_SEGMENT_STEPS");
                 std::uint32_t restingComMomentumAuditSegmentSteps =
@@ -22762,6 +22768,46 @@ int main(int argc, char** argv) {
                 std::ofstream supportImpulseTrace;
                 std::ofstream qIntegrationTrace;
                 std::ofstream qIndexMapTrace;
+                std::ofstream bodyMotionPartitionTrace;
+                std::ofstream supportPointMotionTrace;
+                const auto writeMotionCsvString = [](std::ostream& output,
+                                                     const std::string& value) {
+                    output << '"';
+                    for (const char ch : value) {
+                        if (ch == '"') output << '"';
+                        output << ch;
+                    }
+                    output << '"';
+                };
+                if (restingAcceptedBodyMotionAudit) {
+                    bodyMotionPartitionTrace.open(
+                        std::filesystem::path(positional.back()) /
+                            "resting-body-motion-partition.csv");
+                    supportPointMotionTrace.open(
+                        std::filesystem::path(positional.back()) /
+                            "resting-support-point-motion.csv");
+                    require(bodyMotionPartitionTrace.good() &&
+                                supportPointMotionTrace.good(),
+                            "accepted body motion observer output paths are unavailable");
+                    bodyMotionPartitionTrace << std::setprecision(17)
+                        << metalrobo::human::observer::kBodyMotionPartitionCsvHeader
+                        << '\n';
+                    supportPointMotionTrace << std::setprecision(17)
+                        << metalrobo::human::observer::kSupportPointMotionCsvHeader
+                        << '\n';
+                    bodyMotionPartitionTrace.flush();
+                    supportPointMotionTrace.flush();
+                    require(bodyMotionPartitionTrace.good() &&
+                                supportPointMotionTrace.good(),
+                            "accepted body motion observer headers could not be written");
+                    std::cout << "resting_accepted_body_motion_observer=enabled"
+                              << " cadence_steps=" << restingComMomentumAuditSegmentSteps
+                              << " body_rows=articulated_kinematics_mass_partition"
+                              << " support_velocity=pre_step_point_J_times_stand_previous_velocity"
+                              << " accepted_root_time_basis=step_times_float32_dt"
+                              << " selector_observer=selected_dynamic_skin_region_witness"
+                              << " observer_only=1" << std::endl;
+                }
                 if (restingComMomentumAudit) {
                     comMomentumTrace.open(std::filesystem::path(positional.back())/
                         "resting-com-momentum-diagnostic.csv");
@@ -22975,6 +23021,13 @@ int main(int argc, char** argv) {
                         counts[0],counts[1],counts[2],counts[3],counts[4],counts[5],counts[6],counts[7],counts[8],counts[9],true);
                     liveVisual=std::make_unique<NumiHumanRestingVisual>(coupled,std::move(pack),rigid.model,*skinPayload,&*softTissuePayload,
                         initialBodies,restBodies,*supportContactPayload,functional,positional.back(),frameDimension,restingMovie,!mechanicsOnly);
+                    if (restingAcceptedBodyMotionAudit) {
+                        liveVisual->configureSupportMotionObserver(
+                            std::filesystem::path(positional.back()) /
+                                "resting-support-selected-skin-witness.csv",
+                            restingComMomentumAuditSegmentSteps,
+                            double(static_cast<float>(*muscleStepSeconds)));
+                    }
                     if(restingRigidHands)liveVisual->declareRigidHands();
                     if(!mechanicsOnly)liveVisual->present();
                 }
@@ -23007,6 +23060,7 @@ int main(int argc, char** argv) {
                     double respirationTraceMilliseconds = 0.0;
                     double qIntegrationCsvMilliseconds = 0.0;
                     double comCpuKinematicsMilliseconds = 0.0;
+                    double bodyMotionCsvMilliseconds = 0.0;
                     double comMomentumCsvMilliseconds = 0.0;
                     double supportImpulseCsvMilliseconds = 0.0;
                     double csvFlushMilliseconds = 0.0;
@@ -23364,6 +23418,10 @@ int main(int argc, char** argv) {
                             const auto comCpuProfileStart = trainingProfile
                                 ? std::chrono::steady_clock::now()
                                 : std::chrono::steady_clock::time_point{};
+                            // The opt-in body-motion CSV is nested inside this broader
+                            // accepted-COM interval. Track it separately so profile fields
+                            // remain exclusive when observer accounting subtracts them.
+                            double bodyMotionCsvElapsedMilliseconds = 0.0;
                             std::vector<double> q(result.standQ.begin(), result.standQ.end());
                             q[0] = double(root.reference.x) + root.displacement.x + root.correction.x;
                             q[1] = double(root.reference.y) + root.displacement.y + root.correction.y;
@@ -23395,6 +23453,142 @@ int main(int argc, char** argv) {
                             double totalMass = 0.0;
                             require(bodyKinematics.size() == articulation.bodyCount,
                                     "accepted COM kinematics body count changed");
+                            if (restingAcceptedBodyMotionAudit) {
+                                require(step > 0u,
+                                        "accepted body motion observer requires a physical step");
+                                const auto motionCsvStart = trainingProfile
+                                    ? std::chrono::steady_clock::now()
+                                    : std::chrono::steady_clock::time_point{};
+                                std::vector<double> bodyMasses;
+                                bodyMasses.reserve(bodyKinematics.size());
+                                for (std::size_t body = 0u;
+                                     body < bodyKinematics.size(); ++body) {
+                                    const std::size_t bodyIndex =
+                                        articulation.firstBody + body;
+                                    require(bodyIndex < rigid.model.bodies.size(),
+                                            "accepted body motion observer body index is invalid");
+                                    bodyMasses.push_back(rigid.model.bodies[bodyIndex]
+                                        .massAndInverseMass.x);
+                                }
+                                const std::array<double, 3u> rootTranslation{
+                                    q[0], q[1], q[2]};
+                                const auto motionRows =
+                                    metalrobo::human::observer::makeBodyMotionPartition(
+                                        bodyKinematics, bodyMasses,
+                                        articulation.firstBody, rootTranslation);
+                                const double acceptedTime =
+                                    double(step) * double(static_cast<float>(
+                                        coupled.physiology.runtime.timestepSeconds()));
+                                for (const auto& row : motionRows) {
+                                    bodyMotionPartitionTrace << step << ','
+                                        << acceptedTime << ',' << row.bodyIndex << ',';
+                                    const std::string bodyName =
+                                        row.bodyIndex < rigid.model.bodyNames.size()
+                                            ? rigid.model.bodyNames[row.bodyIndex]
+                                            : std::string("unnamed");
+                                    writeMotionCsvString(bodyMotionPartitionTrace, bodyName);
+                                    bodyMotionPartitionTrace << ',' << row.massKg << ','
+                                        << rootTranslation[0] << ',' << rootTranslation[1]
+                                        << ',' << rootTranslation[2];
+                                    for (const double value :
+                                         row.centerOfMassRelativeToRootMeters)
+                                        bodyMotionPartitionTrace << ',' << value;
+                                    for (const double value :
+                                         row.massWeightedRelativeComKgMeters)
+                                        bodyMotionPartitionTrace << ',' << value;
+                                    for (const double value :
+                                         row.orientationBodyToWorldXyzw)
+                                        bodyMotionPartitionTrace << ',' << value;
+                                    for (const double value :
+                                         row.linearVelocityWorldMetersPerSecond)
+                                        bodyMotionPartitionTrace << ',' << value;
+                                    for (const double value :
+                                         row.angularVelocityWorldRadiansPerSecond)
+                                        bodyMotionPartitionTrace << ',' << value;
+                                    for (const double value :
+                                         row.linearMomentumKgMetersPerSecond)
+                                        bodyMotionPartitionTrace << ',' << value;
+                                    bodyMotionPartitionTrace << '\n';
+                                }
+                                const std::size_t nv = articulation.nv;
+                                const std::size_t queryElements =
+                                    queries.points.size() * 3u * nv;
+                                require(result.standPreviousVelocity.size() == nv &&
+                                            result.pointJacobians.size() == queryElements &&
+                                            result.pointWorld.size() == queries.points.size() &&
+                                            result.pointPositionLow.size() == queries.points.size() &&
+                                            queries.supportContacts.size() ==
+                                                supportContactPayload->records.size(),
+                                        "accepted support motion observer lacks same-step pre-dynamics arrays");
+                                const auto preVelocityFingerprint =
+                                    metalrobo::numiHumanRuntimePayloadFingerprint(
+                                        std::as_bytes(std::span<const float>(
+                                            result.standPreviousVelocity.data(),
+                                            result.standPreviousVelocity.size())));
+                                const std::array<double, 3u> groundNormal{
+                                    supportContactPayload->header.groundNormalX,
+                                    supportContactPayload->header.groundNormalY,
+                                    supportContactPayload->header.groundNormalZ};
+                                for (std::size_t contact = 0u;
+                                     contact < queries.supportContacts.size(); ++contact) {
+                                    const auto& contactQuery =
+                                        queries.supportContacts[contact];
+                                    const auto& sourceContact =
+                                        supportContactPayload->records[contact];
+                                    require(contactQuery.bodyIndex == sourceContact.bodyIndex &&
+                                                contactQuery.sourceGeometryIndex ==
+                                                    sourceContact.sourceGeometryIndex &&
+                                                contactQuery.pointQueryIndex <
+                                                    queries.points.size() &&
+                                                queries.points[
+                                                    contactQuery.pointQueryIndex].bodyIndex ==
+                                                    sourceContact.bodyIndex,
+                                            "accepted support motion observer query identity changed");
+                                    const auto pointVelocity =
+                                        metalrobo::human::observer::makeSupportPointVelocity(
+                                            result.pointJacobians,
+                                            contactQuery.pointQueryIndex,
+                                            static_cast<std::uint32_t>(nv),
+                                            result.standPreviousVelocity, groundNormal);
+                                    const auto& point =
+                                        result.pointWorld[contactQuery.pointQueryIndex].position;
+                                    const auto& low =
+                                        result.pointPositionLow[contactQuery.pointQueryIndex];
+                                    const double pointX = double(point.x + low.x);
+                                    const double pointY = double(point.y + low.y);
+                                    const double pointZ = double(point.z + low.z);
+                                    const double observerDt = double(
+                                        static_cast<float>(*muscleStepSeconds));
+                                    supportPointMotionTrace << step << ','
+                                        << double(step) * observerDt << ','
+                                        << step - 1u << ','
+                                        << double(step - 1u) * observerDt << ','
+                                        << contact << ','
+                                        << sourceContact.sourceGeometryIndex << ','
+                                        << sourceContact.bodyIndex << ','
+                                        << contactQuery.pointQueryIndex << ','
+                                        << pointX << ',' << pointY << ',' << pointZ << ','
+                                        << preVelocityFingerprint << ','
+                                        << pointVelocity.worldMetersPerSecond[0] << ','
+                                        << pointVelocity.worldMetersPerSecond[1] << ','
+                                        << pointVelocity.worldMetersPerSecond[2] << ','
+                                        << pointVelocity.tangent0MetersPerSecond << ','
+                                        << pointVelocity.tangent1MetersPerSecond << ','
+                                        << pointVelocity.tangentialSpeedMetersPerSecond << ','
+                                        << "pre_step_point_J_times_stand_previous_velocity\n";
+                                }
+                                bodyMotionPartitionTrace.flush();
+                                supportPointMotionTrace.flush();
+                                require(bodyMotionPartitionTrace.good() &&
+                                            supportPointMotionTrace.good(),
+                                        "accepted body motion observer CSV write failed");
+                                if (trainingProfile) {
+                                    bodyMotionCsvElapsedMilliseconds =
+                                        profileElapsedMilliseconds(motionCsvStart);
+                                    restingObserverProfile.bodyMotionCsvMilliseconds +=
+                                        bodyMotionCsvElapsedMilliseconds;
+                                }
+                            }
                             for (std::size_t body = 0u; body < bodyKinematics.size(); ++body) {
                                 const auto bodyIndex = articulation.firstBody +
                                     static_cast<std::uint32_t>(body);
@@ -23420,8 +23614,11 @@ int main(int argc, char** argv) {
                                 totalMass * comVelocity[0], totalMass * comVelocity[1],
                                 totalMass * comVelocity[2]};
                             if (trainingProfile) {
-                                restingObserverProfile.comCpuKinematicsMilliseconds +=
+                                const double comCpuElapsedMilliseconds =
                                     profileElapsedMilliseconds(comCpuProfileStart);
+                                restingObserverProfile.comCpuKinematicsMilliseconds +=
+                                    std::max(0.0, comCpuElapsedMilliseconds -
+                                        bodyMotionCsvElapsedMilliseconds);
                             }
                             const bool deltaValid = havePreviousComSample &&
                                 step > previousComSampleStep;
@@ -23742,6 +23939,7 @@ int main(int argc, char** argv) {
                         restingObserverProfile.respirationTraceMilliseconds +
                         restingObserverProfile.qIntegrationCsvMilliseconds +
                         restingObserverProfile.comCpuKinematicsMilliseconds +
+                        restingObserverProfile.bodyMotionCsvMilliseconds +
                         restingObserverProfile.comMomentumCsvMilliseconds +
                         restingObserverProfile.supportImpulseCsvMilliseconds +
                         restingObserverProfile.csvFlushMilliseconds +
@@ -23759,6 +23957,8 @@ int main(int argc, char** argv) {
                               << restingObserverProfile.qIntegrationCsvMilliseconds
                               << " com_cpu_kinematics_ms="
                               << restingObserverProfile.comCpuKinematicsMilliseconds
+                              << " body_motion_csv_ms="
+                              << restingObserverProfile.bodyMotionCsvMilliseconds
                               << " com_momentum_csv_ms="
                               << restingObserverProfile.comMomentumCsvMilliseconds
                               << " support_impulse_csv_ms="
