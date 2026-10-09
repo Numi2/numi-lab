@@ -1009,6 +1009,155 @@ def prepared_native_runtime_dependency_resolution(args: argparse.Namespace,
     return verify_native_scene_runtime_dependency_resolution(invocation, expected_resolution)
 
 
+def native_terminal_accepted_capture_evidence(invocation: dict[str, Any], output: Path,
+                                             native: dict[str, Any], log: str,
+                                             steps: int, dt: float) -> dict[str, Any]:
+    """Verify a declared, exact-N accepted geometry capture from native evidence.
+
+    Older launch templates did not request a terminal geometry frame. They
+    retain the pre-terminal surface schedule. A launch that does request N
+    must also carry the native terminal query proof and the matching accepted
+    geometry receipt; the capture request alone is never completion evidence.
+    """
+    capture_key = "NUMI_HUMAN_RESTING_EXPORT_MRV_STEPS"
+    environment = invocation.get("environment", {})
+    if not isinstance(environment, dict):
+        raise ValueError("native invocation environment is malformed")
+    raw_steps = environment.get(capture_key)
+    template = invocation.get("readiness_derived_capture_launch_template")
+    if raw_steps is None:
+        if isinstance(template, dict) and template.get("capture_environment_key") == capture_key:
+            raise ValueError("derived capture template has no matching native capture environment")
+        return {"verified": False, "reason": "terminal accepted geometry was not declared"}
+    if not isinstance(raw_steps, str) or not raw_steps:
+        raise ValueError("native capture environment must be a nonempty step list")
+    try:
+        text_steps = raw_steps.split(",")
+        if any(not re.fullmatch(r"(?:0|[1-9][0-9]*)", value) for value in text_steps):
+            raise ValueError
+        capture_steps = [int(value) for value in text_steps]
+    except ValueError as exc:
+        raise ValueError("native capture environment has malformed accepted steps") from exc
+    if (capture_steps != sorted(capture_steps) or len(capture_steps) != len(set(capture_steps)) or
+            any(step < 0 or step > steps for step in capture_steps)):
+        raise ValueError("native capture environment has duplicate, unordered, or out-of-horizon steps")
+
+    if template is not None:
+        if not isinstance(template, dict):
+            raise ValueError("derived capture launch template is malformed")
+        expected_template = {
+            "schema": "numi.human.resting.accepted-geometry-launch-template.v1",
+            "accepted_horizon_steps": steps,
+            "physical_timestep_s": dt,
+            "capture_environment_key": capture_key,
+            "capture_environment_value": raw_steps,
+            "capture_step_ids": capture_steps,
+            "terminal_step_id": steps,
+        }
+        if any(template.get(key) != value for key, value in expected_template.items()):
+            raise ValueError("derived capture template does not match the recorded native horizon and step list")
+        if steps not in capture_steps:
+            raise ValueError("derived capture template must request its exact terminal accepted step")
+        nominal_time = finite_float(str(template.get("terminal_nominal_time_s")),
+                                    "declared terminal nominal time")
+        if abs(nominal_time - steps * dt) > 1e-12:
+            raise ValueError("derived capture template has a mismatched nominal terminal time")
+
+    if steps not in capture_steps:
+        return {"verified": False, "reason": "terminal accepted geometry was not requested"}
+    if native.get("accepted_steps") != steps:
+        raise ValueError("terminal accepted geometry was requested but the native run did not accept exact N")
+
+    presentation_prefix = "resting_terminal_presentation="
+    presentation_lines = [line for line in log.splitlines() if line.startswith(presentation_prefix)]
+    presentation_pattern = re.compile(
+        r"resting_terminal_presentation=accepted step=([0-9]+) body_count=([0-9]+) "
+        r"respiratory_status=([0-9]+) common_coordinates=accepted_buffer_copied "
+        r"physical_steps_advanced=0 controller_steps_advanced=0 "
+        r"fk_owner=MetalArticulatedOperator_query_only")
+    if len(presentation_lines) != 1:
+        raise ValueError("native log must contain exactly one accepted terminal presentation proof")
+    presentation = presentation_pattern.fullmatch(presentation_lines[0])
+    if (presentation is None or int(presentation[1]) != steps or int(presentation[2]) <= 0 or
+            int(presentation[3]) != steps):
+        raise ValueError("native log terminal presentation does not prove exact accepted N without advancing")
+
+    identity_prefix = "resting_terminal_capture_identity="
+    identity_lines = [line for line in log.splitlines() if line.startswith(identity_prefix)]
+    identity_pattern = re.compile(
+        r"resting_terminal_capture_identity=accepted_step_([0-9]+) "
+        r"q_source=exact_final_accepted_float32 root_source=exact_final_compensated_translation "
+        r"fk=MetalArticulatedOperator_pointJacobiansOnly terminal_physical_steps_advanced=0")
+    if len(identity_lines) != 1:
+        raise ValueError("native log must contain exactly one accepted terminal capture identity")
+    terminal_identity = identity_pattern.fullmatch(identity_lines[0])
+    if terminal_identity is None or int(terminal_identity[1]) != steps:
+        raise ValueError("native log terminal capture identity differs from exact accepted N")
+
+    state_lines = [line for line in log.splitlines() if line.startswith("stand_terminal_state=")]
+    if len(state_lines) != 1:
+        raise ValueError("native log must contain exactly one terminal accepted body state")
+    try:
+        terminal_state = json.loads(state_lines[0].split("=", 1)[1])
+    except (ValueError, TypeError) as exc:
+        raise ValueError("native terminal accepted body state is malformed") from exc
+    if (terminal_state.get("step_count") != steps or terminal_state.get("root_assistance") is not False or
+            abs(finite_float(str(terminal_state.get("timestep_seconds")), "terminal native timestep") - dt) > 1e-12):
+        raise ValueError("native terminal accepted body state does not match exact N and timestep")
+
+    accepted_dir = output / "accepted-geometry"
+    pack_path = accepted_dir / f"step-{steps}.mrvpack"
+    receipt_path = accepted_dir / f"step-{steps}.receipt.json"
+    for path, label in ((pack_path, "terminal accepted geometry pack"),
+                         (receipt_path, "terminal accepted geometry receipt")):
+        if path.is_symlink() or not path.is_file():
+            raise ValueError(f"native log declares terminal capture but {label} is missing: {path}")
+    export_lines = [line for line in log.splitlines() if line.startswith("accepted_geometry_export=")]
+    expected_export_prefix = f"accepted_geometry_export={pack_path}"
+    matching_exports = [line for line in export_lines
+                        if line.split(" ", 1)[0] == expected_export_prefix]
+    if len(matching_exports) != 1:
+        raise ValueError("native log must bind exactly one export of the exact terminal pack")
+    fields = dict(token.split("=", 1) for token in matching_exports[0].split(" ")[1:] if "=" in token)
+    if (fields.get("receipt") != str(receipt_path) or
+            not re.fullmatch(r"0x[0-9a-fA-F]+", fields.get("accepted_root", "")) or
+            fields.get("pack_sha256") != sha256_file(pack_path) or
+            fields.get("receipt_sha256") != sha256_file(receipt_path)):
+        raise ValueError("native terminal export line does not match its accepted pack and receipt hashes")
+    receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
+    accepted_time = finite_float(str(receipt.get("accepted_time_s")), "terminal receipt accepted time")
+    accepted_root_hex = receipt.get("accepted_root_fingerprint_hex")
+    if (receipt.get("schema") != "numi.human.accepted-render-geometry.v1" or
+            receipt.get("accepted_step") != steps or receipt.get("physical_endpoint") != "accepted" or
+            receipt.get("surface_audit_endpoint") != "passed" or
+            receipt.get("accepted_pack_path") != str(pack_path) or
+            receipt.get("pack_file_sha256") != sha256_file(pack_path) or
+            not isinstance(accepted_root_hex, str) or
+            fields.get("accepted_root", "").lower() != accepted_root_hex.lower() or
+            not isinstance(receipt.get("accepted_root_fingerprint"), int) or
+            int(accepted_root_hex, 16) != receipt["accepted_root_fingerprint"] or
+            not re.fullmatch(r"[0-9a-f]{64}", str(receipt.get("accepted_body_state_sha256", ""))) or
+            not re.fullmatch(r"[0-9a-f]{64}", str(receipt.get("accepted_respiration_state_sha256", ""))) or
+            abs(accepted_time - native["simulated_s"]) > 1e-8):
+        raise ValueError("terminal accepted geometry receipt does not bind the successful native accepted state")
+    surface_audit = receipt.get("surface_audit", {})
+    if (not isinstance(surface_audit, dict) or surface_audit.get("physical_endpoint") != "accepted" or
+            surface_audit.get("surface_audit_endpoint") != "passed" or
+            surface_audit.get("mesh_zero_area_triangles") != 0 or
+            surface_audit.get("mesh_nonfinite_area_triangles") != 0):
+        raise ValueError("terminal accepted geometry receipt lacks its passed surface audit")
+    if template is not None:
+        declared_accepted_time = finite_float(str(template.get("terminal_accepted_time_s")),
+                                              "declared terminal accepted time")
+        if abs(declared_accepted_time - accepted_time) > 1e-8:
+            raise ValueError("derived capture template terminal time differs from the accepted receipt")
+    return {"verified": True, "accepted_step": steps, "accepted_time_s": accepted_time,
+            "capture_environment_key": capture_key, "capture_step_ids": capture_steps,
+            "pack_sha256": sha256_file(pack_path), "receipt_sha256": sha256_file(receipt_path),
+            "accepted_body_state_sha256": receipt["accepted_body_state_sha256"],
+            "accepted_respiration_state_sha256": receipt["accepted_respiration_state_sha256"]}
+
+
 def execute_native_scene_arm(args: argparse.Namespace) -> dict[str, Any]:
     validate_windows(args)
     work, output = Path.cwd().resolve(), Path(args.output).resolve()
@@ -1061,9 +1210,13 @@ def execute_native_scene_arm(args: argparse.Namespace) -> dict[str, Any]:
     movie, surfaces = output / "native-viewer.mov", output / "resting-surface-audit.csv"
     if not movie.is_file() or movie.stat().st_size == 0 or not surfaces.is_file():
         raise ValueError("native scene did not retain its continuous movie and surface trace")
+    terminal_capture = native_terminal_accepted_capture_evidence(
+        invocation, output, native, log, args.steps, args.dt)
     result.update(native_body_trace_consistency(output / "resting-coupled.csv", args.steps, args.dt))
     result.update(native_surface_trace_consistency(
-        surfaces, args.steps, args.dt, require_whole_mesh=True))
+        surfaces, args.steps, args.dt, require_whole_mesh=True,
+        terminal_accepted_capture=terminal_capture["verified"]))
+    result["terminal_accepted_capture_evidence"] = terminal_capture
     if args.steps * args.dt >= 310.0 - 1e-6:
         result.update(native_cycle_coverage(read_trace(output / "resting-coupled.csv"), args.dt))
     parameters = Path(command[command.index("--resting-scene") + 2])

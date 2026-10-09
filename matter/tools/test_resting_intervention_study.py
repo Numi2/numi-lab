@@ -1111,6 +1111,204 @@ class NativeFailureEvidenceIsolationTests(unittest.TestCase):
                     self.assertEqual(recorded["environment"][key],
                                      str(output / "common-field-failure.json"))
 
+class NativeTerminalAcceptedCaptureExecutionTests(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp.cleanup)
+        self.root = Path(self.temp.name).resolve()
+
+    @staticmethod
+    def surface_csv(steps):
+        fields = ("step", "time_s", "min_skin_bed_gap_m", "vertices_below_1mm",
+                  "nonfinite_skin_vertices", "max_functional_volume_relative_error",
+                  "q_ra", "q_rv", "q_la", "q_lv", "ra_target_ml", "rv_target_ml",
+                  "la_target_ml", "lv_target_ml", "diaphragm_swept_ml", "rib_swept_ml",
+                  "lung_target_ml", "mesh_zero_area_triangles",
+                  "mesh_nonfinite_area_triangles", "mesh_triangles_checked",
+                  "functional_geometry_status")
+        rows = [",".join(fields)]
+        for step in steps:
+            values = {
+                "step": str(step), "time_s": repr(step * .002), "min_skin_bed_gap_m": "0",
+                "vertices_below_1mm": "0", "nonfinite_skin_vertices": "0",
+                "max_functional_volume_relative_error": "0", "q_ra": "0", "q_rv": "0",
+                "q_la": "0", "q_lv": "0", "ra_target_ml": "40", "rv_target_ml": "120",
+                "la_target_ml": "50", "lv_target_ml": "120", "diaphragm_swept_ml": "0",
+                "rib_swept_ml": "0", "lung_target_ml": "2500", "mesh_zero_area_triangles": "0",
+                "mesh_nonfinite_area_triangles": "0", "mesh_triangles_checked": "100",
+                "functional_geometry_status": "0"}
+            rows.append(",".join(values[field] for field in fields))
+        return "\n".join(rows) + "\n"
+
+    def execute_fixture(self, name, *, capture_steps=(0, 31, 63, 64),
+                        surface_steps=(0, 31, 63, 64), include_template=True,
+                        include_terminal_proof=True, include_terminal_files=True,
+                        duplicate_terminal_export=False):
+        import os
+        from types import SimpleNamespace
+
+        root = self.root / name
+        root.mkdir()
+        build = root / "build"
+        binary = build / "bin/numi-human-native"
+        binary.parent.mkdir(parents=True)
+        binary.write_bytes(b"fixture native")
+        dependencies = (
+            "lib/libmetalrobo.dylib", "shaders/MetalRobo.metallib",
+            "shaders/MetalRoboHyperPolicy.metallib", "shaders/NumiNeuron.metallib",
+            "matter/shaders/HumanRespiration.metallib", "matter/shaders/NumiMatter.metallib",
+            "matter/shaders/NumiMatterPhysicalStateDigest.metallib")
+        assets = {str(binary): hashlib.sha256(binary.read_bytes()).hexdigest()}
+        for relative in dependencies:
+            path = build / relative
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(("fixture " + relative).encode())
+            assets[str(path.resolve())] = hashlib.sha256(path.read_bytes()).hexdigest()
+        invocation = {"argv": [str(binary)], "asset_sha256": assets, "environment": {}}
+        capture_key = "NUMI_HUMAN_RESTING_EXPORT_MRV_STEPS"
+        if capture_steps is not None:
+            raw_capture_steps = ",".join(str(step) for step in capture_steps)
+            invocation["environment"][capture_key] = raw_capture_steps
+        else:
+            raw_capture_steps = None
+        if include_template:
+            invocation["readiness_derived_capture_launch_template"] = {
+                "schema": "numi.human.resting.accepted-geometry-launch-template.v1",
+                "accepted_horizon_steps": 64, "arm": "control",
+                "capture_environment_key": capture_key,
+                "capture_environment_value": raw_capture_steps,
+                "capture_step_ids": list(capture_steps),
+                "identity_claim": "derived launch template",
+                "physical_timestep_s": .002, "terminal_nominal_time_s": .128,
+                "terminal_accepted_time_s": .128, "terminal_step_id": 64}
+        invocation_path = root / "reference-invocation.json"
+        invocation_path.write_text(json.dumps(invocation), encoding="utf-8")
+        resolution = adapter.verify_native_scene_runtime_dependency_resolution(invocation)
+        identity = {"schema": "numi.human-resting.native-paired-build-identity.v1",
+                    "native_invocation": {"path": str(invocation_path),
+                                          "sha256": hashlib.sha256(invocation_path.read_bytes()).hexdigest(),
+                                          "asset_sha256": assets},
+                    "runtime_dependency_resolution": resolution}
+        identity_path = root / "native-build-identity.json"
+        identity_path.write_text(json.dumps(identity, sort_keys=True, indent=2) + "\n", encoding="utf-8")
+        output = root / "scene"
+        args = Namespace(
+            invocation=str(invocation_path), native_build_identity=str(identity_path),
+            native_build_identity_sha256=hashlib.sha256(identity_path.read_bytes()).hexdigest(),
+            output="scene", steps=64, dt=.002, start_s=5., end_s=14., scale=1.,
+            window_s=5., arm="control", device="Apple M4 Pro",
+            world_fingerprint="123", program_fingerprint="789")
+
+        terminal_pack = output / "accepted-geometry" / "step-64.mrvpack"
+        terminal_receipt = output / "accepted-geometry" / "step-64.receipt.json"
+        pack_hash = hashlib.sha256(b"terminal pack fixture").hexdigest()
+        receipt_value = {
+            "schema": "numi.human.accepted-render-geometry.v1", "accepted_step": 64,
+            "accepted_time_s": .128, "physical_endpoint": "accepted",
+            "surface_audit_endpoint": "passed", "accepted_pack_path": str(terminal_pack),
+            "pack_file_sha256": pack_hash, "accepted_root_fingerprint": 2748,
+            "accepted_root_fingerprint_hex": "0xabc",
+            "accepted_body_state_sha256": "1" * 64,
+            "accepted_respiration_state_sha256": "2" * 64,
+            "surface_audit": {"physical_endpoint": "accepted",
+                              "surface_audit_endpoint": "passed",
+                              "mesh_zero_area_triangles": 0,
+                              "mesh_nonfinite_area_triangles": 0}}
+        receipt_bytes = (json.dumps(receipt_value, sort_keys=True, indent=2) + "\n").encode()
+        receipt_hash = hashlib.sha256(receipt_bytes).hexdigest()
+        output_pack_hash = pack_hash
+        log_lines = [
+            "runtime=Numi Matter runtime initialized with eligible dense45 vascular solve device=Apple M4 Pro world_fingerprint=123 timestep_s=.002",
+            "resting_body_source_fingerprint=456 coupled_program_fingerprint=789",
+            'stand_terminal_state={"root_assistance":false,"step_count":64,"timestep_seconds":0.002,"q":[0],"v":[0]}',
+            "resting_integrated_body=completed simulated_s=.128 wall_s=1 real_time_factor=.128 physiology_body_clock=matched root_assistance=false presentation_qualification=pending"]
+        if include_terminal_proof:
+            log_lines.extend([
+                "resting_terminal_presentation=accepted step=64 body_count=157 respiratory_status=64 common_coordinates=accepted_buffer_copied physical_steps_advanced=0 controller_steps_advanced=0 fk_owner=MetalArticulatedOperator_query_only",
+                "resting_terminal_capture_identity=accepted_step_64 q_source=exact_final_accepted_float32 root_source=exact_final_compensated_translation fk=MetalArticulatedOperator_pointJacobiansOnly terminal_physical_steps_advanced=0"])
+        if include_terminal_files:
+            export = (f"accepted_geometry_export={terminal_pack} receipt={terminal_receipt} "
+                      f"accepted_root=0xabc pack_sha256={output_pack_hash} receipt_sha256={receipt_hash}")
+            log_lines.append(export)
+            if duplicate_terminal_export:
+                log_lines.append(export)
+        native_log = "\n".join(log_lines) + "\n"
+
+        def fake_run(_command, *, env, stdout, stderr, check):
+            if include_terminal_files:
+                terminal_pack.parent.mkdir(parents=True, exist_ok=True)
+                terminal_pack.write_bytes(b"terminal pack fixture")
+                terminal_receipt.write_bytes(receipt_bytes)
+            output.joinpath("native-viewer.mov").write_bytes(b"movie fixture")
+            output.joinpath("resting-coupled.csv").write_text("fixture", encoding="utf-8")
+            output.joinpath("resting-surface-audit.csv").write_text(
+                self.surface_csv(surface_steps), encoding="utf-8")
+            stdout.write(native_log)
+            return SimpleNamespace(returncode=0)
+
+        cwd = Path.cwd()
+        try:
+            os.chdir(root)
+            with patch.object(adapter, "validate_windows"), \
+                 patch.object(adapter, "native_scene_command", return_value=[
+                     "fixture-native", "--resting-scene", "fixture-network", "fixture-parameters.json"]), \
+                 patch.object(adapter.subprocess, "run", side_effect=fake_run), \
+                 patch.object(adapter, "observation", return_value={
+                     "pre_window_s": 5., "dose_window_s": 9., "recovery_window_s": 5.}), \
+                 patch.object(adapter, "native_body_trace_consistency", return_value={}), \
+                 patch.object(adapter, "native_respiration_trace_consistency", return_value={}):
+                return adapter.execute_native_scene_arm(args)
+        finally:
+            os.chdir(cwd)
+
+    def test_execute_native_arm_accepts_exact_declared_terminal_receipt(self):
+        result = self.execute_fixture("valid")
+        self.assertTrue(result["terminal_accepted_capture_evidence"]["verified"])
+        self.assertTrue(result["terminal_accepted_capture_included"])
+        self.assertEqual(result["terminal_accepted_capture_evidence"]["accepted_step"], 64)
+        self.assertEqual(result["displayed_accepted_frames"], 4)
+
+    def test_execute_native_arm_rejects_missing_duplicate_or_undeclared_final_frame(self):
+        cases = (
+            ("missing-frame", dict(surface_steps=(0, 31, 63)), "final displayed accepted state"),
+            ("duplicate-frame", dict(surface_steps=(0, 31, 63, 64, 64)), "skipped or duplicated"),
+            ("undeclared-extra-frame", dict(capture_steps=(0, 31, 63), include_template=False),
+             "skipped or duplicated"),
+            ("arbitrary-extra-frame", dict(capture_steps=(0, 31, 63), include_template=False,
+                                           surface_steps=(0, 31, 63, 65)), "skipped or duplicated"),
+        )
+        for name, options, message in cases:
+            with self.subTest(name=name), self.assertRaisesRegex(ValueError, message):
+                self.execute_fixture(name, **options)
+
+    def test_execute_native_arm_requires_log_and_accepted_terminal_receipt_proof(self):
+        cases = (
+            ("missing-terminal-log-proof", dict(include_terminal_proof=False),
+             "exactly one accepted terminal presentation proof"),
+            ("missing-terminal-receipt", dict(include_terminal_files=False),
+             "terminal accepted geometry pack is missing"),
+            ("duplicate-terminal-export", dict(duplicate_terminal_export=True),
+             "exactly one export"),
+        )
+        for name, options, message in cases:
+            with self.subTest(name=name), self.assertRaisesRegex(ValueError, message):
+                self.execute_fixture(name, **options)
+
+    def test_derived_template_must_declare_exact_terminal_step(self):
+        with self.assertRaisesRegex(ValueError, "template does not match|must request"):
+            self.execute_fixture("template-missing-terminal", capture_steps=(0, 31, 63),
+                                 surface_steps=(0, 31, 63), include_template=True,
+                                 include_terminal_proof=False, include_terminal_files=False)
+
+    def test_execute_native_arm_retains_legacy_nonterminal_schedule(self):
+        result = self.execute_fixture("legacy", capture_steps=(0, 31, 63),
+                                      surface_steps=(0, 31, 63),
+                                      include_template=False,
+                                      include_terminal_proof=False,
+                                      include_terminal_files=False)
+        self.assertFalse(result["terminal_accepted_capture_evidence"]["verified"])
+        self.assertFalse(result["terminal_accepted_capture_included"])
+
 if __name__ == '__main__':
     unittest.main()
 
