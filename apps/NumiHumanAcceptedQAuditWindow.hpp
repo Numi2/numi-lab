@@ -48,6 +48,25 @@ struct Window {
     }
 };
 
+// COM/support rows retain their ordinary accepted-observer cadence outside a
+// bounded Q audit. Inside the window they follow every accepted Q row. One
+// accepted predecessor is sampled when available so the first window row can
+// form a one-step momentum delta without inventing an initial state.
+[[nodiscard]] constexpr bool shouldSampleComMomentum(
+    const Window& window,
+    const std::uint32_t normalSegmentSteps,
+    const std::uint32_t acceptedStep,
+    const std::uint32_t finalAcceptedStep) noexcept {
+    const bool normalObserverSample = !window.bounded ||
+        (acceptedStep != 0u &&
+         ((normalSegmentSteps != 0u && acceptedStep % normalSegmentSteps == 0u) ||
+          acceptedStep == finalAcceptedStep));
+    const bool qWindowPredecessor = window.bounded &&
+        window.firstAcceptedStep > 1u &&
+        acceptedStep == window.firstAcceptedStep - 1u;
+    return normalObserverSample || window.contains(acceptedStep) ||
+        qWindowPredecessor;
+}
 
 [[nodiscard]] constexpr bool shouldPresentAcceptedPose(
     const bool comMomentumAudit,

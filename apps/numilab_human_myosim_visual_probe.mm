@@ -23102,7 +23102,7 @@ int main(int argc, char** argv) {
                               << " normal_segment_cap_steps="
                               << restingComMomentumAuditSegmentSteps
                               << " inside_window_segment_cap_steps=1"
-                              << " normal_com_row_interval=observer_sampling_window"
+                              << " q_window_com_support_rows=every_accepted_q_step_plus_predecessor_when_available"
                               << " status_solver_work_scope=latest_submission_only"
                               << std::endl;
                 }
@@ -23210,6 +23210,8 @@ int main(int argc, char** argv) {
                               << std::endl;
                 }
                 std::uint32_t qIntegrationAcceptedRows = 0u;
+                std::uint32_t qComMomentumAuditRows = 0u;
+                std::uint64_t qSupportImpulseAuditRows = 0u;
                 if (restingQIntegrationAudit) {
                     qIntegrationTrace.open(std::filesystem::path(positional.back()) /
                         "resting-com-q-integration.csv");
@@ -23633,6 +23635,12 @@ int main(int argc, char** argv) {
                             !qIntegrationWindow.bounded ||
                             step % restingComMomentumAuditSegmentSteps == 0u ||
                             step == *muscleStepCount;
+                        const bool comMomentumObserverSample =
+                            numiHumanAcceptedQAuditWindow::shouldSampleComMomentum(
+                                qIntegrationWindow,
+                                restingComMomentumAuditSegmentSteps,
+                                step,
+                                *muscleStepCount);
                         if (normalObserverSample) {
                             const auto respirationTraceProfileStart = trainingProfile
                                 ? std::chrono::steady_clock::now()
@@ -23654,7 +23662,7 @@ int main(int argc, char** argv) {
                             }
                         }
                         if (restingComMomentumAudit &&
-                            (normalObserverSample || qIntegrationAuditSample)) {
+                            comMomentumObserverSample) {
                             // This is a post-acceptance CPU observation only.
                             // It never feeds q/v, the controller, or the next
                             // physical transaction.
@@ -24021,7 +24029,7 @@ int main(int argc, char** argv) {
                                         profileElapsedMilliseconds(qIntegrationCsvProfileStart);
                                 }
                             }
-                            if (normalObserverSample) {
+                            if (comMomentumObserverSample) {
                             const auto comCpuProfileStart = trainingProfile
                                 ? std::chrono::steady_clock::now()
                                 : std::chrono::steady_clock::time_point{};
@@ -24060,7 +24068,8 @@ int main(int argc, char** argv) {
                             double totalMass = 0.0;
                             require(bodyKinematics.size() == articulation.bodyCount,
                                     "accepted COM kinematics body count changed");
-                            if (restingAcceptedBodyMotionAudit) {
+                            if (restingAcceptedBodyMotionAudit &&
+                                normalObserverSample) {
                                 require(step > 0u,
                                         "accepted body motion observer requires a physical step");
                                 const auto motionCsvStart = trainingProfile
@@ -24235,6 +24244,14 @@ int main(int argc, char** argv) {
                                 havePreviousComSample ? previousComSampleStep : 0u;
                             const std::uint32_t sampleSteps =
                                 step > sampleStartStep ? step - sampleStartStep : 0u;
+                            const bool qSampleRequiresAdjacentPrevious =
+                                qIntegrationAuditSample &&
+                                (step != qIntegrationWindow.firstAcceptedStep ||
+                                 qIntegrationWindow.firstAcceptedStep > 1u);
+                            if (qSampleRequiresAdjacentPrevious) {
+                                require(deltaValid && sampleSteps == 1u,
+                                        "accepted Q-window COM row lacks its immediately preceding accepted state");
+                            }
                             std::array<double, 3u> deltaComMomentum{};
                             if (deltaValid) {
                                 for (std::size_t axis = 0u; axis < 3u; ++axis) {
@@ -24418,6 +24435,11 @@ int main(int argc, char** argv) {
                                             << slip[1] << ',' << slip[2];
                                 }
                                 supportImpulseTrace << '\n';
+                            }
+                            if (qIntegrationAuditSample) {
+                                ++qComMomentumAuditRows;
+                                qSupportImpulseAuditRows +=
+                                    supportContactPayload->records.size();
                             }
                             if (trainingProfile) {
                                 restingObserverProfile.supportImpulseCsvMilliseconds +=
@@ -24623,6 +24645,13 @@ int main(int argc, char** argv) {
                 if (restingQIntegrationAudit) {
                     require(qIntegrationAcceptedRows == qIntegrationWindow.rowCount(),
                             "accepted Q-integration trace did not retain every requested window step");
+                    require(qComMomentumAuditRows == qIntegrationWindow.rowCount(),
+                            "accepted COM momentum trace did not retain every requested Q-window step");
+                    const std::uint64_t expectedQSupportImpulseRows =
+                        std::uint64_t(qIntegrationWindow.rowCount()) *
+                        supportContactPayload->records.size();
+                    require(qSupportImpulseAuditRows == expectedQSupportImpulseRows,
+                            "accepted support impulse trace did not retain every Q-window contact row");
                     qIntegrationTrace.flush();
                     qIndexMapTrace.flush();
                     if (acceptedForceTrace.is_open()) {

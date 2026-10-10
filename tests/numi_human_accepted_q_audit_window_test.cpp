@@ -49,6 +49,26 @@ int main() {
                bounded.window.rowCount() == 3u,
            "bounded accepted-step range parses with inclusive row count");
     const Window& w = bounded.window;
+    using numiHumanAcceptedQAuditWindow::shouldSampleComMomentum;
+    expect(shouldSampleComMomentum(w, 8u, 8u, 20u) &&
+               shouldSampleComMomentum(w, 8u, 9u, 20u) &&
+               shouldSampleComMomentum(w, 8u, 10u, 20u) &&
+               shouldSampleComMomentum(w, 8u, 11u, 20u) &&
+               shouldSampleComMomentum(w, 8u, 12u, 20u) &&
+               !shouldSampleComMomentum(w, 8u, 13u, 20u) &&
+               !shouldSampleComMomentum(w, 8u, 15u, 20u) &&
+               shouldSampleComMomentum(w, 8u, 16u, 20u) &&
+               shouldSampleComMomentum(w, 8u, 20u, 20u),
+           "bounded COM/support sampling adds every Q row and one available predecessor, then returns to the normal grid");
+    expect(shouldSampleComMomentum(disabled.window, 8u, 3u, 20u),
+           "default-off Q window preserves the existing unbounded COM sampling behavior");
+    const auto initialWindow = parse(true, std::string_view{"1"},
+                                     std::string_view{"2"}, 4u);
+    expect(initialWindow.ok() &&
+               !shouldSampleComMomentum(initialWindow.window, 8u, 0u, 4u) &&
+               shouldSampleComMomentum(initialWindow.window, 8u, 1u, 4u) &&
+               shouldSampleComMomentum(initialWindow.window, 8u, 2u, 4u),
+           "a window beginning at the first accepted step does not invent a step-zero predecessor");
     expect(w.segmentSteps(0u, 20u, 8u) == 8u,
            "normal cap is preserved before the window");
     expect(w.segmentSteps(8u, 12u, 8u) == 1u,
