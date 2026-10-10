@@ -72,13 +72,17 @@ std::vector<std::uint32_t> humanDiagnosticRoots(const char* name) {
 
 // Read-only timestamps. A focused stage samples its first eight physical
 // steps. The cycle option samples one stage per step so the GPU counter limit
-// cannot silently drop later encoders from an all-stage profile.
-static constexpr std::array<const char*, 16u> kHumanCycleTimingStages{
+// cannot silently drop later encoders from an all-stage profile. The cycle
+// includes the three deferred-equality rebuild encoders as well as the normal
+// parallel-mass stages used by the resting runtime.
+static constexpr std::array<const char*, 19u> kHumanCycleTimingStages{
     "kinematics_prepare", "kinematics", "muscle_angular", "muscles",
     "active_force", "force_reduce", "tendon_transfer", "activation",
     "stand_prework", "stand_mass", "stand_factor",
     "stand_equality_responses", "stand_equality_factor",
-    "stand_projected_responses", "stand_finish", "borrowed_callback",
+    "stand_projected_responses", "stand_equality_response_rebuild",
+    "stand_equality_factor_rebuild", "stand_projected_response_fallback",
+    "stand_finish", "borrowed_callback",
 };
 
 constexpr bool humanCycleScheduleCoversEightRootsPerStage() {
