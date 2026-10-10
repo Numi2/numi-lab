@@ -3,7 +3,7 @@
 #include "metalrobo/engine_types.h"
 #include "metalrobo/numi_human_timed_root_force.h"
 
-#define MR_NUMI_HUMAN_STAND_ABI_VERSION 17u
+#define MR_NUMI_HUMAN_STAND_ABI_VERSION 18u
 // Six spatial Jacobian rows plus three cached world-inertia products.
 #define MR_NUMI_HUMAN_STAND_SPATIAL_SCRATCH_ROWS 9u
 #define MR_NUMI_HUMAN_STAND_MAX_BODIES 192u
@@ -223,6 +223,10 @@ typedef struct MR_ALIGN16 MRNumiHumanStandDispatchGPU {
     mr_u32 supportContactPlaneMode;
     mr_u32 supportContactPlaneCount;
     mr_u32 supportContactPlaneReserved[2];
+    // Opt-in observer mode for one bounded accepted Q-window step. The
+    // observer tail is present only with source-limit diagnostics enabled.
+    mr_u32 rootMomentumDiagnosticMode;
+    mr_u32 rootMomentumDiagnosticReserved[3];
 } MRNumiHumanStandDispatchGPU;
 
 typedef struct MR_ALIGN16 MRNumiHumanStandStatusGPU {
@@ -317,6 +321,6 @@ static_assert(sizeof(MRNumiHumanStandContactWarmStartGPU) == 544);
 static_assert(sizeof(MRNumiHumanStandContactWarmStartSlotGPU) == 576);
 static_assert(sizeof(MRNumiHumanHipCapsuleTermGPU) == 48);
 static_assert(sizeof(MRNumiHumanStandContactGPU) == 64);
-static_assert(sizeof(MRNumiHumanStandDispatchGPU) == 512);
+static_assert(sizeof(MRNumiHumanStandDispatchGPU) == 528);
 static_assert(sizeof(MRNumiHumanStandStatusGPU) == 272);
 #endif

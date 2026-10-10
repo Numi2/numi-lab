@@ -558,6 +558,12 @@ inline void run(
     auto makeInput = [&](bool resident, std::uint64_t transaction,
                          std::uint64_t generation, bool fullCollection) {
         auto input = seedInput;
+        // These synthetic startup transactions use a short local horizon, not
+        // the accepted-step Q-window from the real run. Keep the observer off
+        // in probe copies; the original seed input and production horizon retain
+        // their original bounded capture range.
+        input.stand.rootMomentumDiagnosticFirstAcceptedStep = 0u;
+        input.stand.rootMomentumDiagnosticLastAcceptedStep = 0u;
         input.stand.numanXTransactionProgram = program;
         // The probe performs extra accepted/rejected body submissions before
         // the requested horizon. Do not reuse the horizon's borrowed tendon

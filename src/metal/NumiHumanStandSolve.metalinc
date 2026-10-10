@@ -207,6 +207,21 @@
     }
 #endif
 
+    // Diagnostic-only same-q product. In split FREE_ONLY mode this is reached
+    // by the following FREE_READY finish, after the exact free velocity has
+    // been carried through bias; the prepare and finish share this arena.
+    if (lane == 0u && dispatch.rootMomentumDiagnosticMode != 0u) {
+        device float* rootRows = preProjectionVEvidence + nv;
+        device float* rootMomentumStages = rootRows + 3u * nv;
+        for (uint rootAxis = 0u; rootAxis < 3u; ++rootAxis) {
+            float momentum = 0.0f;
+            for (uint dof = 0u; dof < nv; ++dof)
+                momentum = fma(rootRows[rootAxis * nv + dof],
+                               candidateV[dof], momentum);
+            rootMomentumStages[rootAxis] = momentum;
+        }
+    }
+
     uint activeContacts = 0u;
     float minimumGap = INFINITY;
     float maximumPenetration = 0.0f;
@@ -3031,6 +3046,17 @@
             return;
         }
         vState[vBase + dof] = candidateV[dof];
+    }
+    if (dispatch.rootMomentumDiagnosticMode != 0u) {
+        device float* rootRows = preProjectionVEvidence + nv;
+        device float* rootMomentumStages = rootRows + 3u * nv;
+        for (uint rootAxis = 0u; rootAxis < 3u; ++rootAxis) {
+            float momentum = 0.0f;
+            for (uint dof = 0u; dof < nv; ++dof)
+                momentum = fma(rootRows[rootAxis * nv + dof],
+                               candidateV[dof], momentum);
+            rootMomentumStages[3u + rootAxis] = momentum;
+        }
     }
     const MRCompensatedRootTranslationGPU previousTranslation = rootTranslations[environment];
     const auto nextTranslation = mrCompensatedTranslationAdvance(previousTranslation,

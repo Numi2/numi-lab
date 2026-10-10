@@ -7114,6 +7114,15 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             capturedSteps
     ) {
         const std::uint32_t requestedSteps = horizonInput.stand.stepCount;
+        // Keep the observer scope immutable across segmented continuation; the
+        // native dispatch captures only the accepted step selected by this range.
+        if (acceptedObserver != nullptr && acceptedComMomentumAudit &&
+            qIntegrationWindow.bounded) {
+            horizonInput.stand.rootMomentumDiagnosticFirstAcceptedStep =
+                qIntegrationWindow.firstAcceptedStep;
+            horizonInput.stand.rootMomentumDiagnosticLastAcceptedStep =
+                qIntegrationWindow.lastAcceptedStep;
+        }
         if (acceptedObserver == nullptr && standBrainController == nullptr &&
             (!useSegmentedAuthoritativeHorizon ||
              (!captureExactContinuumSteps &&
@@ -23232,7 +23241,10 @@ int main(int argc, char** argv) {
                         << "source_body_linear_momentum_free_same_q_x_kg_m_s,source_body_linear_momentum_free_same_q_y_kg_m_s,source_body_linear_momentum_free_same_q_z_kg_m_s,"
                         << "source_body_linear_momentum_preprojection_velocity_same_q_x_kg_m_s,source_body_linear_momentum_preprojection_velocity_same_q_y_kg_m_s,source_body_linear_momentum_preprojection_velocity_same_q_z_kg_m_s,"
                         << "source_body_linear_momentum_preprojection_qv_x_kg_m_s,source_body_linear_momentum_preprojection_qv_y_kg_m_s,source_body_linear_momentum_preprojection_qv_z_kg_m_s,"
-                        << "source_body_linear_momentum_accepted_qv_x_kg_m_s,source_body_linear_momentum_accepted_qv_y_kg_m_s,source_body_linear_momentum_accepted_qv_z_kg_m_s\n";
+                        << "source_body_linear_momentum_accepted_qv_x_kg_m_s,source_body_linear_momentum_accepted_qv_y_kg_m_s,source_body_linear_momentum_accepted_qv_z_kg_m_s,"
+                        << "gpu_body_kinetic_root_momentum_free_same_q_x_kg_m_s,gpu_body_kinetic_root_momentum_free_same_q_y_kg_m_s,gpu_body_kinetic_root_momentum_free_same_q_z_kg_m_s,"
+                        << "gpu_body_kinetic_root_momentum_post_coupled_sweep_same_q_x_kg_m_s,gpu_body_kinetic_root_momentum_post_coupled_sweep_same_q_y_kg_m_s,gpu_body_kinetic_root_momentum_post_coupled_sweep_same_q_z_kg_m_s,"
+                        << "gpu_body_kinetic_root_mass_row_x_f32_by_local_v_index_semicolon,gpu_body_kinetic_root_mass_row_y_f32_by_local_v_index_semicolon,gpu_body_kinetic_root_mass_row_z_f32_by_local_v_index_semicolon\n";
                     const auto writeCsvString = [](std::ostream& output,
                                                    const std::string& value) {
                         output << '"';
@@ -23947,6 +23959,26 @@ int main(int argc, char** argv) {
                                      qAuditSourceBodyLinearMomentum)
                                     for (const double component : stageMomentum)
                                         qIntegrationTrace << ',' << component;
+                                const std::size_t nv = articulation.nv;
+                                if (qIntegrationWindow.bounded) {
+                                    require(result.standBodyKineticRootMassRows.size() ==
+                                                3u * nv &&
+                                            result.standBodyKineticRootMomentumStages.size() == 6u,
+                                            "bounded Q row lacks GPU root body-kinetic momentum evidence");
+                                    for (const float component :
+                                         result.standBodyKineticRootMomentumStages)
+                                        qIntegrationTrace << ',' << component;
+                                    const std::span<const float> rootRows(
+                                        result.standBodyKineticRootMassRows);
+                                    for (std::size_t axis = 0u; axis < 3u; ++axis) {
+                                        qIntegrationTrace << ',';
+                                        writeFloatArray(qIntegrationTrace,
+                                            rootRows.subspan(axis * nv, nv));
+                                    }
+                                } else {
+                                    for (std::size_t column = 0u; column < 9u; ++column)
+                                        qIntegrationTrace << ',';
+                                }
                                 qIntegrationTrace << '\n';
                                 qIntegrationTrace.flush();
                                 require(qIntegrationTrace.good(),

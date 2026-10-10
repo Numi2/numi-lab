@@ -239,7 +239,15 @@ inline bool standDeferredDispatchFlagsValid(
         dispatch.supportContactCount != 0u &&
         dispatch.supportContactCount <= MR_NUMI_HUMAN_STAND_MAX_CONTACTS &&
         dispatch.jointEqualityCount != 0u;
+    const bool rootMomentumDiagnosticValid =
+        dispatch.rootMomentumDiagnosticMode <= 1u &&
+        all(uint3(dispatch.rootMomentumDiagnosticReserved[0],
+                  dispatch.rootMomentumDiagnosticReserved[1],
+                  dispatch.rootMomentumDiagnosticReserved[2]) == uint3(0u)) &&
+        (dispatch.rootMomentumDiagnosticMode == 0u ||
+         (dispatch.flags & MR_NUMI_HUMAN_STAND_EXPORT_SOURCE_LIMIT_IMPULSES) != 0u);
     return standSupportContactPlaneDispatchValid(dispatch) &&
+        rootMomentumDiagnosticValid &&
         (deferred == 0u ||
             (kUseDeferStandEqualityData && reducedAdmission)) &&
         (stages == 0u || deferred != 0u);
@@ -407,6 +415,22 @@ inline float standSelectedSourceA(
     const uint storedRow = upperTriangle ? min(row, column) : max(row, column);
     const uint storedColumn = upperTriangle ? max(row, column) : min(row, column);
     return sourceA[storedRow * nv + storedColumn];
+}
+
+inline void standCaptureBodyKineticRootRows(
+    device float* rootRows,
+    const uint nv,
+    const uint row,
+    const uint column,
+    const float bodyKineticValue,
+    const bool upperTriangle
+) {
+    const bool selected = upperTriangle ? row <= column : row >= column;
+    if (!selected) return;
+    if (row < 3u)
+        rootRows[row * nv + column] = bodyKineticValue;
+    if (column < 3u && row != column)
+        rootRows[column * nv + row] = bodyKineticValue;
 }
 
 struct MRStandFinishWorkCounters {
@@ -1331,7 +1355,7 @@ kernel void mr_numi_human_stand_step(
     const uint vectorStride = nv + 3u * nv +
         12u * dispatch.supportContactCount + dispatch.jointEqualityCount +
         (((dispatch.flags & MR_NUMI_HUMAN_STAND_EXPORT_SOURCE_LIMIT_IMPULSES) != 0u)
-            ? nv + nq + nv : 0u);
+            ? nv + nq + nv + 3u * nv + 6u : 0u);
     const uint preloadBase = environment * vectorStride;
     const uint vectorBase = preloadBase + nv;
     const uint equalityCount = dispatch.jointEqualityCount;
@@ -1904,6 +1928,13 @@ kernel void mr_numi_human_stand_step(
             else value += contribution;
         }
         if (compensated) value = bodySum.high + bodySum.low;
+        if (dispatch.rootMomentumDiagnosticMode != 0u) {
+            device float* rootRows = preProjectionVEvidence + nv;
+            const bool upperSourceTriangle = kUseSparseStandOperator ||
+                (dispatch.flags & MR_NUMI_HUMAN_STAND_REDUCED_SOURCE_UPPER_TRIANGLE) != 0u;
+            standCaptureBodyKineticRootRows(
+                rootRows, nv, row, column, value, upperSourceTriangle);
+        }
         if (row == column) {
             device const MRDofPropertiesGPU& dof =
                 dofs[articulation.vOffset + row];
@@ -3723,6 +3754,7 @@ kernel void mr_numi_human_stand_mass_assemble(
     device const float* passiveJointProgram [[buffer(24)]],
     device float* sourceDynamicsWitness [[buffer(25)]],
     device const uint* sparseGraph [[buffer(28), function_constant(kUseSparseStandOperator)]],
+    device float* vectorScratch [[buffer(26)]],
     uint2 position [[thread_position_in_grid]]
 ) {
     const uint environment = position.y;
@@ -3739,6 +3771,7 @@ kernel void mr_numi_human_stand_mass_assemble(
     device const MRArticulationGPU& articulation =
         articulations[dispatch.articulationIndex];
     const uint nv = articulation.nv;
+    const uint nq = articulation.nq;
     const uint qBase = environment * dispatch.qStride;
     if (!standDeferredDispatchShapeValid(dispatch, nv)) {
         if (position.x == 0u)
@@ -3747,6 +3780,10 @@ kernel void mr_numi_human_stand_mass_assemble(
     }
     const uint index = position.x;
     if (index >= nv * nv) return;
+    const uint vectorStride = nv + 3u * nv +
+        12u * dispatch.supportContactCount + dispatch.jointEqualityCount +
+        (((dispatch.flags & MR_NUMI_HUMAN_STAND_EXPORT_SOURCE_LIMIT_IMPULSES) != 0u)
+            ? nv + nq + nv + 3u * nv + 6u : 0u);
     const uint row = index / nv;
     const uint column = index - row * nv;
     const uint bodyCount = articulation.bodyCount;
@@ -3790,6 +3827,17 @@ kernel void mr_numi_human_stand_mass_assemble(
         else value += contribution;
     }
     if (compensated) value = bodySum.high + bodySum.low;
+    if (dispatch.rootMomentumDiagnosticMode != 0u) {
+        const uint preProjectionBase =
+            5u * nv + 12u * dispatch.supportContactCount +
+            dispatch.jointEqualityCount;
+        device float* rootRows = vectorScratch + environment * vectorStride +
+            preProjectionBase + nq + nv;
+        const bool upperSourceTriangle = kUseSparseStandOperator ||
+            (dispatch.flags & MR_NUMI_HUMAN_STAND_REDUCED_SOURCE_UPPER_TRIANGLE) != 0u;
+        standCaptureBodyKineticRootRows(
+            rootRows, nv, row, column, value, upperSourceTriangle);
+    }
     if (row == column) {
         device const MRDofPropertiesGPU& dof =
             dofs[articulation.vOffset + row];
@@ -3900,7 +3948,7 @@ kernel void mr_numi_human_stand_finish(
     const uint vectorStride = nv + 3u * nv +
         12u * dispatch.supportContactCount + dispatch.jointEqualityCount +
         (((dispatch.flags & MR_NUMI_HUMAN_STAND_EXPORT_SOURCE_LIMIT_IMPULSES) != 0u)
-            ? nv + nq + nv : 0u);
+            ? nv + nq + nv + 3u * nv + 6u : 0u);
     const uint preloadBase = environment * vectorStride;
     const uint vectorBase = preloadBase + nv;
     const uint equalityCount = dispatch.jointEqualityCount;

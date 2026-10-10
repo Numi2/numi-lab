@@ -660,6 +660,17 @@ void visitSplitStandBoundary(
     appendSplitStandValue(sink, input.stand.targetRootOrientation);
     appendSplitStandValue(sink, input.stand.assistanceGains);
     appendSplitStandValue(sink, input.stand.timedRootForce);
+    if (input.stand.rootMomentumDiagnosticFirstAcceptedStep != 0u ||
+        input.stand.rootMomentumDiagnosticLastAcceptedStep != 0u) {
+        constexpr std::array<std::uint8_t, 24u> observerDomain{{
+            'm','r','n','x','.','r','o','o','t','.','m','o','m','e','n','t',
+            'u','m','.','q','w','1',0u,0u}};
+        sink.append(observerDomain.data(), observerDomain.size());
+        appendSplitStandValue(
+            sink, input.stand.rootMomentumDiagnosticFirstAcceptedStep);
+        appendSplitStandValue(
+            sink, input.stand.rootMomentumDiagnosticLastAcceptedStep);
+    }
     if (standPgsVelocityResidualTolerance > 0.0f) {
         const std::uint8_t residualStopEnabled = 1u;
         appendSplitStandValue(sink, residualStopEnabled);
@@ -1263,6 +1274,7 @@ struct MetalArticulatedOperatorSubmissionState {
     std::size_t standTendonEnvelopeBindingCount = 0u;
     std::size_t standContactCount = 0u;
     bool standUsePerContactSupportPlanes = false;
+    bool standRootMomentumDiagnosticsCaptured = false;
     std::size_t standJointEqualityCount = 0u;
     bool standEqualityDeferralFaultRequested = false;
     bool publishAcceptedResidentState = false;
@@ -1996,6 +2008,8 @@ bool validNumiHumanStand(
             stand.numanXTransactionProgram.configured() ||
             stand.numanXHumanMatterProgram.configured() ||
             stand.usePerContactSupportPlanes ||
+            stand.rootMomentumDiagnosticFirstAcceptedStep != 0u ||
+            stand.rootMomentumDiagnosticLastAcceptedStep != 0u ||
             mrNumiHumanTimedRootForceConfigured(stand.timedRootForce) ||
             stand.stepIndexOffset != 0u ||
             stand.authoritativeStepCount != 0u) {
@@ -2020,6 +2034,27 @@ bool validNumiHumanStand(
             stand.timedRootForce, authoritativeStepCount)) {
         reason = "stand timed root force must be finite with a fixed window inside the authoritative horizon";
         return false;
+    }
+    const bool rootMomentumWindowConfigured =
+        stand.rootMomentumDiagnosticFirstAcceptedStep != 0u ||
+        stand.rootMomentumDiagnosticLastAcceptedStep != 0u;
+    if (rootMomentumWindowConfigured) {
+        const auto first = stand.rootMomentumDiagnosticFirstAcceptedStep;
+        const auto last = stand.rootMomentumDiagnosticLastAcceptedStep;
+        if (first == 0u || last < first || last > authoritativeStepCount ||
+            !config.readStandConstraintDiagnostics) {
+            reason = "root momentum observer requires an inclusive in-horizon window and constraint diagnostics";
+            return false;
+        }
+        const std::uint32_t submissionFirst = stand.stepIndexOffset + 1u;
+        const std::uint32_t submissionLast =
+            stand.stepIndexOffset + stand.stepCount;
+        const bool overlapsSubmission =
+            first <= submissionLast && last >= submissionFirst;
+        if (overlapsSubmission && stand.stepCount != 1u) {
+            reason = "root momentum observer requires one-step submissions inside its window";
+            return false;
+        }
     }
     if (!config.pointJacobiansOnly || !input.mujoco.enabled() ||
         !(config.mujocoActivationTimestepSeconds > 0.0f)) {
@@ -3516,6 +3551,9 @@ MetalArticulatedOperatorDiagnostics validateAndBuildLayout(
               !checkedAdd(preProjectionElements, articulation.nv,
                           preProjectionElements) ||
               !checkedAdd(vectorPerEnvironment, preProjectionElements,
+                          vectorPerEnvironment) ||
+              !checkedAdd(vectorPerEnvironment,
+                          3u * articulation.nv + 6u,
                           vectorPerEnvironment))) ||
             !checkedMultiply(input.environmentCount, vectorPerEnvironment,
                              layout.standVectorElements) ||
@@ -7062,6 +7100,13 @@ struct MetalBufferRegion {
     dispatch.targetRootOrientation = input.stand.targetRootOrientation;
     dispatch.assistanceGains = input.stand.assistanceGains;
     dispatch.timedRootForce = input.stand.timedRootForce;
+    const std::uint32_t acceptedStep = stepIndex + 1u;
+    dispatch.rootMomentumDiagnosticMode =
+        exportSourceLimitImpulses &&
+        input.stand.rootMomentumDiagnosticFirstAcceptedStep != 0u &&
+        acceptedStep >= input.stand.rootMomentumDiagnosticFirstAcceptedStep &&
+        acceptedStep <= input.stand.rootMomentumDiagnosticLastAcceptedStep
+            ? 1u : 0u;
     dispatch.hipCapsuleTermCount = static_cast<mr_u32>(
         input.stand.hipCapsuleTerms.size());
     std::copy(input.stand.hipCapsuleTerms.begin(),
@@ -10121,7 +10166,10 @@ MetalArticulatedOperatorSubmission::wait(
             const std::size_t stride = diagnostics.layout.standVectorElements / environments;
             const std::size_t preProjectionBase =
                 5u * nv + 12u * contacts + equalities;
-            if (stride != preProjectionBase + nq + nv) {
+            const std::size_t rootMomentumTailBase =
+                preProjectionBase + nq + nv;
+            const std::size_t rootMomentumTailElements = 3u * nv + 6u;
+            if (stride != rootMomentumTailBase + rootMomentumTailElements) {
                 return reject(std::move(diagnostics),
                     MetalArticulatedOperatorHostStatus::internalFailure,
                     "GPU Numi Human endpoint diagnostic stride is invalid");
@@ -10193,12 +10241,35 @@ MetalArticulatedOperatorSubmission::wait(
                 std::copy_n(row + preProjectionBase + nq, nv,
                     staged.standPreProjectionV.begin() + env * nv);
             }
+            if (pending->standRootMomentumDiagnosticsCaptured) {
+                staged.standBodyKineticRootMassRows.resize(environments * 3u * nv);
+                staged.standBodyKineticRootMomentumStages.resize(environments * 6u);
+                for (std::size_t env = 0u; env < environments; ++env) {
+                    const float* row = vectors + env * stride;
+                    const float* evidence = row + rootMomentumTailBase;
+                    std::copy_n(evidence, 3u * nv,
+                        staged.standBodyKineticRootMassRows.begin() + env * 3u * nv);
+                    std::copy_n(evidence + 3u * nv, 6u,
+                        staged.standBodyKineticRootMomentumStages.begin() + env * 6u);
+                }
+            }
             if (!std::all_of(staged.standSourceLimitImpulses.begin(),
                              staged.standSourceLimitImpulses.end(),
                              [](const float value) { return std::isfinite(value); })) {
                 return reject(std::move(diagnostics),
                     MetalArticulatedOperatorHostStatus::internalFailure,
                     "GPU Numi Human source-limit impulse evidence is non-finite");
+            }
+            if (pending->standRootMomentumDiagnosticsCaptured &&
+                (!std::all_of(staged.standBodyKineticRootMassRows.begin(),
+                              staged.standBodyKineticRootMassRows.end(),
+                              [](const float value) { return std::isfinite(value); }) ||
+                 !std::all_of(staged.standBodyKineticRootMomentumStages.begin(),
+                              staged.standBodyKineticRootMomentumStages.end(),
+                              [](const float value) { return std::isfinite(value); }))) {
+                return reject(std::move(diagnostics),
+                    MetalArticulatedOperatorHostStatus::internalFailure,
+                    "GPU root body-kinetic momentum evidence is non-finite");
             }
             if (!std::all_of(staged.standPreProjectionQ.begin(),
                              staged.standPreProjectionQ.end(),
@@ -14574,9 +14645,11 @@ MetalArticulatedOperatorContext::submit(
                             : state_->standBuffers[kStandPassiveJointBuffer]
                         offset:0u atIndex:25u];
                     [standEncoder setBuffer:
-                        splitStand || cpuFinish
-                            ? state_->standCpuFinishBuffer
-                            : state_->standBuffers[kStandVectorBuffer]
+                        parallelMass && phase == 1u
+                            ? state_->standBuffers[kStandVectorBuffer]
+                            : (splitStand || cpuFinish
+                                ? state_->standCpuFinishBuffer
+                                : state_->standBuffers[kStandVectorBuffer])
                         offset:0u atIndex:26u];
                     [standEncoder setBuffer:state_->buffers[0u] offset:0u atIndex:0u];
                     [standEncoder setBuffer:state_->buffers[1u] offset:0u atIndex:1u];
@@ -15082,6 +15155,14 @@ MetalArticulatedOperatorContext::submit(
             pending->standContactCount = input.stand.contacts.size();
             pending->standUsePerContactSupportPlanes =
                 input.stand.usePerContactSupportPlanes;
+            const std::uint32_t finalAcceptedStep =
+                input.stand.stepIndexOffset + input.stand.stepCount;
+            pending->standRootMomentumDiagnosticsCaptured =
+                input.stand.rootMomentumDiagnosticFirstAcceptedStep != 0u &&
+                finalAcceptedStep >=
+                    input.stand.rootMomentumDiagnosticFirstAcceptedStep &&
+                finalAcceptedStep <=
+                    input.stand.rootMomentumDiagnosticLastAcceptedStep;
             pending->standJointEqualityCount =
                 input.stand.jointEqualities.size();
             pending->standEqualityDeferralFaultRequested =

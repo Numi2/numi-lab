@@ -1713,6 +1713,13 @@ struct MetalNumiHumanStandInput {
     // plane point/normal into each contact record on GPU for this pose.
     // Currently admitted only for one environment and without warm-start.
     bool usePerContactSupportPlanes = false;
+    // Optional observer-only accepted-step range, inclusive and one-based.
+    // Zero/zero disables it. The same immutable range is carried by every
+    // continuation; the dispatch selects only the matching global step.
+    // Capture requires readStandConstraintDiagnostics and one-step submissions
+    // for any segment overlapping this range.
+    std::uint32_t rootMomentumDiagnosticFirstAcceptedStep = 0u;
+    std::uint32_t rootMomentumDiagnosticLastAcceptedStep = 0u;
     // Exact scalar joint manifold imported from the source model. These rows
     // carry bilateral reaction impulses during dynamics; dependent q/v are
     // projected back onto the same polynomial after each accepted step.
@@ -2148,6 +2155,12 @@ struct MetalArticulatedOperatorResult {
     // sweeps, immediately before exact equality coordinate projection.
     std::vector<float> standPreProjectionQ;
     std::vector<float> standPreProjectionV;
+    // Accepted bounded-Q observer only. Raw body-kinetic mass rows are
+    // [root x/y/z][local velocity DOF], before effective diagonal terms and
+    // factorization. Momentum stages are [free xyz, post-coupled-sweep xyz],
+    // both evaluated at the same pre-step q. Empty outside captured steps.
+    std::vector<float> standBodyKineticRootMassRows;
+    std::vector<float> standBodyKineticRootMomentumStages;
 };
 
 struct MetalArticulatedOperatorDiagnostics {
