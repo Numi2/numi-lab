@@ -1,0 +1,22 @@
+{
+  "schema": "numi.human.accepted-force-paired-smoke-verification.v1",
+  "status": "failed",
+  "failures": [
+    "owner parser import failed: ImportError: attempted relative import with no known parent package",
+    "control: receipt load failed: NameError: name 'q_audit' is not defined",
+    "window: receipt load failed: NameError: name 'q_audit' is not defined"
+  ],
+  "checks": {},
+  "input_sha256": {
+    "/Users/n/numi-human-retained-delivery-20261009/accepted-force-observer-1253/paired-smoke-001/control/run-declaration.json": "b67702ed046739335cbb4fbd713ff8d4110ec938dd30b04938c7f79bd270b52f",
+    "/Users/n/numi-human-retained-delivery-20261009/accepted-force-observer-1253/paired-smoke-001/control/execution.json": "00f167bdba0b7cc6e251a992ce65b223d7deba9aa40ec0acf4d6f6f71e3a0c32",
+    "/Users/n/numi-human-retained-delivery-20261009/accepted-force-observer-1253/paired-smoke-001/control/native-run/invocation.json": "61636dd81a633c902fe2f55b7bed65a7bc8e18a6158f17061312c4beadf619a6",
+    "/Users/n/numi-human-retained-delivery-20261009/accepted-force-observer-1253/paired-smoke-001/control/native-run/run-metadata.json": "c492c0999507e54cd60dd24f9adbb69f4c4a274b4fc385b944a0b449e363b069",
+    "/Users/n/numi-human-retained-delivery-20261009/accepted-force-observer-1253/paired-smoke-001/control/execution-start.json": "4734406c8aa726be147bb360622c66a82bc8d766ba5351910a5b0d7f6a104239",
+    "/Users/n/numi-human-retained-delivery-20261009/accepted-force-observer-1253/paired-smoke-001/window/run-declaration.json": "46408bf228d4b80a0dfd54880c4885e058dad3513e6ce683cddf487143bb2a46",
+    "/Users/n/numi-human-retained-delivery-20261009/accepted-force-observer-1253/paired-smoke-001/window/execution.json": "c3399623e0f4c59b9a888f6661532a88b3b9101f59137173f400c77a1e4f0dab",
+    "/Users/n/numi-human-retained-delivery-20261009/accepted-force-observer-1253/paired-smoke-001/window/native-run/invocation.json": "addf5934cd41fec55b248b2fdff5b3fb17a596d926e0a1c99261330dfa9e1bac",
+    "/Users/n/numi-human-retained-delivery-20261009/accepted-force-observer-1253/paired-smoke-001/window/native-run/run-metadata.json": "9fa14a78a819c0c820d796e00ebbf5ddec6ab507b4555467542a9ac7e0557394",
+    "/Users/n/numi-human-retained-delivery-20261009/accepted-force-observer-1253/paired-smoke-001/window/execution-start.json": "0d75cb3c8d59936692abd681d1ab6cd35cc28a45bef19c19cd334ec268e869bb"
+  }
+}

@@ -1777,6 +1777,18 @@ if(BUILD_TESTING)
         COMMAND metalrobo_numi_human_accepted_q_audit_window_test)
     set_tests_properties(numi_human_accepted_q_audit_window PROPERTIES
         LABELS "numi-human;accepted-q-audit;window;cpu" TIMEOUT 30)
+    add_executable(metalrobo_numi_human_accepted_force_observer_test
+        tests/numi_human_accepted_force_observer_test.cpp)
+    target_include_directories(metalrobo_numi_human_accepted_force_observer_test
+        PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
+    target_compile_features(metalrobo_numi_human_accepted_force_observer_test
+        PRIVATE cxx_std_23)
+    target_compile_options(metalrobo_numi_human_accepted_force_observer_test
+        PRIVATE -Wall -Wextra -Wpedantic -Werror -fno-fast-math -ffp-contract=off)
+    add_test(NAME numi_human_accepted_force_observer
+        COMMAND metalrobo_numi_human_accepted_force_observer_test)
+    set_tests_properties(numi_human_accepted_force_observer PROPERTIES
+        LABELS "numi-human;accepted-force-observer;cpu" TIMEOUT 30)
     add_executable(metalrobo_numi_human_passive_joint_test tests/numi_human_passive_joint_test.cpp)
     target_include_directories(metalrobo_numi_human_passive_joint_test PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
     target_compile_options(metalrobo_numi_human_passive_joint_test PRIVATE -Wall -Wextra -Werror -fno-fast-math)

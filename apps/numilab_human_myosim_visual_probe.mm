@@ -7,6 +7,7 @@
 
 #include "metalrobo/ArticulatedDynamics.hpp"
 #include "metalrobo/numi_human_motion_observer.hpp"
+#include "metalrobo/numi_human_accepted_force_observer.hpp"
 #include "metalrobo/MetalArticulatedOperator.hpp"
 #include "metalrobo/MetalHybridRenderer.hpp"
 #include "metalrobo/MetalMultiArticulatedContact.hpp"
@@ -23074,6 +23075,20 @@ int main(int argc, char** argv) {
                 require(qIntegrationWindowResult.ok(),
                         "accepted Q audit step bounds are invalid or require the Q audit");
                 const auto qIntegrationWindow = qIntegrationWindowResult.window;
+                const char* acceptedForceAuditSetting =
+                    std::getenv("NUMI_HUMAN_ACCEPTED_FORCE_AUDIT");
+                require(acceptedForceAuditSetting == nullptr ||
+                            acceptedForceAuditSetting[0] == '\0' ||
+                            std::strcmp(acceptedForceAuditSetting, "0") == 0 ||
+                            std::strcmp(acceptedForceAuditSetting, "1") == 0,
+                        "NUMI_HUMAN_ACCEPTED_FORCE_AUDIT must be 0 or 1");
+                const bool restingAcceptedForceAudit =
+                    acceptedForceAuditSetting != nullptr &&
+                    std::strcmp(acceptedForceAuditSetting, "1") == 0;
+                require(!restingAcceptedForceAudit ||
+                            (restingQIntegrationAudit &&
+                             qIntegrationWindow.bounded),
+                        "accepted force observer requires a bounded accepted Q audit window");
                 require(!restingQIntegrationAudit ||
                             (restingComMomentumAudit &&
                              (qIntegrationWindow.bounded ||
@@ -23136,6 +23151,8 @@ int main(int argc, char** argv) {
                               << " observer_only=1" << std::endl;
                 }
                 std::ofstream qSupportSlipTrace;
+                std::ofstream acceptedForceTrace;
+                std::uint32_t acceptedForceAuditRows = 0u;
                 std::uint32_t qSupportSlipSampleSteps = 0u;
                 if (restingComMomentumAudit) {
                     comMomentumTrace.open(std::filesystem::path(positional.back())/
@@ -23274,6 +23291,33 @@ int main(int argc, char** argv) {
                         qIndexMapTrace << ",,0\n";
                     }
                     qIndexMapTrace.flush();
+                    if (restingAcceptedForceAudit) {
+                        acceptedForceTrace.open(
+                            std::filesystem::path(positional.back()) /
+                                "resting-com-q-force-contributions.csv");
+                        require(acceptedForceTrace.good(),
+                                "accepted force observer output path is unavailable");
+                        acceptedForceTrace <<
+                            "accepted_step,accepted_time_s,source_pre_step_q_fingerprint_fnv64,"
+                            "local_v_count,muscle_count,tendon_binding_count,"
+                            "mujoco_muscle_generalized_force_row_sum_cpu_f64_by_local_v_semicolon,"
+                            "tendon_transfer_generalized_correction_sum_cpu_f64_by_local_v_semicolon,"
+                            "post_consumer_mujoco_force_workspace_slice_f32_by_local_v_semicolon,"
+                            "generalized_effort_unit_convention\n";
+                        acceptedForceTrace.flush();
+                        require(acceptedForceTrace.good(),
+                                "accepted force observer header could not be written");
+                        std::cout << "resting_accepted_force_observer=enabled"
+                                  << " source=already_collected_MetalArticulatedOperatorResult"
+                                  << " paired_q_window=1"
+                                  << " rows_file=resting-com-q-force-contributions.csv"
+                                  << " order=local_v_index_ascending"
+                                  << " muscle_sum=CPU_double_sum_of_[muscle][dof]_rows"
+                                  << " tendon_sum=CPU_double_sum_of_[binding][dof]_correction_rows"
+                                  << " aggregate_slice=post_consumer_force_workspace_not_net"
+                                  << " units=N_translation_Nm_rotation"
+                                  << " observer_only=1" << std::endl;
+                    }
                     if (qIntegrationWindow.bounded) {
                         qSupportSlipTrace.open(std::filesystem::path(positional.back()) /
                             "resting-com-q-support-slip.csv");
@@ -23899,6 +23943,78 @@ int main(int argc, char** argv) {
                                 qIntegrationTrace.flush();
                                 require(qIntegrationTrace.good(),
                                         "accepted q-integration trace write failed");
+                                if (restingAcceptedForceAudit) {
+                                    require(result.layout.mujocoMuscleElements ==
+                                                musclePayload.gpuMuscles.size() &&
+                                                result.layout.standTendonBindingElements ==
+                                                    musclePayload.tendonPayload.bindings.size() &&
+                                                result.layout.mujocoMuscleGeneralizedForceElements ==
+                                                    result.mujocoMuscleGeneralizedForces.size() &&
+                                                result.layout.mujocoGeneralizedForceElements ==
+                                                    result.mujocoGeneralizedForces.size() &&
+                                                result.layout.standTendonCorrectionElements ==
+                                                    result.standTendonGeneralizedCorrections.size(),
+                                            "accepted force observer source counts/layout differ from the loaded MyoSim/tendon payloads");
+                                    // The reducer initially writes the force-workspace
+                                    // slice as the sum of per-muscle rows. An optional
+                                    // pre-dynamics consumer may then add its own
+                                    // correction in place. Tendon-transfer rows remain
+                                    // separate source-to-distributed generalized-force
+                                    // corrections, so neither value is mislabeled as a
+                                    // global net force.
+                                    metalrobo::human::observer::
+                                        AcceptedGeneralizedForceSummary forceSummary;
+                                    std::string_view forceSummaryError;
+                                    require(metalrobo::human::observer::
+                                                summarizeAcceptedGeneralizedForceRows(
+                                                    result.mujocoMuscleGeneralizedForces,
+                                                    result.mujocoGeneralizedForces,
+                                                    result.standTendonGeneralizedCorrections,
+                                                    musclePayload.gpuMuscles.size(),
+                                                    musclePayload.tendonPayload.bindings.size(),
+                                                    articulation.nv,
+                                                    forceSummary,
+                                                    forceSummaryError),
+                                            "accepted force observer result layout/value check failed: " +
+                                                std::string(forceSummaryError));
+                                    const auto writeDoubleArray = [](
+                                        std::ostream& output,
+                                        const std::span<const double> values) {
+                                        output << std::setprecision(
+                                            std::numeric_limits<double>::max_digits10);
+                                        for (std::size_t index = 0u;
+                                             index < values.size(); ++index) {
+                                            if (index != 0u) output << ';';
+                                            output << values[index];
+                                        }
+                                    };
+                                    acceptedForceTrace << step << ','
+                                        << std::setprecision(17)
+                                        << step * double(
+                                            coupled.physiology.runtime.timestepSeconds())
+                                        << ',' << payloadFingerprint(qBefore) << ','
+                                        << articulation.nv << ','
+                                        << musclePayload.gpuMuscles.size() << ','
+                                        << musclePayload.tendonPayload.bindings.size() << ',';
+                                    writeDoubleArray(acceptedForceTrace,
+                                        forceSummary.muscleRowsByDof);
+                                    acceptedForceTrace << ',';
+                                    writeDoubleArray(acceptedForceTrace,
+                                        forceSummary.tendonCorrectionsByDof);
+                                    acceptedForceTrace << ',';
+                                    writeFloatArray(acceptedForceTrace,
+                                        result.mujocoGeneralizedForces);
+                                    acceptedForceTrace << ',';
+                                    acceptedForceTrace <<
+                                        "N for translational generalized coordinates; "
+                                        "N*m for rotational generalized coordinates; "
+                                        "DOF identity is local_v_index in resting-com-q-index-map.csv";
+                                    acceptedForceTrace << '\n';
+                                    acceptedForceTrace.flush();
+                                    require(acceptedForceTrace.good(),
+                                            "accepted force observer row write failed");
+                                    ++acceptedForceAuditRows;
+                                }
                                 ++qIntegrationAcceptedRows;
                                 if (trainingProfile) {
                                     restingObserverProfile.qIntegrationCsvMilliseconds +=
@@ -24509,6 +24625,24 @@ int main(int argc, char** argv) {
                             "accepted Q-integration trace did not retain every requested window step");
                     qIntegrationTrace.flush();
                     qIndexMapTrace.flush();
+                    if (acceptedForceTrace.is_open()) {
+                        acceptedForceTrace.flush();
+                        require(acceptedForceTrace.good() &&
+                                    acceptedForceAuditRows ==
+                                        qIntegrationWindow.rowCount(),
+                                "accepted force observer missed a requested Q-window step");
+                        std::cout << "resting_accepted_force_observer_rows="
+                                  << acceptedForceAuditRows
+                                  << " first_accepted_step="
+                                  << qIntegrationWindow.firstAcceptedStep
+                                  << " last_accepted_step="
+                                  << qIntegrationWindow.lastAcceptedStep
+                                  << " dof_order=local_v_index_ascending"
+                                  << " source_q=pre_step_fingerprint"
+                                  << " aggregation=descriptive_CPU_double_sum"
+                                  << " status=not_total_or_net_force"
+                                  << std::endl;
+                    }
                     if (qSupportSlipTrace.is_open()) {
                         qSupportSlipTrace.flush();
                         require(qSupportSlipTrace.good() &&

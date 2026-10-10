@@ -1,0 +1,17 @@
+{
+  "arms": {
+    "control": {
+      "native_output": "/Users/n/numi-human-retained-delivery-20261009/accepted-force-observer-1253/paired-smoke-001/control/native-run",
+      "run_declaration": "/Users/n/numi-human-retained-delivery-20261009/accepted-force-observer-1253/paired-smoke-001/control/run-declaration.json",
+      "run_declaration_sha256": "b67702ed046739335cbb4fbd713ff8d4110ec938dd30b04938c7f79bd270b52f"
+    },
+    "window": {
+      "native_output": "/Users/n/numi-human-retained-delivery-20261009/accepted-force-observer-1253/paired-smoke-001/window/native-run",
+      "run_declaration": "/Users/n/numi-human-retained-delivery-20261009/accepted-force-observer-1253/paired-smoke-001/window/run-declaration.json",
+      "run_declaration_sha256": "46408bf228d4b80a0dfd54880c4885e058dad3513e6ce683cddf487143bb2a46"
+    }
+  },
+  "launcher_path": "/Users/n/numi-human-retained-delivery-20261009/accepted-force-observer-1253/paired-smoke-001/launch_arm.py",
+  "launcher_sha256": "4c61f698834666556ba07fe429c4523327e8f95f855cc2959bdcb99fe038049c",
+  "schema": "numi.human.native-smoke-launch-guard.v1"
+}
