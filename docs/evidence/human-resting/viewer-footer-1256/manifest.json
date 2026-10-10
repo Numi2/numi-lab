@@ -1,0 +1,77 @@
+{
+  "build-001/build-report.json": {
+    "bytes": 5789,
+    "retained_path": "/Users/n/numi-human-retained-delivery-20261009/viewer-footer-1256/build-001/build-report.json",
+    "sha256": "c8cefab6a8ad8ac616ab3b82a25cab6039b783a30d60ad02e352614d1526ac3a"
+  },
+  "build-001/build.py": {
+    "bytes": 3004,
+    "retained_path": "/Users/n/numi-human-retained-delivery-20261009/viewer-footer-1256/build-001/build.py",
+    "sha256": "5fb8c3ab040588e2e2b78272bd34270cce96a3957b968762eb72402bae0d8b8e"
+  },
+  "build-001/compile.log": {
+    "bytes": 0,
+    "retained_path": "/Users/n/numi-human-retained-delivery-20261009/viewer-footer-1256/build-001/compile.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "build-001/link.log": {
+    "bytes": 0,
+    "retained_path": "/Users/n/numi-human-retained-delivery-20261009/viewer-footer-1256/build-001/link.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "native-smoke-001/launch-guard.json": {
+    "bytes": 670,
+    "retained_path": "/Users/n/numi-human-retained-delivery-20261009/viewer-footer-1256/native-smoke-001/launch-guard.json",
+    "sha256": "3248555e099d796cd1a895500faaa894549fb6ff112a304284966ed585956486"
+  },
+  "native-smoke-001/launch_arm.py": {
+    "bytes": 5340,
+    "retained_path": "/Users/n/numi-human-retained-delivery-20261009/viewer-footer-1256/native-smoke-001/launch_arm.py",
+    "sha256": "c794ea29411e5082accd93d85aa47b282079e1c7a62bec9bb9f3f1ffee801261"
+  },
+  "native-smoke-001/prepare.py": {
+    "bytes": 3627,
+    "retained_path": "/Users/n/numi-human-retained-delivery-20261009/viewer-footer-1256/native-smoke-001/prepare.py",
+    "sha256": "fccd3bc8ced63f0755a533ecf2e80a2ff1bc12ba00ee0048fc10398a557fe810"
+  },
+  "native-smoke-001/review-001/decode_last.swift": {
+    "bytes": 3292,
+    "retained_path": "/Users/n/numi-human-retained-delivery-20261009/viewer-footer-1256/native-smoke-001/review-001/decode_last.swift",
+    "sha256": "5aaa6aab157e4c38d2f046373736c1e968c7013224520bedd42fd6c00709b268"
+  },
+  "native-smoke-001/review-001/reader-sample-018.png": {
+    "bytes": 214110,
+    "retained_path": "/Users/n/numi-human-retained-delivery-20261009/viewer-footer-1256/native-smoke-001/review-001/reader-sample-018.png",
+    "sha256": "c97052d6c48f6e2b34ff685a8958112ac431e295af6ae38951610baf797738a8"
+  },
+  "native-smoke-001/review-001/recording-review.log": {
+    "bytes": 1108,
+    "retained_path": "/Users/n/numi-human-retained-delivery-20261009/viewer-footer-1256/native-smoke-001/review-001/recording-review.log",
+    "sha256": "6b366de14dfef6501c2d7a2ef76555611f14132290ead744e727131f0205cbc5"
+  },
+  "native-smoke-001/review-001/verification.json": {
+    "bytes": 7772,
+    "retained_path": "/Users/n/numi-human-retained-delivery-20261009/viewer-footer-1256/native-smoke-001/review-001/verification.json",
+    "sha256": "76a68056ed050b19fb1d47feadf61137136f434f4f8ee0aa6545b6f35e751e6e"
+  },
+  "native-smoke-001/review-001/verify.py": {
+    "bytes": 1722,
+    "retained_path": "/Users/n/numi-human-retained-delivery-20261009/viewer-footer-1256/native-smoke-001/review-001/verify.py",
+    "sha256": "94d1bb191fd33392f3da2d395671c154d93278639590950261465a0458c4d002"
+  },
+  "native-smoke-001/window/execution.json": {
+    "bytes": 3566,
+    "retained_path": "/Users/n/numi-human-retained-delivery-20261009/viewer-footer-1256/native-smoke-001/window/execution.json",
+    "sha256": "0bf2f0319bde1f5d309a8d52089449a8deb2d0c5cc570e1cbf3100a26559937d"
+  },
+  "native-smoke-001/window/run-declaration.json": {
+    "bytes": 20459,
+    "retained_path": "/Users/n/numi-human-retained-delivery-20261009/viewer-footer-1256/native-smoke-001/window/run-declaration.json",
+    "sha256": "2df09fe5a72c642d976ab01d4e490325a179d2024c2c696af9c41c740eb93f2f"
+  },
+  "native_recording_external": {
+    "bytes": 155762,
+    "retained_path": "/Users/n/numi-human-retained-delivery-20261009/viewer-footer-1256/native-smoke-001/window/native-run/native-viewer.mov",
+    "sha256": "44820ffb2b26c61691bad68f6df22ac785b4e7f760544ecdea8f8dab17b95699"
+  }
+}

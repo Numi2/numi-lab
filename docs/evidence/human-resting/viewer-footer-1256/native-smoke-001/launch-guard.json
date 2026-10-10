@@ -1,0 +1,12 @@
+{
+  "arms": {
+    "window": {
+      "native_output": "/Users/n/numi-human-retained-delivery-20261009/viewer-footer-1256/native-smoke-001/window/native-run",
+      "run_declaration": "/Users/n/numi-human-retained-delivery-20261009/viewer-footer-1256/native-smoke-001/window/run-declaration.json",
+      "run_declaration_sha256": "2df09fe5a72c642d976ab01d4e490325a179d2024c2c696af9c41c740eb93f2f"
+    }
+  },
+  "launcher_path": "/Users/n/numi-human-retained-delivery-20261009/viewer-footer-1256/native-smoke-001/launch_arm.py",
+  "launcher_sha256": "c794ea29411e5082accd93d85aa47b282079e1c7a62bec9bb9f3f1ffee801261",
+  "schema": "numi.human.native-smoke-launch-guard.v1"
+}

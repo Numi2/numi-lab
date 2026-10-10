@@ -1,0 +1,97 @@
+{
+  "inputs": {
+    "/Users/n/numi-human-retained-delivery-20261009/viewer-footer-1256/native-smoke-001/review-001/verify.py": "94d1bb191fd33392f3da2d395671c154d93278639590950261465a0458c4d002",
+    "/Users/n/numi-human-retained-delivery-20261009/viewer-footer-1256/native-smoke-001/window/run-declaration.json": "2df09fe5a72c642d976ab01d4e490325a179d2024c2c696af9c41c740eb93f2f",
+    "/Users/n/numi-human-retained-delivery-20261009/viewer-footer-1256/native-smoke-001/window/execution.json": "0bf2f0319bde1f5d309a8d52089449a8deb2d0c5cc570e1cbf3100a26559937d",
+    "/Users/n/numi-human-retained-delivery-20261009/accepted-force-observer-1253/paired-smoke-001/window/native-run/resting-com-momentum-diagnostic.csv": "2cca989cb164ee9ecc4489d8eb0e7f9a79ac30ad50f7449ea3729e5f2ecae654",
+    "/Users/n/numi-human-retained-delivery-20261009/viewer-footer-1256/native-smoke-001/window/native-run/resting-com-momentum-diagnostic.csv": "2cca989cb164ee9ecc4489d8eb0e7f9a79ac30ad50f7449ea3729e5f2ecae654",
+    "/Users/n/numi-human-retained-delivery-20261009/accepted-force-observer-1253/paired-smoke-001/window/native-run/resting-com-q-force-contributions.csv": "90c736e62297534cdd3616c92a2fa240b75efe45cf7aa688ca8b4b21e1c351b4",
+    "/Users/n/numi-human-retained-delivery-20261009/viewer-footer-1256/native-smoke-001/window/native-run/resting-com-q-force-contributions.csv": "90c736e62297534cdd3616c92a2fa240b75efe45cf7aa688ca8b4b21e1c351b4",
+    "/Users/n/numi-human-retained-delivery-20261009/accepted-force-observer-1253/paired-smoke-001/window/native-run/resting-com-q-index-map.csv": "0d28196086180ad69256142c3c68db5000d9f431319ac2b4c9310956469ff9ab",
+    "/Users/n/numi-human-retained-delivery-20261009/viewer-footer-1256/native-smoke-001/window/native-run/resting-com-q-index-map.csv": "0d28196086180ad69256142c3c68db5000d9f431319ac2b4c9310956469ff9ab",
+    "/Users/n/numi-human-retained-delivery-20261009/accepted-force-observer-1253/paired-smoke-001/window/native-run/resting-com-q-integration.csv": "f7001d687aac586a94be9c5714a7f3e117a99ea9910bb80157b53a3e625d7d11",
+    "/Users/n/numi-human-retained-delivery-20261009/viewer-footer-1256/native-smoke-001/window/native-run/resting-com-q-integration.csv": "f7001d687aac586a94be9c5714a7f3e117a99ea9910bb80157b53a3e625d7d11",
+    "/Users/n/numi-human-retained-delivery-20261009/accepted-force-observer-1253/paired-smoke-001/window/native-run/resting-com-q-support-slip.csv": "cb21d34b1c7bd2d0df2f7bb03a4c2d2ff5634465ef7271228b16412901b2f994",
+    "/Users/n/numi-human-retained-delivery-20261009/viewer-footer-1256/native-smoke-001/window/native-run/resting-com-q-support-slip.csv": "cb21d34b1c7bd2d0df2f7bb03a4c2d2ff5634465ef7271228b16412901b2f994",
+    "/Users/n/numi-human-retained-delivery-20261009/accepted-force-observer-1253/paired-smoke-001/window/native-run/resting-com-support-impulses.csv": "1cf0c670a31c94b16eca4f6c4f032fcd867dc21dc135a017d0d32b46901e7219",
+    "/Users/n/numi-human-retained-delivery-20261009/viewer-footer-1256/native-smoke-001/window/native-run/resting-com-support-impulses.csv": "1cf0c670a31c94b16eca4f6c4f032fcd867dc21dc135a017d0d32b46901e7219",
+    "/Users/n/numi-human-retained-delivery-20261009/accepted-force-observer-1253/paired-smoke-001/window/native-run/resting-coupled.csv": "c558efb29e68136b2691bd7bb0f78db9f50f17f86200f88e6777df008fadbf83",
+    "/Users/n/numi-human-retained-delivery-20261009/viewer-footer-1256/native-smoke-001/window/native-run/resting-coupled.csv": "c558efb29e68136b2691bd7bb0f78db9f50f17f86200f88e6777df008fadbf83",
+    "/Users/n/numi-human-retained-delivery-20261009/accepted-force-observer-1253/paired-smoke-001/window/native-run/resting-surface-audit.csv": "1ac84f44f4e5a8db710109d0eef8a2c78d5c6816472ee34abbc5617057f5e503",
+    "/Users/n/numi-human-retained-delivery-20261009/viewer-footer-1256/native-smoke-001/window/native-run/resting-surface-audit.csv": "1ac84f44f4e5a8db710109d0eef8a2c78d5c6816472ee34abbc5617057f5e503",
+    "/Users/n/numi-human-retained-delivery-20261009/viewer-footer-1256/native-smoke-001/window/native-run/accepted-geometry/step-512.mrvpack": "5989f29867a50cd5e5d17abe56d49d2de454bb961d853838529e1098c5e89f5e",
+    "/Users/n/numi-human-retained-delivery-20261009/accepted-force-observer-1253/paired-smoke-001/window/native-run/accepted-geometry/step-512.mrvpack": "5989f29867a50cd5e5d17abe56d49d2de454bb961d853838529e1098c5e89f5e",
+    "/Users/n/numi-human-retained-delivery-20261009/viewer-footer-1256/native-smoke-001/window/native-run/resting-human.mrvpack": "898c0d342ad26c5e233032a11b7543c9fd5d9b6401e8c8154e8cff9d0188e68b",
+    "/Users/n/numi-human-retained-delivery-20261009/accepted-force-observer-1253/paired-smoke-001/window/native-run/resting-human.mrvpack": "898c0d342ad26c5e233032a11b7543c9fd5d9b6401e8c8154e8cff9d0188e68b"
+  },
+  "inputs_unchanged": true,
+  "native_rc": 0,
+  "launch_input_pins_unchanged": true,
+  "argv_matches": true,
+  "traces": [
+    {
+      "name": "resting-com-momentum-diagnostic.csv",
+      "baseline_sha256": "2cca989cb164ee9ecc4489d8eb0e7f9a79ac30ad50f7449ea3729e5f2ecae654",
+      "candidate_sha256": "2cca989cb164ee9ecc4489d8eb0e7f9a79ac30ad50f7449ea3729e5f2ecae654",
+      "byte_exact": true
+    },
+    {
+      "name": "resting-com-q-force-contributions.csv",
+      "baseline_sha256": "90c736e62297534cdd3616c92a2fa240b75efe45cf7aa688ca8b4b21e1c351b4",
+      "candidate_sha256": "90c736e62297534cdd3616c92a2fa240b75efe45cf7aa688ca8b4b21e1c351b4",
+      "byte_exact": true
+    },
+    {
+      "name": "resting-com-q-index-map.csv",
+      "baseline_sha256": "0d28196086180ad69256142c3c68db5000d9f431319ac2b4c9310956469ff9ab",
+      "candidate_sha256": "0d28196086180ad69256142c3c68db5000d9f431319ac2b4c9310956469ff9ab",
+      "byte_exact": true
+    },
+    {
+      "name": "resting-com-q-integration.csv",
+      "baseline_sha256": "f7001d687aac586a94be9c5714a7f3e117a99ea9910bb80157b53a3e625d7d11",
+      "candidate_sha256": "f7001d687aac586a94be9c5714a7f3e117a99ea9910bb80157b53a3e625d7d11",
+      "byte_exact": true
+    },
+    {
+      "name": "resting-com-q-support-slip.csv",
+      "baseline_sha256": "cb21d34b1c7bd2d0df2f7bb03a4c2d2ff5634465ef7271228b16412901b2f994",
+      "candidate_sha256": "cb21d34b1c7bd2d0df2f7bb03a4c2d2ff5634465ef7271228b16412901b2f994",
+      "byte_exact": true
+    },
+    {
+      "name": "resting-com-support-impulses.csv",
+      "baseline_sha256": "1cf0c670a31c94b16eca4f6c4f032fcd867dc21dc135a017d0d32b46901e7219",
+      "candidate_sha256": "1cf0c670a31c94b16eca4f6c4f032fcd867dc21dc135a017d0d32b46901e7219",
+      "byte_exact": true
+    },
+    {
+      "name": "resting-coupled.csv",
+      "baseline_sha256": "c558efb29e68136b2691bd7bb0f78db9f50f17f86200f88e6777df008fadbf83",
+      "candidate_sha256": "c558efb29e68136b2691bd7bb0f78db9f50f17f86200f88e6777df008fadbf83",
+      "byte_exact": true
+    },
+    {
+      "name": "resting-surface-audit.csv",
+      "baseline_sha256": "1ac84f44f4e5a8db710109d0eef8a2c78d5c6816472ee34abbc5617057f5e503",
+      "candidate_sha256": "1ac84f44f4e5a8db710109d0eef8a2c78d5c6816472ee34abbc5617057f5e503",
+      "byte_exact": true
+    }
+  ],
+  "packs": [
+    {
+      "path": "accepted-geometry/step-512.mrvpack",
+      "baseline_sha256": "5989f29867a50cd5e5d17abe56d49d2de454bb961d853838529e1098c5e89f5e",
+      "candidate_sha256": "5989f29867a50cd5e5d17abe56d49d2de454bb961d853838529e1098c5e89f5e",
+      "byte_exact": true
+    },
+    {
+      "path": "resting-human.mrvpack",
+      "baseline_sha256": "898c0d342ad26c5e233032a11b7543c9fd5d9b6401e8c8154e8cff9d0188e68b",
+      "candidate_sha256": "898c0d342ad26c5e233032a11b7543c9fd5d9b6401e8c8154e8cff9d0188e68b",
+      "byte_exact": true
+    }
+  ],
+  "all_shared_traces_and_packs_exact": true,
+  "scope": "1.024 s presentation change parity; no long-horizon qualification"
+}

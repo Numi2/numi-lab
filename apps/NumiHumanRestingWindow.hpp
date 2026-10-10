@@ -66,23 +66,23 @@ using NumiHumanRestingAdvance = std::function<NumiHumanRestingFrame(unsigned,uns
     window.appearance=[NSAppearance appearanceNamed:NSAppearanceNameDarkAqua];
     window.backgroundColor=[NSColor colorWithCalibratedWhite:0.035 alpha:1];
     id<MTLDevice> device=MTLCreateSystemDefaultDevice();_queue=[device newCommandQueue];
-    _view=[[MTKView alloc] initWithFrame:NSMakeRect(0,150,1280,750) device:device];
+    _view=[[MTKView alloc] initWithFrame:NSMakeRect(0,174,1280,726) device:device];
     _view.framebufferOnly=NO;_view.colorPixelFormat=MTLPixelFormatBGRA8Unorm;
     _view.preferredFramesPerSecond=30;_view.delegate=self;
     _view.paused=YES;
     [window.contentView addSubview:_view];
     _measurements=[NSTextField wrappingLabelWithString:@"Loading accepted native state…"];
-    _measurements.frame=NSMakeRect(24,10,1232,100);
+    _measurements.frame=NSMakeRect(24,10,1232,124);
     _measurements.textColor=NSColor.whiteColor;
     _measurements.font=[NSFont monospacedSystemFontOfSize:13 weight:NSFontWeightRegular];
     [window.contentView addSubview:_measurements];
     _layers=[NSSegmentedControl segmentedControlWithLabels:@[@"Skin",@"Muscles",@"Skeleton",@"Organs",@"Lungs",@"Heart",@"Vessels"]
         trackingMode:NSSegmentSwitchTrackingSelectOne target:nil action:nil];
-    _layers.frame=NSMakeRect(24,116,620,26);_layers.selectedSegment=0;
+    _layers.frame=NSMakeRect(24,140,620,26);_layers.selectedSegment=0;
     [window.contentView addSubview:_layers];
     _cameras=[NSSegmentedControl segmentedControlWithLabels:@[@"Front",@"Side",@"Chest",@"Whole body",@"Heart detail"]
         trackingMode:NSSegmentSwitchTrackingSelectOne target:nil action:nil];
-    _cameras.frame=NSMakeRect(670,116,570,26);_cameras.selectedSegment=3;
+    _cameras.frame=NSMakeRect(670,140,570,26);_cameras.selectedSegment=3;
     [window.contentView addSubview:_cameras];
     NSError* error=nil;
     NSString* shader=@"#include <metal_stdlib>\nusing namespace metal;\n"
@@ -168,7 +168,7 @@ using NumiHumanRestingAdvance = std::function<NumiHumanRestingFrame(unsigned,uns
             if(CVMetalTextureCacheCreateTextureFromImage(kCFAllocatorDefault,_textureCache,pixels,nil,
                 MTLPixelFormatBGRA8Unorm,1280,900,0,&movieTexture)!=kCVReturnSuccess||!movieTexture)
                 throw std::runtime_error("native recording texture allocation failed");
-            encode(CVMetalTextureGetTexture(movieTexture),750);
+            encode(CVMetalTextureGetTexture(movieTexture),726);
         }
         [encoder endEncoding];if(drawable)[command presentDrawable:drawable];[command commit];[command waitUntilCompleted];
         if(command.status!=MTLCommandBufferStatusCompleted)throw std::runtime_error("native presentation command failed");
@@ -176,7 +176,7 @@ using NumiHumanRestingAdvance = std::function<NumiHumanRestingFrame(unsigned,uns
             // Composite the actual native control/measurement view into the
             // recording. This presentation-only AppKit work never updates a
             // physical state or synthesizes a physiological value.
-            NSRect rect=NSMakeRect(0,0,1280,150);
+            NSRect rect=NSMakeRect(0,0,1280,174);
             auto bitmap=[self.window.contentView bitmapImageRepForCachingDisplayInRect:rect];
             [self.window.contentView cacheDisplayInRect:rect toBitmapImageRep:bitmap];
             if(!bitmap||!bitmap.CGImage)throw std::runtime_error("native recording measurement panel unavailable");
@@ -188,7 +188,7 @@ using NumiHumanRestingAdvance = std::function<NumiHumanRestingFrame(unsigned,uns
             // CVPixelBuffer's CG bitmap origin is the lower edge here. The
             // AppKit cache already has an upright image; a second Y flip
             // inverted its text in the first native recording.
-            CGContextDrawImage(context,CGRectMake(0,0,1280,150),bitmap.CGImage);CGContextRelease(context);
+            CGContextDrawImage(context,CGRectMake(0,0,1280,174),bitmap.CGImage);CGContextRelease(context);
             CGColorSpaceRelease(color);CVPixelBufferUnlockBaseAddress(pixels,0);
             // The video uses elapsed wall time. The compact trace separately
             // records exact simulated time, so slow execution is never hidden.

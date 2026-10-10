@@ -1,0 +1,12 @@
+/Users/n/numi-human-retained-delivery-20261009/viewer-footer-1256/native-smoke-001/review-001/decode_last.swift:19:25: warning: 'tracks(withMediaType:)' was deprecated in macOS 13.0: Use loadTracks(withMediaType:) instead [#DeprecatedDeclaration]
+17 | let outDir = URL(fileURLWithPath: CommandLine.arguments[2], isDirectory: true)
+18 | let asset = AVURLAsset(url: movie)
+19 | guard let track = asset.tracks(withMediaType: .video).first else { fatalError("missing video track") }
+   |                         `- warning: 'tracks(withMediaType:)' was deprecated in macOS 13.0: Use loadTracks(withMediaType:) instead [#DeprecatedDeclaration]
+20 | let reader = try AVAssetReader(asset: asset)
+21 | let settings: [String: Any] = [kCVPixelBufferPixelFormatTypeKey as String: kCVPixelFormatType_32BGRA]
+
+[#DeprecatedDeclaration]: <https://docs.swift.org/compiler/documentation/diagnostics/deprecated-declaration>
+last_sample_nonzero_rgb_bytes=3455176
+index=18 pts=11.54 size=1280x900 row_bytes=5120 bytes=4608000 file=reader-sample-018.png
+samples=19 nonmonotonic_or_duplicate_pts=0 last_pts=11.54 status=completed
