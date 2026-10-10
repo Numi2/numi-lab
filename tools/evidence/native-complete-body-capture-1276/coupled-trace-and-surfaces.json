@@ -1,0 +1,1229 @@
+{
+  "all_coupled_trace_rows_exact_baseline_prefix": true,
+  "all_native_repaired_surface_checks_pass": true,
+  "captures": [
+    {
+      "accepted_step": 0,
+      "rows": [
+        {
+          "self_intersection_count": 0,
+          "stable_id": 35,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": -2,
+            "face_component_count": 2,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 36,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": -2,
+            "face_component_count": 2,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 55,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": 0,
+            "face_component_count": 1,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 56,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": 0,
+            "face_component_count": 1,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 57,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": 32,
+            "face_component_count": 18,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 58,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": 32,
+            "face_component_count": 18,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 107,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": 2,
+            "face_component_count": 1,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 108,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": 2,
+            "face_component_count": 1,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 115,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": -4,
+            "face_component_count": 1,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 116,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": -4,
+            "face_component_count": 1,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 147,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": -2,
+            "face_component_count": 1,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 148,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": -2,
+            "face_component_count": 1,
+            "vertex_manifold_defect_ids": []
+          }
+        }
+      ]
+    },
+    {
+      "accepted_step": 4767,
+      "rows": [
+        {
+          "self_intersection_count": 0,
+          "stable_id": 35,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": -2,
+            "face_component_count": 2,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 36,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": -2,
+            "face_component_count": 2,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 55,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": 0,
+            "face_component_count": 1,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 56,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": 0,
+            "face_component_count": 1,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 57,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": 32,
+            "face_component_count": 18,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 58,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": 32,
+            "face_component_count": 18,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 107,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": 2,
+            "face_component_count": 1,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 108,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": 2,
+            "face_component_count": 1,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 115,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": -4,
+            "face_component_count": 1,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 116,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": -4,
+            "face_component_count": 1,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 147,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": -2,
+            "face_component_count": 1,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 148,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": -2,
+            "face_component_count": 1,
+            "vertex_manifold_defect_ids": []
+          }
+        }
+      ]
+    },
+    {
+      "accepted_step": 5023,
+      "rows": [
+        {
+          "self_intersection_count": 0,
+          "stable_id": 35,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": -2,
+            "face_component_count": 2,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 36,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": -2,
+            "face_component_count": 2,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 55,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": 0,
+            "face_component_count": 1,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 56,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": 0,
+            "face_component_count": 1,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 57,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": 32,
+            "face_component_count": 18,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 58,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": 32,
+            "face_component_count": 18,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 107,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": 2,
+            "face_component_count": 1,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 108,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": 2,
+            "face_component_count": 1,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 115,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": -4,
+            "face_component_count": 1,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 116,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": -4,
+            "face_component_count": 1,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 147,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": -2,
+            "face_component_count": 1,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 148,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": -2,
+            "face_component_count": 1,
+            "vertex_manifold_defect_ids": []
+          }
+        }
+      ]
+    },
+    {
+      "accepted_step": 5599,
+      "rows": [
+        {
+          "self_intersection_count": 0,
+          "stable_id": 35,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": -2,
+            "face_component_count": 2,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 36,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": -2,
+            "face_component_count": 2,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 55,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": 0,
+            "face_component_count": 1,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 56,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": 0,
+            "face_component_count": 1,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 57,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": 32,
+            "face_component_count": 18,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 58,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": 32,
+            "face_component_count": 18,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 107,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": 2,
+            "face_component_count": 1,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 108,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": 2,
+            "face_component_count": 1,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 115,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": -4,
+            "face_component_count": 1,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 116,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": -4,
+            "face_component_count": 1,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 147,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": -2,
+            "face_component_count": 1,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 148,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": -2,
+            "face_component_count": 1,
+            "vertex_manifold_defect_ids": []
+          }
+        }
+      ]
+    },
+    {
+      "accepted_step": 6207,
+      "rows": [
+        {
+          "self_intersection_count": 0,
+          "stable_id": 35,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": -2,
+            "face_component_count": 2,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 36,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": -2,
+            "face_component_count": 2,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 55,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": 0,
+            "face_component_count": 1,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 56,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": 0,
+            "face_component_count": 1,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 57,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": 32,
+            "face_component_count": 18,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 58,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": 32,
+            "face_component_count": 18,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 107,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": 2,
+            "face_component_count": 1,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 108,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": 2,
+            "face_component_count": 1,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 115,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": -4,
+            "face_component_count": 1,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 116,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": -4,
+            "face_component_count": 1,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 147,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": -2,
+            "face_component_count": 1,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 148,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": -2,
+            "face_component_count": 1,
+            "vertex_manifold_defect_ids": []
+          }
+        }
+      ]
+    },
+    {
+      "accepted_step": 6815,
+      "rows": [
+        {
+          "self_intersection_count": 0,
+          "stable_id": 35,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": -2,
+            "face_component_count": 2,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 36,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": -2,
+            "face_component_count": 2,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 55,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": 0,
+            "face_component_count": 1,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 56,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": 0,
+            "face_component_count": 1,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 57,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": 32,
+            "face_component_count": 18,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 58,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": 32,
+            "face_component_count": 18,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 107,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": 2,
+            "face_component_count": 1,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 108,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": 2,
+            "face_component_count": 1,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 115,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": -4,
+            "face_component_count": 1,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 116,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": -4,
+            "face_component_count": 1,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 147,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": -2,
+            "face_component_count": 1,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 148,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": -2,
+            "face_component_count": 1,
+            "vertex_manifold_defect_ids": []
+          }
+        }
+      ]
+    },
+    {
+      "accepted_step": 7423,
+      "rows": [
+        {
+          "self_intersection_count": 0,
+          "stable_id": 35,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": -2,
+            "face_component_count": 2,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 36,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": -2,
+            "face_component_count": 2,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 55,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": 0,
+            "face_component_count": 1,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 56,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": 0,
+            "face_component_count": 1,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 57,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": 32,
+            "face_component_count": 18,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 58,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": 32,
+            "face_component_count": 18,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 107,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": 2,
+            "face_component_count": 1,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 108,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": 2,
+            "face_component_count": 1,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 115,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": -4,
+            "face_component_count": 1,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 116,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": -4,
+            "face_component_count": 1,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 147,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": -2,
+            "face_component_count": 1,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 148,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": -2,
+            "face_component_count": 1,
+            "vertex_manifold_defect_ids": []
+          }
+        }
+      ]
+    },
+    {
+      "accepted_step": 8000,
+      "rows": [
+        {
+          "self_intersection_count": 0,
+          "stable_id": 35,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": -2,
+            "face_component_count": 2,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 36,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": -2,
+            "face_component_count": 2,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 55,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": 0,
+            "face_component_count": 1,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 56,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": 0,
+            "face_component_count": 1,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 57,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": 32,
+            "face_component_count": 18,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 58,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": 32,
+            "face_component_count": 18,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 107,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": 2,
+            "face_component_count": 1,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 108,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": 2,
+            "face_component_count": 1,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 115,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": -4,
+            "face_component_count": 1,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 116,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": -4,
+            "face_component_count": 1,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 147,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": -2,
+            "face_component_count": 1,
+            "vertex_manifold_defect_ids": []
+          }
+        },
+        {
+          "self_intersection_count": 0,
+          "stable_id": 148,
+          "topology": {
+            "closed_oriented_manifold_candidate": true,
+            "degenerate_face_ids": [],
+            "duplicate_face_ids": [],
+            "euler_characteristic": -2,
+            "face_component_count": 1,
+            "vertex_manifold_defect_ids": []
+          }
+        }
+      ]
+    }
+  ],
+  "complete": true,
+  "inputs_unchanged": true,
+  "mismatching_rows": [],
+  "pins": {
+    "/Users/n/numi-human-anatomy-completion-1276/src/numilab_human/cardiac_cavity_intersections.py": "90c7a7fb0ce4383397f97519dd5fe163201d86a0c97e18e3a9eb3fa9858cd561",
+    "/Users/n/numi-human-anatomy-completion-1276/src/numilab_human/common_atlas_skin_clearance.py": "151ba8925910ae164bdf9a41417ca2cc5c63b07c3b05eb09496d20c4771c5e9b",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/twelve-surface-native-composition-001/baseline/native-run/accepted-geometry/step-0.mrvpack": "d93677e58909056ad012c35f4bcc81ca5f7cf1fabfbb54821bab7540610583e3",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/twelve-surface-native-composition-001/baseline/native-run/accepted-geometry/step-0.receipt.json": "70c59a12762e47323f5abfb14e48476df51a0eb83d6b02d2c5945a8c7b3cc945",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/twelve-surface-native-composition-001/baseline/native-run/accepted-geometry/step-4767.mrvpack": "d84a977f586cb2cfc1cd1cc14d0070c86f060aab4a647d04c92cd7ed7fdc67f1",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/twelve-surface-native-composition-001/baseline/native-run/accepted-geometry/step-4767.receipt.json": "0ade2f6e82694fb35ac1e6f954d4e472676ed9bfa97a04c7d3c77978d20a8ee5",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/twelve-surface-native-composition-001/baseline/native-run/accepted-geometry/step-5023.mrvpack": "959e2c2457e325f6046f63068ad5794979cbd0513a39d9470f810966e80198ff",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/twelve-surface-native-composition-001/baseline/native-run/accepted-geometry/step-5023.receipt.json": "0dbf7a5af3ba7bc758f377d734616760a9b5de0e807e6b2caad3a9bee63751ab",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/twelve-surface-native-composition-001/baseline/native-run/accepted-geometry/step-5599.mrvpack": "3be85390264fc68ba868e27a6714b4e42725e4d568c581e196bbedd56924c31c",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/twelve-surface-native-composition-001/baseline/native-run/accepted-geometry/step-5599.receipt.json": "c7a4c2a02cb393a352bd44c4d18f901d19767dba44ed2bed009460a74fa6e7e6",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/twelve-surface-native-composition-001/baseline/native-run/accepted-geometry/step-6207.mrvpack": "ec1311d9a5fe7afd7397729f731a9300363201a3247fafb3e39c87401bf31461",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/twelve-surface-native-composition-001/baseline/native-run/accepted-geometry/step-6207.receipt.json": "0b87a206fb6ab6aa074cd02d7a324c877556c2e6cf62c1aeff9075e14ec36f7d",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/twelve-surface-native-composition-001/baseline/native-run/accepted-geometry/step-6815.mrvpack": "99e160f5b6d9d896c538402c5ac57ab0da4900cdd9cb144a6d50b68b4aeb1783",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/twelve-surface-native-composition-001/baseline/native-run/accepted-geometry/step-6815.receipt.json": "0472a933b011dfc807e17de5ce51815c969590b1464f5209cb49bb548e439212",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/twelve-surface-native-composition-001/baseline/native-run/accepted-geometry/step-7423.mrvpack": "f4da4fc9a12eb6362d117f2d234fb5ee73bc51df1e192448a22cc8eb9b9c4cc4",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/twelve-surface-native-composition-001/baseline/native-run/accepted-geometry/step-7423.receipt.json": "482d028d522e8b3c909031fdb9ae9d138c6bb7c4c10f5ba656b7d82b67df6a06",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/twelve-surface-native-composition-001/baseline/native-run/accepted-geometry/step-8000.mrvpack": "1c6f8dc8633e4c5ef63fa51e3834c02ddcb94ac13b46e7d606d925d35789a92b",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/twelve-surface-native-composition-001/baseline/native-run/accepted-geometry/step-8000.receipt.json": "809a4f14fa0c0bf93dabd605a99992b307df71fbaa92dc346e65acd77b21a503",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/twelve-surface-native-composition-001/baseline/native-run/invocation.json": "9c178738dc47f8e374c4bfd8ee47e5437dae294b1c09fe32935cae81ce11f65c",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/twelve-surface-native-composition-001/baseline/native-run/resting-coupled.csv": "7dc7a325cca75adb5190f04457a709e4a59306841d2347c0e10a1f63aa578162",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/twelve-surface-native-composition-001/baseline/native-run/run-metadata.json": "f5168c6851b271337630e4f4145a126f825142abc79b9f20eaa31bfb1fead477",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/verify_twelve_surface_native_001.py": "f067d452dab54982f31844c0cc85ece3f67d3144c0f1538c2f18063f6eb44b64",
+    "/Users/n/numi-human-retained-delivery-20261009/skin-resting-multipose-clearance-1218/native-coupled-pair-preparation-011/baseline/native-run/resting-coupled.csv": "9659897e26a977b12a38d57b80046bf038258282d2760854c9a24c1d15917243"
+  },
+  "scope": "Actual native capture self/topology validation for twelve repaired passive surfaces, and complete short coupled-trace prefix comparison with unchanged baseline011. Not whole-anatomy or five-minute qualification.",
+  "trace_columns": 60,
+  "trace_rows": 1000
+}

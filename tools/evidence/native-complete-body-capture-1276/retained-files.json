@@ -1,0 +1,22 @@
+{
+  "coupled-trace-and-surfaces.json": {
+    "retained_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/twelve-surface-native-composition-001/native-verification-001/report.json",
+    "sha256": "f8c4fde309bd1e744c42813a6bac7c76888a9b6da674d63881fd1ef1fdb9e469"
+  },
+  "native_positive_weight_forward.py": {
+    "retained_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/twelve-surface-native-composition-001/complete-body-pose-verification-001/native_positive_weight_forward.py",
+    "sha256": "af3b7f2f84f7c52a7016e4feff0709c0f6e140cb2f486ee8043592a64c8dec79"
+  },
+  "report.json": {
+    "retained_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/twelve-surface-native-composition-001/complete-body-pose-verification-001/report.json",
+    "sha256": "05edeeff33f038c923cee819b86c3c46704bdcc6af02cbbebceb93a3fcb22fcc"
+  },
+  "run-metadata.json": {
+    "retained_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/twelve-surface-native-composition-001/baseline/native-run/run-metadata.json",
+    "sha256": "f5168c6851b271337630e4f4145a126f825142abc79b9f20eaa31bfb1fead477"
+  },
+  "verify_complete_body_pose_capture_001.py": {
+    "retained_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/verify_complete_body_pose_capture_001.py",
+    "sha256": "fca7729f7bec1acdc20f1982a3f96e4e3b7c7d3fd0cf5680374bb6a8126a9999"
+  }
+}

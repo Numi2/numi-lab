@@ -1,0 +1,238 @@
+{
+  "captures": [
+    {
+      "all_tissue_body_owners_covered": true,
+      "body_pose_count": 157,
+      "formerly_missing_tissue_body_owners": [
+        7,
+        25
+      ],
+      "full_body_state_hash_exact": true,
+      "registered_subset_exact": true,
+      "replay_samples": [
+        {
+          "maximum_referenced_forward_error_m": 6.828569911354542e-08,
+          "sample_count": 128,
+          "stable_id": 67
+        },
+        {
+          "maximum_referenced_forward_error_m": 6.687388968101233e-08,
+          "sample_count": 128,
+          "stable_id": 68
+        }
+      ],
+      "respiratory_state_hash_exact": true,
+      "step": 0,
+      "tissue_binding_owners": 70
+    },
+    {
+      "all_tissue_body_owners_covered": true,
+      "body_pose_count": 157,
+      "formerly_missing_tissue_body_owners": [
+        7,
+        25
+      ],
+      "full_body_state_hash_exact": true,
+      "registered_subset_exact": true,
+      "replay_samples": [
+        {
+          "maximum_referenced_forward_error_m": 6.365778852490731e-08,
+          "sample_count": 128,
+          "stable_id": 67
+        },
+        {
+          "maximum_referenced_forward_error_m": 6.175983689188815e-08,
+          "sample_count": 128,
+          "stable_id": 68
+        }
+      ],
+      "respiratory_state_hash_exact": true,
+      "step": 4767,
+      "tissue_binding_owners": 70
+    },
+    {
+      "all_tissue_body_owners_covered": true,
+      "body_pose_count": 157,
+      "formerly_missing_tissue_body_owners": [
+        7,
+        25
+      ],
+      "full_body_state_hash_exact": true,
+      "registered_subset_exact": true,
+      "replay_samples": [
+        {
+          "maximum_referenced_forward_error_m": 6.188917057900187e-08,
+          "sample_count": 128,
+          "stable_id": 67
+        },
+        {
+          "maximum_referenced_forward_error_m": 6.705522537231445e-08,
+          "sample_count": 128,
+          "stable_id": 68
+        }
+      ],
+      "respiratory_state_hash_exact": true,
+      "step": 5023,
+      "tissue_binding_owners": 70
+    },
+    {
+      "all_tissue_body_owners_covered": true,
+      "body_pose_count": 157,
+      "formerly_missing_tissue_body_owners": [
+        7,
+        25
+      ],
+      "full_body_state_hash_exact": true,
+      "registered_subset_exact": true,
+      "replay_samples": [
+        {
+          "maximum_referenced_forward_error_m": 6.188917057900187e-08,
+          "sample_count": 128,
+          "stable_id": 67
+        },
+        {
+          "maximum_referenced_forward_error_m": 6.155189738369847e-08,
+          "sample_count": 128,
+          "stable_id": 68
+        }
+      ],
+      "respiratory_state_hash_exact": true,
+      "step": 5599,
+      "tissue_binding_owners": 70
+    },
+    {
+      "all_tissue_body_owners_covered": true,
+      "body_pose_count": 157,
+      "formerly_missing_tissue_body_owners": [
+        7,
+        25
+      ],
+      "full_body_state_hash_exact": true,
+      "registered_subset_exact": true,
+      "replay_samples": [
+        {
+          "maximum_referenced_forward_error_m": 6.322027276634104e-08,
+          "sample_count": 128,
+          "stable_id": 67
+        },
+        {
+          "maximum_referenced_forward_error_m": 6.200818159325907e-08,
+          "sample_count": 128,
+          "stable_id": 68
+        }
+      ],
+      "respiratory_state_hash_exact": true,
+      "step": 6207,
+      "tissue_binding_owners": 70
+    },
+    {
+      "all_tissue_body_owners_covered": true,
+      "body_pose_count": 157,
+      "formerly_missing_tissue_body_owners": [
+        7,
+        25
+      ],
+      "full_body_state_hash_exact": true,
+      "registered_subset_exact": true,
+      "replay_samples": [
+        {
+          "maximum_referenced_forward_error_m": 6.705522537231445e-08,
+          "sample_count": 128,
+          "stable_id": 67
+        },
+        {
+          "maximum_referenced_forward_error_m": 6.221241769404845e-08,
+          "sample_count": 128,
+          "stable_id": 68
+        }
+      ],
+      "respiratory_state_hash_exact": true,
+      "step": 6815,
+      "tissue_binding_owners": 70
+    },
+    {
+      "all_tissue_body_owners_covered": true,
+      "body_pose_count": 157,
+      "formerly_missing_tissue_body_owners": [
+        7,
+        25
+      ],
+      "full_body_state_hash_exact": true,
+      "registered_subset_exact": true,
+      "replay_samples": [
+        {
+          "maximum_referenced_forward_error_m": 6.828569911354542e-08,
+          "sample_count": 128,
+          "stable_id": 67
+        },
+        {
+          "maximum_referenced_forward_error_m": 6.188917057900187e-08,
+          "sample_count": 128,
+          "stable_id": 68
+        }
+      ],
+      "respiratory_state_hash_exact": true,
+      "step": 7423,
+      "tissue_binding_owners": 70
+    },
+    {
+      "all_tissue_body_owners_covered": true,
+      "body_pose_count": 157,
+      "formerly_missing_tissue_body_owners": [
+        7,
+        25
+      ],
+      "full_body_state_hash_exact": true,
+      "registered_subset_exact": true,
+      "replay_samples": [
+        {
+          "maximum_referenced_forward_error_m": 6.664001874625056e-08,
+          "sample_count": 128,
+          "stable_id": 67
+        },
+        {
+          "maximum_referenced_forward_error_m": 6.664001874625056e-08,
+          "sample_count": 128,
+          "stable_id": 68
+        }
+      ],
+      "respiratory_state_hash_exact": true,
+      "step": 8000,
+      "tissue_binding_owners": 70
+    }
+  ],
+  "complete": true,
+  "inputs_unchanged": true,
+  "pins": {
+    "/Users/n/numi-human-anatomy-completion-1276/src/numilab_human/common_atlas_skin_clearance.py": "151ba8925910ae164bdf9a41417ca2cc5c63b07c3b05eb09496d20c4771c5e9b",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/ten-surface-native-composition-001/baseline/native-run/accepted-geometry/step-0.receipt.json": "7015fc4211ac280d0ba7673789f2fc8bae12813d1a6615512b7e5441a7112b2e",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/ten-surface-native-composition-001/baseline/native-run/accepted-geometry/step-4767.receipt.json": "15a895f9ea98abad5e35c7f5c9b21c99eedc67df3e04d3979bc50e36969905b2",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/ten-surface-native-composition-001/baseline/native-run/accepted-geometry/step-5023.receipt.json": "e1c517b7af4ec356b15be28e7804ec5a33796a099bd634370a978d42a6fb9b7d",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/ten-surface-native-composition-001/baseline/native-run/accepted-geometry/step-5599.receipt.json": "7c59c8f0c606bc7d9dd4697db283412ee583f8c0c03587b9c01ff821ccc8622e",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/ten-surface-native-composition-001/baseline/native-run/accepted-geometry/step-6207.receipt.json": "a35116ea5a755366712fbfb9fc9e26e074fd0b69c4dd27d4e910b80bd5e56cf8",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/ten-surface-native-composition-001/baseline/native-run/accepted-geometry/step-6815.receipt.json": "c68ca9be3fddb328781f00507f6df1cd23dac2761c30d8cbd30dc0e3e568bbcc",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/ten-surface-native-composition-001/baseline/native-run/accepted-geometry/step-7423.receipt.json": "b7ee75d433b91052428ad0fe605eae468573dbc36b79170bc7cdb55befaecd61",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/ten-surface-native-composition-001/baseline/native-run/accepted-geometry/step-8000.receipt.json": "f9112bd8703833a024c7e332cfa3216ec97aa79674180f5cc5d6f80bfa50f436",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/twelve-surface-native-composition-001/assets/bodyparts3d-myosim-fullbody-muscle-surfaces.nhtissue": "24f0c7df90ffdf22bc1f92279b066e0b36ef73341672b111d441c067997f8507",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/twelve-surface-native-composition-001/baseline/native-run/accepted-geometry/step-0.mrvpack": "d93677e58909056ad012c35f4bcc81ca5f7cf1fabfbb54821bab7540610583e3",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/twelve-surface-native-composition-001/baseline/native-run/accepted-geometry/step-0.receipt.json": "70c59a12762e47323f5abfb14e48476df51a0eb83d6b02d2c5945a8c7b3cc945",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/twelve-surface-native-composition-001/baseline/native-run/accepted-geometry/step-4767.mrvpack": "d84a977f586cb2cfc1cd1cc14d0070c86f060aab4a647d04c92cd7ed7fdc67f1",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/twelve-surface-native-composition-001/baseline/native-run/accepted-geometry/step-4767.receipt.json": "0ade2f6e82694fb35ac1e6f954d4e472676ed9bfa97a04c7d3c77978d20a8ee5",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/twelve-surface-native-composition-001/baseline/native-run/accepted-geometry/step-5023.mrvpack": "959e2c2457e325f6046f63068ad5794979cbd0513a39d9470f810966e80198ff",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/twelve-surface-native-composition-001/baseline/native-run/accepted-geometry/step-5023.receipt.json": "0dbf7a5af3ba7bc758f377d734616760a9b5de0e807e6b2caad3a9bee63751ab",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/twelve-surface-native-composition-001/baseline/native-run/accepted-geometry/step-5599.mrvpack": "3be85390264fc68ba868e27a6714b4e42725e4d568c581e196bbedd56924c31c",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/twelve-surface-native-composition-001/baseline/native-run/accepted-geometry/step-5599.receipt.json": "c7a4c2a02cb393a352bd44c4d18f901d19767dba44ed2bed009460a74fa6e7e6",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/twelve-surface-native-composition-001/baseline/native-run/accepted-geometry/step-6207.mrvpack": "ec1311d9a5fe7afd7397729f731a9300363201a3247fafb3e39c87401bf31461",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/twelve-surface-native-composition-001/baseline/native-run/accepted-geometry/step-6207.receipt.json": "0b87a206fb6ab6aa074cd02d7a324c877556c2e6cf62c1aeff9075e14ec36f7d",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/twelve-surface-native-composition-001/baseline/native-run/accepted-geometry/step-6815.mrvpack": "99e160f5b6d9d896c538402c5ac57ab0da4900cdd9cb144a6d50b68b4aeb1783",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/twelve-surface-native-composition-001/baseline/native-run/accepted-geometry/step-6815.receipt.json": "0472a933b011dfc807e17de5ce51815c969590b1464f5209cb49bb548e439212",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/twelve-surface-native-composition-001/baseline/native-run/accepted-geometry/step-7423.mrvpack": "f4da4fc9a12eb6362d117f2d234fb5ee73bc51df1e192448a22cc8eb9b9c4cc4",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/twelve-surface-native-composition-001/baseline/native-run/accepted-geometry/step-7423.receipt.json": "482d028d522e8b3c909031fdb9ae9d138c6bb7c4c10f5ba656b7d82b67df6a06",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/twelve-surface-native-composition-001/baseline/native-run/accepted-geometry/step-8000.mrvpack": "1c6f8dc8633e4c5ef63fa51e3834c02ddcb94ac13b46e7d606d925d35789a92b",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/twelve-surface-native-composition-001/baseline/native-run/accepted-geometry/step-8000.receipt.json": "809a4f14fa0c0bf93dabd605a99992b307df71fbaa92dc346e65acd77b21a503",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/twelve-surface-native-composition-001/complete-body-pose-verification-001/native_positive_weight_forward.py": "af3b7f2f84f7c52a7016e4feff0709c0f6e140cb2f486ee8043592a64c8dec79",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/verify_complete_body_pose_capture_001.py": "fca7729f7bec1acdc20f1982a3f96e4e3b7c7d3fd0cf5680374bb6a8126a9999",
+    "/Users/n/numi-human-retained-delivery-20261009/fullbody-source-surface-repair-1276/gluteus-maximus-pilot-001/attempt-010/run_gluteus_union_010.py": "3343c53df203e43d30d778b2f6178295ce250c1519326db55e97c5118e44fcd4"
+  },
+  "scope": "Additive all-body accepted geometry receipt verification. All source tissue body owners covered, registered subset unchanged, native entire body and respiratory state hashes matched to prior ten-surface run. Stratified actual-render checks for previously omitted Abdomen owner; not full trunk anatomy clearance."
+}
