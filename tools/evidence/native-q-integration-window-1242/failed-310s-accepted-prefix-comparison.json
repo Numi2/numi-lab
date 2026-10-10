@@ -1,0 +1,592 @@
+{
+  "scope": "Diagnostic comparison of retained accepted rows from a terminally failed run. This is not successful run completion, terminal publication validation, anatomy admission, or force closure.",
+  "script_sha256": "c7bdd39d38fec8415e7e2cb0c660a35150ca8ff1ab97b43be46575b11c706af6",
+  "failed_run_exit_code": 1,
+  "failed_execution_sha256": "b131647d607ddd9eb02bd697b2cda67b65ba112ce7069d15123da6957e3fde5a",
+  "csv_comparisons": {
+    "resting-coupled.csv": {
+      "headers_equal": true,
+      "control_rows": 19375,
+      "window_rows": 19375,
+      "all_cells_equal": false,
+      "differing_columns": {
+        "min_contact_gap_m": {
+          "different_rows": 292,
+          "first_examples": [
+            {
+              "row_index": 19062,
+              "step": 152504,
+              "control": "-1.25452888824e-05",
+              "window": "-7.38869857742e-06"
+            },
+            {
+              "row_index": 19063,
+              "step": 152512,
+              "control": "-6.02523323323e-06",
+              "window": "-2.97125575344e-06"
+            },
+            {
+              "row_index": 19064,
+              "step": 152520,
+              "control": "-1.24259722725e-05",
+              "window": "-5.38978019904e-06"
+            }
+          ]
+        },
+        "peak_penetration_m": {
+          "different_rows": 292,
+          "first_examples": [
+            {
+              "row_index": 19062,
+              "step": 152504,
+              "control": "1.25452888824e-05",
+              "window": "7.38869857742e-06"
+            },
+            {
+              "row_index": 19063,
+              "step": 152512,
+              "control": "6.02523323323e-06",
+              "window": "2.97125575344e-06"
+            },
+            {
+              "row_index": 19064,
+              "step": 152520,
+              "control": "1.24259722725e-05",
+              "window": "5.38978019904e-06"
+            }
+          ]
+        },
+        "pre_projection_contact_residual_m_s": {
+          "different_rows": 265,
+          "first_examples": [
+            {
+              "row_index": 19062,
+              "step": 152504,
+              "control": "2.56693492702e-05",
+              "window": "1.59202609211e-05"
+            },
+            {
+              "row_index": 19063,
+              "step": 152512,
+              "control": "2.75976490229e-05",
+              "window": "1.22769515656e-05"
+            },
+            {
+              "row_index": 19064,
+              "step": 152520,
+              "control": "1.70284183696e-05",
+              "window": "1.20200857054e-05"
+            }
+          ]
+        },
+        "pre_projection_limit_residual_generalized_s": {
+          "different_rows": 281,
+          "first_examples": [
+            {
+              "row_index": 19062,
+              "step": 152504,
+              "control": "1.65802466654e-05",
+              "window": "1.48124945554e-06"
+            },
+            {
+              "row_index": 19063,
+              "step": 152512,
+              "control": "2.80091148852e-06",
+              "window": "1.43136185216e-06"
+            },
+            {
+              "row_index": 19064,
+              "step": 152520,
+              "control": "1.86811921594e-05",
+              "window": "1.05513447579e-06"
+            }
+          ]
+        },
+        "pre_projection_equality_residual_generalized_s": {
+          "different_rows": 271,
+          "first_examples": [
+            {
+              "row_index": 19062,
+              "step": 152504,
+              "control": "1.49473362399e-06",
+              "window": "3.72988495201e-07"
+            },
+            {
+              "row_index": 19063,
+              "step": 152512,
+              "control": "1.49537390826e-06",
+              "window": "1.76311711897e-08"
+            },
+            {
+              "row_index": 19064,
+              "step": 152520,
+              "control": "1.49276945649e-06",
+              "window": "3.72360261736e-07"
+            }
+          ]
+        },
+        "post_projection_contact_residual_m_s": {
+          "different_rows": 265,
+          "first_examples": [
+            {
+              "row_index": 19062,
+              "step": 152504,
+              "control": "2.56688254012e-05",
+              "window": "1.59207265824e-05"
+            },
+            {
+              "row_index": 19063,
+              "step": 152512,
+              "control": "2.75986385532e-05",
+              "window": "1.2277402675e-05"
+            },
+            {
+              "row_index": 19064,
+              "step": 152520,
+              "control": "1.70283601619e-05",
+              "window": "1.20211625472e-05"
+            }
+          ]
+        },
+        "post_projection_limit_residual_generalized_s": {
+          "different_rows": 281,
+          "first_examples": [
+            {
+              "row_index": 19062,
+              "step": 152504,
+              "control": "1.65802466654e-05",
+              "window": "1.48124945554e-06"
+            },
+            {
+              "row_index": 19063,
+              "step": 152512,
+              "control": "2.80091148852e-06",
+              "window": "1.43136185216e-06"
+            },
+            {
+              "row_index": 19064,
+              "step": 152520,
+              "control": "1.86811921594e-05",
+              "window": "1.05513447579e-06"
+            }
+          ]
+        },
+        "post_projection_equality_residual_generalized_s": {
+          "different_rows": 278,
+          "first_examples": [
+            {
+              "row_index": 19062,
+              "step": 152504,
+              "control": "1.01498809357e-11",
+              "window": "1.10409858339e-12"
+            },
+            {
+              "row_index": 19063,
+              "step": 152512,
+              "control": "2.80392375984e-12",
+              "window": "8.91453360782e-13"
+            },
+            {
+              "row_index": 19064,
+              "step": 152520,
+              "control": "1.70727043614e-11",
+              "window": "8.22759829017e-13"
+            }
+          ]
+        },
+        "equality_position_projection_max_generalized": {
+          "different_rows": 212,
+          "first_examples": [
+            {
+              "row_index": 19062,
+              "step": 152504,
+              "control": "1.49011611938e-08",
+              "window": "3.72529029846e-09"
+            },
+            {
+              "row_index": 19063,
+              "step": 152512,
+              "control": "1.49011611938e-08",
+              "window": "2.93844948374e-11"
+            },
+            {
+              "row_index": 19064,
+              "step": 152520,
+              "control": "1.49011611938e-08",
+              "window": "3.72529029846e-09"
+            }
+          ]
+        },
+        "equality_velocity_projection_max_generalized_s": {
+          "different_rows": 267,
+          "first_examples": [
+            {
+              "row_index": 19062,
+              "step": 152504,
+              "control": "1.44623228948e-08",
+              "window": "5.77600811624e-09"
+            },
+            {
+              "row_index": 19063,
+              "step": 152512,
+              "control": "2.55554652995e-08",
+              "window": "1.4692721706e-08"
+            },
+            {
+              "row_index": 19065,
+              "step": 152528,
+              "control": "1.75240941758e-08",
+              "window": "1.02981410066e-08"
+            }
+          ]
+        }
+      },
+      "unexpected_differing_columns": [],
+      "different_cells_outside_sampling_intervals_overlapping_window": 0,
+      "all_non_submission_diagnostic_cells_equal": true,
+      "fingerprint_columns_present": false
+    },
+    "resting-com-momentum-diagnostic.csv": {
+      "headers_equal": true,
+      "control_rows": 19375,
+      "window_rows": 19375,
+      "all_cells_equal": false,
+      "differing_columns": {
+        "max_normal_contact_impulse_segment_ns": {
+          "different_rows": 272,
+          "first_examples": [
+            {
+              "row_index": 19062,
+              "step": 152504,
+              "control": "0.39201024174690247",
+              "window": "0.38268309831619263"
+            },
+            {
+              "row_index": 19063,
+              "step": 152512,
+              "control": "0.40500113368034363",
+              "window": "0.39276471734046936"
+            },
+            {
+              "row_index": 19064,
+              "step": 152520,
+              "control": "0.39576306939125061",
+              "window": "0.37068617343902588"
+            }
+          ]
+        },
+        "max_tangent_contact_impulse_segment_ns": {
+          "different_rows": 266,
+          "first_examples": [
+            {
+              "row_index": 19062,
+              "step": 152504,
+              "control": "0.17503452301025391",
+              "window": "0.13417482376098633"
+            },
+            {
+              "row_index": 19063,
+              "step": 152512,
+              "control": "0.14073009788990021",
+              "window": "0.1383650153875351"
+            },
+            {
+              "row_index": 19064,
+              "step": 152520,
+              "control": "0.18232496082782745",
+              "window": "0.13660454750061035"
+            }
+          ]
+        },
+        "contact_normal_solver_iterate_work_segment_j": {
+          "different_rows": 313,
+          "first_examples": [
+            {
+              "row_index": 19062,
+              "step": 152504,
+              "control": "-0.11531742662191391",
+              "window": "-0.014392259530723095"
+            },
+            {
+              "row_index": 19063,
+              "step": 152512,
+              "control": "-0.11524564027786255",
+              "window": "-0.014416005462408066"
+            },
+            {
+              "row_index": 19064,
+              "step": 152520,
+              "control": "-0.1153251901268959",
+              "window": "-0.014392598532140255"
+            }
+          ]
+        },
+        "contact_tangent_solver_iterate_work_segment_j": {
+          "different_rows": 313,
+          "first_examples": [
+            {
+              "row_index": 19062,
+              "step": 152504,
+              "control": "-0.02254413440823555",
+              "window": "-0.0028195930644869804"
+            },
+            {
+              "row_index": 19063,
+              "step": 152512,
+              "control": "-0.022559648379683495",
+              "window": "-0.0028208033181726933"
+            },
+            {
+              "row_index": 19064,
+              "step": 152520,
+              "control": "-0.022548872977495193",
+              "window": "-0.0028202787507325411"
+            }
+          ]
+        },
+        "equality_solver_iterate_work_segment_j": {
+          "different_rows": 313,
+          "first_examples": [
+            {
+              "row_index": 19062,
+              "step": 152504,
+              "control": "-3.6617791652679443",
+              "window": "-0.45771434903144836"
+            },
+            {
+              "row_index": 19063,
+              "step": 152512,
+              "control": "-3.6617598533630371",
+              "window": "-0.45766428112983704"
+            },
+            {
+              "row_index": 19064,
+              "step": 152520,
+              "control": "-3.6618380546569824",
+              "window": "-0.45769968628883362"
+            }
+          ]
+        },
+        "source_limit_solver_iterate_work_segment_j": {
+          "different_rows": 313,
+          "first_examples": [
+            {
+              "row_index": 19062,
+              "step": 152504,
+              "control": "-0.0059151891618967056",
+              "window": "-0.00073853012872859836"
+            },
+            {
+              "row_index": 19063,
+              "step": 152512,
+              "control": "-0.0059120398946106434",
+              "window": "-0.00073894445085898042"
+            },
+            {
+              "row_index": 19064,
+              "step": 152520,
+              "control": "-0.0059151081368327141",
+              "window": "-0.00073885038727894425"
+            }
+          ]
+        },
+        "contact_normal_absolute_solver_iterate_work_segment_j": {
+          "different_rows": 313,
+          "first_examples": [
+            {
+              "row_index": 19062,
+              "step": 152504,
+              "control": "0.11536872386932373",
+              "window": "0.014395576901733875"
+            },
+            {
+              "row_index": 19063,
+              "step": 152512,
+              "control": "0.11526503413915634",
+              "window": "0.014416264370083809"
+            },
+            {
+              "row_index": 19064,
+              "step": 152520,
+              "control": "0.11536865681409836",
+              "window": "0.014393975026905537"
+            }
+          ]
+        },
+        "contact_tangent_absolute_solver_iterate_work_segment_j": {
+          "different_rows": 313,
+          "first_examples": [
+            {
+              "row_index": 19062,
+              "step": 152504,
+              "control": "0.022739173844456673",
+              "window": "0.0028495169244706631"
+            },
+            {
+              "row_index": 19063,
+              "step": 152512,
+              "control": "0.022806059569120407",
+              "window": "0.0028519299812614918"
+            },
+            {
+              "row_index": 19064,
+              "step": 152520,
+              "control": "0.022743081673979759",
+              "window": "0.002850894583389163"
+            }
+          ]
+        },
+        "equality_absolute_solver_iterate_work_segment_j": {
+          "different_rows": 313,
+          "first_examples": [
+            {
+              "row_index": 19062,
+              "step": 152504,
+              "control": "3.6617791652679443",
+              "window": "0.45771434903144836"
+            },
+            {
+              "row_index": 19063,
+              "step": 152512,
+              "control": "3.6617598533630371",
+              "window": "0.45766428112983704"
+            },
+            {
+              "row_index": 19064,
+              "step": 152520,
+              "control": "3.6618380546569824",
+              "window": "0.45769968628883362"
+            }
+          ]
+        },
+        "source_limit_absolute_solver_iterate_work_segment_j": {
+          "different_rows": 313,
+          "first_examples": [
+            {
+              "row_index": 19062,
+              "step": 152504,
+              "control": "0.0059151896275579929",
+              "window": "0.00073853012872859836"
+            },
+            {
+              "row_index": 19063,
+              "step": 152512,
+              "control": "0.0059120431542396545",
+              "window": "0.00073894712841138244"
+            },
+            {
+              "row_index": 19064,
+              "step": 152520,
+              "control": "0.0059151081368327141",
+              "window": "0.00073885038727894425"
+            }
+          ]
+        }
+      },
+      "unexpected_differing_columns": [],
+      "different_cells_outside_sampling_intervals_overlapping_window": 0,
+      "all_non_submission_diagnostic_cells_equal": true,
+      "fingerprint_columns_present": true
+    },
+    "resting-com-support-impulses.csv": {
+      "headers_equal": true,
+      "control_rows": 620000,
+      "window_rows": 620000,
+      "all_cells_equal": true,
+      "differing_columns": {},
+      "unexpected_differing_columns": [],
+      "different_cells_outside_sampling_intervals_overlapping_window": 0,
+      "all_non_submission_diagnostic_cells_equal": true,
+      "fingerprint_columns_present": false
+    },
+    "resting-surface-audit.csv": {
+      "headers_equal": true,
+      "control_rows": 4846,
+      "window_rows": 4845,
+      "all_cells_equal": false,
+      "differing_columns": {},
+      "unexpected_differing_columns": [],
+      "different_cells_outside_sampling_intervals_overlapping_window": 0,
+      "all_non_submission_diagnostic_cells_equal": false,
+      "fingerprint_columns_present": false
+    }
+  },
+  "grids": {
+    "control/resting-coupled.csv": {
+      "rows": 19375,
+      "complete": true,
+      "errors": []
+    },
+    "control/resting-com-momentum-diagnostic.csv": {
+      "rows": 19375,
+      "complete": true,
+      "errors": []
+    },
+    "control/support": {
+      "rows": 620000,
+      "complete": true,
+      "errors": []
+    },
+    "failed_window/resting-coupled.csv": {
+      "rows": 19375,
+      "complete": true,
+      "errors": []
+    },
+    "failed_window/resting-com-momentum-diagnostic.csv": {
+      "rows": 19375,
+      "complete": true,
+      "errors": []
+    },
+    "failed_window/support": {
+      "rows": 620000,
+      "complete": true,
+      "errors": []
+    },
+    "q": {
+      "rows": 2500,
+      "complete": true,
+      "errors": []
+    },
+    "q_slip": {
+      "rows": 80000,
+      "complete": true,
+      "errors": []
+    }
+  },
+  "captures": {
+    "0": {
+      "failed_window_present": true,
+      "control_sha256": "742e287244a66901bcc5e7443e55e4fab8b136418dca545f7ae1cd3ce330011e",
+      "failed_window_sha256": "742e287244a66901bcc5e7443e55e4fab8b136418dca545f7ae1cd3ce330011e"
+    },
+    "155000": {
+      "failed_window_present": false,
+      "control_sha256": "965518a6cacf8e2ff7c48638c8eed8c8d989b8b32f68a1359451f7584a41e62a"
+    }
+  },
+  "q_v_compensated_root_fingerprints_equal_at_all_normal_rows": true,
+  "all_non_submission_diagnostic_cells_equal": false,
+  "different_cells_outside_sampling_intervals_overlapping_window": 0,
+  "input_sha256": {
+    "/Users/n/numi-human-retained-delivery-20261009/q-integration-audit-window-1240/long-comparison-001/compare_closed_arms.py": "0bb979a5cc8c6f39238e8146c49a4089ead338fbaa35089e9c80def4258a1a08",
+    "/Users/n/numi-human-retained-delivery-20261009/skin-resting-multipose-clearance-1218/native-baseline-310s-preparation/execution.json": "a128afbaf5975b73c34cffb07aa65d39be2626a59cb91085bfc4c63e3c223242",
+    "/Users/n/numi-human-retained-delivery-20261009/q-integration-audit-window-1240/late-window-310s-001/window/execution.json": "b131647d607ddd9eb02bd697b2cda67b65ba112ce7069d15123da6957e3fde5a",
+    "/Users/n/numi-human-retained-delivery-20261009/q-integration-audit-window-1240/late-window-310s-001/window/native-run/native.log": "59c346438ce6a608e54e15c16fc260a0a7719bbd7e2d0aca98622d02f32a27e6",
+    "/Users/n/numi-human-retained-delivery-20261009/q-integration-audit-window-1240/root-comparison-001/control-vs-window.json": "eac675c8c7fae9d5d342f1b7443b8bf3835784c0086d6ac86b1a2ce8129ae54a",
+    "/Users/n/numi-human-retained-delivery-20261009/skin-resting-multipose-clearance-1218/native-baseline-310s-preparation/native-run/resting-coupled.csv": "e06988dbcf8a187bab35b854d80d1a0e5111a4b7f90a286af9d9614fa5d952d5",
+    "/Users/n/numi-human-retained-delivery-20261009/q-integration-audit-window-1240/late-window-310s-001/window/native-run/resting-coupled.csv": "9659897e26a977b12a38d57b80046bf038258282d2760854c9a24c1d15917243",
+    "/Users/n/numi-human-retained-delivery-20261009/skin-resting-multipose-clearance-1218/native-baseline-310s-preparation/native-run/resting-com-momentum-diagnostic.csv": "9e1a66c52047114bdb800cb2165b59fc84be2dea81d0e60dee5a311dd5bbe7a4",
+    "/Users/n/numi-human-retained-delivery-20261009/q-integration-audit-window-1240/late-window-310s-001/window/native-run/resting-com-momentum-diagnostic.csv": "ba3e878ea4d5c482ed3dfec9b02713aa4d026b8f56ec0d7a74e6c451837e152d",
+    "/Users/n/numi-human-retained-delivery-20261009/skin-resting-multipose-clearance-1218/native-baseline-310s-preparation/native-run/resting-com-support-impulses.csv": "7aa6cd8a00c7b9f408343373c7591586a07cb560b4d7163ff76aac1b173e1482",
+    "/Users/n/numi-human-retained-delivery-20261009/q-integration-audit-window-1240/late-window-310s-001/window/native-run/resting-com-support-impulses.csv": "7aa6cd8a00c7b9f408343373c7591586a07cb560b4d7163ff76aac1b173e1482",
+    "/Users/n/numi-human-retained-delivery-20261009/skin-resting-multipose-clearance-1218/native-baseline-310s-preparation/native-run/resting-surface-audit.csv": "c9dd07f6d20a22831bbbebbf30b4cfe92384472b2eb51f3da209b862ef870a6d",
+    "/Users/n/numi-human-retained-delivery-20261009/q-integration-audit-window-1240/late-window-310s-001/window/native-run/resting-surface-audit.csv": "c6fd3ea1a486da632c62fa93e985fb3561934b9acf856f49143095265fa1a72f",
+    "/Users/n/numi-human-retained-delivery-20261009/q-integration-audit-window-1240/late-window-310s-001/window/native-run/resting-com-q-integration.csv": "b75a4b4527fc0455baebb3bcd58e5b824a1d69920793d6f5b8956ba6598eae38",
+    "/Users/n/numi-human-retained-delivery-20261009/q-integration-audit-window-1240/late-window-310s-001/window/native-run/resting-com-q-support-slip.csv": "4bac4d9aadc741288989710581a3d572f8ce887fe7df987f92c2ae96b2b443e0",
+    "/Users/n/numi-human-retained-delivery-20261009/skin-resting-multipose-clearance-1218/native-baseline-310s-preparation/native-run/accepted-geometry/step-0.mrvpack": "742e287244a66901bcc5e7443e55e4fab8b136418dca545f7ae1cd3ce330011e",
+    "/Users/n/numi-human-retained-delivery-20261009/q-integration-audit-window-1240/late-window-310s-001/window/native-run/accepted-geometry/step-0.mrvpack": "742e287244a66901bcc5e7443e55e4fab8b136418dca545f7ae1cd3ce330011e",
+    "/Users/n/numi-human-retained-delivery-20261009/skin-resting-multipose-clearance-1218/native-baseline-310s-preparation/native-run/accepted-geometry/step-155000.mrvpack": "965518a6cacf8e2ff7c48638c8eed8c8d989b8b32f68a1359451f7584a41e62a"
+  },
+  "input_pins_unchanged": true,
+  "successful_run_completion": false
+}

@@ -1,0 +1,46 @@
+[
+  {
+    "source": "/Users/n/numi-human-q-integration-publish-1240/tests/numi_human_accepted_q_audit_window_test.cpp",
+    "source_sha256": "1d4a7b6855ef7db9149d6baf171a02fca04a67d38b67a05489fe08b2b8c14790",
+    "argv": [
+      "/usr/bin/clang++",
+      "-std=c++23",
+      "-O2",
+      "-DNDEBUG",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-Werror",
+      "-I/Users/n/numi-human-q-integration-publish-1240/apps",
+      "/Users/n/numi-human-q-integration-publish-1240/tests/numi_human_accepted_q_audit_window_test.cpp",
+      "-o",
+      "/Users/n/numi-human-retained-delivery-20261009/q-integration-audit-window-1240/main-publication-cpu-tests-001/numi_human_accepted_q_audit_window_test"
+    ],
+    "compile_returncode": 0,
+    "run_returncode": 0,
+    "wall_seconds": 0.717836833,
+    "source_unchanged": true
+  },
+  {
+    "source": "/Users/n/numi-human-q-integration-publish-1240/tests/numi_human_accepted_geometry_cadence_test.cpp",
+    "source_sha256": "90453c184c4b2607b589d74a1c511fa51da069679c635b0848c5bba9369074b6",
+    "argv": [
+      "/usr/bin/clang++",
+      "-std=c++23",
+      "-O2",
+      "-DNDEBUG",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-Werror",
+      "-I/Users/n/numi-human-q-integration-publish-1240/apps",
+      "/Users/n/numi-human-q-integration-publish-1240/tests/numi_human_accepted_geometry_cadence_test.cpp",
+      "-o",
+      "/Users/n/numi-human-retained-delivery-20261009/q-integration-audit-window-1240/main-publication-cpu-tests-001/numi_human_accepted_geometry_cadence_test"
+    ],
+    "compile_returncode": 0,
+    "run_returncode": 0,
+    "wall_seconds": 0.5323103329999999,
+    "source_unchanged": true
+  }
+]

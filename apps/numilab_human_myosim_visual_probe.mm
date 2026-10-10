@@ -1,4 +1,5 @@
 #include "metalrobo/NumiHumanSupport.hpp"
+#include "NumiHumanAcceptedQAuditWindow.hpp"
 #import <Foundation/Foundation.h>
 #import <CoreGraphics/CoreGraphics.h>
 #import <ImageIO/ImageIO.h>
@@ -5491,7 +5492,8 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     const bool restingReleaseInitialization = false,
     const bool acceptedComMomentumAudit = false,
     const std::uint32_t acceptedComMomentumAuditSegmentSteps = 32u,
-    const std::span<const MRNumiHumanHipCapsuleTermGPU> hipCapsuleTerms = {}
+    const std::span<const MRNumiHumanHipCapsuleTermGPU> hipCapsuleTerms = {},
+    const numiHumanAcceptedQAuditWindow::Window qIntegrationWindow = {}
 ) {
     require(restingProgram == nullptr ||
                 (restingProgram->valid() && acceptedObserver != nullptr &&
@@ -7091,18 +7093,20 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                 segment.velocityDiagnosticOwners.w;
         }
     };
+    std::uint32_t lastAuthoritativeSubmissionSteps = 0u;
     const auto runAuthoritativeHorizon = [&context, &model,
 #ifdef NUMI_HUMAN_RESTING_SCENE
                                            &config,
 #endif
                                            &standBrainController,
                                            &mergeStandStatus,
+                                           &lastAuthoritativeSubmissionSteps,
                                            useSegmentedAuthoritativeHorizon,
                                            captureExactContinuumSteps,
                                            continuumTransaction,
                                            timestepSeconds, muscleFeedback, musclePathFeedback, endpointEnergy, &muscles,
                                            &passiveEnergyAt,
-                                           restingProgram, acceptedObserver, supportGeometryProgram, maximumSubmissionSteps, acceptedComMomentumAudit, &queries](
+                                           restingProgram, acceptedObserver, supportGeometryProgram, maximumSubmissionSteps, acceptedComMomentumAudit, qIntegrationWindow, &queries](
         metalrobo::MetalArticulatedOperatorInput horizonInput,
         metalrobo::MetalArticulatedOperatorResult& horizonResult,
         std::vector<HumanTendonContinuumTransaction::AcceptedStep>*
@@ -7116,7 +7120,11 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
              !muscleFeedback.has_value() && !endpointEnergy))) {
             require(!captureExactContinuumSteps && capturedSteps == nullptr,
                     "loaded-knee exact continuum steps bypassed segmented capture");
-            return context.run(model, horizonInput, horizonResult);
+            const auto directDiagnostics =
+                context.run(model, horizonInput, horizonResult);
+            if (directDiagnostics.succeeded() && directDiagnostics.published)
+                lastAuthoritativeSubmissionSteps = requestedSteps;
+            return directDiagnostics;
         }
         require((capturedSteps != nullptr) == captureExactContinuumSteps &&
                     (!captureExactContinuumSteps ||
@@ -7235,8 +7243,9 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             const std::uint32_t segmentSteps =
                 (standBrainController != nullptr || captureExactContinuumSteps || endpointEnergy)
                 ? 1u
-                : std::min(maximumSubmissionSteps,
-                           requestedSteps - completedSteps);
+                : qIntegrationWindow.segmentSteps(
+                    completedSteps, requestedSteps - completedSteps,
+                    maximumSubmissionSteps);
             horizonInput.stand.stepCount = segmentSteps;
             horizonInput.stand.stepIndexOffset = completedSteps;
             // The opt-in COM audit reads only accepted segment endpoints. It
@@ -8030,6 +8039,13 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                 capturedSteps->push_back(std::move(captured));
             }
             if (acceptedObserver != nullptr) {
+                // The observer receives this segment result before its status is
+                // merged into the horizon aggregate. In a bounded Q window, the
+                // contact-residual maxima and solver-work fields therefore describe
+                // only this latest one-step submission. COM deltas and the
+                // sample_start_step/accepted_step interval in the ordinary COM CSV
+                // may span multiple submissions; these columns are not interval
+                // aggregates of the latest-submission diagnostics.
                 require(currentRoots.size() == 1u,
                         "accepted q-integration observer lacks the pre-step compensated root");
                 (*acceptedObserver)(
@@ -8045,6 +8061,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                 );
             }
             completedSteps += segmentSteps;
+            lastAuthoritativeSubmissionSteps = segmentSteps;
             if(horizonInput.collectFullResultToHost) {
                 currentQ = segmentResult.standQ;
                 currentV = segmentResult.standV;
@@ -8699,14 +8716,14 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             static_cast<const MRNumiHumanStandStatusGPU*>(
                 acceptedTendonConsumer.statusSnapshot.contents
             );
+        // The borrowed status contains transfer counts for the actual last
+        // submission. A bounded audit can shorten that submission even when
+        // the total horizon is an exact multiple of the normal segment cap.
         const std::uint32_t borrowedTendonLocalStatusSteps =
-            !useSegmentedAuthoritativeHorizon
-                ? stepCount
-                : (standBrainController != nullptr ||
-                   captureExactContinuumSteps || endpointEnergy)
-                    ? 1u
-                    : ((stepCount - 1u) %
-                       maximumSubmissionSteps) + 1u;
+            lastAuthoritativeSubmissionSteps;
+        require(borrowedTendonLocalStatusSteps > 0u &&
+                    borrowedTendonLocalStatusSteps <= stepCount,
+                "persistent Human has no accepted tendon submission length");
         const bool borrowedTendonStatusMatchesPublication =
             acceptedTendonConsumer.statusSnapshot != nil &&
             (!useSegmentedAuthoritativeHorizon
@@ -23040,10 +23057,40 @@ int main(int argc, char** argv) {
                 const bool restingQIntegrationAudit =
                     qIntegrationAuditSetting != nullptr &&
                     std::strcmp(qIntegrationAuditSetting, "1") == 0;
+                const auto qAuditBoundSetting = [](const char* name)
+                    -> std::optional<std::string_view> {
+                    const char* value = std::getenv(name);
+                    if (value == nullptr) return std::nullopt;
+                    return std::string_view(value);
+                };
+                const auto qIntegrationWindowResult =
+                    numiHumanAcceptedQAuditWindow::parse(
+                        restingQIntegrationAudit,
+                        qAuditBoundSetting(
+                            "NUMI_HUMAN_ACCEPTED_Q_INTEGRATION_AUDIT_FIRST_STEP"),
+                        qAuditBoundSetting(
+                            "NUMI_HUMAN_ACCEPTED_Q_INTEGRATION_AUDIT_LAST_STEP"),
+                        *muscleStepCount);
+                require(qIntegrationWindowResult.ok(),
+                        "accepted Q audit step bounds are invalid or require the Q audit");
+                const auto qIntegrationWindow = qIntegrationWindowResult.window;
                 require(!restingQIntegrationAudit ||
                             (restingComMomentumAudit &&
-                             restingComMomentumAuditSegmentSteps == 1u),
-                        "accepted q-integration audit requires COM observer cadence cap 1");
+                             (qIntegrationWindow.bounded ||
+                              restingComMomentumAuditSegmentSteps == 1u)),
+                        "accepted Q audit requires COM observer; unbounded mode retains cap 1");
+                if (restingQIntegrationAudit && qIntegrationWindow.bounded) {
+                    std::cout << "resting_q_integration_audit_window=enabled first_step="
+                              << qIntegrationWindow.firstAcceptedStep
+                              << " last_step=" << qIntegrationWindow.lastAcceptedStep
+                              << " rows=" << qIntegrationWindow.rowCount()
+                              << " normal_segment_cap_steps="
+                              << restingComMomentumAuditSegmentSteps
+                              << " inside_window_segment_cap_steps=1"
+                              << " normal_com_row_interval=observer_sampling_window"
+                              << " status_solver_work_scope=latest_submission_only"
+                              << std::endl;
+                }
                 std::ofstream comMomentumTrace;
                 std::ofstream supportImpulseTrace;
                 std::ofstream qIntegrationTrace;
@@ -23088,6 +23135,8 @@ int main(int argc, char** argv) {
                               << " selector_observer=selected_dynamic_skin_region_witness"
                               << " observer_only=1" << std::endl;
                 }
+                std::ofstream qSupportSlipTrace;
+                std::uint32_t qSupportSlipSampleSteps = 0u;
                 if (restingComMomentumAudit) {
                     comMomentumTrace.open(std::filesystem::path(positional.back())/
                         "resting-com-momentum-diagnostic.csv");
@@ -23123,7 +23172,7 @@ int main(int argc, char** argv) {
                         << "normal_impulse_ns,tangent0_impulse_ns,tangent1_impulse_ns,"
                         << "impulse_world_x_ns,impulse_world_y_ns,impulse_world_z_ns,"
                         << "normal_x,normal_y,normal_z,tangent0_x,tangent0_y,tangent0_z,tangent1_x,tangent1_y,tangent1_z";
-                    if (restingQIntegrationAudit) {
+                    if (restingQIntegrationAudit && !qIntegrationWindow.bounded) {
                         constexpr std::array<const char*, 4u> slipStages{
                             "pre_step_contact_J_v_before", "pre_step_contact_J_v_free",
                             "pre_step_contact_J_v_preprojection_velocity_same_q",
@@ -23225,11 +23274,31 @@ int main(int argc, char** argv) {
                         qIndexMapTrace << ",,0\n";
                     }
                     qIndexMapTrace.flush();
+                    if (qIntegrationWindow.bounded) {
+                        qSupportSlipTrace.open(std::filesystem::path(positional.back()) /
+                            "resting-com-q-support-slip.csv");
+                        require(qSupportSlipTrace.good(),
+                                "bounded accepted Q support-slip trace path unavailable");
+                        qSupportSlipTrace << std::setprecision(17)
+                            << "accepted_step,time_s,contact_index,body_index,source_geometry_index,point_query_index"
+                            << ",slip_pre_step_contact_J_v_before_tangent0_m_s,slip_pre_step_contact_J_v_before_tangent1_m_s,slip_pre_step_contact_J_v_before_speed_m_s"
+                            << ",slip_pre_step_contact_J_v_free_tangent0_m_s,slip_pre_step_contact_J_v_free_tangent1_m_s,slip_pre_step_contact_J_v_free_speed_m_s"
+                            << ",slip_pre_step_contact_J_v_preprojection_velocity_same_q_tangent0_m_s,slip_pre_step_contact_J_v_preprojection_velocity_same_q_tangent1_m_s,slip_pre_step_contact_J_v_preprojection_velocity_same_q_speed_m_s"
+                            << ",slip_pre_step_contact_J_v_accepted_tangent0_m_s,slip_pre_step_contact_J_v_accepted_tangent1_m_s,slip_pre_step_contact_J_v_accepted_speed_m_s\n";
+                    }
                     const double actualDt = static_cast<double>(
                         static_cast<float>(*muscleStepSeconds));
                     std::cout << "resting_com_q_integration_audit=enabled"
-                              << " accepted_only=1 segment_cap_steps=1"
-                              << " actual_float_dt_s=" << std::setprecision(17)
+                              << " accepted_only=1";
+                    if (qIntegrationWindow.bounded) {
+                        std::cout << " segment_cap_steps=windowed"
+                                  << " outside_window_segment_cap_steps="
+                                  << restingComMomentumAuditSegmentSteps
+                                  << " inside_window_segment_cap_steps=1";
+                    } else {
+                        std::cout << " segment_cap_steps=1";
+                    }
+                    std::cout << " actual_float_dt_s=" << std::setprecision(17)
                               << actualDt
                               << " rows_file=resting-com-q-integration.csv"
                               << " q_index_map=resting-com-q-index-map.csv"
@@ -23514,25 +23583,34 @@ int main(int argc, char** argv) {
                             terminalAcceptedStandStatus=b;
                             terminalAcceptedSnapshotObserved=true;
                         }
-                        const auto respirationTraceProfileStart = trainingProfile
-                            ? std::chrono::steady_clock::now()
-                            : std::chrono::steady_clock::time_point{};
-                        numi::human::writeRespirationTraceSample(trace,p,coupled.physiology.respiration->parameters);
-                        trace<<','<<step<<','
-                             <<b.contactAndAcceleration.x<<','<<b.contactAndAcceleration.y<<','<<b.contactAndAcceleration.z<<','
-                             <<b.factorAndAssistance.z<<','<<b.factorAndAssistance.w<<','<<p.control.x<<','<<p.control.y<<','
-                             <<p.muscles[0].excitationAndActivation.y<<','<<p.muscles[1].excitationAndActivation.y<<','
-                             <<b.preProjectionPreStepConstraintDiagnostics.x<<','<<b.preProjectionPreStepConstraintDiagnostics.y<<','
-                             <<b.preProjectionPreStepConstraintDiagnostics.z<<','<<b.postProjectionPreStepConstraintDiagnostics.x<<','
-                             <<b.postProjectionPreStepConstraintDiagnostics.y<<','<<b.postProjectionPreStepConstraintDiagnostics.z<<','
-                             <<b.jointEqualityProjectionDiagnostics.x<<','<<b.jointEqualityProjectionDiagnostics.z<<','
-                             <<b.contactIterations<<'\n';
-                        trace.flush();
-                        if (trainingProfile) {
-                            restingObserverProfile.respirationTraceMilliseconds +=
-                                profileElapsedMilliseconds(respirationTraceProfileStart);
+                        const bool qIntegrationAuditSample =
+                            qIntegrationWindow.contains(step);
+                        const bool normalObserverSample =
+                            !qIntegrationWindow.bounded ||
+                            step % restingComMomentumAuditSegmentSteps == 0u ||
+                            step == *muscleStepCount;
+                        if (normalObserverSample) {
+                            const auto respirationTraceProfileStart = trainingProfile
+                                ? std::chrono::steady_clock::now()
+                                : std::chrono::steady_clock::time_point{};
+                            numi::human::writeRespirationTraceSample(trace,p,coupled.physiology.respiration->parameters);
+                            trace<<','<<step<<','
+                                 <<b.contactAndAcceleration.x<<','<<b.contactAndAcceleration.y<<','<<b.contactAndAcceleration.z<<','
+                                 <<b.factorAndAssistance.z<<','<<b.factorAndAssistance.w<<','<<p.control.x<<','<<p.control.y<<','
+                                 <<p.muscles[0].excitationAndActivation.y<<','<<p.muscles[1].excitationAndActivation.y<<','
+                                 <<b.preProjectionPreStepConstraintDiagnostics.x<<','<<b.preProjectionPreStepConstraintDiagnostics.y<<','
+                                 <<b.preProjectionPreStepConstraintDiagnostics.z<<','<<b.postProjectionPreStepConstraintDiagnostics.x<<','
+                                 <<b.postProjectionPreStepConstraintDiagnostics.y<<','<<b.postProjectionPreStepConstraintDiagnostics.z<<','
+                                 <<b.jointEqualityProjectionDiagnostics.x<<','<<b.jointEqualityProjectionDiagnostics.z<<','
+                                 <<b.contactIterations<<'\n';
+                            trace.flush();
+                            if (trainingProfile) {
+                                restingObserverProfile.respirationTraceMilliseconds +=
+                                    profileElapsedMilliseconds(respirationTraceProfileStart);
+                            }
                         }
-                        if (restingComMomentumAudit) {
+                        if (restingComMomentumAudit &&
+                            (normalObserverSample || qIntegrationAuditSample)) {
                             // This is a post-acceptance CPU observation only.
                             // It never feeds q/v, the controller, or the next
                             // physical transaction.
@@ -23553,9 +23631,9 @@ int main(int argc, char** argv) {
                                 qAuditSupportPointSlip;
                             std::array<std::array<double, 3u>, 5u>
                                 qAuditSourceBodyLinearMomentum{};
-                            if (restingQIntegrationAudit) {
-                                require(restingComMomentumAuditSegmentSteps == 1u &&
-                                            step == qIntegrationAcceptedRows + 1u &&
+                            if (qIntegrationAuditSample) {
+                                require(step == qIntegrationWindow.firstAcceptedStep +
+                                            qIntegrationAcceptedRows &&
                                             result.standPreProjectionQ.size() ==
                                                 articulation.nq &&
                                             result.standPreProjectionV.size() ==
@@ -23732,6 +23810,31 @@ int main(int argc, char** argv) {
                                                  supportContactPayload->header.groundNormalZ}));
                                     }
                                 }
+                                if (qIntegrationWindow.bounded) {
+                                    require(qSupportSlipTrace.good(),
+                                            "bounded accepted Q support-slip trace is unavailable");
+                                    for (std::size_t contact = 0u;
+                                         contact < qAuditSupportPointSlip.size(); ++contact) {
+                                        const auto& supportContact =
+                                            queries.supportContacts[contact];
+                                        const auto& sourceContact =
+                                            supportContactPayload->records[contact];
+                                        qSupportSlipTrace << step << ','
+                                            << std::setprecision(17)
+                                            << step * double(coupled.physiology.runtime.timestepSeconds())
+                                            << ',' << contact << ',' << sourceContact.bodyIndex
+                                            << ',' << sourceContact.sourceGeometryIndex
+                                            << ',' << supportContact.pointQueryIndex;
+                                        for (const auto& slip : qAuditSupportPointSlip[contact])
+                                            qSupportSlipTrace << ',' << slip[0] << ','
+                                                << slip[1] << ',' << slip[2];
+                                        qSupportSlipTrace << '\n';
+                                    }
+                                    qSupportSlipTrace.flush();
+                                    require(qSupportSlipTrace.good(),
+                                            "bounded accepted Q support-slip write failed");
+                                    ++qSupportSlipSampleSteps;
+                                }
                                 const auto writeFloatArray = [](std::ostream& output,
                                                                 std::span<const float> values) {
                                     output << std::setprecision(
@@ -23802,6 +23905,7 @@ int main(int argc, char** argv) {
                                         profileElapsedMilliseconds(qIntegrationCsvProfileStart);
                                 }
                             }
+                            if (normalObserverSample) {
                             const auto comCpuProfileStart = trainingProfile
                                 ? std::chrono::steady_clock::now()
                                 : std::chrono::steady_clock::time_point{};
@@ -23815,7 +23919,7 @@ int main(int argc, char** argv) {
                             q[2] = double(root.reference.z) + root.displacement.z + root.correction.z;
                             const std::vector<double> v(result.standV.begin(), result.standV.end());
                             std::vector<metalrobo::ArticulatedBodyKinematics> bodyKinematics;
-                            if (restingQIntegrationAudit) {
+                            if (qIntegrationAuditSample) {
                                 require(qAuditAcceptedBodyKinematics.size() ==
                                             articulation.bodyCount,
                                         "accepted q-audit kinematics were not retained for COM");
@@ -24186,10 +24290,12 @@ int main(int argc, char** argv) {
                                     << tangent0[0] << ',' << tangent0[1] << ','
                                     << tangent0[2] << ',' << tangent1[0] << ','
                                     << tangent1[1] << ',' << tangent1[2];
-                                if (restingQIntegrationAudit) {
-                                    require(qAuditSupportPointSlip.size() ==
-                                                supportContactPayload->records.size(),
-                                            "accepted q-audit support-point slip rows are incomplete");
+                                if (restingQIntegrationAudit &&
+                                    !qIntegrationWindow.bounded) {
+                                    require(qIntegrationAuditSample &&
+                                                qAuditSupportPointSlip.size() ==
+                                                    supportContactPayload->records.size(),
+                                            "unbounded Q audit lost its per-step support-point slip rows");
                                     for (const auto& slip :
                                          qAuditSupportPointSlip[contact])
                                         supportImpulseTrace << ',' << slip[0] << ','
@@ -24213,6 +24319,7 @@ int main(int argc, char** argv) {
                             previousComSampleStep = step;
                             previousComMomentum = comMomentum;
                             havePreviousComSample = true;
+                            }
                         }
                         if (liveVisual && !mechanicsOnly) {
                             // The COM observer may run every accepted step,
@@ -24221,11 +24328,14 @@ int main(int argc, char** argv) {
                             // read-only presentation; physical and support-
                             // geometry work still runs for every step.
                             const bool presentAcceptedPose =
-                                !restingComMomentumAudit ||
-                                restingComMomentumAuditSegmentSteps >=
-                                    restingPresentationCadenceSteps ||
-                                step % restingPresentationCadenceSteps == 0u ||
-                                step == *muscleStepCount;
+                                numiHumanAcceptedQAuditWindow::shouldPresentAcceptedPose(
+                                    restingComMomentumAudit,
+                                    restingComMomentumAuditSegmentSteps,
+                                    restingPresentationCadenceSteps,
+                                    qIntegrationWindow.bounded,
+                                    normalObserverSample,
+                                    step,
+                                    *muscleStepCount);
                             if (presentAcceptedPose) {
                                 const auto presentationProfileStart = trainingProfile
                                     ? std::chrono::steady_clock::now()
@@ -24271,7 +24381,7 @@ int main(int argc, char** argv) {
                     persistentRuntimeWithoutPassiveJointTissue,std::nullopt,false,false,{},std::nullopt,std::nullopt,std::nullopt,0x4e554d49u,
                     poseQ,&restingProgram,&observer,liveVisual?&skinSupportProgram:nullptr,
                     restingReleaseInitialization,restingComMomentumAudit,
-                    restingComMomentumAuditSegmentSteps, restingHipCapsuleTerms);
+                    restingComMomentumAuditSegmentSteps, restingHipCapsuleTerms, qIntegrationWindow);
                 if (!restingHipCapsuleTerms.empty()) {
                     double terminalHipPotential=0.0;
                     const auto& articulation=rigid.model.articulations.front();
@@ -24395,13 +24505,24 @@ int main(int argc, char** argv) {
                 }
                 const double wall=std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count();
                 if (restingQIntegrationAudit) {
-                    require(qIntegrationAcceptedRows == *muscleStepCount,
-                            "accepted q-integration trace did not retain every physical step");
+                    require(qIntegrationAcceptedRows == qIntegrationWindow.rowCount(),
+                            "accepted Q-integration trace did not retain every requested window step");
                     qIntegrationTrace.flush();
                     qIndexMapTrace.flush();
+                    if (qSupportSlipTrace.is_open()) {
+                        qSupportSlipTrace.flush();
+                        require(qSupportSlipTrace.good() &&
+                                    qSupportSlipSampleSteps == qIntegrationWindow.rowCount(),
+                                "bounded accepted Q support-slip trace missed a requested window step");
+                    }
                     std::cout << "resting_com_q_integration_rows="
                               << qIntegrationAcceptedRows
-                              << " final_accepted_step=" << qIntegrationAcceptedRows
+                              << " first_accepted_step="
+                              << qIntegrationWindow.firstAcceptedStep
+                              << " last_accepted_step="
+                              << qIntegrationWindow.lastAcceptedStep
+                              << " final_accepted_step="
+                              << qIntegrationWindow.lastAcceptedStep
                               << " actual_float_dt_s="
                               << std::setprecision(17)
                               << static_cast<double>(static_cast<float>(*muscleStepSeconds))

@@ -1,0 +1,69 @@
+{
+  "scope": "Native accepted-state diagnostic window and final-submission tendon bookkeeping; not overall Human acceptance.",
+  "source_base_revision": "d13b2348d046cf14575a72b94b41fe9767c44c1a",
+  "source_files_sha256": {
+    "CMakeLists.txt": "1ca5df950f93a2387b684caa5b60cb7f451bd0a2b197958796b7192c511cbd1e",
+    "apps/NumiHumanAcceptedQAuditWindow.hpp": "deed09c7fbbca899af2456d390fcd1f55aec73fe5370530b9d6080643e16ddd7",
+    "apps/numilab_human_myosim_visual_probe.mm": "6ef95a7c260f718e84acbb4153064742e0108bef24d2c99a737099d2fe40ebbc",
+    "tests/numi_human_accepted_q_audit_window_test.cpp": "1d4a7b6855ef7db9149d6baf171a02fca04a67d38b67a05489fe08b2b8c14790"
+  },
+  "pre_evidence_staged_patch_sha256": "7aac8c674a3dca58c9201dfd0ef8ce631c8729856a7d4fb9faef8f72ddea956a",
+  "runtime_source_revision": "d13b2348d046cf14575a72b94b41fe9767c44c1a",
+  "binary_sha256": "db31dea278e8e0f5cfb0932b60d12060792c789260db6e30a92bc04081543e72",
+  "evidence": {
+    "fixed-control-execution.json": {
+      "retained_path": "/Users/n/numi-human-retained-delivery-20261009/q-integration-audit-window-1240/terminal-tendon-fix-smoke-001/control/execution.json",
+      "sha256": "76dc0d9d8d53784bda7f7bf78f1582a6a7fb96eaf68260ecfef3d5aa2df13e46"
+    },
+    "fixed-window-execution.json": {
+      "retained_path": "/Users/n/numi-human-retained-delivery-20261009/q-integration-audit-window-1240/terminal-tendon-fix-smoke-001/window/execution.json",
+      "sha256": "208404115fa3cddfe4b24740de3004f4f08bfb8a17a49a5c6791fcbf86d87bc1"
+    },
+    "fixed-window-comparison.json": {
+      "retained_path": "/Users/n/numi-human-retained-delivery-20261009/q-integration-audit-window-1240/terminal-tendon-fix-smoke-001/comparison.json",
+      "sha256": "6cb71a397c8843333fbdafbfed2fdb2ae3b8e305290c0236da59bda72ae523d9"
+    },
+    "pre-fix-terminal-reproduction.json": {
+      "retained_path": "/Users/n/numi-human-retained-delivery-20261009/q-integration-audit-window-1240/terminal-tendon-short-reproduction-001/window/execution.json",
+      "sha256": "d364a087898b32bba2176a76593070ae0422549800049ac8df2748ec07a05384"
+    },
+    "main-mid-window-comparison.json": {
+      "retained_path": "/Users/n/numi-human-retained-delivery-20261009/q-integration-audit-window-1240/main-publication-smoke-001/attempt-002/comparison.json",
+      "sha256": "3371477ca4aa41e2aec5d882bf1c5cf8003c2da0534f7c35a75e93282653e04a"
+    },
+    "failed-310s-execution.json": {
+      "retained_path": "/Users/n/numi-human-retained-delivery-20261009/q-integration-audit-window-1240/late-window-310s-001/window/execution.json",
+      "sha256": "b131647d607ddd9eb02bd697b2cda67b65ba112ce7069d15123da6957e3fde5a"
+    },
+    "failed-310s-accepted-prefix-comparison.json": {
+      "retained_path": "/Users/n/numi-human-retained-delivery-20261009/q-integration-audit-window-1240/terminal-tendon-failure-diagnosis-001/failed-accepted-prefix-comparison.json",
+      "sha256": "e2bb08a97eea90ac9ffb140f1ec04dd8c46db5539dd5dee96dde3f50e6520ef6"
+    },
+    "failed-310s-q-accounting.json": {
+      "retained_path": "/Users/n/numi-human-retained-delivery-20261009/q-integration-audit-window-1240/late-window-analysis-preparation-001/revision-007/failed-terminal-diagnostic-001/failed-terminal-q-window-accounting.json",
+      "sha256": "f50013846aa2c5ceaae94bee14dc71afc50f0c029a1ec2e2109c047563b087f8"
+    },
+    "build-report.json": {
+      "retained_path": "/Users/n/numi-human-retained-delivery-20261009/q-integration-audit-window-1240/terminal-tendon-fix-build-001/build-report.json",
+      "sha256": "945d8a72b9ab6f8572273e0d2db4678b34c93db655c54c0a5991918f297d1880"
+    },
+    "cpu-test-results.json": {
+      "retained_path": "/Users/n/numi-human-retained-delivery-20261009/q-integration-audit-window-1240/main-publication-cpu-tests-001/results.json",
+      "sha256": "c156118d8e79fadfcf33c2c65396672f264add8115af5ca7acdc2c033d8e7424"
+    },
+    "compare_closed_arms.py": {
+      "retained_path": "/Users/n/numi-human-retained-delivery-20261009/q-integration-audit-window-1240/long-comparison-001/compare_closed_arms.py",
+      "sha256": "0bb979a5cc8c6f39238e8146c49a4089ead338fbaa35089e9c80def4258a1a08"
+    },
+    "compare_failed_accepted_prefix.py": {
+      "retained_path": "/Users/n/numi-human-retained-delivery-20261009/q-integration-audit-window-1240/terminal-tendon-failure-diagnosis-001/compare_failed_accepted_prefix.py",
+      "sha256": "c7bdd39d38fec8415e7e2cb0c660a35150ca8ff1ab97b43be46575b11c706af6"
+    },
+    "analyze_failed_terminal_q_window.py": {
+      "retained_path": "/Users/n/numi-human-retained-delivery-20261009/q-integration-audit-window-1240/late-window-analysis-preparation-001/revision-007/analyze_failed_terminal_q_window.py",
+      "sha256": "c51b98417e48bba4b639619c323f9cab376b36a7c2344c04ba1cbdb21be3922d"
+    }
+  },
+  "failed_long_run_preserved": true,
+  "new_successful_310s_rerun": false
+}

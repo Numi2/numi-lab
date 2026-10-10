@@ -1,0 +1,627 @@
+{
+  "scope": "Closed native observer equivalence, not anatomy, momentum closure, or physiological validation.",
+  "script_sha256": "0bb979a5cc8c6f39238e8146c49a4089ead338fbaa35089e9c80def4258a1a08",
+  "steps": 512,
+  "q_first": 464,
+  "q_last": 512,
+  "submission_diagnostic_columns": {
+    "resting-coupled.csv": [
+      "equality_position_projection_max_generalized",
+      "equality_velocity_projection_max_generalized_s",
+      "min_contact_gap_m",
+      "peak_penetration_m",
+      "post_projection_contact_residual_m_s",
+      "post_projection_equality_residual_generalized_s",
+      "post_projection_limit_residual_generalized_s",
+      "pre_projection_contact_residual_m_s",
+      "pre_projection_equality_residual_generalized_s",
+      "pre_projection_limit_residual_generalized_s"
+    ],
+    "resting-com-momentum-diagnostic.csv": [
+      "contact_normal_absolute_solver_iterate_work_segment_j",
+      "contact_normal_solver_iterate_work_segment_j",
+      "contact_tangent_absolute_solver_iterate_work_segment_j",
+      "contact_tangent_solver_iterate_work_segment_j",
+      "equality_absolute_solver_iterate_work_segment_j",
+      "equality_solver_iterate_work_segment_j",
+      "max_normal_contact_impulse_segment_ns",
+      "max_tangent_contact_impulse_segment_ns",
+      "source_limit_absolute_solver_iterate_work_segment_j",
+      "source_limit_solver_iterate_work_segment_j"
+    ],
+    "resting-com-support-impulses.csv": [],
+    "resting-surface-audit.csv": []
+  },
+  "csv_comparisons": {
+    "resting-coupled.csv": {
+      "headers_equal": true,
+      "control_rows": 64,
+      "window_rows": 64,
+      "all_cells_equal": false,
+      "differing_columns": {
+        "min_contact_gap_m": {
+          "different_rows": 6,
+          "first_examples": [
+            {
+              "row_index": 57,
+              "step": 464,
+              "control": "-2.1666610337e-06",
+              "window": "-1.78352706826e-06"
+            },
+            {
+              "row_index": 58,
+              "step": 472,
+              "control": "-2.00536123884e-06",
+              "window": "-1.81658549536e-06"
+            },
+            {
+              "row_index": 59,
+              "step": 480,
+              "control": "-2.128564347e-06",
+              "window": "-2.07083462556e-06"
+            }
+          ]
+        },
+        "peak_penetration_m": {
+          "different_rows": 6,
+          "first_examples": [
+            {
+              "row_index": 57,
+              "step": 464,
+              "control": "2.1666610337e-06",
+              "window": "1.78352706826e-06"
+            },
+            {
+              "row_index": 58,
+              "step": 472,
+              "control": "2.00536123884e-06",
+              "window": "1.81658549536e-06"
+            },
+            {
+              "row_index": 59,
+              "step": 480,
+              "control": "2.128564347e-06",
+              "window": "2.07083462556e-06"
+            }
+          ]
+        },
+        "pre_projection_contact_residual_m_s": {
+          "different_rows": 7,
+          "first_examples": [
+            {
+              "row_index": 57,
+              "step": 464,
+              "control": "1.37121660373e-05",
+              "window": "1.31198612507e-05"
+            },
+            {
+              "row_index": 58,
+              "step": 472,
+              "control": "1.45028361658e-05",
+              "window": "1.37356964842e-05"
+            },
+            {
+              "row_index": 59,
+              "step": 480,
+              "control": "1.42275694088e-05",
+              "window": "1.35793179652e-05"
+            }
+          ]
+        },
+        "pre_projection_limit_residual_generalized_s": {
+          "different_rows": 7,
+          "first_examples": [
+            {
+              "row_index": 57,
+              "step": 464,
+              "control": "1.64867387298e-07",
+              "window": "8.61764419824e-08"
+            },
+            {
+              "row_index": 58,
+              "step": 472,
+              "control": "1.44964744209e-07",
+              "window": "7.68688579456e-08"
+            },
+            {
+              "row_index": 59,
+              "step": 480,
+              "control": "8.06181503776e-08",
+              "window": "5.09799207293e-08"
+            }
+          ]
+        },
+        "pre_projection_equality_residual_generalized_s": {
+          "different_rows": 7,
+          "first_examples": [
+            {
+              "row_index": 57,
+              "step": 464,
+              "control": "7.46162868381e-07",
+              "window": "2.2653740217e-08"
+            },
+            {
+              "row_index": 58,
+              "step": 472,
+              "control": "1.49231948399e-06",
+              "window": "7.44812552966e-07"
+            },
+            {
+              "row_index": 59,
+              "step": 480,
+              "control": "1.48916126363e-06",
+              "window": "3.73059663161e-07"
+            }
+          ]
+        },
+        "post_projection_contact_residual_m_s": {
+          "different_rows": 7,
+          "first_examples": [
+            {
+              "row_index": 57,
+              "step": 464,
+              "control": "1.37122278829e-05",
+              "window": "1.31198730742e-05"
+            },
+            {
+              "row_index": 58,
+              "step": 472,
+              "control": "1.45027324834e-05",
+              "window": "1.37356910273e-05"
+            },
+            {
+              "row_index": 59,
+              "step": 480,
+              "control": "1.42275193866e-05",
+              "window": "1.35793216032e-05"
+            }
+          ]
+        },
+        "post_projection_limit_residual_generalized_s": {
+          "different_rows": 7,
+          "first_examples": [
+            {
+              "row_index": 57,
+              "step": 464,
+              "control": "1.64867387298e-07",
+              "window": "8.61764419824e-08"
+            },
+            {
+              "row_index": 58,
+              "step": 472,
+              "control": "1.44964744209e-07",
+              "window": "7.68688579456e-08"
+            },
+            {
+              "row_index": 59,
+              "step": 480,
+              "control": "8.06181503776e-08",
+              "window": "5.09799207293e-08"
+            }
+          ]
+        },
+        "post_projection_equality_residual_generalized_s": {
+          "different_rows": 7,
+          "first_examples": [
+            {
+              "row_index": 57,
+              "step": 464,
+              "control": "2.72263322998e-11",
+              "window": "1.45089495973e-11"
+            },
+            {
+              "row_index": 58,
+              "step": 472,
+              "control": "2.84908208137e-11",
+              "window": "1.77323433714e-11"
+            },
+            {
+              "row_index": 59,
+              "step": 480,
+              "control": "2.35691466344e-11",
+              "window": "6.75079436796e-12"
+            }
+          ]
+        },
+        "equality_position_projection_max_generalized": {
+          "different_rows": 5,
+          "first_examples": [
+            {
+              "row_index": 57,
+              "step": 464,
+              "control": "7.45058059692e-09",
+              "window": "3.77511355509e-11"
+            },
+            {
+              "row_index": 58,
+              "step": 472,
+              "control": "1.49011611938e-08",
+              "window": "7.45058059692e-09"
+            },
+            {
+              "row_index": 59,
+              "step": 480,
+              "control": "1.49011611938e-08",
+              "window": "3.72529029846e-09"
+            }
+          ]
+        },
+        "equality_velocity_projection_max_generalized_s": {
+          "different_rows": 6,
+          "first_examples": [
+            {
+              "row_index": 57,
+              "step": 464,
+              "control": "1.90186870697e-08",
+              "window": "1.88786231092e-08"
+            },
+            {
+              "row_index": 58,
+              "step": 472,
+              "control": "2.05187262736e-08",
+              "window": "5.25753307556e-09"
+            },
+            {
+              "row_index": 59,
+              "step": 480,
+              "control": "2.74783644727e-08",
+              "window": "8.31178681437e-09"
+            }
+          ]
+        }
+      },
+      "unexpected_differing_columns": [],
+      "different_cells_outside_sampling_intervals_overlapping_window": 0,
+      "all_non_submission_diagnostic_cells_equal": true,
+      "fingerprint_columns_present": false
+    },
+    "resting-com-momentum-diagnostic.csv": {
+      "headers_equal": true,
+      "control_rows": 64,
+      "window_rows": 64,
+      "all_cells_equal": false,
+      "differing_columns": {
+        "max_normal_contact_impulse_segment_ns": {
+          "different_rows": 6,
+          "first_examples": [
+            {
+              "row_index": 57,
+              "step": 464,
+              "control": "0.34399443864822388",
+              "window": "0.33874794840812683"
+            },
+            {
+              "row_index": 58,
+              "step": 472,
+              "control": "0.35059943795204163",
+              "window": "0.33360272645950317"
+            },
+            {
+              "row_index": 59,
+              "step": 480,
+              "control": "0.34699147939682007",
+              "window": "0.33408138155937195"
+            }
+          ]
+        },
+        "max_tangent_contact_impulse_segment_ns": {
+          "different_rows": 6,
+          "first_examples": [
+            {
+              "row_index": 57,
+              "step": 464,
+              "control": "0.19231079518795013",
+              "window": "0.1913628876209259"
+            },
+            {
+              "row_index": 58,
+              "step": 472,
+              "control": "0.19320791959762573",
+              "window": "0.18848411738872528"
+            },
+            {
+              "row_index": 59,
+              "step": 480,
+              "control": "0.19287905097007751",
+              "window": "0.189030721783638"
+            }
+          ]
+        },
+        "contact_normal_solver_iterate_work_segment_j": {
+          "different_rows": 7,
+          "first_examples": [
+            {
+              "row_index": 57,
+              "step": 464,
+              "control": "-0.13992464542388916",
+              "window": "-0.017506666481494904"
+            },
+            {
+              "row_index": 58,
+              "step": 472,
+              "control": "-0.13998423516750336",
+              "window": "-0.017498916015028954"
+            },
+            {
+              "row_index": 59,
+              "step": 480,
+              "control": "-0.1399044394493103",
+              "window": "-0.017480699345469475"
+            }
+          ]
+        },
+        "contact_tangent_solver_iterate_work_segment_j": {
+          "different_rows": 7,
+          "first_examples": [
+            {
+              "row_index": 57,
+              "step": 464,
+              "control": "-0.014109832234680653",
+              "window": "-0.0017637853743508458"
+            },
+            {
+              "row_index": 58,
+              "step": 472,
+              "control": "-0.014174642041325569",
+              "window": "-0.0017764039803296328"
+            },
+            {
+              "row_index": 59,
+              "step": 480,
+              "control": "-0.014181509613990784",
+              "window": "-0.0017670063534751534"
+            }
+          ]
+        },
+        "equality_solver_iterate_work_segment_j": {
+          "different_rows": 7,
+          "first_examples": [
+            {
+              "row_index": 57,
+              "step": 464,
+              "control": "-3.2030048370361328",
+              "window": "-0.40047144889831543"
+            },
+            {
+              "row_index": 58,
+              "step": 472,
+              "control": "-3.2033650875091553",
+              "window": "-0.40038326382637024"
+            },
+            {
+              "row_index": 59,
+              "step": 480,
+              "control": "-3.202052116394043",
+              "window": "-0.40018150210380554"
+            }
+          ]
+        },
+        "source_limit_solver_iterate_work_segment_j": {
+          "different_rows": 7,
+          "first_examples": [
+            {
+              "row_index": 57,
+              "step": 464,
+              "control": "-0.00096556404605507851",
+              "window": "-0.00012031072401441634"
+            },
+            {
+              "row_index": 58,
+              "step": 472,
+              "control": "-0.00096198712708428502",
+              "window": "-0.00012026452895952389"
+            },
+            {
+              "row_index": 59,
+              "step": 480,
+              "control": "-0.00096189440228044987",
+              "window": "-0.00012033640086883679"
+            }
+          ]
+        },
+        "contact_normal_absolute_solver_iterate_work_segment_j": {
+          "different_rows": 7,
+          "first_examples": [
+            {
+              "row_index": 57,
+              "step": 464,
+              "control": "0.19847658276557922",
+              "window": "0.024857891723513603"
+            },
+            {
+              "row_index": 58,
+              "step": 472,
+              "control": "0.19859518110752106",
+              "window": "0.024826245382428169"
+            },
+            {
+              "row_index": 59,
+              "step": 480,
+              "control": "0.19850189983844757",
+              "window": "0.024796320125460625"
+            }
+          ]
+        },
+        "contact_tangent_absolute_solver_iterate_work_segment_j": {
+          "different_rows": 7,
+          "first_examples": [
+            {
+              "row_index": 57,
+              "step": 464,
+              "control": "0.01503269374370575",
+              "window": "0.0018800547113642097"
+            },
+            {
+              "row_index": 58,
+              "step": 472,
+              "control": "0.015112882480025291",
+              "window": "0.0018951245583593845"
+            },
+            {
+              "row_index": 59,
+              "step": 480,
+              "control": "0.015117978677153587",
+              "window": "0.001881977659650147"
+            }
+          ]
+        },
+        "equality_absolute_solver_iterate_work_segment_j": {
+          "different_rows": 7,
+          "first_examples": [
+            {
+              "row_index": 57,
+              "step": 464,
+              "control": "3.2030048370361328",
+              "window": "0.40047144889831543"
+            },
+            {
+              "row_index": 58,
+              "step": 472,
+              "control": "3.2033650875091553",
+              "window": "0.40038326382637024"
+            },
+            {
+              "row_index": 59,
+              "step": 480,
+              "control": "3.202052116394043",
+              "window": "0.40018150210380554"
+            }
+          ]
+        },
+        "source_limit_absolute_solver_iterate_work_segment_j": {
+          "different_rows": 7,
+          "first_examples": [
+            {
+              "row_index": 57,
+              "step": 464,
+              "control": "0.00096556404605507851",
+              "window": "0.00012031072401441634"
+            },
+            {
+              "row_index": 58,
+              "step": 472,
+              "control": "0.00096198712708428502",
+              "window": "0.00012026452895952389"
+            },
+            {
+              "row_index": 59,
+              "step": 480,
+              "control": "0.00096189440228044987",
+              "window": "0.00012033640086883679"
+            }
+          ]
+        }
+      },
+      "unexpected_differing_columns": [],
+      "different_cells_outside_sampling_intervals_overlapping_window": 0,
+      "all_non_submission_diagnostic_cells_equal": true,
+      "fingerprint_columns_present": true
+    },
+    "resting-com-support-impulses.csv": {
+      "headers_equal": true,
+      "control_rows": 2048,
+      "window_rows": 2048,
+      "all_cells_equal": true,
+      "differing_columns": {},
+      "unexpected_differing_columns": [],
+      "different_cells_outside_sampling_intervals_overlapping_window": 0,
+      "all_non_submission_diagnostic_cells_equal": true,
+      "fingerprint_columns_present": false
+    },
+    "resting-surface-audit.csv": {
+      "headers_equal": true,
+      "control_rows": 18,
+      "window_rows": 18,
+      "all_cells_equal": true,
+      "differing_columns": {},
+      "unexpected_differing_columns": [],
+      "different_cells_outside_sampling_intervals_overlapping_window": 0,
+      "all_non_submission_diagnostic_cells_equal": true,
+      "fingerprint_columns_present": false
+    }
+  },
+  "grids": {
+    "control/resting-coupled.csv": {
+      "rows": 64,
+      "complete": true,
+      "errors": []
+    },
+    "control/resting-com-momentum-diagnostic.csv": {
+      "rows": 64,
+      "complete": true,
+      "errors": []
+    },
+    "control/support": {
+      "rows": 2048,
+      "complete": true,
+      "errors": []
+    },
+    "window/resting-coupled.csv": {
+      "rows": 64,
+      "complete": true,
+      "errors": []
+    },
+    "window/resting-com-momentum-diagnostic.csv": {
+      "rows": 64,
+      "complete": true,
+      "errors": []
+    },
+    "window/support": {
+      "rows": 2048,
+      "complete": true,
+      "errors": []
+    },
+    "q": {
+      "rows": 49,
+      "complete": true,
+      "errors": []
+    },
+    "q_slip": {
+      "rows": 1568,
+      "complete": true,
+      "errors": []
+    }
+  },
+  "captures": {
+    "0": {
+      "control_sha256": "73eb3d7c1de10ab771c98e93e33f3bb24b12822ec5e94795e1b992aefde2bdf5",
+      "window_sha256": "73eb3d7c1de10ab771c98e93e33f3bb24b12822ec5e94795e1b992aefde2bdf5",
+      "identical": true
+    },
+    "512": {
+      "control_sha256": "161810774efdceb6f12b4b317eb1cc5783c6b51defa926743fde8427040ac54b",
+      "window_sha256": "161810774efdceb6f12b4b317eb1cc5783c6b51defa926743fde8427040ac54b",
+      "identical": true
+    }
+  },
+  "q_v_compensated_root_fingerprints_equal_at_all_normal_rows": true,
+  "all_non_submission_diagnostic_cells_equal": true,
+  "different_cells_outside_sampling_intervals_overlapping_window": 0,
+  "input_sha256": {
+    "/Users/n/numi-human-retained-delivery-20261009/q-integration-audit-window-1240/terminal-tendon-fix-smoke-001/control/execution.json": "76dc0d9d8d53784bda7f7bf78f1582a6a7fb96eaf68260ecfef3d5aa2df13e46",
+    "/Users/n/numi-human-retained-delivery-20261009/q-integration-audit-window-1240/terminal-tendon-fix-smoke-001/window/execution.json": "208404115fa3cddfe4b24740de3004f4f08bfb8a17a49a5c6791fcbf86d87bc1",
+    "/Users/n/numi-human-retained-delivery-20261009/q-integration-audit-window-1240/root-comparison-001/control-vs-window.json": "eac675c8c7fae9d5d342f1b7443b8bf3835784c0086d6ac86b1a2ce8129ae54a",
+    "/Users/n/numi-human-retained-delivery-20261009/q-integration-audit-window-1240/terminal-tendon-fix-smoke-001/control/native-run/resting-coupled.csv": "20a8b547bcd00988b4d17610ed05bbd7142fcf1230be41c7b116aee7fd8b8ffd",
+    "/Users/n/numi-human-retained-delivery-20261009/q-integration-audit-window-1240/terminal-tendon-fix-smoke-001/window/native-run/resting-coupled.csv": "c558efb29e68136b2691bd7bb0f78db9f50f17f86200f88e6777df008fadbf83",
+    "/Users/n/numi-human-retained-delivery-20261009/q-integration-audit-window-1240/terminal-tendon-fix-smoke-001/control/native-run/resting-com-momentum-diagnostic.csv": "2e21c7be22d7bbbf67437337af05751efebc217738f9d74606aaaa5fb4880366",
+    "/Users/n/numi-human-retained-delivery-20261009/q-integration-audit-window-1240/terminal-tendon-fix-smoke-001/window/native-run/resting-com-momentum-diagnostic.csv": "2cca989cb164ee9ecc4489d8eb0e7f9a79ac30ad50f7449ea3729e5f2ecae654",
+    "/Users/n/numi-human-retained-delivery-20261009/q-integration-audit-window-1240/terminal-tendon-fix-smoke-001/control/native-run/resting-com-support-impulses.csv": "1cf0c670a31c94b16eca4f6c4f032fcd867dc21dc135a017d0d32b46901e7219",
+    "/Users/n/numi-human-retained-delivery-20261009/q-integration-audit-window-1240/terminal-tendon-fix-smoke-001/window/native-run/resting-com-support-impulses.csv": "1cf0c670a31c94b16eca4f6c4f032fcd867dc21dc135a017d0d32b46901e7219",
+    "/Users/n/numi-human-retained-delivery-20261009/q-integration-audit-window-1240/terminal-tendon-fix-smoke-001/control/native-run/resting-surface-audit.csv": "d1dcca9acf399bfc8b75f0bbdd2d742a5d935007f6d87f629b60d4a617a2e1af",
+    "/Users/n/numi-human-retained-delivery-20261009/q-integration-audit-window-1240/terminal-tendon-fix-smoke-001/window/native-run/resting-surface-audit.csv": "d1dcca9acf399bfc8b75f0bbdd2d742a5d935007f6d87f629b60d4a617a2e1af",
+    "/Users/n/numi-human-retained-delivery-20261009/q-integration-audit-window-1240/terminal-tendon-fix-smoke-001/window/native-run/resting-com-q-integration.csv": "f7001d687aac586a94be9c5714a7f3e117a99ea9910bb80157b53a3e625d7d11",
+    "/Users/n/numi-human-retained-delivery-20261009/q-integration-audit-window-1240/terminal-tendon-fix-smoke-001/window/native-run/resting-com-q-support-slip.csv": "cb21d34b1c7bd2d0df2f7bb03a4c2d2ff5634465ef7271228b16412901b2f994",
+    "/Users/n/numi-human-retained-delivery-20261009/q-integration-audit-window-1240/terminal-tendon-fix-smoke-001/control/native-run/accepted-geometry/step-0.mrvpack": "73eb3d7c1de10ab771c98e93e33f3bb24b12822ec5e94795e1b992aefde2bdf5",
+    "/Users/n/numi-human-retained-delivery-20261009/q-integration-audit-window-1240/terminal-tendon-fix-smoke-001/window/native-run/accepted-geometry/step-0.mrvpack": "73eb3d7c1de10ab771c98e93e33f3bb24b12822ec5e94795e1b992aefde2bdf5",
+    "/Users/n/numi-human-retained-delivery-20261009/q-integration-audit-window-1240/terminal-tendon-fix-smoke-001/control/native-run/accepted-geometry/step-512.mrvpack": "161810774efdceb6f12b4b317eb1cc5783c6b51defa926743fde8427040ac54b",
+    "/Users/n/numi-human-retained-delivery-20261009/q-integration-audit-window-1240/terminal-tendon-fix-smoke-001/window/native-run/accepted-geometry/step-512.mrvpack": "161810774efdceb6f12b4b317eb1cc5783c6b51defa926743fde8427040ac54b"
+  },
+  "input_pins_unchanged": true,
+  "limitations": [
+    "Fingerprints are not retained raw-array equality.",
+    "The normal COM sample interval is eight steps; status maxima and work sums describe the latest GPU submission.",
+    "All differing columns and values are reported; no numeric tolerance hides mismatches.",
+    "This comparison does not admit the existing skin crossings or explain late motion."
+  ],
+  "observer_equivalence_checks_passed": true
+}
