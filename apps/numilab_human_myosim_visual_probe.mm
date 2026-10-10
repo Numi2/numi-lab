@@ -23244,7 +23244,11 @@ int main(int argc, char** argv) {
                         << "source_body_linear_momentum_accepted_qv_x_kg_m_s,source_body_linear_momentum_accepted_qv_y_kg_m_s,source_body_linear_momentum_accepted_qv_z_kg_m_s,"
                         << "gpu_body_kinetic_root_momentum_free_same_q_x_kg_m_s,gpu_body_kinetic_root_momentum_free_same_q_y_kg_m_s,gpu_body_kinetic_root_momentum_free_same_q_z_kg_m_s,"
                         << "gpu_body_kinetic_root_momentum_post_coupled_sweep_same_q_x_kg_m_s,gpu_body_kinetic_root_momentum_post_coupled_sweep_same_q_y_kg_m_s,gpu_body_kinetic_root_momentum_post_coupled_sweep_same_q_z_kg_m_s,"
-                        << "gpu_body_kinetic_root_mass_row_x_f32_by_local_v_index_semicolon,gpu_body_kinetic_root_mass_row_y_f32_by_local_v_index_semicolon,gpu_body_kinetic_root_mass_row_z_f32_by_local_v_index_semicolon\n";
+                        << "gpu_body_kinetic_root_mass_row_x_f32_by_local_v_index_semicolon,gpu_body_kinetic_root_mass_row_y_f32_by_local_v_index_semicolon,gpu_body_kinetic_root_mass_row_z_f32_by_local_v_index_semicolon,"
+                        << "gpu_stand_constraint_vectors_captured,"
+                        << "gpu_stand_free_velocity_count,gpu_stand_free_velocity_f32_by_local_v_index_semicolon,"
+                        << "gpu_stand_joint_equality_impulse_count,gpu_stand_joint_equality_impulses_f32_by_executed_joint_equality_record_index_semicolon,"
+                        << "gpu_stand_source_limit_impulse_count,gpu_stand_source_limit_impulses_f32_by_local_v_index_semicolon\n";
                     const auto writeCsvString = [](std::ostream& output,
                                                    const std::string& value) {
                         output << '"';
@@ -23361,6 +23365,13 @@ int main(int argc, char** argv) {
                               << " rows_file=resting-com-q-integration.csv"
                               << " q_index_map=resting-com-q-index-map.csv"
                               << " arrays=before,preprojection,accepted"
+                              << " gpu_constraint_vectors="
+                              << (qIntegrationWindow.bounded
+                                      ? "bounded_window_only" : "not_serialized_unbounded")
+                              << " equality_order=executed_joint_equality_record_index"
+                              << " equality_row_source=loaded_NHEQ_after_optional_rigid_hand_fixed_and_linear_bound_reductions"
+                              << " equality_multipliers_include_projected_contact_compensation_and_source_limit_reactions=1"
+                              << " direct_source_limit_order=local_v_index"
                               << " root=compensated_reference_displacement_correction"
                               << " observer_only=1" << std::endl;
                 }
@@ -23696,6 +23707,13 @@ int main(int argc, char** argv) {
                             std::array<std::array<double, 3u>, 5u>
                                 qAuditSourceBodyLinearMomentum{};
                             if (qIntegrationAuditSample) {
+                                const auto finiteDiagnosticVector = [](
+                                    const std::vector<float>& values) {
+                                    return std::all_of(values.begin(), values.end(),
+                                        [](const float value) {
+                                            return std::isfinite(value);
+                                        });
+                                };
                                 require(step == qIntegrationWindow.firstAcceptedStep +
                                             qIntegrationAcceptedRows &&
                                             result.standPreProjectionQ.size() ==
@@ -23704,6 +23722,18 @@ int main(int argc, char** argv) {
                                                 articulation.nv &&
                                             result.standFreeVelocity.size() ==
                                                 articulation.nv &&
+                                            (!qIntegrationWindow.bounded ||
+                                             (jointEqualityPayload.has_value() &&
+                                              result.standJointEqualityImpulses.size() ==
+                                                  jointEqualityPayload->payload.records.size() &&
+                                              result.standSourceLimitImpulses.size() ==
+                                                  articulation.nv &&
+                                              finiteDiagnosticVector(
+                                                  result.standFreeVelocity) &&
+                                              finiteDiagnosticVector(
+                                                  result.standJointEqualityImpulses) &&
+                                              finiteDiagnosticVector(
+                                                  result.standSourceLimitImpulses))) &&
                                             qBefore.size() == articulation.nq &&
                                             vBefore.size() == articulation.nv &&
                                             result.pointJacobians.size() ==
@@ -23979,6 +24009,30 @@ int main(int argc, char** argv) {
                                     for (std::size_t column = 0u; column < 9u; ++column)
                                         qIntegrationTrace << ',';
                                 }
+                                // These diagnostics were already read back by the
+                                // bounded Q-window result path. Keep their full
+                                // vectors out of unbounded traces.
+                                const bool captureConstraintVectors =
+                                    qIntegrationWindow.bounded;
+                                qIntegrationTrace << ','
+                                    << (captureConstraintVectors ? 1 : 0) << ','
+                                    << (captureConstraintVectors
+                                            ? result.standFreeVelocity.size() : 0u) << ',';
+                                if (captureConstraintVectors)
+                                    writeFloatArray(qIntegrationTrace,
+                                        result.standFreeVelocity);
+                                qIntegrationTrace << ','
+                                    << (captureConstraintVectors
+                                            ? result.standJointEqualityImpulses.size() : 0u) << ',';
+                                if (captureConstraintVectors)
+                                    writeFloatArray(qIntegrationTrace,
+                                        result.standJointEqualityImpulses);
+                                qIntegrationTrace << ','
+                                    << (captureConstraintVectors
+                                            ? result.standSourceLimitImpulses.size() : 0u) << ',';
+                                if (captureConstraintVectors)
+                                    writeFloatArray(qIntegrationTrace,
+                                        result.standSourceLimitImpulses);
                                 qIntegrationTrace << '\n';
                                 qIntegrationTrace.flush();
                                 require(qIntegrationTrace.good(),
