@@ -1,0 +1,4 @@
+/Users/n/numi-human-accepted-force-observer-1253/apps/numilab_human_myosim_visual_probe.mm:24008:37: error: use of undeclared identifier 'writeCsvString'
+ 24008 |                                     writeCsvString(acceptedForceTrace,
+       |                                     ^~~~~~~~~~~~~~
+1 error generated.

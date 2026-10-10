@@ -1,0 +1,60 @@
+{
+  "source": "/Users/n/numi-human-accepted-force-observer-1253",
+  "source_head": "b18b116e25b3525b468848208b3f86ad5a05d104",
+  "commands": [
+    {
+      "phase": "compile",
+      "argv": [
+        "/usr/bin/clang++",
+        "-DMETALROBO_METALLIB=\"/Users/n/numi-human-contoured-bed-build-1196/shaders/MetalRobo.metallib\"",
+        "-DNUMI_HUMAN_ANTERIOR_THORAX_MATERIAL=\"/Users/n/numi-human-accepted-force-observer-1253/matter/materials/human_anterior_abdominal_wall_composite_effective.nmatter\"",
+        "-DNUMI_HUMAN_OPEN_KNEE_LIGAMENT_MATERIAL=\"/Users/n/numi-human-accepted-force-observer-1253/matter/materials/open_knee_ligament_febio_exp_linear.nmatter\"",
+        "-DNUMI_HUMAN_PASSIVE_TISSUE_MATERIAL=\"/Users/n/numi-human-accepted-force-observer-1253/matter/materials/passive_skeletal_muscle_unqualified.nmatter\"",
+        "-DNUMI_HUMAN_PECTORALIS_FASCIA_MATERIAL=\"/Users/n/numi-human-accepted-force-observer-1253/matter/materials/human_pectoralis_fascia_goh_uniaxial.nmatter\"",
+        "-DNUMI_HUMAN_PLANTAR_FASCIA_MATERIAL=\"/Users/n/numi-human-accepted-force-observer-1253/matter/materials/human_plantar_fascia_reduced.nmatter\"",
+        "-DNUMI_HUMAN_REGIONAL_MYOFASCIA_MATERIAL=\"/Users/n/numi-human-accepted-force-observer-1253/matter/materials/human_myofascia_regional_transverse_isotropic.nmatter\"",
+        "-DNUMI_HUMAN_RESPIRATION_METALLIB=\"/Users/n/numi-human-contoured-bed-build-1196/matter/shaders/HumanRespiration.metallib\"",
+        "-DNUMI_HUMAN_RESTING_SCENE=1",
+        "-DNUMI_HUMAN_THORACOLUMBAR_FASCIA_MATERIAL=\"/Users/n/numi-human-accepted-force-observer-1253/matter/materials/human_thoracolumbar_fascia_effective_isotropic.nmatter\"",
+        "-DNUMI_MATTER_METALLIB=\"/Users/n/numi-human-contoured-bed-build-1196/matter/shaders/NumiMatter.metallib\"",
+        "-I/Users/n/numi-human-resting-integration-20261005/numi-brain/Sources/NumiBrainABI/include",
+        "-I/Users/n/numi-human-accepted-force-observer-1253/include",
+        "-I/Users/n/numi-human-accepted-force-observer-1253/matter/include",
+        "-F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks",
+        "-x",
+        "objective-c++",
+        "-O2",
+        "-DNDEBUG",
+        "-std=c++23",
+        "-arch",
+        "arm64",
+        "-fPIE",
+        "-fobjc-arc",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-o",
+        "/Users/n/numi-human-accepted-force-build-1253/numilab_human_myosim_visual_probe.mm.o",
+        "-c",
+        "/Users/n/numi-human-accepted-force-observer-1253/apps/numilab_human_myosim_visual_probe.mm"
+      ],
+      "returncode": 1,
+      "wall_seconds": 3.9270043749999997
+    }
+  ],
+  "input_sha256": {
+    "/Users/n/numi-human-retained-delivery-20261009/accepted-force-observer-1253/build-001/build.py": "f01c1d23cec5ecd89b147504e4a26ad955f1f5471315ac42a495de40498d53d8",
+    "/Users/n/numi-human-accepted-force-observer-1253/apps/numilab_human_myosim_visual_probe.mm": "971eb10dfdb342b8498cf4bc1fc2e88b7bf129aa2db49a5ca6917c5fdf87b11c",
+    "/Users/n/numi-human-accepted-force-observer-1253/apps/NumiHumanAcceptedQAuditWindow.hpp": "deed09c7fbbca899af2456d390fcd1f55aec73fe5370530b9d6080643e16ddd7",
+    "/Users/n/numi-human-accepted-force-observer-1253/include/metalrobo/numi_human_accepted_force_observer.hpp": "9bf84d65716c3de8f066952ddc50ec55d829a8f249afe353f2b30113adf70180",
+    "/Users/n/numi-human-accepted-force-observer-1253/tests/numi_human_accepted_force_observer_test.cpp": "753b189bc8f0d8887b853724577d258d9f3422502bc7a9773ce1f147353e3f38",
+    "/Users/n/numi-human-accepted-force-observer-1253/CMakeLists.txt": "970e2b41afaf889d580b7dad361b519702020a806f4ff6601584ccd3669a791f",
+    "/Users/n/numi-human-contoured-bed-build-1196/compile_commands.json": "bee41d2b1f1628ccb87187ceb5940c7d2adcc17ece45662a9a5d18e5fa260222",
+    "/Users/n/numi-human-contoured-bed-build-1196/CMakeFiles/numi-human-native.dir/link.txt": "c981e7923e13e4fed68bd3d859d29e62d62ab82b434824eec0ba6914e31fe119",
+    "/Users/n/numi-human-contoured-bed-build-1196/lib/libmetalrobo.dylib": "8edaa58f5d53645e9e5e608772a134a5db58fc3bbdae58604a3cc847edfa8b61"
+  },
+  "inputs_unchanged": true,
+  "outputs": {},
+  "native_execution": false
+}
