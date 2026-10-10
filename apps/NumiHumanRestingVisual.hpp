@@ -67,6 +67,7 @@ class NumiHumanRestingVisual {
     NSDictionary* initialAnatomicalRegistration=nil;
     NSDictionary* capturedSkinSourceMapping=nil;
     std::set<unsigned> registrationBodyIndices;
+    std::size_t sourceBodyCount=0;
     std::set<unsigned> requestedGeometrySteps, completedGeometrySteps;
     bool captureThisFrame=false, captureKernelEncoded=false;
     unsigned captureStep=0,captureCamera=0,captureLayer=0;
@@ -328,8 +329,19 @@ class NumiHumanRestingVisual {
         // respiratory-deformed ribs cannot supply a fitted rigid torso pose.
         NSMutableArray* registeredPoses=[NSMutableArray array];
         const auto* presentedBodies=static_cast<const MRBodyStateGPU*>(coupled.presentationBodies.contents);
-        for(unsigned index:registrationBodyIndices)
+        require(sourceBodyCount>0 &&
+            coupled.presentationBodies.length>=sourceBodyCount*sizeof(MRBodyStateGPU),
+            "accepted body pose capture has an incomplete presentation buffer");
+        for(unsigned index:registrationBodyIndices) {
+            require(index<sourceBodyCount,"registered body pose index exceeds source body count");
             [registeredPoses addObject:bodyPose(index,presentedBodies[index])];
+        }
+        // Some muscle owners (for example Abdomen) have no source-skin binding.
+        // Capture all bodies from the same completed, already-hashed presentation
+        // buffer; do not infer omitted owners from deformed rendered geometry.
+        NSMutableArray* allBodyPoses=[NSMutableArray arrayWithCapacity:sourceBodyCount];
+        for(std::size_t index=0;index<sourceBodyCount;++index)
+            [allBodyPoses addObject:bodyPose(static_cast<unsigned>(index),presentedBodies[index])];
         const auto& presentedRespiration=
             *static_cast<const NMHumanRespirationState*>(coupled.presentationRespiration.contents);
         NSDictionary* respiratoryMotion=@{
@@ -347,6 +359,8 @@ class NumiHumanRestingVisual {
             @"camera_index":@(captureCamera),@"anatomy_layer_index":@(captureLayer),
             @"accepted_body_state_sha256":loadedKneeNSString(bodySHA),
             @"accepted_registered_body_poses":registeredPoses,
+            @"accepted_body_pose_count":@(sourceBodyCount),
+            @"accepted_body_poses":allBodyPoses,
             @"skin_source_mapping":capturedSkinSourceMapping?capturedSkinSourceMapping:@{},
             @"initial_anatomical_registration":initialAnatomicalRegistration?initialAnatomicalRegistration:@{},
             @"physical_endpoint":@"accepted",@"surface_audit_endpoint":@"passed",
@@ -978,6 +992,7 @@ public:
                 @"torso_local_min_m":@[@(lo.x),@(lo.y),@(lo.z)],
                 @"torso_local_max_m":@[@(hi.x),@(hi.y),@(hi.z)]}];
         }
+        sourceBodyCount=initialBodies.size();
         NSMutableArray* initialPoses=[NSMutableArray array];
         for(unsigned index:registrationBodyIndices)[initialPoses addObject:bodyPose(index,initialBodies.at(index))];
         initialAnatomicalRegistration=@{@"torso_body_index":@(anatomyGPU.bodyAndFlags.x),
