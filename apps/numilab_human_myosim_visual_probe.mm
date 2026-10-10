@@ -3372,6 +3372,9 @@ struct MuscleDrivenVisualState {
     std::uint32_t persistentContactIterationCount = 0u;
     bool persistentSourcePassiveJointTissue = false;
     bool persistentRuntimePassiveJointTissue = false;
+    bool persistentMtpPassiveStiffnessConfigured = false;
+    bool persistentMtpPassiveStiffnessActive = false;
+    double persistentMtpPassiveStiffnessNmPerRad = 0.0;
     std::uint32_t persistentPassiveCoordinateCouplingCount = 0u;
     double persistentPassiveCoordinateForceMaximumNewtons = 0.0;
     bool selectedTendonControl = false;
@@ -4588,6 +4591,48 @@ wholeBodyUpperPassiveCoordinateCouplings() {
     return result;
 }
 
+std::vector<metalrobo::NumiHumanPassiveCoordinateCoupling>
+persistentPassiveCoordinateCouplings(
+    const metalrobo::EngineModel& model,
+    const bool includeUpperBodyReference,
+    const std::optional<double> sharedMtpStiffnessNmPerRad
+) {
+    using Coupling = metalrobo::NumiHumanPassiveCoordinateCoupling;
+    std::vector<Coupling> result = includeUpperBodyReference
+        ? wholeBodyUpperPassiveCoordinateCouplings()
+        : std::vector<Coupling>{};
+    if (!sharedMtpStiffnessNmPerRad.has_value()) return result;
+
+    require(!model.articulations.empty(),
+            "shared MTP reference requires a loaded full-body articulation");
+    const auto& articulation = model.articulations.front();
+    require(articulation.nv == model.world.nv &&
+                articulation.vOffset <= model.dofs.size() &&
+                articulation.nv <= model.dofs.size() - articulation.vOffset,
+            "shared MTP reference requires the single full-body MyoSim articulation");
+    const auto dofBegin = model.dofs.begin() + articulation.vOffset;
+    const auto dofEnd = dofBegin + articulation.nv;
+    for (const auto [qIndex, expectedVIndex] :
+         {std::pair{111u, 110u}, std::pair{125u, 124u}}) {
+        const auto dof = std::find_if(
+            dofBegin, dofEnd,
+            [qIndex](const MRDofPropertiesGPU& value) {
+                return value.qIndex == qIndex;
+            });
+        require(dof != dofEnd &&
+                    static_cast<std::uint32_t>(std::distance(dofBegin, dof)) ==
+                        expectedVIndex,
+                "shared MTP reference q/v mapping differs from source MyoSim");
+    }
+    std::vector<Coupling> mtpCouplings;
+    std::string error;
+    require(metalrobo::makeNumiHumanSharedMtpPassiveCoordinateCouplings(
+                *sharedMtpStiffnessNmPerRad, mtpCouplings, error),
+            "invalid shared MTP passive reference: " + error);
+    result.insert(result.end(), mtpCouplings.begin(), mtpCouplings.end());
+    return result;
+}
+
 CompiledStandActivation compileStaticStandActivation(
     const metalrobo::EngineModel& model,
     const LoadedMuscles& muscles,
@@ -5494,7 +5539,8 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     const bool acceptedComMomentumAudit = false,
     const std::uint32_t acceptedComMomentumAuditSegmentSteps = 32u,
     const std::span<const MRNumiHumanHipCapsuleTermGPU> hipCapsuleTerms = {},
-    const numiHumanAcceptedQAuditWindow::Window qIntegrationWindow = {}
+    const numiHumanAcceptedQAuditWindow::Window qIntegrationWindow = {},
+    const std::optional<double> sharedMtpStiffnessNmPerRad = std::nullopt
 ) {
     require(restingProgram == nullptr ||
                 (restingProgram->valid() && acceptedObserver != nullptr &&
@@ -5614,9 +5660,9 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                 !applySelectedActivationIncrement && continuumTransaction == nullptr &&
                 additionalTendonLoadProgram == nullptr && !capturePersistentStandTrace),
             "endpoint energy requires an unassisted source-only authoritative horizon");
-    const auto persistentPassiveCouplings = sourcePassiveJointTissue
-        ? wholeBodyUpperPassiveCoordinateCouplings()
-        : std::vector<metalrobo::NumiHumanPassiveCoordinateCoupling>{};
+    const auto persistentPassiveCouplings =
+        persistentPassiveCoordinateCouplings(
+            model, sourcePassiveJointTissue, sharedMtpStiffnessNmPerRad);
     GroundAlignedSupport aligned =
         makeGroundAlignedSupport(model, supportContacts, seedPoseQ);
     if (initialCoordinate.has_value()) {
@@ -5657,6 +5703,9 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         : std::filesystem::path{};
     require(!restingReleaseInitialization || !useStaticCache,
             "dynamic release initialization does not reuse standing recruitment caches");
+    require(!sharedMtpStiffnessNmPerRad.has_value() ||
+                *sharedMtpStiffnessNmPerRad == 0.0 || !useStaticCache,
+            "nonzero shared MTP stiffness cannot reuse an unbound standing activation cache");
     const bool staticCacheExists = useStaticCache &&
         std::filesystem::is_regular_file(staticCachePath);
     double sourceDynamicForceParityMaximumNewtons = 0.0;
@@ -9096,6 +9145,14 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     result.persistentSourcePassiveJointTissue = sourcePassiveJointTissue;
     result.persistentRuntimePassiveJointTissue =
         sourcePassiveJointTissue && !removeRuntimePassiveJointTissue;
+    result.persistentMtpPassiveStiffnessConfigured =
+        sharedMtpStiffnessNmPerRad.has_value();
+    result.persistentMtpPassiveStiffnessNmPerRad =
+        sharedMtpStiffnessNmPerRad.value_or(0.0);
+    result.persistentMtpPassiveStiffnessActive =
+        sharedMtpStiffnessNmPerRad.has_value() &&
+        *sharedMtpStiffnessNmPerRad > 0.0 &&
+        !removeRuntimePassiveJointTissue;
     result.persistentPassiveCoordinateCouplingCount =
         static_cast<std::uint32_t>(persistentPassiveCouplings.size());
     for (const double value : compiledActivation.generalizedPassiveCoordinateForce) {
@@ -20514,6 +20571,20 @@ double parseMuscleActivation(const std::string& value) {
     return result;
 }
 
+double parseSharedMtpPassiveStiffnessNmPerRad(const std::string& value) {
+    std::size_t parsed = 0u;
+    double result = 0.0;
+    try {
+        result = std::stod(value, &parsed);
+    } catch (const std::exception&) {
+        throw std::runtime_error(
+            "--source-mtp-passive-stiffness-nm-per-rad must be a finite nonnegative decimal");
+    }
+    require(parsed == value.size() && std::isfinite(result) && result >= 0.0,
+            "--source-mtp-passive-stiffness-nm-per-rad must be a finite nonnegative decimal");
+    return result;
+}
+
 double parseWholeBodyActivationCap(const std::string& value) {
     std::size_t parsed = 0u;
     double result = 0.0;
@@ -20834,6 +20905,7 @@ int main(int argc, char** argv) {
 #endif
             bool mechanicsOnly = false;
             bool persistentSourcePassiveJointTissue = false;
+            std::optional<double> sourceMtpPassiveStiffnessNmPerRad;
             bool persistentRuntimeWithoutPassiveJointTissue = false;
             bool selectedTendonControl = false;
             bool standRootAssistance = false;
@@ -21006,6 +21078,12 @@ int main(int argc, char** argv) {
                     require(!mechanicsOnly,
                             "--mechanics-only may be given only once");
                     mechanicsOnly = true;
+                } else if (argument == "--source-mtp-passive-stiffness-nm-per-rad") {
+                    require(index + 1 < argc &&
+                                !sourceMtpPassiveStiffnessNmPerRad.has_value(),
+                            "--source-mtp-passive-stiffness-nm-per-rad requires one value and may be given only once");
+                    sourceMtpPassiveStiffnessNmPerRad.emplace(
+                        parseSharedMtpPassiveStiffnessNmPerRad(argv[++index]));
                 } else if (argument == "--persistent-source-passive-joint-tissue") {
                     require(!persistentSourcePassiveJointTissue,
                             "--persistent-source-passive-joint-tissue may be given only once");
@@ -21383,7 +21461,7 @@ int main(int argc, char** argv) {
                           << " [--muscle-step-count <1.."
                           << MR_NUMI_HUMAN_STAND_MAX_HORIZON_STEPS << "; extended horizons require unassisted persistent stand>]"
                           << " [--muscle-activation <0..1>]"
-                          << " [--resting-release-initialization] [--resting-hip-capsule-reference] [--resting-hip-capsule-scale <finite-positive>] [--persistent-metal-stand] [--mechanics-only] [--persistent-source-passive-joint-tissue] [--persistent-runtime-without-passive-joint-tissue] [--selected-tendon-control] [--stand-root-assistance] [--stand-remove-assistance] [--stand-deterministic-replay] [--persistent-stand-trace] [--stand-endpoint-energy] [--stand-contact-iterations <1..64>] [--stand-muscle-feedback <length-gain> <velocity-gain-seconds>] [--stand-muscle-path-feedback <length-gain> <velocity-gain-seconds>]"
+                          << " [--resting-release-initialization] [--resting-hip-capsule-reference] [--resting-hip-capsule-scale <finite-positive>] [--persistent-metal-stand] [--mechanics-only] [--persistent-source-passive-joint-tissue] [--source-mtp-passive-stiffness-nm-per-rad <finite-nonnegative>] [--persistent-runtime-without-passive-joint-tissue] [--selected-tendon-control] [--stand-root-assistance] [--stand-remove-assistance] [--stand-deterministic-replay] [--persistent-stand-trace] [--stand-endpoint-energy] [--stand-contact-iterations <1..64>] [--stand-muscle-feedback <length-gain> <velocity-gain-seconds>] [--stand-muscle-path-feedback <length-gain> <velocity-gain-seconds>]"
                           << " [--stand-push <start-step> <duration-steps> <fx-N> <fy-N> <fz-N>]"
                           << " [--stand-brain-library <NumiBrainHumanStanding.dylib>]"
                           << " [--stand-brain-program <source-bound-MuscleLocomotorProgram.json>]"
@@ -21786,6 +21864,22 @@ int main(int argc, char** argv) {
             require(!persistentSourcePassiveJointTissue || persistentMetalStand,
                     "--persistent-source-passive-joint-tissue requires "
                     "--persistent-metal-stand");
+            require(!sourceMtpPassiveStiffnessNmPerRad.has_value() ||
+                        (persistentMetalStand && muscleStepSeconds.has_value() &&
+                         supportContactPayloadPath.has_value() &&
+                         jointEqualityPayloadPath.has_value()),
+                    "--source-mtp-passive-stiffness-nm-per-rad requires the persistent source Human stand and its support/joint payloads");
+            require(!sourceMtpPassiveStiffnessNmPerRad.has_value() ||
+                        (!anteriorThoraxPayloadPath.has_value() &&
+                         !pectoralisFasciaPayloadPath.has_value() &&
+                         !openKneePayloadPath.has_value() &&
+                         !openKneeLigamentFEMPath.has_value() &&
+                         !openKneeLiveTissueFEM),
+                    "--source-mtp-passive-stiffness-nm-per-rad is not supported with a separate thorax, pectoralis, or Open Knee continuum owner");
+            require(!sourceMtpPassiveStiffnessNmPerRad.has_value() ||
+                        *sourceMtpPassiveStiffnessNmPerRad == 0.0 ||
+                        !persistentRuntimeWithoutPassiveJointTissue,
+                    "nonzero shared MTP stiffness cannot be combined with runtime passive-joint removal");
             require(!persistentRuntimeWithoutPassiveJointTissue ||
                         (persistentMetalStand && persistentSourcePassiveJointTissue),
                     "--persistent-runtime-without-passive-joint-tissue requires "
@@ -22206,10 +22300,10 @@ int main(int argc, char** argv) {
                         "whole-body support payloads were not loaded");
                 const GroundAlignedSupport aligned = makeGroundAlignedSupport(
                     rigid.model, *supportContactPayload);
-                const auto passiveCouplings = sourcePassiveJointTissue
-                    ? wholeBodyUpperPassiveCoordinateCouplings()
-                    : std::vector<
-                        metalrobo::NumiHumanPassiveCoordinateCoupling>{};
+                const auto passiveCouplings =
+                    persistentPassiveCoordinateCouplings(
+                        rigid.model, sourcePassiveJointTissue,
+                        sourceMtpPassiveStiffnessNmPerRad);
                 const CompiledStandActivation support =
                     compileStaticStandActivation(
                         rigid.model, musclePayload, *jointEqualityPayload,
@@ -22483,6 +22577,11 @@ int main(int argc, char** argv) {
                           << " passive_joint_tissue="
                           << (sourcePassiveJointTissue
                               ? "linearized_experimental_upper_v1" : "none")
+                          << " shared_mtp_passive_stiffness_configured="
+                          << (sourceMtpPassiveStiffnessNmPerRad.has_value() ? "true" : "false")
+                          << " shared_mtp_passive_stiffness_nm_per_rad="
+                          << sourceMtpPassiveStiffnessNmPerRad.value_or(0.0)
+                          << " shared_mtp_passive_scope=one_coordinate_per_foot_shared_by_five_rays_aggregate_reference_not_measured_per_ray_law"
                           << " passive_coordinate_couplings="
                           << passiveCouplings.size()
                           << " body_mass_kg=" << bodyMassKilograms
@@ -24605,7 +24704,8 @@ int main(int argc, char** argv) {
                     persistentRuntimeWithoutPassiveJointTissue,std::nullopt,false,false,{},std::nullopt,std::nullopt,std::nullopt,0x4e554d49u,
                     poseQ,&restingProgram,&observer,liveVisual?&skinSupportProgram:nullptr,
                     restingReleaseInitialization,restingComMomentumAudit,
-                    restingComMomentumAuditSegmentSteps, restingHipCapsuleTerms, qIntegrationWindow);
+                    restingComMomentumAuditSegmentSteps, restingHipCapsuleTerms, qIntegrationWindow,
+                    sourceMtpPassiveStiffnessNmPerRad);
                 if (!restingHipCapsuleTerms.empty()) {
                     double terminalHipPotential=0.0;
                     const auto& articulation=rigid.model.articulations.front();
@@ -25265,7 +25365,12 @@ int main(int argc, char** argv) {
                                 std::nullopt,
                                 true,
                                 &hoodProgram,
-                                persistentSourcePassiveJointTissue
+                                persistentSourcePassiveJointTissue,
+                                false, 16u, false, std::nullopt, false, false, {},
+                                std::nullopt, std::nullopt, std::nullopt,
+                                0x4e554d49u, {}, nullptr, nullptr, nullptr,
+                                false, false, 32u, {}, numiHumanAcceptedQAuditWindow::Window{},
+                                sourceMtpPassiveStiffnessNmPerRad
                             )
                         );
                         const auto hoodDiagnostics = hoodAdapter.diagnostics();
@@ -25400,7 +25505,10 @@ int main(int argc, char** argv) {
                                 standBrainSeed,
                                 requestedRootPose.has_value()
                                     ? std::span<const float>(overriddenPoseQ)
-                                    : std::span<const float>{}
+                                    : std::span<const float>{},
+                                nullptr, nullptr, nullptr, false, false, 32u, {},
+                                numiHumanAcceptedQAuditWindow::Window{},
+                                sourceMtpPassiveStiffnessNmPerRad
                             )
                         );
                     }
@@ -26721,12 +26829,20 @@ int main(int argc, char** argv) {
                       << " persistent_contact_iteration_count=" << (muscleDrivenState.has_value()
                               ? muscleDrivenState->persistentContactIterationCount : 0u)
                       << " persistent_passive_joint_law=" << (muscleDrivenState.has_value() &&
-                              muscleDrivenState->persistentRuntimePassiveJointTissue
+                              (muscleDrivenState->persistentRuntimePassiveJointTissue ||
+                               muscleDrivenState->persistentMtpPassiveStiffnessActive)
                                   ? "current_state_linear_backward_euler" : "disabled")
                       << " persistent_source_passive_joint_tissue=" << (muscleDrivenState.has_value() &&
                               muscleDrivenState->persistentSourcePassiveJointTissue ? "true" : "false")
                       << " persistent_runtime_passive_joint_tissue=" << (muscleDrivenState.has_value() &&
                               muscleDrivenState->persistentRuntimePassiveJointTissue ? "true" : "false")
+                      << " source_mtp_passive_stiffness_configured=" << (muscleDrivenState.has_value() &&
+                              muscleDrivenState->persistentMtpPassiveStiffnessConfigured ? "true" : "false")
+                      << " source_mtp_passive_stiffness_active=" << (muscleDrivenState.has_value() &&
+                              muscleDrivenState->persistentMtpPassiveStiffnessActive ? "true" : "false")
+                      << " source_mtp_passive_stiffness_nm_per_rad=" << (muscleDrivenState.has_value()
+                              ? muscleDrivenState->persistentMtpPassiveStiffnessNmPerRad : 0.0)
+                      << " source_mtp_passive_scope=one_coordinate_per_foot_shared_by_five_rays_aggregate_reference_not_measured_per_ray_law"
                       << " persistent_passive_coordinate_couplings=" << (muscleDrivenState.has_value()
                               ? muscleDrivenState->persistentPassiveCoordinateCouplingCount : 0u)
                       << " persistent_passive_coordinate_force_max_n=" << (muscleDrivenState.has_value()
@@ -26777,7 +26893,9 @@ int main(int argc, char** argv) {
                               muscleDrivenState->sourceConstraintPreloadApplied
                                   ? (muscleDrivenState->persistentSourcePassiveJointTissue
                                       ? "static_equality_plus_position_limit_plus_passive_joint_tissue"
-                                      : "static_equality_plus_position_limit")
+                                      : muscleDrivenState->persistentMtpPassiveStiffnessActive
+                                          ? "static_equality_plus_position_limit_plus_shared_mtp_passive_reference"
+                                          : "static_equality_plus_position_limit")
                                   : "none")
                       << " source_constraint_preload_max_n=" << (muscleDrivenState.has_value()
                               ? muscleDrivenState->sourceConstraintPreloadMaximumNewtons : 0.0)

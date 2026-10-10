@@ -1,6 +1,7 @@
 #include "metalrobo/NumiHumanPassiveJoint.hpp"
 #include "metalrobo/numi_human_passive_joint.h"
 
+#include <algorithm>
 #include <array>
 #include <iostream>
 #include <stdexcept>
@@ -55,6 +56,65 @@ int main() {
     require(compileNumiHumanPassiveJointProgram(
         std::vector<NumiHumanPassiveCoordinateCoupling>{{6,6,0,1},{6,7,0,-1},{7,6,0,-1},{7,7,0,1}},
         nv,program,error), "valid null direction rejected");
+
+    // Explicit shared-MTP reference selects only the two source MTP v DOFs.
+    // K is Nm/rad and q is rad, so the generalized spring torque is Nm.
+    std::vector<NumiHumanPassiveCoordinateCoupling> mtpRows;
+    require(metalrobo::makeNumiHumanSharedMtpPassiveCoordinateCouplings(
+                0.8537, mtpRows, error),
+            "shared MTP reference builder rejected a finite nonnegative value");
+    require(mtpRows.size() == 2u &&
+                mtpRows[0].targetDofIndex == 110u &&
+                mtpRows[0].sourceDofIndex == 110u &&
+                mtpRows[1].targetDofIndex == 124u &&
+                mtpRows[1].sourceDofIndex == 124u &&
+                mtpRows[0].sourceRestPosition == 0.0 &&
+                mtpRows[1].sourceRestPosition == 0.0 &&
+                mtpRows[0].stiffness == 0.8537 &&
+                mtpRows[1].stiffness == 0.8537,
+            "MTP builder selected unrelated coordinates or changed units/rest");
+    require(compileNumiHumanPassiveJointProgram(mtpRows, nv, program, error),
+            "shared MTP reference did not compile");
+    for (std::size_t row = 0u; row < nv; ++row)
+        for (std::size_t column = 0u; column < nv; ++column) {
+            const bool selected = (row == 110u && column == 110u) ||
+                (row == 124u && column == 124u);
+            require((program[row*nv+column] != 0.0f) == selected,
+                    "shared MTP reference enabled an unrelated passive coordinate");
+        }
+    require(program[nv*nv+110u] == 0.0f &&
+                program[nv*nv+124u] == 0.0f,
+            "shared MTP rest angle is not neutral zero radians");
+    const auto mtpTorque = [&](double q) {
+        return -static_cast<double>(program[110u*nv+110u]) *
+            (q - static_cast<double>(program[nv*nv+110u]));
+    };
+    require(mtpTorque(-0.2) > 0.0 && mtpTorque(0.2) < 0.0,
+            "shared MTP spring does not restore toward neutral");
+    near(mtpTorque(-0.2), 0.17074, 1e-7,
+         "shared MTP torque Nm/rad times rad has wrong magnitude");
+    near(mrNumiHumanPassiveImplicitBias(
+             program[110u*nv+110u], -0.2f, 0.0f, 0.001f),
+         -0.17074, 1e-7,
+         "shared MTP implicit RHS does not restore dorsiflexed q toward neutral");
+
+    std::vector<NumiHumanPassiveCoordinateCoupling> zeroMtpRows{{40u,40u,0.0,1.0}};
+    require(metalrobo::makeNumiHumanSharedMtpPassiveCoordinateCouplings(
+                0.0, zeroMtpRows, error) && zeroMtpRows.empty(),
+            "explicit zero shared MTP stiffness is not a compatible no-op");
+    require(compileNumiHumanPassiveJointProgram(zeroMtpRows, nv, program, error) &&
+                std::all_of(program.begin(), program.end(),
+                            [](float value) { return value == 0.0f; }),
+            "zero shared MTP option left an active passive row");
+    const auto retainedMtpRows = mtpRows;
+    require(!metalrobo::makeNumiHumanSharedMtpPassiveCoordinateCouplings(
+                -0.1, mtpRows, error) && mtpRows.size() == retainedMtpRows.size() &&
+                !error.empty(),
+            "negative MTP stiffness admitted or mutated output");
+    require(!metalrobo::makeNumiHumanSharedMtpPassiveCoordinateCouplings(
+                std::numeric_limits<double>::quiet_NaN(), mtpRows, error) &&
+                mtpRows.size() == retainedMtpRows.size() && !error.empty(),
+            "nonfinite MTP stiffness admitted or mutated output");
     require(!validateNumiHumanPassiveJointProgram(program,127,error), "wrong shape admitted");
     program[6*nv+7] = -1.01f; program[7*nv+6] = -1.01f;
     require(!validateNumiHumanPassiveJointProgram(program,nv,error), "negative eigenvalue admitted");

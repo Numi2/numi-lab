@@ -14,6 +14,32 @@
 
 namespace metalrobo {
 
+// Build only the two source MTP coordinates shared by all five toe rays.
+// The full-body MyoSim mapping is q111->v110 and q125->v124; the app verifies
+// that mapping against the loaded model before using these local v indices.
+// Stiffness is an aggregate reference parameter in Nm/rad, not a measured
+// per-ray tissue law. An explicit zero is a no-op and compiles to no rows.
+inline bool makeNumiHumanSharedMtpPassiveCoordinateCouplings(
+    const double stiffnessNmPerRad,
+    std::vector<NumiHumanPassiveCoordinateCoupling>& output,
+    std::string& error
+) {
+    if (!std::isfinite(stiffnessNmPerRad) || stiffnessNmPerRad < 0.0) {
+        error = "shared MTP stiffness must be finite and nonnegative";
+        return false;
+    }
+    std::vector<NumiHumanPassiveCoordinateCoupling> candidate;
+    if (stiffnessNmPerRad > 0.0) {
+        candidate = {
+            {110u, 110u, 0.0, stiffnessNmPerRad},
+            {124u, 124u, 0.0, stiffnessNmPerRad},
+        };
+    }
+    output = std::move(candidate);
+    error.clear();
+    return true;
+}
+
 // Validate the fixed-capacity ABI descriptor independently of any model.
 // The application additionally validates source-specific DOF identity and
 // slack at its compiled initial configuration.
