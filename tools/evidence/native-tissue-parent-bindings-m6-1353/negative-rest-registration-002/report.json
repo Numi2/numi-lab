@@ -1,0 +1,8 @@
+{
+  "passed": true,
+  "returncode": 1,
+  "wall_seconds": 1.8999686669994844,
+  "receipt_sha256": "9890521c7c4c8f47015cc819f5e3e260c1951bab83d37965ccd59f792dff093b",
+  "log_sha256": "8c2a211241725332e2e9e6502c9b92f9202ab7f710478a21bf436d5553feda9a",
+  "prior_attempt": "negative-admission/rest_geometry_shift rejected earlier common-field absolute sidecar path; not a test of rest-geometry gate"
+}

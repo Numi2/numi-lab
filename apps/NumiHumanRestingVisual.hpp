@@ -1425,13 +1425,36 @@ public:
                             scalePoint(addPoint(rest.position,rotatePoint(rest.orientation,local)),w));
                     }
                 }else if(tissue) {
-                    const auto& source=tissues->vertices.at(tissue->firstVertex+v-base);
-                    for(unsigned j=0;j<4;++j) {
-                        const float w=source.weight[j];if(w<=0)continue;
-                        const unsigned b=source.bindingIndex[j];require(b<tissue->bindingCount,"resting tissue influence out of bounds");
-                        const auto& t=tissue->binding[b];const mr_float4 q={t.quaternion[0],t.quaternion[1],t.quaternion[2],t.quaternion[3]};
-                        auto p=addPoint({t.translation[0],t.translation[1],t.translation[2],0},scalePoint(rotatePoint(q,{source.positionX,source.positionY,source.positionZ,0}),t.uniformScale));
-                        add(v,tissue->bodyIndex[b],p,rotatePoint(q,{source.normalX,source.normalY,source.normalZ,0}),w);
+                    const auto refined=tissues->parentInfluences.find(tissue->stableId);
+                    if(refined!=tissues->parentInfluences.end()) {
+                        mr_float4 parentRest{},childRest{};
+                        const auto& source=tissues->vertices.at(tissue->firstVertex+v-base);
+                        const auto childRestNormal=softTissueVertexBlendedNormalWorld(*tissue,source,restBodies);
+                        for(const auto& term:refined->second.at(v-base)) {
+                            const auto& body=restBodies.at(term.body.x);
+                            parentRest=addPoint(parentRest,scalePoint(addPoint(body.position,
+                                rotatePoint(body.orientation,term.positionAndWeight)),term.positionAndWeight.w));
+                            add(v,term.body.x,term.positionAndWeight,
+                                rotatePoint(inverseRotation(body.orientation),childRestNormal),term.positionAndWeight.w);
+                        }
+                        for(unsigned j=0;j<4;++j)if(source.weight[j]>0) {
+                            const unsigned b=source.bindingIndex[j];
+                            childRest=addPoint(childRest,scalePoint(softTissueVertexWorld(
+                                *tissue,source,restBodies.at(tissue->bodyIndex[b]),b),source.weight[j]));
+                        }
+                        // This is a source registration gate, not an intersection tolerance.
+                        const auto residual=subtractPoint(parentRest,childRest);
+                        require(dotPoint(residual,residual)<=4e-12f,
+                            "tissue parent interpolation changes registered rest geometry by more than 2 micrometres");
+                    }else {
+                        const auto& source=tissues->vertices.at(tissue->firstVertex+v-base);
+                        for(unsigned j=0;j<4;++j) {
+                            const float w=source.weight[j];if(w<=0)continue;
+                            const unsigned b=source.bindingIndex[j];require(b<tissue->bindingCount,"resting tissue influence out of bounds");
+                            const auto& t=tissue->binding[b];const mr_float4 q={t.quaternion[0],t.quaternion[1],t.quaternion[2],t.quaternion[3]};
+                            auto p=addPoint({t.translation[0],t.translation[1],t.translation[2],0},scalePoint(rotatePoint(q,{source.positionX,source.positionY,source.positionZ,0}),t.uniformScale));
+                            add(v,tissue->bodyIndex[b],p,rotatePoint(q,{source.normalX,source.normalY,source.normalZ,0}),w);
+                        }
                     }
                 }else if(deformation==9) {
                     const auto& vertex=pack.vertices.at(v);

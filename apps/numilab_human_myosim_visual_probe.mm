@@ -935,6 +935,9 @@ struct LoadedSoftTissues {
     std::vector<SoftTissueVertex> vertices;
     std::vector<std::uint32_t> indices;
     bool usesRouteBodySparseWeights = false;
+#ifdef NUMI_HUMAN_RESTING_SCENE
+    std::map<unsigned,std::vector<std::vector<MRHumanRestingInfluence>>> parentInfluences;
+#endif
 };
 
 struct LoadedPectoralisFascia {
@@ -20885,6 +20888,7 @@ int sourceCompliantCertificate(int argc,char** argv) {
 
 #ifdef NUMI_HUMAN_RESTING_SCENE
 #include "NumiHumanRestingVisual.hpp"
+#include "NumiHumanRestingTissueParents.hpp"
 #endif
 } // namespace
 
@@ -21990,6 +21994,11 @@ int main(int argc, char** argv) {
                     "BodyParts3D bone and soft-tissue payloads have different visual registrations"
                 );
             }
+#ifdef NUMI_HUMAN_RESTING_SCENE
+            if(!restingAnatomyReceipt.empty()&&softTissuePayload)
+                loadRestingTissueParentBindings(restingAnatomyReceipt,*softTissuePayloadPath,
+                    rigid.header,*softTissuePayload);
+#endif
             std::optional<LoadedPectoralisFascia> pectoralisFasciaPayload;
             if (pectoralisFasciaPayloadPath.has_value()) {
                 require(softTissuePayload.has_value(),
@@ -23576,6 +23585,8 @@ int main(int argc, char** argv) {
                     liveVisual=std::make_unique<NumiHumanRestingVisual>(coupled,std::move(pack),rigid.model,*skinPayload,&*softTissuePayload,
                         initialBodies,restBodies,*supportContactPayload,functional,positional.back(),frameDimension,restingMovie,!mechanicsOnly,
                         fixedBed?&*fixedBed:nullptr);
+                    // The existing GPU buffer now owns these static motion maps.
+                    softTissuePayload->parentInfluences.clear();
                     if (restingAcceptedBodyMotionAudit) {
                         liveVisual->configureSupportMotionObserver(
                             std::filesystem::path(positional.back()) /

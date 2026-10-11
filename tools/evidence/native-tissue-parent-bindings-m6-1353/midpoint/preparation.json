@@ -1,0 +1,13 @@
+{
+  "source": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/temporalis163-native-m6-001/assets/bodyparts3d-myosim-fullbody-muscle-surfaces.nhtissue",
+  "source_sha256": "c4dba646c71da7a995902b62de285f703f2a51f257b4d89f35e63bc9566a6d40",
+  "child": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/parent-bindings-midpoint-regression-1353-001/assets/bodyparts3d-myosim-fullbody-muscle-surfaces.nhtissue",
+  "child_sha256": "8ac9200427faf172aaba9cf56244656620eca2c589a25a189d9f64c06a9a5406",
+  "stable_id": 132,
+  "vertex": 611,
+  "other_vertex": 926,
+  "eligible_edges": 12145,
+  "helper_noncommutation_m": 0.0001983557890117267,
+  "rest_local_displacement_m": 0.018243368840639925,
+  "admitted": false
+}

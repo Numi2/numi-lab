@@ -1,0 +1,214 @@
+{
+  "README.md": {
+    "bytes": 3204,
+    "sha256": "495c4a20372c2f11b6c701e723af785a03275142774131269badaba5a8726617"
+  },
+  "final-build/build-report.json": {
+    "bytes": 4249,
+    "sha256": "cc1f1930fd21594771cd2aaa9a564185ce5f6e6e36c215044a461becfc68ef05"
+  },
+  "final-build/nonrest-syntax.log": {
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "final-build/verification.json": {
+    "bytes": 2596,
+    "sha256": "afa42b101d3cce19f0a33f6965276edaababfdf191b57b4318dde50e2f8407ba"
+  },
+  "identity-build/build-report.json": {
+    "bytes": 4249,
+    "sha256": "e6e8d64e568da5c886e1a758b70c5402e546d29bc630b96112e35d845ef0d9a4"
+  },
+  "identity-build/executed-source/NumiHumanRestingTissueParents.hpp.gz": {
+    "bytes": 2414,
+    "sha256": "16a6c7e3b841d3a20e1f63c3355dad71304dfc76c2820e6ed0f6003ed8d448b2"
+  },
+  "identity-build/executed-source/NumiHumanRestingVisual.hpp.gz": {
+    "bytes": 36849,
+    "sha256": "1c124168483610f1ddb9254c5a6b9e83736dc8d4053bbad4e74d9b09da9ae49f"
+  },
+  "identity-build/executed-source/inventory.json.gz": {
+    "bytes": 338,
+    "sha256": "c1c038d241946a1b120791e4ecb5940b2b869dc140cf1d5713c31d393c244c3e"
+  },
+  "identity-build/executed-source/numilab_human_myosim_visual_probe.mm.gz": {
+    "bytes": 261707,
+    "sha256": "c5bb50f3b206ea11c81357e3c2289c71fe1d797ee4643ed8b17902ca9ef8ebf9"
+  },
+  "identity/baseline/execution.json.gz": {
+    "bytes": 2075,
+    "sha256": "21bb79d6c6c64d33cdca720d6334eeca4e7c365576577eed8d8582dbe90eec37"
+  },
+  "identity/baseline/native-run/invocation.json.gz": {
+    "bytes": 3169,
+    "sha256": "0e582f9fabe2e27d47c94398cf952b55ebdb4dd293e4b3ac2d8b8de8550e7fc6"
+  },
+  "identity/baseline/native-run/resting-coupled.csv.gz": {
+    "bytes": 280831,
+    "sha256": "16e01d923c688465c849e4924a292e0c934ee14923c5274869e11ffb8793459d"
+  },
+  "identity/baseline/native-run/run-metadata.json.gz": {
+    "bytes": 3407,
+    "sha256": "dce3bb8f0878f4c8c41e94d4fd49f03f3ea81d7303a27d37a245ae3af649aa35"
+  },
+  "identity/baseline/run-declaration.json.gz": {
+    "bytes": 4404,
+    "sha256": "5417e2031624ce818d3409cc5dfeee306181f5f47a69d68a0220f9a13ab20167"
+  },
+  "identity/resting-anatomy-receipt.json.gz": {
+    "bytes": 2674409,
+    "sha256": "a4b60bba872e610da7f445963ffc68a632937e8a10cc6f41d98f7acb60601103"
+  },
+  "identity/verification.json.gz": {
+    "bytes": 2290,
+    "sha256": "911ed5254791cb6bed8a8eeec642320a5cab7e133cbda24053e1dbb717aeef33"
+  },
+  "midpoint-build/build-report.json": {
+    "bytes": 4248,
+    "sha256": "80d4ef4b48a4ab51056fbdd0c9fb770c5b8ea4b682ec5c93bed9ee397b9c3119"
+  },
+  "midpoint-build/executed-source/NumiHumanRestingTissueParents.hpp.gz": {
+    "bytes": 2459,
+    "sha256": "6f28ecaa825b3d7239158d35e98f21995b19dfb0b4330dab4e9a2c5636cf73ce"
+  },
+  "midpoint-build/executed-source/NumiHumanRestingVisual.hpp.gz": {
+    "bytes": 36849,
+    "sha256": "1c124168483610f1ddb9254c5a6b9e83736dc8d4053bbad4e74d9b09da9ae49f"
+  },
+  "midpoint-build/executed-source/inventory.json.gz": {
+    "bytes": 338,
+    "sha256": "463e52abaa26e01f490b4d34a5c060f3aa1e9f30deba4a6c64b008a3fd297ce8"
+  },
+  "midpoint-build/executed-source/numilab_human_myosim_visual_probe.mm.gz": {
+    "bytes": 261773,
+    "sha256": "e9570d347b860901b1b07adf01383f586f8613a8343ba3d50653c1f093fa10aa"
+  },
+  "midpoint/baseline/execution.json.gz": {
+    "bytes": 2128,
+    "sha256": "28fa06c28f790d2e2a01df01d30b8c35106791e76a05dd48307555eafb538101"
+  },
+  "midpoint/baseline/native-run/invocation.json.gz": {
+    "bytes": 3162,
+    "sha256": "ca2f544864cb00b8f9379905bd7122ebf89bd764de28346c548e53440a83b6d6"
+  },
+  "midpoint/baseline/native-run/resting-coupled.csv.gz": {
+    "bytes": 280831,
+    "sha256": "16e01d923c688465c849e4924a292e0c934ee14923c5274869e11ffb8793459d"
+  },
+  "midpoint/baseline/native-run/run-metadata.json.gz": {
+    "bytes": 3404,
+    "sha256": "9de541d441cb41a976cc7d25f6970715f0a46276cf61877a8422ac62a6f38e8e"
+  },
+  "midpoint/baseline/run-declaration.json.gz": {
+    "bytes": 4574,
+    "sha256": "16de26d1e7bbff3ee91818b09e23ae7a7bda6e06c12661efda13012d4617f1d9"
+  },
+  "midpoint/native-viewer.mov": {
+    "bytes": 1386548,
+    "sha256": "b845ada38137c8a6ff57189b722f94b76f2efbdb73b07212af2c14ea71b8fcb0"
+  },
+  "midpoint/preparation.json": {
+    "bytes": 752,
+    "sha256": "fb863bc551637351fe4c4a0da44f5e6cfcb49612effacf5ab9ac0615748e51b6"
+  },
+  "midpoint/resting-anatomy-receipt.json.gz": {
+    "bytes": 2671604,
+    "sha256": "365a7af007fce97b04adca40c08d435a0c90247d05bdee5a95651be3abadb84b"
+  },
+  "midpoint/verification.json.gz": {
+    "bytes": 2395,
+    "sha256": "9d3e44ba93c82959cf1de28484e3f97e20f0f4889e38d6a1d9482bc3ab0fd5b3"
+  },
+  "negative-admission/absent_child.log.gz": {
+    "bytes": 21985,
+    "sha256": "80e6ac71fbce11888973276b4aaef742c280644240ca276569bf283218ffae03"
+  },
+  "negative-admission/boolean_coefficient.log.gz": {
+    "bytes": 21983,
+    "sha256": "04f5bd2047ae15aed292ec60e0d5c1180fe3827eb1c49a40a62aba32a2c66ca2"
+  },
+  "negative-admission/child_hash.log.gz": {
+    "bytes": 21985,
+    "sha256": "7aeaa8a134e1e86b6c422506c9e0a803a9356c4f5184551f9b217e798930a8d9"
+  },
+  "negative-admission/duplicate_child.log.gz": {
+    "bytes": 21984,
+    "sha256": "393fc91161688c46745e87e33ef0dd90cb4aa06ac365f19dc8d2e9983a4d0ea0"
+  },
+  "negative-admission/duplicate_term.log.gz": {
+    "bytes": 21995,
+    "sha256": "4192a1b1d922497168b42bc4d402e247172391a281d4507f2ab70285d570a15a"
+  },
+  "negative-admission/negative_coefficient.log.gz": {
+    "bytes": 21989,
+    "sha256": "243c2193d4406b71b24b40e0d8b09ba8c941506122eec593044ce544a5a508da"
+  },
+  "negative-admission/nonunit.log.gz": {
+    "bytes": 21994,
+    "sha256": "767b388fe6cb30bccfbe4107e5fe9fa45d3ae35093e634e98dc8de344836c622"
+  },
+  "negative-admission/report.json": {
+    "bytes": 3990,
+    "sha256": "729088e703dd4055bdf1369af20a93d4d72ff262379c2b3a212739d5f596f06c"
+  },
+  "negative-admission/rest_geometry_shift.log.gz": {
+    "bytes": 24595,
+    "sha256": "e226b1a4e97c61c398cbe937a2204e8540e7d9c7888a7374a3a6b90f7bae95b6"
+  },
+  "negative-admission/source_hash.log.gz": {
+    "bytes": 21982,
+    "sha256": "f47d1d194d86652d5da5c382e39ed70beb53a2827062c12d06cb4ea88078aa26"
+  },
+  "negative-admission/source_oob.log.gz": {
+    "bytes": 21996,
+    "sha256": "fe1a2c23400e9a6666b4097478f7c1ea27f86b854ad8768f26fe587563333814"
+  },
+  "negative-admission/vertex_oob.log.gz": {
+    "bytes": 21980,
+    "sha256": "98e4c1e8f53ffa0e42b512bccd9b86dff57f34fb5255c5c302323a26ccb6a080"
+  },
+  "negative-rest-registration-002/native.log.gz": {
+    "bytes": 31141,
+    "sha256": "f37495f79106683b7bc4ad53f82bc7ca6e318c457cdb57cea1e23ff123d53ccf"
+  },
+  "negative-rest-registration-002/report.json": {
+    "bytes": 396,
+    "sha256": "c0ec5bb9be0ab7ae24a2b01bd3304409a7dd0d471670efcc044d4b993d6be807"
+  },
+  "scripts/build-parent-bindings-004.py": {
+    "bytes": 1864,
+    "sha256": "fe137afff2c9ce62fe46442b6c00a9afc7ccf4b06c5d25a94dcf797c564aab0e"
+  },
+  "scripts/prepare-midpoint-fixture-001.py": {
+    "bytes": 3155,
+    "sha256": "67788f086303f071515ba1119d86d189dec62f6c5e41f70912fade22234cd1b0"
+  },
+  "scripts/prepare-native-identity-003.py.gz": {
+    "bytes": 1659,
+    "sha256": "00da9955e59416185be200c05333c5e6293c8279221634cf10cddd195af770fe"
+  },
+  "scripts/prepare-native-midpoint-001.py.gz": {
+    "bytes": 1842,
+    "sha256": "6d154d0b14cd05bc551f69ce3baea4193789c4a404cb9115a05f1d87db3b8f88"
+  },
+  "scripts/test-native-parent-admission-003.py": {
+    "bytes": 3142,
+    "sha256": "19f0e6d49023cfe81fe826a3f678e0f858eaa15dbdd780d3a2738aa801982359"
+  },
+  "scripts/test-native-parent-rest-gate-002.py": {
+    "bytes": 1631,
+    "sha256": "df26a64bacb5331afe8c344d6799f3b41e14cdfb34372bb126b5c8324f74358c"
+  },
+  "scripts/verify-final-build-004.py": {
+    "bytes": 1328,
+    "sha256": "ec5a5acc8889d6140695122c966599373d04ef2a038e609f67e1249d43738c5e"
+  },
+  "scripts/verify-native-identity-003.py": {
+    "bytes": 2951,
+    "sha256": "402013ffcbca43890a53481b52ba2e3d46eea008d4ebcdffd2dea54335661e43"
+  },
+  "scripts/verify-native-midpoint-001.py": {
+    "bytes": 3608,
+    "sha256": "6120dc04a79abcf9e9bdeff489f67a8b2edbe160432ab0cc931ae8b4cca0cbf2"
+  }
+}

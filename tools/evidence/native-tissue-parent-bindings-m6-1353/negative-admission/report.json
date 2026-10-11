@@ -1,0 +1,104 @@
+{
+  "complete": false,
+  "checks": [
+    {
+      "case": "child_hash",
+      "returncode": 1,
+      "expected": "child payload identity mismatch",
+      "passed": true,
+      "wall_seconds": 0.21258962499996414,
+      "receipt_sha256": "5fd201189389d22cec6d664db6cba7484b543faa3d0dd5c5ebf0c548d9e726cc",
+      "log_sha256": "46d061d4aaca41cd2a1c96673de1bede41e5217f443c3912c9001d154269f685"
+    },
+    {
+      "case": "source_hash",
+      "returncode": 1,
+      "expected": "source SHA-256 mismatch",
+      "passed": true,
+      "wall_seconds": 0.15247020900096686,
+      "receipt_sha256": "98374522ea94c812823832e41979619aa4008ca20506ef4dc687545adc7c6591",
+      "log_sha256": "6bdeafecd49b77aaf46629d46586ae2259a17b77632121770c01e556cd9ee269"
+    },
+    {
+      "case": "negative_coefficient",
+      "returncode": 1,
+      "expected": "coefficient must be positive",
+      "passed": true,
+      "wall_seconds": 0.21077400000103808,
+      "receipt_sha256": "eb8696d778c89dd0d3b7e498016564296bd16e8180ed05db3360c462c44ffb63",
+      "log_sha256": "11454dbb84851bb87423f23238e6f6a1315cbdb4d7f676b567f99e1bf5815b36"
+    },
+    {
+      "case": "nonunit",
+      "returncode": 1,
+      "expected": "partition of unity",
+      "passed": true,
+      "wall_seconds": 0.21056120899993402,
+      "receipt_sha256": "9ce251f1380cd9545bb79d33df5ba5fcda57b61b1a378bd64a4b81c481b3dbff",
+      "log_sha256": "2a2c83e7be0880c83fb3beaec27f12443268235b24ca006f58453d98ad57a878"
+    },
+    {
+      "case": "vertex_oob",
+      "returncode": 1,
+      "expected": "raw vertex is absent",
+      "passed": true,
+      "wall_seconds": 0.21082379200015566,
+      "receipt_sha256": "6823b3a2dacecf81ddb18200867ff31d77e96d7eb0d3fe5361fd848f3087a69e",
+      "log_sha256": "a5e4f029775ce20e9bbf51fc7944ae7de875fc9545654bf770de220941a20b1d"
+    },
+    {
+      "case": "duplicate_term",
+      "returncode": 1,
+      "expected": "repeated raw vertex term",
+      "passed": true,
+      "wall_seconds": 0.21073958299894002,
+      "receipt_sha256": "ef6fa13eee26118dd6de772674976b41909b491f2c74303f51400c71bc5ef7b7",
+      "log_sha256": "58de6a99bfde49743f5d161db38b34d169d86a800f1b780e6ae9c37a6caadfb3"
+    },
+    {
+      "case": "source_oob",
+      "returncode": 1,
+      "expected": "source index invalid",
+      "passed": true,
+      "wall_seconds": 0.21125108299929707,
+      "receipt_sha256": "e52732aacd13ff3334f1335de9e62e3bad7ec0382d0dee36ae6eb9029501b3d7",
+      "log_sha256": "cad5145edd0a7553b26ef66a9d7f463e12ef4145dec8aedf2bd8d0885a992355"
+    },
+    {
+      "case": "boolean_coefficient",
+      "returncode": 1,
+      "expected": "coefficient must be numeric",
+      "passed": true,
+      "wall_seconds": 0.2108040000002802,
+      "receipt_sha256": "07830b32169ad691ab0fd308eb8726802c9529fc7cf9f9dabb426e450b79baf7",
+      "log_sha256": "796b5c8f9cf7f79185d67a4d4ac74ee502bd9da72c42f012bf2916b23eef70aa"
+    },
+    {
+      "case": "absent_child",
+      "returncode": 1,
+      "expected": "child row absent or duplicated",
+      "passed": true,
+      "wall_seconds": 0.21077408299970557,
+      "receipt_sha256": "9db8ece74c27a1ff860b2319abb799117fd103c9c4a6f27816343805380aed4d",
+      "log_sha256": "e000a22d2238b4757a42e0be14b2c086591ff1c9845aee7cb1dd92b0435453b4"
+    },
+    {
+      "case": "duplicate_child",
+      "returncode": 1,
+      "expected": "child row absent or duplicated",
+      "passed": true,
+      "wall_seconds": 0.21067616700020153,
+      "receipt_sha256": "1227da1a3f3e728ecddca71adb7dc081813a61b3bd8a8e042eaa8f790f914b95",
+      "log_sha256": "2a835f0fe42116ee718543c9f841aad642dde3aaab13373bb41061015011d8d7"
+    },
+    {
+      "case": "rest_geometry_shift",
+      "returncode": 1,
+      "expected": "changes registered rest geometry",
+      "passed": false,
+      "wall_seconds": 0.9908372909994796,
+      "receipt_sha256": "ee19b8caf44f6e5077cddfc2f8713430b53fbff6b5016ebff36849c06eb01b1d",
+      "log_sha256": "8f6159494ffa40f7494f01ebda25f4476ab6438c822d04cb28e7b29c9e719565"
+    }
+  ]
+}
