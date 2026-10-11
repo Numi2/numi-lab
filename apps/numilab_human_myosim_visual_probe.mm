@@ -2784,8 +2784,9 @@ LoadedSoftTissues loadSoftTissues(
                         std::abs(orientationLength - 1.0f) <= 2.0e-3f,
                     "BodyParts3D soft-tissue binding transform is malformed");
         }
-        const bool supplementalBone = record.layer == kSoftTissueLayerSupplementalBone;
-        require(record.bindingCount >= (supplementalBone ? 1u : 2u) &&
+        // Passive anatomical surfaces can be rigidly carried by one body.
+        // Active/FEM tissue selection validates its own endpoint requirements.
+        require(record.bindingCount >= 1u &&
                     record.vertexCount > 0u &&
                     record.indexCount > 0u && record.indexCount % 3u == 0u &&
                     (record.layer == kSoftTissueLayerMuscle ||
