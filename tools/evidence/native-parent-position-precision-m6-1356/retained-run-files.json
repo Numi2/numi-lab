@@ -182,5 +182,17 @@
     "size_bytes": 5699,
     "uncompressed_sha256": "cb77490d504282fd8c71040b3ef5e634ac697bf2b0ba7d7995249b1c79bbd4bd",
     "uncompressed_size_bytes": 16474
+  },
+  {
+    "source": "/Users/n/numi-human-fds132-m6-1350/attempt-093-unit-correction-001/corrected-unit-receipt.json",
+    "retained": "witness-input/unit-correction/corrected-unit-receipt.json",
+    "sha256": "fe05903c29e8b709e1e275bbd4dca418ae12f0677737361430c51480f823fcfb",
+    "size_bytes": 9101
+  },
+  {
+    "source": "/Users/n/numi-human-fds132-m6-1350/attempt-093-unit-correction-001/recompute_092_units.py",
+    "retained": "witness-input/unit-correction/recompute_092_units.py",
+    "sha256": "d46562a727eeceeab5275c5c424dd003320bdd7311193f348a54454fd4868742",
+    "size_bytes": 5587
   }
 ]

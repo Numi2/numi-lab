@@ -1,0 +1,260 @@
+{
+  "dimensional_sanity_fixture": {
+    "absolute_error_um": 1.1368683772161603e-13,
+    "coordinates_m": [
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.001,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.001,
+        0.0
+      ]
+    ],
+    "expected_minimum_altitude_um": "1000/sqrt(2)",
+    "expected_numeric_um": 707.1067811865474,
+    "minimum_altitude_um": 707.1067811865476,
+    "name": "right_isosceles_triangle_1mm_legs",
+    "passed": true
+  },
+  "input_pins": {
+    "/Users/numi/numi-human-fds132-m6-1350/attempt-085-interface-refinement-2mm-001/result-001/candidate.pkl": "4792b40d2828a019cee8fdd5160f29f4667a0596bfe423960abd8f90e7bc1e2a",
+    "/Users/numi/numi-human-fds132-m6-1350/attempt-092-late-witness-arithmetic-001/report.json": "45f786753296d2af8a57e4607cea8cb4ab8c28302a120d2cf568de3767709a64"
+  },
+  "old_report_sha256": "45f786753296d2af8a57e4607cea8cb4ab8c28302a120d2cf568de3767709a64",
+  "qualification": {
+    "all_reported_altitudes_coordinate_recomputed": true,
+    "candidate085_source_geometry_recomputed": true,
+    "claim_oldlate_repaired": false,
+    "late_pose_rerun": false,
+    "native_gpu_capture": false
+  },
+  "schema": "numi.human.forearm-092-corrected-altitude-units.v1",
+  "scope": "Correct units for source altitude values in the immutable local arithmetic report 092 by recomputation from exact source coordinates in candidate 085. This does not alter geometry, rerun poses, or establish a source-conditioning fix for the late intersections.",
+  "status": "completed_interpretation_correction",
+  "unit_finding": {
+    "actual_unit": "metres",
+    "basis": "independent coordinate recomputation from candidate surfaces exact Fraction vertices; each old-value multiset matches the resulting metre values, though the old per-corner ordering is not the face-vertex order",
+    "conversion_to_um": 1000000.0,
+    "corner_order_caveat": "Do not attach the legacy vector entries to face vertices by index; the corrected receipt reports face-vertex-aligned coordinate results and compares legacy values as an unordered multiset.",
+    "correct_unit": "micrometres",
+    "old_field": "witness_faces[].source_altitude_um"
+  },
+  "witnesses": [
+    {
+      "altitudes_m_by_vertex": [
+        0.0006965549601866043,
+        0.0002767969115188648,
+        0.00031178315058646007
+      ],
+      "altitudes_um_by_vertex": [
+        696.5549601866044,
+        276.79691151886476,
+        311.78315058646007
+      ],
+      "coordinate_source": "candidate.pkl surfaces[stable_id].vertices_exact_m and faces; exact Fraction coordinates converted to binary64 only for Euclidean norm",
+      "corrected_altitudes_um_from_old_field_unordered": [
+        276.796911518865,
+        311.7831505864665,
+        696.5549601866308
+      ],
+      "corrected_factor_from_old_field_to_um": 1000000.0,
+      "edge_lengths_m_opposite_each_vertex": [
+        0.0003126977018090807,
+        0.0007868987194939211,
+        0.0006985981597285387
+      ],
+      "edge_lengths_mm_opposite_each_vertex": [
+        0.3126977018090807,
+        0.7868987194939211,
+        0.6985981597285387
+      ],
+      "global_vertex_ids": [
+        5492,
+        5581,
+        5490
+      ],
+      "matches_coordinate_recomputed_um_as_unordered_multiset_within_abs_1e-8": true,
+      "minimum_altitude_m": 0.0002767969115188648,
+      "minimum_altitude_um": 276.79691151886476,
+      "old_field_corner_order_matches_face_vertex_order": false,
+      "old_field_values_match_recomputed_m_as_unordered_multiset_within_abs_1e-15": true,
+      "old_report_field_name": "source_altitude_um",
+      "old_report_values": [
+        0.00031178315058646647,
+        0.0006965549601866308,
+        0.000276796911518865
+      ],
+      "recomputed_altitudes_um_sorted": [
+        276.79691151886476,
+        311.78315058646007,
+        696.5549601866044
+      ],
+      "row_face_index": 5112,
+      "stable_id": 132
+    },
+    {
+      "altitudes_m_by_vertex": [
+        0.0007068193713976023,
+        0.0001907053482847831,
+        0.0002004924517222482
+      ],
+      "altitudes_um_by_vertex": [
+        706.8193713976023,
+        190.7053482847831,
+        200.4924517222482
+      ],
+      "coordinate_source": "candidate.pkl surfaces[stable_id].vertices_exact_m and faces; exact Fraction coordinates converted to binary64 only for Euclidean norm",
+      "corrected_altitudes_um_from_old_field_unordered": [
+        190.70534828476082,
+        200.49245172223385,
+        706.8193713976492
+      ],
+      "corrected_factor_from_old_field_to_um": 1000000.0,
+      "edge_lengths_m_opposite_each_vertex": [
+        0.0002006845322193702,
+        0.0007438056467126126,
+        0.000707496535126547
+      ],
+      "edge_lengths_mm_opposite_each_vertex": [
+        0.20068453221937022,
+        0.7438056467126125,
+        0.707496535126547
+      ],
+      "global_vertex_ids": [
+        5491,
+        5490,
+        5550
+      ],
+      "matches_coordinate_recomputed_um_as_unordered_multiset_within_abs_1e-8": true,
+      "minimum_altitude_m": 0.0001907053482847831,
+      "minimum_altitude_um": 190.7053482847831,
+      "old_field_corner_order_matches_face_vertex_order": false,
+      "old_field_values_match_recomputed_m_as_unordered_multiset_within_abs_1e-15": true,
+      "old_report_field_name": "source_altitude_um",
+      "old_report_values": [
+        0.00020049245172223384,
+        0.0007068193713976492,
+        0.0001907053482847608
+      ],
+      "recomputed_altitudes_um_sorted": [
+        190.7053482847831,
+        200.4924517222482,
+        706.8193713976023
+      ],
+      "row_face_index": 3723,
+      "stable_id": 134
+    },
+    {
+      "altitudes_m_by_vertex": [
+        0.00024844296218216573,
+        5.68855626937918e-05,
+        4.669559870506241e-05
+      ],
+      "altitudes_um_by_vertex": [
+        248.44296218216573,
+        56.8855626937918,
+        46.69559870506241
+      ],
+      "coordinate_source": "candidate.pkl surfaces[stable_id].vertices_exact_m and faces; exact Fraction coordinates converted to binary64 only for Euclidean norm",
+      "corrected_altitudes_um_from_old_field_unordered": [
+        46.69559870505989,
+        56.885562693785154,
+        248.44296218222217
+      ],
+      "corrected_factor_from_old_field_to_um": 1000000.0,
+      "edge_lengths_m_opposite_each_vertex": [
+        0.0001703079144461432,
+        0.0007438056467126126,
+        0.0009061197183767884
+      ],
+      "edge_lengths_mm_opposite_each_vertex": [
+        0.1703079144461432,
+        0.7438056467126125,
+        0.9061197183767884
+      ],
+      "global_vertex_ids": [
+        5550,
+        5497,
+        5491
+      ],
+      "matches_coordinate_recomputed_um_as_unordered_multiset_within_abs_1e-8": true,
+      "minimum_altitude_m": 4.669559870506241e-05,
+      "minimum_altitude_um": 46.69559870506241,
+      "old_field_corner_order_matches_face_vertex_order": false,
+      "old_field_values_match_recomputed_m_as_unordered_multiset_within_abs_1e-15": true,
+      "old_report_field_name": "source_altitude_um",
+      "old_report_values": [
+        4.669559870505989e-05,
+        0.00024844296218222217,
+        5.688556269378516e-05
+      ],
+      "recomputed_altitudes_um_sorted": [
+        46.69559870506241,
+        56.8855626937918,
+        248.44296218216573
+      ],
+      "row_face_index": 3724,
+      "stable_id": 134
+    },
+    {
+      "altitudes_m_by_vertex": [
+        9.83416013878353e-06,
+        1.129941006600739e-05,
+        5.268096246356722e-06
+      ],
+      "altitudes_um_by_vertex": [
+        9.83416013878353,
+        11.29941006600739,
+        5.268096246356722
+      ],
+      "coordinate_source": "candidate.pkl surfaces[stable_id].vertices_exact_m and faces; exact Fraction coordinates converted to binary64 only for Euclidean norm",
+      "corrected_altitudes_um_from_old_field_unordered": [
+        5.268096246357919,
+        9.834160138782103,
+        11.299410066014717
+      ],
+      "corrected_factor_from_old_field_to_um": 1000000.0,
+      "edge_lengths_m_opposite_each_vertex": [
+        9.123285284731501e-05,
+        7.940224131856743e-05,
+        0.0001703079144461432
+      ],
+      "edge_lengths_mm_opposite_each_vertex": [
+        0.09123285284731501,
+        0.07940224131856743,
+        0.1703079144461432
+      ],
+      "global_vertex_ids": [
+        5491,
+        5497,
+        5492
+      ],
+      "matches_coordinate_recomputed_um_as_unordered_multiset_within_abs_1e-8": true,
+      "minimum_altitude_m": 5.268096246356722e-06,
+      "minimum_altitude_um": 5.268096246356722,
+      "old_field_corner_order_matches_face_vertex_order": false,
+      "old_field_values_match_recomputed_m_as_unordered_multiset_within_abs_1e-15": true,
+      "old_report_field_name": "source_altitude_um",
+      "old_report_values": [
+        5.268096246357919e-06,
+        9.834160138782103e-06,
+        1.1299410066014717e-05
+      ],
+      "recomputed_altitudes_um_sorted": [
+        5.268096246356722,
+        9.83416013878353,
+        11.29941006600739
+      ],
+      "row_face_index": 3741,
+      "stable_id": 134
+    }
+  ]
+}
