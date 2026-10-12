@@ -1,0 +1,118 @@
+{
+  "candidate": "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/forearm-shared-field-native-source-control-010",
+  "captures": {
+    "0": {
+      "accepted_157_poses_exact": true,
+      "changed_surfaces": [],
+      "passed": true,
+      "surface_count": 868,
+      "topology_mismatches": [],
+      "unexpected_geometry_changes": []
+    },
+    "3807": {
+      "accepted_157_poses_exact": true,
+      "changed_surfaces": [],
+      "passed": true,
+      "surface_count": 868,
+      "topology_mismatches": [],
+      "unexpected_geometry_changes": []
+    },
+    "4767": {
+      "accepted_157_poses_exact": true,
+      "changed_surfaces": [],
+      "passed": true,
+      "surface_count": 868,
+      "topology_mismatches": [],
+      "unexpected_geometry_changes": []
+    },
+    "5023": {
+      "accepted_157_poses_exact": true,
+      "changed_surfaces": [],
+      "passed": true,
+      "surface_count": 868,
+      "topology_mismatches": [],
+      "unexpected_geometry_changes": []
+    },
+    "5599": {
+      "accepted_157_poses_exact": true,
+      "changed_surfaces": [],
+      "passed": true,
+      "surface_count": 868,
+      "topology_mismatches": [],
+      "unexpected_geometry_changes": []
+    },
+    "6207": {
+      "accepted_157_poses_exact": true,
+      "changed_surfaces": [],
+      "passed": true,
+      "surface_count": 868,
+      "topology_mismatches": [],
+      "unexpected_geometry_changes": []
+    },
+    "7423": {
+      "accepted_157_poses_exact": true,
+      "changed_surfaces": [],
+      "passed": true,
+      "surface_count": 868,
+      "topology_mismatches": [],
+      "unexpected_geometry_changes": []
+    },
+    "8000": {
+      "accepted_157_poses_exact": true,
+      "changed_surfaces": [],
+      "passed": true,
+      "surface_count": 868,
+      "topology_mismatches": [],
+      "unexpected_geometry_changes": []
+    }
+  },
+  "complete": true,
+  "input_sha256": {
+    "/Users/n/numi-human-resting-evidence-20261005/native-complete-skin-containment-audit-890/pair-summary-v3.csv": "a43484aa8d65b207cc498bb470097ec5f06ef2bb9872837bde9f197e19e815e3",
+    "/Users/numi/numi-human-left-pq-publication-1344/src/numilab_human/common_atlas_skin_clearance.py": "fccc7f29d421c9ad8e7da40d61d16cc8633244a16829dc7a7cd9d83ff109cfae",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/forearm-shared-field-native-source-control-010/baseline/execution.json": "219d00f8e6a86a2604da0bec6c667bc059953d9e97430651efc85bb64a53e45d",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/forearm-shared-field-native-source-control-010/baseline/native-run/accepted-geometry/step-0.mrvpack": "774439ebb9bcfc0cce6448a59799811557844393b7d73ca74f516eb61e22c0d5",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/forearm-shared-field-native-source-control-010/baseline/native-run/accepted-geometry/step-0.receipt.json": "494b7c05ca0449175ce48e3d2c8a2623e193d31f575860daa3ed18fe6bee43e4",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/forearm-shared-field-native-source-control-010/baseline/native-run/accepted-geometry/step-3807.mrvpack": "7638656f695a223840a64b9134f1a5ffd70f76d98262425030b6834056193b24",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/forearm-shared-field-native-source-control-010/baseline/native-run/accepted-geometry/step-3807.receipt.json": "b52ac2693959e8109c490148137dcbb520540c6dedf2b952c8677e0407f289dd",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/forearm-shared-field-native-source-control-010/baseline/native-run/accepted-geometry/step-4767.mrvpack": "7aff47bf6b038908ed8214b6774f77dfe75fef4efcc917997ced71883abcf637",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/forearm-shared-field-native-source-control-010/baseline/native-run/accepted-geometry/step-4767.receipt.json": "73d8bc2866c7a108f5dc3131ec089f340d43153d804bbdc8ce21b145df04a86e",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/forearm-shared-field-native-source-control-010/baseline/native-run/accepted-geometry/step-5023.mrvpack": "24c79057a43f34c598ecdf1a2b35defb8341c2eb399a132e55f225d8165db42a",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/forearm-shared-field-native-source-control-010/baseline/native-run/accepted-geometry/step-5023.receipt.json": "e6ad12614d7381fd6e64fadf5f6a5cf6c795065a36e3d3f9fe45a05a6b6443e9",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/forearm-shared-field-native-source-control-010/baseline/native-run/accepted-geometry/step-5599.mrvpack": "64c43a547c35fc77d7ee1975e7c0a84fa6643560e7c1ff95b14b4691072b895a",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/forearm-shared-field-native-source-control-010/baseline/native-run/accepted-geometry/step-5599.receipt.json": "f11d43661712da98ae54918201715885a973ed495b85ceefdb748459a05e7fea",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/forearm-shared-field-native-source-control-010/baseline/native-run/accepted-geometry/step-6207.mrvpack": "406e7bd0ccc897d15e7d6d1726fe8192565c3d57f3d3337422ba433adb26ddc9",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/forearm-shared-field-native-source-control-010/baseline/native-run/accepted-geometry/step-6207.receipt.json": "d580e6c0390d66e3f5f217799b6de063b1b095ec4686dbb5156629b5db08ee62",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/forearm-shared-field-native-source-control-010/baseline/native-run/accepted-geometry/step-7423.mrvpack": "d405c407156769a75ad5227528acc0feaff11af69e70bcb600c803d35017daeb",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/forearm-shared-field-native-source-control-010/baseline/native-run/accepted-geometry/step-7423.receipt.json": "def3549816b96775fbf82aa19e1ab0a8446efe9991a0829fada5719a09d7e392",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/forearm-shared-field-native-source-control-010/baseline/native-run/accepted-geometry/step-8000.mrvpack": "ac39faca74690f26ee561c44406fb69be4c2200d23ac62fd8cbbfe307fe5749c",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/forearm-shared-field-native-source-control-010/baseline/native-run/accepted-geometry/step-8000.receipt.json": "fbaaff4bfcb2e0ef6ddf7dcfd2a0187cad32982435980ab12c64e2051f4a168a",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/forearm-shared-field-native-source-control-010/baseline/native-run/resting-coupled.csv": "f4eed8be79a5cba025a97dc53dc53582f0a4149dc83729c859039353e8a6ba19",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/forearm-shared-field-native-source-control-010/baseline/run-declaration.json": "bdfcc01345b992fa7f51737347f32e26f4b3513a06c3bf727713dcc3cb0aac1d",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/forearm054-native-diagnostic-009-refined085/baseline/execution.json": "9e2e60c4c8192b422be40090971024e2600307a161a0f7dcb26662b302e2ef2c",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/forearm054-native-diagnostic-009-refined085/baseline/native-run/accepted-geometry/step-0.mrvpack": "7a15d9c9ff99d2ee8dd42bd3014cb67e73ebf20f2468e474e2d7f20e368c92fb",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/forearm054-native-diagnostic-009-refined085/baseline/native-run/accepted-geometry/step-0.receipt.json": "9a6de72999503e9c6a7d9514e8e2ee84547e6eeaa153f3bea3681aafd74b63e8",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/forearm054-native-diagnostic-009-refined085/baseline/native-run/accepted-geometry/step-3807.mrvpack": "4003cc69f4680c1156f6ed3af3f955f4ffdd71d0830599d769fb4ee1d5e00322",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/forearm054-native-diagnostic-009-refined085/baseline/native-run/accepted-geometry/step-3807.receipt.json": "a1906b77f9c96be650c9b7fa7270d973447ba6b72339a724fec5cf23bc4edf95",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/forearm054-native-diagnostic-009-refined085/baseline/native-run/accepted-geometry/step-4767.mrvpack": "8dd9af38f25e4e08b53eabfc3301edaf662ff9805b2c16954097300799d620ae",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/forearm054-native-diagnostic-009-refined085/baseline/native-run/accepted-geometry/step-4767.receipt.json": "91f9ffc183d693da60e4a94b790076ba34971443eb377dd5558ccea1cfa4b2dd",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/forearm054-native-diagnostic-009-refined085/baseline/native-run/accepted-geometry/step-5023.mrvpack": "f1463f4e73f01bf4299e1c95cb2ce82d6df1581c52d08273d40721c37661ff0e",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/forearm054-native-diagnostic-009-refined085/baseline/native-run/accepted-geometry/step-5023.receipt.json": "fc16d3e28b3c7366a79c7802643f572705124b4d425168eaafafa95c03989025",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/forearm054-native-diagnostic-009-refined085/baseline/native-run/accepted-geometry/step-5599.mrvpack": "d1b11fa2b4b4fdda2660a3d1a80659bafe5df35dadac3a098367bb1fc4d10f5d",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/forearm054-native-diagnostic-009-refined085/baseline/native-run/accepted-geometry/step-5599.receipt.json": "abab24147e50b2bde64e439c5e804697fb5edb056120c3e97e55153d8ae8969c",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/forearm054-native-diagnostic-009-refined085/baseline/native-run/accepted-geometry/step-6207.mrvpack": "e8a67305942b5e215e2ae53e5407fc0010eeada0a5e52eedcc1774992b0183eb",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/forearm054-native-diagnostic-009-refined085/baseline/native-run/accepted-geometry/step-6207.receipt.json": "070d4c0e99accc003badadac3757b3b53613c32a6cd2bdebff660b183177bf9d",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/forearm054-native-diagnostic-009-refined085/baseline/native-run/accepted-geometry/step-7423.mrvpack": "5a9e7bf04c6ac49e96ec947dff5d55d6686337262a1fc11cdef0efc0937d5062",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/forearm054-native-diagnostic-009-refined085/baseline/native-run/accepted-geometry/step-7423.receipt.json": "ed4201c41e0bf15fe30aeb6fe6177dbb4cd4fbbedab62266727273238eaad6cc",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/forearm054-native-diagnostic-009-refined085/baseline/native-run/accepted-geometry/step-8000.mrvpack": "3724a45407a1e0af9459693bda0f55398c04ce53b13534d9258efb1aa23e9581",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/forearm054-native-diagnostic-009-refined085/baseline/native-run/accepted-geometry/step-8000.receipt.json": "a40b6c04b16cbe39040730472a64efa7bc7742070020906978371dca9dcfc7eb",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/forearm054-native-diagnostic-009-refined085/baseline/native-run/resting-coupled.csv": "f4eed8be79a5cba025a97dc53dc53582f0a4149dc83729c859039353e8a6ba19",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/forearm054-native-diagnostic-009-refined085/baseline/run-declaration.json": "003378b3aa82d8245aac4b31b169d1b875962fa1b6a51115a153b7c4ca06eef5",
+    "/Users/numi/numi-lab-parent-precision-1356/tools/evidence/native-parent-position-precision-m6-1356/compare_native_captures.py": "fd1469b822004d6a4796065e72d9b2114a3e7c7ab52afd043c640c1b7b2db74d"
+  },
+  "parent": "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/forearm054-native-diagnostic-009-refined085",
+  "passed": true,
+  "physiology_rows": 1000,
+  "physiology_trace_bytes_exact": true,
+  "scope": "Exact native positions/topology/accepted-pose and physiology comparison. Intersection qualification is separate."
+}

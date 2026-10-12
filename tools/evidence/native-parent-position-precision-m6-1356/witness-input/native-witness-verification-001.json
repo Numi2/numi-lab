@@ -1,0 +1,315 @@
+{
+  "cpu_parity": {
+    "gpu_compensated_vs_cpu_kahan": {
+      "bitwise_equal": true,
+      "cpu_bits_hex": "be77883e8fde63bfe076133de66a883e57b063bf3360133d7869883e27ab63bf9d5d133d1069883e2ba563bffb53133d9a8d883ee3dd63bf4500133d5296883e05d363bf9ffe123d",
+      "gpu_bits_hex": "be77883e8fde63bfe076133de66a883e57b063bf3360133d7869883e27ab63bf9d5d133d1069883e2ba563bffb53133d9a8d883ee3dd63bf4500133d5296883e05d363bf9ffe123d",
+      "max_abs_delta_um": 0.0,
+      "mismatched_float32_components": 0,
+      "rms_delta_um": 0.0
+    },
+    "gpu_sequential_fma_vs_cpu_reference": {
+      "bitwise_equal": true,
+      "cpu_bits_hex": "be77883e8fde63bfe076133de66a883e57b063bf3460133d7769883e28ab63bf9d5d133d1069883e2aa563bffb53133d9a8d883ee4dd63bf4600133d5296883e06d363bf9efe123d",
+      "gpu_bits_hex": "be77883e8fde63bfe076133de66a883e57b063bf3460133d7769883e28ab63bf9d5d133d1069883e2aa563bffb53133d9a8d883ee4dd63bf4600133d5296883e06d363bf9efe123d",
+      "max_abs_delta_um": 0.0,
+      "mismatched_float32_components": 0,
+      "rms_delta_um": 0.0
+    }
+  },
+  "device_execution": {
+    "device": "Apple M6",
+    "gpu_completed": true,
+    "math_mode": "safe",
+    "scope": "isolated numerical instrument; not physical or anatomical admission",
+    "vertices": 6,
+    "wall_seconds": 0.4424965833350143
+  },
+  "elapsed_seconds": 0.0186193750014354,
+  "exact_triangle_predicates": {
+    "cpu_compensated": [
+      {
+        "exact_intersection_point_count": 1,
+        "intersection_points_m": [
+          [
+            0.2665385603904724,
+            -0.8901147246360779,
+            0.03600203990936279
+          ]
+        ],
+        "nonshared_exact_intersection_point_count": 0,
+        "topological_shared_global_vertex_ids": [
+          5490
+        ],
+        "union_faces": [
+          4772,
+          21817
+        ]
+      },
+      {
+        "exact_intersection_point_count": 0,
+        "intersection_points_m": [],
+        "nonshared_exact_intersection_point_count": 0,
+        "topological_shared_global_vertex_ids": [],
+        "union_faces": [
+          4772,
+          21818
+        ]
+      },
+      {
+        "exact_intersection_point_count": 1,
+        "intersection_points_m": [
+          [
+            0.2664296627044678,
+            -0.8893303275108337,
+            0.03597794845700264
+          ]
+        ],
+        "nonshared_exact_intersection_point_count": 0,
+        "topological_shared_global_vertex_ids": [
+          5492
+        ],
+        "union_faces": [
+          4772,
+          21835
+        ]
+      }
+    ],
+    "cpu_sequential_fma": [
+      {
+        "exact_intersection_point_count": 2,
+        "intersection_points_m": [
+          [
+            0.2664407004709694,
+            -0.8894098240568976,
+            0.03598037336441315
+          ],
+          [
+            0.2665385603904724,
+            -0.8901147246360779,
+            0.03600203990936279
+          ]
+        ],
+        "nonshared_exact_intersection_point_count": 1,
+        "topological_shared_global_vertex_ids": [
+          5490
+        ],
+        "union_faces": [
+          4772,
+          21817
+        ]
+      },
+      {
+        "exact_intersection_point_count": 2,
+        "intersection_points_m": [
+          [
+            0.26644044700177383,
+            -0.8894079807257345,
+            0.03598031567272579
+          ],
+          [
+            0.2664407004709694,
+            -0.8894098240568976,
+            0.03598037336441315
+          ]
+        ],
+        "nonshared_exact_intersection_point_count": 2,
+        "topological_shared_global_vertex_ids": [],
+        "union_faces": [
+          4772,
+          21818
+        ]
+      },
+      {
+        "exact_intersection_point_count": 2,
+        "intersection_points_m": [
+          [
+            0.2664296329021454,
+            -0.8893303871154785,
+            0.03597794845700264
+          ],
+          [
+            0.26644044700177383,
+            -0.8894079807257345,
+            0.03598031567272579
+          ]
+        ],
+        "nonshared_exact_intersection_point_count": 1,
+        "topological_shared_global_vertex_ids": [
+          5492
+        ],
+        "union_faces": [
+          4772,
+          21835
+        ]
+      }
+    ],
+    "gpu_compensated": [
+      {
+        "exact_intersection_point_count": 1,
+        "intersection_points_m": [
+          [
+            0.2665385603904724,
+            -0.8901147246360779,
+            0.03600203990936279
+          ]
+        ],
+        "nonshared_exact_intersection_point_count": 0,
+        "topological_shared_global_vertex_ids": [
+          5490
+        ],
+        "union_faces": [
+          4772,
+          21817
+        ]
+      },
+      {
+        "exact_intersection_point_count": 0,
+        "intersection_points_m": [],
+        "nonshared_exact_intersection_point_count": 0,
+        "topological_shared_global_vertex_ids": [],
+        "union_faces": [
+          4772,
+          21818
+        ]
+      },
+      {
+        "exact_intersection_point_count": 1,
+        "intersection_points_m": [
+          [
+            0.2664296627044678,
+            -0.8893303275108337,
+            0.03597794845700264
+          ]
+        ],
+        "nonshared_exact_intersection_point_count": 0,
+        "topological_shared_global_vertex_ids": [
+          5492
+        ],
+        "union_faces": [
+          4772,
+          21835
+        ]
+      }
+    ],
+    "gpu_sequential_fma": [
+      {
+        "exact_intersection_point_count": 2,
+        "intersection_points_m": [
+          [
+            0.2664407004709694,
+            -0.8894098240568976,
+            0.03598037336441315
+          ],
+          [
+            0.2665385603904724,
+            -0.8901147246360779,
+            0.03600203990936279
+          ]
+        ],
+        "nonshared_exact_intersection_point_count": 1,
+        "topological_shared_global_vertex_ids": [
+          5490
+        ],
+        "union_faces": [
+          4772,
+          21817
+        ]
+      },
+      {
+        "exact_intersection_point_count": 2,
+        "intersection_points_m": [
+          [
+            0.26644044700177383,
+            -0.8894079807257345,
+            0.03598031567272579
+          ],
+          [
+            0.2664407004709694,
+            -0.8894098240568976,
+            0.03598037336441315
+          ]
+        ],
+        "nonshared_exact_intersection_point_count": 2,
+        "topological_shared_global_vertex_ids": [],
+        "union_faces": [
+          4772,
+          21818
+        ]
+      },
+      {
+        "exact_intersection_point_count": 2,
+        "intersection_points_m": [
+          [
+            0.2664296329021454,
+            -0.8893303871154785,
+            0.03597794845700264
+          ],
+          [
+            0.26644044700177383,
+            -0.8894079807257345,
+            0.03598031567272579
+          ]
+        ],
+        "nonshared_exact_intersection_point_count": 1,
+        "topological_shared_global_vertex_ids": [
+          5492
+        ],
+        "union_faces": [
+          4772,
+          21835
+        ]
+      }
+    ]
+  },
+  "inputs": {
+    "fixture_binary_path": "/Users/n/numi-human-fds132-m6-1350/attempt-094-compensated-kernel-input-fixture-001/witness-core-world-and-weight-float4-le.bin",
+    "fixture_binary_sha256": "b718aa2f88ad95d6023bb790528c9bbf0727a16bd5902b96bd0a59383602ebc2",
+    "fixture_path": "/Users/n/numi-human-fds132-m6-1350/attempt-094-compensated-kernel-input-fixture-001/fixture.json",
+    "fixture_reference_npz_path": "/Users/n/numi-human-fds132-m6-1350/attempt-094-compensated-kernel-input-fixture-001/witness-reference-arrays.npz",
+    "fixture_reference_npz_sha256": "5138d35185c7a2571b40149162b81c750f3df6cf5678d50ff91951d9a0623fbf",
+    "fixture_sha256": "3ff52316d9673d86a9413bf7efcd574a847e7a2420758d47eabf06ad01b5be83",
+    "gpu_output_path": "/Users/n/numi-lab-parent-precision-1356/tools/evidence/native-parent-position-precision-m6-1356/witness-output.bin",
+    "gpu_output_sha256": "11cbd92d06a622da0fd82fb1a156efe12365400f2012fea067be812752b74179",
+    "intersection_predicate_path": "/Users/n/numi-human-anatomy-completion-1276/src/numilab_human/cardiac_cavity_intersections.py",
+    "intersection_predicate_sha256": "90c7a7fb0ce4383397f97519dd5fe163201d86a0c97e18e3a9eb3fa9858cd561",
+    "native_execution_path": "/Users/n/numi-lab-parent-precision-1356/tools/evidence/native-parent-position-precision-m6-1356/witness-execution.json",
+    "native_execution_sha256": "d65e051f23edfc19c7b7a86cc3bcc766b546d6a3ce56a2e5c7b5fc7edc207bf1",
+    "native_shader_path": "/Users/n/numi-lab-parent-precision-1356/tools/evidence/native-parent-position-precision-m6-1356/witness.metal",
+    "native_shader_sha256": "7070bdfad9c62abb12ef01e602b08bb3c724819d45a8729c368506503bab57c6",
+    "native_swift_path": "/Users/n/numi-lab-parent-precision-1356/tools/evidence/native-parent-position-precision-m6-1356/run_witness.swift",
+    "native_swift_sha256": "d7feaae922de1435d3dc0d51b02099b5f142d66120486d4268a63e713fc5fb3d",
+    "source_pose_and_control_pins": {
+      "/Users/n/numi-human-fds132-m6-1350/attempt-050/arrangement-001/diagnostic-061/fds-fdp-source-routes-061.json": "91c16b791be3e66f9065a70623d372f5bc7dca12a7f1a302c5cb469f2d1ad304",
+      "/Users/n/numi-human-fds132-m6-1350/attempt-050/arrangement-001/result-001/exact-arrangement.pkl": "8da7964bba3ef2b614ed3bda966dd11199855cd3b4211baddd59172198a3bbde",
+      "/Users/n/numi-human-fds132-m6-1350/attempt-050/arrangement-001/result-001/report.json": "2b921abbcbdb3cc28a671d26d187411c8e41725fa9e5dd221fc0bc8dabe88883",
+      "/Users/n/numi-human-fds132-m6-1350/attempt-085-interface-refinement-2mm-001/result-001/candidate.pkl": "4792b40d2828a019cee8fdd5160f29f4667a0596bfe423960abd8f90e7bc1e2a",
+      "/Users/n/numi-human-fds132-m6-1350/attempt-085-interface-refinement-2mm-001/result-001/report.json": "7a787d8b12d18dca3873797fac94b0882558b6cb0e3233990e273b95d8adceee",
+      "/Users/n/numi-human-fds132-m6-1350/attempt-088-registered-route-field-refined-2mm-001/result-001/registration-frame-proof.json": "d9d2256d1c50d3ffbbcde6718c081bf4bd8e858973628ab81fae42debbeca0fb",
+      "/Users/n/numi-human-fds132-m6-1350/attempt-088-registered-route-field-refined-2mm-001/result-001/route-anchor-reference-field-001.npz": "71497028ba99db22e048a020a4e58799ccadd5dae0f5f9bac006ac270ab5b02b",
+      "/Users/n/numi-human-fds132-m6-1350/attempt-092-late-witness-arithmetic-001/report.json": "45f786753296d2af8a57e4607cea8cb4ab8c28302a120d2cf568de3767709a64",
+      "/Users/n/numi-human-fds132-m6-1350/attempt-093-late-witness-accumulation-variants-001/audit_variants_093.py": "8eb4ec271fffff95b3a0a8dd50cead2bc9900bea8266a38d019e3c0bb98af314",
+      "/Users/n/numi-human-fds132-m6-1350/attempt-093-late-witness-accumulation-variants-001/report.json": "ae4c6ca0559e9da7b968fcd828edc875d018d258fc24beea67d6672967267168",
+      "/Users/n/numi-human-fds132-m6-1350/registration-source-b1b410ad.json": "b1b410ad6d4ac8c0c95fd0c3e10f655b24c890d5767a5c377cf78e28ef598f8e",
+      "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/neck-back-retained-pose-audit-002/forward_all_positive_weights.py": "ee755eabac267563862c95552524c715bc8dd9897a2bcac7e29e483f5b4a57c5",
+      "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/temporalis164-native-m6-002/assets/bodyparts3d-myosim-fullbody-muscle-surfaces.manifest.json": "99c611d5bd2277266923ae7e15b5d7289bf160465b7f14582a210ac514aec736",
+      "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/temporalis164-native-m6-002/assets/bodyparts3d-myosim-fullbody-muscle-surfaces.nhtissue": "9d512c808bc57e6f1481e520558a8a6ae83af755a0480f04dc85c54d49566f69",
+      "/Users/n/numi-human-retained-delivery-20261009/skin-resting-multipose-clearance-1218/native-coupled-pair-preparation-011/baseline/native-run/accepted-geometry/step-151999.mrvpack": "db54d03f2b30740fb4f47164e79369ea5dc622cf51689f93972b1853f15e8954",
+      "/Users/n/numi-human-retained-delivery-20261009/skin-resting-multipose-clearance-1218/native-coupled-pair-preparation-011/baseline/native-run/accepted-geometry/step-151999.receipt.json": "d13899f06de29cf78449ecaceb1ad8736720d53016cecf03b63c2126b81ace88",
+      "/Users/n/numi-lab-parent-precision-1356/include/metalrobo/numi_human_resting_visual_gpu.h": "20005785e7c3fd259de55286fd605d621206ebbf71ddba21ea1d90d61cdcab4c",
+      "/Users/n/numi-lab-parent-precision-1356/matter/src/human_respiration.metal": "581626802b9d5b1a9dc28d333669c395deaa506199304488d0f21feb9ecf72f0",
+      "/Users/numi/numi-lab-parent-bindings-1353/matter/src/human_respiration.metal": "bf984a88ff542f528753d368d9b4f884a74319a9d2e24ac8d6dc5ccb5040bc54"
+    }
+  },
+  "output_layout": {
+    "float4_xyz_used_for_geometry": true,
+    "record_order": [
+      "compensated Kahan",
+      "explicit sequential FMA control"
+    ],
+    "records_per_vertex": 2
+  },
+  "schema": "numi.human.left-fds132-fdp134-compensated-position-native-witness-verification-095.v1",
+  "scope": "One safe-Math-mode M6 dispatch on six vertices \u00d7 21 pretransformed Float32 per-core world positions and route weights. Verifies output parity and exact Fraction intersections for only the three pinned late 151999 triangle pairs; not a full mesh, native resting-scene, or anatomy admission.",
+  "status": "completed_native_m6_arithmetic_witness_verification"
+}

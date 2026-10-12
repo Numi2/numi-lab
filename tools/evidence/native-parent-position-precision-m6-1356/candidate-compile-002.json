@@ -1,0 +1,9 @@
+{
+  "compiled" : true,
+  "device" : "Apple M6",
+  "dispatch" : false,
+  "function_count" : 42,
+  "math_mode" : "safe",
+  "metal_language" : "4.0",
+  "wall_seconds" : 0.22890595833086991
+}

@@ -1,0 +1,186 @@
+[
+  {
+    "source": "/Users/n/numi-lab-parent-precision-1356/build-parent-precision.py",
+    "retained": "executed-scripts/build-parent-precision.py",
+    "sha256": "72a4065f65585049a065f2bb78fff573c4d2f616c03340196974ce5db1be7a2f",
+    "size_bytes": 2300
+  },
+  {
+    "source": "/Users/n/numi-lab-parent-precision-1356/prepare-parent-precision-native.py",
+    "retained": "executed-scripts/prepare-parent-precision-native.py",
+    "sha256": "8b5e62be771972d245114c10822481bccc1e4f1fe153feabe78073a78c345bf1",
+    "size_bytes": 4601
+  },
+  {
+    "source": "/Users/n/numi-lab-parent-precision-1356/tools/prepare_human_resting_skin_source.py",
+    "retained": "executed-scripts/prepare_human_resting_skin_source.py.gz",
+    "sha256": "d5954f0814f99e03ab44e6fd93784b68b4441141a5a4aedb1d284f8235f519cc",
+    "size_bytes": 3975,
+    "uncompressed_sha256": "b4c263ecace2b5ebd91400c9a3ea4bd864a4bcf5bb582d98b5d5e1003afce825",
+    "uncompressed_size_bytes": 12714
+  },
+  {
+    "source": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/forearm-shared-field-native-source-control-010/preparation.json",
+    "retained": "control010/preparation.json",
+    "sha256": "a34eefe1b0ef43b403dcb5830a8a81a9d587cf826a26e305e78a29760adb8814",
+    "size_bytes": 743
+  },
+  {
+    "source": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/forearm-shared-field-native-source-control-010/launch-guard.json",
+    "retained": "control010/launch-guard.json",
+    "sha256": "51ff6198547377ec013368135085c353ba032cc4b84fa84195e1f590d929432c",
+    "size_bytes": 399
+  },
+  {
+    "source": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/forearm-shared-field-native-source-control-010/launch_arm.py",
+    "retained": "control010/launch_arm.py",
+    "sha256": "87a977cc6d71b0a6ba8a6d29b3fb44581c86f1f13a301794cff8198dfef5b42e",
+    "size_bytes": 6105
+  },
+  {
+    "source": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/forearm-shared-field-native-source-control-010/baseline/execution.json",
+    "retained": "control010/baseline/execution.json",
+    "sha256": "219d00f8e6a86a2604da0bec6c667bc059953d9e97430651efc85bb64a53e45d",
+    "size_bytes": 6443
+  },
+  {
+    "source": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/forearm-shared-field-native-source-control-010/baseline/execution-start.json",
+    "retained": "control010/baseline/execution-start.json",
+    "sha256": "200109ebfd435f4fff3163167c4348c37c8c129174ce6f3a369d06c55033b748",
+    "size_bytes": 7929
+  },
+  {
+    "source": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/forearm-shared-field-native-source-control-010/baseline/run-declaration.json",
+    "retained": "control010/baseline/run-declaration.json",
+    "sha256": "bdfcc01345b992fa7f51737347f32e26f4b3513a06c3bf727713dcc3cb0aac1d",
+    "size_bytes": 40282
+  },
+  {
+    "source": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/forearm-shared-field-native-source-control-010/baseline/native-run/run-metadata.json",
+    "retained": "control010/baseline/native-run/run-metadata.json",
+    "sha256": "8fd9740f1a50f2a09e2024dabcd4baa72820d86875ecfd862094cbae73587f8e",
+    "size_bytes": 11765
+  },
+  {
+    "source": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/forearm-shared-field-native-source-control-010/baseline/native-run/invocation.json",
+    "retained": "control010/baseline/native-run/invocation.json",
+    "sha256": "cc870b278e19b70ef0b18c608a8daab5f3fe93e78772c446a1ae3e7e65eb115f",
+    "size_bytes": 11087
+  },
+  {
+    "source": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/forearm-shared-field-native-source-control-010/baseline/native-run/resting-coupled.csv",
+    "retained": "control010/baseline/native-run/resting-coupled.csv",
+    "sha256": "f4eed8be79a5cba025a97dc53dc53582f0a4149dc83729c859039353e8a6ba19",
+    "size_bytes": 811004
+  },
+  {
+    "source": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/forearm-shared-field-native-compensated-011/preparation.json",
+    "retained": "candidate011/preparation.json",
+    "sha256": "d68ff83bb72a7222ab01e7e9dfcee4404261339de60f506f34bc62317ba384c3",
+    "size_bytes": 745
+  },
+  {
+    "source": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/forearm-shared-field-native-compensated-011/launch-guard.json",
+    "retained": "candidate011/launch-guard.json",
+    "sha256": "5ee29b177471d46c44f11fe3d9abf2259f8c1fa71d29e3063a86f7afc67fb9cd",
+    "size_bytes": 396
+  },
+  {
+    "source": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/forearm-shared-field-native-compensated-011/launch_arm.py",
+    "retained": "candidate011/launch_arm.py",
+    "sha256": "87a977cc6d71b0a6ba8a6d29b3fb44581c86f1f13a301794cff8198dfef5b42e",
+    "size_bytes": 6105
+  },
+  {
+    "source": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/forearm-shared-field-native-compensated-011/baseline/execution.json",
+    "retained": "candidate011/baseline/execution.json",
+    "sha256": "028f0f61ec3a7cc5cb5607f9be25afffa386b1264dee22225182a3c9c38d26a9",
+    "size_bytes": 6434
+  },
+  {
+    "source": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/forearm-shared-field-native-compensated-011/baseline/execution-start.json",
+    "retained": "candidate011/baseline/execution-start.json",
+    "sha256": "49cea5504c4dcf3c144fec239b51e1339eac0ce2950ec0ae3779e796a5d226b0",
+    "size_bytes": 7917
+  },
+  {
+    "source": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/forearm-shared-field-native-compensated-011/baseline/run-declaration.json",
+    "retained": "candidate011/baseline/run-declaration.json",
+    "sha256": "3bc6cffac9745153ff2d3c7d59f14095970608f5ea1f3b7b16ef0c52196b6799",
+    "size_bytes": 39969
+  },
+  {
+    "source": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/forearm-shared-field-native-compensated-011/baseline/native-run/run-metadata.json",
+    "retained": "candidate011/baseline/native-run/run-metadata.json",
+    "sha256": "8afd7253fb89a08b68db8e48e3e2072dac05ccafb6ac86990b78f9ab6b957c03",
+    "size_bytes": 11756
+  },
+  {
+    "source": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/forearm-shared-field-native-compensated-011/baseline/native-run/invocation.json",
+    "retained": "candidate011/baseline/native-run/invocation.json",
+    "sha256": "aed2e90c3b4aeede3fe2165996bbbd861dc2d5aad66df455934196739e91d1ad",
+    "size_bytes": 11078
+  },
+  {
+    "source": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/forearm-shared-field-native-compensated-011/baseline/native-run/resting-coupled.csv",
+    "retained": "candidate011/baseline/native-run/resting-coupled.csv",
+    "sha256": "f4eed8be79a5cba025a97dc53dc53582f0a4149dc83729c859039353e8a6ba19",
+    "size_bytes": 811004
+  },
+  {
+    "source": "/Users/n/numi-lab-parent-precision-build-1356-001/build-report.json",
+    "retained": "candidate011/build-report.json",
+    "sha256": "b68ebf31d1d9813ed2e873def33cba68a246500af0a21a1b655bdf7b319a0144",
+    "size_bytes": 5338
+  },
+  {
+    "source": "/Users/n/numi-lab-parent-precision-build-1356-002/build-report.json",
+    "retained": "control010/build-report.json",
+    "sha256": "e0828599d124839e891a50396bad53fd44b7d2019ffa700767e801c56cf23784",
+    "size_bytes": 5334
+  },
+  {
+    "source": "/Users/n/numi-human-fds132-m6-1350/attempt-094-compensated-kernel-input-fixture-001/fixture.json",
+    "retained": "witness-input/fixture.json",
+    "sha256": "3ff52316d9673d86a9413bf7efcd574a847e7a2420758d47eabf06ad01b5be83",
+    "size_bytes": 13129
+  },
+  {
+    "source": "/Users/n/numi-human-fds132-m6-1350/attempt-094-compensated-kernel-input-fixture-001/witness-core-world-and-weight-float4-le.bin",
+    "retained": "witness-input/witness-core-world-and-weight-float4-le.bin",
+    "sha256": "b718aa2f88ad95d6023bb790528c9bbf0727a16bd5902b96bd0a59383602ebc2",
+    "size_bytes": 2016
+  },
+  {
+    "source": "/Users/n/numi-human-fds132-m6-1350/attempt-094-compensated-kernel-input-fixture-001/witness-reference-arrays.npz",
+    "retained": "witness-input/witness-reference-arrays.npz",
+    "sha256": "5138d35185c7a2571b40149162b81c750f3df6cf5678d50ff91951d9a0623fbf",
+    "size_bytes": 3887
+  },
+  {
+    "source": "/Users/n/numi-human-fds132-m6-1350/attempt-094-compensated-kernel-input-fixture-001/prepare_fixture_094.py",
+    "retained": "witness-input/prepare_fixture_094.py",
+    "sha256": "b1467700a432a6756035fd235e6e98b8507b84aff2809e70513c500fdcab9954",
+    "size_bytes": 12342
+  },
+  {
+    "source": "/Users/n/numi-human-fds132-m6-1350/attempt-094-compensated-kernel-input-fixture-001/native-witness-verification-001.json",
+    "retained": "witness-input/native-witness-verification-001.json",
+    "sha256": "f9aea2ab722bbef3439d2892bde3c436cef3aa3aea3f707b8367ad9138e97a0c",
+    "size_bytes": 13304
+  },
+  {
+    "source": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/forearm-shared-field-native-compensated-011/native-audit-002/report.json",
+    "retained": "candidate011/target-audit.json",
+    "sha256": "3406e6bf5955aef2277d36e09c91fbbd1f4c27f2ba9dd8250ee65781d189fa41",
+    "size_bytes": 59910
+  },
+  {
+    "source": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/forearm-shared-field-native-compensated-011/verify_forearm_shared_field_native_011_targets.py",
+    "retained": "executed-scripts/verify_forearm_shared_field_native_011_targets.py.gz",
+    "sha256": "c15bbb7013b27ffa33cd54aa7afe3ca5cd847101a51e68e3b8df44727f9a8fd3",
+    "size_bytes": 5699,
+    "uncompressed_sha256": "cb77490d504282fd8c71040b3ef5e634ac697bf2b0ba7d7995249b1c79bbd4bd",
+    "uncompressed_size_bytes": 16474
+  }
+]

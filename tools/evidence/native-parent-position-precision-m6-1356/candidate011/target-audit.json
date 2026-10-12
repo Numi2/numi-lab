@@ -1,0 +1,2017 @@
+{
+  "captures": {
+    "0": {
+      "accepted_body_pose_count": 157,
+      "audit_wall_seconds": 67.42588487499961,
+      "capture_receipt_valid": true,
+      "capture_sha256": "23f00ab4e85a07921f2e0ed5aad0f1abcd66e1f9e6d7ddc23eb8c6640d9a69cf",
+      "children": {
+        "132": {
+          "closed_oriented_manifold": true,
+          "component_signed_volumes_m3": [
+            4.879718972113833e-05
+          ],
+          "component_signs": [
+            "positive"
+          ],
+          "degenerate_face_count": 0,
+          "degenerate_face_ids": [],
+          "exact_self_pair_count": 0,
+          "exact_self_pairs": [],
+          "face_count": 25104,
+          "face_layout_matches_candidate": true,
+          "geometry_pass": true,
+          "source_component_signs": [
+            "positive"
+          ],
+          "topology": {
+            "boundary_edge_count": 0,
+            "boundary_loop_count": 0,
+            "closed_oriented_manifold_candidate": true,
+            "edge_count": 37656,
+            "euler_characteristic": -4,
+            "face_component_count": 1,
+            "face_count": 25104,
+            "vertex_count": 12548
+          },
+          "vertex_count": 12548,
+          "winding_matches_source": true
+        },
+        "134": {
+          "closed_oriented_manifold": true,
+          "component_signed_volumes_m3": [
+            5.512621864826015e-05,
+            -1.1229490082296728e-08,
+            -1.6858422030842288e-10,
+            -6.498089485563076e-10
+          ],
+          "component_signs": [
+            "positive",
+            "negative",
+            "negative",
+            "negative"
+          ],
+          "degenerate_face_count": 0,
+          "degenerate_face_ids": [],
+          "exact_self_pair_count": 0,
+          "exact_self_pairs": [],
+          "face_count": 29540,
+          "face_layout_matches_candidate": true,
+          "geometry_pass": true,
+          "source_component_signs": [
+            "positive",
+            "negative",
+            "negative",
+            "negative"
+          ],
+          "topology": {
+            "boundary_edge_count": 0,
+            "boundary_loop_count": 0,
+            "closed_oriented_manifold_candidate": true,
+            "edge_count": 44310,
+            "euler_characteristic": 2,
+            "face_component_count": 4,
+            "face_count": 29540,
+            "vertex_count": 14772
+          },
+          "vertex_count": 14772,
+          "winding_matches_source": true
+        }
+      },
+      "inventory_868_exact": true,
+      "joined_union": {
+        "component_signed_volumes_m3": [
+          0.00010392372146425967,
+          -3.836340563160783e-12,
+          -1.1259877739920245e-10,
+          -8.577885024882944e-14,
+          -3.0633255674584356e-11,
+          -2.329900052564468e-13,
+          -1.5265454790040675e-12,
+          -9.945441670914672e-13,
+          -1.6318662907278093e-10,
+          -1.1229490082296728e-08,
+          -1.6858422030842288e-10,
+          -6.498089485563076e-10
+        ],
+        "component_signs": [
+          "positive",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative"
+        ],
+        "construction": {
+          "remaining_face_count": 40624,
+          "remaining_vertex_count": 20208,
+          "removed_face_count": 14020,
+          "shared_face_pairs": 7010,
+          "shared_vertex_count": 4588
+        },
+        "degenerate_face_count": 0,
+        "degenerate_face_ids": [],
+        "exact_self_pair_count": 0,
+        "exact_self_pairs": [],
+        "interface_error_count": 0,
+        "source_component_signs": [
+          "positive",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative"
+        ],
+        "topology": {
+          "boundary_edge_count": 0,
+          "boundary_loop_count": 0,
+          "closed_oriented_manifold_candidate": true,
+          "edge_count": 60936,
+          "euler_characteristic": -104,
+          "face_component_count": 12,
+          "face_count": 40624,
+          "vertex_count": 20208
+        },
+        "union_pass": true,
+        "winding_matches_source": true
+      },
+      "native_inventory_count": 868,
+      "receipt_sha256": "d72aea79508582b56cb04adeeb60699ca497ff3eba260555d970afb904da0bb6",
+      "shared_seam_bitwise_equal_count": 4588,
+      "shared_seam_max_gap_um": 0.0,
+      "shared_seam_pass": true,
+      "shared_seam_vertices": 4588
+    },
+    "3807": {
+      "accepted_body_pose_count": 157,
+      "audit_wall_seconds": 68.7811308340024,
+      "capture_receipt_valid": true,
+      "capture_sha256": "37fa9f9aef9fc08743ac77bd543c04d02b28e454e0f670f9dff366876b15676e",
+      "children": {
+        "132": {
+          "closed_oriented_manifold": true,
+          "component_signed_volumes_m3": [
+            4.8041602874210734e-05
+          ],
+          "component_signs": [
+            "positive"
+          ],
+          "degenerate_face_count": 0,
+          "degenerate_face_ids": [],
+          "exact_self_pair_count": 0,
+          "exact_self_pairs": [],
+          "face_count": 25104,
+          "face_layout_matches_candidate": true,
+          "geometry_pass": true,
+          "source_component_signs": [
+            "positive"
+          ],
+          "topology": {
+            "boundary_edge_count": 0,
+            "boundary_loop_count": 0,
+            "closed_oriented_manifold_candidate": true,
+            "edge_count": 37656,
+            "euler_characteristic": -4,
+            "face_component_count": 1,
+            "face_count": 25104,
+            "vertex_count": 12548
+          },
+          "vertex_count": 12548,
+          "winding_matches_source": true
+        },
+        "134": {
+          "closed_oriented_manifold": true,
+          "component_signed_volumes_m3": [
+            5.43055161285124e-05,
+            -1.1017966007168361e-08,
+            -1.656849673723456e-10,
+            -6.39502160067303e-10
+          ],
+          "component_signs": [
+            "positive",
+            "negative",
+            "negative",
+            "negative"
+          ],
+          "degenerate_face_count": 0,
+          "degenerate_face_ids": [],
+          "exact_self_pair_count": 0,
+          "exact_self_pairs": [],
+          "face_count": 29540,
+          "face_layout_matches_candidate": true,
+          "geometry_pass": true,
+          "source_component_signs": [
+            "positive",
+            "negative",
+            "negative",
+            "negative"
+          ],
+          "topology": {
+            "boundary_edge_count": 0,
+            "boundary_loop_count": 0,
+            "closed_oriented_manifold_candidate": true,
+            "edge_count": 44310,
+            "euler_characteristic": 2,
+            "face_component_count": 4,
+            "face_count": 29540,
+            "vertex_count": 14772
+          },
+          "vertex_count": 14772,
+          "winding_matches_source": true
+        }
+      },
+      "inventory_868_exact": true,
+      "joined_union": {
+        "component_signed_volumes_m3": [
+          0.0001023474289802982,
+          -3.81833987998327e-12,
+          -1.1206984549791961e-10,
+          -8.450786447363126e-14,
+          -3.018139230566494e-11,
+          -2.297638494939893e-13,
+          -1.5074273613812403e-12,
+          -9.859497285471358e-13,
+          -1.611003484638244e-10,
+          -1.1017966007168361e-08,
+          -1.656849673723456e-10,
+          -6.39502160067303e-10
+        ],
+        "component_signs": [
+          "positive",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative"
+        ],
+        "construction": {
+          "remaining_face_count": 40624,
+          "remaining_vertex_count": 20208,
+          "removed_face_count": 14020,
+          "shared_face_pairs": 7010,
+          "shared_vertex_count": 4588
+        },
+        "degenerate_face_count": 0,
+        "degenerate_face_ids": [],
+        "exact_self_pair_count": 0,
+        "exact_self_pairs": [],
+        "interface_error_count": 0,
+        "source_component_signs": [
+          "positive",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative"
+        ],
+        "topology": {
+          "boundary_edge_count": 0,
+          "boundary_loop_count": 0,
+          "closed_oriented_manifold_candidate": true,
+          "edge_count": 60936,
+          "euler_characteristic": -104,
+          "face_component_count": 12,
+          "face_count": 40624,
+          "vertex_count": 20208
+        },
+        "union_pass": true,
+        "winding_matches_source": true
+      },
+      "native_inventory_count": 868,
+      "receipt_sha256": "bf6dea6d985a1aaaa7d7186db87654db6d19c3fda5a0b597aa5d85e95b3735c8",
+      "shared_seam_bitwise_equal_count": 4588,
+      "shared_seam_max_gap_um": 0.0,
+      "shared_seam_pass": true,
+      "shared_seam_vertices": 4588
+    },
+    "4767": {
+      "accepted_body_pose_count": 157,
+      "audit_wall_seconds": 68.76199550000092,
+      "capture_receipt_valid": true,
+      "capture_sha256": "3684c9f0bb06a1bf5073076cd37cc714abc1b0237057beda3a560b8330b62639",
+      "children": {
+        "132": {
+          "closed_oriented_manifold": true,
+          "component_signed_volumes_m3": [
+            4.8042290898108585e-05
+          ],
+          "component_signs": [
+            "positive"
+          ],
+          "degenerate_face_count": 0,
+          "degenerate_face_ids": [],
+          "exact_self_pair_count": 0,
+          "exact_self_pairs": [],
+          "face_count": 25104,
+          "face_layout_matches_candidate": true,
+          "geometry_pass": true,
+          "source_component_signs": [
+            "positive"
+          ],
+          "topology": {
+            "boundary_edge_count": 0,
+            "boundary_loop_count": 0,
+            "closed_oriented_manifold_candidate": true,
+            "edge_count": 37656,
+            "euler_characteristic": -4,
+            "face_component_count": 1,
+            "face_count": 25104,
+            "vertex_count": 12548
+          },
+          "vertex_count": 12548,
+          "winding_matches_source": true
+        },
+        "134": {
+          "closed_oriented_manifold": true,
+          "component_signed_volumes_m3": [
+            5.430476029505488e-05,
+            -1.1017615023123787e-08,
+            -1.6568521034196532e-10,
+            -6.395148568040299e-10
+          ],
+          "component_signs": [
+            "positive",
+            "negative",
+            "negative",
+            "negative"
+          ],
+          "degenerate_face_count": 0,
+          "degenerate_face_ids": [],
+          "exact_self_pair_count": 0,
+          "exact_self_pairs": [],
+          "face_count": 29540,
+          "face_layout_matches_candidate": true,
+          "geometry_pass": true,
+          "source_component_signs": [
+            "positive",
+            "negative",
+            "negative",
+            "negative"
+          ],
+          "topology": {
+            "boundary_edge_count": 0,
+            "boundary_loop_count": 0,
+            "closed_oriented_manifold_candidate": true,
+            "edge_count": 44310,
+            "euler_characteristic": 2,
+            "face_component_count": 4,
+            "face_count": 29540,
+            "vertex_count": 14772
+          },
+          "vertex_count": 14772,
+          "winding_matches_source": true
+        }
+      },
+      "inventory_868_exact": true,
+      "joined_union": {
+        "component_signed_volumes_m3": [
+          0.00010234736117336858,
+          -3.817978498914022e-12,
+          -1.1207753425038057e-10,
+          -8.451851361558668e-14,
+          -3.018165123531324e-11,
+          -2.2976497518257823e-13,
+          -1.507107700859149e-12,
+          -9.88916829844669e-13,
+          -1.610927329825004e-10,
+          -1.1017615023123787e-08,
+          -1.6568521034196532e-10,
+          -6.395148568040299e-10
+        ],
+        "component_signs": [
+          "positive",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative"
+        ],
+        "construction": {
+          "remaining_face_count": 40624,
+          "remaining_vertex_count": 20208,
+          "removed_face_count": 14020,
+          "shared_face_pairs": 7010,
+          "shared_vertex_count": 4588
+        },
+        "degenerate_face_count": 0,
+        "degenerate_face_ids": [],
+        "exact_self_pair_count": 0,
+        "exact_self_pairs": [],
+        "interface_error_count": 0,
+        "source_component_signs": [
+          "positive",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative"
+        ],
+        "topology": {
+          "boundary_edge_count": 0,
+          "boundary_loop_count": 0,
+          "closed_oriented_manifold_candidate": true,
+          "edge_count": 60936,
+          "euler_characteristic": -104,
+          "face_component_count": 12,
+          "face_count": 40624,
+          "vertex_count": 20208
+        },
+        "union_pass": true,
+        "winding_matches_source": true
+      },
+      "native_inventory_count": 868,
+      "receipt_sha256": "4c8a927c4ac667aed2ddf0d241b3bcc756405b3bdd6ad4d9aae0d7b2fabd510d",
+      "shared_seam_bitwise_equal_count": 4588,
+      "shared_seam_max_gap_um": 0.0,
+      "shared_seam_pass": true,
+      "shared_seam_vertices": 4588
+    },
+    "5023": {
+      "accepted_body_pose_count": 157,
+      "audit_wall_seconds": 68.06530212500002,
+      "capture_receipt_valid": true,
+      "capture_sha256": "b3ef7f53ea1c6dd3b4f4a1d14d5eecc1af1c34eb8a363e017343872c57d84b84",
+      "children": {
+        "132": {
+          "closed_oriented_manifold": true,
+          "component_signed_volumes_m3": [
+            4.804149112360047e-05
+          ],
+          "component_signs": [
+            "positive"
+          ],
+          "degenerate_face_count": 0,
+          "degenerate_face_ids": [],
+          "exact_self_pair_count": 0,
+          "exact_self_pairs": [],
+          "face_count": 25104,
+          "face_layout_matches_candidate": true,
+          "geometry_pass": true,
+          "source_component_signs": [
+            "positive"
+          ],
+          "topology": {
+            "boundary_edge_count": 0,
+            "boundary_loop_count": 0,
+            "closed_oriented_manifold_candidate": true,
+            "edge_count": 37656,
+            "euler_characteristic": -4,
+            "face_component_count": 1,
+            "face_count": 25104,
+            "vertex_count": 12548
+          },
+          "vertex_count": 12548,
+          "winding_matches_source": true
+        },
+        "134": {
+          "closed_oriented_manifold": true,
+          "component_signed_volumes_m3": [
+            5.43037327270768e-05,
+            -1.1017323196871885e-08,
+            -1.6568362772442149e-10,
+            -6.39494087821273e-10
+          ],
+          "component_signs": [
+            "positive",
+            "negative",
+            "negative",
+            "negative"
+          ],
+          "degenerate_face_count": 0,
+          "degenerate_face_ids": [],
+          "exact_self_pair_count": 0,
+          "exact_self_pairs": [],
+          "face_count": 29540,
+          "face_layout_matches_candidate": true,
+          "geometry_pass": true,
+          "source_component_signs": [
+            "positive",
+            "negative",
+            "negative",
+            "negative"
+          ],
+          "topology": {
+            "boundary_edge_count": 0,
+            "boundary_loop_count": 0,
+            "closed_oriented_manifold_candidate": true,
+            "edge_count": 44310,
+            "euler_characteristic": 2,
+            "face_component_count": 4,
+            "face_count": 29540,
+            "vertex_count": 14772
+          },
+          "vertex_count": 14772,
+          "winding_matches_source": true
+        }
+      },
+      "inventory_868_exact": true,
+      "joined_union": {
+        "component_signed_volumes_m3": [
+          0.00010234553381762996,
+          -3.819025552050062e-12,
+          -1.1206881546690327e-10,
+          -8.450399003684558e-14,
+          -3.0181444894756e-11,
+          -2.296552430541209e-13,
+          -1.5064459136353011e-12,
+          -9.89172366716868e-13,
+          -1.6108788949874294e-10,
+          -1.1017323196871885e-08,
+          -1.6568362772442149e-10,
+          -6.39494087821273e-10
+        ],
+        "component_signs": [
+          "positive",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative"
+        ],
+        "construction": {
+          "remaining_face_count": 40624,
+          "remaining_vertex_count": 20208,
+          "removed_face_count": 14020,
+          "shared_face_pairs": 7010,
+          "shared_vertex_count": 4588
+        },
+        "degenerate_face_count": 0,
+        "degenerate_face_ids": [],
+        "exact_self_pair_count": 0,
+        "exact_self_pairs": [],
+        "interface_error_count": 0,
+        "source_component_signs": [
+          "positive",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative"
+        ],
+        "topology": {
+          "boundary_edge_count": 0,
+          "boundary_loop_count": 0,
+          "closed_oriented_manifold_candidate": true,
+          "edge_count": 60936,
+          "euler_characteristic": -104,
+          "face_component_count": 12,
+          "face_count": 40624,
+          "vertex_count": 20208
+        },
+        "union_pass": true,
+        "winding_matches_source": true
+      },
+      "native_inventory_count": 868,
+      "receipt_sha256": "081bd3b7f9479ffc1e1d933262d1d4e6e2051e32d326ba3859cef5b2c5b74700",
+      "shared_seam_bitwise_equal_count": 4588,
+      "shared_seam_max_gap_um": 0.0,
+      "shared_seam_pass": true,
+      "shared_seam_vertices": 4588
+    },
+    "5599": {
+      "accepted_body_pose_count": 157,
+      "audit_wall_seconds": 68.61112299999877,
+      "capture_receipt_valid": true,
+      "capture_sha256": "f836e4af7df6c052916aa3680fbbbd3c35b1807b695ae7506e91e33cfaad1825",
+      "children": {
+        "132": {
+          "closed_oriented_manifold": true,
+          "component_signed_volumes_m3": [
+            4.8043576452190094e-05
+          ],
+          "component_signs": [
+            "positive"
+          ],
+          "degenerate_face_count": 0,
+          "degenerate_face_ids": [],
+          "exact_self_pair_count": 0,
+          "exact_self_pairs": [],
+          "face_count": 25104,
+          "face_layout_matches_candidate": true,
+          "geometry_pass": true,
+          "source_component_signs": [
+            "positive"
+          ],
+          "topology": {
+            "boundary_edge_count": 0,
+            "boundary_loop_count": 0,
+            "closed_oriented_manifold_candidate": true,
+            "edge_count": 37656,
+            "euler_characteristic": -4,
+            "face_component_count": 1,
+            "face_count": 25104,
+            "vertex_count": 12548
+          },
+          "vertex_count": 12548,
+          "winding_matches_source": true
+        },
+        "134": {
+          "closed_oriented_manifold": true,
+          "component_signed_volumes_m3": [
+            5.430429415489646e-05,
+            -1.1017383692296968e-08,
+            -1.6568620691847906e-10,
+            -6.3952247480844e-10
+          ],
+          "component_signs": [
+            "positive",
+            "negative",
+            "negative",
+            "negative"
+          ],
+          "degenerate_face_count": 0,
+          "degenerate_face_ids": [],
+          "exact_self_pair_count": 0,
+          "exact_self_pairs": [],
+          "face_count": 29540,
+          "face_layout_matches_candidate": true,
+          "geometry_pass": true,
+          "source_component_signs": [
+            "positive",
+            "negative",
+            "negative",
+            "negative"
+          ],
+          "topology": {
+            "boundary_edge_count": 0,
+            "boundary_loop_count": 0,
+            "closed_oriented_manifold_candidate": true,
+            "edge_count": 44310,
+            "euler_characteristic": 2,
+            "face_component_count": 4,
+            "face_count": 29540,
+            "vertex_count": 14772
+          },
+          "vertex_count": 14772,
+          "winding_matches_source": true
+        }
+      },
+      "inventory_868_exact": true,
+      "joined_union": {
+        "component_signed_volumes_m3": [
+          0.00010234818058267814,
+          -3.819524829650785e-12,
+          -1.1207544622685502e-10,
+          -8.450135370966298e-14,
+          -3.018158123642672e-11,
+          -2.29760351577135e-13,
+          -1.506606335989472e-12,
+          -9.860356212614072e-13,
+          -1.610921358480945e-10,
+          -1.1017383692296968e-08,
+          -1.6568620691847906e-10,
+          -6.3952247480844e-10
+        ],
+        "component_signs": [
+          "positive",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative"
+        ],
+        "construction": {
+          "remaining_face_count": 40624,
+          "remaining_vertex_count": 20208,
+          "removed_face_count": 14020,
+          "shared_face_pairs": 7010,
+          "shared_vertex_count": 4588
+        },
+        "degenerate_face_count": 0,
+        "degenerate_face_ids": [],
+        "exact_self_pair_count": 0,
+        "exact_self_pairs": [],
+        "interface_error_count": 0,
+        "source_component_signs": [
+          "positive",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative"
+        ],
+        "topology": {
+          "boundary_edge_count": 0,
+          "boundary_loop_count": 0,
+          "closed_oriented_manifold_candidate": true,
+          "edge_count": 60936,
+          "euler_characteristic": -104,
+          "face_component_count": 12,
+          "face_count": 40624,
+          "vertex_count": 20208
+        },
+        "union_pass": true,
+        "winding_matches_source": true
+      },
+      "native_inventory_count": 868,
+      "receipt_sha256": "428bd2ee2ab6d51c4e0361a8b3038366532e9a15e497c43a6119cd1806a78107",
+      "shared_seam_bitwise_equal_count": 4588,
+      "shared_seam_max_gap_um": 0.0,
+      "shared_seam_pass": true,
+      "shared_seam_vertices": 4588
+    },
+    "6207": {
+      "accepted_body_pose_count": 157,
+      "audit_wall_seconds": 68.25254112499897,
+      "capture_receipt_valid": true,
+      "capture_sha256": "b5ca137e0e263c384cdbf736c3a8c5809a903296a92206878679c3eb86c69861",
+      "children": {
+        "132": {
+          "closed_oriented_manifold": true,
+          "component_signed_volumes_m3": [
+            4.8052482285644994e-05
+          ],
+          "component_signs": [
+            "positive"
+          ],
+          "degenerate_face_count": 0,
+          "degenerate_face_ids": [],
+          "exact_self_pair_count": 0,
+          "exact_self_pairs": [],
+          "face_count": 25104,
+          "face_layout_matches_candidate": true,
+          "geometry_pass": true,
+          "source_component_signs": [
+            "positive"
+          ],
+          "topology": {
+            "boundary_edge_count": 0,
+            "boundary_loop_count": 0,
+            "closed_oriented_manifold_candidate": true,
+            "edge_count": 37656,
+            "euler_characteristic": -4,
+            "face_component_count": 1,
+            "face_count": 25104,
+            "vertex_count": 12548
+          },
+          "vertex_count": 12548,
+          "winding_matches_source": true
+        },
+        "134": {
+          "closed_oriented_manifold": true,
+          "component_signed_volumes_m3": [
+            5.431014043756353e-05,
+            -1.1018914276400013e-08,
+            -1.6571180898609964e-10,
+            -6.395964140455276e-10
+          ],
+          "component_signs": [
+            "positive",
+            "negative",
+            "negative",
+            "negative"
+          ],
+          "degenerate_face_count": 0,
+          "degenerate_face_ids": [],
+          "exact_self_pair_count": 0,
+          "exact_self_pairs": [],
+          "face_count": 29540,
+          "face_layout_matches_candidate": true,
+          "geometry_pass": true,
+          "source_component_signs": [
+            "positive",
+            "negative",
+            "negative",
+            "negative"
+          ],
+          "topology": {
+            "boundary_edge_count": 0,
+            "boundary_loop_count": 0,
+            "closed_oriented_manifold_candidate": true,
+            "edge_count": 44310,
+            "euler_characteristic": 2,
+            "face_component_count": 4,
+            "face_count": 29540,
+            "vertex_count": 14772
+          },
+          "vertex_count": 14772,
+          "winding_matches_source": true
+        }
+      },
+      "inventory_868_exact": true,
+      "joined_union": {
+        "component_signed_volumes_m3": [
+          0.00010236293274107986,
+          -3.8188178973548005e-12,
+          -1.1209440232469895e-10,
+          -8.436955704349742e-14,
+          -3.018244952966984e-11,
+          -2.297516589489389e-13,
+          -1.5069101465647023e-12,
+          -9.894248125022497e-13,
+          -1.6111174551040608e-10,
+          -1.1018914276400013e-08,
+          -1.6571180898609964e-10,
+          -6.395964140455276e-10
+        ],
+        "component_signs": [
+          "positive",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative"
+        ],
+        "construction": {
+          "remaining_face_count": 40624,
+          "remaining_vertex_count": 20208,
+          "removed_face_count": 14020,
+          "shared_face_pairs": 7010,
+          "shared_vertex_count": 4588
+        },
+        "degenerate_face_count": 0,
+        "degenerate_face_ids": [],
+        "exact_self_pair_count": 0,
+        "exact_self_pairs": [],
+        "interface_error_count": 0,
+        "source_component_signs": [
+          "positive",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative"
+        ],
+        "topology": {
+          "boundary_edge_count": 0,
+          "boundary_loop_count": 0,
+          "closed_oriented_manifold_candidate": true,
+          "edge_count": 60936,
+          "euler_characteristic": -104,
+          "face_component_count": 12,
+          "face_count": 40624,
+          "vertex_count": 20208
+        },
+        "union_pass": true,
+        "winding_matches_source": true
+      },
+      "native_inventory_count": 868,
+      "receipt_sha256": "2bca52f9e9b6d8a88c8bca80244e2e3220e5820bdc1bef232f5b831891a8fc8f",
+      "shared_seam_bitwise_equal_count": 4588,
+      "shared_seam_max_gap_um": 0.0,
+      "shared_seam_pass": true,
+      "shared_seam_vertices": 4588
+    },
+    "7423": {
+      "accepted_body_pose_count": 157,
+      "audit_wall_seconds": 68.6730147499984,
+      "capture_receipt_valid": true,
+      "capture_sha256": "ef9aa8f775833e43e67f00ca57f73d1107fca1aa8c0225a48b957c6aa467f42d",
+      "children": {
+        "132": {
+          "closed_oriented_manifold": true,
+          "component_signed_volumes_m3": [
+            4.808845062501785e-05
+          ],
+          "component_signs": [
+            "positive"
+          ],
+          "degenerate_face_count": 0,
+          "degenerate_face_ids": [],
+          "exact_self_pair_count": 0,
+          "exact_self_pairs": [],
+          "face_count": 25104,
+          "face_layout_matches_candidate": true,
+          "geometry_pass": true,
+          "source_component_signs": [
+            "positive"
+          ],
+          "topology": {
+            "boundary_edge_count": 0,
+            "boundary_loop_count": 0,
+            "closed_oriented_manifold_candidate": true,
+            "edge_count": 37656,
+            "euler_characteristic": -4,
+            "face_component_count": 1,
+            "face_count": 25104,
+            "vertex_count": 12548
+          },
+          "vertex_count": 12548,
+          "winding_matches_source": true
+        },
+        "134": {
+          "closed_oriented_manifold": true,
+          "component_signed_volumes_m3": [
+            5.433521025984799e-05,
+            -1.1025472066784822e-08,
+            -1.6579917147726194e-10,
+            -6.399151474201309e-10
+          ],
+          "component_signs": [
+            "positive",
+            "negative",
+            "negative",
+            "negative"
+          ],
+          "degenerate_face_count": 0,
+          "degenerate_face_ids": [],
+          "exact_self_pair_count": 3,
+          "exact_self_pairs": [
+            [
+              7658,
+              7659
+            ],
+            [
+              7658,
+              12569
+            ],
+            [
+              7660,
+              12569
+            ]
+          ],
+          "face_count": 29540,
+          "face_layout_matches_candidate": true,
+          "geometry_pass": false,
+          "source_component_signs": [
+            "positive",
+            "negative",
+            "negative",
+            "negative"
+          ],
+          "topology": {
+            "boundary_edge_count": 0,
+            "boundary_loop_count": 0,
+            "closed_oriented_manifold_candidate": true,
+            "edge_count": 44310,
+            "euler_characteristic": 2,
+            "face_component_count": 4,
+            "face_count": 29540,
+            "vertex_count": 14772
+          },
+          "vertex_count": 14772,
+          "winding_matches_source": true
+        }
+      },
+      "inventory_868_exact": true,
+      "joined_union": {
+        "component_signed_volumes_m3": [
+          0.00010242397100300937,
+          -3.818711911933757e-12,
+          -1.1209494766838505e-10,
+          -8.450011971831645e-14,
+          -3.0199946786893993e-11,
+          -2.298446015228423e-13,
+          -1.5071681603013106e-12,
+          -9.880053512172874e-13,
+          -1.6119501917727788e-10,
+          -1.1025472066784822e-08,
+          -1.6579917147726194e-10,
+          -6.399151474201309e-10
+        ],
+        "component_signs": [
+          "positive",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative"
+        ],
+        "construction": {
+          "remaining_face_count": 40624,
+          "remaining_vertex_count": 20208,
+          "removed_face_count": 14020,
+          "shared_face_pairs": 7010,
+          "shared_vertex_count": 4588
+        },
+        "degenerate_face_count": 0,
+        "degenerate_face_ids": [],
+        "exact_self_pair_count": 3,
+        "exact_self_pairs": [
+          [
+            {
+              "source_face": 7658,
+              "stable_id": 134,
+              "union_face": 24181
+            },
+            {
+              "source_face": 7659,
+              "stable_id": 134,
+              "union_face": 24182
+            }
+          ],
+          [
+            {
+              "source_face": 7658,
+              "stable_id": 134,
+              "union_face": 24181
+            },
+            {
+              "source_face": 12569,
+              "stable_id": 134,
+              "union_face": 28016
+            }
+          ],
+          [
+            {
+              "source_face": 7660,
+              "stable_id": 134,
+              "union_face": 24183
+            },
+            {
+              "source_face": 12569,
+              "stable_id": 134,
+              "union_face": 28016
+            }
+          ]
+        ],
+        "interface_error_count": 0,
+        "source_component_signs": [
+          "positive",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative"
+        ],
+        "topology": {
+          "boundary_edge_count": 0,
+          "boundary_loop_count": 0,
+          "closed_oriented_manifold_candidate": true,
+          "edge_count": 60936,
+          "euler_characteristic": -104,
+          "face_component_count": 12,
+          "face_count": 40624,
+          "vertex_count": 20208
+        },
+        "union_pass": false,
+        "winding_matches_source": true
+      },
+      "native_inventory_count": 868,
+      "receipt_sha256": "b47c57ec455bd104185ee77c0a4633a1811be78ab9595e6d7243affc78d78423",
+      "shared_seam_bitwise_equal_count": 4588,
+      "shared_seam_max_gap_um": 0.0,
+      "shared_seam_pass": true,
+      "shared_seam_vertices": 4588
+    },
+    "8000": {
+      "accepted_body_pose_count": 157,
+      "audit_wall_seconds": 69.46045558299738,
+      "capture_receipt_valid": true,
+      "capture_sha256": "8ed81d758188b2f989f00e275efa3f3b33d3ae7d1fe6cd80ce200a293cd50a5c",
+      "children": {
+        "132": {
+          "closed_oriented_manifold": true,
+          "component_signed_volumes_m3": [
+            4.809968906856476e-05
+          ],
+          "component_signs": [
+            "positive"
+          ],
+          "degenerate_face_count": 0,
+          "degenerate_face_ids": [],
+          "exact_self_pair_count": 0,
+          "exact_self_pairs": [],
+          "face_count": 25104,
+          "face_layout_matches_candidate": true,
+          "geometry_pass": true,
+          "source_component_signs": [
+            "positive"
+          ],
+          "topology": {
+            "boundary_edge_count": 0,
+            "boundary_loop_count": 0,
+            "closed_oriented_manifold_candidate": true,
+            "edge_count": 37656,
+            "euler_characteristic": -4,
+            "face_component_count": 1,
+            "face_count": 25104,
+            "vertex_count": 12548
+          },
+          "vertex_count": 12548,
+          "winding_matches_source": true
+        },
+        "134": {
+          "closed_oriented_manifold": true,
+          "component_signed_volumes_m3": [
+            5.434325569613134e-05,
+            -1.1027559870807587e-08,
+            -1.6583761248069103e-10,
+            -6.400470934819982e-10
+          ],
+          "component_signs": [
+            "positive",
+            "negative",
+            "negative",
+            "negative"
+          ],
+          "degenerate_face_count": 0,
+          "degenerate_face_ids": [],
+          "exact_self_pair_count": 0,
+          "exact_self_pairs": [],
+          "face_count": 29540,
+          "face_layout_matches_candidate": true,
+          "geometry_pass": true,
+          "source_component_signs": [
+            "positive",
+            "negative",
+            "negative",
+            "negative"
+          ],
+          "topology": {
+            "boundary_edge_count": 0,
+            "boundary_loop_count": 0,
+            "closed_oriented_manifold_candidate": true,
+            "edge_count": 44310,
+            "euler_characteristic": 2,
+            "face_component_count": 4,
+            "face_count": 29540,
+            "vertex_count": 14772
+          },
+          "vertex_count": 14772,
+          "winding_matches_source": true
+        }
+      },
+      "inventory_868_exact": true,
+      "joined_union": {
+        "component_signed_volumes_m3": [
+          0.00010244325492879478,
+          -3.819047700225657e-12,
+          -1.1211376818218895e-10,
+          -8.452550580032583e-14,
+          -3.020774095161481e-11,
+          -2.298642429706037e-13,
+          -1.507699133309676e-12,
+          -9.888724122982838e-13,
+          -1.6121258017652458e-10,
+          -1.1027559870807587e-08,
+          -1.6583761248069103e-10,
+          -6.400470934819982e-10
+        ],
+        "component_signs": [
+          "positive",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative"
+        ],
+        "construction": {
+          "remaining_face_count": 40624,
+          "remaining_vertex_count": 20208,
+          "removed_face_count": 14020,
+          "shared_face_pairs": 7010,
+          "shared_vertex_count": 4588
+        },
+        "degenerate_face_count": 0,
+        "degenerate_face_ids": [],
+        "exact_self_pair_count": 0,
+        "exact_self_pairs": [],
+        "interface_error_count": 0,
+        "source_component_signs": [
+          "positive",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative"
+        ],
+        "topology": {
+          "boundary_edge_count": 0,
+          "boundary_loop_count": 0,
+          "closed_oriented_manifold_candidate": true,
+          "edge_count": 60936,
+          "euler_characteristic": -104,
+          "face_component_count": 12,
+          "face_count": 40624,
+          "vertex_count": 20208
+        },
+        "union_pass": true,
+        "winding_matches_source": true
+      },
+      "native_inventory_count": 868,
+      "receipt_sha256": "70ea7ba6b1c4c10364f6273a74290873a3ad0cf9cb59b09ede45fc7491244fd5",
+      "shared_seam_bitwise_equal_count": 4588,
+      "shared_seam_max_gap_um": 0.0,
+      "shared_seam_pass": true,
+      "shared_seam_vertices": 4588
+    }
+  },
+  "checks": {
+    "capture_0_native_children_and_union": {
+      "audit_wall_seconds": 67.42588487499961,
+      "capture_receipt_valid": true,
+      "children": {
+        "132": {
+          "component_signs": [
+            "positive"
+          ],
+          "degenerate_face_count": 0,
+          "exact_self_pair_count": 0,
+          "geometry_pass": true,
+          "source_component_signs": [
+            "positive"
+          ]
+        },
+        "134": {
+          "component_signs": [
+            "positive",
+            "negative",
+            "negative",
+            "negative"
+          ],
+          "degenerate_face_count": 0,
+          "exact_self_pair_count": 0,
+          "geometry_pass": true,
+          "source_component_signs": [
+            "positive",
+            "negative",
+            "negative",
+            "negative"
+          ]
+        }
+      },
+      "inventory_868_exact": true,
+      "passed": true,
+      "seam_bitwise_equal": true,
+      "step": 0,
+      "union": {
+        "component_signs": [
+          "positive",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative"
+        ],
+        "degenerate_face_count": 0,
+        "exact_self_pair_count": 0,
+        "source_component_signs": [
+          "positive",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative"
+        ],
+        "topology": {
+          "boundary_edge_count": 0,
+          "boundary_loop_count": 0,
+          "closed_oriented_manifold_candidate": true,
+          "edge_count": 60936,
+          "euler_characteristic": -104,
+          "face_component_count": 12,
+          "face_count": 40624,
+          "vertex_count": 20208
+        },
+        "union_pass": true
+      }
+    },
+    "capture_3807_native_children_and_union": {
+      "audit_wall_seconds": 68.7811308340024,
+      "capture_receipt_valid": true,
+      "children": {
+        "132": {
+          "component_signs": [
+            "positive"
+          ],
+          "degenerate_face_count": 0,
+          "exact_self_pair_count": 0,
+          "geometry_pass": true,
+          "source_component_signs": [
+            "positive"
+          ]
+        },
+        "134": {
+          "component_signs": [
+            "positive",
+            "negative",
+            "negative",
+            "negative"
+          ],
+          "degenerate_face_count": 0,
+          "exact_self_pair_count": 0,
+          "geometry_pass": true,
+          "source_component_signs": [
+            "positive",
+            "negative",
+            "negative",
+            "negative"
+          ]
+        }
+      },
+      "inventory_868_exact": true,
+      "passed": true,
+      "seam_bitwise_equal": true,
+      "step": 3807,
+      "union": {
+        "component_signs": [
+          "positive",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative"
+        ],
+        "degenerate_face_count": 0,
+        "exact_self_pair_count": 0,
+        "source_component_signs": [
+          "positive",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative"
+        ],
+        "topology": {
+          "boundary_edge_count": 0,
+          "boundary_loop_count": 0,
+          "closed_oriented_manifold_candidate": true,
+          "edge_count": 60936,
+          "euler_characteristic": -104,
+          "face_component_count": 12,
+          "face_count": 40624,
+          "vertex_count": 20208
+        },
+        "union_pass": true
+      }
+    },
+    "capture_4767_native_children_and_union": {
+      "audit_wall_seconds": 68.76199550000092,
+      "capture_receipt_valid": true,
+      "children": {
+        "132": {
+          "component_signs": [
+            "positive"
+          ],
+          "degenerate_face_count": 0,
+          "exact_self_pair_count": 0,
+          "geometry_pass": true,
+          "source_component_signs": [
+            "positive"
+          ]
+        },
+        "134": {
+          "component_signs": [
+            "positive",
+            "negative",
+            "negative",
+            "negative"
+          ],
+          "degenerate_face_count": 0,
+          "exact_self_pair_count": 0,
+          "geometry_pass": true,
+          "source_component_signs": [
+            "positive",
+            "negative",
+            "negative",
+            "negative"
+          ]
+        }
+      },
+      "inventory_868_exact": true,
+      "passed": true,
+      "seam_bitwise_equal": true,
+      "step": 4767,
+      "union": {
+        "component_signs": [
+          "positive",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative"
+        ],
+        "degenerate_face_count": 0,
+        "exact_self_pair_count": 0,
+        "source_component_signs": [
+          "positive",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative"
+        ],
+        "topology": {
+          "boundary_edge_count": 0,
+          "boundary_loop_count": 0,
+          "closed_oriented_manifold_candidate": true,
+          "edge_count": 60936,
+          "euler_characteristic": -104,
+          "face_component_count": 12,
+          "face_count": 40624,
+          "vertex_count": 20208
+        },
+        "union_pass": true
+      }
+    },
+    "capture_5023_native_children_and_union": {
+      "audit_wall_seconds": 68.06530212500002,
+      "capture_receipt_valid": true,
+      "children": {
+        "132": {
+          "component_signs": [
+            "positive"
+          ],
+          "degenerate_face_count": 0,
+          "exact_self_pair_count": 0,
+          "geometry_pass": true,
+          "source_component_signs": [
+            "positive"
+          ]
+        },
+        "134": {
+          "component_signs": [
+            "positive",
+            "negative",
+            "negative",
+            "negative"
+          ],
+          "degenerate_face_count": 0,
+          "exact_self_pair_count": 0,
+          "geometry_pass": true,
+          "source_component_signs": [
+            "positive",
+            "negative",
+            "negative",
+            "negative"
+          ]
+        }
+      },
+      "inventory_868_exact": true,
+      "passed": true,
+      "seam_bitwise_equal": true,
+      "step": 5023,
+      "union": {
+        "component_signs": [
+          "positive",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative"
+        ],
+        "degenerate_face_count": 0,
+        "exact_self_pair_count": 0,
+        "source_component_signs": [
+          "positive",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative"
+        ],
+        "topology": {
+          "boundary_edge_count": 0,
+          "boundary_loop_count": 0,
+          "closed_oriented_manifold_candidate": true,
+          "edge_count": 60936,
+          "euler_characteristic": -104,
+          "face_component_count": 12,
+          "face_count": 40624,
+          "vertex_count": 20208
+        },
+        "union_pass": true
+      }
+    },
+    "capture_5599_native_children_and_union": {
+      "audit_wall_seconds": 68.61112299999877,
+      "capture_receipt_valid": true,
+      "children": {
+        "132": {
+          "component_signs": [
+            "positive"
+          ],
+          "degenerate_face_count": 0,
+          "exact_self_pair_count": 0,
+          "geometry_pass": true,
+          "source_component_signs": [
+            "positive"
+          ]
+        },
+        "134": {
+          "component_signs": [
+            "positive",
+            "negative",
+            "negative",
+            "negative"
+          ],
+          "degenerate_face_count": 0,
+          "exact_self_pair_count": 0,
+          "geometry_pass": true,
+          "source_component_signs": [
+            "positive",
+            "negative",
+            "negative",
+            "negative"
+          ]
+        }
+      },
+      "inventory_868_exact": true,
+      "passed": true,
+      "seam_bitwise_equal": true,
+      "step": 5599,
+      "union": {
+        "component_signs": [
+          "positive",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative"
+        ],
+        "degenerate_face_count": 0,
+        "exact_self_pair_count": 0,
+        "source_component_signs": [
+          "positive",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative"
+        ],
+        "topology": {
+          "boundary_edge_count": 0,
+          "boundary_loop_count": 0,
+          "closed_oriented_manifold_candidate": true,
+          "edge_count": 60936,
+          "euler_characteristic": -104,
+          "face_component_count": 12,
+          "face_count": 40624,
+          "vertex_count": 20208
+        },
+        "union_pass": true
+      }
+    },
+    "capture_6207_native_children_and_union": {
+      "audit_wall_seconds": 68.25254112499897,
+      "capture_receipt_valid": true,
+      "children": {
+        "132": {
+          "component_signs": [
+            "positive"
+          ],
+          "degenerate_face_count": 0,
+          "exact_self_pair_count": 0,
+          "geometry_pass": true,
+          "source_component_signs": [
+            "positive"
+          ]
+        },
+        "134": {
+          "component_signs": [
+            "positive",
+            "negative",
+            "negative",
+            "negative"
+          ],
+          "degenerate_face_count": 0,
+          "exact_self_pair_count": 0,
+          "geometry_pass": true,
+          "source_component_signs": [
+            "positive",
+            "negative",
+            "negative",
+            "negative"
+          ]
+        }
+      },
+      "inventory_868_exact": true,
+      "passed": true,
+      "seam_bitwise_equal": true,
+      "step": 6207,
+      "union": {
+        "component_signs": [
+          "positive",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative"
+        ],
+        "degenerate_face_count": 0,
+        "exact_self_pair_count": 0,
+        "source_component_signs": [
+          "positive",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative"
+        ],
+        "topology": {
+          "boundary_edge_count": 0,
+          "boundary_loop_count": 0,
+          "closed_oriented_manifold_candidate": true,
+          "edge_count": 60936,
+          "euler_characteristic": -104,
+          "face_component_count": 12,
+          "face_count": 40624,
+          "vertex_count": 20208
+        },
+        "union_pass": true
+      }
+    },
+    "capture_7423_native_children_and_union": {
+      "audit_wall_seconds": 68.6730147499984,
+      "capture_receipt_valid": true,
+      "children": {
+        "132": {
+          "component_signs": [
+            "positive"
+          ],
+          "degenerate_face_count": 0,
+          "exact_self_pair_count": 0,
+          "geometry_pass": true,
+          "source_component_signs": [
+            "positive"
+          ]
+        },
+        "134": {
+          "component_signs": [
+            "positive",
+            "negative",
+            "negative",
+            "negative"
+          ],
+          "degenerate_face_count": 0,
+          "exact_self_pair_count": 3,
+          "geometry_pass": false,
+          "source_component_signs": [
+            "positive",
+            "negative",
+            "negative",
+            "negative"
+          ]
+        }
+      },
+      "inventory_868_exact": true,
+      "passed": false,
+      "seam_bitwise_equal": true,
+      "step": 7423,
+      "union": {
+        "component_signs": [
+          "positive",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative"
+        ],
+        "degenerate_face_count": 0,
+        "exact_self_pair_count": 3,
+        "source_component_signs": [
+          "positive",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative"
+        ],
+        "topology": {
+          "boundary_edge_count": 0,
+          "boundary_loop_count": 0,
+          "closed_oriented_manifold_candidate": true,
+          "edge_count": 60936,
+          "euler_characteristic": -104,
+          "face_component_count": 12,
+          "face_count": 40624,
+          "vertex_count": 20208
+        },
+        "union_pass": false
+      }
+    },
+    "capture_8000_native_children_and_union": {
+      "audit_wall_seconds": 69.46045558299738,
+      "capture_receipt_valid": true,
+      "children": {
+        "132": {
+          "component_signs": [
+            "positive"
+          ],
+          "degenerate_face_count": 0,
+          "exact_self_pair_count": 0,
+          "geometry_pass": true,
+          "source_component_signs": [
+            "positive"
+          ]
+        },
+        "134": {
+          "component_signs": [
+            "positive",
+            "negative",
+            "negative",
+            "negative"
+          ],
+          "degenerate_face_count": 0,
+          "exact_self_pair_count": 0,
+          "geometry_pass": true,
+          "source_component_signs": [
+            "positive",
+            "negative",
+            "negative",
+            "negative"
+          ]
+        }
+      },
+      "inventory_868_exact": true,
+      "passed": true,
+      "seam_bitwise_equal": true,
+      "step": 8000,
+      "union": {
+        "component_signs": [
+          "positive",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative"
+        ],
+        "degenerate_face_count": 0,
+        "exact_self_pair_count": 0,
+        "source_component_signs": [
+          "positive",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative",
+          "negative"
+        ],
+        "topology": {
+          "boundary_edge_count": 0,
+          "boundary_loop_count": 0,
+          "closed_oriented_manifold_candidate": true,
+          "edge_count": 60936,
+          "euler_characteristic": -104,
+          "face_component_count": 12,
+          "face_count": 40624,
+          "vertex_count": 20208
+        },
+        "union_pass": true
+      }
+    },
+    "execution_and_invocation_pins": {
+      "argv_match": true,
+      "capture_steps": [
+        0,
+        3807,
+        4767,
+        5023,
+        5599,
+        6207,
+        7423,
+        8000
+      ],
+      "changed_input_count": 0,
+      "environment_match": true,
+      "native_exit_code": 0,
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "wall_seconds": 107.15032699999938
+    },
+    "shared_target_geometry_source_pinned": {
+      "mismatches": [],
+      "passed": true,
+      "pin_count": 7,
+      "source_preparation_status": "prepared_experimental_not_admitted"
+    },
+    "source085_union_reference_closed_and_wound": {
+      "component_signs": [
+        "positive",
+        "negative",
+        "negative",
+        "negative",
+        "negative",
+        "negative",
+        "negative",
+        "negative",
+        "negative",
+        "negative",
+        "negative",
+        "negative"
+      ],
+      "construction": {
+        "remaining_face_count": 40624,
+        "remaining_vertex_count": 20208,
+        "removed_face_count": 14020,
+        "shared_face_pairs": 7010,
+        "shared_vertex_count": 4588
+      },
+      "interface_error_count": 0,
+      "passed": true,
+      "topology": {
+        "boundary_edge_count": 0,
+        "boundary_loop_count": 0,
+        "closed_oriented_manifold_candidate": true,
+        "edge_count": 60936,
+        "euler_characteristic": -104,
+        "face_component_count": 12,
+        "face_count": 40624,
+        "vertex_count": 20208
+      }
+    }
+  },
+  "complete": true,
+  "failures": [
+    "capture_7423_native_children_and_union"
+  ],
+  "pins": {
+    "/Users/numi/numi-human-fds132-m6-1350/attempt-088-registered-route-field-refined-2mm-001/result-001/route-anchor-reference-field-001.npz": "71497028ba99db22e048a020a4e58799ccadd5dae0f5f9bac006ac270ab5b02b",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/forearm-shared-field-native-compensated-011/baseline/execution.json": "028f0f61ec3a7cc5cb5607f9be25afffa386b1264dee22225182a3c9c38d26a9",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/forearm-shared-field-native-compensated-011/baseline/native-run/invocation.json": "aed2e90c3b4aeede3fe2165996bbbd861dc2d5aad66df455934196739e91d1ad",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/forearm-shared-field-native-compensated-011/baseline/native-run/native.log": "804d00ff906dd2004b0db01799cea4a7a510c52c3c8b3275484fec412ca9c2ad",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/forearm-shared-field-native-compensated-011/baseline/native-run/run-metadata.json": "8afd7253fb89a08b68db8e48e3e2072dac05ccafb6ac86990b78f9ab6b957c03",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/forearm-shared-field-native-compensated-011/baseline/run-declaration.json": "3bc6cffac9745153ff2d3c7d59f14095970608f5ea1f3b7b16ef0c52196b6799",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/forearm-shared-field-native-compensated-011/native-audit-001/report.json": "abb5a5e450974f7d8b21d63031b79010d6e60143188a03b080c3a209e6c0e402",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/forearm054-native-diagnostic-009-refined085/assets/bodyparts3d-myosim-fullbody-muscle-surfaces.nhtissue": "20bcd027bc0b51e5829cf0fe662b83ba27ec61a37730c81751c7c72ac3fef935",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/forearm054-native-diagnostic-009-refined085/assets/shared-field-carriers.nhtissue": "738564d8f544bd8e0ffcc244d9f3b6e41d0a427f90e490d267173c95c28791c3",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/forearm054-native-diagnostic-009-refined085/passive-tissue-parent-bindings.json": "668b47fe43a6eed502565253dd328e37a9ea85a544cff6ad3398490c74655cea",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/forearm054-native-diagnostic-009-refined085/preparation.json": "637474d7b964df4857c47b1cd4e04f82672d406f0f6a0cbf27a34834eb88b5e5"
+  },
+  "schema": "numi.human.forearm-shared-field-native-011-kahan-target-geometry-audit.v1",
+  "scope": "Experimental target-geometry-only audit of Kahan-accumulated shared-field native011. Exact child self/topology and joined-union self/topology/winding are checked on actual native captures. Start at the prior step3807 witness, then cover the remaining capture grid only if step3807 passes. Whole-scene unchanged-surface/pose/physiology comparison is reported separately by the owning root audit. No anatomy admission claim.",
+  "status": "experimental_native011_target_geometry_failed"
+}

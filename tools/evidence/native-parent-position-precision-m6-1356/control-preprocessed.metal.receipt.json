@@ -1,0 +1,214 @@
+{
+  "checks": {
+    "dependency_sets_and_hashes_identical": true,
+    "preprocessed_bytes_identical": true,
+    "source_hash_stable": true
+  },
+  "compiler": {
+    "path": "/usr/bin/clang",
+    "sha256": "34129c71a01a74f7f3b2443521519b2e5447553fa187f5fcafaaf8c42cc192e2",
+    "size_bytes": 200560,
+    "version": "Apple clang version 21.0.0 (clang-2100.3.34.2)\nTarget: arm64-apple-darwin27.0.0\nThread model: posix\nInstalledDir: /Library/Developer/CommandLineTools/usr/bin"
+  },
+  "generator": {
+    "path": "/Users/numi/numi-lab-parent-precision-1356/tools/prepare_human_resting_skin_source.py",
+    "sha256": "b4c263ecace2b5ebd91400c9a3ea4bd864a4bcf5bb582d98b5d5e1003afce825",
+    "size_bytes": 12714
+  },
+  "limits": [
+    "preprocessing is not Metal compilation",
+    "this receipt does not show runtime use or anatomy qualification"
+  ],
+  "output": {
+    "path": "/Users/n/numi-lab-parent-precision-1356/tools/evidence/native-parent-position-precision-m6-1356/control-preprocessed.metal",
+    "sha256": "2fe842d00e8157449414b252f5af277d4bf5c7f1dbcaafd0c64bd8e3c3a15776",
+    "size_bytes": 292213
+  },
+  "preprocessor": {
+    "argv_template": [
+      "/usr/bin/clang",
+      "-E",
+      "-P",
+      "-x",
+      "c++",
+      "-D__METAL_VERSION__=400",
+      "--no-default-config",
+      "-I",
+      "<temporary>",
+      "-I",
+      "/Users/numi/numi-lab-parent-bindings-1353/matter/src",
+      "-I",
+      "/Users/numi/numi-lab-parent-bindings-1353/matter/include",
+      "-I",
+      "/Users/numi/numi-lab-parent-bindings-1353/include",
+      "-I",
+      "/Users/numi/numi-lab-parent-bindings-1353/src/metal",
+      "-I",
+      "/Users/numi/numi-human-resting-integration-20261005/numi-brain/Sources/NumiBrainABI/include",
+      "-I",
+      "/Users/numi/numi-human-resting-integration-20261005/numi-brain/Sources/NumiBrainMetal/Shaders",
+      "-include",
+      "<temporary>/metal_stdlib",
+      "-MD",
+      "-MF",
+      "<temporary>/<depfile>",
+      "-MT",
+      "flattened-skin-source",
+      "/Users/numi/numi-lab-parent-bindings-1353/matter/src/human_respiration.metal"
+    ],
+    "compile_environment": {
+      "DEVELOPER_DIR": null,
+      "MACOSX_DEPLOYMENT_TARGET": null,
+      "SDKROOT": null
+    },
+    "dependencies": [
+      {
+        "path": "/Library/Developer/CommandLineTools/SDKs/MacOSX27.0.sdk/SDKSettings.json",
+        "sha256": "7b93ad7e534cc4b31c6a4e39d19b5e0288acf2168c2649479a796d1cb51939fb",
+        "size_bytes": 7948
+      },
+      {
+        "path": "/Users/numi/numi-human-resting-integration-20261005/numi-brain/Sources/NumiBrainABI/include/NumiBrainRespiratoryChemoreflexV1.h",
+        "sha256": "0d7ac6e2b8438cbd0b4cb9fdc5c169585421dd8542ac071d47c3002401892248",
+        "size_bytes": 5683
+      },
+      {
+        "path": "/Users/numi/numi-human-resting-integration-20261005/numi-brain/Sources/NumiBrainMetal/Shaders/RespiratoryChemoreflexV1.metal",
+        "sha256": "495d3b51dc679ecf20c69e6c6f095d7d3c59d731216093c6ce790c0d0a6357cc",
+        "size_bytes": 10263
+      },
+      {
+        "path": "/Users/numi/numi-lab-parent-bindings-1353/include/metalrobo/compensated_geometry_gpu.h",
+        "sha256": "1bf85c7e7b8b2102c5e0e6f3fbba88e2b30530e6b5fbb33375fb581d5261d84e",
+        "size_bytes": 6421
+      },
+      {
+        "path": "/Users/numi/numi-lab-parent-bindings-1353/include/metalrobo/compensated_translation_gpu.h",
+        "sha256": "a04166e5c8ef76db05271c8c9b084f0b2edc9bb4a7e6bfe1986527a4f8c09097",
+        "size_bytes": 7828
+      },
+      {
+        "path": "/Users/numi/numi-lab-parent-bindings-1353/include/metalrobo/constraint_ir_shared.h",
+        "sha256": "1abad282fa1e88b809da2271c8e98bc0fcde6adc6629b61a7f8f7d7633c5403f",
+        "size_bytes": 10182
+      },
+      {
+        "path": "/Users/numi/numi-lab-parent-bindings-1353/include/metalrobo/engine_types.h",
+        "sha256": "456cd5f68e1bfe04e519dfd3b3d6d74599c851d0979d4251d71eff117be6687f",
+        "size_bytes": 63448
+      },
+      {
+        "path": "/Users/numi/numi-lab-parent-bindings-1353/include/metalrobo/gpu_types.h",
+        "sha256": "55777caa42851b167780255c76e02c40e2285ee43cc6dda77063d8639f6728d8",
+        "size_bytes": 3809
+      },
+      {
+        "path": "/Users/numi/numi-lab-parent-bindings-1353/include/metalrobo/mujoco_muscle_gpu.h",
+        "sha256": "3169e324f631099c79c6fa719e4633a6bcfba4f99716772bed10e9aaf7862538",
+        "size_bytes": 7678
+      },
+      {
+        "path": "/Users/numi/numi-lab-parent-bindings-1353/include/metalrobo/numi_human_resting_bed_gpu.h",
+        "sha256": "7bb95ca969c5fe844f41971a0296f0fbaee472d70ea8ae99ff87bcece1f8001a",
+        "size_bytes": 497
+      },
+      {
+        "path": "/Users/numi/numi-lab-parent-bindings-1353/include/metalrobo/numi_human_resting_visual_gpu.h",
+        "sha256": "7c7f9fb7f477e951ead5cf4fdc648769cf0af33e9fd6482904bde678e35f9fee",
+        "size_bytes": 8111
+      },
+      {
+        "path": "/Users/numi/numi-lab-parent-bindings-1353/include/metalrobo/numi_human_stand_gpu.h",
+        "sha256": "f48905aa6736af0460fc2cb15a447161f36ad68ab9eb2dd03e0fe94aaee043a1",
+        "size_bytes": 16282
+      },
+      {
+        "path": "/Users/numi/numi-lab-parent-bindings-1353/include/metalrobo/numi_human_support_geometry_gpu.h",
+        "sha256": "fc2da71cd12e18e7f1fb6dc59d65a83eb4c872ae7cf5da38cbd7dbf36ecbe416",
+        "size_bytes": 2725
+      },
+      {
+        "path": "/Users/numi/numi-lab-parent-bindings-1353/include/metalrobo/numi_human_timed_root_force.h",
+        "sha256": "7588072673196c9e9005d91cb23be106941a7b271e9cc1f8681a5fa1548163ef",
+        "size_bytes": 2419
+      },
+      {
+        "path": "/Users/numi/numi-lab-parent-bindings-1353/include/metalrobo/visual_platform_types.h",
+        "sha256": "0e4dbb0fce94713c26fb33e1eef206213d962568e22e79f8efd8f41108886601",
+        "size_bytes": 12043
+      },
+      {
+        "path": "/Users/numi/numi-lab-parent-bindings-1353/matter/include/numi/matter/human_respiration.h",
+        "sha256": "e963800429edba5dd5fab210823bd2a88ccfce2844a5ba0f029ca9d41a2f1126",
+        "size_bytes": 5021
+      },
+      {
+        "path": "/Users/numi/numi-lab-parent-bindings-1353/matter/include/numi/matter/shared.h",
+        "sha256": "96426161d707dd5ebbcff5de02bff291cdcdfb14f3ceaa13b1811899c4aff5d0",
+        "size_bytes": 47153
+      },
+      {
+        "path": "/Users/numi/numi-lab-parent-bindings-1353/matter/src/NumiHumanRestingCommonField.metalinc",
+        "sha256": "54042ab7dffdde282be6dd40047f4655fc9ae99a8ed6785adb8f4f562975347c",
+        "size_bytes": 17299
+      },
+      {
+        "path": "/Users/numi/numi-lab-parent-bindings-1353/matter/src/human_respiration.metal",
+        "sha256": "bf984a88ff542f528753d368d9b4f884a74319a9d2e24ac8d6dc5ccb5040bc54",
+        "size_bytes": 77423
+      },
+      {
+        "path": "/Users/numi/numi-lab-parent-bindings-1353/src/metal/MujocoMuscleReference.metal",
+        "sha256": "a6828c6d9907ae6768a72074c855ad06ce2da4e206909e6b1d65e7b8023b8173",
+        "size_bytes": 68710
+      },
+      {
+        "path": "/Users/numi/numi-lab-parent-bindings-1353/src/metal/NumiHumanRestingBed.metalinc",
+        "sha256": "47ee93f2c41d6741d45f974fa335ba4b2f1d00ba24a3cb6313ef626738d9c700",
+        "size_bytes": 2660
+      },
+      {
+        "path": "/Users/numi/numi-lab-parent-bindings-1353/src/metal/NumiHumanRestingSupportGeometry.metalinc",
+        "sha256": "4592aa32978e928ae6c816c30166423e0c5eee72d8a45e13d8216663925cab82",
+        "size_bytes": 32548
+      },
+      {
+        "path": "/Users/numi/numi-lab-parent-bindings-1353/src/metal/PairedSourceGeometry.metalinc",
+        "sha256": "a356506575f8ec0a8ef0bc715bd833950ed5ca485eb80322c6213182fd1ac96d",
+        "size_bytes": 2497
+      },
+      {
+        "path": "<temporary>/metal_stdlib",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "size_bytes": 0
+      }
+    ],
+    "dependency_count": 24,
+    "empty_metal_stdlib_stub_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "include_roots": [
+      "/Users/numi/numi-lab-parent-bindings-1353/matter/src",
+      "/Users/numi/numi-lab-parent-bindings-1353/matter/include",
+      "/Users/numi/numi-lab-parent-bindings-1353/include",
+      "/Users/numi/numi-lab-parent-bindings-1353/src/metal",
+      "/Users/numi/numi-human-resting-integration-20261005/numi-brain/Sources/NumiBrainABI/include",
+      "/Users/numi/numi-human-resting-integration-20261005/numi-brain/Sources/NumiBrainMetal/Shaders"
+    ],
+    "max_output_bytes": 33554432,
+    "max_seconds_per_pass": 60,
+    "mode": "clang -E -P -x c++ -D__METAL_VERSION__=400",
+    "pass_seconds": [
+      0.0237141249999695,
+      0.04787045899865916
+    ],
+    "passes": 2
+  },
+  "schema": "numi.human.resting-skin-preprocessed-source.v1",
+  "scope": "full human_respiration.metal source for later runtime compilation; caller may replace only skinPipeline",
+  "source": {
+    "path": "/Users/numi/numi-lab-parent-bindings-1353/matter/src/human_respiration.metal",
+    "sha256": "bf984a88ff542f528753d368d9b4f884a74319a9d2e24ac8d6dc5ccb5040bc54",
+    "size_bytes": 77423
+  },
+  "status": "preprocessed_only_not_metal_compiled",
+  "worktree": "/Users/numi/numi-lab-parent-bindings-1353"
+}

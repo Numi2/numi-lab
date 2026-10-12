@@ -1,0 +1,344 @@
+{
+  "accepted_pose": {
+    "accepted_body_state_sha256": "a31d445af013933cf558afa59efe3101e97d8d76599c68426515ca402c288b06",
+    "pack_path": "/Users/n/numi-human-retained-delivery-20261009/skin-resting-multipose-clearance-1218/native-coupled-pair-preparation-011/baseline/native-run/accepted-geometry/step-151999.mrvpack",
+    "pack_sha256": "db54d03f2b30740fb4f47164e79369ea5dc622cf51689f93972b1853f15e8954",
+    "receipt_path": "/Users/n/numi-human-retained-delivery-20261009/skin-resting-multipose-clearance-1218/native-coupled-pair-preparation-011/baseline/native-run/accepted-geometry/step-151999.receipt.json",
+    "receipt_sha256": "d13899f06de29cf78449ecaceb1ad8736720d53016cecf03b63c2126b81ace88",
+    "step": 151999
+  },
+  "arithmetic_context": {
+    "093_kahan_pairs": [
+      {
+        "nonshared_intersection_point_count": 0,
+        "union_faces": [
+          4772,
+          21817
+        ]
+      },
+      {
+        "nonshared_intersection_point_count": 0,
+        "union_faces": [
+          4772,
+          21818
+        ]
+      },
+      {
+        "nonshared_intersection_point_count": 0,
+        "union_faces": [
+          4772,
+          21835
+        ]
+      }
+    ],
+    "093_report_path": "/Users/n/numi-human-fds132-m6-1350/attempt-093-late-witness-accumulation-variants-001/report.json",
+    "093_report_sha256": "ae4c6ca0559e9da7b968fcd828edc875d018d258fc24beea67d6672967267168",
+    "baseline_f32_pairs": [
+      {
+        "nonshared_intersection_point_count": 1,
+        "union_faces": [
+          4772,
+          21817
+        ]
+      },
+      {
+        "nonshared_intersection_point_count": 2,
+        "union_faces": [
+          4772,
+          21818
+        ]
+      },
+      {
+        "nonshared_intersection_point_count": 1,
+        "union_faces": [
+          4772,
+          21835
+        ]
+      }
+    ],
+    "interpretation": "CPU local witness reference only; exact intersections persisted in 093 and must be rerun on captured GPU float32 positions before accepting any conclusion."
+  },
+  "candidate": {
+    "path": "/Users/n/numi-human-fds132-m6-1350/attempt-085-interface-refinement-2mm-001/result-001/candidate.pkl",
+    "refinement_report": "/Users/n/numi-human-fds132-m6-1350/attempt-085-interface-refinement-2mm-001/result-001/report.json",
+    "refinement_sha256": "7a787d8b12d18dca3873797fac94b0882558b6cb0e3233990e273b95d8adceee",
+    "sha256": "4792b40d2828a019cee8fdd5160f29f4667a0596bfe423960abd8f90e7bc1e2a"
+  },
+  "elapsed_seconds": 0.22549524999703863,
+  "layout": {
+    "binary_path": "/Users/n/numi-human-fds132-m6-1350/attempt-094-compensated-kernel-input-fixture-001/witness-core-world-and-weight-float4-le.bin",
+    "binary_sha256": "b718aa2f88ad95d6023bb790528c9bbf0727a16bd5902b96bd0a59383602ebc2",
+    "byte_length": 2016,
+    "core_body_indices": [
+      91,
+      92,
+      93,
+      95,
+      99,
+      107,
+      109,
+      110,
+      111,
+      112,
+      114,
+      115,
+      116,
+      117,
+      119,
+      120,
+      121,
+      122,
+      124,
+      125,
+      126
+    ],
+    "dtype": "little-endian float32",
+    "record_order": "global_vertex_ids ascending; within vertex core_body_indices ascending; float4=[world_x,world_y,world_z,Float32 route coefficient]",
+    "shape": [
+      6,
+      21,
+      4
+    ],
+    "vertex_ids": [
+      5490,
+      5491,
+      5492,
+      5497,
+      5550,
+      5581
+    ]
+  },
+  "python_runtime": {
+    "executable": "/Users/numi/numi-human-prep-venv-20261005/bin/python3.13",
+    "numpy": "2.5.3",
+    "version": "3.13.16 (main, Sep 30 2026, 18:57:20) [Clang 21.0.0 (clang-2100.3.34.2)]"
+  },
+  "qualification": {
+    "candidate_admission": false,
+    "gpu_executed": false,
+    "native_resting_pipeline_executed": false
+  },
+  "reference_arrays": {
+    "compensated_kahan_positions": "CPU Kahan with each Float32 weight\u00d7world term rounded before the patched helper update; expectation only, native test must report actual result",
+    "native_like_fma_positions": "CPU emulation of 088 sequential Float32 FMA over records",
+    "path": "/Users/n/numi-human-fds132-m6-1350/attempt-094-compensated-kernel-input-fixture-001/witness-reference-arrays.npz",
+    "sha256": "5138d35185c7a2571b40149162b81c750f3df6cf5678d50ff91951d9a0623fbf"
+  },
+  "route_control_source": {
+    "path": "/Users/n/numi-human-fds132-m6-1350/attempt-050/arrangement-001/diagnostic-061/fds-fdp-source-routes-061.json",
+    "registration_path": "/Users/n/numi-human-fds132-m6-1350/registration-source-b1b410ad.json",
+    "registration_sha256": "b1b410ad6d4ac8c0c95fd0c3e10f655b24c890d5767a5c377cf78e28ef598f8e",
+    "sha256": "91c16b791be3e66f9065a70623d372f5bc7dca12a7f1a302c5cb469f2d1ad304",
+    "source_sha256_from_extraction": "91c16b791be3e66f9065a70623d372f5bc7dca12a7f1a302c5cb469f2d1ad304"
+  },
+  "runtime_kernel": {
+    "baseline_source": "/Users/numi/numi-lab-parent-bindings-1353/matter/src/human_respiration.metal",
+    "baseline_source_sha256": "bf984a88ff542f528753d368d9b4f884a74319a9d2e24ac8d6dc5ccb5040bc54",
+    "root_patch_header": "/Users/n/numi-lab-parent-precision-1356/include/metalrobo/numi_human_resting_visual_gpu.h",
+    "root_patch_header_sha256": "20005785e7c3fd259de55286fd605d621206ebbf71ddba21ea1d90d61cdcab4c",
+    "root_patch_source": "/Users/n/numi-lab-parent-precision-1356/matter/src/human_respiration.metal",
+    "root_patch_source_sha256": "581626802b9d5b1a9dc28d333669c395deaa506199304488d0f21feb9ecf72f0",
+    "test_helper": "restingCompensatedPositionAdd(term, sum, correction); one source record per sorted core per vertex; output in one Metal dispatch; compare sequential FMA control in same dispatch"
+  },
+  "schema": "numi.human.left-fds132-fdp134-compensated-kernel-witness-fixture-094.v1",
+  "scope": "Six exact source vertices from three 151999 late triangle-pair witnesses; 21 per-core Float32 body-local-to-captured-world results and Float32 route-field weights. This fixture isolates shader accumulation from coordinate-transform arithmetic; no GPU launch or candidate admission.",
+  "source_inputs": {
+    "/Users/n/numi-human-fds132-m6-1350/attempt-050/arrangement-001/diagnostic-061/fds-fdp-source-routes-061.json": "91c16b791be3e66f9065a70623d372f5bc7dca12a7f1a302c5cb469f2d1ad304",
+    "/Users/n/numi-human-fds132-m6-1350/attempt-050/arrangement-001/result-001/exact-arrangement.pkl": "8da7964bba3ef2b614ed3bda966dd11199855cd3b4211baddd59172198a3bbde",
+    "/Users/n/numi-human-fds132-m6-1350/attempt-050/arrangement-001/result-001/report.json": "2b921abbcbdb3cc28a671d26d187411c8e41725fa9e5dd221fc0bc8dabe88883",
+    "/Users/n/numi-human-fds132-m6-1350/attempt-085-interface-refinement-2mm-001/result-001/candidate.pkl": "4792b40d2828a019cee8fdd5160f29f4667a0596bfe423960abd8f90e7bc1e2a",
+    "/Users/n/numi-human-fds132-m6-1350/attempt-085-interface-refinement-2mm-001/result-001/report.json": "7a787d8b12d18dca3873797fac94b0882558b6cb0e3233990e273b95d8adceee",
+    "/Users/n/numi-human-fds132-m6-1350/attempt-088-registered-route-field-refined-2mm-001/result-001/registration-frame-proof.json": "d9d2256d1c50d3ffbbcde6718c081bf4bd8e858973628ab81fae42debbeca0fb",
+    "/Users/n/numi-human-fds132-m6-1350/attempt-088-registered-route-field-refined-2mm-001/result-001/route-anchor-reference-field-001.npz": "71497028ba99db22e048a020a4e58799ccadd5dae0f5f9bac006ac270ab5b02b",
+    "/Users/n/numi-human-fds132-m6-1350/attempt-092-late-witness-arithmetic-001/report.json": "45f786753296d2af8a57e4607cea8cb4ab8c28302a120d2cf568de3767709a64",
+    "/Users/n/numi-human-fds132-m6-1350/attempt-093-late-witness-accumulation-variants-001/audit_variants_093.py": "8eb4ec271fffff95b3a0a8dd50cead2bc9900bea8266a38d019e3c0bb98af314",
+    "/Users/n/numi-human-fds132-m6-1350/attempt-093-late-witness-accumulation-variants-001/report.json": "ae4c6ca0559e9da7b968fcd828edc875d018d258fc24beea67d6672967267168",
+    "/Users/n/numi-human-fds132-m6-1350/registration-source-b1b410ad.json": "b1b410ad6d4ac8c0c95fd0c3e10f655b24c890d5767a5c377cf78e28ef598f8e",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/neck-back-retained-pose-audit-002/forward_all_positive_weights.py": "ee755eabac267563862c95552524c715bc8dd9897a2bcac7e29e483f5b4a57c5",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/temporalis164-native-m6-002/assets/bodyparts3d-myosim-fullbody-muscle-surfaces.manifest.json": "99c611d5bd2277266923ae7e15b5d7289bf160465b7f14582a210ac514aec736",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/temporalis164-native-m6-002/assets/bodyparts3d-myosim-fullbody-muscle-surfaces.nhtissue": "9d512c808bc57e6f1481e520558a8a6ae83af755a0480f04dc85c54d49566f69",
+    "/Users/n/numi-human-retained-delivery-20261009/skin-resting-multipose-clearance-1218/native-coupled-pair-preparation-011/baseline/native-run/accepted-geometry/step-151999.mrvpack": "db54d03f2b30740fb4f47164e79369ea5dc622cf51689f93972b1853f15e8954",
+    "/Users/n/numi-human-retained-delivery-20261009/skin-resting-multipose-clearance-1218/native-coupled-pair-preparation-011/baseline/native-run/accepted-geometry/step-151999.receipt.json": "d13899f06de29cf78449ecaceb1ad8736720d53016cecf03b63c2126b81ace88",
+    "/Users/n/numi-lab-parent-precision-1356/include/metalrobo/numi_human_resting_visual_gpu.h": "20005785e7c3fd259de55286fd605d621206ebbf71ddba21ea1d90d61cdcab4c",
+    "/Users/n/numi-lab-parent-precision-1356/matter/src/human_respiration.metal": "581626802b9d5b1a9dc28d333669c395deaa506199304488d0f21feb9ecf72f0",
+    "/Users/numi/numi-lab-parent-bindings-1353/matter/src/human_respiration.metal": "bf984a88ff542f528753d368d9b4f884a74319a9d2e24ac8d6dc5ccb5040bc54"
+  },
+  "status": "prepared_cpu_fixture_for_root_gpu_kernel_test",
+  "triangle_pairs": [
+    {
+      "fixture_vertex_indices": [
+        [
+          2,
+          5,
+          0
+        ],
+        [
+          1,
+          0,
+          4
+        ]
+      ],
+      "global_vertex_ids": [
+        [
+          5492,
+          5581,
+          5490
+        ],
+        [
+          5491,
+          5490,
+          5550
+        ]
+      ],
+      "parent054": [
+        {
+          "parent_candidate_face_index": 4867,
+          "parent_original_source_face_index": 4859,
+          "parent_stable_id": 132,
+          "role": "owner",
+          "row_local_face_index": 5820,
+          "winding_reversed": false
+        },
+        {
+          "parent_candidate_face_index": 3743,
+          "parent_original_source_face_index": 3929,
+          "parent_stable_id": 134,
+          "role": 134,
+          "row_local_face_index": 5052,
+          "winding_reversed": false
+        }
+      ],
+      "row_face_indices": [
+        5112,
+        3723
+      ],
+      "stable_ids": [
+        132,
+        134
+      ],
+      "topological_shared_global_vertex_ids": [
+        5490
+      ],
+      "union_faces": [
+        4772,
+        21817
+      ]
+    },
+    {
+      "fixture_vertex_indices": [
+        [
+          2,
+          5,
+          0
+        ],
+        [
+          4,
+          3,
+          1
+        ]
+      ],
+      "global_vertex_ids": [
+        [
+          5492,
+          5581,
+          5490
+        ],
+        [
+          5550,
+          5497,
+          5491
+        ]
+      ],
+      "parent054": [
+        {
+          "parent_candidate_face_index": 4867,
+          "parent_original_source_face_index": 4859,
+          "parent_stable_id": 132,
+          "role": "owner",
+          "row_local_face_index": 5820,
+          "winding_reversed": false
+        },
+        {
+          "parent_candidate_face_index": 3743,
+          "parent_original_source_face_index": 3929,
+          "parent_stable_id": 134,
+          "role": 134,
+          "row_local_face_index": 5053,
+          "winding_reversed": false
+        }
+      ],
+      "row_face_indices": [
+        5112,
+        3724
+      ],
+      "stable_ids": [
+        132,
+        134
+      ],
+      "topological_shared_global_vertex_ids": [],
+      "union_faces": [
+        4772,
+        21818
+      ]
+    },
+    {
+      "fixture_vertex_indices": [
+        [
+          2,
+          5,
+          0
+        ],
+        [
+          1,
+          3,
+          2
+        ]
+      ],
+      "global_vertex_ids": [
+        [
+          5492,
+          5581,
+          5490
+        ],
+        [
+          5491,
+          5497,
+          5492
+        ]
+      ],
+      "parent054": [
+        {
+          "parent_candidate_face_index": 4867,
+          "parent_original_source_face_index": 4859,
+          "parent_stable_id": 132,
+          "role": "owner",
+          "row_local_face_index": 5820,
+          "winding_reversed": false
+        },
+        {
+          "parent_candidate_face_index": 3752,
+          "parent_original_source_face_index": 3938,
+          "parent_stable_id": 134,
+          "role": 134,
+          "row_local_face_index": 5076,
+          "winding_reversed": false
+        }
+      ],
+      "row_face_indices": [
+        5112,
+        3741
+      ],
+      "stable_ids": [
+        132,
+        134
+      ],
+      "topological_shared_global_vertex_ids": [
+        5492
+      ],
+      "union_faces": [
+        4772,
+        21835
+      ]
+    }
+  ]
+}

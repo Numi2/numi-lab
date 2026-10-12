@@ -1,0 +1,11 @@
+{
+  "status": "prepared_experimental_not_admitted",
+  "parent_scene": "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/forearm054-native-diagnostic-009-refined085",
+  "child_anatomy_reused_unchanged": true,
+  "source_shader": "/Users/numi/numi-lab-parent-precision-1356/tools/evidence/native-parent-position-precision-m6-1356/control-preprocessed.metal",
+  "source_shader_sha256": "2fe842d00e8157449414b252f5af277d4bf5c7f1dbcaafd0c64bd8e3c3a15776",
+  "binary_sha256": "82f78b4d7eb08bade8a101c6c444621e3f3eb7426fad901f692fd8ab64a0208c",
+  "declaration_sha256": "bdfcc01345b992fa7f51737347f32e26f4b3513a06c3bf727713dcc3cb0aac1d",
+  "immutable_pin_count": 124,
+  "physical_and_physiological_libraries_unchanged": true
+}

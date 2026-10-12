@@ -1,0 +1,8 @@
+{
+  "device" : "Apple M6",
+  "gpu_completed" : true,
+  "math_mode" : "safe",
+  "scope" : "isolated numerical instrument; not physical or anatomical admission",
+  "vertices" : 6,
+  "wall_seconds" : 0.44249658333501429
+}

@@ -1,0 +1,9 @@
+{
+  "launcher_sha256": "87a977cc6d71b0a6ba8a6d29b3fb44581c86f1f13a301794cff8198dfef5b42e",
+  "arms": {
+    "baseline": {
+      "run_declaration_sha256": "bdfcc01345b992fa7f51737347f32e26f4b3513a06c3bf727713dcc3cb0aac1d",
+      "native_output": "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/forearm-shared-field-native-source-control-010/baseline/native-run"
+    }
+  }
+}
