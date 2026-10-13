@@ -1,0 +1,93 @@
+{
+  "captures": {
+    "0": {
+      "body_poses_exact": true,
+      "surface_inventory_exact": true,
+      "unchanged_surface_count": 874
+    },
+    "3807": {
+      "body_poses_exact": true,
+      "surface_inventory_exact": true,
+      "unchanged_surface_count": 874
+    },
+    "4767": {
+      "body_poses_exact": true,
+      "surface_inventory_exact": true,
+      "unchanged_surface_count": 874
+    },
+    "5023": {
+      "body_poses_exact": true,
+      "surface_inventory_exact": true,
+      "unchanged_surface_count": 874
+    },
+    "5599": {
+      "body_poses_exact": true,
+      "surface_inventory_exact": true,
+      "unchanged_surface_count": 874
+    },
+    "6207": {
+      "body_poses_exact": true,
+      "surface_inventory_exact": true,
+      "unchanged_surface_count": 874
+    },
+    "7423": {
+      "body_poses_exact": true,
+      "surface_inventory_exact": true,
+      "unchanged_surface_count": 874
+    },
+    "8000": {
+      "body_poses_exact": true,
+      "surface_inventory_exact": true,
+      "unchanged_surface_count": 874
+    }
+  },
+  "complete": true,
+  "physiology_byte_exact": true,
+  "pins": {
+    "/Users/numi/numi-human-left-pq-publication-1344/src/numilab_human/common_atlas_skin_clearance.py": "fccc7f29d421c9ad8e7da40d61d16cc8633244a16829dc7a7cd9d83ff109cfae",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/anatomy-parents-native-024-001-control/baseline/execution.json": "4dd504c2641497f5e6d4531a79665df51e55f4dc7989183acffa54bff62a67ad",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/anatomy-parents-native-024-001-control/baseline/native-run/accepted-geometry/step-0.mrvpack": "05111b3f71f8686a917b6c06bdf4017274b0a46313917140b49d11acf3e9c067",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/anatomy-parents-native-024-001-control/baseline/native-run/accepted-geometry/step-0.receipt.json": "b0212e08cd2c16eb61e3ab680a234618cc5e8f34489e59361fe0352e3ff5da91",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/anatomy-parents-native-024-001-control/baseline/native-run/accepted-geometry/step-3807.mrvpack": "c95064e6295091f14f5bd6e1d91c725db472fc1e3b3f92e82d07a932d2ea1995",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/anatomy-parents-native-024-001-control/baseline/native-run/accepted-geometry/step-3807.receipt.json": "4053f570084ce1e8a92cbace16fc35241ed94fa47ef56b6a94e7423a7b58de67",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/anatomy-parents-native-024-001-control/baseline/native-run/accepted-geometry/step-4767.mrvpack": "e8a8e222f9e0cbf208cfce694b2571097c484a9ca2b29f1e182067c4f791404b",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/anatomy-parents-native-024-001-control/baseline/native-run/accepted-geometry/step-4767.receipt.json": "0c57a1a97e35eee8c0f9559d26c295e9b0d4fc821271491f91fad11e5c5cae94",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/anatomy-parents-native-024-001-control/baseline/native-run/accepted-geometry/step-5023.mrvpack": "9e97211ab27d61fb8070a408aea0e5ce6f7bd9c6d2e2684f4a307d7efc32951e",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/anatomy-parents-native-024-001-control/baseline/native-run/accepted-geometry/step-5023.receipt.json": "3c78f001bf5710635fdf334cfab919155e40139ef97c6ac96df40a9b3194b81b",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/anatomy-parents-native-024-001-control/baseline/native-run/accepted-geometry/step-5599.mrvpack": "746245d0b34cfd3b5f75b515c48c35a0a6ebbc4c062807e06e153c5600d56009",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/anatomy-parents-native-024-001-control/baseline/native-run/accepted-geometry/step-5599.receipt.json": "6fd78bbef69155788975505772c568d4035db88bd68f6ed39d7efe4240fe0d41",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/anatomy-parents-native-024-001-control/baseline/native-run/accepted-geometry/step-6207.mrvpack": "e6a780e8aaaad735dd0cdee9fce2caf8a1afbe49d4e1b071c5a9394b74275857",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/anatomy-parents-native-024-001-control/baseline/native-run/accepted-geometry/step-6207.receipt.json": "aabd22bce2584f3c3744eac47c1a33a8bc66b24fa704b5933a78cf24d980aa6c",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/anatomy-parents-native-024-001-control/baseline/native-run/accepted-geometry/step-7423.mrvpack": "56ee87f0db9098cd9d0821c872375cce35341c9a1a6efdc85b34bfc43945ffbc",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/anatomy-parents-native-024-001-control/baseline/native-run/accepted-geometry/step-7423.receipt.json": "72fa5a8717a8b911bd2c5c90e450997a2f5bc2c51fc88a72cfd66f5846b29cf0",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/anatomy-parents-native-024-001-control/baseline/native-run/accepted-geometry/step-8000.mrvpack": "ab8b2f24b9184253d9a6465499768a8f9d9c12c58a863a33fc4de75916bee33c",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/anatomy-parents-native-024-001-control/baseline/native-run/accepted-geometry/step-8000.receipt.json": "b0d2cd09a4eabb3a89f5944a5cd0e3d4ca026a00814b79b772cc6a445d1ccfd8",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/anatomy-parents-native-024-001-control/baseline/native-run/resting-coupled.csv": "f4eed8be79a5cba025a97dc53dc53582f0a4149dc83729c859039353e8a6ba19",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/anatomy-parents-native-024-001-control/baseline/run-declaration.json": "402c1f70cc611890db8ddcfe44df1234faef1ea361e2aa8f9dc23fb1823701fa",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/liver-retirement-native-023-004-removed-alias/baseline/execution.json": "d01d43de77fb2dd7bf08edbc6b21ef655240de7f34741640f1c768142c4c9fb4",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/liver-retirement-native-023-004-removed-alias/baseline/native-run/accepted-geometry/step-0.mrvpack": "05111b3f71f8686a917b6c06bdf4017274b0a46313917140b49d11acf3e9c067",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/liver-retirement-native-023-004-removed-alias/baseline/native-run/accepted-geometry/step-0.receipt.json": "60a3acc2d4be855e5cd94a7ee9101ec9b67ae93168da64bd87680b647c8228d8",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/liver-retirement-native-023-004-removed-alias/baseline/native-run/accepted-geometry/step-3807.mrvpack": "c95064e6295091f14f5bd6e1d91c725db472fc1e3b3f92e82d07a932d2ea1995",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/liver-retirement-native-023-004-removed-alias/baseline/native-run/accepted-geometry/step-3807.receipt.json": "227b159da09e8728dddbdb94b79422af5b7bd75f5a1b866ba79f571e1e909c4d",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/liver-retirement-native-023-004-removed-alias/baseline/native-run/accepted-geometry/step-4767.mrvpack": "e8a8e222f9e0cbf208cfce694b2571097c484a9ca2b29f1e182067c4f791404b",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/liver-retirement-native-023-004-removed-alias/baseline/native-run/accepted-geometry/step-4767.receipt.json": "13170278163d0214f6fc863d3194d74f12d2746a5d64d40dbeff1cac703abacd",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/liver-retirement-native-023-004-removed-alias/baseline/native-run/accepted-geometry/step-5023.mrvpack": "9e97211ab27d61fb8070a408aea0e5ce6f7bd9c6d2e2684f4a307d7efc32951e",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/liver-retirement-native-023-004-removed-alias/baseline/native-run/accepted-geometry/step-5023.receipt.json": "682fec628825c8e5931d9a7e25ea6b399b792471e717337fe81a5fae06e22e74",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/liver-retirement-native-023-004-removed-alias/baseline/native-run/accepted-geometry/step-5599.mrvpack": "746245d0b34cfd3b5f75b515c48c35a0a6ebbc4c062807e06e153c5600d56009",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/liver-retirement-native-023-004-removed-alias/baseline/native-run/accepted-geometry/step-5599.receipt.json": "34e6ec6559449fbd6ccba633f334a67b8633a7abcd46f034816b2621e2056231",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/liver-retirement-native-023-004-removed-alias/baseline/native-run/accepted-geometry/step-6207.mrvpack": "e6a780e8aaaad735dd0cdee9fce2caf8a1afbe49d4e1b071c5a9394b74275857",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/liver-retirement-native-023-004-removed-alias/baseline/native-run/accepted-geometry/step-6207.receipt.json": "b0cc5ca4082c0fa7adc07ed2d4ce8d9f3bd45fdef563087c6300d7ee6acac077",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/liver-retirement-native-023-004-removed-alias/baseline/native-run/accepted-geometry/step-7423.mrvpack": "56ee87f0db9098cd9d0821c872375cce35341c9a1a6efdc85b34bfc43945ffbc",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/liver-retirement-native-023-004-removed-alias/baseline/native-run/accepted-geometry/step-7423.receipt.json": "c75725e54716708a70647e86de20ffa2c268125f94ed98b3e9aa51a0d25d53f0",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/liver-retirement-native-023-004-removed-alias/baseline/native-run/accepted-geometry/step-8000.mrvpack": "ab8b2f24b9184253d9a6465499768a8f9d9c12c58a863a33fc4de75916bee33c",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/liver-retirement-native-023-004-removed-alias/baseline/native-run/accepted-geometry/step-8000.receipt.json": "bd18d690f2838b6d422298c371fdbb44461695f63417ee7338b0a5aa16222994",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/liver-retirement-native-023-004-removed-alias/baseline/native-run/resting-coupled.csv": "f4eed8be79a5cba025a97dc53dc53582f0a4149dc83729c859039353e8a6ba19",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/liver-retirement-native-023-004-removed-alias/baseline/run-declaration.json": "6c4376174c7129527ea9af1c16dd64bb8cdb8dc402ad3bc21aed2c1fe229f1ae",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/verify_optional_anatomy_parents_024_001.py": "02fb3039ac05af11b0a1058659be2b76c5fb03c4c9027cd9939fcea7c31c42aa"
+  },
+  "regression_binary_sha256": [
+    "d51d62bc1baa928bbd712eebd5fe536a6bbace39ea45ca9f54bbc1d052da4771",
+    "72cdb21875a1929b60f609909cc6e79f183d65c113b572d6a49a7329a4517d7f"
+  ],
+  "scope": "All native surface positions and body poses across eight matched captures; optional anatomy parent bindings absent in both scenes. Forearm and later axillary vein defects remain outside anatomical qualification."
+}

@@ -1,0 +1,101 @@
+{
+  "status": "bounded_compatibility_qualified",
+  "executed_latest_source_commit": "3d0c09e",
+  "exact_older_source_commit": "c50ac19",
+  "source_baseline": "69a5f3e",
+  "device": "Apple M6 on numi.local",
+  "native_scene_owner": "existing accepted-state Metal resting human",
+  "proof": "Absent optional bindings and positive original-body91 bindings preserve all874 surface positions,157 body poses and coupled physiology bytes at8 captures. No actual multi-parent vessel repair qualified yet.",
+  "runs": [
+    {
+      "arm": "anatomy-parents-native-024-001-control",
+      "wall_seconds": 119.860674208001,
+      "seconds": 16.00000076,
+      "returncode": 0,
+      "changed_inputs": {},
+      "native_argv_matches_prepared_cli_preview": true,
+      "native_environment_matches_prepared_cli_preview": true
+    },
+    {
+      "arm": "axillary-parents-native-025-002-original-owner-control",
+      "wall_seconds": 108.78398487501545,
+      "seconds": 16.00000076,
+      "returncode": 0,
+      "changed_inputs": {},
+      "native_argv_matches_prepared_cli_preview": true,
+      "native_environment_matches_prepared_cli_preview": true
+    },
+    {
+      "arm": "anatomy-parents-native-026-001-main-control",
+      "wall_seconds": 108.46499454099103,
+      "seconds": 16.00000076,
+      "returncode": 0,
+      "changed_inputs": {},
+      "native_argv_matches_prepared_cli_preview": true,
+      "native_environment_matches_prepared_cli_preview": true
+    }
+  ],
+  "artifact_pins": {
+    "anatomy-parents-native-024-001-control/execution.json": {
+      "original_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/anatomy-parents-native-024-001-control/baseline/execution.json",
+      "original_sha256": "4dd504c2641497f5e6d4531a79665df51e55f4dc7989183acffa54bff62a67ad",
+      "artifact_sha256": "4dd504c2641497f5e6d4531a79665df51e55f4dc7989183acffa54bff62a67ad"
+    },
+    "anatomy-parents-native-024-001-control/run-declaration.json.gz": {
+      "original_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/anatomy-parents-native-024-001-control/baseline/run-declaration.json",
+      "original_sha256": "402c1f70cc611890db8ddcfe44df1234faef1ea361e2aa8f9dc23fb1823701fa",
+      "artifact_sha256": "14dd4dc1fef3aacf0a653cc0c355d3b4ebfa3b0a20d491d51fb82af9d1e3f931"
+    },
+    "anatomy-parents-native-024-001-control/preparation.json": {
+      "original_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/anatomy-parents-native-024-001-control/preparation.json",
+      "original_sha256": "28e02be51a0bc3b2570b9f1887a3b944c35b19133e355c393d3c5f7b4be5c36b",
+      "artifact_sha256": "28e02be51a0bc3b2570b9f1887a3b944c35b19133e355c393d3c5f7b4be5c36b"
+    },
+    "anatomy-parents-native-024-001-control/resting-anatomy-receipt.json.gz": {
+      "original_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/anatomy-parents-native-024-001-control/resting-anatomy-receipt.json",
+      "original_sha256": "36fc0d17921ab10800d9866d5fb1cbeffae4800f53ea9560e392578f500f4971",
+      "artifact_sha256": "f6f1a7659e53af3fb1baec6c4323dd0024a401fd6175d8103c57b7d8d474a46d"
+    },
+    "axillary-parents-native-025-002-original-owner-control/execution.json": {
+      "original_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/axillary-parents-native-025-002-original-owner-control/baseline/execution.json",
+      "original_sha256": "35f7b86f73766b52d6949eafe47a0a9db0161cd50d80c4a1ad21ad5ac9cc6bc5",
+      "artifact_sha256": "35f7b86f73766b52d6949eafe47a0a9db0161cd50d80c4a1ad21ad5ac9cc6bc5"
+    },
+    "axillary-parents-native-025-002-original-owner-control/run-declaration.json.gz": {
+      "original_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/axillary-parents-native-025-002-original-owner-control/baseline/run-declaration.json",
+      "original_sha256": "dca1cb694580a53004a7ac7e036d6c8a5401071f0d417e226c6d293a01f7f069",
+      "artifact_sha256": "670c7c20ea4cd5e38582521f7aa488c9b11c75bed34a79921f1864f634d9a0b3"
+    },
+    "axillary-parents-native-025-002-original-owner-control/preparation.json": {
+      "original_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/axillary-parents-native-025-002-original-owner-control/preparation.json",
+      "original_sha256": "54c3658571f8e93ec13a67274892eaa3f0d3d2b9da9543a10d75684746be0937",
+      "artifact_sha256": "54c3658571f8e93ec13a67274892eaa3f0d3d2b9da9543a10d75684746be0937"
+    },
+    "axillary-parents-native-025-002-original-owner-control/resting-anatomy-receipt.json.gz": {
+      "original_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/axillary-parents-native-025-002-original-owner-control/resting-anatomy-receipt.json",
+      "original_sha256": "bff299dc18f0afe04ac321fc0fe4c625742eed56e29196c15b073bf583b2a947",
+      "artifact_sha256": "11c8c8953b46cfee57ecc01d60401785bd9f593cc435f376ef94923058356c18"
+    },
+    "anatomy-parents-native-026-001-main-control/execution.json": {
+      "original_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/anatomy-parents-native-026-001-main-control/baseline/execution.json",
+      "original_sha256": "ea1788245b2d89d2edf6a3ea5bdc22492d2c022e4725a70d653a89d3139edfe1",
+      "artifact_sha256": "ea1788245b2d89d2edf6a3ea5bdc22492d2c022e4725a70d653a89d3139edfe1"
+    },
+    "anatomy-parents-native-026-001-main-control/run-declaration.json.gz": {
+      "original_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/anatomy-parents-native-026-001-main-control/baseline/run-declaration.json",
+      "original_sha256": "469db6cc257cc89e2bbab0f12010be4eb855fea72ecfe349fbd1d63449ae36fb",
+      "artifact_sha256": "0d8c34151798437649277d18b45bca3bfb072553e98aef37d52baef4d468ddd6"
+    },
+    "anatomy-parents-native-026-001-main-control/preparation.json": {
+      "original_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/anatomy-parents-native-026-001-main-control/preparation.json",
+      "original_sha256": "8c3f1279c809558a4602d54cad53b3797a0cccf6ca13310c88a691e4e972c3d3",
+      "artifact_sha256": "8c3f1279c809558a4602d54cad53b3797a0cccf6ca13310c88a691e4e972c3d3"
+    },
+    "anatomy-parents-native-026-001-main-control/resting-anatomy-receipt.json.gz": {
+      "original_path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/anatomy-parents-native-026-001-main-control/resting-anatomy-receipt.json",
+      "original_sha256": "35074d33cb589441c2daaa90e91b7ca3c7bb0f007d18a4d72dca339d4e2e0ea5",
+      "artifact_sha256": "b1bf79832db3fef2bcf52ab14d4887f9ea5b0baf645961f807161b428788d947"
+    }
+  },
+  "limitations": "Forearm and later axillary crossings remain; this is an existing-GPU attachment extension compatibility result, not complete anatomy or physiology qualification."
+}

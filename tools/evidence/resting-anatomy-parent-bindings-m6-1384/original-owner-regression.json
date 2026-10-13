@@ -1,0 +1,93 @@
+{
+  "captures": {
+    "0": {
+      "body_poses_exact": true,
+      "surface_inventory_exact": true,
+      "unchanged_surface_count": 874
+    },
+    "3807": {
+      "body_poses_exact": true,
+      "surface_inventory_exact": true,
+      "unchanged_surface_count": 874
+    },
+    "4767": {
+      "body_poses_exact": true,
+      "surface_inventory_exact": true,
+      "unchanged_surface_count": 874
+    },
+    "5023": {
+      "body_poses_exact": true,
+      "surface_inventory_exact": true,
+      "unchanged_surface_count": 874
+    },
+    "5599": {
+      "body_poses_exact": true,
+      "surface_inventory_exact": true,
+      "unchanged_surface_count": 874
+    },
+    "6207": {
+      "body_poses_exact": true,
+      "surface_inventory_exact": true,
+      "unchanged_surface_count": 874
+    },
+    "7423": {
+      "body_poses_exact": true,
+      "surface_inventory_exact": true,
+      "unchanged_surface_count": 874
+    },
+    "8000": {
+      "body_poses_exact": true,
+      "surface_inventory_exact": true,
+      "unchanged_surface_count": 874
+    }
+  },
+  "complete": true,
+  "physiology_byte_exact": true,
+  "pins": {
+    "/Users/numi/numi-human-left-pq-publication-1344/src/numilab_human/common_atlas_skin_clearance.py": "fccc7f29d421c9ad8e7da40d61d16cc8633244a16829dc7a7cd9d83ff109cfae",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/anatomy-parents-native-024-001-control/baseline/execution.json": "4dd504c2641497f5e6d4531a79665df51e55f4dc7989183acffa54bff62a67ad",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/anatomy-parents-native-024-001-control/baseline/native-run/accepted-geometry/step-0.mrvpack": "05111b3f71f8686a917b6c06bdf4017274b0a46313917140b49d11acf3e9c067",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/anatomy-parents-native-024-001-control/baseline/native-run/accepted-geometry/step-0.receipt.json": "b0212e08cd2c16eb61e3ab680a234618cc5e8f34489e59361fe0352e3ff5da91",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/anatomy-parents-native-024-001-control/baseline/native-run/accepted-geometry/step-3807.mrvpack": "c95064e6295091f14f5bd6e1d91c725db472fc1e3b3f92e82d07a932d2ea1995",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/anatomy-parents-native-024-001-control/baseline/native-run/accepted-geometry/step-3807.receipt.json": "4053f570084ce1e8a92cbace16fc35241ed94fa47ef56b6a94e7423a7b58de67",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/anatomy-parents-native-024-001-control/baseline/native-run/accepted-geometry/step-4767.mrvpack": "e8a8e222f9e0cbf208cfce694b2571097c484a9ca2b29f1e182067c4f791404b",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/anatomy-parents-native-024-001-control/baseline/native-run/accepted-geometry/step-4767.receipt.json": "0c57a1a97e35eee8c0f9559d26c295e9b0d4fc821271491f91fad11e5c5cae94",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/anatomy-parents-native-024-001-control/baseline/native-run/accepted-geometry/step-5023.mrvpack": "9e97211ab27d61fb8070a408aea0e5ce6f7bd9c6d2e2684f4a307d7efc32951e",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/anatomy-parents-native-024-001-control/baseline/native-run/accepted-geometry/step-5023.receipt.json": "3c78f001bf5710635fdf334cfab919155e40139ef97c6ac96df40a9b3194b81b",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/anatomy-parents-native-024-001-control/baseline/native-run/accepted-geometry/step-5599.mrvpack": "746245d0b34cfd3b5f75b515c48c35a0a6ebbc4c062807e06e153c5600d56009",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/anatomy-parents-native-024-001-control/baseline/native-run/accepted-geometry/step-5599.receipt.json": "6fd78bbef69155788975505772c568d4035db88bd68f6ed39d7efe4240fe0d41",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/anatomy-parents-native-024-001-control/baseline/native-run/accepted-geometry/step-6207.mrvpack": "e6a780e8aaaad735dd0cdee9fce2caf8a1afbe49d4e1b071c5a9394b74275857",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/anatomy-parents-native-024-001-control/baseline/native-run/accepted-geometry/step-6207.receipt.json": "aabd22bce2584f3c3744eac47c1a33a8bc66b24fa704b5933a78cf24d980aa6c",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/anatomy-parents-native-024-001-control/baseline/native-run/accepted-geometry/step-7423.mrvpack": "56ee87f0db9098cd9d0821c872375cce35341c9a1a6efdc85b34bfc43945ffbc",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/anatomy-parents-native-024-001-control/baseline/native-run/accepted-geometry/step-7423.receipt.json": "72fa5a8717a8b911bd2c5c90e450997a2f5bc2c51fc88a72cfd66f5846b29cf0",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/anatomy-parents-native-024-001-control/baseline/native-run/accepted-geometry/step-8000.mrvpack": "ab8b2f24b9184253d9a6465499768a8f9d9c12c58a863a33fc4de75916bee33c",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/anatomy-parents-native-024-001-control/baseline/native-run/accepted-geometry/step-8000.receipt.json": "b0d2cd09a4eabb3a89f5944a5cd0e3d4ca026a00814b79b772cc6a445d1ccfd8",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/anatomy-parents-native-024-001-control/baseline/native-run/resting-coupled.csv": "f4eed8be79a5cba025a97dc53dc53582f0a4149dc83729c859039353e8a6ba19",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/anatomy-parents-native-024-001-control/baseline/run-declaration.json": "402c1f70cc611890db8ddcfe44df1234faef1ea361e2aa8f9dc23fb1823701fa",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/axillary-parents-native-025-002-original-owner-control/baseline/execution.json": "35f7b86f73766b52d6949eafe47a0a9db0161cd50d80c4a1ad21ad5ac9cc6bc5",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/axillary-parents-native-025-002-original-owner-control/baseline/native-run/accepted-geometry/step-0.mrvpack": "f734979a0183f2ea85c5525de5223e46ffaf7310e5d1b527a1d2cfcb5aaceb66",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/axillary-parents-native-025-002-original-owner-control/baseline/native-run/accepted-geometry/step-0.receipt.json": "1b448aa77bbe4e1182b22f8ce90305aae583bc1d34618cd7b21eda8eb88b73cf",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/axillary-parents-native-025-002-original-owner-control/baseline/native-run/accepted-geometry/step-3807.mrvpack": "cb3ffe64eee768e5c7d6a10d45c076ab0c4da4323e0b972303742eeb6b2b70bf",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/axillary-parents-native-025-002-original-owner-control/baseline/native-run/accepted-geometry/step-3807.receipt.json": "8fee3a48e4c624f2e0db8f4447a56d5d8a535458f469f456d3c89b3d08d181a7",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/axillary-parents-native-025-002-original-owner-control/baseline/native-run/accepted-geometry/step-4767.mrvpack": "3b095da8c429e191c3220f8e3507e48a853a0f37b593d53b19ac97e24bbbaf39",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/axillary-parents-native-025-002-original-owner-control/baseline/native-run/accepted-geometry/step-4767.receipt.json": "039a7bdaf193072ba451222c94c404e3a09bdfb944b002a294920673c2515dc0",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/axillary-parents-native-025-002-original-owner-control/baseline/native-run/accepted-geometry/step-5023.mrvpack": "3748ecb33d0285ffcc0df07628afc663e544737e92f16effd8767943fb881f2e",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/axillary-parents-native-025-002-original-owner-control/baseline/native-run/accepted-geometry/step-5023.receipt.json": "1588e1eb134e8f12f904bdf110d72f7f60778b946b90252a4a500013aac75e81",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/axillary-parents-native-025-002-original-owner-control/baseline/native-run/accepted-geometry/step-5599.mrvpack": "c8f4dcf9b90aae69752302d2e9985b5018837475de58922a870e60b44c69746c",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/axillary-parents-native-025-002-original-owner-control/baseline/native-run/accepted-geometry/step-5599.receipt.json": "1a7e2a485917c4b182add55bb7e21ac293b19f1e54a5c27cb047febb6455e2bc",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/axillary-parents-native-025-002-original-owner-control/baseline/native-run/accepted-geometry/step-6207.mrvpack": "5bc6ad998ec32b32e64febac6dfc4bd1a05148123e29e9519946746cebaf15dd",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/axillary-parents-native-025-002-original-owner-control/baseline/native-run/accepted-geometry/step-6207.receipt.json": "16e13867b65d337253f19b761da877eb6fbfad9fe509bfc29d0736cae6b85914",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/axillary-parents-native-025-002-original-owner-control/baseline/native-run/accepted-geometry/step-7423.mrvpack": "a8587dcf99d2d4b67b66b67bb72ac10abb147e2a623acab4c38d460a5c755f94",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/axillary-parents-native-025-002-original-owner-control/baseline/native-run/accepted-geometry/step-7423.receipt.json": "66c070a67ecf3c96c9b89f9099ab9740ddc9b89e4b7936c273ddcd2b6a77e03a",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/axillary-parents-native-025-002-original-owner-control/baseline/native-run/accepted-geometry/step-8000.mrvpack": "070d755edbf626c2085e5b80c495331ca5aa1e204d2d78cc5084b54963e6d902",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/axillary-parents-native-025-002-original-owner-control/baseline/native-run/accepted-geometry/step-8000.receipt.json": "0ea4182058674993d63794ab40f882860dcd1660e09a687f876bb21f190fad38",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/axillary-parents-native-025-002-original-owner-control/baseline/native-run/resting-coupled.csv": "f4eed8be79a5cba025a97dc53dc53582f0a4149dc83729c859039353e8a6ba19",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/axillary-parents-native-025-002-original-owner-control/baseline/run-declaration.json": "dca1cb694580a53004a7ac7e036d6c8a5401071f0d417e226c6d293a01f7f069",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/verify_original_owner_parents_025_001.py": "92c0a0ea2d7937f9cde9af7f99a94ec26db36b55f91286a037df9a086b844c06"
+  },
+  "regression_binary_sha256": [
+    "72cdb21875a1929b60f609909cc6e79f183d65c113b572d6a49a7329a4517d7f",
+    "72cdb21875a1929b60f609909cc6e79f183d65c113b572d6a49a7329a4517d7f"
+  ],
+  "scope": "All native surface positions and body poses across eight matched captures; original vessel body91 reproduced through the positive anatomy parent extension. Forearm and later axillary vein defects remain outside anatomical qualification."
+}
