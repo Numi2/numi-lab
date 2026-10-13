@@ -19,7 +19,7 @@ HASHED_INPUTS = ("binary ", "lab_library ", "brain_library ",
                  "muscle_source ", "support_contact_source ",
                  "joint_equality_source ", "tendon_source ",
                  "bodyparts3d_bone_source ", "bodyparts3d_muscle_surface_source ",
-                 "launcher ", "locomotor_program ", "lab_source_file=")
+                 "launcher ", "locomotor_program ", "prepared_brain_source ", "lab_source_file=")
 KINDS = ("human_standing_progress=accepted", "human_brain_sensor_audit=accepted",
          "human_brain_motor_audit=accepted", "human_brain_joint_commit=accepted")
 
@@ -154,8 +154,13 @@ def extract(run):
     rows = {kind: {} for kind in KINDS}
     log_path = run / "launch.log"
     completed = terminal = False
+    program_fingerprint = None
     with log_path.open(errors="replace") as source:
         for line in source:
+            if line.startswith("human_brain_native_binding=configured "):
+                program_fingerprint = number(line, "locomotor_program_fingerprint", True)
+                if program_fingerprint == 0:
+                    raise ValueError("native controller identity is invalid")
             if (line.startswith("human_brain_sensor_audit=failed") or
                     line.startswith("human_brain_motor_audit=failed") or
                     line.startswith("human_brain_completion=failed") or
@@ -198,7 +203,7 @@ def extract(run):
                 number(sensory[step], "physical_fingerprint", True) or
                 number(line, "joint_commit_fingerprint", True) !=
                 number(sensory[step], "joint_commit_fingerprint", True) or
-                number(line, "locomotor_program_fingerprint", True) == 0):
+                number(line, "locomotor_program_fingerprint", True) != program_fingerprint):
             raise ValueError(f"motor journal disagrees with joint commit at step {step}")
         action = vector(line, "excitation", 416)
         activation = vector(line, "activation", 416)

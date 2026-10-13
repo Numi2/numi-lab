@@ -29,7 +29,7 @@ if [[ -n "$human_status" ]]; then
     exit 1
 fi
 brain_repository=${NUMI_HUMAN_BRAIN_REPOSITORY:-${NUMI_BRAIN_ROOT:-"$HOME/numi-brain"}}
-expected_brain_revision=${NUMI_HUMAN_BRAIN_REVISION:-a1cf7218fae5d26f9aed9d845047fc6c472ad596}
+expected_brain_revision=${NUMI_HUMAN_BRAIN_REVISION:-0f7f1e4dcb29c885eddb8ca2a673f26dba537004}
 actual_brain_revision=$(git -C "$brain_repository" rev-parse HEAD 2>/dev/null || printf unavailable)
 if [[ "$actual_brain_revision" != "$expected_brain_revision" ]]; then
     printf 'NumiBrain source revision mismatch: expected %s, found %s\n' "$expected_brain_revision" "$actual_brain_revision" >&2
@@ -224,6 +224,17 @@ print("1" if program.get("jointPathFeedback") is not None else "0")
     fi
     arguments+=(--stand-brain-program "$NUMI_HUMAN_BRAIN_PROGRAM")
 fi
+# A generated source needs its prepared joint paths to select the existing
+# frozen v4 feedback controller. An explicit v1-v3 program retains its inferred
+# source mode; setting the flag to zero remains the tonic ablation.
+NUMI_HUMAN_BRAIN_JOINT_PATH_CALIBRATION=${NUMI_HUMAN_BRAIN_JOINT_PATH_CALIBRATION:-1}
+if [[ "$NUMI_HUMAN_BRAIN_JOINT_PATH_CALIBRATION" != 0 &&
+      "$NUMI_HUMAN_BRAIN_JOINT_PATH_CALIBRATION" != 1 ]]; then
+    printf 'NUMI_HUMAN_BRAIN_JOINT_PATH_CALIBRATION must be 0 or 1\n' >&2
+    exit 2
+fi
+export NUMI_HUMAN_BRAIN_JOINT_PATH_CALIBRATION
+export NUMI_HUMAN_BRAIN_PROGRAM_EXPORT="$output_directory/numi-brain/prepared-brain-program.json"
 if [[ "$mechanics_only" == 1 ]]; then
     arguments+=(--mechanics-only)
 fi
@@ -404,6 +415,33 @@ set -e
 launcher_status=${pipeline_status[0]}
 if (( pipeline_status[1] != 0 )); then
     launcher_status=${pipeline_status[1]}
+fi
+if (( launcher_status == 0 )); then
+    # Retain the exact source and program admitted by the native participant.
+    # This also binds generated baselines for transition extraction and replay.
+    for generated_kind in prepared_brain_source locomotor_program; do
+        generated="$output_directory/numi-brain/prepared-brain-source.json"
+        if [[ "$generated_kind" == locomotor_program ]]; then
+            generated="$NUMI_HUMAN_BRAIN_PROGRAM_EXPORT"
+        fi
+        require_file "$generated"
+        digest=$(shasum -a 256 "$generated" | awk '{print $1}')
+        retained="$artifact_root/$digest"
+        if [[ ! -f "$retained" ]]; then
+            temporary=$(mktemp -d "$artifact_root/.copy.XXXXXXXX")
+            if ! cp -c -p "$generated" "$temporary/artifact"; then
+                cp -p "$generated" "$temporary/artifact"
+            fi
+            ln "$temporary/artifact" "$retained" 2>/dev/null || true
+            rm -r "$temporary"
+        fi
+        if [[ "$(shasum -a 256 "$retained" | awk '{print $1}')" != "$digest" ]]; then
+            printf 'generated Human Brain artifact hash mismatch: %s\n' "$generated" >&2
+            exit 1
+        fi
+        printf '%s %s %s\nretained_artifact %s %s\n' \
+            "$generated_kind" "$digest" "$generated" "$digest" "$retained" >> "$output_directory/launch.manifest"
+    done
 fi
 {
     printf 'binary_exit_code=%s\n' "${pipeline_status[0]}"
