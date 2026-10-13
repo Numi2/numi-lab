@@ -23033,9 +23033,10 @@ int main(int argc, char** argv) {
                     "linear-bound consolidation requires --resting-rigid-hands");
             if(restingScene.has_value()) {
                 require(persistentMetalStand&&muscleStepSeconds.has_value()&&muscleStepCount.has_value()&&
-                    supportContactPayload.has_value()&&jointEqualityPayload.has_value()&&requestedRootPose.has_value()&&tendonPayloadPath.has_value()&&
+                    supportContactPayload.has_value()&&jointEqualityPayload.has_value()&&
+                    (requestedRootPose.has_value()||!restingInitialPosture.empty())&&tendonPayloadPath.has_value()&&
                     !standRootAssistance&&!standRemoveAssistance&&!standBrainLibraryPath.has_value(),
-                    "resting scene requires explicit supported root pose, native contact/equality/tendon payloads and bounded native steps");
+                    "resting scene requires an explicit supported root or admitted construction posture, native contact/equality/tendon payloads and bounded native steps");
                 std::vector<metalrobo::NumiHumanRestingFixedBoundReceiptRecord>
                     restingFixedBoundReceipt;
                 std::vector<metalrobo::NumiHumanRestingLinearBoundReceiptRecord>
