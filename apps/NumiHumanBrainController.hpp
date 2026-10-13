@@ -201,6 +201,10 @@ public:
         line << "] touch_normal_force_n=[";
         for (std::size_t index = 0u; index < 10u; ++index) {
             const float force = touchValues[index * 7u + 4u];
+            // Every prepared source geometry has a receptor, including
+            // unloaded contacts. Reject lost coverage before accepting its audit.
+            require(touchValidity[index] == 0x00000070u,
+                "Human Brain accepted touch source coverage is incomplete");
             require((touchValidity[index] & (1u << 4u)) == 0u ||
                         (std::isfinite(force) && force >= 0.0f),
                 "Human Brain accepted touch force is nonfinite or negative");

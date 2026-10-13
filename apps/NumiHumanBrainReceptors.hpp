@@ -564,8 +564,10 @@ kernel void human_brain_body_touch(
     for (uint mappingIndex = 0u; mappingIndex < shape.y; ++mappingIndex) {
         const uint4 mapping = mappings[mappingIndex];
         if (mapping.y != index) continue;
-        // Native contact identity is body, query index, source geometry, zero.
-        const uint4 source = contactWords[2u * mapping.x];
+        // Native contact rows contain four uint4 words (64 bytes). The first
+        // word is body, query index, source geometry, zero; the remaining
+        // words carry friction and the dynamic support plane.
+        const uint4 source = contactWords[4u * mapping.x];
         if (source.x != mapping.z || source.z != mapping.w || source.w != 0u || source.y >= shape.w) return;
         const uint base = offsets.x + 3u * mapping.x;
         const float3 impulses(vectors[base], vectors[base+1u], vectors[base+2u]);
