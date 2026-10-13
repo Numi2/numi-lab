@@ -1,0 +1,24 @@
+{
+  "source_head": "c86f37ac45a7683a0630146e7ba8e52afdabf036",
+  "binary_sha256": "95eea3c3dd1943faab448944c362495e4fee6efa4ccb3791b6d1c739354a6751",
+  "requested_window": [
+    2,
+    3
+  ],
+  "exact_window_rows": 2,
+  "com_control_steps": [
+    4
+  ],
+  "com_window_with_predecessor_steps": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "terminal_physical_state_byte_exact": true,
+  "shared_final_com_and_momentum_exact": true,
+  "all_q_v_f32_fingerprints_independently_verified": true,
+  "accepted_to_next_pre_step_state_exact": true,
+  "scope": "Four accepted native steps, bounded observation admission/cadence only; no new physiology or performance claim",
+  "inputs_unchanged": true
+}
