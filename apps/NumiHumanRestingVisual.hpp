@@ -1426,7 +1426,7 @@ public:
                     }
                 }else if(tissue) {
                     const auto refined=tissues->parentInfluences.find(tissue->stableId);
-                    if(refined!=tissues->parentInfluences.end()) {
+                    if(refined!=tissues->parentInfluences.end()&&!refined->second.at(v-base).empty()) {
                         mr_float4 parentRest{},childRest{};
                         const auto& source=tissues->vertices.at(tissue->firstVertex+v-base);
                         const auto childRestNormal=softTissueVertexBlendedNormalWorld(*tissue,source,restBodies);
@@ -1436,6 +1436,10 @@ public:
                                 rotatePoint(body.orientation,term.positionAndWeight)),term.positionAndWeight.w));
                             add(v,term.body.x,term.positionAndWeight,
                                 rotatePoint(inverseRotation(body.orientation),childRestNormal),term.positionAndWeight.w);
+                            // Dense positive parent fields can lose a sub-ULP
+                            // material interface through sequential accumulation.
+                            // Only this source-parent path opts into compensation.
+                            weights.back().body.y=MR_HUMAN_RESTING_COMPENSATED_POSITION;
                         }
                         for(unsigned j=0;j<4;++j)if(source.weight[j]>0) {
                             const unsigned b=source.bindingIndex[j];
@@ -2007,8 +2011,36 @@ public:
             <<" region_sizes=[";
         for(unsigned r=0;r<regionCounts.size();++r){if(r)std::cout<<',';std::cout<<regionCounts[r];}
         std::cout<<"] force_owner=existing_metal_stand partition=source_rest_voronoi\n";
+        id<MTLLibrary> skinLibrary=lib;
+#ifdef NUMI_HUMAN_RESTING_SKIN_SOURCE
+        // Hosts with Command Line Tools but no offline Metal compiler can
+        // compile the same pinned presentation source once at scene loading.
+        // Physical, gas, cardiac and controller pipelines retain their library.
+        NSData* skinSourceBytes=[NSData dataWithContentsOfFile:@(NUMI_HUMAN_RESTING_SKIN_SOURCE)];
+        require(skinSourceBytes!=nil&&skinSourceBytes.length>0&&skinSourceBytes.length<=8u*1024u*1024u,
+                "resting skin source is absent or exceeds its bounded load size");
+#ifndef NUMI_HUMAN_RESTING_SKIN_SOURCE_SHA256
+#error "Runtime skin source requires its configure-time SHA-256 pin"
+#endif
+        const auto skinSourceDigest=loadedKneeSHA256Hex(loadedKneeSHA256(
+            static_cast<const std::uint8_t*>(skinSourceBytes.bytes),skinSourceBytes.length));
+        require(skinSourceDigest==NUMI_HUMAN_RESTING_SKIN_SOURCE_SHA256,
+                "resting skin source differs from its configure-time SHA-256 pin");
+        NSString* skinSource=[[NSString alloc] initWithData:skinSourceBytes encoding:NSUTF8StringEncoding];
+        require(skinSource!=nil,"resting skin source is not UTF-8");
+        MTLCompileOptions* skinOptions=[MTLCompileOptions new];
+        skinOptions.mathMode=MTLMathModeSafe;
+        skinOptions.mathFloatingPointFunctions=MTLMathFloatingPointFunctionsPrecise;
+        skinOptions.languageVersion=MTLLanguageVersion4_0;
+        skinLibrary=[device newLibraryWithSource:skinSource options:skinOptions error:&e];
+        require(skinLibrary!=nil,e.localizedDescription.UTF8String!=nullptr?
+                e.localizedDescription.UTF8String:"resting skin source compilation failed");
+        std::cout<<"resting_skin_source_sha256="<<loadedKneeSHA256Hex(loadedKneeSHA256(
+            static_cast<const std::uint8_t*>(skinSourceBytes.bytes),skinSourceBytes.length))
+            <<" math_mode=safe compile=load_time pipeline=nm_human_resting_skin\n";
+#endif
         const auto skinFunction = numiHumanRestingMakeSkinInfluenceFunction(
-            lib, @"nm_human_resting_skin",
+            skinLibrary, @"nm_human_resting_skin",
             {false, true, skinInfluenceLayout}, &e);
         require(skinFunction != nil,
                 e.localizedDescription.UTF8String != nullptr

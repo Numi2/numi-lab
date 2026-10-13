@@ -9,6 +9,8 @@ typedef struct MR_ALIGN16 MRHumanRestingVertexMap {
     mr_float4 deformationWeight;
     mr_float4 respiratoryBasis; // source-space gradient xyz and scalar basal weight w
 } MRHumanRestingVertexMap;
+// Internal GPU flag in body.y; no serialized anatomy format change.
+#define MR_HUMAN_RESTING_COMPENSATED_POSITION 1u
 typedef struct MR_ALIGN16 MRHumanRestingInfluence {
     mr_float4 positionAndWeight;
     mr_float4 normal;

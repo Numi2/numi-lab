@@ -53,7 +53,7 @@ inline void loadRestingTissueParentBindings(
             parents.back().header.reserved0==child.header.reserved0,
             "tissue parent source registration or ABI differs");
     }
-    std::size_t termCount=0,influenceCount=0,identitySurfaceCount=0;
+    std::size_t termCount=0,influenceCount=0,identitySurfaceCount=0,identityVertexCount=0;
     std::set<unsigned> seenSurfaces;
     for(id surface in surfaces) {
         require([surface isKindOfClass:NSDictionary.class],"invalid tissue parent surface");
@@ -73,6 +73,7 @@ inline void loadRestingTissueParentBindings(
             require([terms isKindOfClass:NSArray.class]&&terms.count>0&&terms.count<=128,
                 "tissue parent vertex term count is invalid");
             double coefficientSum=0;
+            bool vertexIdentity=true;
             std::set<std::array<unsigned,3>> seen;
             for(id term in terms) {
                 require([term isKindOfClass:NSArray.class]&&[term count]==4,
@@ -89,14 +90,26 @@ inline void loadRestingTissueParentBindings(
                 const double c=[coefficient doubleValue];
                 require(std::isfinite(c)&&c>0&&c<=1,"tissue parent coefficient must be positive and bounded");
                 coefficientSum+=c;
-                literalIdentity=literalIdentity&&terms.count==1&&sourceIsChild[source]&&
-                    parentStable==stable&&vertex==v&&c==1.0;
                 const auto& parent=parents[source];
                 const auto pr=std::find_if(parent.records.begin(),parent.records.end(),
                     [&](const auto& r){return r.stableId==parentStable;});
                 require(pr!=parent.records.end()&&vertex<pr->vertexCount,
                     "tissue parent raw vertex is absent");
                 const auto& pv=parent.vertices.at(pr->firstVertex+vertex);
+                bool sameVertex=terms.count==1&&parentStable==stable&&vertex==v&&c==1.0;
+                if(sameVertex&&!sourceIsChild[source]) {
+                    // Other vertices in a payload may have changed. Prove this
+                    // vertex's exact source tuple and route bindings separately.
+                    static_assert(sizeof(SoftTissueVertex)==56);
+                    static_assert(sizeof(SoftTissueBodyBinding)==32);
+                    const auto& cv=child.vertices.at(row->firstVertex+v);
+                    sameVertex=std::memcmp(&pv,&cv,sizeof(pv))==0&&
+                        pr->bindingCount==row->bindingCount;
+                    for(unsigned j=0;sameVertex&&j<row->bindingCount;++j)
+                        sameVertex=pr->bodyIndex[j]==row->bodyIndex[j]&&
+                            std::memcmp(&pr->binding[j],&row->binding[j],sizeof(pr->binding[j]))==0;
+                }
+                vertexIdentity=vertexIdentity&&sameVertex;
                 for(unsigned j=0;j<4;++j) {
                     if(pv.weight[j]<=0)continue;
                     const unsigned binding=pv.bindingIndex[j];
@@ -117,10 +130,17 @@ inline void loadRestingTissueParentBindings(
             }
             require(std::abs(coefficientSum-1)<=1e-12,"tissue parent coefficients do not form a partition of unity");
             require(!output[v].empty(),"tissue parent vertex has no active influences");
+            if(vertexIdentity) {
+                // Empty means reuse the admitted child tuple in the renderer;
+                // it is assigned only after all original parent checks passed.
+                output[v].clear();
+                ++identityVertexCount;
+            }
+            literalIdentity=literalIdentity&&vertexIdentity;
         }
         if(literalIdentity) {
-            // A hash-identical payload and exact unit self-reference carry no
-            // refinement. Reuse the accepted child buffers instead of rounding
+            // Every vertex has an exact unit self-reference with identical
+            // source tuples and bindings, so the surface carries no refinement. Reuse the accepted child buffers instead of rounding
             // normals through an unnecessary world/local/world conversion.
             // All descriptors, terms, bounds and budgets were still validated.
             child.parentInfluences.erase(stable);
@@ -129,5 +149,6 @@ inline void loadRestingTissueParentBindings(
     }
     std::cout<<"resting_tissue_parent_surfaces="<<child.parentInfluences.size()
         <<" source_vertex_terms="<<termCount<<" compiled_positive_influences="<<influenceCount
-        <<" validated_identity_surfaces="<<identitySurfaceCount<<"\n";
+        <<" validated_identity_surfaces="<<identitySurfaceCount
+        <<" validated_identity_vertices="<<identityVertexCount<<"\n";
 }

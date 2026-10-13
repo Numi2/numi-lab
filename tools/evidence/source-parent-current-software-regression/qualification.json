@@ -1,0 +1,413 @@
+{
+  "identity": {
+    "schema": "numi.source-parent.identity-current-native-regression.v1",
+    "captures": [
+      {
+        "step": 0,
+        "all_vertex_fields_bit_exact": true,
+        "index_buffer_exact": true,
+        "primitive_buffer_exact": true,
+        "accepted_body_poses_exact": true,
+        "receipt_pack_hashes_valid": true,
+        "differing_section_ids": [
+          1
+        ],
+        "pack_sha256": [
+          "f293c70f1c5933831f61c53c96923ba2b547c98f84d13b37bf4ee67228a715fd",
+          "260790814be60a6a6c9b0bc89a02b16314a4afb6ea3338b51a083d0e23aeef26"
+        ]
+      },
+      {
+        "step": 4767,
+        "all_vertex_fields_bit_exact": true,
+        "index_buffer_exact": true,
+        "primitive_buffer_exact": true,
+        "accepted_body_poses_exact": true,
+        "receipt_pack_hashes_valid": true,
+        "differing_section_ids": [
+          1
+        ],
+        "pack_sha256": [
+          "2baa93e7ee284999cee2f8ae72da9e67cbbf73bd8c65dea5382d126edee61bfe",
+          "1fded11d95901a2512c910779ef8b04571dd85ba12b1ae32fc2899b1f5c5c1d5"
+        ]
+      },
+      {
+        "step": 5023,
+        "all_vertex_fields_bit_exact": true,
+        "index_buffer_exact": true,
+        "primitive_buffer_exact": true,
+        "accepted_body_poses_exact": true,
+        "receipt_pack_hashes_valid": true,
+        "differing_section_ids": [
+          1
+        ],
+        "pack_sha256": [
+          "8a3712adc7230698e3c6ab6edcdbee383bc1a25808ad41077a5864a091dd21d2",
+          "c108f3ea1819ff5a5a3cbb530ac8efb91a04a980e59962dbd21e6957e796782c"
+        ]
+      },
+      {
+        "step": 5599,
+        "all_vertex_fields_bit_exact": true,
+        "index_buffer_exact": true,
+        "primitive_buffer_exact": true,
+        "accepted_body_poses_exact": true,
+        "receipt_pack_hashes_valid": true,
+        "differing_section_ids": [
+          1
+        ],
+        "pack_sha256": [
+          "baa5cb1fa80c5ad7fa5d80306366c8cd74667b89d2ddc804e4d047e5156c2edc",
+          "56255f57d3457a1d78c6bd9055d3351ce5cf17d1f645d05091e070f15634879c"
+        ]
+      },
+      {
+        "step": 6207,
+        "all_vertex_fields_bit_exact": true,
+        "index_buffer_exact": true,
+        "primitive_buffer_exact": true,
+        "accepted_body_poses_exact": true,
+        "receipt_pack_hashes_valid": true,
+        "differing_section_ids": [
+          1
+        ],
+        "pack_sha256": [
+          "acc224169e5c21714a2c8583474daf51fe1396ca939f8b0405de940f60347a8b",
+          "f381b1a612062ead107a52011ae0dd083afd02333a426219ab643307e5ef4293"
+        ]
+      },
+      {
+        "step": 6815,
+        "all_vertex_fields_bit_exact": true,
+        "index_buffer_exact": true,
+        "primitive_buffer_exact": true,
+        "accepted_body_poses_exact": true,
+        "receipt_pack_hashes_valid": true,
+        "differing_section_ids": [
+          1
+        ],
+        "pack_sha256": [
+          "fb55c16b08a6038ae8345b22415d9aaa9a7ea2da96e1a4892f6ed6e935ce6b8e",
+          "ef9f0a3956cc99c75a8675d83d03c890f42ea36ea412641186c9e8ae5251f355"
+        ]
+      },
+      {
+        "step": 7423,
+        "all_vertex_fields_bit_exact": true,
+        "index_buffer_exact": true,
+        "primitive_buffer_exact": true,
+        "accepted_body_poses_exact": true,
+        "receipt_pack_hashes_valid": true,
+        "differing_section_ids": [
+          1
+        ],
+        "pack_sha256": [
+          "efabdc31c92b21faf5897b5c67f4aa3c538302453d77c08587278dcf8d3702cd",
+          "beb49bc3bad107c0d6fe7f5148379e9aadfa5d1ec9162287c9dd11d2c6a52198"
+        ]
+      },
+      {
+        "step": 8000,
+        "all_vertex_fields_bit_exact": true,
+        "index_buffer_exact": true,
+        "primitive_buffer_exact": true,
+        "accepted_body_poses_exact": true,
+        "receipt_pack_hashes_valid": true,
+        "differing_section_ids": [
+          1
+        ],
+        "pack_sha256": [
+          "be0cc0cb1588b96e6b0e00391922d71d317e77d0ce6f3de9a1185ab6885f601a",
+          "df12d73c44944078ddc34ccfbbb0df183702924a422805e1115cab73a80b76e9"
+        ]
+      }
+    ],
+    "trace_rows": [
+      1000,
+      1000
+    ],
+    "coupled_trace_exact": true,
+    "matched_binary": true,
+    "binary_sha256": "3b27dcf5d8524b2d5e461f153023410a6a7d8ae28cb7983273c5f7086f83f3bf",
+    "inputs_unchanged": true,
+    "exit_codes": [
+      0,
+      0
+    ],
+    "wall_seconds": [
+      154.88283562567085,
+      154.82512024976313
+    ],
+    "simulated_seconds": 16.00000076,
+    "passed": true
+  },
+  "midpoint": {
+    "captures": [
+      {
+        "step": 0,
+        "midpoint_error_m": 0.0,
+        "unchanged_target_vertices_exact": true,
+        "all_other_scene_positions_bit_exact": true,
+        "body_poses_exact": true,
+        "target_position_difference_count": 0
+      },
+      {
+        "step": 4767,
+        "midpoint_error_m": 8.33000234328132e-09,
+        "unchanged_target_vertices_exact": true,
+        "all_other_scene_positions_bit_exact": true,
+        "body_poses_exact": true,
+        "target_position_difference_count": 0
+      },
+      {
+        "step": 5023,
+        "midpoint_error_m": 3.094458528950093e-08,
+        "unchanged_target_vertices_exact": true,
+        "all_other_scene_positions_bit_exact": true,
+        "body_poses_exact": true,
+        "target_position_difference_count": 0
+      },
+      {
+        "step": 5599,
+        "midpoint_error_m": 8.33000234328132e-09,
+        "unchanged_target_vertices_exact": true,
+        "all_other_scene_positions_bit_exact": true,
+        "body_poses_exact": true,
+        "target_position_difference_count": 0
+      },
+      {
+        "step": 6207,
+        "midpoint_error_m": 3.0719530773294423e-08,
+        "unchanged_target_vertices_exact": true,
+        "all_other_scene_positions_bit_exact": true,
+        "body_poses_exact": true,
+        "target_position_difference_count": 0
+      },
+      {
+        "step": 6815,
+        "midpoint_error_m": 3.094458528950093e-08,
+        "unchanged_target_vertices_exact": true,
+        "all_other_scene_positions_bit_exact": true,
+        "body_poses_exact": true,
+        "target_position_difference_count": 0
+      },
+      {
+        "step": 7423,
+        "midpoint_error_m": 0.0,
+        "unchanged_target_vertices_exact": true,
+        "all_other_scene_positions_bit_exact": true,
+        "body_poses_exact": true,
+        "target_position_difference_count": 0
+      },
+      {
+        "step": 8000,
+        "midpoint_error_m": 3.725290298461914e-09,
+        "unchanged_target_vertices_exact": true,
+        "all_other_scene_positions_bit_exact": true,
+        "body_poses_exact": true,
+        "target_position_difference_count": 0
+      }
+    ],
+    "trace_rows": [
+      1000,
+      1000
+    ],
+    "physiology_exact": true,
+    "matched_binary": true,
+    "inputs_unchanged": true,
+    "scope": "Original positive midpoint software regression, not anatomical admission. Reuses source-equivalent original-payload current native control, with identical native environment except receipt output path.",
+    "passed": true
+  },
+  "negative_admission": {
+    "passed": true,
+    "checks": [
+      {
+        "case": "child_hash",
+        "expected_error": "child payload identity mismatch",
+        "native_exit_code": 1,
+        "driver_exit_code": 1,
+        "inputs_unchanged": true,
+        "expected_error_seen": true,
+        "no_accepted_segment": true,
+        "passed": true
+      },
+      {
+        "case": "source_hash",
+        "expected_error": "source SHA-256 mismatch",
+        "native_exit_code": 1,
+        "driver_exit_code": 1,
+        "inputs_unchanged": true,
+        "expected_error_seen": true,
+        "no_accepted_segment": true,
+        "passed": true
+      },
+      {
+        "case": "negative_coefficient",
+        "expected_error": "coefficient must be positive",
+        "native_exit_code": 1,
+        "driver_exit_code": 1,
+        "inputs_unchanged": true,
+        "expected_error_seen": true,
+        "no_accepted_segment": true,
+        "passed": true
+      },
+      {
+        "case": "nonunit",
+        "expected_error": "partition of unity",
+        "native_exit_code": 1,
+        "driver_exit_code": 1,
+        "inputs_unchanged": true,
+        "expected_error_seen": true,
+        "no_accepted_segment": true,
+        "passed": true
+      },
+      {
+        "case": "vertex_oob",
+        "expected_error": "raw vertex is absent",
+        "native_exit_code": 1,
+        "driver_exit_code": 1,
+        "inputs_unchanged": true,
+        "expected_error_seen": true,
+        "no_accepted_segment": true,
+        "passed": true
+      },
+      {
+        "case": "duplicate_term",
+        "expected_error": "repeated raw vertex term",
+        "native_exit_code": 1,
+        "driver_exit_code": 1,
+        "inputs_unchanged": true,
+        "expected_error_seen": true,
+        "no_accepted_segment": true,
+        "passed": true
+      },
+      {
+        "case": "source_oob",
+        "expected_error": "source index invalid",
+        "native_exit_code": 1,
+        "driver_exit_code": 1,
+        "inputs_unchanged": true,
+        "expected_error_seen": true,
+        "no_accepted_segment": true,
+        "passed": true
+      },
+      {
+        "case": "boolean_coefficient",
+        "expected_error": "coefficient must be numeric",
+        "native_exit_code": 1,
+        "driver_exit_code": 1,
+        "inputs_unchanged": true,
+        "expected_error_seen": true,
+        "no_accepted_segment": true,
+        "passed": true
+      },
+      {
+        "case": "absent_child",
+        "expected_error": "child row absent or duplicated",
+        "native_exit_code": 1,
+        "driver_exit_code": 1,
+        "inputs_unchanged": true,
+        "expected_error_seen": true,
+        "no_accepted_segment": true,
+        "passed": true
+      },
+      {
+        "case": "duplicate_surface",
+        "expected_error": "child row absent or duplicated",
+        "native_exit_code": 1,
+        "driver_exit_code": 1,
+        "inputs_unchanged": true,
+        "expected_error_seen": true,
+        "no_accepted_segment": true,
+        "passed": true
+      },
+      {
+        "case": "rest_geometry_shift",
+        "expected_error": "changes registered rest geometry",
+        "native_exit_code": 1,
+        "driver_exit_code": 1,
+        "inputs_unchanged": true,
+        "expected_error_seen": true,
+        "no_accepted_segment": true,
+        "passed": true
+      }
+    ]
+  },
+  "anatomical_counterexample": {
+    "scope": "Actual current-owner native target geometry. These are anatomical validation checks; passing arithmetic or native execution does not imply these checks pass.",
+    "captures": [
+      {
+        "step": 3807,
+        "children": {
+          "132": {
+            "self_pairs": 0,
+            "degenerate_faces": 0,
+            "winding_matches_source": true,
+            "closed_oriented": true,
+            "self_pair_witnesses": []
+          },
+          "134": {
+            "self_pairs": 0,
+            "degenerate_faces": 0,
+            "winding_matches_source": true,
+            "closed_oriented": true,
+            "self_pair_witnesses": []
+          }
+        },
+        "union_self_pairs": 0,
+        "union_degenerate_faces": 0,
+        "shared_interface_errors": [],
+        "wall_seconds": 106.64658650010824
+      },
+      {
+        "step": 7423,
+        "children": {
+          "132": {
+            "self_pairs": 0,
+            "degenerate_faces": 0,
+            "winding_matches_source": true,
+            "closed_oriented": true,
+            "self_pair_witnesses": []
+          },
+          "134": {
+            "self_pairs": 3,
+            "degenerate_faces": 0,
+            "winding_matches_source": true,
+            "closed_oriented": true,
+            "self_pair_witnesses": [
+              [
+                7658,
+                7659
+              ],
+              [
+                7658,
+                12569
+              ],
+              [
+                7660,
+                12569
+              ]
+            ]
+          }
+        },
+        "union_self_pairs": 3,
+        "union_degenerate_faces": 0,
+        "shared_interface_errors": [],
+        "wall_seconds": 109.76697837561369
+      }
+    ],
+    "passed": false
+  },
+  "scope": "Verified software source-parent identity/midpoint and presentation accumulation. No anatomical admission, no physiology extension and no performance claim. The dense-parent original anatomical candidate remains unqualified with three exact self-intersections at step7423; its source fixtures and failures remain preserved.",
+  "presentation_source_sha256": "f66c41f647ab218aaf03da0d1cf1946c167b81e6379ea80fa96dc491909c4dd3",
+  "arithmetic_regression": {
+    "term_counts": "every integer 1 through512",
+    "count": 512,
+    "synthetic_position_pairs": 131072,
+    "unequal_weight_normal_pairs": 65536,
+    "all_passed": true,
+    "source_bound_full_check_receipt_sha256": "f5698515e866b048433b2111a86c57c1188dbd66d36d18fcc3bc5b4b1bdaba49",
+    "scope": "Independent FP64 sum of separately rounded Float32 terms, fused ordered Float32 legacy oracle, actual published baseline normal/tangent and unflagged position checks. Synthetic point arithmetic, not anatomical admission."
+  }
+}

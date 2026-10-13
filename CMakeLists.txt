@@ -2185,6 +2185,44 @@ add_executable(
     metalrobo_numilab_human_tendon_fem_load_probe
     apps/numi_human_tendon_fem_load_probe.mm
 )
+
+set(NUMI_HUMAN_RESTING_SKIN_SOURCE "" CACHE FILEPATH
+    "Optional preprocessed resting presentation source; binary pins its SHA-256")
+if(NUMI_HUMAN_RESTING_SKIN_SOURCE)
+    get_filename_component(NUMI_HUMAN_RESTING_SKIN_SOURCE_ABSOLUTE
+        "${NUMI_HUMAN_RESTING_SKIN_SOURCE}" ABSOLUTE)
+    if(NOT EXISTS "${NUMI_HUMAN_RESTING_SKIN_SOURCE_ABSOLUTE}" OR
+       IS_DIRECTORY "${NUMI_HUMAN_RESTING_SKIN_SOURCE_ABSOLUTE}")
+        message(FATAL_ERROR "Resting skin source must be an existing regular source file")
+    endif()
+    file(SIZE "${NUMI_HUMAN_RESTING_SKIN_SOURCE_ABSOLUTE}" NUMI_HUMAN_RESTING_SKIN_SOURCE_BYTES)
+    if(NUMI_HUMAN_RESTING_SKIN_SOURCE_BYTES LESS 1 OR
+       NUMI_HUMAN_RESTING_SKIN_SOURCE_BYTES GREATER 8388608)
+        message(FATAL_ERROR "Resting skin source must contain 1 to 8388608 bytes")
+    endif()
+    add_executable(numi-human-parent-precision-gpu-check EXCLUDE_FROM_ALL
+        tests/numi_human_parent_precision_gpu_test.mm)
+    target_include_directories(numi-human-parent-precision-gpu-check PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/include" "${CMAKE_CURRENT_SOURCE_DIR}/apps")
+    target_compile_options(numi-human-parent-precision-gpu-check PRIVATE
+        -fobjc-arc -ffp-contract=off -Wall -Wextra -Werror)
+    target_link_libraries(numi-human-parent-precision-gpu-check PRIVATE
+        "-framework Foundation" "-framework Metal")
+    if(BUILD_TESTING)
+        add_test(NAME numi_human_parent_precision_gpu
+            COMMAND numi-human-parent-precision-gpu-check
+                "${NUMI_HUMAN_RESTING_SKIN_SOURCE_ABSOLUTE}")
+    endif()
+    file(SHA256 "${NUMI_HUMAN_RESTING_SKIN_SOURCE_ABSOLUTE}" NUMI_HUMAN_RESTING_SKIN_SOURCE_DIGEST)
+    set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
+        "${NUMI_HUMAN_RESTING_SKIN_SOURCE_ABSOLUTE}")
+    foreach(NUMI_HUMAN_PRESENTATION_TARGET metalrobo_numilab_human_myosim_visual_probe numi-human-native)
+        target_compile_definitions(${NUMI_HUMAN_PRESENTATION_TARGET} PRIVATE
+            NUMI_HUMAN_RESTING_SKIN_SOURCE="${NUMI_HUMAN_RESTING_SKIN_SOURCE_ABSOLUTE}"
+            NUMI_HUMAN_RESTING_SKIN_SOURCE_SHA256="${NUMI_HUMAN_RESTING_SKIN_SOURCE_DIGEST}")
+    endforeach()
+endif()
+
 target_link_libraries(
     metalrobo_numilab_human_tendon_fem_load_probe
     PRIVATE

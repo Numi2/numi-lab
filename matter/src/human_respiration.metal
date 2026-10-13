@@ -150,6 +150,18 @@ kernel void nm_human_resting_cardiac_wall_q(
         !isfinite(error)||error>wall.closureBoundsAndTolerance.z?1.0f:0.0f);
 }
 
+// Preserve the correction under safe Metal math; a reassociated expression
+// would erase the low-order contribution this operation is intended to retain.
+inline void restingCompensatedPositionAdd(
+    float3 term, thread float3& sum, thread float3& correction) {
+#pragma clang fp reassociate(off)
+#pragma clang fp contract(off)
+    const float3 adjusted=term-correction;
+    const float3 next=sum+adjusted;
+    correction=(next-sum)-adjusted;
+    sum=next;
+}
+
 kernel void nm_human_resting_skin(
     constant uint4& d [[buffer(0)]], device const MRHumanRestingVertexMap* map [[buffer(1)]],
     device const MRHumanRestingInfluence* influences [[buffer(2)]], device const MRBodyStateGPU* bodies [[buffer(3)]],
@@ -170,16 +182,25 @@ kernel void nm_human_resting_skin(
         m.deformationKind==4u||m.deformationKind==9u||m.deformationKind==11u||m.deformationKind==12u;
     const bool exactBodyLocal=sourceLocalDeformation&&m.influenceCount==1u&&
         soleInfluence.body.x==anatomy.bodyAndFlags.x&&soleInfluence.positionAndWeight.w==1.0f;
+    const bool compensatedPosition=
+        soleInfluence.body.y==MR_HUMAN_RESTING_COMPENSATED_POSITION;
+    float3 positionCorrection=0;
     float3 p=0,n=0,strongest=0;float strongestWeight=-1;
     for(uint j=0;j<m.influenceCount;++j) {
         auto influence=influences[m.firstInfluence+j*influenceStride];
         float w=influence.positionAndWeight.w;
         float3 ni;
         if(influence.body.x==MR_INVALID_INDEX) {
-            p+=w*influence.positionAndWeight.xyz;ni=influence.normal.xyz;
+            if(compensatedPosition)
+                restingCompensatedPositionAdd(w*influence.positionAndWeight.xyz,p,positionCorrection);
+            else p+=w*influence.positionAndWeight.xyz;
+            ni=influence.normal.xyz;
         }else {
             auto body=bodies[influence.body.x];
-            p+=w*(body.position.xyz+restingRotate(body.orientation,influence.positionAndWeight.xyz));
+            const float3 world=body.position.xyz+restingRotate(body.orientation,influence.positionAndWeight.xyz);
+            if(compensatedPosition)
+                restingCompensatedPositionAdd(w*world,p,positionCorrection);
+            else p+=w*world;
             ni=restingRotate(body.orientation,influence.normal.xyz);
         }
         n+=w*ni;if(w>strongestWeight){strongestWeight=w;strongest=ni;}
