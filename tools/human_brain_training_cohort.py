@@ -21,6 +21,8 @@ import sys
 import time
 from typing import Optional
 
+from extract_human_brain_committed_transitions import sensor as validate_sensor_row
+
 
 GIB = 1024**3
 PROGRESS = re.compile(r"^human_standing_progress=accepted step=(\d+)\b")
@@ -70,11 +72,20 @@ def receipt(log: Path, steps: int, exit_code: int, sensor_audit: bool,
     valid_center = True
     unassisted = True
     failed = False
+    invalid_sensor_steps = []
+    first_sensor_error = None
     with log.open(errors="replace") as source:
         for line in source:
             if (match := SENSOR.match(line)):
-                sensors.append(int(match.group(1)))
+                step = int(match.group(1))
+                sensors.append(step)
                 sensor_trace.update(line.encode())
+                try:
+                    validate_sensor_row(line, step)
+                except ValueError as error:
+                    invalid_sensor_steps.append(step)
+                    if first_sensor_error is None:
+                        first_sensor_error = str(error)
             if (match := PROGRESS.match(line)):
                 step = int(match.group(1))
                 progress.append(step)
@@ -141,7 +152,7 @@ def receipt(log: Path, steps: int, exit_code: int, sensor_audit: bool,
     accepted = (
         exit_code == 0 and not failed and unassisted
         and progress == expected and profiles == expected
-        and (not sensor_audit or sensors == expected)
+        and (not sensor_audit or (sensors == expected and not invalid_sensor_steps))
         and (push_start_step is None or
              (valid_center and len(centers) == steps and len(root_heights) == steps))
         and len(physical_gpu_ms) == steps and len(brain_completion_ms) == steps
@@ -182,6 +193,9 @@ def receipt(log: Path, steps: int, exit_code: int, sensor_audit: bool,
         "jointWitnessIntegrity": witness_integrity,
         "physicalProgressSHA256": physical_trace.hexdigest(),
         "sensorAuditSHA256": sensor_trace.hexdigest() if sensor_audit else None,
+        "sensorCoverageValidated": (sensors == expected and not invalid_sensor_steps) if sensor_audit else None,
+        "invalidSensorSteps": invalid_sensor_steps,
+        "firstSensorAuditError": first_sensor_error,
         "medianPhysicalGPUMilliseconds": (
             statistics.median(physical_gpu_ms) if physical_gpu_ms else None
         ),

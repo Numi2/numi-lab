@@ -43,3 +43,20 @@ are copied to the reconciliation archives on the Air.
 [Assessment](standing-touch-stride-assessment.json) and
 [first accepted sensor rows](standing-touch-coverage-excerpts.log) retain the
 measurement details. The source/binary manifest is preserved with the run.
+
+## Observation ingestion coverage
+
+Committed-transition extraction, audited training-cohort receipts, and recovery
+audits now share sensory validation. Required touch coverage, root validity,
+head validity and unit orientation must match the supported source frame. An
+accepted-row label and step count alone cannot admit incomplete observations.
+Cohort receipts report sensory coverage separately from physical episode
+admission; disabling sensory auditing leaves coverage unassessed.
+
+The four focused regression checks use retained native rows and explicit
+corruption controls. The complete retained logs exercise 20,000 sensor rows:
+all 10,000 pre-fix rows reject, and all 10,000 corrected rows pass. Recovery and
+transition readers close logs on error as well as normal completion. This
+repairs ingestion; it does not turn the divergent physical runs into standing
+or learned recovery evidence. Older incomplete-sensor cohorts require sensory
+requalification, with their original records retained.

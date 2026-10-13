@@ -16,6 +16,8 @@ import random
 import re
 import shlex
 
+from extract_human_brain_committed_transitions import sensor as validate_sensor_row
+
 
 PROGRESS = re.compile(r"^human_standing_progress=accepted step=(\d+)\b")
 SENSOR = re.compile(r"^human_brain_sensor_audit=accepted step=(\d+)\b")
@@ -100,46 +102,48 @@ def read_run(directory, steps):
     progress_digest = hashlib.sha256()
     sensor_digest = hashlib.sha256()
     completed = terminal = False
-    for line in (directory / "launch.log").open(errors="replace"):
-        if match := PROGRESS.match(line):
-            step = int(match.group(1))
-            if step in rows:
-                raise ValueError(f"duplicate physical step {step}")
-            progress_digest.update(line.encode())
-            rows[step] = {
-                "root": field(line, "root_xyz_m", True),
-                "com": field(line, "center_of_mass_xyz_m", True),
-                "velocity": field(line, "root_linear_velocity_xyz_m_s", True),
-                "contacts": int(field(line, "contact_count")),
-                "penetration": field(line, "penetration_m"),
-                "supportForce": field(line, "support_force_n"),
-                "excitation": field(line, "brain_muscle_excitation_mean"),
-                "assistanceForce": field(line, "root_assistance_force_n"),
-                "assistanceTorque": field(line, "root_assistance_torque_nm"),
-            }
-        if match := SENSOR.match(line):
-            step = int(match.group(1))
-            if step in sensors:
-                raise ValueError(f"duplicate sensory step {step}")
-            sensor_digest.update(line.encode())
-            sensors[step] = line.rstrip("\n")
-        if match := JOINT.match(line):
-            step = int(match.group(1))
-            if step in joints:
-                raise ValueError(f"duplicate joint witness {step}")
-            if (int(field(line, "brain_generation")) != step or
-                    not all(f"{flag}=true" in line for flag in (
-                        "physical_motor_same_command",
-                        "accepted_consequence_followup_command",
-                        "same_native_owner_queue"))):
-                raise ValueError(f"joint ownership failed at step {step}")
-            joints[step] = line.rstrip("\n")
-        completed |= ("human_execution_stage=native_horizon_end" in line
-                      and f"stage_step={steps}" in line)
-        terminal |= line.startswith("stand_terminal_state=")
-        if ("human_brain_completion=failed" in line or
-                "human_brain_joint_commit=rejected" in line):
-            raise ValueError("native Brain/Human transaction failed")
+    with (directory / "launch.log").open(errors="replace") as source:
+        for line in source:
+            if match := PROGRESS.match(line):
+                step = int(match.group(1))
+                if step in rows:
+                    raise ValueError(f"duplicate physical step {step}")
+                progress_digest.update(line.encode())
+                rows[step] = {
+                    "root": field(line, "root_xyz_m", True),
+                    "com": field(line, "center_of_mass_xyz_m", True),
+                    "velocity": field(line, "root_linear_velocity_xyz_m_s", True),
+                    "contacts": int(field(line, "contact_count")),
+                    "penetration": field(line, "penetration_m"),
+                    "supportForce": field(line, "support_force_n"),
+                    "excitation": field(line, "brain_muscle_excitation_mean"),
+                    "assistanceForce": field(line, "root_assistance_force_n"),
+                    "assistanceTorque": field(line, "root_assistance_torque_nm"),
+                }
+            if match := SENSOR.match(line):
+                step = int(match.group(1))
+                if step in sensors:
+                    raise ValueError(f"duplicate sensory step {step}")
+                validate_sensor_row(line, step)
+                sensor_digest.update(line.encode())
+                sensors[step] = line.rstrip("\n")
+            if match := JOINT.match(line):
+                step = int(match.group(1))
+                if step in joints:
+                    raise ValueError(f"duplicate joint witness {step}")
+                if (int(field(line, "brain_generation")) != step or
+                        not all(f"{flag}=true" in line for flag in (
+                            "physical_motor_same_command",
+                            "accepted_consequence_followup_command",
+                            "same_native_owner_queue"))):
+                    raise ValueError(f"joint ownership failed at step {step}")
+                joints[step] = line.rstrip("\n")
+            completed |= ("human_execution_stage=native_horizon_end" in line
+                          and f"stage_step={steps}" in line)
+            terminal |= line.startswith("stand_terminal_state=")
+            if ("human_brain_completion=failed" in line or
+                    "human_brain_joint_commit=rejected" in line):
+                raise ValueError("native Brain/Human transaction failed")
     if (directory / "launch.exit").read_text().splitlines() != [
         "binary_exit_code=0", "tee_exit_code=0", "launcher_exit_code=0"]:
         raise ValueError("native launcher failed")

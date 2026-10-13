@@ -127,6 +127,9 @@ def sensor(line, step):
     }
     if (result["rootPositionValidity"] != 7 or
             result["rootLinearVelocityValidity"] != 896 or
+            result["headValidity"] != 0x000f0000 or
+            abs(sum(value * value for value in result["headQuaternionXYZW"]) - 1.0) >= 1.0e-3 or
+            any(value != 0x70 for value in result["touchValidity"]) or
             any(value < 0 for value in result["touchNormalForceN"])):
         raise ValueError(f"required native sensory fields are invalid at step {step}")
     return result
@@ -151,22 +154,23 @@ def extract(run):
     rows = {kind: {} for kind in KINDS}
     log_path = run / "launch.log"
     completed = terminal = False
-    for line in log_path.open(errors="replace"):
-        if (line.startswith("human_brain_sensor_audit=failed") or
-                line.startswith("human_brain_motor_audit=failed") or
-                line.startswith("human_brain_completion=failed") or
-                line.startswith("human_brain_joint_commit=rejected")):
-            raise ValueError("native run contains a rejected Brain/Human receipt")
-        for kind in KINDS:
-            if line.startswith(kind + " "):
-                step = number(line, "step", True)
-                if step in rows[kind]:
-                    raise ValueError(f"duplicate {kind} step {step}")
-                rows[kind][step] = line.rstrip("\n")
-                break
-        if line.startswith("human_execution_stage=native_horizon_end"):
-            completed |= number(line, "stage_step", True) == steps
-        terminal |= line.startswith("stand_terminal_state=")
+    with log_path.open(errors="replace") as source:
+        for line in source:
+            if (line.startswith("human_brain_sensor_audit=failed") or
+                    line.startswith("human_brain_motor_audit=failed") or
+                    line.startswith("human_brain_completion=failed") or
+                    line.startswith("human_brain_joint_commit=rejected")):
+                raise ValueError("native run contains a rejected Brain/Human receipt")
+            for kind in KINDS:
+                if line.startswith(kind + " "):
+                    step = number(line, "step", True)
+                    if step in rows[kind]:
+                        raise ValueError(f"duplicate {kind} step {step}")
+                    rows[kind][step] = line.rstrip("\n")
+                    break
+            if line.startswith("human_execution_stage=native_horizon_end"):
+                completed |= number(line, "stage_step", True) == steps
+            terminal |= line.startswith("stand_terminal_state=")
     physical, sensory, motor, joints = (rows[kind] for kind in KINDS)
     sampled = set(range(interval, steps + 1, interval))
     if (list(physical) != list(range(1, steps + 1)) or
