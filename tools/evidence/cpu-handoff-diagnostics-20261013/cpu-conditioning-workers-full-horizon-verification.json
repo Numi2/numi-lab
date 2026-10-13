@@ -1,0 +1,118 @@
+{
+  "passed": true,
+  "planSHA256": "9bfd3496b76fb88e9f9ab0b87b29713dd91f029325b0caf45e35e62f985fd593",
+  "testedSourceSHA256": {
+    "src/metal/MetalArticulatedOperator.mm": "537046b2ce8afae0e8bd2f1c5469251b29b8d6eca2506f7d487696f2f77f78de",
+    "src/metal/HumanHostPhaseTrace.hpp": "071e18d6ef54169f730f9ec0134c18d2f9586a1d58482edd00cccddcca885a6d"
+  },
+  "inputPins": {
+    "binary": {
+      "sha256": "01405fd98062b704f11717b73642f9b411cc426e2904909ac29b2d60fbfec4cb",
+      "path": "/Users/n/numi-lab-standing-reconcile-20261013/build/bin/numi-human-native"
+    },
+    "lab_library": {
+      "sha256": "a677e166b7fb4c214189f3d9d2d888d1dc429ef0eaa3a68c962f1e1f5d8ed3db",
+      "path": "/Users/n/numi-lab-standing-reconcile-20261013/build/lib/libmetalrobo.dylib"
+    },
+    "brain_library": {
+      "sha256": "66a5895cdcce343068e604294461f1dc64c343973b20817b82f142d7aa261719",
+      "path": "/Users/n/numi-brain-standing-reconcile-20261013/.build/arm64-apple-macosx/release/libNumiBrainHumanStanding.dylib"
+    },
+    "rigid_source": {
+      "sha256": "6328f7e84663c611c5498624d1386b00b2d5b0e162c4cc2967c7b1dc49ab0c44",
+      "path": "/Users/n/numi-human-standing-reconcile-20261013/Docs/media/native-runtime-source-package-20260915/input/myosim-fullbody-core-reference.nhrigid"
+    },
+    "muscle_source": {
+      "sha256": "9a988f19a6fd8e533cd0f2bf3192cb8535fb008ccd394ffbf1a4432d3db76a05",
+      "path": "/Users/n/numi-human-standing-reconcile-20261013/Docs/media/native-runtime-source-package-20260915/input/myosim-fullbody-muscle-reference.nhmyo"
+    },
+    "support_contact_source": {
+      "sha256": "4d54f8155cd83baaee7af536099824ac0da61e5d5e77544b42c6e5ce1b48c907",
+      "path": "/Users/n/numi-human-standing-reconcile-20261013/Docs/media/native-runtime-source-package-20260915/input/myosim-fullbody-support-contact.nhcnt"
+    },
+    "joint_equality_source": {
+      "sha256": "b97f755c769d0af16e02ab5deb9d85bd0cc921649197f71d308e98130ac69b6a",
+      "path": "/Users/n/numi-human-standing-reconcile-20261013/Docs/media/native-runtime-source-package-20260915/input/myosim-fullbody-joint-equalities.nheq"
+    },
+    "tendon_source": {
+      "sha256": "a594194f510eb4aa990a8767f868f999a10b4fedb745c8665368a231ed39b555",
+      "path": "/Users/n/numi-human-standing-reconcile-20261013/Docs/media/native-runtime-source-package-20260915/input/numi-human-tendon-attachments.nhtendon"
+    },
+    "bodyparts3d_bone_source": {
+      "sha256": "f9132393dfb259a80e2b2084ac5ff15f2bf988f7e073f7a961a7ddcfb9febc3c",
+      "path": "/Users/n/human-completion-20260907/input/bodyparts3d-myosim-major-bones.nhbones"
+    }
+  },
+  "workerSequence": [
+    "8",
+    "4",
+    "4",
+    "8",
+    "8",
+    "4"
+  ],
+  "runNativeHorizonSeconds": [
+    92.999991625,
+    92.97409512499999,
+    92.86330291700001,
+    92.938999291,
+    92.956078125,
+    92.97815274999999
+  ],
+  "completeProcessWallSeconds": [
+    95.74779595800001,
+    94.99566537499999,
+    94.90137687500001,
+    94.98588358300003,
+    95.01756416699999,
+    95.03312391700001
+  ],
+  "pairedEightMinusFourSeconds": [
+    0.025896500000015976,
+    0.07569637399998896,
+    -0.02207462499998769
+  ],
+  "pairedMeanDifferenceSeconds": 0.02650608300000575,
+  "pairedT95LowerBoundSeconds": -0.09493931062628462,
+  "worker4MeetsFrozenPromotionRule": false,
+  "defaultWorkerSelection": 8,
+  "timingDisposition": "No qualified improvement; retain default8. Three pairs are inconclusive or negative under the frozen rule.",
+  "acceptedRowsExactAcrossAllSixRuns": {
+    "human_brain_sensor_audit=accepted": {
+      "rows": 10000,
+      "SHA256": "d0ba3bb196952eb8c2a2cf812efcb99cf8f714c446984b2e604de25b1a4cbce7"
+    },
+    "human_brain_motor_audit=accepted": {
+      "rows": 10000,
+      "SHA256": "250077e2c71447d4db3d07c9e42887adf94fd3384fa9f69d64cfd72d78bd4529"
+    },
+    "human_standing_progress=accepted": {
+      "rows": 10000,
+      "SHA256": "683cd2577714cfb740fe6d21321e8f3b7eb344801768167082e1d721c1448fbb"
+    },
+    "human_brain_joint_commit=accepted": {
+      "rows": 11,
+      "SHA256": "0d43591c4ee22b69c7e28930c1809271b4230e2236adff72b23a7ec8fc6aabda"
+    }
+  },
+  "imagesExactSHA256": {
+    "front": "968d5238a289b24a6e52223883649fa55e4bee8113a2e6a4527dfbc6bc7a2aeb",
+    "rear": "55a7708cadb3fb5843ea895d5347cbb2422fe71174bfed00fd60cec0020e6a5f",
+    "side": "613e11cc0badc4cc2ec920e1cea2c6060410942691c0e5d174a8c6675472d445",
+    "oblique": "3a5a49f28f40d48aaf54b5a90b5f8b487631b29207578878b564a331d5591f12"
+  },
+  "geometrySectionsExact": [
+    2,
+    3,
+    4
+  ],
+  "rawRunDirectories": [
+    "/Users/n/numi-standing-reconcile-runs-20261013/cpu-conditioning-workers-full-horizon/run-0-workers-8",
+    "/Users/n/numi-standing-reconcile-runs-20261013/cpu-conditioning-workers-full-horizon/run-1-workers-4",
+    "/Users/n/numi-standing-reconcile-runs-20261013/cpu-conditioning-workers-full-horizon/run-2-workers-4",
+    "/Users/n/numi-standing-reconcile-runs-20261013/cpu-conditioning-workers-full-horizon/run-3-workers-8",
+    "/Users/n/numi-standing-reconcile-runs-20261013/cpu-conditioning-workers-full-horizon/run-4-workers-8",
+    "/Users/n/numi-standing-reconcile-runs-20261013/cpu-conditioning-workers-full-horizon/run-5-workers-4"
+  ],
+  "scope": "10000 one-millisecond roots per run, same current native binary/Brain program/seed/source inputs, worker count as sole invocation difference. Existing frozen feedback-ablation/CPU backend workload; no full-feedback, five-second or anatomical/clinical throughput qualification."
+}

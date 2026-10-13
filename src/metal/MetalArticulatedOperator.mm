@@ -3829,7 +3829,8 @@ MetalArticulatedOperatorDiagnostics validateAndBuildLayout(
         for (const char* flag : {
              "NUMI_HUMAN_STAND_CPU_FINISH", "NUMI_HUMAN_STAND_CPU_FACTOR",
              "NUMI_HUMAN_STAND_CPU_FACTOR_SHADOW", "NUMI_HUMAN_STAND_CPU_FREE",
-             "NUMI_HUMAN_STAND_CPU_ONE_HANDOFF", "NUMI_HUMAN_STAND_CPU_SHADOW",
+             "NUMI_HUMAN_STAND_CPU_ONE_HANDOFF",
+             "NUMI_HUMAN_STAND_CPU_CONDITION_WORKERS", "NUMI_HUMAN_STAND_CPU_SHADOW",
              "NUMI_HUMAN_STAND_CPU_EQUALITY", "NUMI_HUMAN_STAND_CPU_EQUALITY_SHADOW",
              "NUMI_HUMAN_STAND_CPU_EQUALITY_FACTOR",
              "NUMI_HUMAN_STAND_CPU_PROJECTED_RAW"}) {
@@ -13050,6 +13051,25 @@ MetalArticulatedOperatorContext::submit(
                 }
                 const bool cpuFree = cpuFreeRequested && cpuFinish;
                 const bool oneHandoff = oneHandoffRequested && cpuFinish;
+                const char* conditionWorkersSetting = std::getenv(
+                    "NUMI_HUMAN_STAND_CPU_CONDITION_WORKERS");
+                unsigned conditionWorkers = 8u;
+                if (oneHandoff && conditionWorkersSetting != nullptr) {
+                    if (std::strcmp(conditionWorkersSetting, "1") == 0)
+                        conditionWorkers = 1u;
+                    else if (std::strcmp(conditionWorkersSetting, "2") == 0)
+                        conditionWorkers = 2u;
+                    else if (std::strcmp(conditionWorkersSetting, "4") == 0)
+                        conditionWorkers = 4u;
+                    else if (std::strcmp(conditionWorkersSetting, "8") == 0)
+                        conditionWorkers = 8u;
+                    else if (std::strcmp(conditionWorkersSetting, "16") == 0)
+                        conditionWorkers = 16u;
+                    else
+                        return reject(std::move(diagnostics),
+                            MetalArticulatedOperatorHostStatus::invalidDimensions,
+                            "CPU projected conditioning workers must be exactly 1, 2, 4, 8, or 16");
+                }
                 const bool deferEqualityData =
                     state_->config.deferStandEqualityData && parallelMass &&
                     reducedProjectedResponses && !cpuStandDiagnosticRequested &&
@@ -13722,12 +13742,14 @@ MetalArticulatedOperatorContext::submit(
                                         MR_NUMI_HUMAN_STAND_SUCCESS &&
                                     (status->flags &
                                      MR_NUMI_HUMAN_STAND_FREE_ONLY) != 0u) {
+                                    HumanHostPhaseTrace handoffProfile(
+                                        true, probeStep, "human_cpu_handoff_segment", true);
                                     const auto finishBegin =
                                         std::chrono::steady_clock::now();
                                     unsigned failingProjected =
                                         MR_INVALID_INDEX;
-                                    constexpr unsigned workers = 8u;
-                                    std::array<unsigned, workers> failures{};
+                                    const unsigned workers = conditionWorkers;
+                                    std::array<unsigned, 16u> failures{};
                                     failures.fill(MR_INVALID_INDEX);
                                     unsigned* workerFailures = failures.data();
                                     const auto* equalities = static_cast<const
@@ -13761,9 +13783,11 @@ MetalArticulatedOperatorContext::submit(
                                                 }
                                             }
                                         });
-                                    for (unsigned failed : failures)
+                                    for (unsigned worker = 0u; worker < workers;
+                                         ++worker)
                                         failingProjected = std::min(
-                                            failingProjected, failed);
+                                            failingProjected, failures[worker]);
+                                    handoffProfile.mark("condition");
                                     const bool conditioned = failingProjected ==
                                         MR_INVALID_INDEX;
                                     if (!conditioned) {
@@ -13801,9 +13825,11 @@ MetalArticulatedOperatorContext::submit(
                                                 static_cast<const float*>(
                                                     spatialBuffer.contents),
                                                 input);
+                                        handoffProfile.mark("prepare");
                                         const bool solved = prepared &&
                                             detail::stand_cpu_pilot::solve(
                                                 input, *oneHandoffOutput);
+                                        handoffProfile.mark("solve");
                                         cpuFinishPublished = solved &&
                                             detail::stand_cpu_pilot::publish(
                                                 input, *oneHandoffOutput,
@@ -13811,6 +13837,7 @@ MetalArticulatedOperatorContext::submit(
                                                 *static_cast<
                                                     MRNumiHumanStandCpuFinishGPU*>(
                                                         finishPayload.contents));
+                                        handoffProfile.mark("publish");
                                         if (!cpuFinishPublished) {
                                             status->code =
                                                 MR_NUMI_HUMAN_STAND_INVALID_DISPATCH;

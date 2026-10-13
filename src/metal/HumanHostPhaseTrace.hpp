@@ -14,10 +14,12 @@ namespace metalrobo {
 // their own locks; nested diagnostic output is part of their host interval.
 class HumanHostPhaseTrace final {
  public:
-  HumanHostPhaseTrace(bool standing, std::uint32_t step, const char* prefix)
+  HumanHostPhaseTrace(bool standing, std::uint32_t step, const char* prefix,
+      bool sampleEvery1024 = false)
       : step_(step), prefix_(prefix) {
     const char* setting = std::getenv("NUMI_HUMAN_HOST_INNER_PROFILE");
-    enabled_ = standing && step < 8u && setting != nullptr &&
+    enabled_ = standing && (step < 8u ||
+        (sampleEvery1024 && step % 1024u == 0u)) && setting != nullptr &&
         std::strcmp(setting, "1") == 0;
     if (enabled_) last_ = Clock::now();
   }

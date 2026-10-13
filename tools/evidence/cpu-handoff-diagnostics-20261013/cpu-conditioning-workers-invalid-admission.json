@@ -1,0 +1,66 @@
+{
+  "passed": true,
+  "cases": [
+    {
+      "setting": "4garbage",
+      "path": "/Users/n/numi-standing-reconcile-runs-20261013/cpu-conditioning-workers-invalid-0",
+      "exit": 1,
+      "zeroAcceptedPhysicalRoots": true,
+      "explicitAdmissionDiagnostic": true,
+      "logSHA256": "95e5b81534a6c1b7c146cb6ad0c1938113ebcb3b47ccd68b6e3873c7bb029e01"
+    },
+    {
+      "setting": "0",
+      "path": "/Users/n/numi-standing-reconcile-runs-20261013/cpu-conditioning-workers-invalid-1",
+      "exit": 1,
+      "zeroAcceptedPhysicalRoots": true,
+      "explicitAdmissionDiagnostic": true,
+      "logSHA256": "285b3edbcf9c274cdf186e3ab4e4f187e5555eb8333da85b3af63917beb02b14"
+    },
+    {
+      "setting": "3",
+      "path": "/Users/n/numi-standing-reconcile-runs-20261013/cpu-conditioning-workers-invalid-2",
+      "exit": 1,
+      "zeroAcceptedPhysicalRoots": true,
+      "explicitAdmissionDiagnostic": true,
+      "logSHA256": "3b3f1edd189bdb1ccbfbabc5b5bb04f659921399ae41adc0a227296bce8b87a9"
+    },
+    {
+      "setting": "12",
+      "path": "/Users/n/numi-standing-reconcile-runs-20261013/cpu-conditioning-workers-invalid-3",
+      "exit": 1,
+      "zeroAcceptedPhysicalRoots": true,
+      "explicitAdmissionDiagnostic": true,
+      "logSHA256": "f136ebb00ee10407df5b16c9a0d8ed3a07f03befa5f853d45f98c17909fae742"
+    },
+    {
+      "setting": "16 ",
+      "path": "/Users/n/numi-standing-reconcile-runs-20261013/cpu-conditioning-workers-invalid-4",
+      "exit": 1,
+      "zeroAcceptedPhysicalRoots": true,
+      "explicitAdmissionDiagnostic": true,
+      "logSHA256": "16dbb29f1a49008f813c51a58773fabf6002de3b3ec71efbcbfc6bc76d49c9c2"
+    },
+    {
+      "setting": "-1",
+      "path": "/Users/n/numi-standing-reconcile-runs-20261013/cpu-conditioning-workers-invalid-5",
+      "exit": 1,
+      "zeroAcceptedPhysicalRoots": true,
+      "explicitAdmissionDiagnostic": true,
+      "logSHA256": "b0372b437f124a66893fd3a0fa63f604527fe00f0c70e35e538754a217ea9211"
+    },
+    {
+      "setting": "",
+      "path": "/Users/n/numi-standing-reconcile-runs-20261013/cpu-conditioning-workers-invalid-6",
+      "exit": 1,
+      "zeroAcceptedPhysicalRoots": true,
+      "explicitAdmissionDiagnostic": true,
+      "logSHA256": "6b02fe35db1bde876fb45e448f2b77d6737f4280ae509c1c86c91ae71bff19f3"
+    }
+  ],
+  "sourceSHA256": {
+    "src/metal/MetalArticulatedOperator.mm": "537046b2ce8afae0e8bd2f1c5469251b29b8d6eca2506f7d487696f2f77f78de",
+    "src/metal/HumanHostPhaseTrace.hpp": "071e18d6ef54169f730f9ec0134c18d2f9586a1d58482edd00cccddcca885a6d"
+  },
+  "scope": "Invalid worker experiment settings rejected before any accepted live CPU-handoff physical root. Initial static source preparation is not claimed to avoid GPU execution."
+}

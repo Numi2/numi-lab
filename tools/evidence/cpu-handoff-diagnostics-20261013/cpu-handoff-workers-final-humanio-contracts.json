@@ -1,0 +1,26 @@
+{
+  "passed": true,
+  "runs": [
+    {
+      "profile": false,
+      "testsPassed": 3,
+      "humanIOHostMarkers": 0,
+      "logPath": "/Users/n/numi-standing-reconcile-runs-20261013/cpu-handoff-workers-final-humanio-control-tests.log",
+      "sha256": "e0578aff9cf85f8adf3fcc859889657e17e2dedda9a402b32cdad07253e686cc"
+    },
+    {
+      "profile": true,
+      "testsPassed": 3,
+      "humanIOHostMarkers": 32,
+      "logPath": "/Users/n/numi-standing-reconcile-runs-20261013/cpu-handoff-workers-final-humanio-enabled-tests.log",
+      "sha256": "6e617dae8dff8d58741166e65f9048b6ca3a72ad5b15c435bffb34030892f837"
+    }
+  ],
+  "testedSourceSHA256": {
+    "src/metal/HumanHostPhaseTrace.hpp": "071e18d6ef54169f730f9ec0134c18d2f9586a1d58482edd00cccddcca885a6d",
+    "src/metal/MetalArticulatedOperator.mm": "537046b2ce8afae0e8bd2f1c5469251b29b8d6eca2506f7d487696f2f77f78de",
+    "src/metal/MetalNumanXHumanIO.mm": "709cf5d6f584dce9e8d95aeb2cb6cbaaa53e084bff0e585303fcba346c1e538a",
+    "apps/NumiHumanBrainController.hpp": "200bffcde0b93f7d523fa143ec1f7aeb7d5d6938d6d8b5075ab6f676b41a52a1"
+  },
+  "scope": "Existing CPU exact-v2 contract plus native exact receipt and motor/sensor transactions, profiling disabled and enabled. Diagnostic-only change; no speed or physical qualification beyond test assertions."
+}

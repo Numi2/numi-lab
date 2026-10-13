@@ -1,0 +1,93 @@
+{
+  "passed": true,
+  "sourceBase": "69a5f3ed06acd8c1d244277f4a1a4ab66dadeeec",
+  "testedSourceSHA256": {
+    "src/metal/MetalArticulatedOperator.mm": "537046b2ce8afae0e8bd2f1c5469251b29b8d6eca2506f7d487696f2f77f78de",
+    "src/metal/HumanHostPhaseTrace.hpp": "071e18d6ef54169f730f9ec0134c18d2f9586a1d58482edd00cccddcca885a6d"
+  },
+  "workerSettings": [
+    "8",
+    "8"
+  ],
+  "comparisons": {
+    "human_brain_sensor_audit=accepted": {
+      "exactAcrossAllSixCases": true,
+      "rowsPerCase": 112
+    },
+    "human_brain_motor_audit=accepted": {
+      "exactAcrossAllSixCases": true,
+      "rowsPerCase": 112
+    },
+    "human_standing_progress=accepted": {
+      "exactAcrossAllSixCases": true,
+      "rowsPerCase": 112
+    },
+    "human_brain_joint_commit=accepted": {
+      "exactAcrossAllSixCases": true,
+      "rowsPerCase": 2
+    }
+  },
+  "imagesExactSHA256": {
+    "front": "0277871d88ff344c4f7d0ebff26de7a0637d701b770595dd41286e0f7104cc8a",
+    "rear": "4ce0cd9003f2abecb3ef7a2cd18fcdc6d8df76fd3681459ab9285b35741c2694",
+    "side": "38adca3d384df82d60053b4da1a8014065202e8b3c09daf5543afda05c4ec601",
+    "oblique": "435e068fd90785bdc8c2786e5723f0f835a321b44bf90a4366c75c43435d2ae7"
+  },
+  "geometrySectionsExact": [
+    2,
+    3,
+    4
+  ],
+  "currentInputPins": {
+    "binary": {
+      "oldSHA256": "01405fd98062b704f11717b73642f9b411cc426e2904909ac29b2d60fbfec4cb",
+      "currentSHA256": "18d55091e63e771952ae68581708dfe72302ce241e09190548bfb4cb86d46d3e",
+      "path": "/Users/n/numi-lab-standing-reconcile-20261013/build/bin/numi-human-native"
+    },
+    "lab_library": {
+      "oldSHA256": "a677e166b7fb4c214189f3d9d2d888d1dc429ef0eaa3a68c962f1e1f5d8ed3db",
+      "currentSHA256": "a677e166b7fb4c214189f3d9d2d888d1dc429ef0eaa3a68c962f1e1f5d8ed3db",
+      "path": "/Users/n/numi-lab-standing-reconcile-20261013/build/lib/libmetalrobo.dylib"
+    },
+    "brain_library": {
+      "oldSHA256": "66a5895cdcce343068e604294461f1dc64c343973b20817b82f142d7aa261719",
+      "currentSHA256": "66a5895cdcce343068e604294461f1dc64c343973b20817b82f142d7aa261719",
+      "path": "/Users/n/numi-brain-standing-reconcile-20261013/.build/arm64-apple-macosx/release/libNumiBrainHumanStanding.dylib"
+    },
+    "rigid_source": {
+      "oldSHA256": "6328f7e84663c611c5498624d1386b00b2d5b0e162c4cc2967c7b1dc49ab0c44",
+      "currentSHA256": "6328f7e84663c611c5498624d1386b00b2d5b0e162c4cc2967c7b1dc49ab0c44",
+      "path": "/Users/n/numi-human-standing-reconcile-20261013/Docs/media/native-runtime-source-package-20260915/input/myosim-fullbody-core-reference.nhrigid"
+    },
+    "muscle_source": {
+      "oldSHA256": "9a988f19a6fd8e533cd0f2bf3192cb8535fb008ccd394ffbf1a4432d3db76a05",
+      "currentSHA256": "9a988f19a6fd8e533cd0f2bf3192cb8535fb008ccd394ffbf1a4432d3db76a05",
+      "path": "/Users/n/numi-human-standing-reconcile-20261013/Docs/media/native-runtime-source-package-20260915/input/myosim-fullbody-muscle-reference.nhmyo"
+    },
+    "support_contact_source": {
+      "oldSHA256": "4d54f8155cd83baaee7af536099824ac0da61e5d5e77544b42c6e5ce1b48c907",
+      "currentSHA256": "4d54f8155cd83baaee7af536099824ac0da61e5d5e77544b42c6e5ce1b48c907",
+      "path": "/Users/n/numi-human-standing-reconcile-20261013/Docs/media/native-runtime-source-package-20260915/input/myosim-fullbody-support-contact.nhcnt"
+    },
+    "joint_equality_source": {
+      "oldSHA256": "b97f755c769d0af16e02ab5deb9d85bd0cc921649197f71d308e98130ac69b6a",
+      "currentSHA256": "b97f755c769d0af16e02ab5deb9d85bd0cc921649197f71d308e98130ac69b6a",
+      "path": "/Users/n/numi-human-standing-reconcile-20261013/Docs/media/native-runtime-source-package-20260915/input/myosim-fullbody-joint-equalities.nheq"
+    },
+    "tendon_source": {
+      "oldSHA256": "a594194f510eb4aa990a8767f868f999a10b4fedb745c8665368a231ed39b555",
+      "currentSHA256": "a594194f510eb4aa990a8767f868f999a10b4fedb745c8665368a231ed39b555",
+      "path": "/Users/n/numi-human-standing-reconcile-20261013/Docs/media/native-runtime-source-package-20260915/input/numi-human-tendon-attachments.nhtendon"
+    },
+    "bodyparts3d_bone_source": {
+      "oldSHA256": "f9132393dfb259a80e2b2084ac5ff15f2bf988f7e073f7a961a7ddcfb9febc3c",
+      "currentSHA256": "f9132393dfb259a80e2b2084ac5ff15f2bf988f7e073f7a961a7ddcfb9febc3c",
+      "path": "/Users/n/human-completion-20260907/input/bodyparts3d-myosim-major-bones.nhbones"
+    }
+  },
+  "rawRunDirectories": [
+    "/Users/n/numi-standing-reconcile-runs-20261013/cpu-conditioning-workers-current-112-8",
+    "/Users/n/numi-standing-reconcile-runs-20261013/cpu-conditioning-current-main-112-8"
+  ],
+  "scope": "Native112-root compatibility with concurrently advanced main69a5: every accepted record, image, geometry and all non-executable input pins match prior qualified d4 build. Executable changed for retired-liver loader guard; core library and diagnostic sources unchanged. Old full-horizon timing remains pinned to d4."
+}
