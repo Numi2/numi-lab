@@ -1,0 +1,17 @@
+{
+  "device": "Apple M4 Pro",
+  "human_commit": "f9d50d0ecaa3394f19f056aa0f28eb52a4e2770e",
+  "brain_commit": "a1cf7218fae5d26f9aed9d845047fc6c472ad596",
+  "lab_base_commit": "85c8c73053603ab9185c2d46f7c5a923afb46c6c",
+  "accepted_simulated_seconds": 0.032,
+  "steps": 32,
+  "training_complete": false,
+  "ten_second_gate": "not yet executed",
+  "root_assistance": false,
+  "controller": "source-prepared default Brain program; not a learned balance claim",
+  "source_files": {
+    ".numi/commands/human-brain-standing": "ff5022d14260b828b42ac14acf751cab193052fc73fa635b58fcf493bf28b6cf"
+  },
+  "binary_sha256": "97e3ce38fb5c1a5b4ba40afd7b19e7421f5d879574ec02769992b8e0aaab7d4b",
+  "lab_library_sha256": "59a7608e0c5f380ceccdd56d683ff1960a14bad57aa48b25ff051f162933eb21"
+}

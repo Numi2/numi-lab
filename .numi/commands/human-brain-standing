@@ -2,7 +2,7 @@
 set -euo pipefail
 
 if [[ "${1:-}" == "--numi-describe" ]]; then
-    printf '%s\n' 'Run native Human standing with NumiBrain sensory and muscle participation, rendering the accepted BodyParts3D skeleton and muscle surfaces with source hashes. Defaults to 4 ms; set NUMI_HUMAN_BRAIN_STEPS for a longer run. Set NUMI_HUMAN_BRAIN_STAND_BACKEND=cpu-one-handoff for the measured single-Human Accelerate stand path.'
+    printf '%s\n' 'Run source-pinned native Human standing with NumiBrain receptor and muscle participation. Defaults to a four-step smoke run; set NUMI_HUMAN_BRAIN_STEPS=10000 for the 10-second quiet-stance gate. The run records accepted sensor and muscle audits plus accepted body-motion and COM/support records.'
     exit 0
 fi
 
@@ -13,11 +13,51 @@ fi
 
 command_directory=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)
 repository_root=$(CDPATH= cd -- "$command_directory/../.." && pwd -P)
-build_directory=${NUMI_HUMAN_BRAIN_BUILD_DIR:-"$HOME/numi-lab-brain-cpu-build-20260922"}
+human_repository=${NUMI_HUMAN_BRAIN_HUMAN_REPOSITORY:-${NUMI_HUMAN_SOURCE_ROOT:-"$HOME/numilab-human"}}
+expected_human_revision=${NUMI_HUMAN_BRAIN_HUMAN_REVISION:-f9d50d0ecaa3394f19f056aa0f28eb52a4e2770e}
+actual_human_revision=$(git -C "$human_repository" rev-parse HEAD 2>/dev/null || printf unavailable)
+if [[ "$actual_human_revision" != "$expected_human_revision" ]]; then
+    printf 'Human source revision mismatch: expected %s, found %s\n' "$expected_human_revision" "$actual_human_revision" >&2
+    exit 1
+fi
+if ! human_status=$(git -C "$human_repository" status --porcelain 2>/dev/null); then
+    printf 'Cannot inspect Human source worktree: %s\n' "$human_repository" >&2
+    exit 1
+fi
+if [[ -n "$human_status" ]]; then
+    printf 'Human source worktree is dirty: %s\n' "$human_repository" >&2
+    exit 1
+fi
+brain_repository=${NUMI_HUMAN_BRAIN_REPOSITORY:-${NUMI_BRAIN_ROOT:-"$HOME/numi-brain"}}
+expected_brain_revision=${NUMI_HUMAN_BRAIN_REVISION:-a1cf7218fae5d26f9aed9d845047fc6c472ad596}
+actual_brain_revision=$(git -C "$brain_repository" rev-parse HEAD 2>/dev/null || printf unavailable)
+if [[ "$actual_brain_revision" != "$expected_brain_revision" ]]; then
+    printf 'NumiBrain source revision mismatch: expected %s, found %s\n' "$expected_brain_revision" "$actual_brain_revision" >&2
+    exit 1
+fi
+if ! brain_status=$(git -C "$brain_repository" status --porcelain 2>/dev/null); then
+    printf 'Cannot inspect NumiBrain source worktree: %s\n' "$brain_repository" >&2
+    exit 1
+fi
+if [[ -n "$brain_status" ]]; then
+    printf 'NumiBrain source worktree is dirty: %s\n' "$brain_repository" >&2
+    exit 1
+fi
+build_directory=${NUMI_HUMAN_BRAIN_BUILD_DIR:-"$repository_root/build"}
 binary=${NUMI_HUMAN_BRAIN_BINARY:-"$build_directory/bin/metalrobo_numilab_human_myosim_visual_probe"}
 lab_library="$build_directory/lib/libmetalrobo.dylib"
-source_directory=${NUMI_HUMAN_BRAIN_SOURCE_DIR:-"$HOME/NumiHumanCurrent"}
-brain_library=${NUMI_HUMAN_BRAIN_DYLIB:-"$HOME/numi-brain-humanstanding-20260922/.build/arm64-apple-macosx/debug/libNumiBrainHumanStanding.dylib"}
+source_directory=${NUMI_HUMAN_BRAIN_SOURCE_DIR:-"$human_repository/Docs/media/native-runtime-source-package-20260915/input"}
+brain_library=${NUMI_HUMAN_BRAIN_DYLIB:-}
+if [[ -z "$brain_library" ]]; then
+    for directory in "$brain_repository/.build/arm64-apple-macosx/release" \
+                     "$brain_repository/.build/release" \
+                     "$brain_repository/.build/out/Products/Release"; do
+        if [[ -f "$directory/libNumiBrainHumanStanding.dylib" ]]; then
+            brain_library="$directory/libNumiBrainHumanStanding.dylib"
+            break
+        fi
+    done
+fi
 brain_resource_bundle="$(dirname -- "$brain_library")/NumiBrain_NumiBrainMetal.bundle"
 rigid_source="$source_directory/myosim-fullbody-core-reference.nhrigid"
 muscle_source="$source_directory/myosim-fullbody-muscle-reference.nhmyo"
@@ -25,15 +65,15 @@ contact_source="$source_directory/myosim-fullbody-support-contact.nhcnt"
 equality_source="$source_directory/myosim-fullbody-joint-equalities.nheq"
 tendon_source="$source_directory/numi-human-tendon-attachments.nhtendon"
 bone_source=${NUMI_HUMAN_BRAIN_BONES:-"$HOME/human-completion-20260907/input/bodyparts3d-myosim-major-bones.nhbones"}
-muscle_surface_source=${NUMI_HUMAN_BRAIN_MUSCLE_SURFACES:-"$HOME/human-completion-20260907/input/bodyparts3d-myosim-fullbody-muscle-surfaces.nhtissue"}
+muscle_surface_source=${NUMI_HUMAN_BRAIN_MUSCLE_SURFACES:-}
 seed=${NUMI_HUMAN_BRAIN_SEED:-1314213193}
 steps=${NUMI_HUMAN_BRAIN_STEPS:-4}
 if [[ ! "$steps" =~ ^[1-9][0-9]*$ ]] || (( ${#steps} > 5 )) || (( steps > 10000 )); then
     printf 'NUMI_HUMAN_BRAIN_STEPS must be from 1 through 10000: %s\n' "$steps" >&2
     exit 2
 fi
-sensor_audit=${NUMI_HUMAN_BRAIN_SENSOR_AUDIT:-0}
-motor_audit_interval=${NUMI_HUMAN_BRAIN_MOTOR_AUDIT_INTERVAL:-0}
+sensor_audit=${NUMI_HUMAN_BRAIN_SENSOR_AUDIT:-1}
+motor_audit_interval=${NUMI_HUMAN_BRAIN_MOTOR_AUDIT_INTERVAL:-1}
 geometry_overlap=${NUMI_HUMAN_OVERLAP_GEOMETRY:-1}
 stand_backend=${NUMI_HUMAN_BRAIN_STAND_BACKEND:-gpu-stand}
 if [[ -n "${NUMI_HUMAN_BRAIN_STAND_BACKEND:-}" &&
@@ -103,7 +143,9 @@ require_file "$contact_source"
 require_file "$equality_source"
 require_file "$tendon_source"
 require_file "$bone_source"
-require_file "$muscle_surface_source"
+if [[ -n "$muscle_surface_source" ]]; then
+    require_file "$muscle_surface_source"
+fi
 if [[ "${NUMI_HUMAN_BRAIN_DISABLE_STATIC_CACHE:-0}" != 0 &&
       "${NUMI_HUMAN_BRAIN_DISABLE_STATIC_CACHE:-0}" != 1 ]]; then
     printf 'NUMI_HUMAN_BRAIN_DISABLE_STATIC_CACHE must be 0 or 1\n' >&2
@@ -149,7 +191,6 @@ arguments=(
     --support-contact-payload "$contact_source"
     --joint-equality-payload "$equality_source"
     --tendon-payload "$tendon_source"
-    --soft-tissue-payload "$muscle_surface_source"
     --dimension 512
     --support-stance-dof 2 0.02
     --support-stance-dof 108 0.1
@@ -167,6 +208,9 @@ arguments=(
     --stand-brain-library "$brain_library"
     --stand-brain-seed "$seed"
 )
+if [[ -n "$muscle_surface_source" ]]; then
+    arguments+=(--soft-tissue-payload "$muscle_surface_source")
+fi
 if [[ -n "${NUMI_HUMAN_BRAIN_PROGRAM:-}" ]]; then
     require_file "$NUMI_HUMAN_BRAIN_PROGRAM"
     if [[ -z "${NUMI_HUMAN_BRAIN_JOINT_PATH_CALIBRATION:-}" ]]; then
@@ -198,10 +242,11 @@ if [[ -n "${NUMI_HUMAN_BRAIN_PUSH_START_STEP:-}" ]]; then
 fi
 
 {
-    printf 'output_directory=%s\n' "$output_directory"
+    printf 'output_directory=%s\nhuman_source_revision=%s\nbrain_source_revision=%s\n' "$output_directory" "$actual_human_revision" "$actual_brain_revision"
     printf 'native_timestep_microseconds=1000\nbrain_epoch_microseconds=1000\nrequested_physical_steps=%s\nseed=%s\n' "$steps" "$seed"
     printf 'accepted_sensor_audit=%s\n' "$sensor_audit"
     printf 'accepted_motor_audit_interval=%s\n' "$motor_audit_interval"
+    printf 'accepted_com_momentum_audit=1\naccepted_body_motion_audit=1\naccepted_body_motion_cadence_steps=1\n'
     printf 'mechanics_only=%s\n' "$mechanics_only"
     printf 'binary '; shasum -a 256 "$binary"
     printf 'lab_library '; shasum -a 256 "$lab_library"
@@ -218,7 +263,9 @@ fi
     printf 'joint_equality_source '; shasum -a 256 "$equality_source"
     printf 'tendon_source '; shasum -a 256 "$tendon_source"
     printf 'bodyparts3d_bone_source '; shasum -a 256 "$bone_source"
-    printf 'bodyparts3d_muscle_surface_source '; shasum -a 256 "$muscle_surface_source"
+    if [[ -n "$muscle_surface_source" ]]; then
+        printf 'bodyparts3d_muscle_surface_source '; shasum -a 256 "$muscle_surface_source"
+    fi
     printf 'launcher '; shasum -a 256 "$repository_root/.numi/commands/human-brain-standing"
     if [[ -n "${NUMI_HUMAN_BRAIN_PROGRAM:-}" ]]; then
         printf 'locomotor_program '; shasum -a 256 "$NUMI_HUMAN_BRAIN_PROGRAM"
@@ -259,7 +306,7 @@ mkdir -p "$artifact_root"
 if (( steps >= 1000 )); then
     available_kib=$(df -k "$artifact_root" | tail -n 1 | awk '{print $4}')
     if (( available_kib < 10 * 1024 * 1024 )); then
-        printf 'Human Brain long run needs at least 10 GiB free before input retention\n' >&2
+        printf 'Human Brain long run needs at least 10 GiB free for audits and retained inputs\n' >&2
         exit 1
     fi
 fi
@@ -321,6 +368,11 @@ else
 fi
 
 printf 'numi_human_brain_run_directory=%s\n' "$output_directory"
+export NUMI_HUMAN_BRAIN_SENSOR_AUDIT="$sensor_audit"
+export NUMI_HUMAN_BRAIN_MOTOR_AUDIT_INTERVAL="$motor_audit_interval"
+export NUMI_HUMAN_ACCEPTED_COM_MOMENTUM_AUDIT=1
+export NUMI_HUMAN_ACCEPTED_BODY_MOTION_AUDIT=1
+export NUMI_HUMAN_ACCEPTED_COM_MOMENTUM_AUDIT_SEGMENT_STEPS=1
 export NUMI_HUMAN_EXECUTION_STAGES=${NUMI_HUMAN_EXECUTION_STAGES:-1}
 export NUMI_HUMAN_OVERLAP_GEOMETRY="$geometry_overlap"
 if [[ "$stand_backend" == cpu-one-handoff ]]; then
