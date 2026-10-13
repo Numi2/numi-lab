@@ -6421,6 +6421,21 @@ if(APPLE)
         set_tests_properties(human.metal.resting_bed_query PROPERTIES LABELS "human;metal;resting" TIMEOUT 60)
     endif()
 
+    # Existing retained terminal logs may supply a construction-only posture.
+    add_executable(numi-human-resting-initial-posture-check EXCLUDE_FROM_ALL
+        tests/numi_human_resting_initial_posture_test.mm)
+    target_include_directories(numi-human-resting-initial-posture-check PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}")
+    target_compile_options(numi-human-resting-initial-posture-check PRIVATE
+        -fobjc-arc -Wall -Wextra -Wpedantic)
+    target_link_libraries(numi-human-resting-initial-posture-check PRIVATE "-framework Foundation")
+    if(BUILD_TESTING)
+        add_test(NAME human.resting_initial_posture_admission
+            COMMAND numi-human-resting-initial-posture-check)
+        set_tests_properties(human.resting_initial_posture_admission PROPERTIES
+            LABELS "human;resting;admission" TIMEOUT 30)
+    endif()
+
     # CPU-only Foundation parser coverage for the resting-scene bed manifest.
     add_executable(numi-human-resting-bed-admission-check EXCLUDE_FROM_ALL
         tests/numi_human_resting_bed_admission_test.mm)

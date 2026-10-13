@@ -28,6 +28,9 @@
 #include "metalrobo/NumiHumanRestingHandReduction.hpp"
 #include "metalrobo/NumiHumanCompliantEquilibrium.hpp"
 #include "metalrobo/NumiHumanInitialState.hpp"
+#ifdef NUMI_HUMAN_RESTING_SCENE
+#include "NumiHumanRestingInitialPosture.hpp"
+#endif
 #include "NumiHumanBrainController.hpp"
 #include "NumiHumanBrainSource.hpp"
 #include "numi/matter/human_limits_gpu.h"
@@ -5544,7 +5547,8 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     const std::uint32_t acceptedComMomentumAuditSegmentSteps = 32u,
     const std::span<const MRNumiHumanHipCapsuleTermGPU> hipCapsuleTerms = {},
     const numiHumanAcceptedQAuditWindow::Window qIntegrationWindow = {},
-    const std::optional<double> sharedMtpStiffnessNmPerRad = std::nullopt
+    const std::optional<double> sharedMtpStiffnessNmPerRad = std::nullopt,
+    const bool preserveRestingInitialPosture = false
 ) {
     require(restingProgram == nullptr ||
                 (restingProgram->valid() && acceptedObserver != nullptr &&
@@ -5555,6 +5559,10 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             "resting physiology requires one unassisted physical owner and accepted observer");
     require(!restingReleaseInitialization || restingProgram != nullptr,
             "dynamic release initialization requires the resting owner");
+    require(!preserveRestingInitialPosture ||
+                (restingProgram != nullptr && restingReleaseInitialization &&
+                 supportGeometryProgram != nullptr && seedPoseQ.size() == model.world.nq),
+            "an authored resting posture requires released full-skin GPU contact");
     require(!acceptedComMomentumAudit || restingProgram != nullptr,
             "accepted COM momentum audit requires the resting owner");
     if (!hipCapsuleTerms.empty()) {
@@ -5667,8 +5675,16 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     const auto persistentPassiveCouplings =
         persistentPassiveCoordinateCouplings(
             model, sourcePassiveJointTissue, sharedMtpStiffnessNmPerRad);
-    GroundAlignedSupport aligned =
-        makeGroundAlignedSupport(model, supportContacts, seedPoseQ);
+    GroundAlignedSupport aligned;
+    if (preserveRestingInitialPosture) {
+        // Construction-only world pose. Re-aligning its rigid NHCNT seeds to
+        // the legacy z=0 plane would move it relative to its fixed bed.
+        aligned.q.assign(seedPoseQ.begin(), seedPoseQ.end());
+        aligned.witnessCount = supportContacts.header.contactCount;
+        aligned.seedTranslationMeters = 0.0;
+    } else {
+        aligned = makeGroundAlignedSupport(model, supportContacts, seedPoseQ);
+    }
     if (initialCoordinate.has_value()) {
         const auto [qIndex, value] = *initialCoordinate;
         const auto dof = std::find_if(
@@ -5783,6 +5799,18 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     // Explicit tissue poses disable pose search before recruitment, so q,
     // activation and every reported force refer to the same accepted posture.
     const std::vector<float> q = packMetalConfiguration(compiledActivation.q);
+    if (preserveRestingInitialPosture) {
+        require(q.size() == seedPoseQ.size() &&
+                    std::equal(q.begin(), q.end(), seedPoseQ.begin()),
+                "resting initialization changed the authored posture");
+        require(std::all_of(model.defaultV.begin(), model.defaultV.end(),
+                    [](double value) { return value == 0.0; }),
+                "fresh resting posture requires zero source initial velocity");
+        std::cout << "resting_initial_posture=preserved world_translation_applied_m=0"
+                  << " initial_velocity=zero muscles=fresh_source_recruitment"
+                  << " physiology=fresh_reference controller=fresh_reference"
+                  << " qualification=construction_posture_not_restart\n";
+    }
     MRCompensatedRootTranslationGPU initialRoot{};
     std::string initialRootError;
     require(compiledActivation.q.size() >= 3u &&
@@ -20991,6 +21019,7 @@ int main(int argc, char** argv) {
             std::string restingMovie;
             std::string restingAnatomyReceipt;
             std::string restingBedSurface;
+            std::string restingInitialPosture;
             std::string inspectTerminalState;
             bool restingDenseVascular=false;
             std::optional<double> restingReferenceMassKg;
@@ -21005,6 +21034,11 @@ int main(int argc, char** argv) {
                     require(index+2<argc&&!restingScene.has_value(),"--resting-scene requires network and respiration JSON once");
                     std::string network=argv[++index];std::string respiration=argv[++index];
                     restingScene.emplace(network,respiration);continue;
+                }
+                if(argument=="--resting-initial-posture") {
+                    require(index+1<argc&&restingInitialPosture.empty(),
+                        "--resting-initial-posture requires one completed native log");
+                    restingInitialPosture=argv[++index];continue;
                 }
                 if(argument=="--resting-bed-surface") {
                     require(index+1<argc&&restingBedSurface.empty(),
@@ -21466,7 +21500,7 @@ int main(int argc, char** argv) {
                           << " [--muscle-step-count <1.."
                           << MR_NUMI_HUMAN_STAND_MAX_HORIZON_STEPS << "; extended horizons require unassisted persistent stand>]"
                           << " [--muscle-activation <0..1>]"
-                          << " [--resting-release-initialization] [--resting-hip-capsule-reference] [--resting-hip-capsule-scale <finite-positive>] [--persistent-metal-stand] [--mechanics-only] [--persistent-source-passive-joint-tissue] [--source-mtp-passive-stiffness-nm-per-rad <finite-nonnegative>] [--persistent-runtime-without-passive-joint-tissue] [--selected-tendon-control] [--stand-root-assistance] [--stand-remove-assistance] [--stand-deterministic-replay] [--persistent-stand-trace] [--stand-endpoint-energy] [--stand-contact-iterations <1..64>] [--stand-muscle-feedback <length-gain> <velocity-gain-seconds>] [--stand-muscle-path-feedback <length-gain> <velocity-gain-seconds>]"
+                          << " [--resting-release-initialization] [--resting-initial-posture <completed-native-log>] [--resting-hip-capsule-reference] [--resting-hip-capsule-scale <finite-positive>] [--persistent-metal-stand] [--mechanics-only] [--persistent-source-passive-joint-tissue] [--source-mtp-passive-stiffness-nm-per-rad <finite-nonnegative>] [--persistent-runtime-without-passive-joint-tissue] [--selected-tendon-control] [--stand-root-assistance] [--stand-remove-assistance] [--stand-deterministic-replay] [--persistent-stand-trace] [--stand-endpoint-energy] [--stand-contact-iterations <1..64>] [--stand-muscle-feedback <length-gain> <velocity-gain-seconds>] [--stand-muscle-path-feedback <length-gain> <velocity-gain-seconds>]"
                           << " [--stand-push <start-step> <duration-steps> <fx-N> <fy-N> <fz-N>]"
                           << " [--stand-brain-library <NumiBrainHumanStanding.dylib>]"
                           << " [--stand-brain-program <source-bound-MuscleLocomotorProgram.json>]"
@@ -22177,6 +22211,11 @@ int main(int argc, char** argv) {
                          *muscleStepCount >= 8u),
                     "--open-knee-sustained-certificate requires live Open Knee mechanics and at least eight Human steps");
 #ifdef NUMI_HUMAN_RESTING_SCENE
+            require(restingInitialPosture.empty() ||
+                        (restingScene.has_value() && persistentMetalStand && restingReleaseInitialization &&
+                         skinPayloadPath.has_value() && inspectTerminalState.empty() &&
+                         !requestedRootPose.has_value() && requestedPoseCoordinates.empty()),
+                    "--resting-initial-posture requires released resting full-skin contact and no other pose override");
             require(restingBedSurface.empty() ||
                         (restingScene.has_value() && persistentMetalStand && restingReleaseInitialization &&
                          skinPayloadPath.has_value()),
@@ -22890,6 +22929,19 @@ int main(int argc, char** argv) {
             }
             std::optional<PectoralisFasciaVisual> pectoralisFascia;
 #ifdef NUMI_HUMAN_RESTING_SCENE
+            if(!restingInitialPosture.empty()) {
+                const auto posture = numi::human::resting_initial_posture::readRestingInitialPosture(restingInitialPosture,
+                    loadedKneeSHA256Hex(rigid.payloadSha256), rigid.model.world.nq);
+                overriddenPoseQ = posture.q;
+                poseQ = overriddenPoseQ;
+                std::cout << std::setprecision(17)
+                    << "resting_initial_posture_source=" << restingInitialPosture
+                    << " sha256=" << loadedKneeSHA256Hex(loadedKneeFileSHA256(restingInitialPosture))
+                    << " source_step_count=" << posture.stepCount
+                    << " source_timestep_s=" << posture.timestepSeconds
+                    << " nq=" << poseQ.size()
+                    << " qualification=posture_only_fresh_dynamics_not_checkpoint_restart\n";
+            }
             if(!inspectTerminalState.empty()) {
                 require(!restingScene&&!muscleStepSeconds&&!requestedRootPose&&requestedPoseCoordinates.empty(),
                     "terminal-state inspection cannot change or advance the retained physical state");
@@ -23528,6 +23580,8 @@ int main(int argc, char** argv) {
                 if(torsoAnatomyPayloadPath)appendSource("NHANATOMY",payloadBytes(*torsoAnatomyPayloadPath));
                 if(skinPayloadPath)appendSource("NHSKIN_full_surface_contact",payloadBytes(*skinPayloadPath));
                 appendSource("resting_initial_q",std::as_bytes(std::span(poseQ)));
+                if(!restingInitialPosture.empty())
+                    appendSource("resting_constructor_posture_log",payloadBytes(restingInitialPosture));
                 if(restingReferenceMassKg)appendSource("resting_reference_mass_inertia",std::as_bytes(std::span(rigid.model.bodies)));
                 const std::array<double,6> settings{muscleActivation.value_or(kDefaultPersistentStandActivationCap),
                     double(standContactIterationCount.value_or(16u)),double(persistentSourcePassiveJointTissue),
@@ -24717,7 +24771,7 @@ int main(int argc, char** argv) {
                     poseQ,&restingProgram,&observer,liveVisual?&skinSupportProgram:nullptr,
                     restingReleaseInitialization,restingComMomentumAudit,
                     restingComMomentumAuditSegmentSteps, restingHipCapsuleTerms, qIntegrationWindow,
-                    sourceMtpPassiveStiffnessNmPerRad);
+                    sourceMtpPassiveStiffnessNmPerRad, !restingInitialPosture.empty());
                 if (!restingHipCapsuleTerms.empty()) {
                     double terminalHipPotential=0.0;
                     const auto& articulation=rigid.model.articulations.front();
