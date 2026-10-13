@@ -836,11 +836,11 @@ def compile_binding(input_path: Path, receipt_path: Path, output_path: Path, out
             {"stable_id": LV_ID, "source_member": "FJ2422", "fma_id": "FMA9466"},
         ],
         "passive_outer_heart_bindings": [
-            {"stable_id": 1, "source_member": "FJ2439", "fma_id": "FMA7088",
+            {"stable_id": 1, "source_member": "FJ2439", "fma_id": "FMA9457",
              "source_sha256": source_map["1"]["source_sha256"]},
             {"stable_id": 23, "source_member": "FJ2428", "fma_id": "FMA13884",
              "source_sha256": source_map["23"]["source_sha256"]},
-            {"stable_id": 24, "source_member": "FJ2438", "fma_id": "FMA7088",
+            {"stable_id": 24, "source_member": "FJ2438", "fma_id": "FMA9531",
              "source_sha256": source_map["24"]["source_sha256"]},
         ],
         "cavity_motion": "source-centroid radial free-wall dilation using the explicit inferred registration parameters below; positive radius and exact accepted-phase embedding are required",
