@@ -1385,6 +1385,22 @@ public:
                         <<" unused_leading_vertices="<<(base-sourceBase)<<"\n";
                 base=sourceBase;
             }
+            const std::vector<std::vector<MRHumanRestingInfluence>>* anatomyParents=nullptr;
+            if(tissues&&instance.identity.x==kVesselSurfaceSemantic) {
+                const auto found=tissues->anatomyParentInfluences.find(instance.identity.w);
+                if(found!=tissues->anatomyParentInfluences.end()) {
+                    require(deformation==0&&instance.geometry.y==1&&
+                        instance.binding.z==MR_VISUAL_BINDING_ARTICULATED_LINK&&
+                        instance.binding.y<restBodies.size(),
+                        "passive vessel parents conflict with a functional deformation owner");
+                    anatomyParents=&found->second;
+                    // This extension requires all source vertices, including
+                    // the allocation's first vertex, in one contiguous primitive.
+                    require(vertices.size()==anatomyParents->size()&&
+                        vertices.back()-base+1==anatomyParents->size(),
+                        "passive vessel source vertex order differs from parent bindings");
+                }
+            }
             for(unsigned v:vertices) {
                 require(!maps.at(v).influenceCount,"resting anatomy vertices have multiple owners");
                 maps[v].deformationKind=deformation;maps[v].chamberIndex=chamber;
@@ -1460,6 +1476,26 @@ public:
                             add(v,tissue->bodyIndex[b],p,rotatePoint(q,{source.normalX,source.normalY,source.normalZ,0}),w);
                         }
                     }
+                }else if(anatomyParents) {
+                    const auto& vertex=pack.vertices.at(v);
+                    const auto local=addPoint(instance.translationAndScale,
+                        scalePoint(rotatePoint(instance.orientation,vertex.position),instance.translationAndScale.w));
+                    const auto normal=rotatePoint(instance.orientation,vertex.normalAndTangentSign);
+                    const auto& originalBody=restBodies.at(instance.binding.y);
+                    const auto childRest=addPoint(originalBody.position,rotatePoint(originalBody.orientation,local));
+                    const auto childRestNormal=rotatePoint(originalBody.orientation,normal);
+                    mr_float4 parentRest{};
+                    for(const auto& term:anatomyParents->at(v-base)) {
+                        require(term.body.x<restBodies.size(),"passive vessel parent body is absent");
+                        const auto& body=restBodies.at(term.body.x);
+                        parentRest=addPoint(parentRest,scalePoint(addPoint(body.position,
+                            rotatePoint(body.orientation,term.positionAndWeight)),term.positionAndWeight.w));
+                        add(v,term.body.x,term.positionAndWeight,
+                            rotatePoint(inverseRotation(body.orientation),childRestNormal),term.positionAndWeight.w);
+                    }
+                    const auto residual=subtractPoint(parentRest,childRest);
+                    require(dotPoint(residual,residual)<=4e-12f,
+                        "passive vessel parents change registered rest geometry by more than 2 micrometres");
                 }else if(deformation==9) {
                     const auto& vertex=pack.vertices.at(v);
                     require(instance.binding.z==MR_VISUAL_BINDING_ARTICULATED_LINK&&

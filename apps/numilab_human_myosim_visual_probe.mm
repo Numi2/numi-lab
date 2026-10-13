@@ -940,6 +940,7 @@ struct LoadedSoftTissues {
     bool usesRouteBodySparseWeights = false;
 #ifdef NUMI_HUMAN_RESTING_SCENE
     std::map<unsigned,std::vector<std::vector<MRHumanRestingInfluence>>> parentInfluences;
+    std::map<unsigned,std::vector<std::vector<MRHumanRestingInfluence>>> anatomyParentInfluences;
 #endif
 };
 
@@ -22078,6 +22079,11 @@ int main(int argc, char** argv) {
                 torsoAnatomyPayload.emplace(loadTorsoAnatomy(
                     *torsoAnatomyPayloadPath, rigid.header, bonePayload->header.reserved0
                 ));
+#ifdef NUMI_HUMAN_RESTING_SCENE
+                if(!restingAnatomyReceipt.empty()&&softTissuePayload)
+                    loadRestingAnatomyParentBindings(restingAnatomyReceipt,*torsoAnatomyPayloadPath,
+                        rigid.header,*torsoAnatomyPayload,*softTissuePayload);
+#endif
                 if (!torsoAnatomyLayerMaskSpecified && torsoAnatomyPayload->header.payloadAbi >= 4u) {
                     torsoAnatomyLayerMask = torsoAnatomyPayload->header.payloadAbi == 5u ? 32767u : 1023u;
                 }
@@ -23676,6 +23682,7 @@ int main(int argc, char** argv) {
                         fixedBed?&*fixedBed:nullptr);
                     // The existing GPU buffer now owns these static motion maps.
                     softTissuePayload->parentInfluences.clear();
+                    softTissuePayload->anatomyParentInfluences.clear();
                     if (restingAcceptedBodyMotionAudit) {
                         liveVisual->configureSupportMotionObserver(
                             std::filesystem::path(positional.back()) /

@@ -1,9 +1,15 @@
 #pragma once
-// Load-time refinement bindings for passive NHTISS inspection surfaces.
+#include <type_traits>
+// Load-time refinement bindings for passive anatomical inspection surfaces.
+// Vessel attachments use the same receipt terms, NHTISS carriers and GPU influences.
 // The existing accepted-pose GPU influence buffer remains the only motion owner.
-inline void loadRestingTissueParentBindings(
+template<class Child>
+inline void loadRestingParentBindings(
     const std::filesystem::path& receiptPath, const std::filesystem::path& childPath,
-    const RigidHeader& rigid, LoadedSoftTissues& child) {
+    const RigidHeader& rigid, const Child& child, unsigned registrationFingerprint,
+    NSString* surfaceKey, NSString* childDigestKey, bool vesselAttachments,
+    std::map<unsigned,std::vector<std::vector<MRHumanRestingInfluence>>>& outputBindings,
+    std::size_t existingInfluenceCount=0) {
     NSData* data=[NSData dataWithContentsOfFile:[NSString stringWithUTF8String:receiptPath.c_str()]];
     require(data!=nil,"cannot read resting anatomy receipt for tissue parents");
     NSError* error=nil;
@@ -12,6 +18,7 @@ inline void loadRestingTissueParentBindings(
     id extension=document[@"passive_tissue_parent_bindings"];
     if(!extension)return;
     require([extension isKindOfClass:NSDictionary.class],"invalid passive tissue parent bindings");
+    if(!extension[surfaceKey])return;
     auto uintValue=[](id value,const char* label)->unsigned {
         require([value isKindOfClass:NSNumber.class]&&
             CFGetTypeID((__bridge CFTypeRef)value)!=CFBooleanGetTypeID(),
@@ -28,11 +35,11 @@ inline void loadRestingTissueParentBindings(
         return loadedKneeSHA256Hex(loadedKneeSHA256(
             static_cast<const std::uint8_t*>(bytes.bytes),bytes.length));
     };
-    NSString* childSHA=extension[@"child_payload_sha256"];
+    NSString* childSHA=extension[childDigestKey];
     require([childSHA isKindOfClass:NSString.class]&&digest(childPath)==childSHA.UTF8String,
         "tissue parent binding child payload identity mismatch");
     NSArray* sources=extension[@"source_payloads"];
-    NSArray* surfaces=extension[@"surfaces"];
+    NSArray* surfaces=extension[surfaceKey];
     require([sources isKindOfClass:NSArray.class]&&sources.count>0&&sources.count<=8&&
         [surfaces isKindOfClass:NSArray.class]&&surfaces.count>0&&surfaces.count<=192,
         "tissue parent source/surface inventory is invalid");
@@ -50,10 +57,10 @@ inline void loadRestingTissueParentBindings(
         sourceIsChild.push_back([expected isEqualToString:childSHA]);
         parents.push_back(loadSoftTissues(path,rigid));
         require(parents.back().usesRouteBodySparseWeights&&
-            parents.back().header.reserved0==child.header.reserved0,
+            parents.back().header.reserved0==registrationFingerprint,
             "tissue parent source registration or ABI differs");
     }
-    std::size_t termCount=0,influenceCount=0,identitySurfaceCount=0,identityVertexCount=0;
+    std::size_t termCount=0,influenceCount=existingInfluenceCount,identitySurfaceCount=0,identityVertexCount=0;
     std::set<unsigned> seenSurfaces;
     for(id surface in surfaces) {
         require([surface isKindOfClass:NSDictionary.class],"invalid tissue parent surface");
@@ -61,13 +68,15 @@ inline void loadRestingTissueParentBindings(
         auto row=std::find_if(child.records.begin(),child.records.end(),
             [&](const auto& r){return r.stableId==stable;});
         require(row!=child.records.end()&&seenSurfaces.insert(stable).second&&
-            !child.parentInfluences.contains(stable),
+            !outputBindings.contains(stable),
             "tissue parent child row absent or duplicated");
+        if(vesselAttachments)require(row->layer==kTorsoAnatomyLayerVessel,
+            "anatomy parent attachments are restricted to passive vessel surfaces");
         NSArray* vertices=surface[@"vertices"];
         require([vertices isKindOfClass:NSArray.class]&&vertices.count==row->vertexCount,
             "tissue parent map must cover every child vertex exactly once");
         bool literalIdentity=true;
-        auto& output=child.parentInfluences[stable];output.resize(row->vertexCount);
+        auto& output=outputBindings[stable];output.resize(row->vertexCount);
         for(unsigned v=0;v<vertices.count;++v) {
             NSArray* terms=vertices[v];
             require([terms isKindOfClass:NSArray.class]&&terms.count>0&&terms.count<=128,
@@ -96,7 +105,9 @@ inline void loadRestingTissueParentBindings(
                 require(pr!=parent.records.end()&&vertex<pr->vertexCount,
                     "tissue parent raw vertex is absent");
                 const auto& pv=parent.vertices.at(pr->firstVertex+vertex);
-                bool sameVertex=terms.count==1&&parentStable==stable&&vertex==v&&c==1.0;
+                bool sameVertex=false;
+                if constexpr(std::is_same_v<Child,LoadedSoftTissues>) {
+                sameVertex=terms.count==1&&parentStable==stable&&vertex==v&&c==1.0;
                 if(sameVertex&&!sourceIsChild[source]) {
                     // Other vertices in a payload may have changed. Prove this
                     // vertex's exact source tuple and route bindings separately.
@@ -108,6 +119,7 @@ inline void loadRestingTissueParentBindings(
                     for(unsigned j=0;sameVertex&&j<row->bindingCount;++j)
                         sameVertex=pr->bodyIndex[j]==row->bodyIndex[j]&&
                             std::memcmp(&pr->binding[j],&row->binding[j],sizeof(pr->binding[j]))==0;
+                }
                 }
                 vertexIdentity=vertexIdentity&&sameVertex;
                 for(unsigned j=0;j<4;++j) {
@@ -143,12 +155,28 @@ inline void loadRestingTissueParentBindings(
             // source tuples and bindings, so the surface carries no refinement. Reuse the accepted child buffers instead of rounding
             // normals through an unnecessary world/local/world conversion.
             // All descriptors, terms, bounds and budgets were still validated.
-            child.parentInfluences.erase(stable);
+            outputBindings.erase(stable);
             ++identitySurfaceCount;
         }
     }
-    std::cout<<"resting_tissue_parent_surfaces="<<child.parentInfluences.size()
+    std::cout<<(vesselAttachments?"resting_anatomy_parent_surfaces=":"resting_tissue_parent_surfaces=")<<outputBindings.size()
         <<" source_vertex_terms="<<termCount<<" compiled_positive_influences="<<influenceCount
         <<" validated_identity_surfaces="<<identitySurfaceCount
         <<" validated_identity_vertices="<<identityVertexCount<<"\n";
+}
+
+inline void loadRestingTissueParentBindings(
+    const std::filesystem::path& receiptPath, const std::filesystem::path& childPath,
+    const RigidHeader& rigid, LoadedSoftTissues& child) {
+    loadRestingParentBindings(receiptPath,childPath,rigid,child,child.header.reserved0,
+        @"surfaces",@"child_payload_sha256",false,child.parentInfluences);
+}
+inline void loadRestingAnatomyParentBindings(
+    const std::filesystem::path& receiptPath, const std::filesystem::path& childPath,
+    const RigidHeader& rigid, const LoadedTorsoAnatomy& child,LoadedSoftTissues& carriers) {
+    std::size_t existing=0;
+    for(const auto& [stable,vertices]:carriers.parentInfluences)
+        for(const auto& terms:vertices)existing+=terms.size();
+    loadRestingParentBindings(receiptPath,childPath,rigid,child,child.header.registrationFingerprint,
+        @"anatomy_surfaces",@"anatomy_payload_sha256",true,carriers.anatomyParentInfluences,existing);
 }
