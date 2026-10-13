@@ -393,9 +393,13 @@ struct NumiHumanRestingAnatomy {
                 const unsigned retiredAliasStableID=22;
                 const auto aliasRecordCount=std::count_if(anatomy.records.begin(),anatomy.records.end(),
                     [&](const auto& record){return record.stableId==retiredAliasStableID;});
-                require(aliasRecordCount==1&&surface(retiredAliasStableID).layer==1,
-                    "retired liver alias must resolve to one organ-layer payload instance");
-                retiredInspectionStableIDs.insert(retiredAliasStableID);
+                // New payloads omit retired source geometry. Older ABI5 payloads
+                // retain one hidden organ-layer alias; neither form owns liver
+                // function or defines a second liver solid.
+                require(aliasRecordCount==0||
+                    (aliasRecordCount==1&&surface(retiredAliasStableID).layer==1),
+                    "retired liver alias must be absent or one legacy organ-layer payload instance");
+                if(aliasRecordCount==1)retiredInspectionStableIDs.insert(retiredAliasStableID);
                 const std::string patchRole="one open surface patch of a single closed aggregate shell; no independent segment volume";
                 const std::string patchInterpretation="inferred display identity; no internal segment partition or segment volume";
                 for(unsigned idValue:declaredLiverIDs) {
