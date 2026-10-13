@@ -10,6 +10,7 @@
 #include "metalrobo/NumanXExactTransaction.hpp"
 #include "metalrobo/numanx_human_matter_adapter_gpu.h"
 #include "NumiHumanStandCpuPilot.hpp"
+#include "HumanHostPhaseTrace.hpp"
 
 #include <dlfcn.h>
 #if defined(__aarch64__)
@@ -10703,6 +10704,9 @@ MetalArticulatedOperatorContext::submit(
             "unknown NUMI_HUMAN_STAND_EQUALITY_DEFERRAL_FAULT value");
     }
 
+    HumanHostPhaseTrace hostTrace(input.stand.enabled(),
+        input.stand.stepIndexOffset, "human_host_segment");
+    const auto hostMark = [&](const char* stage) { hostTrace.mark(stage); };
     RequiredBuffers requirements{};
     try {
         diagnostics = validateAndBuildLayout(
@@ -10715,6 +10719,7 @@ MetalArticulatedOperatorContext::submit(
         if (!diagnostics.succeeded()) {
             return diagnostics;
         }
+        hostMark("validation");
         diagnostics.canonicalBodyProbeFusionPipelineEnabled =
             state_->config.fuseCanonicalBodyProbes;
         if (input.stand.enabled() && input.stand.enableContact &&
@@ -11406,6 +11411,8 @@ MetalArticulatedOperatorContext::submit(
                 }
                 const MetalNumanXTransactionProgram& program =
                     input.stand.numanXTransactionProgram;
+                hostTrace.transaction(reinterpret_cast<const void*>(program.encode),
+                    static_cast<std::uint32_t>(phase), program.valid(), stepIndex);
                 if (!program.valid()) {
                     return true;
                 }
@@ -11827,6 +11834,7 @@ MetalArticulatedOperatorContext::submit(
                     commandBuffer, encoded);
                 return encoded;
             };
+            hostMark("prepare_and_upload");
             // Optional first-root readback isolates the first divergent physical
             // buffer. It never supplies forces or accepted-state authority.
             __strong id<MTLBuffer> initialPhysicalTrace = nil;
@@ -12225,6 +12233,7 @@ MetalArticulatedOperatorContext::submit(
                 [geometryCommandBuffer commit];
                 geometryAbort.committed = true;
             }
+            hostMark("begin_and_kinematics");
 
             // In the opt-in path, pose/Jacobians read the committed q/v state
             // and do not consume the current motor command. The serial path
@@ -12239,6 +12248,7 @@ MetalArticulatedOperatorContext::submit(
                     "NumanX begin-step transaction rejected encoding"
                 );
             }
+            hostMark("humanio_brain_begin_callback");
             if (overlapGeometry) {
                 // The Brain decision only reads its delivered receptor frame
                 // and writes muscle excitation. The next phase consumes the
@@ -12246,6 +12256,7 @@ MetalArticulatedOperatorContext::submit(
                 [commandBuffer encodeWaitForEvent:state_->geometryReadyEvent
                                             value:geometryReadyValue];
             }
+            hostMark("geometry_wait");
 
             if (input.millard.enabled()) {
                 id<MTLComputeCommandEncoder> millardEncoder =
@@ -12321,6 +12332,7 @@ MetalArticulatedOperatorContext::submit(
                             kThreadsPerThreadgroup, 1u, 1u)];
                     [angularEncoder endEncoding];
                 }
+                hostMark("muscle_angular_encode");
                 id<MTLComputeCommandEncoder> mujocoEncoder =
                     humanTimedEncoder(commandBuffer, state_->device, "muscles", authoritativeStep);
                 if (mujocoEncoder == nil) {
@@ -12371,6 +12383,7 @@ MetalArticulatedOperatorContext::submit(
                         1u
                     )];
                 [mujocoEncoder endEncoding];
+                hostMark("muscle_sites_encode");
                 if (input.stand.enabled()) {
                     MRMujocoMuscleActiveForceDispatchGPU activeDispatch{};
                     activeDispatch.abiVersion =
@@ -12422,6 +12435,7 @@ MetalArticulatedOperatorContext::submit(
                             1u
                         )];
                     [activeForceEncoder endEncoding];
+                    hostMark("active_force_encode");
                 }
                 id<MTLComputeCommandEncoder> mujocoReduceEncoder =
                     humanTimedEncoder(commandBuffer, state_->device,
@@ -12461,6 +12475,7 @@ MetalArticulatedOperatorContext::submit(
                         1u
                     )];
                 [mujocoReduceEncoder endEncoding];
+                hostMark("force_reduce_encode");
                 if (!input.stand.tendonBindings.empty()) {
                     MRNumiHumanTendonTransferDispatchGPU tendonDispatch{};
                     tendonDispatch.abiVersion =
@@ -12532,6 +12547,7 @@ MetalArticulatedOperatorContext::submit(
                             kThreadsPerThreadgroup, 1u, 1u
                         )];
                     [tendonEncoder endEncoding];
+                    hostMark("tendon_transfer_encode");
 
                     if (input.stand.tendonLoadProgram.valid()) {
                         tendonLoadAbort.armed = true;
@@ -12553,6 +12569,7 @@ MetalArticulatedOperatorContext::submit(
                             );
                         }
                     }
+                    hostMark("tendon_load_callback");
                 }
                 if (state_->config.mujocoActivationTimestepSeconds > 0.0f) {
                     MRMujocoMuscleActivationDispatchGPU activationDispatch{};
@@ -12608,9 +12625,11 @@ MetalArticulatedOperatorContext::submit(
                             1u
                         )];
                     [activationEncoder endEncoding];
+                    hostMark("activation_encode");
                 }
             }
 
+            hostMark("muscle_encoders");
             if (!encodeNumanXTransactionPhase(
                     MetalNumanXTransactionPhase::preDynamics,
                     authoritativeStep
@@ -12802,6 +12821,7 @@ MetalArticulatedOperatorContext::submit(
                 }
             }
 
+            hostMark("predynamics_and_brain");
             if (input.stand.enabled()) {
                 const MRNumiHumanStandDispatchGPU standDispatch =
                     makeNumiHumanStandDispatch(
@@ -14896,6 +14916,7 @@ MetalArticulatedOperatorContext::submit(
 
                 }
 
+                hostMark("stand_phases");
                 if (input.stand.numanXHumanMatterProgram.valid()) {
                     MRArticulatedOperatorDispatchGPU refreshed = diagnostics.layout.dispatch;
                     refreshed.flags = MR_ARTICULATED_OPERATOR_KINEMATICS_JACOBIANS_ONLY |
@@ -15103,6 +15124,7 @@ MetalArticulatedOperatorContext::submit(
                 [completionEncoder endEncoding];
             }
 
+            hostMark("postdynamics_and_publish");
             auto pending = std::make_unique<
                 detail::MetalArticulatedOperatorSubmissionState
             >();
@@ -15386,7 +15408,9 @@ MetalArticulatedOperatorContext::submit(
             numanXTransactionAbort.armed = false;
             tendonLoadAbort.armed = false;
             supportGeometryAbort.armed = false;
+            hostMark("pending_and_completion");
             [commandBuffer commit];
+            hostMark("commit");
             geometryAbort.released = true;
             submission.state_ = std::move(pending);
         }
@@ -15414,16 +15438,21 @@ MetalArticulatedOperatorContext::run(
     const MetalArticulatedOperatorInput& input,
     MetalArticulatedOperatorResult& result
 ) {
+    HumanHostPhaseTrace runTrace(input.stand.enabled(),
+        input.stand.stepIndexOffset, "human_host_run_segment");
     MetalArticulatedOperatorSubmission submission;
     MetalArticulatedOperatorDiagnostics diagnostics = submit(
         model,
         input,
         submission
     );
+    runTrace.mark("submit");
     if (!diagnostics.succeeded()) {
         return diagnostics;
     }
-    return submission.wait(result);
+    auto completed = submission.wait(result);
+    runTrace.mark("wait");
+    return completed;
 }
 
 bool MetalArticulatedOperatorContext::

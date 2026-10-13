@@ -1,3 +1,4 @@
+#include "HumanHostPhaseTrace.hpp"
 #import <Foundation/Foundation.h>
 #import <Metal/Metal.h>
 
@@ -3355,6 +3356,9 @@ void installCompletionHandlerLocked(
     if (context == nullptr) {
         return false;
     }
+    HumanHostPhaseTrace phaseTrace(
+        pass.phase == MetalNumanXTransactionPhase::beginStep,
+        pass.stepIndex, "human_io_host_segment");
     State& state = *static_cast<State*>(context);
     try {
         const std::lock_guard lock(state.mutex);
@@ -3427,6 +3431,7 @@ void installCompletionHandlerLocked(
             installCompletionHandlerLocked(state, commandBuffer);
         }
         state.encodingStarted = true;
+        phaseTrace.mark("state_and_completion");
 
         if (!validatePassLocked(state, pass, reason)) {
             rememberFailureLocked(
@@ -3437,6 +3442,7 @@ void installCompletionHandlerLocked(
             return false;
         }
 
+        phaseTrace.mark("validate_pass");
         bool encoded = true;
         switch (pass.phase) {
             case MetalNumanXTransactionPhase::beginStep:
@@ -3467,6 +3473,7 @@ void installCompletionHandlerLocked(
             );
             return false;
         }
+        phaseTrace.mark("encode_begin");
         const MetalNumanXHumanIOSupplementalProgram& supplemental =
             slot.inputFamily == InputFamily::exactV2
             ? state.candidateInputV2.supplementalProgram
@@ -3481,6 +3488,7 @@ void installCompletionHandlerLocked(
             return false;
         }
 
+        phaseTrace.mark("supplemental");
         if (pass.phase == MetalNumanXTransactionPhase::beginStep) {
             state.expectedPhase = MetalNumanXTransactionPhase::preDynamics;
         } else if (pass.phase ==

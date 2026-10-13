@@ -1,0 +1,155 @@
+{
+  "human_io_callback_exercised_by_this_standing_path": false,
+  "additional_diagnostic_coverage": {
+    "human_motor_host_segment=": {
+      "rows": 24,
+      "step_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ]
+    },
+    "human_tx_phase=": {
+      "rows": 31,
+      "step_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ]
+    }
+  },
+  "passed": true,
+  "source_head": "d954e0b7174ff11ed772c5ddd045fc4d54e2aca8",
+  "matched_current_file_pins": {
+    "binary": {
+      "sha256": "e9ee5a66870258e4a8e5383e25568f6c181942c2f4423ce6bc891088ae22e2cf",
+      "path": "/Users/n/numi-lab-standing-reconcile-20261013/build/bin/numi-human-native"
+    },
+    "lab_library": {
+      "sha256": "354190615422781455503f50ac7338087274361be57cd229d8214b39efc222d2",
+      "path": "/Users/n/numi-lab-standing-reconcile-20261013/build/lib/libmetalrobo.dylib"
+    },
+    "brain_library": {
+      "sha256": "66a5895cdcce343068e604294461f1dc64c343973b20817b82f142d7aa261719",
+      "path": "/Users/n/numi-brain-standing-reconcile-20261013/.build/arm64-apple-macosx/release/libNumiBrainHumanStanding.dylib"
+    },
+    "rigid_source": {
+      "sha256": "6328f7e84663c611c5498624d1386b00b2d5b0e162c4cc2967c7b1dc49ab0c44",
+      "path": "/Users/n/numi-human-standing-reconcile-20261013/Docs/media/native-runtime-source-package-20260915/input/myosim-fullbody-core-reference.nhrigid"
+    },
+    "muscle_source": {
+      "sha256": "9a988f19a6fd8e533cd0f2bf3192cb8535fb008ccd394ffbf1a4432d3db76a05",
+      "path": "/Users/n/numi-human-standing-reconcile-20261013/Docs/media/native-runtime-source-package-20260915/input/myosim-fullbody-muscle-reference.nhmyo"
+    },
+    "support_contact_source": {
+      "sha256": "4d54f8155cd83baaee7af536099824ac0da61e5d5e77544b42c6e5ce1b48c907",
+      "path": "/Users/n/numi-human-standing-reconcile-20261013/Docs/media/native-runtime-source-package-20260915/input/myosim-fullbody-support-contact.nhcnt"
+    },
+    "joint_equality_source": {
+      "sha256": "b97f755c769d0af16e02ab5deb9d85bd0cc921649197f71d308e98130ac69b6a",
+      "path": "/Users/n/numi-human-standing-reconcile-20261013/Docs/media/native-runtime-source-package-20260915/input/myosim-fullbody-joint-equalities.nheq"
+    },
+    "tendon_source": {
+      "sha256": "a594194f510eb4aa990a8767f868f999a10b4fedb745c8665368a231ed39b555",
+      "path": "/Users/n/numi-human-standing-reconcile-20261013/Docs/media/native-runtime-source-package-20260915/input/numi-human-tendon-attachments.nhtendon"
+    },
+    "bodyparts3d_bone_source": {
+      "sha256": "f9132393dfb259a80e2b2084ac5ff15f2bf988f7e073f7a961a7ddcfb9febc3c",
+      "path": "/Users/n/human-completion-20260907/input/bodyparts3d-myosim-major-bones.nhbones"
+    }
+  },
+  "comparisons": {
+    "human_brain_sensor_audit=accepted": {
+      "exact": true,
+      "rows": 9,
+      "steps": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ]
+    },
+    "human_brain_motor_audit=accepted": {
+      "exact": true,
+      "rows": 9,
+      "steps": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ]
+    },
+    "human_standing_progress=accepted": {
+      "exact": true,
+      "rows": 9,
+      "steps": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ]
+    },
+    "human_brain_joint_commit=accepted": {
+      "exact": true,
+      "rows": 2,
+      "steps": [
+        1,
+        9
+      ]
+    }
+  },
+  "host_phase_rows": 188,
+  "profile_step_indices": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+  ],
+  "images_exact_sha256": {
+    "front": "8f5ab04441f983be00a71cc28ad6b488e97c7e7f4a04357337e25c0d39a45b42",
+    "rear": "fbaa89ba55456f2c8997ac94017e81e117c0d5a23bf92fb62f676906e4cc38d4",
+    "side": "b6c6ab42a9c7b96f9320a81decf91c47ea1c760b5c72f4713c0823560e04becd",
+    "oblique": "5af8babbde4e7060379662caefd2d865ec9620ca637d5343ac35832da37011a4"
+  },
+  "geometry_sections_exact": [
+    2,
+    3,
+    4
+  ],
+  "pack_differing_section_ids": [],
+  "log_sha256": [
+    "332108b8d0791f1d77e04923f8303bede2c38cb0e6baa841ef778b2d12c7b816",
+    "796b97f6f76a1c11b8f52fc910bb32296de90971399ba42922d65a4d3db7648f"
+  ],
+  "initial_verifier_gap": "First verifier incorrectly demanded8 joint commit summaries; current native owner emits first and final summaries, steps1/8. It also looked for absent independent COM/body audit prefixes. All8 accepted sensor, motor and standing progress rows are byte exact; actual2 commit summaries exact. No independent COM/body-audit qualification claimed here.",
+  "boundary": "Nine one-millisecond native steps, including current split decision/tissue encoders and an unprofiled ninth root validate optional host instrumentation and preserve exact accepted physical/sensor/motor/commit records, final geometry and images. Not a new10s stance qualification, anatomy or throughput claim."
+}

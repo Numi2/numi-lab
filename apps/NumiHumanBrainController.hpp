@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../src/metal/HumanHostPhaseTrace.hpp"
+
 #include "NumiHumanBrainReceptors.hpp"
 #include "metalrobo/NumiBrainHumanStandingABI.h"
 
@@ -632,6 +634,8 @@ private:
                     owner.fail("Human Brain native transaction changed Metal device"); return false;
                 }
                 if (pass.phase == NativePhase::beginStep) {
+                    metalrobo::HumanHostPhaseTrace motorHostTrace(true,
+                        pass.stepIndex, "human_motor_host_segment");
                     if (owner.phase_ != Phase::ready || owner.rootOpen_ ||
                         (pass.accessFlags & metalrobo::MetalNumanXTransactionWriteMujocoExcitation) == 0u ||
                         pass.mujocoStates == nullptr) {
@@ -639,6 +643,7 @@ private:
                     }
                     const Frame& frame = owner.receptors_->deliveredFrame(owner.stepTimestamp(pass.stepIndex));
                     const auto records = receptorRecords(frame);
+                    motorHostTrace.mark("receptors");
                     __unsafe_unretained id<MTLBuffer> states = (__bridge id<MTLBuffer>)pass.mujocoStates;
                     if (states.device.registryID != owner.device_.registryID ||
                         states.length < 416u * sizeof(MRMujocoMuscleStateGPU)) {
@@ -690,6 +695,7 @@ private:
                             return false;
                         }
                         error.fill('\0');
+                        motorHostTrace.mark("brain_decision");
                         std::uint32_t tissueSuccess = 0u;
                         if (splitInner) {
                             if (owner.library_.motorTissuePhased == nullptr) {
@@ -707,6 +713,7 @@ private:
                                 pass.mujocoStates, 416u, error.data(), error.size());
                             [tissue endEncoding];
                         }
+                        motorHostTrace.mark("brain_tissue");
                         if (tissueSuccess != 1u) {
                             owner.fail(error[0] == '\0' ? "NumiBrain tissue encoding failed" : error.data());
                             return false;
@@ -715,6 +722,7 @@ private:
                         id<MTLComputeCommandEncoder> encoder = timedEncoder(
                             command, owner.device_, "brain_motor", pass.stepIndex);
                         if (encoder == nil) { owner.fail("Human Brain motor encoder allocation failed"); return false; }
+                        motorHostTrace.mark("encoder");
                         const auto success = useMotorV2
                             ? owner.library_.motorV2(owner.brain_.handle,
                                 (__bridge void*)encoder, pass.stepIndex, records.data(),
@@ -724,7 +732,9 @@ private:
                                 (__bridge void*)encoder, pass.stepIndex, records.data(),
                                 static_cast<std::uint32_t>(records.size()),
                                 pass.mujocoStates, 416u, error.data(), error.size());
+                        motorHostTrace.mark("brain_motor");
                         [encoder endEncoding];
+                        motorHostTrace.mark("end_encoding");
                         if (success != 1u) {
                             owner.fail(error[0] == '\0' ? "NumiBrain motor encoding failed" : error.data());
                             return false;
