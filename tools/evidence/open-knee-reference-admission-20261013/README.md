@@ -1,0 +1,7 @@
+# Guarded Open Knee reference comparison
+
+Run `python3 tools/compare_open_knee_accepted_displacement.py ACCEPTED_CHECKPOINT REFERENCE.npz --expected-reference-sha256 FROZEN_DIGEST --output REPORT.json`. NumPy is required. The digest must come from an independently frozen extraction record, rather than the same untrusted reference metadata. This admits a derived artifact; it does not attest extraction or qualify solver/source equivalence.
+
+Admission checks pinned original XPLT identity, metadata shape and schema, finite nonnegative continuation parameter, state/node counts, a unique field manifest, finite float32 Nx3 displacement and its byte hash. Checkpoints require an accepted root, finite nonnegative continuation parameter, finite displacements, unique cooked/source/XPLT node mappings and nonzero source IDs. Continuation parameters must match within2e-6. The reported checkpoint hash binds the actual bytes compared. Output JSON rejects nonfinite numbers.
+
+Seven synthetic regression tests include a positive millimetre-to-metre comparison and negative digest, time, dtype, shape, manifest, mapping and acceptance cases. These exercise software evidence admission only. The original full-knee workspace and its contradicted or incomplete evidence remain preserved. No archived reference at the accepted0.06328125 continuation parameter has been supplied; rigid wrenches, stresses, prestrain, source contact equivalence, native coupled closure and physical acceptance remain OPEN.

@@ -1,0 +1,12 @@
+test_checkpoint_rejects_duplicate_identity_invalid_time_unaccepted (test_open_knee_reference_state.ReferenceAdmissionTests.test_checkpoint_rejects_duplicate_identity_invalid_time_unaccepted) ... ok
+test_cli_time_mismatch_emits_no_report (test_open_knee_reference_state.ReferenceAdmissionTests.test_cli_time_mismatch_emits_no_report) ... ok
+test_digest_must_be_independently_frozen (test_open_knee_reference_state.ReferenceAdmissionTests.test_digest_must_be_independently_frozen) ... ok
+test_malformed_nonfinite_or_wrong_dtype_array (test_open_knee_reference_state.ReferenceAdmissionTests.test_malformed_nonfinite_or_wrong_dtype_array) ... ok
+test_manifest_identity_shape_hash_and_counts (test_open_knee_reference_state.ReferenceAdmissionTests.test_manifest_identity_shape_hash_and_counts) ... ok
+test_nonfinite_negative_or_boolean_time (test_open_knee_reference_state.ReferenceAdmissionTests.test_nonfinite_negative_or_boolean_time) ... ok
+test_valid_reference_and_cli_units (test_open_knee_reference_state.ReferenceAdmissionTests.test_valid_reference_and_cli_units) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.143s
+
+OK

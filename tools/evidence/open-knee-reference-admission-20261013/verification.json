@@ -1,0 +1,10 @@
+{
+  "sourceBase": "3f3778fd9515d33ad86f3c80457133cef377dd6a",
+  "testsPassed": true,
+  "testedSources": {
+    "tools/compare_open_knee_accepted_displacement.py": "ec796fc159aa5ceef5370a700f74435a59c5c9da8d8cdcd2f8f407e0542629b1",
+    "tools/open_knee_reference_state.py": "99a018bbfaca979b3e2f295820545f0c73de0354a746e1d03f9683ba762d5e66",
+    "tools/test_open_knee_reference_state.py": "41f3227bbd01927b4fce59f86bb5d1b9dc70e135c5c5c0ac208cc438742c6681"
+  },
+  "scope": "Synthetic reference-admission software tests only; no matched full-knee source equivalence or physical acceptance."
+}
