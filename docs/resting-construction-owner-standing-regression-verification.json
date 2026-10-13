@@ -1,0 +1,20 @@
+{
+  "source_head": "9358384302818aaf9c9e22e76bed0058bdfe8bd6",
+  "standing_audits": {
+    "human_standing_progress=accepted": {
+      "rows": 4,
+      "byte_exact": true
+    },
+    "human_brain_sensor_audit=accepted": {
+      "rows": 4,
+      "byte_exact": true
+    },
+    "human_brain_motor_audit=accepted": {
+      "rows": 4,
+      "byte_exact": true
+    }
+  },
+  "quiet_reference": "joint-feedback-10s",
+  "log_sha256": "f72245f7b9cd61648e1e7900f8ae8960412287f3444b11af6ce8ec0e15581e94",
+  "qualification": "Four-step same-device standing branch regression against the published 10-second quiet run; not a new 10-second measurement."
+}

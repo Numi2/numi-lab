@@ -1,0 +1,9 @@
+{
+  "source_head": "9358384302818aaf9c9e22e76bed0058bdfe8bd6",
+  "native_binary_sha256": "95eea3c3dd1943faab448944c362495e4fee6efa4ccb3791b6d1c739354a6751",
+  "terminal_state_byte_exact_replay": true,
+  "coordinates": 129,
+  "steps": 4,
+  "log_sha256": "05b00d4c0c323db903a49f98a03fbf3843d9773d3602600803ac31c9430a7f29",
+  "qualification": "Exact bounded same-device terminal replay, not a sustained or cross-device qualification."
+}
