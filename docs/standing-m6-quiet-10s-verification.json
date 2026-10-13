@@ -1,0 +1,200 @@
+{
+  "schema": "numi.human.quiet-standing.verification.v1",
+  "evidence_boundary": "native simulated engineering stance; no physiological or learned-skill qualification",
+  "steps": 10000,
+  "complete": true,
+  "unassisted": true,
+  "sensor_coverage": true,
+  "maximum_com_drift_m": 0.00020597371284657086,
+  "maximum_root_speed_m_s": 0.00259959466435,
+  "minimum_contacts": 6,
+  "maximum_penetration_m": 6.94316213412e-07,
+  "minimum_com_height_m": 0.988728216218,
+  "maximum_root_rotation_rad": 0.0002020559524164435,
+  "checks": {
+    "six_support_contacts": true,
+    "penetration_at_most_five_micrometres": true,
+    "root_speed_at_most_point_one_m_per_s": true,
+    "com_drift_at_most_two_centimetres": true,
+    "com_height_loss_at_most_five_centimetres": true,
+    "root_rotation_at_most_point_zero_five_radians": true
+  },
+  "quiet_standing": true,
+  "launch_manifest_sha256": "daa7d9ae8a835271c68d43e67427b64e6da01e76230b695ea5e09fc1a579f050",
+  "launch_log_sha256": "1df75885f957d2e869a177e3ac3d70ae2a805ff4c8b02465e8faf1a2d751b2b1",
+  "locomotor_program_fingerprint": 1942320659943724188,
+  "source_sha256": [
+    {
+      "kind": "binary",
+      "sha256": "2fd4790fc74aefda91412817ff8c45aa31ed9d34b1a57bd2497e99486bf22f8a"
+    },
+    {
+      "kind": "lab_library",
+      "sha256": "59a7608e0c5f380ceccdd56d683ff1960a14bad57aa48b25ff051f162933eb21"
+    },
+    {
+      "kind": "brain_library",
+      "sha256": "fca699927b33a9884da7bfc4d09f85559b51f4a943f629c5bcc9cb88f69bd177"
+    },
+    {
+      "kind": "brain_resource",
+      "sha256": "fa12305bae69cf5af12dc1de0e817f92b5c8e3f47d7369bcfcc54177d6a8a3ad"
+    },
+    {
+      "kind": "brain_resource",
+      "sha256": "f60ff4bada37e719a5fd8ea694f5ef6536843bdcc66be861366e241e4c78bb43"
+    },
+    {
+      "kind": "brain_resource",
+      "sha256": "3a6c300274ae7f48b740dc3267ba65ac3795941a751aa123f506c5fc784c76d8"
+    },
+    {
+      "kind": "brain_resource",
+      "sha256": "e054154ef7045e63f809b0837db436d3c3d30fb43ae8e3b1da28cc259acfec45"
+    },
+    {
+      "kind": "brain_resource",
+      "sha256": "adcfbd0e73799186fcbfadca5ea31aff55cfae1d2e392e94694b711f474dd0d6"
+    },
+    {
+      "kind": "brain_resource",
+      "sha256": "db4f59722ed763293bd99d779c92c598d5426bb521e15a4ebb75cb5dd2b55659"
+    },
+    {
+      "kind": "brain_resource",
+      "sha256": "6fc1798268fb77359d85ca9f76925948abb8fff67eef83b8decbf0042c1059ea"
+    },
+    {
+      "kind": "brain_resource",
+      "sha256": "c4ba4a6e481ab512871285fb185c2d0580cf83e170ce33e15c7c1d17d31d370d"
+    },
+    {
+      "kind": "brain_resource",
+      "sha256": "e6b0640f71ff42b7c69a8875b8653ecf40f1208005efee02036121b940e935c7"
+    },
+    {
+      "kind": "brain_resource",
+      "sha256": "06af03283d5f4ecdc077e44dd5903756e85a214a6601d49dddb14c569d630d1e"
+    },
+    {
+      "kind": "brain_resource",
+      "sha256": "108540c213aed004172271e183cfc7c312695e0a08c8953f4d47707d73d6e1a0"
+    },
+    {
+      "kind": "brain_resource",
+      "sha256": "4c62f6e15b3b59a3cefe166100e456555d6e5f1d7d27382a44fc54d7edab4ccc"
+    },
+    {
+      "kind": "brain_resource",
+      "sha256": "f589d3243a8d21754b131e25f2e3cad0e10b33ea1b7bb04a3faa18a4f491a4a8"
+    },
+    {
+      "kind": "brain_resource",
+      "sha256": "7bbad3a9b656e72b12fc7be1f91b1f29670375e6c344a0cbd99e3f55938637c9"
+    },
+    {
+      "kind": "brain_resource",
+      "sha256": "b8d234b17710c25fc01654474337f3f0d41c86f94aafe0426b5ecb9604a23c5f"
+    },
+    {
+      "kind": "brain_resource",
+      "sha256": "63c463a1fc457210c8fce5e94eb6f69895ed52633bd3d446206307a8dde57491"
+    },
+    {
+      "kind": "brain_resource",
+      "sha256": "495d3b51dc679ecf20c69e6c6f095d7d3c59d731216093c6ce790c0d0a6357cc"
+    },
+    {
+      "kind": "brain_resource",
+      "sha256": "e0766a43ddbdaf6e4d3021fc601e553826c85740dc54d9ed057813cfc728e626"
+    },
+    {
+      "kind": "metal_library",
+      "sha256": "38d4b64ed55cef2e0e0f243616d0db5bd21441f232ca38bca439108c1d6130f9"
+    },
+    {
+      "kind": "metal_library",
+      "sha256": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68"
+    },
+    {
+      "kind": "metal_library",
+      "sha256": "a0920bd99ea39c97e15eca62371116be5fc0f719b2b6c0682c2bc690b8ba8189"
+    },
+    {
+      "kind": "metal_library",
+      "sha256": "f227836841015b40467a20c47a9fa38cf44eb8e1132cad1de4e65fa79c55d309"
+    },
+    {
+      "kind": "metal_library",
+      "sha256": "4ccbb796a6bfd5bdb18f7d37c8e18e0d767c9489d16047c523c97f679da33f1d"
+    },
+    {
+      "kind": "rigid_source",
+      "sha256": "6328f7e84663c611c5498624d1386b00b2d5b0e162c4cc2967c7b1dc49ab0c44"
+    },
+    {
+      "kind": "muscle_source",
+      "sha256": "9a988f19a6fd8e533cd0f2bf3192cb8535fb008ccd394ffbf1a4432d3db76a05"
+    },
+    {
+      "kind": "support_contact_source",
+      "sha256": "4d54f8155cd83baaee7af536099824ac0da61e5d5e77544b42c6e5ce1b48c907"
+    },
+    {
+      "kind": "joint_equality_source",
+      "sha256": "b97f755c769d0af16e02ab5deb9d85bd0cc921649197f71d308e98130ac69b6a"
+    },
+    {
+      "kind": "tendon_source",
+      "sha256": "a594194f510eb4aa990a8767f868f999a10b4fedb745c8665368a231ed39b555"
+    },
+    {
+      "kind": "bodyparts3d_bone_source",
+      "sha256": "f9132393dfb259a80e2b2084ac5ff15f2bf988f7e073f7a961a7ddcfb9febc3c"
+    },
+    {
+      "kind": "launcher",
+      "sha256": "631d76fb0b14fee798c08f32adcbc9307e79c924472b0278451d8aa7e51da139"
+    },
+    {
+      "kind": "lab_source_file=CMakeLists.txt",
+      "sha256": "970e2b41afaf889d580b7dad361b519702020a806f4ff6601584ccd3669a791f"
+    },
+    {
+      "kind": "lab_source_file=apps/numilab_human_myosim_visual_probe.mm",
+      "sha256": "1335748364244758d58ff9126efe6d6303aa04b59fb9edda2069b6ba9811f72f"
+    },
+    {
+      "kind": "lab_source_file=apps/NumiHumanBrainController.hpp",
+      "sha256": "61cb4e58ea97ed9e6ff1093527803d7b7b15e60cf85c8b8eb8aad6bdef94b30b"
+    },
+    {
+      "kind": "lab_source_file=apps/NumiHumanBrainReceptors.hpp",
+      "sha256": "e5fc7ab2a1031a429a7ca7c13ae9e11f224ba2f42f402840bdbbc1369d72c55a"
+    },
+    {
+      "kind": "lab_source_file=apps/NumiHumanBrainSource.hpp",
+      "sha256": "81f90a062cca8507cc1bea616153c54235e892bcced9f7343ab83d3d6ccc4841"
+    },
+    {
+      "kind": "lab_source_file=include/metalrobo/MetalArticulatedOperator.hpp",
+      "sha256": "f0085574985a96941f0f08ea9ada598c5bbc476d677cefd9905502b6a2d75c00"
+    },
+    {
+      "kind": "lab_source_file=include/metalrobo/NumiBrainHumanStandingABI.h",
+      "sha256": "3bf9b36d0f6107435d8e74407e5beccc6b13e146358932ad1617fe9725b1207b"
+    },
+    {
+      "kind": "lab_source_file=src/metal/MetalArticulatedOperator.mm",
+      "sha256": "db4f479beef7ec85df9a77cff092dee4f4cd951bfeb1dd8c427656e258ac1508"
+    },
+    {
+      "kind": "prepared_brain_source",
+      "sha256": "5a3f8eca42e02a4f2e98dd214cb16ac8a1f10a57ffc540b0f76476b0bf2bef1f"
+    },
+    {
+      "kind": "locomotor_program",
+      "sha256": "ae419aa254f9ba3f5c638e68d4a29ffa69e4331b5cdc5ddd22e8544e733e1ddb"
+    }
+  ]
+}

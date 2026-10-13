@@ -54,3 +54,31 @@ qualify physiology, a learned balance skill, perturbation recovery, compliant wh
 body anatomy, or five-second wall-clock execution. The separate 1.5 s spindle
 exploration is retained as early control evidence and is not substituted for this
 gate. Performance variants retain their original source-bound acceptance criteria.
+
+## Published-default native repetition
+
+The published default launcher (`187f5b60`, Brain `0f7f1e4`, Human source
+`f9d50d0e`) also completed all 10,000 roots on an Apple M6 using the retained
+M4-built native binary/resource packet. This is native M6 Metal execution, not
+a claim that the M6 Command Line Tools compiled the packet. The actual admitted
+program and prepared source are exported and hashed by this run; reconstruction
+is unnecessary. The complete run passes the same unassisted engineering gate.
+
+The ordered printed physical progress rows match the retained M4 run. The full
+physical and joint state fingerprints diverge from root 5,889, and motor audit
+activations differ by up to `1.17357976e-38`. Sensor values otherwise match at
+printed precision. Complete cross-device exact replay is therefore **not
+qualified**. No values were rounded or normalized to suppress this difference.
+
+The explicit `cpu-one-handoff` backend also completes the same ten-second gate:
+minimum six contacts, maximum COM excursion `0.00019748282323674482 m`,
+maximum root speed `0.00246495974435 m/s`, maximum penetration
+`5.89759338254e-7 m`, and maximum root rotation `0.00020798174131248496 rad`.
+Its native physical/sensory/motor trace differs from all-GPU starting at root one.
+This independent engineering pass does not close exact GPU/CPU replay or the
+original five-second end-to-end performance goal. The default remains all-GPU.
+
+The corresponding machine-readable native gate receipts and ordered trace
+comparison are retained beside this document. The complete logs, manifests,
+program/source exports and native artifact packet are preserved in the
+reconciliation recovery archive; the receipts bind their SHA-256 identities.

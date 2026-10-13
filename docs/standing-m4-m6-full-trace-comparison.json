@@ -1,0 +1,49 @@
+{
+  "scope": "Ordered native audits, not a timing comparison. Physical progress text matches at printed precision; full physical/joint fingerprints and tiny motor activations differ across M4/M6 starting at step 5889. Cross-device exact replay is not qualified.",
+  "comparison": {
+    "human_standing_progress=accepted": {
+      "m6_count": 10000,
+      "m4_count": 10000,
+      "exact_all_rows": true,
+      "m6_sha256": "26b707d2a3e6f968f1443f594cc3273e190c78df17bbb0732c2908df4c1bcbb5",
+      "m4_sha256": "26b707d2a3e6f968f1443f594cc3273e190c78df17bbb0732c2908df4c1bcbb5"
+    },
+    "human_brain_sensor_audit=accepted": {
+      "m6_count": 10000,
+      "m4_count": 10000,
+      "exact_all_rows": false,
+      "m6_sha256": "b24f4ea58b23eabc015558d0e9fce029b478c6cd866dedc1e636e6a2dc74d8c8",
+      "m4_sha256": "7bd92381573e23d43aeb5299578c86c236d3ef5f411d5fbbaa4dd412d1bd5242"
+    },
+    "human_brain_motor_audit=accepted": {
+      "m6_count": 10000,
+      "m4_count": 10000,
+      "exact_all_rows": false,
+      "m6_sha256": "5e44061f3af3230ec7f42457f0184c3bef46bdac8d2051f95659c1e618bb2de7",
+      "m4_sha256": "929e033f012740cb1ffb13e5c28b0f813e8be77959c2e93ceb1b110094c84f13"
+    }
+  },
+  "difference_details": {
+    "human_brain_sensor_audit=accepted": {
+      "first_differing_step": 5889,
+      "differing_rows": 4112,
+      "differing_fields": [
+        "joint_commit_fingerprint",
+        "physical_fingerprint"
+      ],
+      "maximum_printed_activation_delta": 0,
+      "differing_activation_elements": 0
+    },
+    "human_brain_motor_audit=accepted": {
+      "first_differing_step": 5889,
+      "differing_rows": 4112,
+      "differing_fields": [
+        "activation",
+        "joint_commit_fingerprint",
+        "physical_fingerprint"
+      ],
+      "maximum_printed_activation_delta": 1.17357976e-38,
+      "differing_activation_elements": 23035
+    }
+  }
+}
