@@ -1,0 +1,159 @@
+{
+  "schema": "numi.source-parent.identity-current-native-regression.v1",
+  "captures": [
+    {
+      "step": 0,
+      "all_vertex_fields_bit_exact": true,
+      "index_buffer_exact": true,
+      "primitive_buffer_exact": true,
+      "accepted_body_poses_exact": true,
+      "receipt_pack_hashes_valid": true,
+      "differing_section_ids": [
+        1
+      ],
+      "pack_sha256": [
+        "f293c70f1c5933831f61c53c96923ba2b547c98f84d13b37bf4ee67228a715fd",
+        "260790814be60a6a6c9b0bc89a02b16314a4afb6ea3338b51a083d0e23aeef26"
+      ]
+    },
+    {
+      "step": 4767,
+      "all_vertex_fields_bit_exact": true,
+      "index_buffer_exact": true,
+      "primitive_buffer_exact": true,
+      "accepted_body_poses_exact": true,
+      "receipt_pack_hashes_valid": true,
+      "differing_section_ids": [
+        1
+      ],
+      "pack_sha256": [
+        "2baa93e7ee284999cee2f8ae72da9e67cbbf73bd8c65dea5382d126edee61bfe",
+        "1fded11d95901a2512c910779ef8b04571dd85ba12b1ae32fc2899b1f5c5c1d5"
+      ]
+    },
+    {
+      "step": 5023,
+      "all_vertex_fields_bit_exact": true,
+      "index_buffer_exact": true,
+      "primitive_buffer_exact": true,
+      "accepted_body_poses_exact": true,
+      "receipt_pack_hashes_valid": true,
+      "differing_section_ids": [
+        1
+      ],
+      "pack_sha256": [
+        "8a3712adc7230698e3c6ab6edcdbee383bc1a25808ad41077a5864a091dd21d2",
+        "c108f3ea1819ff5a5a3cbb530ac8efb91a04a980e59962dbd21e6957e796782c"
+      ]
+    },
+    {
+      "step": 5599,
+      "all_vertex_fields_bit_exact": true,
+      "index_buffer_exact": true,
+      "primitive_buffer_exact": true,
+      "accepted_body_poses_exact": true,
+      "receipt_pack_hashes_valid": true,
+      "differing_section_ids": [
+        1
+      ],
+      "pack_sha256": [
+        "baa5cb1fa80c5ad7fa5d80306366c8cd74667b89d2ddc804e4d047e5156c2edc",
+        "56255f57d3457a1d78c6bd9055d3351ce5cf17d1f645d05091e070f15634879c"
+      ]
+    },
+    {
+      "step": 6207,
+      "all_vertex_fields_bit_exact": true,
+      "index_buffer_exact": true,
+      "primitive_buffer_exact": true,
+      "accepted_body_poses_exact": true,
+      "receipt_pack_hashes_valid": true,
+      "differing_section_ids": [
+        1
+      ],
+      "pack_sha256": [
+        "acc224169e5c21714a2c8583474daf51fe1396ca939f8b0405de940f60347a8b",
+        "f381b1a612062ead107a52011ae0dd083afd02333a426219ab643307e5ef4293"
+      ]
+    },
+    {
+      "step": 6815,
+      "all_vertex_fields_bit_exact": true,
+      "index_buffer_exact": true,
+      "primitive_buffer_exact": true,
+      "accepted_body_poses_exact": true,
+      "receipt_pack_hashes_valid": true,
+      "differing_section_ids": [
+        1
+      ],
+      "pack_sha256": [
+        "fb55c16b08a6038ae8345b22415d9aaa9a7ea2da96e1a4892f6ed6e935ce6b8e",
+        "ef9f0a3956cc99c75a8675d83d03c890f42ea36ea412641186c9e8ae5251f355"
+      ]
+    },
+    {
+      "step": 7423,
+      "all_vertex_fields_bit_exact": true,
+      "index_buffer_exact": true,
+      "primitive_buffer_exact": true,
+      "accepted_body_poses_exact": true,
+      "receipt_pack_hashes_valid": true,
+      "differing_section_ids": [
+        1
+      ],
+      "pack_sha256": [
+        "efabdc31c92b21faf5897b5c67f4aa3c538302453d77c08587278dcf8d3702cd",
+        "beb49bc3bad107c0d6fe7f5148379e9aadfa5d1ec9162287c9dd11d2c6a52198"
+      ]
+    },
+    {
+      "step": 8000,
+      "all_vertex_fields_bit_exact": true,
+      "index_buffer_exact": true,
+      "primitive_buffer_exact": true,
+      "accepted_body_poses_exact": true,
+      "receipt_pack_hashes_valid": true,
+      "differing_section_ids": [
+        1
+      ],
+      "pack_sha256": [
+        "be0cc0cb1588b96e6b0e00391922d71d317e77d0ce6f3de9a1185ab6885f601a",
+        "df12d73c44944078ddc34ccfbbb0df183702924a422805e1115cab73a80b76e9"
+      ]
+    }
+  ],
+  "trace_rows": [
+    1000,
+    1000
+  ],
+  "coupled_trace_exact": true,
+  "matched_binary": true,
+  "binary_sha256": "3b27dcf5d8524b2d5e461f153023410a6a7d8ae28cb7983273c5f7086f83f3bf",
+  "inputs_unchanged": true,
+  "exit_codes": [
+    0,
+    0
+  ],
+  "wall_seconds": [
+    154.88283562567085,
+    154.82512024976313
+  ],
+  "simulated_seconds": 16.00000076,
+  "passed": true,
+  "validation_boundary": "Literal unit self-parent bindings only. Current native matched runs cover geometry sections and physiology for sixteen simulated seconds. Nontrivial dense parent anatomy remains unqualified; step7423 has three exact self intersections.",
+  "negative_admission_checks": [
+    {
+      "mutation": "duplicate child surface",
+      "exit_code": 1,
+      "error": "tissue parent child row absent or duplicated",
+      "inputs_unchanged": true
+    },
+    {
+      "mutation": "boolean coefficient",
+      "exit_code": 1,
+      "error": "tissue parent coefficient must be numeric",
+      "inputs_unchanged": true
+    }
+  ],
+  "source_header_sha256": "bda95b489585eac46b153c8ecbaa55f9e235cfe81e8be78e0c1341c38bbb963e"
+}

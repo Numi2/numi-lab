@@ -37,6 +37,7 @@ inline void loadRestingTissueParentBindings(
         [surfaces isKindOfClass:NSArray.class]&&surfaces.count>0&&surfaces.count<=192,
         "tissue parent source/surface inventory is invalid");
     std::vector<LoadedSoftTissues> parents;
+    std::vector<bool> sourceIsChild;
     for(id descriptor in sources) {
         require([descriptor isKindOfClass:NSDictionary.class],"invalid tissue parent source descriptor");
         NSString* name=descriptor[@"path"];NSString* expected=descriptor[@"sha256"];
@@ -46,22 +47,26 @@ inline void loadRestingTissueParentBindings(
         std::filesystem::path path(name.UTF8String);
         if(!path.is_absolute())path=receiptPath.parent_path()/path;
         require(digest(path)==expected.UTF8String,"tissue parent source SHA-256 mismatch");
+        sourceIsChild.push_back([expected isEqualToString:childSHA]);
         parents.push_back(loadSoftTissues(path,rigid));
         require(parents.back().usesRouteBodySparseWeights&&
             parents.back().header.reserved0==child.header.reserved0,
             "tissue parent source registration or ABI differs");
     }
-    std::size_t termCount=0,influenceCount=0;
+    std::size_t termCount=0,influenceCount=0,identitySurfaceCount=0;
+    std::set<unsigned> seenSurfaces;
     for(id surface in surfaces) {
         require([surface isKindOfClass:NSDictionary.class],"invalid tissue parent surface");
         const unsigned stable=uintValue(surface[@"stable_id"],"tissue parent child stable ID");
         auto row=std::find_if(child.records.begin(),child.records.end(),
             [&](const auto& r){return r.stableId==stable;});
-        require(row!=child.records.end()&&!child.parentInfluences.contains(stable),
+        require(row!=child.records.end()&&seenSurfaces.insert(stable).second&&
+            !child.parentInfluences.contains(stable),
             "tissue parent child row absent or duplicated");
         NSArray* vertices=surface[@"vertices"];
         require([vertices isKindOfClass:NSArray.class]&&vertices.count==row->vertexCount,
             "tissue parent map must cover every child vertex exactly once");
+        bool literalIdentity=true;
         auto& output=child.parentInfluences[stable];output.resize(row->vertexCount);
         for(unsigned v=0;v<vertices.count;++v) {
             NSArray* terms=vertices[v];
@@ -84,6 +89,8 @@ inline void loadRestingTissueParentBindings(
                 const double c=[coefficient doubleValue];
                 require(std::isfinite(c)&&c>0&&c<=1,"tissue parent coefficient must be positive and bounded");
                 coefficientSum+=c;
+                literalIdentity=literalIdentity&&terms.count==1&&sourceIsChild[source]&&
+                    parentStable==stable&&vertex==v&&c==1.0;
                 const auto& parent=parents[source];
                 const auto pr=std::find_if(parent.records.begin(),parent.records.end(),
                     [&](const auto& r){return r.stableId==parentStable;});
@@ -111,7 +118,16 @@ inline void loadRestingTissueParentBindings(
             require(std::abs(coefficientSum-1)<=1e-12,"tissue parent coefficients do not form a partition of unity");
             require(!output[v].empty(),"tissue parent vertex has no active influences");
         }
+        if(literalIdentity) {
+            // A hash-identical payload and exact unit self-reference carry no
+            // refinement. Reuse the accepted child buffers instead of rounding
+            // normals through an unnecessary world/local/world conversion.
+            // All descriptors, terms, bounds and budgets were still validated.
+            child.parentInfluences.erase(stable);
+            ++identitySurfaceCount;
+        }
     }
     std::cout<<"resting_tissue_parent_surfaces="<<child.parentInfluences.size()
-        <<" source_vertex_terms="<<termCount<<" compiled_positive_influences="<<influenceCount<<"\n";
+        <<" source_vertex_terms="<<termCount<<" compiled_positive_influences="<<influenceCount
+        <<" validated_identity_surfaces="<<identitySurfaceCount<<"\n";
 }
