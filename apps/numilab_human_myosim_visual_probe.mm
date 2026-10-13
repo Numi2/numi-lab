@@ -4739,7 +4739,7 @@ CompiledStandActivation compileStaticStandActivation(
         std::cout << "]\n";
     }
     metalrobo::NumiHumanMuscleEquilibriumResult compiled;
-    const auto diagnostics = staticSupports.empty()
+    const auto diagnostics = staticSupports.empty() && passiveCouplings.empty()
         ? metalrobo::compileNumiHumanMuscleEquilibrium(
             model, 0u, preparedQ, muscles.referenceSites, muscles.referenceWraps,
             muscles.referenceMuscles, muscles.referenceArchitectures,
@@ -4774,8 +4774,11 @@ CompiledStandActivation compileStaticStandActivation(
     require(
         diagnostics.succeeded() &&
             (staticSupports.empty()
-                ? diagnostics.normalizedResidualRms <
-                    diagnostics.initialNormalizedResidualRms
+                ? (allowDynamicRelease
+                    ? diagnostics.normalizedResidualRms <=
+                        diagnostics.initialNormalizedResidualRms + 1.0e-12
+                    : diagnostics.normalizedResidualRms <
+                        diagnostics.initialNormalizedResidualRms)
                 : diagnostics.normalizedResidualRms <=
                     diagnostics.initialNormalizedResidualRms + 1.0e-12) &&
             (allowDynamicRelease || diagnostics.maximumGeneralizedAccelerationResidual *
@@ -5782,7 +5785,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             aligned.q,
             activation,
             selectedSourceMuscleIndices,
-            &supportContacts,
+            preserveRestingInitialPosture ? nullptr : &supportContacts,
             persistentPassiveCouplings,
             1024u,
             !initialCoordinate.has_value() && restingProgram == nullptr,
@@ -5790,6 +5793,15 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             timestepSeconds,
             restingReleaseInitialization
         );
+    }
+    if (preserveRestingInitialPosture) {
+        // The authored world pose belongs to the fixed-bed contact owner.
+        // Fresh release recruitment has no legacy ground-plane support load.
+        compiledActivation.supportNormalForce.assign(supportContacts.records.size(), 0.0);
+        require(std::all_of(compiledActivation.generalizedSupportForce.begin(),
+                    compiledActivation.generalizedSupportForce.end(),
+                    [](double force) { return force == 0.0; }),
+                "resting construction recruitment acquired a legacy support force");
     }
     if (useStaticCache && !staticCacheExists) {
         writeStandActivationCache(
@@ -22932,6 +22944,28 @@ int main(int argc, char** argv) {
             if(!restingInitialPosture.empty()) {
                 const auto posture = numi::human::resting_initial_posture::readRestingInitialPosture(restingInitialPosture,
                     loadedKneeSHA256Hex(rigid.payloadSha256), rigid.model.world.nq);
+                // A completed dynamic run can end beyond a joint stop. A fresh
+                // construction pose must meet the same source bounds as static
+                // recruitment; never clamp or relax them to admit that history.
+                const double positionTolerance =
+                    metalrobo::NumiHumanMuscleEquilibriumConfig{}.positionLimitTolerance;
+                for (const auto& dof : rigid.model.dofs) {
+                    if ((dof.flags & MR_DOF_FLAG_POSITION_LIMIT) == 0u ||
+                        dof.qIndex == MR_INVALID_INDEX) continue;
+                    require(dof.qIndex < posture.q.size(),
+                        "resting construction posture joint index is invalid");
+                    const double position = posture.q[dof.qIndex];
+                    if (position < static_cast<double>(dof.limits.x) - positionTolerance ||
+                        position > static_cast<double>(dof.limits.y) + positionTolerance) {
+                        std::ostringstream detail;
+                        detail << std::setprecision(17)
+                            << "resting construction posture violates source joint limit: q_index="
+                            << dof.qIndex << " position=" << position
+                            << " lower=" << dof.limits.x << " upper=" << dof.limits.y
+                            << " tolerance=" << positionTolerance;
+                        require(false, detail.str());
+                    }
+                }
                 overriddenPoseQ = posture.q;
                 poseQ = overriddenPoseQ;
                 std::cout << std::setprecision(17)

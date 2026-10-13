@@ -1,0 +1,17 @@
+{
+  "native_runtime": "Apple Metal on M4 Pro",
+  "source_completed_steps": 64,
+  "fresh_completed_steps": 4,
+  "timestep_seconds": 0.002,
+  "all_129_initial_coordinates_exact": true,
+  "fresh_initial_velocity_zero": true,
+  "retained_source_velocity_nonzero": true,
+  "root_assistance": false,
+  "source_log": "/Users/n/numi-human-resting-evidence-20261005/native-terminal-production-audits-932/native.log",
+  "source_log_sha256": "7b4fe11301cf1262e2c780faba3da4c9fdbf425b658e3bb862dfad92f452d77f",
+  "native_binary_sha256": "95eea3c3dd1943faab448944c362495e4fee6efa4ccb3791b6d1c739354a6751",
+  "positive_log_sha256": "6effd53bd0b2c30b5480f127f2f091681567bda2cf7201b320b7204065cd8648",
+  "negative_log_sha256": "340214f96c71d28bdaeec49f545c49bf442bb057343ced3e0c12df0de81be9c2",
+  "joint_limit_control": "Rejected before common initialization, without clamping or tolerance change",
+  "qualification": "Construction-only admission and four fresh unassisted native steps. Not coupled-state restart, physiological completion, or sustained resting stability."
+}
