@@ -1,0 +1,25 @@
+{
+  "source_head": "441aec7719c4acc764224e6f1067f6f26bb0c6a3",
+  "native_runtime": "M4 Pro Apple Metal",
+  "completed_steps": 4,
+  "body_rows": 628,
+  "support_point_rows": 128,
+  "selector_rows": 128,
+  "terminal_state_byte_exact_control_candidate": true,
+  "matched_com_impulses_and_coupled_csv_byte_exact": true,
+  "independent_partition_maximum_com_error_m": 4.440892098500626e-16,
+  "independent_partition_maximum_momentum_error_kg_m_s": 1.6653345369377348e-16,
+  "all_selector_errors_zero": true,
+  "source_geometry_and_point_query_identity_match": true,
+  "clock_basis": "accepted body kinematics; support points/selectors retain explicitly pre-step basis",
+  "scope": "Read-only observer instrument verified on a bounded four-step 2ms full-skin resting fixture. No sustained drift, perturbation recovery or physiological qualification.",
+  "files": {
+    "resting-support-selected-skin-witness.csv": "77163740976d331e64b42d49b56641b01efb7edf837d16771638c4eb151917d4",
+    "resting-com-momentum-diagnostic.csv": "587069cf261728fffdc57e993f43f80c8862406f540a107ab4be9dbc43143a5d",
+    "resting-support-point-motion.csv": "be4a3701ac08b2ce6b3649d6f97f7f843e21011fb6b59f319933729a023de370",
+    "resting-surface-audit.csv": "349ac9a3ce763dbc924f712f2fcee9113a80f57cfed1242b9c62b8b5eef2ff3e",
+    "resting-body-motion-partition.csv": "38d8aead8b0b71881d8f1dde8c2bd20bdb33d3db8be818a3c23ceb8362d4dbbc",
+    "resting-coupled.csv": "3b5308925b1c7eb8aa199da5c62f23c33ea5956f7d68a26fafb41ff0f4b5e928",
+    "resting-com-support-impulses.csv": "1acf6d531d01fb4c7a335f83e69e944a21e020fbc2a5b49b9105e72bbb279374"
+  }
+}
