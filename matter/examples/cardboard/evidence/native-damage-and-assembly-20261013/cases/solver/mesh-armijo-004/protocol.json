@@ -1,0 +1,28 @@
+{
+  "sealed_at_utc": "2026-10-13T18:08:52.075487+00:00",
+  "nx": [
+    8,
+    16,
+    32
+  ],
+  "phases": [
+    48,
+    12,
+    24,
+    12
+  ],
+  "dt_s": 2.5e-05,
+  "angle_deg": 0.375,
+  "residual_tolerance": 1e-06,
+  "newton": 28,
+  "krylov": 1024,
+  "admission": "All96steps/acceptedrows complete and compatible; incomplete runs excluded.",
+  "engineering_sensitivity_screen": {
+    "endpoint_moment_and_plastic_relative_tolerance": 0.01,
+    "plastic_denominator_floor": 1e-08,
+    "moment_denominator_floor_Nm": 1e-06,
+    "force_moment_curve_relative_RMS_tolerance": 0.05,
+    "refinement_trend": "both finer mesh comparisons must decrease discrepancies"
+  },
+  "claim_limit": "Engineering screen only; longitudinal mesh refinement only, no thickness/time/damage convergence or physical qualification."
+}

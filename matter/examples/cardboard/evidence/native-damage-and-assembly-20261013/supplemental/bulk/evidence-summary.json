@@ -1,0 +1,3793 @@
+{
+  "accepted_history_yield_audit": {
+    "audit_script_sha256": "5085bf5cc279f26d6433a44834bf89a8cc2a33764ead0b19daa6e298289c74fb",
+    "audited_at_utc": "2026-10-13",
+    "conclusion_boundary": [
+      "These q/Ep/lambda summaries describe the saved accepted history only.",
+      "They do not reveal the actual Newton-3 candidate state or either +/- finite-difference projected state.",
+      "Near-yield accepted history makes yield-transition crossing a testable hypothesis, but the audit does not prove that the compared candidate/perturbations cross the transition or explain the global operator mismatch.",
+      "No physical cardboard qualification is implied."
+    ],
+    "fd_context": {
+      "epsilon": 0.03125,
+      "interpretation_limit": "coordinate-displacement to edge ratios are not deformation-gradient increments; nodal displacement differences are required to estimate local delta-F",
+      "max_position_perturbation_divided_by_median_element_minimum_edge": 0.0004813095920577617,
+      "max_position_perturbation_divided_by_minimum_edge": 0.004444091900000053,
+      "maximum_position_perturbation_m": 1.33322757e-07,
+      "mesh_edge_statistics": {
+        "maximum_per_tetrahedron_minimum_edge_m": 0.00040723243547480893,
+        "median_per_tetrahedron_minimum_edge_m": 0.000277,
+        "minimum_edge_m": 2.9999999999999645e-05,
+        "tetrahedra_with_minimum_edge_below_0_1mm": 145,
+        "tetrahedron_count": 1536
+      },
+      "newton_iteration": 3,
+      "root": 19
+    },
+    "input_bindings": {
+      "manifest_compiled_world_fingerprint": 5248235368261643122,
+      "material_assets": {
+        "0": "787bf121f4ce359235e28691892e9d77adffde05faf10f2a90593d9f4b32398d",
+        "1": "ecfd9de3f4550a6a269d7a6559781b16e15316cf3d587093f2e11a2e6942a8e8"
+      },
+      "mesh_json": {
+        "path": "/Users/home/cardboard-followup-20261013/solver/operator-fd-001/output/mesh.json",
+        "sha256": "28bed660bf7e5d75001dbd8ab8b9567ebb09403e633134ca34082589c1442c58"
+      },
+      "observations_csv": {
+        "path": "/Users/home/cardboard-followup-20261013/solver/operator-fd-001/output/observations.csv",
+        "sha256": "8cad0b13a6eb682d81200bbe8c2c6fc2bafd152929ea9a304c32d1c6b76afc57"
+      },
+      "result_compiled_world_fingerprint": 5248235368261643122,
+      "result_json": {
+        "path": "/Users/home/cardboard-followup-20261013/solver/operator-fd-001/output/result.json",
+        "sha256": "ad487124440bf78e56b20232751cda41433541c0c89ce6666ee9a882c7dd4433"
+      },
+      "run_manifest": {
+        "path": "/Users/home/cardboard-followup-20261013/solver/operator-fd-001/output/manifest.json",
+        "sha256": "2ead4c62d5c49c24e8a0664cc75d7cd78a31c73b3ca2946a7011e3564bdc57cd"
+      },
+      "state_json": {
+        "path": "/Users/home/cardboard-followup-20261013/solver/operator-fd-001/output/material_state_000020_bent.json",
+        "sha256": "31060aaf3022b9ccafba727eba32595a8336fcdf964cb874f60415034855af48"
+      }
+    },
+    "materials": [
+      {
+        "abs_q_minus_1_le_1e_6_count": 50,
+        "diagnostic_cutoffs": {
+          "abs_q_minus_1_lte": 1e-06,
+          "lambda_gt": 1e-08,
+          "meaning": "descriptive thresholds only; not solver active-set flags or constitutive acceptance criteria",
+          "q_gt": 0.999
+        },
+        "eight_tetrahedra_nearest_q_1": [
+          {
+            "lambda": 1.7554233622263382e-08,
+            "max_abs_Ep": 8.370097020815592e-06,
+            "q": 1.000000002309494,
+            "tetrahedron_index": 852
+          },
+          {
+            "lambda": 3.4239977253491816e-07,
+            "max_abs_Ep": 0.00016325140313711017,
+            "q": 0.9999999954592135,
+            "tetrahedron_index": 925
+          },
+          {
+            "lambda": 1.068322390551657e-07,
+            "max_abs_Ep": 5.092874198453501e-05,
+            "q": 1.0000000067814554,
+            "tetrahedron_index": 877
+          },
+          {
+            "lambda": 7.199260494417103e-07,
+            "max_abs_Ep": 0.0003437168779782951,
+            "q": 0.9999999927992638,
+            "tetrahedron_index": 955
+          },
+          {
+            "lambda": 1.9670800099902408e-07,
+            "max_abs_Ep": 9.381114796269685e-05,
+            "q": 0.9999999916266007,
+            "tetrahedron_index": 834
+          },
+          {
+            "lambda": 7.718119832134107e-08,
+            "max_abs_Ep": 3.680850568343885e-05,
+            "q": 0.9999999868317906,
+            "tetrahedron_index": 864
+          },
+          {
+            "lambda": 2.7307368100082385e-07,
+            "max_abs_Ep": 0.00013021027552895248,
+            "q": 0.9999999860383705,
+            "tetrahedron_index": 835
+          },
+          {
+            "lambda": 3.923421161289298e-07,
+            "max_abs_Ep": 0.0001870681589934975,
+            "q": 0.9999999834931312,
+            "tetrahedron_index": 924
+          }
+        ],
+        "hill_parameters_from_asset": {
+          "hill_F": 6.307660915935419,
+          "hill_G": 2.981864887595591,
+          "hill_H": -1.9818648875955915,
+          "hill_L": 456012.5,
+          "hill_M": 456012.5,
+          "hill_N": 59.56081632653061,
+          "q_floor": 2e-06
+        },
+        "lambda_gt_1e_8_count": 78,
+        "lambda_max": 3.5558862236939603e-06,
+        "lambda_max_tetrahedron": 942,
+        "material_index": 0,
+        "material_name": "hajali2009_liner_hill_ideal",
+        "max_abs_Ep": 0.0016976580955088139,
+        "max_abs_Ep_tetrahedron": 942,
+        "q_gt_0_999_count": 51,
+        "q_max": 1.0000007952432894,
+        "q_max_tetrahedron": 858,
+        "q_min": 0.03184249960178188,
+        "tetrahedron_count": 960
+      },
+      {
+        "abs_q_minus_1_le_1e_6_count": 184,
+        "diagnostic_cutoffs": {
+          "abs_q_minus_1_lte": 1e-06,
+          "lambda_gt": 1e-08,
+          "meaning": "descriptive thresholds only; not solver active-set flags or constitutive acceptance criteria",
+          "q_gt": 0.999
+        },
+        "eight_tetrahedra_nearest_q_1": [
+          {
+            "lambda": 7.921351397044418e-08,
+            "max_abs_Ep": 1.5474699466722086e-05,
+            "q": 0.9999999998797064,
+            "tetrahedron_index": 1154
+          },
+          {
+            "lambda": 3.522431057945141e-08,
+            "max_abs_Ep": 6.887489689688664e-06,
+            "q": 1.0000000115626215,
+            "tetrahedron_index": 1358
+          },
+          {
+            "lambda": 6.700715857732575e-07,
+            "max_abs_Ep": 0.000131093809613958,
+            "q": 1.000000015902335,
+            "tetrahedron_index": 1436
+          },
+          {
+            "lambda": 1.4622258959207102e-07,
+            "max_abs_Ep": 2.860096537915524e-05,
+            "q": 1.000000016770967,
+            "tetrahedron_index": 1343
+          },
+          {
+            "lambda": 1.3491874994997488e-07,
+            "max_abs_Ep": 2.6394684027764015e-05,
+            "q": 0.9999999678598265,
+            "tetrahedron_index": 1416
+          },
+          {
+            "lambda": 2.468928528287506e-07,
+            "max_abs_Ep": 4.830338366446085e-05,
+            "q": 1.000000033217323,
+            "tetrahedron_index": 964
+          },
+          {
+            "lambda": 2.468928528287506e-07,
+            "max_abs_Ep": 4.830338366446085e-05,
+            "q": 1.000000033217323,
+            "tetrahedron_index": 965
+          },
+          {
+            "lambda": 6.005095798400362e-08,
+            "max_abs_Ep": 1.1748200449801516e-05,
+            "q": 0.9999999501501089,
+            "tetrahedron_index": 1092
+          }
+        ],
+        "hill_parameters_from_asset": {
+          "hill_F": 5.612051993569077,
+          "hill_G": 2.841099191623919,
+          "hill_H": -1.8410991916239194,
+          "hill_L": 76554.58420138889,
+          "hill_M": 76554.58420138889,
+          "hill_N": 9.998966099773243,
+          "q_floor": 2e-06
+        },
+        "lambda_gt_1e_8_count": 216,
+        "lambda_max": 0.00013356217823456973,
+        "lambda_max_tetrahedron": 1311,
+        "material_index": 1,
+        "material_name": "hajali2009_medium_hill_ideal",
+        "max_abs_Ep": 0.02612959034740925,
+        "max_abs_Ep_tetrahedron": 1311,
+        "q_gt_0_999_count": 214,
+        "q_max": 1.0000017748079222,
+        "q_max_tetrahedron": 1432,
+        "q_min": 0.012145789077746286,
+        "tetrahedron_count": 480
+      }
+    ],
+    "method": "CPU recomputation of Hill equivalent stress q from retained accepted-state sbar components and the F..N, q_floor values parsed from hash-verified .nmatter source assets",
+    "schema": "numi.cardboard.accepted-history-yield-audit.v1",
+    "state_classification": {
+      "accepted_row_check": {
+        "last_accepted_row": {
+          "status_code": "0",
+          "step": "18",
+          "step_accepted": "1",
+          "time_s": "0.0004749999880004907"
+        },
+        "rejected_row": {
+          "status_code": "10",
+          "step": "19",
+          "step_accepted": "0",
+          "time_s": "0.00049999998736893758"
+        },
+        "result_accepted_steps": 19
+      },
+      "label": "rolled-back accepted history after the rejected physical row; corresponds to pre-failure accepted history (last accepted CSV step 18)",
+      "source_note": "Accepted material history. A failed step retains rolled-back state; incremental multipliers are not permanent-strain observables.",
+      "source_status_code": 10
+    }
+  },
+  "alternate_local_projection_threshold_experiment": {
+    "accepted_steps": 2,
+    "case": {
+      "case": "Frozen-035 alternate local projection threshold experiment",
+      "path": "solver/local-projection-accuracy-035",
+      "prediction_sha256": "bf2a96cabf657ce4fd897aa7aa05eeec50b6b6c3aee278b5ea4159190b278af9",
+      "receipt": {
+        "exit_code": 2,
+        "finished_at_utc": "2026-10-13T19:48:45.698477+00:00",
+        "timed_out": false,
+        "wall_seconds": 71.98842091596453
+      },
+      "receipt_sha256": "c1bd4cb5969b89862243dd8eea86abdb0fc3383dcd07222934145305e2958aa2",
+      "reviewable_outputs": [
+        {
+          "path": "solver/local-projection-accuracy-035/stdout.log",
+          "sha256": "dbb7b3a3e88751a2fd1c6a0009d4c1aab916d7049d8c100907c75f1ff3731cac",
+          "size_bytes": 287
+        },
+        {
+          "path": "solver/local-projection-accuracy-035/stderr.log",
+          "sha256": "767afc5af286b7e74698ded47b5fefdc33f8ca5250bc6e19190ac2ecaa146fd0",
+          "size_bytes": 435
+        },
+        {
+          "path": "solver/local-projection-accuracy-035/output/result.json",
+          "sha256": "f3fff5aa124b8c1ddbb20cb6deb086f6091ad0967d32c908478f9bd04dbd3921",
+          "size_bytes": 503
+        },
+        {
+          "path": "solver/local-projection-accuracy-035/output/observations.csv",
+          "sha256": "d140e7abb9bc2a6ace4759288858334f445ae9a6e6b4a00003a1822745c08be7",
+          "size_bytes": 2532
+        }
+      ],
+      "sealed_inputs": {
+        "all_verified": true,
+        "expected_count": 361,
+        "hash_map_sha256": "5bfb4019e8ec691c3e6e34a9622272ace98fd69ee14f367c65799a9f99309ae9",
+        "missing_or_mismatched": [],
+        "verified_count": 361
+      },
+      "source_snapshot": "/Users/home/cardboard-followup-20261013/solver/frozen035-source",
+      "status": "failed"
+    },
+    "failure_subtype": "not_instrumented_or_inferred",
+    "first_rejected_row": {
+      "arm": "bent",
+      "completed_microsteps": "0",
+      "environment": "0",
+      "failing_index": "1430",
+      "fgmres_iterations": "0",
+      "object_index": "0",
+      "status_code": "5",
+      "step": "2",
+      "step_accepted": "0"
+    },
+    "interpretation": "The isolated alternate build rejects before a microstep is accepted. This result does not identify cause and does not adopt the alternate threshold.",
+    "isolated_experiment_threshold": "2e-6",
+    "production_default_unchanged": "2e-5",
+    "receipt": {
+      "exit_code": 2,
+      "finished_at_utc": "2026-10-13T19:48:45.698477+00:00",
+      "timed_out": false,
+      "wall_seconds": 71.98842091596453
+    },
+    "result_status": "failed"
+  },
+  "created_at_utc": "2026-10-13T19:56:14.714929+00:00",
+  "frozen027_instrumented_box_capture": {
+    "accepted_steps": 32,
+    "classification": "SCOPE_NOT_QUALIFIED",
+    "endpoint_gate_reason": "BOX dispatch selectors bypass the stationary-endpoint gate; retained as diagnostic evidence, not endpoint admission or box qualification.",
+    "exit_code": 2,
+    "failure": {
+      "fgmres": 512,
+      "native_step": 32,
+      "residual": 1.63902e-05,
+      "stage": "score_die_contact_approach",
+      "status": 10
+    },
+    "physical_validation": false,
+    "wall_seconds": 502.5261783330352
+  },
+  "full_blank_attempt": {
+    "accepted_steps": 32,
+    "failing_step_record": {
+      "accepted": "0",
+      "action_index": "-1",
+      "certificate_residual_w_env0": "0",
+      "certificate_residual_x_env0": "1.24495e-06",
+      "certificate_residual_z_env0": "0",
+      "error": "",
+      "fgmres_env0": "512",
+      "fgmres_env1": "0",
+      "native_step": "32",
+      "stage": "score_die_contact_approach",
+      "status_env0": "10",
+      "status_env1": "0"
+    },
+    "failure": "Matter rejected native step 32",
+    "nodes": 4308,
+    "physical_validation": false,
+    "status": "failed_native",
+    "tetrahedra": 10356
+  },
+  "full_blank_frozen028_attempt": {
+    "accepted_steps": 32,
+    "failure": "Matter rejected native step 32",
+    "nodes": 4308,
+    "physical_validation": false,
+    "scope": "Repaired frozen-028 selector path; early native contact failure before fold/closure actions.",
+    "status": "failed_native",
+    "terminal_record": {
+      "accepted": "0",
+      "action_index": "-1",
+      "certificate_residual_w_env0": "0",
+      "certificate_residual_x_env0": "1.25349e-06",
+      "certificate_residual_z_env0": "0",
+      "error": "",
+      "fgmres_env0": "1024",
+      "fgmres_env1": "0",
+      "native_step": "32",
+      "stage": "score_die_contact_approach",
+      "status_env0": "10",
+      "status_env1": "0"
+    },
+    "tetrahedra": 10356
+  },
+  "fully_prescribed_fem_point_parity": {
+    "comparison_metrics": {
+      "damage_maximum_absolute_error": 1.4156103134155273e-07,
+      "fem_reaction_P13_at_max_error_Pa": 4220681.31275666,
+      "final_damage_FEM": 0.24500973522663116,
+      "final_damage_point": 0.24500973522663116,
+      "final_reaction_P13_FEM_Pa": -4974485.501735168,
+      "final_reaction_P13_point_Pa": -4974485.0,
+      "maximum_force_mixed_tolerance_utilization": 0.00040876875091532336,
+      "maximum_reaction_P13_absolute_error_Pa": 5.3127566603943706,
+      "maximum_reaction_P13_error_step": 47,
+      "maximum_state_absolute_error": 1.6391277313232422e-07,
+      "maximum_state_absolute_error_location": {
+        "state_index": 17,
+        "step": 47
+      },
+      "maximum_state_mixed_tolerance_location": {
+        "absolute_error": 1.6391277313232422e-07,
+        "allowed_error": 0.00024174126982688904,
+        "state_index": 17,
+        "step": 47
+      },
+      "maximum_state_mixed_tolerance_utilization": 0.0006780504348707284,
+      "maximum_state_relative_error_location": {
+        "fem_value": 8.869677052160334e-17,
+        "interpretation": "Relative error is unstable for values near zero; the mixed absolute-relative tolerance is the decision criterion.",
+        "point_value": -1.1878865226468377e-15,
+        "state_index": 23,
+        "step": 34
+      },
+      "maximum_state_relative_error_unregularized": 1.0746677134815623,
+      "point_P13_at_max_error_Pa": 4220676.0,
+      "reaction_P13_mixed_tolerance_at_max_error_Pa": 42208.8131275666
+    },
+    "free_mesh_degrees_of_freedom": 0,
+    "input_scope": {},
+    "physical_validation": false,
+    "status": "PASS_MANUFACTURED_COUPLING_PARITY"
+  },
+  "material_authoring_limits": {
+    "authored_default_area_CD_mm2": 0.0011,
+    "authored_default_area_MD_mm2": 0.0011,
+    "damage_area_reference_mm2": 0.0011,
+    "effective_default_area_ratios": {
+      "CD": 1.0,
+      "MD": 1.0
+    },
+    "interpretation": "The source law uses projected-area scaling, but current calls use default unity ratios rather than computed per-tetrahedron material-direction projected areas; native parity is not a mesh-regularization reproduction.",
+    "per_element_projected_area_scaling_in_current_fem_call_path": false,
+    "zd_compression_energy_normalization": "The authored branch subtracts an additive constant to impose Psi(I)=0. Fixed-damage stress is unchanged, but the absolute energy level and any energy-derived damage-conjugate term shift; exact source energy-level reproduction is unresolved."
+  },
+  "material_point_high_shear": {
+    "convergence_rule": "residual_inf <= 2e-5 * (1 + state_inf), evaluated in FP32",
+    "failure": {
+      "failure_class": "local implicit material-state projection iteration budget exhausted after accepted Newton updates; this is not a global FEM solve failure, and stress/tangent stages were not reached",
+      "missing_stage_flags": [
+        "projection_converged",
+        "stress_evaluated",
+        "tangent_evaluated",
+        "implicit_tangent_entered",
+        "implicit_tangent_solved"
+      ],
+      "projection_convergence_rule": "residual_inf <= 2e-5 * (1 + state_inf), evaluated in FP32",
+      "projection_iterations": 16,
+      "projection_residual_inf": 4.830770194530487e-05,
+      "projection_state_inf": 1.1507568359375,
+      "rejected_candidate_was_committed": false,
+      "residual_excess": 5.292567948345095e-06,
+      "residual_threshold_fp32": 4.3015133996959776e-05,
+      "stage_flags": 63,
+      "stage_flags_hex": "0x3f",
+      "stage_flags_interpretation": [
+        "projection_entered",
+        "state_updates_complete",
+        "implicit_system_evaluated",
+        "local_solve_attempted",
+        "local_solve_succeeded",
+        "newton_update_accepted"
+      ],
+      "step": 119,
+      "terminal_failure": "projection_iteration_exhausted",
+      "threshold_utilization": 1.1230396713100828
+    },
+    "fp32_threshold": 4.3015133996959776e-05,
+    "local_projection_iteration_limit": 16,
+    "residual_excess": 5.292567948345095e-06,
+    "residual_inf": 4.830770194530487e-05,
+    "seeded_sensitivity": {
+      "cases": {
+        "1": {
+          "csv_sha256": "7170d64015285d1127a593d1c17bfabce371a1871b3f674e612b1bf780dca72e",
+          "path": "/Users/home/cardboard-followup-20261013/bulk/source-point-seeded-1",
+          "prediction_sha256": "27a399692b2305b8726e52eb82f6dfe83db388e9d5a077cfbbcc5667f1772cc5",
+          "receipt_sha256": "6b82aa7decea3b4a536dee0c8adb31047bc9b0aa2c5d389020aa8c3e2561c644",
+          "result_sha256": "a5ef29f49fcbfd138c3e4a80ad6fe41ad57f515beb326278d2733c636b4ca41c",
+          "source_binding_sha256": "9d75533a400396ad918f729bb1f8d472b6cb54243a35d23e26a77f9bcf32f7fd"
+        },
+        "2": {
+          "csv_sha256": "27c226d57900e512fac0598877ebe2ef2ff5042149c7a34beef8f9d7f282452c",
+          "path": "/Users/home/cardboard-followup-20261013/bulk/source-point-seeded-2",
+          "prediction_sha256": "96ee0604ec2e1d327558d9dca63c809f48be765d20a68e89713fdb529b008954",
+          "receipt_sha256": "93fb8ca39d3d6a7085865ab9c1c6a17ddd9a5d5d7a715492a570de1f5aa33521",
+          "result_sha256": "e12e7b410fd6ad0def40b7b9d402e834754d8be334444c0b944e85ee8e5840d5",
+          "source_binding_sha256": "ff9077bad7efdef500631466eabd9af90fa90fff21d07bb7ee50fbf919fa1873"
+        },
+        "4": {
+          "csv_sha256": "dfd2c2bead2969a88c82e82ed02f24b0e0a66a139864228a671089eec5742fa6",
+          "path": "/Users/home/cardboard-followup-20261013/bulk/source-point-seeded-4",
+          "prediction_sha256": "b30a7367146bdf4f129c6ff7f780487dece1d89f90fd1ae065e782164631159f",
+          "receipt_sha256": "f238fa237480026da40483ade6af32537f561b6f2fa3264c5f6d67c070e338ac",
+          "result_sha256": "117d9e80f9aa5c5a423d1feadeefe0768ae7a6239219afa11551e5b37522f421",
+          "source_binding_sha256": "2bcb7a3f7afce84e89585f5f138cfd84d3653d4860d5b62052e1e865a89e8ebe"
+        }
+      },
+      "interpretation": "Local increment subdivision permits this seeded interval under the unchanged constitutive program for the tested 2- and 4-substep partitions. The 1-step failure remains preserved. Small nonzero partition differences mean this is not a convergence result. This is not a full high-shear unload-to-zero path, a corrugated-board test, or physical qualification.",
+      "one_step_replay": {
+        "all_27_candidate_state_values_fp32_bit_identical": true,
+        "projection_iterations": 16,
+        "projection_residual_inf": 4.830770194530487e-05,
+        "projection_state_inf": 1.1507568359375,
+        "status": "rejected; exactly reproduces source-point-006 rejected .595 response",
+        "terminal_failure": "projection_iteration_exhausted"
+      },
+      "physical_validation": false,
+      "schema": "numi.cardboard.seeded-high-shear-sensitivity.v1",
+      "sealed_inputs": {
+        "all_hashes_verified": true,
+        "count_per_run": 362,
+        "identical_across_steps_per_leg_1_2_4": true,
+        "shared_input_hashes_sha256": "6434f3d7bb3990c6ce50cf4c3212cb4d96f5783eff945849125eb9d86de6c4c3"
+      },
+      "source_material": "Robertsson et al. 2023 single-ply softwood paperboard material-point implementation; no corrugated board claim.",
+      "source_state": {
+        "accepted_gamma": 0.59,
+        "all_27_values_fp32_bit_identical_to_source_accepted_state": true,
+        "path": "/Users/home/cardboard-followup-20261013/bulk/accepted-shear-059-seed.json",
+        "seed_text_sha256": "92bb5e323a0ec8dd6016333c8e9c74d076beda018e0caf097530027902e72e54",
+        "sha256": "0de1c6932789c75eea34f7a4fbc34777136eb7caa4ab60fd17a1d1243b55a01c",
+        "source_csv_sha256": "0b958a969c1a1517941b85f57ad8bfd13d917c532c100ba0ddcea510bea7845f"
+      },
+      "two_vs_four_substeps": {
+        "after_short_unload_to_gamma_0.59": {
+          "P13_absolute_difference_Pa": 2.5,
+          "damage_absolute_difference": 3.8743019104003906e-07,
+          "state_difference": {
+            "indices": [
+              21
+            ],
+            "max_abs": 3.546476364135742e-06
+          },
+          "steps_2": {
+            "P13_Pa": 5090121.5,
+            "damage": 0.35250580310821533
+          },
+          "steps_4": {
+            "P13_Pa": 5090119.0,
+            "damage": 0.35250619053840637
+          }
+        },
+        "at_gamma_0.595": {
+          "P13_absolute_difference_Pa": 7.0,
+          "damage_absolute_difference": 3.8743019104003906e-07,
+          "state_difference": {
+            "indices": [
+              21
+            ],
+            "max_abs": 3.546476364135742e-06
+          },
+          "steps_2": {
+            "P13_Pa": 5288009.5,
+            "damage": 0.35250580310821533,
+            "projection_residual_inf": 1.251930370926857e-05
+          },
+          "steps_4": {
+            "P13_Pa": 5288002.5,
+            "damage": 0.35250619053840637,
+            "projection_residual_inf": 8.940696716308594e-07
+          }
+        },
+        "both_accepted_through_gamma_0.595": true,
+        "returned_only_to_gamma_0.59": true
+      }
+    },
+    "source_point_006_status": "rejected_loading_at_gamma_0.595_after_accepted_gamma_0.59",
+    "state_inf": 1.1507568359375
+  },
+  "mesh_armijo_004_path_coverage": [
+    {
+      "accepted_steps": 43,
+      "case": "Frozen-028 prescribed FEM path nx=8",
+      "path": "solver/mesh-armijo-004/nx8",
+      "prediction_sha256": "9973fa5974224209d5b1d61db77a6fc309dffc96f287fe86c7832789da102c3d",
+      "receipt": {
+        "exit_code": 2,
+        "finished_at_utc": "2026-10-13T18:29:38.454254+00:00",
+        "timed_out": false,
+        "wall_seconds": 655.6735984999686
+      },
+      "receipt_sha256": "c6543bbcfd9fc1327bf77ebf4821230e9300d5c2023da62e57f7b4720ffe2a09",
+      "reviewable_outputs": [
+        {
+          "path": "solver/mesh-armijo-004/nx8/stdout.log",
+          "sha256": "35fbe4bd25ca65cc9c7a6612f77f931eaaa0d61312822e69a5a92be47a645f74",
+          "size_bytes": 289
+        },
+        {
+          "path": "solver/mesh-armijo-004/nx8/stderr.log",
+          "sha256": "ce587ef8cf8e2dc6bf1ef6a35ffc2199f34f19d4d6bce173a7dd23add7693505",
+          "size_bytes": 6414
+        },
+        {
+          "path": "solver/mesh-armijo-004/nx8/output/result.json",
+          "sha256": "076fa89c962cc38aa922d4e293d24f9da0862441f465f0014e1b6b9a12712aca",
+          "size_bytes": 505
+        },
+        {
+          "path": "solver/mesh-armijo-004/nx8/output/observations.csv",
+          "sha256": "1333b737fc5820e327ce847c9c7a00d6e01be65ec16f5b5ad0ccecbd066bbaa4",
+          "size_bytes": 26763
+        }
+      ],
+      "sealed_inputs": {
+        "all_verified": true,
+        "expected_count": 360,
+        "hash_map_sha256": "11ba8086ef9611af49c428d5020bceef6513b035cd28541694ccdbe958b1721b",
+        "missing_or_mismatched": [],
+        "verified_count": 360
+      },
+      "source_snapshot": "/Users/home/cardboard-followup-20261013/solver/frozen028-source",
+      "status": "failed"
+    },
+    {
+      "accepted_steps": 19,
+      "case": "Frozen-028 prescribed FEM path nx=16",
+      "path": "solver/mesh-armijo-004/nx16",
+      "prediction_sha256": "0e3d966312d7a34ce859e4007d032439469bab5b0abe6dfbd6a00d24d4106d96",
+      "receipt": {
+        "exit_code": 2,
+        "finished_at_utc": "2026-10-13T18:33:37.120208+00:00",
+        "timed_out": false,
+        "wall_seconds": 238.52997916698223
+      },
+      "receipt_sha256": "1ab26728a3134719da822ffe3c9a5bf5c06e1240907f8e7c3bdb780c94a1660a",
+      "reviewable_outputs": [
+        {
+          "path": "solver/mesh-armijo-004/nx16/stdout.log",
+          "sha256": "c2b571c54c9f8f7fc00377a0118b5a05ad78d39205d538b5e185b7bbbe6f4a94",
+          "size_bytes": 289
+        },
+        {
+          "path": "solver/mesh-armijo-004/nx16/stderr.log",
+          "sha256": "366f8076d00e01289e86629c1ab7aa7613b252eda114d1678b95a2912e3a4ea0",
+          "size_bytes": 2910
+        },
+        {
+          "path": "solver/mesh-armijo-004/nx16/output/result.json",
+          "sha256": "ad487124440bf78e56b20232751cda41433541c0c89ce6666ee9a882c7dd4433",
+          "size_bytes": 505
+        },
+        {
+          "path": "solver/mesh-armijo-004/nx16/output/observations.csv",
+          "sha256": "8cad0b13a6eb682d81200bbe8c2c6fc2bafd152929ea9a304c32d1c6b76afc57",
+          "size_bytes": 14125
+        }
+      ],
+      "sealed_inputs": {
+        "all_verified": true,
+        "expected_count": 360,
+        "hash_map_sha256": "11ba8086ef9611af49c428d5020bceef6513b035cd28541694ccdbe958b1721b",
+        "missing_or_mismatched": [],
+        "verified_count": 360
+      },
+      "source_snapshot": "/Users/home/cardboard-followup-20261013/solver/frozen028-source",
+      "status": "failed"
+    },
+    {
+      "case": "Frozen-028 prescribed FEM path nx=32",
+      "path": "solver/mesh-armijo-004/nx32",
+      "prediction_sha256": "7fd1da43906845f9f061e5f2cd99d5b9208784143d867c517d879c03966c4acd",
+      "receipt": {
+        "exit_code": -15,
+        "finished_at_utc": "2026-10-13T18:53:37.245765+00:00",
+        "timed_out": true,
+        "wall_seconds": 1200.027061666944
+      },
+      "receipt_sha256": "12d28aaf358cedd8e37161db82efccd282196febd123309def8fc4a6fe590d30",
+      "reviewable_outputs": [
+        {
+          "path": "solver/mesh-armijo-004/nx32/stdout.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        },
+        {
+          "path": "solver/mesh-armijo-004/nx32/stderr.log",
+          "sha256": "e24160e618fb60f8d9961902b5767faaf2ca4d23cb87ef9909a69bdc26e512cc",
+          "size_bytes": 2618
+        },
+        {
+          "path": "solver/mesh-armijo-004/nx32/output/observations.csv",
+          "sha256": "641b20d50e767e52c1a829ba3db0c9e390ede65105304faa9bb804fd4cc29d49",
+          "size_bytes": 12205
+        }
+      ],
+      "sealed_inputs": {
+        "all_verified": true,
+        "expected_count": 360,
+        "hash_map_sha256": "11ba8086ef9611af49c428d5020bceef6513b035cd28541694ccdbe958b1721b",
+        "missing_or_mismatched": [],
+        "verified_count": 360
+      },
+      "source_snapshot": "/Users/home/cardboard-followup-20261013/solver/frozen028-source",
+      "status": "TIMEOUT_PARTIAL_PATH"
+    }
+  ],
+  "native_score_withdrawal_schedule_comparison": {
+    "classification": "NATIVE_PRESCRIBED_PATH_SENSITIVITY_ONLY",
+    "compiled_world_fingerprints_identical": true,
+    "input_hash_maps_identical": true,
+    "interpretation": "The longer native withdrawal schedule completes from an exactly matching 60-row accepted prefix where the shorter schedule rejects its first unload step. This supports only a prescribed solver-path sensitivity statement; it is not calibrated damage, a physical crease, or time-step convergence.",
+    "long_withdrawal": {
+      "accepted_step_certificate_maxima": {
+        "certificate_correction": {
+          "maximum": 0.0,
+          "step": 167
+        },
+        "certificate_pressure": {
+          "maximum": 0.0,
+          "step": 167
+        },
+        "certificate_residual": {
+          "maximum": 9.997351071433513e-07,
+          "step": 30
+        },
+        "certificate_volume": {
+          "maximum": 0.0,
+          "step": 167
+        }
+      },
+      "accepted_steps": 168,
+      "accepted_steps_by_phase": {
+        "hold": 12,
+        "loading": 48,
+        "relaxation": 12,
+        "unloading": 96
+      },
+      "diagnostic_note": "The accepted step-60 status_diagnostic_x is a J-related diagnostic (~0.9964), not a residual. Accepted-step residuals are read from certificate_residual.",
+      "exit_code": 0,
+      "physical_validation": false,
+      "status": "completed",
+      "wall_seconds": 1010.1613910829765
+    },
+    "long_withdrawal_tool_observations": {
+      "commanded_travel_max_m": 5e-05,
+      "commanded_travel_min_m": 0.0,
+      "last_step": {
+        "commanded_end_travel_m": "0",
+        "min_anvil_node_gap_m": "8.1812761689070874e-06",
+        "min_end_punch_node_gap_m": "4.8454849037398839e-05",
+        "punch_contact_count": "0",
+        "punch_force_z_N": "0",
+        "step": "167",
+        "step_accepted": "1"
+      },
+      "maximum_punch_contact_count": 2,
+      "minimum_anvil_node_gap_m": 8.181212504277963e-06,
+      "minimum_end_punch_node_gap_m": 1.8571225497286854e-07,
+      "peak_reported_punch_force_z_N": 0.3896544247464056,
+      "record_count": 168,
+      "steps_with_punch_contacts": 60
+    },
+    "protocol": {
+      "fixed_dt_seconds": ".000025",
+      "only_unload_steps_changed": true,
+      "planned_duration_seconds": {
+        "scoring/armijo-002": 0.0024000000000000002,
+        "scoring/armijo-003": 0.004200000000000001
+      },
+      "requested_steps": {
+        "scoring/armijo-002": 96,
+        "scoring/armijo-003": 168
+      },
+      "same_frozen_runtime": true,
+      "same_native_fingerprint": true,
+      "warning": "Longer withdrawal at fixed dt changes the prescribed path duration and per-step schedule; this is not a temporal convergence study."
+    },
+    "shared_prefix": {
+      "all_60_accepted_in_both": true,
+      "changed_cells": [],
+      "compared_csv_cells": 2220,
+      "step_indices": "0..59, the common accepted loading/hold prefix"
+    },
+    "short_withdrawal": {
+      "accepted_steps": 60,
+      "exit_code": 2,
+      "first_rejected_row": {
+        "fgmres_iterations": "1024",
+        "phase": "unloading",
+        "status_code": "10",
+        "status_diagnostic_w": "8",
+        "status_diagnostic_x": "6.8061954152653925e-06",
+        "status_diagnostic_y": "6.8700778683705721e-06",
+        "status_diagnostic_z": "0.0078125",
+        "step": "60"
+      },
+      "status": "failed",
+      "wall_seconds": 456.03790512500564
+    }
+  },
+  "native_tests_008_invocation_audit": {
+    "cases": [
+      {
+        "case": "cohesive",
+        "prediction_sha256": "02fe5564b3053deea5cf7cdea70d3965cc93f079d18d3ce618f672516ce5b45b",
+        "receipt_sha256": "e0413973dbd05ef69646ed0c156c757e46cfc3264950c61666c0b80f5e91985a",
+        "required_usage": "usage: cardboard-cohesive-face-check MEDIUM.nmatter MODE_I_COUPON.nmatter [--cpu-only]",
+        "result_sha256": "e8b14e9500d0dbbfba93dee82a266f5b16ecbe554e58d817b24bf7fc80969eb4",
+        "status": "UNEXECUTED_INVALID_INVOCATION"
+      },
+      {
+        "case": "frame",
+        "prediction_sha256": "c5c8ab4402dea183716d49d0033bc56eb28036cae4724c3352807873cc1b6589",
+        "receipt_sha256": "79b9ee5ca802692c1d99345a29a26fb5055f2022985bfa280dbac47d2cad2210",
+        "required_usage": "usage: fem-material-frame-check GUCCIONE.nmatter",
+        "result_sha256": "d717659762bbc9b483ae0401482d5f5633ed005a8a9994873fde062879c45c75",
+        "status": "UNEXECUTED_INVALID_INVOCATION"
+      },
+      {
+        "case": "reference",
+        "prediction_sha256": "1bba90013846707990fae9266588f6e626d384249f5cd621dd77d6ecceb95fbd",
+        "receipt_sha256": "d33f3b0253ed012006b4e32a0488f34e4db362f74cfa05142f1ae8e10099504d",
+        "required_usage": "usage: fem-reference-check GUCCIONE.nmatter NEO.nmatter [--cpu-only]",
+        "result_sha256": "f0ba7ed2122d32e67b642696e05a08f3ece7ba4766cbcec70c109f3a7e205b72",
+        "status": "UNEXECUTED_INVALID_INVOCATION"
+      },
+      {
+        "case": "regional",
+        "prediction_sha256": "b54449817bf02d1fa5a357b893f43e0d5864d037193842a86c8b3d787a14bdb4",
+        "receipt_sha256": "ce4904c7b83a3dc7ea43e8a4c0e55281731d44df52383aa0d022fd7ceef90b57",
+        "required_usage": "usage: fem-regional-material-check GUCCIONE.nmatter NEO.nmatter [--cpu-only]",
+        "result_sha256": "531dc4e9a8d52420748fa7db6b785e82af5417bb47598bace5ed2e529b74c482",
+        "status": "UNEXECUTED_INVALID_INVOCATION"
+      }
+    ],
+    "interpretation": "Four native-tests-008 entries did not execute their intended checks because required material .nmatter arguments were omitted. The valid sibling cases remain separate evidence. Corrected invocations are expected in native-tests-009.",
+    "schema": "numi.cardboard.native-tests-008-invocation-audit.v1"
+  },
+  "native_tests_009_invocation_audit": {
+    "capsule_endpoint_scope": "The corrected capsule check exercises moved-body endpoint and rollback validation under its own prediction and receipt; it supersedes the frozen-027 stationary-endpoint proof gap without deleting native-tests-008.",
+    "cases": {
+      "capsule-box": {
+        "exit_code": 0,
+        "prediction_sha256": "84ffa0c2cc20de3663c48a1d03c6c523b976c73a0a10bd017c55024d35a13f16",
+        "receipt_sha256": "9a04bf9e3f49786b99b561348c479b8446ba91fc5b2b2e10c09fdb2e67d0a34f",
+        "sealed_inputs": {
+          "all_verified": true,
+          "expected": 360,
+          "mismatches": [],
+          "verified": 360
+        },
+        "status": "PASS_NATIVE_TEST",
+        "stderr_sha256": "37c7d7bf6fd815b0d538138af8e4c0a6917d5cedecc4c9d5a34cfebf42e4836c",
+        "stdout": "capsule_armijo_pair=source_only_prescribed_capsule contact_pairs=26 legacy_displacement_m=1.719368047e-05 armijo_displacement_m=1.719368047e-05 legacy_impulse_Ns=3.143376034e-06 armijo_impulse_Ns=3.143376034e-06 legacy_residual=4.006583953e-09 armijo_residual=4.006583953e-09 both_native_certified=true\nunsafe_endpoint_regression=rejected status=1 rolledback_fem_displacement_m=0 caller_pose_unchanged=true\ncapsule_armijo_rollback=pass postcommit_rejected=true accepted_fem_history_rigid_state_unchanged=true\ncapsule_static_box_armijo=pass contact_pairs=52 legacy_max_displacement_m=1.712460172e-05 armijo_max_displacement_m=1.712460172e-05 legacy_capsule_impulse_Ns=3.289910637e-06 armijo_capsule_impulse_Ns=3.289910637e-06 legacy_residual=7.36072252e-08 armijo_residual=7.36072252e-08 accepted_capsule_contact=true stationary_box_endpoint=true\nunsafe_endpoint_regression=rejected status=1 rolledback_fem_displacement_m=0 caller_pose_unchanged=true\nstatic_box_temporary_grip_armijo=pass validated_target_count=54 target_node=13 tag3=true accepted_position_and_mass=true postcommit_env0_exact_rollback=true env1_success=true\nunsafe_endpoint_regression=rejected status=6 rolledback_fem_displacement_m=0 caller_pose_unchanged=true\nstatic_box_pre_endpoint_reject=pass case=pre_pose_changed selector=all exact_accepted_state_rollback=true\nunsafe_endpoint_regression=rejected status=1 rolledback_fem_displacement_m=0 caller_pose_unchanged=true\nstatic_box_pre_endpoint_reject=pass case=dynamic_motion_type selector=all exact_accepted_state_rollback=true\nunsafe_endpoint_regression=rejected status=1 rolledback_fem_displacement_m=0 caller_pose_unchanged=true\nstatic_box_pre_endpoint_reject=pass case=nonzero_tool_velocity selector=all exact_accepted_state_rollback=true\nunsafe_endpoint_regression=rejected status=6 rolledback_fem_displacement_m=0 caller_pose_unchanged=true\nstatic_box_pre_endpoint_reject=pass case=pre_orientation_changed selector=all exact_accepted_state_rollback=true\nunsafe_endpoint_regression=rejected status=1 rolledback_fem_displacement_m=0 caller_pose_unchanged=true\nstatic_box_pre_endpoint_reject=pass case=nonzero_angular_velocity selector=all exact_accepted_state_rollback=true\nunsafe_endpoint_regression=rejected status=1 rolledback_fem_displacement_m=0 caller_pose_unchanged=true\nstatic_box_pre_endpoint_reject=pass case=nonzero_inverse_mass selector=all exact_accepted_state_rollback=true\nunsafe_endpoint_regression=rejected status=1 rolledback_fem_displacement_m=0 caller_pose_unchanged=true\nstatic_box_pre_endpoint_reject=pass case=nonzero_inverse_inertia selector=all exact_accepted_state_rollback=true\nunsafe_endpoint_regression=rejected status=6 rolledback_fem_displacement_m=0 caller_pose_unchanged=true\nstatic_box_post_endpoint_rollback=pass case=post_position_changed accepted_state_restored=true\nunsafe_endpoint_regression=rejected status=6 rolledback_fem_displacement_m=0 caller_pose_unchanged=true\nstatic_box_post_endpoint_rollback=pass case=post_orientation_changed accepted_state_restored=true",
+        "stdout_sha256": "94a9c4fb7a8228d1bf2d476b406f935e559fcc01bcfcba4f75bdd58a94ea1dc7",
+        "wall_seconds": 5.326082416984718
+      },
+      "cohesive": {
+        "exit_code": 0,
+        "prediction_sha256": "49aa21bc4db753b6e8ea424f0b274d96b4b98611da5efdc031219aa0d6b9f5f5",
+        "receipt_sha256": "bd0f8a1915200f35b9ef4291db9b63864b8d6957ea1925dc1b616b8eacddf9b6",
+        "sealed_inputs": {
+          "all_verified": true,
+          "expected": 360,
+          "mismatches": [],
+          "verified": 360
+        },
+        "status": "PASS_NATIVE_TEST",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout": "PASS native paired cohesive FEM checks=4004 initial_opening_m=1.47964e-06 accepted_opening_m=1.49527e-06 no_interface_opening_m=1.49964e-06 accepted_damage=0.0101212 accepted_traction_Pa=392980 signed_work_J=3.07201e-07 source_mode_i_coarse_peak_force_error_N=7.85143e-05 source_mode_i_refined_peak_force_error_N=6.76424e-05 source_mode_i_coarse_unload_tangent_relative_error=3.17262e-05 source_mode_i_refined_unload_tangent_relative_error=0.000677552 source_mode_i_coarse_final_work_error_J=4.15742e-10 source_mode_i_refined_final_work_error_J=4.29086e-10 matrix_free_operator_directly_exposed=false tested_operator_proxy=finite_difference_of_native_kinematic_reactions calibration_grade=single_ply_bleached_clay_coated_not_corrugated_starch closure_rejection_rollback=verified physical_board_qualified=false mixed_mode_or_closure_supported=false",
+        "stdout_sha256": "b6e5462df35728fc8429825486924f7376dbf372320f2b50223061c1b30f7bcd",
+        "wall_seconds": 54.064562750048935
+      },
+      "frame": {
+        "exit_code": 0,
+        "prediction_sha256": "646ff445af0af00d6fb56c9679cf300270bb89af645830c361736c451c6df2f5",
+        "receipt_sha256": "f3f35a33f40f375a0338618b64cc13b7a876e715c3a8fa44997d7723c9315d31",
+        "sealed_inputs": {
+          "all_verified": true,
+          "expected": 360,
+          "mismatches": [],
+          "verified": 360
+        },
+        "status": "PASS_NATIVE_TEST",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout": "frame_device=Apple M4 abi=41\nsource_frame_force_error=9.0348969973945068e-07 source_frame_tangent_error=2.4088713604617131e-07 source_frame_fd_error=0.0018985037968984153 identity_error=0 anisotropic_angular_consequence=0.0057515638262883818 synthetic_state_rate_force_error=5.4808775475776649e-08 synthetic_state_rate_tangent_error=2.6039016682320251e-06 synthetic_state_rate_fd_error=1.3026630216087603e-06 mixed_active_force_error=1.0115523359873733e-07 mixed_active_tangent_error=1.9138180633217196e-07 mixed_active_fd_error=0.00014447508831119007 mixed_source_equivalent=false\nframed_icnn_force_error=2.5056373622279655e-07 framed_icnn_tangent_error=4.2242867456084868e-08 framed_icnn_fd_error=0.0011090525313200306 framed_icnn_world_fibre_force_error=2.0910758320286181e-07 framed_icnn_world_fibre_tangent_error=5.4983434590826474e-08 framed_icnn_angular_consequence=0.87027824102061657 trained_material_qualified=false\naccepted_steps=16 environments=2 motion_m=4.395736311293541e-05 replay=bitwise rollback=isolated reset=bitwise frame_snapshot_tamper=denied immutable_cell_rebinding=denied mass=unchanged\nfem_material_frame_check=pass anatomical_wall_qualified=false source_density_supplied=false active_cardiac_source_reproduced=false",
+        "stdout_sha256": "414cf6cb5f4b753635a15e703436730a890ce79c0d0feb6fad9254c7da95d714",
+        "wall_seconds": 6.067265290999785
+      },
+      "reference": {
+        "exit_code": 0,
+        "prediction_sha256": "35ef3c8c69bdb1c87bd3e3ff1e5ddd54abe2282a27f52437436bc25e9a5211c1",
+        "receipt_sha256": "6bd6a26c18cd324f511700a09df031b54a9d0b431e53824eac5b05dee73a1f10",
+        "sealed_inputs": {
+          "all_verified": true,
+          "expected": 360,
+          "mismatches": [],
+          "verified": 360
+        },
+        "status": "PASS_NATIVE_TEST",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout": "reference_abi=41\nreference_compiler_checks=42 reference_volume_m3=6.3578287760416663e-07 reference_mass_kg=0.0011444092137935513 initial_J=1.015625 inertia_relative_error=2.9802321499516919e-08\nreference_compiler_checks=84 reference_volume_m3=6.3578287760416663e-07 reference_mass_kg=0.0013351440827591432 initial_J=1.015625 inertia_relative_error=2.9802321552109992e-08\nreference_displacement_cpu=pass checks=100 affine_F_max_error=0 rest_F_max_error=0 rigid_rotation_F_max_error=0 default_path=unchanged fingerprint=bound package=roundtrip\nreference_displacement_thin_skew_cpu=pass checks=101 horizontal_scale_m=0.00421 thickness_m=3.07e-5 translated_origin_m=0.05219 legacy_rest_F_max_error=2.384185791015625e-07 legacy_green_strain_max=1.1920928955078125e-07 displacement_rest_F_max_error=0\ngeneral_reference_compiler_checks=103 inverse_relative_error=3.7252903090437266e-08 affine_F_max_error=2.2642780095338821e-08 origin_translated=true\ngeneral_reference_compiler_checks=105 inverse_relative_error=3.7252903090437266e-08 affine_F_max_error=2.2642780095338821e-08 origin_translated=true\nreference_executable_boundary_checks=113 old_ratio=0.20000001179885038 host_nominal_FP32_J=0.19999997317790985 minimum_J=0.20000000298023224 determinant_interval_center=0.19999998789256282 determinant_interval_radius=3.5762825627553419e-07 source_cooked_boundary=rejected snapshot_boundary=ambiguous_not_certified\nreference_device=Apple M4\nreference_boundary_restore=overlap_accepted_without_strict_GPU_certification provably_outside=denied restoration=unchanged\nreference_direct_case=reference_only force_relative_error=8.5178576712888533e-08 tangent_relative_error=9.7114850952897605e-08 finite_difference_relative_error=0.00087647317562756534 initial_prestress_nodal_force_N=0.62854409217834473 internal_force_balance_relative=1.1853711918765089e-08 unloaded_force_N=0\nreference_direct_case=reference_regional_frames force_relative_error=8.5782724898444736e-08 tangent_relative_error=3.057803571054997e-07 finite_difference_relative_error=0.001340282055436168 initial_prestress_nodal_force_N=0.64432328939437866 internal_force_balance_relative=4.1194682566091187e-08 unloaded_force_N=0\nreference_direct_case=reference_displacement_regional_frames force_relative_error=8.5782724898444736e-08 tangent_relative_error=3.057803571054997e-07 finite_difference_relative_error=0.00087981223627321193 initial_prestress_nodal_force_N=0.64432328939437866 internal_force_balance_relative=4.1194682566091187e-08 unloaded_force_N=0\nreference_displacement_rigid_rotation=pass cpu_F_max_error=0 production_force_max_N=0 tangent_relative_error=1.4729112977216784e-07 finite_difference_relative_error=1.7827294345071392e-05\nreference_displacement_thin_skew_metal_rest=pass force_max_N=0 geometry=translated_skew_30.7um\nreference_runtime_case=reference_only accepted_steps=16 environments=2 motion_m=0.00036255130544304848 replay=bitwise rollback=isolated reset=loaded_initial_bitwise snapshot_rebinding=denied reference_mass=unchanged\nreference_runtime_case=reference_regional_frames accepted_steps=16 environments=2 motion_m=0.00037146033719182014 replay=bitwise rollback=isolated reset=loaded_initial_bitwise snapshot_rebinding=denied reference_mass=unchanged\nreference_runtime_case=reference_displacement_regional_frames accepted_steps=16 environments=2 motion_m=0.00037146080285310745 replay=bitwise rollback=isolated reset=loaded_initial_bitwise snapshot_rebinding=denied reference_mass=unchanged\nfem_reference_check=pass unloaded_reference_recovered=false anatomical_wall_qualified=false source_density_supplied=false active_cardiac_source_reproduced=false",
+        "stdout_sha256": "1690a732808254c11fa145dda8727aee526553482ff920e5cc58d589d2923f87",
+        "wall_seconds": 20.348788124974817
+      },
+      "regional": {
+        "exit_code": 0,
+        "prediction_sha256": "69208bd95e58cccea30f95458d646f9221b9ab064cb05f30aa30b186b4039fc6",
+        "receipt_sha256": "140b677aea2c6d4d4c3dfe03008de9b4dad61cae1af5444c825176fa065acdc2",
+        "sealed_inputs": {
+          "all_verified": true,
+          "expected": 360,
+          "mismatches": [],
+          "verified": 360
+        },
+        "status": "PASS_NATIVE_TEST",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout": "regional_abi=41\nregional_compiler_checks=40 shared_nodes=3 element_mass_kg=0.0013351440827591432 nodal_mass_kg=0.00133514404296875 selected_material_rate_exponent=5 default_material_rate_exponent=0 lumped_inertia_relative_error=2.9802321738857619e-08 source_density_supplied=false\nregional_device=Apple M4\nregional_source_force_error=2.378244333367824e-07 regional_source_tangent_error=2.0186041035049957e-07 regional_source_fd_error=0.0016590304248321397 homogeneous_fallback_consequence=0.12038753020895762 regional_state_force_error=1.5118860636542636e-07 regional_state_tangent_error=2.8712626954622155e-06 regional_state_fd_error=2.0631400116938371e-05 heterogeneous_state_stride=2\nregional_icnn_force_error=2.0409321219456913e-07 regional_icnn_tangent_error=1.2069666139688348e-07 regional_icnn_fd_error=0.00074758411957886659 regional_icnn_world_fibre_force_error=2.2840123702109972e-07 regional_icnn_world_fibre_tangent_error=3.0028282438097145e-07 wrong_fibre_consequence=1.0359297285902127 trained_material_qualified=false\nregional_projected_state_absolute_error=6.6682896149306004e-09 unowned_padding=preserved\nregional_runtime_case=source_laws_framed accepted_steps=16 environments=2 motion_m=4.6220987611155015e-05 replay=bitwise rollback=isolated reset=bitwise snapshot_rebinding=denied mass=unchanged\nregional_runtime_case=source_laws_unframed accepted_steps=2 environments=2 motion_m=6.359144030389523e-06 replay=bitwise rollback=isolated reset=bitwise snapshot_rebinding=denied mass=unchanged\nregional_runtime_case=heterogeneous_state_programs accepted_steps=2 environments=2 motion_m=8.4448828916146513e-06 replay=bitwise rollback=isolated reset=bitwise snapshot_rebinding=denied mass=unchanged\nlegacy_restore_object0_material1=pass incidence_owner_mismatch=denied\nregional_unframed_unrelated_posterior_values=restored posterior_identity_retarget=denied fixed_parameters=unchanged\nimmutable_event_capacity_restore=pass framed=0 dormant_cohesive_capacity=1 dormant_puncture_capacity=1 topology_accounting=bound\nimmutable_event_capacity_restore=pass framed=1 dormant_cohesive_capacity=1 dormant_puncture_capacity=1 topology_accounting=bound\nregional_runtime_case=full_state32_programs accepted_steps=2 environments=2 motion_m=8.4448828916146513e-06 replay=bitwise rollback=isolated reset=bitwise snapshot_rebinding=denied mass=unchanged\nfem_regional_material_check=pass anatomical_wall_qualified=false source_density_supplied=false active_cardiac_source_reproduced=false",
+        "stdout_sha256": "86af5359389028e8ad3237c00751bdc43d1473a56e846a5664fb3733b31c783d",
+        "wall_seconds": 9.672843375010416
+      }
+    },
+    "cohesive_grade_scope": "Pure Mode I paired-face check is a separate single-ply bleached clay-coated paperboard source grade; it does not calibrate corrugated starch.",
+    "interpretation": "Corrected invocations completed with all sealed inputs verified. These are native software/material/runtime checks, not physical board or box qualification.",
+    "schema": "numi.cardboard.native-tests-009-invocation-audit.v1"
+  },
+  "native_tests_010_013": {
+    "010_cohesive_reset": {
+      "case": "Native-010 cohesive-reset partial run with fixture admission failure",
+      "interpretation": "Earlier damage/reset/isolation assertions ran; final rejected-reset target did not enter because the fixture target count omitted environments. No cohesive mechanical failure is inferred.",
+      "path": "native-tests-010/cohesive-reset",
+      "prediction_sha256": "87d8f66d06ff766f7a523b37b23bb7403dedbf0c2b98021ad2e32f70fe92d7cd",
+      "receipt": {
+        "exit_code": 1,
+        "finished_at_utc": "2026-10-13T19:22:54.573768+00:00",
+        "timed_out": false,
+        "wall_seconds": 3.1622278330032714
+      },
+      "receipt_sha256": "be4611bcf26304b610e63b90fe3df17f80e36e7e7ef89177f8bdc7018d0018c0",
+      "reviewable_outputs": [
+        {
+          "path": "native-tests-010/cohesive-reset/stdout.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        },
+        {
+          "path": "native-tests-010/cohesive-reset/stderr.log",
+          "sha256": "0f5072afff7169940257e020abf65cb37377b5753b50cb3470b972074c842e85",
+          "size_bytes": 149
+        }
+      ],
+      "sealed_inputs": {
+        "all_verified": true,
+        "expected_count": 360,
+        "hash_map_sha256": "b08572cb604bd20fdd42a916cf9fe6a42d395af791740353bcdb3cb37fe3d5e4",
+        "missing_or_mismatched": [],
+        "verified_count": 360
+      },
+      "source_snapshot": "/Users/home/cardboard-followup-20261013/solver/frozen031-source",
+      "status": "INCOMPLETE_FIXTURE_ADMISSION_FAILURE"
+    },
+    "011_capsule_box_stdout": "capsule_armijo_pair=source_only_prescribed_capsule contact_pairs=26 legacy_displacement_m=1.719368047e-05 armijo_displacement_m=1.719368047e-05 legacy_impulse_Ns=3.143376034e-06 armijo_impulse_Ns=3.143376034e-06 legacy_residual=4.006583953e-09 armijo_residual=4.006583953e-09 both_native_certified=true\nunsafe_endpoint_regression=rejected status=1 rolledback_fem_displacement_m=0 caller_pose_unchanged=true\ncapsule_armijo_rollback=pass postcommit_rejected=true accepted_fem_history_rigid_state_unchanged=true\ncapsule_static_box_armijo=pass contact_pairs=52 legacy_max_displacement_m=1.712460172e-05 armijo_max_displacement_m=1.712460172e-05 legacy_capsule_impulse_Ns=3.289910637e-06 armijo_capsule_impulse_Ns=3.289910637e-06 legacy_residual=7.36072252e-08 armijo_residual=7.36072252e-08 accepted_capsule_contact=true stationary_box_endpoint=true\nunsafe_endpoint_regression=rejected status=1 rolledback_fem_displacement_m=0 caller_pose_unchanged=true\nstatic_box_temporary_grip_armijo=pass validated_target_count=54 target_node=13 tag3=true accepted_position_and_mass=true postcommit_env0_exact_rollback=true env1_success=true\nunsafe_endpoint_regression=rejected status=6 rolledback_fem_displacement_m=0 caller_pose_unchanged=true\nstatic_box_pre_endpoint_reject=pass case=pre_pose_changed selector=all exact_accepted_state_rollback=true\nunsafe_endpoint_regression=rejected status=1 rolledback_fem_displacement_m=0 caller_pose_unchanged=true\nstatic_box_pre_endpoint_reject=pass case=dynamic_motion_type selector=all exact_accepted_state_rollback=true\nunsafe_endpoint_regression=rejected status=1 rolledback_fem_displacement_m=0 caller_pose_unchanged=true\nstatic_box_pre_endpoint_reject=pass case=nonzero_tool_velocity selector=all exact_accepted_state_rollback=true\nunsafe_endpoint_regression=rejected status=6 rolledback_fem_displacement_m=0 caller_pose_unchanged=true\nstatic_box_pre_endpoint_reject=pass case=pre_orientation_changed selector=all exact_accepted_state_rollback=true\nunsafe_endpoint_regression=rejected status=1 rolledback_fem_displacement_m=0 caller_pose_unchanged=true\nstatic_box_pre_endpoint_reject=pass case=nonzero_angular_velocity selector=all exact_accepted_state_rollback=true\nunsafe_endpoint_regression=rejected status=1 rolledback_fem_displacement_m=0 caller_pose_unchanged=true\nstatic_box_pre_endpoint_reject=pass case=nonzero_inverse_mass selector=all exact_accepted_state_rollback=true\nunsafe_endpoint_regression=rejected status=1 rolledback_fem_displacement_m=0 caller_pose_unchanged=true\nstatic_box_pre_endpoint_reject=pass case=nonzero_inverse_inertia selector=all exact_accepted_state_rollback=true\nunsafe_endpoint_regression=rejected status=6 rolledback_fem_displacement_m=0 caller_pose_unchanged=true\nstatic_box_post_endpoint_rollback=pass case=post_position_changed accepted_state_restored=true\nunsafe_endpoint_regression=rejected status=6 rolledback_fem_displacement_m=0 caller_pose_unchanged=true\nstatic_box_post_endpoint_rollback=pass case=post_orientation_changed accepted_state_restored=true",
+    "011_cohesive_reset_stdout": "PASS native paired cohesive FEM checks=4072 initial_opening_m=1.47964e-06 accepted_opening_m=1.49527e-06 no_interface_opening_m=1.49964e-06 accepted_damage=0.0101212 accepted_traction_Pa=392980 signed_work_J=3.07201e-07 source_mode_i_coarse_peak_force_error_N=7.85143e-05 source_mode_i_refined_peak_force_error_N=6.76424e-05 source_mode_i_coarse_unload_tangent_relative_error=3.17262e-05 source_mode_i_refined_unload_tangent_relative_error=0.000677552 source_mode_i_coarse_final_work_error_J=4.15742e-10 source_mode_i_refined_final_work_error_J=4.29086e-10 matrix_free_operator_directly_exposed=false tested_operator_proxy=finite_difference_of_native_kinematic_reactions calibration_grade=single_ply_bleached_clay_coated_not_corrugated_starch closure_rejection_rollback=verified episode_reset_history_and_isolation=verified reset_rejection_checkpoint=verified physical_board_qualified=false mixed_mode_or_closure_supported=false",
+    "012_capsule_box": {
+      "case": "Native-012 capsule/box endpoint, rollback and Armijo checks",
+      "path": "native-tests-012/capsule-box",
+      "prediction_sha256": "04403bd2f6c5603613ffa6324893fcce3681bbc81d2d36ac85c955c95b681d3b",
+      "receipt": {
+        "exit_code": 0,
+        "finished_at_utc": "2026-10-13T19:47:27.981545+00:00",
+        "timed_out": false,
+        "wall_seconds": 5.153141625050921
+      },
+      "receipt_sha256": "02f22ae64c4c7f2a682b5a0aecfa067aca7312d89a02cfa246fd39c5c806d118",
+      "reviewable_outputs": [
+        {
+          "path": "native-tests-012/capsule-box/stdout.log",
+          "sha256": "94a9c4fb7a8228d1bf2d476b406f935e559fcc01bcfcba4f75bdd58a94ea1dc7",
+          "size_bytes": 3030
+        },
+        {
+          "path": "native-tests-012/capsule-box/stderr.log",
+          "sha256": "37c7d7bf6fd815b0d538138af8e4c0a6917d5cedecc4c9d5a34cfebf42e4836c",
+          "size_bytes": 2599
+        }
+      ],
+      "sealed_inputs": {
+        "all_verified": true,
+        "expected_count": 361,
+        "hash_map_sha256": "fe7b46d3dfc22b40b21865e731a241d7dc4c95fe82779aec512dd8e6b0b3b181",
+        "missing_or_mismatched": [],
+        "verified_count": 361
+      },
+      "source_snapshot": "/Users/home/cardboard-followup-20261013/solver/frozen034-source",
+      "status": null
+    },
+    "012_cohesive_reset": {
+      "case": "Native-012 cohesive reset and paperboard coupon checks",
+      "path": "native-tests-012/cohesive-reset",
+      "prediction_sha256": "32d9181734e675171b24130ac09be0f613d16ecfe69f9623407dceac77a553fb",
+      "receipt": {
+        "exit_code": 0,
+        "finished_at_utc": "2026-10-13T19:47:22.688788+00:00",
+        "timed_out": false,
+        "wall_seconds": 56.15515912504634
+      },
+      "receipt_sha256": "b871e1a4ddf1b6940efcff92054acc522f9de34faa5a5c0f5b7f13d7d434639b",
+      "reviewable_outputs": [
+        {
+          "path": "native-tests-012/cohesive-reset/stdout.log",
+          "sha256": "e5a17ffd06f2b7089630036d06698df984d3191d277cf74b756ca85bcd747df4",
+          "size_bytes": 929
+        },
+        {
+          "path": "native-tests-012/cohesive-reset/stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        }
+      ],
+      "sealed_inputs": {
+        "all_verified": true,
+        "expected_count": 361,
+        "hash_map_sha256": "ea98a6ee97d27c0486055216a030517a8119b9f9fbbcde80efdc53b08d5e8394",
+        "missing_or_mismatched": [],
+        "verified_count": 361
+      },
+      "source_snapshot": "/Users/home/cardboard-followup-20261013/solver/frozen034-source",
+      "status": null
+    },
+    "013_capsule_box": {
+      "case": "Native-013 capsule/box endpoint, rollback and Armijo checks",
+      "path": "native-tests-013/capsule-box",
+      "prediction_sha256": "1abedb7907e348c4453f20cbc732de34eda5cfb4cf4d0e679677b2966bc92dc8",
+      "receipt": {
+        "exit_code": 0,
+        "finished_at_utc": "2026-10-13T19:55:28.604461+00:00",
+        "timed_out": false,
+        "wall_seconds": 5.3233960419893265
+      },
+      "receipt_sha256": "1ca98f18747ea271bf35fcd826dc269f5511ee115e890c529135028ef29d2be5",
+      "reviewable_outputs": [
+        {
+          "path": "native-tests-013/capsule-box/stdout.log",
+          "sha256": "94a9c4fb7a8228d1bf2d476b406f935e559fcc01bcfcba4f75bdd58a94ea1dc7",
+          "size_bytes": 3030
+        },
+        {
+          "path": "native-tests-013/capsule-box/stderr.log",
+          "sha256": "37c7d7bf6fd815b0d538138af8e4c0a6917d5cedecc4c9d5a34cfebf42e4836c",
+          "size_bytes": 2599
+        }
+      ],
+      "sealed_inputs": {
+        "all_verified": true,
+        "expected_count": 361,
+        "hash_map_sha256": "47c6f7e93f3ca3826c801b746c16e2bea493bdf5ec73972c2c6806a86a1d2147",
+        "missing_or_mismatched": [],
+        "verified_count": 361
+      },
+      "source_snapshot": "/Users/home/cardboard-followup-20261013/solver/frozen036-source",
+      "status": null
+    },
+    "013_cohesive_reset": {
+      "case": "Native-013 cohesive reset and paperboard coupon checks",
+      "path": "native-tests-013/cohesive-reset",
+      "prediction_sha256": "4a07771faefc81785d46a2bbcb02088bfb63d85bcf44395f1afcb482e518c89e",
+      "receipt": {
+        "exit_code": 0,
+        "finished_at_utc": "2026-10-13T19:55:23.125446+00:00",
+        "timed_out": false,
+        "wall_seconds": 56.76174395903945
+      },
+      "receipt_sha256": "4f34e2153997d241c011ece9efb692596b795c1f7f17bdf0bbfc2d6494529490",
+      "reviewable_outputs": [
+        {
+          "path": "native-tests-013/cohesive-reset/stdout.log",
+          "sha256": "e5a17ffd06f2b7089630036d06698df984d3191d277cf74b756ca85bcd747df4",
+          "size_bytes": 929
+        },
+        {
+          "path": "native-tests-013/cohesive-reset/stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        }
+      ],
+      "sealed_inputs": {
+        "all_verified": true,
+        "expected_count": 361,
+        "hash_map_sha256": "46ca8fb3ede1690f951b9822475467905d0fe71f32147a1c67e5a84c5928e985",
+        "missing_or_mismatched": [],
+        "verified_count": 361
+      },
+      "source_snapshot": "/Users/home/cardboard-followup-20261013/solver/frozen036-source",
+      "status": null
+    },
+    "interpretation": "Corrected 011/012 and scope-034 demonstrate native software checks and one eligible finite-mass step. They do not calibrate corrugated cardboard or qualify physical box assembly.",
+    "scope_034": {
+      "case": "Frozen-034 finite-positive-mass scope admission check",
+      "path": "solver/operator-fd-scope-034",
+      "prediction_sha256": "8cdaadfb60f03f3f6c2437c07085163c1aeb553ad96011758797ddaf1ee26b0a",
+      "receipt": {
+        "exit_code": 0,
+        "finished_at_utc": "2026-10-13T19:47:32.614737+00:00",
+        "timed_out": false,
+        "wall_seconds": 4.496255499951076
+      },
+      "receipt_sha256": "68a2908ee1fb7e89dae1e970e22a522789d1788e89320d0c45fb6bfcb90634f9",
+      "reviewable_outputs": [
+        {
+          "path": "solver/operator-fd-scope-034/stdout.log",
+          "sha256": "00b5ef0c64f7a77ee1c54e08e6b45a6ff2d970efda97e771da05b65132f11dd2",
+          "size_bytes": 204
+        },
+        {
+          "path": "solver/operator-fd-scope-034/stderr.log",
+          "sha256": "b4538451c6a4cd9b053e13362778ee79513e803b197765b68599bf2ab16ac0b4",
+          "size_bytes": 3187
+        },
+        {
+          "path": "solver/operator-fd-scope-034/output/result.json",
+          "sha256": "6e8a142e64053e8ed13260286d4ab599914074584dd069c0ba0898c428a2e504",
+          "size_bytes": 420
+        },
+        {
+          "path": "solver/operator-fd-scope-034/output/observations.csv",
+          "sha256": "79ee8e7fe2c9a23af49fb48a8565a1ebd1c29d5ef368efbf875f84bd5f8fa18e",
+          "size_bytes": 1331
+        }
+      ],
+      "sealed_inputs": {
+        "all_verified": true,
+        "expected_count": 361,
+        "hash_map_sha256": "981d87abeef2cb75bacefbbaa92161a714eb4bdf31ba151b1f69cfb3d971e7cd",
+        "missing_or_mismatched": [],
+        "verified_count": 361
+      },
+      "source_snapshot": "/Users/home/cardboard-followup-20261013/solver/frozen034-source",
+      "status": "completed"
+    },
+    "scope_036": {
+      "case": "Frozen-036 finite-positive-mass scope admission check",
+      "path": "solver/operator-fd-scope-036",
+      "prediction_sha256": "2ea875a895fba49e8995f5fd603dfb22f3c15597455c5ef7dc9c7a952138638a",
+      "receipt": {
+        "exit_code": 0,
+        "finished_at_utc": "2026-10-13T19:55:33.298109+00:00",
+        "timed_out": false,
+        "wall_seconds": 4.533683874993585
+      },
+      "receipt_sha256": "e8993aa7b69ea11fdc90b3114c75d168ccaaaa05bd90f456d5115df34b1a3f45",
+      "reviewable_outputs": [
+        {
+          "path": "solver/operator-fd-scope-036/stdout.log",
+          "sha256": "00b5ef0c64f7a77ee1c54e08e6b45a6ff2d970efda97e771da05b65132f11dd2",
+          "size_bytes": 204
+        },
+        {
+          "path": "solver/operator-fd-scope-036/stderr.log",
+          "sha256": "38aee012620305580e1e9abf9ed34f2d463ff6ac0db94747012fce1635e56d45",
+          "size_bytes": 3188
+        },
+        {
+          "path": "solver/operator-fd-scope-036/output/result.json",
+          "sha256": "6e8a142e64053e8ed13260286d4ab599914074584dd069c0ba0898c428a2e504",
+          "size_bytes": 420
+        },
+        {
+          "path": "solver/operator-fd-scope-036/output/observations.csv",
+          "sha256": "79ee8e7fe2c9a23af49fb48a8565a1ebd1c29d5ef368efbf875f84bd5f8fa18e",
+          "size_bytes": 1331
+        }
+      ],
+      "sealed_inputs": {
+        "all_verified": true,
+        "expected_count": 361,
+        "hash_map_sha256": "c4b209a070f8a87b057da5f0a0a68215f57ea9f70651f3619cf617be48807f2a",
+        "missing_or_mismatched": [],
+        "verified_count": 361
+      },
+      "source_snapshot": "/Users/home/cardboard-followup-20261013/solver/frozen036-source",
+      "status": "completed"
+    }
+  },
+  "preservation_rule": "Rejected, incomplete, superseded, and invalid-invocation records remain included; none is silently treated as a successful mechanics test.",
+  "production_operator_fd_diagnostic": {
+    "classification": "MATRIX_FREE_OPERATOR_MISMATCH_DIAGNOSTIC_NOT_NATIVE_PATH_REPAIR",
+    "interpretation": "At the root19/Newton3 state, both nonzero correction perturbations are valid and preserve positive J, but the production matrix-free action disagrees strongly with centered residual differences. The second environment is a zero-direction control and its zero error is vacuous. The diagnostic and baseline native runs have byte-identical CSV, results, compiled pack and all exported mesh hashes, and both naturally reject; the diagnostic does not repair or change the path. The comparison does not identify the cause; projection, active-set behavior, and FP32 effects remain possible contributors.",
+    "postrun_comparison": {
+      "all_mesh_hashes_identical": true,
+      "baseline_receipt": {
+        "exit_code": 2,
+        "finished_at_utc": "2026-10-13T19:30:04.313145+00:00",
+        "timed_out": false,
+        "wall_seconds": 242.3064711249899
+      },
+      "compiled_pack_byte_identical": true,
+      "csv_byte_identical": true,
+      "derived_at_utc": "2026-10-13T19:34:21.172542+00:00",
+      "diagnostic_receipt": {
+        "exit_code": 2,
+        "finished_at_utc": "2026-10-13T19:34:05.434509+00:00",
+        "timed_out": false,
+        "wall_seconds": 240.7466371670016
+      },
+      "fd_traces": [
+        {
+          "contract": {
+            "comparison": "A*delta_v versus -(R_plus-R_minus)/(2*epsilon) on free nodes",
+            "position_delta": "dt*epsilon*delta_v",
+            "residual_units": "impulse",
+            "scope": "no-contact explicit FEM",
+            "unknown": "velocity correction"
+          },
+          "environments": [
+            {
+              "epsilon_pairs": [
+                {
+                  "action_dot_fd": -2.52724282e-11,
+                  "action_fd_cosine": -0.0671305507,
+                  "centered_fd_l2": 4.91195715e-05,
+                  "direction_nonzero": true,
+                  "dt": 2.49999994e-05,
+                  "epsilon": 0.03125,
+                  "error_l2": 5.02197036e-05,
+                  "free_node_count": 948,
+                  "input_integrity_flag": 1,
+                  "maximum_delta_velocity": 0.170653135,
+                  "maximum_position_perturbation": 1.33322757e-07,
+                  "minimum_j_plus_minus": [
+                    0.99518913,
+                    0.99520421
+                  ],
+                  "operator_action_l2": 7.66429457e-06,
+                  "operator_status_code": 0,
+                  "position_delta": 7.8124998e-07,
+                  "relative_error": 1.02239704,
+                  "residual_minus_l2": 8.19411525e-06,
+                  "residual_plus_l2": 8.85819645e-06,
+                  "stage_status_codes_plus_minus": [
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "action_dot_fd": 4.53699578e-13,
+                  "action_fd_cosine": 0.00174531771,
+                  "centered_fd_l2": 3.39173312e-05,
+                  "direction_nonzero": true,
+                  "dt": 2.49999994e-05,
+                  "epsilon": 0.015625,
+                  "error_l2": 3.47594651e-05,
+                  "free_node_count": 948,
+                  "input_integrity_flag": 1,
+                  "maximum_delta_velocity": 0.170653135,
+                  "maximum_position_perturbation": 6.66613786e-08,
+                  "minimum_j_plus_minus": [
+                    0.995192885,
+                    0.995200396
+                  ],
+                  "operator_action_l2": 7.66429457e-06,
+                  "operator_status_code": 0,
+                  "position_delta": 3.9062499e-07,
+                  "relative_error": 1.02482903,
+                  "residual_minus_l2": 8.06895059e-06,
+                  "residual_plus_l2": 8.11095833e-06,
+                  "stage_status_codes_plus_minus": [
+                    0,
+                    0
+                  ]
+                }
+              ]
+            },
+            {
+              "epsilon_pairs": [
+                {
+                  "action_dot_fd": 0,
+                  "action_fd_cosine": null,
+                  "centered_fd_l2": 0,
+                  "direction_nonzero": false,
+                  "dt": 2.49999994e-05,
+                  "epsilon": 0.03125,
+                  "error_l2": 0,
+                  "free_node_count": 948,
+                  "input_integrity_flag": 1,
+                  "maximum_delta_velocity": 0,
+                  "maximum_position_perturbation": 0,
+                  "minimum_j_plus_minus": [
+                    1,
+                    1
+                  ],
+                  "operator_action_l2": 0,
+                  "operator_status_code": 0,
+                  "position_delta": 7.8124998e-07,
+                  "relative_error": 0,
+                  "residual_minus_l2": 3.8318678e-08,
+                  "residual_plus_l2": 3.8318678e-08,
+                  "stage_status_codes_plus_minus": [
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "action_dot_fd": 0,
+                  "action_fd_cosine": null,
+                  "centered_fd_l2": 0,
+                  "direction_nonzero": false,
+                  "dt": 2.49999994e-05,
+                  "epsilon": 0.015625,
+                  "error_l2": 0,
+                  "free_node_count": 948,
+                  "input_integrity_flag": 1,
+                  "maximum_delta_velocity": 0,
+                  "maximum_position_perturbation": 0,
+                  "minimum_j_plus_minus": [
+                    1,
+                    1
+                  ],
+                  "operator_action_l2": 0,
+                  "operator_status_code": 0,
+                  "position_delta": 3.9062499e-07,
+                  "relative_error": 0,
+                  "residual_minus_l2": 3.8318678e-08,
+                  "residual_plus_l2": 3.8318678e-08,
+                  "stage_status_codes_plus_minus": [
+                    0,
+                    0
+                  ]
+                }
+              ]
+            }
+          ],
+          "execution_fingerprint": 5642252453855912924,
+          "newton_iteration": 3,
+          "production_inputs_bitwise_unchanged": true,
+          "root": 19,
+          "schema": 1,
+          "world_fingerprint": 5248235368261643122
+        }
+      ],
+      "limitation": "Post-execution comparison; not an original prediction seal, material oracle or convergence admission.",
+      "mesh_file_count_baseline": 41,
+      "mesh_file_count_diagnostic": 41,
+      "mesh_hashes_baseline": {
+        "accepted_step_000001_bent.obj": "e9c7275e15333fd5b163ded3d26ff85caa25ebadcce7c87d7df73afef61ba2ad",
+        "accepted_step_000001_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+        "accepted_step_000002_bent.obj": "e8801a3e0dfd7a7738b59e7c769179d65a096f456571af34f8e01d9ea62ecf8b",
+        "accepted_step_000002_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+        "accepted_step_000003_bent.obj": "8eb9b5482ede4a9a86b57acffd804cea4f6781ff7e99ac2db4a45467d29cb9c8",
+        "accepted_step_000003_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+        "accepted_step_000004_bent.obj": "96bfbf02eb15137e32ea1196a57a4861f3b9e74e1c2bd7996be3cb0c8518ae3b",
+        "accepted_step_000004_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+        "accepted_step_000005_bent.obj": "421c341dd81f2a7b1fff21cbcf01e8e5bb5fd631d0a2830c9c4ececa42376af6",
+        "accepted_step_000005_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+        "accepted_step_000006_bent.obj": "e1c730ec9f7274999bbaa6c8c1039e5a8b132b98f7a5448de29d030b2e90ec63",
+        "accepted_step_000006_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+        "accepted_step_000007_bent.obj": "b8a5f414fc4690d929a452c285d169fdb34a04b0d29747b791569135620ea3fc",
+        "accepted_step_000007_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+        "accepted_step_000008_bent.obj": "2c79d065814e8fc8c41597184a372a3dc3aa5fb928584bbb7150c85de59629bc",
+        "accepted_step_000008_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+        "accepted_step_000009_bent.obj": "6e3c73c73aa0bb58b759536e4358af60faef9707d664fdd0e89ff9a3bca57f67",
+        "accepted_step_000009_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+        "accepted_step_000010_bent.obj": "1215df5ccfc8ed1b87fd9ee011a316aa5a463881cceacfa6044353fbac36c07a",
+        "accepted_step_000010_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+        "accepted_step_000011_bent.obj": "d4b8640e7a151a724c65d4ad143c77c6af2abe1026b4d1b776beeec8bbd33108",
+        "accepted_step_000011_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+        "accepted_step_000012_bent.obj": "04addb33680604816e61d0385997a91c161a84a444376a299a8354d4bc5a0391",
+        "accepted_step_000012_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+        "accepted_step_000013_bent.obj": "af78c9db77c7123b7fdecd861d79650f011df8ad9489541e3b7757d0c7ccbf9c",
+        "accepted_step_000013_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+        "accepted_step_000014_bent.obj": "9c6402be6f0559d05d51c15adcd4f1d8fb6772b525848ed3de848000b013e8cc",
+        "accepted_step_000014_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+        "accepted_step_000015_bent.obj": "4c25da027e6fc5e41e45561c5466da5e9ac6340e96f3b4da3b10385366488626",
+        "accepted_step_000015_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+        "accepted_step_000016_bent.obj": "4034ff54e3951dbc44e1e8770d99c4e9210aedb8285f84c463297901a7027ba5",
+        "accepted_step_000016_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+        "accepted_step_000017_bent.obj": "f5f9e9650158134905ca22fb16080111a26c5bd8c9143006da558094fc2059e6",
+        "accepted_step_000017_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+        "accepted_step_000018_bent.obj": "bd15d6b21f2358393970f17ef1c15c571a96c6bf292ec921d2bb6ccc5ad6d6a8",
+        "accepted_step_000018_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+        "accepted_step_000019_bent.obj": "1b522d7e016f3a0e7e1b3a6f010d785e6286fb3c10bfd2029c600bb430063323",
+        "accepted_step_000019_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+        "accepted_step_000020_bent.obj": "1b522d7e016f3a0e7e1b3a6f010d785e6286fb3c10bfd2029c600bb430063323",
+        "accepted_step_000020_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+        "initial.obj": "85937469616d2ce4096aa8fe945854b748537931dc8eff01f174ba00e2cf4b11"
+      },
+      "mesh_hashes_diagnostic": {
+        "accepted_step_000001_bent.obj": "e9c7275e15333fd5b163ded3d26ff85caa25ebadcce7c87d7df73afef61ba2ad",
+        "accepted_step_000001_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+        "accepted_step_000002_bent.obj": "e8801a3e0dfd7a7738b59e7c769179d65a096f456571af34f8e01d9ea62ecf8b",
+        "accepted_step_000002_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+        "accepted_step_000003_bent.obj": "8eb9b5482ede4a9a86b57acffd804cea4f6781ff7e99ac2db4a45467d29cb9c8",
+        "accepted_step_000003_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+        "accepted_step_000004_bent.obj": "96bfbf02eb15137e32ea1196a57a4861f3b9e74e1c2bd7996be3cb0c8518ae3b",
+        "accepted_step_000004_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+        "accepted_step_000005_bent.obj": "421c341dd81f2a7b1fff21cbcf01e8e5bb5fd631d0a2830c9c4ececa42376af6",
+        "accepted_step_000005_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+        "accepted_step_000006_bent.obj": "e1c730ec9f7274999bbaa6c8c1039e5a8b132b98f7a5448de29d030b2e90ec63",
+        "accepted_step_000006_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+        "accepted_step_000007_bent.obj": "b8a5f414fc4690d929a452c285d169fdb34a04b0d29747b791569135620ea3fc",
+        "accepted_step_000007_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+        "accepted_step_000008_bent.obj": "2c79d065814e8fc8c41597184a372a3dc3aa5fb928584bbb7150c85de59629bc",
+        "accepted_step_000008_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+        "accepted_step_000009_bent.obj": "6e3c73c73aa0bb58b759536e4358af60faef9707d664fdd0e89ff9a3bca57f67",
+        "accepted_step_000009_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+        "accepted_step_000010_bent.obj": "1215df5ccfc8ed1b87fd9ee011a316aa5a463881cceacfa6044353fbac36c07a",
+        "accepted_step_000010_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+        "accepted_step_000011_bent.obj": "d4b8640e7a151a724c65d4ad143c77c6af2abe1026b4d1b776beeec8bbd33108",
+        "accepted_step_000011_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+        "accepted_step_000012_bent.obj": "04addb33680604816e61d0385997a91c161a84a444376a299a8354d4bc5a0391",
+        "accepted_step_000012_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+        "accepted_step_000013_bent.obj": "af78c9db77c7123b7fdecd861d79650f011df8ad9489541e3b7757d0c7ccbf9c",
+        "accepted_step_000013_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+        "accepted_step_000014_bent.obj": "9c6402be6f0559d05d51c15adcd4f1d8fb6772b525848ed3de848000b013e8cc",
+        "accepted_step_000014_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+        "accepted_step_000015_bent.obj": "4c25da027e6fc5e41e45561c5466da5e9ac6340e96f3b4da3b10385366488626",
+        "accepted_step_000015_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+        "accepted_step_000016_bent.obj": "4034ff54e3951dbc44e1e8770d99c4e9210aedb8285f84c463297901a7027ba5",
+        "accepted_step_000016_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+        "accepted_step_000017_bent.obj": "f5f9e9650158134905ca22fb16080111a26c5bd8c9143006da558094fc2059e6",
+        "accepted_step_000017_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+        "accepted_step_000018_bent.obj": "bd15d6b21f2358393970f17ef1c15c571a96c6bf292ec921d2bb6ccc5ad6d6a8",
+        "accepted_step_000018_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+        "accepted_step_000019_bent.obj": "1b522d7e016f3a0e7e1b3a6f010d785e6286fb3c10bfd2029c600bb430063323",
+        "accepted_step_000019_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+        "accepted_step_000020_bent.obj": "1b522d7e016f3a0e7e1b3a6f010d785e6286fb3c10bfd2029c600bb430063323",
+        "accepted_step_000020_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+        "initial.obj": "85937469616d2ce4096aa8fe945854b748537931dc8eff01f174ba00e2cf4b11"
+      },
+      "result_json_byte_identical": true,
+      "schema": "numi.cardboard.operator-fd-outcome-comparison.v1",
+      "sealed_input_maps_identical": true,
+      "sealed_input_verification": {
+        "solver/operator-fd-001": {
+          "input_count": 360,
+          "invalid": []
+        },
+        "solver/operator-fd-baseline-001": {
+          "input_count": 360,
+          "invalid": []
+        }
+      }
+    }
+  },
+  "scaled_operator_fd_sensitivity": {
+    "cases": {
+      "baseline": {
+        "input_verification": {
+          "all_verified": true,
+          "expected_count": 360,
+          "invalid": [],
+          "verified_count": 360
+        },
+        "path": "solver/operator-fd-baseline-001",
+        "receipt": {
+          "exit_code": 2,
+          "finished_at_utc": "2026-10-13T19:30:04.313145+00:00",
+          "timed_out": false,
+          "wall_seconds": 242.3064711249899
+        },
+        "runtime_dir": "/Users/home/numi-cardboard-20261006/build-cardboard-frozen031",
+        "source_snapshot": "/Users/home/cardboard-followup-20261013/solver/frozen031-source"
+      },
+      "scale16": {
+        "epsilon_scale": "16",
+        "input_verification": {
+          "all_verified": true,
+          "expected_count": 361,
+          "invalid": [],
+          "verified_count": 361
+        },
+        "path": "solver/operator-fd-003",
+        "receipt": {
+          "exit_code": 2,
+          "finished_at_utc": "2026-10-13T19:46:24.896476+00:00",
+          "timed_out": false,
+          "wall_seconds": 241.73543275002157
+        },
+        "runtime_dir": "/Users/home/numi-cardboard-20261006/build-cardboard-frozen033",
+        "source_snapshot": "/Users/home/cardboard-followup-20261013/solver/frozen033-source"
+      },
+      "scale8": {
+        "epsilon_scale": "8",
+        "input_verification": {
+          "all_verified": true,
+          "expected_count": 361,
+          "invalid": [],
+          "verified_count": 361
+        },
+        "path": "solver/operator-fd-002",
+        "receipt": {
+          "exit_code": 2,
+          "finished_at_utc": "2026-10-13T19:42:23.004274+00:00",
+          "timed_out": false,
+          "wall_seconds": 241.20740287500666
+        },
+        "runtime_dir": "/Users/home/numi-cardboard-20261006/build-cardboard-frozen033",
+        "source_snapshot": "/Users/home/cardboard-followup-20261013/solver/frozen033-source"
+      }
+    },
+    "classification": "POSTRUN_DIAGNOSTIC_SENSITIVITY_ONLY",
+    "derived_at_utc": "2026-10-13T19:48:07.342688+00:00",
+    "fd_traces": {
+      "scale16": {
+        "contract": {
+          "comparison": "A*delta_v versus -(R_plus-R_minus)/(2*epsilon) on free nodes",
+          "position_delta": "dt*epsilon*delta_v",
+          "residual_units": "impulse",
+          "scope": "no-contact explicit FEM",
+          "unknown": "velocity correction"
+        },
+        "environments": [
+          {
+            "epsilon_pairs": [
+              {
+                "action_dot_fd": 8.05391309e-11,
+                "action_fd_cosine": 0.456065655,
+                "centered_fd_l2": 2.30413207e-05,
+                "direction_nonzero": true,
+                "dt": 2.49999994e-05,
+                "epsilon": 0.5,
+                "error_l2": 2.07018329e-05,
+                "free_node_count": 948,
+                "input_integrity_flag": 1,
+                "maximum_delta_velocity": 0.170653135,
+                "maximum_position_perturbation": 2.13316412e-06,
+                "minimum_j_plus_minus": [
+                  0.995077014,
+                  0.995316267
+                ],
+                "operator_action_l2": 7.66429457e-06,
+                "operator_status_code": 0,
+                "position_delta": 1.24999997e-05,
+                "relative_error": 0.898465574,
+                "residual_minus_l2": 3.66810382e-05,
+                "residual_plus_l2": 3.91564972e-05,
+                "stage_status_codes_plus_minus": [
+                  0,
+                  0
+                ]
+              },
+              {
+                "action_dot_fd": 1.01357644e-10,
+                "action_fd_cosine": 0.431603014,
+                "centered_fd_l2": 3.06407819e-05,
+                "direction_nonzero": true,
+                "dt": 2.49999994e-05,
+                "epsilon": 0.25,
+                "error_l2": 2.81936791e-05,
+                "free_node_count": 948,
+                "input_integrity_flag": 1,
+                "maximum_delta_velocity": 0.170653135,
+                "maximum_position_perturbation": 1.06658206e-06,
+                "minimum_j_plus_minus": [
+                  0.995136857,
+                  0.995256424
+                ],
+                "operator_action_l2": 7.66429457e-06,
+                "operator_status_code": 0,
+                "position_delta": 6.24999984e-06,
+                "relative_error": 0.920135736,
+                "residual_minus_l2": 1.36271665e-05,
+                "residual_plus_l2": 1.60623204e-05,
+                "stage_status_codes_plus_minus": [
+                  0,
+                  0
+                ]
+              }
+            ]
+          },
+          {
+            "epsilon_pairs": [
+              {
+                "action_dot_fd": 0,
+                "action_fd_cosine": null,
+                "centered_fd_l2": 0,
+                "direction_nonzero": false,
+                "dt": 2.49999994e-05,
+                "epsilon": 0.5,
+                "error_l2": 0,
+                "free_node_count": 948,
+                "input_integrity_flag": 1,
+                "maximum_delta_velocity": 0,
+                "maximum_position_perturbation": 0,
+                "minimum_j_plus_minus": [
+                  1,
+                  1
+                ],
+                "operator_action_l2": 0,
+                "operator_status_code": 0,
+                "position_delta": 1.24999997e-05,
+                "relative_error": 0,
+                "residual_minus_l2": 3.8318678e-08,
+                "residual_plus_l2": 3.8318678e-08,
+                "stage_status_codes_plus_minus": [
+                  0,
+                  0
+                ]
+              },
+              {
+                "action_dot_fd": 0,
+                "action_fd_cosine": null,
+                "centered_fd_l2": 0,
+                "direction_nonzero": false,
+                "dt": 2.49999994e-05,
+                "epsilon": 0.25,
+                "error_l2": 0,
+                "free_node_count": 948,
+                "input_integrity_flag": 1,
+                "maximum_delta_velocity": 0,
+                "maximum_position_perturbation": 0,
+                "minimum_j_plus_minus": [
+                  1,
+                  1
+                ],
+                "operator_action_l2": 0,
+                "operator_status_code": 0,
+                "position_delta": 6.24999984e-06,
+                "relative_error": 0,
+                "residual_minus_l2": 3.8318678e-08,
+                "residual_plus_l2": 3.8318678e-08,
+                "stage_status_codes_plus_minus": [
+                  0,
+                  0
+                ]
+              }
+            ]
+          }
+        ],
+        "execution_fingerprint": 5642252453855912924,
+        "newton_iteration": 3,
+        "production_inputs_bitwise_unchanged": true,
+        "root": 19,
+        "schema": 1,
+        "world_fingerprint": 5248235368261643122
+      },
+      "scale8": {
+        "contract": {
+          "comparison": "A*delta_v versus -(R_plus-R_minus)/(2*epsilon) on free nodes",
+          "position_delta": "dt*epsilon*delta_v",
+          "residual_units": "impulse",
+          "scope": "no-contact explicit FEM",
+          "unknown": "velocity correction"
+        },
+        "environments": [
+          {
+            "epsilon_pairs": [
+              {
+                "action_dot_fd": 1.01357644e-10,
+                "action_fd_cosine": 0.431603014,
+                "centered_fd_l2": 3.06407819e-05,
+                "direction_nonzero": true,
+                "dt": 2.49999994e-05,
+                "epsilon": 0.25,
+                "error_l2": 2.81936791e-05,
+                "free_node_count": 948,
+                "input_integrity_flag": 1,
+                "maximum_delta_velocity": 0.170653135,
+                "maximum_position_perturbation": 1.06658206e-06,
+                "minimum_j_plus_minus": [
+                  0.995136857,
+                  0.995256424
+                ],
+                "operator_action_l2": 7.66429457e-06,
+                "operator_status_code": 0,
+                "position_delta": 6.24999984e-06,
+                "relative_error": 0.920135736,
+                "residual_minus_l2": 1.36271665e-05,
+                "residual_plus_l2": 1.60623204e-05,
+                "stage_status_codes_plus_minus": [
+                  0,
+                  0
+                ]
+              },
+              {
+                "action_dot_fd": 1.43278722e-10,
+                "action_fd_cosine": 0.39936623,
+                "centered_fd_l2": 4.68099497e-05,
+                "direction_nonzero": true,
+                "dt": 2.49999994e-05,
+                "epsilon": 0.125,
+                "error_l2": 4.43097779e-05,
+                "free_node_count": 948,
+                "input_integrity_flag": 1,
+                "maximum_delta_velocity": 0.170653135,
+                "maximum_position_perturbation": 5.33291029e-07,
+                "minimum_j_plus_minus": [
+                  0.995166719,
+                  0.995226622
+                ],
+                "operator_action_l2": 7.66429457e-06,
+                "operator_status_code": 0,
+                "position_delta": 3.12499992e-06,
+                "relative_error": 0.946588874,
+                "residual_minus_l2": 9.2578839e-06,
+                "residual_plus_l2": 1.14321283e-05,
+                "stage_status_codes_plus_minus": [
+                  0,
+                  0
+                ]
+              }
+            ]
+          },
+          {
+            "epsilon_pairs": [
+              {
+                "action_dot_fd": 0,
+                "action_fd_cosine": null,
+                "centered_fd_l2": 0,
+                "direction_nonzero": false,
+                "dt": 2.49999994e-05,
+                "epsilon": 0.25,
+                "error_l2": 0,
+                "free_node_count": 948,
+                "input_integrity_flag": 1,
+                "maximum_delta_velocity": 0,
+                "maximum_position_perturbation": 0,
+                "minimum_j_plus_minus": [
+                  1,
+                  1
+                ],
+                "operator_action_l2": 0,
+                "operator_status_code": 0,
+                "position_delta": 6.24999984e-06,
+                "relative_error": 0,
+                "residual_minus_l2": 3.8318678e-08,
+                "residual_plus_l2": 3.8318678e-08,
+                "stage_status_codes_plus_minus": [
+                  0,
+                  0
+                ]
+              },
+              {
+                "action_dot_fd": 0,
+                "action_fd_cosine": null,
+                "centered_fd_l2": 0,
+                "direction_nonzero": false,
+                "dt": 2.49999994e-05,
+                "epsilon": 0.125,
+                "error_l2": 0,
+                "free_node_count": 948,
+                "input_integrity_flag": 1,
+                "maximum_delta_velocity": 0,
+                "maximum_position_perturbation": 0,
+                "minimum_j_plus_minus": [
+                  1,
+                  1
+                ],
+                "operator_action_l2": 0,
+                "operator_status_code": 0,
+                "position_delta": 3.12499992e-06,
+                "relative_error": 0,
+                "residual_minus_l2": 3.8318678e-08,
+                "residual_plus_l2": 3.8318678e-08,
+                "stage_status_codes_plus_minus": [
+                  0,
+                  0
+                ]
+              }
+            ]
+          }
+        ],
+        "execution_fingerprint": 5642252453855912924,
+        "newton_iteration": 3,
+        "production_inputs_bitwise_unchanged": true,
+        "root": 19,
+        "schema": 1,
+        "world_fingerprint": 5248235368261643122
+      }
+    },
+    "host_source_change": {
+      "expected_compared_source_diffs": [
+        "build-cardboard-frozenX/numi-matter-cardboard-probe",
+        "matter/src/runtime.mm",
+        "matter/tools/cardboard_cohesive_face_check.mm"
+      ],
+      "expected_diagnostic_only_doc": [
+        "matter/tools/cardboard_fem_operator_fd.md"
+      ],
+      "frozen_artifact_manifest_comparison": {
+        "all_common_shader_hashes_identical": true,
+        "changed_artifact_hashes": [
+          {
+            "frozen031_sha256": "b037c08efec2ed5b4a47d38c095ed9ed31c4ed5c5fe78f37b50b9bd2cd0e756c",
+            "frozen033_sha256": "8e3f6ad123fed69e4db3668b17b9e9283d0ac924f54c3645a8e83392353a94a4",
+            "path": "numi-matter-cardboard-capsule-armijo-check"
+          },
+          {
+            "frozen031_sha256": "d1ad1fcada92096ba68d29752da76c17513af8b3d097b07c10f42edde6b613d2",
+            "frozen033_sha256": "490f815aa56c476fd7757accaf98ef9c43b351b75d1330ec153469bef0f77f82",
+            "path": "numi-matter-cardboard-cohesive-face-check"
+          },
+          {
+            "frozen031_sha256": "54dc690c2a885a4e2067cfa48c359c484ed07977224b98fcfc282a07c4a9521c",
+            "frozen033_sha256": "046f1d269f998b3f76908b5fe073db808712efcd27a549436d87dbfeb1caaa62",
+            "path": "numi-matter-cardboard-probe"
+          }
+        ],
+        "common_shader_count": 10,
+        "frozen031_artifact_count": 14,
+        "frozen031_manifest": "solver/frozen031.json",
+        "frozen033_artifact_count": 13,
+        "frozen033_manifest": "solver/frozen033.json",
+        "newly_listed_in_frozen033": [],
+        "not_listed_in_frozen033": [
+          "numi-matter-cardboard-box-native-driver"
+        ],
+        "production_matter_metallib_identical": true,
+        "scope_note": "Host executables can change when relinked against the host-only diagnostic runtime; shader identity is checked separately. Missing manifest entries mean that target was not listed in that frozen artifact inventory, not that it was necessarily removed from source."
+      },
+      "normalized_sealed_input_deltas": {
+        "scale16": {
+          "baseline_input_count": 360,
+          "build_directory_names_normalized": true,
+          "changed_hashes": [
+            {
+              "baseline_sha256": "54dc690c2a885a4e2067cfa48c359c484ed07977224b98fcfc282a07c4a9521c",
+              "diagnostic_sha256": "046f1d269f998b3f76908b5fe073db808712efcd27a549436d87dbfeb1caaa62",
+              "path": "build-cardboard-frozenX/numi-matter-cardboard-probe"
+            },
+            {
+              "baseline_sha256": "8122d6c81f1e872e03f06f3724edcaaf1a8c196e2d1865b3506d0da82901f84a",
+              "diagnostic_sha256": "53ff919ce2caf8fbdb8f96a743e20124d07b92c879b909d34eed7a39d3cde7e4",
+              "path": "matter/src/runtime.mm"
+            },
+            {
+              "baseline_sha256": "93f132c35adcb9664793b0536eba5e3ff0c4911ea8bfdea66baa1dc4b4c47e79",
+              "diagnostic_sha256": "1473a2202095476ffa32f7cdbebec837feae23da0e5ff057a1a75d53f9055499",
+              "path": "matter/tools/cardboard_cohesive_face_check.mm"
+            }
+          ],
+          "diagnostic_input_count": 361,
+          "expected_host_source_delta_only": true,
+          "input_maps_identical": false,
+          "only_baseline_paths": [],
+          "only_diagnostic_paths": [
+            "matter/tools/cardboard_fem_operator_fd.md"
+          ],
+          "production_metal_binary_hash_equal": true,
+          "same_path_same_hash_count": 357
+        },
+        "scale8": {
+          "baseline_input_count": 360,
+          "build_directory_names_normalized": true,
+          "changed_hashes": [
+            {
+              "baseline_sha256": "54dc690c2a885a4e2067cfa48c359c484ed07977224b98fcfc282a07c4a9521c",
+              "diagnostic_sha256": "046f1d269f998b3f76908b5fe073db808712efcd27a549436d87dbfeb1caaa62",
+              "path": "build-cardboard-frozenX/numi-matter-cardboard-probe"
+            },
+            {
+              "baseline_sha256": "8122d6c81f1e872e03f06f3724edcaaf1a8c196e2d1865b3506d0da82901f84a",
+              "diagnostic_sha256": "53ff919ce2caf8fbdb8f96a743e20124d07b92c879b909d34eed7a39d3cde7e4",
+              "path": "matter/src/runtime.mm"
+            },
+            {
+              "baseline_sha256": "93f132c35adcb9664793b0536eba5e3ff0c4911ea8bfdea66baa1dc4b4c47e79",
+              "diagnostic_sha256": "1473a2202095476ffa32f7cdbebec837feae23da0e5ff057a1a75d53f9055499",
+              "path": "matter/tools/cardboard_cohesive_face_check.mm"
+            }
+          ],
+          "diagnostic_input_count": 361,
+          "expected_host_source_delta_only": true,
+          "input_maps_identical": false,
+          "only_baseline_paths": [],
+          "only_diagnostic_paths": [
+            "matter/tools/cardboard_fem_operator_fd.md"
+          ],
+          "production_metal_binary_hash_equal": true,
+          "same_path_same_hash_count": 357
+        }
+      },
+      "production_metal_hash_same_in_each_comparison": true,
+      "scope_note": "runtime.mm adds a bounded host-only diagnostic epsilon scale; cardboard_cohesive_face_check.mm changes the per-environment kinematic target count in its separate fixture. The compiled host probe changes. Production NumiMatter.metallib stays byte-identical to frozen031.",
+      "source_diff_patch": "operator-fd/source-diff-031-vs-033.patch",
+      "source_snapshot_comparison": {
+        "baseline_file_count": 354,
+        "baseline_files_missing_from_diagnostic": [],
+        "baseline_snapshot": "/Users/home/cardboard-followup-20261013/solver/frozen031-source",
+        "changed_common_files": [
+          {
+            "baseline_sha256": "8122d6c81f1e872e03f06f3724edcaaf1a8c196e2d1865b3506d0da82901f84a",
+            "diagnostic_sha256": "53ff919ce2caf8fbdb8f96a743e20124d07b92c879b909d34eed7a39d3cde7e4",
+            "path": "matter/src/runtime.mm"
+          },
+          {
+            "baseline_sha256": "93f132c35adcb9664793b0536eba5e3ff0c4911ea8bfdea66baa1dc4b4c47e79",
+            "diagnostic_sha256": "1473a2202095476ffa32f7cdbebec837feae23da0e5ff057a1a75d53f9055499",
+            "path": "matter/tools/cardboard_cohesive_face_check.mm"
+          }
+        ],
+        "common_file_count": 354,
+        "diagnostic_file_count": 1375,
+        "diagnostic_only_file_count": 1021,
+        "diagnostic_snapshot": "/Users/home/cardboard-followup-20261013/solver/frozen033-source",
+        "note": "The 033 snapshot is broader than the retained 031 snapshot. Changed-common-file list is the direct content comparison; diagnostic-only files are not asserted to be new edits relative to the complete 031 checkout."
+      }
+    },
+    "interpretation": "The two scaled captures test perturbation-size sensitivity while retaining an unchanged native outcome relative to frozen031. The shared epsilon 0.25 directly checks repeatability across the two host scales. This can bound epsilon sensitivity at the selected failure state but cannot establish the correct cause or certify the production Jacobian.",
+    "limitations": [
+      "This does not identify the cause of operator-versus-residual disagreement; projection, active-set behavior, and FP32 effects remain possible contributors.",
+      "The source/runtime differs intentionally for host diagnostic epsilon scaling; input maps are verified and compared, not claimed identical.",
+      "No accepted native path, material law, physical validation, or convergence admission is implied.",
+      "The second environment has a zero correction direction and is only a vacuous control."
+    ],
+    "native_path_parity_to_frozen031_baseline": {
+      "scale16": {
+        "all_mesh_hashes_identical": true,
+        "compiled_material_pack_identical": true,
+        "mesh_count_baseline": 41,
+        "mesh_count_diagnostic": 41,
+        "mesh_hashes_baseline": {
+          "accepted_step_000001_bent.obj": "e9c7275e15333fd5b163ded3d26ff85caa25ebadcce7c87d7df73afef61ba2ad",
+          "accepted_step_000001_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000002_bent.obj": "e8801a3e0dfd7a7738b59e7c769179d65a096f456571af34f8e01d9ea62ecf8b",
+          "accepted_step_000002_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000003_bent.obj": "8eb9b5482ede4a9a86b57acffd804cea4f6781ff7e99ac2db4a45467d29cb9c8",
+          "accepted_step_000003_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000004_bent.obj": "96bfbf02eb15137e32ea1196a57a4861f3b9e74e1c2bd7996be3cb0c8518ae3b",
+          "accepted_step_000004_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000005_bent.obj": "421c341dd81f2a7b1fff21cbcf01e8e5bb5fd631d0a2830c9c4ececa42376af6",
+          "accepted_step_000005_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000006_bent.obj": "e1c730ec9f7274999bbaa6c8c1039e5a8b132b98f7a5448de29d030b2e90ec63",
+          "accepted_step_000006_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000007_bent.obj": "b8a5f414fc4690d929a452c285d169fdb34a04b0d29747b791569135620ea3fc",
+          "accepted_step_000007_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000008_bent.obj": "2c79d065814e8fc8c41597184a372a3dc3aa5fb928584bbb7150c85de59629bc",
+          "accepted_step_000008_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000009_bent.obj": "6e3c73c73aa0bb58b759536e4358af60faef9707d664fdd0e89ff9a3bca57f67",
+          "accepted_step_000009_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000010_bent.obj": "1215df5ccfc8ed1b87fd9ee011a316aa5a463881cceacfa6044353fbac36c07a",
+          "accepted_step_000010_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000011_bent.obj": "d4b8640e7a151a724c65d4ad143c77c6af2abe1026b4d1b776beeec8bbd33108",
+          "accepted_step_000011_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000012_bent.obj": "04addb33680604816e61d0385997a91c161a84a444376a299a8354d4bc5a0391",
+          "accepted_step_000012_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000013_bent.obj": "af78c9db77c7123b7fdecd861d79650f011df8ad9489541e3b7757d0c7ccbf9c",
+          "accepted_step_000013_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000014_bent.obj": "9c6402be6f0559d05d51c15adcd4f1d8fb6772b525848ed3de848000b013e8cc",
+          "accepted_step_000014_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000015_bent.obj": "4c25da027e6fc5e41e45561c5466da5e9ac6340e96f3b4da3b10385366488626",
+          "accepted_step_000015_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000016_bent.obj": "4034ff54e3951dbc44e1e8770d99c4e9210aedb8285f84c463297901a7027ba5",
+          "accepted_step_000016_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000017_bent.obj": "f5f9e9650158134905ca22fb16080111a26c5bd8c9143006da558094fc2059e6",
+          "accepted_step_000017_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000018_bent.obj": "bd15d6b21f2358393970f17ef1c15c571a96c6bf292ec921d2bb6ccc5ad6d6a8",
+          "accepted_step_000018_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000019_bent.obj": "1b522d7e016f3a0e7e1b3a6f010d785e6286fb3c10bfd2029c600bb430063323",
+          "accepted_step_000019_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000020_bent.obj": "1b522d7e016f3a0e7e1b3a6f010d785e6286fb3c10bfd2029c600bb430063323",
+          "accepted_step_000020_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "initial.obj": "85937469616d2ce4096aa8fe945854b748537931dc8eff01f174ba00e2cf4b11"
+        },
+        "mesh_hashes_diagnostic": {
+          "accepted_step_000001_bent.obj": "e9c7275e15333fd5b163ded3d26ff85caa25ebadcce7c87d7df73afef61ba2ad",
+          "accepted_step_000001_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000002_bent.obj": "e8801a3e0dfd7a7738b59e7c769179d65a096f456571af34f8e01d9ea62ecf8b",
+          "accepted_step_000002_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000003_bent.obj": "8eb9b5482ede4a9a86b57acffd804cea4f6781ff7e99ac2db4a45467d29cb9c8",
+          "accepted_step_000003_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000004_bent.obj": "96bfbf02eb15137e32ea1196a57a4861f3b9e74e1c2bd7996be3cb0c8518ae3b",
+          "accepted_step_000004_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000005_bent.obj": "421c341dd81f2a7b1fff21cbcf01e8e5bb5fd631d0a2830c9c4ececa42376af6",
+          "accepted_step_000005_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000006_bent.obj": "e1c730ec9f7274999bbaa6c8c1039e5a8b132b98f7a5448de29d030b2e90ec63",
+          "accepted_step_000006_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000007_bent.obj": "b8a5f414fc4690d929a452c285d169fdb34a04b0d29747b791569135620ea3fc",
+          "accepted_step_000007_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000008_bent.obj": "2c79d065814e8fc8c41597184a372a3dc3aa5fb928584bbb7150c85de59629bc",
+          "accepted_step_000008_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000009_bent.obj": "6e3c73c73aa0bb58b759536e4358af60faef9707d664fdd0e89ff9a3bca57f67",
+          "accepted_step_000009_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000010_bent.obj": "1215df5ccfc8ed1b87fd9ee011a316aa5a463881cceacfa6044353fbac36c07a",
+          "accepted_step_000010_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000011_bent.obj": "d4b8640e7a151a724c65d4ad143c77c6af2abe1026b4d1b776beeec8bbd33108",
+          "accepted_step_000011_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000012_bent.obj": "04addb33680604816e61d0385997a91c161a84a444376a299a8354d4bc5a0391",
+          "accepted_step_000012_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000013_bent.obj": "af78c9db77c7123b7fdecd861d79650f011df8ad9489541e3b7757d0c7ccbf9c",
+          "accepted_step_000013_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000014_bent.obj": "9c6402be6f0559d05d51c15adcd4f1d8fb6772b525848ed3de848000b013e8cc",
+          "accepted_step_000014_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000015_bent.obj": "4c25da027e6fc5e41e45561c5466da5e9ac6340e96f3b4da3b10385366488626",
+          "accepted_step_000015_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000016_bent.obj": "4034ff54e3951dbc44e1e8770d99c4e9210aedb8285f84c463297901a7027ba5",
+          "accepted_step_000016_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000017_bent.obj": "f5f9e9650158134905ca22fb16080111a26c5bd8c9143006da558094fc2059e6",
+          "accepted_step_000017_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000018_bent.obj": "bd15d6b21f2358393970f17ef1c15c571a96c6bf292ec921d2bb6ccc5ad6d6a8",
+          "accepted_step_000018_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000019_bent.obj": "1b522d7e016f3a0e7e1b3a6f010d785e6286fb3c10bfd2029c600bb430063323",
+          "accepted_step_000019_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000020_bent.obj": "1b522d7e016f3a0e7e1b3a6f010d785e6286fb3c10bfd2029c600bb430063323",
+          "accepted_step_000020_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "initial.obj": "85937469616d2ce4096aa8fe945854b748537931dc8eff01f174ba00e2cf4b11"
+        },
+        "native_baseline_result": {
+          "accepted_steps": 19,
+          "compiled_world_fingerprint": 5248235368261643122,
+          "failure": "Matter rejected step 19; status, accepted state OBJ, and CSV observations were retained",
+          "frame_map_sha256": "27fda22b531c8660bebeb7f7dba9450bbff06173fa77d6a5f08cadc1e3805fba",
+          "material_map_sha256": "87d7b81d808204bceb232bb5a391928c3b2ffab250a9e5b3182e6a6cf573ba41",
+          "nodes": 972,
+          "physical_validation": false,
+          "schema": "numi.cardboard.probe-result.v1",
+          "status": "failed",
+          "tetrahedra": 1536
+        },
+        "native_diagnostic_result": {
+          "accepted_steps": 19,
+          "compiled_world_fingerprint": 5248235368261643122,
+          "failure": "Matter rejected step 19; status, accepted state OBJ, and CSV observations were retained",
+          "frame_map_sha256": "27fda22b531c8660bebeb7f7dba9450bbff06173fa77d6a5f08cadc1e3805fba",
+          "material_map_sha256": "87d7b81d808204bceb232bb5a391928c3b2ffab250a9e5b3182e6a6cf573ba41",
+          "nodes": 972,
+          "physical_validation": false,
+          "schema": "numi.cardboard.probe-result.v1",
+          "status": "failed",
+          "tetrahedra": 1536
+        },
+        "observations_csv_identical": true,
+        "result_json_identical": true
+      },
+      "scale8": {
+        "all_mesh_hashes_identical": true,
+        "compiled_material_pack_identical": true,
+        "mesh_count_baseline": 41,
+        "mesh_count_diagnostic": 41,
+        "mesh_hashes_baseline": {
+          "accepted_step_000001_bent.obj": "e9c7275e15333fd5b163ded3d26ff85caa25ebadcce7c87d7df73afef61ba2ad",
+          "accepted_step_000001_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000002_bent.obj": "e8801a3e0dfd7a7738b59e7c769179d65a096f456571af34f8e01d9ea62ecf8b",
+          "accepted_step_000002_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000003_bent.obj": "8eb9b5482ede4a9a86b57acffd804cea4f6781ff7e99ac2db4a45467d29cb9c8",
+          "accepted_step_000003_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000004_bent.obj": "96bfbf02eb15137e32ea1196a57a4861f3b9e74e1c2bd7996be3cb0c8518ae3b",
+          "accepted_step_000004_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000005_bent.obj": "421c341dd81f2a7b1fff21cbcf01e8e5bb5fd631d0a2830c9c4ececa42376af6",
+          "accepted_step_000005_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000006_bent.obj": "e1c730ec9f7274999bbaa6c8c1039e5a8b132b98f7a5448de29d030b2e90ec63",
+          "accepted_step_000006_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000007_bent.obj": "b8a5f414fc4690d929a452c285d169fdb34a04b0d29747b791569135620ea3fc",
+          "accepted_step_000007_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000008_bent.obj": "2c79d065814e8fc8c41597184a372a3dc3aa5fb928584bbb7150c85de59629bc",
+          "accepted_step_000008_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000009_bent.obj": "6e3c73c73aa0bb58b759536e4358af60faef9707d664fdd0e89ff9a3bca57f67",
+          "accepted_step_000009_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000010_bent.obj": "1215df5ccfc8ed1b87fd9ee011a316aa5a463881cceacfa6044353fbac36c07a",
+          "accepted_step_000010_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000011_bent.obj": "d4b8640e7a151a724c65d4ad143c77c6af2abe1026b4d1b776beeec8bbd33108",
+          "accepted_step_000011_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000012_bent.obj": "04addb33680604816e61d0385997a91c161a84a444376a299a8354d4bc5a0391",
+          "accepted_step_000012_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000013_bent.obj": "af78c9db77c7123b7fdecd861d79650f011df8ad9489541e3b7757d0c7ccbf9c",
+          "accepted_step_000013_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000014_bent.obj": "9c6402be6f0559d05d51c15adcd4f1d8fb6772b525848ed3de848000b013e8cc",
+          "accepted_step_000014_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000015_bent.obj": "4c25da027e6fc5e41e45561c5466da5e9ac6340e96f3b4da3b10385366488626",
+          "accepted_step_000015_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000016_bent.obj": "4034ff54e3951dbc44e1e8770d99c4e9210aedb8285f84c463297901a7027ba5",
+          "accepted_step_000016_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000017_bent.obj": "f5f9e9650158134905ca22fb16080111a26c5bd8c9143006da558094fc2059e6",
+          "accepted_step_000017_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000018_bent.obj": "bd15d6b21f2358393970f17ef1c15c571a96c6bf292ec921d2bb6ccc5ad6d6a8",
+          "accepted_step_000018_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000019_bent.obj": "1b522d7e016f3a0e7e1b3a6f010d785e6286fb3c10bfd2029c600bb430063323",
+          "accepted_step_000019_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000020_bent.obj": "1b522d7e016f3a0e7e1b3a6f010d785e6286fb3c10bfd2029c600bb430063323",
+          "accepted_step_000020_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "initial.obj": "85937469616d2ce4096aa8fe945854b748537931dc8eff01f174ba00e2cf4b11"
+        },
+        "mesh_hashes_diagnostic": {
+          "accepted_step_000001_bent.obj": "e9c7275e15333fd5b163ded3d26ff85caa25ebadcce7c87d7df73afef61ba2ad",
+          "accepted_step_000001_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000002_bent.obj": "e8801a3e0dfd7a7738b59e7c769179d65a096f456571af34f8e01d9ea62ecf8b",
+          "accepted_step_000002_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000003_bent.obj": "8eb9b5482ede4a9a86b57acffd804cea4f6781ff7e99ac2db4a45467d29cb9c8",
+          "accepted_step_000003_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000004_bent.obj": "96bfbf02eb15137e32ea1196a57a4861f3b9e74e1c2bd7996be3cb0c8518ae3b",
+          "accepted_step_000004_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000005_bent.obj": "421c341dd81f2a7b1fff21cbcf01e8e5bb5fd631d0a2830c9c4ececa42376af6",
+          "accepted_step_000005_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000006_bent.obj": "e1c730ec9f7274999bbaa6c8c1039e5a8b132b98f7a5448de29d030b2e90ec63",
+          "accepted_step_000006_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000007_bent.obj": "b8a5f414fc4690d929a452c285d169fdb34a04b0d29747b791569135620ea3fc",
+          "accepted_step_000007_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000008_bent.obj": "2c79d065814e8fc8c41597184a372a3dc3aa5fb928584bbb7150c85de59629bc",
+          "accepted_step_000008_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000009_bent.obj": "6e3c73c73aa0bb58b759536e4358af60faef9707d664fdd0e89ff9a3bca57f67",
+          "accepted_step_000009_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000010_bent.obj": "1215df5ccfc8ed1b87fd9ee011a316aa5a463881cceacfa6044353fbac36c07a",
+          "accepted_step_000010_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000011_bent.obj": "d4b8640e7a151a724c65d4ad143c77c6af2abe1026b4d1b776beeec8bbd33108",
+          "accepted_step_000011_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000012_bent.obj": "04addb33680604816e61d0385997a91c161a84a444376a299a8354d4bc5a0391",
+          "accepted_step_000012_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000013_bent.obj": "af78c9db77c7123b7fdecd861d79650f011df8ad9489541e3b7757d0c7ccbf9c",
+          "accepted_step_000013_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000014_bent.obj": "9c6402be6f0559d05d51c15adcd4f1d8fb6772b525848ed3de848000b013e8cc",
+          "accepted_step_000014_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000015_bent.obj": "4c25da027e6fc5e41e45561c5466da5e9ac6340e96f3b4da3b10385366488626",
+          "accepted_step_000015_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000016_bent.obj": "4034ff54e3951dbc44e1e8770d99c4e9210aedb8285f84c463297901a7027ba5",
+          "accepted_step_000016_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000017_bent.obj": "f5f9e9650158134905ca22fb16080111a26c5bd8c9143006da558094fc2059e6",
+          "accepted_step_000017_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000018_bent.obj": "bd15d6b21f2358393970f17ef1c15c571a96c6bf292ec921d2bb6ccc5ad6d6a8",
+          "accepted_step_000018_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000019_bent.obj": "1b522d7e016f3a0e7e1b3a6f010d785e6286fb3c10bfd2029c600bb430063323",
+          "accepted_step_000019_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "accepted_step_000020_bent.obj": "1b522d7e016f3a0e7e1b3a6f010d785e6286fb3c10bfd2029c600bb430063323",
+          "accepted_step_000020_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+          "initial.obj": "85937469616d2ce4096aa8fe945854b748537931dc8eff01f174ba00e2cf4b11"
+        },
+        "native_baseline_result": {
+          "accepted_steps": 19,
+          "compiled_world_fingerprint": 5248235368261643122,
+          "failure": "Matter rejected step 19; status, accepted state OBJ, and CSV observations were retained",
+          "frame_map_sha256": "27fda22b531c8660bebeb7f7dba9450bbff06173fa77d6a5f08cadc1e3805fba",
+          "material_map_sha256": "87d7b81d808204bceb232bb5a391928c3b2ffab250a9e5b3182e6a6cf573ba41",
+          "nodes": 972,
+          "physical_validation": false,
+          "schema": "numi.cardboard.probe-result.v1",
+          "status": "failed",
+          "tetrahedra": 1536
+        },
+        "native_diagnostic_result": {
+          "accepted_steps": 19,
+          "compiled_world_fingerprint": 5248235368261643122,
+          "failure": "Matter rejected step 19; status, accepted state OBJ, and CSV observations were retained",
+          "frame_map_sha256": "27fda22b531c8660bebeb7f7dba9450bbff06173fa77d6a5f08cadc1e3805fba",
+          "material_map_sha256": "87d7b81d808204bceb232bb5a391928c3b2ffab250a9e5b3182e6a6cf573ba41",
+          "nodes": 972,
+          "physical_validation": false,
+          "schema": "numi.cardboard.probe-result.v1",
+          "status": "failed",
+          "tetrahedra": 1536
+        },
+        "observations_csv_identical": true,
+        "result_json_identical": true
+      }
+    },
+    "schema": "numi.cardboard.operator-fd-scaled-epsilon-comparison.v1",
+    "shared_epsilon_0_25_repeat": {
+      "all_compared_fields_exactly_equal": true,
+      "comparison": "environment 0, epsilon 0.25 in scale8 first pair versus scale16 second pair",
+      "field_equality": {
+        "action_dot_fd": true,
+        "action_fd_cosine": true,
+        "centered_fd_l2": true,
+        "direction_nonzero": true,
+        "dt": true,
+        "error_l2": true,
+        "free_node_count": true,
+        "input_integrity_flag": true,
+        "maximum_delta_velocity": true,
+        "maximum_position_perturbation": true,
+        "minimum_j_plus_minus": true,
+        "operator_action_l2": true,
+        "operator_status_code": true,
+        "position_delta": true,
+        "relative_error": true,
+        "residual_minus_l2": true,
+        "residual_plus_l2": true,
+        "stage_status_codes_plus_minus": true
+      },
+      "scale16_pair": {
+        "action_dot_fd": 1.01357644e-10,
+        "action_fd_cosine": 0.431603014,
+        "centered_fd_l2": 3.06407819e-05,
+        "direction_nonzero": true,
+        "dt": 2.49999994e-05,
+        "epsilon": 0.25,
+        "error_l2": 2.81936791e-05,
+        "free_node_count": 948,
+        "input_integrity_flag": 1,
+        "maximum_delta_velocity": 0.170653135,
+        "maximum_position_perturbation": 1.06658206e-06,
+        "minimum_j_plus_minus": [
+          0.995136857,
+          0.995256424
+        ],
+        "operator_action_l2": 7.66429457e-06,
+        "operator_status_code": 0,
+        "position_delta": 6.24999984e-06,
+        "relative_error": 0.920135736,
+        "residual_minus_l2": 1.36271665e-05,
+        "residual_plus_l2": 1.60623204e-05,
+        "stage_status_codes_plus_minus": [
+          0,
+          0
+        ]
+      },
+      "scale8_pair": {
+        "action_dot_fd": 1.01357644e-10,
+        "action_fd_cosine": 0.431603014,
+        "centered_fd_l2": 3.06407819e-05,
+        "direction_nonzero": true,
+        "dt": 2.49999994e-05,
+        "epsilon": 0.25,
+        "error_l2": 2.81936791e-05,
+        "free_node_count": 948,
+        "input_integrity_flag": 1,
+        "maximum_delta_velocity": 0.170653135,
+        "maximum_position_perturbation": 1.06658206e-06,
+        "minimum_j_plus_minus": [
+          0.995136857,
+          0.995256424
+        ],
+        "operator_action_l2": 7.66429457e-06,
+        "operator_status_code": 0,
+        "position_delta": 6.24999984e-06,
+        "relative_error": 0.920135736,
+        "residual_minus_l2": 1.36271665e-05,
+        "residual_plus_l2": 1.60623204e-05,
+        "stage_status_codes_plus_minus": [
+          0,
+          0
+        ]
+      }
+    }
+  },
+  "schema": "numi.cardboard.evidence-summary.v1",
+  "scope": "Source-bound software/material-point/FEM coupling/contact evidence. The listed studies do not establish physical cardboard qualification.",
+  "scored_tool_trial": {
+    "accepted_contact": {
+      "peak_record_step": 47,
+      "peak_recorded_punch_force_N": 0.3896544247464056,
+      "punch_contact_count_at_peak": 2,
+      "stationary_control_max_contact_count": 0,
+      "stationary_control_max_force_N": 0.0
+    },
+    "bindings": {
+      "manifest_sha256": "629d0869905f30580b20de7dba357bbb78bb693ca466f79977e871e66a0e4bd3",
+      "observations_sha256": "f15595fdf03c72cb5947dfda63407ef1a4d55d753053542e4e35fb6e980d69ae",
+      "prediction_sha256": "e33f1d79779b0cc94e59c2822cec5f78feb6da64d73eff7f535b917fd969eada",
+      "probe_result_sha256": "8d18c33ef7e7b09e6fd813648d71aa2f0a8157c8132bd2f504676fbbe2646299",
+      "receipt_sha256": "402cd425448d74deffeee206ca592d5eb2bf26219edb67aa182cfe77c79ae2d5",
+      "tool_observations_sha256": "b63db1e0b40e1b42ebc06d29035fbc1150bb1f98740db9310fac368eb58da9e1"
+    },
+    "first_withdrawal_rejection": {
+      "base_residual": 6.8061954152653925e-06,
+      "base_to_trial_relative_increase": 0.007608280680767798,
+      "commanded_end_travel_m": 4.791666666666667e-05,
+      "minimum_end_punch_node_gap_m": 2.2695112471801714e-06,
+      "punch_contact_count": 0,
+      "status_diagnostic_w": 8.0,
+      "status_diagnostic_z": 0.0078125,
+      "step_accepted": "0",
+      "trial_residual": 6.857978860352887e-06
+    },
+    "interpretation": "A 50 micrometre prescribed-punch contact path accepted indentation and hold, then failed its first withdrawal attempt. This does not complete the path, establish crease damage, or validate corrugated cardboard.",
+    "material_scope": "The corrugated recipe still lacks a grade-matched irreversible crease-damage law and starch cohesive calibration; contact is not damage/debonding evidence.",
+    "physical_validation": false,
+    "protocol": {
+      "accepted_indented_environment_steps": 60,
+      "completed_microsteps": 0,
+      "fgmres_iterations": 512,
+      "first_rejected_step": 60,
+      "phase": "unloading",
+      "prescribed_indent_m": 5e-05,
+      "rejected_attempts": 1,
+      "residual_armijo_root": "all",
+      "self_contact_enabled": false,
+      "status_code": 10
+    },
+    "rejected_row_gap_pair_semantics": "Rollback snapshot of the last accepted state, not the proposed withdrawal endpoint; do not interpret as realized withdrawal contact or separation.",
+    "schema": "numi.cardboard.scoring-armijo-postrun-audit.v1",
+    "stationary_endpoint_scope": "SCOPE_NOT_QUALIFIED due to the frozen-027 BOX selector bypass",
+    "status": "failed_first_withdrawal_after_60_accepted_steps"
+  },
+  "selected_case_records": [
+    {
+      "case": "Preserved invalid rest-tangent instrument attempt",
+      "interpretation": "The fixture supplied F13 while asserting a tensile ZD F33 tangent. It exited before a damage-path experiment and is retained only as a test-instrument defect; no constitutive failure is inferred.",
+      "path": "bulk/source-point-004",
+      "prediction_sha256": "679da39ec0b3a95a8e7761d256f8cd3d1e006162d534e1005511c695d3e577d4",
+      "receipt": {
+        "exit_code": 1,
+        "finished_at_utc": "2026-10-13T15:54:08.703939+00:00",
+        "timed_out": false,
+        "wall_seconds": 5.567122000007657
+      },
+      "receipt_sha256": "598f53395200da51382b4cd0899d00eb116f6eaa1421cf327f444aa83dc48b11",
+      "reviewable_outputs": [
+        {
+          "path": "bulk/source-point-004/stdout.log",
+          "sha256": "6060a158d7c1adda9e25fbb741833d3ec1675be5ad76e305d6222f91d207fb08",
+          "size_bytes": 607
+        },
+        {
+          "path": "bulk/source-point-004/stderr.log",
+          "sha256": "26ad3e06d4ae54f33c6580e8e25fb0dabeec7fa249c43c18e0557e2ab31379a5",
+          "size_bytes": 74
+        }
+      ],
+      "sealed_inputs": {
+        "all_verified": true,
+        "expected_count": 154,
+        "hash_map_sha256": "8251c3a401e25a775a965c4f235d768f29c43feadd22bb241364542c3bd24d39",
+        "missing_or_mismatched": [],
+        "verified_count": 154
+      },
+      "source_snapshot": null,
+      "status": "INVALID_INSTRUMENTATION"
+    },
+    {
+      "case": "Robertsson full high-shear point path",
+      "path": "bulk/source-point-006",
+      "prediction_sha256": "a42d07caa1cd2c6b8f0944a1e5b8259b5b07c0a34751d50c2779159a8cffe337",
+      "receipt": {
+        "exit_code": 2,
+        "finished_at_utc": "2026-10-13T17:19:20.513697+00:00",
+        "timed_out": false,
+        "wall_seconds": 706.1762204999686
+      },
+      "receipt_sha256": "8c256f7372db7c34c7924e4c046071c637c4663b48881aa94e0f18cec6e69c38",
+      "reviewable_outputs": [
+        {
+          "path": "bulk/source-point-006/result.json",
+          "sha256": "4582930dd15b09de4ac527d905b135e8d7805c72599ca0a782aba14f59718a9b",
+          "size_bytes": 6385
+        },
+        {
+          "path": "bulk/source-point-006/source-binding-verification.json",
+          "sha256": "12821254acc165b2ddfa7a6d7497e6a171353d8da080352f680dd2edeb033eee",
+          "size_bytes": 122368
+        },
+        {
+          "path": "bulk/source-point-006/states.csv",
+          "sha256": "0b958a969c1a1517941b85f57ad8bfd13d917c532c100ba0ddcea510bea7845f",
+          "size_bytes": 84711
+        },
+        {
+          "path": "bulk/source-point-006/stdout.log",
+          "sha256": "7d8f06a495a99fdfede3124b5f7f5e419919f2992556ec5e15f62c6b884ff9b6",
+          "size_bytes": 79560
+        },
+        {
+          "path": "bulk/source-point-006/stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        }
+      ],
+      "sealed_inputs": {
+        "all_verified": true,
+        "expected_count": 360,
+        "hash_map_sha256": "de922164eb5b6d13db3d64dd0d7d85c6942cd092508bb289c039f72e02cd82a4",
+        "missing_or_mismatched": [],
+        "verified_count": 360
+      },
+      "source_snapshot": null,
+      "status": "rejected_loading_at_gamma_0.595_after_accepted_gamma_0.59"
+    },
+    {
+      "case": "Seeded continuation, 1 subdivisions",
+      "path": "bulk/source-point-seeded-1",
+      "prediction_sha256": "27a399692b2305b8726e52eb82f6dfe83db388e9d5a077cfbbcc5667f1772cc5",
+      "receipt": {
+        "exit_code": 2,
+        "finished_at_utc": "2026-10-13T17:45:14.135720+00:00",
+        "timed_out": false,
+        "wall_seconds": 20.346032375004143
+      },
+      "receipt_sha256": "6b82aa7decea3b4a536dee0c8adb31047bc9b0aa2c5d389020aa8c3e2561c644",
+      "reviewable_outputs": [
+        {
+          "path": "bulk/source-point-seeded-1/result.json",
+          "sha256": "a5ef29f49fcbfd138c3e4a80ad6fe41ad57f515beb326278d2733c636b4ca41c",
+          "size_bytes": 45981
+        },
+        {
+          "path": "bulk/source-point-seeded-1/source-binding-verification.json",
+          "sha256": "9d75533a400396ad918f729bb1f8d472b6cb54243a35d23e26a77f9bcf32f7fd",
+          "size_bytes": 102628
+        },
+        {
+          "path": "bulk/source-point-seeded-1/states.csv",
+          "sha256": "7170d64015285d1127a593d1c17bfabce371a1871b3f674e612b1bf780dca72e",
+          "size_bytes": 2008
+        },
+        {
+          "path": "bulk/source-point-seeded-1/stdout.log",
+          "sha256": "365822d509cac2b9698ee1095277df1c4fda62fc77e0fd6ec0fa3bcd136eddaf",
+          "size_bytes": 2574
+        },
+        {
+          "path": "bulk/source-point-seeded-1/stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        }
+      ],
+      "sealed_inputs": {
+        "all_verified": true,
+        "expected_count": 362,
+        "hash_map_sha256": "6434f3d7bb3990c6ce50cf4c3212cb4d96f5783eff945849125eb9d86de6c4c3",
+        "missing_or_mismatched": [],
+        "verified_count": 362
+      },
+      "source_snapshot": "/Users/home/numi-cardboard-20261006",
+      "status": "rejected_same_candidate_as_source_point_006"
+    },
+    {
+      "case": "Seeded continuation, 2 subdivisions",
+      "path": "bulk/source-point-seeded-2",
+      "prediction_sha256": "96ee0604ec2e1d327558d9dca63c809f48be765d20a68e89713fdb529b008954",
+      "receipt": {
+        "exit_code": 0,
+        "finished_at_utc": "2026-10-13T17:45:34.310882+00:00",
+        "timed_out": false,
+        "wall_seconds": 20.02565666701412
+      },
+      "receipt_sha256": "93fb8ca39d3d6a7085865ab9c1c6a17ddd9a5d5d7a715492a570de1f5aa33521",
+      "reviewable_outputs": [
+        {
+          "path": "bulk/source-point-seeded-2/result.json",
+          "sha256": "e12e7b410fd6ad0def40b7b9d402e834754d8be334444c0b944e85ee8e5840d5",
+          "size_bytes": 47027
+        },
+        {
+          "path": "bulk/source-point-seeded-2/source-binding-verification.json",
+          "sha256": "ff9077bad7efdef500631466eabd9af90fa90fff21d07bb7ee50fbf919fa1873",
+          "size_bytes": 102628
+        },
+        {
+          "path": "bulk/source-point-seeded-2/states.csv",
+          "sha256": "27c226d57900e512fac0598877ebe2ef2ff5042149c7a34beef8f9d7f282452c",
+          "size_bytes": 4408
+        },
+        {
+          "path": "bulk/source-point-seeded-2/stdout.log",
+          "sha256": "64ef386319dd14178164e26306a4d5b915463f36dd29af2ff4252db9956ba639",
+          "size_bytes": 4673
+        },
+        {
+          "path": "bulk/source-point-seeded-2/stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        }
+      ],
+      "sealed_inputs": {
+        "all_verified": true,
+        "expected_count": 362,
+        "hash_map_sha256": "6434f3d7bb3990c6ce50cf4c3212cb4d96f5783eff945849125eb9d86de6c4c3",
+        "missing_or_mismatched": [],
+        "verified_count": 362
+      },
+      "source_snapshot": "/Users/home/numi-cardboard-20261006",
+      "status": "accepted_seeded_local_refinement_through_0.595_then_short_unload_to_0.59"
+    },
+    {
+      "case": "Seeded continuation, 4 subdivisions",
+      "path": "bulk/source-point-seeded-4",
+      "prediction_sha256": "b30a7367146bdf4f129c6ff7f780487dece1d89f90fd1ae065e782164631159f",
+      "receipt": {
+        "exit_code": 0,
+        "finished_at_utc": "2026-10-13T17:46:05.828596+00:00",
+        "timed_out": false,
+        "wall_seconds": 31.374092207988724
+      },
+      "receipt_sha256": "f238fa237480026da40483ade6af32537f561b6f2fa3264c5f6d67c070e338ac",
+      "reviewable_outputs": [
+        {
+          "path": "bulk/source-point-seeded-4/result.json",
+          "sha256": "117d9e80f9aa5c5a423d1feadeefe0768ae7a6239219afa11551e5b37522f421",
+          "size_bytes": 47034
+        },
+        {
+          "path": "bulk/source-point-seeded-4/source-binding-verification.json",
+          "sha256": "2bcb7a3f7afce84e89585f5f138cfd84d3653d4860d5b62052e1e865a89e8ebe",
+          "size_bytes": 102628
+        },
+        {
+          "path": "bulk/source-point-seeded-4/states.csv",
+          "sha256": "dfd2c2bead2969a88c82e82ed02f24b0e0a66a139864228a671089eec5742fa6",
+          "size_bytes": 7583
+        },
+        {
+          "path": "bulk/source-point-seeded-4/stdout.log",
+          "sha256": "6736982265a5cb08390a91727de00b90a2b87a4a8d2b2e8653208e83ed373adc",
+          "size_bytes": 7549
+        },
+        {
+          "path": "bulk/source-point-seeded-4/stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        }
+      ],
+      "sealed_inputs": {
+        "all_verified": true,
+        "expected_count": 362,
+        "hash_map_sha256": "6434f3d7bb3990c6ce50cf4c3212cb4d96f5783eff945849125eb9d86de6c4c3",
+        "missing_or_mismatched": [],
+        "verified_count": 362
+      },
+      "source_snapshot": "/Users/home/numi-cardboard-20261006",
+      "status": "accepted_seeded_local_refinement_through_0.595_then_short_unload_to_0.59"
+    },
+    {
+      "case": "Fully prescribed one-tet FEM/point parity",
+      "path": "bulk/fem-coupling-001",
+      "prediction_sha256": "f8b20b477e865f9478d85a5046344e19e591fb46deaecef7f0daa056b0397c6e",
+      "receipt": {
+        "exit_code": 0,
+        "finished_at_utc": "2026-10-13T16:55:41.322228+00:00",
+        "timed_out": false,
+        "wall_seconds": 1283.5709399580082
+      },
+      "receipt_sha256": "fd770865b907805fc8e2be235a52138ec94a21fb920232af37693f8644062b83",
+      "reviewable_outputs": [
+        {
+          "path": "bulk/fem-coupling-001/result.json",
+          "sha256": "19c4a0be50d77298a607aa5e9f5b8bfdb2486604f1eac1fa79c005412e408f17",
+          "size_bytes": 13064
+        },
+        {
+          "path": "bulk/fem-coupling-001/source-binding-verification.json",
+          "sha256": "a0bb1b3aa620557d54425077544eecec670bd5dc4fcb960fa660abe310160f04",
+          "size_bytes": 153365
+        },
+        {
+          "path": "bulk/fem-coupling-001/stdout.log",
+          "sha256": "00f7b068024a0dd752c5ed90f0ff0985c5d0652bf48f8fdd335ab1ae7c0257ae",
+          "size_bytes": 8158
+        },
+        {
+          "path": "bulk/fem-coupling-001/stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        }
+      ],
+      "sealed_inputs": {
+        "all_verified": true,
+        "expected_count": 157,
+        "hash_map_sha256": "851636866f8bdc679a27522dca0bc565e1052ce8251e126e3311f35368377fd4",
+        "missing_or_mismatched": [],
+        "verified_count": 157
+      },
+      "source_snapshot": null,
+      "status": null
+    },
+    {
+      "case": "Separate bleached-paperboard positive Mode-I cohesive coupon",
+      "path": "cohesive/native-003",
+      "prediction_sha256": "d14d3a700b097598cd72eae46e9cc036cc3d597b50eddb8e18e75981747dc444",
+      "receipt": {
+        "exit_code": 0,
+        "finished_at_utc": "2026-10-13T16:27:30.130744+00:00",
+        "timed_out": false,
+        "wall_seconds": 65.16609170800075
+      },
+      "receipt_sha256": "fc23afa9d0c570276a678ab84226ef7f15232ea7fc5bf69f9e8ccac28c14d562",
+      "reviewable_outputs": [
+        {
+          "path": "cohesive/native-003/result.json",
+          "sha256": "adb200b1947c5f26769cc143b3b658c938092c3746a3f8538c6b54ea4a740645",
+          "size_bytes": 494
+        },
+        {
+          "path": "cohesive/native-003/binding-verification.json",
+          "sha256": "6fbbc91640117a2398cbd3505796c53dfa15d1b7f1eb7d472cc6a4db5350694a",
+          "size_bytes": 49
+        },
+        {
+          "path": "cohesive/native-003/stdout.log",
+          "sha256": "f21bd5838b9cb861c2fa448d1ad7da38ebf05328bf78b1a84dad67eb6f3144b8",
+          "size_bytes": 848
+        },
+        {
+          "path": "cohesive/native-003/stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        }
+      ],
+      "sealed_inputs": {
+        "all_verified": true,
+        "expected_count": 157,
+        "hash_map_sha256": "3adcb9ae904555b1f9928e4782142678244806ea6a16cd780eae6c3b82c10e27",
+        "missing_or_mismatched": [],
+        "verified_count": 157
+      },
+      "source_snapshot": null,
+      "status": "PASS"
+    },
+    {
+      "case": "Frozen-027 punch diagnostic; stationary endpoint scope not qualified",
+      "path": "scoring/armijo-001",
+      "prediction_sha256": "e33f1d79779b0cc94e59c2822cec5f78feb6da64d73eff7f535b917fd969eada",
+      "raw_status": "failed_first_withdrawal_after_60_accepted_steps",
+      "receipt": {
+        "exit_code": 2,
+        "finished_at_utc": "2026-10-13T17:53:29.152398+00:00",
+        "timed_out": false,
+        "wall_seconds": 329.91508487501414
+      },
+      "receipt_sha256": "402cd425448d74deffeee206ca592d5eb2bf26219edb67aa182cfe77c79ae2d5",
+      "reviewable_outputs": [
+        {
+          "path": "scoring/armijo-001/postrun-audit.json",
+          "sha256": "a7a4a754bb9363ce4ad02fd327dec01ba989cafa804865db643333e1ba818664",
+          "size_bytes": 2164
+        },
+        {
+          "path": "scoring/armijo-001/stdout.log",
+          "sha256": "8b8e69eaf7c608e7a265122a5dca6aee7939556d713844e4ea798bfd1d311b92",
+          "size_bytes": 288
+        },
+        {
+          "path": "scoring/armijo-001/stderr.log",
+          "sha256": "9d9643bf33ef7d7691a20e117e3f2a282b715ad94a3d9f927485d9616732a0f7",
+          "size_bytes": 16216
+        },
+        {
+          "path": "scoring/armijo-001/output/result.json",
+          "sha256": "8d18c33ef7e7b09e6fd813648d71aa2f0a8157c8132bd2f504676fbbe2646299",
+          "size_bytes": 504
+        },
+        {
+          "path": "scoring/armijo-001/output/observations.csv",
+          "sha256": "f15595fdf03c72cb5947dfda63407ef1a4d55d753053542e4e35fb6e980d69ae",
+          "size_bytes": 35709
+        },
+        {
+          "path": "scoring/armijo-001/output/tool-observations.csv",
+          "sha256": "b63db1e0b40e1b42ebc06d29035fbc1150bb1f98740db9310fac368eb58da9e1",
+          "size_bytes": 10820
+        }
+      ],
+      "scope_reason": "BOX dispatch selectors in frozen build 027 bypass the stationary-endpoint gate. Accepted indentation force/contact and rejected-withdrawal solve failure remain raw diagnostics.",
+      "sealed_inputs": {
+        "all_verified": true,
+        "expected_count": 360,
+        "hash_map_sha256": "783402e73c752fd73cc409e569b7402367aff6adc1f77086c0073fb56d4cc045",
+        "missing_or_mismatched": [],
+        "verified_count": 360
+      },
+      "source_snapshot": "/Users/home/cardboard-followup-20261013/solver/frozen027-source",
+      "status": "SCOPE_NOT_QUALIFIED_FOR_STATIONARY_ENDPOINT_PROOF"
+    },
+    {
+      "case": "Frozen-028 short-withdrawal native path; 60/96 accepted then failed",
+      "path": "scoring/armijo-002",
+      "prediction_sha256": "494a1142c17d2315ac2130cafa476911d772a88712b93a630841fc75e855923e",
+      "receipt": {
+        "exit_code": 2,
+        "finished_at_utc": "2026-10-13T18:18:42.610831+00:00",
+        "timed_out": false,
+        "wall_seconds": 456.03790512500564
+      },
+      "receipt_sha256": "c7ab847b6f9ebf364d86c5f8d9a3d28eea0ff093e8a1c4f71d92a6dd935fb69a",
+      "reviewable_outputs": [
+        {
+          "path": "scoring/armijo-002/stdout.log",
+          "sha256": "2b4354626a9889b0165e2aaa50884885e7e3425f4f75951071926eea09c94f00",
+          "size_bytes": 289
+        },
+        {
+          "path": "scoring/armijo-002/stderr.log",
+          "sha256": "9d9643bf33ef7d7691a20e117e3f2a282b715ad94a3d9f927485d9616732a0f7",
+          "size_bytes": 16216
+        },
+        {
+          "path": "scoring/armijo-002/output/result.json",
+          "sha256": "d16c6fdb3e531a7cb4420d6946269fde7f1070408ca3228f773e6257e558fae0",
+          "size_bytes": 505
+        },
+        {
+          "path": "scoring/armijo-002/output/observations.csv",
+          "sha256": "114d007c00c73fc97754803f9f728b2436300cf390afd633b224e63d90cc983a",
+          "size_bytes": 35710
+        },
+        {
+          "path": "scoring/armijo-002/output/tool-observations.csv",
+          "sha256": "b63db1e0b40e1b42ebc06d29035fbc1150bb1f98740db9310fac368eb58da9e1",
+          "size_bytes": 10820
+        }
+      ],
+      "sealed_inputs": {
+        "all_verified": true,
+        "expected_count": 360,
+        "hash_map_sha256": "11ba8086ef9611af49c428d5020bceef6513b035cd28541694ccdbe958b1721b",
+        "missing_or_mismatched": [],
+        "verified_count": 360
+      },
+      "source_snapshot": "/Users/home/cardboard-followup-20261013/solver/frozen028-source",
+      "status": "failed"
+    },
+    {
+      "case": "Frozen-028 long-withdrawal native path; 168/168 accepted",
+      "path": "scoring/armijo-003",
+      "prediction_sha256": "f928f052ab2cac5b350216a04b7a96a7c9c5daf18562b8b6de5fb38b10e8c81b",
+      "receipt": {
+        "exit_code": 0,
+        "finished_at_utc": "2026-10-13T19:10:28.200045+00:00",
+        "timed_out": false,
+        "wall_seconds": 1010.1613910829765
+      },
+      "receipt_sha256": "7f5b068a7bd0b70a0eccad028cae11ea08ef4dd95b5fd235c378ccb23538311b",
+      "reviewable_outputs": [
+        {
+          "path": "scoring/armijo-003/stdout.log",
+          "sha256": "c63383aba584f4799cd1e67a3d91b6bed200e1390bd9ec140e1e19c43fcfbab6",
+          "size_bytes": 206
+        },
+        {
+          "path": "scoring/armijo-003/stderr.log",
+          "sha256": "ece011770d7cc12a0d9664d6de014e28a947d01bfa06500363e69721245a96cf",
+          "size_bytes": 44746
+        },
+        {
+          "path": "scoring/armijo-003/output/result.json",
+          "sha256": "31c28620e4216e762078bd0751ab7bd232e1de5dd295a76fdf9f09b4456e22e5",
+          "size_bytes": 422
+        },
+        {
+          "path": "scoring/armijo-003/output/observations.csv",
+          "sha256": "da54fe28b8bef36a446c5750db67507a565fb8d29d20b787cdbb9de6397c1a53",
+          "size_bytes": 97533
+        },
+        {
+          "path": "scoring/armijo-003/output/tool-observations.csv",
+          "sha256": "d0cedc570f18bce9984669e9e17170478f03125b0f199e928177a9a3a18d1d32",
+          "size_bytes": 27932
+        }
+      ],
+      "sealed_inputs": {
+        "all_verified": true,
+        "expected_count": 360,
+        "hash_map_sha256": "11ba8086ef9611af49c428d5020bceef6513b035cd28541694ccdbe958b1721b",
+        "missing_or_mismatched": [],
+        "verified_count": 360
+      },
+      "source_snapshot": "/Users/home/cardboard-followup-20261013/solver/frozen028-source",
+      "status": "completed"
+    },
+    {
+      "case": "Frozen-035 alternate local projection threshold experiment",
+      "path": "solver/local-projection-accuracy-035",
+      "prediction_sha256": "bf2a96cabf657ce4fd897aa7aa05eeec50b6b6c3aee278b5ea4159190b278af9",
+      "receipt": {
+        "exit_code": 2,
+        "finished_at_utc": "2026-10-13T19:48:45.698477+00:00",
+        "timed_out": false,
+        "wall_seconds": 71.98842091596453
+      },
+      "receipt_sha256": "c1bd4cb5969b89862243dd8eea86abdb0fc3383dcd07222934145305e2958aa2",
+      "reviewable_outputs": [
+        {
+          "path": "solver/local-projection-accuracy-035/stdout.log",
+          "sha256": "dbb7b3a3e88751a2fd1c6a0009d4c1aab916d7049d8c100907c75f1ff3731cac",
+          "size_bytes": 287
+        },
+        {
+          "path": "solver/local-projection-accuracy-035/stderr.log",
+          "sha256": "767afc5af286b7e74698ded47b5fefdc33f8ca5250bc6e19190ac2ecaa146fd0",
+          "size_bytes": 435
+        },
+        {
+          "path": "solver/local-projection-accuracy-035/output/result.json",
+          "sha256": "f3fff5aa124b8c1ddbb20cb6deb086f6091ad0967d32c908478f9bd04dbd3921",
+          "size_bytes": 503
+        },
+        {
+          "path": "solver/local-projection-accuracy-035/output/observations.csv",
+          "sha256": "d140e7abb9bc2a6ace4759288858334f445ae9a6e6b4a00003a1822745c08be7",
+          "size_bytes": 2532
+        }
+      ],
+      "sealed_inputs": {
+        "all_verified": true,
+        "expected_count": 361,
+        "hash_map_sha256": "5bfb4019e8ec691c3e6e34a9622272ace98fd69ee14f367c65799a9f99309ae9",
+        "missing_or_mismatched": [],
+        "verified_count": 361
+      },
+      "source_snapshot": "/Users/home/cardboard-followup-20261013/solver/frozen035-source",
+      "status": "failed"
+    },
+    {
+      "case": "Frozen-031 no-contact nx16 operator-FD baseline",
+      "interpretation": "The unchanged no-contact path naturally rejects at the predicted root19/Newton3 region; no mesh convergence is admitted.",
+      "path": "solver/operator-fd-baseline-001",
+      "prediction_sha256": "6d7cf0c60e9859af27ab6a5c7284d51544fa2b58ce0015ae14285bbaf54da3dd",
+      "receipt": {
+        "exit_code": 2,
+        "finished_at_utc": "2026-10-13T19:30:04.313145+00:00",
+        "timed_out": false,
+        "wall_seconds": 242.3064711249899
+      },
+      "receipt_sha256": "e142a49fe6c0a3705698e87b2c3512c3fbcb486e3889be2cd20f21dce0b25e97",
+      "reviewable_outputs": [
+        {
+          "path": "solver/operator-fd-baseline-001/stdout.log",
+          "sha256": "c2b571c54c9f8f7fc00377a0118b5a05ad78d39205d538b5e185b7bbbe6f4a94",
+          "size_bytes": 289
+        },
+        {
+          "path": "solver/operator-fd-baseline-001/stderr.log",
+          "sha256": "366f8076d00e01289e86629c1ab7aa7613b252eda114d1678b95a2912e3a4ea0",
+          "size_bytes": 2910
+        },
+        {
+          "path": "solver/operator-fd-baseline-001/output/result.json",
+          "sha256": "ad487124440bf78e56b20232751cda41433541c0c89ce6666ee9a882c7dd4433",
+          "size_bytes": 505
+        },
+        {
+          "path": "solver/operator-fd-baseline-001/output/observations.csv",
+          "sha256": "8cad0b13a6eb682d81200bbe8c2c6fc2bafd152929ea9a304c32d1c6b76afc57",
+          "size_bytes": 14125
+        }
+      ],
+      "sealed_inputs": {
+        "all_verified": true,
+        "expected_count": 360,
+        "hash_map_sha256": "2515cd8fe45ad21446f48fcead276484ef1181309d7c147e73b41e3b18defccd",
+        "missing_or_mismatched": [],
+        "verified_count": 360
+      },
+      "source_snapshot": "/Users/home/cardboard-followup-20261013/solver/frozen031-source",
+      "status": "NATIVE_PATH_REJECTION_WITH_DIAGNOSTIC_DISABLED"
+    },
+    {
+      "case": "Frozen-031 no-contact nx16 root19/Newton3 operator-FD diagnostic",
+      "interpretation": "Same native path and accepted records with operator-FD capture enabled; the diagnostic does not alter CSV, meshes, result JSON, or compiled pack.",
+      "path": "solver/operator-fd-001",
+      "prediction_sha256": "6a9a2c6b4a79c8f1e8881997f1ee252b7e6f266a60b0638455355596f96948e9",
+      "receipt": {
+        "exit_code": 2,
+        "finished_at_utc": "2026-10-13T19:34:05.434509+00:00",
+        "timed_out": false,
+        "wall_seconds": 240.7466371670016
+      },
+      "receipt_sha256": "24ba73c73b3394bb4c66cd337e06b3516f3692a952f96aa89e745e7f0b8d7e2e",
+      "reviewable_outputs": [
+        {
+          "path": "solver/operator-fd-001/stdout.log",
+          "sha256": "c2b571c54c9f8f7fc00377a0118b5a05ad78d39205d538b5e185b7bbbe6f4a94",
+          "size_bytes": 289
+        },
+        {
+          "path": "solver/operator-fd-001/stderr.log",
+          "sha256": "5abbde61436d51ca839570d04547a88a8a22153563cdf6ab48c2a61a0fedabea",
+          "size_bytes": 5954
+        },
+        {
+          "path": "solver/operator-fd-001/output/result.json",
+          "sha256": "ad487124440bf78e56b20232751cda41433541c0c89ce6666ee9a882c7dd4433",
+          "size_bytes": 505
+        },
+        {
+          "path": "solver/operator-fd-001/output/observations.csv",
+          "sha256": "8cad0b13a6eb682d81200bbe8c2c6fc2bafd152929ea9a304c32d1c6b76afc57",
+          "size_bytes": 14125
+        }
+      ],
+      "sealed_inputs": {
+        "all_verified": true,
+        "expected_count": 360,
+        "hash_map_sha256": "2515cd8fe45ad21446f48fcead276484ef1181309d7c147e73b41e3b18defccd",
+        "missing_or_mismatched": [],
+        "verified_count": 360
+      },
+      "source_snapshot": "/Users/home/cardboard-followup-20261013/solver/frozen031-source",
+      "status": "NATIVE_PATH_REJECTION_WITH_OPERATOR_DIAGNOSTIC"
+    },
+    {
+      "case": "Frozen-033 operator-FD capture at epsilon scale 8",
+      "path": "solver/operator-fd-002",
+      "prediction_sha256": "733f9c2e585c78bf3fcc514ad0f6f6f0a58f34194836e798d781051dc6858a2e",
+      "receipt": {
+        "exit_code": 2,
+        "finished_at_utc": "2026-10-13T19:42:23.004274+00:00",
+        "timed_out": false,
+        "wall_seconds": 241.20740287500666
+      },
+      "receipt_sha256": "d59c0e1090377d29b9128ab434f04414060cc4fef753d8aebf14639aaba19c29",
+      "reviewable_outputs": [
+        {
+          "path": "solver/operator-fd-002/stdout.log",
+          "sha256": "c2b571c54c9f8f7fc00377a0118b5a05ad78d39205d538b5e185b7bbbe6f4a94",
+          "size_bytes": 289
+        },
+        {
+          "path": "solver/operator-fd-002/stderr.log",
+          "sha256": "9b34ac2bbb45abe64a3c2564b093ea0e89b778dcf30d1d3b35c35a8600399d87",
+          "size_bytes": 5937
+        },
+        {
+          "path": "solver/operator-fd-002/output/result.json",
+          "sha256": "ad487124440bf78e56b20232751cda41433541c0c89ce6666ee9a882c7dd4433",
+          "size_bytes": 505
+        },
+        {
+          "path": "solver/operator-fd-002/output/observations.csv",
+          "sha256": "8cad0b13a6eb682d81200bbe8c2c6fc2bafd152929ea9a304c32d1c6b76afc57",
+          "size_bytes": 14125
+        }
+      ],
+      "sealed_inputs": {
+        "all_verified": true,
+        "expected_count": 361,
+        "hash_map_sha256": "8786cfab7abcbba0059b330eb9baed6ea872a8f7f60cc8840eae88e490226b37",
+        "missing_or_mismatched": [],
+        "verified_count": 361
+      },
+      "source_snapshot": "/Users/home/cardboard-followup-20261013/solver/frozen033-source",
+      "status": "failed"
+    },
+    {
+      "case": "Frozen-033 operator-FD capture at epsilon scale 16",
+      "path": "solver/operator-fd-003",
+      "prediction_sha256": "d8fe934b2c8b6e4742e4bfa40112132bb59bd2c09f408358a8ef423437a27582",
+      "receipt": {
+        "exit_code": 2,
+        "finished_at_utc": "2026-10-13T19:46:24.896476+00:00",
+        "timed_out": false,
+        "wall_seconds": 241.73543275002157
+      },
+      "receipt_sha256": "6c917abf8eecee8f08deea3a35f789383640603f67f93abf06ad42a9c3195526",
+      "reviewable_outputs": [
+        {
+          "path": "solver/operator-fd-003/stdout.log",
+          "sha256": "c2b571c54c9f8f7fc00377a0118b5a05ad78d39205d538b5e185b7bbbe6f4a94",
+          "size_bytes": 289
+        },
+        {
+          "path": "solver/operator-fd-003/stderr.log",
+          "sha256": "440a40a793617a1582986e7c455ef84ecb28c8c4738a962f5d41fac599bb12b8",
+          "size_bytes": 5933
+        },
+        {
+          "path": "solver/operator-fd-003/output/result.json",
+          "sha256": "ad487124440bf78e56b20232751cda41433541c0c89ce6666ee9a882c7dd4433",
+          "size_bytes": 505
+        },
+        {
+          "path": "solver/operator-fd-003/output/observations.csv",
+          "sha256": "8cad0b13a6eb682d81200bbe8c2c6fc2bafd152929ea9a304c32d1c6b76afc57",
+          "size_bytes": 14125
+        }
+      ],
+      "sealed_inputs": {
+        "all_verified": true,
+        "expected_count": 361,
+        "hash_map_sha256": "8786cfab7abcbba0059b330eb9baed6ea872a8f7f60cc8840eae88e490226b37",
+        "missing_or_mismatched": [],
+        "verified_count": 361
+      },
+      "source_snapshot": "/Users/home/cardboard-followup-20261013/solver/frozen033-source",
+      "status": "failed"
+    },
+    {
+      "case": "Frozen-034 finite-positive-mass scope admission check",
+      "path": "solver/operator-fd-scope-034",
+      "prediction_sha256": "8cdaadfb60f03f3f6c2437c07085163c1aeb553ad96011758797ddaf1ee26b0a",
+      "receipt": {
+        "exit_code": 0,
+        "finished_at_utc": "2026-10-13T19:47:32.614737+00:00",
+        "timed_out": false,
+        "wall_seconds": 4.496255499951076
+      },
+      "receipt_sha256": "68a2908ee1fb7e89dae1e970e22a522789d1788e89320d0c45fb6bfcb90634f9",
+      "reviewable_outputs": [
+        {
+          "path": "solver/operator-fd-scope-034/stdout.log",
+          "sha256": "00b5ef0c64f7a77ee1c54e08e6b45a6ff2d970efda97e771da05b65132f11dd2",
+          "size_bytes": 204
+        },
+        {
+          "path": "solver/operator-fd-scope-034/stderr.log",
+          "sha256": "b4538451c6a4cd9b053e13362778ee79513e803b197765b68599bf2ab16ac0b4",
+          "size_bytes": 3187
+        },
+        {
+          "path": "solver/operator-fd-scope-034/output/result.json",
+          "sha256": "6e8a142e64053e8ed13260286d4ab599914074584dd069c0ba0898c428a2e504",
+          "size_bytes": 420
+        },
+        {
+          "path": "solver/operator-fd-scope-034/output/observations.csv",
+          "sha256": "79ee8e7fe2c9a23af49fb48a8565a1ebd1c29d5ef368efbf875f84bd5f8fa18e",
+          "size_bytes": 1331
+        }
+      ],
+      "sealed_inputs": {
+        "all_verified": true,
+        "expected_count": 361,
+        "hash_map_sha256": "981d87abeef2cb75bacefbbaa92161a714eb4bdf31ba151b1f69cfb3d971e7cd",
+        "missing_or_mismatched": [],
+        "verified_count": 361
+      },
+      "source_snapshot": "/Users/home/cardboard-followup-20261013/solver/frozen034-source",
+      "status": "completed"
+    },
+    {
+      "case": "Native-012 cohesive reset regression",
+      "path": "native-tests-012/cohesive-reset",
+      "prediction_sha256": "32d9181734e675171b24130ac09be0f613d16ecfe69f9623407dceac77a553fb",
+      "receipt": {
+        "exit_code": 0,
+        "finished_at_utc": "2026-10-13T19:47:22.688788+00:00",
+        "timed_out": false,
+        "wall_seconds": 56.15515912504634
+      },
+      "receipt_sha256": "b871e1a4ddf1b6940efcff92054acc522f9de34faa5a5c0f5b7f13d7d434639b",
+      "reviewable_outputs": [
+        {
+          "path": "native-tests-012/cohesive-reset/stdout.log",
+          "sha256": "e5a17ffd06f2b7089630036d06698df984d3191d277cf74b756ca85bcd747df4",
+          "size_bytes": 929
+        },
+        {
+          "path": "native-tests-012/cohesive-reset/stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        }
+      ],
+      "sealed_inputs": {
+        "all_verified": true,
+        "expected_count": 361,
+        "hash_map_sha256": "ea98a6ee97d27c0486055216a030517a8119b9f9fbbcde80efdc53b08d5e8394",
+        "missing_or_mismatched": [],
+        "verified_count": 361
+      },
+      "source_snapshot": "/Users/home/cardboard-followup-20261013/solver/frozen034-source",
+      "status": null
+    },
+    {
+      "case": "Native-012 capsule/box regression",
+      "path": "native-tests-012/capsule-box",
+      "prediction_sha256": "04403bd2f6c5603613ffa6324893fcce3681bbc81d2d36ac85c955c95b681d3b",
+      "receipt": {
+        "exit_code": 0,
+        "finished_at_utc": "2026-10-13T19:47:27.981545+00:00",
+        "timed_out": false,
+        "wall_seconds": 5.153141625050921
+      },
+      "receipt_sha256": "02f22ae64c4c7f2a682b5a0aecfa067aca7312d89a02cfa246fd39c5c806d118",
+      "reviewable_outputs": [
+        {
+          "path": "native-tests-012/capsule-box/stdout.log",
+          "sha256": "94a9c4fb7a8228d1bf2d476b406f935e559fcc01bcfcba4f75bdd58a94ea1dc7",
+          "size_bytes": 3030
+        },
+        {
+          "path": "native-tests-012/capsule-box/stderr.log",
+          "sha256": "37c7d7bf6fd815b0d538138af8e4c0a6917d5cedecc4c9d5a34cfebf42e4836c",
+          "size_bytes": 2599
+        }
+      ],
+      "sealed_inputs": {
+        "all_verified": true,
+        "expected_count": 361,
+        "hash_map_sha256": "fe7b46d3dfc22b40b21865e731a241d7dc4c95fe82779aec512dd8e6b0b3b181",
+        "missing_or_mismatched": [],
+        "verified_count": 361
+      },
+      "source_snapshot": "/Users/home/cardboard-followup-20261013/solver/frozen034-source",
+      "status": null
+    },
+    {
+      "case": "Native-013 cohesive reset regression",
+      "path": "native-tests-013/cohesive-reset",
+      "prediction_sha256": "4a07771faefc81785d46a2bbcb02088bfb63d85bcf44395f1afcb482e518c89e",
+      "receipt": {
+        "exit_code": 0,
+        "finished_at_utc": "2026-10-13T19:55:23.125446+00:00",
+        "timed_out": false,
+        "wall_seconds": 56.76174395903945
+      },
+      "receipt_sha256": "4f34e2153997d241c011ece9efb692596b795c1f7f17bdf0bbfc2d6494529490",
+      "reviewable_outputs": [
+        {
+          "path": "native-tests-013/cohesive-reset/stdout.log",
+          "sha256": "e5a17ffd06f2b7089630036d06698df984d3191d277cf74b756ca85bcd747df4",
+          "size_bytes": 929
+        },
+        {
+          "path": "native-tests-013/cohesive-reset/stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        }
+      ],
+      "sealed_inputs": {
+        "all_verified": true,
+        "expected_count": 361,
+        "hash_map_sha256": "46ca8fb3ede1690f951b9822475467905d0fe71f32147a1c67e5a84c5928e985",
+        "missing_or_mismatched": [],
+        "verified_count": 361
+      },
+      "source_snapshot": "/Users/home/cardboard-followup-20261013/solver/frozen036-source",
+      "status": null
+    },
+    {
+      "case": "Native-013 capsule/box regression",
+      "path": "native-tests-013/capsule-box",
+      "prediction_sha256": "1abedb7907e348c4453f20cbc732de34eda5cfb4cf4d0e679677b2966bc92dc8",
+      "receipt": {
+        "exit_code": 0,
+        "finished_at_utc": "2026-10-13T19:55:28.604461+00:00",
+        "timed_out": false,
+        "wall_seconds": 5.3233960419893265
+      },
+      "receipt_sha256": "1ca98f18747ea271bf35fcd826dc269f5511ee115e890c529135028ef29d2be5",
+      "reviewable_outputs": [
+        {
+          "path": "native-tests-013/capsule-box/stdout.log",
+          "sha256": "94a9c4fb7a8228d1bf2d476b406f935e559fcc01bcfcba4f75bdd58a94ea1dc7",
+          "size_bytes": 3030
+        },
+        {
+          "path": "native-tests-013/capsule-box/stderr.log",
+          "sha256": "37c7d7bf6fd815b0d538138af8e4c0a6917d5cedecc4c9d5a34cfebf42e4836c",
+          "size_bytes": 2599
+        }
+      ],
+      "sealed_inputs": {
+        "all_verified": true,
+        "expected_count": 361,
+        "hash_map_sha256": "47c6f7e93f3ca3826c801b746c16e2bea493bdf5ec73972c2c6806a86a1d2147",
+        "missing_or_mismatched": [],
+        "verified_count": 361
+      },
+      "source_snapshot": "/Users/home/cardboard-followup-20261013/solver/frozen036-source",
+      "status": null
+    },
+    {
+      "case": "Frozen-036 finite-positive-mass scope admission check",
+      "path": "solver/operator-fd-scope-036",
+      "prediction_sha256": "2ea875a895fba49e8995f5fd603dfb22f3c15597455c5ef7dc9c7a952138638a",
+      "receipt": {
+        "exit_code": 0,
+        "finished_at_utc": "2026-10-13T19:55:33.298109+00:00",
+        "timed_out": false,
+        "wall_seconds": 4.533683874993585
+      },
+      "receipt_sha256": "e8993aa7b69ea11fdc90b3114c75d168ccaaaa05bd90f456d5115df34b1a3f45",
+      "reviewable_outputs": [
+        {
+          "path": "solver/operator-fd-scope-036/stdout.log",
+          "sha256": "00b5ef0c64f7a77ee1c54e08e6b45a6ff2d970efda97e771da05b65132f11dd2",
+          "size_bytes": 204
+        },
+        {
+          "path": "solver/operator-fd-scope-036/stderr.log",
+          "sha256": "38aee012620305580e1e9abf9ed34f2d463ff6ac0db94747012fce1635e56d45",
+          "size_bytes": 3188
+        },
+        {
+          "path": "solver/operator-fd-scope-036/output/result.json",
+          "sha256": "6e8a142e64053e8ed13260286d4ab599914074584dd069c0ba0898c428a2e504",
+          "size_bytes": 420
+        },
+        {
+          "path": "solver/operator-fd-scope-036/output/observations.csv",
+          "sha256": "79ee8e7fe2c9a23af49fb48a8565a1ebd1c29d5ef368efbf875f84bd5f8fa18e",
+          "size_bytes": 1331
+        }
+      ],
+      "sealed_inputs": {
+        "all_verified": true,
+        "expected_count": 361,
+        "hash_map_sha256": "c4b209a070f8a87b057da5f0a0a68215f57ea9f70651f3619cf617be48807f2a",
+        "missing_or_mismatched": [],
+        "verified_count": 361
+      },
+      "source_snapshot": "/Users/home/cardboard-followup-20261013/solver/frozen036-source",
+      "status": "completed"
+    },
+    {
+      "case": "Frozen-035 alternate local projection threshold experiment",
+      "path": "solver/local-projection-accuracy-035",
+      "prediction_sha256": "bf2a96cabf657ce4fd897aa7aa05eeec50b6b6c3aee278b5ea4159190b278af9",
+      "receipt": {
+        "exit_code": 2,
+        "finished_at_utc": "2026-10-13T19:48:45.698477+00:00",
+        "timed_out": false,
+        "wall_seconds": 71.98842091596453
+      },
+      "receipt_sha256": "c1bd4cb5969b89862243dd8eea86abdb0fc3383dcd07222934145305e2958aa2",
+      "reviewable_outputs": [
+        {
+          "path": "solver/local-projection-accuracy-035/stdout.log",
+          "sha256": "dbb7b3a3e88751a2fd1c6a0009d4c1aab916d7049d8c100907c75f1ff3731cac",
+          "size_bytes": 287
+        },
+        {
+          "path": "solver/local-projection-accuracy-035/stderr.log",
+          "sha256": "767afc5af286b7e74698ded47b5fefdc33f8ca5250bc6e19190ac2ecaa146fd0",
+          "size_bytes": 435
+        },
+        {
+          "path": "solver/local-projection-accuracy-035/output/result.json",
+          "sha256": "f3fff5aa124b8c1ddbb20cb6deb086f6091ad0967d32c908478f9bd04dbd3921",
+          "size_bytes": 503
+        },
+        {
+          "path": "solver/local-projection-accuracy-035/output/observations.csv",
+          "sha256": "d140e7abb9bc2a6ace4759288858334f445ae9a6e6b4a00003a1822745c08be7",
+          "size_bytes": 2532
+        }
+      ],
+      "sealed_inputs": {
+        "all_verified": true,
+        "expected_count": 361,
+        "hash_map_sha256": "5bfb4019e8ec691c3e6e34a9622272ace98fd69ee14f367c65799a9f99309ae9",
+        "missing_or_mismatched": [],
+        "verified_count": 361
+      },
+      "source_snapshot": "/Users/home/cardboard-followup-20261013/solver/frozen035-source",
+      "status": "failed"
+    },
+    {
+      "case": "Native-010 cohesive-reset partial run with fixture admission failure",
+      "interpretation": "Earlier damage/reset/isolation assertions ran; final rejected-reset target did not enter because the fixture target count omitted environments. No cohesive mechanical failure is inferred.",
+      "path": "native-tests-010/cohesive-reset",
+      "prediction_sha256": "87d8f66d06ff766f7a523b37b23bb7403dedbf0c2b98021ad2e32f70fe92d7cd",
+      "receipt": {
+        "exit_code": 1,
+        "finished_at_utc": "2026-10-13T19:22:54.573768+00:00",
+        "timed_out": false,
+        "wall_seconds": 3.1622278330032714
+      },
+      "receipt_sha256": "be4611bcf26304b610e63b90fe3df17f80e36e7e7ef89177f8bdc7018d0018c0",
+      "reviewable_outputs": [
+        {
+          "path": "native-tests-010/cohesive-reset/stdout.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        },
+        {
+          "path": "native-tests-010/cohesive-reset/stderr.log",
+          "sha256": "0f5072afff7169940257e020abf65cb37377b5753b50cb3470b972074c842e85",
+          "size_bytes": 149
+        }
+      ],
+      "sealed_inputs": {
+        "all_verified": true,
+        "expected_count": 360,
+        "hash_map_sha256": "b08572cb604bd20fdd42a916cf9fe6a42d395af791740353bcdb3cb37fe3d5e4",
+        "missing_or_mismatched": [],
+        "verified_count": 360
+      },
+      "source_snapshot": "/Users/home/cardboard-followup-20261013/solver/frozen031-source",
+      "status": "INCOMPLETE_FIXTURE_ADMISSION_FAILURE"
+    },
+    {
+      "case": "Native-011 corrected cohesive reset and coupon checks",
+      "path": "native-tests-011/cohesive-reset",
+      "prediction_sha256": "c11441f0926b701a2e8f76057a75292f481b39c1889d981d1758a4652ae77376",
+      "receipt": {
+        "exit_code": 0,
+        "finished_at_utc": "2026-10-13T19:25:56.301350+00:00",
+        "timed_out": false,
+        "wall_seconds": 56.46562466601608
+      },
+      "receipt_sha256": "2eb979152784afa613a7a46ae72ce9b2e71f2549beb696eb53ee96c08c571f6a",
+      "reviewable_outputs": [
+        {
+          "path": "native-tests-011/cohesive-reset/stdout.log",
+          "sha256": "e5a17ffd06f2b7089630036d06698df984d3191d277cf74b756ca85bcd747df4",
+          "size_bytes": 929
+        },
+        {
+          "path": "native-tests-011/cohesive-reset/stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        }
+      ],
+      "sealed_inputs": {
+        "all_verified": true,
+        "expected_count": 361,
+        "hash_map_sha256": "3fc48570d465160838bae95cdc21a4b61b8bf40e56c0d1aec6426d6d07a8bb0a",
+        "missing_or_mismatched": [],
+        "verified_count": 361
+      },
+      "source_snapshot": "/Users/home/cardboard-followup-20261013/solver/frozen032-source",
+      "status": "PASS_NATIVE_SOFTWARE_CHECKS"
+    },
+    {
+      "case": "Native-011 capsule/box Armijo and endpoint checks",
+      "path": "native-tests-011/capsule-box",
+      "prediction_sha256": "7befc993d8b3fc62c8c7fdea1f2bb2632d6ea50039ac5079e322daedd6193715",
+      "receipt": {
+        "exit_code": 0,
+        "finished_at_utc": "2026-10-13T19:26:01.755292+00:00",
+        "timed_out": false,
+        "wall_seconds": 5.266211249982007
+      },
+      "receipt_sha256": "3f213e36fda9f12d759d5bd54b8cf19d93e3b4b3d42aafecf56c3d4d908c8d4d",
+      "reviewable_outputs": [
+        {
+          "path": "native-tests-011/capsule-box/stdout.log",
+          "sha256": "94a9c4fb7a8228d1bf2d476b406f935e559fcc01bcfcba4f75bdd58a94ea1dc7",
+          "size_bytes": 3030
+        },
+        {
+          "path": "native-tests-011/capsule-box/stderr.log",
+          "sha256": "37c7d7bf6fd815b0d538138af8e4c0a6917d5cedecc4c9d5a34cfebf42e4836c",
+          "size_bytes": 2599
+        }
+      ],
+      "sealed_inputs": {
+        "all_verified": true,
+        "expected_count": 361,
+        "hash_map_sha256": "731089446576c7027ff7742081b3ed58b2524be2f68142e1748adb41426af13b",
+        "missing_or_mismatched": [],
+        "verified_count": 361
+      },
+      "source_snapshot": "/Users/home/cardboard-followup-20261013/solver/frozen032-source",
+      "status": "PASS_NATIVE_SOFTWARE_CHECKS"
+    },
+    {
+      "case": "FEFCO 0201 full-blank early score-die-contact rejection",
+      "path": "box/native-003",
+      "prediction_sha256": "f4aced5bb87ae6b17f6ad7b2afb03ce05e207c4fdc8510bb5f867a0750a40931",
+      "receipt": {
+        "exit_code": 2,
+        "finished_at_utc": "2026-10-13T18:01:06.094588+00:00",
+        "timed_out": false,
+        "wall_seconds": 456.76429237501
+      },
+      "receipt_sha256": "3d4601e9e3195a486140217f74069fd014906dfc582ec6f4b3126f59c689b14c",
+      "reviewable_outputs": [
+        {
+          "path": "box/native-003/stdout.log",
+          "sha256": "962683fe4ceba38d3c1542755c8bee7fb26216826667a5436f2922051f340e23",
+          "size_bytes": 241
+        },
+        {
+          "path": "box/native-003/stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        },
+        {
+          "path": "box/native-003/output/result.json",
+          "sha256": "dbcac542b6f7972648d1f03aabf20fd445e04316badc698a64243f6e1bfed2cf",
+          "size_bytes": 457
+        },
+        {
+          "path": "box/native-003/output/box-native-steps.csv",
+          "sha256": "d15a7aac60599230adfdb0395f04861a692c291a2f87f92d63ef55d2e9d5c0b6",
+          "size_bytes": 1894
+        },
+        {
+          "path": "box/native-003/output/box-actions.csv",
+          "sha256": "5f7438ff3c7a031c206949f489ea3f41ef788a61d6fb419031e1d8fffe71412c",
+          "size_bytes": 2672
+        }
+      ],
+      "sealed_inputs": {
+        "all_verified": true,
+        "expected_count": 360,
+        "hash_map_sha256": "0e9593e235b2a76359762c4aa5b6a933b1153a0ac8e312c9fbe3145394b76df4",
+        "missing_or_mismatched": [],
+        "verified_count": 360
+      },
+      "source_snapshot": "/Users/home/cardboard-followup-20261013/solver/frozen027-source",
+      "status": "failed_native"
+    },
+    {
+      "case": "Frozen-027 instrumented endpoint-gap capture (scope not qualified)",
+      "path": "box/native-004",
+      "prediction_sha256": "574e0fc6af265a207fbfb4516d4bb3feeb2e0914c5e22ea46dc0410a95521428",
+      "raw_status": "failed_native",
+      "receipt": {
+        "exit_code": 2,
+        "finished_at_utc": "2026-10-13T18:09:28.807717+00:00",
+        "timed_out": false,
+        "wall_seconds": 502.5261783330352
+      },
+      "receipt_sha256": "9c2dc18a9fcd337e8506acc8709b0fc2cb5be3263dcdf60ed7829a937def5c57",
+      "reviewable_outputs": [
+        {
+          "path": "box/native-004/stdout.log",
+          "sha256": "6348c06dd400ea0b2214320c23a01af001277f0fedb1c8da1568bc4912110437",
+          "size_bytes": 241
+        },
+        {
+          "path": "box/native-004/stderr.log",
+          "sha256": "fc654be7ebc5b4f1351cda4c2d760d89a36500dcd7af8d38b1ad8dd7937165a4",
+          "size_bytes": 8834
+        },
+        {
+          "path": "box/native-004/output/result.json",
+          "sha256": "435a8590db7e7b09ad7e0f09f8022be85464d17e730b9a50e1d5a267ce5a485d",
+          "size_bytes": 457
+        },
+        {
+          "path": "box/native-004/output/box-native-steps.csv",
+          "sha256": "d9bba5faa8d9441d2ea6db5d59bff93eca03ae94039d06900cb415dd370c2da8",
+          "size_bytes": 1894
+        },
+        {
+          "path": "box/native-004/output/box-actions.csv",
+          "sha256": "5f7438ff3c7a031c206949f489ea3f41ef788a61d6fb419031e1d8fffe71412c",
+          "size_bytes": 2672
+        }
+      ],
+      "scope_reason": "All-selector audit found BOX dispatch paths that bypass the stationary-endpoint gate; accepted step records cannot qualify endpoint-gap admission or box mechanics.",
+      "sealed_inputs": {
+        "all_verified": true,
+        "expected_count": 360,
+        "hash_map_sha256": "0e9593e235b2a76359762c4aa5b6a933b1153a0ac8e312c9fbe3145394b76df4",
+        "missing_or_mismatched": [],
+        "verified_count": 360
+      },
+      "source_snapshot": "/Users/home/cardboard-followup-20261013/solver/frozen027-source",
+      "status": "SCOPE_NOT_QUALIFIED"
+    },
+    {
+      "case": "Frozen-028 full-blank native contact attempt; failed at step 32",
+      "path": "box/native-005",
+      "prediction_sha256": "7a3ab209280e3e282b4f75000015cf2a879daf28d772e9291b687f99dac3f133",
+      "receipt": {
+        "exit_code": 2,
+        "finished_at_utc": "2026-10-13T19:22:50.562946+00:00",
+        "timed_out": false,
+        "wall_seconds": 742.2219344160403
+      },
+      "receipt_sha256": "2ee065375f74c6b47e52372f927f325d7e1daa8bd92e0c165a52423efef00266",
+      "reviewable_outputs": [
+        {
+          "path": "box/native-005/stdout.log",
+          "sha256": "09b180a9f3b9b12757f8575fe40e2efe3c565c0fad81fe46c343edc4301bb07f",
+          "size_bytes": 241
+        },
+        {
+          "path": "box/native-005/stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        },
+        {
+          "path": "box/native-005/output/result.json",
+          "sha256": "d489544ceb29f9aa3ac306c2ee53cc6068af4529b7f65b3bcaa28f62bcbe287f",
+          "size_bytes": 457
+        },
+        {
+          "path": "box/native-005/output/box-native-steps.csv",
+          "sha256": "c5599a640c3d70447b30e533ded868942bf5b5e80e8a3fe6fc454caaabacb600",
+          "size_bytes": 1895
+        },
+        {
+          "path": "box/native-005/output/box-actions.csv",
+          "sha256": "5f7438ff3c7a031c206949f489ea3f41ef788a61d6fb419031e1d8fffe71412c",
+          "size_bytes": 2672
+        }
+      ],
+      "sealed_inputs": {
+        "all_verified": true,
+        "expected_count": 360,
+        "hash_map_sha256": "f7c2143eb994c52508ff459a32d6fd12449eae95cb2449e39b34d64bd1d0a052",
+        "missing_or_mismatched": [],
+        "verified_count": 360
+      },
+      "source_snapshot": "/Users/home/cardboard-followup-20261013/solver/frozen028-source",
+      "status": "failed_native"
+    },
+    {
+      "accepted_steps": 43,
+      "case": "Frozen-028 prescribed FEM path nx=8",
+      "path": "solver/mesh-armijo-004/nx8",
+      "prediction_sha256": "9973fa5974224209d5b1d61db77a6fc309dffc96f287fe86c7832789da102c3d",
+      "receipt": {
+        "exit_code": 2,
+        "finished_at_utc": "2026-10-13T18:29:38.454254+00:00",
+        "timed_out": false,
+        "wall_seconds": 655.6735984999686
+      },
+      "receipt_sha256": "c6543bbcfd9fc1327bf77ebf4821230e9300d5c2023da62e57f7b4720ffe2a09",
+      "reviewable_outputs": [
+        {
+          "path": "solver/mesh-armijo-004/nx8/stdout.log",
+          "sha256": "35fbe4bd25ca65cc9c7a6612f77f931eaaa0d61312822e69a5a92be47a645f74",
+          "size_bytes": 289
+        },
+        {
+          "path": "solver/mesh-armijo-004/nx8/stderr.log",
+          "sha256": "ce587ef8cf8e2dc6bf1ef6a35ffc2199f34f19d4d6bce173a7dd23add7693505",
+          "size_bytes": 6414
+        },
+        {
+          "path": "solver/mesh-armijo-004/nx8/output/result.json",
+          "sha256": "076fa89c962cc38aa922d4e293d24f9da0862441f465f0014e1b6b9a12712aca",
+          "size_bytes": 505
+        },
+        {
+          "path": "solver/mesh-armijo-004/nx8/output/observations.csv",
+          "sha256": "1333b737fc5820e327ce847c9c7a00d6e01be65ec16f5b5ad0ccecbd066bbaa4",
+          "size_bytes": 26763
+        }
+      ],
+      "sealed_inputs": {
+        "all_verified": true,
+        "expected_count": 360,
+        "hash_map_sha256": "11ba8086ef9611af49c428d5020bceef6513b035cd28541694ccdbe958b1721b",
+        "missing_or_mismatched": [],
+        "verified_count": 360
+      },
+      "source_snapshot": "/Users/home/cardboard-followup-20261013/solver/frozen028-source",
+      "status": "failed"
+    },
+    {
+      "accepted_steps": 19,
+      "case": "Frozen-028 prescribed FEM path nx=16",
+      "path": "solver/mesh-armijo-004/nx16",
+      "prediction_sha256": "0e3d966312d7a34ce859e4007d032439469bab5b0abe6dfbd6a00d24d4106d96",
+      "receipt": {
+        "exit_code": 2,
+        "finished_at_utc": "2026-10-13T18:33:37.120208+00:00",
+        "timed_out": false,
+        "wall_seconds": 238.52997916698223
+      },
+      "receipt_sha256": "1ab26728a3134719da822ffe3c9a5bf5c06e1240907f8e7c3bdb780c94a1660a",
+      "reviewable_outputs": [
+        {
+          "path": "solver/mesh-armijo-004/nx16/stdout.log",
+          "sha256": "c2b571c54c9f8f7fc00377a0118b5a05ad78d39205d538b5e185b7bbbe6f4a94",
+          "size_bytes": 289
+        },
+        {
+          "path": "solver/mesh-armijo-004/nx16/stderr.log",
+          "sha256": "366f8076d00e01289e86629c1ab7aa7613b252eda114d1678b95a2912e3a4ea0",
+          "size_bytes": 2910
+        },
+        {
+          "path": "solver/mesh-armijo-004/nx16/output/result.json",
+          "sha256": "ad487124440bf78e56b20232751cda41433541c0c89ce6666ee9a882c7dd4433",
+          "size_bytes": 505
+        },
+        {
+          "path": "solver/mesh-armijo-004/nx16/output/observations.csv",
+          "sha256": "8cad0b13a6eb682d81200bbe8c2c6fc2bafd152929ea9a304c32d1c6b76afc57",
+          "size_bytes": 14125
+        }
+      ],
+      "sealed_inputs": {
+        "all_verified": true,
+        "expected_count": 360,
+        "hash_map_sha256": "11ba8086ef9611af49c428d5020bceef6513b035cd28541694ccdbe958b1721b",
+        "missing_or_mismatched": [],
+        "verified_count": 360
+      },
+      "source_snapshot": "/Users/home/cardboard-followup-20261013/solver/frozen028-source",
+      "status": "failed"
+    },
+    {
+      "case": "Frozen-028 prescribed FEM path nx=32",
+      "path": "solver/mesh-armijo-004/nx32",
+      "prediction_sha256": "7fd1da43906845f9f061e5f2cd99d5b9208784143d867c517d879c03966c4acd",
+      "receipt": {
+        "exit_code": -15,
+        "finished_at_utc": "2026-10-13T18:53:37.245765+00:00",
+        "timed_out": true,
+        "wall_seconds": 1200.027061666944
+      },
+      "receipt_sha256": "12d28aaf358cedd8e37161db82efccd282196febd123309def8fc4a6fe590d30",
+      "reviewable_outputs": [
+        {
+          "path": "solver/mesh-armijo-004/nx32/stdout.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        },
+        {
+          "path": "solver/mesh-armijo-004/nx32/stderr.log",
+          "sha256": "e24160e618fb60f8d9961902b5767faaf2ca4d23cb87ef9909a69bdc26e512cc",
+          "size_bytes": 2618
+        },
+        {
+          "path": "solver/mesh-armijo-004/nx32/output/observations.csv",
+          "sha256": "641b20d50e767e52c1a829ba3db0c9e390ede65105304faa9bb804fd4cc29d49",
+          "size_bytes": 12205
+        }
+      ],
+      "sealed_inputs": {
+        "all_verified": true,
+        "expected_count": 360,
+        "hash_map_sha256": "11ba8086ef9611af49c428d5020bceef6513b035cd28541694ccdbe958b1721b",
+        "missing_or_mismatched": [],
+        "verified_count": 360
+      },
+      "source_snapshot": "/Users/home/cardboard-followup-20261013/solver/frozen028-source",
+      "status": "TIMEOUT_PARTIAL_PATH"
+    },
+    {
+      "case": "Corrected native-test 009: capsule-box",
+      "path": "native-tests-009/capsule-box",
+      "prediction_sha256": "84ffa0c2cc20de3663c48a1d03c6c523b976c73a0a10bd017c55024d35a13f16",
+      "receipt": {
+        "exit_code": 0,
+        "finished_at_utc": "2026-10-13T18:09:35.719805+00:00",
+        "timed_out": false,
+        "wall_seconds": 5.326082416984718
+      },
+      "receipt_sha256": "9a04bf9e3f49786b99b561348c479b8446ba91fc5b2b2e10c09fdb2e67d0a34f",
+      "reviewable_outputs": [
+        {
+          "path": "native-tests-009/capsule-box/stdout.log",
+          "sha256": "94a9c4fb7a8228d1bf2d476b406f935e559fcc01bcfcba4f75bdd58a94ea1dc7",
+          "size_bytes": 3030
+        },
+        {
+          "path": "native-tests-009/capsule-box/stderr.log",
+          "sha256": "37c7d7bf6fd815b0d538138af8e4c0a6917d5cedecc4c9d5a34cfebf42e4836c",
+          "size_bytes": 2599
+        }
+      ],
+      "sealed_inputs": {
+        "all_verified": true,
+        "expected_count": 360,
+        "hash_map_sha256": "3f744c11b3454612fec28cff1ff8e13d42a083e1f30c9807bfe43c9010613b84",
+        "missing_or_mismatched": [],
+        "verified_count": 360
+      },
+      "source_snapshot": "/Users/home/numi-cardboard-20261006",
+      "status": "PASS_NATIVE_TEST"
+    },
+    {
+      "case": "Corrected native-test 009: cohesive",
+      "path": "native-tests-009/cohesive",
+      "prediction_sha256": "49aa21bc4db753b6e8ea424f0b274d96b4b98611da5efdc031219aa0d6b9f5f5",
+      "receipt": {
+        "exit_code": 0,
+        "finished_at_utc": "2026-10-13T18:11:06.424606+00:00",
+        "timed_out": false,
+        "wall_seconds": 54.064562750048935
+      },
+      "receipt_sha256": "bd0f8a1915200f35b9ef4291db9b63864b8d6957ea1925dc1b616b8eacddf9b6",
+      "reviewable_outputs": [
+        {
+          "path": "native-tests-009/cohesive/stdout.log",
+          "sha256": "b6e5462df35728fc8429825486924f7376dbf372320f2b50223061c1b30f7bcd",
+          "size_bytes": 848
+        },
+        {
+          "path": "native-tests-009/cohesive/stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        }
+      ],
+      "sealed_inputs": {
+        "all_verified": true,
+        "expected_count": 360,
+        "hash_map_sha256": "3b53abcf05a42977d4aabce3be12822236cdb0145c1183aa8edc4932be00b9ad",
+        "missing_or_mismatched": [],
+        "verified_count": 360
+      },
+      "source_snapshot": "/Users/home/numi-cardboard-20261006",
+      "status": "PASS_NATIVE_TEST"
+    },
+    {
+      "case": "Corrected native-test 009: frame",
+      "path": "native-tests-009/frame",
+      "prediction_sha256": "646ff445af0af00d6fb56c9679cf300270bb89af645830c361736c451c6df2f5",
+      "receipt": {
+        "exit_code": 0,
+        "finished_at_utc": "2026-10-13T18:10:12.205098+00:00",
+        "timed_out": false,
+        "wall_seconds": 6.067265290999785
+      },
+      "receipt_sha256": "f3f35a33f40f375a0338618b64cc13b7a876e715c3a8fa44997d7723c9315d31",
+      "reviewable_outputs": [
+        {
+          "path": "native-tests-009/frame/stdout.log",
+          "sha256": "414cf6cb5f4b753635a15e703436730a890ce79c0d0feb6fad9254c7da95d714",
+          "size_bytes": 1244
+        },
+        {
+          "path": "native-tests-009/frame/stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        }
+      ],
+      "sealed_inputs": {
+        "all_verified": true,
+        "expected_count": 360,
+        "hash_map_sha256": "bbb5b710718dff4167e430f4eb3d3039f174de9ab768301a8258393ab80c8876",
+        "missing_or_mismatched": [],
+        "verified_count": 360
+      },
+      "source_snapshot": "/Users/home/numi-cardboard-20261006",
+      "status": "PASS_NATIVE_TEST"
+    },
+    {
+      "case": "Corrected native-test 009: reference",
+      "path": "native-tests-009/reference",
+      "prediction_sha256": "35ef3c8c69bdb1c87bd3e3ff1e5ddd54abe2282a27f52437436bc25e9a5211c1",
+      "receipt": {
+        "exit_code": 0,
+        "finished_at_utc": "2026-10-13T18:10:05.995045+00:00",
+        "timed_out": false,
+        "wall_seconds": 20.348788124974817
+      },
+      "receipt_sha256": "6bd6a26c18cd324f511700a09df031b54a9d0b431e53824eac5b05dee73a1f10",
+      "reviewable_outputs": [
+        {
+          "path": "native-tests-009/reference/stdout.log",
+          "sha256": "1690a732808254c11fa145dda8727aee526553482ff920e5cc58d589d2923f87",
+          "size_bytes": 3641
+        },
+        {
+          "path": "native-tests-009/reference/stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        }
+      ],
+      "sealed_inputs": {
+        "all_verified": true,
+        "expected_count": 360,
+        "hash_map_sha256": "c1893bf067d272857bb0b64a3488132df7a54fd9b977175bf89cfec77671d226",
+        "missing_or_mismatched": [],
+        "verified_count": 360
+      },
+      "source_snapshot": "/Users/home/numi-cardboard-20261006",
+      "status": "PASS_NATIVE_TEST"
+    },
+    {
+      "case": "Corrected native-test 009: regional",
+      "path": "native-tests-009/regional",
+      "prediction_sha256": "69208bd95e58cccea30f95458d646f9221b9ab064cb05f30aa30b186b4039fc6",
+      "receipt": {
+        "exit_code": 0,
+        "finished_at_utc": "2026-10-13T18:09:45.525239+00:00",
+        "timed_out": false,
+        "wall_seconds": 9.672843375010416
+      },
+      "receipt_sha256": "140b677aea2c6d4d4c3dfe03008de9b4dad61cae1af5444c825176fa065acdc2",
+      "reviewable_outputs": [
+        {
+          "path": "native-tests-009/regional/stdout.log",
+          "sha256": "86af5359389028e8ad3237c00751bdc43d1473a56e846a5664fb3733b31c783d",
+          "size_bytes": 2487
+        },
+        {
+          "path": "native-tests-009/regional/stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        }
+      ],
+      "sealed_inputs": {
+        "all_verified": true,
+        "expected_count": 360,
+        "hash_map_sha256": "e8c1154b8bc98cd8aca96e26aef62d1ff590f2e21f3efa7413f37d32a81bcae0",
+        "missing_or_mismatched": [],
+        "verified_count": 360
+      },
+      "source_snapshot": "/Users/home/numi-cardboard-20261006",
+      "status": "PASS_NATIVE_TEST"
+    }
+  ],
+  "separate_mode_i_coupon": {
+    "checks": 4004,
+    "coarse_unload_tangent_relative_error": 3.17262e-05,
+    "limitations": [
+      "positive uniform Mode I only",
+      "no mixed-mode or closure/contact after delamination",
+      "no kraft/NSSC starch calibration"
+    ],
+    "matrix_free_operator_proxy": "finite_difference_of_native_kinematic_reactions",
+    "physical_corrugated_board_qualified": false,
+    "refined_unload_tangent_relative_error": 3.16898e-05,
+    "source_grade": "single_ply_bleached_clay_coated",
+    "status": "PASS"
+  },
+  "source_files_sha256": [
+    {
+      "label": "Robertsson material builder",
+      "path": "bulk/source-point-006/inputs/matter/tools/robertsson2023_material.hpp",
+      "sha256": "c93a5c5b88867ac129431a152a70963ac9120335bbfd6e3f97cfb2563eb6995f",
+      "size_bytes": 12490
+    },
+    {
+      "label": "Robertsson damage architecture",
+      "path": "bulk/source-point-006/inputs/matter/materials/robertsson2023_bulk_damage_architecture.md",
+      "sha256": "7014a0da27aa07d5809115b6352b30ffd22e5579acfbc8c29e0b90f16afc92c5",
+      "size_bytes": 12381
+    },
+    {
+      "label": "Tryding source material",
+      "path": "cohesive/native-003/supplemental-inputs/matter/materials/tryding2023_bleached_paperboard_modeI_coupon.nmatter",
+      "sha256": "10e36ae366d305e23a0f4b694703862e7d9d472596e63e472751baabf8f5b6cd",
+      "size_bytes": 7647
+    },
+    {
+      "label": "Haj-Ali liner material",
+      "path": "box/native-003/inputs/matter/materials/hajali2009_liner_hill_ideal.nmatter",
+      "sha256": "787bf121f4ce359235e28691892e9d77adffde05faf10f2a90593d9f4b32398d",
+      "size_bytes": 12163
+    },
+    {
+      "label": "Haj-Ali medium material",
+      "path": "box/native-003/inputs/matter/materials/hajali2009_medium_hill_ideal.nmatter",
+      "sha256": "ecfd9de3f4550a6a269d7a6559781b16e15316cf3d587093f2e11a2e6942a8e8",
+      "size_bytes": 12182
+    },
+    {
+      "label": "Corrugated elastic glue material",
+      "path": "box/native-003/inputs/matter/materials/starch2007_finite_glue_elastic.nmatter",
+      "sha256": "39fac837793259ab875d02ae2500475d9d974c2880fbb404867dead7c52eb2c1",
+      "size_bytes": 1321
+    }
+  ],
+  "source_identities": [
+    {
+      "doi": "10.1002/pts.2774",
+      "grade_limit": "single-ply softwood; not the corrugated kraft/NSSC stack",
+      "name": "Robertsson et al. 2023 single-ply softwood damage model"
+    },
+    {
+      "doi": "10.1016/j.ijsolstr.2023.112365",
+      "grade_limit": "separate bleached paperboard grade; not corrugated starch",
+      "name": "Tryding/Biel bleached clay-coated paperboard Mode-I law"
+    }
+  ],
+  "source_root": "/Users/home/cardboard-followup-20261013"
+}

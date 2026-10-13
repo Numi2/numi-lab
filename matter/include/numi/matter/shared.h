@@ -39,17 +39,21 @@ typedef struct NM_ALIGN16 nm_int4 {
 } nm_int4;
 #endif
 
-#define NM_MATTER_ABI_VERSION 40u
+#define NM_MATTER_ABI_VERSION 41u
 #define NM_INVALID_INDEX 0xffffffffu
 #define NM_VASCULAR_TISSUE_MOMENTUM_TRANSFER 0x80000000u
 #define NM_EXPRESSION_STACK_CAPACITY 96u
+#define NM_EXPRESSION_CACHE_CAPACITY 512u
 #define NM_MPM_STENCIL_WIDTH 27u
 #define NM_EVENT_CLASS_COUNT 8u
 #define NM_MAX_RATE_EXPONENT 8u
 #define NM_MPM_BLOCK_EDGE 8u
 #define NM_MPM_BLOCK_NODE_COUNT 512u
 #define NM_MPM_MAX_PARTICLES_PER_BLOCK 256u
-#define NM_MAX_MATERIAL_STATE 16u
+// Full multiplicative paperboard plasticity needs nine Fp components,
+// twelve hardening variables, a plastic multiplier and damage history.
+// Packages cooked with the old sixteen-state layout must be recooked.
+#define NM_MAX_MATERIAL_STATE 32u
 #define NM_MIXED_NEWTON_ITERATIONS 7u
 // Maximum supported compiled basis depth.
 #define NM_MIXED_FGMRES_RESTART 16u
@@ -120,6 +124,9 @@ enum NMExpressionOpcode : nm_u32 {
     NM_EXPR_NEXT_STATE = 21u,
     NM_EXPR_EXPM1_MINUS_X = 22u,
     NM_EXPR_FIBER_EXP_LINEAR = 23u,
+    NM_EXPR_SELECT_NONNEGATIVE = 24u,
+    NM_EXPR_CACHE_STORE = 25u,
+    NM_EXPR_CACHE_LOAD = 26u,
 };
 
 enum NMStatusCode : nm_u32 {
@@ -234,6 +241,10 @@ enum NMTopologyFlags : nm_u32 {
     NM_TOPOLOGY_COHESIVE = 1u << 2u,
     NM_TOPOLOGY_ERODED = 1u << 3u,
     NM_TOPOLOGY_SEPARATED = 1u << 4u,
+    // An authored, already duplicated face pair driven by an explicit
+    // constitutive interface material. Unlike event-created cohesive faces,
+    // side B is present in separatedNodes from the initial state.
+    NM_TOPOLOGY_PAIRED_COHESIVE = 1u << 5u,
 };
 
 enum NMLearnedActivationKind : nm_u32 {
@@ -641,7 +652,9 @@ typedef struct NM_ALIGN16 NMCohesiveFaceGPU {
     nm_float4 state;
     // rest normal xyz and rest area.
     nm_float4 geometry;
-    // Separated-side node copies; w is reserved.
+    // For event-created faces, separated-side node copies. For
+    // NM_TOPOLOGY_PAIRED_COHESIVE, xyz are authored side-B nodes and w is the
+    // cohesive material index. Event-created faces keep w zero.
     nm_uint4 separatedNodes;
 } NMCohesiveFaceGPU;
 
@@ -717,6 +730,9 @@ enum NMMicrostepFlags : nm_u32 {
     NM_MICROSTEP_CAPTURE_EVENTS = 1u << 0u,
     NM_MICROSTEP_FGMRES_OPERATOR = 1u << 1u,
     NM_MICROSTEP_FIELD_PRECONDITIONER = 1u << 2u,
+    // Diagnostic matrix-free reapplication after a completed Krylov cycle.
+    // It bypasses only the cycle-accepted early-out in the FEM tangent action.
+    NM_MICROSTEP_FGMRES_TRUE_RESIDUAL = 1u << 3u,
 };
 
 typedef struct NM_ALIGN16 NMMicrostepGPU {
@@ -819,7 +835,7 @@ typedef struct NM_ALIGN16 NMMaterialGPU {
     // algorithmic tangent P_F - P_z R_z^-1 R_F.
     nm_u32 implicitDeformationProgramOffset;
     nm_u32 stressStateDerivativeProgramOffset;
-    nm_u32 stateTransferMask;
+    nm_u64 stateTransferMask;
     nm_u32 localNewtonIterations;
 
     // density, reference temperature, specialized shear modulus, lambda.
@@ -981,6 +997,12 @@ typedef struct NM_ALIGN16 NMFEMElementVectorGPU {
     nm_float4 node2;
     nm_float4 node3;
 } NMFEMElementVectorGPU;
+
+// Runtime-only six-node force or directional-force contribution for an
+// explicitly paired cohesive face (side A slots 0..2, side B slots 3..5).
+typedef struct NM_ALIGN16 NMCohesiveFaceVectorGPU {
+    nm_float4 node[6];
+} NMCohesiveFaceVectorGPU;
 
 // Runtime-only Krylov extension; never serialized into a Matter pack. Physical
 // FEM/MPM/rigid strides retain their authored meanings. Each support row adds

@@ -1,0 +1,9 @@
+{
+  "original_combined_mode_build": "030",
+  "executed_native_cases": 0,
+  "action": "Stopped waiting030 queue before source sealing or GPU execution; rebuilt031 with safe pure-FEM Armijo scratch reuse and explicit unmatched selector telemetry.",
+  "contact_armijo_modes_excluded": true,
+  "waiting_queue_process": 67838,
+  "signal": "SIGTERM",
+  "actual_native_cases_source": "frozen031"
+}

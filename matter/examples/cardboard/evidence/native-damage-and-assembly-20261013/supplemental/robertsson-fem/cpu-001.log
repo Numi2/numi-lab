@@ -1,0 +1,6 @@
+cpu_only_compile=1
+material_state_count=27
+fem_node_count=4
+fem_tetrahedron_count=1
+runtime_steps=0
+qualification=source_and_layout_compile_only

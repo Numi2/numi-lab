@@ -1876,7 +1876,8 @@ kernel void nm_fgmres_gather_nodes(
     const uint objectIndex = range.objectIndex;
     const uint objectGlobal = environment * dispatch.objectCount + objectIndex;
     const NMContinuumObjectGPU object = objects[objectIndex];
-    if (states[environment].diagnostics.z > 0.5f ||
+    if ((states[environment].diagnostics.z > 0.5f &&
+         (microstep.flags & NM_MICROSTEP_FGMRES_TRUE_RESIDUAL) == 0u) ||
         object.representation != NM_REPRESENTATION_FEM ||
         !objectDue(object, schedulers[objectGlobal], adaptive[objectGlobal],
                    microstep))
@@ -1975,6 +1976,151 @@ kernel void nm_fgmres_gather_nodes(
             deformableMollifierGradient(deformable, local) *
                 (deformable.mollifier.z * mollifierDirection));
     }
+}
+
+// Preserve the exact assembled right-hand side for a true residual check.
+kernel void nm_fgmres_preserve_true_rhs(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
+    device const float4* residual [[buffer(1)]],
+    device float4* rightHandSide [[buffer(2)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (global >= layout.unknownCount) return;
+    rightHandSide[global] = residual[global];
+}
+
+// Clear the full operator arena; the explicit-FEM gather below fills the
+// mechanical rows, while the audited scope requires other generalized rows 0.
+kernel void nm_fgmres_clear_true_operator(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
+    device float4* operatorValue [[buffer(1)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (global >= layout.unknownCount) return;
+    operatorValue[global] = float4(0.0f);
+}
+
+kernel void nm_fgmres_clear_true_auxiliary(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device NMMatterStatusGPU* diagnosticStatuses [[buffer(1)]],
+    device float4* metrics [[buffer(2)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (global >= dispatch.environmentCount) return;
+    diagnosticStatuses[global] = {};
+    diagnosticStatuses[global].code = NM_STATUS_SUCCESS;
+    metrics[global] = float4(-1.0f);
+}
+
+// Recompute r=b-Ax from the preserved Newton right-hand side and the same
+// matrix-free FEM tangent used by Arnoldi. This is scoped by the host to a
+// single explicit-FEM object with no MPM, mixed fields, or other KKT blocks.
+kernel void nm_fgmres_measure_true_residual(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
+    constant NMMixedSolverGPU& solver [[buffer(1)]],
+    device const float4* rightHandSide [[buffer(2)]],
+    device const float4* operatorValue [[buffer(3)]],
+    device float4* residual [[buffer(4)]],
+    device NMFGMRESStateGPU* states [[buffer(5)]],
+    device float4* metrics [[buffer(6)]],
+    constant float& forcing [[buffer(7)]],
+    device const NMMatterStatusGPU* diagnosticStatuses [[buffer(8)]],
+    constant uint& replaceResidual [[buffer(9)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint environment [[threadgroup_position_in_grid]]
+) {
+    if (lane >= 32u || environment >= dispatch.environmentCount) return;
+    if (!environmentHealthy(diagnosticStatuses, environment)) return;
+    const uint totalNodes = dispatch.environmentCount * dispatch.femNodeCount;
+    const uint nodeBase = environment * dispatch.femNodeCount;
+    const uint fieldBase = totalNodes + nodeBase;
+    float norm2 = 0.0f;
+    float normCorrection = 0.0f;
+    float maximumAbsolute = 0.0f;
+    for (uint local = lane; local < dispatch.femNodeCount; local += 32u) {
+        const uint mechanical = nodeBase + local;
+        const uint field = fieldBase + local;
+        const float4 mechanicalResidual =
+            rightHandSide[mechanical] - operatorValue[mechanical];
+        const float4 fieldResidual =
+            rightHandSide[field] - operatorValue[field];
+        if (replaceResidual != 0u) {
+            residual[mechanical] = mechanicalResidual;
+            residual[field] = fieldResidual;
+        }
+        fgmresCompensatedAdd(
+            norm2, normCorrection, dot(mechanicalResidual, mechanicalResidual));
+        fgmresCompensatedAdd(
+            norm2, normCorrection, dot(fieldResidual, fieldResidual));
+        maximumAbsolute = max(maximumAbsolute,
+            max(max(max(abs(mechanicalResidual.x), abs(mechanicalResidual.y)),
+                    max(abs(mechanicalResidual.z), abs(mechanicalResidual.w))),
+                max(max(abs(fieldResidual.x), abs(fieldResidual.y)),
+                    max(abs(fieldResidual.z), abs(fieldResidual.w)))));
+    }
+    norm2 = simd_sum(norm2);
+    maximumAbsolute = simd_max(maximumAbsolute);
+    if (lane == 0u) {
+        device NMFGMRESStateGPU& state = states[environment];
+        const float trueNorm = sqrt(max(norm2, 0.0f));
+        const float arnoldiEstimate = state.diagnostics.x;
+        const float initialNorm = state.diagnostics.y;
+        const float target = clamp(
+            forcing, solver.residualTolerances.x, 0.5f) * initialNorm;
+        if (replaceResidual != 0u) {
+            state.diagnostics.x = trueNorm;
+            state.diagnostics.z = trueNorm == 0.0f || trueNorm <= target
+                ? 1.0f : 0.0f;
+        }
+        metrics[environment] = float4(
+            trueNorm, arnoldiEstimate, maximumAbsolute, initialNorm);
+    }
+}
+
+// Add the six-node native cohesive-face directional force to the already
+// assembled nodal Krylov operator. The face law stores d(force)/d(direction);
+// the effective equation is M*v - dt^2*d(force), matching the bulk-FEM path.
+kernel void nm_fgmres_add_cohesive_operator(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMicrostepGPU& microstep [[buffer(1)]],
+    device const NMContinuumObjectGPU* objects [[buffer(2)]],
+    device const NMFEMNodeStateGPU* candidateNodes [[buffer(3)]],
+    device const uint* incidence [[buffer(4)]],
+    device const NMIncidenceRangeGPU* ranges [[buffer(5)]],
+    device const NMCohesiveFaceVectorGPU* faceOperator [[buffer(6)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(7)]],
+    device const NMAdaptiveStateGPU* adaptive [[buffer(8)]],
+    device float4* work [[buffer(9)]],
+    device NMMatterStatusGPU* statuses [[buffer(10)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global >= total || dispatch.femNodeCount == 0u) return;
+    const uint environment = global / dispatch.femNodeCount;
+    if (!environmentHealthy(statuses, environment)) return;
+    const NMIncidenceRangeGPU range = ranges[global];
+    if (range.objectIndex == NM_INVALID_INDEX ||
+        range.objectIndex >= dispatch.objectCount || range.count == 0u) return;
+    const uint objectGlobal = environment * dispatch.objectCount + range.objectIndex;
+    const NMContinuumObjectGPU object = objects[range.objectIndex];
+    const NMSchedulerStateGPU scheduler = schedulers[objectGlobal];
+    if (!objectDue(object, scheduler, adaptive[objectGlobal], microstep) ||
+        femStaticConstraint(candidateNodes[global].restAndFixed.w) ||
+        candidateNodes[global].positionAndMass.w <= 0.0f) return;
+    float3 derivativeForce = float3(0.0f);
+    const uint faceBase = environment * dispatch.cohesiveFaceCount;
+    for (uint local = 0u; local < range.count; ++local) {
+        const uint encoded = incidence[range.first + local];
+        const uint faceIndex = encoded / 6u;
+        const uint slot = encoded - faceIndex * 6u;
+        if (faceIndex >= dispatch.cohesiveFaceCount || slot >= 6u) continue;
+        derivativeForce += faceOperator[faceBase + faceIndex].node[slot].xyz;
+    }
+    const float dt = objectTimestep(dispatch, scheduler);
+    work[global].xyz -= dt * dt * derivativeForce;
 }
 
 kernel void nm_fgmres_orthogonalize_and_finish_column(

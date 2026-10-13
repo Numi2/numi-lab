@@ -1,0 +1,257 @@
+{
+  "schema": "numi.cardboard.mesh-armijo-run-disposition.v1",
+  "disposition": "FAILED_RUNS_NOT_ADMITTED_TO_CONVERGENCE",
+  "physical_claim": false,
+  "protocol": {
+    "prediction_expected": "all 96 steps should pass the unchanged 1e-6 certificate; comparisons only if complete",
+    "actual_argv_protocol": {
+      "load_steps": 48,
+      "hold_steps": 12,
+      "unload_steps": 24,
+      "relax_steps": 12,
+      "total_steps": 96,
+      "dt_s": 2.5e-05,
+      "target_angle_deg": 0.375,
+      "residual_tolerance": 1e-06,
+      "newton_iterations": 28,
+      "fgmres_iterations": 256,
+      "mesh_nx": [
+        8,
+        16,
+        32
+      ]
+    },
+    "common_controls": "All three runs use same frozen021 source snapshot, executable and metallib bindings; same material, dimensions, thickness, width, target angle, duration, time step, solver budgets, and self-contact-disabled numerical-control mode. Mesh resolution varies as planned.",
+    "convergence_admission": "None of the three reached the full horizon. Accepted prefixes are not treated as mesh-convergence results; paired endpoint and curve criteria were not applied."
+  },
+  "runs": {
+    "nx8": {
+      "run_status": "failed",
+      "accepted_steps": 31,
+      "nodes": 588,
+      "tetrahedra": 960,
+      "compiled_world_fingerprint": 8687045415218541476,
+      "failure": "Matter rejected step 31; status, accepted state OBJ, and CSV observations were retained",
+      "solver": {
+        "steps": 48,
+        "hold_steps": 12,
+        "unload_steps": 24,
+        "relax_steps": 12,
+        "bend_angle_deg": 0.375,
+        "dt_s": 2.5e-05,
+        "relative_residual_tolerance": 9.999999974752427e-07,
+        "newton_iteration_budget": 28,
+        "fgmres_iteration_budget": 256,
+        "deformable_self_contact": false
+      },
+      "geometry": {
+        "length_m": 0.0316,
+        "width_m": 0.02,
+        "total_height_m": 0.00421,
+        "pitch_m": 0.0079,
+        "liner_thickness_m": 0.000277,
+        "medium_normal_thickness_m": 0.000191
+      },
+      "rejected_bent_row_exact": {
+        "step": "31",
+        "target_angle_deg": "0.25",
+        "status_code": "10",
+        "failing_index": "7",
+        "completed_microsteps": "0",
+        "fgmres_iterations": "256",
+        "status_diagnostic_x": "8.0839008660404943e-06",
+        "status_diagnostic_y": "8.1445514297229238e-06",
+        "status_diagnostic_z": "0.0078125",
+        "status_diagnostic_w": "8",
+        "measured_right_grip_angle_deg": "0.24220557919317376",
+        "certificate_raw_accepted_flag": "1",
+        "step_accepted": "0"
+      },
+      "stdout_line_exact": "{\"schema\":\"numi.cardboard.probe-result.v1\",\"status\":\"failed\",\"accepted_steps\":31,\"compiled_world_fingerprint\":8687045415218541476,\"nodes\":588,\"tetrahedra\":960,\"failure\":\"Matter rejected step 31; status, accepted state OBJ, and CSV observations were retained\",\"physical_validation\":false}",
+      "source_binding": {
+        "declared_input_count": 360,
+        "archive_files_verified": 360,
+        "missing_count": 0,
+        "mismatch_count": 0,
+        "all_archived_input_hashes_match": true,
+        "canonical_input_map_sha256": "e7322e4af4af10ab35a7f72d8949f8c96a43bae8d7bd7a02fb36f931486c933d",
+        "executable_path": null,
+        "executable_sha256": null,
+        "metallib_sha256": {
+          "build-cardboard-frozen021/shaders/NumiMatter.metallib": "4f872f89b460ea2085e91ddf3fb05a55c5ee0bf222c7e7560c960576ccdc25e9",
+          "build-cardboard-frozen021/shaders/NumiMatterPhysicalStateDigest.metallib": "0401b29d3ac2165153f36bea19786be653a10a242eed140e1c9008595ec1f729"
+        },
+        "selected_source_sha256": {
+          "matter/src/runtime.mm": "a618a11ce2112693b9892abf6dfac86207fd7b484fda85d032a892efffd20bc9",
+          "matter/src/metal/common.metalinc": "584f6e489b48a39a120a425a526ed036b992d6f22ea8621db6179c81f1b63d74",
+          "matter/src/metal/fem.metalinc": "980e0ae1f88ad748e25fda42168a656f4aabc15c375ac618c7e26a376b080c11",
+          "matter/src/metal/contact.metalinc": "431ee2182ac77551a05e202724f8260236bbcc8e2735a30df3b415732871a7d5",
+          "matter/src/metal/fgmres.metalinc": "6ed0a9de460da6cb513dda0f35ccff9742053aee0307de69e35a2f462424f1bb",
+          "matter/tools/cardboard_capsule_armijo_check.mm": "15191c8dec2bc073d89681d4dbe11f061c00cae3e2e596315192089cad4ce687",
+          "matter/tools/cardboard_probe.mm": "fc29ec9bff6571ea868298550cd6be801f5b3e1b110d5d1254d0aecaee70e92d",
+          "matter/tools/fem_kinematic_release_check.mm": "b886af05204876b3f7b8527ef7383255257a86d759412b4b78b4f565abeea725",
+          "matter/tools/fem_mutable_snapshot_check.mm": "c7330f84ad49f7ff6d947ef45fad0eef8609302fc541406336c1058fd17e39c4",
+          "matter/tools/cardboard_cohesive_face_check.mm": "c83c19fecf8e66edd384bb9e7af7d02287d1049182fcec12b4ae48d6c8d826c2",
+          "matter/tools/fem_material_frame_check.mm": "ae022be6f79c8cc84edb990fcfa2f8059893d7e2a28e883eb6d612a1b4afed54",
+          "matter/tools/fem_reference_check.mm": "26f455d59f22da4dad4112aba3ee594ba5f6dfb8402400c6b5ffcf4c775429b6",
+          "matter/tools/fem_regional_material_check.mm": "bca1d25980ab401915fd8c9bbae1e57c9eb55509e10a5e14092e0d249c698f0e"
+        },
+        "missing_paths": [],
+        "mismatches": [],
+        "limitation": "Listed source, executable and Metal libraries retained; compiler system headers and OS/driver not archived."
+      }
+    },
+    "nx16": {
+      "run_status": "failed",
+      "accepted_steps": 32,
+      "nodes": 972,
+      "tetrahedra": 1536,
+      "compiled_world_fingerprint": 2746234797408335729,
+      "failure": "Matter rejected step 32; status, accepted state OBJ, and CSV observations were retained",
+      "solver": {
+        "steps": 48,
+        "hold_steps": 12,
+        "unload_steps": 24,
+        "relax_steps": 12,
+        "bend_angle_deg": 0.375,
+        "dt_s": 2.5e-05,
+        "relative_residual_tolerance": 9.999999974752427e-07,
+        "newton_iteration_budget": 28,
+        "fgmres_iteration_budget": 256,
+        "deformable_self_contact": false
+      },
+      "geometry": {
+        "length_m": 0.0316,
+        "width_m": 0.02,
+        "total_height_m": 0.00421,
+        "pitch_m": 0.0079,
+        "liner_thickness_m": 0.000277,
+        "medium_normal_thickness_m": 0.000191
+      },
+      "rejected_bent_row_exact": {
+        "step": "32",
+        "target_angle_deg": "0.2578125",
+        "status_code": "10",
+        "failing_index": "18",
+        "completed_microsteps": "0",
+        "fgmres_iterations": "256",
+        "status_diagnostic_x": "1.2969105682714144e-06",
+        "status_diagnostic_y": "1.2977358210264356e-06",
+        "status_diagnostic_z": "0.0078125",
+        "status_diagnostic_w": "8",
+        "measured_right_grip_angle_deg": "0.25000022428743224",
+        "certificate_raw_accepted_flag": "1",
+        "step_accepted": "0"
+      },
+      "stdout_line_exact": "{\"schema\":\"numi.cardboard.probe-result.v1\",\"status\":\"failed\",\"accepted_steps\":32,\"compiled_world_fingerprint\":2746234797408335729,\"nodes\":972,\"tetrahedra\":1536,\"failure\":\"Matter rejected step 32; status, accepted state OBJ, and CSV observations were retained\",\"physical_validation\":false}",
+      "source_binding": {
+        "declared_input_count": 360,
+        "archive_files_verified": 360,
+        "missing_count": 0,
+        "mismatch_count": 0,
+        "all_archived_input_hashes_match": true,
+        "canonical_input_map_sha256": "e7322e4af4af10ab35a7f72d8949f8c96a43bae8d7bd7a02fb36f931486c933d",
+        "executable_path": null,
+        "executable_sha256": null,
+        "metallib_sha256": {
+          "build-cardboard-frozen021/shaders/NumiMatter.metallib": "4f872f89b460ea2085e91ddf3fb05a55c5ee0bf222c7e7560c960576ccdc25e9",
+          "build-cardboard-frozen021/shaders/NumiMatterPhysicalStateDigest.metallib": "0401b29d3ac2165153f36bea19786be653a10a242eed140e1c9008595ec1f729"
+        },
+        "selected_source_sha256": {
+          "matter/src/runtime.mm": "a618a11ce2112693b9892abf6dfac86207fd7b484fda85d032a892efffd20bc9",
+          "matter/src/metal/common.metalinc": "584f6e489b48a39a120a425a526ed036b992d6f22ea8621db6179c81f1b63d74",
+          "matter/src/metal/fem.metalinc": "980e0ae1f88ad748e25fda42168a656f4aabc15c375ac618c7e26a376b080c11",
+          "matter/src/metal/contact.metalinc": "431ee2182ac77551a05e202724f8260236bbcc8e2735a30df3b415732871a7d5",
+          "matter/src/metal/fgmres.metalinc": "6ed0a9de460da6cb513dda0f35ccff9742053aee0307de69e35a2f462424f1bb",
+          "matter/tools/cardboard_capsule_armijo_check.mm": "15191c8dec2bc073d89681d4dbe11f061c00cae3e2e596315192089cad4ce687",
+          "matter/tools/cardboard_probe.mm": "fc29ec9bff6571ea868298550cd6be801f5b3e1b110d5d1254d0aecaee70e92d",
+          "matter/tools/fem_kinematic_release_check.mm": "b886af05204876b3f7b8527ef7383255257a86d759412b4b78b4f565abeea725",
+          "matter/tools/fem_mutable_snapshot_check.mm": "c7330f84ad49f7ff6d947ef45fad0eef8609302fc541406336c1058fd17e39c4",
+          "matter/tools/cardboard_cohesive_face_check.mm": "c83c19fecf8e66edd384bb9e7af7d02287d1049182fcec12b4ae48d6c8d826c2",
+          "matter/tools/fem_material_frame_check.mm": "ae022be6f79c8cc84edb990fcfa2f8059893d7e2a28e883eb6d612a1b4afed54",
+          "matter/tools/fem_reference_check.mm": "26f455d59f22da4dad4112aba3ee594ba5f6dfb8402400c6b5ffcf4c775429b6",
+          "matter/tools/fem_regional_material_check.mm": "bca1d25980ab401915fd8c9bbae1e57c9eb55509e10a5e14092e0d249c698f0e"
+        },
+        "missing_paths": [],
+        "mismatches": [],
+        "limitation": "Listed source, executable and Metal libraries retained; compiler system headers and OS/driver not archived."
+      }
+    },
+    "nx32": {
+      "run_status": "failed",
+      "accepted_steps": 4,
+      "nodes": 1740,
+      "tetrahedra": 2784,
+      "compiled_world_fingerprint": 10786850929858311972,
+      "failure": "Matter rejected step 4; status, accepted state OBJ, and CSV observations were retained",
+      "solver": {
+        "steps": 48,
+        "hold_steps": 12,
+        "unload_steps": 24,
+        "relax_steps": 12,
+        "bend_angle_deg": 0.375,
+        "dt_s": 2.5e-05,
+        "relative_residual_tolerance": 9.999999974752427e-07,
+        "newton_iteration_budget": 28,
+        "fgmres_iteration_budget": 256,
+        "deformable_self_contact": false
+      },
+      "geometry": {
+        "length_m": 0.0316,
+        "width_m": 0.02,
+        "total_height_m": 0.00421,
+        "pitch_m": 0.0079,
+        "liner_thickness_m": 0.000277,
+        "medium_normal_thickness_m": 0.000191
+      },
+      "rejected_bent_row_exact": {
+        "step": "4",
+        "target_angle_deg": "0.0390625",
+        "status_code": "10",
+        "failing_index": "17",
+        "completed_microsteps": "0",
+        "fgmres_iterations": "256",
+        "status_diagnostic_x": "1.0180550589211634e-06",
+        "status_diagnostic_y": "1.0192291028943146e-06",
+        "status_diagnostic_z": "0.0078125",
+        "status_diagnostic_w": "8",
+        "measured_right_grip_angle_deg": "0.031270909488903105",
+        "certificate_raw_accepted_flag": "1",
+        "step_accepted": "0"
+      },
+      "stdout_line_exact": "{\"schema\":\"numi.cardboard.probe-result.v1\",\"status\":\"failed\",\"accepted_steps\":4,\"compiled_world_fingerprint\":10786850929858311972,\"nodes\":1740,\"tetrahedra\":2784,\"failure\":\"Matter rejected step 4; status, accepted state OBJ, and CSV observations were retained\",\"physical_validation\":false}",
+      "source_binding": {
+        "declared_input_count": 360,
+        "archive_files_verified": 360,
+        "missing_count": 0,
+        "mismatch_count": 0,
+        "all_archived_input_hashes_match": true,
+        "canonical_input_map_sha256": "e7322e4af4af10ab35a7f72d8949f8c96a43bae8d7bd7a02fb36f931486c933d",
+        "executable_path": null,
+        "executable_sha256": null,
+        "metallib_sha256": {
+          "build-cardboard-frozen021/shaders/NumiMatter.metallib": "4f872f89b460ea2085e91ddf3fb05a55c5ee0bf222c7e7560c960576ccdc25e9",
+          "build-cardboard-frozen021/shaders/NumiMatterPhysicalStateDigest.metallib": "0401b29d3ac2165153f36bea19786be653a10a242eed140e1c9008595ec1f729"
+        },
+        "selected_source_sha256": {
+          "matter/src/runtime.mm": "a618a11ce2112693b9892abf6dfac86207fd7b484fda85d032a892efffd20bc9",
+          "matter/src/metal/common.metalinc": "584f6e489b48a39a120a425a526ed036b992d6f22ea8621db6179c81f1b63d74",
+          "matter/src/metal/fem.metalinc": "980e0ae1f88ad748e25fda42168a656f4aabc15c375ac618c7e26a376b080c11",
+          "matter/src/metal/contact.metalinc": "431ee2182ac77551a05e202724f8260236bbcc8e2735a30df3b415732871a7d5",
+          "matter/src/metal/fgmres.metalinc": "6ed0a9de460da6cb513dda0f35ccff9742053aee0307de69e35a2f462424f1bb",
+          "matter/tools/cardboard_capsule_armijo_check.mm": "15191c8dec2bc073d89681d4dbe11f061c00cae3e2e596315192089cad4ce687",
+          "matter/tools/cardboard_probe.mm": "fc29ec9bff6571ea868298550cd6be801f5b3e1b110d5d1254d0aecaee70e92d",
+          "matter/tools/fem_kinematic_release_check.mm": "b886af05204876b3f7b8527ef7383255257a86d759412b4b78b4f565abeea725",
+          "matter/tools/fem_mutable_snapshot_check.mm": "c7330f84ad49f7ff6d947ef45fad0eef8609302fc541406336c1058fd17e39c4",
+          "matter/tools/cardboard_cohesive_face_check.mm": "c83c19fecf8e66edd384bb9e7af7d02287d1049182fcec12b4ae48d6c8d826c2",
+          "matter/tools/fem_material_frame_check.mm": "ae022be6f79c8cc84edb990fcfa2f8059893d7e2a28e883eb6d612a1b4afed54",
+          "matter/tools/fem_reference_check.mm": "26f455d59f22da4dad4112aba3ee594ba5f6dfb8402400c6b5ffcf4c775429b6",
+          "matter/tools/fem_regional_material_check.mm": "bca1d25980ab401915fd8c9bbae1e57c9eb55509e10a5e14092e0d249c698f0e"
+        },
+        "missing_paths": [],
+        "mismatches": [],
+        "limitation": "Listed source, executable and Metal libraries retained; compiler system headers and OS/driver not archived."
+      }
+    }
+  }
+}

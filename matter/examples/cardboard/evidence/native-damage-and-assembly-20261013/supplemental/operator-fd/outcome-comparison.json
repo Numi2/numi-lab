@@ -1,0 +1,255 @@
+{
+  "schema": "numi.cardboard.operator-fd-outcome-comparison.v1",
+  "derived_at_utc": "2026-10-13T19:34:21.172542+00:00",
+  "limitation": "Post-execution comparison; not an original prediction seal, material oracle or convergence admission.",
+  "baseline_receipt": {
+    "exit_code": 2,
+    "timed_out": false,
+    "wall_seconds": 242.3064711249899,
+    "finished_at_utc": "2026-10-13T19:30:04.313145+00:00"
+  },
+  "diagnostic_receipt": {
+    "exit_code": 2,
+    "timed_out": false,
+    "wall_seconds": 240.7466371670016,
+    "finished_at_utc": "2026-10-13T19:34:05.434509+00:00"
+  },
+  "sealed_input_verification": {
+    "solver/operator-fd-baseline-001": {
+      "input_count": 360,
+      "invalid": []
+    },
+    "solver/operator-fd-001": {
+      "input_count": 360,
+      "invalid": []
+    }
+  },
+  "sealed_input_maps_identical": true,
+  "csv_byte_identical": true,
+  "mesh_file_count_baseline": 41,
+  "mesh_file_count_diagnostic": 41,
+  "all_mesh_hashes_identical": true,
+  "mesh_hashes_baseline": {
+    "accepted_step_000008_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+    "accepted_step_000005_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+    "accepted_step_000015_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+    "accepted_step_000018_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+    "accepted_step_000016_bent.obj": "4034ff54e3951dbc44e1e8770d99c4e9210aedb8285f84c463297901a7027ba5",
+    "accepted_step_000017_bent.obj": "f5f9e9650158134905ca22fb16080111a26c5bd8c9143006da558094fc2059e6",
+    "initial.obj": "85937469616d2ce4096aa8fe945854b748537931dc8eff01f174ba00e2cf4b11",
+    "accepted_step_000001_bent.obj": "e9c7275e15333fd5b163ded3d26ff85caa25ebadcce7c87d7df73afef61ba2ad",
+    "accepted_step_000016_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+    "accepted_step_000006_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+    "accepted_step_000010_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+    "accepted_step_000006_bent.obj": "e1c730ec9f7274999bbaa6c8c1039e5a8b132b98f7a5448de29d030b2e90ec63",
+    "accepted_step_000007_bent.obj": "b8a5f414fc4690d929a452c285d169fdb34a04b0d29747b791569135620ea3fc",
+    "accepted_step_000020_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+    "accepted_step_000011_bent.obj": "d4b8640e7a151a724c65d4ad143c77c6af2abe1026b4d1b776beeec8bbd33108",
+    "accepted_step_000010_bent.obj": "1215df5ccfc8ed1b87fd9ee011a316aa5a463881cceacfa6044353fbac36c07a",
+    "accepted_step_000003_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+    "accepted_step_000013_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+    "accepted_step_000008_bent.obj": "2c79d065814e8fc8c41597184a372a3dc3aa5fb928584bbb7150c85de59629bc",
+    "accepted_step_000009_bent.obj": "6e3c73c73aa0bb58b759536e4358af60faef9707d664fdd0e89ff9a3bca57f67",
+    "accepted_step_000012_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+    "accepted_step_000002_bent.obj": "e8801a3e0dfd7a7738b59e7c769179d65a096f456571af34f8e01d9ea62ecf8b",
+    "accepted_step_000003_bent.obj": "8eb9b5482ede4a9a86b57acffd804cea4f6781ff7e99ac2db4a45467d29cb9c8",
+    "accepted_step_000002_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+    "accepted_step_000020_bent.obj": "1b522d7e016f3a0e7e1b3a6f010d785e6286fb3c10bfd2029c600bb430063323",
+    "accepted_step_000001_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+    "accepted_step_000011_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+    "accepted_step_000015_bent.obj": "4c25da027e6fc5e41e45561c5466da5e9ac6340e96f3b4da3b10385366488626",
+    "accepted_step_000014_bent.obj": "9c6402be6f0559d05d51c15adcd4f1d8fb6772b525848ed3de848000b013e8cc",
+    "accepted_step_000018_bent.obj": "bd15d6b21f2358393970f17ef1c15c571a96c6bf292ec921d2bb6ccc5ad6d6a8",
+    "accepted_step_000019_bent.obj": "1b522d7e016f3a0e7e1b3a6f010d785e6286fb3c10bfd2029c600bb430063323",
+    "accepted_step_000007_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+    "accepted_step_000012_bent.obj": "04addb33680604816e61d0385997a91c161a84a444376a299a8354d4bc5a0391",
+    "accepted_step_000013_bent.obj": "af78c9db77c7123b7fdecd861d79650f011df8ad9489541e3b7757d0c7ccbf9c",
+    "accepted_step_000017_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+    "accepted_step_000014_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+    "accepted_step_000019_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+    "accepted_step_000009_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+    "accepted_step_000004_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+    "accepted_step_000005_bent.obj": "421c341dd81f2a7b1fff21cbcf01e8e5bb5fd631d0a2830c9c4ececa42376af6",
+    "accepted_step_000004_bent.obj": "96bfbf02eb15137e32ea1196a57a4861f3b9e74e1c2bd7996be3cb0c8518ae3b"
+  },
+  "mesh_hashes_diagnostic": {
+    "accepted_step_000008_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+    "accepted_step_000005_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+    "accepted_step_000015_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+    "accepted_step_000018_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+    "accepted_step_000016_bent.obj": "4034ff54e3951dbc44e1e8770d99c4e9210aedb8285f84c463297901a7027ba5",
+    "accepted_step_000017_bent.obj": "f5f9e9650158134905ca22fb16080111a26c5bd8c9143006da558094fc2059e6",
+    "initial.obj": "85937469616d2ce4096aa8fe945854b748537931dc8eff01f174ba00e2cf4b11",
+    "accepted_step_000001_bent.obj": "e9c7275e15333fd5b163ded3d26ff85caa25ebadcce7c87d7df73afef61ba2ad",
+    "accepted_step_000016_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+    "accepted_step_000006_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+    "accepted_step_000010_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+    "accepted_step_000006_bent.obj": "e1c730ec9f7274999bbaa6c8c1039e5a8b132b98f7a5448de29d030b2e90ec63",
+    "accepted_step_000007_bent.obj": "b8a5f414fc4690d929a452c285d169fdb34a04b0d29747b791569135620ea3fc",
+    "accepted_step_000020_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+    "accepted_step_000011_bent.obj": "d4b8640e7a151a724c65d4ad143c77c6af2abe1026b4d1b776beeec8bbd33108",
+    "accepted_step_000010_bent.obj": "1215df5ccfc8ed1b87fd9ee011a316aa5a463881cceacfa6044353fbac36c07a",
+    "accepted_step_000003_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+    "accepted_step_000013_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+    "accepted_step_000008_bent.obj": "2c79d065814e8fc8c41597184a372a3dc3aa5fb928584bbb7150c85de59629bc",
+    "accepted_step_000009_bent.obj": "6e3c73c73aa0bb58b759536e4358af60faef9707d664fdd0e89ff9a3bca57f67",
+    "accepted_step_000012_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+    "accepted_step_000002_bent.obj": "e8801a3e0dfd7a7738b59e7c769179d65a096f456571af34f8e01d9ea62ecf8b",
+    "accepted_step_000003_bent.obj": "8eb9b5482ede4a9a86b57acffd804cea4f6781ff7e99ac2db4a45467d29cb9c8",
+    "accepted_step_000002_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+    "accepted_step_000020_bent.obj": "1b522d7e016f3a0e7e1b3a6f010d785e6286fb3c10bfd2029c600bb430063323",
+    "accepted_step_000001_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+    "accepted_step_000011_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+    "accepted_step_000015_bent.obj": "4c25da027e6fc5e41e45561c5466da5e9ac6340e96f3b4da3b10385366488626",
+    "accepted_step_000014_bent.obj": "9c6402be6f0559d05d51c15adcd4f1d8fb6772b525848ed3de848000b013e8cc",
+    "accepted_step_000018_bent.obj": "bd15d6b21f2358393970f17ef1c15c571a96c6bf292ec921d2bb6ccc5ad6d6a8",
+    "accepted_step_000019_bent.obj": "1b522d7e016f3a0e7e1b3a6f010d785e6286fb3c10bfd2029c600bb430063323",
+    "accepted_step_000007_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+    "accepted_step_000012_bent.obj": "04addb33680604816e61d0385997a91c161a84a444376a299a8354d4bc5a0391",
+    "accepted_step_000013_bent.obj": "af78c9db77c7123b7fdecd861d79650f011df8ad9489541e3b7757d0c7ccbf9c",
+    "accepted_step_000017_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+    "accepted_step_000014_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+    "accepted_step_000019_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+    "accepted_step_000009_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+    "accepted_step_000004_held_reference.obj": "f96e602ee2da053de5753524f062818b4a8dbb377dadf94d72d47856749cfa42",
+    "accepted_step_000005_bent.obj": "421c341dd81f2a7b1fff21cbcf01e8e5bb5fd631d0a2830c9c4ececa42376af6",
+    "accepted_step_000004_bent.obj": "96bfbf02eb15137e32ea1196a57a4861f3b9e74e1c2bd7996be3cb0c8518ae3b"
+  },
+  "result_json_byte_identical": true,
+  "compiled_pack_byte_identical": true,
+  "fd_traces": [
+    {
+      "schema": 1,
+      "root": 19,
+      "newton_iteration": 3,
+      "world_fingerprint": 5248235368261643122,
+      "execution_fingerprint": 5642252453855912924,
+      "contract": {
+        "unknown": "velocity correction",
+        "position_delta": "dt*epsilon*delta_v",
+        "residual_units": "impulse",
+        "comparison": "A*delta_v versus -(R_plus-R_minus)/(2*epsilon) on free nodes",
+        "scope": "no-contact explicit FEM"
+      },
+      "production_inputs_bitwise_unchanged": true,
+      "environments": [
+        {
+          "epsilon_pairs": [
+            {
+              "epsilon": 0.03125,
+              "dt": 2.49999994e-05,
+              "position_delta": 7.8124998e-07,
+              "free_node_count": 948,
+              "residual_plus_l2": 8.85819645e-06,
+              "residual_minus_l2": 8.19411525e-06,
+              "operator_action_l2": 7.66429457e-06,
+              "centered_fd_l2": 4.91195715e-05,
+              "error_l2": 5.02197036e-05,
+              "relative_error": 1.02239704,
+              "action_dot_fd": -2.52724282e-11,
+              "action_fd_cosine": -0.0671305507,
+              "stage_status_codes_plus_minus": [
+                0,
+                0
+              ],
+              "minimum_j_plus_minus": [
+                0.99518913,
+                0.99520421
+              ],
+              "operator_status_code": 0,
+              "input_integrity_flag": 1,
+              "direction_nonzero": true,
+              "maximum_delta_velocity": 0.170653135,
+              "maximum_position_perturbation": 1.33322757e-07
+            },
+            {
+              "epsilon": 0.015625,
+              "dt": 2.49999994e-05,
+              "position_delta": 3.9062499e-07,
+              "free_node_count": 948,
+              "residual_plus_l2": 8.11095833e-06,
+              "residual_minus_l2": 8.06895059e-06,
+              "operator_action_l2": 7.66429457e-06,
+              "centered_fd_l2": 3.39173312e-05,
+              "error_l2": 3.47594651e-05,
+              "relative_error": 1.02482903,
+              "action_dot_fd": 4.53699578e-13,
+              "action_fd_cosine": 0.00174531771,
+              "stage_status_codes_plus_minus": [
+                0,
+                0
+              ],
+              "minimum_j_plus_minus": [
+                0.995192885,
+                0.995200396
+              ],
+              "operator_status_code": 0,
+              "input_integrity_flag": 1,
+              "direction_nonzero": true,
+              "maximum_delta_velocity": 0.170653135,
+              "maximum_position_perturbation": 6.66613786e-08
+            }
+          ]
+        },
+        {
+          "epsilon_pairs": [
+            {
+              "epsilon": 0.03125,
+              "dt": 2.49999994e-05,
+              "position_delta": 7.8124998e-07,
+              "free_node_count": 948,
+              "residual_plus_l2": 3.8318678e-08,
+              "residual_minus_l2": 3.8318678e-08,
+              "operator_action_l2": 0,
+              "centered_fd_l2": 0,
+              "error_l2": 0,
+              "relative_error": 0,
+              "action_dot_fd": 0,
+              "action_fd_cosine": null,
+              "stage_status_codes_plus_minus": [
+                0,
+                0
+              ],
+              "minimum_j_plus_minus": [
+                1,
+                1
+              ],
+              "operator_status_code": 0,
+              "input_integrity_flag": 1,
+              "direction_nonzero": false,
+              "maximum_delta_velocity": 0,
+              "maximum_position_perturbation": 0
+            },
+            {
+              "epsilon": 0.015625,
+              "dt": 2.49999994e-05,
+              "position_delta": 3.9062499e-07,
+              "free_node_count": 948,
+              "residual_plus_l2": 3.8318678e-08,
+              "residual_minus_l2": 3.8318678e-08,
+              "operator_action_l2": 0,
+              "centered_fd_l2": 0,
+              "error_l2": 0,
+              "relative_error": 0,
+              "action_dot_fd": 0,
+              "action_fd_cosine": null,
+              "stage_status_codes_plus_minus": [
+                0,
+                0
+              ],
+              "minimum_j_plus_minus": [
+                1,
+                1
+              ],
+              "operator_status_code": 0,
+              "input_integrity_flag": 1,
+              "direction_nonzero": false,
+              "maximum_delta_velocity": 0,
+              "maximum_position_perturbation": 0
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,3 @@
+capsule_armijo_pair=source_only_prescribed_capsule contact_pairs=26 legacy_displacement_m=1.719368047e-05 armijo_displacement_m=1.719368047e-05 legacy_impulse_Ns=3.143376034e-06 armijo_impulse_Ns=3.143376034e-06 legacy_residual=4.006583953e-09 armijo_residual=4.006583953e-09 both_native_certified=true
+unsafe_endpoint_regression=rejected status=1 rolledback_fem_displacement_m=0 caller_pose_unchanged=true
+capsule_armijo_rollback=pass postcommit_rejected=true accepted_fem_history_rigid_state_unchanged=true

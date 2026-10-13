@@ -1,0 +1,36 @@
+[ 10%] Built target numi_matter_shaders
+[ 57%] Built target numi_matter_compiler_objects
+[ 78%] Built target numi_matter_runtime_objects
+[ 84%] Built target numi_matter_compiler
+[ 89%] Built target numi_matter_runtime
+[ 94%] Building OBJCXX object CMakeFiles/numi-matter-cardboard-cohesive-face-check.dir/tools/cardboard_cohesive_face_check.mm.o
+[100%] Linking CXX executable numi-matter-cardboard-cohesive-face-check
+[100%] Built target numi-matter-cardboard-cohesive-face-check
+[ 75%] Built target numi_matter_compiler_objects
+[ 83%] Built target numi_matter_compiler
+[ 91%] Building CXX object CMakeFiles/numi-matter-cardboard-tooling-check.dir/tools/cardboard_tooling_check.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-tooling-check
+[100%] Built target numi-matter-cardboard-tooling-check
+[ 75%] Built target numi_matter_compiler_objects
+[ 83%] Built target numi_matter_compiler
+[ 91%] Building CXX object CMakeFiles/numi-matter-cardboard-barrier-scale-check.dir/tools/cardboard_prescribed_barrier_scale_check.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-barrier-scale-check
+[100%] Built target numi-matter-cardboard-barrier-scale-check
+[100%] Built target numi-matter-cardboard-profile-check
+[100%] Built target numi-matter-cardboard-glue-mesh-check
+[ 50%] Building CXX object CMakeFiles/numi-matter-cardboard-box-blank-check.dir/tools/cardboard_box_blank_check.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-box-blank-check
+[100%] Built target numi-matter-cardboard-box-blank-check
+[ 75%] Built target numi_matter_compiler_objects
+[ 83%] Built target numi_matter_compiler
+[ 91%] Building CXX object CMakeFiles/numi-matter-cardboard-paper-material-check.dir/tools/cardboard_paper_material_check.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-paper-material-check
+[100%] Built target numi-matter-cardboard-paper-material-check
+[ 50%] Building CXX object CMakeFiles/numi-matter-cardboard-delamination-reference-check.dir/tools/cardboard_bleached_delamination_check.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-delamination-reference-check
+[100%] Built target numi-matter-cardboard-delamination-reference-check
+[ 75%] Built target numi_matter_compiler_objects
+[ 83%] Built target numi_matter_compiler
+[ 91%] Building CXX object CMakeFiles/numi-matter-cardboard-material-check.dir/tools/cardboard_material_check.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-material-check
+[100%] Built target numi-matter-cardboard-material-check

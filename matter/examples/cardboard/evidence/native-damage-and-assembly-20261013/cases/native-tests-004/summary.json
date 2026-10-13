@@ -1,0 +1,539 @@
+{
+  "schema": "numi.cardboard.quick-regression-index.v1",
+  "reviewed_at_utc": "2026-10-13T17:05:02Z",
+  "purpose": "Compact index of sealed native regressions and their hash binding. Manufactured software fixtures are not physical board experiments.",
+  "checkout": {
+    "path": "/Users/home/numi-cardboard-20261006",
+    "head_sha": "d954e0b7174ff11ed772c5ddd045fc4d54e2aca8",
+    "working_tree_was_dirty": true
+  },
+  "cohorts": {
+    "native-tests-004": {
+      "count": 6,
+      "passed": 5,
+      "failed_assertion": 1,
+      "failed_run": "native-tests-004/capsule"
+    },
+    "native-tests-005": {
+      "count": 1,
+      "passed": 1,
+      "failed_assertion": 0,
+      "run": "native-tests-005/capsule"
+    }
+  },
+  "binding_method": "Each run points to its sealed prediction.json; its inputs_sha256 inventory has 360 entries. Retained copies under that run’s inputs/ directory are independently verified against the sealed inventory; current-checkout drift is reported separately. Receipt/stdout/stderr are also hashed. Prediction manifests state compiler system headers and OS/driver are not archived.",
+  "common_bound_source_sha256": {
+    "build-cardboard/shaders/NumiMatter.metallib": "378caacb1dd492a50ac8c72034d69a435b98882114391f21c5860932aba2e769",
+    "build-cardboard/shaders/NumiMatterPhysicalStateDigest.metallib": "0401b29d3ac2165153f36bea19786be653a10a242eed140e1c9008595ec1f729",
+    "matter/include/numi/matter/shared.h": "7862cdd529c8f2b77ad25c8c10eb89ffe1c2bda9f8e2639a1f72a35366f95014",
+    "matter/src/runtime.mm": "ebd13bbbedee80b200b231294a20dde666c21f146a52b8a45c5dd207755ef9c7",
+    "matter/src/metal/fem.metalinc": "ab8f5e823cd3a05193fe39b4b7fea84c9f4fa4c624d16dcc6049b9218e550b00",
+    "matter/src/metal/contact.metalinc": "af4d841a64e679df8f88f79b5fb168718db1a03b683d7316adfeb265f04ffe09"
+  },
+  "current_checkout_drift": {
+    "matter/tools/cardboard_capsule_armijo_check.mm": {
+      "expected_sha256": "f6b18e0ef28ed5f83a6c47e726a4850afa1d6c550b1fba68c5235de097ad8025",
+      "current_sha256": "76755d0f9b1d1d94119f84a0e828e987f2cf8e0fa93e8d84f99fc8fd02b0a0dc"
+    },
+    "build-cardboard/numi-matter-cardboard-capsule-armijo-check": {
+      "expected_sha256": "d0197170c53fedd296b9706265582f1c9261c37561824b8c119333ec128aebe0",
+      "current_sha256": "b79158dd5c0e89cb9a50a90223be2a1ed8a2abafddcdfa020e070f74896066b3"
+    }
+  },
+  "runs": [
+    {
+      "id": "native-tests-004/cache",
+      "result": "pass",
+      "exit_code": 0,
+      "finished_at_utc": "2026-10-13T16:59:50.645972+00:00",
+      "wall_seconds": 2.9452698749955744,
+      "device_if_logged": "Apple M4",
+      "scope": "GPU expression-cache equivalence diagnostic for the production constitutive evaluator.",
+      "sealed_prediction": "native-tests-004/cache/prediction.json",
+      "sealed_prediction_sha256": "939e7d52e95e5befffd7f92629d6248e7028a119425cca92e9fcf8e365031443",
+      "input_sha256_inventory": {
+        "count": 360,
+        "matches_current_checkout": 359,
+        "drift_paths": [
+          "matter/tools/cardboard_capsule_armijo_check.mm"
+        ]
+      },
+      "selected_binding_sha256": {
+        "executable": {
+          "build-cardboard/numi-matter-cardboard-expression-cache-gpu-check": "09bfab56dd600e6db643f17cc77e68cc9025442a6969b027ed3c5501ef43a847"
+        },
+        "test_source": {
+          "matter/tools/cardboard_expression_cache_check.metal": "be41869c96d032d0f77ea8afc44527ec44acb12c72a460d9dc570fcb83e2fb68"
+        },
+        "explicit_material_inputs": {}
+      },
+      "record_sha256": {
+        "receipt.json": "71864335f629d2fbd740befbeabbfc44539bbddd8cbd09792a295bfc8a9aaeea",
+        "stdout.log": "efe84f6d6ead70c0586203cc783e729f7659bacef062c830b55695e49b51fea3",
+        "stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "outcome": {
+        "physical_fem_steps": 0,
+        "cached_uncached_stress_difference": 0,
+        "cached_uncached_tangent_difference": 0,
+        "scope_limit": "material-expression evaluator equivalence only; no physical material qualification"
+      },
+      "retained_input_integrity": {
+        "checked_against": "sealed_prediction.inputs_sha256",
+        "retained_root": "native-tests-004/cache/inputs/",
+        "prediction_sha256_matches_record": true,
+        "prediction_sha256": "939e7d52e95e5befffd7f92629d6248e7028a119425cca92e9fcf8e365031443",
+        "expected_count": 360,
+        "retained_count": 360,
+        "matched_count": 360,
+        "missing_count": 0,
+        "mismatch_count": 0,
+        "extra_file_count": 0,
+        "missing_paths": [],
+        "mismatches": [],
+        "extra_paths": []
+      }
+    },
+    {
+      "id": "native-tests-004/cohesive",
+      "result": "pass",
+      "exit_code": 0,
+      "finished_at_utc": "2026-10-13T17:00:56.639550+00:00",
+      "wall_seconds": 54.611274540948216,
+      "device_if_logged": null,
+      "scope": "Authored paired-face, positive Mode-I FEM coupling using the Tryding/Biel bleached-paperboard source law.",
+      "sealed_prediction": "native-tests-004/cohesive/prediction.json",
+      "sealed_prediction_sha256": "998d23db472e7f5050478a38b72555b412773fb8527a65b7097be6088497dac3",
+      "input_sha256_inventory": {
+        "count": 360,
+        "matches_current_checkout": 359,
+        "drift_paths": [
+          "matter/tools/cardboard_capsule_armijo_check.mm"
+        ]
+      },
+      "selected_binding_sha256": {
+        "executable": {
+          "build-cardboard/numi-matter-cardboard-cohesive-face-check": "3e5f9fbd887d4d6d578e821274f47417914cf57d46a58f46d9647af1c0de0b6d"
+        },
+        "test_source": {
+          "matter/tools/cardboard_cohesive_face_check.mm": "c83c19fecf8e66edd384bb9e7af7d02287d1049182fcec12b4ae48d6c8d826c2"
+        },
+        "explicit_material_inputs": {
+          "matter/materials/nagasawa2013_medium_orthotropic.nmatter": "ce39e29918c0111ab1e25e9af8a69eb0e3f7f6f07d1227bfd443da735d9ea348",
+          "matter/materials/tryding2023_bleached_paperboard_modeI_coupon.nmatter": "10e36ae366d305e23a0f4b694703862e7d9d472596e63e472751baabf8f5b6cd"
+        }
+      },
+      "record_sha256": {
+        "receipt.json": "ce05c79304b01b2918cd5dbfd01bf87e7a9fd86e5874062210fae58d9d63fa41",
+        "stdout.log": "b6e5462df35728fc8429825486924f7376dbf372320f2b50223061c1b30f7bcd",
+        "stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "outcome": {
+        "assertions": 4004,
+        "accepted_damage": 0.0101212,
+        "accepted_traction_Pa": 392980,
+        "source_mode_i_coarse_peak_force_error_N": 7.85143e-05,
+        "source_mode_i_refined_peak_force_error_N": 6.76424e-05,
+        "source_mode_i_coarse_unload_tangent_relative_error": 3.17262e-05,
+        "source_mode_i_refined_unload_tangent_relative_error": 0.000677552,
+        "operator_tangent_comparison": "reaction finite-difference proxy, not direct matrix-free tangent access",
+        "grade_limit": "single-ply bleached clay-coated paperboard; not corrugated starch adhesive",
+        "physical_board_qualified": false,
+        "mixed_mode_or_closure_supported": false
+      },
+      "retained_input_integrity": {
+        "checked_against": "sealed_prediction.inputs_sha256",
+        "retained_root": "native-tests-004/cohesive/inputs/",
+        "prediction_sha256_matches_record": true,
+        "prediction_sha256": "998d23db472e7f5050478a38b72555b412773fb8527a65b7097be6088497dac3",
+        "expected_count": 360,
+        "retained_count": 360,
+        "matched_count": 360,
+        "missing_count": 0,
+        "mismatch_count": 0,
+        "extra_file_count": 0,
+        "missing_paths": [],
+        "mismatches": [],
+        "extra_paths": []
+      }
+    },
+    {
+      "id": "native-tests-004/grip",
+      "result": "pass",
+      "exit_code": 0,
+      "finished_at_utc": "2026-10-13T16:59:47.587799+00:00",
+      "wall_seconds": 0.5672713749809191,
+      "device_if_logged": null,
+      "scope": "Native kinematic release and temporary-grip acquire/release, snapshot, reset, rejection, and corruption guards.",
+      "sealed_prediction": "native-tests-004/grip/prediction.json",
+      "sealed_prediction_sha256": "d5b9a2657b897801c6ad193158339c2ab7808cb4d46439fc436537d2e18186bb",
+      "input_sha256_inventory": {
+        "count": 360,
+        "matches_current_checkout": 359,
+        "drift_paths": [
+          "matter/tools/cardboard_capsule_armijo_check.mm"
+        ]
+      },
+      "selected_binding_sha256": {
+        "executable": {
+          "build-cardboard/numi-matter-fem-kinematic-release-check": "67bbcdaca63a9c756e5c3b8b1d45de9950c7858ce2358b01546cb36206eb3d61"
+        },
+        "test_source": {
+          "matter/tools/fem_kinematic_release_check.mm": "b886af05204876b3f7b8527ef7383255257a86d759412b4b78b4f565abeea725"
+        },
+        "explicit_material_inputs": {}
+      },
+      "record_sha256": {
+        "receipt.json": "cdc3bfe70eb771cf45574472abc2efa606948673bb70119c0368e0fdf9ef5b6d",
+        "stdout.log": "1fd4c1bca53e6bb72cd0756a3badea3e299dd3e3b3aa74dc1c860daca5733b67",
+        "stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "outcome": {
+        "assertions": "release, free/fixed residual rows, rollback, snapshot, exact rest/mass guards, grip lifecycle, episode reset",
+        "physical_validation": false
+      },
+      "retained_input_integrity": {
+        "checked_against": "sealed_prediction.inputs_sha256",
+        "retained_root": "native-tests-004/grip/inputs/",
+        "prediction_sha256_matches_record": true,
+        "prediction_sha256": "d5b9a2657b897801c6ad193158339c2ab7808cb4d46439fc436537d2e18186bb",
+        "expected_count": 360,
+        "retained_count": 360,
+        "matched_count": 360,
+        "missing_count": 0,
+        "mismatch_count": 0,
+        "extra_file_count": 0,
+        "missing_paths": [],
+        "mismatches": [],
+        "extra_paths": []
+      }
+    },
+    {
+      "id": "native-tests-004/mutable",
+      "result": "pass",
+      "exit_code": 0,
+      "finished_at_utc": "2026-10-13T16:59:46.885278+00:00",
+      "wall_seconds": 30.263670208049007,
+      "device_if_logged": null,
+      "scope": "Mixed immutable/mutable FEM snapshot admission after a real split, restore, and post-restore step in two environments.",
+      "sealed_prediction": "native-tests-004/mutable/prediction.json",
+      "sealed_prediction_sha256": "a54e34a41de2d3cd3c299e37a46b677cac255def8eacb4f99f5b62ecd96d7d95",
+      "input_sha256_inventory": {
+        "count": 360,
+        "matches_current_checkout": 359,
+        "drift_paths": [
+          "matter/tools/cardboard_capsule_armijo_check.mm"
+        ]
+      },
+      "selected_binding_sha256": {
+        "executable": {
+          "build-cardboard/numi-matter-fem-mutable-snapshot-check": "e665d2470213b64ee8af595fd101b238fe936e2115777cfdf60a50c2f643cb53"
+        },
+        "test_source": {
+          "matter/tools/fem_mutable_snapshot_check.mm": "c7330f84ad49f7ff6d947ef45fad0eef8609302fc541406336c1058fd17e39c4"
+        },
+        "explicit_material_inputs": {}
+      },
+      "record_sha256": {
+        "receipt.json": "f49a236ace359a1501de6c98449bc05021b43bfea03a1f8203b72bb2fc34935f",
+        "stdout.log": "e452b93d63a2ae2a6ee726e55628452b0dcb06160318e3cab638cd3f54a36645",
+        "stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "outcome": {
+        "stdout": "fem_mutable_snapshot_check=passed mutation=edge_split actual_accepted_snapshot=1 mixed_mutable_immutable=1 environments=2 split_restore_postrestore_step=1 immutable_corruption_rejected=1",
+        "physical_validation": false
+      },
+      "retained_input_integrity": {
+        "checked_against": "sealed_prediction.inputs_sha256",
+        "retained_root": "native-tests-004/mutable/inputs/",
+        "prediction_sha256_matches_record": true,
+        "prediction_sha256": "a54e34a41de2d3cd3c299e37a46b677cac255def8eacb4f99f5b62ecd96d7d95",
+        "expected_count": 360,
+        "retained_count": 360,
+        "matched_count": 360,
+        "missing_count": 0,
+        "mismatch_count": 0,
+        "extra_file_count": 0,
+        "missing_paths": [],
+        "mismatches": [],
+        "extra_paths": []
+      }
+    },
+    {
+      "id": "native-tests-004/regional",
+      "result": "pass",
+      "exit_code": 0,
+      "finished_at_utc": "2026-10-13T17:00:00.596005+00:00",
+      "wall_seconds": 9.822980333992746,
+      "device_if_logged": "Apple M4",
+      "scope": "Regional material-state/snapshot/reset regression; anatomical source fixtures, unrelated to cardboard calibration.",
+      "sealed_prediction": "native-tests-004/regional/prediction.json",
+      "sealed_prediction_sha256": "29517d9f7119853304b29ec0dee32c6e9e37893a7c5adf591ca91048c381b0be",
+      "input_sha256_inventory": {
+        "count": 360,
+        "matches_current_checkout": 359,
+        "drift_paths": [
+          "matter/tools/cardboard_capsule_armijo_check.mm"
+        ]
+      },
+      "selected_binding_sha256": {
+        "executable": {
+          "build-cardboard/numi-matter-fem-regional-material-check": "b4a0e19ffd178beb0754951e351a1d457d33cb5d1a20f983f96ceccbd36fc998"
+        },
+        "test_source": {
+          "matter/tools/fem_regional_material_check.mm": "bca1d25980ab401915fd8c9bbae1e57c9eb55509e10a5e14092e0d249c698f0e"
+        },
+        "explicit_material_inputs": {
+          "matter/materials/rodero2021_ventricular_guccione_passive.nmatter": "dd37136f93104ffe058ec334153707d4610be4b3ca6f95938ebee0a7d5799db4",
+          "matter/materials/rodero2021_nonventricular_neo_hookean_passive.nmatter": "8cc7f3e1936e4303a011b40ff287431a99be861a51a11e82913d630371825b00"
+        }
+      },
+      "record_sha256": {
+        "receipt.json": "d7784328a379776454f7dec782d2e1f8cb7e6859fe97e76707183f85b645f1f5",
+        "stdout.log": "86af5359389028e8ad3237c00751bdc43d1473a56e846a5664fb3733b31c783d",
+        "stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "outcome": {
+        "accepted_steps": 2,
+        "environments": 2,
+        "physical_anatomical_wall_qualified": false,
+        "source_density_supplied": false,
+        "active_cardiac_source_reproduced": false
+      },
+      "retained_input_integrity": {
+        "checked_against": "sealed_prediction.inputs_sha256",
+        "retained_root": "native-tests-004/regional/inputs/",
+        "prediction_sha256_matches_record": true,
+        "prediction_sha256": "29517d9f7119853304b29ec0dee32c6e9e37893a7c5adf591ca91048c381b0be",
+        "expected_count": 360,
+        "retained_count": 360,
+        "matched_count": 360,
+        "missing_count": 0,
+        "mismatch_count": 0,
+        "extra_file_count": 0,
+        "missing_paths": [],
+        "mismatches": [],
+        "extra_paths": []
+      }
+    },
+    {
+      "id": "native-tests-004/capsule",
+      "result": "failure_test_assertion",
+      "exit_code": 1,
+      "finished_at_utc": "2026-10-13T17:00:01.911003+00:00",
+      "wall_seconds": 1.1615796660189517,
+      "device_if_logged": null,
+      "scope": "Paired native prescribed-capsule contact cases plus postCommit rejection/rollback assertion.",
+      "sealed_prediction": "native-tests-004/capsule/prediction.json",
+      "sealed_prediction_sha256": "50ee9f1e17ad5a5c1badac8c809224b8831c409eb72894628dbc98f06c954b7c",
+      "input_sha256_inventory": {
+        "count": 360,
+        "matches_current_checkout": 358,
+        "drift_paths": [
+          "build-cardboard/numi-matter-cardboard-capsule-armijo-check",
+          "matter/tools/cardboard_capsule_armijo_check.mm"
+        ]
+      },
+      "selected_binding_sha256": {
+        "executable": {
+          "build-cardboard/numi-matter-cardboard-capsule-armijo-check": "d0197170c53fedd296b9706265582f1c9261c37561824b8c119333ec128aebe0"
+        },
+        "test_source": {
+          "matter/tools/cardboard_capsule_armijo_check.mm": "f6b18e0ef28ed5f83a6c47e726a4850afa1d6c550b1fba68c5235de097ad8025"
+        },
+        "explicit_material_inputs": {}
+      },
+      "record_sha256": {
+        "receipt.json": "d107b2fa91556c586dc891238d549824f8df74995970eedfdcc81f2dda6f14db",
+        "stdout.log": "9d12d01a2a3a80b46e7e7eaf2a76068d5187512bd6b406e0c52df8c8b1e114aa",
+        "stderr.log": "03f7526c624e47be0de7bc21d4e7ac6c23c8650b0515daa1cc200e125ebac268"
+      },
+      "outcome": {
+        "pair": {
+          "contact_pairs": 26,
+          "legacy_displacement_m": 1.719368047e-05,
+          "armijo_displacement_m": 1.719368047e-05,
+          "legacy_impulse_Ns": 3.143376034e-06,
+          "armijo_impulse_Ns": 3.143376034e-06,
+          "legacy_residual": 4.006583953e-09,
+          "armijo_residual": 4.006583953e-09,
+          "both_native_certified": true
+        },
+        "unsafe_endpoint_regression": "rejected; FEM displacement rolled back to zero; caller pose unchanged",
+        "failure": "fixture compared the whole environment-major accepted-FEM array; the successful control environment can publish solver metadata, causing the aggregate comparison to fail. This run does not establish an env-0 rollback failure or a passing env-0 byte-exact assertion.",
+        "stderr": "native cardboard tooling fixture failed: rejected postCommit candidate changed accepted FEM nodes"
+      },
+      "retained_input_integrity": {
+        "checked_against": "sealed_prediction.inputs_sha256",
+        "retained_root": "native-tests-004/capsule/inputs/",
+        "prediction_sha256_matches_record": true,
+        "prediction_sha256": "50ee9f1e17ad5a5c1badac8c809224b8831c409eb72894628dbc98f06c954b7c",
+        "expected_count": 360,
+        "retained_count": 360,
+        "matched_count": 360,
+        "missing_count": 0,
+        "mismatch_count": 0,
+        "extra_file_count": 0,
+        "missing_paths": [],
+        "mismatches": [],
+        "extra_paths": []
+      }
+    },
+    {
+      "id": "native-tests-005/capsule",
+      "result": "pass",
+      "exit_code": 0,
+      "finished_at_utc": "2026-10-13T17:01:26.664021+00:00",
+      "wall_seconds": 1.2092997090076096,
+      "device_if_logged": null,
+      "scope": "Rebuilt prescribed-capsule contact pair and environment-sliced postCommit rejection/rollback regression.",
+      "sealed_prediction": "native-tests-005/capsule/prediction.json",
+      "sealed_prediction_sha256": "52a0a37833dfad03e9a75cfff31467972328429da3ba78d30499dc0a5c92bca1",
+      "input_sha256_inventory": {
+        "count": 360,
+        "matches_current_checkout": 360,
+        "drift_paths": []
+      },
+      "selected_binding_sha256": {
+        "executable": {
+          "build-cardboard/numi-matter-cardboard-capsule-armijo-check": "b79158dd5c0e89cb9a50a90223be2a1ed8a2abafddcdfa020e070f74896066b3"
+        },
+        "test_source": {
+          "matter/tools/cardboard_capsule_armijo_check.mm": "76755d0f9b1d1d94119f84a0e828e987f2cf8e0fa93e8d84f99fc8fd02b0a0dc"
+        },
+        "explicit_material_inputs": {}
+      },
+      "record_sha256": {
+        "receipt.json": "cb0ca2229840e49e9a9b3666b42b66f6c9ebb46cbd89f9dd1276cb62bc72928e",
+        "stdout.log": "e57c39ad8bb453272bd1b59fade0a102658a80df252741ab988de4943ea4c537",
+        "stderr.log": "50d0a8bdd533228c9e7eeeaa928a18948495668801951a13d577583f6ca182c1"
+      },
+      "outcome": {
+        "pair": {
+          "contact_pairs": 26,
+          "legacy_displacement_m": 1.719368047e-05,
+          "armijo_displacement_m": 1.719368047e-05,
+          "legacy_impulse_Ns": 3.143376034e-06,
+          "armijo_impulse_Ns": 3.143376034e-06,
+          "legacy_residual": 4.006583953e-09,
+          "armijo_residual": 4.006583953e-09,
+          "both_native_certified": true
+        },
+        "unsafe_endpoint_regression": "rejected; FEM displacement rolled back to zero; caller pose unchanged",
+        "environment_0": "all FEM-node, capsule-history, and native rigid-state slices byte-identical across rejected postCommit transaction",
+        "environment_1": "control step succeeds and remains motionless within 1e-9 m",
+        "fixture_implementation": "sameEnvironmentBytes compares environment-major slices; source and all 360 sealed inputs match current checkout",
+        "physical_experiment": false
+      },
+      "retained_input_integrity": {
+        "checked_against": "sealed_prediction.inputs_sha256",
+        "retained_root": "native-tests-005/capsule/inputs/",
+        "prediction_sha256_matches_record": true,
+        "prediction_sha256": "52a0a37833dfad03e9a75cfff31467972328429da3ba78d30499dc0a5c92bca1",
+        "expected_count": 360,
+        "retained_count": 360,
+        "matched_count": 360,
+        "missing_count": 0,
+        "mismatch_count": 0,
+        "extra_file_count": 0,
+        "missing_paths": [],
+        "mismatches": [],
+        "extra_paths": []
+      }
+    }
+  ],
+  "capsule_interpretation": {
+    "004": "The prescribed capsule legacy/Armijo pair and unsafe-endpoint rejection outputs pass, but the test exits 1 in an overbroad whole-array rollback comparison. Do not count it as env-0 rollback failure or proof.",
+    "005": "The corrected test compares only the rejected environment slices for FEM nodes, contact histories, and rigid state; it passes. The independent successful control is checked for motionlessness.",
+    "pair_meaning": "A native manufactured prescribed-capsule solver comparison, not a physical experiment and not validation of corrugated cardboard constitutive behavior."
+  },
+  "documentation_audit": {
+    "overall": "No physical-qualification overclaim found in the updated follow-up or box pages; one historical-status sentence is stale.",
+    "checked_document_sha256": {
+      "matter/examples/cardboard/native-damage-and-assembly.md": "4131f3a87fa884802ac77d8c7e597e01fa773a4df4f5cee4f1743b2692039258",
+      "matter/materials/tryding2023_paired_modeI_native_coupling.md": "db181095a1d6559e275fd5f7eba037fc370e7f39d19c676862d86b2ca13ea9fa",
+      "matter/materials/robertsson2023_bulk_damage_architecture.md": "7014a0da27aa07d5809115b6352b30ffd22e5579acfbc8c29e0b90f16afc92c5",
+      "matter/tools/cardboard_box_native_driver.md": "96601c09bc4066bc621cd9e6d8a6415d822112dd90f8ba710b0ba331a01074ca",
+      "matter/tools/cardboard_box_assembly_controller.md": "ce7585ffd9ee72ee1637fc1b05d92de5408fe799aea9e073ae4d5bdcd55c95fe",
+      "matter/materials/starch_interface_literature.md": "ff6488ec97b3eabea9ffd23370e6d40f8d881176efef07f9021768870d5806c8",
+      "matter/examples/cardboard/manufacturing-sources.md": "71746b787a74e700ae5c951c39b1205059e34fd986293b96e78aef888cda8c7c"
+    },
+    "supported_claim_boundaries": [
+      "Robertsson 2023: single-ply softwood grade; native 0->0.3->0 result is a 121-point material-point path, not corrugated-board FEM or grade transfer.",
+      "Tryding/Biel: single-ply bleached clay-coated grade; native paired-face check is positive pure Mode I, not corrugated starch, mixed-mode, closure, or board qualification.",
+      "FEFCO driver: authored blank/tooling and accepted-state boundary commands; die contact is not irreversible scoring. Fixture mode is external, unbonded, unsealed; no physical box validation.",
+      "Recipe docs separate Haj-Ali paper/yield data, Popil commercial-board and separate-sheet proxies, assumed glue density, and elastic perfectly bonded glue."
+    ],
+    "documentation_issue": {
+      "path": "matter/materials/robertsson2023_bulk_damage_architecture.md",
+      "line": 167,
+      "issue": "Although the page is labeled historical, it says the pure-Mode-I face path is currently unimplemented. The October 13 follow-up has a separate native paired-face Mode-I path; date-tag that sentence as historical."
+    },
+    "needed_published_evidence": [
+      "Same-grade corrugated bulk damage and hardening data; current Haj-Ali Hill starter uses zero hardening and no paper failure evolution.",
+      "Grade-matched starch bondline thickness/failure locus, normal/shear traction-separation, strengths, GIc/GIIc, unloading, mixed-mode, moisture, and rate. Board-level peel/pin force cannot identify local cohesive parameters.",
+      "Same-grade crease force-travel, residual section, folding moment-angle, springback, and box assembly/closure observations under documented tool and conditioning settings.",
+      "For simulated manufacturing: matched corrugator temperature/speed/pressure/dwell, adhesive solids/cure endpoint, moisture history, and residual state."
+    ],
+    "primary_source_links": [
+      {
+        "label": "Haj-Ali et al. 2009 corrugated FE paper model",
+        "url": "https://doi.org/10.1016/j.compstruct.2008.02.001"
+      },
+      {
+        "label": "Robertsson et al. 2023 paperboard bulk damage",
+        "url": "https://doi.org/10.1002/pts.2774"
+      },
+      {
+        "label": "Tryding et al. 2023 paperboard interface model",
+        "url": "https://doi.org/10.1016/j.ijsolstr.2023.112365"
+      },
+      {
+        "label": "Biel et al. 2022 normal/shear paper delamination",
+        "url": "https://doi.org/10.1016/j.ijsolstr.2022.111755"
+      },
+      {
+        "label": "Johnson and Popil 2015 corrugated-board pin adhesion",
+        "url": "https://doi.org/10.1016/j.ijadhadh.2015.02.003"
+      }
+    ]
+  },
+  "retained_input_integrity": {
+    "method": "SHA-256 every retained file under each run inputs/ path against that run prediction.json inputs_sha256 map; do not compare these retained copies to today’s checkout.",
+    "run_count": 7,
+    "expected_file_count": 2520,
+    "retained_file_count": 2520,
+    "matched_file_count": 2520,
+    "missing_file_count": 0,
+    "mismatch_file_count": 0,
+    "extra_file_count": 0,
+    "all_prediction_hashes_match_records": true,
+    "interpretation": "All archived inputs match their own sealed run inventories. This establishes retained-input integrity, while current_checkout_drift separately describes later checkout changes; it does not repair or convert the 004 capsule test assertion failure into a pass."
+  },
+  "capsule_executable_source_binding": {
+    "executable_path": "build-cardboard/numi-matter-cardboard-capsule-armijo-check",
+    "runs": [
+      {
+        "run": "native-tests-004/capsule",
+        "prediction_inputs_sha256": "d0197170c53fedd296b9706265582f1c9261c37561824b8c119333ec128aebe0",
+        "retained_executable_sha256": "d0197170c53fedd296b9706265582f1c9261c37561824b8c119333ec128aebe0",
+        "retained_matches_prediction": true,
+        "current_checkout_executable_sha256": "b79158dd5c0e89cb9a50a90223be2a1ed8a2abafddcdfa020e070f74896066b3",
+        "retained_differs_from_current_checkout": true,
+        "test_source_sha256": "f6b18e0ef28ed5f83a6c47e726a4850afa1d6c550b1fba68c5235de097ad8025",
+        "interpretation": "older executable for the 004 assertion-failing run"
+      },
+      {
+        "run": "native-tests-005/capsule",
+        "prediction_inputs_sha256": "b79158dd5c0e89cb9a50a90223be2a1ed8a2abafddcdfa020e070f74896066b3",
+        "retained_executable_sha256": "b79158dd5c0e89cb9a50a90223be2a1ed8a2abafddcdfa020e070f74896066b3",
+        "retained_matches_prediction": true,
+        "current_checkout_executable_sha256": "b79158dd5c0e89cb9a50a90223be2a1ed8a2abafddcdfa020e070f74896066b3",
+        "retained_differs_from_current_checkout": false,
+        "test_source_sha256": "76755d0f9b1d1d94119f84a0e828e987f2cf8e0fa93e8d84f99fc8fd02b0a0dc",
+        "interpretation": "actual corrected executable for the passing 005 run"
+      }
+    ],
+    "interpretation": "The passing 005 capsule result is bound to the corrected retained executable and test source. The 004 capsule result is bound to its distinct older executable and source; current checkout drift does not alter either historical run."
+  }
+}

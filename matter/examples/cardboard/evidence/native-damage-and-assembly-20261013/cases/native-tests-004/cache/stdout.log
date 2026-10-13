@@ -1,0 +1,4 @@
+device=Apple M4 evaluator=production_constitutive stress_tangent=true physical_steps=0
+branch=negative cached_uncached_stress=0 cached_uncached_tangent=0 analytic_stress=4.64527e-07 analytic_tangent=0 centered_FD=0.000131285
+branch=positive cached_uncached_stress=0 cached_uncached_tangent=0 analytic_stress=2.53378e-07 analytic_tangent=0 centered_FD=4.59559e-05
+cardboard_expression_cache_gpu_check=pass physical_FEM_steps=0 source_material_qualification=false

@@ -1,0 +1,48 @@
+{
+  "schema": "numi.cardboard.local-projection-accuracy-build.v1",
+  "prepared_at_utc": "2026-10-13T19:45:40.792375+00:00",
+  "source_snapshot": "/Users/home/cardboard-followup-20261013/solver/frozen035-source",
+  "runtime_dir": "/Users/home/numi-cardboard-20261006/build-cardboard-frozen035",
+  "original_common_sha256": "584f6e489b48a39a120a425a526ed036b992d6f22ea8621db6179c81f1b63d74",
+  "tighter_common_sha256": "05b03edcbd40cae68fc949957300cdfffe42ec94ca90b487d7bb11a6ca211ded",
+  "change": "Isolated alternate Metal source only: generic local Newton early/final residual factor 2e-5 -> 2e-6. Production checkout/default unchanged. Physical parameters/local Newton budget16/globaltol1e-6 unchanged. Host executable frozen034 identical.",
+  "commands": [
+    [
+      "xcrun",
+      "-sdk",
+      "macosx",
+      "metal",
+      "-std=metal4.0",
+      "-O3",
+      "-fno-fast-math",
+      "-I",
+      "/Users/home/cardboard-followup-20261013/solver/frozen035-source/matter/include",
+      "-I",
+      "/Users/home/cardboard-followup-20261013/solver/frozen035-source/include",
+      "-c",
+      "/Users/home/cardboard-followup-20261013/solver/frozen035-source/matter/src/matter_kernels.metal",
+      "-o",
+      "/Users/home/numi-cardboard-20261006/build-cardboard-frozen035/shaders/NumiMatter.air"
+    ],
+    [
+      "xcrun",
+      "-sdk",
+      "macosx",
+      "metallib",
+      "/Users/home/numi-cardboard-20261006/build-cardboard-frozen035/shaders/NumiMatter.air",
+      "-o",
+      "/Users/home/numi-cardboard-20261006/build-cardboard-frozen035/shaders/NumiMatter.metallib"
+    ]
+  ],
+  "build_status": "PASS",
+  "runtime_sha256": {
+    "numi-matter-cardboard-probe": "86670bf55955cae958e9961539e973d4cf01e6965a997d61709faaa9bd891d3c",
+    "numi-matter-cardboard-cohesive-face-check": "00aaa0b8f29382c560b64ffe43f569959b9d636f39ecbede0fd24d8ae1448624",
+    "numi-matter-cardboard-capsule-armijo-check": "c72bac453c7c2446ac12e9aff1d4b548ff91cc02b5183a3d3de5280406f34318",
+    "shaders/cardboard_expression_cache_check.metallib": "5de06bdc96909de1714eab6d03c4c445993db442b18aed054e137dc938c179b0",
+    "shaders/NumiMatterPhysicalStateDigest.metallib": "0401b29d3ac2165153f36bea19786be653a10a242eed140e1c9008595ec1f729",
+    "shaders/cardboard_paper_check.metallib": "c27e1e7d96e41f9acf37c1dd6b6df06ca270dcc5a4c3d4b4812f9e4685016752",
+    "shaders/NumiMatter.metallib": "84c95a08e1159bbb59e688ed081f155d13c0834fdf327f9a30c6eeca296fcf62",
+    "shaders/cardboard_bleached_delamination_check.metallib": "f67b081cabb07abd3f1cc8dc43a1da1e5d418c3e5161d1ca8e0b19d9c6393c3e"
+  }
+}

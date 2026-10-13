@@ -587,7 +587,7 @@ private:
         const NMScalarProgramGPU& program =
             world_.scalarPrograms[programIndex];
         const NMMaterialGPU& material = world_.materials[materialIndex];
-        if (program.flags != 0u || program.instructionCount == 0u ||
+        if (program.flags > 1u || program.instructionCount == 0u ||
             program.maximumStack == 0u ||
             program.maximumStack > NM_EXPRESSION_STACK_CAPACITY ||
             !rangeWithin(
@@ -602,6 +602,7 @@ private:
             );
         }
         std::uint32_t stackDepth = 0u;
+        std::array<bool, NM_EXPRESSION_CACHE_CAPACITY> cacheWritten{};
         std::uint32_t maximumDepth = 0u;
         for (std::uint32_t local = 0u;
              local < program.instructionCount;
@@ -625,6 +626,19 @@ private:
                 return stackDepth >= count;
             };
             switch (instruction.opcode) {
+            case NM_EXPR_CACHE_STORE:
+                if (program.flags != 1u || !requireStack(1u) || instruction.index >= cacheWritten.size())
+                    return failIndexed("expression instruction", instructionIndex,
+                        "expression cache store is out of range or underflows");
+                cacheWritten[instruction.index] = true;
+                break;
+            case NM_EXPR_CACHE_LOAD:
+                if (program.flags != 1u || instruction.index >= cacheWritten.size() ||
+                    !cacheWritten[instruction.index])
+                    return failIndexed("expression instruction", instructionIndex,
+                        "expression cache load has no preceding store");
+                ++stackDepth;
+                break;
             case NM_EXPR_CONSTANT:
                 ++stackDepth;
                 break;
@@ -671,6 +685,12 @@ private:
                     );
                 }
                 ++stackDepth;
+                break;
+            case NM_EXPR_SELECT_NONNEGATIVE:
+                if (!requireStack(3u)) return failIndexed(
+                    "expression instruction", instructionIndex,
+                    "active branch selection underflows the stack");
+                stackDepth -= 2u;
                 break;
             case NM_EXPR_FIBER_EXP_LINEAR:
                 if (!requireStack(5u) || instruction.integer<0 || instruction.integer>2)
@@ -1669,6 +1689,84 @@ private:
                 return failIndexed(
                     "FEM surface face", faceIndex,
                     "adjacent tetrahedron belongs to another object");
+            }
+        }
+        for (std::size_t faceIndex = 0u;
+             faceIndex < world_.fem.cohesiveFaces.size(); ++faceIndex) {
+            const NMCohesiveFaceGPU& face =
+                world_.fem.cohesiveFaces[faceIndex];
+            if ((face.adjacency.w & NM_TOPOLOGY_PAIRED_COHESIVE) == 0u)
+                continue;
+            const std::uint32_t objectIndex = face.adjacency.y;
+            if (objectIndex >= world_.objects.size() ||
+                face.nodesAndFirst.w >= world_.fem.tetrahedra.size() ||
+                face.adjacency.x >= world_.fem.tetrahedra.size() ||
+                face.separatedNodes.w >= world_.materials.size() ||
+                !finite4(face.state) || !finite4(face.geometry) ||
+                !(face.state.x >= 0.0f && face.state.x < 1.0f) ||
+                !(face.state.y > 0.0f) || !(face.state.z >= 0.0f) ||
+                !(face.geometry.w > 0.0f)) {
+                return failIndexed("paired cohesive face", faceIndex,
+                    "face identity, material, state, or area is invalid");
+            }
+            const NMContinuumObjectGPU& object = world_.objects[objectIndex];
+            const std::uint32_t materialIndex = face.separatedNodes.w;
+            const NMMaterialGPU& material = world_.materials[materialIndex];
+            if (object.representation != NM_REPRESENTATION_FEM ||
+                (object.flags & (NM_OBJECT_MUTABLE_TOPOLOGY |
+                                 NM_OBJECT_MIXED_FEM |
+                                 NM_OBJECT_MULTIPHYSICS |
+                                 NM_OBJECT_ADAPTIVE)) != 0u ||
+                (object.flags & NM_OBJECT_DISABLE_SELF_CONTACT) == 0u ||
+                material.stateCount != 1u || material.parameterCount < 2u ||
+                material.stateInitialOffset >= world_.stateInitials.size() ||
+                world_.stateInitials[material.stateInitialOffset] != 0.01f) {
+                return failIndexed("paired cohesive face", faceIndex,
+                    "first paired-face implementation requires immutable FEM and the one-state source-initialized Mode-I law");
+            }
+            const NMTetrahedronGPU& first =
+                world_.fem.tetrahedra[face.nodesAndFirst.w];
+            const NMTetrahedronGPU& second =
+                world_.fem.tetrahedra[face.adjacency.x];
+            if (first.identity.y != objectIndex ||
+                second.identity.y != objectIndex ||
+                face.nodesAndFirst.w == face.adjacency.x ||
+                (face.adjacency.w & (NM_TOPOLOGY_ACTIVE |
+                                     NM_TOPOLOGY_COHESIVE)) !=
+                    (NM_TOPOLOGY_ACTIVE | NM_TOPOLOGY_COHESIVE)) {
+                return failIndexed("paired cohesive face", faceIndex,
+                    "adjacent tetrahedra or topology flags do not match the owner");
+            }
+            const auto contains = [](const NMTetrahedronGPU& tet,
+                                     const std::uint32_t node) {
+                return tet.nodes.x == node || tet.nodes.y == node ||
+                    tet.nodes.z == node || tet.nodes.w == node;
+            };
+            std::array<std::uint32_t, 6> nodes{
+                face.nodesAndFirst.x, face.nodesAndFirst.y,
+                face.nodesAndFirst.z, face.separatedNodes.x,
+                face.separatedNodes.y, face.separatedNodes.z,
+            };
+            for (std::size_t slot = 0u; slot < nodes.size(); ++slot) {
+                if (nodes[slot] < object.stateOffset ||
+                    nodes[slot] - object.stateOffset >= object.stateCount ||
+                    std::ranges::find(nodes.begin(), nodes.begin() + slot,
+                                      nodes[slot]) != nodes.begin() + slot ||
+                    (slot < 3u && !contains(first, nodes[slot])) ||
+                    (slot >= 3u && !contains(second, nodes[slot]))) {
+                    return failIndexed("paired cohesive face", faceIndex,
+                        "paired nodes are not six distinct object-owned face vertices");
+                }
+            }
+            const float normalLength = std::sqrt(
+                face.geometry.x * face.geometry.x +
+                face.geometry.y * face.geometry.y +
+                face.geometry.z * face.geometry.z);
+            if (!std::isfinite(normalLength) ||
+                std::abs(normalLength - 1.0f) >
+                    16.0f * std::numeric_limits<float>::epsilon()) {
+                return failIndexed("paired cohesive face", faceIndex,
+                    "reference normal is not unit length");
             }
         }
         for (std::size_t stencil = 0u;

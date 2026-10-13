@@ -251,7 +251,7 @@ void cpuChecks(const WorldSource& authored){
         <<" selected_material_rate_exponent="<<rate.baseExponent<<" default_material_rate_exponent="<<defaultRate.world.schedulers[0].baseExponent<<" lumped_inertia_relative_error="<<inertiaError/inertiaScale<<" source_density_supplied=false\n";
 }
 
-std::pair<MaterialProgram,MaterialProgram> stateMaterials(){
+std::pair<MaterialProgram,MaterialProgram> stateMaterials(bool highCapacity=false){
     const auto a=parseMatter(R"(material synthetic_regional_state_one {
         parameter density : kg/m^3 = 900 in [0,2000]; parameter k : Pa = 1000; parameter eta : Pa*s = 20;
         state history : one = 0.23 transfer average;
@@ -267,7 +267,74 @@ std::pair<MaterialProgram,MaterialProgram> stateMaterials(){
         update memory = memory + 2*dt()*Fdot(1,2); update second = second + dt()*Fdot(2,1);
         valid = J(); supports fem;
     })");
-    need(a.succeeded()&&b.succeeded(),"synthetic state programs: "+diagnostic(a.diagnostics)+diagnostic(b.diagnostics));return {a.material,b.material};
+    need(a.succeeded()&&b.succeeded(),"synthetic state programs: "+diagnostic(a.diagnostics)+diagnostic(b.diagnostics));
+    if (!highCapacity) return {a.material, b.material};
+    const auto extendThroughState31 = [](MaterialProgram& material, InternalState::Transfer transfer) {
+        while (material.internalState.size() < NM_MAX_MATERIAL_STATE) {
+            const auto index = static_cast<unsigned>(material.internalState.size());
+            InternalState state;
+            state.name = "high_history_" + std::to_string(index);
+            state.dimension = {};
+            state.initialValue = 0.0;
+            state.transfer = index == NM_MAX_MATERIAL_STATE - 1u
+                ? transfer : InternalState::Transfer::average;
+            material.internalState.push_back(state);
+        }
+        material.stateUpdateRoots.resize(NM_MAX_MATERIAL_STATE, NM_INVALID_INDEX);
+        Expr accepted; accepted.kind = ExprKind::internalState;
+        accepted.dimension = material.internalState.back().dimension;
+        accepted.index = NM_MAX_MATERIAL_STATE - 1u;
+        const auto acceptedRoot = material.expressions.append(accepted);
+        Expr dt; dt.kind = ExprKind::timeStep; dt.dimension = kTime;
+        const auto dtRoot = material.expressions.append(dt);
+        const auto rateRoot = material.expressions.constant(1.0, kRate);
+        Expr increment; increment.kind = ExprKind::multiply;
+        increment.arguments[0] = dtRoot; increment.arguments[1] = rateRoot;
+        increment.dimension = kTime + kRate;
+        const auto incrementRoot = material.expressions.append(increment);
+        Expr update; update.kind = ExprKind::add;
+        update.arguments[0] = acceptedRoot; update.arguments[1] = incrementRoot;
+        update.dimension = material.internalState.back().dimension;
+        material.stateUpdateRoots[NM_MAX_MATERIAL_STATE - 1u] =
+            material.expressions.append(update);
+    };
+    auto first = a.material;
+    auto second = b.material;
+    extendThroughState31(first, InternalState::Transfer::sum);
+    extendThroughState31(second, InternalState::Transfer::maximum);
+    return {std::move(first),std::move(second)};
+}
+void highState31CompilerChecks() {
+    const auto [sum, maximum] = stateMaterials(true);
+    const auto world = cook(source(sum, maximum));
+    need(world.materials[1].stateCount == NM_MAX_MATERIAL_STATE &&
+         world.materials[2].stateCount == NM_MAX_MATERIAL_STATE,
+         "regional ABI fixture failed to cook all 32 material states");
+    need(((world.materials[1].stateTransferMask >> 62u) & 3u) == NM_MATERIAL_TRANSFER_SUM &&
+         ((world.materials[2].stateTransferMask >> 62u) & 3u) == NM_MATERIAL_TRANSFER_MAXIMUM,
+         "regional state31 transfer policies were truncated");
+    std::string error;
+    need(validateCompiledWorldLayout(world, &error), "state31 cooked admission: " + error);
+    const auto path = std::filesystem::temp_directory_path() /
+        (std::string("numi-regional-state31-") + [[NSUUID UUID] UUIDString].UTF8String + ".nmatterpack");
+    CompileResult package; package.world = world;
+    need(writePackage(package, path, &error), "state31 package write: " + error);
+    CompiledWorld restored;
+    const bool loaded = readPackage(path, restored, nullptr, &error);
+    std::error_code removed; std::filesystem::remove(path, removed);
+    need(loaded && !removed && restored.materials[1].stateTransferMask == world.materials[1].stateTransferMask &&
+         restored.materials[2].stateTransferMask == world.materials[2].stateTransferMask &&
+         restored.stateInitials == world.stateInitials,
+         "state31 sum/max masks or initials changed in package roundtrip: " + error);
+    auto invalid = restored;
+    invalid.materials[1].stateTransferMask =
+        (invalid.materials[1].stateTransferMask & ~(3ull << 62u)) | (3ull << 62u);
+    invalid.fingerprint = compiledWorldFingerprint(invalid);
+    error.clear();
+    need(!validateCompiledWorldLayout(invalid, &error) &&
+         error.find("state transfer policy is invalid") != std::string::npos,
+         "validator accepted invalid state31 policy");
+    ++cpuCheckCount;
 }
 void directChecks(Device& device,const WorldSource& authored){
     const auto world=cook(authored);const auto input=manufactured(world);
@@ -392,7 +459,16 @@ void integratedChecks(Device& device,const WorldSource& authored,unsigned steps,
                 const double expected=before.femMaterialState[base]+dt*(ti?2*rate[5]:rate[1]);need(std::abs(s.femMaterialState[base]-expected)<2e-7,"accepted state update used wrong regional program");
                 if(ti)need(std::abs(s.femMaterialState[base+1]-(before.femMaterialState[base+1]+dt*rate[7]))<2e-7,"accepted second regional state update incorrect");}}
     }
-    const auto final=run.state();need(motion>1e-7,"regional trajectory did not move");run.restore(initial);for(unsigned i=0;i<steps;++i)run.step(i);need(physicalSame(final,run.state()),"regional replay not bitwise");
+    const auto final=run.state();need(motion>1e-7,"regional trajectory did not move");
+    if (run.world.materials[1].stateCount == NM_MAX_MATERIAL_STATE) {
+        const auto stride = run.world.dispatch.materialStateStride;
+        for (unsigned env = 0; env < 2; ++env) for (unsigned ti = 0; ti < 2; ++ti) {
+            const auto index = (env * 2u + ti) * stride + (NM_MAX_MATERIAL_STATE - 1u);
+            need(final.femMaterialState[index] > initial.femMaterialState[index],
+                 "state31 explicit update was not committed");
+        }
+    }
+    run.restore(initial);for(unsigned i=0;i<steps;++i)run.step(i);need(physicalSame(final,run.state()),"regional replay not bitwise, including state31");
     const auto before=run.state();run.step(steps,1);const auto rejected=run.state();envSame(before.femNodes,rejected.femNodes,1,"rejected regional nodes");envSame(before.femMaterialState,rejected.femMaterialState,1,"rejected regional state");envSame(before.femTopologyTetrahedra,rejected.femTopologyTetrahedra,1,"rejected regional cells");
     const auto deny=[&](const char* name,const std::function<void(RuntimeStateSnapshot&)>& change){auto c=rejected;change(c);const auto result=run.runtime.restore(c);need(!result.encoded&&physicalSame(rejected,run.state()),std::string("regional snapshot accepted or mutated state for ")+name);};
     deny("valid material rebind",[](auto& s){s.femTopologyTetrahedra[0].identity.x=2;});
@@ -488,10 +564,12 @@ int main(int argc,char** argv){@autoreleasepool{try{
     need(argc==3||(argc==4&&std::string(argv[3])=="--cpu-only"),"usage: fem-regional-material-check GUCCIONE.nmatter NEO.nmatter [--cpu-only]");
     auto a=parseMatterFile(argv[1]),b=parseMatterFile(argv[2]);need(a.succeeded()&&b.succeeded(),diagnostic(a.diagnostics)+diagnostic(b.diagnostics));
     set(a.material,"density",900);set(b.material,"density",1200); // explicit synthetic fixture densities only
-    const auto authored=source(a.material,b.material);std::cout<<std::setprecision(17)<<"regional_abi="<<NM_MATTER_ABI_VERSION<<'\n';cpuChecks(authored);
-    if(argc==4){std::cout<<"fem_regional_material_compiler_check=pass anatomical_wall_qualified=false\n";return 0;}
+    const auto authored=source(a.material,b.material);std::cout<<std::setprecision(17)<<"regional_abi="<<NM_MATTER_ABI_VERSION<<'\n';cpuChecks(authored);highState31CompilerChecks();
+    if(argc==4){std::cout<<"fem_regional_material_compiler_check=pass state31_sum_max_package=true anatomical_wall_qualified=false\n";return 0;}
     Device device;std::cout<<"regional_device="<<[device.device name].UTF8String<<'\n';directChecks(device,authored);learnedChecks(device);projectionChecks(device);
     integratedChecks(device,authored,16,"source_laws_framed");integratedChecks(device,source(a.material,b.material,false),2,"source_laws_unframed");
     const auto [sa,sb]=stateMaterials();integratedChecks(device,source(sa,sb),2,"heterogeneous_state_programs");legacyObjectMaterialRestore(device,authored);unrelatedPosteriorRestore(device,authored);immutableEventRestore(device,authored);
+    const auto [highA, highB] = stateMaterials(true);
+    integratedChecks(device, source(highA, highB), 2, "full_state32_programs");
     std::cout<<"fem_regional_material_check=pass anatomical_wall_qualified=false source_density_supplied=false active_cardiac_source_reproduced=false\n";return 0;
 }catch(const std::exception& error){std::cerr<<"fem regional material check failed: "<<error.what()<<'\n';return 1;}}}

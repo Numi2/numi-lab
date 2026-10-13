@@ -1,0 +1,68 @@
+--- frozen031/matter/src/runtime.mm
++++ frozen033/matter/src/runtime.mm
+@@ -7076,6 +7076,7 @@
+             bool femOperatorFDTraceCaptured = false;
+             std::uint32_t femOperatorFDTraceRoot = 0u;
+             std::uint32_t femOperatorFDTraceIteration = 0u;
++            float femOperatorFDEpsilonScale = 1.0f;
+             if (const char* selector = std::getenv("NM_FEM_OPERATOR_FD_SELECTOR")) {
+                 const char* separator = std::strchr(selector, ':');
+                 const char* selectorEnd = selector + std::strlen(selector);
+@@ -7105,7 +7106,22 @@
+                     femOperatorFDTraceRoot = static_cast<std::uint32_t>(root);
+                     femOperatorFDTraceIteration = static_cast<std::uint32_t>(iteration);
+                     if (femOperatorFDTraceRoot == request.controlStep) {
+-                        if (const char* reason = femOperatorFDScope()) {
++                        bool epsilonScaleValid = true;
++                        if (const char* scale = std::getenv("NM_FEM_OPERATOR_FD_EPSILON_SCALE")) {
++                            epsilonScaleValid = false;
++                            for (const unsigned allowed : {1u, 2u, 4u, 8u, 16u}) {
++                                if (std::string(scale) == std::to_string(allowed)) {
++                                    femOperatorFDEpsilonScale = static_cast<float>(allowed);
++                                    epsilonScaleValid = true;
++                                    break;
++                                }
++                            }
++                        }
++                        if (!epsilonScaleValid) {
++                            std::fprintf(stderr,
++                                "fem_operator_fd_error={\"schema\":1,\"root\":%u,\"reason\":\"epsilon_scale_must_be_1_2_4_8_or_16\"}\n",
++                                femOperatorFDTraceRoot);
++                        } else if (const char* reason = femOperatorFDScope()) {
+                             std::fprintf(stderr,
+                                 "fem_operator_fd_skipped={\"schema\":1,\"root\":%u,\"iteration\":%u,\"reason\":\"%s\"}\n",
+                                 femOperatorFDTraceRoot, femOperatorFDTraceIteration,
+@@ -7113,8 +7129,10 @@
+                         } else {
+                             femOperatorFDTraceEnabled = true;
+                             std::fprintf(stderr,
+-                                "fem_operator_fd_enabled={\"schema\":1,\"root\":%u,\"iteration\":%u,\"epsilons\":[0.03125,0.015625],\"unknown\":\"velocity correction; paired positions shift by dt*epsilon*delta_v\",\"operator\":\"production FEM element tangent plus production FGMRES node gather\",\"residual\":\"production assembled free-node mechanical impulse\",\"mutation_check\":\"bitwise accepted material history, tetrahedron frame/reference data, and production status\"}\n",
+-                                femOperatorFDTraceRoot, femOperatorFDTraceIteration);
++                                "fem_operator_fd_enabled={\"schema\":1,\"root\":%u,\"iteration\":%u,\"epsilons\":[%.9g,%.9g],\"unknown\":\"velocity correction; paired positions shift by dt*epsilon*delta_v\",\"operator\":\"production FEM element tangent plus production FGMRES node gather\",\"residual\":\"production assembled free-node mechanical impulse\",\"mutation_check\":\"bitwise accepted material history, tetrahedron frame/reference data, and production status\"}\n",
++                                femOperatorFDTraceRoot, femOperatorFDTraceIteration,
++                                0.03125f * femOperatorFDEpsilonScale,
++                                0.015625f * femOperatorFDEpsilonScale);
+                         }
+                     }
+                 }
+@@ -7359,7 +7377,8 @@
+                 return true;
+             };
+             const auto encodeFEMOperatorFDTrace = [&]() -> bool {
+-                constexpr float epsilons[2] = {0.03125f, 0.015625f};
++                const float epsilons[2] = {0.03125f * femOperatorFDEpsilonScale,
++                                          0.015625f * femOperatorFDEpsilonScale};
+                 const NMMicrostepGPU diagnosticMicro = micro;
+                 NMMicrostepGPU diagnosticOperatorMicro = micro;
+                 diagnosticOperatorMicro.flags |= NM_MICROSTEP_FGMRES_OPERATOR |
+--- frozen031/matter/tools/cardboard_cohesive_face_check.mm
++++ frozen033/matter/tools/cardboard_cohesive_face_check.mm
+@@ -320,7 +320,7 @@
+                     world.dispatch.femNodeCount, "target stream must cover each environment");
+             targetBuffer = buffer(device, targets);
+             request.femKinematicTargets = (__bridge void*)targetBuffer;
+-            request.femKinematicTargetCount = world.dispatch.femNodeCount;
++            request.femKinematicTargetCount = static_cast<std::uint32_t>(targets.size());
+         }
+         request.physicsSubsteps = 1u;
+         request.timestepSeconds = runtime.timestepSeconds();

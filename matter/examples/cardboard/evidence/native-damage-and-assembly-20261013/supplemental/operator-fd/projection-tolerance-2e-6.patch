@@ -1,0 +1,20 @@
+--- a/matter/src/metal/common.metalinc
++++ b/matter/src/metal/common.metalinc
+@@ -1234,7 +1234,7 @@
+         if (residualNormOutput != nullptr) *residualNormOutput = residualNorm;
+         if (stateNormOutput != nullptr) *stateNormOutput = stateNorm;
+         if (iterationOutput != nullptr) *iterationOutput = iteration + 1u;
+-        if (residualNorm <= 2.0e-5f * (1.0f + stateNorm)) {
++        if (residualNorm <= 2.0e-6f * (1.0f + stateNorm)) {
+             if (stageFlagsOutput != nullptr)
+                 *stageFlagsOutput |= kMaterialDiagProjectionConverged;
+             return true;
+@@ -1318,7 +1318,7 @@
+     if (residualNormOutput != nullptr) *residualNormOutput = residualNorm;
+     if (stateNormOutput != nullptr) *stateNormOutput = stateNorm;
+     const bool converged =
+-        residualNorm <= 2.0e-5f * (1.0f + stateNorm);
++        residualNorm <= 2.0e-6f * (1.0f + stateNorm);
+     if (converged && stageFlagsOutput != nullptr)
+         *stageFlagsOutput |= kMaterialDiagProjectionConverged;
+     if (!converged && terminalFailureOutput != nullptr)

@@ -1,0 +1,97 @@
+{
+  "schema": "numi.cardboard.positive-noop-run-disposition.v1",
+  "execution_disposition": "COMPLETED_VALID_EXECUTION_PROTOCOL_MISMATCH_WITH_PREDICTION",
+  "physical_claim": false,
+  "receipt": {
+    "exit_code": 0,
+    "timed_out": false,
+    "wall_seconds": 182.36726670898497,
+    "finished_at_utc": "2026-10-13T17:30:32.341249+00:00"
+  },
+  "prediction_question": "Does a certified zero correction with positive shared alpha preserve the already converged candidate and avoid empty-block limiter rejection?",
+  "sealed_prediction": "Four nx16 increments .0078125 degrees should pass unchanged 1e-6 residual tolerance in both driven and stationary environments; this is a short solver check, not mesh convergence.",
+  "argv_exact": [
+    "/Users/home/numi-cardboard-20261006/build-cardboard/numi-matter-cardboard-probe",
+    "--without-self-contact",
+    "--reference-displacement-gradient",
+    "--residual-tolerance",
+    "1e-6",
+    "--newton-iterations",
+    "28",
+    "--fgmres-iterations",
+    "256",
+    "--steps",
+    "4",
+    "--nx",
+    "16",
+    "--bend-angle",
+    ".03125",
+    "--dt",
+    ".000025",
+    "--output",
+    "/Users/home/cardboard-followup-20261013/solver/converged-positive-noop-001/output"
+  ],
+  "manifest_protocol": {
+    "steps": 4,
+    "hold_steps": 16,
+    "unload_steps": 32,
+    "relax_steps": 64,
+    "bend_angle_deg": 0.03125,
+    "dt_s": 2.5e-05,
+    "relative_residual_tolerance": 9.999999974752427e-07,
+    "newton_iteration_budget": 28,
+    "fgmres_iteration_budget": 256,
+    "deformable_self_contact": false
+  },
+  "actual_result": {
+    "schema": "numi.cardboard.probe-result.v1",
+    "status": "completed",
+    "accepted_steps": 116,
+    "compiled_world_fingerprint": 2746234797408335729,
+    "nodes": 972,
+    "tetrahedra": 1536,
+    "material_map_sha256": "87d7b81d808204bceb232bb5a391928c3b2ffab250a9e5b3182e6a6cf573ba41",
+    "frame_map_sha256": "27fda22b531c8660bebeb7f7dba9450bbff06173fa77d6a5f08cadc1e3805fba",
+    "failure": "",
+    "physical_validation": false
+  },
+  "actual_stdout_line_exact": "{\"schema\":\"numi.cardboard.probe-result.v1\",\"status\":\"completed\",\"accepted_steps\":116,\"compiled_world_fingerprint\":2746234797408335729,\"nodes\":972,\"tetrahedra\":1536,\"failure\":\"\",\"physical_validation\":false}",
+  "protocol_discrepancy": {
+    "prediction_characterization": "described four increments at 0.0078125 degrees as a short solver check",
+    "actual": "the four loading increments were followed by inherited preset defaults of 16 hold, 32 unload, and 64 relax steps: 116 total accepted steps; peak target angle 0.03125 degrees",
+    "classification": "misleading_prediction_scope",
+    "note": "The recorded argv and output manifest are internally consistent. The run is retained as a successful 116-step solver-control execution, but is not counted as a mesh-convergence result or as a four-total-step experiment."
+  },
+  "source_binding": {
+    "declared_input_count": 360,
+    "archive_files_verified": 360,
+    "missing_count": 0,
+    "mismatch_count": 0,
+    "all_archived_input_hashes_match": true,
+    "canonical_input_map_sha256": "574fd46d3ac4e9c863178832e378d373cab4aa381f14d0f52ac407e3cd1997af",
+    "executable_path": "build-cardboard/numi-matter-cardboard-probe",
+    "executable_sha256": "8644fa95018f4276c838161d3e935a910ed1c3e1803040a90c1d6bf3a033dec9",
+    "metallib_sha256": {
+      "build-cardboard/shaders/NumiMatter.metallib": "4f872f89b460ea2085e91ddf3fb05a55c5ee0bf222c7e7560c960576ccdc25e9",
+      "build-cardboard/shaders/NumiMatterPhysicalStateDigest.metallib": "0401b29d3ac2165153f36bea19786be653a10a242eed140e1c9008595ec1f729"
+    },
+    "selected_source_sha256": {
+      "matter/src/runtime.mm": "d807e2d3caba5d2080687be13586a3c2540770db7d7573ff08e5927bbb1c4a81",
+      "matter/src/metal/common.metalinc": "584f6e489b48a39a120a425a526ed036b992d6f22ea8621db6179c81f1b63d74",
+      "matter/src/metal/fem.metalinc": "980e0ae1f88ad748e25fda42168a656f4aabc15c375ac618c7e26a376b080c11",
+      "matter/src/metal/contact.metalinc": "431ee2182ac77551a05e202724f8260236bbcc8e2735a30df3b415732871a7d5",
+      "matter/src/metal/fgmres.metalinc": "6ed0a9de460da6cb513dda0f35ccff9742053aee0307de69e35a2f462424f1bb",
+      "matter/tools/cardboard_capsule_armijo_check.mm": "23ea04333532bdd7ba12c48caf0571354911637ae280d5de6fb6fe66c9fb99fd",
+      "matter/tools/cardboard_probe.mm": "7c6431a83cde53410e0e9132f070fe76810d4a215a0c3f604158b51cea17bd46",
+      "matter/tools/fem_kinematic_release_check.mm": "b886af05204876b3f7b8527ef7383255257a86d759412b4b78b4f565abeea725",
+      "matter/tools/fem_mutable_snapshot_check.mm": "c7330f84ad49f7ff6d947ef45fad0eef8609302fc541406336c1058fd17e39c4",
+      "matter/tools/cardboard_cohesive_face_check.mm": "c83c19fecf8e66edd384bb9e7af7d02287d1049182fcec12b4ae48d6c8d826c2",
+      "matter/tools/fem_material_frame_check.mm": "ae022be6f79c8cc84edb990fcfa2f8059893d7e2a28e883eb6d612a1b4afed54",
+      "matter/tools/fem_reference_check.mm": "26f455d59f22da4dad4112aba3ee594ba5f6dfb8402400c6b5ffcf4c775429b6",
+      "matter/tools/fem_regional_material_check.mm": "bca1d25980ab401915fd8c9bbae1e57c9eb55509e10a5e14092e0d249c698f0e"
+    },
+    "missing_paths": [],
+    "mismatches": [],
+    "limitation": "Listed source, executable and Metal libraries retained; compiler system headers and OS/driver not archived."
+  }
+}

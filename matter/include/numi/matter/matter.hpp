@@ -110,6 +110,12 @@ enum class ExprKind : std::uint8_t {
     clamp,
     expm1MinusArgument,
     fiberExpLinear,
+    // Eager exact branch selection: both value arms are evaluated before the
+    // select, so an invalid inactive arm invalidates the scalar program too.
+    // Its derivative selects the active value arm and ignores the condition's
+    // derivative; at condition == 0 the >= arm is active.
+    // Arguments: condition, value when condition >= 0, value otherwise.
+    selectNonnegative,
 };
 
 struct Expr {
@@ -217,6 +223,9 @@ struct LearnedMaterialSource {
 
 struct MaterialProgram {
     std::string name;
+    // Opt-in bounded common-subexpression storage for large implicit laws.
+    // Existing materials retain their original stack bytecode.
+    bool cacheExpressions = false;
     std::vector<Parameter> parameters;
     std::vector<InternalState> internalState;
     ExpressionGraph expressions;
@@ -279,6 +288,21 @@ struct ParticleSource {
 
 struct TetrahedronSource {
     std::array<std::uint32_t, 4> nodes{};
+};
+
+// A source-authored zero-thickness interface between two already duplicated
+// triangular faces. Node triples are paired slot-for-slot and must have
+// coincident reference coordinates. Current coordinates may carry the
+// explicitly sourced post-initiation seed opening for materials whose
+// initial internal state is defined after initiation. The first
+// implementation admits only the Tryding/Biel pure Mode-I coupon material.
+struct CohesiveInterfaceSource {
+    std::array<std::uint32_t, 3> sideANodes{};
+    std::array<std::uint32_t, 3> sideBNodes{};
+    std::uint32_t firstTetrahedron = NM_INVALID_INDEX;
+    std::uint32_t secondTetrahedron = NM_INVALID_INDEX;
+    std::uint32_t materialIndex = 0u;
+    std::uint32_t stableIdentifier = 0u;
 };
 
 enum class FEMPreconditionerMode : std::uint32_t {
@@ -489,6 +513,10 @@ struct ObjectSource {
     // reserved capacity for newly exposed nodes in a later active-list pass.
     std::vector<std::uint32_t> femContactNodes;
     std::vector<TetrahedronSource> tetrahedra;
+    // Explicitly paired, immutable cohesive faces. This currently supports
+    // only the source-bounded Tryding/Biel single-ply Mode-I material; it is
+    // not a corrugated-starch calibration or mixed-mode interface law.
+    std::vector<CohesiveInterfaceSource> femCohesiveInterfaces;
     // Optional exact per-authored-tetrahedron material indices into
     // WorldSource::materials. Empty preserves the object material and legacy
     // mass arithmetic. Nonempty keeps shared nodes and assembles each cell's
@@ -1075,13 +1103,13 @@ struct EncodeRequest {
     void* femExternalForces = nullptr; // id<MTLBuffer>, float4
     // Optional absolute world-space targets for cooked fixed FEM nodes. One
     // float4 covers every environment/node: w <= 0 leaves the constraint
-    // unchanged; w = 1 selects an absolute target; w = 2 releases an authored
-    // static constraint (xyz ignored, finite required). Release is idempotent
-    // for free nodes, preserves mass and momentum history, and cannot release
-    // Human attachments. A released node cannot be reattached with w = 1.
-    // Targets
-    // are interpolated over internal microticks and participate in the same
-    // accepted/candidate/checkpoint transaction as the FEM state.
+    // unchanged; w=1 selects an absolute target; w=2 releases an authored
+    // static constraint or temporary grip (xyz ignored, finite required).
+    // Release is idempotent for free nodes, preserves mass and momentum
+    // history, and cannot release Human attachments. A released node cannot
+    // be reattached with w=1. w=3 acquires or updates a temporary grip on a
+    // free pure-FEM node. Targets are interpolated over internal microticks
+    // and participate in the accepted/candidate/checkpoint transaction.
     void* femKinematicTargets = nullptr; // id<MTLBuffer>, float4
     // Optional borrowed final MetalWorld contact solve, laid out
     // [environment][rigidContactConstraintStride].  Matter consumes it only

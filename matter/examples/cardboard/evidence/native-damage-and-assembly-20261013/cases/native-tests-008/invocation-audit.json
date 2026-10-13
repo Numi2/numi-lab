@@ -1,0 +1,38 @@
+{
+  "cases": [
+    {
+      "case": "cohesive",
+      "prediction_sha256": "02fe5564b3053deea5cf7cdea70d3965cc93f079d18d3ce618f672516ce5b45b",
+      "receipt_sha256": "e0413973dbd05ef69646ed0c156c757e46cfc3264950c61666c0b80f5e91985a",
+      "required_usage": "usage: cardboard-cohesive-face-check MEDIUM.nmatter MODE_I_COUPON.nmatter [--cpu-only]",
+      "result_sha256": "e8b14e9500d0dbbfba93dee82a266f5b16ecbe554e58d817b24bf7fc80969eb4",
+      "status": "UNEXECUTED_INVALID_INVOCATION"
+    },
+    {
+      "case": "frame",
+      "prediction_sha256": "c5c8ab4402dea183716d49d0033bc56eb28036cae4724c3352807873cc1b6589",
+      "receipt_sha256": "79b9ee5ca802692c1d99345a29a26fb5055f2022985bfa280dbac47d2cad2210",
+      "required_usage": "usage: fem-material-frame-check GUCCIONE.nmatter",
+      "result_sha256": "d717659762bbc9b483ae0401482d5f5633ed005a8a9994873fde062879c45c75",
+      "status": "UNEXECUTED_INVALID_INVOCATION"
+    },
+    {
+      "case": "reference",
+      "prediction_sha256": "1bba90013846707990fae9266588f6e626d384249f5cd621dd77d6ecceb95fbd",
+      "receipt_sha256": "d33f3b0253ed012006b4e32a0488f34e4db362f74cfa05142f1ae8e10099504d",
+      "required_usage": "usage: fem-reference-check GUCCIONE.nmatter NEO.nmatter [--cpu-only]",
+      "result_sha256": "f0ba7ed2122d32e67b642696e05a08f3ece7ba4766cbcec70c109f3a7e205b72",
+      "status": "UNEXECUTED_INVALID_INVOCATION"
+    },
+    {
+      "case": "regional",
+      "prediction_sha256": "b54449817bf02d1fa5a357b893f43e0d5864d037193842a86c8b3d787a14bdb4",
+      "receipt_sha256": "ce4904c7b83a3dc7ea43e8a4c0e55281731d44df52383aa0d022fd7ceef90b57",
+      "required_usage": "usage: fem-regional-material-check GUCCIONE.nmatter NEO.nmatter [--cpu-only]",
+      "result_sha256": "531dc4e9a8d52420748fa7db6b785e82af5417bb47598bace5ed2e529b74c482",
+      "status": "UNEXECUTED_INVALID_INVOCATION"
+    }
+  ],
+  "interpretation": "Four native-tests-008 entries did not execute their intended checks because required material .nmatter arguments were omitted. The valid sibling cases remain separate evidence. Corrected invocations are expected in native-tests-009.",
+  "schema": "numi.cardboard.native-tests-008-invocation-audit.v1"
+}

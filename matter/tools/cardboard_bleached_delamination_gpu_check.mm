@@ -127,7 +127,7 @@ struct Instrument {
         for (const NMParameterRangeGPU value : world.parameters)
             parameters.push_back(value.valueAndBounds.x);
 
-        constexpr std::size_t outputCount = 24u + 2u * NM_MAX_MATERIAL_STATE;
+        constexpr std::size_t outputCount = 26u + 2u * NM_MAX_MATERIAL_STATE;
         std::vector<float> output(outputCount, 0.0f);
         std::array<id<MTLBuffer>, 7u> buffers{
             buffer(device, std::vector<NMMaterialGPU>{world.materials.at(0)}),

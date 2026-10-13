@@ -1,7 +1,16 @@
 # Robertsson 2023 bulk paperboard damage: implementation boundary
 
-**Status:** source-audited architecture assessment only. No Robertsson damage
-law is implemented or calibrated in Matter. This is a bulk damage model for a
+**Historical baseline:** the assessment below records the implementation
+boundary before the October 13 native follow-up. The current implementation
+has ABI 41, 32-scalar capacity, a complete 27-state source-grade material
+instrument, and a separate positive Mode I paired-face FEM path. The native
+source-grade `0 -> 0.3 -> 0` shear cycle accepts 121 material points; it does
+not qualify resolved scoring or corrugated glue debonding. See the
+[current follow-up](../examples/cardboard/native-damage-and-assembly.md).
+References to the "current" 16-scalar cap and absent face forces below describe
+that historical baseline, not the updated checkout.
+
+The source is a bulk damage model for a
 particular single-ply paperboard, not a glue-interface law and not a parameter
 set for the current corrugated recipe.
 
@@ -82,6 +91,28 @@ regularized damage model would need its own characteristic-length
 identification and validation; it would not be the unchanged published local
 law.
 
+## Current source-equivalence limits in the native authoring path
+
+The material builder accepts machine- and cross-direction projected areas, but
+its defaults are both `0.0011 mm²`, equal to the paper's reference area. The
+current point and FEM fixtures call `makeMaterial()` with those defaults, so
+the resulting two area ratios are `1.0`; the FEM path does not compute and pass
+per-tetrahedron material-direction projected areas. The native implementation
+therefore does not reproduce the paper's elementwise projected-area scaling
+or its mesh calibration. The one-tetrahedron coupling check verifies
+state/force parity for this authored program, not the paper's mesh-regularized
+crease response.
+
+The authored ZD compression energy also subtracts an additive constant so
+`Psi(I)=0`. This preserves the fixed-damage stress because the deformation
+derivative of a constant is zero, but it changes the absolute energy level and
+can change any damage-conjugate term evaluated from the unshifted energy. The
+printed equation and the source implementation's energy normalization have not
+been reconciled; the current tests do not establish exact source-energy-level
+reproduction. Treat the program as the documented stress/plasticity/damage
+slice with this explicit normalization, rather than claiming identity of the
+full source free energy.
+
 The source lists reference damage coefficients `c_n^r = [8, 8, 9, 9]` and
 `beta_n^r = [2.85, 2.85, 3.98, 3.98] MPa^-1` for subsurfaces 9–12. These values
 remain source-specific to that paperboard, reference mesh and crease/fold
@@ -155,15 +186,15 @@ after the source law reaches its stated failure condition. The existing
 topology mutation can then perform node splitting, but it cannot substitute
 for that constitutive work.
 
-The nearest currently implementable source-matched interface slice is a
-**separate, unimplemented** pure-Mode-I face law for the single-ply bleached,
-clay-coated paperboard in the
-[Tryding/Biel coupon](tryding2023_bleached_paperboard_modeI_coupon.md). Its
-native material-evaluator coupon verifies the constitutive response but ran no
-physical FEM steps and is not yet connected to cohesive faces. That route could
-advance a paperboard delamination benchmark using its own reported normal
-parameters and loading/unloading path. It does not identify the starch bond or
-transfer to the current corrugated-board recipe.
+At the historical baseline recorded above, the nearest source-matched
+interface route was an unimplemented pure-Mode-I law for the separate single-ply
+bleached, clay-coated paperboard in the
+[Tryding/Biel coupon](tryding2023_bleached_paperboard_modeI_coupon.md). The
+October 13 follow-up has since connected that grade-specific law to an
+explicitly authored paired-face FEM path, with native opening traction,
+algorithmic/geometric tangent, reference-area work and transactional face
+history. Its native tests do not transfer parameters to starch or the current
+corrugated-board recipe; the corrugated glue remains elastic and tied.
 
 ## Evidence needed before implementation can support a creased board
 
@@ -190,6 +221,67 @@ Until those inputs and the state-ABI work exist, the evidence supports only
 the explicit elastic finite-glue geometry and the separate material-point
 coupons. It does not support bulk crease damage or starch debonding in the
 corrugated board.
+
+## October 13 follow-up evidence
+
+The full Robertsson single-ply softwood material now has a 27-state native
+point implementation. `source-point-003` accepted 119 material-point responses
+through shear `gamma=0.59` and rejected `gamma=0.595`; that earlier instrument
+zeroed the failed candidate and did not identify the terminal subtype.
+`source-point-005` completed a separate `0 -> 0.3 -> 0` loading/unloading path
+with 121 accepted material-point responses, damage `0.245009735` at the end,
+and final `P13=-4.974485 MPa`. It did not test the earlier `0.595` failure.
+
+`source-point-006` replayed the high-shear loading at `0.005` increments, with
+no constitutive parameter or tolerance changes. It retained 119 accepted
+responses through `0.59`, then rejected `0.595` as
+`projection_iteration_exhausted` at the 16-iteration local projection limit.
+The final residual infinity norm was `4.8307702e-5`, above the source-code
+FP32 criterion `2e-5*(1+state_inf) = 4.3015134e-5`. The accepted history ended
+at damage `0.34889245`; rejected candidate damage `0.35250464` was not
+committed. Thus the local iteration limit is identified for this tested path;
+it is not evidence of a physical failure threshold and is not a global FEM
+failure. The captured point-test results and all 360 sealed input hashes are
+at `/Users/home/cardboard-followup-20261013/bulk/source-point-006/`.
+
+A seeded continuation imported the exact 27-scalar accepted state at `gamma=0.59`
+from rejected row 119; FP32 values match the source row bit-for-bit. The
+one-increment continuation reproduced the rejected `gamma=0.595` candidate
+bit-for-bit, with the same `projection_iteration_exhausted` subtype, residual
+`4.8307701945304871e-5`, state norm `1.1507568359375`, and 16 iterations.
+Two- and four-subincrement continuations accepted to `0.595` and then returned
+only to `0.59`. At `0.595`, the two partitions differed by at most
+`3.5465e-6` in state 21, 7 Pa in `P13`, and `3.8743e-7` in damage; after the
+short return to `0.59`, `P13` differed by 2.5 Pa. All 362 sealed inputs per
+continuation verified. This resolves the specific one-increment local
+projection failure for these tested subdivisions under the unchanged law, but
+the nonzero partition difference is not a convergence result. The run does not
+complete the high-shear unload to zero. Per-case results, source bindings, and
+the aggregate are at
+`/Users/home/cardboard-followup-20261013/bulk/source-point-seeded-{1,2,4}/`
+and `bulk/seeded-sensitivity.json`.
+
+A distinct `fem-coupling-001` experiment checks the integration path. It used
+the same authored 27-state material in production FEM and the point evaluator
+for one tetrahedron, with all four nodes prescribed to the homogeneous
+`F13` path `x=X+gamma*Z`, `gamma: 0 -> 0.3 -> 0`, 60 increments per leg,
+121 matched rows including the initial state, and a 0.005 s timestep. All FEM
+steps returned status zero. Maximum absolute state difference was
+`1.63912773e-7` at state 17, step 47; a relative error of 1.074 near zero was
+not used alone, and maximum mixed-tolerance utilization was 0.0006781.
+Maximum reaction `P13` difference was `5.31275666 Pa` at step 47, with
+0.0004088 maximum mixed-tolerance utilization. Final damage matched at
+`0.245009735`, and final reaction stresses were `-4.97448550 MPa` (FEM) and
+`-4.97448500 MPa` (point path). A deliberately negative-J candidate was
+rejected while the accepted FEM history and held control remained unchanged;
+the captured fixture log does not print that failure's exact status code.
+
+This is manufactured numerical coupling parity under a fully prescribed
+kinematic path. It does not demonstrate a free-mesh solution, mesh convergence,
+experimental validation, or an independent implementation of the constitutive
+law. It also does not validate the tetrahedral adaptation of the paper's
+projected-area damage regularization. The captured run and comparator are at
+`/Users/home/cardboard-followup-20261013/bulk/fem-coupling-001/`.
 
 ## References
 

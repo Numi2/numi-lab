@@ -1,0 +1,139 @@
+step=0 shear=0 status_env0=0 status_env1=0 damage=0
+step=1 shear=0.005 status_env0=0 status_env1=0 damage=0
+step=2 shear=0.01 status_env0=0 status_env1=0 damage=0
+step=3 shear=0.015 status_env0=0 status_env1=0 damage=0
+step=4 shear=0.02 status_env0=0 status_env1=0 damage=0
+step=5 shear=0.025 status_env0=0 status_env1=0 damage=0
+step=6 shear=0.03 status_env0=0 status_env1=0 damage=0
+step=7 shear=0.035 status_env0=0 status_env1=0 damage=0
+step=8 shear=0.04 status_env0=0 status_env1=0 damage=0
+step=9 shear=0.045 status_env0=0 status_env1=0 damage=0
+step=10 shear=0.05 status_env0=0 status_env1=0 damage=0
+step=11 shear=0.055 status_env0=0 status_env1=0 damage=0
+step=12 shear=0.06 status_env0=0 status_env1=0 damage=0
+step=13 shear=0.065 status_env0=0 status_env1=0 damage=0
+step=14 shear=0.07 status_env0=0 status_env1=0 damage=0
+step=15 shear=0.075 status_env0=0 status_env1=0 damage=0
+step=16 shear=0.08 status_env0=0 status_env1=0 damage=0
+step=17 shear=0.085 status_env0=0 status_env1=0 damage=0
+step=18 shear=0.09 status_env0=0 status_env1=0 damage=0
+step=19 shear=0.095 status_env0=0 status_env1=0 damage=0
+step=20 shear=0.1 status_env0=0 status_env1=0 damage=0
+step=21 shear=0.105 status_env0=0 status_env1=0 damage=0
+step=22 shear=0.11 status_env0=0 status_env1=0 damage=0
+step=23 shear=0.115 status_env0=0 status_env1=0 damage=0
+step=24 shear=0.12 status_env0=0 status_env1=0 damage=0
+step=25 shear=0.125 status_env0=0 status_env1=0 damage=0
+step=26 shear=0.13 status_env0=0 status_env1=0 damage=0
+step=27 shear=0.135 status_env0=0 status_env1=0 damage=0
+step=28 shear=0.14 status_env0=0 status_env1=0 damage=0
+step=29 shear=0.145 status_env0=0 status_env1=0 damage=0
+step=30 shear=0.15 status_env0=0 status_env1=0 damage=0
+step=31 shear=0.155 status_env0=0 status_env1=0 damage=0
+step=32 shear=0.16 status_env0=0 status_env1=0 damage=0
+step=33 shear=0.165 status_env0=0 status_env1=0 damage=0
+step=34 shear=0.17 status_env0=0 status_env1=0 damage=0.00131196
+step=35 shear=0.175 status_env0=0 status_env1=0 damage=0.00604183
+step=36 shear=0.18 status_env0=0 status_env1=0 damage=0.0107567
+step=37 shear=0.185 status_env0=0 status_env1=0 damage=0.0154565
+step=38 shear=0.19 status_env0=0 status_env1=0 damage=0.0201412
+step=39 shear=0.195 status_env0=0 status_env1=0 damage=0.0248109
+step=40 shear=0.2 status_env0=0 status_env1=0 damage=0.0294655
+step=41 shear=0.205 status_env0=0 status_env1=0 damage=0.034105
+step=42 shear=0.21 status_env0=0 status_env1=0 damage=0.0387292
+step=43 shear=0.215 status_env0=0 status_env1=0 damage=0.0433382
+step=44 shear=0.22 status_env0=0 status_env1=0 damage=0.0479321
+step=45 shear=0.225 status_env0=0 status_env1=0 damage=0.0525107
+step=46 shear=0.23 status_env0=0 status_env1=0 damage=0.0570742
+step=47 shear=0.235 status_env0=0 status_env1=0 damage=0.0616224
+step=48 shear=0.24 status_env0=0 status_env1=0 damage=0.0661555
+step=49 shear=0.245 status_env0=0 status_env1=0 damage=0.0706734
+step=50 shear=0.25 status_env0=0 status_env1=0 damage=0.075176
+step=51 shear=0.255 status_env0=0 status_env1=0 damage=0.0796636
+step=52 shear=0.26 status_env0=0 status_env1=0 damage=0.0841359
+step=53 shear=0.265 status_env0=0 status_env1=0 damage=0.0885932
+step=54 shear=0.27 status_env0=0 status_env1=0 damage=0.0930354
+step=55 shear=0.275 status_env0=0 status_env1=0 damage=0.0974625
+step=56 shear=0.28 status_env0=0 status_env1=0 damage=0.101875
+step=57 shear=0.285 status_env0=0 status_env1=0 damage=0.106272
+step=58 shear=0.29 status_env0=0 status_env1=0 damage=0.110654
+step=59 shear=0.295 status_env0=0 status_env1=0 damage=0.115021
+step=60 shear=0.3 status_env0=0 status_env1=0 damage=0.119373
+step=61 shear=0.295 status_env0=0 status_env1=0 damage=0.119373
+step=62 shear=0.29 status_env0=0 status_env1=0 damage=0.119373
+step=63 shear=0.285 status_env0=0 status_env1=0 damage=0.119373
+step=64 shear=0.28 status_env0=0 status_env1=0 damage=0.119373
+step=65 shear=0.275 status_env0=0 status_env1=0 damage=0.119373
+step=66 shear=0.27 status_env0=0 status_env1=0 damage=0.119373
+step=67 shear=0.265 status_env0=0 status_env1=0 damage=0.119373
+step=68 shear=0.26 status_env0=0 status_env1=0 damage=0.119373
+step=69 shear=0.255 status_env0=0 status_env1=0 damage=0.119373
+step=70 shear=0.25 status_env0=0 status_env1=0 damage=0.119373
+step=71 shear=0.245 status_env0=0 status_env1=0 damage=0.119373
+step=72 shear=0.24 status_env0=0 status_env1=0 damage=0.119373
+step=73 shear=0.235 status_env0=0 status_env1=0 damage=0.119373
+step=74 shear=0.23 status_env0=0 status_env1=0 damage=0.119373
+step=75 shear=0.225 status_env0=0 status_env1=0 damage=0.119373
+step=76 shear=0.22 status_env0=0 status_env1=0 damage=0.119373
+step=77 shear=0.215 status_env0=0 status_env1=0 damage=0.119373
+step=78 shear=0.21 status_env0=0 status_env1=0 damage=0.119373
+step=79 shear=0.205 status_env0=0 status_env1=0 damage=0.119373
+step=80 shear=0.2 status_env0=0 status_env1=0 damage=0.119373
+step=81 shear=0.195 status_env0=0 status_env1=0 damage=0.119373
+step=82 shear=0.19 status_env0=0 status_env1=0 damage=0.119373
+step=83 shear=0.185 status_env0=0 status_env1=0 damage=0.119373
+step=84 shear=0.18 status_env0=0 status_env1=0 damage=0.119373
+step=85 shear=0.175 status_env0=0 status_env1=0 damage=0.119373
+step=86 shear=0.17 status_env0=0 status_env1=0 damage=0.119373
+step=87 shear=0.165 status_env0=0 status_env1=0 damage=0.119373
+step=88 shear=0.16 status_env0=0 status_env1=0 damage=0.119373
+step=89 shear=0.155 status_env0=0 status_env1=0 damage=0.119373
+step=90 shear=0.15 status_env0=0 status_env1=0 damage=0.121198
+step=91 shear=0.145 status_env0=0 status_env1=0 damage=0.125529
+step=92 shear=0.14 status_env0=0 status_env1=0 damage=0.129846
+step=93 shear=0.135 status_env0=0 status_env1=0 damage=0.134148
+step=94 shear=0.13 status_env0=0 status_env1=0 damage=0.138435
+step=95 shear=0.125 status_env0=0 status_env1=0 damage=0.142708
+step=96 shear=0.12 status_env0=0 status_env1=0 damage=0.146966
+step=97 shear=0.115 status_env0=0 status_env1=0 damage=0.15121
+step=98 shear=0.11 status_env0=0 status_env1=0 damage=0.155439
+step=99 shear=0.105 status_env0=0 status_env1=0 damage=0.159654
+step=100 shear=0.1 status_env0=0 status_env1=0 damage=0.163855
+step=101 shear=0.095 status_env0=0 status_env1=0 damage=0.168042
+step=102 shear=0.09 status_env0=0 status_env1=0 damage=0.172215
+step=103 shear=0.085 status_env0=0 status_env1=0 damage=0.176374
+step=104 shear=0.08 status_env0=0 status_env1=0 damage=0.180519
+step=105 shear=0.075 status_env0=0 status_env1=0 damage=0.18465
+step=106 shear=0.07 status_env0=0 status_env1=0 damage=0.188767
+step=107 shear=0.065 status_env0=0 status_env1=0 damage=0.19287
+step=108 shear=0.06 status_env0=0 status_env1=0 damage=0.19696
+step=109 shear=0.055 status_env0=0 status_env1=0 damage=0.201037
+step=110 shear=0.05 status_env0=0 status_env1=0 damage=0.2051
+step=111 shear=0.045 status_env0=0 status_env1=0 damage=0.209149
+step=112 shear=0.04 status_env0=0 status_env1=0 damage=0.213186
+step=113 shear=0.035 status_env0=0 status_env1=0 damage=0.217209
+step=114 shear=0.03 status_env0=0 status_env1=0 damage=0.221219
+step=115 shear=0.025 status_env0=0 status_env1=0 damage=0.225216
+step=116 shear=0.02 status_env0=0 status_env1=0 damage=0.2292
+step=117 shear=0.015 status_env0=0 status_env1=0 damage=0.233172
+step=118 shear=0.01 status_env0=0 status_env1=0 damage=0.23713
+step=119 shear=0.005 status_env0=0 status_env1=0 damage=0.241076
+step=120 shear=0 status_env0=0 status_env1=0 damage=0.24501
+instrument=native_fem_prescribed_reference_displacement
+material=Robertsson2023_single_ply_softwood_full_27_state
+material_grade_is_corrugated_kraft=0
+material_grade_is_starch_laminated=0
+fem_tetrahedra=1
+fem_thickness_m=0.00039
+environment_count=2
+newton_budget_global=1
+local_material_newton_iterations=16
+timestep_s=0.005
+accepted_path_increments=121
+path=F13_0_to_0.3_to_0
+max_return_state_change_at_zero_shear=0.350877
+invalid_negative_J_rollback=1
+environment_0_reset_roundtrip=1
+snapshot_restore_roundtrip=1
+state_csv=/Users/home/cardboard-followup-20261013/bulk/fem-coupling-001/fem.csv
+qualification=manufactured_FEM_state_force_history_coupling_only;not_a_free_fold_mesh_or_objective_result

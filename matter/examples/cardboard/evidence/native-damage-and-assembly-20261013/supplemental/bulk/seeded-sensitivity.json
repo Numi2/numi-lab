@@ -1,0 +1,96 @@
+{
+  "cases": {
+    "1": {
+      "csv_sha256": "7170d64015285d1127a593d1c17bfabce371a1871b3f674e612b1bf780dca72e",
+      "path": "/Users/home/cardboard-followup-20261013/bulk/source-point-seeded-1",
+      "prediction_sha256": "27a399692b2305b8726e52eb82f6dfe83db388e9d5a077cfbbcc5667f1772cc5",
+      "receipt_sha256": "6b82aa7decea3b4a536dee0c8adb31047bc9b0aa2c5d389020aa8c3e2561c644",
+      "result_sha256": "a5ef29f49fcbfd138c3e4a80ad6fe41ad57f515beb326278d2733c636b4ca41c",
+      "source_binding_sha256": "9d75533a400396ad918f729bb1f8d472b6cb54243a35d23e26a77f9bcf32f7fd"
+    },
+    "2": {
+      "csv_sha256": "27c226d57900e512fac0598877ebe2ef2ff5042149c7a34beef8f9d7f282452c",
+      "path": "/Users/home/cardboard-followup-20261013/bulk/source-point-seeded-2",
+      "prediction_sha256": "96ee0604ec2e1d327558d9dca63c809f48be765d20a68e89713fdb529b008954",
+      "receipt_sha256": "93fb8ca39d3d6a7085865ab9c1c6a17ddd9a5d5d7a715492a570de1f5aa33521",
+      "result_sha256": "e12e7b410fd6ad0def40b7b9d402e834754d8be334444c0b944e85ee8e5840d5",
+      "source_binding_sha256": "ff9077bad7efdef500631466eabd9af90fa90fff21d07bb7ee50fbf919fa1873"
+    },
+    "4": {
+      "csv_sha256": "dfd2c2bead2969a88c82e82ed02f24b0e0a66a139864228a671089eec5742fa6",
+      "path": "/Users/home/cardboard-followup-20261013/bulk/source-point-seeded-4",
+      "prediction_sha256": "b30a7367146bdf4f129c6ff7f780487dece1d89f90fd1ae065e782164631159f",
+      "receipt_sha256": "f238fa237480026da40483ade6af32537f561b6f2fa3264c5f6d67c070e338ac",
+      "result_sha256": "117d9e80f9aa5c5a423d1feadeefe0768ae7a6239219afa11551e5b37522f421",
+      "source_binding_sha256": "2bcb7a3f7afce84e89585f5f138cfd84d3653d4860d5b62052e1e865a89e8ebe"
+    }
+  },
+  "interpretation": "Local increment subdivision permits this seeded interval under the unchanged constitutive program for the tested 2- and 4-substep partitions. The 1-step failure remains preserved. Small nonzero partition differences mean this is not a convergence result. This is not a full high-shear unload-to-zero path, a corrugated-board test, or physical qualification.",
+  "one_step_replay": {
+    "all_27_candidate_state_values_fp32_bit_identical": true,
+    "projection_iterations": 16,
+    "projection_residual_inf": 4.830770194530487e-05,
+    "projection_state_inf": 1.1507568359375,
+    "status": "rejected; exactly reproduces source-point-006 rejected .595 response",
+    "terminal_failure": "projection_iteration_exhausted"
+  },
+  "physical_validation": false,
+  "schema": "numi.cardboard.seeded-high-shear-sensitivity.v1",
+  "sealed_inputs": {
+    "all_hashes_verified": true,
+    "count_per_run": 362,
+    "identical_across_steps_per_leg_1_2_4": true,
+    "shared_input_hashes_sha256": "6434f3d7bb3990c6ce50cf4c3212cb4d96f5783eff945849125eb9d86de6c4c3"
+  },
+  "source_material": "Robertsson et al. 2023 single-ply softwood paperboard material-point implementation; no corrugated board claim.",
+  "source_state": {
+    "accepted_gamma": 0.59,
+    "all_27_values_fp32_bit_identical_to_source_accepted_state": true,
+    "path": "/Users/home/cardboard-followup-20261013/bulk/accepted-shear-059-seed.json",
+    "seed_text_sha256": "92bb5e323a0ec8dd6016333c8e9c74d076beda018e0caf097530027902e72e54",
+    "sha256": "0de1c6932789c75eea34f7a4fbc34777136eb7caa4ab60fd17a1d1243b55a01c",
+    "source_csv_sha256": "0b958a969c1a1517941b85f57ad8bfd13d917c532c100ba0ddcea510bea7845f"
+  },
+  "two_vs_four_substeps": {
+    "after_short_unload_to_gamma_0.59": {
+      "P13_absolute_difference_Pa": 2.5,
+      "damage_absolute_difference": 3.8743019104003906e-07,
+      "state_difference": {
+        "indices": [
+          21
+        ],
+        "max_abs": 3.546476364135742e-06
+      },
+      "steps_2": {
+        "P13_Pa": 5090121.5,
+        "damage": 0.35250580310821533
+      },
+      "steps_4": {
+        "P13_Pa": 5090119.0,
+        "damage": 0.35250619053840637
+      }
+    },
+    "at_gamma_0.595": {
+      "P13_absolute_difference_Pa": 7.0,
+      "damage_absolute_difference": 3.8743019104003906e-07,
+      "state_difference": {
+        "indices": [
+          21
+        ],
+        "max_abs": 3.546476364135742e-06
+      },
+      "steps_2": {
+        "P13_Pa": 5288009.5,
+        "damage": 0.35250580310821533,
+        "projection_residual_inf": 1.251930370926857e-05
+      },
+      "steps_4": {
+        "P13_Pa": 5288002.5,
+        "damage": 0.35250619053840637,
+        "projection_residual_inf": 8.940696716308594e-07
+      }
+    },
+    "both_accepted_through_gamma_0.595": true,
+    "returned_only_to_gamma_0.59": true
+  }
+}

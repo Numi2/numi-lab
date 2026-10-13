@@ -6,6 +6,12 @@ materials. It uses published inputs and keeps missing measurements explicit.
 The purpose is to derive folding from material response and contact, rather than
 assigning a weak hinge to a box-shaped elastic object.
 
+The [native damage, interface, solver and assembly follow-up](examples/cardboard/native-damage-and-assembly.md)
+records newer implemented paths, complete prescribed scoring withdrawal,
+retained convergence/contact failures, and the remaining material/assembly
+limits. Its source-bound bundle preserves the original runtime identities;
+the current host execution-policy revision is 2.
+
 ## Starting material
 
 The default `--preset literature2009` builds a 31.6 × 20 × 4.210 mm C-flute coupon with
@@ -304,9 +310,12 @@ This is a nodal swept test, not continuous triangle-surface collision coverage.
 `--box-blank --bend-angle 0` builds a slotted FEFCO 0201 flat blank with the
 same separate liner, medium and finite-glue regions. It exports panel dimensions,
 score centerlines and an ordered assembly-target schedule in `box-layout.json`.
-The scores remain metadata and all assembly targets remain unexecuted. The
-native probe currently holds the blank at rest; it does not physically score,
-fold, fasten or close a box. See the [blank geometry and source boundaries](examples/cardboard/cardboard-box-blank.md).
+In this export mode, scores and assembly targets remain metadata and the blank
+is held at rest. The separate `--box-assembly-native` driver attempts tool
+contact and temporary boundary-grip wall/flap actions. Its retained full-blank
+run rejects first tool contact before folding; physical scoring, fastening and
+box closure remain unqualified. See the [blank geometry and source boundaries](examples/cardboard/cardboard-box-blank.md)
+and [native driver](tools/cardboard_box_native_driver.md).
 
 The [Tryding/Biel bleached-paperboard coupon](materials/tryding2023_bleached_paperboard_modeI_coupon.md)
 implements a separately sourced positive-opening Mode I delamination law.
@@ -315,8 +324,10 @@ loading work, unloading, tangent comparison and 1,000 holds without damage
 creep. These are constitutive evaluations with zero physical FEM steps.
 Its single-ply bleached, coated paperboard is a different material from this
 corrugated recipe. It must not be installed as a calibrated starch-glue law or
-as a general bulk cardboard material. Native interface traction, mixed-mode
-debonding and grade-matched crease damage remain separate implementation gates.
+as a general bulk cardboard material. A newer [paired-face native FEM path](materials/tryding2023_paired_modeI_native_coupling.md)
+verifies positive Mode-I traction, history and rollback for that same separate
+bleached grade. Mixed-mode/closure debonding, starch calibration and
+grade-matched crease damage remain open.
 
 The full 4,308-node, 10,356-tetrahedron flat blank also completed two native
 zero-load steps with exactly zero motion and force imbalance. That is a rest

@@ -1,0 +1,20 @@
+{
+  "accepted_steps": null,
+  "argv": [
+    "/Users/home/numi-cardboard-20261006/build-cardboard/numi-matter-fem-regional-material-check"
+  ],
+  "case": "regional",
+  "exit_code": 1,
+  "expected_usage": "usage: fem-regional-material-check GUCCIONE.nmatter NEO.nmatter [--cpu-only]",
+  "failure_text": "fem regional material check failed: usage: fem-regional-material-check GUCCIONE.nmatter NEO.nmatter [--cpu-only]",
+  "note": "Preserve this invalid invocation as evidence of a missing CLI input. It is not a failed material or mechanics test.",
+  "physical_validation": false,
+  "prediction_sha256": "b54449817bf02d1fa5a357b893f43e0d5864d037193842a86c8b3d787a14bdb4",
+  "receipt_sha256": "ce4904c7b83a3dc7ea43e8a4c0e55281731d44df52383aa0d022fd7ceef90b57",
+  "required_material_arguments_supplied": false,
+  "schema": "numi.cardboard.native-invocation-audit.v1",
+  "status": "UNEXECUTED_INVALID_INVOCATION",
+  "stderr_sha256": "3f8274dbc5695d0fe354c5cab5d16dd82dcf5599e5e6a80464843660d8ef11f9",
+  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "summary": "The executable rejected its invocation at argument validation and printed usage; the constitutive/FEM checks did not execute."
+}

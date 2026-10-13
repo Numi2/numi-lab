@@ -1,0 +1,2 @@
+fem_residual_armijo_skipped={"schema":1,"root":0,"reason":"requires_no_contact_mixed_cohesive_or_mutable_topology"}
+fem_residual_armijo_trace_skipped={"schema":1,"root":0,"reason":"residual_armijo_not_enabled_for_selected_step"}

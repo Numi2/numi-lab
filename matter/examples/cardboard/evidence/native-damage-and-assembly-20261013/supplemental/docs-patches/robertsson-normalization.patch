@@ -1,0 +1,31 @@
+--- a/matter/materials/robertsson2023_bulk_damage_architecture.md
++++ b/matter/materials/robertsson2023_bulk_damage_architecture.md
+@@ -90,6 +90,28 @@
+ regularized damage model would need its own characteristic-length
+ identification and validation; it would not be the unchanged published local
+ law.
++
++## Current source-equivalence limits in the native authoring path
++
++The material builder accepts machine- and cross-direction projected areas, but
++its defaults are both `0.0011 mm²`, equal to the paper's reference area. The
++current point and FEM fixtures call `makeMaterial()` with those defaults, so
++the resulting two area ratios are `1.0`; the FEM path does not compute and pass
++per-tetrahedron material-direction projected areas. The native implementation
++therefore does not reproduce the paper's elementwise projected-area scaling
++or its mesh calibration. The one-tetrahedron coupling check verifies
++state/force parity for this authored program, not the paper's mesh-regularized
++crease response.
++
++The authored ZD compression energy also subtracts an additive constant so
++`Psi(I)=0`. This preserves the fixed-damage stress because the deformation
++derivative of a constant is zero, but it changes the absolute energy level and
++can change any damage-conjugate term evaluated from the unshifted energy. The
++printed equation and the source implementation's energy normalization have not
++been reconciled; the current tests do not establish exact source-energy-level
++reproduction. Treat the program as the documented stress/plasticity/damage
++slice with this explicit normalization, rather than claiming identity of the
++full source free energy.
+ 
+ The source lists reference damage coefficients `c_n^r = [8, 8, 9, 9]` and
+ `beta_n^r = [2.85, 2.85, 3.98, 3.98] MPa^-1` for subsurfaces 9–12. These values

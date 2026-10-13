@@ -1,0 +1,2 @@
+fem_capsule_residual_armijo_enabled={"schema":1,"root":0,"trials":8,"base_alpha":"post_native_J_and_contact_CCD_limits","metric":"exact_production_FEM_plus_capsule_contact_free_dof_l2_impulse","history":"frozen_read_only"}
+native cardboard tooling fixture failed: rejected postCommit candidate changed accepted FEM nodes

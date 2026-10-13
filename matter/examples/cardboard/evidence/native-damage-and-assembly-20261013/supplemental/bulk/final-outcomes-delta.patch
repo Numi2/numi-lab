@@ -1,0 +1,82 @@
+--- a/matter/examples/cardboard/native-damage-and-assembly.md
++++ b/matter/examples/cardboard/native-damage-and-assembly.md
+@@ -173,26 +173,36 @@
+ 
+ ## Scored-tool trial and native invocation audit
+ 
+-The `scoring/armijo-001` 50 micrometre prescribed-punch trial recorded native
+-contact on the indented strip: peak accepted punch reaction was 0.389654 N at
+-step 47, with two punch contacts; the stationary-tool control had no punch
+-contacts or force. Sixty steps were accepted through indentation and hold. The
+-first withdrawal attempt was rejected (status 10 after 512 FGMRES iterations,
+-zero completed microsteps): its reported base residual was `6.8061954e-6` and
+-the trial residual was `6.8579789e-6`. The rejected endpoint remained separated
+-from the punch by `2.2695e-6 m`, with zero reported punch contacts. Thus this
+-run demonstrates contact and an unresolved first-withdrawal solve failure; it
+-does not complete the prescribed path or qualify a crease. Self-contact was
+-disabled in this instrumented run.
+-
+-The `native-tests-008` capsule-box, grip and mutable-snapshot siblings passed
+-their software checks. Its regional, reference, frame and cohesive commands
+-omitted required material `.nmatter` arguments; each printed usage and exited
+-before its intended check. They are recorded as
+-`UNEXECUTED_INVALID_INVOCATION`, not as failed mechanics tests. Their sealed
+-prediction, receipt, stdout/stderr and post-run classification are retained in
+-`/Users/home/cardboard-followup-20261013/native-tests-008/`. Corrected calls
+-must be assessed from their own later receipts.
++The `scoring/armijo-001` 50 micrometre prescribed-punch trial used frozen
++build 027. Its accepted indentation history recorded peak punch reaction
++0.389654 N at step 47 with two punch contacts; these values remain native
++diagnostic observations. The stationary-tool control reported no punch
++contacts or force, but its endpoint result is `SCOPE_NOT_QUALIFIED` because the
++same build has BOX dispatch selectors that bypass the stationary-endpoint
++gate. Sixty steps were accepted through indentation and hold. The first
++withdrawal attempt was rejected (status 10 after 512 FGMRES iterations, zero
++completed microsteps), with reported base and trial residuals `6.8061954e-6`
++and `6.8579789e-6`. The gap (`2.2695e-6 m`) and zero punch-pair fields on that
++rejected row reflect the rolled-back accepted snapshot, not the proposed
++withdrawal endpoint. They are not evidence of realized withdrawal contact or
++separation. This run does not complete the prescribed path or qualify a crease;
++self-contact was disabled.
++
++The `native-tests-008` capsule-box, grip and mutable-snapshot siblings remain
++software-regression records. Their frozen-027 stationary-endpoint observation
++is not moved-body endpoint proof under the BOX selector-gate bypass. Four 008
++regional, reference, frame and cohesive invocations omitted required material
++`.nmatter` arguments and exited after printing usage; these are
++`UNEXECUTED_INVALID_INVOCATION`, not mechanics failures. In `native-tests-009`,
++all five corrected capsule-box, regional, reference, frame and cohesive
++invocations exited zero and all 360 sealed input hashes per invocation
++verified. The capsule test exercises moved-body endpoint and rollback checks.
++The cohesive invocation passed 4,004 native checks for a separate single-ply
++bleached clay-coated paperboard Mode-I coupon; it does not calibrate corrugated
++starch. The 009 records supersede the old endpoint-guard claim without erasing
++the 008 records. Predictions, receipts, logs and invocation audit are retained
++under `/Users/home/cardboard-followup-20261013/native-tests-008/` and
++`/Users/home/cardboard-followup-20261013/native-tests-009/`.
+ 
+ ## Full-box driver
+ 
+@@ -210,12 +220,16 @@
+ assembly. The prediction, receipt, result, and full action/step logs are in
+ `/Users/home/cardboard-followup-20261013/box/native-003/`.
+ 
+-A separate retained `box/native-004` capture used frozen build 027 with the
+-instrumented residual-gap path. A later code audit found that BOX dispatch
+-selectors can bypass the stationary-endpoint gate, so this capture is
+-`SCOPE_NOT_QUALIFIED` for endpoint-gap admission or box mechanics even if its
+-recorded steps are accepted. It is retained as diagnostic evidence only; a
+-corrected-build rerun needs its own prediction and receipt before interpretation.
++The frozen-027 `box/native-004` instrumented residual-gap run ended naturally
++with exit code 2 after 502.526 seconds; it was not interrupted. It accepted 32
++steps, then rejected native step 32 during score-die contact approach with
++status 10, 512 FGMRES iterations, and residual `1.63902e-5`. Later fold actions
++and closure were not attempted. The all-selector BOX audit found dispatch paths
++that bypass the stationary-endpoint gate, so this capture remains
++`SCOPE_NOT_QUALIFIED` for endpoint-gap admission or box mechanics. Its failure
++and logs are preserved as native diagnostic evidence, not a gate or physical
++qualification. A corrected frozen-028 replay is separate and must be judged
++from its own prediction and receipt.
+ 
+ The initial die stroke reaches contact without a calibrated irreversible
+ crease-making law. The manufacturer's joint is an explicit calibration gate.

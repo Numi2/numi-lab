@@ -1,0 +1,29 @@
+{
+  "schema": "numi.cardboard.native-result.v1",
+  "exit_code": 2,
+  "status": "rejected_loading_before_unloading",
+  "prediction_outcome": "contradicted_full_path",
+  "accepted_material_points": 119,
+  "last_accepted_shear": 0.59,
+  "first_rejected_shear": 0.595,
+  "max_accepted_damage": 0.348892450333,
+  "physical_FEM_steps": 0,
+  "full_loading_unloading_qualified": false,
+  "bound_input_hashes_verified": {
+    "matter/tools/robertsson2023_material.hpp": true,
+    "matter/tools/cardboard_bulk_damage_gpu_check.mm": true,
+    "matter/src/constitutive_impl.cpp": true,
+    "matter/src/metal/common.metalinc": true,
+    "matter/include/numi/matter/shared.h": true,
+    "build-cardboard/numi-matter-cardboard-bulk-damage-gpu-check": true,
+    "build-cardboard/shaders/cardboard_bleached_delamination_check.metallib": true
+  },
+  "source_archive_note": "Bound shared.h reconstructed by reversing retained interface and trace patches; byte hash equals pre-execution seal. Other bound artifacts copied unchanged. This seal covers listed files, not all transitive build inputs.",
+  "observed_end_time_from_log_mtime_utc": "2026-10-13T15:23:00.226530+00:00",
+  "retained_failure": true,
+  "limitations": [
+    "No source-matched kraft/NSSC/starch calibration.",
+    "The first failed candidate state was zeroed by the old instrument; local failure cause is not yet identified.",
+    "Native material-point evidence is distinct from FEM, mesh objectivity or box assembly."
+  ]
+}

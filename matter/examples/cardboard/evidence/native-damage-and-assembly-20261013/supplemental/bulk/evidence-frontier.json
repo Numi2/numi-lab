@@ -1,0 +1,123 @@
+{
+  "capabilities": [
+    {
+      "boundary": "The exact 0.005 path rejects at .595; seeded 2/4 subdivisions accept .59\u2192.595 and return only to .59, with small nonzero partition differences. No full high-shear unload-to-zero or physical corrugated validation.",
+      "capability": "Published single-ply softwood damage constitutive slice",
+      "evidence": [
+        "bulk/source-point-005",
+        "bulk/source-point-006",
+        "bulk/source-point-seeded-1",
+        "bulk/source-point-seeded-2",
+        "bulk/source-point-seeded-4"
+      ],
+      "status": "IMPLEMENTED_BOUNDED_NATIVE_POINT_EVIDENCE"
+    },
+    {
+      "boundary": "One tetrahedron, every node prescribed, zero free mesh degrees of freedom; no independent material oracle or mesh objective proof.",
+      "capability": "Robertsson FEM state/force coupling",
+      "evidence": [
+        "bulk/fem-coupling-001"
+      ],
+      "status": "PASS_MANUFACTURED_FULLY_PRESCRIBED_PARITY_ONLY"
+    },
+    {
+      "boundary": "Single-ply bleached clay-coated paperboard; no mixed mode, contact closure, crack propagation, or corrugated starch calibration.",
+      "capability": "Positive pure-Mode-I cohesive face law",
+      "evidence": [
+        "cohesive/native-003"
+      ],
+      "status": "PASS_SEPARATE_BLEACHED_GRADE_COUPON"
+    },
+    {
+      "boundary": "Accepted indentation force/contact and status-10 first-withdrawal failure are retained as diagnostics. Frozen-027 BOX selectors bypass the stationary-endpoint gate; zero contacts and the gap on the rejected withdrawal row are rollback-snapshot fields, not end-pose evidence. Self-contact was disabled and irreversible crease damage is not qualified.",
+      "capability": "Corrugated strip scoring contact and withdrawal",
+      "evidence": [
+        "scoring/armijo-001"
+      ],
+      "status": "DIAGNOSTIC_LOADING_CONTACT_THEN_WITHDRAWAL_REJECTED; STATIONARY_ENDPOINT_UNQUALIFIED"
+    },
+    {
+      "boundary": "All 60 accepted rows before withdrawal are cell-identical. The 24-step withdrawal rejects its first unload step; a 96-step withdrawal schedule completes 168/168 at the same fixed dt and same runtime. This changes path duration and is not temporal convergence, calibrated damage, or physical crease validation; self-contact is disabled.",
+      "capability": "Frozen-028 prescribed punch withdrawal path",
+      "evidence": [
+        "scoring/armijo-002",
+        "scoring/armijo-003"
+      ],
+      "status": "ONE_SHORT_WITHDRAWAL_FAILURE; LONGER_SCHEDULE_COMPLETED_NATIVE_ONLY"
+    },
+    {
+      "boundary": "Native-003 accepted 32 steps then rejected step 32 during score-die contact approach. Frozen-027 native-004 also failed step 32 (residual 1.63902e-5) but its endpoint capture is scope-not-qualified due selector bypass. Repaired frozen-028 native-005 with default self-contact and FGMRES1024 accepted 32 steps then rejected step 32 (status 10, residual 1.25349e-6). No fold/closure actions were completed.",
+      "capability": "FEFCO 0201 full-blank score/fold/closure",
+      "evidence": [
+        "box/native-003",
+        "box/native-004",
+        "box/native-005"
+      ],
+      "status": "EARLY_NATIVE_CONTACT_FAILURE; FROZEN027 CAPTURE UNQUALIFIED"
+    },
+    {
+      "boundary": "nx8 failed at step43 after43/96 accepted; nx16 failed step19 after19/96; nx32 timed out at1200.027s after17/96 rows without a terminal native failure. These are incomplete path-coverage diagnostics, not mesh convergence.",
+      "capability": "Frozen-028 native FEM path coverage by mesh resolution",
+      "evidence": [
+        "solver/mesh-armijo-004/nx8",
+        "solver/mesh-armijo-004/nx16",
+        "solver/mesh-armijo-004/nx32"
+      ],
+      "status": "ALL_THREE_PATHS_INCOMPLETE"
+    },
+    {
+      "boundary": "At root19/Newton3, nonzero epsilon 1/32 and1/64 perturbations have positive J, but operator-versus-centered-FD relative errors are about1.0224 and1.0248 with cosines about\u22120.0671 and0.00175. The second environment has a zero correction direction and is only a vacuous control. Baseline and diagnostic outputs are byte-identical and both naturally reject; this is not a solver repair, convergence result, or physical claim.",
+      "capability": "Frozen-031 production matrix-free operator versus residual finite differences",
+      "evidence": [
+        "solver/operator-fd-baseline-001",
+        "solver/operator-fd-001"
+      ],
+      "status": "DIAGNOSTIC_IDENTIFIES_OPERATOR_MISMATCH; NATIVE_PATH_UNCHANGED"
+    },
+    {
+      "boundary": "Frozen-033 changes the host-only diagnostic epsilon scale; a common epsilon 0.25 comparison checks cross-scale repeatability while production Metal remains hash-bound. Even exact repeatability would characterize only the selected rejected state and would not identify projection, active-set, FP32, or other causes or certify the Jacobian.",
+      "capability": "Host-scaled operator-FD perturbation sensitivity",
+      "evidence": [
+        "solver/operator-fd-baseline-001",
+        "solver/operator-fd-002",
+        "solver/operator-fd-003"
+      ],
+      "status": "DIAGNOSTIC_SENSITIVITY_MEASURED_NOT_CAUSE_IDENTIFIED"
+    },
+    {
+      "boundary": "An isolated Metal build changes the local projection threshold from 2e-5 to 2e-6; it rejects the next step with status 5 at element 1430 before microstep completion or FGMRES. The terminal subtype/cause is not inferred; production remains at 2e-5.",
+      "capability": "Alternate local projection threshold diagnostic",
+      "evidence": [
+        "solver/local-projection-accuracy-035"
+      ],
+      "status": "REJECTED_AFTER_2_ACCEPTED_STEPS_NOT_ADOPTED"
+    },
+    {
+      "boundary": "Frozen-027 008 endpoint observation is not moved-body proof; four 008 calls are UNEXECUTED_INVALID_INVOCATION. Corrected 009 passed five calls. Native010 ran earlier damage/reset/isolation assertions but its final rejected-reset target was not admitted due an environment\u00d7node count bug in the fixture. Corrected 011/012 pass cohesive reset and capsule/box endpoint software checks. Native013 outcomes are classified from receipts and remain software checks, not corrugated calibration or physical box qualification.",
+      "capability": "Native endpoint and cohesive reset regressions 008\u2013013",
+      "evidence": [
+        "native-tests-008",
+        "native-tests-009",
+        "native-tests-010/cohesive-reset",
+        "native-tests-011/cohesive-reset",
+        "native-tests-011/capsule-box",
+        "native-tests-012/cohesive-reset",
+        "native-tests-012/capsule-box",
+        "native-tests-013/cohesive-reset",
+        "native-tests-013/capsule-box"
+      ],
+      "status": "008_SUPERSEDED; 009_PASS; 010_PARTIAL_FIXTURE_FAILURE; 011/012_PASS; 013_PASS"
+    }
+  ],
+  "claim_limit": "Software checks, source-grade coupons and manufactured FEM parity are not physical cardboard qualification.",
+  "created_at_utc": "2026-10-13T19:56:14.714929+00:00",
+  "evidence_summary_sha256": "0639a5fc384ade0affe1ea007462a84480b3028e6593f4043a7a368aa9ed588b",
+  "open_scientific_gaps": [
+    "No experimentally calibrated bulk crease-damage parameters for the specific corrugated kraft liner and NSSC medium stack; Robertsson softwood values cannot be transferred by assumption.",
+    "No local starch cohesive traction, fracture energy, mixed-mode interaction or unloading/closure parameters identified for the current corrugated glue region; glue remains elastic/tied.",
+    "No validated tetrahedral damage regularization/mesh-objectivity study against matching board experiments.",
+    "No experimentally validated irreversible crease cycle or physical board validation; one prescribed native punch/full-withdrawal schedule completes, but self-contact is disabled and no matching-grade crease law is calibrated. Full-box fold-and-close remains unqualified."
+  ],
+  "pending_case_roots_at_generation": [],
+  "schema": "numi.cardboard.evidence-frontier.v1"
+}

@@ -1,0 +1,24 @@
+{
+  "schema": "numi.cardboard.native-result.v1",
+  "accepted_material_points": 121,
+  "expected_points": 121,
+  "all_end_to_end_algorithmic_responses_accepted": true,
+  "first_damage_shear": 0.16999999999999998,
+  "damage_at_peak_shear": 0.11937345564365387,
+  "final_damage": 0.24500973522663116,
+  "nondecreasing_damage": true,
+  "final_P13_MPa": -4.974485,
+  "maximum_projection_iterations": 10,
+  "source_bindings_verified": true,
+  "retained_instrument_failure": "../source-point-004 used F13 direction while asserting dP33/dF33; repaired direction only",
+  "csv_header_semantics_correction": "material_projection_accepted means end-to-end algorithmic response validity; local residual includes implementation scaling x10",
+  "physical_FEM_steps": 0,
+  "physical_validation": false,
+  "high_shear_failure_remaining": "source-point-003 rejected gamma .595; this .3 cycle does not resolve that failure",
+  "receipt": {
+    "exit_code": 0,
+    "timed_out": false,
+    "wall_seconds": 529.3526430829952,
+    "finished_at_utc": "2026-10-13T16:04:59.605218+00:00"
+  }
+}

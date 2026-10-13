@@ -201,6 +201,34 @@ kernel void nm_apply_episode_resets(
     }
 }
 
+// Authored paired faces have immutable connectivity. Restore their complete
+// interface state from the original world, never from a later checkpoint.
+// Event-created topology retains its existing separate reset policy.
+kernel void nm_reset_paired_cohesive_faces(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMResetPassGPU& pass [[buffer(1)]],
+    device const uint* resetMasks [[buffer(2)]],
+    device const NMCohesiveFaceGPU* defaults [[buffer(3)]],
+    device NMCohesiveFaceGPU* accepted [[buffer(4)]],
+    device NMCohesiveFaceGPU* candidate [[buffer(5)]],
+    device NMCohesiveFaceGPU* checkpoint [[buffer(6)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if ((pass.flags & NM_RESET_ENABLED) == 0u ||
+        pass.resetMaskStepStride == 0u || dispatch.cohesiveFaceCount == 0u ||
+        global >= dispatch.environmentCount * dispatch.cohesiveFaceCount)
+        return;
+    const uint environment = global / dispatch.cohesiveFaceCount;
+    if (resetMasks[pass.controlStep * pass.resetMaskStepStride + environment] == 0u)
+        return;
+    const NMCohesiveFaceGPU value = defaults[global];
+    if ((value.adjacency.w & NM_TOPOLOGY_PAIRED_COHESIVE) == 0u)
+        return;
+    accepted[global] = value;
+    candidate[global] = value;
+    checkpoint[global] = value;
+}
+
 kernel void nm_identification_update(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     constant NMIdentificationPassGPU& pass [[buffer(1)]],

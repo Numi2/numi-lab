@@ -1,0 +1,3 @@
+cache_bytecode_shared_stress_stores=2 loads=3 reused_slot=true select_nonnegative_positive_negative=true
+abi=41 state_count=32 state31_sum=2 state31_max=1 package_roundtrip=true invalid_state31_rejected=true
+cardboard_expression_cache_cpu_checks=924 native_physics_steps=0 result=pass

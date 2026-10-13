@@ -1,0 +1,20 @@
+{
+  "accepted_steps": null,
+  "argv": [
+    "/Users/home/numi-cardboard-20261006/build-cardboard/numi-matter-cardboard-cohesive-face-check"
+  ],
+  "case": "cohesive",
+  "exit_code": 1,
+  "expected_usage": "usage: cardboard-cohesive-face-check MEDIUM.nmatter MODE_I_COUPON.nmatter [--cpu-only]",
+  "failure_text": "FAIL native paired cohesive FEM: usage: cardboard-cohesive-face-check MEDIUM.nmatter MODE_I_COUPON.nmatter [--cpu-only]",
+  "note": "Preserve this invalid invocation as evidence of a missing CLI input. It is not a failed material or mechanics test.",
+  "physical_validation": false,
+  "prediction_sha256": "02fe5564b3053deea5cf7cdea70d3965cc93f079d18d3ce618f672516ce5b45b",
+  "receipt_sha256": "e0413973dbd05ef69646ed0c156c757e46cfc3264950c61666c0b80f5e91985a",
+  "required_material_arguments_supplied": false,
+  "schema": "numi.cardboard.native-invocation-audit.v1",
+  "status": "UNEXECUTED_INVALID_INVOCATION",
+  "stderr_sha256": "791b70b7bb56b38a39d6c209786e74d09035899ea3c37a7669bcf4e614e4eb8b",
+  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "summary": "The executable rejected its invocation at argument validation and printed usage; the constitutive/FEM checks did not execute."
+}

@@ -1,0 +1,1724 @@
+{
+  "cases": [
+    {
+      "case_id": "bulk/source-point-003",
+      "prediction_question": "Does the full source multiplicative paperboard law reproduce its independent elastic response and activate irreversible shear damage in the production Metal constitutive evaluator?",
+      "prediction_sha256": "ea7fb092bf84a0f400030573d44acbe6e94e6fd5bedaf7d81421514858cb5068",
+      "prediction_size_bytes": 2139,
+      "prediction_text": {
+        "accepted_material_points": 401,
+        "accepted_state_read_only": true,
+        "closed_form_elastic_ZD_stress_abs_error_Pa_below": 500,
+        "damage_range": [
+          0,
+          0.96
+        ],
+        "max_damage_above": 0,
+        "rest_ZD_tangent_Pa": 56800000,
+        "rest_max_P_Pa_below": 500,
+        "shear_loading_unloading": [
+          0,
+          1,
+          0
+        ]
+      },
+      "receipt": null,
+      "receipt_present": false,
+      "result_summaries": [
+        {
+          "path": "result.json",
+          "status": "rejected_loading_before_unloading"
+        }
+      ],
+      "source_case_path": "/Users/home/cardboard-followup-20261013/bulk/source-point-003",
+      "status_note": "Included regardless of pass/fail/completion; no outcome filter is applied."
+    },
+    {
+      "case_id": "bulk/source-point-005",
+      "prediction_question": "Does the source-grade law accept a .005-increment shear load-unload cycle after damage activation?",
+      "prediction_sha256": "c88b9557130d9c12426f6b10457ca2334f15cb0feb0bcb5c2a33a623f7c75dde",
+      "prediction_size_bytes": 19014,
+      "prediction_text": "121 accepted material points; nondecreasing damage; retained candidate/accepted states on every increment; directional elastic checks use F33, shear path uses F13; no FEM qualification",
+      "receipt": {
+        "exit_code": 0,
+        "finished_at_utc": "2026-10-13T16:04:59.605218+00:00",
+        "timed_out": false,
+        "wall_seconds": 529.3526430829952
+      },
+      "receipt_present": true,
+      "result_summaries": [
+        {
+          "path": "result.json",
+          "physical_validation": false
+        }
+      ],
+      "source_case_path": "/Users/home/cardboard-followup-20261013/bulk/source-point-005",
+      "status_note": "Included regardless of pass/fail/completion; no outcome filter is applied."
+    },
+    {
+      "case_id": "bulk/source-point-006",
+      "prediction_question": "Which return-map stage rejects the retained high-shear increment when full candidate and accepted states are preserved?",
+      "prediction_sha256": "a42d07caa1cd2c6b8f0944a1e5b8259b5b07c0a34751d50c2779159a8cffe337",
+      "prediction_size_bytes": 43575,
+      "prediction_text": "The previous .595 rejection should recur at .005 increments; terminal reason and both states are retained before rejection. Failure remains failure; no constitutive parameter is adjusted.",
+      "receipt": {
+        "exit_code": 2,
+        "finished_at_utc": "2026-10-13T17:19:20.513697+00:00",
+        "timed_out": false,
+        "wall_seconds": 706.1762204999686
+      },
+      "receipt_present": true,
+      "result_summaries": [
+        {
+          "failure": {
+            "failure_class": "local implicit material-state projection iteration budget exhausted after accepted Newton updates; this is not a global FEM solve failure, and stress/tangent stages were not reached",
+            "missing_stage_flags": [
+              "projection_converged",
+              "stress_evaluated",
+              "tangent_evaluated",
+              "implicit_tangent_entered",
+              "implicit_tangent_solved"
+            ],
+            "projection_convergence_rule": "residual_inf <= 2e-5 * (1 + state_inf), evaluated in FP32",
+            "projection_iterations": 16,
+            "projection_residual_inf": 4.830770194530487e-05,
+            "projection_state_inf": 1.1507568359375,
+            "rejected_candidate_was_committed": false,
+            "residual_excess": 5.292567948345095e-06,
+            "residual_threshold_fp32": 4.3015133996959776e-05,
+            "stage_flags": 63,
+            "stage_flags_hex": "0x3f",
+            "stage_flags_interpretation": [
+              "projection_entered",
+              "state_updates_complete",
+              "implicit_system_evaluated",
+              "local_solve_attempted",
+              "local_solve_succeeded",
+              "newton_update_accepted"
+            ],
+            "step": 119,
+            "terminal_failure": "projection_iteration_exhausted",
+            "threshold_utilization": 1.1230396713100828
+          },
+          "path": "result.json",
+          "physical_validation": false,
+          "status": "rejected_loading_at_gamma_0.595_after_accepted_gamma_0.59"
+        }
+      ],
+      "source_case_path": "/Users/home/cardboard-followup-20261013/bulk/source-point-006",
+      "status_note": "Included regardless of pass/fail/completion; no outcome filter is applied."
+    },
+    {
+      "case_id": "bulk/source-point-seeded-1",
+      "prediction_question": "Can exact imported accepted history replay/refine the failed .59 to .595 increment without same-shear reprojection or law changes?",
+      "prediction_sha256": "27a399692b2305b8726e52eb82f6dfe83db388e9d5a077cfbbcc5667f1772cc5",
+      "prediction_size_bytes": 44301,
+      "prediction_text": "One increment should reproduce projection exhaustion; 2/4 smaller increments test whether the unchanged 16-iteration budget and constitutive criterion can complete. Candidate acceptance and path differences are measured, not assumed.",
+      "receipt": {
+        "exit_code": 2,
+        "finished_at_utc": "2026-10-13T17:45:14.135720+00:00",
+        "timed_out": false,
+        "wall_seconds": 20.346032375004143
+      },
+      "receipt_present": true,
+      "result_summaries": [
+        {
+          "path": "result.json",
+          "physical_validation": false,
+          "status": "rejected_same_candidate_as_source_point_006"
+        }
+      ],
+      "source_case_path": "/Users/home/cardboard-followup-20261013/bulk/source-point-seeded-1",
+      "status_note": "Included regardless of pass/fail/completion; no outcome filter is applied."
+    },
+    {
+      "case_id": "bulk/source-point-seeded-2",
+      "prediction_question": "Can exact imported accepted history replay/refine the failed .59 to .595 increment without same-shear reprojection or law changes?",
+      "prediction_sha256": "96ee0604ec2e1d327558d9dca63c809f48be765d20a68e89713fdb529b008954",
+      "prediction_size_bytes": 44301,
+      "prediction_text": "One increment should reproduce projection exhaustion; 2/4 smaller increments test whether the unchanged 16-iteration budget and constitutive criterion can complete. Candidate acceptance and path differences are measured, not assumed.",
+      "receipt": {
+        "exit_code": 0,
+        "finished_at_utc": "2026-10-13T17:45:34.310882+00:00",
+        "timed_out": false,
+        "wall_seconds": 20.02565666701412
+      },
+      "receipt_present": true,
+      "result_summaries": [
+        {
+          "path": "result.json",
+          "physical_validation": false,
+          "status": "accepted_seeded_local_refinement_through_0.595_then_short_unload_to_0.59"
+        }
+      ],
+      "source_case_path": "/Users/home/cardboard-followup-20261013/bulk/source-point-seeded-2",
+      "status_note": "Included regardless of pass/fail/completion; no outcome filter is applied."
+    },
+    {
+      "case_id": "bulk/source-point-seeded-4",
+      "prediction_question": "Can exact imported accepted history replay/refine the failed .59 to .595 increment without same-shear reprojection or law changes?",
+      "prediction_sha256": "b30a7367146bdf4f129c6ff7f780487dece1d89f90fd1ae065e782164631159f",
+      "prediction_size_bytes": 44301,
+      "prediction_text": "One increment should reproduce projection exhaustion; 2/4 smaller increments test whether the unchanged 16-iteration budget and constitutive criterion can complete. Candidate acceptance and path differences are measured, not assumed.",
+      "receipt": {
+        "exit_code": 0,
+        "finished_at_utc": "2026-10-13T17:46:05.828596+00:00",
+        "timed_out": false,
+        "wall_seconds": 31.374092207988724
+      },
+      "receipt_present": true,
+      "result_summaries": [
+        {
+          "path": "result.json",
+          "physical_validation": false,
+          "status": "accepted_seeded_local_refinement_through_0.595_then_short_unload_to_0.59"
+        }
+      ],
+      "source_case_path": "/Users/home/cardboard-followup-20261013/bulk/source-point-seeded-4",
+      "status_note": "Included regardless of pass/fail/completion; no outcome filter is applied."
+    },
+    {
+      "case_id": "bulk/fem-coupling-001",
+      "prediction_question": "Does the full 27-state production material preserve its accepted history and reaction stress in native one-tetrahedron prescribed shear FEM, including rejection rollback and reset/snapshot restore?",
+      "prediction_sha256": "f8b20b477e865f9478d85a5046344e19e591fb46deaecef7f0daa056b0397c6e",
+      "prediction_size_bytes": 19236,
+      "prediction_text": "All 121 manufactured shear states will accept and agree with the independent runtime path of point005 within sealed integration parity tolerances; this is not free-mesh or physical calibration.",
+      "receipt": {
+        "exit_code": 0,
+        "finished_at_utc": "2026-10-13T16:55:41.322228+00:00",
+        "timed_out": false,
+        "wall_seconds": 1283.5709399580082
+      },
+      "receipt_present": true,
+      "result_summaries": [],
+      "source_case_path": "/Users/home/cardboard-followup-20261013/bulk/fem-coupling-001",
+      "status_note": "Included regardless of pass/fail/completion; no outcome filter is applied."
+    },
+    {
+      "case_id": "cohesive/native-003",
+      "prediction_question": "Does native paired-face source Mode I preserve damage and traction across loading, unloading, reloading and equal-area refinement?",
+      "prediction_sha256": "d14d3a700b097598cd72eae46e9cc036cc3d597b50eddb8e18e75981747dc444",
+      "prediction_size_bytes": 19295,
+      "prediction_text": "The source-specific 56-step paths and reaction/tangent comparisons will pass on coarse and refined face subdivisions; this is manufactured Mode I coupling, not corrugated starch debonding.",
+      "receipt": {
+        "exit_code": 0,
+        "finished_at_utc": "2026-10-13T16:27:30.130744+00:00",
+        "timed_out": false,
+        "wall_seconds": 65.16609170800075
+      },
+      "receipt_present": true,
+      "result_summaries": [
+        {
+          "path": "result.json",
+          "status": "PASS"
+        }
+      ],
+      "source_case_path": "/Users/home/cardboard-followup-20261013/cohesive/native-003",
+      "status_note": "Included regardless of pass/fail/completion; no outcome filter is applied."
+    },
+    {
+      "case_id": "native-tests-004/cache",
+      "prediction_question": "Does the current native implementation preserve the tested runtime contracts after capacity and contact-solver repairs?",
+      "prediction_sha256": "939e7d52e95e5befffd7f92629d6248e7028a119425cca92e9fcf8e365031443",
+      "prediction_size_bytes": 43350,
+      "prediction_text": "Each named manufactured native fixture passes its existing acceptance and rollback assertions; no physical corrugated qualification is inferred.",
+      "receipt": {
+        "exit_code": 0,
+        "finished_at_utc": "2026-10-13T16:59:50.645972+00:00",
+        "timed_out": false,
+        "wall_seconds": 2.9452698749955744
+      },
+      "receipt_present": true,
+      "result_summaries": [],
+      "source_case_path": "/Users/home/cardboard-followup-20261013/native-tests-004/cache",
+      "status_note": "Included regardless of pass/fail/completion; no outcome filter is applied."
+    },
+    {
+      "case_id": "native-tests-004/capsule",
+      "prediction_question": "Does the current native implementation preserve the tested runtime contracts after capacity and contact-solver repairs?",
+      "prediction_sha256": "50ee9f1e17ad5a5c1badac8c809224b8831c409eb72894628dbc98f06c954b7c",
+      "prediction_size_bytes": 43338,
+      "prediction_text": "Each named manufactured native fixture passes its existing acceptance and rollback assertions; no physical corrugated qualification is inferred.",
+      "receipt": {
+        "exit_code": 1,
+        "finished_at_utc": "2026-10-13T17:00:01.911003+00:00",
+        "timed_out": false,
+        "wall_seconds": 1.1615796660189517
+      },
+      "receipt_present": true,
+      "result_summaries": [],
+      "source_case_path": "/Users/home/cardboard-followup-20261013/native-tests-004/capsule",
+      "status_note": "Included regardless of pass/fail/completion; no outcome filter is applied."
+    },
+    {
+      "case_id": "native-tests-004/cohesive",
+      "prediction_question": "Does the current native implementation preserve the tested runtime contracts after capacity and contact-solver repairs?",
+      "prediction_sha256": "998d23db472e7f5050478a38b72555b412773fb8527a65b7097be6088497dac3",
+      "prediction_size_bytes": 43549,
+      "prediction_text": "Each named manufactured native fixture passes its existing acceptance and rollback assertions; no physical corrugated qualification is inferred.",
+      "receipt": {
+        "exit_code": 0,
+        "finished_at_utc": "2026-10-13T17:00:56.639550+00:00",
+        "timed_out": false,
+        "wall_seconds": 54.611274540948216
+      },
+      "receipt_present": true,
+      "result_summaries": [],
+      "source_case_path": "/Users/home/cardboard-followup-20261013/native-tests-004/cohesive",
+      "status_note": "Included regardless of pass/fail/completion; no outcome filter is applied."
+    },
+    {
+      "case_id": "native-tests-004/grip",
+      "prediction_question": "Does the current native implementation preserve the tested runtime contracts after capacity and contact-solver repairs?",
+      "prediction_sha256": "d5b9a2657b897801c6ad193158339c2ab7808cb4d46439fc436537d2e18186bb",
+      "prediction_size_bytes": 43332,
+      "prediction_text": "Each named manufactured native fixture passes its existing acceptance and rollback assertions; no physical corrugated qualification is inferred.",
+      "receipt": {
+        "exit_code": 0,
+        "finished_at_utc": "2026-10-13T16:59:47.587799+00:00",
+        "timed_out": false,
+        "wall_seconds": 0.5672713749809191
+      },
+      "receipt_present": true,
+      "result_summaries": [],
+      "source_case_path": "/Users/home/cardboard-followup-20261013/native-tests-004/grip",
+      "status_note": "Included regardless of pass/fail/completion; no outcome filter is applied."
+    },
+    {
+      "case_id": "native-tests-004/mutable",
+      "prediction_question": "Does the current native implementation preserve the tested runtime contracts after capacity and contact-solver repairs?",
+      "prediction_sha256": "a54e34a41de2d3cd3c299e37a46b677cac255def8eacb4f99f5b62ecd96d7d95",
+      "prediction_size_bytes": 43330,
+      "prediction_text": "Each named manufactured native fixture passes its existing acceptance and rollback assertions; no physical corrugated qualification is inferred.",
+      "receipt": {
+        "exit_code": 0,
+        "finished_at_utc": "2026-10-13T16:59:46.885278+00:00",
+        "timed_out": false,
+        "wall_seconds": 30.263670208049007
+      },
+      "receipt_present": true,
+      "result_summaries": [],
+      "source_case_path": "/Users/home/cardboard-followup-20261013/native-tests-004/mutable",
+      "status_note": "Included regardless of pass/fail/completion; no outcome filter is applied."
+    },
+    {
+      "case_id": "native-tests-004/regional",
+      "prediction_question": "Does the current native implementation preserve the tested runtime contracts after capacity and contact-solver repairs?",
+      "prediction_sha256": "29517d9f7119853304b29ec0dee32c6e9e37893a7c5adf591ca91048c381b0be",
+      "prediction_size_bytes": 43554,
+      "prediction_text": "Each named manufactured native fixture passes its existing acceptance and rollback assertions; no physical corrugated qualification is inferred.",
+      "receipt": {
+        "exit_code": 0,
+        "finished_at_utc": "2026-10-13T17:00:00.596005+00:00",
+        "timed_out": false,
+        "wall_seconds": 9.822980333992746
+      },
+      "receipt_present": true,
+      "result_summaries": [],
+      "source_case_path": "/Users/home/cardboard-followup-20261013/native-tests-004/regional",
+      "status_note": "Included regardless of pass/fail/completion; no outcome filter is applied."
+    },
+    {
+      "case_id": "native-tests-005/capsule",
+      "prediction_question": "Does failed-environment exact rollback hold while the separated environment is allowed to complete its step?",
+      "prediction_sha256": "52a0a37833dfad03e9a75cfff31467972328429da3ba78d30499dc0a5c92bca1",
+      "prediction_size_bytes": 43375,
+      "prediction_text": "The physical pair remains certified; all FEM nodes, capsule history and native rigid state in rejected environment zero are byte-identical, while successful environment one remains motionless.",
+      "receipt": {
+        "exit_code": 0,
+        "finished_at_utc": "2026-10-13T17:01:26.664021+00:00",
+        "timed_out": false,
+        "wall_seconds": 1.2092997090076096
+      },
+      "receipt_present": true,
+      "result_summaries": [],
+      "source_case_path": "/Users/home/cardboard-followup-20261013/native-tests-005/capsule",
+      "status_note": "Included regardless of pass/fail/completion; no outcome filter is applied."
+    },
+    {
+      "case_id": "native-tests-006/capsule",
+      "prediction_question": "Does conservative alpha-zero convergence handling preserve the physical capsule response and exact rollback?",
+      "prediction_sha256": "b6579aa3b7036a17ee485c60236957cb336b09e4ab351cb9f346da4be7592884",
+      "prediction_size_bytes": 43438,
+      "prediction_text": "Same native certificate and rejected-environment history tests pass, with no tolerance relaxation.",
+      "receipt": {
+        "exit_code": 0,
+        "finished_at_utc": "2026-10-13T17:19:23.378906+00:00",
+        "timed_out": false,
+        "wall_seconds": 1.2575066660065204
+      },
+      "receipt_present": true,
+      "result_summaries": [],
+      "source_case_path": "/Users/home/cardboard-followup-20261013/native-tests-006/capsule",
+      "status_note": "Included regardless of pass/fail/completion; no outcome filter is applied."
+    },
+    {
+      "case_id": "native-tests-007/cache",
+      "prediction_question": "Does the integrated native fixture preserve certificates, source state and rejected-environment rollback?",
+      "prediction_sha256": "a919f2c663cc70754bc5b927ffe5fbe3674123af5e7249a6b883c5abdc5507f6",
+      "prediction_size_bytes": 43425,
+      "prediction_text": "Production-path assertions pass; no calibration or free-box result inferred.",
+      "receipt": {
+        "exit_code": 0,
+        "finished_at_utc": "2026-10-13T17:30:56.090758+00:00",
+        "timed_out": false,
+        "wall_seconds": 0.32656358304666355
+      },
+      "receipt_present": true,
+      "result_summaries": [],
+      "source_case_path": "/Users/home/cardboard-followup-20261013/native-tests-007/cache",
+      "status_note": "Included regardless of pass/fail/completion; no outcome filter is applied."
+    },
+    {
+      "case_id": "native-tests-007/capsule-box",
+      "prediction_question": "Does the integrated native fixture preserve certificates, source state and rejected-environment rollback?",
+      "prediction_sha256": "94c074b37f1d7d0d2821f78fd456025bd81d9f1455cc61342c4a63dedc807262",
+      "prediction_size_bytes": 43413,
+      "prediction_text": "Production-path assertions pass; no calibration or free-box result inferred.",
+      "receipt": {
+        "exit_code": 1,
+        "finished_at_utc": "2026-10-13T17:30:55.639777+00:00",
+        "timed_out": false,
+        "wall_seconds": 1.6947089579771273
+      },
+      "receipt_present": true,
+      "result_summaries": [],
+      "source_case_path": "/Users/home/cardboard-followup-20261013/native-tests-007/capsule-box",
+      "status_note": "Included regardless of pass/fail/completion; no outcome filter is applied."
+    },
+    {
+      "case_id": "native-tests-008/capsule-box",
+      "prediction_question": "Does stationary BOX/contact Armijo support validated temporary grips and preserve exact rejected-env state?",
+      "prediction_sha256": "3e09bd6fabbe411287571c0fe7b002d52bedaa150a8a28253bca117c8b11a739",
+      "prediction_size_bytes": 43479,
+      "prediction_text": "Capsule/BOX native response plus all endpoint and acquired-grip rejection tests pass unchanged certificates. This is a manufactured fixture.",
+      "receipt": {
+        "exit_code": 0,
+        "finished_at_utc": "2026-10-13T17:46:46.270575+00:00",
+        "timed_out": false,
+        "wall_seconds": 5.4447018330101855
+      },
+      "receipt_present": true,
+      "result_summaries": [],
+      "source_case_path": "/Users/home/cardboard-followup-20261013/native-tests-008/capsule-box",
+      "status_note": "Included regardless of pass/fail/completion; no outcome filter is applied."
+    },
+    {
+      "case_id": "native-tests-008/cohesive",
+      "prediction_question": "Does the integrated runtime retain existing FEM/source/rollback contracts?",
+      "prediction_sha256": "02fe5564b3053deea5cf7cdea70d3965cc93f079d18d3ce618f672516ce5b45b",
+      "prediction_size_bytes": 43356,
+      "prediction_text": "All assertions pass; fixture-specific evidence only.",
+      "receipt": {
+        "exit_code": 1,
+        "finished_at_utc": "2026-10-13T17:46:49.290144+00:00",
+        "timed_out": false,
+        "wall_seconds": 0.2576274169841781
+      },
+      "receipt_present": true,
+      "result_summaries": [
+        {
+          "accepted_steps": null,
+          "path": "result.json",
+          "physical_validation": false,
+          "status": "UNEXECUTED_INVALID_INVOCATION"
+        }
+      ],
+      "source_case_path": "/Users/home/cardboard-followup-20261013/native-tests-008/cohesive",
+      "status_note": "Included regardless of pass/fail/completion; no outcome filter is applied."
+    },
+    {
+      "case_id": "native-tests-008/frame",
+      "prediction_question": "Does the integrated runtime retain existing FEM/source/rollback contracts?",
+      "prediction_sha256": "c5c8ab4402dea183716d49d0033bc56eb28036cae4724c3352807873cc1b6589",
+      "prediction_size_bytes": 43346,
+      "prediction_text": "All assertions pass; fixture-specific evidence only.",
+      "receipt": {
+        "exit_code": 1,
+        "finished_at_utc": "2026-10-13T17:46:48.891344+00:00",
+        "timed_out": false,
+        "wall_seconds": 0.326149666972924
+      },
+      "receipt_present": true,
+      "result_summaries": [
+        {
+          "accepted_steps": null,
+          "path": "result.json",
+          "physical_validation": false,
+          "status": "UNEXECUTED_INVALID_INVOCATION"
+        }
+      ],
+      "source_case_path": "/Users/home/cardboard-followup-20261013/native-tests-008/frame",
+      "status_note": "Included regardless of pass/fail/completion; no outcome filter is applied."
+    },
+    {
+      "case_id": "native-tests-008/grip",
+      "prediction_question": "Does the integrated runtime retain existing FEM/source/rollback contracts?",
+      "prediction_sha256": "580b36934e2d6b201acd9786ef24e617704de64b24d97f348ce5917f22174bce",
+      "prediction_size_bytes": 43352,
+      "prediction_text": "All assertions pass; fixture-specific evidence only.",
+      "receipt": {
+        "exit_code": 0,
+        "finished_at_utc": "2026-10-13T17:46:46.956442+00:00",
+        "timed_out": false,
+        "wall_seconds": 0.5354361250065267
+      },
+      "receipt_present": true,
+      "result_summaries": [],
+      "source_case_path": "/Users/home/cardboard-followup-20261013/native-tests-008/grip",
+      "status_note": "Included regardless of pass/fail/completion; no outcome filter is applied."
+    },
+    {
+      "case_id": "native-tests-008/mutable",
+      "prediction_question": "Does the integrated runtime retain existing FEM/source/rollback contracts?",
+      "prediction_sha256": "9295abe41aea01d051c54344db244a31e4f4e00accac803dd7fdeec1d5db20a2",
+      "prediction_size_bytes": 43350,
+      "prediction_text": "All assertions pass; fixture-specific evidence only.",
+      "receipt": {
+        "exit_code": 0,
+        "finished_at_utc": "2026-10-13T17:46:47.517150+00:00",
+        "timed_out": false,
+        "wall_seconds": 0.431905250006821
+      },
+      "receipt_present": true,
+      "result_summaries": [],
+      "source_case_path": "/Users/home/cardboard-followup-20261013/native-tests-008/mutable",
+      "status_note": "Included regardless of pass/fail/completion; no outcome filter is applied."
+    },
+    {
+      "case_id": "native-tests-008/reference",
+      "prediction_question": "Does the integrated runtime retain existing FEM/source/rollback contracts?",
+      "prediction_sha256": "1bba90013846707990fae9266588f6e626d384249f5cd621dd77d6ecceb95fbd",
+      "prediction_size_bytes": 43336,
+      "prediction_text": "All assertions pass; fixture-specific evidence only.",
+      "receipt": {
+        "exit_code": 1,
+        "finished_at_utc": "2026-10-13T17:46:48.427406+00:00",
+        "timed_out": false,
+        "wall_seconds": 0.3152789999730885
+      },
+      "receipt_present": true,
+      "result_summaries": [
+        {
+          "accepted_steps": null,
+          "path": "result.json",
+          "physical_validation": false,
+          "status": "UNEXECUTED_INVALID_INVOCATION"
+        }
+      ],
+      "source_case_path": "/Users/home/cardboard-followup-20261013/native-tests-008/reference",
+      "status_note": "Included regardless of pass/fail/completion; no outcome filter is applied."
+    },
+    {
+      "case_id": "native-tests-008/regional",
+      "prediction_question": "Does the integrated runtime retain existing FEM/source/rollback contracts?",
+      "prediction_sha256": "b54449817bf02d1fa5a357b893f43e0d5864d037193842a86c8b3d787a14bdb4",
+      "prediction_size_bytes": 43352,
+      "prediction_text": "All assertions pass; fixture-specific evidence only.",
+      "receipt": {
+        "exit_code": 1,
+        "finished_at_utc": "2026-10-13T17:46:47.958136+00:00",
+        "timed_out": false,
+        "wall_seconds": 0.31616474996553734
+      },
+      "receipt_present": true,
+      "result_summaries": [
+        {
+          "accepted_steps": null,
+          "path": "result.json",
+          "physical_validation": false,
+          "status": "UNEXECUTED_INVALID_INVOCATION"
+        }
+      ],
+      "source_case_path": "/Users/home/cardboard-followup-20261013/native-tests-008/regional",
+      "status_note": "Included regardless of pass/fail/completion; no outcome filter is applied."
+    },
+    {
+      "case_id": "box/native-002",
+      "prediction_question": "Can full FEFCO0201 native blank execute die contact and boundary-driven folding with external seam clamps?",
+      "prediction_sha256": "7f509e842ba0720581cb9e2d3356bd6db44ffea4a8419ca34998399caae1d28f",
+      "prediction_size_bytes": 19301,
+      "prediction_text": "Each accepted step must pass native acceptance; any failure will stop and retain all action/angle ledgers. Completion would still be externally held and unbonded.",
+      "receipt": {
+        "exit_code": 2,
+        "finished_at_utc": "2026-10-13T16:31:11.556420+00:00",
+        "timed_out": false,
+        "wall_seconds": 150.0315963329922
+      },
+      "receipt_present": true,
+      "result_summaries": [
+        {
+          "accepted_steps": 15,
+          "failure": "Matter rejected native step 15",
+          "path": "output/result.json",
+          "physical_validation": false,
+          "status": "failed_native"
+        }
+      ],
+      "source_case_path": "/Users/home/cardboard-followup-20261013/box/native-002",
+      "status_note": "Included regardless of pass/fail/completion; no outcome filter is applied."
+    },
+    {
+      "case_id": "solver/armijo-001/armijo",
+      "prediction_question": "Does exact free-DOF residual Armijo globalization improve the rejected first fine-mesh grip step without relaxing acceptance?",
+      "prediction_sha256": "7b071be06f6bf6f11a6292d147e74affe496d365350e3f6ef6cd8c3d63aa74be",
+      "prediction_size_bytes": 19309,
+      "prediction_text": "Opt-in candidate norms satisfy residual descent or the existing certified no-op gate; native first-step acceptance measured, not assumed",
+      "receipt": {
+        "exit_code": -15,
+        "finished_at_utc": "2026-10-13T16:09:47.889208+00:00",
+        "timed_out": false,
+        "wall_seconds": 97.96843129198533
+      },
+      "receipt_present": true,
+      "result_summaries": [],
+      "source_case_path": "/Users/home/cardboard-followup-20261013/solver/armijo-001/armijo",
+      "status_note": "Included regardless of pass/fail/completion; no outcome filter is applied."
+    },
+    {
+      "case_id": "solver/armijo-001/baseline",
+      "prediction_question": "Does exact free-DOF residual Armijo globalization improve the rejected first fine-mesh grip step without relaxing acceptance?",
+      "prediction_sha256": "d2208f8e6c7dbe9b58541238bebfb70d7184d185174730227d6b196fc42bb5d5",
+      "prediction_size_bytes": 19186,
+      "prediction_text": "Opt-in candidate norms satisfy residual descent or the existing certified no-op gate; native first-step acceptance measured, not assumed",
+      "receipt": {
+        "exit_code": 2,
+        "finished_at_utc": "2026-10-13T16:08:09.807840+00:00",
+        "timed_out": false,
+        "wall_seconds": 173.99487058300292
+      },
+      "receipt_present": true,
+      "result_summaries": [
+        {
+          "accepted_steps": 0,
+          "failure": "Matter rejected step 0; status, accepted state OBJ, and CSV observations were retained",
+          "path": "output/result.json",
+          "physical_validation": false,
+          "status": "failed"
+        }
+      ],
+      "source_case_path": "/Users/home/cardboard-followup-20261013/solver/armijo-001/baseline",
+      "status_note": "Included regardless of pass/fail/completion; no outcome filter is applied."
+    },
+    {
+      "case_id": "solver/armijo-004/armijo",
+      "prediction_question": "Does exact free-DOF residual Armijo globalization improve the rejected first fine-mesh grip step without relaxing acceptance?",
+      "prediction_sha256": "b6e76e0d4f961678e0b3a83009ac99d972124d10940f79994bfced386a30aa8f",
+      "prediction_size_bytes": 19580,
+      "prediction_text": "Opt-in candidate norms satisfy residual descent or the existing certified no-op gate; native first-step acceptance measured, not assumed",
+      "receipt": {
+        "exit_code": 0,
+        "finished_at_utc": "2026-10-13T16:34:16.907331+00:00",
+        "timed_out": false,
+        "wall_seconds": 9.995574542001123
+      },
+      "receipt_present": true,
+      "result_summaries": [
+        {
+          "accepted_steps": 1,
+          "failure": "",
+          "path": "output/result.json",
+          "physical_validation": false,
+          "status": "completed"
+        }
+      ],
+      "source_case_path": "/Users/home/cardboard-followup-20261013/solver/armijo-004/armijo",
+      "status_note": "Included regardless of pass/fail/completion; no outcome filter is applied."
+    },
+    {
+      "case_id": "solver/armijo-004/baseline",
+      "prediction_question": "Does exact free-DOF residual Armijo globalization improve the rejected first fine-mesh grip step without relaxing acceptance?",
+      "prediction_sha256": "087f9c7c93ed74856d543b67508e5478572f767207295cb3bfc3f5ea10888392",
+      "prediction_size_bytes": 19457,
+      "prediction_text": "Opt-in candidate norms satisfy residual descent or the existing certified no-op gate; native first-step acceptance measured, not assumed",
+      "receipt": {
+        "exit_code": 2,
+        "finished_at_utc": "2026-10-13T16:34:06.810050+00:00",
+        "timed_out": false,
+        "wall_seconds": 174.97127912502037
+      },
+      "receipt_present": true,
+      "result_summaries": [
+        {
+          "accepted_steps": 0,
+          "failure": "Matter rejected step 0; status, accepted state OBJ, and CSV observations were retained",
+          "path": "output/result.json",
+          "physical_validation": false,
+          "status": "failed"
+        }
+      ],
+      "source_case_path": "/Users/home/cardboard-followup-20261013/solver/armijo-004/baseline",
+      "status_note": "Included regardless of pass/fail/completion; no outcome filter is applied."
+    },
+    {
+      "case_id": "solver/krylov1024-prefix-001",
+      "prediction_question": "Does the existing native 1024-column budget avoid the nx32 non-descent failure seen at step4 with 256 columns?",
+      "prediction_sha256": "b98559da64eb1a6d5bd4414ae933d4aa1d21c7d5e75b7ec1d89d7535c69153ba",
+      "prediction_size_bytes": 44247,
+      "prediction_text": "Five matched loading increments should pass unchanged 1e-6 certificate; a short path does not establish mesh convergence. Physics/source unchanged, total Krylov budget increased only.",
+      "receipt": {
+        "exit_code": 0,
+        "finished_at_utc": "2026-10-13T17:47:59.103854+00:00",
+        "timed_out": false,
+        "wall_seconds": 69.68365062499652
+      },
+      "receipt_present": true,
+      "result_summaries": [
+        {
+          "accepted_steps": 5,
+          "failure": "",
+          "path": "output/result.json",
+          "physical_validation": false,
+          "status": "completed"
+        }
+      ],
+      "source_case_path": "/Users/home/cardboard-followup-20261013/solver/krylov1024-prefix-001",
+      "status_note": "Included regardless of pass/fail/completion; no outcome filter is applied."
+    },
+    {
+      "case_id": "solver/mesh-armijo-001/nx16",
+      "prediction_question": "Does exact residual Armijo sustain the complete matched corrugated numerical-control cycle at nx8,16,32?",
+      "prediction_sha256": "8fb82397285853d8f04630009d7f09e5677737ed8916e041fd9375ca0d6ab336",
+      "prediction_size_bytes": 44010,
+      "prediction_text": "All 96 load/hold/unload/relax steps should meet the unchanged 1e-6 native certificate; failure rejects convergence admission. If complete, pair criteria: final phase moment <=2%, force curve relative RMS <=5%, volume-weighted plastic RMS <=10%. No self-contact, source-grade damage objectivity or experimental validation is inferred.",
+      "receipt": {
+        "exit_code": 2,
+        "finished_at_utc": "2026-10-13T17:02:25.078571+00:00",
+        "timed_out": false,
+        "wall_seconds": 28.357483625004534
+      },
+      "receipt_present": true,
+      "result_summaries": [
+        {
+          "accepted_steps": 2,
+          "failure": "Matter rejected step 2; status, accepted state OBJ, and CSV observations were retained",
+          "path": "output/result.json",
+          "physical_validation": false,
+          "status": "failed"
+        }
+      ],
+      "source_case_path": "/Users/home/cardboard-followup-20261013/solver/mesh-armijo-001/nx16",
+      "status_note": "Included regardless of pass/fail/completion; no outcome filter is applied."
+    },
+    {
+      "case_id": "solver/mesh-armijo-001/nx32",
+      "prediction_question": "Does exact residual Armijo sustain the complete matched corrugated numerical-control cycle at nx8,16,32?",
+      "prediction_sha256": "5d6741f8587da10f2b3c8d0ed1e674a67f4dd48d6ac6bb1cf5137247098258fb",
+      "prediction_size_bytes": 44010,
+      "prediction_text": "All 96 load/hold/unload/relax steps should meet the unchanged 1e-6 native certificate; failure rejects convergence admission. If complete, pair criteria: final phase moment <=2%, force curve relative RMS <=5%, volume-weighted plastic RMS <=10%. No self-contact, source-grade damage objectivity or experimental validation is inferred.",
+      "receipt": {
+        "exit_code": 2,
+        "finished_at_utc": "2026-10-13T17:07:33.655002+00:00",
+        "timed_out": false,
+        "wall_seconds": 47.40761937497882
+      },
+      "receipt_present": true,
+      "result_summaries": [
+        {
+          "accepted_steps": 2,
+          "failure": "Matter rejected step 2; status, accepted state OBJ, and CSV observations were retained",
+          "path": "output/result.json",
+          "physical_validation": false,
+          "status": "failed"
+        }
+      ],
+      "source_case_path": "/Users/home/cardboard-followup-20261013/solver/mesh-armijo-001/nx32",
+      "status_note": "Included regardless of pass/fail/completion; no outcome filter is applied."
+    },
+    {
+      "case_id": "solver/mesh-armijo-001/nx8",
+      "prediction_question": "Does exact residual Armijo sustain the complete matched corrugated numerical-control cycle at nx8,16,32?",
+      "prediction_sha256": "4c8d4d38d387dd913c2e00d799c0f0ac855e9c202adeb1565f013f8ba08ff5f6",
+      "prediction_size_bytes": 44008,
+      "prediction_text": "All 96 load/hold/unload/relax steps should meet the unchanged 1e-6 native certificate; failure rejects convergence admission. If complete, pair criteria: final phase moment <=2%, force curve relative RMS <=5%, volume-weighted plastic RMS <=10%. No self-contact, source-grade damage objectivity or experimental validation is inferred.",
+      "receipt": {
+        "exit_code": 2,
+        "finished_at_utc": "2026-10-13T17:06:46.094922+00:00",
+        "timed_out": false,
+        "wall_seconds": 260.87421945802635
+      },
+      "receipt_present": true,
+      "result_summaries": [
+        {
+          "accepted_steps": 31,
+          "failure": "Matter rejected step 31; status, accepted state OBJ, and CSV observations were retained",
+          "path": "output/result.json",
+          "physical_validation": false,
+          "status": "failed"
+        }
+      ],
+      "source_case_path": "/Users/home/cardboard-followup-20261013/solver/mesh-armijo-001/nx8",
+      "status_note": "Included regardless of pass/fail/completion; no outcome filter is applied."
+    },
+    {
+      "case_id": "solver/mesh-armijo-002/nx16",
+      "prediction_question": "Does preserving an already-converged current candidate remove stationary-control rejection and sustain the matched complete numerical-control cycle?",
+      "prediction_sha256": "b6641664a010f2edc45d20342f2264c3df36a383db0fe0e02b013ee30cea70b9",
+      "prediction_size_bytes": 44379,
+      "prediction_text": "All 96 steps should pass the unchanged 1e-6 certificate. Prior failures are retained. Pair criteria if complete: final phase moment <=2%, force curve RMS <=5%, volume-weighted plastic RMS <=10%; failed paths are not admitted. No self-contact or physical calibration is inferred.",
+      "receipt": {
+        "exit_code": 2,
+        "finished_at_utc": "2026-10-13T17:19:35.454342+00:00",
+        "timed_out": false,
+        "wall_seconds": 11.940878416004125
+      },
+      "receipt_present": true,
+      "result_summaries": [
+        {
+          "accepted_steps": 0,
+          "failure": "Matter rejected step 0; status, accepted state OBJ, and CSV observations were retained",
+          "path": "output/result.json",
+          "physical_validation": false,
+          "status": "failed"
+        }
+      ],
+      "source_case_path": "/Users/home/cardboard-followup-20261013/solver/mesh-armijo-002/nx16",
+      "status_note": "Included regardless of pass/fail/completion; no outcome filter is applied."
+    },
+    {
+      "case_id": "solver/mesh-armijo-002/nx32",
+      "prediction_question": "Does preserving an already-converged current candidate remove stationary-control rejection and sustain the matched complete numerical-control cycle?",
+      "prediction_sha256": "19fde59fcf6fade9af23d410c0f15f2a5ab9c80f33f34906192de2fa358bd07c",
+      "prediction_size_bytes": 44379,
+      "prediction_text": "All 96 steps should pass the unchanged 1e-6 certificate. Prior failures are retained. Pair criteria if complete: final phase moment <=2%, force curve RMS <=5%, volume-weighted plastic RMS <=10%; failed paths are not admitted. No self-contact or physical calibration is inferred.",
+      "receipt": {
+        "exit_code": 2,
+        "finished_at_utc": "2026-10-13T17:19:45.944932+00:00",
+        "timed_out": false,
+        "wall_seconds": 10.35802149999654
+      },
+      "receipt_present": true,
+      "result_summaries": [
+        {
+          "accepted_steps": 0,
+          "failure": "Matter rejected step 0; status, accepted state OBJ, and CSV observations were retained",
+          "path": "output/result.json",
+          "physical_validation": false,
+          "status": "failed"
+        }
+      ],
+      "source_case_path": "/Users/home/cardboard-followup-20261013/solver/mesh-armijo-002/nx32",
+      "status_note": "Included regardless of pass/fail/completion; no outcome filter is applied."
+    },
+    {
+      "case_id": "solver/mesh-armijo-002/nx8",
+      "prediction_question": "Does preserving an already-converged current candidate remove stationary-control rejection and sustain the matched complete numerical-control cycle?",
+      "prediction_sha256": "8fca6de436beeeffe6681f3d65b1f9c62a2e394af214b3a7da40d393c0d0f1bc",
+      "prediction_size_bytes": 44377,
+      "prediction_text": "All 96 steps should pass the unchanged 1e-6 certificate. Prior failures are retained. Pair criteria if complete: final phase moment <=2%, force curve RMS <=5%, volume-weighted plastic RMS <=10%; failed paths are not admitted. No self-contact or physical calibration is inferred.",
+      "receipt": {
+        "exit_code": 2,
+        "finished_at_utc": "2026-10-13T17:19:50.424892+00:00",
+        "timed_out": false,
+        "wall_seconds": 4.343866332957987
+      },
+      "receipt_present": true,
+      "result_summaries": [
+        {
+          "accepted_steps": 0,
+          "failure": "Matter rejected step 0; status, accepted state OBJ, and CSV observations were retained",
+          "path": "output/result.json",
+          "physical_validation": false,
+          "status": "failed"
+        }
+      ],
+      "source_case_path": "/Users/home/cardboard-followup-20261013/solver/mesh-armijo-002/nx8",
+      "status_note": "Included regardless of pass/fail/completion; no outcome filter is applied."
+    },
+    {
+      "case_id": "solver/mesh-armijo-003/nx16",
+      "prediction_question": "Does certified zero-direction representation sustain the complete matched 96-step numerical-control cycle across three meshes?",
+      "prediction_sha256": "0c6b26e130c1ac6c5a1f29d98ab34c5100c0dcd8aab5a3f0f63dacdfbf2d63b6",
+      "prediction_size_bytes": 44325,
+      "prediction_text": "All 96 steps should pass the unchanged 1e-6 certificate. Pair criteria if complete: final phase moment <=2%, force curve RMS <=5%, volume-weighted plastic RMS <=10%; failed paths are not admitted. No self-contact or physical calibration inferred.",
+      "receipt": {
+        "exit_code": 2,
+        "finished_at_utc": "2026-10-13T17:38:59.503950+00:00",
+        "timed_out": false,
+        "wall_seconds": 483.27362749999156
+      },
+      "receipt_present": true,
+      "result_summaries": [
+        {
+          "accepted_steps": 32,
+          "failure": "Matter rejected step 32; status, accepted state OBJ, and CSV observations were retained",
+          "path": "output/result.json",
+          "physical_validation": false,
+          "status": "failed"
+        }
+      ],
+      "source_case_path": "/Users/home/cardboard-followup-20261013/solver/mesh-armijo-003/nx16",
+      "status_note": "Included regardless of pass/fail/completion; no outcome filter is applied."
+    },
+    {
+      "case_id": "solver/mesh-armijo-003/nx32",
+      "prediction_question": "Does certified zero-direction representation sustain the complete matched 96-step numerical-control cycle across three meshes?",
+      "prediction_sha256": "ba4a7e55f7ad888d408dd084165aa9c2ba4b27ada7790c7ed94eefb4678e5792",
+      "prediction_size_bytes": 44325,
+      "prediction_text": "All 96 steps should pass the unchanged 1e-6 certificate. Pair criteria if complete: final phase moment <=2%, force curve RMS <=5%, volume-weighted plastic RMS <=10%; failed paths are not admitted. No self-contact or physical calibration inferred.",
+      "receipt": {
+        "exit_code": 2,
+        "finished_at_utc": "2026-10-13T17:40:33.613344+00:00",
+        "timed_out": false,
+        "wall_seconds": 93.75415733299451
+      },
+      "receipt_present": true,
+      "result_summaries": [
+        {
+          "accepted_steps": 4,
+          "failure": "Matter rejected step 4; status, accepted state OBJ, and CSV observations were retained",
+          "path": "output/result.json",
+          "physical_validation": false,
+          "status": "failed"
+        }
+      ],
+      "source_case_path": "/Users/home/cardboard-followup-20261013/solver/mesh-armijo-003/nx32",
+      "status_note": "Included regardless of pass/fail/completion; no outcome filter is applied."
+    },
+    {
+      "case_id": "solver/mesh-armijo-003/nx8",
+      "prediction_question": "Does certified zero-direction representation sustain the complete matched 96-step numerical-control cycle across three meshes?",
+      "prediction_sha256": "32e7dd169bbacac772beb3f3883a986eaf782dda9c70ffd9f0654761e072e340",
+      "prediction_size_bytes": 44323,
+      "prediction_text": "All 96 steps should pass the unchanged 1e-6 certificate. Pair criteria if complete: final phase moment <=2%, force curve RMS <=5%, volume-weighted plastic RMS <=10%; failed paths are not admitted. No self-contact or physical calibration inferred.",
+      "receipt": {
+        "exit_code": 2,
+        "finished_at_utc": "2026-10-13T17:44:53.001533+00:00",
+        "timed_out": false,
+        "wall_seconds": 259.22467258299
+      },
+      "receipt_present": true,
+      "result_summaries": [
+        {
+          "accepted_steps": 31,
+          "failure": "Matter rejected step 31; status, accepted state OBJ, and CSV observations were retained",
+          "path": "output/result.json",
+          "physical_validation": false,
+          "status": "failed"
+        }
+      ],
+      "source_case_path": "/Users/home/cardboard-followup-20261013/solver/mesh-armijo-003/nx8",
+      "status_note": "Included regardless of pass/fail/completion; no outcome filter is applied."
+    },
+    {
+      "case_id": "solver/converged-positive-noop-001",
+      "prediction_question": "Does a certified zero correction with positive shared alpha preserve the already converged candidate and avoid empty-block limiter rejection?",
+      "prediction_sha256": "8bf5b1834acfb2d152e33829eb637af127f688861b393a8fc6068bf453b1dd8d",
+      "prediction_size_bytes": 44010,
+      "prediction_text": "Four nx16 increments .0078125 degrees should pass unchanged 1e-6 residual tolerance in both driven and stationary environments; this is a short solver check, not mesh convergence.",
+      "receipt": {
+        "exit_code": 0,
+        "finished_at_utc": "2026-10-13T17:30:32.341249+00:00",
+        "timed_out": false,
+        "wall_seconds": 182.36726670898497
+      },
+      "receipt_present": true,
+      "result_summaries": [
+        {
+          "accepted_steps": 116,
+          "failure": "",
+          "path": "output/result.json",
+          "physical_validation": false,
+          "status": "completed"
+        }
+      ],
+      "source_case_path": "/Users/home/cardboard-followup-20261013/solver/converged-positive-noop-001",
+      "status_note": "Included regardless of pass/fail/completion; no outcome filter is applied."
+    },
+    {
+      "case_id": "bulk/source-point-004",
+      "prediction_question": "Does the complete source-grade constitutive law accept a .005-increment shear loading and unloading cycle after damage activation?",
+      "prediction_sha256": "679da39ec0b3a95a8e7761d256f8cd3d1e006162d534e1005511c695d3e577d4",
+      "prediction_size_bytes": 18865,
+      "prediction_text": "121 accepted material points; nondecreasing damage; retained candidate and accepted states on every increment; no FEM qualification",
+      "receipt": {
+        "exit_code": 1,
+        "finished_at_utc": "2026-10-13T15:54:08.703939+00:00",
+        "timed_out": false,
+        "wall_seconds": 5.567122000007657
+      },
+      "receipt_present": true,
+      "result_summaries": [],
+      "source_case_path": "/Users/home/cardboard-followup-20261013/bulk/source-point-004",
+      "status_note": "Included regardless of pass/fail/completion; no outcome filter is applied."
+    },
+    {
+      "case_id": "native-tests-009/capsule-box",
+      "prediction_question": "The repaired every-step selector enforces stationary BOX endpoints and rejects moved kinematic BOX bodies before and after solve with exact rollback?",
+      "prediction_sha256": "84ffa0c2cc20de3663c48a1d03c6c523b976c73a0a10bd017c55024d35a13f16",
+      "prediction_size_bytes": 43577,
+      "prediction_text": "The repaired every-step selector enforces stationary BOX endpoints and rejects moved kinematic BOX bodies before and after solve with exact rollback. All manufactured contact and grip checks pass.",
+      "receipt": {
+        "exit_code": 0,
+        "finished_at_utc": "2026-10-13T18:09:35.719805+00:00",
+        "timed_out": false,
+        "wall_seconds": 5.326082416984718
+      },
+      "receipt_present": true,
+      "result_summaries": [],
+      "source_case_path": "/Users/home/cardboard-followup-20261013/native-tests-009/capsule-box",
+      "status_note": "Included regardless of pass/fail/completion; no outcome filter is applied."
+    },
+    {
+      "case_id": "native-tests-009/cohesive",
+      "prediction_question": "The corrected material-argument invocation executes and passes all existing fixture contracts?",
+      "prediction_sha256": "49aa21bc4db753b6e8ea424f0b274d96b4b98611da5efdc031219aa0d6b9f5f5",
+      "prediction_size_bytes": 43702,
+      "prediction_text": "The corrected material-argument invocation executes and passes all existing fixture contracts. Previous008 usage-only attempts remain unexecuted invalid invocations.",
+      "receipt": {
+        "exit_code": 0,
+        "finished_at_utc": "2026-10-13T18:11:06.424606+00:00",
+        "timed_out": false,
+        "wall_seconds": 54.064562750048935
+      },
+      "receipt_present": true,
+      "result_summaries": [],
+      "source_case_path": "/Users/home/cardboard-followup-20261013/native-tests-009/cohesive",
+      "status_note": "Included regardless of pass/fail/completion; no outcome filter is applied."
+    },
+    {
+      "case_id": "native-tests-009/frame",
+      "prediction_question": "The corrected material-argument invocation executes and passes all existing fixture contracts?",
+      "prediction_sha256": "646ff445af0af00d6fb56c9679cf300270bb89af645830c361736c451c6df2f5",
+      "prediction_size_bytes": 43587,
+      "prediction_text": "The corrected material-argument invocation executes and passes all existing fixture contracts. Previous008 usage-only attempts remain unexecuted invalid invocations.",
+      "receipt": {
+        "exit_code": 0,
+        "finished_at_utc": "2026-10-13T18:10:12.205098+00:00",
+        "timed_out": false,
+        "wall_seconds": 6.067265290999785
+      },
+      "receipt_present": true,
+      "result_summaries": [],
+      "source_case_path": "/Users/home/cardboard-followup-20261013/native-tests-009/frame",
+      "status_note": "Included regardless of pass/fail/completion; no outcome filter is applied."
+    },
+    {
+      "case_id": "native-tests-009/reference",
+      "prediction_question": "The corrected material-argument invocation executes and passes all existing fixture contracts?",
+      "prediction_sha256": "35ef3c8c69bdb1c87bd3e3ff1e5ddd54abe2282a27f52437436bc25e9a5211c1",
+      "prediction_size_bytes": 43691,
+      "prediction_text": "The corrected material-argument invocation executes and passes all existing fixture contracts. Previous008 usage-only attempts remain unexecuted invalid invocations.",
+      "receipt": {
+        "exit_code": 0,
+        "finished_at_utc": "2026-10-13T18:10:05.995045+00:00",
+        "timed_out": false,
+        "wall_seconds": 20.348788124974817
+      },
+      "receipt_present": true,
+      "result_summaries": [],
+      "source_case_path": "/Users/home/cardboard-followup-20261013/native-tests-009/reference",
+      "status_note": "Included regardless of pass/fail/completion; no outcome filter is applied."
+    },
+    {
+      "case_id": "native-tests-009/regional",
+      "prediction_question": "The corrected material-argument invocation executes and passes all existing fixture contracts?",
+      "prediction_sha256": "69208bd95e58cccea30f95458d646f9221b9ab064cb05f30aa30b186b4039fc6",
+      "prediction_size_bytes": 43707,
+      "prediction_text": "The corrected material-argument invocation executes and passes all existing fixture contracts. Previous008 usage-only attempts remain unexecuted invalid invocations.",
+      "receipt": {
+        "exit_code": 0,
+        "finished_at_utc": "2026-10-13T18:09:45.525239+00:00",
+        "timed_out": false,
+        "wall_seconds": 9.672843375010416
+      },
+      "receipt_present": true,
+      "result_summaries": [],
+      "source_case_path": "/Users/home/cardboard-followup-20261013/native-tests-009/regional",
+      "status_note": "Included regardless of pass/fail/completion; no outcome filter is applied."
+    },
+    {
+      "case_id": "native-tests-010/cohesive-reset",
+      "prediction_question": "Does the paired-interface reset restore original authored history while preserving an unreset environment and the reset rollback checkpoint?",
+      "prediction_sha256": "87d8f66d06ff766f7a523b37b23bb7403dedbf0c2b98021ad2e32f70fe92d7cd",
+      "prediction_size_bytes": 43883,
+      "prediction_text": "Predict the existing source-grade Mode-I fixture and new two-environment episode-reset assertions pass. This is native software/transaction regression only; separate bleached grade, not corrugated starch calibration.",
+      "receipt": {
+        "exit_code": 1,
+        "finished_at_utc": "2026-10-13T19:22:54.573768+00:00",
+        "timed_out": false,
+        "wall_seconds": 3.1622278330032714
+      },
+      "receipt_present": true,
+      "result_summaries": [],
+      "source_case_path": "/Users/home/cardboard-followup-20261013/native-tests-010/cohesive-reset",
+      "status_note": "Included regardless of pass/fail/completion; no outcome filter is applied."
+    },
+    {
+      "case_id": "native-tests-011/cohesive-reset",
+      "prediction_question": "Does the paired-interface reset restore original authored history while preserving an unreset environment and the reset rollback checkpoint?",
+      "prediction_sha256": "c11441f0926b701a2e8f76057a75292f481b39c1889d981d1758a4652ae77376",
+      "prediction_size_bytes": 44000,
+      "prediction_text": "Predict the existing source-grade Mode-I fixture and new two-environment episode-reset assertions pass. This is native software/transaction regression only; separate bleached grade, not corrugated starch calibration.",
+      "receipt": {
+        "exit_code": 0,
+        "finished_at_utc": "2026-10-13T19:25:56.301350+00:00",
+        "timed_out": false,
+        "wall_seconds": 56.46562466601608
+      },
+      "receipt_present": true,
+      "result_summaries": [],
+      "source_case_path": "/Users/home/cardboard-followup-20261013/native-tests-011/cohesive-reset",
+      "status_note": "Included regardless of pass/fail/completion; no outcome filter is applied."
+    },
+    {
+      "case_id": "native-tests-011/capsule-box",
+      "prediction_question": "Do stationary-BOX endpoint and exact rollback contracts still pass with the diagnostic and reset additions disabled?",
+      "prediction_sha256": "7befc993d8b3fc62c8c7fdea1f2bb2632d6ea50039ac5079e322daedd6193715",
+      "prediction_size_bytes": 43647,
+      "prediction_text": "Predict the manufactured capsule and moved-BOX endpoint fixture passes unchanged. This checks bounded native API transactions, not physical box mechanics.",
+      "receipt": {
+        "exit_code": 0,
+        "finished_at_utc": "2026-10-13T19:26:01.755292+00:00",
+        "timed_out": false,
+        "wall_seconds": 5.266211249982007
+      },
+      "receipt_present": true,
+      "result_summaries": [],
+      "source_case_path": "/Users/home/cardboard-followup-20261013/native-tests-011/capsule-box",
+      "status_note": "Included regardless of pass/fail/completion; no outcome filter is applied."
+    },
+    {
+      "case_id": "scoring/armijo-001",
+      "prediction_question": "Can the full 50um scoring/hold/withdrawal path pass with exact tool/anvil residual Armijo and nominal barrier scale?",
+      "prediction_sha256": "e33f1d79779b0cc94e59c2822cec5f78feb6da64d73eff7f535b917fd969eada",
+      "prediction_size_bytes": 44275,
+      "prediction_text": "All 96 native steps should pass unchanged 1e-6 certificate and end-gap audit. No-self control and missing damage law prevent physical crease qualification.",
+      "receipt": {
+        "exit_code": 2,
+        "finished_at_utc": "2026-10-13T17:53:29.152398+00:00",
+        "timed_out": false,
+        "wall_seconds": 329.91508487501414
+      },
+      "receipt_present": true,
+      "result_summaries": [
+        {
+          "accepted_steps": 60,
+          "failure": "Matter rejected step 60; status, accepted state OBJ, and CSV observations were retained",
+          "path": "output/result.json",
+          "physical_validation": false,
+          "status": "failed"
+        }
+      ],
+      "source_case_path": "/Users/home/cardboard-followup-20261013/scoring/armijo-001",
+      "status_note": "Included regardless of pass/fail/completion; no outcome filter is applied."
+    },
+    {
+      "case_id": "scoring/armijo-002",
+      "prediction_question": "The complete96step 50um nominal scoring path accepts with unchanged source and tolerance by increasing only the existing Krylov budget512to1024?",
+      "prediction_sha256": "494a1142c17d2315ac2130cafa476911d772a88712b93a630841fc75e855923e",
+      "prediction_size_bytes": 44375,
+      "prediction_text": "The complete96step 50um nominal scoring path accepts with unchanged source and tolerance by increasing only the existing Krylov budget512to1024. A failure remains a numerical failure, not evidence of physical material rupture.",
+      "receipt": {
+        "exit_code": 2,
+        "finished_at_utc": "2026-10-13T18:18:42.610831+00:00",
+        "timed_out": false,
+        "wall_seconds": 456.03790512500564
+      },
+      "receipt_present": true,
+      "result_summaries": [
+        {
+          "accepted_steps": 60,
+          "failure": "Matter rejected step 60; status, accepted state OBJ, and CSV observations were retained",
+          "path": "output/result.json",
+          "physical_validation": false,
+          "status": "failed"
+        }
+      ],
+      "source_case_path": "/Users/home/cardboard-followup-20261013/scoring/armijo-002",
+      "status_note": "Included regardless of pass/fail/completion; no outcome filter is applied."
+    },
+    {
+      "case_id": "scoring/armijo-003",
+      "prediction_question": "Can a fourfold finer and slower withdrawal preserve the contact solve through the full50um scoring cycle?",
+      "prediction_sha256": "f928f052ab2cac5b350216a04b7a96a7c9c5daf18562b8b6de5fb38b10e8c81b",
+      "prediction_size_bytes": 44546,
+      "prediction_text": "Keep loading48,hold12,relax12,dt25us,nominal contact,source materials,newton64,Krylov1024 and1e-6 tolerance identical to002. Increase only withdrawal24to96 increments: both the increment and tool speed reduce fourfold, duration increases fourfold. Predict all168steps accepted. This is a combined increment/load-rate sensitivity control, not temporal convergence or physical crease calibration. Retain all failures and incomplete paths.",
+      "receipt": {
+        "exit_code": 0,
+        "finished_at_utc": "2026-10-13T19:10:28.200045+00:00",
+        "timed_out": false,
+        "wall_seconds": 1010.1613910829765
+      },
+      "receipt_present": true,
+      "result_summaries": [
+        {
+          "accepted_steps": 168,
+          "failure": "",
+          "path": "output/result.json",
+          "physical_validation": false,
+          "status": "completed"
+        }
+      ],
+      "source_case_path": "/Users/home/cardboard-followup-20261013/scoring/armijo-003",
+      "status_note": "Included regardless of pass/fail/completion; no outcome filter is applied."
+    },
+    {
+      "case_id": "box/native-003",
+      "prediction_question": "Can the anchored full physical-contact FEFCO blank advance through scoring and all boundary actions with a larger native solve budget?",
+      "prediction_sha256": "f4aced5bb87ae6b17f6ad7b2afb03ce05e207c4fdc8510bb5f867a0750a40931",
+      "prediction_size_bytes": 44058,
+      "prediction_text": "Every accepted step must pass unchanged 1e-6 certificate; shape and bond gates remain. No fixture-free or bonded assembly inferred. Failed or unattempted actions retained.",
+      "receipt": {
+        "exit_code": 2,
+        "finished_at_utc": "2026-10-13T18:01:06.094588+00:00",
+        "timed_out": false,
+        "wall_seconds": 456.76429237501
+      },
+      "receipt_present": true,
+      "result_summaries": [
+        {
+          "accepted_steps": 32,
+          "failure": "Matter rejected native step 32",
+          "path": "output/result.json",
+          "physical_validation": false,
+          "status": "failed_native"
+        }
+      ],
+      "source_case_path": "/Users/home/cardboard-followup-20261013/box/native-003",
+      "status_note": "Included regardless of pass/fail/completion; no outcome filter is applied."
+    },
+    {
+      "case_id": "box/native-004",
+      "prediction_question": "Can the explicit no-self-contact numerical control with exact BOX residual Armijo advance the anchored full-blank boundary actions?",
+      "prediction_sha256": "574e0fc6af265a207fbfb4516d4bb3feeb2e0914c5e22ea46dc0410a95521428",
+      "prediction_size_bytes": 44140,
+      "prediction_text": "All step/action/shape ledgers retained; completed controls would remain externally held, unbonded, unsealed and without self-contact, not physical full-box qualification.",
+      "receipt": {
+        "exit_code": 2,
+        "finished_at_utc": "2026-10-13T18:09:28.807717+00:00",
+        "timed_out": false,
+        "wall_seconds": 502.5261783330352
+      },
+      "receipt_present": true,
+      "result_summaries": [
+        {
+          "accepted_steps": 32,
+          "failure": "Matter rejected native step 32",
+          "path": "output/result.json",
+          "physical_validation": false,
+          "status": "failed_native"
+        }
+      ],
+      "source_case_path": "/Users/home/cardboard-followup-20261013/box/native-004",
+      "status_note": "Included regardless of pass/fail/completion; no outcome filter is applied."
+    },
+    {
+      "case_id": "box/native-005",
+      "prediction_question": "Can the larger existing Krylov budget advance the full self-contact blank beyond the first-contact rejection?",
+      "prediction_sha256": "7a3ab209280e3e282b4f75000015cf2a879daf28d772e9291b687f99dac3f133",
+      "prediction_size_bytes": 44229,
+      "prediction_text": "The anchored fullblank uses all actual contact and free interior FEM degrees, unchanged 1e-6 certificate and source materials. Only Krylov512to1024 differs from003 apart from the repaired BOX selector (unset in this default path). Shape and adhesive gates remain; fixture mode cannot qualify sealed/bonded assembly. All failures and unattempted actions are retained.",
+      "receipt": {
+        "exit_code": 2,
+        "finished_at_utc": "2026-10-13T19:22:50.562946+00:00",
+        "timed_out": false,
+        "wall_seconds": 742.2219344160403
+      },
+      "receipt_present": true,
+      "result_summaries": [
+        {
+          "accepted_steps": 32,
+          "failure": "Matter rejected native step 32",
+          "path": "output/result.json",
+          "physical_validation": false,
+          "status": "failed_native"
+        }
+      ],
+      "source_case_path": "/Users/home/cardboard-followup-20261013/box/native-005",
+      "status_note": "Included regardless of pass/fail/completion; no outcome filter is applied."
+    },
+    {
+      "case_id": "solver/mesh-armijo-004/nx16",
+      "prediction_question": "All three matched96step mesh histories should accept the unchanged1e-6 certificate using the existing1024column budget?",
+      "prediction_sha256": "0e3d966312d7a34ce859e4007d032439469bab5b0abe6dfbd6a00d24d4106d96",
+      "prediction_size_bytes": 44308,
+      "prediction_text": "All three matched96step mesh histories should accept the unchanged1e-6 certificate using the existing1024column budget. Only complete matched histories may enter a convergence comparison; failures/timeouts are not convergence evidence.",
+      "receipt": {
+        "exit_code": 2,
+        "finished_at_utc": "2026-10-13T18:33:37.120208+00:00",
+        "timed_out": false,
+        "wall_seconds": 238.52997916698223
+      },
+      "receipt_present": true,
+      "result_summaries": [
+        {
+          "accepted_steps": 19,
+          "failure": "Matter rejected step 19; status, accepted state OBJ, and CSV observations were retained",
+          "path": "output/result.json",
+          "physical_validation": false,
+          "status": "failed"
+        }
+      ],
+      "source_case_path": "/Users/home/cardboard-followup-20261013/solver/mesh-armijo-004/nx16",
+      "status_note": "Included regardless of pass/fail/completion; no outcome filter is applied."
+    },
+    {
+      "case_id": "solver/mesh-armijo-004/nx32",
+      "prediction_question": "All three matched96step mesh histories should accept the unchanged1e-6 certificate using the existing1024column budget?",
+      "prediction_sha256": "7fd1da43906845f9f061e5f2cd99d5b9208784143d867c517d879c03966c4acd",
+      "prediction_size_bytes": 44308,
+      "prediction_text": "All three matched96step mesh histories should accept the unchanged1e-6 certificate using the existing1024column budget. Only complete matched histories may enter a convergence comparison; failures/timeouts are not convergence evidence.",
+      "receipt": {
+        "exit_code": -15,
+        "finished_at_utc": "2026-10-13T18:53:37.245765+00:00",
+        "timed_out": true,
+        "wall_seconds": 1200.027061666944
+      },
+      "receipt_present": true,
+      "result_summaries": [],
+      "source_case_path": "/Users/home/cardboard-followup-20261013/solver/mesh-armijo-004/nx32",
+      "status_note": "Included regardless of pass/fail/completion; no outcome filter is applied."
+    },
+    {
+      "case_id": "solver/mesh-armijo-004/nx8",
+      "prediction_question": "All three matched96step mesh histories should accept the unchanged1e-6 certificate using the existing1024column budget?",
+      "prediction_sha256": "9973fa5974224209d5b1d61db77a6fc309dffc96f287fe86c7832789da102c3d",
+      "prediction_size_bytes": 44306,
+      "prediction_text": "All three matched96step mesh histories should accept the unchanged1e-6 certificate using the existing1024column budget. Only complete matched histories may enter a convergence comparison; failures/timeouts are not convergence evidence.",
+      "receipt": {
+        "exit_code": 2,
+        "finished_at_utc": "2026-10-13T18:29:38.454254+00:00",
+        "timed_out": false,
+        "wall_seconds": 655.6735984999686
+      },
+      "receipt_present": true,
+      "result_summaries": [
+        {
+          "accepted_steps": 43,
+          "failure": "Matter rejected step 43; status, accepted state OBJ, and CSV observations were retained",
+          "path": "output/result.json",
+          "physical_validation": false,
+          "status": "failed"
+        }
+      ],
+      "source_case_path": "/Users/home/cardboard-followup-20261013/solver/mesh-armijo-004/nx8",
+      "status_note": "Included regardless of pass/fail/completion; no outcome filter is applied."
+    },
+    {
+      "case_id": "solver/operator-fd-baseline-001",
+      "prediction_question": "Does frozen031 reproduce the prior no-contact nx16 nonlinear rejection with diagnostic disabled?",
+      "prediction_sha256": "6d7cf0c60e9859af27ab6a5c7284d51544fa2b58ce0015ae14285bbaf54da3dd",
+      "prediction_size_bytes": 44230,
+      "prediction_text": "Predict failure at root19, Newton iteration3, under the unchanged protocol and certificate. All accepted and rejected records retained; baseline does not admit mesh convergence.",
+      "receipt": {
+        "exit_code": 2,
+        "finished_at_utc": "2026-10-13T19:30:04.313145+00:00",
+        "timed_out": false,
+        "wall_seconds": 242.3064711249899
+      },
+      "receipt_present": true,
+      "result_summaries": [
+        {
+          "accepted_steps": 19,
+          "failure": "Matter rejected step 19; status, accepted state OBJ, and CSV observations were retained",
+          "path": "output/result.json",
+          "physical_validation": false,
+          "status": "failed"
+        }
+      ],
+      "source_case_path": "/Users/home/cardboard-followup-20261013/solver/operator-fd-baseline-001",
+      "status_note": "Included regardless of pass/fail/completion; no outcome filter is applied."
+    },
+    {
+      "case_id": "solver/operator-fd-001",
+      "prediction_question": "At the failed root19/Newton3 candidate, does the production matrix-free operator match centered nonlinear residual differences along its actual correction?",
+      "prediction_sha256": "6a9a2c6b4a79c8f1e8881997f1ee252b7e6f266a60b0638455355596f96948e9",
+      "prediction_size_bytes": 44534,
+      "prediction_text": "Predict valid paired perturbations at epsilon1/32 and1/64, positive J, exact unchanged accepted history/frame/status, and a useful operator-versus-residual measurement. Compare diagnostic-disabled baseline CSV and meshes for perturbation of the native outcome. Numerical consistency diagnostic only; zero correction and invalid stages are not a pass, no physical or convergence admission.",
+      "receipt": {
+        "exit_code": 2,
+        "finished_at_utc": "2026-10-13T19:34:05.434509+00:00",
+        "timed_out": false,
+        "wall_seconds": 240.7466371670016
+      },
+      "receipt_present": true,
+      "result_summaries": [
+        {
+          "accepted_steps": 19,
+          "failure": "Matter rejected step 19; status, accepted state OBJ, and CSV observations were retained",
+          "path": "output/result.json",
+          "physical_validation": false,
+          "status": "failed"
+        }
+      ],
+      "source_case_path": "/Users/home/cardboard-followup-20261013/solver/operator-fd-001",
+      "status_note": "Included regardless of pass/fail/completion; no outcome filter is applied."
+    },
+    {
+      "case_id": "solver/operator-fd-002",
+      "prediction_question": "Does the selected operator/residual discrepancy persist under larger paired perturbations at the same failed root19/Newton3?",
+      "prediction_sha256": "733f9c2e585c78bf3fcc514ad0f6f6f0a58f34194836e798d781051dc6858a2e",
+      "prediction_size_bytes": 44732,
+      "prediction_text": "Use epsilon scale8 on the actual correction with unchanged native solve, material, history and certificate. Predict valid positive-J perturbations and identical observations/allmesh hashes to frozen031 baseline. Report finite-difference sensitivity without assuming tangent error, active-set cause, or convergence; include zero-direction control as vacuous. Host033 adds only bounded diagnostic scale configuration and telemetry; Metal image identical031.",
+      "receipt": {
+        "exit_code": 2,
+        "finished_at_utc": "2026-10-13T19:42:23.004274+00:00",
+        "timed_out": false,
+        "wall_seconds": 241.20740287500666
+      },
+      "receipt_present": true,
+      "result_summaries": [
+        {
+          "accepted_steps": 19,
+          "failure": "Matter rejected step 19; status, accepted state OBJ, and CSV observations were retained",
+          "path": "output/result.json",
+          "physical_validation": false,
+          "status": "failed"
+        }
+      ],
+      "source_case_path": "/Users/home/cardboard-followup-20261013/solver/operator-fd-002",
+      "status_note": "Included regardless of pass/fail/completion; no outcome filter is applied."
+    },
+    {
+      "case_id": "solver/operator-fd-003",
+      "prediction_question": "Does the selected operator/residual discrepancy persist under larger paired perturbations at the same failed root19/Newton3?",
+      "prediction_sha256": "d8fe934b2c8b6e4742e4bfa40112132bb59bd2c09f408358a8ef423437a27582",
+      "prediction_size_bytes": 44734,
+      "prediction_text": "Use epsilon scale16 on the actual correction with unchanged native solve, material, history and certificate. Predict valid positive-J perturbations and identical observations/allmesh hashes to frozen031 baseline. Report finite-difference sensitivity without assuming tangent error, active-set cause, or convergence; include zero-direction control as vacuous. Host033 adds only bounded diagnostic scale configuration and telemetry; Metal image identical031.",
+      "receipt": {
+        "exit_code": 2,
+        "finished_at_utc": "2026-10-13T19:46:24.896476+00:00",
+        "timed_out": false,
+        "wall_seconds": 241.73543275002157
+      },
+      "receipt_present": true,
+      "result_summaries": [
+        {
+          "accepted_steps": 19,
+          "failure": "Matter rejected step 19; status, accepted state OBJ, and CSV observations were retained",
+          "path": "output/result.json",
+          "physical_validation": false,
+          "status": "failed"
+        }
+      ],
+      "source_case_path": "/Users/home/cardboard-followup-20261013/solver/operator-fd-003",
+      "status_note": "Included regardless of pass/fail/completion; no outcome filter is applied."
+    },
+    {
+      "case_id": "solver/operator-fd-scope-034",
+      "prediction_question": "Does the final positive-mass diagnostic scope admit the eligible native first-step fixture and leave the unchanged solve certified?",
+      "prediction_sha256": "8cdaadfb60f03f3f6c2437c07085163c1aeb553ad96011758797ddaf1ee26b0a",
+      "prediction_size_bytes": 44462,
+      "prediction_text": "Predict one step accepted, paired diagnostic execution at root0/Newton0 with finitepositive immutable authored masses and unchanged input bitcheck. No physical, fullpath, tangentaccuracy or mesh convergence admission.",
+      "receipt": {
+        "exit_code": 0,
+        "finished_at_utc": "2026-10-13T19:47:32.614737+00:00",
+        "timed_out": false,
+        "wall_seconds": 4.496255499951076
+      },
+      "receipt_present": true,
+      "result_summaries": [
+        {
+          "accepted_steps": 1,
+          "failure": "",
+          "path": "output/result.json",
+          "physical_validation": false,
+          "status": "completed"
+        }
+      ],
+      "source_case_path": "/Users/home/cardboard-followup-20261013/solver/operator-fd-scope-034",
+      "status_note": "Included regardless of pass/fail/completion; no outcome filter is applied."
+    },
+    {
+      "case_id": "native-tests-012/cohesive-reset",
+      "prediction_question": "Does the paired-interface reset restore original authored history while preserving an unreset environment and the reset rollback checkpoint?",
+      "prediction_sha256": "32d9181734e675171b24130ac09be0f613d16ecfe69f9623407dceac77a553fb",
+      "prediction_size_bytes": 44000,
+      "prediction_text": "Predict the existing source-grade Mode-I fixture and new two-environment episode-reset assertions pass. This is native software/transaction regression only; separate bleached grade, not corrugated starch calibration.",
+      "receipt": {
+        "exit_code": 0,
+        "finished_at_utc": "2026-10-13T19:47:22.688788+00:00",
+        "timed_out": false,
+        "wall_seconds": 56.15515912504634
+      },
+      "receipt_present": true,
+      "result_summaries": [],
+      "source_case_path": "/Users/home/cardboard-followup-20261013/native-tests-012/cohesive-reset",
+      "status_note": "Included regardless of pass/fail/completion; no outcome filter is applied."
+    },
+    {
+      "case_id": "native-tests-012/capsule-box",
+      "prediction_question": "Do stationary-BOX endpoint and exact rollback contracts still pass with the diagnostic and reset additions disabled?",
+      "prediction_sha256": "04403bd2f6c5603613ffa6324893fcce3681bbc81d2d36ac85c955c95b681d3b",
+      "prediction_size_bytes": 43647,
+      "prediction_text": "Predict the manufactured capsule and moved-BOX endpoint fixture passes unchanged. This checks bounded native API transactions, not physical box mechanics.",
+      "receipt": {
+        "exit_code": 0,
+        "finished_at_utc": "2026-10-13T19:47:27.981545+00:00",
+        "timed_out": false,
+        "wall_seconds": 5.153141625050921
+      },
+      "receipt_present": true,
+      "result_summaries": [],
+      "source_case_path": "/Users/home/cardboard-followup-20261013/native-tests-012/capsule-box",
+      "status_note": "Included regardless of pass/fail/completion; no outcome filter is applied."
+    },
+    {
+      "case_id": "native-tests-013/cohesive-reset",
+      "prediction_question": "Does the paired-interface reset restore original authored history while preserving an unreset environment and the reset rollback checkpoint?",
+      "prediction_sha256": "4a07771faefc81785d46a2bbcb02088bfb63d85bcf44395f1afcb482e518c89e",
+      "prediction_size_bytes": 44000,
+      "prediction_text": "Predict the existing source-grade Mode-I fixture and new two-environment episode-reset assertions pass. This is native software/transaction regression only; separate bleached grade, not corrugated starch calibration.",
+      "receipt": {
+        "exit_code": 0,
+        "finished_at_utc": "2026-10-13T19:55:23.125446+00:00",
+        "timed_out": false,
+        "wall_seconds": 56.76174395903945
+      },
+      "receipt_present": true,
+      "result_summaries": [],
+      "source_case_path": "/Users/home/cardboard-followup-20261013/native-tests-013/cohesive-reset",
+      "status_note": "Included regardless of pass/fail/completion; no outcome filter is applied."
+    },
+    {
+      "case_id": "native-tests-013/capsule-box",
+      "prediction_question": "Do stationary-BOX endpoint and exact rollback contracts still pass with the diagnostic and reset additions disabled?",
+      "prediction_sha256": "1abedb7907e348c4453f20cbc732de34eda5cfb4cf4d0e679677b2966bc92dc8",
+      "prediction_size_bytes": 43647,
+      "prediction_text": "Predict the manufactured capsule and moved-BOX endpoint fixture passes unchanged. This checks bounded native API transactions, not physical box mechanics.",
+      "receipt": {
+        "exit_code": 0,
+        "finished_at_utc": "2026-10-13T19:55:28.604461+00:00",
+        "timed_out": false,
+        "wall_seconds": 5.3233960419893265
+      },
+      "receipt_present": true,
+      "result_summaries": [],
+      "source_case_path": "/Users/home/cardboard-followup-20261013/native-tests-013/capsule-box",
+      "status_note": "Included regardless of pass/fail/completion; no outcome filter is applied."
+    },
+    {
+      "case_id": "solver/operator-fd-scope-036",
+      "prediction_question": "Does the final positive-mass diagnostic scope admit the eligible native first-step fixture and leave the unchanged solve certified?",
+      "prediction_sha256": "2ea875a895fba49e8995f5fd603dfb22f3c15597455c5ef7dc9c7a952138638a",
+      "prediction_size_bytes": 44462,
+      "prediction_text": "Predict one step accepted, paired diagnostic execution at root0/Newton0 with finitepositive immutable authored masses and unchanged input bitcheck. No physical, fullpath, tangentaccuracy or mesh convergence admission.",
+      "receipt": {
+        "exit_code": 0,
+        "finished_at_utc": "2026-10-13T19:55:33.298109+00:00",
+        "timed_out": false,
+        "wall_seconds": 4.533683874993585
+      },
+      "receipt_present": true,
+      "result_summaries": [
+        {
+          "accepted_steps": 1,
+          "failure": "",
+          "path": "output/result.json",
+          "physical_validation": false,
+          "status": "completed"
+        }
+      ],
+      "source_case_path": "/Users/home/cardboard-followup-20261013/solver/operator-fd-scope-036",
+      "status_note": "Included regardless of pass/fail/completion; no outcome filter is applied."
+    },
+    {
+      "case_id": "solver/local-projection-accuracy-035",
+      "prediction_question": "Does tenfold tighter local generic projection accuracy reduce the selected global operator/residual disagreement or advance the unchanged 96-step nx16 protocol?",
+      "prediction_sha256": "bf2a96cabf657ce4fd897aa7aa05eeec50b6b6c3aee278b5ea4159190b278af9",
+      "prediction_size_bytes": 44914,
+      "prediction_text": "Isolated alternate Metal source changes both local projection factors2e-5to2e-6 only, same16localiterations, physical params and global1e-6 certificate/Newton28/FG1024. Predict either more accurately resolved global response or an explicitly retained local projection failure; do not assume success, mesh convergence, or a specific cause. Requested root19:3 may not be reached or may refer to a different candidate under the altered accepted history; report this rather than substituting another point. All failures/timeout retained. No corrugated calibration or physical qualification.",
+      "receipt": {
+        "exit_code": 2,
+        "finished_at_utc": "2026-10-13T19:48:45.698477+00:00",
+        "timed_out": false,
+        "wall_seconds": 71.98842091596453
+      },
+      "receipt_present": true,
+      "result_summaries": [
+        {
+          "accepted_steps": 2,
+          "failure": "Matter rejected step 2; status, accepted state OBJ, and CSV observations were retained",
+          "path": "output/result.json",
+          "physical_validation": false,
+          "status": "failed"
+        }
+      ],
+      "source_case_path": "/Users/home/cardboard-followup-20261013/solver/local-projection-accuracy-035",
+      "status_note": "Included regardless of pass/fail/completion; no outcome filter is applied."
+    }
+  ],
+  "groups": [
+    {
+      "id": "bulk/source-point-003",
+      "source_path": "/Users/home/cardboard-followup-20261013/bulk/source-point-003"
+    },
+    {
+      "id": "bulk/source-point-005",
+      "source_path": "/Users/home/cardboard-followup-20261013/bulk/source-point-005"
+    },
+    {
+      "id": "bulk/source-point-006",
+      "source_path": "/Users/home/cardboard-followup-20261013/bulk/source-point-006"
+    },
+    {
+      "id": "bulk/source-point-seeded-1",
+      "source_path": "/Users/home/cardboard-followup-20261013/bulk/source-point-seeded-1"
+    },
+    {
+      "id": "bulk/source-point-seeded-2",
+      "source_path": "/Users/home/cardboard-followup-20261013/bulk/source-point-seeded-2"
+    },
+    {
+      "id": "bulk/source-point-seeded-4",
+      "source_path": "/Users/home/cardboard-followup-20261013/bulk/source-point-seeded-4"
+    },
+    {
+      "id": "bulk/fem-coupling-001",
+      "source_path": "/Users/home/cardboard-followup-20261013/bulk/fem-coupling-001"
+    },
+    {
+      "id": "cohesive/native-003",
+      "source_path": "/Users/home/cardboard-followup-20261013/cohesive/native-003"
+    },
+    {
+      "id": "native-tests-004",
+      "source_path": "/Users/home/cardboard-followup-20261013/native-tests-004"
+    },
+    {
+      "id": "native-tests-005",
+      "source_path": "/Users/home/cardboard-followup-20261013/native-tests-005"
+    },
+    {
+      "id": "native-tests-006",
+      "source_path": "/Users/home/cardboard-followup-20261013/native-tests-006"
+    },
+    {
+      "id": "native-tests-007",
+      "source_path": "/Users/home/cardboard-followup-20261013/native-tests-007"
+    },
+    {
+      "id": "native-tests-008",
+      "source_path": "/Users/home/cardboard-followup-20261013/native-tests-008"
+    },
+    {
+      "id": "box/native-002",
+      "source_path": "/Users/home/cardboard-followup-20261013/box/native-002"
+    },
+    {
+      "id": "solver/armijo-001",
+      "source_path": "/Users/home/cardboard-followup-20261013/solver/armijo-001"
+    },
+    {
+      "id": "solver/armijo-004",
+      "source_path": "/Users/home/cardboard-followup-20261013/solver/armijo-004"
+    },
+    {
+      "id": "solver/krylov1024-prefix-001",
+      "source_path": "/Users/home/cardboard-followup-20261013/solver/krylov1024-prefix-001"
+    },
+    {
+      "id": "solver/mesh-armijo-001",
+      "source_path": "/Users/home/cardboard-followup-20261013/solver/mesh-armijo-001"
+    },
+    {
+      "id": "solver/mesh-armijo-002",
+      "source_path": "/Users/home/cardboard-followup-20261013/solver/mesh-armijo-002"
+    },
+    {
+      "id": "solver/mesh-armijo-003",
+      "source_path": "/Users/home/cardboard-followup-20261013/solver/mesh-armijo-003"
+    },
+    {
+      "id": "solver/converged-positive-noop-001",
+      "source_path": "/Users/home/cardboard-followup-20261013/solver/converged-positive-noop-001"
+    },
+    {
+      "id": "bulk/source-point-004",
+      "source_path": "/Users/home/cardboard-followup-20261013/bulk/source-point-004"
+    },
+    {
+      "id": "native-tests-009",
+      "source_path": "/Users/home/cardboard-followup-20261013/native-tests-009"
+    },
+    {
+      "id": "native-tests-010/cohesive-reset",
+      "source_path": "/Users/home/cardboard-followup-20261013/native-tests-010/cohesive-reset"
+    },
+    {
+      "id": "native-tests-011/cohesive-reset",
+      "source_path": "/Users/home/cardboard-followup-20261013/native-tests-011/cohesive-reset"
+    },
+    {
+      "id": "native-tests-011/capsule-box",
+      "source_path": "/Users/home/cardboard-followup-20261013/native-tests-011/capsule-box"
+    },
+    {
+      "id": "scoring/armijo-001",
+      "source_path": "/Users/home/cardboard-followup-20261013/scoring/armijo-001"
+    },
+    {
+      "id": "scoring/armijo-002",
+      "source_path": "/Users/home/cardboard-followup-20261013/scoring/armijo-002"
+    },
+    {
+      "id": "scoring/armijo-003",
+      "source_path": "/Users/home/cardboard-followup-20261013/scoring/armijo-003"
+    },
+    {
+      "id": "box/native-003",
+      "source_path": "/Users/home/cardboard-followup-20261013/box/native-003"
+    },
+    {
+      "id": "box/native-004",
+      "source_path": "/Users/home/cardboard-followup-20261013/box/native-004"
+    },
+    {
+      "id": "box/native-005",
+      "source_path": "/Users/home/cardboard-followup-20261013/box/native-005"
+    },
+    {
+      "id": "solver/mesh-armijo-004",
+      "source_path": "/Users/home/cardboard-followup-20261013/solver/mesh-armijo-004"
+    },
+    {
+      "id": "solver/operator-fd-baseline-001",
+      "source_path": "/Users/home/cardboard-followup-20261013/solver/operator-fd-baseline-001"
+    },
+    {
+      "id": "solver/operator-fd-001",
+      "source_path": "/Users/home/cardboard-followup-20261013/solver/operator-fd-001"
+    },
+    {
+      "id": "solver/operator-fd-002",
+      "source_path": "/Users/home/cardboard-followup-20261013/solver/operator-fd-002"
+    },
+    {
+      "id": "solver/operator-fd-003",
+      "source_path": "/Users/home/cardboard-followup-20261013/solver/operator-fd-003"
+    },
+    {
+      "id": "solver/operator-fd-scope-034",
+      "source_path": "/Users/home/cardboard-followup-20261013/solver/operator-fd-scope-034"
+    },
+    {
+      "id": "native-tests-012/cohesive-reset",
+      "source_path": "/Users/home/cardboard-followup-20261013/native-tests-012/cohesive-reset"
+    },
+    {
+      "id": "native-tests-012/capsule-box",
+      "source_path": "/Users/home/cardboard-followup-20261013/native-tests-012/capsule-box"
+    },
+    {
+      "id": "native-tests-013/cohesive-reset",
+      "source_path": "/Users/home/cardboard-followup-20261013/native-tests-013/cohesive-reset"
+    },
+    {
+      "id": "native-tests-013/capsule-box",
+      "source_path": "/Users/home/cardboard-followup-20261013/native-tests-013/capsule-box"
+    },
+    {
+      "id": "solver/operator-fd-scope-036",
+      "source_path": "/Users/home/cardboard-followup-20261013/solver/operator-fd-scope-036"
+    },
+    {
+      "id": "solver/local-projection-accuracy-035",
+      "source_path": "/Users/home/cardboard-followup-20261013/solver/local-projection-accuracy-035"
+    }
+  ],
+  "missing_groups": [],
+  "prediction_case_count": 70,
+  "preservation_note": "Failures, rejected steps, superseded runs, and incomplete cases are included without pass/fail filtering.",
+  "schema": "numi.cardboard.publication-case-index.v1"
+}

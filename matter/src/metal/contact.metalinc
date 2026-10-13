@@ -2908,6 +2908,161 @@ kernel void nm_contact_validate_prescribed_motion(
     }
 }
 
+inline bool sameStationaryBoxRigidRecord(
+    const NMRigidStateGPU a,
+    const NMRigidStateGPU b
+) {
+    const bool sameQuaternion = all(a.orientation == b.orientation) ||
+        all(a.orientation == -b.orientation);
+    return all(a.centerAndRadius == b.centerAndRadius) &&
+        all(a.extent == b.extent) && sameQuaternion &&
+        all(a.linearVelocityAndInverseMass == b.linearVelocityAndInverseMass) &&
+        all(a.angularVelocity == b.angularVelocity) &&
+        all(a.bodyCenter == b.bodyCenter) &&
+        all(a.inverseInertiaRow0 == b.inverseInertiaRow0) &&
+        all(a.inverseInertiaRow1 == b.inverseInertiaRow1) &&
+        all(a.inverseInertiaRow2 == b.inverseInertiaRow2);
+}
+
+inline bool finiteStationaryBoxRigidRecord(const NMRigidStateGPU state) {
+    return all(isfinite(state.centerAndRadius)) && all(isfinite(state.extent)) &&
+        all(isfinite(state.orientation)) &&
+        all(isfinite(state.linearVelocityAndInverseMass)) &&
+        all(isfinite(state.angularVelocity)) && all(isfinite(state.bodyCenter)) &&
+        all(isfinite(state.inverseInertiaRow0)) &&
+        all(isfinite(state.inverseInertiaRow1)) &&
+        all(isfinite(state.inverseInertiaRow2));
+}
+
+kernel void nm_contact_validate_stationary_box_endpoint(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMBridgeDispatchGPU& bridge [[buffer(1)]],
+    device const NMRigidProxyGPU* proxies [[buffer(2)]],
+    device const MRBodyStateGPU* bodies [[buffer(3)]],
+    device const NMRigidStateGPU* previous [[buffer(4)]],
+    device const NMRigidStateGPU* endpoint [[buffer(5)]],
+    device const NMRigidStateGPU* current [[buffer(6)]],
+    device NMMatterStatusGPU* statuses [[buffer(7)]],
+    constant uint& phase [[buffer(8)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (global >= dispatch.environmentCount * dispatch.rigidProxyCount ||
+        dispatch.rigidProxyCount == 0u || phase > 1u)
+        return;
+    const uint environment = global / dispatch.rigidProxyCount;
+    const uint proxyIndex = global - environment * dispatch.rigidProxyCount;
+    if (!environmentHealthy(statuses, environment)) return;
+    const NMRigidProxyGPU proxy = proxies[proxyIndex];
+    if (proxy.shapeKind != NM_RIGID_BOX) return;
+    if (proxy.flags != 0u || proxy.reserved2 != 0u ||
+        proxy.sceneBodyIndex != NM_INVALID_INDEX ||
+        proxy.adaptiveObjectIndex != NM_INVALID_INDEX ||
+        proxy.generalizedFreeBodyIndex != NM_INVALID_INDEX ||
+        !all(isfinite(proxy.localCenterAndRadius)) ||
+        !all(isfinite(proxy.localExtent)) ||
+        !all(isfinite(proxy.localOrientation))) {
+        recordFailure(statuses[environment], NM_STATUS_INVALID_DISPATCH,
+            NM_INVALID_INDEX, proxyIndex, float4(-1.0f, float(proxy.flags),
+                float(proxy.bodyIndex), float(proxy.sceneBodyIndex)));
+        return;
+    }
+
+    const bool bodyBacked = proxy.bodyIndex != NM_INVALID_INDEX;
+    const float localOrientationNorm2 =
+        dot(proxy.localOrientation, proxy.localOrientation);
+    if (!isfinite(localOrientationNorm2) ||
+        !(localOrientationNorm2 > 1.0e-20f) ||
+        !all(proxy.localExtent.xyz > float3(0.0f))) {
+        recordFailure(statuses[environment], NM_STATUS_INVALID_DISPATCH,
+            NM_INVALID_INDEX, proxyIndex,
+            float4(localOrientationNorm2, proxy.localExtent.xyz.x,
+                proxy.localExtent.xyz.y, proxy.localExtent.xyz.z));
+        return;
+    }
+    MRBodyStateGPU body{};
+    if (bodyBacked) {
+        if (proxy.bodyIndex >= bridge.currentBodyCount ||
+            bridge.currentBodyStride < bridge.currentBodyCount) {
+            recordFailure(statuses[environment], NM_STATUS_INVALID_DISPATCH,
+                NM_INVALID_INDEX, proxyIndex,
+                float4(float(proxy.bodyIndex), float(bridge.currentBodyCount),
+                    float(bridge.currentBodyStride), -2.0f));
+            return;
+        }
+        body = bodies[environment * bridge.currentBodyStride + proxy.bodyIndex];
+        const float orientationNorm2 = dot(body.orientation, body.orientation);
+        const bool stationaryMotionType =
+            body.flagsAndIndices[0] == MR_MOTION_STATIC ||
+            body.flagsAndIndices[0] == MR_MOTION_KINEMATIC;
+        if (!stationaryMotionType || !all(isfinite(body.position)) ||
+            body.position.w != 0.0f || !all(isfinite(body.orientation)) ||
+            !isfinite(orientationNorm2) ||
+            !(orientationNorm2 > 1.0e-20f) ||
+            !all(isfinite(body.linearVelocityAndInverseMass)) ||
+            !all(isfinite(body.angularVelocity)) ||
+            !all(isfinite(body.inverseInertiaWorldRow0)) ||
+            !all(isfinite(body.inverseInertiaWorldRow1)) ||
+            !all(isfinite(body.inverseInertiaWorldRow2)) ||
+            any(body.linearVelocityAndInverseMass != float4(0.0f)) ||
+            any(body.angularVelocity != float4(0.0f)) ||
+            any(body.inverseInertiaWorldRow0 != float4(0.0f)) ||
+            any(body.inverseInertiaWorldRow1 != float4(0.0f)) ||
+            any(body.inverseInertiaWorldRow2 != float4(0.0f))) {
+            recordFailure(statuses[environment], NM_STATUS_INVALID_DISPATCH,
+                NM_INVALID_INDEX, proxyIndex,
+                float4(float(body.flagsAndIndices[0]),
+                    body.linearVelocityAndInverseMass.w,
+                    orientationNorm2, -3.0f));
+            return;
+        }
+    } else {
+        body.orientation = float4(0.0f, 0.0f, 0.0f, 1.0f);
+        body.flagsAndIndices[0] = MR_MOTION_STATIC;
+    }
+
+    NMRigidStateGPU projected{};
+    projectProxy(proxy, body, bodyBacked, projected);
+    const float projectedOrientationNorm2 =
+        dot(projected.orientation, projected.orientation);
+    if (!finiteStationaryBoxRigidRecord(projected) ||
+        !isfinite(projectedOrientationNorm2) ||
+        !(projectedOrientationNorm2 > 1.0e-20f)) {
+        recordFailure(statuses[environment], NM_STATUS_CONTACT_FAILURE,
+            NM_INVALID_INDEX, proxyIndex, float4(-4.0f));
+        return;
+    }
+    const NMRigidStateGPU projectedEndpoint = endpoint[global];
+    if (!finiteStationaryBoxRigidRecord(projectedEndpoint) ||
+        !sameStationaryBoxRigidRecord(projected, projectedEndpoint)) {
+        recordFailure(statuses[environment], NM_STATUS_CONTACT_FAILURE,
+            NM_INVALID_INDEX, proxyIndex, float4(-5.0f));
+        return;
+    }
+
+    if (phase == 0u) {
+        const NMRigidStateGPU old = previous[global];
+        // The runtime initializes the first rigid state from the world source;
+        // exactly the all-zero quaternion is its only uninitialized sentinel.
+        // NaN must not pass the sentinel test and bypass the finite check.
+        const bool uninitialized = all(old.orientation == float4(0.0f));
+        if (!uninitialized &&
+            (!finiteStationaryBoxRigidRecord(old) ||
+             !sameStationaryBoxRigidRecord(old, projectedEndpoint))) {
+            recordFailure(statuses[environment], NM_STATUS_CONTACT_FAILURE,
+                NM_INVALID_INDEX, proxyIndex, float4(-6.0f));
+        }
+        return;
+    }
+
+    const NMRigidStateGPU realized = current[global];
+    if (!finiteStationaryBoxRigidRecord(realized) ||
+        !sameStationaryBoxRigidRecord(realized, projected) ||
+        !sameStationaryBoxRigidRecord(realized, projectedEndpoint)) {
+        recordFailure(statuses[environment], NM_STATUS_CONTACT_FAILURE,
+            NM_INVALID_INDEX, proxyIndex, float4(-7.0f));
+    }
+}
+
 kernel void nm_contact_rollback_prescribed_motion(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     device const NMRigidProxyGPU* proxies [[buffer(1)]],
@@ -2921,6 +3076,27 @@ kernel void nm_contact_rollback_prescribed_motion(
     const uint index = global - environment * dispatch.rigidProxyCount;
     if ((proxies[index].flags & NM_RIGID_PRESCRIBED_TRANSLATION) != 0u &&
         !environmentHealthy(statuses, environment)) states[global] = previous[global];
+}
+
+// The residual-Armijo BOX gate has no independently integrated rigid state,
+// but its projected readback must roll back with a rejected FEM transaction.
+// `previous` is the exact preDynamics projection captured before this frame.
+kernel void nm_contact_rollback_stationary_box_projection(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMRigidProxyGPU* proxies [[buffer(1)]],
+    device const NMMatterStatusGPU* statuses [[buffer(2)]],
+    device const NMRigidStateGPU* previous [[buffer(3)]],
+    device NMRigidStateGPU* states [[buffer(4)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (global >= dispatch.environmentCount * dispatch.rigidProxyCount ||
+        dispatch.rigidProxyCount == 0u)
+        return;
+    const uint environment = global / dispatch.rigidProxyCount;
+    const uint proxyIndex = global - environment * dispatch.rigidProxyCount;
+    if (proxies[proxyIndex].shapeKind == NM_RIGID_BOX &&
+        !environmentHealthy(statuses, environment))
+        states[global] = previous[global];
 }
 
 // Opt-in backward-Euler prescribed capsule translation. This changes only the
@@ -3053,6 +3229,18 @@ kernel void nm_contact_clear_samples(
         samples[global] = {};
         candidateHistories[global] = float4(0.0f);
     }
+}
+
+// Clears only trial samples for residual globalization.  Contact history is
+// read-only during a line search and must not be cleared or published until
+// the ordinary Newton transaction selects and applies a candidate.
+kernel void nm_contact_clear_trial_samples(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device NMContactSampleGPU* samples [[buffer(1)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.contactPairCount;
+    if (global < total) samples[global] = {};
 }
 
 inline bool embeddedPunctureChannelAdmits(

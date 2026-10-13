@@ -1,0 +1,8 @@
+{
+  "schema": "numi.cardboard.native-result.v1",
+  "status": "inadmissible_experiment_scope",
+  "baseline_exit": 2,
+  "armijo_run_intentionally_terminated": true,
+  "reason": "Default probe has self-contact enabled; contact-free Armijo explicitly skipped. No Armijo physics was executed. Matched no-self-contact pair required.",
+  "prediction_status": "unexecuted"
+}

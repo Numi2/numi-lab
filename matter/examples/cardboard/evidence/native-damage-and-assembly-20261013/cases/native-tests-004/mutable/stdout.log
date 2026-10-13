@@ -1,0 +1,1 @@
+fem_mutable_snapshot_check=passed mutation=edge_split actual_accepted_snapshot=1 mixed_mutable_immutable=1 environments=2 split_restore_postrestore_step=1 immutable_corruption_rejected=1

@@ -1,0 +1,16 @@
+{
+  "artifact_files_copied": 579,
+  "case_groups_found": 44,
+  "case_groups_requested": 44,
+  "created_at_utc": "2026-10-13T19:59:51.488480+00:00",
+  "input_hash_entries": 24090,
+  "input_hash_entries_verified": 24090,
+  "input_hash_failures": 0,
+  "missing_groups": [],
+  "output_path": "/Users/home/numi-cardboard-20261006/matter/examples/cardboard/evidence/native-damage-and-assembly-20261013",
+  "prediction_cases": 70,
+  "runtime_hashes_retained_but_not_copied": 416,
+  "schema": "numi.cardboard.publication-package-build.v1",
+  "source_root": "/Users/home/cardboard-followup-20261013",
+  "unique_text_source_blobs": 426
+}

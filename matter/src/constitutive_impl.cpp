@@ -9,6 +9,7 @@
 #include <optional>
 #include <sstream>
 #include <unordered_map>
+#include <unordered_set>
 #include <utility>
 
 namespace numi::matter::detail {
@@ -385,6 +386,16 @@ public:
             }
             break;
         }
+        case ExprKind::selectNonnegative: {
+            Expr branch;
+            branch.kind = ExprKind::selectNonnegative;
+            branch.dimension = resultDimension;
+            branch.arguments[0] = source.arguments[0];
+            branch.arguments[1] = d(source.arguments[1]);
+            branch.arguments[2] = d(source.arguments[2]);
+            result = graph_.append(branch);
+            break;
+        }
         case ExprKind::absolute:
         case ExprKind::minimum:
         case ExprKind::maximum:
@@ -618,6 +629,16 @@ public:
             );
             break;
         }
+        case ExprKind::selectNonnegative: {
+            Expr branch;
+            branch.kind = ExprKind::selectNonnegative;
+            branch.dimension = source.dimension;
+            branch.arguments[0] = source.arguments[0];
+            branch.arguments[1] = d(source.arguments[1]);
+            branch.arguments[2] = d(source.arguments[2]);
+            result = graph_.append(branch);
+            break;
+        }
         case ExprKind::absolute:
         case ExprKind::minimum:
         case ExprKind::maximum:
@@ -643,8 +664,9 @@ private:
 
 class BytecodeCompiler {
 public:
-    BytecodeCompiler(const ExpressionGraph& graph, const std::uint32_t maximumStack)
-        : graph_(graph), maximumAllowed_(maximumStack) {}
+    BytecodeCompiler(const ExpressionGraph& graph, const std::uint32_t maximumStack,
+                     const bool cacheExpressions)
+        : graph_(graph), maximumAllowed_(maximumStack), cacheExpressions_(cacheExpressions) {}
 
     [[nodiscard]] ScalarBytecode compile(
         const std::uint32_t root,
@@ -653,6 +675,24 @@ public:
         ScalarBytecode output;
         stack_ = 0u;
         maximum_ = 0u;
+        cacheSlots_.clear(); cacheNodes_.clear(); remainingUses_.clear(); freeSlots_.clear();
+        emissionLimitReported_ = false;
+        if (cacheExpressions_) {
+            std::unordered_set<std::uint32_t> visited;
+            const auto visit = [&](auto&& self, std::uint32_t node) -> void {
+                if (node == NM_INVALID_INDEX || node >= graph_.nodes.size()) return;
+                ++remainingUses_[node];
+                if (!visited.insert(node).second) return;
+                for (auto child : graph_.nodes[node].arguments)
+                    if (child != NM_INVALID_INDEX) self(self, child);
+            };
+            visit(visit, root);
+            for (const auto& [node, count] : remainingUses_)
+                if (count > 1u && graph_.nodes[node].arguments[0] != NM_INVALID_INDEX)
+                    cacheNodes_.insert(node);
+            for (std::uint32_t i = NM_EXPRESSION_CACHE_CAPACITY; i > 0u; --i)
+                freeSlots_.push_back(i - 1u);
+        }
         emit(root, output.instructions, diagnostics);
         output.maximumStack = maximum_;
         if (stack_ != 1u) {
@@ -688,6 +728,14 @@ private:
         std::vector<NMExpressionInstructionGPU>& output,
         std::vector<Diagnostic>& diagnostics
     ) {
+        if (cacheExpressions_ && output.size() >= 65536u) {
+            if (!emissionLimitReported_) {
+                diagnostics.push_back({Diagnostic::Severity::error, 0u, 0u,
+                    "cached constitutive scalar exceeds the bounded instruction limit"});
+                emissionLimitReported_ = true;
+            }
+            return;
+        }
         if (node == NM_INVALID_INDEX || node >= graph_.nodes.size()) {
             diagnostics.push_back({
                 Diagnostic::Severity::error, 0u, 0u,
@@ -696,6 +744,16 @@ private:
             return;
         }
         const Expr& expression = graph_.nodes[node];
+        const auto cache = cacheSlots_.find(node);
+        if (cache != cacheSlots_.end()) {
+            NMExpressionInstructionGPU load{};
+            load.opcode = NM_EXPR_CACHE_LOAD;
+            load.index = cache->second;
+            output.push_back(load);
+            push();
+            consume(node);
+            return;
+        }
         NMExpressionInstructionGPU instruction{};
         instruction.index = expression.index;
         instruction.integer = expression.integer;
@@ -788,6 +846,12 @@ private:
             output.push_back(instruction);
             if(stack_>=5u) stack_-=4u;
             break;
+        case ExprKind::selectNonnegative:
+            child(0u); child(1u); child(2u);
+            instruction.opcode = NM_EXPR_SELECT_NONNEGATIVE;
+            output.push_back(instruction);
+            if (stack_ >= 3u) stack_ -= 2u;
+            break;
         case ExprKind::clamp:
             child(0u);
             child(1u);
@@ -797,12 +861,45 @@ private:
             if (stack_ >= 3u) stack_ -= 2u;
             break;
         }
+        if (cacheExpressions_ && cacheNodes_.contains(node)) {
+            if (freeSlots_.empty()) {
+                if (!emissionLimitReported_) diagnostics.push_back({
+                    Diagnostic::Severity::error, 0u, 0u,
+                    "constitutive expression exceeds the bounded live cache capacity"});
+                emissionLimitReported_ = true;
+                return;
+            }
+            const auto slot = freeSlots_.back(); freeSlots_.pop_back();
+            cacheSlots_[node] = slot;
+            NMExpressionInstructionGPU save{};
+            save.opcode = NM_EXPR_CACHE_STORE; save.index = slot;
+            output.push_back(save);
+        }
+        consume(node);
+    }
+
+    void consume(std::uint32_t node) {
+        if (!cacheExpressions_) return;
+        auto found = remainingUses_.find(node);
+        if (found == remainingUses_.end() || found->second == 0u) return;
+        if (--found->second != 0u) return;
+        const auto slot = cacheSlots_.find(node);
+        if (slot != cacheSlots_.end()) {
+            freeSlots_.push_back(slot->second);
+            cacheSlots_.erase(slot);
+        }
     }
 
     const ExpressionGraph& graph_;
     std::uint32_t maximumAllowed_ = 0u;
     std::uint32_t stack_ = 0u;
     std::uint32_t maximum_ = 0u;
+    bool cacheExpressions_ = false;
+    bool emissionLimitReported_ = false;
+    std::unordered_map<std::uint32_t, std::uint32_t> cacheSlots_;
+    std::unordered_set<std::uint32_t> cacheNodes_;
+    std::unordered_map<std::uint32_t, std::uint32_t> remainingUses_;
+    std::vector<std::uint32_t> freeSlots_;
 };
 
 [[nodiscard]] std::optional<std::uint32_t> parameterIndex(
@@ -1042,7 +1139,8 @@ ConstitutiveCompileResult compileConstitutive(
 
     BytecodeCompiler compiler(
         result.program.material.expressions,
-        maximumStack
+        maximumStack,
+        material.cacheExpressions
     );
     for (std::uint32_t component = 0u; component < 9u; ++component) {
         result.program.stress[component] = compiler.compile(
@@ -1137,7 +1235,7 @@ ConstitutiveCompileResult compileConstitutive(
             : transfer == InternalState::Transfer::sum
                 ? NM_MATERIAL_TRANSFER_SUM
                 : NM_MATERIAL_TRANSFER_AVERAGE;
-        gpu.stateTransferMask |= encoded << (2u * state);
+        gpu.stateTransferMask |= static_cast<nm_u64>(encoded) << (2u * state);
     }
     if ((gpu.projectionKind == NM_MATERIAL_PROJECTION_VON_MISES ||
          gpu.projectionKind == NM_MATERIAL_PROJECTION_DRUCKER_PRAGER) &&

@@ -1,0 +1,20 @@
+{
+  "accepted_steps": null,
+  "argv": [
+    "/Users/home/numi-cardboard-20261006/build-cardboard/numi-matter-fem-reference-check"
+  ],
+  "case": "reference",
+  "exit_code": 1,
+  "expected_usage": "usage: fem-reference-check GUCCIONE.nmatter NEO.nmatter [--cpu-only]",
+  "failure_text": "fem reference check failed: usage: fem-reference-check GUCCIONE.nmatter NEO.nmatter [--cpu-only]",
+  "note": "Preserve this invalid invocation as evidence of a missing CLI input. It is not a failed material or mechanics test.",
+  "physical_validation": false,
+  "prediction_sha256": "1bba90013846707990fae9266588f6e626d384249f5cd621dd77d6ecceb95fbd",
+  "receipt_sha256": "d33f3b0253ed012006b4e32a0488f34e4db362f74cfa05142f1ae8e10099504d",
+  "required_material_arguments_supplied": false,
+  "schema": "numi.cardboard.native-invocation-audit.v1",
+  "status": "UNEXECUTED_INVALID_INVOCATION",
+  "stderr_sha256": "520a79a89219e7f2bc6ea20866091ed7c875c03deae0d421fb6758da3fc10cfd",
+  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "summary": "The executable rejected its invocation at argument validation and printed usage; the constitutive/FEM checks did not execute."
+}

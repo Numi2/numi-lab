@@ -1,0 +1,12 @@
+{
+  "captured_at_utc": "2026-10-13T18:15:43.741551+00:00",
+  "metadata_timing": "Post-run host observation; not retroactively part of original prediction seals. Hardware/toolchain retained in session; OS/driver binaries not archived.",
+  "hardware_model": "Mac16,12",
+  "cpu": "Apple M4",
+  "memory_bytes": 25769803776,
+  "macos_version": "26.6",
+  "macos_build": "25G5028f",
+  "xcode": "Xcode 26.4\nBuild version 17E192",
+  "clang": "Apple clang version 21.0.0 (clang-2100.0.123.102)",
+  "gpu_execution": "Serial task-owned native cases. Wall times are observations, not qualified performance benchmarks."
+}

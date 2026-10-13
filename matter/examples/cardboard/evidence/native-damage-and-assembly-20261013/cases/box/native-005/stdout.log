@@ -1,0 +1,1 @@
+{"schema":"numi.cardboard.probe-result.v1","status":"failed_native","accepted_steps":32,"compiled_world_fingerprint":4895193363008246181,"nodes":4308,"tetrahedra":10356,"failure":"Matter rejected native step 32","physical_validation":false}

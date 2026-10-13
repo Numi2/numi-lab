@@ -1,0 +1,238 @@
+{
+  "audit_script_sha256": "5085bf5cc279f26d6433a44834bf89a8cc2a33764ead0b19daa6e298289c74fb",
+  "audited_at_utc": "2026-10-13",
+  "conclusion_boundary": [
+    "These q/Ep/lambda summaries describe the saved accepted history only.",
+    "They do not reveal the actual Newton-3 candidate state or either +/- finite-difference projected state.",
+    "Near-yield accepted history makes yield-transition crossing a testable hypothesis, but the audit does not prove that the compared candidate/perturbations cross the transition or explain the global operator mismatch.",
+    "No physical cardboard qualification is implied."
+  ],
+  "fd_context": {
+    "epsilon": 0.03125,
+    "interpretation_limit": "coordinate-displacement to edge ratios are not deformation-gradient increments; nodal displacement differences are required to estimate local delta-F",
+    "max_position_perturbation_divided_by_median_element_minimum_edge": 0.0004813095920577617,
+    "max_position_perturbation_divided_by_minimum_edge": 0.004444091900000053,
+    "maximum_position_perturbation_m": 1.33322757e-07,
+    "mesh_edge_statistics": {
+      "maximum_per_tetrahedron_minimum_edge_m": 0.00040723243547480893,
+      "median_per_tetrahedron_minimum_edge_m": 0.000277,
+      "minimum_edge_m": 2.9999999999999645e-05,
+      "tetrahedra_with_minimum_edge_below_0_1mm": 145,
+      "tetrahedron_count": 1536
+    },
+    "newton_iteration": 3,
+    "root": 19
+  },
+  "input_bindings": {
+    "manifest_compiled_world_fingerprint": 5248235368261643122,
+    "material_assets": {
+      "0": "787bf121f4ce359235e28691892e9d77adffde05faf10f2a90593d9f4b32398d",
+      "1": "ecfd9de3f4550a6a269d7a6559781b16e15316cf3d587093f2e11a2e6942a8e8"
+    },
+    "mesh_json": {
+      "path": "/Users/home/cardboard-followup-20261013/solver/operator-fd-001/output/mesh.json",
+      "sha256": "28bed660bf7e5d75001dbd8ab8b9567ebb09403e633134ca34082589c1442c58"
+    },
+    "observations_csv": {
+      "path": "/Users/home/cardboard-followup-20261013/solver/operator-fd-001/output/observations.csv",
+      "sha256": "8cad0b13a6eb682d81200bbe8c2c6fc2bafd152929ea9a304c32d1c6b76afc57"
+    },
+    "result_compiled_world_fingerprint": 5248235368261643122,
+    "result_json": {
+      "path": "/Users/home/cardboard-followup-20261013/solver/operator-fd-001/output/result.json",
+      "sha256": "ad487124440bf78e56b20232751cda41433541c0c89ce6666ee9a882c7dd4433"
+    },
+    "run_manifest": {
+      "path": "/Users/home/cardboard-followup-20261013/solver/operator-fd-001/output/manifest.json",
+      "sha256": "2ead4c62d5c49c24e8a0664cc75d7cd78a31c73b3ca2946a7011e3564bdc57cd"
+    },
+    "state_json": {
+      "path": "/Users/home/cardboard-followup-20261013/solver/operator-fd-001/output/material_state_000020_bent.json",
+      "sha256": "31060aaf3022b9ccafba727eba32595a8336fcdf964cb874f60415034855af48"
+    }
+  },
+  "materials": [
+    {
+      "abs_q_minus_1_le_1e_6_count": 50,
+      "diagnostic_cutoffs": {
+        "abs_q_minus_1_lte": 1e-06,
+        "lambda_gt": 1e-08,
+        "meaning": "descriptive thresholds only; not solver active-set flags or constitutive acceptance criteria",
+        "q_gt": 0.999
+      },
+      "eight_tetrahedra_nearest_q_1": [
+        {
+          "lambda": 1.7554233622263382e-08,
+          "max_abs_Ep": 8.370097020815592e-06,
+          "q": 1.000000002309494,
+          "tetrahedron_index": 852
+        },
+        {
+          "lambda": 3.4239977253491816e-07,
+          "max_abs_Ep": 0.00016325140313711017,
+          "q": 0.9999999954592135,
+          "tetrahedron_index": 925
+        },
+        {
+          "lambda": 1.068322390551657e-07,
+          "max_abs_Ep": 5.092874198453501e-05,
+          "q": 1.0000000067814554,
+          "tetrahedron_index": 877
+        },
+        {
+          "lambda": 7.199260494417103e-07,
+          "max_abs_Ep": 0.0003437168779782951,
+          "q": 0.9999999927992638,
+          "tetrahedron_index": 955
+        },
+        {
+          "lambda": 1.9670800099902408e-07,
+          "max_abs_Ep": 9.381114796269685e-05,
+          "q": 0.9999999916266007,
+          "tetrahedron_index": 834
+        },
+        {
+          "lambda": 7.718119832134107e-08,
+          "max_abs_Ep": 3.680850568343885e-05,
+          "q": 0.9999999868317906,
+          "tetrahedron_index": 864
+        },
+        {
+          "lambda": 2.7307368100082385e-07,
+          "max_abs_Ep": 0.00013021027552895248,
+          "q": 0.9999999860383705,
+          "tetrahedron_index": 835
+        },
+        {
+          "lambda": 3.923421161289298e-07,
+          "max_abs_Ep": 0.0001870681589934975,
+          "q": 0.9999999834931312,
+          "tetrahedron_index": 924
+        }
+      ],
+      "hill_parameters_from_asset": {
+        "hill_F": 6.307660915935419,
+        "hill_G": 2.981864887595591,
+        "hill_H": -1.9818648875955915,
+        "hill_L": 456012.5,
+        "hill_M": 456012.5,
+        "hill_N": 59.56081632653061,
+        "q_floor": 2e-06
+      },
+      "lambda_gt_1e_8_count": 78,
+      "lambda_max": 3.5558862236939603e-06,
+      "lambda_max_tetrahedron": 942,
+      "material_index": 0,
+      "material_name": "hajali2009_liner_hill_ideal",
+      "max_abs_Ep": 0.0016976580955088139,
+      "max_abs_Ep_tetrahedron": 942,
+      "q_gt_0_999_count": 51,
+      "q_max": 1.0000007952432894,
+      "q_max_tetrahedron": 858,
+      "q_min": 0.03184249960178188,
+      "tetrahedron_count": 960
+    },
+    {
+      "abs_q_minus_1_le_1e_6_count": 184,
+      "diagnostic_cutoffs": {
+        "abs_q_minus_1_lte": 1e-06,
+        "lambda_gt": 1e-08,
+        "meaning": "descriptive thresholds only; not solver active-set flags or constitutive acceptance criteria",
+        "q_gt": 0.999
+      },
+      "eight_tetrahedra_nearest_q_1": [
+        {
+          "lambda": 7.921351397044418e-08,
+          "max_abs_Ep": 1.5474699466722086e-05,
+          "q": 0.9999999998797064,
+          "tetrahedron_index": 1154
+        },
+        {
+          "lambda": 3.522431057945141e-08,
+          "max_abs_Ep": 6.887489689688664e-06,
+          "q": 1.0000000115626215,
+          "tetrahedron_index": 1358
+        },
+        {
+          "lambda": 6.700715857732575e-07,
+          "max_abs_Ep": 0.000131093809613958,
+          "q": 1.000000015902335,
+          "tetrahedron_index": 1436
+        },
+        {
+          "lambda": 1.4622258959207102e-07,
+          "max_abs_Ep": 2.860096537915524e-05,
+          "q": 1.000000016770967,
+          "tetrahedron_index": 1343
+        },
+        {
+          "lambda": 1.3491874994997488e-07,
+          "max_abs_Ep": 2.6394684027764015e-05,
+          "q": 0.9999999678598265,
+          "tetrahedron_index": 1416
+        },
+        {
+          "lambda": 2.468928528287506e-07,
+          "max_abs_Ep": 4.830338366446085e-05,
+          "q": 1.000000033217323,
+          "tetrahedron_index": 964
+        },
+        {
+          "lambda": 2.468928528287506e-07,
+          "max_abs_Ep": 4.830338366446085e-05,
+          "q": 1.000000033217323,
+          "tetrahedron_index": 965
+        },
+        {
+          "lambda": 6.005095798400362e-08,
+          "max_abs_Ep": 1.1748200449801516e-05,
+          "q": 0.9999999501501089,
+          "tetrahedron_index": 1092
+        }
+      ],
+      "hill_parameters_from_asset": {
+        "hill_F": 5.612051993569077,
+        "hill_G": 2.841099191623919,
+        "hill_H": -1.8410991916239194,
+        "hill_L": 76554.58420138889,
+        "hill_M": 76554.58420138889,
+        "hill_N": 9.998966099773243,
+        "q_floor": 2e-06
+      },
+      "lambda_gt_1e_8_count": 216,
+      "lambda_max": 0.00013356217823456973,
+      "lambda_max_tetrahedron": 1311,
+      "material_index": 1,
+      "material_name": "hajali2009_medium_hill_ideal",
+      "max_abs_Ep": 0.02612959034740925,
+      "max_abs_Ep_tetrahedron": 1311,
+      "q_gt_0_999_count": 214,
+      "q_max": 1.0000017748079222,
+      "q_max_tetrahedron": 1432,
+      "q_min": 0.012145789077746286,
+      "tetrahedron_count": 480
+    }
+  ],
+  "method": "CPU recomputation of Hill equivalent stress q from retained accepted-state sbar components and the F..N, q_floor values parsed from hash-verified .nmatter source assets",
+  "schema": "numi.cardboard.accepted-history-yield-audit.v1",
+  "state_classification": {
+    "accepted_row_check": {
+      "last_accepted_row": {
+        "status_code": "0",
+        "step": "18",
+        "step_accepted": "1",
+        "time_s": "0.0004749999880004907"
+      },
+      "rejected_row": {
+        "status_code": "10",
+        "step": "19",
+        "step_accepted": "0",
+        "time_s": "0.00049999998736893758"
+      },
+      "result_accepted_steps": 19
+    },
+    "label": "rolled-back accepted history after the rejected physical row; corresponds to pre-failure accepted history (last accepted CSV step 18)",
+    "source_note": "Accepted material history. A failed step retains rolled-back state; incremental multipliers are not permanent-strain observables.",
+    "source_status_code": 10
+  }
+}

@@ -1,0 +1,259 @@
+{
+  "comparison": {
+    "all_fem_steps_accepted_status_zero": true,
+    "all_point_algorithmic_responses_accepted": true,
+    "command_path_exactly_matched": true,
+    "force_tolerances": {
+      "absolute_Pa": 2.0,
+      "criterion": "abs(error) <= atol + rtol * max(abs(FEM), abs(point))",
+      "relative": 0.01
+    },
+    "metrics": {
+      "damage_maximum_absolute_error": 1.4156103134155273e-07,
+      "fem_reaction_P13_at_max_error_Pa": 4220681.31275666,
+      "final_damage_FEM": 0.24500973522663116,
+      "final_damage_point": 0.24500973522663116,
+      "final_reaction_P13_FEM_Pa": -4974485.501735168,
+      "final_reaction_P13_point_Pa": -4974485.0,
+      "maximum_force_mixed_tolerance_utilization": 0.00040876875091532336,
+      "maximum_reaction_P13_absolute_error_Pa": 5.3127566603943706,
+      "maximum_reaction_P13_error_step": 47,
+      "maximum_state_absolute_error": 1.6391277313232422e-07,
+      "maximum_state_absolute_error_location": {
+        "state_index": 17,
+        "step": 47
+      },
+      "maximum_state_mixed_tolerance_location": {
+        "absolute_error": 1.6391277313232422e-07,
+        "allowed_error": 0.00024174126982688904,
+        "state_index": 17,
+        "step": 47
+      },
+      "maximum_state_mixed_tolerance_utilization": 0.0006780504348707284,
+      "maximum_state_relative_error_location": {
+        "fem_value": 8.869677052160334e-17,
+        "interpretation": "Relative error is unstable for values near zero; the mixed absolute-relative tolerance is the decision criterion.",
+        "point_value": -1.1878865226468377e-15,
+        "state_index": 23,
+        "step": 34
+      },
+      "maximum_state_relative_error_unregularized": 1.0746677134815623,
+      "point_P13_at_max_error_Pa": 4220676.0,
+      "reaction_P13_mixed_tolerance_at_max_error_Pa": 42208.8131275666
+    },
+    "retained_comparator": {
+      "exit_code": 0,
+      "independent_recalculation": "This result independently parsed both CSVs and recomputed all state and reaction errors and tolerance decisions.",
+      "path": "/Users/home/cardboard-followup-20261013/bulk/fem-coupling-001/inputs/matter/tools/compare_robertsson_fem_point.py",
+      "stdout": [
+        "fem_csv=/Users/home/cardboard-followup-20261013/bulk/fem-coupling-001/fem.csv",
+        "point_csv=/Users/home/cardboard-followup-20261013/bulk/source-point-005/states.csv",
+        "matched_steps=121",
+        "max_state_absolute_error=1.63912773e-07",
+        "max_state_relative_error=1.07466771",
+        "max_state_error_location=(47, 17)",
+        "max_reaction_P13_absolute_error_Pa=5.31275666",
+        "reaction_P13_error_relative_at_max=1.25874385e-06",
+        "reaction_P13_error_step=47",
+        "claim=synthetic_FEM_state_force_history_coupling_parity_only",
+        "not=independent_material_implementation_or_physical_calibration"
+      ]
+    },
+    "rows_compared": 121,
+    "state_reference": "FEM accepted_state_0..26 vs point candidate_state_0..26 at the same commanded step",
+    "state_tolerances": {
+      "absolute": 0.0002,
+      "criterion": "abs(error) <= atol + rtol * max(abs(FEM), abs(point))",
+      "relative": 0.0002
+    }
+  },
+  "instrument": {
+    "boundary_condition": "all four nodes fixed to the prescribed homogeneous F13 deformation x = X + gamma*Z; no free mesh degrees of freedom",
+    "environments": "two; one driven path and one held control",
+    "geometry": "one tetrahedron; four nodes; thickness 0.00039 m",
+    "global_newton_budget": 1,
+    "local_material_newton_iterations": 16,
+    "path": "F13 gamma 0 -> 0.3 -> 0, 60 increments on each leg, 121 accepted rows including the initial state",
+    "reaction_stress": "P13 inferred from tetrahedral node-3 x reaction with the fixture inertial-force correction, then compared to the point evaluator P13.",
+    "timestep_s": 0.005
+  },
+  "native_receipt": {
+    "exit_code": 0,
+    "finished_at_utc": "2026-10-13T16:55:41.322228+00:00",
+    "timed_out": false,
+    "wall_seconds": 1283.5709399580082
+  },
+  "not_qualified": [
+    "free-mesh deformation or convergence",
+    "crease or folding prediction",
+    "corrugated kraft/liner/fluting response",
+    "starch adhesive calibration or debonding",
+    "experimental validation or independent constitutive-model validation"
+  ],
+  "plot": {
+    "path": "coupling-parity.png",
+    "sha256": "16d693984eb46cbb765878e03ed7f36e7a3fc0d865fe3822ca465afe285ce8da"
+  },
+  "published_source_identity": {
+    "citation": "Robertsson K, Jacobsson E, Wallin M, Borgqvist E, Ristinmaa M, Tryding J. A continuum damage model for creasing and folding of paperboard. Packaging Technology and Science. 2023;36(12):1037-1050.",
+    "doi": "10.1002/pts.2774",
+    "grade_boundary": "The authored source identifies the material as single-ply softwood, not corrugated kraft or starch-laminated board. The source header also states that the tetrahedral projected-area damage scaling is an adaptation hypothesis, not a source calibration.",
+    "native_material_identity": "Robertsson2023_single_ply_softwood_full_27_state",
+    "url": "https://doi.org/10.1002/pts.2774"
+  },
+  "qualified_claim": "Manufactured state and reaction-history coupling parity for a fully prescribed one-tetrahedron F13 path using the same authored 27-state material program in the FEM and point-runtime paths.",
+  "rejection_reset_restore": {
+    "evidence_limit": "stdout reports the three assertion summaries as 1; exact negative-J failure status is not logged. The retained fixture source contains the byte-equality and environment-isolation assertions; process exit was zero.",
+    "negative_J_candidate": {
+      "checks": "source asserts driven environment status is non-success; held environment remains success; FEM material-history and node arrays byte-equal the last accepted state.",
+      "deformation_F11": -0.1,
+      "status": "rejected; exact failure status code was not printed in the stdout log"
+    },
+    "selective_reset": {
+      "checks": "all 27 states reset to authored initial values; FEM nodes byte-equal initial values for both driven environment and held control.",
+      "environment": 0,
+      "status": "both environments success",
+      "step": 122
+    },
+    "snapshot_restore": {
+      "checks": "post-restore FEM node and material-state arrays byte-equal the initial snapshot.",
+      "status": "restore encoded successfully"
+    }
+  },
+  "schema": "numi.cardboard.native-fem-coupling-result.v1",
+  "source_binding_verification": {
+    "path": "source-binding-verification.json",
+    "primary_output_sha256": {
+      "coupling_fixture_source": {
+        "path": "/Users/home/cardboard-followup-20261013/bulk/fem-coupling-001/inputs/matter/tools/robertsson_fem_coupling_check.mm",
+        "sha256": "36df7f04e61ff0a0216fcc822055ba2162e9fd4151060c5546e06b8c8d2a663e",
+        "size_bytes": 23191
+      },
+      "fem_csv": {
+        "path": "/Users/home/cardboard-followup-20261013/bulk/fem-coupling-001/fem.csv",
+        "sha256": "82ba169c3355d01187bc0bb95bcb62cd95abe6ea86b7de83178c223714ddd267",
+        "size_bytes": 65761
+      },
+      "material_source_header": {
+        "path": "/Users/home/cardboard-followup-20261013/bulk/fem-coupling-001/inputs/matter/tools/robertsson2023_material.hpp",
+        "sha256": "c93a5c5b88867ac129431a152a70963ac9120335bbfd6e3f97cfb2563eb6995f",
+        "size_bytes": 12490
+      },
+      "plot": {
+        "path": "/Users/home/cardboard-followup-20261013/bulk/fem-coupling-001/coupling-parity.png",
+        "sha256": "16d693984eb46cbb765878e03ed7f36e7a3fc0d865fe3822ca465afe285ce8da",
+        "size_bytes": 277145
+      },
+      "point_csv": {
+        "path": "/Users/home/cardboard-followup-20261013/bulk/source-point-005/states.csv",
+        "sha256": "08576cab82eb44b2fcf2ef828a2ec513665406c9d8a0292d11d1625242d27787",
+        "size_bytes": 84256
+      },
+      "point_prediction": {
+        "path": "/Users/home/cardboard-followup-20261013/bulk/source-point-005/prediction.json",
+        "sha256": "c88b9557130d9c12426f6b10457ca2334f15cb0feb0bcb5c2a33a623f7c75dde",
+        "size_bytes": 19014
+      },
+      "point_receipt": {
+        "path": "/Users/home/cardboard-followup-20261013/bulk/source-point-005/receipt.json",
+        "sha256": "1820fed4c0688f4d8e802e982371de2893c5902bfab5aeebea5562806f1bfad5",
+        "size_bytes": 137
+      },
+      "point_result": {
+        "path": "/Users/home/cardboard-followup-20261013/bulk/source-point-005/result.json",
+        "sha256": "c701f59686a28afeabc1084195388ce5bcf445ba9f46438842c52858eca080b2",
+        "size_bytes": 1069
+      },
+      "prediction": {
+        "path": "/Users/home/cardboard-followup-20261013/bulk/fem-coupling-001/prediction.json",
+        "sha256": "f8b20b477e865f9478d85a5046344e19e591fb46deaecef7f0daa056b0397c6e",
+        "size_bytes": 19236
+      },
+      "receipt": {
+        "path": "/Users/home/cardboard-followup-20261013/bulk/fem-coupling-001/receipt.json",
+        "sha256": "fd770865b907805fc8e2be235a52138ec94a21fb920232af37693f8644062b83",
+        "size_bytes": 138
+      },
+      "retained_comparator_source": {
+        "path": "/Users/home/cardboard-followup-20261013/bulk/fem-coupling-001/inputs/matter/tools/compare_robertsson_fem_point.py",
+        "sha256": "06b70eb62f42b7e575c7387e7cc74024b6d53cf8747f143a556ae45f1744d426",
+        "size_bytes": 5872
+      },
+      "stderr": {
+        "path": "/Users/home/cardboard-followup-20261013/bulk/fem-coupling-001/stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "size_bytes": 0
+      },
+      "stdout": {
+        "path": "/Users/home/cardboard-followup-20261013/bulk/fem-coupling-001/stdout.log",
+        "sha256": "00f7b068024a0dd752c5ed90f0ff0985c5d0652bf48f8fdd335ab1ae7c0257ae",
+        "size_bytes": 8158
+      }
+    },
+    "sets": [
+      {
+        "all_verified": true,
+        "expected_files": 157,
+        "label": "sealed_fem_prediction_inputs",
+        "manifest_path": "/Users/home/cardboard-followup-20261013/bulk/fem-coupling-001/prediction.json",
+        "manifest_sha256": "f8b20b477e865f9478d85a5046344e19e591fb46deaecef7f0daa056b0397c6e",
+        "mismatch_count": 0,
+        "verified_files": 157
+      },
+      {
+        "all_verified": true,
+        "expected_files": 155,
+        "label": "sealed_source_point_005_inputs",
+        "manifest_path": "/Users/home/cardboard-followup-20261013/bulk/source-point-005/prediction.json",
+        "manifest_sha256": "c88b9557130d9c12426f6b10457ca2334f15cb0feb0bcb5c2a33a623f7c75dde",
+        "mismatch_count": 0,
+        "verified_files": 155
+      },
+      {
+        "all_verified": true,
+        "expected_files": 177,
+        "label": "supplemental_post_seal_recovery",
+        "manifest_path": "/Users/home/cardboard-followup-20261013/bulk/fem-coupling-001/supplemental-inputs.json",
+        "manifest_sha256": "fac3848f6640cf06a37486404c9ed19ebeaf83107479bbaaee905f4a434dc06c",
+        "mismatch_count": 0,
+        "verified_files": 177
+      }
+    ],
+    "sha256": "a0bb1b3aa620557d54425077544eecec670bd5dc4fcb960fa660abe310160f04"
+  },
+  "source_point_005_context": {
+    "context_limit": "The point runtime and FEM use the same authored material program; parity tests FEM runtime wiring/history/reaction extraction, not an independent constitutive oracle. The retained point result reports no physical FEM steps and no physical validation.",
+    "receipt": {
+      "exit_code": 0,
+      "finished_at_utc": "2026-10-13T16:04:59.605218+00:00",
+      "timed_out": false,
+      "wall_seconds": 529.3526430829952
+    },
+    "source_result": {
+      "accepted_material_points": 121,
+      "all_end_to_end_algorithmic_responses_accepted": true,
+      "csv_header_semantics_correction": "material_projection_accepted means end-to-end algorithmic response validity; local residual includes implementation scaling x10",
+      "damage_at_peak_shear": 0.11937345564365387,
+      "expected_points": 121,
+      "final_P13_MPa": -4.974485,
+      "final_damage": 0.24500973522663116,
+      "first_damage_shear": 0.16999999999999998,
+      "high_shear_failure_remaining": "source-point-003 rejected gamma .595; this .3 cycle does not resolve that failure",
+      "maximum_projection_iterations": 10,
+      "nondecreasing_damage": true,
+      "physical_FEM_steps": 0,
+      "physical_validation": false,
+      "receipt": {
+        "exit_code": 0,
+        "finished_at_utc": "2026-10-13T16:04:59.605218+00:00",
+        "timed_out": false,
+        "wall_seconds": 529.3526430829952
+      },
+      "retained_instrument_failure": "../source-point-004 used F13 direction while asserting dP33/dF33; repaired direction only",
+      "schema": "numi.cardboard.native-result.v1",
+      "source_bindings_verified": true
+    }
+  },
+  "supplemental_recovery_note": "The supplemental-inputs.json says recovery was not part of the original sealed prediction. Its timestamp is after prediction sealing but before the receipt finish, so this report calls it post-seal recovery, not post-run recovery.",
+  "verdict": "PASS_WITHIN_SEALED_INTEGRATION_TOLERANCES"
+}

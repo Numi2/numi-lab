@@ -1,0 +1,14 @@
+{
+  "status": "PASS",
+  "checks": 4004,
+  "source_grade": "single_ply_bleached_clay_coated",
+  "physical_corrugated_board_qualified": false,
+  "coarse_unload_tangent_relative_error": 3.17262e-05,
+  "refined_unload_tangent_relative_error": 3.16898e-05,
+  "matrix_free_operator_proxy": "finite_difference_of_native_kinematic_reactions",
+  "limitations": [
+    "positive uniform Mode I only",
+    "no mixed-mode or closure/contact after delamination",
+    "no kraft/NSSC starch calibration"
+  ]
+}

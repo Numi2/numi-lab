@@ -1,0 +1,20 @@
+{
+  "accepted_steps": null,
+  "argv": [
+    "/Users/home/numi-cardboard-20261006/build-cardboard/numi-matter-fem-material-frame-check"
+  ],
+  "case": "frame",
+  "exit_code": 1,
+  "expected_usage": "usage: fem-material-frame-check GUCCIONE.nmatter",
+  "failure_text": "fem material frame check failed: usage: fem-material-frame-check GUCCIONE.nmatter",
+  "note": "Preserve this invalid invocation as evidence of a missing CLI input. It is not a failed material or mechanics test.",
+  "physical_validation": false,
+  "prediction_sha256": "c5c8ab4402dea183716d49d0033bc56eb28036cae4724c3352807873cc1b6589",
+  "receipt_sha256": "79b9ee5ca802692c1d99345a29a26fb5055f2022985bfa280dbac47d2cad2210",
+  "required_material_arguments_supplied": false,
+  "schema": "numi.cardboard.native-invocation-audit.v1",
+  "status": "UNEXECUTED_INVALID_INVOCATION",
+  "stderr_sha256": "02ffa0ad7e1e66a1d2493c7c8e4f9258fda7c97cc9579fb9fd10d2a57adfa87e",
+  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "summary": "The executable rejected its invocation at argument validation and printed usage; the constitutive/FEM checks did not execute."
+}

@@ -1,0 +1,57 @@
+--- a/matter/materials/robertsson2023_bulk_damage_architecture.md
++++ b/matter/materials/robertsson2023_bulk_damage_architecture.md
+@@ -222,6 +222,23 @@
+ failure. The captured point-test results and all 360 sealed input hashes are
+ at `/Users/home/cardboard-followup-20261013/bulk/source-point-006/`.
+ 
++A seeded continuation imported the exact 27-scalar accepted state at `gamma=0.59`
++from rejected row 119; FP32 values match the source row bit-for-bit. The
++one-increment continuation reproduced the rejected `gamma=0.595` candidate
++bit-for-bit, with the same `projection_iteration_exhausted` subtype, residual
++`4.8307701945304871e-5`, state norm `1.1507568359375`, and 16 iterations.
++Two- and four-subincrement continuations accepted to `0.595` and then returned
++only to `0.59`. At `0.595`, the two partitions differed by at most
++`3.5465e-6` in state 21, 7 Pa in `P13`, and `3.8743e-7` in damage; after the
++short return to `0.59`, `P13` differed by 2.5 Pa. All 362 sealed inputs per
++continuation verified. This resolves the specific one-increment local
++projection failure for these tested subdivisions under the unchanged law, but
++the nonzero partition difference is not a convergence result. The run does not
++complete the high-shear unload to zero. Per-case results, source bindings, and
++the aggregate are at
++`/Users/home/cardboard-followup-20261013/bulk/source-point-seeded-{1,2,4}/`
++and `bulk/seeded-sensitivity.json`.
++
+ A distinct `fem-coupling-001` experiment checks the integration path. It used
+ the same authored 27-state material in production FEM and the point evaluator
+ for one tetrahedron, with all four nodes prescribed to the homogeneous
+--- a/matter/examples/cardboard/native-damage-and-assembly.md
++++ b/matter/examples/cardboard/native-damage-and-assembly.md
+@@ -56,12 +56,25 @@
+ input bindings are in
+ `/Users/home/cardboard-followup-20261013/bulk/source-point-006/`.
+ 
+-The later diagnostic `0 -> 0.3 -> 0` cycle accepts all 121 material points
++The seeded high-shear continuations separately resolve the specific
++single-increment rejection: one increment reproduces the source-point-006
++failure exactly, while two and four subincrements accept from the exact
++accepted `gamma=0.59` state through `0.595` and return only to `0.59`. At
++`0.595`, their maximum state difference is `3.5465e-6` (state 21), `P13`
++differs by 7 Pa and damage by `3.8743e-7`; after the short return to `0.59`,
++`P13` differs by 2.5 Pa. All 362 sealed inputs per run verify. This is local
++increment-refinement evidence under the unchanged material program; the small
++nonzero differences do not establish convergence, and the path does not unload
++to zero shear. Results and source bindings are retained in
++`/Users/home/cardboard-followup-20261013/bulk/source-point-seeded-{1,2,4}/`,
++with aggregate `bulk/seeded-sensitivity.json`.
++
++The separate diagnostic `0 -> 0.3 -> 0` cycle accepts all 121 material points
+ at 0.005 shear increments. Damage starts at shear 0.17, reaches 0.119373 at
+ peak shear and 0.245010 after reverse plastic flow on unloading. The final
+ P13 stress is -4.974485 MPa at zero commanded shear. No state is reset between
+-increments. The maximum local Newton count is ten; this shorter cycle does
+-not resolve the earlier 0.595 rejection.
++increments. The maximum local Newton count is ten. This shorter low-shear
++cycle is not the high-shear continuation or its unload-to-zero.
+ 
+ ## Fully prescribed FEM integration-parity experiment
+ 

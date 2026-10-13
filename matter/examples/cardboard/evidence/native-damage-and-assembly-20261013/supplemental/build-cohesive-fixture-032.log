@@ -1,0 +1,8 @@
+[ 11%] Built target numi_matter_shaders
+[ 58%] Built target numi_matter_compiler_objects
+[ 64%] Built target numi_matter_compiler
+[ 82%] Built target numi_matter_runtime_objects
+[ 88%] Built target numi_matter_runtime
+[ 94%] Building OBJCXX object CMakeFiles/numi-matter-cardboard-cohesive-face-check.dir/tools/cardboard_cohesive_face_check.mm.o
+[100%] Linking CXX executable numi-matter-cardboard-cohesive-face-check
+[100%] Built target numi-matter-cardboard-cohesive-face-check

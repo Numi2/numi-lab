@@ -1,0 +1,88 @@
+{
+  "capsule_endpoint_scope": "The corrected capsule check exercises moved-body endpoint and rollback validation under its own prediction and receipt; it supersedes the frozen-027 stationary-endpoint proof gap without deleting native-tests-008.",
+  "cases": {
+    "capsule-box": {
+      "exit_code": 0,
+      "prediction_sha256": "84ffa0c2cc20de3663c48a1d03c6c523b976c73a0a10bd017c55024d35a13f16",
+      "receipt_sha256": "9a04bf9e3f49786b99b561348c479b8446ba91fc5b2b2e10c09fdb2e67d0a34f",
+      "sealed_inputs": {
+        "all_verified": true,
+        "expected": 360,
+        "mismatches": [],
+        "verified": 360
+      },
+      "status": "PASS_NATIVE_TEST",
+      "stderr_sha256": "37c7d7bf6fd815b0d538138af8e4c0a6917d5cedecc4c9d5a34cfebf42e4836c",
+      "stdout": "capsule_armijo_pair=source_only_prescribed_capsule contact_pairs=26 legacy_displacement_m=1.719368047e-05 armijo_displacement_m=1.719368047e-05 legacy_impulse_Ns=3.143376034e-06 armijo_impulse_Ns=3.143376034e-06 legacy_residual=4.006583953e-09 armijo_residual=4.006583953e-09 both_native_certified=true\nunsafe_endpoint_regression=rejected status=1 rolledback_fem_displacement_m=0 caller_pose_unchanged=true\ncapsule_armijo_rollback=pass postcommit_rejected=true accepted_fem_history_rigid_state_unchanged=true\ncapsule_static_box_armijo=pass contact_pairs=52 legacy_max_displacement_m=1.712460172e-05 armijo_max_displacement_m=1.712460172e-05 legacy_capsule_impulse_Ns=3.289910637e-06 armijo_capsule_impulse_Ns=3.289910637e-06 legacy_residual=7.36072252e-08 armijo_residual=7.36072252e-08 accepted_capsule_contact=true stationary_box_endpoint=true\nunsafe_endpoint_regression=rejected status=1 rolledback_fem_displacement_m=0 caller_pose_unchanged=true\nstatic_box_temporary_grip_armijo=pass validated_target_count=54 target_node=13 tag3=true accepted_position_and_mass=true postcommit_env0_exact_rollback=true env1_success=true\nunsafe_endpoint_regression=rejected status=6 rolledback_fem_displacement_m=0 caller_pose_unchanged=true\nstatic_box_pre_endpoint_reject=pass case=pre_pose_changed selector=all exact_accepted_state_rollback=true\nunsafe_endpoint_regression=rejected status=1 rolledback_fem_displacement_m=0 caller_pose_unchanged=true\nstatic_box_pre_endpoint_reject=pass case=dynamic_motion_type selector=all exact_accepted_state_rollback=true\nunsafe_endpoint_regression=rejected status=1 rolledback_fem_displacement_m=0 caller_pose_unchanged=true\nstatic_box_pre_endpoint_reject=pass case=nonzero_tool_velocity selector=all exact_accepted_state_rollback=true\nunsafe_endpoint_regression=rejected status=6 rolledback_fem_displacement_m=0 caller_pose_unchanged=true\nstatic_box_pre_endpoint_reject=pass case=pre_orientation_changed selector=all exact_accepted_state_rollback=true\nunsafe_endpoint_regression=rejected status=1 rolledback_fem_displacement_m=0 caller_pose_unchanged=true\nstatic_box_pre_endpoint_reject=pass case=nonzero_angular_velocity selector=all exact_accepted_state_rollback=true\nunsafe_endpoint_regression=rejected status=1 rolledback_fem_displacement_m=0 caller_pose_unchanged=true\nstatic_box_pre_endpoint_reject=pass case=nonzero_inverse_mass selector=all exact_accepted_state_rollback=true\nunsafe_endpoint_regression=rejected status=1 rolledback_fem_displacement_m=0 caller_pose_unchanged=true\nstatic_box_pre_endpoint_reject=pass case=nonzero_inverse_inertia selector=all exact_accepted_state_rollback=true\nunsafe_endpoint_regression=rejected status=6 rolledback_fem_displacement_m=0 caller_pose_unchanged=true\nstatic_box_post_endpoint_rollback=pass case=post_position_changed accepted_state_restored=true\nunsafe_endpoint_regression=rejected status=6 rolledback_fem_displacement_m=0 caller_pose_unchanged=true\nstatic_box_post_endpoint_rollback=pass case=post_orientation_changed accepted_state_restored=true",
+      "stdout_sha256": "94a9c4fb7a8228d1bf2d476b406f935e559fcc01bcfcba4f75bdd58a94ea1dc7",
+      "wall_seconds": 5.326082416984718
+    },
+    "cohesive": {
+      "exit_code": 0,
+      "prediction_sha256": "49aa21bc4db753b6e8ea424f0b274d96b4b98611da5efdc031219aa0d6b9f5f5",
+      "receipt_sha256": "bd0f8a1915200f35b9ef4291db9b63864b8d6957ea1925dc1b616b8eacddf9b6",
+      "sealed_inputs": {
+        "all_verified": true,
+        "expected": 360,
+        "mismatches": [],
+        "verified": 360
+      },
+      "status": "PASS_NATIVE_TEST",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "PASS native paired cohesive FEM checks=4004 initial_opening_m=1.47964e-06 accepted_opening_m=1.49527e-06 no_interface_opening_m=1.49964e-06 accepted_damage=0.0101212 accepted_traction_Pa=392980 signed_work_J=3.07201e-07 source_mode_i_coarse_peak_force_error_N=7.85143e-05 source_mode_i_refined_peak_force_error_N=6.76424e-05 source_mode_i_coarse_unload_tangent_relative_error=3.17262e-05 source_mode_i_refined_unload_tangent_relative_error=0.000677552 source_mode_i_coarse_final_work_error_J=4.15742e-10 source_mode_i_refined_final_work_error_J=4.29086e-10 matrix_free_operator_directly_exposed=false tested_operator_proxy=finite_difference_of_native_kinematic_reactions calibration_grade=single_ply_bleached_clay_coated_not_corrugated_starch closure_rejection_rollback=verified physical_board_qualified=false mixed_mode_or_closure_supported=false",
+      "stdout_sha256": "b6e5462df35728fc8429825486924f7376dbf372320f2b50223061c1b30f7bcd",
+      "wall_seconds": 54.064562750048935
+    },
+    "frame": {
+      "exit_code": 0,
+      "prediction_sha256": "646ff445af0af00d6fb56c9679cf300270bb89af645830c361736c451c6df2f5",
+      "receipt_sha256": "f3f35a33f40f375a0338618b64cc13b7a876e715c3a8fa44997d7723c9315d31",
+      "sealed_inputs": {
+        "all_verified": true,
+        "expected": 360,
+        "mismatches": [],
+        "verified": 360
+      },
+      "status": "PASS_NATIVE_TEST",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "frame_device=Apple M4 abi=41\nsource_frame_force_error=9.0348969973945068e-07 source_frame_tangent_error=2.4088713604617131e-07 source_frame_fd_error=0.0018985037968984153 identity_error=0 anisotropic_angular_consequence=0.0057515638262883818 synthetic_state_rate_force_error=5.4808775475776649e-08 synthetic_state_rate_tangent_error=2.6039016682320251e-06 synthetic_state_rate_fd_error=1.3026630216087603e-06 mixed_active_force_error=1.0115523359873733e-07 mixed_active_tangent_error=1.9138180633217196e-07 mixed_active_fd_error=0.00014447508831119007 mixed_source_equivalent=false\nframed_icnn_force_error=2.5056373622279655e-07 framed_icnn_tangent_error=4.2242867456084868e-08 framed_icnn_fd_error=0.0011090525313200306 framed_icnn_world_fibre_force_error=2.0910758320286181e-07 framed_icnn_world_fibre_tangent_error=5.4983434590826474e-08 framed_icnn_angular_consequence=0.87027824102061657 trained_material_qualified=false\naccepted_steps=16 environments=2 motion_m=4.395736311293541e-05 replay=bitwise rollback=isolated reset=bitwise frame_snapshot_tamper=denied immutable_cell_rebinding=denied mass=unchanged\nfem_material_frame_check=pass anatomical_wall_qualified=false source_density_supplied=false active_cardiac_source_reproduced=false",
+      "stdout_sha256": "414cf6cb5f4b753635a15e703436730a890ce79c0d0feb6fad9254c7da95d714",
+      "wall_seconds": 6.067265290999785
+    },
+    "reference": {
+      "exit_code": 0,
+      "prediction_sha256": "35ef3c8c69bdb1c87bd3e3ff1e5ddd54abe2282a27f52437436bc25e9a5211c1",
+      "receipt_sha256": "6bd6a26c18cd324f511700a09df031b54a9d0b431e53824eac5b05dee73a1f10",
+      "sealed_inputs": {
+        "all_verified": true,
+        "expected": 360,
+        "mismatches": [],
+        "verified": 360
+      },
+      "status": "PASS_NATIVE_TEST",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "reference_abi=41\nreference_compiler_checks=42 reference_volume_m3=6.3578287760416663e-07 reference_mass_kg=0.0011444092137935513 initial_J=1.015625 inertia_relative_error=2.9802321499516919e-08\nreference_compiler_checks=84 reference_volume_m3=6.3578287760416663e-07 reference_mass_kg=0.0013351440827591432 initial_J=1.015625 inertia_relative_error=2.9802321552109992e-08\nreference_displacement_cpu=pass checks=100 affine_F_max_error=0 rest_F_max_error=0 rigid_rotation_F_max_error=0 default_path=unchanged fingerprint=bound package=roundtrip\nreference_displacement_thin_skew_cpu=pass checks=101 horizontal_scale_m=0.00421 thickness_m=3.07e-5 translated_origin_m=0.05219 legacy_rest_F_max_error=2.384185791015625e-07 legacy_green_strain_max=1.1920928955078125e-07 displacement_rest_F_max_error=0\ngeneral_reference_compiler_checks=103 inverse_relative_error=3.7252903090437266e-08 affine_F_max_error=2.2642780095338821e-08 origin_translated=true\ngeneral_reference_compiler_checks=105 inverse_relative_error=3.7252903090437266e-08 affine_F_max_error=2.2642780095338821e-08 origin_translated=true\nreference_executable_boundary_checks=113 old_ratio=0.20000001179885038 host_nominal_FP32_J=0.19999997317790985 minimum_J=0.20000000298023224 determinant_interval_center=0.19999998789256282 determinant_interval_radius=3.5762825627553419e-07 source_cooked_boundary=rejected snapshot_boundary=ambiguous_not_certified\nreference_device=Apple M4\nreference_boundary_restore=overlap_accepted_without_strict_GPU_certification provably_outside=denied restoration=unchanged\nreference_direct_case=reference_only force_relative_error=8.5178576712888533e-08 tangent_relative_error=9.7114850952897605e-08 finite_difference_relative_error=0.00087647317562756534 initial_prestress_nodal_force_N=0.62854409217834473 internal_force_balance_relative=1.1853711918765089e-08 unloaded_force_N=0\nreference_direct_case=reference_regional_frames force_relative_error=8.5782724898444736e-08 tangent_relative_error=3.057803571054997e-07 finite_difference_relative_error=0.001340282055436168 initial_prestress_nodal_force_N=0.64432328939437866 internal_force_balance_relative=4.1194682566091187e-08 unloaded_force_N=0\nreference_direct_case=reference_displacement_regional_frames force_relative_error=8.5782724898444736e-08 tangent_relative_error=3.057803571054997e-07 finite_difference_relative_error=0.00087981223627321193 initial_prestress_nodal_force_N=0.64432328939437866 internal_force_balance_relative=4.1194682566091187e-08 unloaded_force_N=0\nreference_displacement_rigid_rotation=pass cpu_F_max_error=0 production_force_max_N=0 tangent_relative_error=1.4729112977216784e-07 finite_difference_relative_error=1.7827294345071392e-05\nreference_displacement_thin_skew_metal_rest=pass force_max_N=0 geometry=translated_skew_30.7um\nreference_runtime_case=reference_only accepted_steps=16 environments=2 motion_m=0.00036255130544304848 replay=bitwise rollback=isolated reset=loaded_initial_bitwise snapshot_rebinding=denied reference_mass=unchanged\nreference_runtime_case=reference_regional_frames accepted_steps=16 environments=2 motion_m=0.00037146033719182014 replay=bitwise rollback=isolated reset=loaded_initial_bitwise snapshot_rebinding=denied reference_mass=unchanged\nreference_runtime_case=reference_displacement_regional_frames accepted_steps=16 environments=2 motion_m=0.00037146080285310745 replay=bitwise rollback=isolated reset=loaded_initial_bitwise snapshot_rebinding=denied reference_mass=unchanged\nfem_reference_check=pass unloaded_reference_recovered=false anatomical_wall_qualified=false source_density_supplied=false active_cardiac_source_reproduced=false",
+      "stdout_sha256": "1690a732808254c11fa145dda8727aee526553482ff920e5cc58d589d2923f87",
+      "wall_seconds": 20.348788124974817
+    },
+    "regional": {
+      "exit_code": 0,
+      "prediction_sha256": "69208bd95e58cccea30f95458d646f9221b9ab064cb05f30aa30b186b4039fc6",
+      "receipt_sha256": "140b677aea2c6d4d4c3dfe03008de9b4dad61cae1af5444c825176fa065acdc2",
+      "sealed_inputs": {
+        "all_verified": true,
+        "expected": 360,
+        "mismatches": [],
+        "verified": 360
+      },
+      "status": "PASS_NATIVE_TEST",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "regional_abi=41\nregional_compiler_checks=40 shared_nodes=3 element_mass_kg=0.0013351440827591432 nodal_mass_kg=0.00133514404296875 selected_material_rate_exponent=5 default_material_rate_exponent=0 lumped_inertia_relative_error=2.9802321738857619e-08 source_density_supplied=false\nregional_device=Apple M4\nregional_source_force_error=2.378244333367824e-07 regional_source_tangent_error=2.0186041035049957e-07 regional_source_fd_error=0.0016590304248321397 homogeneous_fallback_consequence=0.12038753020895762 regional_state_force_error=1.5118860636542636e-07 regional_state_tangent_error=2.8712626954622155e-06 regional_state_fd_error=2.0631400116938371e-05 heterogeneous_state_stride=2\nregional_icnn_force_error=2.0409321219456913e-07 regional_icnn_tangent_error=1.2069666139688348e-07 regional_icnn_fd_error=0.00074758411957886659 regional_icnn_world_fibre_force_error=2.2840123702109972e-07 regional_icnn_world_fibre_tangent_error=3.0028282438097145e-07 wrong_fibre_consequence=1.0359297285902127 trained_material_qualified=false\nregional_projected_state_absolute_error=6.6682896149306004e-09 unowned_padding=preserved\nregional_runtime_case=source_laws_framed accepted_steps=16 environments=2 motion_m=4.6220987611155015e-05 replay=bitwise rollback=isolated reset=bitwise snapshot_rebinding=denied mass=unchanged\nregional_runtime_case=source_laws_unframed accepted_steps=2 environments=2 motion_m=6.359144030389523e-06 replay=bitwise rollback=isolated reset=bitwise snapshot_rebinding=denied mass=unchanged\nregional_runtime_case=heterogeneous_state_programs accepted_steps=2 environments=2 motion_m=8.4448828916146513e-06 replay=bitwise rollback=isolated reset=bitwise snapshot_rebinding=denied mass=unchanged\nlegacy_restore_object0_material1=pass incidence_owner_mismatch=denied\nregional_unframed_unrelated_posterior_values=restored posterior_identity_retarget=denied fixed_parameters=unchanged\nimmutable_event_capacity_restore=pass framed=0 dormant_cohesive_capacity=1 dormant_puncture_capacity=1 topology_accounting=bound\nimmutable_event_capacity_restore=pass framed=1 dormant_cohesive_capacity=1 dormant_puncture_capacity=1 topology_accounting=bound\nregional_runtime_case=full_state32_programs accepted_steps=2 environments=2 motion_m=8.4448828916146513e-06 replay=bitwise rollback=isolated reset=bitwise snapshot_rebinding=denied mass=unchanged\nfem_regional_material_check=pass anatomical_wall_qualified=false source_density_supplied=false active_cardiac_source_reproduced=false",
+      "stdout_sha256": "86af5359389028e8ad3237c00751bdc43d1473a56e846a5664fb3733b31c783d",
+      "wall_seconds": 9.672843375010416
+    }
+  },
+  "cohesive_grade_scope": "Pure Mode I paired-face check is a separate single-ply bleached clay-coated paperboard source grade; it does not calibrate corrugated starch.",
+  "interpretation": "Corrected invocations completed with all sealed inputs verified. These are native software/material/runtime checks, not physical board or box qualification.",
+  "schema": "numi.cardboard.native-tests-009-invocation-audit.v1"
+}

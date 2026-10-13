@@ -1,0 +1,7 @@
+{
+  "classification": "INCOMPLETE_INVALID_FIXTURE_TARGET_COUNT",
+  "stage": "reset-rejection kinematic target API admission after prior native assertions",
+  "source_issue": "count was nodeCount instead of environmentCount*nodeCount",
+  "repair": "032 uses targets.size(); no runtime acceptance change",
+  "native_mechanics_failure": false
+}

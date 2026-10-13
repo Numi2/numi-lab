@@ -1,0 +1,21 @@
+{
+  "captured_after_execution": true,
+  "original_prediction_seal": false,
+  "native_steps": 0,
+  "physical_qualification": false,
+  "attempts": [
+    {
+      "material": "matter/materials/nagasawa2019_medium_orthotropic_elastic.nmatter",
+      "exit_code": 1,
+      "status": "UNEXECUTED_INVALID_INPUT_PATH",
+      "reason": "Material parse could not open nonexistent filename; no mechanics or GPU execution."
+    },
+    {
+      "material": "matter/materials/nagasawa2013_medium_orthotropic.nmatter",
+      "exit_code": 0,
+      "status": "PASS_CPU_COMPILER_ONLY",
+      "checks": 43,
+      "log": "cohesive-reset-cpu-029.log"
+    }
+  ]
+}

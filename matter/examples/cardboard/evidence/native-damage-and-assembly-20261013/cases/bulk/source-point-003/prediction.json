@@ -1,0 +1,34 @@
+{
+  "schema": "numi.cardboard.native-prediction.v1",
+  "sealed_at_utc": "2026-10-13T15:03:11.545216+00:00",
+  "question": "Does the full source multiplicative paperboard law reproduce its independent elastic response and activate irreversible shear damage in the production Metal constitutive evaluator?",
+  "source": "https://onlinelibrary.wiley.com/doi/full/10.1002/pts.2774",
+  "prediction": {
+    "rest_max_P_Pa_below": 500,
+    "rest_ZD_tangent_Pa": 56800000,
+    "closed_form_elastic_ZD_stress_abs_error_Pa_below": 500,
+    "shear_loading_unloading": [
+      0,
+      1,
+      0
+    ],
+    "max_damage_above": 0,
+    "damage_range": [
+      0,
+      0.96
+    ],
+    "accepted_state_read_only": true,
+    "accepted_material_points": 401
+  },
+  "qualification": "Material-point native instrument. No FEM timesteps, physical box or calibrated kraft/starch claim.",
+  "inputs_sha256": {
+    "matter/tools/robertsson2023_material.hpp": "c93a5c5b88867ac129431a152a70963ac9120335bbfd6e3f97cfb2563eb6995f",
+    "matter/tools/cardboard_bulk_damage_gpu_check.mm": "cac4744b358608f8d60b66b335abe05026aa3c66934da4c99aa64fc1062ffc65",
+    "matter/src/constitutive_impl.cpp": "f4d6adf8b128db3142e34b2ef49b5049e58d4e27dafd6fe400b564a0423e815e",
+    "matter/src/metal/common.metalinc": "95422efd5025fb724d47744ec3926033d051dfb22a02cc6be832229862119eb6",
+    "matter/include/numi/matter/shared.h": "3152ad057428dc1a85791537bd4a1e396a5746ce794fa91b54d9d3293b8791ab",
+    "build-cardboard/numi-matter-cardboard-bulk-damage-gpu-check": "e34dd42131129c751c3c4cefd44f3d47906e79c5e0444241ce62063b3aaf3d0e",
+    "build-cardboard/shaders/cardboard_bleached_delamination_check.metallib": "e92c939a4b3bbdb306eacbe644ccfb327320ee61cd1064508ca8e989cbb98d8f"
+  },
+  "revision": "Retain source-point-001 failure at shear .1. Algebraically collect source stress moduli before FP32 multiplication; add source plastic stored energy; refine shear increment .025 to .005 without changing acceptance tolerance. Retain source-point-002 compile rejection: bounded live cache exceeded256. Capacity512 andcached/plain separateMetaltemplate; mathematicalinputs unchanged."
+}

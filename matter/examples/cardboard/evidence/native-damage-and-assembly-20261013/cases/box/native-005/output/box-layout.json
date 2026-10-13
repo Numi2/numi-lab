@@ -1,0 +1,49 @@
+{
+  "schema": "numi.cardboard.fefco0201-layout.v2",
+  "units": "metres",
+  "state": "flat_unscored_blank",
+  "physical_assembly": false,
+  "dimensions": {"panel_length": 0.031600000000000003, "panel_width": 0.023700000000000002, "wall_height": 0.031600000000000003, "joint_width": 0.0079000000000000008, "slot_kerf": 0.0015800000000000002, "board_caliper": 0.0042100000000000002, "perimeter_span": 0.11850000000000001, "blank_height": 0.055300000000000002, "bottom_score_y": 0.011850000000000001, "top_score_y": 0.043450000000000003, "flap_depth": 0.011850000000000001},
+  "panels": [
+    {"index": 0, "long_wall": true, "bounds_kind": "axis_aligned_envelope", "bounds_m": {"x": [0.0079000000000000008,0.039500000000000007], "y": [0.011850000000000001,0.043450000000000003], "z": [0,0.0042100000000000002]}},
+    {"index": 1, "long_wall": false, "bounds_kind": "axis_aligned_envelope", "bounds_m": {"x": [0.039500000000000007,0.063200000000000006], "y": [0.011850000000000001,0.043450000000000003], "z": [0,0.0042100000000000002]}},
+    {"index": 2, "long_wall": true, "bounds_kind": "axis_aligned_envelope", "bounds_m": {"x": [0.063200000000000006,0.094800000000000009], "y": [0.011850000000000001,0.043450000000000003], "z": [0,0.0042100000000000002]}},
+    {"index": 3, "long_wall": false, "bounds_kind": "axis_aligned_envelope", "bounds_m": {"x": [0.094800000000000009,0.11850000000000001], "y": [0.011850000000000001,0.043450000000000003], "z": [0,0.0042100000000000002]}}
+  ],
+  "manufacturer_joint": {"index": 0, "bounds_kind": "axis_aligned_envelope", "bounds_m": {"x": [0,0.0079000000000000008], "y": [0.011850000000000001,0.043450000000000003], "z": [0,0.0042100000000000002]}, "root_score_line_index": 0},
+  "box_ends": [
+    {"index": 0, "end": "bottom", "bounds_kind": "axis_aligned_envelope", "bounds_m": {"x": [0.0079000000000000008,0.11850000000000001], "y": [0,0.011850000000000001], "z": [0,0.0042100000000000002]}, "panel_indices": [0,1,2,3], "flap_score_line_indices": [4,6,8,10]},
+    {"index": 1, "end": "top", "bounds_kind": "axis_aligned_envelope", "bounds_m": {"x": [0.0079000000000000008,0.11850000000000001], "y": [0.043450000000000003,0.055300000000000002], "z": [0,0.0042100000000000002]}, "panel_indices": [0,1,2,3], "flap_score_line_indices": [5,7,9,11]}
+  ],
+  "score_lines": [
+    {"kind": 0, "panel": 0, "first": [0.0079000000000000008,0.011850000000000001,0], "second": [0.0079000000000000008,0.043450000000000003,0], "physically_scored": false},
+    {"kind": 1, "panel": 0, "first": [0.039500000000000007,0.011850000000000001,0], "second": [0.039500000000000007,0.043450000000000003,0], "physically_scored": false},
+    {"kind": 1, "panel": 1, "first": [0.063200000000000006,0.011850000000000001,0], "second": [0.063200000000000006,0.043450000000000003,0], "physically_scored": false},
+    {"kind": 1, "panel": 2, "first": [0.094800000000000009,0.011850000000000001,0], "second": [0.094800000000000009,0.043450000000000003,0], "physically_scored": false},
+    {"kind": 2, "panel": 0, "first": [0.0079000000000000008,0.011850000000000001,0], "second": [0.039500000000000007,0.011850000000000001,0], "physically_scored": false},
+    {"kind": 3, "panel": 0, "first": [0.0079000000000000008,0.043450000000000003,0], "second": [0.039500000000000007,0.043450000000000003,0], "physically_scored": false},
+    {"kind": 2, "panel": 1, "first": [0.039500000000000007,0.011850000000000001,0], "second": [0.063200000000000006,0.011850000000000001,0], "physically_scored": false},
+    {"kind": 3, "panel": 1, "first": [0.039500000000000007,0.043450000000000003,0], "second": [0.063200000000000006,0.043450000000000003,0], "physically_scored": false},
+    {"kind": 2, "panel": 2, "first": [0.063200000000000006,0.011850000000000001,0], "second": [0.094800000000000009,0.011850000000000001,0], "physically_scored": false},
+    {"kind": 3, "panel": 2, "first": [0.063200000000000006,0.043450000000000003,0], "second": [0.094800000000000009,0.043450000000000003,0], "physically_scored": false},
+    {"kind": 2, "panel": 3, "first": [0.094800000000000009,0.011850000000000001,0], "second": [0.11850000000000001,0.011850000000000001,0], "physically_scored": false},
+    {"kind": 3, "panel": 3, "first": [0.094800000000000009,0.043450000000000003,0], "second": [0.11850000000000001,0.043450000000000003,0], "physically_scored": false}
+  ],
+  "assembly_actions": [
+    {"stage": "form four-wall tube from flat blank", "kind": 0, "feature": {"type": "panel", "index": 0, "index_semantics": "zero-based index into panels"}, "hinge_score_line_index": 0, "target_angle_deg": 90, "executed": false},
+    {"stage": "form four-wall tube from flat blank", "kind": 0, "feature": {"type": "panel", "index": 1, "index_semantics": "zero-based index into panels"}, "hinge_score_line_index": 1, "target_angle_deg": 90, "executed": false},
+    {"stage": "form four-wall tube from flat blank", "kind": 0, "feature": {"type": "panel", "index": 2, "index_semantics": "zero-based index into panels"}, "hinge_score_line_index": 2, "target_angle_deg": 90, "executed": false},
+    {"stage": "form four-wall tube from flat blank", "kind": 0, "feature": {"type": "panel", "index": 3, "index_semantics": "zero-based index into panels"}, "hinge_score_line_index": 3, "target_angle_deg": 90, "executed": false},
+    {"stage": "overlap tab and bond the manufacturer's joint", "kind": 1, "feature": {"type": "manufacturer_joint", "index": 0, "index_semantics": "0 identifies the manufacturer_joint object"}, "hinge_score_line_index": null, "target_angle_deg": 0, "executed": false},
+    {"stage": "close bottom flap", "kind": 2, "feature": {"type": "score_line", "index": 6, "index_semantics": "zero-based index into score_lines"}, "hinge_score_line_index": null, "target_angle_deg": 90, "executed": false},
+    {"stage": "close bottom flap", "kind": 2, "feature": {"type": "score_line", "index": 10, "index_semantics": "zero-based index into score_lines"}, "hinge_score_line_index": null, "target_angle_deg": 90, "executed": false},
+    {"stage": "close bottom flap", "kind": 2, "feature": {"type": "score_line", "index": 4, "index_semantics": "zero-based index into score_lines"}, "hinge_score_line_index": null, "target_angle_deg": 90, "executed": false},
+    {"stage": "close bottom flap", "kind": 2, "feature": {"type": "score_line", "index": 8, "index_semantics": "zero-based index into score_lines"}, "hinge_score_line_index": null, "target_angle_deg": 90, "executed": false},
+    {"stage": "seal bottom flaps", "kind": 3, "feature": {"type": "box_end", "index": 0, "index_semantics": "zero-based index into box_ends: 0=bottom, 1=top"}, "hinge_score_line_index": null, "target_angle_deg": 0, "executed": false},
+    {"stage": "close top flap", "kind": 2, "feature": {"type": "score_line", "index": 7, "index_semantics": "zero-based index into score_lines"}, "hinge_score_line_index": null, "target_angle_deg": -90, "executed": false},
+    {"stage": "close top flap", "kind": 2, "feature": {"type": "score_line", "index": 11, "index_semantics": "zero-based index into score_lines"}, "hinge_score_line_index": null, "target_angle_deg": -90, "executed": false},
+    {"stage": "close top flap", "kind": 2, "feature": {"type": "score_line", "index": 5, "index_semantics": "zero-based index into score_lines"}, "hinge_score_line_index": null, "target_angle_deg": -90, "executed": false},
+    {"stage": "close top flap", "kind": 2, "feature": {"type": "score_line", "index": 9, "index_semantics": "zero-based index into score_lines"}, "hinge_score_line_index": null, "target_angle_deg": -90, "executed": false},
+    {"stage": "seal top flaps", "kind": 3, "feature": {"type": "box_end", "index": 1, "index_semantics": "zero-based index into box_ends: 0=bottom, 1=top"}, "hinge_score_line_index": null, "target_angle_deg": 0, "executed": false}
+  ]
+}

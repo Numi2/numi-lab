@@ -1,0 +1,1 @@
+{"schema":"numi.cardboard.probe-result.v1","status":"failed","accepted_steps":4,"compiled_world_fingerprint":10786850929858311972,"nodes":1740,"tetrahedra":2784,"failure":"Matter rejected step 4; status, accepted state OBJ, and CSV observations were retained","physical_validation":false}

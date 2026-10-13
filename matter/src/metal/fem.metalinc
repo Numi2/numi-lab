@@ -3,16 +3,27 @@
 namespace numi_matter_metal {
 
 // restAndFixed.w is a small, versioned constraint tag rather than a boolean:
-// 0 = free, 1 = authored static Dirichlet, 2 = moving Human attachment.
+// 0 = free, 1 = authored static Dirichlet, 2 = moving Human attachment,
+// 3 = temporary pure-FEM kinematic grip. Grip tag 3 is eliminated from the
+// nodal unknowns like a static boundary, but unlike tag 1 it is acquired and
+// released only through the accepted/candidate FEM transaction.
 // A Human attachment is eliminated from Matter's nodal unknowns, but its
 // unconstrained residual/operator row remains physically meaningful because
 // the reduced articulated row owns J^T r and J^T A J.
 inline bool femStaticConstraint(const float marker) {
-    return marker > 0.5f && marker < 1.5f;
+    return marker == 1.0f || marker == 3.0f;
+}
+
+inline bool femAuthoredStaticConstraint(const float marker) {
+    return marker == 1.0f;
+}
+
+inline bool femTemporaryKinematicGrip(const float marker) {
+    return marker == 3.0f;
 }
 
 inline bool femHumanAttachmentConstraint(const float marker) {
-    return marker > 1.5f && marker < 2.5f;
+    return marker == 2.0f;
 }
 
 struct NMPrimalContactArguments {
@@ -720,8 +731,18 @@ kernel void nm_fem_apply_kinematic_targets(
         candidate[global] = next;
         return;
     }
-    if (!all(isfinite(target)) || target.w != 1.0f ||
-        previous.restAndFixed.w <= 0.5f ||
+    const bool temporaryGripCommand = target.w == 3.0f;
+    const bool validTemporaryGripSource =
+        previous.restAndFixed.w == 0.0f ||
+        femTemporaryKinematicGrip(previous.restAndFixed.w);
+    const bool validAuthoredStaticCommand =
+        target.w == 1.0f &&
+        femAuthoredStaticConstraint(previous.restAndFixed.w);
+    if (!all(isfinite(target)) ||
+        (!temporaryGripCommand && !validAuthoredStaticCommand) ||
+        (temporaryGripCommand && !validTemporaryGripSource) ||
+        previous.positionAndMass.w <= 0.0f ||
+        !isfinite(previous.positionAndMass.w) ||
         microstep.microtick >= microstep.microtickCount ||
         !(microstep.time.x > 0.0f) || !isfinite(microstep.time.x)) {
         recordFailure(
@@ -745,13 +766,24 @@ kernel void nm_fem_apply_kinematic_targets(
         return;
     }
     NMFEMNodeStateGPU next = candidate[global];
-        if (previous.referenceDisplacementAndMode.w == 1.0f) {
-            const float3 nextDisplacement = previous.referenceDisplacementAndMode.xyz + displacement;
-            next.referenceDisplacementAndMode.xyz = nextDisplacement;
-            next.positionAndMass.xyz = previous.restAndFixed.xyz + nextDisplacement;
-        } else {
-            next.positionAndMass.xyz = previous.positionAndMass.xyz + displacement;
-        }
+    if (previous.referenceDisplacementAndMode.w == 1.0f) {
+        const float3 nextDisplacement =
+            previous.referenceDisplacementAndMode.xyz + displacement;
+        next.referenceDisplacementAndMode.xyz = nextDisplacement;
+        next.positionAndMass.xyz =
+            previous.restAndFixed.xyz + nextDisplacement;
+    } else {
+        next.positionAndMass.xyz =
+            previous.positionAndMass.xyz + displacement;
+    }
+    if (temporaryGripCommand) {
+        // A temporary grip is an accepted-state constraint: the candidate is
+        // solved with a zero inverse mass, and normal FEM transaction commit or
+        // rollback decides whether the tag and prescribed endpoint persist.
+        // Command w=2 releases this grip and restores 1/mass.
+        next.restAndFixed.w = 3.0f;
+        next.velocityAndInverseMass.w = 0.0f;
+    }
     next.velocityAndInverseMass.xyz = velocity;
     next.deltaVelocity.xyz = velocity - previous.velocityAndInverseMass.xyz;
     candidate[global] = next;
@@ -1014,6 +1046,377 @@ kernel void nm_fem_internal_forces(
     elementForces[global] = tetrahedronForce(tetrahedron, stress);
 }
 
+inline bool pairedFaceModeIState(
+    const NMCohesiveFaceGPU face,
+    device const NMFEMNodeStateGPU* nodes,
+    const uint nodeBase,
+    thread float3& normal,
+    thread float& opening
+) {
+    const float3 a0 = nodes[nodeBase + face.nodesAndFirst.x].positionAndMass.xyz;
+    const float3 a1 = nodes[nodeBase + face.nodesAndFirst.y].positionAndMass.xyz;
+    const float3 a2 = nodes[nodeBase + face.nodesAndFirst.z].positionAndMass.xyz;
+    const float3 gap0 = nodes[nodeBase + face.separatedNodes.x].positionAndMass.xyz - a0;
+    const float3 gap1 = nodes[nodeBase + face.separatedNodes.y].positionAndMass.xyz - a1;
+    const float3 gap2 = nodes[nodeBase + face.separatedNodes.z].positionAndMass.xyz - a2;
+    const float3 averageGap = (gap0 + gap1 + gap2) / 3.0f;
+    const float3 areaVector = cross(a1 - a0, a2 - a0);
+    const float twiceArea = length(areaVector);
+    if (!(twiceArea > 1.0e-12f) || !isfinite(twiceArea) ||
+        !finite3(averageGap)) return false;
+    normal = areaVector / twiceArea;
+    // The authored face ordering points from the first tetrahedron toward the
+    // second. Preserve that orientation so closure/crossing is rejected rather
+    // than made positive by flipping the normal to follow the gap.
+    opening = dot(averageGap, normal);
+    const float coordinateScale = max(1.0f, max(
+        max(maximumAbsoluteCoordinate(a0), maximumAbsoluteCoordinate(a1)),
+        max(maximumAbsoluteCoordinate(a2), max(
+            maximumAbsoluteCoordinate(nodes[nodeBase + face.separatedNodes.x].positionAndMass.xyz),
+            max(maximumAbsoluteCoordinate(nodes[nodeBase + face.separatedNodes.y].positionAndMass.xyz),
+                maximumAbsoluteCoordinate(nodes[nodeBase + face.separatedNodes.z].positionAndMass.xyz))))));
+    const float tolerance = max(1.0e-9f * coordinateScale,
+        2.0e-5f * max(face.state.y, 1.0e-6f));
+    if (!(opening > 0.0f) || !isfinite(opening)) return false;
+    for (uint slot = 0u; slot < 3u; ++slot) {
+        const float3 gap = slot == 0u ? gap0 : slot == 1u ? gap1 : gap2;
+        const float normalGap = dot(gap, normal);
+        const float3 tangential = gap - normalGap * normal;
+        if (abs(normalGap - opening) > tolerance ||
+            length(tangential) > tolerance) return false;
+    }
+    return true;
+}
+
+kernel void nm_fem_cohesive_face_forces(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMicrostepGPU& microstep [[buffer(1)]],
+    device const NMContinuumObjectGPU* objects [[buffer(2)]],
+    device const NMMaterialGPU* materials [[buffer(3)]],
+    device const NMScalarProgramGPU* programs [[buffer(4)]],
+    device const NMExpressionInstructionGPU* instructions [[buffer(5)]],
+    device const float* environmentParameters [[buffer(6)]],
+    device const NMFEMNodeStateGPU* acceptedNodes [[buffer(7)]],
+    device const NMFEMNodeStateGPU* candidateNodes [[buffer(8)]],
+    device const NMCohesiveFaceGPU* acceptedFaces [[buffer(9)]],
+    device NMCohesiveFaceGPU* candidateFaces [[buffer(10)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(11)]],
+    device const NMAdaptiveStateGPU* adaptive [[buffer(12)]],
+    device NMCohesiveFaceVectorGPU* faceForces [[buffer(13)]],
+    device NMMatterStatusGPU* statuses [[buffer(14)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.cohesiveFaceCount;
+    if (global >= total || dispatch.cohesiveFaceCount == 0u) return;
+    faceForces[global] = {};
+    const uint environment = global / dispatch.cohesiveFaceCount;
+    const uint localFace = global - environment * dispatch.cohesiveFaceCount;
+    if (!environmentHealthy(statuses, environment)) return;
+    const NMCohesiveFaceGPU face = acceptedFaces[global];
+    candidateFaces[global] = face;
+    if ((face.adjacency.w & (NM_TOPOLOGY_ACTIVE | NM_TOPOLOGY_PAIRED_COHESIVE)) !=
+        (NM_TOPOLOGY_ACTIVE | NM_TOPOLOGY_PAIRED_COHESIVE)) return;
+    const uint objectIndex = face.adjacency.y;
+    if (objectIndex >= dispatch.objectCount) {
+        recordFailure(statuses[environment], NM_STATUS_INVALID_DEFORMATION,
+            objectIndex, localFace, float4(float(objectIndex), 0.0f, 0.0f, 0.0f));
+        return;
+    }
+    const NMContinuumObjectGPU object = objects[objectIndex];
+    const NMSchedulerStateGPU scheduler =
+        schedulers[environment * dispatch.objectCount + objectIndex];
+    const NMAdaptiveStateGPU adaptiveState =
+        adaptive[environment * dispatch.objectCount + objectIndex];
+    if (!objectDue(object, scheduler, adaptiveState, microstep)) return;
+    const uint materialIndex = face.separatedNodes.w;
+    if (materialIndex >= dispatch.materialCount) {
+        recordFailure(statuses[environment], NM_STATUS_INVALID_DEFORMATION,
+            objectIndex, localFace, float4(float(materialIndex),
+                float(dispatch.materialCount), 0.0f, 0.0f));
+        return;
+    }
+    const NMMaterialGPU material = materials[materialIndex];
+    if (material.stateCount != 1u || material.parameterCount < 2u) {
+        recordFailure(statuses[environment], NM_STATUS_INVALID_DEFORMATION,
+            objectIndex, localFace, float4(float(material.stateCount),
+                float(material.parameterCount), 1.0f, 0.0f));
+        return;
+    }
+    device const float* materialParameters = environmentParameters +
+        environment * dispatch.parameterCount;
+    const float thickness = materialParameters[material.parameterOffset + 1u];
+    const uint nodeBase = environment * dispatch.femNodeCount;
+    float3 normal = float3(0.0f);
+    float opening = 0.0f;
+    if (!(thickness > 0.0f) || !isfinite(thickness) ||
+        !pairedFaceModeIState(face, candidateNodes, nodeBase, normal, opening)) {
+        recordFailure(statuses[environment], NM_STATUS_INVALID_DEFORMATION,
+            objectIndex, localFace, float4(opening, thickness,
+                face.geometry.w, 0.0f));
+        return;
+    }
+    float3 previousNormal = float3(0.0f);
+    float previousOpening = 0.0f;
+    if (!pairedFaceModeIState(face, acceptedNodes, nodeBase,
+                              previousNormal, previousOpening)) {
+        recordFailure(statuses[environment], NM_STATUS_INVALID_DEFORMATION,
+            objectIndex, localFace, float4(previousOpening, thickness,
+                face.state.y, 1.0f));
+        return;
+    }
+    float3x3 deformation = float3x3(
+        float3(1.0f, 0.0f, 0.0f),
+        float3(0.0f, 1.0f, 0.0f),
+        float3(0.0f, 0.0f, 1.0f + opening / thickness)
+    );
+    const NMFEMNodeStateGPU a0 = acceptedNodes[nodeBase + face.nodesAndFirst.x];
+    const NMFEMNodeStateGPU a1 = acceptedNodes[nodeBase + face.nodesAndFirst.y];
+    const NMFEMNodeStateGPU a2 = acceptedNodes[nodeBase + face.nodesAndFirst.z];
+    const float3 oldGapVelocity = (
+        acceptedNodes[nodeBase + face.separatedNodes.x].velocityAndInverseMass.xyz -
+            a0.velocityAndInverseMass.xyz +
+        acceptedNodes[nodeBase + face.separatedNodes.y].velocityAndInverseMass.xyz -
+            a1.velocityAndInverseMass.xyz +
+        acceptedNodes[nodeBase + face.separatedNodes.z].velocityAndInverseMass.xyz -
+            a2.velocityAndInverseMass.xyz) / 3.0f;
+    const float3x3 deformationRate = float3x3(
+        float3(0.0f), float3(0.0f),
+        float3(0.0f, 0.0f, dot(previousNormal, oldGapVelocity) / thickness)
+    );
+    const float timestep = objectTimestep(dispatch, scheduler);
+    device const float* acceptedState =
+        reinterpret_cast<device const float*>(&acceptedFaces[global].state);
+    float projectedState[NM_MAX_MATERIAL_STATE];
+    bool valid = projectMaterialState(material, programs, instructions,
+        materialParameters, acceptedState, deformation, deformationRate,
+        timestep, material.bulk.y, projectedState);
+    const float3x3 stress = valid
+        ? evaluateStressWithCandidate(material, programs, instructions,
+            materialParameters, acceptedState, projectedState, deformation,
+            deformationRate, timestep, material.bulk.y, valid)
+        : float3x3(0.0f);
+    const float traction = stress[2][2];
+    if (!valid || !isfinite(traction) || traction < 0.0f ||
+        face.geometry.w <= 0.0f) {
+        recordFailure(statuses[environment], NM_STATUS_INVALID_DEFORMATION,
+            objectIndex, localFace, float4(opening, traction,
+                face.state.x, face.state.y));
+        return;
+    }
+    NMCohesiveFaceGPU next = face;
+    next.state.x = projectedState[0];
+    next.state.y = max(face.state.y, opening);
+    next.state.z = traction;
+    next.state.w = face.state.w + face.geometry.w *
+        0.5f * (face.state.z + traction) * (opening - previousOpening);
+    candidateFaces[global] = next;
+    const float nodalForce = face.geometry.w * traction / 3.0f;
+    faceForces[global].node[0] = float4(nodalForce * normal, 0.0f);
+    faceForces[global].node[1] = float4(nodalForce * normal, 0.0f);
+    faceForces[global].node[2] = float4(nodalForce * normal, 0.0f);
+    faceForces[global].node[3] = float4(-nodalForce * normal, 0.0f);
+    faceForces[global].node[4] = float4(-nodalForce * normal, 0.0f);
+    faceForces[global].node[5] = float4(-nodalForce * normal, 0.0f);
+}
+
+kernel void nm_fem_add_cohesive_residual(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMicrostepGPU& microstep [[buffer(1)]],
+    device const NMContinuumObjectGPU* objects [[buffer(2)]],
+    device const NMFEMNodeStateGPU* candidateNodes [[buffer(3)]],
+    device const uint* incidence [[buffer(4)]],
+    device const NMIncidenceRangeGPU* ranges [[buffer(5)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(6)]],
+    device const NMAdaptiveStateGPU* adaptive [[buffer(7)]],
+    device const NMCohesiveFaceVectorGPU* faceForces [[buffer(8)]],
+    device float4* residual [[buffer(9)]],
+    device float4* preconditioned [[buffer(10)]],
+    device float4* direction [[buffer(11)]],
+    device float4* reactions [[buffer(12)]],
+    device NMMatterStatusGPU* statuses [[buffer(13)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global >= total || dispatch.femNodeCount == 0u) return;
+    const uint environment = global / dispatch.femNodeCount;
+    if (!environmentHealthy(statuses, environment)) return;
+    const NMIncidenceRangeGPU range = ranges[global];
+    if (range.objectIndex == NM_INVALID_INDEX ||
+        range.objectIndex >= dispatch.objectCount || range.count == 0u) return;
+    const uint objectGlobal = environment * dispatch.objectCount + range.objectIndex;
+    const NMContinuumObjectGPU object = objects[range.objectIndex];
+    const NMSchedulerStateGPU scheduler = schedulers[objectGlobal];
+    if (!objectDue(object, scheduler, adaptive[objectGlobal], microstep)) return;
+    float3 force = float3(0.0f);
+    const uint faceBase = environment * dispatch.cohesiveFaceCount;
+    for (uint local = 0u; local < range.count; ++local) {
+        const uint encoded = incidence[range.first + local];
+        const uint faceIndex = encoded / 6u;
+        const uint slot = encoded - faceIndex * 6u;
+        if (faceIndex >= dispatch.cohesiveFaceCount || slot >= 6u) continue;
+        force += faceForces[faceBase + faceIndex].node[slot].xyz;
+    }
+    if (!finite3(force)) {
+        recordFailure(statuses[environment], NM_STATUS_NONFINITE_RESULT,
+            range.objectIndex, global, float4(force, 0.0f));
+        return;
+    }
+    const NMFEMNodeStateGPU node = candidateNodes[global];
+    const float dt = objectTimestep(dispatch, scheduler);
+    if (femStaticConstraint(node.restAndFixed.w) ||
+        node.positionAndMass.w <= 0.0f) {
+        reactions[global] += float4(force, 0.0f);
+        return;
+    }
+    const float3 correction = node.velocityAndInverseMass.w * dt * force;
+    residual[global].xyz += dt * force;
+    preconditioned[global].xyz += correction;
+    direction[global].xyz += correction;
+}
+
+kernel void nm_fem_cohesive_face_operator(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMicrostepGPU& microstep [[buffer(1)]],
+    device const NMContinuumObjectGPU* objects [[buffer(2)]],
+    device const NMMaterialGPU* materials [[buffer(3)]],
+    device const NMScalarProgramGPU* programs [[buffer(4)]],
+    device const NMExpressionInstructionGPU* instructions [[buffer(5)]],
+    device const float* environmentParameters [[buffer(6)]],
+    device const NMFEMNodeStateGPU* candidateNodes [[buffer(7)]],
+    device const NMCohesiveFaceGPU* acceptedFaces [[buffer(8)]],
+    device const float4* direction [[buffer(9)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(10)]],
+    device const NMAdaptiveStateGPU* adaptive [[buffer(11)]],
+    device NMCohesiveFaceVectorGPU* faceOperator [[buffer(12)]],
+    device NMMatterStatusGPU* statuses [[buffer(13)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.cohesiveFaceCount;
+    if (global >= total || dispatch.cohesiveFaceCount == 0u) return;
+    faceOperator[global] = {};
+    const uint environment = global / dispatch.cohesiveFaceCount;
+    const uint localFace = global - environment * dispatch.cohesiveFaceCount;
+    if (!environmentHealthy(statuses, environment)) return;
+    const NMCohesiveFaceGPU face = acceptedFaces[global];
+    if ((face.adjacency.w & (NM_TOPOLOGY_ACTIVE | NM_TOPOLOGY_PAIRED_COHESIVE)) !=
+        (NM_TOPOLOGY_ACTIVE | NM_TOPOLOGY_PAIRED_COHESIVE)) return;
+    const uint objectIndex = face.adjacency.y;
+    if (objectIndex >= dispatch.objectCount) return;
+    const NMSchedulerStateGPU scheduler =
+        schedulers[environment * dispatch.objectCount + objectIndex];
+    const NMAdaptiveStateGPU adaptiveState =
+        adaptive[environment * dispatch.objectCount + objectIndex];
+    const NMContinuumObjectGPU object = objects[objectIndex];
+    if (!objectDue(object, scheduler, adaptiveState, microstep) ||
+        (microstep.flags & NM_MICROSTEP_FGMRES_OPERATOR) == 0u) return;
+    const uint materialIndex = face.separatedNodes.w;
+    if (materialIndex >= dispatch.materialCount) return;
+    const NMMaterialGPU material = materials[materialIndex];
+    if (material.stateCount != 1u || material.parameterCount < 2u) return;
+    device const float* materialParameters = environmentParameters +
+        environment * dispatch.parameterCount;
+    const float thickness = materialParameters[material.parameterOffset + 1u];
+    const uint nodeBase = environment * dispatch.femNodeCount;
+    float3 normal = float3(0.0f);
+    float opening = 0.0f;
+    if (!(thickness > 0.0f) ||
+        !pairedFaceModeIState(face, candidateNodes, nodeBase, normal, opening)) {
+        recordFailure(statuses[environment], NM_STATUS_INVALID_DEFORMATION,
+            objectIndex, localFace, float4(opening, thickness, 0.0f, 0.0f));
+        return;
+    }
+    const float3 da0 = direction[nodeBase + face.nodesAndFirst.x].xyz;
+    const float3 da1 = direction[nodeBase + face.nodesAndFirst.y].xyz;
+    const float3 da2 = direction[nodeBase + face.nodesAndFirst.z].xyz;
+    const float3 a0Position = candidateNodes[
+        nodeBase + face.nodesAndFirst.x].positionAndMass.xyz;
+    const float3 a1Position = candidateNodes[
+        nodeBase + face.nodesAndFirst.y].positionAndMass.xyz;
+    const float3 a2Position = candidateNodes[
+        nodeBase + face.nodesAndFirst.z].positionAndMass.xyz;
+    const float3 gapDirection = (
+        direction[nodeBase + face.separatedNodes.x].xyz - da0 +
+        direction[nodeBase + face.separatedNodes.y].xyz - da1 +
+        direction[nodeBase + face.separatedNodes.z].xyz - da2) / 3.0f;
+    const float openingDirection = dot(normal, gapDirection);
+    float3x3 deformation = float3x3(
+        float3(1.0f, 0.0f, 0.0f),
+        float3(0.0f, 1.0f, 0.0f),
+        float3(0.0f, 0.0f, 1.0f + opening / thickness)
+    );
+    float3x3 deformationDirection = float3x3(
+        float3(0.0f), float3(0.0f),
+        float3(0.0f, 0.0f, openingDirection / thickness)
+    );
+    const NMFEMNodeStateGPU a0 = candidateNodes[nodeBase + face.nodesAndFirst.x];
+    const NMFEMNodeStateGPU a1 = candidateNodes[nodeBase + face.nodesAndFirst.y];
+    const NMFEMNodeStateGPU a2 = candidateNodes[nodeBase + face.nodesAndFirst.z];
+    const float3 gapVelocity = (
+        candidateNodes[nodeBase + face.separatedNodes.x].velocityAndInverseMass.xyz -
+            a0.velocityAndInverseMass.xyz +
+        candidateNodes[nodeBase + face.separatedNodes.y].velocityAndInverseMass.xyz -
+            a1.velocityAndInverseMass.xyz +
+        candidateNodes[nodeBase + face.separatedNodes.z].velocityAndInverseMass.xyz -
+            a2.velocityAndInverseMass.xyz) / 3.0f;
+    const float3x3 deformationRate = float3x3(
+        float3(0.0f), float3(0.0f),
+        float3(0.0f, 0.0f, dot(normal, gapVelocity) / thickness)
+    );
+    bool valid = true;
+    float3x3 stress;
+    float3x3 tangent;
+    evaluateAlgorithmicStressTangent(material, programs, instructions,
+        materialParameters,
+        reinterpret_cast<device const float*>(&acceptedFaces[global].state), deformation,
+        deformationDirection, deformationRate, float3x3(0.0f),
+        objectTimestep(dispatch, scheduler), material.bulk.y,
+        stress, tangent, valid);
+    const float tractionDirection = tangent[2][2];
+    const float traction = stress[2][2];
+    if (!valid || !isfinite(tractionDirection) || !isfinite(traction) ||
+        face.geometry.w <= 0.0f) {
+        recordFailure(statuses[environment], NM_STATUS_INVALID_DEFORMATION,
+            objectIndex, localFace,
+            float4(opening, openingDirection, tractionDirection, thickness));
+        return;
+    }
+    // Differentiate the current face normal as well as the scalar cohesive
+    // traction. This geometric term is required for rotated/curved interfaces.
+    const float3 edge0 = a1Position - a0Position;
+    const float3 edge1 = a2Position - a0Position;
+    const float3 areaVector = cross(edge0, edge1);
+    const float3 deltaAreaVector =
+        cross(da1 - da0, edge1) + cross(edge0, da2 - da0);
+    const float3 normalDirection =
+        (deltaAreaVector - normal * dot(normal, deltaAreaVector)) /
+        max(length(areaVector), 1.0e-20f);
+    const float scale = face.geometry.w / 3.0f;
+    const float3 derivative = scale *
+        (tractionDirection * normal + traction * normalDirection);
+    faceOperator[global].node[0] = float4(derivative, 0.0f);
+    faceOperator[global].node[1] = float4(derivative, 0.0f);
+    faceOperator[global].node[2] = float4(derivative, 0.0f);
+    faceOperator[global].node[3] = float4(-derivative, 0.0f);
+    faceOperator[global].node[4] = float4(-derivative, 0.0f);
+    faceOperator[global].node[5] = float4(-derivative, 0.0f);
+}
+
+kernel void nm_fem_commit_cohesive_faces(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMMatterStatusGPU* statuses [[buffer(1)]],
+    device NMCohesiveFaceGPU* acceptedFaces [[buffer(2)]],
+    device NMCohesiveFaceGPU* candidateFaces [[buffer(3)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.cohesiveFaceCount;
+    if (global >= total || dispatch.cohesiveFaceCount == 0u) return;
+    const uint environment = global / dispatch.cohesiveFaceCount;
+    if (environmentHealthy(statuses, environment))
+        acceptedFaces[global] = candidateFaces[global];
+    else
+        candidateFaces[global] = acceptedFaces[global];
+}
+
 kernel void nm_fem_build_mechanical_residual(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     constant NMMicrostepGPU& microstep [[buffer(1)]],
@@ -1207,7 +1610,8 @@ kernel void nm_fem_apply_operator_elements(
     if (object.representation != NM_REPRESENTATION_FEM ||
         !objectDue(object, scheduler, adaptiveState, microstep) ||
         (microstep.flags & NM_MICROSTEP_FGMRES_OPERATOR) == 0u ||
-        fgmresStates[environment].diagnostics.z > 0.5f) {
+        (fgmresStates[environment].diagnostics.z > 0.5f &&
+         (microstep.flags & NM_MICROSTEP_FGMRES_TRUE_RESIDUAL) == 0u)) {
         return;
     }
     const uint nodeBase = environment * dispatch.femNodeCount;
@@ -1425,7 +1829,7 @@ kernel void nm_fem_apply_solution(
                 lineSearch[environment * dispatch.objectCount + objectIndex].x,
                 0.0f, 1.0f
             );
-            if (next.restAndFixed.w <= 0.5f) {
+            if (next.restAndFixed.w <= 0.5f && alpha > 0.0f) {
                 next.velocityAndInverseMass.xyz +=
                     alpha * solution[global].xyz;
                 next.deltaVelocity.xyz = next.velocityAndInverseMass.xyz -
@@ -1608,6 +2012,540 @@ kernel void nm_fem_select_backtracking(
             objectIndex, microstep.solverIteration,
             float4(chosenMinimum, float(candidateCount), 0.0f, 0.0f)
         );
+    }
+}
+
+// Opt-in pure-explicit-FEM globalization. Every trial is evaluated from the
+// same Newton candidate and accepted material history; these kernels write
+// only private scratch arenas until the normal solution application runs.
+kernel void nm_fem_armijo_measure_base(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const float4* residual [[buffer(1)]],
+    device float4* metrics [[buffer(2)]],
+    uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount) return;
+    const uint base = environment * dispatch.femNodeCount;
+    float norm2 = 0.0f;
+    bool valid = true;
+    for (uint node = 0u; node < dispatch.femNodeCount; ++node) {
+        const float3 value = residual[base + node].xyz;
+        valid = valid && all(isfinite(value));
+        norm2 += dot(value, value);
+    }
+    const float norm = valid && isfinite(norm2) ? sqrt(max(norm2, 0.0f)) : INFINITY;
+    metrics[environment] = float4(norm, INFINITY, 0.0f, 0.0f);
+}
+
+// Opt-in selected-Newton operator finite-difference diagnostic. All output
+// arenas are caller-owned scratch. Production nodes, histories, status, and
+// FGMRES workspaces are read-only inputs.
+kernel void nm_fem_operator_fd_initialize(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device float4* results [[buffer(1)]],
+    uint global [[thread_position_in_grid]]) {
+    const uint total = dispatch.environmentCount * 10u;
+    if (global < total) results[global] = float4(NAN);
+}
+
+kernel void nm_fem_operator_fd_begin_pair(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMMatterStatusGPU* productionStatuses [[buffer(1)]],
+    device NMMatterStatusGPU* diagnosticStatuses [[buffer(2)]],
+    device float4* parameters [[buffer(3)]],
+    constant float& epsilon [[buffer(4)]],
+    uint environment [[thread_position_in_grid]]) {
+    if (environment >= dispatch.environmentCount) return;
+    diagnosticStatuses[environment] = productionStatuses[environment];
+    parameters[environment] = float4(0.0f, INFINITY, epsilon, 0.0f);
+}
+
+kernel void nm_fem_operator_fd_negate_direction(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const float4* source [[buffer(1)]],
+    device float4* destination [[buffer(2)]],
+    uint global [[thread_position_in_grid]]) {
+    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global >= total) return;
+    destination[global] = float4(-source[global].xyz, 0.0f);
+}
+
+kernel void nm_fem_operator_fd_snapshot_inputs(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const float* acceptedHistory [[buffer(1)]],
+    device const NMTetrahedronGPU* tetrahedra [[buffer(2)]],
+    device const NMMatterStatusGPU* statuses [[buffer(3)]],
+    device float* historySnapshot [[buffer(4)]],
+    device uint* tetrahedronSnapshot [[buffer(5)]],
+    device uint* statusSnapshot [[buffer(6)]],
+    device atomic_uint* unchanged [[buffer(7)]],
+    uint global [[thread_position_in_grid]]) {
+    if (global == 0u)
+        atomic_store_explicit(unchanged, 1u, memory_order_relaxed);
+    const uint historyWords = dispatch.environmentCount *
+        dispatch.tetrahedronCount * dispatch.materialStateStride;
+    if (global < historyWords)
+        historySnapshot[global] = acceptedHistory[global];
+    const uint tetWords = dispatch.environmentCount *
+        dispatch.tetrahedronCount * uint(sizeof(NMTetrahedronGPU) / sizeof(uint));
+    if (global < tetWords) {
+        device const uint* source = reinterpret_cast<device const uint*>(tetrahedra);
+        tetrahedronSnapshot[global] = source[global];
+    }
+    const uint statusWords = dispatch.environmentCount *
+        uint(sizeof(NMMatterStatusGPU) / sizeof(uint));
+    if (global < statusWords) {
+        device const uint* source = reinterpret_cast<device const uint*>(statuses);
+        statusSnapshot[global] = source[global];
+    }
+}
+
+kernel void nm_fem_operator_fd_capture_side(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMMatterStatusGPU* diagnosticStatuses [[buffer(1)]],
+    device const float4* parameters [[buffer(2)]],
+    device float4* results [[buffer(3)]],
+    constant uint& pairIndex [[buffer(4)]],
+    constant uint& side [[buffer(5)]],
+    uint environment [[thread_position_in_grid]]) {
+    if (environment >= dispatch.environmentCount || pairIndex >= 2u || side >= 2u)
+        return;
+    const uint resultBase = environment * 10u + pairIndex * 5u + 3u;
+    float4 stage = results[resultBase];
+    if (side == 0u) {
+        stage.x = float(diagnosticStatuses[environment].code);
+        stage.z = parameters[environment].y;
+    } else {
+        stage.y = float(diagnosticStatuses[environment].code);
+        stage.w = parameters[environment].y;
+    }
+    results[resultBase] = stage;
+}
+
+kernel void nm_fem_operator_fd_save_positive_residual(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const float4* residual [[buffer(1)]],
+    device float4* positiveResidual [[buffer(2)]],
+    uint global [[thread_position_in_grid]]) {
+    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global < total) positiveResidual[global] = residual[global];
+}
+
+kernel void nm_fem_operator_fd_record_operator_status(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMMatterStatusGPU* diagnosticStatuses [[buffer(1)]],
+    device NMMatterStatusGPU* operatorStatuses [[buffer(2)]],
+    uint environment [[thread_position_in_grid]]) {
+    if (environment < dispatch.environmentCount)
+        operatorStatuses[environment] = diagnosticStatuses[environment];
+}
+
+kernel void nm_fem_operator_fd_measure_pair(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMicrostepGPU& microstep [[buffer(1)]],
+    device const NMContinuumObjectGPU* objects [[buffer(2)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(3)]],
+    device const NMFEMNodeStateGPU* baseCandidate [[buffer(4)]],
+    device const float4* correction [[buffer(5)]],
+    device const float4* positiveResidual [[buffer(6)]],
+    device const float4* negativeResidual [[buffer(7)]],
+    device const float4* operatorAction [[buffer(8)]],
+    device const NMMatterStatusGPU* operatorStatuses [[buffer(9)]],
+    device float4* results [[buffer(10)]],
+    constant float& epsilon [[buffer(11)]],
+    constant uint& pairIndex [[buffer(12)]],
+    uint environment [[thread_position_in_grid]]) {
+    if (environment >= dispatch.environmentCount || pairIndex >= 2u) return;
+    const uint resultBase = environment * 10u + pairIndex * 5u;
+    const float4 stage = results[resultBase + 3u];
+    const uint operatorCode = operatorStatuses[environment].code;
+    const uint nodeBase = environment * dispatch.femNodeCount;
+    float maximumDeltaVelocity = 0.0f;
+    uint freeCount = 0u;
+    bool directionFinite = true;
+    for (uint node = 0u; node < dispatch.femNodeCount; ++node) {
+        const uint global = nodeBase + node;
+        if (femStaticConstraint(baseCandidate[global].restAndFixed.w)) continue;
+        const float3 deltaVelocity = correction[global].xyz;
+        const float magnitude = length(deltaVelocity);
+        directionFinite = directionFinite && all(isfinite(deltaVelocity)) &&
+            isfinite(magnitude);
+        maximumDeltaVelocity = max(maximumDeltaVelocity, magnitude);
+        ++freeCount;
+    }
+    const float dt = objectTimestep(dispatch, schedulers[
+        environment * dispatch.objectCount]);
+    if (operatorCode != NM_STATUS_SUCCESS || stage.x != float(NM_STATUS_SUCCESS) ||
+        stage.y != float(NM_STATUS_SUCCESS) || !(epsilon > 0.0f) ||
+        !isfinite(epsilon)) {
+        results[resultBase] = float4(epsilon, dt, dt * epsilon, float(freeCount));
+        results[resultBase + 1u] = float4(NAN);
+        results[resultBase + 2u] = float4(NAN);
+        results[resultBase + 4u] = float4(float(operatorCode), NAN,
+            directionFinite ? maximumDeltaVelocity : NAN,
+            directionFinite && isfinite(dt)
+                ? dt * epsilon * maximumDeltaVelocity : NAN);
+        return;
+    }
+    float rPlus2 = 0.0f;
+    float rMinus2 = 0.0f;
+    float action2 = 0.0f;
+    float fd2 = 0.0f;
+    float error2 = 0.0f;
+    float actionDotFd = 0.0f;
+    bool valid = true;
+    for (uint node = 0u; node < dispatch.femNodeCount; ++node) {
+        const uint global = nodeBase + node;
+        if (femStaticConstraint(baseCandidate[global].restAndFixed.w)) continue;
+        const float3 rp = positiveResidual[global].xyz;
+        const float3 rm = negativeResidual[global].xyz;
+        const float3 action = operatorAction[global].xyz;
+        const float3 fd = -(rp - rm) / (2.0f * epsilon);
+        const float3 error = action - fd;
+        valid = valid && all(isfinite(rp)) && all(isfinite(rm)) &&
+            all(isfinite(action)) && all(isfinite(fd));
+        rPlus2 += dot(rp, rp);
+        rMinus2 += dot(rm, rm);
+        action2 += dot(action, action);
+        fd2 += dot(fd, fd);
+        error2 += dot(error, error);
+        actionDotFd += dot(action, fd);
+    }
+    const float rPlusNorm = sqrt(max(rPlus2, 0.0f));
+    const float rMinusNorm = sqrt(max(rMinus2, 0.0f));
+    const float actionNorm = sqrt(max(action2, 0.0f));
+    const float fdNorm = sqrt(max(fd2, 0.0f));
+    const float errorNorm = sqrt(max(error2, 0.0f));
+    const float denominator = max(max(actionNorm, fdNorm), 1.0e-30f);
+    const float cosineDenominator = actionNorm * fdNorm;
+    valid = valid && isfinite(rPlusNorm) && isfinite(rMinusNorm) &&
+        isfinite(actionNorm) && isfinite(fdNorm) && isfinite(errorNorm) &&
+        isfinite(actionDotFd) && isfinite(dt);
+    results[resultBase] = float4(epsilon, dt, dt * epsilon, float(freeCount));
+    results[resultBase + 1u] = valid
+        ? float4(rPlusNorm, rMinusNorm, actionNorm, fdNorm)
+        : float4(NAN);
+    results[resultBase + 2u] = valid
+        ? float4(errorNorm, errorNorm / denominator, actionDotFd,
+            cosineDenominator > 1.0e-30f
+                ? actionDotFd / cosineDenominator : NAN)
+        : float4(NAN);
+    results[resultBase + 4u] = float4(float(operatorCode), NAN,
+        directionFinite ? maximumDeltaVelocity : NAN,
+        directionFinite && isfinite(dt)
+            ? dt * epsilon * maximumDeltaVelocity : NAN);
+}
+
+kernel void nm_fem_operator_fd_compare_inputs(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const float* acceptedHistory [[buffer(1)]],
+    device const NMTetrahedronGPU* tetrahedra [[buffer(2)]],
+    device const NMMatterStatusGPU* statuses [[buffer(3)]],
+    device const float* historySnapshot [[buffer(4)]],
+    device const uint* tetrahedronSnapshot [[buffer(5)]],
+    device const uint* statusSnapshot [[buffer(6)]],
+    device atomic_uint* unchanged [[buffer(7)]],
+    uint global [[thread_position_in_grid]]) {
+    const uint historyWords = dispatch.environmentCount *
+        dispatch.tetrahedronCount * dispatch.materialStateStride;
+    if (global < historyWords &&
+        as_type<uint>(acceptedHistory[global]) !=
+            as_type<uint>(historySnapshot[global]))
+        atomic_store_explicit(unchanged, 0u, memory_order_relaxed);
+    const uint tetWords = dispatch.environmentCount *
+        dispatch.tetrahedronCount * uint(sizeof(NMTetrahedronGPU) / sizeof(uint));
+    if (global < tetWords) {
+        device const uint* source = reinterpret_cast<device const uint*>(tetrahedra);
+        if (source[global] != tetrahedronSnapshot[global])
+            atomic_store_explicit(unchanged, 0u, memory_order_relaxed);
+    }
+    const uint statusWords = dispatch.environmentCount *
+        uint(sizeof(NMMatterStatusGPU) / sizeof(uint));
+    if (global < statusWords) {
+        device const uint* source = reinterpret_cast<device const uint*>(statuses);
+        if (source[global] != statusSnapshot[global])
+            atomic_store_explicit(unchanged, 0u, memory_order_relaxed);
+    }
+}
+
+kernel void nm_fem_operator_fd_publish_integrity(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const atomic_uint* unchanged [[buffer(1)]],
+    device float4* results [[buffer(2)]],
+    uint environment [[thread_position_in_grid]]) {
+    if (environment >= dispatch.environmentCount) return;
+    const float flag = float(atomic_load_explicit(unchanged, memory_order_relaxed));
+    for (uint pair = 0u; pair < 2u; ++pair)
+        results[environment * 10u + pair * 5u + 4u].y = flag;
+}
+
+kernel void nm_fem_armijo_begin_trial(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMicrostepGPU& microstep [[buffer(1)]],
+    device float4* metrics [[buffer(2)]],
+    device float4* lineSearch [[buffer(3)]],
+    device NMMatterStatusGPU* trialStatuses [[buffer(4)]],
+    constant uint& trialIndex [[buffer(5)]],
+    constant NMMixedSolverGPU& solver [[buffer(6)]],
+    uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount || dispatch.objectCount != 1u) return;
+    const uint objectSlot = environment * dispatch.objectCount;
+    float4 state = metrics[environment];
+    const float proposedAlpha = exp2(-float(trialIndex));
+    // The final relative certificate divides by max(referenceNorm, 1).
+    // This absolute threshold is a conservative bound for that same gate.
+    // Once the current iterate meets it,
+    // test that exact candidate with alpha zero. The private geometry,
+    // material and residual evaluations below still have to certify it.
+    const float certificateBound = solver.residualTolerances.x;
+    const bool alreadyConverged = trialIndex == 0u && isfinite(state.x) &&
+        isfinite(certificateBound) && state.x <= certificateBound;
+    const float alpha = alreadyConverged ? 0.0f : proposedAlpha;
+    if (state.w <= 0.5f) {
+        state.z = alpha;
+        trialStatuses[environment] = {};
+        state.y = INFINITY;
+        lineSearch[objectSlot] = float4(
+            0.0f, INFINITY, float(trialIndex), float(microstep.solverIteration));
+    } else {
+        // A selected alpha makes later trials for this environment no-ops.
+        trialStatuses[environment] = {};
+        trialStatuses[environment].code = NM_STATUS_NONLINEAR_SOLVER_FAILURE;
+    }
+    metrics[environment] = state;
+}
+
+// Capsule/contact residual Armijo starts from the production FEM+CCD bound
+// already published in lineSearch.x. The initial bound is latched in z before
+// trial validation reuses x/y for output, so all eight candidates descend
+// from the same post-CCD step and never from an earlier Newton iteration.
+kernel void nm_fem_armijo_begin_bounded_trial(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMicrostepGPU& microstep [[buffer(1)]],
+    device float4* metrics [[buffer(2)]],
+    device float4* lineSearch [[buffer(3)]],
+    device NMMatterStatusGPU* trialStatuses [[buffer(4)]],
+    constant uint& trialIndex [[buffer(5)]],
+    constant NMMixedSolverGPU& solver [[buffer(6)]],
+    uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount || dispatch.objectCount != 1u)
+        return;
+    const uint objectSlot = environment * dispatch.objectCount;
+    float4 state = metrics[environment];
+    const float initialBound = trialIndex == 0u
+        ? lineSearch[objectSlot].x : lineSearch[objectSlot].z;
+    const float proposedAlpha = initialBound * exp2(-float(trialIndex));
+    // The final relative certificate divides by max(referenceNorm, 1).
+    // This absolute threshold is a conservative bound for that same gate.
+    // Once the current iterate meets it,
+    // test that exact candidate with alpha zero. The private geometry,
+    // material and residual evaluations below still have to certify it.
+    const float certificateBound = solver.residualTolerances.x;
+    const bool alreadyConverged = trialIndex == 0u && isfinite(state.x) &&
+        isfinite(certificateBound) && state.x <= certificateBound;
+    const float alpha = alreadyConverged ? 0.0f : proposedAlpha;
+    if (state.w <= 0.5f) {
+        state.z = alpha;
+        trialStatuses[environment] = {};
+        state.y = INFINITY;
+        lineSearch[objectSlot] = float4(
+            0.0f, INFINITY, initialBound,
+            float(microstep.solverIteration));
+    } else {
+        trialStatuses[environment] = {};
+        trialStatuses[environment].code = NM_STATUS_NONLINEAR_SOLVER_FAILURE;
+    }
+    metrics[environment] = state;
+}
+
+kernel void nm_fem_armijo_prepare_candidate(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMicrostepGPU& microstep [[buffer(1)]],
+    device const NMContinuumObjectGPU* objects [[buffer(2)]],
+    device const NMIncidenceRangeGPU* nodeRanges [[buffer(3)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(4)]],
+    device const NMAdaptiveStateGPU* adaptive [[buffer(5)]],
+    device const NMFEMNodeStateGPU* accepted [[buffer(6)]],
+    device const NMFEMNodeStateGPU* candidate [[buffer(7)]],
+    device const float4* correction [[buffer(8)]],
+    device const float4* metrics [[buffer(9)]],
+    device const NMMatterStatusGPU* trialStatuses [[buffer(10)]],
+    device NMFEMNodeStateGPU* trialCandidate [[buffer(11)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global >= total || dispatch.femNodeCount == 0u) return;
+    const uint environment = global / dispatch.femNodeCount;
+    NMFEMNodeStateGPU next = candidate[global];
+    if (!environmentHealthy(trialStatuses, environment)) {
+        trialCandidate[global] = next;
+        return;
+    }
+    const uint objectIndex = nodeRanges[global].objectIndex;
+    if (objectIndex < dispatch.objectCount) {
+        const NMContinuumObjectGPU object = objects[objectIndex];
+        const NMSchedulerStateGPU scheduler =
+            schedulers[environment * dispatch.objectCount + objectIndex];
+        const NMAdaptiveStateGPU adaptiveState =
+            adaptive[environment * dispatch.objectCount + objectIndex];
+        if (object.representation == NM_REPRESENTATION_FEM &&
+            objectDue(object, scheduler, adaptiveState, microstep) &&
+            next.restAndFixed.w <= 0.5f && metrics[environment].z > 0.0f) {
+            const float alpha = metrics[environment].z;
+            next.velocityAndInverseMass.xyz += alpha * correction[global].xyz;
+            next.deltaVelocity.xyz = next.velocityAndInverseMass.xyz -
+                accepted[global].velocityAndInverseMass.xyz;
+            const float dt = objectTimestep(dispatch, scheduler);
+            if (next.referenceDisplacementAndMode.w == 1.0f) {
+                next.referenceDisplacementAndMode.xyz =
+                    accepted[global].referenceDisplacementAndMode.xyz +
+                    dt * next.velocityAndInverseMass.xyz;
+                next.positionAndMass.xyz = next.restAndFixed.xyz +
+                    next.referenceDisplacementAndMode.xyz;
+            } else {
+                next.positionAndMass.xyz =
+                    accepted[global].positionAndMass.xyz +
+                    dt * next.velocityAndInverseMass.xyz;
+            }
+        }
+    }
+    trialCandidate[global] = next;
+}
+
+kernel void nm_fem_armijo_validate_geometry(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMicrostepGPU& microstep [[buffer(1)]],
+    device const NMContinuumObjectGPU* objects [[buffer(2)]],
+    device const NMMaterialGPU* materials [[buffer(3)]],
+    device const NMTetrahedronGPU* tetrahedra [[buffer(4)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(5)]],
+    device const NMAdaptiveStateGPU* adaptive [[buffer(6)]],
+    device const NMFEMNodeStateGPU* trialCandidate [[buffer(7)]],
+    device NMMatterStatusGPU* trialStatuses [[buffer(8)]],
+    device float4* lineSearch [[buffer(9)]],
+    uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount || dispatch.objectCount != 1u ||
+        !environmentHealthy(trialStatuses, environment)) return;
+    const NMContinuumObjectGPU object = objects[0];
+    const NMSchedulerStateGPU scheduler = schedulers[environment];
+    const NMAdaptiveStateGPU adaptiveState = adaptive[environment];
+    if (!objectDue(object, scheduler, adaptiveState, microstep)) return;
+    const uint nodeBase = environment * dispatch.femNodeCount;
+    float minimumJ = INFINITY;
+    for (uint local = 0u; local < dispatch.tetrahedronCount; ++local) {
+        const NMTetrahedronGPU tetrahedron = environmentTetrahedron(
+            dispatch, tetrahedra, environment, local);
+        if (tetrahedron.identity.y != 0u ||
+            (tetrahedron.identity.w & NM_OBJECT_ACTIVE) == 0u) continue;
+        const float determinantValue = determinant(
+            tetrahedronDeformation(tetrahedron, trialCandidate, nodeBase));
+        const NMMaterialGPU material = materials[tetrahedron.identity.x];
+        minimumJ = min(minimumJ, determinantValue);
+        if (!isfinite(determinantValue) ||
+            determinantValue < max(dispatch.numericalLimits.z, material.validity.x) ||
+            determinantValue > material.validity.y) {
+            recordFailure(trialStatuses[environment],
+                NM_STATUS_INVALID_DEFORMATION, 0u, microstep.solverIteration,
+                float4(determinantValue, material.validity.x,
+                    material.validity.y, dispatch.numericalLimits.z));
+            break;
+        }
+    }
+    lineSearch[environment] = float4(
+        0.0f, minimumJ, lineSearch[environment].z,
+        lineSearch[environment].w);
+}
+
+kernel void nm_fem_armijo_measure_trial(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const float4* residual [[buffer(1)]],
+    device float4* metrics [[buffer(2)]],
+    device const NMMatterStatusGPU* trialStatuses [[buffer(3)]],
+    uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount) return;
+    float4 state = metrics[environment];
+    // Retain the accepted trial norm and alpha for the bounded diagnostic
+    // callback. The gated later trial still carries a failing private status,
+    // so candidate evaluation remains skipped for this environment.
+    if (state.w > 0.5f) return;
+    if (!environmentHealthy(trialStatuses, environment)) {
+        state.y = INFINITY;
+        metrics[environment] = state;
+        return;
+    }
+    const uint base = environment * dispatch.femNodeCount;
+    float norm2 = 0.0f;
+    bool valid = true;
+    for (uint node = 0u; node < dispatch.femNodeCount; ++node) {
+        const float3 value = residual[base + node].xyz;
+        valid = valid && all(isfinite(value));
+        norm2 += dot(value, value);
+    }
+    state.y = valid && isfinite(norm2) ? sqrt(max(norm2, 0.0f)) : INFINITY;
+    metrics[environment] = state;
+}
+
+kernel void nm_fem_armijo_decide(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMicrostepGPU& microstep [[buffer(1)]],
+    constant NMMixedSolverGPU& solver [[buffer(2)]],
+    device float4* metrics [[buffer(3)]],
+    device float4* lineSearch [[buffer(4)]],
+    device const NMMatterStatusGPU* trialStatuses [[buffer(5)]],
+    device NMMatterStatusGPU* statuses [[buffer(6)]],
+    constant uint& trialIndex [[buffer(7)]],
+    device const NMFGMRESStateGPU* fgmresStates [[buffer(8)]],
+    device float4* correction [[buffer(9)]],
+    uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount || dispatch.objectCount != 1u)
+        return;
+    (void)fgmresStates;
+    const float4 state = metrics[environment];
+    if (state.w > 0.5f) return;
+    const float alpha = state.z;
+    const float bound = (1.0f - solver.globalization.x * alpha) * state.x;
+    const bool statusesHealthy = environmentHealthy(statuses, environment) &&
+        environmentHealthy(trialStatuses, environment);
+    const bool armijoAccept = state.w <= 0.5f && statusesHealthy &&
+        isfinite(state.x) && isfinite(state.y) && isfinite(bound) &&
+        state.y <= bound;
+    // A zero step preserves an already-converged candidate. This is a
+    // convergence test, not a relaxation of Armijo or final acceptance.
+    const float certificateResidualBound = solver.residualTolerances.x;
+    const bool certifiedNoop = state.w <= 0.5f && trialIndex == 0u &&
+        alpha == 0.0f && statusesHealthy &&
+        isfinite(certificateResidualBound) && isfinite(state.x) &&
+        isfinite(state.y) && state.x <= certificateResidualBound &&
+        state.y <= certificateResidualBound;
+    if (armijoAccept || certifiedNoop) {
+        float4 nextState = state;
+        nextState.w = certifiedNoop ? 2.0f : 1.0f;
+        metrics[environment] = nextState;
+        const uint slot = environment * dispatch.objectCount;
+        float4 line = lineSearch[slot];
+        // Empty coupled-block limiters require a positive shared alpha.
+        // Represent a certified no-op as an exactly zero correction with
+        // alpha one; this preserves the tested candidate without weakening
+        // any residual or geometry gate.
+        if (certifiedNoop) {
+            const uint nodeBase = environment * dispatch.femNodeCount;
+            for (uint node = 0u; node < dispatch.femNodeCount; ++node)
+                correction[nodeBase + node] = float4(0.0f);
+        }
+        line.x = certifiedNoop ? 1.0f : alpha;
+        line.z = float(trialIndex + 1u);
+        line.w = float(microstep.solverIteration);
+        lineSearch[slot] = line;
+    } else if (trialIndex + 1u >= NM_MIXED_LINE_SEARCH_STEPS) {
+        recordFailure(statuses[environment],
+            NM_STATUS_NONLINEAR_SOLVER_FAILURE, 0u,
+            microstep.solverIteration,
+            float4(state.x, state.y, alpha, float(trialIndex + 1u)));
     }
 }
 

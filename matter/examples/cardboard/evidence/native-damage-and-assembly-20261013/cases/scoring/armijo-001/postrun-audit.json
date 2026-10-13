@@ -1,0 +1,45 @@
+{
+  "accepted_contact": {
+    "peak_record_step": 47,
+    "peak_recorded_punch_force_N": 0.3896544247464056,
+    "punch_contact_count_at_peak": 2,
+    "stationary_control_max_contact_count": 0,
+    "stationary_control_max_force_N": 0.0
+  },
+  "bindings": {
+    "manifest_sha256": "629d0869905f30580b20de7dba357bbb78bb693ca466f79977e871e66a0e4bd3",
+    "observations_sha256": "f15595fdf03c72cb5947dfda63407ef1a4d55d753053542e4e35fb6e980d69ae",
+    "prediction_sha256": "e33f1d79779b0cc94e59c2822cec5f78feb6da64d73eff7f535b917fd969eada",
+    "probe_result_sha256": "8d18c33ef7e7b09e6fd813648d71aa2f0a8157c8132bd2f504676fbbe2646299",
+    "receipt_sha256": "402cd425448d74deffeee206ca592d5eb2bf26219edb67aa182cfe77c79ae2d5",
+    "tool_observations_sha256": "b63db1e0b40e1b42ebc06d29035fbc1150bb1f98740db9310fac368eb58da9e1"
+  },
+  "first_withdrawal_rejection": {
+    "base_residual": 6.8061954152653925e-06,
+    "base_to_trial_relative_increase": 0.007608280680767798,
+    "commanded_end_travel_m": 4.791666666666667e-05,
+    "minimum_end_punch_node_gap_m": 2.2695112471801714e-06,
+    "punch_contact_count": 0,
+    "status_diagnostic_w": 8.0,
+    "status_diagnostic_z": 0.0078125,
+    "step_accepted": "0",
+    "trial_residual": 6.857978860352887e-06
+  },
+  "interpretation": "A 50 micrometre prescribed-punch contact path accepted indentation and hold, then failed its first withdrawal attempt. This does not complete the path, establish crease damage, or validate corrugated cardboard.",
+  "material_scope": "The corrugated recipe still lacks a grade-matched irreversible crease-damage law and starch cohesive calibration; contact is not damage/debonding evidence.",
+  "physical_validation": false,
+  "protocol": {
+    "accepted_indented_environment_steps": 60,
+    "completed_microsteps": 0,
+    "fgmres_iterations": 512,
+    "first_rejected_step": 60,
+    "phase": "unloading",
+    "prescribed_indent_m": 5e-05,
+    "rejected_attempts": 1,
+    "residual_armijo_root": "all",
+    "self_contact_enabled": false,
+    "status_code": 10
+  },
+  "schema": "numi.cardboard.scoring-armijo-postrun-audit.v1",
+  "status": "failed_first_withdrawal_after_60_accepted_steps"
+}

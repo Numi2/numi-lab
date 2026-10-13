@@ -1,0 +1,5 @@
+state_count=27 instructions=2467080 scalar_programs=1071 max_shear=0.3 steps_per_leg=60
+device=Apple M4 instrument=production_algorithmic_constitutive_path physical_FEM_steps=0
+stage_flag_legend=0x001:projection_entered,0x002:state_updates_complete,0x004:implicit_system_evaluated,0x008:local_solve_attempted,0x010:local_solve_succeeded,0x020:newton_update_accepted,0x040:projection_converged,0x080:stress_evaluated,0x100:tangent_evaluated,0x200:implicit_tangent_entered,0x400:implicit_tangent_solved
+projection_residual_inf=-1 means no local implicit residual was evaluated
+rest_max_P_Pa=0 tangent_ZD_Pa=0

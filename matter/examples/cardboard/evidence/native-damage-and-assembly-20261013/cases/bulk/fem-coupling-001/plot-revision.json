@@ -1,0 +1,14 @@
+{
+  "schema": "numi.cardboard.native-fem-coupling-plot-revision.v1",
+  "change_scope": "render-only wording and annotation placement; no plotted values, inputs, error floors, or comparison decisions changed",
+  "input_rows": 121,
+  "state_absolute_error_floor": 1e-19,
+  "reaction_stress_absolute_error_floor_Pa": 1e-06,
+  "panel_3_title": "Absolute state and reaction-stress differences remain small",
+  "panel_1_annotation": "moved inside axes to open whitespace, with pointer to the same maximum P13 absolute error at step 47",
+  "previous_plot_sha256": "e47205db9088ba70afd6ac2ec2684a8c6200f8ea34ae40e07aa4ed1a89dafec5",
+  "current_plot_sha256": "16d693984eb46cbb765878e03ed7f36e7a3fc0d865fe3822ca465afe285ce8da",
+  "current_plot_size_bytes": 277145,
+  "comparison_result_values_changed": false,
+  "source_binding_verification_sha256": "a0bb1b3aa620557d54425077544eecec670bd5dc4fcb960fa660abe310160f04"
+}

@@ -1,0 +1,12 @@
+{
+  "schema": "numi.cardboard.probe-result.v1",
+  "status": "failed_native",
+  "accepted_steps": 32,
+  "compiled_world_fingerprint": 6822483211095236692,
+  "nodes": 4308,
+  "tetrahedra": 10356,
+  "material_map_sha256": "54f3baeb1380e76ee0644ca10694f732c1a96a3bad17285d37f4d9c19f99caef",
+  "frame_map_sha256": "35eb36b3ab46c73d2513db6a024c213f764cc6db3879ce291e8d7a7efa3aa5bb",
+  "failure": "Matter rejected native step 32",
+  "physical_validation": false
+}

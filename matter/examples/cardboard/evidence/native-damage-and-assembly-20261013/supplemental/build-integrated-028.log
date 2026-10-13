@@ -1,0 +1,52 @@
+[ 11%] Built target numi_matter_shaders
+[ 58%] Built target numi_matter_compiler_objects
+[ 64%] Building OBJCXX object CMakeFiles/numi_matter_runtime_objects.dir/src/runtime.mm.o
+[ 70%] Built target numi_matter_compiler
+[ 82%] Built target numi_matter_runtime_objects
+[ 88%] Linking CXX static library libnumi_matter_runtime.a
+[ 88%] Built target numi_matter_runtime
+[ 94%] Building OBJCXX object CMakeFiles/numi-matter-cardboard-capsule-armijo-check.dir/tools/cardboard_capsule_armijo_check.mm.o
+[100%] Linking CXX executable numi-matter-cardboard-capsule-armijo-check
+[100%] Built target numi-matter-cardboard-capsule-armijo-check
+[ 12%] Built target numi_matter_shaders
+[ 62%] Built target numi_matter_compiler_objects
+[ 68%] Built target numi_matter_compiler
+[ 87%] Built target numi_matter_runtime_objects
+[ 93%] Built target numi_matter_runtime
+[ 93%] Linking CXX executable numi-matter-cardboard-probe
+[100%] Built target numi-matter-cardboard-probe
+[ 11%] Built target numi_matter_shaders
+[ 58%] Built target numi_matter_compiler_objects
+[ 64%] Built target numi_matter_compiler
+[ 82%] Built target numi_matter_runtime_objects
+[ 88%] Built target numi_matter_runtime
+[ 94%] Linking CXX executable numi-matter-cardboard-box-native-driver
+[100%] Built target numi-matter-cardboard-box-native-driver
+[ 11%] Built target numi_matter_shaders
+[ 58%] Built target numi_matter_compiler_objects
+[ 70%] Built target numi_matter_compiler
+[ 82%] Built target numi_matter_runtime_objects
+[ 88%] Built target numi_matter_runtime
+[ 94%] Linking CXX executable numi-matter-fem-regional-material-check
+[100%] Built target numi-matter-fem-regional-material-check
+[ 12%] Built target numi_matter_shaders
+[ 62%] Built target numi_matter_compiler_objects
+[ 81%] Built target numi_matter_runtime_objects
+[ 87%] Built target numi_matter_compiler
+[ 93%] Built target numi_matter_runtime
+[ 93%] Linking CXX executable numi-matter-fem-reference-check
+[100%] Built target numi-matter-fem-reference-check
+[ 12%] Built target numi_matter_shaders
+[ 62%] Built target numi_matter_compiler_objects
+[ 81%] Built target numi_matter_runtime_objects
+[ 87%] Built target numi_matter_compiler
+[ 93%] Built target numi_matter_runtime
+[ 93%] Linking CXX executable numi-matter-fem-material-frame-check
+[100%] Built target numi-matter-fem-material-frame-check
+[ 11%] Built target numi_matter_shaders
+[ 58%] Built target numi_matter_compiler_objects
+[ 76%] Built target numi_matter_runtime_objects
+[ 82%] Built target numi_matter_compiler
+[ 88%] Built target numi_matter_runtime
+[ 94%] Linking CXX executable numi-matter-cardboard-cohesive-face-check
+[100%] Built target numi-matter-cardboard-cohesive-face-check

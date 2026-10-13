@@ -1,0 +1,308 @@
+{
+  "cases": [
+    {
+      "accepted_steps": 31,
+      "accepted_steps_from_csv": 31,
+      "arm": "bent",
+      "bindings": {
+        "observations": {
+          "path": "/Users/home/cardboard-followup-20261013/solver/mesh-armijo-003/nx8/output/observations.csv",
+          "sha256": "b3570b472291486abff18f68859bf00d2d3bece39e52918794a0746cd0c5bad3"
+        },
+        "prediction": {
+          "path": "/Users/home/cardboard-followup-20261013/solver/mesh-armijo-003/nx8/prediction.json",
+          "sha256": "32e7dd169bbacac772beb3f3883a986eaf782dda9c70ffd9f0654761e072e340"
+        },
+        "receipt": {
+          "path": "/Users/home/cardboard-followup-20261013/solver/mesh-armijo-003/nx8/receipt.json",
+          "sha256": "1980d395467881ded0743c6fe2cdd6bce6309998159eb43eeffe2757a1dc76eb"
+        },
+        "result": {
+          "path": "/Users/home/cardboard-followup-20261013/solver/mesh-armijo-003/nx8/output/result.json",
+          "sha256": "8b7829afa88364750a2da8b3d1248cbe4ce49b80b9b52e48f3aef2b10c2fd369"
+        }
+      },
+      "case": "solver/mesh-armijo-003/nx8",
+      "compiled_world_fingerprint": 8687045415218541476,
+      "elapsed_seconds": 259.22467258299,
+      "failure": "Matter rejected step 31; status, accepted state OBJ, and CSV observations were retained",
+      "label": "003 nx=8",
+      "nx": 8,
+      "planned_steps": 96,
+      "receipt_exit_code": 2,
+      "scope": "numerical path coverage only",
+      "state": "FAILED",
+      "timed_out": false
+    },
+    {
+      "accepted_steps": 32,
+      "accepted_steps_from_csv": 32,
+      "arm": "bent",
+      "bindings": {
+        "observations": {
+          "path": "/Users/home/cardboard-followup-20261013/solver/mesh-armijo-003/nx16/output/observations.csv",
+          "sha256": "ad8118079eac9637e9ffb8857e828aff5f53877cfe8a8b96dce05cd7fe44619d"
+        },
+        "prediction": {
+          "path": "/Users/home/cardboard-followup-20261013/solver/mesh-armijo-003/nx16/prediction.json",
+          "sha256": "0c6b26e130c1ac6c5a1f29d98ab34c5100c0dcd8aab5a3f0f63dacdfbf2d63b6"
+        },
+        "receipt": {
+          "path": "/Users/home/cardboard-followup-20261013/solver/mesh-armijo-003/nx16/receipt.json",
+          "sha256": "5f1db26f932a4c9281824ecf7c9bd633a254eac12c3a1a02a9b89bc332b22846"
+        },
+        "result": {
+          "path": "/Users/home/cardboard-followup-20261013/solver/mesh-armijo-003/nx16/output/result.json",
+          "sha256": "ae978a1e58961d2a3429e801bf00ecaf76226a6d9ea5557dda1abebf03f5dbae"
+        }
+      },
+      "case": "solver/mesh-armijo-003/nx16",
+      "compiled_world_fingerprint": 2746234797408335729,
+      "elapsed_seconds": 483.27362749999156,
+      "failure": "Matter rejected step 32; status, accepted state OBJ, and CSV observations were retained",
+      "label": "003 nx=16",
+      "nx": 16,
+      "planned_steps": 96,
+      "receipt_exit_code": 2,
+      "scope": "numerical path coverage only",
+      "state": "FAILED",
+      "timed_out": false
+    },
+    {
+      "accepted_steps": 4,
+      "accepted_steps_from_csv": 4,
+      "arm": "bent",
+      "bindings": {
+        "observations": {
+          "path": "/Users/home/cardboard-followup-20261013/solver/mesh-armijo-003/nx32/output/observations.csv",
+          "sha256": "950c123d1ea2b94ab50056c1166a04894ecb99a7d34e40e524beb065c84fb483"
+        },
+        "prediction": {
+          "path": "/Users/home/cardboard-followup-20261013/solver/mesh-armijo-003/nx32/prediction.json",
+          "sha256": "ba4a7e55f7ad888d408dd084165aa9c2ba4b27ada7790c7ed94eefb4678e5792"
+        },
+        "receipt": {
+          "path": "/Users/home/cardboard-followup-20261013/solver/mesh-armijo-003/nx32/receipt.json",
+          "sha256": "47e62ffe3f458681d24a1ed3cc892fd998c81476d9c5b3eababbcb4c975bd16d"
+        },
+        "result": {
+          "path": "/Users/home/cardboard-followup-20261013/solver/mesh-armijo-003/nx32/output/result.json",
+          "sha256": "ec83568d6fb70c133969b221c8163c31bf2a104071b0b94f3ed0564f43a87432"
+        }
+      },
+      "case": "solver/mesh-armijo-003/nx32",
+      "compiled_world_fingerprint": 10786850929858311972,
+      "elapsed_seconds": 93.75415733299451,
+      "failure": "Matter rejected step 4; status, accepted state OBJ, and CSV observations were retained",
+      "label": "003 nx=32",
+      "nx": 32,
+      "planned_steps": 96,
+      "receipt_exit_code": 2,
+      "scope": "numerical path coverage only",
+      "state": "FAILED",
+      "timed_out": false
+    },
+    {
+      "accepted_steps": 43,
+      "accepted_steps_from_csv": 43,
+      "arm": "bent",
+      "bindings": {
+        "observations": {
+          "path": "/Users/home/cardboard-followup-20261013/solver/mesh-armijo-004/nx8/output/observations.csv",
+          "sha256": "1333b737fc5820e327ce847c9c7a00d6e01be65ec16f5b5ad0ccecbd066bbaa4"
+        },
+        "prediction": {
+          "path": "/Users/home/cardboard-followup-20261013/solver/mesh-armijo-004/nx8/prediction.json",
+          "sha256": "9973fa5974224209d5b1d61db77a6fc309dffc96f287fe86c7832789da102c3d"
+        },
+        "receipt": {
+          "path": "/Users/home/cardboard-followup-20261013/solver/mesh-armijo-004/nx8/receipt.json",
+          "sha256": "c6543bbcfd9fc1327bf77ebf4821230e9300d5c2023da62e57f7b4720ffe2a09"
+        },
+        "result": {
+          "path": "/Users/home/cardboard-followup-20261013/solver/mesh-armijo-004/nx8/output/result.json",
+          "sha256": "076fa89c962cc38aa922d4e293d24f9da0862441f465f0014e1b6b9a12712aca"
+        }
+      },
+      "case": "solver/mesh-armijo-004/nx8",
+      "compiled_world_fingerprint": 11065889352204823371,
+      "elapsed_seconds": 655.6735984999686,
+      "failure": "Matter rejected step 43; status, accepted state OBJ, and CSV observations were retained",
+      "label": "004 nx=8",
+      "nx": 8,
+      "planned_steps": 96,
+      "receipt_exit_code": 2,
+      "scope": "numerical path coverage only",
+      "state": "FAILED",
+      "timed_out": false
+    },
+    {
+      "accepted_steps": 19,
+      "accepted_steps_from_csv": 19,
+      "arm": "bent",
+      "bindings": {
+        "observations": {
+          "path": "/Users/home/cardboard-followup-20261013/solver/mesh-armijo-004/nx16/output/observations.csv",
+          "sha256": "8cad0b13a6eb682d81200bbe8c2c6fc2bafd152929ea9a304c32d1c6b76afc57"
+        },
+        "prediction": {
+          "path": "/Users/home/cardboard-followup-20261013/solver/mesh-armijo-004/nx16/prediction.json",
+          "sha256": "0e3d966312d7a34ce859e4007d032439469bab5b0abe6dfbd6a00d24d4106d96"
+        },
+        "receipt": {
+          "path": "/Users/home/cardboard-followup-20261013/solver/mesh-armijo-004/nx16/receipt.json",
+          "sha256": "1ab26728a3134719da822ffe3c9a5bf5c06e1240907f8e7c3bdb780c94a1660a"
+        },
+        "result": {
+          "path": "/Users/home/cardboard-followup-20261013/solver/mesh-armijo-004/nx16/output/result.json",
+          "sha256": "ad487124440bf78e56b20232751cda41433541c0c89ce6666ee9a882c7dd4433"
+        }
+      },
+      "case": "solver/mesh-armijo-004/nx16",
+      "compiled_world_fingerprint": 5248235368261643122,
+      "elapsed_seconds": 238.52997916698223,
+      "failure": "Matter rejected step 19; status, accepted state OBJ, and CSV observations were retained",
+      "label": "004 nx=16",
+      "nx": 16,
+      "planned_steps": 96,
+      "receipt_exit_code": 2,
+      "scope": "numerical path coverage only",
+      "state": "FAILED",
+      "timed_out": false
+    },
+    {
+      "accepted_steps": 17,
+      "accepted_steps_from_csv": 17,
+      "arm": "bent",
+      "bindings": {
+        "observations": {
+          "path": "/Users/home/cardboard-followup-20261013/solver/mesh-armijo-004/nx32/output/observations.csv",
+          "sha256": "641b20d50e767e52c1a829ba3db0c9e390ede65105304faa9bb804fd4cc29d49"
+        },
+        "prediction": {
+          "path": "/Users/home/cardboard-followup-20261013/solver/mesh-armijo-004/nx32/prediction.json",
+          "sha256": "7fd1da43906845f9f061e5f2cd99d5b9208784143d867c517d879c03966c4acd"
+        },
+        "receipt": {
+          "path": "/Users/home/cardboard-followup-20261013/solver/mesh-armijo-004/nx32/receipt.json",
+          "sha256": "12d28aaf358cedd8e37161db82efccd282196febd123309def8fc4a6fe590d30"
+        }
+      },
+      "case": "solver/mesh-armijo-004/nx32",
+      "compiled_world_fingerprint": null,
+      "elapsed_seconds": 1200.027061666944,
+      "failure": null,
+      "label": "004 nx=32",
+      "nx": 32,
+      "planned_steps": 96,
+      "receipt_exit_code": -15,
+      "scope": "numerical path coverage only",
+      "state": "TIMEOUT",
+      "timed_out": true
+    },
+    {
+      "accepted_steps": 60,
+      "accepted_steps_from_csv": 60,
+      "arm": "indented",
+      "bindings": {
+        "observations": {
+          "path": "/Users/home/cardboard-followup-20261013/scoring/armijo-001/output/observations.csv",
+          "sha256": "f15595fdf03c72cb5947dfda63407ef1a4d55d753053542e4e35fb6e980d69ae"
+        },
+        "prediction": {
+          "path": "/Users/home/cardboard-followup-20261013/scoring/armijo-001/prediction.json",
+          "sha256": "e33f1d79779b0cc94e59c2822cec5f78feb6da64d73eff7f535b917fd969eada"
+        },
+        "receipt": {
+          "path": "/Users/home/cardboard-followup-20261013/scoring/armijo-001/receipt.json",
+          "sha256": "402cd425448d74deffeee206ca592d5eb2bf26219edb67aa182cfe77c79ae2d5"
+        },
+        "result": {
+          "path": "/Users/home/cardboard-followup-20261013/scoring/armijo-001/output/result.json",
+          "sha256": "8d18c33ef7e7b09e6fd813648d71aa2f0a8157c8132bd2f504676fbbe2646299"
+        }
+      },
+      "case": "scoring/armijo-001",
+      "compiled_world_fingerprint": 4769286394582726974,
+      "elapsed_seconds": 329.91508487501414,
+      "failure": "Matter rejected step 60; status, accepted state OBJ, and CSV observations were retained",
+      "label": "001",
+      "nx": null,
+      "planned_steps": 96,
+      "receipt_exit_code": 2,
+      "scope": "SCOPE_NOT_QUALIFIED: frozen027 selector bypass",
+      "state": "FAILED",
+      "timed_out": false
+    },
+    {
+      "accepted_steps": 60,
+      "accepted_steps_from_csv": 60,
+      "arm": "indented",
+      "bindings": {
+        "observations": {
+          "path": "/Users/home/cardboard-followup-20261013/scoring/armijo-002/output/observations.csv",
+          "sha256": "114d007c00c73fc97754803f9f728b2436300cf390afd633b224e63d90cc983a"
+        },
+        "prediction": {
+          "path": "/Users/home/cardboard-followup-20261013/scoring/armijo-002/prediction.json",
+          "sha256": "494a1142c17d2315ac2130cafa476911d772a88712b93a630841fc75e855923e"
+        },
+        "receipt": {
+          "path": "/Users/home/cardboard-followup-20261013/scoring/armijo-002/receipt.json",
+          "sha256": "c7ab847b6f9ebf364d86c5f8d9a3d28eea0ff093e8a1c4f71d92a6dd935fb69a"
+        },
+        "result": {
+          "path": "/Users/home/cardboard-followup-20261013/scoring/armijo-002/output/result.json",
+          "sha256": "d16c6fdb3e531a7cb4420d6946269fde7f1070408ca3228f773e6257e558fae0"
+        }
+      },
+      "case": "scoring/armijo-002",
+      "compiled_world_fingerprint": 13187915264480601372,
+      "elapsed_seconds": 456.03790512500564,
+      "failure": "Matter rejected step 60; status, accepted state OBJ, and CSV observations were retained",
+      "label": "002",
+      "nx": null,
+      "planned_steps": 96,
+      "receipt_exit_code": 2,
+      "scope": "frozen028 repaired endpoint gate; native diagnostics only",
+      "state": "FAILED",
+      "timed_out": false
+    },
+    {
+      "accepted_steps": 168,
+      "accepted_steps_from_csv": 168,
+      "arm": "indented",
+      "bindings": {
+        "observations": {
+          "path": "/Users/home/cardboard-followup-20261013/scoring/armijo-003/output/observations.csv",
+          "sha256": "da54fe28b8bef36a446c5750db67507a565fb8d29d20b787cdbb9de6397c1a53"
+        },
+        "prediction": {
+          "path": "/Users/home/cardboard-followup-20261013/scoring/armijo-003/prediction.json",
+          "sha256": "f928f052ab2cac5b350216a04b7a96a7c9c5daf18562b8b6de5fb38b10e8c81b"
+        },
+        "receipt": {
+          "path": "/Users/home/cardboard-followup-20261013/scoring/armijo-003/receipt.json",
+          "sha256": "7f5b068a7bd0b70a0eccad028cae11ea08ef4dd95b5fd235c378ccb23538311b"
+        },
+        "result": {
+          "path": "/Users/home/cardboard-followup-20261013/scoring/armijo-003/output/result.json",
+          "sha256": "31c28620e4216e762078bd0751ab7bd232e1de5dd295a76fdf9f09b4456e22e5"
+        }
+      },
+      "case": "scoring/armijo-003",
+      "compiled_world_fingerprint": 13187915264480601372,
+      "elapsed_seconds": 1010.1613910829765,
+      "failure": "",
+      "label": "003",
+      "nx": null,
+      "planned_steps": 168,
+      "receipt_exit_code": 0,
+      "scope": "frozen028 repaired endpoint gate; native diagnostics only",
+      "state": "COMPLETE",
+      "timed_out": false
+    }
+  ],
+  "interpretation": "Accepted-step counts only. No endpoint convergence or physical qualification is implied.",
+  "schema": "numi.cardboard.native-acceptance-coverage.v1"
+}

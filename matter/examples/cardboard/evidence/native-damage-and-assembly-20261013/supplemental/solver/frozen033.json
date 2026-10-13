@@ -1,0 +1,21 @@
+{
+  "schema": "numi.cardboard.frozen-runtime.v1",
+  "core_change": "host-only bounded diagnostic epsilon scaling; production solve and Metal image unchanged from031",
+  "source": "/Users/home/cardboard-followup-20261013/solver/frozen033-source",
+  "runtime": "/Users/home/numi-cardboard-20261006/build-cardboard-frozen033",
+  "sha256": {
+    "numi-matter-cardboard-probe": "046f1d269f998b3f76908b5fe073db808712efcd27a549436d87dbfeb1caaa62",
+    "numi-matter-cardboard-cohesive-face-check": "490f815aa56c476fd7757accaf98ef9c43b351b75d1330ec153469bef0f77f82",
+    "numi-matter-cardboard-capsule-armijo-check": "8e3f6ad123fed69e4db3668b17b9e9283d0ac924f54c3645a8e83392353a94a4",
+    "shaders/cardboard_bleached_delamination_check.air": "0a7bd21084ccb8cd8dced00c5b501f88938ca62000e20f769ed9555771c5488f",
+    "shaders/cardboard_paper_check.air": "06675da1054519293d3e135682248d846b31939d2bd43877572e7047fbcd56ce",
+    "shaders/cardboard_expression_cache_check.metallib": "5de06bdc96909de1714eab6d03c4c445993db442b18aed054e137dc938c179b0",
+    "shaders/NumiMatterPhysicalStateDigest.metallib": "0401b29d3ac2165153f36bea19786be653a10a242eed140e1c9008595ec1f729",
+    "shaders/cardboard_paper_check.metallib": "c27e1e7d96e41f9acf37c1dd6b6df06ca270dcc5a4c3d4b4812f9e4685016752",
+    "shaders/NumiMatter.metallib": "b72959206d0e6d4e66985cd9252ada4f074af5254769818d4f787463b28a3a96",
+    "shaders/NumiMatter.air": "dc574f11cc259b8599dd0d21085640b977d2c86c23dacc069216bd3e9456c0d0",
+    "shaders/NumiMatterPhysicalStateDigest.air": "1a11d99e7591c7766264f81897d016d6edbd416ccea5f48ca79d59db5e093b01",
+    "shaders/cardboard_bleached_delamination_check.metallib": "f67b081cabb07abd3f1cc8dc43a1da1e5d418c3e5161d1ca8e0b19d9c6393c3e",
+    "shaders/cardboard_expression_cache_check.air": "5c3648e78eb864d5816f38587ca323011dbf3029cfd4930aca1aa2604b17a1db"
+  }
+}

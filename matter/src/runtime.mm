@@ -710,6 +710,7 @@ struct Runtime::State {
     std::uint64_t acceptedStateProofMujocoBytesPerEnvironmentCapacity = 0u;
     bool physicalStateDigestEnabled = false;
     bool enableVascularDense45 = false;
+    bool femResidualArmijoScratchEnabled = false;
     std::size_t acceptedStateProofResidentByteCount = 0u;
     std::size_t residentBytes = 0u;
     std::uint32_t identificationDistributionCount = 0u;
@@ -946,6 +947,9 @@ struct Runtime::State {
     bool hasAdaptive = false;
     bool hasMutableFEMTopology = false;
     std::vector<NMRigidProxyGPU> rigidProxyLayout;
+    // Immutable contact-pair admission mirror used by the bounded capsule
+    // residual-Armijo slice. It does not participate in simulation state.
+    std::vector<NMContactPairGPU> contactPairLayout;
     std::vector<std::uint32_t> sutureProxyIndices;
     std::vector<std::uint32_t> sutureProxyEdges;
     std::uint64_t sutureProxyBindingRevision = 0u;
@@ -973,8 +977,9 @@ struct Runtime::State {
     std::vector<NMPunctureChannelGPU> femImmutablePunctureLayout;
     std::vector<NMFEMTopologyStateGPU> femImmutableTopologyStateLayout;
     std::vector<std::pair<std::uint32_t, std::uint32_t>> femRegionalBaseExponentLayout;
-    std::vector<std::array<float, 2>> femRegionalMassLayout;
-    std::vector<nm_float4> femRegionalRestLayout;
+    std::vector<std::array<float, 2>> femAuthoredMassLayout;
+    std::vector<nm_float4> femAuthoredRestLayout;
+    std::vector<std::uint8_t> femMutableMassRestLayout;
     std::vector<std::pair<std::uint32_t, nm_float4>> femReferenceDeterminantLimits;
     std::vector<std::pair<std::uint32_t, nm_float4>> femReferenceCenterLayout;
     std::vector<std::pair<std::uint32_t, float>> femRegionalFixedParameterLayout;
@@ -1029,6 +1034,7 @@ struct Runtime::State {
     id<MTLBuffer> cohesiveFacesAccepted = nil;
     id<MTLBuffer> cohesiveFacesCandidate = nil;
     id<MTLBuffer> cohesiveFacesCheckpoint = nil;
+    id<MTLBuffer> cohesiveFacesDefaults = nil;
     id<MTLBuffer> punctureChannelsAccepted = nil;
     id<MTLBuffer> punctureChannelsCandidate = nil;
     id<MTLBuffer> punctureChannelsCheckpoint = nil;
@@ -1040,6 +1046,8 @@ struct Runtime::State {
     id<MTLBuffer> triggeredMutationCommands = nil;
     id<MTLBuffer> femNodeIncidence = nil;
     id<MTLBuffer> femNodeRanges = nil;
+    id<MTLBuffer> femCohesiveNodeIncidence = nil;
+    id<MTLBuffer> femCohesiveNodeRanges = nil;
     id<MTLBuffer> femNodeIncidenceCheckpoint = nil;
     id<MTLBuffer> femNodeRangesCheckpoint = nil;
     id<MTLBuffer> topologyIncidenceCursors = nil;
@@ -1187,13 +1195,45 @@ struct Runtime::State {
 
     id<MTLBuffer> elementForces = nil;
     id<MTLBuffer> elementOperator = nil;
+    id<MTLBuffer> cohesiveFaceForces = nil;
+    id<MTLBuffer> cohesiveFaceOperator = nil;
     id<MTLBuffer> femSolution = nil;
     id<MTLBuffer> femResidual = nil;
     id<MTLBuffer> femPreconditioned = nil;
     id<MTLBuffer> femDirection = nil;
     id<MTLBuffer> femOperatorValue = nil;
+    // Opt-in true-FGMRES-residual scratch; transient and never serialized.
+    id<MTLBuffer> femTrueResidualRightHandSide = nil;
+    id<MTLBuffer> femTrueResidualMetrics = nil;
+    id<MTLBuffer> femTrueResidualStatuses = nil;
     id<MTLBuffer> femConstraintReactions = nil;
     id<MTLBuffer> femLineSearch = nil;
+    // Temporary line-search workspaces, allocated only when the opt-in
+    // residual-Armijo root selector is present before Runtime construction.
+    id<MTLBuffer> femArmijoCandidate = nil;
+    id<MTLBuffer> femArmijoElementForces = nil;
+    id<MTLBuffer> femArmijoResidual = nil;
+    id<MTLBuffer> femArmijoPreconditioned = nil;
+    id<MTLBuffer> femArmijoDirection = nil;
+    id<MTLBuffer> femArmijoOperatorValue = nil;
+    id<MTLBuffer> femArmijoConstraintReactions = nil;
+    id<MTLBuffer> femArmijoMetrics = nil;
+    id<MTLBuffer> femArmijoStatuses = nil;
+    id<MTLBuffer> femArmijoContactSamples = nil;
+    // Separate bounded contact samples for the larger static-BOX scoring slice.
+    id<MTLBuffer> femArmijoBoxContactSamples = nil;
+    bool femOperatorFDScratchEnabled = false;
+    id<MTLBuffer> femOperatorFDDirection = nil;
+    id<MTLBuffer> femOperatorFDPositiveResidual = nil;
+    id<MTLBuffer> femOperatorFDAction = nil;
+    id<MTLBuffer> femOperatorFDSolution = nil;
+    id<MTLBuffer> femOperatorFDMetrics = nil;
+    id<MTLBuffer> femOperatorFDParameters = nil;
+    id<MTLBuffer> femOperatorFDOperatorStatuses = nil;
+    id<MTLBuffer> femOperatorFDHistorySnapshot = nil;
+    id<MTLBuffer> femOperatorFDTetrahedronSnapshot = nil;
+    id<MTLBuffer> femOperatorFDStatusSnapshot = nil;
+    id<MTLBuffer> femOperatorFDInputsUnchanged = nil;
     id<MTLBuffer> fgmresBasis = nil;
     id<MTLBuffer> fgmresPreconditionedBasis = nil;
     id<MTLBuffer> fgmresHessenberg = nil;
@@ -1708,6 +1748,23 @@ RuntimeDiagnostics Runtime::initialize(
             configuration.coupledCandidateCompensatedTranslation;
         candidate->vascularValue = world.vascular;
         candidate->objectLayout = world.objects;
+        candidate->femAuthoredMassLayout.reserve(world.fem.nodes.size());
+        candidate->femAuthoredRestLayout.reserve(world.fem.nodes.size());
+        candidate->femMutableMassRestLayout.assign(world.fem.nodes.size(), 0u);
+        for (const auto& object : world.objects) {
+            if (object.representation != NM_REPRESENTATION_FEM ||
+                (object.flags & NM_OBJECT_MUTABLE_TOPOLOGY) == 0u) continue;
+            const std::size_t end = static_cast<std::size_t>(object.stateOffset) +
+                object.stateCount;
+            for (std::size_t node = object.stateOffset;
+                 node < end && node < candidate->femMutableMassRestLayout.size(); ++node)
+                candidate->femMutableMassRestLayout[node] = 1u;
+        }
+        for (const auto& node : world.fem.nodes) {
+            candidate->femAuthoredMassLayout.push_back({
+                node.positionAndMass.w, node.velocityAndInverseMass.w});
+            candidate->femAuthoredRestLayout.push_back(node.restAndFixed);
+        }
         if (std::any_of(world.objects.begin(), world.objects.end(),
                 [](const NMContinuumObjectGPU& object) {
                     return (object.flags & (NM_OBJECT_FEM_MATERIAL_FRAME | NM_OBJECT_FEM_REGIONAL_MATERIAL | NM_OBJECT_FEM_REFERENCE_CONFIGURATION | NM_OBJECT_FEM_REFERENCE_DISPLACEMENT_GRADIENT)) != 0u;
@@ -1721,12 +1778,6 @@ RuntimeDiagnostics Runtime::initialize(
                 [](const NMContinuumObjectGPU& object) {
                     return (object.flags & (NM_OBJECT_FEM_REGIONAL_MATERIAL | NM_OBJECT_FEM_REFERENCE_CONFIGURATION | NM_OBJECT_FEM_REFERENCE_DISPLACEMENT_GRADIENT)) != 0u;
                 })) {
-            candidate->femRegionalMassLayout.reserve(world.fem.nodes.size());
-            candidate->femRegionalRestLayout.reserve(world.fem.nodes.size());
-            for (const auto& node : world.fem.nodes) {
-                candidate->femRegionalMassLayout.push_back({node.positionAndMass.w, node.velocityAndInverseMass.w});
-                candidate->femRegionalRestLayout.push_back(node.restAndFixed);
-            }
             std::set<std::uint32_t> regionalMaterials;
             for (const auto& object : world.objects) {
                 if ((object.flags & (NM_OBJECT_FEM_REGIONAL_MATERIAL | NM_OBJECT_FEM_REFERENCE_CONFIGURATION | NM_OBJECT_FEM_REFERENCE_DISPLACEMENT_GRADIENT)) == 0u) continue;
@@ -1763,16 +1814,38 @@ RuntimeDiagnostics Runtime::initialize(
                     (object.flags & NM_OBJECT_MUTABLE_TOPOLOGY) != 0u;
             });
         candidate->capacityLayout = world.fem.capacities;
-        if (world.fem.nodeIncidence.size() >
-                std::numeric_limits<std::uint32_t>::max() ||
+        const std::uint64_t incidenceStride64 = std::max<std::uint64_t>(
+            1u,
+            static_cast<std::uint64_t>(world.dispatch.tetrahedronCount) * 4u
+        );
+        const std::uint64_t environmentCount64 =
+            world.dispatch.environmentCount;
+        const bool incidenceCapacityExceedsU32 =
+            environmentCount64 == 0u ||
+            incidenceStride64 >
+                std::numeric_limits<std::uint32_t>::max() /
+                    environmentCount64;
+        const std::uint64_t environmentIncidenceCount64 =
+            incidenceCapacityExceedsU32
+                ? std::numeric_limits<std::uint64_t>::max()
+                : incidenceStride64 * environmentCount64;
+        if (incidenceCapacityExceedsU32 ||
+            environmentIncidenceCount64 >
+                std::numeric_limits<std::size_t>::max() /
+                    sizeof(std::uint32_t) ||
+            world.fem.nodeIncidence.size() > incidenceStride64 ||
             world.fem.nodeRanges.size() >
                 std::numeric_limits<std::uint32_t>::max()) {
             diagnostics.message =
                 "Matter topology incidence exceeds accepted-state proof ABI capacity";
             return diagnostics;
         }
+        // Topology rebuild indexes one four-entry corner slot per tetrahedron,
+        // including dormant reserved tetrahedra. Keep this full per-environment
+        // arena from initialization so later accepted mutations never write past
+        // the buffer that snapshot restore and rollback checkpoints own.
         candidate->femNodeIncidenceStride = static_cast<std::uint32_t>(
-            world.fem.nodeIncidence.size());
+            incidenceStride64);
         candidate->femNodeRangeStride = static_cast<std::uint32_t>(
             world.fem.nodeRanges.size());
         candidate->mixedSolverValue = world.mixedSolver;
@@ -2308,6 +2381,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_checkpoint_scheduler",
             "nm_prepare_scheduler",
             "nm_apply_episode_resets",
+            "nm_reset_paired_cohesive_faces",
             "nm_identification_update",
             "nm_publish_identification_means",
             "nm_identification_sample",
@@ -2356,7 +2430,9 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_contact_initialize_prescribed_fem_candidate",
             "nm_contact_capture_prescribed_endpoint",
             "nm_contact_validate_prescribed_motion",
+            "nm_contact_validate_stationary_box_endpoint",
             "nm_contact_rollback_prescribed_motion",
+            "nm_contact_rollback_stationary_box_projection",
             "nm_project_primal_free_rigid_candidate",
             "nm_mask_primal_rigid_candidate",
             "nm_publish_primal_free_rigid_candidate",
@@ -2364,10 +2440,35 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_mpm_p2g",
             "nm_mpm_compact_active_nodes",
             "nm_fem_internal_forces",
+            "nm_fem_cohesive_face_forces",
+            "nm_fem_add_cohesive_residual",
+            "nm_fem_cohesive_face_operator",
+            "nm_fem_commit_cohesive_faces",
             "nm_fem_build_mechanical_residual",
             "nm_fem_apply_solution",
             "nm_fem_select_backtracking",
+            "nm_fem_armijo_measure_base",
+            "nm_fem_armijo_begin_trial",
+            "nm_fem_armijo_begin_bounded_trial",
+            "nm_fem_armijo_prepare_candidate",
+            "nm_fem_armijo_validate_geometry",
+            "nm_fem_armijo_measure_trial",
+            "nm_fem_operator_fd_initialize",
+            "nm_fem_operator_fd_begin_pair",
+            "nm_fem_operator_fd_negate_direction",
+            "nm_fem_operator_fd_snapshot_inputs",
+            "nm_fem_operator_fd_capture_side",
+            "nm_fem_operator_fd_save_positive_residual",
+            "nm_fem_operator_fd_record_operator_status",
+            "nm_fem_operator_fd_measure_pair",
+            "nm_fem_operator_fd_compare_inputs",
+            "nm_fem_operator_fd_publish_integrity",
+            "nm_fem_armijo_decide",
             "nm_fem_synchronize_environment_line_search",
+            "nm_fgmres_preserve_true_rhs",
+            "nm_fgmres_clear_true_operator",
+            "nm_fgmres_clear_true_auxiliary",
+            "nm_fgmres_measure_true_residual",
             "nm_fgmres_begin",
             "nm_fem_human_attachment_map_direction",
             "nm_fem_human_attachment_eliminate_direction",
@@ -2454,6 +2555,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_mpm_limit_implicit_line_search",
             "nm_mpm_apply_implicit_solution",
             "nm_fem_apply_operator_elements",
+            "nm_fgmres_add_cohesive_operator",
             "nm_fgmres_gather_nodes",
             "nm_fgmres_orthogonalize_and_finish_column",
             "nm_fgmres_finalize_cycle",
@@ -2463,6 +2565,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fgmres_restart_residual_nodes",
             "nm_fgmres_restart_residual_rigid",
             "nm_contact_clear_samples",
+            "nm_contact_clear_trial_samples",
             "nm_contact_build_surface_primitives",
             "nm_contact_sort_surface_primitives",
             "nm_contact_build_surface_bvh_leaves",
@@ -2824,26 +2927,24 @@ RuntimeDiagnostics Runtime::initialize(
         candidate->topologyStatesCheckpoint = uploads.repeated(
             std::span<const NMFEMTopologyStateGPU>(initialTopologyStates),
             environments, valid, candidate->residentBytes);
-        std::vector<std::uint32_t> environmentFEMIncidence;
+        std::vector<std::uint32_t> environmentFEMIncidence(
+            static_cast<std::size_t>(candidate->femNodeIncidenceStride) *
+                environments,
+            0u
+        );
         std::vector<NMIncidenceRangeGPU> environmentFEMRanges;
-        environmentFEMIncidence.reserve(
-            world.fem.nodeIncidence.size() * environments
-        );
-        environmentFEMRanges.reserve(
-            world.fem.nodeRanges.size() * environments
-        );
+        environmentFEMRanges.reserve(world.fem.nodeRanges.size() * environments);
         for (std::size_t environment = 0u; environment < environments;
              ++environment) {
-            environmentFEMIncidence.insert(
-                environmentFEMIncidence.end(),
+            const std::size_t incidenceBase =
+                environment * candidate->femNodeIncidenceStride;
+            std::copy(
                 world.fem.nodeIncidence.begin(),
-                world.fem.nodeIncidence.end()
-            );
-            const std::uint32_t incidenceBase = static_cast<std::uint32_t>(
-                environment * world.fem.nodeIncidence.size()
+                world.fem.nodeIncidence.end(),
+                environmentFEMIncidence.begin() + incidenceBase
             );
             for (NMIncidenceRangeGPU range : world.fem.nodeRanges) {
-                range.first += incidenceBase;
+                range.first += static_cast<std::uint32_t>(incidenceBase);
                 environmentFEMRanges.push_back(range);
             }
         }
@@ -2852,6 +2953,68 @@ RuntimeDiagnostics Runtime::initialize(
             valid, candidate->residentBytes);
         candidate->femNodeRanges = uploads.one(
             std::span<const NMIncidenceRangeGPU>(environmentFEMRanges),
+            valid, candidate->residentBytes);
+        std::vector<std::vector<std::uint32_t>> cohesiveReferences(
+            world.dispatch.femNodeCount);
+        for (std::uint32_t faceIndex = 0u;
+             faceIndex < world.dispatch.cohesiveFaceCount; ++faceIndex) {
+            const NMCohesiveFaceGPU& face = world.fem.cohesiveFaces[faceIndex];
+            if ((face.adjacency.w & NM_TOPOLOGY_PAIRED_COHESIVE) == 0u)
+                continue;
+            const std::array<std::uint32_t, 3> firstNodes{
+                face.nodesAndFirst.x, face.nodesAndFirst.y, face.nodesAndFirst.z};
+            const std::array<std::uint32_t, 3> secondNodes{
+                face.separatedNodes.x, face.separatedNodes.y, face.separatedNodes.z};
+            for (std::uint32_t slot = 0u; slot < 3u; ++slot) {
+                cohesiveReferences[firstNodes[slot]].push_back(
+                    faceIndex * 6u + slot);
+                cohesiveReferences[secondNodes[slot]].push_back(
+                    faceIndex * 6u + slot + 3u);
+            }
+        }
+        std::vector<std::uint32_t> oneCohesiveIncidence;
+        std::vector<NMIncidenceRangeGPU> oneCohesiveRanges(
+            world.dispatch.femNodeCount);
+        for (std::uint32_t node = 0u;
+             node < world.dispatch.femNodeCount; ++node) {
+            NMIncidenceRangeGPU range = world.fem.nodeRanges[node];
+            range.first = static_cast<std::uint32_t>(
+                oneCohesiveIncidence.size());
+            range.count = static_cast<std::uint32_t>(
+                cohesiveReferences[node].size());
+            oneCohesiveIncidence.insert(oneCohesiveIncidence.end(),
+                cohesiveReferences[node].begin(), cohesiveReferences[node].end());
+            oneCohesiveRanges[node] = range;
+        }
+        if (oneCohesiveIncidence.size() >
+            std::numeric_limits<std::uint32_t>::max()) {
+            diagnostics.message =
+                "Matter paired-face node incidence exceeds 32-bit device indexing";
+            return diagnostics;
+        }
+        std::vector<std::uint32_t> environmentCohesiveIncidence;
+        std::vector<NMIncidenceRangeGPU> environmentCohesiveRanges;
+        environmentCohesiveIncidence.reserve(
+            oneCohesiveIncidence.size() * environments);
+        environmentCohesiveRanges.reserve(
+            oneCohesiveRanges.size() * environments);
+        for (std::size_t environment = 0u; environment < environments;
+             ++environment) {
+            const std::uint32_t incidenceBase = static_cast<std::uint32_t>(
+                environment * oneCohesiveIncidence.size());
+            environmentCohesiveIncidence.insert(
+                environmentCohesiveIncidence.end(),
+                oneCohesiveIncidence.begin(), oneCohesiveIncidence.end());
+            for (NMIncidenceRangeGPU range : oneCohesiveRanges) {
+                range.first += incidenceBase;
+                environmentCohesiveRanges.push_back(range);
+            }
+        }
+        candidate->femCohesiveNodeIncidence = uploads.one(
+            std::span<const std::uint32_t>(environmentCohesiveIncidence),
+            valid, candidate->residentBytes);
+        candidate->femCohesiveNodeRanges = uploads.one(
+            std::span<const NMIncidenceRangeGPU>(environmentCohesiveRanges),
             valid, candidate->residentBytes);
         candidate->femNodeIncidenceCheckpoint = privateScratch<std::uint32_t>(
             candidate->device, environmentFEMIncidence.size(),
@@ -2882,6 +3045,7 @@ RuntimeDiagnostics Runtime::initialize(
             std::span<const NMRigidProxyGPU>(world.contact.rigidProxies),
             valid, candidate->residentBytes);
         candidate->rigidProxyLayout = world.contact.rigidProxies;
+        candidate->contactPairLayout = world.contact.pairs;
         for (std::uint32_t proxyIndex = 0u;
              proxyIndex < world.contact.rigidProxies.size();
              ++proxyIndex) {
@@ -3036,6 +3200,9 @@ RuntimeDiagnostics Runtime::initialize(
             std::span<const NMFEMTopologyNodeGPU>(world.fem.topologyNodes),
             environments, valid, candidate->residentBytes);
         candidate->cohesiveFacesAccepted = uploads.repeated(
+            std::span<const NMCohesiveFaceGPU>(world.fem.cohesiveFaces),
+            environments, valid, candidate->residentBytes);
+        candidate->cohesiveFacesDefaults = uploads.repeated(
             std::span<const NMCohesiveFaceGPU>(world.fem.cohesiveFaces),
             environments, valid, candidate->residentBytes);
         candidate->cohesiveFacesCandidate = uploads.repeated(
@@ -3537,6 +3704,12 @@ RuntimeDiagnostics Runtime::initialize(
         candidate->elementOperator = privateScratch<NMFEMElementVectorGPU>(
             candidate->device, multiplied(world.dispatch.tetrahedronCount),
             valid, candidate->residentBytes);
+        candidate->cohesiveFaceForces = privateScratch<NMCohesiveFaceVectorGPU>(
+            candidate->device, multiplied(world.dispatch.cohesiveFaceCount),
+            valid, candidate->residentBytes);
+        candidate->cohesiveFaceOperator = privateScratch<NMCohesiveFaceVectorGPU>(
+            candidate->device, multiplied(world.dispatch.cohesiveFaceCount),
+            valid, candidate->residentBytes);
         const std::size_t mixedUnknownWidth =
             2u * static_cast<std::size_t>(world.dispatch.femNodeCount) +
             world.dispatch.mpmActiveNodeCapacity +
@@ -3597,12 +3770,167 @@ RuntimeDiagnostics Runtime::initialize(
         candidate->femOperatorValue = privateScratch<nm_float4>(
             candidate->device, mixedUnknownTotal,
             valid, candidate->residentBytes);
+        candidate->femTrueResidualRightHandSide =
+            privateScratch<nm_float4>(candidate->device, mixedUnknownTotal,
+                valid, candidate->residentBytes);
+        candidate->femTrueResidualMetrics =
+            privateScratch<nm_float4>(candidate->device, multiplied(1u),
+                valid, candidate->residentBytes);
+        candidate->femTrueResidualStatuses =
+            privateScratch<NMMatterStatusGPU>(candidate->device, multiplied(1u),
+                valid, candidate->residentBytes);
         candidate->femConstraintReactions = privateScratch<nm_float4>(
             candidate->device, multiplied(world.dispatch.femNodeCount),
             valid, candidate->residentBytes);
         candidate->femLineSearch = privateScratch<nm_float4>(
             candidate->device, multiplied(world.dispatch.objectCount),
             valid, candidate->residentBytes);
+        const bool operatorFDRequested =
+            std::getenv("NM_FEM_OPERATOR_FD_SELECTOR") != nullptr;
+        const bool operatorFDShapeWithinCaps =
+            world.dispatch.environmentCount > 0u &&
+            world.dispatch.environmentCount <= 4u &&
+            world.dispatch.femNodeCount > 0u &&
+            world.dispatch.femNodeCount <= 4096u &&
+            world.dispatch.tetrahedronCount > 0u &&
+            world.dispatch.tetrahedronCount <= 8192u &&
+            world.dispatch.materialStateStride > 0u &&
+            world.dispatch.materialStateStride <= 32u;
+        const std::size_t operatorFDEnvironments = operatorFDShapeWithinCaps
+            ? world.dispatch.environmentCount : 0u;
+        const std::size_t operatorFDNodes = operatorFDShapeWithinCaps
+            ? world.dispatch.femNodeCount : 0u;
+        const std::size_t operatorFDTetrahedra = operatorFDShapeWithinCaps
+            ? world.dispatch.tetrahedronCount : 0u;
+        const std::size_t operatorFDStride = operatorFDShapeWithinCaps
+            ? world.dispatch.materialStateStride : 0u;
+        const std::size_t operatorFDHistoryWords = operatorFDEnvironments *
+            operatorFDTetrahedra * operatorFDStride;
+        const std::size_t operatorFDTetrahedronWords = operatorFDEnvironments *
+            operatorFDTetrahedra * sizeof(NMTetrahedronGPU) / sizeof(std::uint32_t);
+        const std::size_t operatorFDStatusWords = operatorFDEnvironments *
+            sizeof(NMMatterStatusGPU) / sizeof(std::uint32_t);
+        const std::size_t operatorFDSnapshotBytes =
+            (operatorFDHistoryWords + operatorFDTetrahedronWords +
+             operatorFDStatusWords) * sizeof(std::uint32_t);
+        const std::size_t operatorFDNodeBytes = operatorFDEnvironments *
+            operatorFDNodes * 4u * sizeof(nm_float4);
+        const std::size_t operatorFDResultBytes = operatorFDEnvironments *
+            (11u * sizeof(nm_float4) + sizeof(NMMatterStatusGPU)) +
+            sizeof(std::uint32_t);
+        const std::size_t reusedArmijoBytes = operatorFDEnvironments *
+            operatorFDNodes * (sizeof(NMFEMNodeStateGPU) +
+                5u * sizeof(nm_float4)) +
+            operatorFDEnvironments * operatorFDTetrahedra *
+                sizeof(NMFEMElementVectorGPU) +
+            operatorFDEnvironments *
+                (sizeof(nm_float4) + sizeof(NMMatterStatusGPU));
+        constexpr std::size_t operatorFDScratchBudgetBytes = 32u * 1024u * 1024u;
+        // The selected diagnostic precedes pure-FEM residual Armijo. Each
+        // later trial rewrites the reused scratch before reading it; contact
+        // Armijo modes remain outside this diagnostic's allocation scope.
+        const bool operatorFDSelectorsCompatible =
+            std::getenv("NM_FEM_CAPSULE_RESIDUAL_ARMIJO_ROOT") == nullptr &&
+            std::getenv("NM_FEM_CAPSULE_BOX_RESIDUAL_ARMIJO_ROOT") == nullptr;
+        candidate->femOperatorFDScratchEnabled = operatorFDRequested &&
+            operatorFDShapeWithinCaps && operatorFDSelectorsCompatible &&
+            operatorFDSnapshotBytes + operatorFDNodeBytes +
+                operatorFDResultBytes + reusedArmijoBytes <=
+                    operatorFDScratchBudgetBytes;
+        candidate->femResidualArmijoScratchEnabled =
+            std::getenv("NM_FEM_RESIDUAL_ARMIJO_ROOT") != nullptr ||
+            std::getenv("NM_FEM_CAPSULE_RESIDUAL_ARMIJO_ROOT") != nullptr ||
+            std::getenv("NM_FEM_CAPSULE_BOX_RESIDUAL_ARMIJO_ROOT") != nullptr ||
+            candidate->femOperatorFDScratchEnabled;
+        if (candidate->femResidualArmijoScratchEnabled) {
+            candidate->femArmijoCandidate = privateScratch<NMFEMNodeStateGPU>(
+                candidate->device, multiplied(world.dispatch.femNodeCount),
+                valid, candidate->residentBytes);
+            candidate->femArmijoElementForces =
+                privateScratch<NMFEMElementVectorGPU>(candidate->device,
+                    multiplied(world.dispatch.tetrahedronCount),
+                    valid, candidate->residentBytes);
+            candidate->femArmijoResidual = privateScratch<nm_float4>(
+                candidate->device, multiplied(world.dispatch.femNodeCount),
+                valid, candidate->residentBytes);
+            candidate->femArmijoPreconditioned = privateScratch<nm_float4>(
+                candidate->device, multiplied(world.dispatch.femNodeCount),
+                valid, candidate->residentBytes);
+            candidate->femArmijoDirection = privateScratch<nm_float4>(
+                candidate->device, multiplied(world.dispatch.femNodeCount),
+                valid, candidate->residentBytes);
+            candidate->femArmijoOperatorValue = privateScratch<nm_float4>(
+                candidate->device, multiplied(world.dispatch.femNodeCount),
+                valid, candidate->residentBytes);
+            candidate->femArmijoConstraintReactions = privateScratch<nm_float4>(
+                candidate->device, multiplied(world.dispatch.femNodeCount),
+                valid, candidate->residentBytes);
+            candidate->femArmijoMetrics = privateScratch<nm_float4>(
+                candidate->device, multiplied(1u),
+                valid, candidate->residentBytes);
+            candidate->femArmijoStatuses = privateScratch<NMMatterStatusGPU>(
+                candidate->device, multiplied(1u),
+                valid, candidate->residentBytes);
+            if (std::getenv("NM_FEM_CAPSULE_RESIDUAL_ARMIJO_ROOT") != nullptr &&
+                world.dispatch.contactPairCount != 0u &&
+                world.dispatch.contactPairCount <= 16384u && environments <= 4u) {
+                candidate->femArmijoContactSamples =
+                    privateScratch<NMContactSampleGPU>(candidate->device,
+                        multiplied(world.dispatch.contactPairCount),
+                        valid, candidate->residentBytes);
+            }
+            if (std::getenv("NM_FEM_CAPSULE_BOX_RESIDUAL_ARMIJO_ROOT") != nullptr &&
+                world.dispatch.contactPairCount != 0u &&
+                world.dispatch.contactPairCount <= 65536u && environments <= 4u &&
+                static_cast<std::size_t>(environments) *
+                    world.dispatch.contactPairCount <=
+                    (36u * 1024u * 1024u) / sizeof(NMContactSampleGPU)) {
+                candidate->femArmijoBoxContactSamples =
+                    privateScratch<NMContactSampleGPU>(candidate->device,
+                        multiplied(world.dispatch.contactPairCount),
+                        valid, candidate->residentBytes);
+            }
+            if (candidate->femOperatorFDScratchEnabled) {
+                candidate->femOperatorFDDirection = privateScratch<nm_float4>(
+                    candidate->device, multiplied(world.dispatch.femNodeCount),
+                    valid, candidate->residentBytes);
+                candidate->femOperatorFDPositiveResidual = privateScratch<nm_float4>(
+                    candidate->device, multiplied(world.dispatch.femNodeCount),
+                    valid, candidate->residentBytes);
+                candidate->femOperatorFDAction = privateScratch<nm_float4>(
+                    candidate->device, multiplied(world.dispatch.femNodeCount),
+                    valid, candidate->residentBytes);
+                candidate->femOperatorFDSolution = privateScratch<nm_float4>(
+                    candidate->device, multiplied(world.dispatch.femNodeCount),
+                    valid, candidate->residentBytes);
+                candidate->femOperatorFDMetrics = privateScratch<nm_float4>(
+                    candidate->device, multiplied(10u),
+                    valid, candidate->residentBytes);
+                candidate->femOperatorFDParameters = privateScratch<nm_float4>(
+                    candidate->device, multiplied(1u),
+                    valid, candidate->residentBytes);
+                candidate->femOperatorFDOperatorStatuses = privateScratch<NMMatterStatusGPU>(
+                    candidate->device, multiplied(1u),
+                    valid, candidate->residentBytes);
+                candidate->femOperatorFDHistorySnapshot = privateScratch<float>(
+                    candidate->device,
+                    multiplied(static_cast<std::size_t>(world.dispatch.tetrahedronCount) *
+                        world.dispatch.materialStateStride),
+                    valid, candidate->residentBytes);
+                candidate->femOperatorFDTetrahedronSnapshot = privateScratch<std::uint32_t>(
+                    candidate->device,
+                    multiplied(static_cast<std::size_t>(world.dispatch.tetrahedronCount) *
+                        sizeof(NMTetrahedronGPU) / sizeof(std::uint32_t)),
+                    valid, candidate->residentBytes);
+                candidate->femOperatorFDStatusSnapshot = privateScratch<std::uint32_t>(
+                    candidate->device,
+                    multiplied(sizeof(NMMatterStatusGPU) / sizeof(std::uint32_t)),
+                    valid, candidate->residentBytes);
+                candidate->femOperatorFDInputsUnchanged = privateScratch<std::uint32_t>(
+                    candidate->device, multiplied(1u),
+                    valid, candidate->residentBytes);
+            }
+        }
         const std::size_t fgmresUnknownTotal = mixedUnknownTotal;
         const std::size_t fgmresSystemTotal = multiplied(1u);
         const std::size_t configuredRestart = std::clamp<std::size_t>(
@@ -4216,6 +4544,22 @@ RuntimeDiagnostics Runtime::encodeImpl(
             return diagnostics;
         }
         State& state = *state_;
+        // Parse once: endpoint certification and trial scope must select
+        // exactly the same transactions, including the every-step mode.
+        const char* boxArmijoSelector = std::getenv(
+            "NM_FEM_CAPSULE_BOX_RESIDUAL_ARMIJO_ROOT");
+        const bool boxArmijoEveryStep = boxArmijoSelector != nullptr &&
+            std::strcmp(boxArmijoSelector, "all") == 0;
+        char* boxArmijoSelectorEnd = nullptr;
+        const unsigned long boxArmijoSelectedRoot = boxArmijoEveryStep
+            ? request.controlStep : boxArmijoSelector != nullptr
+                ? std::strtoul(boxArmijoSelector, &boxArmijoSelectorEnd, 10) : 0ul;
+        const bool boxArmijoSelectorValid = boxArmijoSelector != nullptr &&
+            (boxArmijoEveryStep || (boxArmijoSelectorEnd != boxArmijoSelector &&
+                *boxArmijoSelectorEnd == '\0')) &&
+            boxArmijoSelectedRoot <= std::numeric_limits<std::uint32_t>::max();
+        const bool stationaryBoxEndpointGateRequested = boxArmijoSelectorValid &&
+            boxArmijoSelectedRoot == request.controlStep;
         const bool hasAcceptedStepExtension =
             request.encodeAcceptedStepExtension != nullptr;
         if (hasAcceptedStepExtension !=
@@ -5144,6 +5488,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
              state.dispatch.gridNodeCount);
         const NSUInteger tetrahedronTotal =
             environments * state.dispatch.tetrahedronCount;
+        const NSUInteger cohesiveFaceTotal =
+            environments * state.dispatch.cohesiveFaceCount;
         const NSUInteger femTransactionalTotal = environments * std::max(
             state.dispatch.femNodeCount,
             state.dispatch.tetrahedronCount
@@ -5336,6 +5682,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:rodNodes offset:0u atIndex:5u];
                 [encoder setBuffer:rodInverseMasses offset:0u atIndex:6u];
             });
+            if (stationaryBoxEndpointGateRequested)
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
 
             if (state.hasPrescribedTranslation) {
                 dispatchThreads("nm_contact_validate_prescribed_motion", proxyTotal, [&] {
@@ -5346,6 +5694,25 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.prescribedRigidPrevious offset:0u atIndex:4u];
                     [encoder setBuffer:state.rigidStates offset:0u atIndex:5u];
                     [encoder setBuffer:state.statuses offset:0u atIndex:6u];
+                });
+            }
+            if (stationaryBoxEndpointGateRequested &&
+                state.hasPrescribedTranslation &&
+                state.prescribedRigidEndpoints != nil) {
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                const std::uint32_t endpointPhase = 1u;
+                dispatchThreads(
+                    "nm_contact_validate_stationary_box_endpoint", proxyTotal, [&] {
+                    setDispatch();
+                    [encoder setBytes:&bridge length:sizeof(bridge) atIndex:1u];
+                    [encoder setBuffer:state.rigidProxies offset:0u atIndex:2u];
+                    [encoder setBuffer:currentBodies offset:0u atIndex:3u];
+                    [encoder setBuffer:state.prescribedRigidPrevious offset:0u atIndex:4u];
+                    [encoder setBuffer:state.prescribedRigidEndpoints offset:0u atIndex:5u];
+                    [encoder setBuffer:state.rigidStates offset:0u atIndex:6u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:7u];
+                    [encoder setBytes:&endpointPhase length:sizeof(endpointPhase)
+                               atIndex:8u];
                 });
             }
 
@@ -5418,6 +5785,17 @@ RuntimeDiagnostics Runtime::encodeImpl(
             });
         if (state.hasPrescribedTranslation) {
             dispatchThreads("nm_contact_rollback_prescribed_motion", proxyTotal, [&] {
+                setDispatch();
+                [encoder setBuffer:state.rigidProxies offset:0u atIndex:1u];
+                [encoder setBuffer:state.statuses offset:0u atIndex:2u];
+                [encoder setBuffer:state.prescribedRigidPrevious offset:0u atIndex:3u];
+                [encoder setBuffer:state.rigidStates offset:0u atIndex:4u];
+            });
+        }
+        if (stationaryBoxEndpointGateRequested &&
+            state.prescribedRigidPrevious != nil) {
+            dispatchThreads(
+                "nm_contact_rollback_stationary_box_projection", proxyTotal, [&] {
                 setDispatch();
                 [encoder setBuffer:state.rigidProxies offset:0u atIndex:1u];
                 [encoder setBuffer:state.statuses offset:0u atIndex:2u];
@@ -5787,6 +6165,16 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.femMaterialStateCheckpoint offset:0u atIndex:26u];
                 }
             );
+            dispatchThreads("nm_reset_paired_cohesive_faces",
+                environments * state.dispatch.cohesiveFaceCount, [&] {
+                setDispatch();
+                [encoder setBytes:&reset length:sizeof(reset) atIndex:1u];
+                [encoder setBuffer:resetMasks offset:0u atIndex:2u];
+                [encoder setBuffer:state.cohesiveFacesDefaults offset:0u atIndex:3u];
+                [encoder setBuffer:state.cohesiveFacesAccepted offset:0u atIndex:4u];
+                [encoder setBuffer:state.cohesiveFacesCandidate offset:0u atIndex:5u];
+                [encoder setBuffer:state.cohesiveFacesCheckpoint offset:0u atIndex:6u];
+            });
             dispatchThreads("nm_vascular_episode_reset", vascularTotal, [&] {
                 setDispatch();
                 [encoder setBytes:&state.vascularValue.layout
@@ -6059,12 +6447,16 @@ RuntimeDiagnostics Runtime::encodeImpl(
             [encoder setBuffer:rodNodes offset:0u atIndex:5u];
             [encoder setBuffer:rodInverseMasses offset:0u atIndex:6u];
         });
+        if (stationaryBoxEndpointGateRequested)
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
         if (state.hasPrescribedTranslation) {
             dispatchThreads("nm_contact_capture_prescribed_endpoint", proxyTotal, [&] {
                 setDispatch();
                 [encoder setBuffer:state.rigidStates offset:0u atIndex:1u];
                 [encoder setBuffer:state.prescribedRigidEndpoints offset:0u atIndex:2u];
             });
+            if (stationaryBoxEndpointGateRequested)
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
             dispatchThreads("nm_contact_validate_prescribed_motion", proxyTotal, [&] {
                 setDispatch();
                 [encoder setBytes:&bridge length:sizeof(bridge) atIndex:1u];
@@ -6073,6 +6465,26 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.prescribedRigidPrevious offset:0u atIndex:4u];
                 [encoder setBuffer:state.rigidStates offset:0u atIndex:5u];
                 [encoder setBuffer:state.statuses offset:0u atIndex:6u];
+            });
+        }
+        if (stationaryBoxEndpointGateRequested &&
+            state.hasPrescribedTranslation &&
+            state.prescribedRigidPrevious != nil &&
+            state.prescribedRigidEndpoints != nil) {
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            const std::uint32_t endpointPhase = 0u;
+            dispatchThreads(
+                "nm_contact_validate_stationary_box_endpoint", proxyTotal, [&] {
+                setDispatch();
+                [encoder setBytes:&bridge length:sizeof(bridge) atIndex:1u];
+                [encoder setBuffer:state.rigidProxies offset:0u atIndex:2u];
+                [encoder setBuffer:currentBodies offset:0u atIndex:3u];
+                [encoder setBuffer:state.prescribedRigidPrevious offset:0u atIndex:4u];
+                [encoder setBuffer:state.prescribedRigidEndpoints offset:0u atIndex:5u];
+                [encoder setBuffer:state.rigidStates offset:0u atIndex:6u];
+                [encoder setBuffer:state.statuses offset:0u atIndex:7u];
+                [encoder setBytes:&endpointPhase length:sizeof(endpointPhase)
+                           atIndex:8u];
             });
         }
 
@@ -6314,6 +6726,500 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     return "requires_fem_nodes_as_only_generalized_unknowns";
                 return nullptr;
             };
+            const auto femResidualArmijoScope = [&]() -> const char* {
+                if (!state.femResidualArmijoScratchEnabled)
+                    return "armijo_scratch_was_not_reserved_at_runtime_creation";
+                if (microtick != 0u)
+                    return "requires_microtick_zero";
+                if (const char* reason = femNewtonTraceScope())
+                    return reason;
+                constexpr std::uint32_t unsupportedMatterFlags =
+                    NM_MATTER_CONTACT | NM_MATTER_ADAPTIVE |
+                    NM_MATTER_IDENTIFICATION | NM_MATTER_MIXED_FEM |
+                    NM_MATTER_MULTIPHYSICS | NM_MATTER_MUTATION |
+                    NM_MATTER_LEARNED_MATERIAL;
+                if ((state.dispatch.flags & unsupportedMatterFlags) != 0u ||
+                    state.dispatch.rigidProxyCount != 0u ||
+                    state.dispatch.contactPairCount != 0u ||
+                    state.dispatch.cohesiveFaceCount != 0u ||
+                    state.dispatch.punctureChannelCount != 0u ||
+                    state.dispatch.rigidQCapacity != 0u ||
+                    state.dispatch.fieldBoundaryCount != 0u)
+                    return "requires_no_contact_mixed_cohesive_or_mutable_topology";
+                if (state.objectLayout.size() != 1u ||
+                    state.objectLayout[0].representation != NM_REPRESENTATION_FEM ||
+                    (state.objectLayout[0].flags &
+                        (NM_OBJECT_ADAPTIVE |
+                         NM_OBJECT_IDENTIFIABLE | NM_OBJECT_MIXED_FEM |
+                         NM_OBJECT_MULTIPHYSICS | NM_OBJECT_MUTABLE_TOPOLOGY)) != 0u ||
+                    (state.objectLayout[0].flags &
+                        (NM_OBJECT_DISABLE_SELF_CONTACT |
+                         NM_OBJECT_DISABLE_DEFORMABLE_CONTACT)) !=
+                        (NM_OBJECT_DISABLE_SELF_CONTACT |
+                         NM_OBJECT_DISABLE_DEFORMABLE_CONTACT))
+                    return "requires_one_static_explicit_fem_object";
+                if (!state.vascularValue.unknowns.empty() ||
+                    !state.vascularValue.cavities.empty() ||
+                    !state.vascularValue.cavityFaces.empty() ||
+                    state.enableVascularDense45)
+                    return "vascular_coupling_is_outside_first_residual_armijo_slice";
+                return nullptr;
+            };
+            const auto femOperatorFDScope = [&]() -> const char* {
+                if (!state.femOperatorFDScratchEnabled)
+                    return "operator_fd_scratch_not_reserved_or_memory_cap_exceeded";
+                if (const char* reason = femResidualArmijoScope())
+                    return reason;
+                if (state.dispatch.tetrahedronCount > 8192u)
+                    return "tetrahedron_cap_8192";
+                if (state.dispatch.materialStateStride == 0u ||
+                    state.dispatch.materialStateStride > 32u)
+                    return "material_state_stride_outside_1_to_32";
+                // Residual rows eliminate non-positive masses, whereas the
+                // production operator eliminates only constraint tags. This
+                // immutable scope must keep the two row spaces identical.
+                // Runtime restore already binds mass to this authored layout.
+                if (state.femAuthoredMassLayout.size() != state.dispatch.femNodeCount ||
+                    std::any_of(state.femAuthoredMassLayout.begin(),
+                        state.femAuthoredMassLayout.end(), [](const auto& mass) {
+                            return !std::isfinite(mass[0]) || !(mass[0] > 0.0f);
+                        }))
+                    return "requires_positive_finite_immutable_nodal_masses";
+                if (state.femOperatorFDInputsUnchanged == nil ||
+                    state.femOperatorFDHistorySnapshot == nil ||
+                    state.femOperatorFDTetrahedronSnapshot == nil ||
+                    state.femOperatorFDStatusSnapshot == nil ||
+                    state.femOperatorFDMetrics == nil)
+                    return "bounded_diagnostic_arena_incomplete";
+                return nullptr;
+            };
+            const auto femCapsuleResidualArmijoScope = [&]() -> const char* {
+                if (!state.femResidualArmijoScratchEnabled)
+                    return "armijo_scratch_was_not_reserved_at_runtime_creation";
+                if (microtick != 0u)
+                    return "requires_microtick_zero";
+                if (const char* reason = femNewtonTraceScope())
+                    return reason;
+                constexpr std::uint32_t unsupportedMatterFlags =
+                    NM_MATTER_ADAPTIVE | NM_MATTER_IDENTIFICATION |
+                    NM_MATTER_MIXED_FEM | NM_MATTER_MULTIPHYSICS |
+                    NM_MATTER_MUTATION | NM_MATTER_LEARNED_MATERIAL;
+                if ((state.dispatch.flags & unsupportedMatterFlags) != 0u ||
+                    (state.dispatch.flags & NM_MATTER_CONTACT) == 0u ||
+                    state.dispatch.contactPairCount == 0u ||
+                    state.dispatch.contactPairCount > 16384u ||
+                    state.dispatch.rigidProxyCount == 0u ||
+                    state.dispatch.rigidProxyCount > 16u ||
+                    state.dispatch.tetrahedronCount > 32768u ||
+                    state.dispatch.cohesiveFaceCount != 0u ||
+                    state.dispatch.punctureChannelCount != 0u ||
+                    state.dispatch.rigidQCapacity != 0u ||
+                    state.contactPairLayout.size() !=
+                        state.dispatch.contactPairCount ||
+                    state.rigidProxyLayout.size() !=
+                        state.dispatch.rigidProxyCount ||
+                    state.femArmijoContactSamples == nil)
+                    return "requires_bounded_prescribed_capsule_contact";
+                if (state.objectLayout.size() != 1u ||
+                    state.objectLayout[0].representation != NM_REPRESENTATION_FEM ||
+                    (state.objectLayout[0].flags &
+                        (NM_OBJECT_ADAPTIVE | NM_OBJECT_IDENTIFIABLE |
+                         NM_OBJECT_MIXED_FEM |
+                         NM_OBJECT_MULTIPHYSICS | NM_OBJECT_MUTABLE_TOPOLOGY)) != 0u ||
+                    (state.objectLayout[0].flags &
+                        (NM_OBJECT_DISABLE_SELF_CONTACT |
+                         NM_OBJECT_DISABLE_DEFORMABLE_CONTACT)) !=
+                        (NM_OBJECT_DISABLE_SELF_CONTACT |
+                         NM_OBJECT_DISABLE_DEFORMABLE_CONTACT))
+                    return "requires_one_static_explicit_fem_object";
+                if (!state.hasPrescribedTranslation ||
+                    !state.requiresCurrentBodies ||
+                    state.requiresCoupledCandidate)
+                    return "requires_endpoint_authoritative_static_capsule_proxies";
+                for (const NMRigidProxyGPU& proxy : state.rigidProxyLayout) {
+                    if (proxy.shapeKind != NM_RIGID_CAPSULE ||
+                        proxy.flags != NM_RIGID_PRESCRIBED_TRANSLATION ||
+                        proxy.bodyIndex == NM_INVALID_INDEX ||
+                        proxy.adaptiveObjectIndex != NM_INVALID_INDEX ||
+                        proxy.generalizedFreeBodyIndex != NM_INVALID_INDEX)
+                        return "requires_prescribed_capsules_without_rigid_unknowns";
+                }
+                for (const NMContactPairGPU& pair : state.contactPairLayout) {
+                    if (pair.objectIndex != 0u ||
+                        pair.continuumNode >= state.dispatch.femNodeCount ||
+                        pair.rigidProxy >= state.dispatch.rigidProxyCount)
+                        return "requires_contact_pairs_owned_by_fem_and_capsules";
+                }
+                if (!state.vascularValue.unknowns.empty() ||
+                    !state.vascularValue.cavities.empty() ||
+                    !state.vascularValue.cavityFaces.empty() ||
+                    state.enableVascularDense45)
+                    return "vascular_coupling_is_outside_capsule_armijo_slice";
+                return nullptr;
+            };
+            const auto femCapsuleBoxResidualArmijoScope = [&]() -> const char* {
+                if (!state.femResidualArmijoScratchEnabled)
+                    return "armijo_scratch_was_not_reserved_at_runtime_creation";
+                if (retainPreparedState || request.enablePreparedState ||
+                    request.runAdaptiveTransfer || request.runIdentification ||
+                    request.resetMaskStepStride != 0u ||
+                    request.mutationCommandCount != 0u ||
+                    request.learnedWeightCount != 0u ||
+                    request.femExternalForces != nullptr ||
+                    request.femExternalForceCount != 0u ||
+                    request.rigidContactConstraints != nullptr ||
+                    request.deferAcceptedControlCursorPublication ||
+                    hasAcceptedStepExtension)
+                    return "request_scoped_features_outside_static_box_armijo_slice";
+                // FEM kinematic targets remain subject to the exact borrowed
+                // environment*node count and byte-length checks above. Their
+                // command values are validated by nm_fem_apply_kinematic_targets;
+                // that kernel writes only the candidate, so normal transaction
+                // commit/rollback owns persistence of temporary grips.
+                if (microtick != 0u || request.physicsSubsteps != 1u ||
+                    request.physicsSubstep != 0u)
+                    return "requires_one_physics_substep_at_zero_and_microtick_zero";
+                if (state.dispatch.maximumRateExponent != 0u)
+                    return "requires_maximum_rate_exponent_zero";
+                if (state.dispatch.environmentCount == 0u ||
+                    state.dispatch.environmentCount > 4u)
+                    return "environment_cap_4";
+                if (state.dispatch.femNodeCount == 0u ||
+                    state.dispatch.femNodeCount > 8192u)
+                    return "fem_node_cap_8192";
+                if (state.dispatch.objectCount != 1u ||
+                    state.dispatch.tetrahedronCount == 0u ||
+                    state.dispatch.tetrahedronCount > 32768u)
+                    return "requires_one_bounded_explicit_fem_object";
+                constexpr std::uint32_t unsupportedMatterFlags =
+                    NM_MATTER_ADAPTIVE | NM_MATTER_IDENTIFICATION |
+                    NM_MATTER_MIXED_FEM | NM_MATTER_MULTIPHYSICS |
+                    NM_MATTER_MUTATION | NM_MATTER_LEARNED_MATERIAL;
+                if ((state.dispatch.flags & unsupportedMatterFlags) != 0u ||
+                    (state.dispatch.flags & NM_MATTER_CONTACT) == 0u ||
+                    state.dispatch.particleCount != 0u ||
+                    state.dispatch.mpmGridCount != 0u ||
+                    state.dispatch.mpmBlockCount != 0u ||
+                    state.dispatch.mpmActiveNodeCapacity != 0u)
+                    return "requires_contact_enabled_static_fem_without_mpm";
+                if (state.dispatch.fieldBoundaryCount != 0u ||
+                    state.dispatch.rigidGeneralizedCapacity != 0u ||
+                    state.dispatch.rigidQCapacity != 0u ||
+                    state.dispatch.femHumanAttachmentCount != 0u ||
+                    state.dispatch.learnedMaterialCount != 0u ||
+                    state.dispatch.learnedWeightCount != 0u ||
+                    state.dispatch.mutationCommandCount != 0u ||
+                    state.dispatch.cohesiveFaceCount != 0u ||
+                    state.dispatch.punctureChannelCount != 0u ||
+                    state.fgmresLayout.supportContactCount != 0u ||
+                    state.fgmresLayout.vascularUnknownCount != 0u ||
+                    state.fgmresLayout.unknownCount !=
+                        2u * state.dispatch.environmentCount *
+                            state.dispatch.femNodeCount)
+                    return "requires_fem_nodes_as_only_generalized_unknowns";
+                if (state.dispatch.contactPairCount == 0u ||
+                    state.dispatch.contactPairCount > 65536u ||
+                    static_cast<std::size_t>(state.dispatch.environmentCount) *
+                        state.dispatch.contactPairCount >
+                        (36u * 1024u * 1024u) /
+                            sizeof(NMContactSampleGPU) ||
+                    state.dispatch.rigidProxyCount < 2u ||
+                    state.dispatch.rigidProxyCount > 16u ||
+                    state.contactPairLayout.size() !=
+                        state.dispatch.contactPairCount ||
+                    state.rigidProxyLayout.size() !=
+                        state.dispatch.rigidProxyCount ||
+                    state.femArmijoBoxContactSamples == nil)
+                    return "requires_bounded_capsule_and_static_box_contact_arena";
+                if (state.objectLayout.size() != 1u ||
+                    state.objectLayout[0].representation != NM_REPRESENTATION_FEM ||
+                    (state.objectLayout[0].flags &
+                        (NM_OBJECT_ADAPTIVE | NM_OBJECT_IDENTIFIABLE |
+                         NM_OBJECT_MIXED_FEM | NM_OBJECT_MULTIPHYSICS |
+                         NM_OBJECT_MUTABLE_TOPOLOGY)) != 0u ||
+                    (state.objectLayout[0].flags &
+                        (NM_OBJECT_DISABLE_SELF_CONTACT |
+                         NM_OBJECT_DISABLE_DEFORMABLE_CONTACT)) !=
+                        (NM_OBJECT_DISABLE_SELF_CONTACT |
+                         NM_OBJECT_DISABLE_DEFORMABLE_CONTACT))
+                    return "requires_one_static_fem_object_without_self_or_deformable_contact";
+                if (state.hasAdaptive || state.hasMutableFEMTopology ||
+                    state.requiresCoupledCandidate ||
+                    !state.hasPrescribedTranslation ||
+                    !state.requiresCurrentBodies ||
+                    bridge.currentBodyCount == 0u ||
+                    bridge.currentBodyStride < bridge.currentBodyCount ||
+                    state.prescribedRigidPrevious == nil ||
+                    state.prescribedRigidEndpoints == nil)
+                    return "requires_endpoint_authoritative_capsules_and_body_state";
+                if (!state.vascularValue.unknowns.empty() ||
+                    !state.vascularValue.cavities.empty() ||
+                    !state.vascularValue.cavityFaces.empty() ||
+                    state.enableVascularDense45)
+                    return "vascular_coupling_is_outside_static_box_armijo_slice";
+
+                std::uint32_t capsuleCount = 0u;
+                std::uint32_t boxCount = 0u;
+                for (const NMRigidProxyGPU& proxy : state.rigidProxyLayout) {
+                    if (proxy.adaptiveObjectIndex != NM_INVALID_INDEX ||
+                        proxy.generalizedFreeBodyIndex != NM_INVALID_INDEX)
+                        return "requires_no_adaptive_or_generalized_rigid_unknowns";
+                    if (proxy.shapeKind == NM_RIGID_CAPSULE) {
+                        if (proxy.flags != NM_RIGID_PRESCRIBED_TRANSLATION ||
+                            proxy.bodyIndex == NM_INVALID_INDEX ||
+                            proxy.bodyIndex >= bridge.currentBodyCount)
+                            return "requires_only_endpoint_prescribed_capsules_and_static_boxes";
+                        ++capsuleCount;
+                    } else if (proxy.shapeKind == NM_RIGID_BOX) {
+                        if (proxy.flags != 0u || proxy.reserved2 != 0u ||
+                            proxy.sceneBodyIndex != NM_INVALID_INDEX ||
+                            (proxy.bodyIndex != NM_INVALID_INDEX &&
+                             proxy.bodyIndex >= bridge.currentBodyCount))
+                            return "requires_unowned_static_box_proxies";
+                        ++boxCount;
+                    } else {
+                        return "requires_only_endpoint_prescribed_capsules_and_static_boxes";
+                    }
+                }
+                if (capsuleCount == 0u || boxCount == 0u)
+                    return "requires_at_least_one_capsule_and_one_box";
+
+                bool capsulePair = false;
+                bool boxPair = false;
+                for (const NMContactPairGPU& pair : state.contactPairLayout) {
+                    if (pair.objectIndex != 0u ||
+                        pair.continuumNode >= state.dispatch.femNodeCount ||
+                        pair.rigidProxy >= state.rigidProxyLayout.size())
+                        return "requires_contact_pairs_owned_by_fem_capsule_or_box";
+                    const std::uint32_t shape =
+                        state.rigidProxyLayout[pair.rigidProxy].shapeKind;
+                    capsulePair = capsulePair || shape == NM_RIGID_CAPSULE;
+                    boxPair = boxPair || shape == NM_RIGID_BOX;
+                }
+                if (!capsulePair || !boxPair)
+                    return "requires_authored_contact_pairs_for_both_tool_shapes";
+                return nullptr;
+            };
+            bool femResidualArmijoEnabled = false;
+            bool femCapsuleResidualArmijoEnabled = false;
+            bool femCapsuleBoxResidualArmijoEnabled = false;
+            if (const char* selector =
+                    std::getenv("NM_FEM_RESIDUAL_ARMIJO_ROOT")) {
+                const bool everyControlStep = std::strcmp(selector, "all") == 0;
+                char* end = nullptr;
+                const unsigned long parsed = everyControlStep
+                    ? request.controlStep : std::strtoul(selector, &end, 10);
+                if ((!everyControlStep && (end == selector || *end != '\0')) ||
+                    parsed > std::numeric_limits<std::uint32_t>::max()) {
+                    std::fprintf(stderr,
+                        "fem_residual_armijo_error={\"schema\":1,\"reason\":\"invalid_control_step_selector\"}\n");
+                } else if (parsed == request.controlStep) {
+                    if (const char* reason = femResidualArmijoScope()) {
+                        std::fprintf(stderr,
+                            "fem_residual_armijo_skipped={\"schema\":1,\"root\":%u,\"reason\":\"%s\"}\n",
+                            static_cast<std::uint32_t>(parsed), reason);
+                    } else {
+                        femResidualArmijoEnabled = true;
+                        std::fprintf(stderr,
+                            "fem_residual_armijo_enabled={\"schema\":1,\"root\":%u,\"trials\":8,\"metric\":\"per_environment_free_dof_l2_impulse\",\"history\":\"accepted_state_read_only\"}\n",
+                            static_cast<std::uint32_t>(parsed));
+                    }
+                }
+            }
+            if (const char* selector = std::getenv(
+                    "NM_FEM_CAPSULE_RESIDUAL_ARMIJO_ROOT")) {
+                const bool everyControlStep = std::strcmp(selector, "all") == 0;
+                char* end = nullptr;
+                const unsigned long parsed = everyControlStep
+                    ? request.controlStep : std::strtoul(selector, &end, 10);
+                if ((!everyControlStep && (end == selector || *end != '\0')) ||
+                    parsed > std::numeric_limits<std::uint32_t>::max()) {
+                    std::fprintf(stderr,
+                        "fem_capsule_residual_armijo_error={\"schema\":1,\"reason\":\"invalid_control_step_selector\"}\n");
+                } else if (parsed == request.controlStep) {
+                    if (femResidualArmijoEnabled) {
+                        std::fprintf(stderr,
+                            "fem_capsule_residual_armijo_skipped={\"schema\":1,\"root\":%u,\"reason\":\"mutually_exclusive_with_no_contact_armijo\"}\n",
+                            static_cast<std::uint32_t>(parsed));
+                    } else if (const char* reason =
+                                   femCapsuleResidualArmijoScope()) {
+                        std::fprintf(stderr,
+                            "fem_capsule_residual_armijo_skipped={\"schema\":1,\"root\":%u,\"reason\":\"%s\"}\n",
+                            static_cast<std::uint32_t>(parsed), reason);
+                    } else {
+                        femCapsuleResidualArmijoEnabled = true;
+                        femResidualArmijoEnabled = true;
+                        std::fprintf(stderr,
+                            "fem_capsule_residual_armijo_enabled={\"schema\":1,\"root\":%u,\"trials\":8,\"base_alpha\":\"post_native_J_and_contact_CCD_limits\",\"metric\":\"exact_production_FEM_plus_capsule_contact_free_dof_l2_impulse\",\"history\":\"frozen_read_only\"}\n",
+                            static_cast<std::uint32_t>(parsed));
+                    }
+                }
+            }
+            if (boxArmijoSelector != nullptr) {
+                const unsigned long parsed = boxArmijoSelectedRoot;
+                if (!boxArmijoSelectorValid) {
+                    std::fprintf(stderr,
+                        "fem_capsule_box_residual_armijo_error={\"schema\":1,\"reason\":\"invalid_control_step_selector\"}\n");
+                } else if (stationaryBoxEndpointGateRequested) {
+                    if (femResidualArmijoEnabled) {
+                        std::fprintf(stderr,
+                            "fem_capsule_box_residual_armijo_skipped={\"schema\":1,\"root\":%u,\"reason\":\"mutually_exclusive_with_other_residual_armijo_modes\"}\n",
+                            static_cast<std::uint32_t>(parsed));
+                    } else if (const char* reason =
+                                   femCapsuleBoxResidualArmijoScope()) {
+                        std::fprintf(stderr,
+                            "fem_capsule_box_residual_armijo_skipped={\"schema\":1,\"root\":%u,\"reason\":\"%s\"}\n",
+                            static_cast<std::uint32_t>(parsed), reason);
+                    } else {
+                        femCapsuleBoxResidualArmijoEnabled = true;
+                        femResidualArmijoEnabled = true;
+                        std::fprintf(stderr,
+                            "fem_capsule_box_residual_armijo_enabled={\"schema\":1,\"root\":%u,\"trials\":8,\"base_alpha\":\"post_native_J_and_contact_CCD_limits\",\"metric\":\"exact_production_FEM_plus_capsule_box_contact_free_dof_l2_impulse\",\"history\":\"frozen_read_only\",\"contact_sample_cap_bytes\":%u}\n",
+                            static_cast<std::uint32_t>(parsed),
+                            static_cast<std::uint32_t>(state.dispatch.environmentCount) *
+                                state.dispatch.contactPairCount *
+                                static_cast<std::uint32_t>(sizeof(NMContactSampleGPU)));
+                    }
+                }
+            }
+            bool femOperatorFDTraceEnabled = false;
+            bool femOperatorFDTraceCaptured = false;
+            std::uint32_t femOperatorFDTraceRoot = 0u;
+            std::uint32_t femOperatorFDTraceIteration = 0u;
+            float femOperatorFDEpsilonScale = 1.0f;
+            if (const char* selector = std::getenv("NM_FEM_OPERATOR_FD_SELECTOR")) {
+                const char* separator = std::strchr(selector, ':');
+                const char* selectorEnd = selector + std::strlen(selector);
+                const auto digitsOnly = [](const char* begin, const char* end) {
+                    if (begin >= end) return false;
+                    for (const char* cursor = begin; cursor != end; ++cursor) {
+                        if (*cursor < '0' || *cursor > '9') return false;
+                    }
+                    return true;
+                };
+                char* rootEnd = nullptr;
+                char* iterationEnd = nullptr;
+                const unsigned long root = std::strtoul(selector, &rootEnd, 10);
+                const unsigned long iteration = separator == nullptr ? 0ul :
+                    std::strtoul(separator + 1, &iterationEnd, 10);
+                if (separator == nullptr || rootEnd == selector ||
+                    !digitsOnly(selector, separator) ||
+                    !digitsOnly(separator + 1, selectorEnd) ||
+                    std::strchr(separator + 1, ':') != nullptr ||
+                    rootEnd != separator || iterationEnd == separator + 1 ||
+                    *iterationEnd != '\0' ||
+                    root > std::numeric_limits<std::uint32_t>::max() ||
+                    iteration > std::numeric_limits<std::uint32_t>::max()) {
+                    std::fprintf(stderr,
+                        "fem_operator_fd_error={\"schema\":1,\"reason\":\"selector_must_be_root_colon_zero_based_iteration\"}\n");
+                } else {
+                    femOperatorFDTraceRoot = static_cast<std::uint32_t>(root);
+                    femOperatorFDTraceIteration = static_cast<std::uint32_t>(iteration);
+                    if (femOperatorFDTraceRoot == request.controlStep) {
+                        bool epsilonScaleValid = true;
+                        if (const char* scale = std::getenv("NM_FEM_OPERATOR_FD_EPSILON_SCALE")) {
+                            epsilonScaleValid = false;
+                            for (const unsigned allowed : {1u, 2u, 4u, 8u, 16u}) {
+                                if (std::string(scale) == std::to_string(allowed)) {
+                                    femOperatorFDEpsilonScale = static_cast<float>(allowed);
+                                    epsilonScaleValid = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if (!epsilonScaleValid) {
+                            std::fprintf(stderr,
+                                "fem_operator_fd_error={\"schema\":1,\"root\":%u,\"reason\":\"epsilon_scale_must_be_1_2_4_8_or_16\"}\n",
+                                femOperatorFDTraceRoot);
+                        } else if (const char* reason = femOperatorFDScope()) {
+                            std::fprintf(stderr,
+                                "fem_operator_fd_skipped={\"schema\":1,\"root\":%u,\"iteration\":%u,\"reason\":\"%s\"}\n",
+                                femOperatorFDTraceRoot, femOperatorFDTraceIteration,
+                                reason);
+                        } else {
+                            femOperatorFDTraceEnabled = true;
+                            std::fprintf(stderr,
+                                "fem_operator_fd_enabled={\"schema\":1,\"root\":%u,\"iteration\":%u,\"epsilons\":[%.9g,%.9g],\"unknown\":\"velocity correction; paired positions shift by dt*epsilon*delta_v\",\"operator\":\"production FEM element tangent plus production FGMRES node gather\",\"residual\":\"production assembled free-node mechanical impulse\",\"mutation_check\":\"bitwise accepted material history, tetrahedron frame/reference data, and production status\"}\n",
+                                femOperatorFDTraceRoot, femOperatorFDTraceIteration,
+                                0.03125f * femOperatorFDEpsilonScale,
+                                0.015625f * femOperatorFDEpsilonScale);
+                        }
+                    }
+                }
+            }
+            bool femResidualArmijoTraceEnabled = false;
+            bool femResidualArmijoTraceNoticeLogged = false;
+            std::uint32_t femResidualArmijoTraceRecords = 0u;
+            if (const char* selector = std::getenv(
+                    "NM_FEM_RESIDUAL_ARMIJO_TRACE_ROOT")) {
+                char* end = nullptr;
+                const unsigned long parsed = std::strtoul(selector, &end, 10);
+                if (end == selector || *end != '\0' ||
+                    parsed > std::numeric_limits<std::uint32_t>::max()) {
+                    std::fprintf(stderr,
+                        "fem_residual_armijo_trace_error={\"schema\":1,\"reason\":\"invalid_control_step_selector\"}\n");
+                    femResidualArmijoTraceNoticeLogged = true;
+                } else if (parsed == request.controlStep) {
+                    if (!femResidualArmijoEnabled) {
+                        std::fprintf(stderr,
+                            "fem_residual_armijo_trace_skipped={\"schema\":1,\"root\":%u,\"reason\":\"residual_armijo_not_enabled_for_selected_step\"}\n",
+                            static_cast<std::uint32_t>(parsed));
+                        femResidualArmijoTraceNoticeLogged = true;
+                    } else {
+                        femResidualArmijoTraceEnabled = true;
+                        std::fprintf(stderr,
+                            "fem_residual_armijo_trace_enabled={\"schema\":1,\"root\":%u,\"maximum_newton_records\":64}\n",
+                            static_cast<std::uint32_t>(parsed));
+                    }
+                }
+            }
+            bool femTrueResidualEnabled = false;
+            bool femTrueResidualRestartEnabled = false;
+            bool femTrueResidualNoticeLogged = false;
+            std::uint32_t femTrueResidualRoot = 0u;
+            if (const char* selector = std::getenv("NM_FEM_TRUE_RESIDUAL_ROOT")) {
+                char* end = nullptr;
+                const unsigned long parsed = std::strtoul(selector, &end, 10);
+                if (end == selector || *end != '\0' ||
+                    parsed > std::numeric_limits<std::uint32_t>::max()) {
+                    std::fprintf(stderr,
+                        "fem_true_residual_error={\"schema\":1,\"reason\":\"invalid_control_step_selector\"}\n");
+                    femTrueResidualNoticeLogged = true;
+                } else {
+                    femTrueResidualRoot = static_cast<std::uint32_t>(parsed);
+                    if (femTrueResidualRoot == request.controlStep) {
+                        const char* skipReason = nullptr;
+                        if (microtick != 0u)
+                            skipReason = "requires_microtick_zero";
+                        else if (state.enableVascularDense45)
+                            skipReason = "requires_staged_fgmres";
+                        else if (state.dispatch.cohesiveFaceCount != 0u)
+                            skipReason = "paired_cohesive_operator_not_in_diagnostic_slice";
+                        else
+                            skipReason = femNewtonTraceScope();
+                        if (skipReason != nullptr) {
+                            std::fprintf(stderr,
+                                "fem_true_residual_skipped={\"schema\":1,\"root\":%u,\"reason\":\"%s\"}\n",
+                                femTrueResidualRoot, skipReason);
+                            femTrueResidualNoticeLogged = true;
+                        } else {
+                            femTrueResidualEnabled = true;
+                            if (const char* restartMode = std::getenv(
+                                    "NM_FEM_TRUE_RESIDUAL_RESTART")) {
+                                if (std::strcmp(restartMode, "1") == 0) {
+                                    femTrueResidualRestartEnabled = true;
+                                } else if (std::strcmp(restartMode, "0") != 0) {
+                                    std::fprintf(stderr,
+                                        "fem_true_residual_error={\"schema\":1,\"root\":%u,\"reason\":\"restart_selector_must_be_0_or_1\"}\n",
+                                        femTrueResidualRoot);
+                                    femTrueResidualNoticeLogged = true;
+                                    femTrueResidualEnabled = false;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
             const auto emitFEMNewtonTraceSkip = [&](std::uint32_t root,
                                                      const char* reason) {
                 if (femNewtonTraceNoticeLogged) return;
@@ -6344,6 +7250,707 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                              float value) {
                 if (std::isfinite(value)) output << value;
                 else output << "null";
+            };
+            const auto encodeFEMResidualArmijoTrace = [&]() -> bool {
+                if (!femResidualArmijoTraceEnabled) return true;
+                constexpr std::uint32_t maximumTraceRecords = 64u;
+                if (femResidualArmijoTraceRecords >= maximumTraceRecords) {
+                    if (!femResidualArmijoTraceNoticeLogged) {
+                        femResidualArmijoTraceNoticeLogged = true;
+                        std::fprintf(stderr,
+                            "fem_residual_armijo_trace_stopped={\"schema\":1,\"root\":%u,\"reason\":\"record_cap_64\"}\n",
+                            request.controlStep);
+                    }
+                    femResidualArmijoTraceEnabled = false;
+                    return true;
+                }
+                const NSUInteger metricBytes =
+                    environments * sizeof(nm_float4);
+                const NSUInteger lineSearchBytes =
+                    environments * sizeof(nm_float4);
+                const NSUInteger statusBytes =
+                    environments * sizeof(NMMatterStatusGPU);
+                const NSUInteger bytes = metricBytes + lineSearchBytes + statusBytes;
+                constexpr NSUInteger maximumSnapshotBytes = 16u * 1024u;
+                if (environments == 0u || bytes > maximumSnapshotBytes) {
+                    if (!femResidualArmijoTraceNoticeLogged) {
+                        femResidualArmijoTraceNoticeLogged = true;
+                        std::fprintf(stderr,
+                            "fem_residual_armijo_trace_skipped={\"schema\":1,\"root\":%u,\"reason\":\"snapshot_scope_exceeded\",\"bytes\":%lu}\n",
+                            request.controlStep, static_cast<unsigned long>(bytes));
+                    }
+                    femResidualArmijoTraceEnabled = false;
+                    return true;
+                }
+                id<MTLBuffer> snapshot = [state.device
+                    newBufferWithLength:bytes
+                    options:MTLResourceStorageModeShared];
+                if (snapshot == nil) {
+                    if (!femResidualArmijoTraceNoticeLogged) {
+                        femResidualArmijoTraceNoticeLogged = true;
+                        std::fprintf(stderr,
+                            "fem_residual_armijo_trace_error={\"schema\":1,\"root\":%u,\"reason\":\"snapshot_allocation_failed\"}\n",
+                            request.controlStep);
+                    }
+                    femResidualArmijoTraceEnabled = false;
+                    return true;
+                }
+                [encoder endEncoding];
+                encoder = nil;
+                id<MTLBlitCommandEncoder> copy = [commandBuffer blitCommandEncoder];
+                if (copy == nil) {
+                    if (!femResidualArmijoTraceNoticeLogged) {
+                        femResidualArmijoTraceNoticeLogged = true;
+                        std::fprintf(stderr,
+                            "fem_residual_armijo_trace_error={\"schema\":1,\"root\":%u,\"reason\":\"blit_encoder_unavailable\"}\n",
+                            request.controlStep);
+                    }
+                    femResidualArmijoTraceEnabled = false;
+                    encoder = [commandBuffer computeCommandEncoder];
+                    if (encoder == nil) {
+                        diagnostics.message =
+                            "failed to resume Matter after residual Armijo trace";
+                        return false;
+                    }
+                    [encoder setLabel:@"Numi Matter residual Armijo trace continuation"];
+                    return true;
+                }
+                [copy copyFromBuffer:state.femArmijoMetrics sourceOffset:0u
+                    toBuffer:snapshot destinationOffset:0u size:metricBytes];
+                [copy copyFromBuffer:state.femLineSearch sourceOffset:0u
+                    toBuffer:snapshot destinationOffset:metricBytes
+                    size:lineSearchBytes];
+                [copy copyFromBuffer:state.statuses sourceOffset:0u
+                    toBuffer:snapshot destinationOffset:metricBytes + lineSearchBytes
+                    size:statusBytes];
+                [copy endEncoding];
+                ++femResidualArmijoTraceRecords;
+                const auto capturedRoot = request.controlStep;
+                const auto capturedIteration = micro.solverIteration;
+                const auto capturedEnvironments = environments;
+                const auto capturedMetricBytes = metricBytes;
+                const auto capturedLineSearchBytes = lineSearchBytes;
+                const auto capturedAppendTraceFloat = appendTraceFloat;
+                [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed) {
+                    if (completed.status != MTLCommandBufferStatusCompleted) {
+                        std::fprintf(stderr,
+                            "fem_residual_armijo_trace_failed={\"schema\":1,\"root\":%u,\"newton_iteration\":%u,\"command_buffer_status\":%lu}\n",
+                            capturedRoot, capturedIteration,
+                            static_cast<unsigned long>(completed.status));
+                        return;
+                    }
+                    const auto* data = static_cast<const unsigned char*>(snapshot.contents);
+                    const auto* metrics = reinterpret_cast<const nm_float4*>(data);
+                    const auto* lineSearch = reinterpret_cast<const nm_float4*>(
+                        data + capturedMetricBytes);
+                    const auto* status = reinterpret_cast<const NMMatterStatusGPU*>(
+                        data + capturedMetricBytes + capturedLineSearchBytes);
+                    std::ostringstream line;
+                    line << std::setprecision(9)
+                         << "fem_residual_armijo_iteration={\"schema\":1,\"root\":"
+                         << capturedRoot << ",\"newton_iteration\":"
+                         << capturedIteration
+                         << ",\"semantics\":{\"base_l2\":\"exact assembled free-node mechanical residual before this Newton correction, impulse units\","
+                         << "\"trial_l2\":\"selected residual if accepted, otherwise last tested residual\","
+                         << "\"trial_alpha\":\"selected alpha if accepted, otherwise last tested alpha\"},\"environments\":[";
+                    for (std::uint32_t environment = 0u;
+                         environment < capturedEnvironments; ++environment) {
+                        if (environment != 0u) line << ',';
+                        line << "{\"base_l2\":";
+                        capturedAppendTraceFloat(line, metrics[environment].x);
+                        line << ",\"trial_l2\":";
+                        capturedAppendTraceFloat(line, metrics[environment].y);
+                        line << ",\"trial_alpha\":";
+                        capturedAppendTraceFloat(line, metrics[environment].z);
+                        line << ",\"accepted\":"
+                             << (metrics[environment].w > 0.5f ? "true" : "false")
+                             << ",\"certified_noop\":"
+                             << (metrics[environment].w > 1.5f ? "true" : "false")
+                             << ",\"selected_alpha\":";
+                        capturedAppendTraceFloat(line, lineSearch[environment].x);
+                        line << ",\"minimum_J\":";
+                        capturedAppendTraceFloat(line, lineSearch[environment].y);
+                        line << ",\"solver_status_code\":" << status[environment].code
+                             << '}';
+                    }
+                    line << "]}\n";
+                    const auto text = line.str();
+                    std::fwrite(text.data(), 1u, text.size(), stderr);
+                }];
+                encoder = [commandBuffer computeCommandEncoder];
+                if (encoder == nil) {
+                    diagnostics.message =
+                        "failed to resume Matter after residual Armijo trace";
+                    return false;
+                }
+                [encoder setLabel:@"Numi Matter residual Armijo trace continuation"];
+                return true;
+            };
+            const auto encodeFEMOperatorFDTrace = [&]() -> bool {
+                const float epsilons[2] = {0.03125f * femOperatorFDEpsilonScale,
+                                          0.015625f * femOperatorFDEpsilonScale};
+                const NMMicrostepGPU diagnosticMicro = micro;
+                NMMicrostepGPU diagnosticOperatorMicro = micro;
+                diagnosticOperatorMicro.flags |= NM_MICROSTEP_FGMRES_OPERATOR |
+                    NM_MICROSTEP_FGMRES_TRUE_RESIDUAL;
+                dispatchThreads("nm_fem_operator_fd_initialize",
+                    environments * 10u, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.femOperatorFDMetrics
+                                 offset:0u atIndex:1u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                const NSUInteger historyWords = environments *
+                    state.dispatch.tetrahedronCount *
+                    state.dispatch.materialStateStride;
+                const NSUInteger tetrahedronWords = environments *
+                    state.dispatch.tetrahedronCount *
+                    sizeof(NMTetrahedronGPU) / sizeof(std::uint32_t);
+                const NSUInteger statusWords = environments *
+                    sizeof(NMMatterStatusGPU) / sizeof(std::uint32_t);
+                const NSUInteger snapshotWork = std::max<NSUInteger>(1u,
+                    std::max(historyWords,
+                        std::max(tetrahedronWords, statusWords)));
+                dispatchThreads("nm_fem_operator_fd_snapshot_inputs",
+                    snapshotWork, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.femMaterialStateAccepted
+                                 offset:0u atIndex:1u];
+                    [encoder setBuffer:state.femTetrahedraCandidate
+                                 offset:0u atIndex:2u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:3u];
+                    [encoder setBuffer:state.femOperatorFDHistorySnapshot
+                                 offset:0u atIndex:4u];
+                    [encoder setBuffer:state.femOperatorFDTetrahedronSnapshot
+                                 offset:0u atIndex:5u];
+                    [encoder setBuffer:state.femOperatorFDStatusSnapshot
+                                 offset:0u atIndex:6u];
+                    [encoder setBuffer:state.femOperatorFDInputsUnchanged
+                                 offset:0u atIndex:7u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                dispatchThreads("nm_fem_operator_fd_negate_direction",
+                    femNodeTotal, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.femSolution offset:0u atIndex:1u];
+                    [encoder setBuffer:state.femOperatorFDDirection
+                                 offset:0u atIndex:2u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                dispatchThreads("nm_fem_operator_fd_begin_pair",
+                    environments, [&] {
+                    const float epsilon = epsilons[0];
+                    setDispatch();
+                    [encoder setBuffer:state.statuses offset:0u atIndex:1u];
+                    [encoder setBuffer:state.femArmijoStatuses
+                                 offset:0u atIndex:2u];
+                    [encoder setBuffer:state.femOperatorFDParameters
+                                 offset:0u atIndex:3u];
+                    [encoder setBytes:&epsilon length:sizeof(epsilon) atIndex:4u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                dispatchThreads("nm_fem_apply_operator_elements",
+                    tetrahedronTotal, [&] {
+                    setDispatch();
+                    [encoder setBytes:&diagnosticOperatorMicro
+                               length:sizeof(diagnosticOperatorMicro) atIndex:1u];
+                    [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                    [encoder setBuffer:state.materials offset:0u atIndex:3u];
+                    [encoder setBuffer:state.scalarPrograms offset:0u atIndex:4u];
+                    [encoder setBuffer:state.instructions offset:0u atIndex:5u];
+                    [encoder setBuffer:state.environmentParameters offset:0u atIndex:6u];
+                    [encoder setBuffer:state.femCandidate offset:0u atIndex:7u];
+                    [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:8u];
+                    [encoder setBuffer:state.femMaterialStateAccepted offset:0u atIndex:9u];
+                    [encoder setBuffer:state.femSolution offset:0u atIndex:10u];
+                    [encoder setBuffer:state.schedulers offset:0u atIndex:11u];
+                    [encoder setBuffer:state.adaptive offset:0u atIndex:12u];
+                    [encoder setBuffer:state.femArmijoElementForces offset:0u atIndex:13u];
+                    [encoder setBuffer:state.femArmijoStatuses offset:0u atIndex:14u];
+                    [encoder setBuffer:state.mixedMaterials offset:0u atIndex:16u];
+                    [encoder setBuffer:state.femFieldsCandidate offset:0u atIndex:17u];
+                    [encoder setBuffer:state.learnedMaterials offset:0u atIndex:18u];
+                    [encoder setBuffer:state.learnedLayers offset:0u atIndex:19u];
+                    [encoder setBuffer:state.learnedWeightsCandidate offset:0u atIndex:20u];
+                    [encoder setBuffer:state.mixedSolver offset:0u atIndex:21u];
+                    [encoder setBuffer:state.fgmresStates offset:0u atIndex:22u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                dispatchThreads("nm_fgmres_gather_nodes", femNodeTotal, [&] {
+                    setDispatch();
+                    [encoder setBytes:&diagnosticOperatorMicro
+                               length:sizeof(diagnosticOperatorMicro) atIndex:1u];
+                    [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                    [encoder setBuffer:state.femCandidate offset:0u atIndex:3u];
+                    [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:4u];
+                    [encoder setBuffer:state.femArmijoElementForces
+                                 offset:0u atIndex:5u];
+                    [encoder setBuffer:state.femNodeIncidence offset:0u atIndex:6u];
+                    [encoder setBuffer:state.femNodeRanges offset:0u atIndex:7u];
+                    [encoder setBuffer:state.schedulers offset:0u atIndex:8u];
+                    [encoder setBuffer:state.adaptive offset:0u atIndex:9u];
+                    [encoder setBuffer:state.femSolution offset:0u atIndex:10u];
+                    [encoder setBuffer:state.femOperatorFDAction
+                                 offset:0u atIndex:11u];
+                    bindPrimalContactArguments(12u);
+                    [encoder setBuffer:state.fgmresStates offset:0u atIndex:13u];
+                    [encoder setBytes:&coupledArticulatedNv
+                               length:sizeof(coupledArticulatedNv) atIndex:14u];
+                    [encoder setBuffer:state.coupledPointJacobians
+                                 offset:0u atIndex:15u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                dispatchThreads("nm_fem_operator_fd_record_operator_status",
+                    environments, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.femArmijoStatuses
+                                 offset:0u atIndex:1u];
+                    [encoder setBuffer:state.femOperatorFDOperatorStatuses
+                                 offset:0u atIndex:2u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+
+                for (std::uint32_t pairIndex = 0u; pairIndex < 2u; ++pairIndex) {
+                    for (std::uint32_t side = 0u; side < 2u; ++side) {
+                        dispatchThreads("nm_fem_operator_fd_begin_pair",
+                            environments, [&] {
+                            const float epsilon = epsilons[pairIndex];
+                            setDispatch();
+                            [encoder setBuffer:state.statuses offset:0u atIndex:1u];
+                            [encoder setBuffer:state.femArmijoStatuses
+                                         offset:0u atIndex:2u];
+                            [encoder setBuffer:state.femOperatorFDParameters
+                                         offset:0u atIndex:3u];
+                            [encoder setBytes:&epsilon length:sizeof(epsilon) atIndex:4u];
+                        });
+                        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                        dispatchThreads("nm_fem_armijo_prepare_candidate",
+                            femNodeTotal, [&] {
+                            setDispatch();
+                            [encoder setBytes:&diagnosticMicro
+                                       length:sizeof(diagnosticMicro) atIndex:1u];
+                            [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                            [encoder setBuffer:state.femNodeRanges offset:0u atIndex:3u];
+                            [encoder setBuffer:state.schedulers offset:0u atIndex:4u];
+                            [encoder setBuffer:state.adaptive offset:0u atIndex:5u];
+                            [encoder setBuffer:state.femAccepted offset:0u atIndex:6u];
+                            [encoder setBuffer:state.femCandidate offset:0u atIndex:7u];
+                            [encoder setBuffer:(side == 0u
+                                ? state.femSolution : state.femOperatorFDDirection)
+                                         offset:0u atIndex:8u];
+                            [encoder setBuffer:state.femOperatorFDParameters
+                                         offset:0u atIndex:9u];
+                            [encoder setBuffer:state.femArmijoStatuses
+                                         offset:0u atIndex:10u];
+                            [encoder setBuffer:state.femArmijoCandidate
+                                         offset:0u atIndex:11u];
+                        });
+                        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                        dispatchThreads("nm_fem_armijo_validate_geometry",
+                            environments, [&] {
+                            setDispatch();
+                            [encoder setBytes:&diagnosticMicro
+                                       length:sizeof(diagnosticMicro) atIndex:1u];
+                            [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                            [encoder setBuffer:state.materials offset:0u atIndex:3u];
+                            [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:4u];
+                            [encoder setBuffer:state.schedulers offset:0u atIndex:5u];
+                            [encoder setBuffer:state.adaptive offset:0u atIndex:6u];
+                            [encoder setBuffer:state.femArmijoCandidate offset:0u atIndex:7u];
+                            [encoder setBuffer:state.femArmijoStatuses offset:0u atIndex:8u];
+                            [encoder setBuffer:state.femOperatorFDParameters
+                                         offset:0u atIndex:9u];
+                        });
+                        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                        dispatchThreads("nm_fem_internal_forces",
+                            tetrahedronTotal, [&] {
+                            setDispatch();
+                            [encoder setBytes:&diagnosticMicro
+                                       length:sizeof(diagnosticMicro) atIndex:1u];
+                            [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                            [encoder setBuffer:state.materials offset:0u atIndex:3u];
+                            [encoder setBuffer:state.scalarPrograms offset:0u atIndex:4u];
+                            [encoder setBuffer:state.instructions offset:0u atIndex:5u];
+                            [encoder setBuffer:state.environmentParameters offset:0u atIndex:6u];
+                            [encoder setBuffer:state.femArmijoCandidate offset:0u atIndex:7u];
+                            [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:8u];
+                            [encoder setBuffer:state.femMaterialStateAccepted offset:0u atIndex:9u];
+                            [encoder setBuffer:state.schedulers offset:0u atIndex:10u];
+                            [encoder setBuffer:state.adaptive offset:0u atIndex:11u];
+                            [encoder setBuffer:state.femArmijoElementForces offset:0u atIndex:12u];
+                            [encoder setBuffer:state.femArmijoStatuses offset:0u atIndex:13u];
+                            [encoder setBuffer:state.mixedMaterials offset:0u atIndex:14u];
+                            [encoder setBuffer:state.femFieldsCandidate offset:0u atIndex:15u];
+                            [encoder setBuffer:state.learnedMaterials offset:0u atIndex:16u];
+                            [encoder setBuffer:state.learnedLayers offset:0u atIndex:17u];
+                            [encoder setBuffer:state.learnedWeightsCandidate offset:0u atIndex:18u];
+                        });
+                        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                        dispatchThreads("nm_fem_build_mechanical_residual",
+                            femNodeTotal, [&] {
+                            const std::uint32_t preserveSolution = 1u;
+                            setDispatch();
+                            [encoder setBytes:&diagnosticMicro
+                                       length:sizeof(diagnosticMicro) atIndex:1u];
+                            [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                            [encoder setBuffer:state.femAccepted offset:0u atIndex:3u];
+                            [encoder setBuffer:state.femArmijoCandidate offset:0u atIndex:4u];
+                            [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:5u];
+                            [encoder setBuffer:state.femArmijoElementForces offset:0u atIndex:6u];
+                            [encoder setBuffer:state.femNodeIncidence offset:0u atIndex:7u];
+                            [encoder setBuffer:state.femNodeRanges offset:0u atIndex:8u];
+                            [encoder setBuffer:state.schedulers offset:0u atIndex:9u];
+                            [encoder setBuffer:state.adaptive offset:0u atIndex:10u];
+                            [encoder setBuffer:state.femOperatorFDSolution offset:0u atIndex:11u];
+                            [encoder setBuffer:state.femArmijoResidual offset:0u atIndex:12u];
+                            [encoder setBuffer:state.femArmijoPreconditioned offset:0u atIndex:13u];
+                            [encoder setBuffer:state.femArmijoDirection offset:0u atIndex:14u];
+                            [encoder setBuffer:state.femArmijoOperatorValue offset:0u atIndex:15u];
+                            [encoder setBuffer:state.femArmijoStatuses offset:0u atIndex:16u];
+                            [encoder setBuffer:state.mixedSolver offset:0u atIndex:17u];
+                            [encoder setBuffer:state.mixedMaterials offset:0u atIndex:18u];
+                            [encoder setBuffer:state.femFieldsCandidate offset:0u atIndex:19u];
+                            [encoder setBytes:&preserveSolution
+                                       length:sizeof(preserveSolution) atIndex:20u];
+                            [encoder setBuffer:femMechanicalForces
+                                         offset:0u atIndex:21u];
+                            [encoder setBytes:&hasFEMMechanicalForces
+                                       length:sizeof(hasFEMMechanicalForces) atIndex:22u];
+                            [encoder setBuffer:state.femArmijoConstraintReactions
+                                         offset:0u atIndex:23u];
+                        });
+                        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                        dispatchThreads("nm_fem_operator_fd_capture_side",
+                            environments, [&] {
+                            const std::uint32_t sideValue = side;
+                            setDispatch();
+                            [encoder setBuffer:state.femArmijoStatuses
+                                         offset:0u atIndex:1u];
+                            [encoder setBuffer:state.femOperatorFDParameters
+                                         offset:0u atIndex:2u];
+                            [encoder setBuffer:state.femOperatorFDMetrics
+                                         offset:0u atIndex:3u];
+                            [encoder setBytes:&pairIndex length:sizeof(pairIndex) atIndex:4u];
+                            [encoder setBytes:&sideValue length:sizeof(sideValue) atIndex:5u];
+                        });
+                        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                        if (side == 0u) {
+                            dispatchThreads("nm_fem_operator_fd_save_positive_residual",
+                                femNodeTotal, [&] {
+                                setDispatch();
+                                [encoder setBuffer:state.femArmijoResidual
+                                             offset:0u atIndex:1u];
+                                [encoder setBuffer:state.femOperatorFDPositiveResidual
+                                             offset:0u atIndex:2u];
+                            });
+                            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                        }
+                    }
+                    dispatchThreads("nm_fem_operator_fd_measure_pair",
+                        environments, [&] {
+                        const float epsilon = epsilons[pairIndex];
+                        setDispatch();
+                        [encoder setBytes:&diagnosticMicro
+                                   length:sizeof(diagnosticMicro) atIndex:1u];
+                        [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                        [encoder setBuffer:state.schedulers offset:0u atIndex:3u];
+                        [encoder setBuffer:state.femCandidate offset:0u atIndex:4u];
+                        [encoder setBuffer:state.femSolution offset:0u atIndex:5u];
+                        [encoder setBuffer:state.femOperatorFDPositiveResidual
+                                     offset:0u atIndex:6u];
+                        [encoder setBuffer:state.femArmijoResidual
+                                     offset:0u atIndex:7u];
+                        [encoder setBuffer:state.femOperatorFDAction
+                                     offset:0u atIndex:8u];
+                        [encoder setBuffer:state.femOperatorFDOperatorStatuses
+                                     offset:0u atIndex:9u];
+                        [encoder setBuffer:state.femOperatorFDMetrics
+                                     offset:0u atIndex:10u];
+                        [encoder setBytes:&epsilon length:sizeof(epsilon) atIndex:11u];
+                        [encoder setBytes:&pairIndex length:sizeof(pairIndex) atIndex:12u];
+                    });
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                }
+                dispatchThreads("nm_fem_operator_fd_compare_inputs",
+                    snapshotWork, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.femMaterialStateAccepted
+                                 offset:0u atIndex:1u];
+                    [encoder setBuffer:state.femTetrahedraCandidate
+                                 offset:0u atIndex:2u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:3u];
+                    [encoder setBuffer:state.femOperatorFDHistorySnapshot
+                                 offset:0u atIndex:4u];
+                    [encoder setBuffer:state.femOperatorFDTetrahedronSnapshot
+                                 offset:0u atIndex:5u];
+                    [encoder setBuffer:state.femOperatorFDStatusSnapshot
+                                 offset:0u atIndex:6u];
+                    [encoder setBuffer:state.femOperatorFDInputsUnchanged
+                                 offset:0u atIndex:7u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                dispatchThreads("nm_fem_operator_fd_publish_integrity",
+                    environments, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.femOperatorFDInputsUnchanged
+                                 offset:0u atIndex:1u];
+                    [encoder setBuffer:state.femOperatorFDMetrics
+                                 offset:0u atIndex:2u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+
+                const NSUInteger resultBytes = environments * 10u * sizeof(nm_float4);
+                const NSUInteger integrityBytes = sizeof(std::uint32_t);
+                const NSUInteger snapshotBytes = resultBytes + integrityBytes;
+                constexpr NSUInteger maximumSnapshotBytes = 16u * 1024u;
+                if (snapshotBytes > maximumSnapshotBytes) {
+                    std::fprintf(stderr,
+                        "fem_operator_fd_readback_skipped={\"schema\":1,\"root\":%u,\"reason\":\"readback_byte_cap\",\"bytes\":%lu}\n",
+                        request.controlStep, static_cast<unsigned long>(snapshotBytes));
+                    return true;
+                }
+                id<MTLBuffer> snapshot = [state.device
+                    newBufferWithLength:snapshotBytes
+                    options:MTLResourceStorageModeShared];
+                if (snapshot == nil) {
+                    std::fprintf(stderr,
+                        "fem_operator_fd_readback_error={\"schema\":1,\"root\":%u,\"reason\":\"snapshot_allocation_failed\"}\n",
+                        request.controlStep);
+                    return true;
+                }
+                [encoder endEncoding];
+                encoder = nil;
+                id<MTLBlitCommandEncoder> copy = [commandBuffer blitCommandEncoder];
+                if (copy == nil) {
+                    std::fprintf(stderr,
+                        "fem_operator_fd_readback_error={\"schema\":1,\"root\":%u,\"reason\":\"blit_encoder_unavailable\"}\n",
+                        request.controlStep);
+                    encoder = [commandBuffer computeCommandEncoder];
+                    if (encoder == nil) {
+                        diagnostics.message =
+                            "failed to resume Matter after operator FD readback";
+                        return false;
+                    }
+                    [encoder setLabel:@"Numi Matter operator FD readback continuation"];
+                    return true;
+                }
+                [copy copyFromBuffer:state.femOperatorFDMetrics sourceOffset:0u
+                    toBuffer:snapshot destinationOffset:0u size:resultBytes];
+                [copy copyFromBuffer:state.femOperatorFDInputsUnchanged sourceOffset:0u
+                    toBuffer:snapshot destinationOffset:resultBytes size:integrityBytes];
+                [copy endEncoding];
+                const auto capturedRoot = request.controlStep;
+                const auto capturedIteration = micro.solverIteration;
+                const auto capturedEnvironments = static_cast<std::uint32_t>(environments);
+                const auto capturedWorldFingerprint = state.worldFingerprint;
+                const auto capturedExecutionFingerprint = state.executionFingerprint;
+                const auto capturedAppendTraceFloat = appendTraceFloat;
+                [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed) {
+                    if (completed.status != MTLCommandBufferStatusCompleted) {
+                        std::fprintf(stderr,
+                            "fem_operator_fd_failed={\"schema\":1,\"root\":%u,\"iteration\":%u,\"command_buffer_status\":%lu}\n",
+                            capturedRoot, capturedIteration,
+                            static_cast<unsigned long>(completed.status));
+                        return;
+                    }
+                    const auto* bytes = static_cast<const unsigned char*>(snapshot.contents);
+                    const auto* result = reinterpret_cast<const nm_float4*>(bytes);
+                    std::uint32_t unchanged = 0u;
+                    std::memcpy(&unchanged, bytes + resultBytes, sizeof(unchanged));
+                    std::ostringstream line;
+                    line << std::setprecision(9)
+                         << "fem_operator_fd_iteration={\"schema\":1,\"root\":"
+                         << capturedRoot << ",\"newton_iteration\":"
+                         << capturedIteration << ",\"world_fingerprint\":"
+                         << capturedWorldFingerprint << ",\"execution_fingerprint\":"
+                         << capturedExecutionFingerprint
+                         << ",\"contract\":{\"unknown\":\"velocity correction\",\"position_delta\":\"dt*epsilon*delta_v\",\"residual_units\":\"impulse\",\"comparison\":\"A*delta_v versus -(R_plus-R_minus)/(2*epsilon) on free nodes\",\"scope\":\"no-contact explicit FEM\"},\"production_inputs_bitwise_unchanged\":"
+                         << (unchanged == 1u ? "true" : "false")
+                         << ",\"environments\":[";
+                    for (std::uint32_t environment = 0u;
+                         environment < capturedEnvironments; ++environment) {
+                        if (environment != 0u) line << ',';
+                        line << "{\"epsilon_pairs\":[";
+                        for (std::uint32_t pair = 0u; pair < 2u; ++pair) {
+                            if (pair != 0u) line << ',';
+                            const auto* row = result + environment * 10u + pair * 5u;
+                            line << "{\"epsilon\":";
+                            capturedAppendTraceFloat(line, row[0].x);
+                            line << ",\"dt\":";
+                            capturedAppendTraceFloat(line, row[0].y);
+                            line << ",\"position_delta\":";
+                            capturedAppendTraceFloat(line, row[0].z);
+                            line << ",\"free_node_count\":";
+                            capturedAppendTraceFloat(line, row[0].w);
+                            line << ",\"residual_plus_l2\":";
+                            capturedAppendTraceFloat(line, row[1].x);
+                            line << ",\"residual_minus_l2\":";
+                            capturedAppendTraceFloat(line, row[1].y);
+                            line << ",\"operator_action_l2\":";
+                            capturedAppendTraceFloat(line, row[1].z);
+                            line << ",\"centered_fd_l2\":";
+                            capturedAppendTraceFloat(line, row[1].w);
+                            line << ",\"error_l2\":";
+                            capturedAppendTraceFloat(line, row[2].x);
+                            line << ",\"relative_error\":";
+                            capturedAppendTraceFloat(line, row[2].y);
+                            line << ",\"action_dot_fd\":";
+                            capturedAppendTraceFloat(line, row[2].z);
+                            line << ",\"action_fd_cosine\":";
+                            capturedAppendTraceFloat(line, row[2].w);
+                            line << ",\"stage_status_codes_plus_minus\":[";
+                            capturedAppendTraceFloat(line, row[3].x);
+                            line << ',';
+                            capturedAppendTraceFloat(line, row[3].y);
+                            line << "],\"minimum_j_plus_minus\":[";
+                            capturedAppendTraceFloat(line, row[3].z);
+                            line << ',';
+                            capturedAppendTraceFloat(line, row[3].w);
+                            line << "],\"operator_status_code\":";
+                            capturedAppendTraceFloat(line, row[4].x);
+                            line << ",\"input_integrity_flag\":";
+                            capturedAppendTraceFloat(line, row[4].y);
+                            const bool directionNonzero =
+                                std::isfinite(row[4].z) && row[4].z > 0.0f;
+                            line << ",\"direction_nonzero\":"
+                                 << (directionNonzero ? "true" : "false")
+                                 << ",\"maximum_delta_velocity\":";
+                            capturedAppendTraceFloat(line, row[4].z);
+                            line << ",\"maximum_position_perturbation\":";
+                            capturedAppendTraceFloat(line, row[4].w);
+                            line << '}';
+                        }
+                        line << "]}";
+                    }
+                    line << "]}\n";
+                    const auto text = line.str();
+                    std::fwrite(text.data(), 1u, text.size(), stderr);
+                }];
+                encoder = [commandBuffer computeCommandEncoder];
+                if (encoder == nil) {
+                    diagnostics.message =
+                        "failed to resume Matter after operator FD readback";
+                    return false;
+                }
+                [encoder setLabel:@"Numi Matter operator FD diagnostic continuation"];
+                return true;
+            };
+            const auto encodeFEMTrueResidualTrace =
+                [&](std::uint32_t restartCycle, bool finalCycle) -> bool {
+                if (!femTrueResidualEnabled) return true;
+                constexpr std::uint32_t maximumTraceCycles = 64u;
+                if (restartCycle >= maximumTraceCycles) {
+                    if (!femTrueResidualNoticeLogged) {
+                        femTrueResidualNoticeLogged = true;
+                        std::fprintf(stderr,
+                            "fem_true_residual_skipped={\"schema\":1,\"root\":%u,\"reason\":\"trace_cycle_cap_64\"}\n",
+                            femTrueResidualRoot);
+                    }
+                    return true;
+                }
+                const NSUInteger metricBytes =
+                    environments * sizeof(nm_float4);
+                const NSUInteger stateBytes =
+                    environments * sizeof(NMFGMRESStateGPU);
+                const NSUInteger statusBytes =
+                    environments * sizeof(NMMatterStatusGPU);
+                const NSUInteger diagnosticStatusBytes = statusBytes;
+                const NSUInteger bytes = metricBytes + stateBytes + statusBytes +
+                    diagnosticStatusBytes;
+                constexpr NSUInteger maximumSnapshotBytes = 16u * 1024u;
+                if (bytes > maximumSnapshotBytes) return true;
+                id<MTLBuffer> snapshot = [state.device
+                    newBufferWithLength:bytes
+                    options:MTLResourceStorageModeShared];
+                if (snapshot == nil) return true;
+                [encoder endEncoding];
+                encoder = nil;
+                id<MTLBlitCommandEncoder> copy = [commandBuffer blitCommandEncoder];
+                if (copy == nil) {
+                    encoder = [commandBuffer computeCommandEncoder];
+                    if (encoder == nil) {
+                        diagnostics.message =
+                            "failed to resume Matter after true FGMRES residual trace";
+                        return false;
+                    }
+                    [encoder setLabel:@"Numi Matter true FGMRES residual trace continuation"];
+                    return true;
+                }
+                [copy copyFromBuffer:state.femTrueResidualMetrics sourceOffset:0u
+                    toBuffer:snapshot destinationOffset:0u size:metricBytes];
+                [copy copyFromBuffer:state.fgmresStates sourceOffset:0u
+                    toBuffer:snapshot destinationOffset:metricBytes size:stateBytes];
+                [copy copyFromBuffer:state.statuses sourceOffset:0u
+                    toBuffer:snapshot destinationOffset:metricBytes + stateBytes
+                    size:statusBytes];
+                [copy copyFromBuffer:state.femTrueResidualStatuses sourceOffset:0u
+                    toBuffer:snapshot
+                    destinationOffset:metricBytes + stateBytes + statusBytes
+                    size:diagnosticStatusBytes];
+                [copy endEncoding];
+                const auto capturedMetricBytes = metricBytes;
+                const auto capturedStateBytes = stateBytes;
+                const auto capturedStatusBytes = statusBytes;
+                const auto capturedRoot = femTrueResidualRoot;
+                const auto capturedControlStep = request.controlStep;
+                const auto capturedIteration = micro.solverIteration;
+                const auto capturedRestartCycle = restartCycle;
+                const auto capturedFinalCycle = finalCycle;
+                const auto capturedRestartReplacement =
+                    femTrueResidualRestartEnabled;
+                const auto capturedEnvironmentCount = environments;
+                [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed) {
+                    if (completed.status != MTLCommandBufferStatusCompleted) return;
+                    const auto* data = static_cast<const unsigned char*>(snapshot.contents);
+                    const auto* metrics = reinterpret_cast<const nm_float4*>(data);
+                    const auto* fgmres = reinterpret_cast<const NMFGMRESStateGPU*>(
+                        data + capturedMetricBytes);
+                    const auto* statuses = reinterpret_cast<const NMMatterStatusGPU*>(
+                        data + capturedMetricBytes + capturedStateBytes);
+                    const auto* diagnosticStatuses =
+                        reinterpret_cast<const NMMatterStatusGPU*>(
+                            data + capturedMetricBytes + capturedStateBytes +
+                                capturedStatusBytes);
+                    std::ostringstream line;
+                    line << std::setprecision(9)
+                         << "fem_true_residual_cycle={\"schema\":1,\"root\":"
+                         << capturedRoot << ",\"control_step\":"
+                         << capturedControlStep << ",\"newton_iteration\":"
+                         << capturedIteration << ",\"restart_cycle\":"
+                         << capturedRestartCycle << ",\"final_cycle\":"
+                         << (capturedFinalCycle ? "true" : "false")
+                         << ",\"restart_replacement\":"
+                         << (capturedRestartReplacement ? "true" : "false")
+                         << ",\"semantics\":{\"true_l2\":\"norm of freshly assembled b-Ax in mechanical and field FEM rows; impulse units for explicit mechanical rows\",\"arnoldi_estimate\":\"projected least-squares estimate captured before replacement\",\"rhs_l2\":\"initial assembled FGMRES right-hand-side norm\",\"convergence\":\"unchanged forcing threshold applied to freshly recomputed residual\"},\"environments\":[";
+                    for (std::uint32_t environment = 0u;
+                         environment < capturedEnvironmentCount; ++environment) {
+                        if (environment != 0u) line << ',';
+                        line << "{\"true_l2\":";
+                        appendTraceFloat(line, metrics[environment].x); line << ",\"arnoldi_estimate\":";
+                        appendTraceFloat(line, metrics[environment].y); line << ",\"true_max_abs\":";
+                        appendTraceFloat(line, metrics[environment].z); line << ",\"rhs_l2\":";
+                        appendTraceFloat(line, metrics[environment].w); line << ",\"diagnostics\":[";
+                        appendTraceFloat(line, fgmres[environment].diagnostics.x); line << ',';
+                        appendTraceFloat(line, fgmres[environment].diagnostics.y); line << ',';
+                        appendTraceFloat(line, fgmres[environment].diagnostics.z); line << ',';
+                        appendTraceFloat(line, fgmres[environment].diagnostics.w);
+                        line << "],\"solver_status_code\":"
+                             << statuses[environment].code
+                             << ",\"operator_status_code\":"
+                             << diagnosticStatuses[environment].code << '}';
+                    }
+                    line << "]}\n";
+                    const auto text = line.str();
+                    std::fwrite(text.data(), 1u, text.size(), stderr);
+                }];
+                encoder = [commandBuffer computeCommandEncoder];
+                if (encoder == nil) {
+                    diagnostics.message =
+                        "failed to resume Matter after true FGMRES residual trace";
+                    return false;
+                }
+                [encoder setLabel:@"Numi Matter true FGMRES residual trace continuation"];
+                return true;
             };
             const auto encodeFEMNewtonTrace = [&](const char* stage) -> bool {
                 std::uint32_t root = 0u;
@@ -7846,6 +9453,24 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.learnedLayers offset:0u atIndex:17u];
                 [encoder setBuffer:state.learnedWeightsCandidate offset:0u atIndex:18u];
             });
+            dispatchThreads("nm_fem_cohesive_face_forces",
+                cohesiveFaceTotal, [&] {
+                setDispatch();
+                [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
+                [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                [encoder setBuffer:state.materials offset:0u atIndex:3u];
+                [encoder setBuffer:state.scalarPrograms offset:0u atIndex:4u];
+                [encoder setBuffer:state.instructions offset:0u atIndex:5u];
+                [encoder setBuffer:state.environmentParameters offset:0u atIndex:6u];
+                [encoder setBuffer:state.femAccepted offset:0u atIndex:7u];
+                [encoder setBuffer:state.femCandidate offset:0u atIndex:8u];
+                [encoder setBuffer:state.cohesiveFacesAccepted offset:0u atIndex:9u];
+                [encoder setBuffer:state.cohesiveFacesCandidate offset:0u atIndex:10u];
+                [encoder setBuffer:state.schedulers offset:0u atIndex:11u];
+                [encoder setBuffer:state.adaptive offset:0u atIndex:12u];
+                [encoder setBuffer:state.cohesiveFaceForces offset:0u atIndex:13u];
+                [encoder setBuffer:state.statuses offset:0u atIndex:14u];
+            });
             encodeCavityForces();
             dispatchThreads("nm_fem_build_mechanical_residual", femNodeTotal, [&] {
                 const std::uint32_t preserveSolution = 0u;
@@ -7876,6 +9501,22 @@ RuntimeDiagnostics Runtime::encodeImpl(
                            length:sizeof(hasFEMMechanicalForces) atIndex:22u];
                 [encoder setBuffer:state.femConstraintReactions
                             offset:0u atIndex:23u];
+            });
+            dispatchThreads("nm_fem_add_cohesive_residual", femNodeTotal, [&] {
+                setDispatch();
+                [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
+                [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                [encoder setBuffer:state.femCandidate offset:0u atIndex:3u];
+                [encoder setBuffer:state.femCohesiveNodeIncidence offset:0u atIndex:4u];
+                [encoder setBuffer:state.femCohesiveNodeRanges offset:0u atIndex:5u];
+                [encoder setBuffer:state.schedulers offset:0u atIndex:6u];
+                [encoder setBuffer:state.adaptive offset:0u atIndex:7u];
+                [encoder setBuffer:state.cohesiveFaceForces offset:0u atIndex:8u];
+                [encoder setBuffer:state.femResidual offset:0u atIndex:9u];
+                [encoder setBuffer:state.femPreconditioned offset:0u atIndex:10u];
+                [encoder setBuffer:state.femDirection offset:0u atIndex:11u];
+                [encoder setBuffer:state.femConstraintReactions offset:0u atIndex:12u];
+                [encoder setBuffer:state.statuses offset:0u atIndex:13u];
             });
             dispatchThreads("nm_fgmres_clear_rigid_residual",
                 rigidGeneralizedTotalForResidual, [&] {
@@ -8021,6 +9662,16 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 return diagnostics;
             }
 
+            if (femResidualArmijoEnabled || femCapsuleResidualArmijoEnabled ||
+                femCapsuleBoxResidualArmijoEnabled) {
+                dispatchThreads("nm_fem_armijo_measure_base", environments, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.femResidual offset:0u atIndex:1u];
+                    [encoder setBuffer:state.femArmijoMetrics offset:0u atIndex:2u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            }
+
             if (state.enableVascularDense45) {
                 const std::uint32_t restartCycle = 0u;
                 const float nonlinearTolerance = std::max(
@@ -8126,6 +9777,22 @@ RuntimeDiagnostics Runtime::encodeImpl(
             );
             const std::uint32_t restartCycleCount =
                 (linearIterationBudget + restart - 1u) / restart;
+            if (femTrueResidualEnabled && restartCycleCount > 64u) {
+                std::fprintf(stderr,
+                    "fem_true_residual_skipped={\"schema\":1,\"root\":%u,\"reason\":\"restart_cycle_cap_64\"}\n",
+                    femTrueResidualRoot);
+                femTrueResidualEnabled = false;
+                femTrueResidualRestartEnabled = false;
+            }
+            if (femTrueResidualEnabled) {
+                dispatchThreads("nm_fgmres_preserve_true_rhs",
+                    state.fgmresLayout.unknownCount, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.femResidual offset:0u atIndex:1u];
+                    [encoder setBuffer:state.femTrueResidualRightHandSide
+                                 offset:0u atIndex:2u];
+                });
+            }
             const float nonlinearTolerance = std::max(
                 state.mixedSolverValue.residualTolerances.x, 0.0f);
             const float forcingFloor = std::sqrt(nonlinearTolerance);
@@ -8138,6 +9805,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 0.25f);
             NMMicrostepGPU operatorMicro = micro;
             operatorMicro.flags |= NM_MICROSTEP_FGMRES_OPERATOR;
+            NMMicrostepGPU trueResidualOperatorMicro = operatorMicro;
+            trueResidualOperatorMicro.flags |=
+                NM_MICROSTEP_FGMRES_TRUE_RESIDUAL;
             if (state.mixedSolverValue.executionBudgets.z == 1u) {
                 dispatchThreads(
                     "nm_fgmres_build_tangent_fem_preconditioner",
@@ -8578,6 +10248,25 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.mixedSolver offset:0u atIndex:21u];
                     [encoder setBuffer:state.fgmresStates offset:0u atIndex:22u];
                 });
+                dispatchThreads("nm_fem_cohesive_face_operator",
+                    cohesiveFaceTotal, [&] {
+                    setDispatch();
+                    [encoder setBytes:&operatorMicro
+                               length:sizeof(operatorMicro) atIndex:1u];
+                    [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                    [encoder setBuffer:state.materials offset:0u atIndex:3u];
+                    [encoder setBuffer:state.scalarPrograms offset:0u atIndex:4u];
+                    [encoder setBuffer:state.instructions offset:0u atIndex:5u];
+                    [encoder setBuffer:state.environmentParameters offset:0u atIndex:6u];
+                    [encoder setBuffer:state.femCandidate offset:0u atIndex:7u];
+                    [encoder setBuffer:state.cohesiveFacesAccepted offset:0u atIndex:8u];
+                    [encoder setBuffer:state.fgmresPreconditionedBasis
+                                 offset:columnOffset atIndex:9u];
+                    [encoder setBuffer:state.schedulers offset:0u atIndex:10u];
+                    [encoder setBuffer:state.adaptive offset:0u atIndex:11u];
+                    [encoder setBuffer:state.cohesiveFaceOperator offset:0u atIndex:12u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:13u];
+                });
                 dispatchThreads("nm_fgmres_gather_nodes", femNodeTotal, [&] {
                     setDispatch();
                     [encoder setBytes:&operatorMicro length:sizeof(operatorMicro) atIndex:1u];
@@ -8598,6 +10287,21 @@ RuntimeDiagnostics Runtime::encodeImpl(
                               atIndex:14u];
                     [encoder setBuffer:state.coupledPointJacobians
                                  offset:0u atIndex:15u];
+                });
+                dispatchThreads("nm_fgmres_add_cohesive_operator",
+                    femNodeTotal, [&] {
+                    setDispatch();
+                    [encoder setBytes:&operatorMicro
+                               length:sizeof(operatorMicro) atIndex:1u];
+                    [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                    [encoder setBuffer:state.femCandidate offset:0u atIndex:3u];
+                    [encoder setBuffer:state.femCohesiveNodeIncidence offset:0u atIndex:4u];
+                    [encoder setBuffer:state.femCohesiveNodeRanges offset:0u atIndex:5u];
+                    [encoder setBuffer:state.cohesiveFaceOperator offset:0u atIndex:6u];
+                    [encoder setBuffer:state.schedulers offset:0u atIndex:7u];
+                    [encoder setBuffer:state.adaptive offset:0u atIndex:8u];
+                    [encoder setBuffer:state.femOperatorValue offset:0u atIndex:9u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:10u];
                 });
                 // Include cavity traction before attachment capture, so the
                 // existing scatter applies its single work-conjugate J^T.
@@ -9025,7 +10729,107 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBytes:&restartCycle
                            length:sizeof(restartCycle) atIndex:6u];
             });
-            if (finalRestartCycle == 0u) {
+            if (femTrueResidualEnabled) {
+                dispatchThreads("nm_fgmres_clear_true_operator",
+                    state.fgmresLayout.unknownCount, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.femOperatorValue
+                                 offset:0u atIndex:1u];
+                });
+                dispatchThreads("nm_fgmres_clear_true_auxiliary",
+                    environments, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.femTrueResidualStatuses
+                                 offset:0u atIndex:1u];
+                    [encoder setBuffer:state.femTrueResidualMetrics
+                                 offset:0u atIndex:2u];
+                });
+                dispatchThreads("nm_fem_apply_operator_elements",
+                    tetrahedronTotal, [&] {
+                    setDispatch();
+                    [encoder setBytes:&trueResidualOperatorMicro
+                               length:sizeof(trueResidualOperatorMicro) atIndex:1u];
+                    [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                    [encoder setBuffer:state.materials offset:0u atIndex:3u];
+                    [encoder setBuffer:state.scalarPrograms offset:0u atIndex:4u];
+                    [encoder setBuffer:state.instructions offset:0u atIndex:5u];
+                    [encoder setBuffer:state.environmentParameters
+                                 offset:0u atIndex:6u];
+                    [encoder setBuffer:state.femCandidate offset:0u atIndex:7u];
+                    [encoder setBuffer:state.femTetrahedraCandidate
+                                 offset:0u atIndex:8u];
+                    [encoder setBuffer:state.femMaterialStateAccepted
+                                 offset:0u atIndex:9u];
+                    [encoder setBuffer:state.femSolution offset:0u atIndex:10u];
+                    [encoder setBuffer:state.schedulers offset:0u atIndex:11u];
+                    [encoder setBuffer:state.adaptive offset:0u atIndex:12u];
+                    [encoder setBuffer:state.elementOperator
+                                 offset:0u atIndex:13u];
+                    [encoder setBuffer:state.femTrueResidualStatuses
+                                 offset:0u atIndex:14u];
+                    [encoder setBuffer:state.mixedMaterials offset:0u atIndex:16u];
+                    [encoder setBuffer:state.femFieldsCandidate
+                                 offset:0u atIndex:17u];
+                    [encoder setBuffer:state.learnedMaterials
+                                 offset:0u atIndex:18u];
+                    [encoder setBuffer:state.learnedLayers offset:0u atIndex:19u];
+                    [encoder setBuffer:state.learnedWeightsCandidate
+                                 offset:0u atIndex:20u];
+                    [encoder setBuffer:state.mixedSolver offset:0u atIndex:21u];
+                    [encoder setBuffer:state.fgmresStates offset:0u atIndex:22u];
+                });
+                dispatchThreads("nm_fgmres_gather_nodes", femNodeTotal, [&] {
+                    setDispatch();
+                    [encoder setBytes:&trueResidualOperatorMicro
+                               length:sizeof(trueResidualOperatorMicro) atIndex:1u];
+                    [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                    [encoder setBuffer:state.femCandidate offset:0u atIndex:3u];
+                    [encoder setBuffer:state.femTetrahedraCandidate
+                                 offset:0u atIndex:4u];
+                    [encoder setBuffer:state.elementOperator offset:0u atIndex:5u];
+                    [encoder setBuffer:state.femNodeIncidence offset:0u atIndex:6u];
+                    [encoder setBuffer:state.femNodeRanges offset:0u atIndex:7u];
+                    [encoder setBuffer:state.schedulers offset:0u atIndex:8u];
+                    [encoder setBuffer:state.adaptive offset:0u atIndex:9u];
+                    [encoder setBuffer:state.femSolution offset:0u atIndex:10u];
+                    [encoder setBuffer:state.femOperatorValue
+                                 offset:0u atIndex:11u];
+                    bindPrimalContactArguments(12u);
+                    [encoder setBuffer:state.fgmresStates offset:0u atIndex:13u];
+                    [encoder setBytes:&coupledArticulatedNv
+                               length:sizeof(coupledArticulatedNv) atIndex:14u];
+                    [encoder setBuffer:state.coupledPointJacobians
+                                 offset:0u atIndex:15u];
+                });
+                const std::uint32_t replaceTrueResidual =
+                    femTrueResidualRestartEnabled ? 1u : 0u;
+                dispatchGroups32("nm_fgmres_measure_true_residual",
+                    environments, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.mixedSolver offset:0u atIndex:1u];
+                    [encoder setBuffer:state.femTrueResidualRightHandSide
+                                 offset:0u atIndex:2u];
+                    [encoder setBuffer:state.femOperatorValue
+                                 offset:0u atIndex:3u];
+                    [encoder setBuffer:state.femResidual offset:0u atIndex:4u];
+                    [encoder setBuffer:state.fgmresStates offset:0u atIndex:5u];
+                    [encoder setBuffer:state.femTrueResidualMetrics
+                                 offset:0u atIndex:6u];
+                    [encoder setBytes:&linearForcing
+                               length:sizeof(linearForcing) atIndex:7u];
+                    [encoder setBuffer:state.femTrueResidualStatuses
+                                 offset:0u atIndex:8u];
+                    [encoder setBytes:&replaceTrueResidual
+                               length:sizeof(replaceTrueResidual) atIndex:9u];
+                });
+                if (!encodeFEMTrueResidualTrace(
+                        restartCycle, finalRestartCycle != 0u)) {
+                    ownership->preDynamicsOpen = false;
+                    return diagnostics;
+                }
+            }
+            if (finalRestartCycle == 0u &&
+                !femTrueResidualRestartEnabled) {
                 dispatchThreads("nm_fgmres_restart_residual_nodes", femNodeTotal, [&] {
                     setDispatch();
                     [encoder setBuffer:state.femNodeRanges offset:0u atIndex:1u];
@@ -9153,23 +10957,157 @@ RuntimeDiagnostics Runtime::encodeImpl(
             );
 
             micro.solverIteration = nonlinearIteration;
-            dispatchThreads("nm_fem_select_backtracking", objectTotal, [&] {
-                setDispatch();
-                [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
-                [encoder setBuffer:state.mixedSolver offset:0u atIndex:2u];
-                [encoder setBuffer:state.objects offset:0u atIndex:3u];
-                [encoder setBuffer:state.materials offset:0u atIndex:4u];
-                [encoder setBuffer:state.femAccepted offset:0u atIndex:5u];
-                [encoder setBuffer:state.femCandidate offset:0u atIndex:6u];
-                [encoder setBuffer:state.femSolution offset:0u atIndex:7u];
-                [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:8u];
-                [encoder setBuffer:state.schedulers offset:0u atIndex:9u];
-                [encoder setBuffer:state.adaptive offset:0u atIndex:10u];
-                [encoder setBuffer:state.femLineSearch offset:0u atIndex:11u];
-                [encoder setBuffer:state.statuses offset:0u atIndex:12u];
-                [encoder setBuffer:state.mixedMaterials offset:0u atIndex:13u];
-                [encoder setBuffer:state.femFieldsCandidate offset:0u atIndex:14u];
-            });
+            if (femOperatorFDTraceEnabled && !femOperatorFDTraceCaptured &&
+                femOperatorFDTraceRoot == request.controlStep &&
+                femOperatorFDTraceIteration == micro.solverIteration) {
+                femOperatorFDTraceCaptured = true;
+                if (const char* reason = femOperatorFDScope()) {
+                    std::fprintf(stderr,
+                        "fem_operator_fd_skipped={\"schema\":1,\"root\":%u,\"iteration\":%u,\"reason\":\"%s\"}\n",
+                        femOperatorFDTraceRoot, femOperatorFDTraceIteration,
+                        reason);
+                } else if (!encodeFEMOperatorFDTrace()) {
+                    ownership->preDynamicsOpen = false;
+                    return diagnostics;
+                }
+            }
+            if (femResidualArmijoEnabled &&
+                !femCapsuleResidualArmijoEnabled &&
+                !femCapsuleBoxResidualArmijoEnabled) {
+                for (std::uint32_t trialIndex = 0u;
+                     trialIndex < NM_MIXED_LINE_SEARCH_STEPS; ++trialIndex) {
+                    dispatchThreads("nm_fem_armijo_begin_trial", environments, [&] {
+                        setDispatch();
+                        [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
+                        [encoder setBuffer:state.femArmijoMetrics offset:0u atIndex:2u];
+                        [encoder setBuffer:state.femLineSearch offset:0u atIndex:3u];
+                        [encoder setBuffer:state.femArmijoStatuses offset:0u atIndex:4u];
+                        [encoder setBytes:&trialIndex length:sizeof(trialIndex) atIndex:5u];
+                        [encoder setBuffer:state.mixedSolver offset:0u atIndex:6u];
+                    });
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    dispatchThreads("nm_fem_armijo_prepare_candidate", femNodeTotal, [&] {
+                        setDispatch();
+                        [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
+                        [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                        [encoder setBuffer:state.femNodeRanges offset:0u atIndex:3u];
+                        [encoder setBuffer:state.schedulers offset:0u atIndex:4u];
+                        [encoder setBuffer:state.adaptive offset:0u atIndex:5u];
+                        [encoder setBuffer:state.femAccepted offset:0u atIndex:6u];
+                        [encoder setBuffer:state.femCandidate offset:0u atIndex:7u];
+                        [encoder setBuffer:state.femSolution offset:0u atIndex:8u];
+                        [encoder setBuffer:state.femArmijoMetrics offset:0u atIndex:9u];
+                        [encoder setBuffer:state.femArmijoStatuses offset:0u atIndex:10u];
+                        [encoder setBuffer:state.femArmijoCandidate offset:0u atIndex:11u];
+                    });
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    dispatchThreads("nm_fem_armijo_validate_geometry", environments, [&] {
+                        setDispatch();
+                        [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
+                        [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                        [encoder setBuffer:state.materials offset:0u atIndex:3u];
+                        [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:4u];
+                        [encoder setBuffer:state.schedulers offset:0u atIndex:5u];
+                        [encoder setBuffer:state.adaptive offset:0u atIndex:6u];
+                        [encoder setBuffer:state.femArmijoCandidate offset:0u atIndex:7u];
+                        [encoder setBuffer:state.femArmijoStatuses offset:0u atIndex:8u];
+                        [encoder setBuffer:state.femLineSearch offset:0u atIndex:9u];
+                    });
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    dispatchThreads("nm_fem_internal_forces", tetrahedronTotal, [&] {
+                        setDispatch();
+                        [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
+                        [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                        [encoder setBuffer:state.materials offset:0u atIndex:3u];
+                        [encoder setBuffer:state.scalarPrograms offset:0u atIndex:4u];
+                        [encoder setBuffer:state.instructions offset:0u atIndex:5u];
+                        [encoder setBuffer:state.environmentParameters offset:0u atIndex:6u];
+                        [encoder setBuffer:state.femArmijoCandidate offset:0u atIndex:7u];
+                        [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:8u];
+                        [encoder setBuffer:state.femMaterialStateAccepted offset:0u atIndex:9u];
+                        [encoder setBuffer:state.schedulers offset:0u atIndex:10u];
+                        [encoder setBuffer:state.adaptive offset:0u atIndex:11u];
+                        [encoder setBuffer:state.femArmijoElementForces offset:0u atIndex:12u];
+                        [encoder setBuffer:state.femArmijoStatuses offset:0u atIndex:13u];
+                        [encoder setBuffer:state.mixedMaterials offset:0u atIndex:14u];
+                        [encoder setBuffer:state.femFieldsCandidate offset:0u atIndex:15u];
+                        [encoder setBuffer:state.learnedMaterials offset:0u atIndex:16u];
+                        [encoder setBuffer:state.learnedLayers offset:0u atIndex:17u];
+                        [encoder setBuffer:state.learnedWeightsCandidate offset:0u atIndex:18u];
+                    });
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    dispatchThreads("nm_fem_build_mechanical_residual", femNodeTotal, [&] {
+                        const std::uint32_t preserveSolution = 1u;
+                        setDispatch();
+                        [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
+                        [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                        [encoder setBuffer:state.femAccepted offset:0u atIndex:3u];
+                        [encoder setBuffer:state.femArmijoCandidate offset:0u atIndex:4u];
+                        [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:5u];
+                        [encoder setBuffer:state.femArmijoElementForces offset:0u atIndex:6u];
+                        [encoder setBuffer:state.femNodeIncidence offset:0u atIndex:7u];
+                        [encoder setBuffer:state.femNodeRanges offset:0u atIndex:8u];
+                        [encoder setBuffer:state.schedulers offset:0u atIndex:9u];
+                        [encoder setBuffer:state.adaptive offset:0u atIndex:10u];
+                        [encoder setBuffer:state.femSolution offset:0u atIndex:11u];
+                        [encoder setBuffer:state.femArmijoResidual offset:0u atIndex:12u];
+                        [encoder setBuffer:state.femArmijoPreconditioned offset:0u atIndex:13u];
+                        [encoder setBuffer:state.femArmijoDirection offset:0u atIndex:14u];
+                        [encoder setBuffer:state.femArmijoOperatorValue offset:0u atIndex:15u];
+                        [encoder setBuffer:state.femArmijoStatuses offset:0u atIndex:16u];
+                        [encoder setBuffer:state.mixedSolver offset:0u atIndex:17u];
+                        [encoder setBuffer:state.mixedMaterials offset:0u atIndex:18u];
+                        [encoder setBuffer:state.femFieldsCandidate offset:0u atIndex:19u];
+                        [encoder setBytes:&preserveSolution length:sizeof(preserveSolution) atIndex:20u];
+                        [encoder setBuffer:femMechanicalForces offset:0u atIndex:21u];
+                        [encoder setBytes:&hasFEMMechanicalForces length:sizeof(hasFEMMechanicalForces) atIndex:22u];
+                        [encoder setBuffer:state.femArmijoConstraintReactions offset:0u atIndex:23u];
+                    });
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    dispatchThreads("nm_fem_armijo_measure_trial", environments, [&] {
+                        setDispatch();
+                        [encoder setBuffer:state.femArmijoResidual offset:0u atIndex:1u];
+                        [encoder setBuffer:state.femArmijoMetrics offset:0u atIndex:2u];
+                        [encoder setBuffer:state.femArmijoStatuses offset:0u atIndex:3u];
+                    });
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    dispatchThreads("nm_fem_armijo_decide", environments, [&] {
+                        setDispatch();
+                        [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
+                        [encoder setBuffer:state.mixedSolver offset:0u atIndex:2u];
+                        [encoder setBuffer:state.femArmijoMetrics offset:0u atIndex:3u];
+                        [encoder setBuffer:state.femLineSearch offset:0u atIndex:4u];
+                        [encoder setBuffer:state.femArmijoStatuses offset:0u atIndex:5u];
+                        [encoder setBuffer:state.statuses offset:0u atIndex:6u];
+                        [encoder setBytes:&trialIndex length:sizeof(trialIndex) atIndex:7u];
+                        [encoder setBuffer:state.fgmresStates offset:0u atIndex:8u];
+                        [encoder setBuffer:state.femSolution offset:0u atIndex:9u];
+                    });
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                }
+                if (!encodeFEMResidualArmijoTrace()) {
+                    ownership->preDynamicsOpen = false;
+                    return diagnostics;
+                }
+            } else {
+                dispatchThreads("nm_fem_select_backtracking", objectTotal, [&] {
+                    setDispatch();
+                    [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
+                    [encoder setBuffer:state.mixedSolver offset:0u atIndex:2u];
+                    [encoder setBuffer:state.objects offset:0u atIndex:3u];
+                    [encoder setBuffer:state.materials offset:0u atIndex:4u];
+                    [encoder setBuffer:state.femAccepted offset:0u atIndex:5u];
+                    [encoder setBuffer:state.femCandidate offset:0u atIndex:6u];
+                    [encoder setBuffer:state.femSolution offset:0u atIndex:7u];
+                    [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:8u];
+                    [encoder setBuffer:state.schedulers offset:0u atIndex:9u];
+                    [encoder setBuffer:state.adaptive offset:0u atIndex:10u];
+                    [encoder setBuffer:state.femLineSearch offset:0u atIndex:11u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:12u];
+                    [encoder setBuffer:state.mixedMaterials offset:0u atIndex:13u];
+                    [encoder setBuffer:state.femFieldsCandidate offset:0u atIndex:14u];
+                });
+            }
             dispatchGroups32(
                 "nm_mpm_limit_implicit_line_search",
                 objectTotal,
@@ -9378,6 +11316,189 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                  offset:0u atIndex:11u];
                 });
             [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            if (femCapsuleResidualArmijoEnabled ||
+                femCapsuleBoxResidualArmijoEnabled) {
+                id<MTLBuffer> armijoContactSamples =
+                    femCapsuleBoxResidualArmijoEnabled
+                        ? state.femArmijoBoxContactSamples
+                        : state.femArmijoContactSamples;
+                // This loop is deliberately after production FEM determinant
+                // selection, rigid capsule CCD/energy limiting, and the final
+                // environment synchronization. It starts from that actual
+                // feasible alpha and no later limiter may shrink the chosen
+                // trial before the normal apply/certificate path.
+                for (std::uint32_t trialIndex = 0u;
+                     trialIndex < NM_MIXED_LINE_SEARCH_STEPS; ++trialIndex) {
+                    dispatchThreads(
+                        "nm_fem_armijo_begin_bounded_trial",
+                        environments, [&] {
+                        setDispatch();
+                        [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
+                        [encoder setBuffer:state.femArmijoMetrics
+                                     offset:0u atIndex:2u];
+                        [encoder setBuffer:state.femLineSearch
+                                     offset:0u atIndex:3u];
+                        [encoder setBuffer:state.femArmijoStatuses
+                                     offset:0u atIndex:4u];
+                        [encoder setBytes:&trialIndex
+                                   length:sizeof(trialIndex) atIndex:5u];
+                        [encoder setBuffer:state.mixedSolver offset:0u atIndex:6u];
+                    });
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    dispatchThreads(
+                        "nm_fem_armijo_prepare_candidate", femNodeTotal, [&] {
+                        setDispatch();
+                        [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
+                        [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                        [encoder setBuffer:state.femNodeRanges offset:0u atIndex:3u];
+                        [encoder setBuffer:state.schedulers offset:0u atIndex:4u];
+                        [encoder setBuffer:state.adaptive offset:0u atIndex:5u];
+                        [encoder setBuffer:state.femAccepted offset:0u atIndex:6u];
+                        [encoder setBuffer:state.femCandidate offset:0u atIndex:7u];
+                        [encoder setBuffer:state.femSolution offset:0u atIndex:8u];
+                        [encoder setBuffer:state.femArmijoMetrics offset:0u atIndex:9u];
+                        [encoder setBuffer:state.femArmijoStatuses offset:0u atIndex:10u];
+                        [encoder setBuffer:state.femArmijoCandidate offset:0u atIndex:11u];
+                    });
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    dispatchThreads(
+                        "nm_fem_armijo_validate_geometry", environments, [&] {
+                        setDispatch();
+                        [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
+                        [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                        [encoder setBuffer:state.materials offset:0u atIndex:3u];
+                        [encoder setBuffer:state.femTetrahedraCandidate
+                                     offset:0u atIndex:4u];
+                        [encoder setBuffer:state.schedulers offset:0u atIndex:5u];
+                        [encoder setBuffer:state.adaptive offset:0u atIndex:6u];
+                        [encoder setBuffer:state.femArmijoCandidate
+                                     offset:0u atIndex:7u];
+                        [encoder setBuffer:state.femArmijoStatuses
+                                     offset:0u atIndex:8u];
+                        [encoder setBuffer:state.femLineSearch
+                                     offset:0u atIndex:9u];
+                    });
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    dispatchThreads(
+                        "nm_fem_internal_forces", tetrahedronTotal, [&] {
+                        setDispatch();
+                        [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
+                        [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                        [encoder setBuffer:state.materials offset:0u atIndex:3u];
+                        [encoder setBuffer:state.scalarPrograms offset:0u atIndex:4u];
+                        [encoder setBuffer:state.instructions offset:0u atIndex:5u];
+                        [encoder setBuffer:state.environmentParameters offset:0u atIndex:6u];
+                        [encoder setBuffer:state.femArmijoCandidate offset:0u atIndex:7u];
+                        [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:8u];
+                        [encoder setBuffer:state.femMaterialStateAccepted offset:0u atIndex:9u];
+                        [encoder setBuffer:state.schedulers offset:0u atIndex:10u];
+                        [encoder setBuffer:state.adaptive offset:0u atIndex:11u];
+                        [encoder setBuffer:state.femArmijoElementForces offset:0u atIndex:12u];
+                        [encoder setBuffer:state.femArmijoStatuses offset:0u atIndex:13u];
+                        [encoder setBuffer:state.mixedMaterials offset:0u atIndex:14u];
+                        [encoder setBuffer:state.femFieldsCandidate offset:0u atIndex:15u];
+                        [encoder setBuffer:state.learnedMaterials offset:0u atIndex:16u];
+                        [encoder setBuffer:state.learnedLayers offset:0u atIndex:17u];
+                        [encoder setBuffer:state.learnedWeightsCandidate offset:0u atIndex:18u];
+                    });
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    dispatchThreads(
+                        "nm_fem_build_mechanical_residual", femNodeTotal, [&] {
+                        const std::uint32_t preserveSolution = 1u;
+                        setDispatch();
+                        [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
+                        [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                        [encoder setBuffer:state.femAccepted offset:0u atIndex:3u];
+                        [encoder setBuffer:state.femArmijoCandidate offset:0u atIndex:4u];
+                        [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:5u];
+                        [encoder setBuffer:state.femArmijoElementForces offset:0u atIndex:6u];
+                        [encoder setBuffer:state.femNodeIncidence offset:0u atIndex:7u];
+                        [encoder setBuffer:state.femNodeRanges offset:0u atIndex:8u];
+                        [encoder setBuffer:state.schedulers offset:0u atIndex:9u];
+                        [encoder setBuffer:state.adaptive offset:0u atIndex:10u];
+                        [encoder setBuffer:state.femSolution offset:0u atIndex:11u];
+                        [encoder setBuffer:state.femArmijoResidual offset:0u atIndex:12u];
+                        [encoder setBuffer:state.femArmijoPreconditioned offset:0u atIndex:13u];
+                        [encoder setBuffer:state.femArmijoDirection offset:0u atIndex:14u];
+                        [encoder setBuffer:state.femArmijoOperatorValue offset:0u atIndex:15u];
+                        [encoder setBuffer:state.femArmijoStatuses offset:0u atIndex:16u];
+                        [encoder setBuffer:state.mixedSolver offset:0u atIndex:17u];
+                        [encoder setBuffer:state.mixedMaterials offset:0u atIndex:18u];
+                        [encoder setBuffer:state.femFieldsCandidate offset:0u atIndex:19u];
+                        [encoder setBytes:&preserveSolution length:sizeof(preserveSolution) atIndex:20u];
+                        [encoder setBuffer:femMechanicalForces offset:0u atIndex:21u];
+                        [encoder setBytes:&hasFEMMechanicalForces length:sizeof(hasFEMMechanicalForces) atIndex:22u];
+                        [encoder setBuffer:state.femArmijoConstraintReactions offset:0u atIndex:23u];
+                    });
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    dispatchThreads(
+                        "nm_contact_clear_trial_samples", pairTotal, [&] {
+                        setDispatch();
+                        [encoder setBuffer:armijoContactSamples
+                                     offset:0u atIndex:1u];
+                    });
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    dispatchThreads("nm_contact_evaluate", pairTotal, [&] {
+                        setDispatch();
+                        [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
+                        [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                        [encoder setBuffer:state.materials offset:0u atIndex:3u];
+                        [encoder setBuffer:state.gridNodes offset:0u atIndex:4u];
+                        [encoder setBuffer:state.femArmijoCandidate offset:0u atIndex:5u];
+                        [encoder setBuffer:state.rigidProxies offset:0u atIndex:6u];
+                        [encoder setBuffer:state.rigidStates offset:0u atIndex:7u];
+                        [encoder setBuffer:state.contactPairs offset:0u atIndex:8u];
+                        [encoder setBuffer:state.schedulers offset:0u atIndex:9u];
+                        [encoder setBuffer:state.adaptive offset:0u atIndex:10u];
+                        [encoder setBuffer:armijoContactSamples
+                                     offset:0u atIndex:11u];
+                        [encoder setBuffer:state.mpmNodeGenerations offset:0u atIndex:12u];
+                        [encoder setBuffer:state.femArmijoStatuses offset:0u atIndex:13u];
+                        [encoder setBuffer:nonlinearHistories offset:0u atIndex:14u];
+                        [encoder setBytes:&bridge length:sizeof(bridge) atIndex:15u];
+                        [encoder setBuffer:currentBodies offset:0u atIndex:16u];
+                        [encoder setBuffer:state.punctureChannelsCandidate
+                                     offset:0u atIndex:17u];
+                    });
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    dispatchThreads(
+                        "nm_contact_accumulate_fem_residual", femNodeTotal, [&] {
+                        setDispatch();
+                        [encoder setBuffer:state.contactNodeIncidence offset:0u atIndex:1u];
+                        [encoder setBuffer:state.contactNodeRanges offset:0u atIndex:2u];
+                        [encoder setBuffer:armijoContactSamples
+                                     offset:0u atIndex:3u];
+                        [encoder setBuffer:state.femArmijoResidual offset:0u atIndex:4u];
+                    });
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    dispatchThreads(
+                        "nm_fem_armijo_measure_trial", environments, [&] {
+                        setDispatch();
+                        [encoder setBuffer:state.femArmijoResidual offset:0u atIndex:1u];
+                        [encoder setBuffer:state.femArmijoMetrics offset:0u atIndex:2u];
+                        [encoder setBuffer:state.femArmijoStatuses offset:0u atIndex:3u];
+                    });
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    dispatchThreads(
+                        "nm_fem_armijo_decide", environments, [&] {
+                        setDispatch();
+                        [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
+                        [encoder setBuffer:state.mixedSolver offset:0u atIndex:2u];
+                        [encoder setBuffer:state.femArmijoMetrics offset:0u atIndex:3u];
+                        [encoder setBuffer:state.femLineSearch offset:0u atIndex:4u];
+                        [encoder setBuffer:state.femArmijoStatuses offset:0u atIndex:5u];
+                        [encoder setBuffer:state.statuses offset:0u atIndex:6u];
+                        [encoder setBytes:&trialIndex length:sizeof(trialIndex) atIndex:7u];
+                        [encoder setBuffer:state.fgmresStates offset:0u atIndex:8u];
+                        [encoder setBuffer:state.femSolution offset:0u atIndex:9u];
+                    });
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                }
+                if (!encodeFEMResidualArmijoTrace()) {
+                    ownership->preDynamicsOpen = false;
+                    return diagnostics;
+                }
+            }
             if (!encodeHumanSupportTrace("line_search", false) ||
                 !encodeVascularTrace("line_search") ||
                 !encodeFEMNewtonTrace("final_line_search") ||
@@ -9534,6 +11655,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     state.femCandidate, state.femFieldsCandidate);
             }
             }
+            if (femOperatorFDTraceEnabled && !femOperatorFDTraceCaptured) {
+                std::fprintf(stderr,
+                    "fem_operator_fd_not_captured={\"schema\":1,\"root\":%u,\"iteration\":%u,\"reason\":\"selected_iteration_not_encoded\"}\n",
+                    femOperatorFDTraceRoot, femOperatorFDTraceIteration);
+            }
             // Reassemble the accepted Newton candidate once, then certify the
             // same generalized residual. This is a certificate pass only: no
             // post-contact FEM correction or second linear solve is encoded.
@@ -9610,6 +11736,24 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.learnedLayers offset:0u atIndex:17u];
                 [encoder setBuffer:state.learnedWeightsCandidate offset:0u atIndex:18u];
             });
+            dispatchThreads("nm_fem_cohesive_face_forces",
+                cohesiveFaceTotal, [&] {
+                setDispatch();
+                [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
+                [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                [encoder setBuffer:state.materials offset:0u atIndex:3u];
+                [encoder setBuffer:state.scalarPrograms offset:0u atIndex:4u];
+                [encoder setBuffer:state.instructions offset:0u atIndex:5u];
+                [encoder setBuffer:state.environmentParameters offset:0u atIndex:6u];
+                [encoder setBuffer:state.femAccepted offset:0u atIndex:7u];
+                [encoder setBuffer:state.femCandidate offset:0u atIndex:8u];
+                [encoder setBuffer:state.cohesiveFacesAccepted offset:0u atIndex:9u];
+                [encoder setBuffer:state.cohesiveFacesCandidate offset:0u atIndex:10u];
+                [encoder setBuffer:state.schedulers offset:0u atIndex:11u];
+                [encoder setBuffer:state.adaptive offset:0u atIndex:12u];
+                [encoder setBuffer:state.cohesiveFaceForces offset:0u atIndex:13u];
+                [encoder setBuffer:state.statuses offset:0u atIndex:14u];
+            });
             encodeCavityForces();
             dispatchThreads("nm_fem_build_mechanical_residual", femNodeTotal, [&] {
                 const std::uint32_t preserveSolution = 1u;
@@ -9640,6 +11784,22 @@ RuntimeDiagnostics Runtime::encodeImpl(
                            length:sizeof(hasFEMMechanicalForces) atIndex:22u];
                 [encoder setBuffer:state.femConstraintReactions
                             offset:0u atIndex:23u];
+            });
+            dispatchThreads("nm_fem_add_cohesive_residual", femNodeTotal, [&] {
+                setDispatch();
+                [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
+                [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                [encoder setBuffer:state.femCandidate offset:0u atIndex:3u];
+                [encoder setBuffer:state.femCohesiveNodeIncidence offset:0u atIndex:4u];
+                [encoder setBuffer:state.femCohesiveNodeRanges offset:0u atIndex:5u];
+                [encoder setBuffer:state.schedulers offset:0u atIndex:6u];
+                [encoder setBuffer:state.adaptive offset:0u atIndex:7u];
+                [encoder setBuffer:state.cohesiveFaceForces offset:0u atIndex:8u];
+                [encoder setBuffer:state.femResidual offset:0u atIndex:9u];
+                [encoder setBuffer:state.femPreconditioned offset:0u atIndex:10u];
+                [encoder setBuffer:state.femDirection offset:0u atIndex:11u];
+                [encoder setBuffer:state.femConstraintReactions offset:0u atIndex:12u];
+                [encoder setBuffer:state.statuses offset:0u atIndex:13u];
             });
             if (!encodeCoupledPrimalContact(
                     true,
@@ -10011,6 +12171,13 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.femMaterialStateAccepted offset:0u atIndex:4u];
                 [encoder setBuffer:state.femMaterialStateCandidate offset:0u atIndex:5u];
             });
+            dispatchThreads("nm_fem_commit_cohesive_faces",
+                cohesiveFaceTotal, [&] {
+                setDispatch();
+                [encoder setBuffer:state.statuses offset:0u atIndex:1u];
+                [encoder setBuffer:state.cohesiveFacesAccepted offset:0u atIndex:2u];
+                [encoder setBuffer:state.cohesiveFacesCandidate offset:0u atIndex:3u];
+            });
             dispatchThreads("nm_mixed_commit", femNodeTotal, [&] {
                 setDispatch();
                 [encoder setBuffer:state.statuses offset:0u atIndex:1u];
@@ -10124,6 +12291,17 @@ RuntimeDiagnostics Runtime::encodeImpl(
         });
         if (state.hasPrescribedTranslation) {
             dispatchThreads("nm_contact_rollback_prescribed_motion", proxyTotal, [&] {
+                setDispatch();
+                [encoder setBuffer:state.rigidProxies offset:0u atIndex:1u];
+                [encoder setBuffer:state.statuses offset:0u atIndex:2u];
+                [encoder setBuffer:state.prescribedRigidPrevious offset:0u atIndex:3u];
+                [encoder setBuffer:state.rigidStates offset:0u atIndex:4u];
+            });
+        }
+        if (stationaryBoxEndpointGateRequested &&
+            state.prescribedRigidPrevious != nil) {
+            dispatchThreads(
+                "nm_contact_rollback_stationary_box_projection", proxyTotal, [&] {
                 setDispatch();
                 [encoder setBuffer:state.rigidProxies offset:0u atIndex:1u];
                 [encoder setBuffer:state.statuses offset:0u atIndex:2u];
@@ -14517,9 +16695,34 @@ RuntimeDiagnostics Runtime::restore(const RuntimeStateSnapshot& snapshot) {
             // Dormant event capacity is allowed, but restore is not a mutation
             // transaction. Puncture geometry participates in contact admission;
             // topology roles also own the reported allocation generation.
-            if ((state.dispatch.cohesiveFaceCount != 0u &&
-                    std::memcmp(snapshot.cohesiveFaces.data() + environment * state.dispatch.cohesiveFaceCount,
-                        state.femImmutableCohesiveLayout.data(), state.dispatch.cohesiveFaceCount * sizeof(NMCohesiveFaceGPU)) != 0) ||
+            bool cohesiveLayoutChanged = false;
+            for (std::size_t faceIndex = 0u;
+                 faceIndex < state.dispatch.cohesiveFaceCount; ++faceIndex) {
+                const NMCohesiveFaceGPU& value = snapshot.cohesiveFaces[
+                    environment * state.dispatch.cohesiveFaceCount + faceIndex];
+                const NMCohesiveFaceGPU& layout =
+                    state.femImmutableCohesiveLayout[faceIndex];
+                if ((layout.adjacency.w & NM_TOPOLOGY_PAIRED_COHESIVE) == 0u) {
+                    cohesiveLayoutChanged = cohesiveLayoutChanged ||
+                        std::memcmp(&value, &layout, sizeof(value)) != 0;
+                    continue;
+                }
+                cohesiveLayoutChanged = cohesiveLayoutChanged ||
+                    std::memcmp(&value.nodesAndFirst, &layout.nodesAndFirst,
+                        sizeof(value.nodesAndFirst)) != 0 ||
+                    std::memcmp(&value.adjacency, &layout.adjacency,
+                        sizeof(value.adjacency)) != 0 ||
+                    std::memcmp(&value.geometry, &layout.geometry,
+                        sizeof(value.geometry)) != 0 ||
+                    std::memcmp(&value.separatedNodes, &layout.separatedNodes,
+                        sizeof(value.separatedNodes)) != 0 ||
+                    !std::isfinite(value.state.x) || value.state.x < layout.state.x ||
+                    value.state.x >= 1.0f ||
+                    !std::isfinite(value.state.y) || value.state.y < layout.state.y ||
+                    !std::isfinite(value.state.z) || value.state.z < 0.0f ||
+                    !std::isfinite(value.state.w);
+            }
+            if (cohesiveLayoutChanged ||
                 (state.dispatch.punctureChannelCount != 0u &&
                     std::memcmp(snapshot.punctureChannels.data() + environment * state.dispatch.punctureChannelCount,
                         state.femImmutablePunctureLayout.data(), state.dispatch.punctureChannelCount * sizeof(NMPunctureChannelGPU)) != 0) ||
@@ -14552,36 +16755,59 @@ RuntimeDiagnostics Runtime::restore(const RuntimeStateSnapshot& snapshot) {
         }
     }
 
-    if (!state.femRegionalMassLayout.empty()) {
-        if (state.femRegionalMassLayout.size() != state.dispatch.femNodeCount ||
-            state.femRegionalRestLayout.size() != state.dispatch.femNodeCount) {
-            diagnostics.message = "Matter immutable regional mass layout changed";
-            return diagnostics;
-        }
-        for (std::size_t environment = 0u; environment < state.dispatch.environmentCount; ++environment)
-            for (const auto& object : state.objectLayout) {
-                if ((object.flags & (NM_OBJECT_FEM_REGIONAL_MATERIAL | NM_OBJECT_FEM_REFERENCE_CONFIGURATION)) == 0u) continue;
-                for (std::size_t local = 0u; local < object.stateCount; ++local) {
-                    const auto nodeIndex = object.stateOffset + local;
-                    const auto& node = snapshot.femNodes[environment * state.dispatch.femNodeCount + nodeIndex];
-                    const std::array<float, 2> observed{node.positionAndMass.w, node.velocityAndInverseMass.w};
-                    const auto& authoredRest = state.femRegionalRestLayout[nodeIndex];
-                    const float authoredMass = state.femRegionalMassLayout[nodeIndex][0];
-                    // Kinematic release may change only the static constraint
-                    // tag and its derived inverse mass. Reference coordinates
-                    // and regional mass remain immutable; Human attachments
-                    // are never admitted through this transition.
-                    const bool releasedStatic = authoredRest.w == 1.0f && node.restAndFixed.w == 0.0f &&
-                        node.positionAndMass.w == authoredMass && authoredMass > 0.0f &&
-                        node.velocityAndInverseMass.w == 1.0f / authoredMass &&
-                        std::memcmp(&node.restAndFixed, &authoredRest, 3u * sizeof(float)) == 0;
-                    if (!releasedStatic && (std::memcmp(observed.data(), state.femRegionalMassLayout[nodeIndex].data(), sizeof(observed)) != 0 ||
-                        std::memcmp(&node.restAndFixed, &authoredRest, sizeof(node.restAndFixed)) != 0)) {
-                        diagnostics.message = "Matter snapshot changed immutable authored FEM mass or rest constraint";
-                        return diagnostics;
-                    }
-                }
+    if (state.femAuthoredMassLayout.size() != state.dispatch.femNodeCount ||
+        state.femAuthoredRestLayout.size() != state.dispatch.femNodeCount ||
+        state.femMutableMassRestLayout.size() != state.dispatch.femNodeCount) {
+        diagnostics.message = "Matter immutable authored FEM mass/rest layout changed";
+        return diagnostics;
+    }
+    for (std::size_t environment = 0u;
+         environment < state.dispatch.environmentCount; ++environment) {
+        for (std::size_t nodeIndex = 0u;
+             nodeIndex < state.dispatch.femNodeCount; ++nodeIndex) {
+            // Native split/collapse updates mass and reference coordinates,
+            // including reserved slots; retain its topology-aware admission.
+            if (state.femMutableMassRestLayout[nodeIndex] != 0u) continue;
+            const auto& node = snapshot.femNodes[
+                environment * state.dispatch.femNodeCount + nodeIndex];
+            const std::array<float, 2> observed{
+                node.positionAndMass.w, node.velocityAndInverseMass.w};
+            const auto& authoredRest = state.femAuthoredRestLayout[nodeIndex];
+            const float authoredMass =
+                state.femAuthoredMassLayout[nodeIndex][0];
+            const bool unchangedAuthoredState =
+                std::memcmp(observed.data(),
+                    state.femAuthoredMassLayout[nodeIndex].data(),
+                    sizeof(observed)) == 0 &&
+                std::memcmp(&node.restAndFixed, &authoredRest,
+                    sizeof(node.restAndFixed)) == 0;
+            const bool releasedAuthoredStatic =
+                authoredRest.w == 1.0f && node.restAndFixed.w == 0.0f &&
+                node.positionAndMass.w == authoredMass && authoredMass > 0.0f &&
+                node.velocityAndInverseMass.w == 1.0f / authoredMass &&
+                std::memcmp(&node.restAndFixed, &authoredRest,
+                    3u * sizeof(float)) == 0;
+            const bool temporaryGripActive =
+                (authoredRest.w == 0.0f || authoredRest.w == 1.0f) &&
+                node.restAndFixed.w == 3.0f &&
+                node.positionAndMass.w == authoredMass && authoredMass > 0.0f &&
+                node.velocityAndInverseMass.w == 0.0f &&
+                std::memcmp(&node.restAndFixed, &authoredRest,
+                    3u * sizeof(float)) == 0;
+            const bool releasedTemporaryGrip =
+                (authoredRest.w == 0.0f || authoredRest.w == 1.0f) &&
+                node.restAndFixed.w == 0.0f &&
+                node.positionAndMass.w == authoredMass && authoredMass > 0.0f &&
+                node.velocityAndInverseMass.w == 1.0f / authoredMass &&
+                std::memcmp(&node.restAndFixed, &authoredRest,
+                    3u * sizeof(float)) == 0;
+            if (!unchangedAuthoredState && !releasedAuthoredStatic &&
+                !temporaryGripActive && !releasedTemporaryGrip) {
+                diagnostics.message =
+                    "Matter snapshot contains an invalid FEM kinematic grip or changed authored mass/rest constraint";
+                return diagnostics;
             }
+        }
     }
 
     for (std::size_t environment=0u;environment<state.dispatch.environmentCount;++environment)

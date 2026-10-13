@@ -1,0 +1,6 @@
+state_count=27 instructions=2467080 scalar_programs=1071
+device=Apple M4 instrument=production_constitutive_evaluator physical_FEM_steps=0
+rest_max_P_Pa=0 tangent_ZD_Pa=5.68e+07
+elastic_ZD_F33=0.9999 P33=-1681.02 expected=-1680.96
+elastic_ZD_F33=1.0001 P33=5679.25 expected=5680.09
+source_path_rejected_step=119 accepted_material_points=119

@@ -4,6 +4,7 @@
 
 #include "cardboard_glue_mesh.hpp"
 #include "cardboard_box_blank.hpp"
+#include "cardboard_box_assembly_controller.hpp"
 #include "cardboard_tooling.hpp"
 #include "metalrobo/engine_types.h"
 #include "numi/matter/language.hpp"
@@ -51,6 +52,7 @@ struct CrossSectionPoint {
 
 struct Arguments {
     std::filesystem::path output;
+    std::filesystem::path metallib;
     std::filesystem::path linerMaterial;
     std::filesystem::path mediumMaterial;
     std::filesystem::path glueMaterial;
@@ -63,6 +65,19 @@ struct Arguments {
     bool prescribedToolPredictor = false;
     double prescribedToolBarrierStiffnessScale = 1.0;
     bool boxBlank = false;
+    bool boxAssemblyNative = false;
+    bool boxFixtureJoint = false;
+    double boxFixtureGapM = 0.00005;
+    std::uint32_t boxFixtureSteps = 64u;
+    double boxAngleIncrementDegrees = 0.5;
+    double boxShapeResidualBoundCalipers =
+        numi::cardboard::kDefaultBoxShapeResidualBoundCalipers;
+    double boxShapeFitCoverageMinimum =
+        numi::cardboard::kDefaultBoxShapeFitCoverage;
+    double boxPunchRadiusM = 0.0002;
+    double boxScoreToolClearanceM = 0.00005;
+    std::uint32_t boxScoreStepsPerLeg = 16u;
+    std::uint32_t boxMaximumStepsPerAction = 4096u;
     numi::cardboard::FEFCO0201BlankConfig boxConfig;
     bool referenceDisplacementGradient = false;
     double indentationM = 0.000020;
@@ -122,6 +137,7 @@ struct MeshSource {
     std::vector<numi::cardboard::GlueFootprint> glueFootprints;
     std::optional<numi::cardboard::CreaseToolingGeometry> tooling;
     std::optional<numi::cardboard::FEFCO0201Blank> boxBlank;
+    std::optional<numi::cardboard::BoxScoreToolingSet> boxScoreTooling;
 };
 
 struct Digest {
@@ -231,6 +247,12 @@ void printUsage() {
         << "  --prescribed-tool-predictor  native feasible initial guess and swept node/punch certificate\n"
         << "  --prescribed-tool-barrier-scale N  punch IPC stiffness multiplier [1,100] (default 1; study arms 1,2,4)\n"
         << "  --box-blank           FEFCO0201 flat blank native rest check; requires --bend-angle 0\n"
+        << "  --box-assembly-native execute score-die contact and accepted-state wall-fold grips; adhesive action fails closed\n"
+        << "  --box-fixture-joint externally clamp the seam and folded end edges; remains unbonded/unsealed\n"
+        << "  --box-angle-increment-deg N --box-max-action-steps N --box-score-steps N\n"
+        << "  --box-shape-residual-calipers N --box-shape-coverage-min N  accepted-shape completion gate\n"
+        << "  --box-fixture-gap-mm N --box-fixture-steps N  seam stand-off and native grip subdivisions\n"
+        << "  --box-punch-radius-mm N --box-score-clearance-mm N  numerical tooling choices\n"
         << "  --crease              rounded punch indentation; grips held at zero rotation\n"
         << "  --indent-mm N --punch-radius-mm N --tool-clearance-mm N --anvil-clearance-mm N\n"
         << "  --without-self-contact  numerical control only for the finite-glue mesh\n"
@@ -243,7 +265,8 @@ void printUsage() {
         << "  --release-steps N      release right grip after preceding phases; left remains fixed\n"
         << "  --newton-iterations N  global nonlinear budget (1..64)\n"
         << "  --material-iterations N  local constitutive Newton budget (1..16)\n"
-        << "  --fgmres-iterations N  Krylov-column budget (max 256)\n"
+        << "  --fgmres-iterations N  Krylov-column budget (max "
+        << NM_MIXED_FGMRES_MAX_ITERATIONS << ")\n"
         << "  --fgmres-preconditioner scalar|regional-tangent-diagonal\n"
         << "  --bend-angle DEGREES   final right-grip rotation\n"
         << "  --dt SECONDS           frame timestep\n"
@@ -253,6 +276,7 @@ void printUsage() {
         << "  --length-mm N --width-mm N --height-mm N --pitch-mm N\n"
         << "  --liner-thickness-mm N --medium-thickness-mm N\n"
         << "  --compile-only         write package and initial OBJ without creating a Metal runtime\n";
+    std::cout << "  --metallib FILE         explicit retained native Metal image for replay\n";
 }
 
 void setMaterialPath(Arguments& arguments,
@@ -270,6 +294,10 @@ void setMaterialPath(Arguments& arguments,
 
 Arguments parseArguments(const int argc, const char* argv[]) {
     Arguments arguments;
+#if defined(NUMI_CARDBOARD_BOX_NATIVE_DRIVER)
+    arguments.boxAssemblyNative = true;
+    arguments.boxBlank = true;
+#endif
     for (int i = 1; i + 1 < argc; ++i)
         if (std::string_view(argv[i]) == "--preset") arguments.preset = argv[i + 1];
     arguments.linerMaterial =
@@ -305,6 +333,17 @@ Arguments parseArguments(const int argc, const char* argv[]) {
     for (int index = 1; index < argc; ++index) {
         const std::string option = argv[index];
         if (option == "--box-blank") { arguments.boxBlank = true; continue; }
+        if (option == "--box-assembly-native") {
+            arguments.boxAssemblyNative = true;
+            arguments.boxBlank = true;
+            continue;
+        }
+        if (option == "--box-fixture-joint") {
+            arguments.boxAssemblyNative = true;
+            arguments.boxBlank = true;
+            arguments.boxFixtureJoint = true;
+            continue;
+        }
         if (option == "--prescribed-tool-predictor") { arguments.prescribedToolPredictor = true; continue; }
         if (option == "--crease") { arguments.crease = true; continue; }
         if (option == "--reference-displacement-gradient") { arguments.referenceDisplacementGradient = true; continue; }
@@ -324,10 +363,29 @@ Arguments parseArguments(const int argc, const char* argv[]) {
         require(index + 1 < argc, "missing value for " + option);
         const std::string value = argv[++index];
         if (option == "--output") arguments.output = value;
+        else if (option == "--metallib") arguments.metallib = value;
         else if (option == "--indent-mm") arguments.indentationM = parseDouble(value, option) * 1e-3;
         else if (option == "--punch-radius-mm") arguments.punchRadiusM = parseDouble(value, option) * 1e-3;
         else if (option == "--tool-clearance-mm") arguments.toolClearanceM = parseDouble(value, option) * 1e-3;
         else if (option == "--anvil-clearance-mm") arguments.anvilClearanceM = parseDouble(value, option) * 1e-3;
+        else if (option == "--box-angle-increment-deg")
+            arguments.boxAngleIncrementDegrees = parseDouble(value, option);
+        else if (option == "--box-shape-residual-calipers")
+            arguments.boxShapeResidualBoundCalipers = parseDouble(value, option);
+        else if (option == "--box-shape-coverage-min")
+            arguments.boxShapeFitCoverageMinimum = parseDouble(value, option);
+        else if (option == "--box-max-action-steps")
+            arguments.boxMaximumStepsPerAction = parseUnsigned(value, option);
+        else if (option == "--box-score-steps")
+            arguments.boxScoreStepsPerLeg = parseUnsigned(value, option);
+        else if (option == "--box-punch-radius-mm")
+            arguments.boxPunchRadiusM = parseDouble(value, option) * 1.0e-3;
+        else if (option == "--box-score-clearance-mm")
+            arguments.boxScoreToolClearanceM = parseDouble(value, option) * 1.0e-3;
+        else if (option == "--box-fixture-gap-mm")
+            arguments.boxFixtureGapM = parseDouble(value, option) * 1.0e-3;
+        else if (option == "--box-fixture-steps")
+            arguments.boxFixtureSteps = parseUnsigned(value, option);
         else if (option == "--residual-tolerance") arguments.relativeResidualTolerance = parseDouble(value, option);
         else if (option == "--prescribed-tool-barrier-scale")
             arguments.prescribedToolBarrierStiffnessScale = parseDouble(value, option);
@@ -383,10 +441,12 @@ Arguments parseArguments(const int argc, const char* argv[]) {
         else require(false, "unknown option: " + option);
     }
 
+    if (arguments.boxAssemblyNative)
+        arguments.bendAngleDegrees = 0.0;
     if (arguments.boxBlank) {
         require(arguments.preset == "literature2009" && !arguments.withoutMedium &&
                 !arguments.crease && arguments.releaseSteps == 0u && arguments.bendAngleDegrees == 0.0,
-                "box blank mode requires literature2009, medium, zero bend and no crease/release; assembly targets are not executed");
+                "box blank mode requires literature2009, medium, zero bend and no crease/release");
         arguments.boxConfig = {4.0 * arguments.pitchM, 3.0 * arguments.pitchM,
             4.0 * arguments.pitchM, arguments.pitchM, 0.2 * arguments.pitchM, arguments.ny};
         arguments.lengthM = 15.0 * arguments.pitchM;
@@ -409,6 +469,36 @@ Arguments parseArguments(const int argc, const char* argv[]) {
                 "invalid tooling travel, radius or clearance");
         arguments.bendAngleDegrees = 0.0;
     }
+    require(arguments.boxScoreStepsPerLeg > 0u &&
+                arguments.boxScoreStepsPerLeg <= 4096u,
+            "--box-score-steps must lie in [1, 4096]");
+    require(arguments.boxMaximumStepsPerAction > 0u &&
+                arguments.boxMaximumStepsPerAction <= 100000u,
+            "--box-max-action-steps must lie in [1, 100000]");
+    require(std::isfinite(arguments.boxAngleIncrementDegrees) &&
+                arguments.boxAngleIncrementDegrees > 0.0 &&
+                arguments.boxAngleIncrementDegrees <= 10.0,
+            "--box-angle-increment-deg must lie in (0, 10]");
+    require(std::isfinite(arguments.boxShapeResidualBoundCalipers) &&
+                arguments.boxShapeResidualBoundCalipers > 0.0 &&
+                arguments.boxShapeResidualBoundCalipers <= 10.0,
+            "--box-shape-residual-calipers must lie in (0, 10]");
+    require(std::isfinite(arguments.boxShapeFitCoverageMinimum) &&
+                arguments.boxShapeFitCoverageMinimum > 0.0 &&
+                arguments.boxShapeFitCoverageMinimum <= 1.0,
+            "--box-shape-coverage-min must lie in (0, 1]");
+    require(std::isfinite(arguments.boxPunchRadiusM) &&
+                arguments.boxPunchRadiusM > 0.0 &&
+                std::isfinite(arguments.boxScoreToolClearanceM) &&
+                arguments.boxScoreToolClearanceM > 0.0,
+            "box score tooling radius and clearance must be positive");
+    require(std::isfinite(arguments.boxFixtureGapM) &&
+                arguments.boxFixtureGapM > 0.0 &&
+                arguments.boxFixtureGapM <= 0.01,
+            "box fixture stand-off must be finite and in (0, 10] mm");
+    require(arguments.boxFixtureSteps > 0u &&
+                arguments.boxFixtureSteps <= 4096u,
+            "--box-fixture-steps must lie in [1, 4096]");
     require(arguments.glueMaterial.empty() == (arguments.glueGapM == 0.0 && arguments.bondWidthM == 0.0),
             "finite glue requires --glue-material, positive --glue-gap-mm and --bond-width-mm together");
     if (!arguments.glueMaterial.empty()) {
@@ -429,8 +519,8 @@ Arguments parseArguments(const int argc, const char* argv[]) {
     require(arguments.relaxSteps == 0u || arguments.unloadSteps > 0u,
             "relaxation requires an unloading phase; no instantaneous release");
     require(arguments.fgmresIterations >= NM_MIXED_FGMRES_DEFAULT_RESTART &&
-                arguments.fgmresIterations <= 256u,
-            "--fgmres-iterations must lie between the compiled restart size and 256");
+                arguments.fgmresIterations <= NM_MIXED_FGMRES_MAX_ITERATIONS,
+            "--fgmres-iterations must lie between the compiled restart size and native operational ceiling");
     require(arguments.nxPerPitch >= 8u && arguments.nxPerPitch <= 128u &&
                 arguments.nxPerPitch % 2u == 0u,
             "--nx must be an even value in [8, 128]");
@@ -876,14 +966,16 @@ MeshSource buildMesh(const Arguments& arguments,
     }
     require(!result.leftGripNodes.empty() && !result.rightGripNodes.empty(),
             "the authored grip boundaries contain no mesh nodes");
-    object.femFixedNodes = result.leftGripNodes;
-    object.femFixedNodes.insert(object.femFixedNodes.end(),
-                                result.rightGripNodes.begin(),
-                                result.rightGripNodes.end());
-    std::sort(object.femFixedNodes.begin(), object.femFixedNodes.end());
-    object.femFixedNodes.erase(
-        std::unique(object.femFixedNodes.begin(), object.femFixedNodes.end()),
-        object.femFixedNodes.end());
+    if (!arguments.boxBlank) {
+        object.femFixedNodes = result.leftGripNodes;
+        object.femFixedNodes.insert(object.femFixedNodes.end(),
+                                    result.rightGripNodes.begin(),
+                                    result.rightGripNodes.end());
+        std::sort(object.femFixedNodes.begin(), object.femFixedNodes.end());
+        object.femFixedNodes.erase(
+            std::unique(object.femFixedNodes.begin(), object.femFixedNodes.end()),
+            object.femFixedNodes.end());
+    }
 
     result.world.frameTimestep = arguments.timestepSeconds;
     result.world.gravity = {0.0, 0.0, 0.0};
@@ -971,6 +1063,36 @@ MeshSource buildMesh(const Arguments& arguments,
         geometry.punchInitialPose.translation.z += arguments.anvilClearanceM;
         result.world.rigidProxies = {geometry.punch, geometry.support};
         result.tooling = geometry;
+    }
+    if (arguments.boxAssemblyNative) {
+        require(result.boxBlank.has_value(),
+                "native box assembly requires the authored FEFCO blank");
+        require(object.deformableContact || arguments.disableSelfContact,
+                "native box assembly requires the authored finite-glue contact surface or explicit numerical no-self-contact control");
+        std::map<std::array<std::uint32_t, 3>, std::uint32_t> faceCounts;
+        for (const auto& cell : result.tetrahedra) {
+            const auto& n = cell.nodes;
+            for (auto face : std::array<std::array<std::uint32_t, 3>, 4>{{
+                    {n[0], n[1], n[2]}, {n[0], n[1], n[3]},
+                    {n[0], n[2], n[3]}, {n[1], n[2], n[3]}}}) {
+                std::sort(face.begin(), face.end());
+                ++faceCounts[face];
+            }
+        }
+        std::set<std::uint32_t> surfaceNodes;
+        for (const auto& [face, count] : faceCounts) {
+            require(count <= 2u, "nonmanifold box blank contact surface");
+            if (count == 1u) surfaceNodes.insert(face.begin(), face.end());
+        }
+        require(!surfaceNodes.empty(), "box blank has no exposed contact nodes");
+        object.femContactNodes.assign(surfaceNodes.begin(), surfaceNodes.end());
+        const auto& blank = *result.boxBlank;
+        result.boxScoreTooling = numi::cardboard::makeBoxScoreTooling(
+            blank, arguments.boxPunchRadiusM, 0.25 * arguments.pitchM,
+            arguments.boxScoreToolClearanceM,
+            arguments.boxScoreToolClearanceM, 0.001,
+            0.25 * arguments.pitchM);
+        result.world.rigidProxies = result.boxScoreTooling->proxies;
     }
     result.world.objects = {std::move(object)};
     return result;
@@ -1672,7 +1794,8 @@ struct RunState {
 
 class NativeRun {
 public:
-    explicit NativeRun(const CompiledWorld& world)
+    explicit NativeRun(const CompiledWorld& world,
+                       const std::filesystem::path& metallib)
         : world_(world) {
         device_ = MTLCreateSystemDefaultDevice();
         require(device_ != nil, "Apple Metal device is unavailable");
@@ -1684,7 +1807,8 @@ public:
         require(queue_ != nil, "cannot create Metal command queue");
 
         RuntimeConfiguration configuration;
-        configuration.metallib = NUMI_CARDBOARD_METALLIB;
+        configuration.metallib = metallib.empty()
+            ? std::filesystem::path(NUMI_CARDBOARD_METALLIB) : metallib;
         configuration.environmentCount = kEnvironmentCount;
         configuration.captureEvents = true;
         configuration.captureDiagnostics = true;
@@ -1740,7 +1864,11 @@ public:
         request.femKinematicTargetCount = kEnvironmentCount * nodeCount_;
         id<MTLBuffer> toolBodies = nil;
         if (!bodies.empty()) {
-            require(bodies.size() == kEnvironmentCount, "tool body count differs from environments");
+            require(bodies.size() % kEnvironmentCount == 0u,
+                    "tool body arena is not environment-major");
+            const std::uint32_t bodyCount = static_cast<std::uint32_t>(
+                bodies.size() / kEnvironmentCount);
+            require(bodyCount > 0u, "tool body arena is empty");
             // Backward Euler contact must be evaluated at the prescribed
             // endpoint, just like FEM candidate positions. The velocity remains
             // the finite difference of the prescribed trajectory. Supplying a
@@ -1754,8 +1882,8 @@ public:
             }
             toolBodies = sharedBuffer(device_, endpoints, "prescribed end-pose punch bodies");
             request.rigid.currentBodies = (__bridge void*)toolBodies;
-            request.rigid.currentBodyCount = 1u;
-            request.rigid.currentBodyStride = 1u;
+            request.rigid.currentBodyCount = bodyCount;
+            request.rigid.currentBodyStride = bodyCount;
         }
         request.controlStep = index;
         request.physicsSubsteps = 1u;
@@ -2012,6 +2140,845 @@ void printResult(const std::string& status,
               << "\"physical_validation\":false}\n";
 }
 
+struct BoxScoreAngleObservation {
+    bool valid = false;
+    double foldTurnDegrees = std::numeric_limits<double>::quiet_NaN();
+    double interiorAngleDegrees = std::numeric_limits<double>::quiet_NaN();
+    double targetFoldDegrees = 0.0;
+    double relativeTargetFoldDegrees = std::numeric_limits<double>::quiet_NaN();
+    std::uint32_t sampleCount = 0u;
+};
+
+double wrapBoxDegrees(double value) {
+    value = std::fmod(value + 180.0, 360.0);
+    if (value < 0.0) value += 360.0;
+    return value - 180.0;
+}
+
+std::array<BoxScoreAngleObservation, 12> boxScoreAngles(
+    const MeshSource& mesh,
+    const std::vector<NMFEMNodeStateGPU>& actionStartNodes,
+    const std::vector<NMFEMNodeStateGPU>& acceptedNodes,
+    const std::uint32_t environment,
+    const std::uint32_t nodeCount) {
+    require(mesh.boxBlank && mesh.boxBlank->scoreLines.size() == 12u,
+            "score-angle observation requires all authored score lines");
+    const auto& blank = *mesh.boxBlank;
+    std::array<BoxScoreAngleObservation, 12> result{};
+    std::array<numi::cardboard::BoxWallFit, 4> wallFits{};
+    for (std::uint32_t panel = 0u; panel < 4u; ++panel)
+        wallFits[panel] = numi::cardboard::measureBoxWallInteriorFit(
+            blank, blank.points, acceptedNodes, environment, nodeCount, panel);
+    const auto tabFit = numi::cardboard::measureBoxTabInteriorFit(
+        blank, blank.points, acceptedNodes, environment, nodeCount);
+    for (std::uint32_t scoreIndex = 0u; scoreIndex < blank.scoreLines.size(); ++scoreIndex) {
+        const auto& line = blank.scoreLines[scoreIndex];
+        auto& observation = result[scoreIndex];
+        observation.targetFoldDegrees = line.targetFoldDegrees;
+        if (line.kind == numi::cardboard::BoxScoreKind::manufacturerJointRoot) {
+            if (!wallFits[0].valid || !tabFit.valid) continue;
+            observation.relativeTargetFoldDegrees =
+                numi::cardboard::boxWallRelativeTargetTurnDegrees(0u);
+            observation.foldTurnDegrees = wrapBoxDegrees(
+                wallFits[0].angleDegrees - tabFit.angleDegrees);
+            observation.sampleCount = std::min(wallFits[0].sampleCount, tabFit.sampleCount);
+            observation.valid = true;
+        } else if (line.kind == numi::cardboard::BoxScoreKind::bodyCorner) {
+            const std::uint32_t left = line.panelIndex;
+            const std::uint32_t right = left + 1u;
+            if (right >= wallFits.size() || !wallFits[left].valid || !wallFits[right].valid)
+                continue;
+            observation.relativeTargetFoldDegrees =
+                numi::cardboard::boxWallRelativeTargetTurnDegrees(right);
+            observation.foldTurnDegrees = wrapBoxDegrees(
+                wallFits[right].angleDegrees - wallFits[left].angleDegrees);
+            observation.sampleCount = std::min(wallFits[left].sampleCount,
+                                               wallFits[right].sampleCount);
+            observation.valid = true;
+        } else {
+            const auto flapAction = std::find_if(
+                blank.assembly.actions.begin(), blank.assembly.actions.end(),
+                [scoreIndex](const auto& candidate) {
+                    return candidate.kind ==
+                               numi::cardboard::BoxAssemblyAction::Kind::foldFlap &&
+                           candidate.feature.index == scoreIndex;
+                });
+            if (flapAction != blank.assembly.actions.end())
+                observation.relativeTargetFoldDegrees = flapAction->targetAngleDegrees;
+            const auto turn = numi::cardboard::measureBoxFlapInteriorTurn(
+                blank, blank.points, actionStartNodes, acceptedNodes, environment,
+                nodeCount, scoreIndex);
+            if (!turn.valid) continue;
+            observation.foldTurnDegrees = turn.signedTurnDegrees;
+            observation.sampleCount = turn.sampleCount;
+            observation.valid = true;
+        }
+        if (observation.valid)
+            observation.interiorAngleDegrees = std::clamp(
+                180.0 - std::abs(observation.foldTurnDegrees), 0.0, 180.0);
+    }
+    return result;
+}
+
+bool boxEnvironmentAccepted(const CompiledWorld& world,
+                            const RuntimeStateSnapshot& snapshot,
+                            const std::uint32_t environment) {
+    if (environment >= snapshot.statuses.size() ||
+        environment >= snapshot.solverCertificates.size()) return false;
+    const auto& status = snapshot.statuses[environment];
+    const auto& certificate = snapshot.solverCertificates[environment];
+    return status.code == NM_STATUS_SUCCESS && certificate.validity.w > 0.5f &&
+        std::isfinite(certificate.nonlinear.x) &&
+        std::isfinite(certificate.nonlinear.y) &&
+        std::isfinite(certificate.nonlinear.z) &&
+        std::isfinite(certificate.nonlinear.w) &&
+        certificate.nonlinear.x <= world.mixedSolver.residualTolerances.x &&
+        certificate.nonlinear.z <= world.mixedSolver.residualTolerances.y &&
+        certificate.nonlinear.w <= world.mixedSolver.residualTolerances.z;
+}
+
+struct BoxNativeActionRecord {
+    std::string status = "not_attempted";
+    std::string diagnostic;
+    std::uint32_t firstNativeStep = NM_INVALID_INDEX;
+    std::uint32_t lastNativeStep = NM_INVALID_INDEX;
+    std::uint32_t acceptedNativeSteps = 0u;
+    bool angleValid = false;
+    double observedFoldTurnDegrees = 0.0;
+    double observedInteriorAngleDegrees = 0.0;
+    bool shapeFitObservable = false;
+    double shapeFitResidualRmsM = 0.0;
+    double shapeFitResidualBoundM = 0.0;
+    double shapeFitCoverage = 0.0;
+    bool shapeFitWithinBound = false;
+    bool shapeFitCompletionRejected = false;
+};
+
+struct BoxFixtureJointPair {
+    std::uint32_t tabNode = 0u;
+    std::uint32_t seamNode = 0u;
+    numi::cardboard::BoxVec3 tabStart{};
+    numi::cardboard::BoxVec3 tabEnd{};
+    numi::cardboard::BoxVec3 seamEndpoint{};
+};
+
+void writeBoxActionCsv(const std::filesystem::path& path,
+                       const numi::cardboard::FEFCO0201Blank& blank,
+                       const std::vector<BoxNativeActionRecord>& rows) {
+    std::ofstream output(path, std::ios::trunc);
+    require(output.good(), "cannot create box action ledger");
+    output << "action_index,stage,kind,feature_type,feature_index,source_target_angle_deg,relative_target_angle_deg,status,first_native_step,last_native_step,accepted_native_steps,observed_fold_turn_deg,observed_interior_angle_deg,physical_bond_law_required,shape_fit_residual_rms_m,shape_fit_residual_bound_m,shape_fit_coverage,shape_fit_within_bound,shape_fit_completion_rejected,diagnostic\n"
+           << std::setprecision(17);
+    for (std::size_t index = 0u; index < blank.assembly.actions.size(); ++index) {
+        const auto& action = blank.assembly.actions[index];
+        const auto& row = rows.at(index);
+        const bool bond = action.kind == numi::cardboard::BoxAssemblyAction::Kind::bondManufacturerJoint ||
+            action.kind == numi::cardboard::BoxAssemblyAction::Kind::closeEndWithTapeOrAdhesive;
+        const auto csv = [](const std::string& value) {
+            std::string escaped = "\"";
+            for (const char c : value) {
+                if (c == '"') escaped += "\"\"";
+                else escaped += c;
+            }
+            return escaped + "\"";
+        };
+        output << index << ',' << csv(action.stage) << ','
+            << static_cast<unsigned>(action.kind) << ','
+            << csv(numi::cardboard::boxAssemblyFeatureKindName(action.feature.kind)) << ','
+            << action.feature.index << ',' << action.targetAngleDegrees << ',';
+        if (action.kind == numi::cardboard::BoxAssemblyAction::Kind::erectWallPanel)
+            output << numi::cardboard::boxWallRelativeTargetTurnDegrees(
+                action.feature.index);
+        else if (action.kind == numi::cardboard::BoxAssemblyAction::Kind::foldFlap)
+            output << action.targetAngleDegrees;
+        output << ',' << csv(row.status) << ',' << row.firstNativeStep << ','
+            << row.lastNativeStep << ',' << row.acceptedNativeSteps << ',';
+        if (row.angleValid)
+            output << row.observedFoldTurnDegrees << ',' << row.observedInteriorAngleDegrees;
+        else output << ",";
+        output << ',' << (bond ? 1 : 0) << ',';
+        if (row.shapeFitObservable)
+            output << row.shapeFitResidualRmsM << ',' << row.shapeFitResidualBoundM
+                   << ',' << row.shapeFitCoverage << ','
+                   << (row.shapeFitWithinBound ? 1 : 0) << ','
+                   << (row.shapeFitCompletionRejected ? 1 : 0);
+        else
+            output << ",,,,";
+        output << ',' << csv(row.diagnostic) << '\n';
+    }
+    require(output.good(), "failed writing box action ledger");
+}
+
+int executeBoxAssemblyNative(const Arguments& arguments,
+                             const MeshSource& mesh,
+                             const CompileResult& compiled) {
+    require(mesh.boxBlank && mesh.boxScoreTooling,
+            "native FEFCO box tooling was not compiled");
+    const auto& blank = *mesh.boxBlank;
+    const auto& tooling = *mesh.boxScoreTooling;
+    const std::uint32_t nodeCount = compiled.world.dispatch.femNodeCount;
+    require(blank.scoreLines.size() == 12u && blank.assembly.actions.size() == 15u,
+            "native box driver requires the complete 12-score/15-action source layout");
+
+    std::ofstream stepOutput(arguments.output / "box-native-steps.csv");
+    std::ofstream angleOutput(arguments.output / "box-score-angles.csv");
+    require(stepOutput.good() && angleOutput.good(),
+            "cannot create native box observation files");
+    stepOutput << "native_step,stage,action_index,accepted,status_env0,status_env1,fgmres_env0,fgmres_env1,certificate_residual_x_env0,certificate_residual_z_env0,certificate_residual_w_env0,error\n";
+    angleOutput << "native_step,stage,action_index,environment,step_accepted,score_line_index,score_kind,fit_valid,fold_turn_deg,interior_angle_deg,source_target_fold_deg,relative_target_fold_deg,sample_count\n"
+                << std::setprecision(17);
+    std::vector<BoxNativeActionRecord> actionRows(blank.assembly.actions.size());
+    writeBoxActionCsv(arguments.output / "box-actions.csv", blank, actionRows);
+
+    NativeRun run(compiled.world, arguments.metallib);
+    RuntimeStateSnapshot currentSnapshot = run.runtime().snapshot();
+    require(currentSnapshot.available, currentSnapshot.message);
+    require(currentSnapshot.femNodes.size() >=
+                static_cast<std::size_t>(kEnvironmentCount) * nodeCount,
+            "native box initial FEM snapshot is truncated");
+    const auto initialNodes = currentSnapshot.femNodes;
+    auto activeActionStartNodes = initialNodes;
+    const double parkHeight = blank.boardCaliper +
+        2.0 * tooling.punchRadius + tooling.toolClearance;
+    const double contactHeight = blank.boardCaliper + tooling.punchRadius;
+    require(parkHeight > blank.boardCaliper + 2.0 * tooling.punchRadius,
+            "box score die park position is invalid");
+
+    std::uint32_t nextNativeStep = 0u;
+    std::uint32_t acceptedNativeSteps = 0u;
+    std::string stopReason;
+    bool nativeFailure = false;
+    bool shapeFitRejection = false;
+    const auto tabAnchorNodes = numi::cardboard::makeBoxTabBodyAnchorNodes(
+        blank, blank.points, mesh.world.objects.at(0u).femContactNodes);
+    bool tabAnchorActive = false;
+    bool tabAnchorReleasedBeforeJointFixture = false;
+
+    const auto zeroTargets = [&] {
+        return std::vector<nm_float4>(
+            static_cast<std::size_t>(kEnvironmentCount) * nodeCount,
+            nm_float4{0.0f, 0.0f, 0.0f, 0.0f});
+    };
+    const auto parkedBodies = [&] {
+        return numi::cardboard::makeBoxToolBodyStates(
+            tooling, kEnvironmentCount, parkHeight);
+    };
+    auto attemptNativeStep = [&](const std::string& stage,
+                                 const std::uint32_t actionIndex,
+                                 const std::vector<nm_float4>& targets,
+                                 const std::vector<MRBodyStateGPU>& bodies) {
+        const std::uint32_t stepIndex = nextNativeStep++;
+        std::string error;
+        std::optional<RunState> state;
+        try {
+            state = run.step(stepIndex, targets, bodies);
+            currentSnapshot = state->snapshot;
+        } catch (const std::exception& caught) {
+            error = caught.what();
+            nativeFailure = true;
+            currentSnapshot = run.runtime().snapshot();
+        }
+        const bool accepted = !error.empty() ? false :
+            boxEnvironmentAccepted(compiled.world, currentSnapshot, 0u) &&
+            boxEnvironmentAccepted(compiled.world, currentSnapshot, 1u);
+        if (accepted) ++acceptedNativeSteps;
+        auto codeFor = [&](const std::uint32_t environment) {
+            return environment < currentSnapshot.statuses.size()
+                ? currentSnapshot.statuses[environment].code : NM_STATUS_INVALID_DISPATCH;
+        };
+        const auto& cert0 = currentSnapshot.solverCertificates.size() > 0u
+            ? currentSnapshot.solverCertificates[0u] : NMSolverCertificateGPU{};
+        const auto& status0 = currentSnapshot.statuses.size() > 0u
+            ? currentSnapshot.statuses[0u] : NMMatterStatusGPU{};
+        const auto& status1 = currentSnapshot.statuses.size() > 1u
+            ? currentSnapshot.statuses[1u] : NMMatterStatusGPU{};
+        stepOutput << stepIndex << ',' << stage << ',';
+        if (actionIndex == numi::cardboard::kNoBoxScoreLineIndex) stepOutput << -1;
+        else stepOutput << actionIndex;
+        stepOutput << ',' << (accepted ? 1 : 0) << ',' << codeFor(0u) << ','
+            << codeFor(1u) << ',' << status0.fgmresIterations << ','
+            << status1.fgmresIterations << ',' << cert0.nonlinear.x << ','
+            << cert0.nonlinear.z << ',' << cert0.nonlinear.w << ','
+            << '"';
+        for (const char c : error) stepOutput << (c == '"' ? '\'' : c);
+        stepOutput << "\"\n";
+
+        if (currentSnapshot.femNodes.size() >=
+            static_cast<std::size_t>(kEnvironmentCount) * nodeCount) {
+            for (std::uint32_t environment = 0u;
+                 environment < kEnvironmentCount; ++environment) {
+                const auto angles = boxScoreAngles(
+                    mesh, activeActionStartNodes, currentSnapshot.femNodes,
+                    environment, nodeCount);
+                for (std::uint32_t scoreIndex = 0u; scoreIndex < angles.size(); ++scoreIndex) {
+                    const auto& angle = angles[scoreIndex];
+                    angleOutput << stepIndex << ',' << stage << ',';
+                    if (actionIndex == numi::cardboard::kNoBoxScoreLineIndex)
+                        angleOutput << -1;
+                    else angleOutput << actionIndex;
+                    angleOutput << ',' << environment << ',' << (accepted ? 1 : 0)
+                        << ',' << scoreIndex << ','
+                        << static_cast<unsigned>(blank.scoreLines[scoreIndex].kind)
+                        << ',' << (angle.valid ? 1 : 0) << ',';
+                    if (angle.valid)
+                        angleOutput << angle.foldTurnDegrees << ','
+                                    << angle.interiorAngleDegrees;
+                    else angleOutput << ",";
+                    angleOutput << ',' << angle.targetFoldDegrees << ',';
+                    if (std::isfinite(angle.relativeTargetFoldDegrees))
+                        angleOutput << angle.relativeTargetFoldDegrees;
+                    angleOutput << ',' << angle.sampleCount << '\n';
+                }
+            }
+            if (nextNativeStep == 1u || !accepted) {
+                writeObj(arguments.output / ("box-state-step-" + stepLabel(stepIndex + 1u) + ".obj"),
+                         compiled.world, currentSnapshot.femNodes, 0u);
+            }
+        }
+        stepOutput.flush();
+        angleOutput.flush();
+        if (!error.empty()) stopReason = "native exception: " + error;
+        else if (!accepted)
+            stopReason = "Matter rejected native step " + std::to_string(stepIndex);
+        return accepted;
+    };
+
+    // Hold the manufacturer's tab body in its authored accepted pose while
+    // the wall turns are measured and folded. Only exposed tetrahedral
+    // boundary nodes in the tab body are clamped; no interior coordinates are
+    // written. The tab's free edge is part of this clamp, so fixture mode
+    // releases it only after all four wall boundary clamps have been retained.
+    {
+        auto anchorTargets = zeroTargets();
+        for (const std::uint32_t node : tabAnchorNodes) {
+            const auto& accepted = initialNodes.at(node);
+            require(accepted.restAndFixed.w == 0.0f,
+                    "authored tab anchor node is not initially free");
+            numi::cardboard::setBoxGripTarget(
+                anchorTargets, nodeCount, 0u, node,
+                numi::cardboard::boxAcceptedPosition(accepted), 3.0f);
+        }
+        if (attemptNativeStep("tab_body_anchor_acquire",
+                numi::cardboard::kNoBoxScoreLineIndex,
+                anchorTargets, parkedBodies())) {
+            tabAnchorActive = true;
+        } else {
+            nativeFailure = true;
+        }
+    }
+
+    // The authored die is a finite fixed-orientation tool pack covering the
+    // twelve source score axes. This stroke records contact response only;
+    // without a calibrated crease/damage law it does not create a scored hinge.
+    double dieHeight = parkHeight;
+    const auto performScoreLeg = [&](const double destination,
+                                     const std::string& stage) {
+        const double startHeight = dieHeight;
+        for (std::uint32_t legStep = 1u;
+             legStep <= arguments.boxScoreStepsPerLeg; ++legStep) {
+            const double endHeight = startHeight +
+                (destination - startHeight) *
+                static_cast<double>(legStep) / arguments.boxScoreStepsPerLeg;
+            auto bodies = parkedBodies();
+            const double velocity = (endHeight - dieHeight) /
+                run.runtime().timestepSeconds();
+            numi::cardboard::setBoxToolBodyCommand(
+                bodies, 2u, 0u, tooling.scoreBodyIndex,
+                {tooling.scoreBodyPosition.x, tooling.scoreBodyPosition.y, dieHeight},
+                {0.0, 0.0, velocity});
+            if (!attemptNativeStep(stage, numi::cardboard::kNoBoxScoreLineIndex,
+                                   zeroTargets(), bodies)) return false;
+            dieHeight = endHeight;
+        }
+        return true;
+    };
+    if (!nativeFailure) {
+        if (!performScoreLeg(contactHeight, "score_die_contact_approach")) {
+            nativeFailure = true;
+        } else if (!performScoreLeg(parkHeight, "score_die_contact_retract")) {
+            nativeFailure = true;
+        }
+    }
+
+    bool blockedByBondLaw = false;
+    const auto makeFixtureJointTargets = [&] {
+        using numi::cardboard::BoxVec3;
+        const auto tab = numi::cardboard::makeBoxManufacturerJointEdgeNodes(
+            blank, blank.points, true);
+        const auto seam = numi::cardboard::makeBoxManufacturerJointEdgeNodes(
+            blank, blank.points, false);
+        require(!tab.empty() && tab.size() == seam.size(),
+                "fixture seam edges have different or empty boundary-node counts");
+        const double tolerance = 2.0e-10 *
+            std::max({blank.perimeterSpan, blank.blankHeight, blank.boardCaliper});
+        const auto byRestYZ = [&](const std::uint32_t left,
+                                  const std::uint32_t right) {
+            const auto& a = blank.points.at(left);
+            const auto& b = blank.points.at(right);
+            if (a.y != b.y) return a.y < b.y;
+            if (a.z != b.z) return a.z < b.z;
+            return left < right;
+        };
+        auto orderedTab = tab;
+        auto orderedSeam = seam;
+        std::sort(orderedTab.begin(), orderedTab.end(), byRestYZ);
+        std::sort(orderedSeam.begin(), orderedSeam.end(), byRestYZ);
+
+        BoxVec3 seamCentroid{};
+        for (const std::uint32_t node : orderedSeam) {
+            const BoxVec3 p = numi::cardboard::boxAcceptedPosition(
+                currentSnapshot.femNodes.at(node));
+            seamCentroid = seamCentroid + p;
+        }
+        seamCentroid = (1.0 / orderedSeam.size()) * seamCentroid;
+        BoxVec3 wallCentroid{};
+        std::uint32_t wallCount = 0u;
+        for (std::uint32_t node = 0u; node < nodeCount; ++node) {
+            const auto& rest = blank.points[node];
+            if (rest.x <= blank.config.manufacturerJointWidth + tolerance ||
+                rest.x >= blank.perimeterSpan - tolerance ||
+                rest.y <= blank.bottomScoreY + tolerance ||
+                rest.y >= blank.topScoreY - tolerance)
+                continue;
+            wallCentroid = wallCentroid +
+                numi::cardboard::boxAcceptedPosition(
+                    currentSnapshot.femNodes.at(node));
+            ++wallCount;
+        }
+        require(wallCount > 0u,
+                "fixture seam cannot derive a center from accepted wall nodes");
+        wallCentroid = (1.0 / wallCount) * wallCentroid;
+        BoxVec3 outward = seamCentroid - wallCentroid;
+        outward.y = 0.0;
+        outward = numi::cardboard::boxNormalized(outward);
+
+        std::vector<BoxFixtureJointPair> pairs;
+        pairs.reserve(orderedTab.size());
+        for (std::size_t index = 0u; index < orderedTab.size(); ++index) {
+            const auto& tabRest = blank.points.at(orderedTab[index]);
+            const auto& seamRest = blank.points.at(orderedSeam[index]);
+            require(std::abs(tabRest.y - seamRest.y) <= tolerance &&
+                        std::abs(tabRest.z - seamRest.z) <= tolerance,
+                    "fixture seam edge nodes do not have matching authored y/z coordinates");
+            const BoxVec3 seamPosition = numi::cardboard::boxAcceptedPosition(
+                currentSnapshot.femNodes.at(orderedSeam[index]));
+            const BoxVec3 tabStart = numi::cardboard::boxAcceptedPosition(
+                currentSnapshot.femNodes.at(orderedTab[index]));
+            const BoxVec3 tabTarget = seamPosition +
+                arguments.boxFixtureGapM * outward;
+            pairs.push_back({orderedTab[index], orderedSeam[index],
+                             tabStart, tabTarget, seamPosition});
+        }
+        return pairs;
+    };
+    const auto makeFixtureEndTargets = [&](const bool topEnd) {
+        const auto grips = numi::cardboard::makeBoxFeatureGrips(
+            blank, blank.points);
+        auto targets = zeroTargets();
+        std::set<std::uint32_t> clampedNodes;
+        for (const auto& grip : grips) {
+            if (grip.scoreLineIndex >= blank.scoreLines.size()) continue;
+            const auto kind = blank.scoreLines[grip.scoreLineIndex].kind;
+            if ((kind == numi::cardboard::BoxScoreKind::topFlap) != topEnd)
+                continue;
+            for (const std::uint32_t node : grip.nodeIndices)
+                clampedNodes.insert(node);
+        }
+        require(!clampedNodes.empty(),
+                "fixture end closure has no authored flap free-edge nodes");
+        for (const std::uint32_t node : clampedNodes) {
+            const auto& accepted = currentSnapshot.femNodes.at(node);
+            require(accepted.restAndFixed.w == 0.0f ||
+                        accepted.restAndFixed.w == 3.0f,
+                    "fixture end edge contains a nonfree authored constraint");
+            numi::cardboard::setBoxGripTarget(
+                targets, nodeCount, 0u, node,
+                numi::cardboard::boxAcceptedPosition(accepted), 3.0f);
+        }
+        return std::pair<std::vector<nm_float4>, std::size_t>{
+            std::move(targets), clampedNodes.size()};
+    };
+    if (!nativeFailure) {
+        for (std::uint32_t actionIndex = 0u;
+             actionIndex < blank.assembly.actions.size(); ++actionIndex) {
+            const auto& action = blank.assembly.actions[actionIndex];
+            auto& row = actionRows[actionIndex];
+            if (arguments.boxFixtureJoint &&
+                action.kind == numi::cardboard::BoxAssemblyAction::Kind::bondManufacturerJoint &&
+                tabAnchorActive) {
+                // Wall grips are persistent external supports. Confirm each
+                // distal edge remains clamped before releasing the tab's free
+                // edge, which the seam fixture will move in the next stage.
+                const auto grips = numi::cardboard::makeBoxFeatureGrips(
+                    blank, blank.points);
+                for (std::uint32_t wallAction = 0u; wallAction < 4u; ++wallAction) {
+                    const auto grip = std::find_if(grips.begin(), grips.end(),
+                        [wallAction](const auto& candidate) {
+                            return candidate.assemblyActionIndex == wallAction;
+                        });
+                    require(grip != grips.end() && !grip->nodeIndices.empty(),
+                            "retained wall fixture grip is missing");
+                    for (const std::uint32_t node : grip->nodeIndices)
+                        require(currentSnapshot.femNodes.at(node)
+                                    .restAndFixed.w == 3.0f,
+                                "completed wall boundary grip was not retained");
+                }
+
+                auto releaseTargets = zeroTargets();
+                for (const std::uint32_t node : tabAnchorNodes) {
+                    const auto& accepted = currentSnapshot.femNodes.at(node);
+                    require(accepted.restAndFixed.w == 3.0f,
+                            "tab body anchor was not active before fixture release");
+                    numi::cardboard::setBoxGripTarget(
+                        releaseTargets, nodeCount, 0u, node,
+                        numi::cardboard::boxAcceptedPosition(accepted), 2.0f);
+                }
+                const std::uint32_t nativeStep = nextNativeStep;
+                if (!attemptNativeStep("tab_body_anchor_release_before_joint_fixture",
+                        actionIndex, releaseTargets, parkedBodies())) {
+                    row.status = "native_rejected";
+                    row.diagnostic = stopReason;
+                    nativeFailure = true;
+                    break;
+                }
+                row.firstNativeStep = nativeStep;
+                row.lastNativeStep = nativeStep;
+                ++row.acceptedNativeSteps;
+                for (const std::uint32_t node : tabAnchorNodes)
+                    require(currentSnapshot.femNodes.at(node)
+                                .restAndFixed.w == 0.0f,
+                            "released tab anchor did not return to free state");
+                for (std::uint32_t wallAction = 0u; wallAction < 4u; ++wallAction) {
+                    const auto grip = std::find_if(grips.begin(), grips.end(),
+                        [wallAction](const auto& candidate) {
+                            return candidate.assemblyActionIndex == wallAction;
+                        });
+                    for (const std::uint32_t node : grip->nodeIndices)
+                        require(currentSnapshot.femNodes.at(node)
+                                    .restAndFixed.w == 3.0f,
+                                "tab anchor release disturbed a retained wall clamp");
+                }
+                tabAnchorActive = false;
+                tabAnchorReleasedBeforeJointFixture = true;
+            }
+            if (nativeFailure) break;
+            activeActionStartNodes = currentSnapshot.femNodes;
+            if (action.kind == numi::cardboard::BoxAssemblyAction::Kind::bondManufacturerJoint ||
+                action.kind == numi::cardboard::BoxAssemblyAction::Kind::closeEndWithTapeOrAdhesive) {
+                if (arguments.boxFixtureJoint) {
+                    const bool manufacturerJoint =
+                        action.kind == numi::cardboard::BoxAssemblyAction::Kind::bondManufacturerJoint;
+                    const bool topEnd = action.feature.index == 1u;
+                    std::size_t fixtureNodeCount = 0u;
+                    if (manufacturerJoint) {
+                        const auto pairs = makeFixtureJointTargets();
+                        fixtureNodeCount = 2u * pairs.size();
+                        if (row.firstNativeStep == NM_INVALID_INDEX)
+                            row.firstNativeStep = nextNativeStep;
+                        for (std::uint32_t fixtureStep = 0u;
+                             fixtureStep < arguments.boxFixtureSteps;
+                             ++fixtureStep) {
+                            const double fraction =
+                                static_cast<double>(fixtureStep + 1u) /
+                                arguments.boxFixtureSteps;
+                            auto targets = zeroTargets();
+                            for (const auto& pair : pairs) {
+                                const auto tabTarget = pair.tabStart + fraction *
+                                    (pair.tabEnd - pair.tabStart);
+                                numi::cardboard::setBoxGripTarget(
+                                    targets, nodeCount, 0u, pair.seamNode,
+                                    pair.seamEndpoint, 3.0f);
+                                numi::cardboard::setBoxGripTarget(
+                                    targets, nodeCount, 0u, pair.tabNode,
+                                    tabTarget, 3.0f);
+                            }
+                            const std::uint32_t nativeStep = nextNativeStep;
+                            const bool accepted = attemptNativeStep(
+                                "external_joint_fixture_move", actionIndex,
+                                targets, parkedBodies());
+                            row.lastNativeStep = nativeStep;
+                            if (!accepted) {
+                                row.status = "native_rejected";
+                                row.diagnostic = stopReason;
+                                nativeFailure = true;
+                                break;
+                            }
+                            ++row.acceptedNativeSteps;
+                        }
+                    } else {
+                        auto fixture = makeFixtureEndTargets(topEnd);
+                        fixtureNodeCount = fixture.second;
+                        const std::uint32_t nativeStep = nextNativeStep;
+                        const bool accepted = attemptNativeStep(
+                            topEnd ? "external_top_clamp_acquire"
+                                   : "external_bottom_clamp_acquire",
+                            actionIndex, fixture.first, parkedBodies());
+                        if (row.firstNativeStep == NM_INVALID_INDEX)
+                            row.firstNativeStep = nativeStep;
+                        row.lastNativeStep = nativeStep;
+                        if (!accepted) {
+                            row.status = "native_rejected";
+                            row.diagnostic = stopReason;
+                            nativeFailure = true;
+                        } else {
+                            row.acceptedNativeSteps = 1u;
+                        }
+                    }
+                    if (nativeFailure) break;
+                    row.status = manufacturerJoint
+                        ? "externally_held_unbonded"
+                        : "externally_clamped_unsealed";
+                    const auto gaps = numi::cardboard::measureBoxClosureGapDiagnostics(
+                        blank, blank.points, currentSnapshot.femNodes, 0u,
+                        nodeCount, topEnd);
+                    std::ostringstream diagnostic;
+                    diagnostic << std::setprecision(9)
+                        << "external boundary fixture retained " << fixtureNodeCount
+                        << " authored edge nodes; no adhesive/cohesive traction-separation law; "
+                        << "physical_assembly_without_fixtures=false, sealed=false, "
+                        << "adhesive_calibrated=false; nearest-node diagnostics only: "
+                        << "manufacturer_joint_m="
+                        << (gaps.manufacturerJoint.valid ? gaps.manufacturerJoint.distance : -1.0)
+                        << ", short_flap_overlap_m="
+                        << (gaps.shortFlapOverlap.valid ? gaps.shortFlapOverlap.distance : -1.0)
+                        << ", long_flap_overlap_m="
+                        << (gaps.longFlapOverlap.valid ? gaps.longFlapOverlap.distance : -1.0);
+                    if (manufacturerJoint)
+                        diagnostic << ", prescribed_fixture_standoff_m="
+                                   << arguments.boxFixtureGapM
+                                   << ", fixture_native_substeps="
+                                   << arguments.boxFixtureSteps;
+                    row.diagnostic = diagnostic.str();
+                    writeBoxActionCsv(arguments.output / "box-actions.csv",
+                                      blank, actionRows);
+                    writeObj(arguments.output /
+                                 ("box-action-" + stepLabel(actionIndex + 1u) +
+                                  "-accepted.obj"),
+                             compiled.world, currentSnapshot.femNodes, 0u);
+                    continue;
+                }
+                row.status = "blocked_missing_cohesive_law";
+                const auto gaps = numi::cardboard::measureBoxClosureGapDiagnostics(
+                    blank, blank.points, currentSnapshot.femNodes, 0u, nodeCount,
+                    action.feature.index == 1u);
+                std::ostringstream diagnostic;
+                diagnostic << std::setprecision(9)
+                    << "source action requires adhesive/cohesive traction-separation coupling; "
+                    << "nearest-node diagnostics only (not continuous contact): manufacturer_joint_m="
+                    << (gaps.manufacturerJoint.valid ? gaps.manufacturerJoint.distance : -1.0)
+                    << ", short_flap_overlap_m="
+                    << (gaps.shortFlapOverlap.valid ? gaps.shortFlapOverlap.distance : -1.0)
+                    << ", long_flap_overlap_m="
+                    << (gaps.longFlapOverlap.valid ? gaps.longFlapOverlap.distance : -1.0);
+                row.diagnostic = diagnostic.str();
+                blockedByBondLaw = true;
+                stopReason = row.diagnostic;
+                break;
+            }
+
+            const RuntimeStateSnapshot actionStart = currentSnapshot;
+            bool completed = false;
+            for (std::uint32_t localStep = 0u;
+                 localStep < arguments.boxMaximumStepsPerAction; ++localStep) {
+                const auto plan = numi::cardboard::planBoxAssemblyActionStep(
+                    blank, blank.points, currentSnapshot.femNodes,
+                    actionStart.femNodes, 0u, nodeCount, actionIndex,
+                    arguments.boxAngleIncrementDegrees, 0.5,
+                    arguments.boxShapeResidualBoundCalipers,
+                    arguments.boxShapeFitCoverageMinimum);
+                if (plan.angleObservable) {
+                    row.shapeFitObservable = true;
+                    row.shapeFitResidualRmsM = plan.fitResidualRms;
+                    row.shapeFitResidualBoundM = plan.shapeFitResidualBound;
+                    row.shapeFitCoverage = plan.fitCoverage;
+                    row.shapeFitWithinBound = plan.shapeFitWithinBound;
+                }
+                if (plan.shapeFitRejected) {
+                    row.shapeFitCompletionRejected = true;
+                    std::ostringstream diagnostic;
+                    diagnostic << std::setprecision(9)
+                        << "target angle reached but accepted interior shape fit failed engineering gate: residual_m="
+                        << plan.fitResidualRms
+                        << ", residual_bound_m=" << plan.shapeFitResidualBound
+                        << ", coverage=" << plan.fitCoverage
+                        << ", coverage_min=" << plan.shapeFitCoverageMinimum;
+                    row.status = "shape_fit_rejected";
+                    row.diagnostic = diagnostic.str();
+                    shapeFitRejection = true;
+                    nativeFailure = true;
+                    stopReason = row.diagnostic;
+                    break;
+                }
+                if (!plan.valid || plan.physicalBondLawRequired) {
+                    row.status = "controller_invalid";
+                    row.diagnostic = "accepted-state boundary-action planner returned an invalid or bond-dependent step";
+                    nativeFailure = true;
+                    stopReason = row.diagnostic;
+                    break;
+                }
+                if (plan.angleObservable) {
+                    const std::uint32_t hingeScore =
+                        action.kind == numi::cardboard::BoxAssemblyAction::Kind::foldFlap
+                            ? action.feature.index : action.hingeScoreLineIndex;
+                    if (hingeScore < blank.scoreLines.size()) {
+                        const auto scoreObservations = boxScoreAngles(
+                            mesh, actionStart.femNodes, currentSnapshot.femNodes, 0u,
+                            nodeCount);
+                        const auto& measured = scoreObservations[hingeScore];
+                        row.angleValid = measured.valid;
+                        row.observedFoldTurnDegrees = measured.foldTurnDegrees;
+                        row.observedInteriorAngleDegrees = measured.interiorAngleDegrees;
+                    }
+                }
+                if (plan.phase == numi::cardboard::BoxAssemblyActionStep::Phase::acceptedContactOnly) {
+                    if (action.kind == numi::cardboard::BoxAssemblyAction::Kind::erectWallPanel) {
+                        row.status = "completed_relative_turn_clamp_retained";
+                        row.diagnostic =
+                            "accepted relative turn is within tolerance; external wall boundary clamp retained for later folds, tube, and seam; no crease damage or adhesive law";
+                    } else {
+                        row.status = "completed_from_accepted_state";
+                        row.diagnostic = "interior fit is within target tolerance and no temporary flap grip remains";
+                    }
+                    completed = true;
+                    break;
+                }
+                auto targets = zeroTargets();
+                for (const auto& target : plan.nodeTargets)
+                    numi::cardboard::setBoxGripTarget(
+                        targets, nodeCount, 0u, target.node, target.endpoint,
+                        target.command);
+                const std::uint32_t nativeStep = nextNativeStep;
+                const bool accepted = attemptNativeStep(
+                    plan.phase == numi::cardboard::BoxAssemblyActionStep::Phase::releaseGrip
+                        ? "wall_grip_release" : "wall_grip_move",
+                    actionIndex, targets, parkedBodies());
+                if (row.firstNativeStep == NM_INVALID_INDEX)
+                    row.firstNativeStep = nativeStep;
+                row.lastNativeStep = nativeStep;
+                if (accepted) ++row.acceptedNativeSteps;
+                const std::uint32_t hingeScore =
+                    action.kind == numi::cardboard::BoxAssemblyAction::Kind::foldFlap
+                        ? action.feature.index : action.hingeScoreLineIndex;
+                if (hingeScore < blank.scoreLines.size()) {
+                    const auto scoreObservations = boxScoreAngles(
+                        mesh, actionStart.femNodes, currentSnapshot.femNodes, 0u,
+                        nodeCount);
+                    const auto& measured = scoreObservations[hingeScore];
+                    row.angleValid = measured.valid;
+                    row.observedFoldTurnDegrees = measured.foldTurnDegrees;
+                    row.observedInteriorAngleDegrees = measured.interiorAngleDegrees;
+                }
+                if (!accepted) {
+                    row.status = "native_rejected";
+                    row.diagnostic = stopReason;
+                    nativeFailure = true;
+                    break;
+                }
+            }
+            if (!nativeFailure && !completed) {
+                row.status = "action_step_limit";
+                row.diagnostic = "accepted boundary grip did not reach its interior-fit target before the authored native-step limit";
+                nativeFailure = true;
+                stopReason = row.diagnostic;
+            }
+            if (nativeFailure) break;
+            writeBoxActionCsv(arguments.output / "box-actions.csv", blank, actionRows);
+            writeObj(arguments.output / ("box-action-" + stepLabel(actionIndex + 1u) + "-accepted.obj"),
+                     compiled.world, currentSnapshot.femNodes, 0u);
+        }
+    }
+
+    if (blockedByBondLaw) {
+        bool afterBlock = false;
+        for (std::size_t index = 0u; index < actionRows.size(); ++index) {
+            if (actionRows[index].status == "blocked_missing_cohesive_law") {
+                afterBlock = true;
+                continue;
+            }
+            if (afterBlock && actionRows[index].status == "not_attempted") {
+                actionRows[index].status = "not_attempted_after_bond_law_block";
+                actionRows[index].diagnostic = "sequence stops at the first source-described adhesive operation";
+            }
+        }
+    } else if (shapeFitRejection) {
+        for (auto& row : actionRows)
+            if (row.status == "not_attempted") {
+                row.status = "not_attempted_after_shape_fit_rejection";
+                row.diagnostic = stopReason;
+            }
+    } else if (nativeFailure) {
+        for (auto& row : actionRows)
+            if (row.status == "not_attempted") {
+                row.status = "not_attempted_after_native_failure";
+                row.diagnostic = stopReason;
+            }
+    }
+    writeBoxActionCsv(arguments.output / "box-actions.csv", blank, actionRows);
+    writeObj(arguments.output / "box-native-final-accepted-env0.obj",
+             compiled.world, currentSnapshot.femNodes, 0u);
+    writeObj(arguments.output / "box-native-final-reference-env1.obj",
+             compiled.world, currentSnapshot.femNodes, 1u);
+    std::ofstream result(arguments.output / "box-native-result.json");
+    const std::string finalStatus = shapeFitRejection ? "shape_fit_rejected" :
+        nativeFailure ? "failed_native" :
+        blockedByBondLaw ? "blocked_missing_cohesive_law" :
+        arguments.boxFixtureJoint ? "completed_fixture_held_unbonded" :
+        "completed_boundary_actions";
+    result << "{\n  \"schema\": \"numi.cardboard.fefco0201-native-execution.v1\",\n"
+           << "  \"status\": \"" << finalStatus << "\",\n"
+           << "  \"compiled_world_fingerprint\": " << compiled.world.fingerprint << ",\n"
+           << "  \"native_steps_attempted\": " << nextNativeStep << ",\n"
+           << "  \"native_steps_accepted\": " << acceptedNativeSteps << ",\n"
+           << "  \"score_line_count\": " << blank.scoreLines.size() << ",\n"
+           << "  \"assembly_action_count\": " << blank.assembly.actions.size() << ",\n"
+           << "  \"score_tool_radius_m\": " << tooling.punchRadius << ",\n"
+           << "  \"score_tool_clearance_m\": " << tooling.toolClearance << ",\n"
+           << "  \"score_approach_steps_per_leg\": " << arguments.boxScoreStepsPerLeg << ",\n"
+           << "  \"maximum_fold_increment_deg\": " << arguments.boxAngleIncrementDegrees << ",\n"
+           << "  \"shape_fit_residual_bound_calipers\": "
+           << arguments.boxShapeResidualBoundCalipers << ",\n"
+           << "  \"shape_fit_coverage_minimum\": "
+           << arguments.boxShapeFitCoverageMinimum << ",\n"
+           << "  \"shape_fit_bound_is_published_tolerance\": false,\n"
+           << "  \"score_contact_is_damage\": false,\n"
+           << "  \"source_scored_lines_are_physical\": false,\n"
+           << "  \"manufacturer_joint_cohesive_law_present\": false,\n"
+           << "  \"fixture_mode\": " << (arguments.boxFixtureJoint ? "true" : "false") << ",\n"
+           << "  \"externally_held\": " << (currentSnapshot.femNodes.size() >= nodeCount && std::any_of(
+                currentSnapshot.femNodes.begin(),
+                currentSnapshot.femNodes.begin() + nodeCount,
+                [](const auto& node) { return node.restAndFixed.w == 3.0f; })
+                ? "true" : "false") << ",\n"
+           << "  \"initial_tab_body_anchor_node_count\": " << tabAnchorNodes.size() << ",\n"
+           << "  \"initial_tab_body_anchor_active_at_end\": " << (tabAnchorActive ? "true" : "false") << ",\n"
+           << "  \"tab_anchor_released_after_wall_clamps_before_joint_fixture\": "
+           << (tabAnchorReleasedBeforeJointFixture ? "true" : "false") << ",\n"
+           << "  \"wall_boundary_clamps_retained_through_joint_fixture\": "
+           << (arguments.boxFixtureJoint && tabAnchorReleasedBeforeJointFixture ? "true" : "false") << ",\n"
+           << "  \"self_contact_enabled\": "
+           << (mesh.world.objects.front().deformableSelfContact ? "true" : "false") << ",\n"
+           << "  \"numerical_control_without_deformable_contact\": "
+           << (arguments.disableSelfContact ? "true" : "false") << ",\n"
+           << "  \"physical_assembly_without_fixtures\": false,\n"
+           << "  \"sealed\": false,\n"
+           << "  \"adhesive_calibrated\": false,\n"
+           << "  \"physical_validation\": false,\n"
+           << "  \"fixture_standoff_m\": "
+           << (arguments.boxFixtureJoint ? arguments.boxFixtureGapM : 0.0) << ",\n"
+           << "  \"fixture_joint_native_substeps\": "
+           << (arguments.boxFixtureJoint ? arguments.boxFixtureSteps : 0u) << ",\n"
+           << "  \"stop_reason\": \"" << jsonEscape(stopReason) << "\"\n}\n";
+    require(result.good(), "failed writing native box result JSON");
+    const std::string status = finalStatus;
+    writeSummaryJson(arguments.output / "result.json", status, mesh, compiled,
+                     acceptedNativeSteps, stopReason);
+    printResult(status, compiled, acceptedNativeSteps, stopReason);
+    if (shapeFitRejection) return 4;
+    if (nativeFailure) return 2;
+    if (blockedByBondLaw) return 3;
+    return 0;
+}
+
 int execute(const Arguments& arguments) {
     const Digest linerDigest = sha256File(arguments.linerMaterial);
     const Digest mediumDigest = sha256File(arguments.mediumMaterial);
@@ -2048,7 +3015,10 @@ int execute(const Arguments& arguments) {
         return 0;
     }
 
-    NativeRun run(compiled.world);
+    if (arguments.boxAssemblyNative)
+        return executeBoxAssemblyNative(arguments, mesh, compiled);
+
+    NativeRun run(compiled.world, arguments.metallib);
     std::ofstream observations(arguments.output / "observations.csv");
     require(observations.good(), "cannot create observations.csv");
     writeHeader(observations);

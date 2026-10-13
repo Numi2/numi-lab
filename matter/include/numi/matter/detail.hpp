@@ -69,7 +69,9 @@ struct ConstitutiveCompileResult {
 // pre-apply validation changes without an ABI or metallib-format change.
 inline constexpr std::uint64_t kRuntimeExecutionPolicyDomain =
     0x4e4d52554e504f4cull; // "NMRUNPOL"
-inline constexpr std::uint64_t kRuntimeExecutionPolicyRevision = 1u;
+// Revision 2 binds paired-interface reset/coupling, temporary FEM grip
+// transactions, and the bounded residual-Armijo/BOX endpoint policies.
+inline constexpr std::uint64_t kRuntimeExecutionPolicyRevision = 2u;
 
 template <typename Mixer>
 [[nodiscard]] std::uint64_t mixRuntimeExecutionPolicyFingerprint(
