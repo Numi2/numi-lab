@@ -23679,7 +23679,7 @@ int main(int argc, char** argv) {
                         counts[0],counts[1],counts[2],counts[3],counts[4],counts[5],counts[6],counts[7],counts[8],counts[9],true);
                     liveVisual=std::make_unique<NumiHumanRestingVisual>(coupled,std::move(pack),rigid.model,*skinPayload,&*softTissuePayload,
                         initialBodies,restBodies,*supportContactPayload,functional,positional.back(),frameDimension,restingMovie,!mechanicsOnly,
-                        fixedBed?&*fixedBed:nullptr);
+                        fixedBed?&*fixedBed:nullptr,&*torsoAnatomyPayload);
                     // The existing GPU buffer now owns these static motion maps.
                     softTissuePayload->parentInfluences.clear();
                     softTissuePayload->anatomyParentInfluences.clear();

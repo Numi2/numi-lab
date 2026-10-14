@@ -5,6 +5,7 @@
 #include "NumiHumanRestingBedSurface.hpp"
 #include "NumiHumanRestingSurfaceAuditDiagnostic.hpp"
 #include "NumiHumanAcceptedGeometryCadence.hpp"
+#include "NumiHumanRestingSourceAllocation.hpp"
 #include <charconv>
 #include <bit>
 #include <cstdio>
@@ -888,7 +889,8 @@ public:
         const std::vector<MRBodyStateGPU>& initialBodies,const std::vector<MRBodyStateGPU>& restBodies,
         const LoadedSupportContacts& support,const NumiHumanRestingAnatomy& functional,
         const std::filesystem::path& output,unsigned size,const std::string& movie,bool presentWindow=true,
-        const NumiHumanRestingBedSurface* bedSurface=nullptr):
+        const NumiHumanRestingBedSurface* bedSurface=nullptr,
+        const LoadedTorsoAnatomy* torsoAnatomy=nullptr):
         coupled(owner),dimension(size),outputDirectory(output),acceptedGeometryDirectory(output/"accepted-geometry"),
         surfaceTrace(output/"resting-surface-audit.csv") {
         if(bedSurface)bedParameters=bedSurface->gpu;
@@ -1360,25 +1362,9 @@ public:
                 const auto& primitive=pack.primitives.at(instance.geometry.x);
                 require(primitive.geometry.y==tissue->indexCount&&tissue->indexCount>0,
                     "resting tissue source index count differs from its native primitive");
-                const unsigned sourceFirst=tissues->indices.at(tissue->firstIndex);
-                require(sourceFirst>=tissue->firstVertex&&
-                    sourceFirst-tissue->firstVertex<tissue->vertexCount,
-                    "resting tissue first source index is outside its vertex allocation");
-                const unsigned sourceOffset=sourceFirst-tissue->firstVertex;
-                const unsigned meshFirst=pack.indices.at(primitive.geometry.x);
-                require(meshFirst>=sourceOffset,"resting tissue source vertex base underflows");
-                const unsigned sourceBase=meshFirst-sourceOffset;
-                require(sourceBase<=pack.vertices.size()&&
-                    tissue->vertexCount<=pack.vertices.size()-sourceBase,
-                    "resting tissue source vertex allocation exceeds the native pack");
-                for(unsigned j=0;j<tissue->indexCount;++j) {
-                    const unsigned sourceIndex=tissues->indices.at(tissue->firstIndex+j);
-                    require(sourceIndex>=tissue->firstVertex&&
-                        sourceIndex-tissue->firstVertex<tissue->vertexCount&&
-                        pack.indices.at(primitive.geometry.x+j)==
-                            sourceBase+(sourceIndex-tissue->firstVertex),
-                        "resting tissue native topology differs from its source vertex order");
-                }
+                const unsigned sourceBase=numiHumanRestingSourceAllocationBase(
+                    tissues->indices,tissue->firstIndex,tissue->firstVertex,tissue->vertexCount,
+                    pack.indices,primitive.geometry.x,tissue->indexCount,pack.vertices.size());
                 if(sourceBase!=base)
                     std::cout<<"resting_soft_tissue_source_range stable_id="<<tissue->stableId
                         <<" pack_source_base="<<sourceBase<<" first_referenced_vertex="<<base
@@ -1394,11 +1380,19 @@ public:
                         instance.binding.y<restBodies.size(),
                         "passive vessel parents conflict with a functional deformation owner");
                     anatomyParents=&found->second;
-                    // This extension requires all source vertices, including
-                    // the allocation's first vertex, in one contiguous primitive.
-                    require(vertices.size()==anatomyParents->size()&&
-                        vertices.back()-base+1==anatomyParents->size(),
-                        "passive vessel source vertex order differs from parent bindings");
+                    require(torsoAnatomy!=nullptr,"passive vessel source allocation is missing");
+                    const auto source=std::find_if(torsoAnatomy->records.begin(),torsoAnatomy->records.end(),
+                        [&](const auto& row){return row.stableId==instance.identity.w;});
+                    require(source!=torsoAnatomy->records.end()&&source->layer==2&&
+                        source->bodyIndex==instance.binding.y&&
+                        source->vertexCount==anatomyParents->size(),
+                        "passive vessel source identity or parent allocation differs");
+                    const auto& primitive=pack.primitives.at(instance.geometry.x);
+                    require(primitive.geometry.y==source->indexCount,
+                        "passive vessel source index count differs from its native primitive");
+                    base=numiHumanRestingSourceAllocationBase(
+                        torsoAnatomy->indices,source->firstIndex,source->firstVertex,source->vertexCount,
+                        pack.indices,primitive.geometry.x,source->indexCount,pack.vertices.size());
                 }
             }
             for(unsigned v:vertices) {
