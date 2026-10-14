@@ -1441,8 +1441,11 @@ def native_plan_components(args: argparse.Namespace, invocation: dict[str, Any],
         "prediction": model_prediction(model),
         "secondary_predictions": {
             "dose_direction": {"treatment_minus_control_inspiratory_ventilation_L_min": "< 0",
-                               "treatment_minus_control_primary_delta_PaCO2_mmhg": ">= 0",
-                               "scope": "Mechanistic response-direction checks; not guaranteed by a target curve."},
+                               "treatment_minus_control_primary_delta_PaCO2_mmhg": "> 0",
+                               "scope": ("A measured gas response must be positive: an unchanged PaCO2 trace cannot "
+                                         "demonstrate coupled gas response even though zero remains in the broad "
+                                         "steady-state sensitivity envelope. Report the effect magnitude; this "
+                                         "direction check is not clinical validation or a guaranteed target curve.")},
             "late_recovery_equivalence": {
                 "comparison": (f"treatment versus unchanged control, both averaged over the final "
                                f"{args.window_s:g} s"),

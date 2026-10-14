@@ -764,6 +764,8 @@ class NativeV2PlanPreparationTests(unittest.TestCase):
             self.assertEqual(plan["design"]["pre_dose_window_s"], [138., 150.])
             self.assertEqual(plan["design"]["dose_window_s"], [198., 210.])
             self.assertEqual(plan["design"]["recovery_window_s"], [318., 330.])
+            self.assertEqual(plan["secondary_predictions"]["dose_direction"]
+                             ["treatment_minus_control_primary_delta_PaCO2_mmhg"], "> 0")
             recovery = plan["secondary_predictions"]["late_recovery_equivalence"]
             self.assertEqual(recovery["comparison"], "treatment versus unchanged control, both averaged over the final 12 s")
             self.assertEqual(plan["secondary_predictions"]["late_recovery_equivalence"]["PaCO2_absolute_difference_max_mmhg"], 1.)
