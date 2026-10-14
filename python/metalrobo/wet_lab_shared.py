@@ -44,9 +44,11 @@ class SharedWorkspace:
         from investigation import model_difference
         sel=state.get('selection')
         if sel and sel['assayID'] in self.config['assays']:
-            state['selectionSupport']=laboratory.population_support(self.config['assays'][sel['assayID']],self.selection(sel),[sel.get('gene') or 'Clu'])
+            try:state['selectionSupport']=laboratory.population_support(self.config['assays'][sel['assayID']],self.selection(sel),[sel.get('gene') or 'Clu'])
+            except (OSError,ValueError) as error:state['selectionSupport']={'status':'UNAVAILABLE','reason':str(error),'canExecute':False,'recommendationSupported':False}
         for d in state['drafts']:
-            d['decisionSupport']=laboratory.population_support(self.config['assays'][d['selection']['assayID']],self.selection(d['selection']),d['genes'])
+            try:d['decisionSupport']=laboratory.population_support(self.config['assays'][d['selection']['assayID']],self.selection(d['selection']),d['genes'])
+            except (OSError,ValueError) as error:d['decisionSupport']={'status':'UNAVAILABLE','reason':str(error),'canExecute':False,'recommendationSupported':False}
             d['modelDifference']=model_difference(d)
         return state
     def datasets(self):
@@ -68,21 +70,23 @@ class SharedWorkspace:
         return result
     def event(self,s,event):
         s['revision']+=1;s['history'].append({'time':time.time(),'revision':s['revision'],**event});write(self.path,s)
+    def validate_binding(self,sel):
+        config=self.config['assays'].get(sel['assayID'])
+        if not config:raise ValueError('Unknown assay')
+        import laboratory
+        cat=laboratory.catalog(Path(config))
+        if sel['specimenID'] not in {v['id'] for v in cat.get('specimens',[])} or sel['populationID'] not in {v['id'] for v in cat.get('populations',[])}:raise ValueError('Unknown specimen or population')
+        conditions={c['id'] for c in cat['conditions']}
+        if sel.get('conditionID','measured-endpoint') not in conditions:raise ValueError('Unsupported condition')
+        pop=next(v for v in cat['populations'] if v['id']==sel['populationID'])
+        if pop.get('specimenID',sel['specimenID'])!=sel['specimenID'] or pop.get('conditionID',sel.get('conditionID','measured-endpoint'))!=sel.get('conditionID','measured-endpoint'):raise ValueError('Population does not match specimen and condition')
     def mutate(self,b):
         with self.lock():
             s=read(self.path)
             if b.get('expectedRevision')!=s['revision']:raise Conflict('Human or agent changed this workspace. Read context and review the edits before retrying.')
             action=b['action'];draft=None
             if action=='selection':
-                sel=b['selection'];config=self.config['assays'].get(sel['assayID'])
-                if not config:raise ValueError('Unknown assay')
-                import laboratory
-                cat=laboratory.catalog(Path(config))
-                if sel['specimenID'] not in {v['id'] for v in cat.get('specimens',[])} or sel['populationID'] not in {v['id'] for v in cat.get('populations',[])}:raise ValueError('Unknown specimen or population')
-                conditions={c['id'] for c in cat['conditions']}
-                if sel.get('conditionID','measured-endpoint') not in conditions:raise ValueError('Unsupported condition')
-                pop=next(v for v in cat['populations'] if v['id']==sel['populationID'])
-                if pop.get('specimenID',sel['specimenID'])!=sel['specimenID'] or pop.get('conditionID',sel.get('conditionID','measured-endpoint'))!=sel.get('conditionID','measured-endpoint'):raise ValueError('Population does not match specimen and condition')
+                sel=b['selection'];self.validate_binding(sel)
                 s['selection']=sel
             elif action=='propose':
                 if not s['selection']:raise ValueError('Select a biological population first')
@@ -97,10 +101,11 @@ class SharedWorkspace:
                         if not draft['undo']:raise ValueError('Nothing to undo')
                         prior=draft['undo'].pop();draft.update(prior)
                     else:
-                        draft['undo'].append({k:copy.deepcopy(draft.get(k,[draft['selection']['assayID']] if k=='modelIDs' else ['measured-endpoint'] if k=='conditionIDs' else None)) for k in ('genes','targets','title','modelIDs','conditionIDs')})
-                        for k in ('genes','targets','title','modelIDs','conditionIDs'):
+                        draft['undo'].append({k:copy.deepcopy(draft.get(k,[draft['selection']['assayID']] if k=='modelIDs' else ['measured-endpoint'] if k=='conditionIDs' else None)) for k in ('genes','targets','title','modelIDs','conditionIDs','selection')})
+                        for k in ('genes','targets','title','modelIDs','conditionIDs','selection'):
                             if k in b:draft[k]=b[k]
-                    self.qualify(draft)
+                    self.validate_binding(draft['selection']);self.qualify(draft)
+                    if 'selection' in b or action=='undo':s['selection']=copy.deepcopy(draft['selection'])
                 elif action=='revise':
                     new=copy.deepcopy(draft);new.update(id=uuid.uuid4().hex,status='draft',parent=draft['id'],undo=[])
                     for k in ('record','operation','result','axisResults'):new.pop(k,None)
@@ -138,7 +143,8 @@ class SharedWorkspace:
         from wetlab import sha
         sel=d['selection'];config=Path(self.config['assays'][sel['assayID']]);cat=laboratory.catalog(config)
         if not isinstance(d['targets'],list) or len(d['targets'])!=len(set(d['targets'])):raise ValueError('Distinct intervention list required')
-        d['supportedTargets']=sorted({x['target'] for x in laboratory.population_support(config,self.selection(sel),d['genes'])['candidates'] if x['canExecute']})
+        try:d['supportedTargets']=sorted({x['target'] for x in laboratory.population_support(config,self.selection(sel),d['genes'])['candidates'] if x['canExecute']})
+        except (OSError,ValueError):d['supportedTargets']=[]
         modelIDs=d.get('modelIDs',[sel['assayID']]);conditionIDs=d.get('conditionIDs',[sel.get('conditionID','measured-endpoint')])
         if not isinstance(modelIDs,list) or not 1<=len(modelIDs)<=4 or len(set(modelIDs))!=len(modelIDs):raise ValueError('Select one to four distinct model versions')
         if not isinstance(conditionIDs,list) or not 1<=len(conditionIDs)<=4 or len(set(conditionIDs))!=len(conditionIDs):raise ValueError('Select one to four distinct conditions')
@@ -155,9 +161,11 @@ class SharedWorkspace:
                         artifact=read(path);reference=read(config);specimen=next(x for x in artifact['specimens'] if x['id']==sel['specimenID']);original=next(x for x in reference['specimens'] if x['id']==sel['specimenID'])
                         if specimen['sourceSHA256']!=original['sourceSHA256']:raise ValueError('Specimen source differs between model versions')
                         axis.update(canExecute=coverage['canExecute'],reason='Supported experimental inference',selection=complete,populationSupport=laboratory.population_support(Path(path),complete,d['genes']),binding={'assaySHA256':sha(path),'modelVersion':artifact.get('modelVersion',mid),'runtimeSHA256':artifact['runtime']['sha256'],'weights':{k:v['sha256'] for k,v in artifact['models'].items()},'featureAxisSHA256':sha(Path(path).parent/'features.json'),'specimenSHA256':specimen['sourceSHA256'],'populationID':sel['populationID'],'conditionID':condition,'scoringOwnerSHA256':sha(laboratory.scoring_owner(path)),'evidence':'MODEL INFERENCE','biologicalPromotion':False})
-                    except (ValueError,KeyError,StopIteration) as error:
+                    except (OSError,ValueError,KeyError,StopIteration) as error:
                         axis['reason']=str(error) or 'Specimen or population incompatible'
                         if condition not in {c['id'] for c in cap['conditions']}:axis['corrections']=[{'conditionID':c['id']} for c in cap['conditions']]
+                        elif any(p['id']==sel['populationID'] and p.get('conditionID') and p['conditionID']!=condition for p in cap['populations']):
+                            axis['corrections']=[{'conditionID':p['conditionID'],'retainObjective':True,'retainCandidates':True} for p in cap['populations'] if p['id']==sel['populationID'] and p.get('conditionID')]
                         elif not cap['prediction']:
                             axis['corrections']=[{'registerCompatibleModel':True,'requiredSpecimen':sel['specimenID'],'requiredPopulation':sel['populationID'],'requiredCondition':condition,'retainIntent':True}]
                         elif any(not g['eligible'] for g in axis.get('coverage',{}).get('genes',[])):axis['corrections']=[{'removeUnsupportedGenes':[g['gene'] for g in axis['coverage']['genes'] if not g['eligible']],'requiresObjectiveEdit':True}]
@@ -166,7 +174,7 @@ class SharedWorkspace:
                             axis['corrections']=[{'removeUnsupportedTargets':unsupported,'requiresCandidateEdit':True}] if unsupported else [{'reviewSupportedPopulations':cap['populations'],'reviewSupportedTargets':cap['targets'],'retainIntent':True}]
                 d['axes'].append(axis)
         try:d['coverage']=laboratory.inspect_objective(config,self.selection(sel,d['targets'],d['genes']),{'genes':d['genes'],'preserveGenes':[],'penalty':0})
-        except (ValueError,KeyError,StopIteration):d['coverage']={'genes':[],'candidateEffects':[]}
+        except (OSError,ValueError,KeyError,StopIteration):d['coverage']={'genes':[],'candidateEffects':[]}
         d['coverage']['canExecute']=all(x['canExecute'] for x in d['axes'])
         d['coverage']['executionReason']='; '.join(x['reason'] for x in d['axes'] if not x['canExecute'])
     def alive(self,op):

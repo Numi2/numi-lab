@@ -1,0 +1,11 @@
+import assert from 'node:assert/strict';
+import {ServiceClient,ServiceError} from '../python/metalrobo/wet_lab/assets/client.js';
+import {AcknowledgedState} from '../python/metalrobo/wet_lab/assets/state.js';
+let calls=0;globalThis.fetch=async()=>{calls++;return new Response(JSON.stringify({gene:'FOS'}))};
+const client=new ServiceClient('private');await client.request('readout',{gene:'FOS'},{cacheKey:'dataset/population/model/condition/raw/closed'});await client.request('readout',{gene:'FOS'},{cacheKey:'dataset/population/model/condition/raw/closed'});assert.equal(calls,1);await client.request('readout',{gene:'FOS'},{cacheKey:'dataset/population/model/condition/raw/revealed'});assert.equal(calls,2);
+let resolveOld;globalThis.fetch=(_url,options)=>new Promise(resolve=>{resolveOld=resolve;options.signal.addEventListener('abort',()=>resolve(new Response('{}')))});
+const old=client.request('readout',{}, {channel:'selection'});client.cancel('selection');await assert.rejects(old,{name:'AbortError'});
+const acknowledged=new AcknowledgedState(client);acknowledged.value={revision:7};globalThis.fetch=async()=>new Response(JSON.stringify({revision:6}));await acknowledged.refresh();assert.equal(acknowledged.value.revision,7);
+let requests=0;globalThis.fetch=async()=>{requests++;return requests===1?new Response(JSON.stringify({error:'Human edit',revision:8}),{status:409}):new Response(JSON.stringify({revision:8}))};
+await assert.rejects(acknowledged.mutate({action:'edit',genes:['FOS']}),ServiceError);assert.equal(requests,2);assert.equal(acknowledged.value.revision,8);assert.deepEqual(acknowledged.rejected.genes,['FOS']);assert.equal(acknowledged.pending,false);
+console.log('Cache access identity, obsolete request rejection, revision ordering and preserved conflict intent passed.');

@@ -32,7 +32,7 @@ def snapshot(store,expected_revision):
    # Retain executable scientific and service owners independently of disposable checkouts.
    owners=dest/'owners';shutil.copytree(Path(store.config['vivoRoot'])/'Tools/VirtualWetLab',owners/'vivo/Tools/VirtualWetLab',ignore=shutil.ignore_patterns('__pycache__','*.pyc'))
    service=Path(__file__).parent;lab=owners/'lab';lab.mkdir(parents=True)
-   for name in ('virtual_wet_lab.py','wet_lab_shared.py','wet_lab_snapshot.py','wet_lab_cli.py'):shutil.copy2(service/name,lab/name)
+   for name in ('virtual_wet_lab.py','wet_lab_shared.py','wet_lab_snapshot.py','wet_lab_cli.py','wet_lab_entry.py','biological_viewers.py','wet_lab_viewer_export.py'):shutil.copy2(service/name,lab/name)
    shutil.copytree(service/'wet_lab',lab/'wet_lab',ignore=shutil.ignore_patterns('__pycache__'))
    mappings={};dependencies={};assays={}
    for aid,source in store.config['assays'].items():

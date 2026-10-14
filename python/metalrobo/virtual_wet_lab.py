@@ -58,7 +58,7 @@ def main():
             self.send_header('Content-Length', str(len(encoded)))
             self.send_header('Cache-Control', 'no-store')
             self.send_header('X-Content-Type-Options', 'nosniff')
-            self.send_header('Content-Security-Policy', "default-src 'self'; script-src 'nonce-" + token + "'; style-src 'self' 'unsafe-inline'; frame-ancestors 'none'")
+            self.send_header('Content-Security-Policy', "default-src 'self'; script-src 'self' 'nonce-" + token + "'; style-src 'self' 'unsafe-inline'; frame-ancestors 'none'")
             self.end_headers(); self.wfile.write(encoded)
 
         def valid_host(self):
@@ -78,9 +78,15 @@ def main():
                 if path == '/': return self.respond(200, html, 'text/html')
                 if path in ('/app.js','/tissue_index.js','/learned.js','/design.js','/shared.js','/population.js','/biological_viewers.js','/style.css'):
                     return self.respond(200, (Path(__file__).parent / 'wet_lab' / path[1:]).read_text(), 'text/javascript' if path.endswith('.js') else 'text/css')
+                if path == '/workbench.css': return self.respond(200,(Path(__file__).parent/'wet_lab/workbench.css').read_text(),'text/css')
+                if re.fullmatch(r'/assets/(?:[a-z_]+/)*[a-z_]+\.js',path):
+                    asset=Path(__file__).parent/'wet_lab'/path[1:]
+                    if not asset.is_file():return self.respond(404,{'error':'Packaged presentation module unavailable; reinstall the laboratory runtime'})
+                    return self.respond(200,asset.read_text(),'text/javascript')
                 if path == '/favicon.ico': return self.respond(204, '')
                 if self.headers.get('X-Wet-Lab-Token') != token:
                     return self.respond(403, {'error': 'Workspace token required'})
+                if path == '/api/health': return self.respond(200, {'status':'ready','pid':os.getpid(),'workspace':str(args.workspace),'presentation':'workbench-v1','observationAccess':'unchanged'})
                 if path == '/api/shared': return self.respond(200, shared.state())
                 if path == '/api/viewers':
                     from biological_viewers import public_context
@@ -246,7 +252,7 @@ def main():
     server = ThreadingHTTPServer(('127.0.0.1', args.port), Handler)
     active = args.connection_file
     active.parent.mkdir(exist_ok=True)
-    shared_write(active, {'url': 'http://127.0.0.1:'+str(server.server_port), 'token': token, 'pid': os.getpid()})
+    shared_write(active, {'workspace':str(args.workspace),'url': 'http://127.0.0.1:'+str(server.server_port), 'token': token, 'pid': os.getpid()})
     active.chmod(0o600)
     print('Virtual Wet Lab: http://127.0.0.1:' + str(server.server_port), flush=True)
     print('Experiment records: ' + str(args.workspace), flush=True)

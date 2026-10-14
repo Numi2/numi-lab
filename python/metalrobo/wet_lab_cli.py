@@ -4,35 +4,20 @@ import argparse,json,sys,urllib.request,urllib.error,urllib.parse
 from pathlib import Path
 
 def main():
-    p=argparse.ArgumentParser(description=__doc__);p.add_argument('action',choices=['context','catalog','select','propose','edit','undo','revise','seal','reveal','replay','cancel','recover','history','snapshot','export','restore','open','readout']);p.add_argument('--revision',type=int);p.add_argument('--full',action='store_true',help='Include full retained registration metadata');p.add_argument('--id');p.add_argument('--assay');p.add_argument('--specimen');p.add_argument('--population');p.add_argument('--condition');p.add_argument('--name');p.add_argument('--port',type=int,default=8772);p.add_argument('--foreground',action='store_true',help='Keep the restored service attached to this command');p.add_argument('--genes',nargs='+');p.add_argument('--targets',nargs='+');p.add_argument('--title');p.add_argument('--models',nargs='+');p.add_argument('--conditions',nargs='+');p.add_argument('--authorized-reveal',action='store_true',help='Use only after explicit user authorization to open observations');p.add_argument('--kind',choices=['gene','interventions','features','populations','objective-coverage'],default='gene');p.add_argument('--gene');p.add_argument('--target');p.add_argument('--limit',type=int,default=64);p.add_argument('--offset',type=int,default=0);p.add_argument('--search');p.add_argument('--normalization',choices=['raw_counts','log1p_10000'],default='raw_counts');a=p.parse_args()
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('action',nargs='?',default='open',choices=['list','status','context','catalog','select','propose','edit','undo','revise','seal','reveal','replay','cancel','recover','history','snapshot','export','restore','open','readout']);p.add_argument('--revision',type=int);p.add_argument('--full',action='store_true',help='Include full retained registration metadata');p.add_argument('--id');p.add_argument('--assay');p.add_argument('--specimen');p.add_argument('--population');p.add_argument('--condition');p.add_argument('--name');p.add_argument('--port',type=int,default=None);p.add_argument('--foreground',action='store_true',help='Keep the restored service attached to this command');p.add_argument('--genes',nargs='+');p.add_argument('--targets',nargs='+');p.add_argument('--title');p.add_argument('--models',nargs='+');p.add_argument('--conditions',nargs='+');p.add_argument('--authorized-reveal',action='store_true',help='Use only after explicit user authorization to open observations');p.add_argument('--kind',choices=['gene','interventions','features','populations','objective-coverage'],default='gene');p.add_argument('--gene');p.add_argument('--target');p.add_argument('--limit',type=int,default=64);p.add_argument('--offset',type=int,default=0);p.add_argument('--search');p.add_argument('--normalization',choices=['raw_counts','log1p_10000'],default='raw_counts');a=p.parse_args()
     if a.action=='restore':
         from wet_lab_snapshot import restore
         print(json.dumps(restore(a.id,a.name),indent=2));return 0
-    if a.action=='open':
-        import os,re
-        from wet_lab_snapshot import HOME
-        if not a.name or not re.fullmatch('[A-Za-z0-9][A-Za-z0-9_-]{0,63}',a.name):p.error('--name must name a restored laboratory')
-        restored=json.loads((HOME/a.name/'restore.json').read_text());c=restored['configuration']
-        argv=[sys.executable,restored['service'],'--vivo-root',c['vivoRoot'],'--workspace',restored['workspace'],'--port',str(a.port)]
-        if c.get('binary'):argv+=['--binary',c['binary']]
-        for path in c['assays'].values():argv+=['--assay',path]
-        if a.foreground:os.execv(sys.executable,argv)
-        import subprocess,time
-        log=Path(restored['workspace'])/'shared/service.log'
-        with log.open('a') as stream:process=subprocess.Popen(argv,stdout=stream,stderr=stream,start_new_session=True)
-        deadline=time.monotonic()+10
-        while time.monotonic()<deadline:
-            if process.poll() is not None:p.error('Restored service could not start; check the laboratory service log or choose another port')
-            try:
-                connection=json.loads((Path.home()/'.numi/wet-lab-active.json').read_text())
-                if connection['pid']==process.pid:
-                    request=urllib.request.Request(connection['url']+'/api/shared',headers={'X-Wet-Lab-Token':connection['token']})
-                    with urllib.request.urlopen(request,timeout=1) as response:state=json.load(response)
-                    print(json.dumps({'name':a.name,'url':connection['url'],'pid':process.pid,'revision':state['revision'],'status':'running','credentials':'fresh and private'},indent=2));return 0
-            except (OSError,ValueError,KeyError):pass
-            time.sleep(.1)
-        p.error('Restored service startup timed out; inspect the retained service log')
-    try:active=json.loads((Path.home()/'.numi/wet-lab-active.json').read_text())
+    if a.action in ('open','list','status'):
+        from wet_lab_entry import open_laboratory,laboratories,readiness
+        try:
+            if a.action=='open':result=open_laboratory(a.name,a.port,a.foreground)
+            elif a.action=='list':result={'laboratories':laboratories()}
+            else:
+                active,health=readiness();result={'status':'ready' if active else 'offline','health':health,'recovery':'numi wet-lab open'}
+            print(json.dumps(result,indent=2));return 0
+        except (OSError,ValueError) as error:print(str(error),file=sys.stderr);return 2
+    try:active=json.loads(__import__('wet_lab_entry').CONNECTION.read_text())
     except FileNotFoundError:p.error('Open the installed workspace with numi wet-lab first')
     body=None
     if a.action not in ('context','catalog','history','export','readout'):

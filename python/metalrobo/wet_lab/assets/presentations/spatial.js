@@ -1,0 +1,111 @@
+import { node, button } from '../dom.js';
+// Indexed source geometry, bounded per-gene readouts; no learned coordinates.
+export class SpatialView {
+    population;
+    onSelect;
+    camera = { x: 0, y: 0, scale: 1 };
+    points = [];
+    bins = new Map();
+    bounds = { xmin: 0, ymin: 0, dx: 1, dy: 1 };
+    binSize = 1;
+    canvas;
+    context;
+    resize;
+    constructor(host, geometry, population, onSelect) {
+        this.population = population;
+        this.onSelect = onSelect;
+        this.points = geometry.cells.map((c, row) => ({ id: c[0], xy: [c[1], c[2]], row, type: geometry.types[c[3]], covered: c[4], population: c[5], guide: c[6] }));
+        let xmin = Infinity, ymin = Infinity, xmax = -Infinity, ymax = -Infinity;
+        for (const p of this.points) {
+            xmin = Math.min(xmin, p.xy[0]);
+            xmax = Math.max(xmax, p.xy[0]);
+            ymin = Math.min(ymin, p.xy[1]);
+            ymax = Math.max(ymax, p.xy[1]);
+        }
+        this.bounds = { xmin, ymin, dx: Math.max(1, xmax - xmin), dy: Math.max(1, ymax - ymin) };
+        this.binSize = Math.max(this.bounds.dx, this.bounds.dy) / 128;
+        for (const p of this.points) {
+            const key = this.key(...p.xy);
+            if (!this.bins.has(key))
+                this.bins.set(key, []);
+            this.bins.get(key).push(p);
+        }
+        host.replaceChildren(node('p', `${this.points.length.toLocaleString()} source cells · fixed endpoint geometry`, 'muted'));
+        this.canvas = node('canvas');
+        this.canvas.className = 'tissue';
+        this.canvas.tabIndex = 0;
+        this.canvas.setAttribute('aria-label', 'Measured tissue. Arrow keys pan, plus or minus zoom, zero resets, Enter selects center.');
+        this.context = this.canvas.getContext('2d');
+        host.append(this.canvas, button('Reset view', () => { this.camera = { x: 0, y: 0, scale: 1 }; this.draw(); }));
+        let down = null;
+        this.canvas.onpointerdown = e => { this.canvas.focus(); down = { x: e.offsetX, y: e.offsetY, cx: this.camera.x, cy: this.camera.y }; this.canvas.setPointerCapture(e.pointerId); };
+        this.canvas.onpointermove = e => { if (down) {
+            this.camera.x = down.cx + e.offsetX - down.x;
+            this.camera.y = down.cy + e.offsetY - down.y;
+            this.draw();
+        } };
+        this.canvas.onpointerup = e => { if (down && Math.hypot(e.offsetX - down.x, e.offsetY - down.y) < 4)
+            this.pick(e.offsetX, e.offsetY); down = null; };
+        this.canvas.onpointercancel = () => down = null;
+        this.canvas.onwheel = e => { e.preventDefault(); this.camera.scale = Math.max(.5, Math.min(20, this.camera.scale * Math.exp(-e.deltaY * .001))); this.draw(); };
+        this.canvas.onkeydown = e => { let handled = true; const step = e.shiftKey ? 80 : 24; switch (e.key) {
+            case 'ArrowLeft':
+                this.camera.x -= step;
+                break;
+            case 'ArrowRight':
+                this.camera.x += step;
+                break;
+            case 'ArrowUp':
+                this.camera.y -= step;
+                break;
+            case 'ArrowDown':
+                this.camera.y += step;
+                break;
+            case '+':
+            case '=':
+                this.camera.scale = Math.min(20, this.camera.scale * 1.15);
+                break;
+            case '-':
+                this.camera.scale = Math.max(.5, this.camera.scale / 1.15);
+                break;
+            case '0':
+                this.camera = { x: 0, y: 0, scale: 1 };
+                break;
+            case 'Enter':
+                this.pick(this.canvas.clientWidth / 2, this.canvas.clientHeight / 2);
+                break;
+            default: handled = false;
+        } if (handled) {
+            e.preventDefault();
+            this.draw();
+        } };
+        this.resize = new ResizeObserver(() => this.draw());
+        this.resize.observe(this.canvas);
+        this.draw();
+    }
+    dispose() { this.resize.disconnect(); }
+    key(x, y) { return Math.floor(x / this.binSize) + ',' + Math.floor(y / this.binSize); }
+    transform() { const b = this.bounds, w = this.canvas.clientWidth, h = this.canvas.clientHeight; const s = Math.min((w - 30) / b.dx, (h - 30) / b.dy) * this.camera.scale; return { s, ox: w / 2 + this.camera.x - (b.xmin + b.dx / 2) * s, oy: h / 2 + this.camera.y - (b.ymin + b.dy / 2) * s }; }
+    pick(x, y) { const t = this.transform(), px = (x - t.ox) / t.s, py = (y - t.oy) / t.s, r = 15 / t.s; let best, d = r; for (let a = Math.floor((px - r) / this.binSize); a <= Math.floor((px + r) / this.binSize); a++)
+        for (let b = Math.floor((py - r) / this.binSize); b <= Math.floor((py + r) / this.binSize); b++)
+            for (const p of this.bins.get(a + ',' + b) || []) {
+                const distance = Math.hypot(p.xy[0] - px, p.xy[1] - py);
+                if (distance < d) {
+                    best = p;
+                    d = distance;
+                }
+            } if (best)
+        this.onSelect(best); }
+    draw() { const w = this.canvas.clientWidth, h = this.canvas.clientHeight, dpr = devicePixelRatio || 1; if (w <= 0)
+        return; this.canvas.width = w * dpr; this.canvas.height = h * dpr; const c = this.context; c.setTransform(dpr, 0, 0, dpr, 0, 0); c.fillStyle = '#122c27'; c.fillRect(0, 0, w, h); const t = this.transform(), occupied = new Set(); for (const p of this.points) {
+        const x = p.xy[0] * t.s + t.ox, y = p.xy[1] * t.s + t.oy;
+        if (x < 0 || y < 0 || x > w || y > h)
+            continue;
+        const key = Math.floor(x / 2) + Math.floor(y / 2) * Math.ceil(w / 2);
+        if (occupied.has(key) && p.population !== this.population)
+            continue;
+        occupied.add(key);
+        c.fillStyle = p.population === this.population ? '#a9e9cd' : '#4d6e61';
+        c.fillRect(x, y, p.population === this.population ? 4 : 2, p.population === this.population ? 4 : 2);
+    } this.canvas.dataset.camera = JSON.stringify(this.camera); }
+}
