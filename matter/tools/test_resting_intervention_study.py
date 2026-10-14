@@ -1482,3 +1482,61 @@ class ModernFullQReferenceTests(unittest.TestCase):
             wrong.write_text(json.dumps(data), encoding="utf-8")
             with self.assertRaisesRegex(ValueError, "exact terminal accepted state"):
                 adapter._modern_full_q_reference_manifest(run / "run-metadata.json", wrong, runtime)
+
+
+class NativeStoragePreflightTests(unittest.TestCase):
+    def test_each_arm_rechecks_current_space_instead_of_reference_free_bytes(self):
+        from types import SimpleNamespace
+        invocation = {"storage_preflight": {"required_free_gib": 12,
+                      "free_bytes_before_run": 20 * 2**30, "volume_path": "/old"}}
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "scene"
+            with patch.object(adapter.shutil, "disk_usage", side_effect=[
+                    SimpleNamespace(free=13 * 2**30), SimpleNamespace(free=11 * 2**30)]) as disk:
+                record = adapter.native_scene_storage_preflight(invocation, output)
+                self.assertEqual(record["free_bytes_before_run"], 13 * 2**30)
+                self.assertEqual(record["volume_path"], str(output.parent.resolve()))
+                with self.assertRaisesRegex(ValueError, "requires 12 GiB"):
+                    adapter.native_scene_storage_preflight(invocation, output)
+                self.assertEqual(disk.call_count, 2)
+            self.assertFalse(output.exists())
+
+    def test_invalid_recorded_minimum_is_rejected_before_storage_query(self):
+        for minimum in (None, True, 0, -1, math.inf, math.nan, "12"):
+            with self.subTest(minimum=minimum):
+                with patch.object(adapter.shutil, "disk_usage") as disk:
+                    with self.assertRaisesRegex(ValueError, "positive finite GiB"):
+                        adapter.native_scene_storage_preflight(
+                            {"storage_preflight": {"required_free_gib": minimum}}, Path("/tmp/scene"))
+                    disk.assert_not_called()
+
+    def test_legacy_invocation_without_minimum_preserves_optional_behavior(self):
+        with patch.object(adapter.shutil, "disk_usage") as disk:
+            self.assertIsNone(adapter.native_scene_storage_preflight({}, Path("/tmp/scene")))
+            disk.assert_not_called()
+
+    def test_low_space_does_not_launch_or_create_arm_output(self):
+        import os
+        from types import SimpleNamespace
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            output = root / "scene"
+            invocation = root / "reference.json"
+            invocation.write_text(json.dumps({"asset_sha256": {}, "environment": {},
+                "storage_preflight": {"required_free_gib": 12}}))
+            args = Namespace(invocation=str(invocation), output=str(output))
+            cwd = Path.cwd()
+            try:
+                os.chdir(root)
+                with patch.object(adapter, "validate_windows"), \
+                     patch.object(adapter, "prepared_native_runtime_dependency_resolution", return_value=[]), \
+                     patch.object(adapter, "native_scene_command", return_value=["fixture"]), \
+                     patch.object(adapter, "verify_native_scene_runtime_dependency_resolution"), \
+                     patch.object(adapter.shutil, "disk_usage", return_value=SimpleNamespace(free=11 * 2**30)), \
+                     patch.object(adapter.subprocess, "run") as run:
+                    with self.assertRaisesRegex(ValueError, "requires 12 GiB"):
+                        adapter.execute_native_scene_arm(args)
+                    run.assert_not_called()
+            finally:
+                os.chdir(cwd)
+            self.assertFalse(output.exists())

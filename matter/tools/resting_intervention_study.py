@@ -18,6 +18,7 @@ import os
 from pathlib import Path
 import platform
 import re
+import shutil
 import subprocess
 import sys
 from typing import Any
@@ -1167,6 +1168,28 @@ def native_terminal_accepted_capture_evidence(invocation: dict[str, Any], output
             "accepted_respiration_state_sha256": receipt["accepted_respiration_state_sha256"]}
 
 
+def native_scene_storage_preflight(invocation: dict[str, Any], output: Path) -> dict[str, Any] | None:
+    """Recheck the reference owner's declared free-space minimum for each arm."""
+    recorded = invocation.get("storage_preflight")
+    if recorded is None:
+        return None
+    if not isinstance(recorded, dict):
+        raise ValueError("native storage preflight must be an object")
+    minimum = recorded.get("required_free_gib")
+    if (isinstance(minimum, bool) or not isinstance(minimum, (int, float)) or
+            not math.isfinite(minimum) or minimum <= 0):
+        raise ValueError("native minimum free storage must be positive finite GiB")
+    volume_path = output.resolve().parent
+    while not volume_path.exists():
+        volume_path = volume_path.parent
+    free_bytes = shutil.disk_usage(volume_path).free
+    if free_bytes < minimum * 2**30:
+        raise ValueError(f"native run requires {minimum:g} GiB free; "
+                         f"available {free_bytes / 2**30:.3f} GiB")
+    return {"volume_path": str(volume_path), "free_bytes_before_run": free_bytes,
+            "required_free_gib": minimum}
+
+
 def execute_native_scene_arm(args: argparse.Namespace) -> dict[str, Any]:
     validate_windows(args)
     work, output = Path.cwd().resolve(), Path(args.output).resolve()
@@ -1194,11 +1217,15 @@ def execute_native_scene_arm(args: argparse.Namespace) -> dict[str, Any]:
     if env.get(failure_receipt_key):
         recorded_environment[failure_receipt_key] = str(output / "common-field-failure.json")
         env[failure_receipt_key] = recorded_environment[failure_receipt_key]
+    storage = native_scene_storage_preflight(invocation, output)
     output.mkdir()
-    write_json(output / "invocation.json", {**invocation, "argv": command,
-               "environment": recorded_environment,
-               "runtime_dependency_resolution": runtime_dependency_resolution,
-               "reference_invocation_sha256": sha256_file(invocation_path)})
+    arm_invocation = {**invocation, "argv": command,
+                      "environment": recorded_environment,
+                      "runtime_dependency_resolution": runtime_dependency_resolution,
+                      "reference_invocation_sha256": sha256_file(invocation_path)}
+    if storage is not None:
+        arm_invocation["storage_preflight"] = storage
+    write_json(output / "invocation.json", arm_invocation)
     log_path = output / "native.log"
     with log_path.open("w", encoding="utf-8") as stream:
         completed = subprocess.run(command, env=env, stdout=stream, stderr=subprocess.STDOUT, check=False)
