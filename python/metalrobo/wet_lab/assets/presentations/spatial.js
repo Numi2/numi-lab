@@ -1,4 +1,4 @@
-import { node, button } from '../dom.js';
+import { node, button, fmt } from '../dom.js';
 // Indexed source geometry, bounded per-gene readouts; no learned coordinates.
 export class SpatialView {
     population;
@@ -8,6 +8,9 @@ export class SpatialView {
     bins = new Map();
     bounds = { xmin: 0, ymin: 0, dx: 1, dy: 1 };
     binSize = 1;
+    fieldValues = new Map();
+    fieldMax = 1;
+    fieldLabel;
     canvas;
     context;
     resize;
@@ -31,6 +34,8 @@ export class SpatialView {
             this.bins.get(key).push(p);
         }
         host.replaceChildren(node('p', `${this.points.length.toLocaleString()} source cells · fixed endpoint geometry`, 'muted'));
+        this.fieldLabel = node('p', 'Geometry only · measured coordinates; missing RNA stays unavailable', 'muted');
+        host.append(this.fieldLabel);
         this.canvas = node('canvas');
         this.canvas.className = 'tissue';
         this.canvas.tabIndex = 0;
@@ -83,6 +88,9 @@ export class SpatialView {
         this.resize.observe(this.canvas);
         this.draw();
     }
+    updateField(field, target, role) { this.fieldValues.clear(); const arm = (field.arms || []).find((a) => a.target === target && a.role === role); const rows = arm?.observedRows?.length ? arm.observedRows : field.referenceRows || []; const values = arm?.observedValues?.length ? arm.observedValues : field.referenceNormalized || []; for (let i = 0; i < rows.length; i++)
+        if (typeof values[i] === 'number')
+            this.fieldValues.set(rows[i], values[i]); this.fieldMax = Math.max(1e-9, ...this.fieldValues.values()); this.fieldLabel.textContent = 'Measured ' + field.gene + ' · log1p(CPM), shared range 0 to ' + fmt(this.fieldMax) + ' · ' + (arm?.observedValues?.length ? 'revealed outcomes' : 'accessible control references') + '. Model means appear in the linked population readout, never as cell-specific predictions.'; this.draw(); }
     dispose() { this.resize.disconnect(); }
     key(x, y) { return Math.floor(x / this.binSize) + ',' + Math.floor(y / this.binSize); }
     transform() { const b = this.bounds, w = this.canvas.clientWidth, h = this.canvas.clientHeight; const s = Math.min((w - 30) / b.dx, (h - 30) / b.dy) * this.camera.scale; return { s, ox: w / 2 + this.camera.x - (b.xmin + b.dx / 2) * s, oy: h / 2 + this.camera.y - (b.ymin + b.dy / 2) * s }; }
@@ -105,7 +113,8 @@ export class SpatialView {
         if (occupied.has(key) && p.population !== this.population)
             continue;
         occupied.add(key);
-        c.fillStyle = p.population === this.population ? '#a9e9cd' : '#4d6e61';
+        const value = this.fieldValues.get(p.row);
+        c.fillStyle = value === undefined ? (p.population === this.population ? '#a9e9cd' : '#4d6e61') : `hsl(150 60% ${25 + 55 * Math.max(0, Math.min(1, value / this.fieldMax))}%)`;
         c.fillRect(x, y, p.population === this.population ? 4 : 2, p.population === this.population ? 4 : 2);
     } this.canvas.dataset.camera = JSON.stringify(this.camera); }
 }

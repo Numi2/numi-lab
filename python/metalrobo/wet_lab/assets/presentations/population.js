@@ -9,16 +9,25 @@ export function populationView(host, readout, target, sharedMax) {
         const box = node('section');
         box.append(node('h2', a.target + ' · ' + (a.population || '')));
         for (const [label, key] of [['Control reference', 'control'], ['Predicted mean', 'predicted'], ['Observed mean', 'observed'], ['Residual: pred − obs', 'residual']]) {
-            if (key === 'predicted' && readout.prediction === false)
+            if ((key === 'predicted' || key === 'residual') && a.predicted == null && a.evidence === 'MEASURED')
                 continue;
             const row = node('div', undefined, 'bar-row'), track = node('div', undefined, 'bar-track'), bar = node('div', undefined, 'bar ' + key);
             const value = a[key];
             bar.style.width = typeof value === 'number' ? Math.min(100, Math.abs(value) / (key === 'residual' ? Math.max(max, Math.abs(value)) : max) * 100) + '%' : '0';
+            if (key === 'residual') {
+                track.classList.add('signed');
+                const width = typeof value === 'number' ? Math.min(50, Math.abs(value) / Math.max(max, Math.abs(value)) * 50) : 0;
+                bar.style.width = width + '%';
+                bar.style.marginLeft = (value >= 0 ? 50 : 50 - width) + '%';
+                bar.style.background = value < 0 ? '#287f9c' : '#b56249';
+            }
             track.append(bar);
             row.append(node('span', label), track, node('strong', fmt(value)));
             box.append(row);
         }
-        box.append(node('p', `${a.controlCells ?? 'Unknown'} distinct controls · ${a.outcomeCells ?? 'Unknown'} outcome cells · ${a.accessibleOutcomeCells ?? 'Not opened'} accessible · ${a.reservedOutcomeCells ?? 'Owner controlled'} reserved`, 'muted'));
+        if (a.matchedBaseline !== undefined)
+            box.append(node('p', 'Matched baseline ' + fmt(a.matchedBaseline) + ' · matched residual ' + fmt(a.matchedResidual) + ' · no-change residual ' + fmt(a.noChangeResidual), 'muted'));
+        box.append(node('p', `${a.controlCells ?? 'Unknown'} distinct controls · ${a.outcomeCells ?? 'Unknown'} outcome cells · ${a.accessibleOutcomeCells ?? (a.observed != null ? 'Population mean opened; cells unavailable' : 'Not opened')} accessible · ${a.reservedOutcomeCells ?? 'Owner controlled'} reserved`, 'muted'));
         const distribution = a.controlValues || a.referenceValues;
         const observed = a.observedValues;
         if (Array.isArray(distribution) && distribution.length)

@@ -2,8 +2,10 @@ import { node, detail, fmt, button, badge } from './dom.js';
 export function evidenceSummary(data) {
     const host = node('section');
     host.append(badge(data.status || data.evidence || 'OWNER EVIDENCE'));
+    const binding = data.axes?.[0]?.binding || data.binding || {};
+    const selection = data.selection || {};
     const dl = node('dl', undefined, 'evidence-summary');
-    for (const [label, value] of Object.entries({ Source: data.sourceCitation || data.source || data.sourceSHA256, Model: data.modelVersion || data.modelID, Population: data.population, Units: data.units, Access: data.access || data.observationAccess || 'unchanged', Support: data.reason || data.distributionStatus, Promotion: data.biologicalPromotion === true ? 'Promoted' : 'Not biologically promoted' })) {
+    for (const [label, value] of Object.entries({ Source: data.sourceCitation || data.source || data.sourceSHA256 || binding.specimenSHA256, Model: data.modelVersion || data.modelID || binding.modelVersion, Population: data.population || selection.populationID, Units: data.units, Access: data.access || data.observationAccess || 'unchanged', Support: data.reason || data.distributionStatus, Condition: selection.conditionID || data.conditionID, Runtime: binding.runtimeSHA256, Scoring: binding.scoringOwnerSHA256, Replay: data.record, Promotion: data.biologicalPromotion === true ? 'Promoted' : 'Not biologically promoted' })) {
         if (value == null)
             continue;
         dl.append(node('dt', label), node('dd', typeof value === 'object' ? JSON.stringify(value) : String(value)));
@@ -24,12 +26,12 @@ export function failureView(result, onGene) {
         box.append(node('h3', `${arm.target} · ${arm.role} · ${arm.population || ''}`), node('p', `Predicted utility ${fmt(arm.predictedUtility)} · observed utility ${fmt(arm.observedUtility)}`));
         const table = node('table');
         const head = node('tr');
-        for (const h of ['Gene', 'Control', 'Predicted', 'Observed', 'Inspect'])
+        for (const h of ['Gene', 'Control', 'Predicted', 'Observed', 'Residual', 'Training mean Δ', 'Inspect'])
             head.append(node('th', h));
         table.append(head);
         for (const g of arm.genes || []) {
             const row = node('tr');
-            for (const v of [g.gene, fmt(g.control), fmt(g.predicted), fmt(g.observed)])
+            for (const v of [g.gene, fmt(g.control), fmt(g.predicted), fmt(g.observed), fmt(g.residual), fmt(g.trainingMeanDelta)])
                 row.append(node('td', v));
             const cell = node('td');
             cell.append(button('Distributions', () => onGene(g.gene, arm.target)));

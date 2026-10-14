@@ -1,3 +1,48 @@
+## Production workbench entry and recovery
+
+Run `numi wet-lab` or `numi wet-lab open` without file paths. It discovers the
+retained durable laboratory, checks the loopback service identity and either
+reconnects or starts the installed runtime with fresh private credentials.
+`list` shows retained laboratories; `status` reports readiness. Use the returned
+URL in the Codex browser. Stale discovery records never resume an operation.
+The laboratory needs Python and packaged static assets; Node is a build tool only.
+
+The default workbench has one specimen view, a contextual inspector and one
+persistent proposal. Search/commands is available with Command-K. Dataset and
+experiment navigation, comparisons, history, evidence, activity and snapshot
+controls belong to the same service state. Appearance/drawers are separate UI
+preferences; they do not change a scientific revision.
+
+Read `context` before each agent action. Proposals appear immediately in this
+workspace. Pending visual edits are not accepted edits. If a revision is stale,
+review the current human edit and the preserved rejected intent. Never retry
+blindly or overwrite a human objective. Exact identifiers are available in
+advanced disclosures; use discovery rather than asking the researcher for paths
+or hand-authored JSON.
+
+Unsupported requests retain intent and expose owner-supported corrections.
+Review corrections explicitly; do not remove a candidate to disguise a condition
+mismatch. Unknown models never substitute the older spatial model. A measured-only
+cohort can be explored but cannot execute without its compatible artifact.
+
+Use shared `seal`, `cancel`, `recover`, `replay` and explicitly authorized `reveal`.
+The reveal dialog names the experiment, genes, populations and sealed records.
+Inspection, gene selection, export, retry and viewer preparation never authorize
+reveal. Clicking an objective discrepancy links to owner-computed genes and
+baselines without reconstructing the comparison. Model agreement is not calibrated
+confidence; biological promotion remains separate from daily-use software.
+
+`numi wet-lab snapshot --revision REV`, `export --id SNAPSHOT`,
+`restore --id SNAPSHOT --name LAB` and `open --name LAB` retain drafts, sealed
+records and access history. Stop workers before a consistent snapshot. Restoration
+uses a separate location map, issues fresh credentials and leaves stopped workers
+interrupted until explicit recovery. Never rewrite paths inside sealed records.
+
+Viewer preparation, opening and live rendered confirmation are different statuses.
+Use the existing `numi view` and native viewer workflow; a prepared artifact is
+not successful visual inspection. Safari remains unsupported until qualified;
+physical touch and uncoached researcher usability remain pending.
+
 # Virtual Wet Lab: shared cellular and tissue experiments
 
 The **Inspect biology** action hands the current selection to Codex's native

@@ -7,10 +7,12 @@ import { evidenceSummary, failureView } from './evidence.js';
 const $ = (id) => document.getElementById(id);
 const client = new ServiceClient(window.WET_LAB_TOKEN), state = new AcknowledgedState(client), layout = new Layout();
 layout.update({});
-let catalogs = [], online = false, lastRevision = -1, lastPending = false, renderedSelection = '', readEpoch = 0, metadataEpoch = 0, spatial = null, activeReadout = null;
+let catalogs = [], online = false, lastRevision = -1, lastPending = false, lastProgress = '', renderedSelection = '', savedCamera = null, readEpoch = 0, metadataEpoch = 0, spatial = null, activeReadout = null;
 let search = '', offset = 0, candidates = [], candidateTotal = 0, searchTimer, poll;
 let localIntent = null;
 const feedback = [];
+let readinessAt = 0, metadataMs = 0;
+const readoutTimings = [];
 const cap = (c) => c.capabilities || c;
 const catalog = () => catalogs.find(c => c.id === state.value?.selection?.assayID);
 const activeDraft = () => state.value?.drafts.find(d => d.id === layout.value.activeDraft);
@@ -20,7 +22,8 @@ function drawer(title, content) { $('drawer-title').textContent = title; $('draw
     $('drawer').showModal(); layout.update({ drawer: title }); }
 function showEvidence(data, title = 'Evidence and support') { drawer(title, evidenceSummary(data)); }
 function closeDrawer() { $('drawer').close(); layout.update({ drawer: null }); }
-function acknowledgeFeedback() { const start = performance.now(); requestAnimationFrame(() => { feedback.push(performance.now() - start); if (feedback.length > 300)
+function acknowledgeFeedback(event) { if (!event.isTrusted)
+    return; const start = performance.now(); requestAnimationFrame(() => { feedback.push(performance.now() - start); if (feedback.length > 300)
     feedback.shift(); }); }
 document.addEventListener('pointerdown', acknowledgeFeedback, true);
 document.addEventListener('keydown', acknowledgeFeedback, true);
@@ -48,7 +51,7 @@ function renderStart() {
     const cards = node('div', undefined, 'cards');
     for (const c of catalogs) {
         const card = node('article', undefined, 'dataset-card');
-        card.append(badge(cap(c).prediction ? '◇ EXPERIMENTAL MODEL' : '● MEASURED EXPLORATION'), node('h2', c.title), node('p', `${c.populations.length} populations · ${c.specimens.length} source contexts · ${c.features.length.toLocaleString()} feature identifiers`, 'muted'), node('p', cap(c).presentation === 'population' ? 'Population composition and molecular readouts' : 'Measured tissue geometry and population readouts'), button('Open specimen', () => run(() => openDataset(c)), 'primary'));
+        card.append(badge(cap(c).prediction ? '◇ EXPERIMENTAL MODEL' : '● MEASURED EXPLORATION'), node('h2', c.title), node('p', `${c.populations.length} populations · ${c.specimens.length} source contexts · ${(c.featuresTotal ?? c.features.length).toLocaleString()} feature identifiers`, 'muted'), node('p', cap(c).presentation === 'population' ? 'Population composition and molecular readouts' : 'Measured tissue geometry and population readouts'), button('Open specimen', () => run(() => openDataset(c)), 'primary'));
         cards.append(card);
     }
     start.append(cards);
@@ -85,6 +88,8 @@ function renderToolbar(c, s) {
     const l = labeled('Molecular feature', gene);
     l.classList.add('gene');
     host.append(l, genes);
+    if (cap(c).presentation === 'tissue')
+        host.append(labeled('Response population', select([{ id: 'direct', title: 'Directly perturbed' }, { id: 'neighbor', title: 'Neighboring population' }], layout.value.role, value => { layout.update({ role: value }); run(loadReadout); })));
     host.append(labeled('Readout units', select(cap(c).prediction ? [{ id: 'normalized', title: 'log1p(CPM) · model units' }] : [{ id: 'raw_counts', title: 'Raw counts' }, { id: 'log1p_10000', title: 'log1p(10,000 · retained panel)' }], cap(c).prediction ? 'normalized' : layout.value.normalization, value => { layout.update({ normalization: value }); run(loadReadout); })), button(layout.value.comparison ? 'Close comparison' : 'Compare views', () => { layout.update({ comparison: !layout.value.comparison }); renderComparison(); }));
 }
 function renderHeading(c, s) { const p = c.populations.find(p => p.id === s.populationID); const h = $('view-heading'); h.replaceChildren(node('span', cap(c).presentation === 'tissue' ? 'SPATIAL SPECIMEN' : 'CELLULAR SPECIMEN', 'eyebrow'), node('h1', p?.title || p?.cellType || p?.id || s.populationID), badge(activeDraft()?.status.toUpperCase() || (cap(c).prediction ? 'PREVIEW · MODEL INFERENCE' : 'EXPLORE · MEASURED EVIDENCE')), node('p', (s.gene || 'Select a gene') + ' · ' + s.conditionID + ' · ' + c.title, 'muted')); $('dataset-name').textContent = c.title; }
@@ -189,7 +194,7 @@ function renderInspector() {
     else if (d.status === 'revealed') {
         actions.append(button('Investigate objective', () => showFailure(d)), button('Exact replay', () => run(() => mutate({ action: 'replay', id: d.id }))));
     }
-    if (['interrupted', 'failed', 'cancelled'].includes(d.status))
+    if (['interrupted', 'failed', 'cancelled'].includes(d.status) || state.value.operations.some(o => o.id === d.operation && ['interrupted', 'failed', 'cancelled'].includes(o.status)))
         actions.append(button('Recover interrupted operation', () => run(() => mutate({ action: 'recover', id: d.id }))));
     if (d.status !== 'draft')
         actions.append(button('Create editable revision', () => run(async () => { await mutate({ action: 'revise', id: d.id }); layout.update({ activeDraft: state.value.drafts.at(-1).id }); renderInspector(); })));
@@ -201,7 +206,7 @@ function renderInspector() {
 }
 function showCorrection(d, correction) {
     const host = node('div');
-    host.append(node('p', 'Original intent remains: reduce ' + d.genes.join(', ') + ' using ' + d.targets.join(', ')), detail('Owner-supported correction', correction));
+    host.append(node('p', 'Original intent remains: reduce ' + d.genes.join(', ') + ' using ' + d.targets.join(', ')), node('p', correction.conditionID ? 'Use the supported condition ' + correction.conditionID + ' while retaining genes and interventions.' : correction.removeUnsupportedGenes ? 'Remove only the explicitly unsupported genes: ' + correction.removeUnsupportedGenes.join(', ') : correction.removeUnsupportedTargets ? 'Remove only unsupported candidates: ' + correction.removeUnsupportedTargets.join(', ') : 'A compatible capability must be registered.'), detail('Advanced: exact correction', correction));
     let edit = null;
     if (correction.removeUnsupportedGenes)
         edit = { genes: d.genes.filter(g => !correction.removeUnsupportedGenes.includes(g)) };
@@ -251,7 +256,7 @@ async function loadCandidates() {
     const epoch = ++metadataEpoch;
     let items;
     if (cap(c).measuredExploration && !cap(c).prediction) {
-        const data = await client.request('readout', { assayID: c.id, selection: s, query: { kind: 'interventions', mode: 'measured', search, offset, limit: 24 } }, { channel: 'candidates', cacheKey: identity(c.id, c.specimens, s.populationID, s.conditionID, search, offset, 'metadata-access') });
+        const data = await client.request('readout', { assayID: c.id, selection: s, query: { kind: 'interventions', mode: 'measured', search, offset, limit: 24 } }, { channel: 'candidates', cacheKey: identity(c.id, c.datasetFingerprint, c.observationAccessFingerprint, c.specimens, s.populationID, s.conditionID, search, offset, 'metadata-access') });
         items = data.items || [];
         candidateTotal = data.total || 0;
     }
@@ -269,8 +274,12 @@ async function loadReadout() {
     const c = catalog(), s = state.value?.selection;
     if (!c || !s || !s.gene)
         return;
-    const epoch = ++readEpoch, host = $('view-content');
+    const normalization = cap(c).prediction ? 'normalized' : layout.value.normalization;
+    const epoch = ++readEpoch, started = performance.now(), beforeRequests = client.timings.length, host = $('view-content');
     client.cancel('readout');
+    client.cancel('field');
+    if (spatial)
+        savedCamera = { key: identity(c.id, s.specimenID), camera: { ...spatial.camera } };
     spatial?.dispose();
     spatial = null;
     if (!['population', 'tissue'].includes(cap(c).presentation)) {
@@ -287,7 +296,7 @@ async function loadReadout() {
         renderComparison();
         return;
     }
-    const key = identity(c.id, c.specimens, s, record, d?.modelIDs, d?.conditionIDs, layout.value.normalization, layout.value.role, access, d?.axes?.map(a => a.binding));
+    const key = identity(c.id, c.datasetFingerprint, c.observationAccessFingerprint, c.modelVersion, state.value.models.find(m => m.id === c.id)?.version, c.specimens, s, record, d?.modelIDs, d?.conditionIDs, normalization, layout.value.role, access, d?.axes?.map(a => a.binding));
     try {
         if (cap(c).presentation === 'tissue') {
             const geometry = await client.request('specimen', { assayID: c.id, specimen: s.specimenID }, { channel: 'readout', cacheKey: identity(c.id, c.specimens, s.specimenID, 'geometry') });
@@ -295,23 +304,31 @@ async function loadReadout() {
                 return;
             spatial = new SpatialView(host, geometry, s.populationID, p => { showEvidence({ ...p, annotation: 'Owner-projected identity; uncertainty retained', observationAccess: 'unchanged' }, 'Selected source cell'); if (p.population && c.populations.some(x => x.id === p.population))
                 run(() => setSelection({ ...state.value.selection, populationID: p.population })); });
+            if (savedCamera?.key === identity(c.id, s.specimenID)) {
+                spatial.camera = savedCamera.camera;
+                spatial.draw();
+            }
             const field = await client.request('spatial-feature', { assayID: c.id, specimen: s.specimenID, gene: s.gene, ...(record ? { id: record } : {}) }, { channel: 'field', cacheKey: key });
             if (epoch !== readEpoch)
                 return;
             activeReadout = field;
+            spatial.updateField(field, s.target, layout.value.role);
             const molecular = node('div');
             populationView(molecular, field, s.target);
             host.append(molecular);
         }
         else {
             const measured = cap(c).prediction === false;
-            const field = await client.request('readout', { assayID: c.id, selection: s, ...(record ? { id: record } : {}), query: { kind: 'gene', mode: measured ? 'measured' : 'prediction', gene: s.gene, target: s.target, normalization: layout.value.normalization, limit: 128, offset: 0 } }, { channel: 'readout', cacheKey: key });
+            const field = await client.request('readout', { assayID: c.id, selection: s, ...(record ? { id: record } : {}), query: { kind: 'gene', mode: measured ? 'measured' : 'prediction', gene: s.gene, ...(measured ? { target: s.target } : {}), normalization: normalization, limit: 128, offset: 0 } }, { channel: 'readout', cacheKey: key });
             if (epoch !== readEpoch)
                 return;
             activeReadout = field;
             populationView(host, field, s.target);
         }
         performance.mark('numilab-gene-ready');
+        readoutTimings.push({ gene: s.gene, dataset: c.id, ms: performance.now() - started, cached: client.timings.slice(beforeRequests).some(t => t.cached), normalization: normalization, access });
+        if (readoutTimings.length > 120)
+            readoutTimings.shift();
         renderComparison();
     }
     catch (error) {
@@ -448,13 +465,15 @@ function render() {
     if (!c || !s)
         return;
     renderHeading(c, s);
-    if (lastRevision !== shared.revision || lastPending !== state.pending) {
+    const progress = identity(shared.operations.filter(o => o.status === 'running').map(o => o.progress));
+    if (lastRevision !== shared.revision || lastPending !== state.pending || lastProgress !== progress) {
         renderToolbar(c, s);
         renderHeading(c, s);
         renderInspector();
         renderComparison();
         lastRevision = shared.revision;
         lastPending = state.pending;
+        lastProgress = progress;
     }
     if (state.pending) {
         $('connection').textContent = 'Awaiting acknowledgement';
@@ -473,12 +492,15 @@ function render() {
         run(loadReadout);
     }
 }
-function searchCommands() { const text = $('command-query').value.toLowerCase(); const host = $('command-results'); host.replaceChildren(); const actions = [['Open laboratory home', () => { $('start').hidden = false; $('investigation').hidden = true; }], ['Show activity and recover interrupted work', showActivity], ['Show history', showHistory], ['Open native biological viewers', showViewers], ['Snapshot and restore laboratory', showStorage], ['Reconnect to service', () => run(connect)], ...catalogs.map(c => ['Open ' + c.title, () => run(() => openDataset(c))]), ...(state.value?.drafts || []).map(d => ['Inspect ' + d.title, () => run(() => openDraft(d))])]; for (const [title, action] of actions.filter(([title]) => title.toLowerCase().includes(text)))
+function showPerformance() { const data = { status: 'CLIENT PERFORMANCE INSTRUMENTATION', format: 'numilab-browser-timings/v1', surface: 'actual Codex browser', metadataAfterReadinessMs: metadataMs, inputFeedbackMs: feedback, inputFeedbackMeasurement: 'Trusted pointer/keyboard event to next animation frame; excludes physical display latency', readoutTimings, requests: client.timings, cache: '32-entry bounded session cache; process and OS caches reported separately', wholeCohortExpressionTransfer: false }; drawer('Performance and support', evidenceSummary(data)); }
+function searchCommands() { const text = $('command-query').value.toLowerCase(); const host = $('command-results'); host.replaceChildren(); const actions = [['Open laboratory home', () => { $('start').hidden = false; $('investigation').hidden = true; }], ['Show activity and recover interrupted work', showActivity], ['Show history', showHistory], ['Open native biological viewers', showViewers], ['Snapshot and restore laboratory', showStorage], ['Performance and support', showPerformance], ['Reconnect to service', () => run(connect)], ...catalogs.map(c => ['Open ' + c.title, () => run(() => openDataset(c))]), ...(state.value?.drafts || []).map(d => ['Inspect ' + d.title, () => run(() => openDraft(d))])]; for (const [title, action] of actions.filter(([title]) => title.toLowerCase().includes(text)))
     host.append(button(title, () => { $('command').close(); action(); })); }
 function openCommand() { $('command').showModal(); $('command-query').focus(); searchCommands(); }
 async function connect() { try {
     await client.request('health');
+    readinessAt = performance.now();
     const [all] = await Promise.all([client.request('assays'), state.refresh()]);
+    metadataMs = performance.now() - readinessAt;
     catalogs = all;
     online = true;
     render();
@@ -498,6 +520,16 @@ $('nav-toggle').onclick = () => { layout.update({ navigation: !layout.value.navi
 $('appearance').onclick = () => { const modes = ['system', 'light', 'dark']; layout.update({ appearance: modes[(modes.indexOf(layout.value.appearance) + 1) % 3] }); notice('Appearance: ' + layout.value.appearance); };
 $('command-open').onclick = openCommand;
 $('command-query').oninput = searchCommands;
+$('command-query').onkeydown = e => { if (e.key === 'Enter' || e.key === 'ArrowDown') {
+    const first = $('command-results').querySelector('button');
+    if (first) {
+        e.preventDefault();
+        if (e.key === 'Enter')
+            first.click();
+        else
+            first.focus();
+    }
+} };
 $('activity-open').onclick = showActivity;
 $('evidence-open').onclick = () => showEvidence({ ...state.value?.selectionSupport, selection: state.value?.selection, model: catalog()?.id, biologicalPromotion: false });
 $('drawer-close').onclick = closeDrawer;
