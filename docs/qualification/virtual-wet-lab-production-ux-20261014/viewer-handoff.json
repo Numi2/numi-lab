@@ -1,0 +1,15 @@
+{
+  "status": "PREPARED \u00b7 RENDERING NOT CONFIRMED",
+  "coverage": {
+    "exportedCells": 150,
+    "exportedGenes": 1,
+    "fullAssay": false,
+    "limitPerGroup": 128,
+    "pageOffset": 0,
+    "reservedResponsesReturned": false,
+    "scope": "Measured technical development data. Biological-unit independence unresolved; cell counts do not establish biological replication.",
+    "spatialCoordinates": false
+  },
+  "observationAccess": "unchanged",
+  "revision": 48
+}

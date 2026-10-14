@@ -128,7 +128,7 @@ authorized reveal; replay every axis using its retained native runtime.
 The default is one large specimen view. Use “Compare synchronized views” when
 control, prediction, observation and signed residuals need to be inspected together.
 The canvas supports pointer pan/pick, arrow-key pan, plus/minus zoom, zero reset
-and Enter to inspect its center. Touch drag/pinch handlers exist; physical touch
+and Enter to inspect its center. Pointer dragging and keyboard picking are available in the production workbench; physical touch
 qualification is still pending, as is an uncoached researcher session. Neither
 browser automation nor model agreement is a usability/confidence qualification.
 

@@ -1,0 +1,42 @@
+{
+  "pluginVersion": "0.1.1+codex.20261014170000",
+  "installedRuntime": "665c4f20f653336a",
+  "freshSessions": [
+    "01a13abe-3a27-7842-b575-1aebaade312a",
+    "01a13acf-8b4d-7281-b0ca-788be1a6cec1",
+    "01a13ade-ac87-7953-a6f1-7d54b7c5d2c8"
+  ],
+  "lastReplay": {
+    "status": "passed",
+    "exactPredictionReplay": true,
+    "observationComparisonVerified": true,
+    "biologicalPromotion": false
+  },
+  "record": "486a7b137c4a4ff2a1625f7ed7a4841e",
+  "binding": {
+    "assaySHA256": "791f7ca17bd3e9c9b59c6b6cb6b65dd65f9bcf1e33b31d126989f5459d39f75b",
+    "modelVersion": "v04-transfer-held-target0-coarse-step240",
+    "runtimeSHA256": "bca3896e2145deee72db2ad83981eddf81e0c369a68aff2073628437e60375de",
+    "weights": {
+      "native": "09819d9828625ac87d1e00ec615b0e516739fcdda3042486e55d26770af9531a"
+    },
+    "featureAxisSHA256": "801b8d5668182c8d813516c4684c5b5021e783b5dfde093a23dca95aeead39f5",
+    "specimenSHA256": "119e3c1cf7dede4e13f887b86f9bcd797a9dc29213ee57d36aa80012d93f1c1c",
+    "populationID": "GSE90546|K562",
+    "conditionID": "K562",
+    "scoringOwnerSHA256": "01cbdba53c5dcf88c970ddb280b9b28f1c0c5c108262ec36823d857118f0324b",
+    "evidence": "MODEL INFERENCE",
+    "biologicalPromotion": false
+  },
+  "biologicalPromotion": false,
+  "localTests": {
+    "python": 24,
+    "typescriptBuild": "passed",
+    "clientRegressions": "passed",
+    "browserRegressions": "passed"
+  },
+  "spatial": "Blocked: missing verified source H5AD files",
+  "Safari": "unsupported",
+  "touch": "pending",
+  "researcherUsability": "pending"
+}

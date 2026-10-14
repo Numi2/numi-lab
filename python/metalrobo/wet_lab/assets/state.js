@@ -41,7 +41,7 @@ export class AcknowledgedState {
     }
 }
 export class Layout {
-    value = { appearance: 'system', navigation: true, drawer: null, activeDraft: null, comparison: false, normalization: 'raw_counts', role: 'direct' };
+    value = { appearance: 'system', navigation: false, drawer: null, activeDraft: null, comparison: false, normalization: 'raw_counts', role: 'direct' };
     constructor() { try {
         this.value = { ...this.value, ...JSON.parse(localStorage.getItem('numilab-workbench-layout/v1') || '{}') };
     }

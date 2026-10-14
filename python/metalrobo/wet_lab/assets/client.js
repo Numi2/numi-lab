@@ -19,14 +19,17 @@ export class ServiceClient {
     clear() { this.cache.clear(); for (const controller of this.pending.values())
         controller.abort(); this.pending.clear(); }
     async request(path, body, options = {}) {
+        if (options.channel)
+            this.cancel(options.channel);
         if (options.cacheKey && this.cache.has(options.cacheKey)) {
             const value = this.cache.get(options.cacheKey);
-            this.timings.push({ path, ms: 0, bytes: 0, cached: true });
+            this.timings.push({ path, ms: 0, bytes: 0, cached: true, channel: options.channel });
+            if (this.timings.length > 300)
+                this.timings.shift();
             return structuredClone(value);
         }
         const controller = new AbortController();
         if (options.channel) {
-            this.cancel(options.channel);
             this.pending.set(options.channel, controller);
         }
         const start = performance.now();
@@ -34,7 +37,7 @@ export class ServiceClient {
             const response = await fetch('/api/' + path, { method: body === undefined ? 'GET' : 'POST', headers: { 'X-Wet-Lab-Token': this.token, 'Content-Type': 'application/json' }, body: body === undefined ? undefined : JSON.stringify(body), signal: controller.signal });
             const raw = await response.text();
             const result = JSON.parse(raw);
-            this.timings.push({ path, ms: performance.now() - start, bytes: new TextEncoder().encode(raw).length, cached: false });
+            this.timings.push({ path, ms: performance.now() - start, bytes: new TextEncoder().encode(raw).length, cached: false, channel: options.channel });
             if (this.timings.length > 300)
                 this.timings.shift();
             if (!response.ok)

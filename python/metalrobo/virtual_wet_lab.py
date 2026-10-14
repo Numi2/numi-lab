@@ -225,7 +225,7 @@ def main():
                     return self.respond(200,self.locked_owner(reveal if self.path.endswith('reveal') else verify,root,runtime))
                 if self.path in ('/api/specimen','/api/spatial-feature'):
                     config=configs[body['assayID']]; adapter=owner.adapter_for_config(config)
-                    if adapter.family!='learned-spatial-response': raise ValueError('Spatial response assay required')
+                    if not callable(getattr(adapter,'geometry',None)) or (self.path=='/api/spatial-feature' and not callable(getattr(adapter,'feature',None))): raise ValueError('Selected scientific owner does not supply this spatial readout. Register its declared geometry/field capability; no fallback assay is selected.')
                     if self.path=='/api/specimen': return self.respond(200,adapter.geometry(config,body['specimen']))
                     run=self.run_path(body['id']) if body.get('id') else None
                     return self.respond(200,adapter.feature(config,body['specimen'],body['gene'],run))

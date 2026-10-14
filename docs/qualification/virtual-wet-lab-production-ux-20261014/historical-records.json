@@ -1,0 +1,30 @@
+{
+  "35a22351d1e748748ca9ec16cb4f0475": {
+    "verification": {
+      "status": "passed",
+      "exactPredictionReplay": true,
+      "observationComparisonVerified": true,
+      "biologicalPromotion": false
+    },
+    "sealedFilesUnchanged": true,
+    "files": 28
+  },
+  "3c17bc2511a94c539558b9278c7a6eb5": {
+    "verification": {
+      "status": "passed",
+      "exactPredictionReplay": true,
+      "observationComparisonVerified": false,
+      "biologicalPromotion": false
+    },
+    "sealedFilesUnchanged": true,
+    "files": 24
+  },
+  "3a276c666e2c46719f8993867547e573": {
+    "sealFilesVerified": 22,
+    "fullReplay": "blocked: missing verified source used by historical observation comparison",
+    "missingSources": [
+      "/Users/home/virtual-wet-lab-v03-20261003/cohort-v3/chip1.h5ad",
+      "/Users/home/virtual-wet-lab-v03-20261003/cohort-v3/chip2.h5ad"
+    ]
+  }
+}

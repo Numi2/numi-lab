@@ -1,0 +1,44 @@
+{
+  "restore": {
+    "name": "production-ux-restored",
+    "snapshotID": "8ba920348c0b4149a2df821950e2a514",
+    "workspaceRevision": 45,
+    "status": "restored",
+    "freshSessionRequired": true
+  },
+  "originalWorkspaceUnavailable": true,
+  "archiveImport": true,
+  "sealedFileCount": 56,
+  "sealedBytesUnchanged": true,
+  "automaticallyRestarted": false,
+  "drafts": [
+    {
+      "id": "f72dd4a5efcd4f3e8ea4eff81bca2fb9",
+      "title": "Production UX \u00b7 human-authored FOS/JUNB objective",
+      "status": "revealed",
+      "record": "0ef1fdb0b6a64582b398677eed33c8c9"
+    },
+    {
+      "id": "65f287e3f1fa4540a15877ec4113dd83",
+      "title": "Fresh Codex production UX proposal",
+      "status": "interrupted",
+      "record": "486a7b137c4a4ff2a1625f7ed7a4841e"
+    },
+    {
+      "id": "20c06d953ae745e5bfc3dad5a61d291b",
+      "title": "Measured-only cohort \u00b7 execution remains blocked",
+      "status": "draft",
+      "record": null
+    }
+  ],
+  "externalDependencies": {},
+  "freshCodexSession": "01a13acf-8b4d-7281-b0ca-788be1a6cec1",
+  "recovery": {
+    "status": "passed",
+    "exactPredictionReplay": true,
+    "observationComparisonVerified": true,
+    "biologicalPromotion": false
+  },
+  "finalRevision": 48,
+  "operation": "3017e3ce2a9445a39e772cbb23bc0c69"
+}

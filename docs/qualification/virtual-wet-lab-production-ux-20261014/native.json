@@ -1,0 +1,59 @@
+{
+  "format": "numilab-production-ux-native/v1",
+  "assay": "cellular-coarse-target0-v04",
+  "draft": "f72dd4a5efcd4f3e8ea4eff81bca2fb9",
+  "record": "0ef1fdb0b6a64582b398677eed33c8c9",
+  "objective": [
+    "FOS",
+    "JUNB"
+  ],
+  "targets": [
+    "DDIT3",
+    "SPI1"
+  ],
+  "binding": {
+    "assaySHA256": "791f7ca17bd3e9c9b59c6b6cb6b65dd65f9bcf1e33b31d126989f5459d39f75b",
+    "modelVersion": "v04-transfer-held-target0-coarse-step240",
+    "runtimeSHA256": "bca3896e2145deee72db2ad83981eddf81e0c369a68aff2073628437e60375de",
+    "weights": {
+      "native": "09819d9828625ac87d1e00ec615b0e516739fcdda3042486e55d26770af9531a"
+    },
+    "featureAxisSHA256": "801b8d5668182c8d813516c4684c5b5021e783b5dfde093a23dca95aeead39f5",
+    "specimenSHA256": "119e3c1cf7dede4e13f887b86f9bcd797a9dc29213ee57d36aa80012d93f1c1c",
+    "populationID": "GSE90546|K562",
+    "conditionID": "K562",
+    "scoringOwnerSHA256": "01cbdba53c5dcf88c970ddb280b9b28f1c0c5c108262ec36823d857118f0324b",
+    "evidence": "MODEL INFERENCE",
+    "biologicalPromotion": false
+  },
+  "operations": [
+    {
+      "action": "seal",
+      "status": "completed"
+    },
+    {
+      "action": "replay",
+      "status": "cancelled"
+    },
+    {
+      "action": "replay",
+      "status": "completed"
+    },
+    {
+      "action": "reveal",
+      "status": "completed"
+    }
+  ],
+  "explicitAuthorizationEvents": [
+    {
+      "time": 1791986623.520947,
+      "revision": 20,
+      "action": "reveal",
+      "draftID": "f72dd4a5efcd4f3e8ea4eff81bca2fb9",
+      "actor": "human"
+    }
+  ],
+  "biologicalPromotion": false,
+  "priorHistoricalWorkspaceRevision": 80,
+  "qualification": "Previously exposed technical development data; software only"
+}

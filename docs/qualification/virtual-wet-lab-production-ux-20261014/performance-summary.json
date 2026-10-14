@@ -1,0 +1,74 @@
+{
+  "hardware": {
+    "model": "MacBook Air Mac16,12",
+    "chip": "Apple M4",
+    "cores": 10,
+    "memoryGB": 24,
+    "os": "macOS 26.6 build 25G5028f"
+  },
+  "surface": "Actual Codex in-app browser; native pointer and keyboard",
+  "dataset": {
+    "id": "replogle-nadig-engineering-256",
+    "fingerprint": "75145e15e00f9e1a454c304fa965497cbc3b07880106f720a35a672680b10e38",
+    "cells": 30144,
+    "geneAxis": 11907
+  },
+  "cold": {
+    "processStartupMs": 992.5,
+    "finalBrowserMetadataMs": 208,
+    "firstRequestedGeneMs": 279.69999998807907,
+    "cache": "Fresh service process and browser session; OS and filesystem caches not flushed; prior source import possible"
+  },
+  "warm": {
+    "cachedReadout": {
+      "n": 5,
+      "p50Ms": 4.0,
+      "p95Ms": 4.18,
+      "maximumMs": 4.2
+    },
+    "inputFeedback": {
+      "n": 29,
+      "p50Ms": 11.2,
+      "p95Ms": 12.7,
+      "maximumMs": 13.2
+    }
+  },
+  "measurementLimits": "Input event to next requestAnimationFrame excludes physical display latency. Readout timing ends after DOM construction, excludes display scanout. Small repeated runs on one Mac only. Early native telemetry mislabeled normalization raw_counts; corrected to normalized without altering data. Initial cold session 25.9ms metadata and 334.7ms first real-cohort A1BG retained as prior observations.",
+  "requestBytes": {
+    "assays": 36757,
+    "gene": [
+      6985,
+      6987,
+      7064
+    ],
+    "candidatePage": 11478,
+    "largestSharedState": 190299
+  },
+  "limits": {
+    "maxRequestedCellsPerGroup": 128,
+    "noWholeCohortExpression": true
+  },
+  "pending": [
+    "Safari",
+    "physical touch",
+    "uncoached researcher usability"
+  ],
+  "finalInstalledRuntime": "665c4f20f653336a",
+  "releaseRun": {
+    "metadataAfterReadinessMs": 195.19999998807907,
+    "firstRealCohortGeneMs": 343.60000002384186,
+    "cachedReadout": {
+      "n": 5,
+      "p50Ms": 3.5,
+      "p95Ms": 3.5800000190734864,
+      "maximumMs": 3.600000023841858
+    },
+    "inputFeedback": {
+      "n": 38,
+      "p50Ms": 6.800000011920929,
+      "p95Ms": 13.860000008344649,
+      "maximumMs": 14.399999976158142
+    },
+    "startupMs": 1279.4415410025977
+  }
+}

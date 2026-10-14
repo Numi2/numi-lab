@@ -1,0 +1,89 @@
+{
+  "surface": "Automated Chromium regression; actual Codex interactions qualified separately",
+  "checks": [
+    {
+      "appearance": "light",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "labels": true,
+      "unnamedButtons": 0,
+      "reduced": true,
+      "contrast": {
+        "--ink": 12.869523939816364,
+        "--muted": 6.055760677630785,
+        "--accent": 6.60561536730315
+      }
+    },
+    {
+      "appearance": "light",
+      "width": 1024,
+      "scrollWidth": 1024,
+      "labels": true,
+      "unnamedButtons": 0,
+      "reduced": true,
+      "contrast": {
+        "--ink": 12.869523939816364,
+        "--muted": 6.055760677630785,
+        "--accent": 6.60561536730315
+      }
+    },
+    {
+      "appearance": "light",
+      "width": 768,
+      "scrollWidth": 768,
+      "labels": true,
+      "unnamedButtons": 0,
+      "reduced": true,
+      "contrast": {
+        "--ink": 12.869523939816364,
+        "--muted": 6.055760677630785,
+        "--accent": 6.60561536730315
+      }
+    },
+    {
+      "appearance": "dark",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "labels": true,
+      "unnamedButtons": 0,
+      "reduced": true,
+      "contrast": {
+        "--ink": 12.855606548495158,
+        "--muted": 8.632397207209955,
+        "--accent": 8.57819519195219
+      }
+    },
+    {
+      "appearance": "dark",
+      "width": 1024,
+      "scrollWidth": 1024,
+      "labels": true,
+      "unnamedButtons": 0,
+      "reduced": true,
+      "contrast": {
+        "--ink": 12.855606548495158,
+        "--muted": 8.632397207209955,
+        "--accent": 8.57819519195219
+      }
+    },
+    {
+      "appearance": "dark",
+      "width": 768,
+      "scrollWidth": 768,
+      "labels": true,
+      "unnamedButtons": 0,
+      "reduced": true,
+      "contrast": {
+        "--ink": 12.855606548495158,
+        "--muted": 8.632397207209955,
+        "--accent": 8.57819519195219
+      }
+    }
+  ],
+  "focus": {
+    "visible": true,
+    "outline": "solid"
+  },
+  "revisionUnchanged": true,
+  "errors": []
+}

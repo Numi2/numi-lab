@@ -3,7 +3,7 @@ export function populationView(host, readout, target, sharedMax) {
     host.replaceChildren();
     host.append(badge(String(typeof readout.access === 'string' ? readout.access : readout.access?.status || 'OWNER-CONTROLLED ACCESS')), node('p', readout.units, 'muted'));
     const arms = (readout.arms || []).filter(a => !target || a.target === target);
-    const values = arms.flatMap(a => [a.control, a.predicted, a.observed]).filter((v) => typeof v === 'number' && Number.isFinite(v));
+    const values = arms.flatMap(a => [a.control, a.predicted, a.observed, ...(a.controlValues || a.referenceValues || []), ...(a.observedValues || [])]).filter((v) => typeof v === 'number' && Number.isFinite(v));
     const max = sharedMax ?? Math.max(1e-9, ...values.map(Math.abs));
     for (const a of arms) {
         const box = node('section');
@@ -27,7 +27,7 @@ export function populationView(host, readout, target, sharedMax) {
         }
         if (a.matchedBaseline !== undefined)
             box.append(node('p', 'Matched baseline ' + fmt(a.matchedBaseline) + ' · matched residual ' + fmt(a.matchedResidual) + ' · no-change residual ' + fmt(a.noChangeResidual), 'muted'));
-        box.append(node('p', `${a.controlCells ?? 'Unknown'} distinct controls · ${a.outcomeCells ?? 'Unknown'} outcome cells · ${a.accessibleOutcomeCells ?? (a.observed != null ? 'Population mean opened; cells unavailable' : 'Not opened')} accessible · ${a.reservedOutcomeCells ?? 'Owner controlled'} reserved`, 'muted'));
+        box.append(node('p', `${a.controlCells ?? 'Unknown'} distinct controls · ${a.outcomeCells ?? 'Unknown'} outcome cells · ${a.accessibleOutcomeCells != null ? a.accessibleOutcomeCells + ' accessible cells' : a.observed != null ? 'Observed population mean; individual cells unavailable' : 'Observations not opened'} · ${a.reservedOutcomeCells ?? 'Owner controlled'} reserved`, 'muted'));
         const distribution = a.controlValues || a.referenceValues;
         const observed = a.observedValues;
         if (Array.isArray(distribution) && distribution.length)
@@ -59,7 +59,7 @@ export function supportView(data) {
         return host;
     const counts = data.reference || {};
     const controls = counts.referenceCells ?? counts.controlCells ?? data.controlCells;
-    for (const [label, value] of [['Selected controls', controls], ['Biological units', data.biologicalUnits == null ? 'Unresolved' : data.biologicalUnits], ['Objective features', (data.genes || []).length], ['Recommendation', 'Unqualified']]) {
+    for (const [label, value] of [['Selected controls', controls], ['Biological units', data.biologicalUnits == null ? 'Unresolved' : data.biologicalUnits], ['Readout features', (data.genes || []).length], ['Recommendation', 'Unqualified']]) {
         const d = node('div');
         d.append(node('b', Array.isArray(value) ? value.join(', ') : String(value ?? 'Unknown')), node('small', String(label)));
         host.append(d);

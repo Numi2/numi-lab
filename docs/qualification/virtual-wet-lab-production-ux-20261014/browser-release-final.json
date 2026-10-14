@@ -1,0 +1,355 @@
+{
+  "cache": "32-entry bounded session cache; process and OS caches reported separately",
+  "format": "numilab-browser-timings/v1",
+  "inputFeedbackMeasurement": "Trusted pointer/keyboard event to next animation frame; excludes physical display latency",
+  "inputFeedbackMs": [
+    0.19999998807907104,
+    2.399999976158142,
+    6.100000023841858,
+    12,
+    12.899999976158142,
+    13.200000047683716,
+    5.799999952316284,
+    5,
+    13.399999976158142,
+    13.5,
+    13.599999964237211,
+    5.600000023841858,
+    4.800000011920929,
+    13.800000011920927,
+    3.400000035762787,
+    13.699999988079073,
+    0.10000002384185792,
+    9.699999988079073,
+    4.799999952316284,
+    7.5,
+    14.199999988079073,
+    0.19999998807907104,
+    9.900000035762789,
+    5.800000011920929,
+    14.399999976158142,
+    13.800000011920927,
+    0.09999996423721312,
+    10.100000023841858,
+    5.199999988079071,
+    5.900000035762787,
+    13.699999988079073,
+    0.10000002384185792,
+    11.200000047683716,
+    7.700000047683716,
+    3.100000023841858,
+    0.19999998807907104,
+    12.5,
+    5.599999964237213
+  ],
+  "metadataAfterReadinessMs": 195.19999998807907,
+  "readoutTimings": [
+    {
+      "access": "preview",
+      "cached": false,
+      "dataset": "cellular-coarse-target0-v04",
+      "gene": "FOS",
+      "ms": 6.600000023841858,
+      "normalization": "normalized"
+    },
+    {
+      "access": "preview",
+      "cached": false,
+      "dataset": "replogle-nadig-engineering-256",
+      "gene": "A1BG",
+      "ms": 343.60000002384186,
+      "normalization": "raw_counts"
+    },
+    {
+      "access": "preview",
+      "cached": false,
+      "dataset": "replogle-nadig-engineering-256",
+      "gene": "NOC2L",
+      "ms": 12.599999964237211,
+      "normalization": "raw_counts"
+    },
+    {
+      "access": "preview",
+      "cached": true,
+      "dataset": "replogle-nadig-engineering-256",
+      "gene": "A1BG",
+      "ms": 3.300000011920929,
+      "normalization": "raw_counts"
+    },
+    {
+      "access": "preview",
+      "cached": true,
+      "dataset": "replogle-nadig-engineering-256",
+      "gene": "NOC2L",
+      "ms": 3.600000023841858,
+      "normalization": "raw_counts"
+    },
+    {
+      "access": "preview",
+      "cached": true,
+      "dataset": "replogle-nadig-engineering-256",
+      "gene": "A1BG",
+      "ms": 3.5,
+      "normalization": "raw_counts"
+    },
+    {
+      "access": "preview",
+      "cached": true,
+      "dataset": "replogle-nadig-engineering-256",
+      "gene": "NOC2L",
+      "ms": 3.5,
+      "normalization": "raw_counts"
+    },
+    {
+      "access": "preview",
+      "cached": true,
+      "dataset": "replogle-nadig-engineering-256",
+      "gene": "A1BG",
+      "ms": 3.399999976158142,
+      "normalization": "raw_counts"
+    }
+  ],
+  "requests": [
+    {
+      "bytes": 179,
+      "cached": false,
+      "ms": 5.300000011920929,
+      "path": "health"
+    },
+    {
+      "bytes": 36757,
+      "cached": false,
+      "ms": 7.5,
+      "path": "assays"
+    },
+    {
+      "bytes": 197326,
+      "cached": false,
+      "ms": 194.69999998807907,
+      "path": "shared"
+    },
+    {
+      "bytes": 2070,
+      "cached": false,
+      "channel": "readout",
+      "ms": 6.300000011920929,
+      "path": "readout"
+    },
+    {
+      "bytes": 197326,
+      "cached": false,
+      "ms": 41.30000001192093,
+      "path": "shared"
+    },
+    {
+      "bytes": 197326,
+      "cached": false,
+      "ms": 37.69999998807907,
+      "path": "shared"
+    },
+    {
+      "bytes": 197326,
+      "cached": false,
+      "ms": 38.60000002384186,
+      "path": "shared"
+    },
+    {
+      "bytes": 197326,
+      "cached": false,
+      "ms": 40.89999997615814,
+      "path": "shared"
+    },
+    {
+      "bytes": 197326,
+      "cached": false,
+      "ms": 42.30000001192093,
+      "path": "shared"
+    },
+    {
+      "bytes": 197326,
+      "cached": false,
+      "ms": 37.5,
+      "path": "shared"
+    },
+    {
+      "bytes": 197326,
+      "cached": false,
+      "ms": 30.30000001192093,
+      "path": "shared"
+    },
+    {
+      "bytes": 197326,
+      "cached": false,
+      "ms": 38.40000003576279,
+      "path": "shared"
+    },
+    {
+      "bytes": 197326,
+      "cached": false,
+      "ms": 40.60000002384186,
+      "path": "shared"
+    },
+    {
+      "bytes": 287735,
+      "cached": false,
+      "ms": 34.39999997615814,
+      "path": "shared"
+    },
+    {
+      "bytes": 11478,
+      "cached": false,
+      "channel": "candidates",
+      "ms": 13.400000035762789,
+      "path": "readout"
+    },
+    {
+      "bytes": 287856,
+      "cached": false,
+      "ms": 32.10000002384186,
+      "path": "shared"
+    },
+    {
+      "bytes": 0,
+      "cached": true,
+      "channel": "candidates",
+      "ms": 0,
+      "path": "readout"
+    },
+    {
+      "bytes": 6985,
+      "cached": false,
+      "channel": "readout",
+      "ms": 341.60000002384186,
+      "path": "readout"
+    },
+    {
+      "bytes": 287961,
+      "cached": false,
+      "ms": 34.39999997615814,
+      "path": "shared"
+    },
+    {
+      "bytes": 0,
+      "cached": true,
+      "channel": "candidates",
+      "ms": 0,
+      "path": "readout"
+    },
+    {
+      "bytes": 6987,
+      "cached": false,
+      "channel": "readout",
+      "ms": 10.5,
+      "path": "readout"
+    },
+    {
+      "bytes": 288062,
+      "cached": false,
+      "ms": 33,
+      "path": "shared"
+    },
+    {
+      "bytes": 0,
+      "cached": true,
+      "channel": "candidates",
+      "ms": 0,
+      "path": "readout"
+    },
+    {
+      "bytes": 0,
+      "cached": true,
+      "channel": "readout",
+      "ms": 0,
+      "path": "readout"
+    },
+    {
+      "bytes": 288062,
+      "cached": false,
+      "ms": 44.30000001192093,
+      "path": "shared"
+    },
+    {
+      "bytes": 288167,
+      "cached": false,
+      "ms": 39.69999998807907,
+      "path": "shared"
+    },
+    {
+      "bytes": 0,
+      "cached": true,
+      "channel": "candidates",
+      "ms": 0,
+      "path": "readout"
+    },
+    {
+      "bytes": 0,
+      "cached": true,
+      "channel": "readout",
+      "ms": 0,
+      "path": "readout"
+    },
+    {
+      "bytes": 288268,
+      "cached": false,
+      "ms": 31.799999952316284,
+      "path": "shared"
+    },
+    {
+      "bytes": 0,
+      "cached": true,
+      "channel": "candidates",
+      "ms": 0,
+      "path": "readout"
+    },
+    {
+      "bytes": 0,
+      "cached": true,
+      "channel": "readout",
+      "ms": 0,
+      "path": "readout"
+    },
+    {
+      "bytes": 288374,
+      "cached": false,
+      "ms": 36.09999996423721,
+      "path": "shared"
+    },
+    {
+      "bytes": 0,
+      "cached": true,
+      "channel": "candidates",
+      "ms": 0,
+      "path": "readout"
+    },
+    {
+      "bytes": 0,
+      "cached": true,
+      "channel": "readout",
+      "ms": 0,
+      "path": "readout"
+    },
+    {
+      "bytes": 288475,
+      "cached": false,
+      "ms": 31.69999998807907,
+      "path": "shared"
+    },
+    {
+      "bytes": 0,
+      "cached": true,
+      "channel": "candidates",
+      "ms": 0,
+      "path": "readout"
+    },
+    {
+      "bytes": 0,
+      "cached": true,
+      "channel": "readout",
+      "ms": 0,
+      "path": "readout"
+    }
+  ],
+  "status": "CLIENT PERFORMANCE INSTRUMENTATION",
+  "surface": "actual Codex browser",
+  "wholeCohortExpressionTransfer": false
+}

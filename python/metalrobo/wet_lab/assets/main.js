@@ -90,7 +90,7 @@ function renderToolbar(c, s) {
     host.append(l, genes);
     if (cap(c).presentation === 'tissue')
         host.append(labeled('Response population', select([{ id: 'direct', title: 'Directly perturbed' }, { id: 'neighbor', title: 'Neighboring population' }], layout.value.role, value => { layout.update({ role: value }); run(loadReadout); })));
-    host.append(labeled('Readout units', select(cap(c).prediction ? [{ id: 'normalized', title: 'log1p(CPM) · model units' }] : [{ id: 'raw_counts', title: 'Raw counts' }, { id: 'log1p_10000', title: 'log1p(10,000 · retained panel)' }], cap(c).prediction ? 'normalized' : layout.value.normalization, value => { layout.update({ normalization: value }); run(loadReadout); })), button(layout.value.comparison ? 'Close comparison' : 'Compare views', () => { layout.update({ comparison: !layout.value.comparison }); renderComparison(); }));
+    host.append(labeled('Readout units', select(cap(c).prediction ? [{ id: 'normalized', title: 'log1p(CPM) · model units' }] : [{ id: 'raw_counts', title: 'Raw counts' }, { id: 'log1p_10000', title: 'log1p(10,000 · retained panel)' }], cap(c).prediction ? 'normalized' : layout.value.normalization, value => { layout.update({ normalization: value }); run(loadReadout); })), Object.assign(button(layout.value.comparison ? 'Close comparison' : 'Compare views', () => { layout.update({ comparison: !layout.value.comparison }); renderComparison(); }), { id: 'compare-toggle' }));
 }
 function renderHeading(c, s) { const p = c.populations.find(p => p.id === s.populationID); const h = $('view-heading'); h.replaceChildren(node('span', cap(c).presentation === 'tissue' ? 'SPATIAL SPECIMEN' : 'CELLULAR SPECIMEN', 'eyebrow'), node('h1', p?.title || p?.cellType || p?.id || s.populationID), badge(activeDraft()?.status.toUpperCase() || (cap(c).prediction ? 'PREVIEW · MODEL INFERENCE' : 'EXPLORE · MEASURED EVIDENCE')), node('p', (s.gene || 'Select a gene') + ' · ' + s.conditionID + ' · ' + c.title, 'muted')); $('dataset-name').textContent = c.title; }
 function renderInspector() {
@@ -162,7 +162,11 @@ function renderInspector() {
     if (d.status === 'draft') {
         form.append(button(state.pending ? 'Awaiting acknowledgement…' : 'Apply edits', () => run(async () => { const split = (v) => v.split(/[\s,]+/).filter(Boolean); localIntent = { action: 'edit', id: d.id, title: title.value, genes: split(genes.value), modelIDs: split(models.value), conditionIDs: split(conditions.value) }; await mutate(localIntent); localIntent = null; }), 'primary'), button('Undo acknowledged draft edit', () => run(() => mutate({ action: 'undo', id: d.id }))));
     }
-    host.append(form, node('p', state.pending ? '◌ Pending — not yet accepted' : '✓ Shared revision ' + state.value.revision, 'pending'));
+    if (d.status === 'draft')
+        host.append(form);
+    else
+        host.append(node('p', 'Models: ' + d.modelIDs.join(', '), 'muted'), node('p', 'Conditions: ' + d.conditionIDs.join(', '), 'muted'));
+    host.append(node('p', state.pending ? '◌ Pending — not yet accepted' : '✓ Shared revision ' + state.value.revision, 'pending'));
     const coverage = d.coverage || {};
     host.append(node('h3', 'Coverage before execution'));
     for (const g of coverage.genes || []) {
@@ -282,6 +286,12 @@ async function loadReadout() {
         savedCamera = { key: identity(c.id, s.specimenID), camera: { ...spatial.camera } };
     spatial?.dispose();
     spatial = null;
+    if (cap(c).presentation === 'population' && !s.target) {
+        host.replaceChildren(node('h2', 'Inspect this control-reference population'), supportView(state.value?.selectionSupport), node('p', 'Choose an intervention to inspect its molecular readout. Candidate counts and observation-access limits appear alongside each intervention.', 'muted'));
+        activeReadout = null;
+        renderComparison();
+        return;
+    }
     if (!['population', 'tissue'].includes(cap(c).presentation)) {
         host.replaceChildren(node('div', 'Unsupported assay presentation: ' + cap(c).presentation + '. A compatible owner capability is required.', 'empty'));
         return;
@@ -326,7 +336,7 @@ async function loadReadout() {
             populationView(host, field, s.target);
         }
         performance.mark('numilab-gene-ready');
-        readoutTimings.push({ gene: s.gene, dataset: c.id, ms: performance.now() - started, cached: client.timings.slice(beforeRequests).some(t => t.cached), normalization: normalization, access });
+        readoutTimings.push({ gene: s.gene, dataset: c.id, ms: performance.now() - started, cached: client.timings.slice(beforeRequests).some(t => t.cached && t.channel === (cap(c).presentation === 'tissue' ? 'field' : 'readout')), normalization: normalization, access });
         if (readoutTimings.length > 120)
             readoutTimings.shift();
         renderComparison();
@@ -338,6 +348,9 @@ async function loadReadout() {
     }
 }
 function renderComparison() {
+    const toggle = $('compare-toggle');
+    if (toggle)
+        toggle.textContent = layout.value.comparison ? 'Close comparison' : 'Compare views';
     const host = $('comparison');
     host.hidden = !layout.value.comparison;
     if (host.hidden)
@@ -384,7 +397,7 @@ function renderComparison() {
     const panels = node('div', undefined, 'comparison-panes');
     if (activeReadout) {
         const selected = (activeReadout.arms || []).filter(a => d.targets.includes(a.target) && (!a.role || a.role === layout.value.role)).slice(0, 4);
-        const max = Math.max(1e-9, ...selected.flatMap(a => [a.control, a.predicted, a.observed]).filter((v) => typeof v === 'number').map(Math.abs));
+        const max = Math.max(1e-9, ...selected.flatMap(a => [a.control, a.predicted, a.observed, ...(a.controlValues || a.referenceValues || []), ...(a.observedValues || [])]).filter((v) => typeof v === 'number').map(Math.abs));
         for (const a of selected) {
             const panel = node('section', undefined, 'readout-card');
             panel.append(button(a.target + ' · ' + (a.role || 'direct'), () => run(() => setSelection({ ...state.value.selection, target: a.target }))));
@@ -495,7 +508,7 @@ function render() {
 function showPerformance() { const data = { status: 'CLIENT PERFORMANCE INSTRUMENTATION', format: 'numilab-browser-timings/v1', surface: 'actual Codex browser', metadataAfterReadinessMs: metadataMs, inputFeedbackMs: feedback, inputFeedbackMeasurement: 'Trusted pointer/keyboard event to next animation frame; excludes physical display latency', readoutTimings, requests: client.timings, cache: '32-entry bounded session cache; process and OS caches reported separately', wholeCohortExpressionTransfer: false }; drawer('Performance and support', evidenceSummary(data)); }
 function searchCommands() { const text = $('command-query').value.toLowerCase(); const host = $('command-results'); host.replaceChildren(); const actions = [['Open laboratory home', () => { $('start').hidden = false; $('investigation').hidden = true; }], ['Show activity and recover interrupted work', showActivity], ['Show history', showHistory], ['Open native biological viewers', showViewers], ['Snapshot and restore laboratory', showStorage], ['Performance and support', showPerformance], ['Reconnect to service', () => run(connect)], ...catalogs.map(c => ['Open ' + c.title, () => run(() => openDataset(c))]), ...(state.value?.drafts || []).map(d => ['Inspect ' + d.title, () => run(() => openDraft(d))])]; for (const [title, action] of actions.filter(([title]) => title.toLowerCase().includes(text)))
     host.append(button(title, () => { $('command').close(); action(); })); }
-function openCommand() { $('command').showModal(); $('command-query').focus(); searchCommands(); }
+function openCommand() { const query = $('command-query'); query.value = ''; $('command').showModal(); query.focus(); searchCommands(); }
 async function connect() { try {
     await client.request('health');
     readinessAt = performance.now();

@@ -16,7 +16,7 @@ export class AcknowledgedState {
 }
 export interface Preferences {appearance:string;navigation:boolean;drawer:string|null;activeDraft:string|null;comparison:boolean;normalization:string;role:string}
 export class Layout {
- value:Preferences={appearance:'system',navigation:true,drawer:null,activeDraft:null,comparison:false,normalization:'raw_counts',role:'direct'};
+ value:Preferences={appearance:'system',navigation:false,drawer:null,activeDraft:null,comparison:false,normalization:'raw_counts',role:'direct'};
  constructor(){try{this.value={...this.value,...JSON.parse(localStorage.getItem('numilab-workbench-layout/v1')||'{}')}}catch{}}
  update(p:Partial<Preferences>){Object.assign(this.value,p);localStorage.setItem('numilab-workbench-layout/v1',JSON.stringify(this.value));document.documentElement.dataset.appearance=this.value.appearance}
 }

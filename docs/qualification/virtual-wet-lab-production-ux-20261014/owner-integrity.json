@@ -1,0 +1,78 @@
+{
+  "unknownCondition": [
+    400,
+    {
+      "error": "Unsupported condition"
+    }
+  ],
+  "revisionUnchanged": true,
+  "measuredOnly": {
+    "id": "20c06d953ae745e5bfc3dad5a61d291b",
+    "coverage": {
+      "genes": [
+        {
+          "gene": "NOC2L",
+          "eligible": true,
+          "measured": true,
+          "modeled": false,
+          "referenceQuantity": "MEASURED",
+          "predictionQuantity": "UNAVAILABLE",
+          "missingFeatureReason": null,
+          "selectedPopulationReferenceCells": 512
+        }
+      ],
+      "canExecute": false,
+      "candidateEffects": [],
+      "executionReason": "No compatible trained model is registered for this cohort. Register an artifact with this source, context and feature axis; measured exploration remains available.",
+      "objective": "Unexecuted proposal; intent retained",
+      "biologicalPromotion": false
+    }
+  },
+  "measuredOnlySeal": [
+    400,
+    {
+      "error": "Unsupported objective or empty comparison"
+    }
+  ],
+  "revealHistoryUnchanged": true,
+  "absentGene": {
+    "status": 200,
+    "access": {
+      "status": "development-open-only",
+      "reservedResponsesReturned": false
+    },
+    "measured": false,
+    "missingFeatureReason": "Feature absent or ambiguous on this source panel; unmeasured features are not zero counts",
+    "arms": [
+      {
+        "target": "AARS",
+        "controlCells": 512,
+        "outcomeCells": 32,
+        "accessibleOutcomeCells": 22,
+        "reservedOutcomeCells": 10,
+        "observed": null,
+        "evidence": "UNAVAILABLE"
+      }
+    ]
+  },
+  "reservedReadout": {
+    "status": 200,
+    "access": {
+      "status": "development-open-only",
+      "reservedResponsesReturned": false
+    },
+    "measured": true,
+    "missingFeatureReason": null,
+    "arms": [
+      {
+        "target": "AARS",
+        "controlCells": 512,
+        "outcomeCells": 32,
+        "accessibleOutcomeCells": 0,
+        "reservedOutcomeCells": 32,
+        "observed": null,
+        "evidence": "UNAVAILABLE"
+      }
+    ]
+  }
+}
