@@ -238,18 +238,114 @@ PorcineJejunumClosureCoupon makePorcineJejunumClosureCoupon(
     const double dx = spec.lengthM.value / static_cast<double>(nx);
     const double dy = spec.widthM.value / static_cast<double>(ny);
     const double dz = spec.thicknessM.value / static_cast<double>(nz);
-    const std::uint32_t incisionCellCount = std::clamp(
+    const auto validateCoordinates = [](
+        const std::vector<double>& positions,
+        const std::uint32_t cells,
+        const double extent
+    ) {
+        if (positions.empty()) {
+            return;
+        }
+        if (positions.size() != static_cast<std::size_t>(cells) + 1u ||
+            !std::isfinite(positions.front()) ||
+            !std::isfinite(positions.back()) ||
+            std::abs(positions.front() + 0.5 * extent) > 1.0e-12 ||
+            std::abs(positions.back() - 0.5 * extent) > 1.0e-12) {
+            throw std::invalid_argument(
+                "surgical-tissue mesh coordinates do not match their extent"
+            );
+        }
+        for (std::size_t index = 0u; index < positions.size(); ++index) {
+            if (!std::isfinite(positions[index]) ||
+                (index != 0u &&
+                 !(positions[index] > positions[index - 1u]))) {
+                throw std::invalid_argument(
+                    "surgical-tissue mesh coordinates must be finite and "
+                    "strictly increasing"
+                );
+            }
+        }
+    };
+    validateCoordinates(
+        spec.longitudinalNodePositionsM, nx, spec.lengthM.value
+    );
+    validateCoordinates(
+        spec.circumferentialNodePositionsM, ny, spec.widthM.value
+    );
+    validateCoordinates(
+        spec.thicknessNodePositionsM, nz, spec.thicknessM.value
+    );
+    const auto minSpacing = [](const std::vector<double>& positions,
+                               const double uniformSpacing) {
+        if (positions.empty()) {
+            return uniformSpacing;
+        }
+        double result = std::numeric_limits<double>::infinity();
+        for (std::size_t index = 1u; index < positions.size(); ++index) {
+            result = std::min(
+                result, positions[index] - positions[index - 1u]
+            );
+        }
+        return result;
+    };
+    const double minimumCellSpacing = std::min({
+        minSpacing(spec.longitudinalNodePositionsM, dx),
+        minSpacing(spec.circumferentialNodePositionsM, dy),
+        minSpacing(spec.thicknessNodePositionsM, dz),
+    });
+    std::uint32_t incisionCellCount = std::clamp(
         static_cast<std::uint32_t>(std::llround(
             spec.incisionLengthM.value / dx
         )),
         2u,
         nx - 2u
     );
-    const std::uint32_t incisionBegin =
-        (nx - incisionCellCount) / 2u;
-    const std::uint32_t incisionEnd =
-        incisionBegin + incisionCellCount;
+    std::uint32_t incisionBegin = (nx - incisionCellCount) / 2u;
+    std::uint32_t incisionEnd = incisionBegin + incisionCellCount;
+    if (!spec.longitudinalNodePositionsM.empty()) {
+        const auto findExactNode = [](
+            const std::vector<double>& positions,
+            const double target
+        ) -> std::uint32_t {
+            const auto found = std::lower_bound(
+                positions.begin(), positions.end(), target
+            );
+            if (found == positions.end() ||
+                std::abs(*found - target) > 1.0e-12) {
+                throw std::invalid_argument(
+                    "nonuniform surgical mesh must place a node at each "
+                    "incision endpoint"
+                );
+            }
+            return static_cast<std::uint32_t>(
+                std::distance(positions.begin(), found)
+            );
+        };
+        const double halfIncision = 0.5 * spec.incisionLengthM.value;
+        incisionBegin = findExactNode(
+            spec.longitudinalNodePositionsM, -halfIncision
+        );
+        incisionEnd = findExactNode(
+            spec.longitudinalNodePositionsM, halfIncision
+        );
+        incisionCellCount = incisionEnd - incisionBegin;
+        if (incisionBegin < 2u || incisionEnd > nx - 2u ||
+            incisionCellCount < 2u) {
+            throw std::invalid_argument(
+                "nonuniform surgical mesh incision lacks end support"
+            );
+        }
+    }
+    if (!spec.circumferentialNodePositionsM.empty() &&
+        std::abs(spec.circumferentialNodePositionsM[seamY]) > 1.0e-12) {
+        throw std::invalid_argument(
+            "nonuniform circumferential mesh must center the wound seam"
+        );
+    }
     const auto longitudinalPosition = [&](const std::uint32_t ix) {
+        if (!spec.longitudinalNodePositionsM.empty()) {
+            return spec.longitudinalNodePositionsM[ix];
+        }
         const double halfLength = 0.5 * spec.lengthM.value;
         const double halfIncision = 0.5 * spec.incisionLengthM.value;
         if (ix <= incisionBegin) {
@@ -276,7 +372,7 @@ PorcineJejunumClosureCoupon makePorcineJejunumClosureCoupon(
     object.materialIndex = materialIndex;
     object.representation = Representation::fem;
     object.twoWayCoupling = true;
-    object.characteristicLength = std::min({dx, dy, dz});
+    object.characteristicLength = minimumCellSpacing;
     object.mixedFEM = true;
     object.mutationPolicy.enabled = true;
     object.mutationPolicy.cohesiveFracture = true;
@@ -307,8 +403,12 @@ PorcineJejunumClosureCoupon makePorcineJejunumClosureCoupon(
             for (std::uint32_t ix = 0u; ix <= nx; ++ix) {
                 std::array<double, 3> position{
                     longitudinalPosition(ix),
-                    -0.5 * spec.widthM.value + dy * iy,
-                    -0.5 * spec.thicknessM.value + dz * iz,
+                    spec.circumferentialNodePositionsM.empty()
+                        ? -0.5 * spec.widthM.value + dy * iy
+                        : spec.circumferentialNodePositionsM[iy],
+                    spec.thicknessNodePositionsM.empty()
+                        ? -0.5 * spec.thicknessM.value + dz * iz
+                        : spec.thicknessNodePositionsM[iz],
                 };
                 const bool lowerIncisionLip =
                     iy == seamY &&
@@ -522,6 +622,9 @@ SyntheticSkinWoundCoupon makeSyntheticSkinWoundCoupon(
     geometry.circumferentialCells = spec.transverseCells;
     geometry.throughThicknessCells = spec.throughThicknessCells;
     geometry.fixLongitudinalEnds = spec.fixLongitudinalEnds;
+    geometry.longitudinalNodePositionsM = spec.longitudinalNodePositionsM;
+    geometry.circumferentialNodePositionsM = spec.transverseNodePositionsM;
+    geometry.thicknessNodePositionsM = spec.thicknessNodePositionsM;
     PorcineJejunumClosureCoupon mesh =
         makePorcineJejunumClosureCoupon(materialIndex, geometry);
 

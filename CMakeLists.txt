@@ -2539,6 +2539,37 @@ set_target_properties(
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
 )
 
+add_executable(
+    metalrobo_synthetic_skin_wound_traction_probe
+    apps/synthetic_skin_wound_traction_probe.mm
+)
+add_dependencies(
+    metalrobo_synthetic_skin_wound_traction_probe
+    numi_matter_shaders
+)
+target_compile_options(
+    metalrobo_synthetic_skin_wound_traction_probe
+    PRIVATE
+        -fobjc-arc
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+target_link_libraries(
+    metalrobo_synthetic_skin_wound_traction_probe
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+)
+set_target_properties(
+    metalrobo_synthetic_skin_wound_traction_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
 if(BUILD_TESTING)
     add_test(
         NAME metalrobo.surgical.synthetic_skin_wound_coupon

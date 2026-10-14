@@ -693,7 +693,7 @@ numi::matter::CompiledWorld compileSutureProxyWindowCase() {
     numi::matter::WorldSource source;
     source.environmentCount = 1u;
     source.frameTimestep = 1.0 / 1000.0;
-    source.gravity = {0.0, 0.0, 0.0};
+    source.gravity = {0.0, 0.0, -9.81};
     source.contactSlop = 1.0e-4;
     source.materials.push_back(std::move(parsed.material));
     for (std::uint32_t edge = 0u; edge < 2u; ++edge) {
@@ -2065,6 +2065,8 @@ void runSutureProxyWindow() {
             world.mixedSolver.nonlinearIterations.z
         );
         const std::uint32_t phaseFGMRESBudget = 2u * fgmresRestart;
+        const std::uint32_t partialFGMRESBudget =
+            std::max(1u, fgmresRestart - 2u);
         const std::uint32_t cookedNewtonBudget =
             world.mixedSolver.nonlinearIterations.x;
         const std::uint32_t phaseNewtonBudget = cookedNewtonBudget + 1u;
@@ -2072,7 +2074,8 @@ void runSutureProxyWindow() {
             fgmresRestart > 1u &&
                 cookedNewtonBudget != 0u &&
                 runtime.fgmresIterationBudget() == cookedFGMRESBudget &&
-                !runtime.setFGMRESIterationBudget(fgmresRestart - 1u) &&
+                runtime.setFGMRESIterationBudget(fgmresRestart - 1u) &&
+                runtime.fgmresIterationBudget() == fgmresRestart - 1u &&
                 runtime.setFGMRESIterationBudget(phaseFGMRESBudget) &&
                 runtime.fgmresIterationBudget() == phaseFGMRESBudget &&
                 runtime.newtonIterationBudget() == cookedNewtonBudget &&
@@ -2101,7 +2104,12 @@ void runSutureProxyWindow() {
         require(runtime.setCoupledTimestepDivisor(2u) &&
                     runtime.coupledTimestepMultiplier() == 1u &&
                     runtime.coupledTimestepDivisor() == 2u &&
-                    runtime.timestepSeconds() == baseTimestep * 0.5f,
+                    runtime.timestepSeconds() == baseTimestep * 0.5f &&
+                    runtime.setFGMRESIterationBudget(
+                        partialFGMRESBudget
+                    ) &&
+                    runtime.fgmresIterationBudget() ==
+                        partialFGMRESBudget,
             "suture proxy window could not select exact half-step cadence");
 
         std::array<MRRodNodeStateGPU, 5u> rodNodes{};
@@ -2166,7 +2174,10 @@ void runSutureProxyWindow() {
                     projected.coupledTimestepMultiplier == 1u &&
                     projected.coupledTimestepDivisor == 2u &&
                     projected.fgmresIterationBudgetOverride ==
-                        phaseFGMRESBudget &&
+                        partialFGMRESBudget &&
+                    projected.statuses[0].fgmresIterations > 0u &&
+                    projected.statuses[0].fgmresIterations <=
+                        partialFGMRESBudget &&
                     projected.newtonIterationBudgetOverride ==
                         phaseNewtonBudget &&
                     projected.rigidStates.size() == 2u &&
@@ -2202,14 +2213,52 @@ void runSutureProxyWindow() {
                             advanced.begin(), advanced.end()) &&
                     restoredSnapshot.sutureProxyBindingRevision == 1u &&
                     restoredRuntime.fgmresIterationBudget() ==
-                        phaseFGMRESBudget &&
+                        partialFGMRESBudget &&
                     restoredSnapshot.fgmresIterationBudgetOverride ==
-                        phaseFGMRESBudget &&
+                        partialFGMRESBudget &&
                     restoredRuntime.newtonIterationBudget() ==
                         phaseNewtonBudget &&
                     restoredSnapshot.newtonIterationBudgetOverride ==
                         phaseNewtonBudget,
             "fresh runtime did not retain sparse suture proxy authority");
+
+        const float coarsenedBaseTimestep =
+            restoredRuntime.timestepSeconds() * 2.0f;
+        require(
+            restoredRuntime.setCoupledTimestepMultiplier(3u) &&
+                restoredRuntime.coupledTimestepMultiplier() == 3u &&
+                restoredRuntime.coupledTimestepDivisor() == 1u &&
+                restoredRuntime.timestepSeconds() ==
+                    3.0f * coarsenedBaseTimestep,
+            "suture proxy window could not select bounded integer coarsening"
+        );
+        const auto coarsenedSnapshot = restoredRuntime.snapshot();
+        require(coarsenedSnapshot.available &&
+                    coarsenedSnapshot.coupledTimestepMultiplier == 3u &&
+                    coarsenedSnapshot.coupledTimestepDivisor == 1u,
+            "non-power-of-two coupled cadence was not captured in Matter state");
+        numi::matter::Runtime cadenceRestoredRuntime;
+        const auto cadenceRestoredInitialized =
+            cadenceRestoredRuntime.initialize(world, {
+                .metallib = NUMI_MATTER_METALLIB,
+                .environmentCount = 1u,
+                .captureEvents = true,
+                .captureDiagnostics = true,
+                .automaticIdentification = false,
+                .adaptiveTransfer = false,
+            });
+        require(cadenceRestoredInitialized.encoded &&
+                    cadenceRestoredRuntime.valid(),
+            "integer cadence restore runtime did not initialize");
+        const auto cadenceRestore =
+            cadenceRestoredRuntime.restore(coarsenedSnapshot);
+        require(cadenceRestore.encoded &&
+                    cadenceRestoredRuntime.coupledTimestepMultiplier() == 3u &&
+                    cadenceRestoredRuntime.coupledTimestepDivisor() == 1u &&
+                    cadenceRestoredRuntime.timestepSeconds() ==
+                        3.0f * coarsenedBaseTimestep,
+            "fresh Matter runtime did not restore integer coupled cadence: " +
+                cadenceRestore.message);
         std::cout
             << "{\"schema\":\"numi.matter.suture-window.v1\""
             << ",\"edges\":[" << projected.sutureProxyEdges[0] << ','

@@ -1409,17 +1409,19 @@ kernel void nm_fem_select_backtracking(
     device NMMatterStatusGPU* statuses [[buffer(12)]],
     device const NMMixedMaterialGPU* mixedMaterials [[buffer(13)]],
     device const NMFEMFieldStateGPU* fields [[buffer(14)]],
-    uint global [[thread_position_in_grid]]
+    uint lane [[thread_index_in_threadgroup]],
+    uint group [[threadgroup_position_in_grid]]
 ) {
     const uint total = dispatch.environmentCount * dispatch.objectCount;
-    if (global >= total || dispatch.objectCount == 0u) return;
-    const uint environment = global / dispatch.objectCount;
-    const uint objectIndex = global - environment * dispatch.objectCount;
-    lineSearch[global] = float4(1.0f, INFINITY, 0.0f, 0.0f);
+    if (group >= total || dispatch.objectCount == 0u) return;
+    const uint environment = group / dispatch.objectCount;
+    const uint objectIndex = group - environment * dispatch.objectCount;
+    if (lane == 0u)
+        lineSearch[group] = float4(1.0f, INFINITY, 0.0f, 0.0f);
     if (!environmentHealthy(statuses, environment)) return;
     const NMContinuumObjectGPU object = objects[objectIndex];
-    const NMSchedulerStateGPU scheduler = schedulers[global];
-    const NMAdaptiveStateGPU adaptiveState = adaptive[global];
+    const NMSchedulerStateGPU scheduler = schedulers[group];
+    const NMAdaptiveStateGPU adaptiveState = adaptive[group];
     if (object.representation != NM_REPRESENTATION_FEM ||
         !objectDue(object, scheduler, adaptiveState, microstep)) return;
     const uint candidateCount = min(solver.nonlinearIterations.w, 8u);
@@ -1428,18 +1430,22 @@ kernel void nm_fem_select_backtracking(
     float chosenMinimum = -INFINITY;
     for (uint trial = 0u; trial < candidateCount; ++trial) {
         const float alpha = exp2(-float(trial));
-        float minimumJ = INFINITY;
-        float currentVolumeMerit2 = 0.0f;
-        float trialVolumeMerit2 = 0.0f;
-        uint volumeElementCount = 0u;
-        bool valid = true;
-        for (uint local = 0u; local < dispatch.tetrahedronCount; ++local) {
+        float laneMinimumJ = INFINITY;
+        float laneCurrentVolumeMerit2 = 0.0f;
+        float laneTrialVolumeMerit2 = 0.0f;
+        uint laneVolumeElementCount = 0u;
+        uint laneValid = 1u;
+        const uint nodeBase = environment * dispatch.femNodeCount;
+        const uint totalNodes = dispatch.environmentCount *
+            dispatch.femNodeCount;
+        for (uint local = lane;
+             local < dispatch.tetrahedronCount;
+             local += 32u) {
             const NMTetrahedronGPU tetrahedron = environmentTetrahedron(
                 dispatch, tetrahedra, environment, local
             );
             if (tetrahedron.identity.y != objectIndex ||
                 (tetrahedron.identity.w & NM_OBJECT_ACTIVE) == 0u) continue;
-            const uint nodeBase = environment * dispatch.femNodeCount;
             float3 x[4];
             for (uint slot = 0u; slot < 4u; ++slot) {
                 const uint index = nodeBase + tetrahedron.nodes[slot];
@@ -1459,9 +1465,10 @@ kernel void nm_fem_select_backtracking(
             const float determinantValue = determinant(deformation);
             const float currentDeterminant = determinant(
                 tetrahedronDeformation(tetrahedron, candidate, nodeBase));
-            minimumJ = min(minimumJ, determinantValue);
+            laneMinimumJ = min(laneMinimumJ, determinantValue);
             const NMMaterialGPU material = materials[tetrahedron.identity.x];
-            valid = valid && isfinite(determinantValue) &&
+            laneValid = laneValid != 0u &&
+                isfinite(determinantValue) &&
                 determinantValue >= max(
                     dispatch.numericalLimits.z, material.validity.x
                 ) && determinantValue <= material.validity.y;
@@ -1477,8 +1484,6 @@ kernel void nm_fem_select_backtracking(
                 float trialPressure = 0.0f;
                 float currentTemperature = 0.0f;
                 float trialTemperature = 0.0f;
-                const uint totalNodes = dispatch.environmentCount *
-                    dispatch.femNodeCount;
                 for (uint slot = 0u; slot < 4u; ++slot) {
                     const uint index = nodeBase + tetrahedron.nodes[slot];
                     currentPressure += fields[index].primary.x;
@@ -1498,11 +1503,25 @@ kernel void nm_fem_select_backtracking(
                 const float trialConstraint = log(determinantValue) +
                     trialPressure / bulk - 3.0f * mixed.mechanics.y *
                         (trialTemperature - mixed.mechanics.w);
-                currentVolumeMerit2 += currentConstraint * currentConstraint;
-                trialVolumeMerit2 += trialConstraint * trialConstraint;
-                ++volumeElementCount;
+                laneCurrentVolumeMerit2 +=
+                    currentConstraint * currentConstraint;
+                laneTrialVolumeMerit2 +=
+                    trialConstraint * trialConstraint;
+                ++laneVolumeElementCount;
             }
         }
+        // One 32-lane SIMD group owns each object. Reduce the per-lane element
+        // validity, minimum determinant, and mixed-volume Armijo sums before
+        // choosing the same first admissible alpha as the serial kernel.
+        const float minimumJ = simd_min(laneMinimumJ);
+        const float currentVolumeMerit2 = simd_sum(
+            laneCurrentVolumeMerit2
+        );
+        const float trialVolumeMerit2 = simd_sum(
+            laneTrialVolumeMerit2
+        );
+        const uint volumeElementCount = simd_sum(laneVolumeElementCount);
+        bool valid = simd_min(laneValid) != 0u;
         const float inverseVolumeCount = volumeElementCount > 0u
             ? 1.0f / float(volumeElementCount) : 0.0f;
         const float currentVolumeMerit = sqrt(max(
@@ -1522,15 +1541,18 @@ kernel void nm_fem_select_backtracking(
             break;
         }
     }
-    lineSearch[global] = float4(
-        chosen, chosenMinimum, float(candidateCount), float(microstep.solverIteration)
-    );
-    if (!(chosen > 0.0f)) {
-        recordFailure(
-            statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
-            objectIndex, microstep.solverIteration,
-            float4(chosenMinimum, float(candidateCount), 0.0f, 0.0f)
+    if (lane == 0u) {
+        lineSearch[group] = float4(
+            chosen, chosenMinimum, float(candidateCount),
+            float(microstep.solverIteration)
         );
+        if (!(chosen > 0.0f)) {
+            recordFailure(
+                statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
+                objectIndex, microstep.solverIteration,
+                float4(chosenMinimum, float(candidateCount), 0.0f, 0.0f)
+            );
+        }
     }
 }
 

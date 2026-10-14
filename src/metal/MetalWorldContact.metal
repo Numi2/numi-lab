@@ -7354,25 +7354,31 @@ inline float typedNormalCrossContactResponse(
     device const MRRodColliderGPU* rodColliders,
     device const MRRodToolWitnessGPU* rodWitnesses,
     device const uint* constraintWitnessIndices,
-    const uint constraintBase
+    const uint constraintBase,
+    thread const float* targetJacobianProjection,
+    const bool useTargetJacobianProjection
 ) {
     float response = 0.0f;
     for (uint dof = 0u; dof < nv; ++dof) {
-        response += dot(
-            targetNormal,
-            typedArticulationJacobianColumn(
-                targetConstraint,
-                target,
-                bodies,
-                pointJacobians,
-                pointJacobianBase,
-                dof,
-                nv,
-                rodWitnesses,
-                constraintWitnessIndices,
-                constraintBase
-            )
-        ) * responseColumns[
+        const float targetJacobianResponse =
+            useTargetJacobianProjection
+            ? targetJacobianProjection[dof]
+            : dot(
+                  targetNormal,
+                  typedArticulationJacobianColumn(
+                      targetConstraint,
+                      target,
+                      bodies,
+                      pointJacobians,
+                      pointJacobianBase,
+                      dof,
+                      nv,
+                      rodWitnesses,
+                      constraintWitnessIndices,
+                      constraintBase
+                  )
+              );
+        response += targetJacobianResponse * responseColumns[
             responseBase +
             (sourceConstraint * 3u + sourceAxis) * nv +
             dof
@@ -8081,6 +8087,25 @@ inline void mrWorldWave32SolvePacket(
             }
         }
         for (uint row = 0u; row < 3u; ++row) {
+            for (uint dof = 0u; dof < dispatch.nv; ++dof) {
+                rightHandSide[dof] = hasArticulatedEndpoint
+                    ? dot(
+                          directions[row],
+                          typedArticulationJacobianColumn(
+                              localConstraint,
+                              contact,
+                              bodies,
+                              pointJacobians,
+                              pointJacobianBase,
+                              dof,
+                              dispatch.nv,
+                              rodWitnesses,
+                              constraintWitnessIndices,
+                              constraintBase
+                          )
+                      )
+                    : 0.0f;
+            }
             for (uint column = 0u; column < 3u; ++column) {
                 float value = typedNormalCrossContactResponse(
                     localConstraint,
@@ -8103,7 +8128,9 @@ inline void mrWorldWave32SolvePacket(
                     rodColliders,
                     rodWitnesses,
                     constraintWitnessIndices,
-                    constraintBase
+                    constraintBase,
+                    rightHandSide,
+                    true
                 );
                 if (rodConstraint) {
                     value +=
@@ -8215,6 +8242,28 @@ inline void mrWorldWave32SolvePacket(
             float absoluteNormalRowSum = 0.0f;
             float diagonalNormalResponse = 0.0f;
             if (!rowIsRod) {
+                float targetJacobianProjection[
+                    MR_ARTICULATED_ABA_MAX_DOFS
+                ];
+                for (uint dof = 0u;
+                     dof < dispatch.nv;
+                     ++dof) {
+                    targetJacobianProjection[dof] = dot(
+                        localRows[0].direction.xyz,
+                        typedArticulationJacobianColumn(
+                            localConstraint,
+                            contact,
+                            bodies,
+                            pointJacobians,
+                            pointJacobianBase,
+                            dof,
+                            dispatch.nv,
+                            rodWitnesses,
+                            constraintWitnessIndices,
+                            constraintBase
+                        )
+                    );
+                }
                 for (uint sourceTile = 0u;
                      sourceTile < work.tileCount;
                      ++sourceTile) {
@@ -8253,7 +8302,9 @@ inline void mrWorldWave32SolvePacket(
                             rodColliders,
                             rodWitnesses,
                             constraintWitnessIndices,
-                            constraintBase
+                            constraintBase,
+                            targetJacobianProjection,
+                            true
                         );
                     absoluteNormalRowSum += abs(crossResponse);
                     if (sourceConstraint == localConstraint) {
@@ -9663,6 +9714,7 @@ kernel void mr_world_solve_generalized_constraints(
         1u
     );
 
+    uint completedIterations = 0u;
     for (uint iteration = 0u;
          iteration < iterations;
          ++iteration) {
@@ -10539,10 +10591,17 @@ kernel void mr_world_solve_generalized_constraints(
                 );
             }
         }
+        completedIterations = iteration + 1u;
+        // Stop only after a complete ordered sweep is already comfortably
+        // inside the passage's 2 mm/s residual gate. The configured budget
+        // remains the maximum for states that have not converged.
+        if (maximumResidual <= 1.0e-3f) {
+            break;
+        }
     }
     status.solverIterations = max(
         status.solverIterations,
-        iterations
+        completedIterations
     );
     status.residuals.y = max(
         status.residuals.y,

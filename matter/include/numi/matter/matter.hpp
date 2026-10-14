@@ -1237,12 +1237,13 @@ public:
         std::span<const std::uint32_t> firstRodEdges,
         std::uint32_t rodNodeCount
     );
-    // Selects a power-of-two coarsening of an externally coupled DER/Matter
-    // transaction without moving accepted state. The cooked world must own a
-    // live strand, use no internal Matter microticks, and be between command
-    // buffers. The MetalWorld control step must contain the same number of
-    // base DER substeps. Invocation configuration records the active cadence;
-    // the immutable device-program/layout fingerprint does not change.
+    // Selects a bounded integer coarsening of an externally coupled
+    // DER/Matter transaction without moving accepted state. The cooked world
+    // must own a live strand, use no internal Matter microticks, and be
+    // between command buffers. The MetalWorld control step must contain the
+    // same number of base DER substeps. Invocation configuration records the
+    // active cadence; the immutable device-program/layout fingerprint does
+    // not change.
     [[nodiscard]] bool setCoupledTimestepMultiplier(
         std::uint32_t multiplier
     ) noexcept;
@@ -1256,10 +1257,10 @@ public:
     ) noexcept;
     [[nodiscard]] std::uint32_t coupledTimestepDivisor() const noexcept;
     [[nodiscard]] float timestepSeconds() const noexcept;
-    // Select a bounded total restarted-FGMRES iteration budget between
-    // completed command buffers. The restart width, allocated basis, solver
-    // tolerances, and accepted physical state remain unchanged. Passing the
-    // cooked budget removes the runtime override.
+    // Select a positive total FGMRES iteration budget between completed
+    // command buffers. The final restart cycle may be partial; the restart
+    // width, allocated basis, solver tolerances, and accepted physical state
+    // remain unchanged. Passing the cooked budget removes the override.
     [[nodiscard]] bool setFGMRESIterationBudget(
         std::uint32_t iterations
     ) noexcept;

@@ -53,6 +53,20 @@ inline bool topologyLedgerChanged(const float before, const float after) {
     return after != before;
 }
 
+inline bool topologyAddsOnlyPhysicsPunctureChannels(
+    const NMFEMTopologyStateGPU before,
+    const NMFEMTopologyStateGPU after
+) {
+    if (after.roles.w <= before.roles.w ||
+        after.counts.x != before.counts.x ||
+        after.counts.y != before.counts.y ||
+        after.counts.z != before.counts.z ||
+        after.counts.w <= before.counts.w ||
+        !all(before.accounting == after.accounting)) return false;
+    return after.roles.w - before.roles.w ==
+        after.counts.w - before.counts.w;
+}
+
 inline bool pointInsideTetrahedron(
     const float3 point,
     const float3 a,
@@ -2469,7 +2483,8 @@ kernel void nm_topology_conserve_transaction(
     if (object.representation != NM_REPRESENTATION_FEM) return;
     const NMFEMTopologyStateGPU before = checkpointTopology[global];
     const NMFEMTopologyStateGPU after = candidateTopology[global];
-    if (before.roles.w == after.roles.w) return;
+    if (before.roles.w == after.roles.w ||
+        topologyAddsOnlyPhysicsPunctureChannels(before, after)) return;
     if (!all(isfinite(before.accounting)) ||
         !all(isfinite(after.accounting)) ||
         topologyLedgerChanged(before.accounting.y, after.accounting.y) ||
@@ -2643,7 +2658,8 @@ kernel void nm_topology_certify_transaction(
     if (object.representation != NM_REPRESENTATION_FEM) return;
     const NMFEMTopologyStateGPU before = checkpointTopology[global];
     const NMFEMTopologyStateGPU after = candidateTopology[global];
-    if (before.roles.w == after.roles.w) return;
+    if (before.roles.w == after.roles.w ||
+        topologyAddsOnlyPhysicsPunctureChannels(before, after)) return;
 
     const uint nodeBase = environment * dispatch.femNodeCount;
     const uint tetBase = environment * dispatch.tetrahedronCount;

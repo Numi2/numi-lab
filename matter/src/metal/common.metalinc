@@ -1120,6 +1120,40 @@ inline float3x3 evaluateAlgorithmicStress(
             stress, tangent, projectedState);
         return valid ? stress : float3x3(0.0f);
     }
+    // The canonical neo-Hookean marker is emitted only for the exact authored
+    // energy with its canonical parameter layout and no internal or
+    // dissipative state. Evaluate its first Piola stress directly instead of
+    // interpreting nine generated scalar programs for every FEM element.
+    if ((material.flags & NM_MATERIAL_CANONICAL_NEO_HOOKEAN) != 0u &&
+        material.stateCount == 0u &&
+        material.viscousStressProgramOffset == NM_INVALID_INDEX) {
+        device const float* materialParameters =
+            parameters + material.parameterOffset;
+        const float mu = materialParameters[1u];
+        const float lambda = materialParameters[2u];
+        const float j = determinant(deformation);
+        if (!(j > 0.0f) || !isfinite(j)) {
+            valid = false;
+            return float3x3(0.0f);
+        }
+        const float3x3 cofactor = float3x3(
+            cross(deformation[1], deformation[2]),
+            cross(deformation[2], deformation[0]),
+            cross(deformation[0], deformation[1])
+        );
+        const float3x3 inverseTranspose = cofactor / j;
+        const float3x3 stress = mu * (deformation - inverseTranspose) +
+            lambda * log(j) * inverseTranspose;
+        valid = valid && all(isfinite(stress[0])) &&
+            all(isfinite(stress[1])) && all(isfinite(stress[2]));
+        (void)programs;
+        (void)instructions;
+        (void)acceptedState;
+        (void)deformationRate;
+        (void)timestep;
+        (void)temperature;
+        return valid ? stress : float3x3(0.0f);
+    }
     if (material.stateCount == 0u) {
         return evaluateStress(
             material, programs, instructions, parameters, acceptedState,

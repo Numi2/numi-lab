@@ -174,11 +174,14 @@ constexpr std::uint32_t kSutureMatterContactSegmentCount = 2u;
 // hard swage, and the moving tip therefore share one 62.5 us transaction while
 // fracture acceptance is unresolved.
 constexpr std::uint32_t kSutureEntryMatterRateMultiplier = 1u;
-// Once the sharp tip has admitted a shank-gauge tract, group four base DER
-// substeps into one 4 kHz Matter transaction. The 20 mm/s needle advances
-// 5 um per solve, retaining twenty samples across the 100 um IPC band while
-// avoiding four redundant full-coupon Newton solves.
+// Existing suture phases retain four base DER substeps per Matter update.
 constexpr std::uint32_t kSuturePassageMatterRateMultiplier = 4u;
+// The balanced synthetic-skin through-wall probe passes with eight substeps
+// per update (10 um travel, ten samples across the 100 um IPC band). 16x misses
+// terminal-speed and final contact-residual bounds, including at the 8/0
+// reduced solver budget. The compact-mesh diagnostic uses the same cadence for
+// a matched simulated horizon; it still must pass the endpoint residual gate.
+constexpr std::uint32_t kLocalSkinPassageMatterRateMultiplier = 8u;
 constexpr double kSuturePullThroughSpeedMps = 8.0e-2;
 // Once the emerging swage is within the distal load-bearing neighborhood,
 // decelerate to the same deliberate 20 mm/s used for tissue entry.  The
@@ -6295,6 +6298,11 @@ numi::matter::CompiledWorld compileNeedleSutureTissueWorld(
     const std::uint32_t sutureContactSegmentCount,
     const bool freeNeedleCapability,
     const bool syntheticSkin,
+    const bool adaptiveSyntheticSkinMesh,
+    const bool compactSyntheticSkinMesh,
+    const bool balancedSyntheticSkinMesh,
+    const bool reducedFarFieldSyntheticSkinMesh,
+    const std::uint32_t syntheticSkinFieldSmootherPasses,
     TissueClosureCoupon& coupon
 ) {
     require(
@@ -6359,6 +6367,28 @@ numi::matter::CompiledWorld compileNeedleSutureTissueWorld(
         spec.circumferentialCells = syntheticSkin ? 32u : 40u;
         spec.throughThicknessCells = syntheticSkin ? 8u : 5u;
     }
+    if (adaptiveSyntheticSkinMesh || compactSyntheticSkinMesh ||
+        balancedSyntheticSkinMesh || reducedFarFieldSyntheticSkinMesh) {
+        require(
+            syntheticSkin && punctureTip &&
+                sutureContactSegmentCount != 0u,
+            "adaptive synthetic-skin mesh requires a suture-contact diagnostic"
+        );
+        // Keep a compact experimental layout beside the established adaptive
+        // comparison. The reduced far field retains incision endpoints, end
+        // supports, bite-scale nodes, and the full specimen.
+        spec.longitudinalCells = reducedFarFieldSyntheticSkinMesh
+            ? 14u
+            : (compactSyntheticSkinMesh
+                ? 14u
+                : (balancedSyntheticSkinMesh ? 20u : 24u));
+        spec.circumferentialCells = reducedFarFieldSyntheticSkinMesh
+            ? 10u
+            : (compactSyntheticSkinMesh
+                ? 16u
+                : (balancedSyntheticSkinMesh ? 20u : 24u));
+        spec.throughThicknessCells = 8u;
+    }
     spec.fixLongitudinalEnds = true;
     std::string materialError;
     if (!syntheticSkin) {
@@ -6383,6 +6413,109 @@ numi::matter::CompiledWorld compileNeedleSutureTissueWorld(
         skin.transverseCells = spec.circumferentialCells;
         skin.throughThicknessCells = spec.throughThicknessCells;
         skin.fixLongitudinalEnds = spec.fixLongitudinalEnds;
+        if (adaptiveSyntheticSkinMesh || compactSyntheticSkinMesh ||
+            balancedSyntheticSkinMesh || reducedFarFieldSyntheticSkinMesh) {
+            if (reducedFarFieldSyntheticSkinMesh) {
+                skin.longitudinalNodePositionsM = {
+                    -0.015, -0.0115, -0.008, -0.006, -0.004,
+                    -0.002, -0.001, 0.0, 0.001, 0.002, 0.004,
+                    0.006, 0.008, 0.0115, 0.015,
+                };
+                skin.transverseNodePositionsM = {
+                    -0.012, -0.00375, -0.003, -0.00225, -0.0015,
+                    0.0, 0.0015, 0.00225, 0.003, 0.00375, 0.012,
+                };
+            } else if (compactSyntheticSkinMesh) {
+                skin.longitudinalNodePositionsM = {
+                    -0.015, -0.0115, -0.008, -0.006, -0.004,
+                    -0.002, -0.001, 0.0, 0.001, 0.002, 0.004,
+                    0.006, 0.008, 0.0115, 0.015,
+                };
+                skin.transverseNodePositionsM = {
+                    -0.012, -0.009, -0.006, -0.0045, -0.00375,
+                    -0.003, -0.00225, -0.0015, 0.0, 0.0015,
+                    0.00225, 0.003, 0.00375, 0.0045, 0.006,
+                    0.009, 0.012,
+                };
+            } else if (balancedSyntheticSkinMesh) {
+                skin.longitudinalNodePositionsM.reserve(21u);
+                for (std::uint32_t index = 0u; index <= 2u; ++index) {
+                    skin.longitudinalNodePositionsM.push_back(
+                        -0.015 + 0.0035 * static_cast<double>(index)
+                    );
+                }
+                for (std::uint32_t index = 1u; index <= 16u; ++index) {
+                    skin.longitudinalNodePositionsM.push_back(
+                        -0.008 + 0.001 * static_cast<double>(index)
+                    );
+                }
+                for (std::uint32_t index = 1u; index <= 2u; ++index) {
+                    skin.longitudinalNodePositionsM.push_back(
+                        0.008 + 0.0035 * static_cast<double>(index)
+                    );
+                }
+                skin.transverseNodePositionsM.reserve(21u);
+                for (std::uint32_t index = 0u; index <= 2u; ++index) {
+                    skin.transverseNodePositionsM.push_back(
+                        -0.012 + 0.003 * static_cast<double>(index)
+                    );
+                }
+                for (std::uint32_t index = 1u; index <= 16u; ++index) {
+                    skin.transverseNodePositionsM.push_back(
+                        -0.006 + 0.00075 * static_cast<double>(index)
+                    );
+                }
+                for (std::uint32_t index = 1u; index <= 2u; ++index) {
+                    skin.transverseNodePositionsM.push_back(
+                        0.006 + 0.003 * static_cast<double>(index)
+                    );
+                }
+            } else {
+                skin.longitudinalNodePositionsM.reserve(25u);
+                for (std::uint32_t index = 0u; index <= 4u; ++index) {
+                    skin.longitudinalNodePositionsM.push_back(
+                        -0.015 + 0.00175 * static_cast<double>(index)
+                    );
+                }
+                for (std::uint32_t index = 1u; index <= 16u; ++index) {
+                    skin.longitudinalNodePositionsM.push_back(
+                        -0.008 + 0.001 * static_cast<double>(index)
+                    );
+                }
+                for (std::uint32_t index = 1u; index <= 4u; ++index) {
+                    skin.longitudinalNodePositionsM.push_back(
+                        0.008 + 0.00175 * static_cast<double>(index)
+                    );
+                }
+                skin.transverseNodePositionsM.reserve(25u);
+                for (std::uint32_t index = 0u; index <= 4u; ++index) {
+                    skin.transverseNodePositionsM.push_back(
+                        -0.012 + 0.0015 * static_cast<double>(index)
+                    );
+                }
+                for (std::uint32_t index = 1u; index <= 16u; ++index) {
+                    skin.transverseNodePositionsM.push_back(
+                        -0.006 + 0.00075 * static_cast<double>(index)
+                    );
+                }
+                for (std::uint32_t index = 1u; index <= 4u; ++index) {
+                    skin.transverseNodePositionsM.push_back(
+                        0.006 + 0.0015 * static_cast<double>(index)
+                    );
+                }
+            }
+            skin.thicknessNodePositionsM.reserve(
+                static_cast<std::size_t>(spec.throughThicknessCells) + 1u
+            );
+            for (std::uint32_t index = 0u;
+                 index <= spec.throughThicknessCells; ++index) {
+                skin.thicknessNodePositionsM.push_back(
+                    -0.5 * skin.thicknessM +
+                    skin.thicknessM * static_cast<double>(index) /
+                        static_cast<double>(spec.throughThicknessCells)
+                );
+            }
+        }
         auto mesh = numi::matter::makeSyntheticSkinWoundCoupon(0u, skin);
         coupon.object = std::move(mesh.object);
         coupon.metadata = std::move(mesh.metadata);
@@ -6494,7 +6627,8 @@ numi::matter::CompiledWorld compileNeedleSutureTissueWorld(
         require(
             std::isfinite(relativeVolumeError) &&
                 relativeVolumeError <= 1.0e-10,
-            "operative tissue grading changed the coupon rest volume"
+            "operative tissue grading changed the coupon rest volume: " +
+                std::to_string(relativeVolumeError)
         );
         double longitudinalBiteSpacing =
             std::numeric_limits<double>::infinity();
@@ -6549,6 +6683,15 @@ numi::matter::CompiledWorld compileNeedleSutureTissueWorld(
             << spec.longitudinalCells << 'x'
             << spec.circumferentialCells << 'x'
             << spec.throughThicknessCells
+            << " tissue_operative_mesh_layout="
+            << (reducedFarFieldSyntheticSkinMesh
+                    ? "reduced_far_field"
+                    : (compactSyntheticSkinMesh
+                    ? "compact_local"
+                    : (balancedSyntheticSkinMesh
+                        ? "balanced_local"
+                        : (adaptiveSyntheticSkinMesh
+                            ? "adaptive_far_field" : "uniform_base"))))
             << " tissue_operative_spacing_m="
             << longitudinalBiteSpacing << ','
             << circumferentialBiteSpacing << ','
@@ -6890,6 +7033,18 @@ numi::matter::CompiledWorld compileNeedleSutureTissueWorld(
     source.mixedSolver.volumeTolerance = 5.0e-4;
     source.mixedSolver.pressureTolerance = 5.0e-4;
     source.mixedSolver.minimumContactSeparationRatio = 0.05;
+    if (syntheticSkinFieldSmootherPasses != 0u) {
+        require(
+            syntheticSkin && sutureContactSegmentCount != 0u &&
+                syntheticSkinFieldSmootherPasses <=
+                    NM_MIXED_FIELD_SMOOTHER_MAX_PASSES,
+            "synthetic-skin field-smoother override is outside its supported diagnostic scope"
+        );
+        source.mixedSolver.fieldSmootherPasses =
+            syntheticSkinFieldSmootherPasses;
+    }
+    std::cout << "tissue_field_smoother_passes="
+        << source.mixedSolver.fieldSmootherPasses << '\n';
     std::optional<numi::matter::MaterialProgram> sutureInterface;
     if (sutureContactSegmentCount != 0u) {
         require(
@@ -7116,9 +7271,25 @@ numi::matter::CompiledWorld compileNeedleSutureTissueWorld(
 struct Arguments {
     std::string mode;
     bool syntheticSkin = false;
+    bool adaptiveSyntheticSkinMesh = false;
+    bool compactSyntheticSkinMesh = false;
+    bool balancedSyntheticSkinMesh = false;
+    bool reducedFarFieldSyntheticSkinMesh = false;
+    std::uint32_t syntheticSkinFieldSmootherPasses = 0u;
+    bool syntheticSkinFieldSmootherPassesProvided = false;
+    std::uint32_t syntheticSkinFGMRESIterations = 0u;
+    bool syntheticSkinFGMRESIterationsProvided = false;
+    std::uint32_t syntheticSkinNewtonIterations = 0u;
+    bool syntheticSkinNewtonIterationsProvided = false;
     bool robotContactBrake = false;
     bool robotFastOneNewton = false;
     bool robotPunctureOneNewton = false;
+    std::uint32_t robotPunctureNewtonBudget = 0u;
+    bool robotPunctureNewtonBudgetProvided = false;
+    std::uint32_t robotPunctureFGMRESBudget = 0u;
+    bool robotPunctureFGMRESBudgetProvided = false;
+    std::uint32_t tissueSutureRigidSubsteps = 0u;
+    bool tissueSutureRigidSubstepsProvided = false;
     std::uint32_t robotPunctureCadence =
         kRobotFirstBitePunctureMicrostepCadence;
     bool robotPunctureCadenceProvided = false;
@@ -7390,6 +7561,94 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
         } else if (argument == "--synthetic-skin") {
             require(!result.syntheticSkin, "--synthetic-skin specified twice");
             result.syntheticSkin = true;
+        } else if (argument == "--synthetic-skin-adaptive-mesh") {
+            require(
+                !result.adaptiveSyntheticSkinMesh &&
+                !result.compactSyntheticSkinMesh &&
+                    !result.balancedSyntheticSkinMesh &&
+                    !result.reducedFarFieldSyntheticSkinMesh,
+                "synthetic-skin mesh layout specified more than once"
+            );
+            result.adaptiveSyntheticSkinMesh = true;
+        } else if (argument == "--synthetic-skin-compact-mesh") {
+            require(
+                !result.compactSyntheticSkinMesh &&
+                !result.adaptiveSyntheticSkinMesh &&
+                    !result.balancedSyntheticSkinMesh &&
+                    !result.reducedFarFieldSyntheticSkinMesh,
+                "synthetic-skin mesh layout specified more than once"
+            );
+            result.compactSyntheticSkinMesh = true;
+        } else if (argument == "--synthetic-skin-balanced-mesh") {
+            require(
+                !result.balancedSyntheticSkinMesh &&
+                !result.adaptiveSyntheticSkinMesh &&
+                    !result.compactSyntheticSkinMesh &&
+                    !result.reducedFarFieldSyntheticSkinMesh,
+                "synthetic-skin mesh layout specified more than once"
+            );
+            result.balancedSyntheticSkinMesh = true;
+        } else if (argument == "--synthetic-skin-reduced-far-field-mesh") {
+            require(
+                !result.reducedFarFieldSyntheticSkinMesh &&
+                    !result.adaptiveSyntheticSkinMesh &&
+                    !result.compactSyntheticSkinMesh &&
+                    !result.balancedSyntheticSkinMesh,
+                "synthetic-skin mesh layout specified more than once"
+            );
+            result.reducedFarFieldSyntheticSkinMesh = true;
+        } else if (argument ==
+                   "--synthetic-skin-field-smoother-passes") {
+            require(
+                !result.syntheticSkinFieldSmootherPassesProvided &&
+                    index + 1 < argc,
+                "--synthetic-skin-field-smoother-passes requires exactly one count"
+            );
+            const std::string value{argv[++index]};
+            std::size_t consumed = 0u;
+            const unsigned long parsed = std::stoul(value, &consumed);
+            require(
+                consumed == value.size() && parsed > 0u &&
+                    parsed <= NM_MIXED_FIELD_SMOOTHER_MAX_PASSES,
+                "synthetic-skin field-smoother passes must be between 1 and the compiled maximum"
+            );
+            result.syntheticSkinFieldSmootherPasses =
+                static_cast<std::uint32_t>(parsed);
+            result.syntheticSkinFieldSmootherPassesProvided = true;
+        } else if (argument == "--synthetic-skin-fgmres-iterations") {
+            require(
+                !result.syntheticSkinFGMRESIterationsProvided &&
+                    index + 1 < argc,
+                "--synthetic-skin-fgmres-iterations requires exactly one count"
+            );
+            const std::string value{argv[++index]};
+            std::size_t consumed = 0u;
+            const unsigned long parsed = std::stoul(value, &consumed);
+            require(
+                consumed == value.size() && parsed > 0u &&
+                    parsed <= kReceiverBridgeFGMRESIterationBudget,
+                "synthetic-skin FGMRES iterations must be between 1 and the coupled free-needle budget"
+            );
+            result.syntheticSkinFGMRESIterations =
+                static_cast<std::uint32_t>(parsed);
+            result.syntheticSkinFGMRESIterationsProvided = true;
+        } else if (argument == "--synthetic-skin-newton-iterations") {
+            require(
+                !result.syntheticSkinNewtonIterationsProvided &&
+                    index + 1 < argc,
+                "--synthetic-skin-newton-iterations requires exactly one count"
+            );
+            const std::string value{argv[++index]};
+            std::size_t consumed = 0u;
+            const unsigned long parsed = std::stoul(value, &consumed);
+            require(
+                consumed == value.size() && parsed > 0u &&
+                    parsed <= NM_MIXED_NEWTON_ITERATIONS,
+                "synthetic-skin Newton iterations must be between 1 and the compiled maximum"
+            );
+            result.syntheticSkinNewtonIterations =
+                static_cast<std::uint32_t>(parsed);
+            result.syntheticSkinNewtonIterationsProvided = true;
         } else if (argument == "--robot-contact-brake") {
             require(
                 !result.robotContactBrake,
@@ -7408,6 +7667,40 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
                 "--robot-puncture-one-newton specified twice"
             );
             result.robotPunctureOneNewton = true;
+        } else if (argument == "--robot-puncture-newton-budget") {
+            require(
+                !result.robotPunctureNewtonBudgetProvided &&
+                    index + 1 < argc,
+                "--robot-puncture-newton-budget requires exactly one count"
+            );
+            const std::string value{argv[++index]};
+            std::size_t consumed = 0u;
+            const unsigned long parsed = std::stoul(value, &consumed);
+            require(
+                consumed == value.size() && parsed > 0u &&
+                    parsed <= NM_MIXED_NEWTON_ITERATIONS,
+                "puncture Newton budget must be between 1 and the default Newton budget"
+            );
+            result.robotPunctureNewtonBudget =
+                static_cast<std::uint32_t>(parsed);
+            result.robotPunctureNewtonBudgetProvided = true;
+        } else if (argument == "--robot-puncture-fgmres-budget") {
+            require(
+                !result.robotPunctureFGMRESBudgetProvided &&
+                    index + 1 < argc,
+                "--robot-puncture-fgmres-budget requires exactly one count"
+            );
+            const std::string value{argv[++index]};
+            std::size_t consumed = 0u;
+            const unsigned long parsed = std::stoul(value, &consumed);
+            require(
+                consumed == value.size() && parsed > 0u &&
+                    parsed <= kReceiverBridgeFGMRESIterationBudget,
+                "puncture FGMRES budget must be between 1 and the cached continuation default"
+            );
+            result.robotPunctureFGMRESBudget =
+                static_cast<std::uint32_t>(parsed);
+            result.robotPunctureFGMRESBudgetProvided = true;
         } else if (argument == "--robot-puncture-cadence") {
             require(
                 !result.robotPunctureCadenceProvided && index + 1 < argc,
@@ -7443,6 +7736,24 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
             result.robotPunctureRigidSubsteps =
                 static_cast<std::uint32_t>(parsed);
             result.robotPunctureRigidSubstepsProvided = true;
+        } else if (argument == "--tissue-suture-rigid-substeps") {
+            require(
+                !result.tissueSutureRigidSubstepsProvided &&
+                    index + 1 < argc,
+                "--tissue-suture-rigid-substeps requires exactly one count"
+            );
+            const std::string value{argv[++index]};
+            std::size_t consumed = 0u;
+            const unsigned long parsed = std::stoul(value, &consumed);
+            require(
+                consumed == value.size() &&
+                    (parsed == 1u || parsed == 2u ||
+                     parsed == 4u || parsed == 8u || parsed == 16u),
+                "tissue suture rigid substeps must be 1, 2, 4, 8, or 16"
+            );
+            result.tissueSutureRigidSubsteps =
+                static_cast<std::uint32_t>(parsed);
+            result.tissueSutureRigidSubstepsProvided = true;
         } else if (argument == "--robot-puncture-grouped-steps") {
             require(
                 !result.robotPunctureGroupedStepsProvided &&
@@ -8134,6 +8445,31 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
         "robot contact braking requires the synthetic-skin contact advance"
     );
     require(
+        !result.compactSyntheticSkinMesh ||
+            (result.syntheticSkin &&
+             (result.mode == "--tissue-suture-entry-only" ||
+              result.mode ==
+                  "--tissue-suture-cadence-16x-one-newton-only" ||
+              result.mode == "--tissue-suture-passage-only")),
+        "compact synthetic-skin mesh is limited to entry, cadence, and passage diagnostics"
+    );
+    require(
+        !result.balancedSyntheticSkinMesh ||
+            (result.syntheticSkin &&
+             (result.mode == "--tissue-suture-entry-only" ||
+              result.mode ==
+                  "--tissue-suture-cadence-16x-one-newton-only" ||
+              result.mode == "--tissue-suture-passage-only")),
+        "balanced synthetic-skin mesh is limited to entry, cadence, and passage diagnostics"
+    );
+    require(
+        !result.reducedFarFieldSyntheticSkinMesh ||
+            (result.syntheticSkin &&
+             (result.mode == "--tissue-suture-entry-only" ||
+              result.mode == "--tissue-suture-passage-only")),
+        "reduced-far-field synthetic-skin mesh is limited to entry and through-wall passage diagnostics"
+    );
+    require(
         !result.robotFastOneNewton ||
             (result.syntheticSkin &&
              result.mode ==
@@ -8158,15 +8494,49 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
             (result.syntheticSkin &&
              result.mode ==
                  "--tissue-robot-first-bite-puncture-microstep-only" &&
-             result.resumeTissueCheckpointPhase ==
-                 "tissue-robot-first-bite-puncture" &&
+             (result.resumeTissueCheckpointPhase ==
+                  "tissue-robot-first-bite-contact" ||
+              result.resumeTissueCheckpointPhase ==
+                  "tissue-robot-first-bite-puncture") &&
              !result.resumeRigidContactCachePath.empty()),
-        "grouped robot puncture requires an accepted puncture checkpoint and its rigid contact cache"
+        "grouped robot puncture requires a cached pre-puncture contact or accepted puncture checkpoint"
     );
     require(
         !result.robotPunctureOneNewton ||
-            result.robotPunctureCadenceProvided,
-        "one-Newton puncture requires a grouped accepted puncture continuation"
+            result.robotPunctureCadenceProvided ||
+            (result.syntheticSkin &&
+             result.mode ==
+                 "--tissue-robot-first-bite-puncture-microstep-only" &&
+             result.resumeTissueCheckpointPhase ==
+                 "tissue-robot-first-bite-contact" &&
+             !result.resumeRigidContactCachePath.empty() &&
+             !result.robotPunctureGroupedStepsProvided),
+        "one-Newton puncture requires a grouped accepted continuation or a cached single-step contact probe"
+    );
+    require(
+        !result.robotPunctureNewtonBudgetProvided ||
+            (result.syntheticSkin &&
+             !result.robotPunctureOneNewton &&
+             (result.robotPunctureCadenceProvided ||
+              (result.mode ==
+                   "--tissue-robot-first-bite-puncture-microstep-only" &&
+               result.resumeTissueCheckpointPhase ==
+                   "tissue-robot-first-bite-contact" &&
+               !result.resumeRigidContactCachePath.empty() &&
+               !result.robotPunctureGroupedStepsProvided))),
+        "an explicit puncture Newton budget requires a cached synthetic-skin contact probe or grouped puncture continuation and cannot be combined with the one-Newton shorthand"
+    );
+    require(
+        !result.robotPunctureFGMRESBudgetProvided ||
+            (result.syntheticSkin &&
+             result.robotPunctureOneNewton &&
+             result.robotPunctureCadenceProvided &&
+             result.mode ==
+                 "--tissue-robot-first-bite-puncture-microstep-only" &&
+             result.resumeTissueCheckpointPhase ==
+                 "tissue-robot-first-bite-puncture" &&
+             !result.resumeRigidContactCachePath.empty()),
+        "partial FGMRES budgets require a one-Newton grouped synthetic-skin continuation from a cached puncture checkpoint"
     );
     require(
         !result.robotPunctureGroupedStepsProvided ||
@@ -8181,6 +8551,13 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
              result.robotPunctureCadence %
                  result.robotPunctureRigidSubsteps == 0u),
         "rigid substep reduction requires a divisible grouped puncture cadence"
+    );
+    require(
+        !result.tissueSutureRigidSubstepsProvided ||
+            (result.mode ==
+                 "--tissue-suture-cadence-16x-one-newton-only" &&
+             16u % result.tissueSutureRigidSubsteps == 0u),
+        "tissue suture rigid-substep override requires the 16x one-Newton cadence probe"
     );
     require(
         !result.robotPunctureSpeedProvided ||
@@ -10105,6 +10482,17 @@ int main(const int argc, const char* const argv[]) {
             receiverFrameIkOnly || receiverExtractionFixtureOnly;
         const bool tissueMatterOnly =
             tissueCouplingOnly || tissueRestOnly || tissuePunctureOnly;
+        require(
+            !options.syntheticSkinNewtonIterationsProvided ||
+                (options.syntheticSkin && tissueSuturePassageOnly),
+            "synthetic-skin Newton iteration override requires the synthetic through-wall passage diagnostic"
+        );
+        require(
+            !options.syntheticSkinFGMRESIterationsProvided ||
+                (options.syntheticSkin &&
+                 (tissueSuturePassageOnly || tissueSutureEntryOnly)),
+            "synthetic-skin FGMRES iteration override requires a synthetic entry or through-wall passage diagnostic"
+        );
         const bool approachOnly = options.mode == "--approach-only";
         const bool closureOnly = options.mode == "--closure-only";
         const bool receiverApproachOnly =
@@ -11789,6 +12177,11 @@ int main(const int argc, const char* const argv[]) {
                     kSutureMatterContactSegmentCount,
                     true,
                     options.syntheticSkin,
+                    options.adaptiveSyntheticSkinMesh,
+                    options.compactSyntheticSkinMesh,
+                    options.balancedSyntheticSkinMesh,
+                    options.reducedFarFieldSyntheticSkinMesh,
+                    options.syntheticSkinFieldSmootherPasses,
                     opposingGeometryCoupon
                 );
             require(
@@ -16472,8 +16865,20 @@ int main(const int argc, const char* const argv[]) {
                 tissueReceiverLiveSequence ||
                     tissueRobotFirstBiteConfiguration,
                 options.syntheticSkin,
+                options.adaptiveSyntheticSkinMesh,
+                options.compactSyntheticSkinMesh,
+                options.balancedSyntheticSkinMesh,
+                options.reducedFarFieldSyntheticSkinMesh,
+                options.syntheticSkinFieldSmootherPasses,
                 tissueCoupon
             );
+            if (tissueSuturePassageOnly) {
+                std::cout << "tissue_passage_mpm_dispatch"
+                    << " particles=" << tissueWorld.dispatch.particleCount
+                    << " blocks=" << tissueWorld.dispatch.mpmBlockCount
+                    << " active_node_capacity="
+                    << tissueWorld.dispatch.mpmActiveNodeCapacity << '\n';
+            }
             if (tissueReceiverLiveSequence &&
                 !tissueRobotFirstBiteConfiguration) {
                 const NMRigidProxyGPU& tipProxy =
@@ -17085,6 +17490,18 @@ int main(const int argc, const char* const argv[]) {
                 "needle-suture tissue runtime initialization failed: " +
                     initialized.message
             );
+            if (tissueSutureEntryOnly &&
+                options.syntheticSkinFGMRESIterationsProvided) {
+                require(
+                    tissueRuntime.setFGMRESIterationBudget(
+                        options.syntheticSkinFGMRESIterations
+                    ) && tissueRuntime.fgmresIterationBudget() ==
+                        options.syntheticSkinFGMRESIterations,
+                    "synthetic-skin entry rejected the FGMRES iteration override"
+                );
+                std::cout << "synthetic_skin_entry_fgmres_budget="
+                    << tissueRuntime.fgmresIterationBudget() << '\n';
+            }
             if (tissueCheckpointResume) {
                 if (resumeLiveTissueCheckpoint) {
                     // The authored passage program begins with a prescribed
@@ -17201,7 +17618,10 @@ int main(const int argc, const char* const argv[]) {
                 static_cast<double>(cadenceMultiplier) /
                 static_cast<double>(cadenceDivisor)
             );
-            stepConfig.physicsSubsteps = cadenceMultiplier;
+            stepConfig.physicsSubsteps =
+                options.tissueSutureRigidSubstepsProvided
+                    ? options.tissueSutureRigidSubsteps
+                    : cadenceMultiplier;
             stepConfig.devicePhysicsProgram =
                 numi::matter::makeMetalWorldDevicePhysicsProgram(
                     tissueRuntime
@@ -17501,8 +17921,10 @@ int main(const int argc, const char* const argv[]) {
                 const std::uint32_t robotApproachNewtonBudget =
                     (tissueRobotFirstBiteContactApproachOnly ||
                      robotContactProbe)
-                        ? (options.robotPunctureOneNewton
-                            ? 1u : NM_MIXED_NEWTON_ITERATIONS)
+                        ? (options.robotPunctureNewtonBudgetProvided
+                            ? options.robotPunctureNewtonBudget
+                            : (options.robotPunctureOneNewton
+                                ? 1u : NM_MIXED_NEWTON_ITERATIONS))
                         : (options.robotFastOneNewton
                             ? 1u
                             : kRobotFirstBiteContinueNewtonBudget);
@@ -17514,6 +17936,16 @@ int main(const int argc, const char* const argv[]) {
                             robotApproachNewtonBudget,
                     "resumed robot approach could not select its bounded Newton budget"
                 );
+                if (options.robotPunctureFGMRESBudgetProvided) {
+                    require(
+                        tissueRuntime.setFGMRESIterationBudget(
+                            options.robotPunctureFGMRESBudget
+                        ) &&
+                            tissueRuntime.fgmresIterationBudget() ==
+                                options.robotPunctureFGMRESBudget,
+                        "resumed robot approach could not select its partial FGMRES budget"
+                    );
+                }
                 const MRBodyStateGPU& startNeedle =
                     world.defaultSceneBodies.at(0u);
                 const CurvedNeedleOrbit orbit = curvedNeedleOrbit(
@@ -17967,6 +18399,13 @@ int main(const int argc, const char* const argv[]) {
                 std::uint32_t channelSource = NM_INVALID_INDEX;
                 std::uint32_t tetrahedra = 0u;
                 double removedMass = 0.0;
+                std::uint32_t maximumFGMRESIterations = 0u;
+                for (const NMMatterStatusGPU& status : matter.statuses) {
+                    maximumFGMRESIterations = std::max(
+                        maximumFGMRESIterations,
+                        status.fgmresIterations
+                    );
+                }
                 double minimumDeterminant =
                     std::numeric_limits<double>::infinity();
                 double maximumResidual = 0.0;
@@ -18157,6 +18596,10 @@ int main(const int argc, const char* const argv[]) {
                     << maximumContactConeViolation
                     << " matter_newton_budget="
                     << tissueRuntime.newtonIterationBudget()
+                    << " matter_fgmres_budget="
+                    << tissueRuntime.fgmresIterationBudget()
+                    << " matter_fgmres_iterations="
+                    << maximumFGMRESIterations
                     << " initial_tissue_node_separation_m="
                     << startTissueSeparation
                     << " nearest_start_node_current_channel_admitted="
@@ -24839,13 +25282,26 @@ int main(const int argc, const char* const argv[]) {
                         static_cast<double>(divisor)
                     );
                     stepConfig.physicsSubsteps = multiplier;
+                    const float matterTimestep =
+                        tissueRuntime.timestepSeconds();
+                    const float matterTimestepUlp = std::max(
+                        std::nextafter(
+                            matterTimestep,
+                            std::numeric_limits<float>::infinity()
+                        ) - matterTimestep,
+                        matterTimestep - std::nextafter(
+                            matterTimestep,
+                            -std::numeric_limits<float>::infinity()
+                        )
+                    );
                     require(
                         tissueRuntime.coupledTimestepMultiplier() ==
                                 multiplier &&
                             tissueRuntime.coupledTimestepDivisor() ==
                                 divisor &&
-                            tissueRuntime.timestepSeconds() ==
-                                stepConfig.timestepSeconds,
+                            std::abs(
+                                matterTimestep - stepConfig.timestepSeconds
+                            ) <= matterTimestepUlp,
                         phase + " Matter and MetalWorld cadences diverged"
                     );
                 };
@@ -25117,13 +25573,59 @@ int main(const int argc, const char* const argv[]) {
                     return 0;
                 }
                 if (tissueCurvedPassageOnly) {
+                    const bool usesLocalSyntheticSkinMesh =
+                        options.balancedSyntheticSkinMesh ||
+                        options.compactSyntheticSkinMesh ||
+                        options.reducedFarFieldSyntheticSkinMesh;
+                    const std::uint32_t passageMatterRateMultiplier =
+                        options.syntheticSkin &&
+                                usesLocalSyntheticSkinMesh
+                            ? kLocalSkinPassageMatterRateMultiplier
+                            : kSuturePassageMatterRateMultiplier;
+                    if (options.syntheticSkinNewtonIterationsProvided) {
+                        require(
+                            tissueRuntime.setNewtonIterationBudget(
+                                options.syntheticSkinNewtonIterations
+                            ) &&
+                                tissueRuntime.newtonIterationBudget() ==
+                                    options.syntheticSkinNewtonIterations,
+                            "synthetic-skin passage rejected the Newton iteration override"
+                        );
+                        std::cout << "synthetic_skin_passage_newton_budget="
+                            << tissueRuntime.newtonIterationBudget() << '\n';
+                    }
+                    if (options.syntheticSkinFGMRESIterationsProvided) {
+                        require(
+                            options.syntheticSkin &&
+                                tissueRuntime.setFGMRESIterationBudget(
+                                    options.syntheticSkinFGMRESIterations
+                                ) &&
+                                tissueRuntime.fgmresIterationBudget() ==
+                                    options.syntheticSkinFGMRESIterations,
+                            "synthetic-skin passage rejected the FGMRES iteration override"
+                        );
+                        std::cout << "synthetic_skin_passage_fgmres_budget="
+                            << tissueRuntime.fgmresIterationBudget()
+                            << " fgmres_restart="
+                            << tissueWorld.mixedSolver.nonlinearIterations.y
+                            << '\n';
+                    }
                     selectCoupledCadence(
-                        kSuturePassageMatterRateMultiplier,
+                        passageMatterRateMultiplier,
                         "post-entry passage"
                     );
+                    metalrobo::MetalWorldStepConfig passageStepConfig =
+                        stepConfig;
+                    std::cout << "curved_passage_solver_budget"
+                        << " velocity_iterations="
+                        << passageStepConfig.velocityIterations
+                        << " final_velocity_iterations="
+                        << passageStepConfig.finalVelocityIterations
+                        << '\n';
                     if (tissueCurvedPullThroughOnly) {
                         stepConfig.solverMode =
                             metalrobo::MetalWorldSolverMode::temporalCone;
+                        passageStepConfig.solverMode = stepConfig.solverMode;
                     }
                     require(
                         tissueNeedleOrbit.has_value() &&
@@ -25271,13 +25773,36 @@ int main(const int argc, const char* const argv[]) {
                         passage = continuePhaseWithKinematicTargets(
                             context,
                             compiled,
-                            stepConfig,
+                            passageStepConfig,
                             resident,
                             passageEfforts,
                             kinematicTargets,
                             chunkSteps,
                             "curvature-following tissue passage"
                         );
+                        const MRMetalWorldContactStatusGPU& passageContact =
+                            requireTerminalResidual(
+                                passage.result,
+                                "curvature-following tissue passage chunk",
+                                false
+                            );
+                        std::cout << std::setprecision(9)
+                            << "curved_passage_contact_status"
+                            << " completed_steps="
+                            << completedPassageSteps + chunkSteps
+                            << " velocity_iterations="
+                            << passageStepConfig.velocityIterations
+                            << " final_velocity_iterations="
+                            << passageStepConfig.finalVelocityIterations
+                            << " required_constraints="
+                            << passageContact.requiredConstraints
+                            << " solver_iterations="
+                            << passageContact.solverIterations
+                            << " normal_residual_mps="
+                            << passageContact.residuals.y
+                            << " cone_violation="
+                            << passageContact.residuals.z
+                            << '\n';
                         completedPassageSteps += chunkSteps;
                         passageGpuMilliseconds +=
                             passage.diagnostics.gpuElapsedMilliseconds;
@@ -25661,6 +26186,12 @@ int main(const int argc, const char* const argv[]) {
                             authoredWallThicknessM /
                             expectedEntryTractLengthM
                         ));
+                    const MRMetalWorldContactStatusGPU& passageTerminalContact =
+                        requireTerminalResidual(
+                            passage.result,
+                            "curvature-following tissue passage terminal",
+                            false
+                        );
                     require(
                         passageChannels.size() >= minimumWallChannels &&
                             channelLinks + 1u == passageChannels.size() &&
@@ -25684,6 +26215,10 @@ int main(const int argc, const char* const argv[]) {
                                 tissueCoupon.metadata.tetrahedronCount &&
                             passageRemovedMassKg == 0.0 &&
                             passageCertificatesAccepted &&
+                            passageTerminalContact.residuals.y <=
+                                kMaximumTerminalContactVelocityResidual &&
+                            passageTerminalContact.residuals.z <=
+                                kMaximumTerminalConeViolation &&
                             std::isfinite(passageMinimumDeterminant) &&
                             passageMinimumDeterminant > 0.0 &&
                             std::isfinite(passageMaximumResidual) &&
@@ -25754,6 +26289,12 @@ int main(const int argc, const char* const argv[]) {
                             std::to_string(passageRemovedMassKg) +
                             " certificates_accepted=" +
                             std::to_string(passageCertificatesAccepted) +
+                            " terminal_contact_velocity_residual_mps=" +
+                            std::to_string(
+                                passageTerminalContact.residuals.y
+                            ) +
+                            " terminal_cone_violation=" +
+                            std::to_string(passageTerminalContact.residuals.z) +
                             " minimum_determinant=" +
                             std::to_string(passageMinimumDeterminant) +
                             " maximum_residual=" +
@@ -25785,10 +26326,10 @@ int main(const int argc, const char* const argv[]) {
                         << "tissue_curved_through_wall_passage=ok"
                         << " passage_groups=" << totalPassageSteps
                         << " matter_timestep_multiplier="
-                        << kSuturePassageMatterRateMultiplier
+                        << passageMatterRateMultiplier
                         << " base_der_substeps="
                         << 1u + totalPassageSteps *
-                            kSuturePassageMatterRateMultiplier
+                            passageMatterRateMultiplier
                         << " needle_arc_angle_rad="
                         << entryAngleRad +
                             anglePerPassageStepRad * totalPassageSteps
@@ -25821,6 +26362,10 @@ int main(const int argc, const char* const argv[]) {
                         << passageMaximumResidual
                         << " matter_maximum_fgmres_iterations="
                         << passageMaximumFGMRESIterations
+                        << " terminal_contact_velocity_residual_mps="
+                        << passageTerminalContact.residuals.y
+                        << " terminal_cone_violation="
+                        << passageTerminalContact.residuals.z
                         << " terminal_tip_speed_mps="
                         << norm(exitTerminalVelocity)
                         << " hard_swage_root_error_m="

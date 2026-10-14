@@ -2190,3 +2190,1586 @@ The unchanged/candidate Wave32 membership timing-pair logs have SHA-256
 `f20690e9954fececa201a12d9de7bfcd8fe94a0246b3cc1897df04c45c31455f`
 and `17647d6955bce27ca0ae85d5ad2d6355d62caea09b840a1527d78cf609c6673d` /
 `d6ee172c2a30c01f3701373395d280e2e9705a2cc89ca415eb2c8326a8648a80`.
+
+### Residual-gated contact early-out (rejected)
+
+An opt-in Wave32 experiment checked the normal complementarity residual
+after each pair of contact sweeps and would stop below 0.0015 m/s, under
+the 0.002 m/s acceptance limit. From the exact step-4766 checkpoint, the
+two grouped 8 ms continuation blocks passed with residuals 0.001899 and
+0.001814 m/s, retained both channels and all 46,080 tetrahedra, and had
+zero failed steps. The reported solver counts were **18/18** in both
+blocks, equal to the full 12 + 6 configured sweeps, so the early-out did
+not activate.
+
+The retained adaptive run reported 2,630.993 ms GPU. A same-checkpoint
+run with the feature disabled reported 1,395.866 ms with the same 18/18
+sweep counts, residuals, and byte-identical final Matter checkpoint and
+contact cache. The previously accepted fixed-solver pair took 2,712.981
+ms. These timings vary too widely to attribute a gain, and the solver
+counts show no saved sweeps; the shader and API edits were reverted.
+
+The adaptive log is
+`build-skin-wound/skin-robot-adapt-12x6-8msgroup-verified.log`
+(SHA-256 `1f43a51d1815f96a4963ff984d50fbb49e1f6cd5551f99508bfe94993ce1e207`);
+the fixed control log is
+`build-skin-wound/skin-robot-fixed-12x6-8msgroup-control.log`
+(SHA-256 `d7d8a4482d77ba44f978dee118f80e6e7414ea5c0338096ceb3dc1e9c9e829cb`).
+The identical final Matter checkpoint and contact cache hashes are
+`1556c454ebb997d937d25cd405da9ed51832d7ed818ff6c6592083f69aca17f0`
+and `3d1e24903cf731a02200e085158f50dc290df6f32aa07aa9078ea56f61860b6a`.
+The temporary instrumented probe and metallib hashes were
+`dfe054aa2bc4ca0b825ad86140538a44fb40432aa24e79df23fd12e23406c107`
+and `eb92ef77512b875d95a4511d383ecd575415d924b1d9f031114000766d2a2e86`;
+the tracked source is back to the unchanged fixed-sweep implementation.
+
+### Rigid-substep reduction (one-step diagnostic, no qualified speedup)
+
+The 16x one-Newton probe now accepts an opt-in
+`--tissue-suture-rigid-substeps 1|2|4|8|16` override. It changes only the
+rigid substep count for this diagnostic mode; production defaults are
+unchanged. Fresh authored-reset runs used a 1 ms grouped post-entry step,
+one Newton iteration, ten Matter FGMRES columns, and zero final contact
+iterations. Every listed run retained one channel, all 46,080 tetrahedra,
+positive minimum determinant 0.999997377, the expected 19.965 um needle
+advance, and zero failed steps. These runs have zero active Matter contact
+samples at the measured boundary, while MetalWorld reports 143 required
+rigid-contact constraints; they do not exercise a load-bearing needle
+pull-through or a whole stitch.
+
+| Rigid substeps / velocity iterations | GPU ms (repeat values) | Terminal normal residual (m/s) |
+| --- | ---: | ---: |
+| 16 / 8 | 1,016.659; 1,581.532 | 0.001867 |
+| 8 / 8 | 1,726.933; 2,520.965 | 0.001954 |
+| 16 / 16 | 1,670.787; 1,105.554 | 0.001267 |
+| 4 / 16 | 1,388.451; 1,127.525 | 0.001389 |
+| 2 / 32 | 1,904.422 | 0.001341 |
+| 4 / 12 | 3,330.965 | 0.001281 |
+
+The 4/16 candidate passes the 0.002 m/s contact bound with more margin than
+8/8 and uses fewer rigid contact sweeps than 16/16. Its two timings have a
+1,388.451 ms versus 1,670.787 ms favorable comparison, then a 1,127.525 ms
+versus 1,105.554 ms unfavorable comparison. The median of the two runs is
+about 9% below the 16/16 median, but the paired repeat reverses direction;
+the timing spread is too large to claim a repeatable win. Against 16/8, the
+4/16 median is only about 3% lower and raises the Matter residual from
+1.835e-6 to 2.487e-6 with seven rather than six FGMRES iterations. The 8/8
+candidate stays only 0.000046 m/s below the contact limit and was slower in
+both samples. The tested 4/8 point failed at 0.003350 m/s. No substep setting
+met the 540.159 ms target reproducibly for 100x simulated-time throughput
+over the original 3,375.995 ms 1x reference. A single earlier 526 ms sample
+fell below that threshold, but it came from the noisy overlapping sample
+series below and was not repeatable.
+
+A separate Numi Matter workload was observed during the earlier 526--2,396 ms
+control sample series, so those samples are excluded from comparison. After it
+exited, no Numi-specific workload or macOS thermal/performance warning was
+observed, but these native GPU timings still varied from 1,017 to 3,331 ms.
+The current evidence supports a contact-accuracy boundary, not a performance
+qualification. Keep 4/16 as a probe candidate only; do not change the default
+cadence or claim a 100x result.
+
+The 16/8 controls are
+`build-skin-wound/skin-perf16-clear-control-1.log`
+(SHA-256 `b5d59dc23799e616cf06f60532237a1b76fd5ae6897c6924430699b40c5d9560`)
+and `build-skin-wound/skin-perf16-clear-control-2.log`
+(`7bd8fe7db22568e6418fff0ea956f2e207562140a32ca40fbed0393db9e2085c`).
+The 8/8 runs are `skin-perf16-rigid8-clear-1.log`
+(`b3df9d6d2182a3b9393d6014ba8734a1555c128694c11b66321e002a945f28ab`)
+and `skin-perf16-rigid8-clear-2.log`
+(`d2ca34af3ca0c317f08aae490a5bae0165e630213eb5e5da837cb81dad6b8712`).
+The 16/16 controls are `skin-perf16-v16-clear-control-1.log`
+(`ce06ad52a3f0c7448f4f45dca199f2e085209064bc29429e4db00fce42bb849f`)
+and `skin-perf16-v16-clear-control-2.log`
+(`1aa4f90a13f95d4d7d0358be42e955212abf5cc5d7bd0310cd435e9332dcfd18`).
+The 4/16 runs are `skin-perf16-rigid4-v16-clear-1.log`
+(`ae17253595abfe0d39446f3a6b4a9e470f0bec79b4d14356f4c860387b6153e4`)
+and `skin-perf16-rigid4-v16-clear-2.log`
+(`104601ee6f3cf97ff5bb658d3bff617fa2eef9404f503a242d0ad12049dc5e40`).
+The remaining logs are `skin-perf16-rigid2-v32-clear-1.log`
+(`09fd8424855e71628153deedea008d7ac852ca3f15214ead5c7f98b6b883a16b`) and
+`skin-perf16-rigid4-v12-clear-1.log`
+(`a68cf59dd824a6d31e1005deb02b93321bfa17fdb13f20f2801ee9c37d6c91fd`).
+The probe, linked library, and Metal library hashes are
+`80e78470d6a5d1b8311bbe2607bdf2889b3b568876fa279462cc5c86039317f3`,
+`109d520ff1764af9efe36ca043db649d59407bf02c8046deeec794394c698b39`,
+and `a8e3386ae682f49e3b87f9324fa31918d26a2b732636e26536f78cf8a27bee33`.
+
+A temporary one-sweep rod-contact override also produced the same published
+contact residual, Matter fields, swage error, and strand edge error as the
+four-sweep control, while its GPU time was 3,156.368 ms versus 1,016.659 ms.
+The reset probe reports zero suture-strand contacts, so this step does not
+exercise the rod-contact sweep being varied. The override was removed and
+the timing is not evidence for or against that solver optimization. Its log
+SHA-256 is `ec18cd0f8a4807d3195384f2c0f4937e34e5d05266eb2fe1f8b52cb95d876f8c`;
+the temporary probe hash is
+`5863fa9f15bc7b6617d5f43ab85a40d2c60547feaf58440c14e443b17d90666e`.
+The next iteration-count experiment needs an accepted load-bearing checkpoint
+with active needle/strand contact.
+
+### SSH Mac mini loaded-checkpoint continuation (diagnostic only)
+
+The user-requested heavy-run host was `macmini`, an M4 Pro Mac mini running
+macOS 26.6, with 56 GB free on its working volume at the start. A Release build from the exact transferred
+working-tree sources completed there. The remote source snapshot commit is
+`ec57a577d44b18017145e6fba92aad025db2a7a3`; its provenance record is
+`build-skin-wound/mini-perf/source/PERFORMANCE_RUN_PROVENANCE.txt`.
+The source probe hash is
+`4a878adcd5a56e46cbbe1040d1978f1a31d47c5f340153c8a368450460854783`, and
+the executable hash is
+`80e78470d6a5d1b8311bbe2607bdf2889b3b568876fa279462cc5c86039317f3`.
+The exact local Matter and MetalRobo metallibs were copied to the mini because
+the different Xcode versions otherwise produced a different device-program
+fingerprint and prevented restoring the accepted input checkpoint. The
+step-1870 checkpoint hash is
+`513f41761ef3cd42fd9c62a0b8f6542a4e9987a57abd3e281674ce0ddb6e9faf`, its
+Matter snapshot hash is
+`a5a0fcf0e9f347998152e3919ecea0ef25ddc744716400c3f7297cc6f6e371a4`, and its
+contact-cache hash is
+`e48012d195acc63cf2e48ad4f9d62128c2bef5a49f7c05300bf29d558909ca02`.
+
+Each candidate restored that same accepted state and ran eight grouped 1 ms
+continuation steps at one Newton iteration. The settings varied rigid
+substeps, velocity sweeps, and final contact sweeps. Every passing row below
+retained the channel, all 46,080 active tetrahedra, qualified jaw grasp and
+rod attachment, zero failed steps, and a maximum normal residual below the
+existing 0.002 m/s screen. The probe reported **zero new puncture-tip
+contacts, zero accepted needle impulse, zero tissue reaction impulse, and no
+new puncture channels** in every row. It therefore measures continuation
+cost and contact/grasp stability at this checkpoint, not needle penetration
+or tissue response.
+
+| Rigid / velocity / final sweeps | GPU ms (repeat values) | Actual needle advance | Max normal residual | Result |
+| --- | ---: | ---: | ---: | --- |
+| 16 / 32 / 16 | 7,588.945; 7,580.929 | 6.718 um | 0.000417 m/s | Pass |
+| 8 / 32 / 16 | 4,509.249 | 7.109 um | 0.001126 m/s | Pass |
+| 4 / 32 / 16 | 2,963.626; 2,973.747 | 3.300 um | 0.001475 m/s | Pass |
+| 4 / 24 / 12 | 2,656.587; 2,655.880 | 2.789 um | 0.001706 m/s | Pass, narrow residual margin |
+| 2 / 32 / 16 | 2,199.182 | -0.173 um | 0.001848 m/s | Rejected: resumed approach lost skin/thread authority |
+| 1 / 32 / 16 | 1,822.041 | -115.139 um | 0.006845 m/s | Rejected: grasp and residual gates failed |
+| 4 / 16 / 8 | 2,344.808 | 1.137 um | 0.002924 m/s | Rejected: residual gate failed |
+
+The matched 4/32/16 pair averaged 2,968.687 ms, about 2.55x less GPU time
+than the 16/32/16 pair average of 7,584.937 ms. Its measured needle advance
+was 3.300 um instead of 6.718 um, despite the same 7.994 um planned advance.
+Reducing the sweep counts again to 4/24/12 lowered the mean to 2,656.233 ms,
+but further changed the trajectory and left only 0.000294 m/s of margin to
+the residual screen. These are measured configuration tradeoffs, not an
+equivalent-trajectory speedup. Keep the 4/24/12 and 4/32/16 settings as
+opt-in probes; do not promote them to defaults or use them to claim 100x
+performance, a completed stitch, or tissue-load qualification.
+
+The uninstrumented comparison logs and their SHA-256 values are listed below;
+their paths are relative to `build-skin-wound/mini-perf/runs/`:
+
+- 16/32/16: `robot-puncture-c16-rs16-g8/run.log`
+  (`a8c2f7e4732697fabbac59526c7e3d0cf28b971a929ac1ff83ddbce315963815`)
+  and `robot-puncture-c16-rs16-g8-r2/run.log`
+  (`af27c53884c89051f4972ff0e1774756fff3c8819899ef2d8718d2d930f868d3`).
+- 8/32/16: `robot-puncture-c16-rs8-g8-r1/run.log`
+  (`be9f62313aadd496f687bd63e8d98784916c7609a1483efbc2db5629021cf0e9`).
+- 4/32/16: `robot-puncture-c16-rs4-g8-r1/run.log`
+  (`8d07acd278b4b5f3e08cefbe028f4f5baa7f5a45978ffa1fb9f5120968148b4f`)
+  and `robot-puncture-c16-rs4-g8-r2/run.log`
+  (`8a41fbadce469cc221e6eb79d627e0b710dfed0b41d131f53219c4276195007e`).
+- 4/24/12: `robot-puncture-c16-rs4-v24-f12-g8-r1/run.log`
+  (`aa7f01725727b19134850f3dfabd7b1749964159b87de55402c817b7b87e8473`)
+  and `robot-puncture-c16-rs4-v24-f12-g8-r2/run.log`
+  (`b9bc33b677c77882a3fd64b840bfd2a1cab85aabde12b474623a99cb9fb985f4`).
+- Rejected 2/32/16, 1/32/16, and 4/16/8 logs:
+  `robot-puncture-c16-rs2-g8-r1/run.log`
+  (`f31fccb44e327d409affde56900c093026bb2f20105bb26bb87118e95138dac9`),
+  `robot-puncture-c16-rs1-g8-r1/run.log`
+  (`4e2e0dd1fc16320dc3f336e3176c4386d221a763a139f5f1b5ce9dce0e708201`),
+  and `robot-puncture-c16-rs4-v16-f8-g8-r1/run.log`
+  (`d6df0fcd58861eeff32f84a3a195c84066bb952f419bb7c59f9f4663f72d50fc`).
+
+The Metal System Trace is retained at
+`build-skin-wound/mini-perf/profiles/robot-puncture-c16-rs4-v24-f12-g8.trace`,
+with Xcode exports beside it. It shows one persistent MetalRobo command buffer
+with 69 encoders and about 1.27 ms of CPU encoder-record time against roughly
+2.69 s reported GPU time for the instrumented run. The profiler changed the
+timing, so that sample is excluded from the benchmark table. The trace shows
+the persistent GPU graph dominates this workload, but does not resolve time
+by individual shader; the selected GPU-counter profile was unsupported on
+this device. A safe kernel-level optimization needs finer supported shader
+attribution and a contact-active load-bearing input state. No kernel or
+production solver default was changed in this iteration.
+
+### Cached first-bite Newton-budget sweep on `macmini` (diagnostic)
+
+The earlier cadence sweep began after the puncture and had no new needle/tissue
+reaction. To measure a loaded event, I restored the cached pre-impact state at
+step 1869, including its 16 rigid-contact manifolds, and replayed the first
+needle/tissue contact on the user's M4 Pro Mac mini. The input checkpoint TSV,
+Matter snapshot, and converted rigid-contact cache SHA-256 values are
+`72d6a7e852ee21ab76bef3f479607da77348697e8632add886364c656fda8b55`,
+`3bf1b55112844eebcb7631e53c38a38fd3cb479418db4c58b2a56e384d48c433`, and
+`3f5772902434d40544fd2192a21f2154ad1982ba2c174cfdd3880633999d0e9b`.
+The restore reported byte-exact authority before physics advanced. The source
+SHA-256 for this diagnostic build is
+`7fe3bd0264c5a7fcfeb0f3ed8cf09389bf684160dd2fd87625768d0ab2490662`; the
+Release executable SHA-256 is
+`bd22c15ca88cf96d145f0e4ec5569b2a2c60ea22af180219e5d97edf2c0cfaea`.
+
+An opt-in `--robot-puncture-newton-budget 1..7` probe now allows bounded
+Newton-count sweeps only from a cached synthetic-skin contact step or cached
+grouped puncture continuation. Contact cadence can start from the cached
+pre-puncture state for this experiment. The normal solver default remains
+seven Newton iterations; these flags do not change production settings.
+
+| One-step simulated interval | Newton budget | GPU ms | Result |
+| --- | ---: | ---: | --- |
+| 62.5 us | 1 | 434.408 | Pass; 1 channel, loaded needle/tissue impulse, zero failed steps |
+| 62.5 us | 2 | 669.698; 653.531; 654.926 | Pass; same published rigid/strand fields as budgets 3–7 |
+| 62.5 us | 3 | 813.527 | Pass |
+| 62.5 us | 4 | 964.574 | Pass |
+| 62.5 us | 7 | 1,163.871 | Pass; default-budget control |
+| 125 us | 1 | 477.165 | Pass; one sample |
+| 125 us | 2 | 701.909; 699.182 | Pass; repeated |
+| 125 us | 7 | 1,209.639; 1,212.690 | Pass; repeated default-budget control |
+
+At the 125 us interval, the two-Newton mean was 700.545 ms versus 1,211.164
+ms for seven Newtons: **1.73x faster and 42.16% less GPU time** on this cached
+puncture step. Both runs formed one new channel, retained all 46,080 tissue
+tetrahedra, qualified the grasp and rod, and reported zero failed steps. The
+needle's accepted impulse was `6.41064332e-7 N s`, tissue reaction was
+`6.41137332e-7 N s`, tip advance was `92.14765 nm`, and maximum sampled tissue
+displacement was `0.9313 nm`. The maximum normal residual was
+`0.000776365 m/s`, under the unchanged `0.002 m/s` screen; the minimum
+determinant remained positive at `0.999993503`. Two Newtons and seven Newtons
+matched on all printed contact measurements and all non-archive-reference TSV
+fields. Each saved checkpoint independently restored with `authority_byte_exact=yes`;
+their Matter archive references differ, so this does not claim byte-identical
+internal FEM snapshots.
+
+One Newton was faster still, but its 125 us sample changed the published tissue
+displacement and determinant from the two/seven-Newton result. It is a useful
+lower-bound experiment, not the conservative candidate. No Newton budget in
+this sweep was promoted to the default.
+
+The contact event did not survive larger single-step intervals: at 250 us
+(four rigid substeps) and 1 ms (16 rigid substeps), the probe recorded needle
+impulse and tissue reaction but created no accepted puncture channel, so both
+runs failed the existing gate. One rigid substep at 125 us also failed the
+overall approach gate. An eight-step 1 ms continuation at two rigid substeps
+did create the channel and retained the contact residual and grasp, but all
+three budgets (1, 2, and 7 Newtons) ended with only 13/15 insert masks and were
+rejected. Their GPU times were 2,406.868, 3,314.458, and 6,491.807 ms. This
+shows a real cost reduction on that rejected segment, not a qualified
+continuation speedup.
+
+The accepted 125 us logs and output TSVs are under
+`build-skin-wound/mini-perf/runs/robot-puncture-contact-125us-newton-*`; the
+two/seven-Newton TSVs, excluding the run-specific `matter_snapshot` reference,
+both hash to
+`be4370c85c6ecb400160368d1a26a49fa5ae377b479f36e4b01a469d6ac2e9d8`.
+The budget-2 run log hashes are
+`5946d37cf3052df7f0cd09eeb9e88e67c7d15c425a0d8c32d6c9e409f98b5825` and
+`2bdc25f91cec357d278bed415f50bcf735eda311f9d3c8ee9d5ab2d56f494aca`; the
+budget-7 log hashes are
+`3bd9538e958eeac0d121ec3de1746f8625d11fbd50894e787d9a5b89c996a782` and
+`c2225207b37ef921a59c0f93c61281028dcc2e625a58518900bd7f9623896db9`.
+The one-Newton 125 us log hash is
+`f0b6c558d0a933b9af2be0db8811edfeba0fa431719c9cab9a69c0a30146b992`.
+The rejected 250 us, 1 ms, one-rigid-substep, and grouped-1 ms logs are retained
+beside these runs with their measured failure states.
+
+The contact-active slice demonstrates a repeated **1.73x** gain with matching
+logged contact measurements. A separate contact-free follow-through from the
+accepted puncture state reaches **7.17x** on the same 8 ms horizon, but advances
+the needle only 23.3% as far as its seven-Newton reference and produces no new
+tissue contact. The result is a performance bound for this diagnostic probe,
+not a completed-stitch or 100x result. Through-wall passage, thread pull-through,
+and a completed stitch remain unqualified.
+
+### Eight-millisecond loaded-checkpoint continuation on `macmini`
+
+For a longer-horizon comparison, each run restored the same accepted step-1871
+checkpoint, produced by the seven-Newton 125 us first-bite run with 16 rigid
+substeps and 8 velocity/final sweeps. The checkpoint restored with
+`authority_byte_exact=yes`, one active puncture channel, and all 46,080 tissue
+tetrahedra. The input TSV, Matter snapshot, and rigid-contact cache SHA-256
+values were `1d925bb43b091a768af5ffd6ad651c412c5e80ac2cefc2f8e5b78ee8e209744f`,
+`fd878a7ad9cf19129e490dffa4703febbaf03886bfdb883354a1156d8b6fb631`, and
+`c9aca406b5cac9c0400b3fd47979d9e583f756d890468bad309fa145b04a5935`. Every
+run covered 8 ms, retained all tissue tetrahedra, and began from that same
+checkpoint. Cadence is the grouped timestep multiplier; `64 x 2` means two
+grouped steps at cadence 64. Rigid substeps and velocity sweeps are shown
+separately because they change the simulated trajectory.
+
+| Configuration | Velocity/final sweeps | GPU ms | Needle advance | Probe gate |
+| --- | ---: | ---: | ---: | --- |
+| 16 x 8, 7 Newton, 16 rigid substeps | 32/16 | 11,516.991 | 6.494 um | Pass; baseline |
+| 16 x 8, 2 Newton, 16 rigid substeps | 32/16 | 8,402.258 | 6.494 um | Pass |
+| 16 x 8, 1 Newton, 16 rigid substeps | 32/16 | 7,600.428 | 6.494 um | Pass |
+| 64 x 2, 1 Newton, 64 rigid substeps | 32/16 | 6,562.304; 6,555.034 | 6.535 um | Pass; repeated |
+| 64 x 2, 7 Newton, 64 rigid substeps | 32/16 | 7,511.298 | 6.536 um | Pass |
+| 64 x 2, 1 Newton, 32 rigid substeps | 32/16 | 3,469.710 | 5.832 um | Pass; one sample |
+| 64 x 2, 1 Newton, 16 rigid substeps | 32/16 | 1,926.168; 1,925.300 | 2.324 um | Pass; repeated |
+| 64 x 2, 1 Newton, 16 rigid substeps | 24/12 | 1,641.491; 1,641.368 | 1.515 um | Pass; repeated |
+
+Among the default-cap configurations in this table, the fastest repeated
+setting is **7.02x lower GPU time** than the seven-Newton baseline (1,641.430 ms mean), with positive needle advance,
+qualified grasp and rod, all insert masks, zero failed steps, and contact
+residual `0.000775996 m/s` under the `0.002 m/s` screen. This is not a
+trajectory-matched 7x improvement: the needle advances 1.515 um versus 6.494
+um in the baseline, the follow-through creates no new tissue contact, and peak
+tissue displacement is only `7.28e-12 m`. At 16 rigid substeps and the default
+32/16 sweeps, the repeated 5.98x setting advances 2.324 um. With 64 rigid
+substeps (128 total rigid substeps across the two groups), one Newton instead
+matches the baseline needle advance within 0.7% and gives a repeated 1.76x
+reduction, while the tissue state still differs at the nanometer scale.
+
+The faster cases below 16 rigid substeps did not preserve forward needle
+motion, so their shorter times are rejected:
+
+| Configuration | GPU ms | Needle advance | Failure |
+| --- | ---: | ---: | --- |
+| 64 x 2, 1 Newton, 8 rigid substeps, 32/16 sweeps | 1,160.586 | -0.652 um | Reversed needle; continuation gate failed |
+| 64 x 2, 1 Newton, 8 rigid substeps, 24/12 sweeps | 1,015.098 | -1.742 um | Reversed needle, grasp unqualified, residual 0.001984 m/s |
+| 64 x 2, 1 Newton, 4 rigid substeps, 32/16 sweeps | 777.572 | -145.742 um | Lost grasp and thread authority |
+
+Reducing velocity/final sweeps to 16/8 at 16 rigid substeps also failed: the
+needle reversed by 1.030 um. These rejected runs retained the 8 ms horizon and
+checkpoint; they are not included in speedup claims. Repeated passing log
+hashes are `d0e2b1cad98feeca3fd32b2da991ce03c10649f83263f2aa1119ea3e3151d068`
+and `c032bf62492d06a06a6490ba54fa848ef1fea7d8e42d8baf1b1b2cf8fea07e3e` for
+the 16 x 8 seven-Newton baseline; `a5eef29d0daf4690d8f70c7ca60ced997f52f16cc9305a510955563f2076c6ae`
+and `1bece41ff0c55938f0b2a692b8632a25d24dc624040d9788cd073f8e26e67f6e` for
+the 64 x 2, 64-substep one-Newton pair; `b08b19b1ed7fb7859eb6156c6b82279e0a6b0e49259e648ef1a52998597f8ad4`
+and `54b9fb4c6b6d4dc0b660b75d4620ed82a9ad0c5e7dbcf3cf2680f9524ae37bdd` for
+the 64 x 2, 16-substep 32/16 pair; and
+`bb7ead87bf9f0f2129ff9dfbca106c81ce808dc520d83927ebefd17360691f28` and
+`5e6fbda50cd4bffff6feea4550748bfe6dd584ee43bd6c20407efdba9b169068` for the
+64 x 2, 16-substep 24/12 pair. All logs, including failed boundaries, are kept
+under `build-skin-wound/mini-perf/runs/robot-puncture-followthrough-8ms-*`.
+
+### Partial FGMRES cap sweep on the same checkpoint
+
+The accepted puncture continuation cooks a 32-iteration FGMRES budget (restart
+width 16). The default-cap control actually used three Krylov iterations. A
+runtime/API override now allows a final partial restart cycle; its default
+remains unchanged. The one-tetra runtime probe exercised an 8-iteration partial
+cycle, reported a healthy solver status, and restored the budget from its state
+snapshot. The cached suture continuation also passed with caps of 8, 2, and 1.
+
+| FGMRES cap | Actual iterations | GPU ms | Needle advance | Probe gate |
+| ---: | ---: | ---: | ---: | --- |
+| 32 (default) | 3 | 1,640.473 | 1.515 um | Pass; one control sample |
+| 8 | Not logged | 1,633.473 | 1.515 um | Pass; one sample |
+| 2 | 2 | 1,610.220 | 1.538 um | Pass; one sample |
+| 1 | 1 | 1,608.185; 1,606.014 | 1.511 um | Pass; repeated |
+
+The one-iteration cap averages 1,607.099 ms, a **2.1%** reduction from the
+repeated 24/12-sweep, 32-cap mean of 1,641.430 ms. It retains positive needle
+advance, qualified grasp and rod, all insert masks, zero failed steps, and a
+`0.000775995 m/s` maximum normal residual. Its tissue displacement is zero at
+the reported precision and the continuation has no new tissue contact. The
+same 8 ms result is **7.17x faster by reported GPU time** than the 16 x 8,
+seven-Newton control, but advances the needle only 23.3% as far. Reducing the
+Krylov cap cannot explain or close the remaining performance gap: the default
+solve already stopped after three iterations and the cap change saved only
+about 2%. No default solver budget was changed.
+
+The default-cap run log SHA-256 is
+`44763ee3ecc5c763d9159ab780e0738b17be144f3a687d1e141b1710e892dc02`; cap-2 is
+`1059942649b76fda0afcf14a51026fea58d840bfe77d58524e05387cbcea177a`; cap-1
+repeats are `d2d299e2b6ab362795b13b2b8ee9ad8430d8cace0b7f85a9207d2e590e7c3d85`
+and `7e79f3b9134fe254808c5622c3b00fdc912438f7737ae367baa2f7e615079e4b`.
+
+### Adaptive far-field mesh A/B on `macmini` (diagnostic)
+
+An opt-in nonuniform grid preserves the original 30 x 24 x 1.5 mm specimen,
+16 mm incision, 0.60 mm lip gap, eight thickness layers, and all three
+measured bite-local spacings. It keeps the 1 mm longitudinal and 0.75 mm
+transverse coordinates around the bites, then coarsens the outer field to
+1.75 x 1.5 mm cells. The synthetic-skin suture mesh falls from 30 x 32 x 8
+(46,080 tetrahedra) to 24 x 24 x 8 (27,648 tetrahedra), 40% fewer elements.
+The run still reports local spacing `0.143714, 0.188063, 0.187500 mm`;
+minimum rest tetrahedron volume remains `8.44602121e-13 m^3`. The legacy
+uniform path remains the default; `--synthetic-skin-adaptive-mesh` is accepted
+only on a synthetic-skin suture-contact diagnostic.
+
+The Release build and three matched repeats per case ran over SSH on the M4
+Pro Mac mini (macOS 26.6). The synthetic-skin wound coupon CTest passed, and
+both mesh layouts compiled into the native contact world and completed the
+bounded runs with zero failed steps.
+
+| Diagnostic GPU time | Uniform 30x32x8 median | Adaptive 24x24x8 median | Change |
+| --- | ---: | ---: | ---: |
+| First tissue-entry transaction, 62.5 us | 900.390 ms | 537.196 ms | 1.676x faster; 40.3% lower |
+| One-Newton cadence continuation, 16x grouping | 888.815 ms | 824.404 ms | 1.078x faster; 7.2% lower |
+
+The entry diagnostic retained the same three needle-tip contacts and identical
+`9.51956882e-7` reported impulse in both layouts, with 10 maximum FGMRES
+iterations and zero failed steps. The cadence diagnostic advanced the tip
+`19.965 um` in both cases with the same `0.000868109 m/s` contact residual,
+143 constraints, and zero failed steps. The smaller mesh needed 9 Matter
+FGMRES iterations instead of 6. Neither diagnostic had any suture-strand
+contact; the cadence step also had no active contact. These measurements show
+that mesh reduction speeds the entry cost, but contributes little to a later
+contact-free grouped step. They do not qualify a loaded stitch or whole
+passage.
+
+A separate full `--tissue-suture-passage-only` baseline was advancing, not
+hung, but took 88.1 seconds to reach 96/372 steps (three 32-step chunks cost
+21.7 seconds of GPU time each). I interrupted it before completion and did not
+run the adaptive variant. It provides no passage-speedup result. This long
+horizon is the dominant next profiling target; the 100x objective remains
+unmet.
+
+The six repeated entry logs are `suture-entry-baseline` (`d27a7156ed2c2ac34ced59762f9b71d45e0ccd1d43f1f5df329cc36a07e3d6f5`), `suture-entry-baseline-r2` (`33b533efb93b8176da0542e8e31b0c035b5dcee30b4acb09bd9edd7bf41bd280`), `suture-entry-baseline-r3` (`52502ed2bcaede5ae1f6c437112483468bea00fd802b6bbd40292e77cf87a595`), `suture-entry-adaptive` (`b75f4ba617e470bcbfb3658b977e66d311fc50b85353474e23a953932c024dfa`), `suture-entry-adaptive-r2` (`0f0898e0dc16662894e881b8d1d43044b4d76ed12e8dd987bf606b6256965bcd`), and `suture-entry-adaptive-r3` (`b4ac1680697aace866633159919001b69f923db5fddba765b0ef5506a6e4aa51`).
+The cadence logs are `suture-cadence-baseline` (`e3c819bd0977d9ef74c272fd5838a274ebde1367889e438d9b8a90c254391679`), `suture-cadence-baseline-r2` (`afbabcb7a140814d02e0faa7717c760600f427e1b6e09e9a46efc49457749c2c`), `suture-cadence-baseline-r3` (`bb35db264bbd90cde995b8eb8a1236c3bb510bea443391c48fbd46004fad9215`), `suture-cadence-adaptive` (`da582a8b5c4903b947b024570f4d1aac81c50bb8e8274a81eb21ff76cbb8240c`), `suture-cadence-adaptive-r2` (`6d27cd862c124477cb1db819115ac1317b7e5cfafbf5b328dac8d925140d2f1f`), and `suture-cadence-adaptive-r3` (`a939a15b29580cb8b22e090a5c153592b3cb0c5906fb97b04dc20d2955c7989a`). The interrupted passage log is `suture-passage-baseline` (`93ceeda533d51339349e3faabb509014e79ae626155ac200dd9e3b27db09e7bf`). All paths are under `build-skin-wound/mini-perf/runs/`.
+
+No default mesh or solver budget changed. The optimization is a measured
+1.676x entry-stage gain, not a 100x simulation speedup; full through-wall
+passage, strand loading, pull-through, and stitch closure remain unqualified.
+
+### SIMD-parallel FEM backtracking on `macmini`
+
+The mixed-FEM nonlinear line search used one GPU thread to scan the full
+tetrahedron array for each trial alpha, up to eight times per Newton step. It
+now assigns one 32-lane SIMD group to each environment/object, stripes the
+tetrahedra across lanes, and reduces minimum determinant, element validity,
+and the mixed-volume Armijo sums before considering the same ordered alpha
+trials. It adds no device buffers. Since SIMD summation changes reduction
+order, the acceptance condition is unchanged, and the measured accepted state
+and all other printed fields are compared explicitly below.
+
+The Release build and six candidate repeats ran over SSH on the Apple M4 Pro
+Mac mini (macOS 26.6). Three prior adaptive-mesh repeats are the serial
+controls. Each candidate run had zero failed steps, and its non-timing output
+matches the serial controls byte for byte after removing wall/GPU timing lines.
+
+| Adaptive-mesh diagnostic | Serial median GPU time | SIMD-parallel median | Reduction |
+| --- | ---: | ---: | ---: |
+| First tissue-entry transaction | 537.196 ms | 428.949 ms | 20.1%; 1.25x faster |
+| 16x one-Newton cadence | 824.404 ms | 802.155 ms | 2.7%; 1.03x faster |
+
+The entry case retains the same `0xb44a4607c90cc4e1` accepted-state hash,
+three needle-tip contacts, `9.51956882e-7 N s` puncture impulse, one puncture
+channel, zero strand contacts, positive minimum determinant `0.999992192`,
+maximum Matter residual `3.06571724e-6`, and zero failed steps. The cadence
+case retains `19.965 um` tip advance, `0.000868109 m/s` normal residual, 143
+required rigid constraints, and zero failed steps; that measured boundary has
+no active contacts, so its 2.7% gain is the relevant throughput check rather
+than loaded-suture evidence. No individual-kernel GPU timing was captured.
+
+Two focused CTests passed: `metalrobo.surgical.synthetic_skin_wound_coupon`
+and `metalrobo.surgical.live_suture_tissue_entry`. The compiled metallib SHA-256
+is `e3e3078d319685aca09f225b03b69032c20e99692de597d4dbf4bbe67efc19b8`;
+the linked library is
+`3e437c43729f28ede38b11d50b9c9a4cad9bb3d6a1d6b59899e40a9e035bc899`.
+The final source hashes are `e9e8b41e6eae338acc63f87995b27e3c1757b16be5aa9f0218d36f90bddf6d09`
+for `matter/src/metal/fem.metalinc` and
+`1e7a217875d8f69a9aae3a6cb4a52e3d6430f367edc968a0a41d1c6f806d9844` for
+`matter/src/runtime.mm`.
+
+The three SIMD-parallel entry logs are `line-search-parallel-entry-r1-r3`
+(`e2216660af7453964180e6d162323af3f7da8d51c0473629e68cfca001cbbbca`,
+`317f924a74119848f3afaa0eeb13f74a3822d204bf58b6a0aead0c6f13f04615`,
+`7558e33d2246c92e842bd9c7047b72a1e4cca3d5daee275e41d0a74a28c9d871`).
+The cadence logs are `line-search-parallel-cadence-r1-r3`
+(`2aa8311ad6e86d976899d738560aa1b0a2a551bea38b24b182ad7b6027fa7f15`,
+`74cfeccec287667998a36434cabfaae302a5b43f353b6bebb7bb29194d81c6c7`,
+`e3952babb21af7bd235573cc18149cc33f1d0229c9005ff6c6ec8afa8a37f09d`).
+Their serial-control triads are the adaptive entry/cadence logs listed above;
+a fresh serial entry control is also retained as `line-search-serial-control-20261002`
+with log hash `1502b7c65093b43e34d243e08026b2728ebd9f8862a41788e561ce55141edbf0`.
+All paths are under `build-skin-wound/mini-perf/runs/`.
+
+A per-lane early skip after finding an invalid element was tested and reverted:
+its entry median was `428.433 ms`, indistinguishable from the accepted SIMD
+version, and its cadence median was slightly slower (`802.428 ms`). A cached
+125 us loaded-contact checkpoint from the previous metallib was also tried;
+restore rejected it before physics with “Matter snapshot does not match the
+initialized device program.” No loaded-contact speed claim uses that attempt.
+The accepted entry optimization is a measured short-step gain, not a 100x
+whole-stitch result; the 100x target remains open.
+The next useful gate is a source-matched loaded-contact run with a checkpoint
+created under this metallib, followed by attribution of repeated FEM/FGMRES
+work during the long deformable continuation.
+
+### Balanced local mesh comparison on `macmini`
+
+An opt-in `--synthetic-skin-balanced-mesh` keeps the 1 mm incision grid,
+0.75 mm bite/seam grid, and eight through-thickness layers, while coarsening
+only the remote in-plane field. It preserves the 30 x 24 x 1.5 mm specimen,
+16 mm incision, 0.60 mm lip gap, local bite spacings
+`0.143714, 0.188063, 0.187500 mm`, and minimum rest-tet volume
+`8.44602121e-13 m^3`. The mesh has 19,200 tetrahedra, 58.3% fewer than the
+30 x 32 x 8 uniform layout. Three Release repeats per configuration ran on
+the M4 Pro Mac mini with the same probe and Metal library.
+
+| Diagnostic | Uniform 30x32x8 | Balanced 20x20x8 | Reduction |
+| --- | ---: | ---: | ---: |
+| First tissue-entry transaction | 712.904 ms median | 317.758 ms median | 55.4%; 2.24x faster |
+| 16x one-Newton cadence | 802.155 ms reference | 778.356 ms median | 3.0% lower |
+
+All entry repeats retain three needle-tip contacts and exactly match the
+uniform run's `9.51956882e-7 N s` impulse, `9.50467630e-7 N s` axial impulse,
+one puncture channel, and zero failed steps. The accepted state hash differs
+because node and element counts differ; maximum tissue displacement and the
+Matter residual also differ slightly. The cadence repeats advance the tip
+`19.9654 um`, retain 143 required constraints and the `0.000868109 m/s`
+terminal normal residual, with zero failed steps. This cadence boundary has no
+active contact and supports only a post-entry throughput comparison.
+
+A more aggressive 14 x 16 x 8 candidate used 10,752 tetrahedra and ran at a
+212.307 ms entry median. Its contact count changed from three to one and its
+tip impulse rose 16.4%, so it is excluded from the selected mesh result. The
+balanced layout remains opt-in for other synthetic-skin modes. Entry and
+contact-free cadence alone do not establish passage performance. The matched
+through-wall results below qualify only this bounded synthetic-skin passage
+probe, not loaded pull-through or stitch closure. The 100x target remains open.
+
+The probe source SHA-256 is
+`d0a57acd024491d9640c6bbbf4ac02756184bdc29092152127fbb010aafc2d29`; the
+Release probe, linked library, and Metal library hashes are
+`1601b7fb1624c7bdcd6a37f98f92bd83d3bbf4d7bfdd837f5894d22fb90f3108`,
+`3e437c43729f28ede38b11d50b9c9a4cad9bb3d6a1d6b59899e40a9e035bc899`, and
+`e3e3078d319685aca09f225b03b69032c20e99692de597d4dbf4bbe67efc19b8`.
+Focused CTests `metalrobo.surgical.synthetic_skin_wound_coupon` and
+`metalrobo.surgical.live_suture_tissue_entry` passed 2/2; the retained
+`LastTest.log` SHA-256 is
+`102b2f88cddb68322971fe62a6661ae3b623c696cc0fe7f86d5f16e0c0550c59`.
+
+Run logs are under `build-skin-wound/mini-perf/runs/`. In uniform-entry,
+balanced-entry, compact-entry, and balanced-cadence repeat order, their
+SHA-256 values are:
+
+- `uniform-simd-entry-r1-r3`: `33efcb50db2f956c2951d068f6f2f1f77575346551dbcf7c80f5d9ccb2e95174`, `95905441fd91b735ad4999d75d3fc76982f36931a565952f6a10aa2da24a385a`, `a16add035d0c8514fe3268602e91862e58c4593021eaafdeb6bdad7e4276d8a`
+- `balanced-mesh-entry-r1-r3`: `dc4697cd49e951e3fcf5bd9757cf0f33a8fae241b837eeede25867e3ef483748`, `a2c0b0f515fca7b02dc256f7e44d4d99526feb6e9e994dd9ebca1bec8a60c1f4`, `063e9da2946d1556776dc443d7e4a3746ccd0f5677ab2f872975bb6a68bc0527`
+- `compact-mesh-entry-r1-r3`: `b0e86b116bc12c5d7f8a0d3cfac5fdfd65298f8fc456c12d3b7a03dc65345792`, `84537c97067026904ce54c5219d7a47d83a81c3bd11b5a83c721728a6f56dde3`, `1b0019d2ed9cbd1ba6af23febbf4c830c637b0abb9b460a255aea9a6dae2523a`
+- `balanced-mesh-cadence-r1-r3`: `29f4bb57074e03e60aeb59ab65803264393f1f9c93c28fe241428b14b9aa7235`, `35e7bcf541cb4a5f47d5251162dfd4fbfb9fc83ad32f77fa779f9202a6c6af3e`, `c9657badea3b7ae688f42693b2600ce292338e7ee0db352605b96e57a83c7e97`.
+
+### Full-passage cadence comparison on `macmini`
+
+The uniform 30 x 32 x 8 control completed the 372-group through-wall passage in
+195,019.115 ms GPU time, with 1.836 mm tip advance, 0.200 mm distal clearance,
+12 linked puncture channels, no removed tissue mass, and zero failed steps.
+The balanced 20 x 20 x 8 mesh completed the same path twice at the existing
+4x Matter cadence: 119,676.026 and 119,599.047 ms. Both runs produced the same
+`0x806897f2818fc838` state hash and all printed passage metrics matched. This
+is a repeatable 1.63x gain over the uniform control.
+
+For the explicitly selected balanced synthetic-skin through-wall mode, the 8x
+cadence groups eight base DER substeps into each 500 us Matter transaction.
+Other suture phases retain their existing cadence. It passed the same
+through-wall gate three times in 188 groups at 94,643.794, 94,673.184, and
+94,774.957 ms GPU time, a repeatable 1.26x gain over balanced 4x cadence and
+2.06x over the uniform control. All three runs produced the same
+`0xc42ce05051f76556` state hash, 12 linked channels with 1.512 mm total tract
+length, 0.2193 mm distal clearance, 1.8553 mm tip advance, 0.019984 m/s
+terminal speed, positive minimum determinant, zero removed mass, and zero
+failed steps. The 8x speed error is 16.1 um/s, within the probe's 20 um/s
+terminal-speed tolerance. This remains synthetic research-default evidence;
+it does not qualify tissue calibration or a full stitch.
+
+| Layout and cadence | Passage GPU time | Groups / base DER substeps | Outcome |
+| --- | ---: | ---: | --- |
+| Uniform 30x32x8, 4x | 195,019.115 ms | 372 / 1,489 | Passed |
+| Balanced 20x20x8, 4x | 119,676.026; 119,599.047 ms | 372 / 1,489 | Passed twice; same state hash |
+| Balanced 20x20x8, 8x | 94,643.794; 94,673.184; 94,774.957 ms | 188 / 1,505 | Passed three times; same state hash |
+| Balanced 20x20x8, 16x | No accepted timing; 43,436.460 ms chunk GPU / 44.53 s wall for 8/0 diagnostic | 96 / 1,537 planned | Rejected: 0.019968 m/s exit speed and 0.003564 m/s final contact residual miss their bounds |
+| Balanced 20x20x8, 12x | No physics run | — | Runtime cadence API rejected this multiplier before advancing state |
+
+An 8x first-entry transaction retains the same three tip contacts and exact
+normal and axial impulses as the uniform and balanced 4x entry repeats. A
+Metal System Trace of that entry attributed about 312 ms to the persistent
+batched MetalWorld graph and less than 1 ms to explicit state readback. The
+short trace did not expose shader timing: Metal GPU Counters reported that its
+counter profile is unsupported on the M4 Pro, and Shader Timeline remained
+disabled. The trace points to the combined GPU graph as the next optimization
+target but does not identify an individual kernel. The 32/16 reference path is
+2.06x faster than the uniform passage; the bounded 8/0 candidate below reaches
+3.58x with elevated intermediate contact residuals. The 100x objective remains
+open.
+
+The completed passage logs are retained under
+`build-skin-wound/mini-perf/runs/`; trace artifacts and focused test output are
+under `build-skin-wound/mini-perf/traces/` and
+`build-skin-wound/mini-perf/tests/final/`.
+
+### Reduced contact-solver budget candidate — 2026-10-02
+
+On `macmini`, the balanced 20 x 20 x 8 passage at 8x Matter cadence was run
+twice with eight main velocity sweeps and no final sweeps, compared with the
+32/16 reference budget. GPU times were 54,322.204 and 54,479.574 ms (54,400.889
+ms mean), versus the reference median of 94,673.184 ms: 1.74x faster, or 42.5%
+less GPU time. Both candidate runs produced the same state hash
+`0xea5f16a2aa2a9537` and passed the existing through-wall checks: 12 connected
+tract channels, 11 links, all 19,200 tetrahedra retained, zero removed tissue
+mass, 0.2193 mm distal clearance, 1.8553 mm tip advance, 19.983936 mm/s exit
+speed within tolerance, and zero failed steps. The hash differs from the
+32/16 reference, so this is not a byte-identical solver substitution.
+
+Per-chunk contact residuals are now logged without turning the intermediate
+chunk samples into new passage acceptance gates. The repeated 8/0 run reported
+normal residuals of 0.002443, 0.003115, 0.002382, 0.007623, 0.011440, and
+0.001879 m/s. The final chunk is within the existing 0.002 m/s terminal bound,
+but earlier chunks exceed it; treat this as a bounded performance candidate,
+not a general solver default or qualification for the loaded robot sequence.
+The stricter per-chunk check also rejected the 32/16 reference at its first
+chunk (0.003045 m/s), so it was removed while the per-chunk diagnostics remain.
+The 100x objective remains open.
+
+A 16x cadence trial with the same 8/0 budget took 43,436.460 ms across its
+three passage chunks but failed the 20 um/s exit-speed tolerance and the
+2 mm/s terminal contact-residual bound. Its geometry, tract, tissue, and rod
+checks otherwise passed. The faster measured time is therefore rejected; the
+8x candidate remains the best result from this sweep.
+The rejected run log is
+`/Users/n/numi-skin-suture-perf-100x/runs/balanced-mesh-suture-passage-16x-8i0f-20261002/run.log`
+with SHA-256
+`50f19156c1c4244ea6f6e2cc9a6199f2120d4717e1b95f0ae92f44269f44f5f6`.
+
+### Channel-only puncture fast path — 2026-10-02
+
+The Mac mini kernel profile showed that the entry transaction spent 30.451%
+of sampled GPU timestamp ticks in topology certification, 8.712% in topology
+conservation, 9.298% in node-mass rebuild, and 7.408% in incidence scatter.
+The detector used inside Newton iterations emits only physics-triggered
+cylinder punctures; these append embedded channels without changing FEM nodes,
+fields, tetrahedra, mass, or node incidence. The runtime now skips redundant
+incidence rebuilds for that detector-only path. Conservation and topology
+certification return early only when node, tetrahedron, and cohesive-face
+counts and accounting are unchanged, and the topology-generation increase
+matches the added channel count. Authored remeshing and any other topology
+change still take the full rebuild, conservation, and certification path.
+
+Five focused Mac mini CTests passed: topology mutation, millimetre-scale
+topology conservation, topology rollback, synthetic-skin tapered puncture,
+and opposing-bite topology. Three balanced 20 x 20 x 8 entry runs took
+189.550, 189.744, and 189.366 ms GPU (189.550 ms median), versus the saved
+317.758 ms baseline median, a 1.68x entry speedup. All three retained one
+puncture channel, all 19,200 tetrahedra, zero removed tissue mass, and zero
+failed steps. Their accepted-state hash was `0x8af09b89480505a8`; it differs
+from the earlier `0x6b47347dfaadfbe3` because the channel-only path no longer
+applies checkpoint-relative corrections to FEM state that the puncture did
+not mutate.
+
+The matched 8x, 8/0 through-wall passage took 47,035.138 and 47,105.111 ms GPU
+(47,070.124 ms mean), 13.5% less time than the earlier 54,400.889 ms 8/0 mean.
+Both runs produced hash `0xde5b1f892ae854b6`, retained all 19,200 tetrahedra
+with zero removed tissue mass, built 12 connected channels and 11 links, and
+passed with 1.8553 mm tip advance, 0.2193 mm distal clearance, 19.983936 mm/s
+exit speed, 1.879 mm/s terminal normal residual, and zero failed steps. The
+hash differs from the earlier 8/0 candidate, so this is an outcome-matched
+performance candidate rather than byte-identical replay. Against the saved
+32/16 reference median of 94,673.184 ms, the combined 8/0 and topology
+fast-path result is 2.01x faster. Intermediate chunk residuals still exceed
+2 mm/s; only the established terminal residual is an acceptance bound.
+
+Lower budgets were measured and rejected against that terminal bound:
+4/0 took 40,660.226 ms but ended at 3.242 mm/s, 6/0 took 43,821.403 ms and
+ended at 2.483 mm/s, and 7/0 took 45,407.297 ms and ended at 4.673 mm/s.
+Their through-wall geometry and exit-speed checks passed, but the 8/0 setting
+remains the fastest passing solver budget. The 100x objective remains open.
+
+The source-matched run, CTest, and rejected-budget logs are retained at
+`/Users/n/numi-skin-suture-perf-100x/runs/topology-fastpath-passage-8x-8i0f-20261002/`,
+`.../topology-fastpath-passage-8x-4i0f-20261002/`,
+`.../topology-fastpath-passage-8x-6i0f-20261002/`, and
+`.../topology-fastpath-passage-8x-7i0f-20261002/`. The passing run log SHA-256
+is `83bfa18a6e0be741c49ce291ef4d43b990b4fffd8cf3056121b207e29471849e`; the
+five-test CTest log SHA-256 is
+`d2cbcde67472220326874e461ec9d4bbeff9bde95e9d61758c7d905e1c2825e1`.
+
+### Exact contact-sort reuse — 2026-10-02
+
+The contact surface sorter now checks whether its previous ordered primitive
+indices are still an exact permutation of the current active set and remain
+monotonic by the current transformed lower-x key, including stable index order
+for ties. It reuses that order only when all checks pass; any inactive old
+primitive, changed active count, or ordering inversion falls back to the full
+eight-pass radix sort. This makes slowly moving or stationary deformable
+surfaces avoid repeated radix work without using a displacement tolerance or
+loosening the sweep bound.
+
+Nine Mac mini CTests passed after this change: the five topology/skin tests
+above plus the synthetic-skin wound coupon, shared rigid coupled contact,
+articulated contact-boundary recovery, and post-commit contact guard. Three
+entry repeats took 177.999, 177.872, and 178.621 ms GPU (177.999 ms median),
+with the same accepted-state hash `0x8af09b89480505a8` and zero failed steps.
+That is a further 1.065x over the topology-only fast path and 1.79x over the
+saved entry baseline median.
+
+The matched 8x, 8/0 passage then repeated at 43,829.072 and 43,837.594 ms GPU
+(43,833.333 ms mean). Both runs retained the earlier passage result exactly,
+including state hash `0xde5b1f892ae854b6`, 12 connected puncture channels,
+11 links, all 19,200 tetrahedra, zero removed tissue mass, 1.8553 mm tip
+advance, 0.2193 mm distal clearance, 19.983936 mm/s exit speed, and a
+1.879 mm/s terminal normal residual. This is a further 1.074x over the
+topology-only fast path and 1.24x over the earlier 8/0 passage mean; combined
+with the 32/16 reference it is 2.16x faster. The 100x objective remains open.
+
+The sorter and topology run set is retained at
+`/Users/n/numi-skin-suture-perf-100x/runs/contact-sort-reuse-passage-8x-8i0f-20261002/`.
+The passing full-passage logs have SHA-256 values
+`f9f719ab9c5cfcbf4cbeb7a4697cdd1ac44bb419e7fe3bbc2a4f312e4f7da141` and
+`d21f2f38bc60202588f0e43c6c19a205752016852ba8c42b542b25b7a335393d`; the
+nine-test CTest log is
+`14c6a3712eee7938e699b686bedb431a936a805fd5052171bed15b1a3b837cde`.
+The source hashes are runtime `c3411d5c891bb2d63a3be9be4a63e8e5ed00325de6a0b982e9b5991beadb1837`,
+topology shader `ddddcc3a07b30c007731e4bae0a8200efc284fd0c8aab5ff2f21646a51ff8db6`,
+and contact shader `bdcee89ad4b51e308c9e40de31fb9d83efc4dcc552ec0bc4619ea6a5404667ea`.
+The matching Metal library SHA-256 is
+`859e81cd0fdeb4820926f285d27c48960a96d1a73ed9f4bc796f3847ff1ce633`.
+
+Reproduce the bounded 8/0 candidate explicitly with:
+
+```sh
+./build/bin/metalrobo_dual_psm_suture_handoff_probe \
+  --tissue-suture-passage-only --synthetic-skin \
+  --synthetic-skin-balanced-mesh \
+  --velocity-iterations 8 --final-velocity-iterations 0
+```
+
+The repeated run is
+`/Users/n/numi-skin-suture-perf-100x/runs/balanced-mesh-suture-passage-8i0f-residual-diagnostic-r2-20261002/run.log`
+on the mini; log SHA-256:
+`99fdbce396f5bad6f8f4a7d24e4b218519d71302399aabb51a7885c68834ba77`.
+Its probe source SHA-256 is
+`6f3fdd1d744e79ddc012345cf84ec65de788a19d46d0d163355406c3ec2dff67` and binary
+SHA-256 is
+`76b85f943e1d9ace669fc177a78ae4429096541bcfadbfbc85088ddfad69e021`.
+Focused synthetic-skin coupon and live-entry CTests passed 2/2; their retained
+`LastTest.log` SHA-256 is
+`c9bed8811d0856c685c3f79ad3b8f3a9b356db47bb2b22ed8780643a9a6e58e1`.
+
+### Compact local mesh through-wall result — 2026-10-02
+
+The opt-in `--synthetic-skin-compact-mesh` layout is now available for the full
+synthetic through-wall passage diagnostic. For matched-horizon comparison it
+uses the same 8x Matter cadence as the balanced layout; the normal default
+mesh, passage cadence, and 8/0 contact budget are unchanged. The compact
+14 x 16 x 8 mesh retains the full specimen extents and eight thickness
+layers, with 10,752 tetrahedra versus 19,200 in the balanced 20 x 20 x 8
+layout (44% fewer).
+
+Two complete Mac mini runs passed the established terminal contact residual
+bound and produced identical state hash `0xe04decedd9fb41ac`. They each ran
+188 groups / 1,505 base DER substeps with an 8/0 contact budget. GPU times
+were 38,206.760 and 38,131.589 ms (38,169.174 ms mean; 0.20% repeat spread),
+versus 43,833.333 ms for the balanced 8x/8/0 repeats: 1.148x faster and
+12.92% less GPU time. The state hash differs from the balanced mesh because
+the discretization changed.
+
+Both runs formed 12 linked puncture channels with 1.512 mm total tract length,
+retained all 10,752 tetrahedra and zero removed tissue mass, advanced the tip
+1.8553 mm, reached 0.2193 mm distal clearance and 19.983936 mm/s exit speed,
+and ended at a 1.879475 mm/s normal contact residual under the 2.0 mm/s bound.
+Minimum determinant was `0.999999762`; failed steps were zero. Intermediate
+chunk residuals reached 7.623 and 11.440 mm/s. They remain diagnostics under
+the existing terminal-only residual criterion.
+
+A compact 4x/8/0 passage diagnostic took 46,149.257 ms and completed the
+probe's geometry checks, but its terminal normal contact residual was
+8.104 mm/s, above the established 2.0 mm/s bound; it is rejected. The accepted
+candidate is specifically the repeated 8x/8/0 result above.
+
+A compact 16x/8/0 trial completed its 96 planned groups in a summed 34.408 s
+of chunk GPU time, but the terminal contact residual was 3.564 mm/s and the
+exit speed was 19.968 mm/s. Both endpoint bounds fail, so this faster point is
+rejected; 8x remains the fastest accepted compact setting. Its run-log
+SHA-256 is
+`b49121ab06af79770c47adf5d1bc2dfabebf474fb320efeedc198c8a94f1688a`,
+with provenance SHA-256
+`d2c4a6bc6926c43eb4d0710d083c1f557e50d0e141951381a19ce6b9fc1dc0c2`.
+The 16x probe source was
+`385e2f248f04b32f61d8712eb287943f759da8bfe097b112bf23cf59a491a6cb` and its
+binary was
+`721f14a06b3ba297e14f94cc0d5965fcab0abd5bdc2f61532764718637031e99`.
+
+The passing logs are
+`/Users/n/numi-skin-suture-perf-100x/runs/compact-mesh-passage-8x-8i0f-equal-cadence-20261002/run.log`
+and
+`/Users/n/numi-skin-suture-perf-100x/runs/compact-mesh-passage-8x-8i0f-repeat2-20261002/run.log`,
+with SHA-256 values
+`2d3bda846f323a3dd95e1bdbba65e5f464d41b4d1ed8e14f35766722755fa215` and
+`f425c3df0e0211115f24a8d20736b8354e1c987490be52d156ab4c8786128276`.
+Their shared provenance-file SHA-256 is
+`3947fdb53fb92ac771a9e2b5b4f01b32763262c7cf1348c474d58aa385f82d0a`.
+The rejected 4x log is
+`/Users/n/numi-skin-suture-perf-100x/runs/compact-mesh-passage-4x-8i0f-residual-reject-20261002/run.log`
+with SHA-256
+`bbad7ab9d0050618533fe7f297b9c38d5bfb02d1479f5734a17998daeeda5bb1`.
+
+The nine focused topology, contact, rollback, and synthetic-skin CTests passed
+again; the retained log SHA-256 is
+`caa19730c2f60a5017aaa615d84c3892cbf477b02a35584f4c93f2189625a289`.
+The probe-source SHA-256 is
+`0a476b54a5e345edf1eb5f4f179151652830059a88feaf6305210c0d11c11a89`; the
+probe binary is
+`4c941553a077b03703a97abac3673c95edf584c67b7d1b643d784aade7aad1d5`, and the
+Metal library remains
+`859e81cd0fdeb4820926f285d27c48960a96d1a73ed9f4bc796f3847ff1ce633`.
+The speedup is a repeatable 1.148x over the balanced 8x/8/0 passage, not a
+100x result; the performance objective remains open.
+
+### One-Newton compact passage budget — 2026-10-02
+
+The opt-in `--synthetic-skin-newton-iterations 1` override applies after the
+accepted entry and only to the following compact through-wall passage. It
+retains the 8x Matter cadence, 8/0 contact-solver budget, mesh, and all
+acceptance tolerances while reducing the passage Newton budget from five to
+one. Two complete Mac mini runs passed the existing gates and produced the
+same state hash `0xb9b2ef613090d2f0`. Each formed 12 linked puncture channels,
+retained all 10,752 tetrahedra with zero removed tissue mass, advanced the tip
+1.855291 mm, reached 0.219291 mm distal clearance and 19.983936 mm/s terminal
+speed, and ended with 1.879475 mm/s terminal contact residual. Minimum
+determinant was `0.999999762`; failed steps were zero.
+
+GPU times were 33,513.402 and 33,583.710 ms (33,548.556 ms mean; 0.210%
+repeat spread), 1.138x faster and 12.106% less GPU time than the repeated
+five-Newton compact baseline. The state hash differs from the five-Newton
+result, so this is a distinct accepted simulated trajectory rather than an
+exact replay of that baseline. The override remains opt-in.
+
+The exact invocation is:
+
+```sh
+./build/bin/metalrobo_dual_psm_suture_handoff_probe \
+  --tissue-suture-passage-only --synthetic-skin \
+  --synthetic-skin-compact-mesh --synthetic-skin-newton-iterations 1 \
+  --velocity-iterations 8 --final-velocity-iterations 0
+```
+
+The repeated logs are
+`/Users/n/numi-skin-suture-perf-100x/runs/compact-mesh-passage-8x-8i0f-newton1-r1-20261002/run.log`
+and
+`/Users/n/numi-skin-suture-perf-100x/runs/compact-mesh-passage-8x-8i0f-newton1-r2-20261002/run.log`;
+their SHA-256 values are
+`05288796d658078f58a48ce9f609b9a7fd73d6af7c8576ed44f2a2e93f5758dd` and
+`3a8640e5ce6e8d1d32747062e10d29fa4ab1a5be2db644d01e07434f016faa62`.
+Both use probe source SHA-256
+`4c7f4cc24bf0ddd0bba61a7a4a0ebd1b79f85d89d88a70f52295fe76de2aa701` and
+probe binary SHA-256
+`6d451f99d5df8ef97d031a1b60d7e71af3eb1a3fa128d5b215cfe68afb52cbd0`.
+
+A 16x/8/0 trial with the same one-Newton budget completed 96 groups in
+32,056.402 ms of summed chunk GPU time, but ended with 3.564439 mm/s contact
+residual and 19.968 mm/s terminal tip speed, outside both endpoint bounds.
+It is rejected; 8x remains the fastest accepted compact cadence. Its log
+SHA-256 is
+`ca692998f48cb2ab5e0a39259f31fe0a7dfd0ef2d8df1064abb0dd51dbf68536`.
+
+A one-pass field-smoother diagnostic passed twice with the same five-Newton
+state hash and a 37,762.186 ms mean, only 1.011x faster than the compact
+baseline. A one-column FGMRES runtime override passed once at 37,294.981 ms
+(1.023x), with a different state hash. Combining those overrides with one
+Newton produced a single 33,290.439 ms run, 0.8% faster than the repeated
+one-Newton mean; that marginal, unreplicated difference is not treated as an
+additional performance qualification.
+
+The focused topology, contact, rollback, and synthetic-skin CTests passed
+9/9 after the Newton-budget and solver-source changes. The retained CTest log SHA-256 is
+`bd5036a6b7d268103e4ec52e2295ad8f1f6381932ab942a92f24798235a5bdc7`.
+The one-Newton speedup is repeatable but remains far below the 100x objective.
+
+Reproduce the compact candidate with:
+
+```sh
+./build/bin/metalrobo_dual_psm_suture_handoff_probe \
+  --tissue-suture-passage-only --synthetic-skin \
+  --synthetic-skin-compact-mesh \
+  --velocity-iterations 8 --final-velocity-iterations 0
+```
+
+### Earlier 14 x 14 reduced-mesh draft and terminal residual gate — 2026-10-02
+
+The first accepted `--synthetic-skin-reduced-far-field-mesh` layout changed
+only the far-field transverse spacing relative to the compact mesh. It retained the
+longitudinal incision endpoints at ±8 mm, end supports at ±11.5 mm, local
+bite-spacing anchors, the full specimen, and all eight thickness layers. The
+resulting 14 x 14 x 8 grid has 9,408 tetrahedra, 12.5% fewer than the compact
+14 x 16 x 8 grid. Its measured local spacings are 0.1675, 0.1880625, and
+0.1875 mm, each below the 0.200 mm contact-band limit.
+
+Two runs on the Mac mini, using the same final source and binary, passed the
+8x/8/0 passage budget with one Newton iteration and produced identical state
+hash `0x1a37cc2b6298b0d9`. Both formed 12 linked channels, retained all 9,408
+tetrahedra with zero removed mass, advanced the tip 1.855291 mm, reached
+0.219291 mm distal clearance and 19.983936 mm/s terminal speed, and ended at
+1.879475 mm/s contact residual with zero cone violation. Minimum determinant
+was `0.999999762`; failed steps were zero. GPU times were 33,092.342 and
+33,190.078 ms (33,141.210 ms mean; 0.295% spread). Against the repeated compact
+one-Newton mean of 33,548.556 ms, this is 1.012x faster and 1.214% less GPU
+time. The mesh creates a distinct state from the compact run. This historical
+14 x 14 result is superseded by the 14 x 12 layout below and does not approach
+the 100x target.
+
+The final probe now checks its endpoint contact certificate against the
+existing 2.0 mm/s velocity-residual and `1e-5` cone-violation limits. Before
+this change, the passage loop explicitly disabled those endpoint bounds, so
+low-budget trials could print `tissue_curved_through_wall_passage=ok` while
+missing the performance-study residual limit. The gated 8/0 case passed; a
+4/0 rerun exited with failure at a 3.242 mm/s terminal residual. This is an
+acceptance-check correction, not a relaxed tolerance.
+
+The command used for this historical run was:
+
+```sh
+./build/bin/metalrobo_dual_psm_suture_handoff_probe \
+  --tissue-suture-passage-only --synthetic-skin \
+  --synthetic-skin-reduced-far-field-mesh \
+  --synthetic-skin-newton-iterations 1 \
+  --velocity-iterations 8 --final-velocity-iterations 0
+```
+
+The final probe source SHA-256 is
+`bc697d404585eb67076b877464cb34c0484b0dc2a2519b79b1015205c19beee6`; the
+binary SHA-256 is
+`043c2042564347fb350b4e50d4ad5d720e6f52453bbb028b455b22f9e38ff354`. The
+passing logs are
+`/Users/n/numi-skin-suture-perf-100x/runs/reduced-far-field-mesh-passage-8x-8i0f-newton1-terminal-gate-r12-20261002/run.log`
+and
+`/Users/n/numi-skin-suture-perf-100x/runs/reduced-far-field-mesh-passage-8x-8i0f-newton1-terminal-gate-r14-20261002/run.log`,
+with SHA-256 values
+`70bd1190e9969ab3cce8813699c4f50a8991ac990b3d334ad08f033b9c4ec107` and
+`dbe957ff094d10806e73fcb3603b5bd6e22f954ed6f69b9c7059661b73ae4ce6`. The
+4/0 gate-rejection log SHA-256 is
+`b55a1c47d96820fd0bd29b5ebc5228b395119530f6866df874bdf9a76a483777`.
+
+Two earlier grid drafts were rejected before GPU work: one exceeded contact
+spacing at 0.251 mm (log SHA-256
+`17b619f5b17f9128598225136393aad004405e15d6518c21d19ca0bf9711caa9`); the
+next omitted the ±8 mm incision endpoints (log SHA-256
+`0063de711b9c7018832531002cb4db05091dd3aaa87f073b5c03572e8cc9ed8d`). The
+accepted layout retains those required nodes and coarsens only the transverse
+far field.
+
+Exploratory reduced-mesh contact budgets of 4/0, 5/0, 6/0, 7/0, and 4/4
+completed their simulated horizons but ended at 3.242, 3.023, 2.483, 4.673,
+and 7.780 mm/s, respectively. All exceed the 2.0 mm/s endpoint bound and are
+rejected despite their lower GPU times. Their run-log SHA-256 values are
+`1f37c7ffff351a3625262a937a9d5ac7de2990e8e57d808edea2ad9281da8166`,
+`155e40cf5f5554a39bb295244413d14faf2b9b1fe237bac6395bc8ccad0f00a`,
+`39ce6be80dfdb656220b605ad905ed1d054410daa5973dab2867cdedcb17469d`,
+`a7f43edc2fd75a9cac0a65f25b6544f9713902e93ee61a85adf8ab4e5ad5babc`, and
+`912022e59c448b30a63e8cebb60bd793ff7b5b3fde8f6ab3330159428da1d35c`. A
+single one-pass smoother run retained the accepted state hash at 33,002.687
+ms (run-log SHA-256
+`e5f491a5cdd4f5591f1830fddeff3f0531c979d6b44d3b5ae245fe1c9865b126`), but was
+not repeated and is not counted as an additional speedup. The
+100x performance objective remains open.
+
+### Metal System Trace of the earlier 14 x 14 passage — 2026-10-02
+
+A diagnostic Metal System Trace was captured on the final-gated 14 x 14 binary
+and completed that reduced-mesh passage with state hash
+`0x1a37cc2b6298b0d9`. Profiling overhead raised its measured GPU time to
+33,137.102 ms, so it is not used in the speed comparison. The exported GPU
+intervals total 33,165.562 ms: eight coupled Matter/MetalWorld intervals use
+33,129.263 ms (99.89%), while rigid-only work uses 32.735 ms and other GPU
+intervals use 3.564 ms. These coupled labels span the persistent graph from
+contact broadphase and island construction through the temporal-cone solve,
+rod integration, and Matter publication.
+
+The trace exposes command-buffer intervals but no per-dispatch durations or
+kernel names. Its GPU execution-point table contains timestamps and submission
+IDs only, and encoder-list durations measure encoding rather than GPU work.
+The capture therefore locates the cost in the coupled graph but cannot
+separate broadphase, contact assembly, solver, FEM, and rod costs. The saved
+`.trace` package is 473 MB and took about 4.5 minutes to finalize; its files
+are under
+`/Users/n/numi-skin-suture-perf-100x/profiles/suture-passage-final-gate-20261002/`.
+The run log SHA-256 is
+`e117dd78abe6a6be72b2d6c725dbbccdf609d9be6d9de4619c0207be830a9229`; the GPU
+interval export SHA-256 is
+`1bcb89ad8cff05a94149f73ae493779fd47f7bebf05ef17975f563e6fbdecbec`. The
+100x objective remains open because this profile does not resolve an
+individual kernel bottleneck to target. This profile predates the 14 x 12 baseline and the local-preserving
+14 x 10 candidate below.
+
+### Previous 14 x 12 far-field passage — 2026-10-02
+
+The reduced-far-field flag previously selected a 14 x 12 x 8 grid with
+8,064 tetrahedra, 25% fewer than the compact 14 x 16 x 8 mesh. It is retained
+here as the comparison baseline for the local-preserving 14 x 10 layout below. Incision endpoints,
+end supports, bite-spacing anchors, specimen extent, and all eight thickness
+layers remain. Local spacings are 0.1675, 0.1880625, and 0.1875 mm, all within
+the 0.200 mm contact-band limit.
+
+Two source- and binary-matched Mac mini runs passed the strict endpoint
+certificate with one Newton iteration and an 8x/8/0 contact budget. They
+produced the same state hash `0xa1914183f7c8a37d`, formed 12 linked channels,
+retained all 8,064 tetrahedra with no removed tissue mass, advanced the tip
+1.855291 mm, reached 0.219291 mm distal clearance and 19.983936 mm/s terminal
+speed, and ended at 1.879475 mm/s residual with zero cone violation. Minimum
+determinant was `0.999997377`; failed steps were zero. GPU times were
+32,590.066 and 32,504.370 ms (32,547.218 ms mean; 0.263% spread), 1.031x over
+the 33,548.556 ms compact one-Newton mean. This is a repeatable but small
+gain; the 100x target remains open.
+
+Reproduce on the Mac mini with:
+
+```sh
+./build/bin/metalrobo_dual_psm_suture_handoff_probe \
+  --tissue-suture-passage-only --synthetic-skin \
+  --synthetic-skin-reduced-far-field-mesh \
+  --synthetic-skin-newton-iterations 1 \
+  --velocity-iterations 8 --final-velocity-iterations 0
+```
+
+The passing logs are
+`/Users/n/numi-skin-suture-perf-100x/runs/reduced-far-field-y12-passage-8x-8i0f-newton1-r15-20261002/run.log`
+and
+`/Users/n/numi-skin-suture-perf-100x/runs/reduced-far-field-y12-passage-8x-8i0f-newton1-r16-20261002/run.log`,
+with SHA-256 values
+`9be51aba577c4c6b5bc514bdbc645dd59bd80dfcc23e27f9aef381948292049d` and
+`93a54a9e63c6a26bbb11975cbbd42c861e4cf79d2b8405011916760c427f2d14`.
+The current probe source and rebuilt Mac mini binary SHA-256 values are
+`83906be7b0a14f11892015dc76d825af2fef59d324b29ca3ceec747afc8f00aa` and
+`6fd38b453b5464d2ed4a1a9366cec234e23a2821d17db3e12986d4eda77a3bc0`.
+
+A previous 14 x 10 x 8 node map passed geometric passage once at 32,215.217
+ms but is rejected: it shifted entry impulse to `1.05196e-5 N s` (about 9.5x)
+and raised minimum contact-node mass from `3.23e-9 kg` to `3.07e-8 kg`. It
+coarsened the local bite map and is distinct from the local-preserving 14 x 10
+layout qualified below. Its run log SHA-256 is
+`81ed6f33d6ba5f8845a12504e8e3f83ec245b8578fb28efc59c5fd6a94ae1a2a`; source
+and binary SHA-256 values were
+`c4e99a9cc4025eeb3cf74ece18127002456797e9b76d2946a5863636afa591e5` and
+`c0189ae5dfbfde9b85db362d3bcd75a0f91852506cba5ee020f5e3e1e0b99606`.
+
+### Wave32 normal-row Cauchy bound — rejected (2026-10-02)
+
+The exact absolute-normal row sum in `mrWorldWave32SolvePacket` scans every
+source contact for every target row. A candidate replaced that scan with a
+Cauchy–Schwarz upper bound formed from the square roots of rigid normal
+diagonals and one cohort reduction per island. The baseline and candidate
+were built from the same isolated Mac mini source snapshot at HEAD
+`8ce44aca14f850dc05259c93d5d723e255ae3237`, including the same dirty
+application and Matter sources; only `MetalWorldContact.metal` differed.
+The baseline shader source SHA-256 is
+`9dc66e39aa8f98c67d6a0e1e2a4503aaf42fcd1dcfce569480e7e78d81cfb25c`, and
+the candidate is `33fb5458d22ce5092fdae1cdd686c6d4ebd47fdb8e2f41c9383218bbefa9c119`.
+The corresponding `MetalRobo.metallib` hashes are
+`b27c17089eebc0af865ba4d47198d84e6a609b284202a674480bbf6ba175d997` and
+`c73acb779b6e2e5b1168e5f48ded8fde55a0b226616c6d152a23b1c418600258`.
+
+Three matched 16x/one-Newton, 8/0 cadence probes gave median GPU times of
+376.224 ms for control and 375.569 ms for the candidate, a 0.17% difference.
+Each retained 27,648 tetrahedra, one puncture channel, 143 MetalWorld
+constraints, the same 0.00186694 m/s normal residual, and zero failed steps.
+This short probe had zero active tissue contacts. The six logs are under
+`/Users/n/numi-skin-suture-perf-100x/runs/goal-wave32-{control,candidate}[-r2|-r3]-20261002/`;
+their SHA-256 values, in control then candidate order, are
+`bd8c8ab428da2be3c110c51c696ef7fe6c2cbbdb30063ee795fa3dc10d0d4463`,
+`affd921fa2043be596f3a627e34ca188fd01159fc3c8d792573ef7eb2449ac2f`,
+`c9c5149cc45e6a754379264f3e21c686a30b8afca7c1fda622b420e82aefc745`,
+`c2f3c81ab3e8f4ca5baa4d408fc2978cdc373052a9f98bfbe498bd5ccb0945dc`,
+`501904c1964a51555366f13bb68506a2a202076a3398676b08c9019233e542ee`, and
+`b92d0e77f6eccc7752e138990b2b53882e629cc0ecde95b71db3d5926170c08c`.
+
+One full 14 x 12 x 8, 8x/8/0 passage run per build also passed with the same
+state hash `0xa1914183f7c8a37d`, all 8,064 tetrahedra retained, 12 linked
+channels, 1.879475 mm/s terminal contact residual, and zero failed steps.
+Control took 32,590.250 ms GPU and candidate 32,528.102 ms, a 0.19%
+difference below the 0.263% spread of the prior source-matched repeat pair.
+The control and candidate passage log SHA-256 values are
+`6c72fbeb362210685897374be698dfb621a8b271adaf26d7225d52879cdce556` and
+`390c4b741a1a5edb294fc643d9282edc1235e3c44bbe379a30747fc7d1901d7d`.
+Because the candidate did not produce a repeatable throughput gain, its
+shader change was reverted. The full-stitch 100x objective remains open.
+
+
+### Local-preserving 14 x 10 far-field passage — 2026-10-02
+
+The revised `--synthetic-skin-reduced-far-field-mesh` layout keeps the full
+14-cell longitudinal map, all incision and end-support nodes, the full eight
+thickness layers, and every transverse node within the two bite neighborhoods.
+It removes only the distant transverse nodes at +/-7.5 mm and joins the
+remaining far field to the unchanged +/-3.75 mm local nodes. This yields a
+14 x 10 x 8 mesh with 6,720 tetrahedra (16.7% fewer than the prior 14 x 12 x
+8; 37.5% fewer than the compact 14 x 16 x 8). The local spacings remain
+0.1675, 0.1880625, and 0.1875 mm. The one-step entry diagnostic matched the
+14 x 12 entry impulse at `1.1079010846515303e-6 N s`, the minimum contact-node
+mass at `3.2320513586923359e-9 kg`, and the same accepted entry state; all
+6,720 tetrahedra remained and removed tissue mass was zero. The entry log SHA-256
+is `f7077d11d77d3cc83dadae288ac83b69068b5f4179d45e52a39d8ff8ce88a730`.
+
+Two full 8x/8/0, one-Newton passages passed with the same state hash
+`0x8623d3dfc8df0407`. Both retained all 6,720 tetrahedra and zero tissue mass,
+formed 12 linked channels, advanced the tip 1.855291 mm, reached 0.219291 mm
+distal clearance and 19.983936 mm/s terminal speed, and ended at 1.879475 mm/s
+contact residual with zero cone violation. Minimum determinant was
+`0.999997377`; maximum matter residual was `8.32791685e-8`; failed steps were
+zero. GPU times were 32,175.837 and 32,208.171 ms (32,192.004 ms mean; 0.100%
+spread), 1.011x over the prior 14 x 12 mean of 32,547.218 ms. The state hash
+differs from 14 x 12 because the meshes differ. This is a repeatable but small
+gain; the 100x target remains open.
+
+Reproduce on the Mac mini with:
+
+```sh
+./build/bin/metalrobo_dual_psm_suture_handoff_probe \
+  --tissue-suture-passage-only --synthetic-skin \
+  --synthetic-skin-reduced-far-field-mesh \
+  --synthetic-skin-newton-iterations 1 \
+  --velocity-iterations 8 --final-velocity-iterations 0
+```
+
+The passing logs are
+`/Users/n/numi-skin-suture-perf-100x/runs/reduced-far-field-y10-local-bite-map-passage-r2-20261002/run.log`
+and
+`/Users/n/numi-skin-suture-perf-100x/runs/reduced-far-field-y10-local-bite-map-passage-r3-20261002/run.log`,
+with SHA-256 values
+`06a316958bf65a2c7c93b68d2e039e7049baaccd84be8af676ad8dad580840c7` and
+`9a11875efc7e36cbde84bb62dc08a94e160083d0cfcd1bd009bcca73d0f689be`. The entry
+log, source, runtime, rebuilt probe binary, and Matter metallib SHA-256 values
+are `f7077d11d77d3cc83dadae288ac83b69068b5f4179d45e52a39d8ff8ce88a730`,
+`4ad9dc85d21dbeb815fdcfe8e8c6c265a6e7040b1f554bb14caab8d084fd48c2`,
+`b94b6da18e8b705b1cd0e96391263a28fd5d83acf5c39539722cccd2faccd23d`,
+`80064a5a6fe1661140fc1e33fd1dfe65b684f9916889d83c3926639c4ce95d2d`, and
+`859e81cd0fdeb4820926f285d27c48960a96d1a73ed9f4bc796f3847ff1ce633`.
+
+### Other measured dispatch and cadence trials — 2026-10-02
+
+A runtime guard omits sparse MPM setup, scans, and indirect kernels when the
+compiled world has zero MPM particles, blocks, and active-node capacity. The
+full passage fixture reported all three capacities as zero. The MPM freefall
+CTest passed in 158.39 s, preserving the MPM-enabled path. On the 14 x 12
+passage, the guarded candidate measured 32,660.668 ms versus 32,595.741 ms for
+control (+0.199%); this is within the prior 0.263% run spread and is not a
+demonstrated speedup. Its Matter metallib matched control at
+`859e81cd0fdeb4820926f285d27c48960a96d1a73ed9f4bc796f3847ff1ce633`.
+
+A four-substep local-skin cadence doubled the passage to 372 groups from 188
+while leaving total DER substeps nearly unchanged (1,488 versus 1,504). The
+GPU chunks summed to 35,188.280 ms and the endpoint was rejected: terminal
+contact residual was 8.103992 mm/s (limit 2.0 mm/s) and distal clearance was
+0.199994 mm (limit 0.200 mm). A 12 x 10 longitudinal/transverse mesh trial was
+also rejected before GPU work because it removed a required incision end
+support. Neither trial is included in the performance result above.
+
+### Canonical neo-Hookean stress fast path — small gain (2026-10-02)
+
+For the compiler-marked exact canonical neo-Hookean energy with its canonical
+parameter layout, no internal material state, and no viscous stress program,
+the FEM stress evaluator now computes the closed-form first Piola stress
+directly. Other material programs retain the existing evaluator. This removes
+nine generated scalar-program evaluations per element only for the exact
+guarded material case.
+
+A fresh 8x/8/0, one-Newton control passage took 32,210.914 ms GPU. Two
+source-matched candidate repeats took 32,080.680 and 32,062.371 ms (32,071.525
+ms mean, 0.43% faster than control). After syncing the final probe source to
+the Mac mini and rebuilding, a third full passage took 32,000.441 ms GPU. All
+three candidate runs produced state hash 0xd178249698f5b1e4. The rebuilt-source
+run passed the full endpoint gates: 188 groups and 1,505 DER substeps; all
+6,720 tetrahedra retained; 12 channels and 11 links; zero removed mass;
+1.855291 mm tip advance; 0.219291 mm distal clearance; 19.983936 mm/s terminal
+speed; 1.879475 mm/s terminal contact residual; zero cone violation; minimum
+determinant 0.999997377; maximum Matter residual 8.32470874e-8; and zero failed
+steps. The third run is a rebuild confirmation, not an additional matched
+control pair.
+
+Reducing the synthetic-skin field smoother from three passes to one also
+passed with the same state hash and endpoint metrics, at 32,040.779 ms GPU.
+That single run does not establish a speedup. The 100x target remains unmet.
+
+Control and two-repeat fast-path log SHA-256 values are
+9fa7f0585ff6a61a3e1f659ece32a63c37e35f92d54ebdd802e5a879de894ae9,
+ea5f15ac42521c30b4e295ac248acb2766b5851952e39f648c36a63d7d258b75, and
+b50eb016c4b2c53943f09f9a24fb76fcdbfd2785a07ce672a3282fedfe151896. The
+rebuilt-source passage and one-pass smoother logs hash to
+0923a1672b35a763de72f36f84e91fb33778d6bc4ce50c4fccb8e5d015f519fe and
+50756fc2b7be9f9a08b6b9fa86f0aae11e1f048f8ba91e399d39990b9cc7c440.
+Their run directories are under
+/Users/n/numi-skin-suture-perf-100x/runs/ on the Mac mini. The exact current
+probe source, stress shader, probe binary, and Matter metallib SHA-256 values
+are 4ad9dc85d21dbeb815fdcfe8e8c6c265a6e7040b1f554bb14caab8d084fd48c2,
+07e5ccfc371fb3239d720f848ac4410a16003b2e517cecf6b0b5ae7874ac6e36,
+80064a5a6fe1661140fc1e33fd1dfe65b684f9916889d83c3926639c4ce95d2d, and
+4b24ba6845caab23d3b51cbc5e16b061e532f0ad0c5a622588f48b16412d2762.
+
+A four-layer through-thickness trial was rejected by the existing entry-mesh
+contact-resolution gate before GPU submission: 0.375 mm layer spacing exceeds
+the 0.200 mm strand-contact reach. The qualified eight-layer resolution is
+therefore the current minimum for this contact map; no full passage was spent
+on the rejected mesh. The entry log SHA-256 is
+3f631d76c3301578eef919419252cd7e27bb93f4057cb0a9f3436154c53a01bb.
+
+The Mac mini exposes a timestamp counter set but the Metal driver rejects
+dispatch-boundary counter sampling through the tested legacy compute/blit
+path. A prior temporary stage-boundary pass did collect per-encoder timestamp
+ticks for the entry transaction, which exposed topology certification,
+conservation, mass rebuild, and scatter costs; that instrumentation is not in
+the current executable. The passage System Trace provides command-buffer
+intervals, not individual dispatch durations. Treat the old entry breakdown as
+diagnostic evidence for that entry workload, not as an attribution of the
+through-wall passage. Further performance trials should use a retained,
+source-matched stage-boundary profile instead of broad parameter sweeps.
+
+### Fresh 16x one-Newton post-entry cadence control — 2026-10-03
+
+Three source- and binary-matched Mac mini runs used
+`--tissue-suture-cadence-16x-one-newton-only --synthetic-skin
+--velocity-iterations 8 --final-velocity-iterations 0`. GPU times were
+410.074917, 410.010625, and 409.968375 ms (410.017972 ms mean, 0.026% spread).
+Against the original 1x/3,375.995 ms reference, this is 131.7x simulated-time
+throughput for this post-entry cadence state, below the 540.159 ms per-step
+100x threshold by 130.141 ms.
+
+All three runs reported the same physical values: a 16x grouped timestep of
+1 ms; 19.965429 um needle advance against 20.000001 um expected; one active
+puncture channel; all 46,080 tetrahedra retained; zero removed tissue mass;
+minimum determinant 0.999997377; Matter residual 2.46819468e-6; nine Matter
+FGMRES iterations; 143 rigid constraints; eight MetalWorld solver iterations;
+and 1.86694006 mm/s terminal normal residual, under the 2.0 mm/s bound. The
+cone violation was 5.96e-8 and failed steps were zero. Matter reported zero
+active tissue contacts, so this is a post-entry cadence result, not a
+contact-loaded passage or full-stitch performance qualification. The full
+through-wall passage remains about 32 seconds; the 100x end-to-end goal remains
+open.
+
+The logs are
+`/Users/n/numi-skin-suture-perf-100x/runs/goal-fgmres-readfusion-control-8i0f-20261003/run-{1,2,3}.log`
+on the Mac mini. Their SHA-256 values are
+`b2d09d02c8ed604e127586e69cb4797cca16fa625f12e29d0322957beed57cfe`,
+`2b45d0f9083166aa85abc2c77e5e5be8a0f2c4439f7cba5b641eb3b59970d179`, and
+`1aac4b10b78f578bdbaa56913b3ef8e550b6779ed1b93f9997cd5b203eb6ee3a`. The
+probe source, FGMRES source, canonical stress source, executable, and Matter
+metallib hashes are `4ad9dc85d21dbeb815fdcfe8e8c6c265a6e7040b1f554bb14caab8d084fd48c2`,
+`f26bf768162d3bf439159c13b8d3e674e67988a52e707be08c7def619f73fd32`,
+`07e5ccfc371fb3239d720f848ac4410a16003b2e517cecf6b0b5ae7874ac6e36`,
+`80064a5a6fe1661140fc1e33fd1dfe65b684f9916889d83c3926639c4ce95d2d`, and
+`4b24ba6845caab23d3b51cbc5e16b061e532f0ad0c5a622588f48b16412d2762`.
+
+### Generalized rod-attachment prefix cache (rejected) — 2026-10-03
+
+An exploratory shader trial replaced repeated scans of earlier authored
+constraints with translation and twist attachment prefix counters in the
+ordered generalized solve. It compiled and completed the full 14 x 10 x 8
+reduced-far-field passage without changing the endpoint: 188 groups, 1,505 DER
+substeps, 6,720 active tetrahedra, 12 connected puncture channels, 0.219291 mm
+distal clearance, 1.879475 mm/s terminal contact residual, and zero failed
+steps. The state hash remained `0xd178249698f5b1e4`. Matter reported zero
+active tissue contacts and only `4.65661287e-10 m` maximum tissue displacement,
+so this is passage timing rather than a load-bearing deformable-skin benchmark.
+
+The matched control took 75,437.4895 and 75,451.1827 ms GPU (75,444.3361 ms
+mean); the prefix candidate took 73,056.7417 and 80,240.4299 ms (76,648.5858
+ms mean, 1.60% slower). The candidate's spread is too large to support a
+small performance claim, so the change was rejected. This pair was
+exploratory, not preregistered. The probe and shared library were identical
+across arms; the control and candidate shader sources hash to
+`8e41245251bc812a7d7af21565262556f93d7a841b354e5a21801c3f3b95acd6` and
+`30fa1607ee8287bd92249ab5736c0db07e9b6ed3806fe098fcb53b96e79e82a3`.
+The probe hash was
+`e9b0522d45d4da83613d4a31a3924aef7a91e242e7b4bbe57c04561355033c6a` and the
+shared-library hash was
+`5a297c6f580b4f0a41a4079de18fb1500fb6c637de76e4134374f654483ea2e6`.
+
+On the Mac mini, the current control pair is more than twice as slow as the
+previous 31,674 ms matched runs, although the new control repeats agree within
+0.02%. The host reported no thermal or performance warning, but its GPU was
+already at 14% utilization in an idle snapshot. Treat cross-session timing as
+confounded until a source-bound profile explains the shift. The exact control
+source and metallib were restored in the isolated run tree; the experimental
+source, rebuilt metallib, four full-passage logs, and build receipts remain in
+`/Users/n/numi-skin-suture-perf-100x/runs/goal-wave32-distributed64-20261003/`.
+The prefix metallib reconstructed from its retained source hashes to
+`b857990be7abf1c427e215f41b12893640caf3d608689276f81b5ce914340984`; the
+restored control metallib hashes to
+`fa9c48a4cb93f6846735aaf27913d19a0188cdf3f7bdfca9207a4bc62470877f`.
+Neither this solver micro-change nor the 100x whole-stitch target is accepted
+by these results.
+
+### Canonical stress fast path in an unused FEM helper — rejected
+
+A follow-up tried the canonical neo-Hookean stress/tangent fast path in
+`fusedFEMOperatorAtNode`. Source inspection found no call sites for that helper.
+Although the intermediate AIR files differed, control and candidate linked to
+the same `NumiMatter.metallib` SHA-256
+`4b24ba6845caab23d3b51cbc5e16b061e532f0ad0c5a622588f48b16412d2762`, so the
+candidate did not change the executable GPU program. I reverted the source
+change and count this as no performance result. The source and build artifacts
+are retained under
+`/Users/n/numi-skin-suture-perf-100x/runs/goal-fem-force-fastpath-20261003/`.
+
+### FGMRES cap on first synthetic-skin entry — bounded diagnostic
+
+The existing `--synthetic-skin-fgmres-iterations N` override now also applies
+to `--tissue-suture-entry-only --synthetic-skin`; it remains opt-in, and the
+default FGMRES budget is unchanged. On the Mac mini, five counterbalanced
+control/candidate pairs compared the default ten-iteration solve with a
+one-iteration cap on the same 30 x 32 x 8 synthetic-skin first-entry event.
+The order alternated between control-then-candidate and candidate-then-control.
+Mean GPU time fell from 713.785 ms to 433.522 ms, a 1.65x event speedup and
+39.3% lower mean time. The candidate was faster in all five pairs; median
+paired speedup was 1.61x.
+
+All five candidate runs formed the same three active needle-tip contacts and
+matched the control's normal and axial contact impulse fields exactly. Each
+retained the puncture channel and all 46,080 tetrahedra, removed no tissue
+mass, and had zero failed steps. The candidate used one FGMRES iteration,
+reported a positive minimum determinant of `0.999999821` and Matter residual
+`2.84217117e-6`. Its accepted-state hash differs from the default result
+(`0x958ea835321e8fdd` versus `0xa3ddb432216e32de`); maximum sampled tissue
+displacement changed from `0.931 nm` to zero. This is a bounded first-contact
+step with sub-nanometer tissue motion, not a completed stitch or a
+load-bearing deformable-performance qualification.
+
+The focused `metalrobo.surgical.live_suture_tissue_entry` CTest passed. The
+counterbalanced run logs, exact source/build hashes, and summary are retained
+under
+`/Users/n/numi-skin-suture-perf-100x/runs/goal-entry-fgmres-cap-20261003/`.
+The full through-wall passage and end-to-end suturing task remain far from
+100x; no production solver default changed.
+
+### Lower temporal-cone iteration budgets — rejected — 2026-10-03
+
+The retained full-passage profile localized about 9.5 seconds of the earlier
+32-second run to 1,505 Wave32 temporal-cone stages (8 iterations per stage,
+about 6.37 ms median). Matter post-commit work was about 73 ms across the
+passage, so reducing Matter solve cadence is not a high-impact target. The
+Metal System Trace still groups the rest of the persistent world graph into a
+coarse interval and does not identify the remaining per-kernel cost.
+
+On the Mac mini, the 14 x 10 x 8 reduced-far-field probe was rerun from the
+same control executable and linked libraries used by the retained 8-iteration
+control (`probe` SHA-256
+`e9b0522d45d4da83613d4a31a3924aef7a91e242e7b4bbe57c04561355033c6a`,
+`MetalWorldContact.metal` SHA-256
+`8e41245251bc812a7d7af21565262556f93d7a841b354e5a21801c3f3b95acd6`).
+That control completed in 75.45 s GPU time. One iteration completed the same
+188 passage groups in 19.92 s wall time; four iterations took 25.57 s. Both
+reached the geometric through-wall tract checks, retained all 6,720
+tetrahedra, removed no tissue mass, and had zero active tissue contacts, but
+both were rejected by the terminal solver gates. The one-iteration terminal
+velocity residual was `0.161066681 m/s`; four iterations produced
+`0.00324214832 m/s`, above the `0.002 m/s` limit. Both ended at
+`0.019968 m/s` tangent speed, 32 um/s below the 20 mm/s target and outside its
+20 um/s tolerance.
+
+Two hybrid budgets, four base iterations plus four or eight extra iterations
+on each transaction's final substep, also failed: terminal residuals were
+`0.00777965831` and `0.00657229219 m/s`, with the same terminal-speed miss.
+The runs took 26.38 s and 27.11 s wall time. These faster measurements are
+diagnostic only: the cases fail physical acceptance, do not establish a
+counterbalanced speedup, and show effectively zero skin deformation. No
+solver default or production behavior changed.
+
+The four logs and source/library manifests are retained under
+`/Users/n/numi-skin-suture-perf-100x/runs/goal-wave32-velocity{1,4}-20261003/`
+and `.../goal-wave32-velocity4-final{4,8}-20261003/`. The next high-value
+work is a source-bound profile inside the remaining persistent world graph,
+then a convergence-preserving reduction in dependent DER substeps; further
+fixed iteration-budget reductions do not meet the existing endpoint gates.
+
+### Contact-kernel stage profile and parallel rod publication trial — 2026-10-03
+
+An opt-in Metal timestamp probe sampled 2,085 named contact-kernel encoders
+across the first passage substeps, covering 38 kernel labels. The five largest
+sampled medians were 1.899 ms for the pre-contact typed scalar IR sweep,
+1.509 ms for transactional rod publication, 1.396 ms for parallel authored
+rod responses, 1.184 ms for 32-contact tile construction, and 1.043 ms for the
+canonical generalized ConstraintIR solve. The probe run used four velocity
+iterations and took 63 seconds with instrumentation enabled; it failed the
+existing solver gates and is profile data only, not a performance result.
+
+The rod-publication kernel visibly copied every rod node and edge in a single
+GPU thread. An experimental rewrite dispatched one thread per node or edge
+while preserving the environment's transactional commit/rollback selection.
+The focused `metalrobo.surgical.live_suture_tissue_entry` CTest passed. A
+source-isolated full-passage control/candidate pair both passed all gates and
+produced the same state hash, `0xd178249698f5b1e4`. Control GPU time was
+31,652.475 ms; candidate time was 31,631.908 ms, a 0.065% difference that
+does not establish an improvement. The case still had zero active tissue
+contacts and only `4.65661287e-10 m` maximum skin displacement. I reverted
+the kernel rewrite and retained no production change.
+
+The first attempted pair was discarded because the executable's absolute
+runpath loaded the candidate shared library for both arms. The accepted pair
+used per-arm `DYLD_LIBRARY_PATH` directories and matching metallibs; loader
+output confirmed each selected its own `libmetalrobo.dylib`. Source, binary,
+library, metallib, CTest, and passage logs are retained under
+`/Users/n/numi-skin-suture-perf-100x/runs/goal-rod-commit-parallel-20261003/`.
+The profile artifacts are under
+`/Users/n/numi-skin-suture-perf-100x/runs/goal-contact-kernel-stage-profile-20261003/`.
+The 100x whole-stitch target remains open; the remaining major kernels need a
+convergence-preserving algorithmic reduction, and the present passage remains
+a free-needle diagnostic rather than load-bearing deformable performance.
+
+### Wave32 articulated Jacobian projection reuse — diagnostic only — 2026-10-03
+
+The Wave32 block setup now reuses each target row's articulated Jacobian
+projection while forming the effective 3 x 3 response. A first pair of
+retained runs under `goal-wave32-jacobian-projection-cache-20261003` is
+excluded: its source snapshot had the candidate shader, but the saved build's
+`MetalRobo.metallib` was the pre-change image. A fresh control and candidate
+build were made from the same source tree, differing only in
+`MetalWorldContact.metal` (control SHA-256
+`0623eb63aedead318cd13a69119b3763305580988e17eb08684d0b843bc22c50`,
+candidate SHA-256
+`8e41245251bc812a7d7af21565262556f93d7a841b354e5a21801c3f3b95acd6`).
+The resulting MetalRobo metallibs differ (`90cd7e9d...` control,
+`fa9c48a4...` candidate), while both arms use the same probe binary and
+NumiMatter metallib. Loader output confirmed each arm loaded its own shared
+library and shader image. The full control/candidate library hashes are
+`65e40cbe83f92a2719b9d7054f0cc3351ec91d9cb5f150b59879c20c574fea74` and
+`0701c6b7eb93eda3aabdc49f579bbfa60b1284e42ebbc93654fdc2685598cbc8`; the
+metallib hashes are
+`90cd7e9d90ac50620c618c118ea09a477e3819641b1ce51f51a94820f1857b99` and
+`fa9c48a4cb93f6846735aaf27913d19a0188cdf3f7bdfca9207a4bc62470877f`.
+Both runs used probe SHA-256
+`dde2d504125e5291905493504d6289ca16585bdc9d62219a49d4c3cd67a62ebb` and
+the same NumiMatter metallib SHA-256
+`4b24ba6845caab23d3b51cbc5e16b061e532f0ad0c5a622588f48b16412d2762`.
+
+Two counterbalanced pairs ran the same reduced-far-field synthetic-skin
+passage at eight velocity iterations and zero final iterations. Both arms
+passed all 188 groups with the same state hash
+`0xa44b6385e7e6aae3`, 1,505 DER substeps, a 1.879475 mm/s terminal residual,
+and zero failed steps. GPU passage time was 34,724.858 ms control versus
+34,492.471 ms candidate in the first pair, then 84,357.472 ms control versus
+83,104.976 ms candidate in the reversed pair: nominal candidate reductions
+of 0.67% and 1.48% (1.25% on the paired means). Wall time did not consistently
+improve (35.15 s versus 35.52 s, then 85.13 s versus 83.51 s), and absolute
+passage time varied 2.4x between pairs. This does not establish a dependable
+speedup.
+
+Both runs still had zero active tissue contacts and only `1.16415322e-10 m`
+maximum tissue displacement, so this remains a free-needle diagnostic. The
+shader change is retained only as an experimental candidate; no 100x claim,
+load-bearing skin result, or production qualification follows from it. The
+32/16 run in `control-r1.log` is also excluded because it omitted the 8/0
+iteration overrides and failed the terminal residual gate. Source, binaries,
+matching metallibs, build logs, and all run logs are retained under
+`/Users/n/numi-skin-suture-perf-100x/runs/goal-wave32-jacobian-projection-paired-20261003/`.
+
+### Runtime rod-attachment prefix metadata — rejected — 2026-10-03
+
+The scalar generalized solve repeatedly scanned immutable authored blocks to
+find rod-response cache slots. A candidate counted translation and twist
+attachment prefixes once while seeding the per-step runtime IR copy, then read
+those slots in the ordered solve. Canonical ConstraintIR, its zeroed reserved
+words, and the solver order were unchanged. The source change was confined to
+`MetalWorldContact.metal` (control SHA-256
+`8e41245251bc812a7d7af21565262556f93d7a841b354e5a21801c3f3b95acd6`,
+candidate SHA-256
+`c0d60c45d894612353890518df108e457e8e8919d9e7504443e91dccf6600c07`).
+Fresh control and candidate metallibs differed, and loader output confirmed
+the candidate arm loaded its own library.
+
+One candidate run at eight velocity iterations and zero final iterations
+passed all 188 through-wall groups and matched the prior control state hash
+`0xa44b6385e7e6aae3`, with zero failed steps and 1.879475 mm/s terminal
+residual. Its GPU time was 34,447.615 ms and wall time 36.01 s. The nearest
+same-source control run took 34,492.471 ms GPU and 35.52 s wall: a 0.13% GPU
+difference with slower wall time. The other exact control run took
+83,104.976 ms GPU, showing the same 2.4x run-to-run spread seen in the prior
+pair. This is not a dependable speedup. I removed the prefix-metadata shader
+change and restored the pre-experiment source; the candidate remains in the
+run artifacts for reference.
+
+The passage still had zero active tissue contacts and only
+`1.16415322e-10 m` maximum tissue displacement. It does not qualify
+load-bearing deformable performance or move the 100x whole-stitch goal. The
+source, distinct builds, loaded libraries, passage log, and checksums are under
+`/Users/n/numi-skin-suture-perf-100x/runs/goal-generalized-attachment-prefix-metadata-20261003/`.
+
+### Residual-guarded generalized PGS early exit — measured candidate — 2026-10-03
+
+The ordered generalized ConstraintIR solve stops after a complete sweep only
+when its measured maximum row residual is at or below 1 mm/s. The configured
+velocity-iteration budget remains the ceiling; sweeps continue while the
+residual exceeds this stricter cap. This preserves the ordered updates and
+residual gate while avoiding unused sweeps after convergence.
+
+On the Mac mini, two counterbalanced 8/0 reduced-far-field synthetic-skin
+passages ran from the same transferred source snapshot. The control took
+34,626.715 and 34,533.417 ms GPU; the candidate took 32,039.591 and
+32,113.171 ms. The paired mean fell from 34,580.066 to 32,076.381 ms, a
+repeatable 7.24% reduction (1.078x). Both control runs passed all 188 groups
+and produced state hash `0xa44b6385e7e6aae3`; both candidate runs passed and
+produced `0x66f27c3575af300c`. Endpoint tract geometry, 12 connected channels,
+all 6,720 tetrahedra, zero removed mass, tip advance, speed, and terminal
+residual remained within the same acceptance gates. The differing state hashes
+mean this is not a bitwise solver substitution.
+
+The full passage had zero active tissue contacts and only `1.164e-10 m`
+maximum tissue displacement, so its timing is a free-needle passage diagnostic,
+not load-bearing deformable-performance evidence. The focused
+`metalrobo.surgical.live_suture_tissue_entry` CTest passed for both builds. An
+additional matched synthetic-skin entry run retained the same three tip
+contacts and normal/axial impulses, all 46,080 tetrahedra, zero removed mass,
+the same Matter residual and minimum determinant, and sub-nanometer tissue
+motion; its accepted state hash differed. Its single GPU timing was 581.893 ms
+control versus 550.150 ms candidate, so the 5.45% entry reduction is diagnostic
+only. Neither result establishes a 100x whole-stitch speedup or a load-bearing
+stitch.
+
+The control and candidate sources differ only in `MetalWorldContact.metal`,
+hashes `8e41245251bc812a7d7af21565262556f93d7a841b354e5a21801c3f3b95acd6`
+and `34d892b57bcc4ab967a9ef106b66b839ae0ce4dbcea2a4c6d7e3eb2281acf4f2`.
+The transferred probe source SHA-256 is
+`2ad8bf3c80e5ff0a0457bc6f570cf1e147470196bc5b84cac29ad23aff3e6d79`; the
+control/candidate probe binary hashes are
+`2025835e5b715efa78b444d735104e9bea8377e323ede1e45b7cc7325c41736c` and
+`06e8d49cc352b001f7c3fab0baea66ccfb37cd0543fdf6f74915356c32cdd63e`.
+Runs, builds, and CTest logs are retained under
+`/Users/n/numi-skin-suture-perf-100x/runs/goal-generalized-residual-early-exit-20261003/`.
+The 100x whole-task target remains open.
+
+The candidate load check confirmed dyld selected the candidate build's own
+`libmetalrobo.dylib`. Control/candidate library SHA-256 values are
+`4264f0637cc330df129a801792d812de9e57309b41140928167f4a0a5a08e7dc` and
+`e91c306a8d3b4273a0ae5323446fc8f7eeb1dbe8630fe01f65e404e9efd2fe12`; their
+`MetalRobo.metallib` hashes are
+`fa9c48a4cb93f6846735aaf27913d19a0188cdf3f7bdfca9207a4bc62470877f` and
+`cf283a89ff984b96f8d33b4cc6d78d3dfc8c3a3e3a2812f49ed1a17f5df9e7c0`. Both
+arms use the same `NumiMatter.metallib`, SHA-256
+`4b24ba6845caab23d3b51cbc5e16b061e532f0ad0c5a622588f48b16412d2762`.
+The four passage log hashes are `bb46a415e5f2d3ce0315f28a89aa97fdadd1d4aa781616ddc5cd89f4f9bc6cf8`,
+`4a60a558092b48727ac8bcc42388cc5885e9374d9ab733df301ff9f7cafc71d4`,
+`cb8c23cbeff3b9c6a5c05472f5bccbb2d3df70b3d042fe9adc763c232ffa22b0`, and
+`772599ac67b6d534296c48714fadfc1217609fbdb07fc71ae6cd4805b1f53408` in
+control-1, control-2, candidate-1, candidate-2 order.
+
+### Bounded cadence escalation screen — rejected above 8x — 2026-10-03
+
+I extended the external coupled-cadence setter and snapshot validation to
+accept bounded integer multipliers, then screened 9x and 12x passage grouping
+against the passing 8x configuration with the same reduced-far-field mesh,
+one Matter Newton iteration, eight velocity iterations, and zero final
+iterations. The focused `matter.runtime.suture_proxy_window` test passed in
+both isolated builds. The setter and snapshot round-trip accept 3x, but the
+full passage acceptance gates remain authoritative.
+
+The isolated 8x control passed 188 groups and retained all 6,720 tetrahedra,
+12 connected channels, zero removed tissue mass, and zero failed steps. It
+still had zero active tissue contacts and only `4.66e-10 m` maximum tissue
+displacement. One 9x screen completed 168 groups, 12 channels/11 links, and
+retained the tissue mass, but failed the terminal contact-velocity bound at
+`0.002651 m/s` against the existing `0.002 m/s` limit. Its completed chunk
+times summed to 70,806 ms versus 70,979 ms for the 8x control, only a 0.24%
+single-run difference before accounting for the failed gate. A 12x screen
+completed 127 groups and also retained the tract and tissue, but its terminal
+contact-velocity residual was `0.025280 m/s`, over 12 times the same limit.
+Its completed chunk times summed to 64,014 ms, but the failed physical gate
+rejects that result. The default remains 8x; cadence coarsening has not shown
+a qualified end-to-end gain.
+
+The first 9x attempt was stopped before simulation because the probe compared
+two independently rounded float timesteps for exact equality. A local
+arithmetic check showed a one-ULP difference (`0x1.26e97ap-11` versus
+`0x1.26e978p-11`, relative `1.03e-7`). The check now permits at most one
+adjacent float while still requiring exact multiplier/divisor identity. The
+rerun passed this configuration check and reached the existing physical
+gate; no physics threshold changed.
+
+The current 8x control took 70,979 ms GPU time, while an earlier 8x candidate
+run took 32,040 ms with the same `MetalRobo.metallib` hash. This 2.2x
+cross-session difference makes absolute timing comparisons unreliable; the
+9x screen also showed essentially no same-session improvement. Use matched
+same-session runs for future performance claims. Raw logs, source/build
+snapshots, loaded-library evidence, and preregistration plans are retained
+under
+`/Users/n/numi-skin-suture-perf-100x/runs/goal-integer-cadence-coarsening-20261003/`.
+The 100x whole-task target remains open.

@@ -3265,6 +3265,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
             environments * state.dispatch.particleCount;
         const NSUInteger mpmActiveNodeTotal =
             environments * state.dispatch.mpmActiveNodeCapacity;
+        const bool hasMPM = particleTotal != 0u ||
+            state.dispatch.mpmBlockCount != 0u ||
+            mpmActiveNodeTotal != 0u;
         const NSUInteger femNodeTotal =
             environments * state.dispatch.femNodeCount;
         const NSUInteger continuumNodeTotal = environments *
@@ -4229,7 +4232,15 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.topologyStatesCheckpoint
                                  offset:0u atIndex:23u];
                 });
-                encodeTopologyRebuild(state.femAccepted);
+                // Authored/cooked mutations may change FEM connectivity or
+                // nodal mass. The detector itself only appends embedded,
+                // mass-conserving physics puncture channels, so when there
+                // are no authored commands the accepted incidence is already
+                // valid and the automatic puncture does not require a rebuild.
+                if (cookedMutationCount != 0u ||
+                    request.mutationCommandCount != 0u) {
+                    encodeTopologyRebuild(state.femAccepted);
+                }
                 encodeTopologyCertificate(
                     state.femAccepted, state.femFieldsAccepted);
             }
@@ -4240,11 +4251,14 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.femFieldsCandidate offset:0u atIndex:2u];
             });
 
+            // Compiled MPM capacities are immutable for this world. Avoid
+            // encoding sparse setup and indirect work when this is a
+            // FEM-only scene.
             const NSUInteger sparsePrepareCount = std::max<NSUInteger>(
                 environments * state.dispatch.mpmBlockCount,
                 environments
             );
-            dispatchThreads("nm_mpm_prepare_sparse", sparsePrepareCount, [&] {
+            if (hasMPM) dispatchThreads("nm_mpm_prepare_sparse", sparsePrepareCount, [&] {
                 setDispatch();
                 [encoder setBuffer:state.mpmBlockCounts offset:0u atIndex:1u];
                 [encoder setBuffer:state.mpmBlockOffsets offset:0u atIndex:2u];
@@ -4269,7 +4283,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.mpmBlockCounts offset:0u atIndex:10u];
                 [encoder setBuffer:state.mpmBlockActiveFlags offset:0u atIndex:11u];
             });
-            dispatchGroups32("nm_mpm_scan_environment_blocks", environments, [&] {
+            if (hasMPM) dispatchGroups32("nm_mpm_scan_environment_blocks", environments, [&] {
                 setDispatch();
                 [encoder setBuffer:state.mpmBlockCounts offset:0u atIndex:1u];
                 [encoder setBuffer:state.mpmBlockOffsets offset:0u atIndex:2u];
@@ -4278,7 +4292,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.mpmEnvironmentActiveCounts offset:0u atIndex:5u];
                 [encoder setBuffer:state.statuses offset:0u atIndex:6u];
             });
-            dispatchGroups32("nm_mpm_scan_environment_counts", 1u, [&] {
+            if (hasMPM) dispatchGroups32("nm_mpm_scan_environment_counts", 1u, [&] {
                 setDispatch();
                 [encoder setBuffer:state.mpmEnvironmentActiveCounts offset:0u atIndex:1u];
                 [encoder setBuffer:state.mpmEnvironmentActiveOffsets offset:0u atIndex:2u];
@@ -4304,7 +4318,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.mpmBlockCursors offset:0u atIndex:3u];
                 [encoder setBuffer:state.mpmSortedParticleIndices offset:0u atIndex:4u];
             });
-            if (!dispatchIndirect(
+            if (hasMPM && (!dispatchIndirect(
                     "nm_mpm_sort_block_particles",
                     state.mpmActiveDispatch,
                     NM_MPM_MAX_PARTICLES_PER_BLOCK,
@@ -4342,14 +4356,14 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:state.mpmNodeGenerations offset:0u atIndex:19u];
                         [encoder setBuffer:state.statuses offset:0u atIndex:20u];
                     }
-                )) {
+                ))) {
                 [encoder endEncoding];
                 ownership->preDynamicsOpen = false;
                 diagnostics.message =
                     "failed to encode sparse MPM indirect work";
                 return diagnostics;
             }
-            dispatchGroups32("nm_mpm_compact_active_nodes", environments, [&] {
+            if (hasMPM) dispatchGroups32("nm_mpm_compact_active_nodes", environments, [&] {
                 setDispatch();
                 [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
                 [encoder setBuffer:state.gridNodes offset:0u atIndex:2u];
@@ -5065,7 +5079,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.mpmActiveNodeCounts offset:0u atIndex:9u];
                 [encoder setBuffer:state.primalContactArguments offset:0u atIndex:10u];
             });
-            if (!dispatchIndirect(
+            if (hasMPM && !dispatchIndirect(
                     "nm_mpm_build_constitutive_residual",
                     state.mpmActiveDispatch,
                     256u,
@@ -5156,12 +5170,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 state.fgmresIterationBudgetOverride.load(
                     std::memory_order_acquire
                 );
-            const std::uint32_t linearIterationBudget = std::max(
-                restart,
+            const std::uint32_t linearIterationBudget =
                 budgetOverride == 0u
                     ? state.mixedSolverValue.nonlinearIterations.z
-                    : budgetOverride
-            );
+                    : budgetOverride;
             const std::uint32_t restartCycleCount =
                 (linearIterationBudget + restart - 1u) / restart;
             const float nonlinearTolerance = std::max(
@@ -5388,7 +5400,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:state.femOperatorValue
                                      offset:0u atIndex:11u];
                     });
-                dispatchGroups32(
+                if (hasMPM) dispatchGroups32(
                     "nm_fgmres_precondition_mpm_objects",
                     objectTotal,
                     [&] {
@@ -5608,7 +5620,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.coupledPointJacobians
                                  offset:0u atIndex:14u];
                 });
-                if (!dispatchIndirect(
+                if (hasMPM && !dispatchIndirect(
                         "nm_fgmres_apply_mpm_constitutive",
                         state.mpmActiveDispatch,
                         256u,
@@ -5940,7 +5952,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
             );
 
             micro.solverIteration = nonlinearIteration;
-            dispatchThreads("nm_fem_select_backtracking", objectTotal, [&] {
+            dispatchGroups32("nm_fem_select_backtracking", objectTotal, [&] {
                 setDispatch();
                 [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
                 [encoder setBuffer:state.mixedSolver offset:0u atIndex:2u];
@@ -5957,7 +5969,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.mixedMaterials offset:0u atIndex:13u];
                 [encoder setBuffer:state.femFieldsCandidate offset:0u atIndex:14u];
             });
-            dispatchGroups32(
+            if (hasMPM) dispatchGroups32(
                 "nm_mpm_limit_implicit_line_search",
                 objectTotal,
                 [&] {
@@ -6155,7 +6167,14 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.topologyStatesCheckpoint
                                  offset:0u atIndex:23u];
                 });
-                encodeTopologyRebuild(state.femCandidate);
+                // This detector writes only physics-triggered cylinder-puncture
+                // commands. Those commands append an embedded puncture channel;
+                // they do not change FEM nodes, fields, tetrahedra, or incidence.
+                // The existing masses and node-to-tet ranges therefore remain
+                // valid, and the solver's line search plus the end-of-microstep
+                // FEM validation continue to certify the evolving FEM state.
+                // Rebuilding/remapping here used to scan every node against
+                // every tetrahedron after each Newton active-set update.
                 encodeTopologyCertificate(
                     state.femCandidate, state.femFieldsCandidate);
             }
@@ -6342,7 +6361,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.mpmActiveNodeCounts offset:0u atIndex:9u];
                 [encoder setBuffer:state.primalContactArguments offset:0u atIndex:10u];
             });
-            if (!dispatchIndirect(
+            if (hasMPM && !dispatchIndirect(
                     "nm_mpm_build_constitutive_residual",
                     state.mpmActiveDispatch,
                     256u,
@@ -9499,7 +9518,6 @@ bool Runtime::setCoupledTimestepMultiplier(
     const std::uint32_t multiplier
 ) noexcept {
     if (state_ == nullptr || multiplier == 0u ||
-        (multiplier & (multiplier - 1u)) != 0u ||
         multiplier > (1u << NM_MAX_RATE_EXPONENT) ||
         !state_->requiresRodNodes ||
         state_->dispatch.maximumRateExponent != 0u) {
@@ -9606,7 +9624,7 @@ bool Runtime::setFGMRESIterationBudget(
             state_->mixedSolverValue.nonlinearIterations.y,
             static_cast<std::uint32_t>(NM_MIXED_FGMRES_RESTART)
         );
-        if (restart == 0u || iterations < restart ||
+        if (restart == 0u || iterations == 0u ||
             iterations >
                 std::numeric_limits<std::uint32_t>::max() - restart + 1u) {
             return false;
@@ -9636,20 +9654,13 @@ std::uint32_t Runtime::fgmresIterationBudget() const noexcept {
     if (state_ == nullptr) {
         return 0u;
     }
-    const std::uint32_t restart = std::min(
-        state_->mixedSolverValue.nonlinearIterations.y,
-        static_cast<std::uint32_t>(NM_MIXED_FGMRES_RESTART)
-    );
     const std::uint32_t budgetOverride =
         state_->fgmresIterationBudgetOverride.load(
             std::memory_order_acquire
         );
-    return std::max(
-        restart,
-        budgetOverride == 0u
-            ? state_->mixedSolverValue.nonlinearIterations.z
-            : budgetOverride
-    );
+    return budgetOverride == 0u
+        ? state_->mixedSolverValue.nonlinearIterations.z
+        : budgetOverride;
 }
 
 bool Runtime::setNewtonIterationBudget(
@@ -9743,12 +9754,12 @@ RuntimeDiagnostics Runtime::restore(const RuntimeStateSnapshot& snapshot) {
     const auto powerOfTwo = [](const std::uint32_t value) {
         return value != 0u && (value & (value - 1u)) == 0u;
     };
-    if (!powerOfTwo(snapshot.coupledTimestepMultiplier) ||
+    if (snapshot.coupledTimestepMultiplier == 0u ||
+        snapshot.coupledTimestepMultiplier >
+            (1u << NM_MAX_RATE_EXPONENT) ||
         !powerOfTwo(snapshot.coupledTimestepDivisor) ||
         (snapshot.coupledTimestepMultiplier != 1u &&
          snapshot.coupledTimestepDivisor != 1u) ||
-        snapshot.coupledTimestepMultiplier >
-            (1u << NM_MAX_RATE_EXPONENT) ||
         snapshot.coupledTimestepDivisor >
             (1u << NM_MAX_RATE_EXPONENT) ||
         (!state.requiresRodNodes &&
@@ -9766,7 +9777,7 @@ RuntimeDiagnostics Runtime::restore(const RuntimeStateSnapshot& snapshot) {
         snapshot.fgmresIterationBudgetOverride == 0u
             ? state.mixedSolverValue.nonlinearIterations.z
             : snapshot.fgmresIterationBudgetOverride;
-    if (fgmresRestart == 0u || fgmresBudget < fgmresRestart ||
+    if (fgmresRestart == 0u || fgmresBudget == 0u ||
         fgmresBudget >
             std::numeric_limits<std::uint32_t>::max() - fgmresRestart + 1u) {
         diagnostics.message =

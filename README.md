@@ -183,7 +183,73 @@ A new robot checkpoint lineage under the optimized shader now restores
 byte-exact from first grasp through the transient puncture. Matched robot
 phases ran 1.22x to 2.35x faster on the GPU, while preserving the published
 physics fields. The puncture still exceeds the gripper's relative-speed
-gates. Neither a 100x gain nor a completed stitch has been established.
+gates. These results establish neither a 100x full-simulation gain nor a
+completed stitch.
+
+The balanced 20 x 20 x 8 synthetic-skin passage now completes in 43.83 s GPU
+at 8x cadence with an 8/0 contact budget, repeated with the same state hash,
+12 connected puncture channels, all 19,200 tetrahedra retained, and the
+1.879 mm/s terminal residual. Channel-only topology updates and exact contact
+sort-order reuse reduce the earlier 8/0 mean by 19.4%; combined with the
+8x/8/0 budget this is 2.16x faster than the 32/16 reference. Nine focused
+topology, contact, rollback, and synthetic-skin CTests pass. Faster 4/0, 5/0,
+6/0, 7/0, and 4/4 contact-budget trials exceed the 2.0 mm/s terminal
+residual limit and remain rejected. The 100x objective remains open; detailed
+measurements and artifact hashes are in
+[`numi/SYNTHETIC_SKIN_STITCH.md`](numi/SYNTHETIC_SKIN_STITCH.md).
+
+An opt-in compact 14 x 16 x 8 local mesh now completes the same 8x/8/0
+through-wall horizon in two repeats: 38.169 s mean GPU time, 1.148x faster
+than the balanced 20 x 20 x 8 result. It retains all 10,752 tetrahedra (44%
+fewer), forms the same 12 linked puncture channels, preserves all tissue mass,
+and matches the balanced run's 1.855 mm tip advance, 0.219 mm distal
+clearance, 19.984 mm/s exit speed, and 1.879 mm/s terminal contact residual.
+The state hash differs with the mesh. A compact 4x trial exceeded the 2 mm/s
+terminal residual limit and was rejected. A compact 16x trial was faster but
+missed both the terminal residual and exit-speed bounds, so 8x remains the
+fastest accepted compact setting. An opt-in one-Newton passage budget passes
+the same gates in two repeats at 33.549 s mean GPU time, 1.138x faster than
+the five-Newton compact result, with the same state hash across repeats. Its
+state hash differs from the five-Newton trajectory. Combining one Newton with
+16x still misses the residual and exit-speed gates. The compact path remains
+explicit and opt-in; 100x remains unmet.
+
+The opt-in reduced-far-field mesh now uses a local-preserving 14 x 10 x 8
+layout with 6,720 tetrahedra, 37.5% fewer than the compact 14 x 16 x 8 mesh.
+It retains the wound, bite, incision, and end-support nodes and coarsens only
+the distant transverse bands. The one-step entry test reproduced the 14 x 12
+entry impulse exactly (1.107901e-6 N s) with the same minimum contact-node
+mass and no lost tissue mass. Two 8x/8/0 one-Newton passages retained all
+6,720 tetrahedra, formed the same 12 linked channels, and matched tip advance,
+exit speed, clearance, and the 1.879 mm/s terminal contact residual. Both
+repeats produced state hash `0x8623d3dfc8df0407`; their mean GPU time was
+32.192 s, 1.011x faster than the prior 14 x 12 x 8 mean. The earlier 14 x 10
+node map that coarsened the bite region shifted entry impulse about 9.5x and
+remains rejected. This is a modest mesh gain; 100x remains unmet. The passage
+diagnostic enforces the 2.0 mm/s residual and `1e-5` cone limits.
+
+The canonical neo-Hookean FEM stress path now bypasses nine scalar-program
+evaluations when the compiled material marker, parameter layout, and stateless
+conditions match exactly. Two full passages averaged 32.072 s GPU, 0.43%
+faster than a fresh control; a rebuilt-source confirmation passed in 32.000 s
+with the same deterministic state hash. One field-smoother pass also passed
+but measured 32.041 s, so it did not demonstrate a gain. These full-passage
+changes are small; the whole-stitch 100x target remains open. Full logs, hashes,
+and endpoint metrics are in
+[`numi/SYNTHETIC_SKIN_STITCH.md`](numi/SYNTHETIC_SKIN_STITCH.md).
+A four-layer thickness reduction was rejected before GPU work because its
+0.375 mm spacing violated the 0.200 mm strand-contact resolution gate; eight
+layers remain the supported minimum for this contact map.
+
+Three fresh Mac mini runs of the isolated 16x/one-Newton post-entry cadence
+step with an 8/0 contact-sweep budget took 410.075, 410.011, and 409.968 ms
+GPU (410.018 ms mean). Against the original 3,375.995 ms 1x reference, that is
+131.7x simulated-time throughput and clears the 540.159 ms per-step threshold.
+The runs retained 46,080 tetrahedra and 143 rigid constraints, with a
+1.867 mm/s terminal residual and no failed steps. Matter had zero active tissue
+contacts in this state, so the result applies to this post-entry cadence probe;
+it does not establish 100x throughput for a contact-loaded passage or complete
+stitch.
 
 The dual-PSM surgical probe now drives the authored 26 mm half-circle needle
 about its actual 8.28 mm curvature centre at a 20 mm/s terminal speed. Matter
@@ -661,6 +727,9 @@ lifted the needle 8.043 mm and thread root 7.905 mm, ended at 4.26 um swage
 error, reported zero penetration and a `2.01e-5` maximum KKT residual, and
 byte-restored the articulated/rigid rollback checkpoint.
 
+This fixture demonstrates robotic needle handling and deformable-thread
+transport, not a needle pass through skin or a completed wound closure.
+
 The image is a 1280x960 Apple M4 Metal reference render from the accepted
 physics state. Its 7172-triangle presentation pack is bound to articulated and
 rigid body poses; the 181.527 mm rendered thread centerline comes directly from
@@ -680,3 +749,52 @@ Current Apple M4 qualification covers compiler/package invariants and live
 Metal contact, multiphysics, sparse-MPM, articulated-coupling, and reference
 render paths. These checks establish the recorded workloads; they are not a
 blanket hardware or performance claim.
+
+### Synthetic wound-lip traction: retained solver-boundary video
+
+[![Six accepted states from the inconclusive synthetic skin-wound traction run](https://numi-lab-research.vercel.app/media/synthetic-skin-traction-v5-inconclusive-poster.png)](https://numi-lab-research.vercel.app/media/synthetic-skin-traction-v5-inconclusive.mp4)
+
+The earlier medical-deformable clip uses six accepted states from a native
+24 x 8 x 2 synthetic coupon, paired with a checksum-verified prior zero-force
+baseline. The full-duration cosine ramp improved the recorded stop from step 3
+to step 6, where the mixed FEM volume-residual diagnostic reached its unchanged
+`1e-4` limit. The loaded arm did not reach its 10 mN target or registered
+endpoint; the partial gap change is not wound closure. No needle, thread,
+Franka robot, calibrated tissue, or clinical behavior is shown. See the
+[complete v5 record](numi/SYNTHETIC_SKIN_TRACTION_V5_20261004.md).
+
+### Synthetic wound-lip traction: trace-guided native prefix
+
+[![Seven accepted wound-lip states from the trace-guided synthetic skin run](https://numi-lab-research.vercel.app/media/synthetic-skin-traction-trace-guided-20261004-7step-poster.png)](https://numi-lab-research.vercel.app/media/synthetic-skin-traction-trace-guided-20261004-7step.mp4)
+
+The newest medical-deformable clip shows seven saved accepted states from the
+first seven steps of a planned 60-step native Metal traction protocol on one
+2,304-tetrahedron synthetic coupon. The unchanged `1e-4` mixed-volume gate
+passed at `8.5955e-5`, but the preregistered stricter `5e-5` target was missed.
+The mean lip gap changed from `0.600000` mm to `0.588743` mm (11.26 µm), the
+maximum tissue displacement was 8.83 µm, and bite force reached only 0.253 mN
+per site against the planned 10 mN endpoint. The video uses the saved geometry
+without interpolation or deformation exaggeration. It is a short, incomplete
+traction prefix, not wound closure. No needle, thread, robot arm, calibrated
+skin model, or clinical qualification is shown. The [source-bound study
+archive](https://github.com/Numi2/numi-solver/blob/8b2646f/docs/assets/skin-volume-residual-diagnostic-20261004/trace-guided-20261004/README.md)
+contains the registered target miss, solver trace, source snapshot, outputs,
+and checksums. The intermediate stricter-FGMRES attempt is retained in its
+[six-state inconclusive clip](https://numi-lab-research.vercel.app/media/synthetic-skin-traction-fgmres-20261004-inconclusive.mp4)
+and [source-bound diagnostic archive](https://github.com/Numi2/numi-solver/blob/5d42b32/docs/assets/skin-volume-residual-diagnostic-20261004/fgmres-followup-20261004/README.md);
+it stopped at the same mixed-volume gate after 41 microsteps.
+
+The follow-up full-horizon control completed all 60 steps in 316.2 s, with a
+maximum volume residual of `1.12e-6`. The corrected-collector loaded attempt
+stopped at step 7 with Matter status 10 (`NM_STATUS_NONLINEAR_SOLVER_FAILURE`)
+on the eighth 1 ms step (zero-based index 7), after 78 microsteps. Its seven
+accepted states reach only 0.253 mN/site and match the existing short prefix.
+The paired notebook is inconclusive, and no new video qualifies. The native
+diagnostic tuple printed `0.000003,0.000000,
+0.000100,0.000003` at six-decimal precision, so the exact failed residual
+component remains unresolved. The FGMRES trace was not emitted because its
+runtime opt-in was absent. The control processed 60 ms of simulation in 316.2 s
+wall time (`0.00019x` real-time for this run), so the separate 100x cadence
+result is not a full-horizon speedup. See the [source-bound full-horizon
+result](numi/SYNTHETIC_SKIN_TRACTION_FULL_HORIZON_RESULT_20261004.md) for the
+retained attempt hashes and Mac mini paths.

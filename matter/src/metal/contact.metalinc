@@ -576,6 +576,12 @@ kernel void nm_contact_build_surface_primitives(
         maximumPoint + thickness, maximumTravel);
     primitives[global] = primitive;
 }
+inline uint contactSurfacePrimitiveSortKey(const float x) {
+    const uint bits = as_type<uint>(x);
+    return bits ^ ((bits & 0x80000000u) != 0u
+        ? 0xffffffffu : 0x80000000u);
+}
+
 kernel void nm_contact_sort_surface_primitives(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     device const NMContinuumSurfacePrimitiveGPU* primitives [[buffer(1)]],
@@ -595,7 +601,9 @@ kernel void nm_contact_sort_surface_primitives(
     }
     const uint primitiveBase = environment * primitiveCount;
     threadgroup uint compactedCount;
+    threadgroup uint previousActiveCount;
     if (lane == 0u) compactedCount = 0u;
+    if (lane == 0u) previousActiveCount = activeCounts[environment];
     threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
     for (uint first = 0u; first < primitiveCount; first += 32u) {
         const uint local = first + lane;
@@ -608,14 +616,10 @@ kernel void nm_contact_sort_surface_primitives(
         if (selected) {
             const NMContinuumSurfacePrimitiveGPU primitive =
                 primitives[primitiveBase + local];
-            // Sorting by the lower x bound makes a subsequent sweep exact:
-            // once the next lower bound exceeds the left upper bound, no
-            // later primitive can overlap this left primitive.
-            const uint bits = as_type<uint>(primitive.boundsMinimum.x);
-            keysA[primitiveBase + output] = bits ^
-                ((bits & 0x80000000u) != 0u
-                    ? 0xffffffffu : 0x80000000u);
-            indicesA[primitiveBase + output] = local;
+            keysB[primitiveBase + output] =
+                contactSurfacePrimitiveSortKey(
+                    primitive.boundsMinimum.x);
+            indicesB[primitiveBase + output] = local;
         }
         threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
         if (lane == 0u) compactedCount += count;
@@ -624,6 +628,66 @@ kernel void nm_contact_sort_surface_primitives(
     const uint activeCount = compactedCount;
     if (lane == 0u) activeCounts[environment] = activeCount;
     if (activeCount == 0u) return;
+
+    // The previous sorted permutation is reusable exactly when every old
+    // member is still active, the active count is unchanged, and the current
+    // lower-x keys remain in stable sorted order. This keeps the sweep exact
+    // while avoiding eight radix passes for slowly deforming surfaces.
+    threadgroup uint laneOrderValid[32];
+    bool laneValid = previousActiveCount == activeCount;
+    for (uint local = lane; local < activeCount; local += 32u) {
+        const uint primitiveIndex = indicesA[primitiveBase + local];
+        if (primitiveIndex >= primitiveCount) {
+            laneValid = false;
+            continue;
+        }
+        const NMContinuumSurfacePrimitiveGPU primitive =
+            primitives[primitiveBase + primitiveIndex];
+        if ((primitive.identity.w & NM_TOPOLOGY_ACTIVE) == 0u) {
+            laneValid = false;
+            continue;
+        }
+        const uint key = contactSurfacePrimitiveSortKey(
+            primitive.boundsMinimum.x);
+        if (local == 0u) continue;
+        const uint previousIndex = indicesA[
+            primitiveBase + local - 1u];
+        if (previousIndex >= primitiveCount) {
+            laneValid = false;
+            continue;
+        }
+        const NMContinuumSurfacePrimitiveGPU previous =
+            primitives[primitiveBase + previousIndex];
+        if ((previous.identity.w & NM_TOPOLOGY_ACTIVE) == 0u) {
+            laneValid = false;
+            continue;
+        }
+        const uint previousKey = contactSurfacePrimitiveSortKey(
+            previous.boundsMinimum.x);
+        laneValid = laneValid &&
+            (previousKey < key ||
+             (previousKey == key && previousIndex < primitiveIndex));
+    }
+    laneOrderValid[lane] = laneValid ? 1u : 0u;
+    threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+    if (lane == 0u) {
+        uint valid = 1u;
+        for (uint candidate = 0u; candidate < 32u; ++candidate)
+            valid &= laneOrderValid[candidate];
+        compactedCount = valid;
+    }
+    threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+    if (compactedCount != 0u) return;
+
+    for (uint first = 0u; first < activeCount; first += 32u) {
+        const uint local = first + lane;
+        if (local < activeCount) {
+            keysA[primitiveBase + local] = keysB[primitiveBase + local];
+            indicesA[primitiveBase + local] =
+                indicesB[primitiveBase + local];
+        }
+    }
+    threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
 
     threadgroup uint bucketCounts[16];
     threadgroup uint bucketStarts[16];

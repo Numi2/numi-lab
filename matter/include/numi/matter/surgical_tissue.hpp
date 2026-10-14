@@ -95,6 +95,11 @@ struct PorcineJejunumFungSpec {
     std::uint32_t circumferentialCells = 16u;
     std::uint32_t throughThicknessCells = 2u;
     bool fixLongitudinalEnds = false;
+    // Optional monotone, nonuniform coordinates for localized refinement.
+    // Empty vectors retain the established uniform grid bit-for-bit.
+    std::vector<double> longitudinalNodePositionsM;
+    std::vector<double> circumferentialNodePositionsM;
+    std::vector<double> thicknessNodePositionsM;
 };
 
 struct PorcineJejunumFungResponse {
@@ -139,6 +144,9 @@ struct SyntheticSkinWoundSpec {
     std::uint32_t transverseCells = 16u;
     std::uint32_t throughThicknessCells = 3u;
     bool fixLongitudinalEnds = true;
+    std::vector<double> longitudinalNodePositionsM;
+    std::vector<double> transverseNodePositionsM;
+    std::vector<double> thicknessNodePositionsM;
 };
 
 struct SyntheticSkinWoundCoupon {

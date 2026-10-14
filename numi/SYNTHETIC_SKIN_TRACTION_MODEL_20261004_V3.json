@@ -1,0 +1,18 @@
+{
+  "version": "synthetic-skin-traction-24x8x2-v1",
+  "statement": "For one deterministic, homogeneous, uncalibrated synthetic skin-wound coupon, paired 10 mN-per-bite external traction is predicted to reduce the minimum mean top-lip gap by at least one 10 micrometre contact slop relative to a zero-force control over the fixed 60-step protocol.",
+  "parameters": {
+    "mesh_cells": [24, 8, 2],
+    "step_count": 60,
+    "timestep_s": 0.001,
+    "contact_slop_m": 0.00001,
+    "force_per_bite_site_n": 0.01,
+    "initial_gap_m": 0.0006,
+    "physical_tissue_calibration": "none"
+  },
+  "predicted_difference_m": {
+    "minimum": -0.0006,
+    "maximum": -0.00001
+  },
+  "training_units": []
+}
