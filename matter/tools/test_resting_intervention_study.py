@@ -144,6 +144,26 @@ class NativeCoverageAndEnvironmentTests(unittest.TestCase):
         self.assertEqual(result["aortic_ejected_ml"], 24000)
         self.assertEqual(result["pulmonary_ejected_ml"], 24000)
 
+    def test_thirty_second_initialization_requires_five_minutes_after_that_boundary(self):
+        rows = self.trace()
+        with self.assertRaisesRegex(ValueError, "300 seconds"):
+            adapter.native_cycle_coverage(rows, .002, 30.0)
+        # Extend fixture observation clock by20s; the retained event ledgers
+        # remain independent evidence of repeated actual owner events.
+        for row in rows:
+            row["step"] += 10000
+            row["time_s"] += 20.0
+            if row["breaths"] > 0:
+                row["last_inspiration_step"] += 10000
+                row["last_inspiration_time_s"] += 20.0
+        measured = adapter.native_cycle_coverage(rows, .002, 30.0)
+        coverage = measured["post_initialization_cycle_coverage"]
+        self.assertEqual(coverage["observed_seconds"], 300)
+        self.assertEqual(coverage["initialization_boundary_step"], 15000)
+        self.assertEqual(coverage["initialization_exclusion_s"], 30)
+        with self.assertRaisesRegex(ValueError, "accepted physical root"):
+            adapter.native_cycle_coverage(rows, .002, 30.001)
+
     def test_incomplete_duration_missing_boundary_and_stopped_owners_are_rejected(self):
         cases = ("duration", "boundary", "breathing", "heart", "stroke", "pulmonary",
                  "regressed_flow", "regressed_cycle")
@@ -706,7 +726,8 @@ class NativeV2PlanPreparationTests(unittest.TestCase):
                              parser_fixture=str(fixture),
                              world_fingerprint="123456", control_program_fingerprint="456789",
                              treatment_program_fingerprint="987654", device="Apple M4 Pro",
-                             steps=160000, dt=.002, start_s=60., end_s=100., scale=.5, window_s=12.)
+                             steps=165000, dt=.002, start_s=150., end_s=210., scale=.6, window_s=12.,
+                             initialization_s=30.)
             calibration = {"schema": "numi.science.calibration.v1", "status": "passed",
                            "checks": [{"id": "parser_fixture_only", "passed": True}],
                            "scope": "test double only", "observed_units": []}
@@ -716,9 +737,13 @@ class NativeV2PlanPreparationTests(unittest.TestCase):
             identity_path = output / "native-build-identity.json"
             identity = json.loads(identity_path.read_text())
             identity_sha256 = hashlib.sha256(identity_path.read_bytes()).hexdigest()
+            self.assertEqual(identity["configuration"]["initialization_exclusion_s"], 30.)
+            self.assertEqual(identity["configuration"]["observation_after_initialization_s"], 300.)
+            self.assertEqual(plan["design"]["initialization_exclusion_window_s"], [0., 30.])
             self.assertEqual(len(identity["runtime_dependency_resolution"]), 7)
             for trial in plan["trials"]:
                 argv = trial["argv"]
+                self.assertEqual(argv[argv.index("--initialization-s") + 1], "30.0")
                 self.assertEqual(argv[argv.index("--native-build-identity") + 1], str(identity_path.resolve()))
                 self.assertEqual(argv[argv.index("--native-build-identity-sha256") + 1], identity_sha256)
             self.assertTrue(all({"configured_path", "resolved_path", "asset_binding_path",
@@ -736,9 +761,9 @@ class NativeV2PlanPreparationTests(unittest.TestCase):
                 validate_calibration(plan, artifact_hashes, broken)
             self.assertEqual(plan["schema"], "numi.science.plan.v2")
             self.assertEqual(plan["prediction"], {"estimand": "paired_difference_mean", "minimum": 0., "maximum": 40.})
-            self.assertEqual(plan["design"]["pre_dose_window_s"], [48., 60.])
-            self.assertEqual(plan["design"]["dose_window_s"], [88., 100.])
-            self.assertEqual(plan["design"]["recovery_window_s"], [308., 320.])
+            self.assertEqual(plan["design"]["pre_dose_window_s"], [138., 150.])
+            self.assertEqual(plan["design"]["dose_window_s"], [198., 210.])
+            self.assertEqual(plan["design"]["recovery_window_s"], [318., 330.])
             recovery = plan["secondary_predictions"]["late_recovery_equivalence"]
             self.assertEqual(recovery["comparison"], "treatment versus unchanged control, both averaged over the final 12 s")
             self.assertEqual(plan["secondary_predictions"]["late_recovery_equivalence"]["PaCO2_absolute_difference_max_mmhg"], 1.)

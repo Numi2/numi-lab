@@ -1,0 +1,14 @@
+{
+  "status": "software_regression_checks_passed",
+  "base_revision": "84e886d835f37de5cf485c277563b2d971ca40ac",
+  "host": "numi.local",
+  "test_count": 47,
+  "passed": 45,
+  "skipped": 2,
+  "skipped_reason": "Retained Mac mini931/752 integration fixture unavailable on Numi; no native simulation was run in this increment.",
+  "test_log": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/qualification-initialization-tests-1395-003.log",
+  "test_log_sha256": "865367c9a97c77438e1295c98526fedf57b138ea650fa13cdea0439fe40a000a",
+  "behavior": "prepare-native and run-native preserve explicit initialization exclusion in frozen configuration/trial argv. Coverage requires300s after that exact accepted physical root, with actual complete breaths and forward ejection. Default10s remains for historical310s studies.",
+  "new_regression": "310s cannot pass300s coverage after30s exclusion;330s fixture passes; fractional-root initialization is rejected. Prepared330s/0.6/150\u2013210s metadata binds30s exclusion.",
+  "native_qualification": false
+}

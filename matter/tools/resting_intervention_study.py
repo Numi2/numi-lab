@@ -673,9 +673,14 @@ def native_scene_environment(recorded: dict[str, str], ambient: dict[str, str]) 
     return env
 
 
-def native_cycle_coverage(rows: list[dict[str, float]], dt: float) -> dict[str, Any]:
+def native_cycle_coverage(rows: list[dict[str, float]], dt: float,
+                          initialization_s: float = 10.0) -> dict[str, Any]:
     """Require actual repeated breaths/ejection during 300 s after initialization."""
-    initialization_step = round(10.0 / dt)
+    if not math.isfinite(dt) or dt <= 0 or not math.isfinite(initialization_s) or initialization_s < 0:
+        raise ValueError("invalid accepted initialization duration or timestep")
+    initialization_step = round(initialization_s / dt)
+    if abs(initialization_step * dt - initialization_s) > 1e-7:
+        raise ValueError("initialization boundary must be an accepted physical root")
     start = next((row for row in rows if int(row["step"]) == initialization_step), None)
     if start is None:
         raise ValueError("native trace lacks the accepted initialization boundary")
@@ -705,6 +710,7 @@ def native_cycle_coverage(rows: list[dict[str, float]], dt: float) -> dict[str, 
     return {"post_initialization_cycle_coverage": {
         "passed": True, "observed_seconds": duration,
         "initialization_boundary_step": initialization_step,
+        "initialization_exclusion_s": initialization_s,
         "complete_breath_count": breaths["complete_breath_count"],
         "complete_filling_ejection_cycles": int(cycles),
         **ejection,
@@ -1003,6 +1009,9 @@ def prepared_native_runtime_dependency_resolution(args: argparse.Namespace,
             or native_invocation.get("sha256") != sha256_file(invocation_path)
             or native_invocation.get("asset_sha256") != invocation.get("asset_sha256")):
         raise ValueError("prepared native build identity does not bind this exact invocation")
+    initialization_s = getattr(args, "initialization_s", 10.0)
+    if identity.get("configuration", {}).get("initialization_exclusion_s", 10.0) != initialization_s:
+        raise ValueError("prepared native initialization exclusion differs from analysis")
     expected_resolution = identity.get("runtime_dependency_resolution")
     if not isinstance(expected_resolution, list) or len(expected_resolution) != 7:
         raise ValueError("prepared native build identity lacks all seven runtime dependency resolutions")
@@ -1217,8 +1226,10 @@ def execute_native_scene_arm(args: argparse.Namespace) -> dict[str, Any]:
         surfaces, args.steps, args.dt, require_whole_mesh=True,
         terminal_accepted_capture=terminal_capture["verified"]))
     result["terminal_accepted_capture_evidence"] = terminal_capture
-    if args.steps * args.dt >= 310.0 - 1e-6:
-        result.update(native_cycle_coverage(read_trace(output / "resting-coupled.csv"), args.dt))
+    initialization_s = getattr(args, "initialization_s", 10.0)
+    if args.steps * args.dt >= initialization_s + 300.0 - 1e-6:
+        result.update(native_cycle_coverage(read_trace(output / "resting-coupled.csv"),
+                                           args.dt, initialization_s))
     parameters = Path(command[command.index("--resting-scene") + 2])
     result.update(native_respiration_trace_consistency(output / "resting-coupled.csv", parameters,
         {name: result[name + "_window_s"] for name in ("pre", "dose", "recovery")}))
@@ -1243,6 +1254,11 @@ def native_plan_components(args: argparse.Namespace, invocation: dict[str, Any],
     owner for the exact frozen invocation and intervention settings.
     """
     validate_windows(args)
+    initialization_s = getattr(args, "initialization_s", 10.0)
+    if (not math.isfinite(initialization_s) or initialization_s < 0 or
+            initialization_s > args.start_s - args.window_s or
+            abs(round(initialization_s / args.dt) * args.dt - initialization_s) > 1e-7):
+        raise ValueError("native initialization must end at an accepted root before analysis windows")
     source_revisions = json.loads(Path(args.source_revisions).resolve().read_text(encoding="utf-8"))
     required_repositories = {"numi-lab", "numilab-human", "numi-brain"}
     if not isinstance(source_revisions, dict) or not required_repositories.issubset(source_revisions):
@@ -1335,7 +1351,8 @@ def native_plan_components(args: argparse.Namespace, invocation: dict[str, Any],
               "--world-fingerprint", args.world_fingerprint, "--device", args.device,
               "--steps", str(args.steps), "--dt", repr(args.dt),
               "--start-s", repr(args.start_s), "--end-s", repr(args.end_s),
-              "--scale", repr(args.scale), "--window-s", repr(args.window_s)]
+              "--scale", repr(args.scale), "--window-s", repr(args.window_s),
+              "--initialization-s", repr(initialization_s)]
     trials = []
     for arm, program_fingerprint, trial_id in (
             ("control", args.control_program_fingerprint, "resting-baseline"),
@@ -1379,8 +1396,8 @@ def native_plan_components(args: argparse.Namespace, invocation: dict[str, Any],
                   "drive_intervention_end_s": args.end_s,
                   "drive_intervention_scale": args.scale,
                   "analysis_window_s": args.window_s,
-                  "initialization_exclusion_s": 10.0,
-                  "observation_after_initialization_s": args.steps * args.dt - 10.0,
+                  "initialization_exclusion_s": initialization_s,
+                  "observation_after_initialization_s": args.steps * args.dt - initialization_s,
                   "solver": "existing native Matter Dense45 circulation and accepted-state body coupling",
                                   "controller": "existing NumiBrain respiratory chemoreflex"},
                 "scope": "Frozen native whole-body scene input identity; this is not physiological or clinical qualification."}
@@ -1412,8 +1429,8 @@ def native_plan_components(args: argparse.Namespace, invocation: dict[str, Any],
                    "pre_dose_window_s": [args.start_s - args.window_s, args.start_s],
                    "dose_window_s": [args.end_s - args.window_s, args.end_s],
                    "recovery_window_s": [args.steps * args.dt - args.window_s, args.steps * args.dt],
-                   "initialization_exclusion_window_s": [0.0, 10.0],
-                   "observation_after_initialization_s": args.steps * args.dt - 10.0,
+                   "initialization_exclusion_window_s": [0.0, initialization_s],
+                   "observation_after_initialization_s": args.steps * args.dt - initialization_s,
                    "controls": "Matched fresh native process and same frozen invocation/assets/initialization; control drive remains 1.0 throughout.",
                    "experimental_unit": "One deterministic resting initialization and source/configuration identity; paired trajectories are not independent people or independent time samples.",
                    "allocation": "One exploratory pair, control then treatment, no retries/exclusions; all outcomes come from accepted native state.",
@@ -2600,6 +2617,8 @@ def main() -> int:
     native_run.add_argument("--end-s", type=float, required=True)
     native_run.add_argument("--scale", type=float, required=True)
     native_run.add_argument("--window-s", type=float, default=30.0)
+    native_run.add_argument("--initialization-s", type=float, default=10.0,
+                            help="accepted initialization exclusion bound in the prepared identity")
     prep = sub.add_parser("prepare", help="write the frozen identity, parser calibration, model, and v2 plan")
     prep.add_argument("--repository", required=True)
     prep.add_argument("--directory", required=True)
@@ -2640,6 +2659,8 @@ def main() -> int:
     native_prep.add_argument("--end-s", type=float, default=100.0)
     native_prep.add_argument("--scale", type=float, default=0.5)
     native_prep.add_argument("--window-s", type=float, default=30.0)
+    native_prep.add_argument("--initialization-s", type=float, default=10.0,
+                             help="exclude this initial physical duration; use 30 for 330 s qualification")
     native_310s = sub.add_parser("prepare-native-310s",
                                  help="prepare fixed 310 s paired study plan at 2 ms; never registers or launches")
     native_310s.add_argument("--repository", required=True)
