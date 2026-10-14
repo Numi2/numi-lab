@@ -1,0 +1,450 @@
+{
+  "schema": "numi.cardboard.solver-capture-analysis.v1",
+  "binding": {
+    "capture_sha256": "d310545aadca3cc7f91935604941eafc78de830fe2267c92749ca2adc441bc81",
+    "replay_sha256": "be1f2df9660530b35ed2db1588449e8d452c25d754453c54bc821db350e7732e",
+    "analyzer_sha256": "4cf2370546b760d5fc9bb7d964c3de2488669ef7ac0cba5901f99ce7750b4d3c"
+  },
+  "native_header": {
+    "record": "header",
+    "schema": "numi.cardboard.fem_operator_fd_capture.v1",
+    "root": 19,
+    "newton_iteration": 3,
+    "world_fingerprint_hex": "f8c439ba935639f7",
+    "execution_fingerprint_hex": "b42ece53c6303502",
+    "environment_count": 2,
+    "node_count_per_environment": 972,
+    "tetrahedron_count_per_environment": 1536,
+    "center_residual_source": "pre_fgmres_private_copy",
+    "epsilon_values": [
+      0.03125,
+      0.015625
+    ],
+    "dt_seconds": 2.499999936844688e-05,
+    "dt_seconds_by_environment": [
+      2.499999936844688e-05,
+      2.499999936844688e-05
+    ],
+    "materials": [
+      {
+        "index": 0,
+        "name": "hajali2009_liner_hill_ideal",
+        "parameter_offset": 0,
+        "parameter_names": [
+          "density",
+          "c11",
+          "c22",
+          "c33",
+          "c12",
+          "c13",
+          "c23",
+          "g12",
+          "g13",
+          "g23",
+          "sigma_ref",
+          "hill_F",
+          "hill_G",
+          "hill_H",
+          "hill_L",
+          "hill_M",
+          "hill_N",
+          "q_floor",
+          "fb_epsilon",
+          "residual_scale"
+        ]
+      },
+      {
+        "index": 1,
+        "name": "hajali2009_medium_hill_ideal",
+        "parameter_offset": 20,
+        "parameter_names": [
+          "density",
+          "c11",
+          "c22",
+          "c33",
+          "c12",
+          "c13",
+          "c23",
+          "g12",
+          "g13",
+          "g23",
+          "sigma_ref",
+          "hill_F",
+          "hill_G",
+          "hill_H",
+          "hill_L",
+          "hill_M",
+          "hill_N",
+          "q_floor",
+          "fb_epsilon",
+          "residual_scale"
+        ]
+      },
+      {
+        "index": 2,
+        "name": "starch2007_finite_glue_elastic",
+        "parameter_offset": 40,
+        "parameter_names": [
+          "density",
+          "mu",
+          "lambda"
+        ]
+      }
+    ],
+    "parameters_by_environment": [
+      [
+        766,
+        4843625984.0,
+        2118009728.0,
+        19100028,
+        381243840,
+        228619.359375,
+        208994.90625,
+        1222000000.0,
+        166280000,
+        137280000,
+        22920000,
+        6.307661056518555,
+        2.9818649291992188,
+        -1.9818649291992188,
+        456012.5,
+        456012.5,
+        59.56081771850586,
+        1.9999999949504854e-06,
+        9.99999993922529e-09,
+        10,
+        679,
+        4524848640.0,
+        1631051264.0,
+        17900030,
+        293591136,
+        213716.359375,
+        192867.015625,
+        1039000000.0,
+        226340000,
+        198720000,
+        9391000,
+        5.612051963806152,
+        2.841099262237549,
+        -1.8410991430282593,
+        76554.5859375,
+        76554.5859375,
+        9.998966217041016,
+        1.9999999949504854e-06,
+        9.99999993922529e-09,
+        10,
+        1500,
+        153846160,
+        230769232
+      ],
+      [
+        766,
+        4843625984.0,
+        2118009728.0,
+        19100028,
+        381243840,
+        228619.359375,
+        208994.90625,
+        1222000000.0,
+        166280000,
+        137280000,
+        22920000,
+        6.307661056518555,
+        2.9818649291992188,
+        -1.9818649291992188,
+        456012.5,
+        456012.5,
+        59.56081771850586,
+        1.9999999949504854e-06,
+        9.99999993922529e-09,
+        10,
+        679,
+        4524848640.0,
+        1631051264.0,
+        17900030,
+        293591136,
+        213716.359375,
+        192867.015625,
+        1039000000.0,
+        226340000,
+        198720000,
+        9391000,
+        5.612051963806152,
+        2.841099262237549,
+        -1.8410991430282593,
+        76554.5859375,
+        76554.5859375,
+        9.998966217041016,
+        1.9999999949504854e-06,
+        9.99999993922529e-09,
+        10,
+        1500,
+        153846160,
+        230769232
+      ]
+    ],
+    "units": {
+      "position": "m",
+      "mass": "kg",
+      "velocity": "m/s",
+      "residual_and_operator_action": "N*s",
+      "element_force": "N",
+      "operator_element_force": "N/s",
+      "deformation_gradient": "dimensionless",
+      "first_piola": "Pa",
+      "tangent_per_velocity": "Pa/s",
+      "dt": "s"
+    },
+    "direction_contract": {
+      "unknown": "delta_v in m/s",
+      "local_F_direction": "grad(delta_v), per second",
+      "side_F": "F_center +/- epsilon*dt*local_F_direction",
+      "residual": "R=dt*(f_internal+f_external+m*g)-m*(v-v_old)",
+      "operator": "A*delta_v=M*delta_v-dt^2*K(delta_v)",
+      "centered_difference": "-(R_plus-R_minus)/(2*epsilon)"
+    },
+    "production_inputs_bitwise_unchanged": true,
+    "record_type": "header",
+    "native_schema": "numi.cardboard.fem-newton-capture.v1",
+    "numeric_input_contract": "native_fp32_roundtrip_then_exact_fp64_widening",
+    "dt_s": 2.499999936844688e-05
+  },
+  "integrity": {
+    "record": "integrity",
+    "production_inputs_bitwise_unchanged": true,
+    "record_type": "integrity",
+    "inputs_unchanged": true,
+    "rich_capture_complete": true
+  },
+  "replay_returncode": 0,
+  "tetrahedra": 3072,
+  "material_tetrahedra_compared": 3072,
+  "layer_maxima": {
+    "projection_stress": {
+      "relative_error": 2.623767174687393,
+      "tet_id": 1427,
+      "environment": 1
+    },
+    "projection_state": {
+      "relative_error": 2.623766936562723,
+      "tet_id": 1427,
+      "environment": 1
+    },
+    "analytic_tangent": {
+      "relative_error": 0.0018952593603459578,
+      "tet_id": 1015,
+      "environment": 0
+    },
+    "frame_input": {
+      "relative_error": 9.44149193018969e-08,
+      "tet_id": 1353,
+      "environment": 0
+    },
+    "frame_stress": {
+      "relative_error": 1.2817208318425248e-07,
+      "tet_id": 1295,
+      "environment": 0
+    },
+    "frame_tangent": {
+      "relative_error": 1.3451101374274255e-07,
+      "tet_id": 980,
+      "environment": 0
+    },
+    "element_force": {
+      "relative_error": 2.899007677664225e-07,
+      "tet_id": 1174,
+      "environment": 0
+    }
+  },
+  "stress_noise_floor_measured": false,
+  "assembled_comparison": [
+    {
+      "environment": 0,
+      "free_nodes": 948,
+      "production_gather": {
+        "absolute_error": 7.102092037257455e-13,
+        "reference_scale": 2.0559359676523905e-06,
+        "relative_error": 3.45443250616755e-07,
+        "noise_floor": 0.0,
+        "resolved": true
+      },
+      "mass_action_l2_Ns": 1.474209634868113e-07,
+      "stiffness_action_l2_Ns": 7.060802795903457e-06,
+      "external_impulse_l2_Ns": 2.3185838485059895e-11,
+      "oracle_complete": true,
+      "oracle_assembled_action": {
+        "absolute_error": 1.5674745559310984e-10,
+        "reference_scale": 2.0560927129281926e-06,
+        "relative_error": 7.623559706598898e-05,
+        "noise_floor": 0.0,
+        "resolved": true
+      },
+      "perturbations": [
+        {
+          "epsilon": 0.03125,
+          "side": 0,
+          "residual_assembly": {
+            "absolute_error": 1.0907411932580279e-11,
+            "reference_scale": 2.143405475293879e-06,
+            "relative_error": 5.088823397301801e-06,
+            "noise_floor": 0.0,
+            "resolved": true
+          }
+        },
+        {
+          "epsilon": 0.03125,
+          "side": 1,
+          "residual_assembly": {
+            "absolute_error": 1.2075989494354363e-11,
+            "reference_scale": 2.259806221097734e-06,
+            "relative_error": 5.34381637753359e-06,
+            "noise_floor": 0.0,
+            "resolved": true
+          }
+        },
+        {
+          "epsilon": 0.015625,
+          "side": 0,
+          "residual_assembly": {
+            "absolute_error": 1.202814930763353e-11,
+            "reference_scale": 2.1738407529455982e-06,
+            "relative_error": 5.5331326783413845e-06,
+            "noise_floor": 0.0,
+            "resolved": true
+          }
+        },
+        {
+          "epsilon": 0.015625,
+          "side": 1,
+          "residual_assembly": {
+            "absolute_error": 6.548867840956315e-12,
+            "reference_scale": 2.23193980040985e-06,
+            "relative_error": 2.934159711544975e-06,
+            "noise_floor": 0.0,
+            "resolved": true
+          }
+        }
+      ],
+      "centered_actions": [
+        {
+          "epsilon": 0.03125,
+          "comparison": {
+            "absolute_error": 1.2907707287013181e-05,
+            "reference_scale": 1.2085982234566472e-05,
+            "relative_error": 1.0679899272147313,
+            "noise_floor": 0.0,
+            "resolved": true
+          },
+          "fd_action_l2_Ns": 3.015605377457662e-05
+        },
+        {
+          "epsilon": 0.015625,
+          "comparison": {
+            "absolute_error": 1.0756166602732264e-05,
+            "reference_scale": 9.934441550285555e-06,
+            "relative_error": 1.0827147704566331,
+            "noise_floor": 0.0,
+            "resolved": true
+          },
+          "fd_action_l2_Ns": 2.1304171553175204e-05
+        }
+      ],
+      "nonvacuous": true
+    },
+    {
+      "environment": 1,
+      "free_nodes": 948,
+      "production_gather": {
+        "absolute_error": 0.0,
+        "reference_scale": 0.0,
+        "relative_error": null,
+        "noise_floor": 0.0,
+        "resolved": false
+      },
+      "mass_action_l2_Ns": 0.0,
+      "stiffness_action_l2_Ns": 0.0,
+      "external_impulse_l2_Ns": 2.0800352009049412e-15,
+      "oracle_complete": true,
+      "oracle_assembled_action": {
+        "absolute_error": 0.0,
+        "reference_scale": 0.0,
+        "relative_error": null,
+        "noise_floor": 0.0,
+        "resolved": false
+      },
+      "perturbations": [
+        {
+          "epsilon": 0.03125,
+          "side": 0,
+          "residual_assembly": {
+            "absolute_error": 7.521423912013507e-16,
+            "reference_scale": 3.921801911766727e-09,
+            "relative_error": 1.917849009519502e-07,
+            "noise_floor": 0.0,
+            "resolved": true
+          }
+        },
+        {
+          "epsilon": 0.03125,
+          "side": 1,
+          "residual_assembly": {
+            "absolute_error": 7.521423912013507e-16,
+            "reference_scale": 3.921801911766727e-09,
+            "relative_error": 1.917849009519502e-07,
+            "noise_floor": 0.0,
+            "resolved": true
+          }
+        },
+        {
+          "epsilon": 0.015625,
+          "side": 0,
+          "residual_assembly": {
+            "absolute_error": 7.521423912013507e-16,
+            "reference_scale": 3.921801911766727e-09,
+            "relative_error": 1.917849009519502e-07,
+            "noise_floor": 0.0,
+            "resolved": true
+          }
+        },
+        {
+          "epsilon": 0.015625,
+          "side": 1,
+          "residual_assembly": {
+            "absolute_error": 7.521423912013507e-16,
+            "reference_scale": 3.921801911766727e-09,
+            "relative_error": 1.917849009519502e-07,
+            "noise_floor": 0.0,
+            "resolved": true
+          }
+        }
+      ],
+      "centered_actions": [
+        {
+          "epsilon": 0.03125,
+          "comparison": {
+            "absolute_error": 0.0,
+            "reference_scale": 0.0,
+            "relative_error": null,
+            "noise_floor": 0.0,
+            "resolved": false
+          },
+          "fd_action_l2_Ns": 0.0
+        },
+        {
+          "epsilon": 0.015625,
+          "comparison": {
+            "absolute_error": 0.0,
+            "reference_scale": 0.0,
+            "relative_error": null,
+            "noise_floor": 0.0,
+            "resolved": false
+          },
+          "fd_action_l2_Ns": 0.0
+        }
+      ],
+      "nonvacuous": false
+    }
+  ],
+  "solver_correctness": "unqualified",
+  "physical_validation": false
+}

@@ -1,0 +1,188 @@
+[
+  {
+    "environment": 0,
+    "free_nodes": 948,
+    "production_gather": {
+      "absolute_error": 6.922072556964301e-13,
+      "reference_scale": 2.0559359760188915e-06,
+      "relative_error": 3.366871652476349e-07,
+      "noise_floor": 0.0,
+      "resolved": true
+    },
+    "mass_action_l2_Ns": 1.4742096348014516e-07,
+    "stiffness_action_l2_Ns": 7.0608028051887e-06,
+    "external_impulse_l2_Ns": 2.3249671494222594e-11,
+    "oracle_complete": true,
+    "oracle_assembled_action": {
+      "absolute_error": 1.6301663114130018e-10,
+      "reference_scale": 2.0560989866311412e-06,
+      "relative_error": 7.928442755005596e-05,
+      "noise_floor": 0.0,
+      "resolved": true
+    },
+    "perturbations": [
+      {
+        "epsilon": 0.03125,
+        "side": 0,
+        "residual_assembly": {
+          "absolute_error": 1.1222830387245308e-11,
+          "reference_scale": 2.1434054745600834e-06,
+          "relative_error": 5.235981021998977e-06,
+          "noise_floor": 0.0,
+          "resolved": true
+        }
+      },
+      {
+        "epsilon": 0.03125,
+        "side": 1,
+        "residual_assembly": {
+          "absolute_error": 1.1995084457068305e-11,
+          "reference_scale": 2.259806223030811e-06,
+          "relative_error": 5.3080146141825895e-06,
+          "noise_floor": 0.0,
+          "resolved": true
+        }
+      },
+      {
+        "epsilon": 0.015625,
+        "side": 0,
+        "residual_assembly": {
+          "absolute_error": 1.1764696582357527e-11,
+          "reference_scale": 2.173840752359486e-06,
+          "relative_error": 5.411940396088411e-06,
+          "noise_floor": 0.0,
+          "resolved": true
+        }
+      },
+      {
+        "epsilon": 0.015625,
+        "side": 1,
+        "residual_assembly": {
+          "absolute_error": 6.748919900751923e-12,
+          "reference_scale": 2.2319398003559822e-06,
+          "relative_error": 3.023791188129495e-06,
+          "noise_floor": 0.0,
+          "resolved": true
+        }
+      }
+    ],
+    "centered_actions": [
+      {
+        "epsilon": 0.03125,
+        "comparison": {
+          "absolute_error": 1.2907707308e-05,
+          "reference_scale": 1.2085982255999999e-05,
+          "relative_error": 1.0679899270571958,
+          "noise_floor": 0.0,
+          "resolved": true
+        },
+        "fd_action_l2_Ns": 3.015605369999856e-05
+      },
+      {
+        "epsilon": 0.015625,
+        "comparison": {
+          "absolute_error": 1.075616662e-05,
+          "reference_scale": 9.934441568e-06,
+          "relative_error": 1.082714770264176,
+          "noise_floor": 0.0,
+          "resolved": true
+        },
+        "fd_action_l2_Ns": 2.1304171552039e-05
+      }
+    ],
+    "nonvacuous": true
+  },
+  {
+    "environment": 1,
+    "free_nodes": 948,
+    "production_gather": {
+      "absolute_error": 0.0,
+      "reference_scale": 0.0,
+      "relative_error": null,
+      "noise_floor": 0.0,
+      "resolved": false
+    },
+    "mass_action_l2_Ns": 0.0,
+    "stiffness_action_l2_Ns": 0.0,
+    "external_impulse_l2_Ns": 2.0851443549285468e-15,
+    "oracle_complete": true,
+    "oracle_assembled_action": {
+      "absolute_error": 0.0,
+      "reference_scale": 0.0,
+      "relative_error": null,
+      "noise_floor": 0.0,
+      "resolved": false
+    },
+    "perturbations": [
+      {
+        "epsilon": 0.03125,
+        "side": 0,
+        "residual_assembly": {
+          "absolute_error": 7.825553787299985e-16,
+          "reference_scale": 3.921801897566115e-09,
+          "relative_error": 1.9953975217760367e-07,
+          "noise_floor": 0.0,
+          "resolved": true
+        }
+      },
+      {
+        "epsilon": 0.03125,
+        "side": 1,
+        "residual_assembly": {
+          "absolute_error": 7.825553787299985e-16,
+          "reference_scale": 3.921801897566115e-09,
+          "relative_error": 1.9953975217760367e-07,
+          "noise_floor": 0.0,
+          "resolved": true
+        }
+      },
+      {
+        "epsilon": 0.015625,
+        "side": 0,
+        "residual_assembly": {
+          "absolute_error": 7.825553787299985e-16,
+          "reference_scale": 3.921801897566115e-09,
+          "relative_error": 1.9953975217760367e-07,
+          "noise_floor": 0.0,
+          "resolved": true
+        }
+      },
+      {
+        "epsilon": 0.015625,
+        "side": 1,
+        "residual_assembly": {
+          "absolute_error": 7.825553787299985e-16,
+          "reference_scale": 3.921801897566115e-09,
+          "relative_error": 1.9953975217760367e-07,
+          "noise_floor": 0.0,
+          "resolved": true
+        }
+      }
+    ],
+    "centered_actions": [
+      {
+        "epsilon": 0.03125,
+        "comparison": {
+          "absolute_error": 0.0,
+          "reference_scale": 0.0,
+          "relative_error": null,
+          "noise_floor": 0.0,
+          "resolved": false
+        },
+        "fd_action_l2_Ns": 0.0
+      },
+      {
+        "epsilon": 0.015625,
+        "comparison": {
+          "absolute_error": 0.0,
+          "reference_scale": 0.0,
+          "relative_error": null,
+          "noise_floor": 0.0,
+          "resolved": false
+        },
+        "fd_action_l2_Ns": 0.0
+      }
+    ],
+    "nonvacuous": false
+  }
+]

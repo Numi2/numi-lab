@@ -1,0 +1,48 @@
+{
+  "schema": "numi.cardboard.qualification-frontier.v1",
+  "starting_revision": "a9d801c36c7eec5c0275acf5ecc65e4770ff22e1",
+  "publication_base": "bf9e90cb",
+  "recipe": "literature2009 kraft205/NSSC126/finite elastic starch",
+  "scope": "specific complementarity derivative repair only",
+  "verdicts": {
+    "specific_derivative_cancellation_repair": "qualified implementation regression",
+    "solver_correctness": "incomplete: local projection and finite difference remain unresolved",
+    "numerical_convergence": "not qualified: native cycle rejects at step22",
+    "component_calibration": "not qualified",
+    "analogue_validation": "not qualified",
+    "physical_assembly_in_simulation": "not achieved",
+    "crush_impact_prediction": "not executed"
+  },
+  "diagnostic_noninterference": {
+    "production_files": 47,
+    "byte_identical": true
+  },
+  "captured_candidate_derivative": {
+    "inputs": 14400,
+    "maximum_fp32_vs_generated_fp64_relative": 0.0002829514559484184,
+    "gate": 0.001,
+    "qualification": "specific repaired derivative at captured candidate states, not native projected-state accuracy"
+  },
+  "repaired_native_capture": {
+    "control_step": 19,
+    "newton_iteration": 3,
+    "assembled_action_relative": 7.623559706598898e-05,
+    "gate": 0.01,
+    "fullcycle_accepted": false,
+    "accepted_steps_before_failure": 22,
+    "oracle_input_contract": "exact reconstructed FP32 widened to FP64",
+    "prior_analysis_retained": "repair-replay-004 treated9digit decimalsasexact; superseded by repair-replay-005"
+  },
+  "scaled_equations": {
+    "default": false,
+    "native_replay_inputs": 14400,
+    "local_projection_failures": 365,
+    "failure_type": "all exhausted16 local iterations",
+    "admission": "not qualified"
+  },
+  "instrument_corrections": {
+    "older_replay_metadata_slot35": "overwritten by state arena; standalone projection_valid flag invalid. Overall algorithmic valid flag was intact. Replaced metadata location outside state arena.",
+    "scaled_failure_run001_partial_states": "incorrect zeros; not accepted as partial state evidence. Run002 uses single production diagnostic entry and retains all365 nonzero partial states."
+  },
+  "absolute_noise_floor": "unmeasured: no nearzero or centered finite-difference qualification"
+}

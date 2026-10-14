@@ -1,5 +1,6 @@
 #include "numi/matter/detail.hpp"
 #include "cardboard_paper_reference.hpp"
+#include "cardboard_paper_projection_scaling.hpp"
 
 #include <algorithm>
 #include <array>
@@ -73,6 +74,7 @@ double evaluate(const ScalarBytecode& bytecode,const MaterialProgram& material,
         }
         case NM_EXPR_MIN: { const double b=pop(); value=std::min(pop(),b); break; }
         case NM_EXPR_MAX: { const double b=pop(); value=std::max(pop(),b); break; }
+        case NM_EXPR_SELECT_NONNEGATIVE: { const double negative=pop(),positive=pop(),condition=pop(); value=condition>=0?positive:negative; break; }
         case NM_EXPR_EXPM1_MINUS_X: { const double x=pop(); value=std::expm1(x)-x; break; }
         default: throw std::runtime_error("unsupported opcode in paper constitutive bytecode interpreter: "+
             std::to_string(instruction.opcode));
@@ -121,6 +123,7 @@ float evaluateFP32(const ScalarBytecode& bytecode,const MaterialProgram& materia
         }
         case NM_EXPR_MIN:{const float b=pop();value=std::min(pop(),b);break;}
         case NM_EXPR_MAX:{const float b=pop();value=std::max(pop(),b);break;}
+        case NM_EXPR_SELECT_NONNEGATIVE:{const float negative=pop(),positive=pop(),condition=pop();value=condition>=0?positive:negative;break;}
         case NM_EXPR_EXPM1_MINUS_X:{const float x=pop();value=std::exp(x)-1.0f-x;break;}
         default:throw std::runtime_error("unsupported opcode in paper FP32 bytecode interpreter: "+
             std::to_string(instruction.opcode));
@@ -150,7 +153,7 @@ std::array<float,169> compiledFP32Jacobian(const ConstitutiveProgram& program,
     return result;
 }
 
-bool productionLocalSolve(std::array<float,169> matrix,std::array<float,13> rhs,
+bool productionLocalSolve(std::array<float,169> matrix,std::array<float,13>& rhs,
                           float& minimumPivot) {
     for(unsigned column=0;column<13;++column) {
         unsigned pivot=column;float magnitude=std::abs(matrix[13*column+column]);
@@ -471,7 +474,8 @@ void checkCompiledStatePrograms(const ConstitutiveProgram& program,paper::Materi
         "normalized FP32 identity residual did not meet the tighter constitutive accuracy target");
     auto fp32Jacobian=compiledFP32Jacobian(program,identity,initial,initial,minimumDivision);
     float minimumPivot=std::numeric_limits<float>::infinity();
-    require(productionLocalSolve(fp32Jacobian,{},minimumPivot),
+    std::array<float,13> identityDirection{};
+    require(productionLocalSolve(fp32Jacobian,identityDirection,minimumPivot),
         "production FP32 local solver rejects the identity material Jacobian");
 
     paper::Matrix loadedF=identity; loadedF[0]=0.994;
@@ -526,6 +530,45 @@ void checkCompiledStatePrograms(const ConstitutiveProgram& program,paper::Materi
         <<" local_min_pivot_fp32="<<minimumPivot<<" min_divisor_fp32="<<minimumDivision
         <<" scaled_loaded_residual_fp32="<<loadedFP32Norm
         <<" physical_loaded_residual_fp32="<<loadedFP32Norm/static_cast<float>(kNumericalResidualScale)<<"\n";
+}
+
+void checkCapturedElasticTangent(const ConstitutiveProgram& program) {
+    // Actual root 19 / Newton 3 / environment 0 / tetrahedron 838, captured
+    // from a9d801c with the literature2009 recipe. It is well inside the
+    // elastic branch (q=.605), so branch crossing cannot explain the original
+    // 69% tangent discrepancy. These are diagnostic inputs, not material data.
+    const paper::Matrix f{1.00022197,9.71238023e-6,-6.64472827e-5,
+        7.03046771e-6,.999993622,1.93879659e-5,
+        .00015213844,-1.21867174e-6,1.00023377};
+    const paper::Matrix h{.104916036,-.0808128715,13.2877254,
+        .426670283,.0377386734,-1.49040747,
+        -17.2101955,.0203557257,-1.88280761};
+    const paper::State accepted{};
+    const auto projected=paper::project(paper::MaterialKind::liner,f,accepted);
+    require(projected.equivalentStress<.7,"captured regression must remain elastic");
+    float floor=std::numeric_limits<float>::infinity();
+    auto jac=compiledFP32Jacobian(program,f,accepted,projected.state,floor);
+    std::array<float,13> direction{};
+    for(unsigned i=0;i<13;++i) direction[i]=-evaluateFP32(program.implicitDeformationDirections[i],
+        program.material,f,h,accepted,projected.state,floor);
+    float pivot=std::numeric_limits<float>::infinity();
+    require(productionLocalSolve(jac,direction,pivot),"captured elastic material solve failed");
+    const auto reference=compiledAlgorithmicTangent(program,f,h,accepted,projected.state);
+    paper::Matrix full{}; const paper::Matrix zero{};
+    for(unsigned c=0;c<9;++c) {
+        float value=evaluateFP32(program.tangentVector[c],program.material,f,h,accepted,projected.state,floor);
+        float chain=0;
+        for(unsigned s=0;s<13;++s) chain+=evaluateFP32(program.stressStateDerivatives[c*13+s],
+            program.material,f,zero,accepted,projected.state,floor)*direction[s];
+        full[c]=value+chain;
+    }
+    double error=0,scale=0;
+    for(unsigned c=0;c<9;++c) {
+        error=std::max(error,std::abs(full[c]-reference[c]));
+        scale=std::max(scale,std::abs(reference[c]));
+    }
+    require(error/scale<=1.0e-3,"captured elastic FP32 tangent fails 0.1% gate: "+number(error/scale));
+    require(std::abs(direction[12])<1.0e-7,"captured elastic tangent creates a spurious plastic multiplier");
 }
 
 void checkProductionMixedProjectionTrace(const MaterialProgram& material) {
@@ -716,6 +759,7 @@ void checkAuthoredSource(const MaterialProgram& m,const paper::Parameters& p) {
         "compiled implicit Hill residual/Jacobian/tangent layout is incomplete");
     checkCompiledStatePrograms(compiled.program,
         p.name==paper::liner.name?paper::MaterialKind::liner:paper::MaterialKind::medium);
+    if(p.name==paper::liner.name) checkCapturedElasticTangent(compiled.program);
 }
 
 struct CaseResult {
@@ -811,6 +855,45 @@ void checkDualRootInitialization() {
         "duplicate implicit equation was not rejected");
 }
 
+void checkComplementarityBranches() {
+    const auto parsed=parseMatter("material fb_branches { parameter density : kg/m^3 = 1; "
+        "parameter p : Pa = 1; parameter eps : one = 0.00000001; state x : one = 0; "
+        "model generic; energy = p*pow(F(0,0)-1,2); update x = x; "
+        "implicit x = sqrt(pow(next(x),2)+pow(1-F(0,0),2)+pow(eps,2))-next(x)-(1-F(0,0)); }");
+    require(parsed.succeeded(),"complementarity branch fixture did not parse: "+diagnostics(parsed.diagnostics));
+    const auto compiled=detail::compileConstitutive(parsed.material,NM_EXPRESSION_STACK_CAPACITY);
+    require(compiled.succeeded(),"complementarity branch fixture did not compile");
+    for(const auto pair:std::array<std::array<double,2>,7>{{
+        {0,.4},{.4,0},{-.4,.3},{.3,-.4},{1e-8,2e-8},{.2,.3},{-.2,-.3}}}) {
+        paper::Matrix f=paper::identity(),h{};f[0]=1-pair[1];h[0]=1;
+        paper::State old{},next{};next[0]=pair[0];
+        const double a=pair[0],b=1-f[0],eps=static_cast<float>(1e-8);
+        const double rho=std::sqrt(a*a+b*b+eps*eps);
+        const auto coefficient=[&](double x,double y) {
+            return x>=0?-(y*y+eps*eps)/(rho*(rho+x)):x/rho-1;
+        };
+        const double expectedX=coefficient(a,b),expectedF=-coefficient(b,a);
+        const double actualX=evaluate(compiled.program.implicitJacobians.at(0),
+            compiled.program.material,f,h,old,next);
+        const double actualF=evaluate(compiled.program.implicitDeformationDirections.at(0),
+            compiled.program.material,f,h,old,next);
+        require(std::abs(actualX-expectedX)<1e-12 && std::abs(actualF-expectedF)<1e-12,
+            "stable complementarity derivative disagrees with its analytic branch");
+        float floor=std::numeric_limits<float>::infinity();
+        const double fp32X=evaluateFP32(compiled.program.implicitJacobians.at(0),
+            compiled.program.material,f,h,old,next,floor);
+        const double fp32F=evaluateFP32(compiled.program.implicitDeformationDirections.at(0),
+            compiled.program.material,f,h,old,next,floor);
+        // At the tiny two-sided transition, the F input itself is rounded;
+        // compare the native derivative at those exact representable inputs.
+        const double af=static_cast<float>(a),bf=1-static_cast<float>(f[0]);
+        const double rf=std::sqrt(af*af+bf*bf+eps*eps);
+        const auto cf=[&](double x,double y){return x>=0?-(y*y+eps*eps)/(rf*(rf+x)):x/rf-1;};
+        require(std::abs(fp32X-cf(af,bf))<1e-6 && std::abs(fp32F+cf(bf,af))<1e-6,
+            "FP32 complementarity derivative loses a resolved analytic branch");
+    }
+}
+
 void print(const paper::Parameters& p,const CaseResult& result) {
     std::cout<<"{\"material\":\""<<p.name<<"\",\"case\":\"md_compression_then_unload\","
         <<"\"F11\":"<<number(p.name==paper::liner.name?0.994:0.9975)<<","
@@ -825,15 +908,76 @@ void print(const paper::Parameters& p,const CaseResult& result) {
 }
 }
 
+void replayCaptured(const numi::matter::MaterialProgram& liner,
+                    const numi::matter::MaterialProgram& medium) {
+    using namespace numi::matter;
+    const auto l=detail::compileConstitutive(liner,NM_EXPRESSION_STACK_CAPACITY);
+    const auto m=detail::compileConstitutive(medium,NM_EXPRESSION_STACK_CAPACITY);
+    require(l.succeeded() && m.succeeded(),"captured constitutive compilation failed");
+    const std::array<ConstitutiveProgram,2> programs{l.program,m.program};
+    std::string line;
+    std::cout<<std::setprecision(17);
+    while(std::getline(std::cin,line)) {
+        if(line.empty() || line[0]=='#') continue;
+        std::istringstream input(line);
+        std::string key,kind;
+        paper::Matrix f{},h{};
+        paper::State old{},candidate{};
+        input>>key>>kind;
+        if(kind!="liner" && kind!="medium") throw std::runtime_error("unknown captured kind");
+        if(key.empty() || !std::all_of(key.begin(),key.end(),[](unsigned char c){
+            return std::isalnum(c)||c=='_'||c=='-'||c=='.';}))
+            throw std::runtime_error("invalid captured key");
+        const auto read=[&](auto& values){for(auto& v:values)if(!(input>>v)||!std::isfinite(v))throw std::runtime_error("invalid captured values");};
+        read(f);read(h);read(old);read(candidate);
+        std::string extra;if(input>>extra)throw std::runtime_error("extra captured values");
+        const auto& p=programs[kind=="liner"?0:1];
+        float floor=std::numeric_limits<float>::infinity();
+        auto jac=compiledFP32Jacobian(p,f,old,candidate,floor);
+        std::array<float,13> rhs{},direction{};
+        for(unsigned i=0;i<13;++i) rhs[i]=-evaluateFP32(p.implicitDeformationDirections[i],p.material,f,h,old,candidate,floor);
+        direction=rhs;
+        float pivot=std::numeric_limits<float>::infinity();
+        if(!productionLocalSolve(jac,direction,pivot)) throw std::runtime_error("captured local solve failed");
+        paper::Matrix fixed{},chain{},full{};
+        const paper::Matrix zero{};
+        for(unsigned c=0;c<9;++c) {
+            fixed[c]=evaluateFP32(p.tangentVector[c],p.material,f,h,old,candidate,floor);
+            float contribution=0;
+            for(unsigned s=0;s<13;++s) contribution+=evaluateFP32(p.stressStateDerivatives[c*13+s],p.material,f,zero,old,candidate,floor)*direction[s];
+            chain[c]=contribution;full[c]=static_cast<float>(static_cast<float>(fixed[c])+contribution);
+        }
+        const auto fp64=compiledAlgorithmicTangent(p,f,h,old,candidate);
+        auto emit=[&](const auto& values){std::cout<<'[';for(unsigned i=0;i<values.size();++i){if(i)std::cout<<',';std::cout<<values[i];}std::cout<<']';};
+        std::cout<<"{\"key\":\""<<key<<"\",\"fixed_candidate_tangent_fp32_Pa_per_s\":";emit(fixed);
+        std::cout<<",\"state_chain_tangent_fp32_Pa_per_s\":";emit(chain);
+        std::cout<<",\"full_tangent_fp32_Pa_per_s\":";emit(full);
+        std::cout<<",\"full_tangent_fp64_Pa_per_s\":";emit(fp64);
+        std::cout<<",\"projected_state_direction_fp32\":";emit(direction);
+        std::cout<<",\"fb_jacobian_row_fp32\":[";
+        for(unsigned s=0;s<13;++s){if(s)std::cout<<',';std::cout<<jac[12*13+s];}
+        std::cout<<"],\"minimum_pivot\":"<<pivot<<",\"minimum_divisor\":"<<floor<<"}\n";
+    }
+}
+
 int main(int argc,char** argv) {
     try {
         const auto root=std::filesystem::path(__FILE__).parent_path().parent_path();
+        if((argc==4 || (argc==5&&std::string(argv[4])=="--scaled-residuals")) && std::string(argv[1])=="--replay-captured") {
+            auto liner=parse(argv[2]),medium=parse(argv[3]);
+            if(argc==5) {
+                liner=numi::cardboard::scalePaperProjectionResiduals(std::move(liner));
+                medium=numi::cardboard::scalePaperProjectionResiduals(std::move(medium));
+            }
+            replayCaptured(liner,medium);return 0;
+        }
         const auto linerPath=argc>1?std::filesystem::path(argv[1]):root/"materials/hajali2009_liner_hill_ideal.nmatter";
         const auto mediumPath=argc>2?std::filesystem::path(argv[2]):root/"materials/hajali2009_medium_hill_ideal.nmatter";
         require(argc<=3,"expected optional liner and medium material paths");
         const MaterialProgram linerSource=parse(linerPath);
         const MaterialProgram mediumSource=parse(mediumPath);
         checkDualRootInitialization();
+        checkComplementarityBranches();
         checkAuthoredSource(linerSource,paper::liner);
         checkAuthoredSource(mediumSource,paper::medium);
         checkProductionMixedProjectionTrace(linerSource);

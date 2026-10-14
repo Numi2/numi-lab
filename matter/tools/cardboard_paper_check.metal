@@ -17,17 +17,25 @@ kernel void cardboard_paper_check(
     for (uint i=0; i<9; ++i) { f[i]=inputs[i]; h[i]=inputs[9+i]; }
     const float3x3 F=componentsMatrix(f), H=componentsMatrix(h);
     float state[NM_MAX_MATERIAL_STATE];
-    bool valid=projectMaterialState(material,programs,instructions,parameters,
-        accepted,F,float3x3(0.0f),1e-4f,293.15f,state);
-    const bool projectionValid = valid;
+    float residual=-1.0f, stateNorm=0.0f;
+    uint iterations=0u, flags=0u, failure=0u;
+    bool valid=true;
     float3x3 stress(0.0f), tangent(0.0f);
-    if (valid) evaluateAlgorithmicStressTangent(material,programs,instructions,
+    evaluateAlgorithmicStressTangent(material,programs,instructions,
         parameters,accepted,F,H,float3x3(0.0f),float3x3(0.0f),1e-4f,293.15f,
-        stress,tangent,valid);
+        stress,tangent,valid,state,&flags,&residual,&stateNorm,&iterations,&failure);
+    const bool projectionValid = (flags & kMaterialDiagProjectionConverged) != 0u;
     float p[9], dp[9]; matrixComponents(stress,p); matrixComponents(tangent,dp);
     output[0]=valid?1.0f:0.0f;
-    output[35]=projectionValid?1.0f:0.0f;
     for (uint i=0;i<9;++i) { output[1+i]=p[i]; output[10+i]=dp[i]; }
     for (uint i=0;i<NM_MAX_MATERIAL_STATE;++i)
-        output[19+i]=projectionValid && i<material.stateCount ? state[i] : 0.0f;
+        output[19+i]=i<material.stateCount ? state[i] : 0.0f;
+    // Keep metadata outside the complete state arena. Slot 35 is itself a
+    // state slot when NM_MAX_MATERIAL_STATE exceeds sixteen.
+    output[19+NM_MAX_MATERIAL_STATE]=projectionValid?1.0f:0.0f;
+    output[20+NM_MAX_MATERIAL_STATE]=residual;
+    output[21+NM_MAX_MATERIAL_STATE]=stateNorm;
+    output[22+NM_MAX_MATERIAL_STATE]=float(iterations);
+    output[23+NM_MAX_MATERIAL_STATE]=float(flags);
+    output[24+NM_MAX_MATERIAL_STATE]=float(failure);
 }

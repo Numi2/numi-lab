@@ -41,6 +41,91 @@ class Symbolic {
 public:
     explicit Symbolic(ExpressionGraph& graph) : graph_(graph) {}
 
+    // Recognize the exact smoothed complementarity expression, rather than
+    // changing the authored value or a solver tolerance. The ordinary chain
+    // rule subtracts nearly equal O(1) terms on its inactive branch. In FP32
+    // that roundoff can become a false plastic tangent after multiplication
+    // by anisotropic yield coefficients.
+    [[nodiscard]] bool sameExpression(std::uint32_t a, std::uint32_t b) const {
+        if (a == b) return true;
+        if (a >= graph_.nodes.size() || b >= graph_.nodes.size()) return false;
+        const Expr& x = graph_.nodes[a];
+        const Expr& y = graph_.nodes[b];
+        if (x.kind != y.kind || x.dimension != y.dimension ||
+            x.constant != y.constant || x.index != y.index || x.integer != y.integer)
+            return false;
+        for (unsigned i = 0; i < x.arguments.size(); ++i) {
+            if (x.arguments[i] == NM_INVALID_INDEX || y.arguments[i] == NM_INVALID_INDEX) {
+                if (x.arguments[i] != y.arguments[i]) return false;
+            } else if (!sameExpression(x.arguments[i], y.arguments[i])) return false;
+        }
+        return true;
+    }
+
+    struct Complementarity { std::uint32_t a, b, epsilon, radius; };
+
+    [[nodiscard]] std::optional<Complementarity> complementarity(std::uint32_t node) const {
+        const Expr& outer = graph_.nodes[node];
+        if (outer.kind != ExprKind::subtract) return std::nullopt;
+        const Expr& inner = graph_.nodes[outer.arguments[0]];
+        if (inner.kind != ExprKind::subtract) return std::nullopt;
+        const auto radius = inner.arguments[0];
+        if (graph_.nodes[radius].kind != ExprKind::squareRoot) return std::nullopt;
+        const auto a = inner.arguments[1], b = outer.arguments[1];
+        std::vector<std::uint32_t> terms;
+        const auto flatten = [&](auto&& self, std::uint32_t id) -> void {
+            const Expr& expression = graph_.nodes[id];
+            if (expression.kind == ExprKind::add) {
+                self(self, expression.arguments[0]); self(self, expression.arguments[1]);
+            } else terms.push_back(id);
+        };
+        flatten(flatten, graph_.nodes[radius].arguments[0]);
+        if (terms.size() != 3) return std::nullopt;
+        bool foundA = false, foundB = false;
+        std::uint32_t epsilon = NM_INVALID_INDEX;
+        for (auto term : terms) {
+            const Expr& square = graph_.nodes[term];
+            if (square.kind != ExprKind::integerPower || square.integer != 2)
+                return std::nullopt;
+            const auto base = square.arguments[0];
+            if (!foundA && sameExpression(base, a)) foundA = true;
+            else if (!foundB && sameExpression(base, b)) foundB = true;
+            else if (epsilon == NM_INVALID_INDEX &&
+                (graph_.nodes[base].kind == ExprKind::constant ||
+                 graph_.nodes[base].kind == ExprKind::parameter)) epsilon = base;
+            else return std::nullopt;
+        }
+        if (!foundA || !foundB || epsilon == NM_INVALID_INDEX ||
+            graph_.nodes[a].dimension != graph_.nodes[b].dimension ||
+            graph_.nodes[a].dimension != graph_.nodes[epsilon].dimension) return std::nullopt;
+        return Complementarity{a, b, epsilon, radius};
+    }
+
+    [[nodiscard]] std::uint32_t complementarityCoefficient(
+        std::uint32_t x, std::uint32_t y, const Complementarity& c
+    ) {
+        const auto ratio = [&](std::uint32_t v) {
+            return binary(ExprKind::divide, v, c.radius, kDimensionless);
+        };
+        const auto xr = ratio(x), yr = ratio(y), er = ratio(c.epsilon);
+        const auto numerator = binary(ExprKind::add,
+            power(yr, 2, kDimensionless), power(er, 2, kDimensionless), kDimensionless);
+        // Both select arms are evaluated. Guard the unused negative-x arm's
+        // stable denominator without altering the positive-x formula.
+        const auto denominator = binary(ExprKind::maximum,
+            binary(ExprKind::add, one(), xr, kDimensionless), one(), kDimensionless);
+        const auto stable = unary(ExprKind::negate,
+            binary(ExprKind::divide, numerator, denominator, kDimensionless), kDimensionless);
+        const auto ordinary = binary(ExprKind::subtract, xr, one(), kDimensionless);
+        Expr branch;
+        branch.kind = ExprKind::selectNonnegative;
+        branch.dimension = kDimensionless;
+        branch.arguments[0] = x;
+        branch.arguments[1] = stable;
+        branch.arguments[2] = ordinary;
+        return graph_.append(branch);
+    }
+
     [[nodiscard]] std::uint32_t zero(const Dimension dimension = {}) {
         return graph_.constant(0.0, dimension);
     }
@@ -215,8 +300,20 @@ public:
                 resultDimension
             );
             break;
-        case ExprKind::add:
         case ExprKind::subtract:
+            if (const auto c = complementarity(node)) {
+                const auto pair = binary(ExprKind::add,
+                    binary(ExprKind::multiply, complementarityCoefficient(c->a, c->b, *c), d(c->a), resultDimension),
+                    binary(ExprKind::multiply, complementarityCoefficient(c->b, c->a, *c), d(c->b), resultDimension),
+                    resultDimension);
+                result = binary(ExprKind::add, pair,
+                    binary(ExprKind::multiply,
+                        binary(ExprKind::divide, c->epsilon, c->radius, kDimensionless),
+                        d(c->epsilon), resultDimension), resultDimension);
+                break;
+            }
+            [[fallthrough]];
+        case ExprKind::add:
             result = binary(
                 source.kind,
                 d(source.arguments[0]),
@@ -464,8 +561,20 @@ public:
         case ExprKind::deformationDirection:
             result = zero(source.dimension);
             break;
-        case ExprKind::add:
         case ExprKind::subtract:
+            if (const auto c = complementarity(node)) {
+                const auto pair = binary(ExprKind::add,
+                    binary(ExprKind::multiply, complementarityCoefficient(c->a, c->b, *c), d(c->a), source.dimension),
+                    binary(ExprKind::multiply, complementarityCoefficient(c->b, c->a, *c), d(c->b), source.dimension),
+                    source.dimension);
+                result = binary(ExprKind::add, pair,
+                    binary(ExprKind::multiply,
+                        binary(ExprKind::divide, c->epsilon, c->radius, kDimensionless),
+                        d(c->epsilon), source.dimension), source.dimension);
+                break;
+            }
+            [[fallthrough]];
+        case ExprKind::add:
             result = binary(
                 source.kind,
                 d(source.arguments[0]),

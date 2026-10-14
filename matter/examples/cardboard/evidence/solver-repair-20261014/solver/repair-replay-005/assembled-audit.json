@@ -1,0 +1,188 @@
+[
+  {
+    "environment": 0,
+    "free_nodes": 948,
+    "production_gather": {
+      "absolute_error": 7.102092037257455e-13,
+      "reference_scale": 2.0559359676523905e-06,
+      "relative_error": 3.45443250616755e-07,
+      "noise_floor": 0.0,
+      "resolved": true
+    },
+    "mass_action_l2_Ns": 1.474209634868113e-07,
+    "stiffness_action_l2_Ns": 7.060802795903457e-06,
+    "external_impulse_l2_Ns": 2.3185838485059895e-11,
+    "oracle_complete": true,
+    "oracle_assembled_action": {
+      "absolute_error": 1.5674745559310984e-10,
+      "reference_scale": 2.0560927129281926e-06,
+      "relative_error": 7.623559706598898e-05,
+      "noise_floor": 0.0,
+      "resolved": true
+    },
+    "perturbations": [
+      {
+        "epsilon": 0.03125,
+        "side": 0,
+        "residual_assembly": {
+          "absolute_error": 1.0907411932580279e-11,
+          "reference_scale": 2.143405475293879e-06,
+          "relative_error": 5.088823397301801e-06,
+          "noise_floor": 0.0,
+          "resolved": true
+        }
+      },
+      {
+        "epsilon": 0.03125,
+        "side": 1,
+        "residual_assembly": {
+          "absolute_error": 1.2075989494354363e-11,
+          "reference_scale": 2.259806221097734e-06,
+          "relative_error": 5.34381637753359e-06,
+          "noise_floor": 0.0,
+          "resolved": true
+        }
+      },
+      {
+        "epsilon": 0.015625,
+        "side": 0,
+        "residual_assembly": {
+          "absolute_error": 1.202814930763353e-11,
+          "reference_scale": 2.1738407529455982e-06,
+          "relative_error": 5.5331326783413845e-06,
+          "noise_floor": 0.0,
+          "resolved": true
+        }
+      },
+      {
+        "epsilon": 0.015625,
+        "side": 1,
+        "residual_assembly": {
+          "absolute_error": 6.548867840956315e-12,
+          "reference_scale": 2.23193980040985e-06,
+          "relative_error": 2.934159711544975e-06,
+          "noise_floor": 0.0,
+          "resolved": true
+        }
+      }
+    ],
+    "centered_actions": [
+      {
+        "epsilon": 0.03125,
+        "comparison": {
+          "absolute_error": 1.2907707287013181e-05,
+          "reference_scale": 1.2085982234566472e-05,
+          "relative_error": 1.0679899272147313,
+          "noise_floor": 0.0,
+          "resolved": true
+        },
+        "fd_action_l2_Ns": 3.015605377457662e-05
+      },
+      {
+        "epsilon": 0.015625,
+        "comparison": {
+          "absolute_error": 1.0756166602732264e-05,
+          "reference_scale": 9.934441550285555e-06,
+          "relative_error": 1.0827147704566331,
+          "noise_floor": 0.0,
+          "resolved": true
+        },
+        "fd_action_l2_Ns": 2.1304171553175204e-05
+      }
+    ],
+    "nonvacuous": true
+  },
+  {
+    "environment": 1,
+    "free_nodes": 948,
+    "production_gather": {
+      "absolute_error": 0.0,
+      "reference_scale": 0.0,
+      "relative_error": null,
+      "noise_floor": 0.0,
+      "resolved": false
+    },
+    "mass_action_l2_Ns": 0.0,
+    "stiffness_action_l2_Ns": 0.0,
+    "external_impulse_l2_Ns": 2.0800352009049412e-15,
+    "oracle_complete": true,
+    "oracle_assembled_action": {
+      "absolute_error": 0.0,
+      "reference_scale": 0.0,
+      "relative_error": null,
+      "noise_floor": 0.0,
+      "resolved": false
+    },
+    "perturbations": [
+      {
+        "epsilon": 0.03125,
+        "side": 0,
+        "residual_assembly": {
+          "absolute_error": 7.521423912013507e-16,
+          "reference_scale": 3.921801911766727e-09,
+          "relative_error": 1.917849009519502e-07,
+          "noise_floor": 0.0,
+          "resolved": true
+        }
+      },
+      {
+        "epsilon": 0.03125,
+        "side": 1,
+        "residual_assembly": {
+          "absolute_error": 7.521423912013507e-16,
+          "reference_scale": 3.921801911766727e-09,
+          "relative_error": 1.917849009519502e-07,
+          "noise_floor": 0.0,
+          "resolved": true
+        }
+      },
+      {
+        "epsilon": 0.015625,
+        "side": 0,
+        "residual_assembly": {
+          "absolute_error": 7.521423912013507e-16,
+          "reference_scale": 3.921801911766727e-09,
+          "relative_error": 1.917849009519502e-07,
+          "noise_floor": 0.0,
+          "resolved": true
+        }
+      },
+      {
+        "epsilon": 0.015625,
+        "side": 1,
+        "residual_assembly": {
+          "absolute_error": 7.521423912013507e-16,
+          "reference_scale": 3.921801911766727e-09,
+          "relative_error": 1.917849009519502e-07,
+          "noise_floor": 0.0,
+          "resolved": true
+        }
+      }
+    ],
+    "centered_actions": [
+      {
+        "epsilon": 0.03125,
+        "comparison": {
+          "absolute_error": 0.0,
+          "reference_scale": 0.0,
+          "relative_error": null,
+          "noise_floor": 0.0,
+          "resolved": false
+        },
+        "fd_action_l2_Ns": 0.0
+      },
+      {
+        "epsilon": 0.015625,
+        "comparison": {
+          "absolute_error": 0.0,
+          "reference_scale": 0.0,
+          "relative_error": null,
+          "noise_floor": 0.0,
+          "resolved": false
+        },
+        "fd_action_l2_Ns": 0.0
+      }
+    ],
+    "nonvacuous": false
+  }
+]

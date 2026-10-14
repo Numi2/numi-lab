@@ -2,6 +2,7 @@
 #import <Metal/Metal.h>
 #include "numi/matter/matter.hpp"
 #include "cardboard_paper_reference.hpp"
+#include "cardboard_paper_projection_scaling.hpp"
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -9,6 +10,11 @@
 #include <stdexcept>
 #include <vector>
 #include <string>
+#include <fstream>
+#include <sstream>
+#include <iomanip>
+#include <filesystem>
+#include <cctype>
 
 namespace {
 using namespace numi::matter;
@@ -18,7 +24,8 @@ void need(bool v,const std::string& s){if(!v)throw std::runtime_error(s);}
 std::string diagnostics(const std::vector<Diagnostic>& ds){std::string s;for(const auto& d:ds)s+=d.message+"; ";return s;}
 double parameter(const MaterialProgram& m,const std::string& n){for(const auto& p:m.parameters)if(p.name==n)return p.defaultValue;throw std::runtime_error("missing "+n);}
 template<class T> id<MTLBuffer> buffer(id<MTLDevice> d,const std::vector<T>& x){T z{};return [d newBufferWithBytes:x.empty()?&z:x.data() length:sizeof(T)*std::max(std::size_t(1),x.size()) options:MTLResourceStorageModeShared];}
-struct Response{bool valid=false;bool projectionValid=false;Matrix p{},dp{};std::vector<float> state;};
+struct Response{bool valid=false;bool projectionValid=false;Matrix p{},dp{};std::vector<float> state;
+    float residual=0,stateNorm=0;unsigned iterations=0,flags=0,failure=0;};
 struct Instrument {
     id<MTLDevice> device;id<MTLCommandQueue> queue;id<MTLComputePipelineState> pipeline;
     Instrument(){device=MTLCreateSystemDefaultDevice();need(device!=nil,"Metal unavailable");
@@ -31,12 +38,16 @@ struct Instrument {
     Response evaluate(const CompiledWorld& w,const Matrix& f,const Matrix& h,const std::vector<float>& state){
         std::vector<float> inputs;for(double v:f)inputs.push_back(float(v));for(double v:h)inputs.push_back(float(v));
         std::vector<float> parameters;for(const auto& v:w.parameters)parameters.push_back(v.valueAndBounds.x);
-        std::array<id<MTLBuffer>,7> b{buffer(device,std::vector<NMMaterialGPU>{w.materials.at(0)}),buffer(device,w.scalarPrograms),buffer(device,w.instructions),buffer(device,parameters),buffer(device,state),buffer(device,inputs),buffer(device,std::vector<float>(20+NM_MAX_MATERIAL_STATE,0))};
+        std::array<id<MTLBuffer>,7> b{buffer(device,std::vector<NMMaterialGPU>{w.materials.at(0)}),buffer(device,w.scalarPrograms),buffer(device,w.instructions),buffer(device,parameters),buffer(device,state),buffer(device,inputs),buffer(device,std::vector<float>(25+NM_MAX_MATERIAL_STATE,0))};
         auto cb=[queue commandBuffer];auto encoder=[cb computeCommandEncoder];[encoder setComputePipelineState:pipeline];
         for(NSUInteger i=0;i<b.size();++i)[encoder setBuffer:b[i] offset:0 atIndex:i];
         [encoder dispatchThreads:MTLSizeMake(1,1,1) threadsPerThreadgroup:MTLSizeMake(1,1,1)];[encoder endEncoding];[cb commit];[cb waitUntilCompleted];
         need(cb.status==MTLCommandBufferStatusCompleted,"Metal paper evaluation failed");
-        const auto* out=static_cast<const float*>(b[6].contents);Response r;r.valid=out[0]==1;r.projectionValid=out[35]==1;
+        const auto* out=static_cast<const float*>(b[6].contents);Response r;r.valid=out[0]==1;r.projectionValid=out[19+NM_MAX_MATERIAL_STATE]==1;
+        r.residual=out[20+NM_MAX_MATERIAL_STATE];r.stateNorm=out[21+NM_MAX_MATERIAL_STATE];
+        r.iterations=static_cast<unsigned>(out[22+NM_MAX_MATERIAL_STATE]);
+        r.flags=static_cast<unsigned>(out[23+NM_MAX_MATERIAL_STATE]);
+        r.failure=static_cast<unsigned>(out[24+NM_MAX_MATERIAL_STATE]);
         for(unsigned i=0;i<9;++i){r.p[i]=out[1+i];r.dp[i]=out[10+i];}
         r.state.assign(out+19,out+19+w.materials.at(0).stateCount);return r;
     }
@@ -107,5 +118,54 @@ void check(Instrument& gpu,const std::string& path){
     std::cout<<m.name<<" unload_stress_Pa="<<maxabs(unload.p)<<" plastic_memory_drift="<<drift<<" retained_Ep="<<plastic(unload)<<'\n';
     need(plastic(unload)>1e-7&&drift<2e-5&&maxabs(unload.p)<5000,"plastic memory unload check failed");
 }
+
+int replayCaptured(Instrument& gpu,const char* inputPath,const char* outputPath,
+                   const char* linerPath,const char* mediumPath,bool scaled) {
+    std::ifstream input(inputPath);need(input.good(),"cannot read captured material input");
+    need(!std::filesystem::exists(outputPath),"captured replay output already exists");
+    std::ofstream output(outputPath);need(output.good(),"cannot create captured material output");
+    std::array<CompiledWorld,2> worlds;
+    const char* paths[]{linerPath,mediumPath};
+    for(unsigned i=0;i<2;++i) {
+        const auto parsed=parseMatterFile(paths[i]);need(parsed.succeeded(),diagnostics(parsed.diagnostics));
+        worlds[i]=cook(scaled?numi::cardboard::scalePaperProjectionResiduals(parsed.material):parsed.material);
+    }
+    std::string line;unsigned rows=0,failed=0;
+    output<<std::setprecision(17);
+    while(std::getline(input,line)) {
+        if(line.empty() || line[0]=='#')continue;
+        std::istringstream row(line);std::string key,kind;Matrix f{},h{};
+        row>>key>>kind;need(kind=="liner"||kind=="medium","unknown material kind");
+        need(!key.empty()&&std::all_of(key.begin(),key.end(),[](unsigned char c){
+            return std::isalnum(c)||c=='_'||c=='-'||c=='.';}),"invalid capture key");
+        std::vector<float> accepted(13),captured(13);
+        const auto read=[&](auto& values){for(auto& v:values){double x;need(bool(row>>x)&&std::isfinite(x),"invalid capture value");v=static_cast<typename std::remove_reference_t<decltype(values)>::value_type>(x);}};
+        read(f);read(h);read(accepted);read(captured);std::string extra;need(!(row>>extra),"extra capture values");
+        const Response result=gpu.evaluate(worlds[kind=="liner"?0:1],f,h,accepted);
+        if(!result.valid)++failed;
+        const auto emit=[&](const auto& values){output<<'[';for(unsigned i=0;i<values.size();++i){if(i)output<<',';output<<values[i];}output<<']';};
+        output<<"{\"key\":\""<<key<<"\",\"valid\":"<<(result.valid?"true":"false")
+            <<",\"projection_valid\":"<<(result.projectionValid?"true":"false")
+            <<",\"first_piola_Pa\":";emit(result.p);
+        output<<",\"tangent_Pa_per_s\":";emit(result.dp);
+        output<<",\"projected_state\":";emit(result.state);
+        output<<",\"projection_residual\":"<<result.residual
+            <<",\"projection_state_norm\":"<<result.stateNorm
+            <<",\"projection_iterations\":"<<result.iterations
+            <<",\"projection_flags\":"<<result.flags
+            <<",\"projection_failure\":"<<result.failure<<"}\n";++rows;
+        need(output.good(),"captured replay write failed");
+    }
+    need(rows>0,"empty captured material input");
+    std::cout<<"captured_native_replay_rows="<<rows<<" invalid="<<failed
+        <<" scope=production_projection_and_tangent physical_steps=0\n";
+    return failed?2:0;
 }
-int main(int argc,char** argv){@autoreleasepool{try{need(argc==3,"expected liner and medium material paths");Instrument gpu;check(gpu,argv[1]);check(gpu,argv[2]);std::cout<<"PASS paper production material projection; physical_validation=false\n";return 0;}catch(const std::exception& e){std::cerr<<"FAIL "<<e.what()<<'\n';return 1;}}}
+}
+int main(int argc,char** argv){@autoreleasepool{try{
+    if((argc==6 || (argc==7&&std::string(argv[6])=="--scaled-residuals"))&&std::string(argv[1])=="--replay-captured") {
+        Instrument gpu;return replayCaptured(gpu,argv[2],argv[3],argv[4],argv[5],argc==7);
+    }
+    need(argc==3,"expected liner and medium material paths, or --replay-captured INPUT OUTPUT LINER MEDIUM");
+    Instrument gpu;check(gpu,argv[1]);check(gpu,argv[2]);std::cout<<"PASS paper production material projection; physical_validation=false\n";return 0;
+}catch(const std::exception& e){std::cerr<<"FAIL "<<e.what()<<'\n';return 1;}}}

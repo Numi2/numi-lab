@@ -1,0 +1,217 @@
+{
+  "schema": "numi.cardboard.solver-milestone-artifacts.v1",
+  "external_root": "/Users/home/cardboard-implementation-20261014",
+  "artifacts": [
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/solver/capture-noninterference-001.json",
+      "bytes": 319,
+      "sha256": "a69caad10d354584e9fffb5985bc3f777f323414edfb50bddee6850e1cf51bc3",
+      "curated": true
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/solver/generated-derivative-repair-003.json",
+      "bytes": 747,
+      "sha256": "07f2241b4a6f41df47138fc0b3e28ac6a3f014bd1be3ec210fac8bc4bde62556",
+      "curated": true
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/solver/captured-material-replay-comparison-001.json",
+      "bytes": 11895,
+      "sha256": "770761de2fd9f78fff2ec7a27c21317c12336ddde7e6e8714a73324634e35be7",
+      "curated": true
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/solver/repair-replay-004/assembled-audit.json",
+      "bytes": 5161,
+      "sha256": "a5da4787a5e2e3e2c7a611c5952ac8d2820d6b04afb7360a30c040593c77be05",
+      "curated": true
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/solver/repair-replay-004/summary.json",
+      "bytes": 11718,
+      "sha256": "b23d63144093b5f0e837e1275b7ffdaa758f5c93c247a21c5aee605db65222b8",
+      "curated": true
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/solver/repair-native-001/output/result.json",
+      "bytes": 506,
+      "sha256": "257ce065cc062ae27df3e789a22adb8e0a75828daaf2b610394df19fe0205775",
+      "curated": true
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/solver/repair-native-001/receipt.json",
+      "bytes": 138,
+      "sha256": "355f01cf86c86ffbc29ba5cb60408ddd31c331a92fbdf205357e5390e61dcf12",
+      "curated": true
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/solver/paper-cpu-milestone-003/receipt.json",
+      "bytes": 139,
+      "sha256": "59cdcb6b4260a0aced2bb0e10d382759aa659c24e514b29ded14aca9e5127ae9",
+      "curated": true
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/solver/paper-cpu-milestone-003/stdout.log",
+      "bytes": 2554,
+      "sha256": "76217bd3eaf5d6466cfadf253139e31aa4138746abb6b8fbbe2b4f1ffcea40f6",
+      "curated": true
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/paper-gpu-milestone-003/receipt.json",
+      "bytes": 138,
+      "sha256": "3a9aa6b0498375d7dbec3c609fbf6c168c2553bfd72839bce92a79efb5539e60",
+      "curated": true
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/paper-gpu-milestone-003/stdout.log",
+      "bytes": 2330,
+      "sha256": "f1676fb9c8a27ba98cecfdf505f8e17c43789ef4ff74db5ca350d185f752cbb6",
+      "curated": true
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/scaled-material-failures-002/receipt.json",
+      "bytes": 137,
+      "sha256": "a9fa8797a7b340636d53b8ae0cc86da8bd96b5190e4abb77e3fbac3b9e8b3acb",
+      "curated": true
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/solver/rich-capture-001/capture.jsonl",
+      "bytes": 26022843,
+      "sha256": "0de1a5912c11ad7f048ef0346fe57be665f4a6cf26ad01d32994cdd9933bab5a",
+      "curated": false
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/solver/repair-native-001/capture.jsonl",
+      "bytes": 26021062,
+      "sha256": "d310545aadca3cc7f91935604941eafc78de830fe2267c92749ca2adc441bc81",
+      "curated": false
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/solver/replay-003/replay-output.jsonl",
+      "bytes": 10024237,
+      "sha256": "76495609cba8011a746311f574d407cf2ce387f89fba604c7ea5749914612ec9",
+      "curated": false
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/solver/repair-replay-004/replay-output.jsonl",
+      "bytes": 10031444,
+      "sha256": "f4ea69618a3b30ac6a162197d773f728ce3d4efb4aea32103fa15fcfcb673895",
+      "curated": false
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/solver/generated-replay-002.jsonl",
+      "bytes": 11175008,
+      "sha256": "76d2a0773a345f2b78c8a1ccec15576351772fdc228c3ac5e72391250c2f012f",
+      "curated": false
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/solver/generated-replay-003.jsonl",
+      "bytes": 12059050,
+      "sha256": "4439f414468467fba661f673a5b9253a9c98c5b4d6b962b2c26ac78061731293",
+      "curated": false
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/captured-material-replay-001/output.jsonl",
+      "bytes": 5354871,
+      "sha256": "956361c6f3519b78a1c1560bc2166a314a5e1090fa1ac01bd43b21573a69ee11",
+      "curated": false
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/captured-material-replay-002/output.jsonl",
+      "bytes": 5184129,
+      "sha256": "72f1ee3a77cd39e35741e0afa691456f6bbf2320a7b588804f3c9ca009881c30",
+      "curated": false
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/scaled-material-failures-002/output.jsonl",
+      "bytes": 224870,
+      "sha256": "5b5afb5fbc1541f25ea53d53cce3d39d6409e61af99c5a4a42a32ab98f003145",
+      "curated": false
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/solver/rich-capture-001/prediction.json",
+      "bytes": 46721,
+      "sha256": "d943c880a53fdb3031b1052b9dcd863474f4f310cf0c09e5a7053b15818e7c47",
+      "curated": false
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/solver/capture-off-001/prediction.json",
+      "bytes": 46433,
+      "sha256": "34a31267d70ef66f9fe1a777a9b2a02807e183976b20b0e6d982fc640c651fbe",
+      "curated": false
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/solver/repair-native-001/prediction.json",
+      "bytes": 47839,
+      "sha256": "6b8a4f08f5a8e9547b623b7e6adcdf14f5f0cc5a8badc98358af8c8bc53eed0a",
+      "curated": false
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/solver/paper-cpu-milestone-003/prediction.json",
+      "bytes": 43292,
+      "sha256": "a5e73762d34b50da4cf123803555c6579bdb34fd3c75d7d222049b9d934fc157",
+      "curated": false
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/paper-gpu-milestone-003/prediction.json",
+      "bytes": 43493,
+      "sha256": "bd17d474a680a66a996f1a02b544285e5f4378f706de6679161d5aea2f446cf8",
+      "curated": false
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/captured-material-replay-001/prediction.json",
+      "bytes": 47794,
+      "sha256": "00443bc970079eabda9876485ae5130bd220f7f71c8d95100a4e2d2efda42e36",
+      "curated": false
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/captured-material-replay-002/prediction.json",
+      "bytes": 47857,
+      "sha256": "329af89f744c23d6421b7826e113eace342741a95c07d4f0f465171776abcb74",
+      "curated": false
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/scaled-material-failures-002/prediction.json",
+      "bytes": 48148,
+      "sha256": "331a0329824002e1c17eb8e915344db8aea3595814633e4b1bab9815f8403109",
+      "curated": false
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/mixed-cohesive-legacy-001/prediction.json",
+      "bytes": 47803,
+      "sha256": "c652c2b225e17d0a1cacb67b9986bcf182525dea4c2d63d298d912f14d97157c",
+      "curated": false
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/mixed-cohesive-mortar-001/prediction.json",
+      "bytes": 48211,
+      "sha256": "fe9413da74d7e36c29d9c6feee199f2ad9a13b710945ce7dcf862bd9715112cd",
+      "curated": false
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/mixed-cohesive-mortar-002/prediction.json",
+      "bytes": 48320,
+      "sha256": "146ea1a729ecb9492ba622f3afb78425f57540f96be4a63a9abbda556a21dcc4",
+      "curated": false
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/solver/repair-replay-005/replay-output.jsonl",
+      "bytes": 10519796,
+      "sha256": "c62ebe82111fa14daf9f64cca40840cef61c6a24e7b95a5390a04b5f24f0c269",
+      "curated": false
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/solver/repair-replay-005/assembled-audit.json",
+      "bytes": 5176,
+      "sha256": "a091a93b791b023a215202133342c4eda95b1aa83975f3026be5726d7ba61010",
+      "curated": true
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/solver/repair-replay-005/summary.json",
+      "bytes": 12050,
+      "sha256": "b331b9e180417b61a8bb254539e0b218996ef16976425981701622093eb1b317",
+      "curated": true
+    }
+  ],
+  "raw_history_policy": "Full captures histories and source/binary snapshots retained externally at hashed paths; curated summaries copied here. Failures and timeouts are not removed."
+}

@@ -1,0 +1,12 @@
+{
+  "schema": "numi.cardboard.capture-noninterference.v1",
+  "production_file_count": 47,
+  "byte_identical": true,
+  "differences": [],
+  "source_binding": "source/capture-003/binding.json",
+  "runs": [
+    "rich-capture-001",
+    "capture-off-001"
+  ],
+  "qualification": "diagnostic software noninterference only"
+}

@@ -1,0 +1,16 @@
+{
+  "schema": "numi.cardboard.derivative-repair-replay.v1",
+  "scope": "CPU interpreter of generated production FP32 bytecode at captured actual material states; no native FEM steps",
+  "captured_inputs": 14400,
+  "old_worst_relative": 0.7278226970320802,
+  "repaired_worst_relative": 0.0002829514559484184,
+  "gate": 0.001,
+  "result": "pass",
+  "tet838_before": 0.6898847827922403,
+  "tet838_after": 5.231653105097236e-06,
+  "inputs_sha256": {
+    "generated-replay-002.jsonl": "76d2a0773a345f2b78c8a1ccec15576351772fdc228c3ac5e72391250c2f012f",
+    "generated-replay-003.jsonl": "4439f414468467fba661f673a5b9253a9c98c5b4d6b962b2c26ac78061731293",
+    "replay-input.txt": "1618412f7b1d279d889f310527282e8784052851a9ecbc2039fcb950ce518e9b"
+  }
+}
