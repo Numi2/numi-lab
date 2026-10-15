@@ -1,0 +1,4 @@
+cardboard_gpu_device=Apple M4 abi=45
+nagasawa2013_liner_orthotropic identity_no_load_force_N=0 rigid_rotation_no_load_force_N=4.54952e-05 fp32_force_floor_bound_N=3.53903 rigid_rotation_oracle_error_N=0.0073101 identity_oracle_error_N=4.43358e-13 loaded_force_N=782.314 force_oracle_error=8.67762e-06 tangent_oracle_error=7.28912e-08 tangent_fd_error=8.40055e-05
+nagasawa2013_medium_orthotropic identity_no_load_force_N=0 rigid_rotation_no_load_force_N=3.63962e-05 fp32_force_floor_bound_N=3.29067 rigid_rotation_oracle_error_N=0.00682375 identity_oracle_error_N=4.71658e-13 loaded_force_N=736.68 force_oracle_error=7.12429e-06 tangent_oracle_error=1.64571e-07 tangent_fd_error=0.000158574
+PASS cardboard_gpu_check checks=50 production_kernels=FEM_internal_forces+apply_operator physical_steps=0 crease_plasticity_and_cardboard_qualification=false

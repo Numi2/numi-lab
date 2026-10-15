@@ -850,7 +850,7 @@ int runExactSource392Tet858Trace(const std::filesystem::path& pointPath,
     std::ofstream result(outputPath);need(result.good(),"cannot create source392 trace-run manifest");
     result<<std::setprecision(17)
       <<"{\"schema\":\"numi.cardboard.source392-tet858-projection-trace.v1\","
-      <<"\"source_snapshot\":\"source-valid-summary-tet858-121\","
+      <<"\"input_coupon_source_snapshot\":\"source-scaled-material-merit-118\","
       <<"\"point401_sha256\":\""<<pointSHA<<"\",\"coupon_receipt_sha256\":\""<<receiptSHA
       <<"\",\"run_manifest_sha256\":\""<<runManifestSHA<<"\",\"compiled_package_sha256\":\""<<packageSHA
       <<"\",\"medium_asset_sha256\":\""<<kMediumSHA<<"\",\"candidate_nodes_sha256\":\""<<candidateSHA

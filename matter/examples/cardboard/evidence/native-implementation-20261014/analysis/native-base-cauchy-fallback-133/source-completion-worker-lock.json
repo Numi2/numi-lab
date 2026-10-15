@@ -1,0 +1,6 @@
+{
+  "path": "build-cardboard-native-worker/worker.lock",
+  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "scope": "Restore exact frozen source125 configure-support inventory file absent from isolated working copy; not used as a live worker lock",
+  "physical_steps": 0
+}

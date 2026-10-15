@@ -1,0 +1,20 @@
+[
+  "/usr/bin/clang++",
+  "-DNUMI_MATTER_DEFAULT_METALLIB=\"/Users/home/numi-cardboard-20261006/build-cardboard-provenance-125/matter/shaders/NumiMatter.metallib\"",
+  "-I/Users/home/cardboard-implementation-20261014/analysis/native-base-cauchy-fallback-133/source/matter/include",
+  "-I/Users/home/cardboard-implementation-20261014/analysis/native-base-cauchy-fallback-133/source/matter/../include",
+  "-x",
+  "objective-c++",
+  "-O3",
+  "-DNDEBUG",
+  "-std=c++23",
+  "-arch",
+  "arm64",
+  "-fPIC",
+  "-fobjc-arc",
+  "-Wall",
+  "-Wextra",
+  "-Wpedantic",
+  "/Users/home/cardboard-implementation-20261014/analysis/native-base-cauchy-fallback-133/source/matter/src/runtime.mm",
+  "-fsyntax-only"
+]

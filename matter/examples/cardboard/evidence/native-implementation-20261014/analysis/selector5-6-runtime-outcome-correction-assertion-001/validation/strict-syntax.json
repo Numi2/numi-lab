@@ -1,0 +1,8 @@
+{
+  "command": "xcrun clang++ -DNUMI_MATTER_METALLIB=\"/Users/home/numi-cardboard-20261006/build-cardboard-provenance-131/matter/shaders/NumiMatter.metallib\" -I/Users/home/cardboard-implementation-20261014/snapshots/source-hybrid-outcome-capture-131/matter/tools -I/Users/home/cardboard-implementation-20261014/snapshots/source-hybrid-outcome-capture-131/matter/../include -I/Users/home/cardboard-implementation-20261014/snapshots/source-hybrid-outcome-capture-131/matter/include -F/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -x objective-c++ -std=c++23 -arch arm64 -fobjc-arc -Wall -Wextra -Wpedantic -Werror -fsyntax-only <package candidate checker>",
+  "exit_code": 0,
+  "compiler": "Xcode clang++ via xcrun",
+  "scope": "host ObjC++ syntax only; no native execution",
+  "source_candidate_sha256": "882dbe998fea3511f76da39492c38c2e9f715f2487f4f37d8267010e17c70da7",
+  "stderr": "empty"
+}

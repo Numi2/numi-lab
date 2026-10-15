@@ -1,0 +1,30 @@
+{
+  "classification": "CPU-only audit; native inputs and outputs are read-only external source-bound evidence",
+  "files": {
+    "README.md": {
+      "bytes": 4968,
+      "sha256": "f8f949101187804b51ce679b68958e85f75256416b806794c225f932586db12d"
+    },
+    "audit.py": {
+      "bytes": 20374,
+      "sha256": "889b39acb5e9f02655dd9b20bafce09194812cf64b776dc8cd0d4a1e27a8b789"
+    },
+    "report.json": {
+      "bytes": 55963,
+      "sha256": "729012047358bde7f3ec9cafc004116e546490d5b539c7ef663df58123c800aa"
+    },
+    "verification.log": {
+      "bytes": 1626,
+      "sha256": "b1b6a588791a5cfa25140785cd46fae66f464ab35d0d7f6c965b03560cb4cc1f"
+    }
+  },
+  "helper_binary_sha256": "cc872337366821d0752665ea0feb913f38c1ff7cd921696c395c9861fabccbec",
+  "helper_compiled_program_sha256": "b2f37a4eaaf922eb8ed8c5cbc721ab8ef174c230b56bc02f522b44ca5b3aea1f",
+  "helper_source_sha256": "b00923d80b7897d4939c090ecbdbecdf48b63726ea188719ebca328675f76310",
+  "native424_manifest_sha256": "096f5140ad963462dc01c03d4c1d12777bd6efb07f28213646cd4c00b3d4983b",
+  "native436_manifest_sha256": "64834fed4ba9ccb76c0f3b41d6e85fb3d8a220cc92a9de3301afb62a98d998f5",
+  "native436_receipt_sha256": "28b050bf610df801e1fca27df69672cae561abfd0ee1d96ca5e73aa4680612c3",
+  "schema": "numi.cardboard.native436-regularized-direction-adjudication-package.v1",
+  "source125_build_sha256": "35b821184ca36ad57c529bc0e33e4f20519996def1c312f8ac0f8028ecadb8e6",
+  "source_csr_sha256": "6b1d7f76b0a747cd28fa4ee53ef8b5316dd25ae390860a97242f1d91f63990ed"
+}

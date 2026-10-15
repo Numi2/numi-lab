@@ -1,0 +1,104 @@
+{
+  "classification": "CPU-only exact captured-CSR CGLS proposal generation; not native, physical, accepted, or certificate evidence",
+  "files": {
+    "README.md": {
+      "bytes": 3702,
+      "sha256": "2050ff37f8c4fe0bd179a11c77bb82907a960181265b1b0e8c630975cb672ea9"
+    },
+    "directions/emulated_fp32_iter008.float32x4.bin": {
+      "bytes": 28224,
+      "sha256": "10bd02764ebe63c12acf3fc0f7cb133438575a899a4f198b8474bcf14837f9c4"
+    },
+    "directions/emulated_fp32_iter016.float32x4.bin": {
+      "bytes": 28224,
+      "sha256": "1379fa52ddd5200a8efd89caacd947457220d43c5c3129149feef188a7a1c525"
+    },
+    "directions/emulated_fp32_iter032.float32x4.bin": {
+      "bytes": 28224,
+      "sha256": "2e602694a9b490ae3b14495a2b526e39716f242819360e08ac9e01a217aa9a79"
+    },
+    "directions/emulated_fp32_iter064.float32x4.bin": {
+      "bytes": 28224,
+      "sha256": "9bdfdf17c49de00d62486cb6fef8f8626215ac53f81acad310160dc0dc134720"
+    },
+    "directions/emulated_fp32_iter128.float32x4.bin": {
+      "bytes": 28224,
+      "sha256": "faa48fd339504689290c1192e04cecd1fd5e6ab28c2780632acb8ba155d483f5"
+    },
+    "directions/fp64_iter008.float32x4.bin": {
+      "bytes": 28224,
+      "sha256": "042132650460d8666e6fb2610df80da059ae88a44b5a576a4f0124d000303778"
+    },
+    "directions/fp64_iter016.float32x4.bin": {
+      "bytes": 28224,
+      "sha256": "2e397276401d216877f88befa965742682cfd3d64fbdfa069c6af66501cf7dbf"
+    },
+    "directions/fp64_iter032.float32x4.bin": {
+      "bytes": 28224,
+      "sha256": "fd16ebad6eb83a6e0bee8c1f4558d3d541989c31ddc9b15e59286e6e456ed3af"
+    },
+    "directions/fp64_iter064.float32x4.bin": {
+      "bytes": 28224,
+      "sha256": "a139cd39ffe0e616812b5896e5c3b78904abed5b8461c9fa0d466c9080e6ab85"
+    },
+    "directions/fp64_iter128.float32x4.bin": {
+      "bytes": 28224,
+      "sha256": "50f4c58a6103f5405993c1661f2d2cf031661f66c5a61ce1d370087fb13bc5f2"
+    },
+    "generate.py": {
+      "bytes": 14617,
+      "sha256": "399690f36befa419d44d550b0dce30265e55b9e7d5f0f96bae8cfcbdc423b105"
+    },
+    "replay-inputs/emulated_fp32_iter008.input.bin": {
+      "bytes": 2195272,
+      "sha256": "dd2cbfde9349d15316ebfcb78b3ed2d5dd617f2449c1a7c1f7a892814a456250"
+    },
+    "replay-inputs/emulated_fp32_iter016.input.bin": {
+      "bytes": 2195272,
+      "sha256": "12c8692203bb299865b841d9af909479555b430458430ee6721e3236ad53a634"
+    },
+    "replay-inputs/emulated_fp32_iter032.input.bin": {
+      "bytes": 2195272,
+      "sha256": "f8d83a4ecb725b9b5b270cf85b412dbca46abbe2b0621e126ca8836923731203"
+    },
+    "replay-inputs/emulated_fp32_iter064.input.bin": {
+      "bytes": 2195272,
+      "sha256": "dea89113adfbe50263564ee77774b9978f85ae716aea2c6dcd6b7e2cda3a6355"
+    },
+    "replay-inputs/emulated_fp32_iter128.input.bin": {
+      "bytes": 2195272,
+      "sha256": "becb4638aeb68d8c8fb338195f5db66794e31cc2e6facfb7482756d5386927de"
+    },
+    "replay-inputs/fp64_iter008.input.bin": {
+      "bytes": 2195272,
+      "sha256": "cab72f07f0f60a567a1e3fcd118fa28cd6bc74bf63bf1744c50a9562103ed650"
+    },
+    "replay-inputs/fp64_iter016.input.bin": {
+      "bytes": 2195272,
+      "sha256": "4a21ecb21f1532705483336385a14ee9eefc36b2b171a7f7db2d9e754f7f8f10"
+    },
+    "replay-inputs/fp64_iter032.input.bin": {
+      "bytes": 2195272,
+      "sha256": "5b212341af37756d3693221f053aaa8df7bfa233539d83d3b18c505d0cc1a90e"
+    },
+    "replay-inputs/fp64_iter064.input.bin": {
+      "bytes": 2195272,
+      "sha256": "9267fe96c9ee0532ecba7a3c4ea3edf7406cad233bc8a8990de14e81448f3355"
+    },
+    "replay-inputs/fp64_iter128.input.bin": {
+      "bytes": 2195272,
+      "sha256": "4c75957c98c6eca571f46dbec4c7ee8de4dfb88c01cc3456368579882a9001e9"
+    },
+    "report.json": {
+      "bytes": 29704,
+      "sha256": "3465a86fc20847ec528768001f5c684781aa086b78d36de9f0e37dabfa5da49e"
+    },
+    "verify.py": {
+      "bytes": 5783,
+      "sha256": "74015304f5e2c36ddbe0799b66b1842bf685c1e205ed2fc0ecbdee92eb432dbf"
+    }
+  },
+  "input_manifest_sha256": "339ae206918d3ef99d0a42859de94948299c39ea2114afd30981689c62acc734",
+  "report_sha256": "3465a86fc20847ec528768001f5c684781aa086b78d36de9f0e37dabfa5da49e",
+  "schema": "numi.cardboard.captured419-truncated-cgls-directions-package.v1"
+}

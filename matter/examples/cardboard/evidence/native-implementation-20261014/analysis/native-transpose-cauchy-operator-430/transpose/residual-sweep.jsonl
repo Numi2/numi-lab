@@ -1,0 +1,15 @@
+{"sample":0,"side":0,"epsilon":0,"status":[0,0],"history_unchanged":true}
+{"sample":1,"side":0,"epsilon":1,"status":[0,0],"history_unchanged":true}
+{"sample":1,"side":1,"epsilon":1,"status":[0,0],"history_unchanged":true}
+{"sample":2,"side":0,"epsilon":0.5,"status":[0,0],"history_unchanged":true}
+{"sample":2,"side":1,"epsilon":0.5,"status":[0,0],"history_unchanged":true}
+{"sample":3,"side":0,"epsilon":0.25,"status":[0,0],"history_unchanged":true}
+{"sample":3,"side":1,"epsilon":0.25,"status":[0,0],"history_unchanged":true}
+{"sample":4,"side":0,"epsilon":0.125,"status":[0,0],"history_unchanged":true}
+{"sample":4,"side":1,"epsilon":0.125,"status":[0,0],"history_unchanged":true}
+{"sample":5,"side":0,"epsilon":0.0625,"status":[0,0],"history_unchanged":true}
+{"sample":5,"side":1,"epsilon":0.0625,"status":[0,0],"history_unchanged":true}
+{"sample":6,"side":0,"epsilon":0.03125,"status":[0,0],"history_unchanged":true}
+{"sample":6,"side":1,"epsilon":0.03125,"status":[0,0],"history_unchanged":true}
+{"sample":7,"side":0,"epsilon":2,"status":[0,0],"history_unchanged":true}
+{"sample":7,"side":1,"epsilon":2,"status":[0,0],"history_unchanged":true}

@@ -1,0 +1,165 @@
+{
+  "bindings": {
+    "audit003_report_sha256": "ac341f55c0dbb2462d142fcf0165ca570d06eec9aa432944a0863067343b8664",
+    "audit003_rows_sha256": "bbc4c390b47f5a5fb87f29c35f9b7c899476c9e63ad1d3e3ec9f16222ec18dcb",
+    "capture419_sha256": "f2d42314cfee0428ecd285ebb9dbd5da1556624e3e92af1d12240fd8106b309a",
+    "native424_audit_sha256": "ccf8bb7d2b3e5d1f7e73279445882c40eb7916d460a8cd831468e2e28be645e3",
+    "native424_receipt_sha256": "8c48ff649955cf85044966b4649c920fe39e19fd06ba39ac0eeb11c65227410c",
+    "reference_sha256": "c17010564a98fe63da0c8b88be81313685a65cfbd57ff82292e797cab5a0fdf3",
+    "source125": "/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125",
+    "tet1691_continuation_result_sha256": "bd41e1b74dc486e4c5f65fe2612d7ba3fac4e35dea3da139bc1e252160c43962"
+  },
+  "branch_and_interpretation": {
+    "conclusion": "The independent plus endpoint has a strict root on a continuation-connected branch with unchanged equations and accepted history. The direct elastic-start Newton takes a negative/inactive multiplier step and stalls at scaled residual about90.813; continuation from the converged center requires 4 substeps (8 also succeeds), and from minus requires 8 substeps. The miss is an independent solver initialization/path failure, not evidence that no endpoint root exists. Completing the common rows changes the full assembled secant comparison; this is one finite perturbation and is not a derivative qualification or a pure FP32 noise-floor estimate.",
+    "observed_lambda_active_predicate": "state[12] > accepted[12] remains active at center/minus/recovered plus for tet1691",
+    "scope_warning": "The predicate checked here is not a complete branch signature. The continuation crosses a narrow regularized yield region (yield gap falls from center scale 1.24e-3 to plus 4.05e-8)."
+  },
+  "complete_assembled_comparison": {
+    "all_tets_independent_plus_minus_projection_complete": true,
+    "finite_direction": {
+      "epsilon": 6.103515625e-05,
+      "observed_plastic_multiplier_predicate_flips_on_valid_rows": 0,
+      "realized_dF_vs_nominal_dt_times_captured_H_relative": 3.4329879765606066e-06,
+      "realized_dv_vs_nominal_correction_relative": 1.0540018045584215e-06
+    },
+    "glue_tet_count": 192,
+    "independent_center_A_vs_native_center_A": {
+      "actual_l2": 0.00018444849064302578,
+      "difference_l2": 5.206512448669199e-09,
+      "max_component_abs": 2.233191149791393e-09,
+      "reference_l2": 0.000184449280610251,
+      "relative_to_reference": 2.8227339415168425e-05,
+      "status": "available"
+    },
+    "independent_endpoint_secant_vs_center_tangent_realized_direction": {
+      "actual_l2": 0.0002734462077516737,
+      "difference_l2": 0.00019750721434336617,
+      "max_component_abs": 0.00010715565284573064,
+      "reference_l2": 0.0001879402922927597,
+      "relative_to_reference": 1.050904050078329,
+      "status": "available"
+    },
+    "independent_endpoint_secant_vs_independent_center_A_nominal": {
+      "actual_l2": 0.0002734462077516737,
+      "difference_l2": 0.00020196059906521106,
+      "max_component_abs": 0.00010767311733894734,
+      "reference_l2": 0.00018444849064302578,
+      "relative_to_reference": 1.0949430833569547,
+      "status": "available"
+    },
+    "independent_endpoint_secant_vs_native_center_A_nominal": {
+      "actual_l2": 0.0002734462077516737,
+      "difference_l2": 0.00020196035623995322,
+      "max_component_abs": 0.00010767311204700999,
+      "reference_l2": 0.000184449280610251,
+      "relative_to_reference": 1.0949370774001763,
+      "status": "available"
+    },
+    "native_captured_endpoint_secant_vs_independent_endpoint_secant": {
+      "actual_l2": 0.0002734221105667207,
+      "difference_l2": 7.786907234985637e-07,
+      "max_component_abs": 2.2625154759779557e-07,
+      "reference_l2": 0.0002734462077516737,
+      "relative_to_reference": 0.002847692531196924,
+      "status": "available"
+    },
+    "native_captured_secant_vs_center_tangent_realized_direction": {
+      "actual_l2": 0.0002734221105667207,
+      "difference_l2": 0.00019748601475518497,
+      "max_component_abs": 0.00010716128028807923,
+      "reference_l2": 0.0001879402922927597,
+      "relative_to_reference": 1.0507912504869135,
+      "status": "available"
+    },
+    "native_captured_secant_vs_native_center_A": {
+      "actual_l2": 0.0002734221105667207,
+      "difference_l2": 0.00020193630602153187,
+      "max_component_abs": 0.00010767873948935858,
+      "reference_l2": 0.000184449280610251,
+      "relative_to_reference": 1.0948066880685303,
+      "status": "available"
+    },
+    "native_endpoint_force_formula_vs_captured_residual": {
+      "minus": {
+        "actual_l2": 2.441663164804498e-06,
+        "difference_l2": 4.029589848137962e-11,
+        "max_component_abs": 1.3815798229694693e-11,
+        "reference_l2": 2.4416596620973773e-06,
+        "relative_to_reference": 1.650348699571241e-05,
+        "status": "available"
+      },
+      "plus": {
+        "actual_l2": 2.4305781422671917e-06,
+        "difference_l2": 3.8410309008486935e-11,
+        "max_component_abs": 9.796580874614223e-12,
+        "reference_l2": 2.430573641676404e-06,
+        "relative_to_reference": 1.580298097118948e-05,
+        "status": "available"
+      }
+    },
+    "native_force_formula_secant_vs_independent_endpoint_secant": {
+      "actual_l2": 0.0002734226202471599,
+      "difference_l2": 7.399061952636992e-07,
+      "max_component_abs": 2.0611532997913244e-07,
+      "reference_l2": 0.0002734462077516737,
+      "relative_to_reference": 0.002705856487633701,
+      "status": "available"
+    },
+    "omitted_tet_ids": [],
+    "paper_tet_count": 1728,
+    "total_tet_count": 1920
+  },
+  "created_at_utc": "2026-10-15T20:35:46.855260+00:00",
+  "qualification": false,
+  "schema": "numi.cardboard.source125-medium1691-completed-endpoint-secants.v1",
+  "scope": "exact native424 plus/minus node endpoints at epsilon 2^-14; source125 environment0; fixed accepted material history; all1920 tets; CPU independent FP64",
+  "status": "complete_independent_endpoint_secant_recovered_by_continuation_diagnostic_only",
+  "tet1691_plus_recovery": {
+    "accepted_history_unchanged": true,
+    "branch": {
+      "fb_denominator": 8.340807684285261e-08,
+      "lambda_active": true,
+      "plastic_multiplier_increment": 1.2355285386758783e-09,
+      "yield_gap": 4.046850987649009e-08
+    },
+    "center_branch": {
+      "fb_denominator": 0.0024769837797088716,
+      "lambda_active": true,
+      "plastic_multiplier_increment": 4.0371680335600365e-14,
+      "yield_gap": 0.001238491889814064
+    },
+    "independent_plus_stress_Pa": [
+      [
+        104050.96987046664,
+        -11323.438243864257,
+        16113.974508430167
+      ],
+      [
+        -16536.293720725575,
+        16886.012832011136,
+        -4194.1568599616585
+      ],
+      [
+        99222.81716469147,
+        -12760.41190600888,
+        18329.740445744166
+      ]
+    ],
+    "minus_branch": {
+      "fb_denominator": 0.014017786270823564,
+      "lambda_active": true,
+      "plastic_multiplier_increment": 7.133793942292861e-15,
+      "yield_gap": 0.007008893135404648
+    },
+    "native_vs_independent_element_force": {
+      "actual_l2": 0.05437459370949686,
+      "difference_l2": 5.029950924886114e-09,
+      "max_component_abs": 2.9974014416345174e-09,
+      "reference_l2": 0.054374590706327226,
+      "relative_to_reference": 9.250554090701064e-08,
+      "status": "available"
+    },
+    "strict_endpoint_dynamic_correction": 2.6778620812318035e-16,
+    "strict_endpoint_residual": 1.252067604677915e-13
+  }
+}

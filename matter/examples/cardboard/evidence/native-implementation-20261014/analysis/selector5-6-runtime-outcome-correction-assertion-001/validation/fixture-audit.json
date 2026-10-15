@@ -1,0 +1,106 @@
+{
+  "conclusion": "The correction telemetry assertion is invalid as a Krylov-work assertion. Replacing it with the recorded FGMRES count exposes the separate unchanged >1e-8 m loaded-node-motion gate, which fails: the measured motion is one FP32 ULP (~1.86e-9 m). Keep that motion gate and do not claim selector5/6 runtime qualification.",
+  "first_checker_failure": "relativeCorrection > 0 was used as a proxy for Krylov work; both modes actually report five FGMRES iterations",
+  "inputs_sha256": {
+    "input/native-426/prediction.json": "9c8a1fef69d3b2b87a3b95206d2c8968084069ab220feac49efe48f1720419c8",
+    "input/native-426/receipt.json": "1bbdf3ba4c078c01c70e7c595bde0d083cc56a7b79feea535aafa95302fcb099",
+    "input/native-426/stderr.log": "b114f4efb00d91028653179e342174e3f13fa90f186fa09cd7f5eb341ceb19e1",
+    "input/native-426/stdout.log": "f280e06af35aea2b8be37a551d36439f942f554ab317a829ab031be0b9a7b3fd",
+    "input/source-build.json": "367bd05b371e40f9bc3a1ebf21d0710efa0d65b70ebe4c781e179471795b2bdb",
+    "input/source131/frozen-source.json": "8c076e2876df023b387f248b851d1224720e8096171f560ae72983c51d8e8b50",
+    "input/source131/matter/include/numi/matter/shared.h": "bd13b1baf8790956404cd564685919c5a18e339d79e7c5c5165956f94d2f010c",
+    "input/source131/matter/tools/cardboard_fgmres_preconditioner_gpu_check.mm": "1b91d8888c178cd5719be48eff8c1b0ee993d8078598ef6179e2dc45c44b1819"
+  },
+  "loaded_node_motion": {
+    "5": {
+      "delta_m": [
+        0.0,
+        0.0,
+        1.862645149230957e-09
+      ],
+      "gate_passes": false,
+      "initial_loaded_node2_position_m": [
+        0.03131023421883583,
+        -0.016299709677696228,
+        0.027008626610040665
+      ],
+      "norm_m": 1.862645149230957e-09,
+      "unchanged_source_gate_m": 1e-08
+    },
+    "6": {
+      "delta_m": [
+        0.0,
+        0.0,
+        1.862645149230957e-09
+      ],
+      "gate_passes": false,
+      "initial_loaded_node2_position_m": [
+        0.03131023421883583,
+        -0.016299709677696228,
+        0.027008626610040665
+      ],
+      "norm_m": 1.862645149230957e-09,
+      "unchanged_source_gate_m": 1e-08
+    }
+  },
+  "native_case": "hybrid-runtime-armijo-outcomes-426",
+  "native_receipt_exit_code": 1,
+  "qualification": {
+    "motion_threshold_relaxed": false,
+    "selector5_qualified": false,
+    "selector6_qualified": false
+  },
+  "schema": "numi.cardboard.selector5-6-outcome-audit.v1",
+  "selector_outcomes": {
+    "5": {
+      "certificate_nonlinear": [
+        2.474832e-07,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "certificate_validity": [
+        1.00001705,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "completed_microsteps": 1,
+      "device_program_fingerprint": 1738398582286555824,
+      "fem_nodes_raw_sha256": "6a0b98d135467bcc1a6255fe16bae1ef56a22d09e52545dcf3da2ccdad8e4723",
+      "fgmres_iterations": 5,
+      "final_loaded_node2_position_m": [
+        0.03131023421883583,
+        -0.016299709677696228,
+        0.027008628472685814
+      ],
+      "source_fingerprint": 17386348646020169236,
+      "status_code": 0
+    },
+    "6": {
+      "certificate_nonlinear": [
+        2.474832e-07,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "certificate_validity": [
+        1.00001705,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "completed_microsteps": 1,
+      "device_program_fingerprint": 13945971649581251838,
+      "fem_nodes_raw_sha256": "6a0b98d135467bcc1a6255fe16bae1ef56a22d09e52545dcf3da2ccdad8e4723",
+      "fgmres_iterations": 5,
+      "final_loaded_node2_position_m": [
+        0.03131023421883583,
+        -0.016299709677696228,
+        0.027008628472685814
+      ],
+      "source_fingerprint": 18185062316742308411,
+      "status_code": 0
+    }
+  }
+}

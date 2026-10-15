@@ -1,0 +1,48 @@
+{
+  "verdict": "CPU_OPERATOR_EXPERIMENT_COMPLETE_NONLINEAR_REPLAY_REQUIRED",
+  "shape": [
+    2538,
+    2538
+  ],
+  "residual_l2_Ns": 2.4927730917337973e-06,
+  "raw_cauchy": {
+    "step_l2_m_per_s": 2.073171633430809e-06,
+    "step_max_abs_m_per_s": 7.926244483821874e-07,
+    "predicted_linear_residual_l2_Ns": 1.943213012747855e-06,
+    "predicted_residual_ratio": 0.7795386668733226,
+    "predicted_merit_phi_before_N2s2": 3.1069588434360376e-12,
+    "predicted_merit_phi_after_N2s2": 1.888038406456298e-12,
+    "predicted_merit_fractional_drop": 0.3923194668493629,
+    "directional_merit_derivative_at_zero": -2.43784087395948e-12,
+    "position_increment_linf_m": 7.926244283588097e-11,
+    "position_words_changed_count_estimate": 261,
+    "free_position_words_changed_count_estimate": 261,
+    "position_word_change_note": "Estimate only: center position cast to FP32, add dt*direction in FP64, round once to FP32; production kinematics may use a different accepted/current composition order."
+  },
+  "column_equilibrated_cauchy": {
+    "step_l2_m_per_s": 0.00010755320454282352,
+    "step_max_abs_m_per_s": 7.156483050100629e-05,
+    "predicted_linear_residual_l2_Ns": 1.5833024323036737e-06,
+    "predicted_residual_ratio": 0.6351570616491371,
+    "predicted_merit_phi_before_N2s2": 3.1069588434360376e-12,
+    "predicted_merit_phi_after_N2s2": 1.2534232960693646e-12,
+    "predicted_merit_fractional_drop": 0.5965755070372343,
+    "directional_merit_derivative_at_zero": -3.707071094733346e-12,
+    "position_increment_linf_m": 7.15648286931266e-09,
+    "position_words_changed_count_estimate": 473,
+    "free_position_words_changed_count_estimate": 473,
+    "position_word_change_note": "Estimate only: center position cast to FP32, add dt*direction in FP64, round once to FP32; production kinematics may use a different accepted/current composition order."
+  },
+  "matrix_free_check": {
+    "seed": 16794,
+    "forward_relative_error": 2.569365321616295e-16,
+    "transpose_relative_error": 2.675679424349731e-16,
+    "adjoint_dot_left": 3.162340067672533,
+    "adjoint_dot_right": 3.1623400676725337,
+    "adjoint_absolute_difference": 8.881784197001252e-16,
+    "adjoint_relative_difference": 2.8086113469568126e-16,
+    "gate": "all three relative errors <= 2e-12",
+    "passed": true
+  },
+  "report": "/Users/home/cardboard-implementation-20261014/analysis/captured-residual-cauchy-419-001/report.json"
+}

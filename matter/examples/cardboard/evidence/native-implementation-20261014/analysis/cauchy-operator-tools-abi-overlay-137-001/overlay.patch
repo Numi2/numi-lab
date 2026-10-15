@@ -1,0 +1,112 @@
+--- a/matter/tools/cardboard_coupled_free_box_operator_check.mm
++++ b/matter/tools/cardboard_coupled_free_box_operator_check.mm
+@@ -360,6 +360,8 @@
+             std::vector<NMFEMElementVectorGPU>(1u));
+         const auto cacheB = makeBuffer(device.base.gpu, std::vector<float>{0.0f});
+         const auto cacheValidB = makeBuffer(device.base.gpu, std::vector<uint>{0u});
++        const auto fallbackMetricsB = makeBuffer(device.base.gpu,
++            std::vector<nm_float4>(world.dispatch.environmentCount, nm_float4{}));
+         const uint useCache = 0u;
+         auto cmd = [device.base.queue commandBuffer];
+         auto enc = [cmd computeCommandEncoder];
+@@ -367,7 +369,7 @@
+         [enc setComputePipelineState:device.femOperator];
+         [enc setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
+         [enc setBytes:&microstep length:sizeof(microstep) atIndex:1u];
+-        id<MTLBuffer> femArgs[26] = {};
++        id<MTLBuffer> femArgs[27] = {};
+         femArgs[2] = makeBuffer(device.base.gpu, world.objects);
+         femArgs[3] = makeBuffer(device.base.gpu, world.materials);
+         femArgs[4] = programsB; femArgs[5] = instructionsB;
+@@ -381,7 +383,8 @@
+         femArgs[21] = makeBuffer(device.base.gpu, world.mixedSolver);
+         femArgs[22] = fgmresB; femArgs[23] = cacheB;
+         femArgs[24] = cacheValidB; femArgs[25] = makeBuffer(device.base.gpu, useCache);
+-        for (NSUInteger i = 2u; i < 26u; ++i)
++        femArgs[26] = fallbackMetricsB;
++        for (NSUInteger i = 2u; i < 27u; ++i)
+             if (i != 15u) [enc setBuffer:femArgs[i] offset:0u atIndex:i];
+         [enc dispatchThreads:MTLSizeMake(1u,1u,1u)
+               threadsPerThreadgroup:MTLSizeMake(1u,1u,1u)];
+--- a/matter/tools/fem_regional_material_check.mm
++++ b/matter/tools/fem_regional_material_check.mm
+@@ -103,6 +103,8 @@
+     const auto solver=buffer(d.device,std::vector<NMFGMRESStateGPU>(2)),status=buffer(d.device,std::vector<NMMatterStatusGPU>(2));
+     const unsigned count=2*w.dispatch.tetrahedronCount;const auto output=buffer(d.device,std::vector<NMFEMElementVectorGPU>(count));
+     const auto tangentCacheDummy=buffer(d.device,std::vector<std::uint32_t>(1));
++    const auto fallbackMetrics=buffer(d.device,
++        std::vector<nm_float4>(w.dispatch.environmentCount,nm_float4{}));
+     auto command=[d.queue commandBuffer];auto encoder=[command computeCommandEncoder];[encoder setComputePipelineState:tangent?d.operatorPipeline:d.forcePipeline];
+     [encoder setBytes:&w.dispatch length:sizeof(w.dispatch) atIndex:0];[encoder setBytes:&micro length:sizeof(micro) atIndex:1];
+     [encoder setBuffer:objects offset:0 atIndex:2];[encoder setBuffer:materials offset:0 atIndex:3];[encoder setBuffer:programs offset:0 atIndex:4];[encoder setBuffer:instructions offset:0 atIndex:5];
+@@ -113,7 +115,8 @@
+         [encoder setBuffer:tangentCacheDummy offset:0 atIndex:23];
+         [encoder setBuffer:tangentCacheDummy offset:0 atIndex:24];
+         const std::uint32_t useCache=0u;
+-        [encoder setBytes:&useCache length:sizeof(useCache) atIndex:25];}
++        [encoder setBytes:&useCache length:sizeof(useCache) atIndex:25];
++        [encoder setBuffer:fallbackMetrics offset:0 atIndex:26];}
+     else{[encoder setBuffer:schedulers offset:0 atIndex:10];[encoder setBuffer:adaptive offset:0 atIndex:11];[encoder setBuffer:output offset:0 atIndex:12];[encoder setBuffer:status offset:0 atIndex:13];
+         [encoder setBuffer:mixed offset:0 atIndex:14];[encoder setBuffer:fields offset:0 atIndex:15];[encoder setBuffer:learned offset:0 atIndex:16];[encoder setBuffer:layers offset:0 atIndex:17];[encoder setBuffer:weights offset:0 atIndex:18];}
+     [encoder dispatchThreads:MTLSizeMake(count,1,1) threadsPerThreadgroup:MTLSizeMake(32,1,1)];[encoder endEncoding];[command commit];[command waitUntilCompleted];
+--- a/matter/tools/fem_material_frame_check.mm
++++ b/matter/tools/fem_material_frame_check.mm
+@@ -106,6 +106,8 @@
+     const unsigned count=2*w.dispatch.tetrahedronCount;const auto output=buffer(d.device,std::vector<NMFEMElementVectorGPU>(count));
+     const auto tangentCache=buffer(d.device,std::vector<float>(std::size_t(count)*81u));
+     const auto tangentCacheValid=buffer(d.device,std::vector<std::uint32_t>(count));
++    const auto fallbackMetrics=buffer(d.device,
++        std::vector<nm_float4>(w.dispatch.environmentCount,nm_float4{}));
+     auto command=[d.queue commandBuffer];auto encoder=[command computeCommandEncoder];
+     if(cached){
+         [encoder setComputePipelineState:d.tangentCachePipeline];
+@@ -142,7 +144,8 @@
+         [encoder setBuffer:tangentCache offset:0 atIndex:23];
+         [encoder setBuffer:tangentCacheValid offset:0 atIndex:24];
+         const std::uint32_t useTangentCache=cached?1u:0u;
+-        [encoder setBytes:&useTangentCache length:sizeof(useTangentCache) atIndex:25];}
++        [encoder setBytes:&useTangentCache length:sizeof(useTangentCache) atIndex:25];
++        [encoder setBuffer:fallbackMetrics offset:0 atIndex:26];}
+     else{[encoder setBuffer:schedulers offset:0 atIndex:10];[encoder setBuffer:adaptive offset:0 atIndex:11];[encoder setBuffer:output offset:0 atIndex:12];[encoder setBuffer:status offset:0 atIndex:13];
+         [encoder setBuffer:mixed offset:0 atIndex:14];[encoder setBuffer:fields offset:0 atIndex:15];[encoder setBuffer:learned offset:0 atIndex:16];[encoder setBuffer:layers offset:0 atIndex:17];[encoder setBuffer:weights offset:0 atIndex:18];}
+     [encoder dispatchThreads:MTLSizeMake(count,1,1) threadsPerThreadgroup:MTLSizeMake(32,1,1)];[encoder endEncoding];[command commit];[command waitUntilCompleted];
+--- a/matter/tools/cardboard_gpu_check.mm
++++ b/matter/tools/cardboard_gpu_check.mm
+@@ -242,6 +242,8 @@
+     auto statuses=buffer(device.device,std::vector<NMMatterStatusGPU>(1));
+     auto output=buffer(device.device,std::vector<NMFEMElementVectorGPU>(1));
+     auto tangentCacheDummy=buffer(device.device,std::vector<std::uint32_t>(1));
++    auto fallbackMetrics=buffer(device.device,
++        std::vector<nm_float4>(world.dispatch.environmentCount,nm_float4{}));
+     id<MTLCommandBuffer> command=[device.queue commandBuffer];
+     id<MTLComputeCommandEncoder> encoder=[command computeCommandEncoder];
+     [encoder setComputePipelineState:tangent?device.op:device.force];
+@@ -263,6 +265,7 @@
+         [encoder setBuffer:tangentCacheDummy offset:0 atIndex:24];
+         const std::uint32_t useCache=0u;
+         [encoder setBytes:&useCache length:sizeof(useCache) atIndex:25];
++        [encoder setBuffer:fallbackMetrics offset:0 atIndex:26];
+     } else {
+         [encoder setBuffer:schedulers offset:0 atIndex:10];[encoder setBuffer:adaptive offset:0 atIndex:11];
+         [encoder setBuffer:output offset:0 atIndex:12];[encoder setBuffer:statuses offset:0 atIndex:13];
+--- a/matter/tools/fem_reference_check.mm
++++ b/matter/tools/fem_reference_check.mm
+@@ -112,6 +112,8 @@
+     const auto solver=buffer(d.device,std::vector<NMFGMRESStateGPU>(2)),status=buffer(d.device,std::vector<NMMatterStatusGPU>(2));
+     const unsigned count=2*w.dispatch.tetrahedronCount;const auto output=buffer(d.device,std::vector<NMFEMElementVectorGPU>(count));
+     const auto tangentCacheDummy=buffer(d.device,std::vector<std::uint32_t>(1));
++    const auto fallbackMetrics=buffer(d.device,
++        std::vector<nm_float4>(w.dispatch.environmentCount,nm_float4{}));
+     auto command=[d.queue commandBuffer];auto encoder=[command computeCommandEncoder];[encoder setComputePipelineState:tangent?d.operatorPipeline:d.forcePipeline];
+     [encoder setBytes:&w.dispatch length:sizeof(w.dispatch) atIndex:0];[encoder setBytes:&micro length:sizeof(micro) atIndex:1];
+     [encoder setBuffer:objects offset:0 atIndex:2];[encoder setBuffer:materials offset:0 atIndex:3];[encoder setBuffer:programs offset:0 atIndex:4];[encoder setBuffer:instructions offset:0 atIndex:5];
+@@ -122,7 +124,8 @@
+         [encoder setBuffer:tangentCacheDummy offset:0 atIndex:23];
+         [encoder setBuffer:tangentCacheDummy offset:0 atIndex:24];
+         const std::uint32_t useCache=0u;
+-        [encoder setBytes:&useCache length:sizeof(useCache) atIndex:25];}
++        [encoder setBytes:&useCache length:sizeof(useCache) atIndex:25];
++        [encoder setBuffer:fallbackMetrics offset:0 atIndex:26];}
+     else{[encoder setBuffer:schedulers offset:0 atIndex:10];[encoder setBuffer:adaptive offset:0 atIndex:11];[encoder setBuffer:output offset:0 atIndex:12];[encoder setBuffer:status offset:0 atIndex:13];
+         [encoder setBuffer:mixed offset:0 atIndex:14];[encoder setBuffer:fields offset:0 atIndex:15];[encoder setBuffer:learned offset:0 atIndex:16];[encoder setBuffer:layers offset:0 atIndex:17];[encoder setBuffer:weights offset:0 atIndex:18];}
+     [encoder dispatchThreads:MTLSizeMake(count,1,1) threadsPerThreadgroup:MTLSizeMake(32,1,1)];[encoder endEncoding];[command commit];[command waitUntilCompleted];

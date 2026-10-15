@@ -1,0 +1,88 @@
+{
+  "schema": "numi.cardboard.captured419_linear_conditioning_package.v1",
+  "package": "captured419-linear-conditioning-001",
+  "classification": "CPU-only exact-capture FP64 linear algebra diagnostic; candidate solves are not production recommendations",
+  "input_package": "/Users/home/cardboard-implementation-20261014/analysis/captured-base-state-cauchy-419-001",
+  "input_package_manifest_sha256": "03c713a1aeeb57544d47430c7bd519b6128ea4b8243142d9e798cd114f1e0348",
+  "input_report_sha256": "490acb6be474e2aa9c48fe03f61538ac5727cd28e5af675c0ee42e7382c92d16",
+  "input_files": [
+    {
+      "path": "A_free_csr.npz",
+      "sha256": "6b1d7f76b0a747cd28fa4ee53ef8b5316dd25ae390860a97242f1d91f63990ed"
+    },
+    {
+      "path": "base_rhs.float64le.bin",
+      "sha256": "af22b09232b270e5cc15184d09cd8ed3d8f86b83bf08e765f510d6777fcaa8cb"
+    },
+    {
+      "path": "captured_newton_delta.float64le.bin",
+      "sha256": "cbb3ed427ae32c438dcabeefc40efd3322bddc528fcd5f6ed83a5241fb97fff0"
+    },
+    {
+      "path": "post_newton_linear_remainder.float64le.bin",
+      "sha256": "641035202b349a28b18e3b3c6200f063178005d792e1b456cbba038a38282d1f"
+    },
+    {
+      "path": "base_column_equilibrated_cauchy.free-delta-v.float64le.bin",
+      "sha256": "9b8a1ee6ac7a799e61822b97ed84673fc02665685e47a6049be0afaf64428e50"
+    }
+  ],
+  "execution": {
+    "gpu_or_native_run": false,
+    "source_modified": false,
+    "blas_thread_limit": 1,
+    "runtime_seconds": 3.6535348892211914
+  },
+  "artifacts": [
+    {
+      "path": "README.md",
+      "bytes": 4057,
+      "sha256": "765a61f0bf24ebdb07b6d1980f3bc8841ea575e744ff1fa9b109c304338bce64"
+    },
+    {
+      "path": "run_analysis.py",
+      "bytes": 9884,
+      "sha256": "607f6257175a325157022ef66fa26503e1c64dc34f52eee1762ace2c881f92f9"
+    },
+    {
+      "path": "run.log",
+      "bytes": 2155,
+      "sha256": "53180fbc31fadeab2851ca264c768d985def371873523123e8f4095665531f62"
+    },
+    {
+      "path": "report.json",
+      "bytes": 21990,
+      "sha256": "12d07a026f137fb2f72f7bc1608642aee3a544e442bfc5d8b68d1df20c23b12a"
+    },
+    {
+      "path": "spectral_compact.npz",
+      "bytes": 58991,
+      "sha256": "8c6992bc229d04d2a72e8363994f8a0cf6bbc9ddd19985345fb4b6ff596dfafb"
+    },
+    {
+      "path": "verify_package.py",
+      "bytes": 1780,
+      "sha256": "76b31dff67b9dfd6247c849faa595e2ed2b223586ad435aa4efb688104d6c0a7"
+    },
+    {
+      "path": "superseded-attempt-001/README.md",
+      "bytes": 545,
+      "sha256": "c9496ac9adfa619dd4fc7963711f93e995136d09746bc1916c5d574e2b4cdf80"
+    },
+    {
+      "path": "superseded-attempt-001/report-with-overwritten-operator.json",
+      "bytes": 15485,
+      "sha256": "31ef776e5317765ebddc7363f362ea015eee29f7436f4f5c851d71173466527d"
+    },
+    {
+      "path": "superseded-attempt-001/spectral-compact.npz",
+      "bytes": 58969,
+      "sha256": "1419549bc894111c57f53034f00eed2f1ebc47d9da63911cb9d4ad19eafbdf77"
+    },
+    {
+      "path": "superseded-attempt-002.md",
+      "bytes": 563,
+      "sha256": "10bc201b2b80102d66d3d7b8f2c9b84967b86709bc4edc93d7382388898bbf3e"
+    }
+  ]
+}

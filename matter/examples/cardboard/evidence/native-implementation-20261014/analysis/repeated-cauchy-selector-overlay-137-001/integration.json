@@ -1,0 +1,9 @@
+{
+  "schema": "numi.cardboard.repeated_cauchy_selector.v1",
+  "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-cache-projection-reuse-runtime-136",
+  "path": "matter/src/runtime.mm",
+  "base_sha256": "8c56679c1e547da78f5973382a07ea371b0f3492bebd611cfe73e15f952c959b",
+  "candidate_sha256": "827eeecfa8c85b9c4d955da4b0fced2e9c479d0da0a9f8c419d9126e1049651e",
+  "scope": "Adds control:all at the same physical operator and numerical gates; requires true-residual certification at every selected Newton state. Invalid selectors fail before every step. No native execution yet. Repeated-fallback selected control raises only its bounded diagnostic record ceiling from64 to512, retaining both direction passes for up to256 Newton iterations. The exact-state enable event is emitted only for exact selectors; all selectors have a separate explicit event.",
+  "physical_steps": 0
+}

@@ -106,6 +106,8 @@ std::vector<NMFEMElementVectorGPU> dispatch(Device& d,const CompiledWorld& w,con
     const unsigned count=2*w.dispatch.tetrahedronCount;const auto output=buffer(d.device,std::vector<NMFEMElementVectorGPU>(count));
     const auto tangentCache=buffer(d.device,std::vector<float>(std::size_t(count)*81u));
     const auto tangentCacheValid=buffer(d.device,std::vector<std::uint32_t>(count));
+    const auto fallbackMetrics=buffer(d.device,
+        std::vector<nm_float4>(w.dispatch.environmentCount,nm_float4{}));
     auto command=[d.queue commandBuffer];auto encoder=[command computeCommandEncoder];
     if(cached){
         [encoder setComputePipelineState:d.tangentCachePipeline];
@@ -142,7 +144,8 @@ std::vector<NMFEMElementVectorGPU> dispatch(Device& d,const CompiledWorld& w,con
         [encoder setBuffer:tangentCache offset:0 atIndex:23];
         [encoder setBuffer:tangentCacheValid offset:0 atIndex:24];
         const std::uint32_t useTangentCache=cached?1u:0u;
-        [encoder setBytes:&useTangentCache length:sizeof(useTangentCache) atIndex:25];}
+        [encoder setBytes:&useTangentCache length:sizeof(useTangentCache) atIndex:25];
+        [encoder setBuffer:fallbackMetrics offset:0 atIndex:26];}
     else{[encoder setBuffer:schedulers offset:0 atIndex:10];[encoder setBuffer:adaptive offset:0 atIndex:11];[encoder setBuffer:output offset:0 atIndex:12];[encoder setBuffer:status offset:0 atIndex:13];
         [encoder setBuffer:mixed offset:0 atIndex:14];[encoder setBuffer:fields offset:0 atIndex:15];[encoder setBuffer:learned offset:0 atIndex:16];[encoder setBuffer:layers offset:0 atIndex:17];[encoder setBuffer:weights offset:0 atIndex:18];}
     [encoder dispatchThreads:MTLSizeMake(count,1,1) threadsPerThreadgroup:MTLSizeMake(32,1,1)];[encoder endEncoding];[command commit];[command waitUntilCompleted];

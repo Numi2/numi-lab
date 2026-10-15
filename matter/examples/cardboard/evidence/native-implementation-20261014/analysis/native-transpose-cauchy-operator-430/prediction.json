@@ -1,0 +1,8 @@
+{
+  "question": "Does native cached operator with localC transposed reproduce independent Atranspose*b with the exact frames/mass/fixed rows?",
+  "prediction": "Transpose only diagnostic cache; same source125 production element/gather, candidate/accepted history/materials/dt. Nativegradient then originalC forwardAg determine rawCauchy. No production change or physical transaction.",
+  "source125_build_sha256": "35b821184ca36ad57c529bc0e33e4f20519996def1c312f8ac0f8028ecadb8e6",
+  "base_payload_sha256": "30c472a120d7ff091d81c04e342939d571a392e02c249c8bfef8402f120852a8",
+  "direction_package_sha256": "03c713a1aeeb57544d47430c7bd519b6128ea4b8243142d9e798cd114f1e0348",
+  "transpose_payload_sha256": "b7dd71166e95d910359e443f8a1317845ff9c62104f5d7280e37120522affd6e"
+}

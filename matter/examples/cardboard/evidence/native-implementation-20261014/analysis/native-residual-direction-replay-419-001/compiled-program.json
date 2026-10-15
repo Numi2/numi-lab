@@ -1,0 +1,35 @@
+{
+  "base_manifest_sha256": "8fdc04c247e4fb2b8b28cd43b9ca139c345765ac68ea9888f7dc6745de6be024",
+  "compile_argv": [
+    "xcrun",
+    "clang++",
+    "-std=c++2b",
+    "-arch",
+    "arm64",
+    "-fobjc-arc",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror",
+    "-I/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125/include",
+    "-I/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125/matter/include",
+    "-DNUMI_MATTER_METALLIB=\"/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/inputs/runtime/matter/shaders/NumiMatter.metallib\"",
+    "/Users/home/cardboard-implementation-20261014/analysis/native-residual-direction-replay-419-001/native_residual_direction.mm",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-125/matter/libnumi_matter_runtime.a",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-125/matter/libnumi_matter_compiler.a",
+    "-framework",
+    "Foundation",
+    "-framework",
+    "Metal",
+    "-o",
+    "/Users/home/cardboard-implementation-20261014/analysis/native-residual-direction-replay-419-001/build/native_residual_direction"
+  ],
+  "files": {
+    "compile.stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "compile.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "native_residual_direction.mm": "b00923d80b7897d4939c090ecbdbecdf48b63726ea188719ebca328675f76310",
+    "build/native_residual_direction": "cc872337366821d0752665ea0feb913f38c1ff7cd921696c395c9861fabccbec"
+  },
+  "physical_transactions": 0,
+  "scope": "Production source125 operator and residual kernels. Alternative direction payload is supplied separately; historic capturedFreshAction is not used as a comparison."
+}

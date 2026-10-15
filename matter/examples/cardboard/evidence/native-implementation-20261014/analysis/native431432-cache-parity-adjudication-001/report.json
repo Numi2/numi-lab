@@ -1,0 +1,37 @@
+{
+  "schema": "numi.cardboard.cache_projection_reuse_native_parity.v1",
+  "source134_build_sha256": "10dfb53dd3878faa84b6cec07277b1b1cf379327384249dbff2917afb2258f61",
+  "input_binding_sha256": "b4413a5a50c7a5666843118702a11dd60f9cd2726e186651504a5c7a1989c15b",
+  "cases": [
+    {
+      "fixture": 360,
+      "case": 431,
+      "result_sha256": "e75bfebac753a09a83e8f0a8be136c61f74f1cb105e497fc9c54d105b1fc5da7",
+      "receipt_sha256": "0d0410147428f8417c212a39017853c6506e49f19967e5ab80c8c4697c60d860",
+      "word_parity": true,
+      "physical_steps": 0
+    },
+    {
+      "fixture": 419,
+      "case": 432,
+      "result_sha256": "eeffa22f211ad3f5de6842aa7e6faedc47dad3dfb548c28c86d2f26dcc9510ac",
+      "receipt_sha256": "51411f8965c4c8131667455d47cbb25ff7ac2500cf55f916ebf77784dedfc49c",
+      "word_parity": true,
+      "physical_steps": 0
+    }
+  ],
+  "interpretation": "Diagnostic sibling reuses one accurate 15-state projection across nine local tangent columns. Both exact captured states preserve original production cache validity, all matrix words, captured correction and deterministic random element-action words.",
+  "limits": [
+    "No production adoption in main.",
+    "Rate-independent materials; nonzero deformation rates do not supply rate-dependent coverage.",
+    "No full-cycle history comparison or kernel speed measurement.",
+    "No solver, convergence, damage calibration, assembly or impact qualification."
+  ],
+  "retained_failures": [
+    "native423 wrong expected parameter count",
+    "native427 malformed compiled-package hash literal",
+    "native428 eager nil NSError string conversion crash",
+    "source134 initial wrapper -p1 admission failure before mutation"
+  ],
+  "physical_transactions": 0
+}

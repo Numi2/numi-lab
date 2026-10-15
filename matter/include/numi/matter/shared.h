@@ -54,6 +54,13 @@ typedef struct NM_ALIGN16 nm_int4 {
 // twelve hardening variables, a plastic multiplier and damage history.
 // Packages cooked with the old sixteen-state layout must be recooked.
 #define NM_MAX_MATERIAL_STATE 32u
+#define NM_STATUS5_CAPTURE_MAX_PARAMETER_WORDS 512u
+#define NM_STATUS5_INDEX_NONE 0u
+#define NM_STATUS5_INDEX_NODE 1u
+#define NM_STATUS5_INDEX_TETRAHEDRON 2u
+#define NM_STATUS5_INDEX_SOLVER_ITERATION 3u
+#define NM_STATUS5_CAPTURE_DOMAIN_GLOBAL 0u
+#define NM_STATUS5_CAPTURE_DOMAIN_PRIVATE 1u
 #define NM_MIXED_NEWTON_ITERATIONS 7u
 // Maximum supported compiled basis depth.
 #define NM_MIXED_FGMRES_RESTART 16u
@@ -1423,6 +1430,35 @@ typedef struct NM_ALIGN16 NMMatterStatusGPU {
     nm_float4 diagnostics;
 } NMMatterStatusGPU;
 
+// Diagnostic-only, bounded snapshot written by nm_fem_status5_capture.
+// The runtime allocates two records per environment: the first global
+// status-5 event and the first private Armijo status-5 event. This is not a
+// solver input and must never be used to alter status, history, or rollback.
+typedef struct NM_ALIGN16 NMFEMStatus5CaptureGPU {
+    // present, stage ID, domain (0 global / 1 private), index kind.
+    nm_uint4 capture;
+    // control step, microtick, microtick count, Newton solver iteration.
+    nm_uint4 context;
+    // object index, status failing index, typed subject index, trial index.
+    nm_uint4 identity;
+    // payload flags, material index, state count, parameter count.
+    nm_uint4 payload;
+    // exact material dt, line-search alpha when supplied, det(F), reserved.
+    nm_float4 scalars;
+    NMMatterStatusGPU status;
+    NMMicrostepGPU microstep;
+    NMMaterialGPU material;
+    NMTetrahedronGPU tetrahedron;
+    NMFEMNodeStateGPU acceptedNodes[4];
+    NMFEMNodeStateGPU candidateNodes[4];
+    // Three row-major float4 rows; lane w is zero.
+    nm_float4 deformationHigh[3];
+    nm_float4 deformationLow[3];
+    nm_float4 deformationRate[3];
+    float acceptedInternalState[NM_MAX_MATERIAL_STATE];
+    float parameterWords[NM_STATUS5_CAPTURE_MAX_PARAMETER_WORDS];
+} NMFEMStatus5CaptureGPU;
+
 #ifndef __METAL_VERSION__
 static_assert(sizeof(nm_float4) == 16);
 static_assert(sizeof(nm_uint4) == 16);
@@ -1443,6 +1479,7 @@ static_assert(sizeof(NMVascularCavityFaceGPU) == 32);
 static_assert(sizeof(NMFEMHumanAttachmentGPU) == 32);
 static_assert(alignof(NMFEMHumanAttachmentGPU) == 16);
 static_assert(sizeof(NMFEMNodeStateGPU) == 80);
+static_assert(sizeof(NMFEMStatus5CaptureGPU) % 16 == 0);
 static_assert(sizeof(NMDeformableVTCCDAuditGPU) == 336);
 static_assert(sizeof(NMAdaptiveStateGPU) == 160);
 static_assert(sizeof(NMSchedulerStateGPU) == 80);

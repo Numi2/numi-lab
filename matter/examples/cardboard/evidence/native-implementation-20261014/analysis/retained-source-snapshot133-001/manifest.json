@@ -1,0 +1,18 @@
+{
+  "schema": "numi.cardboard.lossless_source_snapshots.v1",
+  "git_base_revision": "8c00ae13d78331c938311ca80d78857c4deefe75",
+  "snapshots": [
+    {
+      "number": 133,
+      "manifest": "source-133.json.gz",
+      "compressed_sha256": "d0a595a7feae630fbb54ce41de791780ad0c259b9be80da457c2fb4c813593f1",
+      "uncompressed_sha256": "57e065f8992bce016b3a1c660c31fee0af8deb5bc3db1395d92fee1314141765",
+      "files": 1821,
+      "all_reconstructed_bytes_verified": true,
+      "complete_disk_restoration_verified": true
+    }
+  ],
+  "unique_gzip_source_blobs": 13,
+  "physical_qualification": false,
+  "scope": "Reconstructs exact source133 selected build sources plus verified root-CMake support from the fixed published Git base. No binary or scientific outcome is reclassified."
+}

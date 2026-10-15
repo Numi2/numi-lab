@@ -1,0 +1,154 @@
+{
+  "schema": "numi.cardboard.captured-base-state-cauchy-package.v1",
+  "classification": "CPU-only source-bound operator experiment; candidate directions require native nonlinear residual replay",
+  "capture_sha256": "f2d42314cfee0428ecd285ebb9dbd5da1556624e3e92af1d12240fd8106b309a",
+  "source125_assembly_module_sha256": "2ce80f9b3c989efd058bdbcc29661d10701061cfde459d64cca06c0d6caeee38",
+  "previous_postlinear_package_manifest_sha256": "373340c0dade522dea5e023dc13c9fa0f3007d91aa20ffc54749b5a79a6d8a42",
+  "files": [
+    {
+      "path": "A_free_csr.npz",
+      "bytes": 506678,
+      "sha256": "6b1d7f76b0a747cd28fa4ee53ef8b5316dd25ae390860a97242f1d91f63990ed"
+    },
+    {
+      "path": "Atranspose_base_rhs_gradient.float64le.bin",
+      "bytes": 20304,
+      "sha256": "6c981a78707edbcdba3164c8d8a060c49c6f35f153c95b49c63a0d2295a20e3b"
+    },
+    {
+      "path": "README.md",
+      "bytes": 4669,
+      "sha256": "72eaf40cfc96468354aeed42601fc24176a46f8fd2893af2dadede57c333ac9a"
+    },
+    {
+      "path": "base_column_equilibrated_cauchy.free-delta-v.float64le.bin",
+      "bytes": 20304,
+      "sha256": "9b8a1ee6ac7a799e61822b97ed84673fc02665685e47a6049be0afaf64428e50"
+    },
+    {
+      "path": "base_column_equilibrated_cauchy.full-node-delta-v.float32x4.bin",
+      "bytes": 14112,
+      "sha256": "b9d02a8f16f604c6e10febf335a161062d56a4267296b4abfff4e812bc580946"
+    },
+    {
+      "path": "base_column_equilibrated_cauchy_025.free-delta-v.float64le.bin",
+      "bytes": 20304,
+      "sha256": "a4934838ab83a9fcbdf3299c40d7fa071c94cedae025ae49dbbab7ea5f70a9e4"
+    },
+    {
+      "path": "base_column_equilibrated_cauchy_025.full-node-delta-v.float32x4.bin",
+      "bytes": 14112,
+      "sha256": "f52094d880622aa5fb64f80e2f2c3096de0cfdb1fd3dc7a0a9d587c2e16a0fa9"
+    },
+    {
+      "path": "base_column_equilibrated_cauchy_050.free-delta-v.float64le.bin",
+      "bytes": 20304,
+      "sha256": "0fc549f870e3537660c3b8adc722aeeb51c0fcc84d7083294026f3b46a43b194"
+    },
+    {
+      "path": "base_column_equilibrated_cauchy_050.full-node-delta-v.float32x4.bin",
+      "bytes": 14112,
+      "sha256": "e9c5088b4556772587bd665f5847e45a91e243c4f3a823643d3af664ddff55b0"
+    },
+    {
+      "path": "base_column_equilibrated_trust_1e-04_delta.free-delta-v.float64le.bin",
+      "bytes": 20304,
+      "sha256": "9b8a1ee6ac7a799e61822b97ed84673fc02665685e47a6049be0afaf64428e50"
+    },
+    {
+      "path": "base_column_equilibrated_trust_1e-04_delta.full-node-delta-v.float32x4.bin",
+      "bytes": 14112,
+      "sha256": "b9d02a8f16f604c6e10febf335a161062d56a4267296b4abfff4e812bc580946"
+    },
+    {
+      "path": "base_column_equilibrated_trust_1e-05_delta.free-delta-v.float64le.bin",
+      "bytes": 20304,
+      "sha256": "b3a238b092b5a6f36cc32991bc0a0143432828dd5bb028911eddc2d15ce9a3d2"
+    },
+    {
+      "path": "base_column_equilibrated_trust_1e-05_delta.full-node-delta-v.float32x4.bin",
+      "bytes": 14112,
+      "sha256": "d4de6cc2015798300f7b87773b29baf7b285242a709628c6496aa5a2cf15964b"
+    },
+    {
+      "path": "base_column_equilibrated_trust_1e-06_delta.free-delta-v.float64le.bin",
+      "bytes": 20304,
+      "sha256": "46e2ef1457442842f7e61dd7395440dc5c46064328ecb8cc0bb63bc2ec631345"
+    },
+    {
+      "path": "base_column_equilibrated_trust_1e-06_delta.full-node-delta-v.float32x4.bin",
+      "bytes": 14112,
+      "sha256": "94f7b9697dc54779bbc88fa4fb7b37d16a9f280b8614b4e26ca7c65dfc559cc0"
+    },
+    {
+      "path": "base_raw_cauchy.free-delta-v.float64le.bin",
+      "bytes": 20304,
+      "sha256": "c9b9af42b5ed148afd90fa3ba806972b1f2ea2fb43acec327ec68837f9975b16"
+    },
+    {
+      "path": "base_raw_cauchy.full-node-delta-v.float32x4.bin",
+      "bytes": 14112,
+      "sha256": "14134321cc5e24bfb4a078e5c7eaa52815a8708f5b6bbb9a33ec276e84ac20b2"
+    },
+    {
+      "path": "base_rhs.float64le.bin",
+      "bytes": 20304,
+      "sha256": "af22b09232b270e5cc15184d09cd8ed3d8f86b83bf08e765f510d6777fcaa8cb"
+    },
+    {
+      "path": "captured_newton_delta.float64le.bin",
+      "bytes": 20304,
+      "sha256": "cbb3ed427ae32c438dcabeefc40efd3322bddc528fcd5f6ed83a5241fb97fff0"
+    },
+    {
+      "path": "column_norms.float64le.bin",
+      "bytes": 20304,
+      "sha256": "6d20e5a951ce86ce7fa42f509659a7752e78586daba19c6ac853adde6babd700"
+    },
+    {
+      "path": "delta_plus_base_column_equilibrated_cauchy.total-correction.float64le.bin",
+      "bytes": 20304,
+      "sha256": "d69907effe2e50ebc0dc299a45e297f9f3a62a699068f3bc4ea28272a5102ba5"
+    },
+    {
+      "path": "delta_plus_base_column_equilibrated_cauchy.total-node-correction.float32x4.bin",
+      "bytes": 14112,
+      "sha256": "fdc2c31765fcfed317a424ce4e1d787e9189d0139c2d984ffd319b3c1fa2aaa5"
+    },
+    {
+      "path": "post_newton_linear_remainder.float64le.bin",
+      "bytes": 20304,
+      "sha256": "641035202b349a28b18e3b3c6200f063178005d792e1b456cbba038a38282d1f"
+    },
+    {
+      "path": "recompute-validation.log",
+      "bytes": 214,
+      "sha256": "747ef979bf870ae711498d7d0fcca8d5f818fa54fbf24b16d3e2566cc4dbd713"
+    },
+    {
+      "path": "report.json",
+      "bytes": 128038,
+      "sha256": "490acb6be474e2aa9c48fe03f61538ac5727cd28e5af675c0ee42e7382c92d16"
+    },
+    {
+      "path": "run_experiment.py",
+      "bytes": 18617,
+      "sha256": "74cc5aa3b96e72d30948c0b7c6c209846fdffd93d0ed43e249e4c830c67f8902"
+    },
+    {
+      "path": "syntax-validation.log",
+      "bytes": 64,
+      "sha256": "3dba5d5c0130c214a7ebaebb9e0f95068e6123487e0c9e5f2f0898b2300b2743"
+    },
+    {
+      "path": "validation.log",
+      "bytes": 2729,
+      "sha256": "affc343b65dc2de2a9873de6c289f57b6e2e6ceb3d9769bff10805946deec938"
+    },
+    {
+      "path": "verify_recompute.py",
+      "bytes": 3000,
+      "sha256": "bc1ee4a532b57d325097ba1251eeed8e18689fe37f0c73192689245872c5b39e"
+    }
+  ]
+}

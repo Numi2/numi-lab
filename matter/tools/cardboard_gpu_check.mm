@@ -242,6 +242,8 @@ std::vector<NMFEMElementVectorGPU> dispatch(Device& device,const CompiledWorld& 
     auto statuses=buffer(device.device,std::vector<NMMatterStatusGPU>(1));
     auto output=buffer(device.device,std::vector<NMFEMElementVectorGPU>(1));
     auto tangentCacheDummy=buffer(device.device,std::vector<std::uint32_t>(1));
+    auto fallbackMetrics=buffer(device.device,
+        std::vector<nm_float4>(world.dispatch.environmentCount,nm_float4{}));
     id<MTLCommandBuffer> command=[device.queue commandBuffer];
     id<MTLComputeCommandEncoder> encoder=[command computeCommandEncoder];
     [encoder setComputePipelineState:tangent?device.op:device.force];
@@ -263,6 +265,7 @@ std::vector<NMFEMElementVectorGPU> dispatch(Device& device,const CompiledWorld& 
         [encoder setBuffer:tangentCacheDummy offset:0 atIndex:24];
         const std::uint32_t useCache=0u;
         [encoder setBytes:&useCache length:sizeof(useCache) atIndex:25];
+        [encoder setBuffer:fallbackMetrics offset:0 atIndex:26];
     } else {
         [encoder setBuffer:schedulers offset:0 atIndex:10];[encoder setBuffer:adaptive offset:0 atIndex:11];
         [encoder setBuffer:output offset:0 atIndex:12];[encoder setBuffer:statuses offset:0 atIndex:13];

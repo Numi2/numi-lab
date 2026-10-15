@@ -1,0 +1,11 @@
+{
+  "command": [
+    "/Users/home/.pyenv/versions/3.10.12/bin/python3",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-cauchy-positive-mass-admission-135/matter/tools/test_base_cauchy_fallback_reference.py"
+  ],
+  "exit_code": 0,
+  "test_source_sha256": "03f6d672757e3e0cab56167db8b09746a0659dec9599b3cdb8fe247b9ce63786",
+  "build_source_manifest_sha256": "40f0196428da88be0ecb951a03a9989c51e44405abd8393f13970e1f7239b9a8",
+  "gpu_work": false,
+  "physical_transactions": 0
+}

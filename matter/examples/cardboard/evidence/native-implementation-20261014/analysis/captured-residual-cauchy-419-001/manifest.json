@@ -1,0 +1,123 @@
+{
+  "schema": "numi.cardboard.captured-postlinear-cauchy-package.v1",
+  "classification": "CPU-only captured-operator diagnostic; post-Newton linear remainder, not current-center fallback",
+  "files": [
+    {
+      "path": "A_free_csr.npz",
+      "bytes": 506678,
+      "sha256": "6b1d7f76b0a747cd28fa4ee53ef8b5316dd25ae390860a97242f1d91f63990ed"
+    },
+    {
+      "path": "ERRATUM.md",
+      "bytes": 617,
+      "sha256": "1de22d5469a20955822d3cc14a956e4e1fdfca6d2c3cf485caeebed7d4c083de"
+    },
+    {
+      "path": "README.md",
+      "bytes": 4029,
+      "sha256": "8a3e5c5a9441f44c1a48ee293609abcd738cd48b01af55085bca97f3638c520b"
+    },
+    {
+      "path": "column_equilibrated_cauchy.free-delta-v.float64le.bin",
+      "bytes": 20304,
+      "sha256": "ad73f716f108aee93813def6973425ef30a955c155d972c834ca5151e8447ae1"
+    },
+    {
+      "path": "column_equilibrated_cauchy.full-node-delta-v.float32x4.bin",
+      "bytes": 14112,
+      "sha256": "d66fdafae1c33d458b376469a2bc8b8f6c65d2b97d02a81e4926f12eb39e96ef"
+    },
+    {
+      "path": "column_equilibrated_cauchy_025.free-delta-v.float64le.bin",
+      "bytes": 20304,
+      "sha256": "84dc3999fb01b18b9988d724c620edf283ca7f03684f6b324a79d8b5ce25d8df"
+    },
+    {
+      "path": "column_equilibrated_cauchy_025.full-node-delta-v.float32x4.bin",
+      "bytes": 14112,
+      "sha256": "fb7800aea5a054ab71f96754f5f45d4d1d28b9661cfd649d5c3026a4cbcf3faf"
+    },
+    {
+      "path": "column_equilibrated_cauchy_050.free-delta-v.float64le.bin",
+      "bytes": 20304,
+      "sha256": "fdfc0127a6fbe4b7090ba651e36442d84923768a4e76d2fedfdb298205e3c637"
+    },
+    {
+      "path": "column_equilibrated_cauchy_050.full-node-delta-v.float32x4.bin",
+      "bytes": 14112,
+      "sha256": "f7d1d5381dbe01b2618f8f1e1c3f83597dd3060f28f9f89df07079a05d1e3802"
+    },
+    {
+      "path": "column_equilibrated_cauchy_trust_1e-6_delta.free-delta-v.float64le.bin",
+      "bytes": 20304,
+      "sha256": "ad73f716f108aee93813def6973425ef30a955c155d972c834ca5151e8447ae1"
+    },
+    {
+      "path": "column_equilibrated_cauchy_trust_1e-6_delta.full-node-delta-v.float32x4.bin",
+      "bytes": 14112,
+      "sha256": "d66fdafae1c33d458b376469a2bc8b8f6c65d2b97d02a81e4926f12eb39e96ef"
+    },
+    {
+      "path": "free-column-norms.float64le.bin",
+      "bytes": 20304,
+      "sha256": "6d20e5a951ce86ce7fa42f509659a7752e78586daba19c6ac853adde6babd700"
+    },
+    {
+      "path": "free-correction.float64le.bin",
+      "bytes": 20304,
+      "sha256": "cbb3ed427ae32c438dcabeefc40efd3322bddc528fcd5f6ed83a5241fb97fff0"
+    },
+    {
+      "path": "free-linear-residual.float64le.bin",
+      "bytes": 20304,
+      "sha256": "641035202b349a28b18e3b3c6200f063178005d792e1b456cbba038a38282d1f"
+    },
+    {
+      "path": "free-mass-diagonal.float64le.bin",
+      "bytes": 20304,
+      "sha256": "e73710895b56f566340f35272533b44e66fe661a5c1c2072c59cdca7947022f7"
+    },
+    {
+      "path": "free-residual-gradient-AtransposeR.float64le.bin",
+      "bytes": 20304,
+      "sha256": "9d9c3023255e151fab73facbc12427e3df695428017829433d4b0070e4c4ff1b"
+    },
+    {
+      "path": "free-rhs.float64le.bin",
+      "bytes": 20304,
+      "sha256": "af22b09232b270e5cc15184d09cd8ed3d8f86b83bf08e765f510d6777fcaa8cb"
+    },
+    {
+      "path": "full-node-positions.float32x3.bin",
+      "bytes": 10584,
+      "sha256": "9c6f4604ef7d7e9d13b8bfd321aac99efa2b2101def89f960040482f85de8016"
+    },
+    {
+      "path": "raw_cauchy.free-delta-v.float64le.bin",
+      "bytes": 20304,
+      "sha256": "1572960bb477154e3fdee58d4acc644c4697759d76cf7267599fbe073e33ae0a"
+    },
+    {
+      "path": "raw_cauchy.full-node-delta-v.float32x4.bin",
+      "bytes": 14112,
+      "sha256": "a475998b398da0386638a98a246f2527cff88750d320beb03aeede8f7cb7913b"
+    },
+    {
+      "path": "report.json",
+      "bytes": 126737,
+      "sha256": "16ec8acdc53d22f5235ac136beb0cb95c34151f4def793b75ab822f8d5feb3c3"
+    },
+    {
+      "path": "run_experiment.py",
+      "bytes": 23539,
+      "sha256": "8edeb9f98c148c21e4aaf438c50cda2e60b22584a995c91ec53ef741f6321a12"
+    },
+    {
+      "path": "validation.log",
+      "bytes": 2422,
+      "sha256": "0286f97b8d1c30f3b0b9158756f834037eb086e0c69c178a039849e8dd799ab8"
+    }
+  ],
+  "capture_sha256": "f2d42314cfee0428ecd285ebb9dbd5da1556624e3e92af1d12240fd8106b309a",
+  "source_module_sha256": "2ce80f9b3c989efd058bdbcc29661d10701061cfde459d64cca06c0d6caeee38"
+}

@@ -1,0 +1,6 @@
+{
+  "outcome": "unprefixed patch rejected before mutation; zero build and native steps",
+  "exit_code": 1,
+  "cause": "assembly wrapper used -p1 for patch rooted at matter/; required -p0",
+  "patch_sha256": "f0be54897e1df288f8d7842574be929b4d80c605706ab27d5115cc89df1b945f"
+}

@@ -1,0 +1,134 @@
+{
+  "classification": "CPU-only independent audit of source-bound native Metal checker output; no full solver or physical qualification",
+  "files": [
+    {
+      "bytes": 2591,
+      "path": "README.md",
+      "sha256": "04e4e38bfd66700da6b304076f3d1aecc75770420acb78ff2699638f30607b2b"
+    },
+    {
+      "bytes": 22218,
+      "path": "adjudicate.py",
+      "sha256": "ab37ad5c8b1d7380853319c9845dd338dd1c0d2cec7abc7353c28f685c54fdfd"
+    },
+    {
+      "bytes": 12192,
+      "path": "report.json",
+      "sha256": "0f7e4706316ae03cf1d35bfd8bfc706a04a618d7c0ccdd93561d627edb90fb70"
+    }
+  ],
+  "inputs": [
+    {
+      "bytes": 2195272,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native-residual-fd-sweep-419-001/replay-input.bin",
+      "sha256": "30c472a120d7ff091d81c04e342939d571a392e02c249c8bfef8402f120852a8"
+    },
+    {
+      "bytes": 5809,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/captured-base-state-cauchy-419-001/manifest.json",
+      "sha256": "03c713a1aeeb57544d47430c7bd519b6128ea4b8243142d9e798cd114f1e0348"
+    },
+    {
+      "bytes": 128038,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/captured-base-state-cauchy-419-001/report.json",
+      "sha256": "490acb6be474e2aa9c48fe03f61538ac5727cd28e5af675c0ee42e7382c92d16"
+    },
+    {
+      "bytes": 506678,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/captured-base-state-cauchy-419-001/A_free_csr.npz",
+      "sha256": "6b1d7f76b0a747cd28fa4ee53ef8b5316dd25ae390860a97242f1d91f63990ed"
+    },
+    {
+      "bytes": 20304,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/captured-base-state-cauchy-419-001/base_rhs.float64le.bin",
+      "sha256": "af22b09232b270e5cc15184d09cd8ed3d8f86b83bf08e765f510d6777fcaa8cb"
+    },
+    {
+      "bytes": 24992,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native424-residual-sweep-audit-001/report.json",
+      "sha256": "ccf8bb7d2b3e5d1f7e73279445882c40eb7916d460a8cd831468e2e28be645e3"
+    },
+    {
+      "bytes": 3587,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native-base-cauchy-kernel-result-433/manifest.json",
+      "sha256": "ecfd5e3dfc2473fdf9b3061febcfd73a5df8e84add40f68667ff954b11ae5539"
+    },
+    {
+      "bytes": 3331,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native-base-cauchy-kernel-result-433/prediction.json",
+      "sha256": "49436e2a73c32918643ba160dfc5e0ceaec4f97123845894dfcbfa10d9460658"
+    },
+    {
+      "bytes": 206,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native-base-cauchy-kernel-result-433/receipt.json",
+      "sha256": "c861cb961ce9b77447ab8ec6c15d99dd3711d3bb517a331a07ea8a279b884c18"
+    },
+    {
+      "bytes": 3997,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native-base-cauchy-kernel-133-metal-overlay-001/MANIFEST.json",
+      "sha256": "ad321f2d1aa6ebdca456d6bc94b1a91bbbb55469fa040101a0a618021938614c"
+    },
+    {
+      "bytes": 8449664,
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/lib/libmetalrobo.dylib",
+      "sha256": "4654be4288f62d662468a7c31565b259648c001e833201b58da4b33d5a52405d"
+    },
+    {
+      "bytes": 2621048,
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/matter/numi-matter-cardboard-probe",
+      "sha256": "be71e8eeeaefbb690b3e0dda427812afa24d091d6f97bbf4e2b7ceffd075d55f"
+    },
+    {
+      "bytes": 6692507,
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/matter/shaders/NumiMatter.metallib",
+      "sha256": "b0f6c901e2fa7ddd129d3d22e3fc61caf93089863c556e555351d322736ec187"
+    },
+    {
+      "bytes": 80076,
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/matter/shaders/NumiMatterPhysicalStateDigest.metallib",
+      "sha256": "0401b29d3ac2165153f36bea19786be653a10a242eed140e1c9008595ec1f729"
+    },
+    {
+      "bytes": 5300911,
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/shaders/MetalRobo.metallib",
+      "sha256": "61a548c69e6ec9c5c95480d54dbcf2fd851744e2a5e799397c59960e2fb27334"
+    },
+    {
+      "bytes": 48434,
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/shaders/MetalRoboHyperPolicy.metallib",
+      "sha256": "0229cfae6afd3f1c75244e6814dd542e07a0f2a8082a636b1a6038dfa2573cef"
+    },
+    {
+      "bytes": 66974,
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/shaders/NumiNeuron.metallib",
+      "sha256": "e7243f197f9312ff28abefc6ffe5b17b3f52916175b445e65e026f760e42665a"
+    },
+    {
+      "bytes": 96050,
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/source-build.json",
+      "sha256": "6f6d8876a260b77cfbcf6823d6ad439ecf601a7c93b3b3611dbf41c1fdbf0951"
+    },
+    {
+      "bytes": 2834,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native-base-cauchy-kernel-check-133-001/compiled-program.json",
+      "sha256": "e64800738f3bbc5bce381c1ef37708f17a4eda9d8f88df7be53f3e6256dbd728"
+    },
+    {
+      "bytes": 34614,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native-base-cauchy-kernel-check-133-001/native_cauchy_kernel_check.mm",
+      "sha256": "907356d9f4eca507c18ecd095004c099b1c3a573bbb032da740ed26f9bc2ea23"
+    },
+    {
+      "bytes": 1907640,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native-base-cauchy-kernel-check-133-001/native_cauchy_kernel_check",
+      "sha256": "b5e3dbe65d12980a713778442e51502dea0ad1413561a47db0115301f8ec2233"
+    },
+    {
+      "bytes": 1984768,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/output/compiled.nmatterpack",
+      "sha256": "cafbf36052bbfa72e8be49fdba8b23e900469c9f15136a14a4ec1e4c0b5ccf7c"
+    }
+  ],
+  "native_result_manifest_sha256": "ecfd5e3dfc2473fdf9b3061febcfd73a5df8e84add40f68667ff954b11ae5539",
+  "schema": "numi.matter.native433_adjudication_package.v1"
+}

@@ -1,0 +1,186 @@
+{
+  "bindings": {
+    "audit003_report_sha256": "ac341f55c0dbb2462d142fcf0165ca570d06eec9aa432944a0863067343b8664",
+    "capture419_sha256": "f2d42314cfee0428ecd285ebb9dbd5da1556624e3e92af1d12240fd8106b309a",
+    "fp64_reference_sha256": "c17010564a98fe63da0c8b88be81313685a65cfbd57ff82292e797cab5a0fdf3",
+    "native424_minus_nodes_sha256": "80113c641dacb283a5c52319edd8d8ee7faf763f3794a52c11005e06aebbe747",
+    "native424_plus_nodes_sha256": "334d261d06bfd009167b9197d16417545db2cb07aab4136541ee84ecfa75a392",
+    "native424_receipt_sha256": "8c48ff649955cf85044966b4649c920fe39e19fd06ba39ac0eeb11c65227410c",
+    "source_runtime_sha256": "1719f14310d643ca96c520eb47b3028f8259f85e3da0d263460921b06d94ac74",
+    "tet1691_continuation_sha256": "bd41e1b74dc486e4c5f65fe2612d7ba3fac4e35dea3da139bc1e252160c43962"
+  },
+  "created_at_utc": "2026-10-15T20:37:29.788314+00:00",
+  "observed_numpy_warnings": [
+    [
+      "RuntimeWarning",
+      "divide by zero encountered in divide",
+      "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      40
+    ],
+    [
+      "RuntimeWarning",
+      "invalid value encountered in divide",
+      "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      40
+    ]
+  ],
+  "schema": "numi.cardboard.source125-native424-endpoint-branch-census.v1",
+  "scope": "paper rows only, exact source-transcribed native endpoints and unchanged accepted history; diagnostic branch census, no qualification",
+  "status": "all1728_strict_fp64_projections_available_with_tet1691_continuation_override",
+  "summary": {
+    "all_rows": 1728,
+    "by_material": {
+      "0": {
+        "center": {
+          "lambda_nonpositive": 1,
+          "lambda_positive": 1151,
+          "min_abs_yield_gap": 1.589173237448449e-12,
+          "name": "liner",
+          "rows": 1152,
+          "yield_gap_nonpositive": 0,
+          "yield_gap_positive": 1152
+        },
+        "minus": {
+          "lambda_nonpositive": 1,
+          "lambda_positive": 1151,
+          "min_abs_yield_gap": 1.6915358003188885e-12,
+          "name": "liner",
+          "rows": 1152,
+          "yield_gap_nonpositive": 0,
+          "yield_gap_positive": 1152
+        },
+        "plus": {
+          "lambda_nonpositive": 1,
+          "lambda_positive": 1151,
+          "min_abs_yield_gap": 1.4936940573306856e-12,
+          "name": "liner",
+          "rows": 1152,
+          "yield_gap_nonpositive": 0,
+          "yield_gap_positive": 1152
+        }
+      },
+      "1": {
+        "center": {
+          "lambda_nonpositive": 15,
+          "lambda_positive": 561,
+          "min_abs_yield_gap": 2.0874413309002193e-12,
+          "name": "medium",
+          "rows": 576,
+          "yield_gap_nonpositive": 0,
+          "yield_gap_positive": 576
+        },
+        "minus": {
+          "lambda_nonpositive": 15,
+          "lambda_positive": 561,
+          "min_abs_yield_gap": 2.09099404457902e-12,
+          "name": "medium",
+          "rows": 576,
+          "yield_gap_nonpositive": 0,
+          "yield_gap_positive": 576
+        },
+        "plus": {
+          "lambda_nonpositive": 15,
+          "lambda_positive": 561,
+          "min_abs_yield_gap": 2.084332706431269e-12,
+          "name": "medium",
+          "rows": 576,
+          "yield_gap_nonpositive": 0,
+          "yield_gap_positive": 576
+        }
+      }
+    },
+    "strict_gates": {
+      "center": {
+        "max_dynamic_correction": 1.9212223083515108e-08,
+        "max_scaled_residual": 1.9936917607130692e-10,
+        "valid_rows": 1728
+      },
+      "minus": {
+        "max_dynamic_correction": 1.946655829675668e-08,
+        "max_scaled_residual": 1.9291890608160873e-10,
+        "valid_rows": 1728
+      },
+      "plus": {
+        "max_dynamic_correction": 1.8958774395905167e-08,
+        "max_scaled_residual": 1.9838938382415066e-10,
+        "valid_rows": 1728
+      }
+    },
+    "transitions": {
+      "minus": {
+        "lambda_active_flip_count": 0,
+        "lambda_flip_ids": [],
+        "yield_gap_flip_ids": [],
+        "yield_gap_sign_flip_count": 0
+      },
+      "plus": {
+        "lambda_active_flip_count": 0,
+        "lambda_flip_ids": [],
+        "yield_gap_flip_ids": [],
+        "yield_gap_sign_flip_count": 0
+      }
+    },
+    "yield_gap_distribution": {
+      "center": {
+        "median_absolute": 0.6547816275536538,
+        "minimum": 1.589173237448449e-12,
+        "minimum_absolute": 1.589173237448449e-12,
+        "negative_count": 0,
+        "p01_absolute": 3.635535206214513e-12,
+        "positive_count": 1728,
+        "zero_count": 0
+      },
+      "minus": {
+        "median_absolute": 0.6541528550579765,
+        "minimum": 1.6915358003188885e-12,
+        "minimum_absolute": 1.6915358003188885e-12,
+        "negative_count": 0,
+        "p01_absolute": 3.888401822749188e-12,
+        "positive_count": 1728,
+        "zero_count": 0
+      },
+      "plus": {
+        "median_absolute": 0.6558521088701154,
+        "minimum": 1.4936940573306856e-12,
+        "minimum_absolute": 1.4936940573306856e-12,
+        "negative_count": 0,
+        "p01_absolute": 3.413460625267817e-12,
+        "positive_count": 1728,
+        "zero_count": 0
+      }
+    }
+  },
+  "tet1691": {
+    "center": {
+      "accepted_state_unchanged": true,
+      "dynamic_scaled_correction": 1.0673123234014252e-11,
+      "iterations": 1,
+      "lambda_active": true,
+      "lambda_increment": 4.0371680335600365e-14,
+      "q_hill": 0.9987615081178927,
+      "scaled_residual": 2.479340903111742e-16,
+      "yield_gap": 0.001238491889814064
+    },
+    "minus": {
+      "accepted_state_unchanged": true,
+      "dynamic_scaled_correction": 7.98705735079677e-14,
+      "iterations": 1,
+      "lambda_active": true,
+      "lambda_increment": 7.133793942292861e-15,
+      "q_hill": 0.9929911068660646,
+      "scaled_residual": 7.95007709394494e-18,
+      "yield_gap": 0.007008893135404648
+    },
+    "plus": {
+      "accepted_state_unchanged": true,
+      "dynamic_scaled_correction": 2.6778620812318035e-16,
+      "iterations": null,
+      "lambda_active": true,
+      "lambda_increment": 1.2355285386758783e-09,
+      "q_hill": 1.000000191414388,
+      "scaled_residual": 1.252067604677915e-13,
+      "yield_gap": 4.046850987649009e-08
+    }
+  },
+  "warning_note": "The reference computes both np.where branches; on some zero-denominator inactive rows NumPy reports divide-by-zero/invalid in the unselected rationalized branch. Outputs were checked finite and the strict gates are separately recorded; warning is retained, not silenced."
+}

@@ -1,0 +1,780 @@
+--- a/matter/src/metal/fem.metalinc
++++ b/matter/src/metal/fem.metalinc
+@@ -3026,6 +3026,11 @@
+     device const float* tangentCache [[buffer(23)]],
+     device const uint* tangentCacheValid [[buffer(24)]],
+     constant uint& useTangentCache [[buffer(25)]],
++    // Modes 3/4 are the opt-in base-state Cauchy fallback's strict cached
++    // transpose/forward actions. Its per-environment sentinel prevents work
++    // and cache-validity failures from leaking into environments whose
++    // primary Newton direction was already accepted.
++    device const float4* fallbackMetrics [[buffer(26)]],
+     uint global [[thread_position_in_grid]]
+ ) {
+     const uint total = dispatch.environmentCount * dispatch.tetrahedronCount;
+@@ -3039,6 +3044,10 @@
+     );
+     const uint objectIndex = tetrahedron.identity.y;
+     elementOperator[global] = {};
++    const bool fallbackScoped = useTangentCache == 3u ||
++        useTangentCache == 4u;
++    if (fallbackScoped && fallbackMetrics[environment].w != 3.0f)
++        return;
+     if ((tetrahedron.identity.w & NM_OBJECT_ACTIVE) == 0u ||
+         objectIndex >= dispatch.objectCount ||
+         !environmentHealthy(statuses, environment)) {
+@@ -3093,7 +3102,9 @@
+     // tet must have a valid entry. Mode 2 is only for conditioning-only RAP
+     // construction and falls back to the direct production evaluator when an
+     // entry cannot be formed.
+-    const bool requestStrictCache = useTangentCache == 1u;
++    const bool requestTransposeCache = useTangentCache == 3u;
++    const bool requestStrictCache = useTangentCache == 1u ||
++        requestTransposeCache || useTangentCache == 4u;
+     const bool requestFallbackCache = useTangentCache == 2u;
+     if (requestStrictCache ||
+         (requestFallbackCache && cacheEntryValid)) {
+@@ -3111,10 +3122,13 @@
+             const uint cacheBase = global * 81u;
+             for (uint row = 0u; row < 9u; ++row) {
+                 float response = 0.0f;
+-                for (uint column = 0u; column < 9u; ++column)
+-                    response += tangentCache[
+-                        cacheBase + row * 9u + column
+-                    ] * directionComponents[column];
++                for (uint column = 0u; column < 9u; ++column) {
++                    const uint cacheIndex = requestTransposeCache
++                        ? cacheBase + column * 9u + row
++                        : cacheBase + row * 9u + column;
++                    response += tangentCache[cacheIndex] *
++                        directionComponents[column];
++                }
+                 responseComponents[row] = response;
+                 valid = valid && isfinite(response);
+             }
+@@ -3140,7 +3154,8 @@
+             valid, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, deformationLow
+         );
+     }
+-    if (useTangentCache != 1u && !usedTangentCache &&
++    if (useTangentCache != 1u && useTangentCache != 3u &&
++        useTangentCache != 4u && !usedTangentCache &&
+         material.constitutiveKind == NM_CONSTITUTIVE_POLYCONVEX_ICNN) {
+         bool found = false;
+         for (uint networkIndex = 0u;
+@@ -4481,12 +4496,13 @@
+     device const NMFGMRESStateGPU* fgmresStates [[buffer(8)]],
+     device float4* correction [[buffer(9)]],
+     device float* environmentLineSearch [[buffer(10)]],
++    constant uint& fallbackAllowed [[buffer(11)]],
+     uint environment [[thread_position_in_grid]]
+ ) {
+     if (environment >= dispatch.environmentCount || dispatch.objectCount != 1u)
+         return;
+     (void)fgmresStates;
+-    const float4 state = metrics[environment];
++    float4 state = metrics[environment];
+     if (state.w > 0.5f) return;
+     const float alpha = state.z;
+     const float bound = (1.0f - solver.globalization.x * alpha) * state.x;
+@@ -4538,6 +4554,23 @@
+         // decision that accepts this trial, before either block is applied.
+         environmentLineSearch[environment] = line.x;
+     } else if (trialIndex + 1u >= solver.nonlinearIterations.w) {
++        if (fallbackAllowed != 0u && statusesHealthy) {
++            // The primary Newton line search exhausted only its smooth,
++            // healthy residual tests. A later explicitly requested
++            // base-state Cauchy pass may replace this direction; keep the
++            // transaction status healthy but mark the private metrics so
++            // no primary direction is accidentally applied in between.
++            state.w = 3.0f;
++            metrics[environment] = state;
++            const uint slot = environment * dispatch.objectCount;
++            float4 line = lineSearch[slot];
++            line.x = 0.0f;
++            line.z = 0.0f;
++            line.w = float(microstep.solverIteration);
++            lineSearch[slot] = line;
++            environmentLineSearch[environment] = 0.0f;
++            return;
++        }
+         // No tested candidate was accepted. Both production apply kernels
+         // execute after this decision, including on the failure path. Leaving
+         // the rigid environment alpha at its geometry-limiter value would
+--- a/matter/src/metal/fgmres.metalinc
++++ b/matter/src/metal/fgmres.metalinc
+@@ -5206,6 +5206,169 @@
+             deformableMollifierGradient(deformable, local) *
+                 (deformable.mollifier.z * mollifierDirection));
+     }
++}
++
++// Preserve the assembled, free-node base residual before FGMRES repurposes its
++// residual arena for restart vectors. This scratch is consumed only by the
++// opt-in base-state Cauchy fallback after the ordinary Newton Armijo search
++// has exhausted healthy trials.
++kernel void nm_fgmres_capture_base_cauchy_rhs(
++    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
++    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
++    device const float4* residual [[buffer(1)]],
++    device const NMFEMNodeStateGPU* candidate [[buffer(2)]],
++    device float4* baseRHS [[buffer(3)]],
++    uint global [[thread_position_in_grid]]) {
++    if (global >= layout.unknownCount) return;
++    const uint totalNodes = dispatch.environmentCount * dispatch.femNodeCount;
++    if (global < totalNodes) {
++        const NMFEMNodeStateGPU node = candidate[global];
++        const bool freeMassRow = !femStaticConstraint(node.restAndFixed.w) &&
++            isfinite(node.positionAndMass.w) && node.positionAndMass.w > 0.0f;
++        const float4 value = residual[global];
++        baseRHS[global] = freeMassRow
++            ? float4(value.xyz, 0.0f) : float4(0.0f);
++    } else {
++        // The pure-FEM layout still reserves a second E*N field backing
++        // block. Preserve it so the Cauchy builder can reject any nonzero
++        // generalized RHS instead of silently dropping those equations.
++        baseRHS[global] = residual[global];
++    }
++}
++
++// Select either the preserved base right-hand side or a just-computed
++// gradient into the ordinary element-operator input arena. Nonselected
++// environments are zeroed so their primary Newton corrections and statuses
++// remain untouched by the fallback's per-environment operator dispatches.
++kernel void nm_fgmres_prepare_base_cauchy_action(
++    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
++    device const float4* metrics [[buffer(1)]],
++    device const float4* baseRHS [[buffer(2)]],
++    device const float4* gradient [[buffer(3)]],
++    device const NMFEMNodeStateGPU* candidate [[buffer(4)]],
++    device float4* direction [[buffer(5)]],
++    constant uint& useGradient [[buffer(6)]],
++    uint global [[thread_position_in_grid]]) {
++    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
++    if (global >= total) return;
++    const uint environment = global / dispatch.femNodeCount;
++    const bool selected = metrics[environment].w == 3.0f;
++    const NMFEMNodeStateGPU node = candidate[global];
++    const bool freeMassRow = !femStaticConstraint(node.restAndFixed.w) &&
++        isfinite(node.positionAndMass.w) && node.positionAndMass.w > 0.0f;
++    const float4 value = useGradient != 0u
++        ? gradient[global] : baseRHS[global];
++    direction[global] = selected && freeMassRow && all(isfinite(value.xyz))
++        ? float4(value.xyz, 0.0f) : float4(0.0f);
++}
++
++// Form the raw unpreconditioned Cauchy direction p=tau*A^T*b. The primary
++// FGMRES true-residual test remains associated with its original Newton
++// delta; this direction is admitted only by the subsequent ordinary nonlinear
++// Armijo and final residual/correction certificates.
++kernel void nm_fgmres_build_base_cauchy_direction(
++    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
++    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
++    constant NMMixedSolverGPU& solver [[buffer(1)]],
++    device float4* metrics [[buffer(2)]],
++    device const NMFEMNodeStateGPU* candidate [[buffer(3)]],
++    device const float4* gradient [[buffer(4)]],
++    device const float4* gradientAction [[buffer(5)]],
++    device float4* solution [[buffer(6)]],
++    device float4* lineSearch [[buffer(7)]],
++    device float* environmentLineSearch [[buffer(8)]],
++    device float4* fallbackTrace [[buffer(9)]],
++    device NMFGMRESStateGPU* states [[buffer(10)]],
++    device NMMatterStatusGPU* statuses [[buffer(11)]],
++    device NMMatterStatusGPU* trialStatuses [[buffer(12)]],
++    constant uint& solverIteration [[buffer(13)]],
++    device const float4* baseRHS [[buffer(14)]],
++    uint environment [[thread_position_in_grid]]) {
++    if (environment >= dispatch.environmentCount ||
++        dispatch.femNodeCount == 0u || dispatch.objectCount != 1u)
++        return;
++    float4 state = metrics[environment];
++    if (state.w != 3.0f) {
++        fallbackTrace[environment] = float4(0.0f);
++        return;
++    }
++
++    float gradientNorm2 = 0.0f;
++    float gradientCorrection = 0.0f;
++    float actionNorm2 = 0.0f;
++    float actionCorrection = 0.0f;
++    bool valid = environmentHealthy(statuses, environment) &&
++        states[environment].diagnostics.z > 0.5f;
++    const uint nodeBase = environment * dispatch.femNodeCount;
++    const uint fieldBase = dispatch.environmentCount * dispatch.femNodeCount;
++    for (uint node = 0u; node < dispatch.femNodeCount; ++node) {
++        const float4 fieldResidual = baseRHS[fieldBase + nodeBase + node];
++        valid = valid && all(isfinite(fieldResidual)) &&
++            all(fieldResidual == float4(0.0f));
++    }
++    for (uint node = 0u; node < dispatch.femNodeCount; ++node) {
++        const uint global = nodeBase + node;
++        const NMFEMNodeStateGPU candidateNode = candidate[global];
++        if (femStaticConstraint(candidateNode.restAndFixed.w) ||
++            !isfinite(candidateNode.positionAndMass.w) ||
++            candidateNode.positionAndMass.w <= 0.0f)
++            continue;
++        const float3 b = baseRHS[global].xyz;
++        const float3 g = gradient[global].xyz;
++        const float3 ag = gradientAction[global].xyz;
++        valid = valid && all(isfinite(b)) &&
++            all(isfinite(g)) && all(isfinite(ag));
++        fgmresCompensatedAdd(gradientNorm2, gradientCorrection, dot(g, g));
++        fgmresCompensatedAdd(actionNorm2, actionCorrection, dot(ag, ag));
++    }
++    const float tau = gradientNorm2 / actionNorm2;
++    valid = valid && isfinite(gradientNorm2) && gradientNorm2 > 0.0f &&
++        isfinite(actionNorm2) && actionNorm2 > 0.0f && isfinite(tau) &&
++        tau > 0.0f;
++    float4 trace = float4(
++        valid ? sqrt(gradientNorm2) : INFINITY,
++        valid ? sqrt(actionNorm2) : INFINITY,
++        valid ? tau : INFINITY,
++        states[environment].diagnostics.z > 0.5f ? 1.0f : 0.0f);
++    fallbackTrace[environment] = trace;
++    if (!valid) {
++        state.w = 4.0f;
++        metrics[environment] = state;
++        recordFailure(statuses[environment],
++            NM_STATUS_NONLINEAR_SOLVER_FAILURE, NM_INVALID_INDEX,
++            solverIteration,
++            float4(trace.x, trace.y, tau, gradientCorrection + actionCorrection));
++        return;
++    }
++
++    for (uint node = 0u; node < dispatch.femNodeCount; ++node) {
++        const uint global = nodeBase + node;
++        const NMFEMNodeStateGPU candidateNode = candidate[global];
++        const bool freeMassRow = !femStaticConstraint(candidateNode.restAndFixed.w) &&
++            isfinite(candidateNode.positionAndMass.w) &&
++            candidateNode.positionAndMass.w > 0.0f;
++        solution[global] = freeMassRow
++            ? float4(tau * gradient[global].xyz, 0.0f)
++            : float4(0.0f);
++        // The admitted mode has no field unknowns; clear its inactive backing
++        // rows so no earlier Newton solution can leak into candidate build.
++        const uint fieldGlobal = dispatch.environmentCount *
++            dispatch.femNodeCount + global;
++        if (fieldGlobal < layout.unknownCount)
++            solution[fieldGlobal] = float4(0.0f);
++    }
++    // Preserve the fact that FGMRES certified the original Newton delta, but
++    // clear its convergence latch now that the applied direction is p instead.
++    states[environment].diagnostics.z = 0.0f;
++    state.w = 0.0f;
++    state.y = INFINITY;
++    state.z = 0.0f;
++    metrics[environment] = state;
++    lineSearch[environment] = float4(
++        0.0f, INFINITY, 0.0f, float(solverIteration));
++    environmentLineSearch[environment] = 0.0f;
++    trialStatuses[environment] = {};
++    (void)solver;
+ }
+ 
+ // Preserve the exact assembled right-hand side for a true residual check.
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -1760,6 +1760,7 @@
+     bool physicalStateDigestEnabled = false;
+     bool enableVascularDense45 = false;
+     bool femResidualArmijoScratchEnabled = false;
++    bool femBaseCauchyScratchEnabled = false;
+     bool femArmijoMixedCohesiveSupported = false;
+     std::size_t acceptedStateProofResidentByteCount = 0u;
+     std::size_t residentBytes = 0u;
+@@ -2274,6 +2275,10 @@
+     id<MTLBuffer> femTrueResidualCohesiveOperator = nil;
+     id<MTLBuffer> femTrueResidualElementOperator = nil;
+     id<MTLBuffer> femTrueResidualOperatorValue = nil;
++    // Opt-in base-state Cauchy fallback scratch. Keep the Newton RHS separate
++    // from the true-residual certificate's RHS/operator arenas.
++    id<MTLBuffer> femBaseCauchyRightHandSide = nil;
++    id<MTLBuffer> femBaseCauchyTrace = nil;
+     id<MTLBuffer> femConstraintReactions = nil;
+     id<MTLBuffer> femConstraintContactForces = nil;
+     id<MTLBuffer> femLineSearch = nil;
+@@ -4039,6 +4044,9 @@
+             "nm_fem_operator_fd_capture_parameters",
+             "nm_fem_armijo_decide",
+             "nm_fem_synchronize_environment_line_search",
++            "nm_fgmres_capture_base_cauchy_rhs",
++            "nm_fgmres_prepare_base_cauchy_action",
++            "nm_fgmres_build_base_cauchy_direction",
+             "nm_fgmres_preserve_true_rhs",
+             "nm_fgmres_clear_true_operator",
+             "nm_fgmres_clear_true_auxiliary",
+@@ -5918,12 +5926,15 @@
+         candidate->femOperatorFDRichCaptureEnabled =
+             candidate->femOperatorFDScratchEnabled &&
+             operatorFDRichCaptureRequested;
++        candidate->femBaseCauchyScratchEnabled =
++            std::getenv("NM_FEM_BASE_CAUCHY_FALLBACK_SELECTOR") != nullptr;
+         candidate->femResidualArmijoScratchEnabled =
+             std::getenv("NM_FEM_RESIDUAL_ARMIJO_ROOT") != nullptr ||
+             std::getenv("NM_FEM_CAPSULE_RESIDUAL_ARMIJO_ROOT") != nullptr ||
+             std::getenv("NM_FEM_CAPSULE_BOX_RESIDUAL_ARMIJO_ROOT") != nullptr ||
+             std::getenv("NM_FEM_COHESIVE_RESIDUAL_ARMIJO_ROOT") != nullptr ||
+             std::getenv("NM_FEM_FULL_CONTACT_RESIDUAL_ARMIJO_ROOT") != nullptr ||
++            candidate->femBaseCauchyScratchEnabled ||
+             candidate->femOperatorFDScratchEnabled;
+         if (candidate->femResidualArmijoScratchEnabled) {
+             candidate->femArmijoCandidate = privateScratch<NMFEMNodeStateGPU>(
+@@ -5955,6 +5966,15 @@
+             candidate->femArmijoStatuses = privateScratch<NMMatterStatusGPU>(
+                 candidate->device, multiplied(1u),
+                 valid, candidate->residentBytes);
++            if (candidate->femBaseCauchyScratchEnabled) {
++                candidate->femBaseCauchyRightHandSide =
++                    privateScratch<nm_float4>(candidate->device,
++                        candidate->fgmresLayout.unknownCount,
++                        valid, candidate->residentBytes);
++                candidate->femBaseCauchyTrace = privateScratch<nm_float4>(
++                    candidate->device, environments,
++                    valid, candidate->residentBytes);
++            }
+             if (world.dispatch.rigidGeneralizedCapacity != 0u) {
+                 candidate->femArmijoRigidCandidate =
+                     privateScratch<float>(candidate->device,
+@@ -11448,6 +11468,99 @@
+                     return diagnostics;
+                 }
+             }
++            bool femBaseCauchyFallbackRequested = false;
++            bool femBaseCauchyFallbackConfigValid = true;
++            bool femBaseCauchyFallbackSelectedRoot = false;
++            std::uint32_t femBaseCauchyFallbackRoot = 0u;
++            std::uint32_t femBaseCauchyFallbackIteration = 0u;
++            const char* baseCauchySelector = std::getenv(
++                "NM_FEM_BASE_CAUCHY_FALLBACK_SELECTOR");
++            femBaseCauchyFallbackRequested = baseCauchySelector != nullptr;
++            if (femBaseCauchyFallbackRequested) {
++                const auto rejectBaseCauchy = [&](const char* reason) {
++                    femBaseCauchyFallbackConfigValid = false;
++                    std::fprintf(stderr,
++                        "fem_base_cauchy_fallback_rejected={\"schema\":1,\"control_step\":%u,\"reason\":\"%s\",\"physical_operator_changed\":false}\n",
++                        request.controlStep, reason);
++                };
++                const char* separator = std::strchr(baseCauchySelector, ':');
++                const char* end = baseCauchySelector +
++                    std::strlen(baseCauchySelector);
++                const auto digitsOnly = [](const char* begin,
++                                           const char* finish) {
++                    if (begin >= finish) return false;
++                    for (const char* cursor = begin; cursor != finish;
++                         ++cursor) {
++                        if (*cursor < '0' || *cursor > '9') return false;
++                    }
++                    return true;
++                };
++                char* rootEnd = nullptr;
++                char* iterationEnd = nullptr;
++                const unsigned long root = std::strtoul(
++                    baseCauchySelector, &rootEnd, 10);
++                const unsigned long iteration = separator == nullptr
++                    ? 0ul : std::strtoul(separator + 1, &iterationEnd, 10);
++                if (separator == nullptr || rootEnd != separator ||
++                    iterationEnd != end ||
++                    !digitsOnly(baseCauchySelector, separator) ||
++                    !digitsOnly(separator + 1, end) ||
++                    root > std::numeric_limits<std::uint32_t>::max() ||
++                    iteration > 256ul) {
++                    rejectBaseCauchy(
++                        "selector_must_be_control_step_colon_newton_0_to_256");
++                } else {
++                    femBaseCauchyFallbackRoot =
++                        static_cast<std::uint32_t>(root);
++                    femBaseCauchyFallbackIteration =
++                        static_cast<std::uint32_t>(iteration);
++                    if (request.controlStep != femBaseCauchyFallbackRoot) {
++                        // This bounded experimental selector changes one
++                        // exact control/Newton state only.
++                    } else if (!state.femBaseCauchyScratchEnabled ||
++                               state.femBaseCauchyRightHandSide == nil ||
++                               state.femBaseCauchyTrace == nil) {
++                        rejectBaseCauchy(
++                            "fallback_scratch_was_not_reserved_at_runtime_creation");
++                    } else if (!femResidualArmijoEnabled) {
++                        rejectBaseCauchy(
++                            "requires_the_same_selected_pure_fem_residual_armijo_step");
++                    } else if (!femTrueResidualCertificationRequested ||
++                               !femTrueResidualRootSelected ||
++                               femTrueResidualRoot != femBaseCauchyFallbackRoot ||
++                               (femTrueResidualNewtonSelectorSpecified &&
++                                (!femTrueResidualNewtonSelectorValid ||
++                                 femTrueResidualNewtonIteration !=
++                                     femBaseCauchyFallbackIteration))) {
++                        rejectBaseCauchy(
++                            "requires_true_residual_certification_for_the_same_selected_newton_state");
++                    } else if (state.dispatch.environmentCount > 2u ||
++                               state.dispatch.femNodeCount > 4096u ||
++                               state.dispatch.tetrahedronCount > 32768u ||
++                               state.mixedSolverValue.executionBudgets.w != 1u ||
++                               state.femAlgorithmicTangentCache == nil ||
++                               state.femAlgorithmicTangentCacheValid == nil) {
++                        rejectBaseCauchy(
++                            "requires_cached_static_fem_within_E2_N4096_T32768");
++                    } else if (const char* reason = femResidualArmijoScope()) {
++                        rejectBaseCauchy(reason);
++                    } else if (femBaseCauchyFallbackRoot == request.controlStep) {
++                        femBaseCauchyFallbackSelectedRoot = true;
++                        std::fprintf(stderr,
++                            "fem_base_cauchy_fallback_enabled={\"schema\":1,\"root\":%u,\"iteration\":%u,\"direction\":\"base_state_A_transpose_b\",\"certificate_scope\":\"original_newton_delta_only\",\"armijo_trials\":%u}\n",
++                            femBaseCauchyFallbackRoot,
++                            femBaseCauchyFallbackIteration,
++                            state.mixedSolverValue.nonlinearIterations.w);
++                    }
++                }
++            }
++            if (femBaseCauchyFallbackRequested &&
++                request.controlStep == femBaseCauchyFallbackRoot &&
++                !femBaseCauchyFallbackConfigValid) {
++                diagnostics.message = "requested base-state Cauchy fallback is unsupported";
++                ownership->preDynamicsOpen = false;
++                return diagnostics;
++            }
+             const auto emitFEMNewtonTraceSkip = [&](std::uint32_t root,
+                                                      const char* reason) {
+                 if (femNewtonTraceNoticeLogged) return;
+@@ -11534,7 +11647,7 @@
+                 });
+                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+             };
+-            const auto encodeFEMResidualArmijoTrace = [&]() -> bool {
++            const auto encodeFEMResidualArmijoTrace = [&](const char* directionKind = "newton") -> bool {
+                 if (!femResidualArmijoTraceEnabled) return true;
+                 constexpr std::uint32_t maximumTraceRecords = 64u;
+                 if (femResidualArmijoTraceRecords >= maximumTraceRecords) {
+@@ -11648,6 +11761,7 @@
+                 const auto capturedBaseStatusOffset = baseStatusOffset;
+                 const bool capturedBaseStatusAvailable =
+                     baseStatusCaptureAvailable;
++                const std::string capturedDirectionKind = directionKind;
+                 const auto capturedTrialBudget =
+                     state.mixedSolverValue.nonlinearIterations.w;
+                 const auto capturedAppendTraceFloat = appendTraceFloat;
+@@ -11683,6 +11797,7 @@
+                          << "fem_residual_armijo_iteration={\"schema\":3,\"root\":"
+                          << capturedRoot << ",\"newton_iteration\":"
+                          << capturedIteration
++                         << ",\"direction_kind\":\"" << capturedDirectionKind << "\""
+                          << ",\"semantics\":{\"base_l2\":\"raw recorded free-node metric in impulse units; interpret as the complete assembled mechanical residual only when base_health is healthy_at_armijo_entry\","
+                          << "\"trial_l2\":\"selected residual if accepted, otherwise last tested residual\","
+                          << "\"trial_alpha\":\"selected alpha if accepted, otherwise last tested alpha\","
+@@ -11699,13 +11814,15 @@
+                         line << ",\"trial_alpha\":";
+                         capturedAppendTraceFloat(line, metrics[environment].z);
+                         line << ",\"accepted\":"
+-                             << (metrics[environment].w > 0.5f ? "true" : "false")
++                             << ((metrics[environment].w > 0.5f && metrics[environment].w < 2.5f) ? "true" : "false")
+                              << ",\"certified_noop\":"
+-                             << (metrics[environment].w > 1.5f ? "true" : "false");
++                             << ((metrics[environment].w > 1.5f && metrics[environment].w < 2.5f) ? "true" : "false");
+                         const bool selectedAccepted =
+-                            metrics[environment].w > 0.5f;
++                            metrics[environment].w > 0.5f &&
++                            metrics[environment].w < 2.5f;
+                         const float selectedTrialCount = lineSearch[environment].z;
+-                        const bool certifiedNoop = metrics[environment].w > 1.5f;
++                        const bool certifiedNoop = metrics[environment].w > 1.5f &&
++                            metrics[environment].w < 2.5f;
+                         const bool noPrivateTrial = certifiedNoop ||
+                             !std::isfinite(selectedTrialCount) ||
+                             selectedTrialCount <= 0.0f;
+@@ -11980,6 +12097,9 @@
+                     [encoder setBuffer:state.dummy offset:0u atIndex:24u];
+                     const std::uint32_t useCache = 0u;
+                     [encoder setBytes:&useCache length:sizeof(useCache) atIndex:25u];
++                    [encoder setBuffer:state.femArmijoMetrics != nil
++                        ? state.femArmijoMetrics : state.dummy
++                                 offset:0u atIndex:26u];
+                 });
+                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                 dispatchThreads("nm_fgmres_gather_nodes", femNodeTotal, [&] {
+@@ -18760,6 +18880,21 @@
+                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+             }
+ 
++            const bool baseCauchyNewtonSelected =
++                femBaseCauchyFallbackSelectedRoot &&
++                nonlinearIteration == femBaseCauchyFallbackIteration;
++            if (baseCauchyNewtonSelected) {
++                dispatchThreads("nm_fgmres_capture_base_cauchy_rhs",
++                    state.fgmresLayout.unknownCount, [&] {
++                    setDispatch();
++                    [encoder setBuffer:state.femResidual offset:0u atIndex:1u];
++                    [encoder setBuffer:state.femCandidate offset:0u atIndex:2u];
++                    [encoder setBuffer:state.femBaseCauchyRightHandSide
++                                 offset:0u atIndex:3u];
++                });
++                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++            }
++
+             if (state.enableVascularDense45) {
+                 const std::uint32_t restartCycle = 0u;
+                 const float nonlinearTolerance = std::max(
+@@ -19256,6 +19391,9 @@
+                                 ? 2u : 0u;
+                         [encoder setBytes:&useCache
+                                    length:sizeof(useCache) atIndex:25u];
++                        [encoder setBuffer:state.femArmijoMetrics != nil
++                            ? state.femArmijoMetrics : state.dummy
++                                     offset:0u atIndex:26u];
+                     });
+                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                     const bool includeCohesiveRAP =
+@@ -20660,6 +20798,9 @@
+                     const std::uint32_t useCache =
+                         state.mixedSolverValue.executionBudgets.w == 1u ? 1u : 0u;
+                     [encoder setBytes:&useCache length:sizeof(useCache) atIndex:25u];
++                    [encoder setBuffer:state.femArmijoMetrics != nil
++                        ? state.femArmijoMetrics : state.dummy
++                                 offset:0u atIndex:26u];
+                 });
+                 dispatchThreads("nm_fem_cohesive_face_operator",
+                     cohesiveFaceTotal, [&] {
+@@ -21186,6 +21327,9 @@
+                     const std::uint32_t useCache =
+                         state.mixedSolverValue.executionBudgets.w == 1u ? 1u : 0u;
+                     [encoder setBytes:&useCache length:sizeof(useCache) atIndex:25u];
++                    [encoder setBuffer:state.femArmijoMetrics != nil
++                        ? state.femArmijoMetrics : state.dummy
++                                 offset:0u atIndex:26u];
+                 });
+                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                 dispatchThreads("nm_fgmres_gather_nodes", femNodeTotal, [&] {
+@@ -21462,6 +21606,9 @@
+                     const std::uint32_t useCache =
+                         state.mixedSolverValue.executionBudgets.w == 1u ? 1u : 0u;
+                     [encoder setBytes:&useCache length:sizeof(useCache) atIndex:25u];
++                    [encoder setBuffer:state.femArmijoMetrics != nil
++                        ? state.femArmijoMetrics : state.dummy
++                                 offset:0u atIndex:26u];
+                 });
+                 dispatchThreads("nm_fem_cohesive_face_operator",
+                     cohesiveFaceTotal, [&] {
+@@ -21618,6 +21765,9 @@
+                                  offset:0u atIndex:24u];
+                     [encoder setBytes:&useCacheForCapturedAction
+                                length:sizeof(useCacheForCapturedAction) atIndex:25u];
++                    [encoder setBuffer:state.femArmijoMetrics != nil
++                        ? state.femArmijoMetrics : state.dummy
++                                 offset:0u atIndex:26u];
+                 });
+                 const NSUInteger actionFieldVectorOffset =
+                     femNodeTotal * sizeof(nm_float4);
+@@ -21896,10 +22046,187 @@
+                     return diagnostics;
+                 }
+             }
++            const auto encodeBaseCauchyDirectionTrace = [&]() -> bool {
++                const NSUInteger bytes = environments * sizeof(nm_float4);
++                id<MTLBuffer> snapshot = [state.device newBufferWithLength:bytes
++                    options:MTLResourceStorageModeShared];
++                if (snapshot == nil) {
++                    diagnostics.message = "Cauchy direction trace allocation failed";
++                    return false;
++                }
++                [encoder endEncoding]; encoder = nil;
++                id<MTLBlitCommandEncoder> copy = [commandBuffer blitCommandEncoder];
++                if (copy == nil) {
++                    diagnostics.message = "Cauchy direction trace blit failed";
++                    return false;
++                }
++                [copy copyFromBuffer:state.femBaseCauchyTrace sourceOffset:0u
++                    toBuffer:snapshot destinationOffset:0u size:bytes];
++                [copy endEncoding];
++                const auto capturedRoot = request.controlStep;
++                const auto capturedIteration = nonlinearIteration;
++                const auto capturedEnvironments = environments;
++                const auto formatFloat = appendTraceFloat;
++                [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed) {
++                    if (completed.status != MTLCommandBufferStatusCompleted) return;
++                    const auto* values = static_cast<const nm_float4*>(snapshot.contents);
++                    std::ostringstream line;
++                    line << "fem_base_cauchy_direction={\"schema\":1,\"root\":"
++                         << capturedRoot << ",\"newton_iteration\":" << capturedIteration
++                         << ",\"direction_kind\":\"raw_A_transpose_b\","
++                         << "\"original_newton_certificate_applies_to_cauchy\":false,\"environments\":[";
++                    for (std::uint32_t e = 0u; e < capturedEnvironments; ++e) {
++                        if (e != 0u) line << ',';
++                        line << "{\"environment\":" << e << ",\"gradient_l2\":";
++                        formatFloat(line, values[e].x);
++                        line << ",\"gradient_action_l2\":"; formatFloat(line, values[e].y);
++                        line << ",\"tau\":"; formatFloat(line, values[e].z);
++                        line << ",\"original_newton_converged\":"
++                             << (values[e].w > 0.5f ? "true" : "false") << '}';
++                    }
++                    line << "]}\n";
++                    const auto text = line.str();
++                    std::fwrite(text.data(), 1u, text.size(), stderr);
++                }];
++                encoder = [commandBuffer computeCommandEncoder];
++                if (encoder == nil) {
++                    diagnostics.message = "Cauchy trace continuation encoder failed";
++                    return false;
++                }
++                [encoder setLabel:@"Numi Matter Cauchy direction trace continuation"];
++                return true;
++            };
++            const auto encodeBaseCauchyDirection = [&]() {
++                NMMicrostepGPU cauchyOperatorMicro = micro;
++                cauchyOperatorMicro.flags |= NM_MICROSTEP_FGMRES_OPERATOR |
++                    NM_MICROSTEP_FGMRES_TRUE_RESIDUAL;
++                const auto action = [&](const std::uint32_t cacheMode,
++                                         id<MTLBuffer> cauchyOutput) {
++                    const std::uint32_t useGradient = cacheMode == 4u ? 1u : 0u;
++                    dispatchThreads("nm_fgmres_prepare_base_cauchy_action",
++                        femNodeTotal, [&] {
++                        setDispatch();
++                        [encoder setBuffer:state.femArmijoMetrics offset:0u atIndex:1u];
++                        [encoder setBuffer:state.femBaseCauchyRightHandSide offset:0u atIndex:2u];
++                        [encoder setBuffer:state.femArmijoResidual offset:0u atIndex:3u];
++                        [encoder setBuffer:state.femCandidate offset:0u atIndex:4u];
++                        [encoder setBuffer:state.femArmijoDirection offset:0u atIndex:5u];
++                        [encoder setBytes:&useGradient length:sizeof(useGradient) atIndex:6u];
++                    });
++                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++                    // Both applications bypass the already-completed linear
++                    // latch read-only; the original Newton certificate is
++                    // not relabeled as a certificate for this new direction.
++                dispatchThreads("nm_fem_apply_operator_elements",
++                    tetrahedronTotal, [&] {
++                    setDispatch();
++                    [encoder setBytes:&cauchyOperatorMicro
++                               length:sizeof(cauchyOperatorMicro) atIndex:1u];
++                    [encoder setBuffer:state.objects offset:0u atIndex:2u];
++                    [encoder setBuffer:state.materials offset:0u atIndex:3u];
++                    [encoder setBuffer:state.scalarPrograms offset:0u atIndex:4u];
++                    [encoder setBuffer:state.instructions offset:0u atIndex:5u];
++                    [encoder setBuffer:state.environmentParameters
++                                 offset:0u atIndex:6u];
++                    [encoder setBuffer:state.femCandidate offset:0u atIndex:7u];
++                    [encoder setBuffer:state.femTetrahedraCandidate
++                                 offset:0u atIndex:8u];
++                    [encoder setBuffer:state.femMaterialStateAccepted
++                                 offset:0u atIndex:9u];
++                    [encoder setBuffer:state.femArmijoDirection offset:0u atIndex:10u];
++                    [encoder setBuffer:state.schedulers offset:0u atIndex:11u];
++                    [encoder setBuffer:state.adaptive offset:0u atIndex:12u];
++                    [encoder setBuffer:state.femArmijoElementForces
++                                 offset:0u atIndex:13u];
++                    [encoder setBuffer:state.statuses
++                                 offset:0u atIndex:14u];
++                    [encoder setBuffer:state.mixedMaterials offset:0u atIndex:16u];
++                    [encoder setBuffer:state.femFieldsCandidate
++                                 offset:0u atIndex:17u];
++                    [encoder setBuffer:state.learnedMaterials
++                                 offset:0u atIndex:18u];
++                    [encoder setBuffer:state.learnedLayers offset:0u atIndex:19u];
++                    [encoder setBuffer:state.learnedWeightsCandidate
++                                 offset:0u atIndex:20u];
++                    [encoder setBuffer:state.mixedSolver offset:0u atIndex:21u];
++                    [encoder setBuffer:state.fgmresStates offset:0u atIndex:22u];
++                    [encoder setBuffer:state.femAlgorithmicTangentCache != nil
++                            ? state.femAlgorithmicTangentCache : state.dummy
++                                 offset:0u atIndex:23u];
++                    [encoder setBuffer:state.femAlgorithmicTangentCacheValid != nil
++                            ? state.femAlgorithmicTangentCacheValid : state.dummy
++                                 offset:0u atIndex:24u];
++                    const std::uint32_t useCache = cacheMode;
++                    [encoder setBytes:&useCache length:sizeof(useCache) atIndex:25u];
++                    [encoder setBuffer:state.femArmijoMetrics != nil
++                        ? state.femArmijoMetrics : state.dummy
++                                 offset:0u atIndex:26u];
++                });
++                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++                dispatchThreads("nm_fgmres_gather_nodes", femNodeTotal, [&] {
++                    setDispatch();
++                    [encoder setBytes:&cauchyOperatorMicro
++                               length:sizeof(cauchyOperatorMicro) atIndex:1u];
++                    [encoder setBuffer:state.objects offset:0u atIndex:2u];
++                    [encoder setBuffer:state.femCandidate offset:0u atIndex:3u];
++                    [encoder setBuffer:state.femTetrahedraCandidate
++                                 offset:0u atIndex:4u];
++                    [encoder setBuffer:state.femArmijoElementForces offset:0u atIndex:5u];
++                    [encoder setBuffer:state.femNodeIncidence offset:0u atIndex:6u];
++                    [encoder setBuffer:state.femNodeRanges offset:0u atIndex:7u];
++                    [encoder setBuffer:state.schedulers offset:0u atIndex:8u];
++                    [encoder setBuffer:state.adaptive offset:0u atIndex:9u];
++                    [encoder setBuffer:state.femArmijoDirection offset:0u atIndex:10u];
++                    [encoder setBuffer:cauchyOutput
++                                 offset:0u atIndex:11u];
++                    bindPrimalContactArguments(12u);
++                    [encoder setBuffer:state.fgmresStates offset:0u atIndex:13u];
++                    [encoder setBytes:&coupledArticulatedNv
++                               length:sizeof(coupledArticulatedNv) atIndex:14u];
++                    [encoder setBuffer:state.coupledPointJacobians
++                                 offset:0u atIndex:15u];
++                });
++                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++                };
++                action(3u, state.femArmijoResidual);
++                action(4u, state.femOperatorValue);
++                dispatchThreads("nm_fgmres_build_base_cauchy_direction",
++                    environments, [&] {
++                    setDispatch();
++                    [encoder setBuffer:state.mixedSolver offset:0u atIndex:1u];
++                    [encoder setBuffer:state.femArmijoMetrics offset:0u atIndex:2u];
++                    [encoder setBuffer:state.femCandidate offset:0u atIndex:3u];
++                    [encoder setBuffer:state.femArmijoResidual offset:0u atIndex:4u];
++                    [encoder setBuffer:state.femOperatorValue offset:0u atIndex:5u];
++                    [encoder setBuffer:state.femSolution offset:0u atIndex:6u];
++                    [encoder setBuffer:state.femLineSearch offset:0u atIndex:7u];
++                    [encoder setBuffer:state.environmentLineSearch offset:0u atIndex:8u];
++                    [encoder setBuffer:state.femBaseCauchyTrace offset:0u atIndex:9u];
++                    [encoder setBuffer:state.fgmresStates offset:0u atIndex:10u];
++                    [encoder setBuffer:state.statuses offset:0u atIndex:11u];
++                    [encoder setBuffer:state.femArmijoStatuses offset:0u atIndex:12u];
++                    [encoder setBytes:&nonlinearIteration length:sizeof(nonlinearIteration) atIndex:13u];
++                    [encoder setBuffer:state.femBaseCauchyRightHandSide offset:0u atIndex:14u];
++                });
++                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++            };
+             if (femResidualArmijoEnabled &&
+                 !femCapsuleResidualArmijoEnabled &&
+                 !femCapsuleBoxResidualArmijoEnabled) {
+                 encodeFEMResidualArmijoBaseStatus();
++                const std::uint32_t directionPassCount =
++                    baseCauchyNewtonSelected ? 2u : 1u;
++                for (std::uint32_t directionPass = 0u;
++                     directionPass < directionPassCount; ++directionPass) {
++                if (directionPass == 1u) {
++                    encodeBaseCauchyDirection();
++                    if (!encodeBaseCauchyDirectionTrace()) {
++                        ownership->preDynamicsOpen = false;
++                        return diagnostics;
++                    }
++                }
++                const std::uint32_t fallbackAllowed =
++                    baseCauchyNewtonSelected && directionPass == 0u ? 1u : 0u;
+                 for (std::uint32_t trialIndex = 0u;
+                      trialIndex < state.mixedSolverValue
+                          .nonlinearIterations.w; ++trialIndex) {
+@@ -22091,13 +22418,16 @@
+                         [encoder setBuffer:state.fgmresStates offset:0u atIndex:8u];
+                         [encoder setBuffer:state.femSolution offset:0u atIndex:9u];
+                         [encoder setBuffer:state.environmentLineSearch offset:0u atIndex:10u];
++                        [encoder setBytes:&fallbackAllowed length:sizeof(fallbackAllowed) atIndex:11u];
+                     });
+                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                 }
+-                if (!encodeFEMResidualArmijoTrace()) {
++                if (!encodeFEMResidualArmijoTrace(
++                        directionPass == 1u ? "base_cauchy" : "newton")) {
+                     ownership->preDynamicsOpen = false;
+                     return diagnostics;
+                 }
++                } // Primary Newton and optional same-history Cauchy pass.
+             } else {
+                 dispatchThreads("nm_fem_select_backtracking", objectTotal, [&] {
+                     setDispatch();
+@@ -23226,6 +23556,8 @@
+                         [encoder setBuffer:state.fgmresStates offset:0u atIndex:8u];
+                         [encoder setBuffer:state.femSolution offset:0u atIndex:9u];
+                         [encoder setBuffer:state.environmentLineSearch offset:0u atIndex:10u];
++                        const std::uint32_t fallbackAllowed = 0u;
++                        [encoder setBytes:&fallbackAllowed length:sizeof(fallbackAllowed) atIndex:11u];
+                     });
+                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                     if (!captureTrialSummaryPostDecision(trialIndex) ||

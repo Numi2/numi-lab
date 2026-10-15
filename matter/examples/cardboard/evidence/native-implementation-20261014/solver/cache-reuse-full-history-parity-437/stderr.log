@@ -1,0 +1,1 @@
+numi-matter-cardboard-probe=failed reason="Matter runtime initialization failed: cache projection reuse ineligible for the single static FEM coupon scope: adaptive_MPM_or_multiphysics_state_is_unsupported every_active_tetrahedron_requires_compensated_scaled_generic_15_state_material"

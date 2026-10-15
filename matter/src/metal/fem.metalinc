@@ -3000,6 +3000,150 @@ kernel void nm_fem_build_algorithmic_tangent_cache(
     validEntries[global] = 1u;
 }
 
+kernel void nm_fem_build_algorithmic_tangent_cache_projection_reuse_diagnostic(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMicrostepGPU& microstep [[buffer(1)]],
+    device const NMContinuumObjectGPU* objects [[buffer(2)]],
+    device const NMMaterialGPU* materials [[buffer(3)]],
+    device const NMScalarProgramGPU* programs [[buffer(4)]],
+    device const NMExpressionInstructionGPU* instructions [[buffer(5)]],
+    device const float* environmentParameters [[buffer(6)]],
+    device const NMFEMNodeStateGPU* candidate [[buffer(7)]],
+    device const NMTetrahedronGPU* tetrahedra [[buffer(8)]],
+    device const float* acceptedMaterialState [[buffer(9)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(10)]],
+    device const NMAdaptiveStateGPU* adaptive [[buffer(11)]],
+    device float* tangentCache [[buffer(12)]],
+    device uint* validEntries [[buffer(13)]],
+    device const NMMatterStatusGPU* statuses [[buffer(14)]],
+    device const NMFGMRESStateGPU* fgmresStates [[buffer(15)]],
+    constant uint& forceCompletedCacheRebuild [[buffer(16)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.tetrahedronCount;
+    if (global >= total || dispatch.tetrahedronCount == 0u) return;
+    const uint environment = global / dispatch.tetrahedronCount;
+    // The full nonlinear convergence latch is written only after the
+    // production residual/correction/support gates pass. Later statically
+    // encoded Newton-tail iterations leave the accepted candidate unchanged;
+    // retain its exact cache instead of projecting all 9 columns again.
+    // Newton iteration zero always rebuilds, even if this state buffer still
+    // carries a latch from the preceding transaction.
+    if (forceCompletedCacheRebuild == 0u &&
+        microstep.solverIteration > 0u &&
+        fgmresStates[environment].nonlinear.w > 0.5f)
+        return;
+    validEntries[global] = 0u;
+
+    const uint tetrahedronIndex =
+        global - environment * dispatch.tetrahedronCount;
+    if (!environmentHealthy(statuses, environment)) return;
+
+    const NMTetrahedronGPU tetrahedron = environmentTetrahedron(
+        dispatch, tetrahedra, environment, tetrahedronIndex
+    );
+    const uint objectIndex = tetrahedron.identity.y;
+    if ((tetrahedron.identity.w & NM_OBJECT_ACTIVE) == 0u ||
+        objectIndex >= dispatch.objectCount)
+        return;
+    const NMContinuumObjectGPU object = objects[objectIndex];
+    const NMSchedulerStateGPU scheduler =
+        schedulers[environment * dispatch.objectCount + objectIndex];
+    const NMAdaptiveStateGPU adaptiveState =
+        adaptive[environment * dispatch.objectCount + objectIndex];
+    if (object.representation != NM_REPRESENTATION_FEM ||
+        !objectDue(object, scheduler, adaptiveState, microstep) ||
+        (object.flags & NM_OBJECT_MIXED_FEM) != 0u)
+        return;
+
+    const uint nodeBase = environment * dispatch.femNodeCount;
+    const float3x3 deformation = tetrahedronDeformation(
+        tetrahedron, candidate, nodeBase
+    );
+    const float3x3 deformationRate = tetrahedronVelocityGradient(
+        tetrahedron, candidate, nodeBase
+    );
+    const NMMaterialGPU material = materials[tetrahedron.identity.x];
+    float deformationLow[9];
+    const float3x3 preciseLocalF = femMaterialDeformationWords(
+        object, tetrahedron, material, candidate, nodeBase,
+        deformation, deformationLow
+    );
+    device const float* internalState = material.stateCount == 0u
+        ? nullptr
+        : acceptedMaterialState + global * dispatch.materialStateStride;
+    const uint parameterBase = environment * dispatch.parameterCount;
+    const float dt = objectTimestep(dispatch, scheduler);
+    const float3x3 localRate = femMaterialInput(
+        object, tetrahedron, deformationRate
+    );
+    const uint cacheBase = global * 81u;
+    const bool reuseAccuratePaperProjection =
+        material.stateCount == 15u &&
+        material.projectionKind == NM_MATERIAL_PROJECTION_GENERIC &&
+        usesCompensatedImplicitCandidate(material) &&
+        usesScaledCorrectionProjection(material);
+    // Runtime mode 1 is admitted only for this exact coupon material policy.
+    // Do not silently turn an explicitly requested reuse build into the
+    // ordinary repeated-projection path if an input escapes that admission.
+    if (!reuseAccuratePaperProjection) return;
+    // The evaluator initializes/returns up to NM_MAX_MATERIAL_STATE words.
+    // Keep full-size local arrays even though this reuse policy is 15-state.
+    float reusedProjectedState[NM_MAX_MATERIAL_STATE];
+    float reusedProjectedLow[NM_MAX_MATERIAL_STATE];
+
+    // matrixComponents uses row-major scalar order even though Metal matrices
+    // are column-major. Store each evaluated response as one column of that
+    // explicit row-major linear map.
+    for (uint column = 0u; column < 9u; ++column) {
+        float directionComponents[9];
+        for (uint component = 0u; component < 9u; ++component)
+            directionComponents[component] = component == column ? 1.0f : 0.0f;
+        const float3x3 localDirection = componentsMatrix(directionComponents);
+        const float3x3 localRateDirection =
+            localDirection / max(dt, 1.0e-12f);
+        bool valid = true;
+        float3x3 analytic;
+        float3x3 materialTangent;
+        evaluateAlgorithmicStressTangent(
+            material,
+            programs,
+            instructions,
+            environmentParameters + parameterBase,
+            internalState,
+            preciseLocalF,
+            localDirection,
+            localRate,
+            localRateDirection,
+            dt,
+            material.bulk.y,
+            analytic,
+            materialTangent,
+            valid,
+            reuseAccuratePaperProjection && column == 0u
+                ? reusedProjectedState : nullptr,
+            nullptr, nullptr, nullptr, nullptr, nullptr,
+            deformationLow,
+            reuseAccuratePaperProjection && column == 0u
+                ? reusedProjectedLow : nullptr,
+            nullptr,
+            reuseAccuratePaperProjection && column > 0u
+                ? reusedProjectedState : nullptr,
+            reuseAccuratePaperProjection && column > 0u
+                ? reusedProjectedLow : nullptr
+        );
+        if (!valid) return;
+        float responseComponents[9];
+        matrixComponents(materialTangent, responseComponents);
+        for (uint row = 0u; row < 9u; ++row) {
+            if (!isfinite(responseComponents[row])) return;
+            tangentCache[cacheBase + row * 9u + column] =
+                responseComponents[row];
+        }
+    }
+    validEntries[global] = 1u;
+}
+
 kernel void nm_fem_apply_operator_elements(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     constant NMMicrostepGPU& microstep [[buffer(1)]],
@@ -3026,6 +3170,11 @@ kernel void nm_fem_apply_operator_elements(
     device const float* tangentCache [[buffer(23)]],
     device const uint* tangentCacheValid [[buffer(24)]],
     constant uint& useTangentCache [[buffer(25)]],
+    // Modes 3/4 are the opt-in base-state Cauchy fallback's strict cached
+    // transpose/forward actions. Its per-environment sentinel prevents work
+    // and cache-validity failures from leaking into environments whose
+    // primary Newton direction was already accepted.
+    device const float4* fallbackMetrics [[buffer(26)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint total = dispatch.environmentCount * dispatch.tetrahedronCount;
@@ -3039,6 +3188,10 @@ kernel void nm_fem_apply_operator_elements(
     );
     const uint objectIndex = tetrahedron.identity.y;
     elementOperator[global] = {};
+    const bool fallbackScoped = useTangentCache == 3u ||
+        useTangentCache == 4u;
+    if (fallbackScoped && fallbackMetrics[environment].w != 3.0f)
+        return;
     if ((tetrahedron.identity.w & NM_OBJECT_ACTIVE) == 0u ||
         objectIndex >= dispatch.objectCount ||
         !environmentHealthy(statuses, environment)) {
@@ -3093,7 +3246,9 @@ kernel void nm_fem_apply_operator_elements(
     // tet must have a valid entry. Mode 2 is only for conditioning-only RAP
     // construction and falls back to the direct production evaluator when an
     // entry cannot be formed.
-    const bool requestStrictCache = useTangentCache == 1u;
+    const bool requestTransposeCache = useTangentCache == 3u;
+    const bool requestStrictCache = useTangentCache == 1u ||
+        requestTransposeCache || useTangentCache == 4u;
     const bool requestFallbackCache = useTangentCache == 2u;
     if (requestStrictCache ||
         (requestFallbackCache && cacheEntryValid)) {
@@ -3111,10 +3266,13 @@ kernel void nm_fem_apply_operator_elements(
             const uint cacheBase = global * 81u;
             for (uint row = 0u; row < 9u; ++row) {
                 float response = 0.0f;
-                for (uint column = 0u; column < 9u; ++column)
-                    response += tangentCache[
-                        cacheBase + row * 9u + column
-                    ] * directionComponents[column];
+                for (uint column = 0u; column < 9u; ++column) {
+                    const uint cacheIndex = requestTransposeCache
+                        ? cacheBase + column * 9u + row
+                        : cacheBase + row * 9u + column;
+                    response += tangentCache[cacheIndex] *
+                        directionComponents[column];
+                }
                 responseComponents[row] = response;
                 valid = valid && isfinite(response);
             }
@@ -3140,7 +3298,8 @@ kernel void nm_fem_apply_operator_elements(
             valid, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, deformationLow
         );
     }
-    if (useTangentCache != 1u && !usedTangentCache &&
+    if (useTangentCache != 1u && useTangentCache != 3u &&
+        useTangentCache != 4u && !usedTangentCache &&
         material.constitutiveKind == NM_CONSTITUTIVE_POLYCONVEX_ICNN) {
         bool found = false;
         for (uint networkIndex = 0u;
@@ -4481,12 +4640,13 @@ kernel void nm_fem_armijo_decide(
     device const NMFGMRESStateGPU* fgmresStates [[buffer(8)]],
     device float4* correction [[buffer(9)]],
     device float* environmentLineSearch [[buffer(10)]],
+    constant uint& fallbackAllowed [[buffer(11)]],
     uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= dispatch.environmentCount || dispatch.objectCount != 1u)
         return;
     (void)fgmresStates;
-    const float4 state = metrics[environment];
+    float4 state = metrics[environment];
     if (state.w > 0.5f) return;
     const float alpha = state.z;
     const float bound = (1.0f - solver.globalization.x * alpha) * state.x;
@@ -4538,6 +4698,23 @@ kernel void nm_fem_armijo_decide(
         // decision that accepts this trial, before either block is applied.
         environmentLineSearch[environment] = line.x;
     } else if (trialIndex + 1u >= solver.nonlinearIterations.w) {
+        if (fallbackAllowed != 0u && statusesHealthy) {
+            // The primary Newton line search exhausted only its smooth,
+            // healthy residual tests. A later explicitly requested
+            // base-state Cauchy pass may replace this direction; keep the
+            // transaction status healthy but mark the private metrics so
+            // no primary direction is accidentally applied in between.
+            state.w = 3.0f;
+            metrics[environment] = state;
+            const uint slot = environment * dispatch.objectCount;
+            float4 line = lineSearch[slot];
+            line.x = 0.0f;
+            line.z = 0.0f;
+            line.w = float(microstep.solverIteration);
+            lineSearch[slot] = line;
+            environmentLineSearch[environment] = 0.0f;
+            return;
+        }
         // No tested candidate was accepted. Both production apply kernels
         // execute after this decision, including on the failure path. Leaving
         // the rigid environment alpha at its geometry-limiter value would
@@ -5024,6 +5201,147 @@ kernel void nm_fem_rollback_frame(
                 checkpointMaterialState[stateBase + state];
         }
     }
+}
+
+// Read-only status-5 witness. One environment thread examines the already
+// latched status after a producer dispatch. Global and private Armijo statuses
+// use distinct host-provided record domains, so an earlier rejected trial
+// cannot hide a later global failure. This kernel writes only the diagnostic
+// capture arena and never invokes a constitutive program or modifies solver
+// state.
+kernel void nm_fem_status5_capture(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMicrostepGPU& microstep [[buffer(1)]],
+    device const NMContinuumObjectGPU* objects [[buffer(2)]],
+    device const NMMaterialGPU* materials [[buffer(3)]],
+    device const NMTetrahedronGPU* tetrahedra [[buffer(4)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(5)]],
+    device const NMAdaptiveStateGPU* adaptive [[buffer(6)]],
+    device const NMFEMNodeStateGPU* accepted [[buffer(7)]],
+    device const NMFEMNodeStateGPU* candidate [[buffer(8)]],
+    device const float* acceptedMaterialState [[buffer(9)]],
+    device const float* environmentParameters [[buffer(10)]],
+    device const NMMatterStatusGPU* statuses [[buffer(11)]],
+    device const float4* lineSearch [[buffer(12)]],
+    device NMFEMStatus5CaptureGPU* captures [[buffer(13)]],
+    constant uint& stageID [[buffer(14)]],
+    constant uint& domain [[buffer(15)]],
+    constant uint& indexKind [[buffer(16)]],
+    constant uint& trialIndex [[buffer(17)]],
+    constant uint& hasLineSearch [[buffer(18)]],
+    uint environment [[thread_position_in_grid]])
+{
+    if (environment >= dispatch.environmentCount || domain > 1u) return;
+    const uint slot = environment * 2u + domain;
+    if (captures[slot].capture.x != 0u ||
+        statuses[environment].code != NM_STATUS_INVALID_DEFORMATION) return;
+
+    NMFEMStatus5CaptureGPU record = {};
+    const NMMatterStatusGPU status = statuses[environment];
+    record.capture = uint4(1u, stageID, domain, indexKind);
+    record.context = uint4(microstep.controlStep, microstep.microtick,
+        microstep.microtickCount, microstep.solverIteration);
+    record.identity = uint4(status.objectIndex, status.failingIndex,
+        NM_INVALID_INDEX, trialIndex);
+    record.payload = uint4(1u, NM_INVALID_INDEX, 0u, 0u);
+    record.status = status;
+    record.microstep = microstep;
+    record.scalars = float4(0.0f, 0.0f, 0.0f, 0.0f);
+    if (hasLineSearch != 0u) {
+        record.scalars.y = lineSearch[environment].x;
+        record.payload.x |= 64u;
+    }
+
+    const uint nodeBase = environment * dispatch.femNodeCount;
+    if (indexKind == NM_STATUS5_INDEX_NODE &&
+        status.failingIndex < dispatch.femNodeCount) {
+        const uint node = nodeBase + status.failingIndex;
+        record.identity.z = status.failingIndex;
+        record.acceptedNodes[0] = accepted[node];
+        record.candidateNodes[0] = candidate[node];
+        record.payload.x |= 4u;
+    } else if (indexKind == NM_STATUS5_INDEX_TETRAHEDRON &&
+               status.failingIndex < dispatch.tetrahedronCount) {
+        const uint localTet = status.failingIndex;
+        const uint globalTet = environment * dispatch.tetrahedronCount + localTet;
+        const NMTetrahedronGPU tetrahedron = tetrahedra[globalTet];
+        const uint materialIndex = tetrahedron.identity.x;
+        record.identity.z = localTet;
+        record.tetrahedron = tetrahedron;
+        record.payload.y = materialIndex;
+        if (tetrahedron.identity.y < dispatch.objectCount &&
+            materialIndex < dispatch.materialCount &&
+            tetrahedron.nodes.x < dispatch.femNodeCount &&
+            tetrahedron.nodes.y < dispatch.femNodeCount &&
+            tetrahedron.nodes.z < dispatch.femNodeCount &&
+            tetrahedron.nodes.w < dispatch.femNodeCount) {
+            record.payload.x |= 2u;
+            const NMContinuumObjectGPU object = objects[tetrahedron.identity.y];
+            const NMMaterialGPU material = materials[materialIndex];
+            record.material = material;
+            record.payload.z = material.stateCount;
+            record.payload.w = material.parameterCount;
+            const uint nodes[4] = {tetrahedron.nodes.x, tetrahedron.nodes.y,
+                tetrahedron.nodes.z, tetrahedron.nodes.w};
+            for (uint corner = 0u; corner < 4u; ++corner) {
+                record.acceptedNodes[corner] = accepted[nodeBase + nodes[corner]];
+                record.candidateNodes[corner] = candidate[nodeBase + nodes[corner]];
+            }
+            float deformationLow[9];
+            const float3x3 deformation = tetrahedronDeformation(
+                tetrahedron, candidate, nodeBase);
+            const float3x3 preciseF = femMaterialDeformationWords(
+                object, tetrahedron, material, candidate, nodeBase,
+                deformation, deformationLow);
+            float deformationHigh[9];
+            float rateComponents[9];
+            matrixComponents(preciseF, deformationHigh);
+            const float3x3 rate = femMaterialInput(object, tetrahedron,
+                tetrahedronVelocityGradient(tetrahedron, candidate, nodeBase));
+            matrixComponents(rate, rateComponents);
+            for (uint row = 0u; row < 3u; ++row) {
+                record.deformationHigh[row] = float4(
+                    deformationHigh[row * 3u], deformationHigh[row * 3u + 1u],
+                    deformationHigh[row * 3u + 2u], 0.0f);
+                record.deformationLow[row] = float4(
+                    deformationLow[row * 3u], deformationLow[row * 3u + 1u],
+                    deformationLow[row * 3u + 2u], 0.0f);
+                record.deformationRate[row] = float4(
+                    rateComponents[row * 3u], rateComponents[row * 3u + 1u],
+                    rateComponents[row * 3u + 2u], 0.0f);
+            }
+            record.payload.x |= 8u | 16u;
+            record.scalars.x = objectTimestep(dispatch,
+                schedulers[environment * dispatch.objectCount +
+                    tetrahedron.identity.y]);
+            record.scalars.z = determinant(deformation);
+            if (material.stateCount <= NM_MAX_MATERIAL_STATE &&
+                material.stateCount <= dispatch.materialStateStride) {
+                const uint historyBase = globalTet * dispatch.materialStateStride;
+                for (uint state = 0u; state < material.stateCount; ++state)
+                    record.acceptedInternalState[state] =
+                        acceptedMaterialState[historyBase + state];
+                record.payload.x |= 32u;
+            }
+            if (material.parameterCount <=
+                    NM_STATUS5_CAPTURE_MAX_PARAMETER_WORDS &&
+                material.parameterOffset <= dispatch.parameterCount &&
+                material.parameterCount <= dispatch.parameterCount -
+                    material.parameterOffset) {
+                const uint parameterBase =
+                    environment * dispatch.parameterCount +
+                    material.parameterOffset;
+                for (uint parameter = 0u;
+                     parameter < material.parameterCount; ++parameter)
+                    record.parameterWords[parameter] =
+                        environmentParameters[parameterBase + parameter];
+                record.payload.x |= 128u;
+            }
+        }
+    }
+    // Geometry validation records the solver iteration in failingIndex. Keep
+    // it as such; no post-hoc determinant scan is used to guess a tetrahedron.
+    captures[slot] = record;
 }
 
 

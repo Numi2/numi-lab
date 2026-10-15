@@ -1,0 +1,8 @@
+{
+  "observed_wrapper_exit": 1,
+  "terminal_error": "AssertionError: erroneously required environment1_gradient_norm==0 although captured environment1 RHS is nonzero",
+  "native_stage_status": "Both native subprocesses returned0 and passed immediately checked return-code assertions before postprocessing. This is inferred from original runner control flow reaching its final assertion and completed artifacts; not a retroactive runtime receipt.",
+  "floating_point_warnings": "NumPy matmul emitted divide/overflow/invalid flags; arrays and recomputed scalars are finite. Subsequent CPU adjudication uses explicit math.fsum reductions.",
+  "production_inputs_changed": false,
+  "physical_transactions": 0
+}

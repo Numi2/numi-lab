@@ -1,0 +1,598 @@
+{
+  "schema": "numi.cardboard.native-cauchy-adjudication.v1",
+  "base_residual_Ns": 0.00018444380407784324,
+  "profiles": {
+    "base_column_equilibrated_cauchy": {
+      "center_word_parity": {
+        "nodes.bin": true,
+        "residual.bin": true,
+        "forces.bin": true
+      },
+      "independent_cached_coefficient_action_relative_error": 9.001050897087316e-08,
+      "fresh_vs_cached_relative_error": 4.9959355161793307e-08,
+      "direction_norm_m_s": 0.003341625904641337,
+      "direction_max_abs_m_s": 0.0016301102004945278,
+      "samples": [
+        {
+          "alpha": 0,
+          "status": [
+            0,
+            0
+          ],
+          "norm_Ns": 0.00018444380407784324,
+          "ratio": 1.0,
+          "predicted_linear_norm_Ns": 0.00018444380407784322,
+          "actual_minus_linear_l2_Ns": 0.0,
+          "physical_transaction_accepted": false
+        },
+        {
+          "alpha": 1,
+          "status": [
+            0,
+            0
+          ],
+          "norm_Ns": 0.00012960437847975737,
+          "ratio": 0.7026767807557186,
+          "predicted_linear_norm_Ns": 0.00012957482172874842,
+          "actual_minus_linear_l2_Ns": 1.1595812643946255e-05,
+          "physical_transaction_accepted": false
+        },
+        {
+          "alpha": -1,
+          "status": [
+            0,
+            0
+          ],
+          "norm_Ns": 0.00028940922302811135,
+          "ratio": 1.5690915966251062,
+          "predicted_linear_norm_Ns": 0.0002927612750195847,
+          "actual_minus_linear_l2_Ns": 1.4047468415744362e-05,
+          "physical_transaction_accepted": false
+        },
+        {
+          "alpha": 0.5,
+          "status": [
+            0,
+            0
+          ],
+          "norm_Ns": 0.00014546640904085782,
+          "ratio": 0.7886760402071555,
+          "predicted_linear_norm_Ns": 0.00014524842525103876,
+          "actual_minus_linear_l2_Ns": 3.789889858272053e-06,
+          "physical_transaction_accepted": false
+        },
+        {
+          "alpha": -0.5,
+          "status": [
+            0,
+            0
+          ],
+          "norm_Ns": 0.00023530636147504972,
+          "ratio": 1.2757618107667108,
+          "predicted_linear_norm_Ns": 0.00023570504852555573,
+          "actual_minus_linear_l2_Ns": 3.7280020852182274e-06,
+          "physical_transaction_accepted": false
+        },
+        {
+          "alpha": 0.25,
+          "status": [
+            0,
+            0
+          ],
+          "norm_Ns": 0.00016276628356306578,
+          "ratio": 0.8824708662719372,
+          "predicted_linear_norm_Ns": 0.0001627311995245227,
+          "actual_minus_linear_l2_Ns": 1.094176078234137e-06,
+          "physical_transaction_accepted": false
+        },
+        {
+          "alpha": -0.25,
+          "status": [
+            0,
+            0
+          ],
+          "norm_Ns": 0.0002089863045456219,
+          "ratio": 1.1330622114984175,
+          "predicted_linear_norm_Ns": 0.00020907253700559047,
+          "actual_minus_linear_l2_Ns": 9.928751790792587e-07,
+          "physical_transaction_accepted": false
+        },
+        {
+          "alpha": 0.125,
+          "status": [
+            0,
+            0
+          ],
+          "norm_Ns": 0.00017315225863996192,
+          "ratio": 0.9387805652006841,
+          "predicted_linear_norm_Ns": 0.00017315098373325478,
+          "actual_minus_linear_l2_Ns": 2.9912559252434744e-07,
+          "physical_transaction_accepted": false
+        },
+        {
+          "alpha": -0.125,
+          "status": [
+            0,
+            0
+          ],
+          "norm_Ns": 0.0001964431101570165,
+          "ratio": 1.0650567046107389,
+          "predicted_linear_norm_Ns": 0.000196459167216564,
+          "actual_minus_linear_l2_Ns": 2.6263359018175333e-07,
+          "physical_transaction_accepted": false
+        },
+        {
+          "alpha": 0.0625,
+          "status": [
+            0,
+            0
+          ],
+          "norm_Ns": 0.00017869745601469482,
+          "ratio": 0.968844992696403,
+          "predicted_linear_norm_Ns": 0.0001786983094128868,
+          "actual_minus_linear_l2_Ns": 7.451028994517803e-08,
+          "physical_transaction_accepted": false
+        },
+        {
+          "alpha": -0.0625,
+          "status": [
+            0,
+            0
+          ],
+          "norm_Ns": 0.00019036694668258435,
+          "ratio": 1.0321135352545716,
+          "predicted_linear_norm_Ns": 0.00019036952590905883,
+          "actual_minus_linear_l2_Ns": 6.717029559984173e-08,
+          "physical_transaction_accepted": false
+        },
+        {
+          "alpha": 0.03125,
+          "status": [
+            0,
+            0
+          ],
+          "norm_Ns": 0.00018154720217238842,
+          "ratio": 0.9842954773138797,
+          "predicted_linear_norm_Ns": 0.00018154744632687157,
+          "actual_minus_linear_l2_Ns": 1.7462073411730187e-08,
+          "physical_transaction_accepted": false
+        },
+        {
+          "alpha": -0.03125,
+          "status": [
+            0,
+            0
+          ],
+          "norm_Ns": 0.0001873846353516357,
+          "ratio": 1.015944321298813,
+          "predicted_linear_norm_Ns": 0.0001873851930428771,
+          "actual_minus_linear_l2_Ns": 1.729526503251745e-08,
+          "physical_transaction_accepted": false
+        },
+        {
+          "alpha": 2,
+          "status": [
+            0,
+            0
+          ],
+          "norm_Ns": 0.00017721311099572364,
+          "ratio": 0.960797311038608,
+          "predicted_linear_norm_Ns": 0.0001844438040192358,
+          "actual_minus_linear_l2_Ns": 3.8706369961299875e-05,
+          "physical_transaction_accepted": false
+        },
+        {
+          "alpha": -2,
+          "status": [
+            0,
+            0
+          ],
+          "norm_Ns": 0.0004016041835954494,
+          "ratio": 2.1773796393071305,
+          "predicted_linear_norm_Ns": 0.00041455829058311956,
+          "actual_minus_linear_l2_Ns": 4.3555971484979016e-05,
+          "physical_transaction_accepted": false
+        }
+      ]
+    },
+    "base_column_equilibrated_trust_1e-06_delta": {
+      "center_word_parity": {
+        "nodes.bin": true,
+        "residual.bin": true,
+        "forces.bin": true
+      },
+      "independent_cached_coefficient_action_relative_error": 1.0601499154311653e-07,
+      "fresh_vs_cached_relative_error": 6.920719860856328e-08,
+      "direction_norm_m_s": 0.00018812041063978762,
+      "direction_max_abs_m_s": 9.176880121231079e-05,
+      "samples": [
+        {
+          "alpha": 0,
+          "status": [
+            0,
+            0
+          ],
+          "norm_Ns": 0.00018444380407784324,
+          "ratio": 1.0,
+          "predicted_linear_norm_Ns": 0.00018444380407784322,
+          "actual_minus_linear_l2_Ns": 0.0,
+          "physical_transaction_accepted": false
+        },
+        {
+          "alpha": 1,
+          "status": [
+            0,
+            0
+          ],
+          "norm_Ns": 0.00017925924517674788,
+          "ratio": 0.9718908481257128,
+          "predicted_linear_norm_Ns": 0.00017926007158621107,
+          "actual_minus_linear_l2_Ns": 5.899403844496883e-08,
+          "physical_transaction_accepted": false
+        },
+        {
+          "alpha": -1,
+          "status": [
+            0,
+            0
+          ],
+          "norm_Ns": 0.00018977163006681804,
+          "ratio": 1.0288859038427023,
+          "predicted_linear_norm_Ns": 0.00018977373892801523,
+          "actual_minus_linear_l2_Ns": 5.469885795385576e-08,
+          "physical_transaction_accepted": false
+        },
+        {
+          "alpha": 0.5,
+          "status": [
+            0,
+            0
+          ],
+          "norm_Ns": 0.0001818325965725717,
+          "ratio": 0.9858428017231226,
+          "predicted_linear_norm_Ns": 0.00018183287277909795,
+          "actual_minus_linear_l2_Ns": 1.449200312235249e-08,
+          "physical_transaction_accepted": false
+        },
+        {
+          "alpha": -0.5,
+          "status": [
+            0,
+            0
+          ],
+          "norm_Ns": 0.00018709100651344336,
+          "ratio": 1.014352352191147,
+          "predicted_linear_norm_Ns": 0.0001870912691279636,
+          "actual_minus_linear_l2_Ns": 1.4258895168276712e-08,
+          "physical_transaction_accepted": false
+        },
+        {
+          "alpha": 0.25,
+          "status": [
+            0,
+            0
+          ],
+          "norm_Ns": 0.00018313365861253114,
+          "ratio": 0.9928967770326448,
+          "predicted_linear_norm_Ns": 0.00018313367353576106,
+          "actual_minus_linear_l2_Ns": 5.774892033354342e-09,
+          "physical_transaction_accepted": false
+        },
+        {
+          "alpha": -0.25,
+          "status": [
+            0,
+            0
+          ],
+          "norm_Ns": 0.00018576322567824928,
+          "ratio": 1.0071535154406661,
+          "predicted_linear_norm_Ns": 0.000185763067005013,
+          "actual_minus_linear_l2_Ns": 5.763773242441617e-09,
+          "physical_transaction_accepted": false
+        },
+        {
+          "alpha": 0.125,
+          "status": [
+            0,
+            0
+          ],
+          "norm_Ns": 0.00018378772607013908,
+          "ratio": 0.9964429382109942,
+          "predicted_linear_norm_Ns": 0.00018378758502046394,
+          "actual_minus_linear_l2_Ns": 5.368164370344939e-09,
+          "physical_transaction_accepted": false
+        },
+        {
+          "alpha": -0.125,
+          "status": [
+            0,
+            0
+          ],
+          "norm_Ns": 0.00018510228163926508,
+          "ratio": 1.0035700714627633,
+          "predicted_linear_norm_Ns": 0.00018510230616569144,
+          "actual_minus_linear_l2_Ns": 4.957776869281059e-09,
+          "physical_transaction_accepted": false
+        },
+        {
+          "alpha": 0.0625,
+          "status": [
+            0,
+            0
+          ],
+          "norm_Ns": 0.00018411571046830942,
+          "ratio": 0.9982211730495683,
+          "predicted_linear_norm_Ns": 0.00018411540764264555,
+          "actual_minus_linear_l2_Ns": 3.6324529741219163e-09,
+          "physical_transaction_accepted": false
+        },
+        {
+          "alpha": -0.0625,
+          "status": [
+            0,
+            0
+          ],
+          "norm_Ns": 0.00018477284859582546,
+          "ratio": 1.0017839824960633,
+          "predicted_linear_norm_Ns": 0.00018477277126654538,
+          "actual_minus_linear_l2_Ns": 4.678997848359441e-09,
+          "physical_transaction_accepted": false
+        },
+        {
+          "alpha": 0.03125,
+          "status": [
+            0,
+            0
+          ],
+          "norm_Ns": 0.00018427963970309074,
+          "ratio": 0.9991099490949383,
+          "predicted_linear_norm_Ns": 0.000184279534325223,
+          "actual_minus_linear_l2_Ns": 2.9877776491388072e-09,
+          "physical_transaction_accepted": false
+        },
+        {
+          "alpha": -0.03125,
+          "status": [
+            0,
+            0
+          ],
+          "norm_Ns": 0.00018460833107935082,
+          "ratio": 1.0008920169605595,
+          "predicted_linear_norm_Ns": 0.0001846082165185825,
+          "actual_minus_linear_l2_Ns": 2.9701499523053632e-09,
+          "physical_transaction_accepted": false
+        },
+        {
+          "alpha": 2,
+          "status": [
+            0,
+            0
+          ],
+          "norm_Ns": 0.00017423635401810417,
+          "ratio": 0.9446582111512345,
+          "predicted_linear_norm_Ns": 0.00017423559106532054,
+          "actual_minus_linear_l2_Ns": 2.450659888079311e-07,
+          "physical_transaction_accepted": false
+        },
+        {
+          "alpha": -2,
+          "status": [
+            0,
+            0
+          ],
+          "norm_Ns": 0.00019522499468538498,
+          "ratio": 1.0584524411727683,
+          "predicted_linear_norm_Ns": 0.00019523790266526509,
+          "actual_minus_linear_l2_Ns": 2.1387739666576566e-07,
+          "physical_transaction_accepted": false
+        }
+      ]
+    },
+    "base_raw_cauchy": {
+      "center_word_parity": {
+        "nodes.bin": true,
+        "residual.bin": true,
+        "forces.bin": true
+      },
+      "independent_cached_coefficient_action_relative_error": 5.562189086859143e-08,
+      "fresh_vs_cached_relative_error": 6.177966909281995e-08,
+      "direction_norm_m_s": 0.00014294824491224915,
+      "direction_max_abs_m_s": 8.36380131659098e-05,
+      "samples": [
+        {
+          "alpha": 0,
+          "status": [
+            0,
+            0
+          ],
+          "norm_Ns": 0.00018444380407784324,
+          "ratio": 1.0,
+          "predicted_linear_norm_Ns": 0.00018444380407784322,
+          "actual_minus_linear_l2_Ns": 0.0,
+          "physical_transaction_accepted": false
+        },
+        {
+          "alpha": 1,
+          "status": [
+            0,
+            0
+          ],
+          "norm_Ns": 0.0001600522784764136,
+          "ratio": 0.8677563297754618,
+          "predicted_linear_norm_Ns": 0.00016005536612388383,
+          "actual_minus_linear_l2_Ns": 5.116145093055961e-08,
+          "physical_transaction_accepted": false
+        },
+        {
+          "alpha": -1,
+          "status": [
+            0,
+            0
+          ],
+          "norm_Ns": 0.00024335752096449762,
+          "ratio": 1.3194128270190646,
+          "predicted_linear_norm_Ns": 0.00024336167987658295,
+          "actual_minus_linear_l2_Ns": 3.760946944174825e-08,
+          "physical_transaction_accepted": false
+        },
+        {
+          "alpha": 0.5,
+          "status": [
+            0,
+            0
+          ],
+          "norm_Ns": 0.00016648668606498922,
+          "ratio": 0.9026417932408543,
+          "predicted_linear_norm_Ns": 0.0001664877452768799,
+          "actual_minus_linear_l2_Ns": 1.0465832722833532e-08,
+          "physical_transaction_accepted": false
+        },
+        {
+          "alpha": -0.5,
+          "status": [
+            0,
+            0
+          ],
+          "norm_Ns": 0.00021100094965793292,
+          "ratio": 1.1439850241262721,
+          "predicted_linear_norm_Ns": 0.00021100180764872662,
+          "actual_minus_linear_l2_Ns": 1.3322825184593192e-08,
+          "physical_transaction_accepted": false
+        },
+        {
+          "alpha": 0.25,
+          "status": [
+            0,
+            0
+          ],
+          "norm_Ns": 0.0001741944303719911,
+          "ratio": 0.9444309134855706,
+          "predicted_linear_norm_Ns": 0.0001741945199795843,
+          "actual_minus_linear_l2_Ns": 5.829783801618717e-09,
+          "physical_transaction_accepted": false
+        },
+        {
+          "alpha": -0.25,
+          "status": [
+            0,
+            0
+          ],
+          "norm_Ns": 0.00019683893289180345,
+          "ratio": 1.067202738936836,
+          "predicted_linear_norm_Ns": 0.0001968388364696949,
+          "actual_minus_linear_l2_Ns": 7.778598917240195e-09,
+          "physical_transaction_accepted": false
+        },
+        {
+          "alpha": 0.125,
+          "status": [
+            0,
+            0
+          ],
+          "norm_Ns": 0.00017902611094081056,
+          "ratio": 0.9706268629400737,
+          "predicted_linear_norm_Ns": 0.00017902610354576963,
+          "actual_minus_linear_l2_Ns": 4.60977967005813e-09,
+          "physical_transaction_accepted": false
+        },
+        {
+          "alpha": -0.125,
+          "status": [
+            0,
+            0
+          ],
+          "norm_Ns": 0.00019039814957093652,
+          "ratio": 1.032282708128164,
+          "predicted_linear_norm_Ns": 0.00019039759485532735,
+          "actual_minus_linear_l2_Ns": 6.7991829760641615e-09,
+          "physical_transaction_accepted": false
+        },
+        {
+          "alpha": 0.0625,
+          "status": [
+            0,
+            0
+          ],
+          "norm_Ns": 0.00018166481547869637,
+          "ratio": 0.9849331420318461,
+          "predicted_linear_norm_Ns": 0.00018166483365730261,
+          "actual_minus_linear_l2_Ns": 4.178547635613785e-09,
+          "physical_transaction_accepted": false
+        },
+        {
+          "alpha": -0.0625,
+          "status": [
+            0,
+            0
+          ],
+          "norm_Ns": 0.00018735710940193692,
+          "ratio": 1.0157950837039997,
+          "predicted_linear_norm_Ns": 0.0001873567745657781,
+          "actual_minus_linear_l2_Ns": 5.142509880416814e-09,
+          "physical_transaction_accepted": false
+        },
+        {
+          "alpha": 0.03125,
+          "status": [
+            0,
+            0
+          ],
+          "norm_Ns": 0.00018303743156611427,
+          "ratio": 0.9923750623190605,
+          "predicted_linear_norm_Ns": 0.00018303718050021605,
+          "actual_minus_linear_l2_Ns": 4.241224017636987e-09,
+          "physical_transaction_accepted": false
+        },
+        {
+          "alpha": -0.03125,
+          "status": [
+            0,
+            0
+          ],
+          "norm_Ns": 0.00018588397824968278,
+          "ratio": 1.0078082003298507,
+          "predicted_linear_norm_Ns": 0.00018588392625358132,
+          "actual_minus_linear_l2_Ns": 3.8474438832218445e-09,
+          "physical_transaction_accepted": false
+        },
+        {
+          "alpha": 2,
+          "status": [
+            0,
+            0
+          ],
+          "norm_Ns": 0.00018443373490634402,
+          "ratio": 0.9999454079167931,
+          "predicted_linear_norm_Ns": 0.00018444380531583733,
+          "actual_minus_linear_l2_Ns": 2.276771590484418e-07,
+          "physical_transaction_accepted": false
+        },
+        {
+          "alpha": -2,
+          "status": [
+            0,
+            0
+          ],
+          "norm_Ns": 0.0003181457190951415,
+          "ratio": 1.7248924174263411,
+          "predicted_linear_norm_Ns": 0.00031817273820047875,
+          "actual_minus_linear_l2_Ns": 1.833027868651168e-07,
+          "physical_transaction_accepted": false
+        }
+      ]
+    }
+  },
+  "input_hashes": {
+    "run_manifest": "1f84c6d4c9eabd96a89bd798782bf34fa379b2f00a72b5be72860f4f93e192ed",
+    "direction_manifest": "03c713a1aeeb57544d47430c7bd519b6128ea4b8243142d9e798cd114f1e0348",
+    "capture": "f2d42314cfee0428ecd285ebb9dbd5da1556624e3e92af1d12240fd8106b309a"
+  },
+  "verdict": "All three native alternatives reduce unchanged production residual atalpha1; scaled Cauchy reduces norm about29.7%. This is private diagnostic descent, not an accepted transaction or complete convergence.",
+  "physical_transactions": 0,
+  "native_original_direction_fd_qualification": "inconclusive",
+  "limitations": [
+    "No material branch classification for new endpoints; no tangent qualification inferred from these nonlinear secants.",
+    "No contact/cohesive/rigid cross-block or rate-sensitive law covered.",
+    "No acceptance criterion or operator changed."
+  ]
+}

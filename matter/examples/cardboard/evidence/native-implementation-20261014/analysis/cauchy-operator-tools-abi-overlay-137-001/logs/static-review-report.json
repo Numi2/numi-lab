@@ -1,0 +1,42 @@
+{
+  "all_buffer26_values_zero_initialized": true,
+  "base_file_sha256": {
+    "matter/tools/cardboard_coupled_free_box_operator_check.mm": "f0106a2a005c04bae44376c73394f75e39ede61876aa3010bbd819b5c53499b3",
+    "matter/tools/cardboard_gpu_check.mm": "423a03bddd9ab8321188c25fbd5aa73c6d28fb5ac538885829e65fda00d592dc",
+    "matter/tools/fem_material_frame_check.mm": "eb036270e9afd06ab5dafa0a8f4b2cb00823fa5eb9ee8b09f4c9512093ac3101",
+    "matter/tools/fem_reference_check.mm": "9aabd75024c23824c19fb9fc71a0b2d888baeb1570295addefa45c324e805c13",
+    "matter/tools/fem_regional_material_check.mm": "8e70f606481f249eda8d4fe59ea206890969a213f44a6ee35255d570f6986bf8"
+  },
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-cauchy-positive-mass-admission-135",
+  "candidate_file_sha256": {
+    "matter/tools/cardboard_coupled_free_box_operator_check.mm": "567dcf2a4262c7d423c12e36ee6fbc9d8d45b74327f4c7da3d5057c823912588",
+    "matter/tools/cardboard_gpu_check.mm": "d211c0c35b9d24790639a29b40418a355db041181176716667e2c3d51f4bdd9c",
+    "matter/tools/fem_material_frame_check.mm": "fa18590901ee2d39a5e3f51b932356b59257ca63724327fa8cfe1fb338c8eda8",
+    "matter/tools/fem_reference_check.mm": "127cd0c42edd0e0e7d1057ba598badeea2d5e4e0d5869d9250286765480cdf6f",
+    "matter/tools/fem_regional_material_check.mm": "25c0cb1524f192831ca4b104e624f0119d56ff2d3ca1496be708c406cff92585"
+  },
+  "direct_operator_checks": {
+    "matter/tools/cardboard_coupled_free_box_operator_check.mm": {
+      "array_and_loop_extended": true,
+      "direct_operator_buffer26": true
+    },
+    "matter/tools/cardboard_gpu_check.mm": {
+      "direct_operator_buffer26": true
+    },
+    "matter/tools/fem_material_frame_check.mm": {
+      "direct_operator_buffer26": true
+    },
+    "matter/tools/fem_reference_check.mm": {
+      "direct_operator_buffer26": true
+    },
+    "matter/tools/fem_regional_material_check.mm": {
+      "direct_operator_buffer26": true
+    }
+  },
+  "gpu_run": "NOT_RUN",
+  "patch_dry_run": "PASS",
+  "patch_sha256": "9a73a94eca2c5f52a0cfae9b16e79cd1bb25638f6bc53cad1c03a86aa25c9572",
+  "physical_qualification": false,
+  "schema": "numi.cardboard.operator_tools_buffer26_abi_review.v1",
+  "symlinks": []
+}

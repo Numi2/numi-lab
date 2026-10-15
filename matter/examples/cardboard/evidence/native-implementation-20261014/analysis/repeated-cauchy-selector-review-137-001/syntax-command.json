@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "xcrun", "-sdk", "macosx", "clang++", "-x", "objective-c++",
+    "-std=c++20", "-fobjc-arc", "-fsyntax-only", "-Wall", "-Wextra",
+    "-Wpedantic", "-Werror",
+    "-I", "/Users/home/cardboard-implementation-20261014/snapshots/source-cache-projection-reuse-runtime-136/matter/include",
+    "-I", "/Users/home/cardboard-implementation-20261014/snapshots/source-cache-projection-reuse-runtime-136/matter/src",
+    "-I", "/Users/home/cardboard-implementation-20261014/snapshots/source-cache-projection-reuse-runtime-136/include",
+    "-DNUMI_MATTER_DEFAULT_METALLIB=\"\"",
+    "/Users/home/cardboard-implementation-20261014/analysis/repeated-cauchy-selector-overlay-137-001/candidate/runtime.mm"
+  ],
+  "exit_code": 0,
+  "log": "runtime-syntax.log",
+  "native_or_gpu_execution": false
+}

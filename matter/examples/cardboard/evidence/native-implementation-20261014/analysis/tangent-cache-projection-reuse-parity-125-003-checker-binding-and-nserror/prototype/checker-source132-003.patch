@@ -1,0 +1,66 @@
+--- matter/tools/cardboard_tangent_cache_projection_reuse_check.mm
++++ matter/tools/cardboard_tangent_cache_projection_reuse_check.mm
+@@ -49,7 +49,7 @@
+ };
+ constexpr FixtureBinding kFixture360{
+     "run360_root2_newton23", "548dce37fbe5a28a609dd6bc45318926072c878774ea0caffa3237d925cebb33",
+-    "3c25f41c6c26654ccf3f8b4f4b510bbb64ab0ea0f52d05d8b1fa4060fafe5",
++    "3c25f41c6c26654ccf3f8b4f4b510bbb64ab0ea0f52b94d05d8b1fa4060fafe5",
+     "dcd6b8ea62c05c3ef9a04dc4d46ece7e7fbad58101d8d55d2bee6dfd9d7e8614",
+     "e352376a5e63ae33802d6eedb225839e4e71d0245076679fe51b5fe938a45a2b",
+     "2a34ad4f3328616fb5660fe22022941ca9ace9383ca9f1f1b7262ecfd4350ec8",
+@@ -84,6 +84,30 @@
+ }
+ constexpr std::uint32_t kEnvironments=2u,kNodes=882u,kTets=1920u;
+ void need(bool ok,const std::string& message){if(!ok)throw std::runtime_error(message);}
++bool isSHA256(const char* value){
++    if(value==nullptr||std::strlen(value)!=64u)return false;
++    for(std::size_t i=0;i<64u;++i){
++        const char c=value[i];
++        if(!((c>='0'&&c<='9')||(c>='a'&&c<='f')||(c>='A'&&c<='F')))return false;
++    }
++    return true;
++}
++void validateFixtureHashes(const FixtureBinding& fixture){
++    const std::array<const char*,9> hashes={fixture.captureSHA,fixture.packageSHA,fixture.candidateSHA,
++        fixture.acceptedSHA,fixture.runManifestSHA,fixture.conditionManifestSHA,fixture.sourceBuildSHA,
++        fixture.receiptSHA,fixture.resultSHA};
++    for(std::size_t i=0;i<hashes.size();++i)
++        need(isSHA256(hashes[i]),std::string(fixture.label)+" has malformed 64-hex fixture SHA at slot "+std::to_string(i));
++}
++void testSHA256Validation(){
++    const std::string valid(64u,'a');
++    const std::string shortValue=valid.substr(1u);
++    std::string invalidHex=valid;invalidHex[17]='g';
++    need(isSHA256(valid.c_str()),"SHA validator rejected a valid 64-hex digest");
++    need(!isSHA256(shortValue.c_str()),"SHA validator accepted a 63-character digest");
++    need(!isSHA256(invalidHex.c_str()),"SHA validator accepted a non-hex digest");
++    need(!isSHA256(nullptr),"SHA validator accepted a null digest");
++}
+ std::string sha256(const std::filesystem::path& path){
+     std::ifstream in(path,std::ios::binary);need(in.good(),"cannot read SHA input: "+path.string());
+     std::vector<unsigned char> b((std::istreambuf_iterator<char>(in)),{});
+@@ -147,12 +171,12 @@
+ struct MetalRun {
+     id<MTLDevice> device=nil;id<MTLCommandQueue> queue=nil;id<MTLLibrary> library=nil;id<MTLComputePipelineState> oldCache=nil,reuseCache=nil,apply=nil;
+     MetalRun(){device=MTLCreateSystemDefaultDevice();need(device!=nil,"Metal device unavailable");NSString* name=[device name];need([name rangeOfString:@"Apple"].location!=NSNotFound&&[name rangeOfString:@"Paravirtual"].location==NSNotFound,"physical Apple GPU required for native diagnostic");queue=[device newCommandQueue];NSError* e=nil;library=[device newLibraryWithURL:[NSURL fileURLWithPath:@NUMI_TANGENT_CACHE_METALLIB] error:&e];need(library!=nil,"bound source125 metallib unavailable");oldCache=make(@"numi_matter_metal::nm_fem_build_algorithmic_tangent_cache");reuseCache=make(@"numi_matter_metal::nm_fem_build_algorithmic_tangent_cache_projection_reuse_diagnostic");apply=make(@"numi_matter_metal::nm_fem_apply_operator_elements");}
+-    id<MTLComputePipelineState> make(NSString* n){NSError* e=nil;id<MTLFunction> f=[library newFunctionWithName:n];need(f!=nil,"required kernel absent: "+std::string([n UTF8String]));id<MTLComputePipelineState> p=[device newComputePipelineStateWithFunction:f error:&e];need(p!=nil,"pipeline creation failed: "+std::string([e.localizedDescription UTF8String]));return p;}
++    id<MTLComputePipelineState> make(NSString* n){NSError* e=nil;id<MTLFunction> f=[library newFunctionWithName:n];need(f!=nil,"required kernel absent: "+std::string([n UTF8String]));id<MTLComputePipelineState> p=[device newComputePipelineStateWithFunction:f error:&e];if(p==nil){NSString* description=e.localizedDescription;const char* utf8=description?description.UTF8String:nullptr;throw std::runtime_error(std::string("pipeline creation failed: ")+(utf8?utf8:"unknown Metal error"));}return p;}
+     std::pair<std::vector<float>,std::vector<std::uint32_t>> build(InputBuffers& b,id<MTLComputePipelineState> pipeline){const std::size_t total=std::size_t(kEnvironments)*kTets;auto cache=[device newBufferWithLength:total*81u*sizeof(float) options:MTLResourceStorageModeShared];auto valid=[device newBufferWithLength:total*sizeof(std::uint32_t) options:MTLResourceStorageModeShared];need(cache&&valid,"cache output allocation failed");std::memset(cache.contents,0,cache.length);std::memset(valid.contents,0,valid.length);id<MTLCommandBuffer> cmd=[queue commandBuffer];id<MTLComputeCommandEncoder> en=[cmd computeCommandEncoder];need(en!=nil,"cache encoder unavailable");[en setComputePipelineState:pipeline];[en setBytes:&b.dispatch length:sizeof(b.dispatch) atIndex:0];[en setBytes:&b.micro length:sizeof(b.micro) atIndex:1];[en setBuffer:b.objects offset:0 atIndex:2];[en setBuffer:b.materials offset:0 atIndex:3];[en setBuffer:b.programs offset:0 atIndex:4];[en setBuffer:b.instructions offset:0 atIndex:5];[en setBuffer:b.params offset:0 atIndex:6];[en setBuffer:b.nodes offset:0 atIndex:7];[en setBuffer:b.tets offset:0 atIndex:8];[en setBuffer:b.state offset:0 atIndex:9];[en setBuffer:b.schedulers offset:0 atIndex:10];[en setBuffer:b.adaptive offset:0 atIndex:11];[en setBuffer:cache offset:0 atIndex:12];[en setBuffer:valid offset:0 atIndex:13];[en setBuffer:b.status offset:0 atIndex:14];[en setBuffer:b.solver offset:0 atIndex:15];[en setBytes:&b.cacheRebuild length:sizeof(b.cacheRebuild) atIndex:16];[en dispatchThreads:MTLSizeMake(total,1,1) threadsPerThreadgroup:MTLSizeMake(32,1,1)];[en endEncoding];[cmd commit];[cmd waitUntilCompleted];need(cmd.status==MTLCommandBufferStatusCompleted,"cache command failed");const auto* cacheStatuses=static_cast<const NMMatterStatusGPU*>(b.status.contents);for(unsigned env=0;env<kEnvironments;++env)need(cacheStatuses[env].code==NM_STATUS_SUCCESS,"cache builder status failure env="+std::to_string(env));const auto* cp=(const float*)cache.contents;const auto* vp=(const std::uint32_t*)valid.contents;return {{cp,cp+total*81u},{vp,vp+total}};}
+     std::vector<NMFEMElementVectorGPU> action(InputBuffers& b,const std::vector<nm_float4>& direction,const std::vector<float>& tangent,const std::vector<std::uint32_t>& valid){const std::size_t total=std::size_t(kEnvironments)*kTets;auto dir=makeBuffer(device,direction);auto out=[device newBufferWithLength:total*sizeof(NMFEMElementVectorGPU) options:MTLResourceStorageModeShared];auto cache=makeBuffer(device,tangent);auto validBuf=makeBuffer(device,valid);need(out!=nil,"operator output allocation failed");std::memset(out.contents,0,out.length);const std::uint32_t use=1u;id<MTLCommandBuffer> cmd=[queue commandBuffer];id<MTLComputeCommandEncoder> en=[cmd computeCommandEncoder];need(en!=nil,"operator encoder unavailable");[en setComputePipelineState:apply];[en setBytes:&b.dispatch length:sizeof(b.dispatch) atIndex:0];[en setBytes:&b.micro length:sizeof(b.micro) atIndex:1];[en setBuffer:b.objects offset:0 atIndex:2];[en setBuffer:b.materials offset:0 atIndex:3];[en setBuffer:b.programs offset:0 atIndex:4];[en setBuffer:b.instructions offset:0 atIndex:5];[en setBuffer:b.params offset:0 atIndex:6];[en setBuffer:b.nodes offset:0 atIndex:7];[en setBuffer:b.tets offset:0 atIndex:8];[en setBuffer:b.state offset:0 atIndex:9];[en setBuffer:dir offset:0 atIndex:10];[en setBuffer:b.schedulers offset:0 atIndex:11];[en setBuffer:b.adaptive offset:0 atIndex:12];[en setBuffer:out offset:0 atIndex:13];[en setBuffer:b.status offset:0 atIndex:14];[en setBuffer:b.mixed offset:0 atIndex:16];[en setBuffer:b.fields offset:0 atIndex:17];[en setBuffer:b.learned offset:0 atIndex:18];[en setBuffer:b.layers offset:0 atIndex:19];[en setBuffer:b.weights offset:0 atIndex:20];[en setBytes:&b.mixedSolver length:sizeof(b.mixedSolver) atIndex:21];[en setBuffer:b.solver offset:0 atIndex:22];[en setBuffer:cache offset:0 atIndex:23];[en setBuffer:validBuf offset:0 atIndex:24];[en setBytes:&use length:sizeof(use) atIndex:25];[en dispatchThreads:MTLSizeMake(total,1,1) threadsPerThreadgroup:MTLSizeMake(32,1,1)];[en endEncoding];[cmd commit];[cmd waitUntilCompleted];need(cmd.status==MTLCommandBufferStatusCompleted,"operator command failed");auto* status=(const NMMatterStatusGPU*)b.status.contents;for(unsigned e=0;e<kEnvironments;++e)need(status[e].code==NM_STATUS_SUCCESS,"operator status failure env="+std::to_string(e)+" code="+std::to_string(status[e].code));const auto* p=(const NMFEMElementVectorGPU*)out.contents;return {p,p+total};}
+ };
+ struct Compare {std::uint64_t count=0,bitsDifferent=0,nonfinite=0;double maxAbs=0,maxRel=0,scale=0;void add(float a,float b){++count;if(std::bit_cast<std::uint32_t>(a)!=std::bit_cast<std::uint32_t>(b))++bitsDifferent;if(!std::isfinite(a)||!std::isfinite(b)){++nonfinite;return;}maxAbs=std::max(maxAbs,std::abs(double(a)-double(b)));maxRel=std::max(maxRel,std::abs(double(a)-double(b))/std::max(1e-30,std::max(std::abs(double(a)),std::abs(double(b)))));scale=std::max(scale,std::max(std::abs(double(a)),std::abs(double(b))));}};
+-void execute(const std::filesystem::path& run,const std::filesystem::path& outdir,const FixtureBinding& fixture){const auto output=run/"output";const auto capturePath=run/"operator-capture";const auto packagePath=output/"compiled.nmatterpack";const std::string step=sixDigitStep(fixture.conditioningStep);const auto conditionDir=output/("rejected-conditioning-"+step);const auto candidatePath=conditionDir/"candidate_nodes.bin";const auto conditionPath=conditionDir/"manifest.json";const auto statePath=output/("material_state_"+step+"_bent.json");const auto manifestPath=output/"manifest.json";const auto sourceBuildPath=run/"inputs/external/source-build.json";const auto receiptPath=run/"receipt.json";const auto resultPath=output/"result.json";
++void execute(const std::filesystem::path& run,const std::filesystem::path& outdir,const FixtureBinding& fixture){validateFixtureHashes(fixture);const auto output=run/"output";const auto capturePath=run/"operator-capture";const auto packagePath=output/"compiled.nmatterpack";const std::string step=sixDigitStep(fixture.conditioningStep);const auto conditionDir=output/("rejected-conditioning-"+step);const auto candidatePath=conditionDir/"candidate_nodes.bin";const auto conditionPath=conditionDir/"manifest.json";const auto statePath=output/("material_state_"+step+"_bent.json");const auto manifestPath=output/"manifest.json";const auto sourceBuildPath=run/"inputs/external/source-build.json";const auto receiptPath=run/"receipt.json";const auto resultPath=output/"result.json";
+     need(sha256(capturePath)==fixture.captureSHA,std::string(fixture.label)+" operator capture hash mismatch");need(sha256(packagePath)==fixture.packageSHA,std::string(fixture.label)+" package hash mismatch");need(sha256(candidatePath)==fixture.candidateSHA,std::string(fixture.label)+" candidate hash mismatch");need(sha256(statePath)==fixture.acceptedSHA,std::string(fixture.label)+" accepted state hash mismatch");need(sha256(manifestPath)==fixture.runManifestSHA,std::string(fixture.label)+" manifest hash mismatch");need(sha256(conditionPath)==fixture.conditionManifestSHA,std::string(fixture.label)+" conditioning manifest hash mismatch");
+     need(sha256(sourceBuildPath)==fixture.sourceBuildSHA,std::string(fixture.label)+" source-build binding mismatch");
+     need(sha256(receiptPath)==fixture.receiptSHA,std::string(fixture.label)+" execution receipt binding mismatch");
+@@ -221,6 +245,8 @@
+     need(parityPass,"projection-reuse cache differs from repeated production evaluation; see JSON output");
+ }
+ void cpu(const std::filesystem::path& run,const FixtureBinding& fixture){
++    testSHA256Validation();
++    validateFixtureHashes(fixture);
+     const auto output=run/"output";
+     const std::string step=sixDigitStep(fixture.conditioningStep);
+     const auto conditionDir=output/("rejected-conditioning-"+step);

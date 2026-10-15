@@ -1,0 +1,3802 @@
+{
+  "assembled_residual_and_fd": {
+    "common_valid_tet_centered_secant": {
+      "independent_vs_common_center_tangent": {
+        "actual_l2": 0.0004991212739223398,
+        "difference_l2": 0.00011660966045899927,
+        "max_component_abs": 4.3873883388745114e-05,
+        "reference_l2": 0.000484817577492367,
+        "relative_to_reference": 0.24052275716186297,
+        "status": "available"
+      },
+      "independent_vs_full_native_center_A_incomplete_operator_diagnostic": {
+        "metrics": {
+          "actual_l2": 0.0004991212739223398,
+          "difference_l2": 0.00046389474046042514,
+          "max_component_abs": 0.00023771238712775808,
+          "reference_l2": 0.000184449280610251,
+          "relative_to_reference": 2.515026021926613,
+          "status": "available"
+        },
+        "status": "diagnostic_only_full_A_includes_omitted_tet"
+      },
+      "native_vs_common_center_tangent": {
+        "actual_l2": 0.0004991066064408369,
+        "difference_l2": 0.00011657674991677053,
+        "max_component_abs": 4.385673045253724e-05,
+        "reference_l2": 0.000484817577492367,
+        "relative_to_reference": 0.24045487484126116,
+        "status": "available"
+      },
+      "native_vs_independent": {
+        "actual_l2": 0.0004991066064408369,
+        "difference_l2": 7.398440683250888e-07,
+        "max_component_abs": 2.0611532997913244e-07,
+        "reference_l2": 0.0004991212739223398,
+        "relative_to_reference": 0.0014822931960223437,
+        "status": "available"
+      },
+      "omitted_tet_ids": [
+        1691
+      ],
+      "status": "partial_common_tet_subset_only",
+      "total_tet_count": 1920,
+      "valid_tet_count": 1919
+    },
+    "independent_endpoint_residual_secant_vs_center_tangent_on_realized_node_direction": {
+      "actual_l2": null,
+      "difference_l2": null,
+      "max_component_abs": null,
+      "reference_l2": null,
+      "relative_to_reference": null,
+      "status": "unavailable_incomplete_independent_endpoint_projection"
+    },
+    "independent_endpoint_residual_secant_vs_independent_center_A_nominal": {
+      "actual_l2": null,
+      "difference_l2": null,
+      "max_component_abs": null,
+      "reference_l2": null,
+      "relative_to_reference": null,
+      "status": "unavailable_incomplete_independent_endpoint_projection"
+    },
+    "independent_valid_rows_vs_all_native_delta_R": {
+      "minus": {
+        "actual_l2": 2.4416642855593706e-06,
+        "difference_l2": 8.749497809368099e-11,
+        "max_component_abs": 1.8659181972915518e-11,
+        "reference_l2": 2.441663164804498e-06,
+        "relative_to_reference": 3.5834172114680956e-05,
+        "status": "available"
+      },
+      "plus": null
+    },
+    "independent_vs_native_endpoint_residual_secant": {
+      "actual_l2": null,
+      "difference_l2": null,
+      "max_component_abs": null,
+      "reference_l2": null,
+      "relative_to_reference": null,
+      "status": "unavailable_incomplete_independent_endpoint_projection"
+    },
+    "native_centered_residual_secant_vs_independent_center_A_nominal": {
+      "actual_l2": 0.0002734221105667207,
+      "difference_l2": 0.0002019365501103926,
+      "max_component_abs": 0.00010767874478129593,
+      "reference_l2": 0.00018444849064302578,
+      "relative_to_reference": 1.094812700317578,
+      "status": "available"
+    },
+    "native_centered_residual_secant_vs_native_center_A_nominal": {
+      "actual_l2": 0.0002734221105667207,
+      "difference_l2": 0.00020193630602153187,
+      "max_component_abs": 0.00010767873948935858,
+      "reference_l2": 0.000184449280610251,
+      "relative_to_reference": 1.0948066880685303,
+      "status": "available"
+    },
+    "native_endpoint_residual_secant_vs_center_tangent_on_realized_node_direction": {
+      "actual_l2": 0.0002734221105667207,
+      "difference_l2": 0.00019748601475518497,
+      "max_component_abs": 0.00010716128028807923,
+      "reference_l2": 0.0001879402922927597,
+      "relative_to_reference": 1.0507912504869135,
+      "status": "available"
+    },
+    "native_force_delta_R_formula_vs_captured": {
+      "minus": {
+        "actual_l2": 2.441663164804498e-06,
+        "difference_l2": 4.029589848137962e-11,
+        "max_component_abs": 1.3815798229694693e-11,
+        "reference_l2": 2.4416596620973773e-06,
+        "relative_to_reference": 1.650348699571241e-05,
+        "status": "available"
+      },
+      "plus": {
+        "actual_l2": 2.4305781422671917e-06,
+        "difference_l2": 3.8410309008486935e-11,
+        "max_component_abs": 9.796580874614223e-12,
+        "reference_l2": 2.430573641676404e-06,
+        "relative_to_reference": 1.580298097118948e-05,
+        "status": "available"
+      }
+    },
+    "native_vs_independent_delta_R": {
+      "minus": {
+        "actual_l2": 2.4416642855593706e-06,
+        "difference_l2": 8.749497809368099e-11,
+        "max_component_abs": 1.8659181972915518e-11,
+        "reference_l2": 2.441663164804498e-06,
+        "relative_to_reference": 3.5834172114680956e-05,
+        "status": "available"
+      },
+      "plus": {
+        "actual_l2": 2.4306491851587535e-06,
+        "difference_l2": 8.963492939282336e-11,
+        "max_component_abs": 1.9121169680852495e-11,
+        "reference_l2": 2.4306523534940812e-06,
+        "relative_to_reference": 3.687690231141959e-05,
+        "status": "available"
+      }
+    },
+    "native_vs_independent_element_force": {
+      "center": {
+        "all_tets": {
+          "actual_l2": 8.094070577974074,
+          "difference_l2": 6.16754026071002e-07,
+          "max_component_abs": 1.0531184117812398e-07,
+          "reference_l2": 8.094070556657709,
+          "relative_to_reference": 7.619825176390342e-08,
+          "status": "available"
+        },
+        "glue_tets": {
+          "actual_l2": 0.7591939069825865,
+          "difference_l2": 4.5333493099145975e-08,
+          "max_component_abs": 9.549885673920677e-09,
+          "reference_l2": 0.7591939094817606,
+          "relative_to_reference": 5.971266699187752e-08,
+          "status": "available"
+        },
+        "paper_tets": {
+          "actual_l2": 8.058387129744146,
+          "difference_l2": 6.150856875901274e-07,
+          "max_component_abs": 1.0531184117812398e-07,
+          "reference_l2": 8.058387108097936,
+          "relative_to_reference": 7.632863491653597e-08,
+          "status": "available"
+        },
+        "projection_valid_tets_only": {
+          "actual_l2": 8.109122009326741,
+          "difference_l2": 6.157445904223214e-07,
+          "max_component_abs": 9.476489845616776e-08,
+          "reference_l2": 8.109122006889557,
+          "relative_to_reference": 7.593233766851469e-08,
+          "status": "available"
+        },
+        "total_tets": 1920,
+        "valid_independent_tets": 1920
+      },
+      "minus": {
+        "all_tets": {
+          "actual_l2": 8.109122009326741,
+          "difference_l2": 6.157445904223214e-07,
+          "max_component_abs": 9.476489845616776e-08,
+          "reference_l2": 8.109122006889557,
+          "relative_to_reference": 7.593233766851469e-08,
+          "status": "available"
+        },
+        "glue_tets": {
+          "actual_l2": 0.7592271015046889,
+          "difference_l2": 4.4340416048852214e-08,
+          "max_component_abs": 5.933202811003735e-09,
+          "reference_l2": 0.7592271012861364,
+          "relative_to_reference": 5.840204594085119e-08,
+          "status": "available"
+        },
+        "paper_tets": {
+          "actual_l2": 8.073501964481594,
+          "difference_l2": 6.141460153245049e-07,
+          "max_component_abs": 9.476489845616776e-08,
+          "reference_l2": 8.073501962054209,
+          "relative_to_reference": 7.606934614136672e-08,
+          "status": "available"
+        },
+        "projection_valid_tets_only": {
+          "actual_l2": 8.109122009326741,
+          "difference_l2": 6.157445904223214e-07,
+          "max_component_abs": 9.476489845616776e-08,
+          "reference_l2": 8.109122006889557,
+          "relative_to_reference": 7.593233766851469e-08,
+          "status": "available"
+        },
+        "total_tets": 1920,
+        "valid_independent_tets": 1920
+      },
+      "plus": {
+        "all_tets": {
+          "difference_l2": null,
+          "relative_to_reference": null,
+          "status": "partial_projection_failure",
+          "total_tets": 1920,
+          "valid_tets": 1919
+        },
+        "glue_tets": {
+          "actual_l2": 0.7591745404186475,
+          "difference_l2": 4.557803651116806e-08,
+          "max_component_abs": 6.8441567899202305e-09,
+          "reference_l2": 0.7591745383284171,
+          "relative_to_reference": 6.003630813478509e-08,
+          "status": "available"
+        },
+        "paper_tets": {
+          "difference_l2": null,
+          "relative_to_reference": null,
+          "status": "partial_projection_failure",
+          "total_tets": 1728,
+          "valid_tets": 1727
+        },
+        "projection_valid_tets_only": {
+          "actual_l2": 8.109122009326741,
+          "difference_l2": 6.157445904223214e-07,
+          "max_component_abs": 9.476489845616776e-08,
+          "reference_l2": 8.109122006889557,
+          "relative_to_reference": 7.593233766851469e-08,
+          "status": "available"
+        },
+        "total_tets": 1920,
+        "valid_independent_tets": 1919
+      }
+    },
+    "omitted_tets_combined_native_plus_centered_secant_component_l2": 0.00018139475827434447,
+    "realized_dF_direction_vs_nominal_dt_times_captured_H": {
+      "actual_l2": 83.6366622209533,
+      "difference_l2": 0.00028712355654813133,
+      "max_component_abs": 3.679452590676924e-05,
+      "reference_l2": 83.63663330851237,
+      "relative_to_reference": 3.4329879765606066e-06,
+      "status": "available"
+    },
+    "realized_displacement_kinematics": {
+      "minus": {
+        "actual_du_vs_dt_dv": {
+          "actual_l2": 1.1481959445180767e-06,
+          "difference_l2": 2.690554727175461e-12,
+          "max_component_abs": 3.3347828079684227e-13,
+          "reference_l2": 1.1481959034759397e-06,
+          "relative_to_reference": 2.3432889100460387e-06,
+          "status": "available"
+        },
+        "free_position_components": 2538,
+        "u_endpoint_raw_words_match_capture": null,
+        "unchanged_position_component_count": 813
+      },
+      "plus": {
+        "actual_du_vs_dt_dv": {
+          "actual_l2": 1.1481959139783194e-06,
+          "difference_l2": 2.797580765745853e-12,
+          "max_component_abs": 3.9493614541891153e-13,
+          "reference_l2": 1.148195904104228e-06,
+          "relative_to_reference": 2.436501258840844e-06,
+          "status": "available"
+        },
+        "free_position_components": 2538,
+        "u_endpoint_raw_words_match_capture": null,
+        "unchanged_position_component_count": 798
+      }
+    },
+    "realized_dv_direction_vs_nominal_correction": {
+      "actual_l2": 188.12042162928861,
+      "difference_l2": 0.00019827925319536495,
+      "max_component_abs": 6.103515625e-05,
+      "reference_l2": 188.12041150008739,
+      "relative_to_reference": 1.0540018045584215e-06,
+      "status": "available"
+    },
+    "selected_epsilon": 6.103515625e-05,
+    "valid_tet_force_increment_slopes": {
+      "minus": {
+        "eligible_tets": 1920,
+        "failed_tet_native_delta_R_l2_over_2epsilon_Ns_per_epsilon": 0.0,
+        "independent_slope_l2_N_per_epsilon": 785.7195327509321,
+        "independent_vs_center_tangent_same_tets": {
+          "actual_l2": 785.7195327509321,
+          "difference_l2": 230.67826502109762,
+          "max_component_abs": 65.57700821461839,
+          "reference_l2": 809.2306447313528,
+          "relative_to_reference": 0.2850587363725923,
+          "status": "available"
+        },
+        "native_slope_l2_N_per_epsilon": 785.7190655364144,
+        "native_vs_center_tangent_same_tets": {
+          "actual_l2": 785.7190655364144,
+          "difference_l2": 230.6782430240003,
+          "max_component_abs": 65.57694425136009,
+          "reference_l2": 809.2306447313528,
+          "relative_to_reference": 0.2850587091898633,
+          "status": "available"
+        },
+        "native_vs_independent_same_tet_increment_per_epsilon": {
+          "actual_l2": 785.7190655364144,
+          "difference_l2": 0.014458029691340702,
+          "max_component_abs": 0.0023301696769522096,
+          "reference_l2": 785.7195327509321,
+          "relative_to_reference": 1.8401005815294913e-05,
+          "status": "available"
+        },
+        "omitted_failed_tet_ids": []
+      },
+      "plus": {
+        "eligible_tets": 1919,
+        "failed_tet_native_delta_R_l2_over_2epsilon_Ns_per_epsilon": 0.00018139475827434447,
+        "independent_slope_l2_N_per_epsilon": 893.6579982209532,
+        "independent_vs_center_tangent_same_tets": {
+          "actual_l2": 893.6579982209532,
+          "difference_l2": 230.46801008249042,
+          "max_component_abs": 65.49852003149323,
+          "reference_l2": 809.2183007641962,
+          "relative_to_reference": 0.28480325996686534,
+          "status": "available"
+        },
+        "native_slope_l2_N_per_epsilon": 893.6583256923395,
+        "native_vs_center_tangent_same_tets": {
+          "actual_l2": 893.6583256923395,
+          "difference_l2": 230.46811521867085,
+          "max_component_abs": 65.49849520176491,
+          "reference_l2": 809.2183007641962,
+          "relative_to_reference": 0.2848033898900027,
+          "status": "available"
+        },
+        "native_vs_independent_same_tet_increment_per_epsilon": {
+          "actual_l2": 893.6583256923395,
+          "difference_l2": 0.014717432632882265,
+          "max_component_abs": 0.0023022084569674917,
+          "reference_l2": 893.6579982209532,
+          "relative_to_reference": 1.6468752769158835e-05,
+          "status": "available"
+        },
+        "omitted_failed_tet_ids": [
+          1691
+        ]
+      }
+    }
+  },
+  "bindings": {
+    "bilinear15_reference_sha256": "c17010564a98fe63da0c8b88be81313685a65cfbd57ff82292e797cab5a0fdf3",
+    "capture419_sha256": "f2d42314cfee0428ecd285ebb9dbd5da1556624e3e92af1d12240fd8106b309a",
+    "geometry_helper_sha256": "2ce80f9b3c989efd058bdbcc29661d10701061cfde459d64cca06c0d6caeee38",
+    "independent_center_npz_sha256": "e20eeb559f5976e6b9ddb2ae605ea6860908cde3a1d255ea80832b24840c8353",
+    "independent_center_report_sha256": "c918a287f0de7966d50813a70fa7d9d3917746a6fc5de8dca57283fbf375ba76",
+    "native424_receipt_sha256": "8c48ff649955cf85044966b4649c920fe39e19fd06ba39ac0eeb11c65227410c",
+    "native424_report_sha256": "ccf8bb7d2b3e5d1f7e73279445882c40eb7916d460a8cd831468e2e28be645e3",
+    "native424_sweep_manifest_sha256": "096f5140ad963462dc01c03d4c1d12777bd6efb07f28213646cd4c00b3d4983b",
+    "native_endpoint_binary_sha256": {
+      "center": {
+        "forces": "fe8547c4afa9b72ed6a55162481f326695f44a853316210d4edbd07df7865bff",
+        "nodes": "c4f2b8d790494949da5be98e876b911db2655dc88e7417416906c91412557269",
+        "residual": "fc612c1e53657dc28a0e69a1069a89f0ff6ece20f411d87f5368c9c8c9d3714b"
+      },
+      "minus": {
+        "forces": "2b25ad88243dbb44b8c37c0eb67f53891d6f69eac8c7ad42a16169c13f253ab2",
+        "nodes": "80113c641dacb283a5c52319edd8d8ee7faf763f3794a52c11005e06aebbe747",
+        "residual": "c453de1a84a0384ebf1587bb8bfb8158b3f69236ba7e7fc1834900988a7b342b"
+      },
+      "plus": {
+        "forces": "6c719afdd720c5abd3ff011c1abcf89c490ef459483153d084e661f1f1a529d0",
+        "nodes": "334d261d06bfd009167b9197d16417545db2cb07aab4136541ee84ecfa75a392",
+        "residual": "a5121a0c08ce296dfc0dbc89c3ffd4582a9eabff9b717a17799eb8a301737cfa"
+      }
+    },
+    "projection_helper_sha256": "742b0920c4f543e284e41ed18f8dbc78253915a31f39b3ef8d32ff7dec01b5e8",
+    "source125_compensated_geometry_header_sha256": "1bf85c7e7b8b2102c5e0e6f3fbba88e2b30530e6b5fbb33375fb581d5261d84e",
+    "source125_compensated_translation_header_sha256": "a04166e5c8ef76db05271c8c9b084f0b2edc9bb4a7e6bfe1986527a4f8c09097",
+    "source125_deformation_header_sha256": "47d61e2f85bfbea5aac370211e56251ff67f0c7a28d577c276fd285b88225f33",
+    "source125_fem_metalinc_sha256": "70c2f396045f9abdcfdc32f5714e6e3a400f5566e5a7824353e11b307de52b7d",
+    "source125_runtime_mm_sha256": "1719f14310d643ca96c520eb47b3028f8259f85e3da0d263460921b06d94ac74",
+    "source125_shared_node_state_sha256": "cd173c076905f660aa8aecc900e6f6aba8d69406996f3cccf2e0656c753ff871",
+    "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125"
+  },
+  "center_native_force_check": {
+    "all_tets_native_vs_independent": {
+      "actual_l2": 8.094070577974074,
+      "difference_l2": 6.16754026071002e-07,
+      "max_component_abs": 1.0531184117812398e-07,
+      "reference_l2": 8.094070556657709,
+      "relative_to_reference": 7.619825176390342e-08,
+      "status": "available"
+    },
+    "glue_tets_native_vs_independent": {
+      "actual_l2": 0.7591939069825865,
+      "difference_l2": 4.5333493099145975e-08,
+      "max_component_abs": 9.549885673920677e-09,
+      "reference_l2": 0.7591939094817606,
+      "relative_to_reference": 5.971266699187752e-08,
+      "status": "available"
+    },
+    "native_force_w_components_max_abs": 0.4452238082885742,
+    "paper_tets_native_vs_independent": {
+      "actual_l2": 8.058387129744146,
+      "difference_l2": 6.150856875901274e-07,
+      "max_component_abs": 1.0531184117812398e-07,
+      "reference_l2": 8.058387108097936,
+      "relative_to_reference": 7.632863491653597e-08,
+      "status": "available"
+    }
+  },
+  "common_subset_adjudication": {
+    "independent_secant_vs_center_tangent_relative": 0.24052275716186297,
+    "interpretation": "Native and independent endpoint force/residual secants agree closely on the common 1,919-tet subset, while both differ from the center tangent by about 24%. The endpoint perturbation has measurable realized-direction differences and this single finite step may include curvature or unrecorded branch changes. The omitted tet prevents a complete independent assembled secant; this comparison does not identify a pure FP32 quantization floor or establish the derivative gate.",
+    "native_secant_vs_center_tangent_relative": 0.24045487484126116,
+    "native_vs_independent_centered_secant_relative": 0.0014822931960223437,
+    "observed_plastic_multiplier_predicate_changes": 0,
+    "observed_predicate_scope": "Only projected state[12] > accepted state[12] was compared; this is not a complete branch signature.",
+    "omitted_tetrahedra": [
+      1691
+    ],
+    "status": "partial_diagnostic_only",
+    "total_tetrahedra": 1920,
+    "valid_tetrahedra": 1919
+  },
+  "conclusion": "The FP32 source transcription of frame, compensated F high/low, and ordinary Fdot reproduces the captured center inputs bitwise for all 1,920 tetrahedra. On all plus/minus rows where the independent FP64 projection converges, native element-force increments differ from the independent FP64 increments by about 1.7e-5 relative in aggregate. One plus medium row (tet 1691) does not converge under the independent projector, so the complete independent centered force/residual secant is unavailable. Native force/residual bookkeeping itself matches the captured residual delta to about 1.6e-5 relative, but the native centered residual secant remains 1.0948 relative away from center A. This evidence does not establish that native stress/force quantization explains the full gap; the missing row and finite-step/branch effects leave that attribution unresolved.",
+  "created_at_utc": "2026-10-15T20:12:17.727161+00:00",
+  "evidence_class": "source-bound CPU material/force/residual adjudication; no production or physical qualification",
+  "failed_attempt_preservation": {
+    "prior_attempt_outcome": "output serialization failed when the filesystem ran out of space; the source script was copied byte-for-byte into this package before the compact rerun.",
+    "prior_partial_attempt_directory": "/Users/home/cardboard-implementation-20261014/analysis/source125-kinematics-and-native424-force-audit-002",
+    "prior_partial_script_sha256": "cf69536ee726e4caa038ee30f4410e26bee54e3c444ccf33d8a9d16f0cc683c4"
+  },
+  "independent_projection": {
+    "center": {
+      "0": {
+        "failure_examples": [],
+        "max_dynamic_scaled_correction_successful": 1.4126033066354257e-08,
+        "max_scaled_residual_successful": 6.886903722870286e-11,
+        "max_updates_successful": 9,
+        "name": "hajali2009_liner_hill_bilinear_fit",
+        "projection_failed": 0,
+        "projection_success": 1152,
+        "rows": 1152
+      },
+      "1": {
+        "failure_examples": [],
+        "max_dynamic_scaled_correction_successful": 1.9212223083515108e-08,
+        "max_scaled_residual_successful": 1.9936917607130692e-10,
+        "max_updates_successful": 8,
+        "name": "hajali2009_medium_hill_bilinear_fit",
+        "projection_failed": 0,
+        "projection_success": 576,
+        "rows": 576
+      }
+    },
+    "minus": {
+      "0": {
+        "failure_examples": [],
+        "max_dynamic_scaled_correction_successful": 1.4185576577768586e-08,
+        "max_scaled_residual_successful": 1.6815223168458758e-10,
+        "max_updates_successful": 9,
+        "name": "hajali2009_liner_hill_bilinear_fit",
+        "projection_failed": 0,
+        "projection_success": 1152,
+        "rows": 1152
+      },
+      "1": {
+        "failure_examples": [],
+        "max_dynamic_scaled_correction_successful": 1.946655829675668e-08,
+        "max_scaled_residual_successful": 1.9291890608160873e-10,
+        "max_updates_successful": 10,
+        "name": "hajali2009_medium_hill_bilinear_fit",
+        "projection_failed": 0,
+        "projection_success": 576,
+        "rows": 576
+      }
+    },
+    "plus": {
+      "0": {
+        "failure_examples": [],
+        "max_dynamic_scaled_correction_successful": 1.4094076301551547e-08,
+        "max_scaled_residual_successful": 1.332138348470944e-10,
+        "max_updates_successful": 9,
+        "name": "hajali2009_liner_hill_bilinear_fit",
+        "projection_failed": 0,
+        "projection_success": 1152,
+        "rows": 1152
+      },
+      "1": {
+        "failure_examples": [
+          {
+            "reason": "RuntimeError: FP64 return map stalled iteration1 rows[0] norm[90.81492362]",
+            "tet_id": 1691
+          }
+        ],
+        "max_dynamic_scaled_correction_successful": 1.8958774395905167e-08,
+        "max_scaled_residual_successful": 1.9838938382415066e-10,
+        "max_updates_successful": 8,
+        "name": "hajali2009_medium_hill_bilinear_fit",
+        "projection_failed": 1,
+        "projection_success": 575,
+        "rows": 576
+      }
+    }
+  },
+  "limitations": [
+    "The native FP32 frame quaternion, two-word deformation construction, and ordinary FP32 velocity-gradient path are transcribed from source125; reconstructed center F high/low and Fdot words match all 1,920 captured tets bitwise. Side F/Fdot words are produced by the same CPU transcription from exact native424 FP32 endpoint u/v words, but no separate side material-input capture exists at epsilon 2^-14.",
+    "The constitutive response/projection and force assembly are independent FP64 equations evaluated from those source-transcribed side F pairs and exact captured material/history inputs; they are not a bitwise clone of native FP32 projection/force accumulation.",
+    "Fdot is reconstructed and checked at center; the retained 15-state reference law is rate-independent, so Fdot is diagnostic and does not alter the projection equations used here.",
+    "This one epsilon identifies endpoint force/residual layers only; it does not establish a universal numerical noise floor, a smooth full-history derivative gate, convergence, material calibration, or physical qualification.",
+    "The run is a rejected Newton candidate with zero physical transactions."
+  ],
+  "native_vs_independent_element_force": {
+    "center": {
+      "all_tets": {
+        "actual_l2": 8.094070577974074,
+        "difference_l2": 6.16754026071002e-07,
+        "max_component_abs": 1.0531184117812398e-07,
+        "reference_l2": 8.094070556657709,
+        "relative_to_reference": 7.619825176390342e-08,
+        "status": "available"
+      },
+      "glue_tets": {
+        "actual_l2": 0.7591939069825865,
+        "difference_l2": 4.5333493099145975e-08,
+        "max_component_abs": 9.549885673920677e-09,
+        "reference_l2": 0.7591939094817606,
+        "relative_to_reference": 5.971266699187752e-08,
+        "status": "available"
+      },
+      "paper_tets": {
+        "actual_l2": 8.058387129744146,
+        "difference_l2": 6.150856875901274e-07,
+        "max_component_abs": 1.0531184117812398e-07,
+        "reference_l2": 8.058387108097936,
+        "relative_to_reference": 7.632863491653597e-08,
+        "status": "available"
+      },
+      "projection_valid_tets_only": {
+        "actual_l2": 8.109122009326741,
+        "difference_l2": 6.157445904223214e-07,
+        "max_component_abs": 9.476489845616776e-08,
+        "reference_l2": 8.109122006889557,
+        "relative_to_reference": 7.593233766851469e-08,
+        "status": "available"
+      },
+      "total_tets": 1920,
+      "valid_independent_tets": 1920
+    },
+    "minus": {
+      "all_tets": {
+        "actual_l2": 8.109122009326741,
+        "difference_l2": 6.157445904223214e-07,
+        "max_component_abs": 9.476489845616776e-08,
+        "reference_l2": 8.109122006889557,
+        "relative_to_reference": 7.593233766851469e-08,
+        "status": "available"
+      },
+      "glue_tets": {
+        "actual_l2": 0.7592271015046889,
+        "difference_l2": 4.4340416048852214e-08,
+        "max_component_abs": 5.933202811003735e-09,
+        "reference_l2": 0.7592271012861364,
+        "relative_to_reference": 5.840204594085119e-08,
+        "status": "available"
+      },
+      "paper_tets": {
+        "actual_l2": 8.073501964481594,
+        "difference_l2": 6.141460153245049e-07,
+        "max_component_abs": 9.476489845616776e-08,
+        "reference_l2": 8.073501962054209,
+        "relative_to_reference": 7.606934614136672e-08,
+        "status": "available"
+      },
+      "projection_valid_tets_only": {
+        "actual_l2": 8.109122009326741,
+        "difference_l2": 6.157445904223214e-07,
+        "max_component_abs": 9.476489845616776e-08,
+        "reference_l2": 8.109122006889557,
+        "relative_to_reference": 7.593233766851469e-08,
+        "status": "available"
+      },
+      "total_tets": 1920,
+      "valid_independent_tets": 1920
+    },
+    "plus": {
+      "all_tets": {
+        "difference_l2": null,
+        "relative_to_reference": null,
+        "status": "partial_projection_failure",
+        "total_tets": 1920,
+        "valid_tets": 1919
+      },
+      "glue_tets": {
+        "actual_l2": 0.7591745404186475,
+        "difference_l2": 4.557803651116806e-08,
+        "max_component_abs": 6.8441567899202305e-09,
+        "reference_l2": 0.7591745383284171,
+        "relative_to_reference": 6.003630813478509e-08,
+        "status": "available"
+      },
+      "paper_tets": {
+        "difference_l2": null,
+        "relative_to_reference": null,
+        "status": "partial_projection_failure",
+        "total_tets": 1728,
+        "valid_tets": 1727
+      },
+      "projection_valid_tets_only": {
+        "actual_l2": 8.109122009326741,
+        "difference_l2": 6.157445904223214e-07,
+        "max_component_abs": 9.476489845616776e-08,
+        "reference_l2": 8.109122006889557,
+        "relative_to_reference": 7.593233766851469e-08,
+        "status": "available"
+      },
+      "total_tets": 1920,
+      "valid_independent_tets": 1919
+    }
+  },
+  "node_word_kinematics": {
+    "minus": {
+      "free_position_unchanged_components": 813,
+      "free_u_unchanged_components": 0,
+      "free_v_unchanged_components": 0,
+      "free_xyz_component_count": 2538,
+      "node_words_match_rich_capture": {
+        "all_words_bitwise_equal_to_capture": null,
+        "binary_sha256": "80113c641dacb283a5c52319edd8d8ee7faf763f3794a52c11005e06aebbe747",
+        "rich_capture_parity": "not captured at this epsilon; exact native424 binary readback",
+        "word_mismatches": null
+      },
+      "nominal_vs_realized_delta_u": {
+        "actual_l2": 1.1481959445180767e-06,
+        "difference_l2": 2.690554727175461e-12,
+        "max_component_abs": 3.3347828079684227e-13,
+        "reference_l2": 1.1481959034759397e-06,
+        "relative_to_reference": 2.3432889100460387e-06,
+        "status": "available"
+      },
+      "realized_delta_u_vs_dt_realized_delta_v": {
+        "actual_l2": 1.1481959445180767e-06,
+        "difference_l2": 2.690554727175461e-12,
+        "max_component_abs": 3.3347828079684227e-13,
+        "reference_l2": 1.1481959034759397e-06,
+        "relative_to_reference": 2.3432889100460387e-06,
+        "status": "available"
+      },
+      "realized_delta_v_vs_nominal_epsilon_correction": {
+        "actual_l2": 0.011481959324818086,
+        "difference_l2": 1.2139113627359652e-08,
+        "max_component_abs": 3.725290298461914e-09,
+        "reference_l2": 0.01148195870972213,
+        "relative_to_reference": 1.0572336945508338e-06,
+        "status": "available"
+      },
+      "realized_position_delta_vs_realized_u_delta": {
+        "actual_l2": 1.1485406341711857e-06,
+        "difference_l2": 2.0905641801719798e-08,
+        "max_component_abs": 1.843432073656004e-09,
+        "reference_l2": 1.1481959445180767e-06,
+        "relative_to_reference": 0.018207381676909128,
+        "status": "available"
+      }
+    },
+    "plus": {
+      "free_position_unchanged_components": 798,
+      "free_u_unchanged_components": 0,
+      "free_v_unchanged_components": 0,
+      "free_xyz_component_count": 2538,
+      "node_words_match_rich_capture": {
+        "all_words_bitwise_equal_to_capture": null,
+        "binary_sha256": "334d261d06bfd009167b9197d16417545db2cb07aab4136541ee84ecfa75a392",
+        "rich_capture_parity": "not captured at this epsilon; exact native424 binary readback",
+        "word_mismatches": null
+      },
+      "nominal_vs_realized_delta_u": {
+        "actual_l2": 1.1481959139783194e-06,
+        "difference_l2": 2.797580765745853e-12,
+        "max_component_abs": 3.9493614541891153e-13,
+        "reference_l2": 1.148195904104228e-06,
+        "relative_to_reference": 2.436501258840844e-06,
+        "status": "available"
+      },
+      "realized_delta_u_vs_dt_realized_delta_v": {
+        "actual_l2": 1.1481959139783194e-06,
+        "difference_l2": 2.797580765745853e-12,
+        "max_component_abs": 3.9493614541891153e-13,
+        "reference_l2": 1.148195904104228e-06,
+        "relative_to_reference": 2.436501258840844e-06,
+        "status": "available"
+      },
+      "realized_delta_v_vs_nominal_epsilon_correction": {
+        "actual_l2": 0.011481959331100971,
+        "difference_l2": 1.2100303538311515e-08,
+        "max_component_abs": 3.725290298461914e-09,
+        "reference_l2": 0.01148195870972213,
+        "relative_to_reference": 1.0538536014822814e-06,
+        "status": "available"
+      },
+      "realized_position_delta_vs_realized_u_delta": {
+        "actual_l2": 1.1484450196412425e-06,
+        "difference_l2": 2.0174232408311395e-08,
+        "max_component_abs": 1.832177076721564e-09,
+        "reference_l2": 1.1481959139783194e-06,
+        "relative_to_reference": 0.017570374674484628,
+        "status": "available"
+      }
+    }
+  },
+  "null_failure_policy": "If any independent material projection fails, its stress/element-force fields are null in per-paper-tet.jsonl.gz; assembled independent totals use only valid rows and are explicitly marked partial, never represented as complete.",
+  "observed_lambda_branch_predicate": {
+    "comparisons": {
+      "minus": {
+        "active_to_inactive": 0,
+        "center_active_rows": 1712,
+        "comparable_rows": 1728,
+        "endpoint_active_rows": 1712,
+        "inactive_to_active": 0,
+        "omitted_rows": 0,
+        "same_predicate_rows": 1728
+      },
+      "plus": {
+        "active_to_inactive": 0,
+        "center_active_rows": 1711,
+        "comparable_rows": 1727,
+        "endpoint_active_rows": 1711,
+        "inactive_to_active": 0,
+        "omitted_rows": 1,
+        "same_predicate_rows": 1727
+      }
+    },
+    "predicate": "projected state[12] > accepted state[12]",
+    "scope": "plastic-multiplier active/inactive only; not a complete constitutive branch signature"
+  },
+  "realized_direction_center_tangent_action": {
+    "all_tet_tangents_valid": true,
+    "projection_rows_valid_for_tangent": 1728,
+    "realized_direction_linear_action_vs_independent_endpoint_secant": null
+  },
+  "reconstructed_center_input_validation": {
+    "F_high_words_bitwise_equal_to_center_capture": true,
+    "F_local_source_transcription_from_center_node_u_vs_capture_high_plus_low": {
+      "actual_l2": 75.89467674156984,
+      "difference_l2": 0.0,
+      "max_component_abs": 0.0,
+      "reference_l2": 75.89467674156984,
+      "relative_to_reference": 0.0,
+      "status": "available"
+    },
+    "F_low_words_bitwise_equal_to_center_capture": true,
+    "Fdot_local_reconstructed_from_center_node_v_vs_capture": {
+      "actual_l2": 934.260173398532,
+      "difference_l2": 0.0,
+      "max_component_abs": 0.0,
+      "reference_l2": 934.260173398532,
+      "relative_to_reference": 0.0,
+      "status": "available"
+    },
+    "Fdot_words_bitwise_equal_to_center_capture": true,
+    "center_pair_exact_tet_count": 1920,
+    "frame_active_tets": 1920,
+    "max_center_F_difference_per_paper_tet": 0.0,
+    "max_center_Fdot_difference_per_paper_tet": 0.0,
+    "paper_rows": 1728
+  },
+  "schema": "numi.cardboard.source125-kinematics-native424-force-audit.v1",
+  "scope": "source125 control1/Newton48 environment0; center and exact native424 epsilon=2^-14 plus/minus endpoint node words; 1920 tets including all 1728 paper rows and 192 stateless glue rows",
+  "selection": {
+    "dt_seconds": 9.999999747378752e-05,
+    "environment": 0,
+    "epsilon": 6.103515625e-05,
+    "fd_admissibility": {
+      "native_centered_residual_fd_vs_center_A_relative": 1.0948066880685303,
+      "native_status_minus": 0,
+      "native_status_plus": 0
+    },
+    "newton_iteration": 48,
+    "root": 1,
+    "sample_index": 6
+  },
+  "source_update_path_audit": {
+    "adjudication": "Candidate velocity is incremented from the current Newton candidate, not reconstructed as accepted velocity plus one alpha-scaled correction. Displacement is then rebuilt from accepted displacement plus dt times that new candidate velocity. Thus the captured endpoint delta-u versus dt*delta-v relation is the relevant cross-sample check; alpha path and endpoint generation are distinct. No source evidence of a later alpha limiter was found.",
+    "alpha_publish": {
+      "contract": "tested alpha is published to FEM and coupled environment line-search state",
+      "file": "matter/src/metal/fem.metalinc",
+      "lines": [
+        4491,
+        4539
+      ]
+    },
+    "armijo_trial_candidate": {
+      "contract": "starts from the current candidate; increments its v by alpha*correction; computes deltaV relative to accepted v; in reference-displacement mode rebuilds u=accepted u+dt*new candidate v and x=rest+u",
+      "file": "matter/src/metal/fem.metalinc",
+      "lines": [
+        4344,
+        4362
+      ]
+    },
+    "commit_candidate": {
+      "contract": "starts from the current candidate; increments its v by the same published alpha times the FGMRES solution; computes deltaV relative to accepted v; in reference-displacement mode rebuilds u=accepted u+dt*new candidate v and x=rest+u",
+      "file": "matter/src/metal/fem.metalinc",
+      "lines": [
+        3312,
+        3331
+      ]
+    },
+    "compensated_F_input": {
+      "contract": "when paper compensated flag and reference-u tet flag are set, F is rebuilt as two-word I+grad(u) in local material frame",
+      "file": "matter/src/metal/fem.metalinc",
+      "lines": [
+        212,
+        235
+      ]
+    },
+    "runtime_order": {
+      "contract": "Armijo runs after geometry/contact alpha limiters; decision precedes normal FEM apply; no later alpha limiter found",
+      "file": "matter/src/runtime.mm",
+      "lines": [
+        22437,
+        22442,
+        23215,
+        23230,
+        23290
+      ]
+    }
+  },
+  "status": "diagnostic_inconclusive_one_endpoint_projection_failed",
+  "warnings": [
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "center",
+      "material_index": 0,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "center",
+      "material_index": 0,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "center",
+      "material_index": 0,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "center",
+      "material_index": 0,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "center",
+      "material_index": 0,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "center",
+      "material_index": 0,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "center",
+      "material_index": 0,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "center",
+      "material_index": 0,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "center",
+      "material_index": 0,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "center",
+      "material_index": 0,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "center",
+      "material_index": 0,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "center",
+      "material_index": 0,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "center",
+      "material_index": 0,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "center",
+      "material_index": 0,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "center",
+      "material_index": 0,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "center",
+      "material_index": 0,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "center",
+      "material_index": 0,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "center",
+      "material_index": 0,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "center",
+      "material_index": 0,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "center",
+      "material_index": 0,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "center",
+      "material_index": 0,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "center",
+      "material_index": 0,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "center",
+      "material_index": 0,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "center",
+      "material_index": 0,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "center",
+      "material_index": 0,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "center",
+      "material_index": 0,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "center",
+      "material_index": 0,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "center",
+      "material_index": 0,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "center",
+      "material_index": 0,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "center",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "center",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "center",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "center",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "center",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "center",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "center",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "center",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "center",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "center",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "center",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "center",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "center",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "center",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "center",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "center",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "center",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "center",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "center",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "center",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "center",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "center",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "center",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "center",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "center",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "center",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "center",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "center",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "center",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 0,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 0,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 0,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 0,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 0,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 0,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 0,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 0,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 0,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 0,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 0,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 0,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 0,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 0,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 0,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 0,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 0,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 0,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 0,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 0,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 0,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 0,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 0,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 0,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 0,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 0,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 0,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 0,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 0,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "plus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "minus",
+      "material_index": 0,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "minus",
+      "material_index": 0,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "minus",
+      "material_index": 0,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "minus",
+      "material_index": 0,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "minus",
+      "material_index": 0,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "minus",
+      "material_index": 0,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "minus",
+      "material_index": 0,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "minus",
+      "material_index": 0,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "minus",
+      "material_index": 0,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "minus",
+      "material_index": 0,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "minus",
+      "material_index": 0,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "minus",
+      "material_index": 0,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "minus",
+      "material_index": 0,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "minus",
+      "material_index": 0,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "minus",
+      "material_index": 0,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "minus",
+      "material_index": 0,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "minus",
+      "material_index": 0,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "minus",
+      "material_index": 0,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "minus",
+      "material_index": 0,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "minus",
+      "material_index": 0,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "minus",
+      "material_index": 0,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "minus",
+      "material_index": 0,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "minus",
+      "material_index": 0,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "minus",
+      "material_index": 0,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "minus",
+      "material_index": 0,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "minus",
+      "material_index": 0,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "minus",
+      "material_index": 0,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "minus",
+      "material_index": 0,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "minus",
+      "material_index": 0,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "minus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "minus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "minus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "minus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "minus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "minus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "minus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "minus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "minus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "minus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "minus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "minus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "minus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "minus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "minus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "minus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "minus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "minus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "minus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "minus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "minus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "minus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "minus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "minus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "minus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "minus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "minus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "minus",
+      "material_index": 1,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "endpoint": "minus",
+      "material_index": 1,
+      "message": "invalid value encountered in divide"
+    }
+  ]
+}

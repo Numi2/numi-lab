@@ -1,0 +1,44 @@
+{
+  "verdict": "BASE_STATE_LINEAR_CANDIDATE_READY_FOR_NATIVE_RESIDUAL_REPLAY",
+  "base_b_l2_Ns": 0.00018444380407784322,
+  "raw": {
+    "semantics": "Alternative total correction direction from the captured Newton center; not an increment added to captured delta_v.",
+    "step_l2_m_per_s": 0.0001429482438981247,
+    "step_linf_m_per_s": 8.363801039526707e-05,
+    "step_over_captured_newton_delta_norm": 7.598763087867172e-07,
+    "position_increment_linf_m": 8.363800828239321e-09,
+    "estimated_free_nodes_with_any_position_word_changed": 364,
+    "predicted_base_residual_l2_Ns": 0.00016005536595342746,
+    "predicted_base_residual_ratio": 0.8677730691667865,
+    "merit_phi_before_N2s2": 1.700975843135291e-08,
+    "merit_phi_after_N2s2": 1.2808860085242793e-08,
+    "predicted_merit_fractional_drop": 0.24696990042885567,
+    "base_merit_directional_derivative": -8.401796692220227e-09,
+    "position_rounding_note": "Estimate only: add dt*p in FP64 to captured center positions promoted from FP32, then round once to FP32. This is not the production accepted/current candidate composition order."
+  },
+  "column_scaled": {
+    "semantics": "Alternative total correction direction from the captured Newton center; not an increment added to captured delta_v.",
+    "step_l2_m_per_s": 0.003341625951264315,
+    "step_linf_m_per_s": 0.0016301102195081744,
+    "step_over_captured_newton_delta_norm": 1.7763229011769213e-05,
+    "position_increment_linf_m": 1.6301101783281265e-07,
+    "estimated_free_nodes_with_any_position_word_changed": 569,
+    "predicted_base_residual_l2_Ns": 0.00012957482166453763,
+    "predicted_base_residual_ratio": 0.7025165324059977,
+    "merit_phi_before_N2s2": 1.700975843135291e-08,
+    "merit_phi_after_N2s2": 8.394817204698364e-09,
+    "predicted_merit_fractional_drop": 0.506470521696253,
+    "base_merit_directional_derivative": -1.7229882453309086e-08,
+    "position_rounding_note": "Estimate only: add dt*p in FP64 to captured center positions promoted from FP32, then round once to FP32. This is not the production accepted/current candidate composition order."
+  },
+  "delta_plus_p": {
+    "semantics": "\u03b4+p, explicitly additive alternative only; primary fallback remains p substituted for \u03b4.",
+    "delta_plus_p_l2_m_per_s": 188.1182421564762,
+    "position_increment_linf_m": 0.009428849049369265,
+    "estimated_free_nodes_with_any_position_word_changed": 846,
+    "predicted_residual_l2_Ns": 0.00013136451561649608,
+    "predicted_residual_ratio_to_base_b": 0.7122197260746943,
+    "predicted_merit_fractional_drop_from_base": 0.4927430617900874
+  },
+  "report": "/Users/home/cardboard-implementation-20261014/analysis/captured-base-state-cauchy-419-001/report.json"
+}

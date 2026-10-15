@@ -1,0 +1,74 @@
+{
+  "checks": {
+    "complete_independent_centered_secant_available": false,
+    "derivative_qualification": false,
+    "gzip_jsonl_rows": 1728,
+    "strict_json_allow_nan_false": true,
+    "tet_1691_plus_failure_retained_as_null": true,
+    "total_package_bytes_before_manifest": 859817
+  },
+  "created_at_utc": "2026-10-15T20:13:11.886544+00:00",
+  "evidence_scope": "CPU replay of one exact native endpoint pair; no production transaction or physical qualification",
+  "files": {
+    "README.md": {
+      "bytes": 2954,
+      "sha256": "97369d5575c5c12b4e573a067c245e93e68183bae4e6aabcfdef76c27c950c84"
+    },
+    "audit.py": {
+      "bytes": 57736,
+      "sha256": "0fb4982f9a46dc59bbecaca7da07775efb1c75171bd7124c3114935d37f56523"
+    },
+    "partial-failed-002-audit.py": {
+      "bytes": 57350,
+      "sha256": "cf69536ee726e4caa038ee30f4410e26bee54e3c444ccf33d8a9d16f0cc683c4"
+    },
+    "per-paper-tet.jsonl.gz": {
+      "bytes": 627586,
+      "sha256": "bbc4c390b47f5a5fb87f29c35f9b7c899476c9e63ad1d3e3ec9f16222ec18dcb"
+    },
+    "report.json": {
+      "bytes": 114191,
+      "sha256": "ac341f55c0dbb2462d142fcf0165ca570d06eec9aa432944a0863067343b8664"
+    }
+  },
+  "output_cap_bytes": 5242880,
+  "python": "/Users/home/.pyenv/versions/3.10.12/bin/python3",
+  "run_command": "/Users/home/.pyenv/versions/3.10.12/bin/python3 /Users/home/cardboard-implementation-20261014/analysis/source125-kinematics-and-native424-force-audit-003/audit.py",
+  "schema": "numi.cardboard.source125-kinematics-native424-force-audit-package.v1",
+  "source_bindings": {
+    "bilinear15_reference_sha256": "c17010564a98fe63da0c8b88be81313685a65cfbd57ff82292e797cab5a0fdf3",
+    "capture419_sha256": "f2d42314cfee0428ecd285ebb9dbd5da1556624e3e92af1d12240fd8106b309a",
+    "geometry_helper_sha256": "2ce80f9b3c989efd058bdbcc29661d10701061cfde459d64cca06c0d6caeee38",
+    "independent_center_npz_sha256": "e20eeb559f5976e6b9ddb2ae605ea6860908cde3a1d255ea80832b24840c8353",
+    "independent_center_report_sha256": "c918a287f0de7966d50813a70fa7d9d3917746a6fc5de8dca57283fbf375ba76",
+    "native424_receipt_sha256": "8c48ff649955cf85044966b4649c920fe39e19fd06ba39ac0eeb11c65227410c",
+    "native424_report_sha256": "ccf8bb7d2b3e5d1f7e73279445882c40eb7916d460a8cd831468e2e28be645e3",
+    "native424_sweep_manifest_sha256": "096f5140ad963462dc01c03d4c1d12777bd6efb07f28213646cd4c00b3d4983b",
+    "native_endpoint_binary_sha256": {
+      "center": {
+        "forces": "fe8547c4afa9b72ed6a55162481f326695f44a853316210d4edbd07df7865bff",
+        "nodes": "c4f2b8d790494949da5be98e876b911db2655dc88e7417416906c91412557269",
+        "residual": "fc612c1e53657dc28a0e69a1069a89f0ff6ece20f411d87f5368c9c8c9d3714b"
+      },
+      "minus": {
+        "forces": "2b25ad88243dbb44b8c37c0eb67f53891d6f69eac8c7ad42a16169c13f253ab2",
+        "nodes": "80113c641dacb283a5c52319edd8d8ee7faf763f3794a52c11005e06aebbe747",
+        "residual": "c453de1a84a0384ebf1587bb8bfb8158b3f69236ba7e7fc1834900988a7b342b"
+      },
+      "plus": {
+        "forces": "6c719afdd720c5abd3ff011c1abcf89c490ef459483153d084e661f1f1a529d0",
+        "nodes": "334d261d06bfd009167b9197d16417545db2cb07aab4136541ee84ecfa75a392",
+        "residual": "a5121a0c08ce296dfc0dbc89c3ffd4582a9eabff9b717a17799eb8a301737cfa"
+      }
+    },
+    "projection_helper_sha256": "742b0920c4f543e284e41ed18f8dbc78253915a31f39b3ef8d32ff7dec01b5e8",
+    "source125_compensated_geometry_header_sha256": "1bf85c7e7b8b2102c5e0e6f3fbba88e2b30530e6b5fbb33375fb581d5261d84e",
+    "source125_compensated_translation_header_sha256": "a04166e5c8ef76db05271c8c9b084f0b2edc9bb4a7e6bfe1986527a4f8c09097",
+    "source125_deformation_header_sha256": "47d61e2f85bfbea5aac370211e56251ff67f0c7a28d577c276fd285b88225f33",
+    "source125_fem_metalinc_sha256": "70c2f396045f9abdcfdc32f5714e6e3a400f5566e5a7824353e11b307de52b7d",
+    "source125_runtime_mm_sha256": "1719f14310d643ca96c520eb47b3028f8259f85e3da0d263460921b06d94ac74",
+    "source125_shared_node_state_sha256": "cd173c076905f660aa8aecc900e6f6aba8d69406996f3cccf2e0656c753ff871",
+    "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125"
+  },
+  "status": "diagnostic_inconclusive_one_endpoint_projection_failed"
+}

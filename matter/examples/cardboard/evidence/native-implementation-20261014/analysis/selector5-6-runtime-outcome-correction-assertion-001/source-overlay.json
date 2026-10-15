@@ -1,0 +1,79 @@
+{
+  "audit": {
+    "accepted_certificate_and_fem_state_equal": true,
+    "completed_microsteps_by_selector": {
+      "5": 1,
+      "6": 1
+    },
+    "fgmres_iterations_by_selector": {
+      "5": 5,
+      "6": 5
+    },
+    "loaded_node_motion_m": 1.862645149230957e-09,
+    "motion_gate_passes": false,
+    "nonlinear_final_relative_correction_by_selector": {
+      "5": 0.0,
+      "6": 0.0
+    },
+    "report": "validation/fixture-audit.json",
+    "report_sha256": "7e20ffbb3da067f58fa2256bebc3582d51369c356d418cd7bdece9e42d83c932",
+    "status_code_by_selector": {
+      "5": 0,
+      "6": 0
+    },
+    "unchanged_motion_threshold_m": 1e-08
+  },
+  "base": {
+    "base_checker_sha256": "1b91d8888c178cd5719be48eff8c1b0ee993d8078598ef6179e2dc45c44b1819",
+    "native_case": "/Users/home/cardboard-implementation-20261014/native/hybrid-runtime-armijo-outcomes-426",
+    "native_exit_code": 1,
+    "native_receipt_sha256": "1bbdf3ba4c078c01c70e7c595bde0d083cc56a7b79feea535aafa95302fcb099",
+    "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-hybrid-outcome-capture-131",
+    "source_snapshot_manifest_sha256": "8c076e2876df023b387f248b851d1224720e8096171f560ae72983c51d8e8b50"
+  },
+  "change": {
+    "candidate_checker_sha256": "882dbe998fea3511f76da39492c38c2e9f715f2487f4f37d8267010e17c70da7",
+    "change_description": "Replace final relative-correction-nonzero proxy with recorded FGMRES iteration count; retain >1e-8 m loaded-node-motion gate verbatim.",
+    "files_changed": [
+      "matter/tools/cardboard_fgmres_preconditioner_gpu_check.mm"
+    ],
+    "patch": "checker-source131-assertion.patch",
+    "patch_sha256": "9b8ba947b5c63da74bccfba34d6cd178f73f3d75fd9c61a532b7a9dcc8239c62",
+    "production_changes": false
+  },
+  "claims": {
+    "hybrid_selector_qualified": false,
+    "motion_threshold_relaxed": false,
+    "physical_validation": false,
+    "production_qualification": false
+  },
+  "files_sha256": {
+    "README.md": "637f41947379514af219d6e4c6ef432120827635a85870a232bac4d8ae7ef2b4",
+    "checker-source131-assertion.patch": "9b8ba947b5c63da74bccfba34d6cd178f73f3d75fd9c61a532b7a9dcc8239c62",
+    "input/native-426/prediction.json": "9c8a1fef69d3b2b87a3b95206d2c8968084069ab220feac49efe48f1720419c8",
+    "input/native-426/receipt.json": "1bbdf3ba4c078c01c70e7c595bde0d083cc56a7b79feea535aafa95302fcb099",
+    "input/native-426/stderr.log": "b114f4efb00d91028653179e342174e3f13fa90f186fa09cd7f5eb341ceb19e1",
+    "input/native-426/stdout.log": "f280e06af35aea2b8be37a551d36439f942f554ab317a829ab031be0b9a7b3fd",
+    "input/source-build.json": "367bd05b371e40f9bc3a1ebf21d0710efa0d65b70ebe4c781e179471795b2bdb",
+    "input/source131/frozen-source.json": "8c076e2876df023b387f248b851d1224720e8096171f560ae72983c51d8e8b50",
+    "input/source131/matter/include/numi/matter/shared.h": "bd13b1baf8790956404cd564685919c5a18e339d79e7c5c5165956f94d2f010c",
+    "input/source131/matter/tools/cardboard_fgmres_preconditioner_gpu_check.mm": "1b91d8888c178cd5719be48eff8c1b0ee993d8078598ef6179e2dc45c44b1819",
+    "source/matter/tools/cardboard_fgmres_preconditioner_gpu_check.mm": "882dbe998fea3511f76da39492c38c2e9f715f2487f4f37d8267010e17c70da7",
+    "validation/adjudicate_426.py": "7dcacba5bbb9bfa4961b31bbb6c949b829f34e8b281ba290862e0ef13e5647fe",
+    "validation/fixture-audit.json": "7e20ffbb3da067f58fa2256bebc3582d51369c356d418cd7bdece9e42d83c932",
+    "validation/patch-apply.log": "f3f8159afbd7ce3f83082700ba6c97ce48f338c8c90dd37a56af1978e5fcbc33",
+    "validation/patch-dry-run.log": "f3f8159afbd7ce3f83082700ba6c97ce48f338c8c90dd37a56af1978e5fcbc33",
+    "validation/strict-syntax.json": "fded494fe98fb369d8a183c00dc5562b98809c5232e54a2c2974b82870998590",
+    "validation/strict-syntax.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "package": "/Users/home/cardboard-implementation-20261014/analysis/selector5-6-runtime-outcome-correction-assertion-001",
+  "schema": "numi.cardboard.selector-runtime-outcome-audit-overlay.v1",
+  "validation": {
+    "candidate_native_run": "not run; parent owns native queue",
+    "patch_apply_candidate_sha_match": "pass",
+    "patch_dry_run": "pass",
+    "python_audit": "pass",
+    "selector_qualification": false,
+    "strict_objcpp_syntax": "pass"
+  }
+}

@@ -1,0 +1,69 @@
+{
+  "schema": "numi.cardboard.disabled_cauchy_history_parity.v1",
+  "verdict": "pass_for_exact_attempted_history; complete_coupon_remains_failed",
+  "output_files": 35,
+  "output_byte_exact": 33,
+  "metadata_differences": [
+    {
+      "path": "manifest.json",
+      "left_bytes": 11722,
+      "right_bytes": 11719,
+      "left_sha256": "bcc9d5c5085635ea845d4d34f37bbf4c26b5af9086c15f5e02bb4597d2c2c3f5",
+      "right_sha256": "5e58411cca7473a5a6edfe403589fec108e9ccf0f1232aca22c9e09a4e528363",
+      "equal": false,
+      "json_differences": [
+        {
+          "field": "$/materials/glue_path",
+          "left": "/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125/matter/materials/starch2007_finite_glue_elastic.nmatter",
+          "right": "/Users/home/cardboard-implementation-20261014/snapshots/source-base-state-cauchy-armijo-133/matter/materials/starch2007_finite_glue_elastic.nmatter"
+        },
+        {
+          "field": "$/materials/liner_path",
+          "left": "/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125/matter/materials/hajali2009_liner_hill_bilinear_fit.nmatter",
+          "right": "/Users/home/cardboard-implementation-20261014/snapshots/source-base-state-cauchy-armijo-133/matter/materials/hajali2009_liner_hill_bilinear_fit.nmatter"
+        },
+        {
+          "field": "$/materials/medium_path",
+          "left": "/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125/matter/materials/hajali2009_medium_hill_bilinear_fit.nmatter",
+          "right": "/Users/home/cardboard-implementation-20261014/snapshots/source-base-state-cauchy-armijo-133/matter/materials/hajali2009_medium_hill_bilinear_fit.nmatter"
+        }
+      ]
+    },
+    {
+      "path": "rejected-conditioning-000002/manifest.json",
+      "left_bytes": 5544,
+      "right_bytes": 5545,
+      "left_sha256": "40e918b680ab35c6b5dd571796221311535f36215a43a80331b50b28fce4456d",
+      "right_sha256": "bc0bf5594de9a1327f491e89ea9e2a8a417512869edebc77b6db55a955f4642d",
+      "equal": false,
+      "json_differences": [
+        {
+          "field": "$/device_program_fingerprint",
+          "left": "9200051429535932647",
+          "right": "10853248014080943761"
+        }
+      ]
+    }
+  ],
+  "armijo_records": 64,
+  "true_residual_records": 4096,
+  "all_numerical_trace_fields_exact": true,
+  "all_remaining_stderr_exact": true,
+  "stdout_exact": true,
+  "first_status5_payload_exact": true,
+  "physical_probe_argv_equal_after_only_path_normalization": true,
+  "physical_environments_equal": true,
+  "runs": {
+    "/Users/home/cardboard-implementation-20261014/solver/two-stage-coupon-first-descent-capture-415": {
+      "receipt_sha256": "ab0b5f5cabf7a9a76029b4e4292bb1d762a6e84bcd8924ac2283a35506bed337",
+      "stderr_sha256": "2100717358fafdee98e88df2723e01be8fd95352a6ca7431b0f3eec1c6cef42f",
+      "result_sha256": "6600e9b15bba128d2ef4ed2c5c4a181e91fdc8600a4171ecdd7e1c2eb04efcba"
+    },
+    "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-disabled-parity-434": {
+      "receipt_sha256": "30813c2f1efb0e45c609373aa0763195ccc66ab52d2a8c1ed803e635cf408a2e",
+      "stderr_sha256": "8f1bb9261b5edd5190f66bf8f071e1a9ef2ec612f925ed6c89bcb5784472e3a9",
+      "result_sha256": "6600e9b15bba128d2ef4ed2c5c4a181e91fdc8600a4171ecdd7e1c2eb04efcba"
+    }
+  },
+  "claim_limit": "The disabled fallback preserves source125/415 accepted/rejected history exactly. Both runs reject loading control1 after one accepted control; no complete coupon or convergence qualification."
+}

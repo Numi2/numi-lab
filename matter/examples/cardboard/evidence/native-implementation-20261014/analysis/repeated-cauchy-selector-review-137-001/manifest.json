@@ -1,0 +1,20 @@
+{
+  "base": "/Users/home/cardboard-implementation-20261014/analysis/repeated-cauchy-selector-overlay-137-001/base/runtime.mm",
+  "base_sha256": "8c56679c1e547da78f5973382a07ea371b0f3492bebd611cfe73e15f952c959b",
+  "candidate": "/Users/home/cardboard-implementation-20261014/analysis/repeated-cauchy-selector-overlay-137-001/candidate/runtime.mm",
+  "candidate_sha256": "827eeecfa8c85b9c4d955da4b0fced2e9c479d0da0a9f8c419d9126e1049651e",
+  "frozen_snapshot_manifest": "/Users/home/cardboard-implementation-20261014/snapshots/source-cache-projection-reuse-runtime-136/frozen-source.json",
+  "frozen_snapshot_manifest_sha256": "3d76d2cdec4f0e58ac9de2fc158115b386049e019204ae7a466da956a9a81dae",
+  "native_or_gpu_execution": false,
+  "patch_sha256": "670c63eeb79da6704dae1bf98e7074c7f01133cf0935f768a1475d806589b11f",
+  "physical_steps": 0,
+  "review_report": "report.md",
+  "review_report_sha256": "f31af08ff51483c68728ba1357bb04ecd1cd2494adf244b6220df704056420e4",
+  "schema": "numi.cardboard.repeated_cauchy_selector_review.v1",
+  "syntax_command": "syntax-command.json",
+  "syntax_command_sha256": "1d7febaae1e8c088cdca9247beea2394fc90c6e89c92fbb73726a326ec8251ac",
+  "syntax_exit_code": 0,
+  "syntax_log": "runtime-syntax.log",
+  "syntax_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "verdict": "source behavior consistent; stale all-mode trace-cap labels require correction"
+}

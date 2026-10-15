@@ -1617,9 +1617,9 @@ inline bool projectMaterialState(
         bool acceptedStep = false;
         // The current Jacobian's weighted L1 row norms, formed from the
         // current candidate and accepted state scales, are frozen for this
-        // entire line search. This compares dimensionless residual rows and
-        // leaves the independently checked raw residual/correction gates
-        // unchanged.
+        // entire line search. The scaled merit is used after the raw gate
+        // passes; both the raw and dimensionless trial norms are recorded.
+        // The independently checked stopping gates remain unchanged.
         const bool traceScaledArmijo = traceProjection &&
             scaledCorrectionPolicy &&
             material.stateCount * material.stateCount +
@@ -1882,7 +1882,11 @@ inline void evaluateAlgorithmicStressTangent(
 ,
     thread const float* deformationLow = nullptr,
     thread float* returnedProjectedLow = nullptr,
-    thread float* projectionIterationTrace = nullptr
+    thread float* projectionIterationTrace = nullptr,
+    // Private same-invocation reuse hook used only by the diagnostic cache
+    // builder after column zero projected this exact F/history/rate input.
+    thread const float* reusedProjectedState = nullptr,
+    thread const float* reusedProjectedLow = nullptr
 ) {
     if (returnedProjectedLow != nullptr)
         for (uint i=0u;i<NM_MAX_MATERIAL_STATE;++i) returnedProjectedLow[i]=0.0f;
@@ -1983,13 +1987,42 @@ inline void evaluateAlgorithmicStressTangent(
             ? acceptedState[state] : 0.0f;
     const bool validityAccepted = valid;
     uint projectionFailure = kMaterialFailureNone;
-    const bool projectionSucceeded = valid && projectMaterialState(
-        material, programs, instructions, parameters, acceptedState,
-        deformation, deformationRate, timestep, temperature, projectedState,
-        diagnosticProjectionResidualNorm, diagnosticProjectionStateNorm,
-        diagnosticProjectionIterations, diagnosticStageFlags,
-        &projectionFailure
-    , deformationLow, projectedLow, projectionIterationTrace);
+    const bool reusedProjectionRequested =
+        reusedProjectedState != nullptr || reusedProjectedLow != nullptr;
+    bool projectionSucceeded = false;
+    if (reusedProjectionRequested) {
+        const bool projectionDiagnosticsRequested =
+            diagnosticProjectionResidualNorm != nullptr ||
+            diagnosticProjectionStateNorm != nullptr ||
+            diagnosticProjectionIterations != nullptr ||
+            diagnosticStageFlags != nullptr ||
+            diagnosticTerminalFailure != nullptr ||
+            projectionIterationTrace != nullptr;
+        projectionSucceeded = valid && reusedProjectedState != nullptr &&
+            reusedProjectedLow != nullptr && !projectionDiagnosticsRequested &&
+            material.stateCount == 15u &&
+            material.projectionKind == NM_MATERIAL_PROJECTION_GENERIC &&
+            usesCompensatedImplicitCandidate(material) &&
+            usesScaledCorrectionProjection(material);
+        if (projectionSucceeded) {
+            for (uint state = 0u; state < material.stateCount; ++state) {
+                projectedState[state] = reusedProjectedState[state];
+                projectedLow[state] = reusedProjectedLow[state];
+                projectionSucceeded = projectionSucceeded &&
+                    isfinite(projectedState[state]) && isfinite(projectedLow[state]);
+            }
+        }
+        if (!projectionSucceeded)
+            projectionFailure = kMaterialFailureProjectionInputInvalid;
+    } else {
+        projectionSucceeded = valid && projectMaterialState(
+            material, programs, instructions, parameters, acceptedState,
+            deformation, deformationRate, timestep, temperature, projectedState,
+            diagnosticProjectionResidualNorm, diagnosticProjectionStateNorm,
+            diagnosticProjectionIterations, diagnosticStageFlags,
+            &projectionFailure
+        , deformationLow, projectedLow, projectionIterationTrace);
+    }
     if (returnedProjectedState != nullptr) {
         for (uint state = 0u; state < material.stateCount; ++state)
             returnedProjectedState[state] = projectedState[state];

@@ -1,0 +1,57 @@
+{
+  "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-cauchy-positive-mass-admission-135",
+  "source_build_sha256": "5f701259422feb34672bab8c78fab5ef3656b017d6e1a82b6f783215b958d61d",
+  "files": [
+    {
+      "path": "matter/CMakeLists.txt",
+      "before_sha256": "d64689e33063913c13493d6e621767124519c29432b45ee236deab01ca1c7448",
+      "candidate_sha256": "bd6b3f7b92e75dcb9982c67c36f82150d4f433369b5017655adf60b0c0c9d019"
+    },
+    {
+      "path": "matter/include/numi/matter/shared.h",
+      "before_sha256": "bd13b1baf8790956404cd564685919c5a18e339d79e7c5c5165956f94d2f010c",
+      "candidate_sha256": "cd173c076905f660aa8aecc900e6f6aba8d69406996f3cccf2e0656c753ff871"
+    },
+    {
+      "path": "matter/src/metal/common.metalinc",
+      "before_sha256": "fd05012c41c53a702f17ba1289f5df54aad54227b5c36900e71dac13059f446c",
+      "candidate_sha256": "441a3f86f21979a086a0356f5fd2b91f692ba94dbd09a28d07ea9756c1246a5a"
+    },
+    {
+      "path": "matter/src/metal/contact.metalinc",
+      "before_sha256": "ea5a9caf6f47588258aeeb5e8be57168826acfb94a566ecbfea7e647ad50fb5c",
+      "candidate_sha256": "cd5aaee17244b52e0b6eebb81cf2fcaff4fbbfb47fe43726fc5bbacec2e9527a"
+    },
+    {
+      "path": "matter/src/metal/fem.metalinc",
+      "before_sha256": "742cf561ee1ed91e20ed797e664595f675302437a3d583f8c5768da6cb3d008e",
+      "candidate_sha256": "25b2f3a86999df08b2fa84f14058657274154b4b9671120e5b79248dff351c79"
+    },
+    {
+      "path": "matter/src/metal/fgmres.metalinc",
+      "before_sha256": "1c423e02e189df17c925e0b77ded87465098278f836011c16aad1bb8f92bcec0",
+      "candidate_sha256": "207a577afec7f68d39a95fb5bc47ea7e1ca8af5193b65448ee29644b236fbf06"
+    },
+    {
+      "path": "matter/src/runtime.mm",
+      "before_sha256": "3ddb3a29452f9006f811fe31f33293763d32be0bddb467646e4a55c72dc31ac6",
+      "candidate_sha256": "f5030219a901ae9acafad1ef9e2d68ad1385d1d5e0b91b893633834aebf9e2b1"
+    },
+    {
+      "path": "matter/tools/cardboard_bilinear15_capture_diagnostic_check.mm",
+      "before_sha256": "b04bb295db1eba1c10c1001db3b2e90564099e2afb453fd630579bc5a6c76e0d",
+      "candidate_sha256": "865a7399791390c3a1d27f9e8d70bb0aa9a5f8e52ebec14cd350a0c3fe258b81"
+    },
+    {
+      "path": "matter/tools/cardboard_vtccd_iteration_budget_check.mm",
+      "before_sha256": null,
+      "candidate_sha256": "eddbea0492d2a566896f5d1838cdf3642f16ba67d922399a067f1f9001529c9e"
+    },
+    {
+      "path": "matter/tools/test_base_cauchy_fallback_reference.py",
+      "before_sha256": null,
+      "candidate_sha256": "03f6d672757e3e0cab56167db8b09746a0659dec9599b3cdb8fe247b9ce63786"
+    }
+  ],
+  "scope": "Exact source135 integration, including source125 observational dependencies and metadata corrections. Source133 feature-off full-history parity with125 and isolated native kernel contracts pass; enabled trajectory435 is still running. No default fallback activation or physical qualification."
+}

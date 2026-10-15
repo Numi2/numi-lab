@@ -1,0 +1,38 @@
+{
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-cauchy-positive-mass-admission-135",
+  "candidate_file_sha256": {
+    "matter/src/metal/common.metalinc": "61ace798a14c1ca0ba1f2cfb5c8161ec43c9e7a0f8a6b05bb1ef0ce9f9ca3380",
+    "matter/src/metal/fem.metalinc": "09c3a806224067777aadd26274581ff46be8c9b14282525a7ff805bbb335d03c",
+    "matter/src/runtime.mm": "8c56679c1e547da78f5973382a07ea371b0f3492bebd611cfe73e15f952c959b"
+  },
+  "native_history_parity": "NOT_RUN",
+  "original_production_cache_kernel_exact_match": true,
+  "patch_dry_run": "PASS",
+  "patch_sha256": "300c2050c9f1622c9982420d7bcb6d3eaeedb5242177f9b15821bc95173532c3",
+  "physical_qualification": false,
+  "retained_source135": {
+    "bundle": "/Users/home/cardboard-implementation-20261014/analysis/retained-source-snapshot135-001/source-135.json.gz",
+    "compressed_sha256": "f557759d358e6551df13463ac752a5aebe826c37abb4d45d15e4aac53d60bcdd",
+    "source_build_sha256": "5f701259422feb34672bab8c78fab5ef3656b017d6e1a82b6f783215b958d61d",
+    "uncompressed_sha256": "e134f53fefb45c0b066b68b4556d1b576f299dade26fcc672fa0f9c6a62a4b55"
+  },
+  "runtime_invariants": {
+    "material_policy_scope": true,
+    "mode_default_off": true,
+    "no_contact_scope": true,
+    "original_pipeline_skipped_when_off": true,
+    "runtime_selects_sibling_only_when_enabled": true,
+    "single_static_fem_scope": true,
+    "strict_environment_selector": true,
+    "unsupported_request_rejected": true
+  },
+  "schema": "numi.cardboard.cache_projection_reuse_source_review.v1",
+  "sibling_kernel_matches_source134_after_only_admission_guard_removed": true,
+  "source134_common_helper_exact_match": true,
+  "source_file_sha256": {
+    "matter/src/metal/common.metalinc": "441a3f86f21979a086a0356f5fd2b91f692ba94dbd09a28d07ea9756c1246a5a",
+    "matter/src/metal/fem.metalinc": "25b2f3a86999df08b2fa84f14058657274154b4b9671120e5b79248dff351c79",
+    "matter/src/runtime.mm": "f5030219a901ae9acafad1ef9e2d68ad1385d1d5e0b91b893633834aebf9e2b1"
+  },
+  "symlinks": []
+}

@@ -1,0 +1,5 @@
+argv: patch --dry-run -p1 -d base
+exit: 0
+patching file 'matter/src/metal/common.metalinc'
+patching file 'matter/src/metal/fem.metalinc'
+patching file 'matter/src/runtime.mm'

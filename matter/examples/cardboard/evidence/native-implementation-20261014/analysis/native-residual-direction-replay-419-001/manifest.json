@@ -1,0 +1,58 @@
+{
+  "schema": "numi.cardboard.native-alternative-direction-replay.v1",
+  "source125_build_sha256": "35b821184ca36ad57c529bc0e33e4f20519996def1c312f8ac0f8028ecadb8e6",
+  "base_sweep_manifest_sha256": "8fdc04c247e4fb2b8b28cd43b9ca139c345765ac68ea9888f7dc6745de6be024",
+  "cauchy_manifest_sha256": "03c713a1aeeb57544d47430c7bd519b6128ea4b8243142d9e798cd114f1e0348",
+  "profiles": {
+    "base_column_equilibrated_cauchy": {
+      "payload": "base_column_equilibrated_cauchy.input.bin",
+      "sha256": "cd0ff5c1bef3adb9b94842f8642053010016db849c883a3f1f014b6977c05b3b",
+      "direction_sha256": "b9d02a8f16f604c6e10febf335a161062d56a4267296b4abfff4e812bc580946"
+    },
+    "base_raw_cauchy": {
+      "payload": "base_raw_cauchy.input.bin",
+      "sha256": "c35c41c451c6ada91574911ef1c88e7b966a8a303a82d3a96efaf239fc9557a6",
+      "direction_sha256": "14134321cc5e24bfb4a078e5c7eaa52815a8708f5b6bbb9a33ec276e84ac20b2"
+    },
+    "base_column_equilibrated_trust_1e-06_delta": {
+      "payload": "base_column_equilibrated_trust_1e-06_delta.input.bin",
+      "sha256": "44f2d44ba93915410850743c094aaeaa88f42cd7f310f09ccac1a3397f39249e",
+      "direction_sha256": "94f7b9697dc54779bbc88fa4fb7b37d16a9f280b8614b4e26ca7c65dfc559cc0"
+    }
+  },
+  "files": {
+    "base_column_equilibrated_cauchy.input.bin": {
+      "bytes": 2195272,
+      "sha256": "cd0ff5c1bef3adb9b94842f8642053010016db849c883a3f1f014b6977c05b3b"
+    },
+    "base_column_equilibrated_trust_1e-06_delta.input.bin": {
+      "bytes": 2195272,
+      "sha256": "44f2d44ba93915410850743c094aaeaa88f42cd7f310f09ccac1a3397f39249e"
+    },
+    "base_raw_cauchy.input.bin": {
+      "bytes": 2195272,
+      "sha256": "c35c41c451c6ada91574911ef1c88e7b966a8a303a82d3a96efaf239fc9557a6"
+    },
+    "build/native_residual_direction": {
+      "bytes": 1891096,
+      "sha256": "cc872337366821d0752665ea0feb913f38c1ff7cd921696c395c9861fabccbec"
+    },
+    "compile.stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "compile.stdout.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "compiled-program.json": {
+      "bytes": 1853,
+      "sha256": "b2f37a4eaaf922eb8ed8c5cbc721ab8ef174c230b56bc02f522b44ca5b3aea1f"
+    },
+    "native_residual_direction.mm": {
+      "bytes": 42666,
+      "sha256": "b00923d80b7897d4939c090ecbdbecdf48b63726ea188719ebca328675f76310"
+    }
+  },
+  "scope": "Only correction direction changed; exact production125 candidate/accepted node/material history/dt/params/frames/constraints. Original captured action not compared with a new direction. All signed trial samples recompute production geometry, material forces and residual. Zero physical transactions."
+}

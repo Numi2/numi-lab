@@ -1,0 +1,14 @@
+{
+  "schema": "numi.matter.analysis_package_manifest.v1",
+  "package": "runtime133-fallback-row-and-certificate-review-001",
+  "created_utc_date": "2026-10-15",
+  "read_only_source_review": true,
+  "files": {
+    "review.md": "3473aa20026b66f0f99300b34554144ab01965a47aef12433e9d70361e622100",
+    "receipt.json": "1b858747f252cd9937468a38a0183dc6acaa2da9adb598bbe08044417526d736"
+  },
+  "source_binding": {
+    "source133_manifest_sha256": "48d0c2da92cc8557507faa67bf80b3730c669075e25fd0d8ce202ff08ba2d973",
+    "source135_manifest_sha256": "40f0196428da88be0ecb951a03a9989c51e44405abd8393f13970e1f7239b9a8"
+  }
+}

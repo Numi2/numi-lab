@@ -1,0 +1,274 @@
+{
+  "base": {
+    "git_base_revision": "8c00ae13d78331c938311ca80d78857c4deefe75",
+    "retained_snapshot_manifest": "/Users/home/cardboard-implementation-20261014/analysis/retained-source-snapshot135-001/manifest.json",
+    "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-cauchy-positive-mass-admission-135",
+    "source_build_sha256": "5f701259422feb34672bab8c78fab5ef3656b017d6e1a82b6f783215b958d61d",
+    "source_bundle": "/Users/home/cardboard-implementation-20261014/analysis/retained-source-snapshot135-001/source-135.json.gz",
+    "source_bundle_compressed_sha256": "f557759d358e6551df13463ac752a5aebe826c37abb4d45d15e4aac53d60bcdd",
+    "source_bundle_uncompressed_sha256": "e134f53fefb45c0b066b68b4556d1b576f299dade26fcc672fa0f9c6a62a4b55"
+  },
+  "candidate_files": [
+    {
+      "path": "matter/src/metal/common.metalinc",
+      "sha256": "61ace798a14c1ca0ba1f2cfb5c8161ec43c9e7a0f8a6b05bb1ef0ce9f9ca3380"
+    },
+    {
+      "path": "matter/src/metal/fem.metalinc",
+      "sha256": "09c3a806224067777aadd26274581ff46be8c9b14282525a7ff805bbb335d03c"
+    },
+    {
+      "path": "matter/src/runtime.mm",
+      "sha256": "8c56679c1e547da78f5973382a07ea371b0f3492bebd611cfe73e15f952c959b"
+    }
+  ],
+  "inventory": [
+    {
+      "bytes": 2585,
+      "path": "README.md",
+      "sha256": "510f14aa68c05ff1e27eb56719ea22ae0211de0a4712c0b073a92c3f8272fa73"
+    },
+    {
+      "bytes": 101207,
+      "path": "base/matter/src/metal/common.metalinc",
+      "sha256": "441a3f86f21979a086a0356f5fd2b91f692ba94dbd09a28d07ea9756c1246a5a"
+    },
+    {
+      "bytes": 245560,
+      "path": "base/matter/src/metal/fem.metalinc",
+      "sha256": "25b2f3a86999df08b2fa84f14058657274154b4b9671120e5b79248dff351c79"
+    },
+    {
+      "bytes": 1780098,
+      "path": "base/matter/src/runtime.mm",
+      "sha256": "f5030219a901ae9acafad1ef9e2d68ad1385d1d5e0b91b893633834aebf9e2b1"
+    },
+    {
+      "bytes": 102970,
+      "path": "candidate/matter/src/metal/common.metalinc",
+      "sha256": "61ace798a14c1ca0ba1f2cfb5c8161ec43c9e7a0f8a6b05bb1ef0ce9f9ca3380"
+    },
+    {
+      "bytes": 252266,
+      "path": "candidate/matter/src/metal/fem.metalinc",
+      "sha256": "09c3a806224067777aadd26274581ff46be8c9b14282525a7ff805bbb335d03c"
+    },
+    {
+      "bytes": 1786677,
+      "path": "candidate/matter/src/runtime.mm",
+      "sha256": "8c56679c1e547da78f5973382a07ea371b0f3492bebd611cfe73e15f952c959b"
+    },
+    {
+      "bytes": 2286432,
+      "path": "logs/NumiMatter-O0.air",
+      "sha256": "ce84f782f0d19e7fe9036e82c4f792a5fff99230d64b51d51be78cde0121ceea"
+    },
+    {
+      "bytes": 1581904,
+      "path": "logs/NumiMatter-O3.air",
+      "sha256": "295ce653ddc182cc1173357fc56e45839c399e3a1090662e847571a3d54fe600"
+    },
+    {
+      "bytes": 6885574,
+      "path": "logs/NumiMatter-O3.metallib",
+      "sha256": "db388cc46299be2786241f483a1a72d5d789da5ec2f4ec29724ba1c7a9990320"
+    },
+    {
+      "bytes": 561,
+      "path": "logs/compile-view/matter_kernels.metal",
+      "sha256": "37d3530284e2361b20f805409768c65446fc13186c50e94f286b73256debe168"
+    },
+    {
+      "bytes": 57229,
+      "path": "logs/compile-view/metal/accepted_state_proof.metalinc",
+      "sha256": "1782bb5ea45d2dc67d7e50a92d403c1508942989edfd9dce7d4a6f08ea459987"
+    },
+    {
+      "bytes": 26326,
+      "path": "logs/compile-view/metal/adaptive.metalinc",
+      "sha256": "48575bba875c8e7b6eba0138d542ac521acce8261a544a01390997d3eef0a332"
+    },
+    {
+      "bytes": 102970,
+      "path": "logs/compile-view/metal/common.metalinc",
+      "sha256": "61ace798a14c1ca0ba1f2cfb5c8161ec43c9e7a0f8a6b05bb1ef0ce9f9ca3380"
+    },
+    {
+      "bytes": 417426,
+      "path": "logs/compile-view/metal/contact.metalinc",
+      "sha256": "cd5aaee17244b52e0b6eebb81cf2fcaff4fbbfb47fe43726fc5bbacec2e9527a"
+    },
+    {
+      "bytes": 252266,
+      "path": "logs/compile-view/metal/fem.metalinc",
+      "sha256": "09c3a806224067777aadd26274581ff46be8c9b14282525a7ff805bbb335d03c"
+    },
+    {
+      "bytes": 401346,
+      "path": "logs/compile-view/metal/fgmres.metalinc",
+      "sha256": "207a577afec7f68d39a95fb5bc47ea7e1ca8af5193b65448ee29644b236fbf06"
+    },
+    {
+      "bytes": 14923,
+      "path": "logs/compile-view/metal/human_equality.metalinc",
+      "sha256": "7d258cd6479fd54655d17dc16668713209ae418e62d73d44e1992c7e34b0c927"
+    },
+    {
+      "bytes": 7795,
+      "path": "logs/compile-view/metal/human_limits.metalinc",
+      "sha256": "cb63fbad03fe852e532acbdf984f5147d5897595c21b68572de430793a15a87e"
+    },
+    {
+      "bytes": 37743,
+      "path": "logs/compile-view/metal/identification_scheduler.metalinc",
+      "sha256": "94f3056e9b22b59b1dc90c2d05d0e0112e7dd22553871be39b16666853f972a7"
+    },
+    {
+      "bytes": 46773,
+      "path": "logs/compile-view/metal/mixed_fem.metalinc",
+      "sha256": "9f3fba45290c92cc782393c420520b25c7d630fa080b9e2aff1d9f52a33d1681"
+    },
+    {
+      "bytes": 45856,
+      "path": "logs/compile-view/metal/mpm.metalinc",
+      "sha256": "eb0198a7b62252ef102fd94fbc908beb9e95da6d74bffb21ea68101013710643"
+    },
+    {
+      "bytes": 86748,
+      "path": "logs/compile-view/metal/numi_human.metalinc",
+      "sha256": "f211dc328beced30cb199af32b294ad9f21da9eaf1ca2d3ccbe441eb3806fda4"
+    },
+    {
+      "bytes": 18467,
+      "path": "logs/compile-view/metal/physical_state_digest.metalinc",
+      "sha256": "d3ceee9e4fc00d2b426e4d84e294d1c7c68702708acb49ad4459217d4baa6cec"
+    },
+    {
+      "bytes": 9438,
+      "path": "logs/compile-view/metal/sha256.metalinc",
+      "sha256": "c74148c9ce8ec4949edae4170341ab5a7dc3d791637d5147a165c76c653aff64"
+    },
+    {
+      "bytes": 2328,
+      "path": "logs/compile-view/metal/sha256_kernels.metalinc",
+      "sha256": "849e78fe9cb80b79019e26f659f1ee42930c9d787bf0ceb7a8976df0b53618bc"
+    },
+    {
+      "bytes": 156284,
+      "path": "logs/compile-view/metal/topology_mutation.metalinc",
+      "sha256": "77b99f7395dc77bea95945996ec3d963c5ecb4c79ea0325a11b43de8a6b9c726"
+    },
+    {
+      "bytes": 96838,
+      "path": "logs/compile-view/metal/vascular.metalinc",
+      "sha256": "407ded09d29938ab2556ca3f5b9c38ba3a610b00993484a0051b2e124d772d09"
+    },
+    {
+      "bytes": 2446,
+      "path": "logs/metal-O0.log",
+      "sha256": "c62102fdc2298a8b22b5f5291c75fc5c5b647d5c28c57f5d14e1d564356a5883"
+    },
+    {
+      "bytes": 2446,
+      "path": "logs/metal-O3.log",
+      "sha256": "c62102fdc2298a8b22b5f5291c75fc5c5b647d5c28c57f5d14e1d564356a5883"
+    },
+    {
+      "bytes": 0,
+      "path": "logs/metallib-link.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 175,
+      "path": "logs/patch-dry-run.log",
+      "sha256": "2f59b476e6d6a4dc159e915c9e2562c40abfa6d18ee99404220ad92aefc6293d"
+    },
+    {
+      "bytes": 726,
+      "path": "logs/runtime-syntax-argv-quoting-failure.log",
+      "sha256": "f1fdc664ec212e196a70cbf854caf860bc561376aa22e1b584460e46a89386b0"
+    },
+    {
+      "bytes": 695,
+      "path": "logs/runtime-syntax-strict-rerun.log",
+      "sha256": "854c878fd2114658cc1371843df3b426bf59cd662b06032d2c6e73a89446e6c8"
+    },
+    {
+      "bytes": 0,
+      "path": "logs/runtime-syntax-strict.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 2046,
+      "path": "logs/source-review-report.json",
+      "sha256": "1eb0c90aa7a51280d1f3f3d2d79df98a8289426172ceebf02342ace5224af662"
+    },
+    {
+      "bytes": 2046,
+      "path": "logs/source-review-report.log",
+      "sha256": "1eb0c90aa7a51280d1f3f3d2d79df98a8289426172ceebf02342ace5224af662"
+    },
+    {
+      "bytes": 3325,
+      "path": "logs/validation-commands.json",
+      "sha256": "124e41794453b1a6d04d4228d2ae53182a76eb69110f56e6b7a7340e8509b6ea"
+    },
+    {
+      "bytes": 19342,
+      "path": "overlay.patch",
+      "sha256": "300c2050c9f1622c9982420d7bcb6d3eaeedb5242177f9b15821bc95173532c3"
+    },
+    {
+      "bytes": 8417,
+      "path": "verify_overlay.py",
+      "sha256": "69e8ea1a66bb9efec64c3af26a75781f825c1325cf0d3813b1cc0b33c4fc3b51"
+    }
+  ],
+  "overlay_patch": {
+    "dry_run": "PASS",
+    "path": "overlay.patch",
+    "sha256": "300c2050c9f1622c9982420d7bcb6d3eaeedb5242177f9b15821bc95173532c3"
+  },
+  "package": "cache-projection-reuse-runtime-overlay-136-001",
+  "schema": "numi.cardboard.opt_in_cache_projection_reuse_overlay.v1",
+  "source_files": [
+    {
+      "path": "matter/src/metal/common.metalinc",
+      "sha256": "441a3f86f21979a086a0356f5fd2b91f692ba94dbd09a28d07ea9756c1246a5a"
+    },
+    {
+      "path": "matter/src/metal/fem.metalinc",
+      "sha256": "25b2f3a86999df08b2fa84f14058657274154b4b9671120e5b79248dff351c79"
+    },
+    {
+      "path": "matter/src/runtime.mm",
+      "sha256": "f5030219a901ae9acafad1ef9e2d68ad1385d1d5e0b91b893633834aebf9e2b1"
+    }
+  ],
+  "status": "SEALED_CANDIDATE_PENDING_NATIVE_OFF_ON_HISTORY_PARITY",
+  "transplant_reference": {
+    "candidate_sibling_difference": "only the explicit runtime-admission fail-closed guard",
+    "common_metalinc_sha256": "61ace798a14c1ca0ba1f2cfb5c8161ec43c9e7a0f8a6b05bb1ef0ce9f9ca3380",
+    "sibling_kernel": "nm_fem_build_algorithmic_tangent_cache_projection_reuse_diagnostic",
+    "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-cache-projection-reuse-checker-fixed-134",
+    "source_bundle_compressed_sha256": "c8be5da1b9d6433aff12db4aa5d1f2398c83d08cde1a9f44ea929bc93284dd30",
+    "source_bundle_uncompressed_sha256": "a171f11ad5ef7dd87d81ba0a0c0fb4f80f3f474147c9b19aa891a2e020b3c46d"
+  },
+  "validation": {
+    "metal_lib_link_O3": "PASS",
+    "metal_translation_unit_O0": "PASS",
+    "metal_translation_unit_O3": "PASS",
+    "metal_warnings": [
+      "Unchanged source135 fgmres.metalinc: potentially uninitialized threadgroup sharedValid and refinementValid."
+    ],
+    "native_mode0_mode1_history_parity": "NOT_RUN",
+    "nonqualifying_invocation_failure": {
+      "log": "logs/runtime-syntax-argv-quoting-failure.log",
+      "reason": "An earlier malformed shell-quoted macro argument failed preprocessing; the subsequent recorded argv and strict syntax rerun passed. This failed invocation is retained but is not a validation result."
+    },
+    "patch_dry_run": "PASS",
+    "physical_qualification": false,
+    "runtime_objcpp_strict_syntax": "PASS",
+    "source_review": "PASS"
+  }
+}

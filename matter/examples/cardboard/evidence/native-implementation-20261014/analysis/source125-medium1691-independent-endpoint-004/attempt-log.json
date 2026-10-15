@@ -1,0 +1,107 @@
+{
+  "analysis_wrapper_failures_preserved": [
+    {
+      "file": "complete_secants-attempt-001-failed.py",
+      "reason": "Raw reference center projection residual passed but dynamic correction did not meet the independent strict gate; no full secant artifact was written."
+    },
+    {
+      "file": "complete_secant_v2.py",
+      "reason": "Wrong helper call arity; failed before writing a completed secant."
+    },
+    {
+      "file": "complete_secant_v3.py",
+      "reason": "Glue stress helper was called from the wrong module; failed before writing a completed secant."
+    },
+    {
+      "file": "complete_secant_v4.py",
+      "reason": "Incorrect native424 audit path; failed while assembling output bindings."
+    },
+    {
+      "file": "branch_sweep-attempt-001-failed.py",
+      "reason": "Attempted to assign null iteration count into an integer array; fixed by storing a sentinel and serializing null."
+    }
+  ],
+  "created_at_utc": "2026-10-15T20:40:10.095325+00:00",
+  "material_attempts": [
+    {
+      "attempt": "original independent direct projector (audit003)",
+      "evidence": "audit003 per-tet row 1691",
+      "outcome": "failed",
+      "reason": "stalled at iteration1; reported row norm 90.81492362"
+    },
+    {
+      "attempt": "elastic-start safeguarded Newton",
+      "dynamic_scaled_correction": 2.593487035856729,
+      "file": "result.json",
+      "first_accepted_alpha": 1.9073486328125e-06,
+      "first_accepted_residual": 90.81492361739136,
+      "iterations_recorded": 36,
+      "last_branch": {
+        "fb_denominator": 1.0334615108131828e-14,
+        "lambda_active": false,
+        "plastic_multiplier_increment": -6.7697583649994325e-16,
+        "yield_gap": -0.004541032601328432
+      },
+      "last_event": "line_search_stalled",
+      "last_iteration": 35,
+      "max_backtracks": 64,
+      "max_updates": 128,
+      "note": "The initial elastic stress start steps to a slightly negative plastic multiplier and negative yield gap; extended residual-descent steps shrink to tiny alpha and eventually stall.",
+      "outcome": "failed",
+      "scaled_residual": 90.81292250830188
+    },
+    {
+      "attempt": "minus-to-plus continuation",
+      "endpoint_dynamic_correction": 2.6778620812318035e-16,
+      "endpoint_residual": 1.252067604677915e-13,
+      "file": "result.json",
+      "outcome": "passed strict endpoint gates",
+      "steps": 8
+    },
+    {
+      "attempt": "center-to-plus continuation",
+      "attempts": [
+        {
+          "first_failed_step": {
+            "dynamic_scaled_correction": 3.674668229540491,
+            "fraction": 1.0,
+            "reason": "diagnostic_update_budget_exhausted",
+            "scaled_residual": 2.6862100058506363e-05,
+            "step": 1
+          },
+          "ok": false,
+          "steps_completed": 1,
+          "steps_requested": 1
+        },
+        {
+          "first_failed_step": {
+            "dynamic_scaled_correction": 0.3009627427409618,
+            "fraction": 1.0,
+            "reason": "diagnostic_update_budget_exhausted",
+            "scaled_residual": 1.1590851085736015e-05,
+            "step": 2
+          },
+          "ok": false,
+          "steps_completed": 2,
+          "steps_requested": 2
+        },
+        {
+          "first_failed_step": null,
+          "ok": true,
+          "steps_completed": 4,
+          "steps_requested": 4
+        },
+        {
+          "first_failed_step": null,
+          "ok": true,
+          "steps_completed": 8,
+          "steps_requested": 8
+        }
+      ],
+      "file": "center-continuation.json",
+      "note": "One and two subdivisions do not reach the strict endpoint; four and eight subdivisions do.",
+      "outcome": "mixed"
+    }
+  ],
+  "schema": "numi.cardboard.medium1691-endpoint-attempt-log.v1"
+}

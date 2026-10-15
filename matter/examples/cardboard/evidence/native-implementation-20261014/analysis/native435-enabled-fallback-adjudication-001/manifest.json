@@ -1,0 +1,40 @@
+{
+  "bound_runs": {
+    "native434": {
+      "bytes": 306,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-disabled-parity-434/receipt.json",
+      "sha256": "30813c2f1efb0e45c609373aa0763195ccc66ab52d2a8c1ed803e635cf408a2e"
+    },
+    "native435": {
+      "bytes": 306,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-first-failure-enabled-435/receipt.json",
+      "sha256": "4691a0a51ad2861f0a24e91d19bac2f273be39e9e961980328629c16d5711ba7"
+    }
+  },
+  "cauchy_report433": {
+    "bytes": 12192,
+    "path": "/Users/home/cardboard-implementation-20261014/analysis/native433-cauchy-kernel-adjudication-001/report.json",
+    "sha256": "0f7e4706316ae03cf1d35bfd8bfc706a04a618d7c0ccdd93561d627edb90fb70"
+  },
+  "created_at_utc": "2026-10-15T20:56:00Z",
+  "files": [
+    {
+      "bytes": 4367,
+      "path": "README.md",
+      "sha256": "9da9a18cf26684463a2909294844d5733eac8f09ce902955a5ee9aa10834f559"
+    },
+    {
+      "bytes": 21694,
+      "path": "audit.py",
+      "sha256": "b7002a0456285c5943be9097e99b8131481464f88226c42b2eb26e1049c73501"
+    },
+    {
+      "bytes": 42307,
+      "path": "report.json",
+      "sha256": "34084bfe7b8dc5b92b320aa2c03ee69e64df04f46a70b3b8fb19862b79482770"
+    }
+  ],
+  "package_root": "/Users/home/cardboard-implementation-20261014/analysis/native435-enabled-fallback-adjudication-001",
+  "schema": "numi.cardboard.native435-enabled-fallback-adjudication-package.v1",
+  "status": "fallback_local_acceptance_observed_following_newton_rejection; coupon_still_failed"
+}

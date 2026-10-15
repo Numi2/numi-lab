@@ -1,0 +1,189 @@
+{
+  "artifacts": [
+    {
+      "bytes": 3215,
+      "path": "README.md",
+      "sha256": "018e076df6a3ff78fd30915039384ebb35d1b2ba7e21df2aa9b0f5e73c7a2b45"
+    },
+    {
+      "bytes": 2195272,
+      "path": "base-replay-input.bin",
+      "sha256": "30c472a120d7ff091d81c04e342939d571a392e02c249c8bfef8402f120852a8"
+    },
+    {
+      "bytes": 28224,
+      "path": "directions/raw_cauchy.float32x4.bin",
+      "sha256": "e169c6bca8058d9b650ebb2c9612510b7c257a22ce52d88b2abfdc6cb73df326"
+    },
+    {
+      "bytes": 28224,
+      "path": "directions/tikhonov_sigma_0.0001.float32x4.bin",
+      "sha256": "f86c7cc3b1e5d1ab2252984d47b9064c4f9c35b4086b6e87117e1002ce22d757"
+    },
+    {
+      "bytes": 28224,
+      "path": "directions/tikhonov_sigma_0.001.float32x4.bin",
+      "sha256": "1ba0ce794eb6ca21b0b9776c0dc363323c9c1c81163a11396db09b07abddb387"
+    },
+    {
+      "bytes": 28224,
+      "path": "directions/tikhonov_sigma_0.01.float32x4.bin",
+      "sha256": "0c44817405c14f604e4da2a9c7a5c6f8fe9ffbccbff72de42f3ce0e5ed9deac6"
+    },
+    {
+      "bytes": 2195272,
+      "path": "replay-inputs/raw_cauchy.input.bin",
+      "sha256": "c35c41c451c6ada91574911ef1c88e7b966a8a303a82d3a96efaf239fc9557a6"
+    },
+    {
+      "bytes": 2195272,
+      "path": "replay-inputs/tikhonov_sigma_0.0001.input.bin",
+      "sha256": "328e52b6f526e466d9bff1927682a482f0d7808d5f84da606afe98def8a7986a"
+    },
+    {
+      "bytes": 2195272,
+      "path": "replay-inputs/tikhonov_sigma_0.001.input.bin",
+      "sha256": "a11ebe3cf820ce6fb944fea1255a6e1a193eb5648760bb5b65d6ebbf06e52c95"
+    },
+    {
+      "bytes": 2195272,
+      "path": "replay-inputs/tikhonov_sigma_0.01.input.bin",
+      "sha256": "905595688c1728735b3274494062bd28979d4912f07b210f1e1c20a524c2f8c9"
+    },
+    {
+      "bytes": 129844,
+      "path": "report.json",
+      "sha256": "8f41d505202223915f77af694ae4ae7c21c287b70454cf9a7d2ab889ae49071b"
+    },
+    {
+      "bytes": 10274,
+      "path": "verify.py",
+      "sha256": "719bf75e39b423c8a47456478b6ab04395262f27d5237be6955fb1d995a90962"
+    }
+  ],
+  "base_replay_input_sha256": "30c472a120d7ff091d81c04e342939d571a392e02c249c8bfef8402f120852a8",
+  "capture_sha256": "f2d42314cfee0428ecd285ebb9dbd5da1556624e3e92af1d12240fd8106b309a",
+  "classification": "CPU-only linear-algebra proposal export; no native replay was run and no production solver change is proposed",
+  "compiled_package_sha256": "cafbf36052bbfa72e8be49fdba8b23e900469c9f15136a14a4ec1e4c0b5ccf7c",
+  "generator_sha256": "1644f909af362746395b69bd0b097ee13f1609ed79e57e54ffcc2767aeb11675",
+  "native_replay_executed": false,
+  "package": "captured419-regularized-directions-001",
+  "payload_format": {
+    "direction_bytes": 28224,
+    "direction_dtype": "little-endian float32 [environment,node,xyzw]",
+    "direction_offset_bytes": 141168,
+    "environments": 2,
+    "magic": "NMFDSWP1",
+    "nodes_per_environment": 882,
+    "parameter_count": 59,
+    "state_stride": 15,
+    "tetrahedra_per_environment": 1920,
+    "version": 1
+  },
+  "physical_transactions": 0,
+  "proposal_ratios": [
+    0.01,
+    0.001,
+    0.0001
+  ],
+  "report_sha256": "8f41d505202223915f77af694ae4ae7c21c287b70454cf9a7d2ab889ae49071b",
+  "schema": "numi.cardboard.captured419-regularized-directions-package.v1",
+  "source125_build_sha256": "35b821184ca36ad57c529bc0e33e4f20519996def1c312f8ac0f8028ecadb8e6",
+  "source_input_bindings": {
+    "424_prediction": {
+      "bytes": 1113,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native-residual-fd-sweep-result-424/prediction.json",
+      "sha256": "8e405d9c7ea5b1fa36d40c7690fa564211f0c9103b8deff1b97b6827a39da1d8"
+    },
+    "424_receipt": {
+      "bytes": 328,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native-residual-fd-sweep-result-424/receipt.json",
+      "sha256": "8c48ff649955cf85044966b4649c920fe39e19fd06ba39ac0eeb11c65227410c"
+    },
+    "base_sweep_manifest": {
+      "bytes": 3007,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native-residual-fd-sweep-419-001/manifest.json",
+      "sha256": "8fdc04c247e4fb2b8b28cd43b9ca139c345765ac68ea9888f7dc6745de6be024"
+    },
+    "base_sweep_replay_input": {
+      "bytes": 2195272,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native-residual-fd-sweep-419-001/replay-input.bin",
+      "sha256": "30c472a120d7ff091d81c04e342939d571a392e02c249c8bfef8402f120852a8"
+    },
+    "capture": {
+      "bytes": 38811258,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/operator-capture",
+      "sha256": "f2d42314cfee0428ecd285ebb9dbd5da1556624e3e92af1d12240fd8106b309a"
+    },
+    "capture_csr": {
+      "bytes": 506678,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/captured-base-state-cauchy-419-001/A_free_csr.npz",
+      "sha256": "6b1d7f76b0a747cd28fa4ee53ef8b5316dd25ae390860a97242f1d91f63990ed"
+    },
+    "capture_direction_reference": {
+      "bytes": 14112,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/captured-base-state-cauchy-419-001/base_raw_cauchy.full-node-delta-v.float32x4.bin",
+      "sha256": "14134321cc5e24bfb4a078e5c7eaa52815a8708f5b6bbb9a33ec276e84ac20b2"
+    },
+    "capture_package_manifest": {
+      "bytes": 5809,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/captured-base-state-cauchy-419-001/manifest.json",
+      "sha256": "03c713a1aeeb57544d47430c7bd519b6128ea4b8243142d9e798cd114f1e0348"
+    },
+    "capture_package_report": {
+      "bytes": 128038,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/captured-base-state-cauchy-419-001/report.json",
+      "sha256": "490acb6be474e2aa9c48fe03f61538ac5727cd28e5af675c0ee42e7382c92d16"
+    },
+    "capture_prediction": {
+      "bytes": 103495,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/prediction.json",
+      "sha256": "41b37af2747cfa551fae60eaddd7681cd7c7dbc859a402e641677ec23bd957d6"
+    },
+    "capture_receipt": {
+      "bytes": 306,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/receipt.json",
+      "sha256": "0826a69a65ea4a0d76ef95e56c5d0d7f5238f4de746dd6daf81f11a87907f67d"
+    },
+    "capture_rhs": {
+      "bytes": 20304,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/captured-base-state-cauchy-419-001/base_rhs.float64le.bin",
+      "sha256": "af22b09232b270e5cc15184d09cd8ed3d8f86b83bf08e765f510d6777fcaa8cb"
+    },
+    "capture_stderr": {
+      "bytes": 4592580,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/stderr.log",
+      "sha256": "f6fe513bfafc9ae4f4f38b2377c1cddaeb1ce78374886295cb92db2bf6c48198"
+    },
+    "compiled_package": {
+      "bytes": 1984768,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/output/compiled.nmatterpack",
+      "sha256": "cafbf36052bbfa72e8be49fdba8b23e900469c9f15136a14a4ec1e4c0b5ccf7c"
+    },
+    "conditioning_manifest": {
+      "bytes": 3096,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/captured419-linear-conditioning-001/manifest.json",
+      "sha256": "b40e54b12b5c8b08a1f3f6e246233da3daba2d760e9529d3d27fd24726dee784"
+    },
+    "conditioning_report": {
+      "bytes": 21990,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/captured419-linear-conditioning-001/report.json",
+      "sha256": "12d07a026f137fb2f72f7bc1608642aee3a544e442bfc5d8b68d1df20c23b12a"
+    },
+    "native_direction_manifest": {
+      "bytes": 2775,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native-residual-direction-replay-419-001/manifest.json",
+      "sha256": "cbc2a5f20af28f082a381e6dc88f6df91a4d910b10e4301c9bfbd345b96d2c4b"
+    },
+    "source125_assembly_module": {
+      "bytes": 44728,
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125/matter/tools/cardboard_cached_operator_audit.py",
+      "sha256": "2ce80f9b3c989efd058bdbcc29661d10701061cfde459d64cca06c0d6caeee38"
+    },
+    "source125_build_manifest": {
+      "bytes": 96741,
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-125/source-build.json",
+      "sha256": "35b821184ca36ad57c529bc0e33e4f20519996def1c312f8ac0f8028ecadb8e6"
+    }
+  }
+}

@@ -1,5 +1,9 @@
 # Cardboard implementation and evidence ledger
 
+## Current milestone: source135 exact-state descent experiment
+
+The [source135 report](solver-milestone-source135.md) records a native residual-descent repair at control1/Newton48, followed by a later Newton53 rejection and complete control rollback. Independent GPU transpose/forward checks and fallback-disabled history parity pass. The captured matrix has condition number4.59e7; complete independent finite endpoint secants agree closely with native while remaining far from the center tangent. Source137 builds69 selected targets and passes74 CPU tests, but repeated fallback and cache optimization remain experimental. No complete coupon, resolution series, calibrated corrugated failure, released shipping assembly or crush/drop result is qualified. Earlier milestones retain their original scope.
+
 ## Current milestone: source123
 
 The [source123 report](solver-milestone-source123.md) records the two-stage local merit repair: native407 clears retained tet858 in14 updates, native408 retains tet674 in5, and native410 returns valid results for3,072 diagnostic samples. Selected independent tangent and endpoint comparisons pass while smaller-step failures remain. Native405/406 locate a separate CCD budget failure with physical-history parity. Full coupon409, mesh/time convergence, calibrated damage, shipping assembly and crush/drop qualification remain separate and open.

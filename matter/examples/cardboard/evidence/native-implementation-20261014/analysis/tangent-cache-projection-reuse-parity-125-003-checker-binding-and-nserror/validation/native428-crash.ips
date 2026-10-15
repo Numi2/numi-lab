@@ -1,0 +1,132 @@
+{"app_name":"numi-matter-cardboard-tangent-cache-projection-reuse-check","timestamp":"2026-10-15 21:41:47.00 +0200","app_version":"","slice_uuid":"93699eb4-48b0-3235-97dd-ee93f7679e76","build_version":"","platform":1,"share_with_app_devs":0,"is_first_party":1,"bug_type":"309","os_version":"macOS 26.6 (25G5028f)","roots_installed":0,"incident_id":"ADABC128-1F2A-4D47-94B7-8DA0760D3873","name":"numi-matter-cardboard-tangent-cache-projection-reuse-check"}
+{
+  "uptime" : 440000,
+  "procRole" : "Unspecified",
+  "version" : 2,
+  "userID" : 501,
+  "deployVersion" : 210,
+  "modelCode" : "Mac16,12",
+  "coalitionID" : 11239,
+  "osVersion" : {
+    "train" : "macOS 26.6",
+    "build" : "25G5028f",
+    "releaseType" : "User"
+  },
+  "captureTime" : "2026-10-15 21:41:44.5745 +0200",
+  "codeSigningMonitor" : 2,
+  "incident" : "ADABC128-1F2A-4D47-94B7-8DA0760D3873",
+  "pid" : 56904,
+  "translated" : false,
+  "cpuType" : "ARM-64",
+  "procLaunch" : "2026-10-15 21:41:19.3834 +0200",
+  "procStartAbsTime" : 10678965803859,
+  "procExitAbsTime" : 10679570378311,
+  "procName" : "numi-matter-cardboard-tangent-cache-projection-reuse-check",
+  "procPath" : "\/Users\/USER\/*\/numi-matter-cardboard-tangent-cache-projection-reuse-check",
+  "parentProc" : "python3",
+  "parentPid" : 56903,
+  "coalitionName" : "com.openai.codex",
+  "crashReporterKey" : "107A67BA-5998-E872-F223-C85F2C73EEC0",
+  "appleIntelligenceStatus" : {"state":"available"},
+  "developerMode" : 1,
+  "responsiblePid" : 9514,
+  "responsibleProc" : "ChatGPT",
+  "codeSigningID" : "numi-matter-cardboard-tangent-cache-projection-reuse-check",
+  "codeSigningTeamID" : "",
+  "codeSigningFlags" : 570556929,
+  "codeSigningValidationCategory" : 10,
+  "codeSigningTrustLevel" : 4294967295,
+  "codeSigningAuxiliaryInfo" : 0,
+  "instructionByteStream" : {"beforePC":"AagxbiMAJh5AAADLPwAD6yEwg5oAAAGLwANf1h8gA9UfIAPVAex8kg==","atPC":"IADAPcP5\/xBiBME8AgxAkmMAAsthAMA9AByhTgUAABQfIAPVHyAD1Q=="},
+  "bootSessionUUID" : "6A8403E4-62C7-4655-A4F9-17D419061340",
+  "sip" : "enabled",
+  "vmRegionInfo" : "0 is not in any region.  Bytes before following region: 4303306752\n      REGION TYPE                    START - END         [ VSIZE] PRT\/MAX SHRMOD  REGION DETAIL\n      UNUSED SPACE AT START\n--->  \n      __TEXT                      1007f4000-100850000    [  368K] r-x\/r-x SM=COW  \/Users\/USER\/*\/numi-matter-cardboard-tangent-cache-projection-reuse-check",
+  "exception" : {"codes":"0x0000000000000001, 0x0000000000000000","rawCodes":[1,0],"type":"EXC_BAD_ACCESS","signal":"SIGSEGV","subtype":"KERN_INVALID_ADDRESS at 0x0000000000000000"},
+  "termination" : {"flags":0,"code":11,"namespace":"SIGNAL","indicator":"Segmentation fault: 11","byProc":"exc handler","byPid":56904},
+  "vmregioninfo" : "0 is not in any region.  Bytes before following region: 4303306752\n      REGION TYPE                    START - END         [ VSIZE] PRT\/MAX SHRMOD  REGION DETAIL\n      UNUSED SPACE AT START\n--->  \n      __TEXT                      1007f4000-100850000    [  368K] r-x\/r-x SM=COW  \/Users\/USER\/*\/numi-matter-cardboard-tangent-cache-projection-reuse-check",
+  "extMods" : {"caller":{"thread_create":0,"thread_set_state":0,"task_for_pid":0},"system":{"thread_create":0,"thread_set_state":0,"task_for_pid":0},"targeted":{"thread_create":0,"thread_set_state":0,"task_for_pid":0},"warnings":0},
+  "faultingThread" : 0,
+  "threads" : [{"triggered":true,"id":30378919,"threadState":{"x":[{"value":0},{"value":0},{"value":0},{"value":10},{"value":40508227712},{"value":0},{"value":0},{"value":1},{"value":8278597536,"symbolLocation":224,"symbol":"_main_thread"},{"value":40505087856},{"value":40505086008},{"value":4},{"value":1081145385545629695},{"value":40508342656},{"value":40508342656},{"value":68},{"value":6455216832,"symbolLocation":0,"symbol":"_platform_strlen"},{"value":8301867848},{"value":0},{"value":4303686200},{"value":40772324864},{"value":4312326944},{"value":0},{"value":0},{"value":40507026624},{"value":0},{"value":9223372036854775798},{"value":2},{"value":12297829382473034411}],"flavor":"ARM_THREAD_STATE64","lr":{"value":4303384424},"cpsr":{"value":1610612736},"fp":{"value":6163567488},"sp":{"value":6163567344},"esr":{"value":2449473542,"description":"(Data Abort) byte read Translation fault"},"pc":{"value":6455216836,"matchesCrashFrame":1},"far":{"value":0}},"queue":"com.apple.main-thread","frames":[{"imageOffset":2756,"symbol":"_platform_strlen","symbolLocation":4,"imageIndex":2},{"imageOffset":77672,"symbol":"(anonymous namespace)::MetalRun::make(NSString*)","symbolLocation":328,"imageIndex":0},{"imageOffset":31644,"symbol":"(anonymous namespace)::execute(std::__1::__fs::filesystem::path const&, std::__1::__fs::filesystem::path const&, (anonymous namespace)::FixtureBinding const&)","symbolLocation":9692,"imageIndex":0},{"imageOffset":9780,"symbol":"main","symbolLocation":1420,"imageIndex":0},{"imageOffset":130560,"symbol":"start","symbolLocation":6992,"imageIndex":3}]},{"id":30378967,"frames":[],"threadState":{"x":[{"value":6164131840},{"value":5635},{"value":6163595264},{"value":0},{"value":409604},{"value":18446744073709551615},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0}],"flavor":"ARM_THREAD_STATE64","lr":{"value":0},"cpsr":{"value":0},"fp":{"value":0},"sp":{"value":6164131840},"esr":{"value":1442840704,"description":"(Syscall)"},"pc":{"value":6455168008},"far":{"value":0}}},{"id":30378968,"frames":[],"threadState":{"x":[{"value":6164705280},{"value":8707},{"value":6164168704},{"value":0},{"value":409604},{"value":18446744073709551615},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0}],"flavor":"ARM_THREAD_STATE64","lr":{"value":0},"cpsr":{"value":0},"fp":{"value":0},"sp":{"value":6164705280},"esr":{"value":1442840704,"description":"(Syscall)"},"pc":{"value":6455168008},"far":{"value":0}}},{"id":30379033,"frames":[],"threadState":{"x":[{"value":6165278720},{"value":0},{"value":6164742144},{"value":0},{"value":278531},{"value":18446744073709551615},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0}],"flavor":"ARM_THREAD_STATE64","lr":{"value":0},"cpsr":{"value":0},"fp":{"value":0},"sp":{"value":6165278720},"esr":{"value":0},"pc":{"value":6455168008},"far":{"value":0}}}],
+  "usedImages" : [
+  {
+    "source" : "P",
+    "arch" : "arm64",
+    "base" : 4303306752,
+    "size" : 376832,
+    "uuid" : "93699eb4-48b0-3235-97dd-ee93f7679e76",
+    "path" : "\/Users\/USER\/*\/numi-matter-cardboard-tangent-cache-projection-reuse-check",
+    "name" : "numi-matter-cardboard-tangent-cache-projection-reuse-check"
+  },
+  {
+    "source" : "P",
+    "arch" : "arm64e",
+    "base" : 4496359424,
+    "CFBundleShortVersionString" : "351.2",
+    "CFBundleIdentifier" : "com.apple.AGXMetalG16G-B0",
+    "size" : 8880128,
+    "uuid" : "f200e23d-42f7-310e-8b7b-efbaaaf4c30d",
+    "path" : "\/System\/Library\/Extensions\/AGXMetalG16G_B0.bundle\/Contents\/MacOS\/AGXMetalG16G_B0",
+    "name" : "AGXMetalG16G_B0",
+    "CFBundleVersion" : "351.2"
+  },
+  {
+    "source" : "P",
+    "arch" : "arm64e",
+    "base" : 6455214080,
+    "size" : 35172,
+    "uuid" : "40fe7c10-0df9-3730-b0e7-f761093207e7",
+    "path" : "\/usr\/lib\/system\/libsystem_platform.dylib",
+    "name" : "libsystem_platform.dylib"
+  },
+  {
+    "source" : "P",
+    "arch" : "arm64e",
+    "base" : 6451134464,
+    "size" : 680620,
+    "uuid" : "e1c380d2-7409-3641-84e4-0a44aa2f0460",
+    "path" : "\/usr\/lib\/dyld",
+    "name" : "dyld"
+  },
+  {
+    "size" : 0,
+    "source" : "A",
+    "base" : 0,
+    "uuid" : "00000000-0000-0000-0000-000000000000"
+  }
+],
+  "sharedCache" : {
+  "base" : 6450003968,
+  "size" : 6005800960,
+  "uuid" : "6a6090bb-4314-3369-aafc-1d5a8ce97415"
+},
+  "legacyInfo" : {
+  "threadTriggered" : {
+    "queue" : "com.apple.main-thread"
+  }
+},
+  "logWritingSignature" : "7c1537b435e7259742dbfc6dac8493e521ec346c",
+  "bug_type" : "309",
+  "roots_installed" : 0,
+  "trmStatus" : 1,
+  "trialInfo" : {
+  "rollouts" : [
+    {
+      "rolloutId" : "67648e5334a82511f4acf879",
+      "factorPackIds" : [
+
+      ],
+      "deploymentId" : 250000003
+    },
+    {
+      "rolloutId" : "644114de41e7236e6177f9bd",
+      "factorPackIds" : [
+
+      ],
+      "deploymentId" : 250000010
+    }
+  ],
+  "experiments" : [
+
+  ]
+}
+}

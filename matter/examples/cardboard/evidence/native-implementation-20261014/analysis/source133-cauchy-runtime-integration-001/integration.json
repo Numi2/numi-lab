@@ -1,0 +1,23 @@
+{
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-base-state-cauchy-armijo-133",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125",
+  "metal_overlay_manifest_sha256": "ad321f2d1aa6ebdca456d6bc94b1a91bbbb55469fa040101a0a618021938614c",
+  "changed_files": {
+    "matter/src/metal/fem.metalinc": {
+      "base": "70c2f396045f9abdcfdc32f5714e6e3a400f5566e5a7824353e11b307de52b7d",
+      "candidate": "25b2f3a86999df08b2fa84f14058657274154b4b9671120e5b79248dff351c79"
+    },
+    "matter/src/metal/fgmres.metalinc": {
+      "base": "1c423e02e189df17c925e0b77ded87465098278f836011c16aad1bb8f92bcec0",
+      "candidate": "207a577afec7f68d39a95fb5bc47ea7e1ca8af5193b65448ee29644b236fbf06"
+    },
+    "matter/src/runtime.mm": {
+      "base": "1719f14310d643ca96c520eb47b3028f8259f85e3da0d263460921b06d94ac74",
+      "candidate": "a1a28cb7d25cf6c1fdebb846c7b45415cd33ca9dfc13bafc1b905b9881de7e80"
+    }
+  },
+  "new_files": {
+    "matter/tools/test_base_cauchy_fallback_reference.py": "03f6d672757e3e0cab56167db8b09746a0659dec9599b3cdb8fe247b9ce63786"
+  },
+  "physical_steps": 0
+}

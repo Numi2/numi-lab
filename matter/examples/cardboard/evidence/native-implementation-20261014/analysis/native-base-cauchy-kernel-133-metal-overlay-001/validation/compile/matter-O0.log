@@ -1,0 +1,30 @@
+xcrun -sdk macosx metal -std=metal4.0 -O0 -fno-fast-math -I /Users/home/cardboard-implementation-20261014/analysis/native-base-cauchy-fallback-133/source/matter/include -I /Users/home/cardboard-implementation-20261014/analysis/native-base-cauchy-fallback-133/source/include -I /Users/home/cardboard-implementation-20261014/analysis/native-base-cauchy-fallback-133/source/matter/src -c /Users/home/cardboard-implementation-20261014/analysis/native-base-cauchy-fallback-133/source/matter/src/matter_kernels.metal -o /Users/home/cardboard-implementation-20261014/analysis/native-base-cauchy-kernel-133-metal-overlay-001/validation/compile/matter-O0.air
+In file included from /Users/home/cardboard-implementation-20261014/analysis/native-base-cauchy-fallback-133/source/matter/src/matter_kernels.metal:4:
+/Users/home/cardboard-implementation-20261014/analysis/native-base-cauchy-fallback-133/source/matter/src/metal/fgmres.metalinc:3174:9: warning: variable 'sharedValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/home/cardboard-implementation-20261014/analysis/native-base-cauchy-fallback-133/source/matter/src/metal/fgmres.metalinc:3183:9: note: uninitialized use occurs here
+    if (sharedValid == 0u) return;
+        ^~~~~~~~~~~
+/Users/home/cardboard-implementation-20261014/analysis/native-base-cauchy-fallback-133/source/matter/src/metal/fgmres.metalinc:3174:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/home/cardboard-implementation-20261014/analysis/native-base-cauchy-fallback-133/source/matter/src/metal/fgmres.metalinc:3164:33: note: initialize the variable 'sharedValid' to silence this warning
+    threadgroup uint sharedValid;
+                                ^
+                                 = 0
+/Users/home/cardboard-implementation-20261014/analysis/native-base-cauchy-fallback-133/source/matter/src/metal/fgmres.metalinc:3620:9: warning: variable 'refinementValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/home/cardboard-implementation-20261014/analysis/native-base-cauchy-fallback-133/source/matter/src/metal/fgmres.metalinc:3637:9: note: uninitialized use occurs here
+    if (refinementValid == 0u) {
+        ^~~~~~~~~~~~~~~
+/Users/home/cardboard-implementation-20261014/analysis/native-base-cauchy-fallback-133/source/matter/src/metal/fgmres.metalinc:3620:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/home/cardboard-implementation-20261014/analysis/native-base-cauchy-fallback-133/source/matter/src/metal/fgmres.metalinc:3500:37: note: initialize the variable 'refinementValid' to silence this warning
+    threadgroup uint refinementValid;
+                                    ^
+                                     = 0
+2 warnings generated.
+e70608e89589306257a69aac760ed3e00c668e0d2c6d2cce9925581785702962  /Users/home/cardboard-implementation-20261014/analysis/native-base-cauchy-kernel-133-metal-overlay-001/validation/compile/matter-O0.air

@@ -1,0 +1,15 @@
+{
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-repeated-cauchy-fallback-137",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-cache-projection-reuse-runtime-136",
+  "abi_overlay_manifest_sha256": "54471f654aef8d524ea71f6e262138c49546214eabd53e9d099af8759e2b9755",
+  "selector_integration_sha256": "85d77b02d93c3da1e3efc892a41b3af4cef71f33e7bc786b7c3571ae2d0afad3",
+  "changed_files": {
+    "matter/src/runtime.mm": "827eeecfa8c85b9c4d955da4b0fced2e9c479d0da0a9f8c419d9126e1049651e",
+    "matter/tools/cardboard_coupled_free_box_operator_check.mm": "567dcf2a4262c7d423c12e36ee6fbc9d8d45b74327f4c7da3d5057c823912588",
+    "matter/tools/cardboard_gpu_check.mm": "d211c0c35b9d24790639a29b40418a355db041181176716667e2c3d51f4bdd9c",
+    "matter/tools/fem_material_frame_check.mm": "fa18590901ee2d39a5e3f51b932356b59257ca63724327fa8cfe1fb338c8eda8",
+    "matter/tools/fem_reference_check.mm": "127cd0c42edd0e0e7d1057ba598badeea2d5e4e0d5869d9250286765480cdf6f",
+    "matter/tools/fem_regional_material_check.mm": "25c0cb1524f192831ca4b104e624f0119d56ff2d3ca1496be708c406cff92585"
+  },
+  "physical_steps": 0
+}

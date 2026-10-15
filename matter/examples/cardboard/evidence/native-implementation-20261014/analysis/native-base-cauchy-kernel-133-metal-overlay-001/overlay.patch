@@ -1,0 +1,275 @@
+--- a/matter/src/metal/fem.metalinc
++++ b/matter/src/metal/fem.metalinc
+@@ -3026,6 +3026,11 @@
+     device const float* tangentCache [[buffer(23)]],
+     device const uint* tangentCacheValid [[buffer(24)]],
+     constant uint& useTangentCache [[buffer(25)]],
++    // Modes 3/4 are the opt-in base-state Cauchy fallback's strict cached
++    // transpose/forward actions. Its per-environment sentinel prevents work
++    // and cache-validity failures from leaking into environments whose
++    // primary Newton direction was already accepted.
++    device const float4* fallbackMetrics [[buffer(26)]],
+     uint global [[thread_position_in_grid]]
+ ) {
+     const uint total = dispatch.environmentCount * dispatch.tetrahedronCount;
+@@ -3039,6 +3044,10 @@
+     );
+     const uint objectIndex = tetrahedron.identity.y;
+     elementOperator[global] = {};
++    const bool fallbackScoped = useTangentCache == 3u ||
++        useTangentCache == 4u;
++    if (fallbackScoped && fallbackMetrics[environment].w != 3.0f)
++        return;
+     if ((tetrahedron.identity.w & NM_OBJECT_ACTIVE) == 0u ||
+         objectIndex >= dispatch.objectCount ||
+         !environmentHealthy(statuses, environment)) {
+@@ -3093,7 +3102,9 @@
+     // tet must have a valid entry. Mode 2 is only for conditioning-only RAP
+     // construction and falls back to the direct production evaluator when an
+     // entry cannot be formed.
+-    const bool requestStrictCache = useTangentCache == 1u;
++    const bool requestTransposeCache = useTangentCache == 3u;
++    const bool requestStrictCache = useTangentCache == 1u ||
++        requestTransposeCache || useTangentCache == 4u;
+     const bool requestFallbackCache = useTangentCache == 2u;
+     if (requestStrictCache ||
+         (requestFallbackCache && cacheEntryValid)) {
+@@ -3111,10 +3122,13 @@
+             const uint cacheBase = global * 81u;
+             for (uint row = 0u; row < 9u; ++row) {
+                 float response = 0.0f;
+-                for (uint column = 0u; column < 9u; ++column)
+-                    response += tangentCache[
+-                        cacheBase + row * 9u + column
+-                    ] * directionComponents[column];
++                for (uint column = 0u; column < 9u; ++column) {
++                    const uint cacheIndex = requestTransposeCache
++                        ? cacheBase + column * 9u + row
++                        : cacheBase + row * 9u + column;
++                    response += tangentCache[cacheIndex] *
++                        directionComponents[column];
++                }
+                 responseComponents[row] = response;
+                 valid = valid && isfinite(response);
+             }
+@@ -3140,7 +3154,8 @@
+             valid, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, deformationLow
+         );
+     }
+-    if (useTangentCache != 1u && !usedTangentCache &&
++    if (useTangentCache != 1u && useTangentCache != 3u &&
++        useTangentCache != 4u && !usedTangentCache &&
+         material.constitutiveKind == NM_CONSTITUTIVE_POLYCONVEX_ICNN) {
+         bool found = false;
+         for (uint networkIndex = 0u;
+@@ -4481,12 +4496,13 @@
+     device const NMFGMRESStateGPU* fgmresStates [[buffer(8)]],
+     device float4* correction [[buffer(9)]],
+     device float* environmentLineSearch [[buffer(10)]],
++    constant uint& fallbackAllowed [[buffer(11)]],
+     uint environment [[thread_position_in_grid]]
+ ) {
+     if (environment >= dispatch.environmentCount || dispatch.objectCount != 1u)
+         return;
+     (void)fgmresStates;
+-    const float4 state = metrics[environment];
++    float4 state = metrics[environment];
+     if (state.w > 0.5f) return;
+     const float alpha = state.z;
+     const float bound = (1.0f - solver.globalization.x * alpha) * state.x;
+@@ -4538,6 +4554,23 @@
+         // decision that accepts this trial, before either block is applied.
+         environmentLineSearch[environment] = line.x;
+     } else if (trialIndex + 1u >= solver.nonlinearIterations.w) {
++        if (fallbackAllowed != 0u && statusesHealthy) {
++            // The primary Newton line search exhausted only its smooth,
++            // healthy residual tests. A later explicitly requested
++            // base-state Cauchy pass may replace this direction; keep the
++            // transaction status healthy but mark the private metrics so
++            // no primary direction is accidentally applied in between.
++            state.w = 3.0f;
++            metrics[environment] = state;
++            const uint slot = environment * dispatch.objectCount;
++            float4 line = lineSearch[slot];
++            line.x = 0.0f;
++            line.z = 0.0f;
++            line.w = float(microstep.solverIteration);
++            lineSearch[slot] = line;
++            environmentLineSearch[environment] = 0.0f;
++            return;
++        }
+         // No tested candidate was accepted. Both production apply kernels
+         // execute after this decision, including on the failure path. Leaving
+         // the rigid environment alpha at its geometry-limiter value would
+--- a/matter/src/metal/fgmres.metalinc
++++ b/matter/src/metal/fgmres.metalinc
+@@ -5206,6 +5206,169 @@
+             deformableMollifierGradient(deformable, local) *
+                 (deformable.mollifier.z * mollifierDirection));
+     }
++}
++
++// Preserve the assembled, free-node base residual before FGMRES repurposes its
++// residual arena for restart vectors. This scratch is consumed only by the
++// opt-in base-state Cauchy fallback after the ordinary Newton Armijo search
++// has exhausted healthy trials.
++kernel void nm_fgmres_capture_base_cauchy_rhs(
++    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
++    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
++    device const float4* residual [[buffer(1)]],
++    device const NMFEMNodeStateGPU* candidate [[buffer(2)]],
++    device float4* baseRHS [[buffer(3)]],
++    uint global [[thread_position_in_grid]]) {
++    if (global >= layout.unknownCount) return;
++    const uint totalNodes = dispatch.environmentCount * dispatch.femNodeCount;
++    if (global < totalNodes) {
++        const NMFEMNodeStateGPU node = candidate[global];
++        const bool freeMassRow = !femStaticConstraint(node.restAndFixed.w) &&
++            isfinite(node.positionAndMass.w) && node.positionAndMass.w > 0.0f;
++        const float4 value = residual[global];
++        baseRHS[global] = freeMassRow
++            ? float4(value.xyz, 0.0f) : float4(0.0f);
++    } else {
++        // The pure-FEM layout still reserves a second E*N field backing
++        // block. Preserve it so the Cauchy builder can reject any nonzero
++        // generalized RHS instead of silently dropping those equations.
++        baseRHS[global] = residual[global];
++    }
++}
++
++// Select either the preserved base right-hand side or a just-computed
++// gradient into the ordinary element-operator input arena. Nonselected
++// environments are zeroed so their primary Newton corrections and statuses
++// remain untouched by the fallback's per-environment operator dispatches.
++kernel void nm_fgmres_prepare_base_cauchy_action(
++    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
++    device const float4* metrics [[buffer(1)]],
++    device const float4* baseRHS [[buffer(2)]],
++    device const float4* gradient [[buffer(3)]],
++    device const NMFEMNodeStateGPU* candidate [[buffer(4)]],
++    device float4* direction [[buffer(5)]],
++    constant uint& useGradient [[buffer(6)]],
++    uint global [[thread_position_in_grid]]) {
++    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
++    if (global >= total) return;
++    const uint environment = global / dispatch.femNodeCount;
++    const bool selected = metrics[environment].w == 3.0f;
++    const NMFEMNodeStateGPU node = candidate[global];
++    const bool freeMassRow = !femStaticConstraint(node.restAndFixed.w) &&
++        isfinite(node.positionAndMass.w) && node.positionAndMass.w > 0.0f;
++    const float4 value = useGradient != 0u
++        ? gradient[global] : baseRHS[global];
++    direction[global] = selected && freeMassRow && all(isfinite(value.xyz))
++        ? float4(value.xyz, 0.0f) : float4(0.0f);
++}
++
++// Form the raw unpreconditioned Cauchy direction p=tau*A^T*b. The primary
++// FGMRES true-residual test remains associated with its original Newton
++// delta; this direction is admitted only by the subsequent ordinary nonlinear
++// Armijo and final residual/correction certificates.
++kernel void nm_fgmres_build_base_cauchy_direction(
++    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
++    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
++    constant NMMixedSolverGPU& solver [[buffer(1)]],
++    device float4* metrics [[buffer(2)]],
++    device const NMFEMNodeStateGPU* candidate [[buffer(3)]],
++    device const float4* gradient [[buffer(4)]],
++    device const float4* gradientAction [[buffer(5)]],
++    device float4* solution [[buffer(6)]],
++    device float4* lineSearch [[buffer(7)]],
++    device float* environmentLineSearch [[buffer(8)]],
++    device float4* fallbackTrace [[buffer(9)]],
++    device NMFGMRESStateGPU* states [[buffer(10)]],
++    device NMMatterStatusGPU* statuses [[buffer(11)]],
++    device NMMatterStatusGPU* trialStatuses [[buffer(12)]],
++    constant uint& solverIteration [[buffer(13)]],
++    device const float4* baseRHS [[buffer(14)]],
++    uint environment [[thread_position_in_grid]]) {
++    if (environment >= dispatch.environmentCount ||
++        dispatch.femNodeCount == 0u || dispatch.objectCount != 1u)
++        return;
++    float4 state = metrics[environment];
++    if (state.w != 3.0f) {
++        fallbackTrace[environment] = float4(0.0f);
++        return;
++    }
++
++    float gradientNorm2 = 0.0f;
++    float gradientCorrection = 0.0f;
++    float actionNorm2 = 0.0f;
++    float actionCorrection = 0.0f;
++    bool valid = environmentHealthy(statuses, environment) &&
++        states[environment].diagnostics.z > 0.5f;
++    const uint nodeBase = environment * dispatch.femNodeCount;
++    const uint fieldBase = dispatch.environmentCount * dispatch.femNodeCount;
++    for (uint node = 0u; node < dispatch.femNodeCount; ++node) {
++        const float4 fieldResidual = baseRHS[fieldBase + nodeBase + node];
++        valid = valid && all(isfinite(fieldResidual)) &&
++            all(fieldResidual == float4(0.0f));
++    }
++    for (uint node = 0u; node < dispatch.femNodeCount; ++node) {
++        const uint global = nodeBase + node;
++        const NMFEMNodeStateGPU candidateNode = candidate[global];
++        if (femStaticConstraint(candidateNode.restAndFixed.w) ||
++            !isfinite(candidateNode.positionAndMass.w) ||
++            candidateNode.positionAndMass.w <= 0.0f)
++            continue;
++        const float3 b = baseRHS[global].xyz;
++        const float3 g = gradient[global].xyz;
++        const float3 ag = gradientAction[global].xyz;
++        valid = valid && all(isfinite(b)) &&
++            all(isfinite(g)) && all(isfinite(ag));
++        fgmresCompensatedAdd(gradientNorm2, gradientCorrection, dot(g, g));
++        fgmresCompensatedAdd(actionNorm2, actionCorrection, dot(ag, ag));
++    }
++    const float tau = gradientNorm2 / actionNorm2;
++    valid = valid && isfinite(gradientNorm2) && gradientNorm2 > 0.0f &&
++        isfinite(actionNorm2) && actionNorm2 > 0.0f && isfinite(tau) &&
++        tau > 0.0f;
++    float4 trace = float4(
++        valid ? sqrt(gradientNorm2) : INFINITY,
++        valid ? sqrt(actionNorm2) : INFINITY,
++        valid ? tau : INFINITY,
++        states[environment].diagnostics.z > 0.5f ? 1.0f : 0.0f);
++    fallbackTrace[environment] = trace;
++    if (!valid) {
++        state.w = 4.0f;
++        metrics[environment] = state;
++        recordFailure(statuses[environment],
++            NM_STATUS_NONLINEAR_SOLVER_FAILURE, NM_INVALID_INDEX,
++            solverIteration,
++            float4(trace.x, trace.y, tau, gradientCorrection + actionCorrection));
++        return;
++    }
++
++    for (uint node = 0u; node < dispatch.femNodeCount; ++node) {
++        const uint global = nodeBase + node;
++        const NMFEMNodeStateGPU candidateNode = candidate[global];
++        const bool freeMassRow = !femStaticConstraint(candidateNode.restAndFixed.w) &&
++            isfinite(candidateNode.positionAndMass.w) &&
++            candidateNode.positionAndMass.w > 0.0f;
++        solution[global] = freeMassRow
++            ? float4(tau * gradient[global].xyz, 0.0f)
++            : float4(0.0f);
++        // The admitted mode has no field unknowns; clear its inactive backing
++        // rows so no earlier Newton solution can leak into candidate build.
++        const uint fieldGlobal = dispatch.environmentCount *
++            dispatch.femNodeCount + global;
++        if (fieldGlobal < layout.unknownCount)
++            solution[fieldGlobal] = float4(0.0f);
++    }
++    // Preserve the fact that FGMRES certified the original Newton delta, but
++    // clear its convergence latch now that the applied direction is p instead.
++    states[environment].diagnostics.z = 0.0f;
++    state.w = 0.0f;
++    state.y = INFINITY;
++    state.z = 0.0f;
++    metrics[environment] = state;
++    lineSearch[environment] = float4(
++        0.0f, INFINITY, 0.0f, float(solverIteration));
++    environmentLineSearch[environment] = 0.0f;
++    trialStatuses[environment] = {};
++    (void)solver;
+ }
+ 
+ // Preserve the exact assembled right-hand side for a true residual check.

@@ -1,0 +1,7 @@
+argv: patch --dry-run -p1 -d base
+exit: 0
+patching file 'matter/tools/cardboard_coupled_free_box_operator_check.mm'
+patching file 'matter/tools/fem_regional_material_check.mm'
+patching file 'matter/tools/fem_material_frame_check.mm'
+patching file 'matter/tools/cardboard_gpu_check.mm'
+patching file 'matter/tools/fem_reference_check.mm'

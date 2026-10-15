@@ -1,0 +1,24 @@
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -11542,6 +11542,21 @@
+                                state.femAlgorithmicTangentCacheValid == nil) {
+                         rejectBaseCauchy(
+                             "requires_cached_static_fem_within_E2_N4096_T32768");
++                    } else if (
++                        state.femAuthoredMassLayout.size() !=
++                            state.dispatch.femNodeCount ||
++                        std::any_of(state.femAuthoredMassLayout.begin(),
++                            state.femAuthoredMassLayout.end(),
++                            [](const auto& mass) {
++                                return !std::isfinite(mass[0]) ||
++                                    !(mass[0] > 0.0f);
++                            })) {
++                        // The residual eliminates nonpositive masses while
++                        // the operator eliminates constraint tags. Keep the
++                        // fallback's free row spaces identical, using the
++                        // immutable authored masses bound by runtime restore.
++                        rejectBaseCauchy(
++                            "requires_positive_finite_immutable_nodal_masses");
+                     } else if (const char* reason = femResidualArmijoScope()) {
+                         rejectBaseCauchy(reason);
+                     } else if (femBaseCauchyFallbackRoot == request.controlStep) {

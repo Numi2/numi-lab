@@ -1,0 +1,91 @@
+[
+  {
+    "argv": [
+      "xcrun",
+      "-sdk",
+      "macosx",
+      "metal",
+      "-std=metal4.0",
+      "-O0",
+      "-fno-fast-math",
+      "-I",
+      "/Users/home/cardboard-implementation-20261014/snapshots/source-cauchy-positive-mass-admission-135/matter/include",
+      "-I",
+      "/Users/home/cardboard-implementation-20261014/snapshots/source-cauchy-positive-mass-admission-135/include",
+      "-c",
+      "/Users/home/cardboard-implementation-20261014/analysis/cache-projection-reuse-runtime-overlay-136-001/logs/compile-view/matter_kernels.metal",
+      "-o",
+      "/Users/home/cardboard-implementation-20261014/analysis/cache-projection-reuse-runtime-overlay-136-001/logs/NumiMatter-O0.air"
+    ],
+    "exit_code": 0,
+    "log": "logs/metal-O0.log",
+    "name": "metal-O0",
+    "output": "/Users/home/cardboard-implementation-20261014/analysis/cache-projection-reuse-runtime-overlay-136-001/logs/NumiMatter-O0.air"
+  },
+  {
+    "argv": [
+      "xcrun",
+      "-sdk",
+      "macosx",
+      "metal",
+      "-std=metal4.0",
+      "-O3",
+      "-fno-fast-math",
+      "-I",
+      "/Users/home/cardboard-implementation-20261014/snapshots/source-cauchy-positive-mass-admission-135/matter/include",
+      "-I",
+      "/Users/home/cardboard-implementation-20261014/snapshots/source-cauchy-positive-mass-admission-135/include",
+      "-c",
+      "/Users/home/cardboard-implementation-20261014/analysis/cache-projection-reuse-runtime-overlay-136-001/logs/compile-view/matter_kernels.metal",
+      "-o",
+      "/Users/home/cardboard-implementation-20261014/analysis/cache-projection-reuse-runtime-overlay-136-001/logs/NumiMatter-O3.air"
+    ],
+    "exit_code": 0,
+    "log": "logs/metal-O3.log",
+    "name": "metal-O3",
+    "output": "/Users/home/cardboard-implementation-20261014/analysis/cache-projection-reuse-runtime-overlay-136-001/logs/NumiMatter-O3.air"
+  },
+  {
+    "argv": [
+      "xcrun",
+      "-sdk",
+      "macosx",
+      "metallib",
+      "/Users/home/cardboard-implementation-20261014/analysis/cache-projection-reuse-runtime-overlay-136-001/logs/NumiMatter-O3.air",
+      "-o",
+      "/Users/home/cardboard-implementation-20261014/analysis/cache-projection-reuse-runtime-overlay-136-001/logs/NumiMatter-O3.metallib"
+    ],
+    "exit_code": 0,
+    "log": "logs/metallib-link.log",
+    "name": "metallib-link-O3",
+    "output": "logs/NumiMatter-O3.metallib"
+  },
+  {
+    "argv": [
+      "xcrun",
+      "-sdk",
+      "macosx",
+      "clang++",
+      "-x",
+      "objective-c++",
+      "-std=c++20",
+      "-fobjc-arc",
+      "-fsyntax-only",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-Werror",
+      "-I",
+      "/Users/home/cardboard-implementation-20261014/snapshots/source-cauchy-positive-mass-admission-135/matter/include",
+      "-I",
+      "/Users/home/cardboard-implementation-20261014/snapshots/source-cauchy-positive-mass-admission-135/matter/src",
+      "-I",
+      "/Users/home/cardboard-implementation-20261014/snapshots/source-cauchy-positive-mass-admission-135/include",
+      "-DNUMI_MATTER_DEFAULT_METALLIB=\"\"",
+      "/Users/home/cardboard-implementation-20261014/analysis/cache-projection-reuse-runtime-overlay-136-001/candidate/matter/src/runtime.mm"
+    ],
+    "exit_code": 0,
+    "log": "logs/runtime-syntax-strict-rerun.log",
+    "name": "runtime-host-syntax"
+  }
+]

@@ -1,0 +1,14 @@
+[
+  "/Users/home/.pyenv/versions/3.10.12/bin/python3",
+  "/Users/home/cardboard-implementation-20261014/snapshots/source-cache-projection-reuse-runtime-136/matter/tools/cardboard_source_bound_build.py",
+  "--source-snapshot",
+  "/Users/home/cardboard-implementation-20261014/snapshots/source-cache-projection-reuse-runtime-136",
+  "--build-dir",
+  "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136",
+  "--cmake-source-relative",
+  ".",
+  "--jobs",
+  "4",
+  "--target",
+  "numi-matter-cardboard-probe"
+]

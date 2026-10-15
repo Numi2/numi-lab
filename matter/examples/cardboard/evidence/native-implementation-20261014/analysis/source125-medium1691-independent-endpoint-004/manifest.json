@@ -1,0 +1,154 @@
+{
+  "created_at_utc": "2026-10-15T20:42:00Z",
+  "files": [
+    {
+      "bytes": 4423,
+      "path": "README.md",
+      "sha256": "c85f3d0f9c948506fbc06aa463756dd77b6df63c610f3f00efaaae2467c6c2f9"
+    },
+    {
+      "bytes": 3780,
+      "path": "attempt-log.json",
+      "sha256": "8fd723977decf8eb804112917750ad9be254bb5f43455817d2f882bf064bb421"
+    },
+    {
+      "bytes": 260607,
+      "path": "branch-signatures.jsonl.gz",
+      "sha256": "9aa59b6239659a57f581faba976fc6b59ee626d052325efcdac75117914787bf"
+    },
+    {
+      "bytes": 6603,
+      "path": "branch-sweep.json",
+      "sha256": "41321d5fcb86daa35fd3dab23d692ec76bfacb6c8fa2871b65e2f8b7d0d29ae7"
+    },
+    {
+      "bytes": 7820,
+      "path": "branch_sweep-attempt-001-failed.py",
+      "sha256": "11410008cf4367c7df7f133fcf64b1c0893f85458e3c91bd47407c49aa188d5b"
+    },
+    {
+      "bytes": 7820,
+      "path": "branch_sweep.py",
+      "sha256": "11410008cf4367c7df7f133fcf64b1c0893f85458e3c91bd47407c49aa188d5b"
+    },
+    {
+      "bytes": 7816,
+      "path": "branch_sweep_v2.py",
+      "sha256": "e085c565037441a32fb7772acbe38652d5ffd9b866ef302c500e6d3092509687"
+    },
+    {
+      "bytes": 562574,
+      "path": "center-continuation.json",
+      "sha256": "71a9e1717cbe1fc20c3822a07a0b4e65bba7607d70e3e936d2363e518fbdab7f"
+    },
+    {
+      "bytes": 3999,
+      "path": "center_continuation.py",
+      "sha256": "33d9a00b57cb44a8172e9dafaa414146acd8390a12a3a6a344a4633614b3a673"
+    },
+    {
+      "bytes": 12235,
+      "path": "complete_secant.py",
+      "sha256": "9df44bed1e648ca6d9ae4b1d1d43fafe70e19b232a03be370964c7d6960f489a"
+    },
+    {
+      "bytes": 12238,
+      "path": "complete_secant_v2.py",
+      "sha256": "f2307a39a863974e0702e8efca39f497eeffa264932a6d1d80326f43f81e744f"
+    },
+    {
+      "bytes": 12293,
+      "path": "complete_secant_v3.py",
+      "sha256": "446a1d603b823e11c361911fd833213354aca2389c89aef239bad03af48fefd9"
+    },
+    {
+      "bytes": 12295,
+      "path": "complete_secant_v4.py",
+      "sha256": "8a70e5fe19f270132c4827f124dbf294975503fada6f72e40c273c60fca82ed5"
+    },
+    {
+      "bytes": 12292,
+      "path": "complete_secant_v5.py",
+      "sha256": "deb5bd99ca31da7f771c7faab9a962fb31131ef78e835f769988c4be3680bb9b"
+    },
+    {
+      "bytes": 14185,
+      "path": "complete_secant_v6.py",
+      "sha256": "d8ca0b7b0cb6ed57d78b4496c8c9d4260444c68ba80a5bdf476398adc697e3d5"
+    },
+    {
+      "bytes": 12235,
+      "path": "complete_secants-attempt-001-failed.py",
+      "sha256": "9df44bed1e648ca6d9ae4b1d1d43fafe70e19b232a03be370964c7d6960f489a"
+    },
+    {
+      "bytes": 9375,
+      "path": "completed-secants-v2.json",
+      "sha256": "abba05aff7f0e9489ca701ecc501bc66ce40a72be2f143cf318ce35ec1a307d9"
+    },
+    {
+      "bytes": 7628,
+      "path": "completed-secants.json",
+      "sha256": "0336a41008602db9315b44670158f6aef850f8bf89a63d6bfb53df76ac3ce779"
+    },
+    {
+      "bytes": 12994,
+      "path": "diagnose.py",
+      "sha256": "21cffbd0926a18fdbe61177310038b9399ebb88454c2dfc77fdac91368e5a4b8"
+    },
+    {
+      "bytes": 12595,
+      "path": "report.json",
+      "sha256": "021019fb37e4aaf3f52c04c1230aeae089f523ef2f764301186306fa11d4b164"
+    },
+    {
+      "bytes": 757944,
+      "path": "result.json",
+      "sha256": "bd41e1b74dc486e4c5f65fe2612d7ba3fac4e35dea3da139bc1e252160c43962"
+    }
+  ],
+  "final_metrics": {
+    "independent_secant_vs_center_A_relative": 1.0949430833569547,
+    "independent_secant_vs_center_tangent_realized_relative": 1.050904050078329,
+    "native_vs_independent_full_secant_relative": 0.002847692531196924,
+    "strict_plus_dynamic_scaled_correction": 2.6778620812318035e-16,
+    "strict_plus_scaled_residual": 1.252067604677915e-13,
+    "tet1691_force_secant_vs_center_tangent_relative": 0.35664916583451256
+  },
+  "package_root": "/Users/home/cardboard-implementation-20261014/analysis/source125-medium1691-independent-endpoint-004",
+  "schema": "numi.cardboard.source125-medium1691-independent-endpoint-package.v1",
+  "scope": {
+    "epsilon": 6.103515625e-05,
+    "gpu_runs": 0,
+    "material": "haj_ali_medium",
+    "source_mutations": 0,
+    "source_snapshot": "source-status5-vtccd-diagnostics-125",
+    "target_tet": 1691,
+    "tets": 1920
+  },
+  "secant_bindings": {
+    "audit003_report_sha256": "ac341f55c0dbb2462d142fcf0165ca570d06eec9aa432944a0863067343b8664",
+    "audit003_rows_sha256": "bbc4c390b47f5a5fb87f29c35f9b7c899476c9e63ad1d3e3ec9f16222ec18dcb",
+    "capture419_sha256": "f2d42314cfee0428ecd285ebb9dbd5da1556624e3e92af1d12240fd8106b309a",
+    "native424_audit_sha256": "ccf8bb7d2b3e5d1f7e73279445882c40eb7916d460a8cd831468e2e28be645e3",
+    "native424_receipt_sha256": "8c48ff649955cf85044966b4649c920fe39e19fd06ba39ac0eeb11c65227410c",
+    "reference_sha256": "c17010564a98fe63da0c8b88be81313685a65cfbd57ff82292e797cab5a0fdf3",
+    "source125": "/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125",
+    "tet1691_continuation_result_sha256": "bd41e1b74dc486e4c5f65fe2612d7ba3fac4e35dea3da139bc1e252160c43962"
+  },
+  "status": "sealed_cpu_diagnostic_endpoint_recovered_finite_step_derivative_unresolved",
+  "upstream_bindings": {
+    "audit003_report_sha256": "ac341f55c0dbb2462d142fcf0165ca570d06eec9aa432944a0863067343b8664",
+    "audit003_script_sha256": "0fb4982f9a46dc59bbecaca7da07775efb1c75171bd7124c3114935d37f56523",
+    "capture419_sha256": "f2d42314cfee0428ecd285ebb9dbd5da1556624e3e92af1d12240fd8106b309a",
+    "center_nodes_sha256": "c4f2b8d790494949da5be98e876b911db2655dc88e7417416906c91412557269",
+    "endpoint_nodes_sha256": "334d261d06bfd009167b9197d16417545db2cb07aab4136541ee84ecfa75a392",
+    "minus_nodes_sha256": "80113c641dacb283a5c52319edd8d8ee7faf763f3794a52c11005e06aebbe747",
+    "native424_audit_sha256": "ccf8bb7d2b3e5d1f7e73279445882c40eb7916d460a8cd831468e2e28be645e3",
+    "native424_receipt_sha256": "8c48ff649955cf85044966b4649c920fe39e19fd06ba39ac0eeb11c65227410c",
+    "reference_sha256": "c17010564a98fe63da0c8b88be81313685a65cfbd57ff82292e797cab5a0fdf3",
+    "source_fem_metalinc_sha256": "70c2f396045f9abdcfdc32f5714e6e3a400f5566e5a7824353e11b307de52b7d",
+    "source_runtime_mm_sha256": "1719f14310d643ca96c520eb47b3028f8259f85e3da0d263460921b06d94ac74",
+    "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125"
+  }
+}

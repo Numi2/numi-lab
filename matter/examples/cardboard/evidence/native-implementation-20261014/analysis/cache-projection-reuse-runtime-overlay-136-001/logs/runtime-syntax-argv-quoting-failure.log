@@ -1,0 +1,11 @@
+In file included from <built-in>:572:
+<command line>:1:39: error: missing terminating '"' character [-Werror,-Winvalid-pp-token]
+    1 | #define NUMI_MATTER_DEFAULT_METALLIB \"\"
+      |                                       ^
+/Users/home/cardboard-implementation-20261014/analysis/cache-projection-reuse-runtime-overlay-136-001/candidate/matter/src/runtime.mm:579:44: error: expected expression
+  579 |     const std::filesystem::path configured{NUMI_MATTER_DEFAULT_METALLIB};
+      |                                            ^
+<command line>:1:38: note: expanded from macro 'NUMI_MATTER_DEFAULT_METALLIB'
+    1 | #define NUMI_MATTER_DEFAULT_METALLIB \"\"
+      |                                      ^
+2 errors generated.

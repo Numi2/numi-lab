@@ -1,0 +1,47 @@
+{
+  "root": "/Users/home/numi-cardboard-20261006",
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-cauchy-positive-mass-admission-135",
+  "differences": [
+    [
+      "matter/CMakeLists.txt",
+      "diff"
+    ],
+    [
+      "matter/include/numi/matter/shared.h",
+      "diff"
+    ],
+    [
+      "matter/src/metal/common.metalinc",
+      "diff"
+    ],
+    [
+      "matter/src/metal/contact.metalinc",
+      "diff"
+    ],
+    [
+      "matter/src/metal/fem.metalinc",
+      "diff"
+    ],
+    [
+      "matter/src/metal/fgmres.metalinc",
+      "diff"
+    ],
+    [
+      "matter/src/runtime.mm",
+      "diff"
+    ],
+    [
+      "matter/tools/cardboard_bilinear15_capture_diagnostic_check.mm",
+      "diff"
+    ],
+    [
+      "matter/tools/cardboard_vtccd_iteration_budget_check.mm",
+      "missing"
+    ],
+    [
+      "matter/tools/test_base_cauchy_fallback_reference.py",
+      "missing"
+    ]
+  ],
+  "scope": "Read-only enumeration before intended narrow runtime/kernel/test integration; no root files copied yet."
+}

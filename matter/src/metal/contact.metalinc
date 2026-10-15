@@ -3231,7 +3231,8 @@ inline bool sweptFeaturesSeparated(
         minimumProjection > effectiveThickness + projectionRoundoff;
 }
 
-inline bool vertexTriangleCCD(
+template <uint IterationBudget, bool CaptureIterationTrace>
+inline bool vertexTriangleCCDBudgetCore(
     const float3 vertex0,
     const float3 vertex1,
     const float3 a0,
@@ -3241,6 +3242,10 @@ inline bool vertexTriangleCCD(
     const float3 c0,
     const float3 c1,
     const float thickness,
+    device float4* iterationTrace,
+    const uint traceBase,
+    const uint traceCapacity,
+    thread uint& iterationsExecuted,
     thread float& toi,
     thread float3& normal,
     thread float3& barycentric,
@@ -3248,6 +3253,7 @@ inline bool vertexTriangleCCD(
     thread float& separation,
     thread bool& certified
 ) {
+    iterationsExecuted = 0u;
     certified = false;
     toi = 0.0f;
     separation = INFINITY;
@@ -3266,7 +3272,9 @@ inline bool vertexTriangleCCD(
     const float speedBound = length(vertex1 - vertex0) + max(
         length(a1 - a0), max(length(b1 - b0), length(c1 - c0)));
     float time = 0.0f;
-    for (uint iteration = 0u; iteration < 16u; ++iteration) {
+    for (uint iteration = 0u; iteration < IterationBudget; ++iteration) {
+        iterationsExecuted = iteration + 1u;
+        const float sampleTime = time;
         const float3 vertexPoint = mix(vertex0, vertex1, time);
         const float3 a = mix(a0, a1, time);
         const float3 b = mix(b0, b1, time);
@@ -3291,13 +3299,23 @@ inline bool vertexTriangleCCD(
             point = trianglePoint;
             separation = distance;
             certified = true;
-            return finite3(normal);
+            const bool hit = finite3(normal);
+            if (CaptureIterationTrace && iteration < traceCapacity) {
+                const uint flags = (certified ? 1u : 0u) | (hit ? 2u : 0u);
+                iterationTrace[traceBase + iteration] = float4(
+                    sampleTime, distance - effectiveThickness, distance, float(flags));
+            }
+            return hit;
         }
         const float3 firstStart[1] = {vertex0}, firstFinish[1] = {vertex1};
         const float3 secondStart[3] = {a0, b0, c0}, secondFinish[3] = {a1, b1, c1};
         if (sweptFeaturesSeparated(firstStart, firstFinish, 1u,
                 secondStart, secondFinish, 3u, delta, effectiveThickness)) {
             certified = true;
+            if (CaptureIterationTrace && iteration < traceCapacity) {
+                iterationTrace[traceBase + iteration] = float4(
+                    sampleTime, distance - effectiveThickness, distance, 1.0f);
+            }
             return false;
         }
         if (iteration == 0u) {
@@ -3308,12 +3326,20 @@ inline bool vertexTriangleCCD(
                 if (sweptFeaturesSeparated(firstStart, firstFinish, 1u,
                         secondStart, secondFinish, 3u, axis, effectiveThickness)) {
                     certified = true;
+                    if (CaptureIterationTrace && iteration < traceCapacity) {
+                        iterationTrace[traceBase + iteration] = float4(
+                            sampleTime, distance - effectiveThickness, distance, 1.0f);
+                    }
                     return false;
                 }
             }
         }
         if (!(speedBound > kGeometryFloor)) {
             certified = true;
+            if (CaptureIterationTrace && iteration < traceCapacity) {
+                iterationTrace[traceBase + iteration] = float4(
+                    sampleTime, distance - effectiveThickness, distance, 1.0f);
+            }
             return false;
         }
         const float step = max(
@@ -3321,12 +3347,111 @@ inline bool vertexTriangleCCD(
         time += step;
         if (time > 1.0f + 8.0f * kEpsilon) {
             certified = true;
+            if (CaptureIterationTrace && iteration < traceCapacity) {
+                iterationTrace[traceBase + iteration] = float4(
+                    sampleTime, distance - effectiveThickness, distance, 1.0f);
+            }
             return false;
         }
         time = min(time, 1.0f);
+        if (CaptureIterationTrace && iteration < traceCapacity) {
+            iterationTrace[traceBase + iteration] = float4(
+                sampleTime, distance - effectiveThickness, distance, 0.0f);
+        }
     }
     return false;
 }
+
+inline bool vertexTriangleCCD(
+    const float3 vertex0,
+    const float3 vertex1,
+    const float3 a0,
+    const float3 a1,
+    const float3 b0,
+    const float3 b1,
+    const float3 c0,
+    const float3 c1,
+    const float thickness,
+    thread float& toi,
+    thread float3& normal,
+    thread float3& barycentric,
+    thread float3& point,
+    thread float& separation,
+    thread bool& certified
+) {
+    uint iterationsExecuted = 0u;
+    return vertexTriangleCCDBudgetCore<16u, false>(
+        vertex0, vertex1, a0, a1, b0, b1, c0, c1, thickness,
+        nullptr, 0u, 0u, iterationsExecuted,
+        toi, normal, barycentric, point, separation, certified);
+}
+
+template <uint IterationBudget>
+inline void runVertexTriangleCCDBudgetReplay(
+    device const NMDeformableVTCCDAuditGPU* captured,
+    device const uint* budgets,
+    device float4* summaries,
+    device float4* trace,
+    const uint budgetIndex
+) {
+    const NMDeformableVTCCDAuditGPU input = captured[0];
+    const uint packedFeature = input.attempt.w;
+    const uint direction = packedFeature / 3u;
+    const uint vertexIndex = packedFeature % 3u;
+    const bool valid = input.attempt.x == 1u && input.attempt.y == 0u &&
+        input.attempt.z == 173u && packedFeature < 6u && direction < 2u &&
+        input.parameters.x > 0.0f && isfinite(input.parameters.x) &&
+        budgets[budgetIndex] == IterationBudget;
+    if (!valid) {
+        summaries[2u * budgetIndex] = float4(0.0f, 0.0f, NAN, NAN);
+        summaries[2u * budgetIndex + 1u] = float4(0.0f, float(IterationBudget),
+            float(packedFeature), 0.0f);
+        return;
+    }
+    const uint vertexBase = direction == 0u ? 0u : 3u;
+    const uint triangleBase = direction == 0u ? 3u : 0u;
+    float toi = 0.0f, separation = INFINITY;
+    float3 normal = float3(0.0f), barycentric = float3(0.0f), point = float3(0.0f);
+    bool certified = false;
+    uint iterationsExecuted = 0u;
+    const bool hit = vertexTriangleCCDBudgetCore<IterationBudget, true>(
+        input.start[vertexBase + vertexIndex].xyz,
+        input.finish[vertexBase + vertexIndex].xyz,
+        input.start[triangleBase].xyz, input.finish[triangleBase].xyz,
+        input.start[triangleBase + 1u].xyz, input.finish[triangleBase + 1u].xyz,
+        input.start[triangleBase + 2u].xyz, input.finish[triangleBase + 2u].xyz,
+        input.parameters.x, trace, budgetIndex * 128u, 128u,
+        iterationsExecuted, toi, normal, barycentric, point, separation, certified);
+    summaries[2u * budgetIndex] = float4(hit ? 1.0f : 0.0f,
+        certified ? 1.0f : 0.0f, toi, separation);
+    summaries[2u * budgetIndex + 1u] = float4(float(iterationsExecuted),
+        float(IterationBudget), float(packedFeature), 1.0f);
+}
+
+// Replays only the exact captured VT input and exports every conservative
+// advancement query. Trace lanes are (time, gap-to-effective-thickness,
+// separation, flags), where flags bit0=certified and bit1=hit.
+kernel void nm_contact_vtccd_iteration_budget_replay(
+    device const NMDeformableVTCCDAuditGPU* captured [[buffer(0)]],
+    device const uint* budgets [[buffer(1)]],
+    device float4* summaries [[buffer(2)]],
+    device float4* trace [[buffer(3)]],
+    uint index [[thread_position_in_grid]]
+) {
+    if (index >= 4u) return;
+    switch (budgets[index]) {
+        case 16u: runVertexTriangleCCDBudgetReplay<16u>(captured, budgets, summaries, trace, index); break;
+        case 32u: runVertexTriangleCCDBudgetReplay<32u>(captured, budgets, summaries, trace, index); break;
+        case 64u: runVertexTriangleCCDBudgetReplay<64u>(captured, budgets, summaries, trace, index); break;
+        case 128u: runVertexTriangleCCDBudgetReplay<128u>(captured, budgets, summaries, trace, index); break;
+        default:
+            summaries[2u * index] = float4(0.0f, 0.0f, NAN, NAN);
+            summaries[2u * index + 1u] = float4(0.0f, float(budgets[index]), 0.0f, 0.0f);
+            break;
+    }
+}
+
+
 
 inline bool edgeEdgeCCD(
     const float3 p00,

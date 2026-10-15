@@ -1760,6 +1760,7 @@ struct Runtime::State {
     bool physicalStateDigestEnabled = false;
     bool enableVascularDense45 = false;
     bool femResidualArmijoScratchEnabled = false;
+    bool femBaseCauchyScratchEnabled = false;
     bool femArmijoMixedCohesiveSupported = false;
     std::size_t acceptedStateProofResidentByteCount = 0u;
     std::size_t residentBytes = 0u;
@@ -2274,6 +2275,10 @@ struct Runtime::State {
     id<MTLBuffer> femTrueResidualCohesiveOperator = nil;
     id<MTLBuffer> femTrueResidualElementOperator = nil;
     id<MTLBuffer> femTrueResidualOperatorValue = nil;
+    // Opt-in base-state Cauchy fallback scratch. Keep the Newton RHS separate
+    // from the true-residual certificate's RHS/operator arenas.
+    id<MTLBuffer> femBaseCauchyRightHandSide = nil;
+    id<MTLBuffer> femBaseCauchyTrace = nil;
     id<MTLBuffer> femConstraintReactions = nil;
     id<MTLBuffer> femConstraintContactForces = nil;
     id<MTLBuffer> femLineSearch = nil;
@@ -2374,6 +2379,7 @@ struct Runtime::State {
     id<MTLBuffer> femAlgorithmicTangentCache = nil;
     id<MTLBuffer> femAlgorithmicTangentCacheValid = nil;
     bool forceCompletedTangentCacheRebuild = false;
+    bool femCacheProjectionReuseEnabled = false;
     // Source-bound, opt-in regional RAP preconditioner. femRegionalBasis is
     // the immutable authored P; femRegionalEffectiveBasis is P projected
     // through each environment's current candidate Dirichlet mask. AP and
@@ -3164,6 +3170,108 @@ RuntimeDiagnostics Runtime::initialize(
         if (candidate->forceCompletedTangentCacheRebuild) {
             std::fprintf(stderr,
                 "matter_tangent_cache_control={\"schema\":1,\"completed_tail_rebuild\":true}\n");
+        }
+        const char* cacheProjectionReuse =
+            std::getenv("NM_FEM_CACHE_PROJECTION_REUSE");
+        if (cacheProjectionReuse != nullptr &&
+            std::strcmp(cacheProjectionReuse, "0") != 0 &&
+            std::strcmp(cacheProjectionReuse, "1") != 0) {
+            diagnostics.message =
+                "NM_FEM_CACHE_PROJECTION_REUSE must be exactly 0 or 1";
+            return diagnostics;
+        }
+        if (cacheProjectionReuse != nullptr &&
+            std::strcmp(cacheProjectionReuse, "1") == 0) {
+            std::vector<std::string> ineligible;
+            if (world.mixedSolver.executionBudgets.w != 1u)
+                ineligible.emplace_back("algorithmic_tangent_cache_must_be_enabled");
+            if (world.dispatch.environmentCount == 0u ||
+                world.dispatch.environmentCount > 2u)
+                ineligible.emplace_back("environment_count_must_be_1_or_2");
+            if (world.dispatch.objectCount != 1u || world.objects.size() != 1u)
+                ineligible.emplace_back("exactly_one_authored_FEM_object_required");
+            if (world.dispatch.femNodeCount == 0u ||
+                world.dispatch.tetrahedronCount == 0u ||
+                world.fem.tetrahedra.size() != world.dispatch.tetrahedronCount)
+                ineligible.emplace_back("nonempty_exact_FEM_topology_required");
+            constexpr std::uint32_t unsupportedMatterFlags =
+                NM_MATTER_ADAPTIVE | NM_MATTER_CONTACT | NM_MATTER_MIXED_FEM |
+                NM_MATTER_MULTIPHYSICS | NM_MATTER_MUTATION |
+                NM_MATTER_LEARNED_MATERIAL | NM_MATTER_IDENTIFICATION |
+                NM_MATTER_IPC;
+            if ((world.dispatch.flags & unsupportedMatterFlags) != 0u ||
+                world.dispatch.gridNodeCount != 0u ||
+                world.dispatch.particleCount != 0u ||
+                world.dispatch.mpmGridCount != 0u ||
+                world.dispatch.mpmBlockCount != 0u)
+                ineligible.emplace_back("adaptive_MPM_or_multiphysics_state_is_unsupported");
+            if (world.dispatch.rigidProxyCount != 0u ||
+                world.dispatch.rigidGeneralizedCapacity != 0u ||
+                world.dispatch.rigidQCapacity != 0u ||
+                world.dispatch.contactPairCount != 0u ||
+                !world.contact.pairs.empty() ||
+                !world.contact.rigidProxies.empty())
+                ineligible.emplace_back("rigid_or_contact_state_is_unsupported");
+            if (world.dispatch.cohesiveFaceCount != 0u ||
+                !world.fem.cohesiveFaces.empty() ||
+                world.dispatch.femHumanAttachmentCount != 0u ||
+                world.dispatch.fieldBoundaryCount != 0u ||
+                world.vascular.layout.ranges.z != 0u)
+                ineligible.emplace_back("cohesive_Human_field_or_vascular_state_is_unsupported");
+            if (world.dispatch.mutationCommandCount != 0u)
+                ineligible.emplace_back("topology_mutation_is_unsupported");
+            if (world.dispatch.learnedMaterialCount != 0u ||
+                world.dispatch.learnedLayerCount != 0u ||
+                world.dispatch.learnedWeightCount != 0u)
+                ineligible.emplace_back("learned_material_state_is_unsupported");
+            if (!world.objects.empty()) {
+                const NMContinuumObjectGPU& object = world.objects.front();
+                constexpr std::uint32_t unsupportedObjectFlags =
+                    NM_OBJECT_ADAPTIVE | NM_OBJECT_MIXED_FEM |
+                    NM_OBJECT_MULTIPHYSICS | NM_OBJECT_MUTABLE_TOPOLOGY;
+                constexpr std::uint32_t requiredContactDisableFlags =
+                    NM_OBJECT_DISABLE_SELF_CONTACT |
+                    NM_OBJECT_DISABLE_DEFORMABLE_CONTACT;
+                if (object.representation != NM_REPRESENTATION_FEM ||
+                    (object.flags & NM_OBJECT_ACTIVE) == 0u ||
+                    (object.flags & unsupportedObjectFlags) != 0u ||
+                    (object.flags & requiredContactDisableFlags) !=
+                        requiredContactDisableFlags)
+                    ineligible.emplace_back("object_must_be_active_immutable_contact_free_FEM");
+            }
+            std::size_t activeTetrahedra = 0u;
+            for (const NMTetrahedronGPU& tetrahedron : world.fem.tetrahedra) {
+                if ((tetrahedron.identity.w & NM_OBJECT_ACTIVE) == 0u) continue;
+                ++activeTetrahedra;
+                if (tetrahedron.identity.y != 0u ||
+                    tetrahedron.identity.x >= world.materials.size()) {
+                    ineligible.emplace_back("active_tetrahedron_material_or_object_identity_invalid");
+                    break;
+                }
+                const NMMaterialGPU& material =
+                    world.materials[tetrahedron.identity.x];
+                constexpr std::uint32_t requiredMaterialFlags =
+                    NM_MATERIAL_GENERIC_COMPENSATED_IMPLICIT_PROJECTION |
+                    NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION;
+                if (material.stateCount != 15u ||
+                    material.projectionKind != NM_MATERIAL_PROJECTION_GENERIC ||
+                    (material.flags & requiredMaterialFlags) !=
+                        requiredMaterialFlags) {
+                    ineligible.emplace_back(
+                        "every_active_tetrahedron_requires_compensated_scaled_generic_15_state_material");
+                    break;
+                }
+            }
+            if (activeTetrahedra == 0u)
+                ineligible.emplace_back("at_least_one_active_tetrahedron_required");
+            if (!ineligible.empty()) {
+                diagnostics.message =
+                    "cache projection reuse ineligible for the single static FEM coupon scope:";
+                for (const std::string& reason : ineligible)
+                    diagnostics.message += " " + reason;
+                return diagnostics;
+            }
+            candidate->femCacheProjectionReuseEnabled = true;
         }
         const TiledCohesiveArmijoOptions tiledCohesiveOptions =
             tiledCohesiveArmijoOptionsFromEnvironment();
@@ -4000,7 +4108,9 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_mpm_p2g",
             "nm_mpm_compact_active_nodes",
             "nm_fem_internal_forces",
+            "nm_fem_status5_capture",
             "nm_fem_build_algorithmic_tangent_cache",
+            "nm_fem_build_algorithmic_tangent_cache_projection_reuse_diagnostic",
             "nm_fem_cohesive_face_forces",
             "nm_fem_accumulate_cohesive_page_forces",
             "nm_fem_apply_cohesive_force_accumulator",
@@ -4038,6 +4148,9 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fem_operator_fd_capture_parameters",
             "nm_fem_armijo_decide",
             "nm_fem_synchronize_environment_line_search",
+            "nm_fgmres_capture_base_cauchy_rhs",
+            "nm_fgmres_prepare_base_cauchy_action",
+            "nm_fgmres_build_base_cauchy_direction",
             "nm_fgmres_preserve_true_rhs",
             "nm_fgmres_clear_true_operator",
             "nm_fgmres_clear_true_auxiliary",
@@ -4279,6 +4392,10 @@ RuntimeDiagnostics Runtime::initialize(
                 isGraphSchwarzKernel(name)) continue;
             if (!candidate->deformableContactNodeIncidenceSortEnabled &&
                 isSortedNodeIncidenceKernel(name)) continue;
+            if (!candidate->femCacheProjectionReuseEnabled &&
+                std::strcmp(name,
+                    "nm_fem_build_algorithmic_tangent_cache_projection_reuse_diagnostic") == 0)
+                continue;
             id<MTLFunction> function = kernel(name);
             if (function == nil) {
                 diagnostics.message = std::string("missing Metal function ") + name;
@@ -5917,12 +6034,15 @@ RuntimeDiagnostics Runtime::initialize(
         candidate->femOperatorFDRichCaptureEnabled =
             candidate->femOperatorFDScratchEnabled &&
             operatorFDRichCaptureRequested;
+        candidate->femBaseCauchyScratchEnabled =
+            std::getenv("NM_FEM_BASE_CAUCHY_FALLBACK_SELECTOR") != nullptr;
         candidate->femResidualArmijoScratchEnabled =
             std::getenv("NM_FEM_RESIDUAL_ARMIJO_ROOT") != nullptr ||
             std::getenv("NM_FEM_CAPSULE_RESIDUAL_ARMIJO_ROOT") != nullptr ||
             std::getenv("NM_FEM_CAPSULE_BOX_RESIDUAL_ARMIJO_ROOT") != nullptr ||
             std::getenv("NM_FEM_COHESIVE_RESIDUAL_ARMIJO_ROOT") != nullptr ||
             std::getenv("NM_FEM_FULL_CONTACT_RESIDUAL_ARMIJO_ROOT") != nullptr ||
+            candidate->femBaseCauchyScratchEnabled ||
             candidate->femOperatorFDScratchEnabled;
         if (candidate->femResidualArmijoScratchEnabled) {
             candidate->femArmijoCandidate = privateScratch<NMFEMNodeStateGPU>(
@@ -5954,6 +6074,15 @@ RuntimeDiagnostics Runtime::initialize(
             candidate->femArmijoStatuses = privateScratch<NMMatterStatusGPU>(
                 candidate->device, multiplied(1u),
                 valid, candidate->residentBytes);
+            if (candidate->femBaseCauchyScratchEnabled) {
+                candidate->femBaseCauchyRightHandSide =
+                    privateScratch<nm_float4>(candidate->device,
+                        candidate->fgmresLayout.unknownCount,
+                        valid, candidate->residentBytes);
+                candidate->femBaseCauchyTrace = privateScratch<nm_float4>(
+                    candidate->device, environments,
+                    valid, candidate->residentBytes);
+            }
             if (world.dispatch.rigidGeneralizedCapacity != 0u) {
                 candidate->femArmijoRigidCandidate =
                     privateScratch<float>(candidate->device,
@@ -7214,6 +7343,95 @@ RuntimeDiagnostics Runtime::encodeImpl(
             return diagnostics;
         }
         State& state = *state_;
+        const char* status5PathText = std::getenv("NM_FEM_STATUS5_CAPTURE_PATH");
+        const char* status5RootText = std::getenv("NM_FEM_STATUS5_CAPTURE_ROOT");
+        const bool status5Requested = status5PathText != nullptr ||
+            status5RootText != nullptr;
+        bool status5RootValid = false;
+        std::uint32_t status5Root = 0u;
+        if (status5RootText != nullptr && *status5RootText != '\0') {
+            std::uint64_t parsed = 0u;
+            bool digits = true;
+            for (const char* cursor = status5RootText; *cursor != '\0'; ++cursor) {
+                if (*cursor < '0' || *cursor > '9') { digits = false; break; }
+                const std::uint32_t digit = static_cast<std::uint32_t>(*cursor - '0');
+                if (parsed > (std::numeric_limits<std::uint32_t>::max() - digit) / 10u) {
+                    digits = false; break;
+                }
+                parsed = parsed * 10u + digit;
+            }
+            if (digits) {
+                status5Root = static_cast<std::uint32_t>(parsed);
+                status5RootValid = true;
+            }
+        }
+        const bool status5Selected = status5Requested && status5RootValid &&
+            status5PathText != nullptr && *status5PathText != '\0' &&
+            request.controlStep == status5Root;
+        id<MTLBuffer> status5CaptureBuffer = nil;
+        std::string status5CapturePath;
+        std::uint64_t status5CaptureBytes = 0u;
+        if (status5Requested) {
+            if (!status5RootValid || status5PathText == nullptr ||
+                *status5PathText == '\0') {
+                diagnostics.message =
+                    "status-5 capture requires a decimal root and nonempty output path";
+                return diagnostics;
+            }
+            if (status5Selected) {
+                const std::filesystem::path outputStem(status5PathText);
+                if (!outputStem.is_absolute() ||
+                    !std::filesystem::exists(outputStem.parent_path()) ||
+                    state.dispatch.environmentCount == 0u ||
+                    state.dispatch.environmentCount > 8u ||
+                    state.dispatch.objectCount != 1u ||
+                    state.dispatch.femNodeCount == 0u ||
+                    state.dispatch.tetrahedronCount == 0u ||
+                    state.dispatch.particleCount != 0u ||
+                    state.dispatch.cohesiveFaceCount != 0u ||
+                    state.dispatch.gridNodeCount != 0u ||
+                    state.dispatch.mpmGridCount != 0u ||
+                    state.dispatch.mpmBlockCount != 0u ||
+                    state.dispatch.femHumanAttachmentCount != 0u ||
+                    state.dispatch.materialStateStride > NM_MAX_MATERIAL_STATE ||
+                    state.fgmresLayout.vascularUnknownCount != 0u) {
+                    diagnostics.message =
+                        "status-5 capture source or world is outside the bounded FEM-only scope";
+                    return diagnostics;
+                }
+                status5CapturePath = outputStem.string();
+                if (::access((status5CapturePath + ".bin").c_str(), F_OK) == 0 ||
+                    ::access((status5CapturePath + ".json").c_str(), F_OK) == 0) {
+                    diagnostics.message =
+                        "status-5 capture output already exists; refusing overwrite";
+                    return diagnostics;
+                }
+                const std::uint64_t recordCount =
+                    2u * static_cast<std::uint64_t>(state.dispatch.environmentCount);
+                if (recordCount > 16u ||
+                    recordCount > std::numeric_limits<std::uint64_t>::max() /
+                        sizeof(NMFEMStatus5CaptureGPU)) {
+                    diagnostics.message = "status-5 capture record sizing overflow";
+                    return diagnostics;
+                }
+                status5CaptureBytes = recordCount * sizeof(NMFEMStatus5CaptureGPU);
+                if (status5CaptureBytes == 0u ||
+                    status5CaptureBytes > 1024u * 1024u ||
+                    status5CaptureBytes > std::numeric_limits<NSUInteger>::max()) {
+                    diagnostics.message = "status-5 capture exceeds its one-MiB byte bound";
+                    return diagnostics;
+                }
+                status5CaptureBuffer = [state.device
+                    newBufferWithLength:static_cast<NSUInteger>(status5CaptureBytes)
+                                options:MTLResourceStorageModeShared];
+                if (status5CaptureBuffer == nil || status5CaptureBuffer.contents == nullptr) {
+                    diagnostics.message = "status-5 capture buffer allocation failed";
+                    return diagnostics;
+                }
+                std::memset(status5CaptureBuffer.contents, 0,
+                    static_cast<std::size_t>(status5CaptureBytes));
+            }
+        }
         // Parse once: endpoint certification and trial scope must select
         // exactly the same transactions, including the every-step mode.
         const char* boxArmijoSelector = std::getenv(
@@ -8271,6 +8489,43 @@ RuntimeDiagnostics Runtime::encodeImpl(
             );
             [encoder dispatchThreads:MTLSizeMake(count, 1u, 1u)
                 threadsPerThreadgroup:MTLSizeMake(width, 1u, 1u)];
+        };
+        const auto captureStatus5 = [&](const std::uint32_t stageID,
+            const std::uint32_t domain, const std::uint32_t indexKind,
+            const std::uint32_t trialIndex, const NMMicrostepGPU& micro,
+            id<MTLBuffer> statuses, id<MTLBuffer> candidate,
+            id<MTLBuffer> lineSearch) {
+            if (!status5Selected || status5CaptureBuffer == nil ||
+                domain > NM_STATUS5_CAPTURE_DOMAIN_PRIVATE) return;
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            const std::uint32_t hasLineSearch = lineSearch != nil ? 1u : 0u;
+            dispatchThreads("nm_fem_status5_capture",
+                state.dispatch.environmentCount, [&] {
+                [encoder setBytes:&frameDispatch length:sizeof(frameDispatch)
+                           atIndex:0u];
+                [encoder setBytes:&state.fgmresLayout
+                           length:sizeof(state.fgmresLayout) atIndex:30u];
+                [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
+                [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                [encoder setBuffer:state.materials offset:0u atIndex:3u];
+                [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:4u];
+                [encoder setBuffer:state.schedulers offset:0u atIndex:5u];
+                [encoder setBuffer:state.adaptive offset:0u atIndex:6u];
+                [encoder setBuffer:state.femAccepted offset:0u atIndex:7u];
+                [encoder setBuffer:candidate offset:0u atIndex:8u];
+                [encoder setBuffer:state.femMaterialStateAccepted offset:0u atIndex:9u];
+                [encoder setBuffer:state.environmentParameters offset:0u atIndex:10u];
+                [encoder setBuffer:statuses offset:0u atIndex:11u];
+                [encoder setBuffer:lineSearch != nil ? lineSearch : state.dummy
+                             offset:0u atIndex:12u];
+                [encoder setBuffer:status5CaptureBuffer offset:0u atIndex:13u];
+                [encoder setBytes:&stageID length:sizeof(stageID) atIndex:14u];
+                [encoder setBytes:&domain length:sizeof(domain) atIndex:15u];
+                [encoder setBytes:&indexKind length:sizeof(indexKind) atIndex:16u];
+                [encoder setBytes:&trialIndex length:sizeof(trialIndex) atIndex:17u];
+                [encoder setBytes:&hasLineSearch length:sizeof(hasLineSearch) atIndex:18u];
+            });
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
         };
         const auto dispatchGroups32 = [&](
             const char* name,
@@ -11321,6 +11576,126 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     return diagnostics;
                 }
             }
+            bool femBaseCauchyFallbackRequested = false;
+            bool femBaseCauchyFallbackConfigValid = true;
+            bool femBaseCauchyFallbackSelectedRoot = false;
+            std::uint32_t femBaseCauchyFallbackRoot = 0u;
+            std::uint32_t femBaseCauchyFallbackIteration = 0u;
+            bool femBaseCauchyFallbackAllNewtonIterations = false;
+            const char* baseCauchySelector = std::getenv(
+                "NM_FEM_BASE_CAUCHY_FALLBACK_SELECTOR");
+            femBaseCauchyFallbackRequested = baseCauchySelector != nullptr;
+            if (femBaseCauchyFallbackRequested) {
+                const auto rejectBaseCauchy = [&](const char* reason) {
+                    femBaseCauchyFallbackConfigValid = false;
+                    std::fprintf(stderr,
+                        "fem_base_cauchy_fallback_rejected={\"schema\":1,\"control_step\":%u,\"reason\":\"%s\",\"physical_operator_changed\":false}\n",
+                        request.controlStep, reason);
+                };
+                const char* separator = std::strchr(baseCauchySelector, ':');
+                const char* end = baseCauchySelector +
+                    std::strlen(baseCauchySelector);
+                const auto digitsOnly = [](const char* begin,
+                                           const char* finish) {
+                    if (begin >= finish) return false;
+                    for (const char* cursor = begin; cursor != finish;
+                         ++cursor) {
+                        if (*cursor < '0' || *cursor > '9') return false;
+                    }
+                    return true;
+                };
+                char* rootEnd = nullptr;
+                char* iterationEnd = nullptr;
+                const unsigned long root = std::strtoul(
+                    baseCauchySelector, &rootEnd, 10);
+                const bool allNewtonIterations = separator != nullptr &&
+                    std::strcmp(separator + 1, "all") == 0;
+                const unsigned long iteration = separator == nullptr ||
+                    allNewtonIterations ? 0ul :
+                    std::strtoul(separator + 1, &iterationEnd, 10);
+                if (separator == nullptr || rootEnd != separator ||
+                    (!allNewtonIterations && iterationEnd != end) ||
+                    !digitsOnly(baseCauchySelector, separator) ||
+                    (!allNewtonIterations &&
+                     !digitsOnly(separator + 1, end)) ||
+                    root > std::numeric_limits<std::uint32_t>::max() ||
+                    iteration > 256ul) {
+                    rejectBaseCauchy(
+                        "selector_must_be_control_step_colon_all_or_newton_0_to_256");
+                } else {
+                    femBaseCauchyFallbackRoot =
+                        static_cast<std::uint32_t>(root);
+                    femBaseCauchyFallbackIteration =
+                        static_cast<std::uint32_t>(iteration);
+                    femBaseCauchyFallbackAllNewtonIterations =
+                        allNewtonIterations;
+                    if (request.controlStep != femBaseCauchyFallbackRoot) {
+                        // The numerical fallback remains bounded to one
+                        // explicit control step. The suffix may select one
+                        // Newton state or every Newton state in that step.
+                    } else if (!state.femBaseCauchyScratchEnabled ||
+                               state.femBaseCauchyRightHandSide == nil ||
+                               state.femBaseCauchyTrace == nil) {
+                        rejectBaseCauchy(
+                            "fallback_scratch_was_not_reserved_at_runtime_creation");
+                    } else if (!femResidualArmijoEnabled) {
+                        rejectBaseCauchy(
+                            "requires_the_same_selected_pure_fem_residual_armijo_step");
+                    } else if (!femTrueResidualCertificationRequested ||
+                               !femTrueResidualRootSelected ||
+                               femTrueResidualRoot != femBaseCauchyFallbackRoot ||
+                               (femTrueResidualNewtonSelectorSpecified &&
+                                (!femTrueResidualNewtonSelectorValid ||
+                                 femBaseCauchyFallbackAllNewtonIterations ||
+                                 femTrueResidualNewtonIteration !=
+                                     femBaseCauchyFallbackIteration))) {
+                        rejectBaseCauchy(
+                            "requires_true_residual_certification_for_the_same_selected_newton_state");
+                    } else if (state.dispatch.environmentCount > 2u ||
+                               state.dispatch.femNodeCount > 4096u ||
+                               state.dispatch.tetrahedronCount > 32768u ||
+                               state.mixedSolverValue.executionBudgets.w != 1u ||
+                               state.femAlgorithmicTangentCache == nil ||
+                               state.femAlgorithmicTangentCacheValid == nil) {
+                        rejectBaseCauchy(
+                            "requires_cached_static_fem_within_E2_N4096_T32768");
+                    } else if (
+                        state.femAuthoredMassLayout.size() !=
+                            state.dispatch.femNodeCount ||
+                        std::any_of(state.femAuthoredMassLayout.begin(),
+                            state.femAuthoredMassLayout.end(),
+                            [](const auto& mass) {
+                                return !std::isfinite(mass[0]) ||
+                                    !(mass[0] > 0.0f);
+                            })) {
+                        // The residual eliminates nonpositive masses while
+                        // the operator eliminates constraint tags. Keep the
+                        // fallback's free row spaces identical, using the
+                        // immutable authored masses bound by runtime restore.
+                        rejectBaseCauchy(
+                            "requires_positive_finite_immutable_nodal_masses");
+                    } else if (const char* reason = femResidualArmijoScope()) {
+                        rejectBaseCauchy(reason);
+                    } else if (femBaseCauchyFallbackRoot == request.controlStep) {
+                        femBaseCauchyFallbackSelectedRoot = true;
+                        if (femBaseCauchyFallbackAllNewtonIterations) {
+                            std::fprintf(stderr,
+                                "fem_base_cauchy_all_newton_enabled={\"schema\":1,\"root\":%u,\"scope\":\"all_newton_iterations_on_one_control_step\",\"physical_operator_changed\":false}\n",
+                                femBaseCauchyFallbackRoot);
+                        } else std::fprintf(stderr,
+                            "fem_base_cauchy_fallback_enabled={\"schema\":1,\"root\":%u,\"iteration\":%u,\"direction\":\"base_state_A_transpose_b\",\"certificate_scope\":\"original_newton_delta_only\",\"armijo_trials\":%u}\n",
+                            femBaseCauchyFallbackRoot,
+                            femBaseCauchyFallbackIteration,
+                            state.mixedSolverValue.nonlinearIterations.w);
+                    }
+                }
+            }
+            if (femBaseCauchyFallbackRequested &&
+                !femBaseCauchyFallbackConfigValid) {
+                diagnostics.message = "requested base-state Cauchy fallback is unsupported";
+                ownership->preDynamicsOpen = false;
+                return diagnostics;
+            }
             const auto emitFEMNewtonTraceSkip = [&](std::uint32_t root,
                                                      const char* reason) {
                 if (femNewtonTraceNoticeLogged) return;
@@ -11397,7 +11772,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
             const auto encodeFEMResidualArmijoBaseStatus = [&]() {
                 if (!femResidualArmijoTraceEnabled ||
                     femResidualArmijoBaseStatusCapture == nil ||
-                    femResidualArmijoTraceRecords >= 64u) return;
+                    femResidualArmijoTraceRecords >=
+                        (femBaseCauchyFallbackSelectedRoot &&
+                         femBaseCauchyFallbackAllNewtonIterations
+                            ? 512u : 64u)) return;
                 dispatchThreads("nm_fem_armijo_capture_base_status",
                     environments, [&] {
                     setDispatch();
@@ -11407,9 +11785,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 });
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
             };
-            const auto encodeFEMResidualArmijoTrace = [&]() -> bool {
+            const auto encodeFEMResidualArmijoTrace = [&](const char* directionKind = "newton") -> bool {
                 if (!femResidualArmijoTraceEnabled) return true;
-                constexpr std::uint32_t maximumTraceRecords = 64u;
+                const std::uint32_t maximumTraceRecords =
+                    femBaseCauchyFallbackSelectedRoot &&
+                    femBaseCauchyFallbackAllNewtonIterations ? 512u : 64u;
                 if (femResidualArmijoTraceRecords >= maximumTraceRecords) {
                     if (!femResidualArmijoTraceNoticeLogged) {
                         femResidualArmijoTraceNoticeLogged = true;
@@ -11521,6 +11901,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 const auto capturedBaseStatusOffset = baseStatusOffset;
                 const bool capturedBaseStatusAvailable =
                     baseStatusCaptureAvailable;
+                const std::string capturedDirectionKind = directionKind;
                 const auto capturedTrialBudget =
                     state.mixedSolverValue.nonlinearIterations.w;
                 const auto capturedAppendTraceFloat = appendTraceFloat;
@@ -11556,6 +11937,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                          << "fem_residual_armijo_iteration={\"schema\":3,\"root\":"
                          << capturedRoot << ",\"newton_iteration\":"
                          << capturedIteration
+                         << ",\"direction_kind\":\"" << capturedDirectionKind << "\""
                          << ",\"semantics\":{\"base_l2\":\"raw recorded free-node metric in impulse units; interpret as the complete assembled mechanical residual only when base_health is healthy_at_armijo_entry\","
                          << "\"trial_l2\":\"selected residual if accepted, otherwise last tested residual\","
                          << "\"trial_alpha\":\"selected alpha if accepted, otherwise last tested alpha\","
@@ -11572,13 +11954,15 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         line << ",\"trial_alpha\":";
                         capturedAppendTraceFloat(line, metrics[environment].z);
                         line << ",\"accepted\":"
-                             << (metrics[environment].w > 0.5f ? "true" : "false")
+                             << ((metrics[environment].w > 0.5f && metrics[environment].w < 2.5f) ? "true" : "false")
                              << ",\"certified_noop\":"
-                             << (metrics[environment].w > 1.5f ? "true" : "false");
+                             << ((metrics[environment].w > 1.5f && metrics[environment].w < 2.5f) ? "true" : "false");
                         const bool selectedAccepted =
-                            metrics[environment].w > 0.5f;
+                            metrics[environment].w > 0.5f &&
+                            metrics[environment].w < 2.5f;
                         const float selectedTrialCount = lineSearch[environment].z;
-                        const bool certifiedNoop = metrics[environment].w > 1.5f;
+                        const bool certifiedNoop = metrics[environment].w > 1.5f &&
+                            metrics[environment].w < 2.5f;
                         const bool noPrivateTrial = certifiedNoop ||
                             !std::isfinite(selectedTrialCount) ||
                             selectedTrialCount <= 0.0f;
@@ -11853,6 +12237,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.dummy offset:0u atIndex:24u];
                     const std::uint32_t useCache = 0u;
                     [encoder setBytes:&useCache length:sizeof(useCache) atIndex:25u];
+                    [encoder setBuffer:state.femArmijoMetrics != nil
+                        ? state.femArmijoMetrics : state.dummy
+                                 offset:0u atIndex:26u];
                 });
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 dispatchThreads("nm_fgmres_gather_nodes", femNodeTotal, [&] {
@@ -14256,6 +14643,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:femKinematicTargets offset:0u atIndex:4u];
                     [encoder setBuffer:state.statuses offset:0u atIndex:5u];
                 });
+                captureStatus5(10u, NM_STATUS5_CAPTURE_DOMAIN_GLOBAL,
+                    NM_STATUS5_INDEX_NODE, NM_INVALID_INDEX, micro,
+                    state.statuses, state.femCandidate, nil);
             }
             if (state.hasPrescribedTranslation) {
             dispatchThreads("nm_contact_initialize_prescribed_fem_candidate", femNodeTotal, [&] {
@@ -18356,6 +18746,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.learnedLayers offset:0u atIndex:17u];
                 [encoder setBuffer:state.learnedWeightsCandidate offset:0u atIndex:18u];
             });
+            captureStatus5(20u, NM_STATUS5_CAPTURE_DOMAIN_GLOBAL,
+                NM_STATUS5_INDEX_TETRAHEDRON, NM_INVALID_INDEX, micro,
+                state.statuses, state.femCandidate, nil);
             dispatchThreads("nm_fem_cohesive_face_forces",
                 cohesiveFaceTotal, [&] {
                 setDispatch();
@@ -18627,6 +19020,22 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
             }
 
+            const bool baseCauchyNewtonSelected =
+                femBaseCauchyFallbackSelectedRoot &&
+                (femBaseCauchyFallbackAllNewtonIterations ||
+                 nonlinearIteration == femBaseCauchyFallbackIteration);
+            if (baseCauchyNewtonSelected) {
+                dispatchThreads("nm_fgmres_capture_base_cauchy_rhs",
+                    state.fgmresLayout.unknownCount, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.femResidual offset:0u atIndex:1u];
+                    [encoder setBuffer:state.femCandidate offset:0u atIndex:2u];
+                    [encoder setBuffer:state.femBaseCauchyRightHandSide
+                                 offset:0u atIndex:3u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            }
+
             if (state.enableVascularDense45) {
                 const std::uint32_t restartCycle = 0u;
                 const float nonlinearTolerance = std::max(
@@ -18795,7 +19204,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
             if (state.mixedSolverValue.executionBudgets.w == 1u) {
                 const std::uint32_t forceCompletedCacheRebuild =
                     state.forceCompletedTangentCacheRebuild ? 1u : 0u;
-                dispatchThreads("nm_fem_build_algorithmic_tangent_cache",
+                const char* tangentCacheBuilder =
+                    state.femCacheProjectionReuseEnabled
+                        ? "nm_fem_build_algorithmic_tangent_cache_projection_reuse_diagnostic"
+                        : "nm_fem_build_algorithmic_tangent_cache";
+                dispatchThreads(tangentCacheBuilder,
                     tetrahedronTotal, [&] {
                     setDispatch();
                     [encoder setBytes:&operatorMicro
@@ -19123,6 +19536,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                 ? 2u : 0u;
                         [encoder setBytes:&useCache
                                    length:sizeof(useCache) atIndex:25u];
+                        [encoder setBuffer:state.femArmijoMetrics != nil
+                            ? state.femArmijoMetrics : state.dummy
+                                     offset:0u atIndex:26u];
                     });
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                     const bool includeCohesiveRAP =
@@ -20527,6 +20943,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     const std::uint32_t useCache =
                         state.mixedSolverValue.executionBudgets.w == 1u ? 1u : 0u;
                     [encoder setBytes:&useCache length:sizeof(useCache) atIndex:25u];
+                    [encoder setBuffer:state.femArmijoMetrics != nil
+                        ? state.femArmijoMetrics : state.dummy
+                                 offset:0u atIndex:26u];
                 });
                 dispatchThreads("nm_fem_cohesive_face_operator",
                     cohesiveFaceTotal, [&] {
@@ -21053,6 +21472,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     const std::uint32_t useCache =
                         state.mixedSolverValue.executionBudgets.w == 1u ? 1u : 0u;
                     [encoder setBytes:&useCache length:sizeof(useCache) atIndex:25u];
+                    [encoder setBuffer:state.femArmijoMetrics != nil
+                        ? state.femArmijoMetrics : state.dummy
+                                 offset:0u atIndex:26u];
                 });
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 dispatchThreads("nm_fgmres_gather_nodes", femNodeTotal, [&] {
@@ -21329,6 +21751,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     const std::uint32_t useCache =
                         state.mixedSolverValue.executionBudgets.w == 1u ? 1u : 0u;
                     [encoder setBytes:&useCache length:sizeof(useCache) atIndex:25u];
+                    [encoder setBuffer:state.femArmijoMetrics != nil
+                        ? state.femArmijoMetrics : state.dummy
+                                 offset:0u atIndex:26u];
                 });
                 dispatchThreads("nm_fem_cohesive_face_operator",
                     cohesiveFaceTotal, [&] {
@@ -21485,6 +21910,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                  offset:0u atIndex:24u];
                     [encoder setBytes:&useCacheForCapturedAction
                                length:sizeof(useCacheForCapturedAction) atIndex:25u];
+                    [encoder setBuffer:state.femArmijoMetrics != nil
+                        ? state.femArmijoMetrics : state.dummy
+                                 offset:0u atIndex:26u];
                 });
                 const NSUInteger actionFieldVectorOffset =
                     femNodeTotal * sizeof(nm_float4);
@@ -21763,10 +22191,187 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     return diagnostics;
                 }
             }
+            const auto encodeBaseCauchyDirectionTrace = [&]() -> bool {
+                const NSUInteger bytes = environments * sizeof(nm_float4);
+                id<MTLBuffer> snapshot = [state.device newBufferWithLength:bytes
+                    options:MTLResourceStorageModeShared];
+                if (snapshot == nil) {
+                    diagnostics.message = "Cauchy direction trace allocation failed";
+                    return false;
+                }
+                [encoder endEncoding]; encoder = nil;
+                id<MTLBlitCommandEncoder> copy = [commandBuffer blitCommandEncoder];
+                if (copy == nil) {
+                    diagnostics.message = "Cauchy direction trace blit failed";
+                    return false;
+                }
+                [copy copyFromBuffer:state.femBaseCauchyTrace sourceOffset:0u
+                    toBuffer:snapshot destinationOffset:0u size:bytes];
+                [copy endEncoding];
+                const auto capturedRoot = request.controlStep;
+                const auto capturedIteration = nonlinearIteration;
+                const auto capturedEnvironments = environments;
+                const auto formatFloat = appendTraceFloat;
+                [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed) {
+                    if (completed.status != MTLCommandBufferStatusCompleted) return;
+                    const auto* values = static_cast<const nm_float4*>(snapshot.contents);
+                    std::ostringstream line;
+                    line << "fem_base_cauchy_direction={\"schema\":1,\"root\":"
+                         << capturedRoot << ",\"newton_iteration\":" << capturedIteration
+                         << ",\"direction_kind\":\"raw_A_transpose_b\","
+                         << "\"original_newton_certificate_applies_to_cauchy\":false,\"environments\":[";
+                    for (std::uint32_t e = 0u; e < capturedEnvironments; ++e) {
+                        if (e != 0u) line << ',';
+                        line << "{\"environment\":" << e << ",\"gradient_l2\":";
+                        formatFloat(line, values[e].x);
+                        line << ",\"gradient_action_l2\":"; formatFloat(line, values[e].y);
+                        line << ",\"tau\":"; formatFloat(line, values[e].z);
+                        line << ",\"original_newton_converged\":"
+                             << (values[e].w > 0.5f ? "true" : "false") << '}';
+                    }
+                    line << "]}\n";
+                    const auto text = line.str();
+                    std::fwrite(text.data(), 1u, text.size(), stderr);
+                }];
+                encoder = [commandBuffer computeCommandEncoder];
+                if (encoder == nil) {
+                    diagnostics.message = "Cauchy trace continuation encoder failed";
+                    return false;
+                }
+                [encoder setLabel:@"Numi Matter Cauchy direction trace continuation"];
+                return true;
+            };
+            const auto encodeBaseCauchyDirection = [&]() {
+                NMMicrostepGPU cauchyOperatorMicro = micro;
+                cauchyOperatorMicro.flags |= NM_MICROSTEP_FGMRES_OPERATOR |
+                    NM_MICROSTEP_FGMRES_TRUE_RESIDUAL;
+                const auto action = [&](const std::uint32_t cacheMode,
+                                         id<MTLBuffer> cauchyOutput) {
+                    const std::uint32_t useGradient = cacheMode == 4u ? 1u : 0u;
+                    dispatchThreads("nm_fgmres_prepare_base_cauchy_action",
+                        femNodeTotal, [&] {
+                        setDispatch();
+                        [encoder setBuffer:state.femArmijoMetrics offset:0u atIndex:1u];
+                        [encoder setBuffer:state.femBaseCauchyRightHandSide offset:0u atIndex:2u];
+                        [encoder setBuffer:state.femArmijoResidual offset:0u atIndex:3u];
+                        [encoder setBuffer:state.femCandidate offset:0u atIndex:4u];
+                        [encoder setBuffer:state.femArmijoDirection offset:0u atIndex:5u];
+                        [encoder setBytes:&useGradient length:sizeof(useGradient) atIndex:6u];
+                    });
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    // Both applications bypass the already-completed linear
+                    // latch read-only; the original Newton certificate is
+                    // not relabeled as a certificate for this new direction.
+                dispatchThreads("nm_fem_apply_operator_elements",
+                    tetrahedronTotal, [&] {
+                    setDispatch();
+                    [encoder setBytes:&cauchyOperatorMicro
+                               length:sizeof(cauchyOperatorMicro) atIndex:1u];
+                    [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                    [encoder setBuffer:state.materials offset:0u atIndex:3u];
+                    [encoder setBuffer:state.scalarPrograms offset:0u atIndex:4u];
+                    [encoder setBuffer:state.instructions offset:0u atIndex:5u];
+                    [encoder setBuffer:state.environmentParameters
+                                 offset:0u atIndex:6u];
+                    [encoder setBuffer:state.femCandidate offset:0u atIndex:7u];
+                    [encoder setBuffer:state.femTetrahedraCandidate
+                                 offset:0u atIndex:8u];
+                    [encoder setBuffer:state.femMaterialStateAccepted
+                                 offset:0u atIndex:9u];
+                    [encoder setBuffer:state.femArmijoDirection offset:0u atIndex:10u];
+                    [encoder setBuffer:state.schedulers offset:0u atIndex:11u];
+                    [encoder setBuffer:state.adaptive offset:0u atIndex:12u];
+                    [encoder setBuffer:state.femArmijoElementForces
+                                 offset:0u atIndex:13u];
+                    [encoder setBuffer:state.statuses
+                                 offset:0u atIndex:14u];
+                    [encoder setBuffer:state.mixedMaterials offset:0u atIndex:16u];
+                    [encoder setBuffer:state.femFieldsCandidate
+                                 offset:0u atIndex:17u];
+                    [encoder setBuffer:state.learnedMaterials
+                                 offset:0u atIndex:18u];
+                    [encoder setBuffer:state.learnedLayers offset:0u atIndex:19u];
+                    [encoder setBuffer:state.learnedWeightsCandidate
+                                 offset:0u atIndex:20u];
+                    [encoder setBuffer:state.mixedSolver offset:0u atIndex:21u];
+                    [encoder setBuffer:state.fgmresStates offset:0u atIndex:22u];
+                    [encoder setBuffer:state.femAlgorithmicTangentCache != nil
+                            ? state.femAlgorithmicTangentCache : state.dummy
+                                 offset:0u atIndex:23u];
+                    [encoder setBuffer:state.femAlgorithmicTangentCacheValid != nil
+                            ? state.femAlgorithmicTangentCacheValid : state.dummy
+                                 offset:0u atIndex:24u];
+                    const std::uint32_t useCache = cacheMode;
+                    [encoder setBytes:&useCache length:sizeof(useCache) atIndex:25u];
+                    [encoder setBuffer:state.femArmijoMetrics != nil
+                        ? state.femArmijoMetrics : state.dummy
+                                 offset:0u atIndex:26u];
+                });
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                dispatchThreads("nm_fgmres_gather_nodes", femNodeTotal, [&] {
+                    setDispatch();
+                    [encoder setBytes:&cauchyOperatorMicro
+                               length:sizeof(cauchyOperatorMicro) atIndex:1u];
+                    [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                    [encoder setBuffer:state.femCandidate offset:0u atIndex:3u];
+                    [encoder setBuffer:state.femTetrahedraCandidate
+                                 offset:0u atIndex:4u];
+                    [encoder setBuffer:state.femArmijoElementForces offset:0u atIndex:5u];
+                    [encoder setBuffer:state.femNodeIncidence offset:0u atIndex:6u];
+                    [encoder setBuffer:state.femNodeRanges offset:0u atIndex:7u];
+                    [encoder setBuffer:state.schedulers offset:0u atIndex:8u];
+                    [encoder setBuffer:state.adaptive offset:0u atIndex:9u];
+                    [encoder setBuffer:state.femArmijoDirection offset:0u atIndex:10u];
+                    [encoder setBuffer:cauchyOutput
+                                 offset:0u atIndex:11u];
+                    bindPrimalContactArguments(12u);
+                    [encoder setBuffer:state.fgmresStates offset:0u atIndex:13u];
+                    [encoder setBytes:&coupledArticulatedNv
+                               length:sizeof(coupledArticulatedNv) atIndex:14u];
+                    [encoder setBuffer:state.coupledPointJacobians
+                                 offset:0u atIndex:15u];
+                });
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                };
+                action(3u, state.femArmijoResidual);
+                action(4u, state.femOperatorValue);
+                dispatchThreads("nm_fgmres_build_base_cauchy_direction",
+                    environments, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.mixedSolver offset:0u atIndex:1u];
+                    [encoder setBuffer:state.femArmijoMetrics offset:0u atIndex:2u];
+                    [encoder setBuffer:state.femCandidate offset:0u atIndex:3u];
+                    [encoder setBuffer:state.femArmijoResidual offset:0u atIndex:4u];
+                    [encoder setBuffer:state.femOperatorValue offset:0u atIndex:5u];
+                    [encoder setBuffer:state.femSolution offset:0u atIndex:6u];
+                    [encoder setBuffer:state.femLineSearch offset:0u atIndex:7u];
+                    [encoder setBuffer:state.environmentLineSearch offset:0u atIndex:8u];
+                    [encoder setBuffer:state.femBaseCauchyTrace offset:0u atIndex:9u];
+                    [encoder setBuffer:state.fgmresStates offset:0u atIndex:10u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:11u];
+                    [encoder setBuffer:state.femArmijoStatuses offset:0u atIndex:12u];
+                    [encoder setBytes:&nonlinearIteration length:sizeof(nonlinearIteration) atIndex:13u];
+                    [encoder setBuffer:state.femBaseCauchyRightHandSide offset:0u atIndex:14u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            };
             if (femResidualArmijoEnabled &&
                 !femCapsuleResidualArmijoEnabled &&
                 !femCapsuleBoxResidualArmijoEnabled) {
                 encodeFEMResidualArmijoBaseStatus();
+                const std::uint32_t directionPassCount =
+                    baseCauchyNewtonSelected ? 2u : 1u;
+                for (std::uint32_t directionPass = 0u;
+                     directionPass < directionPassCount; ++directionPass) {
+                if (directionPass == 1u) {
+                    encodeBaseCauchyDirection();
+                    if (!encodeBaseCauchyDirectionTrace()) {
+                        ownership->preDynamicsOpen = false;
+                        return diagnostics;
+                    }
+                }
+                const std::uint32_t fallbackAllowed =
+                    baseCauchyNewtonSelected && directionPass == 0u ? 1u : 0u;
                 for (std::uint32_t trialIndex = 0u;
                      trialIndex < state.mixedSolverValue
                          .nonlinearIterations.w; ++trialIndex) {
@@ -21807,6 +22412,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:state.femArmijoStatuses offset:0u atIndex:8u];
                         [encoder setBuffer:state.femLineSearch offset:0u atIndex:9u];
                     });
+                    captureStatus5(30u, NM_STATUS5_CAPTURE_DOMAIN_PRIVATE,
+                        NM_STATUS5_INDEX_SOLVER_ITERATION, trialIndex, micro,
+                        state.femArmijoStatuses, state.femArmijoCandidate,
+                        state.femLineSearch);
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                     dispatchThreads("nm_fem_internal_forces", tetrahedronTotal, [&] {
                         setDispatch();
@@ -21829,6 +22438,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:state.learnedLayers offset:0u atIndex:17u];
                         [encoder setBuffer:state.learnedWeightsCandidate offset:0u atIndex:18u];
                     });
+                    captureStatus5(31u, NM_STATUS5_CAPTURE_DOMAIN_PRIVATE,
+                        NM_STATUS5_INDEX_TETRAHEDRON, trialIndex, micro,
+                        state.femArmijoStatuses, state.femArmijoCandidate,
+                        state.femLineSearch);
                     if (femCohesiveResidualArmijoEnabled &&
                         !state.femArmijoTiledCohesiveRequested) {
                         [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
@@ -21950,13 +22563,16 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:state.fgmresStates offset:0u atIndex:8u];
                         [encoder setBuffer:state.femSolution offset:0u atIndex:9u];
                         [encoder setBuffer:state.environmentLineSearch offset:0u atIndex:10u];
+                        [encoder setBytes:&fallbackAllowed length:sizeof(fallbackAllowed) atIndex:11u];
                     });
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 }
-                if (!encodeFEMResidualArmijoTrace()) {
+                if (!encodeFEMResidualArmijoTrace(
+                        directionPass == 1u ? "base_cauchy" : "newton")) {
                     ownership->preDynamicsOpen = false;
                     return diagnostics;
                 }
+                } // Primary Newton and optional same-history Cauchy pass.
             } else {
                 dispatchThreads("nm_fem_select_backtracking", objectTotal, [&] {
                     setDispatch();
@@ -22364,6 +22980,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:state.femLineSearch
                                      offset:0u atIndex:9u];
                     });
+                    captureStatus5(40u, NM_STATUS5_CAPTURE_DOMAIN_PRIVATE,
+                        NM_STATUS5_INDEX_SOLVER_ITERATION, trialIndex, micro,
+                        state.femArmijoStatuses, state.femArmijoCandidate,
+                        state.femLineSearch);
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                     if (captureTrialSummaryStatus &&
                         !captureTrialSummaryStatus(trialIndex, 0u,
@@ -22464,6 +23084,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:state.learnedLayers offset:0u atIndex:17u];
                         [encoder setBuffer:state.learnedWeightsCandidate offset:0u atIndex:18u];
                     });
+                    captureStatus5(41u, NM_STATUS5_CAPTURE_DOMAIN_PRIVATE,
+                        NM_STATUS5_INDEX_TETRAHEDRON, trialIndex, micro,
+                        state.femArmijoStatuses, state.femArmijoCandidate,
+                        state.femLineSearch);
                     if (femCohesiveResidualArmijoEnabled &&
                         !state.femArmijoTiledCohesiveRequested) {
                         [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
@@ -23077,6 +23701,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:state.fgmresStates offset:0u atIndex:8u];
                         [encoder setBuffer:state.femSolution offset:0u atIndex:9u];
                         [encoder setBuffer:state.environmentLineSearch offset:0u atIndex:10u];
+                        const std::uint32_t fallbackAllowed = 0u;
+                        [encoder setBytes:&fallbackAllowed length:sizeof(fallbackAllowed) atIndex:11u];
                     });
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                     if (!captureTrialSummaryPostDecision(trialIndex) ||
@@ -23353,6 +23979,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.learnedLayers offset:0u atIndex:17u];
                 [encoder setBuffer:state.learnedWeightsCandidate offset:0u atIndex:18u];
             });
+            captureStatus5(50u, NM_STATUS5_CAPTURE_DOMAIN_GLOBAL,
+                NM_STATUS5_INDEX_TETRAHEDRON, NM_INVALID_INDEX, micro,
+                state.statuses, state.femCandidate, nil);
             dispatchThreads("nm_fem_cohesive_face_forces",
                 cohesiveFaceTotal, [&] {
                 setDispatch();
@@ -23656,6 +24285,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.femMaterialStateCandidate offset:0u atIndex:12u];
                 [encoder setBuffer:state.statuses offset:0u atIndex:13u];
             });
+            captureStatus5(60u, NM_STATUS5_CAPTURE_DOMAIN_GLOBAL,
+                NM_STATUS5_INDEX_TETRAHEDRON, NM_INVALID_INDEX, micro,
+                state.statuses, state.femCandidate, nil);
             if (humanSupportTotal != 0u) {
                 dispatchGroups32("nm_human_support_certify", environments, [&] {
                     setDispatch();
@@ -24091,6 +24723,104 @@ RuntimeDiagnostics Runtime::encodeImpl(
         });
 
         [encoder endEncoding];
+        if (status5Selected && status5CaptureBuffer != nil) {
+            const auto captureBuffer = status5CaptureBuffer;
+            const std::string captureStem = status5CapturePath;
+            const std::uint64_t payloadBytes = status5CaptureBytes;
+            const std::uint32_t capturedRoot = request.controlStep;
+            const std::uint32_t capturedEnvironments = state.dispatch.environmentCount;
+            const std::uint64_t capturedSourceFingerprint = state.sourcePhysicsFingerprint;
+            const std::uint64_t capturedWorldFingerprint = state.worldFingerprint;
+            const std::uint64_t capturedExecutionFingerprint = state.executionFingerprint;
+            const std::uint64_t capturedDeviceRegistry = state.device.registryID;
+            const std::string capturedDeviceName = nsString(state.device.name);
+            [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed) {
+                if (completed.status != MTLCommandBufferStatusCompleted ||
+                    captureBuffer.contents == nullptr) {
+                    std::fprintf(stderr,
+                        "fem_status5_capture_error={\"schema\":1,\"root\":%u,\"reason\":\"command_buffer_not_completed\"}\n",
+                        capturedRoot);
+                    return;
+                }
+                const void* payload = captureBuffer.contents;
+                const std::string payloadHash = sha256Hex(
+                    payload, static_cast<std::size_t>(payloadBytes));
+                const std::string binaryPath = captureStem + ".bin";
+                const std::string manifestPath = captureStem + ".json";
+                const int binaryFD = ::open(binaryPath.c_str(),
+                    O_WRONLY | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR);
+                if (binaryFD < 0) {
+                    std::fprintf(stderr,
+                        "fem_status5_capture_error={\"schema\":1,\"root\":%u,\"reason\":\"binary_exclusive_create_failed\",\"errno\":%d}\n",
+                        capturedRoot, errno);
+                    return;
+                }
+                const bool binaryWritten = writeAllBytes(binaryFD, payload,
+                    static_cast<std::size_t>(payloadBytes));
+                const int binaryClose = ::close(binaryFD);
+                if (!binaryWritten || binaryClose != 0) {
+                    ::unlink(binaryPath.c_str());
+                    std::fprintf(stderr,
+                        "fem_status5_capture_error={\"schema\":1,\"root\":%u,\"reason\":\"binary_write_failed\",\"errno\":%d}\n",
+                        capturedRoot, errno);
+                    return;
+                }
+                const auto* records = static_cast<const NMFEMStatus5CaptureGPU*>(payload);
+                std::uint32_t present = 0u;
+                for (std::uint64_t slot = 0u;
+                     slot < 2u * capturedEnvironments; ++slot)
+                    present += records[slot].capture.x != 0u ? 1u : 0u;
+                std::ostringstream manifest;
+                manifest << "{\"schema\":\"numi.matter.fem_status5_capture.v1\","
+                    << "\"capture_point\":\"immediately_after_selected_fem_status5_producer_before_next_dispatch_or_rollback\","
+                    << "\"byte_order\":\"native_little_endian_f32_u32\","
+                    << "\"root\":" << capturedRoot
+                    << ",\"environment_count\":" << capturedEnvironments
+                    << ",\"record_count\":" << 2u * capturedEnvironments
+                    << ",\"record_bytes\":" << sizeof(NMFEMStatus5CaptureGPU)
+                    << ",\"payload_bytes\":" << payloadBytes
+                    << ",\"records_present\":" << present
+                    << ",\"status_domains\":[\"global\",\"private_armijo\"]"
+                    << ",\"source_physics_fingerprint\":"
+                    << jsonQuoted(hexU64(capturedSourceFingerprint))
+                    << ",\"world_fingerprint\":"
+                    << jsonQuoted(hexU64(capturedWorldFingerprint))
+                    << ",\"device_program_fingerprint\":"
+                    << jsonQuoted(hexU64(capturedExecutionFingerprint))
+                    << ",\"device\":{\"name\":"
+                    << jsonQuoted(capturedDeviceName)
+                    << ",\"registry_id\":" << capturedDeviceRegistry << '}'
+                    << ",\"payload\":{\"path\":"
+                    << jsonQuoted(binaryPath) << ",\"sha256\":"
+                    << jsonQuoted(payloadHash) << '}'
+                    << ",\"scope\":{\"particle_count\":0,\"cohesive_face_count\":0,\"global_producers\":[10,20,50,60],\"private_producers\":[30,31,40,41],\"truncated\":false}}\n";
+                const std::string manifestText = manifest.str();
+                const int manifestFD = ::open(manifestPath.c_str(),
+                    O_WRONLY | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR);
+                if (manifestFD < 0) {
+                    const int savedErrno = errno;
+                    ::unlink(binaryPath.c_str());
+                    std::fprintf(stderr,
+                        "fem_status5_capture_error={\"schema\":1,\"root\":%u,\"reason\":\"manifest_exclusive_create_failed\",\"errno\":%d}\n",
+                        capturedRoot, savedErrno);
+                    return;
+                }
+                const bool manifestWritten = writeAllBytes(manifestFD,
+                    manifestText.data(), manifestText.size());
+                const int manifestClose = ::close(manifestFD);
+                if (!manifestWritten || manifestClose != 0) {
+                    ::unlink(binaryPath.c_str());
+                    ::unlink(manifestPath.c_str());
+                    std::fprintf(stderr,
+                        "fem_status5_capture_error={\"schema\":1,\"root\":%u,\"reason\":\"manifest_write_failed\",\"errno\":%d}\n",
+                        capturedRoot, errno);
+                    return;
+                }
+                std::fprintf(stderr,
+                    "fem_status5_capture_complete={\"schema\":1,\"root\":%u,\"records_present\":%u,\"manifest\":%s}\n",
+                    capturedRoot, present, jsonQuoted(manifestPath).c_str());
+            }];
+        }
         if (firstEncodeForCommandBuffer) {
             ownership->activeCommandBuffer = request.commandBuffer;
             const std::weak_ptr<State::CommandOwnership> weakOwnership =

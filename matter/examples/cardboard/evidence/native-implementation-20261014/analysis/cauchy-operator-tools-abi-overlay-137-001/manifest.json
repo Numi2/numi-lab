@@ -1,0 +1,224 @@
+{
+  "abi": {
+    "binding": "one zero nm_float4 per environment",
+    "buffer_index": 26,
+    "kernel": "nm_fem_apply_operator_elements",
+    "type": "device const float4* fallbackMetrics"
+  },
+  "base": {
+    "compile_database": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/compile_commands.json",
+    "compile_database_sha256": "e2b063ca2b8d9f0ad070fe542c1402051284f8998ed8a13aef789d04caf5bf92",
+    "git_base_revision": "8c00ae13d78331c938311ca80d78857c4deefe75",
+    "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-cauchy-positive-mass-admission-135",
+    "source_build_sha256": "5f701259422feb34672bab8c78fab5ef3656b017d6e1a82b6f783215b958d61d",
+    "source_bundle": "/Users/home/cardboard-implementation-20261014/analysis/retained-source-snapshot135-001/source-135.json.gz",
+    "source_bundle_compressed_sha256": "f557759d358e6551df13463ac752a5aebe826c37abb4d45d15e4aac53d60bcdd",
+    "source_bundle_uncompressed_sha256": "e134f53fefb45c0b066b68b4556d1b576f299dade26fcc672fa0f9c6a62a4b55"
+  },
+  "base_files": [
+    {
+      "bytes": 42616,
+      "path": "matter/tools/cardboard_coupled_free_box_operator_check.mm",
+      "sha256": "f0106a2a005c04bae44376c73394f75e39ede61876aa3010bbd819b5c53499b3"
+    },
+    {
+      "bytes": 22559,
+      "path": "matter/tools/cardboard_gpu_check.mm",
+      "sha256": "423a03bddd9ab8321188c25fbd5aa73c6d28fb5ac538885829e65fda00d592dc"
+    },
+    {
+      "bytes": 58398,
+      "path": "matter/tools/fem_material_frame_check.mm",
+      "sha256": "eb036270e9afd06ab5dafa0a8f4b2cb00823fa5eb9ee8b09f4c9512093ac3101"
+    },
+    {
+      "bytes": 60149,
+      "path": "matter/tools/fem_reference_check.mm",
+      "sha256": "9aabd75024c23824c19fb9fc71a0b2d888baeb1570295addefa45c324e805c13"
+    },
+    {
+      "bytes": 61808,
+      "path": "matter/tools/fem_regional_material_check.mm",
+      "sha256": "8e70f606481f249eda8d4fe59ea206890969a213f44a6ee35255d570f6986bf8"
+    }
+  ],
+  "candidate_files": [
+    {
+      "bytes": 42805,
+      "path": "matter/tools/cardboard_coupled_free_box_operator_check.mm",
+      "sha256": "567dcf2a4262c7d423c12e36ee6fbc9d8d45b74327f4c7da3d5057c823912588"
+    },
+    {
+      "bytes": 22749,
+      "path": "matter/tools/cardboard_gpu_check.mm",
+      "sha256": "d211c0c35b9d24790639a29b40418a355db041181176716667e2c3d51f4bdd9c"
+    },
+    {
+      "bytes": 58585,
+      "path": "matter/tools/fem_material_frame_check.mm",
+      "sha256": "fa18590901ee2d39a5e3f51b932356b59257ca63724327fa8cfe1fb338c8eda8"
+    },
+    {
+      "bytes": 60336,
+      "path": "matter/tools/fem_reference_check.mm",
+      "sha256": "127cd0c42edd0e0e7d1057ba598badeea2d5e4e0d5869d9250286765480cdf6f"
+    },
+    {
+      "bytes": 61995,
+      "path": "matter/tools/fem_regional_material_check.mm",
+      "sha256": "25c0cb1524f192831ca4b104e624f0119d56ff2d3ca1496be708c406cff92585"
+    }
+  ],
+  "inventory": [
+    {
+      "bytes": 1222,
+      "path": "README.md",
+      "sha256": "9932ebb14daabec1673aced873ef27b8ac37fda2863b01db83103098d0d72af9"
+    },
+    {
+      "bytes": 42616,
+      "path": "base/matter/tools/cardboard_coupled_free_box_operator_check.mm",
+      "sha256": "f0106a2a005c04bae44376c73394f75e39ede61876aa3010bbd819b5c53499b3"
+    },
+    {
+      "bytes": 22559,
+      "path": "base/matter/tools/cardboard_gpu_check.mm",
+      "sha256": "423a03bddd9ab8321188c25fbd5aa73c6d28fb5ac538885829e65fda00d592dc"
+    },
+    {
+      "bytes": 58398,
+      "path": "base/matter/tools/fem_material_frame_check.mm",
+      "sha256": "eb036270e9afd06ab5dafa0a8f4b2cb00823fa5eb9ee8b09f4c9512093ac3101"
+    },
+    {
+      "bytes": 60149,
+      "path": "base/matter/tools/fem_reference_check.mm",
+      "sha256": "9aabd75024c23824c19fb9fc71a0b2d888baeb1570295addefa45c324e805c13"
+    },
+    {
+      "bytes": 61808,
+      "path": "base/matter/tools/fem_regional_material_check.mm",
+      "sha256": "8e70f606481f249eda8d4fe59ea206890969a213f44a6ee35255d570f6986bf8"
+    },
+    {
+      "bytes": 42805,
+      "path": "candidate/matter/tools/cardboard_coupled_free_box_operator_check.mm",
+      "sha256": "567dcf2a4262c7d423c12e36ee6fbc9d8d45b74327f4c7da3d5057c823912588"
+    },
+    {
+      "bytes": 22749,
+      "path": "candidate/matter/tools/cardboard_gpu_check.mm",
+      "sha256": "d211c0c35b9d24790639a29b40418a355db041181176716667e2c3d51f4bdd9c"
+    },
+    {
+      "bytes": 58585,
+      "path": "candidate/matter/tools/fem_material_frame_check.mm",
+      "sha256": "fa18590901ee2d39a5e3f51b932356b59257ca63724327fa8cfe1fb338c8eda8"
+    },
+    {
+      "bytes": 60336,
+      "path": "candidate/matter/tools/fem_reference_check.mm",
+      "sha256": "127cd0c42edd0e0e7d1057ba598badeea2d5e4e0d5869d9250286765480cdf6f"
+    },
+    {
+      "bytes": 61995,
+      "path": "candidate/matter/tools/fem_regional_material_check.mm",
+      "sha256": "25c0cb1524f192831ca4b104e624f0119d56ff2d3ca1496be708c406cff92585"
+    },
+    {
+      "bytes": 1128,
+      "path": "logs/cardboard_coupled_free_box_operator_check.syntax.log",
+      "sha256": "c28d8e53835d023939daa202f3824d14e67036dc3abce916cf9390989e44ff17"
+    },
+    {
+      "bytes": 1073,
+      "path": "logs/cardboard_gpu_check.syntax.log",
+      "sha256": "b259b1d492385f304b91dcb453ab027fe87ab186ab3cfc5e32e14f6b0ff723b2"
+    },
+    {
+      "bytes": 1094,
+      "path": "logs/fem_material_frame_check.syntax.log",
+      "sha256": "c163dc4902bc1fc50c91890f8eae722f0fb28d1dee09f03df6dab9b3b08cd19c"
+    },
+    {
+      "bytes": 1084,
+      "path": "logs/fem_reference_check.syntax.log",
+      "sha256": "9c7faa3827c72167d62076c52c617b3e88618ac59654be094d14a865a7c2b7c1"
+    },
+    {
+      "bytes": 1100,
+      "path": "logs/fem_regional_material_check.syntax.log",
+      "sha256": "5d062dd29f38e9ee4db80e11dfa2d551689cfee97b875885a49001be7f41e674"
+    },
+    {
+      "bytes": 337,
+      "path": "logs/patch-dry-run.log",
+      "sha256": "eafa274fe844ff7618be51c833968154771c14e93dfc699a27561c5639392613"
+    },
+    {
+      "bytes": 2233,
+      "path": "logs/static-review-report.json",
+      "sha256": "c4781d97d7d2b425a3f027806cbd02c7466588e85dc921abd696e796aef83b0b"
+    },
+    {
+      "bytes": 2241,
+      "path": "logs/static-review.log",
+      "sha256": "5c19da640ed373a36ab34cb0ddbbed40f366569bb967bc9243ead14a1962fb71"
+    },
+    {
+      "bytes": 227168,
+      "path": "logs/syntax-cardboard_coupled_free_box_operator_check.o",
+      "sha256": "ba45aa9434b64263bf80a1be5b638a397054e74d817eefa125773e5941fbe438"
+    },
+    {
+      "bytes": 118840,
+      "path": "logs/syntax-cardboard_gpu_check.o",
+      "sha256": "24da37220db61caab75871c10cfc9bd59f848fe64e009103c45800c91f0536a3"
+    },
+    {
+      "bytes": 7686,
+      "path": "logs/syntax-commands.json",
+      "sha256": "bc21cdd70305788259b3ae532f972e4c72c839754b63fd75077cc1d8734a1832"
+    },
+    {
+      "bytes": 338408,
+      "path": "logs/syntax-fem_material_frame_check.o",
+      "sha256": "59085f6916ef3419d6d14e3102bb2c9ffc3eaba156c06ac93ed681094260310e"
+    },
+    {
+      "bytes": 576608,
+      "path": "logs/syntax-fem_reference_check.o",
+      "sha256": "a39c17d47dd207c94c50b0264405c8297e6d9f494d54aa840f6a4ede313a6f17"
+    },
+    {
+      "bytes": 557120,
+      "path": "logs/syntax-fem_regional_material_check.o",
+      "sha256": "93db2ac1ec194567a3c2b9c300eb7c5bc052f380d8446b5d87cb43d620ff87ee"
+    },
+    {
+      "bytes": 8908,
+      "path": "overlay.patch",
+      "sha256": "9a73a94eca2c5f52a0cfae9b16e79cd1bb25638f6bc53cad1c03a86aa25c9572"
+    },
+    {
+      "bytes": 5097,
+      "path": "verify_overlay.py",
+      "sha256": "a36d18b447d8309fa33503177f86a369650f00e4deccf0339ba1869fadbd537a"
+    }
+  ],
+  "package": "cauchy-operator-tools-abi-overlay-137-001",
+  "patch": {
+    "dry_run": "PASS",
+    "path": "overlay.patch",
+    "sha256": "9a73a94eca2c5f52a0cfae9b16e79cd1bb25638f6bc53cad1c03a86aa25c9572"
+  },
+  "schema": "numi.cardboard.direct_operator_tool_abi_overlay.v1",
+  "status": "SEALED_COMPILE_ONLY_CANDIDATE",
+  "validation": {
+    "native_or_gpu_tests": "NOT_RUN",
+    "objective_cxx_syntax_only": "PASS for all five changed tools using source135 compile database flags; no linking or GPU dispatch",
+    "patch_apply_dry_run": "PASS",
+    "physical_qualification": false,
+    "source_review": "PASS"
+  }
+}

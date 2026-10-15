@@ -1,0 +1,71 @@
+{
+  "base": {
+    "source125_manifest_sha256": "dc354c1d0c9619b07d33de0c867239dc260f7fe572372769d6e5e9dde7b023e5",
+    "source130_checker_sha256": "92a37afe2bcbc1c21b75890616730bb6549327d68021337940712b68cc9fd2dd",
+    "source132_build_dir": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-132",
+    "source132_checker_sha256": "6c6bbad3f33ef8e3043042422caa34c0828443c25e1cc76fd9eaf0829b3f9a4e",
+    "source132_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-cache-projection-reuse-capture419-132",
+    "source132_snapshot_manifest_sha256": "eed190973d4340be0021cbd650962cf2e23d068deb556d5356afa0cb6c60b0d5",
+    "source132_static_libraries": {
+      "compiler_sha256": "54d57a4b1c3f0a99e4b69dc235eadd7d05f16f52cdb59daf38b266b0f7b74be4",
+      "metallib_sha256": "671cf60821c89edfe9ea3627053ce29b7625c23c62bd6066f23ff4fcf28da933",
+      "runtime_sha256": "814fcf293602bdab7f08e736258146af8e76482f17b8a5478b3c78a841e1b573"
+    }
+  },
+  "changes": [
+    "correct run360 compiled-package SHA-256 literal by restoring omitted b94",
+    "validate all nine hashes per C++ fixture as exactly 64 hexadecimal characters",
+    "construct Metal pipeline failure text lazily and handle nil NSError/localizedDescription",
+    "add CPU regression for valid, null, short, and non-hex SHA values"
+  ],
+  "claims": {
+    "native_cache_parity": false,
+    "performance": false,
+    "physical_validation": false,
+    "production_qualification": false
+  },
+  "files_sha256": {
+    "README.md": "6470dbfbf90d8451dee9da2a176f518e1c6624f8292d7376953b66164aef0396",
+    "prototype/cardboard_tangent_cache_projection_reuse_check.mm": "60a3e357a1e629148fb1575f424b9bb2d5c4a1d13c43521659f482813e3ed78f",
+    "prototype/checker-source132-003.patch": "f0be54897e1df288f8d7842574be929b4d80c605706ab27d5115cc89df1b945f",
+    "validation/audit_fixture_bindings.py": "2c8528018c7c65fcce91e75af4c6924d25b313bb71cab06443126453201ecc2c",
+    "validation/cpu-admission-360.log": "e3419bacc29c5a5f0a55fecf77dad1e1fa61d4a55034a81f1658cf18845bc107",
+    "validation/cpu-admission-419.log": "23fb8d142bfbec9c5e03c822551e85c3e7b2e7715f01713dee6913bb78974ea8",
+    "validation/fixture-binding-audit.json": "cae87d0f1f34819526dcec7e03fdc1510b2837740421c2f330515927d4791264",
+    "validation/native427-receipt.json": "fc5b1427d594cd4b944753aa0ae9f20a171f07cdbf1482c479723d0719b83d41",
+    "validation/native427-stderr.log": "a16b608e0a6a63953d4d9561478d38307af3409de7bf04e7b5db37de618ba3d6",
+    "validation/native428-crash.ips": "387d219201e69248bbdcc52c9e8e4f6ce7065238248825916ca0a4faa769feb0",
+    "validation/native428-receipt.json": "9cd51e4724ffcc0e4aa2201b51f74d75f02af562146846f2dfcab732d73a31bd",
+    "validation/native428-stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "validation/patch-dry-run.log": "b66d14f5cd84fd64e1a978660ca6c2238b804d81ce83066a44f5134d7b8beb26",
+    "validation/strict-syntax.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "validation/tangent-cache-checker-cpu": "f4555823903b449ac3e08d5a20e8815884d7ac9758aba1247d0ccf58a1685f01"
+  },
+  "fixture_hash_audit": {
+    "checked": 18,
+    "report": "validation/fixture-binding-audit.json",
+    "status": "pass"
+  },
+  "package": "/Users/home/cardboard-implementation-20261014/analysis/tangent-cache-projection-reuse-parity-125-003-checker-binding-and-nserror",
+  "retained_failures": {
+    "native427": {
+      "cause": "incorrect package SHA literal",
+      "exit_code": 1,
+      "receipt": "validation/native427-receipt.json"
+    },
+    "native428": {
+      "cause": "eager nil NSError localizedDescription conversion",
+      "crash_report_sha256": "387d219201e69248bbdcc52c9e8e4f6ce7065238248825916ca0a4faa769feb0",
+      "exit_code": -11,
+      "receipt": "validation/native428-receipt.json"
+    }
+  },
+  "schema": "numi.cardboard.tangent-cache-projection-reuse-checker-fix.v1",
+  "tests": {
+    "native_parity": "not run by this package; parent owns GPU queue",
+    "objcxx_syntax": "pass -std=c++23 -fobjc-arc -Wall -Wextra -Wpedantic -Werror",
+    "patch_dry_run": "pass against exact source132 checker",
+    "run360_cpu_admission": "pass, physical_steps=0",
+    "run419_cpu_admission": "pass, physical_steps=0"
+  }
+}

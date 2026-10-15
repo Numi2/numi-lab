@@ -1,0 +1,12 @@
+{
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-cache-projection-reuse-runtime-136",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-cauchy-positive-mass-admission-135",
+  "overlay_manifest_sha256": "4f61e12a651de523b06497933f3367edd4017f99141b0c63ac07f5211d4e1c0e",
+  "source_review_sha256": "1eb0c90aa7a51280d1f3f3d2d79df98a8289426172ceebf02342ace5224af662",
+  "changed_files": {
+    "matter/src/metal/common.metalinc": "61ace798a14c1ca0ba1f2cfb5c8161ec43c9e7a0f8a6b05bb1ef0ce9f9ca3380",
+    "matter/src/metal/fem.metalinc": "09c3a806224067777aadd26274581ff46be8c9b14282525a7ff805bbb335d03c",
+    "matter/src/runtime.mm": "8c56679c1e547da78f5973382a07ea371b0f3492bebd611cfe73e15f952c959b"
+  },
+  "physical_steps": 0
+}

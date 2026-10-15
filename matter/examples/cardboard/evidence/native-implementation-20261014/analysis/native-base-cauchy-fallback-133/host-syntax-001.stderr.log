@@ -1,0 +1,7 @@
+/Users/home/cardboard-implementation-20261014/analysis/native-base-cauchy-fallback-133/source/matter/src/runtime.mm:22042:46: error: use of undeclared identifier 'NM_MICROSTEP_FGMRES_'
+ 22042 |                 cauchyOperatorMicro.flags |= NM_MICROSTEP_FGMRES_                dispatchThreads("nm_fem_apply_operator_elements",
+       |                                              ^~~~~~~~~~~~~~~~~~~~
+/Users/home/cardboard-implementation-20261014/analysis/native-base-cauchy-fallback-133/source/matter/src/runtime.mm:22086:21: error: expected expression
+ 22086 |                 }); |
+       |                     ^
+2 errors generated.

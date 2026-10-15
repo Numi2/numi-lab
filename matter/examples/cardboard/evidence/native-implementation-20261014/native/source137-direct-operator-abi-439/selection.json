@@ -1,0 +1,145 @@
+{
+  "query": [
+    "ctest",
+    "--test-dir",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-137",
+    "--show-only=json-v1"
+  ],
+  "tests": [
+    {
+      "backtrace": 453,
+      "command": [
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-137/matter/numi-matter-cardboard-coupled-free-box-operator-check"
+      ],
+      "name": "matter.metal.cardboard_coupled_free_box_operator",
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "cardboard",
+            "contact",
+            "matter",
+            "native-kernel",
+            "synthetic"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 180.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-137/matter"
+        }
+      ]
+    },
+    {
+      "backtrace": 461,
+      "command": [
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-137/matter/numi-matter-cardboard-gpu-check",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-repeated-cauchy-fallback-137/matter/materials/nagasawa2013_liner_orthotropic.nmatter",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-repeated-cauchy-fallback-137/matter/materials/nagasawa2013_medium_orthotropic.nmatter"
+      ],
+      "name": "matter.metal.cardboard_material",
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "cardboard",
+            "material",
+            "matter",
+            "metal"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 120.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-137/matter"
+        }
+      ]
+    },
+    {
+      "backtrace": 517,
+      "command": [
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-137/matter/numi-matter-fem-regional-material-check",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-repeated-cauchy-fallback-137/matter/materials/rodero2021_ventricular_guccione_passive.nmatter",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-repeated-cauchy-fallback-137/matter/materials/rodero2021_nonventricular_neo_hookean_passive.nmatter"
+      ],
+      "name": "matter.metal.fem_regional_material",
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "human",
+            "material",
+            "matter"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 180.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-137/matter"
+        }
+      ]
+    },
+    {
+      "backtrace": 519,
+      "command": [
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-137/matter/numi-matter-fem-material-frame-check",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-repeated-cauchy-fallback-137/matter/materials/rodero2021_ventricular_guccione_passive.nmatter"
+      ],
+      "name": "matter.metal.fem_material_frame",
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "human",
+            "material",
+            "matter"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 180.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-137/matter"
+        }
+      ]
+    },
+    {
+      "backtrace": 533,
+      "command": [
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-137/matter/numi-matter-fem-reference-check",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-repeated-cauchy-fallback-137/matter/materials/rodero2021_ventricular_guccione_passive.nmatter",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-repeated-cauchy-fallback-137/matter/materials/rodero2021_nonventricular_neo_hookean_passive.nmatter"
+      ],
+      "name": "matter.metal.fem_reference",
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "human",
+            "material",
+            "matter"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 180.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-137/matter"
+        }
+      ]
+    }
+  ]
+}

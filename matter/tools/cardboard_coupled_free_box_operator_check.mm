@@ -360,6 +360,8 @@ struct CoupledFixture {
             std::vector<NMFEMElementVectorGPU>(1u));
         const auto cacheB = makeBuffer(device.base.gpu, std::vector<float>{0.0f});
         const auto cacheValidB = makeBuffer(device.base.gpu, std::vector<uint>{0u});
+        const auto fallbackMetricsB = makeBuffer(device.base.gpu,
+            std::vector<nm_float4>(world.dispatch.environmentCount, nm_float4{}));
         const uint useCache = 0u;
         auto cmd = [device.base.queue commandBuffer];
         auto enc = [cmd computeCommandEncoder];
@@ -367,7 +369,7 @@ struct CoupledFixture {
         [enc setComputePipelineState:device.femOperator];
         [enc setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
         [enc setBytes:&microstep length:sizeof(microstep) atIndex:1u];
-        id<MTLBuffer> femArgs[26] = {};
+        id<MTLBuffer> femArgs[27] = {};
         femArgs[2] = makeBuffer(device.base.gpu, world.objects);
         femArgs[3] = makeBuffer(device.base.gpu, world.materials);
         femArgs[4] = programsB; femArgs[5] = instructionsB;
@@ -381,7 +383,8 @@ struct CoupledFixture {
         femArgs[21] = makeBuffer(device.base.gpu, world.mixedSolver);
         femArgs[22] = fgmresB; femArgs[23] = cacheB;
         femArgs[24] = cacheValidB; femArgs[25] = makeBuffer(device.base.gpu, useCache);
-        for (NSUInteger i = 2u; i < 26u; ++i)
+        femArgs[26] = fallbackMetricsB;
+        for (NSUInteger i = 2u; i < 27u; ++i)
             if (i != 15u) [enc setBuffer:femArgs[i] offset:0u atIndex:i];
         [enc dispatchThreads:MTLSizeMake(1u,1u,1u)
               threadsPerThreadgroup:MTLSizeMake(1u,1u,1u)];

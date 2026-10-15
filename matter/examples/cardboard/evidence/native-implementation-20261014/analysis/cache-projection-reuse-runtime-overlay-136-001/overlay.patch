@@ -1,0 +1,369 @@
+--- a/matter/src/metal/common.metalinc
++++ b/matter/src/metal/common.metalinc
+@@ -1882,7 +1882,11 @@
+ ,
+     thread const float* deformationLow = nullptr,
+     thread float* returnedProjectedLow = nullptr,
+-    thread float* projectionIterationTrace = nullptr
++    thread float* projectionIterationTrace = nullptr,
++    // Private same-invocation reuse hook used only by the diagnostic cache
++    // builder after column zero projected this exact F/history/rate input.
++    thread const float* reusedProjectedState = nullptr,
++    thread const float* reusedProjectedLow = nullptr
+ ) {
+     if (returnedProjectedLow != nullptr)
+         for (uint i=0u;i<NM_MAX_MATERIAL_STATE;++i) returnedProjectedLow[i]=0.0f;
+@@ -1983,13 +1987,42 @@
+             ? acceptedState[state] : 0.0f;
+     const bool validityAccepted = valid;
+     uint projectionFailure = kMaterialFailureNone;
+-    const bool projectionSucceeded = valid && projectMaterialState(
+-        material, programs, instructions, parameters, acceptedState,
+-        deformation, deformationRate, timestep, temperature, projectedState,
+-        diagnosticProjectionResidualNorm, diagnosticProjectionStateNorm,
+-        diagnosticProjectionIterations, diagnosticStageFlags,
+-        &projectionFailure
+-    , deformationLow, projectedLow, projectionIterationTrace);
++    const bool reusedProjectionRequested =
++        reusedProjectedState != nullptr || reusedProjectedLow != nullptr;
++    bool projectionSucceeded = false;
++    if (reusedProjectionRequested) {
++        const bool projectionDiagnosticsRequested =
++            diagnosticProjectionResidualNorm != nullptr ||
++            diagnosticProjectionStateNorm != nullptr ||
++            diagnosticProjectionIterations != nullptr ||
++            diagnosticStageFlags != nullptr ||
++            diagnosticTerminalFailure != nullptr ||
++            projectionIterationTrace != nullptr;
++        projectionSucceeded = valid && reusedProjectedState != nullptr &&
++            reusedProjectedLow != nullptr && !projectionDiagnosticsRequested &&
++            material.stateCount == 15u &&
++            material.projectionKind == NM_MATERIAL_PROJECTION_GENERIC &&
++            usesCompensatedImplicitCandidate(material) &&
++            usesScaledCorrectionProjection(material);
++        if (projectionSucceeded) {
++            for (uint state = 0u; state < material.stateCount; ++state) {
++                projectedState[state] = reusedProjectedState[state];
++                projectedLow[state] = reusedProjectedLow[state];
++                projectionSucceeded = projectionSucceeded &&
++                    isfinite(projectedState[state]) && isfinite(projectedLow[state]);
++            }
++        }
++        if (!projectionSucceeded)
++            projectionFailure = kMaterialFailureProjectionInputInvalid;
++    } else {
++        projectionSucceeded = valid && projectMaterialState(
++            material, programs, instructions, parameters, acceptedState,
++            deformation, deformationRate, timestep, temperature, projectedState,
++            diagnosticProjectionResidualNorm, diagnosticProjectionStateNorm,
++            diagnosticProjectionIterations, diagnosticStageFlags,
++            &projectionFailure
++        , deformationLow, projectedLow, projectionIterationTrace);
++    }
+     if (returnedProjectedState != nullptr) {
+         for (uint state = 0u; state < material.stateCount; ++state)
+             returnedProjectedState[state] = projectedState[state];
+--- a/matter/src/metal/fem.metalinc
++++ b/matter/src/metal/fem.metalinc
+@@ -3000,6 +3000,150 @@
+     validEntries[global] = 1u;
+ }
+ 
++kernel void nm_fem_build_algorithmic_tangent_cache_projection_reuse_diagnostic(
++    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
++    constant NMMicrostepGPU& microstep [[buffer(1)]],
++    device const NMContinuumObjectGPU* objects [[buffer(2)]],
++    device const NMMaterialGPU* materials [[buffer(3)]],
++    device const NMScalarProgramGPU* programs [[buffer(4)]],
++    device const NMExpressionInstructionGPU* instructions [[buffer(5)]],
++    device const float* environmentParameters [[buffer(6)]],
++    device const NMFEMNodeStateGPU* candidate [[buffer(7)]],
++    device const NMTetrahedronGPU* tetrahedra [[buffer(8)]],
++    device const float* acceptedMaterialState [[buffer(9)]],
++    device const NMSchedulerStateGPU* schedulers [[buffer(10)]],
++    device const NMAdaptiveStateGPU* adaptive [[buffer(11)]],
++    device float* tangentCache [[buffer(12)]],
++    device uint* validEntries [[buffer(13)]],
++    device const NMMatterStatusGPU* statuses [[buffer(14)]],
++    device const NMFGMRESStateGPU* fgmresStates [[buffer(15)]],
++    constant uint& forceCompletedCacheRebuild [[buffer(16)]],
++    uint global [[thread_position_in_grid]]
++) {
++    const uint total = dispatch.environmentCount * dispatch.tetrahedronCount;
++    if (global >= total || dispatch.tetrahedronCount == 0u) return;
++    const uint environment = global / dispatch.tetrahedronCount;
++    // The full nonlinear convergence latch is written only after the
++    // production residual/correction/support gates pass. Later statically
++    // encoded Newton-tail iterations leave the accepted candidate unchanged;
++    // retain its exact cache instead of projecting all 9 columns again.
++    // Newton iteration zero always rebuilds, even if this state buffer still
++    // carries a latch from the preceding transaction.
++    if (forceCompletedCacheRebuild == 0u &&
++        microstep.solverIteration > 0u &&
++        fgmresStates[environment].nonlinear.w > 0.5f)
++        return;
++    validEntries[global] = 0u;
++
++    const uint tetrahedronIndex =
++        global - environment * dispatch.tetrahedronCount;
++    if (!environmentHealthy(statuses, environment)) return;
++
++    const NMTetrahedronGPU tetrahedron = environmentTetrahedron(
++        dispatch, tetrahedra, environment, tetrahedronIndex
++    );
++    const uint objectIndex = tetrahedron.identity.y;
++    if ((tetrahedron.identity.w & NM_OBJECT_ACTIVE) == 0u ||
++        objectIndex >= dispatch.objectCount)
++        return;
++    const NMContinuumObjectGPU object = objects[objectIndex];
++    const NMSchedulerStateGPU scheduler =
++        schedulers[environment * dispatch.objectCount + objectIndex];
++    const NMAdaptiveStateGPU adaptiveState =
++        adaptive[environment * dispatch.objectCount + objectIndex];
++    if (object.representation != NM_REPRESENTATION_FEM ||
++        !objectDue(object, scheduler, adaptiveState, microstep) ||
++        (object.flags & NM_OBJECT_MIXED_FEM) != 0u)
++        return;
++
++    const uint nodeBase = environment * dispatch.femNodeCount;
++    const float3x3 deformation = tetrahedronDeformation(
++        tetrahedron, candidate, nodeBase
++    );
++    const float3x3 deformationRate = tetrahedronVelocityGradient(
++        tetrahedron, candidate, nodeBase
++    );
++    const NMMaterialGPU material = materials[tetrahedron.identity.x];
++    float deformationLow[9];
++    const float3x3 preciseLocalF = femMaterialDeformationWords(
++        object, tetrahedron, material, candidate, nodeBase,
++        deformation, deformationLow
++    );
++    device const float* internalState = material.stateCount == 0u
++        ? nullptr
++        : acceptedMaterialState + global * dispatch.materialStateStride;
++    const uint parameterBase = environment * dispatch.parameterCount;
++    const float dt = objectTimestep(dispatch, scheduler);
++    const float3x3 localRate = femMaterialInput(
++        object, tetrahedron, deformationRate
++    );
++    const uint cacheBase = global * 81u;
++    const bool reuseAccuratePaperProjection =
++        material.stateCount == 15u &&
++        material.projectionKind == NM_MATERIAL_PROJECTION_GENERIC &&
++        usesCompensatedImplicitCandidate(material) &&
++        usesScaledCorrectionProjection(material);
++    // Runtime mode 1 is admitted only for this exact coupon material policy.
++    // Do not silently turn an explicitly requested reuse build into the
++    // ordinary repeated-projection path if an input escapes that admission.
++    if (!reuseAccuratePaperProjection) return;
++    // The evaluator initializes/returns up to NM_MAX_MATERIAL_STATE words.
++    // Keep full-size local arrays even though this reuse policy is 15-state.
++    float reusedProjectedState[NM_MAX_MATERIAL_STATE];
++    float reusedProjectedLow[NM_MAX_MATERIAL_STATE];
++
++    // matrixComponents uses row-major scalar order even though Metal matrices
++    // are column-major. Store each evaluated response as one column of that
++    // explicit row-major linear map.
++    for (uint column = 0u; column < 9u; ++column) {
++        float directionComponents[9];
++        for (uint component = 0u; component < 9u; ++component)
++            directionComponents[component] = component == column ? 1.0f : 0.0f;
++        const float3x3 localDirection = componentsMatrix(directionComponents);
++        const float3x3 localRateDirection =
++            localDirection / max(dt, 1.0e-12f);
++        bool valid = true;
++        float3x3 analytic;
++        float3x3 materialTangent;
++        evaluateAlgorithmicStressTangent(
++            material,
++            programs,
++            instructions,
++            environmentParameters + parameterBase,
++            internalState,
++            preciseLocalF,
++            localDirection,
++            localRate,
++            localRateDirection,
++            dt,
++            material.bulk.y,
++            analytic,
++            materialTangent,
++            valid,
++            reuseAccuratePaperProjection && column == 0u
++                ? reusedProjectedState : nullptr,
++            nullptr, nullptr, nullptr, nullptr, nullptr,
++            deformationLow,
++            reuseAccuratePaperProjection && column == 0u
++                ? reusedProjectedLow : nullptr,
++            nullptr,
++            reuseAccuratePaperProjection && column > 0u
++                ? reusedProjectedState : nullptr,
++            reuseAccuratePaperProjection && column > 0u
++                ? reusedProjectedLow : nullptr
++        );
++        if (!valid) return;
++        float responseComponents[9];
++        matrixComponents(materialTangent, responseComponents);
++        for (uint row = 0u; row < 9u; ++row) {
++            if (!isfinite(responseComponents[row])) return;
++            tangentCache[cacheBase + row * 9u + column] =
++                responseComponents[row];
++        }
++    }
++    validEntries[global] = 1u;
++}
++
+ kernel void nm_fem_apply_operator_elements(
+     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+     constant NMMicrostepGPU& microstep [[buffer(1)]],
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -2379,6 +2379,7 @@
+     id<MTLBuffer> femAlgorithmicTangentCache = nil;
+     id<MTLBuffer> femAlgorithmicTangentCacheValid = nil;
+     bool forceCompletedTangentCacheRebuild = false;
++    bool femCacheProjectionReuseEnabled = false;
+     // Source-bound, opt-in regional RAP preconditioner. femRegionalBasis is
+     // the immutable authored P; femRegionalEffectiveBasis is P projected
+     // through each environment's current candidate Dirichlet mask. AP and
+@@ -3170,6 +3171,108 @@
+             std::fprintf(stderr,
+                 "matter_tangent_cache_control={\"schema\":1,\"completed_tail_rebuild\":true}\n");
+         }
++        const char* cacheProjectionReuse =
++            std::getenv("NM_FEM_CACHE_PROJECTION_REUSE");
++        if (cacheProjectionReuse != nullptr &&
++            std::strcmp(cacheProjectionReuse, "0") != 0 &&
++            std::strcmp(cacheProjectionReuse, "1") != 0) {
++            diagnostics.message =
++                "NM_FEM_CACHE_PROJECTION_REUSE must be exactly 0 or 1";
++            return diagnostics;
++        }
++        if (cacheProjectionReuse != nullptr &&
++            std::strcmp(cacheProjectionReuse, "1") == 0) {
++            std::vector<std::string> ineligible;
++            if (world.mixedSolver.executionBudgets.w != 1u)
++                ineligible.emplace_back("algorithmic_tangent_cache_must_be_enabled");
++            if (world.dispatch.environmentCount == 0u ||
++                world.dispatch.environmentCount > 2u)
++                ineligible.emplace_back("environment_count_must_be_1_or_2");
++            if (world.dispatch.objectCount != 1u || world.objects.size() != 1u)
++                ineligible.emplace_back("exactly_one_authored_FEM_object_required");
++            if (world.dispatch.femNodeCount == 0u ||
++                world.dispatch.tetrahedronCount == 0u ||
++                world.fem.tetrahedra.size() != world.dispatch.tetrahedronCount)
++                ineligible.emplace_back("nonempty_exact_FEM_topology_required");
++            constexpr std::uint32_t unsupportedMatterFlags =
++                NM_MATTER_ADAPTIVE | NM_MATTER_CONTACT | NM_MATTER_MIXED_FEM |
++                NM_MATTER_MULTIPHYSICS | NM_MATTER_MUTATION |
++                NM_MATTER_LEARNED_MATERIAL | NM_MATTER_IDENTIFICATION |
++                NM_MATTER_IPC;
++            if ((world.dispatch.flags & unsupportedMatterFlags) != 0u ||
++                world.dispatch.gridNodeCount != 0u ||
++                world.dispatch.particleCount != 0u ||
++                world.dispatch.mpmGridCount != 0u ||
++                world.dispatch.mpmBlockCount != 0u)
++                ineligible.emplace_back("adaptive_MPM_or_multiphysics_state_is_unsupported");
++            if (world.dispatch.rigidProxyCount != 0u ||
++                world.dispatch.rigidGeneralizedCapacity != 0u ||
++                world.dispatch.rigidQCapacity != 0u ||
++                world.dispatch.contactPairCount != 0u ||
++                !world.contact.pairs.empty() ||
++                !world.contact.rigidProxies.empty())
++                ineligible.emplace_back("rigid_or_contact_state_is_unsupported");
++            if (world.dispatch.cohesiveFaceCount != 0u ||
++                !world.fem.cohesiveFaces.empty() ||
++                world.dispatch.femHumanAttachmentCount != 0u ||
++                world.dispatch.fieldBoundaryCount != 0u ||
++                world.vascular.layout.ranges.z != 0u)
++                ineligible.emplace_back("cohesive_Human_field_or_vascular_state_is_unsupported");
++            if (world.dispatch.mutationCommandCount != 0u)
++                ineligible.emplace_back("topology_mutation_is_unsupported");
++            if (world.dispatch.learnedMaterialCount != 0u ||
++                world.dispatch.learnedLayerCount != 0u ||
++                world.dispatch.learnedWeightCount != 0u)
++                ineligible.emplace_back("learned_material_state_is_unsupported");
++            if (!world.objects.empty()) {
++                const NMContinuumObjectGPU& object = world.objects.front();
++                constexpr std::uint32_t unsupportedObjectFlags =
++                    NM_OBJECT_ADAPTIVE | NM_OBJECT_MIXED_FEM |
++                    NM_OBJECT_MULTIPHYSICS | NM_OBJECT_MUTABLE_TOPOLOGY;
++                constexpr std::uint32_t requiredContactDisableFlags =
++                    NM_OBJECT_DISABLE_SELF_CONTACT |
++                    NM_OBJECT_DISABLE_DEFORMABLE_CONTACT;
++                if (object.representation != NM_REPRESENTATION_FEM ||
++                    (object.flags & NM_OBJECT_ACTIVE) == 0u ||
++                    (object.flags & unsupportedObjectFlags) != 0u ||
++                    (object.flags & requiredContactDisableFlags) !=
++                        requiredContactDisableFlags)
++                    ineligible.emplace_back("object_must_be_active_immutable_contact_free_FEM");
++            }
++            std::size_t activeTetrahedra = 0u;
++            for (const NMTetrahedronGPU& tetrahedron : world.fem.tetrahedra) {
++                if ((tetrahedron.identity.w & NM_OBJECT_ACTIVE) == 0u) continue;
++                ++activeTetrahedra;
++                if (tetrahedron.identity.y != 0u ||
++                    tetrahedron.identity.x >= world.materials.size()) {
++                    ineligible.emplace_back("active_tetrahedron_material_or_object_identity_invalid");
++                    break;
++                }
++                const NMMaterialGPU& material =
++                    world.materials[tetrahedron.identity.x];
++                constexpr std::uint32_t requiredMaterialFlags =
++                    NM_MATERIAL_GENERIC_COMPENSATED_IMPLICIT_PROJECTION |
++                    NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION;
++                if (material.stateCount != 15u ||
++                    material.projectionKind != NM_MATERIAL_PROJECTION_GENERIC ||
++                    (material.flags & requiredMaterialFlags) !=
++                        requiredMaterialFlags) {
++                    ineligible.emplace_back(
++                        "every_active_tetrahedron_requires_compensated_scaled_generic_15_state_material");
++                    break;
++                }
++            }
++            if (activeTetrahedra == 0u)
++                ineligible.emplace_back("at_least_one_active_tetrahedron_required");
++            if (!ineligible.empty()) {
++                diagnostics.message =
++                    "cache projection reuse ineligible for the single static FEM coupon scope:";
++                for (const std::string& reason : ineligible)
++                    diagnostics.message += " " + reason;
++                return diagnostics;
++            }
++            candidate->femCacheProjectionReuseEnabled = true;
++        }
+         const TiledCohesiveArmijoOptions tiledCohesiveOptions =
+             tiledCohesiveArmijoOptionsFromEnvironment();
+         if (tiledCohesiveOptions.error != nullptr) {
+@@ -4007,6 +4110,7 @@
+             "nm_fem_internal_forces",
+             "nm_fem_status5_capture",
+             "nm_fem_build_algorithmic_tangent_cache",
++            "nm_fem_build_algorithmic_tangent_cache_projection_reuse_diagnostic",
+             "nm_fem_cohesive_face_forces",
+             "nm_fem_accumulate_cohesive_page_forces",
+             "nm_fem_apply_cohesive_force_accumulator",
+@@ -4288,6 +4392,10 @@
+                 isGraphSchwarzKernel(name)) continue;
+             if (!candidate->deformableContactNodeIncidenceSortEnabled &&
+                 isSortedNodeIncidenceKernel(name)) continue;
++            if (!candidate->femCacheProjectionReuseEnabled &&
++                std::strcmp(name,
++                    "nm_fem_build_algorithmic_tangent_cache_projection_reuse_diagnostic") == 0)
++                continue;
+             id<MTLFunction> function = kernel(name);
+             if (function == nil) {
+                 diagnostics.message = std::string("missing Metal function ") + name;
+@@ -19078,7 +19186,11 @@
+             if (state.mixedSolverValue.executionBudgets.w == 1u) {
+                 const std::uint32_t forceCompletedCacheRebuild =
+                     state.forceCompletedTangentCacheRebuild ? 1u : 0u;
+-                dispatchThreads("nm_fem_build_algorithmic_tangent_cache",
++                const char* tangentCacheBuilder =
++                    state.femCacheProjectionReuseEnabled
++                        ? "nm_fem_build_algorithmic_tangent_cache_projection_reuse_diagnostic"
++                        : "nm_fem_build_algorithmic_tangent_cache";
++                dispatchThreads(tangentCacheBuilder,
+                     tetrahedronTotal, [&] {
+                     setDispatch();
+                     [encoder setBytes:&operatorMicro

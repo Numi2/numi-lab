@@ -1,0 +1,4 @@
+analysis/native-base-cauchy-kernel-check-133-001/native_cauchy_kernel_check.mm:84:6: error: unused function 'testExactFiniteFloatWords' [-Werror,-Wunused-function]
+   84 | void testExactFiniteFloatWords() {
+      |      ^~~~~~~~~~~~~~~~~~~~~~~~~
+1 error generated.

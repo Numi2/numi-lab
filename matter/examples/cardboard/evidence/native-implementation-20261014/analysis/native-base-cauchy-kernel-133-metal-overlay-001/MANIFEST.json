@@ -1,0 +1,111 @@
+{
+  "base_files": {
+    "matter/src/matter_kernels.metal": {
+      "bytes": 561,
+      "sha256": "37d3530284e2361b20f805409768c65446fc13186c50e94f286b73256debe168"
+    },
+    "matter/src/metal/fem.metalinc": {
+      "bytes": 243845,
+      "sha256": "70c2f396045f9abdcfdc32f5714e6e3a400f5566e5a7824353e11b307de52b7d"
+    },
+    "matter/src/metal/fgmres.metalinc": {
+      "bytes": 393469,
+      "sha256": "1c423e02e189df17c925e0b77ded87465098278f836011c16aad1bb8f92bcec0"
+    }
+  },
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125",
+  "candidate_files": {
+    "matter/src/matter_kernels.metal": {
+      "bytes": 561,
+      "sha256": "37d3530284e2361b20f805409768c65446fc13186c50e94f286b73256debe168"
+    },
+    "matter/src/metal/fem.metalinc": {
+      "bytes": 245560,
+      "sha256": "25b2f3a86999df08b2fa84f14058657274154b4b9671120e5b79248dff351c79"
+    },
+    "matter/src/metal/fgmres.metalinc": {
+      "bytes": 401346,
+      "sha256": "207a577afec7f68d39a95fb5bc47ea7e1ca8af5193b65448ee29644b236fbf06"
+    },
+    "matter/tools/test_base_cauchy_fallback_reference.py": {
+      "bytes": 4876,
+      "sha256": "03f6d672757e3e0cab56167db8b09746a0659dec9599b3cdb8fe247b9ce63786"
+    }
+  },
+  "changed_production_sources": [
+    "matter/src/metal/fem.metalinc",
+    "matter/src/metal/fgmres.metalinc"
+  ],
+  "inventory": [
+    {
+      "bytes": 2352,
+      "path": "README.md",
+      "sha256": "bb7a1df076a2f15106f50f9ce8537204584367e154b0839e93b2a16021c6c66c"
+    },
+    {
+      "bytes": 245560,
+      "path": "overlay/matter/src/metal/fem.metalinc",
+      "sha256": "25b2f3a86999df08b2fa84f14058657274154b4b9671120e5b79248dff351c79"
+    },
+    {
+      "bytes": 401346,
+      "path": "overlay/matter/src/metal/fgmres.metalinc",
+      "sha256": "207a577afec7f68d39a95fb5bc47ea7e1ca8af5193b65448ee29644b236fbf06"
+    },
+    {
+      "bytes": 4876,
+      "path": "overlay/matter/tools/test_base_cauchy_fallback_reference.py",
+      "sha256": "03f6d672757e3e0cab56167db8b09746a0659dec9599b3cdb8fe247b9ce63786"
+    },
+    {
+      "bytes": 13424,
+      "path": "overlay.patch",
+      "sha256": "de7aa4d5b7855ffa724f2c1e7e10a102fb03a9e78f14a1f624711e3621a6c1ea"
+    },
+    {
+      "bytes": 2276672,
+      "path": "validation/compile/matter-O0.air",
+      "sha256": "e70608e89589306257a69aac760ed3e00c668e0d2c6d2cce9925581785702962"
+    },
+    {
+      "bytes": 3163,
+      "path": "validation/compile/matter-O0.log",
+      "sha256": "7e10aaac3073c7aed26481faf22ba5f8fb8ab7225af6782e87e15ceab0d47bde"
+    },
+    {
+      "bytes": 1576976,
+      "path": "validation/compile/matter-O3.air",
+      "sha256": "4e02277f044a951eb7c53953b49988af81e795b48dff75e77957ed0afa530bd7"
+    },
+    {
+      "bytes": 3163,
+      "path": "validation/compile/matter-O3.log",
+      "sha256": "ac47e1e21f4c86d45d90dea653271d455c17897f77091a2bbffa571bf4cecdb6"
+    },
+    {
+      "bytes": 806,
+      "path": "validation/compile_metal.sh",
+      "sha256": "190e7c49ac4b91fd995e3b2eb1306ffaaa2561cf03c75e991a30b7ffe8b78b71"
+    },
+    {
+      "bytes": 103,
+      "path": "validation/test_reference.log",
+      "sha256": "888a0c0ed615e57d32cf72be501b0c355f33b8613c81dfdaa99db33d7959487e"
+    },
+    {
+      "bytes": 136,
+      "path": "validation/test_reference.sh",
+      "sha256": "7b92c85ecbb4bfcde4a10aea24dcbe57361b02f8969205b415ac3459c44ca4eb"
+    }
+  ],
+  "package": "native-base-cauchy-kernel-133-metal-overlay-001",
+  "runtime_changes": "None in this package; host integration is parent-owned.",
+  "schema": "numi.matter.base_cauchy_metal_overlay.v1",
+  "validation": {
+    "cpu_reference_tests": "PASS, 5 tests; see validation/test_reference.log",
+    "gpu_execution": "NOT RUN",
+    "metal_compile": "PASS at -O0 and -O3 with Metal 4.0 and -fno-fast-math; see per-mode logs",
+    "physical_or_full_solver_qualification": "NOT CLAIMED",
+    "warnings": "Two existing sometimes-uninitialized warnings: sharedValid and refinementValid in fgmres.metalinc."
+  }
+}

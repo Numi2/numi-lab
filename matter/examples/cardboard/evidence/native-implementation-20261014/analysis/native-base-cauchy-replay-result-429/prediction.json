@@ -1,0 +1,25 @@
+{
+  "question": "Can an operator-adjoint Cauchy alternative decrease the exact failed center nonlinear residual?",
+  "prediction": "CPU predictions from b at current center: scaled direction residual ratio0.7025; raw0.8678. Test actual production source125 signed trial geometry/constitutive validity and residual; require exact center parity with424. No accepted transaction or convergence claim.",
+  "package_manifest_sha256": "cbc2a5f20af28f082a381e6dc88f6df91a4d910b10e4301c9bfbd345b96d2c4b",
+  "commands": {
+    "base_column_equilibrated_cauchy": [
+      "/Users/home/cardboard-implementation-20261014/analysis/native-residual-direction-replay-419-001/build/native_residual_direction",
+      "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/output/compiled.nmatterpack",
+      "/Users/home/cardboard-implementation-20261014/analysis/native-residual-direction-replay-419-001/base_column_equilibrated_cauchy.input.bin",
+      "/Users/home/cardboard-implementation-20261014/analysis/native-base-cauchy-replay-result-429/base_column_equilibrated_cauchy"
+    ],
+    "base_raw_cauchy": [
+      "/Users/home/cardboard-implementation-20261014/analysis/native-residual-direction-replay-419-001/build/native_residual_direction",
+      "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/output/compiled.nmatterpack",
+      "/Users/home/cardboard-implementation-20261014/analysis/native-residual-direction-replay-419-001/base_raw_cauchy.input.bin",
+      "/Users/home/cardboard-implementation-20261014/analysis/native-base-cauchy-replay-result-429/base_raw_cauchy"
+    ],
+    "base_column_equilibrated_trust_1e-06_delta": [
+      "/Users/home/cardboard-implementation-20261014/analysis/native-residual-direction-replay-419-001/build/native_residual_direction",
+      "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/output/compiled.nmatterpack",
+      "/Users/home/cardboard-implementation-20261014/analysis/native-residual-direction-replay-419-001/base_column_equilibrated_trust_1e-06_delta.input.bin",
+      "/Users/home/cardboard-implementation-20261014/analysis/native-base-cauchy-replay-result-429/base_column_equilibrated_trust_1e-06_delta"
+    ]
+  }
+}

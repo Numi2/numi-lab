@@ -1,0 +1,29 @@
+{
+  "schema": "numi.cardboard.direct_operator_abi_suite.v1",
+  "results": {
+    "matter.metal.cardboard_coupled_free_box_operator": {
+      "exit_code": 0,
+      "receipt_sha256": "d57d80cd0c8fd9bb8045de3742205496dc146bb5b66ff0f99e9db65436d67136"
+    },
+    "matter.metal.cardboard_material": {
+      "exit_code": 0,
+      "receipt_sha256": "79cde8bffdbdd9ef47f0504961baea0039b311f6a1bb6e963d0e24ef34063beb"
+    },
+    "matter.metal.fem_regional_material": {
+      "exit_code": 0,
+      "receipt_sha256": "44c783e9232472fa67668960ddd0d43d121efd3d6ec7c63a3960998e6ab127f5"
+    },
+    "matter.metal.fem_material_frame": {
+      "exit_code": 0,
+      "receipt_sha256": "60e6a4acb582eb705b1edbf33c183b8726145363d56215bc728f9fc40675fa7b"
+    },
+    "matter.metal.fem_reference": {
+      "exit_code": 0,
+      "receipt_sha256": "084a5a4188839f6ef5a0f08debe23338496af0f9cf2b9f8fc687cc65f9e920e8"
+    }
+  },
+  "source_build_sha256": "f3e98462c0be7b42fb2fb776ef9d4b6841b4e5369d4de67fc5bb9f4f32cdfae2",
+  "wall_seconds": 314.1111827500281,
+  "finished_at_utc": "2026-10-15T20:58:16.135593+00:00",
+  "classification": "Five synthetic native regression tests; no complete coupon or physical box qualification"
+}

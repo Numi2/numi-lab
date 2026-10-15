@@ -1,0 +1,123 @@
+{
+  "schema": "numi.matter.runtime_review.receipt.v1",
+  "package": "runtime133-fallback-row-and-certificate-review-001",
+  "status": "completed_read_only_source_review",
+  "actions": {
+    "source_modified": false,
+    "gpu_or_native_run_performed": false,
+    "source135_guard_candidate_verified_read_only": true
+  },
+  "conclusions": {
+    "terminal_certificate_correction": "uses the post-Armijo, in-place alpha-scaled femSolution (alpha*p for the fallback)",
+    "terminal_acceptance_gate": "residual/volume/pressure/transport limits plus finite correction; no correction-magnitude threshold",
+    "intermediate_fgmres_nonlinear_z": "remains the pre-Armijo original Newton correction ratio; next nonlinear latch checks finiteness only",
+    "skipped_environment_trial_status": "private trialStatuses failure marker for an already-selected environment; measure/decide return before it affects production statuses or commit",
+    "source135_guard": "fallback-parser-only authored mass-layout size and finite-positive physical-mass admission before the shared Armijo scope"
+  },
+  "source_snapshots": [
+    {
+      "name": "Source133",
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-base-state-cauchy-armijo-133",
+      "frozen_source_manifest_sha256": "48d0c2da92cc8557507faa67bf80b3730c669075e25fd0d8ce202ff08ba2d973",
+      "reviewed_files": [
+        {
+          "path": "matter/src/runtime.mm",
+          "sha256": "a1a28cb7d25cf6c1fdebb846c7b45415cd33ca9dfc13bafc1b905b9881de7e80",
+          "lines": [
+            "10049-10086",
+            "11471-11563",
+            "18883-18895",
+            "21984-21998",
+            "22217-22242",
+            "22425-22430",
+            "23622-23635",
+            "24179-24202"
+          ]
+        },
+        {
+          "path": "matter/src/metal/fgmres.metalinc",
+          "sha256": "207a577afec7f68d39a95fb5bc47ea7e1ca8af5193b65448ee29644b236fbf06",
+          "lines": [
+            "1330-1399",
+            "1434-1512",
+            "5064-5124",
+            "5265-5371"
+          ]
+        },
+        {
+          "path": "matter/src/metal/fem.metalinc",
+          "sha256": "25b2f3a86999df08b2fa84f14058657274154b4b9671120e5b79248dff351c79",
+          "lines": [
+            "3327-3359",
+            "4248-4283",
+            "4329-4351",
+            "4435-4474",
+            "4487-4514",
+            "4556-4572"
+          ]
+        },
+        {
+          "path": "matter/src/metal/mixed_fem.metalinc",
+          "sha256": "9f3fba45290c92cc782393c420520b25c7d630fa080b9e2aff1d9f52a33d1681",
+          "lines": [
+            "597-700",
+            "850-885"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Source135",
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-cauchy-positive-mass-admission-135",
+      "frozen_source_manifest_sha256": "40f0196428da88be0ecb951a03a9989c51e44405abd8393f13970e1f7239b9a8",
+      "parent_revision": "7ebc64a666c4bd5e1ff61b3684655979ab80dc60",
+      "reviewed_file": {
+        "path": "matter/src/runtime.mm",
+        "sha256": "f5030219a901ae9acafad1ef9e2d68ad1385d1d5e0b91b893633834aebf9e2b1",
+        "lines": [
+          "3313-3328",
+          "10143-10152",
+          "11545-11560",
+          "29165-29190"
+        ]
+      },
+      "manifest_comparison": {
+        "base_file_count": 785,
+        "candidate_file_count": 785,
+        "changed_paths": [
+          "matter/src/runtime.mm"
+        ]
+      }
+    }
+  ],
+  "source_line_ranges": {
+    "stale_intermediate_metric": [
+      "Source133 matter/src/runtime.mm:21984-21998",
+      "Source133 matter/src/metal/fgmres.metalinc:1434-1512",
+      "Source133 matter/src/metal/fgmres.metalinc:1330-1368"
+    ],
+    "fallback_replace_and_armijo": [
+      "Source133 matter/src/metal/fgmres.metalinc:5265-5371",
+      "Source133 matter/src/runtime.mm:22217-22230",
+      "Source133 matter/src/metal/fem.metalinc:4556-4572"
+    ],
+    "applied_correction_and_certificate": [
+      "Source133 matter/src/runtime.mm:23622-23635",
+      "Source133 matter/src/metal/fem.metalinc:3327-3359",
+      "Source133 matter/src/runtime.mm:24179-24202",
+      "Source133 matter/src/metal/mixed_fem.metalinc:597-700",
+      "Source133 matter/src/metal/mixed_fem.metalinc:850-885"
+    ],
+    "skipped_environment_scratch": [
+      "Source133 matter/src/metal/fem.metalinc:4248-4283",
+      "Source133 matter/src/metal/fem.metalinc:4344-4351",
+      "Source133 matter/src/metal/fem.metalinc:4435-4445",
+      "Source133 matter/src/metal/fem.metalinc:4502-4514"
+    ],
+    "source135_mass_guard": [
+      "Source135 matter/src/runtime.mm:3313-3328",
+      "Source135 matter/src/runtime.mm:11545-11560",
+      "Source135 matter/src/runtime.mm:29165-29190"
+    ]
+  }
+}

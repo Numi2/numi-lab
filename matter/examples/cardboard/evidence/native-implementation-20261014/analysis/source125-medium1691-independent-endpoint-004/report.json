@@ -1,0 +1,292 @@
+{
+  "assembled_secant": {
+    "all_tets_independent_plus_minus_projection_complete": true,
+    "completed_full_secant_vs_1919_tet_subset": {
+      "actual_l2": 0.0002734462077516737,
+      "difference_l2": 0.0003743383038135047,
+      "max_component_abs": 0.00019091650704850305,
+      "reference_l2": 0.0004991212739223398,
+      "relative_to_reference": 0.7499946874068714,
+      "status": "available"
+    },
+    "finite_direction": {
+      "epsilon": 6.103515625e-05,
+      "observed_plastic_multiplier_predicate_flips_on_valid_rows": 0,
+      "realized_dF_vs_nominal_dt_times_captured_H_relative": 3.4329879765606066e-06,
+      "realized_dv_vs_nominal_correction_relative": 1.0540018045584215e-06
+    },
+    "full_minus_subset_matches_tet1691_residual_contribution": {
+      "actual_l2": 0.0003743383038135047,
+      "difference_l2": 1.2318969389187027e-17,
+      "max_component_abs": 8.51098705401121e-18,
+      "reference_l2": 0.00037433830381350294,
+      "relative_to_reference": 3.2908653118555543e-14,
+      "status": "available"
+    },
+    "glue_tet_count": 192,
+    "independent_center_A_vs_native_center_A": {
+      "actual_l2": 0.00018444849064302578,
+      "difference_l2": 5.206512448669199e-09,
+      "max_component_abs": 2.233191149791393e-09,
+      "reference_l2": 0.000184449280610251,
+      "relative_to_reference": 2.8227339415168425e-05,
+      "status": "available"
+    },
+    "independent_endpoint_secant_vs_center_tangent_realized_direction": {
+      "actual_l2": 0.0002734462077516737,
+      "difference_l2": 0.00019750721434336617,
+      "max_component_abs": 0.00010715565284573064,
+      "reference_l2": 0.0001879402922927597,
+      "relative_to_reference": 1.050904050078329,
+      "status": "available"
+    },
+    "independent_endpoint_secant_vs_independent_center_A_nominal": {
+      "actual_l2": 0.0002734462077516737,
+      "difference_l2": 0.00020196059906521106,
+      "max_component_abs": 0.00010767311733894734,
+      "reference_l2": 0.00018444849064302578,
+      "relative_to_reference": 1.0949430833569547,
+      "status": "available"
+    },
+    "independent_endpoint_secant_vs_native_center_A_nominal": {
+      "actual_l2": 0.0002734462077516737,
+      "difference_l2": 0.00020196035623995322,
+      "max_component_abs": 0.00010767311204700999,
+      "reference_l2": 0.000184449280610251,
+      "relative_to_reference": 1.0949370774001763,
+      "status": "available"
+    },
+    "native_captured_endpoint_secant_vs_independent_endpoint_secant": {
+      "actual_l2": 0.0002734221105667207,
+      "difference_l2": 7.786907234985637e-07,
+      "max_component_abs": 2.2625154759779557e-07,
+      "reference_l2": 0.0002734462077516737,
+      "relative_to_reference": 0.002847692531196924,
+      "status": "available"
+    },
+    "native_captured_secant_vs_center_tangent_realized_direction": {
+      "actual_l2": 0.0002734221105667207,
+      "difference_l2": 0.00019748601475518497,
+      "max_component_abs": 0.00010716128028807923,
+      "reference_l2": 0.0001879402922927597,
+      "relative_to_reference": 1.0507912504869135,
+      "status": "available"
+    },
+    "native_captured_secant_vs_native_center_A": {
+      "actual_l2": 0.0002734221105667207,
+      "difference_l2": 0.00020193630602153187,
+      "max_component_abs": 0.00010767873948935858,
+      "reference_l2": 0.000184449280610251,
+      "relative_to_reference": 1.0948066880685303,
+      "status": "available"
+    },
+    "native_endpoint_force_formula_vs_captured_residual": {
+      "minus": {
+        "actual_l2": 2.441663164804498e-06,
+        "difference_l2": 4.029589848137962e-11,
+        "max_component_abs": 1.3815798229694693e-11,
+        "reference_l2": 2.4416596620973773e-06,
+        "relative_to_reference": 1.650348699571241e-05,
+        "status": "available"
+      },
+      "plus": {
+        "actual_l2": 2.4305781422671917e-06,
+        "difference_l2": 3.8410309008486935e-11,
+        "max_component_abs": 9.796580874614223e-12,
+        "reference_l2": 2.430573641676404e-06,
+        "relative_to_reference": 1.580298097118948e-05,
+        "status": "available"
+      }
+    },
+    "native_force_formula_secant_vs_independent_endpoint_secant": {
+      "actual_l2": 0.0002734226202471599,
+      "difference_l2": 7.399061952636992e-07,
+      "max_component_abs": 2.0611532997913244e-07,
+      "reference_l2": 0.0002734462077516737,
+      "relative_to_reference": 0.002705856487633701,
+      "status": "available"
+    },
+    "omitted_tet_ids": [],
+    "paper_tet_count": 1728,
+    "total_tet_count": 1920
+  },
+  "branch_and_local_nonlinearity": {
+    "all_1728_center_plus_minus_projections_pass_strict_gates": true,
+    "branch_census_file": "branch-sweep.json",
+    "branch_rows_file": "branch-signatures.jsonl.gz",
+    "branch_scope": "Lambda sign and regularized yield-gap sign only; this is not a complete constitutive branch signature.",
+    "interpretation": "Tet1691 remains lambda-active and positive-gap at all three converged samples, but its gap decreases from 1.2385e-3 at center to 4.0469e-8 at plus; its endpoint force secant differs from its center tangent by 35.66%. This is evidence of strong finite-step constitutive response near yield, not a branch-switch proof.",
+    "observed_lambda_sign_flips": 0,
+    "observed_yield_gap_sign_flips": 0,
+    "tet1691_center_minus_plus": {
+      "center": {
+        "accepted_state_unchanged": true,
+        "dynamic_scaled_correction": 1.0673123234014252e-11,
+        "iterations": 1,
+        "lambda_active": true,
+        "lambda_increment": 4.0371680335600365e-14,
+        "q_hill": 0.9987615081178927,
+        "scaled_residual": 2.479340903111742e-16,
+        "yield_gap": 0.001238491889814064
+      },
+      "minus": {
+        "accepted_state_unchanged": true,
+        "dynamic_scaled_correction": 7.98705735079677e-14,
+        "iterations": 1,
+        "lambda_active": true,
+        "lambda_increment": 7.133793942292861e-15,
+        "q_hill": 0.9929911068660646,
+        "scaled_residual": 7.95007709394494e-18,
+        "yield_gap": 0.007008893135404648
+      },
+      "plus": {
+        "accepted_state_unchanged": true,
+        "dynamic_scaled_correction": 2.6778620812318035e-16,
+        "iterations": null,
+        "lambda_active": true,
+        "lambda_increment": 1.2355285386758783e-09,
+        "q_hill": 1.000000191414388,
+        "scaled_residual": 1.252067604677915e-13,
+        "yield_gap": 4.046850987649009e-08
+      }
+    },
+    "tet1691_force_secant_vs_center_tangent_relative": 0.35664916583451256
+  },
+  "created_at_utc": "2026-10-15T20:40:10.095760+00:00",
+  "decisive_comparison": "After inserting the recovered tet1691 endpoint, native captured and independent FP64 full secants agree to relative 0.002848. The independent full secant is still 1.094943 relative from center A and 1.050904 relative from the center tangent on the realized direction. The missing tet had a 0.0003743383 Ns/epsilon residual-secant contribution and materially changed the incomplete-subset norm. Thus FP32 force quantization does not explain this full discrepancy; a single finite step still leaves curvature or unobserved branch effects unresolved.",
+  "endpoint_root": {
+    "accepted_history_unchanged": true,
+    "branch": {
+      "center": {
+        "accepted_state_unchanged": true,
+        "dynamic_scaled_correction": 1.0673123234014252e-11,
+        "iterations": 1,
+        "lambda_active": true,
+        "lambda_increment": 4.0371680335600365e-14,
+        "q_hill": 0.9987615081178927,
+        "scaled_residual": 2.479340903111742e-16,
+        "yield_gap": 0.001238491889814064
+      },
+      "minus": {
+        "accepted_state_unchanged": true,
+        "dynamic_scaled_correction": 7.98705735079677e-14,
+        "iterations": 1,
+        "lambda_active": true,
+        "lambda_increment": 7.133793942292861e-15,
+        "q_hill": 0.9929911068660646,
+        "scaled_residual": 7.95007709394494e-18,
+        "yield_gap": 0.007008893135404648
+      },
+      "plus": {
+        "accepted_state_unchanged": true,
+        "dynamic_scaled_correction": 2.6778620812318035e-16,
+        "iterations": null,
+        "lambda_active": true,
+        "lambda_increment": 1.2355285386758783e-09,
+        "q_hill": 1.000000191414388,
+        "scaled_residual": 1.252067604677915e-13,
+        "yield_gap": 4.046850987649009e-08
+      }
+    },
+    "material": "haj_ali_medium",
+    "plus_dynamic_scaled_correction_inf": 2.6778620812318035e-16,
+    "plus_local_stress_Pa": [
+      [
+        104050.96987046664,
+        -11323.438243864257,
+        16113.974508430167
+      ],
+      [
+        -16536.293720725575,
+        16886.012832011136,
+        -4194.1568599616585
+      ],
+      [
+        99222.81716469147,
+        -12760.41190600888,
+        18329.740445744166
+      ]
+    ],
+    "plus_native_vs_independent_element_force_relative": 9.250554090701064e-08,
+    "plus_scaled_residual_inf": 1.252067604677915e-13,
+    "root_state_and_stress_file": "result.json",
+    "strict_gates": {
+      "correction_max_dynamic_scaled_le_2e_8": true,
+      "residual_max_abs_scaled_le_2e_10": true
+    },
+    "tet_id": 1691
+  },
+  "limitations": [
+    "One epsilon only; no derivative-gate pass.",
+    "No universal numerical noise floor is inferred.",
+    "No production, physical, material-calibration, or full-history qualification.",
+    "The full branch signature and smaller-perturbation response remain unmeasured."
+  ],
+  "numerical_warnings": [
+    [
+      "RuntimeWarning",
+      "divide by zero encountered in divide",
+      "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      40
+    ],
+    [
+      "RuntimeWarning",
+      "invalid value encountered in divide",
+      "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      40
+    ]
+  ],
+  "schema": "numi.cardboard.source125-medium1691-independent-endpoint-adjudication.v1",
+  "scope": "One exact native424 plus endpoint at epsilon 2^-14, medium tet1691 root recovery, plus complete independent assembly of the corresponding center/plus/minus secant. CPU-only; fixed source125 equations/history; no native or physical transaction.",
+  "status": "endpoint_recovered; finite_step_derivative_discrepancy_remains_diagnostic_only",
+  "warning_interpretation": "The reference residual evaluates both branches of np.where; divide-by-zero/invalid warnings arise in the unselected rationalized FB branch for zero denominator. Output finiteness and all strict gates were checked; warnings were retained.",
+  "why_the_original_projection_missed": {
+    "adjudication": "This is an independent FP64 initialization/line-search basin miss into an inadmissible-sign multiplier/yield-gap state, not evidence that the local endpoint has no root. The recovered root is connected by continuation from the converged center/minus states.",
+    "center_to_plus_attempts": [
+      {
+        "first_failed_step": {
+          "dynamic_scaled_correction": 3.674668229540491,
+          "fraction": 1.0,
+          "reason": "diagnostic_update_budget_exhausted",
+          "scaled_residual": 2.6862100058506363e-05,
+          "step": 1
+        },
+        "ok": false,
+        "steps_completed": 1,
+        "steps_requested": 1
+      },
+      {
+        "first_failed_step": {
+          "dynamic_scaled_correction": 0.3009627427409618,
+          "fraction": 1.0,
+          "reason": "diagnostic_update_budget_exhausted",
+          "scaled_residual": 1.1590851085736015e-05,
+          "step": 2
+        },
+        "ok": false,
+        "steps_completed": 2,
+        "steps_requested": 2
+      },
+      {
+        "first_failed_step": null,
+        "ok": true,
+        "steps_completed": 4,
+        "steps_requested": 4
+      },
+      {
+        "first_failed_step": null,
+        "ok": true,
+        "steps_completed": 8,
+        "steps_requested": 8
+      }
+    ],
+    "direct_failure": "The original batch projector stalled at iteration1 near scaled residual90.8149. An extended 128-update/64-backtrack direct attempt also stalled, at residual90.8129225083 and dynamic correction2.593487.",
+    "direct_initialization": "Elastic stress predictor initialized from accepted history and plus F.",
+    "successful_path": "Continuation with the same accepted history and equations reaches the strict endpoint from center using four equal F substeps (eight also succeeds), and from minus using eight steps.",
+    "wrong_path_indicator": {
+      "lambda_active": false,
+      "lambda_increment_at_stall": -6.7697583649994325e-16,
+      "yield_gap_at_stall": -0.004541032601328432
+    }
+  }
+}

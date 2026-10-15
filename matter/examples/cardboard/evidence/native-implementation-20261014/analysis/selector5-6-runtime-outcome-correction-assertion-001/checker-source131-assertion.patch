@@ -1,0 +1,15 @@
+--- matter/tools/cardboard_fgmres_preconditioner_gpu_check.mm
++++ matter/tools/cardboard_fgmres_preconditioner_gpu_check.mm
+@@ -1504,10 +1504,8 @@
+              acceptedOutcome(sixState, sixError, six.world.dispatch.environmentCount),
+          "selector accepted-status/certificate gate failed; both complete outcomes were emitted above");
+     for (const auto* state : {&fiveState, &sixState}) {
+-        const float relativeCorrection = state->solverCertificates[0].nonlinear.y;
+-        need(std::isfinite(relativeCorrection) && relativeCorrection > 0.0f,
+-             "selector runtime fixture accepted without a nonzero mechanical correction; "
+-             "the initial nonlinear latch may have bypassed Krylov work");
++        need(state->statuses[0].fgmresIterations > 0u,
++             "selector runtime fixture accepted without recorded FGMRES work");
+         need(state->femNodes.size() == five.world.dispatch.femNodeCount &&
+                  state->femNodes[2].restAndFixed.w == 0.0f &&
+                  state->femNodes[3].restAndFixed.w == 1.0f,

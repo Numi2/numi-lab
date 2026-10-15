@@ -1,0 +1,12 @@
+{
+  "files": {
+    "report.json": {
+      "bytes": 3609,
+      "sha256": "658e1478476c044fd5a60c0f90c677904b8118f9c8e68b4cdc6795b7537bf807"
+    },
+    "audit.py": {
+      "bytes": 3758,
+      "sha256": "ec4de03cab2819f28400617e2a6f5322da41571c8261c302b767365fc9b59b2c"
+    }
+  }
+}

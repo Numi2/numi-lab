@@ -1,0 +1,33 @@
+{
+  "question": "Do the regularized exact-center proposals reduce the actual production nonlinear residual?",
+  "prediction": "Test all four proposals at the source125 accepted history and candidate, using the unchanged material projections, kinematics and residual. Linear predicted ratios are .867773 raw, .214562/.066046/.032429 regularized. Recompute every signed endpoint; no physical transaction and no claim that the original Newton certificate certifies a new direction.",
+  "package_manifest_sha256": "339ae206918d3ef99d0a42859de94948299c39ea2114afd30981689c62acc734",
+  "program_binding_sha256": "b2f37a4eaaf922eb8ed8c5cbc721ab8ef174c230b56bc02f522b44ca5b3aea1f",
+  "source_build_sha256": "35b821184ca36ad57c529bc0e33e4f20519996def1c312f8ac0f8028ecadb8e6",
+  "commands": {
+    "raw_cauchy": [
+      "/Users/home/cardboard-implementation-20261014/analysis/native-residual-direction-replay-419-001/build/native_residual_direction",
+      "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/output/compiled.nmatterpack",
+      "/Users/home/cardboard-implementation-20261014/analysis/captured419-regularized-directions-001/replay-inputs/raw_cauchy.input.bin",
+      "/Users/home/cardboard-implementation-20261014/analysis/native-regularized-direction-replay-436/raw_cauchy"
+    ],
+    "tikhonov_sigma_0.0001": [
+      "/Users/home/cardboard-implementation-20261014/analysis/native-residual-direction-replay-419-001/build/native_residual_direction",
+      "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/output/compiled.nmatterpack",
+      "/Users/home/cardboard-implementation-20261014/analysis/captured419-regularized-directions-001/replay-inputs/tikhonov_sigma_0.0001.input.bin",
+      "/Users/home/cardboard-implementation-20261014/analysis/native-regularized-direction-replay-436/tikhonov_sigma_0.0001"
+    ],
+    "tikhonov_sigma_0.001": [
+      "/Users/home/cardboard-implementation-20261014/analysis/native-residual-direction-replay-419-001/build/native_residual_direction",
+      "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/output/compiled.nmatterpack",
+      "/Users/home/cardboard-implementation-20261014/analysis/captured419-regularized-directions-001/replay-inputs/tikhonov_sigma_0.001.input.bin",
+      "/Users/home/cardboard-implementation-20261014/analysis/native-regularized-direction-replay-436/tikhonov_sigma_0.001"
+    ],
+    "tikhonov_sigma_0.01": [
+      "/Users/home/cardboard-implementation-20261014/analysis/native-residual-direction-replay-419-001/build/native_residual_direction",
+      "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/output/compiled.nmatterpack",
+      "/Users/home/cardboard-implementation-20261014/analysis/captured419-regularized-directions-001/replay-inputs/tikhonov_sigma_0.01.input.bin",
+      "/Users/home/cardboard-implementation-20261014/analysis/native-regularized-direction-replay-436/tikhonov_sigma_0.01"
+    ]
+  }
+}

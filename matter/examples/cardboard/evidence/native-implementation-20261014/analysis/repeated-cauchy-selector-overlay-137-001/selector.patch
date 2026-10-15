@@ -1,0 +1,111 @@
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -11581,6 +11581,7 @@
+             bool femBaseCauchyFallbackSelectedRoot = false;
+             std::uint32_t femBaseCauchyFallbackRoot = 0u;
+             std::uint32_t femBaseCauchyFallbackIteration = 0u;
++            bool femBaseCauchyFallbackAllNewtonIterations = false;
+             const char* baseCauchySelector = std::getenv(
+                 "NM_FEM_BASE_CAUCHY_FALLBACK_SELECTOR");
+             femBaseCauchyFallbackRequested = baseCauchySelector != nullptr;
+@@ -11607,24 +11608,31 @@
+                 char* iterationEnd = nullptr;
+                 const unsigned long root = std::strtoul(
+                     baseCauchySelector, &rootEnd, 10);
+-                const unsigned long iteration = separator == nullptr
+-                    ? 0ul : std::strtoul(separator + 1, &iterationEnd, 10);
++                const bool allNewtonIterations = separator != nullptr &&
++                    std::strcmp(separator + 1, "all") == 0;
++                const unsigned long iteration = separator == nullptr ||
++                    allNewtonIterations ? 0ul :
++                    std::strtoul(separator + 1, &iterationEnd, 10);
+                 if (separator == nullptr || rootEnd != separator ||
+-                    iterationEnd != end ||
++                    (!allNewtonIterations && iterationEnd != end) ||
+                     !digitsOnly(baseCauchySelector, separator) ||
+-                    !digitsOnly(separator + 1, end) ||
++                    (!allNewtonIterations &&
++                     !digitsOnly(separator + 1, end)) ||
+                     root > std::numeric_limits<std::uint32_t>::max() ||
+                     iteration > 256ul) {
+                     rejectBaseCauchy(
+-                        "selector_must_be_control_step_colon_newton_0_to_256");
++                        "selector_must_be_control_step_colon_all_or_newton_0_to_256");
+                 } else {
+                     femBaseCauchyFallbackRoot =
+                         static_cast<std::uint32_t>(root);
+                     femBaseCauchyFallbackIteration =
+                         static_cast<std::uint32_t>(iteration);
++                    femBaseCauchyFallbackAllNewtonIterations =
++                        allNewtonIterations;
+                     if (request.controlStep != femBaseCauchyFallbackRoot) {
+-                        // This bounded experimental selector changes one
+-                        // exact control/Newton state only.
++                        // The numerical fallback remains bounded to one
++                        // explicit control step. The suffix may select one
++                        // Newton state or every Newton state in that step.
+                     } else if (!state.femBaseCauchyScratchEnabled ||
+                                state.femBaseCauchyRightHandSide == nil ||
+                                state.femBaseCauchyTrace == nil) {
+@@ -11638,6 +11646,7 @@
+                                femTrueResidualRoot != femBaseCauchyFallbackRoot ||
+                                (femTrueResidualNewtonSelectorSpecified &&
+                                 (!femTrueResidualNewtonSelectorValid ||
++                                 femBaseCauchyFallbackAllNewtonIterations ||
+                                  femTrueResidualNewtonIteration !=
+                                      femBaseCauchyFallbackIteration))) {
+                         rejectBaseCauchy(
+@@ -11669,7 +11678,11 @@
+                         rejectBaseCauchy(reason);
+                     } else if (femBaseCauchyFallbackRoot == request.controlStep) {
+                         femBaseCauchyFallbackSelectedRoot = true;
+-                        std::fprintf(stderr,
++                        if (femBaseCauchyFallbackAllNewtonIterations) {
++                            std::fprintf(stderr,
++                                "fem_base_cauchy_all_newton_enabled={\"schema\":1,\"root\":%u,\"scope\":\"all_newton_iterations_on_one_control_step\",\"physical_operator_changed\":false}\n",
++                                femBaseCauchyFallbackRoot);
++                        } else std::fprintf(stderr,
+                             "fem_base_cauchy_fallback_enabled={\"schema\":1,\"root\":%u,\"iteration\":%u,\"direction\":\"base_state_A_transpose_b\",\"certificate_scope\":\"original_newton_delta_only\",\"armijo_trials\":%u}\n",
+                             femBaseCauchyFallbackRoot,
+                             femBaseCauchyFallbackIteration,
+@@ -11678,7 +11691,6 @@
+                 }
+             }
+             if (femBaseCauchyFallbackRequested &&
+-                request.controlStep == femBaseCauchyFallbackRoot &&
+                 !femBaseCauchyFallbackConfigValid) {
+                 diagnostics.message = "requested base-state Cauchy fallback is unsupported";
+                 ownership->preDynamicsOpen = false;
+@@ -11760,7 +11772,10 @@
+             const auto encodeFEMResidualArmijoBaseStatus = [&]() {
+                 if (!femResidualArmijoTraceEnabled ||
+                     femResidualArmijoBaseStatusCapture == nil ||
+-                    femResidualArmijoTraceRecords >= 64u) return;
++                    femResidualArmijoTraceRecords >=
++                        (femBaseCauchyFallbackSelectedRoot &&
++                         femBaseCauchyFallbackAllNewtonIterations
++                            ? 512u : 64u)) return;
+                 dispatchThreads("nm_fem_armijo_capture_base_status",
+                     environments, [&] {
+                     setDispatch();
+@@ -11772,7 +11787,9 @@
+             };
+             const auto encodeFEMResidualArmijoTrace = [&](const char* directionKind = "newton") -> bool {
+                 if (!femResidualArmijoTraceEnabled) return true;
+-                constexpr std::uint32_t maximumTraceRecords = 64u;
++                const std::uint32_t maximumTraceRecords =
++                    femBaseCauchyFallbackSelectedRoot &&
++                    femBaseCauchyFallbackAllNewtonIterations ? 512u : 64u;
+                 if (femResidualArmijoTraceRecords >= maximumTraceRecords) {
+                     if (!femResidualArmijoTraceNoticeLogged) {
+                         femResidualArmijoTraceNoticeLogged = true;
+@@ -19005,7 +19022,8 @@
+ 
+             const bool baseCauchyNewtonSelected =
+                 femBaseCauchyFallbackSelectedRoot &&
+-                nonlinearIteration == femBaseCauchyFallbackIteration;
++                (femBaseCauchyFallbackAllNewtonIterations ||
++                 nonlinearIteration == femBaseCauchyFallbackIteration);
+             if (baseCauchyNewtonSelected) {
+                 dispatchThreads("nm_fgmres_capture_base_cauchy_rhs",
+                     state.fgmresLayout.unknownCount, [&] {

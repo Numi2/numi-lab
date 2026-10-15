@@ -1,0 +1,7 @@
+fem_residual_armijo_enabled={"schema":1,"root":0,"trials":8,"metric":"per_environment_free_dof_l2_impulse","history":"accepted_state_read_only"}
+fem_residual_armijo_trace_error={"schema":1,"reason":"invalid_control_step_selector"}
+fem_true_residual_error={"schema":1,"reason":"invalid_control_step_selector"}
+fem_residual_armijo_enabled={"schema":1,"root":0,"trials":8,"metric":"per_environment_free_dof_l2_impulse","history":"accepted_state_read_only"}
+fem_residual_armijo_trace_error={"schema":1,"reason":"invalid_control_step_selector"}
+fem_true_residual_error={"schema":1,"reason":"invalid_control_step_selector"}
+FAIL selector runtime fixture accepted without a nonzero mechanical correction; the initial nonlinear latch may have bypassed Krylov work

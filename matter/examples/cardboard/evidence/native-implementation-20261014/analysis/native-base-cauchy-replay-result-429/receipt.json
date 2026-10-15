@@ -1,0 +1,32 @@
+{
+  "commands": {
+    "base_column_equilibrated_cauchy.preflight": {
+      "exit_code": 0,
+      "timed_out": false
+    },
+    "base_column_equilibrated_cauchy.native": {
+      "exit_code": 0,
+      "timed_out": false
+    },
+    "base_raw_cauchy.preflight": {
+      "exit_code": 0,
+      "timed_out": false
+    },
+    "base_raw_cauchy.native": {
+      "exit_code": 0,
+      "timed_out": false
+    },
+    "base_column_equilibrated_trust_1e-06_delta.preflight": {
+      "exit_code": 0,
+      "timed_out": false
+    },
+    "base_column_equilibrated_trust_1e-06_delta.native": {
+      "exit_code": 0,
+      "timed_out": false
+    }
+  },
+  "wall_seconds": 4.958410250023007,
+  "physical_transactions": 0,
+  "prepared_inputs_unchanged": true,
+  "finished_at_utc": "2026-10-15T19:46:38.205445+00:00"
+}

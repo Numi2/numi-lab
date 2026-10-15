@@ -1,0 +1,10 @@
+{
+  "result": "PASS",
+  "binary_files_bitwise_equal": 21,
+  "csr_shape": [
+    2538,
+    2538
+  ],
+  "csr_nnz": 71046,
+  "input_capture_sha256": "f2d42314cfee0428ecd285ebb9dbd5da1556624e3e92af1d12240fd8106b309a"
+}

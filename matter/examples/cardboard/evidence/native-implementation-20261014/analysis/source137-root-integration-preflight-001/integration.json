@@ -1,0 +1,48 @@
+{
+  "files": [
+    {
+      "path": "matter/src/metal/common.metalinc",
+      "before_sha256": "441a3f86f21979a086a0356f5fd2b91f692ba94dbd09a28d07ea9756c1246a5a",
+      "candidate_sha256": "61ace798a14c1ca0ba1f2cfb5c8161ec43c9e7a0f8a6b05bb1ef0ce9f9ca3380"
+    },
+    {
+      "path": "matter/src/metal/fem.metalinc",
+      "before_sha256": "25b2f3a86999df08b2fa84f14058657274154b4b9671120e5b79248dff351c79",
+      "candidate_sha256": "09c3a806224067777aadd26274581ff46be8c9b14282525a7ff805bbb335d03c"
+    },
+    {
+      "path": "matter/src/runtime.mm",
+      "before_sha256": "f5030219a901ae9acafad1ef9e2d68ad1385d1d5e0b91b893633834aebf9e2b1",
+      "candidate_sha256": "827eeecfa8c85b9c4d955da4b0fced2e9c479d0da0a9f8c419d9126e1049651e"
+    },
+    {
+      "path": "matter/tools/cardboard_coupled_free_box_operator_check.mm",
+      "before_sha256": "f0106a2a005c04bae44376c73394f75e39ede61876aa3010bbd819b5c53499b3",
+      "candidate_sha256": "567dcf2a4262c7d423c12e36ee6fbc9d8d45b74327f4c7da3d5057c823912588"
+    },
+    {
+      "path": "matter/tools/cardboard_gpu_check.mm",
+      "before_sha256": "423a03bddd9ab8321188c25fbd5aa73c6d28fb5ac538885829e65fda00d592dc",
+      "candidate_sha256": "d211c0c35b9d24790639a29b40418a355db041181176716667e2c3d51f4bdd9c"
+    },
+    {
+      "path": "matter/tools/fem_material_frame_check.mm",
+      "before_sha256": "eb036270e9afd06ab5dafa0a8f4b2cb00823fa5eb9ee8b09f4c9512093ac3101",
+      "candidate_sha256": "fa18590901ee2d39a5e3f51b932356b59257ca63724327fa8cfe1fb338c8eda8"
+    },
+    {
+      "path": "matter/tools/fem_reference_check.mm",
+      "before_sha256": "9aabd75024c23824c19fb9fc71a0b2d888baeb1570295addefa45c324e805c13",
+      "candidate_sha256": "127cd0c42edd0e0e7d1057ba598badeea2d5e4e0d5869d9250286765480cdf6f"
+    },
+    {
+      "path": "matter/tools/fem_regional_material_check.mm",
+      "before_sha256": "8e70f606481f249eda8d4fe59ea206890969a213f44a6ee35255d570f6986bf8",
+      "candidate_sha256": "25c0cb1524f192831ca4b104e624f0119d56ff2d3ca1496be708c406cff92585"
+    }
+  ],
+  "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-repeated-cauchy-fallback-137",
+  "complete_selected_sources_verified": 785,
+  "scope": "Exact source137 selected source integration after69-target build,74CPU checks and5native directoperator regressions. Default fallback/cache policies remain off. Repeated-fallback experiment442 is in progress; source136 opt-in cache full coupon437 rejected initialization and remains an explicitly experimental path.",
+  "known_trace_label_erratum": "Two source137 observer strings say64 while selected all-Newton actual cap is512; source139 snapshot corrects these labels and the opt-in cache admission, awaiting separate native parity."
+}

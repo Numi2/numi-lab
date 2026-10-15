@@ -758,6 +758,19 @@ if(APPLE)
         set_tests_properties(matter.metal.cardboard_contact_ccd_native PROPERTIES
             LABELS "matter;cardboard;contact;ccd;native-kernel" TIMEOUT 60)
     endif()
+    # Standalone exact-input VTCCD budget replay. This target is deliberately
+    # not registered as a CTest because it consumes retained native capture files.
+    add_executable(numi-matter-cardboard-vtccd-budget-replay-check
+        tools/cardboard_vtccd_iteration_budget_check.mm)
+    add_dependencies(numi-matter-cardboard-vtccd-budget-replay-check numi_matter_shaders)
+    target_link_libraries(numi-matter-cardboard-vtccd-budget-replay-check PRIVATE
+        numi_matter_runtime "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    target_include_directories(numi-matter-cardboard-vtccd-budget-replay-check PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/../include")
+    target_compile_definitions(numi-matter-cardboard-vtccd-budget-replay-check PRIVATE
+        NUMI_MATTER_METALLIB="${NUMI_MATTER_METALLIB}")
+    target_compile_options(numi-matter-cardboard-vtccd-budget-replay-check PRIVATE
+        -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
     add_executable(numi-matter-cardboard-full-contact-armijo-check tools/cardboard_full_contact_armijo_check.mm)
     target_link_libraries(numi-matter-cardboard-full-contact-armijo-check PRIVATE
         numi_matter_runtime "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")

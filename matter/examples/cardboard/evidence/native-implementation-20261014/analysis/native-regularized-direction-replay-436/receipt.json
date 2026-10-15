@@ -1,0 +1,40 @@
+{
+  "commands": {
+    "raw_cauchy.preflight": {
+      "exit_code": 0,
+      "timed_out": false
+    },
+    "raw_cauchy.native": {
+      "exit_code": 0,
+      "timed_out": false
+    },
+    "tikhonov_sigma_0.0001.preflight": {
+      "exit_code": 0,
+      "timed_out": false
+    },
+    "tikhonov_sigma_0.0001.native": {
+      "exit_code": 0,
+      "timed_out": false
+    },
+    "tikhonov_sigma_0.001.preflight": {
+      "exit_code": 0,
+      "timed_out": false
+    },
+    "tikhonov_sigma_0.001.native": {
+      "exit_code": 0,
+      "timed_out": false
+    },
+    "tikhonov_sigma_0.01.preflight": {
+      "exit_code": 0,
+      "timed_out": false
+    },
+    "tikhonov_sigma_0.01.native": {
+      "exit_code": 0,
+      "timed_out": false
+    }
+  },
+  "wall_seconds": 6.304856041970197,
+  "physical_transactions": 0,
+  "prepared_inputs_unchanged": true,
+  "finished_at_utc": "2026-10-15T20:45:57.032244+00:00"
+}

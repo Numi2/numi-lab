@@ -1,0 +1,13 @@
+{
+  "source": "/Users/home/cardboard-implementation-20261014/snapshots/source-cauchy-positive-mass-admission-135",
+  "base": "/Users/home/cardboard-implementation-20261014/snapshots/source-base-state-cauchy-armijo-133",
+  "changed_files": {
+    "matter/src/runtime.mm": {
+      "base_sha256": "a1a28cb7d25cf6c1fdebb846c7b45415cd33ca9dfc13bafc1b905b9881de7e80",
+      "candidate_sha256": "f5030219a901ae9acafad1ef9e2d68ad1385d1d5e0b91b893633834aebf9e2b1"
+    }
+  },
+  "metal_sources_unchanged": true,
+  "scope": "Reject zero, negative and nonfinite authored mass layouts only when the bounded Cauchy fallback is requested on its selected root. No operator or tolerance changes.",
+  "physical_steps": 0
+}

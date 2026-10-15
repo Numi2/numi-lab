@@ -1,0 +1,19 @@
+{
+  "schema": "numi.cardboard.native-transpose-adjudication.v1",
+  "scope": "CPU-only adjudication of completed native430 outputs; no GPU rerun.",
+  "gradient_relative_error": 7.005481669580285e-08,
+  "Ag_relative_error": 8.016452917447357e-08,
+  "gamma_fp64": 2.432122782872165,
+  "gamma_fp32": 2.4321227073669434,
+  "raw_cauchy_direction_relative_error": 9.736999844802087e-08,
+  "fixed_gradient_max_abs": 0.0,
+  "env1_rhs_norm_Ns": 6.780005479517217e-08,
+  "env1_gradient_norm": 1.900475315503114e-08,
+  "env1_correction_policy": "Do not apply: this environment already converged and original Newton correction is zero. A future runtime fallback must preserve the per-environment exhaustion mask.",
+  "input_bindings": {
+    "native430_manifest_sha256": "115b7d0d5d86a26f50fff3440335208a91f1733ad61ceb391968bf38f3b71035",
+    "base_cauchy_manifest_sha256": "03c713a1aeeb57544d47430c7bd519b6128ea4b8243142d9e798cd114f1e0348"
+  },
+  "physical_transactions": 0,
+  "verdict": "Selected environment0 native transpose/frame/gather/sign and forward action pass1e-3; future native transpose/reduction/selection kernels and complete solve untested. Original430 postprocessing failure retained."
+}
