@@ -1,0 +1,2 @@
+python3 -m py_compile cardboard_calibration_case_binding.py cardboard_source_bound_run.py bct_capacity_history_producer.py cardboard_calibration_ensemble.py
+exit_code=0

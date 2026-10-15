@@ -1,0 +1,181 @@
+{
+  "schema": "numi.cardboard.coupon-resolution-compile-preflight.v1",
+  "finished_at_utc": "2026-10-15T07:13:20.320621+00:00",
+  "scope": "Exact CPU compile cardinalities only; zero physical steps, no allocation or convergence claim",
+  "frozen_source": "/Users/home/cardboard-implementation-20261014/snapshots/source-stable-free-graph-and-general-arithmetic-076",
+  "runner_sha256": "0484c3be3547443169aa5be71665febc8cc20179eb9755be9ee620f724a84b2a",
+  "cases": [
+    {
+      "case": "/Users/home/cardboard-implementation-20261014/native/coupon-mesh-compile-nx16-ny2-t1-248",
+      "mesh": [
+        16,
+        2,
+        1
+      ],
+      "returncode": 0,
+      "physical_fem_steps": 0,
+      "result": {
+        "schema": "numi.cardboard.probe-result.v1",
+        "status": "compile_only",
+        "accepted_steps": 0,
+        "compiled_world_fingerprint": 16581409090613514330,
+        "nodes": 1458,
+        "tetrahedra": 3072,
+        "material_map_sha256": "92cc243dec3123032c6363f424b10dfc9d38b6140794aa64c80cdbf60042c756",
+        "authored_region_map_sha256": "d65ddd6ae0618032cc77b337520c6fca2b2f68f13d4cca50509d7eb2bf666ec6",
+        "frame_map_sha256": "8f08f370848a861adf651f365a4b88f9bb3f60f715f02e5307859d0badaab59c",
+        "damage_overlay_mapping_sha256": "",
+        "failure": "",
+        "physical_validation": false
+      },
+      "mesh.json_sha256": "f1602aa46ab7f96cbb719cb1d60932ad0bbf34676856968c6df3a25c9ff7f8db",
+      "manifest.json_sha256": "41b945701c1fb595fd5b41c9c5dcb63ade905b7404cda3593aa56f1c96f90328",
+      "result.json_sha256": "00182178b8ce3f7b9cccf3ae16f1839bcee8c58aa65209b544ef0d092f00b694"
+    },
+    {
+      "case": "/Users/home/cardboard-implementation-20261014/native/coupon-mesh-compile-nx32-ny2-t1-249",
+      "mesh": [
+        32,
+        2,
+        1
+      ],
+      "returncode": 0,
+      "physical_fem_steps": 0,
+      "result": {
+        "schema": "numi.cardboard.probe-result.v1",
+        "status": "compile_only",
+        "accepted_steps": 0,
+        "compiled_world_fingerprint": 13368700445475554371,
+        "nodes": 2610,
+        "tetrahedra": 5568,
+        "material_map_sha256": "70b98474b7692c892e08be526215c16d2c38711f18adced3a95db221afcbbf8e",
+        "authored_region_map_sha256": "3c05d4518e9cb0c119df259cb7c2861ca632dfbdf9f94e795a0c8da3ed449585",
+        "frame_map_sha256": "1a9b0b162f31206e670273f9846cdd6d2240fa521da739bf42c7c739c18b8266",
+        "damage_overlay_mapping_sha256": "",
+        "failure": "",
+        "physical_validation": false
+      },
+      "mesh.json_sha256": "8473eb69749158f308fb11632e443733b896a52b9c66c5f21c3218d6b9c911fd",
+      "manifest.json_sha256": "7d9a3efd20f20aaa012d0a0160532e8896ce7392b4797a17d208afba145f380a",
+      "result.json_sha256": "225f652d521338906843410cb6f9edd885191da90bbf2eb7ca72a9125b059b14"
+    },
+    {
+      "case": "/Users/home/cardboard-implementation-20261014/native/coupon-mesh-compile-nx8-ny4-t1-250",
+      "mesh": [
+        8,
+        4,
+        1
+      ],
+      "returncode": 0,
+      "physical_fem_steps": 0,
+      "result": {
+        "schema": "numi.cardboard.probe-result.v1",
+        "status": "compile_only",
+        "accepted_steps": 0,
+        "compiled_world_fingerprint": 9798416353932487985,
+        "nodes": 1470,
+        "tetrahedra": 3840,
+        "material_map_sha256": "2a86fc39f9324bb182b1ef8924bf6378dd4261213cfa09354d37dd626ae44c35",
+        "authored_region_map_sha256": "4c5e34d13fb7e6f38874df263cbddc5af57afddffd864527e754e831aef12592",
+        "frame_map_sha256": "4593fadcd0384ac49080fb0fedf51c7a7c2d26d4376eaca603031db1994cca6d",
+        "damage_overlay_mapping_sha256": "",
+        "failure": "",
+        "physical_validation": false
+      },
+      "mesh.json_sha256": "bd6db607d9aa728179005d70bb3c2fd3584dfea40c36bd8ba2072aff040b5af6",
+      "manifest.json_sha256": "4bda36b0c63a208e6bf220f7dc0bc55144d2f441e8f32e73e0a6b03120649f71",
+      "result.json_sha256": "6a0a4e05f061d646784790d168926d119fb367212a90546748894dcb8be6dac9"
+    },
+    {
+      "case": "/Users/home/cardboard-implementation-20261014/native/coupon-mesh-compile-nx8-ny8-t1-251",
+      "mesh": [
+        8,
+        8,
+        1
+      ],
+      "returncode": 0,
+      "physical_fem_steps": 0,
+      "result": {
+        "schema": "numi.cardboard.probe-result.v1",
+        "status": "compile_only",
+        "accepted_steps": 0,
+        "compiled_world_fingerprint": 13567974272900214182,
+        "nodes": 2646,
+        "tetrahedra": 7680,
+        "material_map_sha256": "52c4d7f91b6b137a3a36f6bd44f2296c3ca6032e9676870326f22c8980a66085",
+        "authored_region_map_sha256": "5cace699d0e94576a00ac9e760df191b11844f6ba018bc4a470cd5c73f98fa1b",
+        "frame_map_sha256": "7d262ab3aed1e0099fcbe3e1a7e4cb813981f7fb2e00a10908976c9de50cc49e",
+        "damage_overlay_mapping_sha256": "",
+        "failure": "",
+        "physical_validation": false
+      },
+      "mesh.json_sha256": "a6f17b1c782be5174d54411988a06623686b4c3df50d54ab63df439f0645fbed",
+      "manifest.json_sha256": "4ce6a8400cf94b69af35f38a2a26a2c36f2e722996c3a7ec6157f16aca531277",
+      "result.json_sha256": "08c43c42c7752f2317a4c78c643b703477ea19cdd2feca9ba3da295e9e63a71e"
+    },
+    {
+      "case": "/Users/home/cardboard-implementation-20261014/native/coupon-mesh-compile-nx8-ny2-t2-252",
+      "mesh": [
+        8,
+        2,
+        2
+      ],
+      "returncode": 0,
+      "physical_fem_steps": 0,
+      "result": {
+        "schema": "numi.cardboard.probe-result.v1",
+        "status": "compile_only",
+        "accepted_steps": 0,
+        "compiled_world_fingerprint": 4642493777145140766,
+        "nodes": 1398,
+        "tetrahedra": 3840,
+        "material_map_sha256": "28563a2d16dbaba8e094c905c6bbad0d71ac19c70b781326301e39b24a12d45b",
+        "authored_region_map_sha256": "6d94dade93215018baca5135f90a8f49de4740ff4d67298d963ad3a56a9c141e",
+        "frame_map_sha256": "41253cfdb3584c71f7fa82b314b1b3f45b66d91bd976874b1b897b810afadbeb",
+        "damage_overlay_mapping_sha256": "",
+        "failure": "",
+        "physical_validation": false
+      },
+      "mesh.json_sha256": "b15662950a6d6d6e48cb64f39d9a00d7da61316cd543200526eb53ed9e70be2b",
+      "manifest.json_sha256": "ddf869c67ee3c62a723a924004cf0cd268de65d6a1324134c8b35a2d163e1a6e",
+      "result.json_sha256": "696f173cecb8d5cf2de6b739e322370f40446f790146e107fd22e6a4dfccfa0d"
+    },
+    {
+      "case": "/Users/home/cardboard-implementation-20261014/native/coupon-mesh-compile-nx8-ny2-t4-253",
+      "mesh": [
+        8,
+        2,
+        4
+      ],
+      "returncode": 0,
+      "physical_fem_steps": 0,
+      "result": {
+        "schema": "numi.cardboard.probe-result.v1",
+        "status": "compile_only",
+        "accepted_steps": 0,
+        "compiled_world_fingerprint": 4034087837012587916,
+        "nodes": 2430,
+        "tetrahedra": 7680,
+        "material_map_sha256": "502eafb2664799bd42e1dc10f2dc2ffdeccef780de2fefee7bd89bfaf1219fff",
+        "authored_region_map_sha256": "99e8840c8d1415134b1f6a617be4002b32f49e14768ab6d150ce91dd24707652",
+        "frame_map_sha256": "671e469639242883de5e20e30ef3ef2f66627417ab368f36bc8787c9628f14bd",
+        "damage_overlay_mapping_sha256": "",
+        "failure": "",
+        "physical_validation": false
+      },
+      "mesh.json_sha256": "2b6247276cfdb6481480160782445757beada330887ade004863811c9e882208",
+      "manifest.json_sha256": "b0108cfcf828d7183ce6390495b990c48b2985947ddb2f3957747faf63249a4d",
+      "result.json_sha256": "f7b1d2289fb1fcb76b15fa3a0234c1b58e290ceb2e6ad165746dc6750e11173f"
+    },
+    {
+      "case": "/Users/home/cardboard-implementation-20261014/native/coupon-mesh-compile-nx32-ny8-t4-254",
+      "mesh": [
+        32,
+        8,
+        4
+      ],
+      "returncode": 1,
+      "physical_fem_steps": 0
+    }
+  ]
+}

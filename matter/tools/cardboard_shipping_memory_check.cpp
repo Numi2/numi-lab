@@ -83,6 +83,42 @@ void checkRuntimeEnvironmentAdmission() {
     generalizedQ.rigidQCapacity = 1u;
     require(!shippingSparsePrivateBoundedFreeBoxLayout(generalizedQ, proxies),
             "nonzero rigid Q capacity passed the sparse bounded free-body scope");
+
+    const bool prebuildScopeCandidate =
+        shippingPrebuildBoundedFreeBoxScopeCandidate(
+            true, true, kShippingRigidProxyCount, kShippingRigidBodyCount,
+            6u, kShippingRigidProxyCount, kShippingRigidBodyCount);
+    require(prebuildScopeCandidate &&
+                !shippingPrebuildBoundedFreeBoxScopeCandidate(
+                    true, false, kShippingRigidProxyCount,
+                    kShippingRigidBodyCount, 6u,
+                    kShippingRigidProxyCount, kShippingRigidBodyCount) &&
+                !shippingPrebuildBoundedFreeBoxScopeCandidate(
+                    true, true, kShippingRigidProxyCount + 1u,
+                    kShippingRigidBodyCount, 6u,
+                    kShippingRigidProxyCount, kShippingRigidBodyCount),
+            "prebuild bounded BOX candidate does not match the authored scene recipe");
+    ShippingPrebuildArenaOptions sparseOptions;
+    configureShippingPrebuildSparsePrivateContact(
+        sparseOptions, "65536", nullptr, true, prebuildScopeCandidate);
+    require(sparseOptions.sparsePrivateContactRequested &&
+                sparseOptions.sparsePrivateContactCapacity == 65536u &&
+                sparseOptions.sparsePrivateContactBoundedFreeBoxScope &&
+                sparseOptions.runtimeConfigurationFailure.empty(),
+            "prebuild sparse parser failed to propagate the explicit bounded request");
+    ShippingPrebuildArenaOptions unselectedSparseOptions;
+    configureShippingPrebuildSparsePrivateContact(
+        unselectedSparseOptions, "65536", nullptr, false,
+        prebuildScopeCandidate);
+    require(!unselectedSparseOptions.runtimeConfigurationFailure.empty(),
+            "sparse prebuild request was accepted without selected residual Armijo");
+    ShippingPrebuildArenaOptions malformedSparseOptions;
+    configureShippingPrebuildSparsePrivateContact(
+        malformedSparseOptions, "65k", nullptr, true,
+        prebuildScopeCandidate);
+    require(malformedSparseOptions.sparsePrivateContactCapacity == 0u &&
+                !malformedSparseOptions.runtimeConfigurationFailure.empty(),
+            "malformed prebuild sparse option did not fail closed with its parse error");
 }
 
 void run() {
@@ -121,11 +157,15 @@ void run() {
     require(preflightOnlyBudget.withinLimit,
             "shipping preflight-only arena estimate exceeded the 16 GiB planning limit");
     const std::uint64_t expectedPrebuildSourceBytes = shippingMemoryCheckedAdd(
-        shippingMemoryCheckedMultiply(prebuild.nominalNodeCount, 256u),
-        shippingMemoryCheckedMultiply(prebuild.nominalTetrahedronCount, 512u));
+        shippingMemoryCheckedMultiply(
+            shippingPrebuildRigidNodeUpperBound(prebuild), 256u),
+        shippingMemoryCheckedMultiply(
+            shippingPrebuildTetrahedronUpperBound(prebuild), 512u));
     const std::uint64_t expectedPrebuildCompiledBytes = shippingMemoryCheckedAdd(
-        shippingMemoryCheckedMultiply(prebuild.nominalNodeCount, 128u),
-        shippingMemoryCheckedMultiply(prebuild.nominalTetrahedronCount, 256u));
+        shippingMemoryCheckedMultiply(
+            shippingPrebuildRigidNodeUpperBound(prebuild), 128u),
+        shippingMemoryCheckedMultiply(
+            shippingPrebuildTetrahedronUpperBound(prebuild), 256u));
     const std::uint64_t expectedPrebuildHostReserve = shippingMemoryCheckedAdd(
         shippingMemoryCheckedAdd(expectedPrebuildSourceBytes,
                                  expectedPrebuildCompiledBytes),
@@ -205,6 +245,76 @@ void run() {
                 !requiredFullDefaultCapacityBudget.requiredResidualDescentArenaAdmitted &&
                 requiredFullDefaultCapacityBudget.requiredRigidContactArmijoBytes > 0u,
             "shipping estimate admitted required full-contact arenas beyond the native pair cap");
+    require(requiredFullDefaultCapacityBudget.rigidContactPairDomainUpperBound ==
+                kShippingReferencePreparedNodes * observedProxyCount &&
+                requiredFullDefaultCapacityBudget.estimatedPeakDomainBytes >
+                    29'000'000'000ull &&
+                requiredFullDefaultCapacityBudget.estimatedPeakDomainBytes <
+                    31'000'000'000ull &&
+                !requiredFullDefaultCapacityBudget.sparsePrivateContactRequested,
+            "dense default no longer uses the prepared-node pair upper bound or near-30-GB planning envelope");
+
+    ShippingPrebuildArenaOptions sparsePrebuildOptions = fullWorldOptions;
+    sparsePrebuildOptions.requireFullContactResidualDescent = true;
+    sparsePrebuildOptions.deformableSelfContactEnabled = true;
+    configureShippingPrebuildSparsePrivateContact(
+        sparsePrebuildOptions, "65536", nullptr, true, true);
+    const auto sparsePrebuildBudget = estimateShippingPrebuildMemoryBudget(
+        prebuild, sparsePrebuildOptions);
+    const auto preparedPairDomain = static_cast<std::uint32_t>(
+        kShippingReferencePreparedNodes * observedProxyCount);
+    const auto sparsePrebuildAdmission =
+        numi::matter::detail::admitSparsePrivateContact(
+            1u, preparedPairDomain, 65536u, false, true, true);
+    require(sparsePrebuildBudget.rigidContactPairDomainUpperBound ==
+                preparedPairDomain &&
+                preparedPairDomain >= 527964u * observedProxyCount &&
+                sparsePrebuildBudget.sparsePrivateContactRequested &&
+                sparsePrebuildBudget.sparsePrivateContactCapacity == 65536u &&
+                sparsePrebuildBudget.sparsePrivateContactBoundedFreeBoxScope &&
+                sparsePrebuildBudget.privateRigidContactAdmitted &&
+                sparsePrebuildBudget.sparsePrivateContactBytes ==
+                    sparsePrebuildAdmission.totalBytes &&
+                sparsePrebuildAdmission.admitted(),
+            "prebuild sparse-private budget did not carry the runtime capacity, bounded layout, or conservative prepared-node pair domain");
+    require(!sparsePrebuildBudget.requiredResidualDescentArenaAdmitted &&
+                !sparsePrebuildBudget.withinLimit &&
+                sparsePrebuildBudget.requiredFullContactArmijoBytes > 0u &&
+                sparsePrebuildBudget.requiredCohesiveArmijoBytes > 0u,
+            "sparse prebuild incorrectly implied that the shipping full-contact/cohesive topology caps are available");
+
+    auto missingBoundedScope = sparsePrebuildOptions;
+    missingBoundedScope.sparsePrivateContactBoundedFreeBoxScope = false;
+    const auto missingScopeBudget = estimateShippingPrebuildMemoryBudget(
+        prebuild, missingBoundedScope);
+    require(!missingScopeBudget.privateRigidContactAdmitted &&
+                !missingScopeBudget.requiredResidualDescentArenaAdmitted &&
+                missingScopeBudget.privateRigidContactFailure.find(
+                    "free-rigid residual is limited") != std::string::npos,
+            "sparse free-body prebuild admitted without the exact bounded BOX scope candidate");
+
+    auto overflowCapacity = sparsePrebuildOptions;
+    overflowCapacity.sparsePrivateContactCapacity =
+        preparedPairDomain + 1ull;
+    const auto overflowCapacityBudget = estimateShippingPrebuildMemoryBudget(
+        prebuild, overflowCapacity);
+    require(!overflowCapacityBudget.privateRigidContactAdmitted &&
+                !overflowCapacityBudget.requiredResidualDescentArenaAdmitted,
+            "prebuild sparse candidate capacity larger than its pair domain was admitted");
+
+    auto invalidRuntimeOption = sparsePrebuildOptions;
+    invalidRuntimeOption.runtimeConfigurationFailure =
+        "synthetic malformed sparse-capacity selector";
+    const auto invalidRuntimeOptionBudget = estimateShippingPrebuildMemoryBudget(
+        prebuild, invalidRuntimeOption);
+    require(!invalidRuntimeOptionBudget.withinLimit &&
+                !invalidRuntimeOptionBudget.requiredResidualDescentArenaAdmitted &&
+                invalidRuntimeOptionBudget.runtimeConfigurationFailure ==
+                    invalidRuntimeOption.runtimeConfigurationFailure &&
+                invalidRuntimeOptionBudget.requiredResidualDescentArenaFailure ==
+                    invalidRuntimeOption.runtimeConfigurationFailure,
+            "malformed sparse runtime selection did not fail closed in the prebuild screen");
+
     fullWorldOptions.deformableContactCapacity = 1048576u;
     const auto explicitCapacityBudget =
         estimateShippingPrebuildMemoryBudget(prebuild, fullWorldOptions);
@@ -218,6 +328,11 @@ void run() {
     require(longer.estimatedNodeCount > prebuild.estimatedNodeCount &&
                 longer.estimatedTetrahedronCount > prebuild.estimatedTetrahedronCount,
             "prebuild screen did not grow with requested flute intervals");
+    require(shippingPrebuildRigidNodeUpperBound(longer) ==
+                longer.estimatedNodeCount &&
+                shippingPrebuildTetrahedronUpperBound(longer) ==
+                    longer.estimatedTetrahedronCount,
+            "non-reference prebuild arena bounds did not use padded topology counts");
     const auto moreYIntervals = screenShippingPrebuildMemory(
         1.025, 0.0079, 1u, kShippingFgmresRestartCeiling, 64u, 1u);
     const auto thicker = screenShippingPrebuildMemory(1.025, 0.0079, 1u,

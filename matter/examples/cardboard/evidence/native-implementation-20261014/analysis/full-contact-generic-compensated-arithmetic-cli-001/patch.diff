@@ -1,0 +1,53 @@
+--- a/matter/tools/cardboard_full_contact_armijo_check.mm
++++ b/matter/tools/cardboard_full_contact_armijo_check.mm
+@@ -63,6 +63,7 @@
+ std::uint64_t nativeFEMTransactionsExecuted = 0u;
+ bool extendedBudget = false;
+ bool accuratePaper = false;
++bool compensatedMaterialArithmetic = false;
+ bool regionalContactPreconditioner = false;
+ std::uint32_t authoredNewtonIterations = 0u;
+ 
+@@ -4326,7 +4327,7 @@
+     @autoreleasepool {
+         try {
+             require(argc >= 2,
+-                "usage: cardboard-full-contact-armijo-check BULK.nmatter [--cpu-only|--overflow|--prescribed-box-overflow|--prescribed-box-sweep-reject|--prescribed-box-translation|--private-self-sweep|--sparse-private-parity|--sparse-private-overflow|--sparse-private-admission|--sparse-private-high-pair-admission|--sparse-free-body-parity|--sparse-free-body-overflow|--self-surface-scratch-alias-parity|--cohesive-scratch-alias-parity] [--regional-contact-preconditioner] [--extended-budget] [--accurate-paper] [--newton-iterations N] [--diagnostic-state-output DIR]");
++                "usage: cardboard-full-contact-armijo-check BULK.nmatter [--cpu-only|--overflow|--prescribed-box-overflow|--prescribed-box-sweep-reject|--prescribed-box-translation|--private-self-sweep|--sparse-private-parity|--sparse-private-overflow|--sparse-private-admission|--sparse-private-high-pair-admission|--sparse-free-body-parity|--sparse-free-body-overflow|--self-surface-scratch-alias-parity|--cohesive-scratch-alias-parity] [--regional-contact-preconditioner] [--extended-budget] [--accurate-paper] [--compensated-material-arithmetic] [--newton-iterations N] [--diagnostic-state-output DIR]");
+             bool cpuOnly = false;
+             bool overflow = false;
+             bool prescribedBoxOverflow = false;
+@@ -4376,6 +4377,8 @@
+                     regionalContactPreconditioner = true;
+                 else if (option == "--extended-budget") extendedBudget = true;
+                 else if (option == "--accurate-paper") accuratePaper = true;
++                else if (option == "--compensated-material-arithmetic")
++                    compensatedMaterialArithmetic = true;
+                 else if (option == "--diagnostic-state-output") {
+                     require(index + 1 < argc, "missing diagnostic state output directory");
+                     require(diagnosticStateOutputPath.empty(),
+@@ -4414,7 +4417,7 @@
+                           sparsePrivateHighPairAdmission || sparseFreeBodyParity ||
+                           sparseFreeBodyOverflow || selfSurfaceScratchAliasParity ||
+                           cohesiveScratchAliasParity || regionalContactPreconditioner ||
+-                          extendedBudget || accuratePaper ||
++                          extendedBudget || accuratePaper || compensatedMaterialArithmetic ||
+                           authoredNewtonIterations != 0u ||
+                           !diagnosticStateOutputPath.empty()),
+                     "Armijo alpha publication mode must run alone");
+@@ -4476,8 +4479,14 @@
+             std::cout << "authored_newton_iterations=" <<
+                 (authoredNewtonIterations != 0u ? authoredNewtonIterations :
+                     (extendedBudget ? 32u : 16u)) <<
+-                " accurate_paper=" << (accuratePaper ? "true" : "false") << '\n';
++                " accurate_paper=" << (accuratePaper ? "true" : "false")
++                << " compensated_material_arithmetic="
++                << (compensatedMaterialArithmetic ? "true" : "false") << '\n';
+             MaterialProgram bulk = readMaterial(argv[1]);
++            // This general arithmetic policy is independent of the legacy
++            // exact 13-state Hill projection/scaling policy below.
++            if (compensatedMaterialArithmetic)
++                bulk.paperCompensatedArithmetic = true;
+             if (accuratePaper) {
+                 bulk.paperHillScalarInitializer = true;
+                 bulk.paperCompensatedArithmetic = true;

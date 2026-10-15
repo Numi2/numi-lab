@@ -1,0 +1,1 @@
+PASS native deterministic sorted contact incidence; checks=169; cases=3; environments=2; physical_steps=0

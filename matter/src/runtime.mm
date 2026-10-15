@@ -783,6 +783,7 @@ struct RegionalRAPCaptureMetadata {
     std::uint32_t graphLayoutChecksum = 0u;
     std::string graphSourceTopologySHA256;
     std::string graphSourceFreeMaskSHA256;
+    std::string graphPotentialMaskSHA256;
     std::uint64_t linearizationGeneration = 0u;
     std::uint64_t worldFingerprint = 0u;
     std::uint64_t executionFingerprint = 0u;
@@ -901,7 +902,9 @@ void writeRegionalRAPCapture(
         << jsonQuoted(metadata.graphSourceTopologySHA256)
         << ",\"source_free_mask_sha256\":"
         << jsonQuoted(metadata.graphSourceFreeMaskSHA256)
-        << ",\"source_topology_digest_encoding\":\"little-endian u32 node_count, u32 tetrahedron_count, then row-major u32 tet connectivity; free mask is raw u8, 1=free 0=fixed\"}"
+        << ",\"potential_node_mask_sha256\":"
+        << jsonQuoted(metadata.graphPotentialMaskSHA256)
+        << ",\"source_topology_digest_encoding\":\"little-endian u32 node_count, u32 tetrahedron_count, then row-major u32 tet connectivity; source free mask is raw u8, 1=free 0=fixed; graph potential-node mask is raw u8, 1=covered\"}"
         << ",\"material_state_stride\":" << metadata.materialStateStride
         << ",\"device\":{\"name\":" << jsonQuoted(metadata.deviceName)
         << ",\"registry_id\":" << metadata.deviceRegistryID << "},"
@@ -1201,9 +1204,11 @@ struct RegionalGraphSchwarzHostLayout {
     std::vector<std::array<std::uint32_t, 4>> patches;
     std::vector<std::array<std::uint32_t, 4>> rows;
     detail::RegionalGraphSchwarzLayout layout;
-    std::vector<std::uint8_t> freeMask;
+    std::vector<std::uint8_t> sourceFreeMask;
+    std::vector<std::uint8_t> potentialMask;
     std::string sourceTopologySHA256;
     std::string sourceFreeMaskSHA256;
+    std::string potentialMaskSHA256;
 };
 
 [[nodiscard]] RegionalGraphSchwarzHostLayout buildRegionalGraphSchwarz(
@@ -1222,14 +1227,15 @@ struct RegionalGraphSchwarzHostLayout {
         tetrahedra.push_back({tetrahedron.nodes.x, tetrahedron.nodes.y,
                               tetrahedron.nodes.z, tetrahedron.nodes.w});
     }
-    result.freeMask.resize(nodes);
+    result.sourceFreeMask.resize(nodes);
+    result.potentialMask.assign(nodes, 1u);
     for (std::uint32_t node = 0u; node < nodes; ++node) {
         const float fixed = world.fem.nodes[node].restAndFixed.w;
         if (!std::isfinite(fixed) || (fixed != 0.0f && fixed != 1.0f)) {
             result.layout.error = "graph Schwarz requires a binary immutable FEM fixed mask";
             return result;
         }
-        result.freeMask[node] = fixed == 0.0f ? 1u : 0u;
+        result.sourceFreeMask[node] = fixed == 0.0f ? 1u : 0u;
     }
     // Hash the exact host topology and mask consumed by the builder
     // and uploaded below; no reconstructed or synthetic graph enters
@@ -1247,9 +1253,12 @@ struct RegionalGraphSchwarzHostLayout {
     result.sourceTopologySHA256 = sha256Hex(
         topologyBytes.data(), topologyBytes.size());
     result.sourceFreeMaskSHA256 = sha256Hex(
-        result.freeMask.data(), result.freeMask.size());
-    result.layout = detail::buildRegionalGraphSchwarzLayout(
-        nodes, tetrahedra, result.freeMask, world.dispatch.environmentCount);
+        result.sourceFreeMask.data(), result.sourceFreeMask.size());
+    result.potentialMaskSHA256 = sha256Hex(
+        result.potentialMask.data(), result.potentialMask.size());
+    result.layout = detail::buildBudgetedRegionalGraphSchwarzLayout(
+        nodes, tetrahedra, result.sourceFreeMask,
+        world.dispatch.environmentCount);
     if (!result.layout.error.empty()) return result;
     result.patches.reserve(result.layout.patches.size());
     for (const auto& patch : result.layout.patches) {
@@ -1937,6 +1946,12 @@ struct Runtime::State {
     id<MTLBuffer> deformableContactActiveCounts = nil;
     id<MTLBuffer> deformableContactNodeIncidence = nil;
     id<MTLBuffer> deformableContactNodeRanges = nil;
+    // Shared workspace for the opt-in deterministic corner-sort incidence
+    // builder. Production and serialized private Armijo passes reuse it.
+    id<MTLBuffer> deformableContactNodeCornerSortKeys = nil;
+    id<MTLBuffer> deformableContactNodeCornerSortPayloads = nil;
+    std::uint32_t deformableContactNodeCornerSortPaddedCapacity = 0u;
+    bool deformableContactNodeIncidenceSortEnabled = false;
     id<MTLBuffer> deformableContactActiveOffsets = nil;
     id<MTLBuffer> deformableContactGlobalActiveIndices = nil;
     id<MTLBuffer> deformableContactActiveDispatch = nil;
@@ -2257,6 +2272,7 @@ struct Runtime::State {
     id<MTLBuffer> femRegionalGraphPatchCorrections = nil;
     std::uint32_t femRegionalModeCount = 0u;
     std::uint32_t femRegionalGraphPatchCount = 0u;
+    std::uint32_t femRegionalGraphParallelSearch = 0u;
     std::uint32_t femRegionalGraphPatchNodeCount = 0u;
     std::uint32_t femRegionalGraphDofCount = 0u;
     std::uint32_t femRegionalGraphMatrixFloatCount = 0u;
@@ -2264,6 +2280,7 @@ struct Runtime::State {
     std::uint32_t femRegionalGraphLayoutChecksum = 0u;
     std::string femRegionalGraphSourceTopologySHA256;
     std::string femRegionalGraphSourceFreeMaskSHA256;
+    std::string femRegionalGraphPotentialMaskSHA256;
     id<MTLBuffer> primalContactArguments = nil;
 
     id<MTLBuffer> identificationDistributions = nil;
@@ -2800,6 +2817,81 @@ RuntimeDiagnostics Runtime::initialize(
         }
         auto candidate = std::make_unique<State>();
         candidate->dispatch = world.dispatch;
+        const char* parallelGraphSearch = std::getenv("NM_FEM_GRAPH_PARALLEL_LU_SEARCH");
+        if (parallelGraphSearch != nullptr) {
+            if (std::strcmp(parallelGraphSearch, "1") != 0 ||
+                world.mixedSolver.executionBudgets.z != 5u) {
+                diagnostics.message = "parallel graph LU search requires explicit value1 and graph selector5";
+                return diagnostics;
+            }
+            candidate->femRegionalGraphParallelSearch = 1u;
+        }
+        const char* sortedNodeIncidence = std::getenv(
+            "NM_CONTACT_NODE_INCIDENCE_SORT");
+        if (sortedNodeIncidence != nullptr &&
+            std::strcmp(sortedNodeIncidence, "1") != 0) {
+            diagnostics.message =
+                "NM_CONTACT_NODE_INCIDENCE_SORT must be exactly 1 when set";
+            return diagnostics;
+        }
+        candidate->deformableContactNodeIncidenceSortEnabled =
+            sortedNodeIncidence != nullptr;
+        std::uint64_t sortedCornerLogicalCount = 0u;
+        std::uint64_t sortedCornerPaddedCapacity = 0u;
+        std::uint64_t sortedCornerTotalCount = 0u;
+        if (candidate->deformableContactNodeIncidenceSortEnabled) {
+            const std::uint64_t contactCapacity =
+                world.dispatch.deformableContactCapacity;
+            const std::uint64_t environments =
+                world.dispatch.environmentCount;
+            const std::uint64_t nodeCount =
+                static_cast<std::uint64_t>(world.dispatch.gridNodeCount) +
+                world.dispatch.femNodeCount;
+            if (contactCapacity == 0u || environments == 0u ||
+                nodeCount == 0u ||
+                nodeCount > std::numeric_limits<std::uint32_t>::max() /
+                    environments ||
+                contactCapacity >
+                    (std::numeric_limits<std::uint32_t>::max() - 5ull) / 8ull) {
+                diagnostics.message =
+                    "sorted deformable incidence requires nonzero contact, node, environment counts and uint32-safe payload identities";
+                return diagnostics;
+            }
+            sortedCornerLogicalCount = 6ull * contactCapacity;
+            if (sortedCornerLogicalCount >
+                    std::numeric_limits<std::uint32_t>::max() ||
+                sortedCornerLogicalCount >
+                    (std::uint64_t{1} << 31u)) {
+                diagnostics.message =
+                    "sorted deformable corner record count exceeds the checked bitonic sort domain";
+                return diagnostics;
+            }
+            sortedCornerPaddedCapacity = std::bit_ceil(
+                sortedCornerLogicalCount);
+            if (sortedCornerPaddedCapacity == 0u ||
+                sortedCornerPaddedCapacity >
+                    std::numeric_limits<std::uint32_t>::max() ||
+                sortedCornerPaddedCapacity >
+                    std::numeric_limits<std::uint32_t>::max() / environments) {
+                diagnostics.message =
+                    "sorted deformable corner workspace exceeds the uint32 Metal dispatch domain";
+                return diagnostics;
+            }
+            sortedCornerTotalCount =
+                sortedCornerPaddedCapacity * environments;
+            if (sortedCornerTotalCount >
+                    std::numeric_limits<std::size_t>::max() /
+                        sizeof(std::uint64_t) ||
+                sortedCornerTotalCount >
+                    std::numeric_limits<std::size_t>::max() /
+                        sizeof(std::uint32_t)) {
+                diagnostics.message =
+                    "sorted deformable corner workspace exceeds host allocation sizing";
+                return diagnostics;
+            }
+            candidate->deformableContactNodeCornerSortPaddedCapacity =
+                static_cast<std::uint32_t>(sortedCornerPaddedCapacity);
+        }
         const char* forceCompletedTangentCacheRebuild = std::getenv(
             "NM_FEM_FORCE_COMPLETED_TANGENT_CACHE_REBUILD");
         if (forceCompletedTangentCacheRebuild != nullptr &&
@@ -3804,6 +3896,10 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_contact_count_deformable_node_incidence",
             "nm_contact_scan_deformable_node_incidence",
             "nm_contact_scatter_deformable_node_incidence",
+            "nm_contact_emit_deformable_node_corners",
+            "nm_contact_bitonic_sort_deformable_node_corners",
+            "nm_contact_count_deformable_node_incidence_sorted",
+            "nm_contact_scatter_deformable_node_incidence_sorted",
             "nm_contact_evaluate",
             "nm_contact_clear_sparse_trial_samples",
             "nm_contact_build_armijo_sparse_pair_flags",
@@ -3869,12 +3965,24 @@ RuntimeDiagnostics Runtime::initialize(
                 std::strcmp(name, "nm_fgmres_graph_solve_patches") == 0 ||
                 std::strcmp(name, "nm_fgmres_graph_apply_patches") == 0;
         };
+        const auto isSortedNodeIncidenceKernel = [](const char* name) {
+            return std::strcmp(name,
+                       "nm_contact_emit_deformable_node_corners") == 0 ||
+                std::strcmp(name,
+                       "nm_contact_bitonic_sort_deformable_node_corners") == 0 ||
+                std::strcmp(name,
+                       "nm_contact_count_deformable_node_incidence_sorted") == 0 ||
+                std::strcmp(name,
+                       "nm_contact_scatter_deformable_node_incidence_sorted") == 0;
+        };
         for (const char* name : kernelNames) {
             // Selector-5 graph Schwarz has no consumers in other solver modes.
             // Avoid compiling these five pipelines for the default and other
             // preconditioners, while preserving the complete selector-5 set.
             if (world.mixedSolver.executionBudgets.z != 5u &&
                 isGraphSchwarzKernel(name)) continue;
+            if (!candidate->deformableContactNodeIncidenceSortEnabled &&
+                isSortedNodeIncidenceKernel(name)) continue;
             id<MTLFunction> function = kernel(name);
             if (function == nil) {
                 diagnostics.message = std::string("missing Metal function ") + name;
@@ -4041,6 +4149,8 @@ RuntimeDiagnostics Runtime::initialize(
                 graphSchwarz.sourceTopologySHA256;
             candidate->femRegionalGraphSourceFreeMaskSHA256 =
                 graphSchwarz.sourceFreeMaskSHA256;
+            candidate->femRegionalGraphPotentialMaskSHA256 =
+                graphSchwarz.potentialMaskSHA256;
             candidate->femRegionalGraphPatches = uploads.one(
                 std::span<const std::array<std::uint32_t, 4>>(
                     graphSchwarz.patches), valid, candidate->residentBytes);
@@ -4834,6 +4944,20 @@ RuntimeDiagnostics Runtime::initialize(
         const auto multiplied = [&](const std::size_t perEnvironment) {
             return environments * perEnvironment;
         };
+        if (candidate->deformableContactNodeIncidenceSortEnabled) {
+            const std::uint64_t keyBytes =
+                sortedCornerTotalCount * sizeof(std::uint64_t);
+            const std::uint64_t payloadBytes =
+                sortedCornerTotalCount * sizeof(std::uint32_t);
+            if (keyBytes > candidate->device.maxBufferLength ||
+                payloadBytes > candidate->device.maxBufferLength ||
+                keyBytes > std::numeric_limits<std::size_t>::max() -
+                    payloadBytes) {
+                diagnostics.message =
+                    "sorted deformable corner workspace exceeds Metal buffer or host byte limits";
+                return diagnostics;
+            }
+        }
         const std::uint64_t surfacePrimitiveCount =
             continuumSurfacePrimitiveCount(world.dispatch);
         if (surfacePrimitiveCount > std::numeric_limits<std::uint32_t>::max() ||
@@ -4939,6 +5063,46 @@ RuntimeDiagnostics Runtime::initialize(
                            world.dispatch.femNodeCount),
                 valid,
                 candidate->residentBytes);
+        if (candidate->deformableContactNodeIncidenceSortEnabled) {
+            const std::uint64_t sortWorkspaceBytes =
+                sortedCornerTotalCount *
+                (sizeof(std::uint64_t) + sizeof(std::uint32_t));
+            if (sortWorkspaceBytes >
+                std::numeric_limits<std::size_t>::max() -
+                    candidate->residentBytes) {
+                diagnostics.message =
+                    "sorted deformable corner workspace overflows runtime resident-byte accounting";
+                return diagnostics;
+            }
+            candidate->deformableContactNodeCornerSortKeys =
+                privateScratch<std::uint64_t>(
+                    candidate->device,
+                    static_cast<std::size_t>(sortedCornerTotalCount),
+                    valid,
+                    candidate->residentBytes);
+            candidate->deformableContactNodeCornerSortPayloads =
+                privateScratch<std::uint32_t>(
+                    candidate->device,
+                    static_cast<std::size_t>(sortedCornerTotalCount),
+                    valid,
+                    candidate->residentBytes);
+            if (!valid ||
+                candidate->deformableContactNodeCornerSortKeys == nil ||
+                candidate->deformableContactNodeCornerSortPayloads == nil) {
+                diagnostics.message =
+                    "failed to allocate the checked sorted deformable incidence workspace";
+                return diagnostics;
+            }
+            std::fprintf(stderr,
+                "contact_node_incidence_builder={\"schema\":1,\"mode\":\"stable_corner_sort\",\"environments\":%u,\"capacity\":%u,\"logical_corners_per_environment\":%llu,\"padded_corners_per_environment\":%u,\"sort_workspace_bytes\":%llu}\n",
+                world.dispatch.environmentCount,
+                world.dispatch.deformableContactCapacity,
+                static_cast<unsigned long long>(sortedCornerLogicalCount),
+                candidate->deformableContactNodeCornerSortPaddedCapacity,
+                static_cast<unsigned long long>(
+                    sortedCornerTotalCount *
+                    (sizeof(std::uint64_t) + sizeof(std::uint32_t))));
+        }
         candidate->deformableContactActiveOffsets =
             privateScratch<std::uint32_t>(
                 candidate->device,
@@ -7671,6 +7835,120 @@ RuntimeDiagnostics Runtime::encodeImpl(
                       atIndex:0u];
             [encoder setBytes:&state.fgmresLayout
                        length:sizeof(state.fgmresLayout) atIndex:30u];
+        };
+        const auto buildDeformableNodeIncidence = [&](
+            id<MTLBuffer> contacts,
+            id<MTLBuffer> activeIndices,
+            id<MTLBuffer> activeCounts,
+            id<MTLBuffer> nodeRanges,
+            id<MTLBuffer> nodeIncidence,
+            id<MTLBuffer> statuses,
+            const NSUInteger totalNodes
+        ) {
+            if (!state.deformableContactNodeIncidenceSortEnabled) {
+                dispatchThreads(
+                    "nm_contact_count_deformable_node_incidence",
+                    totalNodes,
+                    [&] {
+                        setDispatch();
+                        [encoder setBuffer:contacts offset:0u atIndex:1u];
+                        [encoder setBuffer:activeIndices offset:0u atIndex:2u];
+                        [encoder setBuffer:activeCounts offset:0u atIndex:3u];
+                        [encoder setBuffer:nodeRanges offset:0u atIndex:4u];
+                    });
+                dispatchGroups32(
+                    "nm_contact_scan_deformable_node_incidence",
+                    state.dispatch.environmentCount,
+                    [&] {
+                        setDispatch();
+                        [encoder setBuffer:nodeRanges offset:0u atIndex:1u];
+                        [encoder setBuffer:statuses offset:0u atIndex:2u];
+                    });
+                dispatchThreads(
+                    "nm_contact_scatter_deformable_node_incidence",
+                    totalNodes,
+                    [&] {
+                        setDispatch();
+                        [encoder setBuffer:contacts offset:0u atIndex:1u];
+                        [encoder setBuffer:activeIndices offset:0u atIndex:2u];
+                        [encoder setBuffer:activeCounts offset:0u atIndex:3u];
+                        [encoder setBuffer:nodeRanges offset:0u atIndex:4u];
+                        [encoder setBuffer:nodeIncidence offset:0u atIndex:5u];
+                    });
+                return;
+            }
+
+            const std::uint32_t padded =
+                state.deformableContactNodeCornerSortPaddedCapacity;
+            const NSUInteger sortThreadCount = static_cast<NSUInteger>(
+                std::uint64_t(state.dispatch.environmentCount) * padded);
+            dispatchThreads(
+                "nm_contact_emit_deformable_node_corners",
+                sortThreadCount,
+                [&] {
+                    setDispatch();
+                    [encoder setBuffer:contacts offset:0u atIndex:1u];
+                    [encoder setBuffer:activeIndices offset:0u atIndex:2u];
+                    [encoder setBuffer:activeCounts offset:0u atIndex:3u];
+                    [encoder setBuffer:state.deformableContactNodeCornerSortKeys
+                                 offset:0u atIndex:4u];
+                    [encoder setBuffer:state.deformableContactNodeCornerSortPayloads
+                                 offset:0u atIndex:5u];
+                    [encoder setBytes:&padded length:sizeof(padded) atIndex:6u];
+                });
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            for (std::uint32_t width = 2u;; width *= 2u) {
+                for (std::uint32_t distance = width / 2u;
+                     distance != 0u; distance /= 2u) {
+                    dispatchThreads(
+                        "nm_contact_bitonic_sort_deformable_node_corners",
+                        sortThreadCount,
+                        [&] {
+                            setDispatch();
+                            [encoder setBytes:&padded length:sizeof(padded) atIndex:1u];
+                            [encoder setBytes:&width length:sizeof(width) atIndex:2u];
+                            [encoder setBytes:&distance length:sizeof(distance) atIndex:3u];
+                            [encoder setBuffer:state.deformableContactNodeCornerSortKeys
+                                         offset:0u atIndex:4u];
+                            [encoder setBuffer:state.deformableContactNodeCornerSortPayloads
+                                         offset:0u atIndex:5u];
+                        });
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                }
+                if (width == padded) break;
+            }
+            dispatchThreads(
+                "nm_contact_count_deformable_node_incidence_sorted",
+                totalNodes,
+                [&] {
+                    setDispatch();
+                    [encoder setBytes:&padded length:sizeof(padded) atIndex:1u];
+                    [encoder setBuffer:state.deformableContactNodeCornerSortKeys
+                                 offset:0u atIndex:2u];
+                    [encoder setBuffer:nodeRanges offset:0u atIndex:3u];
+                });
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            dispatchGroups32(
+                "nm_contact_scan_deformable_node_incidence",
+                state.dispatch.environmentCount,
+                [&] {
+                    setDispatch();
+                    [encoder setBuffer:nodeRanges offset:0u atIndex:1u];
+                    [encoder setBuffer:statuses offset:0u atIndex:2u];
+                });
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            dispatchThreads(
+                "nm_contact_scatter_deformable_node_incidence_sorted",
+                sortThreadCount,
+                [&] {
+                    setDispatch();
+                    [encoder setBytes:&padded length:sizeof(padded) atIndex:1u];
+                    [encoder setBuffer:state.deformableContactNodeCornerSortKeys
+                                 offset:0u atIndex:2u];
+                    [encoder setBuffer:state.deformableContactNodeCornerSortPayloads
+                                 offset:0u atIndex:3u];
+                    [encoder setBuffer:nodeIncidence offset:0u atIndex:4u];
+                });
         };
         const std::uint32_t microtickCount =
             1u << state.dispatch.maximumRateExponent;
@@ -13172,46 +13450,14 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:state.deformableContactGlobalActiveIndices
                                    offset:0u atIndex:4u];
                     });
-                dispatchThreads(
-                    "nm_contact_count_deformable_node_incidence",
-                    continuumNodeTotal,
-                    [&] {
-                        setDispatch();
-                        [encoder setBuffer:state.deformableContacts
-                                   offset:0u atIndex:1u];
-                        [encoder setBuffer:state.deformableContactActiveIndices
-                                   offset:0u atIndex:2u];
-                        [encoder setBuffer:state.deformableContactActiveCounts
-                                   offset:0u atIndex:3u];
-                        [encoder setBuffer:state.deformableContactNodeRanges
-                                   offset:0u atIndex:4u];
-                    });
-                dispatchGroups32(
-                    "nm_contact_scan_deformable_node_incidence",
-                    environments,
-                    [&] {
-                        setDispatch();
-                        [encoder setBuffer:state.deformableContactNodeRanges
-                                   offset:0u atIndex:1u];
-                        [encoder setBuffer:state.statuses
-                                   offset:0u atIndex:2u];
-                    });
-                dispatchThreads(
-                    "nm_contact_scatter_deformable_node_incidence",
-                    continuumNodeTotal,
-                    [&] {
-                        setDispatch();
-                        [encoder setBuffer:state.deformableContacts
-                                   offset:0u atIndex:1u];
-                        [encoder setBuffer:state.deformableContactActiveIndices
-                                   offset:0u atIndex:2u];
-                        [encoder setBuffer:state.deformableContactActiveCounts
-                                   offset:0u atIndex:3u];
-                        [encoder setBuffer:state.deformableContactNodeRanges
-                                   offset:0u atIndex:4u];
-                        [encoder setBuffer:state.deformableContactNodeIncidence
-                                   offset:0u atIndex:5u];
-                    });
+                buildDeformableNodeIncidence(
+                    state.deformableContacts,
+                    state.deformableContactActiveIndices,
+                    state.deformableContactActiveCounts,
+                    state.deformableContactNodeRanges,
+                    state.deformableContactNodeIncidence,
+                    state.statuses,
+                    continuumNodeTotal);
                 dispatchThreads("nm_contact_evaluate", pairTotal, [&] {
                     const std::uint32_t unusedCandidateCapacity = 0u;
                     const std::uint32_t denseCandidateMode = 0u;
@@ -13722,41 +13968,14 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                  offset:0u atIndex:3u];
                 });
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
-                dispatchThreads("nm_contact_count_deformable_node_incidence",
-                    continuumNodeTotal, [&] {
-                    setDispatch();
-                    [encoder setBuffer:state.femArmijoDeformableContacts
-                                 offset:0u atIndex:1u];
-                    [encoder setBuffer:state.femArmijoDeformableActiveIndices
-                                 offset:0u atIndex:2u];
-                    [encoder setBuffer:state.femArmijoDeformableActiveCounts
-                                 offset:0u atIndex:3u];
-                    [encoder setBuffer:state.femArmijoDeformableNodeRanges
-                                 offset:0u atIndex:4u];
-                });
-                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
-                dispatchGroups32("nm_contact_scan_deformable_node_incidence",
-                    environments, [&] {
-                    setDispatch();
-                    [encoder setBuffer:state.femArmijoDeformableNodeRanges
-                                 offset:0u atIndex:1u];
-                    [encoder setBuffer:trialStatuses offset:0u atIndex:2u];
-                });
-                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
-                dispatchThreads("nm_contact_scatter_deformable_node_incidence",
-                    continuumNodeTotal, [&] {
-                    setDispatch();
-                    [encoder setBuffer:state.femArmijoDeformableContacts
-                                 offset:0u atIndex:1u];
-                    [encoder setBuffer:state.femArmijoDeformableActiveIndices
-                                 offset:0u atIndex:2u];
-                    [encoder setBuffer:state.femArmijoDeformableActiveCounts
-                                 offset:0u atIndex:3u];
-                    [encoder setBuffer:state.femArmijoDeformableNodeRanges
-                                 offset:0u atIndex:4u];
-                    [encoder setBuffer:state.femArmijoDeformableNodeIncidence
-                                 offset:0u atIndex:5u];
-                });
+                buildDeformableNodeIncidence(
+                    state.femArmijoDeformableContacts,
+                    state.femArmijoDeformableActiveIndices,
+                    state.femArmijoDeformableActiveCounts,
+                    state.femArmijoDeformableNodeRanges,
+                    state.femArmijoDeformableNodeIncidence,
+                    trialStatuses,
+                    continuumNodeTotal);
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 dispatchThreads("nm_contact_accumulate_deformable_fem_residual",
                     femNodeTotal, [&] {
@@ -14725,6 +14944,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         state.femRegionalGraphMatrixFloatCount;
                     const std::uint32_t graphPivots =
                         state.femRegionalGraphPivotCount;
+                    const std::uint32_t reuseCompletedGraphTail =
+                        detail::regionalGraphCompletedTailReuseAllowed(
+                            operatorMicro.solverIteration,
+                            state.forceCompletedTangentCacheRebuild,
+                            femOperatorFDTraceEnabled) ? 1u : 0u;
                     dispatchThreads("nm_fgmres_graph_build_patch_matrices",
                         environments * graphRows, [&] {
                         setDispatch();
@@ -14778,8 +15002,19 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             length:sizeof(graphPatches) atIndex:22u];
                         [encoder setBytes:&graphMatrixFloats
                             length:sizeof(graphMatrixFloats) atIndex:23u];
+                        [encoder setBuffer:state.fgmresStates
+                                     offset:0u atIndex:24u];
+                        [encoder setBytes:&reuseCompletedGraphTail
+                                   length:sizeof(reuseCompletedGraphTail)
+                                  atIndex:25u];
+                        [encoder setBuffer:state.femRegionalGraphFactorValid
+                                     offset:0u atIndex:26u];
                     });
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    // Legacy is the default. Explicit conditioning-only opt-in
+                    // is captured in the source-bound run environment.
+                    const std::uint32_t parallelGraphPivotSearch =
+                        state.femRegionalGraphParallelSearch;
                     dispatchGroups256("nm_fgmres_graph_factor_patches",
                         environments * graphPatches, [&] {
                         setDispatch();
@@ -14802,6 +15037,16 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:
                             state.femRegionalGraphOriginalMatrices
                                      offset:0u atIndex:9u];
+                        [encoder setBuffer:state.fgmresStates
+                                     offset:0u atIndex:10u];
+                        [encoder setBytes:&reuseCompletedGraphTail
+                                   length:sizeof(reuseCompletedGraphTail)
+                                  atIndex:11u];
+                        [encoder setBuffer:state.femRegionalGraphFactorValid
+                                     offset:0u atIndex:12u];
+                        [encoder setBytes:&parallelGraphPivotSearch
+                                   length:sizeof(parallelGraphPivotSearch)
+                                  atIndex:13u];
                     });
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 }
@@ -15124,6 +15369,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                         state.femRegionalGraphSourceTopologySHA256;
                                     metadata.graphSourceFreeMaskSHA256 =
                                         state.femRegionalGraphSourceFreeMaskSHA256;
+                                    metadata.graphPotentialMaskSHA256 =
+                                        state.femRegionalGraphPotentialMaskSHA256;
                                 }
                                 metadata.materialStateStride =
                                     state.dispatch.materialStateStride;
@@ -15667,6 +15914,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             [encoder setBytes:&refinementMode
                                        length:sizeof(refinementMode)
                                       atIndex:19u];
+                            [encoder setBuffer:state.femCandidate
+                                         offset:0u atIndex:20u];
                         });
                         [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                         dispatchThreads("nm_fgmres_graph_apply_patches",
@@ -15698,6 +15947,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                 length:sizeof(graphPatchNodes) atIndex:10u];
                             [encoder setBytes:&regionalModes
                                 length:sizeof(regionalModes) atIndex:11u];
+                            [encoder setBuffer:state.femCandidate
+                                         offset:0u atIndex:12u];
                         });
                     } else {
                         dispatchThreads(

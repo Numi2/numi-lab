@@ -1,0 +1,9 @@
+{
+  "schema": "numi.cardboard.fixture-arithmetic-policy.v1",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-completed-graph-tail-and-signed-contact-oracle-075",
+  "path": "matter/tools/cardboard_full_contact_armijo_check.mm",
+  "before_sha256": "29c0a58158e483f07eba6d056b2c65eea02aec39a9f1bafa8160405861b6fd1b",
+  "after_sha256": "beaf5a1519bec2814cb16608694ed126045e42b20fe40dde0fbb3eb1c31d9c87",
+  "patch_sha256": "6dd2c8834fa5a0b28b863a4d5ee7bc49e51df015bd633902082a11d1025bebd9",
+  "motivation": "242ordinary elastic setup stalls at1.40947279e-7 unchanged1e-7 certificate;243legacyaccuratepaper rejects elastic input because dimensionalscalingrequires13-stateHill. Expose existing general compensated scalar policy separately. No material coefficients, physical operator, fixture geometry or acceptance tolerance changed. Native rerun required; precision benefit unclaimed."
+}

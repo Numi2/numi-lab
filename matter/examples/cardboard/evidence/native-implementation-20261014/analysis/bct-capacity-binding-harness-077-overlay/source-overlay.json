@@ -1,0 +1,117 @@
+{
+  "artifacts_sha256": {
+    "README.md": "0a02660ff792045cf9a1502500d8a59b7aeab5fd4f90664e3d2f33e47c33c5db",
+    "base/frozen-source.json": "b55fddc64b2c4dfb8da29c17f7a4128ad394659ae1dde109b69c01cca3eaaf93",
+    "base/probe.patch": "4cc3bded9b6922fa964aa84230a688168d546180fa3a312f5543af52d63b5979",
+    "checks/evaluator-tests.log": "7863d3b4f1b1fdeca1b787b8d6dfca0790da134df7f317b4669fa8ff065c1f85",
+    "checks/harness-patch-replay.log": "1b344fa219c6d56ecb2306f2592e23e0fe18f50a0494657c4ec542332e09e122",
+    "checks/harness-tests.log": "17b1335fe658fc53228b68d225f334c0ab05c6edb879b433398ac065bd4606c0",
+    "checks/probe-patch-replay.log": "c0a669acefd3c1653c948a3dad216ae7c6cdb04844a6bc93be211cf214c54032",
+    "checks/producer-tests.log": "2ca92a6a3d90b2d6aa9516abd1bd23f74df9d1f4692f4e25efb00fc5d2bc95c6",
+    "checks/python-compile.log": "33466c4f4c81eb5d7a5affe1aad4f0e1f761f05bbd09d3cb4de20ac473015fa5",
+    "harness.patch": "2a26c1bb33b0dc7314f45fa99b5875f23c526fbf204ed7fbff1d9afd85d31ba5",
+    "patched/matter/tools/bct_capacity_history_producer.py": "e82da5431fbfcefc68cb47db950b44864540d9d668f5dcbb9366f3fa27b76342",
+    "patched/matter/tools/cardboard_calibration_case_binding.py": "03adc449fd4d5c8d7f44ade757f02f2a1f432d88b1ff008d833dbc533ce4a2e5",
+    "patched/matter/tools/cardboard_calibration_ensemble.py": "07a2d53ffbfa64d829b84c7624890ac1c152dcd0774b5259ee72f2d83240a5ee",
+    "patched/matter/tools/cardboard_calibration_ensemble_test.py": "78fa2894e0f85275abc98e262bd8416008be7e2e8544d7166a85be4c877458d7",
+    "patched/matter/tools/cardboard_probe.mm": "391995acae354e097bec84c2d86c07e305c3d8b4ea149ba606323f0d24bd39de",
+    "patched/matter/tools/cardboard_shipping_capacity.hpp": "942d67ca4b3f44c3074cc44fe38ec5c2509c24ebc920a23064bf08db3f4f9187",
+    "patched/matter/tools/cardboard_source_bound_run.py": "fb08ce5428944fd09cea52abf9c07a8e7ff8746ed8763b2a262f2898147ae3ff",
+    "patched/matter/tools/cardboard_source_bound_run_support.py": "5ce3ec12e48d88ba8a76b7e498d29b7dd991f0c930de43e17bb5cb96d379685e",
+    "tests/test_bct_capacity_history_producer.py": "e9347af92c6367199550d4cc28299e9ae1bc67efd77398697aebe4c0bcbbe0b9",
+    "tests/test_bct_source_bound_harness.py": "eb7bc97245a6c1609ab5dadd4bac0644fd7a90ae874c1f749871329cbc747a41"
+  },
+  "base": {
+    "base_snapshot_recorded": "/Users/home/cardboard-implementation-20261014/snapshots/source-stable-free-graph-and-general-arithmetic-076",
+    "frozen_source_manifest": "base/frozen-source.json",
+    "frozen_source_manifest_sha256": "b55fddc64b2c4dfb8da29c17f7a4128ad394659ae1dde109b69c01cca3eaaf93",
+    "parent_revision": "35bfb518c542a306f563cc364ef8496837068b9a",
+    "source_file_hash_checks": {
+      "matter/tools/cardboard_calibration_ensemble.py": {
+        "frozen_manifest_sha256": "07a2d53ffbfa64d829b84c7624890ac1c152dcd0774b5259ee72f2d83240a5ee",
+        "matches": true,
+        "sha256": "07a2d53ffbfa64d829b84c7624890ac1c152dcd0774b5259ee72f2d83240a5ee"
+      },
+      "matter/tools/cardboard_probe.mm": {
+        "frozen_manifest_sha256": "15d6ebf02a0608f6f1e1143b3234bf0a78bea2e29e663d41b6c14acde209c47c",
+        "matches": true,
+        "sha256": "15d6ebf02a0608f6f1e1143b3234bf0a78bea2e29e663d41b6c14acde209c47c"
+      },
+      "matter/tools/cardboard_shipping_capacity.hpp": {
+        "frozen_manifest_sha256": "942d67ca4b3f44c3074cc44fe38ec5c2509c24ebc920a23064bf08db3f4f9187",
+        "matches": true,
+        "sha256": "942d67ca4b3f44c3074cc44fe38ec5c2509c24ebc920a23064bf08db3f4f9187"
+      },
+      "matter/tools/cardboard_source_bound_run.py": {
+        "frozen_manifest_sha256": "0484c3be3547443169aa5be71665febc8cc20179eb9755be9ee620f724a84b2a",
+        "matches": true,
+        "sha256": "0484c3be3547443169aa5be71665febc8cc20179eb9755be9ee620f724a84b2a"
+      }
+    }
+  },
+  "changed_source_hashes": {
+    "matter/tools/bct_capacity_history_producer.py": {
+      "base_sha256": "09fe453823ab391bb0a96e380079aadbac5335d905431904946e50c8a09fc16e",
+      "overlay_sha256": "e82da5431fbfcefc68cb47db950b44864540d9d668f5dcbb9366f3fa27b76342"
+    },
+    "matter/tools/cardboard_calibration_case_binding.py": {
+      "base_sha256": null,
+      "overlay_sha256": "03adc449fd4d5c8d7f44ade757f02f2a1f432d88b1ff008d833dbc533ce4a2e5"
+    },
+    "matter/tools/cardboard_probe.mm": {
+      "base_sha256": "15d6ebf02a0608f6f1e1143b3234bf0a78bea2e29e663d41b6c14acde209c47c",
+      "overlay_sha256": "391995acae354e097bec84c2d86c07e305c3d8b4ea149ba606323f0d24bd39de"
+    },
+    "matter/tools/cardboard_source_bound_run.py": {
+      "base_sha256": "0484c3be3547443169aa5be71665febc8cc20179eb9755be9ee620f724a84b2a",
+      "overlay_sha256": "fb08ce5428944fd09cea52abf9c07a8e7ff8746ed8763b2a262f2898147ae3ff"
+    }
+  },
+  "limitations": [
+    "synthetic end-to-end fixtures only",
+    "no native or GPU execution",
+    "no physical capacity, material calibration, or grade-equivalence claim",
+    "unbound shipping runs remain rejected by BCT packaging"
+  ],
+  "native_validation": "NOT_RUN",
+  "overlay_id": "bct-capacity-binding-harness-077-overlay",
+  "patches": {
+    "base/probe.patch": "4cc3bded9b6922fa964aa84230a688168d546180fa3a312f5543af52d63b5979",
+    "harness.patch": "2a26c1bb33b0dc7314f45fa99b5875f23c526fbf204ed7fbff1d9afd85d31ba5"
+  },
+  "protocol_id": "shipping_bct_without_offset_first_local_peak_v1",
+  "schema": "numi.cardboard.external-source-overlay.v1",
+  "scope": "pre-run candidate/condition/argv and input binding, post-run raw-manifest verification, non-mutating BCT package creation",
+  "test_logs": {
+    "evaluator-tests.log": {
+      "passed": true,
+      "sha256": "7863d3b4f1b1fdeca1b787b8d6dfca0790da134df7f317b4669fa8ff065c1f85",
+      "summary": "27 evaluator tests"
+    },
+    "harness-patch-replay.log": {
+      "passed": true,
+      "sha256": "1b344fa219c6d56ecb2306f2592e23e0fe18f50a0494657c4ec542332e09e122",
+      "summary": "harness patch replay exact for all three code files and both tests"
+    },
+    "harness-tests.log": {
+      "passed": true,
+      "sha256": "17b1335fe658fc53228b68d225f334c0ab05c6edb879b433398ac065bd4606c0",
+      "summary": "7 end-to-end tests"
+    },
+    "probe-patch-replay.log": {
+      "passed": true,
+      "sha256": "c0a669acefd3c1653c948a3dad216ae7c6cdb04844a6bc93be211cf214c54032",
+      "summary": "probe patch replay byte-identical"
+    },
+    "producer-tests.log": {
+      "passed": true,
+      "sha256": "2ca92a6a3d90b2d6aa9516abd1bd23f74df9d1f4692f4e25efb00fc5d2bc95c6",
+      "summary": "4 producer tests"
+    },
+    "python-compile.log": {
+      "passed": true,
+      "sha256": "33466c4f4c81eb5d7a5affe1aad4f0e1f761f05bbd09d3cb4de20ac473015fa5",
+      "summary": "Python bytecode compilation exit code 0"
+    }
+  }
+}

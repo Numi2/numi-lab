@@ -10,6 +10,24 @@ plan, not a measured complete native arena or whole-process peak. Shipping
 assembly, released checkpoint, capacity-derived masses, gravity crush and
 impact therefore remain unexecuted.
 
+The source076 capability inventory checks the actual prepared mesh: 528,444
+nodes, 1,477,728 tetrahedra, 260,835 cohesive faces, 1,054,876 exterior faces
+and 6,335,568 canonical rigid pairs. At one environment, the examined index
+products fit U32; this does not clear the scope or arena gates. Sparse private
+rigid storage still scans the full pair domain, production contact remains
+dense, and the self-contact node-incidence builders scan every active contact
+for every node. The latter is an independent N-by-K work cost. Cohesive aliasing
+does not bypass the current pre-alias 8 MiB trial-byte admission check.
+
+The separate prebuild wiring repair carries the explicit sparse selector,
+capacity and bounded free-BOX scope candidate into the same checked sizing
+helper. It admits only the private rigid-storage subgate (about 36.1 MB at
+65,536 candidates); full shipping FEM/contact/cohesive execution still rejects.
+Neither this estimate nor the approximately 12.42 GB modeled envelope is a
+measured simultaneous allocation or a physical transaction. Read-only hardware
+checks found 16 GiB on numi and 24 GiB on macmini, so neither is a larger-memory
+continuation for this local 24 GiB machine.
+
 Date: 2026-10-15
 Scope: audit of the native shipping runtime and its sizing helpers, plus the admission-consistency repair and source-bound Fpeak numerical-capacity gate. No production solver, contact law, tolerance, mesh, or certificate behavior was changed. No GPU transaction was run for this audit.
 
@@ -133,3 +151,10 @@ With an explicitly bounded131,072 contact-slot arena, compact immutable exterior
 Source52 permits the canonical rigid pair index domain above65,536 only when checked sparse-private admission succeeds. A65,536 candidate reserve plus the canonical pair slot map requires36,090,192 bytes (34.42 MiB), within the unchanged36 MiB reserve without the dense parity reference. It still excludes free rigid unknowns. The full world remains rejected by the8,192-node/32,768-tet/4,096-cohesive-face bounds,281.5 MB private self-contact scratch against128 MiB,125.2 MB private cohesive scratch against8 MiB, and regional coarse arenas of456.6/837.1 MB against256 MiB. Conservative sparse candidate sizing does not qualify full shipping contact or impact.
 
 The source52 probe now enables substrate self-contact with the starch-interface model. Intact-interface exclusions handle tied coverage; independent closure contact remains available after separation. No shipping transaction or fixture-free assembled checkpoint has been accepted under this configuration. One GPU worker is retained throughout.
+
+Source079 adds opt-in deterministic contact incidence and parallel graph LU
+search. Native260/261 qualify only prepared lists/factors; production263/264
+first-control parity passes. Bounded graph fallback admits independent coupon
+layouts within existing arenas, but actual nx16 case265 rejects. The full
+shipping mesh still lacks native FEM/contact/cohesive admission and measured
+peak allocation. No limits are raised by these changes.

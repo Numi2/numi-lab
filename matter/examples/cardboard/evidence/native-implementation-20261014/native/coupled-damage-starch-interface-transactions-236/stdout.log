@@ -1,0 +1,1 @@
+PASS native coupled synthetic transaction checks=118 native_transactions=10 parameter_sha256=1dd5b84d1dd37e61dcab0d6ee713cbb9a0730ed67dccb853c0fd204e3bcf542c matrix_damage_history=true independent_interface_activation=true full_checkpoint_rollback=true calibration=false

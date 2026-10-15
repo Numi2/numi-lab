@@ -1,0 +1,4 @@
+patching file 'matter/tools/cardboard_probe.mm'
+replayed_probe_sha256=391995acae354e097bec84c2d86c07e305c3d8b4ea149ba606323f0d24bd39de
+patched_probe_sha256=391995acae354e097bec84c2d86c07e305c3d8b4ea149ba606323f0d24bd39de
+byte_identical=true

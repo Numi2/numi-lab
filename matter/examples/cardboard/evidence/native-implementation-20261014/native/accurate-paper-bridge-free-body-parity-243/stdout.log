@@ -1,0 +1,2 @@
+authored_extended_budget=fgmres256,restart16,line_search24 relative_residual_unchanged=1e-7
+authored_newton_iterations=32 accurate_paper=true

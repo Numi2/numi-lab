@@ -1,0 +1,61 @@
+{
+  "base_checkout": "/Users/home/numi-cardboard-20261006",
+  "bct_policy": {
+    "capacity_schema": "numi.cardboard.shipping-capacity-qualification.v2",
+    "claim_boundary": "numerical-capacity artifact admission only; no BCT material calibration or physical shipping validation",
+    "current_driver_adapter": "missing; BCT full-peak comparison is rejected until the native producer emits the required bound artifacts",
+    "native_binding_schema": "numi.cardboard.native-bct-capacity-binding.v1",
+    "required_evidence": [
+      "full nominal 70-percent stroke curve",
+      "accepted half-speed curve and measured dt ledger",
+      "three-level mesh report",
+      "three-level time report",
+      "source/build fingerprints",
+      "material binding",
+      "assembled Matter checkpoint",
+      "rigid scene sidecar"
+    ]
+  },
+  "checks": {
+    "command": "NUMI_CARDBOARD_REPO_ROOT=/Users/home/numi-cardboard-20261006 python3 patched/cardboard_calibration_ensemble_test.py",
+    "native_or_gpu_run": "not_run",
+    "python_compile": "passed",
+    "unit_test_count": 27,
+    "unit_test_log_sha256": "826c8b70ad899c28a3fefef5a3171c145cdb6563ad24183291a881c08c88ce02",
+    "unit_tests": "passed"
+  },
+  "files": [
+    {
+      "base_path": "base/cardboard_calibration_ensemble.py",
+      "base_sha256": "c66d76c76e38ebad92fefc0ece93018963bda9bed422028f945fe946a9782112",
+      "candidate_path": "patched/cardboard_calibration_ensemble.py",
+      "candidate_sha256": "07a2d53ffbfa64d829b84c7624890ac1c152dcd0774b5259ee72f2d83240a5ee",
+      "repository_path": "matter/tools/cardboard_calibration_ensemble.py"
+    },
+    {
+      "base_path": "base/cardboard_calibration_ensemble_test.py",
+      "base_sha256": "a18941ba3d9af06f7c17fe755868c386d816e89154130bbcdee850b6624ae289",
+      "candidate_path": "patched/cardboard_calibration_ensemble_test.py",
+      "candidate_sha256": "78fa2894e0f85275abc98e262bd8416008be7e2e8544d7166a85be4c877458d7",
+      "repository_path": "matter/tools/cardboard_calibration_ensemble_test.py"
+    }
+  ],
+  "package_root": "/Users/home/cardboard-implementation-20261014/analysis/published-validation-admission-001",
+  "patch": {
+    "path": "overlay.patch",
+    "sha256": "9aaf2352365ec248cd73cc5ad8f4a0134fae9a652d48dba3f73322818e25cdf3"
+  },
+  "readme": {
+    "path": "README.md",
+    "sha256": "7016daf2c2d0156d882b697833c0ab635d829543d911c820aca3330d61581981"
+  },
+  "schema": "numi.cardboard.external-validation-admission-overlay.v1",
+  "scope": "published-data calibration and validation admission only",
+  "source_data_bindings": {
+    "bct_csv_sha256": "402f49def648cba133ee7726f9bde7dd4de39bb671d55338766a55d317238e37",
+    "catalog_sha256": "f812ca264c3f0cd15e98178aeae090332eb753d127a199906a9ebc800e3a62c1",
+    "ect_table2_csv_sha256": "34de91e5707f175ac2c65e9e3e56cf9c2dc99d8dadfa203cba8e72422e4333f2",
+    "pin_csv_sha256": "3ca6b0ede409e8b031a193a16ec59480769f257c151a87d5264cbadb994e1b06"
+  },
+  "status": "sealed_external_candidate"
+}

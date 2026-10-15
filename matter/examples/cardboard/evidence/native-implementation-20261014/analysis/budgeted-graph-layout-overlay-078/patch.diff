@@ -1,0 +1,138 @@
+--- a/matter/src/regional_graph_schwarz.hpp
++++ b/matter/src/regional_graph_schwarz.hpp
+@@ -102,7 +102,8 @@
+     const std::uint32_t maximumPatchCount = 128u,
+     const std::uint32_t maximumPatchNodes = 256u,
+     const std::uint32_t anchorStride = 128u,
+-    const bool includeInitiallyFixedPatches = true
++    const bool includeInitiallyFixedPatches = true,
++    const bool groupUncoveredNodes = false
+ ) {
+     RegionalGraphSchwarzLayout out;
+     out.nodeCount = nodeCount;
+@@ -182,8 +183,24 @@
+             for (const std::uint32_t node : selected) covered[node] = 1u;
+             nodePatches.push_back(std::move(selected));
+         }
+-        for (const std::uint32_t node : partitionNodes)
+-            if (covered[node] == 0u) nodePatches.push_back({node});
++        if (!groupUncoveredNodes) {
++            for (const std::uint32_t node : partitionNodes)
++                if (covered[node] == 0u) nodePatches.push_back({node});
++        } else {
++            // Disconnected or missed nodes may share a bounded dense patch.
++            // Absent graph edges produce exact zero off-diagonal blocks; this
++            // only batches small local solves, with the same production A.
++            std::vector<std::uint32_t> remainder;
++            for (const std::uint32_t node : partitionNodes) {
++                if (covered[node] != 0u) continue;
++                remainder.push_back(node);
++                if (remainder.size() == maximumPatchNodes) {
++                    nodePatches.push_back(std::move(remainder));
++                    remainder.clear();
++                }
++            }
++            if (!remainder.empty()) nodePatches.push_back(std::move(remainder));
++        }
+     };
+     // Preserve the old source-free patches in exactly their historical order.
+     appendPartitionPatches(sourceFreeNodes);
+@@ -306,4 +323,34 @@
+     return out;
+ }
+ 
++
++// Preserve the historical layout byte for byte whenever it fits. Only a
++// resource rejection permits a conditioning-only fallback with smaller
++// patches or batched disconnected nodes. All input, index, patch-count and
++// 96 MiB arena limits remain enforced by the same checked builder. This does
++// not modify the mechanical operator, residual, tolerances or certificate.
++[[nodiscard]] inline RegionalGraphSchwarzLayout buildBudgetedRegionalGraphSchwarzLayout(
++    const std::uint32_t nodeCount,
++    const std::span<const std::array<std::uint32_t, 4>> tetrahedra,
++    const std::span<const std::uint8_t> freeMask,
++    const std::uint32_t environmentCount,
++    const std::uint64_t maximumDeviceBytes = 96ull * 1024ull * 1024ull
++) {
++    auto original = buildRegionalGraphSchwarzLayout(
++        nodeCount, tetrahedra, freeMask, environmentCount, maximumDeviceBytes);
++    if (original.error.empty()) return original;
++    const bool resourceRejection =
++        original.error == "graph Schwarz patch count exceeds its bounded layout" ||
++        original.error == "graph Schwarz packed device arenas, including source matrices for one refinement pass, exceed the explicit 96 MiB bound";
++    if (!resourceRejection) return original;
++    for (const std::uint32_t patchNodes : {256u, 128u, 64u, 32u}) {
++        auto candidate = buildRegionalGraphSchwarzLayout(
++            nodeCount, tetrahedra, freeMask, environmentCount,
++            maximumDeviceBytes, 4096u, 32768u, 128u,
++            patchNodes, patchNodes / 2u, true, true);
++        if (candidate.error.empty()) return candidate;
++    }
++    return original;
++}
++
+ } // namespace numi::matter::detail
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -1256,7 +1256,7 @@
+         result.sourceFreeMask.data(), result.sourceFreeMask.size());
+     result.potentialMaskSHA256 = sha256Hex(
+         result.potentialMask.data(), result.potentialMask.size());
+-    result.layout = detail::buildRegionalGraphSchwarzLayout(
++    result.layout = detail::buildBudgetedRegionalGraphSchwarzLayout(
+         nodes, tetrahedra, result.sourceFreeMask,
+         world.dispatch.environmentCount);
+     if (!result.layout.error.empty()) return result;
+--- a/matter/tools/regional_graph_schwarz_layout_check.cpp
++++ b/matter/tools/regional_graph_schwarz_layout_check.cpp
+@@ -147,6 +147,50 @@
+         }
+     }
+ 
++    // An admitted historical layout must remain bit-identical under the
++    // budget policy, including source-free membership and CSR ordering.
++    const auto budgetPreserved = numi::matter::detail::buildBudgetedRegionalGraphSchwarzLayout(
++        nodeCount, tetrahedra, freeMask, 2u);
++    if (!budgetPreserved.error.empty() ||
++        budgetPreserved.patchNodes != dynamicLayout.patchNodes ||
++        budgetPreserved.rows != dynamicLayout.rows ||
++        budgetPreserved.nodePatchOffsets != dynamicLayout.nodePatchOffsets ||
++        budgetPreserved.nodePatchValues != dynamicLayout.nodePatchValues ||
++        budgetPreserved.deviceBytes != dynamicLayout.deviceBytes) {
++        std::cerr << "budget policy changed an admitted historical graph\n";
++        return 27;
++    }
++    // 2,600 isolated rows exceed the historical singleton-patch limit. They
++    // still require complete deterministic coverage, without lifting the
++    // patch-count, maximum local DOF or arena bounds.
++    std::vector<std::uint8_t> isolatedMask(2600u, 1u);
++    const std::array<std::array<std::uint32_t, 4>, 1> isolatedTets{{{0u,1u,2u,3u}}};
++    const auto isolatedLegacy = buildRegionalGraphSchwarzLayout(
++        2600u, isolatedTets, isolatedMask, 2u);
++    const auto isolatedBudget = numi::matter::detail::buildBudgetedRegionalGraphSchwarzLayout(
++        2600u, isolatedTets, isolatedMask, 2u);
++    const auto isolatedRepeat = numi::matter::detail::buildBudgetedRegionalGraphSchwarzLayout(
++        2600u, isolatedTets, isolatedMask, 2u);
++    if (isolatedLegacy.error.empty() || !isolatedBudget.error.empty() ||
++        isolatedBudget.patches.size() > 128u ||
++        isolatedBudget.deviceBytes > 96ull*1024ull*1024ull ||
++        isolatedBudget.patchNodes != isolatedRepeat.patchNodes ||
++        isolatedBudget.rows != isolatedRepeat.rows ||
++        std::any_of(isolatedBudget.nodeCoverage.begin(), isolatedBudget.nodeCoverage.end(),
++                    [](auto coverage) { return coverage == 0u; })) {
++        std::cerr << "budget policy failed bounded disconnected-row coverage\n";
++        return 28;
++    }
++    // A tiny budget still rejects; malformed inputs cannot be reinterpreted
++    // by any fallback policy.
++    if (numi::matter::detail::buildBudgetedRegionalGraphSchwarzLayout(
++            2600u, isolatedTets, isolatedMask, 2u, 1u).error.empty() ||
++        numi::matter::detail::buildBudgetedRegionalGraphSchwarzLayout(
++            4097u, isolatedTets, isolatedMask, 2u).error.empty()) {
++        std::cerr << "budget policy bypassed resource or topology admission\n";
++        return 29;
++    }
++
+     std::uint64_t output = 0u;
+     if (regionalGraphSchwarzCheckedAdd(5u, 7u, output) != true || output != 12u ||
+         regionalGraphSchwarzCheckedAdd(

@@ -1,0 +1,9 @@
+test_checkpoint_pair_locator_mismatch_fails_without_rewriting_native_run (__main__.BCTProducerTests) ... ok
+test_parameter_mismatch_fails_before_artifact_creation (__main__.BCTProducerTests) ... ok
+test_synthetic_complete_contract_wraps_without_mutating_native_run (__main__.BCTProducerTests) ... ok
+test_unsealed_case_binding_fails_and_keeps_raw_files (__main__.BCTProducerTests) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.329s
+
+OK

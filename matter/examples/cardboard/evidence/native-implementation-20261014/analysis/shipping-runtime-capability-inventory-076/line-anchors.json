@@ -1,0 +1,70 @@
+{
+  "dispatch counts and default deformable capacity": {
+    "file": "matter/src/compiler_impl.cpp",
+    "lines": "3361-3370,3490-3518"
+  },
+  "checked surface primitive and BVH allocations": {
+    "file": "matter/src/runtime.mm",
+    "lines": "4846-4902"
+  },
+  "production rigid all-pair sample arena and history arrays": {
+    "file": "matter/src/runtime.mm",
+    "lines": "5023-5047,13227-13245"
+  },
+  "sparse private rigid capacity allocation and pair map": {
+    "file": "matter/src/runtime.mm",
+    "lines": "5487-5530"
+  },
+  "sparse contact classification scans canonical full pair domain": {
+    "file": "matter/src/metal/contact.metalinc",
+    "lines": "5266-5402,5404-5457,6137-6182"
+  },
+  "compact rigid trial evaluate is K sized, pair-map then residual gather": {
+    "file": "matter/src/runtime.mm",
+    "lines": "17311-17363,17500-17572"
+  },
+  "private FEM self-contact count/budget": {
+    "file": "matter/src/runtime.mm",
+    "lines": "5554-5593"
+  },
+  "full contact residual Armijo node/tet/proxy/cohesive/contact/capability scope": {
+    "file": "matter/src/runtime.mm",
+    "lines": "9209-9490"
+  },
+  "surface BVH traversal and candidate overflow behavior": {
+    "file": "matter/src/metal/contact.metalinc",
+    "lines": "1932-2053,2055-2148"
+  },
+  "deformable contact incidence (six support nodes per constraint)": {
+    "file": "matter/src/metal/contact.metalinc",
+    "lines": "3618-3751"
+  },
+  "cohesive accepted/default/candidate/checkpoint arrays and force/operator arrays": {
+    "file": "matter/src/runtime.mm",
+    "lines": "4581-4592,5191-5202"
+  },
+  "cohesive Armijo eight MiB/four-thousand-face private cap": {
+    "file": "matter/src/runtime.mm",
+    "lines": "5438-5468,9065-9102,9464-9469"
+  },
+  "cohesive three-point force loop and residual/operator": {
+    "file": "matter/src/metal/fem.metalinc",
+    "lines": "1756-1886,2028-2081,2083-2116"
+  },
+  "selector4 contact Galerkin count/law limits and selector5 contact-free graph Schwarz gates": {
+    "file": "matter/src/validation_impl.cpp",
+    "lines": "580-680"
+  },
+  "sparse private checked bytes/u32 and 36MiB cap": {
+    "file": "matter/include/numi/matter/sparse_private_contact_admission.hpp",
+    "lines": "10-18,69-175"
+  },
+  "compact static exterior surfaces and 32-bit device indexing checks": {
+    "file": "matter/src/runtime.mm",
+    "lines": "4849-4888"
+  },
+  "mesh-derived cardinalities and admission/model limits": {
+    "file": "matter/tools/cardboard_shipping_allocation_preflight.cpp",
+    "lines": "250-277,407-463,517-519"
+  }
+}

@@ -92,9 +92,10 @@ std::uint32_t regionOf(const NMTetrahedronGPU& tet) {
 
 WorldSource source(const MaterialProgram& material,
                    const FEMPreconditionerMode mode,
-                   const bool useTangentCache = false) {
+                   const bool useTangentCache = false,
+                   const std::uint32_t environments = 1u) {
     WorldSource world;
-    world.environmentCount = 1u;
+    world.environmentCount = environments;
     world.frameTimestep = 2.0e-5;
     world.gravity = {0.0, 0.0, 0.0};
     world.mixedSolver.femPreconditioner = mode;
@@ -145,7 +146,8 @@ WorldSource source(const MaterialProgram& material,
     object.tetrahedra = {{{0u,1u,2u,3u}}, {{0u,2u,1u,4u}}};
     if (mode == FEMPreconditionerMode::regionalGalerkin ||
         mode == FEMPreconditionerMode::regionalGalerkinBlockJacobi ||
-        mode == FEMPreconditionerMode::regionalGalerkinContact)
+        mode == FEMPreconditionerMode::regionalGalerkinContact ||
+        mode == FEMPreconditionerMode::regionalGalerkinGraphSchwarz)
         object.femPreconditionerRegionIds = {0u,1u};
     world.objects = {std::move(object)};
     return world;
@@ -348,8 +350,11 @@ public:
         const std::vector<nm_float4>& kinematicTargets = {},
         const std::vector<NMCohesiveActivationCommandGPU>& activationCommands = {}) {
         auto* status = static_cast<MRMetalWorldStatusGPU*>(statuses_.contents);
-        status[0] = {};
-        status[0].environment = 0u;
+        for (std::uint32_t environment = 0u;
+             environment < world_.dispatch.environmentCount; ++environment) {
+            status[environment] = {};
+            status[environment].environment = environment;
+        }
         id<MTLBuffer> targets = nil;
         if (!kinematicTargets.empty()) {
             const std::size_t expectedCount =
@@ -415,16 +420,25 @@ public:
              std::string([[command.error.localizedDescription description] UTF8String]));
         RuntimeStateSnapshot snapshot = runtime_.snapshot();
         need(snapshot.available,"native snapshot failed: "+snapshot.message);
-        if (snapshot.statuses.size() != 1u ||
-            snapshot.statuses[0].code != NM_STATUS_SUCCESS) {
+        if (snapshot.statuses.size() != world_.dispatch.environmentCount ||
+            std::any_of(snapshot.statuses.begin(), snapshot.statuses.end(),
+                [](const NMMatterStatusGPU& value) {
+                    return value.code != NM_STATUS_SUCCESS;
+                })) {
             std::string message = "native FEM control_step=" +
                 std::to_string(controlStep) + " status=" +
                 (snapshot.statuses.empty()
                     ? std::string("missing")
                     : std::to_string(snapshot.statuses[0].code));
-            if (!snapshot.statuses.empty()) {
-                const auto& status = snapshot.statuses[0];
+            const auto failed = std::find_if(
+                snapshot.statuses.begin(), snapshot.statuses.end(),
+                [](const NMMatterStatusGPU& value) {
+                    return value.code != NM_STATUS_SUCCESS;
+                });
+            if (failed != snapshot.statuses.end()) {
+                const auto& status = *failed;
                 message += " object=" + std::to_string(status.objectIndex) +
+                    " environment=" + std::to_string(status.environment) +
                     " failing_index=" + std::to_string(status.failingIndex) +
                     " completed_microsteps=" +
                         std::to_string(status.completedMicrosteps) +
@@ -437,9 +451,13 @@ public:
             }
             throw std::runtime_error(message);
         }
-        need(snapshot.solverCertificates.size()==1u &&
-             snapshot.solverCertificates[0].validity.w>0.5f,
-             "native solve did not produce an accepted solver certificate");
+        need(snapshot.solverCertificates.size()==world_.dispatch.environmentCount &&
+             std::all_of(snapshot.solverCertificates.begin(),
+                 snapshot.solverCertificates.end(),
+                 [](const NMSolverCertificateGPU& value) {
+                     return value.validity.w > 0.5f;
+                 }),
+             "native solve did not produce accepted certificates for all environments");
         return {world_,std::move(snapshot),runtime_.deviceProgramFingerprint()};
     }
 
@@ -1777,6 +1795,7 @@ const char* selectorName(const RunResult& run) {
         case 2u: return "regional_galerkin_scalar_fine";
         case 3u: return "regional_galerkin_block_jacobi_fine";
         case 4u: return "regional_galerkin_contact_enriched";
+        case 5u: return "regional_galerkin_graph_schwarz_potential_node";
         default: return "unsupported_selector";
     }
 }
@@ -2022,6 +2041,277 @@ void checkGripMaskTransition(const MaterialProgram& material) {
         << "}\n";
 }
 
+struct EnvironmentGripCommand {
+    std::uint32_t environment;
+    std::uint32_t node;
+    float command;
+};
+
+std::vector<nm_float4> makeEnvironmentGripTargets(
+    const RuntimeStateSnapshot& snapshot,
+    const std::uint32_t environmentCount,
+    const std::uint32_t nodesPerEnvironment,
+    const std::vector<EnvironmentGripCommand>& commands
+) {
+    need(snapshot.femNodes.size() ==
+             std::size_t(environmentCount) * nodesPerEnvironment,
+         "dynamic graph fixture snapshot does not have environment-major FEM nodes");
+    std::vector<nm_float4> targets(snapshot.femNodes.size());
+    for (const EnvironmentGripCommand& command : commands) {
+        need(command.environment < environmentCount &&
+                 command.node < nodesPerEnvironment &&
+                 (command.command == 2.0f || command.command == 3.0f),
+             "dynamic graph fixture authored an invalid grip command");
+        const std::size_t index =
+            std::size_t(command.environment) * nodesPerEnvironment + command.node;
+        const nm_float4 position = snapshot.femNodes[index].positionAndMass;
+        targets[index] = {position.x, position.y, position.z, command.command};
+    }
+    return targets;
+}
+
+std::uint32_t constrainedNodeCount(
+    const RuntimeStateSnapshot& snapshot,
+    const std::uint32_t environment,
+    const std::uint32_t nodesPerEnvironment
+) {
+    const std::size_t first = std::size_t(environment) * nodesPerEnvironment;
+    need(first + nodesPerEnvironment <= snapshot.femNodes.size(),
+         "dynamic graph fixture environment slice is outside the FEM snapshot");
+    return static_cast<std::uint32_t>(std::count_if(
+        snapshot.femNodes.begin() + static_cast<std::ptrdiff_t>(first),
+        snapshot.femNodes.begin() + static_cast<std::ptrdiff_t>(first + nodesPerEnvironment),
+        [](const NMFEMNodeStateGPU& node) {
+            return node.restAndFixed.w == 1.0f || node.restAndFixed.w == 3.0f;
+        }));
+}
+
+void compareDynamicMaskRuns(const RunResult& scalar, const RunResult& graph,
+                            const std::uint32_t transaction) {
+    const auto& a = scalar.snapshot;
+    const auto& b = graph.snapshot;
+    need(a.femNodes.size() == b.femNodes.size() &&
+             a.statuses.size() == b.statuses.size() &&
+             a.solverCertificates.size() == b.solverCertificates.size(),
+         "dynamic graph comparison changed environment or state arity");
+    const std::uint32_t nodes = scalar.world.dispatch.femNodeCount;
+    double maximumPosition = 0.0;
+    double maximumVelocity = 0.0;
+    double velocityScale = 0.0;
+    double maximumCertificate = 0.0;
+    bool massesAndInverseMassesMatch = true;
+    for (std::size_t index = 0u; index < a.femNodes.size(); ++index) {
+        const auto& leftNode = a.femNodes[index];
+        const auto& rightNode = b.femNodes[index];
+        for (const auto [left, right] : {
+                 std::pair{leftNode.positionAndMass.x,
+                           rightNode.positionAndMass.x},
+                 std::pair{leftNode.positionAndMass.y,
+                           rightNode.positionAndMass.y},
+                 std::pair{leftNode.positionAndMass.z,
+                           rightNode.positionAndMass.z}})
+            maximumPosition = std::max(maximumPosition,
+                                       std::abs(double(left) - right));
+        for (const auto [left, right] : {
+                 std::pair{leftNode.velocityAndInverseMass.x,
+                           rightNode.velocityAndInverseMass.x},
+                 std::pair{leftNode.velocityAndInverseMass.y,
+                           rightNode.velocityAndInverseMass.y},
+                 std::pair{leftNode.velocityAndInverseMass.z,
+                           rightNode.velocityAndInverseMass.z}}) {
+            maximumVelocity = std::max(maximumVelocity,
+                                       std::abs(double(left) - right));
+            velocityScale = std::max({velocityScale, std::abs(double(left)),
+                                      std::abs(double(right))});
+        }
+        massesAndInverseMassesMatch = massesAndInverseMassesMatch &&
+            leftNode.positionAndMass.w == rightNode.positionAndMass.w &&
+            leftNode.velocityAndInverseMass.w ==
+                rightNode.velocityAndInverseMass.w;
+    }
+    for (std::size_t environment = 0u;
+         environment < a.solverCertificates.size(); ++environment) {
+        const auto& ca = a.solverCertificates[environment];
+        const auto& cb = b.solverCertificates[environment];
+        for (const auto [left, right] : {
+                 std::pair{ca.nonlinear.x, cb.nonlinear.x},
+                 std::pair{ca.nonlinear.y, cb.nonlinear.y},
+                 std::pair{ca.nonlinear.z, cb.nonlinear.z},
+                 std::pair{ca.nonlinear.w, cb.nonlinear.w}})
+            maximumCertificate = std::max(maximumCertificate,
+                                           std::abs(double(left) - right));
+    }
+    const double relativeVelocity = maximumVelocity /
+        std::max(velocityScale, 1.0e-12);
+    std::cout << std::setprecision(12)
+        << "{\"schema\":1,\"record\":\"dynamic_graph_selector_invariance\""
+        << ",\"physical_validation\":false,\"transaction\":" << transaction
+        << ",\"environment_count\":" << scalar.world.dispatch.environmentCount
+        << ",\"node_count_per_environment\":" << nodes
+        << ",\"position_max_m\":" << maximumPosition
+        << ",\"velocity_relative\":" << relativeVelocity
+        << ",\"certificate_nonlinear_max_abs\":" << maximumCertificate
+        << ",\"mass_and_inverse_mass_match\":"
+        << (massesAndInverseMassesMatch ? "true" : "false") << "}\n";
+    need(massesAndInverseMassesMatch,
+         "selector-5 dynamic graph changed node mass or inverse mass");
+    need(maximumPosition < 1.0e-7 && relativeVelocity < 3.0e-3 &&
+             maximumCertificate <= 2.0e-6,
+         "selector-5 dynamic graph changed accepted solution or certificate");
+}
+
+void checkEffectiveBasisUsesPerEnvironmentMask(
+    const RunResult& run,
+    const std::uint32_t firstGripNode,
+    const std::uint32_t secondGripNode,
+    const bool requireDistinctMasks
+) {
+    const auto& snapshot = run.snapshot;
+    const std::uint32_t nodes = run.world.dispatch.femNodeCount;
+    const std::uint32_t environments = run.world.dispatch.environmentCount;
+    const std::uint32_t modes = snapshot.femRegionalGalerkinModeCount;
+    need(modes > 0u &&
+             snapshot.femRegionalGalerkinBasisP.size() ==
+                 std::size_t(modes) * nodes &&
+             snapshot.femRegionalGalerkinEffectiveBasisP.size() ==
+                 std::size_t(environments) * modes * nodes,
+         "dynamic graph fixture lacks its source/effective regional basis arrays");
+    bool firstSourceCovered = false;
+    bool secondSourceCovered = false;
+    for (std::uint32_t mode = 0u; mode < modes; ++mode) {
+        const nm_float4 firstSource =
+            snapshot.femRegionalGalerkinBasisP[std::size_t(mode) * nodes + firstGripNode];
+        const nm_float4 secondSource =
+            snapshot.femRegionalGalerkinBasisP[std::size_t(mode) * nodes + secondGripNode];
+        firstSourceCovered = firstSourceCovered ||
+            std::abs(firstSource.x) + std::abs(firstSource.y) +
+                std::abs(firstSource.z) > 1.0e-8f;
+        secondSourceCovered = secondSourceCovered ||
+            std::abs(secondSource.x) + std::abs(secondSource.y) +
+                std::abs(secondSource.z) > 1.0e-8f;
+    }
+    need(firstSourceCovered && secondSourceCovered,
+         "dynamic graph fixture grip nodes are absent from immutable authored P");
+    for (std::uint32_t environment = 0u; environment < environments; ++environment) {
+        for (std::uint32_t mode = 0u; mode < modes; ++mode) {
+            const std::size_t base =
+                (std::size_t(environment) * modes + mode) * nodes;
+            for (std::uint32_t node = 0u; node < nodes; ++node) {
+                const nm_float4 effective =
+                    snapshot.femRegionalGalerkinEffectiveBasisP[base + node];
+                const float tag = snapshot.femNodes[
+                    std::size_t(environment) * nodes + node].restAndFixed.w;
+                if (tag == 1.0f || tag == 3.0f)
+                    need(effective.x == 0.0f && effective.y == 0.0f &&
+                             effective.z == 0.0f,
+                         "effective regional P retained a constrained row");
+            }
+        }
+    }
+    const float firstTag = snapshot.femNodes[firstGripNode].restAndFixed.w;
+    const float secondEnvironmentFirstTag =
+        snapshot.femNodes[std::size_t(nodes) + firstGripNode].restAndFixed.w;
+    const float firstEnvironmentSecondTag =
+        snapshot.femNodes[secondGripNode].restAndFixed.w;
+    const float secondTag = snapshot.femNodes[
+        std::size_t(nodes) + secondGripNode].restAndFixed.w;
+    if (requireDistinctMasks)
+        need(firstTag != secondEnvironmentFirstTag ||
+                 firstEnvironmentSecondTag != secondTag,
+             "dynamic graph fixture did not exercise distinct per-environment masks");
+}
+
+void checkDynamicGraphGripTransitions(const MaterialProgram& material) {
+    constexpr std::uint32_t environments = 2u;
+    const auto scalarWorld = cook(source(material,
+        FEMPreconditionerMode::scalarDiagonal, false, environments));
+    const auto graphWorld = cook(source(material,
+        FEMPreconditionerMode::regionalGalerkinGraphSchwarz, false,
+        environments));
+    need(graphWorld.dispatch.femNodeCount == 5u &&
+             graphWorld.dispatch.environmentCount == environments &&
+             graphWorld.mixedSolver.executionBudgets.z == 5u,
+         "dynamic graph fixture did not compile its two-environment selector-5 mesh");
+    NativeRun scalarRun(scalarWorld, NUMI_MATTER_METALLIB);
+    NativeRun graphRun(graphWorld, NUMI_MATTER_METALLIB);
+    RunResult scalar = scalarRun.run(0u);
+    RunResult graph = graphRun.run(0u);
+    compareDynamicMaskRuns(scalar, graph, 0u);
+    need(constrainedNodeCount(graph.snapshot, 0u, 5u) == 3u &&
+             constrainedNodeCount(graph.snapshot, 1u, 5u) == 3u,
+         "dynamic graph fixture did not start with 3 fixed nodes in each environment");
+    for (std::uint32_t environment = 0u; environment < environments; ++environment)
+        for (std::uint32_t node = 0u; node < 3u; ++node)
+            need(graph.snapshot.femNodes[
+                     std::size_t(environment) * 5u + node].restAndFixed.w == 1.0f,
+                 "dynamic graph fixture source-fixed node was not authored fixed");
+
+    const auto acquireDistinct = makeEnvironmentGripTargets(
+        scalar.snapshot, environments, 5u,
+        {{0u, 0u, 2.0f}, {0u, 3u, 3.0f},
+         {1u, 1u, 2.0f}, {1u, 4u, 3.0f}});
+    scalar = scalarRun.run(1u, acquireDistinct);
+    graph = graphRun.run(1u, acquireDistinct);
+    compareDynamicMaskRuns(scalar, graph, 1u);
+    need(constrainedNodeCount(graph.snapshot, 0u, 5u) == 3u &&
+             constrainedNodeCount(graph.snapshot, 1u, 5u) == 3u &&
+             graph.snapshot.femNodes[0u].restAndFixed.w == 0.0f &&
+             graph.snapshot.femNodes[5u + 1u].restAndFixed.w == 0.0f &&
+             graph.snapshot.femNodes[0u].velocityAndInverseMass.w > 0.0f &&
+             graph.snapshot.femNodes[5u + 1u].velocityAndInverseMass.w > 0.0f &&
+             graph.snapshot.femNodes[3u].restAndFixed.w == 3.0f &&
+             graph.snapshot.femNodes[5u + 4u].restAndFixed.w == 3.0f,
+         "selector-5 graph did not release source-fixed nodes and acquire per-environment grips");
+    checkEffectiveBasisUsesPerEnvironmentMask(graph, 3u, 4u, true);
+
+    const auto env0Release = makeEnvironmentGripTargets(
+        scalar.snapshot, environments, 5u, {{0u, 3u, 2.0f}});
+    scalar = scalarRun.run(2u, env0Release);
+    graph = graphRun.run(2u, env0Release);
+    compareDynamicMaskRuns(scalar, graph, 2u);
+    need(constrainedNodeCount(graph.snapshot, 0u, 5u) == 2u &&
+             constrainedNodeCount(graph.snapshot, 1u, 5u) == 3u &&
+             graph.snapshot.femNodes[3u].restAndFixed.w == 0.0f &&
+             graph.snapshot.femNodes[5u + 4u].restAndFixed.w == 3.0f,
+         "selector-5 graph did not accept a one-environment grip release");
+    checkEffectiveBasisUsesPerEnvironmentMask(graph, 3u, 4u, true);
+
+    const auto swapGrips = makeEnvironmentGripTargets(
+        scalar.snapshot, environments, 5u,
+        {{0u, 4u, 3.0f}, {1u, 4u, 2.0f}, {1u, 1u, 3.0f}});
+    scalar = scalarRun.run(3u, swapGrips);
+    graph = graphRun.run(3u, swapGrips);
+    compareDynamicMaskRuns(scalar, graph, 3u);
+    need(graph.snapshot.femNodes[4u].restAndFixed.w == 3.0f &&
+             graph.snapshot.femNodes[5u + 4u].restAndFixed.w == 0.0f &&
+             graph.snapshot.femNodes[5u + 1u].restAndFixed.w == 3.0f &&
+             constrainedNodeCount(graph.snapshot, 0u, 5u) == 3u &&
+             constrainedNodeCount(graph.snapshot, 1u, 5u) == 3u,
+         "selector-5 graph did not support environment-specific grip exchange");
+    checkEffectiveBasisUsesPerEnvironmentMask(graph, 3u, 4u, true);
+
+    const auto releaseEnv0 = makeEnvironmentGripTargets(
+        scalar.snapshot, environments, 5u,
+        {{0u, 4u, 2.0f}, {1u, 1u, 2.0f}});
+    scalar = scalarRun.run(4u, releaseEnv0);
+    graph = graphRun.run(4u, releaseEnv0);
+    compareDynamicMaskRuns(scalar, graph, 4u);
+    need(constrainedNodeCount(graph.snapshot, 0u, 5u) == 2u &&
+             constrainedNodeCount(graph.snapshot, 1u, 5u) == 2u &&
+             graph.snapshot.femNodes[5u + 1u].restAndFixed.w == 0.0f,
+         "selector-5 graph did not release the environment-specific grips");
+    checkEffectiveBasisUsesPerEnvironmentMask(graph, 3u, 4u, false);
+
+    std::cout << "{\"schema\":1,\"record\":\"selector5_dynamic_grip_transition_fixture\""
+        << ",\"physical_validation\":false,\"accepted_transactions_per_selector\":5"
+        << ",\"environment_count\":2,\"initial_fixed_nodes_per_environment\":3"
+        << ",\"acquire_node_env0\":3,\"acquire_node_env1\":4"
+        << ",\"released_source_fixed_nodes\":true"
+        << ",\"released_and_swapped_masks\":true"
+        << ",\"selector0_state_certificate_comparison\":true"
+        << ",\"contact_free_immutable_FEM_scope\":true}\n";
+}
+
 double maxAbsoluteDifference(
     const std::vector<nm_float4>& a,
     const std::vector<nm_float4>& b
@@ -2204,11 +2494,13 @@ int main(int argc,char** argv) {
             checkInvariance(scalar,block);
             checkInvariance(regional,block);
             checkGripMaskTransition(material);
+            checkDynamicGraphGripTransitions(material);
             checkActiveCohesiveAP(material);
             checkTangentCacheInvariance(material);
             std::cout<<"PASS regional RAP/block-Jacobi source-bound FP64 and selector invariance"
                      <<" native_transactions=8 physical_validation=false"
                      <<" grip_transition_transactions=3"
+                     <<" graph_dynamic_mask_transactions=10"
                      <<" active_cohesive_transactions=2 tangent_cache_transactions=2"
                      <<" scope=synthetic-elastic-and-active-mortar-operator-and-pure-FEM-cache"<<'\n';
             return 0;

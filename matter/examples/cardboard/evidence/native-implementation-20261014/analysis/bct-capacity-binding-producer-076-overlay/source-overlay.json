@@ -1,0 +1,141 @@
+{
+  "base": {
+    "frozen_source_manifest": "base/frozen-source.json",
+    "frozen_source_manifest_sha256": "9b9047688d4da51739f97a35c0c0c24c57a38bcf4631088d4377ab9697c1d516",
+    "parent_revision": "35bfb518c542a306f563cc364ef8496837068b9a",
+    "snapshot_path": "/Users/home/cardboard-implementation-20261014/snapshots/source-stable-free-graph-and-general-arithmetic-076",
+    "source_bindings": {
+      "matter/tools/cardboard_calibration_ensemble.py": "c66d76c76e38ebad92fefc0ece93018963bda9bed422028f945fe946a9782112",
+      "matter/tools/cardboard_calibration_ensemble_test.py": "a18941ba3d9af06f7c17fe755868c386d816e89154130bbcdee850b6624ae289",
+      "matter/tools/cardboard_probe.mm": "c0f258b5d2da58570baa097b834060aa136e8e4ab2a59b624e5ef5c881a3676d",
+      "matter/tools/cardboard_shipping_capacity.hpp": "942d67ca4b3f44c3074cc44fe38ec5c2509c24ebc920a23064bf08db3f4f9187"
+    }
+  },
+  "blocked_real_production": {
+    "claim_boundary": "synthetic producer tests verify serialization/admission mechanics only; no material calibration, same-grade validation, or physical shipping claim",
+    "reason": "No complete native BCT run with the v2 capacity qualification and pre-run candidate/condition inputs was executed for this overlay.",
+    "required_next_runner_inputs": [
+      "include the sealed plan and prepared case-binding files in prediction.json external_inputs and inputs_sha256 before execution",
+      "record the same capacity-qualification input and native output path in prediction.json argv",
+      "provide an exact JSON-pointer mapping from every candidate parameter to the value in the executed raw native manifest"
+    ],
+    "status": "no_real_bct_history_emitted"
+  },
+  "files": [
+    {
+      "path": "README.md",
+      "sha256": "8f48d474896a738220bbf60819c113b5e9e157817592239e3a21a1ce63ad1270"
+    },
+    {
+      "path": "base/cardboard_calibration_ensemble.py",
+      "sha256": "c66d76c76e38ebad92fefc0ece93018963bda9bed422028f945fe946a9782112"
+    },
+    {
+      "path": "base/cardboard_calibration_ensemble_test.py",
+      "sha256": "a18941ba3d9af06f7c17fe755868c386d816e89154130bbcdee850b6624ae289"
+    },
+    {
+      "path": "base/cardboard_probe.mm",
+      "sha256": "c0f258b5d2da58570baa097b834060aa136e8e4ab2a59b624e5ef5c881a3676d"
+    },
+    {
+      "path": "base/cardboard_shipping_capacity.hpp",
+      "sha256": "942d67ca4b3f44c3074cc44fe38ec5c2509c24ebc920a23064bf08db3f4f9187"
+    },
+    {
+      "path": "base/frozen-source.json",
+      "sha256": "9b9047688d4da51739f97a35c0c0c24c57a38bcf4631088d4377ab9697c1d516"
+    },
+    {
+      "path": "checks/probe-fsyntax-only.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "checks/probe-patch-check.log",
+      "sha256": "44e63a5b1a50e6625efbe33d1e3783b6a08dce752b95163df6cd241931dbf98f"
+    },
+    {
+      "path": "checks/producer-tests.log",
+      "sha256": "9e3606e442022e645e1a551fab411b392772a1f6ab1707101ca3430a5f3576a1"
+    },
+    {
+      "path": "checks/python-compile.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "checks/sealed-evaluator-tests.log",
+      "sha256": "596bc7e043d2358e9232d3cf220843aee8ad8a55ba0fbaa49a086be4c81e86bf"
+    },
+    {
+      "path": "patched/bct_capacity_history_producer.py",
+      "sha256": "09fe453823ab391bb0a96e380079aadbac5335d905431904946e50c8a09fc16e"
+    },
+    {
+      "identical_to": "published-validation-admission-001/patched/cardboard_calibration_ensemble.py",
+      "path": "patched/cardboard_calibration_ensemble.py",
+      "sha256": "07a2d53ffbfa64d829b84c7624890ac1c152dcd0774b5259ee72f2d83240a5ee"
+    },
+    {
+      "identical_to": "published-validation-admission-001/patched/cardboard_calibration_ensemble_test.py",
+      "path": "patched/cardboard_calibration_ensemble_test.py",
+      "sha256": "78fa2894e0f85275abc98e262bd8416008be7e2e8544d7166a85be4c877458d7"
+    },
+    {
+      "path": "patched/cardboard_probe.mm",
+      "sha256": "df2e750bc903e4cbb6225f987b1c3daa6b2a7c171ec4afbcbee46ddee13b28b7"
+    },
+    {
+      "path": "probe.patch",
+      "sha256": "4cc3bded9b6922fa964aa84230a688168d546180fa3a312f5543af52d63b5979"
+    },
+    {
+      "path": "tests/test_bct_capacity_history_producer.py",
+      "sha256": "89b4d1ddf57a4be45ef2e8f180f5fe0c9d88414c296651dc8c6f0ed0eddd652a"
+    }
+  ],
+  "package_root": "/Users/home/cardboard-implementation-20261014/analysis/bct-capacity-binding-producer-076-overlay",
+  "producer_contract": {
+    "binding_hash_cycle": false,
+    "candidate_and_condition_identity_presealed_before_run": true,
+    "capacity_binding_in_raw_result_only_after_native_numerical_capacity_gate": true,
+    "new_history_package_hashes_original_result_receipt_executable_source_input_map_compiled_package_reports_curve_and_checkpoint_pair": true,
+    "new_history_package_repeats_identical_capacity_binding_in_history_manifest_receipt_certificate": true,
+    "raw_native_run_mutated": false
+  },
+  "schema": "numi.cardboard.bct-capacity-binding-producer-overlay.v1",
+  "scope": "native BCT capacity-binding serialization and post-run candidate-history packaging only",
+  "sealed_evaluator_reference": {
+    "evaluator_sha256": "07a2d53ffbfa64d829b84c7624890ac1c152dcd0774b5259ee72f2d83240a5ee",
+    "overlay": "/Users/home/cardboard-implementation-20261014/analysis/published-validation-admission-001",
+    "test_sha256": "78fa2894e0f85275abc98e262bd8416008be7e2e8544d7166a85be4c877458d7"
+  },
+  "status": "sealed_external_candidate",
+  "validation": {
+    "full_build": "not_run",
+    "native_or_gpu": "not_run",
+    "probe_objcpp_syntax_only": {
+      "gpu_or_native_run": "not_run",
+      "log": "checks/probe-fsyntax-only.log",
+      "status": "passed"
+    },
+    "probe_patch_application": {
+      "candidate_sha256": "df2e750bc903e4cbb6225f987b1c3daa6b2a7c171ec4afbcbee46ddee13b28b7",
+      "log": "checks/probe-patch-check.log",
+      "status": "passed"
+    },
+    "producer_unit_tests": {
+      "count": 4,
+      "log": "checks/producer-tests.log",
+      "status": "passed"
+    },
+    "python_compile": {
+      "log": "checks/python-compile.log",
+      "status": "passed"
+    },
+    "sealed_evaluator_tests": {
+      "count": 27,
+      "log": "checks/sealed-evaluator-tests.log",
+      "status": "passed"
+    }
+  }
+}

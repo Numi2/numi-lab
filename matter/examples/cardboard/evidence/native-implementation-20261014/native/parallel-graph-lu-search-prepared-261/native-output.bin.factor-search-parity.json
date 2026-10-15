@@ -1,0 +1,14 @@
+{
+  "schema": "numi.matter.graph_lu_search_parity.v1",
+  "input_sha256": "b2619d5d7120f1e6cae40869af0a37ce14b86b29ce0a51961c95ec2c84c3de60",
+  "parity_payload_sha256": "33b4dbce741fdb194ad020054134f429525d4df744a9668f7faf371d7d2564fd",
+  "legacy_vs_parallel": {
+    "lu_matrix_bitwise_equal": true,
+    "pivot_vector_bitwise_equal": true,
+    "factor_valid_bitwise_equal": true,
+    "original_matrix_bitwise_equal": true,
+    "status_bytes_equal": true
+  },
+  "status_code_legacy": 0,
+  "status_code_parallel": 0
+}

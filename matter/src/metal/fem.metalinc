@@ -4422,6 +4422,17 @@ kernel void nm_fem_armijo_decide(
         // decision that accepts this trial, before either block is applied.
         environmentLineSearch[environment] = line.x;
     } else if (trialIndex + 1u >= solver.nonlinearIterations.w) {
+        // No tested candidate was accepted. Both production apply kernels
+        // execute after this decision, including on the failure path. Leaving
+        // the rigid environment alpha at its geometry-limiter value would
+        // apply an untested rigid correction while FEM uses zero.
+        const uint slot = environment * dispatch.objectCount;
+        float4 line = lineSearch[slot];
+        line.x = 0.0f;
+        line.z = 0.0f;
+        line.w = float(microstep.solverIteration);
+        lineSearch[slot] = line;
+        environmentLineSearch[environment] = 0.0f;
         recordFailure(statuses[environment],
             NM_STATUS_NONLINEAR_SOLVER_FAILURE, 0u,
             microstep.solverIteration,

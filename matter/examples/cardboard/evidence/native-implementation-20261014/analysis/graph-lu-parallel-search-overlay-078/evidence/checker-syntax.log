@@ -1,0 +1,2 @@
+clang++: warning: -framework Foundation: 'linker' input unused [-Wunused-command-line-argument]
+clang++: warning: -framework Metal: 'linker' input unused [-Wunused-command-line-argument]

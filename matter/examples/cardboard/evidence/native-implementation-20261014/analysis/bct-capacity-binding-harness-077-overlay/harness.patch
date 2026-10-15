@@ -1,0 +1,1319 @@
+--- a/matter/tools/bct_capacity_history_producer.py
++++ b/matter/tools/bct_capacity_history_producer.py
+@@ -19,6 +19,12 @@
+ import tempfile
+ from pathlib import Path
+ from typing import Any
++
++sys.path.insert(0, str(Path(__file__).resolve().parent))
++from cardboard_calibration_case_binding import (
++    CalibrationBindingError, canonical_sha256 as _binding_canonical_sha256,
++    validate_pre_run as _validate_pre_run_binding,
++)
+ 
+ SCHEMA = "numi.cardboard.bct-native-case-binding.v1"
+ BINDING_SCHEMA = "numi.cardboard.native-bct-capacity-binding.v1"
+@@ -125,11 +131,22 @@
+     params = candidate.get("parameters", {})
+     if set(parameter_bindings) != set(params):
+         raise ProducerError("every candidate parameter needs exactly one executed-manifest JSON pointer")
++    seen_pointers: set[str] = set()
++    seen_flags: set[str] = set()
+     for name, binding in parameter_bindings.items():
+         if (not isinstance(binding, dict) or binding.get("kind") != "manifest_json_pointer" or
+                 not isinstance(binding.get("pointer"), str) or
+                 not binding["pointer"].startswith("/")):
+             raise ProducerError(f"parameter {name!r} needs a manifest_json_pointer binding")
++        flag = binding.get("argv_flag")
++        if not isinstance(flag, str) or not flag.startswith("--"):
++            raise ProducerError(f"parameter {name!r} needs an explicit pre-run argv_flag binding")
++        if binding["pointer"] in seen_pointers or flag in seen_flags:
++            raise ProducerError("each candidate parameter must have a distinct manifest pointer and argv flag")
++        seen_pointers.add(binding["pointer"]); seen_flags.add(flag)
++        input_pointer = binding.get("input_json_pointer")
++        if input_pointer is not None and (not isinstance(input_pointer, str) or not input_pointer.startswith("/")):
++            raise ProducerError(f"parameter {name!r} has an invalid input_json_pointer")
+     value = {
+         "schema": SCHEMA,
+         "plan_sha256": sha256(plan_path),
+@@ -211,7 +228,8 @@
+ 
+ 
+ def _verify_prediction_inputs(prediction_path: Path, prediction: dict[str, Any],
+-                              plan_path: Path, binding_path: Path) -> None:
++                              plan_path: Path, binding_path: Path,
++                              binding: dict[str, Any]) -> dict[str, Any]:
+     _external_hash_key(prediction, plan_path)
+     _external_hash_key(prediction, binding_path)
+     argv = prediction.get("argv")
+@@ -239,6 +257,72 @@
+             Path(key).name == binary.name and digest == sha256(binary)
+             for key, digest in raw_inputs.items()):
+         raise ProducerError("prediction does not hash the executed native binary")
++    candidate, condition = binding["candidate"], binding["condition"]
++    execution_binding = prediction.get("calibration_case_binding")
++    if not isinstance(execution_binding, dict):
++        raise ProducerError("source-bound harness did not seal a pre-run calibration identity")
++    try:
++        expected_identity, required_inputs = _validate_pre_run_binding(
++            plan_path, binding_path, argv, prediction_path.parent / "output")
++    except CalibrationBindingError as exc:
++        raise ProducerError(f"prepared BCT binding failed independent pre-run validation: {exc}") from exc
++    if _binding_canonical_sha256(execution_binding) != _binding_canonical_sha256(expected_identity):
++        raise ProducerError("sealed pre-run calibration identity differs from the independently recomputed binding")
++    if prediction.get("native_protocol_id") != condition["native_protocol_id"]:
++        raise ProducerError("prediction protocol identity differs from prepared condition")
++    if not isinstance(prediction.get("external_inputs"), list) or not all(
++            any(Path(str(item)).resolve() == path.resolve()
++                for item in prediction["external_inputs"])
++            for path in (plan_path, binding_path)):
++        raise ProducerError("plan and prepared binding must be explicit pre-run harness inputs")
++    for external_path in required_inputs:
++        key = _external_hash_key(prediction, external_path)
++        copied = prediction_path.parent / "inputs" / key
++        if not copied.is_file() or sha256(copied) != sha256(external_path):
++            raise ProducerError(f"source-bound harness did not retain exact external input bytes: {external_path.name}")
++    _verify_candidate_argv_bindings(binding, argv, raw_inputs)
++    return execution_binding
++
++
++def _argv_value(argv: list[str], flag: str) -> str:
++    matches = [i for i, token in enumerate(argv) if token == flag]
++    if len(matches) != 1 or matches[0] + 1 >= len(argv):
++        raise ProducerError(f"sealed native argv must contain exactly one value for {flag}")
++    value = argv[matches[0] + 1]
++    if value.startswith("--"):
++        raise ProducerError(f"sealed native argv lacks a value for {flag}")
++    return value
++
++
++def _verify_candidate_argv_bindings(binding: dict[str, Any], argv: list[str],
++                                    input_hashes: dict[str, Any]) -> None:
++    for name, spec in binding["candidate"].get("parameters", {}).items():
++        mapping = binding["parameter_bindings"][name]
++        flag = mapping.get("argv_flag")
++        if not isinstance(flag, str):
++            raise ProducerError(f"candidate parameter {name!r} lacks a sealed argv binding")
++        actual = _argv_value(argv, flag)
++        expected = float(spec["value"])
++        input_pointer = mapping.get("input_json_pointer")
++        if input_pointer is None:
++            try:
++                parsed = float(actual)
++            except ValueError as exc:
++                raise ProducerError(f"argv value for {name!r} is not numeric") from exc
++            if not math.isfinite(parsed) or parsed != expected:
++                raise ProducerError(f"argv value for {name!r} differs from prepared candidate")
++        else:
++            path = Path(actual).resolve()
++            if not path.is_file():
++                raise ProducerError(f"argv input file for {name!r} is missing")
++            matches = [key for key, digest in input_hashes.items()
++                       if Path(str(key)).name == path.name and digest == sha256(path)]
++            if len(matches) != 1:
++                raise ProducerError(f"argv input file for {name!r} is not uniquely source-bound")
++            data = read_json(path, f"candidate parameter file {name}")
++            parsed = _resolve_pointer(data, input_pointer)
++            if isinstance(parsed, bool) or not isinstance(parsed, (int, float)) or float(parsed) != expected:
++                raise ProducerError(f"parameter file value for {name!r} differs from prepared candidate")
+ 
+ 
+ def _copy_verified(src: Path, destination: Path, expected_sha: str | None = None) -> str:
+@@ -370,9 +454,10 @@
+     if not all(p.is_file() for p in (prediction_path, raw_receipt_path, result_path,
+                                      manifest_path, checkpoint_metadata_path)):
+         raise ProducerError("native run lacks prediction, receipt, result, manifest, or paired checkpoint metadata")
++    binding = read_json(binding_path, "pre-run BCT case binding")
+     prediction = read_json(prediction_path, "sealed native prediction")
+-    _verify_prediction_inputs(prediction_path, prediction, plan_path, binding_path)
+-    binding = read_json(binding_path, "pre-run BCT case binding")
++    execution_binding = _verify_prediction_inputs(
++        prediction_path, prediction, plan_path, binding_path, binding)
+     _verify_case(plan_path, binding_path, binding, catalog_path, data_dir)
+     raw_receipt = read_json(raw_receipt_path, "original native receipt")
+     if raw_receipt.get("exit_code") != 0 or raw_receipt.get("timed_out") is not False:
+@@ -380,6 +465,37 @@
+ 
+     result = read_json(result_path, "native box result")
+     native_manifest = read_json(manifest_path, "native input manifest")
++    calibration_validation = raw_receipt.get("calibration_parameter_validation")
++    if (raw_receipt.get("source_inputs_unchanged") is not True or
++            raw_receipt.get("calibration_case_binding_sha256") != sha256(binding_path) or
++            raw_receipt.get("calibration_plan_sha256") != sha256(plan_path) or
++            raw_receipt.get("calibration_candidate_id") != binding["candidate"]["candidate_id"] or
++            raw_receipt.get("calibration_candidate_sha256") != binding["candidate"]["candidate_sha256"] or
++            raw_receipt.get("calibration_condition_id") != binding["condition"]["condition_id"] or
++            raw_receipt.get("native_protocol_id") != binding["condition"]["native_protocol_id"] or
++            not isinstance(calibration_validation, dict) or
++            calibration_validation.get("status") != "passed" or
++            calibration_validation.get("manifest_sha256") != sha256(manifest_path)):
++        raise ProducerError("raw harness receipt does not prove successful post-run parameter/protocol validation")
++    if (calibration_validation.get("native_protocol_id") != binding["condition"]["native_protocol_id"] or
++            calibration_validation.get("protocol_validation") not in
++            {"pre_run_plan_bound", "executed_manifest_match"}):
++        raise ProducerError("raw harness post-run protocol identity is inconsistent with the prepared condition")
++    checks = calibration_validation.get("parameter_checks")
++    expected_names = set(binding["candidate"].get("parameters", {}))
++    if (not isinstance(checks, list) or len(checks) != len(expected_names) or
++            {row.get("name") for row in checks if isinstance(row, dict)} != expected_names):
++        raise ProducerError("raw harness receipt omits or duplicates candidate parameter checks")
++    for row in checks:
++        name = row["name"]
++        spec = binding["candidate"]["parameters"][name]
++        pointer = binding["parameter_bindings"][name]["pointer"]
++        if (row.get("pointer") != pointer or row.get("matches") is not True or
++                isinstance(row.get("observed"), bool) or
++                not isinstance(row.get("observed"), (int, float)) or
++                float(row["observed"]) != float(spec["value"]) or
++                float(row.get("expected", float("nan"))) != float(spec["value"])):
++            raise ProducerError(f"raw harness manifest check is inconsistent for candidate parameter {name!r}")
+     capacity_binding = result.get("shipping_capacity_binding")
+     if not isinstance(capacity_binding, dict) or capacity_binding.get("schema") != BINDING_SCHEMA:
+         raise ProducerError("native result does not contain the full source-bound capacity binding")
+@@ -490,6 +606,10 @@
+         compiled_src = output_root / "compiled.nmatterpack"
+         compiled_copy = temp_dir / "compiled.nmatterpack"
+         compiled_sha = _copy_verified(compiled_src, compiled_copy)
++        plan_copy = temp_dir / "calibration-ensemble-plan.json"
++        plan_sha = _copy_verified(plan_path, plan_copy, sha256(plan_path))
++        binding_copy = temp_dir / "prepared-case-binding.json"
++        binding_sha = _copy_verified(binding_path, binding_copy, sha256(binding_path))
+ 
+         def artifact_copy(key: str, source: Path, expected: str | None = None) -> tuple[Path, str]:
+             target = temp_dir / source.name
+@@ -550,6 +670,10 @@
+             "original_native_receipt_sha256": original_receipt_sha,
+             "original_native_result_sha256": result_sha,
+             "raw_manifest_sha256": sha256(manifest_path),
++            "calibration_ensemble_plan_sha256": plan_sha,
++            "prepared_case_binding_sha256": binding_sha,
++            "pre_run_calibration_execution": execution_binding,
++            "calibration_parameter_validation": calibration_validation,
+         }
+         manifest_path_new = temp_dir / "native_input_manifest.json"
+         write_json(manifest_path_new, input_manifest)
+@@ -569,6 +693,12 @@
+             "samples": samples,
+             "outcomes": {"native_capacity_status": "qualified_for_numerical_capacity_only"},
+             "shipping_capacity_binding": capacity_binding,
++            "calibration_case_binding_sha256": sha256(binding_path),
++            "calibration_plan_sha256": sha256(plan_path),
++            "calibration_ensemble_plan_sha256": plan_sha,
++            "prepared_case_binding_sha256": binding_sha,
++            "calibration_parameter_validation": calibration_validation,
++            "pre_run_calibration_execution": execution_binding,
+         }
+         history_path = temp_dir / "history.json"
+         write_json(history_path, history)
+@@ -589,6 +719,12 @@
+             "original_receipt_sha256": original_receipt_sha,
+             "original_native_result_sha256": result_sha,
+             "shipping_capacity_binding": capacity_binding,
++            "calibration_case_binding_sha256": sha256(binding_path),
++            "calibration_plan_sha256": sha256(plan_path),
++            "calibration_ensemble_plan_sha256": plan_sha,
++            "prepared_case_binding_sha256": binding_sha,
++            "calibration_parameter_validation": calibration_validation,
++            "pre_run_calibration_execution": execution_binding,
+         }
+         receipt_path = temp_dir / "run_receipt.json"
+         write_json(receipt_path, receipt)
+@@ -596,6 +732,8 @@
+ 
+         artifacts = {
+             "native_input_manifest": {"path": manifest_path_new.name, "sha256": manifest_sha},
++            "calibration_ensemble_plan": {"path": plan_copy.name, "sha256": plan_sha},
++            "prepared_case_binding": {"path": binding_copy.name, "sha256": binding_sha},
+             "native_executable": {"path": exe_copy.name, "sha256": exe_sha},
+             "solver_source": {"path": solver_source_path.name, "sha256": solver_source_sha},
+             "run_receipt": {"path": receipt_path.name, "sha256": receipt_sha},
+@@ -632,6 +770,12 @@
+             "history_sha256": history_sha,
+             "artifact_hashes": artifacts,
+             "shipping_capacity_binding": capacity_binding,
++            "calibration_case_binding_sha256": sha256(binding_path),
++            "calibration_plan_sha256": sha256(plan_path),
++            "calibration_ensemble_plan_sha256": plan_sha,
++            "prepared_case_binding_sha256": binding_sha,
++            "calibration_parameter_validation": calibration_validation,
++            "pre_run_calibration_execution": execution_binding,
+             "original_native_result_sha256": result_sha,
+             "original_native_receipt_sha256": original_receipt_sha,
+         }
+@@ -666,7 +810,7 @@
+     prepare.add_argument("candidate_id")
+     prepare.add_argument("condition_id")
+     prepare.add_argument("--parameter-bindings", type=Path, required=True,
+-                         help="JSON map from every parameter name to {kind: manifest_json_pointer, pointer: ...}")
++                         help="map each candidate parameter to a raw-manifest pointer and an argv_flag; use input_json_pointer for parameters supplied through a JSON file")
+     prepare.add_argument("--output", type=Path, required=True)
+     finalize = sub.add_parser("finalize", help="create new ensemble artifacts from an unchanged native run")
+     finalize.add_argument("run_dir", type=Path)
+--- a/matter/tools/cardboard_source_bound_run.py
++++ b/matter/tools/cardboard_source_bound_run.py
+@@ -3,6 +3,16 @@
+ from pathlib import Path
+ import argparse, datetime, fcntl, hashlib, json, os, shutil, subprocess, sys, time
+ from cardboard_source_bound_run_support import wait_with_timeout, write_failure_receipt
++from cardboard_calibration_case_binding import (
++    CalibrationBindingError, validate_executed_manifest, validate_pre_run,
++)
++
++
++def _single_argv_value(argv, flag):
++    matches = [index for index, value in enumerate(argv) if value == flag]
++    if len(matches) != 1 or matches[0] + 1 >= len(argv):
++        raise ValueError('native argv must contain exactly one '+flag+' value')
++    return argv[matches[0] + 1]
+ 
+ parser = argparse.ArgumentParser()
+ parser.add_argument('--case', required=True)
+@@ -14,6 +24,8 @@
+ parser.add_argument('--runtime-dir')
+ parser.add_argument('--build-provenance', help='successful fresh-build receipt; checked before native launch')
+ parser.add_argument('--input-file', action='append', default=[])
++parser.add_argument('--ensemble-plan', help='sealed BCT calibration plan; required for --shipping-box')
++parser.add_argument('--case-binding', help='prepared candidate/condition binding; required for --shipping-box')
+ parser.add_argument('argv', nargs=argparse.REMAINDER)
+ args = parser.parse_args()
+ repo = Path(__file__).resolve().parents[2]
+@@ -46,6 +58,24 @@
+ if not argv:
+     parser.error('an executable command is required after --')
+ argv[0] = str(Path(argv[0]).resolve())
++calibration_identity = None
++calibration_binding_path = None
++required_calibration_inputs = set()
++sealed_external_inputs = [str(Path(value).resolve()) for value in args.input_file]
++if '--shipping-box' in argv:
++    if not args.ensemble_plan or not args.case_binding:
++        raise ValueError('shipping-box runs require --ensemble-plan and --case-binding before execution')
++    calibration_binding_path = Path(args.case_binding).resolve()
++    calibration_identity, auto_inputs = validate_pre_run(
++        Path(args.ensemble_plan), calibration_binding_path, argv, case/'output')
++    required_calibration_inputs = {path.resolve() for path in auto_inputs}
++    existing = {Path(value).resolve() for value in sealed_external_inputs}
++    for path in auto_inputs:
++        if path.resolve() not in existing:
++            sealed_external_inputs.append(str(path.resolve()))
++            existing.add(path.resolve())
++elif args.ensemble_plan or args.case_binding:
++    raise ValueError('BCT plan/binding options require --shipping-box in the native argv')
+ source_root = Path(args.source_snapshot).resolve() if args.source_snapshot else repo
+ runtime_dir = Path(args.runtime_dir).resolve() if args.runtime_dir else repo/'build-cardboard'
+ build_provenance = None
+@@ -66,7 +96,8 @@
+         path = Path(filename).resolve()
+         if not path.is_relative_to(runtime_dir) or hashlib.sha256(path.read_bytes()).hexdigest() != expected:
+             raise ValueError('artifact no longer matches its executed build: '+filename)
+-    args.input_file.append(str(provenance_path))
++    if str(provenance_path) not in sealed_external_inputs:
++        sealed_external_inputs.append(str(provenance_path))
+ files = []
+ for directory in ('matter/include', 'matter/src', 'include', 'src', 'numi', 'cmake', 'schemas',
+                   'matter/examples/cardboard/source-data'):
+@@ -97,14 +128,21 @@
+     shutil.copy2(path, target)
+     bindings[str(relative)] = hashlib.sha256(target.read_bytes()).hexdigest()
+     original_bindings[str(path)] = bindings[str(relative)]
+-for external in args.input_file:
+-    path = Path(external)
++for external in sealed_external_inputs:
++    path = Path(external).resolve()
+     relative = 'external/' + path.name
+     if relative in bindings: raise ValueError('duplicate external input basename')
+     target = case/'inputs'/relative
+     target.parent.mkdir(parents=True, exist_ok=True)
+     shutil.copy2(path, target)
+-    bindings[relative] = hashlib.sha256(target.read_bytes()).hexdigest()
++    copied_sha = hashlib.sha256(target.read_bytes()).hexdigest()
++    if calibration_identity is not None:
++        expected_calibration_hash = calibration_identity['external_input_sha256'].get(str(path))
++        if expected_calibration_hash is not None and copied_sha != expected_calibration_hash:
++            raise ValueError('calibration input changed between pre-run validation and sealing: '+path.name)
++        if expected_calibration_hash is None and path in required_calibration_inputs:
++            raise ValueError('required calibration input is absent from the pre-run hash identity: '+path.name)
++    bindings[relative] = copied_sha
+     original_bindings[str(path.resolve())] = bindings[relative]
+ env_delta = dict(value.split('=', 1) for value in args.env)
+ seal = {'schema':'numi.cardboard.native-prediction.v1',
+@@ -112,7 +150,9 @@
+         'question':args.question,'prediction':args.prediction,
+         'argv':argv,'environment':env_delta,
+         'source_snapshot':str(source_root),'runtime_dir':str(runtime_dir),
+-        'external_inputs':args.input_file,'inputs_sha256':bindings,
++        'external_inputs':sealed_external_inputs,'inputs_sha256':bindings,
++        'native_protocol_id': (calibration_identity['native_protocol_id'] if calibration_identity else None),
++        'calibration_case_binding': calibration_identity,
+         'executed_build_verified':build_provenance is not None,
+         'build_provenance':args.build_provenance,
+         'source_binding_limitation':'Listed source, executable and Metal libraries retained; compiler system headers and OS/driver not archived.',
+@@ -133,6 +173,23 @@
+     try: current = hashlib.sha256(Path(path).read_bytes()).hexdigest()
+     except OSError: current = None
+     if current != digest: changed_inputs.append(path)
++calibration_validation = None
++calibration_validation_error = None
++if calibration_identity is not None and code == 0 and not run_state['timed_out']:
++    try:
++        manifest_path = case/'output'/'manifest.json'
++        calibration_validation = validate_executed_manifest(
++            manifest_path, calibration_identity, calibration_binding_path)
++    except (CalibrationBindingError, OSError, KeyError, TypeError, ValueError) as error:
++        calibration_validation_error = str(error)
++        calibration_validation = {
++            'status': 'failed',
++            'manifest_sha256': (hashlib.sha256((case/'output'/'manifest.json').read_bytes()).hexdigest()
++                                if (case/'output'/'manifest.json').is_file() else None),
++            'error': calibration_validation_error,
++        }
++elif calibration_identity is not None:
++    calibration_validation = {'status': 'not_run', 'reason': 'native process did not complete successfully'}
+ receipt = {'schema':'numi.cardboard.native-run-receipt.v2',
+            'execution_started':execution_started,
+            'source_inputs_unchanged':not changed_inputs,
+@@ -141,6 +198,18 @@
+            'termination_errors':run_state['termination_errors'],
+            'wall_seconds':time.monotonic()-started,
+            'finished_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat()}
++if calibration_identity is not None:
++    receipt.update({
++        'native_protocol_id': calibration_identity['native_protocol_id'],
++        'calibration_plan_sha256': calibration_identity['plan_sha256'],
++        'calibration_case_binding_sha256': calibration_identity['case_binding_sha256'],
++        'calibration_candidate_id': calibration_identity['candidate_id'],
++        'calibration_candidate_sha256': calibration_identity['candidate_sha256'],
++        'calibration_condition_id': calibration_identity['condition_id'],
++        'calibration_parameter_validation': calibration_validation,
++    })
+ (case/'receipt.json').write_text(json.dumps(receipt,indent=2)+'\n')
+ print(json.dumps(receipt),flush=True)
+-raise SystemExit(124 if run_state['timed_out'] else (3 if changed_inputs else (code if code >= 0 else 128-code)))
++raise SystemExit(124 if run_state['timed_out'] else
++                 (3 if changed_inputs or calibration_validation_error else
++                  (code if code >= 0 else 128-code)))
+--- /dev/null
++++ b/matter/tools/cardboard_calibration_case_binding.py
+@@ -0,0 +1,243 @@
++#!/usr/bin/env python3
++"""Strict pre-run BCT candidate/condition and executed-manifest binding."""
++from __future__ import annotations
++
++import hashlib
++import json
++import math
++from pathlib import Path
++from typing import Any
++
++SCHEMA = "numi.cardboard.source-bound-calibration-execution.v1"
++CASE_SCHEMA = "numi.cardboard.bct-native-case-binding.v1"
++PLAN_SCHEMA = "numi.cardboard.calibration_ensemble.v1"
++PROTOCOL_ID = "shipping_bct_without_offset_first_local_peak_v1"
++
++
++class CalibrationBindingError(ValueError):
++    pass
++
++
++def sha256(path: Path) -> str:
++    return hashlib.sha256(path.read_bytes()).hexdigest()
++
++
++def canonical_sha256(value: Any) -> str:
++    raw = json.dumps(value, sort_keys=True, separators=(",", ":"),
++                     ensure_ascii=False, allow_nan=False).encode("utf-8")
++    return hashlib.sha256(raw).hexdigest()
++
++
++def resolve_pointer(root: Any, pointer: str) -> Any:
++    if not isinstance(pointer, str) or not pointer.startswith("/"):
++        raise CalibrationBindingError(f"invalid JSON pointer: {pointer!r}")
++    value = root
++    for token in pointer[1:].split("/"):
++        token = token.replace("~1", "/").replace("~0", "~")
++        if isinstance(value, list) and token.isdecimal() and int(token) < len(value):
++            value = value[int(token)]
++        elif isinstance(value, dict) and token in value:
++            value = value[token]
++        else:
++            raise CalibrationBindingError(f"JSON pointer does not resolve: {pointer}")
++    return value
++
++
++def _json(path: Path, what: str) -> dict[str, Any]:
++    try:
++        value = json.loads(path.read_text(encoding="utf-8"))
++    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
++        raise CalibrationBindingError(f"cannot parse {what}: {exc}") from exc
++    if not isinstance(value, dict):
++        raise CalibrationBindingError(f"{what} must be a JSON object")
++    return value
++
++
++def _properties(path: Path) -> dict[str, str]:
++    result: dict[str, str] = {}
++    for raw in path.read_text(encoding="utf-8").splitlines():
++        line = raw.strip()
++        if not line or line.startswith("#"):
++            continue
++        if "=" not in line:
++            raise CalibrationBindingError("capacity qualification has a malformed property line")
++        key, value = line.split("=", 1)
++        if not key or not value or key in result:
++            raise CalibrationBindingError("capacity qualification has an empty or duplicate property")
++        result[key] = value
++    return result
++
++
++def _single_flag(argv: list[str], flag: str) -> str:
++    matches = [index for index, value in enumerate(argv) if value == flag]
++    if len(matches) != 1 or matches[0] + 1 >= len(argv):
++        raise CalibrationBindingError(f"execution argv must contain exactly one {flag} value")
++    value = argv[matches[0] + 1]
++    if value.startswith("--"):
++        raise CalibrationBindingError(f"execution argv has no value after {flag}")
++    return value
++
++
++def _close_number(actual: Any, expected: float, *, where: str) -> float:
++    if isinstance(actual, bool):
++        raise CalibrationBindingError(f"{where} is boolean, expected numeric candidate value")
++    try:
++        parsed = float(actual)
++    except (TypeError, ValueError) as exc:
++        raise CalibrationBindingError(f"{where} is not numeric") from exc
++    if not math.isfinite(parsed) or parsed != expected:
++        raise CalibrationBindingError(f"{where}={actual!r} differs from candidate value {expected!r}")
++    return parsed
++
++
++def validate_pre_run(plan_path: Path, binding_path: Path, argv: list[str],
++                     expected_output: Path) -> tuple[dict[str, Any], list[Path]]:
++    plan_path, binding_path = plan_path.resolve(), binding_path.resolve()
++    plan = _json(plan_path, "ensemble plan")
++    binding = _json(binding_path, "prepared case binding")
++    if plan.get("schema") != PLAN_SCHEMA or binding.get("schema") != CASE_SCHEMA:
++        raise CalibrationBindingError("unsupported plan or prepared case-binding schema")
++    plan_sha, binding_sha = sha256(plan_path), sha256(binding_path)
++    if binding.get("plan_sha256") != plan_sha:
++        raise CalibrationBindingError("prepared case binding does not match exact plan bytes")
++
++    candidate = binding.get("candidate")
++    condition = binding.get("condition")
++    if not isinstance(candidate, dict) or not isinstance(condition, dict):
++        raise CalibrationBindingError("prepared case binding lacks candidate or condition")
++    candidate_body = {key: value for key, value in candidate.items() if key != "candidate_sha256"}
++    if candidate.get("candidate_sha256") != canonical_sha256(candidate_body):
++        raise CalibrationBindingError("candidate hash does not match canonical candidate fields")
++    if candidate.get("role") != "fit_candidate":
++        raise CalibrationBindingError("BCT native execution requires an explicit fit candidate")
++    candidates = [row for row in plan.get("candidates", [])
++                  if isinstance(row, dict) and row.get("candidate_id") == candidate.get("candidate_id")]
++    conditions = [row for row in plan.get("conditions", [])
++                  if isinstance(row, dict) and row.get("condition_id") == condition.get("condition_id")]
++    if len(candidates) != 1 or candidates[0] != candidate:
++        raise CalibrationBindingError("prepared candidate differs from or is absent in the sealed plan")
++    if len(conditions) != 1 or conditions[0] != condition:
++        raise CalibrationBindingError("prepared condition differs from or is absent in the sealed plan")
++    if condition.get("native_protocol_id") != PROTOCOL_ID:
++        raise CalibrationBindingError("condition native protocol differs from evaluator protocol")
++    if condition.get("dataset_id") != "mrowczynski_2021_box_bct":
++        raise CalibrationBindingError("condition is not the supported BCT dataset")
++    if not isinstance(condition.get("specimen_id"), str) or not condition["specimen_id"]:
++        raise CalibrationBindingError("condition specimen identity is missing")
++    if (binding.get("source_data_catalog_sha256") != plan.get("source_data_catalog_sha256") or
++            binding.get("target_recipe_id") != plan.get("target_recipe_id") or
++            binding.get("target_grade_id") != plan.get("target_grade_id")):
++        raise CalibrationBindingError("prepared case recipe, grade, or catalog identity differs from the plan")
++
++    if "--shipping-box" not in argv:
++        raise CalibrationBindingError("native argv must enable the shipping-box protocol")
++    qualification = Path(_single_flag(argv, "--shipping-capacity-qualification")).resolve()
++    if not qualification.is_file():
++        raise CalibrationBindingError("capacity qualification file is missing before execution")
++    props = _properties(qualification)
++    if (props.get("schema") != "numi.cardboard.shipping-capacity-qualification.v2" or
++            props.get("status") != "qualified_for_numerical_capacity_only"):
++        raise CalibrationBindingError("shipping execution requires a complete v2 numerical-capacity qualification")
++    report_paths: list[Path] = []
++    report_hashes: dict[str, str] = {}
++    for stem in ("mesh_report", "time_report"):
++        name, expected = props.get(stem+"_file"), props.get(stem+"_sha256")
++        if not name or Path(name).name != name or not expected:
++            raise CalibrationBindingError(f"capacity qualification lacks a safe {stem} binding")
++        report_path = qualification.parent / name
++        if not report_path.is_file() or sha256(report_path) != expected:
++            raise CalibrationBindingError(f"capacity qualification {stem} is missing or hash-mismatched")
++        report_paths.append(report_path.resolve())
++        report_hashes[stem+"_sha256"] = expected
++    if Path(_single_flag(argv, "--output")).resolve() != expected_output.resolve():
++        raise CalibrationBindingError("native output path must be the sealed case output directory")
++
++    params = candidate.get("parameters")
++    mappings = binding.get("parameter_bindings")
++    if not isinstance(params, dict) or not params or not isinstance(mappings, dict) or set(params) != set(mappings):
++        raise CalibrationBindingError("every fit-candidate parameter needs exactly one execution and manifest binding")
++    checked: list[dict[str, Any]] = []
++    external_paths = [plan_path, binding_path, qualification, *report_paths]
++    seen_flags: set[str] = set()
++    seen_pointers: set[str] = set()
++    for name, spec in params.items():
++        if (not isinstance(spec, dict) or not spec.get("unit") or not spec.get("family") or
++                not isinstance(spec.get("fit"), bool)):
++            raise CalibrationBindingError(f"candidate parameter {name!r} lacks unit/family/fit metadata")
++        value = spec.get("value")
++        if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value):
++            raise CalibrationBindingError(f"candidate parameter {name!r} is not finite numeric data")
++        mapping = mappings[name]
++        if (not isinstance(mapping, dict) or mapping.get("kind") != "manifest_json_pointer" or
++                not isinstance(mapping.get("pointer"), str) or not mapping["pointer"].startswith("/")):
++            raise CalibrationBindingError(f"candidate parameter {name!r} lacks an executed-manifest JSON pointer")
++        flag = mapping.get("argv_flag")
++        if not isinstance(flag, str) or not flag.startswith("--"):
++            raise CalibrationBindingError(f"candidate parameter {name!r} lacks a pre-run argv binding")
++        if flag in seen_flags or mapping["pointer"] in seen_pointers:
++            raise CalibrationBindingError("candidate parameters must use distinct argv flags and manifest pointers")
++        seen_flags.add(flag)
++        seen_pointers.add(mapping["pointer"])
++        source = _single_flag(argv, flag)
++        check: dict[str, Any] = {"name": name, "candidate_value": float(value),
++                                 "manifest_pointer": mapping["pointer"], "argv_flag": flag}
++        input_pointer = mapping.get("input_json_pointer")
++        if input_pointer is None:
++            observed = _close_number(source, float(value), where=f"argv {flag}")
++            check.update({"kind": "argv_scalar", "argv_value": observed})
++        else:
++            input_path = Path(source).resolve()
++            if not input_path.is_file():
++                raise CalibrationBindingError(f"candidate parameter file for {name!r} is missing")
++            input_data = _json(input_path, f"parameter input for {name}")
++            observed = _close_number(resolve_pointer(input_data, input_pointer), float(value),
++                                     where=f"parameter file {input_pointer}")
++            check.update({"kind": "argv_json_pointer", "input_file": str(input_path),
++                          "input_file_sha256": sha256(input_path),
++                          "input_json_pointer": input_pointer, "input_value": observed})
++            external_paths.append(input_path)
++        checked.append(check)
++    identity = {
++        "schema": SCHEMA,
++        "plan_sha256": plan_sha,
++        "case_binding_sha256": binding_sha,
++        "candidate_id": candidate["candidate_id"],
++        "candidate_sha256": candidate["candidate_sha256"],
++        "condition_id": condition["condition_id"],
++        "specimen_id": condition["specimen_id"],
++        "native_protocol_id": condition["native_protocol_id"],
++        "parameter_bindings_sha256": canonical_sha256(mappings),
++        "capacity_qualification_sha256": sha256(qualification),
++        **report_hashes,
++        "pre_run_parameter_checks": checked,
++        "external_input_sha256": {str(path.resolve()): sha256(path) for path in external_paths},
++    }
++    # Preserve stable order while eliminating repeated explicit files.
++    return identity, list(dict.fromkeys(external_paths))
++
++
++def validate_executed_manifest(manifest_path: Path, identity: dict[str, Any],
++                               binding_path: Path) -> dict[str, Any]:
++    manifest = _json(manifest_path, "executed native manifest")
++    binding = _json(binding_path, "prepared case binding")
++    candidate = binding["candidate"]
++    checks = []
++    for name, spec in candidate["parameters"].items():
++        pointer = binding["parameter_bindings"][name]["pointer"]
++        observed = resolve_pointer(manifest, pointer)
++        expected = float(spec["value"])
++        parsed = _close_number(observed, expected, where=f"executed manifest {pointer}")
++        checks.append({"name": name, "pointer": pointer, "expected": expected, "observed": parsed,
++                       "matches": True})
++    protocol_field = None
++    protocol_status = "pre_run_plan_bound"
++    for key in ("native_protocol_id", "shipping_protocol_id"):
++        if key in manifest:
++            protocol_field = key
++            if manifest[key] != identity["native_protocol_id"]:
++                raise CalibrationBindingError("executed manifest protocol identity differs from pre-run plan")
++            protocol_status = "executed_manifest_match"
++            break
++    return {"status": "passed", "manifest_sha256": sha256(manifest_path),
++            "parameter_checks": checks, "native_protocol_id": identity["native_protocol_id"],
++            "protocol_manifest_field": protocol_field, "protocol_validation": protocol_status}
+--- /dev/null
++++ b/tests/test_bct_capacity_history_producer.py
+@@ -0,0 +1,402 @@
++#!/usr/bin/env python3
++from __future__ import annotations
++
++import csv
++import hashlib
++import importlib.util
++import json
++import shutil
++import tempfile
++import unittest
++from pathlib import Path
++import sys
++
++ROOT = Path(__file__).resolve().parents[1]
++PRODUCER_PATH = ROOT / "patched" / "matter" / "tools" / "bct_capacity_history_producer.py"
++ENSEMBLE_PATH = ROOT / "patched" / "matter" / "tools" / "cardboard_calibration_ensemble.py"
++REPO = Path("/Users/home/numi-cardboard-20261006")
++CATALOG = REPO / "matter/examples/cardboard/source-data/catalog.json"
++DATA_DIR = CATALOG.parent
++sys.path.insert(0, str(REPO / "matter/tools"))
++
++
++def load_module(path: Path, name: str):
++    spec = importlib.util.spec_from_file_location(name, path)
++    module = importlib.util.module_from_spec(spec)
++    assert spec and spec.loader
++    import sys
++    sys.modules[name] = module
++    spec.loader.exec_module(module)
++    return module
++
++
++producer = load_module(PRODUCER_PATH, "bct_capacity_history_producer")
++ensemble = load_module(ENSEMBLE_PATH, "cardboard_calibration_ensemble_for_producer_test")
++
++
++def digest(path: Path) -> str:
++    return hashlib.sha256(path.read_bytes()).hexdigest()
++
++
++def write_json(path: Path, value) -> None:
++    path.parent.mkdir(parents=True, exist_ok=True)
++    path.write_text(json.dumps(value, sort_keys=True, separators=(",", ":")) + "\n")
++
++
++def write_capacity_reports(directory: Path) -> tuple[Path, Path, str, str]:
++    def report(axis: str, levels: list[float]):
++        return {
++            "schema": "numi.cardboard.stage-resolution-analysis.v1",
++            "axis": axis,
++            "status": "descriptive_three_level_decrease_only",
++            "convergence_claim": False,
++            "axis_levels": levels,
++            "pair_reports": [
++                {"status": "descriptive_metrics_available_with_unresolved_observables",
++                 "metrics": {"compression_force_work": {
++                     "status": "available", "comparison_is_complete_endpoint": True,
++                     "relative_peak_force_difference": 0.03,
++                     "normalized_force_curve_rms": 0.07,
++                     "relative_work_difference": 0.03}}},
++                {"status": "descriptive_metrics_available_with_unresolved_observables",
++                 "metrics": {"compression_force_work": {
++                     "status": "available", "comparison_is_complete_endpoint": True,
++                     "relative_peak_force_difference": 0.01,
++                     "normalized_force_curve_rms": 0.03,
++                     "relative_work_difference": 0.01}}},
++            ],
++        }
++    mesh_path = directory / "mesh-study.json"
++    time_path = directory / "time-study.json"
++    write_json(mesh_path, report("mesh_nx", [2, 4, 8]))
++    write_json(time_path, report("time_step", [0.002, 0.001, 0.0005]))
++    return mesh_path, time_path, digest(mesh_path), digest(time_path)
++
++
++def make_run(base: Path):
++    run = base / "native-run"
++    out = run / "output"
++    out.mkdir(parents=True)
++    catalog, catalog_sha, datasets = ensemble.load_source_package(CATALOG, DATA_DIR)
++    dataset = datasets["mrowczynski_2021_box_bct"]
++    source = next(row for row in catalog["sources"] if row["id"] == "mrowczynski_2021")
++    candidate = {
++        "candidate_id": "synthetic-contract-only",
++        "role": "fit_candidate",
++        "origin": "user_supplied",
++        "parameters": {"score_depth_ratio": {
++            "value": 0.25, "unit": "dimensionless", "family": "tooling", "fit": True}},
++    }
++    candidate["candidate_sha256"] = producer.canonical_sha256(candidate)
++    condition = {
++        "condition_id": "BC780-without-offset-test-only",
++        "specimen_id": "synthetic-contract-only-BC780",
++        "dataset_id": "mrowczynski_2021_box_bct",
++        "source_id": "mrowczynski_2021",
++        "selector": {"grade": "BC-780", "box_condition": "without_offset"},
++        "source_catalog_sha256": catalog_sha,
++        "source_dataset_sha256": dataset["sha256"],
++        "source_asset_sha256": source["external_original_sha256"],
++        "native_protocol_id": producer.PROTOCOL_ID,
++        "role": "validation",
++        "metrics": {"capacity": {"kind": "peak", "column": "BCT_N", "unit": "N", "y_unit": "N"}},
++        "transfer": {"kind": "bounded_analogue", "source_grade": "BC-780",
++                     "target_grade": "literature2009_205_126_kraft_NSSC",
++                     "rationale": "synthetic contract test only",
++                     "metric_scale_bounds": {"capacity": [1.0, 1.0]}},
++    }
++    plan = {
++        "schema": "numi.cardboard.calibration_ensemble.v1",
++        "source_data_catalog_sha256": catalog_sha,
++        "target_recipe_id": "literature2009_cross_source_recipe",
++        "target_grade_id": "literature2009_205_126_kraft_NSSC",
++        "conditions": [condition], "candidates": [candidate], "native_histories": [],
++    }
++    plan_path = base / "plan.json"
++    write_json(plan_path, plan)
++    bindings_path = base / "parameter-bindings.json"
++    write_json(bindings_path, {"score_depth_ratio": {
++        "kind": "manifest_json_pointer",
++        "pointer": "/shipping_score_command/selected_depth_ratio_of_caliper",
++        "argv_flag": "--shipping-score-depth-ratio"}})
++    case_path = base / "case-binding.json"
++    producer.prepare_case_binding(plan_path, candidate["candidate_id"],
++                                  condition["condition_id"],
++                                  json.loads(bindings_path.read_text()), case_path)
++
++    exe = base / "native-executable"
++    exe.write_bytes(b"synthetic test only; never native evidence")
++    qualified, mesh_sha, time_sha = base / "shipping-capacity-qualification.v2", None, None
++    mesh_path, time_path, mesh_sha, time_sha = write_capacity_reports(base)
++    checkpoint = out / "checkpoints" / "assembled.matter"
++    checkpoint.parent.mkdir()
++    checkpoint.write_bytes(b"synthetic checkpoint test only")
++    rigid = out / "checkpoints" / "assembled.scene"
++    rigid.write_bytes(b"synthetic rigid sidecar test only")
++    source_binding = hashlib.sha256(b"test source binding").hexdigest()
++    checkpoint_sha, rigid_sha = digest(checkpoint), digest(rigid)
++    write_json(out / "shipping-rigid-accepted-checkpoint.json", {
++        "schema": "numi.cardboard.shipping-rigid-checkpoint.v1",
++        "fem_checkpoint_file": checkpoint.name,
++        "fem_checkpoint_sha256": checkpoint_sha,
++        "paired_scene_sidecar_file": rigid.name,
++        "paired_scene_sidecar_sha256": rigid_sha,
++        "scene_bodies": [{"index": 0, "synthetic_test_only": True}],
++    })
++    curve_path = out / "shipping-compression-nominal-curve.csv"
++    curve_rows = [(0.0, 0.0, 0), (0.00025, 40.0, 4), (0.07, 100.0, 4), (0.14, 80.0, 4)]
++    with curve_path.open("w", newline="") as stream:
++        writer = csv.writer(stream); writer.writerow(["sample_index", "stroke_m", "force_N", "contact_samples"])
++        writer.writerows([[i, x, y, n] for i, (x, y, n) in enumerate(curve_rows)])
++    curve_sha = digest(curve_path)
++    branch_path = out / "shipping-compression.csv"
++    fields = ["phase", "accepted", "stroke_m", "macro_observation_duration_s",
++              "control_step_count", "control_step_dt_min_s", "control_step_dt_max_s",
++              "platen_mean_force_y_N", "platen_reaction_samples"]
++    branch_rows = []
++    for prefix, rate, crossing_duration in (("nominal_12_5_mm_min", 12.5e-3 / 60, 1.2),
++                                              ("half_speed_6_25_mm_min", 6.25e-3 / 60, 2.4)):
++        branch_rows.extend([
++            {"phase": f"{prefix}_contact_origin", "accepted": "1", "stroke_m": "0",
++             "macro_observation_duration_s": "0", "control_step_count": "0",
++             "control_step_dt_min_s": "0", "control_step_dt_max_s": "0",
++             "platen_mean_force_y_N": "0", "platen_reaction_samples": "0"},
++            {"phase": f"{prefix}_contact_approach", "accepted": "1", "stroke_m": "0.00025",
++             "macro_observation_duration_s": str(crossing_duration),
++             "control_step_count": str(round(crossing_duration / 0.0005)),
++             "control_step_dt_min_s": "0.0005", "control_step_dt_max_s": "0.0005",
++             "platen_mean_force_y_N": "40", "platen_reaction_samples": "4"},
++        ])
++        prev = 0.00025
++        for stroke, force in ((0.07, 100.0), (0.14, 80.0)):
++            duration = (stroke - prev) / rate
++            branch_rows.append({"phase": f"{prefix}_slow_compression", "accepted": "1",
++                "stroke_m": str(stroke), "macro_observation_duration_s": str(duration),
++                "control_step_count": str(round(duration / 0.0005)),
++                "control_step_dt_min_s": "0.0005", "control_step_dt_max_s": "0.0005",
++                "platen_mean_force_y_N": str(force), "platen_reaction_samples": "4"})
++            prev = stroke
++    with branch_path.open("w", newline="") as stream:
++        writer = csv.DictWriter(stream, fieldnames=fields); writer.writeheader(); writer.writerows(branch_rows)
++    branch_sha = digest(branch_path)
++    props = {
++        "schema": "numi.cardboard.shipping-capacity-qualification.v2",
++        "status": "qualified_for_numerical_capacity_only",
++        "board_recipe_id": "literature2009",
++        "source_physics_fingerprint": "111", "device_program_fingerprint": "222",
++        "compiled_world_fingerprint": "222", "source_binding_sha256": source_binding,
++        "assembled_matter_checkpoint_sha256": checkpoint_sha,
++        "assembled_rigid_sidecar_sha256": rigid_sha, "nominal_curve_sha256": curve_sha,
++        "nominal_peak_sample_index": "2", "nominal_accepted_sample_count": "4",
++        "nominal_terminal_stroke_fraction": "0.7", "nominal_full_stroke_completed": "true",
++        "nominal_rate_sensitivity_passed": "true", "mesh_status": "qualified",
++        "mesh_report_file": mesh_path.name, "mesh_report_sha256": mesh_sha,
++        "mesh_level_count": "3", "mesh_all_cases_complete": "true",
++        "mesh_finest_pair_within_tolerance": "true", "mesh_finest_peak_difference": "0.01",
++        "mesh_finest_curve_rms": "0.03", "mesh_finest_work_difference": "0.01",
++        "mesh_coarse_middle_peak_difference": "0.03", "mesh_coarse_middle_curve_rms": "0.07",
++        "mesh_coarse_middle_work_difference": "0.03", "time_status": "qualified",
++        "time_report_file": time_path.name, "time_report_sha256": time_sha,
++        "time_level_count": "3", "time_all_cases_complete": "true",
++        "time_finest_pair_within_tolerance": "true", "time_finest_peak_difference": "0.01",
++        "time_finest_curve_rms": "0.03", "time_finest_work_difference": "0.01",
++        "time_coarse_middle_peak_difference": "0.03", "time_coarse_middle_curve_rms": "0.07",
++        "time_coarse_middle_work_difference": "0.03",
++    }
++    qualified.write_text("".join(f"{key}={value}\n" for key, value in props.items()))
++    binding = {
++        "schema": producer.BINDING_SCHEMA,
++        "capacity_qualification_sha256": digest(qualified),
++        "board_recipe_id": "literature2009",
++        "source_physics_fingerprint": 111, "device_program_fingerprint": 222,
++        "compiled_world_fingerprint": 222, "source_binding_sha256": source_binding,
++        "assembled_matter_checkpoint_sha256": checkpoint_sha,
++        "assembled_rigid_sidecar_sha256": rigid_sha, "nominal_curve_sha256": curve_sha,
++        "nominal_peak_sample_index": 2, "nominal_accepted_sample_count": 4,
++        "nominal_terminal_stroke_fraction": 0.7, "nominal_full_stroke_completed": True,
++        "nominal_rate_sensitivity_passed": True, "inside_height_m": 0.2,
++        "mesh_report_sha256": mesh_sha, "time_report_sha256": time_sha,
++        "compression_branch_history_sha256": branch_sha,
++    }
++    result = {
++        "status": "completed_native_compression_only_unqualified",
++        "native_steps_attempted": 12, "native_steps_accepted": 12,
++        "source_physics_fingerprint": 111, "device_program_fingerprint": 222,
++        "compiled_world_fingerprint": 222,
++        "shipping_capacity_qualification_file": str(qualified),
++        "shipping_capacity_qualification_file_sha256": digest(qualified),
++        "shipping_source_material_binding_sha256": source_binding,
++        "assembled_checkpoint_sha256_for_capacity_binding": checkpoint_sha,
++        "assembled_rigid_sidecar_sha256_for_capacity_binding": rigid_sha,
++        "nominal_compression_curve_sha256": curve_sha,
++        "nominal_compression_curve_file": curve_path.name,
++        "native_slow_compression_completed": True,
++        "native_half_speed_compression_completed": True,
++        "native_compression_rate_sensitivity_gate_passed": True,
++        "native_compression_numerical_capacity_qualification_passed": True,
++        "compression_stroke_fraction_of_inside_height": 0.7,
++        "shipping_capacity_binding": binding,
++    }
++    write_json(out / "box-native-result.json", result)
++    native_manifest = {
++        "schema": "numi.cardboard.explicit-strip.v1", "preset": "literature2009",
++        "compiled_world_fingerprint": 222,
++        "shipping_score_command": {"selected_depth_ratio_of_caliper": 0.25},
++    }
++    write_json(out / "manifest.json", native_manifest)
++    (out / "compiled.nmatterpack").write_bytes(b"synthetic compiled package test only")
++    prediction = {
++        "schema": "numi.cardboard.native-prediction.v1",
++        "native_protocol_id": condition["native_protocol_id"],
++        "calibration_case_binding": {
++            "schema": "numi.cardboard.source-bound-calibration-execution.v1",
++            "plan_sha256": digest(plan_path),
++            "case_binding_sha256": digest(case_path),
++            "candidate_id": candidate["candidate_id"],
++            "candidate_sha256": candidate["candidate_sha256"],
++            "condition_id": condition["condition_id"],
++            "specimen_id": condition["specimen_id"],
++            "native_protocol_id": condition["native_protocol_id"],
++            "parameter_bindings_sha256": producer.canonical_sha256(json.loads(case_path.read_text())["parameter_bindings"]),
++            "capacity_qualification_sha256": digest(qualified),
++            "mesh_report_sha256": mesh_sha,
++            "time_report_sha256": time_sha,
++            "external_input_sha256": {
++                str(path.resolve()): digest(path)
++                for path in (plan_path, case_path, qualified, mesh_path, time_path)
++            },
++            "pre_run_parameter_checks": [{
++                "name": "score_depth_ratio", "candidate_value": 0.25,
++                "manifest_pointer": "/shipping_score_command/selected_depth_ratio_of_caliper",
++                "argv_flag": "--shipping-score-depth-ratio", "kind": "argv_scalar",
++                "argv_value": 0.25}],
++        },
++        "external_inputs": [str(plan_path), str(case_path), str(qualified), str(mesh_path), str(time_path)],
++        "inputs_sha256": {
++            f"external/{plan_path.name}": digest(plan_path),
++            f"external/{case_path.name}": digest(case_path),
++            f"external/{qualified.name}": digest(qualified),
++            f"external/{mesh_path.name}": digest(mesh_path),
++            f"external/{time_path.name}": digest(time_path),
++            exe.name: digest(exe),
++        },
++        "argv": [str(exe), "--shipping-box", "--shipping-score-depth-ratio", "0.25",
++                 "--shipping-capacity-qualification",
++                 str(qualified), "--output", str(out)],
++        "source_snapshot": str(base), "runtime_dir": str(base),
++        "source_binding_limitation": "synthetic contract fixture only",
++    }
++    external_copy_root = run / "inputs" / "external"
++    external_copy_root.mkdir(parents=True)
++    for external_path in (plan_path, case_path, qualified, mesh_path, time_path):
++        shutil.copyfile(external_path, external_copy_root / external_path.name)
++    write_json(run / "prediction.json", prediction)
++    write_json(run / "receipt.json", {
++        "exit_code": 0, "timed_out": False, "wall_seconds": 1.0,
++        "source_inputs_unchanged": True,
++        "native_protocol_id": condition["native_protocol_id"],
++        "calibration_plan_sha256": digest(plan_path),
++        "calibration_case_binding_sha256": digest(case_path),
++        "calibration_candidate_id": candidate["candidate_id"],
++        "calibration_candidate_sha256": candidate["candidate_sha256"],
++        "calibration_condition_id": condition["condition_id"],
++        "calibration_parameter_validation": {
++            "status": "passed", "manifest_sha256": digest(out / "manifest.json"),
++            "native_protocol_id": condition["native_protocol_id"],
++            "protocol_manifest_field": None,
++            "protocol_validation": "pre_run_plan_bound",
++            "parameter_checks": [{
++                "name": "score_depth_ratio",
++                "pointer": "/shipping_score_command/selected_depth_ratio_of_caliper",
++                "expected": 0.25, "observed": 0.25, "matches": True}],
++        },
++    })
++    (run / "stdout.log").write_text("synthetic test only\n")
++    (run / "stderr.log").write_text("")
++    return run, plan_path, case_path, candidate, condition, binding
++
++
++class BCTProducerTests(unittest.TestCase):
++    def test_synthetic_complete_contract_wraps_without_mutating_native_run(self):
++        with tempfile.TemporaryDirectory() as temp:
++            base = Path(temp)
++            run, plan_path, case_path, candidate, condition, binding = make_run(base)
++            result_path = run / "output/box-native-result.json"
++            before = digest(result_path)
++            package = plan_path.parent / "native_histories" / candidate["candidate_id"] / condition["condition_id"]
++            record_path = producer.finalize_run(run, plan_path, case_path, package, CATALOG, DATA_DIR)
++            self.assertEqual(before, digest(result_path))
++            record = json.loads(record_path.read_text())
++            self.assertEqual(record["candidate_sha256"], candidate["candidate_sha256"])
++            history = json.loads((package / "history.json").read_text())
++            cert = json.loads((package / "certificate.json").read_text())
++            manifest = json.loads((package / "native_input_manifest.json").read_text())
++            receipt = json.loads((package / "run_receipt.json").read_text())
++            self.assertEqual(history["shipping_capacity_binding"], binding)
++            self.assertEqual(cert["shipping_capacity_binding"], binding)
++            self.assertEqual(manifest["shipping_capacity_binding"], binding)
++            self.assertEqual(receipt["shipping_capacity_binding"], binding)
++            ensemble._verify_bct_capacity_evidence(history, cert, manifest, receipt, package)
++            expected = {
++                "candidate_id": candidate["candidate_id"],
++                "candidate_sha256": candidate["candidate_sha256"],
++                "condition_id": condition["condition_id"],
++                "specimen_id": condition["specimen_id"],
++                "native_protocol_id": condition["native_protocol_id"],
++                "source_data_catalog_sha256": json.loads(plan_path.read_text())["source_data_catalog_sha256"],
++                "source_dataset_sha256": condition["source_dataset_sha256"],
++                "source_asset_sha256": condition["source_asset_sha256"],
++                "dataset_id": condition["dataset_id"],
++                "target_recipe_id": "literature2009_cross_source_recipe",
++                "parameters": candidate["parameters"],
++            }
++            ensemble._verify_certificate(record, plan_path.parent, expected)
++
++    def test_parameter_mismatch_fails_before_artifact_creation(self):
++        with tempfile.TemporaryDirectory() as temp:
++            base = Path(temp)
++            run, plan_path, case_path, candidate, condition, _ = make_run(base)
++            manifest_path = run / "output/manifest.json"
++            manifest = json.loads(manifest_path.read_text())
++            manifest["shipping_score_command"]["selected_depth_ratio_of_caliper"] = 0.3
++            write_json(manifest_path, manifest)
++            package = plan_path.parent / "must-not-exist"
++            with self.assertRaisesRegex(producer.ProducerError, "raw harness receipt does not prove"):
++                producer.finalize_run(run, plan_path, case_path, package, CATALOG, DATA_DIR)
++            self.assertFalse(package.exists())
++
++    def test_unsealed_case_binding_fails_and_keeps_raw_files(self):
++        with tempfile.TemporaryDirectory() as temp:
++            base = Path(temp)
++            run, plan_path, case_path, candidate, condition, _ = make_run(base)
++            prediction_path = run / "prediction.json"
++            prediction = json.loads(prediction_path.read_text())
++            prediction["external_inputs"].remove(str(case_path))
++            prediction["inputs_sha256"].pop(f"external/{case_path.name}")
++            write_json(prediction_path, prediction)
++            raw_hash = digest(run / "output/box-native-result.json")
++            package = plan_path.parent / "must-not-exist"
++            with self.assertRaisesRegex(producer.ProducerError, "absent from prediction.external_inputs"):
++                producer.finalize_run(run, plan_path, case_path, package, CATALOG, DATA_DIR)
++            self.assertFalse(package.exists())
++            self.assertEqual(raw_hash, digest(run / "output/box-native-result.json"))
++
++    def test_checkpoint_pair_locator_mismatch_fails_without_rewriting_native_run(self):
++        with tempfile.TemporaryDirectory() as temp:
++            base = Path(temp)
++            run, plan_path, case_path, candidate, condition, _ = make_run(base)
++            metadata_path = run / "output/shipping-rigid-accepted-checkpoint.json"
++            metadata = json.loads(metadata_path.read_text())
++            metadata["fem_checkpoint_sha256"] = "0" * 64
++            write_json(metadata_path, metadata)
++            before = digest(run / "output/box-native-result.json")
++            package = plan_path.parent / "must-not-exist"
++            with self.assertRaisesRegex(producer.ProducerError,
++                                        "does not bind the qualified Matter checkpoint"):
++                producer.finalize_run(run, plan_path, case_path, package, CATALOG, DATA_DIR)
++            self.assertFalse(package.exists())
++            self.assertEqual(before, digest(run / "output/box-native-result.json"))
++
++
++if __name__ == "__main__":
++    unittest.main(verbosity=2)
+--- /dev/null
++++ b/tests/test_bct_source_bound_harness.py
+@@ -0,0 +1,271 @@
++#!/usr/bin/env python3
++"""Synthetic-only end-to-end check for pre-run BCT binding and packaging."""
++from __future__ import annotations
++
++import importlib.util
++import json
++import shutil
++import subprocess
++import sys
++import tempfile
++import unittest
++from pathlib import Path
++
++OVERLAY = Path(__file__).resolve().parents[1]
++TOOLS = OVERLAY / "patched" / "matter" / "tools"
++RUNNER = TOOLS / "cardboard_source_bound_run.py"
++SUPPORT = TOOLS / "cardboard_source_bound_run_support.py"
++BINDING = TOOLS / "cardboard_calibration_case_binding.py"
++PRODUCER_TEST_PATH = OVERLAY / "tests" / "test_bct_capacity_history_producer.py"
++
++
++def load_module(path: Path, name: str):
++    spec = importlib.util.spec_from_file_location(name, path)
++    assert spec and spec.loader
++    module = importlib.util.module_from_spec(spec)
++    sys.modules[name] = module
++    spec.loader.exec_module(module)
++    return module
++
++
++producer_test = load_module(PRODUCER_TEST_PATH, "bct_producer_fixture_for_harness")
++producer = producer_test.producer
++ensemble = producer_test.ensemble
++
++
++class SourceBoundHarnessTests(unittest.TestCase):
++    def _fake_source(self, root: Path) -> tuple[Path, Path]:
++        tools = root / "matter" / "tools"
++        tools.mkdir(parents=True)
++        for source in (RUNNER, SUPPORT, BINDING, TOOLS / "bct_capacity_history_producer.py",
++                       TOOLS / "cardboard_calibration_ensemble.py"):
++            shutil.copy2(source, tools / source.name)
++        (root / "matter" / "materials").mkdir(parents=True)
++        (root / "matter" / "examples" / "cardboard" / "source-data").mkdir(parents=True)
++        (root / "matter" / "CMakeLists.txt").write_text("# synthetic harness fixture\n")
++        runtime = root / "runtime"
++        runtime.mkdir()
++        return root, runtime
++
++    def _native_script(self, root: Path, template_output: Path, *,
++                       mutate_manifest: bool = False,
++                       mutate_qualification: bool = False) -> Path:
++        script = root / "fake_native.py"
++        script.write_text(
++            "#!/usr/bin/env python3\n"
++            "import argparse, json, shutil\n"
++            "from pathlib import Path\n"
++            "p=argparse.ArgumentParser()\n"
++            "p.add_argument('--shipping-box', action='store_true')\n"
++            "p.add_argument('--shipping-score-depth-ratio', required=True)\n"
++            "p.add_argument('--shipping-capacity-qualification', required=True)\n"
++            "p.add_argument('--output', required=True)\n"
++            "a=p.parse_args()\n"
++            f"shutil.copytree({str(template_output)!r}, Path(a.output))\n"
++            "Path(a.output).parent.joinpath('fake-native-ran.txt').write_text('ran\\n')\n"
++            + ("m=Path(a.output)/'manifest.json'; d=json.loads(m.read_text()); "
++               "d['shipping_score_command']['selected_depth_ratio_of_caliper']=0.3; "
++               "m.write_text(json.dumps(d, sort_keys=True)+'\\n')\n" if mutate_manifest else "")
++            + ("Path(a.shipping_capacity_qualification).write_text('tampered after launch\\n')\n"
++               if mutate_qualification else "")
++        )
++        script.chmod(0o755)
++        return script
++
++    def _run_harness(self, base: Path, run: Path, plan: Path, binding: Path,
++                     qualification: Path, *, argv_value: str = "0.25",
++                     mutate_manifest: bool = False,
++                     mutate_qualification: bool = False) -> tuple[Path, subprocess.CompletedProcess[str]]:
++        source, runtime = self._fake_source(base / "fake-checkout")
++        script = self._native_script(source, run / "output", mutate_manifest=mutate_manifest,
++                                     mutate_qualification=mutate_qualification)
++        case = base / ("harness-mutated" if mutate_manifest else
++                       "harness-input-mutated" if mutate_qualification else "harness-run")
++        command = [
++            sys.executable, str(source / "matter/tools/cardboard_source_bound_run.py"),
++            "--case", str(case), "--question", "synthetic harness integration test",
++            "--prediction", "candidate parameter maps to the executed manifest",
++            "--source-snapshot", str(source), "--runtime-dir", str(runtime),
++            "--ensemble-plan", str(plan), "--case-binding", str(binding),
++            "--timeout", "30", "--", str(script), "--shipping-box",
++            "--shipping-score-depth-ratio", argv_value,
++            "--shipping-capacity-qualification", str(qualification),
++            "--output", str(case / "output"),
++        ]
++        result = subprocess.run(command, text=True, capture_output=True, timeout=60)
++        return case, result
++
++    def _fixture(self, base: Path):
++        run, plan, binding, candidate, condition, capacity_binding = producer_test.make_run(base)
++        return run, plan, binding, candidate, condition, capacity_binding
++
++    def test_harness_to_packager_to_evaluator_positive(self):
++        with tempfile.TemporaryDirectory() as temp:
++            base = Path(temp)
++            template, plan, binding, candidate, condition, _ = self._fixture(base)
++            qualification = template.parent / "shipping-capacity-qualification.v2"
++            run, result = self._run_harness(base, template, plan, binding, qualification)
++            self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
++            prediction_path, receipt_path = run / "prediction.json", run / "receipt.json"
++            prediction = json.loads(prediction_path.read_text())
++            receipt = json.loads(receipt_path.read_text())
++            self.assertEqual(prediction["native_protocol_id"], producer.PROTOCOL_ID)
++            self.assertEqual(prediction["calibration_case_binding"]["candidate_sha256"],
++                             candidate["candidate_sha256"])
++            self.assertEqual(receipt["calibration_parameter_validation"]["status"], "passed")
++            self.assertEqual(receipt["calibration_parameter_validation"]["manifest_sha256"],
++                             producer.sha256(run / "output/manifest.json"))
++            raw_receipt_sha = producer.sha256(receipt_path)
++            raw_manifest_sha = producer.sha256(run / "output/manifest.json")
++            package = plan.parent / "native_histories" / candidate["candidate_id"] / condition["condition_id"]
++            producer.finalize_run(run, plan, binding, package,
++                                  producer_test.CATALOG, producer_test.DATA_DIR)
++            self.assertEqual(raw_receipt_sha, producer.sha256(receipt_path), "raw runner receipt was mutated")
++            self.assertEqual(raw_manifest_sha, producer.sha256(run / "output/manifest.json"),
++                             "raw native manifest was mutated")
++            history = json.loads((package / "history.json").read_text())
++            certificate = json.loads((package / "certificate.json").read_text())
++            manifest = json.loads((package / "native_input_manifest.json").read_text())
++            packaged_receipt = json.loads((package / "run_receipt.json").read_text())
++            self.assertEqual(history["native_protocol_id"], producer.PROTOCOL_ID)
++            self.assertEqual(manifest["pre_run_calibration_execution"]["case_binding_sha256"],
++                             producer.sha256(binding))
++            ensemble._verify_bct_capacity_evidence(history, certificate, manifest,
++                                                   packaged_receipt, package)
++            expected = {
++                "candidate_id": candidate["candidate_id"],
++                "candidate_sha256": candidate["candidate_sha256"],
++                "condition_id": condition["condition_id"],
++                "specimen_id": condition["specimen_id"],
++                "native_protocol_id": condition["native_protocol_id"],
++                "source_data_catalog_sha256": json.loads(plan.read_text())["source_data_catalog_sha256"],
++                "source_dataset_sha256": condition["source_dataset_sha256"],
++                "source_asset_sha256": condition["source_asset_sha256"],
++                "dataset_id": condition["dataset_id"],
++                "target_recipe_id": "literature2009_cross_source_recipe",
++                "parameters": candidate["parameters"],
++            }
++            record = json.loads((package / "plan-record.json").read_text())
++            ensemble._verify_certificate(record, plan.parent, expected)
++
++    def test_raw_manifest_mutation_is_rejected_by_harness_and_packager(self):
++        with tempfile.TemporaryDirectory() as temp:
++            base = Path(temp)
++            template, plan, binding, candidate, condition, _ = self._fixture(base)
++            qualification = template.parent / "shipping-capacity-qualification.v2"
++            run, result = self._run_harness(base, template, plan, binding, qualification,
++                                            mutate_manifest=True)
++            self.assertEqual(result.returncode, 3, result.stderr + result.stdout)
++            prediction = json.loads((run / "prediction.json").read_text())
++            receipt = json.loads((run / "receipt.json").read_text())
++            self.assertEqual(receipt["exit_code"], 0, "native process exit must remain distinct")
++            self.assertEqual(receipt["calibration_parameter_validation"]["status"], "failed")
++            self.assertIn("differs from candidate", receipt["calibration_parameter_validation"]["error"])
++            before = producer.sha256(run / "output/box-native-result.json")
++            package = plan.parent / "rejected-package"
++            with self.assertRaises(producer.ProducerError):
++                producer.finalize_run(run, plan, binding, package,
++                                      producer_test.CATALOG, producer_test.DATA_DIR)
++            self.assertFalse(package.exists())
++            self.assertEqual(before, producer.sha256(run / "output/box-native-result.json"))
++
++    def test_external_binding_mutation_during_native_run_is_retained_and_rejected(self):
++        with tempfile.TemporaryDirectory() as temp:
++            base = Path(temp)
++            template, plan, binding, candidate, condition, _ = self._fixture(base)
++            qualification = template.parent / "shipping-capacity-qualification.v2"
++            run, result = self._run_harness(base, template, plan, binding, qualification,
++                                            mutate_qualification=True)
++            self.assertEqual(result.returncode, 3, result.stderr + result.stdout)
++            prediction = json.loads((run / "prediction.json").read_text())
++            receipt = json.loads((run / "receipt.json").read_text())
++            self.assertFalse(receipt["source_inputs_unchanged"])
++            copied_sha = prediction["inputs_sha256"]["external/" + qualification.name]
++            self.assertNotEqual(copied_sha, producer.sha256(qualification))
++            package = plan.parent / "external-mutation-rejected"
++            with self.assertRaises(producer.ProducerError):
++                producer.finalize_run(run, plan, binding, package,
++                                      producer_test.CATALOG, producer_test.DATA_DIR)
++            self.assertFalse(package.exists())
++
++    def test_argv_candidate_mismatch_is_rejected_before_native_launch(self):
++        with tempfile.TemporaryDirectory() as temp:
++            base = Path(temp)
++            template, plan, binding, candidate, condition, _ = self._fixture(base)
++            qualification = template.parent / "shipping-capacity-qualification.v2"
++            run, result = self._run_harness(base, template, plan, binding, qualification,
++                                            argv_value="0.30")
++            self.assertNotEqual(result.returncode, 0)
++            self.assertFalse((run / "fake-native-ran.txt").exists())
++            self.assertFalse((run / "output" / "manifest.json").exists())
++            failure = json.loads((run / "receipt.json").read_text())
++            self.assertFalse(failure["execution_started"])
++
++    def test_prepared_binding_mutation_after_run_cannot_be_repackaged(self):
++        with tempfile.TemporaryDirectory() as temp:
++            base = Path(temp)
++            template, plan, binding, candidate, condition, _ = self._fixture(base)
++            qualification = template.parent / "shipping-capacity-qualification.v2"
++            run, result = self._run_harness(base, template, plan, binding, qualification)
++            self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
++            original = binding.read_text()
++            binding.write_text(original + " ")
++            package = plan.parent / "must-reject-mutated-case-binding"
++            with self.assertRaisesRegex(producer.ProducerError, "digest|hash|pre-run"):
++                producer.finalize_run(run, plan, binding, package,
++                                      producer_test.CATALOG, producer_test.DATA_DIR)
++            self.assertFalse(package.exists())
++            self.assertEqual((run / "receipt.json").is_file(), True)
++
++    def test_nonexistent_candidate_manifest_mapping_is_rejected_after_execution(self):
++        with tempfile.TemporaryDirectory() as temp:
++            base = Path(temp)
++            template, plan, binding, candidate, condition, _ = self._fixture(base)
++            body = json.loads(binding.read_text())
++            body["parameter_bindings"]["score_depth_ratio"]["pointer"] = "/unrelated/value"
++            binding.write_text(json.dumps(body, sort_keys=True, separators=(",", ":")) + "\n")
++            # The schema-valid pointer is provisionally sealed before the run;
++            # the raw executed manifest must resolve it to the candidate value.
++            qualification = template.parent / "shipping-capacity-qualification.v2"
++            run, result = self._run_harness(base, template, plan, binding, qualification)
++            self.assertEqual(result.returncode, 3, result.stderr + result.stdout)
++            self.assertTrue((run / "fake-native-ran.txt").exists())
++            failure = json.loads((run / "receipt.json").read_text())
++            self.assertTrue(failure["execution_started"])
++            self.assertEqual(failure["calibration_parameter_validation"]["status"], "failed")
++            self.assertIn("JSON pointer does not resolve",
++                          failure["calibration_parameter_validation"]["error"])
++            with self.assertRaises(producer.ProducerError):
++                producer.finalize_run(run, plan, binding, plan.parent / "bad-pointer-package",
++                                      producer_test.CATALOG, producer_test.DATA_DIR)
++
++    def test_duplicate_manifest_mapping_is_rejected_before_launch(self):
++        with tempfile.TemporaryDirectory() as temp:
++            base = Path(temp)
++            template, plan, binding, candidate, condition, _ = self._fixture(base)
++            body = json.loads(binding.read_text())
++            body["candidate"]["parameters"]["second_parameter"] = {
++                "value": 0.25, "unit": "dimensionless", "family": "tooling", "fit": True}
++            candidate_body = {key: value for key, value in body["candidate"].items()
++                              if key != "candidate_sha256"}
++            body["candidate"]["candidate_sha256"] = producer_test.producer.canonical_sha256(candidate_body)
++            body["parameter_bindings"]["second_parameter"] = dict(
++                body["parameter_bindings"]["score_depth_ratio"])
++            # Keep this internally plan-consistent so the uniqueness guard,
++            # rather than a stale candidate hash, is the rejecting layer.
++            plan_data = json.loads(plan.read_text())
++            plan_data["candidates"][0] = body["candidate"]
++            write = json.dumps(plan_data, sort_keys=True, separators=(",", ":")) + "\n"
++            plan.write_text(write)
++            body["plan_sha256"] = producer_test.producer.sha256(plan)
++            binding.write_text(json.dumps(body, sort_keys=True, separators=(",", ":")) + "\n")
++            qualification = template.parent / "shipping-capacity-qualification.v2"
++            run, result = self._run_harness(base, template, plan, binding, qualification)
++            self.assertNotEqual(result.returncode, 0)
++            self.assertFalse((run / "fake-native-ran.txt").exists())
++            failure = json.loads((run / "receipt.json").read_text())
++            self.assertFalse(failure["execution_started"])
++
++
++if __name__ == "__main__":
++    unittest.main(verbosity=2)

@@ -1,0 +1,44 @@
+{
+  "schema": "numi.cardboard.synthetic_damage_cohesive_fixture_parameters.v1",
+  "evidence_class": "synthetic_test_only_not_calibration",
+  "damage_set_id": "transaction_fixture_damage_feasible_member_v1",
+  "hardening_binding": {
+    "source_id": "fixture_only_hardening",
+    "dataset_id": "fixture_only_hardening",
+    "mapping": "synthetic transaction exercise; not a measured kraft/NSSC fit"
+  },
+  "fracture_binding": {"set_id": "fixture_only_fracture", "evidence_class": "synthetic_test_only_not_calibration"},
+  "rate_binding": {"set_id": "fixture_only_rate", "evidence_class": "synthetic_test_only_not_calibration"},
+  "densification_binding": {"set_id": "fixture_only_densification", "evidence_class": "synthetic_test_only_not_calibration"},
+  "matrix_damage": {
+    "plastic_hardening_Pa_11_22_33_23_13_12": [130000000, 24000000, 0, 0, 0, 0],
+    "fracture_modes_0_to_7_strength_Pa_Gc_J_per_m2_rate_s": [[100000, 10, 0.001], [100000, 10, 0.001], [100000, 10, 0.001], [100000, 10, 0.001], [100000, 10, 0.001], [100000, 10, 0.001], [100000, 10, 0.001], [100000, 10, 0.001]],
+    "densification_modulus_Pa_11_22_33": [40000000, 30000000, 20000000],
+    "densification_onset_strain_11_22_33": [0.08, 0.1, 0.12],
+    "densification_rate_s_11_22_33": [0.04, 0.06, 0.08],
+    "damage_cap": 0,
+    "smooth_strain_width": 0.0000001
+  },
+  "starch_interface": {
+    "normal_penalty_Pa_per_m": 1000000000,
+    "shear_penalty_Pa_per_m": 800000000,
+    "compression_penalty_Pa_per_m": 2000000000,
+    "normal_strength_Pa": 1000000,
+    "shear_strength_Pa": 800000,
+    "fracture_energy_mode_I_J_per_m2": 1000,
+    "fracture_energy_mode_II_J_per_m2": 2000,
+    "bk_exponent": 1.5
+  },
+  "geometry": {
+    "edge_m": 0.01,
+    "each_layer_thickness_m": 0.001,
+    "timestep_s": 0.001,
+    "gravity_m_per_s2": [0, 0, 0],
+    "liner_and_medium_each_tets": 3,
+    "finite_glue_tets": 3,
+    "mortar_activation_ids": [701, 907],
+    "activation_gap_tolerance_m": 0.0000001,
+    "matrix_damage_state_stride": 30
+  },
+  "qualification": "synthetic transaction exercise only; no grade calibration or box qualification"
+}

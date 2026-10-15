@@ -1,0 +1,14 @@
+--- a/matter/tools/cardboard_free_box_angular_native_check.mm
++++ b/matter/tools/cardboard_free_box_angular_native_check.mm
+@@ -584,7 +584,10 @@
+     for(int i=0;i<3;++i){
+         signedOutside[i]=std::abs(local[i])-rigid.half[i];
+         closest[i]=std::clamp(local[i],-rigid.half[i],rigid.half[i]);
+-        outside[i]=std::max(signedOutside[i],0.0);
++        // Preserve the signed local offset for the outward normal. The
++        // unsigned distance vector has the same norm but mirrors negative
++        // face/edge normals and corrupts the independent residual oracle.
++        outside[i]=local[i]-closest[i];
+         if(signedOutside[i]>0.0)feature|=1u<<i;
+         if(std::abs(signedOutside[i])<=featureTolerance)featureMargin=false;
+     }

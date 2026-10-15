@@ -3659,6 +3659,145 @@ kernel void nm_contact_scatter_deformable_active_work(
             environment * capacity + slot;
 }
 
+// Opt-in replacement for the O(nodeCount * activeCount) incidence builder.
+// Emit one stable record for each of the six support corners, sort by
+// (unified node ID, compacted active slot, local corner), then gather the
+// records into the same per-node ordering as the legacy activeSlot/local loop.
+// The contact slot remains in payload so history identity is unchanged.
+kernel void nm_contact_emit_deformable_node_corners(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMDeformableContactGPU* contacts [[buffer(1)]],
+    device const uint* activeIndices [[buffer(2)]],
+    device const uint* activeCounts [[buffer(3)]],
+    device ulong* sortKeys [[buffer(4)]],
+    device uint* sortPayloads [[buffer(5)]],
+    constant uint& paddedCapacity [[buffer(6)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (paddedCapacity == 0u) return;
+    const uint capacity = dispatch.deformableContactCapacity;
+    const uint nodeCount = dispatch.gridNodeCount + dispatch.femNodeCount;
+    const uint environment = global / paddedCapacity;
+    const uint localRecord = global - environment * paddedCapacity;
+    if (environment >= dispatch.environmentCount) return;
+
+    constexpr ulong invalidKey = ~0ul;
+    ulong key = invalidKey;
+    uint payload = 0u;
+    const ulong logicalRecordCount = 6ul * ulong(capacity);
+    if (ulong(localRecord) < logicalRecordCount && capacity != 0u) {
+        const uint activeSlot = localRecord / 6u;
+        const uint local = localRecord - activeSlot * 6u;
+        const uint activeCount = min(activeCounts[environment], capacity);
+        if (activeSlot < activeCount) {
+            const uint slot = activeIndices[environment * capacity + activeSlot];
+            if (slot < capacity) {
+                const NMDeformableContactGPU contact =
+                    contacts[environment * capacity + slot];
+                if ((contact.identity.w & NM_CONTACT_VALID) != 0u) {
+                    const uint node = deformableContactNode(contact, local);
+                    if (node < nodeCount) {
+                        const ulong order = ulong(activeSlot) * 8ul + ulong(local);
+                        key = (ulong(node) << 32u) | order;
+                        payload = 8u * slot + local;
+                    }
+                }
+            }
+        }
+    }
+    sortKeys[global] = key;
+    sortPayloads[global] = payload;
+}
+
+kernel void nm_contact_bitonic_sort_deformable_node_corners(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant uint& paddedCapacity [[buffer(1)]],
+    constant uint& sequenceWidth [[buffer(2)]],
+    constant uint& compareDistance [[buffer(3)]],
+    device ulong* sortKeys [[buffer(4)]],
+    device uint* sortPayloads [[buffer(5)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (paddedCapacity == 0u || compareDistance == 0u) return;
+    const uint environment = global / paddedCapacity;
+    const uint local = global - environment * paddedCapacity;
+    if (environment >= dispatch.environmentCount) return;
+    const uint partner = local ^ compareDistance;
+    if (partner <= local || partner >= paddedCapacity) return;
+
+    const uint base = environment * paddedCapacity;
+    const uint partnerGlobal = base + partner;
+    const ulong leftKey = sortKeys[global];
+    const ulong rightKey = sortKeys[partnerGlobal];
+    const bool ascending = (local & sequenceWidth) == 0u;
+    const bool swap = ascending ? leftKey > rightKey : leftKey < rightKey;
+    if (swap) {
+        const uint leftPayload = sortPayloads[global];
+        sortKeys[global] = rightKey;
+        sortKeys[partnerGlobal] = leftKey;
+        sortPayloads[global] = sortPayloads[partnerGlobal];
+        sortPayloads[partnerGlobal] = leftPayload;
+    }
+}
+
+inline uint lowerBoundDeformableCornerNode(
+    device const ulong* sortKeys,
+    const uint base,
+    const uint paddedCapacity,
+    const uint node,
+    const bool upperBound
+) {
+    uint lower = 0u;
+    uint upper = paddedCapacity;
+    while (lower < upper) {
+        const uint middle = lower + (upper - lower) / 2u;
+        const uint keyNode = uint(sortKeys[base + middle] >> 32u);
+        const bool precedes = upperBound ? keyNode <= node : keyNode < node;
+        if (precedes) lower = middle + 1u;
+        else upper = middle;
+    }
+    return lower;
+}
+
+kernel void nm_contact_count_deformable_node_incidence_sorted(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant uint& paddedCapacity [[buffer(1)]],
+    device const ulong* sortKeys [[buffer(2)]],
+    device NMIncidenceRangeGPU* nodeRanges [[buffer(3)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint nodeCount = dispatch.gridNodeCount + dispatch.femNodeCount;
+    const uint totalNodes = dispatch.environmentCount * nodeCount;
+    if (global >= totalNodes || nodeCount == 0u || paddedCapacity == 0u) return;
+    const uint environment = global / nodeCount;
+    const uint node = global - environment * nodeCount;
+    const uint base = environment * paddedCapacity;
+    const uint begin = lowerBoundDeformableCornerNode(
+        sortKeys, base, paddedCapacity, node, false);
+    const uint end = lowerBoundDeformableCornerNode(
+        sortKeys, base, paddedCapacity, node, true);
+    nodeRanges[global] = {0u, end - begin, NM_INVALID_INDEX, 0u};
+}
+
+kernel void nm_contact_scatter_deformable_node_incidence_sorted(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant uint& paddedCapacity [[buffer(1)]],
+    device const ulong* sortKeys [[buffer(2)]],
+    device const uint* sortPayloads [[buffer(3)]],
+    device uint* nodeIncidence [[buffer(4)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint capacity = dispatch.deformableContactCapacity;
+    if (paddedCapacity == 0u || capacity == 0u) return;
+    const uint environment = global / paddedCapacity;
+    const uint local = global - environment * paddedCapacity;
+    if (environment >= dispatch.environmentCount ||
+        ulong(local) >= 6ul * ulong(capacity)) return;
+    if (sortKeys[global] == ~0ul) return;
+    const uint incidenceBase = 6u * environment * capacity;
+    nodeIncidence[incidenceBase + local] = sortPayloads[global];
+}
+
 // Build a deterministic dynamic CSR from unified MPM/FEM nodes to active
 // deformable
 // contact corners. Counting and scattering both traverse the stable compacted

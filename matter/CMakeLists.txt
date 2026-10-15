@@ -60,6 +60,36 @@ target_link_libraries(numi-matterc PRIVATE numi_matter_compiler)
 target_compile_options(numi-matterc PRIVATE -Wall -Wextra -Wpedantic -Werror)
 
 include(CTest)
+add_executable(numi-matter-regional-graph-schwarz-layout-check
+    tools/regional_graph_schwarz_layout_check.cpp)
+target_compile_options(numi-matter-regional-graph-schwarz-layout-check PRIVATE
+    -Wall -Wextra -Wpedantic -Werror)
+if(BUILD_TESTING)
+    add_test(NAME matter.compiler.regional_graph_schwarz_layout
+        COMMAND numi-matter-regional-graph-schwarz-layout-check)
+    set_tests_properties(matter.compiler.regional_graph_schwarz_layout PROPERTIES
+        TIMEOUT 30 LABELS "matter;cardboard;solver;cpu;synthetic")
+endif()
+add_executable(numi-matter-regional-graph-completed-tail-check
+    tools/regional_graph_completed_tail_check.cpp)
+target_compile_options(numi-matter-regional-graph-completed-tail-check PRIVATE
+    -Wall -Wextra -Wpedantic -Werror)
+if(BUILD_TESTING)
+    add_test(NAME matter.compiler.regional_graph_completed_tail
+        COMMAND numi-matter-regional-graph-completed-tail-check)
+    set_tests_properties(matter.compiler.regional_graph_completed_tail PROPERTIES
+        TIMEOUT 30 LABELS "matter;cardboard;solver;cpu;synthetic")
+endif()
+add_executable(numi-matter-cardboard-contact-node-incidence-sort-check
+    tools/cardboard_contact_node_incidence_sort_check.cpp)
+target_compile_options(numi-matter-cardboard-contact-node-incidence-sort-check PRIVATE
+    -Wall -Wextra -Wpedantic -Werror)
+if(BUILD_TESTING)
+    add_test(NAME matter.compiler.cardboard_contact_node_incidence_sort
+        COMMAND numi-matter-cardboard-contact-node-incidence-sort-check)
+    set_tests_properties(matter.compiler.cardboard_contact_node_incidence_sort PROPERTIES
+        TIMEOUT 30 LABELS "matter;cardboard;contact;cpu;synthetic")
+endif()
 add_executable(numi-matter-cardboard-solver-replay tools/cardboard_solver_replay.cpp)
 target_compile_options(numi-matter-cardboard-solver-replay PRIVATE -Wall -Wextra -Wpedantic -Werror)
 add_executable(numi-matter-cardboard-solver-pair-replay tools/cardboard_solver_pair_replay.cpp)
@@ -655,6 +685,12 @@ if(APPLE)
         add_test(NAME matter.compiler.cardboard_full_contact_armijo COMMAND numi-matter-cardboard-full-contact-armijo-check
             "${CMAKE_CURRENT_SOURCE_DIR}/materials/nagasawa2013_medium_orthotropic.nmatter" --cpu-only)
         set_tests_properties(matter.compiler.cardboard_full_contact_armijo PROPERTIES TIMEOUT 60 LABELS "matter;cardboard;contact;armijo;synthetic")
+        add_test(NAME matter.compiler.cardboard_compensated_full_contact
+            COMMAND numi-matter-cardboard-full-contact-armijo-check
+                "${CMAKE_CURRENT_SOURCE_DIR}/materials/nagasawa2013_medium_orthotropic.nmatter"
+                --cpu-only --compensated-material-arithmetic)
+        set_tests_properties(matter.compiler.cardboard_compensated_full_contact PROPERTIES
+            TIMEOUT 60 LABELS "matter;cardboard;contact;arithmetic;cpu;synthetic")
     endif()
     # Direct native angular free-BOX contact/operator regression.  This is a
     # kernel-level check with no Matter FEM time steps; it is intentionally
@@ -677,6 +713,29 @@ if(APPLE)
         set_tests_properties(matter.metal.cardboard_free_box_angular_native PROPERTIES
             LABELS "matter;cardboard;contact;angular;native-kernel" TIMEOUT 180)
     endif()
+    add_executable(numi-matter-cardboard-contact-node-incidence-sort-native-check
+        tools/cardboard_contact_node_incidence_sort_native_check.mm)
+    add_dependencies(numi-matter-cardboard-contact-node-incidence-sort-native-check
+        numi_matter_shaders)
+    target_link_libraries(numi-matter-cardboard-contact-node-incidence-sort-native-check PRIVATE
+        numi_matter_runtime "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    target_compile_definitions(numi-matter-cardboard-contact-node-incidence-sort-native-check PRIVATE
+        NUMI_MATTER_METALLIB="${NUMI_MATTER_METALLIB}")
+    target_compile_options(numi-matter-cardboard-contact-node-incidence-sort-native-check PRIVATE
+        -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
+    if(BUILD_TESTING)
+        add_test(NAME matter.metal.cardboard_contact_node_incidence_sort_native
+            COMMAND numi-matter-cardboard-contact-node-incidence-sort-native-check)
+        set_tests_properties(matter.metal.cardboard_contact_node_incidence_sort_native PROPERTIES
+            TIMEOUT 180 LABELS "matter;cardboard;contact;native-kernel;synthetic")
+    endif()
+    add_executable(numi-matter-cardboard-graph-lu-search-native-check
+        tools/cardboard_graph_lu_search_native_check.mm)
+    add_dependencies(numi-matter-cardboard-graph-lu-search-native-check numi_matter_shaders)
+    target_link_libraries(numi-matter-cardboard-graph-lu-search-native-check PRIVATE
+        numi_matter_runtime "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    target_compile_options(numi-matter-cardboard-graph-lu-search-native-check PRIVATE
+        -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
     add_executable(numi-matter-cardboard-probe tools/cardboard_probe.mm)
     target_link_libraries(numi-matter-cardboard-probe PRIVATE
         numi_matter_runtime "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
@@ -1017,6 +1076,31 @@ if(APPLE)
             PROPERTIES LABELS "matter;cardboard;delamination;material" TIMEOUT 180)
     endif()
 
+    add_executable(numi-matter-cardboard-damage-cohesive-transaction-check
+        tools/cardboard_damage_cohesive_transaction_check.mm)
+    target_link_libraries(numi-matter-cardboard-damage-cohesive-transaction-check PRIVATE
+        numi_matter_runtime "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    target_include_directories(numi-matter-cardboard-damage-cohesive-transaction-check PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/../include")
+    target_compile_definitions(numi-matter-cardboard-damage-cohesive-transaction-check PRIVATE
+        NUMI_MATTER_METALLIB="${NUMI_MATTER_METALLIB}")
+    target_compile_options(numi-matter-cardboard-damage-cohesive-transaction-check PRIVATE
+        -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
+    if(BUILD_TESTING)
+        add_test(NAME matter.compiler.cardboard_damage_cohesive_transaction
+            COMMAND numi-matter-cardboard-damage-cohesive-transaction-check
+                "${CMAKE_CURRENT_SOURCE_DIR}/materials"
+                "${CMAKE_CURRENT_SOURCE_DIR}/tools/cardboard_damage_cohesive_transaction_parameters.json"
+                --cpu-only)
+        add_test(NAME matter.metal.cardboard_damage_cohesive_transaction
+            COMMAND numi-matter-cardboard-damage-cohesive-transaction-check
+                "${CMAKE_CURRENT_SOURCE_DIR}/materials"
+                "${CMAKE_CURRENT_SOURCE_DIR}/tools/cardboard_damage_cohesive_transaction_parameters.json")
+        set_tests_properties(matter.compiler.cardboard_damage_cohesive_transaction
+            PROPERTIES TIMEOUT 60 LABELS "matter;cardboard;damage;cohesive;cpu;synthetic")
+        set_tests_properties(matter.metal.cardboard_damage_cohesive_transaction
+            PROPERTIES TIMEOUT 300 LABELS "matter;cardboard;damage;cohesive;metal;synthetic")
+    endif()
     add_executable(numi-matter-cardboard-cohesive-face-check
         tools/cardboard_cohesive_face_check.mm)
     add_executable(numi-matter-cardboard-mixed-cohesive-face-check

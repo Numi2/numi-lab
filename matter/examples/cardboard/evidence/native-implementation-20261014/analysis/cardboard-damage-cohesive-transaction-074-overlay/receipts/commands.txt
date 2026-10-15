@@ -1,0 +1,32 @@
+# Environment
+sw_vers
+xcrun clang++ --version
+cmake --version
+
+# Strict source syntax check
+xcrun clang++ -std=c++23 -fobjc-arc -Wall -Wextra -Wpedantic -Werror -fsyntax-only \
+  -I <snapshot073>/matter/include -I <snapshot073>/include -I <snapshot073>/matter/tools \
+  overlay/matter/tools/cardboard_damage_cohesive_transaction_check.mm
+
+# Exact link used for the CPU executable; archives/metallib are source073 build inputs
+xcrun clang++ -std=c++23 -arch arm64 -fobjc-arc -Wall -Wextra -Wpedantic -Werror \
+  -I <snapshot073>/matter/include -I <snapshot073>/include -I <snapshot073>/matter/tools \
+  -DNUMI_MATTER_METALLIB=\"<build073>/matter/shaders/NumiMatter.metallib\" \
+  overlay/matter/tools/cardboard_damage_cohesive_transaction_check.mm \
+  <build073>/matter/libnumi_matter_runtime.a -framework Foundation -framework Metal \
+  <build073>/matter/libnumi_matter_compiler.a -o receipts/cardboard-damage-cohesive-transaction-check
+
+# CPU admission path
+receipts/cardboard-damage-cohesive-transaction-check \
+  <snapshot073>/matter/materials \
+  overlay/matter/tools/cardboard_damage_cohesive_transaction_parameters.json --cpu-only
+
+# CMake/CTest import harness
+cmake -S cpu-ctest -B <scratch-build> -DNUMI_SOURCE_ROOT=<snapshot073> \
+  -DNUMI_BUILD_ROOT=<build073> -DBUILD_TESTING=ON
+cmake --build <scratch-build> --target numi-matter-cardboard-damage-cohesive-transaction-check -j2
+ctest --test-dir <scratch-build> --output-on-failure \
+  -R matter.compiler.cardboard_damage_cohesive_transaction
+
+# CMake integration patch check
+patch --dry-run -p1 -d <base-tree> < overlay/matter/CMakeLists.patch

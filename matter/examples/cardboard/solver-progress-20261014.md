@@ -1,5 +1,112 @@
 # Native solver progress and unresolved qualification
 
+## Source079 bounded conditioning and rejected-trial repair
+
+All 60 build targets and 67 selected CPU checks pass. Native259 passes 2,185
+checks, including three exhausted-trial cases that leave both candidate arrays
+unchanged and select zero FEM/rigid fractions. Native260 matches legacy and
+independent CPU contact-incidence lists in three cases/two environments (169
+checks). Native261 obtains byte-identical LU factors, pivots and status for all
+13 prepared graph patches with the opt-in parallel search. These direct checks
+have no complete physical trajectories.
+
+Actual production263/264 each accepts the first coupon control. Both preserve
+all 64 Armijo records and five accepted geometry/material/observation files
+byte for byte against257. Wall times are100.13s and96.91s; one pair does not
+establish a general performance improvement. The legacy graph path remains the
+default. The bounded fallback admits all six independent mesh layouts on the
+host without raising existing arena limits; actual refined nx16 run265
+allocates and executes but rejects its first control after64Newton iterations.
+No complete mesh or time series is qualified.
+
+Native255 advances past the previous ordinary elastic setup but fails the
+strict free-body solve at root1201. It exposed a second update-fraction bug on
+exhausted trials: the rigid fraction remained1 after the FEM fraction became0.
+Source079 clears both. Repeat262 confirms both fractions are0, but its reported
+next residual still jumps after failure, so full rejection-path behavior and
+coupled convergence remain open. The original failures and direct/production
+scope distinction are retained.
+
+Complete27-control attempt247 terminates normally with rejection after one
+accepted control (1964.12s, no timeout). FG32 attempt258 also rejects control1
+after one acceptance (387.96s, no timeout); it is not a complete cycle. Its
+selected control1/Newton0 cached action agrees with independent FP64 assembly
+within1.193e-7 relative. This only checks assembly of the captured tangent;
+local projection accuracy and the late stagnation require separate diagnosis.
+The independent handwritten15-state reference and late capture are ongoing
+analyses, not numerical or physical qualification.
+
+## Source077 admission and evidence repair
+
+The fresh integrated build passes all 57 targets and all 66 selected CPU
+checks. Compensated scalar arithmetic now supports the narrowly checked
+stateless stored-energy case used by the retained Nagasawa medium. Against
+the independently evaluated source expressions, its near-rest stress error
+falls from 0.925984 in ordinary FP32 to 1.18691e-7 with compensated arithmetic;
+the tangent error is 8.41643e-15 and the FP64 reference derivative check is
+4.86151e-11. Equations, material parameters and production tolerances are
+unchanged. Native255/262 subsequently advance past that setup and expose a separate
+coupled failure; native242–244 and the source076 CPU failure remain retained.
+
+Published-data admission now checks the actual grade and board code, accepts
+partial pin comparisons only over explicit complete source/native windows,
+and requires complete source-bound nominal/half-speed BCT capacity evidence.
+It cannot turn partial curves, censored peaks or missing bindings into matched
+calibration. The new BCT evidence producer remains separate work.
+
+CPU compile-only cases248–253 produce all six independent refined meshes,
+but exact host graph construction rejects their two-environment layouts at
+the existing memory or patch-count limits. Combined32×8×4 case254 rejects
+the graph source scope; separate scalar compile-only case256 exposes its
+20,682 nodes and 89,088 tetrahedra. All these cases have zero physical steps.
+The source079 bounded fallback admits those independent layouts on the host;
+neither compilation nor allocation planning establishes mesh convergence.
+
+## Source074–076 continuation
+
+The new grip-transition fixture passes ten acquire/release transactions plus
+the eight regional foundation transactions. Its all-potential graph nevertheless
+regressed the production coupon: native237 rejects the first control after64
+Newton iterations. Native238 repeats that rejection with byte-identical
+Armijo records and five physical output files after the completed-factor tail
+guard. These failures remain in the archive.
+
+Source076 preserves the original846-node free graph as an exact prefix and
+appends disjoint coverage for the36 initially fixed nodes. Native245 passes
+the grip transitions. Native246 restores the successful source073 control:
+all64 Armijo records and five accepted output files match native233 byte for
+byte. Native247 is the separate27-control loading, hold, unloading, relaxation
+and release attempt; an accepted prefix cannot qualify its complete cycle.
+
+Native236 passes118 checks over ten transactions in a small, explicitly
+synthetic coupled paper-damage/starch/interface fixture. It exercises nonzero
+damage, two independent bond activations, unload, complete persistent rollback
+after rejection, and checkpoint continuation. It supplies no source-grade
+damage, starch-fracture or shipping calibration.
+
+The independent continuous FP64 BOX contact oracle initially had an unsigned
+normal bug (native235); production contact was unchanged. Correcting the oracle
+gives80 of84 resolved native239 finite-difference checks, with four near-zero
+stencils inconclusive. Independent50/80-digit differentiation of all84 exact
+source inputs resolves those four: maximum native action error3.815e-6,
+maximum final FP64 stencil error9.369e-8, and maximum50/80-digit disagreement
+4.007e-50. These are six smooth rigid rows with fixed contact branches, not a
+complete assembled contact trajectory. The original overall inconclusive
+native239 result remains retained.
+
+Strict free-body integration native242 still rejects an elastic setup near
+1.40947e-7 against its unchanged1e-7 certificate. Native243 rejects an unsuitable
+13-state-only arithmetic option; native244 and one source076 CPU check expose
+missing compiler admission for compensated stateless generic energy. The
+source076 build succeeds, but its selected CPU suite is65/66; that failure is
+not presented as a passing milestone.
+
+The shipping audit binds the full528,444-node,1,477,728-tet and260,835-interface
+mesh. Sparse prebuild option propagation is repaired in a separate overlay;
+it admits only the rigid private-storage subgate. FEM/contact/cohesive scope
+still rejects the shipping world. No complete mesh/time study, fixture-free
+shipping checkpoint, capacity-derived mass, gravity crush or drop is qualified.
+
 ## Source073 verified milestone
 
 The source073 fresh build passes all 54 requested targets and all 62 selected

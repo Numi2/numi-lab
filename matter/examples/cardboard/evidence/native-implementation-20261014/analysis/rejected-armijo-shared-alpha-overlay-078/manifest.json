@@ -1,0 +1,19 @@
+{
+  "schema": "numi.cardboard.rejected-armijo-alpha-overlay.v1",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-stateless-compensated-and-validation-admission-077",
+  "patch_sha256": "506dafa20194a5ffe2bffe7c066dd48a3119df1719c8ef875ec02979521309b9",
+  "changed_files": [
+    {
+      "path": "matter/src/metal/fem.metalinc",
+      "base_sha256": "819f6724c2690c41c07972e6596624672000d35423bba3f1233e0063c47b9564",
+      "overlay_sha256": "a88938e11b76a6c6b4ade53007bca543c642828e9a6c91ae5ddb66e9bda0bda9"
+    },
+    {
+      "path": "matter/tools/cardboard_full_contact_armijo_check.mm",
+      "base_sha256": "beaf5a1519bec2814cb16608694ed126045e42b20fe40dde0fbb3eb1c31d9c87",
+      "overlay_sha256": "c0e1d7079b36acea714570ab341143d305ca7f08c1d2304b2164bc6b52e7e112"
+    }
+  ],
+  "origin": "Native255 Newton13 exhausts24 trials: selected FEM alpha0, environment rigid alpha1. Next unaccepted base jumps3.43603074e-6 to.0100029344. Rawfailure preserved.",
+  "scope": "Exact update-fraction repair on rejected path; no tolerance, contact, constitutive or physical parameter changes. Requires native direct and transactional qualification."
+}

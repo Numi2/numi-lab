@@ -13,9 +13,32 @@
 
 namespace numi::matter::detail {
 
+// A graph factor may be retained only for a later Newton iteration in the
+// same solver transaction, and only after the caller has excluded forced
+// rebuilds and selected diagnostic captures. The Metal kernels additionally
+// require that the environment's nonlinear-completion latch is set.
+[[nodiscard]] inline bool regionalGraphCompletedTailReuseAllowed(
+    const std::uint32_t solverIteration,
+    const bool forceRebuild,
+    const bool selectedCapturePending) noexcept {
+    return solverIteration > 0u && !forceRebuild &&
+        !selectedCapturePending;
+}
+
+[[nodiscard]] inline bool regionalGraphMaySkipPatchFactorization(
+    const bool completedTailReuseAllowed,
+    const bool nonlinearCompletionLatch,
+    const bool priorFactorValid) noexcept {
+    return completedTailReuseAllowed && nonlinearCompletionLatch &&
+        priorFactorValid;
+}
+
 // A bounded host-built graph layout for the selector-5 additive Schwarz
-// preconditioner.  The graph is derived from the exact active tetrahedron
-// connectivity and the immutable FEM Dirichlet mask. Patches are ordered
+// preconditioner. The graph is derived from exact active tetrahedron
+// connectivity and the source Dirichlet partition. Source-free patches retain
+// the original free-only construction as an exact prefix. Supplementary
+// patches contain only initially fixed nodes, so dynamic release gains local
+// coverage without changing original free-node patch membership. Patches are ordered
 // deterministically by ascending free-node anchors, breadth-first sorted
 // neighbors, then sorted node IDs. This states an ordering rule only; it does
 // not claim membership parity with any offline mesh.
@@ -68,8 +91,9 @@ struct RegionalGraphSchwarzLayout {
 [[nodiscard]] inline RegionalGraphSchwarzLayout buildRegionalGraphSchwarzLayout(
     const std::uint32_t nodeCount,
     const std::span<const std::array<std::uint32_t, 4>> tetrahedra,
-    // 1 means free; 0 means fixed. Must be the exact immutable mask used by
-    // the candidate projection. A changed mask is rejected by runtime.
+    // Exact authored source mask: 1 means initially free; 0 means initially
+    // fixed. Runtime separately checks each candidate-free node against the
+    // union of the source-free and supplementary initial-fixed patches.
     const std::span<const std::uint8_t> freeMask,
     const std::uint32_t environmentCount,
     const std::uint64_t maximumDeviceBytes = 96ull * 1024ull * 1024ull,
@@ -77,7 +101,9 @@ struct RegionalGraphSchwarzLayout {
     const std::uint32_t maximumTetrahedronCount = 32768u,
     const std::uint32_t maximumPatchCount = 128u,
     const std::uint32_t maximumPatchNodes = 256u,
-    const std::uint32_t anchorStride = 128u
+    const std::uint32_t anchorStride = 128u,
+    const bool includeInitiallyFixedPatches = true,
+    const bool groupUncoveredNodes = false
 ) {
     RegionalGraphSchwarzLayout out;
     out.nodeCount = nodeCount;
@@ -96,14 +122,17 @@ struct RegionalGraphSchwarzLayout {
     }
 
     std::vector<std::set<std::uint32_t>> adjacency(nodeCount);
-    std::vector<std::uint32_t> freeNodes;
-    freeNodes.reserve(nodeCount);
+    std::vector<std::uint32_t> sourceFreeNodes;
+    std::vector<std::uint32_t> sourceFixedNodes;
+    sourceFreeNodes.reserve(nodeCount);
+    sourceFixedNodes.reserve(nodeCount);
     for (std::uint32_t node = 0u; node < nodeCount; ++node) {
         if (freeMask[node] > 1u)
             return fail("graph Schwarz free mask is not binary");
-        if (freeMask[node] != 0u) freeNodes.push_back(node);
+        if (freeMask[node] != 0u) sourceFreeNodes.push_back(node);
+        else sourceFixedNodes.push_back(node);
     }
-    if (freeNodes.empty())
+    if (sourceFreeNodes.empty())
         return fail("graph Schwarz requires at least one unconstrained FEM node");
 
     for (const auto& tet : tetrahedra) {
@@ -115,46 +144,68 @@ struct RegionalGraphSchwarzLayout {
                     return fail("graph Schwarz tetrahedron repeats a node");
         }
         for (std::uint32_t i = 0u; i < 4u; ++i) {
-            if (freeMask[tet[i]] == 0u) continue;
             for (std::uint32_t j = 0u; j < 4u; ++j) {
-                if (i != j && freeMask[tet[j]] != 0u)
+                if (i != j && freeMask[tet[i]] == freeMask[tet[j]])
                     adjacency[tet[i]].insert(tet[j]);
             }
         }
     }
 
-    std::vector<std::uint32_t> anchors;
-    for (std::size_t index = 0u; index < freeNodes.size(); index += anchorStride)
-        anchors.push_back(freeNodes[index]);
-    if (anchors.empty() || anchors.back() != freeNodes.back())
-        anchors.push_back(freeNodes.back());
-
     std::vector<std::vector<std::uint32_t>> nodePatches;
-    nodePatches.reserve(anchors.size());
+    nodePatches.reserve(sourceFreeNodes.size() + sourceFixedNodes.size());
     std::vector<std::uint8_t> covered(nodeCount, 0u);
-    for (const std::uint32_t anchor : anchors) {
-        std::vector<std::uint32_t> selected{anchor};
-        std::vector<std::uint8_t> visited(nodeCount, 0u);
-        visited[anchor] = 1u;
-        std::deque<std::uint32_t> frontier{anchor};
-        while (!frontier.empty() && selected.size() < maximumPatchNodes) {
-            const std::uint32_t current = frontier.front();
-            frontier.pop_front();
-            for (const std::uint32_t neighbor : adjacency[current]) {
-                if (visited[neighbor] != 0u) continue;
-                visited[neighbor] = 1u;
-                selected.push_back(neighbor);
-                frontier.push_back(neighbor);
-                if (selected.size() == maximumPatchNodes) break;
+    const auto appendPartitionPatches = [&](
+        const std::vector<std::uint32_t>& partitionNodes) {
+        if (partitionNodes.empty()) return;
+        std::vector<std::uint32_t> anchors;
+        for (std::size_t index = 0u; index < partitionNodes.size();
+             index += anchorStride)
+            anchors.push_back(partitionNodes[index]);
+        if (anchors.back() != partitionNodes.back())
+            anchors.push_back(partitionNodes.back());
+        for (const std::uint32_t anchor : anchors) {
+            std::vector<std::uint32_t> selected{anchor};
+            std::vector<std::uint8_t> visited(nodeCount, 0u);
+            visited[anchor] = 1u;
+            std::deque<std::uint32_t> frontier{anchor};
+            while (!frontier.empty() && selected.size() < maximumPatchNodes) {
+                const std::uint32_t current = frontier.front();
+                frontier.pop_front();
+                for (const std::uint32_t neighbor : adjacency[current]) {
+                    if (visited[neighbor] != 0u) continue;
+                    visited[neighbor] = 1u;
+                    selected.push_back(neighbor);
+                    frontier.push_back(neighbor);
+                    if (selected.size() == maximumPatchNodes) break;
+                }
             }
+            std::sort(selected.begin(), selected.end());
+            for (const std::uint32_t node : selected) covered[node] = 1u;
+            nodePatches.push_back(std::move(selected));
         }
-        std::sort(selected.begin(), selected.end());
-        for (const std::uint32_t node : selected) covered[node] = 1u;
-        nodePatches.push_back(std::move(selected));
-    }
-    for (const std::uint32_t node : freeNodes) {
-        if (covered[node] == 0u) nodePatches.push_back({node});
-    }
+        if (!groupUncoveredNodes) {
+            for (const std::uint32_t node : partitionNodes)
+                if (covered[node] == 0u) nodePatches.push_back({node});
+        } else {
+            // Disconnected or missed nodes may share a bounded dense patch.
+            // Absent graph edges produce exact zero off-diagonal blocks; this
+            // only batches small local solves, with the same production A.
+            std::vector<std::uint32_t> remainder;
+            for (const std::uint32_t node : partitionNodes) {
+                if (covered[node] != 0u) continue;
+                remainder.push_back(node);
+                if (remainder.size() == maximumPatchNodes) {
+                    nodePatches.push_back(std::move(remainder));
+                    remainder.clear();
+                }
+            }
+            if (!remainder.empty()) nodePatches.push_back(std::move(remainder));
+        }
+    };
+    // Preserve the old source-free patches in exactly their historical order.
+    appendPartitionPatches(sourceFreeNodes);
+    if (includeInitiallyFixedPatches)
+        appendPartitionPatches(sourceFixedNodes);
     if (nodePatches.empty() || nodePatches.size() > maximumPatchCount)
         return fail("graph Schwarz patch count exceeds its bounded layout");
 
@@ -204,16 +255,19 @@ struct RegionalGraphSchwarzLayout {
 
     out.nodeCoverage.assign(nodeCount, 0u);
     for (const std::uint32_t node : out.patchNodes) {
-        if (node >= nodeCount || freeMask[node] == 0u)
-            return fail("graph Schwarz patches include a constrained or invalid node");
+        if (node >= nodeCount ||
+            (!includeInitiallyFixedPatches && freeMask[node] == 0u))
+            return fail("graph Schwarz patches include an excluded or invalid node");
         ++out.nodeCoverage[node];
     }
-    for (const std::uint32_t node : freeNodes)
-        if (out.nodeCoverage[node] == 0u)
+    for (std::uint32_t node = 0u; node < nodeCount; ++node)
+        if ((freeMask[node] != 0u || includeInitiallyFixedPatches) &&
+            out.nodeCoverage[node] == 0u)
             return fail("graph Schwarz patches do not cover every free node");
     for (std::uint32_t node = 0u; node < nodeCount; ++node)
-        if (freeMask[node] == 0u && out.nodeCoverage[node] != 0u)
-            return fail("graph Schwarz patches cover a constrained node");
+        if (!includeInitiallyFixedPatches && freeMask[node] == 0u &&
+            out.nodeCoverage[node] != 0u)
+            return fail("free-only graph Schwarz patches cover a constrained node");
 
     out.nodePatchOffsets.assign(static_cast<std::size_t>(nodeCount) + 1u, 0u);
     for (const std::uint32_t node : out.patchNodes)
@@ -267,6 +321,36 @@ struct RegionalGraphSchwarzLayout {
         return fail("graph Schwarz packed device arenas, including source matrices for one refinement pass, exceed the explicit 96 MiB bound");
     }
     return out;
+}
+
+
+// Preserve the historical layout byte for byte whenever it fits. Only a
+// resource rejection permits a conditioning-only fallback with smaller
+// patches or batched disconnected nodes. All input, index, patch-count and
+// 96 MiB arena limits remain enforced by the same checked builder. This does
+// not modify the mechanical operator, residual, tolerances or certificate.
+[[nodiscard]] inline RegionalGraphSchwarzLayout buildBudgetedRegionalGraphSchwarzLayout(
+    const std::uint32_t nodeCount,
+    const std::span<const std::array<std::uint32_t, 4>> tetrahedra,
+    const std::span<const std::uint8_t> freeMask,
+    const std::uint32_t environmentCount,
+    const std::uint64_t maximumDeviceBytes = 96ull * 1024ull * 1024ull
+) {
+    auto original = buildRegionalGraphSchwarzLayout(
+        nodeCount, tetrahedra, freeMask, environmentCount, maximumDeviceBytes);
+    if (original.error.empty()) return original;
+    const bool resourceRejection =
+        original.error == "graph Schwarz patch count exceeds its bounded layout" ||
+        original.error == "graph Schwarz packed device arenas, including source matrices for one refinement pass, exceed the explicit 96 MiB bound";
+    if (!resourceRejection) return original;
+    for (const std::uint32_t patchNodes : {256u, 128u, 64u, 32u}) {
+        auto candidate = buildRegionalGraphSchwarzLayout(
+            nodeCount, tetrahedra, freeMask, environmentCount,
+            maximumDeviceBytes, 4096u, 32768u, 128u,
+            patchNodes, patchNodes / 2u, true, true);
+        if (candidate.error.empty()) return candidate;
+    }
+    return original;
 }
 
 } // namespace numi::matter::detail

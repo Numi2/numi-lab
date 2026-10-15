@@ -1,0 +1,1 @@
+Exact host graph builder applied to CPU-compiled mesh topology and authored fixed masks. Both two-environment requested protocol and one-environment storage sensitivity are reported. These are sizing/admission checks only. No native allocation, physical step, converged curve or alternate environment protocol is asserted.

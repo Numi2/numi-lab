@@ -1,0 +1,28 @@
+In file included from overlay/matter/src/matter_kernels.metal:4:
+overlay/matter/src/metal/fgmres.metalinc:2498:9: warning: variable 'sharedValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+overlay/matter/src/metal/fgmres.metalinc:2507:9: note: uninitialized use occurs here
+    if (sharedValid == 0u) return;
+        ^~~~~~~~~~~
+overlay/matter/src/metal/fgmres.metalinc:2498:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+overlay/matter/src/metal/fgmres.metalinc:2488:33: note: initialize the variable 'sharedValid' to silence this warning
+    threadgroup uint sharedValid;
+                                ^
+                                 = 0
+overlay/matter/src/metal/fgmres.metalinc:2943:9: warning: variable 'refinementValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+overlay/matter/src/metal/fgmres.metalinc:2960:9: note: uninitialized use occurs here
+    if (refinementValid == 0u) {
+        ^~~~~~~~~~~~~~~
+overlay/matter/src/metal/fgmres.metalinc:2943:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+overlay/matter/src/metal/fgmres.metalinc:2823:37: note: initialize the variable 'refinementValid' to silence this warning
+    threadgroup uint refinementValid;
+                                    ^
+                                     = 0
+2 warnings generated.

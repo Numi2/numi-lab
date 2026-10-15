@@ -1,0 +1,208 @@
+--- a/selector5_refinement_kernels.mm
++++ b/selector5_refinement_kernels.mm
+@@ -42,6 +42,14 @@
+     std::uint32_t statusCount;
+ };
+ 
++struct FactorParityHeader {
++    std::uint32_t version;
++    std::uint32_t matrixByteCount;
++    std::uint32_t pivotByteCount;
++    std::uint32_t validByteCount;
++    std::uint32_t statusByteCount;
++};
++
+ struct ArrayView {
+     const char* data = nullptr;
+     std::size_t size = 0u;
+@@ -196,7 +204,10 @@
+                   id<MTLBuffer> matrices, id<MTLBuffer> pivots,
+                   id<MTLBuffer> factorValid, id<MTLBuffer> status,
+                   id<MTLBuffer> originalMatrices,
+-                  const InputHeader& header) {
++                  id<MTLBuffer> fgmresStates,
++                  id<MTLBuffer> priorFactorValid,
++                  const InputHeader& header,
++                  const std::uint32_t parallelSearch = 0u) {
+     [encoder setComputePipelineState:pipeline];
+     setBuffer(encoder, dispatch, 0u);
+     setBuffer(encoder, patches, 1u);
+@@ -208,6 +219,11 @@
+     setCount(encoder, header.matrixFloatCount, 7u);
+     setCount(encoder, header.pivotCount, 8u);
+     setBuffer(encoder, originalMatrices, 9u);
++    setBuffer(encoder, fgmresStates, 10u);
++    const std::uint32_t reuseCompletedTailAllowed = 0u;
++    setCount(encoder, reuseCompletedTailAllowed, 11u);
++    setBuffer(encoder, priorFactorValid, 12u);
++    setCount(encoder, parallelSearch, 13u);
+     [encoder dispatchThreadgroups:MTLSizeMake(header.patchCount, 1u, 1u)
+             threadsPerThreadgroup:MTLSizeMake(256u, 1u, 1u)];
+     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+@@ -481,6 +497,27 @@
+                 sizeof(std::uint32_t) * header.patchCount, "patch_factor_valid");
+             id<MTLBuffer> factorStatus = outputBuffer(device,
+                 sizeof(NMMatterStatusGPU), "factor_status");
++            id<MTLBuffer> parallelMatrices = bytesBuffer(device,
++                patchMatricesView.data, patchMatricesView.size,
++                "parallel_search_patch_matrices");
++            id<MTLBuffer> parallelOriginalMatrices = inputBuffer(device,
++                patchMatricesView, "parallel_search_original_matrices");
++            id<MTLBuffer> parallelPivots = outputBuffer(device,
++                sizeof(std::uint32_t) * header.pivotCount,
++                "parallel_search_patch_pivots");
++            id<MTLBuffer> parallelFactorValid = outputBuffer(device,
++                sizeof(std::uint32_t) * header.patchCount,
++                "parallel_search_factor_valid");
++            id<MTLBuffer> parallelFactorStatus = outputBuffer(device,
++                sizeof(NMMatterStatusGPU), "parallel_search_factor_status");
++            std::memset(pivots.contents, 0, pivots.length);
++            std::memset(factorValid.contents, 0, factorValid.length);
++            std::memset(factorStatus.contents, 0, factorStatus.length);
++            std::memset(parallelPivots.contents, 0, parallelPivots.length);
++            std::memset(parallelFactorValid.contents, 0,
++                        parallelFactorValid.length);
++            std::memset(parallelFactorStatus.contents, 0,
++                        parallelFactorStatus.length);
+ 
+             auto newStatus = [&]() {
+                 return outputBuffer(device, sizeof(NMMatterStatusGPU), "scenario_status");
+@@ -527,7 +564,10 @@
+                 sizeof(NMFGMRESStateGPU), "active_state");
+             id<MTLBuffer> completedState = outputBuffer(device,
+                 sizeof(NMFGMRESStateGPU), "completed_state");
++            auto* activeStateCPU = static_cast<NMFGMRESStateGPU*>(activeState.contents);
++            std::memset(activeStateCPU, 0, sizeof(*activeStateCPU));
+             auto* completedStateCPU = static_cast<NMFGMRESStateGPU*>(completedState.contents);
++            std::memset(completedStateCPU, 0, sizeof(*completedStateCPU));
+             completedStateCPU->diagnostics.z = 1.0f;
+             id<MTLBuffer> zeroBasis = outputBuffer(device,
+                 sizeof(nm_float4) * header.nodeCount, "zero_basis");
+@@ -541,6 +581,8 @@
+                 sizeof(std::uint32_t) * header.pivotCount, "singular_pivots");
+             id<MTLBuffer> singularFactorValid = outputBuffer(device,
+                 sizeof(std::uint32_t) * header.patchCount, "singular_factor_valid");
++            std::memset(singularFactorValid.contents, 0,
++                        singularFactorValid.length);
+             id<MTLBuffer> singularOriginalMatrices = inputBuffer(device, patchMatricesView,
+                                                                   "singular_original_matrices");
+ 
+@@ -558,7 +600,11 @@
+                            header.modeCount);
+             encodeFactor(encoder, factorPipeline, dispatchBuffer, patches,
+                          patchMatrices, pivots, factorValid, factorStatus,
+-                         originalMatrices, header);
++                         originalMatrices, activeState, factorValid, header, 0u);
++            encodeFactor(encoder, factorPipeline, dispatchBuffer, patches,
++                         parallelMatrices, parallelPivots, parallelFactorValid,
++                         parallelFactorStatus, parallelOriginalMatrices,
++                         activeState, parallelFactorValid, header, 1u);
+ 
+             // Both modes use the same source matrix, pivoted LU, pivot vector,
+             // coarse coefficients, and RHS. The only changed binding is mode.
+@@ -622,7 +668,8 @@
+             // Separate factor/solve path with one authored singular principal block.
+             encodeFactor(encoder, factorPipeline, dispatchBuffer, patches,
+                          singularMatrices, singularPivots, singularFactorValid,
+-                         singularFactorStatus, singularOriginalMatrices, header);
++                         singularFactorStatus, singularOriginalMatrices,
++                         activeState, singularFactorValid, header, 0u);
+             encodeSolve(encoder, solvePipeline, dispatchBuffer, patches, patchNodes,
+                         basis, regionalBasis, regionalAP, coefficients, singularMatrices,
+                         singularPivots, singularFactorValid, singularCorrections,
+@@ -636,6 +683,66 @@
+             need(command.status == MTLCommandBufferStatusCompleted,
+                  std::string("Metal refinement checker command failed: ") +
+                  localizedCommandError);
++
++            // Save exact source-derived factor outputs before the parity gate.
++            // The sidecar retains both modes even if an equality check fails.
++            need(patchMatrices.length <= UINT32_MAX && pivots.length <= UINT32_MAX &&
++                 factorValid.length <= UINT32_MAX && factorStatus.length <= UINT32_MAX,
++                 "factor parity sidecar exceeds its checked format");
++            FactorParityHeader parityHeader{
++                1u, static_cast<std::uint32_t>(patchMatrices.length),
++                static_cast<std::uint32_t>(pivots.length),
++                static_cast<std::uint32_t>(factorValid.length),
++                static_cast<std::uint32_t>(factorStatus.length)};
++            std::vector<char> parity;
++            const std::filesystem::path parityPath(outputPath.string() +
++                ".factor-search-parity.bin");
++            appendBytes(parity, "NMSFSP01", 8u);
++            appendBytes(parity, &parityHeader, sizeof(parityHeader));
++            appendBuffer(parity, patchMatrices);
++            appendBuffer(parity, pivots);
++            appendBuffer(parity, factorValid);
++            appendBuffer(parity, originalMatrices);
++            appendBuffer(parity, factorStatus);
++            appendBuffer(parity, parallelMatrices);
++            appendBuffer(parity, parallelPivots);
++            appendBuffer(parity, parallelFactorValid);
++            appendBuffer(parity, parallelOriginalMatrices);
++            appendBuffer(parity, parallelFactorStatus);
++            const bool matrixParity = std::memcmp(patchMatrices.contents,
++                parallelMatrices.contents, patchMatrices.length) == 0;
++            const bool pivotParity = std::memcmp(pivots.contents,
++                parallelPivots.contents, pivots.length) == 0;
++            const bool validParity = std::memcmp(factorValid.contents,
++                parallelFactorValid.contents, factorValid.length) == 0;
++            const bool originalParity = std::memcmp(originalMatrices.contents,
++                parallelOriginalMatrices.contents, originalMatrices.length) == 0;
++            const bool statusParity = std::memcmp(factorStatus.contents,
++                parallelFactorStatus.contents, factorStatus.length) == 0;
++            writeFile(parityPath, parity);
++            const std::string parityHash = sha256(parity.data(), parity.size());
++            const std::filesystem::path parityManifestPath(outputPath.string() +
++                ".factor-search-parity.json");
++            {
++                std::ofstream manifest(parityManifestPath, std::ios::binary | std::ios::trunc);
++                need(manifest.good(), "cannot create factor parity manifest");
++                manifest << "{\n"
++                         << "  \"schema\": \"numi.matter.graph_lu_search_parity.v1\",\n"
++                         << "  \"input_sha256\": \"" << sha256(input.data(), input.size()) << "\",\n"
++                         << "  \"parity_payload_sha256\": \"" << parityHash << "\",\n"
++                         << "  \"legacy_vs_parallel\": {\n"
++                         << "    \"lu_matrix_bitwise_equal\": " << (matrixParity ? "true" : "false") << ",\n"
++                         << "    \"pivot_vector_bitwise_equal\": " << (pivotParity ? "true" : "false") << ",\n"
++                         << "    \"factor_valid_bitwise_equal\": " << (validParity ? "true" : "false") << ",\n"
++                         << "    \"original_matrix_bitwise_equal\": " << (originalParity ? "true" : "false") << ",\n"
++                         << "    \"status_bytes_equal\": " << (statusParity ? "true" : "false") << "\n"
++                         << "  },\n"
++                         << "  \"status_code_legacy\": " << statusCode(factorStatus) << ",\n"
++                         << "  \"status_code_parallel\": " << statusCode(parallelFactorStatus) << "\n"
++                         << "}\n";
++                manifest.close();
++                need(manifest.good(), "failed writing factor parity manifest");
++            }
+ 
+             // Persist the complete readback before any semantic gate throws.
+             // This keeps diagnostic evidence for a failed checker invocation.
+@@ -702,7 +809,11 @@
+ 
+             // Contract gates are deterministic and separate from the local residual
+             // accuracy gate computed by verify_refinement_output.py.
+-            need(statusCode(factorStatus) == NM_STATUS_SUCCESS,
++            need(matrixParity && pivotParity && validParity && originalParity &&
++                 statusParity,
++                 "parallel graph LU differs from legacy source-derived factor outputs");
++            need(statusCode(factorStatus) == NM_STATUS_SUCCESS &&
++                 statusCode(parallelFactorStatus) == NM_STATUS_SUCCESS,
+                  "valid active patch factorization unexpectedly failed");
+             need(statusCode(mode0Status) == NM_STATUS_SUCCESS &&
+                  statusCode(mode1Status) == NM_STATUS_SUCCESS,
+@@ -743,6 +854,15 @@
+                       << " patches=" << header.patchCount
+                       << " patch_nodes=" << header.patchNodeCount
+                       << " active_modes=0,1 zero_rhs=pass completed_tail=pass"
++                      << " factor_search_parity=pass legacy_vs_parallel=bitwise"
++                      << " matrix=" << (matrixParity ? "equal" : "different")
++                      << " pivots=" << (pivotParity ? "equal" : "different")
++                      << " factor_valid=" << (validParity ? "equal" : "different")
++                      << " original_matrix=" << (originalParity ? "equal" : "different")
++                      << " status=" << (statusParity ? "equal" : "different")
++                      << " parity_sidecar=" << parityPath.string()
++                      << " parity_manifest=" << parityManifestPath.string()
++                      << " parity_sha256=" << parityHash
+                       << " invalid_factor=pass invalid_mode=pass singular_factor=pass"
+                       << " input_sha256=" << sha256(input.data(), input.size())
+                       << " output_sha256=" << sha256(output.data(), output.size())

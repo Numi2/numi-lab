@@ -1,0 +1,5 @@
+xcrun -sdk macosx metal -std=metal4.0 -O3 -fno-fast-math \
+  -I <source076>/matter/include -I <source076>/include -I <source076>/matter/src \
+  -I <overlay078>/overlay/matter/src \
+  -c <overlay078>/overlay/matter/src/matter_kernels.metal -o <out>/NumiMatter.air
+xcrun -sdk macosx metallib <out>/NumiMatter.air -o <out>/NumiMatter.metallib

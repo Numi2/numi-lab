@@ -1,0 +1,145 @@
+{
+  "audit_tool_path": "/Users/home/cardboard-implementation-20261014/analysis/shipping-arena-audit-074/audit_shipping_admission.py",
+  "audit_tool_sha256": "c779becd1630e5b25d3882ea3dddfbc07d5e8b86de4dfeecdb7128f89eb033b7",
+  "evidence_class": "frozen-source CPU topology and admission audit; not a native allocation or solver run",
+  "first_executable_blocker": {
+    "also_fails_default_memory_model": true,
+    "default_request": "shippingBox requires full-contact descent; sparse private contact is opt-in",
+    "first_admission_failure": "dense private rigid pair domain exceeds 65,536-pair runtime limit",
+    "pair_count": 6335568,
+    "pair_limit": 65536,
+    "phase": "shipping pre-mesh full-contact residual-descent screen",
+    "result": "prebuild_screen_rejects_before_material_read_mesh_build_or_Metal_initialization",
+    "sparse_prebuild_propagation": "not implemented: ShippingPrebuildArenaOptions and shippingPrebuildMemoryBudget do not carry the sparse request/capacity or bounded BOX proof"
+  },
+  "limitations": [
+    "16 GiB figures are modeled envelopes, not peak allocator measurements",
+    "source032 anchor is explicitly not the full shipping world",
+    "no Metal runtime was initialized and no physics step was run",
+    "possible cohesive face count is conditional on both explicit laws being enabled",
+    "no proposal raises capacities while preserving all-pair completeness; sparse paths need a complete broadphase proof and fail-closed overflow transaction"
+  ],
+  "mathematically_equivalent_extension_requirements": [
+    "rigid contacts: exact conservative swept broadphase; canonical pair identity retained for active friction history; overflow aborts the whole transaction before commit; stream/tile all candidate pairs rather than silently dropping pairs",
+    "self-contact: compact immutable exterior surface features; conservative BVH query on every Newton trial; stable feature-pair identities and bounded active-history map; any candidate/history overflow rejects, never truncates",
+    "cohesive: evaluate per-face trial traction/history from accepted history and candidate geometry in bounded tiles; write irreversible state only after the selected trial is accepted; preserve activation reference geometry and rollback",
+    "preconditioner: retain exact production A, residual, determinant/CCD, and acceptance; introduce contact/cohesive-aware sparse subdomain or multilevel preconditioning with checked symbolic fill/arena size, replacing contact-free 4096-node graph scope only after exact-A parity and native convergence tests"
+  ],
+  "modeled_scenarios": {
+    "131072_compact_surface_best_case": {
+      "modeled_peak_domain_bytes": 13796875626,
+      "modeled_peak_domain_gib": 12.849341729655862,
+      "modeled_with_tangent_cache_bytes": 14281570410,
+      "private_arena_failure": "dense private pair domain or sample arena is outside runtime admission",
+      "private_arenas_admitted": false,
+      "rigid_private_arena_admitted": false
+    },
+    "default_capacity_compact_flag_off": {
+      "modeled_peak_domain_bytes": 30109495274,
+      "modeled_peak_domain_gib": 28.041652658954263,
+      "modeled_with_tangent_cache_bytes": 30594190058,
+      "private_arena_failure": "dense private pair domain or sample arena is outside runtime admission",
+      "private_arenas_admitted": false,
+      "rigid_private_arena_admitted": false
+    },
+    "sparse_K65536_one_free_BOX": {
+      "modeled_peak_domain_bytes": 12424781782,
+      "modeled_peak_domain_gib": 11.571479758247733,
+      "modeled_with_tangent_cache_bytes": 12909476566,
+      "private_arena_failure": "deformable private arena exceeds runtime node/tet/contact/128 MiB caps",
+      "private_arenas_admitted": false,
+      "rigid_private_arena_admitted": true
+    }
+  },
+  "next_blockers_after_bounded_sparse_rigid_scratch": [
+    {
+      "actual": 528444,
+      "first_scope_reason": "fem_node_cap_8192",
+      "limit": 8192,
+      "stage": "deformable full-contact Armijo scope"
+    },
+    {
+      "actual_tetrahedra": 1477728,
+      "limit": 32768,
+      "stage": "deformable full-contact Armijo scope"
+    },
+    {
+      "actual_possible_faces": 260835,
+      "limit": 4096,
+      "private_cap_bytes": 8388608,
+      "required_private_bytes": 125200800,
+      "stage": "cohesive trial scope when both laws are enabled"
+    },
+    {
+      "cohesive_face_limit": 4096,
+      "generalized_rigid_rows_supported": false,
+      "node_limit": 8192,
+      "stage": "contact-compatible selector 4 validation",
+      "tetrahedron_limit": 32768
+    },
+    {
+      "contact_or_proxy_allowed": false,
+      "layout_device_budget_bytes": 100663296,
+      "minimum_anchor_patches_at_stride_128": 4130,
+      "node_limit": 4096,
+      "potential_nodes_for_runtime_all_node_mask": 528444,
+      "runtime_maximum_patch_count": 128,
+      "stage": "selector 5 graph-Schwarz validation/layout",
+      "tetrahedron_limit": 32768
+    }
+  ],
+  "persistent_arenas_from_070_model": {
+    "cohesive_260835_face_bytes": 484109760,
+    "contact_surface_compact_off_bytes": 1009743872,
+    "contact_surface_compact_on_bytes": 218607808,
+    "deformable_slots_131072_bytes": 81788928,
+    "deformable_slots_default_8T_bytes": 7376818176,
+    "note": "these are model outputs calibrated from a prior resident counter, not current runtime measurement",
+    "rigid_contact_dense_bytes": 1579685376
+  },
+  "prebuild_exact_cpu_probe": {
+    "default_contact_slots": 11821824,
+    "modeled_peak_bytes": 29299409940,
+    "nominal_nodes": 453378,
+    "nominal_tetrahedra": 1477728,
+    "pair_upper_bound": 5440536,
+    "private_cohesive_bytes_if_law_requested": 141861600,
+    "private_full_contact_bytes": 6691473472,
+    "private_rigid_bytes": 914010052,
+    "private_rigid_failure": "dense private pair domain or sample arena is outside runtime admission",
+    "qualification": false,
+    "rigid_proxies": 12
+  },
+  "prebuild_probe_executable_sha256": "d805e5ff1f1f8e59f5aa458d2aff6b8011534b534d76d214a61170a433e445b3",
+  "prebuild_probe_path": "/Users/home/cardboard-implementation-20261014/analysis/shipping-arena-audit-074/prebuild-074.json",
+  "prebuild_probe_sha256": "0342adaf944af831dd2825c4f141745a2432ef51b8b932d881acb52162ddfa17",
+  "prebuild_probe_source_sha256": "ac5f58b726543394f9ca9cd8b627c73a8dbcf17a4e7b64c3ea77798eb37b8e8a",
+  "preflight_compiled_executable_sha256": "8a211a471bcf16b94e3bfebe9d84edb1194f242ac7c7b56d7c7d669617420692",
+  "preflight_path": "/Users/home/cardboard-implementation-20261014/analysis/shipping-arena-audit-074/preflight-074.json",
+  "preflight_sha256": "574017a49b920adc90ed462b7e58dca49ec77292635f352659f5c0cabffc291a",
+  "qualification": false,
+  "schema": "numi.cardboard.shipping-arena-source-audit.v1",
+  "snapshot_root": "/Users/home/cardboard-implementation-20261014/snapshots/source-dynamic-grips-coupled-damage-and-fp64-contact-074",
+  "source_anchors": {
+    "graph_schwarz_preconditioner": "matter/src/validation_impl.cpp:638-680 and matter/src/regional_graph_schwarz.hpp:79-100,162-174",
+    "prebuild_deformable_cohesive_caps": "matter/tools/cardboard_shipping_memory.hpp:764-812",
+    "prebuild_gate": "matter/tools/cardboard_probe.mm:11756-11787",
+    "prebuild_rigid_pair_budget": "matter/tools/cardboard_shipping_memory.hpp:679-735",
+    "regional_contact_preconditioner": "matter/src/validation_impl.cpp:580-637",
+    "runtime_full_contact_nodes": "matter/src/runtime.mm:9238-9247"
+  },
+  "source_dependency_count_verified": 29,
+  "source_dependency_tree_binding_sha256": "f30a30449c717e6badc63db134040d95ad03e77d386787e11d7b7768538582d0",
+  "test_tool_sha256": "f1a1779c1582f3399c4a97456cf2fab271a6a68d4f45db2753693a59a145c4ba",
+  "topology": {
+    "cohesive_faces_total_if_both_laws_enabled": 260835,
+    "contact_eligible_exterior_nodes": 527964,
+    "default_8_slots_per_tet": 11821824,
+    "default_slots_over_runtime_131072_limit": 90.193359375,
+    "exterior_faces_after_starch_split": 1054876,
+    "prepared_nodes": 528444,
+    "rigid_pair_rows": 6335568,
+    "rigid_pairs_over_dense_private_65536_limit": 96.673095703125,
+    "tetrahedra": 1477728
+  }
+}

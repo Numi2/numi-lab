@@ -1,0 +1,77 @@
+{
+  "schema": "numi.cardboard.stable-prefix-parity.v1",
+  "baseline": "/Users/home/cardboard-implementation-20261014/solver/sourcefit15-refined-graph-first-control-233",
+  "candidate": "/Users/home/cardboard-implementation-20261014/solver/sourcefit15-stable-prefix-first-control-246",
+  "baseline_receipt": {
+    "schema": "numi.cardboard.native-run-receipt.v2",
+    "execution_started": true,
+    "source_inputs_unchanged": true,
+    "changed_inputs": [],
+    "exit_code": 0,
+    "timed_out": false,
+    "termination_errors": [],
+    "wall_seconds": 122.39821633399697,
+    "finished_at_utc": "2026-10-15T06:17:42.160136+00:00"
+  },
+  "candidate_receipt": {
+    "schema": "numi.cardboard.native-run-receipt.v2",
+    "execution_started": true,
+    "source_inputs_unchanged": true,
+    "changed_inputs": [],
+    "exit_code": 0,
+    "timed_out": false,
+    "termination_errors": [],
+    "wall_seconds": 109.52480024995748,
+    "finished_at_utc": "2026-10-15T06:54:01.784230+00:00"
+  },
+  "armijo_records_identical": 64,
+  "files": [
+    {
+      "path": "output/observations.csv",
+      "baseline_sha256": "42f934892d1343db126ad32dfced2185f77f6a14a7e06e501f2cf6394ae03aeb",
+      "candidate_sha256": "42f934892d1343db126ad32dfced2185f77f6a14a7e06e501f2cf6394ae03aeb",
+      "byte_identical": true
+    },
+    {
+      "path": "output/material_state_000001_bent.json",
+      "baseline_sha256": "e14ad429062c331bb43703f36e5a09d3e17c1e181817ff63101cec900506a101",
+      "candidate_sha256": "e14ad429062c331bb43703f36e5a09d3e17c1e181817ff63101cec900506a101",
+      "byte_identical": true
+    },
+    {
+      "path": "output/material_state_000001_held_reference.json",
+      "baseline_sha256": "7cb9577cefe65539223b9d510b4191f72eb0c57175da90ffc8ce0184577eb02f",
+      "candidate_sha256": "7cb9577cefe65539223b9d510b4191f72eb0c57175da90ffc8ce0184577eb02f",
+      "byte_identical": true
+    },
+    {
+      "path": "output/accepted_step_000001_bent.obj",
+      "baseline_sha256": "690130fce829f74eebe56b3ec661c6849e87689b3a80008538424983970c35f7",
+      "candidate_sha256": "690130fce829f74eebe56b3ec661c6849e87689b3a80008538424983970c35f7",
+      "byte_identical": true
+    },
+    {
+      "path": "output/accepted_step_000001_held_reference.obj",
+      "baseline_sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f",
+      "candidate_sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f",
+      "byte_identical": true
+    }
+  ],
+  "all_selected_outputs_byte_identical": true,
+  "result": {
+    "schema": "numi.cardboard.probe-result.v1",
+    "status": "completed",
+    "accepted_steps": 1,
+    "compiled_world_fingerprint": 11435624337443124422,
+    "nodes": 882,
+    "tetrahedra": 1920,
+    "material_map_sha256": "1bfcfd4eedb2c328811d4dbca26b51f3f996a83398c2e51108e2126e4c541c31",
+    "authored_region_map_sha256": "8513c9e0e7f3f784ed3de52b609ac26837197d4ba3d0bf5d33a067136afafec4",
+    "frame_map_sha256": "94e426a5d9d06445e3f44d1046f8b49bdae23a5752691f9776118222f4d7b740",
+    "damage_overlay_mapping_sha256": "",
+    "failure": "",
+    "physical_validation": false
+  },
+  "first_certified_noop": 39,
+  "scope": "Actual15statefirstcontrolstrict1e-6,originalfreegraphprefix+releasednodecoverage+completedtailreuse. Not fullcycle,mesh/time,slowerloading,calibration,assemblyorcrush."
+}

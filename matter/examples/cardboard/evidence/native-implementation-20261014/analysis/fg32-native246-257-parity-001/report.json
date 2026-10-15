@@ -1,0 +1,42 @@
+{
+  "schema": "numi.cardboard.linear-budget-parity.v1",
+  "baseline": "/Users/home/cardboard-implementation-20261014/solver/sourcefit15-stable-prefix-first-control-246",
+  "candidate": "/Users/home/cardboard-implementation-20261014/solver/sourcefit15-fg32-first-control-257",
+  "armijo_records": 64,
+  "armijo_records_byte_equivalent": true,
+  "files": [
+    {
+      "path": "output/observations.csv",
+      "baseline_sha256": "42f934892d1343db126ad32dfced2185f77f6a14a7e06e501f2cf6394ae03aeb",
+      "candidate_sha256": "42f934892d1343db126ad32dfced2185f77f6a14a7e06e501f2cf6394ae03aeb",
+      "byte_identical": true
+    },
+    {
+      "path": "output/material_state_000001_bent.json",
+      "baseline_sha256": "e14ad429062c331bb43703f36e5a09d3e17c1e181817ff63101cec900506a101",
+      "candidate_sha256": "e14ad429062c331bb43703f36e5a09d3e17c1e181817ff63101cec900506a101",
+      "byte_identical": true
+    },
+    {
+      "path": "output/material_state_000001_held_reference.json",
+      "baseline_sha256": "7cb9577cefe65539223b9d510b4191f72eb0c57175da90ffc8ce0184577eb02f",
+      "candidate_sha256": "7cb9577cefe65539223b9d510b4191f72eb0c57175da90ffc8ce0184577eb02f",
+      "byte_identical": true
+    },
+    {
+      "path": "output/accepted_step_000001_bent.obj",
+      "baseline_sha256": "690130fce829f74eebe56b3ec661c6849e87689b3a80008538424983970c35f7",
+      "candidate_sha256": "690130fce829f74eebe56b3ec661c6849e87689b3a80008538424983970c35f7",
+      "byte_identical": true
+    },
+    {
+      "path": "output/accepted_step_000001_held_reference.obj",
+      "baseline_sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f",
+      "candidate_sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f",
+      "byte_identical": true
+    }
+  ],
+  "max_measured_columns": 25,
+  "scope": "Source077 FG32 vs source076FG1024 baseline only; restart16/64Newton/physical inputs/1e-6 certificate unchanged. No complete cycle or convergence claim.",
+  "pass": true
+}

@@ -1,0 +1,53 @@
+{
+  "schema": "numi.cardboard.integrated-source-overlay.v1",
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-stateless-compensated-and-validation-admission-077",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-stable-free-graph-and-general-arithmetic-076",
+  "changed": {
+    "matter/src/constitutive_impl.cpp": {
+      "before": "379aabf5123cc5ab3c27accffaf563737c8f092fe45ed1cec790429011c1cd25",
+      "after": "1283f1eec9718dee77b94e47f5bcbbf3a30f3a81f8c75f2609b41b0d4d6ba5e9"
+    },
+    "matter/src/validation_impl.cpp": {
+      "before": "2b63b7d3fc0da732fe36edc6413e98985c7cede382904ccdbe7e020443eb1e15",
+      "after": "00e9e973eff1bb262f3ec2d2921270bef7fcc77608d191b1402569fe698374c0"
+    },
+    "matter/tools/cardboard_calibration_ensemble.py": {
+      "before": "c66d76c76e38ebad92fefc0ece93018963bda9bed422028f945fe946a9782112",
+      "after": "07a2d53ffbfa64d829b84c7624890ac1c152dcd0774b5259ee72f2d83240a5ee"
+    },
+    "matter/tools/cardboard_calibration_ensemble_test.py": {
+      "before": "a18941ba3d9af06f7c17fe755868c386d816e89154130bbcdee850b6624ae289",
+      "after": "78fa2894e0f85275abc98e262bd8416008be7e2e8544d7166a85be4c877458d7"
+    },
+    "matter/tools/cardboard_generic_compensated_projection_check.cpp": {
+      "before": "d19ff7cdb58684534f67557abc7077cd35ead4783fd848cb405730d0a170d688",
+      "after": "fba4e8c8570a75813ed3b2f8daca2a98bd0b2d2d06300367b3a0dd941297229e"
+    },
+    "matter/tools/cardboard_probe.mm": {
+      "before": "c0f258b5d2da58570baa097b834060aa136e8e4ab2a59b624e5ef5c881a3676d",
+      "after": "15d6ebf02a0608f6f1e1143b3234bf0a78bea2e29e663d41b6c14acde209c47c"
+    },
+    "matter/tools/cardboard_resolution_study.py": {
+      "before": "76adea30407281d79ad572bbfab1e71fe96ac21a65ef6afde3010a01089f5143",
+      "after": "e7bc389b8d1da9503fa6ce7e1b9eddbc6fee0756d6565a86949fa3936e23ffce"
+    },
+    "matter/tools/cardboard_shipping_memory.hpp": {
+      "before": "5ee051c26bfa0d31544999454b07b12f75fa9d95977030f7aba4bbb5fb94903e",
+      "after": "0aae6e262fa0d8a5bad06f75c6400106b1d93ee1c9a16b612544520608ead633"
+    },
+    "matter/tools/cardboard_shipping_memory_check.cpp": {
+      "before": "58b385fe0afa0566bd33c7354dd4ac1f684fa8dcc283fe8c05e7583525de02db",
+      "after": "ac0178c19572f32d39a0df3675ce63fee0662e4a64ccdc3c4e34ca1126c43a4d"
+    },
+    "matter/tools/test_cardboard_resolution_study.py": {
+      "before": "25d20927661f218b7d47972a732771600d8761f4585a94d78906480eac108d62",
+      "after": "aa544ea55a1a366f09f82af0c91b25fc95dc8aa3fb8be2a7a876fe131e6de677"
+    }
+  },
+  "overlay_manifests": {
+    "/Users/home/cardboard-implementation-20261014/analysis/stateless-generic-compensated-overlay-077/manifest.json": "1ba2eebdd5073fca94836c0dd694ab97a6742f8388b7e32819ece8b65f03a383",
+    "/Users/home/cardboard-implementation-20261014/analysis/shipping-prebuild-sparse-wiring-075-overlay/source-overlay.json": "3016b7aa930710afca5e607b510a4b86b1b053d7494b8c4b0b939c184ed70f09",
+    "/Users/home/cardboard-implementation-20261014/analysis/published-validation-admission-001/source-overlay.json": "5ca9267f3d5b598d3e0f1169a4413eaf18b6e543849918ccd6e1cfe3d31a825f",
+    "/Users/home/cardboard-implementation-20261014/analysis/resolution-graph-schwarz-reconstruction-077-overlay/manifest.json": "ec3a452d69dd9a886d274538cb7d6d5770a1aceabe6f7303e6891f40a6e62c62"
+  }
+}

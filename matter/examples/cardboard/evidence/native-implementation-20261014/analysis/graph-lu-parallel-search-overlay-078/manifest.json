@@ -1,0 +1,80 @@
+{
+  "artifacts": {
+    "checker_cli": "selector5_refinement_kernels inputs/selector5-kernel-input.bin OUT.bin NumiMatterGraphSchwarz.metallib",
+    "metallib": "evidence/NumiMatter.metallib",
+    "parity_sidecars": "OUT.bin.factor-search-parity.bin and OUT.bin.factor-search-parity.json",
+    "prepared_native_checker": "evidence/selector5_refinement_kernels"
+  },
+  "base_parent_revision": "35bfb518c542a306f563cc364ef8496837068b9a",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-stable-free-graph-and-general-arithmetic-076",
+  "base_sources_sha256": {
+    "checker_base_004": "bd4c0bbf9f360e837ae94463edb409944169d692730b7b460e0e21695691db30",
+    "frozen_source_manifest.json": "9b9047688d4da51739f97a35c0c0c24c57a38bcf4631088d4377ab9697c1d516",
+    "matter/src/metal/fgmres.metalinc": "ef2db631ef84df0d35e04808c4795d00c83e3fbb71f2b7176308c54dc44af542",
+    "matter/src/runtime.mm": "5c70789647a9c0ceacaeb10565aaaee30e2a901761c1d04e6e431fdafe0aeef1"
+  },
+  "kernel_change": {
+    "default_runtime_mode": 0,
+    "legacy_mode": 0,
+    "new_arg": "parallelSearch at buffer 13",
+    "parallel_method": "256-lane per-entry scale summaries; deterministic per-column max with lowest-row tie break; disjoint parallel row swap; invalid scan falls back to ordered diagnostic scan",
+    "parallel_search_mode": 1,
+    "preserved": "pivot floor, failure status path, FP32 lower-column division and trailing Schur update; the latter is byte-identical in overlay vs frozen base"
+  },
+  "known_compile_warnings": "Two preexisting -Wsometimes-uninitialized diagnostics for sharedValid and refinementValid also occur compiling unmodified frozen-076 kernel source; this overlay does not change those variables.",
+  "overlay_sha256": {
+    "README.md": "251274fac6290adff22eaf38192aaa83848307464b48b7deb5faf0434f2b9570",
+    "checker/extend-prepared-input-parity.patch": "73dda4c114c47b0f4880285a1e7c8f8cbfeb28ac23c85b3d348bc95af7f0e877",
+    "checker/selector5_refinement_kernels.mm": "bf29b7f3c9dbb7209e65e05c133cacdd02bee396e8db8c765a845be4c723d411",
+    "evidence/NumiMatter.air": "026fea105a171077a02e7e24dafbad0633ab3d686c111d4d3c934c3086b061a4",
+    "evidence/NumiMatter.metallib": "a2b1bc7b775c2b49d633f429b8e1f20f28811a3138ff504647a90136ee59194e",
+    "evidence/checker-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "evidence/checker-syntax.log": "b8a6e28ddf5d36b4d88dba9badebb3a1c8a16cfe450cec05282e8f84bbd8ed2b",
+    "evidence/cpu-tests.log": "70e24ead7a4ed35c86759404af47c7653ebed2c6c60e73be2701b388781ec949",
+    "evidence/metal-compile-command.txt": "ea7702b21d67e5a5dc1102c595a901bb0b9db00b34c476d28ab64f8b5ce8519c",
+    "evidence/metal-compile.log": "7ba85a9a1c4df569fb1fb3c8289bfa43535400766b53488cfbc03504ebe82540",
+    "evidence/metallib-function-export.log": "a29c494a76194f22586c98dc5e1e03769a6d0eded286c0452b11d782f7b7d812",
+    "evidence/metallib-link.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "evidence/patch-application-check.log": "01330716f5267b3c5db1d51bff8b7a4950db00fbdc658f1e34306989a9f565b3",
+    "evidence/runtime-syntax.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "evidence/selector5_refinement_kernels": "e8f2a403d24d2d54000cc0e088edc7717c1f67f6efa0c7dc2e34121e65895a5f",
+    "inputs/bundle.json": "81a913889748d56e0fdba09258968373c19d358ac9be1c35ad02005178af42bb",
+    "inputs/selector5-kernel-input.bin": "b2619d5d7120f1e6cae40869af0a37ce14b86b29ce0a51961c95ec2c84c3de60",
+    "overlay/matter/src/matter_kernels.metal": "37d3530284e2361b20f805409768c65446fc13186c50e94f286b73256debe168",
+    "overlay/matter/src/metal/fgmres.metalinc": "937938ca6ca7b9be286d37d4423bba7d297c0498b562b12375e0c28a31015dbe",
+    "overlay/matter/src/runtime.mm": "33682ce92a4068dc308c3f1104ece30570d4da6bffabdb303cbd6f521c860dfa",
+    "source-overlay.patch": "9813e0550c27b9bb15e7d54492f0cfaa95aea38c04871ee412344c2307277f65",
+    "tests/test_lu_search_parity.py": "3769c2a903c3cc48e9055623dcf073d2a1c216697e100ac7ddcb5b94c8797e75",
+    "tests/verify_patch_application.py": "caa490e1c3c0224e2ad9c696b29f6848e6b211efae8cf52e39356274a0a24a2d"
+  },
+  "patches": {
+    "checker": "checker/extend-prepared-input-parity.patch",
+    "isolated_patch_application_check": "evidence/patch-application-check.log",
+    "production": "source-overlay.patch"
+  },
+  "prepared_input": {
+    "bundle": "inputs/bundle.json",
+    "bundle_sha256": "b2619d5d7120f1e6cae40869af0a37ce14b86b29ce0a51961c95ec2c84c3de60",
+    "dof_count": 6159,
+    "graph_patch_count": 13,
+    "native_selector5_capture_present": false,
+    "patch_node_count": 2053,
+    "qualification_limit": "Prepared kernel input uses real source-182 mesh/operator data; graph layout was rebuilt from captured topology by source-065 helper. It is not a same-build selector-5 FEM transaction.",
+    "selected_environment": 0,
+    "source_capture_selector": 3,
+    "source_mesh_nodes": 882,
+    "source_tetrahedra": 1920
+  },
+  "schema": "numi.matter.graph_lu_parallel_search_overlay.v1",
+  "status": "prepared_compile_and_cpu_verified_gpu_parity_unrun",
+  "verification": {
+    "cpu_fp32_tests": "7 passed using Python 3.10.12 with NumPy",
+    "gpu_execution": "not run",
+    "host_checker": "C++17 Objective-C++ syntax/build passed against frozen-076 matter headers",
+    "metal_compile": "passed Metal 4.0 -O3 -fno-fast-math; metallib linked and exported nm_fgmres_graph_factor_patches",
+    "native_factor_parity": "not measured",
+    "patch_application": "both patches apply to their exact bases and reproduce overlay files byte-for-byte",
+    "runtime_syntax": "C++20 Objective-C++ syntax passed against frozen-076 include roots",
+    "speedup": "not measured"
+  }
+}

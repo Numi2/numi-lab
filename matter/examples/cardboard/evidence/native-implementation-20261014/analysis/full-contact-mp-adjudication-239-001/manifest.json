@@ -1,0 +1,12 @@
+{
+  "schema": "numi.cardboard.analysis-binding.v1",
+  "files": {
+    "adjudicate.py": "b38263bafd73efe4bc126547f9e9ebad19a3c3424e9e6dfaf755845d434a45b7",
+    "report.json": "4612111247299fa0c8dc9c64c4bc66b7d5915ee1889cf35464d4d3628d3008f5",
+    "README.md": "0b42fbad174b31da4c6b597badbb2ef276be11f04f3b5b79c92bb8e62ed1d1b1"
+  },
+  "source_native_stdout_sha256": "abd718432909d33d0b49fb7a1775491da3957fe05c8d8fc73a95f4ba7fe215d3",
+  "verdict": "same_input_smooth_contact_derivative_gate_passed",
+  "native_verdict_preserved": "INCONCLUSIVE",
+  "physical_validation": false
+}

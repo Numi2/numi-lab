@@ -1,0 +1,127 @@
+{
+  "schema": "numi.matter.completed_graph_tail_overlay.v1",
+  "purpose": "Avoid rebuilding selector-5 local graph principal matrices and LU factors on later statically encoded Newton-tail iterations when the same environment has a completed nonlinear-convergence latch and its prior patch factor is valid.",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-reconciled-angular-fixture-and-probe-cli-073",
+  "base_source_files": [
+    {
+      "path": "matter/src/runtime.mm",
+      "sha256": "c3c9272fd0483b922d2ec4c489459212dbec49ca2212e23e3a3a6b499295cc72"
+    },
+    {
+      "path": "matter/src/metal/fgmres.metalinc",
+      "sha256": "389c309235b4f5aee758985c335db9c95faaf8b2eeb281e41095fc718700c42a"
+    },
+    {
+      "path": "matter/src/regional_graph_schwarz.hpp",
+      "sha256": "1356685f98c1818ad100c10e3e919db3c67a95c88ba86d86e7e009437844015a"
+    },
+    {
+      "path": "matter/tools/regional_graph_schwarz_layout_check.cpp",
+      "sha256": "8b9c08915cfa3e13be6f2628d84e0243754d41301549bcb2035e81a7faf9fb9f"
+    },
+    {
+      "path": "matter/tools/fem_regional_galerkin_native_check.mm",
+      "sha256": "2b8acd670fda06352665722d27a3f12bc5efa3e39c0515e300cd6180c0e474c0"
+    }
+  ],
+  "prerequisite_overlay": {
+    "name": "dynamic-grip-graph-overlay-001",
+    "patch": "/Users/home/cardboard-implementation-20261014/analysis/dynamic-grip-graph-overlay-001/patch.diff",
+    "patch_sha256": "8cf7b3815258f709d728e865a7d14fae8c2904e1723dbdb0d98161600bbb5adb",
+    "apply_order": 1,
+    "base_file_hashes_verified_against_source073": true
+  },
+  "tail_patch": {
+    "path": "/Users/home/cardboard-implementation-20261014/analysis/completed-graph-tail-overlay-001/tail.patch",
+    "sha256": "2c528c06973303be11b8ecd29edf75fda4a42ef0dd90f5090af6dc26f9e668d7",
+    "apply_order": 2
+  },
+  "output_files": [
+    {
+      "path": "matter/src/runtime.mm",
+      "sha256": "ed4e538d2da653e32675875223e4aaca347e3cc5f57750c22623487cf6d55e03"
+    },
+    {
+      "path": "matter/src/metal/fgmres.metalinc",
+      "sha256": "ef2db631ef84df0d35e04808c4795d00c83e3fbb71f2b7176308c54dc44af542"
+    },
+    {
+      "path": "matter/src/regional_graph_schwarz.hpp",
+      "sha256": "bbddd930b5d84868f045a085352360f1da5baaf1a0db62ba16493654bd1fb387"
+    },
+    {
+      "path": "matter/tools/regional_graph_completed_tail_check.cpp",
+      "sha256": "bfdc93f22dc12827af3620c36d675aef940f7b1a533bace9d4f8d9f44f2022d3"
+    }
+  ],
+  "source233_motivation": {
+    "run_dir": "/Users/home/cardboard-implementation-20261014/solver/sourcefit15-refined-graph-first-control-233",
+    "receipt_sha256": "d6c32710aab1718e2630eac7f2e2023a0331db27156a2a90c61c347ea4525a33",
+    "stderr_sha256": "6ccfe854402b009dfafe7e305acb21165887cbc80c4cb598b417edce92d33a20",
+    "stdout_sha256": "e71e7434f5d98fcf58833a63168c39e3ea59b8ed916bb5cfe8a8457972cb4094",
+    "receipt_exit_code": 0,
+    "receipt_timed_out": false,
+    "wall_seconds": 122.39821633399697,
+    "armijo_iteration_records": 64,
+    "per_environment": {
+      "0": {
+        "first_certified_noop_iteration": 39,
+        "certified_noop_records": 25
+      },
+      "1": {
+        "first_certified_noop_iteration": 0,
+        "certified_noop_records": 64
+      }
+    },
+    "scope_note": "The retained run predates this patch. It motivates the tail guard only; it is not evidence of patch performance or physical qualification."
+  },
+  "verification": {
+    "apply_chain": "Source-073 selected files -> dynamic-grip patch -> completed-tail patch; byte-identical to packaged overlay.",
+    "apply_chain_verified": true,
+    "completed_tail_cpu_check": {
+      "command": "clang++ -std=c++20 -O2 -Wall -Wextra -Werror -I overlay/matter/src overlay/matter/tools/regional_graph_completed_tail_check.cpp -o regional_graph_completed_tail_check && ./regional_graph_completed_tail_check",
+      "result": "PASS; regional_graph_completed_tail_checks=14",
+      "source_sha256": "bfdc93f22dc12827af3620c36d675aef940f7b1a533bace9d4f8d9f44f2022d3"
+    },
+    "dynamic_grip_cpu_layout_check": {
+      "command": "clang++ -std=c++20 -O2 -Wall -Wextra -Werror -I overlay/matter/src overlay/matter/tools/regional_graph_schwarz_layout_check.cpp -o regional_graph_schwarz_layout_check && ./regional_graph_schwarz_layout_check",
+      "result": "PASS; graph_schwarz_layout_checks=20",
+      "source_sha256": "87a84f8fa2a4b022de9080d3d4a6b6d14f2c6586455411228e4e1d34bedf5b09",
+      "note": "The printed synthetic allocation-shape line is not the canonical source-182 membership."
+    },
+    "runtime_or_metal_build": "NOT RUN by this overlay author; root owns integrated build/native verification.",
+    "gpu_run": "NOT RUN by this overlay author; root owns GPU verification."
+  },
+  "behavior": {
+    "rebuild_suppression_conditions": [
+      "solver iteration > 0",
+      "no forced completed-cache rebuild",
+      "no selected rich operator diagnostic capture"
+    ],
+    "per_environment_factor_reuse_conditions": [
+      "nonlinear.w completion latch set",
+      "that environment/patch factorValid is nonzero"
+    ],
+    "recomputed_unconditionally": [
+      "Newton iteration 0",
+      "active environment without completion latch",
+      "invalid previous factor",
+      "forced rebuild",
+      "selected diagnostic capture"
+    ],
+    "unchanged_paths": [
+      "graph mask validation",
+      "RAP/AP/coarse setup",
+      "active graph solves and apply",
+      "production operator",
+      "residual",
+      "Armijo selection",
+      "acceptance and final certificate"
+    ]
+  },
+  "limits": [
+    "The CPU fixture validates predicates and controlled per-environment state transitions, not Metal dispatch execution.",
+    "No native parity, runtime speedup, full-protocol completion, or physical qualification is claimed.",
+    "The optimization retains a valid factor only under the existing nonlinear latch contract; invalid prior factors always rebuild."
+  ]
+}

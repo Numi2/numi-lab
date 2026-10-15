@@ -1,0 +1,8 @@
+CPU: PASS, 49162 assertions, 4096 exhaustive support assignments, physical_steps=0
+Runtime Objective-C++ syntax: PASS
+Native prepared-input checker Objective-C++ syntax: PASS (NUMI_MATTER_METALLIB placeholder define)
+Metal shader compile: PASS; two existing warnings from source-076 fgmres.metalinc at sharedValid/refinementValid
+Patch application check against frozen source 076: PASS
+Native GPU checker: NOT RUN
+Runtime on/off state/history parity: NOT RUN
+Performance: NOT MEASURED

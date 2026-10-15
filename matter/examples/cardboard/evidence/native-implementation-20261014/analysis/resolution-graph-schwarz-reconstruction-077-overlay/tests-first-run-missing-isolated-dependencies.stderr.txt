@@ -1,0 +1,17 @@
+.....E.....
+======================================================================
+ERROR: test_plan_binds_inputs_and_freezes_full_case_matrix_without_launching (__main__.CardboardResolutionStudyTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/home/cardboard-implementation-20261014/analysis/resolution-graph-schwarz-reconstruction-077-overlay/runner/test_cardboard_resolution_study.py", line 92, in test_plan_binds_inputs_and_freezes_full_case_matrix_without_launching
+    plan = study.make_plan(
+  File "/Users/home/cardboard-implementation-20261014/analysis/resolution-graph-schwarz-reconstruction-077-overlay/runner/cardboard_resolution_study.py", line 339, in make_plan
+    sources = _default_source_paths(repo_root)
+  File "/Users/home/cardboard-implementation-20261014/analysis/resolution-graph-schwarz-reconstruction-077-overlay/runner/cardboard_resolution_study.py", line 154, in _default_source_paths
+    raise StudyError(f"required source binding is missing: {path}")
+cardboard_resolution_study.StudyError: required source binding is missing: /Users/home/cardboard-implementation-20261014/analysis/matter/tools/cardboard_probe.mm
+
+----------------------------------------------------------------------
+Ran 11 tests in 0.041s
+
+FAILED (errors=1)

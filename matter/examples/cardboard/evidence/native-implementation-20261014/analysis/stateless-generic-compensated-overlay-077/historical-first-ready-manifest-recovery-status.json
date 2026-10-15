@@ -1,0 +1,14 @@
+{
+  "schema": "numi.cardboard.historical_manifest_recovery_status.v1",
+  "requested_artifact": "/Users/home/cardboard-implementation-20261014/analysis/dynamic-grip-stable-prefix-overlay-002/manifest.json",
+  "requested_first_ready_sha256_prefix": "2e873611",
+  "recovered_original_bytes": false,
+  "available_later_revision_sha256": "f33e175531afb233de918e71e9ee359a922172b9a1852a325b3f1c52b4046eaa",
+  "frozen_source_076_overlay_manifest_sha256": "f33e175531afb233de918e71e9ee359a922172b9a1852a325b3f1c52b4046eaa",
+  "note": "The prior file was overwritten by a later syntax-check revision. A bounded search of retained analysis/snapshot files found no copy matching the cited first-ready prefix. The current later-revision bytes are preserved; no reconstructed or substituted manifest is labeled as original.",
+  "manifest_like_files_searched": 6116,
+  "search_roots": [
+    "/Users/home/cardboard-implementation-20261014",
+    "/Users/home/numi-cardboard-20261006"
+  ]
+}

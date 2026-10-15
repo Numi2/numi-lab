@@ -1,0 +1,15 @@
+Test project /tmp/cardboard-damage-cohesive-transaction-074-cmake
+    Start 1: matter.compiler.cardboard_damage_cohesive_transaction
+1/1 Test #1: matter.compiler.cardboard_damage_cohesive_transaction ...   Passed    0.66 sec
+
+100% tests passed, 0 tests failed out of 1
+
+Label Time Summary:
+cardboard    =   0.66 sec*proc (1 test)
+cohesive     =   0.66 sec*proc (1 test)
+cpu          =   0.66 sec*proc (1 test)
+damage       =   0.66 sec*proc (1 test)
+matter       =   0.66 sec*proc (1 test)
+synthetic    =   0.66 sec*proc (1 test)
+
+Total Test time (real) =   0.66 sec

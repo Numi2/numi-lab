@@ -214,6 +214,7 @@ def _native_base_arguments(run: Any) -> list[str]:
         "regional_galerkin_rap": "regional-galerkin",
         "regional_galerkin_block_jacobi": "regional-galerkin-block",
         "regional_galerkin_contact_rap": "regional-galerkin-contact",
+        "regional_galerkin_graph_schwarz_conditioning_only": "regional-galerkin-schwarz",
     }
     if preconditioner not in preconditioner_flags:
         raise StudyError(f"unsupported or missing preconditioner in baseline: {preconditioner!r}")

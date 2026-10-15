@@ -1,0 +1,468 @@
+--- a/matter/tools/cardboard_shipping_memory.hpp
++++ b/matter/tools/cardboard_shipping_memory.hpp
+@@ -35,6 +35,10 @@
+ inline constexpr std::uint32_t kShippingYIntervalCeiling = 192u;
+ inline constexpr std::uint64_t kShippingReferenceNodes = 453378u;
+ inline constexpr std::uint64_t kShippingReferenceTetrahedra = 1477728u;
++// Exact prepared FEM node count for the reference shipping topology after the
++// authored starch-side node split. This is an upper bound on contact-eligible
++// nodes because all prepared nodes are counted, including interior nodes.
++inline constexpr std::uint64_t kShippingReferencePreparedNodes = 528444u;
+ // Native shipping-memory-preflight-032 measurement at the same reference
+ // mesh and FGMRES restart 16.
+ inline constexpr std::uint64_t kShippingCase032RuntimeResidentBytes =
+@@ -143,6 +147,12 @@
+     std::uint64_t requiredFullContactArmijoBytes = 0u;
+     std::uint64_t requiredCohesiveArmijoBytes = 0u;
+     std::uint64_t sparsePrivateContactBytes = 0u;
++    bool sparsePrivateContactRequested = false;
++    bool sparsePrivateContactParity = false;
++    std::uint64_t sparsePrivateContactCapacity = 0u;
++    bool sparsePrivateContactBoundedFreeBoxScope = false;
++    std::uint64_t rigidContactPairDomainUpperBound = 0u;
++    std::string runtimeConfigurationFailure;
+     bool privateRigidContactAdmitted = true;
+     std::string privateRigidContactFailure;
+     bool requiredResidualDescentArenaAdmitted = true;
+@@ -180,6 +190,28 @@
+     if (left > std::numeric_limits<std::uint64_t>::max() - right)
+         throw std::overflow_error("shipping memory estimate overflow");
+     return left + right;
++}
++
++// Before mesh preparation, the exact reference shipping blank has a known
++// prepared-node count (including the starch-side duplicate nodes). For other
++// requested geometries, use the existing 25%-padded cardinality estimate.
++// The encoder still replaces this planning bound with exact compiled pair
++// counts and verifies the rigid-proxy layout before any trial dispatch.
++inline std::uint64_t shippingPrebuildRigidNodeUpperBound(
++    const ShippingPrebuildMemoryScreen& screen) {
++    if (screen.nominalNodeCount == kShippingReferenceNodes &&
++        screen.nominalTetrahedronCount == kShippingReferenceTetrahedra)
++        return kShippingReferencePreparedNodes;
++    return std::max(screen.nominalNodeCount, screen.estimatedNodeCount);
++}
++
++inline std::uint64_t shippingPrebuildTetrahedronUpperBound(
++    const ShippingPrebuildMemoryScreen& screen) {
++    if (screen.nominalNodeCount == kShippingReferenceNodes &&
++        screen.nominalTetrahedronCount == kShippingReferenceTetrahedra)
++        return kShippingReferenceTetrahedra;
++    return std::max(screen.nominalTetrahedronCount,
++                    screen.estimatedTetrahedronCount);
+ }
+ 
+ inline std::uint64_t shippingCombinedAllocationPeakBytes(
+@@ -509,6 +541,7 @@
+         input.compactPreconditionerRegionCount > 32u ||
+         input.contactPairCount > std::numeric_limits<std::uint32_t>::max() ||
+         input.activeContactCapacity > input.contactPairCount ||
++        input.rigidGeneralizedCapacity > std::numeric_limits<std::uint32_t>::max() ||
+         input.rigidQCapacity > std::numeric_limits<std::uint32_t>::max() ||
+         input.deformableContactCapacity > std::numeric_limits<std::uint32_t>::max() ||
+         input.rigidProxyCount > std::numeric_limits<std::uint32_t>::max() ||
+@@ -541,6 +574,14 @@
+ 
+     ShippingMemoryBudget result;
+     result.limitBytes = limitBytes;
++    result.sparsePrivateContactRequested =
++        input.sparsePrivateContactRequested;
++    result.sparsePrivateContactParity = input.sparsePrivateContactParity;
++    result.sparsePrivateContactCapacity = input.sparsePrivateContactCapacity;
++    result.sparsePrivateContactBoundedFreeBoxScope =
++        input.sparsePrivateContactBoundedFreeBoxScope;
++    result.rigidContactPairDomainUpperBound = input.contactPairCount;
++    result.runtimeConfigurationFailure = input.runtimeConfigurationFailure;
+     result.staticFEMSolverFloorBytes = staticFloor.totalBytes;
+     // Decompose the measured reference runtime into exact contact allocations
+     // and a conservative remainder. Scale the remainder with the FEM/tet/
+@@ -997,10 +1038,65 @@
+     std::uint64_t cohesiveFaceUpperBound = 0u;
+     std::uint64_t rigidProxyCount = 0u;
+     std::uint64_t rigidBodyCount = 0u;
++    std::uint64_t rigidGeneralizedCapacity = 6u;
+     std::uint64_t fgmresRestart = kShippingFgmresRestartCeiling;
+     bool compactImmutableSurfaceMap = false;
+     bool requireFullContactResidualDescent = false;
++    bool deformableSelfContactEnabled = false;
++    bool sparsePrivateContactRequested = false;
++    bool sparsePrivateContactParity = false;
++    std::uint64_t sparsePrivateContactCapacity = 0u;
++    // This describes only the known shipping source's intended proxy recipe
++    // at the prebuild stage. Exact compiled proxies must still pass
++    // shippingSparsePrivateBoundedFreeBoxLayout before runtime dispatch.
++    bool sparsePrivateContactBoundedFreeBoxScope = false;
++    std::string runtimeConfigurationFailure;
+ };
++
++[[nodiscard]] inline bool shippingPrebuildBoundedFreeBoxScopeCandidate(
++    const bool shippingBox,
++    const bool nativeSceneExecution,
++    const std::uint64_t rigidProxyCount,
++    const std::uint64_t rigidBodyCount,
++    const std::uint64_t rigidGeneralizedCapacity,
++    const std::uint64_t expectedRigidProxyCount,
++    const std::uint64_t expectedRigidBodyCount) noexcept {
++    // This recognizes only the fixed source recipe that emits the shipping
++    // scene. It is deliberately weaker than the compiled-world predicate:
++    // the actual proxy records and body bridge are checked again after compile.
++    return shippingBox && nativeSceneExecution &&
++        rigidProxyCount == expectedRigidProxyCount &&
++        rigidBodyCount == expectedRigidBodyCount &&
++        rigidGeneralizedCapacity == 6u;
++}
++
++inline void configureShippingPrebuildSparsePrivateContact(
++    ShippingPrebuildArenaOptions& options,
++    const char* capacityText,
++    const char* parityText,
++    const bool fullContactWillBeSelected,
++    const bool boundedFreeBoxScopeCandidate) {
++    const auto sparse = parseShippingSparsePrivateContactOptions(
++        capacityText, parityText);
++    if (sparse.error != nullptr) {
++        options.sparsePrivateContactRequested = false;
++        options.sparsePrivateContactParity = false;
++        options.sparsePrivateContactCapacity = 0u;
++        options.sparsePrivateContactBoundedFreeBoxScope = false;
++        if (options.runtimeConfigurationFailure.empty())
++            options.runtimeConfigurationFailure = sparse.error;
++        return;
++    }
++    options.sparsePrivateContactRequested = sparse.requested;
++    options.sparsePrivateContactParity = sparse.parity;
++    options.sparsePrivateContactCapacity = sparse.capacity;
++    options.sparsePrivateContactBoundedFreeBoxScope =
++        sparse.requested && boundedFreeBoxScopeCandidate;
++    if (sparse.requested && !fullContactWillBeSelected &&
++        options.runtimeConfigurationFailure.empty())
++        options.runtimeConfigurationFailure =
++            "sparse private contact capacity requires the full-contact Armijo selector";
++}
+ 
+ inline ShippingMemoryBudget estimateShippingPrebuildMemoryBudget(
+     const ShippingPrebuildMemoryScreen& screen,
+@@ -1010,11 +1106,16 @@
+         options.fgmresRestart == 0u ||
+         options.fgmresRestart > kShippingFgmresRestartCeiling ||
+         options.rigidProxyCount > std::numeric_limits<std::uint32_t>::max() ||
+-        options.rigidBodyCount > std::numeric_limits<std::uint32_t>::max())
++        options.rigidBodyCount > std::numeric_limits<std::uint32_t>::max() ||
++        options.rigidGeneralizedCapacity > std::numeric_limits<std::uint32_t>::max() ||
++        options.sparsePrivateContactCapacity >
++            std::numeric_limits<std::uint32_t>::max() ||
++        (options.sparsePrivateContactParity &&
++         !options.sparsePrivateContactRequested))
+         throw std::invalid_argument("shipping prebuild arena options are invalid");
+     ShippingMemoryBudgetInput input;
+-    input.nodeCount = screen.nominalNodeCount;
+-    input.tetrahedronCount = screen.nominalTetrahedronCount;
++    input.nodeCount = shippingPrebuildRigidNodeUpperBound(screen);
++    input.tetrahedronCount = shippingPrebuildTetrahedronUpperBound(screen);
+     input.cohesiveFaceCount = options.cohesiveFaceUpperBound;
+     // Every authored proxy could pair with every contact-eligible FEM node.
+     // Contact nodes are a subset, so this is a safe precompile upper bound.
+@@ -1026,7 +1127,7 @@
+     input.deformableContactCapacity = options.deformableContactCapacity == 0u
+         ? shippingMemoryCheckedMultiply(input.tetrahedronCount, 8u)
+         : options.deformableContactCapacity;
+-    input.rigidGeneralizedCapacity = 6u;
++    input.rigidGeneralizedCapacity = options.rigidGeneralizedCapacity;
+     input.materialStateStride = 32u;
+     input.compactPreconditionerRegionCount = 3u;
+     input.environmentCount = 1u;
+@@ -1034,6 +1135,14 @@
+     input.compactImmutableSurfaceMap = options.compactImmutableSurfaceMap;
+     input.fullContactArmijoRequired =
+         options.requireFullContactResidualDescent;
++    input.deformableSelfContactEnabled =
++        options.deformableSelfContactEnabled;
++    input.sparsePrivateContactRequested =
++        options.sparsePrivateContactRequested;
++    input.sparsePrivateContactParity = options.sparsePrivateContactParity;
++    input.sparsePrivateContactCapacity = options.sparsePrivateContactCapacity;
++    input.sparsePrivateContactBoundedFreeBoxScope =
++        options.sparsePrivateContactBoundedFreeBoxScope;
+     // A compact map cannot exceed the legacy all-four-faces-per-tet domain.
+     // Use that bound before compile; exact compact counts replace it after.
+     input.surfaceFaceCount = options.compactImmutableSurfaceMap
+@@ -1051,7 +1160,16 @@
+     input.retainedCompleteCheckpointCount = 2u;
+     input.estimatedSnapshotPayloadBytes =
+         estimateShippingSnapshotPayloadBytes(input);
+-    return estimateShippingMemoryBudget(input);
++    ShippingMemoryBudget budget = estimateShippingMemoryBudget(input);
++    if (!options.runtimeConfigurationFailure.empty()) {
++        budget.runtimeConfigurationFailure =
++            options.runtimeConfigurationFailure;
++        budget.requiredResidualDescentArenaAdmitted = false;
++        budget.requiredResidualDescentArenaFailure =
++            options.runtimeConfigurationFailure;
++        budget.withinLimit = false;
++    }
++    return budget;
+ }
+ 
+ struct ShippingRuntimeMemoryObservation {
+--- a/matter/tools/cardboard_probe.mm
++++ b/matter/tools/cardboard_probe.mm
+@@ -4993,14 +4993,36 @@
+     options.cohesiveFaceUpperBound =
+         (arguments.shippingStarchLaw || arguments.shippingHmaLaw)
+             ? shippingMemoryCheckedMultiply(
+-                  screen.nominalTetrahedronCount, 1u) / 5u : 0u;
++                  shippingPrebuildTetrahedronUpperBound(screen), 1u) / 5u : 0u;
+     options.rigidProxyCount = arguments.shippingBox
+         ? kShippingRigidProxyCount : 0u;
+     options.rigidBodyCount = arguments.shippingBox
+         ? kShippingRigidBodyCount : 0u;
++    options.rigidGeneralizedCapacity = arguments.shippingBox ? 6u : 0u;
+     options.fgmresRestart = arguments.fgmresRestart;
+     options.compactImmutableSurfaceMap = arguments.compactImmutableSurfaces;
+     options.requireFullContactResidualDescent = arguments.shippingBox;
++    options.deformableSelfContactEnabled = arguments.shippingBox &&
++        !arguments.glueMaterial.empty() && !arguments.disableSelfContact;
++
++    const auto fullContactSelector = parseShippingFullContactSelector(
++        std::getenv("NM_FEM_FULL_CONTACT_RESIDUAL_ARMIJO_ROOT"));
++    const bool fullContactWillBeSelected = arguments.boxAssemblyNative ||
++        (fullContactSelector.requested && fullContactSelector.error == nullptr);
++    const bool boundedFreeBoxScopeCandidate =
++        shippingPrebuildBoundedFreeBoxScopeCandidate(
++            arguments.shippingBox, arguments.boxAssemblyNative,
++            options.rigidProxyCount, options.rigidBodyCount,
++            options.rigidGeneralizedCapacity,
++            kShippingRigidProxyCount, kShippingRigidBodyCount);
++    configureShippingPrebuildSparsePrivateContact(
++        options,
++        std::getenv("NM_FEM_FULL_CONTACT_SPARSE_PRIVATE_CAPACITY"),
++        std::getenv("NM_FEM_FULL_CONTACT_SPARSE_PRIVATE_PARITY"),
++        fullContactWillBeSelected, boundedFreeBoxScopeCandidate);
++    if (fullContactSelector.error != nullptr &&
++        options.runtimeConfigurationFailure.empty())
++        options.runtimeConfigurationFailure = fullContactSelector.error;
+     auto budget = estimateShippingPrebuildMemoryBudget(screen, options);
+     if (arguments.femPreconditioner ==
+             FEMPreconditionerMode::regionalGalerkin ||
+@@ -5309,12 +5331,19 @@
+            << "  \"estimated_cardinality\": {\"nodes\": "
+            << estimate.estimatedNodeCount << ", \"tetrahedra\": "
+            << estimate.estimatedTetrahedronCount << "},\n"
++           << "  \"arena_topology_upper_bound\": {\"prepared_nodes\": "
++           << numi::cardboard::shippingPrebuildRigidNodeUpperBound(estimate)
++           << ", \"tetrahedra\": "
++           << numi::cardboard::shippingPrebuildTetrahedronUpperBound(estimate)
++           << ", \"rigid_pair_domain\": "
++           << budget.rigidContactPairDomainUpperBound << "},\n"
+            << "  \"contact_allocation_options\": {\"compact_immutable_surface_map_requested\": "
+            << (arguments.compactImmutableSurfaces ? "true" : "false")
+            << ", \"prebuild_surface_face_upper_bound\": "
+            << (arguments.compactImmutableSurfaces
+                    ? numi::cardboard::shippingMemoryCheckedMultiply(
+-                         estimate.nominalTetrahedronCount, 4u)
++                         numi::cardboard::shippingPrebuildTetrahedronUpperBound(
++                             estimate), 4u)
+                    : 0u)
+            << ", \"deformable_contact_capacity_requested\": "
+            << (arguments.deformableContactCapacityProvided
+@@ -5323,7 +5352,8 @@
+            << (arguments.deformableContactCapacityProvided
+                    ? arguments.deformableContactCapacity
+                    : numi::cardboard::shippingMemoryCheckedMultiply(
+-                         estimate.nominalTetrahedronCount, 8u))
++                         numi::cardboard::shippingPrebuildTetrahedronUpperBound(
++                             estimate), 8u))
+            << ", \"rigid_proxy_count_bound\": "
+            << (arguments.shippingBox
+                    ? numi::cardboard::kShippingRigidProxyCount : 0u)
+@@ -5333,9 +5363,26 @@
+            << ", \"contact_pair_count_upper_bound\": "
+            << (arguments.shippingBox
+                    ? numi::cardboard::shippingMemoryCheckedMultiply(
+-                         estimate.nominalNodeCount,
++                         numi::cardboard::shippingPrebuildRigidNodeUpperBound(
++                             estimate),
+                          numi::cardboard::kShippingRigidProxyCount)
+                    : 0u) << "},\n"
++           << "  \"prebuild_sparse_private_contact_candidate\": {\"requested\": "
++           << (budget.sparsePrivateContactRequested ? "true" : "false")
++           << ", \"capacity\": " << budget.sparsePrivateContactCapacity
++           << ", \"parity\": "
++           << (budget.sparsePrivateContactParity ? "true" : "false")
++           << ", \"bounded_free_box_scope_candidate\": "
++           << (budget.sparsePrivateContactBoundedFreeBoxScope ? "true" : "false")
++           << ", \"pair_domain_upper_bound\": "
++           << budget.rigidContactPairDomainUpperBound
++           << ", \"private_rigid_admitted\": "
++           << (budget.privateRigidContactAdmitted ? "true" : "false")
++           << ", \"sparse_private_bytes\": "
++           << budget.sparsePrivateContactBytes
++           << ", \"runtime_configuration_failure\": \""
++           << jsonEscape(budget.runtimeConfigurationFailure) << "\""
++           << ", \"actual_compiled_proxy_gate_required\": true},\n"
+            << "  \"required_residual_descent\": {\"required_for_shipping_physics\": "
+            << (arguments.shippingBox ? "true" : "false")
+            << ", \"runtime_private_arenas_allocated\": false"
+@@ -5386,7 +5433,7 @@
+            << budget.uploadStagingBytes << ", \"host_mesh_compile\": "
+            << budget.hostMeshAndCompileBytes << ", \"host_checkpoints\": "
+            << budget.hostCheckpointBytes << "},\n"
+-           << "  \"estimate_method\": \"Pre-allocation gate uses nominal cardinality scaled from the compiled reference shipping mesh. A separate 25%-padded cardinality screen is reported as stress context. The nominal arena estimate uses the exact legacy or explicit deformable-contact capacity, a conservative 4*T surface upper bound, the 12 reusable score/assembly rigid proxies with every FEM node treated contact-eligible (unless preflight-only omits tools), a cohesive reserve only when a cohesive law is requested, measured case032 noncontact runtime remainder scaled by FEM/tet/Krylov floor, optional RAP/private arenas, upload staging and host/checkpoint reserves. After compile, exact dispatch capacities and compact surface counts replace these bounds\",\n"
++           << "  \"estimate_method\": \"Pre-allocation gate uses all prepared nodes and tetrahedra: exact counts for the fixed reference topology, otherwise the 25%-padded cardinality estimates. The all-node rigid-pair upper bound includes the starch-side split and counts interior FEM nodes, so it is conservative for contact-eligible nodes. Sparse trial-sample capacity is modeled only when explicitly requested; persistent canonical pair/history storage remains dense. The bounded free-BOX scope is a candidate based on the fixed shipping recipe, not an admission: the compiled proxy/body layout and runtime still recheck it. Full-contact node/tet/cohesive arena caps remain separately mandatory, and an optimistic sparse rigid estimate cannot override them. After compile, exact dispatch capacities and proxy layout replace these bounds\",\n"
+            << "  \"exact_compiled_arena_report_still_required\": true,\n"
+            << "  \"native_runtime_observation_still_required\": true,\n"
+            << "  \"qualification_allowed\": false\n}\n";
+--- a/matter/tools/cardboard_shipping_memory_check.cpp
++++ b/matter/tools/cardboard_shipping_memory_check.cpp
+@@ -83,6 +83,42 @@
+     generalizedQ.rigidQCapacity = 1u;
+     require(!shippingSparsePrivateBoundedFreeBoxLayout(generalizedQ, proxies),
+             "nonzero rigid Q capacity passed the sparse bounded free-body scope");
++
++    const bool prebuildScopeCandidate =
++        shippingPrebuildBoundedFreeBoxScopeCandidate(
++            true, true, kShippingRigidProxyCount, kShippingRigidBodyCount,
++            6u, kShippingRigidProxyCount, kShippingRigidBodyCount);
++    require(prebuildScopeCandidate &&
++                !shippingPrebuildBoundedFreeBoxScopeCandidate(
++                    true, false, kShippingRigidProxyCount,
++                    kShippingRigidBodyCount, 6u,
++                    kShippingRigidProxyCount, kShippingRigidBodyCount) &&
++                !shippingPrebuildBoundedFreeBoxScopeCandidate(
++                    true, true, kShippingRigidProxyCount + 1u,
++                    kShippingRigidBodyCount, 6u,
++                    kShippingRigidProxyCount, kShippingRigidBodyCount),
++            "prebuild bounded BOX candidate does not match the authored scene recipe");
++    ShippingPrebuildArenaOptions sparseOptions;
++    configureShippingPrebuildSparsePrivateContact(
++        sparseOptions, "65536", nullptr, true, prebuildScopeCandidate);
++    require(sparseOptions.sparsePrivateContactRequested &&
++                sparseOptions.sparsePrivateContactCapacity == 65536u &&
++                sparseOptions.sparsePrivateContactBoundedFreeBoxScope &&
++                sparseOptions.runtimeConfigurationFailure.empty(),
++            "prebuild sparse parser failed to propagate the explicit bounded request");
++    ShippingPrebuildArenaOptions unselectedSparseOptions;
++    configureShippingPrebuildSparsePrivateContact(
++        unselectedSparseOptions, "65536", nullptr, false,
++        prebuildScopeCandidate);
++    require(!unselectedSparseOptions.runtimeConfigurationFailure.empty(),
++            "sparse prebuild request was accepted without selected residual Armijo");
++    ShippingPrebuildArenaOptions malformedSparseOptions;
++    configureShippingPrebuildSparsePrivateContact(
++        malformedSparseOptions, "65k", nullptr, true,
++        prebuildScopeCandidate);
++    require(malformedSparseOptions.sparsePrivateContactCapacity == 0u &&
++                !malformedSparseOptions.runtimeConfigurationFailure.empty(),
++            "malformed prebuild sparse option did not fail closed with its parse error");
+ }
+ 
+ void run() {
+@@ -121,11 +157,15 @@
+     require(preflightOnlyBudget.withinLimit,
+             "shipping preflight-only arena estimate exceeded the 16 GiB planning limit");
+     const std::uint64_t expectedPrebuildSourceBytes = shippingMemoryCheckedAdd(
+-        shippingMemoryCheckedMultiply(prebuild.nominalNodeCount, 256u),
+-        shippingMemoryCheckedMultiply(prebuild.nominalTetrahedronCount, 512u));
++        shippingMemoryCheckedMultiply(
++            shippingPrebuildRigidNodeUpperBound(prebuild), 256u),
++        shippingMemoryCheckedMultiply(
++            shippingPrebuildTetrahedronUpperBound(prebuild), 512u));
+     const std::uint64_t expectedPrebuildCompiledBytes = shippingMemoryCheckedAdd(
+-        shippingMemoryCheckedMultiply(prebuild.nominalNodeCount, 128u),
+-        shippingMemoryCheckedMultiply(prebuild.nominalTetrahedronCount, 256u));
++        shippingMemoryCheckedMultiply(
++            shippingPrebuildRigidNodeUpperBound(prebuild), 128u),
++        shippingMemoryCheckedMultiply(
++            shippingPrebuildTetrahedronUpperBound(prebuild), 256u));
+     const std::uint64_t expectedPrebuildHostReserve = shippingMemoryCheckedAdd(
+         shippingMemoryCheckedAdd(expectedPrebuildSourceBytes,
+                                  expectedPrebuildCompiledBytes),
+@@ -205,6 +245,76 @@
+                 !requiredFullDefaultCapacityBudget.requiredResidualDescentArenaAdmitted &&
+                 requiredFullDefaultCapacityBudget.requiredRigidContactArmijoBytes > 0u,
+             "shipping estimate admitted required full-contact arenas beyond the native pair cap");
++    require(requiredFullDefaultCapacityBudget.rigidContactPairDomainUpperBound ==
++                kShippingReferencePreparedNodes * observedProxyCount &&
++                requiredFullDefaultCapacityBudget.estimatedPeakDomainBytes >
++                    29'000'000'000ull &&
++                requiredFullDefaultCapacityBudget.estimatedPeakDomainBytes <
++                    31'000'000'000ull &&
++                !requiredFullDefaultCapacityBudget.sparsePrivateContactRequested,
++            "dense default no longer uses the prepared-node pair upper bound or near-30-GB planning envelope");
++
++    ShippingPrebuildArenaOptions sparsePrebuildOptions = fullWorldOptions;
++    sparsePrebuildOptions.requireFullContactResidualDescent = true;
++    sparsePrebuildOptions.deformableSelfContactEnabled = true;
++    configureShippingPrebuildSparsePrivateContact(
++        sparsePrebuildOptions, "65536", nullptr, true, true);
++    const auto sparsePrebuildBudget = estimateShippingPrebuildMemoryBudget(
++        prebuild, sparsePrebuildOptions);
++    const auto preparedPairDomain = static_cast<std::uint32_t>(
++        kShippingReferencePreparedNodes * observedProxyCount);
++    const auto sparsePrebuildAdmission =
++        numi::matter::detail::admitSparsePrivateContact(
++            1u, preparedPairDomain, 65536u, false, true, true);
++    require(sparsePrebuildBudget.rigidContactPairDomainUpperBound ==
++                preparedPairDomain &&
++                preparedPairDomain >= 527964u * observedProxyCount &&
++                sparsePrebuildBudget.sparsePrivateContactRequested &&
++                sparsePrebuildBudget.sparsePrivateContactCapacity == 65536u &&
++                sparsePrebuildBudget.sparsePrivateContactBoundedFreeBoxScope &&
++                sparsePrebuildBudget.privateRigidContactAdmitted &&
++                sparsePrebuildBudget.sparsePrivateContactBytes ==
++                    sparsePrebuildAdmission.totalBytes &&
++                sparsePrebuildAdmission.admitted(),
++            "prebuild sparse-private budget did not carry the runtime capacity, bounded layout, or conservative prepared-node pair domain");
++    require(!sparsePrebuildBudget.requiredResidualDescentArenaAdmitted &&
++                !sparsePrebuildBudget.withinLimit &&
++                sparsePrebuildBudget.requiredFullContactArmijoBytes > 0u &&
++                sparsePrebuildBudget.requiredCohesiveArmijoBytes > 0u,
++            "sparse prebuild incorrectly implied that the shipping full-contact/cohesive topology caps are available");
++
++    auto missingBoundedScope = sparsePrebuildOptions;
++    missingBoundedScope.sparsePrivateContactBoundedFreeBoxScope = false;
++    const auto missingScopeBudget = estimateShippingPrebuildMemoryBudget(
++        prebuild, missingBoundedScope);
++    require(!missingScopeBudget.privateRigidContactAdmitted &&
++                !missingScopeBudget.requiredResidualDescentArenaAdmitted &&
++                missingScopeBudget.privateRigidContactFailure.find(
++                    "free-rigid residual is limited") != std::string::npos,
++            "sparse free-body prebuild admitted without the exact bounded BOX scope candidate");
++
++    auto overflowCapacity = sparsePrebuildOptions;
++    overflowCapacity.sparsePrivateContactCapacity =
++        preparedPairDomain + 1ull;
++    const auto overflowCapacityBudget = estimateShippingPrebuildMemoryBudget(
++        prebuild, overflowCapacity);
++    require(!overflowCapacityBudget.privateRigidContactAdmitted &&
++                !overflowCapacityBudget.requiredResidualDescentArenaAdmitted,
++            "prebuild sparse candidate capacity larger than its pair domain was admitted");
++
++    auto invalidRuntimeOption = sparsePrebuildOptions;
++    invalidRuntimeOption.runtimeConfigurationFailure =
++        "synthetic malformed sparse-capacity selector";
++    const auto invalidRuntimeOptionBudget = estimateShippingPrebuildMemoryBudget(
++        prebuild, invalidRuntimeOption);
++    require(!invalidRuntimeOptionBudget.withinLimit &&
++                !invalidRuntimeOptionBudget.requiredResidualDescentArenaAdmitted &&
++                invalidRuntimeOptionBudget.runtimeConfigurationFailure ==
++                    invalidRuntimeOption.runtimeConfigurationFailure &&
++                invalidRuntimeOptionBudget.requiredResidualDescentArenaFailure ==
++                    invalidRuntimeOption.runtimeConfigurationFailure,
++            "malformed sparse runtime selection did not fail closed in the prebuild screen");
++
+     fullWorldOptions.deformableContactCapacity = 1048576u;
+     const auto explicitCapacityBudget =
+         estimateShippingPrebuildMemoryBudget(prebuild, fullWorldOptions);
+@@ -218,6 +328,11 @@
+     require(longer.estimatedNodeCount > prebuild.estimatedNodeCount &&
+                 longer.estimatedTetrahedronCount > prebuild.estimatedTetrahedronCount,
+             "prebuild screen did not grow with requested flute intervals");
++    require(shippingPrebuildRigidNodeUpperBound(longer) ==
++                longer.estimatedNodeCount &&
++                shippingPrebuildTetrahedronUpperBound(longer) ==
++                    longer.estimatedTetrahedronCount,
++            "non-reference prebuild arena bounds did not use padded topology counts");
+     const auto moreYIntervals = screenShippingPrebuildMemory(
+         1.025, 0.0079, 1u, kShippingFgmresRestartCeiling, 64u, 1u);
+     const auto thicker = screenShippingPrebuildMemory(1.025, 0.0079, 1u,

@@ -1,0 +1,147 @@
+--- a/matter/tools/cardboard_probe.mm
++++ b/matter/tools/cardboard_probe.mm
+@@ -382,6 +382,104 @@
+             << arguments.shippingScoreDepthRatio << '\n'
+             << "score_tool_speed_m_s=" << arguments.shippingScoreToolSpeedMPerS << '\n';
+     return hexDigest(sha256(binding.str()));
++}
++
++std::string shippingCapacityBindingJson(
++    const Arguments& arguments,
++    const CompiledWorld& world,
++    const std::filesystem::path& outputDirectory,
++    const std::filesystem::path& assembledMatterCheckpoint,
++    const std::string& assembledRigidSidecarSha256,
++    const std::string& nominalCurveSha256,
++    const std::uint64_t nominalPeakSampleIndex,
++    const std::uint64_t nominalAcceptedSampleCount,
++    const double nominalTerminalStrokeFraction,
++    const bool nominalFullStrokeCompleted,
++    const bool nominalRateSensitivityPassed) {
++    if (!arguments.shippingBox || !arguments.shippingCapacityQualification.has_value())
++        return "null";
++
++    require(arguments.shippingDesign.has_value(),
++            "qualified capacity binding requires the frozen shipping design input");
++    const auto& qualification = *arguments.shippingCapacityQualification;
++    require(qualification.schema ==
++                numi::cardboard::kShippingCapacityQualificationSchema,
++            "capacity binding requested for a non-v2 qualification");
++    require(numi::cardboard::shippingCapacityDigestValid(
++                arguments.shippingCapacityQualificationSha256) &&
++                numi::cardboard::shippingCapacityDigestValid(
++                    qualification.sourceBindingSha256) &&
++                numi::cardboard::shippingCapacityDigestValid(
++                    qualification.assembledMatterCheckpointSha256) &&
++                numi::cardboard::shippingCapacityDigestValid(
++                    qualification.assembledRigidSidecarSha256) &&
++                numi::cardboard::shippingCapacityDigestValid(nominalCurveSha256) &&
++                numi::cardboard::shippingCapacityDigestValid(assembledRigidSidecarSha256),
++            "qualified capacity result is missing an artifact digest");
++    require(std::filesystem::is_regular_file(assembledMatterCheckpoint),
++            "qualified capacity result is missing its assembled Matter checkpoint");
++    const auto branchHistoryPath = outputDirectory / "shipping-compression.csv";
++    require(std::filesystem::is_regular_file(branchHistoryPath),
++            "qualified capacity result is missing its branch-history CSV");
++    const double insideHeightM = arguments.shippingDesign->defaults.inside.heightY;
++    require(std::isfinite(insideHeightM) && insideHeightM > 0.0 &&
++                std::isfinite(nominalTerminalStrokeFraction),
++            "qualified capacity result has invalid inside-height or stroke fraction");
++    const std::string sourceBindingSha256 = shippingSourceBindingDigest(arguments);
++    const std::string assembledMatterCheckpointSha256 =
++        hexDigest(sha256File(assembledMatterCheckpoint));
++    const std::string branchHistorySha256 = hexDigest(sha256File(branchHistoryPath));
++    require(qualification.boardRecipeId == "literature2009" &&
++                qualification.sourceBindingSha256 == sourceBindingSha256 &&
++                qualification.assembledMatterCheckpointSha256 ==
++                    assembledMatterCheckpointSha256 &&
++                qualification.assembledRigidSidecarSha256 ==
++                    assembledRigidSidecarSha256 &&
++                qualification.nominalCurveSha256 == nominalCurveSha256 &&
++                qualification.nominalPeakSampleIndex == nominalPeakSampleIndex &&
++                qualification.nominalAcceptedSampleCount ==
++                    nominalAcceptedSampleCount &&
++                qualification.nominalFullStrokeCompleted ==
++                    nominalFullStrokeCompleted &&
++                qualification.nominalRateSensitivityPassed ==
++                    nominalRateSensitivityPassed &&
++                qualification.meshReportSha256.size() == 64u &&
++                qualification.timeReportSha256.size() == 64u,
++            "qualified capacity result no longer matches the validated v2 inputs");
++
++    std::ostringstream json;
++    json << std::setprecision(17)
++         << "{\"schema\":\"numi.cardboard.native-bct-capacity-binding.v1\""
++         << ",\"capacity_qualification_sha256\":\""
++         << arguments.shippingCapacityQualificationSha256 << "\""
++         << ",\"board_recipe_id\":\""
++         << jsonEscape(qualification.boardRecipeId) << "\""
++         << ",\"source_physics_fingerprint\":" << world.physicsFingerprint
++         << ",\"device_program_fingerprint\":" << world.fingerprint
++         << ",\"compiled_world_fingerprint\":" << world.fingerprint
++         << ",\"source_binding_sha256\":\"" << sourceBindingSha256 << "\""
++         << ",\"assembled_matter_checkpoint_sha256\":\""
++         << assembledMatterCheckpointSha256 << "\""
++         << ",\"assembled_rigid_sidecar_sha256\":\""
++         << assembledRigidSidecarSha256 << "\""
++         << ",\"nominal_curve_sha256\":\"" << nominalCurveSha256 << "\""
++         << ",\"nominal_peak_sample_index\":" << nominalPeakSampleIndex
++         << ",\"nominal_accepted_sample_count\":"
++         << nominalAcceptedSampleCount
++         << ",\"nominal_terminal_stroke_fraction\":"
++         << nominalTerminalStrokeFraction
++         << ",\"nominal_full_stroke_completed\":"
++         << (nominalFullStrokeCompleted ? "true" : "false")
++         << ",\"nominal_rate_sensitivity_passed\":"
++         << (nominalRateSensitivityPassed ? "true" : "false")
++         << ",\"inside_height_m\":" << insideHeightM
++         << ",\"mesh_report_sha256\":\""
++         << qualification.meshReportSha256 << "\""
++         << ",\"time_report_sha256\":\""
++         << qualification.timeReportSha256 << "\""
++         << ",\"compression_branch_history_sha256\":\""
++         << branchHistorySha256 << "\"}";
++    return json.str();
+ }
+ 
+ std::string shippingBlankGeometryBindingDigest(const MeshSource& mesh) {
+@@ -10618,6 +10716,11 @@
+     std::ofstream result(arguments.output / "box-native-result.json");
+     if (arguments.shippingBox && !springbackRowsWritten)
+         writeSpringbackRows(false, "release_protocol_not_reached");
++    if (arguments.shippingBox) {
++        shippingCompressionLedger.flush();
++        require(shippingCompressionLedger.good(),
++                "failed flushing the accepted compression branch ledger before binding");
++    }
+     const std::string finalStatus = shapeFitRejection ? "shape_fit_rejected" :
+         nativeFailure ? "failed_native" :
+         blockedByBondLaw ? "blocked_missing_cohesive_law" :
+@@ -10818,6 +10921,27 @@
+            << jsonEscape(shippingCompressionNumericalQualificationStatus) << "\",\n"
+            << "  \"native_compression_numerical_capacity_qualification_passed\": "
+            << (shippingCompressionNumericallyQualified ? "true" : "false") << ",\n"
++           << "  \"shipping_capacity_binding\": ";
++    if (shippingCompressionNumericallyQualified &&
++        shippingCompressionBothBranchesReachedPeak &&
++        shippingCompressionRateSensitivityPassed) {
++        const double insideHeightM = arguments.shippingDesign
++            ? arguments.shippingDesign->defaults.inside.heightY : 0.0;
++        const double terminalFraction = insideHeightM > 0.0
++            ? shippingCompressionStrokeM / insideHeightM : 0.0;
++        result << shippingCapacityBindingJson(
++            arguments, compiled.world, arguments.output,
++            shippingCrushAssemblyCheckpointPath,
++            shippingSupportRigidSidecarSha256,
++            shippingCompressionNominalCurveSha256,
++            shippingCompressionPeakSampleIndex,
++            shippingCompressionNominalCurveSampleCount,
++            terminalFraction, shippingCompressionBothBranchesReachedPeak,
++            shippingCompressionRateSensitivityPassed);
++    } else {
++        result << "null";
++    }
++    result << ",\n"
+            << "  \"native_compression_numerical_capacity_qualification_reason\": \""
+            << jsonEscape(shippingCompressionNumericalQualificationReason) << "\",\n"
+            << "  \"native_compression_numerical_capacity_qualification_scope\": \"Fpeak mass sizing only; not source-grade or physical-box qualification\",\n"

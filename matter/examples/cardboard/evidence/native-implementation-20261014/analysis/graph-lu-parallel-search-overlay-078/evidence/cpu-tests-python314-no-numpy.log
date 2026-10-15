@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/Users/home/cardboard-implementation-20261014/analysis/graph-lu-parallel-search-overlay-078/tests/test_lu_search_parity.py", line 14, in <module>
+    import numpy as np
+ModuleNotFoundError: No module named 'numpy'

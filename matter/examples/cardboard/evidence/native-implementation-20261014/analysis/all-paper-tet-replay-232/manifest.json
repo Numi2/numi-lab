@@ -1,0 +1,161 @@
+{
+  "schema": "numi.cardboard.all-paper-tet-audit.manifest.v1",
+  "audit_directory": "/Users/home/cardboard-implementation-20261014/analysis/all-paper-tet-replay-232",
+  "native_case": {
+    "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-graph-tail-guard-angular-instrument-069",
+    "source_snapshot_identity": "source-graph-tail-guard-angular-instrument-069",
+    "source_build_record_sha256": "2b76dadb4962122620bc75d2d484aa7de9347079f56f8ce10a29633d6c00297b",
+    "source_physics_fingerprint": "ef8f0d2c7d47c012",
+    "execution_fingerprint": "34a06682b31c801f",
+    "selected_environment": 0,
+    "root": 3,
+    "newton_iteration": 23,
+    "accepted_steps_at_exit": 0,
+    "native_exit_code": 2,
+    "native_inputs_unchanged": true,
+    "limitation": "Listed source, executable and Metal libraries retained; compiler system headers and OS/driver not archived.",
+    "inputs_sha256": {
+      "source/CMakeLists.txt": "afb49b9dbbe042edbb80cdd86a9f3e01286d96e28a71232a2da447af4929c2d7"
+    },
+    "external_inputs_sha256": {
+      "/Users/home/cardboard-implementation-20261014/solver/graph-schwarz-first-control-final-newton-capture-216/inputs/external/source-build.json": "2b76dadb4962122620bc75d2d484aa7de9347079f56f8ce10a29633d6c00297b"
+    }
+  },
+  "native_build_artifacts_sha256": {
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-069/lib/libmetalrobo.dylib": "a5c29b041cc8cdc631a1db9d72cb6209ed4504e2876e94cf0870259f6340494f",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-069/matter/numi-matter-cardboard-free-box-angular-native-check": "e28111f36d5033fa53114b97e6714726c2677dbba9d42053ab17f128035cc408",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-069/matter/numi-matter-cardboard-full-contact-armijo-check": "eb0e4b548b8f97e4a065c89036fdaae60dc2b22f808788b00b5d45ecb1d6f742",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-069/matter/numi-matter-cardboard-probe": "336c3c2df7766e4a33a923560a391aace4e664200e360a3de94e3c371bcac926",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-069/matter/numi-matter-cardboard-solver-replay": "be1f2df9660530b35ed2db1588449e8d452c25d754453c54bc821db350e7732e",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-069/matter/shaders/NumiMatter.metallib": "e333aaffbef6e5142b51e3d7ce49c701b85f5de7f508ed5bbe93c45529117064",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-069/matter/shaders/NumiMatterPhysicalStateDigest.metallib": "0401b29d3ac2165153f36bea19786be653a10a242eed140e1c9008595ec1f729",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-069/shaders/MetalRobo.metallib": "61a548c69e6ec9c5c95480d54dbcf2fd851744e2a5e799397c59960e2fb27334",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-069/shaders/MetalRoboHyperPolicy.metallib": "0229cfae6afd3f1c75244e6814dd542e07a0f2a8082a636b1a6038dfa2573cef",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-069/shaders/NumiNeuron.metallib": "e7243f197f9312ff28abefc6ffe5b17b3f52916175b445e65e026f760e42665a"
+  },
+  "replay_build": {
+    "replay_cpp_sha256": "9dbe9379a2a350e6c5234151a3776ce6d83b2bf34b7742eb9df47b69a0809120",
+    "replay_binary_sha256": "7277f658c379166fd7865237a8edf7b50dec0a20d7ffdb5e570c098003832dda",
+    "source_headers": {
+      "paper_reference_sha256": "11adec4ced05ac58240bc5efac462f88bf3813a1ed41056edd9ae1347bc1f298",
+      "solver_reference_sha256": "9055ddda423484ae24482abb1fc6f00e81fd221f07cb822b89805ffdd4bb39f7"
+    }
+  },
+  "high_precision_rerun": {
+    "implementation": "mpmath independent transcription of the captured 13-state Hill/FB equations and implicit tangent; FP32 source words widened to exact scalar values; 80 dps sweeps and 50-vs-80 dps center convergence",
+    "python": "3.10.12",
+    "numpy": "2.2.5",
+    "mpmath": "1.3.0",
+    "threshold": "two adjacent centered FD refinements <= 1e-6 relative, same nonzero trial branch",
+    "verdict": "five previously unresolved rows each have adjacent same-branch passes; all five remain separate in output",
+    "zero_direction_policy": "environment 1 zero deformation directions are inconclusive, not pass"
+  },
+  "limitations": [
+    "Native capture is a rejected Newton transaction with zero accepted steps; diagnostics do not qualify a completed solver transaction.",
+    "High-precision FD is a local tangent check at a captured state; it is not a physical-material or corrugated-box validation.",
+    "Environment 1 has zero direction and no resolved FD or assembled-action relative error.",
+    "The all-tet assembled action is one captured rejected-state action, not a global residual qualification."
+  ],
+  "file_sha256": {
+    "native_capture": {
+      "path": "/Users/home/cardboard-implementation-20261014/solver/graph-schwarz-first-control-final-newton-capture-216/operator-capture",
+      "sha256": "902298a2655399972a855b48e02dd0bcb221131bd9f5640e72d9aac8ab709c77"
+    },
+    "native_prediction": {
+      "path": "/Users/home/cardboard-implementation-20261014/solver/graph-schwarz-first-control-final-newton-capture-216/prediction.json",
+      "sha256": "d6ed7a8bd8eb871a8ac4b877e1dc4f3990ed273b373c9a654072a31258f15fba"
+    },
+    "native_receipt": {
+      "path": "/Users/home/cardboard-implementation-20261014/solver/graph-schwarz-first-control-final-newton-capture-216/receipt.json",
+      "sha256": "f4b7544c749346625794db652b5bcd18f71f07368f43f598d54c47f4f91a87cc"
+    },
+    "native_source_build_record": {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-069/source-build.json",
+      "sha256": "2b76dadb4962122620bc75d2d484aa7de9347079f56f8ce10a29633d6c00297b"
+    },
+    "all_tet_summary": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/all-paper-tet-replay-231/output/summary.json",
+      "sha256": "bc1d1315a8b3035470b4fbf469e6ea475d54ac4d50b8714a1059ece010a39a86"
+    },
+    "all_tet_per_tet_audit": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/all-paper-tet-replay-231/output/paper-tetrahedron-audit.jsonl",
+      "sha256": "a27e65300fc0f73e6cfa5264d1e4de86b7011ef9a662e182efce10539eefd4a1"
+    },
+    "all_tet_replay_input": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/all-paper-tet-replay-231/output/replay-input.jsonl",
+      "sha256": "a4c466231c2dabe35bba369bead3449749b021639b114861d12d7956fc62042b"
+    },
+    "all_tet_replay_output": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/all-paper-tet-replay-231/output/replay-output.jsonl",
+      "sha256": "008b1b6c2222b26df82e6f50b219a2ba978ee1f6289e6bd2e74d3b314f54a6e1"
+    },
+    "all_tet_assembled_action": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/all-paper-tet-replay-231/output/assembled-action.json",
+      "sha256": "9bb10a801ae4eaed92972185864ecd7743a1d874200255255fa7284e669b276c"
+    },
+    "ordinary_double_fd_summary": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/all-paper-tet-replay-231/output/fp64-own-fd-summary.json",
+      "sha256": "28cf2d99366c4f2e06cb60ebad0a7dad55e5cfaece54d03312becde01098901d"
+    },
+    "ordinary_double_fd_input": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/all-paper-tet-replay-231/output/fp64-own-fd-input.txt",
+      "sha256": "8af20745ebece3320e49e4e8a286f9e9d6ba7c3b79cddfc73ecd13edbf4f6b2c"
+    },
+    "ordinary_double_fd_output": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/all-paper-tet-replay-231/output/fp64-own-fd-output.jsonl",
+      "sha256": "8947b31cace311a55e4a2e99fc5425129a6fc4c8806b327d507df90a062d2703"
+    },
+    "ordinary_double_fd_driver": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/all-paper-tet-replay-231/run_own_fp64_fd.py",
+      "sha256": "5fee57651495ebe5a30b17031c811d52d5275c1bee93f015b51104d4b1ea1d2a"
+    },
+    "high_precision_script": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/all-paper-tet-replay-232/adaptive_mp_five.py",
+      "sha256": "a5421d434827b8c35b9ade0970ea7cdad4b4bb95f796d09b114eafda49f47ebe"
+    },
+    "high_precision_output": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/all-paper-tet-replay-232/adaptive-fd-five.json",
+      "sha256": "d2cc9b9ba27c2542e76dcf0e84e91997855f26ab4f932aea952624b239b16a02"
+    },
+    "report": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/all-paper-tet-replay-232/README.md",
+      "sha256": "55e3e3c8df063dbcc19b5841648f7dad551b751e3f5d823c69f977abf68e2247"
+    },
+    "paper_reference": {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-angular-and-graph-schwarz-integrated-065/matter/tools/cardboard_paper_reference.hpp",
+      "sha256": "11adec4ced05ac58240bc5efac462f88bf3813a1ed41056edd9ae1347bc1f298"
+    },
+    "solver_reference": {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-angular-and-graph-schwarz-integrated-065/matter/tools/cardboard_solver_reference.hpp",
+      "sha256": "9055ddda423484ae24482abb1fc6f00e81fd221f07cb822b89805ffdd4bb39f7"
+    },
+    "paired_replay_source": {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-angular-and-graph-schwarz-integrated-065/matter/tools/cardboard_solver_pair_replay.cpp",
+      "sha256": "bae9ff0ba93087c93276be423023a43e393011df4553f5d5838c409212834f20"
+    },
+    "liner_material": {
+      "path": "/Users/home/numi-cardboard-20261006/matter/materials/hajali2009_liner_hill_ideal.nmatter",
+      "sha256": "787bf121f4ce359235e28691892e9d77adffde05faf10f2a90593d9f4b32398d"
+    },
+    "medium_material": {
+      "path": "/Users/home/numi-cardboard-20261006/matter/materials/hajali2009_medium_hill_ideal.nmatter",
+      "sha256": "ecfd9de3f4550a6a269d7a6559781b16e15316cf3d587093f2e11a2e6942a8e8"
+    },
+    "native_build_source_manifest_copy": {
+      "path": "/Users/home/cardboard-implementation-20261014/solver/graph-schwarz-first-control-final-newton-capture-216/inputs/external/source-build.json",
+      "sha256": "2b76dadb4962122620bc75d2d484aa7de9347079f56f8ce10a29633d6c00297b"
+    },
+    "native_build_cmake_input_copy": {
+      "path": "/Users/home/cardboard-implementation-20261014/solver/graph-schwarz-first-control-final-newton-capture-216/inputs/source/CMakeLists.txt",
+      "sha256": "afb49b9dbbe042edbb80cdd86a9f3e01286d96e28a71232a2da447af4929c2d7"
+    },
+    "liner_material_source": {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-graph-tail-guard-angular-instrument-069/matter/materials/hajali2009_liner_hill_ideal.nmatter",
+      "sha256": "787bf121f4ce359235e28691892e9d77adffde05faf10f2a90593d9f4b32398d"
+    },
+    "medium_material_source": {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-graph-tail-guard-angular-instrument-069/matter/materials/hajali2009_medium_hill_ideal.nmatter",
+      "sha256": "ecfd9de3f4550a6a269d7a6559781b16e15316cf3d587093f2e11a2e6942a8e8"
+    }
+  }
+}

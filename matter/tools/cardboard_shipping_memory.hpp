@@ -35,6 +35,10 @@ inline constexpr std::uint32_t kShippingReferenceYIntervals = 48u;
 inline constexpr std::uint32_t kShippingYIntervalCeiling = 192u;
 inline constexpr std::uint64_t kShippingReferenceNodes = 453378u;
 inline constexpr std::uint64_t kShippingReferenceTetrahedra = 1477728u;
+// Exact prepared FEM node count for the reference shipping topology after the
+// authored starch-side node split. This is an upper bound on contact-eligible
+// nodes because all prepared nodes are counted, including interior nodes.
+inline constexpr std::uint64_t kShippingReferencePreparedNodes = 528444u;
 // Native shipping-memory-preflight-032 measurement at the same reference
 // mesh and FGMRES restart 16.
 inline constexpr std::uint64_t kShippingCase032RuntimeResidentBytes =
@@ -143,6 +147,12 @@ struct ShippingMemoryBudget {
     std::uint64_t requiredFullContactArmijoBytes = 0u;
     std::uint64_t requiredCohesiveArmijoBytes = 0u;
     std::uint64_t sparsePrivateContactBytes = 0u;
+    bool sparsePrivateContactRequested = false;
+    bool sparsePrivateContactParity = false;
+    std::uint64_t sparsePrivateContactCapacity = 0u;
+    bool sparsePrivateContactBoundedFreeBoxScope = false;
+    std::uint64_t rigidContactPairDomainUpperBound = 0u;
+    std::string runtimeConfigurationFailure;
     bool privateRigidContactAdmitted = true;
     std::string privateRigidContactFailure;
     bool requiredResidualDescentArenaAdmitted = true;
@@ -180,6 +190,28 @@ inline std::uint64_t shippingMemoryCheckedAdd(
     if (left > std::numeric_limits<std::uint64_t>::max() - right)
         throw std::overflow_error("shipping memory estimate overflow");
     return left + right;
+}
+
+// Before mesh preparation, the exact reference shipping blank has a known
+// prepared-node count (including the starch-side duplicate nodes). For other
+// requested geometries, use the existing 25%-padded cardinality estimate.
+// The encoder still replaces this planning bound with exact compiled pair
+// counts and verifies the rigid-proxy layout before any trial dispatch.
+inline std::uint64_t shippingPrebuildRigidNodeUpperBound(
+    const ShippingPrebuildMemoryScreen& screen) {
+    if (screen.nominalNodeCount == kShippingReferenceNodes &&
+        screen.nominalTetrahedronCount == kShippingReferenceTetrahedra)
+        return kShippingReferencePreparedNodes;
+    return std::max(screen.nominalNodeCount, screen.estimatedNodeCount);
+}
+
+inline std::uint64_t shippingPrebuildTetrahedronUpperBound(
+    const ShippingPrebuildMemoryScreen& screen) {
+    if (screen.nominalNodeCount == kShippingReferenceNodes &&
+        screen.nominalTetrahedronCount == kShippingReferenceTetrahedra)
+        return kShippingReferenceTetrahedra;
+    return std::max(screen.nominalTetrahedronCount,
+                    screen.estimatedTetrahedronCount);
 }
 
 inline std::uint64_t shippingCombinedAllocationPeakBytes(
@@ -509,6 +541,7 @@ inline ShippingMemoryBudget estimateShippingMemoryBudget(
         input.compactPreconditionerRegionCount > 32u ||
         input.contactPairCount > std::numeric_limits<std::uint32_t>::max() ||
         input.activeContactCapacity > input.contactPairCount ||
+        input.rigidGeneralizedCapacity > std::numeric_limits<std::uint32_t>::max() ||
         input.rigidQCapacity > std::numeric_limits<std::uint32_t>::max() ||
         input.deformableContactCapacity > std::numeric_limits<std::uint32_t>::max() ||
         input.rigidProxyCount > std::numeric_limits<std::uint32_t>::max() ||
@@ -541,6 +574,14 @@ inline ShippingMemoryBudget estimateShippingMemoryBudget(
 
     ShippingMemoryBudget result;
     result.limitBytes = limitBytes;
+    result.sparsePrivateContactRequested =
+        input.sparsePrivateContactRequested;
+    result.sparsePrivateContactParity = input.sparsePrivateContactParity;
+    result.sparsePrivateContactCapacity = input.sparsePrivateContactCapacity;
+    result.sparsePrivateContactBoundedFreeBoxScope =
+        input.sparsePrivateContactBoundedFreeBoxScope;
+    result.rigidContactPairDomainUpperBound = input.contactPairCount;
+    result.runtimeConfigurationFailure = input.runtimeConfigurationFailure;
     result.staticFEMSolverFloorBytes = staticFloor.totalBytes;
     // Decompose the measured reference runtime into exact contact allocations
     // and a conservative remainder. Scale the remainder with the FEM/tet/
@@ -997,10 +1038,65 @@ struct ShippingPrebuildArenaOptions {
     std::uint64_t cohesiveFaceUpperBound = 0u;
     std::uint64_t rigidProxyCount = 0u;
     std::uint64_t rigidBodyCount = 0u;
+    std::uint64_t rigidGeneralizedCapacity = 6u;
     std::uint64_t fgmresRestart = kShippingFgmresRestartCeiling;
     bool compactImmutableSurfaceMap = false;
     bool requireFullContactResidualDescent = false;
+    bool deformableSelfContactEnabled = false;
+    bool sparsePrivateContactRequested = false;
+    bool sparsePrivateContactParity = false;
+    std::uint64_t sparsePrivateContactCapacity = 0u;
+    // This describes only the known shipping source's intended proxy recipe
+    // at the prebuild stage. Exact compiled proxies must still pass
+    // shippingSparsePrivateBoundedFreeBoxLayout before runtime dispatch.
+    bool sparsePrivateContactBoundedFreeBoxScope = false;
+    std::string runtimeConfigurationFailure;
 };
+
+[[nodiscard]] inline bool shippingPrebuildBoundedFreeBoxScopeCandidate(
+    const bool shippingBox,
+    const bool nativeSceneExecution,
+    const std::uint64_t rigidProxyCount,
+    const std::uint64_t rigidBodyCount,
+    const std::uint64_t rigidGeneralizedCapacity,
+    const std::uint64_t expectedRigidProxyCount,
+    const std::uint64_t expectedRigidBodyCount) noexcept {
+    // This recognizes only the fixed source recipe that emits the shipping
+    // scene. It is deliberately weaker than the compiled-world predicate:
+    // the actual proxy records and body bridge are checked again after compile.
+    return shippingBox && nativeSceneExecution &&
+        rigidProxyCount == expectedRigidProxyCount &&
+        rigidBodyCount == expectedRigidBodyCount &&
+        rigidGeneralizedCapacity == 6u;
+}
+
+inline void configureShippingPrebuildSparsePrivateContact(
+    ShippingPrebuildArenaOptions& options,
+    const char* capacityText,
+    const char* parityText,
+    const bool fullContactWillBeSelected,
+    const bool boundedFreeBoxScopeCandidate) {
+    const auto sparse = parseShippingSparsePrivateContactOptions(
+        capacityText, parityText);
+    if (sparse.error != nullptr) {
+        options.sparsePrivateContactRequested = false;
+        options.sparsePrivateContactParity = false;
+        options.sparsePrivateContactCapacity = 0u;
+        options.sparsePrivateContactBoundedFreeBoxScope = false;
+        if (options.runtimeConfigurationFailure.empty())
+            options.runtimeConfigurationFailure = sparse.error;
+        return;
+    }
+    options.sparsePrivateContactRequested = sparse.requested;
+    options.sparsePrivateContactParity = sparse.parity;
+    options.sparsePrivateContactCapacity = sparse.capacity;
+    options.sparsePrivateContactBoundedFreeBoxScope =
+        sparse.requested && boundedFreeBoxScopeCandidate;
+    if (sparse.requested && !fullContactWillBeSelected &&
+        options.runtimeConfigurationFailure.empty())
+        options.runtimeConfigurationFailure =
+            "sparse private contact capacity requires the full-contact Armijo selector";
+}
 
 inline ShippingMemoryBudget estimateShippingPrebuildMemoryBudget(
     const ShippingPrebuildMemoryScreen& screen,
@@ -1010,11 +1106,16 @@ inline ShippingMemoryBudget estimateShippingPrebuildMemoryBudget(
         options.fgmresRestart == 0u ||
         options.fgmresRestart > kShippingFgmresRestartCeiling ||
         options.rigidProxyCount > std::numeric_limits<std::uint32_t>::max() ||
-        options.rigidBodyCount > std::numeric_limits<std::uint32_t>::max())
+        options.rigidBodyCount > std::numeric_limits<std::uint32_t>::max() ||
+        options.rigidGeneralizedCapacity > std::numeric_limits<std::uint32_t>::max() ||
+        options.sparsePrivateContactCapacity >
+            std::numeric_limits<std::uint32_t>::max() ||
+        (options.sparsePrivateContactParity &&
+         !options.sparsePrivateContactRequested))
         throw std::invalid_argument("shipping prebuild arena options are invalid");
     ShippingMemoryBudgetInput input;
-    input.nodeCount = screen.nominalNodeCount;
-    input.tetrahedronCount = screen.nominalTetrahedronCount;
+    input.nodeCount = shippingPrebuildRigidNodeUpperBound(screen);
+    input.tetrahedronCount = shippingPrebuildTetrahedronUpperBound(screen);
     input.cohesiveFaceCount = options.cohesiveFaceUpperBound;
     // Every authored proxy could pair with every contact-eligible FEM node.
     // Contact nodes are a subset, so this is a safe precompile upper bound.
@@ -1026,7 +1127,7 @@ inline ShippingMemoryBudget estimateShippingPrebuildMemoryBudget(
     input.deformableContactCapacity = options.deformableContactCapacity == 0u
         ? shippingMemoryCheckedMultiply(input.tetrahedronCount, 8u)
         : options.deformableContactCapacity;
-    input.rigidGeneralizedCapacity = 6u;
+    input.rigidGeneralizedCapacity = options.rigidGeneralizedCapacity;
     input.materialStateStride = 32u;
     input.compactPreconditionerRegionCount = 3u;
     input.environmentCount = 1u;
@@ -1034,6 +1135,14 @@ inline ShippingMemoryBudget estimateShippingPrebuildMemoryBudget(
     input.compactImmutableSurfaceMap = options.compactImmutableSurfaceMap;
     input.fullContactArmijoRequired =
         options.requireFullContactResidualDescent;
+    input.deformableSelfContactEnabled =
+        options.deformableSelfContactEnabled;
+    input.sparsePrivateContactRequested =
+        options.sparsePrivateContactRequested;
+    input.sparsePrivateContactParity = options.sparsePrivateContactParity;
+    input.sparsePrivateContactCapacity = options.sparsePrivateContactCapacity;
+    input.sparsePrivateContactBoundedFreeBoxScope =
+        options.sparsePrivateContactBoundedFreeBoxScope;
     // A compact map cannot exceed the legacy all-four-faces-per-tet domain.
     // Use that bound before compile; exact compact counts replace it after.
     input.surfaceFaceCount = options.compactImmutableSurfaceMap
@@ -1051,7 +1160,16 @@ inline ShippingMemoryBudget estimateShippingPrebuildMemoryBudget(
     input.retainedCompleteCheckpointCount = 2u;
     input.estimatedSnapshotPayloadBytes =
         estimateShippingSnapshotPayloadBytes(input);
-    return estimateShippingMemoryBudget(input);
+    ShippingMemoryBudget budget = estimateShippingMemoryBudget(input);
+    if (!options.runtimeConfigurationFailure.empty()) {
+        budget.runtimeConfigurationFailure =
+            options.runtimeConfigurationFailure;
+        budget.requiredResidualDescentArenaAdmitted = false;
+        budget.requiredResidualDescentArenaFailure =
+            options.runtimeConfigurationFailure;
+        budget.withinLimit = false;
+    }
+    return budget;
 }
 
 struct ShippingRuntimeMemoryObservation {

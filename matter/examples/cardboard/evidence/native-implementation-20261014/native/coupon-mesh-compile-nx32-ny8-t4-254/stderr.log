@@ -1,0 +1,1 @@
+numi-matter-cardboard-probe=failed reason="Matter cardboard source compile failed: graph Schwarz FEM preconditioner requires one immutable explicit non-mixed FEM object with authored compact region IDs, at most 4096 nodes, 32768 tetrahedra, and four environments, with no contact/cohesive/rigid/field/vascular or learned coupling"

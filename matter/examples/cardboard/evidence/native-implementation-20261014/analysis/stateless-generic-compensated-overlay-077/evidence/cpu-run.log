@@ -1,0 +1,5 @@
+source_states=30 compiled_policy_fingerprint=13813050924313700946 package_policy_roundtrip=pass smooth_fp64_tangent_fd_relative_error=7.2047e-11 native_metal_execution=not_run physical_validation=false
+stateless_generic_material=nagasawa2013_medium_orthotropic ordinary_near_rest_stress_relative_error=0.925984 compensated_stress_relative_error=1.18691e-07 compensated_tangent_relative_error=8.41643e-15 policy_fingerprint=5040735660519079296 unsupported_fiber_rejected=true native_metal_execution=not_run physical_validation=false
+generic_compensated_policy_cpu_check_passed
+source_states=30 compiled_policy_fingerprint=13813050924313700946 package_policy_roundtrip=pass smooth_fp64_tangent_fd_relative_error=7.2047e-11 native_metal_execution=not_run physical_validation=false
+generic compensated projection CPU check failed: opt-in Nagasawa compensated world compile rejected: compensated arithmetic requires source-ordered 13-state Hill, stateless finite elastic starch, or a fully implicit generic bytecode layout; generic compensated projection cannot combine with Hill-only policies

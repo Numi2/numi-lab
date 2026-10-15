@@ -1,0 +1,80 @@
+{
+  "schema": "numi.cardboard.native074-audit.v1",
+  "cases": {
+    "234": {
+      "path": "/Users/home/cardboard-implementation-20261014/native/dynamic-graph-grip-transactions-234",
+      "receipt": {
+        "schema": "numi.cardboard.native-run-receipt.v2",
+        "execution_started": true,
+        "source_inputs_unchanged": true,
+        "changed_inputs": [],
+        "exit_code": 0,
+        "timed_out": false,
+        "termination_errors": [],
+        "wall_seconds": 34.008815917011816,
+        "finished_at_utc": "2026-10-15T06:34:54.323237+00:00"
+      },
+      "stdout_sha256": "79e5ea1aea542eed355ffa3f2cc73cf6bff3169e56379e9318c95b1e4cbfcfcf",
+      "receipt_sha256": "59186d96f93493d901282d69c5bd8ff710cce44bc5a7b6867d10f030726c37fb",
+      "last_line": "PASS regional RAP/block-Jacobi source-bound FP64 and selector invariance native_transactions=8 physical_validation=false grip_transition_transactions=3 graph_dynamic_mask_transactions=10 active_cohesive_transactions=2 tangent_cache_transactions=2 scope=synthetic-elastic-and-active-mortar-operator-and-pure-FEM-cache"
+    },
+    "235": {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-fp64-continuous-box-contact-235",
+      "receipt": {
+        "schema": "numi.cardboard.native-run-receipt.v2",
+        "execution_started": true,
+        "source_inputs_unchanged": true,
+        "changed_inputs": [],
+        "exit_code": 2,
+        "timed_out": false,
+        "termination_errors": [],
+        "wall_seconds": 0.8739615409867838,
+        "finished_at_utc": "2026-10-15T06:35:18.223792+00:00"
+      },
+      "stdout_sha256": "1204ce711c3a8f7fdbc10a7b6f3bb4c1ae4301732458b9153e50a7c58f3b497c",
+      "receipt_sha256": "9cc95aa2e3b4757f49bb14ebb3e7763601aea0f0d11d6d330954bf34a6ee53a2",
+      "last_line": "result=FAIL_CONTACT"
+    },
+    "236": {
+      "path": "/Users/home/cardboard-implementation-20261014/native/coupled-damage-starch-interface-transactions-236",
+      "receipt": {
+        "schema": "numi.cardboard.native-run-receipt.v2",
+        "execution_started": true,
+        "source_inputs_unchanged": true,
+        "changed_inputs": [],
+        "exit_code": 0,
+        "timed_out": false,
+        "termination_errors": [],
+        "wall_seconds": 22.290413875016384,
+        "finished_at_utc": "2026-10-15T06:35:40.799795+00:00"
+      },
+      "stdout_sha256": "81a7ea8c67163c68ac0a54bed0acd46f1ce1dc201819cc31fda2f7754193ccbf",
+      "receipt_sha256": "a5110c7d0b8f6890f2d269d4b8eda69fa34fa47b1380a79905e1d1901452fae4",
+      "last_line": "PASS native coupled synthetic transaction checks=118 native_transactions=10 parameter_sha256=1dd5b84d1dd37e61dcab0d6ee713cbb9a0730ed67dccb853c0fd204e3bcf542c matrix_damage_history=true independent_interface_activation=true full_checkpoint_rollback=true calibration=false"
+    }
+  },
+  "dynamic_grip": {
+    "accepted_transactions_per_selector": 5,
+    "environment_count": 2,
+    "worst_position_max_m": 1.37551978696e-08,
+    "worst_velocity_relative": 0.000321752060733,
+    "worst_certificate_nonlinear_max_abs": 6.31194829737e-08,
+    "all_mass_inverse_mass_match": true
+  },
+  "coupled": {
+    "native_transactions": 10,
+    "assertions": 118,
+    "synthetic_parameters": true,
+    "calibration": false
+  },
+  "contact_reference": {
+    "verdict": "FAIL_INSTRUMENT",
+    "cause": "New continuous FP64 reference used unsigned local offset for the normal; negative face and mixed-sign edge cases compare the wrong residual. Original235 preserved; signed correction is external overlay and requires sourceboundrerun.",
+    "production_operator_changed": false
+  },
+  "limits": [
+    "No complete coupon cycle or mesh/time convergence",
+    "No published-parameter damage/debonding calibration",
+    "No fixture-free shipping assembly or crush/drop"
+  ]
+}

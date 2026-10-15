@@ -1,0 +1,83 @@
+{
+  "schema": "numi.cardboard.integrated-source-overlay.v1",
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-budgeted-graph-and-rejected-contact-alpha-078",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-stateless-compensated-and-validation-admission-077",
+  "changed": {
+    "matter/CMakeLists.txt": {
+      "before": "d04624ac7ecab617bcab2ea320cc315b48e8163173f61acf4d230e98d424e5c3",
+      "after": "0a78dc3c1da25b6532085db34441957a748ea07d62a10dfc803c440e09ebf936"
+    },
+    "matter/src/metal/contact.metalinc": {
+      "before": "69c3ec930d0b382dfe278fa42c56353782438ded77d8224a3ccfd6989e3067c9",
+      "after": "9e4ce2d8213c83a9a3e58a64388562cb92638c892b21e612653e92400b654f1f"
+    },
+    "matter/src/metal/fem.metalinc": {
+      "before": "819f6724c2690c41c07972e6596624672000d35423bba3f1233e0063c47b9564",
+      "after": "a88938e11b76a6c6b4ade53007bca543c642828e9a6c91ae5ddb66e9bda0bda9"
+    },
+    "matter/src/metal/fgmres.metalinc": {
+      "before": "ef2db631ef84df0d35e04808c4795d00c83e3fbb71f2b7176308c54dc44af542",
+      "after": "937938ca6ca7b9be286d37d4423bba7d297c0498b562b12375e0c28a31015dbe"
+    },
+    "matter/src/regional_graph_schwarz.hpp": {
+      "before": "45a664b8edf49cd334e2497f5d10026597cd70a8e1792abba0bba5a4a605f781",
+      "after": "a8a6328d608ba7db4943025f15d35d750968755a8826de32b14b479752c9121d"
+    },
+    "matter/src/runtime.mm": {
+      "before": "5c70789647a9c0ceacaeb10565aaaee30e2a901761c1d04e6e431fdafe0aeef1",
+      "after": "a84a620923fc04adec48187c1b1e82eee22dd172e5cbf461a7fee53feb525021"
+    },
+    "matter/tools/cardboard_contact_node_incidence_sort_check.cpp": {
+      "before": null,
+      "after": "b0385ddbd8b24754b3b6927976a04c5406873e5e4c15aa3de9a8a580af7fa89a"
+    },
+    "matter/tools/cardboard_contact_node_incidence_sort_native_check.mm": {
+      "before": null,
+      "after": "2049f4f8805857d1d779e236ec11f1659b9d99a291bc7b6a8ddc6f4ec86d14df"
+    },
+    "matter/tools/cardboard_contact_node_incidence_sort_reference.hpp": {
+      "before": null,
+      "after": "e5a9e7c5218d93ecff90b8469717fbd441c70ac50395bbf521500a18612928f2"
+    },
+    "matter/tools/cardboard_full_contact_armijo_check.mm": {
+      "before": "beaf5a1519bec2814cb16608694ed126045e42b20fe40dde0fbb3eb1c31d9c87",
+      "after": "c0e1d7079b36acea714570ab341143d305ca7f08c1d2304b2164bc6b52e7e112"
+    },
+    "matter/tools/cardboard_graph_lu_search_native_check.mm": {
+      "before": null,
+      "after": "bf29b7f3c9dbb7209e65e05c133cacdd02bee396e8db8c765a845be4c723d411"
+    },
+    "matter/tools/regional_graph_schwarz_layout_check.cpp": {
+      "before": "884588206bf7cbbe957e47aabe102105d65f076ed68337030195890ebdbaa048",
+      "after": "30ffe32c3f4eebb135cd7aa9b735192a5154bdb03dca84463a30b7a0135ae841"
+    }
+  },
+  "overlay_manifests": [
+    {
+      "manifest": "/Users/home/cardboard-implementation-20261014/analysis/budgeted-graph-layout-overlay-078/manifest.json",
+      "sha256": "7c7dd4d36035d29380ed2b42b246c889b5a4e36805d8d0dd3e627fd73b20e9b7",
+      "patch_sha256": "3799b22244f4177b13d69b9ef882d4125d0332cb2a5eff8a1232906446cebd0e"
+    },
+    {
+      "manifest": "/Users/home/cardboard-implementation-20261014/analysis/rejected-armijo-shared-alpha-overlay-078/manifest.json",
+      "sha256": "746399218ca68d8ef35653d4d85c219ee78d5300cc6c19af14213a747a3d007c",
+      "patch_sha256": "506dafa20194a5ffe2bffe7c066dd48a3119df1719c8ef875ec02979521309b9"
+    },
+    {
+      "manifest": "/Users/home/cardboard-implementation-20261014/analysis/contact-node-incidence-corner-sort-077-overlay/manifest.json",
+      "sha256": "36a6cff6e3302fe8c5a905caa9c214c70eeaf59a69efe0a089de661824fc2b36",
+      "patch_sha256": "62d8178babed8be3ef154d5fcdfa35b64f2b1138cd340ec9b20ba3d36e4710c0"
+    },
+    {
+      "manifest": "/Users/home/cardboard-implementation-20261014/analysis/graph-lu-parallel-search-overlay-078/manifest.json",
+      "sha256": "f2261c339b424af97269e3e8745eddf8c271d1cf04998711ccda825024c5787b",
+      "patch_sha256": "9813e0550c27b9bb15e7d54492f0cfaa95aea38c04871ee412344c2307277f65"
+    }
+  ],
+  "scope": "Reject exhausted Armijo trials with zero shared FEM/rigid update; preserve legacy graph layouts while bounded conditioning fallback admits independent refinements; opt-in deterministic contact node-incidence corner sort and parallel graph LU search with legacy defaults. No physical equation/parameter/operator/global accuracy changes. Native tests separate.",
+  "integration_notes": [
+    "Original contact-sort manifest has one trailing literal backslash-n; immutable bytes retained and raw_decode validated suffix explicitly.",
+    "Strip one trailing whitespace from integrated runtime sort-builder declaration.",
+    "New LU native checker is prepared input only, not actual FEM assembly; input fixtures remain separately bound."
+  ]
+}

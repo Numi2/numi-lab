@@ -1,0 +1,42 @@
+--- a/matter/tools/cardboard_resolution_study.py
++++ b/matter/tools/cardboard_resolution_study.py
+@@ -214,6 +214,7 @@
+         "regional_galerkin_rap": "regional-galerkin",
+         "regional_galerkin_block_jacobi": "regional-galerkin-block",
+         "regional_galerkin_contact_rap": "regional-galerkin-contact",
++        "regional_galerkin_graph_schwarz_conditioning_only": "regional-galerkin-schwarz",
+     }
+     if preconditioner not in preconditioner_flags:
+         raise StudyError(f"unsupported or missing preconditioner in baseline: {preconditioner!r}")
+--- a/matter/tools/test_cardboard_resolution_study.py
++++ b/matter/tools/test_cardboard_resolution_study.py
+@@ -179,7 +179,29 @@
+         self.assertIn("--compensated-paper-arithmetic", args)
+         run.manifest["compensated_source_paper_projection"]["effective_compiled_flags"]["liner_flags"] = 0
+         with self.assertRaisesRegex(study.StudyError, "compiled liner"):
++            study._native_base_arguments(run)
++
++    def test_source15_graph_schwarz_keeps_preconditioner_and_restart_ceiling(self) -> None:
++        run = cc._load_run(self._release_run("source15-schwarz", nx=8))
++        run.manifest["tooling"] = {"enabled": False}
++        for role in ("liner", "medium", "glue"):
++            run.manifest["materials"][role + "_path"] = str(self.root / (role + ".nmatter"))
++        solver = run.manifest["solver"]
++        solver.update({"fgmres_preconditioner": "regional_galerkin_graph_schwarz_conditioning_only",
++                       "fgmres_restart": 16, "line_search_steps": 24})
++        args = study._native_base_arguments(run)
++        self.assertEqual(args[args.index("--fgmres-preconditioner") + 1], "regional-galerkin-schwarz")
++        self.assertEqual(args[args.index("--fgmres-restart") + 1], "16")
++        self.assertEqual(args[args.index("--line-search-steps") + 1], "24")
++        # Reconstruction cannot claim the native graph's refined mesh scope.
++        # The native admission gate remains authoritative for each actual case.
++        solver["fgmres_restart"] = 17
++        with self.assertRaisesRegex(study.StudyError, "restart exceeds"):
+             study._native_base_arguments(run)
++        solver["fgmres_restart"] = 16
++        solver["fgmres_preconditioner"] = "unknown_preconditioner"
++        with self.assertRaisesRegex(study.StudyError, "unsupported or missing preconditioner"):
++            study._native_base_arguments(run)
+ 
+     def test_admitted_pair_has_force_work_springback_and_force_residual_observables(self) -> None:
+         coarse = self._release_run("coarse", nx=2)

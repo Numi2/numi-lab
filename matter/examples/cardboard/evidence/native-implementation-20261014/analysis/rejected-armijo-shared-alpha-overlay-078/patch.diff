@@ -1,0 +1,74 @@
+--- a/matter/src/metal/fem.metalinc
++++ b/matter/src/metal/fem.metalinc
+@@ -4422,6 +4422,17 @@
+         // decision that accepts this trial, before either block is applied.
+         environmentLineSearch[environment] = line.x;
+     } else if (trialIndex + 1u >= solver.nonlinearIterations.w) {
++        // No tested candidate was accepted. Both production apply kernels
++        // execute after this decision, including on the failure path. Leaving
++        // the rigid environment alpha at its geometry-limiter value would
++        // apply an untested rigid correction while FEM uses zero.
++        const uint slot = environment * dispatch.objectCount;
++        float4 line = lineSearch[slot];
++        line.x = 0.0f;
++        line.z = 0.0f;
++        line.w = float(microstep.solverIteration);
++        lineSearch[slot] = line;
++        environmentLineSearch[environment] = 0.0f;
+         recordFailure(statuses[environment],
+             NM_STATUS_NONLINEAR_SOLVER_FAILURE, 0u,
+             microstep.solverIteration,
+--- a/matter/tools/cardboard_full_contact_armijo_check.mm
++++ b/matter/tools/cardboard_full_contact_armijo_check.mm
+@@ -2064,11 +2064,50 @@
+                 .velocityAndInverseMass.x == 0.0f &&
+             static_cast<const float*>(rigidCandidateBuffer.contents)[0] == 0.0f,
+             "certified no-op changed a FEM or rigid candidate");
++    // Exhausting every trial must publish zero to both application paths.
++    // Exercise finite non-descent, invalid residual and unhealthy production
++    // status; none may apply an untested rigid or FEM correction.
++    for (std::uint32_t mode = 0u; mode < 3u; ++mode) {
++        *static_cast<nm_float4*>(metricsBuffer.contents) =
++            {1.0f, INFINITY, 1.0f, 0.0f};
++        *static_cast<nm_float4*>(lineBuffer.contents) =
++            {1.0f, 0.0f, 1.0f, 0.0f};
++        *static_cast<float*>(environmentLineBuffer.contents) = 1.0f;
++        *static_cast<NMMatterStatusGPU*>(trialStatusBuffer.contents) = {};
++        *static_cast<NMMatterStatusGPU*>(statusBuffer.contents) = {};
++        if (mode == 2u)
++            static_cast<NMMatterStatusGPU*>(statusBuffer.contents)->code =
++                NM_STATUS_NONLINEAR_SOLVER_FAILURE;
++        *static_cast<NMFEMNodeStateGPU*>(candidateBuffer.contents) = node;
++        *static_cast<NMFEMNodeStateGPU*>(acceptedBuffer.contents) = node;
++        std::fill_n(static_cast<float*>(rigidCandidateBuffer.contents), 6u, 0.0f);
++        std::fill_n(static_cast<nm_float4*>(solutionBuffer.contents), 8u,
++                    nm_float4{});
++        solution[0] = {4.0f, 0.0f, 0.0f, 0.0f};
++        solution[2] = {4.0f, 0.0f, 0.0f, 0.0f};
++        residual[0] = {mode == 1u ? INFINITY : 2.0f, 0.0f, 0.0f, 0.0f};
++        for (std::uint32_t trial = 0u;
++             trial < solver.nonlinearIterations.w; ++trial)
++            dispatchDecision(trial);
++        require(metrics[0].w == 0.0f && line[0].x == 0.0f &&
++                line[0].z == 0.0f && environmentAlpha[0] == 0.0f &&
++                static_cast<NMMatterStatusGPU*>(statusBuffer.contents)->code ==
++                    NM_STATUS_NONLINEAR_SOLVER_FAILURE,
++                "exhausted Armijo trials did not clear both update fractions");
++        applyCandidates();
++        require(std::memcmp(candidateBuffer.contents, &node, sizeof(node)) == 0 &&
++                std::all_of(static_cast<const float*>(rigidCandidateBuffer.contents),
++                            static_cast<const float*>(rigidCandidateBuffer.contents) + 6u,
++                            [](const float value) { return value == 0.0f; }),
++                "rejected Armijo update changed a FEM or rigid candidate");
++    }
+     std::cout << "armijo_environment_alpha_publication=pass"
+               << " rejected_prefix_trials=4 selected_alpha=0.0625"
+               << " applied_fem_delta=0.25 applied_rigid_delta=0.25"
+               << " certified_noop_fem_alpha=1 certified_noop_rigid_alpha=1"
+-              << " noop_correction_zero=true direct_production_kernels=true"
++              << " noop_correction_zero=true exhausted_trial_controls=3"
++              << " exhausted_fem_alpha=0 exhausted_rigid_alpha=0"
++              << " rejected_candidates_unchanged=true direct_production_kernels=true"
+               << " physical_validation=false\n";
+ }
+ 

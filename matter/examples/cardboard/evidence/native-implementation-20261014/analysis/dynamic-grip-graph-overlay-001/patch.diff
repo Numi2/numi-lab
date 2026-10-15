@@ -1,0 +1,805 @@
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -783,6 +783,7 @@
+     std::uint32_t graphLayoutChecksum = 0u;
+     std::string graphSourceTopologySHA256;
+     std::string graphSourceFreeMaskSHA256;
++    std::string graphPotentialMaskSHA256;
+     std::uint64_t linearizationGeneration = 0u;
+     std::uint64_t worldFingerprint = 0u;
+     std::uint64_t executionFingerprint = 0u;
+@@ -901,7 +902,9 @@
+         << jsonQuoted(metadata.graphSourceTopologySHA256)
+         << ",\"source_free_mask_sha256\":"
+         << jsonQuoted(metadata.graphSourceFreeMaskSHA256)
+-        << ",\"source_topology_digest_encoding\":\"little-endian u32 node_count, u32 tetrahedron_count, then row-major u32 tet connectivity; free mask is raw u8, 1=free 0=fixed\"}"
++        << ",\"potential_node_mask_sha256\":"
++        << jsonQuoted(metadata.graphPotentialMaskSHA256)
++        << ",\"source_topology_digest_encoding\":\"little-endian u32 node_count, u32 tetrahedron_count, then row-major u32 tet connectivity; source free mask is raw u8, 1=free 0=fixed; graph potential-node mask is raw u8, 1=covered\"}"
+         << ",\"material_state_stride\":" << metadata.materialStateStride
+         << ",\"device\":{\"name\":" << jsonQuoted(metadata.deviceName)
+         << ",\"registry_id\":" << metadata.deviceRegistryID << "},"
+@@ -1201,9 +1204,11 @@
+     std::vector<std::array<std::uint32_t, 4>> patches;
+     std::vector<std::array<std::uint32_t, 4>> rows;
+     detail::RegionalGraphSchwarzLayout layout;
+-    std::vector<std::uint8_t> freeMask;
++    std::vector<std::uint8_t> sourceFreeMask;
++    std::vector<std::uint8_t> potentialMask;
+     std::string sourceTopologySHA256;
+     std::string sourceFreeMaskSHA256;
++    std::string potentialMaskSHA256;
+ };
+ 
+ [[nodiscard]] RegionalGraphSchwarzHostLayout buildRegionalGraphSchwarz(
+@@ -1222,14 +1227,15 @@
+         tetrahedra.push_back({tetrahedron.nodes.x, tetrahedron.nodes.y,
+                               tetrahedron.nodes.z, tetrahedron.nodes.w});
+     }
+-    result.freeMask.resize(nodes);
++    result.sourceFreeMask.resize(nodes);
++    result.potentialMask.assign(nodes, 1u);
+     for (std::uint32_t node = 0u; node < nodes; ++node) {
+         const float fixed = world.fem.nodes[node].restAndFixed.w;
+         if (!std::isfinite(fixed) || (fixed != 0.0f && fixed != 1.0f)) {
+             result.layout.error = "graph Schwarz requires a binary immutable FEM fixed mask";
+             return result;
+         }
+-        result.freeMask[node] = fixed == 0.0f ? 1u : 0u;
++        result.sourceFreeMask[node] = fixed == 0.0f ? 1u : 0u;
+     }
+     // Hash the exact host topology and mask consumed by the builder
+     // and uploaded below; no reconstructed or synthetic graph enters
+@@ -1247,9 +1253,11 @@
+     result.sourceTopologySHA256 = sha256Hex(
+         topologyBytes.data(), topologyBytes.size());
+     result.sourceFreeMaskSHA256 = sha256Hex(
+-        result.freeMask.data(), result.freeMask.size());
++        result.sourceFreeMask.data(), result.sourceFreeMask.size());
++    result.potentialMaskSHA256 = sha256Hex(
++        result.potentialMask.data(), result.potentialMask.size());
+     result.layout = detail::buildRegionalGraphSchwarzLayout(
+-        nodes, tetrahedra, result.freeMask, world.dispatch.environmentCount);
++        nodes, tetrahedra, result.potentialMask, world.dispatch.environmentCount);
+     if (!result.layout.error.empty()) return result;
+     result.patches.reserve(result.layout.patches.size());
+     for (const auto& patch : result.layout.patches) {
+@@ -2264,6 +2272,7 @@
+     std::uint32_t femRegionalGraphLayoutChecksum = 0u;
+     std::string femRegionalGraphSourceTopologySHA256;
+     std::string femRegionalGraphSourceFreeMaskSHA256;
++    std::string femRegionalGraphPotentialMaskSHA256;
+     id<MTLBuffer> primalContactArguments = nil;
+ 
+     id<MTLBuffer> identificationDistributions = nil;
+@@ -4041,6 +4050,8 @@
+                 graphSchwarz.sourceTopologySHA256;
+             candidate->femRegionalGraphSourceFreeMaskSHA256 =
+                 graphSchwarz.sourceFreeMaskSHA256;
++            candidate->femRegionalGraphPotentialMaskSHA256 =
++                graphSchwarz.potentialMaskSHA256;
+             candidate->femRegionalGraphPatches = uploads.one(
+                 std::span<const std::array<std::uint32_t, 4>>(
+                     graphSchwarz.patches), valid, candidate->residentBytes);
+@@ -15124,6 +15135,8 @@
+                                         state.femRegionalGraphSourceTopologySHA256;
+                                     metadata.graphSourceFreeMaskSHA256 =
+                                         state.femRegionalGraphSourceFreeMaskSHA256;
++                                    metadata.graphPotentialMaskSHA256 =
++                                        state.femRegionalGraphPotentialMaskSHA256;
+                                 }
+                                 metadata.materialStateStride =
+                                     state.dispatch.materialStateStride;
+@@ -15667,6 +15680,8 @@
+                             [encoder setBytes:&refinementMode
+                                        length:sizeof(refinementMode)
+                                       atIndex:19u];
++                            [encoder setBuffer:state.femCandidate
++                                         offset:0u atIndex:20u];
+                         });
+                         [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                         dispatchThreads("nm_fgmres_graph_apply_patches",
+@@ -15698,6 +15713,8 @@
+                                 length:sizeof(graphPatchNodes) atIndex:10u];
+                             [encoder setBytes:&regionalModes
+                                 length:sizeof(regionalModes) atIndex:11u];
++                            [encoder setBuffer:state.femCandidate
++                                         offset:0u atIndex:12u];
+                         });
+                     } else {
+                         dispatchThreads(
+--- a/matter/src/metal/fgmres.metalinc
++++ b/matter/src/metal/fgmres.metalinc
+@@ -2194,8 +2194,24 @@
+ // Assemble each dense graph-patch principal submatrix from the same local
+ // production FEM tangent used by the matrix-free operator. One thread owns a
+ // complete scalar row, so overlapping patches never race while accumulating
+-// their independent principal matrices. The layout is immutable and contains
+-// only currently free nodes; a changed Dirichlet mask is a hard failure.
++// their independent principal matrices. The potential-node layout is
++// immutable, while the candidate's fixed/free mask may change per environment
++// and linearization. A currently free node outside graph coverage is fatal.
++inline bool fgmresGraphConstraintTagValid(const float tag) {
++    return tag == 0.0f || tag == 1.0f || tag == 3.0f;
++}
++
++inline bool fgmresGraphCandidateNodeConsistent(
++    const NMFEMNodeStateGPU node
++) {
++    const float tag = node.restAndFixed.w;
++    const float mass = node.positionAndMass.w;
++    const float inverseMass = node.velocityAndInverseMass.w;
++    if (!fgmresGraphConstraintTagValid(tag) || !isfinite(mass) ||
++        !(mass > 0.0f) || !isfinite(inverseMass)) return false;
++    return tag == 0.0f ? inverseMass > 0.0f : inverseMass == 0.0f;
++}
++
+ kernel void nm_fgmres_graph_build_patch_matrices(
+     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+     device const NMContinuumObjectGPU* objects [[buffer(1)]],
+@@ -2247,13 +2263,23 @@
+     for (uint column = 0u; column < n; ++column)
+         patchMatrices[matrixRowBase + column] = 0.0f;
+     const uint globalNode = environment * dispatch.femNodeCount + row.w;
+-    const bool expectedFree = nodeCoverage[row.w] != 0u;
+-    const bool candidateFree = candidate[globalNode].restAndFixed.w <= 0.5f;
+-    if (expectedFree != candidateFree) {
++    const NMFEMNodeStateGPU candidateNode = candidate[globalNode];
++    const float constraintTag = candidateNode.restAndFixed.w;
++    const bool candidateFree = constraintTag == 0.0f;
++    if (!fgmresGraphCandidateNodeConsistent(candidateNode) ||
++        (candidateFree && nodeCoverage[row.w] == 0u)) {
+         recordFailure(statuses[environment], NM_STATUS_UNSUPPORTED,
+             0u, NM_INVALID_INDEX,
+             float4(float(row.w), float(nodeCoverage[row.w]),
+-                   candidate[globalNode].restAndFixed.w, 2.0f));
++                   constraintTag, candidateNode.velocityAndInverseMass.w));
++        return;
++    }
++    // Constrained coordinates remain present in every potential-node patch,
++    // but the conditioning-only local block uses a unit identity row/column.
++    // This is the exact restricted free-free principal block plus identity
++    // on eliminated coordinates; it never changes the production operator.
++    if (!candidateFree) {
++        patchMatrices[matrixRowBase + rowScalar] = 1.0f;
+         return;
+     }
+     const NMIncidenceRangeGPU range = nodeRanges[globalNode];
+@@ -2306,6 +2332,8 @@
+             ? nullptr : acceptedMaterialState + globalTet * stateStride;
+         for (uint columnSlot = 0u; columnSlot < 4u; ++columnSlot) {
+             const uint columnNode = tetrahedron.nodes[columnSlot];
++            if (candidate[nodeBase + columnNode].restAndFixed.w != 0.0f)
++                continue;
+             // Patch nodes are sorted, so the small fixed upper-bound binary
+             // search maps an incident global node to its local scalar columns.
+             uint low = 0u;
+@@ -2385,13 +2413,15 @@
+     const uint total = dispatch.environmentCount * dispatch.femNodeCount;
+     if (global >= total || dispatch.femNodeCount == 0u) return;
+     const uint node = global % dispatch.femNodeCount;
+-    const bool expectedFree = nodeCoverage[node] != 0u;
+-    const bool candidateFree = candidate[global].restAndFixed.w <= 0.5f;
+-    if (expectedFree != candidateFree)
++    const NMFEMNodeStateGPU state = candidate[global];
++    const float tag = state.restAndFixed.w;
++    const bool candidateFree = tag == 0.0f;
++    if (!fgmresGraphCandidateNodeConsistent(state) ||
++        (candidateFree && nodeCoverage[node] == 0u))
+         recordFailure(statuses[global / dispatch.femNodeCount],
+             NM_STATUS_UNSUPPORTED, 0u, NM_INVALID_INDEX,
+-            float4(float(node), float(nodeCoverage[node]),
+-                   candidate[global].restAndFixed.w, 7.0f));
++            float4(float(node), float(nodeCoverage[node]), tag,
++                   state.velocityAndInverseMass.w));
+ }
+ 
+ // Pivoted in-place dense LU, one threadgroup per environment/patch. The
+@@ -2613,6 +2643,7 @@
+     device const NMFGMRESStateGPU* states [[buffer(17)]],
+     device const float* originalMatrices [[buffer(18)]],
+     constant uint& refinementMode [[buffer(19)]],
++    device const NMFEMNodeStateGPU* candidate [[buffer(20)]],
+     uint lane [[thread_index_in_threadgroup]],
+     uint group [[threadgroup_position_in_grid]]) {
+     const uint totalGroups = dispatch.environmentCount * patchCount;
+@@ -2667,13 +2698,16 @@
+         const uint localNode = scalar / 3u;
+         const uint axis = scalar % 3u;
+         const uint globalNode = patchNodes[patch.x + localNode];
+-        float value = basis[nodeBase + globalNode][axis];
+-        const uint coefficientBase = environment * modeCount;
+-        for (uint mode = 0u; mode < modeCount; ++mode) {
+-            const uint modeNodeBase =
+-                (environment * modeCount + mode) * dispatch.femNodeCount;
+-            value -= coefficients[coefficientBase + mode] *
+-                regionalAP[modeNodeBase + globalNode][axis];
++        float value = 0.0f;
++        if (candidate[nodeBase + globalNode].restAndFixed.w == 0.0f) {
++            value = basis[nodeBase + globalNode][axis];
++            const uint coefficientBase = environment * modeCount;
++            for (uint mode = 0u; mode < modeCount; ++mode) {
++                const uint modeNodeBase =
++                    (environment * modeCount + mode) * dispatch.femNodeCount;
++                value -= coefficients[coefficientBase + mode] *
++                    regionalAP[modeNodeBase + globalNode][axis];
++            }
+         }
+         rhs[scalar] = value;
+     }
+@@ -2902,6 +2936,7 @@
+     device const NMFGMRESStateGPU* states [[buffer(9)]],
+     constant uint& patchNodeCount [[buffer(10)]],
+     constant uint& modeCount [[buffer(11)]],
++    device const NMFEMNodeStateGPU* candidate [[buffer(12)]],
+     uint global [[thread_position_in_grid]]) {
+     const uint total = dispatch.environmentCount * dispatch.femNodeCount;
+     if (global >= total || dispatch.femNodeCount == 0u ||
+@@ -2909,6 +2944,10 @@
+     const uint environment = global / dispatch.femNodeCount;
+     const uint node = global - environment * dispatch.femNodeCount;
+     if (states[environment].diagnostics.z > 0.5f) {
++        preconditioned[global] = float4(0.0f);
++        return;
++    }
++    if (candidate[global].restAndFixed.w != 0.0f) {
+         preconditioned[global] = float4(0.0f);
+         return;
+     }
+--- a/matter/src/regional_graph_schwarz.hpp
++++ b/matter/src/regional_graph_schwarz.hpp
+@@ -14,8 +14,10 @@
+ namespace numi::matter::detail {
+ 
+ // A bounded host-built graph layout for the selector-5 additive Schwarz
+-// preconditioner.  The graph is derived from the exact active tetrahedron
+-// connectivity and the immutable FEM Dirichlet mask. Patches are ordered
++// preconditioner. The graph is derived from the exact active tetrahedron
++// connectivity and a caller-supplied topology-coverage mask. Selector 5
++// supplies an all-potential-node mask so later FEM target transactions may
++// change which covered nodes are constrained. Patches are ordered
+ // deterministically by ascending free-node anchors, breadth-first sorted
+ // neighbors, then sorted node IDs. This states an ordering rule only; it does
+ // not claim membership parity with any offline mesh.
+@@ -68,8 +70,10 @@
+ [[nodiscard]] inline RegionalGraphSchwarzLayout buildRegionalGraphSchwarzLayout(
+     const std::uint32_t nodeCount,
+     const std::span<const std::array<std::uint32_t, 4>> tetrahedra,
+-    // 1 means free; 0 means fixed. Must be the exact immutable mask used by
+-    // the candidate projection. A changed mask is rejected by runtime.
++    // 1 means a node is included in the immutable graph topology; 0 excludes
++    // it. Selector 5 may pass an all-node potential-free mask so later FEM
++    // target transactions can change which covered nodes are constrained.
++    // Every currently free candidate node must be included in this mask.
+     const std::span<const std::uint8_t> freeMask,
+     const std::uint32_t environmentCount,
+     const std::uint64_t maximumDeviceBytes = 96ull * 1024ull * 1024ull,
+--- a/matter/tools/regional_graph_schwarz_layout_check.cpp
++++ b/matter/tools/regional_graph_schwarz_layout_check.cpp
+@@ -1,6 +1,7 @@
+ #include "../src/regional_graph_schwarz.hpp"
+ 
+ #include <array>
++#include <cmath>
+ #include <cstdint>
+ #include <iostream>
+ #include <limits>
+@@ -151,7 +152,131 @@
+             return 11;
+         }
+ 
+-    std::cout << "graph_schwarz_layout_checks=11"
++    // Dynamic-grip contract: the immutable graph is built from a superset of
++    // all potentially free FEM nodes. Candidate masks may vary by environment;
++    // every currently free node must remain in the prebuilt coverage map.
++    // This CPU fixture validates layout/mask invariants, while the companion
++    // native selector-5 fixture exercises the production Metal kernels.
++    std::vector<std::uint8_t> potentialMask(nodeCount, 1u);
++    const auto potentialLayout = buildRegionalGraphSchwarzLayout(
++        nodeCount, tetrahedra, potentialMask, 2u);
++    if (!potentialLayout.error.empty() ||
++        potentialLayout.nodeCoverage.size() != nodeCount ||
++        potentialLayout.patchNodes.size() < nodeCount) {
++        std::cerr << "potential-node graph layout failed\n";
++        return 12;
++    }
++    for (std::uint32_t node = 0u; node < nodeCount; ++node)
++        if (potentialLayout.nodeCoverage[node] == 0u) {
++            std::cerr << "potential-node graph misses a dynamically free node\n";
++            return 13;
++        }
++    std::vector<std::uint8_t> environment0(nodeCount, 0u);
++    std::vector<std::uint8_t> environment1(nodeCount, 0u);
++    std::vector<float> inverseMass0(nodeCount, 1.0f);
++    std::vector<float> inverseMass1(nodeCount, 1.0f);
++    std::vector<float> mass0(nodeCount, 1.0f);
++    std::vector<float> mass1(nodeCount, 1.0f);
++    for (std::uint32_t node = 0u; node < nodeCount; ++node) {
++        environment0[node] = freeMask[node] != 0u ? 0u : 1u;
++        environment1[node] = freeMask[node] != 0u ? 0u : 1u;
++        inverseMass0[node] = freeMask[node] != 0u ? 1.0f : 0.0f;
++        inverseMass1[node] = inverseMass0[node];
++    }
++    environment0[0u] = 0u; // release an initially fixed node
++    inverseMass0[0u] = 1.0f;
++    environment0[8u] = 3u; // acquire a temporary grip on a free node
++    inverseMass0[8u] = 0.0f;
++    environment1[299u] = 0u; // different per-environment release
++    inverseMass1[299u] = 1.0f;
++    environment1[9u] = 3u;   // different per-environment acquisition
++    inverseMass1[9u] = 0.0f;
++    const auto candidateCovered = [&](const std::vector<std::uint8_t>& tags,
++                                      const std::vector<float>& inverseMass,
++                                      const std::vector<float>& mass) {
++        if (tags.size() != nodeCount || inverseMass.size() != nodeCount ||
++            mass.size() != nodeCount)
++            return false;
++        for (std::uint32_t node = 0u; node < nodeCount; ++node) {
++            const std::uint8_t tag = tags[node];
++            const float inverse = inverseMass[node];
++            if ((tag != 0u && tag != 1u && tag != 3u) ||
++                !std::isfinite(inverse) || !std::isfinite(mass[node]) ||
++                !(mass[node] > 0.0f)) return false;
++            if ((tag == 0u && (!(inverse > 0.0f) ||
++                               potentialLayout.nodeCoverage[node] == 0u)) ||
++                (tag != 0u && inverse != 0.0f))
++                return false;
++        }
++        return true;
++    };
++    if (!candidateCovered(environment0, inverseMass0, mass0) ||
++        !candidateCovered(environment1, inverseMass1, mass1) ||
++        environment0 == environment1) {
++        std::cerr << "per-environment dynamic fixed-mask coverage check failed\n";
++        return 14;
++    }
++    auto unsupportedTags = environment0;
++    unsupportedTags[4u] = 2u; // Human tag is outside selector-5 admission.
++    if (candidateCovered(unsupportedTags, inverseMass0, mass0)) {
++        std::cerr << "unsupported candidate constraint tag was admitted\n";
++        return 15;
++    }
++    auto inconsistentInverseMass = inverseMass0;
++    inconsistentInverseMass[8u] = 1.0f; // held grip must have zero inverse mass
++    if (candidateCovered(environment0, inconsistentInverseMass, mass0)) {
++        std::cerr << "constraint tag/inverse-mass mismatch was admitted\n";
++        return 18;
++    }
++    auto zeroMass = mass1;
++    zeroMass[9u] = 0.0f;
++    if (candidateCovered(environment1, inverseMass1, zeroMass)) {
++        std::cerr << "nonpositive candidate mass was admitted\n";
++        return 19;
++    }
++    auto nonfiniteInverseMass = inverseMass1;
++    nonfiniteInverseMass[299u] = std::numeric_limits<float>::quiet_NaN();
++    if (candidateCovered(environment1, nonfiniteInverseMass, mass1)) {
++        std::cerr << "nonfinite candidate inverse mass was admitted\n";
++        return 20;
++    }
++
++    // Exact local algebra contract for a conditioning-only restricted patch:
++    // retain A_ff, use identity on constrained rows/columns, and make the
++    // preconditioned correction zero at constrained coordinates.
++    constexpr std::array<double, 16> physicalA{
++        7.0, 2.0, -1.0, 0.5,
++        2.0, 6.0, 1.5, -0.25,
++        -1.0, 1.5, 5.0, 3.0,
++        0.5, -0.25, 3.0, 4.0};
++    const std::array<std::uint8_t, 4> fixedTags{0u, 3u, 1u, 0u};
++    std::array<double, 16> restricted{};
++    for (std::size_t row = 0u; row < 4u; ++row) {
++        if (fixedTags[row] != 0u) {
++            restricted[row * 4u + row] = 1.0;
++            continue;
++        }
++        for (std::size_t column = 0u; column < 4u; ++column)
++            if (fixedTags[column] == 0u)
++                restricted[row * 4u + column] =
++                    physicalA[row * 4u + column];
++    }
++    if (restricted[0u] != 7.0 || restricted[3u] != 0.5 ||
++        restricted[12u] != 0.5 || restricted[15u] != 4.0 ||
++        restricted[5u] != 1.0 || restricted[10u] != 1.0 ||
++        restricted[1u] != 0.0 || restricted[4u] != 0.0 ||
++        restricted[2u] != 0.0 || restricted[8u] != 0.0) {
++        std::cerr << "restricted free-free plus fixed-identity block contract failed\n";
++        return 16;
++    }
++    const std::array<double, 4> rhs{1.0, 9.0, -3.0, 2.0};
++    std::array<double, 4> correction{rhs[0], 0.0, 0.0, rhs[3]};
++    if (correction[1] != 0.0 || correction[2] != 0.0) {
++        std::cerr << "fixed rows received a nonzero preconditioned correction\n";
++        return 17;
++    }
++
++    std::cout << "graph_schwarz_layout_checks=20"
+               << " patches=" << first.patches.size()
+               << " patch_nodes=" << first.patchNodes.size()
+               << " matrix_floats=" << first.matrixFloatCount
+--- a/matter/tools/fem_regional_galerkin_native_check.mm
++++ b/matter/tools/fem_regional_galerkin_native_check.mm
+@@ -92,9 +92,10 @@
+ 
+ WorldSource source(const MaterialProgram& material,
+                    const FEMPreconditionerMode mode,
+-                   const bool useTangentCache = false) {
++                   const bool useTangentCache = false,
++                   const std::uint32_t environments = 1u) {
+     WorldSource world;
+-    world.environmentCount = 1u;
++    world.environmentCount = environments;
+     world.frameTimestep = 2.0e-5;
+     world.gravity = {0.0, 0.0, 0.0};
+     world.mixedSolver.femPreconditioner = mode;
+@@ -145,7 +146,8 @@
+     object.tetrahedra = {{{0u,1u,2u,3u}}, {{0u,2u,1u,4u}}};
+     if (mode == FEMPreconditionerMode::regionalGalerkin ||
+         mode == FEMPreconditionerMode::regionalGalerkinBlockJacobi ||
+-        mode == FEMPreconditionerMode::regionalGalerkinContact)
++        mode == FEMPreconditionerMode::regionalGalerkinContact ||
++        mode == FEMPreconditionerMode::regionalGalerkinGraphSchwarz)
+         object.femPreconditionerRegionIds = {0u,1u};
+     world.objects = {std::move(object)};
+     return world;
+@@ -348,8 +350,11 @@
+         const std::vector<nm_float4>& kinematicTargets = {},
+         const std::vector<NMCohesiveActivationCommandGPU>& activationCommands = {}) {
+         auto* status = static_cast<MRMetalWorldStatusGPU*>(statuses_.contents);
+-        status[0] = {};
+-        status[0].environment = 0u;
++        for (std::uint32_t environment = 0u;
++             environment < world_.dispatch.environmentCount; ++environment) {
++            status[environment] = {};
++            status[environment].environment = environment;
++        }
+         id<MTLBuffer> targets = nil;
+         if (!kinematicTargets.empty()) {
+             const std::size_t expectedCount =
+@@ -415,16 +420,25 @@
+              std::string([[command.error.localizedDescription description] UTF8String]));
+         RuntimeStateSnapshot snapshot = runtime_.snapshot();
+         need(snapshot.available,"native snapshot failed: "+snapshot.message);
+-        if (snapshot.statuses.size() != 1u ||
+-            snapshot.statuses[0].code != NM_STATUS_SUCCESS) {
++        if (snapshot.statuses.size() != world_.dispatch.environmentCount ||
++            std::any_of(snapshot.statuses.begin(), snapshot.statuses.end(),
++                [](const NMMatterStatusGPU& value) {
++                    return value.code != NM_STATUS_SUCCESS;
++                })) {
+             std::string message = "native FEM control_step=" +
+                 std::to_string(controlStep) + " status=" +
+                 (snapshot.statuses.empty()
+                     ? std::string("missing")
+                     : std::to_string(snapshot.statuses[0].code));
+-            if (!snapshot.statuses.empty()) {
+-                const auto& status = snapshot.statuses[0];
++            const auto failed = std::find_if(
++                snapshot.statuses.begin(), snapshot.statuses.end(),
++                [](const NMMatterStatusGPU& value) {
++                    return value.code != NM_STATUS_SUCCESS;
++                });
++            if (failed != snapshot.statuses.end()) {
++                const auto& status = *failed;
+                 message += " object=" + std::to_string(status.objectIndex) +
++                    " environment=" + std::to_string(status.environment) +
+                     " failing_index=" + std::to_string(status.failingIndex) +
+                     " completed_microsteps=" +
+                         std::to_string(status.completedMicrosteps) +
+@@ -437,9 +451,13 @@
+             }
+             throw std::runtime_error(message);
+         }
+-        need(snapshot.solverCertificates.size()==1u &&
+-             snapshot.solverCertificates[0].validity.w>0.5f,
+-             "native solve did not produce an accepted solver certificate");
++        need(snapshot.solverCertificates.size()==world_.dispatch.environmentCount &&
++             std::all_of(snapshot.solverCertificates.begin(),
++                 snapshot.solverCertificates.end(),
++                 [](const NMSolverCertificateGPU& value) {
++                     return value.validity.w > 0.5f;
++                 }),
++             "native solve did not produce accepted certificates for all environments");
+         return {world_,std::move(snapshot),runtime_.deviceProgramFingerprint()};
+     }
+ 
+@@ -1777,6 +1795,7 @@
+         case 2u: return "regional_galerkin_scalar_fine";
+         case 3u: return "regional_galerkin_block_jacobi_fine";
+         case 4u: return "regional_galerkin_contact_enriched";
++        case 5u: return "regional_galerkin_graph_schwarz_potential_node";
+         default: return "unsupported_selector";
+     }
+ }
+@@ -2020,6 +2039,277 @@
+             flatten(threeFixed.snapshot.femRegionalGalerkinEffectiveBasisP),
+             flatten(released.snapshot.femRegionalGalerkinEffectiveBasisP))
+         << "}\n";
++}
++
++struct EnvironmentGripCommand {
++    std::uint32_t environment;
++    std::uint32_t node;
++    float command;
++};
++
++std::vector<nm_float4> makeEnvironmentGripTargets(
++    const RuntimeStateSnapshot& snapshot,
++    const std::uint32_t environmentCount,
++    const std::uint32_t nodesPerEnvironment,
++    const std::vector<EnvironmentGripCommand>& commands
++) {
++    need(snapshot.femNodes.size() ==
++             std::size_t(environmentCount) * nodesPerEnvironment,
++         "dynamic graph fixture snapshot does not have environment-major FEM nodes");
++    std::vector<nm_float4> targets(snapshot.femNodes.size());
++    for (const EnvironmentGripCommand& command : commands) {
++        need(command.environment < environmentCount &&
++                 command.node < nodesPerEnvironment &&
++                 (command.command == 2.0f || command.command == 3.0f),
++             "dynamic graph fixture authored an invalid grip command");
++        const std::size_t index =
++            std::size_t(command.environment) * nodesPerEnvironment + command.node;
++        const nm_float4 position = snapshot.femNodes[index].positionAndMass;
++        targets[index] = {position.x, position.y, position.z, command.command};
++    }
++    return targets;
++}
++
++std::uint32_t constrainedNodeCount(
++    const RuntimeStateSnapshot& snapshot,
++    const std::uint32_t environment,
++    const std::uint32_t nodesPerEnvironment
++) {
++    const std::size_t first = std::size_t(environment) * nodesPerEnvironment;
++    need(first + nodesPerEnvironment <= snapshot.femNodes.size(),
++         "dynamic graph fixture environment slice is outside the FEM snapshot");
++    return static_cast<std::uint32_t>(std::count_if(
++        snapshot.femNodes.begin() + static_cast<std::ptrdiff_t>(first),
++        snapshot.femNodes.begin() + static_cast<std::ptrdiff_t>(first + nodesPerEnvironment),
++        [](const NMFEMNodeStateGPU& node) {
++            return node.restAndFixed.w == 1.0f || node.restAndFixed.w == 3.0f;
++        }));
++}
++
++void compareDynamicMaskRuns(const RunResult& scalar, const RunResult& graph,
++                            const std::uint32_t transaction) {
++    const auto& a = scalar.snapshot;
++    const auto& b = graph.snapshot;
++    need(a.femNodes.size() == b.femNodes.size() &&
++             a.statuses.size() == b.statuses.size() &&
++             a.solverCertificates.size() == b.solverCertificates.size(),
++         "dynamic graph comparison changed environment or state arity");
++    const std::uint32_t nodes = scalar.world.dispatch.femNodeCount;
++    double maximumPosition = 0.0;
++    double maximumVelocity = 0.0;
++    double velocityScale = 0.0;
++    double maximumCertificate = 0.0;
++    bool massesAndInverseMassesMatch = true;
++    for (std::size_t index = 0u; index < a.femNodes.size(); ++index) {
++        const auto& leftNode = a.femNodes[index];
++        const auto& rightNode = b.femNodes[index];
++        for (const auto [left, right] : {
++                 std::pair{leftNode.positionAndMass.x,
++                           rightNode.positionAndMass.x},
++                 std::pair{leftNode.positionAndMass.y,
++                           rightNode.positionAndMass.y},
++                 std::pair{leftNode.positionAndMass.z,
++                           rightNode.positionAndMass.z}})
++            maximumPosition = std::max(maximumPosition,
++                                       std::abs(double(left) - right));
++        for (const auto [left, right] : {
++                 std::pair{leftNode.velocityAndInverseMass.x,
++                           rightNode.velocityAndInverseMass.x},
++                 std::pair{leftNode.velocityAndInverseMass.y,
++                           rightNode.velocityAndInverseMass.y},
++                 std::pair{leftNode.velocityAndInverseMass.z,
++                           rightNode.velocityAndInverseMass.z}}) {
++            maximumVelocity = std::max(maximumVelocity,
++                                       std::abs(double(left) - right));
++            velocityScale = std::max({velocityScale, std::abs(double(left)),
++                                      std::abs(double(right))});
++        }
++        massesAndInverseMassesMatch = massesAndInverseMassesMatch &&
++            leftNode.positionAndMass.w == rightNode.positionAndMass.w &&
++            leftNode.velocityAndInverseMass.w ==
++                rightNode.velocityAndInverseMass.w;
++    }
++    for (std::size_t environment = 0u;
++         environment < a.solverCertificates.size(); ++environment) {
++        const auto& ca = a.solverCertificates[environment];
++        const auto& cb = b.solverCertificates[environment];
++        for (const auto [left, right] : {
++                 std::pair{ca.nonlinear.x, cb.nonlinear.x},
++                 std::pair{ca.nonlinear.y, cb.nonlinear.y},
++                 std::pair{ca.nonlinear.z, cb.nonlinear.z},
++                 std::pair{ca.nonlinear.w, cb.nonlinear.w}})
++            maximumCertificate = std::max(maximumCertificate,
++                                           std::abs(double(left) - right));
++    }
++    const double relativeVelocity = maximumVelocity /
++        std::max(velocityScale, 1.0e-12);
++    std::cout << std::setprecision(12)
++        << "{\"schema\":1,\"record\":\"dynamic_graph_selector_invariance\""
++        << ",\"physical_validation\":false,\"transaction\":" << transaction
++        << ",\"environment_count\":" << scalar.world.dispatch.environmentCount
++        << ",\"node_count_per_environment\":" << nodes
++        << ",\"position_max_m\":" << maximumPosition
++        << ",\"velocity_relative\":" << relativeVelocity
++        << ",\"certificate_nonlinear_max_abs\":" << maximumCertificate
++        << ",\"mass_and_inverse_mass_match\":"
++        << (massesAndInverseMassesMatch ? "true" : "false") << "}\n";
++    need(massesAndInverseMassesMatch,
++         "selector-5 dynamic graph changed node mass or inverse mass");
++    need(maximumPosition < 1.0e-7 && relativeVelocity < 3.0e-3 &&
++             maximumCertificate <= 2.0e-6,
++         "selector-5 dynamic graph changed accepted solution or certificate");
++}
++
++void checkEffectiveBasisUsesPerEnvironmentMask(
++    const RunResult& run,
++    const std::uint32_t firstGripNode,
++    const std::uint32_t secondGripNode,
++    const bool requireDistinctMasks
++) {
++    const auto& snapshot = run.snapshot;
++    const std::uint32_t nodes = run.world.dispatch.femNodeCount;
++    const std::uint32_t environments = run.world.dispatch.environmentCount;
++    const std::uint32_t modes = snapshot.femRegionalGalerkinModeCount;
++    need(modes > 0u &&
++             snapshot.femRegionalGalerkinBasisP.size() ==
++                 std::size_t(modes) * nodes &&
++             snapshot.femRegionalGalerkinEffectiveBasisP.size() ==
++                 std::size_t(environments) * modes * nodes,
++         "dynamic graph fixture lacks its source/effective regional basis arrays");
++    bool firstSourceCovered = false;
++    bool secondSourceCovered = false;
++    for (std::uint32_t mode = 0u; mode < modes; ++mode) {
++        const nm_float4 firstSource =
++            snapshot.femRegionalGalerkinBasisP[std::size_t(mode) * nodes + firstGripNode];
++        const nm_float4 secondSource =
++            snapshot.femRegionalGalerkinBasisP[std::size_t(mode) * nodes + secondGripNode];
++        firstSourceCovered = firstSourceCovered ||
++            std::abs(firstSource.x) + std::abs(firstSource.y) +
++                std::abs(firstSource.z) > 1.0e-8f;
++        secondSourceCovered = secondSourceCovered ||
++            std::abs(secondSource.x) + std::abs(secondSource.y) +
++                std::abs(secondSource.z) > 1.0e-8f;
++    }
++    need(firstSourceCovered && secondSourceCovered,
++         "dynamic graph fixture grip nodes are absent from immutable authored P");
++    for (std::uint32_t environment = 0u; environment < environments; ++environment) {
++        for (std::uint32_t mode = 0u; mode < modes; ++mode) {
++            const std::size_t base =
++                (std::size_t(environment) * modes + mode) * nodes;
++            for (std::uint32_t node = 0u; node < nodes; ++node) {
++                const nm_float4 effective =
++                    snapshot.femRegionalGalerkinEffectiveBasisP[base + node];
++                const float tag = snapshot.femNodes[
++                    std::size_t(environment) * nodes + node].restAndFixed.w;
++                if (tag == 1.0f || tag == 3.0f)
++                    need(effective.x == 0.0f && effective.y == 0.0f &&
++                             effective.z == 0.0f,
++                         "effective regional P retained a constrained row");
++            }
++        }
++    }
++    const float firstTag = snapshot.femNodes[firstGripNode].restAndFixed.w;
++    const float secondEnvironmentFirstTag =
++        snapshot.femNodes[std::size_t(nodes) + firstGripNode].restAndFixed.w;
++    const float firstEnvironmentSecondTag =
++        snapshot.femNodes[secondGripNode].restAndFixed.w;
++    const float secondTag = snapshot.femNodes[
++        std::size_t(nodes) + secondGripNode].restAndFixed.w;
++    if (requireDistinctMasks)
++        need(firstTag != secondEnvironmentFirstTag ||
++                 firstEnvironmentSecondTag != secondTag,
++             "dynamic graph fixture did not exercise distinct per-environment masks");
++}
++
++void checkDynamicGraphGripTransitions(const MaterialProgram& material) {
++    constexpr std::uint32_t environments = 2u;
++    const auto scalarWorld = cook(source(material,
++        FEMPreconditionerMode::scalarDiagonal, false, environments));
++    const auto graphWorld = cook(source(material,
++        FEMPreconditionerMode::regionalGalerkinGraphSchwarz, false,
++        environments));
++    need(graphWorld.dispatch.femNodeCount == 5u &&
++             graphWorld.dispatch.environmentCount == environments &&
++             graphWorld.mixedSolver.executionBudgets.z == 5u,
++         "dynamic graph fixture did not compile its two-environment selector-5 mesh");
++    NativeRun scalarRun(scalarWorld, NUMI_MATTER_METALLIB);
++    NativeRun graphRun(graphWorld, NUMI_MATTER_METALLIB);
++    RunResult scalar = scalarRun.run(0u);
++    RunResult graph = graphRun.run(0u);
++    compareDynamicMaskRuns(scalar, graph, 0u);
++    need(constrainedNodeCount(graph.snapshot, 0u, 5u) == 3u &&
++             constrainedNodeCount(graph.snapshot, 1u, 5u) == 3u,
++         "dynamic graph fixture did not start with 3 fixed nodes in each environment");
++    for (std::uint32_t environment = 0u; environment < environments; ++environment)
++        for (std::uint32_t node = 0u; node < 3u; ++node)
++            need(graph.snapshot.femNodes[
++                     std::size_t(environment) * 5u + node].restAndFixed.w == 1.0f,
++                 "dynamic graph fixture source-fixed node was not authored fixed");
++
++    const auto acquireDistinct = makeEnvironmentGripTargets(
++        scalar.snapshot, environments, 5u,
++        {{0u, 0u, 2.0f}, {0u, 3u, 3.0f},
++         {1u, 1u, 2.0f}, {1u, 4u, 3.0f}});
++    scalar = scalarRun.run(1u, acquireDistinct);
++    graph = graphRun.run(1u, acquireDistinct);
++    compareDynamicMaskRuns(scalar, graph, 1u);
++    need(constrainedNodeCount(graph.snapshot, 0u, 5u) == 3u &&
++             constrainedNodeCount(graph.snapshot, 1u, 5u) == 3u &&
++             graph.snapshot.femNodes[0u].restAndFixed.w == 0.0f &&
++             graph.snapshot.femNodes[5u + 1u].restAndFixed.w == 0.0f &&
++             graph.snapshot.femNodes[0u].velocityAndInverseMass.w > 0.0f &&
++             graph.snapshot.femNodes[5u + 1u].velocityAndInverseMass.w > 0.0f &&
++             graph.snapshot.femNodes[3u].restAndFixed.w == 3.0f &&
++             graph.snapshot.femNodes[5u + 4u].restAndFixed.w == 3.0f,
++         "selector-5 graph did not release source-fixed nodes and acquire per-environment grips");
++    checkEffectiveBasisUsesPerEnvironmentMask(graph, 3u, 4u, true);
++
++    const auto env0Release = makeEnvironmentGripTargets(
++        scalar.snapshot, environments, 5u, {{0u, 3u, 2.0f}});
++    scalar = scalarRun.run(2u, env0Release);
++    graph = graphRun.run(2u, env0Release);
++    compareDynamicMaskRuns(scalar, graph, 2u);
++    need(constrainedNodeCount(graph.snapshot, 0u, 5u) == 2u &&
++             constrainedNodeCount(graph.snapshot, 1u, 5u) == 3u &&
++             graph.snapshot.femNodes[3u].restAndFixed.w == 0.0f &&
++             graph.snapshot.femNodes[5u + 4u].restAndFixed.w == 3.0f,
++         "selector-5 graph did not accept a one-environment grip release");
++    checkEffectiveBasisUsesPerEnvironmentMask(graph, 3u, 4u, true);
++
++    const auto swapGrips = makeEnvironmentGripTargets(
++        scalar.snapshot, environments, 5u,
++        {{0u, 4u, 3.0f}, {1u, 4u, 2.0f}, {1u, 1u, 3.0f}});
++    scalar = scalarRun.run(3u, swapGrips);
++    graph = graphRun.run(3u, swapGrips);
++    compareDynamicMaskRuns(scalar, graph, 3u);
++    need(graph.snapshot.femNodes[4u].restAndFixed.w == 3.0f &&
++             graph.snapshot.femNodes[5u + 4u].restAndFixed.w == 0.0f &&
++             graph.snapshot.femNodes[5u + 1u].restAndFixed.w == 3.0f &&
++             constrainedNodeCount(graph.snapshot, 0u, 5u) == 3u &&
++             constrainedNodeCount(graph.snapshot, 1u, 5u) == 3u,
++         "selector-5 graph did not support environment-specific grip exchange");
++    checkEffectiveBasisUsesPerEnvironmentMask(graph, 3u, 4u, true);
++
++    const auto releaseEnv0 = makeEnvironmentGripTargets(
++        scalar.snapshot, environments, 5u,
++        {{0u, 4u, 2.0f}, {1u, 1u, 2.0f}});
++    scalar = scalarRun.run(4u, releaseEnv0);
++    graph = graphRun.run(4u, releaseEnv0);
++    compareDynamicMaskRuns(scalar, graph, 4u);
++    need(constrainedNodeCount(graph.snapshot, 0u, 5u) == 2u &&
++             constrainedNodeCount(graph.snapshot, 1u, 5u) == 2u &&
++             graph.snapshot.femNodes[5u + 1u].restAndFixed.w == 0.0f,
++         "selector-5 graph did not release the environment-specific grips");
++    checkEffectiveBasisUsesPerEnvironmentMask(graph, 3u, 4u, false);
++
++    std::cout << "{\"schema\":1,\"record\":\"selector5_dynamic_grip_transition_fixture\""
++        << ",\"physical_validation\":false,\"accepted_transactions_per_selector\":5"
++        << ",\"environment_count\":2,\"initial_fixed_nodes_per_environment\":3"
++        << ",\"acquire_node_env0\":3,\"acquire_node_env1\":4"
++        << ",\"released_source_fixed_nodes\":true"
++        << ",\"released_and_swapped_masks\":true"
++        << ",\"selector0_state_certificate_comparison\":true"
++        << ",\"contact_free_immutable_FEM_scope\":true}\n";
+ }
+ 
+ double maxAbsoluteDifference(
+@@ -2204,11 +2494,13 @@
+             checkInvariance(scalar,block);
+             checkInvariance(regional,block);
+             checkGripMaskTransition(material);
++            checkDynamicGraphGripTransitions(material);
+             checkActiveCohesiveAP(material);
+             checkTangentCacheInvariance(material);
+             std::cout<<"PASS regional RAP/block-Jacobi source-bound FP64 and selector invariance"
+                      <<" native_transactions=8 physical_validation=false"
+                      <<" grip_transition_transactions=3"
++                     <<" graph_dynamic_mask_transactions=10"
+                      <<" active_cohesive_transactions=2 tangent_cache_transactions=2"
+                      <<" scope=synthetic-elastic-and-active-mortar-operator-and-pure-FEM-cache"<<'\n';
+             return 0;

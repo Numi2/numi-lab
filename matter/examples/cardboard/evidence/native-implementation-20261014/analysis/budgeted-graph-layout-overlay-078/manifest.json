@@ -1,0 +1,37 @@
+{
+  "schema": "numi.cardboard.budgeted-graph-layout-overlay.v1",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-stateless-compensated-and-validation-admission-077",
+  "patch_sha256": "3799b22244f4177b13d69b9ef882d4125d0332cb2a5eff8a1232906446cebd0e",
+  "changed_files": [
+    {
+      "path": "matter/src/regional_graph_schwarz.hpp",
+      "base_sha256": "45a664b8edf49cd334e2497f5d10026597cd70a8e1792abba0bba5a4a605f781",
+      "overlay_sha256": "a8a6328d608ba7db4943025f15d35d750968755a8826de32b14b479752c9121d"
+    },
+    {
+      "path": "matter/src/runtime.mm",
+      "base_sha256": "5c70789647a9c0ceacaeb10565aaaee30e2a901761c1d04e6e431fdafe0aeef1",
+      "overlay_sha256": "efbbc3a9d683fb28814e6cd132b13d6fd500bcfdd9f6ae4c445a79af96a0a5c2"
+    },
+    {
+      "path": "matter/tools/regional_graph_schwarz_layout_check.cpp",
+      "base_sha256": "884588206bf7cbbe957e47aabe102105d65f076ed68337030195890ebdbaa048",
+      "overlay_sha256": "30ffe32c3f4eebb135cd7aa9b735192a5154bdb03dca84463a30b7a0135ae841"
+    }
+  ],
+  "cpu_command": [
+    "xcrun",
+    "clang++",
+    "-std=c++20",
+    "-O2",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror",
+    "/Users/home/cardboard-implementation-20261014/analysis/budgeted-graph-layout-overlay-078/matter/tools/regional_graph_schwarz_layout_check.cpp",
+    "-o",
+    "/Users/home/cardboard-implementation-20261014/analysis/budgeted-graph-layout-overlay-078/layout-check"
+  ],
+  "cpu_exit": 0,
+  "scope": "Conditioning-only bounded layout fallback. Legacy admitted layouts preserved; CPU only pending actual-native factor and accepted-history parity. No limit, operator or tolerance changes."
+}

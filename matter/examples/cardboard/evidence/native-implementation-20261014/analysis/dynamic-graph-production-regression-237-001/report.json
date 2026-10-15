@@ -1,0 +1,147 @@
+{
+  "schema": "numi.cardboard.conditioning-regression.v1",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/sourcefit15-dynamic-grips-tail-baseline-first-control-237",
+  "receipt": {
+    "schema": "numi.cardboard.native-run-receipt.v2",
+    "execution_started": true,
+    "source_inputs_unchanged": true,
+    "changed_inputs": [],
+    "exit_code": 2,
+    "timed_out": false,
+    "termination_errors": [],
+    "wall_seconds": 194.50552291597705,
+    "finished_at_utc": "2026-10-15T06:40:12.228606+00:00"
+  },
+  "result": {
+    "schema": "numi.cardboard.probe-result.v1",
+    "status": "failed",
+    "accepted_steps": 0,
+    "compiled_world_fingerprint": 11435624337443124422,
+    "nodes": 882,
+    "tetrahedra": 1920,
+    "material_map_sha256": "1bfcfd4eedb2c328811d4dbca26b51f3f996a83398c2e51108e2126e4c541c31",
+    "authored_region_map_sha256": "8513c9e0e7f3f784ed3de52b609ac26837197d4ba3d0bf5d33a067136afafec4",
+    "frame_map_sha256": "94e426a5d9d06445e3f44d1046f8b49bdae23a5752691f9776118222f4d7b740",
+    "damage_overlay_mapping_sha256": "",
+    "failure": "Matter rejected step 0; status, diagnostic state OBJ, and CSV observations were retained; rejected geometry is not an accepted animation frame",
+    "physical_validation": false
+  },
+  "final_iteration": {
+    "schema": 1,
+    "root": 0,
+    "newton_iteration": 63,
+    "semantics": {
+      "base_l2": "exact assembled free-node mechanical residual before this Newton correction, impulse units",
+      "trial_l2": "selected residual if accepted, otherwise last tested residual",
+      "trial_alpha": "selected alpha if accepted, otherwise last tested alpha",
+      "environment_line_search_alpha": "environment-scoped alpha read by rigid apply; residual Armijo may update the FEM object alpha independently"
+    },
+    "environments": [
+      {
+        "base_l2": 2.42653041e-05,
+        "trial_l2": 2.42286787e-05,
+        "trial_alpha": 0.00390625,
+        "accepted": true,
+        "certified_noop": false,
+        "selected_alpha": 0.00390625,
+        "environment_line_search_alpha": 0.00390625,
+        "minimum_J": 0.999140859,
+        "line_search_raw": [
+          0.00390625,
+          0.999140859,
+          9,
+          63
+        ],
+        "solver_status_code": 0,
+        "solver_status": {
+          "code": 0,
+          "environment": 0,
+          "object_index": 4294967295,
+          "failing_index": 4294967295,
+          "completed_microsteps": 0,
+          "fgmres_iterations": 27,
+          "contact_count": 0,
+          "event_count": 0,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        },
+        "trial_status": {
+          "code": 10,
+          "environment": 0,
+          "object_index": 0,
+          "failing_index": 0,
+          "completed_microsteps": 0,
+          "fgmres_iterations": 0,
+          "contact_count": 0,
+          "event_count": 0,
+          "diagnostics": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      },
+      {
+        "base_l2": 6.78000447e-08,
+        "trial_l2": 6.78000447e-08,
+        "trial_alpha": 0,
+        "accepted": true,
+        "certified_noop": true,
+        "selected_alpha": 1,
+        "environment_line_search_alpha": 1,
+        "minimum_J": 1,
+        "line_search_raw": [
+          1,
+          1,
+          1,
+          63
+        ],
+        "solver_status_code": 0,
+        "solver_status": {
+          "code": 0,
+          "environment": 1,
+          "object_index": 4294967295,
+          "failing_index": 4294967295,
+          "completed_microsteps": 0,
+          "fgmres_iterations": 5,
+          "contact_count": 0,
+          "event_count": 0,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        },
+        "trial_status": {
+          "code": 10,
+          "environment": 0,
+          "object_index": 0,
+          "failing_index": 0,
+          "completed_microsteps": 0,
+          "fgmres_iterations": 0,
+          "contact_count": 0,
+          "event_count": 0,
+          "diagnostics": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      }
+    ]
+  },
+  "first_certified_noop": [
+    null,
+    0
+  ],
+  "prior_success": "/Users/home/cardboard-implementation-20261014/solver/sourcefit15-refined-graph-first-control-233",
+  "interpretation": "074allpotentialgraph changes initial patch memberships and fine conditioning; small234transitionspass but production baseline fails strict unchanged acceptance. Physical operator unchanged; conditioning effects on inexact nonlinear iteration require correction. Keep original initialfree layout plus disjoint released-node coverage candidate; nativeproofpending.",
+  "tolerance_relaxed": false
+}

@@ -1,0 +1,245 @@
+--- a/matter/src/metal/fgmres.metalinc
++++ b/matter/src/metal/fgmres.metalinc
+@@ -2463,6 +2463,7 @@
+     device const NMFGMRESStateGPU* fgmresStates [[buffer(10)]],
+     constant uint& reuseCompletedTailAllowed [[buffer(11)]],
+     device const uint* priorFactorValid [[buffer(12)]],
++    constant uint& parallelSearch [[buffer(13)]],
+     uint lane [[thread_index_in_threadgroup]],
+     uint group [[threadgroup_position_in_grid]]) {
+     const uint totalGroups = dispatch.environmentCount * patchCount;
+@@ -2489,6 +2490,11 @@
+     threadgroup float sharedPivotMagnitude;
+     threadgroup float sharedDiagonal;
+     threadgroup atomic_uint sharedError;
++    // Per-lane summaries make the O(n^2) scale scan and O(n) pivot scan
++    // parallel while retaining exact FP32 values and first-row tie breaking.
++    threadgroup float searchMagnitude[256];
++    threadgroup uint searchIndex[256];
++    threadgroup uint searchInvalid[256];
+     if (lane == 0u) {
+         factorValid[validIndex] = 0u;
+         sharedValid = patch.y > 0u && patch.y <= 256u && n <= 768u &&
+@@ -2508,17 +2514,55 @@
+         originalMatrices[originalMatrixBase + entry] =
+             matrices[matrixBase + entry];
+     threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+-    if (lane == 0u) {
+-        for (uint index = 0u; index < n * n; ++index) {
++    if (parallelSearch == 0u) {
++        // Exact legacy serial path remains selectable as the parity control.
++        if (lane == 0u) {
++            for (uint index = 0u; index < n * n; ++index) {
++                const float value = matrices[matrixBase + index];
++                if (!isfinite(value)) {
++                    sharedValid = 0u;
++                    break;
++                }
++                sharedScale = max(sharedScale, abs(value));
++            }
++            if (!(sharedScale > 0.0f) || !isfinite(sharedScale))
++                sharedValid = 0u;
++        }
++    } else {
++        float laneScale = 0.0f;
++        uint laneInvalid = 0u;
++        for (uint index = lane; index < n * n; index += 256u) {
+             const float value = matrices[matrixBase + index];
+-            if (!isfinite(value)) {
++            if (!isfinite(value)) laneInvalid = 1u;
++            else laneScale = max(laneScale, abs(value));
++        }
++        searchMagnitude[lane] = laneScale;
++        searchInvalid[lane] = laneInvalid;
++        threadgroup_barrier(mem_flags::mem_threadgroup);
++        if (lane == 0u) {
++            bool invalidInput = false;
++            for (uint laneIndex = 0u; laneIndex < 256u; ++laneIndex)
++                invalidInput = invalidInput || searchInvalid[laneIndex] != 0u;
++            if (invalidInput) {
++                // Re-run the old ordered scan only on invalid inputs so its
++                // partial-scale diagnostic remains identical.
++                sharedScale = 0.0f;
++                for (uint index = 0u; index < n * n; ++index) {
++                    const float value = matrices[matrixBase + index];
++                    if (!isfinite(value)) {
++                        sharedValid = 0u;
++                        break;
++                    }
++                    sharedScale = max(sharedScale, abs(value));
++                }
++            } else {
++                sharedScale = 0.0f;
++                for (uint laneIndex = 0u; laneIndex < 256u; ++laneIndex)
++                    sharedScale = max(sharedScale, searchMagnitude[laneIndex]);
++            }
++            if (!(sharedScale > 0.0f) || !isfinite(sharedScale))
+                 sharedValid = 0u;
+-                break;
+-            }
+-            sharedScale = max(sharedScale, abs(value));
+-        }
+-        if (!(sharedScale > 0.0f) || !isfinite(sharedScale))
+-            sharedValid = 0u;
++        }
+     }
+     threadgroup_barrier(mem_flags::mem_threadgroup);
+     if (sharedValid == 0u) {
+@@ -2530,41 +2574,113 @@
+     }
+     const float pivotFloor = max(sharedScale * 1.0e-10f, 1.0e-30f);
+     for (uint k = 0u; k < n; ++k) {
+-        if (lane == 0u) {
+-            sharedPivotRow = k;
+-            sharedPivotMagnitude = 0.0f;
+-            for (uint row = k; row < n; ++row) {
++        if (parallelSearch == 0u) {
++            if (lane == 0u) {
++                sharedPivotRow = k;
++                sharedPivotMagnitude = 0.0f;
++                for (uint row = k; row < n; ++row) {
++                    const float magnitude = abs(matrices[
++                        matrixBase + row * n + k]);
++                    if (!isfinite(magnitude)) {
++                        sharedValid = 0u;
++                        break;
++                    }
++                    if (magnitude > sharedPivotMagnitude) {
++                        sharedPivotMagnitude = magnitude;
++                        sharedPivotRow = row;
++                    }
++                }
++                if (!(sharedPivotMagnitude > pivotFloor)) sharedValid = 0u;
++                if (sharedValid != 0u && sharedPivotRow != k) {
++                    const uint other = sharedPivotRow;
++                    for (uint column = 0u; column < n; ++column) {
++                        const uint a = matrixBase + k * n + column;
++                        const uint b = matrixBase + other * n + column;
++                        const float temporary = matrices[a];
++                        matrices[a] = matrices[b];
++                        matrices[b] = temporary;
++                    }
++                    const uint a = pivotBase + k;
++                    const uint b = pivotBase + other;
++                    const uint temporary = pivots[a];
++                    pivots[a] = pivots[b];
++                    pivots[b] = temporary;
++                }
++            }
++            // Preserve the legacy pivot, swap and control path exactly.
++            threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
++        } else {
++            float laneMagnitude = 0.0f;
++            uint laneRow = k;
++            uint laneInvalid = 0u;
++            for (uint row = k + lane; row < n; row += 256u) {
+                 const float magnitude = abs(matrices[
+                     matrixBase + row * n + k]);
+                 if (!isfinite(magnitude)) {
+-                    sharedValid = 0u;
+-                    break;
+-                }
+-                if (magnitude > sharedPivotMagnitude) {
+-                    sharedPivotMagnitude = magnitude;
+-                    sharedPivotRow = row;
++                    laneInvalid = 1u;
++                } else if (magnitude > laneMagnitude) {
++                    laneMagnitude = magnitude;
++                    laneRow = row;
+                 }
+             }
+-            if (!(sharedPivotMagnitude > pivotFloor)) sharedValid = 0u;
++            searchMagnitude[lane] = laneMagnitude;
++            searchIndex[lane] = laneRow;
++            searchInvalid[lane] = laneInvalid;
++            threadgroup_barrier(mem_flags::mem_threadgroup);
++            if (lane == 0u) {
++                bool invalidColumn = false;
++                for (uint laneIndex = 0u; laneIndex < 256u; ++laneIndex)
++                    invalidColumn = invalidColumn || searchInvalid[laneIndex] != 0u;
++                sharedPivotRow = k;
++                sharedPivotMagnitude = 0.0f;
++                if (invalidColumn) {
++                    // Preserve the legacy partial-pivot diagnostic exactly.
++                    for (uint row = k; row < n; ++row) {
++                        const float magnitude = abs(matrices[
++                            matrixBase + row * n + k]);
++                        if (!isfinite(magnitude)) {
++                            sharedValid = 0u;
++                            break;
++                        }
++                        if (magnitude > sharedPivotMagnitude) {
++                            sharedPivotMagnitude = magnitude;
++                            sharedPivotRow = row;
++                        }
++                    }
++                } else {
++                    for (uint laneIndex = 0u; laneIndex < 256u; ++laneIndex) {
++                        const float magnitude = searchMagnitude[laneIndex];
++                        const uint row = searchIndex[laneIndex];
++                        if (magnitude > sharedPivotMagnitude ||
++                            (magnitude == sharedPivotMagnitude &&
++                             row < sharedPivotRow)) {
++                            sharedPivotMagnitude = magnitude;
++                            sharedPivotRow = row;
++                        }
++                    }
++                }
++                if (!(sharedPivotMagnitude > pivotFloor)) sharedValid = 0u;
++            }
++            threadgroup_barrier(mem_flags::mem_threadgroup);
+             if (sharedValid != 0u && sharedPivotRow != k) {
+-                const uint other = sharedPivotRow;
+-                for (uint column = 0u; column < n; ++column) {
++                for (uint column = lane; column < n; column += 256u) {
+                     const uint a = matrixBase + k * n + column;
+-                    const uint b = matrixBase + other * n + column;
++                    const uint b = matrixBase + sharedPivotRow * n + column;
+                     const float temporary = matrices[a];
+                     matrices[a] = matrices[b];
+                     matrices[b] = temporary;
+                 }
+-                const uint a = pivotBase + k;
+-                const uint b = pivotBase + other;
+-                const uint temporary = pivots[a];
+-                pivots[a] = pivots[b];
+-                pivots[b] = temporary;
++                if (lane == 0u) {
++                    const uint a = pivotBase + k;
++                    const uint b = pivotBase + sharedPivotRow;
++                    const uint temporary = pivots[a];
++                    pivots[a] = pivots[b];
++                    pivots[b] = temporary;
++                }
++                threadgroup_barrier(mem_flags::mem_device |
++                                    mem_flags::mem_threadgroup);
+             }
+         }
+-        // Publish the pivot row/global matrix swap and lane-0 control words
+-        // before any lane consumes them in this pivot stage.
+-        threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+         if (sharedValid == 0u) break;
+         if (lane == 0u) {
+             sharedDiagonal = matrices[matrixBase + k * n + k];
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -14804,6 +14804,9 @@
+                                      offset:0u atIndex:26u];
+                     });
+                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++                    // Keep the legacy serial pivot search as the production
++                    // default until the prepared-input parity check is run.
++                    const std::uint32_t parallelGraphPivotSearch = 0u;
+                     dispatchGroups256("nm_fgmres_graph_factor_patches",
+                         environments * graphPatches, [&] {
+                         setDispatch();
+@@ -14833,6 +14836,9 @@
+                                   atIndex:11u];
+                         [encoder setBuffer:state.femRegionalGraphFactorValid
+                                      offset:0u atIndex:12u];
++                        [encoder setBytes:&parallelGraphPivotSearch
++                                   length:sizeof(parallelGraphPivotSearch)
++                                  atIndex:13u];
+                     });
+                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                 }

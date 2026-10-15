@@ -1105,17 +1105,60 @@ ConstitutiveCompileResult compileConstitutive(
             material.stateImplicitRoots.size()==material.internalState.size() &&
             std::ranges::all_of(material.stateImplicitRoots,
                 [](const std::uint32_t root) { return root!=NM_INVALID_INDEX; });
+        const auto rateOrHistoryDependency = [&](const std::uint32_t root) {
+            if (root == NM_INVALID_INDEX || root >= material.expressions.nodes.size())
+                return root != NM_INVALID_INDEX;
+            std::vector<std::uint32_t> pending{root};
+            std::vector<std::uint8_t> visited(material.expressions.nodes.size(), 0u);
+            while (!pending.empty()) {
+                const std::uint32_t index = pending.back();
+                pending.pop_back();
+                if (index >= material.expressions.nodes.size()) return true;
+                if (visited[index] != 0u) continue;
+                visited[index] = 1u;
+                const Expr& expression = material.expressions.nodes[index];
+                switch (expression.kind) {
+                case ExprKind::deformationDirection:
+                case ExprKind::deformationRate:
+                case ExprKind::timeStep:
+                case ExprKind::temperature:
+                case ExprKind::internalState:
+                case ExprKind::candidateState:
+                    return true;
+                default:
+                    break;
+                }
+                for (const std::uint32_t argument : expression.arguments) {
+                    if (argument != NM_INVALID_INDEX) pending.push_back(argument);
+                }
+            }
+            return false;
+        };
+        const bool statelessGenericStoredEnergy =
+            material.paperCompensatedArithmetic &&
+            !material.paperHillScalarInitializer &&
+            !material.paperHillAccurateProjection &&
+            !material.genericCompensatedImplicitProjection &&
+            material.hint == ConstitutiveHint::generic &&
+            material.internalState.empty() &&
+            material.stateUpdateRoots.empty() &&
+            material.stateImplicitRoots.empty() &&
+            material.dissipationRoot == NM_INVALID_INDEX &&
+            !material.learned.has_value() &&
+            !rateOrHistoryDependency(material.energyRoot) &&
+            !rateOrHistoryDependency(material.validityRoot);
         if((material.genericCompensatedImplicitProjection &&
                 !genericProjectionLayout) ||
            ((material.paperHillScalarInitializer ||
              material.paperCompensatedArithmetic ||
              material.paperHillAccurateProjection) &&
-                !valid && !finiteElasticStarch && !genericProjectionLayout) ||
+                !valid && !finiteElasticStarch && !genericProjectionLayout &&
+                !statelessGenericStoredEnergy) ||
            (material.paperHillAccurateProjection && !material.paperCompensatedArithmetic)) {
             result.diagnostics.push_back({Diagnostic::Severity::error,0u,0u,
                 genericProjectionLayout || finiteElasticStarch
                     ? "accurate Hill projection requires compensated arithmetic"
-                    : "compensated arithmetic requires source-ordered 13-state Hill, stateless finite elastic starch, or a fully implicit generic bytecode layout; generic compensated projection cannot combine with Hill-only policies"});
+                    : "compensated arithmetic requires source-ordered 13-state Hill, stateless finite elastic starch, stateless rate-independent generic stored energy, or a fully implicit generic bytecode layout; generic compensated projection cannot combine with Hill-only policies"});
             return result;
         }
     }

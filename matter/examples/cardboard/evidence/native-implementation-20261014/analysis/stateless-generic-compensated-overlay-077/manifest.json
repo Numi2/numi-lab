@@ -1,0 +1,201 @@
+{
+  "schema": "numi.matter.stateless_generic_compensated_overlay.v1",
+  "overlay_id": "stateless-generic-compensated-overlay-077",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-stable-free-graph-and-general-arithmetic-076",
+  "base_parent_revision": "35bfb518c542a306f563cc364ef8496837068b9a",
+  "base_snapshot_parent": "/Users/home/cardboard-implementation-20261014/snapshots/source-completed-graph-tail-and-signed-contact-oracle-075",
+  "frozen_source_manifest_sha256": "9b9047688d4da51739f97a35c0c0c24c57a38bcf4631088d4377ab9697c1d516",
+  "patch": {
+    "path": "patch.diff",
+    "sha256": "e8711bc4ce4e7349ca41905b62ce34504b001b28a4a4407a8e24eb1e628fd78f",
+    "bytes": 29898
+  },
+  "changed_files": [
+    {
+      "path": "matter/src/constitutive_impl.cpp",
+      "base_sha256": "379aabf5123cc5ab3c27accffaf563737c8f092fe45ed1cec790429011c1cd25",
+      "overlay_sha256": "1283f1eec9718dee77b94e47f5bcbbf3a30f3a81f8c75f2609b41b0d4d6ba5e9"
+    },
+    {
+      "path": "matter/src/validation_impl.cpp",
+      "base_sha256": "2b63b7d3fc0da732fe36edc6413e98985c7cede382904ccdbe7e020443eb1e15",
+      "overlay_sha256": "00e9e973eff1bb262f3ec2d2921270bef7fcc77608d191b1402569fe698374c0"
+    },
+    {
+      "path": "matter/tools/cardboard_generic_compensated_projection_check.cpp",
+      "base_sha256": "d19ff7cdb58684534f67557abc7077cd35ead4783fd848cb405730d0a170d688",
+      "overlay_sha256": "fba4e8c8570a75813ed3b2f8daca2a98bd0b2d2d06300367b3a0dd941297229e"
+    }
+  ],
+  "supporting_files": [
+    {
+      "path": "README.md",
+      "sha256": "ffa234f35b344181f399c3934548f6ec2808ea2e49d11203d0c1c7090b1bbf9d",
+      "bytes": 2711
+    },
+    {
+      "path": "run_cpu_overlay.sh",
+      "sha256": "46c288fd0c837147750e4e7c56bb7f59dd3750d50d53b657d4e2126c9cdeaf87",
+      "bytes": 2025
+    },
+    {
+      "path": "historical-first-ready-manifest-recovery-status.json",
+      "sha256": "298c5788c62d8d0b23f627e3b4d3b9c67f3dad6841b48ca84793c441892ebeeb",
+      "bytes": 974
+    }
+  ],
+  "unchanged_guards": {
+    "compiler_impl_sha256": "a194cef5c9e5403bdafe91d864612626afb9ebb86af34ec5b04bf91f3fd1a281",
+    "ordered_compensated_vm_sha256": "f578310307a4698692fc57117340794ac4ce2d3813cdfcf705da6a018a5976aa",
+    "cmake_changed": false,
+    "runtime_or_metal_changed": false,
+    "unsupported_fiber_exp_linear_rejection": "existing compiler and layout-validator checks remain unchanged and are exercised by the CPU negative case"
+  },
+  "admission_contract": {
+    "opt_in_flag": "MaterialProgram.paperCompensatedArithmetic",
+    "accepted_material": "generic stateless stored energy",
+    "required_source_properties": [
+      "no internal state",
+      "no explicit or implicit state updates",
+      "no dissipation root",
+      "no learned law",
+      "no Hill-only policy",
+      "energy and validity roots contain no deformation direction/rate, time step, temperature, internal-state, or candidate-state dependency"
+    ],
+    "cooked_layout_guards": [
+      "generic bytecode and generic projection kind",
+      "zero state count",
+      "no state, implicit, dissipation, viscous, or state-update program ranges",
+      "stress and validity exclude rate/time/temperature/state opcodes",
+      "tangent excludes rate/time/temperature/state opcodes; deformation-direction is allowed"
+    ],
+    "equations_or_parameters_changed": false,
+    "default_material_behavior_changed": false
+  },
+  "input_material": {
+    "path": "matter/materials/nagasawa2013_medium_orthotropic.nmatter",
+    "base_sha256": "ce39e29918c0111ab1e25e9af8a69eb0e3f7f6f07d1227bfd443da735d9ea348",
+    "retained_copy": {
+      "path": "inputs/nagasawa2013_medium_orthotropic.nmatter",
+      "sha256": "ce39e29918c0111ab1e25e9af8a69eb0e3f7f6f07d1227bfd443da735d9ea348",
+      "bytes": 3495
+    }
+  },
+  "cpu_build_binding": {
+    "compiler": "Apple clang 21.0.0 (clang-2100.0.123.102), arm64",
+    "source_archive_path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-076/matter/libnumi_matter_compiler.a",
+    "source_archive_sha256": "b6c9d83464468fa1eb4a06dadf49aff4bfb537e1707a4535c68b18c35416bbcb",
+    "cmake_cache_path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-076/CMakeCache.txt",
+    "cmake_cache_sha256": "3f043c73212fab001d13b88eaec00f8229cf43d1cc5095a809650ab3c529c57c",
+    "cmake_home_directory": "/Users/home/cardboard-implementation-20261014/snapshots/source-stable-free-graph-and-general-arithmetic-076",
+    "link_method": "The test TU and patched constitutive/validation objects were compiled from overlay source and linked before the frozen-076 compiler archive, replacing only those two archived objects at link resolution.",
+    "compile_script": {
+      "path": "run_cpu_overlay.sh",
+      "sha256": "46c288fd0c837147750e4e7c56bb7f59dd3750d50d53b657d4e2126c9cdeaf87",
+      "bytes": 2025
+    },
+    "compiled_objects": [
+      {
+        "path": "evidence/constitutive_impl_overlay.o",
+        "sha256": "1c10866166d0e93da5f7f646bc6cf111931fff74f63f6cabd0761d1a9b640dcc",
+        "bytes": 83200
+      },
+      {
+        "path": "evidence/validation_impl_overlay.o",
+        "sha256": "9def4e168091f2959ddd4b65aeea19c0ab0e41044f3a06b07e0e4019efdcb37a",
+        "bytes": 86712
+      },
+      {
+        "path": "evidence/generic_compensated_projection_check_overlay.o",
+        "sha256": "01a26973700ef1cc16f82fe55171ff051badb1a44a678310353d2253eda8d0fc",
+        "bytes": 512640
+      }
+    ],
+    "patched_executable": {
+      "path": "evidence/generic-compensated-overlay-check",
+      "sha256": "8ff0c83a90cf1efe8e164f05bef585a668503731dd6317b9ca28a32adaf0e9d2",
+      "bytes": 924512
+    },
+    "frozen_baseline_executable": {
+      "path": "evidence/frozen076-negative-control",
+      "sha256": "1d40d0930498ad2e9a8567a5539305fe7b927a36e24cd6c4cdc3074fd7fa3dd4",
+      "bytes": 924264
+    }
+  },
+  "verification": [
+    {
+      "name": "patch dry-run/application and output-byte comparison",
+      "status": "PASS",
+      "receipt": {
+        "path": "evidence/patch-check-003.log",
+        "sha256": "753e6ea0fd2c5938643dc207e5d037fc33835fb3500a6ebaa0d074cc48c8d921",
+        "bytes": 387
+      }
+    },
+    {
+      "name": "patched CPU/compiler check",
+      "status": "PASS",
+      "exit_code": 0,
+      "receipt": {
+        "path": "evidence/cpu-run-002.log",
+        "sha256": "3c78990e8b281fa1301a52a8e754780173df81ce34dfe4bd2d9dbafab2e1e1cf",
+        "bytes": 1146
+      },
+      "stdout": {
+        "path": "evidence/patched-cpu-002.stdout.log",
+        "sha256": "bdfd71f8809d0083d8a6dbf6d620e02baaf78268ccb415bba54d8ab4b762d251",
+        "bytes": 633
+      },
+      "stderr": {
+        "path": "evidence/patched-cpu-002.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      }
+    },
+    {
+      "name": "unmodified frozen-076 negative control",
+      "status": "EXPECTED_REJECTION",
+      "exit_code": 1,
+      "expected_message": "opt-in Nagasawa compensated world compile rejected at original policy gate",
+      "captured_in": {
+        "path": "evidence/cpu-run-002.log",
+        "sha256": "3c78990e8b281fa1301a52a8e754780173df81ce34dfe4bd2d9dbafab2e1e1cf",
+        "bytes": 1146
+      }
+    }
+  ],
+  "measured_cpu_results": {
+    "preexisting_generic_implicit_control": "PASS; smooth FP64 tangent finite-difference relative error 7.2047e-11",
+    "Nagasawa_default_path": "PASS; uncompensated baseline compiles and scalar bytecode flags remain ordinary",
+    "Nagasawa_compensated_path": "PASS; cooked layout validates, material has zero state, all scalar programs select two-word evaluation, compiled world fingerprint differs, and authored instruction streams compare fieldwise identical",
+    "near_rest_ordinary_fp32_stress_relative_error": 0.925984,
+    "near_rest_compensated_stress_relative_error": 1.18691e-07,
+    "near_rest_compensated_directional_tangent_relative_error": 8.41643e-15,
+    "independent_source_tangent_finite_difference_relative_error": 4.86151e-11,
+    "negative_internal_state_rate_dissipation_and_cooked_layout_cases": "PASS",
+    "unsupported_fiber_bytecode": "PASS; compileWorld rejects the fiber-specific exponential",
+    "native_metal_execution": "NOT RUN",
+    "physical_validation": "NOT CLAIMED"
+  },
+  "historical_manifest_recovery": {
+    "schema": "numi.cardboard.historical_manifest_recovery_status.v1",
+    "requested_artifact": "/Users/home/cardboard-implementation-20261014/analysis/dynamic-grip-stable-prefix-overlay-002/manifest.json",
+    "requested_first_ready_sha256_prefix": "2e873611",
+    "recovered_original_bytes": false,
+    "available_later_revision_sha256": "f33e175531afb233de918e71e9ee359a922172b9a1852a325b3f1c52b4046eaa",
+    "frozen_source_076_overlay_manifest_sha256": "f33e175531afb233de918e71e9ee359a922172b9a1852a325b3f1c52b4046eaa",
+    "note": "The prior file was overwritten by a later syntax-check revision. A bounded search of retained analysis/snapshot files found no copy matching the cited first-ready prefix. The current later-revision bytes are preserved; no reconstructed or substituted manifest is labeled as original.",
+    "manifest_like_files_searched": 6116,
+    "search_roots": [
+      "/Users/home/cardboard-implementation-20261014",
+      "/Users/home/numi-cardboard-20261006"
+    ]
+  },
+  "immutable_readiness": {
+    "patch_application_verified": true,
+    "CPU_check_passed": true,
+    "frozen_base_untouched": true,
+    "CMake_or_shared_checkout_edited": false,
+    "no_post_manifest_edits_intended": true
+  }
+}

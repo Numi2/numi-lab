@@ -1,0 +1,295 @@
+--- a/matter/tools/cardboard_free_box_angular_native_check.mm
++++ b/matter/tools/cardboard_free_box_angular_native_check.mm
+@@ -512,6 +512,184 @@
+         source.inverseInertiaWorldRow2.x,source.inverseInertiaWorldRow2.y,source.inverseInertiaWorldRow2.z,
+         float(candidate[0]),float(candidate[1]),float(candidate[2])};
+     return fp32WordList(words);
++}
++
++// Continuous FP64 candidate projection for the BOX contact residual oracle.
++// Every accepted/source quantity is read from the production FP32 structs
++// and promoted exactly; only the directional candidate perturbation is kept
++// in double. This deliberately avoids the native FP32 projection used by the
++// legacy candidate-FD diagnostic below.
++struct FP64BoxCandidate {
++    V3 bodyPosition{}, linearVelocity{}, angularVelocity{}, center{}, half{};
++    Q4 bodyOrientation{}, proxyOrientation{};
++    M3 inverseInertiaWorld{};
++    double bodyInverseMass=0.0;
++};
++
++Q4 normalizeQ(Q4 q){
++    double n2=0.0;for(double x:q)n2+=x*x;
++    if(!(n2>1.0e-30)||!std::isfinite(n2))return {NAN,NAN,NAN,NAN};
++    const double inverseNorm=1.0/std::sqrt(n2);for(double& x:q)x*=inverseNorm;return q;
++}
++Q4 conjugateQ(Q4 q){return {-q[0],-q[1],-q[2],q[3]};}
++V3 rotateQ(Q4 q,V3 value){return multiply(rotation(q),value);}
++
++FP64BoxCandidate fp64ProjectBoxCandidate(
++    const ProductionContact& scene,
++    const ProductionContact::State& state,
++    const std::array<double,6>& candidate
++){
++    const MRBodyStateGPU& source=state.body;
++    const NMRigidProxyGPU& proxy=scene.proxySource();
++    FP64BoxCandidate out;
++    const V3 sourcePosition=v3(source.position);
++    const Q4 sourceOrientation=normalizeQ(q4(source.orientation));
++    const V3 sourceLinear=v3(source.linearVelocityAndInverseMass);
++    const V3 sourceAngular=v3(source.angularVelocity);
++    for(int i=0;i<3;++i){out.linearVelocity[i]=sourceLinear[i]+candidate[i];out.angularVelocity[i]=sourceAngular[i]+candidate[i+3];}
++    out.bodyPosition=add(sourcePosition,mul(out.linearVelocity,scene.timestep()));
++    out.bodyOrientation=integrate(sourceOrientation,out.angularVelocity,scene.timestep());
++    const Q4 deltaOrientation=normalizeQ(qmul(out.bodyOrientation,conjugateQ(sourceOrientation)));
++    const M3 deltaRotation=rotation(deltaOrientation);
++    const M3 sourceInverse=sourceWorldInverseInertia(source);
++    out.inverseInertiaWorld=multiply(multiply(deltaRotation,sourceInverse),transpose(deltaRotation));
++    out.proxyOrientation=qmul(out.bodyOrientation,normalizeQ(q4(proxy.localOrientation)));
++    out.center=add(out.bodyPosition,rotateQ(out.bodyOrientation,v3(proxy.localCenterAndRadius)));
++    out.half=v3(proxy.localExtent);
++    out.bodyInverseMass=source.linearVelocityAndInverseMass.w;
++    return out;
++}
++
++struct FP64ContactProbe {
++    OracleSample sample{};
++    bool supportedSmoothBranch=false;
++    bool featureMargin=false;
++    bool barrierMargin=false;
++    bool strictInertialBranch=false;
++};
++
++FP64ContactProbe fp64ContinuousBoxContact(
++    const ProductionContact& scene,
++    const ProductionContact::State& state,
++    const std::array<double,6>& candidate
++){
++    const FP64BoxCandidate rigid=fp64ProjectBoxCandidate(scene,state,candidate);
++    const V3 point=v3(state.node.positionAndMass);
++    const V3 nodeVelocity=v3(state.node.velocityAndInverseMass);
++    const M3 proxyRotation=rotation(rigid.proxyOrientation),proxyRotationT=transpose(proxyRotation);
++    const V3 local=multiply(proxyRotationT,sub(point,rigid.center));
++    V3 closest{},signedOutside{},outside{};uint32_t feature=0u;bool featureMargin=true;
++    const double featureScale=std::max({maxAbs3(point),maxAbs3(rigid.bodyPosition),maxAbs3(rigid.half),scene.thickness(),1.0e-12});
++    const double featureTolerance=64.0*double(std::numeric_limits<float>::epsilon())*featureScale;
++    for(int i=0;i<3;++i){
++        signedOutside[i]=std::abs(local[i])-rigid.half[i];
++        closest[i]=std::clamp(local[i],-rigid.half[i],rigid.half[i]);
++        outside[i]=std::max(signedOutside[i],0.0);
++        if(signedOutside[i]>0.0)feature|=1u<<i;
++        if(std::abs(signedOutside[i])<=featureTolerance)featureMargin=false;
++    }
++    const double separation=norm(outside);
++    if(!(separation>1.0e-12)||!std::isfinite(separation))return {};
++    const V3 normal=rotateQ(rigid.proxyOrientation,mul(outside,1.0/separation));
++    const V3 witness=add(rigid.center,rotateQ(rigid.proxyOrientation,closest));
++    const V3 lever=sub(witness,rigid.bodyPosition);
++    const V3 proxyVelocity=add(rigid.linearVelocity,cross(rigid.angularVelocity,sub(rigid.center,rigid.bodyPosition)));
++    const V3 rigidPointVelocity=add(proxyVelocity,cross(rigid.angularVelocity,sub(witness,rigid.center)));
++    const double normalVelocity=dot(sub(nodeVelocity,rigidPointVelocity),normal);
++    const V3 angularArm=cross(lever,normal);
++    const double inverseResponse=scene.nodeInverseMass(state)+rigid.bodyInverseMass+
++        dot(angularArm,multiply(rigid.inverseInertiaWorld,angularArm));
++    const double dt=scene.timestep(),th=scene.thickness();
++    const double distance=std::max(separation,1.0e-4*th),s2=distance*distance,t2=th*th,offset=s2-t2,logarithm=std::log(s2/t2);
++    const double remaining=std::max(th-distance,1.0e-3*th),closing=std::max(-normalVelocity,0.0);
++    const double inertialDenominator=inverseResponse*dt*dt*t2;
++    const double impactDenominator=inverseResponse*dt*remaining*t2;
++    const double inertial=10.0/std::max(inertialDenominator,1.0e-20);
++    const double impact=closing/std::max(impactDenominator,1.0e-20);
++    const double stiffness=std::max(inertial,impact);
++    const double first=-stiffness*(2.0*offset*logarithm+offset*offset/s2);
++    const double second=-stiffness*(2.0*logarithm+4.0*offset/s2-offset*offset/(s2*s2));
++    const double radialRaw=4.0*s2*second+2.0*first;
++    const double radialProjected=separation<1.0e-4*th?0.0:std::max(radialRaw,0.0);
++    const double force=-2.0*distance*first,lambda=std::max(force,0.0)*dt;
++    const bool strictInertial=std::isfinite(inertial)&&std::isfinite(impact)&&inertial>0.0&&
++        impact<inertial*(1.0-32.0*double(std::numeric_limits<float>::epsilon()));
++    const bool barrierMargin=separation>1.0e-4*th&&separation<th&&
++        th-distance>1.0e-3*th&&inertialDenominator>1.0e-20&&impactDenominator>1.0e-20&&
++        force>0.0&&lambda>0.0&&inverseResponse>1.0e-12;
++    const bool localDistanceConsistent=std::abs(norm(outside)-separation)<=64.0*double(std::numeric_limits<float>::epsilon())*
++        std::max({norm(outside),separation,th});
++    OracleSample sample{};
++    sample.witness=witness;sample.normal=normal;sample.impulse=mul(normal,-lambda);sample.torque=cross(lever,sample.impulse);
++    sample.separation=separation;sample.normalVelocity=normalVelocity;sample.lambda=lambda;sample.inverseResponse=inverseResponse;sample.stiffness=stiffness;
++    sample.forceN=force;sample.firstSquared=first;sample.secondSquared=second;sample.radialCurvatureRaw=radialRaw;sample.radialCurvatureProjected=radialProjected;
++    sample.stiffnessBranch=strictInertial?0:(impact>inertial?1:-1);sample.feature=feature;
++    const bool supported=featureMargin&&barrierMargin&&strictInertial&&localDistanceConsistent&&
++        std::isfinite(norm(sample.impulse))&&std::isfinite(norm(sample.torque));
++    return {sample,supported,featureMargin,barrierMargin,strictInertial};
++}
++
++std::string fullContactInputBinding(const ProductionContact& scene,const ProductionContact::State& state,
++    const std::array<double,6>& candidate,const std::array<double,6>& direction){
++    std::vector<float> words;
++    auto append=[&](nm_float4 v){words.insert(words.end(),{v.x,v.y,v.z,v.w});};
++    auto appendMR=[&](mr_float4 v){words.insert(words.end(),{v.x,v.y,v.z,v.w});};
++    appendMR(state.body.position);appendMR(state.body.orientation);appendMR(state.body.linearVelocityAndInverseMass);appendMR(state.body.angularVelocity);
++    appendMR(state.body.inverseInertiaWorldRow0);appendMR(state.body.inverseInertiaWorldRow1);appendMR(state.body.inverseInertiaWorldRow2);
++    const auto& proxy=scene.proxySource();append(proxy.localCenterAndRadius);append(proxy.localExtent);append(proxy.localOrientation);
++    append(state.node.positionAndMass);append(state.node.velocityAndInverseMass);
++    words.push_back(float(scene.timestep()));words.push_back(float(scene.thickness()));
++    for(double x:candidate)words.push_back(float(x));for(double x:direction)words.push_back(float(x));
++    return fp32WordList(words);
++}
++
++std::string values6(const std::array<double,6>& values){
++    std::ostringstream out;out<<std::setprecision(17);
++    for(size_t i=0;i<values.size();++i){if(i)out<<',';out<<values[i];}
++    return out.str();
++}
++struct ContinuousFD {
++    std::array<double,6> action{},residualPlus{},residualMinus{},residualPlus2{},residualMinus2{};
++    bool resolvedBranch=false;std::string mode="none";uint32_t plusFeature=0,minusFeature=0;
++    int plusStiffness=-2,minusStiffness=-2;
++    double plusGap=0.0,minusGap=0.0,plusResponse=0.0,minusResponse=0.0,plusStiff=0.0,minusStiff=0.0;
++};
++bool sameContinuousBranch(const FP64ContactProbe& center,const FP64ContactProbe& other){
++    return center.supportedSmoothBranch&&other.supportedSmoothBranch&&center.sample.feature==other.sample.feature&&
++        center.sample.stiffnessBranch==other.sample.stiffnessBranch;
++}
++ContinuousFD fp64ContinuousDirectionalAction(const ProductionContact& scene,const ProductionContact::State& state,
++    const std::array<double,6>& centerCandidate,const std::array<double,6>& direction,double epsilon,
++    const FP64ContactProbe& center){
++    auto candidateAt=[&](double scale){auto value=centerCandidate;for(size_t i=0;i<6;++i)value[i]+=scale*direction[i];return value;};
++    const auto plus=fp64ContinuousBoxContact(scene,state,candidateAt(epsilon));
++    const auto minus=fp64ContinuousBoxContact(scene,state,candidateAt(-epsilon));
++    ContinuousFD out;out.plusFeature=plus.sample.feature;out.minusFeature=minus.sample.feature;out.plusStiffness=plus.sample.stiffnessBranch;out.minusStiffness=minus.sample.stiffnessBranch;
++    out.plusGap=plus.sample.separation;out.minusGap=minus.sample.separation;out.plusResponse=plus.sample.inverseResponse;out.minusResponse=minus.sample.inverseResponse;
++    out.plusStiff=plus.sample.stiffness;out.minusStiff=minus.sample.stiffness;
++    out.residualPlus=energyScaled(contactResidual(plus.sample),scene.characteristicLength());
++    out.residualMinus=energyScaled(contactResidual(minus.sample),scene.characteristicLength());
++    const auto r0=energyScaled(contactResidual(center.sample),scene.characteristicLength());
++    if(sameContinuousBranch(center,plus)&&sameContinuousBranch(center,minus)){
++        for(size_t i=0;i<6;++i)out.action[i]=-(out.residualPlus[i]-out.residualMinus[i])/(2.0*epsilon);
++        out.resolvedBranch=true;out.mode="central";return out;
++    }
++    // At a true one-sided feature boundary, keep the candidate's center
++    // feature and use a second-order one-sided stencil only when both points
++    // remain on that same fully smooth feature/stiffness branch.
++    const auto plus2=fp64ContinuousBoxContact(scene,state,candidateAt(2.0*epsilon));
++    const auto minus2=fp64ContinuousBoxContact(scene,state,candidateAt(-2.0*epsilon));
++    out.residualPlus2=energyScaled(contactResidual(plus2.sample),scene.characteristicLength());
++    out.residualMinus2=energyScaled(contactResidual(minus2.sample),scene.characteristicLength());
++    if(sameContinuousBranch(center,plus)&&sameContinuousBranch(center,plus2)){
++        for(size_t i=0;i<6;++i)out.action[i]=-(-3.0*r0[i]+4.0*out.residualPlus[i]-out.residualPlus2[i])/(2.0*epsilon);
++        out.resolvedBranch=true;out.mode="forward_second_order";return out;
++    }
++    if(sameContinuousBranch(center,minus)&&sameContinuousBranch(center,minus2)){
++        for(size_t i=0;i<6;++i)out.action[i]=-(3.0*r0[i]-4.0*out.residualMinus[i]+out.residualMinus2[i])/(2.0*epsilon);
++        out.resolvedBranch=true;out.mode="backward_second_order";return out;
++    }
++    return out;
+ }
+ 
+ bool testValidator(Device& d){
+@@ -608,7 +786,9 @@
+     std::mt19937 rng(0x8f12a6u);std::uniform_real_distribution<double> dist(-1,1);
+     constexpr double targetTolerance=1e-3;
+     constexpr std::array<double,5> epsilons{4e-3,2e-3,1e-3,5e-4,2.5e-4};
++    constexpr std::array<double,5> continuousEpsilons{1e-3,5e-4,2.5e-4,1.25e-4,6.25e-5};
+     bool allSampleChecks=true,allResolved=true,anyResolvedActionFailure=false;double worstAbs=0,worstRel=0,worstDirectSampleRel=0,worstRepeatFloor=0;unsigned directionsChecked=0;
++    bool allContinuousResolved=true,anyContinuousActionFailure=false;double worstContinuousRel=0,worstContinuousAbs=0,worstContinuousCenterRel=0;unsigned continuousDirections=0;
+     for(const auto& c:cases){
+         const auto state=scene.baseline(c);const auto sampleEval=scene.evaluate(state);
+         if (sampleEval.status.code != NM_STATUS_SUCCESS ||
+@@ -663,6 +843,30 @@
+             repeatFloor=std::max(repeatFloor,maxDifference(nativeR,energyScaled(sampleResidual(repeated.sample),scene.characteristicLength())));
+         }
+         worstRepeatFloor=std::max(worstRepeatFloor,repeatFloor);
++        const std::array<double,6> continuousCandidate{};
++        const auto continuousCenter=fp64ContinuousBoxContact(scene,state,continuousCandidate);
++        const auto continuousCenterResidual=energyScaled(contactResidual(continuousCenter.sample),scene.characteristicLength());
++        const double continuousCenterError=vectorNorm({nativeR[0]-continuousCenterResidual[0],nativeR[1]-continuousCenterResidual[1],nativeR[2]-continuousCenterResidual[2],nativeR[3]-continuousCenterResidual[3],nativeR[4]-continuousCenterResidual[4],nativeR[5]-continuousCenterResidual[5]});
++        const double continuousCenterRel=continuousCenterError/std::max(vectorNorm(continuousCenterResidual),1e-30);
++        worstContinuousCenterRel=std::max(worstContinuousCenterRel,continuousCenterRel);
++        std::cout<<"contact_fp64_continuous_center case="<<c.name
++            <<" exact_f32_source_promoted=true candidate_velocity_delta=0"
++            <<" supported="<<(continuousCenter.supportedSmoothBranch?1:0)
++            <<" feature="<<continuousCenter.sample.feature
++            <<" stiffness_branch="<<continuousCenter.sample.stiffnessBranch
++            <<" feature_margin="<<(continuousCenter.featureMargin?1:0)
++            <<" barrier_margin="<<(continuousCenter.barrierMargin?1:0)
++            <<" strict_inertial="<<(continuousCenter.strictInertialBranch?1:0)
++            <<" separation_m="<<continuousCenter.sample.separation
++            <<" normal_velocity_m_per_s="<<continuousCenter.sample.normalVelocity
++            <<" lambda_Ns="<<continuousCenter.sample.lambda
++            <<" residual_energy_scaled_l2="<<vectorNorm(continuousCenterResidual)
++            <<" R_fp64_energy_scaled="<<values6(continuousCenterResidual)
++            <<" R_native_energy_scaled="<<values6(nativeR)
++            <<" native_center_residual_rel="<<continuousCenterRel
++            <<" body_motion="<<state.body.flagsAndIndices[0]<<" proxy_shape="<<scene.proxySource().shapeKind
++            <<" proxy_flags="<<scene.proxySource().flags<<" friction_static_dynamic=0,0 accepted_tangent_history=zero"
++            <<" input_word_schema=source_body7xfloat4_proxy3xfloat4_node2xfloat4_dt_thickness_candidate6_direction6_fp32_hex\n";
+         std::vector<std::array<double,6>> directions;
+         for(int k=0;k<6;++k){std::array<double,6> e{};e[k]=1;directions.push_back(e);}
+         for(unsigned k=0;k<8;++k){std::array<double,6> v{};double n=0;for(double& x:v){x=dist(rng);n+=x*x;}n=std::sqrt(n);for(double& x:v)x/=n;directions.push_back(v);}
+@@ -672,6 +876,49 @@
+             const auto action=energyScaled(scene.action(sampleEval.sample,state,direction),scene.characteristicLength());
+             double nativeRepeat=0;for(int repeat=0;repeat<2;++repeat)nativeRepeat=std::max(nativeRepeat,maxDifference(action,energyScaled(scene.action(sampleEval.sample,state,direction),scene.characteristicLength())));
+             repeatFloor=std::max(repeatFloor,nativeRepeat);worstRepeatFloor=std::max(worstRepeatFloor,repeatFloor);
++            std::cout<<"contact_fp64_continuous_input case="<<c.name<<" direction="<<directionIndex
++                <<" exact_f32_inputs_hex="<<fullContactInputBinding(scene,state,continuousCandidate,direction)
++                <<" convention=candidate_velocity_delta;position_increment=dt*delta_v;SO3_left_world_rotation;A=-dR_contact\n";
++            std::array<ContinuousFD,continuousEpsilons.size()> continuousFD{};
++            for(size_t ei=0;ei<continuousEpsilons.size();++ei){
++                continuousFD[ei]=fp64ContinuousDirectionalAction(scene,state,continuousCandidate,direction,continuousEpsilons[ei],continuousCenter);
++                const auto& fd=continuousFD[ei];
++                std::cout<<"contact_fp64_continuous_fd case="<<c.name<<" direction="<<directionIndex
++                    <<" epsilon_velocity="<<continuousEpsilons[ei]<<" mode="<<fd.mode
++                    <<" center_feature="<<continuousCenter.sample.feature<<" plus_feature="<<fd.plusFeature<<" minus_feature="<<fd.minusFeature
++                    <<" center_stiffness_branch="<<continuousCenter.sample.stiffnessBranch<<" plus_stiffness_branch="<<fd.plusStiffness<<" minus_stiffness_branch="<<fd.minusStiffness
++                    <<" plus_gap_m="<<fd.plusGap<<" minus_gap_m="<<fd.minusGap
++                    <<" plus_response="<<fd.plusResponse<<" minus_response="<<fd.minusResponse
++                    <<" plus_stiffness="<<fd.plusStiff<<" minus_stiffness="<<fd.minusStiff
++                    <<" branch_resolved="<<(fd.resolvedBranch?1:0)<<" Rplus_energy_scaled="<<values6(fd.residualPlus)
++                    <<" Rminus_energy_scaled="<<values6(fd.residualMinus)
++                    <<" Rplus2_energy_scaled="<<values6(fd.residualPlus2)<<" Rminus2_energy_scaled="<<values6(fd.residualMinus2)
++                    <<" A_minus_dR_energy_scaled="<<values6(fd.action)<<" A_minus_dR_l2="<<vectorNorm(fd.action)<<"\n";
++            }
++            const auto& continuousRef=continuousFD.back().action;
++            const double continuousNorm=vectorNorm(continuousRef);
++            auto fdDifference=[&](size_t a,size_t b){std::array<double,6> d{};for(size_t i=0;i<6;++i)d[i]=continuousFD[a].action[i]-continuousFD[b].action[i];return vectorNorm(d);};
++            const double cD23=fdDifference(2,3),cD34=fdDifference(3,4);
++            const bool sameFinalStencil=continuousFD[2].resolvedBranch&&continuousFD[3].resolvedBranch&&continuousFD[4].resolvedBranch&&
++                continuousFD[2].mode==continuousFD[3].mode&&continuousFD[3].mode==continuousFD[4].mode;
++            const double cError=vectorNorm({action[0]-continuousRef[0],action[1]-continuousRef[1],action[2]-continuousRef[2],action[3]-continuousRef[3],action[4]-continuousRef[4],action[5]-continuousRef[5]});
++            const double cRelative=cError/std::max(continuousNorm,1e-30),cComponent=maxDifference(action,continuousRef);
++            const bool cResolved=continuousCenter.supportedSmoothBranch&&sameFinalStencil&&continuousNorm>1e-20&&
++                cD34<=1.2*cD23&&cD34<=3.0e-6*continuousNorm;
++            const bool cPass=cResolved&&cRelative<=targetTolerance&&
++                cComponent<=nativeRepeat+targetTolerance*continuousNorm&&continuousCenterRel<=targetTolerance;
++            allContinuousResolved=allContinuousResolved&&cResolved;
++            anyContinuousActionFailure=anyContinuousActionFailure||(cResolved&&!cPass);
++            worstContinuousRel=std::max(worstContinuousRel,cRelative);worstContinuousAbs=std::max(worstContinuousAbs,cComponent);++continuousDirections;
++            std::cout<<"contact_fp64_continuous_summary case="<<c.name<<" direction="<<directionIndex
++                <<" epsilons="<<continuousEpsilons[0]<<","<<continuousEpsilons[1]<<","<<continuousEpsilons[2]<<","<<continuousEpsilons[3]<<","<<continuousEpsilons[4]
++                <<" final_mode="<<continuousFD[4].mode<<" final_refinement_abs="<<cD34<<" prior_refinement_abs="<<cD23
++                <<" final_refinement_estimate_rel="<<cD34/(3.0*std::max(continuousNorm,1e-30))<<" refinement_threshold=1e-6"
++                <<" resolved="<<(cResolved?1:0)<<" native_action_energy_scaled="<<values6(action)
++                <<" fp64_A_minus_dR_energy_scaled="<<values6(continuousRef)
++                <<" native_A_minus_dR_l2_rel="<<cRelative<<" component_max="<<cComponent
++                <<" center_residual_rel="<<continuousCenterRel<<" action_threshold="<<targetTolerance
++                <<" outcome="<<(cPass?"PASS":(cResolved?"FAIL":"INCONCLUSIVE"))<<"\n";
+             std::array<std::array<double,6>,epsilons.size()> finiteDifferences{};bool stableBranch=oracle.stiffnessBranch>=0;
+             for(size_t ei=0;ei<epsilons.size();++ei){
+                 const double epsilon=epsilons[ei];std::array<double,6> plusDelta{},minusDelta{};
+@@ -719,8 +966,15 @@
+         <<" direct_sample="<<(allSampleChecks?"PASS":"FAIL")<<" resolved_fd="<<(allResolved?"PASS":"INCONCLUSIVE")
+         <<" action="<<(anyResolvedActionFailure?"FAIL":(allResolved?"PASS":"INCONCLUSIVE"))
+         <<" norm=torque_components_divided_by_proxy_lever_length source=nm_project_primal_free_rigid_candidate+nm_contact_evaluate+nm_fgmres_apply_primal_rigid_contacts\n";
+-    if(!allSampleChecks||anyResolvedActionFailure)return Outcome::fail;
++    std::cout<<"production_contact_operator_full_fp64_continuous directions="<<continuousDirections
++        <<" worst_native_action_l2_relative="<<worstContinuousRel<<" worst_component_abs="<<worstContinuousAbs
++        <<" worst_center_residual_l2_relative="<<worstContinuousCenterRel<<" threshold="<<targetTolerance
++        <<" resolved="<<(allContinuousResolved?"YES":"NO")
++        <<" action="<<(anyContinuousActionFailure?"FAIL":(allContinuousResolved?"PASS":"INCONCLUSIVE"))
++        <<" independent_of_legacy_fp32_projection_fd=true output=contact_only_rigid_generalized_rows\n";
++    if(!allSampleChecks||anyResolvedActionFailure||anyContinuousActionFailure)return Outcome::fail;
+     if(!allResolved)return Outcome::inconclusive;
++    if(!allContinuousResolved)return Outcome::inconclusive;
+     return Outcome::pass;
+ }
+ 

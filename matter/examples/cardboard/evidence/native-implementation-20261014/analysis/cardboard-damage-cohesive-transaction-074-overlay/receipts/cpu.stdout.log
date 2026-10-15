@@ -1,0 +1,1 @@
+PASS CPU coupled admission checks=58 tets=9 finite_glue_tets=3 matrix_overlay_states=30 independent_mortar_faces=2 synthetic_parameters=true parameter_sha256=1dd5b84d1dd37e61dcab0d6ee713cbb9a0730ed67dccb853c0fd204e3bcf542c calibration=false native_transactions=0

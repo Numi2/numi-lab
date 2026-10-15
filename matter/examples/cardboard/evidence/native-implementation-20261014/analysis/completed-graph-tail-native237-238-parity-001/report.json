@@ -1,0 +1,52 @@
+{
+  "schema": "numi.cardboard.completed-graph-tail-parity.v1",
+  "baseline": "/Users/home/cardboard-implementation-20261014/solver/sourcefit15-dynamic-grips-tail-baseline-first-control-237",
+  "candidate": "/Users/home/cardboard-implementation-20261014/solver/sourcefit15-completed-graph-tail-first-control-238",
+  "baseline_receipt": {
+    "schema": "numi.cardboard.native-run-receipt.v2",
+    "execution_started": true,
+    "source_inputs_unchanged": true,
+    "changed_inputs": [],
+    "exit_code": 2,
+    "timed_out": false,
+    "termination_errors": [],
+    "wall_seconds": 194.50552291597705,
+    "finished_at_utc": "2026-10-15T06:40:12.228606+00:00"
+  },
+  "candidate_receipt": {
+    "schema": "numi.cardboard.native-run-receipt.v2",
+    "execution_started": true,
+    "source_inputs_unchanged": true,
+    "changed_inputs": [],
+    "exit_code": 2,
+    "timed_out": false,
+    "termination_errors": [],
+    "wall_seconds": 189.48549937497592,
+    "finished_at_utc": "2026-10-15T06:45:24.914360+00:00"
+  },
+  "all64_armijo_records_identical": true,
+  "files_identical": [
+    {
+      "path": "output/observations.csv",
+      "sha256": "c140ae75f78da9ea4d11f4ce9089634fb2d76b6266d2883a9dbf3f16d8bace3e"
+    },
+    {
+      "path": "output/material_state_000001_bent.json",
+      "sha256": "001d606b85b978952716fa90dc8f5945e9e6ee0e9cdea60c1c6c7f035df62434"
+    },
+    {
+      "path": "output/material_state_000001_held_reference.json",
+      "sha256": "7cb9577cefe65539223b9d510b4191f72eb0c57175da90ffc8ce0184577eb02f"
+    },
+    {
+      "path": "output/rejected_step_diagnostic_000001_bent.obj",
+      "sha256": "463cd80289b72a58009f859f2a3184966984029daa8d3687ec9035e18c6481af"
+    },
+    {
+      "path": "output/accepted_step_000001_held_reference.obj",
+      "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+    }
+  ],
+  "production_result": "Both runs reject same firstcontrol atsameunchangedstrictaccuracy. Noacceptedloadedhistory; exactrejectedcandidate,referencegeometry,materialhistoriesandresidualtrajectoryparity demonstrate scheduling guard equivalence only. Retain graphlayoutregression.",
+  "physical_validation": false
+}

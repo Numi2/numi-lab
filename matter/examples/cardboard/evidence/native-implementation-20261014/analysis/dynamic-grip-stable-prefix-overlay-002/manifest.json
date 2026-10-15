@@ -1,0 +1,139 @@
+{
+  "schema": "numi.cardboard.dynamic_grip_graph_stable_prefix_overlay.v1",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-completed-graph-tail-and-signed-contact-oracle-075",
+  "base_parent_revision": "35bfb518c542a306f563cc364ef8496837068b9a",
+  "base_source_manifest_sha256": "c618730c4562dcfc97c4acb2abcd2cddc94ddaeb6c416b28b550badcae571233",
+  "patch_sha256": "b587f9a3d51e29a05ca1fcbf9e464238e21a88828bcde507307cff77442d5bd4",
+  "files": [
+    {
+      "path": "matter/src/regional_graph_schwarz.hpp",
+      "base_sha256": "bbddd930b5d84868f045a085352360f1da5baaf1a0db62ba16493654bd1fb387",
+      "overlay_sha256": "45a664b8edf49cd334e2497f5d10026597cd70a8e1792abba0bba5a4a605f781"
+    },
+    {
+      "path": "matter/src/runtime.mm",
+      "base_sha256": "ed4e538d2da653e32675875223e4aaca347e3cc5f57750c22623487cf6d55e03",
+      "overlay_sha256": "5c70789647a9c0ceacaeb10565aaaee30e2a901761c1d04e6e431fdafe0aeef1"
+    },
+    {
+      "path": "matter/tools/regional_graph_schwarz_layout_check.cpp",
+      "base_sha256": "87a84f8fa2a4b022de9080d3d4a6b6d14f2c6586455411228e4e1d34bedf5b09",
+      "overlay_sha256": "884588206bf7cbbe957e47aabe102105d65f076ed68337030195890ebdbaa048"
+    }
+  ],
+  "analysis_files": [
+    {
+      "path": "README.md",
+      "sha256": "91ce6edf8c021b0b84996cc1a3fff80038edfbe45331517a6b4737f179e573d7",
+      "bytes": 3468
+    },
+    {
+      "path": "overlay/matter/tools/graph_layout_export.cpp",
+      "sha256": "0a1c89543ffe2cbe65797c225180e824762e0deae4171453c1c091f09a30747f",
+      "bytes": 4925
+    },
+    {
+      "path": "audit_layout_prefix.py",
+      "sha256": "6f752570d49e1739dc27553bec46ad582bc036b1bdc160ce94b8c043d164d75c",
+      "bytes": 8148
+    },
+    {
+      "path": "inputs/canonical182-source-mask.bin",
+      "sha256": "f0f5bc136f50f7e4cb3c66005316edbf47279b64a42ec531bfbe54e5189493b9",
+      "bytes": 31626
+    },
+    {
+      "path": "evidence/baseline-oldheader.bin",
+      "sha256": "4064e0eb7f02b30fc36346187df09ad05cdc872592056a04ec448e1e6cb14523",
+      "bytes": 122336
+    },
+    {
+      "path": "evidence/baseline-newsourceonly.bin",
+      "sha256": "4064e0eb7f02b30fc36346187df09ad05cdc872592056a04ec448e1e6cb14523",
+      "bytes": 122336
+    },
+    {
+      "path": "evidence/canonical182-source-plus-fixed.bin",
+      "sha256": "09d3a54a87f6bbc7d2d5f46a629153b7b4a41cb289e1e3220f67180a53e3c2de",
+      "bytes": 124576
+    },
+    {
+      "path": "evidence/source182-prefix-audit.json",
+      "sha256": "6c61eab5dc5862679ef4d04aa71dc22a5db7b7b6f5a45a8bd66e846b4549ff97",
+      "bytes": 921607
+    }
+  ],
+  "source_baseline": {
+    "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-finite-refinement-and-resolved-inertia-instrument-072",
+    "parent_revision": "5fd4486ea2bcbe903782509a769ce3935b790e55",
+    "header_sha256": "1356685f98c1818ad100c10e3e919db3c67a95c88ba86d86e7e009437844015a",
+    "serialized_layout_sha256": "4064e0eb7f02b30fc36346187df09ad05cdc872592056a04ec448e1e6cb14523",
+    "note": "Historical source-free layout generated using the source072 helper and the retained exact source182 topology input."
+  },
+  "source182_layout": {
+    "topology_input_sha256": "f0f5bc136f50f7e4cb3c66005316edbf47279b64a42ec531bfbe54e5189493b9",
+    "node_count": 882,
+    "tetrahedron_count": 1920,
+    "environment_count": 2,
+    "initial_free_nodes": 846,
+    "initial_fixed_nodes": 36,
+    "source_free_prefix": {
+      "serialized_layout_sha256": "4064e0eb7f02b30fc36346187df09ad05cdc872592056a04ec448e1e6cb14523",
+      "patch_count": 13,
+      "patch_node_entries": 2053,
+      "scalar_dofs": 6159,
+      "matrix_float_count": 4718637,
+      "device_bytes_all_environments": 75735500
+    },
+    "combined_dynamic_layout": {
+      "serialized_layout_sha256": "09d3a54a87f6bbc7d2d5f46a629153b7b4a41cb289e1e3220f67180a53e3c2de",
+      "patch_count": 27,
+      "supplementary_patch_count": 14,
+      "patch_node_entries": 2089,
+      "supplementary_patch_node_entries": 36,
+      "scalar_dofs": 6267,
+      "matrix_float_count": 4721337,
+      "device_bytes_all_environments": 75783068,
+      "existing_graph_device_budget_bytes": 100663296
+    },
+    "assertions": {
+      "source_only_new_helper_byte_identical_to_frozen_helper": true,
+      "source_free_patch_descriptors_nodes_rows_exact_prefix": true,
+      "source_free_node_coverage_unchanged": true,
+      "source_free_node_patch_csr_unchanged": true,
+      "supplementary_nodes_initially_fixed_only": true,
+      "all_initially_fixed_nodes_covered": true
+    }
+  },
+  "verification": [
+    {
+      "name": "isolated C++ layout tests",
+      "command": "clang++ -std=c++20 -O2 -Wall -Wextra -Werror -I overlay/matter/src overlay/matter/tools/regional_graph_schwarz_layout_check.cpp -o regional_graph_schwarz_layout_check && ./regional_graph_schwarz_layout_check",
+      "result": "PASS; graph_schwarz_layout_checks=27"
+    },
+    {
+      "name": "exact source182 graph comparison",
+      "command": "python3 audit_layout_prefix.py --source-mask inputs/canonical182-source-mask.bin --baseline evidence/baseline-oldheader.bin --source-only evidence/baseline-newsourceonly.bin --combined evidence/canonical182-source-plus-fixed.bin --output evidence/source182-prefix-audit.json",
+      "result": "PASS; frozen-source helper and new source-only serialized layout are byte-identical; dynamic prefix, coverage, and CSR are unchanged"
+    },
+    {
+      "name": "patch roundtrip",
+      "result": "PASS; patch applied to copied source075 files and output hashes matched all 3 overlay files"
+    },
+    {
+      "name": "native Metal/GPU solver",
+      "result": "NOT RUN; root owns native and GPU checks"
+    },
+    {
+      "name": "runtime Objective-C++ syntax",
+      "command": "xcrun --sdk macosx clang++ -std=c++20 -fobjc-arc -fsyntax-only -Wall -Wextra -I <source075>/matter/include -I <source075>/include -I <source075>/matter/src -I overlay/matter/src -DNUMI_MATTER_DEFAULT_METALLIB=\"\" overlay/matter/src/runtime.mm",
+      "result": "PASS; source075 runtime overlay syntax-only; no Metal target built"
+    }
+  ],
+  "scope_and_limits": [
+    "Source-free patch descriptors, node membership, row membership, coverage counts, and node-to-patch CSR remain identical to the frozen source-free layout.",
+    "Supplementary patch nodes are source-fixed only; the native operator, residual, coarse basis, accepted history, and solver tolerances are unchanged.",
+    "The layout and identity checks do not establish coupon convergence or physical qualification.",
+    "Selector and graph admission limits remain unchanged."
+  ]
+}

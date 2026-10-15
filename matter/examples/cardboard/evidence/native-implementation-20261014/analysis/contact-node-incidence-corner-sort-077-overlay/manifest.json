@@ -1,0 +1,58 @@
+{
+  "schema": "numi.matter.contact_node_incidence_sort_overlay.v1",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-stable-free-graph-and-general-arithmetic-076",
+  "base_snapshot_sha256": "9b9047688d4da51739f97a35c0c0c24c57a38bcf4631088d4377ab9697c1d516",
+  "changes": [
+    {
+      "path": "matter/src/runtime.mm",
+      "base_sha256": "5c70789647a9c0ceacaeb10565aaaee30e2a901761c1d04e6e431fdafe0aeef1",
+      "overlay_sha256": "c17ba17f064514b4bd91c2323dae2f1ba19ab98af69abad3c13f30b68d170604"
+    },
+    {
+      "path": "matter/src/metal/contact.metalinc",
+      "base_sha256": "69c3ec930d0b382dfe278fa42c56353782438ded77d8224a3ccfd6989e3067c9",
+      "overlay_sha256": "9e4ce2d8213c83a9a3e58a64388562cb92638c892b21e612653e92400b654f1f"
+    },
+    {
+      "path": "tools/cardboard_contact_node_incidence_sort_reference.hpp",
+      "sha256": "e5a9e7c5218d93ecff90b8469717fbd441c70ac50395bbf521500a18612928f2"
+    },
+    {
+      "path": "tools/cardboard_contact_node_incidence_sort_check.cpp",
+      "sha256": "b0385ddbd8b24754b3b6927976a04c5406873e5e4c15aa3de9a8a580af7fa89a"
+    },
+    {
+      "path": "tools/cardboard_contact_node_incidence_sort_native_check.mm",
+      "sha256": "2049f4f8805857d1d779e236ec11f1659b9d99a291bc7b6a8ddc6f4ec86d14df"
+    },
+    {
+      "path": "README.md",
+      "sha256": "b6c60d0a1ad419d2d926156e94ea13c85779bc9e17648975f7a690a6e2f699f0"
+    },
+    {
+      "path": "SCALING_ADDENDUM.md",
+      "sha256": "d34590d7d0bae0d72a63d4d6354da3eef6d1f065ad4b28378fd878a2c489e324"
+    },
+    {
+      "path": "verification.txt",
+      "sha256": "04c2ba6fa81642bc928c3cd54e189fd4fcc38bc74d1d7ba30c0e6c6015490e5b"
+    },
+    {
+      "path": "patches/contact-node-incidence-corner-sort.patch",
+      "sha256": "62d8178babed8be3ef154d5fcdfa35b64f2b1138cd340ec9b20ba3d36e4710c0"
+    }
+  ],
+  "cpu_check": {
+    "checks": 49162,
+    "result": "pass",
+    "physical_steps": 0
+  },
+  "runtime_syntax": "pass",
+  "native_checker_syntax": "pass_with_NUMI_MATTER_METALLIB_placeholder",
+  "metal_compile": "pass_with_two_existing_source076_fgmres_warnings",
+  "patch_apply_check": "pass",
+  "native_gpu_execution": "not_run",
+  "runtime_on_off_invariance": "not_run",
+  "performance": "not_measured",
+  "physical_qualification": "not_qualified"
+}\n

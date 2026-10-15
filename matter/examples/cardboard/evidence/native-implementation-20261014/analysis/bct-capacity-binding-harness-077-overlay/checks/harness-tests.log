@@ -1,0 +1,12 @@
+test_argv_candidate_mismatch_is_rejected_before_native_launch (__main__.SourceBoundHarnessTests) ... ok
+test_duplicate_manifest_mapping_is_rejected_before_launch (__main__.SourceBoundHarnessTests) ... ok
+test_external_binding_mutation_during_native_run_is_retained_and_rejected (__main__.SourceBoundHarnessTests) ... ok
+test_harness_to_packager_to_evaluator_positive (__main__.SourceBoundHarnessTests) ... ok
+test_nonexistent_candidate_manifest_mapping_is_rejected_after_execution (__main__.SourceBoundHarnessTests) ... ok
+test_prepared_binding_mutation_after_run_cannot_be_repackaged (__main__.SourceBoundHarnessTests) ... ok
+test_raw_manifest_mutation_is_rejected_by_harness_and_packager (__main__.SourceBoundHarnessTests) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 2.527s
+
+OK

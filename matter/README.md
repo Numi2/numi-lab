@@ -350,12 +350,18 @@ linearization. Final scratch exported after a rejected transaction is not
 automatically the selected Newton state. These CPU analyses do not qualify a
 physical coupon, material calibration or shipping-box trajectory.
 
-The current cardboard milestone adds bounded native graph-patch conditioning,
-shared FEM/rigid line-search fraction publication, retained diagnostic failures,
-and exact-word FP64 replay. The fresh source073 build passes54 targets and62
-selected CPU checks; native233 completes one small coupon control at unchanged
-accuracy. Full loading/release convergence, calibrated corrugated failure,
-shipping-box assembly and crushing are still unqualified. See
+The published cardboard milestone adds bounded native graph-patch conditioning,
+shared FEM/rigid line-search fraction publication and exact-word FP64 replay.
+Source073 passes 54 build targets and 62 selected CPU checks. Source077 passes
+57 build targets and 66 selected CPU checks, including the narrowly admitted
+stateless compensated-material option and strict published-data evidence
+admission. Native validation of that precision option remains pending. The source076
+continuation adds dynamic grip coverage while restoring byte-identical output
+for that successful first coupon control, plus bounded coupled damage/bond
+transactions and a high-precision smooth BOX derivative audit. Its complete
+cycle remains unqualified; the retained strict contact setup still fails.
+Its compiler-admission CPU failure is repaired in source077. Full loading/release convergence,
+calibrated corrugated failure, shipping-box assembly and crushing remain open. See
 [the solver evidence ledger](examples/cardboard/solver-progress-20261014.md)
 and [the source-bound archive](examples/cardboard/evidence/native-implementation-20261014/summary.json)
 for separate solver, convergence, calibration, analogue, assembly and impact
@@ -451,3 +457,9 @@ Open Knee tissues. It is selected explicitly by the knee probe
 qualify prestress equilibrium. `numi-matter-fiber-check` checks FP64 source
 energy/stress/tangent and the actual Metal scalar interpreter; `--cpu-only`
 never creates a Metal device.
+
+Cardboard continuation079:60 build targets and67 CPU checks pass. Bounded direct
+contact/incidence/LU checks pass, and first-control263/264 accepted histories are
+byte-identical to257. Complete coupon247/258, refined first-control265 and strict
+free-body262 remain failed. These results do not qualify full convergence,
+shipping assembly, compression or impact; see the cardboard evidence ledger.

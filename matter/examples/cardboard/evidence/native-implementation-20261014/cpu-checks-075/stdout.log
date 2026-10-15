@@ -1,0 +1,172 @@
+Test project /Users/home/numi-cardboard-20261006/build-cardboard-provenance-075
+      Start   1: matter.compiler.cardboard_shipping_rigid_driver
+      Start 154: matter.compiler.regional_graph_completed_tail
+      Start 155: matter.compiler.cardboard_solver_reference
+      Start 156: matter.analysis.cardboard_source_data
+ 1/64 Test #155: matter.compiler.cardboard_solver_reference .................   Passed    0.24 sec
+      Start 157: matter.analysis.cardboard_pin_source_observables
+ 2/64 Test #156: matter.analysis.cardboard_source_data ......................   Passed    0.40 sec
+      Start 158: matter.analysis.cardboard_calibration_ensemble
+ 3/64 Test #157: matter.analysis.cardboard_pin_source_observables ...........   Passed    0.16 sec
+      Start 159: matter.analysis.cardboard_resolution_study
+ 4/64 Test #159: matter.analysis.cardboard_resolution_study .................   Passed    0.10 sec
+      Start 160: matter.analysis.cardboard_convergence
+ 5/64 Test #154: matter.compiler.regional_graph_completed_tail ..............   Passed    0.69 sec
+      Start 161: matter.analysis.cardboard_tooling
+ 6/64 Test #161: matter.analysis.cardboard_tooling ..........................   Passed    0.05 sec
+      Start 162: matter.analysis.cardboard_newton_trace
+ 7/64 Test #162: matter.analysis.cardboard_newton_trace .....................   Passed    0.04 sec
+      Start 163: matter.analysis.cardboard_accepted_animation
+ 8/64 Test #163: matter.analysis.cardboard_accepted_animation ...............   Passed    0.04 sec
+      Start 164: matter.analysis.cardboard_capsule_side_derivative
+ 9/64 Test #160: matter.analysis.cardboard_convergence ......................   Passed    0.33 sec
+      Start 165: matter.analysis.cardboard_deformable_derivative
+10/64 Test #164: matter.analysis.cardboard_capsule_side_derivative ..........   Passed    0.03 sec
+      Start 166: matter.analysis.cardboard_retained_capture_audit
+11/64 Test #165: matter.analysis.cardboard_deformable_derivative ............   Passed    0.04 sec
+      Start 167: matter.analysis.cardboard_stage_resolution
+12/64 Test   #1: matter.compiler.cardboard_shipping_rigid_driver ............   Passed    0.98 sec
+      Start 168: matter.analysis.cardboard_regional_conditioning
+13/64 Test #166: matter.analysis.cardboard_retained_capture_audit ...........   Passed    0.16 sec
+      Start 169: matter.analysis.cardboard_cached_operator_audit
+14/64 Test #168: matter.analysis.cardboard_regional_conditioning ............   Passed    0.06 sec
+      Start 170: matter.analysis.cardboard_offline_conditioning_study
+15/64 Test #167: matter.analysis.cardboard_stage_resolution .................   Passed    0.26 sec
+      Start 171: matter.analysis.cardboard_diagnostic_history
+16/64 Test #169: matter.analysis.cardboard_cached_operator_audit ............   Passed    0.29 sec
+      Start 172: matter.analysis.cardboard_solver_pair
+17/64 Test #171: matter.analysis.cardboard_diagnostic_history ...............   Passed    0.19 sec
+      Start 173: matter.analysis.cardboard_solver_assembly
+18/64 Test #170: matter.analysis.cardboard_offline_conditioning_study .......   Passed    0.31 sec
+      Start 174: matter.analysis.cardboard_full_contact_history
+19/64 Test #172: matter.analysis.cardboard_solver_pair ......................   Passed    0.08 sec
+      Start 175: matter.compiler.cardboard_contact_candidate_domain
+20/64 Test #173: matter.analysis.cardboard_solver_assembly ..................   Passed    0.08 sec
+      Start 176: matter.compiler.cardboard_reaction_observables
+21/64 Test #158: matter.analysis.cardboard_calibration_ensemble .............   Passed    1.10 sec
+      Start 177: matter.compiler.cardboard_tooling
+22/64 Test #174: matter.analysis.cardboard_full_contact_history .............   Passed    0.17 sec
+      Start 178: matter.compiler.cardboard_barrier_scale
+23/64 Test #175: matter.compiler.cardboard_contact_candidate_domain .........   Passed    0.26 sec
+      Start 179: matter.compiler.cardboard_profile
+24/64 Test #176: matter.compiler.cardboard_reaction_observables .............   Passed    0.49 sec
+      Start 180: matter.compiler.cardboard_fracture_regularization
+25/64 Test #177: matter.compiler.cardboard_tooling ..........................   Passed    0.84 sec
+      Start 181: matter.compiler.cardboard_starch_interface_mesh
+26/64 Test #178: matter.compiler.cardboard_barrier_scale ....................   Passed    1.07 sec
+      Start 182: matter.compiler.cardboard_glue_mesh
+27/64 Test #179: matter.compiler.cardboard_profile ..........................   Passed    1.14 sec
+      Start 183: matter.compiler.cardboard_box_blank
+28/64 Test #180: matter.compiler.cardboard_fracture_regularization ..........   Passed    1.12 sec
+      Start 184: matter.compiler.cardboard_shipping_protocol
+29/64 Test #181: matter.compiler.cardboard_starch_interface_mesh ............   Passed    0.90 sec
+      Start 185: matter.compiler.cardboard_box_assembly_controller
+30/64 Test #182: matter.compiler.cardboard_glue_mesh ........................   Passed    0.89 sec
+      Start 186: matter.compiler.cardboard_damage_builder
+31/64 Test #183: matter.compiler.cardboard_box_blank ........................   Passed    0.95 sec
+      Start 187: matter.compiler.cardboard_retained_matrix_damage
+32/64 Test #184: matter.compiler.cardboard_shipping_protocol ................   Passed    1.34 sec
+      Start 188: cardboard-compensated-deformation
+33/64 Test #185: matter.compiler.cardboard_box_assembly_controller ..........   Passed    1.18 sec
+      Start 189: matter.compiler.fem_static_surface_map
+34/64 Test #188: cardboard-compensated-deformation ..........................   Passed    0.75 sec
+      Start 190: matter.compiler.cardboard_pin_adhesion_fixture
+35/64 Test #189: matter.compiler.fem_static_surface_map .....................   Passed    0.90 sec
+      Start 191: matter.compiler.cardboard_retained_damage_fp64_oracle
+36/64 Test #186: matter.compiler.cardboard_damage_builder ...................   Passed    2.04 sec
+      Start 192: matter.compiler.cardboard_generic_compensated_projection
+37/64 Test #190: matter.compiler.cardboard_pin_adhesion_fixture .............   Passed    0.44 sec
+      Start 193: matter.compiler.fem_regional_galerkin
+38/64 Test #191: matter.compiler.cardboard_retained_damage_fp64_oracle ......   Passed    0.43 sec
+      Start 194: matter.compiler.fixed_convex_contact_step
+39/64 Test #192: matter.compiler.cardboard_generic_compensated_projection ...   Passed    0.66 sec
+      Start 195: matter.compiler.cardboard_shipping_driver
+40/64 Test #193: matter.compiler.fem_regional_galerkin ......................   Passed    0.72 sec
+      Start 196: matter.compiler.cardboard_shipping_memory
+41/64 Test #194: matter.compiler.fixed_convex_contact_step ..................   Passed    0.68 sec
+      Start 197: matter.compiler.cardboard_shipping_closure_mesh
+42/64 Test #195: matter.compiler.cardboard_shipping_driver ..................   Passed    0.48 sec
+      Start 198: matter.compiler.cardboard_shipping_snapshot
+43/64 Test #196: matter.compiler.cardboard_shipping_memory ..................   Passed    0.67 sec
+      Start 199: matter.compiler.cardboard_mixed_cohesive_frame
+44/64 Test #197: matter.compiler.cardboard_shipping_closure_mesh ............   Passed    0.68 sec
+      Start 200: matter.compiler.cardboard_mixed_cohesive
+45/64 Test #198: matter.compiler.cardboard_shipping_snapshot ................   Passed    0.67 sec
+      Start 201: matter.compiler.cardboard_paper
+46/64 Test #199: matter.compiler.cardboard_mixed_cohesive_frame .............   Passed    0.65 sec
+      Start 202: matter.compiler.cardboard_expression_cache
+47/64 Test #200: matter.compiler.cardboard_mixed_cohesive ...................   Passed    0.89 sec
+      Start 203: matter.compiler.cardboard_delamination_reference
+48/64 Test #202: matter.compiler.cardboard_expression_cache .................   Passed    0.89 sec
+      Start 204: matter.compiler.cardboard_material
+49/64 Test #203: matter.compiler.cardboard_delamination_reference ...........   Passed    0.68 sec
+      Start 206: matter.compiler.fem_material_frame
+50/64 Test #204: matter.compiler.cardboard_material .........................   Passed    0.47 sec
+      Start 207: matter.compiler.stateful_roundtrip
+51/64 Test #206: matter.compiler.fem_material_frame .........................   Passed    0.54 sec
+      Start 215: matter.compiler.cardboard_full_contact_armijo
+52/64 Test #207: matter.compiler.stateful_roundtrip .........................   Passed    0.51 sec
+      Start 218: matter.cli.cardboard_graph_option
+53/64 Test #215: matter.compiler.cardboard_full_contact_armijo ..............   Passed    0.45 sec
+      Start 222: matter.compiler.cardboard_bilinear_liner_rest_fp32
+54/64 Test #218: matter.cli.cardboard_graph_option ..........................   Passed    0.46 sec
+      Start 223: matter.compiler.cardboard_bilinear_medium_rest_fp32
+55/64 Test #222: matter.compiler.cardboard_bilinear_liner_rest_fp32 .........   Passed    0.47 sec
+      Start 227: matter.compiler.cardboard_damage_cohesive_transaction
+56/64 Test #223: matter.compiler.cardboard_bilinear_medium_rest_fp32 ........   Passed    0.24 sec
+      Start 229: matter.compiler.cardboard_mixed_cohesive_face
+57/64 Test #229: matter.compiler.cardboard_mixed_cohesive_face ..............   Passed    0.50 sec
+      Start 231: matter.compiler.cardboard_cohesive_face
+58/64 Test #227: matter.compiler.cardboard_damage_cohesive_transaction ......   Passed    0.61 sec
+      Start 246: matter.compiler.fem_regional_material
+59/64 Test #231: matter.compiler.cardboard_cohesive_face ....................   Passed    0.25 sec
+      Start 254: matter.compiler.fem_reference
+60/64 Test #246: matter.compiler.fem_regional_material ......................   Passed    0.72 sec
+      Start 256: matter.compiler.cardboard_robertsson_fem_coupling
+61/64 Test #254: matter.compiler.fem_reference ..............................   Passed    1.37 sec
+62/64 Test #256: matter.compiler.cardboard_robertsson_fem_coupling ..........   Passed    1.22 sec
+63/64 Test #201: matter.compiler.cardboard_paper ............................   Passed    6.06 sec
+64/64 Test #187: matter.compiler.cardboard_retained_matrix_damage ...........   Passed   47.53 sec
+
+100% tests passed, 0 tests failed out of 64
+
+Label Time Summary:
+abi                 =   0.89 sec*proc (1 test)
+analysis            =   3.30 sec*proc (16 tests)
+armijo              =   0.45 sec*proc (1 test)
+assembly            =   1.18 sec*proc (1 test)
+candidate-domain    =   0.26 sec*proc (1 test)
+cardboard           =  83.43 sec*proc (56 tests)
+ccd                 =   0.68 sec*proc (1 test)
+cli                 =   0.46 sec*proc (1 test)
+cohesive            =   2.90 sec*proc (5 tests)
+compiler            =   4.44 sec*proc (5 tests)
+contact             =   3.39 sec*proc (6 tests)
+cpu                 =  11.55 sec*proc (27 tests)
+damage              =   0.61 sec*proc (1 test)
+delamination        =   0.68 sec*proc (1 test)
+derivative          =   0.03 sec*proc (1 test)
+expression-cache    =   0.89 sec*proc (1 test)
+fem                 =   1.94 sec*proc (2 tests)
+fingerprint         =   1.07 sec*proc (1 test)
+fp32-domain         =   0.72 sec*proc (2 tests)
+geometry            =   8.40 sec*proc (9 tests)
+human               =   2.64 sec*proc (3 tests)
+identifiability     =   0.16 sec*proc (1 test)
+material            =  58.98 sec*proc (8 tests)
+matter              =  87.54 sec*proc (62 tests)
+plasticity          =   0.72 sec*proc (2 tests)
+preconditioner      =   0.72 sec*proc (1 test)
+projection          =   0.66 sec*proc (1 test)
+reaction            =   0.49 sec*proc (1 test)
+reference           =   1.35 sec*proc (3 tests)
+rigid               =   0.98 sec*proc (1 test)
+robertsson          =   1.22 sec*proc (1 test)
+shipping            =   3.84 sec*proc (5 tests)
+solver              =   0.93 sec*proc (2 tests)
+source              =   0.44 sec*proc (1 test)
+sources             =   0.56 sec*proc (2 tests)
+stateful            =   0.51 sec*proc (1 test)
+synthetic           =  55.39 sec*proc (11 tests)
+
+Total Test time (real) =  51.28 sec

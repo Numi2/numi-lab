@@ -63,6 +63,7 @@ unsigned checks = 0u;
 std::uint64_t nativeFEMTransactionsExecuted = 0u;
 bool extendedBudget = false;
 bool accuratePaper = false;
+bool compensatedMaterialArithmetic = false;
 bool regionalContactPreconditioner = false;
 std::uint32_t authoredNewtonIterations = 0u;
 
@@ -2063,11 +2064,50 @@ void verifyArmijoAlphaPublication() {
                 .velocityAndInverseMass.x == 0.0f &&
             static_cast<const float*>(rigidCandidateBuffer.contents)[0] == 0.0f,
             "certified no-op changed a FEM or rigid candidate");
+    // Exhausting every trial must publish zero to both application paths.
+    // Exercise finite non-descent, invalid residual and unhealthy production
+    // status; none may apply an untested rigid or FEM correction.
+    for (std::uint32_t mode = 0u; mode < 3u; ++mode) {
+        *static_cast<nm_float4*>(metricsBuffer.contents) =
+            {1.0f, INFINITY, 1.0f, 0.0f};
+        *static_cast<nm_float4*>(lineBuffer.contents) =
+            {1.0f, 0.0f, 1.0f, 0.0f};
+        *static_cast<float*>(environmentLineBuffer.contents) = 1.0f;
+        *static_cast<NMMatterStatusGPU*>(trialStatusBuffer.contents) = {};
+        *static_cast<NMMatterStatusGPU*>(statusBuffer.contents) = {};
+        if (mode == 2u)
+            static_cast<NMMatterStatusGPU*>(statusBuffer.contents)->code =
+                NM_STATUS_NONLINEAR_SOLVER_FAILURE;
+        *static_cast<NMFEMNodeStateGPU*>(candidateBuffer.contents) = node;
+        *static_cast<NMFEMNodeStateGPU*>(acceptedBuffer.contents) = node;
+        std::fill_n(static_cast<float*>(rigidCandidateBuffer.contents), 6u, 0.0f);
+        std::fill_n(static_cast<nm_float4*>(solutionBuffer.contents), 8u,
+                    nm_float4{});
+        solution[0] = {4.0f, 0.0f, 0.0f, 0.0f};
+        solution[2] = {4.0f, 0.0f, 0.0f, 0.0f};
+        residual[0] = {mode == 1u ? INFINITY : 2.0f, 0.0f, 0.0f, 0.0f};
+        for (std::uint32_t trial = 0u;
+             trial < solver.nonlinearIterations.w; ++trial)
+            dispatchDecision(trial);
+        require(metrics[0].w == 0.0f && line[0].x == 0.0f &&
+                line[0].z == 0.0f && environmentAlpha[0] == 0.0f &&
+                static_cast<NMMatterStatusGPU*>(statusBuffer.contents)->code ==
+                    NM_STATUS_NONLINEAR_SOLVER_FAILURE,
+                "exhausted Armijo trials did not clear both update fractions");
+        applyCandidates();
+        require(std::memcmp(candidateBuffer.contents, &node, sizeof(node)) == 0 &&
+                std::all_of(static_cast<const float*>(rigidCandidateBuffer.contents),
+                            static_cast<const float*>(rigidCandidateBuffer.contents) + 6u,
+                            [](const float value) { return value == 0.0f; }),
+                "rejected Armijo update changed a FEM or rigid candidate");
+    }
     std::cout << "armijo_environment_alpha_publication=pass"
               << " rejected_prefix_trials=4 selected_alpha=0.0625"
               << " applied_fem_delta=0.25 applied_rigid_delta=0.25"
               << " certified_noop_fem_alpha=1 certified_noop_rigid_alpha=1"
-              << " noop_correction_zero=true direct_production_kernels=true"
+              << " noop_correction_zero=true exhausted_trial_controls=3"
+              << " exhausted_fem_alpha=0 exhausted_rigid_alpha=0"
+              << " rejected_candidates_unchanged=true direct_production_kernels=true"
               << " physical_validation=false\n";
 }
 
@@ -4326,7 +4366,7 @@ int main(int argc, const char* argv[]) {
     @autoreleasepool {
         try {
             require(argc >= 2,
-                "usage: cardboard-full-contact-armijo-check BULK.nmatter [--cpu-only|--overflow|--prescribed-box-overflow|--prescribed-box-sweep-reject|--prescribed-box-translation|--private-self-sweep|--sparse-private-parity|--sparse-private-overflow|--sparse-private-admission|--sparse-private-high-pair-admission|--sparse-free-body-parity|--sparse-free-body-overflow|--self-surface-scratch-alias-parity|--cohesive-scratch-alias-parity] [--regional-contact-preconditioner] [--extended-budget] [--accurate-paper] [--newton-iterations N] [--diagnostic-state-output DIR]");
+                "usage: cardboard-full-contact-armijo-check BULK.nmatter [--cpu-only|--overflow|--prescribed-box-overflow|--prescribed-box-sweep-reject|--prescribed-box-translation|--private-self-sweep|--sparse-private-parity|--sparse-private-overflow|--sparse-private-admission|--sparse-private-high-pair-admission|--sparse-free-body-parity|--sparse-free-body-overflow|--self-surface-scratch-alias-parity|--cohesive-scratch-alias-parity] [--regional-contact-preconditioner] [--extended-budget] [--accurate-paper] [--compensated-material-arithmetic] [--newton-iterations N] [--diagnostic-state-output DIR]");
             bool cpuOnly = false;
             bool overflow = false;
             bool prescribedBoxOverflow = false;
@@ -4376,6 +4416,8 @@ int main(int argc, const char* argv[]) {
                     regionalContactPreconditioner = true;
                 else if (option == "--extended-budget") extendedBudget = true;
                 else if (option == "--accurate-paper") accuratePaper = true;
+                else if (option == "--compensated-material-arithmetic")
+                    compensatedMaterialArithmetic = true;
                 else if (option == "--diagnostic-state-output") {
                     require(index + 1 < argc, "missing diagnostic state output directory");
                     require(diagnosticStateOutputPath.empty(),
@@ -4414,7 +4456,7 @@ int main(int argc, const char* argv[]) {
                           sparsePrivateHighPairAdmission || sparseFreeBodyParity ||
                           sparseFreeBodyOverflow || selfSurfaceScratchAliasParity ||
                           cohesiveScratchAliasParity || regionalContactPreconditioner ||
-                          extendedBudget || accuratePaper ||
+                          extendedBudget || accuratePaper || compensatedMaterialArithmetic ||
                           authoredNewtonIterations != 0u ||
                           !diagnosticStateOutputPath.empty()),
                     "Armijo alpha publication mode must run alone");
@@ -4476,8 +4518,14 @@ int main(int argc, const char* argv[]) {
             std::cout << "authored_newton_iterations=" <<
                 (authoredNewtonIterations != 0u ? authoredNewtonIterations :
                     (extendedBudget ? 32u : 16u)) <<
-                " accurate_paper=" << (accuratePaper ? "true" : "false") << '\n';
+                " accurate_paper=" << (accuratePaper ? "true" : "false")
+                << " compensated_material_arithmetic="
+                << (compensatedMaterialArithmetic ? "true" : "false") << '\n';
             MaterialProgram bulk = readMaterial(argv[1]);
+            // This general arithmetic policy is independent of the legacy
+            // exact 13-state Hill projection/scaling policy below.
+            if (compensatedMaterialArithmetic)
+                bulk.paperCompensatedArithmetic = true;
             if (accuratePaper) {
                 bulk.paperHillScalarInitializer = true;
                 bulk.paperCompensatedArithmetic = true;

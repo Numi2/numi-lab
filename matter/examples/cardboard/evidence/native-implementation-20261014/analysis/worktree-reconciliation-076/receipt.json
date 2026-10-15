@@ -1,0 +1,48 @@
+{
+  "schema": "numi.cardboard.worktree-reconciliation.v1",
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-stable-free-graph-and-general-arithmetic-076",
+  "at_utc": "2026-10-15T06:54:24.362397+00:00",
+  "rows": [
+    {
+      "path": "matter/CMakeLists.txt",
+      "before": "62c6d97537d2c6b16d5d50e27ef22e0a9678c9d99755b19249df3f672fefc457",
+      "after": "d04624ac7ecab617bcab2ea320cc315b48e8163173f61acf4d230e98d424e5c3"
+    },
+    {
+      "path": "matter/src/metal/fgmres.metalinc",
+      "before": "493dbef3fbeb6cfacaceac285753790cb8dc2faeb992de94ffc7aa2106a15aff",
+      "after": "ef2db631ef84df0d35e04808c4795d00c83e3fbb71f2b7176308c54dc44af542"
+    },
+    {
+      "path": "matter/src/regional_graph_schwarz.hpp",
+      "before": "3578592e3c3e8d384cad549d12b09473f073c1d26142f96b7fc1a8b0d33c9d24",
+      "after": "45a664b8edf49cd334e2497f5d10026597cd70a8e1792abba0bba5a4a605f781"
+    },
+    {
+      "path": "matter/src/runtime.mm",
+      "before": "71bde2d099898c89fc55ecdd23c8918cae330a1e933b2413ec59dcbd9db66ca6",
+      "after": "5c70789647a9c0ceacaeb10565aaaee30e2a901761c1d04e6e431fdafe0aeef1"
+    },
+    {
+      "path": "matter/tools/cardboard_free_box_angular_native_check.mm",
+      "before": "29ecfeafe9a9f800cf9bad5102162b94a97af93f8917db4b9988a0238fb73633",
+      "after": "715318600ebc63b8f0686c6744f5c88462eef71e14d673cc9d8839a9a2b82209"
+    },
+    {
+      "path": "matter/tools/cardboard_full_contact_armijo_check.mm",
+      "before": "29c0a58158e483f07eba6d056b2c65eea02aec39a9f1bafa8160405861b6fd1b",
+      "after": "beaf5a1519bec2814cb16608694ed126045e42b20fe40dde0fbb3eb1c31d9c87"
+    },
+    {
+      "path": "matter/tools/regional_graph_completed_tail_check.cpp",
+      "before": null,
+      "after": "bfdc93f22dc12827af3620c36d675aef940f7b1a533bace9d4f8d9f44f2022d3"
+    },
+    {
+      "path": "matter/tools/regional_graph_schwarz_layout_check.cpp",
+      "before": "87a84f8fa2a4b022de9080d3d4a6b6d14f2c6586455411228e4e1d34bedf5b09",
+      "after": "884588206bf7cbbe957e47aabe102105d65f076ed68337030195890ebdbaa048"
+    }
+  ],
+  "scope": "Advance task-owned source074 files to exact source076; preserve bytes. Source076buildpass,65of66CPUchecks; newcompensatedgenericmaterialCLI remainsunadmittedpendingnarrowcompilerrepair. Native245dynamicgrips and246firstcouponcontrolpass. No fullcycleorboxclaim."
+}

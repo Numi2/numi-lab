@@ -1,0 +1,47 @@
+clang++: warning: -framework Foundation: 'linker' input unused [-Wunused-command-line-argument]
+clang++: warning: -framework Metal: 'linker' input unused [-Wunused-command-line-argument]
+In file included from overlay/matter/src/runtime.mm:5:
+/Users/home/cardboard-implementation-20261014/snapshots/source-stable-free-graph-and-general-arithmetic-076/matter/include/numi/matter/matter.hpp:29:76: warning: defaulted comparison operators are a C++20 extension [-Wc++20-extensions]
+   29 |     friend constexpr bool operator==(const Dimension&, const Dimension&) = default;
+      |                                                                            ^
+/Users/home/cardboard-implementation-20261014/snapshots/source-stable-free-graph-and-general-arithmetic-076/matter/include/numi/matter/matter.hpp:949:10: error: no template named 'span' in namespace 'std'
+  949 |     std::span<const ConstitutiveProgram> programs
+      |     ~~~~~^
+/Users/home/cardboard-implementation-20261014/snapshots/source-stable-free-graph-and-general-arithmetic-076/matter/include/numi/matter/matter.hpp:993:10: error: no template named 'span' in namespace 'std'
+  993 |     std::span<const NMHumanSupportContactGPU> humanSupportContacts{};
+      |     ~~~~~^
+/Users/home/cardboard-implementation-20261014/snapshots/source-stable-free-graph-and-general-arithmetic-076/matter/include/numi/matter/matter.hpp:994:10: error: no template named 'span' in namespace 'std'
+  994 |     std::span<const NMHumanSupportPointQueryGPU> humanSupportPointQueries{};
+      |     ~~~~~^
+/Users/home/cardboard-implementation-20261014/snapshots/source-stable-free-graph-and-general-arithmetic-076/matter/include/numi/matter/matter.hpp:998:10: error: no template named 'span' in namespace 'std'
+  998 |     std::span<const NMHumanJointEqualityGPU> humanJointEqualities{};
+      |     ~~~~~^
+/Users/home/cardboard-implementation-20261014/snapshots/source-stable-free-graph-and-general-arithmetic-076/matter/include/numi/matter/matter.hpp:1003:10: error: no template named 'span' in namespace 'std'
+ 1003 |     std::span<const NMHumanJointLimitGPU> humanJointLimits{};
+      |     ~~~~~^
+/Users/home/cardboard-implementation-20261014/snapshots/source-stable-free-graph-and-general-arithmetic-076/matter/include/numi/matter/matter.hpp:1016:10: error: no template named 'span' in namespace 'std'
+ 1016 |     std::span<const nm_float4> humanSupportInitialHistories{};
+      |     ~~~~~^
+/Users/home/cardboard-implementation-20261014/snapshots/source-stable-free-graph-and-general-arithmetic-076/matter/include/numi/matter/matter.hpp:2077:14: error: no template named 'span' in namespace 'std'
+ 2077 |         std::span<const std::uint32_t> firstRodEdges,
+      |         ~~~~~^
+In file included from overlay/matter/src/runtime.mm:6:
+/Users/home/cardboard-implementation-20261014/snapshots/source-stable-free-graph-and-general-arithmetic-076/matter/include/numi/matter/detail.hpp:93:37: error: no template named 'bit_cast' in namespace 'std'; did you mean '__bit_cast'?
+   93 |     const std::uint32_t bits = std::bit_cast<std::uint32_t>(friction);
+      |                                ~~~~~^~~~~~~~
+      |                                     __bit_cast
+/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.4.sdk/usr/include/c++/v1/__bit/bit_cast.h:25:59: note: '__bit_cast' declared here
+   25 | [[__nodiscard__]] _LIBCPP_HIDE_FROM_ABI constexpr _ToType __bit_cast(const _FromType& __from) noexcept {
+      |                                                           ^
+In file included from overlay/matter/src/runtime.mm:6:
+/Users/home/cardboard-implementation-20261014/snapshots/source-stable-free-graph-and-general-arithmetic-076/matter/include/numi/matter/detail.hpp:142:16: error: no template named 'span' in namespace 'std'
+  142 |     const std::span<const nm_float4> histories,
+      |           ~~~~~^
+In file included from overlay/matter/src/runtime.mm:8:
+/Users/home/cardboard-implementation-20261014/snapshots/source-stable-free-graph-and-general-arithmetic-076/matter/include/numi/matter/full_contact_armijo_admission.hpp:15:16: error: no template named 'span' in namespace 'std'
+   15 |     const std::span<const NMCohesiveFaceGPU> faces
+      |           ~~~~~^
+overlay/matter/src/runtime.mm:10:10: fatal error: 'regional_graph_schwarz.hpp' file not found
+   10 | #include "regional_graph_schwarz.hpp"
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1 warning and 11 errors generated.

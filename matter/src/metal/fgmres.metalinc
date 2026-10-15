@@ -2191,11 +2191,40 @@ inline float3x3 fgmresApplyCachedTangent(
     return componentsMatrix(responseComponents);
 }
 
+// Match the FEM tangent-cache reuse contract: a prior accepted nonlinear
+// convergence latch proves that the candidate is unchanged through the
+// statically encoded tail. Iteration zero, forced rebuilds, and selected
+// diagnostic captures always reconstruct the graph matrix and factor.
+inline bool fgmresGraphMayReuseCompletedFactor(
+    const uint reuseCompletedTailAllowed,
+    const NMFGMRESStateGPU state,
+    const uint priorFactorValid
+) {
+    return reuseCompletedTailAllowed != 0u && state.nonlinear.w > 0.5f &&
+        priorFactorValid != 0u;
+}
+
 // Assemble each dense graph-patch principal submatrix from the same local
 // production FEM tangent used by the matrix-free operator. One thread owns a
 // complete scalar row, so overlapping patches never race while accumulating
-// their independent principal matrices. The layout is immutable and contains
-// only currently free nodes; a changed Dirichlet mask is a hard failure.
+// their independent principal matrices. The potential-node layout is
+// immutable, while the candidate's fixed/free mask may change per environment
+// and linearization. A currently free node outside graph coverage is fatal.
+inline bool fgmresGraphConstraintTagValid(const float tag) {
+    return tag == 0.0f || tag == 1.0f || tag == 3.0f;
+}
+
+inline bool fgmresGraphCandidateNodeConsistent(
+    const NMFEMNodeStateGPU node
+) {
+    const float tag = node.restAndFixed.w;
+    const float mass = node.positionAndMass.w;
+    const float inverseMass = node.velocityAndInverseMass.w;
+    if (!fgmresGraphConstraintTagValid(tag) || !isfinite(mass) ||
+        !(mass > 0.0f) || !isfinite(inverseMass)) return false;
+    return tag == 0.0f ? inverseMass > 0.0f : inverseMass == 0.0f;
+}
+
 kernel void nm_fgmres_graph_build_patch_matrices(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     device const NMContinuumObjectGPU* objects [[buffer(1)]],
@@ -2221,6 +2250,9 @@ kernel void nm_fgmres_graph_build_patch_matrices(
     constant uint& rowCount [[buffer(21)]],
     constant uint& patchCount [[buffer(22)]],
     constant uint& matrixFloatCount [[buffer(23)]],
+    device const NMFGMRESStateGPU* fgmresStates [[buffer(24)]],
+    constant uint& reuseCompletedTailAllowed [[buffer(25)]],
+    device const uint* priorFactorValid [[buffer(26)]],
     uint global [[thread_position_in_grid]]) {
     const uint total = dispatch.environmentCount * rowCount;
     if (global >= total || rowCount == 0u) return;
@@ -2241,19 +2273,34 @@ kernel void nm_fgmres_graph_build_patch_matrices(
                                          float(n), 1.0f));
         return;
     }
+    const uint factorIndex = environment * patchCount + row.x;
+    if (fgmresGraphMayReuseCompletedFactor(
+            reuseCompletedTailAllowed, fgmresStates[environment],
+            priorFactorValid[factorIndex]))
+        return;
     const uint rowScalar = row.y * 3u + row.z;
     const uint matrixBase = environment * matrixFloatCount + patch.z;
     const uint matrixRowBase = matrixBase + rowScalar * n;
     for (uint column = 0u; column < n; ++column)
         patchMatrices[matrixRowBase + column] = 0.0f;
     const uint globalNode = environment * dispatch.femNodeCount + row.w;
-    const bool expectedFree = nodeCoverage[row.w] != 0u;
-    const bool candidateFree = candidate[globalNode].restAndFixed.w <= 0.5f;
-    if (expectedFree != candidateFree) {
+    const NMFEMNodeStateGPU candidateNode = candidate[globalNode];
+    const float constraintTag = candidateNode.restAndFixed.w;
+    const bool candidateFree = constraintTag == 0.0f;
+    if (!fgmresGraphCandidateNodeConsistent(candidateNode) ||
+        (candidateFree && nodeCoverage[row.w] == 0u)) {
         recordFailure(statuses[environment], NM_STATUS_UNSUPPORTED,
             0u, NM_INVALID_INDEX,
             float4(float(row.w), float(nodeCoverage[row.w]),
-                   candidate[globalNode].restAndFixed.w, 2.0f));
+                   constraintTag, candidateNode.velocityAndInverseMass.w));
+        return;
+    }
+    // Constrained coordinates remain present in every potential-node patch,
+    // but the conditioning-only local block uses a unit identity row/column.
+    // This is the exact restricted free-free principal block plus identity
+    // on eliminated coordinates; it never changes the production operator.
+    if (!candidateFree) {
+        patchMatrices[matrixRowBase + rowScalar] = 1.0f;
         return;
     }
     const NMIncidenceRangeGPU range = nodeRanges[globalNode];
@@ -2306,6 +2353,8 @@ kernel void nm_fgmres_graph_build_patch_matrices(
             ? nullptr : acceptedMaterialState + globalTet * stateStride;
         for (uint columnSlot = 0u; columnSlot < 4u; ++columnSlot) {
             const uint columnNode = tetrahedron.nodes[columnSlot];
+            if (candidate[nodeBase + columnNode].restAndFixed.w != 0.0f)
+                continue;
             // Patch nodes are sorted, so the small fixed upper-bound binary
             // search maps an incident global node to its local scalar columns.
             uint low = 0u;
@@ -2385,13 +2434,15 @@ kernel void nm_fgmres_graph_validate_mask(
     const uint total = dispatch.environmentCount * dispatch.femNodeCount;
     if (global >= total || dispatch.femNodeCount == 0u) return;
     const uint node = global % dispatch.femNodeCount;
-    const bool expectedFree = nodeCoverage[node] != 0u;
-    const bool candidateFree = candidate[global].restAndFixed.w <= 0.5f;
-    if (expectedFree != candidateFree)
+    const NMFEMNodeStateGPU state = candidate[global];
+    const float tag = state.restAndFixed.w;
+    const bool candidateFree = tag == 0.0f;
+    if (!fgmresGraphCandidateNodeConsistent(state) ||
+        (candidateFree && nodeCoverage[node] == 0u))
         recordFailure(statuses[global / dispatch.femNodeCount],
             NM_STATUS_UNSUPPORTED, 0u, NM_INVALID_INDEX,
-            float4(float(node), float(nodeCoverage[node]),
-                   candidate[global].restAndFixed.w, 7.0f));
+            float4(float(node), float(nodeCoverage[node]), tag,
+                   state.velocityAndInverseMass.w));
 }
 
 // Pivoted in-place dense LU, one threadgroup per environment/patch. The
@@ -2409,6 +2460,10 @@ kernel void nm_fgmres_graph_factor_patches(
     constant uint& matrixFloatCount [[buffer(7)]],
     constant uint& pivotCount [[buffer(8)]],
     device float* originalMatrices [[buffer(9)]],
+    device const NMFGMRESStateGPU* fgmresStates [[buffer(10)]],
+    constant uint& reuseCompletedTailAllowed [[buffer(11)]],
+    device const uint* priorFactorValid [[buffer(12)]],
+    constant uint& parallelSearch [[buffer(13)]],
     uint lane [[thread_index_in_threadgroup]],
     uint group [[threadgroup_position_in_grid]]) {
     const uint totalGroups = dispatch.environmentCount * patchCount;
@@ -2421,12 +2476,25 @@ kernel void nm_fgmres_graph_factor_patches(
     const uint originalMatrixBase = environment * matrixFloatCount + patch.z;
     const uint pivotBase = environment * pivotCount + patch.w;
     const uint validIndex = group;
+    const bool descriptorValid = patch.y > 0u && patch.y <= 256u &&
+        n <= 768u && patch.z <= matrixFloatCount &&
+        n * n <= matrixFloatCount - patch.z && patch.w <= pivotCount &&
+        n <= pivotCount - patch.w;
+    if (descriptorValid && fgmresGraphMayReuseCompletedFactor(
+            reuseCompletedTailAllowed, fgmresStates[environment],
+            priorFactorValid[group]))
+        return;
     threadgroup uint sharedPivotRow;
     threadgroup uint sharedValid;
     threadgroup float sharedScale;
     threadgroup float sharedPivotMagnitude;
     threadgroup float sharedDiagonal;
     threadgroup atomic_uint sharedError;
+    // Per-lane summaries make the O(n^2) scale scan and O(n) pivot scan
+    // parallel while retaining exact FP32 values and first-row tie breaking.
+    threadgroup float searchMagnitude[256];
+    threadgroup uint searchIndex[256];
+    threadgroup uint searchInvalid[256];
     if (lane == 0u) {
         factorValid[validIndex] = 0u;
         sharedValid = patch.y > 0u && patch.y <= 256u && n <= 768u &&
@@ -2446,17 +2514,55 @@ kernel void nm_fgmres_graph_factor_patches(
         originalMatrices[originalMatrixBase + entry] =
             matrices[matrixBase + entry];
     threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
-    if (lane == 0u) {
-        for (uint index = 0u; index < n * n; ++index) {
-            const float value = matrices[matrixBase + index];
-            if (!isfinite(value)) {
-                sharedValid = 0u;
-                break;
+    if (parallelSearch == 0u) {
+        // Exact legacy serial path remains selectable as the parity control.
+        if (lane == 0u) {
+            for (uint index = 0u; index < n * n; ++index) {
+                const float value = matrices[matrixBase + index];
+                if (!isfinite(value)) {
+                    sharedValid = 0u;
+                    break;
+                }
+                sharedScale = max(sharedScale, abs(value));
             }
-            sharedScale = max(sharedScale, abs(value));
+            if (!(sharedScale > 0.0f) || !isfinite(sharedScale))
+                sharedValid = 0u;
         }
-        if (!(sharedScale > 0.0f) || !isfinite(sharedScale))
-            sharedValid = 0u;
+    } else {
+        float laneScale = 0.0f;
+        uint laneInvalid = 0u;
+        for (uint index = lane; index < n * n; index += 256u) {
+            const float value = matrices[matrixBase + index];
+            if (!isfinite(value)) laneInvalid = 1u;
+            else laneScale = max(laneScale, abs(value));
+        }
+        searchMagnitude[lane] = laneScale;
+        searchInvalid[lane] = laneInvalid;
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+        if (lane == 0u) {
+            bool invalidInput = false;
+            for (uint laneIndex = 0u; laneIndex < 256u; ++laneIndex)
+                invalidInput = invalidInput || searchInvalid[laneIndex] != 0u;
+            if (invalidInput) {
+                // Re-run the old ordered scan only on invalid inputs so its
+                // partial-scale diagnostic remains identical.
+                sharedScale = 0.0f;
+                for (uint index = 0u; index < n * n; ++index) {
+                    const float value = matrices[matrixBase + index];
+                    if (!isfinite(value)) {
+                        sharedValid = 0u;
+                        break;
+                    }
+                    sharedScale = max(sharedScale, abs(value));
+                }
+            } else {
+                sharedScale = 0.0f;
+                for (uint laneIndex = 0u; laneIndex < 256u; ++laneIndex)
+                    sharedScale = max(sharedScale, searchMagnitude[laneIndex]);
+            }
+            if (!(sharedScale > 0.0f) || !isfinite(sharedScale))
+                sharedValid = 0u;
+        }
     }
     threadgroup_barrier(mem_flags::mem_threadgroup);
     if (sharedValid == 0u) {
@@ -2468,41 +2574,113 @@ kernel void nm_fgmres_graph_factor_patches(
     }
     const float pivotFloor = max(sharedScale * 1.0e-10f, 1.0e-30f);
     for (uint k = 0u; k < n; ++k) {
-        if (lane == 0u) {
-            sharedPivotRow = k;
-            sharedPivotMagnitude = 0.0f;
-            for (uint row = k; row < n; ++row) {
+        if (parallelSearch == 0u) {
+            if (lane == 0u) {
+                sharedPivotRow = k;
+                sharedPivotMagnitude = 0.0f;
+                for (uint row = k; row < n; ++row) {
+                    const float magnitude = abs(matrices[
+                        matrixBase + row * n + k]);
+                    if (!isfinite(magnitude)) {
+                        sharedValid = 0u;
+                        break;
+                    }
+                    if (magnitude > sharedPivotMagnitude) {
+                        sharedPivotMagnitude = magnitude;
+                        sharedPivotRow = row;
+                    }
+                }
+                if (!(sharedPivotMagnitude > pivotFloor)) sharedValid = 0u;
+                if (sharedValid != 0u && sharedPivotRow != k) {
+                    const uint other = sharedPivotRow;
+                    for (uint column = 0u; column < n; ++column) {
+                        const uint a = matrixBase + k * n + column;
+                        const uint b = matrixBase + other * n + column;
+                        const float temporary = matrices[a];
+                        matrices[a] = matrices[b];
+                        matrices[b] = temporary;
+                    }
+                    const uint a = pivotBase + k;
+                    const uint b = pivotBase + other;
+                    const uint temporary = pivots[a];
+                    pivots[a] = pivots[b];
+                    pivots[b] = temporary;
+                }
+            }
+            // Preserve the legacy pivot, swap and control path exactly.
+            threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+        } else {
+            float laneMagnitude = 0.0f;
+            uint laneRow = k;
+            uint laneInvalid = 0u;
+            for (uint row = k + lane; row < n; row += 256u) {
                 const float magnitude = abs(matrices[
                     matrixBase + row * n + k]);
                 if (!isfinite(magnitude)) {
-                    sharedValid = 0u;
-                    break;
-                }
-                if (magnitude > sharedPivotMagnitude) {
-                    sharedPivotMagnitude = magnitude;
-                    sharedPivotRow = row;
+                    laneInvalid = 1u;
+                } else if (magnitude > laneMagnitude) {
+                    laneMagnitude = magnitude;
+                    laneRow = row;
                 }
             }
-            if (!(sharedPivotMagnitude > pivotFloor)) sharedValid = 0u;
+            searchMagnitude[lane] = laneMagnitude;
+            searchIndex[lane] = laneRow;
+            searchInvalid[lane] = laneInvalid;
+            threadgroup_barrier(mem_flags::mem_threadgroup);
+            if (lane == 0u) {
+                bool invalidColumn = false;
+                for (uint laneIndex = 0u; laneIndex < 256u; ++laneIndex)
+                    invalidColumn = invalidColumn || searchInvalid[laneIndex] != 0u;
+                sharedPivotRow = k;
+                sharedPivotMagnitude = 0.0f;
+                if (invalidColumn) {
+                    // Preserve the legacy partial-pivot diagnostic exactly.
+                    for (uint row = k; row < n; ++row) {
+                        const float magnitude = abs(matrices[
+                            matrixBase + row * n + k]);
+                        if (!isfinite(magnitude)) {
+                            sharedValid = 0u;
+                            break;
+                        }
+                        if (magnitude > sharedPivotMagnitude) {
+                            sharedPivotMagnitude = magnitude;
+                            sharedPivotRow = row;
+                        }
+                    }
+                } else {
+                    for (uint laneIndex = 0u; laneIndex < 256u; ++laneIndex) {
+                        const float magnitude = searchMagnitude[laneIndex];
+                        const uint row = searchIndex[laneIndex];
+                        if (magnitude > sharedPivotMagnitude ||
+                            (magnitude == sharedPivotMagnitude &&
+                             row < sharedPivotRow)) {
+                            sharedPivotMagnitude = magnitude;
+                            sharedPivotRow = row;
+                        }
+                    }
+                }
+                if (!(sharedPivotMagnitude > pivotFloor)) sharedValid = 0u;
+            }
+            threadgroup_barrier(mem_flags::mem_threadgroup);
             if (sharedValid != 0u && sharedPivotRow != k) {
-                const uint other = sharedPivotRow;
-                for (uint column = 0u; column < n; ++column) {
+                for (uint column = lane; column < n; column += 256u) {
                     const uint a = matrixBase + k * n + column;
-                    const uint b = matrixBase + other * n + column;
+                    const uint b = matrixBase + sharedPivotRow * n + column;
                     const float temporary = matrices[a];
                     matrices[a] = matrices[b];
                     matrices[b] = temporary;
                 }
-                const uint a = pivotBase + k;
-                const uint b = pivotBase + other;
-                const uint temporary = pivots[a];
-                pivots[a] = pivots[b];
-                pivots[b] = temporary;
+                if (lane == 0u) {
+                    const uint a = pivotBase + k;
+                    const uint b = pivotBase + sharedPivotRow;
+                    const uint temporary = pivots[a];
+                    pivots[a] = pivots[b];
+                    pivots[b] = temporary;
+                }
+                threadgroup_barrier(mem_flags::mem_device |
+                                    mem_flags::mem_threadgroup);
             }
         }
-        // Publish the pivot row/global matrix swap and lane-0 control words
-        // before any lane consumes them in this pivot stage.
-        threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
         if (sharedValid == 0u) break;
         if (lane == 0u) {
             sharedDiagonal = matrices[matrixBase + k * n + k];
@@ -2613,6 +2791,7 @@ kernel void nm_fgmres_graph_solve_patches(
     device const NMFGMRESStateGPU* states [[buffer(17)]],
     device const float* originalMatrices [[buffer(18)]],
     constant uint& refinementMode [[buffer(19)]],
+    device const NMFEMNodeStateGPU* candidate [[buffer(20)]],
     uint lane [[thread_index_in_threadgroup]],
     uint group [[threadgroup_position_in_grid]]) {
     const uint totalGroups = dispatch.environmentCount * patchCount;
@@ -2667,13 +2846,16 @@ kernel void nm_fgmres_graph_solve_patches(
         const uint localNode = scalar / 3u;
         const uint axis = scalar % 3u;
         const uint globalNode = patchNodes[patch.x + localNode];
-        float value = basis[nodeBase + globalNode][axis];
-        const uint coefficientBase = environment * modeCount;
-        for (uint mode = 0u; mode < modeCount; ++mode) {
-            const uint modeNodeBase =
-                (environment * modeCount + mode) * dispatch.femNodeCount;
-            value -= coefficients[coefficientBase + mode] *
-                regionalAP[modeNodeBase + globalNode][axis];
+        float value = 0.0f;
+        if (candidate[nodeBase + globalNode].restAndFixed.w == 0.0f) {
+            value = basis[nodeBase + globalNode][axis];
+            const uint coefficientBase = environment * modeCount;
+            for (uint mode = 0u; mode < modeCount; ++mode) {
+                const uint modeNodeBase =
+                    (environment * modeCount + mode) * dispatch.femNodeCount;
+                value -= coefficients[coefficientBase + mode] *
+                    regionalAP[modeNodeBase + globalNode][axis];
+            }
         }
         rhs[scalar] = value;
     }
@@ -2902,6 +3084,7 @@ kernel void nm_fgmres_graph_apply_patches(
     device const NMFGMRESStateGPU* states [[buffer(9)]],
     constant uint& patchNodeCount [[buffer(10)]],
     constant uint& modeCount [[buffer(11)]],
+    device const NMFEMNodeStateGPU* candidate [[buffer(12)]],
     uint global [[thread_position_in_grid]]) {
     const uint total = dispatch.environmentCount * dispatch.femNodeCount;
     if (global >= total || dispatch.femNodeCount == 0u ||
@@ -2909,6 +3092,10 @@ kernel void nm_fgmres_graph_apply_patches(
     const uint environment = global / dispatch.femNodeCount;
     const uint node = global - environment * dispatch.femNodeCount;
     if (states[environment].diagnostics.z > 0.5f) {
+        preconditioned[global] = float4(0.0f);
+        return;
+    }
+    if (candidate[global].restAndFixed.w != 0.0f) {
         preconditioned[global] = float4(0.0f);
         return;
     }

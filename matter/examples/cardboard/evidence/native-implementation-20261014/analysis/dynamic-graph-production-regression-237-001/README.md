@@ -1,0 +1,1 @@
+Source074 first production coupon control fails strict unchanged accuracy.64Newton Armijo iterations accept descent but final loaded residual2.42286787e-5; zero controls accepted. Source073sameprotocol passed. Small dynamic grip regression234does not qualify production conditioning. Retain complete237 evidence and repair initial graph membership/coverage before fullcycle.

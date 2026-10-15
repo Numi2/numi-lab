@@ -1,0 +1,68 @@
+{
+  "schema": "numi.cardboard.worktree-reconciliation.v1",
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-runtime-diagnostic-return-repair-079",
+  "rows": [
+    {
+      "path": "matter/CMakeLists.txt",
+      "before": "d04624ac7ecab617bcab2ea320cc315b48e8163173f61acf4d230e98d424e5c3",
+      "after": "0a78dc3c1da25b6532085db34441957a748ea07d62a10dfc803c440e09ebf936"
+    },
+    {
+      "path": "matter/src/metal/contact.metalinc",
+      "before": "69c3ec930d0b382dfe278fa42c56353782438ded77d8224a3ccfd6989e3067c9",
+      "after": "9e4ce2d8213c83a9a3e58a64388562cb92638c892b21e612653e92400b654f1f"
+    },
+    {
+      "path": "matter/src/metal/fem.metalinc",
+      "before": "819f6724c2690c41c07972e6596624672000d35423bba3f1233e0063c47b9564",
+      "after": "a88938e11b76a6c6b4ade53007bca543c642828e9a6c91ae5ddb66e9bda0bda9"
+    },
+    {
+      "path": "matter/src/metal/fgmres.metalinc",
+      "before": "ef2db631ef84df0d35e04808c4795d00c83e3fbb71f2b7176308c54dc44af542",
+      "after": "937938ca6ca7b9be286d37d4423bba7d297c0498b562b12375e0c28a31015dbe"
+    },
+    {
+      "path": "matter/src/regional_graph_schwarz.hpp",
+      "before": "45a664b8edf49cd334e2497f5d10026597cd70a8e1792abba0bba5a4a605f781",
+      "after": "a8a6328d608ba7db4943025f15d35d750968755a8826de32b14b479752c9121d"
+    },
+    {
+      "path": "matter/src/runtime.mm",
+      "before": "5c70789647a9c0ceacaeb10565aaaee30e2a901761c1d04e6e431fdafe0aeef1",
+      "after": "951cfaeafb3bee22b547ff4d8f9fce2c5c9c226364deecf8f4205e13c742cb56"
+    },
+    {
+      "path": "matter/tools/cardboard_contact_node_incidence_sort_check.cpp",
+      "before": null,
+      "after": "b0385ddbd8b24754b3b6927976a04c5406873e5e4c15aa3de9a8a580af7fa89a"
+    },
+    {
+      "path": "matter/tools/cardboard_contact_node_incidence_sort_native_check.mm",
+      "before": null,
+      "after": "2049f4f8805857d1d779e236ec11f1659b9d99a291bc7b6a8ddc6f4ec86d14df"
+    },
+    {
+      "path": "matter/tools/cardboard_contact_node_incidence_sort_reference.hpp",
+      "before": null,
+      "after": "e5a9e7c5218d93ecff90b8469717fbd441c70ac50395bbf521500a18612928f2"
+    },
+    {
+      "path": "matter/tools/cardboard_full_contact_armijo_check.mm",
+      "before": "beaf5a1519bec2814cb16608694ed126045e42b20fe40dde0fbb3eb1c31d9c87",
+      "after": "c0e1d7079b36acea714570ab341143d305ca7f08c1d2304b2164bc6b52e7e112"
+    },
+    {
+      "path": "matter/tools/cardboard_graph_lu_search_native_check.mm",
+      "before": null,
+      "after": "bf29b7f3c9dbb7209e65e05c133cacdd02bee396e8db8c765a845be4c723d411"
+    },
+    {
+      "path": "matter/tools/regional_graph_schwarz_layout_check.cpp",
+      "before": "884588206bf7cbbe957e47aabe102105d65f076ed68337030195890ebdbaa048",
+      "after": "30ffe32c3f4eebb135cd7aa9b735192a5154bdb03dca84463a30b7a0135ae841"
+    }
+  ],
+  "build_sha256": "a1e9c131a669ed304db188779eff247c86514dc771894d44c92b44399c34e7dc",
+  "scope": "60targetbuild/67CPU plus direct259/260/261 and production263/264 exact firstcontrolparity.262freebody and265refinedfirstcontrol failures retained. No wholecoupon/convergence/shippingclaim."
+}

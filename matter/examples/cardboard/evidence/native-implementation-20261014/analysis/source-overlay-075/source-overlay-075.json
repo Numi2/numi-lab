@@ -1,0 +1,35 @@
+{
+  "schema": "numi.cardboard.integrated-source-overlay.v1",
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-completed-graph-tail-and-signed-contact-oracle-075",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-dynamic-grips-coupled-damage-and-fp64-contact-074",
+  "changed": {
+    "matter/CMakeLists.txt": {
+      "before": "62c6d97537d2c6b16d5d50e27ef22e0a9678c9d99755b19249df3f672fefc457",
+      "after": "c5d9ea40732127a00e3d4bafdc9e3741e086a1d2a693536b1381df33c5fd71a1"
+    },
+    "matter/src/metal/fgmres.metalinc": {
+      "before": "493dbef3fbeb6cfacaceac285753790cb8dc2faeb992de94ffc7aa2106a15aff",
+      "after": "ef2db631ef84df0d35e04808c4795d00c83e3fbb71f2b7176308c54dc44af542"
+    },
+    "matter/src/regional_graph_schwarz.hpp": {
+      "before": "3578592e3c3e8d384cad549d12b09473f073c1d26142f96b7fc1a8b0d33c9d24",
+      "after": "bbddd930b5d84868f045a085352360f1da5baaf1a0db62ba16493654bd1fb387"
+    },
+    "matter/src/runtime.mm": {
+      "before": "71bde2d099898c89fc55ecdd23c8918cae330a1e933b2413ec59dcbd9db66ca6",
+      "after": "ed4e538d2da653e32675875223e4aaca347e3cc5f57750c22623487cf6d55e03"
+    },
+    "matter/tools/cardboard_free_box_angular_native_check.mm": {
+      "before": "29ecfeafe9a9f800cf9bad5102162b94a97af93f8917db4b9988a0238fb73633",
+      "after": "715318600ebc63b8f0686c6744f5c88462eef71e14d673cc9d8839a9a2b82209"
+    },
+    "matter/tools/regional_graph_completed_tail_check.cpp": {
+      "before": null,
+      "after": "bfdc93f22dc12827af3620c36d675aef940f7b1a533bace9d4f8d9f44f2022d3"
+    }
+  },
+  "overlay_manifests": {
+    "/Users/home/cardboard-implementation-20261014/analysis/completed-graph-tail-overlay-001/manifest.json": "fc8bf249fe6a641d1a08c8fdd6abb6f4c3293ea5582ce07888ef3f7708e2d232",
+    "/Users/home/cardboard-implementation-20261014/analysis/fp64-contact-signed-normal-oracle-fix-001/manifest.json": "9bf0f10c83de070baa173aaf0fb5b7301c67e2b613de53b05311f958f4dc60d7"
+  }
+}

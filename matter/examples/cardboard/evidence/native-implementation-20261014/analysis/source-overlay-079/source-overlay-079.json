@@ -1,0 +1,12 @@
+{
+  "schema": "numi.cardboard.integrated-source-overlay.v1",
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-runtime-diagnostic-return-repair-079",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-budgeted-graph-and-rejected-contact-alpha-078",
+  "changed": {
+    "matter/src/runtime.mm": {
+      "before": "a84a620923fc04adec48187c1b1e82eee22dd172e5cbf461a7fee53feb525021",
+      "after": "951cfaeafb3bee22b547ff4d8f9fce2c5c9c226364deecf8f4205e13c742cb56"
+    }
+  },
+  "scope": "Reject exhausted Armijo trials with zero shared FEM/rigid update; preserve legacy graph layouts while bounded conditioning fallback admits independent refinements; opt-in deterministic contact node-incidence corner sort and parallel graph LU search with legacy defaults. No physical equation/parameter/operator/global accuracy changes. Native tests separate. Repair root integration return type from bool to RuntimeDiagnostics on invalid LU opt-in. Failed078build retained; no production execution."
+}

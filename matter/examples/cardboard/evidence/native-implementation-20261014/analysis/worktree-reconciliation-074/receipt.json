@@ -1,0 +1,44 @@
+{
+  "schema": "numi.cardboard.worktree-reconciliation.v1",
+  "at_utc": "2026-10-15T06:34:33.305035+00:00",
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-dynamic-grips-coupled-damage-and-fp64-contact-074",
+  "rows": [
+    {
+      "path": "matter/CMakeLists.txt",
+      "before": "f1ef2d071786f10bcd9d3a32b9b353ba2d93f1b3a1d4c76587a61b4a82a8713f",
+      "after": "62c6d97537d2c6b16d5d50e27ef22e0a9678c9d99755b19249df3f672fefc457"
+    },
+    {
+      "path": "matter/src/metal/fgmres.metalinc",
+      "before": "389c309235b4f5aee758985c335db9c95faaf8b2eeb281e41095fc718700c42a",
+      "after": "493dbef3fbeb6cfacaceac285753790cb8dc2faeb992de94ffc7aa2106a15aff"
+    },
+    {
+      "path": "matter/src/regional_graph_schwarz.hpp",
+      "before": "1356685f98c1818ad100c10e3e919db3c67a95c88ba86d86e7e009437844015a",
+      "after": "3578592e3c3e8d384cad549d12b09473f073c1d26142f96b7fc1a8b0d33c9d24"
+    },
+    {
+      "path": "matter/src/runtime.mm",
+      "before": "c3c9272fd0483b922d2ec4c489459212dbec49ca2212e23e3a3a6b499295cc72",
+      "after": "71bde2d099898c89fc55ecdd23c8918cae330a1e933b2413ec59dcbd9db66ca6"
+    },
+    {
+      "path": "matter/tools/cardboard_free_box_angular_native_check.mm",
+      "before": "dd9116d31b2bd6f25ff01c0d5b67597de13350ce4f82f1c01fb400624c1db638",
+      "after": "29ecfeafe9a9f800cf9bad5102162b94a97af93f8917db4b9988a0238fb73633"
+    },
+    {
+      "path": "matter/tools/fem_regional_galerkin_native_check.mm",
+      "before": "2b8acd670fda06352665722d27a3f12bc5efa3e39c0515e300cd6180c0e474c0",
+      "after": "a0095bd0eef16c4494d2f9e86e9d78881aab55b2ea64c7533df57efe337f2ee4"
+    },
+    {
+      "path": "matter/tools/regional_graph_schwarz_layout_check.cpp",
+      "before": "8b9c08915cfa3e13be6f2628d84e0243754d41301549bcb2035e81a7faf9fb9f",
+      "after": "87a84f8fa2a4b022de9080d3d4a6b6d14f2c6586455411228e4e1d34bedf5b09"
+    }
+  ],
+  "cmake_disposition": "Three-way merge against5fd4486 and verified073 preserved material target and graph/angular registrations. Difference from sealed074 was only order of independent target definitions. Advanced to sealed074 ordering after preserving exact current bytes; no target or test lost.",
+  "qualification": "Source synchronization only; see separate build/native receipts."
+}

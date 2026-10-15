@@ -130,6 +130,11 @@ def as_float(a):
     return float(a)
 
 recs=[json.loads(x) for x in CAP.read_text().splitlines() if x.strip()]; header=recs[0]; mats={int(m['index']):m for m in header['materials']}; results=[]
+DOUBLE_ROWS={}
+for line in (BASE/'analysis/all-paper-tet-replay-231/output/fp64-own-fd-output.jsonl').open():
+    row=json.loads(line)
+    if row.get('key','').endswith('_s0'):
+        DOUBLE_ROWS[row['key']]=row
 for tid in sorted(IDS):
     tet=next(r for r in recs if r.get('record')=='tetrahedron' and int(r['environment'])==0 and int(r['tet_id'])==tid)
     if int(tet['material_index'])!=1: raise RuntimeError('expected medium material')
@@ -141,9 +146,12 @@ for tid in sorted(IDS):
     x,norm,it=project(mat,F,old); P0=stress(mat,F,mp.matrix([x[i] for i in range(6)])); T=tangent(mat,F,H,old,x)
     q0=trial_q(mat,F,old)
     hnorm=max(abs(H[i,j]) for i in range(3) for j in range(3))
+    double_row=DOUBLE_ROWS[f'e0_t{tid}_s0']['FP64_derivative_sweep']['rows']
+    double_best=min((row for row in double_row if row.get('smooth_branch_eligible')),key=lambda row:row['relative_error'])
+    matched_hF=mp.mpf(double_best['epsilon_seconds'])*hnorm
     # Dimensionless perturbation hF scales max |delta F| directly; epsilon is seconds.
     records=[]
-    for hFstr in ['3e-3','1e-3','3e-4','1e-4','3e-5','1e-5','3e-6','1e-6','3e-7','1e-7','3e-8','1e-8','3e-9','1e-9','3e-10','1e-10','3e-11','1e-11','3e-12','1e-12','3e-13','1e-13','3e-14','1e-14','3e-15']:
+    for hFstr in [str(matched_hF),'3e-3','1e-3','3e-4','1e-4','3e-5','1e-5','3e-6','1e-6','3e-7','1e-7','3e-8','1e-8','3e-9','1e-9','3e-10','1e-10','3e-11','1e-11','3e-12','1e-12','3e-13','1e-13','3e-14','1e-14','3e-15']:
       hF=mp.mpf(hFstr); dtau=hF/hnorm
       Hp=H/hnorm
       pp_state,rp,ip=project(mat,F+hF*Hp,old); pm_state,rm,im=project(mat,F-hF*Hp,old)
@@ -159,7 +167,7 @@ for tid in sorted(IDS):
         'centered_relative_error':float(rel_error(central)),'forward_relative_error':float(rel_error(forward)),'backward_relative_error':float(rel_error(backward)),
         'centered_abs_error_Pa_per_s':float(max(abs(central[i,j]-T[i,j]) for i in range(3) for j in range(3))), 'central_tangent_matrix':[float(central[i,j]) for i in range(3) for j in range(3)],
         'stress_delta_inf_Pa':float(max(abs(pp[i,j]-pm[i,j]) for i in range(3) for j in range(3))),
-        'projection_residuals_mp80':[float(rp),float(rm)],'projection_iterations':[ip,im]})
+        'projection_residuals_mp80':[float(rp),float(rm)],'projection_iterations':[ip,im], 'matches_original_double_best_epsilon':abs(float(dtau)-double_best['epsilon_seconds'])<1e-20})
     # Repeat center/endpoints at 50 and 80 dps for a direct precision-convergence estimate.
     mp.mp.dps=50; x50,n50,_=project(mat,F,old); p50=stress(mat,F,mp.matrix([x50[i] for i in range(6)])); t50=tangent(mat,F,H,old,x50)
     # All source parameters and endpoint words are exactly the same; only mp precision differs.
@@ -168,11 +176,11 @@ for tid in sorted(IDS):
     results.append({'tet_id':tid,'grade':'medium','captured_material_index':1,'native_capture_candidate_q_field':c['hill_q_lambda_a_b'][0],
       'independent_center_trial_q':float(q0),'independent_candidate_lambda_increment':float(x[12]-old[12]),'high_precision_projection_residual':float(norm),'iterations':it,
       'precision_convergence_50_vs_80_dps':{'center_stress_abs_Pa':float(center_stress_precision),'directional_tangent_abs_Pa_per_s':float(tangent_precision)},
-      'direction_max_abs_per_s':float(hnorm),'tangent_matrix_Pa_per_s':[float(T[i,j]) for i in range(3) for j in range(3)],'center_first_piola_Pa':[float(P0[i,j]) for i in range(3) for j in range(3)],'sweeps':records})
+      'direction_max_abs_per_s':float(hnorm),'tangent_matrix_Pa_per_s':[float(T[i,j]) for i in range(3) for j in range(3)],'center_first_piola_Pa':[float(P0[i,j]) for i in range(3) for j in range(3)],'sweeps':records,'original_double_best':{'epsilon_s':double_best['epsilon_seconds'],'relative_error':double_best['relative_error'],'projection_residuals':double_best['projection_residuals'],'matched_MP_row_index':next(i for i,r in enumerate(records) if r['matches_original_double_best_epsilon'])}})
     print('done',tid,'q',float(q0),'lambda',float(x[12]-old[12]),'stress precision',float(center_stress_precision),'T precision',float(tangent_precision))
 manifest={'schema':'numi.cardboard.adaptive-high-precision-fd-adjudication.v1','capture':str(CAP),'capture_sha256':sha(CAP),'native_prediction_sha256':sha(RUN/'prediction.json'),'receipt_sha256':sha(RUN/'receipt.json'),
  'source_snapshot':json.loads((RUN/'prediction.json').read_text()).get('source_snapshot'),'methods':'Independent mpmath 80-digit FP64-oracle equation replay; exact FP32 high+low F, captured accepted history, FP32 H and FP32 parameter words; center/one-sided/centered dimensional perturbation sweeps with fixed max|delta F|; branch labels from exact elastic trial q; repeat at 50 vs 80 decimal digits to estimate numerical precision convergence, not empirical stochastic noise.',
  'threshold_policy':'No tolerance relaxed. FD <=1e-6 is reported only where the exact q branch is the same for minus/center/plus and tangent scale is nonzero.',
- 'python_mpmath_version':mp.__version__,'results':results}
+ 'python_mpmath_version':mp.__version__,'precision_policy':'80 decimal digits for each projection/tangent; center stress and directional tangent recomputed at 50 and 80 dps. These are computation precision diagnostics, not empirical noise floors.','results':results}
 (OUT/'adaptive-fd-five.json').write_text(json.dumps(manifest,indent=2,allow_nan=False)+'\n')
 print('wrote',OUT/'adaptive-fd-five.json')

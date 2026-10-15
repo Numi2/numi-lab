@@ -1,0 +1,15 @@
+# Full FP64 continuous BOX contact residual diagnostic
+
+This is an additive checker-only overlay against frozen source snapshot `source-reconciled-angular-fixture-and-probe-cli-073`. It changes only `matter/tools/cardboard_free_box_angular_native_check.mm`; it does not change Matter kernels, solver acceptance, thresholds, or production state.
+
+The checker now emits a separate `production_contact_operator_full_fp64_continuous` result for the six direct native frictionless BOX samples and their 14 free-body directions (84 actions). It promotes the exact FP32 accepted body, proxy, FEM-node, timestep, and thickness inputs to FP64, then continuously projects candidate translation and SO(3) orientation, rotates the accepted world inverse inertia, recomputes BOX closest-point geometry, normal/witness/lever, inverse response, inertial-versus-impact stiffness, IPC barrier impulse, and the six rigid generalized residual components. The measured operator convention is `A = -dR_contact/d(candidate_velocity_delta)`; torque entries are divided by the fixture's characteristic length, matching the existing checker norm.
+
+Candidate perturbations are evaluated in double without round-tripping through the native FP32 candidate projection. A centered stencil is used when both sides retain the candidate's exact BOX feature and strict inertial-stiffness branch. At a one-sided transition, a second-order one-sided stencil is accepted only if both points remain on the same supported center branch. Degenerate geometry, feature-margin crossings, inactive barrier states, floor branches, and impact-stiffness/max transitions are marked unresolved. The final three epsilon estimates must use one branch/stencil and the last refinement estimate `|FD(h/2)-FD(h)| / (3 ||FD||)` must be at most `1e-6`; the native six-row action must agree within `1e-3` relative L2 and the componentwise equivalent. The output includes exact FP32 input-word hex, center residuals, plus/minus residual vectors and geometry/response/stiffness values, action vectors, branch labels, and refinement results.
+
+The old FP32-projected candidate FD lines and gates are retained unchanged and stay separately labeled. The new oracle is scoped to this checker fixture: one FEM point, one nonarticulated dynamic BOX, zero friction, zero accepted tangential history, and the production strict inertial-stiffness branch. It does not qualify frictional contact, self-contact, a shipping mesh, or a complete physical trajectory.
+
+## Validation
+
+Strict Objective-C++ syntax check passed with `-Wall -Wextra -Wpedantic -Werror` using the source-073 include roots and existing source-073 metallib path. No native/GPU checker was run by this overlay author; root owns the native run. The frozen073 production kernels are unchanged.
+
+The compiled target already exists in the frozen snapshot as `numi-matter-cardboard-free-box-angular-native-check`; only this checker source needs to be overlaid before rebuilding. Preserve the old native result and bind the new run to the resulting source/build hashes.

@@ -1,0 +1,17 @@
+{
+  "schema": "numi.cardboard.full_fp64_continuous_contact_residual_overlay.v1",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-reconciled-angular-fixture-and-probe-cli-073",
+  "base_checker_sha256": "dd9116d31b2bd6f25ff01c0d5b67597de13350ce4f82f1c01fb400624c1db638",
+  "base_contact_kernel_sha256": "69c3ec930d0b382dfe278fa42c56353782438ded77d8224a3ccfd6989e3067c9",
+  "base_fgmres_kernel_sha256": "389c309235b4f5aee758985c335db9c95faaf8b2eeb281e41095fc718700c42a",
+  "base_shared_abi_sha256": "e1b4a229e58227280e2a1e263fa6535f325333e9edcacfd93498f699790c30d3",
+  "overlay_checker": "matter/tools/cardboard_free_box_angular_native_check.mm",
+  "overlay_checker_sha256": "29ecfeafe9a9f800cf9bad5102162b94a97af93f8917db4b9988a0238fb73633",
+  "patch": "patch.diff",
+  "patch_sha256": "e26d5192716d85ee1b18db56b680d5c9026f7a39ed7790c69033e66ddca60166",
+  "validation": {
+    "objcxx_syntax": "PASS",
+    "native_gpu_run": "NOT_RUN_BY_OVERLAY_AUTHOR"
+  },
+  "physical_qualification": false
+}

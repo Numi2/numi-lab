@@ -4993,14 +4993,36 @@ numi::cardboard::ShippingMemoryBudget shippingPrebuildMemoryBudget(
     options.cohesiveFaceUpperBound =
         (arguments.shippingStarchLaw || arguments.shippingHmaLaw)
             ? shippingMemoryCheckedMultiply(
-                  screen.nominalTetrahedronCount, 1u) / 5u : 0u;
+                  shippingPrebuildTetrahedronUpperBound(screen), 1u) / 5u : 0u;
     options.rigidProxyCount = arguments.shippingBox
         ? kShippingRigidProxyCount : 0u;
     options.rigidBodyCount = arguments.shippingBox
         ? kShippingRigidBodyCount : 0u;
+    options.rigidGeneralizedCapacity = arguments.shippingBox ? 6u : 0u;
     options.fgmresRestart = arguments.fgmresRestart;
     options.compactImmutableSurfaceMap = arguments.compactImmutableSurfaces;
     options.requireFullContactResidualDescent = arguments.shippingBox;
+    options.deformableSelfContactEnabled = arguments.shippingBox &&
+        !arguments.glueMaterial.empty() && !arguments.disableSelfContact;
+
+    const auto fullContactSelector = parseShippingFullContactSelector(
+        std::getenv("NM_FEM_FULL_CONTACT_RESIDUAL_ARMIJO_ROOT"));
+    const bool fullContactWillBeSelected = arguments.boxAssemblyNative ||
+        (fullContactSelector.requested && fullContactSelector.error == nullptr);
+    const bool boundedFreeBoxScopeCandidate =
+        shippingPrebuildBoundedFreeBoxScopeCandidate(
+            arguments.shippingBox, arguments.boxAssemblyNative,
+            options.rigidProxyCount, options.rigidBodyCount,
+            options.rigidGeneralizedCapacity,
+            kShippingRigidProxyCount, kShippingRigidBodyCount);
+    configureShippingPrebuildSparsePrivateContact(
+        options,
+        std::getenv("NM_FEM_FULL_CONTACT_SPARSE_PRIVATE_CAPACITY"),
+        std::getenv("NM_FEM_FULL_CONTACT_SPARSE_PRIVATE_PARITY"),
+        fullContactWillBeSelected, boundedFreeBoxScopeCandidate);
+    if (fullContactSelector.error != nullptr &&
+        options.runtimeConfigurationFailure.empty())
+        options.runtimeConfigurationFailure = fullContactSelector.error;
     auto budget = estimateShippingPrebuildMemoryBudget(screen, options);
     if (arguments.femPreconditioner ==
             FEMPreconditionerMode::regionalGalerkin ||
@@ -5309,12 +5331,19 @@ void writeShippingPrebuildMemoryScreen(
            << "  \"estimated_cardinality\": {\"nodes\": "
            << estimate.estimatedNodeCount << ", \"tetrahedra\": "
            << estimate.estimatedTetrahedronCount << "},\n"
+           << "  \"arena_topology_upper_bound\": {\"prepared_nodes\": "
+           << numi::cardboard::shippingPrebuildRigidNodeUpperBound(estimate)
+           << ", \"tetrahedra\": "
+           << numi::cardboard::shippingPrebuildTetrahedronUpperBound(estimate)
+           << ", \"rigid_pair_domain\": "
+           << budget.rigidContactPairDomainUpperBound << "},\n"
            << "  \"contact_allocation_options\": {\"compact_immutable_surface_map_requested\": "
            << (arguments.compactImmutableSurfaces ? "true" : "false")
            << ", \"prebuild_surface_face_upper_bound\": "
            << (arguments.compactImmutableSurfaces
                    ? numi::cardboard::shippingMemoryCheckedMultiply(
-                         estimate.nominalTetrahedronCount, 4u)
+                         numi::cardboard::shippingPrebuildTetrahedronUpperBound(
+                             estimate), 4u)
                    : 0u)
            << ", \"deformable_contact_capacity_requested\": "
            << (arguments.deformableContactCapacityProvided
@@ -5323,7 +5352,8 @@ void writeShippingPrebuildMemoryScreen(
            << (arguments.deformableContactCapacityProvided
                    ? arguments.deformableContactCapacity
                    : numi::cardboard::shippingMemoryCheckedMultiply(
-                         estimate.nominalTetrahedronCount, 8u))
+                         numi::cardboard::shippingPrebuildTetrahedronUpperBound(
+                             estimate), 8u))
            << ", \"rigid_proxy_count_bound\": "
            << (arguments.shippingBox
                    ? numi::cardboard::kShippingRigidProxyCount : 0u)
@@ -5333,9 +5363,26 @@ void writeShippingPrebuildMemoryScreen(
            << ", \"contact_pair_count_upper_bound\": "
            << (arguments.shippingBox
                    ? numi::cardboard::shippingMemoryCheckedMultiply(
-                         estimate.nominalNodeCount,
+                         numi::cardboard::shippingPrebuildRigidNodeUpperBound(
+                             estimate),
                          numi::cardboard::kShippingRigidProxyCount)
                    : 0u) << "},\n"
+           << "  \"prebuild_sparse_private_contact_candidate\": {\"requested\": "
+           << (budget.sparsePrivateContactRequested ? "true" : "false")
+           << ", \"capacity\": " << budget.sparsePrivateContactCapacity
+           << ", \"parity\": "
+           << (budget.sparsePrivateContactParity ? "true" : "false")
+           << ", \"bounded_free_box_scope_candidate\": "
+           << (budget.sparsePrivateContactBoundedFreeBoxScope ? "true" : "false")
+           << ", \"pair_domain_upper_bound\": "
+           << budget.rigidContactPairDomainUpperBound
+           << ", \"private_rigid_admitted\": "
+           << (budget.privateRigidContactAdmitted ? "true" : "false")
+           << ", \"sparse_private_bytes\": "
+           << budget.sparsePrivateContactBytes
+           << ", \"runtime_configuration_failure\": \""
+           << jsonEscape(budget.runtimeConfigurationFailure) << "\""
+           << ", \"actual_compiled_proxy_gate_required\": true},\n"
            << "  \"required_residual_descent\": {\"required_for_shipping_physics\": "
            << (arguments.shippingBox ? "true" : "false")
            << ", \"runtime_private_arenas_allocated\": false"
@@ -5386,7 +5433,7 @@ void writeShippingPrebuildMemoryScreen(
            << budget.uploadStagingBytes << ", \"host_mesh_compile\": "
            << budget.hostMeshAndCompileBytes << ", \"host_checkpoints\": "
            << budget.hostCheckpointBytes << "},\n"
-           << "  \"estimate_method\": \"Pre-allocation gate uses nominal cardinality scaled from the compiled reference shipping mesh. A separate 25%-padded cardinality screen is reported as stress context. The nominal arena estimate uses the exact legacy or explicit deformable-contact capacity, a conservative 4*T surface upper bound, the 12 reusable score/assembly rigid proxies with every FEM node treated contact-eligible (unless preflight-only omits tools), a cohesive reserve only when a cohesive law is requested, measured case032 noncontact runtime remainder scaled by FEM/tet/Krylov floor, optional RAP/private arenas, upload staging and host/checkpoint reserves. After compile, exact dispatch capacities and compact surface counts replace these bounds\",\n"
+           << "  \"estimate_method\": \"Pre-allocation gate uses all prepared nodes and tetrahedra: exact counts for the fixed reference topology, otherwise the 25%-padded cardinality estimates. The all-node rigid-pair upper bound includes the starch-side split and counts interior FEM nodes, so it is conservative for contact-eligible nodes. Sparse trial-sample capacity is modeled only when explicitly requested; persistent canonical pair/history storage remains dense. The bounded free-BOX scope is a candidate based on the fixed shipping recipe, not an admission: the compiled proxy/body layout and runtime still recheck it. Full-contact node/tet/cohesive arena caps remain separately mandatory, and an optimistic sparse rigid estimate cannot override them. After compile, exact dispatch capacities and proxy layout replace these bounds\",\n"
            << "  \"exact_compiled_arena_report_still_required\": true,\n"
            << "  \"native_runtime_observation_still_required\": true,\n"
            << "  \"qualification_allowed\": false\n}\n";

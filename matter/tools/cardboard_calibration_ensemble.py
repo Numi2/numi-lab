@@ -109,6 +109,140 @@ CONDITION_KEYS: dict[str, tuple[str, ...]] = {
     "robertsson_2023_identity_energy_benchmark": ("material_grade",),
 }
 
+# These published cases are analogues/holdouts in the current catalog. Their
+# source identity cannot be upgraded to exact same-grade evidence by choosing
+# matching caller-supplied strings. `source_grade` must agree with an actual
+# grade/board-code column when the source publishes one; pin/scored-bend data
+# have no exact grade field and therefore remain explicit bounded analogues.
+PUBLISHED_ANALOGUE_DATASETS = {
+    "johnson_popil_pin_force_displacement",
+    "popil_2012_ect_table2",
+    "popil_2012_ect_rate_fit",
+    "mrowczynski_2021_box_bct",
+    "nagasawa_2012_fig9_scored_bend_envelope",
+}
+SOURCE_GRADE_COLUMNS = {
+    "popil_2012_ect_table2": "board_code",
+    "mrowczynski_2021_box_bct": "grade",
+}
+NATIVE_PROTOCOL_IDS = {
+    "johnson_popil_pin_force_displacement": "pin_adhesion_50x160_six_pin_v1",
+    "popil_2012_ect_table2": "ect_T839_edge_compression_v1",
+    "popil_2012_ect_rate_fit": "ect_edge_rate_response_v1",
+    "mrowczynski_2021_box_bct": "shipping_bct_without_offset_first_local_peak_v1",
+    "nagasawa_2012_fig9_scored_bend_envelope": "rotary_scored_bend_moment_per_width_v1",
+}
+BCT_CAPACITY_SCHEMA = "numi.cardboard.shipping-capacity-qualification.v2"
+BCT_STAGE_REPORT_SCHEMA = "numi.cardboard.stage-resolution-analysis.v1"
+BCT_CAPACITY_PROPERTIES = frozenset({
+    "schema", "status", "board_recipe_id", "source_physics_fingerprint",
+    "device_program_fingerprint", "compiled_world_fingerprint",
+    "source_binding_sha256", "assembled_matter_checkpoint_sha256",
+    "assembled_rigid_sidecar_sha256", "nominal_curve_sha256",
+    "nominal_peak_sample_index", "nominal_accepted_sample_count",
+    "nominal_terminal_stroke_fraction", "nominal_full_stroke_completed",
+    "nominal_rate_sensitivity_passed", "mesh_status", "mesh_report_file",
+    "mesh_report_sha256", "mesh_level_count", "mesh_all_cases_complete",
+    "mesh_finest_pair_within_tolerance", "mesh_finest_peak_difference",
+    "mesh_finest_curve_rms", "mesh_finest_work_difference",
+    "mesh_coarse_middle_peak_difference", "mesh_coarse_middle_curve_rms",
+    "mesh_coarse_middle_work_difference", "time_status",
+    "time_report_file", "time_report_sha256", "time_level_count",
+    "time_all_cases_complete", "time_finest_pair_within_tolerance",
+    "time_finest_peak_difference", "time_finest_curve_rms",
+    "time_finest_work_difference", "time_coarse_middle_peak_difference",
+    "time_coarse_middle_curve_rms", "time_coarse_middle_work_difference",
+})
+HEX_SHA256 = re.compile(r"[0-9a-f]{64}")
+PIN_VISIBLE_SERIES = ("low_adhesion_white_glue_lines", "A")
+PIN_VISIBLE_SOURCE_WINDOW = {
+    "start_load_N": 30.0,
+    "end": "first_post_peak_return_to_start_load",
+}
+PIN_VISIBLE_NATIVE_WINDOW = {
+    "phase": "relative_opening",
+    "start_load_N": 30.0,
+    "end": "first_post_peak_return_to_start_load",
+    "required_phases": ["platen_approach", "relative_opening",
+                         "platen_withdrawal", "released_hold"],
+}
+
+
+def _validate_source_transfer_binding(condition: dict[str, Any],
+                                      dataset: dict[str, Any],
+                                      rows: list[dict[str, str]],
+                                      plan_target_grade_id: Any) -> None:
+    dataset_id = str(dataset.get("id", ""))
+    if dataset_id not in PUBLISHED_ANALOGUE_DATASETS:
+        return
+    cid = str(condition.get("condition_id", "<unknown>"))
+    transfer = condition.get("transfer")
+    if not isinstance(transfer, dict):
+        raise EnsembleError(f"{cid}: published analogue needs an explicit transfer object")
+    target_grade = str(plan_target_grade_id or "").strip()
+    if not target_grade:
+        raise EnsembleError(f"{cid}: plan target_grade_id is required for source-grade admission")
+    if str(transfer.get("target_grade", "")).strip() != target_grade:
+        raise EnsembleError(f"{cid}: transfer target_grade does not match plan target_grade_id")
+    kind = transfer.get("kind")
+    if kind == "same_grade":
+        # The catalog marks every audited dataset as an analogue or holdout;
+        # none has an independent identity binding to the current recipe.
+        raise EnsembleError(
+            f"{cid}: {dataset_id} is cataloged as {dataset.get('split')!r}; "
+            "same_grade is unavailable without a source-bound material identity"
+        )
+    if kind != "bounded_analogue":
+        raise EnsembleError(f"{cid}: audited source requires bounded_analogue transfer")
+    source_grade = str(transfer.get("source_grade", "")).strip()
+    if not source_grade:
+        raise EnsembleError(f"{cid}: bounded analogue requires an explicit source_grade")
+    source_column = SOURCE_GRADE_COLUMNS.get(dataset_id)
+    if source_column:
+        actual = {str(row.get(source_column, "")).strip() for row in rows}
+        if len(actual) != 1 or "" in actual or source_grade not in actual:
+            raise EnsembleError(
+                f"{cid}: source_grade must exactly match the selected published "
+                f"{source_column} value(s) {sorted(actual)}"
+            )
+    if not str(transfer.get("rationale", "")).strip():
+        raise EnsembleError(f"{cid}: bounded analogue requires a written transfer rationale")
+    expected_protocol = NATIVE_PROTOCOL_IDS[dataset_id]
+    if condition.get("native_protocol_id") != expected_protocol:
+        raise EnsembleError(
+            f"{cid}: native_protocol_id must be {expected_protocol!r}; source and native "
+            "conditions cannot be inferred from units or a generic completed-step count"
+        )
+
+
+def _validate_pin_metric_window(condition: dict[str, Any], spec: dict[str, Any],
+                                metric_name: str) -> None:
+    selector = condition.get("selector", {})
+    series = (str(selector.get("series_id", "")),
+              str(selector.get("defect_id", "")))
+    if series != PIN_VISIBLE_SERIES:
+        raise EnsembleError(
+            f"{condition.get('condition_id')}/{metric_name}: only the low-adhesion "
+            "slide-15 series A has a visible post-peak return; the higher-response "
+            "series is censored and cannot supply a global peak"
+        )
+    source_window = spec.get("source_window")
+    if not isinstance(source_window, dict) or any(
+            source_window.get(key) != value
+            for key, value in PIN_VISIBLE_SOURCE_WINDOW.items()):
+        raise EnsembleError(
+            f"{condition.get('condition_id')}/{metric_name}: pin source metrics "
+            "must use the published visible 30 N through first post-peak return window"
+        )
+    native_window = spec.get("native_window")
+    if not isinstance(native_window, dict) or any(
+            native_window.get(key) != value
+            for key, value in PIN_VISIBLE_NATIVE_WINDOW.items()):
+        raise EnsembleError(
+            f"{condition.get('condition_id')}/{metric_name}: pin prediction must use "
+            "the accepted relative_opening 30 N window and all four completed phases"
+        )
+
 
 UNIT_DIMENSION = {
     "N": "force", "kN": "force", "mm": "length", "m": "length",
@@ -117,6 +251,7 @@ UNIT_DIMENSION = {
     "kN/m": "force_per_length", "dimensionless": "dimensionless",
     "category": "category", "MPa": "pressure", "MPa^-1": "inverse_pressure",
     "deg": "angle", "rad": "angle", "s": "time",
+    "N*m_per_m": "moment_per_width",
 }
 SOURCE_COLUMN_UNITS = {
     "load_N": "N", "displacement_mm": "mm", "BCT_N": "N",
@@ -124,6 +259,10 @@ SOURCE_COLUMN_UNITS = {
     "pin_adhesion_work_plot_value": "unresolved", "ECT_kN_m": "kN/m",
     "speed_mm_min": "mm/min", "stress_MPa": "MPa", "strain": "dimensionless",
     "value": "dimensionless", "creased_to_uncreased_stiffness_ratio": "dimensionless",
+    "angle_deg": "deg", "moment_envelope_min_Nm_per_m": "N*m_per_m",
+    "moment_envelope_max_Nm_per_m": "N*m_per_m",
+    "readout_uncertainty_angle_deg": "deg",
+    "readout_uncertainty_moment_Nm_per_m": "N*m_per_m",
 }
 
 
@@ -296,7 +435,9 @@ def _derive_source_metric(rows: list[dict[str, str]], spec: dict[str, Any], metr
         hi = max(value + error for value, error in zip(values, y_unc))
         return {"kind": kind, "unit": unit, "lower": lo, "upper": hi,
                 "center": max(values), "source_row_count": len(selected_rows),
-                "source_window": source_window}
+                "source_window": source_window,
+                "source_scope": "visible_30N_threshold_window_not_full_specimen_curve"
+                if dataset_id == "johnson_popil_pin_force_displacement" else "selected_complete_source_condition"}
 
     if not x_column:
         raise EnsembleError(f"{metric_name}: {kind} requires x_column")
@@ -320,7 +461,9 @@ def _derive_source_metric(rows: list[dict[str, str]], spec: dict[str, Any], metr
             raise EnsembleError(f"{metric_name}: uncertainty makes endpoint stiffness undefined")
         return {"kind": kind, "unit": unit, "lower": min(extrema), "upper": max(extrema),
                 "center": a, "definition": "first-to-peak secant over the plotted loading branch; derived descriptor, not a source-reported stiffness" if kind == "peak_branch_secant" else "full-window endpoint secant; derived descriptor, not a source-reported stiffness",
-                "source_row_count": len(selected_rows), "source_window": source_window}
+                "source_row_count": len(selected_rows), "source_window": source_window,
+                "source_scope": "visible_30N_threshold_window_not_full_specimen_curve"
+                if dataset_id == "johnson_popil_pin_force_displacement" else "selected_complete_source_condition"}
     if kind == "work":
         lower = upper = center = 0.0
         for i in range(len(selected_rows) - 1):
@@ -336,7 +479,9 @@ def _derive_source_metric(rows: list[dict[str, str]], spec: dict[str, Any], metr
             center += 0.5 * (values[i] + values[i + 1]) * dx
         return {"kind": kind, "unit": unit, "lower": lower, "upper": upper, "center": center,
                 "definition": "signed trapezoid over the selected source trace window; not total test work",
-                "source_row_count": len(selected_rows), "source_window": source_window}
+                "source_row_count": len(selected_rows), "source_window": source_window,
+                "source_scope": "visible_30N_threshold_window_not_full_specimen_curve"
+                if dataset_id == "johnson_popil_pin_force_displacement" else "selected_complete_source_condition"}
     raise EnsembleError(f"{metric_name}: unsupported metric derivation {kind!r}")
 
 
@@ -406,6 +551,19 @@ def _native_metric_window(history: dict[str, Any], spec: dict[str, Any],
         if (not isinstance(completed, list) or
                 not set(required_phases).issubset({str(item) for item in completed})):
             raise EnsembleError(f"{metric_name}: native protocol phase completion is missing")
+        # A phase-name list is a declaration, not evidence that the phase ran.
+        # Require an accepted sample in each required phase so a loading prefix
+        # cannot be relabeled as a complete approach/open/withdraw/release run.
+        accepted_phase_samples = {
+            str(sample.get("phase"))
+            for sample in samples
+            if isinstance(sample, dict) and sample.get("accepted") is True
+        }
+        absent_samples = sorted(set(required_phases) - accepted_phase_samples)
+        if absent_samples:
+            raise EnsembleError(
+                f"{metric_name}: required protocol phases have no accepted samples: "
+                + ", ".join(absent_samples))
     phase = window.get("phase")
     threshold = _finite(window.get("start_load_N"), f"{metric_name} native window start load")
     if not isinstance(phase, str) or not phase:
@@ -602,6 +760,8 @@ def _load_conditions(plan: dict[str, Any], datasets: dict[str, dict[str, Any]],
             raise EnsembleError(f"{cid}: missing or mismatched source asset/text SHA-256")
         if condition.get("source_catalog_sha256") != catalog_hash:
             raise EnsembleError(f"{cid}: missing or mismatched source catalog SHA-256")
+        _validate_source_transfer_binding(
+            condition, dataset, rows, plan.get("target_grade_id"))
         split = str(dataset.get("split", "")).lower()
         family = str(condition.get("parameter_family", ""))
         allowlist = dataset.get("calibration_parameter_families")
@@ -615,11 +775,30 @@ def _load_conditions(plan: dict[str, Any], datasets: dict[str, dict[str, Any]],
         metric_specs = condition.get("metrics", {})
         if not isinstance(metric_specs, dict) or not metric_specs:
             raise EnsembleError(f"{cid}: metric definitions are required")
+        if dataset_id == "mrowczynski_2021_box_bct":
+            if condition.get("selector", {}).get("box_condition") != "without_offset":
+                raise EnsembleError(
+                    f"{cid}: BCT full-peak comparison is unsupported for offset peaks; "
+                    "the current capacity artifact qualifies only the complete nominal without-offset compression branch")
+            for metric_name, spec in metric_specs.items():
+                if spec.get("kind") == "unavailable":
+                    continue
+                if (spec.get("kind") != "peak" or spec.get("column") != "BCT_N" or
+                        spec.get("prediction_x") != "stroke_m" or
+                        spec.get("prediction_y") != "force_N" or
+                        spec.get("native_window") is not None or
+                        spec.get("x_unit") != "m" or
+                        spec.get("prediction_x_unit", spec.get("x_unit")) != "m" or
+                        spec.get("y_unit") != "N" or spec.get("unit") != "N"):
+                    raise EnsembleError(
+                        f"{cid}/{metric_name}: BCT requires a force peak from the complete nominal force-stroke curve in SI units")
         derived: dict[str, Any] = {}
         for name, spec in metric_specs.items():
             if spec.get("kind") == "unavailable":
                 blockers.append(f"{cid}: {name} unavailable: {spec.get('reason', 'no published observable')}")
                 continue
+            if dataset_id == "johnson_popil_pin_force_displacement":
+                _validate_pin_metric_window(condition, spec, name)
             if name in {"pin_work_summary", "pin_adhesion_work_plot_value"} or spec.get("column") == "pin_adhesion_work_plot_value":
                 if dataset_id == "johnson_popil_pin_summary":
                     raise EnsembleError(f"{cid}: pin summary work is excluded because its N-m label conflicts with the slide-15 N-by-mm integral")
@@ -674,6 +853,436 @@ def _validate_candidate(candidate: dict[str, Any]) -> None:
         raise EnsembleError(f"{candidate_id}: candidate config SHA-256 mismatch")
 
 
+def _capacity_properties(path: Path) -> dict[str, str]:
+    """Parse the producer's exact v2 key=value schema; never infer omitted gates."""
+    if path.stat().st_size > 1024 * 1024:
+        raise EnsembleError("BCT capacity qualification properties exceed the bounded 1 MiB input size")
+    values: dict[str, str] = {}
+    try:
+        lines = path.read_text(encoding="utf-8").splitlines()
+    except (OSError, UnicodeError) as exc:
+        raise EnsembleError(f"cannot read BCT capacity qualification: {exc}") from exc
+    for line_number, raw in enumerate(lines, 1):
+        line = raw.strip()
+        if not line or line.startswith("#"):
+            continue
+        if "=" not in line:
+            raise EnsembleError(f"BCT capacity qualification line {line_number} is not key=value")
+        key, value = line.split("=", 1)
+        if key not in BCT_CAPACITY_PROPERTIES or not value or key in values:
+            raise EnsembleError(f"BCT capacity qualification has unknown, empty, or duplicate field {key!r}")
+        values[key] = value
+    if set(values) != BCT_CAPACITY_PROPERTIES:
+        missing = sorted(BCT_CAPACITY_PROPERTIES - set(values))
+        raise EnsembleError("BCT capacity qualification is missing required v2 fields: " + ", ".join(missing))
+    return values
+
+
+def _capacity_int(values: dict[str, str], name: str) -> int:
+    raw = values[name]
+    if re.fullmatch(r"0|[1-9][0-9]*", raw) is None:
+        raise EnsembleError(f"BCT capacity field {name} is not an unsigned decimal integer")
+    return int(raw)
+
+
+def _capacity_float(values: dict[str, str], name: str) -> float:
+    return _finite(values[name], f"BCT capacity field {name}")
+
+
+def _capacity_bool(values: dict[str, str], name: str) -> bool:
+    if values[name] not in {"true", "false"}:
+        raise EnsembleError(f"BCT capacity field {name} must be literal true or false")
+    return values[name] == "true"
+
+
+def _bct_artifact_path(run_dir: Path, artifact_hashes: dict[str, Any],
+                       key: str) -> tuple[Path, str]:
+    item = artifact_hashes.get(key)
+    if not isinstance(item, dict) or not isinstance(item.get("path"), str):
+        raise EnsembleError(f"BCT full-peak admission requires the {key} artifact")
+    path_text = item["path"]
+    path = (run_dir / path_text).resolve()
+    if path.parent != run_dir.resolve() or not path.is_file():
+        raise EnsembleError(f"BCT artifact {key} is missing or escapes its native run directory")
+    digest = item.get("sha256")
+    if not isinstance(digest, str) or HEX_SHA256.fullmatch(digest) is None or sha256(path) != digest:
+        raise EnsembleError(f"BCT artifact {key} has a missing or mismatched SHA-256")
+    return path, digest
+
+
+def _report_metric(report: dict[str, Any], pair_index: int,
+                   key: str) -> float:
+    pairs = report.get("pair_reports")
+    if not isinstance(pairs, list) or len(pairs) != 2 or pair_index not in (0, 1):
+        raise EnsembleError("BCT refinement report must retain both adjacent pairs")
+    pair = pairs[pair_index]
+    if (not isinstance(pair, dict) or
+            pair.get("status") != "descriptive_metrics_available_with_unresolved_observables"):
+        raise EnsembleError("BCT refinement report contains an incomplete or incompatible adjacent pair")
+    metrics = pair.get("metrics", {}).get("compression_force_work", {})
+    if (not isinstance(metrics, dict) or metrics.get("status") != "available" or
+            metrics.get("comparison_is_complete_endpoint") is not True):
+        raise EnsembleError("BCT refinement pair lacks complete accepted compression metrics")
+    return _finite(metrics.get(key), f"BCT refinement {key}")
+
+
+def _verify_bct_rate_history(path: Path, inside_height: float,
+                            nominal_curve: list[tuple[float, float]]) -> None:
+    """Recheck the producer's full nominal/half-speed accepted branches."""
+    required = {"phase", "accepted", "stroke_m", "macro_observation_duration_s",
+                "control_step_count", "control_step_dt_min_s", "control_step_dt_max_s",
+                "platen_mean_force_y_N"}
+    try:
+        with path.open(newline="", encoding="utf-8") as stream:
+            reader = csv.DictReader(stream)
+            if not reader.fieldnames or not required.issubset(reader.fieldnames):
+                raise EnsembleError("BCT compression ledger lacks accepted-branch and actual-timestep columns")
+            rows = list(reader)
+    except (OSError, UnicodeError, csv.Error) as exc:
+        raise EnsembleError(f"cannot parse BCT compression branch ledger: {exc}") from exc
+
+    branches = (
+        ("nominal_12_5_mm_min", "nominal_12_5_mm_min_contact_origin",
+         "nominal_12_5_mm_min_contact_approach",
+         "nominal_12_5_mm_min_slow_compression", 12.5e-3 / 60.0),
+        ("half_speed_6_25_mm_min", "half_speed_6_25_mm_min_contact_origin",
+         "half_speed_6_25_mm_min_contact_approach",
+         "half_speed_6_25_mm_min_slow_compression", 6.25e-3 / 60.0),
+    )
+    curves: list[list[tuple[float, float]]] = []
+    for name, origin_phase, approach_phase, phase, expected_speed in branches:
+        origins = [row for row in rows if row.get("phase") == origin_phase]
+        approaches = [row for row in rows if row.get("phase") == approach_phase]
+        branch_rows = [row for row in rows if row.get("phase") == phase]
+        if (len(origins) != 1 or not approaches or len(branch_rows) < 2 or
+                any(row.get("accepted") != "1" for row in origins + approaches + branch_rows)):
+            raise EnsembleError(f"BCT {name} branch is missing an accepted contact origin or complete loading rows")
+        origin = origins[0]
+        origin_stroke = _finite(origin.get("stroke_m"), f"{name} origin stroke")
+        origin_force = _finite(origin.get("platen_mean_force_y_N"), f"{name} origin force")
+        if origin_stroke != 0.0 or origin_force != 0.0:
+            raise EnsembleError(f"BCT {name} does not start at the accepted zero-force stroke origin")
+        curve = [(origin_stroke, origin_force)]
+        crossing = [row for row in approaches
+                    if _finite(row.get("platen_reaction_samples"), "BCT contact reaction sample count") > 0.0]
+        if len(crossing) != 1:
+            raise EnsembleError(f"BCT {name} must retain exactly one accepted first-contact stroke sample")
+        crossing_row = crossing[0]
+        crossing_stroke = _finite(crossing_row.get("stroke_m"), f"{name} contact crossing stroke")
+        crossing_force = _finite(crossing_row.get("platen_mean_force_y_N"), f"{name} contact crossing force")
+        crossing_duration = _finite(crossing_row.get("macro_observation_duration_s"), f"{name} contact duration")
+        if crossing_stroke <= 0.0 or crossing_force < 0.0 or crossing_duration <= 0.0:
+            raise EnsembleError(f"BCT {name} first-contact stroke sample is incomplete")
+        curve.append((crossing_stroke, crossing_force))
+        elapsed = crossing_duration
+        for index, row in enumerate(branch_rows):
+            stroke = _finite(row.get("stroke_m"), f"{name} row {index} stroke")
+            force = _finite(row.get("platen_mean_force_y_N"), f"{name} row {index} force")
+            duration = _finite(row.get("macro_observation_duration_s"), f"{name} duration")
+            dt_min = _finite(row.get("control_step_dt_min_s"), f"{name} minimum dt")
+            dt_max = _finite(row.get("control_step_dt_max_s"), f"{name} maximum dt")
+            count_text = row.get("control_step_count", "")
+            if (stroke <= curve[-1][0] or force < 0.0 or duration <= 0.0 or
+                    dt_min <= 0.0 or dt_max < dt_min or
+                    re.fullmatch(r"[1-9][0-9]*", count_text) is None):
+                raise EnsembleError(f"BCT {name} has a nonmonotone curve or invalid accepted timestep summary")
+            count = int(count_text)
+            allowance = max(1e-12, duration * 1e-9)
+            if duration < count * dt_min - allowance or duration > count * dt_max + allowance:
+                raise EnsembleError(f"BCT {name} macro duration is inconsistent with its accepted dt bounds/count")
+            elapsed += duration
+            curve.append((stroke, force))
+        final_fraction = curve[-1][0] / inside_height
+        if not math.isclose(final_fraction, 0.70, rel_tol=0.0, abs_tol=1e-9):
+            raise EnsembleError(f"BCT {name} accepted curve does not reach the complete 70-percent stroke endpoint")
+        observed_speed = curve[-1][0] / elapsed
+        if not math.isclose(observed_speed, expected_speed, rel_tol=1e-6, abs_tol=1e-12):
+            raise EnsembleError(f"BCT {name} accepted duration does not match its declared physical compression rate")
+        curves.append(curve)
+
+    if len(curves[0]) != len(nominal_curve) or any(
+            not math.isclose(a[0], b[0], rel_tol=0.0, abs_tol=1e-14) or
+            not math.isclose(a[1], b[1], rel_tol=0.0, abs_tol=1e-10)
+            for a, b in zip(curves[0], nominal_curve)):
+        raise EnsembleError("BCT full nominal curve artifact does not match the accepted nominal branch ledger")
+    nominal, half = curves
+    common = min(nominal[-1][0], half[-1][0])
+    knots = sorted({0.0, common, *(x for x, _ in nominal if 0.0 < x < common),
+                    *(x for x, _ in half if 0.0 < x < common)})
+
+    def at(curve: list[tuple[float, float]], x: float) -> float:
+        if x <= curve[0][0]:
+            return curve[0][1]
+        for left, right in zip(curve, curve[1:]):
+            if left[0] <= x <= right[0]:
+                t = (x - left[0]) / (right[0] - left[0])
+                return left[1] + t * (right[1] - left[1])
+        return curve[-1][1]
+
+    def integrate(values: list[float]) -> float:
+        return sum(0.5 * (values[i] + values[i + 1]) * (knots[i + 1] - knots[i])
+                   for i in range(len(knots) - 1))
+
+    nominal_y = [at(nominal, x) for x in knots]
+    half_y = [at(half, x) for x in knots]
+    nominal_peak, half_peak = max(nominal_y), max(half_y)
+    work_nominal, work_half = integrate(nominal_y), integrate(half_y)
+    rms_nominal = math.sqrt(sum(value * value for value in nominal_y) / len(nominal_y))
+    rms_delta = math.sqrt(sum((a - b) ** 2 for a, b in zip(nominal_y, half_y)) / len(knots))
+    if (nominal_peak <= 0.0 or work_nominal <= 0.0 or rms_nominal <= 0.0 or
+            abs(half_peak - nominal_peak) / nominal_peak > 0.02 or
+            abs(work_half - work_nominal) / work_nominal > 0.02 or
+            rms_delta / rms_nominal > 0.05):
+        raise EnsembleError("BCT accepted nominal/half-speed curves fail the producer's peak/work/full-curve sensitivity gates")
+
+
+def _verify_bct_capacity_evidence(history: dict[str, Any], cert: dict[str, Any],
+                                  manifest: dict[str, Any], receipt: dict[str, Any],
+                                  run_dir: Path) -> None:
+    """Fail closed unless BCT is tied to the full v2 capacity qualification.
+
+    This is deliberately a narrow adapter contract. Generic expected_steps or a
+    caller-selected protocol label cannot stand in for the producer's complete
+    nominal curve, half-speed check, source/build identity, checkpoint, and
+    three-level mesh/time evidence.
+    """
+    artifact_hashes = cert.get("artifact_hashes")
+    if not isinstance(artifact_hashes, dict):
+        raise EnsembleError("BCT full-peak validation is unsupported without the source-bound capacity artifact adapter")
+    capacity_path, capacity_sha = _bct_artifact_path(
+        run_dir, artifact_hashes, "shipping_capacity_qualification")
+    curve_path, curve_sha = _bct_artifact_path(
+        run_dir, artifact_hashes, "shipping_compression_nominal_curve")
+    mesh_path, mesh_sha = _bct_artifact_path(
+        run_dir, artifact_hashes, "shipping_capacity_mesh_report")
+    time_path, time_sha = _bct_artifact_path(
+        run_dir, artifact_hashes, "shipping_capacity_time_report")
+    branch_path, branch_sha = _bct_artifact_path(
+        run_dir, artifact_hashes, "shipping_compression_branch_history")
+    checkpoint_path, checkpoint_sha = _bct_artifact_path(
+        run_dir, artifact_hashes, "shipping_assembled_matter_checkpoint")
+    rigid_path, rigid_sha = _bct_artifact_path(
+        run_dir, artifact_hashes, "shipping_assembled_rigid_sidecar")
+    result_path, _ = _bct_artifact_path(run_dir, artifact_hashes, "native_result")
+    _compiled_package_path, compiled_package_sha = _bct_artifact_path(
+        run_dir, artifact_hashes, "compiled_matter_package")
+    _native_executable_path, native_executable_sha = _bct_artifact_path(
+        run_dir, artifact_hashes, "native_executable")
+    _solver_source_path, solver_source_sha = _bct_artifact_path(
+        run_dir, artifact_hashes, "solver_source")
+
+    values = _capacity_properties(capacity_path)
+    if values["schema"] != BCT_CAPACITY_SCHEMA or values["status"] != "qualified_for_numerical_capacity_only":
+        raise EnsembleError("BCT full-peak validation requires a qualified shipping-capacity-qualification.v2 artifact")
+    for key in ("source_binding_sha256", "assembled_matter_checkpoint_sha256",
+                "assembled_rigid_sidecar_sha256", "nominal_curve_sha256",
+                "mesh_report_sha256", "time_report_sha256"):
+        if HEX_SHA256.fullmatch(values[key]) is None:
+            raise EnsembleError(f"BCT capacity field {key} is not a lowercase SHA-256")
+    if values["nominal_curve_sha256"] != curve_sha or values["mesh_report_sha256"] != mesh_sha or values["time_report_sha256"] != time_sha:
+        raise EnsembleError("BCT capacity artifact does not bind the supplied nominal curve and mesh/time reports")
+    if values["assembled_matter_checkpoint_sha256"] != checkpoint_sha or values["assembled_rigid_sidecar_sha256"] != rigid_sha:
+        raise EnsembleError("BCT capacity artifact does not bind the supplied assembled Matter and rigid checkpoints")
+    if values["mesh_report_file"] != mesh_path.name or values["time_report_file"] != time_path.name:
+        raise EnsembleError("BCT capacity report filenames do not match the separately hashed report artifacts")
+    if Path(values["mesh_report_file"]).name != values["mesh_report_file"] or Path(values["time_report_file"]).name != values["time_report_file"]:
+        raise EnsembleError("BCT capacity report path must be a basename within the run directory")
+
+    # The binding object is repeated in the result/certificate/history/manifest
+    # so the v2 record cannot be attached to another run by copying its file.
+    binding = cert.get("shipping_capacity_binding")
+    if not isinstance(binding, dict) or any(
+            other.get("shipping_capacity_binding") != binding
+            for other in (history, manifest, receipt)):
+        raise EnsembleError("BCT capacity binding must be identical in history, certificate, manifest, and receipt")
+    expected_binding_fields = {
+        "schema", "capacity_qualification_sha256", "board_recipe_id",
+        "source_physics_fingerprint", "device_program_fingerprint",
+        "compiled_world_fingerprint", "source_binding_sha256",
+        "assembled_matter_checkpoint_sha256", "assembled_rigid_sidecar_sha256",
+        "nominal_curve_sha256", "nominal_peak_sample_index",
+        "nominal_accepted_sample_count", "nominal_terminal_stroke_fraction",
+        "nominal_full_stroke_completed", "nominal_rate_sensitivity_passed",
+        "inside_height_m", "mesh_report_sha256", "time_report_sha256",
+        "compression_branch_history_sha256",
+    }
+    if set(binding) != expected_binding_fields or binding.get("schema") != "numi.cardboard.native-bct-capacity-binding.v1":
+        raise EnsembleError("BCT capacity binding object does not match the strict v1 adapter schema")
+    scalar_pairs = {
+        "capacity_qualification_sha256": capacity_sha,
+        "board_recipe_id": values["board_recipe_id"],
+        "source_binding_sha256": values["source_binding_sha256"],
+        "assembled_matter_checkpoint_sha256": values["assembled_matter_checkpoint_sha256"],
+        "assembled_rigid_sidecar_sha256": values["assembled_rigid_sidecar_sha256"],
+        "nominal_curve_sha256": values["nominal_curve_sha256"],
+        "mesh_report_sha256": values["mesh_report_sha256"],
+        "time_report_sha256": values["time_report_sha256"],
+        "compression_branch_history_sha256": branch_sha,
+    }
+    for key, expected_value in scalar_pairs.items():
+        if binding.get(key) != expected_value:
+            raise EnsembleError(f"BCT capacity run binding mismatches {key}")
+    for key in ("source_physics_fingerprint", "device_program_fingerprint", "compiled_world_fingerprint"):
+        value = _capacity_int(values, key)
+        if value <= 0 or binding.get(key) != value or manifest.get(key) != value:
+            raise EnsembleError(f"BCT capacity source/build fingerprint mismatch: {key}")
+    if _capacity_int(values, "device_program_fingerprint") != _capacity_int(values, "compiled_world_fingerprint"):
+        raise EnsembleError("BCT source capacity artifact device and compiled-world fingerprints differ")
+    if manifest.get("preset") != values["board_recipe_id"]:
+        raise EnsembleError("BCT capacity board recipe does not match the executed native preset")
+    for key, digest in (("compiled_matter_package_sha256", compiled_package_sha),
+                        ("native_executable_sha256", native_executable_sha),
+                        ("solver_source_sha256", solver_source_sha)):
+        if manifest.get(key) != digest:
+            raise EnsembleError(f"BCT native manifest does not bind its source/build artifact: {key}")
+    if manifest.get("shipping_source_material_binding_sha256") != values["source_binding_sha256"]:
+        raise EnsembleError("BCT capacity source-material binding does not match the executed manifest")
+    if manifest.get("assembled_checkpoint_sha256_for_capacity_binding") != checkpoint_sha or manifest.get("assembled_rigid_sidecar_sha256_for_capacity_binding") != rigid_sha:
+        raise EnsembleError("BCT capacity checkpoint identity does not match the executed manifest")
+
+    integer_pairs = {
+        "nominal_peak_sample_index": "nominal_peak_sample_index",
+        "nominal_accepted_sample_count": "nominal_accepted_sample_count",
+    }
+    for key, property_key in integer_pairs.items():
+        if not isinstance(binding.get(key), int) or isinstance(binding.get(key), bool) or binding[key] != _capacity_int(values, property_key):
+            raise EnsembleError(f"BCT capacity binding mismatch: {key}")
+    terminal = _capacity_float(values, "nominal_terminal_stroke_fraction")
+    inside_height = _finite(binding.get("inside_height_m"), "BCT bound inside height")
+    if inside_height <= 0.0 or not math.isclose(terminal, 0.70, rel_tol=0.0, abs_tol=1e-9):
+        raise EnsembleError("BCT capacity nominal curve does not bind the required 70-percent inside-height endpoint")
+    if (binding.get("nominal_full_stroke_completed") is not True or
+            binding.get("nominal_rate_sensitivity_passed") is not True or
+            _capacity_bool(values, "nominal_full_stroke_completed") is not True or
+            _capacity_bool(values, "nominal_rate_sensitivity_passed") is not True):
+        raise EnsembleError("BCT capacity artifact lacks full 70-percent stroke or passed half-speed sensitivity")
+    if not math.isclose(_finite(binding.get("nominal_terminal_stroke_fraction"), "BCT binding stroke fraction"), terminal, rel_tol=0.0, abs_tol=1e-12):
+        raise EnsembleError("BCT capacity terminal stroke fraction differs from the run binding")
+
+    # Independently inspect the nominal curve and its sample-indexed native
+    # history. A peak-only record or a correct expected_steps count is not a
+    # complete loading trace.
+    if curve_path.stat().st_size > 64 * 1024 * 1024:
+        raise EnsembleError("BCT nominal compression curve exceeds the bounded 64 MiB artifact size")
+    try:
+        with curve_path.open(newline="", encoding="utf-8") as stream:
+            reader = csv.DictReader(stream)
+            if reader.fieldnames != ["sample_index", "stroke_m", "force_N", "contact_samples"]:
+                raise EnsembleError("BCT nominal curve has an unsupported column schema")
+            curve_rows = list(reader)
+    except (OSError, UnicodeError, csv.Error) as exc:
+        raise EnsembleError(f"cannot parse BCT nominal curve: {exc}") from exc
+    if len(curve_rows) != _capacity_int(values, "nominal_accepted_sample_count") or len(curve_rows) < 3:
+        raise EnsembleError("BCT nominal curve sample count does not match the capacity artifact")
+    forces: list[float] = []
+    strokes: list[float] = []
+    for index, row in enumerate(curve_rows):
+        if row.get("sample_index") != str(index):
+            raise EnsembleError("BCT nominal curve sample indices are not contiguous from zero")
+        stroke = _finite(row.get("stroke_m"), "BCT nominal stroke")
+        force = _finite(row.get("force_N"), "BCT nominal force")
+        if stroke < 0.0 or force < 0.0 or re.fullmatch(r"0|[1-9][0-9]*", row.get("contact_samples", "")) is None:
+            raise EnsembleError("BCT nominal curve contains invalid stroke, force, or contact sample count")
+        if strokes and stroke <= strokes[-1]:
+            raise EnsembleError("BCT nominal curve stroke must increase strictly")
+        strokes.append(stroke); forces.append(force)
+    if not math.isclose(strokes[-1] / inside_height, 0.70, rel_tol=0.0, abs_tol=1e-9):
+        raise EnsembleError("BCT nominal curve artifact does not end at 70 percent inside-height stroke")
+    peak_index = forces.index(max(forces))
+    if peak_index != _capacity_int(values, "nominal_peak_sample_index"):
+        raise EnsembleError("BCT capacity peak sample index is not the first maximum in the bound nominal curve")
+    samples = history.get("samples")
+    if not isinstance(samples, list) or len(samples) != len(curve_rows):
+        raise EnsembleError("BCT native history must contain the complete capacity curve sample-for-sample")
+    for index, (sample, stroke, force) in enumerate(zip(samples, strokes, forces)):
+        if (not isinstance(sample, dict) or sample.get("accepted") is not True or
+                sample.get("phase") != "shipping_compression_nominal" or
+                sample.get("sample_index") != index or
+                _finite(sample.get("stroke_m"), "BCT history stroke") != stroke or
+                _finite(sample.get("force_N"), "BCT history force") != force):
+            raise EnsembleError("BCT native history differs from the accepted source-bound nominal compression curve")
+    _verify_bct_rate_history(branch_path, inside_height, list(zip(strokes, forces)))
+
+    # Verify the refinement reports themselves, not only booleans copied into
+    # the properties file. The v2 producer intentionally says this is a
+    # numerical-capacity gate, never a physical or material-grade qualification.
+    result = _read_json(result_path, "BCT native result")
+    for key in ("shipping_capacity_qualification_file_sha256",
+                "nominal_compression_curve_sha256",
+                "shipping_source_material_binding_sha256",
+                "assembled_checkpoint_sha256_for_capacity_binding",
+                "assembled_rigid_sidecar_sha256_for_capacity_binding"):
+        expected = {
+            "shipping_capacity_qualification_file_sha256": capacity_sha,
+            "nominal_compression_curve_sha256": curve_sha,
+            "shipping_source_material_binding_sha256": values["source_binding_sha256"],
+            "assembled_checkpoint_sha256_for_capacity_binding": checkpoint_sha,
+            "assembled_rigid_sidecar_sha256_for_capacity_binding": rigid_sha,
+        }[key]
+        if result.get(key) != expected:
+            raise EnsembleError(f"BCT native result does not bind {key}")
+    for key in ("source_physics_fingerprint", "device_program_fingerprint",
+                "compiled_world_fingerprint"):
+        if result.get(key) != _capacity_int(values, key):
+            raise EnsembleError(f"BCT native result does not bind {key}")
+    if result.get("shipping_capacity_binding") != binding:
+        raise EnsembleError("BCT native result does not retain the capacity binding object")
+    if (result.get("native_slow_compression_completed") is not True or
+            result.get("native_half_speed_compression_completed") is not True or
+            result.get("native_compression_rate_sensitivity_gate_passed") is not True or
+            result.get("native_compression_numerical_capacity_qualification_passed") is not True or
+            not math.isclose(_finite(result.get("compression_stroke_fraction_of_inside_height"), "BCT result stroke fraction"), 0.70, rel_tol=0.0, abs_tol=1e-9)):
+        raise EnsembleError("BCT native result does not show completed full-stroke nominal and half-speed qualification")
+    if (values["mesh_status"] != "qualified" or values["time_status"] != "qualified" or
+            _capacity_int(values, "mesh_level_count") < 3 or _capacity_int(values, "time_level_count") < 3 or
+            _capacity_bool(values, "mesh_all_cases_complete") is not True or
+            _capacity_bool(values, "time_all_cases_complete") is not True or
+            _capacity_bool(values, "mesh_finest_pair_within_tolerance") is not True or
+            _capacity_bool(values, "time_finest_pair_within_tolerance") is not True):
+        raise EnsembleError("BCT capacity qualification lacks completed passing three-level mesh and time studies")
+    tolerance_by_prefix = {"mesh": (0.02, 0.05, 0.02), "time": (0.02, 0.05, 0.02)}
+    for prefix, report_path, report_sha, axis in (
+            ("mesh", mesh_path, mesh_sha, "mesh_nx"),
+            ("time", time_path, time_sha, "time_step")):
+        if report_sha != values[f"{prefix}_report_sha256"]:
+            raise EnsembleError(f"BCT {prefix} report hash mismatch")
+        report = _read_json(report_path, f"BCT {prefix} refinement report")
+        if (report.get("schema") != BCT_STAGE_REPORT_SCHEMA or report.get("axis") != axis or
+                report.get("status") != "descriptive_three_level_decrease_only" or
+                report.get("convergence_claim") is not False):
+            raise EnsembleError(f"BCT {prefix} report does not contain the required three-level descriptive study")
+        levels = report.get("axis_levels")
+        if not isinstance(levels, list) or len(levels) != 3:
+            raise EnsembleError(f"BCT {prefix} report does not retain all three refinement levels")
+        try:
+            numbers = [float(item[0] if isinstance(item, list) and len(item) == 1 else item) for item in levels]
+        except (TypeError, ValueError, IndexError) as exc:
+            raise EnsembleError(f"BCT {prefix} report has malformed refinement levels") from exc
+        if not all(math.isfinite(value) for value in numbers) or not (
+                numbers[0] < numbers[1] < numbers[2] if prefix == "mesh" else
+                numbers[0] > numbers[1] > numbers[2]):
+            raise EnsembleError(f"BCT {prefix} levels are not strictly coarse-to-fine")
+        fields = ("relative_peak_force_difference", "normalized_force_curve_rms",
+                  "relative_work_difference")
+        coarse_values = [_report_metric(report, 0, field) for field in fields]
+        fine_values = [_report_metric(report, 1, field) for field in fields]
+        if not all(fine < coarse for coarse, fine in zip(coarse_values, fine_values)):
+            raise EnsembleError(f"BCT {prefix} adjacent refinement differences do not all decrease")
+        limits = tolerance_by_prefix[prefix]
+        if not all(value <= limit for value, limit in zip(fine_values, limits)):
+            raise EnsembleError(f"BCT {prefix} finest pair exceeds peak/curve/work tolerances")
+        for key, value in zip((f"{prefix}_coarse_middle_peak_difference",
+                               f"{prefix}_coarse_middle_curve_rms",
+                               f"{prefix}_coarse_middle_work_difference"), coarse_values):
+            if not math.isclose(_capacity_float(values, key), value, rel_tol=0.0, abs_tol=1e-12):
+                raise EnsembleError(f"BCT {prefix} coarse-middle property disagrees with its report")
+        for key, value in zip((f"{prefix}_finest_peak_difference",
+                               f"{prefix}_finest_curve_rms",
+                               f"{prefix}_finest_work_difference"), fine_values):
+            if not math.isclose(_capacity_float(values, key), value, rel_tol=0.0, abs_tol=1e-12):
+                raise EnsembleError(f"BCT {prefix} finest-pair property disagrees with its report")
+
+
 def _verify_certificate(record: dict[str, Any], base_dir: Path, expected: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any]]:
     history_path = (base_dir / str(record.get("history_path", ""))).resolve()
     certificate_path = (base_dir / str(record.get("certificate_path", ""))).resolve()
@@ -696,7 +1305,8 @@ def _verify_certificate(record: dict[str, Any], base_dir: Path, expected: dict[s
     cert_body = {k: v for k, v in cert.items() if k != "certificate_sha256"}
     if cert.get("certificate_sha256") != canonical_sha256(cert_body):
         raise EnsembleError(f"{certificate_path.name}: certificate digest mismatch")
-    required_match = ("candidate_id", "candidate_sha256", "condition_id", "specimen_id")
+    required_match = ("candidate_id", "candidate_sha256", "condition_id", "specimen_id",
+                      "native_protocol_id")
     for key in required_match:
         if history.get(key) != expected.get(key) or cert.get(key) != expected.get(key) or record.get(key) != expected.get(key):
             raise EnsembleError(f"{certificate_path.name}: {key} does not match ensemble case identity")
@@ -737,6 +1347,7 @@ def _verify_certificate(record: dict[str, Any], base_dir: Path, expected: dict[s
             raise EnsembleError(f"{certificate_path.name}: {name} artifact file missing or hash mismatch")
     manifest = _read_json(certificate_path.parent / artifact_hashes["native_input_manifest"]["path"], "native input manifest")
     for key in ("candidate_id", "candidate_sha256", "condition_id", "specimen_id",
+                "native_protocol_id",
                 "source_data_catalog_sha256", "source_dataset_sha256", "source_asset_sha256"):
         if manifest.get(key) != expected.get(key):
             raise EnsembleError(f"{certificate_path.name}: native input manifest {key} binding mismatch")
@@ -744,11 +1355,19 @@ def _verify_certificate(record: dict[str, Any], base_dir: Path, expected: dict[s
         raise EnsembleError(f"{certificate_path.name}: executed parameter values differ from the candidate config")
     receipt = _read_json(certificate_path.parent / artifact_hashes["run_receipt"]["path"], "native run receipt")
     for key in ("candidate_id", "candidate_sha256", "condition_id", "specimen_id",
+                "native_protocol_id",
                 "terminal_status", "accepted_steps", "expected_steps", "physical_fem_steps"):
         if receipt.get(key) != cert.get(key):
             raise EnsembleError(f"{certificate_path.name}: native run receipt {key} mismatch")
     if receipt.get("backend") != "numi_matter_native_fem":
         raise EnsembleError(f"{certificate_path.name}: CPU/oracle receipt is not a native FEM execution")
+    if expected.get("dataset_id") == "mrowczynski_2021_box_bct":
+        try:
+            _verify_bct_capacity_evidence(history, cert, manifest, receipt,
+                                          certificate_path.parent)
+        except EnsembleError as exc:
+            raise EnsembleError(
+                f"{certificate_path.name}: BCT full-peak validation is unsupported without a complete source-bound capacity artifact: {exc}") from exc
     return history, cert
 
 
@@ -819,9 +1438,12 @@ def adjudicate(plan_path: Path, output_path: Path | None = None,
         expected = {"candidate_id": candidate_id, "condition_id": condition_id,
                     "candidate_sha256": candidate_by_id[candidate_id]["candidate_sha256"],
                     "specimen_id": str(condition.get("specimen_id", "")),
+                    "native_protocol_id": condition.get("native_protocol_id"),
                     "source_data_catalog_sha256": catalog_hash,
                     "source_dataset_sha256": condition_data["dataset"]["sha256"],
                     "source_asset_sha256": condition_data["source_asset_sha256"],
+                    "dataset_id": condition_data["dataset"]["id"],
+                    "target_recipe_id": plan.get("target_recipe_id"),
                     "parameters": candidate_by_id[candidate_id].get("parameters", {})}
         if not expected["specimen_id"]:
             raise EnsembleError(f"{condition_id}: specimen_id is required to prevent condition conflation")

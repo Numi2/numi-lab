@@ -1,0 +1,256 @@
+{
+  "schema": "numi.cardboard.native079-production-parity.v1",
+  "comparisons": [
+    {
+      "candidate": "/Users/home/cardboard-implementation-20261014/solver/budgeted-graph-legacy-first-control-263",
+      "baseline": "/Users/home/cardboard-implementation-20261014/solver/sourcefit15-fg32-first-control-257",
+      "armijo_count": 64,
+      "all_armijo_equal": true,
+      "files": [
+        {
+          "path": "output/observations.csv",
+          "baseline_sha256": "42f934892d1343db126ad32dfced2185f77f6a14a7e06e501f2cf6394ae03aeb",
+          "candidate_sha256": "42f934892d1343db126ad32dfced2185f77f6a14a7e06e501f2cf6394ae03aeb",
+          "byte_identical": true
+        },
+        {
+          "path": "output/material_state_000001_bent.json",
+          "baseline_sha256": "e14ad429062c331bb43703f36e5a09d3e17c1e181817ff63101cec900506a101",
+          "candidate_sha256": "e14ad429062c331bb43703f36e5a09d3e17c1e181817ff63101cec900506a101",
+          "byte_identical": true
+        },
+        {
+          "path": "output/material_state_000001_held_reference.json",
+          "baseline_sha256": "7cb9577cefe65539223b9d510b4191f72eb0c57175da90ffc8ce0184577eb02f",
+          "candidate_sha256": "7cb9577cefe65539223b9d510b4191f72eb0c57175da90ffc8ce0184577eb02f",
+          "byte_identical": true
+        },
+        {
+          "path": "output/accepted_step_000001_bent.obj",
+          "baseline_sha256": "690130fce829f74eebe56b3ec661c6849e87689b3a80008538424983970c35f7",
+          "candidate_sha256": "690130fce829f74eebe56b3ec661c6849e87689b3a80008538424983970c35f7",
+          "byte_identical": true
+        },
+        {
+          "path": "output/accepted_step_000001_held_reference.obj",
+          "baseline_sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f",
+          "candidate_sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f",
+          "byte_identical": true
+        }
+      ],
+      "receipt": {
+        "schema": "numi.cardboard.native-run-receipt.v2",
+        "execution_started": true,
+        "source_inputs_unchanged": true,
+        "changed_inputs": [],
+        "exit_code": 0,
+        "timed_out": false,
+        "termination_errors": [],
+        "wall_seconds": 100.12732545804465,
+        "finished_at_utc": "2026-10-15T07:46:16.507337+00:00"
+      },
+      "pass": true
+    },
+    {
+      "candidate": "/Users/home/cardboard-implementation-20261014/solver/parallel-graph-production-first-control-264",
+      "baseline": "/Users/home/cardboard-implementation-20261014/solver/sourcefit15-fg32-first-control-257",
+      "armijo_count": 64,
+      "all_armijo_equal": true,
+      "files": [
+        {
+          "path": "output/observations.csv",
+          "baseline_sha256": "42f934892d1343db126ad32dfced2185f77f6a14a7e06e501f2cf6394ae03aeb",
+          "candidate_sha256": "42f934892d1343db126ad32dfced2185f77f6a14a7e06e501f2cf6394ae03aeb",
+          "byte_identical": true
+        },
+        {
+          "path": "output/material_state_000001_bent.json",
+          "baseline_sha256": "e14ad429062c331bb43703f36e5a09d3e17c1e181817ff63101cec900506a101",
+          "candidate_sha256": "e14ad429062c331bb43703f36e5a09d3e17c1e181817ff63101cec900506a101",
+          "byte_identical": true
+        },
+        {
+          "path": "output/material_state_000001_held_reference.json",
+          "baseline_sha256": "7cb9577cefe65539223b9d510b4191f72eb0c57175da90ffc8ce0184577eb02f",
+          "candidate_sha256": "7cb9577cefe65539223b9d510b4191f72eb0c57175da90ffc8ce0184577eb02f",
+          "byte_identical": true
+        },
+        {
+          "path": "output/accepted_step_000001_bent.obj",
+          "baseline_sha256": "690130fce829f74eebe56b3ec661c6849e87689b3a80008538424983970c35f7",
+          "candidate_sha256": "690130fce829f74eebe56b3ec661c6849e87689b3a80008538424983970c35f7",
+          "byte_identical": true
+        },
+        {
+          "path": "output/accepted_step_000001_held_reference.obj",
+          "baseline_sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f",
+          "candidate_sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f",
+          "byte_identical": true
+        }
+      ],
+      "receipt": {
+        "schema": "numi.cardboard.native-run-receipt.v2",
+        "execution_started": true,
+        "source_inputs_unchanged": true,
+        "changed_inputs": [],
+        "exit_code": 0,
+        "timed_out": false,
+        "termination_errors": [],
+        "wall_seconds": 96.9110960830003,
+        "finished_at_utc": "2026-10-15T07:47:53.707126+00:00"
+      },
+      "pass": true
+    }
+  ],
+  "rejected_trial_case": {
+    "path": "/Users/home/cardboard-implementation-20261014/native/rejected-alpha-compensated-free-body-262",
+    "receipt": {
+      "schema": "numi.cardboard.native-run-receipt.v2",
+      "execution_started": true,
+      "source_inputs_unchanged": true,
+      "changed_inputs": [],
+      "exit_code": 1,
+      "timed_out": false,
+      "termination_errors": [],
+      "wall_seconds": 9.780285875021946,
+      "finished_at_utc": "2026-10-15T07:44:36.079795+00:00"
+    },
+    "rejects": [
+      {
+        "newton_iteration": 13,
+        "selected_alpha": 0,
+        "rigid_alpha": 0,
+        "base": 3.43603074e-06,
+        "next_base": 0.0100019006
+      },
+      {
+        "newton_iteration": 14,
+        "selected_alpha": 0,
+        "rigid_alpha": 0,
+        "base": 0.0100019006,
+        "next_base": 0.0100019006
+      },
+      {
+        "newton_iteration": 15,
+        "selected_alpha": 0,
+        "rigid_alpha": 0,
+        "base": 0.0100019006,
+        "next_base": 0.0100019006
+      },
+      {
+        "newton_iteration": 16,
+        "selected_alpha": 0,
+        "rigid_alpha": 0,
+        "base": 0.0100019006,
+        "next_base": 0.0100019006
+      },
+      {
+        "newton_iteration": 17,
+        "selected_alpha": 0,
+        "rigid_alpha": 0,
+        "base": 0.0100019006,
+        "next_base": 0.0100019006
+      },
+      {
+        "newton_iteration": 18,
+        "selected_alpha": 0,
+        "rigid_alpha": 0,
+        "base": 0.0100019006,
+        "next_base": 0.0100019006
+      },
+      {
+        "newton_iteration": 19,
+        "selected_alpha": 0,
+        "rigid_alpha": 0,
+        "base": 0.0100019006,
+        "next_base": 0.0100019006
+      },
+      {
+        "newton_iteration": 20,
+        "selected_alpha": 0,
+        "rigid_alpha": 0,
+        "base": 0.0100019006,
+        "next_base": 0.0100019006
+      },
+      {
+        "newton_iteration": 21,
+        "selected_alpha": 0,
+        "rigid_alpha": 0,
+        "base": 0.0100019006,
+        "next_base": 0.0100019006
+      },
+      {
+        "newton_iteration": 22,
+        "selected_alpha": 0,
+        "rigid_alpha": 0,
+        "base": 0.0100019006,
+        "next_base": 0.0100019006
+      },
+      {
+        "newton_iteration": 23,
+        "selected_alpha": 0,
+        "rigid_alpha": 0,
+        "base": 0.0100019006,
+        "next_base": 0.0100019006
+      },
+      {
+        "newton_iteration": 24,
+        "selected_alpha": 0,
+        "rigid_alpha": 0,
+        "base": 0.0100019006,
+        "next_base": 0.0100019006
+      },
+      {
+        "newton_iteration": 25,
+        "selected_alpha": 0,
+        "rigid_alpha": 0,
+        "base": 0.0100019006,
+        "next_base": 0.0100019006
+      },
+      {
+        "newton_iteration": 26,
+        "selected_alpha": 0,
+        "rigid_alpha": 0,
+        "base": 0.0100019006,
+        "next_base": 0.0100019006
+      },
+      {
+        "newton_iteration": 27,
+        "selected_alpha": 0,
+        "rigid_alpha": 0,
+        "base": 0.0100019006,
+        "next_base": 0.0100019006
+      },
+      {
+        "newton_iteration": 28,
+        "selected_alpha": 0,
+        "rigid_alpha": 0,
+        "base": 0.0100019006,
+        "next_base": 0.0100019006
+      },
+      {
+        "newton_iteration": 29,
+        "selected_alpha": 0,
+        "rigid_alpha": 0,
+        "base": 0.0100019006,
+        "next_base": 0.0100019006
+      },
+      {
+        "newton_iteration": 30,
+        "selected_alpha": 0,
+        "rigid_alpha": 0,
+        "base": 0.0100019006,
+        "next_base": 0.0100019006
+      },
+      {
+        "newton_iteration": 31,
+        "selected_alpha": 0,
+        "rigid_alpha": 0,
+        "base": 0.0100019006,
+        "next_base": null
+      }
+    ],
+    "all_rejected_shared_alphas_zero": true
+  },
+  "scope": "First control parity only. Free-body convergence remains failed. No complete coupon curve, mesh/time convergence, shipping assembly or capacity qualification."
+}

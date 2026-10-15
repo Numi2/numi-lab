@@ -1,0 +1,566 @@
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -1946,6 +1946,12 @@
+     id<MTLBuffer> deformableContactActiveCounts = nil;
+     id<MTLBuffer> deformableContactNodeIncidence = nil;
+     id<MTLBuffer> deformableContactNodeRanges = nil;
++    // Shared workspace for the opt-in deterministic corner-sort incidence
++    // builder. Production and serialized private Armijo passes reuse it.
++    id<MTLBuffer> deformableContactNodeCornerSortKeys = nil;
++    id<MTLBuffer> deformableContactNodeCornerSortPayloads = nil;
++    std::uint32_t deformableContactNodeCornerSortPaddedCapacity = 0u;
++    bool deformableContactNodeIncidenceSortEnabled = false;
+     id<MTLBuffer> deformableContactActiveOffsets = nil;
+     id<MTLBuffer> deformableContactGlobalActiveIndices = nil;
+     id<MTLBuffer> deformableContactActiveDispatch = nil;
+@@ -2810,6 +2816,72 @@
+         }
+         auto candidate = std::make_unique<State>();
+         candidate->dispatch = world.dispatch;
++        const char* sortedNodeIncidence = std::getenv(
++            "NM_CONTACT_NODE_INCIDENCE_SORT");
++        if (sortedNodeIncidence != nullptr &&
++            std::strcmp(sortedNodeIncidence, "1") != 0) {
++            diagnostics.message =
++                "NM_CONTACT_NODE_INCIDENCE_SORT must be exactly 1 when set";
++            return diagnostics;
++        }
++        candidate->deformableContactNodeIncidenceSortEnabled =
++            sortedNodeIncidence != nullptr;
++        std::uint64_t sortedCornerLogicalCount = 0u;
++        std::uint64_t sortedCornerPaddedCapacity = 0u;
++        std::uint64_t sortedCornerTotalCount = 0u;
++        if (candidate->deformableContactNodeIncidenceSortEnabled) {
++            const std::uint64_t contactCapacity =
++                world.dispatch.deformableContactCapacity;
++            const std::uint64_t environments =
++                world.dispatch.environmentCount;
++            const std::uint64_t nodeCount =
++                static_cast<std::uint64_t>(world.dispatch.gridNodeCount) +
++                world.dispatch.femNodeCount;
++            if (contactCapacity == 0u || environments == 0u ||
++                nodeCount == 0u ||
++                nodeCount > std::numeric_limits<std::uint32_t>::max() /
++                    environments ||
++                contactCapacity >
++                    (std::numeric_limits<std::uint32_t>::max() - 5ull) / 8ull) {
++                diagnostics.message =
++                    "sorted deformable incidence requires nonzero contact, node, environment counts and uint32-safe payload identities";
++                return diagnostics;
++            }
++            sortedCornerLogicalCount = 6ull * contactCapacity;
++            if (sortedCornerLogicalCount >
++                    std::numeric_limits<std::uint32_t>::max() ||
++                sortedCornerLogicalCount >
++                    (std::uint64_t{1} << 31u)) {
++                diagnostics.message =
++                    "sorted deformable corner record count exceeds the checked bitonic sort domain";
++                return diagnostics;
++            }
++            sortedCornerPaddedCapacity = std::bit_ceil(
++                sortedCornerLogicalCount);
++            if (sortedCornerPaddedCapacity == 0u ||
++                sortedCornerPaddedCapacity >
++                    std::numeric_limits<std::uint32_t>::max() ||
++                sortedCornerPaddedCapacity >
++                    std::numeric_limits<std::uint32_t>::max() / environments) {
++                diagnostics.message =
++                    "sorted deformable corner workspace exceeds the uint32 Metal dispatch domain";
++                return diagnostics;
++            }
++            sortedCornerTotalCount =
++                sortedCornerPaddedCapacity * environments;
++            if (sortedCornerTotalCount >
++                    std::numeric_limits<std::size_t>::max() /
++                        sizeof(std::uint64_t) ||
++                sortedCornerTotalCount >
++                    std::numeric_limits<std::size_t>::max() /
++                        sizeof(std::uint32_t)) {
++                diagnostics.message =
++                    "sorted deformable corner workspace exceeds host allocation sizing";
++                return diagnostics;
++            }
++            candidate->deformableContactNodeCornerSortPaddedCapacity =
++                static_cast<std::uint32_t>(sortedCornerPaddedCapacity);
++        }
+         const char* forceCompletedTangentCacheRebuild = std::getenv(
+             "NM_FEM_FORCE_COMPLETED_TANGENT_CACHE_REBUILD");
+         if (forceCompletedTangentCacheRebuild != nullptr &&
+@@ -3814,6 +3886,10 @@
+             "nm_contact_count_deformable_node_incidence",
+             "nm_contact_scan_deformable_node_incidence",
+             "nm_contact_scatter_deformable_node_incidence",
++            "nm_contact_emit_deformable_node_corners",
++            "nm_contact_bitonic_sort_deformable_node_corners",
++            "nm_contact_count_deformable_node_incidence_sorted",
++            "nm_contact_scatter_deformable_node_incidence_sorted",
+             "nm_contact_evaluate",
+             "nm_contact_clear_sparse_trial_samples",
+             "nm_contact_build_armijo_sparse_pair_flags",
+@@ -3879,12 +3955,24 @@
+                 std::strcmp(name, "nm_fgmres_graph_solve_patches") == 0 ||
+                 std::strcmp(name, "nm_fgmres_graph_apply_patches") == 0;
+         };
++        const auto isSortedNodeIncidenceKernel = [](const char* name) {
++            return std::strcmp(name,
++                       "nm_contact_emit_deformable_node_corners") == 0 ||
++                std::strcmp(name,
++                       "nm_contact_bitonic_sort_deformable_node_corners") == 0 ||
++                std::strcmp(name,
++                       "nm_contact_count_deformable_node_incidence_sorted") == 0 ||
++                std::strcmp(name,
++                       "nm_contact_scatter_deformable_node_incidence_sorted") == 0;
++        };
+         for (const char* name : kernelNames) {
+             // Selector-5 graph Schwarz has no consumers in other solver modes.
+             // Avoid compiling these five pipelines for the default and other
+             // preconditioners, while preserving the complete selector-5 set.
+             if (world.mixedSolver.executionBudgets.z != 5u &&
+                 isGraphSchwarzKernel(name)) continue;
++            if (!candidate->deformableContactNodeIncidenceSortEnabled &&
++                isSortedNodeIncidenceKernel(name)) continue;
+             id<MTLFunction> function = kernel(name);
+             if (function == nil) {
+                 diagnostics.message = std::string("missing Metal function ") + name;
+@@ -4846,6 +4934,20 @@
+         const auto multiplied = [&](const std::size_t perEnvironment) {
+             return environments * perEnvironment;
+         };
++        if (candidate->deformableContactNodeIncidenceSortEnabled) {
++            const std::uint64_t keyBytes =
++                sortedCornerTotalCount * sizeof(std::uint64_t);
++            const std::uint64_t payloadBytes =
++                sortedCornerTotalCount * sizeof(std::uint32_t);
++            if (keyBytes > candidate->device.maxBufferLength ||
++                payloadBytes > candidate->device.maxBufferLength ||
++                keyBytes > std::numeric_limits<std::size_t>::max() -
++                    payloadBytes) {
++                diagnostics.message =
++                    "sorted deformable corner workspace exceeds Metal buffer or host byte limits";
++                return diagnostics;
++            }
++        }
+         const std::uint64_t surfacePrimitiveCount =
+             continuumSurfacePrimitiveCount(world.dispatch);
+         if (surfacePrimitiveCount > std::numeric_limits<std::uint32_t>::max() ||
+@@ -4951,6 +5053,46 @@
+                            world.dispatch.femNodeCount),
+                 valid,
+                 candidate->residentBytes);
++        if (candidate->deformableContactNodeIncidenceSortEnabled) {
++            const std::uint64_t sortWorkspaceBytes =
++                sortedCornerTotalCount *
++                (sizeof(std::uint64_t) + sizeof(std::uint32_t));
++            if (sortWorkspaceBytes >
++                std::numeric_limits<std::size_t>::max() -
++                    candidate->residentBytes) {
++                diagnostics.message =
++                    "sorted deformable corner workspace overflows runtime resident-byte accounting";
++                return diagnostics;
++            }
++            candidate->deformableContactNodeCornerSortKeys =
++                privateScratch<std::uint64_t>(
++                    candidate->device,
++                    static_cast<std::size_t>(sortedCornerTotalCount),
++                    valid,
++                    candidate->residentBytes);
++            candidate->deformableContactNodeCornerSortPayloads =
++                privateScratch<std::uint32_t>(
++                    candidate->device,
++                    static_cast<std::size_t>(sortedCornerTotalCount),
++                    valid,
++                    candidate->residentBytes);
++            if (!valid ||
++                candidate->deformableContactNodeCornerSortKeys == nil ||
++                candidate->deformableContactNodeCornerSortPayloads == nil) {
++                diagnostics.message =
++                    "failed to allocate the checked sorted deformable incidence workspace";
++                return diagnostics;
++            }
++            std::fprintf(stderr,
++                "contact_node_incidence_builder={\"schema\":1,\"mode\":\"stable_corner_sort\",\"environments\":%u,\"capacity\":%u,\"logical_corners_per_environment\":%llu,\"padded_corners_per_environment\":%u,\"sort_workspace_bytes\":%llu}\n",
++                world.dispatch.environmentCount,
++                world.dispatch.deformableContactCapacity,
++                static_cast<unsigned long long>(sortedCornerLogicalCount),
++                candidate->deformableContactNodeCornerSortPaddedCapacity,
++                static_cast<unsigned long long>(
++                    sortedCornerTotalCount *
++                    (sizeof(std::uint64_t) + sizeof(std::uint32_t))));
++        }
+         candidate->deformableContactActiveOffsets =
+             privateScratch<std::uint32_t>(
+                 candidate->device,
+@@ -7683,6 +7825,120 @@
+                       atIndex:0u];
+             [encoder setBytes:&state.fgmresLayout
+                        length:sizeof(state.fgmresLayout) atIndex:30u];
++        };
++        const auto buildDeformableNodeIncidence = [&]( 
++            id<MTLBuffer> contacts,
++            id<MTLBuffer> activeIndices,
++            id<MTLBuffer> activeCounts,
++            id<MTLBuffer> nodeRanges,
++            id<MTLBuffer> nodeIncidence,
++            id<MTLBuffer> statuses,
++            const NSUInteger totalNodes
++        ) {
++            if (!state.deformableContactNodeIncidenceSortEnabled) {
++                dispatchThreads(
++                    "nm_contact_count_deformable_node_incidence",
++                    totalNodes,
++                    [&] {
++                        setDispatch();
++                        [encoder setBuffer:contacts offset:0u atIndex:1u];
++                        [encoder setBuffer:activeIndices offset:0u atIndex:2u];
++                        [encoder setBuffer:activeCounts offset:0u atIndex:3u];
++                        [encoder setBuffer:nodeRanges offset:0u atIndex:4u];
++                    });
++                dispatchGroups32(
++                    "nm_contact_scan_deformable_node_incidence",
++                    state.dispatch.environmentCount,
++                    [&] {
++                        setDispatch();
++                        [encoder setBuffer:nodeRanges offset:0u atIndex:1u];
++                        [encoder setBuffer:statuses offset:0u atIndex:2u];
++                    });
++                dispatchThreads(
++                    "nm_contact_scatter_deformable_node_incidence",
++                    totalNodes,
++                    [&] {
++                        setDispatch();
++                        [encoder setBuffer:contacts offset:0u atIndex:1u];
++                        [encoder setBuffer:activeIndices offset:0u atIndex:2u];
++                        [encoder setBuffer:activeCounts offset:0u atIndex:3u];
++                        [encoder setBuffer:nodeRanges offset:0u atIndex:4u];
++                        [encoder setBuffer:nodeIncidence offset:0u atIndex:5u];
++                    });
++                return;
++            }
++
++            const std::uint32_t padded =
++                state.deformableContactNodeCornerSortPaddedCapacity;
++            const NSUInteger sortThreadCount = static_cast<NSUInteger>(
++                std::uint64_t(state.dispatch.environmentCount) * padded);
++            dispatchThreads(
++                "nm_contact_emit_deformable_node_corners",
++                sortThreadCount,
++                [&] {
++                    setDispatch();
++                    [encoder setBuffer:contacts offset:0u atIndex:1u];
++                    [encoder setBuffer:activeIndices offset:0u atIndex:2u];
++                    [encoder setBuffer:activeCounts offset:0u atIndex:3u];
++                    [encoder setBuffer:state.deformableContactNodeCornerSortKeys
++                                 offset:0u atIndex:4u];
++                    [encoder setBuffer:state.deformableContactNodeCornerSortPayloads
++                                 offset:0u atIndex:5u];
++                    [encoder setBytes:&padded length:sizeof(padded) atIndex:6u];
++                });
++            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++            for (std::uint32_t width = 2u;; width *= 2u) {
++                for (std::uint32_t distance = width / 2u;
++                     distance != 0u; distance /= 2u) {
++                    dispatchThreads(
++                        "nm_contact_bitonic_sort_deformable_node_corners",
++                        sortThreadCount,
++                        [&] {
++                            setDispatch();
++                            [encoder setBytes:&padded length:sizeof(padded) atIndex:1u];
++                            [encoder setBytes:&width length:sizeof(width) atIndex:2u];
++                            [encoder setBytes:&distance length:sizeof(distance) atIndex:3u];
++                            [encoder setBuffer:state.deformableContactNodeCornerSortKeys
++                                         offset:0u atIndex:4u];
++                            [encoder setBuffer:state.deformableContactNodeCornerSortPayloads
++                                         offset:0u atIndex:5u];
++                        });
++                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++                }
++                if (width == padded) break;
++            }
++            dispatchThreads(
++                "nm_contact_count_deformable_node_incidence_sorted",
++                totalNodes,
++                [&] {
++                    setDispatch();
++                    [encoder setBytes:&padded length:sizeof(padded) atIndex:1u];
++                    [encoder setBuffer:state.deformableContactNodeCornerSortKeys
++                                 offset:0u atIndex:2u];
++                    [encoder setBuffer:nodeRanges offset:0u atIndex:3u];
++                });
++            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++            dispatchGroups32(
++                "nm_contact_scan_deformable_node_incidence",
++                state.dispatch.environmentCount,
++                [&] {
++                    setDispatch();
++                    [encoder setBuffer:nodeRanges offset:0u atIndex:1u];
++                    [encoder setBuffer:statuses offset:0u atIndex:2u];
++                });
++            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++            dispatchThreads(
++                "nm_contact_scatter_deformable_node_incidence_sorted",
++                sortThreadCount,
++                [&] {
++                    setDispatch();
++                    [encoder setBytes:&padded length:sizeof(padded) atIndex:1u];
++                    [encoder setBuffer:state.deformableContactNodeCornerSortKeys
++                                 offset:0u atIndex:2u];
++                    [encoder setBuffer:state.deformableContactNodeCornerSortPayloads
++                                 offset:0u atIndex:3u];
++                    [encoder setBuffer:nodeIncidence offset:0u atIndex:4u];
++                });
+         };
+         const std::uint32_t microtickCount =
+             1u << state.dispatch.maximumRateExponent;
+@@ -13184,46 +13440,14 @@
+                         [encoder setBuffer:state.deformableContactGlobalActiveIndices
+                                    offset:0u atIndex:4u];
+                     });
+-                dispatchThreads(
+-                    "nm_contact_count_deformable_node_incidence",
+-                    continuumNodeTotal,
+-                    [&] {
+-                        setDispatch();
+-                        [encoder setBuffer:state.deformableContacts
+-                                   offset:0u atIndex:1u];
+-                        [encoder setBuffer:state.deformableContactActiveIndices
+-                                   offset:0u atIndex:2u];
+-                        [encoder setBuffer:state.deformableContactActiveCounts
+-                                   offset:0u atIndex:3u];
+-                        [encoder setBuffer:state.deformableContactNodeRanges
+-                                   offset:0u atIndex:4u];
+-                    });
+-                dispatchGroups32(
+-                    "nm_contact_scan_deformable_node_incidence",
+-                    environments,
+-                    [&] {
+-                        setDispatch();
+-                        [encoder setBuffer:state.deformableContactNodeRanges
+-                                   offset:0u atIndex:1u];
+-                        [encoder setBuffer:state.statuses
+-                                   offset:0u atIndex:2u];
+-                    });
+-                dispatchThreads(
+-                    "nm_contact_scatter_deformable_node_incidence",
+-                    continuumNodeTotal,
+-                    [&] {
+-                        setDispatch();
+-                        [encoder setBuffer:state.deformableContacts
+-                                   offset:0u atIndex:1u];
+-                        [encoder setBuffer:state.deformableContactActiveIndices
+-                                   offset:0u atIndex:2u];
+-                        [encoder setBuffer:state.deformableContactActiveCounts
+-                                   offset:0u atIndex:3u];
+-                        [encoder setBuffer:state.deformableContactNodeRanges
+-                                   offset:0u atIndex:4u];
+-                        [encoder setBuffer:state.deformableContactNodeIncidence
+-                                   offset:0u atIndex:5u];
+-                    });
++                buildDeformableNodeIncidence(
++                    state.deformableContacts,
++                    state.deformableContactActiveIndices,
++                    state.deformableContactActiveCounts,
++                    state.deformableContactNodeRanges,
++                    state.deformableContactNodeIncidence,
++                    state.statuses,
++                    continuumNodeTotal);
+                 dispatchThreads("nm_contact_evaluate", pairTotal, [&] {
+                     const std::uint32_t unusedCandidateCapacity = 0u;
+                     const std::uint32_t denseCandidateMode = 0u;
+@@ -13734,41 +13958,14 @@
+                                  offset:0u atIndex:3u];
+                 });
+                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+-                dispatchThreads("nm_contact_count_deformable_node_incidence",
+-                    continuumNodeTotal, [&] {
+-                    setDispatch();
+-                    [encoder setBuffer:state.femArmijoDeformableContacts
+-                                 offset:0u atIndex:1u];
+-                    [encoder setBuffer:state.femArmijoDeformableActiveIndices
+-                                 offset:0u atIndex:2u];
+-                    [encoder setBuffer:state.femArmijoDeformableActiveCounts
+-                                 offset:0u atIndex:3u];
+-                    [encoder setBuffer:state.femArmijoDeformableNodeRanges
+-                                 offset:0u atIndex:4u];
+-                });
+-                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+-                dispatchGroups32("nm_contact_scan_deformable_node_incidence",
+-                    environments, [&] {
+-                    setDispatch();
+-                    [encoder setBuffer:state.femArmijoDeformableNodeRanges
+-                                 offset:0u atIndex:1u];
+-                    [encoder setBuffer:trialStatuses offset:0u atIndex:2u];
+-                });
+-                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+-                dispatchThreads("nm_contact_scatter_deformable_node_incidence",
+-                    continuumNodeTotal, [&] {
+-                    setDispatch();
+-                    [encoder setBuffer:state.femArmijoDeformableContacts
+-                                 offset:0u atIndex:1u];
+-                    [encoder setBuffer:state.femArmijoDeformableActiveIndices
+-                                 offset:0u atIndex:2u];
+-                    [encoder setBuffer:state.femArmijoDeformableActiveCounts
+-                                 offset:0u atIndex:3u];
+-                    [encoder setBuffer:state.femArmijoDeformableNodeRanges
+-                                 offset:0u atIndex:4u];
+-                    [encoder setBuffer:state.femArmijoDeformableNodeIncidence
+-                                 offset:0u atIndex:5u];
+-                });
++                buildDeformableNodeIncidence(
++                    state.femArmijoDeformableContacts,
++                    state.femArmijoDeformableActiveIndices,
++                    state.femArmijoDeformableActiveCounts,
++                    state.femArmijoDeformableNodeRanges,
++                    state.femArmijoDeformableNodeIncidence,
++                    trialStatuses,
++                    continuumNodeTotal);
+                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                 dispatchThreads("nm_contact_accumulate_deformable_fem_residual",
+                     femNodeTotal, [&] {
+--- a/matter/src/metal/contact.metalinc
++++ b/matter/src/metal/contact.metalinc
+@@ -3657,6 +3657,145 @@
+     if (slot < capacity)
+         globalActiveIndices[activeOffsets[environment] + activeSlot] =
+             environment * capacity + slot;
++}
++
++// Opt-in replacement for the O(nodeCount * activeCount) incidence builder.
++// Emit one stable record for each of the six support corners, sort by
++// (unified node ID, compacted active slot, local corner), then gather the
++// records into the same per-node ordering as the legacy activeSlot/local loop.
++// The contact slot remains in payload so history identity is unchanged.
++kernel void nm_contact_emit_deformable_node_corners(
++    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
++    device const NMDeformableContactGPU* contacts [[buffer(1)]],
++    device const uint* activeIndices [[buffer(2)]],
++    device const uint* activeCounts [[buffer(3)]],
++    device ulong* sortKeys [[buffer(4)]],
++    device uint* sortPayloads [[buffer(5)]],
++    constant uint& paddedCapacity [[buffer(6)]],
++    uint global [[thread_position_in_grid]]
++) {
++    if (paddedCapacity == 0u) return;
++    const uint capacity = dispatch.deformableContactCapacity;
++    const uint nodeCount = dispatch.gridNodeCount + dispatch.femNodeCount;
++    const uint environment = global / paddedCapacity;
++    const uint localRecord = global - environment * paddedCapacity;
++    if (environment >= dispatch.environmentCount) return;
++
++    constexpr ulong invalidKey = ~0ul;
++    ulong key = invalidKey;
++    uint payload = 0u;
++    const ulong logicalRecordCount = 6ul * ulong(capacity);
++    if (ulong(localRecord) < logicalRecordCount && capacity != 0u) {
++        const uint activeSlot = localRecord / 6u;
++        const uint local = localRecord - activeSlot * 6u;
++        const uint activeCount = min(activeCounts[environment], capacity);
++        if (activeSlot < activeCount) {
++            const uint slot = activeIndices[environment * capacity + activeSlot];
++            if (slot < capacity) {
++                const NMDeformableContactGPU contact =
++                    contacts[environment * capacity + slot];
++                if ((contact.identity.w & NM_CONTACT_VALID) != 0u) {
++                    const uint node = deformableContactNode(contact, local);
++                    if (node < nodeCount) {
++                        const ulong order = ulong(activeSlot) * 8ul + ulong(local);
++                        key = (ulong(node) << 32u) | order;
++                        payload = 8u * slot + local;
++                    }
++                }
++            }
++        }
++    }
++    sortKeys[global] = key;
++    sortPayloads[global] = payload;
++}
++
++kernel void nm_contact_bitonic_sort_deformable_node_corners(
++    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
++    constant uint& paddedCapacity [[buffer(1)]],
++    constant uint& sequenceWidth [[buffer(2)]],
++    constant uint& compareDistance [[buffer(3)]],
++    device ulong* sortKeys [[buffer(4)]],
++    device uint* sortPayloads [[buffer(5)]],
++    uint global [[thread_position_in_grid]]
++) {
++    if (paddedCapacity == 0u || compareDistance == 0u) return;
++    const uint environment = global / paddedCapacity;
++    const uint local = global - environment * paddedCapacity;
++    if (environment >= dispatch.environmentCount) return;
++    const uint partner = local ^ compareDistance;
++    if (partner <= local || partner >= paddedCapacity) return;
++
++    const uint base = environment * paddedCapacity;
++    const uint partnerGlobal = base + partner;
++    const ulong leftKey = sortKeys[global];
++    const ulong rightKey = sortKeys[partnerGlobal];
++    const bool ascending = (local & sequenceWidth) == 0u;
++    const bool swap = ascending ? leftKey > rightKey : leftKey < rightKey;
++    if (swap) {
++        const uint leftPayload = sortPayloads[global];
++        sortKeys[global] = rightKey;
++        sortKeys[partnerGlobal] = leftKey;
++        sortPayloads[global] = sortPayloads[partnerGlobal];
++        sortPayloads[partnerGlobal] = leftPayload;
++    }
++}
++
++inline uint lowerBoundDeformableCornerNode(
++    device const ulong* sortKeys,
++    const uint base,
++    const uint paddedCapacity,
++    const uint node,
++    const bool upperBound
++) {
++    uint lower = 0u;
++    uint upper = paddedCapacity;
++    while (lower < upper) {
++        const uint middle = lower + (upper - lower) / 2u;
++        const uint keyNode = uint(sortKeys[base + middle] >> 32u);
++        const bool precedes = upperBound ? keyNode <= node : keyNode < node;
++        if (precedes) lower = middle + 1u;
++        else upper = middle;
++    }
++    return lower;
++}
++
++kernel void nm_contact_count_deformable_node_incidence_sorted(
++    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
++    constant uint& paddedCapacity [[buffer(1)]],
++    device const ulong* sortKeys [[buffer(2)]],
++    device NMIncidenceRangeGPU* nodeRanges [[buffer(3)]],
++    uint global [[thread_position_in_grid]]
++) {
++    const uint nodeCount = dispatch.gridNodeCount + dispatch.femNodeCount;
++    const uint totalNodes = dispatch.environmentCount * nodeCount;
++    if (global >= totalNodes || nodeCount == 0u || paddedCapacity == 0u) return;
++    const uint environment = global / nodeCount;
++    const uint node = global - environment * nodeCount;
++    const uint base = environment * paddedCapacity;
++    const uint begin = lowerBoundDeformableCornerNode(
++        sortKeys, base, paddedCapacity, node, false);
++    const uint end = lowerBoundDeformableCornerNode(
++        sortKeys, base, paddedCapacity, node, true);
++    nodeRanges[global] = {0u, end - begin, NM_INVALID_INDEX, 0u};
++}
++
++kernel void nm_contact_scatter_deformable_node_incidence_sorted(
++    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
++    constant uint& paddedCapacity [[buffer(1)]],
++    device const ulong* sortKeys [[buffer(2)]],
++    device const uint* sortPayloads [[buffer(3)]],
++    device uint* nodeIncidence [[buffer(4)]],
++    uint global [[thread_position_in_grid]]
++) {
++    const uint capacity = dispatch.deformableContactCapacity;
++    if (paddedCapacity == 0u || capacity == 0u) return;
++    const uint environment = global / paddedCapacity;
++    const uint local = global - environment * paddedCapacity;
++    if (environment >= dispatch.environmentCount ||
++        ulong(local) >= 6ul * ulong(capacity)) return;
++    if (sortKeys[global] == ~0ul) return;
++    const uint incidenceBase = 6u * environment * capacity;
++    nodeIncidence[incidenceBase + local] = sortPayloads[global];
+ }
+ 
+ // Build a deterministic dynamic CSR from unified MPM/FEM nodes to active

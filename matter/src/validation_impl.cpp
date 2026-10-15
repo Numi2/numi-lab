@@ -1100,6 +1100,23 @@ private:
                 material.constitutiveKind==NM_CONSTITUTIVE_NEO_HOOKEAN &&
                 material.projectionKind==NM_MATERIAL_PROJECTION_GENERIC &&
                 (material.flags & (NM_MATERIAL_HAS_IMPLICIT_STATE|NM_MATERIAL_HAS_DISSIPATION))==0u;
+            const bool statelessGenericCompensatedArithmetic =
+                (material.flags & NM_MATERIAL_PAPER_COMPENSATED_ARITHMETIC)!=0u &&
+                (material.flags & (NM_MATERIAL_PAPER_HILL_SCALAR_INITIALIZER|
+                                   NM_MATERIAL_PAPER_HILL_ACCURATE_PROJECTION))==0u &&
+                !genericCompensatedProjection && material.stateCount==0u &&
+                material.constitutiveKind==NM_CONSTITUTIVE_BYTECODE &&
+                material.projectionKind==NM_MATERIAL_PROJECTION_GENERIC &&
+                (material.flags & (NM_MATERIAL_HAS_STATE|NM_MATERIAL_HAS_IMPLICIT_STATE|
+                                   NM_MATERIAL_HAS_DISSIPATION))==0u &&
+                material.stateUpdateProgramOffset==NM_INVALID_INDEX &&
+                material.dissipationProgram==NM_INVALID_INDEX &&
+                material.viscousStressProgramOffset==NM_INVALID_INDEX &&
+                material.viscousTangentProgramOffset==NM_INVALID_INDEX &&
+                material.implicitResidualProgramOffset==NM_INVALID_INDEX &&
+                material.implicitJacobianProgramOffset==NM_INVALID_INDEX &&
+                material.implicitDeformationProgramOffset==NM_INVALID_INDEX &&
+                material.stressStateDerivativeProgramOffset==NM_INVALID_INDEX;
             if (genericCompensatedProjection &&
                 (material.stateCount==0u ||
                  material.stateCount>NM_MAX_MATERIAL_STATE ||
@@ -1114,12 +1131,42 @@ private:
             if ((material.flags & (NM_MATERIAL_PAPER_HILL_SCALAR_INITIALIZER|NM_MATERIAL_PAPER_COMPENSATED_ARITHMETIC|NM_MATERIAL_PAPER_HILL_ACCURATE_PROJECTION)) != 0u &&
                 !finiteElasticStarchArithmetic &&
                 !genericCompensatedProjection &&
+                !statelessGenericCompensatedArithmetic &&
                 (material.stateCount != 13u || material.parameterCount != 20u ||
                  material.constitutiveKind != NM_CONSTITUTIVE_BYTECODE ||
                  material.projectionKind != NM_MATERIAL_PROJECTION_GENERIC ||
                  (material.flags & NM_MATERIAL_HAS_IMPLICIT_STATE) == 0u ||
                  (material.flags & NM_MATERIAL_HAS_DISSIPATION) != 0u)) {
                 return failIndexed("material",index,"paper Hill initializer layout or generic policy is invalid");
+            }
+            if (statelessGenericCompensatedArithmetic) {
+                const auto roleHasOnlyStatelessVariables = [&](const std::uint32_t first,
+                                                               const std::uint32_t count,
+                                                               const bool allowDirection) {
+                    if (first == NM_INVALID_INDEX) return count == 0u;
+                    if (!rangeWithin(first, count, world_.scalarPrograms.size())) return false;
+                    for (std::uint32_t local = 0u; local < count; ++local) {
+                        const NMScalarProgramGPU& program = world_.scalarPrograms[first + local];
+                        if (!rangeWithin(program.firstInstruction, program.instructionCount,
+                                         world_.instructions.size())) return false;
+                        for (std::uint32_t item = 0u; item < program.instructionCount; ++item) {
+                            const std::uint32_t opcode = world_.instructions[
+                                program.firstInstruction + item].opcode;
+                            if (opcode == NM_EXPR_RATE || opcode == NM_EXPR_DT ||
+                                opcode == NM_EXPR_TEMPERATURE || opcode == NM_EXPR_STATE ||
+                                opcode == NM_EXPR_NEXT_STATE ||
+                                (!allowDirection && opcode == NM_EXPR_DF)) return false;
+                        }
+                    }
+                    return true;
+                };
+                if (!roleHasOnlyStatelessVariables(material.stressProgramOffset, 9u, false) ||
+                    !roleHasOnlyStatelessVariables(material.tangentProgramOffset, 9u, true) ||
+                    !roleHasOnlyStatelessVariables(material.validityProgram,
+                        material.validityProgram == NM_INVALID_INDEX ? 0u : 1u, false)) {
+                    return failIndexed("material", index,
+                        "stateless compensated bytecode contains a rate, state, time, temperature, or role-invalid direction input");
+                }
             }
             if ((material.flags & NM_MATERIAL_PAPER_HILL_ACCURATE_PROJECTION) != 0u &&
                 (material.flags & NM_MATERIAL_PAPER_COMPENSATED_ARITHMETIC) == 0u)
