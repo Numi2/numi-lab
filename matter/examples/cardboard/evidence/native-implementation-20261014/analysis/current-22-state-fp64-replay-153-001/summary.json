@@ -1,0 +1,296 @@
+{
+  "schema": "numi.cardboard.solver-pair-analysis.v1",
+  "binding": {
+    "prediction_schema": "numi.cardboard.native-prediction.v1",
+    "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-compensated-local-tangent-integrated-053",
+    "native_command": [
+      "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-053/matter/numi-matter-cardboard-probe",
+      "--without-self-contact",
+      "--reference-displacement-gradient",
+      "--residual-tolerance",
+      "1e-6",
+      "--newton-iterations",
+      "28",
+      "--fgmres-iterations",
+      "1024",
+      "--fgmres-restart",
+      "10",
+      "--fgmres-preconditioner",
+      "scalar",
+      "--line-search-steps",
+      "8",
+      "--steps",
+      "48",
+      "--hold-steps",
+      "12",
+      "--unload-steps",
+      "24",
+      "--relax-steps",
+      "12",
+      "--release-steps",
+      "0",
+      "--nx",
+      "16",
+      "--ny",
+      "1",
+      "--thickness-slices",
+      "1",
+      "--bend-angle",
+      ".375",
+      "--dt",
+      ".000025",
+      "--material-iterations",
+      "16",
+      "--liner-material",
+      "/Users/home/cardboard-implementation-20261014/snapshots/source-compensated-local-tangent-integrated-053/matter/materials/hajali2009_liner_hill_ideal.nmatter",
+      "--medium-material",
+      "/Users/home/cardboard-implementation-20261014/snapshots/source-compensated-local-tangent-integrated-053/matter/materials/hajali2009_medium_hill_ideal.nmatter",
+      "--metallib",
+      "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-053/matter/shaders/NumiMatter.metallib",
+      "--output",
+      "/Users/home/cardboard-implementation-20261014/solver/current-failure-22-state-capture-153/output"
+    ],
+    "required_transforms_present": [],
+    "native_policy": "ordinary_generic_FP32",
+    "normalized_source_vm_matches_native_residual_policy": false,
+    "input_hash_count": 753,
+    "receipt_exit_code": 2,
+    "receipt_timed_out": false,
+    "receipt_wall_seconds": 415.0619259579689,
+    "capture_selector": "22:3",
+    "verified_source_hashes": {
+      "source/matter/materials/hajali2009_liner_hill_ideal.nmatter": "787bf121f4ce359235e28691892e9d77adffde05faf10f2a90593d9f4b32398d",
+      "source/matter/materials/hajali2009_medium_hill_ideal.nmatter": "ecfd9de3f4550a6a269d7a6559781b16e15316cf3d587093f2e11a2e6942a8e8",
+      "source/matter/tools/cardboard_probe.mm": "3fc9b3fbf74d1eeb81c87f02fa8332010acd7c500db637d5f0ab227995ac535d",
+      "source/matter/tools/cardboard_paper_projection_scaling.hpp": "9b05e0fffbf5f350d7c4fc98ad05f8df2029c358c857f217d107b488fc5dc001",
+      "source/matter/include/numi/matter/paper_compensated_bytecode.h": "f578310307a4698692fc57117340794ac4ce2d3813cdfcf705da6a018a5976aa",
+      "source/matter/include/numi/matter/compiler.hpp": "0acddd3e8d8cd62abac2b3883d0694ed6ddd8816cb2313b132fd5b54327e7c46",
+      "source/matter/src/compiler_impl.cpp": "85178d151e426983799ce212f2734c66775b93cf9685cd88c71c1adbb56b4f1f",
+      "source/matter/src/constitutive_impl.cpp": "379aabf5123cc5ab3c27accffaf563737c8f092fe45ed1cec790429011c1cd25",
+      "source/matter/src/metal/common.metalinc": "1365664b7aa1ffa0577011df9617431c1a726d0b6eb16f95b293cd52ba79fc12",
+      "source/matter/src/metal/fem.metalinc": "16fd57cd8e9aa20ef67b15a068fe6a61a8f254588399c35b2cccda51244aa840"
+    },
+    "capture_sha256": "f4b4bdbe7a64cdc6d09ca46aeb13fc525bb9c7678dbb5acc4b78aadf367f3bfa",
+    "prediction_sha256": "5d06b434994fd6db1be24534a01de720d795015d95d698d740ee7b263abb27c7",
+    "receipt_sha256": "e99cbc30a3332361b77ce29ff0548ce90daececf366e446a39685ae5ebaeeb77",
+    "replay_executable_sha256": "83240bc8f3162b6cbdcb04889ec3bf7677e0edb718c0ebac93e5877f60a086fb",
+    "replay_command": [
+      "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-055/matter/numi-matter-cardboard-solver-pair-replay",
+      "/Users/home/cardboard-implementation-20261014/snapshots/source-compensated-local-tangent-integrated-053/matter/materials/hajali2009_liner_hill_ideal.nmatter",
+      "/Users/home/cardboard-implementation-20261014/snapshots/source-compensated-local-tangent-integrated-053/matter/materials/hajali2009_medium_hill_ideal.nmatter",
+      "--derivative-sweep"
+    ],
+    "replay_source_sha256": {
+      "cardboard_solver_pair_replay.cpp": "bae9ff0ba93087c93276be423023a43e393011df4553f5d5838c409212834f20",
+      "cardboard_solver_reference.hpp": "9055ddda423484ae24482abb1fc6f00e81fd221f07cb822b89805ffdd4bb39f7",
+      "cardboard_paper_projection_scaling.hpp": "9b05e0fffbf5f350d7c4fc98ad05f8df2029c358c857f217d107b488fc5dc001"
+    },
+    "analyzer_sha256": "420109bb8b43df086ec18a95c682ab215f7faf2c6fda974b90b257f3098ca7d7",
+    "replay_input_sha256": "0661611c2b2d740b92deedb34ca75605fc95d11e564a1413c2ef30fd33315fcd",
+    "replay_output_sha256": "b4feea73f08e3a9dcac8c452be850c8500a37a0b5ab7bf94c5b8db211224cf0e",
+    "replay_source_material_sha256": {
+      "liner": "787bf121f4ce359235e28691892e9d77adffde05faf10f2a90593d9f4b32398d",
+      "medium": "ecfd9de3f4550a6a269d7a6559781b16e15316cf3d587093f2e11a2e6942a8e8"
+    }
+  },
+  "selection": {
+    "root": 22,
+    "newton_iteration": 3,
+    "environments": 2,
+    "tets_in_capture": 3072,
+    "paper_tets_replayed": 2880,
+    "selected_capture_terminal_integrity": true
+  },
+  "run_completion": {
+    "receipt_timed_out": false,
+    "receipt_exit_code": 2,
+    "full_history_complete": false,
+    "scope_note": "a complete selected Newton capture may be analyzed after timeout; timeout does not establish full-history completion"
+  },
+  "builder_transforms": {
+    "validated_from_sealed_native_argv": [],
+    "source_equation_note": "ordinary FP32 native candidate; normalized compensated source VM is a reference only, not native residual parity; independent FP64 projection solves the same constitutive zero-set",
+    "F_replay_contract": "every captured FP32 F high and low word is widened separately then summed in FP64",
+    "candidate_state_replay_contract": "every captured FP32 projected-state high and low word is widened separately then summed in FP64",
+    "parameter_contract": "per-tet parameter values are read from the selected environment table and exact native material descriptor; defaults are never substituted",
+    "row_scale_contract": "13 row-scale constants are recomputed from the hash-bound material source defaults, which match this capture's per-environment constants; captured residual_scale is evaluated from each environment parameter row"
+  },
+  "replay": {
+    "returncode": 0,
+    "invalid_rows": 0,
+    "output_errors": []
+  },
+  "near_yield_diagnostic_band": {
+    "q_units": "dimensionless",
+    "width": 1e-06,
+    "physical_tolerance": false
+  },
+  "analysis_counts": {
+    "tet_audits": 2880,
+    "reference_projection_failures": 0,
+    "center_candidate_stress_comparisons": 2880,
+    "center_candidate_stress_comparisons_with_nonzero_reference": 1920,
+    "center_candidate_tangent_comparisons_with_nonzero_reference": 1440,
+    "near_yield_centers": 0
+  },
+  "transformed_source_residual_parity": {
+    "compared_center_rows": 0,
+    "maximum_absolute_difference_from_native_projection_residual": null,
+    "qualification": "diagnostic only; no threshold is asserted"
+  },
+  "per_environment_diagnostics": [
+    {
+      "environment": 0,
+      "paper_tetrahedra": 1440,
+      "elastic_trial_branch_counts": {
+        "elastic_trial": 1142,
+        "plastic_trial": 298
+      },
+      "captured_candidate_yield_surface_counts": {
+        "inside_yield_surface": 1142,
+        "on_yield_surface_within_diagnostic_band": 264,
+        "outside_yield_surface": 34
+      },
+      "nonzero_local_direction_tetrahedra": 1440,
+      "zero_local_direction_tetrahedra": 0,
+      "native_stress_vs_candidate_oracle_relative_error": {
+        "finite_count": 1440,
+        "total_count": 1440,
+        "statistics": {
+          "min": 1.7005847924775347e-07,
+          "median": 0.00010006469071528064,
+          "p95": 0.0019584806669823113,
+          "max": 0.006909621104048634
+        }
+      },
+      "native_tangent_vs_candidate_oracle_relative_error": {
+        "finite_count": 1440,
+        "total_count": 1440,
+        "statistics": {
+          "min": 3.752251978418758e-09,
+          "median": 1.739068060210542e-07,
+          "p95": 8.343809324787178e-06,
+          "max": 0.00018913467740370608
+        }
+      },
+      "candidate_state_vs_reprojected_reference_relative_error": {
+        "finite_count": 1440,
+        "total_count": 1440,
+        "statistics": {
+          "min": 1.730183924923077e-07,
+          "median": 9.965907492390314e-05,
+          "p95": 0.0019136910739288846,
+          "max": 0.00874607484087055
+        }
+      },
+      "independent_candidate_scaled_residual_inf": {
+        "finite_count": 1440,
+        "total_count": 1440,
+        "statistics": {
+          "min": 1.74399389418025e-07,
+          "median": 4.086212136551747e-05,
+          "p95": 0.001637975058301777,
+          "max": 0.0029340982012149297
+        }
+      },
+      "source_vm_vs_native_reported_residual_absolute_difference": {
+        "finite_count": 0,
+        "total_count": 1440,
+        "statistics": null
+      },
+      "finite_difference_pairs": {
+        "count": 2880,
+        "smooth_branch_eligible": 2865,
+        "near_yield_unresolved": 0,
+        "branch_crossing": 15,
+        "incomplete_or_unresolved": 0,
+        "zero_captured_direction": 0
+      },
+      "strict_gate": "inconclusive_no_measured_noise_floor",
+      "FP64_derivative_sweep": {
+        "center_count": 1440,
+        "two_adjacent_smooth_refinements_pass": 1435,
+        "zero_direction_inconclusive": 0,
+        "no_adjacent_resolved_pass": 5,
+        "missing_sweep": 0,
+        "failed_independent_projections": 0,
+        "Metal_noise_floor_measured": false
+      }
+    },
+    {
+      "environment": 1,
+      "paper_tetrahedra": 1440,
+      "elastic_trial_branch_counts": {
+        "elastic_trial": 1440
+      },
+      "captured_candidate_yield_surface_counts": {
+        "inside_yield_surface": 1440
+      },
+      "nonzero_local_direction_tetrahedra": 0,
+      "zero_local_direction_tetrahedra": 1440,
+      "native_stress_vs_candidate_oracle_relative_error": {
+        "finite_count": 480,
+        "total_count": 1440,
+        "statistics": {
+          "min": 0.0004093689365048605,
+          "median": 1.0,
+          "p95": 2.623767174687393,
+          "max": 2.623767174687393
+        }
+      },
+      "native_tangent_vs_candidate_oracle_relative_error": {
+        "finite_count": 0,
+        "total_count": 1440,
+        "statistics": null
+      },
+      "candidate_state_vs_reprojected_reference_relative_error": {
+        "finite_count": 480,
+        "total_count": 1440,
+        "statistics": {
+          "min": 0.0004092906300047881,
+          "median": 1.0,
+          "p95": 2.623766936562723,
+          "max": 2.623766936562723
+        }
+      },
+      "independent_candidate_scaled_residual_inf": {
+        "finite_count": 1440,
+        "total_count": 1440,
+        "statistics": {
+          "min": 1.1102230246251565e-15,
+          "median": 1.1102230246251565e-15,
+          "p95": 0.00015616430096283745,
+          "max": 0.00015616430096283745
+        }
+      },
+      "source_vm_vs_native_reported_residual_absolute_difference": {
+        "finite_count": 0,
+        "total_count": 1440,
+        "statistics": null
+      },
+      "finite_difference_pairs": {
+        "count": 2880,
+        "smooth_branch_eligible": 0,
+        "near_yield_unresolved": 0,
+        "branch_crossing": 0,
+        "incomplete_or_unresolved": 2880,
+        "zero_captured_direction": 2880
+      },
+      "strict_gate": "inconclusive_no_measured_noise_floor",
+      "FP64_derivative_sweep": {
+        "center_count": 1440,
+        "two_adjacent_smooth_refinements_pass": 0,
+        "zero_direction_inconclusive": 1440,
+        "no_adjacent_resolved_pass": 0,
+        "missing_sweep": 0,
+        "failed_independent_projections": 0,
+        "Metal_noise_floor_measured": false
+      }
+    }
+  ],
+  "strict_gate": "inconclusive_no_measured_noise_floor",
+  "analysis_exit_code": 3,
+  "solver_correctness": "unqualified",
+  "physical_validation": false,
+  "terminal_failure_explained": false
+}

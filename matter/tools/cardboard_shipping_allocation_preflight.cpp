@@ -48,7 +48,11 @@ ShippingMemoryBudget estimateScenario(const std::uint64_t nodeCount,
     const std::uint64_t surfaceFaceCount,
     const std::uint64_t deformableCapacity,
     const bool compactSurfaceMap,
-    const std::uint64_t materialStateStride) {
+    const std::uint64_t materialStateStride,
+    const bool sparsePrivate = false,
+    const bool freeRigidUnknowns = true,
+    const bool aliasSurfaceScratch = false,
+    const bool aliasCohesiveScratch = false) {
     ShippingMemoryBudgetInput input;
     input.nodeCount = nodeCount;
     input.tetrahedronCount = tetrahedronCount;
@@ -58,7 +62,7 @@ ShippingMemoryBudget estimateScenario(const std::uint64_t nodeCount,
     input.deformableContactCapacity = deformableCapacity;
     input.surfaceFaceCount = compactSurfaceMap ? surfaceFaceCount : 0u;
     input.compactImmutableSurfaceMap = compactSurfaceMap;
-    input.rigidGeneralizedCapacity = 6u; // the authored impactor body
+    input.rigidGeneralizedCapacity = freeRigidUnknowns ? 6u : 0u;
     input.rigidBodyCount = kShippingRigidBodyCount;
     input.rigidProxyCount = kShippingRigidProxyCount;
     input.materialStateStride = materialStateStride;
@@ -66,30 +70,26 @@ ShippingMemoryBudget estimateScenario(const std::uint64_t nodeCount,
     input.environmentCount = 1u;
     input.fgmresRestart = kShippingFgmresRestartCeiling;
     input.fullContactArmijoRequired = true;
+    input.deformableSelfContactEnabled = true;
+    input.sparsePrivateContactRequested = sparsePrivate;
+    input.sparsePrivateContactCapacity = sparsePrivate ? 65536u : 0u;
+    input.fullContactArmijoAliasesSurfaceScratch = aliasSurfaceScratch;
+    input.fullContactArmijoAliasesCohesiveScratch = aliasCohesiveScratch;
+    // Match the coarse host-side reserve used by the probe's prebuild
+    // admission. These are source-level planning factors, not measured vector
+    // capacities or an observed process footprint.
+    input.hostSourceMeshBytes = shippingMemoryCheckedAdd(
+        shippingMemoryCheckedMultiply(nodeCount, 256u),
+        shippingMemoryCheckedMultiply(tetrahedronCount, 512u));
+    input.hostCompiledWorldBytes = shippingMemoryCheckedAdd(
+        shippingMemoryCheckedMultiply(nodeCount, 128u),
+        shippingMemoryCheckedMultiply(tetrahedronCount, 256u));
+    input.hostGeneratedMetalBytes = 64ull * 1024ull * 1024ull;
+    input.uploadStagingBytes = input.hostCompiledWorldBytes;
     input.retainedCompleteCheckpointCount = 2u;
     input.estimatedSnapshotPayloadBytes =
         estimateShippingSnapshotPayloadBytes(input);
     return estimateShippingMemoryBudget(input);
-}
-
-std::uint64_t sparsePrivateArenaBytes(const std::uint64_t capacity,
-                                     const std::uint64_t pairCount,
-                                     const std::uint64_t environments,
-                                     const bool parity) {
-    const std::uint64_t sampleAndIdBytes = shippingMemoryCheckedMultiply3(
-        environments, capacity,
-        sizeof(NMContactSampleGPU) + sizeof(std::uint32_t));
-    const std::uint64_t pairMapBytes = shippingMemoryCheckedMultiply3(
-        environments, pairCount, sizeof(std::uint32_t));
-    const std::uint64_t parityBytes = parity
-        ? shippingMemoryCheckedMultiply3(
-            environments, pairCount, sizeof(NMContactSampleGPU))
-        : 0u;
-    const std::uint64_t countBytes = std::max<std::uint64_t>(
-        environments * sizeof(std::uint32_t), 16u);
-    return shippingMemoryCheckedAdd(
-        shippingMemoryCheckedAdd(sampleAndIdBytes, pairMapBytes),
-        shippingMemoryCheckedAdd(parityBytes, countBytes));
 }
 
 void writeMemoryScenario(const char* name,
@@ -100,6 +100,13 @@ void writeMemoryScenario(const char* name,
     std::cout << "    \"" << name << "\": {"
         << "\"modeled_metal_envelope_bytes\":" << budget.estimatedMetalPeakBytes
         << ",\"modeled_peak_domain_bytes\":" << budget.estimatedPeakDomainBytes
+        << ",\"host_mesh_and_compile_bytes\":"
+        << budget.hostMeshAndCompileBytes
+        << ",\"host_checkpoint_payload_bytes\":"
+        << budget.hostCheckpointBytes
+        << ",\"modeled_host_subtotal_with_shared_reserves_bytes\":"
+        << budget.estimatedHostPeakBytes
+        << ",\"shared_upload_and_readback_reserves_counted_once\":true"
         << ",\"static_fem_solver_floor_bytes\":" << budget.staticFEMSolverFloorBytes
         << ",\"measured_scaled_noncontact_envelope_bytes\":"
         << budget.measuredNoncontactRuntimeEnvelopeBytes
@@ -118,6 +125,12 @@ void writeMemoryScenario(const char* name,
         << budget.requiredRigidContactArmijoBytes
         << ",\"required_private_cohesive_bytes\":"
         << budget.requiredCohesiveArmijoBytes
+        << ",\"sparse_private_contact_bytes\":"
+        << budget.sparsePrivateContactBytes
+        << ",\"private_rigid_contact_admitted\":"
+        << (budget.privateRigidContactAdmitted ? "true" : "false")
+        << ",\"private_rigid_contact_failure\":\""
+        << budget.privateRigidContactFailure << "\""
         << ",\"private_arenas_admitted\":"
         << (budget.requiredResidualDescentArenaAdmitted ? "true" : "false")
         << ",\"private_arena_failure\":\""
@@ -128,7 +141,20 @@ void writeMemoryScenario(const char* name,
         << shippingMemoryCheckedMultiply(snapshotBytes, checkpointCount)
         << ",\"modeled_metal_envelope_plus_tangent_cache_bytes\":"
         << budget.estimatedMetalPeakBytes + tangentCacheBytes
-        << ",\"within_16_gib_model_limit\":"
+        << ",\"modeled_combined_allocation_plus_tangent_cache_bytes\":"
+        << shippingMemoryCheckedAdd(budget.estimatedPeakDomainBytes,
+                                    tangentCacheBytes)
+        << ",\"combined_allocation_model_within_16_gib\":"
+        << (budget.estimatedPeakDomainBytes <= budget.limitBytes
+                ? "true" : "false")
+        << ",\"combined_allocation_model_is_measurement\":false"
+        << ",\"combined_allocation_plus_tangent_cache_within_16_gib\":"
+        << (shippingMemoryCheckedAdd(budget.estimatedPeakDomainBytes,
+                                     tangentCacheBytes) <= budget.limitBytes
+                ? "true" : "false")
+        << ",\"required_private_arenas_admitted\":"
+        << (budget.requiredResidualDescentArenaAdmitted ? "true" : "false")
+        << ",\"within_shipping_admission_model\":"
         << (budget.withinLimit ? "true" : "false")
         << "}";
 }
@@ -250,6 +276,18 @@ void run() {
     const auto boundedUncompacted = estimateScenario(
         starch.referenceNodesM.size(), starch.tetrahedra.size(), cohesiveFaceCount,
         pairCount, boundaryFaceCount, 131072u, false, 15u);
+    const auto sparseKinematicAliased = estimateScenario(
+        starch.referenceNodesM.size(), starch.tetrahedra.size(), cohesiveFaceCount,
+        pairCount, boundaryFaceCount, 131072u, true, 15u,
+        true, false, true, true);
+    const auto sparseKinematicUnaliased = estimateScenario(
+        starch.referenceNodesM.size(), starch.tetrahedra.size(), cohesiveFaceCount,
+        pairCount, boundaryFaceCount, 131072u, true, 15u,
+        true, false, false, false);
+    const auto sparseFreeRigid = estimateScenario(
+        starch.referenceNodesM.size(), starch.tetrahedra.size(), cohesiveFaceCount,
+        pairCount, boundaryFaceCount, 131072u, true, 15u,
+        true, true, true, true);
 
     ShippingMemoryBudgetInput snapshotDimensions;
     snapshotDimensions.nodeCount = starch.referenceNodesM.size();
@@ -278,24 +316,58 @@ void run() {
         sizeof(NMContactSampleGPU) + sizeof(std::uint32_t));
     const std::uint64_t sparsePairMapBytes = shippingMemoryCheckedMultiply(
         pairCount, sizeof(std::uint32_t));
-    const std::uint64_t sparsePrivateBytes = sparsePrivateArenaBytes(
-        sparseCandidateCapacity, pairCount, 1u, false);
+    const auto sparseAdmissionNoFreeRows =
+        numi::matter::detail::admitSparsePrivateContact(
+        1u, static_cast<std::uint32_t>(pairCount),
+        static_cast<std::uint32_t>(sparseCandidateCapacity), false, false);
+    const auto sparseAdmissionFreeRows =
+        numi::matter::detail::admitSparsePrivateContact(
+        1u, static_cast<std::uint32_t>(pairCount),
+        static_cast<std::uint32_t>(sparseCandidateCapacity), false, true);
+    require(sparseAdmissionNoFreeRows.admitted(),
+            "shared runtime sparse admission rejected the no-free-rigid K=65536 case");
+    require(!sparseAdmissionFreeRows.admitted() &&
+            sparseAdmissionFreeRows.error ==
+                numi::matter::detail::SparsePrivateContactAdmissionError::free_rigid_unknowns_unsupported,
+            "shared runtime sparse admission did not reject free rigid unknowns");
+    require(sparseKinematicAliased.requiredFullContactArmijoBytes <
+                sparseKinematicUnaliased.requiredFullContactArmijoBytes &&
+            sparseKinematicAliased.persistentContactBytes ==
+                sparseKinematicUnaliased.persistentContactBytes &&
+            sparseKinematicAliased.cohesiveRuntimeBytes ==
+                sparseKinematicUnaliased.cohesiveRuntimeBytes,
+            "private scratch aliasing changed persistent allocations or failed to reduce private trial memory");
     const std::uint64_t selector2RAPBytes = regionalRAPBytes(
         starch.referenceNodesM.size(), 18u, 1u, false);
     const std::uint64_t selector4RAPBytes = regionalRAPBytes(
         starch.referenceNodesM.size(), 32u, 1u, true);
 
+    const std::uint64_t hostSourceMeshBytes = shippingMemoryCheckedAdd(
+        shippingMemoryCheckedMultiply(starch.referenceNodesM.size(), 256u),
+        shippingMemoryCheckedMultiply(starch.tetrahedra.size(), 512u));
+    const std::uint64_t hostCompiledWorldBytes = shippingMemoryCheckedAdd(
+        shippingMemoryCheckedMultiply(starch.referenceNodesM.size(), 128u),
+        shippingMemoryCheckedMultiply(starch.tetrahedra.size(), 256u));
+    constexpr std::uint64_t hostGeneratedMetalBytes =
+        64ull * 1024ull * 1024ull;
+
     std::cout
         << "{\n"
-        << "  \"schema\": \"numi.cardboard.shipping-allocation-preflight.v2\",\n"
+        << "  \"schema\": \"numi.cardboard.shipping-allocation-preflight.v5\",\n"
+        << "  \"allocation_accounting\": {\"combined_formula\": \"modeled Metal envelope + host mesh/compile allocations + retained checkpoints\", \"shared_upload_and_readback_reserves_counted_once\": true, \"host_subtotal_is_not_an_observed_process_metric\": true, \"observed_runtime_and_host_counters_compared_by_max\": true},\n"
         << "  \"evidence_class\": \"exact CPU-built authored geometry plus allocation formulas read from source; modeled envelope only, not actual Metal peak, solver qualification, or physical qualification\",\n"
+        << "  \"host_reserve_assumptions\": {\"basis\": \"same coarse reserve formulas as estimateShippingPrebuildMemoryBudget in cardboard_shipping_memory.hpp\", \"source_mesh_bytes\": " << hostSourceMeshBytes
+        << ", \"source_mesh_formula\": \"256*nodes + 512*tetrahedra\", \"compiled_world_bytes\": " << hostCompiledWorldBytes
+        << ", \"compiled_world_formula\": \"128*nodes + 256*tetrahedra\", \"generated_metal_bytes\": " << hostGeneratedMetalBytes
+        << ", \"upload_staging_bytes\": " << hostCompiledWorldBytes
+        << ", \"staging_formula\": \"equal to compiled-world reserve\", \"host_reserve_is_measurement\": false, \"capacity_accuracy\": \"coarse explicit planning assumption; actual vector capacities, allocator overhead, generated source/compiler peaks, and host/device peak remain unmeasured\"},\n"
         << "  \"source_anchor\": {\"base_nodes\": " << kShippingReferenceNodes
         << ", \"base_tetrahedra\": " << kShippingReferenceTetrahedra
         << ", \"source032_measured_runtime_resident_bytes\": "
         << kShippingCase032RuntimeResidentBytes
         << ", \"source032_is_full_shipping_world\": false},\n"
         << "  \"design\": {\"inside_m\": [0.3, 0.2, 0.2], \"zero_engineering_score_allowance_used_for_cardinality_only\": true, \"blank_perimeter_m\": 1.025, \"flute_pitch_m\": 0.0079, \"nx_per_pitch\": 8, \"y_intervals\": 48, \"thickness_slices\": 1, \"HMA_strip_width_m\": 0.01, \"HMA_builder_gap_placeholder_m\": 0.0001, \"HMA_gap_is_not_a_material_or_cure_calibration\": true},\n"
-        << "  \"configuration_defaults\": {\"--compact-immutable-surfaces_default\": false, \"--deformable-contact-capacity_default\": \"legacy 8 slots per tetrahedron\", \"recommended_cardinality_screen_requires_compact_flag\": true},\n"
+        << "  \"configuration_defaults\": {\"--compact-immutable-surfaces_default\": false, \"--deformable-contact-capacity_default\": \"legacy 8 slots per tetrahedron\", \"NM_FEM_FULL_CONTACT_REUSE_SELF_SURFACE_SCRATCH_default\": false, \"NM_FEM_FULL_CONTACT_REUSE_COHESIVE_SCRATCH_default\": false, \"recommended_cardinality_screen_requires_compact_flag\": true},\n"
         << "  \"topology\": {\"base_nodes\": " << geometry.blank.points.size()
         << ", \"tetrahedra\": " << starch.tetrahedra.size()
         << ", \"duplicated_glue_nodes\": " << starch.duplicatedGlueNodeCount
@@ -323,17 +395,34 @@ void run() {
         << sparseSampleAndIdBytes
         << ", \"sparse_private_4P_pair_map_bytes\": " << sparsePairMapBytes
         << ", \"sparse_private_K65536_total_bytes_without_parity\": "
-        << sparsePrivateBytes
-        << ", \"sparse_runtime_pair_count_cap\": 65536"
-        << ", \"sparse_candidate_rejected_for_shipping_pair_domain\": "
-        << (pairCount > 65536u ? "true" : "false")
-        << ", \"sparse_candidate_rejected_for_six_rigid_unknowns\": true},\n"
+        << sparseAdmissionNoFreeRows.totalBytes
+        << ", \"sparse_candidate_capacity\": " << sparseCandidateCapacity
+        << ", \"dense_private_pair_limit\": "
+        << numi::matter::detail::kDensePrivateContactPairLimit
+        << ", \"dense_candidate_rejected_for_shipping_pair_domain\": "
+        << (!numi::matter::detail::densePrivateContactPairDomainSupported(
+                static_cast<std::uint32_t>(pairCount)) ? "true" : "false")
+        << ", \"sparse_runtime_helper_admitted_without_free_rigid_rows\": "
+        << (sparseAdmissionNoFreeRows.admitted() ? "true" : "false")
+        << ", \"sparse_runtime_helper_failure_without_free_rigid_rows\": \""
+        << numi::matter::detail::sparsePrivateContactAdmissionErrorText(
+                sparseAdmissionNoFreeRows.error)
+        << "\", \"sparse_runtime_helper_admitted_with_six_free_rigid_rows\": "
+        << (sparseAdmissionFreeRows.admitted() ? "true" : "false")
+        << ", \"sparse_runtime_helper_failure_with_six_free_rigid_rows\": \""
+        << numi::matter::detail::sparsePrivateContactAdmissionErrorText(
+                sparseAdmissionFreeRows.error)
+        << "\"},\n"
         << "  \"current_admission\": {\"node_limit\": 8192, \"nodes_rejected\": "
         << (starch.referenceNodesM.size() > 8192u ? "true" : "false")
         << ", \"tetrahedron_limit\": 32768, \"tetrahedra_rejected\": "
         << (starch.tetrahedra.size() > 32768u ? "true" : "false")
-        << ", \"pair_limit\": 65536, \"pairs_rejected\": "
-        << (pairCount > 65536u ? "true" : "false")
+        << ", \"dense_private_pair_limit\": "
+        << numi::matter::detail::kDensePrivateContactPairLimit
+        << ", \"dense_pairs_rejected\": "
+        << (!numi::matter::detail::densePrivateContactPairDomainSupported(
+                static_cast<std::uint32_t>(pairCount)) ? "true" : "false")
+        << ", \"sparse_pair_count_limit_65536_exists\": false"
         << ", \"cohesive_face_limit\": 4096, \"cohesive_faces_rejected_if_both_laws\": "
         << (cohesiveFaceCount > 4096u ? "true" : "false")
         << ", \"default_deformable_capacity_limit\": 131072, \"default_capacity_rejected\": "
@@ -343,7 +432,6 @@ void run() {
         << ", \"cohesive_full_contact_private_cap_bytes\": 8388608"
         << ", \"rigid_full_contact_private_cap_bytes\": 37748736"
         << ", \"FEM_full_contact_private_cap_bytes\": 134217728"
-        << ", \"explicit_starch_law_currently_disables_deformable_self_contact\": true"
         << ", \"full_contact_admission_requires_deformable_self_contact\": true},\n"
         << "  \"memory_model\": {\n"
         << "    \"state_stride_snapshot_scenarios\": {\"environment_count\": 1, \"deformable_capacity\": 131072, \"contact_pair_count\": " << pairCount
@@ -370,6 +458,18 @@ void run() {
     writeMemoryScenario("capacity_131072_compact_flag_off_stride15",
         boundedUncompacted, snapshotBytes[1], 2u,
         tangentCacheBytes + tangentCacheValidBytes);
+    std::cout << ",\n";
+    writeMemoryScenario("sparse_K65536_no_free_rigid_aliases_on_stride15",
+        sparseKinematicAliased, snapshotBytes[1], 2u,
+        tangentCacheBytes + tangentCacheValidBytes);
+    std::cout << ",\n";
+    writeMemoryScenario("sparse_K65536_no_free_rigid_aliases_off_stride15",
+        sparseKinematicUnaliased, snapshotBytes[1], 2u,
+        tangentCacheBytes + tangentCacheValidBytes);
+    std::cout << ",\n";
+    writeMemoryScenario("sparse_K65536_six_free_rigid_aliases_on_stride15",
+        sparseFreeRigid, snapshotBytes[1], 2u,
+        tangentCacheBytes + tangentCacheValidBytes);
     std::cout
         << "\n    },\n"
         << "    \"regional_preconditioner_selector_estimates\": {"
@@ -386,8 +486,8 @@ void run() {
         << kShippingCase032RuntimeResidentBytes
         << ",\"measurement_scope\":\"earlier base FEM source032 without shipping tools or cohesive faces; not the present full-world model\"\n"
         << "  },\n"
-        << "  \"known_admission_blockers\": [\"node/tet/pair/cohesive bounds exceeded\", \"default 8T deformable contact slots exceed cap; explicit 131072 only clears this one count gate\", \"all three modeled private Armijo arenas exceed their byte caps\", \"selector 2 and selector 4 RAP arenas exceed 256 MiB\", \"sparse private path rejects current P above 65536 before allocation\", \"shipping starch-law object currently disables self-contact while full-contact shipping admission requires it\"],\n"
-        << "  \"limits\": {\"memory_peak_is_model_not_actual_metal_allocation\": true, \"full_contact_surface_scratch_floor_compact_bytes\": 227062928, \"sparse_private_requires_zero_free_rigid_unknowns\": true, \"no_solver_step_or_physical_qualification\": true}\n"
+        << "  \"known_admission_blockers\": [\"node/tet/cohesive count gates remain exceeded for the full shipping topology\", \"default 8T deformable contact slots exceed cap; explicit 131072 only clears this one count gate\", \"dense private contact rejects the current pair domain; sparse K=65536 admits the rigid trial arena only when there are no free rigid unknowns\", \"full-contact FEM and cohesive count/arena gates remain exceeded\", \"selector 2 and selector 4 RAP arenas exceed 256 MiB\"],\n"
+        << "  \"limits\": {\"memory_peak_is_model_not_actual_metal_allocation\": true, \"host_reserve_is_coarse_not_measured\": true, \"scratch_aliases_reduce_private_estimates_only\": true, \"persistent_allocations_and_runtime_count_caps_are_not_reduced_by_aliases\": true, \"sparse_private_requires_zero_free_rigid_unknowns\": true, \"no_solver_step_or_physical_qualification\": true}\n"
         << "}\n";
 }
 

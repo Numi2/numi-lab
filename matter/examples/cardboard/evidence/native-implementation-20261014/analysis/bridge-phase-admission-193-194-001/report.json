@@ -1,0 +1,15 @@
+{
+  "schema": "numi.cardboard.bridge-phase-admission-audit.v1",
+  "bindings": {
+    "/Users/home/cardboard-implementation-20261014/native/retained-failure-free-body-parity-193/receipt.json": "aed2b5ac0ba6afa0aa618a3a10ae1b0dc1033573e462c80f4a39d17f0872d432",
+    "/Users/home/cardboard-implementation-20261014/native/retained-failure-free-body-parity-193/diagnostic-state/dense/fixture-free-body-control-1200.log": "d7e38dd53ee558084ec95a5e256a7bd6b3b3bb12b8f585a19acadc8ef2413198",
+    "/Users/home/cardboard-implementation-20261014/native/retained-failure-free-body-overflow-194/receipt.json": "541177d4d8670c9f424085b5ee21f61af6eeafaeae7b48f61be6dfbc482831b1",
+    "/Users/home/cardboard-implementation-20261014/native/retained-failure-free-body-overflow-194/stderr.log": "a4bf857ceabfbf1239d89d0dd19d0b4eff338bc02f74cbf21ed7cac5edbd038d"
+  },
+  "first_dense_selected_fullcontact_rejection": "request_scoped_features_outside_static_box_armijo_slice",
+  "sparse_engine_encoding_failed": true,
+  "source_contract": "MetalWorldDevicePhysicsPass final contactConstraints/contactStatuses are readable onlypostCommit; adapter previously copiedthem duringpreDynamics. Fullcontact scope rejects request.rigidContactConstraints!=nullptr.",
+  "repair": "Forward borrowedfinal rigidcontact evidence onlyinpostCommit; preserve fullcontact admissions andallphysicaltolerances. Bridgefingerprintrevision changes.",
+  "classification": "Actualfailednativefixtures andsourcecontractdiagnosis; source063freshnativeexecution required. Doesnotqualifyfreebodyparity, overflow, angularcoupling orshipping.",
+  "physical_box_qualification": false
+}

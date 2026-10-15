@@ -1,0 +1,154 @@
+{
+  "binding": {
+    "analysis_script_sha256": "074344ba29f760d523b5a56b39063baca6a56b408936f52329b41f2fb669a8f1",
+    "operator_capture_sha256": "27345f7afc7f752388bc76802657386546195ed8b13694df9b39be43be3a8446",
+    "operator_npz_sha256": {
+      "operator-audit.operator.npz": "4110d08f7be34bf183a1dce479776c418376343382b32d874630df032d9cf3c3",
+      "operator-audit.topology.npz": "fe235f1d5f4198571eecf6559b1cfd6caee2432f70225030ab65231755b31908",
+      "operator-audit.vectors.npz": "d638973474397c7930dec5ac57f9a93d64cdf1645e611ec90ffd0005b9969b7d"
+    },
+    "operator_report": "/Users/home/cardboard-implementation-20261014/analysis/offline-operator-tool-development-058/run-175/operator-audit.json",
+    "operator_report_sha256": "1f1d16626a9c9e5d84f192e500533bb7314edec7e30e4440cc59d16cae84bf69",
+    "prediction_sha256": "e39c5edfaa1ea1da6bec9cf9f029dfe40beabe10c91b272fba140caacaf1999a",
+    "receipt_sha256": "2c485f7e114062203b655f8497fd0bee676d4ffdffb35b3c02beb5696ab02ac4"
+  },
+  "cases": [
+    {
+      "anchor_stride": 8,
+      "independent_fsum_true_relative_residual": 0.8241563409295479,
+      "max_patch_nodes": 16,
+      "patch_count": 121,
+      "patch_factor_bytes_estimate": 6085392,
+      "raw_matmul_probe": {
+        "finite_inputs": true,
+        "finite_output": true,
+        "maximum_absolute_difference": 2.7755575615628914e-17,
+        "output_l2_relative_difference_vs_math_fsum": 1.1313386642633144e-16,
+        "reference_max_absolute_value": 0.13176495180212333,
+        "shape": [
+          2538,
+          16
+        ],
+        "warnings": 3
+      },
+      "relative_residual_difference": 3.930189507173054e-14,
+      "standard_fsum_history_max_abs_difference": 2.2959412149248237e-13,
+      "standard_gmres_status": "diagnostic_not_converged",
+      "standard_runtime_warning_count": 180,
+      "standard_true_relative_residual": 0.8241563409295872,
+      "warning_counts_by_category_message_source": [
+        {
+          "category": "RuntimeWarning",
+          "count": 60,
+          "file": "/Users/home/numi-cardboard-20261006/matter/tools/cardboard_offline_conditioning_study.py",
+          "line": 409,
+          "message": "divide by zero encountered in matmul"
+        },
+        {
+          "category": "RuntimeWarning",
+          "count": 60,
+          "file": "/Users/home/numi-cardboard-20261006/matter/tools/cardboard_offline_conditioning_study.py",
+          "line": 409,
+          "message": "overflow encountered in matmul"
+        },
+        {
+          "category": "RuntimeWarning",
+          "count": 60,
+          "file": "/Users/home/numi-cardboard-20261006/matter/tools/cardboard_offline_conditioning_study.py",
+          "line": 409,
+          "message": "invalid value encountered in matmul"
+        }
+      ]
+    },
+    {
+      "anchor_stride": 16,
+      "independent_fsum_true_relative_residual": 0.7304057045399939,
+      "max_patch_nodes": 32,
+      "patch_count": 55,
+      "patch_factor_bytes_estimate": 12110136,
+      "raw_matmul_probe": {
+        "finite_inputs": true,
+        "finite_output": true,
+        "maximum_absolute_difference": 2.7755575615628914e-17,
+        "output_l2_relative_difference_vs_math_fsum": 1.1313386642633144e-16,
+        "reference_max_absolute_value": 0.13176495180212333,
+        "shape": [
+          2538,
+          16
+        ],
+        "warnings": 3
+      },
+      "relative_residual_difference": 1.3435919044013644e-12,
+      "standard_fsum_history_max_abs_difference": 1.3435919044013644e-12,
+      "standard_gmres_status": "diagnostic_not_converged",
+      "standard_runtime_warning_count": 180,
+      "standard_true_relative_residual": 0.7304057045413375,
+      "warning_counts_by_category_message_source": [
+        {
+          "category": "RuntimeWarning",
+          "count": 60,
+          "file": "/Users/home/numi-cardboard-20261006/matter/tools/cardboard_offline_conditioning_study.py",
+          "line": 409,
+          "message": "divide by zero encountered in matmul"
+        },
+        {
+          "category": "RuntimeWarning",
+          "count": 60,
+          "file": "/Users/home/numi-cardboard-20261006/matter/tools/cardboard_offline_conditioning_study.py",
+          "line": 409,
+          "message": "overflow encountered in matmul"
+        },
+        {
+          "category": "RuntimeWarning",
+          "count": 60,
+          "file": "/Users/home/numi-cardboard-20261006/matter/tools/cardboard_offline_conditioning_study.py",
+          "line": 409,
+          "message": "invalid value encountered in matmul"
+        }
+      ]
+    }
+  ],
+  "classification": "CPU diagnostic only; no native solve or qualification; warning source investigated, never suppressed",
+  "elapsed_seconds": 0.6487264999886975,
+  "findings": {
+    "interpretation": "On this Apple ARM64/NumPy 2.2.5 Accelerate build, even a finite 100x16 all-ones product emits divide-by-zero, overflow, and invalid RuntimeWarnings while returning exact finite 16s. The flags are set by the matmul call itself after the exception flags are cleared. The source175 operations likewise have finite operands/results and match independent scalar math.fsum reductions to roundoff. This identifies a backend warning/FP-flag artifact for these observed products, not a nonfinite result or solver convergence; it does not validate the experimental preconditioner.",
+    "no_warning_suppression": "Warnings remain recorded in this audit and the original exploratory output. No np.errstate or warnings filter change was made.",
+    "warning_location": "cardboard_offline_conditioning_study.py:409, Z[:, :j+1] @ y in the offline GMRES iterate reconstruction"
+  },
+  "known_operand_fenv_probe": {
+    "available": true,
+    "flag_bits_darwin_arm64": {
+      "divide_by_zero": 4,
+      "inexact": 32,
+      "invalid": 1,
+      "overflow": 8,
+      "underflow": 16
+    },
+    "flags_after_matmul_hex": "0x1d",
+    "flags_before_hex": "0x0",
+    "known_finite_inputs": true,
+    "known_finite_output": true,
+    "known_output_exact_16": true,
+    "platform": "macOS-26.6-arm64-arm-64bit",
+    "warning_messages": [
+      "divide by zero encountered in matmul",
+      "overflow encountered in matmul",
+      "invalid value encountered in matmul"
+    ]
+  },
+  "limits": [
+    "GMRES remains exploratory CPU code, not production Matter FGMRES.",
+    "The source capture is a rejected root3/Newton23 state; not an accepted physical solution.",
+    "The fsum comparison covers only the small Z@y accumulation. It does not validate the LAPACK least-squares solve, sparse A, patch factors, or native RAP.",
+    "The fenv flag probe and warning behavior are specific to this Python/NumPy/Accelerate build and should not be generalized to other BLAS backends."
+  ],
+  "runtime": {
+    "numpy": "2.2.5",
+    "numpy_blas_configuration": "Build Dependencies:\n  blas:\n    detection method: system\n    found: true\n    include directory: unknown\n    lib directory: unknown\n    name: accelerate\n    openblas configuration: unknown\n    pc file directory: unknown\n    version: unknown\n  lapack:\n    detection method: system\n    found: true\n    include directory: unknown\n    lib directory: unknown\n    name: accelerate\n    openblas configuration: unknown\n    pc file directory: unknown\n    version: unknown\nCompilers:\n  c:\n    commands: cc\n    linker: ld64\n    name: clang\n    version: 15.0.0\n  c++:\n    commands: c++\n    linker: ld64\n    name: clang\n    version: 15.0.0\n  cython:\n    commands: cython\n    linker: cython\n    name: cython\n    version: 3.0.12\nMachine Information:\n  build:\n    cpu: aarch64\n    endian: little\n    family: aarch64\n    system: darwin\n  host:\n    cpu: aarch64\n    endian: little\n    family: aarch64\n    system: darwin\nPython Information:\n  path: /private/var/folders/qn/7t0vq3ts721cmgt0tgrtgzl80000gn/T/build-env-_hfnqw75/bin/python\n  version: '3.10'\nSIMD Extensions:\n  baseline:\n  - NEON\n  - NEON_FP16\n  - NEON_VFPV4\n  - ASIMD\n  found:\n  - ASIMDHP\n  not found:\n  - ASIMDFHM\n\n",
+    "numpy_show_runtime": "WARNING: `threadpoolctl` not found in system! Install it by `pip install threadpoolctl`. Once installed, try `np.show_runtime` again for more detailed build information\n[{'numpy_version': '2.2.5',\n  'python': '3.10.12 (main, May 15 2025, 18:07:36) [Clang 17.0.0 '\n            '(clang-1700.0.13.3)]',\n  'uname': uname_result(system='Darwin', node='Ts-MacBook-Air.local', release='25.6.0', version='Darwin Kernel Version 25.6.0: Fri May 15 01:56:36 PDT 2026; root:xnu-12377.160.49.0.1~42/RELEASE_ARM64_T8132', machine='arm64')},\n {'simd_extensions': {'baseline': ['NEON', 'NEON_FP16', 'NEON_VFPV4', 'ASIMD'],\n                      'found': ['ASIMDHP'],\n                      'not_found': ['ASIMDFHM']}}]\n",
+    "platform": "macOS-26.6-arm64-arm-64bit",
+    "python": "3.10.12 (main, May 15 2025, 18:07:36) [Clang 17.0.0 (clang-1700.0.13.3)]",
+    "scipy": "1.15.3"
+  },
+  "schema": "numi.cardboard.source175-cpu-matmul-warning-audit.v1"
+}

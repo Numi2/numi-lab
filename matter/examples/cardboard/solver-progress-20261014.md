@@ -1,5 +1,98 @@
 # Native solver progress and unresolved qualification
 
+## Selected Newton capture, reference inputs and checkpoint continuation
+
+Source060 case182 captures the production tangent, P, AP, pivoted RAP,
+node inverses and their candidate/history generation at control 3, Newton 23.
+The canonical FP32-input audit finds assembled action error 1.190e-6, AP
+error 1.026e-7, coarse factor reconstruction error 8.205e-8 and maximum
+node-block inverse identity error 8.073e-7. All 846 free-node blocks are
+valid; all 36 fixed-node blocks are zero and invalid. The combined native
+coarse/block action agrees with an independent exact-block reconstruction
+to 8.55e-8. These checks rule out those assembly/preconditioner mismatches
+for the captured environment and linearization. The complete coupon still
+accepts only three of 27 controls before rejecting control 3.
+
+Strict diagnostic-on/off comparisons 175/181 and 182/183 pass: all 24
+production payloads are byte-identical in each pair, with every observational
+selector removed in the controls. Case176 retained other traces and remains
+rejected as an all-diagnostics-off control, despite matching payloads. The
+physical residual descent and production tolerance are unchanged.
+
+The retrospective environment-0 AP from case175 is mass-only and differs
+from the selected operator by a factor of 119781. Its internally consistent
+LU is inadmissible evidence about the selected Newton preconditioner.
+The fresh case182 factor-barrier sidecar supplies the proper generation.
+Its status descriptor is 48 bytes; a generic offline loader's older 32-byte
+assumption is a separate parser defect, not a failed native capture.
+
+Case178 crosses captured versus reconstructed deformation inputs with source
+versus native FP32 parameter inputs. Captured F/native parameters gives AP
+and stiffness errors 1.215e-7 and 2.919e-7. Captured F/source parameters gives
+5.310e-6 and 1.276e-5; reconstructed F/native parameters gives .0012654 and
+.0030354. This separates deformation reconstruction effects from parameter
+rounding. It does not establish a production kinematics defect.
+
+Case177 traverses all centers but emits invalid JSON for every paper-center
+record; its raw output is preserved and cannot support residual-row claims.
+Source060 repairs nesting and validates every emitted JSONL line and coverage.
+Case184 then exposes another diagnostic defect: decimal native FP32 matrix
+values were promoted directly to FP64 without first recovering their original
+FP32 words. At environment 0, tet 1291, row 10, this creates a 1.015e-4
+reference residual artifact. Independent CPU replay reproduces every raw
+result; recovering the FP32 words reduces the maximum accurate residual
+comparison difference across 2880 centers to 8.38e-11. Source061 fixes this
+reader and records its arithmetic policy. Its targeted native replay191 passes.
+Native-vs-FP64 accuracy comparisons from cases169 and184 that used the old
+reader are superseded; their failures and raw outputs remain preserved.
+Branch/domain transitions and near-zero derivative comparisons still require
+separate one-sided checks and measured absolute noise floors.
+
+Case179's ordinary bond activation reaches the 64-column/16-Newton work
+ceiling at residual 1.644e-7 against the unchanged 1e-7 certificate. The
+existing extended 256-column/32-Newton/restart-16 budget in186 accepts
+activation, then exposes a checkpoint restore defect: activation changes the
+latched mortar area by one FP32 ULP, while restore compares it with authored
+area. Source060 admits the dynamic frame only for an authored dormant mixed
+mortar face that has activated, and validates it against the stored activation
+triangle and orthonormal frame. Authored identity, law, maps and controls
+remain immutable. Cases187/188 pass this restore, then encounter a checker
+that compares rotated world inverse inertia with the unrotated body tensor.
+Source061 corrects that check to R I_body^-1 R^T. Cases189/190 pass the earlier
+restore barriers; the subsequent full-contact measurement still rejects and
+does not qualify free-body parity or overflow handling. Dense corruption
+controls reject bad normal, area, mapping and law restores transactionally.
+
+Source062 retains the previously discarded failed engine trace and rolled-back
+Matter snapshot. Cases193/194 reveal that the shipping adapter forwards final
+rigid-contact buffers during preDynamics, violating their postCommit-only
+borrowing contract. Source063 corrects the adapter phase and updates its
+execution fingerprint; it does not broaden the solver admission scope. Its
+fresh cases195/196 now enter full-contact residual descent, then every trial
+rejects with invalid-dispatch marker -5 at the fixed-orientation swept-path
+gate. The accepted activation has a small real rotation; fixed-orientation
+CCD cannot certify its subsequent path. This remains an angular CCD/operator
+implementation gap. Neither parity nor the intended overflow is qualified.
+
+Offline source175 graph-Schwarz experiments retain the captured A and b.
+With restart 16 and a 1024-application ceiling, 64/128-node patches leave true
+relative residuals 3.01e-4/8.83e-6; 256-node patches reach 9.56e-9 in 383
+applications. Refactoring and solving those local patches in FP32 reaches
+8.57e-9 in 411 applications in an outer FP64 experiment. Warning-free fsum
+trajectories, memberships, finite factors/pivots and preliminary failures are
+retained. These CPU conditioning experiments support a bounded native
+preconditioner trial; they are not native Matter or physical convergence.
+
+Sources061–063 each build all 53 selected targets and pass 61 CPU checks.
+Source063 native197 passes its selected material-center checks; native198
+retains its legacy centered-difference nonpass while the independent implicit
+tangent agrees by full-vector norm to 3.924e-5. The replay stress field labeled
+Pa now converts the independent MPa reference to Pa; calculation gates were
+already in Pa. This diagnostic unit correction does not change production. No
+complete coupon mesh/time/slower-loading series, matched damage/debonding
+calibration, fixture-free shipping-box assembly/checkpoint, qualified peak
+force, gravity crush or impact prediction is qualified by this continuation.
+
 This continues the original `a9d801c` recipe and the published `05fe5430`
 solver repair. Every result below is bound to its own retained source,
 executable and shader snapshot, rather than to the current mutable checkout.
@@ -549,3 +642,34 @@ Native148 passes3,938 assertions and six transactions across the original and al
 Native149 similarly passes3,928 assertions/six transactions for shared self-contact surface geometry scratch. Native150 passes4,197 assertions/six transactions for dense versus bounded sparse private rigid samples (canonical72 pairs,71 private slots); all accepted histories, selected updates and rejected-state certificate/rollback behavior agree. Negative admission151 passes with zero FEM transactions. Both workspace options remain opt-in; node/tet/cohesive count limits, free-rigid scope limits and the shipping memory gate remain intact. Complete coupon152 is a separate run, not a consequence of these bounded passes.
 
 Coupon152 accepts three of27 controls, then rejects control3. The accepted controls take37.954,38.542 and39.362 GPU seconds; the rejected control takes140.266 seconds. This improves prefix runtime compared with135 but does not close a complete loading/withdrawal/release history or any resolution gate. Its accepted geometry, histories, failure receipt and exact source54 identity are retained.
+
+## Source55–56: local work budget and the actual linear failure
+
+The source-paper AP discrepancy146 was in the independent paper oracle: it added the element force derivative where the production residual subtracts it. Correcting that reference sign leaves the physical operator unchanged. Native154 passes six low-strain, rotated and cached comparisons with worst relative assembled error1.436e-7 before a later fixture command fails its authored boundary-tag check. The corrected loaded fixture162 subsequently accepts a nonzero plastic history and passes the assembled1% gate at0.0012602 relative error. Its stiffness-only difference is0.003023, so that result does not close the tighter1e-3 element/material gate. The prior failed reference and fixture outputs remain retained.
+
+The explicitly selected compensated C1 point suite passes in157 and161 with an authored32-iteration local budget. At16 iterations155 fails both first perturbed sides; at24 iterations156 resolves those sides but fails the smaller perturbations. At32 iterations all stress,15-state, full9×9 tangent and branch-aware difference checks pass their unchanged1e-3 gates: worst reported errors are3.605e-6,3.475e-6,2.011e-4 and7.072e-6 respectively. Separate CD-unload instruments158/159 resolve the liner return in20 iterations; the raw local trace has a16-row capacity and is explicitly truncated. These are numerical component results, not damage calibration, held-out validation or a complete physical coupon.
+
+Rich capture153 now retains the actual current control22/Newton3 failure. Its53 production files match diagnostics-off142 bytewise. The independent FP64 replay has no failed paper return maps, but projected state differs by up to0.008746 and stress by0.006910. Of1,440 nonzero derivative directions,1,435 meet two adjacent smooth1e-6 differences; five remain unresolved. The held environment has zero directions. These incomplete and noise-floor-limited comparisons remain inconclusive where appropriate.
+
+Instrumented160 exactly reproduces failed152: all24 corresponding production payloads are byte-identical. At control3/Newton23 the fresh full-operator residual agrees with Arnoldi to2.06e-7 relative across64 restart cycles. Both stagnate near4.407674e-6 N·s, still0.9999986 of the right-hand side, after the1,024-column budget. Every captured local paper return is valid. Armijo exhausts24 trials down to2^-23 without a resolved decrease. This is a measured linear-conditioning/correction-space failure; raising the iteration ceiling or relaxing the certificate is not a demonstrated repair. Full coupled solver correctness and all complete mesh/time studies remain open.
+
+Source56's59-test CPU run retains one failed error-message assertion; the underlying replacement mode is correctly rejected and the assertion contract is repaired separately. Native163/164 stop in diagnostic-output setup before any free-body transaction. Replay165 aborts in its independent finite-difference reference after804 centers; it is not a Metal material failure or a completed captured-state comparison. Fresh repairs and native reruns must retain those failures separately.
+
+
+## Source57–58: complete replay and retained setup crashes
+
+Source57 passes all59 selected CPU checks. The analytic captured-center replay169 visits all3,072 tets (2,880 paper,192 elastic-glue entries), with no failed FP64 center return maps or analytic tangent projections. It still returns a nonpass verdict: active-environment material-state/stress differences and the independently evaluated residual at the Metal projected state require a layer audit, while zero-direction entries are inconclusive. Completing the replay instrument does not qualify the captured projection or the full operator. Replay165's earlier abort after804 centers remains separately retained.
+
+Native sparse free-body reruns167/168 abort with SIGABRT during MetalWorld transaction setup. Their receipts, empty stderr and macOS crash reports are retained; neither provides an accepted free-body transaction or overflow rollback qualification. The crash stack reaches Metal command-encoder destruction during transaction submission. It is being repaired without disabling Metal validation or changing physical acceptance.
+
+C1 coupon166 was deliberately stopped after two of27 accepted controls to repair redundant tangent-cache rebuilding in the statically encoded completed-Newton tail. Its644-second receipt, accepted prefix and explicit stop reason are retained; it is neither a complete coupon nor a convergence result. Source58's cache guard retains the existing nonlinear-convergence latch through completed restarts, rebuilds unconditionally at Newton iteration zero and provides an explicit forced-rebuild control. Native parity, final certificates and intentional-rejection rollback must pass before treating the optimization as qualified.
+
+Native170 repeats the loaded assembled AP comparison but does not improve its0.003023 stiffness-only discrepancy. Subsequent inspection finds its checker helper overwrote the requested scalar-initializer policy. Source58 moves policy authoring to the caller and reports the effective flags; native170 remains bound to its original source and effective policy. No element gate is relaxed.
+
+Source58 passes all59 selected CPU checks. Native171 compares guarded completed-Newton cache reuse with forced cache rebuilds and retains bitwise-identical node, field, material, topology and certificate histories at initialization, plastic loading and unloading. Both modes also restore the same histories and invalidate publication after the intentional late rejection. Its maximum direct/cache unloaded element-force difference is1.952e-7. This bounded fixture supports the cache optimization; the complete coupon remains a separate test.
+
+Native172/173 now return clean setup failures instead of the earlier Metal encoder abort. The activation request itself lies outside the private full-contact Armijo slice. The next checker revision uses a normal accepted activation transaction, captures the complete accepted Matter and scene-body state, then restores that state into the dense and sparse comparison runtimes. These failures do not qualify sparse free-body contact or overflow rollback.
+
+Native174 respects and reports the requested scalar-initializer policy. The primary reconstructed-F/source-parameter comparison remains0.0012602 for assembled AP and0.003023 for stiffness alone. A separate FP64 comparison at the exact captured local F high/low words and native FP32 parameter values gives1.215e-7 and2.920e-7 respectively. This supports the tangent/action at those exact inputs; the crossed deformation/parameter comparisons are still needed to locate the earlier input discrepancy. Neither the primary failed tighter gate nor the prior outputs are replaced.
+
+The replay169 layer audit also identifies diagnostic limitations: its residual comparison mixed distinct norm/scaling conventions, and its representation estimate was not a measured Metal noise floor. A32-state host packing versus13-state Metal offset mismatch was found and repaired in the new, unexecuted residual-row diagnostic; archived source57 predates that row kernel and uses13 accepted values. That new-instrument bug does not invalidate169's independent stress/state/tangent comparisons. A fresh same-equation replay must retain candidate high/low words and comparable native, compiled-equation FP64 and analytical-source FP64 residual rows before attributing the remaining differences to the production return map.

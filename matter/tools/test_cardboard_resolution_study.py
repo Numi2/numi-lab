@@ -104,6 +104,10 @@ class CardboardResolutionStudyTests(unittest.TestCase):
                       plan["execution"]["source_files"])
         time_cases = [case for case in plan["cases"] if case["kind"] == "temporal"]
         self.assertEqual([case["time_refinement_factor"] for case in time_cases], [2, 4])
+        for case in time_cases:
+            self.assertAlmostEqual(case["relative_residual_tolerance"] / case["dt_s"],
+                                   manifest["solver"]["relative_residual_tolerance"] /
+                                   manifest["solver"]["dt_s"])
         self.assertEqual(plan["cases"][-1]["kind"], "load_rate")
         self.assertFalse((self.root / "study-run-root").exists())
         extra_source.write_text("modified source must invalidate the sealed plan\n")
@@ -120,6 +124,62 @@ class CardboardResolutionStudyTests(unittest.TestCase):
             base_loading_rate = 0.25 / (base["dt_s"] * base["loading"])
             refined_loading_rate = 0.25 / ((base["dt_s"] / factor) * counts["loading"])
             self.assertAlmostEqual(base_loading_rate, refined_loading_rate)
+
+    def test_native_command_preserves_measured_solver_and_projection_policy(self) -> None:
+        baseline = self._release_run("current-policy", nx=8)
+        run = cc._load_run(baseline)
+        run.manifest["tooling"] = {"enabled": False}
+        for role in ("liner", "medium", "glue"):
+            run.manifest["materials"][role + "_path"] = str(self.root / (role + ".nmatter"))
+        solver = run.manifest["solver"]
+        solver.update({"fgmres_preconditioner": "regional_galerkin_block_jacobi",
+                       "fgmres_restart": 16, "line_search_steps": 24,
+                       "fgmres_algorithmic_tangent_cache": True,
+                       "paper_compensated_arithmetic": True,
+                       "safeguarded_paper_hill_initializer": True})
+        run.manifest["paper_projection_residual_scaling"] = {"enabled": True}
+        run.manifest["paper_hill_accurate_projection"] = {"enabled": True}
+        common = study._native_base_arguments(run)
+        for flag in ("--cache-fem-algorithmic-tangent", "--scaled-paper-residuals",
+                     "--compensated-paper-arithmetic", "--accurate-paper-projection",
+                     "--safeguarded-paper-initializer"):
+            self.assertIn(flag, common)
+        for flag, value in (("--fgmres-restart", "16"), ("--line-search-steps", "24"),
+                            ("--fgmres-preconditioner", "regional-galerkin-block")):
+            self.assertEqual(common[common.index(flag) + 1], value)
+        case = {"mesh": [32, 8, 4], "dt_s": .005,
+                "relative_residual_tolerance": 2.5e-7,
+                "phase_steps": {phase: 8 for phase in study.PHASE_ORDER}}
+        argv = study._native_args(case, common, self.root / "output", self.root / "shaders")
+        self.assertEqual(argv.count("--residual-tolerance"), 1)
+        self.assertEqual(float(argv[argv.index("--residual-tolerance") + 1]), 2.5e-7)
+        del solver["safeguarded_paper_hill_initializer"]
+        with self.assertRaisesRegex(study.StudyError, "explicit arithmetic/initializer"):
+            study._native_base_arguments(run)
+
+    def test_source15_command_preserves_the_effective_compiled_policy(self) -> None:
+        run = cc._load_run(self._release_run("source15-policy", nx=8))
+        run.manifest["tooling"] = {"enabled": False}
+        for role in ("liner", "medium", "glue"):
+            run.manifest["materials"][role + "_path"] = str(self.root / (role + ".nmatter"))
+        run.manifest["solver"].update({"fgmres_preconditioner": "scalar_diagonal",
+                                      "paper_compensated_arithmetic": True,
+                                      "safeguarded_paper_hill_initializer": False})
+        run.manifest["compensated_source_paper_projection"] = {
+            "enabled": True, "source_material_indices": [0, 1],
+            "source_map_sha256": run.manifest["materials"]["regional_map_sha256"],
+            "compiled_world_fingerprint": run.manifest["compiled_world_fingerprint"],
+            "effective_compiled_flags": {
+                role + suffix: value for role in ("liner", "medium")
+                for suffix, value in (("_flags", 0x50),
+                                      ("_generic_compensated_implicit_projection", True),
+                                      ("_compensated_paper_arithmetic", True))}}
+        args = study._native_base_arguments(run)
+        self.assertIn("--compensated-source-paper-projection", args)
+        self.assertIn("--compensated-paper-arithmetic", args)
+        run.manifest["compensated_source_paper_projection"]["effective_compiled_flags"]["liner_flags"] = 0
+        with self.assertRaisesRegex(study.StudyError, "compiled liner"):
+            study._native_base_arguments(run)
 
     def test_admitted_pair_has_force_work_springback_and_force_residual_observables(self) -> None:
         coarse = self._release_run("coarse", nx=2)

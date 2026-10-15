@@ -1,0 +1,48 @@
+{
+  "schema": "numi.cardboard.c1-material-point-milestone.v1",
+  "native_case": "/Users/home/cardboard-implementation-20261014/native/authored-32-iteration-c1-material-point-157",
+  "source_build": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-055/source-build.json",
+  "material_local_iteration_budget": 32,
+  "global_tolerances_changed": false,
+  "physical_steps": 0,
+  "physical_validation": false,
+  "scope": "production Metal generic material projection, complete nine-column implicit tangent, branch-aware finite differences, and accepted point-history loading/unloading for the analogue C1 grade",
+  "exact_recipe_calibration": false,
+  "heldout_specimen_validation": false,
+  "rows_by_quantity": {
+    "diagnostic": 138,
+    "first_piola": 20,
+    "state": 2,
+    "complete_9x9_algorithmic_tangent": 12,
+    "all_15_states": 18,
+    "branch_aware_centered_fd": 9
+  },
+  "worst_errors": {
+    "first_piola.relative_error": 3.604117757e-06,
+    "complete_9x9_algorithmic_tangent.worst_relative_error": 0.0002010245661,
+    "all_15_states.relative_error": 3.474759742e-06,
+    "branch_aware_centered_fd.metal_tangent_relative_error": 7.071439675e-06
+  },
+  "native_fd_failed_sides": [],
+  "source55_cpu_checks": "58/59 pass; shipping memory boundary fixture contract failed, repaired in subsequent source56 fixture without changing runtime caps",
+  "files": {
+    "stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stdout.log": {
+      "bytes": 43738,
+      "sha256": "754e5575b0a9f958f2a439779b69a6d46e599398c4ed438cfabc89cb9143d4aa"
+    },
+    "prediction.json": {
+      "bytes": 96719,
+      "sha256": "03fbf55ed7a6fecd9d28e63b43e43bdb03191d9d2c3f13bd71461c832a6c7b38"
+    },
+    "receipt.json": {
+      "bytes": 278,
+      "sha256": "a92c958713c45100c44144e9a47a9de53bd073c14388b9d72d0743b8821bbb5f"
+    }
+  },
+  "native_fd_side_count": 4,
+  "source_build_sha256": "1c821419a497feb4ad6e9a5548e59e8e875d7df8ac954b2965db1f6a828e33cd"
+}

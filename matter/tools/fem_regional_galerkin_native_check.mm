@@ -4,6 +4,7 @@
 #include "metalrobo/engine_types.h"
 #include "numi/matter/matter.hpp"
 #include "cardboard_solver_reference.hpp"
+#include "cardboard_paper_projection_scaling.hpp"
 
 #include <algorithm>
 #include <array>
@@ -210,9 +211,8 @@ WorldSource paperSource(MaterialProgram material,
                         const bool useTangentCache = false) {
     need(material.internalState.size() == 13u,
          "paper regional fixture requires a 13-state source program");
-    material.paperHillScalarInitializer = true;
-    material.paperCompensatedArithmetic = true;
-    material.paperHillAccurateProjection = true;
+    // The caller authors the projection policy before world construction. Do
+    // not replace an explicitly requested initializer in this fixture helper.
     for (Parameter& parameter : material.parameters)
         parameter.identifiable = false;
     WorldSource world = source(material, mode);
@@ -415,10 +415,28 @@ public:
              std::string([[command.error.localizedDescription description] UTF8String]));
         RuntimeStateSnapshot snapshot = runtime_.snapshot();
         need(snapshot.available,"native snapshot failed: "+snapshot.message);
-        need(snapshot.statuses.size()==1u &&
-             snapshot.statuses[0].code==NM_STATUS_SUCCESS,
-             "native FEM status="+(snapshot.statuses.empty()?std::string("missing"):
-                 std::to_string(snapshot.statuses[0].code)));
+        if (snapshot.statuses.size() != 1u ||
+            snapshot.statuses[0].code != NM_STATUS_SUCCESS) {
+            std::string message = "native FEM control_step=" +
+                std::to_string(controlStep) + " status=" +
+                (snapshot.statuses.empty()
+                    ? std::string("missing")
+                    : std::to_string(snapshot.statuses[0].code));
+            if (!snapshot.statuses.empty()) {
+                const auto& status = snapshot.statuses[0];
+                message += " object=" + std::to_string(status.objectIndex) +
+                    " failing_index=" + std::to_string(status.failingIndex) +
+                    " completed_microsteps=" +
+                        std::to_string(status.completedMicrosteps) +
+                    " fgmres_iterations=" +
+                        std::to_string(status.fgmresIterations) +
+                    " diagnostics=[" + std::to_string(status.diagnostics.x) +
+                        "," + std::to_string(status.diagnostics.y) +
+                        "," + std::to_string(status.diagnostics.z) +
+                        "," + std::to_string(status.diagnostics.w) + "]";
+            }
+            throw std::runtime_error(message);
+        }
         need(snapshot.solverCertificates.size()==1u &&
              snapshot.solverCertificates[0].validity.w>0.5f,
              "native solve did not produce an accepted solver certificate");
@@ -721,7 +739,10 @@ std::vector<Vec> fp64PaperAP(const CompiledWorld& world,
                              std::uint32_t* minimumSchedulerExponent = nullptr,
                              std::uint32_t* maximumSchedulerExponent = nullptr,
                              double* minimumOperatorTimestep = nullptr,
-                             double* maximumOperatorTimestep = nullptr) {
+                             double* maximumOperatorTimestep = nullptr,
+                             std::vector<Vec>* tangentOnlyOutput = nullptr,
+                             std::vector<Vec>* massOnlyOutput = nullptr,
+                             const bool useCapturedLocalF = false) {
     using namespace numi_cardboard_solver;
     const std::size_t nodes = world.dispatch.femNodeCount;
     const std::size_t tetrahedra = world.fem.tetrahedra.size();
@@ -750,6 +771,8 @@ std::vector<Vec> fp64PaperAP(const CompiledWorld& world,
              tetrahedra * 3u,
          "paper FP64 AP oracle requires the exact pre-AP exponent and local-F words");
     std::vector<Vec> result(std::size_t(basis.modes) * nodes);
+    std::vector<Vec> tangentOnly(std::size_t(basis.modes) * nodes);
+    std::vector<Vec> massOnly(std::size_t(basis.modes) * nodes);
     for (std::uint32_t mode = 0u; mode < basis.modes; ++mode) {
         std::vector<Vec> accumulated(nodes);
         for (std::size_t tetIndex = 0u; tetIndex < tetrahedra; ++tetIndex) {
@@ -842,8 +865,12 @@ std::vector<Vec> fp64PaperAP(const CompiledWorld& world,
                 need(std::isfinite(accepted[state]),
                      "paper snapshot contains a nonfinite accepted state");
             }
-            const auto projected = project(parameters, f, accepted);
-            Mat dP = directionalTangent(parameters, f, dF,
+            // Keep the end-to-end reconstruction as the primary oracle, and
+            // admit a separate same-center-input comparison for isolating
+            // local constitutive error from kinematic/frame rounding.
+            const Mat& materialF = useCapturedLocalF ? capturedLocalF : f;
+            const auto projected = project(parameters, materialF, accepted);
+            Mat dP = directionalTangent(parameters, materialF, dF,
                                         accepted, projected.state);
             for (double& value : dP) value *= kPascalPerMegapascal;
             if (framed) dP = multiply(dP, transpose(q));
@@ -860,7 +887,11 @@ std::vector<Vec> fp64PaperAP(const CompiledWorld& world,
             for (unsigned localNode = 0u; localNode < 4u; ++localNode)
                 accumulated[ids[localNode]] = add(
                     accumulated[ids[localNode]],
-                    scale(local[localNode], dt * dt));
+                    // tetrahedronForce returns the (negative) internal-force
+                    // derivative assembled by the production element kernel.
+                    // nm_fgmres_gather_nodes forms M*v - dt^2*dF_internal,
+                    // so the oracle action must subtract this element vector.
+                    scale(local[localNode], -dt * dt));
         }
         for (std::size_t node = 0u; node < nodes; ++node) {
             const NMFEMNodeStateGPU& candidate =
@@ -868,13 +899,16 @@ std::vector<Vec> fp64PaperAP(const CompiledWorld& world,
             const float marker = candidate.restAndFixed.w;
             const bool fixedVelocity = marker == 1.0f || marker == 3.0f;
             if (!fixedVelocity) {
-                accumulated[node] = add(accumulated[node], scale(
+                massOnly[std::size_t(mode) * nodes + node] = scale(
                     basis.vectors[std::size_t(mode) * nodes + node],
-                    candidate.positionAndMass.w));
+                    candidate.positionAndMass.w);
             } else {
                 accumulated[node] = {};
+                massOnly[std::size_t(mode) * nodes + node] = {};
             }
-            result[std::size_t(mode) * nodes + node] = accumulated[node];
+            tangentOnly[std::size_t(mode) * nodes + node] = accumulated[node];
+            result[std::size_t(mode) * nodes + node] = add(
+                accumulated[node], massOnly[std::size_t(mode) * nodes + node]);
         }
     }
     if (maximumPositionVsReferenceFInputDifference != nullptr)
@@ -893,6 +927,10 @@ std::vector<Vec> fp64PaperAP(const CompiledWorld& world,
         *minimumOperatorTimestep = minimumOperatorTimestepLocal;
     if (maximumOperatorTimestep != nullptr)
         *maximumOperatorTimestep = maximumOperatorTimestepLocal;
+    if (tangentOnlyOutput != nullptr)
+        *tangentOnlyOutput = std::move(tangentOnly);
+    if (massOnlyOutput != nullptr)
+        *massOnlyOutput = std::move(massOnly);
     return result;
 }
 
@@ -997,6 +1035,17 @@ void emitJSONArray(const char* key,const std::vector<double>& values) {
         if(i)std::cout<<',';
         if(std::isfinite(values[i]))
             std::cout<<std::setprecision(12)<<values[i];
+        else
+            std::cout<<"null";
+    }
+    std::cout<<']';
+}
+void emitJSONExactArray(const char* key,const std::vector<double>& values) {
+    std::cout<<",\""<<key<<"\":[";
+    for(std::size_t i=0;i<values.size();++i){
+        if(i)std::cout<<',';
+        if(std::isfinite(values[i]))
+            std::cout<<std::setprecision(17)<<values[i];
         else
             std::cout<<"null";
     }
@@ -1280,6 +1329,26 @@ void checkPaperRegionalExport(const RunResult& regional,
     const BasisResult expectedP = fp64Basis(world);
     const BasisResult effectiveP =
         projectBasisThroughSnapshotMask(expectedP, snapshot);
+    const std::size_t nodes = world.dispatch.femNodeCount;
+    BasisResult nativeP;
+    nativeP.modes = snapshot.femRegionalGalerkinModeCount;
+    BasisResult nativeEffectiveP;
+    nativeEffectiveP.modes = nativeP.modes;
+    need(snapshot.femRegionalGalerkinBasisP.size() ==
+             std::size_t(nativeP.modes) * nodes &&
+         snapshot.femRegionalGalerkinEffectiveBasisP.size() ==
+             std::size_t(nativeP.modes) * nodes,
+         "native paper AP export has incomplete P/effective-P vectors");
+    nativeP.vectors.resize(std::size_t(nativeP.modes) * nodes);
+    nativeEffectiveP.vectors.resize(std::size_t(nativeP.modes) * nodes);
+    for (std::size_t index = 0u; index < nativeP.vectors.size(); ++index) {
+        const nm_float4 p = snapshot.femRegionalGalerkinBasisP[index];
+        const nm_float4 effective =
+            snapshot.femRegionalGalerkinEffectiveBasisP[index];
+        nativeP.vectors[index] = {p.x, p.y, p.z};
+        nativeEffectiveP.vectors[index] = {
+            effective.x, effective.y, effective.z};
+    }
     double maximumPositionVsReferenceFInputDifference = 0.0;
     double maximumReconstructedVsCapturedLocalFWordDifference = 0.0;
     std::uint32_t referenceDisplacementTetCount = 0u;
@@ -1296,9 +1365,125 @@ void checkPaperRegionalExport(const RunResult& regional,
         &maximumSchedulerExponent,
         &minimumOperatorTimestep,
         &maximumOperatorTimestep);
+    std::vector<Vec> fp64TangentWithNativeBasis;
+    std::vector<Vec> fp64MassWithNativeBasis;
+    const auto fp64APWithNativeBasis = fp64PaperAP(
+        world, snapshot, nativeEffectiveP, parameters,
+        nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
+        &fp64TangentWithNativeBasis, &fp64MassWithNativeBasis);
     const auto expectedAPFlat = flatten(expectedAP);
+    const auto fp64APWithNativeBasisFlat = flatten(fp64APWithNativeBasis);
+    const auto fp64TangentWithNativeBasisFlat =
+        flatten(fp64TangentWithNativeBasis);
+    const auto fp64MassWithNativeBasisFlat =
+        flatten(fp64MassWithNativeBasis);
     const auto nativeAP = flatten(snapshot.femRegionalGalerkinOperatorAP);
     const double apError = relativeError(nativeAP, expectedAPFlat);
+    const double pError = relativeError(flatten(nativeP.vectors),
+                                        flatten(expectedP.vectors));
+    const double effectivePError = relativeError(
+        flatten(nativeEffectiveP.vectors), flatten(effectiveP.vectors));
+
+    // Reproduce the production float32 mass multiply independently. Subtract
+    // it from native AP so a basis mismatch cannot be mistaken for a stiffness
+    // or constitutive-operator mismatch.
+    std::vector<Vec> nativeMassFloat32(nativeEffectiveP.vectors.size());
+    std::vector<Vec> nativeAPWithoutMass(nativeEffectiveP.vectors.size());
+    need(snapshot.femRegionalGalerkinOperatorAP.size() ==
+             nativeEffectiveP.vectors.size(),
+         "native paper AP vector is incomplete");
+    for (std::uint32_t mode = 0u; mode < nativeP.modes; ++mode) {
+        for (std::size_t node = 0u; node < nodes; ++node) {
+            const std::size_t index = std::size_t(mode) * nodes + node;
+            const auto& state =
+                snapshot.femRegionalGalerkinLinearizationNodes.at(node);
+            const bool fixed = state.restAndFixed.w == 1.0f ||
+                               state.restAndFixed.w == 3.0f;
+            const nm_float4 p =
+                snapshot.femRegionalGalerkinEffectiveBasisP[index];
+            const nm_float4 ap =
+                snapshot.femRegionalGalerkinOperatorAP[index];
+            const float mass = fixed ? 0.0f : state.positionAndMass.w;
+            const Vec massTerm{
+                fixed ? 0.0 : double(p.x * mass),
+                fixed ? 0.0 : double(p.y * mass),
+                fixed ? 0.0 : double(p.z * mass)};
+            nativeMassFloat32[index] = massTerm;
+            nativeAPWithoutMass[index] = {
+                double(ap.x) - massTerm[0],
+                double(ap.y) - massTerm[1],
+                double(ap.z) - massTerm[2]};
+        }
+    }
+    const auto nativeMassFlat = flatten(nativeMassFloat32);
+    const auto nativeAPWithoutMassFlat = flatten(nativeAPWithoutMass);
+    const double nativeMassError = relativeError(
+        nativeMassFlat, fp64MassWithNativeBasisFlat);
+    const double nativeStiffnessError = relativeError(
+        nativeAPWithoutMassFlat, fp64TangentWithNativeBasisFlat);
+    need(world.materials.size() == 1u && world.constitutive.size() == 1u &&
+         snapshot.environmentParameters.size() == world.dispatch.parameterCount,
+         "same-center paper reference requires the captured single-environment parameter overlay");
+    MaterialProgram capturedParameterMaterial = world.constitutive.front().material;
+    const std::size_t parameterOffset = world.materials.front().parameterOffset;
+    std::vector<double> capturedParameterValues;
+    for (std::size_t index = 0u;
+         index < capturedParameterMaterial.parameters.size(); ++index) {
+        need(parameterOffset + index < snapshot.environmentParameters.size(),
+             "same-center paper reference parameter overlay is incomplete");
+        const double value = snapshot.environmentParameters[parameterOffset + index];
+        capturedParameterMaterial.parameters[index].defaultValue = value;
+        capturedParameterValues.push_back(value);
+    }
+    const auto capturedParameters = paperParameters(capturedParameterMaterial);
+    std::vector<Vec> capturedCenterTangent;
+    const auto capturedCenterAP = fp64PaperAP(
+        world, snapshot, nativeEffectiveP, capturedParameters,
+        nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
+        &capturedCenterTangent, nullptr, true);
+    const auto capturedCenterAPFlat = flatten(capturedCenterAP);
+    const auto capturedCenterTangentFlat = flatten(capturedCenterTangent);
+    // Cross the two input changes instead of attributing the combined result
+    // to either one. A near-yield return map can amplify a tiny F or parameter
+    // rounding change even when the tangent at each exact input is correct.
+    std::vector<Vec> capturedFSourceParameterTangent;
+    const auto capturedFSourceParameterAP = fp64PaperAP(
+        world, snapshot, nativeEffectiveP, parameters,
+        nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
+        &capturedFSourceParameterTangent, nullptr, true);
+    std::vector<Vec> reconstructedFNativeParameterTangent;
+    const auto reconstructedFNativeParameterAP = fp64PaperAP(
+        world, snapshot, nativeEffectiveP, capturedParameters,
+        nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
+        &reconstructedFNativeParameterTangent, nullptr, false);
+    const auto capturedFSourceParameterAPFlat =
+        flatten(capturedFSourceParameterAP);
+    const auto capturedFSourceParameterTangentFlat =
+        flatten(capturedFSourceParameterTangent);
+    const auto reconstructedFNativeParameterAPFlat =
+        flatten(reconstructedFNativeParameterAP);
+    const auto reconstructedFNativeParameterTangentFlat =
+        flatten(reconstructedFNativeParameterTangent);
+    std::vector<double> perModeNativeAPError(nativeP.modes, 0.0);
+    std::vector<double> perModeStiffnessError(nativeP.modes, 0.0);
+    for (std::uint32_t mode = 0u; mode < nativeP.modes; ++mode) {
+        const std::size_t first = std::size_t(mode) * nodes * 3u;
+        const std::size_t last = first + nodes * 3u;
+        const std::vector<double> nativeMode(nativeAP.begin() + first,
+                                             nativeAP.begin() + last);
+        const std::vector<double> expectedMode(
+            fp64APWithNativeBasisFlat.begin() + first,
+            fp64APWithNativeBasisFlat.begin() + last);
+        const std::vector<double> nativeStiffnessMode(
+            nativeAPWithoutMassFlat.begin() + first,
+            nativeAPWithoutMassFlat.begin() + last);
+        const std::vector<double> expectedStiffnessMode(
+            fp64TangentWithNativeBasisFlat.begin() + first,
+            fp64TangentWithNativeBasisFlat.begin() + last);
+        perModeNativeAPError[mode] = relativeError(nativeMode, expectedMode);
+        perModeStiffnessError[mode] = relativeError(
+            nativeStiffnessMode, expectedStiffnessMode);
+    }
     double maximumPlasticStrainState = 0.0;
     double maximumMultiplierState = 0.0;
     need(snapshot.materialStateStride == 13u,
@@ -1347,8 +1532,95 @@ void checkPaperRegionalExport(const RunResult& regional,
         << ",\"maximum_operator_timestep_seconds\":"
         << maximumOperatorTimestep
         << ",\"native_AP_relative_error\":" << apError
+        << ",\"native_P_relative_error\":" << pError
+        << ",\"native_effective_P_relative_error\":" << effectivePError
+        << ",\"native_AP_vs_FP64_with_native_P_relative_error\":"
+        << relativeError(nativeAP, fp64APWithNativeBasisFlat)
+        << ",\"native_mass_relative_error\":" << nativeMassError
+        << ",\"native_stiffness_after_mass_subtraction_relative_error\":"
+        << nativeStiffnessError
+        << ",\"native_AP_vs_FP64_captured_center_F_relative_error\":"
+        << relativeError(nativeAP, capturedCenterAPFlat)
+        << ",\"native_stiffness_vs_FP64_captured_center_F_relative_error\":"
+        << relativeError(nativeAPWithoutMassFlat, capturedCenterTangentFlat)
+        << ",\"native_AP_vs_FP64_captured_F_source_parameters_relative_error\":"
+        << relativeError(nativeAP, capturedFSourceParameterAPFlat)
+        << ",\"native_stiffness_vs_FP64_captured_F_source_parameters_relative_error\":"
+        << relativeError(nativeAPWithoutMassFlat,
+                         capturedFSourceParameterTangentFlat)
+        << ",\"native_AP_vs_FP64_reconstructed_F_native_parameters_relative_error\":"
+        << relativeError(nativeAP, reconstructedFNativeParameterAPFlat)
+        << ",\"native_stiffness_vs_FP64_reconstructed_F_native_parameters_relative_error\":"
+        << relativeError(nativeAPWithoutMassFlat,
+                         reconstructedFNativeParameterTangentFlat)
+        << ",\"captured_center_F_comparison_scope\":\"exact captured local F high+low and native FP32 parameter overlay; independent FP64 direction/frame/force transformations retained; raw layer comparison does not replace primary gate\""
         << ",\"FP64_oracle\":\"source-parameterized 13-state Haj-Ali ideal-Hill StVK, analytic implicit tangent, F reconstructed from authoritative reference displacement when flagged\""
-        << ",\"AP_includes_consistent_mass_and_element_tangent\":true}\n";
+        << ",\"AP_includes_lumped_nodal_mass_and_element_tangent\":true"
+        << ",\"mass_action\":\"candidate.positionAndMass.w times mode direction, diagonal lumped nodal mass; zeroed for static/temporary-grip velocity rows\""
+        << ",\"stiffness_action\":\"negative objectTimestep squared times tangent force; no diagonal regularization or damping in the production gather operator\"";
+    emitJSONExactArray("native_P", flatten(nativeP.vectors));
+    emitJSONExactArray("fp64_P", flatten(expectedP.vectors));
+    emitJSONExactArray("native_effective_P",
+                       flatten(nativeEffectiveP.vectors));
+    emitJSONExactArray("fp64_effective_P", flatten(effectiveP.vectors));
+    emitJSONExactArray("native_AP", nativeAP);
+    emitJSONExactArray("fp64_AP_expected_basis", expectedAPFlat);
+    emitJSONExactArray("fp64_AP_native_basis", fp64APWithNativeBasisFlat);
+    emitJSONExactArray("native_mass_float32", nativeMassFlat);
+    emitJSONExactArray("native_AP_minus_native_mass",
+                       nativeAPWithoutMassFlat);
+    emitJSONExactArray("fp64_tangent_native_basis",
+                       fp64TangentWithNativeBasisFlat);
+    emitJSONExactArray("fp64_AP_captured_center_F_native_basis",
+                       capturedCenterAPFlat);
+    emitJSONExactArray("fp64_tangent_captured_center_F_native_basis",
+                       capturedCenterTangentFlat);
+    emitJSONExactArray("fp64_AP_captured_F_source_parameters_native_basis",
+                       capturedFSourceParameterAPFlat);
+    emitJSONExactArray("fp64_tangent_captured_F_source_parameters_native_basis",
+                       capturedFSourceParameterTangentFlat);
+    emitJSONExactArray("fp64_AP_reconstructed_F_native_parameters_native_basis",
+                       reconstructedFNativeParameterAPFlat);
+    emitJSONExactArray("fp64_tangent_reconstructed_F_native_parameters_native_basis",
+                       reconstructedFNativeParameterTangentFlat);
+    emitJSONExactArray("captured_native_parameter_values",
+                       capturedParameterValues);
+    emitJSONExactArray("fp64_mass_native_basis",
+                       fp64MassWithNativeBasisFlat);
+    emitJSONExactArray("per_mode_native_AP_relative_error",
+                       perModeNativeAPError);
+    emitJSONExactArray("per_mode_native_stiffness_relative_error",
+                       perModeStiffnessError);
+    std::vector<double> schedulerExponents;
+    schedulerExponents.reserve(
+        snapshot.femRegionalGalerkinLinearizationSchedulerExponent.size());
+    for (const auto exponent :
+         snapshot.femRegionalGalerkinLinearizationSchedulerExponent)
+        schedulerExponents.push_back(double(exponent));
+    std::vector<double> acceptedState(
+        snapshot.femRegionalGalerkinLinearizationMaterialState.begin(),
+        snapshot.femRegionalGalerkinLinearizationMaterialState.end());
+    std::vector<double> highWords;
+    std::vector<double> lowWords;
+    for (const auto value :
+         snapshot.femRegionalGalerkinLinearizationLocalFHigh)
+        highWords.insert(highWords.end(), {double(value.x), double(value.y),
+                                            double(value.z)});
+    for (const auto value :
+         snapshot.femRegionalGalerkinLinearizationLocalFLow)
+        lowWords.insert(lowWords.end(), {double(value.x), double(value.y),
+                                         double(value.z)});
+    emitJSONExactArray("captured_scheduler_exponent", schedulerExponents);
+    emitJSONExactArray("captured_pre_AP_accepted_material_state", acceptedState);
+    emitJSONExactArray("captured_local_F_high", highWords);
+    emitJSONExactArray("captured_local_F_low", lowWords);
+    emitJSONExactArray("captured_linearization_nodes",
+                       flattenLinearization(
+                           snapshot.femRegionalGalerkinLinearizationNodes));
+    std::cout
+        << ",\"AP_components_layout\":\"mode-major, node-major xyz; AP=mass+stiffness; native_mass_float32 uses captured effective-P and captured node mass with float32 products\""
+        << ",\"operator_error_layer\":\"P/effective-P errors distinguish basis construction from operator action; native AP minus reproduced mass is compared against FP64 stiffness using native effective-P\""
+        << "}\n";
     need(std::isfinite(apError) && apError < 5.0e-3,
          "native regional AP differs from independent source-parameterized paper tangent: " +
              std::to_string(apError));
@@ -1360,9 +1632,11 @@ std::vector<nm_float4> singleNodeTarget(
     std::uint32_t nodeIndex,
     float command);
 
-void checkPaperRegionalNative(const MaterialProgram& parsedMaterial) {
+void checkPaperRegionalNative(const MaterialProgram& parsedMaterial,
+                              const bool historyOnly = false) {
     const PaperParameters parameters = paperParameters(parsedMaterial);
     constexpr double lowDisplacementScale = 1.0e-3;
+    if (!historyOnly) {
     const WorldSource regionalSource = paperSource(
         parsedMaterial, FEMPreconditionerMode::regionalGalerkin,
         lowDisplacementScale);
@@ -1424,6 +1698,7 @@ void checkPaperRegionalNative(const MaterialProgram& parsedMaterial) {
                              lowDisplacementScale,
                              "rotated_low_F_regional_cached_tangent");
     checkInvariance(rotatedRegional, rotatedCachedRegional);
+    }
 
     const auto runCompressedHistory = [&](const FEMPreconditionerMode mode,
                                           const bool useTangentCache = false) {
@@ -1434,16 +1709,20 @@ void checkPaperRegionalNative(const MaterialProgram& parsedMaterial) {
         const RunResult initial = compressedRun.run(0u);
         need(initial.snapshot.femNodes.size() == 5u,
              "paper history fixture changed the two-tet node layout");
-        auto target = singleNodeTarget(initial.snapshot, 1u, 3.0f);
+        // Node 1 is an authored fixed node in this two-tet fixture. Move it
+        // with the static-target command (tag 1), rather than attempting to
+        // acquire a temporary grip (tag 3), which is only valid for a free or
+        // already-temporary node.
+        auto target = singleNodeTarget(initial.snapshot, 1u, 1.0f);
         // A 50 um shortening of the MD edge is a manufactured source-history
-        // probe, not a paper specimen loading claim. Hold this accepted grip
-        // for a second transaction so regional AP is built from a nonzero
-        // accepted 13-state history.
+        // probe, not a paper specimen loading claim. Hold the accepted static
+        // target for a second transaction so regional AP is built from a
+        // nonzero accepted 13-state history.
         target[1].x -= 5.0e-5f;
         const RunResult loaded = compressedRun.run(1u, target);
         const RunResult held = compressedRun.run(2u, target);
-        need(held.snapshot.femNodes[1u].restAndFixed.w == 3.0f,
-             "paper history fixture did not retain its accepted temporary grip");
+        need(held.snapshot.femNodes[1u].restAndFixed.w == 1.0f,
+             "paper history fixture did not retain its authored static target");
         double plasticHistory = 0.0;
         for (std::size_t tet = 0u;
              tet < compressedSource.objects.front().tetrahedra.size(); ++tet) {
@@ -1462,6 +1741,16 @@ void checkPaperRegionalNative(const MaterialProgram& parsedMaterial) {
                 : "accepted_history_regional_contact_enriched");
         return std::pair<RunResult, double>{held, plasticHistory};
     };
+    if (historyOnly) {
+        const auto history = runCompressedHistory(
+            FEMPreconditionerMode::regionalGalerkin);
+        std::cout << "PASS focused source-bound paper plastic-history fixture"
+                  << " source_material=" << parsedMaterial.name
+                  << " selector=2 history_transactions=3"
+                  << " max_accepted_plastic_strain=" << history.second
+                  << " physical_validation=false" << '\n';
+        return;
+    }
     const auto regionalHistory = runCompressedHistory(
         FEMPreconditionerMode::regionalGalerkin);
     const auto cachedRegionalHistory = runCompressedHistory(
@@ -1836,17 +2125,53 @@ void checkActiveCohesiveAP(const MaterialProgram& material) {
 int main(int argc,char** argv) {
     @autoreleasepool {
         try {
-            if (argc == 3 && std::string_view(argv[1]) == "--paper-only") {
+            const bool paperOnly = argc >= 3 &&
+                std::string_view(argv[1]) == "--paper-only";
+            bool paperHistoryOnly = false;
+            bool accuratePaper = false;
+            if (paperOnly) {
+                for (int argument = 3; argument < argc; ++argument) {
+                    const std::string_view option(argv[argument]);
+                    if (option == "--plastic-history-only" && !paperHistoryOnly)
+                        paperHistoryOnly = true;
+                    else if (option == "--accurate-paper" && !accuratePaper)
+                        accuratePaper = true;
+                    else throw std::runtime_error("unknown or duplicate paper checker option: " +
+                                                  std::string(option));
+                }
                 const auto paperParsed = parseMatterFile(argv[2]);
                 need(paperParsed.succeeded(),
                      "cannot parse source-bound 13-state paper material");
-                const MaterialProgram& paperMaterial = paperParsed.material;
+                MaterialProgram paperMaterial = paperParsed.material;
                 need(paperMaterial.internalState.size() == 13u,
                      "--paper-only requires the independently referenced 13-state ideal-Hill material");
-                checkPaperRegionalNative(paperMaterial);
+                // Retain the original checker policy unless the explicit
+                // scaled, compensated comparison was selected.
+                paperMaterial.paperHillScalarInitializer = true;
+                paperMaterial.paperCompensatedArithmetic = true;
+                paperMaterial.paperHillAccurateProjection = true;
+                if (accuratePaper) {
+                    paperMaterial.paperHillScalarInitializer = false;
+                    paperMaterial.paperCompensatedArithmetic = true;
+                    paperMaterial.paperHillAccurateProjection = true;
+                    paperMaterial = numi::cardboard::scalePaperProjectionResiduals(
+                        std::move(paperMaterial));
+                }
+                std::cout << "{\"record\":\"native_paper_regional_policy\","
+                             "\"flags_authored_before_compile\":true,"
+                             "\"accurate_scaled_compensated\":"
+                          << (accuratePaper ? "true" : "false")
+                          << ",\"scalar_initializer\":"
+                          << (paperMaterial.paperHillScalarInitializer ? "true" : "false")
+                          << ",\"compensated_arithmetic\":"
+                          << (paperMaterial.paperCompensatedArithmetic ? "true" : "false")
+                          << ",\"accurate_projection\":"
+                          << (paperMaterial.paperHillAccurateProjection ? "true" : "false")
+                          << ",\"global_tolerance_changed\":false}\n";
+                checkPaperRegionalNative(paperMaterial, paperHistoryOnly);
                 return 0;
             }
-            need(argc==2,"usage: fem-regional-galerkin-native-check <starch-material.nmatter> | --paper-only <13-state-paper-material.nmatter>");
+            need(argc==2,"usage: fem-regional-galerkin-native-check <starch-material.nmatter> | --paper-only <13-state-paper-material.nmatter> [--plastic-history-only] [--accurate-paper]");
             const auto parsed=parseMatterFile(argv[1]);
             need(parsed.succeeded(),"cannot parse elastic starch material");
             MaterialProgram material=parsed.material;

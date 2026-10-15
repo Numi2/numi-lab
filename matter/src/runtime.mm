@@ -1,9 +1,11 @@
 #import <Foundation/Foundation.h>
 #import <Metal/Metal.h>
+#import <CommonCrypto/CommonDigest.h>
 
 #include "numi/matter/matter.hpp"
 #include "numi/matter/detail.hpp"
 #include "numi/matter/sparse_private_contact_admission.hpp"
+#include "numi/matter/full_contact_armijo_admission.hpp"
 #include "numi/matter/regional_galerkin_bending_basis.hpp"
 #include "fem_reference_geometry.hpp"
 #include "numi/matter/accepted_state_apply_gpu.h"
@@ -20,6 +22,7 @@
 #include <array>
 #include <atomic>
 #include <bit>
+#include <cerrno>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -30,6 +33,7 @@
 #include <filesystem>
 #include <fcntl.h>
 #include <iomanip>
+#include <initializer_list>
 #include <limits>
 #include <memory>
 #include <mutex>
@@ -107,6 +111,64 @@ SparseArmijoContactOptions sparseArmijoContactOptionsFromEnvironment() noexcept 
     return result;
 }
 
+// Sparse private samples can feed the free-rigid residual only for the
+// already-bounded, non-articulated, six-row BOX case. The transaction encoder
+// performs the authoritative bridge/count/pair checks; this early predicate
+// prevents a sparse request from allocating the free-body path for a different
+// generalized-rigid layout.
+bool sparsePrivateBoundedFreeBoxLayout(const CompiledWorld& world) noexcept {
+    if (world.dispatch.rigidGeneralizedCapacity != 6u ||
+        world.dispatch.rigidQCapacity != 0u ||
+        world.contact.rigidProxies.size() != world.dispatch.rigidProxyCount ||
+        world.contact.rigidProxies.empty())
+        return false;
+    bool hasFreeBody = false;
+    bool hasCapsule = false;
+    bool hasBox = false;
+    std::uint32_t freeBodyIndex = NM_INVALID_INDEX;
+    std::uint32_t freeSceneBodyIndex = NM_INVALID_INDEX;
+    for (const NMRigidProxyGPU& proxy : world.contact.rigidProxies) {
+        if (proxy.adaptiveObjectIndex != NM_INVALID_INDEX) return false;
+        if (proxy.shapeKind == NM_RIGID_CAPSULE) {
+            hasCapsule = true;
+            if (proxy.flags != NM_RIGID_PRESCRIBED_TRANSLATION ||
+                proxy.generalizedFreeBodyIndex != NM_INVALID_INDEX ||
+                proxy.bodyIndex == NM_INVALID_INDEX)
+                return false;
+            continue;
+        }
+        if (proxy.shapeKind != NM_RIGID_BOX) return false;
+        hasBox = true;
+        if (proxy.generalizedFreeBodyIndex != NM_INVALID_INDEX) {
+            if (proxy.flags != NM_RIGID_DYNAMIC ||
+                proxy.generalizedFreeBodyIndex != 0u ||
+                proxy.bodyIndex == NM_INVALID_INDEX ||
+                proxy.sceneBodyIndex == NM_INVALID_INDEX ||
+                proxy.reserved2 != 0u)
+                return false;
+            if (hasFreeBody &&
+                (freeBodyIndex != proxy.bodyIndex ||
+                 freeSceneBodyIndex != proxy.sceneBodyIndex))
+                return false;
+            hasFreeBody = true;
+            freeBodyIndex = proxy.bodyIndex;
+            freeSceneBodyIndex = proxy.sceneBodyIndex;
+            continue;
+        }
+        const bool staticBox = proxy.flags == 0u &&
+            proxy.sceneBodyIndex == NM_INVALID_INDEX;
+        const bool prescribedBox =
+            proxy.flags == NM_RIGID_PRESCRIBED_TRANSLATION &&
+            proxy.bodyIndex != NM_INVALID_INDEX &&
+            proxy.sceneBodyIndex == NM_INVALID_INDEX &&
+            proxy.reserved2 == 0u;
+        if ((!staticBox && !prescribedBox) ||
+            (proxy.flags & NM_RIGID_ARTICULATED) != 0u)
+            return false;
+    }
+    return hasFreeBody && hasCapsule && hasBox;
+}
+
 // Contact primitives retain their all-four-faces-per-tet indexing in the
 // legacy path. The opt-in immutable surface map compacts only the FEM source
 // face domain; grid point primitives, when present, remain appended.
@@ -125,6 +187,118 @@ bool staticFEMSurfaceMapEnabled(
 ) noexcept {
     return (dispatch.flags & NM_MATTER_STATIC_FEM_SURFACE_MAP) != 0u;
 }
+
+// A mixed mortar patch replaces its preflight reference normal/area with the
+// frame latched at accepted activation. Runtime::restore may therefore admit
+// a changed geometry field only when it is self-consistent with that stored
+// activation frame. This does not authorize changes to the authored mapping,
+// node identities, law, or activation controls; those are checked against the
+// immutable layout at the call site.
+bool validLatchedMixedMortarFrame(
+    const NMCohesiveFaceGPU& face
+) noexcept {
+    constexpr double tolerance = 32.0 *
+        static_cast<double>(std::numeric_limits<float>::epsilon());
+    const auto finite4 = [](const nm_float4& value) noexcept {
+        return std::isfinite(value.x) && std::isfinite(value.y) &&
+            std::isfinite(value.z) && std::isfinite(value.w);
+    };
+    const std::array<const nm_float4*, 3> points{
+        &face.activationSideAPosition[0],
+        &face.activationSideAPosition[1],
+        &face.activationSideAPosition[2],
+    };
+    for (const nm_float4* point : points) {
+        if (!finite4(*point) || point->w != 0.0f) return false;
+    }
+    if (!finite4(face.geometry) || !finite4(face.activationTangent1) ||
+        face.activationTangent1.w != 0.0f ||
+        !finite4(face.activationControl) ||
+        !(face.activationControl.x > 0.0f)) return false;
+    for (const nm_float4& gap : face.activationLocalGap) {
+        if (!finite4(gap) || gap.w != 0.0f) return false;
+    }
+
+    const std::array<double, 3> edge0{
+        double(points[1]->x) - points[0]->x,
+        double(points[1]->y) - points[0]->y,
+        double(points[1]->z) - points[0]->z,
+    };
+    const std::array<double, 3> edge1{
+        double(points[2]->x) - points[0]->x,
+        double(points[2]->y) - points[0]->y,
+        double(points[2]->z) - points[0]->z,
+    };
+    const std::array<double, 3> areaVector{
+        edge0[1] * edge1[2] - edge0[2] * edge1[1],
+        edge0[2] * edge1[0] - edge0[0] * edge1[2],
+        edge0[0] * edge1[1] - edge0[1] * edge1[0],
+    };
+    const double twiceArea = std::sqrt(
+        areaVector[0] * areaVector[0] +
+        areaVector[1] * areaVector[1] +
+        areaVector[2] * areaVector[2]);
+    const double edgeLength = std::sqrt(
+        edge0[0] * edge0[0] + edge0[1] * edge0[1] + edge0[2] * edge0[2]);
+    if (!(twiceArea > 1.0e-12) || !(edgeLength > 1.0e-12) ||
+        !std::isfinite(twiceArea) || !std::isfinite(edgeLength)) return false;
+    const std::array<double, 3> expectedNormal{
+        areaVector[0] / twiceArea,
+        areaVector[1] / twiceArea,
+        areaVector[2] / twiceArea,
+    };
+    const std::array<double, 3> expectedTangent{
+        edge0[0] / edgeLength,
+        edge0[1] / edgeLength,
+        edge0[2] / edgeLength,
+    };
+    const std::array<double, 3> normal{
+        face.geometry.x, face.geometry.y, face.geometry.z};
+    const std::array<double, 3> tangent{
+        face.activationTangent1.x,
+        face.activationTangent1.y,
+        face.activationTangent1.z};
+    const auto norm = [](const std::array<double, 3>& value) noexcept {
+        return std::sqrt(value[0] * value[0] + value[1] * value[1] +
+                         value[2] * value[2]);
+    };
+    const auto close = [](const double actual, const double expected) noexcept {
+        constexpr double allowed = 32.0 *
+            static_cast<double>(std::numeric_limits<float>::epsilon());
+        const double scale = std::max({std::abs(actual), std::abs(expected),
+                                       1.0e-30});
+        return std::isfinite(actual) && std::isfinite(expected) &&
+            std::abs(actual - expected) <= allowed * scale;
+    };
+    const auto closeUnit = [](const double actual, const double expected) noexcept {
+        constexpr double allowed = 32.0 *
+            static_cast<double>(std::numeric_limits<float>::epsilon());
+        return std::isfinite(actual) && std::isfinite(expected) &&
+            std::abs(actual - expected) <= allowed;
+    };
+    for (std::size_t axis = 0u; axis < 3u; ++axis) {
+        if (!closeUnit(normal[axis], expectedNormal[axis]) ||
+            !closeUnit(tangent[axis], expectedTangent[axis])) return false;
+    }
+    const double normalLength = norm(normal);
+    const double tangentLength = norm(tangent);
+    const double orthogonality = normal[0] * tangent[0] +
+        normal[1] * tangent[1] + normal[2] * tangent[2];
+    if (!closeUnit(normalLength, 1.0) || !closeUnit(tangentLength, 1.0) ||
+        !closeUnit(orthogonality, 0.0) ||
+        !close(face.geometry.w, 0.5 * twiceArea)) return false;
+
+    double maximumGap = 0.0;
+    for (const nm_float4& gap : face.activationLocalGap) {
+        maximumGap = std::max(maximumGap, std::sqrt(
+            double(gap.x) * gap.x + double(gap.y) * gap.y +
+            double(gap.z) * gap.z));
+    }
+    const double gapTolerance = face.activationControl.x;
+    return std::isfinite(maximumGap) &&
+        maximumGap <= gapTolerance + tolerance * gapTolerance;
+}
+
 
 static_assert(
     NM_MATTER_MAX_HUMAN_ATTACHMENT_POINTS <=
@@ -304,6 +478,7 @@ const char kImageAnchor = 0;
 // after the selected command buffer completes.
 constexpr std::size_t kFEMOperatorFDNodeCaptureSlots = 37u;
 constexpr std::size_t kFEMOperatorFDTetCaptureSlots = 251u;
+constexpr std::size_t kFEMOperatorFDCachedTangentSlots = 22u;
 constexpr std::size_t kFEMOperatorFDTetCenterOffset = 7u;
 constexpr std::size_t kFEMOperatorFDTetSideOffset = 71u;
 constexpr std::size_t kFEMOperatorFDTetSideSlots = 31u;
@@ -571,6 +746,284 @@ constexpr std::size_t kFEMOperatorFDParameterCaptureValuesPerSlot = 4u;
         elementSize,
         std::size_t{16u},
     }));
+}
+
+struct RegionalRAPCaptureArray {
+    std::string name;
+    std::string dtype;
+    std::vector<std::uint64_t> shape;
+    std::uint64_t offset = 0u;
+    std::uint64_t byteCount = 0u;
+    std::uint64_t elementBytes = 0u;
+    std::uint32_t sourceSlot = 0u;
+};
+
+struct RegionalRAPCaptureMetadata {
+    std::uint32_t controlStep = 0u;
+    std::uint32_t solverIteration = 0u;
+    std::uint32_t physicsSubstep = 0u;
+    std::uint32_t microtick = 0u;
+    std::uint32_t microtickCount = 0u;
+    std::uint32_t microGeneration = 0u;
+    std::uint32_t environmentCount = 0u;
+    std::uint32_t nodeCount = 0u;
+    std::uint32_t tetrahedronCount = 0u;
+    std::uint32_t modeCount = 0u;
+    std::uint32_t materialStateStride = 0u;
+    std::uint32_t tangentCacheUsed = 0u;
+    std::uint64_t linearizationGeneration = 0u;
+    std::uint64_t worldFingerprint = 0u;
+    std::uint64_t executionFingerprint = 0u;
+    std::uint64_t deviceRegistryID = 0u;
+    float timestepSeconds = 0.0f;
+    std::string deviceName;
+};
+
+[[nodiscard]] std::string sha256Hex(const void* data, const std::size_t size) {
+    unsigned char digest[CC_SHA256_DIGEST_LENGTH]{};
+    if (size > std::numeric_limits<CC_LONG>::max()) return {};
+    CC_SHA256(data, static_cast<CC_LONG>(size), digest);
+    static constexpr char digits[] = "0123456789abcdef";
+    std::string result;
+    result.resize(CC_SHA256_DIGEST_LENGTH * 2u);
+    for (std::size_t index = 0u; index < CC_SHA256_DIGEST_LENGTH; ++index) {
+        result[2u * index] = digits[digest[index] >> 4u];
+        result[2u * index + 1u] = digits[digest[index] & 0x0fu];
+    }
+    return result;
+}
+
+[[nodiscard]] std::string jsonQuoted(const std::string& value) {
+    std::ostringstream output;
+    output << '"';
+    for (const unsigned char ch : value) {
+        switch (ch) {
+            case '"': output << "\\\""; break;
+            case '\\': output << "\\\\"; break;
+            case '\b': output << "\\b"; break;
+            case '\f': output << "\\f"; break;
+            case '\n': output << "\\n"; break;
+            case '\r': output << "\\r"; break;
+            case '\t': output << "\\t"; break;
+            default:
+                if (ch < 0x20u) {
+                    output << "\\u00" << std::hex << std::setw(2)
+                           << std::setfill('0') << static_cast<unsigned>(ch)
+                           << std::dec << std::setfill(' ');
+                } else {
+                    output << static_cast<char>(ch);
+                }
+        }
+    }
+    output << '"';
+    return output.str();
+}
+
+[[nodiscard]] bool writeAllBytes(
+    const int fd, const void* data, std::size_t byteCount
+) noexcept {
+    const auto* cursor = static_cast<const unsigned char*>(data);
+    while (byteCount != 0u) {
+        const ssize_t written = ::write(fd, cursor, byteCount);
+        if (written < 0) {
+            if (errno == EINTR) continue;
+            return false;
+        }
+        if (written == 0) return false;
+        cursor += written;
+        byteCount -= static_cast<std::size_t>(written);
+    }
+    return true;
+}
+
+[[nodiscard]] std::string hexU64(const std::uint64_t value) {
+    std::ostringstream output;
+    output << std::hex << std::setw(16) << std::setfill('0') << value;
+    return output.str();
+}
+
+void writeRegionalRAPCapture(
+    const void* payload,
+    const std::uint64_t payloadBytes,
+    const std::vector<RegionalRAPCaptureArray>& arrays,
+    const RegionalRAPCaptureMetadata& metadata,
+    const std::string& basePath
+) {
+    const auto* bytes = static_cast<const unsigned char*>(payload);
+    std::string payloadHash = sha256Hex(bytes, static_cast<std::size_t>(payloadBytes));
+    std::ostringstream manifest;
+    manifest << std::setprecision(9)
+        << "{\"schema\":\"numi.matter.regional_rap_capture.v1\","
+        << "\"byte_order\":\"little_endian\","
+        << "\"layout\":\"C-contiguous; environment-major; each array is tightly concatenated with no padding; float32x4 elements store four adjacent little-endian lanes\","
+        << "\"capture_point\":\"after_regional_rap_factor_barrier_before_fgmres_correction\","
+        << "\"source_physics_fingerprint\":"
+        << jsonQuoted(hexU64(metadata.worldFingerprint)) << ','
+        << "\"device_program_fingerprint\":"
+        << jsonQuoted(hexU64(metadata.executionFingerprint)) << ','
+        << "\"root\":" << metadata.controlStep
+        << ",\"iteration\":" << metadata.solverIteration
+        << ",\"environment_count\":" << metadata.environmentCount
+        << ",\"node_count\":" << metadata.nodeCount
+        << ",\"tetrahedron_count\":" << metadata.tetrahedronCount
+        << ",\"mode_count\":" << metadata.modeCount
+        << ",\"material_state_stride\":" << metadata.materialStateStride
+        << ",\"device\":{\"name\":" << jsonQuoted(metadata.deviceName)
+        << ",\"registry_id\":" << metadata.deviceRegistryID << "},"
+        << "\"substep\":" << metadata.physicsSubstep
+        << ",\"microtick\":" << metadata.microtick
+        << ",\"microtick_count\":" << metadata.microtickCount
+        << ",\"linearization_generation\":"
+        << metadata.linearizationGeneration
+        << ",\"linearization_generation_encoding\":\"(micro_generation << 32) | newton_iteration\""
+        << ",\"micro_generation\":" << metadata.microGeneration
+        << ",\"dt_seconds\":" << metadata.timestepSeconds
+        << ",\"operator_generation\":\"candidate state, accepted history, scheduler, deformation words, tangent cache, AP and RAP copied from the same ordered command-buffer generation\","
+        << "\"candidate_linearization_digest_algorithm\":\"SHA-256 over raw little-endian environment slices concatenated in this exact order: candidate_nodes, material_history, scheduler_exponents, deformation_high, deformation_low, then algorithmic_tangent_cache and algorithmic_tangent_cache_valid when tangent_cache_used=true\","
+        << "\"tangent_cache_used\":"
+        << (metadata.tangentCacheUsed != 0u ? "true" : "false") << ','
+        << "\"candidate_linearization_sha256\":[";
+    const auto findArray = [&](const char* name) -> const RegionalRAPCaptureArray* {
+        for (const auto& array : arrays)
+            if (array.name == name) return &array;
+        return nullptr;
+    };
+    const auto* candidateNodes = findArray("candidate_nodes");
+    const auto* materialHistory = findArray("material_history");
+    const auto* scheduler = findArray("scheduler_exponents");
+    const auto* localFHigh = findArray("deformation_high");
+    const auto* localFLow = findArray("deformation_low");
+    const auto* tangentCache = findArray("algorithmic_tangent_cache");
+    const auto* tangentCacheValid =
+        findArray("algorithmic_tangent_cache_valid");
+    const bool identityArraysPresent = candidateNodes != nullptr &&
+        materialHistory != nullptr && scheduler != nullptr &&
+        localFHigh != nullptr && localFLow != nullptr &&
+        (metadata.tangentCacheUsed == 0u ||
+            (tangentCache != nullptr && tangentCacheValid != nullptr));
+    for (std::uint32_t environment = 0u;
+         environment < metadata.environmentCount; ++environment) {
+        if (environment != 0u) manifest << ',';
+        if (!identityArraysPresent) {
+            manifest << "{\"environment\":" << environment
+                     << ",\"identity_status\":\"missing_arrays\"}";
+            continue;
+        }
+        CC_SHA256_CTX context;
+        CC_SHA256_Init(&context);
+        const auto updateEnv = [&](const RegionalRAPCaptureArray* array,
+                                   const std::uint64_t bytesPerEnvironment) {
+            const std::uint64_t offset = array->offset +
+                static_cast<std::uint64_t>(environment) * bytesPerEnvironment;
+            CC_SHA256_Update(&context, bytes + offset,
+                static_cast<CC_LONG>(bytesPerEnvironment));
+        };
+        const std::uint64_t nodeBytes = candidateNodes->byteCount /
+            metadata.environmentCount;
+        const std::uint64_t historyBytes = materialHistory->byteCount /
+            metadata.environmentCount;
+        const std::uint64_t schedulerBytes = scheduler->byteCount /
+            metadata.environmentCount;
+        const std::uint64_t highBytes = localFHigh->byteCount /
+            metadata.environmentCount;
+        const std::uint64_t lowBytes = localFLow->byteCount /
+            metadata.environmentCount;
+        updateEnv(candidateNodes, nodeBytes);
+        updateEnv(materialHistory, historyBytes);
+        updateEnv(scheduler, schedulerBytes);
+        updateEnv(localFHigh, highBytes);
+        updateEnv(localFLow, lowBytes);
+        if (metadata.tangentCacheUsed != 0u) {
+            updateEnv(tangentCache, tangentCache->byteCount /
+                metadata.environmentCount);
+            updateEnv(tangentCacheValid, tangentCacheValid->byteCount /
+                metadata.environmentCount);
+        }
+        unsigned char digest[CC_SHA256_DIGEST_LENGTH]{};
+        CC_SHA256_Final(digest, &context);
+        std::string identityHash;
+        identityHash.resize(CC_SHA256_DIGEST_LENGTH * 2u);
+        static constexpr char digits[] = "0123456789abcdef";
+        for (std::size_t index = 0u; index < CC_SHA256_DIGEST_LENGTH; ++index) {
+            identityHash[2u * index] = digits[digest[index] >> 4u];
+            identityHash[2u * index + 1u] = digits[digest[index] & 0x0fu];
+        }
+        const std::uint64_t nodeOffset = candidateNodes->offset +
+            static_cast<std::uint64_t>(environment) * nodeBytes;
+        manifest << "{\"environment\":" << environment
+            << ",\"sha256\":" << jsonQuoted(identityHash)
+            << ",\"candidate_nodes_sha256\":"
+            << jsonQuoted(sha256Hex(bytes + nodeOffset,
+                                    static_cast<std::size_t>(nodeBytes)))
+            << '}';
+    }
+    manifest << "],\"payload\":{\"file\":"
+        << jsonQuoted(basePath + ".regional.bin")
+        << ",\"byte_count\":" << payloadBytes
+        << ",\"sha256\":" << jsonQuoted(payloadHash)
+        << "},\"arrays\":[";
+    for (std::size_t index = 0u; index < arrays.size(); ++index) {
+        const auto& array = arrays[index];
+        if (index != 0u) manifest << ',';
+        manifest << "{\"name\":" << jsonQuoted(array.name)
+            << ",\"dtype\":" << jsonQuoted(array.dtype)
+            << ",\"shape\":[";
+        for (std::size_t axis = 0u; axis < array.shape.size(); ++axis) {
+            if (axis != 0u) manifest << ',';
+            manifest << array.shape[axis];
+        }
+        manifest << "],\"offset\":" << array.offset
+            << ",\"byte_count\":" << array.byteCount
+            << ",\"element_bytes\":" << array.elementBytes
+            << ",\"sha256\":"
+            << jsonQuoted(sha256Hex(bytes + array.offset,
+                                    static_cast<std::size_t>(array.byteCount)))
+            << '}';
+    }
+    manifest << "]}\n";
+    const std::string manifestText = manifest.str();
+    const std::string binaryPath = basePath + ".regional.bin";
+    const std::string manifestPath = basePath + ".regional.json";
+    int binaryFD = ::open(binaryPath.c_str(),
+        O_WRONLY | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR);
+    if (binaryFD < 0) {
+        std::fprintf(stderr,
+            "fem_regional_rap_capture_error={\"schema\":1,\"root\":%u,\"reason\":\"binary_exclusive_create_failed\",\"errno\":%d}\n",
+            metadata.controlStep, errno);
+        return;
+    }
+    int manifestFD = ::open(manifestPath.c_str(),
+        O_WRONLY | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR);
+    if (manifestFD < 0) {
+        const int savedErrno = errno;
+        ::close(binaryFD);
+        ::unlink(binaryPath.c_str());
+        std::fprintf(stderr,
+            "fem_regional_rap_capture_error={\"schema\":1,\"root\":%u,\"reason\":\"manifest_exclusive_create_failed\",\"errno\":%d}\n",
+            metadata.controlStep, savedErrno);
+        return;
+    }
+    const bool binaryWritten = writeAllBytes(binaryFD, bytes,
+        static_cast<std::size_t>(payloadBytes));
+    const bool manifestWritten = binaryWritten && writeAllBytes(
+        manifestFD, manifestText.data(), manifestText.size());
+    const int binaryClose = ::close(binaryFD);
+    const int manifestClose = ::close(manifestFD);
+    if (!binaryWritten || !manifestWritten || binaryClose != 0 ||
+        manifestClose != 0) {
+        ::unlink(binaryPath.c_str());
+        ::unlink(manifestPath.c_str());
+        std::fprintf(stderr,
+            "fem_regional_rap_capture_error={\"schema\":1,\"root\":%u,\"reason\":\"write_or_close_failed\",\"errno\":%d}\n",
+            metadata.controlStep, errno);
+        return;
+    }
+    std::fprintf(stderr,
+        "fem_regional_rap_capture_complete={\"schema\":1,\"root\":%u,\"iteration\":%u,\"bytes\":%llu,\"arrays\":%lu,\"manifest\":%s}\n",
+        metadata.controlStep, metadata.solverIteration,
+        static_cast<unsigned long long>(payloadBytes),
+        static_cast<unsigned long>(arrays.size()),
+        jsonQuoted(manifestPath).c_str());
 }
 
 class UploadPlan {
@@ -1064,7 +1517,7 @@ struct Runtime::State {
     bool physicalStateDigestEnabled = false;
     bool enableVascularDense45 = false;
     bool femResidualArmijoScratchEnabled = false;
-    bool femArmijoMixedCohesiveOnly = false;
+    bool femArmijoMixedCohesiveSupported = false;
     std::size_t acceptedStateProofResidentByteCount = 0u;
     std::size_t residentBytes = 0u;
     std::uint32_t identificationDistributionCount = 0u;
@@ -1663,6 +2116,7 @@ struct Runtime::State {
     // residual and Armijo paths never read it.
     id<MTLBuffer> femAlgorithmicTangentCache = nil;
     id<MTLBuffer> femAlgorithmicTangentCacheValid = nil;
+    bool forceCompletedTangentCacheRebuild = false;
     // Source-bound, opt-in regional RAP preconditioner. femRegionalBasis is
     // the immutable authored P; femRegionalEffectiveBasis is P projected
     // through each environment's current candidate Dirichlet mask. AP and
@@ -2221,6 +2675,26 @@ RuntimeDiagnostics Runtime::initialize(
         }
         auto candidate = std::make_unique<State>();
         candidate->dispatch = world.dispatch;
+        const char* forceCompletedTangentCacheRebuild = std::getenv(
+            "NM_FEM_FORCE_COMPLETED_TANGENT_CACHE_REBUILD");
+        if (forceCompletedTangentCacheRebuild != nullptr &&
+            std::strcmp(forceCompletedTangentCacheRebuild, "1") != 0) {
+            diagnostics.message =
+                "NM_FEM_FORCE_COMPLETED_TANGENT_CACHE_REBUILD must be exactly 1";
+            return diagnostics;
+        }
+        if (forceCompletedTangentCacheRebuild != nullptr &&
+            world.mixedSolver.executionBudgets.w != 1u) {
+            diagnostics.message =
+                "forced completed tangent-cache rebuild requires the algorithmic tangent cache";
+            return diagnostics;
+        }
+        candidate->forceCompletedTangentCacheRebuild =
+            forceCompletedTangentCacheRebuild != nullptr;
+        if (candidate->forceCompletedTangentCacheRebuild) {
+            std::fprintf(stderr,
+                "matter_tangent_cache_control={\"schema\":1,\"completed_tail_rebuild\":true}\n");
+        }
         const SparseArmijoContactOptions sparseArmijoOptions =
             sparseArmijoContactOptionsFromEnvironment();
         if (sparseArmijoOptions.error != nullptr) {
@@ -2265,7 +2739,8 @@ RuntimeDiagnostics Runtime::initialize(
                 sparseArmijoOptions.capacity,
                 sparseArmijoOptions.parity,
                 world.dispatch.rigidGeneralizedCapacity != 0u ||
-                    world.dispatch.rigidQCapacity != 0u);
+                    world.dispatch.rigidQCapacity != 0u,
+                sparsePrivateBoundedFreeBoxLayout(world));
             if (!sparseAdmission.admitted()) {
                 diagnostics.message =
                     detail::sparsePrivateContactAdmissionErrorText(
@@ -2332,25 +2807,10 @@ RuntimeDiagnostics Runtime::initialize(
             configuration.coupledCandidateCompensatedTranslation;
         candidate->vascularValue = world.vascular;
         candidate->objectLayout = world.objects;
-        bool sawActiveMixedCohesiveFace = false;
-        candidate->femArmijoMixedCohesiveOnly =
-            world.dispatch.cohesiveFaceCount != 0u;
-        for (const NMCohesiveFaceGPU& face : world.fem.cohesiveFaces) {
-            const std::uint32_t flags = face.adjacency.w;
-            if ((flags & NM_TOPOLOGY_ACTIVE) == 0u) continue;
-            if ((flags & (NM_TOPOLOGY_PAIRED_COHESIVE |
-                          NM_TOPOLOGY_COHESIVE_MIXED_MODE)) !=
-                    (NM_TOPOLOGY_PAIRED_COHESIVE |
-                     NM_TOPOLOGY_COHESIVE_MIXED_MODE) ||
-                face.lawIdentity.x != NM_COHESIVE_LAW_MIXED_MODE_BILINEAR) {
-                candidate->femArmijoMixedCohesiveOnly = false;
-                break;
-            }
-            sawActiveMixedCohesiveFace = true;
-        }
-        candidate->femArmijoMixedCohesiveOnly =
-            candidate->femArmijoMixedCohesiveOnly &&
-            sawActiveMixedCohesiveFace;
+        candidate->femArmijoMixedCohesiveSupported =
+            world.dispatch.cohesiveFaceCount != 0u &&
+            detail::fullContactArmijoSupportsCohesiveFaces(
+                world.fem.cohesiveFaces);
         candidate->femAuthoredMassLayout.reserve(world.fem.nodes.size());
         candidate->femAuthoredRestLayout.reserve(world.fem.nodes.size());
         candidate->femMutableMassRestLayout.assign(world.fem.nodes.size(), 0u);
@@ -3074,6 +3534,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fem_operator_fd_compare_inputs",
             "nm_fem_operator_fd_publish_integrity",
             "nm_fem_operator_fd_capture_initialize",
+            "nm_fem_operator_fd_capture_cached_tangent",
             "nm_fem_operator_fd_capture_nodes",
             "nm_fem_operator_fd_capture_tetrahedra",
             "nm_fem_operator_fd_capture_parameters",
@@ -3125,6 +3586,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fgmres_apply_free_rigid",
             "nm_fgmres_apply_primal_rigid_contacts",
             "nm_contact_accumulate_rigid_residual",
+            "nm_contact_accumulate_rigid_residual_sparse",
             "nm_fgmres_add_external_free_body_wrenches",
             "nm_contact_subtract_rigid_inertia_residual",
             "nm_human_equality_factor",
@@ -3219,6 +3681,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_contact_compare_armijo_sparse_samples",
             "nm_contact_certify_post_commit_rigid",
             "nm_contact_compact_active",
+            "nm_contact_compact_active_sparse",
             "nm_contact_checkpoint_histories",
             "nm_contact_commit_histories",
             "nm_contact_rollback_histories",
@@ -4611,13 +5074,22 @@ RuntimeDiagnostics Runtime::initialize(
              operatorFDStatusWords) * sizeof(std::uint32_t);
         const std::size_t operatorFDNodeBytes = operatorFDEnvironments *
             operatorFDNodes * 4u * sizeof(nm_float4);
+        const bool operatorFDCachedTangentCaptureRequested =
+            operatorFDRichCaptureRequested &&
+            world.mixedSolver.executionBudgets.w == 1u;
+        const std::size_t operatorFDCachedTangentCaptureSlots =
+            operatorFDCachedTangentCaptureRequested
+                ? operatorFDEnvironments * operatorFDTetrahedra *
+                    kFEMOperatorFDCachedTangentSlots
+                : 0u;
         const std::size_t operatorFDRichCaptureSlots =
             operatorFDEnvironments * (
                 operatorFDNodes * kFEMOperatorFDNodeCaptureSlots +
                 operatorFDTetrahedra * kFEMOperatorFDTetCaptureSlots +
                 (world.dispatch.parameterCount +
                     kFEMOperatorFDParameterCaptureValuesPerSlot - 1u) /
-                    kFEMOperatorFDParameterCaptureValuesPerSlot);
+                    kFEMOperatorFDParameterCaptureValuesPerSlot) +
+            operatorFDCachedTangentCaptureSlots;
         const std::size_t operatorFDRichCaptureBytes =
             operatorFDRichCaptureRequested
                 ? operatorFDRichCaptureSlots * sizeof(nm_float4) : 0u;
@@ -4770,7 +5242,8 @@ RuntimeDiagnostics Runtime::initialize(
                             candidate->femArmijoSparseContactCapacity,
                             candidate->femArmijoSparseContactParity,
                             world.dispatch.rigidGeneralizedCapacity != 0u ||
-                                world.dispatch.rigidQCapacity != 0u);
+                                world.dispatch.rigidQCapacity != 0u,
+                            sparsePrivateBoundedFreeBoxLayout(world));
                     if (!sparseAdmission.admitted()) {
                         diagnostics.message =
                             detail::sparsePrivateContactAdmissionErrorText(
@@ -8315,8 +8788,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     state.dispatch.rigidQCapacity != 0u ||
                     state.dispatch.fieldBoundaryCount != 0u)
                     return "requires_bounded_mixed_cohesive_without_contact_or_mutation";
-                if (!state.femArmijoMixedCohesiveOnly)
-                    return "requires_active_paired_mixed_mode_faces_only";
+                if (!state.femArmijoMixedCohesiveSupported)
+                    return "requires_authored_paired_mixed_mode_faces_only";
                 if (state.objectLayout.size() != 1u ||
                     state.objectLayout[0].representation != NM_REPRESENTATION_FEM ||
                     (state.objectLayout[0].flags &
@@ -8442,8 +8915,6 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 if (state.femArmijoSparseContactRequested &&
                     (!allowCohesive || !allowDeformableSelfContact))
                     return "sparse_private_contact_is_scoped_to_full_contact_armijo";
-                if (state.femArmijoSparseContactRequested && allowFreeRigidBody)
-                    return "sparse_private_contact_does_not_support_free_rigid_unknowns";
                 if (!state.femResidualArmijoScratchEnabled)
                     return "armijo_scratch_was_not_reserved_at_runtime_creation";
                 if (retainPreparedState || request.enablePreparedState ||
@@ -8525,7 +8996,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         state.femArmijoSparseContactCapacity,
                         state.femArmijoSparseContactParity,
                         state.dispatch.rigidGeneralizedCapacity != 0u ||
-                            state.dispatch.rigidQCapacity != 0u);
+                            state.dispatch.rigidQCapacity != 0u,
+                        allowFreeRigidBody);
                 const bool sparseArenaValid =
                     !state.femArmijoSparseContactRequested ||
                     (sparseAdmission.admitted() &&
@@ -8693,7 +9165,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     return reason;
                 if (state.femArmijoCohesiveFaces == nil ||
                     state.femArmijoCohesiveFaceForces == nil ||
-                    !state.femArmijoMixedCohesiveOnly ||
+                    !state.femArmijoMixedCohesiveSupported ||
                     state.dispatch.cohesiveFaceCount == 0u ||
                     state.dispatch.cohesiveFaceCount > 4096u)
                     return "requires_bounded_mixed_cohesive_trial_arena";
@@ -8727,6 +9199,20 @@ RuntimeDiagnostics Runtime::encodeImpl(
             bool femFreeRigidResidualArmijoEnabled = false;
             bool femFullContactResidualArmijoEnabled = false;
             bool femSparsePrivateContactEnabled = false;
+            // A sparse full-contact request is an opt-in transaction contract.
+            // If its scope is rejected below, the caller must receive the
+            // original diagnostic and the preDynamics transaction must remain
+            // unaccepted. Close the main encoder before returning: Metal
+            // asserts when an active command encoder is destroyed during the
+            // caller's abort path.
+            const auto rejectSparseFullContactRequest = [&]() {
+                if (encoder != nil) {
+                    [encoder endEncoding];
+                    encoder = nil;
+                }
+                ownership->preDynamicsOpen = false;
+                return diagnostics;
+            };
             if (const char* selector =
                     std::getenv("NM_FEM_RESIDUAL_ARMIJO_ROOT")) {
                 const bool everyControlStep = std::strcmp(selector, "all") == 0;
@@ -8845,8 +9331,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     if (state.femArmijoSparseContactRequested) {
                         diagnostics.message =
                             "sparse private contact request has an invalid full-contact Armijo selector";
-                        ownership->preDynamicsOpen = false;
-                        return diagnostics;
+                        return rejectSparseFullContactRequest();
                     }
                     std::fprintf(stderr,
                         "fem_full_contact_residual_armijo_error={\"schema\":1,\"reason\":\"invalid_control_step_selector\"}\n");
@@ -8855,8 +9340,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         if (state.femArmijoSparseContactRequested) {
                             diagnostics.message =
                                 "sparse private contact cannot fall back when another residual Armijo mode owns this transaction";
-                            ownership->preDynamicsOpen = false;
-                            return diagnostics;
+                            return rejectSparseFullContactRequest();
                         }
                         std::fprintf(stderr,
                             "fem_full_contact_residual_armijo_skipped={\"schema\":1,\"root\":%u,\"reason\":\"mutually_exclusive_with_other_residual_armijo_modes\"}\n",
@@ -8867,8 +9351,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             diagnostics.message =
                                 std::string("sparse private contact request rejected: ") +
                                 reason;
-                            ownership->preDynamicsOpen = false;
-                            return diagnostics;
+                            return rejectSparseFullContactRequest();
                         }
                         std::fprintf(stderr,
                             "fem_full_contact_residual_armijo_skipped={\"schema\":1,\"root\":%u,\"reason\":\"%s\"}\n",
@@ -8901,6 +9384,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
             }
             bool femOperatorFDTraceEnabled = false;
             bool femOperatorFDTraceCaptured = false;
+            bool femRegionalRAPTraceCaptured = false;
             std::uint32_t femOperatorFDTraceRoot = 0u;
             std::uint32_t femOperatorFDTraceIteration = 0u;
             float femOperatorFDEpsilonScale = 1.0f;
@@ -8998,8 +9482,42 @@ RuntimeDiagnostics Runtime::encodeImpl(
             }
             bool femTrueResidualEnabled = false;
             bool femTrueResidualRestartEnabled = false;
+            bool femTrueResidualRestartRequested = false;
             bool femTrueResidualNoticeLogged = false;
+            bool femTrueResidualRootSelected = false;
+            bool femTrueResidualNewtonSelectorSpecified = false;
+            bool femTrueResidualNewtonSelectorValid = true;
             std::uint32_t femTrueResidualRoot = 0u;
+            std::uint32_t femTrueResidualNewtonIteration = 0u;
+            if (const char* selector = std::getenv(
+                    "NM_FEM_TRUE_RESIDUAL_NEWTON_SELECTOR")) {
+                femTrueResidualNewtonSelectorSpecified = true;
+                bool decimalOnly = selector[0] != '\0';
+                for (const char* digit = selector; *digit != '\0'; ++digit) {
+                    if (*digit < '0' || *digit > '9') {
+                        decimalOnly = false;
+                        break;
+                    }
+                }
+                char* end = nullptr;
+                const unsigned long parsed = std::strtoul(selector, &end, 10);
+                if (!decimalOnly || end == selector || *end != '\0' ||
+                    parsed > 256ul) {
+                    femTrueResidualNewtonSelectorValid = false;
+                    femTrueResidualNoticeLogged = true;
+                    std::fprintf(stderr,
+                        "fem_true_residual_error={\"schema\":1,\"reason\":\"newton_selector_must_be_decimal_uint_in_[0,256]\"}\n");
+                } else {
+                    femTrueResidualNewtonIteration =
+                        static_cast<std::uint32_t>(parsed);
+                    if (std::getenv("NM_FEM_TRUE_RESIDUAL_ROOT") == nullptr) {
+                        femTrueResidualNewtonSelectorValid = false;
+                        femTrueResidualNoticeLogged = true;
+                        std::fprintf(stderr,
+                            "fem_true_residual_error={\"schema\":1,\"reason\":\"newton_selector_requires_control_step_root\"}\n");
+                    }
+                }
+            }
             if (const char* selector = std::getenv("NM_FEM_TRUE_RESIDUAL_ROOT")) {
                 char* end = nullptr;
                 const unsigned long parsed = std::strtoul(selector, &end, 10);
@@ -9012,7 +9530,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     femTrueResidualRoot = static_cast<std::uint32_t>(parsed);
                     if (femTrueResidualRoot == request.controlStep) {
                         const char* skipReason = nullptr;
-                        if (microtick != 0u)
+                        if (!femTrueResidualNewtonSelectorValid)
+                            skipReason = "invalid_newton_iteration_selector";
+                        else if (microtick != 0u)
                             skipReason = "requires_microtick_zero";
                         else if (state.enableVascularDense45)
                             skipReason = "requires_staged_fgmres";
@@ -9033,16 +9553,18 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             femTrueResidualNoticeLogged = true;
                         } else {
                             femTrueResidualEnabled = true;
+                            femTrueResidualRootSelected = true;
                             if (const char* restartMode = std::getenv(
                                     "NM_FEM_TRUE_RESIDUAL_RESTART")) {
                                 if (std::strcmp(restartMode, "1") == 0) {
-                                    femTrueResidualRestartEnabled = true;
+                                    femTrueResidualRestartRequested = true;
                                 } else if (std::strcmp(restartMode, "0") != 0) {
                                     std::fprintf(stderr,
                                         "fem_true_residual_error={\"schema\":1,\"root\":%u,\"reason\":\"restart_selector_must_be_0_or_1\"}\n",
                                         femTrueResidualRoot);
                                     femTrueResidualNoticeLogged = true;
                                     femTrueResidualEnabled = false;
+                                    femTrueResidualRootSelected = false;
                                 }
                             }
                         }
@@ -9312,16 +9834,30 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     (state.dispatch.parameterCount +
                      kFEMOperatorFDParameterCaptureValuesPerSlot - 1u) /
                     kFEMOperatorFDParameterCaptureValuesPerSlot;
-                const NSUInteger richCaptureSlots = environments * (
+                const NSUInteger richCaptureBaseSlots = environments * (
                     state.dispatch.femNodeCount * kFEMOperatorFDNodeCaptureSlots +
                     state.dispatch.tetrahedronCount *
                         kFEMOperatorFDTetCaptureSlots +
                     parameterCaptureSlotsPerEnvironment);
+                const bool cachedTangentPolicyEnabled =
+                    state.mixedSolverValue.executionBudgets.w == 1u;
+                const bool cachedTangentCaptureAvailable =
+                    state.femOperatorFDRichCaptureEnabled &&
+                    cachedTangentPolicyEnabled &&
+                    state.femAlgorithmicTangentCache != nil &&
+                    state.femAlgorithmicTangentCacheValid != nil;
+                const NSUInteger cachedTangentCaptureSlots =
+                    cachedTangentCaptureAvailable
+                        ? environments * state.dispatch.tetrahedronCount *
+                            kFEMOperatorFDCachedTangentSlots
+                        : 0u;
+                const NSUInteger richCaptureSlots = richCaptureBaseSlots +
+                    cachedTangentCaptureSlots;
                 const NSUInteger richCaptureBytes = state.femOperatorFDRichCaptureEnabled
                     ? richCaptureSlots * sizeof(nm_float4) : 0u;
                 if (state.femOperatorFDRichCaptureEnabled) {
                     dispatchThreads("nm_fem_operator_fd_capture_initialize",
-                        richCaptureSlots, [&] {
+                        richCaptureBaseSlots, [&] {
                         setDispatch();
                         [encoder setBuffer:state.femOperatorFDRichCapture
                                      offset:0u atIndex:1u];
@@ -9338,6 +9874,25 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                          offset:0u atIndex:2u];
                         });
                         [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    }
+                    if (cachedTangentCaptureAvailable) {
+                        dispatchThreads(
+                            "nm_fem_operator_fd_capture_cached_tangent",
+                            environments * state.dispatch.tetrahedronCount,
+                            [&] {
+                            setDispatch();
+                            [encoder setBuffer:
+                                state.femAlgorithmicTangentCache
+                                         offset:0u atIndex:1u];
+                            [encoder setBuffer:
+                                state.femAlgorithmicTangentCacheValid
+                                         offset:0u atIndex:2u];
+                            [encoder setBuffer:
+                                state.femOperatorFDRichCapture
+                                         offset:0u atIndex:3u];
+                        });
+                        [encoder memoryBarrierWithScope:
+                            MTLBarrierScopeBuffers];
                     }
                 }
                 dispatchThreads("nm_fem_operator_fd_initialize",
@@ -9359,11 +9914,16 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     sizeof(NMFEMNodeStateGPU) / sizeof(std::uint32_t);
                 const std::uint32_t captureNodes =
                     state.femOperatorFDRichCaptureEnabled ? 1u : 0u;
+                const NSUInteger cachedTangentGuardWork =
+                    cachedTangentCaptureAvailable
+                        ? environments * state.dispatch.tetrahedronCount : 0u;
                 const NSUInteger snapshotWork = std::max<NSUInteger>(1u,
                     std::max(historyWords,
                         std::max(tetrahedronWords,
                             std::max(statusWords,
-                                captureNodes != 0u ? nodeWords : 0u))));
+                                std::max(
+                                    captureNodes != 0u ? nodeWords : 0u,
+                                    cachedTangentGuardWork)))));
                 dispatchThreads("nm_fem_operator_fd_snapshot_inputs",
                     snapshotWork, [&] {
                     setDispatch();
@@ -9759,6 +10319,19 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                  offset:0u atIndex:9u];
                     [encoder setBytes:&captureNodes length:sizeof(captureNodes)
                               atIndex:10u];
+                    [encoder setBuffer:cachedTangentCaptureAvailable
+                        ? state.femAlgorithmicTangentCache : state.dummy
+                                 offset:0u atIndex:11u];
+                    [encoder setBuffer:cachedTangentCaptureAvailable
+                        ? state.femAlgorithmicTangentCacheValid : state.dummy
+                                 offset:0u atIndex:12u];
+                    [encoder setBuffer:cachedTangentCaptureAvailable
+                        ? state.femOperatorFDRichCapture : state.dummy
+                                 offset:0u atIndex:13u];
+                    const std::uint32_t captureCachedTangent =
+                        cachedTangentCaptureAvailable ? 1u : 0u;
+                    [encoder setBytes:&captureCachedTangent
+                               length:sizeof(captureCachedTangent) atIndex:14u];
                 });
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 dispatchThreads("nm_fem_operator_fd_publish_integrity",
@@ -9848,6 +10421,13 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 const float capturedEpsilon1 = epsilons[1];
                 const auto capturedCaptureBytes = richCaptureBytes;
                 const auto capturedRichCaptureOffset = richCaptureOffset;
+                const auto capturedRichCaptureBaseSlots = richCaptureBaseSlots;
+                const auto capturedCachedTangentCaptureSlots =
+                    kFEMOperatorFDCachedTangentSlots;
+                const bool capturedCachedTangentPolicyEnabled =
+                    cachedTangentPolicyEnabled;
+                const bool capturedCachedTangentCaptureAvailable =
+                    cachedTangentCaptureAvailable;
                 const auto capturedMaterialNames = state.materialNames;
                 const auto capturedMaterialParameterOffsets =
                     state.materialParameterOffsets;
@@ -10041,7 +10621,30 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                     capturedAppendTraceFloat(header,
                                         dtByEnvironment[environment]);
                                 }
-                                header << "],\"materials\":[";
+                                header << "],\"cached_algorithmic_tangent_capture\":{";
+                                header << "\"policy_enabled\":"
+                                       << (capturedCachedTangentPolicyEnabled
+                                            ? "true" : "false")
+                                       << ",\"available\":"
+                                       << (capturedCachedTangentCaptureAvailable
+                                            ? "true" : "false")
+                                       << ",\"snapshot_bitwise_guard_included\":"
+                                       << (capturedCachedTangentCaptureAvailable
+                                            ? "true" : "false")
+                                       << ",\"source\":\"read-only snapshot of the production per-tetrahedron algorithmic tangent cache; no recomputation\""
+                                       << ",\"matrix_layout\":\"row-major 9x9, local material frame\""
+                                       << ",\"derivative_contract\":\"dP_local/dF_local at the captured Newton linearization; basis perturbation also induces delta(Fdot)=delta(F)/dt with fixed dt\""
+                                       << ",\"units\":\"Pa per dimensionless F component\""
+                                       << ",\"validity\":\"one cache-valid bit per environment/tetrahedron; matrix is null when invalid\""
+                                       << ",\"unavailable_reason\":";
+                                if (capturedCachedTangentCaptureAvailable) {
+                                    header << "null";
+                                } else if (!capturedCachedTangentPolicyEnabled) {
+                                    header << "\"production tangent-cache policy disabled\"";
+                                } else {
+                                    header << "\"production cache buffer unavailable at capture\"";
+                                }
+                                header << "},\"materials\":[";
                                 for (std::size_t material = 0u;
                                      material < capturedMaterialNames.size(); ++material) {
                                     if (material != 0u) header << ',';
@@ -10254,6 +10857,46 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                         capturedAppendTraceFloat(line, record[2].z);
                                         line << ",\"topology_generation\":";
                                         capturedAppendTraceFloat(line, record[2].w);
+                                        line << ",\"cached_algorithmic_tangent_local\":";
+                                        if (!capturedCachedTangentCaptureAvailable) {
+                                            line << "null";
+                                        } else {
+                                            const auto* cacheRecord = rich +
+                                                capturedRichCaptureBaseSlots +
+                                                globalTet *
+                                                    capturedCachedTangentCaptureSlots;
+                                            std::uint32_t cacheValid = 0u;
+                                            std::memcpy(&cacheValid,
+                                                &cacheRecord[21u].x,
+                                                sizeof(cacheValid));
+                                            if (cacheValid > 1u) {
+                                                outputOkay = false;
+                                                std::fprintf(stderr,
+                                                    "fem_operator_fd_capture_error={\"schema\":1,\"root\":%u,\"reason\":\"invalid_cached_tangent_validity_word\",\"environment\":%u,\"tet\":%u}\n",
+                                                    capturedRoot, environment, tet);
+                                                break;
+                                            }
+                                            line << "{\"valid\":"
+                                                 << (cacheValid == 1u ? "true" : "false")
+                                                 << ",\"matrix_row_major_local_dP_dF_Pa_per_dimensionless_F\":";
+                                            if (cacheValid == 0u) {
+                                                line << "null}";
+                                            } else {
+                                                line << '[';
+                                                for (std::size_t component = 0u;
+                                                     component < 81u; ++component) {
+                                                    if (component != 0u) line << ',';
+                                                    const nm_float4 packed =
+                                                        cacheRecord[component / 4u];
+                                                    const float values[4] = {
+                                                        packed.x, packed.y,
+                                                        packed.z, packed.w};
+                                                    capturedAppendTraceFloat(line,
+                                                        values[component % 4u]);
+                                                }
+                                                line << "]}";
+                                            }
+                                        }
                                         line << ",\"inverse_rest_rows_per_m\":";
                                         appendMatrix(line, record + 3u);
                                         line << ",\"material_frame_quaternion_xyzw\":";
@@ -10321,7 +10964,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                 }
                                 std::ostringstream integrity;
                                 integrity << "{\"record\":\"integrity\",\"production_inputs_bitwise_unchanged\":"
-                                    << (unchanged == 1u ? "true" : "false") << '}';
+                                    << (unchanged == 1u ? "true" : "false")
+                                    << ",\"cached_tangent_snapshot_bitwise_guard_included\":"
+                                    << (capturedCachedTangentCaptureAvailable
+                                        ? "true" : "false") << '}';
                                 outputOkay = writeLine(integrity.str() + "\n") && outputOkay;
                                 if (std::fclose(output) != 0) outputOkay = false;
                                 if (!outputOkay)
@@ -10340,6 +10986,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
                          << capturedExecutionFingerprint
                          << ",\"contract\":{\"unknown\":\"velocity correction\",\"position_delta\":\"dt*epsilon*delta_v\",\"residual_units\":\"impulse\",\"comparison\":\"A*delta_v versus -(R_plus-R_minus)/(2*epsilon) on free nodes\",\"scope\":\"no-contact explicit FEM\"},\"production_inputs_bitwise_unchanged\":"
                          << (unchanged == 1u ? "true" : "false")
+                         << ",\"cached_tangent_snapshot_available\":"
+                         << (capturedCachedTangentCaptureAvailable
+                            ? "true" : "false")
+                         << ",\"cached_tangent_snapshot_bitwise_guard_included\":"
+                         << (capturedCachedTangentCaptureAvailable
+                            ? "true" : "false")
                          << ",\"environments\":[";
                     for (std::uint32_t environment = 0u;
                          environment < capturedEnvironments; ++environment) {
@@ -12789,6 +13441,15 @@ RuntimeDiagnostics Runtime::encodeImpl(
                  nonlinearIteration < nonlinearIterationBudget;
                  ++nonlinearIteration) {
             micro.solverIteration = nonlinearIteration;
+            femTrueResidualEnabled = femTrueResidualRootSelected &&
+                (!femTrueResidualNewtonSelectorSpecified ||
+                 nonlinearIteration == femTrueResidualNewtonIteration);
+            // Restart replacement is part of the selected diagnostic action,
+            // not a persistent solver mode. Keep ordinary Newton iterations
+            // on the canonical restart residual when a single iteration was
+            // selected for true-residual replacement.
+            femTrueResidualRestartEnabled = femTrueResidualEnabled &&
+                femTrueResidualRestartRequested;
             dispatchThreads("nm_vascular_begin_working_set", vascularTotal, [&] {
                 setDispatch();
                 [encoder setBytes:&state.vascularValue.layout length:sizeof(state.vascularValue.layout) atIndex:1u];
@@ -13257,6 +13918,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     "fem_true_residual_skipped={\"schema\":1,\"root\":%u,\"reason\":\"restart_cycle_cap_64\"}\n",
                     femTrueResidualRoot);
                 femTrueResidualEnabled = false;
+                femTrueResidualRootSelected = false;
                 femTrueResidualRestartEnabled = false;
             }
             if (femTrueResidualEnabled) {
@@ -13289,6 +13951,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
             // accepted material history remain fixed through this linear
             // solve; the cache is rebuilt on the next Newton candidate.
             if (state.mixedSolverValue.executionBudgets.w == 1u) {
+                const std::uint32_t forceCompletedCacheRebuild =
+                    state.forceCompletedTangentCacheRebuild ? 1u : 0u;
                 dispatchThreads("nm_fem_build_algorithmic_tangent_cache",
                     tetrahedronTotal, [&] {
                     setDispatch();
@@ -13312,6 +13976,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.femAlgorithmicTangentCacheValid
                                  offset:0u atIndex:13u];
                     [encoder setBuffer:state.statuses offset:0u atIndex:14u];
+                    [encoder setBuffer:state.fgmresStates offset:0u atIndex:15u];
+                    [encoder setBytes:&forceCompletedCacheRebuild
+                               length:sizeof(forceCompletedCacheRebuild)
+                              atIndex:16u];
                 });
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
             }
@@ -13692,6 +14360,295 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 });
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
             }
+                // Capture the exact preconditioner generation immediately
+                // after RAP factorization. The ordinary RuntimeStateSnapshot
+                // is retrospective and these scratch buffers are reused by
+                // later Newton iterations, so it cannot establish which AP or
+                // factor belonged to a rejected Newton candidate.
+                const char* regionalCapturePathText = std::getenv(
+                    "NM_FEM_OPERATOR_FD_CAPTURE_PATH");
+                if (femOperatorFDTraceEnabled &&
+                    !femRegionalRAPTraceCaptured &&
+                    femOperatorFDTraceRoot == request.controlStep &&
+                    femOperatorFDTraceIteration == nonlinearIteration &&
+                    state.femOperatorFDRichCaptureEnabled &&
+                    regionalCapturePathText != nullptr &&
+                    regionalCapturePathText[0] != '\0') {
+                    femRegionalRAPTraceCaptured = true;
+                    // The RAP capture runs after the selector-scoped build
+                    // block. Read the immutable mode count again in this
+                    // scope rather than referring to its block-local value.
+                    const std::uint32_t captureRegionalModes =
+                        state.femRegionalModeCount;
+                    const std::uint64_t captureCap =
+                        32ull * 1024ull * 1024ull;
+                    const std::uint64_t envCount = environments;
+                    const std::uint64_t nodeCount =
+                        state.dispatch.femNodeCount;
+                    const std::uint64_t tetCount =
+                        state.dispatch.tetrahedronCount;
+                    const std::uint64_t modeCount = captureRegionalModes;
+                    std::uint64_t payloadBytes = 0u;
+                    bool layoutValid = state.femRegionalLinearizationNodes != nil &&
+                        state.femRegionalLinearizationMaterialState != nil &&
+                        state.femRegionalLinearizationSchedulerExponent != nil &&
+                        state.femRegionalLinearizationLocalFHigh != nil &&
+                        state.femRegionalLinearizationLocalFLow != nil &&
+                        state.femRegionalBasis != nil &&
+                        state.femRegionalEffectiveBasis != nil &&
+                        state.femRegionalAP != nil &&
+                        state.femRegionalCoarseMatrix != nil &&
+                        state.femRegionalCoarsePivots != nil &&
+                        state.femRegionalCoarseValid != nil;
+                    std::vector<RegionalRAPCaptureArray> captureArrays;
+                    id<MTLBuffer> captureSources[16] = {};
+                    const auto appendCaptureArray = [&](
+                        const char* name,
+                        const char* dtype,
+                        std::initializer_list<std::uint64_t> shape,
+                        const std::uint64_t elementBytes,
+                        id<MTLBuffer> source) {
+                        if (!layoutValid || source == nil || elementBytes == 0u ||
+                            captureArrays.size() >= 16u) {
+                            layoutValid = false;
+                            return;
+                        }
+                        std::uint64_t count = 1u;
+                        for (const std::uint64_t extent : shape) {
+                            if (extent == 0u ||
+                                count > std::numeric_limits<std::uint64_t>::max() /
+                                    extent) {
+                                layoutValid = false;
+                                return;
+                            }
+                            count *= extent;
+                        }
+                        if (count > std::numeric_limits<std::uint64_t>::max() /
+                                elementBytes) {
+                            layoutValid = false;
+                            return;
+                        }
+                        const std::uint64_t byteCount = count * elementBytes;
+                        if (source.length < byteCount ||
+                            payloadBytes > std::numeric_limits<std::uint64_t>::max() -
+                                byteCount) {
+                            layoutValid = false;
+                            return;
+                        }
+                        RegionalRAPCaptureArray array;
+                        array.name = name;
+                        array.dtype = dtype;
+                        array.shape.assign(shape.begin(), shape.end());
+                        array.offset = payloadBytes;
+                        array.byteCount = byteCount;
+                        array.elementBytes = elementBytes;
+                        array.sourceSlot = static_cast<std::uint32_t>(
+                            captureArrays.size());
+                        captureSources[array.sourceSlot] = source;
+                        captureArrays.push_back(std::move(array));
+                        payloadBytes += byteCount;
+                    };
+                    if (layoutValid) {
+                        appendCaptureArray("P", "<f4x4",
+                            {modeCount, nodeCount}, sizeof(nm_float4),
+                            state.femRegionalBasis);
+                        appendCaptureArray("effective_P", "<f4x4",
+                            {envCount, modeCount, nodeCount},
+                            sizeof(nm_float4), state.femRegionalEffectiveBasis);
+                        appendCaptureArray("AP", "<f4x4",
+                            {envCount, modeCount, nodeCount},
+                            sizeof(nm_float4), state.femRegionalAP);
+                        appendCaptureArray("pivoted_RAP", "<f4",
+                            {envCount, modeCount, modeCount}, sizeof(float),
+                            state.femRegionalCoarseMatrix);
+                        appendCaptureArray("pivots", "<u4",
+                            {envCount, modeCount}, sizeof(std::uint32_t),
+                            state.femRegionalCoarsePivots);
+                        appendCaptureArray("factor_valid", "<u4",
+                            {envCount}, sizeof(std::uint32_t),
+                            state.femRegionalCoarseValid);
+                        if (state.femRegionalNodeBlockInverse != nil) {
+                            appendCaptureArray("node_block_inverse", "<f4x4",
+                                {envCount, nodeCount, 3u}, sizeof(nm_float4),
+                                state.femRegionalNodeBlockInverse);
+                        }
+                        appendCaptureArray("candidate_nodes",
+                            "struct:NMFEMNodeStateGPU", {envCount, nodeCount},
+                            sizeof(NMFEMNodeStateGPU),
+                            state.femRegionalLinearizationNodes);
+                        appendCaptureArray("material_history", "<f4",
+                            {envCount, tetCount,
+                             state.dispatch.materialStateStride}, sizeof(float),
+                            state.femRegionalLinearizationMaterialState);
+                        appendCaptureArray("scheduler_exponents", "<u4",
+                            {envCount, tetCount}, sizeof(std::uint32_t),
+                            state.femRegionalLinearizationSchedulerExponent);
+                        appendCaptureArray("deformation_high", "<f4x4",
+                            {envCount, tetCount, 3u}, sizeof(nm_float4),
+                            state.femRegionalLinearizationLocalFHigh);
+                        appendCaptureArray("deformation_low", "<f4x4",
+                            {envCount, tetCount, 3u}, sizeof(nm_float4),
+                            state.femRegionalLinearizationLocalFLow);
+                        if (state.femAlgorithmicTangentCache != nil &&
+                            state.femAlgorithmicTangentCacheValid != nil) {
+                            appendCaptureArray("algorithmic_tangent_cache",
+                                "<f4", {envCount, tetCount, 81u},
+                                sizeof(float),
+                                state.femAlgorithmicTangentCache);
+                            appendCaptureArray("algorithmic_tangent_cache_valid",
+                                "<u4", {envCount, tetCount},
+                                sizeof(std::uint32_t),
+                                state.femAlgorithmicTangentCacheValid);
+                        }
+                        appendCaptureArray("production_status",
+                            "struct:NMMatterStatusGPU", {envCount},
+                            sizeof(NMMatterStatusGPU), state.statuses);
+                    }
+
+                    // The FD trace allocates its own shared readback later in
+                    // this same command buffer. Bound both snapshots together
+                    // so the selected diagnostics cannot exceed 32 MiB live
+                    // readback storage, even when both captures are enabled.
+                    std::uint64_t fdReadbackUpperBound = 0u;
+                    if (state.femOperatorFDRichCaptureEnabled) {
+                        const std::uint64_t resultBytes = envCount *
+                            10u * sizeof(nm_float4);
+                        constexpr std::uint64_t integrityBytes =
+                            sizeof(std::uint32_t);
+                        const std::uint64_t richBytes =
+                            state.femOperatorFDRichCapture == nil ? 0u :
+                                state.femOperatorFDRichCapture.length;
+                        const std::uint64_t richOffset =
+                            ((resultBytes + integrityBytes +
+                              sizeof(nm_float4) - 1u) /
+                             sizeof(nm_float4)) * sizeof(nm_float4);
+                        const std::uint64_t fdSnapshotBytes = richOffset +
+                            richBytes;
+                        if (fdSnapshotBytes > captureCap) {
+                            layoutValid = false;
+                        } else {
+                            fdReadbackUpperBound = fdSnapshotBytes;
+                        }
+                    }
+                    if (!layoutValid || payloadBytes == 0u ||
+                        payloadBytes > captureCap ||
+                        fdReadbackUpperBound > captureCap - payloadBytes) {
+                        std::fprintf(stderr,
+                            "fem_regional_rap_capture_skipped={\"schema\":1,\"root\":%u,\"iteration\":%u,\"reason\":\"invalid_layout_or_aggregate_32MiB_cap\",\"bytes\":%llu,\"other_readback_upper_bound\":%llu}\n",
+                            femOperatorFDTraceRoot, femOperatorFDTraceIteration,
+                            static_cast<unsigned long long>(payloadBytes),
+                            static_cast<unsigned long long>(fdReadbackUpperBound));
+                    } else {
+                        id<MTLBuffer> snapshot = [state.device
+                            newBufferWithLength:static_cast<NSUInteger>(payloadBytes)
+                            options:MTLResourceStorageModeShared];
+                        if (snapshot == nil ||
+                            snapshot.length < payloadBytes ||
+                            snapshot.length > captureCap) {
+                            std::fprintf(stderr,
+                                "fem_regional_rap_capture_skipped={\"schema\":1,\"root\":%u,\"iteration\":%u,\"reason\":\"bounded_snapshot_allocation_failed\",\"bytes\":%llu}\n",
+                                femOperatorFDTraceRoot,
+                                femOperatorFDTraceIteration,
+                                static_cast<unsigned long long>(payloadBytes));
+                        } else {
+                            [encoder endEncoding];
+                            encoder = nil;
+                            id<MTLBlitCommandEncoder> copy =
+                                [commandBuffer blitCommandEncoder];
+                            if (copy == nil) {
+                                std::fprintf(stderr,
+                                    "fem_regional_rap_capture_skipped={\"schema\":1,\"root\":%u,\"iteration\":%u,\"reason\":\"blit_encoder_unavailable\"}\n",
+                                    femOperatorFDTraceRoot,
+                                    femOperatorFDTraceIteration);
+                            } else {
+                                for (const auto& array : captureArrays) {
+                                    [copy copyFromBuffer:
+                                        captureSources[array.sourceSlot]
+                                        sourceOffset:0u toBuffer:snapshot
+                                        destinationOffset:
+                                            static_cast<NSUInteger>(array.offset)
+                                        size:static_cast<NSUInteger>(array.byteCount)];
+                                }
+                                [copy endEncoding];
+                                RegionalRAPCaptureMetadata metadata;
+                                metadata.controlStep = request.controlStep;
+                                metadata.solverIteration = nonlinearIteration;
+                                metadata.physicsSubstep = request.physicsSubstep;
+                                metadata.microtick = micro.microtick;
+                                metadata.microtickCount = micro.microtickCount;
+                                metadata.microGeneration = micro.reserved;
+                                metadata.linearizationGeneration =
+                                    (static_cast<std::uint64_t>(micro.reserved) << 32u) |
+                                    static_cast<std::uint64_t>(nonlinearIteration);
+                                metadata.environmentCount = state.dispatch.environmentCount;
+                                metadata.nodeCount = state.dispatch.femNodeCount;
+                                metadata.tetrahedronCount =
+                                    static_cast<std::uint32_t>(
+                                        state.dispatch.tetrahedronCount);
+                                metadata.modeCount = captureRegionalModes;
+                                metadata.materialStateStride =
+                                    state.dispatch.materialStateStride;
+                                metadata.tangentCacheUsed =
+                                    state.mixedSolverValue.executionBudgets.w == 1u
+                                        ? 1u : 0u;
+                                metadata.worldFingerprint = state.worldFingerprint;
+                                metadata.executionFingerprint =
+                                    state.executionFingerprint;
+                                metadata.deviceRegistryID =
+                                    static_cast<std::uint64_t>(state.device.registryID);
+                                metadata.timestepSeconds = micro.time.x;
+                                metadata.deviceName = nsString(state.device.name);
+                                const auto capturedArrays = captureArrays;
+                                const auto capturedMetadata = metadata;
+                                const std::string capturedBasePath =
+                                    regionalCapturePathText;
+                                const std::uint64_t capturedPayloadBytes =
+                                    payloadBytes;
+                                [commandBuffer addCompletedHandler:
+                                    ^(id<MTLCommandBuffer> completed) {
+                                    if (completed.status !=
+                                            MTLCommandBufferStatusCompleted) {
+                                        std::fprintf(stderr,
+                                            "fem_regional_rap_capture_error={\"schema\":1,\"root\":%u,\"iteration\":%u,\"reason\":\"command_buffer_failed\",\"command_buffer_status\":%lu}\n",
+                                            capturedMetadata.controlStep,
+                                            capturedMetadata.solverIteration,
+                                            static_cast<unsigned long>(
+                                                completed.status));
+                                        return;
+                                    }
+                                    try {
+                                        writeRegionalRAPCapture(snapshot.contents,
+                                            capturedPayloadBytes, capturedArrays,
+                                            capturedMetadata, capturedBasePath);
+                                    } catch (...) {
+                                        std::fprintf(stderr,
+                                            "fem_regional_rap_capture_error={\"schema\":1,\"root\":%u,\"iteration\":%u,\"reason\":\"capture_writer_exception\"}\n",
+                                            capturedMetadata.controlStep,
+                                            capturedMetadata.solverIteration);
+                                    }
+                                }];
+                                encoder = [commandBuffer computeCommandEncoder];
+                                if (encoder == nil) {
+                                    diagnostics.message =
+                                        "failed to resume Matter after selected RAP readback";
+                                    return diagnostics;
+                                }
+                                [encoder setLabel:
+                                    @"Numi Matter selected regional RAP capture continuation"];
+                            }
+                            if (encoder == nil) {
+                                encoder = [commandBuffer computeCommandEncoder];
+                                if (encoder == nil) {
+                                    diagnostics.message =
+                                        "failed to resume Matter after RAP capture skip";
+                                    return diagnostics;
+                                }
+                                [encoder setLabel:
+                                    @"Numi Matter regional RAP capture skip continuation"];
+                            }
+                        }
+                    }
+                }
             for (std::uint32_t restartCycle = 0u;
                  restartCycle < restartCycleCount;
                  ++restartCycle) {
@@ -15861,24 +16818,62 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     }
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                     if (femFreeRigidResidualArmijoEnabled) {
-                        dispatchGroups32(
-                            "nm_contact_compact_active", environments, [&] {
-                            setDispatch();
-                            [encoder setBytes:&state.contactActiveCapacity
-                                      length:sizeof(state.contactActiveCapacity)
-                                      atIndex:1u];
-                            [encoder setBuffer:armijoContactSamples
-                                         offset:0u atIndex:2u];
-                            [encoder setBuffer:state.femArmijoContactActivePairs
-                                         offset:0u atIndex:3u];
-                            [encoder setBuffer:
-                                state.femArmijoContactActiveSlotsByPair
-                                         offset:0u atIndex:4u];
-                            [encoder setBuffer:state.femArmijoContactActiveCounts
-                                         offset:0u atIndex:5u];
-                            [encoder setBuffer:state.femArmijoStatuses
-                                         offset:0u atIndex:6u];
-                        });
+                        if (femSparsePrivateContactEnabled) {
+                            dispatchGroups32(
+                                "nm_contact_compact_active_sparse",
+                                environments, [&] {
+                                setDispatch();
+                                [encoder setBytes:&sparseCapacity
+                                    length:sizeof(sparseCapacity) atIndex:1u];
+                                [encoder setBytes:&state.contactActiveCapacity
+                                    length:sizeof(state.contactActiveCapacity)
+                                    atIndex:2u];
+                                [encoder setBuffer:
+                                    state.femArmijoSparseContactPairIds
+                                    offset:0u atIndex:3u];
+                                [encoder setBuffer:
+                                    state.femArmijoSparseContactCandidateCounts
+                                    offset:0u atIndex:4u];
+                                [encoder setBuffer:armijoContactSamples
+                                    offset:0u atIndex:5u];
+                                [encoder setBuffer:
+                                    state.femArmijoSparseContactSlotsByPair
+                                    offset:0u atIndex:6u];
+                                [encoder setBuffer:
+                                    state.femArmijoContactActivePairs
+                                    offset:0u atIndex:7u];
+                                [encoder setBuffer:
+                                    state.femArmijoContactActiveSlotsByPair
+                                    offset:0u atIndex:8u];
+                                [encoder setBuffer:
+                                    state.femArmijoContactActiveCounts
+                                    offset:0u atIndex:9u];
+                                [encoder setBuffer:state.femArmijoStatuses
+                                    offset:0u atIndex:10u];
+                            });
+                        } else {
+                            dispatchGroups32(
+                                "nm_contact_compact_active", environments,
+                                [&] {
+                                setDispatch();
+                                [encoder setBytes:&state.contactActiveCapacity
+                                    length:sizeof(state.contactActiveCapacity)
+                                    atIndex:1u];
+                                [encoder setBuffer:armijoContactSamples
+                                    offset:0u atIndex:2u];
+                                [encoder setBuffer:
+                                    state.femArmijoContactActivePairs
+                                    offset:0u atIndex:3u];
+                                [encoder setBuffer:
+                                    state.femArmijoContactActiveSlotsByPair
+                                    offset:0u atIndex:4u];
+                                [encoder setBuffer:
+                                    state.femArmijoContactActiveCounts
+                                    offset:0u atIndex:5u];
+                                [encoder setBuffer:state.femArmijoStatuses
+                                    offset:0u atIndex:6u];
+                            });
+                        }
                         [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                     }
                     if (femSparsePrivateContactEnabled) {
@@ -15952,19 +16947,56 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                          offset:0u atIndex:5u];
                         });
                         [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
-                        dispatchThreads(
-                            "nm_contact_accumulate_rigid_residual",
-                            rigidGeneralizedTotalForResidual, [&] {
-                            setDispatch();
-                            [encoder setBytes:&coupledArticulatedNv
-                                      length:sizeof(coupledArticulatedNv)
-                                      atIndex:1u];
-                            bindArmijoPrimalContactArguments(2u);
-                            [encoder setBuffer:state.femArmijoResidual
-                                         offset:0u atIndex:3u];
-                            [encoder setBuffer:state.coupledPointJacobians
-                                         offset:0u atIndex:4u];
-                        });
+                        if (femSparsePrivateContactEnabled) {
+                            dispatchThreads(
+                                "nm_contact_accumulate_rigid_residual_sparse",
+                                rigidGeneralizedTotalForResidual, [&] {
+                                setDispatch();
+                                [encoder setBytes:&coupledArticulatedNv
+                                    length:sizeof(coupledArticulatedNv)
+                                    atIndex:1u];
+                                [encoder setBytes:&state.contactActiveCapacity
+                                    length:sizeof(state.contactActiveCapacity)
+                                    atIndex:2u];
+                                [encoder setBytes:&sparseCapacity
+                                    length:sizeof(sparseCapacity) atIndex:3u];
+                                [encoder setBuffer:state.contactPairs
+                                    offset:0u atIndex:4u];
+                                [encoder setBuffer:state.rigidProxies
+                                    offset:0u atIndex:5u];
+                                [encoder setBuffer:state.femArmijoRigidStates
+                                    offset:0u atIndex:6u];
+                                [encoder setBuffer:
+                                    state.femArmijoContactActivePairs
+                                    offset:0u atIndex:7u];
+                                [encoder setBuffer:
+                                    state.femArmijoContactActiveCounts
+                                    offset:0u atIndex:8u];
+                                [encoder setBuffer:
+                                    state.femArmijoSparseContactSlotsByPair
+                                    offset:0u atIndex:9u];
+                                [encoder setBuffer:armijoContactSamples
+                                    offset:0u atIndex:10u];
+                                [encoder setBuffer:state.femArmijoResidual
+                                    offset:0u atIndex:11u];
+                                [encoder setBuffer:state.femArmijoStatuses
+                                    offset:0u atIndex:12u];
+                            });
+                        } else {
+                            dispatchThreads(
+                                "nm_contact_accumulate_rigid_residual",
+                                rigidGeneralizedTotalForResidual, [&] {
+                                setDispatch();
+                                [encoder setBytes:&coupledArticulatedNv
+                                    length:sizeof(coupledArticulatedNv)
+                                    atIndex:1u];
+                                bindArmijoPrimalContactArguments(2u);
+                                [encoder setBuffer:state.femArmijoResidual
+                                    offset:0u atIndex:3u];
+                                [encoder setBuffer:state.coupledPointJacobians
+                                    offset:0u atIndex:4u];
+                            });
+                        }
                         if (hasExternalWorldWrenches) {
                             [encoder memoryBarrierWithScope:
                                 MTLBarrierScopeBuffers];
@@ -21303,6 +22335,25 @@ RuntimeDiagnostics Runtime::restore(const RuntimeStateSnapshot& snapshot) {
                     (layout.adjacency.w & NM_TOPOLOGY_COHESIVE_MIXED_MODE) != 0u;
                 const bool valueDormant =
                     (value.adjacency.w & NM_TOPOLOGY_COHESIVE_DORMANT) != 0u;
+                const bool authoredDormantMixedMortar = mixedMode &&
+                    (layout.adjacency.w & NM_TOPOLOGY_PAIRED_COHESIVE) != 0u &&
+                    (layout.adjacency.w & NM_TOPOLOGY_COHESIVE_MORTAR) != 0u &&
+                    (layout.adjacency.w & NM_TOPOLOGY_COHESIVE_DORMANT) != 0u;
+                const bool activatedMortarReference =
+                    authoredDormantMixedMortar && !valueDormant;
+                const bool geometryChanged =
+                    std::memcmp(&value.geometry, &layout.geometry,
+                        sizeof(value.geometry)) != 0;
+                const bool activatedMortarFrameInvalid =
+                    activatedMortarReference &&
+                    !validLatchedMixedMortarFrame(value);
+                const bool dormantLatchChanged = valueDormant &&
+                    (std::memcmp(&value.activationSideAPosition,
+                            &layout.activationSideAPosition,
+                            sizeof(value.activationSideAPosition)) != 0 ||
+                     std::memcmp(&value.activationTangent1,
+                            &layout.activationTangent1,
+                            sizeof(value.activationTangent1)) != 0);
                 bool mixedHistoryInvalid = false;
                 if (mixedMode) {
                     const auto workAt = [](const nm_float4& work,
@@ -21356,6 +22407,7 @@ RuntimeDiagnostics Runtime::restore(const RuntimeStateSnapshot& snapshot) {
                                 local.x != 0.0f || local.y != 0.0f || local.z != 0.0f;
                         }
                     }
+                    mixedHistoryInvalid = mixedHistoryInvalid || dormantLatchChanged;
                 }
                 bool mixedIdentityChanged = false;
                 if (mixedMode) {
@@ -21395,10 +22447,16 @@ RuntimeDiagnostics Runtime::restore(const RuntimeStateSnapshot& snapshot) {
                     (!mixedMode && std::memcmp(&value.adjacency,
                         &layout.adjacency, sizeof(value.adjacency)) != 0) ||
                     mixedIdentityChanged ||
-                    std::memcmp(&value.geometry, &layout.geometry,
-                        sizeof(value.geometry)) != 0 ||
+                    (geometryChanged && !activatedMortarReference) ||
+                    activatedMortarFrameInvalid ||
                     std::memcmp(&value.separatedNodes, &layout.separatedNodes,
                         sizeof(value.separatedNodes)) != 0 ||
+                    std::memcmp(&value.mortarSideAVertexWeights,
+                        &layout.mortarSideAVertexWeights,
+                        sizeof(value.mortarSideAVertexWeights)) != 0 ||
+                    std::memcmp(&value.mortarSideBVertexWeights,
+                        &layout.mortarSideBVertexWeights,
+                        sizeof(value.mortarSideBVertexWeights)) != 0 ||
                     !std::isfinite(value.state.x) || value.state.x < layout.state.x ||
                     value.state.x > (mixedMode ? 1.0f : std::nextafter(1.0f, 0.0f)) ||
                     !std::isfinite(value.state.y) || value.state.y < layout.state.y ||

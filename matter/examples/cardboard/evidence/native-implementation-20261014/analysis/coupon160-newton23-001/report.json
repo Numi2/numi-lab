@@ -1,0 +1,367 @@
+{
+  "binding": {
+    "build_provenance": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-054/source-build.json",
+    "build_success": true,
+    "compiled_world_fingerprint": 10666180035123264720,
+    "execution_fingerprint_hex": "3c8981e012514de9",
+    "liner_asset_sha256": "787bf121f4ce359235e28691892e9d77adffde05faf10f2a90593d9f4b32398d",
+    "medium_asset_sha256": "ecfd9de3f4550a6a269d7a6559781b16e15316cf3d587093f2e11a2e6942a8e8",
+    "metallib_sha256": "89dd021ff5c57985ce15c16e5d3eafbec3534cb3b733e16cd2254bc848722e84",
+    "operator_capture_sha256": "72ee1fc5896aa8111e8f1f87993b867250f7f1ef4245651dc30c954e4d7c63c2",
+    "probe_sha256": "16d3ff0ec3b9a8895750f738f392ea2ca479d79367ec65ef5aa8895bf90b8273",
+    "runtime_dir": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-054",
+    "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-tangent-cache-trial-scratch-and-exact-AP-integrated-054",
+    "stderr_sha256": "f20f6d58c4f5cee633c6591ae245ae4bf2d55668846da80b7fa27d6500cf940b"
+  },
+  "case": "cached-coupon-rejection-linear-and-local-capture-160",
+  "comparison_case": "cached-preconditioner-complete-coupon-cycle-152",
+  "diagnostic_on_off_comparison": {
+    "accepted_bent_steps_0_to_2": [
+      {
+        "certificate_residual": 6.28562702331692e-07,
+        "completed_microsteps": 1,
+        "fgmres_iterations": 128,
+        "max_J": 1.000486975904955,
+        "max_node_displacement_m": 2.6268127911662153e-06,
+        "min_J": 0.999482123386735,
+        "status_code": 0,
+        "step": 0,
+        "step_accepted": 1
+      },
+      {
+        "certificate_residual": 4.485017370825517e-07,
+        "completed_microsteps": 1,
+        "fgmres_iterations": 537,
+        "max_J": 1.0010916686340792,
+        "max_node_displacement_m": 7.078371552631081e-06,
+        "min_J": 0.9983989149837917,
+        "status_code": 0,
+        "step": 1,
+        "step_accepted": 1
+      },
+      {
+        "certificate_residual": 4.860579565502121e-07,
+        "completed_microsteps": 1,
+        "fgmres_iterations": 511,
+        "max_J": 1.0018656900819176,
+        "max_node_displacement_m": 1.2039275051352196e-05,
+        "min_J": 0.9972039003435126,
+        "status_code": 0,
+        "step": 2,
+        "step_accepted": 1
+      }
+    ],
+    "all_observation_rows_byte_equal": true,
+    "all_output_file_hashes_case160": {
+      "accepted_step_000001_bent.obj": {
+        "bytes": 61973,
+        "sha256": "8d3cc607dfa5ecdb00e899eb08a3c1f4ea1756f862649faa5ca6210163cf1f62"
+      },
+      "accepted_step_000001_held_reference.obj": {
+        "bytes": 56470,
+        "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+      },
+      "accepted_step_000002_bent.obj": {
+        "bytes": 61966,
+        "sha256": "9c8067744b10f11bf530c8a5627f52d35397d40f642a5685f2e8f268039c54dc"
+      },
+      "accepted_step_000002_held_reference.obj": {
+        "bytes": 56470,
+        "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+      },
+      "accepted_step_000003_bent.obj": {
+        "bytes": 61937,
+        "sha256": "9ca3a5995a4187a6dfa9400aff1dafc323d672f502696c2e63d739cd2de5e11b"
+      },
+      "accepted_step_000003_held_reference.obj": {
+        "bytes": 56470,
+        "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+      },
+      "accepted_step_000004_bent.obj": {
+        "bytes": 61937,
+        "sha256": "9ca3a5995a4187a6dfa9400aff1dafc323d672f502696c2e63d739cd2de5e11b"
+      },
+      "accepted_step_000004_held_reference.obj": {
+        "bytes": 56470,
+        "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+      },
+      "compiled.nmatterpack": {
+        "bytes": 1761392,
+        "sha256": "e4252be2a4b1f5654f23810c5f35f94a739ada30aca84f7a278bbe3c15faffad"
+      },
+      "initial.obj": {
+        "bytes": 56470,
+        "sha256": "463cd80289b72a58009f859f2a3184966984029daa8d3687ec9035e18c6481af"
+      },
+      "manifest.json": {
+        "bytes": 10974,
+        "sha256": "6d6a8ce5fe3afdb2dd4d32612a575edbb7ee91c623d9605a187c6cde489dc8c7"
+      },
+      "material_state_000004_bent.json": {
+        "bytes": 843802,
+        "sha256": "ea215e38f328c8c93523a6772cb3a21acedcd5907563ce3b536a25d7b3eea8d3"
+      },
+      "mesh.json": {
+        "bytes": 160425,
+        "sha256": "6a2f786a47e61014ee4b27f609eb3c2f666677223ddaa30297aeea1fcfd8ca56"
+      },
+      "observations.csv": {
+        "bytes": 4351,
+        "sha256": "cbf42ec1977fb7c5998a0583057bec9a2cb6f473befe0e032b290839d72f1117"
+      },
+      "rejected-conditioning-000004/AP.bin": {
+        "bytes": 733824,
+        "sha256": "ea035a1c2613be0f6e5a648c9dfe279916daaf0bf71aa0f32d44945740e861fa"
+      },
+      "rejected-conditioning-000004/P.bin": {
+        "bytes": 366912,
+        "sha256": "2626e4bbb205fa1c7e40bdaf3f2e72d11f831ec53431c3062bcc85d69a50f6b5"
+      },
+      "rejected-conditioning-000004/candidate_nodes.bin": {
+        "bytes": 141120,
+        "sha256": "c971815537243b4fc0483c0aafd097af7f61f7717fc77bec810383a56322dbc7"
+      },
+      "rejected-conditioning-000004/effective_P.bin": {
+        "bytes": 733824,
+        "sha256": "9bf372c75cafcf84bc1e21a20ee3305e7619affffe6415bb9d3398f79970214c"
+      },
+      "rejected-conditioning-000004/factor_valid.bin": {
+        "bytes": 8,
+        "sha256": "64ed86b909d6d0502b64b28db0ea1272ffb358e20e9b1d88b63ccb07fa900cf5"
+      },
+      "rejected-conditioning-000004/manifest.json": {
+        "bytes": 1770,
+        "sha256": "1c56260da1523b57e18242852de4c866a42125721404f025cfd881015c977629"
+      },
+      "rejected-conditioning-000004/node_block_inverse.bin": {
+        "bytes": 84672,
+        "sha256": "65da529ef5175491ac36eba3405ff5cb28b5615d9105d6c83e192053d397c475"
+      },
+      "rejected-conditioning-000004/pivoted_RAP.bin": {
+        "bytes": 5408,
+        "sha256": "c74aa83fbdc58d90a247db93b715b599f3b3721c3e2a5670110ce304328a122f"
+      },
+      "rejected-conditioning-000004/pivots.bin": {
+        "bytes": 208,
+        "sha256": "b15351752746ad304892b36595184c9b83246883ef1d0628cdfda0983a499369"
+      },
+      "result.json": {
+        "bytes": 643,
+        "sha256": "c1bf3fb4fe9c27681ab875895c12cd457e71e3059e4f927ca9ed9103b22c9874"
+      }
+    },
+    "case160_additional_diagnostic_environment": {
+      "NM_FEM_NEWTON_TRACE_ROOT": "3",
+      "NM_FEM_OPERATOR_FD_CAPTURE_PATH": "/Users/home/cardboard-implementation-20261014/solver/cached-coupon-rejection-linear-and-local-capture-160/operator-capture",
+      "NM_FEM_OPERATOR_FD_SELECTOR": "3:23",
+      "NM_FEM_RESIDUAL_ARMIJO_TRACE_ROOT": "3",
+      "NM_FEM_TRUE_RESIDUAL_RESTART": "0",
+      "NM_FEM_TRUE_RESIDUAL_ROOT": "3"
+    },
+    "output_file_count_case152": 24,
+    "output_file_count_case160": 24,
+    "output_files_only_case152": [],
+    "output_files_only_case160": [],
+    "output_files_with_hash_difference": [],
+    "physical_argv_equal_except_output_path": true,
+    "physical_verdict": "both attempts failed after three accepted steps; diagnostic identity is not a successful simulation",
+    "shared_environment": {
+      "NM_FEM_RESIDUAL_ARMIJO_ROOT": "all",
+      "NUMI_CARDBOARD_STEP_TIMING": "1"
+    }
+  },
+  "limitations": [
+    "Native software-solver evidence only; complete protocol was rejected at the third loading step.",
+    "Case152 has only uninstrumented true-residual diagnostics; it cannot independently verify Newton23 b-Ax.",
+    "Accepted-step identity and byte-identical output files establish diagnostic noninterference for this paired run, not physical convergence.",
+    "The capture has 13-state ideal Hill source materials; glue is elastic and is excluded from the local-return residual statistics."
+  ],
+  "local_material_capture": {
+    "captured_tetrahedra_per_material": {
+      "0": 1152,
+      "1": 576
+    },
+    "environment": 0,
+    "integrity_production_inputs_bitwise_unchanged": true,
+    "interpretation": "all captured liner/medium center and four side projections are valid with terminal failure zero; worst residuals are close to the local threshold, so they are successful but not high-margin",
+    "normalized_threshold_used_for_ratio": "2e-8*(1+projection_state_norm), accurate 13-state paper policy",
+    "summary": {
+      "0": {
+        "center_projection_iterations": {
+          "max": 4.0,
+          "median": 2.0,
+          "min": 1.0,
+          "p95": 2.0
+        },
+        "center_records": 1152,
+        "center_residual_dimensionless": {
+          "max": 2.05293151e-08,
+          "median": 2.8928682349999995e-14,
+          "min": 1.54584012e-25,
+          "p95": 1.69660019e-08
+        },
+        "center_residual_over_accurate_threshold": {
+          "max": 0.9984486693792589,
+          "median": 1.3948937645182082e-06,
+          "min": 7.502218484513187e-18,
+          "p95": 0.8224438421595158
+        },
+        "center_terminal_failures": 0,
+        "center_valid": 1152,
+        "material_name": "hajali2009_liner_hill_ideal",
+        "side_projection_iterations": {
+          "max": 4.0,
+          "median": 2.0,
+          "min": 1.0,
+          "p95": 2.0
+        },
+        "side_records": 4608,
+        "side_residual_dimensionless": {
+          "max": 2.05540367e-08,
+          "median": 3.31332184e-14,
+          "min": 3.20639048e-26,
+          "p95": 1.68710645e-08
+        },
+        "side_residual_over_accurate_threshold": {
+          "max": 0.999370472095924,
+          "median": 1.6114429850871458e-06,
+          "min": 1.5795287948792668e-18,
+          "p95": 0.8192026859608361
+        },
+        "side_terminal_failures": 0,
+        "side_valid": 4608
+      },
+      "1": {
+        "center_projection_iterations": {
+          "max": 4.0,
+          "median": 2.0,
+          "min": 1.0,
+          "p95": 3.0
+        },
+        "center_records": 576,
+        "center_residual_dimensionless": {
+          "max": 1.9877529e-08,
+          "median": 6.9927078e-10,
+          "min": 1.42640087e-22,
+          "p95": 1.38140486e-08
+        },
+        "center_residual_over_accurate_threshold": {
+          "max": 0.9913465678396376,
+          "median": 0.03481435403142107,
+          "min": 7.048857909780379e-15,
+          "p95": 0.6875711501513464
+        },
+        "center_terminal_failures": 0,
+        "center_valid": 576,
+        "material_name": "hajali2009_medium_hill_ideal",
+        "side_projection_iterations": {
+          "max": 5.0,
+          "median": 2.0,
+          "min": 1.0,
+          "p95": 3.0
+        },
+        "side_records": 2304,
+        "side_residual_dimensionless": {
+          "max": 2.03855386e-08,
+          "median": 7.083114930000001e-10,
+          "min": 1.68432468e-17,
+          "p95": 1.42999257e-08
+        },
+        "side_residual_over_accurate_threshold": {
+          "max": 0.9993119482978755,
+          "median": 0.03509858165569383,
+          "min": 8.308984615959504e-10,
+          "p95": 0.7091468848768194
+        },
+        "side_terminal_failures": 0,
+        "side_valid": 2304
+      }
+    }
+  },
+  "newton23_armijo": {
+    "accepted": false,
+    "base_residual_Ns": 4.40768281e-06,
+    "certified_noop": false,
+    "interpretation": "24 authored trials exhausted down to alpha 2^-23; last production trial status is zero and J remains positive, but the free-node residual shows no resolved decrease, so Armijo rejects the step",
+    "last_trial_alpha": 1.1920929e-07,
+    "last_trial_residual_Ns": 4.40768281e-06,
+    "minimum_J": 0.996224165,
+    "selected_alpha": 0,
+    "solver_status": {
+      "code": 10,
+      "completed_microsteps": 0,
+      "contact_count": 0,
+      "diagnostics": [
+        4.40768281e-06,
+        4.40768281e-06,
+        1.1920929e-07,
+        24
+      ],
+      "environment": 0,
+      "event_count": 0,
+      "failing_index": 23,
+      "fgmres_iterations": 1024,
+      "object_index": 0
+    },
+    "solver_status_code": 10,
+    "trial_status": {
+      "code": 0,
+      "completed_microsteps": 0,
+      "contact_count": 0,
+      "diagnostics": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "environment": 0,
+      "event_count": 0,
+      "failing_index": 0,
+      "fgmres_iterations": 0,
+      "object_index": 0
+    }
+  },
+  "newton23_true_residual": {
+    "all_cycle_solver_and_operator_status_zero": true,
+    "arnoldi_estimate_cycle63_Ns": 4.40767462e-06,
+    "arnoldi_over_rhs_cycle63": 0.9999986568899568,
+    "control_step_root": 3,
+    "fgmres_restart": 16,
+    "final_fgmres_cycle_accepted": false,
+    "final_fgmres_diagnostics": [
+      4.40767462e-06,
+      4.40768054e-06,
+      0,
+      16
+    ],
+    "interpretation": "freshly assembled b-Ax agrees closely with the Arnoldi estimate, while both remain essentially at the right-hand-side scale after the configured Krylov work; this is measured stagnation, not an Arnoldi-vs-true-residual mismatch",
+    "iteration_cap": 1024,
+    "max_abs_true_minus_arnoldi_over_cycles_Ns": 9.100000001246457e-13,
+    "max_relative_true_minus_arnoldi_over_cycles": 2.064580711097603e-07,
+    "newton_iteration_zero_based": 23,
+    "relative_true_minus_arnoldi_cycle63": -1.0209466089607708e-07,
+    "restart_cycles": 64,
+    "rhs_l2_Ns": 4.40768054e-06,
+    "true_l2_cycle0_Ns": 4.40767462e-06,
+    "true_l2_cycle63_Ns": 4.40767417e-06,
+    "true_max_abs_cycle63_Ns": 1.25234669e-06,
+    "true_minus_arnoldi_cycle63_Ns": -4.4999999972654805e-13,
+    "true_residual_over_rhs_cycle63": 0.9999985547954435,
+    "true_residual_reduction_cycle0_to63_relative": -1.0209465047275837e-07
+  },
+  "receipt": {
+    "case152": {
+      "exit_code": 2,
+      "source_inputs_unchanged": true,
+      "timed_out": false,
+      "wall_seconds": 259.68799620796926
+    },
+    "case160": {
+      "exit_code": 2,
+      "source_inputs_unchanged": true,
+      "timed_out": false,
+      "wall_seconds": 409.5736054170411
+    }
+  },
+  "schema": "numi.cardboard.coupon160-diagnostic-audit.v1"
+}

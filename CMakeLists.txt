@@ -1184,7 +1184,8 @@ set_target_properties(
 
 # The cardboard driver uses the native rigid/FEM coupled operator for finite
 # mass loading. Standalone Matter builds retain the coupon-only executable.
-foreach(cardboard_driver numi-matter-cardboard-probe numi-matter-cardboard-box-native-driver)
+foreach(cardboard_driver numi-matter-cardboard-probe numi-matter-cardboard-box-native-driver
+        numi-matter-cardboard-full-contact-armijo-check)
     target_link_libraries(${cardboard_driver} PRIVATE metalrobo)
     target_compile_definitions(${cardboard_driver} PRIVATE NUMI_CARDBOARD_METAL_WORLD=1)
 endforeach()

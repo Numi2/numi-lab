@@ -1,0 +1,70 @@
+{
+  "schema": "numi.cardboard.regional-space-160-audit.v1",
+  "case": "cached-coupon-rejection-linear-and-local-capture-160",
+  "verdict": "failed nonlinear control step 3 after three accepted steps; diagnostic-only operator capture; not a convergence pass",
+  "binding": {
+    "physics_fingerprint": "10666180035123264720",
+    "device_program_fingerprint": "4362160513465011689",
+    "operator_capture_sha256": "72ee1fc5896aa8111e8f1f87993b867250f7f1ef4245651dc30c954e4d7c63c2",
+    "stderr_sha256": "f20f6d58c4f5cee633c6591ae245ae4bf2d55668846da80b7fa27d6500cf940b",
+    "prediction_sha256": "2437c9e4bbc4a61e3727b01d9fe01e07816bf0d402f0ce2162b15395866330d5",
+    "receipt_sha256": "8c3e5798471daf680154fc1af3d407804b72234bde78606071839aa72fbafe03",
+    "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-tangent-cache-trial-scratch-and-exact-AP-integrated-054",
+    "source_sha256": {
+      "runtime.mm": "95b9aaf26128abb8717d576f21c9823ea5270de7b21e9ce45bd778a018dd04c3",
+      "fgmres.metalinc": "eb3871dd0e2b7711cfe4f91a953b6fd6450c6f54a0da24627cb3f2de8d0d30ad",
+      "fem.metalinc": "94e508bb7e268168b426f6bc9e2f0f24caef1e630b1fa6c18f7d93c0fcf6effb",
+      "common.metalinc": "0509fe98df6afe6694dec59088ad5d4391177b63133bb38fb0caecb5e1ef7fba"
+    }
+  },
+  "linear_solve": {
+    "selected_environment": 0,
+    "selected_newton_iteration": 23,
+    "matrix_operator": "production matrix-free FEM mass minus dt^2 tangent action",
+    "right_hand_side_l2_Ns": 4.40768054e-6,
+    "true_residual_cycle0_Ns": 4.40767462e-6,
+    "true_residual_cycle63_Ns": 4.40767417e-6,
+    "true_residual_cycle63_over_rhs": 0.99999855,
+    "Arnoldi_true_residual_relative_difference_max": 2.064580711097603e-7,
+    "restart": 16,
+    "iterations": 1024,
+    "restart_cycles": 64,
+    "status": "FGMRES reached its iteration cap with essentially no residual reduction; measured stagnation, not a large Arnoldi-versus-true-residual discrepancy",
+    "correction_l2_m_s": 1.8563807161703085e-5,
+    "production_A_correction_l2_Ns": 8.269691058785112e-9,
+    "production_A_correction_over_rhs": 0.00187588
+  },
+  "regional_coarse_space": {
+    "mode_count": 26,
+    "mode_shape": "3 authored constituent regions x 6 rigid-body fields, plus 8 global bending fields",
+    "effective_P_gram_max_abs_error_from_identity": 4.073497350542965e-8,
+    "active_environment": 0,
+    "active_environment_RAP_condition_2": 2.154461150406758,
+    "active_environment_RAP_singular_values_min_max": [2.961985146930966e-7, 6.381481927144619e-7],
+    "other_environment_RAP_condition_2": 2330.7222672914354,
+    "factor_valid": [1, 1],
+    "active_environment_rhs_projection_norm_fraction": 0.14709409443102647,
+    "active_environment_residual_after_coarse_correction_norm_fraction": 0.9892710758068246,
+    "interpretation": "the active 26-mode coarse solve is well-conditioned and factors successfully, but it directly spans only a modest part of the failing RHS; the high-condition factor belongs to the held/no-op comparison environment"
+  },
+  "spatial_residual": {
+    "largest_four_nodes": [181, 180, 184, 185],
+    "largest_four_nodes_share_of_rhs_l2": 0.5032532301743302,
+    "locations_m": [[0.029625, 0, 0.000277], [0.029625, 0, 0], [0.0306125, 0, 0], [0.0306125, 0, 0.000277]],
+    "constraint": "all four free",
+    "incident_material": "liner material index 0 for each node's incident tets",
+    "interpretation": "the dominant RHS residual is sharply localized at a liner edge/flute patch, a mode not represented by constituent-wide rigid fields or global polynomial bending fields"
+  },
+  "newton_progress": [
+    {"iteration": 20, "fgmres_true_l2_start_Ns": 4.40846952e-6, "fgmres_true_l2_end_Ns": 4.40845088e-6, "relative_reduction": 4.227e-6, "Armijo_alpha": 1.0},
+    {"iteration": 21, "fgmres_true_l2_start_Ns": 4.40808208e-6, "fgmres_true_l2_end_Ns": 4.40788608e-6, "relative_reduction": 4.446e-5, "Armijo_alpha": 0.25},
+    {"iteration": 22, "fgmres_true_l2_start_Ns": 4.40769782e-6, "fgmres_true_l2_end_Ns": 4.40769691e-6, "relative_reduction": 2.064e-7, "Armijo_alpha": 0.0078125},
+    {"iteration": 23, "fgmres_true_l2_start_Ns": 4.40767462e-6, "fgmres_true_l2_end_Ns": 4.40767417e-6, "relative_reduction": 1.0209e-7, "Armijo_alpha": 0.0, "Armijo_accepted": false}
+  ],
+  "recommendation": {
+    "first_candidate": "retain the exact RAP coarse correction and replace or augment only the componentwise fine smoother with an overlapping additive Schwarz/patch solve assembled from the same cached production tangent and mass; patches should span a flute period and the full liner-medium-glue thickness, use fixed-node restriction and partition-of-unity weights",
+    "why": "the active RAP factor is well-conditioned while the dominant RHS lies outside the current global constituent/bending space and is localized to a four-node free liner patch",
+    "basis_followup": "use the full cached tangent to identify low-energy modes of the actual constrained operator and compare them to the 26 existing modes; consider bounded smoothed-aggregate or patch modes in the coarse space only if the operator spectrum shows a repeatable missing low mode",
+    "qualification": "same source, timestep, mesh, physical operator and residual certificate; compare true b-Ax by restart, line-search acceptance, final status/certificate, and diagnostic-on/off history. Do not infer success from an improved Arnoldi estimate or iteration count alone."
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "schema": "numi.cardboard.replay-output-contract-audit.v1",
+  "qualification": "INVALID_JSONL_INSTRUMENT_OUTPUT",
+  "physical_steps": 0,
+  "total_lines": 3074,
+  "valid_lines": 194,
+  "malformed_lines": 2880,
+  "first_error": {
+    "line": 2,
+    "column": 5736,
+    "message": "Expecting ',' delimiter",
+    "context": "error\":6.9388939039072284e-18}},\"compiled_residual_rows\":{\"native_ordinary_policy\":\"ordinary_replay\":[{\"candidate\":\"captured_production\",\"snapshot_available\":true,\"valid\":true,\"nonfinite\":false,\"residual_high\":[0,0,0,0,0,0,0,0,0,0"
+  },
+  "raw_output_sha256": "5703a5a0c9fd3d8df67cff1eda740c069337b4ede1ed155a3dc5ee43986dea70",
+  "receipt": {
+    "schema": "numi.cardboard.native-run-receipt.v2",
+    "execution_started": true,
+    "source_inputs_unchanged": true,
+    "changed_inputs": [],
+    "exit_code": 2,
+    "timed_out": false,
+    "wall_seconds": 103.61519599996973,
+    "finished_at_utc": "2026-10-15T03:47:47.147835+00:00"
+  },
+  "repair": "Wrap native ordinary/accurate policy arrays as objects and reparse every emitted JSONL object with coverage checks before reporting instrument completion; fresh source60 bounded and full replay required."
+}

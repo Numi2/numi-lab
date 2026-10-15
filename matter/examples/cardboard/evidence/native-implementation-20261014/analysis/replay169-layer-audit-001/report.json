@@ -1,0 +1,142 @@
+{
+  "classification": "read-only material-point replay audit; failed numerical comparison; zero physical FEM steps",
+  "interpretation": {
+    "compiled_policy_binding_limit": "The source sets scalar_initializer=false, compensated_arithmetic=true, accurate_projection=true and applies row scaling before compile. The JSON records policy intent but does not emit the compiled material flag word; compiled-flag confirmation should be included in the next replay capture.",
+    "first_resolved_layer": "The accurate replay's returned material state/stress does not agree with the exact FP64 root, before any element assembly or global solver action is involved. Ordinary replay parity shows the capture and ordinary instrument path are consistent for the loaded environment. The tangent comparison is mostly within its gate, but that does not rescue the failed local state/stress comparisons.",
+    "not_claimed": [
+      "no physical FEM step or box validation",
+      "no evidence of successful full simulation",
+      "no measured noise floor from the tiny rounded-oracle residual",
+      "no uniquely identified FP32/bytecode/Jacobian bug from this capture alone"
+    ],
+    "remaining_causal_uncertainty": "The JSON omits the accurate Metal replay candidate state/state_low and its per-row residuals. Therefore the source57 output cannot independently establish whether the discrepancy originates in the compiled residual/Jacobian evaluation, compensated local Newton update/return, or an oracle-vs-bytecode equation mismatch. The exact source, parameters, accepted history, and F high/low are bound, and the independent reference converges, but a component-level cause is unresolved.",
+    "representation_floor": "two_word_state_residual_floor is the FP64 reference root rounded into high/low float words and reevaluated. It is not a measured production noise floor. The code also forms residualRelativeToFloor by subtracting accurate.residual (row-scaled norm) from fp64ResidualAtMetalState (source residual multiplied by residual_scale only); these are unlike norms, so that ratio/status is not a valid quantitative residual comparison.",
+    "why_local_pass_is_not_reference_pass": "The local projection norm is computed from compiled residual roots after component row-scaling (cardboard_paper_projection_scaling.hpp); the tolerance remains an absolute 2e-8*(1+stateNorm). The independent residual is evaluated on the FP64 source equations at the Metal replay candidate. Left row scaling preserves the mathematical zero set, but does not make finite-precision absolute stopping tests equivalent."
+  },
+  "observations": {
+    "accurate_replay_held_environment": {
+      "records": 1440,
+      "status": "all inconclusive_no_resolved_components for tangent because input direction is zero; not counted as a pass"
+    },
+    "accurate_replay_loaded_environment": {
+      "algorithmic_tangent_relative_error": {
+        "max": 4.719752237071675,
+        "median": 2.6336157972397013e-07,
+        "p90": 9.067251605310952e-06,
+        "within_gate": 1428
+      },
+      "branch_match": {
+        "matched": 1142,
+        "mismatched": 298
+      },
+      "exact_reference_center_projection_valid": 1440,
+      "first_piola_relative_error": {
+        "max": 0.20685950056019053,
+        "median": 0.0001144111268367448,
+        "p90": 0.0009208942882616126,
+        "within_gate": 1300
+      },
+      "internal_local_projection_status_pass": 1440,
+      "max_relative_error_gate": 0.001,
+      "overall_status_fail": 1440,
+      "projected_state_relative_error": {
+        "max": 0.05117709380692999,
+        "median": 5.284702104440057e-05,
+        "p90": 0.0005095942215120011,
+        "within_gate": 1347
+      },
+      "records": 1440,
+      "valid_and_projection_valid": 1440
+    },
+    "ordinary_capture_parity": {
+      "held_environment": 1,
+      "loaded_environment": 0,
+      "max_relative_error": {
+        "P": 4.989081997395153e-09,
+        "state": 4.897247165232815e-09,
+        "tangent": 4.967236707402988e-09
+      },
+      "status": "1440 records inconclusive_no_resolved_components because F direction is exactly zero"
+    },
+    "representative_record": {
+      "FP64_reference": {
+        "iterations": 0,
+        "projection_residual": 1.1102230246251565e-16
+      },
+      "comparison": {
+        "P_relative_error": 0.0001679761082231249,
+        "branch_matches": true,
+        "independent_residual_at_replay_state": 4.365729243701981e-06,
+        "oracle_root_rounded_high_low_residual": 6.938893903907228e-17,
+        "state_relative_error": 0.0001679817740865695
+      },
+      "environment": 0,
+      "local_projection": {
+        "reported_residual": 1.2424956896683881e-14,
+        "reported_threshold": 2.0677118599414825e-08,
+        "status": "pass"
+      },
+      "material": "hajali2009_liner_hill_ideal",
+      "tet_id": 0
+    }
+  },
+  "recommended_next_instrument": {
+    "fields": "accurate_state_high, accurate_state_low, exact source residual per row at accurate state, compiled row-scaled residual per row at same state, captured ordinary-state exact residual per row, row-scale vector, compiled material flags and local iteration trace",
+    "purpose": "identify whether the inaccurate stopping point comes from residual evaluation, candidate update/return, or different compiled inputs before touching solver policy",
+    "required_labeling": "distinguish original captured_projected_state from ordinary replay state, accurate replay state, and FP64 oracle state; distinguish row-scaled local norm from source residual norm",
+    "scope": "diagnostic-only checker update, no material law/tolerance change"
+  },
+  "run": {
+    "exit_code": 2,
+    "input_integrity": "capture production inputs bitwise unchanged; run receipt reports source_inputs_unchanged=true",
+    "oracle_projection_failures": {
+      "center": 0,
+      "tangent_reference": 0
+    },
+    "physical_steps": 0,
+    "physical_validation": false,
+    "platform": "Apple M4",
+    "policy": "source13 exact ideal-Hill materials; ordinary replay plus accurate/scaled/compensated replay flags authored before compilation; exact FP64 analytic implicit-Jacobian reference",
+    "records": {
+      "all_tetrahedra": 3072,
+      "elastic_glue_skipped": 192,
+      "environments": 2,
+      "paper_centers_replayed": 2880,
+      "tetrahedra_per_environment": 1536
+    },
+    "timed_out": false,
+    "wall_seconds": 85.99870758299949
+  },
+  "schema": "numi.cardboard.replay169-layer-audit.v1",
+  "source_anchors": {
+    "captured_F_accepted_state_and_both_replays": "matter/tools/cardboard_paper_gpu_check.mm:1210-1271",
+    "checker_material_policy_before_compile": "matter/tools/cardboard_paper_gpu_check.mm:983-1003",
+    "composite_accurate_gate": "matter/tools/cardboard_paper_gpu_check.mm:1274-1297",
+    "exact_F_and_metal_candidate_state_for_reference_residual": "matter/tools/cardboard_paper_gpu_check.mm:231-245,400-426",
+    "production_checker_high_low_F_and_state_output": "matter/tools/cardboard_paper_check.metal:16-51",
+    "production_projection_threshold_and_scaled_norm": "matter/src/metal/common.metalinc:1427-1477",
+    "replay_does_not_serialize_accurate_candidate": "matter/tools/cardboard_paper_gpu_check.mm:1352-1436 (oracle state is emitted; accurate response state is not)",
+    "row_scaling_definition": "matter/tools/cardboard_paper_projection_scaling.hpp:11-14,29-43,49-62"
+  },
+  "source_binding": {
+    "NumiMatter_metallib_sha256": "3b48f7e628827ba96f33e3af2ac21980511f7d584cde5eb6ebd758c8065ea148",
+    "analytic_reference_header_sha256": "11adec4ced05ac58240bc5efac462f88bf3813a1ed41056edd9ae1347bc1f298",
+    "capture": "/Users/home/cardboard-implementation-20261014/solver/current-failure-22-state-capture-153/operator-capture",
+    "capture_manifest_sha256": "27147eb7c222e62e52f80283be9db265ec34ffcbb235d705053e7d83e29cd982",
+    "capture_sha256": "f4b4bdbe7a64cdc6d09ca46aeb13fc525bb9c7678dbb5acc4b78aadf367f3bfa",
+    "checker_kernel_sha256": "81d69f6dc4dfa7f18dc6aa12f49952218df4af35126a8e991011986b27b86241",
+    "checker_source_sha256": "78dd413ca33fc9cb056cfdf9e2886a2393ace7032ed0350b0deeaa87e871d1c9",
+    "common_metalinc_sha256": "0509fe98df6afe6694dec59088ad5d4391177b63133bb38fb0caecb5e1ef7fba",
+    "compensated_bytecode_header_sha256": "f578310307a4698692fc57117340794ac4ce2d3813cdfcf705da6a018a5976aa",
+    "executable_sha256": "341af45a37603d5b6296a3025754180e58802f47a2e50ffb33147cc39ee81cea",
+    "liner_material_sha256": "787bf121f4ce359235e28691892e9d77adffde05faf10f2a90593d9f4b32398d",
+    "medium_material_sha256": "ecfd9de3f4550a6a269d7a6559781b16e15316cf3d587093f2e11a2e6942a8e8",
+    "paper_check_metallib_sha256": "367d108587c7e6b4db9f7c65f3385dc535491fa31644f7a9ac7b80c7d6a449a1",
+    "prediction_sha256": "097a6b25941b174908d13afe1e00f2e18393f60ac7366c85aaf963c5dd10e705",
+    "projection_scaling_header_sha256": "9b05e0fffbf5f350d7c4fc98ad05f8df2029c358c857f217d107b488fc5dc001",
+    "receipt_sha256": "eb8e9d19fcbbab8239d959ed801792b240de4082c4dd537ca96575b28cd0f5e2",
+    "replay_jsonl": "/Users/home/cardboard-implementation-20261014/native/analytic-current-failure-22-center-replay-169/center-replay.jsonl",
+    "replay_sha256": "c27d5634f77d4f431d3a0fdc5b55a03958b6c3a986942a6b1c49e097fd6e76e1",
+    "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-captured-reference-and-rigid-instrument-repair-integrated-057"
+  }
+}

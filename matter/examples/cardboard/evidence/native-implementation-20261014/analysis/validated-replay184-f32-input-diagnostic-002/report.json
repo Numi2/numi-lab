@@ -1,0 +1,235 @@
+{
+  "all_center_accurate_candidate_row10": {
+    "binary32_promoted_vs_native_abs_error": {
+      "maximum": 8.378640617063571e-11,
+      "median": 0.0,
+      "p95": 3.6645787628327946e-11
+    },
+    "count": 2880,
+    "rate_only_promotion_effect_max_abs": 0.0,
+    "raw_bytecode_vs_stored_bytecode_abs_error_max": 0.0,
+    "raw_decimal_vs_native_abs_error": {
+      "maximum": 0.00010147715764095697,
+      "median": 1.2774732375988966e-12,
+      "p95": 4.002202218110181e-05
+    }
+  },
+  "binding": {
+    "analysis_script_sha256": "96772903c85a9973eb92b3a138832040f4185010460231829948b8a2cd97f983",
+    "center_replay_sha256": "a653d4b895541b359d636ac28ae2188333d64618459bf22bc5b06d16a3a87c66",
+    "checker_source_sha256": "e6275c403ce92a49d891dae33d0373465a3afe8b8b96a939159a6701ada549e4",
+    "executed_build_success": true,
+    "external_manifest_sha256": "27147eb7c222e62e52f80283be9db265ec34ffcbb235d705053e7d83e29cd982",
+    "prediction_sha256": "3ce7a91e892ba395ce95d98c189d6f1cc53c6e18727ee6ca79f974074697001f",
+    "prediction_source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-selected-newton-rap-and-validated-replay-integrated-060",
+    "raw_operator_capture_sha256": "f4b4bdbe7a64cdc6d09ca46aeb13fc525bb9c7678dbb5acc4b78aadf367f3bfa",
+    "receipt_exit_code": 2,
+    "receipt_sha256": "eec7686d2cd9e4ff47b3b43602564ecd4c7915d8a76d671ae2f71e362fb7e31e",
+    "receipt_timed_out": false,
+    "run_directory": "/Users/home/cardboard-implementation-20261014/native/validated-same-equation-captured-material-replay-184",
+    "shared_opcode_map_sha256": "e1b4a229e58227280e2a1e263fa6535f325333e9edcacfd93498f699790c30d3",
+    "source_build_manifest_sha256": "e4e1b279927396ccde43cf2ec114881ad4ec5c063d5972d136e6c734387dab76",
+    "source_inputs_unchanged": true,
+    "source_snapshot_shared_sha256": "e1b4a229e58227280e2a1e263fa6535f325333e9edcacfd93498f699790c30d3"
+  },
+  "capture_integrity": {
+    "header_capture_hash_matches_raw_capture": true,
+    "native_receipt_exit2_preserved": true,
+    "paper_centers_replayed": 2880,
+    "physical_steps": 0,
+    "physical_validation": false,
+    "raw_capture_tetrahedron_records": 3072,
+    "replay_F_Flow_rate_matches_parent_capture_json": true
+  },
+  "classification": "Independent CPU arithmetic/input-roundtrip diagnosis; replay exit2 is preserved; no solver/material/physical qualification",
+  "compiled_policy": {
+    "accurate_residual_program_flags": [
+      2
+    ],
+    "interpreter": "Independent Python FP64 stack evaluator following compiled bytecode order, FP32 immediate/parameter bits, exact domain floor and low-word program flag",
+    "material_flags": 53,
+    "opcode_counts_accurate_programs": {
+      "F": 90,
+      "add": 166,
+      "constant": 120,
+      "divide": 24,
+      "multiply": 292,
+      "next_state": 238,
+      "parameter": 194,
+      "pow_integer": 172,
+      "sqrt": 18,
+      "state": 28,
+      "subtract": 162
+    },
+    "raw_decimal_interpreter_max_abs_difference_vs_stored_allrows": 0.0
+  },
+  "global_input_rounding": {
+    "F_high": {
+      "count": 14822,
+      "max_abs": 4.998779390419372e-09,
+      "max_rel": 4.9976379299161795e-09,
+      "max_ulp": 0
+    },
+    "F_low": {
+      "count": 0,
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "max_ulp": 0
+    },
+    "Fdot_rate": {
+      "count": 12911,
+      "max_abs": 4.301757883240498e-07,
+      "max_rel": 4.914215619476317e-09,
+      "max_ulp": 0
+    }
+  },
+  "input_policy": {
+    "candidate_and_accepted_state": "high/low/accepted words rounded to binary32 then widened; per-program flag bit2 controls consumption of candidate/F low words",
+    "native_promoted": "each captured high/low/rate value rounded to IEEE-754 binary32 then widened exactly to binary64",
+    "parameters_and_immediates": "decoded from captured compiled FP32 bit patterns then widened to binary64",
+    "rate_usage": "accurate residual programs contain no RATE opcode; rate promotion is included as a null-effect control",
+    "raw_decimal": "JSON numeric values parsed as binary64, matching the replay checker JSON-to-double path",
+    "timestep": "rounded to captured binary32 timestep then widened"
+  },
+  "interpretation": [
+    "The raw decimal FP64 bytecode replay independently reproduces the serialized compiled_bytecode_fp64 output.",
+    "For tet1291 row10, compare the raw-decimal and binary32-promoted evaluations against the captured native accurate residual; the report retains all three values.",
+    "The accurate residual program carries flag bit2 and includes F/candidate low words, so both high and low words are replayed under that flag.",
+    "Any improved match after binary32 promotion identifies an input representation discrepancy in the FP64 oracle path; it does not claim an independent native arithmetic proof or solver/physical validation.",
+    "The native replay exited 2 and reports zero physical steps; no pass is inferred."
+  ],
+  "schema": "numi.cardboard.replay184-f32-input-roundtrip-audit.v1",
+  "target_tet": {
+    "environment": 0,
+    "input_policy": {
+      "F_binary32_promoted": [
+        0.6060218214988708,
+        2.7828918973682448e-05,
+        0.795413613319397,
+        -1.82427502295468e-05,
+        1.000002384185791,
+        -3.9264119550352916e-05,
+        -0.7954263687133789,
+        2.9311135222087614e-05,
+        0.6060899496078491
+      ],
+      "F_low_binary32_promoted": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "F_low_raw_json_double": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "F_raw_json_double": [
+        0.606021821,
+        2.7828919e-05,
+        0.795413613,
+        -1.82427502e-05,
+        1.00000238,
+        -3.92641196e-05,
+        -0.795426369,
+        2.93111352e-05,
+        0.60608995
+      ],
+      "Fdot_rate_binary32_promoted": [
+        -5.9340081214904785,
+        0.05076023191213608,
+        4.510854244232178,
+        -0.0298443753272295,
+        0.0040387557819485664,
+        -0.07124148309230804,
+        -4.489799499511719,
+        0.053515538573265076,
+        -5.863389015197754
+      ],
+      "Fdot_rate_raw_json_double": [
+        -5.93400812,
+        0.0507602319,
+        4.51085424,
+        -0.0298443753,
+        0.00403875578,
+        -0.0712414831,
+        -4.4897995,
+        0.0535155386,
+        -5.86338902
+      ],
+      "accepted_state_binary32_promoted": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -0.00789846945554018,
+        -0.00012344375136308372,
+        2.4664614102221094e-05,
+        1.2661558685067575e-05,
+        -0.0014645925257354975,
+        -0.002615962876006961,
+        0.0
+      ],
+      "candidate_state_high_binary32_promoted": [
+        5.76047124553508e-21,
+        1.1724916055200092e-25,
+        -1.8070214888768124e-25,
+        -7.6737967056921e-24,
+        8.50321272916947e-22,
+        2.0330937401331157e-25,
+        -0.008223042823374271,
+        -0.00012388461618684232,
+        2.6194324163952842e-05,
+        1.3468190445564687e-05,
+        -0.0014923888957127929,
+        -0.0027319483924657106,
+        -4.347818317608732e-24
+      ],
+      "candidate_state_low_binary32_promoted": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -2.159457751504945e-10,
+        7.215683779648874e-12,
+        -7.068873481355653e-14,
+        -6.559212401740025e-14,
+        3.8442020400264454e-11,
+        2.121476778971232e-11,
+        0.0
+      ],
+      "low_words_used": true,
+      "program_flags": 2,
+      "rate_opcode_count_in_all_accurate_residual_programs": 0
+    },
+    "material_index": 1,
+    "material_name": "hajali2009_medium_hill_ideal",
+    "row10": {
+      "binary32_promoted_fp64_bytecode": -6.806494752360426e-11,
+      "binary32_promoted_minus_native": -6.806494752360426e-11,
+      "float_vs_stored_raw_bytecode_abs_error": 0.00010147722570590449,
+      "native_accurate_residual_high_plus_low": 0.0,
+      "rate_only_promoted_fp64_bytecode": 0.00010147715764095697,
+      "raw_decimal_fp64_bytecode": 0.00010147715764095697,
+      "raw_minus_native": 0.00010147715764095697,
+      "raw_vs_stored_bytecode_abs_error": 0.0,
+      "stored_raw_decimal_bytecode_fp64": 0.00010147715764095697
+    },
+    "tet_id": 1291
+  }
+}

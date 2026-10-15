@@ -1,0 +1,17 @@
+{
+  "schema": "numi.cardboard.control-contract-audit.v1",
+  "strict_comparison": "REJECTED",
+  "reason": "expected a diagnostic-enabled left run and diagnostic-disabled right control",
+  "control_scope": "rich FD capture disabled, but Newton/Armijo/true-residual observational traces remain enabled; not all diagnostics off",
+  "production_payloads": 24,
+  "production_payload_differences": [],
+  "qualification": "Observed payload parity only; strict diagnostic-on/off contract not satisfied. Fresh all-diagnostics-off181 required.",
+  "tool": "/Users/home/cardboard-implementation-20261014/snapshots/source-cache-tail-and-native-setup-repair-integrated-058/matter/tools/cardboard_diagnostic_history_compare.py",
+  "tool_sha256": "00f0af69f34dfde6f373b7a6bcc69a6000cd53a910178707824e00eaa8d07644",
+  "inputs": {
+    "/Users/home/cardboard-implementation-20261014/solver/full-native-tangent-cache-failing-coupon-capture-175/prediction.json": "e39c5edfaa1ea1da6bec9cf9f029dfe40beabe10c91b272fba140caacaf1999a",
+    "/Users/home/cardboard-implementation-20261014/solver/full-native-tangent-cache-failing-coupon-capture-175/receipt.json": "2c485f7e114062203b655f8497fd0bee676d4ffdffb35b3c02beb5696ab02ac4",
+    "/Users/home/cardboard-implementation-20261014/solver/full-native-tangent-cache-diagnostics-off-176/prediction.json": "beebe158c32e8b46264563f92cd63567117d2304bdf4a334cf47d1b582d0a185",
+    "/Users/home/cardboard-implementation-20261014/solver/full-native-tangent-cache-diagnostics-off-176/receipt.json": "dc643d9c6af88b5034a4b7ac73cfc7fb370f5549c7f9fb38850a5405726f3992"
+  }
+}

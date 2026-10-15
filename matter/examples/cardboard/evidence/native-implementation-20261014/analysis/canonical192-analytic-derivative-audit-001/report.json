@@ -1,0 +1,203 @@
+{
+  "schema": "numi.cardboard.cpu-analytic-derivative-audit.v1",
+  "binding": {
+    "/Users/home/cardboard-implementation-20261014/analysis/canonical192-analytic-derivative-audit-001/audit.mm": "60445958e867e1ac49144529997e28d7279ce0cfbd660f8c1b3511011ce39493",
+    "/Users/home/cardboard-implementation-20261014/analysis/canonical192-analytic-derivative-audit-001/run.py": "ae0afb10783edac3d09df077d63219d751e56803fa3ca0ea41677ae4d2410c43",
+    "/Users/home/cardboard-implementation-20261014/analysis/canonical192-analytic-derivative-audit-001/prediction.json": "154c4a9f997b5b1e6d62ef13d192bf42dc43e17db638e847e6a4de463a05b630",
+    "/Users/home/cardboard-implementation-20261014/analysis/canonical192-analytic-derivative-audit-001/receipt.json": "d8f5f77977dc518b819066a2b85cacb16a8a1c6bb70a2e9027089599e45c8758",
+    "/Users/home/cardboard-implementation-20261014/analysis/canonical192-analytic-derivative-audit-001/rows.jsonl": "aef0bef00b62f218c4e21a131ce2db2aae735144b3c5a075b9ae8d5447c92321",
+    "/Users/home/cardboard-implementation-20261014/analysis/canonical192-analytic-derivative-audit-001/summarize.py": "0089fcf6425864c81ec0758a879015d18f16967eeaee0cd41c30cc3fcae9cbf7"
+  },
+  "centers": 2880,
+  "nonzero_direction": 1440,
+  "zero_direction": 1440,
+  "legacy_failures": 300,
+  "native_analytic_worst": {
+    "environment": 0,
+    "tet_id": 1349,
+    "center_dl": 1.7994932849001043e-10,
+    "center_yield_gap": 2.7706747285360933e-07,
+    "analytic_norm_Pa_per_s": 593450664.1134707,
+    "native_analytic_absolute_error_Pa_per_s": 63991.87784957886,
+    "native_analytic_norm_relative_error": 0.00010783015626947432,
+    "zero_direction": false,
+    "legacy_status": "fail",
+    "samples": [
+      {
+        "max_F_step": 0.0001,
+        "step": 0.00012167143666900865,
+        "valid": true,
+        "plus_dl": 0,
+        "plus_gap": 0.9749789693210283,
+        "minus_dl": 2.6970429834343773e-07,
+        "minus_gap": 1.8455548200790872e-10,
+        "central_relative": 0.13030874145927734,
+        "forward_relative": 0.2608892180930294,
+        "backward_relative": 0.0027805301196976552
+      },
+      {
+        "max_F_step": 1e-05,
+        "step": 1.2167143666900864e-05,
+        "valid": true,
+        "plus_dl": 0,
+        "plus_gap": 0.09871067334001704,
+        "minus_dl": 2.7122718155260484e-08,
+        "minus_gap": 1.8432788628786057e-09,
+        "central_relative": 0.12961803192254737,
+        "forward_relative": 0.25936415206977476,
+        "backward_relative": 0.00047786266926963224
+      },
+      {
+        "max_F_step": 2e-06,
+        "step": 2.4334287333801727e-06,
+        "valid": true,
+        "plus_dl": 0,
+        "plus_gap": 0.019211903093459215,
+        "minus_dl": 5.568277759664132e-09,
+        "minus_gap": 8.979357035698854e-09,
+        "central_relative": 0.12613990857387564,
+        "forward_relative": 0.2523891530567517,
+        "backward_relative": 0.0001093359090004546
+      },
+      {
+        "max_F_step": 1e-06,
+        "step": 1.2167143666900864e-06,
+        "valid": true,
+        "plus_dl": 0,
+        "plus_gap": 0.009274241094909264,
+        "minus_dl": 2.8740689339130223e-09,
+        "minus_gap": 1.7396926121904244e-08,
+        "central_relative": 0.12178096311072448,
+        "forward_relative": 0.243665883266265,
+        "backward_relative": 0.0001039570448161548
+      },
+      {
+        "max_F_step": 1e-07,
+        "step": 1.2167143666900864e-07,
+        "valid": true,
+        "plus_dl": 0,
+        "plus_gap": 0.000330290870083072,
+        "minus_dl": 4.4932240735845624e-10,
+        "minus_gap": 1.1119154330607728e-07,
+        "central_relative": 0.04328657282930791,
+        "forward_relative": 0.08663843828276863,
+        "backward_relative": 6.529262415271454e-05
+      },
+      {
+        "max_F_step": 1e-08,
+        "step": 1.2167143666900864e-08,
+        "valid": true,
+        "plus_dl": 1.5302100099154291e-10,
+        "plus_gap": 3.2673747174527534e-07,
+        "minus_dl": 2.0688145336442072e-10,
+        "minus_gap": 2.4139695475877687e-07,
+        "central_relative": 3.5094505416190207e-06,
+        "forward_relative": 2.193550749641436e-05,
+        "backward_relative": 1.4916978458972156e-05
+      },
+      {
+        "max_F_step": 1e-09,
+        "step": 1.2167143666900865e-09,
+        "valid": true,
+        "plus_dl": 1.7725627053440003e-10,
+        "plus_gap": 2.812040400534954e-07,
+        "minus_dl": 1.8264241791779173e-10,
+        "minus_gap": 2.7304691430085626e-07,
+        "central_relative": 1.4754791656980464e-06,
+        "forward_relative": 2.2591034590957325e-07,
+        "backward_relative": 2.999569081823988e-06
+      },
+      {
+        "max_F_step": 1e-10,
+        "step": 1.2167143666900864e-10,
+        "valid": true,
+        "plus_dl": 1.7968002136094954e-10,
+        "plus_gap": 2.774758318668802e-07,
+        "minus_dl": 1.8021863593347936e-10,
+        "minus_gap": 2.766602738013546e-07,
+        "central_relative": 2.9655564306242075e-06,
+        "forward_relative": 3.025714144605907e-06,
+        "backward_relative": 2.9053987168433833e-06
+      }
+    ]
+  },
+  "native_analytic_norm_relative_above_1e_3": 0,
+  "sampled_centers": 302,
+  "step_sweep": [
+    {
+      "max_F_step": 0.0001,
+      "valid": 302,
+      "failed": 0,
+      "central_max": 7.145376236700399,
+      "forward_max": 11.377019936575952,
+      "backward_max": 14.291368824776962,
+      "central_le_1e_6": 10
+    },
+    {
+      "max_F_step": 1e-05,
+      "valid": 302,
+      "failed": 0,
+      "central_max": 1.3756301648544003,
+      "forward_max": 0.5862528699927791,
+      "backward_max": 2.7481158195411406,
+      "central_le_1e_6": 106
+    },
+    {
+      "max_F_step": 2e-06,
+      "valid": 302,
+      "failed": 0,
+      "central_max": 0.2659059152827817,
+      "forward_max": 0.27142515637411924,
+      "backward_max": 0.5312139215835963,
+      "central_le_1e_6": 208
+    },
+    {
+      "max_F_step": 1e-06,
+      "valid": 302,
+      "failed": 0,
+      "central_max": 0.12178096311072448,
+      "forward_max": 0.243665883266265,
+      "backward_max": 0.08792069366683124,
+      "central_le_1e_6": 255
+    },
+    {
+      "max_F_step": 1e-07,
+      "valid": 302,
+      "failed": 0,
+      "central_max": 0.04328657282930791,
+      "forward_max": 0.08663843828276863,
+      "backward_max": 0.00037355449343934186,
+      "central_le_1e_6": 289
+    },
+    {
+      "max_F_step": 1e-08,
+      "valid": 302,
+      "failed": 0,
+      "central_max": 0.00011705840777070689,
+      "forward_max": 0.00011749738361212331,
+      "backward_max": 0.00011661943192929047,
+      "central_le_1e_6": 219
+    },
+    {
+      "max_F_step": 1e-09,
+      "valid": 302,
+      "failed": 0,
+      "central_max": 0.0003914611155553443,
+      "forward_max": 0.000384947500287444,
+      "backward_max": 0.0006196649105561509,
+      "central_le_1e_6": 94
+    },
+    {
+      "max_F_step": 1e-10,
+      "valid": 302,
+      "failed": 0,
+      "central_max": 0.003650903002520129,
+      "forward_max": 0.0036521583080694597,
+      "backward_max": 0.003649647696970799,
+      "central_le_1e_6": 22
+    }
+  ],
+  "classification": "Descriptive full-vector norm comparison, not a componentwise or measured-zero-floor qualification. Complete independent smooth implicit derivative at exact source13 inputs. Centered differences across changing yield/complementarity states are not interpreted as smooth reference tangents; both one-sided responses and exact state indicators are retained. Too-small FP64 steps show cancellation/projection noise. This does not close complete mesh/time convergence or physical validation.",
+  "physical_steps": 0,
+  "physical_validation": false
+}

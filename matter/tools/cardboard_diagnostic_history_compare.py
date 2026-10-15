@@ -34,6 +34,11 @@ DIAGNOSTIC_ENV_KEYS = frozenset({
     "NM_FEM_OPERATOR_FD_CAPTURE_PATH",
     # Changes only the private perturbation pair, never the production update.
     "NM_FEM_OPERATOR_FD_EPSILON_SCALE",
+    "NM_FEM_TRUE_RESIDUAL_ROOT",
+    # Zero is observational; one replaces the solver residual and is rejected.
+    "NM_FEM_TRUE_RESIDUAL_RESTART",
+    "NM_FEM_TRUE_RESIDUAL_NEWTON_SELECTOR",
+    "NM_FEM_RESIDUAL_ARMIJO_TRACE_ROOT",
 })
 
 
@@ -243,9 +248,25 @@ def _validate_diagnostic_capture(case_dir: Path, environment: dict[str, str]) ->
         except (OSError, ValueError) as error:
             raise ComparisonError("diagnostic capture must be retained inside its own attempt directory") from error
         _safe_regular_file(resolved)
-    trace = environment.get("NM_FEM_NEWTON_TRACE_ROOT")
-    if trace is not None and trace not in {"0", "1"}:
-        raise ComparisonError(f"invalid Newton trace selector: {trace!r}")
+    for key in ("NM_FEM_NEWTON_TRACE_ROOT", "NM_FEM_TRUE_RESIDUAL_ROOT",
+                "NM_FEM_RESIDUAL_ARMIJO_TRACE_ROOT"):
+        trace = environment.get(key)
+        if trace is not None:
+            if not re.fullmatch(r"\d+", trace) or int(trace) > 0xffffffff:
+                raise ComparisonError(f"invalid diagnostic control selector {key}: {trace!r}")
+            if selector is not None and int(trace) != int(selector.split(":", 1)[0]):
+                raise ComparisonError("diagnostic-enabled traces must select the captured control step")
+    replacement = environment.get("NM_FEM_TRUE_RESIDUAL_RESTART")
+    if replacement is not None and (replacement != "0" or
+            environment.get("NM_FEM_TRUE_RESIDUAL_ROOT") is None):
+        raise ComparisonError("numerical algorithm difference: true residual replacement changes the solver; only observational restart=0 is admitted")
+    newton = environment.get("NM_FEM_TRUE_RESIDUAL_NEWTON_SELECTOR")
+    if newton is not None:
+        if (not re.fullmatch(r"\d+", newton) or int(newton) > 256 or
+                environment.get("NM_FEM_TRUE_RESIDUAL_ROOT") is None):
+            raise ComparisonError("invalid true residual Newton selector")
+        if selector is not None and int(newton) != int(selector.split(":", 1)[1]):
+            raise ComparisonError("true residual Newton selector must select the captured Newton iteration")
 
 
 def _enumerate_output_files(output_dir: Path, *, require_probe_result: bool = True) -> dict[str, dict[str, Any]]:
@@ -315,8 +336,7 @@ def compare_attempts(left_path: str | Path, right_path: str | Path) -> dict[str,
         raise ComparisonError("shared solver diagnostic/physics environment differs")
     if (left["environment"].get("NM_FEM_OPERATOR_FD_SELECTOR") is None or
             right["environment"].get("NM_FEM_OPERATOR_FD_SELECTOR") is not None or
-            left["environment"].get("NM_FEM_NEWTON_TRACE_ROOT") != "1" or
-            right["environment"].get("NM_FEM_NEWTON_TRACE_ROOT") is not None):
+            any(right["environment"].get(key) is not None for key in DIAGNOSTIC_ENV_KEYS)):
         raise ComparisonError("expected a diagnostic-enabled left run and diagnostic-disabled right control")
 
     changed_env_keys = sorted(key for key in set(left["environment"]) | set(right["environment"])

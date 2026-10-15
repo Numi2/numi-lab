@@ -203,15 +203,31 @@ def _native_base_arguments(run: Any) -> list[str]:
         "--newton-iterations", str(solver["newton_iteration_budget"]),
         "--material-iterations", str(solver["local_material_newton_iterations"]),
         "--fgmres-iterations", str(solver["fgmres_iteration_budget"]),
+        "--fgmres-restart", str(solver["fgmres_restart"]),
+        "--line-search-steps", str(solver["line_search_steps"]),
         "--residual-tolerance", format(float(solver["relative_residual_tolerance"]), ".17g"),
     ]
     preconditioner = solver.get("fgmres_preconditioner")
-    if preconditioner == "regional_tangent_fem_diagonal":
-        args += ["--fgmres-preconditioner", "regional-tangent-diagonal"]
-    elif preconditioner == "scalar_diagonal":
-        args += ["--fgmres-preconditioner", "scalar"]
-    else:
+    preconditioner_flags = {
+        "scalar_diagonal": "scalar",
+        "regional_tangent_fem_diagonal": "regional-tangent-diagonal",
+        "regional_galerkin_rap": "regional-galerkin",
+        "regional_galerkin_block_jacobi": "regional-galerkin-block",
+        "regional_galerkin_contact_rap": "regional-galerkin-contact",
+    }
+    if preconditioner not in preconditioner_flags:
         raise StudyError(f"unsupported or missing preconditioner in baseline: {preconditioner!r}")
+    args += ["--fgmres-preconditioner", preconditioner_flags[preconditioner]]
+    if not 1 <= int(solver["fgmres_restart"]) <= 16:
+        raise StudyError("baseline restart exceeds the declared ceiling of16")
+    for key, flag in (("fgmres_algorithmic_tangent_cache", "--cache-fem-algorithmic-tangent"),
+                      ("paper_compensated_arithmetic", "--compensated-paper-arithmetic"),
+                      ("safeguarded_paper_hill_initializer", "--safeguarded-paper-initializer")):
+        value = solver.get(key, False)
+        if type(value) is not bool:
+            raise StudyError(f"baseline {key} must be boolean")
+        if value:
+            args.append(flag)
     if not solver.get("deformable_self_contact", False):
         args.append("--without-self-contact")
     if solver.get("deformation_gradient") == "persistent_reference_displacement":
@@ -223,6 +239,29 @@ def _native_base_arguments(run: Any) -> list[str]:
         args.append("--scaled-paper-residuals")
     elif projection and projection.get("enabled") is not False:
         raise StudyError("baseline paper residual scaling flag is ambiguous")
+    accurate = manifest.get("paper_hill_accurate_projection", {}).get("enabled", False)
+    if type(accurate) is not bool:
+        raise StudyError("baseline accurate projection flag is ambiguous")
+    if accurate:
+        if solver.get("paper_compensated_arithmetic") is not True:
+            raise StudyError("accurate baseline lacks explicit compensated arithmetic policy")
+        args.append("--accurate-paper-projection")
+    if projection.get("enabled") is True and any(key not in solver for key in
+            ("paper_compensated_arithmetic", "safeguarded_paper_hill_initializer")):
+        raise StudyError("scaled baseline lacks explicit arithmetic/initializer policy")
+    try:
+        source_projection = cc._source_projection_policy(manifest)
+    except cc.EvidenceError as error:
+        raise StudyError(str(error)) from error
+    if source_projection:
+        if (accurate or projection.get("enabled") is True
+                or solver.get("safeguarded_paper_hill_initializer", False)):
+            raise StudyError("source15 projection cannot use 13-state Hill projection controls")
+        args.append("--compensated-source-paper-projection")
+    for feature in ("retained_matrix_damage_overlay", "corrugator_starch_interface",
+                    "generic_compensated_implicit_projection"):
+        if manifest.get(feature, {}).get("enabled", False):
+            raise StudyError(f"end-grip study cannot reconstruct enabled {feature}; use its explicit stage study")
     return args
 
 
@@ -312,6 +351,7 @@ def make_plan(*, baseline_dir: Path, probe: Path, metallib: Path, run_root: Path
     cases = []
     for item in _spatial_cases():
         cases.append({**item, "kind": "spatial", "dt_s": protocol["dt_s"],
+                      "relative_residual_tolerance": float(run.manifest["solver"]["relative_residual_tolerance"]),
                       "phase_steps": {p: protocol[p] for p in PHASE_ORDER}})
     # The combined-refined spatial case is the dt reference for a nested
     # temporal triplet.  Counts are multiplied uniformly so every physical
@@ -320,6 +360,7 @@ def make_plan(*, baseline_dir: Path, probe: Path, metallib: Path, run_root: Path
         counts = _time_counts(protocol, factor)
         cases.append({"id": f"time-{label}", "group": "temporal", "kind": "temporal",
                       "mesh": [32, 8, 4], "dt_s": protocol["dt_s"] / factor,
+                      "relative_residual_tolerance": float(run.manifest["solver"]["relative_residual_tolerance"]) / factor,
                       "phase_steps": counts, "time_refinement_factor": factor})
     if slower_load_factor is not None:
         counts = {p: protocol[p] for p in PHASE_ORDER}
@@ -328,6 +369,7 @@ def make_plan(*, baseline_dir: Path, probe: Path, metallib: Path, run_root: Path
             raise StudyError("slower-load case exceeds the native loading-step limit of 10000")
         cases.append({"id": "load-slower", "group": "slower_load", "kind": "load_rate",
                       "mesh": [32, 8, 4], "dt_s": protocol["dt_s"],
+                      "relative_residual_tolerance": float(run.manifest["solver"]["relative_residual_tolerance"]),
                       "phase_steps": counts, "loading_duration_factor": slower_load_factor})
 
     capability = _capability_screen(run.manifest, run.result)
@@ -341,7 +383,7 @@ def make_plan(*, baseline_dir: Path, probe: Path, metallib: Path, run_root: Path
             "no_plateau_claim": "a missing or failed level is inconclusive; no extrapolated plateau or tolerance-derived absolute force accuracy is inferred",
             "spatial_axes": {"nx": [8, 16, 32], "ny": [2, 4, 8], "thickness_slices": [1, 2, 4], "combined_refined": [32, 8, 4]},
             "temporal_axis": "dt, dt/2, dt/4 at 32x8x4 with all five physical phase durations and loading speed unchanged",
-            "force_accuracy": "hold the relative residual setting fixed; report accepted native free-force residuals in newtons; this is not an absolute error bound because the residual normalization scale is not exported",
+            "force_accuracy": "hold relative residual tolerance / dt fixed by tightening tolerance on time refinement; report accepted native free-force residuals in newtons separately; this ratio is not an absolute force error bound because the residual normalization scale is not exported",
             "max_free_force_residual_n": force_limit,
         },
         "baseline": {
@@ -428,6 +470,9 @@ def _verify_bindings(plan: dict[str, Any]) -> None:
 def _native_args(case: dict[str, Any], common: list[str], output: Path,
                  metallib: Path) -> list[str]:
     args = list(common)
+    if "relative_residual_tolerance" in case:
+        index = args.index("--residual-tolerance")
+        args[index + 1] = format(float(case["relative_residual_tolerance"]), ".17g")
     args.extend(["--nx", str(case["mesh"][0]), "--ny", str(case["mesh"][1]),
                  "--thickness-slices", str(case["mesh"][2]),
                  "--dt", format(float(case["dt_s"]), ".17g")])
@@ -725,7 +770,8 @@ def analyze_study(plan: dict[str, Any], case_paths: dict[str, Path]) -> dict[str
             pair_results[pair_name] = {"status": "inconclusive_missing_run", "left": left, "right": right}
             continue
         kind = comparison["kind"]
-        report = cc.analyze_pair(runs[left].path, runs[right].path, kind, list(PHASE_ORDER))
+        report = cc.analyze_pair(runs[left].path, runs[right].path, kind, list(PHASE_ORDER),
+                                 force_matched_tolerance=(kind == "temporal"))
         if report.get("status") != "analyzed_descriptive":
             pair_results[pair_name] = {"status": report.get("status"), "admission": report}
             continue

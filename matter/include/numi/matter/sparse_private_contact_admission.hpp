@@ -77,7 +77,11 @@ admitSparsePrivateContact(
     const std::uint32_t pairCount,
     const std::uint32_t candidateCapacity,
     const bool parity,
-    const bool hasFreeRigidUnknowns
+    const bool hasFreeRigidUnknowns,
+    // Allocation-time exception for the bounded one-body, translation-only
+    // BOX Armijo scope. The encoder still verifies the complete proxy/body
+    // layout before dispatching any trial kernels.
+    const bool boundedFreeBoxScope = false
 ) noexcept {
     SparsePrivateContactAdmission result;
     if (environmentCount == 0u || environmentCount > 4u) {
@@ -97,7 +101,7 @@ admitSparsePrivateContact(
             SparsePrivateContactAdmissionError::candidate_capacity_exceeds_pair_domain;
         return result;
     }
-    if (hasFreeRigidUnknowns) {
+    if (hasFreeRigidUnknowns && !boundedFreeBoxScope) {
         result.error =
             SparsePrivateContactAdmissionError::free_rigid_unknowns_unsupported;
         return result;
@@ -188,7 +192,7 @@ admitSparsePrivateContact(
         case SparsePrivateContactAdmissionError::flattened_pair_domain_exceeds_uint32:
             return "sparse private flattened pair index exceeds uint32";
         case SparsePrivateContactAdmissionError::free_rigid_unknowns_unsupported:
-            return "sparse_private_contact_does_not_support_free_rigid_unknowns";
+            return "sparse private free-rigid residual is limited to the admitted one-body six-DOF BOX scope";
         case SparsePrivateContactAdmissionError::size_arithmetic_overflow:
             return "sparse private contact scratch size arithmetic overflow";
         case SparsePrivateContactAdmissionError::scratch_budget_exceeded:

@@ -7,6 +7,7 @@
 
 #include <algorithm>
 #include <array>
+#include <chrono>
 #include <cmath>
 #include <cstring>
 #include <filesystem>
@@ -1420,6 +1421,83 @@ void checkMaterialSelectionDefaults(const std::filesystem::path& materialDirecto
                 !numi::cardboard::paper_materials::isBilinearFitIdentity(
                 "hajali2009_liner_hill_ideal"),
             "bilinear/ideal overlay compatibility identity guard is incorrect");
+
+    using numi::cardboard::paper_materials::source15ProjectionRequestAdmitted;
+    const auto fitLiner = "hajali2009_liner_hill_bilinear_fit";
+    const auto fitMedium = "hajali2009_medium_hill_bilinear_fit";
+    const auto c1Liner = "hajali2009_liner_hill_asymmetric_c1_transfer";
+    const auto c1Medium = "hajali2009_medium_hill_asymmetric_c1_transfer";
+    require(source15ProjectionRequestAdmitted(
+                "literature2009", false, false, true, false,
+                fitLiner, fitMedium),
+            "compensated source projection did not admit the registered 15-state fit pair");
+    require(source15ProjectionRequestAdmitted(
+                "literature2009", false, false, true, false,
+                c1Liner, c1Medium),
+            "compensated source projection did not admit the registered 15-state C1 pair");
+    require(!source15ProjectionRequestAdmitted(
+                "literature2009", true, false, true, false,
+                fitLiner, fitMedium) &&
+            !source15ProjectionRequestAdmitted(
+                "literature2009", false, true, true, false,
+                fitLiner, fitMedium) &&
+            !source15ProjectionRequestAdmitted(
+                "literature2009", false, false, false, false,
+                fitLiner, fitMedium) &&
+            !source15ProjectionRequestAdmitted(
+                "literature2009", false, false, true, true,
+                fitLiner, fitMedium) &&
+            !source15ProjectionRequestAdmitted(
+                "nagasawa2013", false, false, true, false,
+                fitLiner, fitMedium) &&
+            !source15ProjectionRequestAdmitted(
+                "literature2009", false, false, true, false,
+                fitLiner, c1Medium) &&
+            !source15ProjectionRequestAdmitted(
+                "literature2009", false, false, true, false,
+                "custom_liner", "custom_medium"),
+            "source projection admission accepted an overlay, missing arithmetic, 13-state policy, unsupported preset/material, no-medium, or mixed asset pair");
+
+    for (const auto& name : std::array<std::string_view, 4>{
+             fitLiner, fitMedium, c1Liner, c1Medium}) {
+        const auto parsed = parseMatterFile(
+            materialDirectory / (std::string(name) + ".nmatter"));
+        require(parsed.succeeded(),
+                "registered source 15-state asset no longer parses: " +
+                    std::string(name));
+        const MaterialProgram& material = parsed.material;
+        require(material.internalState.size() == 15u &&
+                    material.stateImplicitRoots.size() == 15u &&
+                    std::all_of(material.stateImplicitRoots.begin(),
+                        material.stateImplicitRoots.end(),
+                        [](const std::uint32_t root) {
+                            return root != NM_INVALID_INDEX;
+                        }),
+                "registered source hardening asset is not a complete 15-state implicit model: " +
+                    std::string(name));
+        auto ordinaryCook = numi::matter::detail::compileConstitutive(
+            material, NM_EXPRESSION_STACK_CAPACITY);
+        require(ordinaryCook.succeeded(),
+                "registered 15-state source asset failed ordinary constitutive compilation: " +
+                    std::string(name));
+        MaterialProgram compensated = material;
+        compensated.paperCompensatedArithmetic = true;
+        compensated.genericCompensatedImplicitProjection = true;
+        const auto compensatedCook = numi::matter::detail::compileConstitutive(
+            compensated, NM_EXPRESSION_STACK_CAPACITY);
+        require(compensatedCook.succeeded(),
+                "registered source asset rejected the requested compensated 15-state policy: " +
+                    std::string(name) + ": " + diagnostics(compensatedCook.diagnostics));
+        const std::uint32_t requiredFlags =
+            NM_MATERIAL_PAPER_COMPENSATED_ARITHMETIC |
+            NM_MATERIAL_GENERIC_COMPENSATED_IMPLICIT_PROJECTION;
+        require((compensatedCook.program.gpu.flags & requiredFlags) ==
+                    requiredFlags &&
+                    compensatedCook.program.fingerprint !=
+                        ordinaryCook.program.fingerprint,
+                "15-state source policy failed to bind its effective constitutive flags and fingerprint: " +
+                    std::string(name));
+    }
 }
 
 paper::Matrix compiledAlgorithmicTangent(const ConstitutiveProgram& program,
@@ -1646,19 +1724,59 @@ void checkLocalMaterialBudget(const MaterialProgram& material) {
         defaultCook.world.constitutive.at(0).gpu.localNewtonIterations==8u,
         "omitted local material budget did not retain the historical default of eight");
 
-    CompileOptions extendedOptions=defaultOptions;
-    extendedOptions.localMaterialNewtonIterations=16u;
-    const auto extendedCook=compileWorld(source,extendedOptions);
-    require(extendedCook.succeeded(),"16-iteration local material budget cook failed: "+diagnostics(extendedCook.diagnostics));
-    require(extendedCook.world.materials.at(0).localNewtonIterations==16u &&
-        extendedCook.world.constitutive.at(0).gpu.localNewtonIterations==16u,
-        "selected local material budget was not copied into both cooked material views");
-    require(defaultCook.world.fingerprint!=extendedCook.world.fingerprint,
-        "compiled fingerprint did not bind the local material Newton budget");
-    require(defaultCook.world.physicsFingerprint!=extendedCook.world.physicsFingerprint,
-        "physics fingerprint did not bind the local material Newton budget");
+    std::array<CompileResult,3> budgetCooks;
+    constexpr std::array<std::uint32_t,3> admittedBudgets{16u,24u,32u};
+    std::uint64_t previousFingerprint=defaultCook.world.fingerprint;
+    std::uint64_t previousPhysicsFingerprint=defaultCook.world.physicsFingerprint;
+    std::string validationError;
+    for(std::size_t index=0u;index<admittedBudgets.size();++index) {
+        const std::uint32_t budget=admittedBudgets[index];
+        CompileOptions selectedOptions=defaultOptions;
+        selectedOptions.localMaterialNewtonIterations=budget;
+        budgetCooks[index]=compileWorld(source,selectedOptions);
+        const auto& cooked=budgetCooks[index];
+        require(cooked.succeeded(),std::to_string(budget)+
+            "-iteration local material budget cook failed: "+diagnostics(cooked.diagnostics));
+        require(cooked.world.materials.at(0).localNewtonIterations==budget &&
+            cooked.world.constitutive.at(0).gpu.localNewtonIterations==budget,
+            "selected local material budget was not copied into both cooked material views");
+        require(cooked.world.fingerprint!=previousFingerprint &&
+            cooked.world.physicsFingerprint!=previousPhysicsFingerprint,
+            "compiled fingerprints did not bind each selected local material budget");
+        require(validateCompiledWorldLayout(cooked.world,&validationError),
+            std::to_string(budget)+"-iteration world failed compiled layout validation: "+validationError);
+        previousFingerprint=cooked.world.fingerprint;
+        previousPhysicsFingerprint=cooked.world.physicsFingerprint;
+    }
 
-    for (const std::uint32_t invalid:{0u,17u}) {
+    // Exercise the actual package serializer/reader at the new upper boundary,
+    // then verify the independent layout validator rejects a tampered 33-step
+    // material before any package can be admitted.
+    const auto uniqueToken=std::chrono::steady_clock::now().time_since_epoch().count();
+    const auto packagePath=std::filesystem::temp_directory_path()/
+        ("numi-cardboard-local-material-budget-32-"+
+         std::to_string(uniqueToken)+".nmatterpkg");
+    std::error_code filesystemError;
+    std::string packageError;
+    require(writePackage(budgetCooks.back(),packagePath,&packageError),
+        "32-iteration material package write failed: "+packageError);
+    CompiledWorld roundTrip;
+    packageError.clear();
+    require(readPackage(packagePath,roundTrip,nullptr,&packageError),
+        "32-iteration material package read failed: "+packageError);
+    require(roundTrip.materials.at(0).localNewtonIterations==32u &&
+        roundTrip.fingerprint==budgetCooks.back().world.fingerprint &&
+        roundTrip.physicsFingerprint==budgetCooks.back().world.physicsFingerprint,
+        "package round trip did not preserve the 32-iteration material budget and fingerprints");
+    require(validateCompiledWorldLayout(roundTrip,&validationError),
+        "32-iteration package failed layout validation: "+validationError);
+    std::filesystem::remove(packagePath,filesystemError);
+    roundTrip.materials.at(0).localNewtonIterations=33u;
+    require(!validateCompiledWorldLayout(roundTrip,&validationError) &&
+        validationError.find("material 0")!=std::string::npos,
+        "serialized-layout validation admitted a tampered 33-iteration material");
+
+    for (const std::uint32_t invalid:{0u,33u}) {
         CompileOptions invalidOptions=defaultOptions;
         invalidOptions.localMaterialNewtonIterations=invalid;
         const auto rejected=compileWorld(source,invalidOptions);

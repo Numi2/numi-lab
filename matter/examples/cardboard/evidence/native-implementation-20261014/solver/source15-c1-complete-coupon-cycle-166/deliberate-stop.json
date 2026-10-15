@@ -1,0 +1,8 @@
+{
+  "schema": "numi.cardboard.deliberate-stop.v1",
+  "timestamp_utc": "2026-10-15T03:06:35.842812+00:00",
+  "pid": 14633,
+  "signal": "SIGTERM",
+  "reason": "Preserve incomplete two-control C1 run; redundant converged-Newton tangent-cache rebuild confirmed by source inspection. Reassign the sole GPU to corrected source-bound diagnostics and guarded complete-cycle follow-up. Not a timeout or physical completion.",
+  "physical_qualification": false
+}

@@ -1,0 +1,33 @@
+{
+  "schema": "numi.cardboard.robertsson_primary_audit.v1",
+  "audit_date": "2026-10-15",
+  "report": {
+    "path": "report.md",
+    "sha256": "c07a268b4cb8d20432bd63187a1f2c3c3e8f08fe487116a61160abde78dfff7f"
+  },
+  "primary_source": {
+    "citation": "Robertsson et al. (2023), A continuum damage model for creasing and folding of paperboard, Packaging Technology and Science 36(12), 1037-1050",
+    "doi": "10.1002/pts.2774",
+    "official_html_url": "https://onlinelibrary.wiley.com/doi/full/10.1002/pts.2774",
+    "official_pdf_reader_url": "https://onlinelibrary.wiley.com/doi/pdf/10.1002/pts.2774",
+    "reader_access_date": "2026-10-15",
+    "reader_available_pages": 14,
+    "official_source_bytes_retained": false,
+    "official_pdf_sha256": null,
+    "reason_no_byte_hash": "Direct publisher byte download returned HTTP 403; source equation text was accessible through Wiley's PDF reader, but no original bytes are retained or claimed."
+  },
+  "audited_local_inputs": [
+    {"path": "/Users/home/numi-cardboard-20261006/matter/tools/robertsson2023_material.hpp", "sha256": "52dc8daf9e417e773ec25ef288561460e786d7aa1e5dce8f715f94ebc61da3f7"},
+    {"path": "/Users/home/numi-cardboard-20261006/matter/tools/robertsson_fem_coupling_check.mm", "sha256": "755ff822c826553de655413f5ead270c071f99a36bad9988acacdd338fb75380"},
+    {"path": "/Users/home/numi-cardboard-20261006/matter/tools/compare_robertsson_fem_point.py", "sha256": "06b70eb62f42b7e575c7387e7cc74024b6d53cf8747f143a556ae45f1744d426"},
+    {"path": "/Users/home/numi-cardboard-20261006/matter/materials/robertsson2023_bulk_damage_architecture.md", "sha256": "9868269e3393103087a804d7f8497873c0594e4416bf3a7541ea71bb5e4474b2"},
+    {"path": "/Users/home/numi-cardboard-20261006/matter/examples/cardboard/source-data/robertsson_2023_eq18_source_extract.md", "sha256": "fd1ddbfb50d039232b359d58e0a2245151e70cd42755dc8fbfb08b0acf71bddc"},
+    {"path": "/Users/home/numi-cardboard-20261006/matter/examples/cardboard/source-data/robertsson_2023_absolute_energy_audit.md", "sha256": "df109c5e3d052afd33bae3ecae8ccb80d2da89f20165ccaa499f12c1f5b4c910"},
+    {"path": "/Users/home/numi-cardboard-20261006/matter/examples/cardboard/source-data/robertsson_2023_eq18_compression_branch.csv", "sha256": "8392aef6412eda1467e787a265a6ae6094f3ce81368187e3937a0e061340608e"},
+    {"path": "/Users/home/numi-cardboard-20261006/matter/examples/cardboard/source-data/robertsson_2023_identity_energy_benchmark.csv", "sha256": "43ab56d710de5a43da450563b2db3a1f7b30caf4c4e3511aebd26e4e800409cd"},
+    {"path": "/Users/home/numi-cardboard-20261006/matter/examples/cardboard/source-data/robertsson_2023_strength_hardening.csv", "sha256": "f3f35358ca3bef1719b1ec62d52939951a6cdf5830d320bbefaae4087344727f"},
+    {"path": "/Users/home/numi-cardboard-20261006/matter/examples/cardboard/source-data/catalog.json", "sha256": "f812ca264c3f0cd15e98178aeae090332eb753d127a199906a9ebc800e3a62c1"}
+  ],
+  "finding": "The printed Eq. 18 compression branch and the article's Psi0 >= 0 statement conflict. The current implementation explicitly preserves paper_absolute and recentered conventions; no equation correction is warranted from this audit.",
+  "scope_exclusions": ["No parameter transfer to kraft liner, NSSC medium, corrugated board, or starch interface", "No physical or independent curve validation", "No original PDF byte hash"]
+}

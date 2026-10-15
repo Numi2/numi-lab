@@ -2790,13 +2790,25 @@ kernel void nm_fem_build_algorithmic_tangent_cache(
     device float* tangentCache [[buffer(12)]],
     device uint* validEntries [[buffer(13)]],
     device const NMMatterStatusGPU* statuses [[buffer(14)]],
+    device const NMFGMRESStateGPU* fgmresStates [[buffer(15)]],
+    constant uint& forceCompletedCacheRebuild [[buffer(16)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint total = dispatch.environmentCount * dispatch.tetrahedronCount;
     if (global >= total || dispatch.tetrahedronCount == 0u) return;
+    const uint environment = global / dispatch.tetrahedronCount;
+    // The full nonlinear convergence latch is written only after the
+    // production residual/correction/support gates pass. Later statically
+    // encoded Newton-tail iterations leave the accepted candidate unchanged;
+    // retain its exact cache instead of projecting all 9 columns again.
+    // Newton iteration zero always rebuilds, even if this state buffer still
+    // carries a latch from the preceding transaction.
+    if (forceCompletedCacheRebuild == 0u &&
+        microstep.solverIteration > 0u &&
+        fgmresStates[environment].nonlinear.w > 0.5f)
+        return;
     validEntries[global] = 0u;
 
-    const uint environment = global / dispatch.tetrahedronCount;
     const uint tetrahedronIndex =
         global - environment * dispatch.tetrahedronCount;
     if (!environmentHealthy(statuses, environment)) return;
@@ -3443,6 +3455,7 @@ kernel void nm_fem_operator_fd_initialize(
 // selected command buffer finishes. Slot values are raw FP32 observations.
 constant uint kFEMOperatorFDNodeCaptureSlots = 37u;
 constant uint kFEMOperatorFDTetCaptureSlots = 251u;
+constant uint kFEMOperatorFDCachedTangentSlots = 22u;
 constant uint kFEMOperatorFDParameterValuesPerSlot = 4u;
 constant uint kFEMOperatorFDTetCenterOffset = 7u;
 constant uint kFEMOperatorFDTetSideOffset = 71u;
@@ -3542,6 +3555,42 @@ kernel void nm_fem_operator_fd_capture_initialize(
         (dispatch.parameterCount + kFEMOperatorFDParameterValuesPerSlot - 1u) /
             kFEMOperatorFDParameterValuesPerSlot);
     if (global < total) capture[global] = float4(NAN);
+}
+
+// Append an exact snapshot of the already-built production cache. This is
+// diagnostic-only: invalid entries are represented by zeros plus a separate
+// bitcast validity word and are never recomputed or read as a fallback.
+kernel void nm_fem_operator_fd_capture_cached_tangent(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const float* tangentCache [[buffer(1)]],
+    device const uint* tangentCacheValid [[buffer(2)]],
+    device float4* capture [[buffer(3)]],
+    uint global [[thread_position_in_grid]]) {
+    const uint total = dispatch.environmentCount * dispatch.tetrahedronCount;
+    if (global >= total || dispatch.tetrahedronCount == 0u) return;
+    const uint parameterSlots =
+        (dispatch.parameterCount + kFEMOperatorFDParameterValuesPerSlot - 1u) /
+        kFEMOperatorFDParameterValuesPerSlot;
+    const uint baseCaptureSlots = dispatch.environmentCount * (
+        dispatch.femNodeCount * kFEMOperatorFDNodeCaptureSlots +
+        dispatch.tetrahedronCount * kFEMOperatorFDTetCaptureSlots +
+        parameterSlots);
+    const uint record = baseCaptureSlots + global *
+        kFEMOperatorFDCachedTangentSlots;
+    const uint valid = tangentCacheValid[global] == 1u ? 1u : 0u;
+    const uint cacheBase = global * 81u;
+    for (uint slot = 0u; slot < 21u; ++slot) {
+        float4 packed = float4(0.0f);
+        if (valid != 0u) {
+            for (uint component = 0u; component < 4u; ++component) {
+                const uint index = slot * 4u + component;
+                if (index < 81u)
+                    packed[component] = tangentCache[cacheBase + index];
+            }
+        }
+        capture[record + slot] = packed;
+    }
+    capture[record + 21u] = float4(as_type<float>(valid), 0.0f, 0.0f, 0.0f);
 }
 
 kernel void nm_fem_operator_fd_capture_parameters(
@@ -4000,6 +4049,10 @@ kernel void nm_fem_operator_fd_compare_inputs(
     device const NMFEMNodeStateGPU* acceptedNodes [[buffer(8)]],
     device const NMFEMNodeStateGPU* nodeSnapshot [[buffer(9)]],
     constant uint& captureNodes [[buffer(10)]],
+    device const float* tangentCache [[buffer(11)]],
+    device const uint* tangentCacheValid [[buffer(12)]],
+    device const float4* capture [[buffer(13)]],
+    constant uint& captureTangentCache [[buffer(14)]],
     uint global [[thread_position_in_grid]]) {
     const uint historyWords = dispatch.environmentCount *
         dispatch.tetrahedronCount * dispatch.materialStateStride;
@@ -4030,6 +4083,34 @@ kernel void nm_fem_operator_fd_compare_inputs(
             reinterpret_cast<device const uint*>(nodeSnapshot);
         if (source[global] != snapshot[global])
             atomic_store_explicit(unchanged, 0u, memory_order_relaxed);
+    }
+    const uint cacheEntryCount = dispatch.environmentCount *
+        dispatch.tetrahedronCount;
+    if (captureTangentCache != 0u && global < cacheEntryCount) {
+        const uint parameterSlots =
+            (dispatch.parameterCount + kFEMOperatorFDParameterValuesPerSlot - 1u) /
+            kFEMOperatorFDParameterValuesPerSlot;
+        const uint baseCaptureSlots = dispatch.environmentCount * (
+            dispatch.femNodeCount * kFEMOperatorFDNodeCaptureSlots +
+            dispatch.tetrahedronCount * kFEMOperatorFDTetCaptureSlots +
+            parameterSlots);
+        device const float4* snapshot = capture + baseCaptureSlots +
+            global * kFEMOperatorFDCachedTangentSlots;
+        const uint snapshotValid = as_type<uint>(snapshot[21u].x);
+        const uint currentValid = tangentCacheValid[global];
+        if (currentValid != snapshotValid)
+            atomic_store_explicit(unchanged, 0u, memory_order_relaxed);
+        if (snapshotValid == 1u) {
+            const uint cacheBase = global * 81u;
+            for (uint component = 0u; component < 81u; ++component) {
+                const float4 packed = snapshot[component / 4u];
+                const float snapshotValue = packed[component % 4u];
+                if (as_type<uint>(tangentCache[cacheBase + component]) !=
+                    as_type<uint>(snapshotValue))
+                    atomic_store_explicit(unchanged, 0u,
+                        memory_order_relaxed);
+            }
+        }
     }
 }
 

@@ -1,0 +1,2 @@
+fem_full_contact_residual_armijo_skipped={"schema":1,"root":1200,"reason":"request_scoped_features_outside_static_box_armijo_slice"}
+fem_residual_armijo_trace_skipped={"schema":1,"root":1200,"reason":"residual_armijo_not_enabled_for_selected_step"}

@@ -13,13 +13,15 @@ kernel void cardboard_paper_check(
     uint index [[thread_position_in_grid]]) {
     if (index != 0u) return;
     using namespace numi_matter_metal;
-    float f[9], h[9], fLow[9];
+    float f[9], h[9], fLow[9], rate[9];
     for (uint i=0; i<9; ++i) {
         f[i]=inputs[i];
         h[i]=inputs[9+i];
         fLow[i]=inputs[18+i];
+        rate[i]=inputs[27+i];
     }
-    const bool accurateProjection = inputs[27] != 0.0f;
+    const float timestep = inputs[36];
+    const bool accurateProjection = inputs[37] != 0.0f;
     const float3x3 F=componentsMatrix(f), H=componentsMatrix(h);
     float state[NM_MAX_MATERIAL_STATE];
     float stateLow[NM_MAX_MATERIAL_STATE] = {0.0f};
@@ -28,7 +30,8 @@ kernel void cardboard_paper_check(
     bool valid=true;
     float3x3 stress(0.0f), tangent(0.0f);
     evaluateAlgorithmicStressTangent(material,programs,instructions,
-        parameters,accepted,F,H,float3x3(0.0f),float3x3(0.0f),1e-4f,293.15f,
+        parameters,accepted,F,H,componentsMatrix(rate),float3x3(0.0f),
+        timestep,293.15f,
         stress,tangent,valid,state,&flags,&residual,&stateNorm,&iterations,&failure,
         accurateProjection ? fLow : nullptr,
         accurateProjection ? stateLow : nullptr);
@@ -49,6 +52,65 @@ kernel void cardboard_paper_check(
     for (uint i=0;i<NM_MAX_MATERIAL_STATE;++i)
         output[25+NM_MAX_MATERIAL_STATE+i] =
             accurateProjection && i<material.stateCount ? stateLow[i] : 0.0f;
+}
+
+// Bounded replay diagnostic: evaluate the compiled production implicit
+// residual bytecode at four caller-supplied state snapshots. This is not a
+// projection and cannot modify accepted history. Each thread handles one
+// candidate so the source/reference states remain directly comparable.
+kernel void cardboard_paper_compiled_residual_rows(
+    constant NMMaterialGPU& material [[buffer(0)]],
+    device const NMScalarProgramGPU* programs [[buffer(1)]],
+    device const NMExpressionInstructionGPU* instructions [[buffer(2)]],
+    device const float* parameters [[buffer(3)]],
+    device const float* accepted [[buffer(4)]],
+    device const float* inputs [[buffer(5)]],
+    device float* output [[buffer(6)]],
+    uint candidateIndex [[thread_position_in_grid]]) {
+    constexpr uint candidateCount=4u;
+    constexpr uint candidateStride=1u+2u*NM_MAX_MATERIAL_STATE;
+    constexpr uint outputStride=2u+2u*NM_MAX_MATERIAL_STATE;
+    if(candidateIndex>=candidateCount) return;
+    using namespace numi_matter_metal;
+    float f[9],fLow[9],rate[9];
+    for(uint i=0u;i<9u;++i){f[i]=inputs[i];fLow[i]=inputs[9u+i];rate[i]=inputs[18u+i];}
+    float candidateHigh[NM_MAX_MATERIAL_STATE]={0.0f};
+    float candidateLow[NM_MAX_MATERIAL_STATE]={0.0f};
+    const uint candidateBase=40u+candidateIndex*candidateStride;
+    const bool candidateAvailable=inputs[candidateBase]>=0.5f;
+    if(!candidateAvailable){
+        const uint base=candidateIndex*outputStride;
+        output[base]=0.0f;output[base+1u]=0.0f;
+        for(uint i=0u;i<2u*NM_MAX_MATERIAL_STATE;++i)output[base+2u+i]=0.0f;
+        return;
+    }
+    for(uint i=0u;i<material.stateCount;++i){
+        candidateHigh[i]=inputs[candidateBase+1u+i];
+        candidateLow[i]=inputs[candidateBase+1u+NM_MAX_MATERIAL_STATE+i];
+    }
+    const NMPaperCandidateState candidate{candidateHigh,candidateLow};
+    float residual[NM_MAX_MATERIAL_STATE]={0.0f};
+    float unusedJacobian[1]={0.0f};
+    MRCompensatedScalar residualWords[NM_MAX_MATERIAL_STATE];
+    bool valid=material.stateCount>0u&&
+        material.stateCount<=NM_MAX_MATERIAL_STATE&&
+        material.implicitResidualProgramOffset!=NM_INVALID_INDEX;
+    bool nonfinite=false;
+    if(valid){
+        valid=evaluateImplicitMaterialSystem(material,programs,instructions,
+            parameters,accepted,candidate,componentsMatrix(f),float3x3(0.0f),
+            componentsMatrix(rate),inputs[300u],293.15f,residual,unusedJacobian,false,
+            &nonfinite,fLow,residualWords,nullptr);
+    }
+    const uint base=candidateIndex*outputStride;
+    output[base]=valid?1.0f:0.0f;
+    output[base+1u]=nonfinite?1.0f:0.0f;
+    for(uint i=0u;i<NM_MAX_MATERIAL_STATE;++i){
+        output[base+2u+i]=valid&&i<material.stateCount?
+            residualWords[i].high:0.0f;
+        output[base+2u+NM_MAX_MATERIAL_STATE+i]=
+            valid&&i<material.stateCount?residualWords[i].low:0.0f;
+    }
 }
 
 // Diagnostic sibling of the production-path checker above. It runs the same

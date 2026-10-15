@@ -1,0 +1,9 @@
+{
+  "command": "/Users/home/.pyenv/versions/3.10.12/bin/python3 /Users/home/numi-cardboard-20261006/matter/tools/cardboard_offline_conditioning_study.py --operator-report /Users/home/cardboard-implementation-20261014/analysis/offline-operator-tool-development-058/run-175/operator-audit.json --rap-export /Users/home/cardboard-implementation-20261014/solver/full-native-tangent-cache-failing-coupon-capture-175/output/rejected-conditioning-000004 --output /tmp/source175-rap-study.json",
+  "consumer_sha256": "62033b52be3605aeca3fb91d5dd4a85eef2fb4aa2b1526d08725cc50edb7d956",
+  "exit_code": 2,
+  "meaning": "strict native AP parity gate stopped before any RAP GMRES comparison; no bypass or fallback was performed.",
+  "report_sha256": "4fb63acfe199cc8abe599135e0fc0e29497efe97a7986b0ebdeb6fe8ba03e4b8",
+  "schema": "numi.cardboard.source175-rap-admission-failure.v1",
+  "stderr": "offline conditioning study rejected: ValueError: offline A*P differs from native AP export by 119781"
+}

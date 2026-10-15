@@ -1,0 +1,23 @@
+{
+  "schema": "numi.cardboard.cpu-audit-receipt.v1",
+  "compile": [
+    "xcrun",
+    "clang++",
+    "-O2",
+    "-std=c++20",
+    "-fobjc-arc",
+    "-framework",
+    "Foundation",
+    "-I",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-canonical-fp32-replay-and-rigid-checkpoint-integrated-061/matter/tools",
+    "/Users/home/cardboard-implementation-20261014/analysis/canonical192-analytic-derivative-audit-001/audit.mm",
+    "-o",
+    "/Users/home/cardboard-implementation-20261014/analysis/canonical192-analytic-derivative-audit-001/audit"
+  ],
+  "exit_code": 0,
+  "finished_at_utc": "2026-10-15T04:22:02.108830+00:00",
+  "binary_sha256": "f46f269adfb666520c3e21878f29ee6e460980b569fd52b13927fa1a09388bd0",
+  "rows_sha256": "aef0bef00b62f218c4e21a131ce2db2aae735144b3c5a075b9ae8d5447c92321",
+  "physical_steps": 0,
+  "physical_validation": false
+}

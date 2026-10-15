@@ -137,6 +137,18 @@ class DiagnosticHistoryComparatorTests(unittest.TestCase):
         with self.assertRaisesRegex(compare.ComparisonError, "physical argv differs"):
             compare.compare_attempts(self.left, self.right)
 
+    def test_capture_without_newton_trace_retains_same_parity_contract(self):
+        path, value = self._prediction(self.left)
+        del value["environment"]["NM_FEM_NEWTON_TRACE_ROOT"]
+        _write_json(path, value)
+        report = compare.compare_attempts(self.left, self.right)
+        self.assertEqual(report["comparison"], "byte_identical")
+        self.assertEqual(report["qualification"]["status"], "not_qualified")
+        value["environment"]["NM_FEM_NEWTON_TRACE_ROOT"] = "0"
+        _write_json(path, value)
+        with self.assertRaisesRegex(compare.ComparisonError, "diagnostic-enabled"):
+            compare.compare_attempts(self.left, self.right)
+
     def test_output_pair_may_precede_bound_material_arguments(self):
         for case in (self.left, self.right):
             path, value = self._prediction(case)
@@ -150,6 +162,26 @@ class DiagnosticHistoryComparatorTests(unittest.TestCase):
         with self.assertRaisesRegex(compare.ComparisonError, "physical argv differs"):
             compare.compare_attempts(self.left, self.right)
 
+    def test_late_control_linear_capture_is_observational_only(self):
+        path, value = self._prediction(self.left)
+        value["environment"].update({"NM_FEM_OPERATOR_FD_SELECTOR": "3:23",
+                                     "NM_FEM_NEWTON_TRACE_ROOT": "3",
+                                     "NM_FEM_TRUE_RESIDUAL_ROOT": "3",
+                                     "NM_FEM_TRUE_RESIDUAL_RESTART": "0",
+                                     "NM_FEM_RESIDUAL_ARMIJO_TRACE_ROOT": "3"})
+        _write_json(path, value)
+        report = compare.compare_attempts(self.left, self.right)
+        self.assertEqual(report["comparison"], "byte_identical")
+        value["environment"]["NM_FEM_TRUE_RESIDUAL_RESTART"] = "1"
+        _write_json(path, value)
+        with self.assertRaisesRegex(compare.ComparisonError, "replacement changes the solver"):
+            compare.compare_attempts(self.left, self.right)
+        value["environment"]["NM_FEM_TRUE_RESIDUAL_RESTART"] = "0"
+        value["environment"]["NM_FEM_TRUE_RESIDUAL_ROOT"] = "4"
+        _write_json(path, value)
+        with self.assertRaisesRegex(compare.ComparisonError, "captured control step"):
+            compare.compare_attempts(self.left, self.right)
+
     def test_private_epsilon_scale_is_allowlisted_without_qualification(self):
         path, value = self._prediction(self.left)
         value["environment"]["NM_FEM_OPERATOR_FD_EPSILON_SCALE"] = ".125"
@@ -157,6 +189,26 @@ class DiagnosticHistoryComparatorTests(unittest.TestCase):
         report = compare.compare_attempts(self.left, self.right)
         self.assertEqual(report["comparison"], "byte_identical")
         self.assertEqual(report["qualification"]["status"], "not_qualified")
+
+    def test_selected_true_residual_newton_must_match_capture(self):
+        path, value = self._prediction(self.left)
+        value["environment"].update({"NM_FEM_OPERATOR_FD_SELECTOR": "3:23",
+                                     "NM_FEM_NEWTON_TRACE_ROOT": "3",
+                                     "NM_FEM_TRUE_RESIDUAL_ROOT": "3",
+                                     "NM_FEM_TRUE_RESIDUAL_NEWTON_SELECTOR": "23"})
+        _write_json(path, value)
+        self.assertEqual(compare.compare_attempts(self.left, self.right)["comparison"],
+                         "byte_identical")
+        for invalid in ("24", "257", "-1", "1.0"):
+            value["environment"]["NM_FEM_TRUE_RESIDUAL_NEWTON_SELECTOR"] = invalid
+            _write_json(path, value)
+            with self.assertRaises(compare.ComparisonError):
+                compare.compare_attempts(self.left, self.right)
+        value["environment"]["NM_FEM_TRUE_RESIDUAL_NEWTON_SELECTOR"] = "23"
+        del value["environment"]["NM_FEM_TRUE_RESIDUAL_ROOT"]
+        _write_json(path, value)
+        with self.assertRaisesRegex(compare.ComparisonError, "invalid true residual Newton"):
+            compare.compare_attempts(self.left, self.right)
 
     def test_unallowlisted_environment_difference_is_rejected(self):
         path, value = self._prediction(self.right)

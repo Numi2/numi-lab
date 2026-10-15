@@ -563,6 +563,92 @@ inline MRBodyStateGPU makeShippingKinematicSceneBody(
     return body;
 }
 
+// MetalRobo stores a dynamic scene body's inverse inertia in world
+// coordinates. The compiled body properties retain the authored body-frame
+// tensor, so checkpoint validation must rotate the latter by the accepted
+// quaternion before comparing it with the scene state.
+inline bool shippingWorldInverseInertiaMatchesPose(
+    const MRBodyPropertiesGPU& properties,
+    const MRBodyStateGPU& state,
+    const double relativeTolerance = 2.0e-5) {
+    const std::array<double, 4> orientation{
+        state.orientation.x, state.orientation.y,
+        state.orientation.z, state.orientation.w};
+    double normSquared = 0.0;
+    for (const double component : orientation) {
+        if (!std::isfinite(component)) return false;
+        normSquared += component * component;
+    }
+    if (!(normSquared > 1.0e-30) || !std::isfinite(normSquared)) return false;
+    const double norm = std::sqrt(normSquared);
+    // Accepted engine poses are normalized by the free-body integrator. A
+    // loose or malformed quaternion must not be silently normalized into a
+    // different checkpoint pose during this comparison.
+    if (std::abs(norm - 1.0) > 2.0e-5) return false;
+    const double x = orientation[0] / norm;
+    const double y = orientation[1] / norm;
+    const double z = orientation[2] / norm;
+    const double w = orientation[3] / norm;
+    const std::array<std::array<double, 3>, 3> rotation{{
+        {{1.0 - 2.0 * (y * y + z * z), 2.0 * (x * y - z * w),
+          2.0 * (x * z + y * w)}},
+        {{2.0 * (x * y + z * w), 1.0 - 2.0 * (x * x + z * z),
+          2.0 * (y * z - x * w)}},
+        {{2.0 * (x * z - y * w), 2.0 * (y * z + x * w),
+          1.0 - 2.0 * (x * x + y * y)}}}};
+    const std::array<std::array<double, 3>, 3> bodyInverse{{
+        {{properties.inverseInertiaRow0.x, properties.inverseInertiaRow0.y,
+          properties.inverseInertiaRow0.z}},
+        {{properties.inverseInertiaRow1.x, properties.inverseInertiaRow1.y,
+          properties.inverseInertiaRow1.z}},
+        {{properties.inverseInertiaRow2.x, properties.inverseInertiaRow2.y,
+          properties.inverseInertiaRow2.z}}}};
+    const std::array<std::array<double, 3>, 3> worldActual{{
+        {{state.inverseInertiaWorldRow0.x, state.inverseInertiaWorldRow0.y,
+          state.inverseInertiaWorldRow0.z}},
+        {{state.inverseInertiaWorldRow1.x, state.inverseInertiaWorldRow1.y,
+          state.inverseInertiaWorldRow1.z}},
+        {{state.inverseInertiaWorldRow2.x, state.inverseInertiaWorldRow2.y,
+          state.inverseInertiaWorldRow2.z}}}};
+    for (const auto& row : bodyInverse)
+        for (const double component : row)
+            if (!std::isfinite(component)) return false;
+    for (const auto& row : worldActual)
+        for (const double component : row)
+            if (!std::isfinite(component)) return false;
+
+    for (std::size_t row = 0u; row < 3u; ++row) {
+        for (std::size_t column = 0u; column < 3u; ++column) {
+            double expected = 0.0;
+            for (std::size_t localRow = 0u; localRow < 3u; ++localRow)
+                for (std::size_t localColumn = 0u; localColumn < 3u; ++localColumn)
+                    expected += rotation[row][localRow] *
+                        bodyInverse[localRow][localColumn] *
+                        rotation[column][localColumn];
+            const double actual = worldActual[row][column];
+            const double tolerance = relativeTolerance *
+                std::max({1.0, std::abs(expected), std::abs(actual)});
+            if (!std::isfinite(expected) ||
+                std::abs(expected - actual) > tolerance)
+                return false;
+        }
+    }
+    const std::array<float, 3> expectedW{
+        properties.inverseInertiaRow0.w,
+        properties.inverseInertiaRow1.w,
+        properties.inverseInertiaRow2.w};
+    const std::array<float, 3> actualW{
+        state.inverseInertiaWorldRow0.w,
+        state.inverseInertiaWorldRow1.w,
+        state.inverseInertiaWorldRow2.w};
+    for (std::size_t row = 0u; row < 3u; ++row)
+        if (!std::isfinite(expectedW[row]) || !std::isfinite(actualW[row]) ||
+            std::abs(static_cast<double>(expectedW[row]) - actualW[row]) >
+                relativeTolerance)
+            return false;
+    return true;
+}
+
 inline numi::matter::RigidProxySource makeShippingImpactorProxy(
     const ShippingRigidBodySpec& spec,
     const std::uint32_t bodyIndex = 4u,
@@ -889,9 +975,15 @@ inline bool encodeShippingMatterBridge(
     request.rigid.qStride = pass.qStride;
     request.rigid.vStride = pass.nv;
     request.environmentStatuses = pass.environmentStatuses;
-    request.rigidContactConstraints = pass.contactConstraints;
-    request.rigidContactStatuses = pass.contactStatuses;
-    request.rigidContactConstraintStride = pass.contactConstraintStride;
+    // MetalWorld exposes its final rigid-contact evidence only after its
+    // contact solve. Borrowing these buffers during preDynamics violates
+    // that phase contract and falsely excludes this bridge from full-contact
+    // residual descent even when the rigid world has no authored contacts.
+    if (pass.phase == metalrobo::MetalWorldDevicePhysicsPhase::postCommit) {
+        request.rigidContactConstraints = pass.contactConstraints;
+        request.rigidContactStatuses = pass.contactStatuses;
+        request.rigidContactConstraintStride = pass.contactConstraintStride;
+    }
     request.articulationRootBody = pass.articulationRootBody;
     request.controlStep = bridge->controlStepBase + pass.controlStep;
     request.physicsSubstep = 0u;
@@ -939,7 +1031,7 @@ inline metalrobo::MetalWorldDevicePhysicsProgram makeShippingMatterBridgeProgram
         metalrobo::MetalWorldDevicePhysicsWritesBodyWrenches |
         metalrobo::MetalWorldDevicePhysicsOwnsFreeBodyCandidate;
     // Bind the adapter contract itself into MetalWorld's execution fingerprint.
-    constexpr std::uint64_t bridgeRevision = 0x43415244424f4152ull;
+    constexpr std::uint64_t bridgeRevision = 0x4341524442523032ull;
     program.fingerprint ^= bridgeRevision;
     if (program.fingerprint == 0u) program.fingerprint = bridgeRevision;
     return program;
@@ -1161,26 +1253,9 @@ public:
             std::abs(mass * inverseMass - 1.0) > 2.0e-5)
             throw std::invalid_argument(
                 "shipping rigid checkpoint mass differs from the compiled branch body");
-        const std::array<mr_float4, 3> expected{
-            properties.inverseInertiaRow0,
-            properties.inverseInertiaRow1,
-            properties.inverseInertiaRow2};
-        const std::array<mr_float4, 3> actual{
-            freeBody.inverseInertiaWorldRow0,
-            freeBody.inverseInertiaWorldRow1,
-            freeBody.inverseInertiaWorldRow2};
-        for (std::size_t row = 0u; row < expected.size(); ++row) {
-            const std::array<double, 4> error{
-                static_cast<double>(expected[row].x) - actual[row].x,
-                static_cast<double>(expected[row].y) - actual[row].y,
-                static_cast<double>(expected[row].z) - actual[row].z,
-                static_cast<double>(expected[row].w) - actual[row].w};
-            for (const double component : error)
-                if (std::abs(component) > 2.0e-5 *
-                        std::max(1.0, std::abs(static_cast<double>(expected[row].x))))
-                    throw std::invalid_argument(
-                        "shipping rigid checkpoint inertia differs from the compiled branch body");
-        }
+        if (!shippingWorldInverseInertiaMatchesPose(properties, freeBody))
+            throw std::invalid_argument(
+                "shipping rigid checkpoint world inertia differs from the compiled branch body at its accepted orientation");
         sceneBodies_.assign(acceptedSceneBodies.begin(),
                             acceptedSceneBodies.end());
     }

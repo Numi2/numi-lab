@@ -8,6 +8,7 @@
 
 #include <algorithm>
 #include <array>
+#include <charconv>
 #include <cmath>
 #include <cstdint>
 #include <filesystem>
@@ -51,6 +52,7 @@ bool gObservedTangentCapture=false;
 bool gProjectionIterationTrace=false;
 bool gCompensatedProjection=false;
 unsigned gCompletedProjectionTraceMaterials=0u;
+unsigned gMaterialIterationBudget=16u;
 
 void require(bool condition, const std::string& message) {
     if (!condition) throw std::runtime_error(message);
@@ -225,7 +227,7 @@ CompiledWorld cook(const MaterialProgram& material) {
     object.characteristicLength=.01;
     source.objects={object};
     const auto result=compileWorld(source,{.maximumRateExponent=0u,.emitSpecializedMetal=false,
-                                           .localMaterialNewtonIterations=16u});
+        .localMaterialNewtonIterations=gMaterialIterationBudget});
     require(result.succeeded(),"C1 material compile failed: "+diagnostics(result.diagnostics));
     require(result.world.materials.size()==1u && result.world.constitutive.size()==1u,
             "material-point fixture did not compile one constitutive program");
@@ -596,6 +598,78 @@ void validateFullTangent(const std::string& label,MetalInstrument& metal,
         <<",\"includes_implicit_states\":15,\"status\":\""<<(allPassed?"pass":"fail")<<"\"}\n";
 }
 
+void emitBranchAwareFDSide(const std::string& label,const unsigned component,
+                           const unsigned level,const char* side,
+                           const double requestedEpsilon,const double realizedEpsilon,
+                           const Matrix& f,const Response& response) {
+    // This record is emitted before the caller enforces projection validity.
+    // It preserves the first failing perturbation instead of reducing a local
+    // return-map failure to a single checker exception.
+    const auto& trace=response.projectionTrace;
+    const bool traceSupported=trace[0]==1.0f && trace[7]!=-1.0f;
+    const unsigned stateCount=traceSupported?static_cast<unsigned>(trace[1]):0u;
+    const unsigned iterations=traceSupported?std::min<unsigned>(
+        static_cast<unsigned>(trace[2]),
+        static_cast<unsigned>(kProjectionTraceIterationCapacity)):0u;
+    std::cout<<std::setprecision(10)
+        <<"{\"schema\":\"numi.cardboard.c1-fd-side-projection.v1\","
+        <<"\"case\":\""<<label<<"\",\"component\":"<<component
+        <<",\"fd_level\":"<<level<<",\"side\":\""<<side
+        <<"\",\"compiled_material_local_newton_iterations\":"<<gMaterialIterationBudget
+        <<",\"projection_trace_capacity_iterations\":"<<kProjectionTraceIterationCapacity
+        <<",\"projection_trace_truncated\":"
+        <<(gMaterialIterationBudget>kProjectionTraceIterationCapacity?"true":"false")
+        <<",\"requested_epsilon\":"<<requestedEpsilon
+        <<",\"realized_epsilon\":"<<realizedEpsilon
+        <<",\"F_row_major\":";
+    writeArray(std::cout,f);
+    std::cout<<",\"projection_valid\":"<<(response.projectionValid?"true":"false")
+        <<",\"stress_tangent_valid\":"<<(response.valid?"true":"false")
+        <<",\"terminal_failure\":"<<response.failure
+        <<",\"iterations\":"<<response.iterations
+        <<",\"residual_inf\":"<<response.residual
+        <<",\"stage_flags\":"<<response.flags
+        <<",\"state\":";
+    writeArray(std::cout,response.state);
+    std::cout<<",\"projection_trace_supported\":"
+        <<(traceSupported?"true":"false");
+    if(traceSupported) {
+        std::cout<<",\"trace_terminal_failure\":"<<trace[7]
+            <<",\"trace_final_residual_inf\":"<<trace[4]
+            <<",\"trace_projection_tolerance\":"<<trace[6]
+            <<",\"trace_iterations\":[";
+        for(unsigned iteration=0u;iteration<iterations;++iteration) {
+            if(iteration)std::cout<<',';
+            const std::size_t base=kProjectionTraceHeaderSlots+
+                iteration*kProjectionTraceRecordSlots;
+            const auto span=[&](std::size_t offset,std::size_t count) {
+                return std::span<const float>(trace.data()+base+offset,count);
+            };
+            std::cout<<"{\"index\":"<<iteration
+                <<",\"record_flags\":"<<trace[base]
+                <<",\"accepted_backtrack_index\":"<<trace[base+1u]
+                <<",\"accepted_alpha\":"<<trace[base+2u]
+                <<",\"residual_inf\":"<<trace[base+3u]
+                <<",\"state_inf\":"<<trace[base+4u]
+                <<",\"candidate_state_high\":";
+            writeArray(std::cout,span(6u,stateCount));
+            std::cout<<",\"candidate_state_low\":";
+            writeArray(std::cout,span(6u+kProjectionTraceStateCapacity,stateCount));
+            std::cout<<",\"residual_rows\":";
+            writeArray(std::cout,span(6u+2u*kProjectionTraceStateCapacity,stateCount));
+            std::cout<<",\"newton_delta\":";
+            writeArray(std::cout,span(6u+3u*kProjectionTraceStateCapacity,stateCount));
+            std::cout<<",\"trial_residual_norms\":";
+            writeArray(std::cout,span(6u+4u*kProjectionTraceStateCapacity,
+                                      kProjectionTraceStateCapacity));
+            std::cout<<'}';
+        }
+        std::cout<<']';
+    }
+    std::cout<<",\"physical_steps\":0,\"diagnostic_only\":true}\n";
+    std::cout.flush();
+}
+
 void validateBranchAwareFD(const std::string& label,MetalInstrument& metal,
                            const CompiledWorld& world,const Matrix& centerF,
                            const unsigned component,const State& accepted,
@@ -615,8 +689,18 @@ void validateBranchAwareFD(const std::string& label,MetalInstrument& metal,
         const double realizedMinus=double(centerInput)-double(minusInput);
         require(realizedPlus>0.0 && realizedMinus>0.0,
                 label+" finite-difference perturbation is not representable in FP32");
-        const Response plus=metal.evaluate(world,plusF,direction,accepted);
-        const Response minus=metal.evaluate(world,minusF,direction,accepted);
+        const bool captureSideTrace=gDetailedTangentDiagnostic &&
+            label.find("_F13")!=std::string::npos;
+        const Response plus=metal.evaluate(world,plusF,direction,accepted,
+                                            false,captureSideTrace);
+        const Response minus=metal.evaluate(world,minusF,direction,accepted,
+                                             false,captureSideTrace);
+        if(captureSideTrace) {
+            emitBranchAwareFDSide(label,component,level,"plus",epsilons[level],
+                                  realizedPlus,plusF,plus);
+            emitBranchAwareFDSide(label,component,level,"minus",epsilons[level],
+                                  realizedMinus,minusF,minus);
+        }
         require(plus.valid&&plus.projectionValid&&minus.valid&&minus.projectionValid,
                 label+" branch-aware finite-difference projection failed");
         const bool plusPlastic=plus.state[12]-accepted[12]>1.0e-8;
@@ -675,6 +759,8 @@ void emitProjectionIterationTrace(const MaterialFixture& fixture,
         <<"\"material\":\""<<fixture.assetName<<"\",\"asset_sha256\":\""
         <<digest<<"\",\"source_csv_sha256\":\""<<kSourceCsvHash
         <<"\",\"axis\":\"CD\",\"stage\":\"unload_to_identity\","
+        <<"\"compiled_material_local_newton_iterations\":"
+        <<world.materials.at(0).localNewtonIterations<<','
         <<"\"compiled_generic_compensated_implicit\":"
         <<(gCompensatedProjection?"true":"false")<<','
         <<"\"F_row_major\":";writeArray(std::cout,kIdentity);
@@ -770,7 +856,9 @@ void runCdUnloadProjectionTrace(MetalInstrument& metal,
         <<"{\"schema\":\"numi.cardboard.c1-local-projection-trace-setup.v1\","
         <<"\"material\":\""<<fixture.assetName<<"\",\"asset_sha256\":\""
         <<digest<<"\",\"source_csv_sha256\":\""<<kSourceCsvHash
-        <<"\",\"compiled_generic_compensated_implicit\":"
+        <<"\",\"compiled_material_local_newton_iterations\":"
+        <<world.materials.at(0).localNewtonIterations<<','
+        <<"\"compiled_generic_compensated_implicit\":"
         <<(gCompensatedProjection?"true":"false")
         <<",\"rest_projection_valid\":"<<(rest.projectionValid?"true":"false")
         <<",\"cd_load_projection_valid\":"<<(cdLoad.projectionValid?"true":"false")
@@ -787,8 +875,34 @@ void runCdUnloadProjectionTrace(MetalInstrument& metal,
     const Response unload=metal.evaluate(world,kIdentity,zeroDirection,accepted,
                                          false,true);
     const oracle::Point oracleUnload=oracle::project(program,kIdentity,accepted);
-    emitProjectionIterationTrace(fixture,world,accepted,unload,oracleUnload,digest);
-    if(unload.projectionTrace[7]!=-1.0f)
+    if(gMaterialIterationBudget<=kProjectionTraceIterationCapacity) {
+        emitProjectionIterationTrace(fixture,world,accepted,unload,oracleUnload,digest);
+    } else {
+        std::cout<<std::setprecision(10)
+            <<"{\"schema\":\"numi.cardboard.c1-local-projection-budget.v1\","
+            <<"\"material\":\""<<fixture.assetName<<"\",\"asset_sha256\":\""
+            <<digest<<"\",\"source_csv_sha256\":\""<<kSourceCsvHash
+            <<"\",\"compiled_material_local_newton_iterations\":"
+            <<world.materials.at(0).localNewtonIterations
+            <<",\"projection_trace_capacity_iterations\":"
+            <<kProjectionTraceIterationCapacity
+            <<",\"projection_trace_truncated\":true"
+            <<",\"compiled_generic_compensated_implicit\":"
+            <<(gCompensatedProjection?"true":"false")
+            <<",\"stage\":\"CD_unload_to_identity\",\"native_projection_valid\":"
+            <<(unload.projectionValid?"true":"false")
+            <<",\"native_stress_tangent_valid\":"<<(unload.valid?"true":"false")
+            <<",\"native_terminal_failure\":"<<unload.failure
+            <<",\"native_iterations\":"<<unload.iterations
+            <<",\"native_residual_inf_scaled\":"<<unload.residual
+            <<",\"native_state\":";writeArray(std::cout,unload.state);
+        std::cout<<",\"fp64_iterations\":"<<oracleUnload.iterations
+            <<",\"fp64_residual_inf\":"<<oracleUnload.residualInfinity
+            <<",\"fp64_state\":";writeArray(std::cout,oracleUnload.state);
+        std::cout<<",\"iteration_trace_supported\":false,\"physical_steps\":0,"
+            "\"physical_validation\":false,\"diagnostic_only\":true}\n";
+    }
+    if(unload.projectionTrace[7]!=-1.0f || unload.iterations>0u || unload.projectionValid)
         ++gCompletedProjectionTraceMaterials;
 }
 
@@ -1270,6 +1384,7 @@ int main(int argc,char** argv) {
                 return 0;
             }
             bool diagnosticCapture=false;
+            bool materialIterationsSpecified=false;
             for(int index=5;index<argc;++index) {
                 const std::string option=argv[index];
                 if(option=="--diagnostic-tangent-capture") {
@@ -1281,12 +1396,25 @@ int main(int argc,char** argv) {
                 } else if(option=="--compensated-implicit") {
                     require(!gCompensatedProjection,"duplicate --compensated-implicit option");
                     gCompensatedProjection=true;
+                } else if(option=="--material-iterations") {
+                    require(!materialIterationsSpecified,
+                        "duplicate --material-iterations option");
+                    require(index+1<argc,"--material-iterations requires 16, 24, or 32");
+                    const std::string value=argv[++index];
+                    unsigned parsed=0u;
+                    const auto [end,error]=std::from_chars(
+                        value.data(),value.data()+value.size(),parsed);
+                    require(error==std::errc{} && end==value.data()+value.size() &&
+                            (parsed==16u||parsed==24u||parsed==32u),
+                        "--material-iterations must be exactly 16, 24, or 32");
+                    gMaterialIterationBudget=parsed;
+                    materialIterationsSpecified=true;
                 } else {
                     throw std::runtime_error("unknown option: "+option);
                 }
             }
-            require(argc>=5&&argc<=8,
-                "usage: asymmetric-c1-paper-gpu-check LINER_ASSET MEDIUM_ASSET SOURCE_FIT_CSV C1_TRANSFER_CSV [--diagnostic-tangent-capture] [--diagnostic-cd-unload-trace] [--compensated-implicit]");
+            require(argc>=5&&argc<=10,
+                "usage: asymmetric-c1-paper-gpu-check LINER_ASSET MEDIUM_ASSET SOURCE_FIT_CSV C1_TRANSFER_CSV [--diagnostic-tangent-capture] [--diagnostic-cd-unload-trace] [--compensated-implicit] [--material-iterations 16|24|32]");
             require(!(diagnosticCapture&&gProjectionIterationTrace),
                 "--diagnostic-tangent-capture and --diagnostic-cd-unload-trace select separate diagnostic paths");
             gDetailedTangentDiagnostic=diagnosticCapture;
@@ -1302,6 +1430,10 @@ int main(int argc,char** argv) {
                 <<"\",\"transfer_csv_sha256\":\""<<transferDigest
                 <<"\",\"evidence_scope\":\"production_Metal_generic_projection_stress_tangent_only\","
                 <<"\"physical_steps\":0,\"physical_validation\":false,"
+                <<"\"compiled_material_local_newton_iterations\":"<<gMaterialIterationBudget<<','
+                <<"\"projection_trace_capacity_iterations\":"<<kProjectionTraceIterationCapacity<<','
+                <<"\"projection_trace_truncated\":"
+                <<(gMaterialIterationBudget>kProjectionTraceIterationCapacity?"true":"false")<<','
                 <<"\"diagnostic_tangent_capture_requested\":"<<(diagnosticCapture?"true":"false")<<','
                 <<"\"diagnostic_cd_unload_trace_requested\":"<<(gProjectionIterationTrace?"true":"false")<<','
                 <<"\"compiled_generic_compensated_implicit_requested\":"

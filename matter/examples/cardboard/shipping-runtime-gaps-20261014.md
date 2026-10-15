@@ -3,6 +3,12 @@
 Date: 2026-10-15
 Scope: audit of the native shipping runtime and its sizing helpers, plus the admission-consistency repair and source-bound Fpeak numerical-capacity gate. No production solver, contact law, tolerance, mesh, or certificate behavior was changed. No GPU transaction was run for this audit.
 
+## Current continuation boundary
+
+The current duplicated-starch/closure mesh is 528,444 nodes, 1,477,728 tetrahedra and 260,835 cohesive faces; the source014 topology below is retained as a historical count anchor. Source057 allocation models can fall below 16 GiB with explicit scratch aliasing and bounded contact reserves, but whole-process simultaneous peak and shipping-scale native admission remain unmeasured. The complete shipping box has executed no physical step.
+
+Sources060–063 repair selected-Newton sidecar capture, canonical FP32 diagnostic inputs, latched activation geometry restore, rotated world-inertia checking and the shipping adapter's final-contact-buffer phase. These component repairs do not remove the large-mesh/private-arena admission limits. The latest complete coupon attempt still rejects after three of 27 controls. The native graph-Schwarz conditioning path and nonlinear rotating-body path are separate work in progress.
+
 ## Effective native full-contact scope
 
 The shipping mesh is an explicit flute/liner/medium/glue FEM mesh with 453,378 nodes and 1,477,728 tetrahedra. The full-contact residual-descent selector is currently a bounded experimental path, not a large-mesh general solver. Its transaction scope is enforced in `matter/src/runtime.mm`:

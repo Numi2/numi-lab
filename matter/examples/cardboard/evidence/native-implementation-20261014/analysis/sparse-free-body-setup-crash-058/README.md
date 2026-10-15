@@ -1,0 +1,1 @@
+Sparse free-body runs167/168 aborted before a native transaction. The raw macOS crash reports are retained here with source57 receipts and hashes in report.json. The first rejected scope and cleanup cause are separate from sparse indexing. The source58 repair preserves rejection diagnostics and Metal validation; native172/173 must qualify the corrected fixture and rollback.

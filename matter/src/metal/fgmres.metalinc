@@ -1116,6 +1116,12 @@ kernel void nm_fgmres_begin(
     const bool nonlinearConverged = restartCycle == 0u &&
         (correctionFinite || contactFreeStaticRest) &&
         norm <= nonlinearThreshold && supportAdmissible;
+    // Preserve the full nonlinear-convergence latch only through the
+    // statically encoded completed restart tail. The next Newton iteration
+    // (restartCycle == 0) always recomputes it from its new residual.
+    const bool completedNonlinearLatch = nonlinearConverged ||
+        (restartCycle > 0u && completed &&
+         previousNonlinear.w > 0.5f);
     if (lane == 0u) {
         const float initialNorm = restartCycle == 0u
             ? norm : previousDiagnostics.y;
@@ -1144,7 +1150,7 @@ kernel void nm_fgmres_begin(
                 ? 0.0f
                 : (nonlinearIteration == 0u && restartCycle == 0u
                     ? INFINITY : previousNonlinear.z),
-            nonlinearConverged ? 1.0f : 0.0f
+            completedNonlinearLatch ? 1.0f : 0.0f
         );
     }
     if (!active || nonlinearConverged || norm == 0.0f ||
@@ -2510,6 +2516,133 @@ kernel void nm_contact_accumulate_rigid_residual(
                 value += sample.angularImpulseAndTangent[
                     dof - freeBase - 3u];
         }
+    }
+    residual[fgmresRigidBase(dispatch) + global].x += value;
+}
+
+// Free-body residual gather for sparse private Armijo trials. The active list
+// contains canonical pair IDs, but `samples` is packed by private candidate
+// slot; use the canonical-pair-to-slot map rather than indexing the sparse
+// arena as if it were dense. This kernel is admitted only for the bounded
+// one-body, six-row, non-articulated BOX scope. It reads candidate samples and
+// accepted proxy history, and writes only the private residual.
+kernel void nm_contact_accumulate_rigid_residual_sparse(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant uint& articulatedNv [[buffer(1)]],
+    constant uint& activeCapacity [[buffer(2)]],
+    constant uint& candidateCapacity [[buffer(3)]],
+    device const NMContactPairGPU* pairs [[buffer(4)]],
+    device const NMRigidProxyGPU* rigidProxies [[buffer(5)]],
+    device const NMRigidStateGPU* rigidStates [[buffer(6)]],
+    device const uint* activePairs [[buffer(7)]],
+    device const uint* activeCounts [[buffer(8)]],
+    device const uint* candidateSlotsByPair [[buffer(9)]],
+    device const NMContactSampleGPU* samples [[buffer(10)]],
+    device float4* residual [[buffer(11)]],
+    device NMMatterStatusGPU* statuses [[buffer(12)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount *
+        dispatch.rigidGeneralizedCapacity;
+    if (global >= total || dispatch.rigidGeneralizedCapacity == 0u) return;
+    const uint environment = global / dispatch.rigidGeneralizedCapacity;
+    const uint dof = global - environment * dispatch.rigidGeneralizedCapacity;
+    if (dispatch.rigidGeneralizedCapacity != 6u || articulatedNv != 0u) {
+        recordFailure(
+            statuses[environment], NM_STATUS_INVALID_DISPATCH,
+            NM_INVALID_INDEX, dof,
+            float4(float(dispatch.rigidGeneralizedCapacity),
+                   float(articulatedNv), 6.0f, 0.0f));
+        return;
+    }
+    const uint rawActiveCount = activeCounts[environment];
+    if (rawActiveCount > activeCapacity) {
+        recordFailure(
+            statuses[environment], NM_STATUS_CAPACITY_OVERFLOW,
+            NM_INVALID_INDEX, rawActiveCount,
+            float4(float(rawActiveCount), float(activeCapacity),
+                   float(dispatch.contactPairCount), 2.0f));
+    }
+    const uint activeCount = min(rawActiveCount, activeCapacity);
+    float value = 0.0f;
+    const uint pairBase = environment * dispatch.contactPairCount;
+    const uint sampleBase = environment * candidateCapacity;
+    for (uint slot = 0u; slot < activeCount; ++slot) {
+        const uint pairIndex = activePairs[
+            environment * activeCapacity + slot];
+        if (pairIndex >= dispatch.contactPairCount) {
+            recordFailure(
+                statuses[environment], NM_STATUS_INVALID_DISPATCH,
+                NM_INVALID_INDEX, slot,
+                float4(float(pairIndex), float(dispatch.contactPairCount),
+                       float(slot), 3.0f));
+            continue;
+        }
+        const uint sampleSlot = candidateSlotsByPair[pairBase + pairIndex];
+        if (sampleSlot == NM_INVALID_INDEX) {
+            recordFailure(
+                statuses[environment], NM_STATUS_INVALID_DISPATCH,
+                NM_INVALID_INDEX, pairIndex,
+                float4(float(pairIndex), float(slot), 0.0f, 4.0f));
+            continue;
+        }
+        if (sampleSlot >= candidateCapacity) {
+            recordFailure(
+                statuses[environment], NM_STATUS_INVALID_DISPATCH,
+                NM_INVALID_INDEX, pairIndex,
+                float4(float(sampleSlot), float(candidateCapacity),
+                       float(pairIndex), 5.0f));
+            continue;
+        }
+        const NMContactPairGPU pair = pairs[pairIndex];
+        if (pair.rigidProxy >= dispatch.rigidProxyCount ||
+            pair.objectIndex >= dispatch.objectCount ||
+            pair.continuumNode >= dispatch.femNodeCount) {
+            recordFailure(
+                statuses[environment], NM_STATUS_INVALID_DISPATCH,
+                pair.objectIndex, pairIndex,
+                float4(float(pair.rigidProxy), float(pair.objectIndex),
+                       float(pair.continuumNode), 6.0f));
+            continue;
+        }
+        const NMContactSampleGPU sample = samples[sampleBase + sampleSlot];
+        if ((sample.identity.w & NM_CONTACT_VALID) == 0u ||
+            sample.identity.x != pair.continuumNode ||
+            sample.identity.y != pair.rigidProxy ||
+            sample.identity.z != pair.objectIndex) {
+            recordFailure(
+                statuses[environment], NM_STATUS_INVALID_DISPATCH,
+                pair.objectIndex, pairIndex,
+                float4(float(sample.identity.x), float(sample.identity.y),
+                       float(sample.identity.z), float(sample.identity.w)));
+            continue;
+        }
+        const NMRigidProxyGPU proxy = rigidProxies[pair.rigidProxy];
+        if ((proxy.flags & NM_RIGID_DYNAMIC) == 0u) continue;
+        if ((proxy.flags & NM_RIGID_ARTICULATED) != 0u ||
+            proxy.generalizedFreeBodyIndex != 0u) {
+            recordFailure(
+                statuses[environment], NM_STATUS_INVALID_DISPATCH,
+                pair.objectIndex, pairIndex,
+                float4(float(proxy.flags),
+                       float(proxy.generalizedFreeBodyIndex),
+                       float(proxy.bodyIndex), 7.0f));
+            continue;
+        }
+        const NMRigidStateGPU rigid = rigidStates[
+            environment * dispatch.rigidProxyCount + pair.rigidProxy];
+        if (!(rigid.linearVelocityAndInverseMass.w > 0.0f) ||
+            !isfinite(rigid.linearVelocityAndInverseMass.w)) {
+            recordFailure(
+                statuses[environment], NM_STATUS_NONFINITE_INPUT,
+                pair.objectIndex, pairIndex,
+                rigid.linearVelocityAndInverseMass);
+            continue;
+        }
+        if (dof < 3u)
+            value += sample.impulseAndNormal[dof];
+        else
+            value += sample.angularImpulseAndTangent[dof - 3u];
     }
     residual[fgmresRigidBase(dispatch) + global].x += value;
 }

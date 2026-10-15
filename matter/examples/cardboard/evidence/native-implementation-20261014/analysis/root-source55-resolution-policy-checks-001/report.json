@@ -1,0 +1,22 @@
+{
+  "schema": "numi.cardboard.cpu-policy-check.v1",
+  "timestamp_utc": "2026-10-15T02:18:46.220281+00:00",
+  "tests": {
+    "test_cardboard_convergence.py": 17,
+    "test_cardboard_resolution_study.py": 9,
+    "test_cardboard_diagnostic_history_compare.py": 13
+  },
+  "pass": true,
+  "native_steps": 0,
+  "physical_validation": false,
+  "source_sha256": {
+    "matter/tools/cardboard_convergence.py": "672fc6fe14f6c9e4f3d044c2845c4b66d4b73d4bca4761708184e594f551a4c3",
+    "matter/tools/cardboard_resolution_study.py": "33d91406e3003e9ff20255fbec5c0e4022cbe1a5a8a19dd3830e924a3feeaa0e",
+    "matter/tools/cardboard_diagnostic_history_compare.py": "7f3732f474e6362881fb09edebf6d7486a58556be4b1d5f962889cbdb303d7b3",
+    "matter/tools/cardboard_probe.mm": "7b83cc34b14e08898fe31cd89963459feb32b91bc65643a8acc6f50323ee214c",
+    "matter/tools/test_cardboard_convergence.py": "7bf9c5490889d6133d7fe6bb5b6967c308c028ec4e686bb4b7860b8410324dcf",
+    "matter/tools/test_cardboard_resolution_study.py": "3ec7feb3dd881d9cea43df5f52e19a488120c3d10903f4ffc882f3d77de0ab27",
+    "matter/tools/test_cardboard_diagnostic_history_compare.py": "9b9ae86b3a10e66648e3433242d09c158892779651fc6576e7b45cbee3bcee24"
+  },
+  "note": "CPU policy contracts only. New public probe32-iteration ceiling awaits fresh compiled validation; no convergence result inferred."
+}

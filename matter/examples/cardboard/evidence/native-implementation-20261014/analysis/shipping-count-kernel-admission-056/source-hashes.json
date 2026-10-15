@@ -1,0 +1,29 @@
+{
+  "schema": "numi.cardboard.shipping-count-kernel-admission.source-binding.v1",
+  "evidence_class": "working-tree source audit plus CPU helper build; no GPU run",
+  "checkout": "/Users/home/numi-cardboard-20261006",
+  "git_head": "62371ed242d94ce47fbad16e77f7b44c9ff050e2",
+  "source_files": {
+    "matter/src/runtime.mm": "836f7c1227d281c2d13b8d314a48e3d9e8cf67e6e38f33aa15038b256daa0a96",
+    "matter/src/metal/contact.metalinc": "cdb425493f265cbdae00a931dd7654c3efba5d8f4f8ae39687f2b034173185ae",
+    "matter/src/metal/fem.metalinc": "94e508bb7e268168b426f6bc9e2f0f24caef1e630b1fa6c18f7d93c0fcf6effb",
+    "matter/src/compiler_impl.cpp": "6a3ea24d5cf791d0fa5c4291209306941399aad876debd485c6eb2d45833bcca",
+    "matter/src/validation_impl.cpp": "99b66772d4ed9cfd4bb86113c3fb89dcd4c0c7abdefaa917235e9cb9ab41d477",
+    "matter/include/numi/matter/shared.h": "e1b4a229e58227280e2a1e263fa6535f325333e9edcacfd93498f699790c30d3",
+    "matter/include/numi/matter/sparse_private_contact_admission.hpp": "859c763ca42e8b6867f0ec77bcb5661ae143cd79ad2df87dde083b51ba138371",
+    "matter/tools/cardboard_probe.mm": "829966a749b17d0eb840247f5e4678666d2a2458b302737171a8cea507bda39a",
+    "matter/tools/cardboard_shipping_memory.hpp": "9703eb2cd01d54904f4206e0ccc1d9e5a5e580ac62d40ece3fbbefde4ec52e82",
+    "matter/tools/cardboard_shipping_memory_check.cpp": "97727824ad77d64a5054e289f4c0aedcbeaffa5e6edca5a0c906ff2cedfbdc28",
+    "matter/CMakeLists.txt": "eb4a0b801a7008b8920ca3a59b33787cf99ac9f0619f3c501b2f7064646c0cfa"
+  },
+  "topology_input": {
+    "path": "/Users/home/cardboard-implementation-20261014/shipping-allocation-preflight-source055.json",
+    "sha256": "cf8d36279f2f062d45a6759a06327089698725ddd7bfbd4f6482e2ff1700ee71",
+    "use": "CPU-compiled topology/cardinality model only; superseded preflight labels are not carried as current admission verdict"
+  },
+  "checks": [
+    "cmake --build build-cardboard --target numi-matter-cardboard-shipping-memory-check numi-matter-cardboard-probe -j2",
+    "./build-cardboard/numi-matter-cardboard-shipping-memory-check"
+  ],
+  "native_or_gpu_execution": false
+}

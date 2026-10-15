@@ -1,0 +1,50 @@
+{
+  "binding": {
+    "candidate_linearization_sha256": "1c756428d7ef1f5cfa6a5e035faef068d39de9b38db6195b56009bbe3c581b41",
+    "capture_point": "after_regional_rap_factor_barrier_before_fgmres_correction",
+    "linearization_generation": 17179869207,
+    "rich_capture_sha256": "27345f7afc7f752388bc76802657386546195ed8b13694df9b39be43be3a8446",
+    "sidecar_manifest_sha256": "8a0c68399357d3edf513499864260cdda3e7a239d429941d95a544756eb84eda",
+    "sidecar_payload_sha256": "5ea011af4b6c0835cf88cf9f6005514b79a14a850ba16c2c4a66374e118cb4d4"
+  },
+  "limits": [
+    "No native full-convergence or physical qualification follows from this one selected Newton linearization.",
+    "A_ii comes from independently reconstructed FP64 sparse A after native action-parity and captured AP checks; it is not a direct Metal per-node block dump.",
+    "Current generic regional loader rejects this sidecar production_status ABI size; this script directly validated all array descriptors and payload/digest hashes, and does not edit that loader.",
+    "Environment 1 is intentionally omitted because the source-bound operator report reconstructs environment 0 only."
+  ],
+  "schema": "numi.cardboard.selected-regional-node-block-audit.v1",
+  "selected_environment": {
+    "Aii_B_minus_I_rel_frobenius": {
+      "max": 8.07302893990702e-07,
+      "p50": 9.217979783205989e-08,
+      "p95": 4.127437069622777e-07
+    },
+    "B_Aii_minus_I_rel_frobenius": {
+      "max": 8.072742470684848e-07,
+      "p50": 9.422677177834954e-08,
+      "p95": 4.0635535265641466e-07
+    },
+    "LU_reconstruction_rel_frobenius": 8.204823065696306e-08,
+    "coarse_plus_fine_output_vs_exact_Aii_reference_rel_l2": 8.545811437678533e-08,
+    "effective_P_exact": true,
+    "environment": 0,
+    "factor_valid": 1,
+    "fine_action_vs_exact_Aii_solves_rel_l2": 9.011113330514194e-08,
+    "fixed_nodes": 36,
+    "free_nodes": 846,
+    "inverse_vs_exact_Aii_rel_frobenius": {
+      "max": 1.1586322930342616e-06,
+      "p50": 7.450738401613472e-08,
+      "p95": 4.17266006983065e-07
+    },
+    "iteration": 23,
+    "mode_count": 26,
+    "native_AP_vs_FP64_reconstructed_A_times_P_rel_l2": 1.025681443091705e-07,
+    "nodes": 882,
+    "root": 3,
+    "valid_fixed_blocks": 0,
+    "valid_free_blocks": 846
+  },
+  "verdict": "offline diagnostic only; failed native trajectory remains failed"
+}

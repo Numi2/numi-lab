@@ -38,7 +38,7 @@ material damageable_silicone {
 
 The parser performs dimensional analysis before producing executable physics. Stored energy must have pressure/energy-density units; dissipation must have power-density units. `F`, `D`/`Fdot`, `dt`, temperature, parameters and material state are separate typed inputs. `D` and `Fdot` are aliases for the material deformation-gradient rate `Fdot = dF/dt`: FEM evaluates it directly from rest-coordinate velocity gradients, while MPM reconstructs it as `L F` from the APIC spatial velocity gradient `L`. Logarithms require dimensionless arguments. `expm1_minus_x(x)` evaluates the smooth exponential remainder `exp(x) - 1 - x` as one bytecode primitive with exact symbolic stress/tangent rules, avoiding duplicated `x` graphs in zero-stress exponential fibre energies. State updates must preserve the declared state dimension. Parameter ranges, determinant limits, fixed state capacity and expression-stack requirements are compile-time contracts.
 
-State declarations accept `transfer average|max|sum` (volume-weighted average by default). A state may define `update name = expression;`, `implicit name = residual;`, or both. With both, the update provides the initial guess for the implicit Newton solve; the residual determines the accepted state. Duplicate updates or residuals are rejected. `name` reads accepted state and `next(name)` reads the local candidate. Implicit programs compile residual/Jacobian/deformation/stress-state derivative bytecode, run bounded pivoted local Newton per particle or tetrahedron (default eight iterations, configurable from 1 to 16 through `CompileOptions.localMaterialNewtonIterations`, with up to 16 Armijo backtracks), and contribute `P_F - P_z R_z^-1 R_F` to the matrix-free operator. Von Mises and Drucker-Prager hints select specialized multiplicative finite-strain return maps with isotropic hardening and consistent active-branch tangents. Local nonconvergence records `NM_STATUS_LOCAL_MATERIAL_FAILURE` and rolls back only that environment.
+State declarations accept `transfer average|max|sum` (volume-weighted average by default). A state may define `update name = expression;`, `implicit name = residual;`, or both. With both, the update provides the initial guess for the implicit Newton solve; the residual determines the accepted state. Duplicate updates or residuals are rejected. `name` reads accepted state and `next(name)` reads the local candidate. Implicit programs compile residual/Jacobian/deformation/stress-state derivative bytecode, run bounded pivoted local Newton per particle or tetrahedron (default eight iterations, configurable from 1 to 32 through `CompileOptions.localMaterialNewtonIterations`, with up to 16 Armijo backtracks), and contribute `P_F - P_z R_z^-1 R_F` to the matrix-free operator. Raising this local solve budget does not change the residual tolerance or constitutive law; the selected count is serialized and fingerprinted with the cooked material. Von Mises and Drucker-Prager hints select specialized multiplicative finite-strain return maps with isotropic hardening and consistent active-branch tangents. Local nonconvergence records `NM_STATUS_LOCAL_MATERIAL_FAILURE` and rolls back only that environment.
 
 ### Physics IR and constitutive compiler
 
@@ -337,6 +337,18 @@ The portable compiler and package code is built with:
 ```text
 -std=c++23 -Wall -Wextra -Wpedantic -Werror
 ```
+
+The cardboard cached-operator and offline-conditioning analyses additionally
+require NumPy and SciPy in the configured Python interpreter. Configure
+`-DPython3_EXECUTABLE=/path/to/python` with those packages installed; their two
+`matter.analysis.cardboard_*` CTest entries exercise synthetic algebra and
+input-admission contracts. `cardboard_cached_operator_audit.py` reconstructs
+the unsymmetrized free-DOF matrix from a source-bound native tangent capture.
+`cardboard_offline_conditioning_study.py` refuses native RAP comparisons unless
+the candidate, operator action, AP and pivoted coarse factor all match the same
+linearization. Final scratch exported after a rejected transaction is not
+automatically the selected Newton state. These CPU analyses do not qualify a
+physical coupon, material calibration or shipping-box trajectory.
 
 The included elastic and damageable-viscoelastic materials compile into worlds containing both MPM and FEM objects, write versioned packages, emit specialized Metal and round-trip through `readPackage`. The portable stateful regression evaluates compiled elastic stress degradation, viscous stress/tangent, explicit state evolution and canonical fingerprint sensitivity. It also corrupts material-state offsets, scalar-program spans, sparse block lookup, tetrahedron topology, contact incidence and identification ownership and requires a precise rejection from the same validator used by production loading. Source-level audits additionally check shared-ABI sizes, kernel names, buffer bindings and delimiter balance.
 

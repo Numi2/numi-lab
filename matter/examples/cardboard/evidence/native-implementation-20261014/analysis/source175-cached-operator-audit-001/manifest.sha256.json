@@ -1,0 +1,45 @@
+{
+  "files": [
+    {
+      "bytes": 2382,
+      "path": "README.md",
+      "sha256": "1c4fabffd0e978d2caea32f6a22432eed68f32c781ea2ec34a03286b73c49532"
+    },
+    {
+      "bytes": 104925,
+      "path": "cpu-exploratory/cpu-exploratory-conditioning.json",
+      "sha256": "2e2b26b95fd5b73bdc878efc16cd53bfd547d9c110f18648334422663f1d1fd0"
+    },
+    {
+      "bytes": 47617,
+      "path": "cpu-exploratory/direct-solution.npz",
+      "sha256": "eefa1125730056f7a8a036819d7b6f5d759369650daa165cfd9ec67d11f1afe4"
+    },
+    {
+      "bytes": 150754,
+      "path": "cpu-exploratory-v2/cpu-exploratory-conditioning.json",
+      "sha256": "da81f9c08cfa4d2f54f90fe0db4e02236f2f0f4f9772cf63820b61db2ec39a19"
+    },
+    {
+      "bytes": 47617,
+      "path": "cpu-exploratory-v2/direct-solution.npz",
+      "sha256": "eefa1125730056f7a8a036819d7b6f5d759369650daa165cfd9ec67d11f1afe4"
+    },
+    {
+      "bytes": 11736,
+      "path": "cpu_exploratory_conditioning.py",
+      "sha256": "26fbaef895b900423e51a022dc2225f80f6c6da690956a15d460edb7961404bd"
+    },
+    {
+      "bytes": 987,
+      "path": "rap-admission-failure.json",
+      "sha256": "32d8657bc8a8effb9e80a91f4f1c89346e718b72f4f173a957b38f8b7dee1b9c"
+    },
+    {
+      "bytes": 66953,
+      "path": "source175-cached-operator-audit.json",
+      "sha256": "4fb63acfe199cc8abe599135e0fc0e29497efe97a7986b0ebdeb6fe8ba03e4b8"
+    }
+  ],
+  "schema": "numi.cardboard.audit-artifact-inventory.v1"
+}

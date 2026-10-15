@@ -5,9 +5,13 @@
 #include "cardboard_tooling.hpp"
 #include "cardboard_paper_projection_scaling.hpp"
 #include "cardboard_shipping_snapshot.hpp"
+#if defined(NUMI_CARDBOARD_METAL_WORLD)
+#include "cardboard_shipping_rigid_driver.hpp"
+#endif
 #include "metalrobo/engine_types.h"
 #include "numi/matter/matter.hpp"
 #include "numi/matter/sparse_private_contact_admission.hpp"
+#include "numi/matter/full_contact_armijo_admission.hpp"
 
 #include <algorithm>
 #include <array>
@@ -53,6 +57,7 @@ constexpr double kInitialClearance = 30.0e-6;
 constexpr double kSupportClearance = 20.0e-6;
 constexpr double kToolSpeed = 0.2;
 constexpr double kActivationGap = 25.0e-6;
+constexpr double kFreeBodyMortarGap = 5.0e-6;
 constexpr double kActivationTolerance = 100.0e-6;
 unsigned checks = 0u;
 std::uint64_t nativeFEMTransactionsExecuted = 0u;
@@ -2314,6 +2319,9 @@ void requireTraceOperatorParity(const std::string& dense,
                                const char* stage) {
     const std::vector<TrialRecord> denseTrials = traceRecords(dense);
     const std::vector<TrialRecord> sparseTrials = traceRecords(sparse);
+    require(!denseTrials.empty() && !sparseTrials.empty(),
+            std::string("sparse/dense ") + stage +
+                " comparison requires nonempty production Armijo traces");
     require(denseTrials.size() == sparseTrials.size(),
             std::string("sparse/dense ") + stage +
                 " Armijo trial count differs");
@@ -2433,6 +2441,759 @@ void runSparsePrivateParity(const MaterialProgram& bulk) {
               << " accepted_and_rollback_histories_bit_identical=true"
               << " physical_validation=false synthetic_law=true\n";
 }
+
+#if defined(NUMI_CARDBOARD_METAL_WORLD)
+struct SparseFreeBodyRun {
+    std::vector<RuntimeStateSnapshot> accepted;
+    std::vector<std::string> traces;
+    std::vector<MRBodyStateGPU> finalSceneBodies;
+    float initialBodyZ = 0.0f;
+    float finalBodyZ = 0.0f;
+    float finalBodyVelocityZ = 0.0f;
+    bool terminalAccepted = false;
+    std::uint32_t terminalStatus = NM_STATUS_INVALID_DISPATCH;
+    double activationGapM = 0.0;
+    RuntimeStateSnapshot initial;
+    RuntimeStateSnapshot activated;
+    std::string activationTrace;
+    RuntimeStateSnapshot terminal;
+};
+
+void requireAcceptedStateUnchanged(const RuntimeStateSnapshot& before,
+                                   const RuntimeStateSnapshot& after,
+                                   const char* reason);
+void requireFullSnapshotRestoreParity(const RuntimeStateSnapshot& before,
+                                      const RuntimeStateSnapshot& after,
+                                      const char* reason);
+
+MeshAndWorld makeSparseFreeBodyWorld(const MaterialProgram& bulk,
+                                     const double supportGapM) {
+    MeshAndWorld source = makeWorld(bulk, false, true, kFreeBodyMortarGap);
+    source.world.mixedSolver.femPreconditioner =
+        FEMPreconditionerMode::scalarDiagonal;
+    source.world.objects.at(0u).femPreconditionerRegionIds.clear();
+    RigidProxySource& support = source.world.rigidProxies.at(kAnvilBody);
+    require(support.shape == NM_RIGID_BOX &&
+                std::isfinite(supportGapM) && supportGapM > 0.0,
+            "sparse free-body source requires a BOX and positive clearance");
+    // This fixture uses a centered box whose scene-body origin is its center
+    // of mass. Match the native engine box inertia and the Matter proxy shape.
+    support.localCenter = {0.0, 0.0, 0.0};
+    support.bodyIndex = 4u;
+    support.sceneBodyIndex = 4u;
+    support.articulated = false;
+    support.dynamic = true;
+    support.prescribedEndPoseTranslation = false;
+    require(source.world.rigidProxies.size() == 2u,
+            "sparse free-body fixture must retain one capsule and one BOX");
+    return source;
+}
+
+MRBodyStateGPU sparseFreeBodyToolSceneState(const ToolPose pose) {
+    return numi::cardboard::makeShippingKinematicSceneBody(
+        {pose.translation.x, pose.translation.y, pose.translation.z},
+        {pose.orientation.x, pose.orientation.y,
+         pose.orientation.z, pose.orientation.w});
+}
+
+RuntimeStateSnapshot activateSparseFreeBodyMortar(
+        const MeshAndWorld& source,
+        Runtime& runtime,
+        numi::cardboard::ShippingRigidWorldRunner& runner,
+        const std::uint32_t controlStep,
+        const double authoredGapM,
+        double& measuredAcceptedGapM,
+        std::string& capturedTrace) {
+    require(std::isfinite(authoredGapM) && authoredGapM > 0.0 &&
+                authoredGapM <= source.world.contactSlop &&
+                std::abs(authoredGapM - source.interfaceGapM) <= 1.0e-12,
+            "free-body activation must use the authored positive mortar gap within contact slop");
+    const RuntimeStateSnapshot before = runtime.snapshot();
+    require(before.available && before.cohesiveFaces.size() == 1u &&
+                (before.cohesiveFaces[0].adjacency.w &
+                    NM_TOPOLOGY_COHESIVE_DORMANT) != 0u,
+            "free-body setup must begin from one accepted-state dormant mixed face");
+    require(before.femNodes.size() == source.nodes.size() &&
+                source.world.objects.size() == 1u,
+            "free-body accepted activation geometry lacks the expected single-object node map");
+    double maximumAcceptedNodeGap = 0.0;
+    for (std::size_t index = 0u;
+         index < source.lowerInterfaceNodes.size(); ++index) {
+        const NMFEMNodeStateGPU& lower = before.femNodes.at(
+            source.lowerInterfaceNodes[index]);
+        const NMFEMNodeStateGPU& upper = before.femNodes.at(
+            source.upperInterfaceNodes[index]);
+        const double dx = double(upper.positionAndMass.x) -
+                          double(lower.positionAndMass.x);
+        const double dy = double(upper.positionAndMass.y) -
+                          double(lower.positionAndMass.y);
+        const double dz = double(upper.positionAndMass.z) -
+                          double(lower.positionAndMass.z);
+        const double gap = std::sqrt(dx * dx + dy * dy + dz * dz);
+        require(std::isfinite(gap) && std::abs(gap - authoredGapM) <= 2.0e-7,
+                "accepted FEM node geometry does not match the authored mortar gap");
+        maximumAcceptedNodeGap = std::max(maximumAcceptedNodeGap, gap);
+    }
+    const std::uint64_t diagnosticIndex = diagnosticStateOutput
+        ? diagnosticStateOutput->begin(controlStep, before) : 0u;
+
+    NMCohesiveActivationCommandGPU command{};
+    command.identity = {0u, 0u, kFaceId, 0u};
+    id<MTLDevice> device = MTLCreateSystemDefaultDevice();
+    require(device != nil,
+            "native Metal device unavailable for free-body interface activation");
+    id<MTLBuffer> commandBuffer = makeBuffer(
+        device, std::vector<NMCohesiveActivationCommandGPU>{command});
+    std::vector<MRABABodyWrenchGPU> zeroWrenches(5u);
+    id<MTLBuffer> zeroWrenchBuffer = makeBuffer(device, zeroWrenches);
+    require(commandBuffer != nil && zeroWrenchBuffer != nil &&
+                commandBuffer.length >= sizeof(command) &&
+                zeroWrenchBuffer.length >=
+                    zeroWrenches.size() * sizeof(zeroWrenches[0]),
+            "free-body activation command or zero-wrench buffer is unavailable");
+
+    const std::string traceSelector = std::to_string(controlStep);
+    numi::cardboard::ShippingRigidWorldRunner::StepResult activationStep;
+    {
+        ScopedEnvironmentValue trialTrace(
+            "NM_FEM_RESIDUAL_ARMIJO_TRACE_ROOT", traceSelector.c_str());
+        StderrCapture capture;
+        activationStep = runner.step(
+            std::span<const MRBodyStateGPU>(runner.sceneBodies().data(),
+                                             runner.toolSceneBodyCount()),
+            nullptr, 0u, (__bridge void*)commandBuffer, 1u,
+            (__bridge void*)zeroWrenchBuffer, 5u, 5u,
+            controlStep, 0.0f, false);
+        capturedTrace = capture.finish();
+    }
+    if (activationStep.diagnostics.succeeded())
+        ++nativeFEMTransactionsExecuted;
+    const RuntimeStateSnapshot after = runtime.snapshot();
+    require(after.available,
+            "free-body activation completion snapshot unavailable: " +
+                after.message);
+    if (diagnosticStateOutput)
+        diagnosticStateOutput->finish(
+            diagnosticIndex, &after,
+            activationStep.matterAcceptance.accepted
+                ? "mortar_activation_accepted"
+                : "mortar_activation_rejected");
+    require(activationStep.diagnostics.succeeded() &&
+                activationStep.matterAcceptance.accepted,
+            "accepted-state mortar activation setup rejected: " +
+                activationStep.diagnostics.message +
+                " trace=" + capturedTrace);
+    requireAccepted(after);
+    require(after.cohesiveFaces.size() == 1u &&
+                (after.cohesiveFaces[0].adjacency.w &
+                    NM_TOPOLOGY_COHESIVE_DORMANT) == 0u &&
+                (after.cohesiveFaces[0].adjacency.w &
+                    NM_TOPOLOGY_PAIRED_COHESIVE) != 0u &&
+                (after.cohesiveFaces[0].adjacency.w &
+                    NM_TOPOLOGY_COHESIVE_MIXED_MODE) != 0u &&
+                after.solverCertificates.size() == 1u &&
+                after.solverCertificates[0].validity.w > 0.5f,
+            "accepted activation did not retain a valid active mixed-face certificate");
+    double maximumLatchedGap = 0.0;
+    for (const nm_float4& gap : after.cohesiveFaces[0].activationLocalGap) {
+        const double norm = std::sqrt(double(gap.x) * gap.x +
+                                      double(gap.y) * gap.y +
+                                      double(gap.z) * gap.z);
+        require(std::isfinite(norm),
+                "accepted activation latched a nonfinite mortar gap");
+        maximumLatchedGap = std::max(maximumLatchedGap, norm);
+    }
+    require(std::abs(maximumLatchedGap - maximumAcceptedNodeGap) <= 2.0e-7 &&
+                maximumLatchedGap <= source.world.objects[0]
+                    .femCohesiveMortarPatches[0].activationGapToleranceM,
+            "accepted mortar activation reference does not match its measured accepted geometry");
+    measuredAcceptedGapM = maximumAcceptedNodeGap;
+    require(hasMortarParentContact(after, source),
+            "accepted mortar setup lost uncovered-parent self-contact history");
+    // Activation commands are intentionally submitted in an ordinary
+    // accepted transaction. The bounded full-contact private Armijo slice
+    // rejects request-scoped activation features; callers restore this exact
+    // completed snapshot into the dense/sparse measurement runtimes below.
+    return after;
+}
+
+SparseFreeBodyRun runSparseFreeBodySequence(
+        const MaterialProgram& bulk,
+        const bool sparse,
+        const std::uint32_t sparseCapacity,
+        const double supportGapM,
+        const double appliedForceZNewtons,
+        const std::uint32_t controlStepBase) {
+    require(!regionalContactPreconditioner,
+            "bounded free-BOX Armijo does not admit a regional FEM preconditioner");
+    const std::string capacityText = std::to_string(sparseCapacity);
+    ScopedEnvironmentValue fullContactSelector(
+        "NM_FEM_FULL_CONTACT_RESIDUAL_ARMIJO_ROOT", "all");
+    ScopedEnvironmentValue sparseCapacityValue(
+        "NM_FEM_FULL_CONTACT_SPARSE_PRIVATE_CAPACITY",
+        sparse ? capacityText.c_str() : nullptr);
+    ScopedEnvironmentValue sparseParityValue(
+        "NM_FEM_FULL_CONTACT_SPARSE_PRIVATE_PARITY",
+        sparse && sparseCapacity > 1u ? "1" : nullptr);
+    ScopedEnvironmentValue clearResidualRoot(
+        "NM_FEM_RESIDUAL_ARMIJO_ROOT", nullptr);
+    ScopedEnvironmentValue clearCapsuleRoot(
+        "NM_FEM_CAPSULE_RESIDUAL_ARMIJO_ROOT", nullptr);
+    ScopedEnvironmentValue clearCapsuleBoxRoot(
+        "NM_FEM_CAPSULE_BOX_RESIDUAL_ARMIJO_ROOT", nullptr);
+    ScopedEnvironmentValue clearCohesiveRoot(
+        "NM_FEM_COHESIVE_RESIDUAL_ARMIJO_ROOT", nullptr);
+
+    MeshAndWorld source = makeSparseFreeBodyWorld(bulk, supportGapM);
+    const CompiledWorld matterWorld = compile(source.world);
+    require(matterWorld.dispatch.environmentCount == 1u &&
+                matterWorld.dispatch.rigidGeneralizedCapacity == 6u &&
+                matterWorld.dispatch.rigidQCapacity == 0u &&
+                matterWorld.dispatch.rigidProxyCount == 2u &&
+                matterWorld.dispatch.contactPairCount > 1u &&
+                matterWorld.contact.rigidProxies.at(0u).shapeKind ==
+                    NM_RIGID_CAPSULE &&
+                matterWorld.contact.rigidProxies.at(0u).flags ==
+                    NM_RIGID_PRESCRIBED_TRANSLATION &&
+                matterWorld.contact.rigidProxies.at(1u).shapeKind == NM_RIGID_BOX &&
+                matterWorld.contact.rigidProxies.at(1u).flags == NM_RIGID_DYNAMIC &&
+                matterWorld.contact.rigidProxies.at(1u).bodyIndex == 4u &&
+                matterWorld.contact.rigidProxies.at(1u).sceneBodyIndex == 4u,
+            "free-body fixture escaped the admitted capsule plus one scene BOX layout");
+    if (sparse) {
+        const auto admission = detail::admitSparsePrivateContact(
+            matterWorld.dispatch.environmentCount,
+            matterWorld.dispatch.contactPairCount,
+            sparseCapacity, sparseCapacity > 1u, true, true);
+        require(admission.admitted(),
+                "sparse free-body fixture's private arena is not admitted: " +
+                    std::string(detail::sparsePrivateContactAdmissionErrorText(
+                        admission.error)));
+    }
+
+    const auto& supportProxy = source.world.rigidProxies.at(kAnvilBody);
+    numi::cardboard::ShippingRigidBodySpec bodySpec;
+    bodySpec.massKg = 1.0;
+    bodySpec.halfExtentM = {supportProxy.localExtent[0],
+                            supportProxy.localExtent[1],
+                            supportProxy.localExtent[2]};
+    bodySpec.initialCenterM = {
+        0.0, 0.0, -supportProxy.localExtent[2] - supportGapM};
+    bodySpec.gravityMPerS2 = {0.0, 0.0, 0.0};
+    bodySpec.timestepSeconds = source.world.frameTimestep;
+
+    std::array<MRBodyStateGPU, 4> toolBodies{
+        sparseFreeBodyToolSceneState(source.tooling.punchInitialPose),
+        numi::cardboard::makeShippingKinematicSceneBody({1.0, 1.0, 1.0}),
+        numi::cardboard::makeShippingKinematicSceneBody({2.0, 2.0, 2.0}),
+        numi::cardboard::makeShippingKinematicSceneBody({3.0, 3.0, 3.0}),
+    };
+    auto rigidBundle = numi::cardboard::makeShippingRigidWorld(
+        toolBodies, bodySpec);
+    const std::string geometryMismatch =
+        numi::cardboard::shippingRigidBranchGeometryMismatchReason(
+            matterWorld.contact.rigidProxies, rigidBundle, bodySpec);
+    require(geometryMismatch.empty(),
+            "free-body fixture scene/proxy identity mismatch: " + geometryMismatch);
+
+    RuntimeConfiguration configuration;
+    configuration.metallib = NUMI_MATTER_METALLIB;
+    configuration.environmentCount = matterWorld.dispatch.environmentCount;
+    configuration.captureDiagnostics = true;
+    configuration.adaptiveTransfer = false;
+
+    RuntimeStateSnapshot initialSnapshot;
+    RuntimeStateSnapshot activatedSnapshot;
+    std::vector<MRBodyStateGPU> activatedSceneBodies;
+    double acceptedActivationGapM = 0.0;
+    std::string activationTrace;
+    float initialBodyZ = 0.0f;
+    {
+        // The activation event is a separate, ordinary accepted transaction.
+        // It latches the true accepted FEM geometry without asking the
+        // full-contact private Armijo transaction to consume a request-scoped
+        // event that is outside that solver slice.
+        ScopedEnvironmentValue clearFullContactSelector(
+            "NM_FEM_FULL_CONTACT_RESIDUAL_ARMIJO_ROOT", nullptr);
+        ScopedEnvironmentValue clearSparseCapacity(
+            "NM_FEM_FULL_CONTACT_SPARSE_PRIVATE_CAPACITY", nullptr);
+        ScopedEnvironmentValue clearSparseParity(
+            "NM_FEM_FULL_CONTACT_SPARSE_PRIVATE_PARITY", nullptr);
+        Runtime activationRuntime;
+        const RuntimeDiagnostics activationInitialized =
+            activationRuntime.initialize(matterWorld, configuration);
+        require(activationInitialized.encoded,
+                "free-body activation runtime initialization failed: " +
+                    activationInitialized.message);
+        numi::cardboard::ShippingRigidWorldRunner activationRunner(
+            rigidBundle, activationRuntime,
+            static_cast<float>(source.world.frameTimestep), matterWorld);
+        initialSnapshot = activationRuntime.snapshot();
+        require(initialSnapshot.available,
+                "free-body initial Matter snapshot is unavailable: " +
+                    initialSnapshot.message);
+        initialBodyZ = activationRunner.sceneBodies().at(4u).position.z;
+        activatedSnapshot = activateSparseFreeBodyMortar(
+            source, activationRuntime, activationRunner,
+            controlStepBase - 1u, source.interfaceGapM,
+            acceptedActivationGapM, activationTrace);
+        activatedSceneBodies = activationRunner.sceneBodies();
+        require(activationRunner.q().empty() && activationRunner.v().empty(),
+                "free-body activation setup unexpectedly introduced articulated q/v state");
+        require(activatedSceneBodies.size() == rigidBundle.initialSceneBodies.size(),
+                "accepted activation scene-body checkpoint has the wrong size");
+    }
+
+    Runtime runtime;
+    const RuntimeDiagnostics initialized = runtime.initialize(matterWorld, configuration);
+    require(initialized.encoded,
+            "sparse free-body runtime initialization failed: " + initialized.message);
+    const RuntimeDiagnostics restored = runtime.restore(activatedSnapshot);
+    require(restored.encoded,
+            "accepted activation snapshot could not be restored into the full-contact runtime: " +
+                restored.message);
+    numi::cardboard::ShippingRigidWorldRunner runner(
+        std::move(rigidBundle), runtime,
+        static_cast<float>(source.world.frameTimestep), matterWorld);
+    runner.restoreAcceptedSceneBodies(activatedSceneBodies);
+    const RuntimeStateSnapshot restoredActivation = runtime.snapshot();
+    requireSnapshotOperatorParity(
+        activatedSnapshot, restoredActivation,
+        "restored accepted mortar activation");
+    requireAcceptedStateUnchanged(
+        activatedSnapshot, restoredActivation,
+        "restored accepted mortar activation");
+    requireFullSnapshotRestoreParity(
+        activatedSnapshot, restoredActivation,
+        "restored accepted mortar activation");
+    if (!sparse) {
+        const auto rejectCorruptActivationRestore = [&](
+                const char* label,
+                const auto& corrupt) {
+            RuntimeStateSnapshot malformed = activatedSnapshot;
+            require(malformed.cohesiveFaces.size() == 1u,
+                    "activation restore corruption fixture has no cohesive face");
+            corrupt(malformed.cohesiveFaces[0]);
+            const RuntimeDiagnostics denied = runtime.restore(malformed);
+            require(!denied.encoded,
+                    std::string("activated mortar restore accepted corrupt ") +
+                        label);
+            const RuntimeStateSnapshot unchanged = runtime.snapshot();
+            requireFullSnapshotRestoreParity(
+                activatedSnapshot, unchanged,
+                "rejected corrupted mortar activation restore");
+        };
+        rejectCorruptActivationRestore("reference normal", [](auto& face) {
+            face.geometry.x += 0.01f;
+        });
+        rejectCorruptActivationRestore("reference area", [](auto& face) {
+            face.geometry.w = -face.geometry.w;
+        });
+        rejectCorruptActivationRestore("mortar vertex mapping", [](auto& face) {
+            face.mortarSideAVertexWeights[0].x = std::nextafter(
+                face.mortarSideAVertexWeights[0].x, 0.0f);
+        });
+        rejectCorruptActivationRestore("cohesive law identity", [](auto& face) {
+            ++face.lawIdentity.y;
+        });
+    }
+    require(runner.sceneBodies().size() == activatedSceneBodies.size() &&
+                std::memcmp(runner.sceneBodies().data(),
+                            activatedSceneBodies.data(),
+                            activatedSceneBodies.size() * sizeof(MRBodyStateGPU)) == 0,
+            "full-contact runtime did not retain the accepted activation scene-body checkpoint");
+
+    std::vector<MRABABodyWrenchGPU> wrenches(5u);
+    wrenches[4].force = {0.0f, 0.0f,
+        static_cast<float>(appliedForceZNewtons), 0.0f};
+    wrenches[4].torque = {0.0f, 0.0f, 0.0f, 0.0f};
+    id<MTLDevice> device = MTLCreateSystemDefaultDevice();
+    require(device != nil, "native Metal device unavailable for free-body wrench");
+    id<MTLBuffer> wrenchBuffer = makeBuffer(device, wrenches);
+    require(wrenchBuffer != nil &&
+                wrenchBuffer.length >= wrenches.size() * sizeof(wrenches[0]),
+            "free-body fixture could not allocate the transaction wrench input");
+
+    SparseFreeBodyRun result;
+    result.initial = std::move(initialSnapshot);
+    result.initialBodyZ = initialBodyZ;
+    result.activated = std::move(activatedSnapshot);
+    result.activationGapM = acceptedActivationGapM;
+    result.activationTrace = std::move(activationTrace);
+    const std::uint32_t stepCount = appliedForceZNewtons == 0.0 ? 1u : 3u;
+    for (std::uint32_t localStep = 0u; localStep < stepCount; ++localStep) {
+        const std::span<const MRBodyStateGPU> kinematicTools(
+            runner.sceneBodies().data(), runner.toolSceneBodyCount());
+        numi::cardboard::ShippingRigidWorldRunner::StepResult nativeStep;
+        std::string trace;
+        const std::uint32_t controlStep = controlStepBase + localStep;
+        const std::string traceSelector = std::to_string(controlStep);
+        RuntimeStateSnapshot diagnosticBefore;
+        std::uint64_t diagnosticIndex = 0u;
+        bool diagnosticFinished = false;
+        if (diagnosticStateOutput) {
+            diagnosticBefore = runtime.snapshot();
+            require(diagnosticBefore.available,
+                    "free-body diagnostic before snapshot is unavailable: " +
+                        diagnosticBefore.message);
+            diagnosticIndex = diagnosticStateOutput->begin(
+                controlStep, diagnosticBefore);
+        }
+        const auto finishDiagnostic = [&](const RuntimeStateSnapshot* after,
+                                          const char* stage) {
+            if (diagnosticStateOutput && !diagnosticFinished) {
+                diagnosticStateOutput->finish(diagnosticIndex, after, stage);
+                diagnosticFinished = true;
+            }
+        };
+        try {
+            {
+                ScopedEnvironmentValue trialTrace(
+                    "NM_FEM_RESIDUAL_ARMIJO_TRACE_ROOT",
+                    traceSelector.c_str());
+                StderrCapture capture;
+                nativeStep = runner.step(
+                    kinematicTools, nullptr, 0u, nullptr, 0u,
+                    (__bridge void*)wrenchBuffer, 5u, 5u,
+                    controlStep, 0.0f, false);
+                trace = capture.finish();
+            }
+            retainFixtureTrace(
+                ("free-body-control-" + traceSelector).c_str(), trace);
+            if (nativeStep.diagnostics.succeeded())
+                ++nativeFEMTransactionsExecuted;
+            require(nativeStep.diagnostics.succeeded(),
+                    "native free-body transaction failed: " +
+                        nativeStep.diagnostics.message + " trace=" + trace);
+            if (!nativeStep.matterAcceptance.accepted) {
+                const RuntimeStateSnapshot rejected = runtime.snapshot();
+                finishDiagnostic(&rejected, "native_step_rejected");
+                std::ostringstream reason;
+                reason << "Matter rejected free-body step status="
+                       << nativeStep.matterAcceptance.statusCode
+                       << " reason=" << nativeStep.matterAcceptance.reason
+                       << " trace=" << trace;
+                throw std::runtime_error(reason.str());
+            }
+            const RuntimeStateSnapshot accepted = runtime.snapshot();
+            require(accepted.available,
+                    "free-body accepted snapshot is unavailable: " +
+                        accepted.message);
+            finishDiagnostic(&accepted, "snapshot_after_completion");
+            result.traces.push_back(std::move(trace));
+            result.accepted.push_back(accepted);
+        } catch (...) {
+            // A failed engine transaction can still expose its rolled-back
+            // Matter state. Retain it so the first failure and rollback can
+            // be audited instead of ending at an accepted-state prefix.
+            const RuntimeStateSnapshot failed = runtime.snapshot();
+            finishDiagnostic(failed.available ? &failed : nullptr,
+                             "native_step_exception");
+            throw;
+        }
+    }
+    result.finalSceneBodies = runner.sceneBodies();
+    result.finalBodyZ = result.finalSceneBodies.at(4u).position.z;
+    result.finalBodyVelocityZ =
+        result.finalSceneBodies.at(4u).linearVelocityAndInverseMass.z;
+    result.terminal = result.accepted.back();
+    result.terminalAccepted = true;
+    result.terminalStatus = result.terminal.statuses.at(0u).code;
+    return result;
+}
+
+void runSparseFreeBodyParity(const MaterialProgram& bulk) {
+    require(!regionalContactPreconditioner,
+            "sparse free-body parity requires the scalar-diagonal preconditioner");
+    const MeshAndWorld source = makeSparseFreeBodyWorld(bulk, 9.0e-6);
+    const CompiledWorld compiled = compile(source.world);
+    const std::uint32_t pairCount = compiled.dispatch.contactPairCount;
+    require(pairCount > 2u,
+            "free-body sparse parity needs more than two canonical contact pairs");
+    const std::string outputRoot = diagnosticStateOutputPath;
+    std::unique_ptr<DiagnosticStateOutput> parentDiagnosticOutput =
+        std::move(diagnosticStateOutput);
+    const auto selectOutput = [&](const char* label) {
+        if (outputRoot.empty()) return;
+        diagnosticStateOutput.reset();
+        const auto directory = std::filesystem::path(outputRoot) / label;
+        if (std::filesystem::exists(directory))
+            throw std::runtime_error(
+                "free-body parity trace subdirectory must be new: " +
+                directory.string());
+        diagnosticStateOutputPath = directory.string();
+        diagnosticStateOutput = std::make_unique<DiagnosticStateOutput>(
+            diagnosticStateOutputPath);
+    };
+    const auto restoreOutput = [&]() {
+        diagnosticStateOutput.reset();
+        diagnosticStateOutput = std::move(parentDiagnosticOutput);
+        diagnosticStateOutputPath = outputRoot;
+    };
+    SparseFreeBodyRun dense;
+    SparseFreeBodyRun sparse;
+    try {
+        selectOutput("dense");
+        dense = runSparseFreeBodySequence(
+            bulk, false, 0u, 9.0e-6, 100.0, 1200u);
+        selectOutput("sparse");
+        sparse = runSparseFreeBodySequence(
+            bulk, true, pairCount - 1u, 9.0e-6, 100.0, 1200u);
+        restoreOutput();
+    } catch (...) {
+        restoreOutput();
+        throw;
+    }
+    requireSnapshotOperatorParity(dense.initial, sparse.initial,
+                                  "free-body initial");
+    requireSnapshotOperatorParity(dense.activated, sparse.activated,
+                                  "free-body activation setup");
+    require(dense.initial.cohesiveFaces.size() == 1u &&
+                sparse.initial.cohesiveFaces.size() == 1u &&
+                (dense.initial.cohesiveFaces[0].adjacency.w &
+                    NM_TOPOLOGY_COHESIVE_DORMANT) != 0u &&
+                (sparse.initial.cohesiveFaces[0].adjacency.w &
+                    NM_TOPOLOGY_COHESIVE_DORMANT) != 0u &&
+                dense.activated.cohesiveFaces.size() == 1u &&
+                sparse.activated.cohesiveFaces.size() == 1u &&
+                (dense.activated.cohesiveFaces[0].adjacency.w &
+                    NM_TOPOLOGY_COHESIVE_DORMANT) == 0u &&
+                (sparse.activated.cohesiveFaces[0].adjacency.w &
+                    NM_TOPOLOGY_COHESIVE_DORMANT) == 0u,
+            "dense/sparse setup did not retain dormant then accepted-active mortar history");
+    require(dense.accepted.size() == sparse.accepted.size() &&
+                dense.accepted.size() == 3u,
+            "free-body parity sequence did not retain all three accepted steps");
+    for (std::size_t index = 0u; index < dense.accepted.size(); ++index) {
+        requireSnapshotOperatorParity(dense.accepted[index],
+                                      sparse.accepted[index],
+                                      "free-body accepted step");
+        requireTraceOperatorParity(dense.traces[index], sparse.traces[index],
+                                   "free-body accepted step");
+        require(dense.traces[index].find(
+                    "\"private_contact_layout\":\"dense\"") !=
+                    std::string::npos &&
+                sparse.traces[index].find(
+                    "\"private_contact_layout\":\"sparse\"") !=
+                    std::string::npos &&
+                sparse.traces[index].find("\"sparse_parity\":true") !=
+                    std::string::npos,
+                "free-body parity did not exercise both private layouts and internal sample parity");
+    }
+    const auto hasContact = [](const SparseFreeBodyRun& run) {
+        return std::any_of(run.accepted.begin(), run.accepted.end(),
+            [](const RuntimeStateSnapshot& snapshot) {
+                return !snapshot.statuses.empty() &&
+                    snapshot.statuses[0].contactCount > 0u;
+            });
+    };
+    require(hasContact(dense) && hasContact(sparse),
+            "free-body sparse parity never exercised a nonzero active contact set");
+    require(dense.finalSceneBodies.size() == sparse.finalSceneBodies.size() &&
+                std::memcmp(dense.finalSceneBodies.data(),
+                            sparse.finalSceneBodies.data(),
+                            dense.finalSceneBodies.size() *
+                                sizeof(MRBodyStateGPU)) == 0,
+            "dense and sparse MetalWorld accepted scene bodies differ");
+    require(std::abs(dense.finalBodyZ - dense.initialBodyZ) > 1.0e-8f &&
+                std::abs(sparse.finalBodyZ - sparse.initialBodyZ) > 1.0e-8f &&
+                std::abs(dense.finalBodyVelocityZ) > 0.0f &&
+                std::abs(sparse.finalBodyVelocityZ) > 0.0f,
+            "accepted native contact/wrench transactions did not translate the free body");
+    std::cout << std::setprecision(9)
+              << "sparse_private_free_body_parity=pass"
+              << " body_dof=6 nonarticulated_box=true"
+              << " accepted_steps=" << dense.accepted.size()
+              << " separate_accepted_mortar_activation_setup=true"
+              << " authored_mortar_gap_m=" << kFreeBodyMortarGap
+              << " measured_accepted_mortar_gap_m=" << dense.activationGapM
+              << " activation_geometry=accepted_contact_range_gap_no_overlap_claim"
+              << " initial_z_m=" << dense.initialBodyZ
+              << " final_z_m=" << dense.finalBodyZ
+              << " final_vz_m_per_s=" << dense.finalBodyVelocityZ
+              << " canonical_pairs=" << pairCount
+              << " sparse_capacity=" << pairCount - 1u
+              << " external_wrench_native=true dense_sparse_scene_and_fem_parity=true"
+              << " physical_validation=false synthetic_fixture=true\n";
+}
+
+void runSparseFreeBodyOverflow(const MaterialProgram& bulk) {
+    ScopedEnvironmentValue fullContactSelector(
+        "NM_FEM_FULL_CONTACT_RESIDUAL_ARMIJO_ROOT", "all");
+    ScopedEnvironmentValue sparseCapacityValue(
+        "NM_FEM_FULL_CONTACT_SPARSE_PRIVATE_CAPACITY", "1");
+    ScopedEnvironmentValue clearParity(
+        "NM_FEM_FULL_CONTACT_SPARSE_PRIVATE_PARITY", nullptr);
+    ScopedEnvironmentValue clearResidualRoot(
+        "NM_FEM_RESIDUAL_ARMIJO_ROOT", nullptr);
+    ScopedEnvironmentValue clearCapsuleRoot(
+        "NM_FEM_CAPSULE_RESIDUAL_ARMIJO_ROOT", nullptr);
+    ScopedEnvironmentValue clearCapsuleBoxRoot(
+        "NM_FEM_CAPSULE_BOX_RESIDUAL_ARMIJO_ROOT", nullptr);
+    ScopedEnvironmentValue clearCohesiveRoot(
+        "NM_FEM_COHESIVE_RESIDUAL_ARMIJO_ROOT", nullptr);
+
+    MeshAndWorld source = makeSparseFreeBodyWorld(bulk, 5.0e-6);
+    const CompiledWorld matterWorld = compile(source.world);
+    const auto& supportProxy = source.world.rigidProxies.at(kAnvilBody);
+    numi::cardboard::ShippingRigidBodySpec bodySpec;
+    bodySpec.massKg = 1.0;
+    bodySpec.halfExtentM = {supportProxy.localExtent[0],
+                            supportProxy.localExtent[1],
+                            supportProxy.localExtent[2]};
+    bodySpec.initialCenterM = {
+        0.0, 0.0, -supportProxy.localExtent[2] - 5.0e-6};
+    bodySpec.gravityMPerS2 = {0.0, 0.0, 0.0};
+    bodySpec.timestepSeconds = source.world.frameTimestep;
+    std::array<MRBodyStateGPU, 4> toolBodies{
+        sparseFreeBodyToolSceneState(source.tooling.punchInitialPose),
+        numi::cardboard::makeShippingKinematicSceneBody({1.0, 1.0, 1.0}),
+        numi::cardboard::makeShippingKinematicSceneBody({2.0, 2.0, 2.0}),
+        numi::cardboard::makeShippingKinematicSceneBody({3.0, 3.0, 3.0}),
+    };
+    auto rigidBundle = numi::cardboard::makeShippingRigidWorld(
+        toolBodies, bodySpec);
+    const std::string geometryMismatch =
+        numi::cardboard::shippingRigidBranchGeometryMismatchReason(
+            matterWorld.contact.rigidProxies, rigidBundle, bodySpec);
+    require(geometryMismatch.empty(),
+            "free-body overflow scene/proxy identity mismatch: " + geometryMismatch);
+    RuntimeConfiguration configuration;
+    configuration.metallib = NUMI_MATTER_METALLIB;
+    configuration.environmentCount = matterWorld.dispatch.environmentCount;
+    configuration.captureDiagnostics = true;
+    configuration.adaptiveTransfer = false;
+    RuntimeStateSnapshot activated;
+    std::vector<MRBodyStateGPU> activatedSceneBodies;
+    double acceptedActivationGapM = 0.0;
+    std::string activationTrace;
+    {
+        // The overflow transaction opts into the sparse private residual
+        // path, but accepted mortar activation is a separate ordinary
+        // transaction. Initialize its Runtime only after clearing the sparse
+        // selectors, then restore that accepted snapshot into the sparse
+        // Runtime below. Runtime selectors are captured at initialization.
+        ScopedEnvironmentValue clearFullContactSelector(
+            "NM_FEM_FULL_CONTACT_RESIDUAL_ARMIJO_ROOT", nullptr);
+        ScopedEnvironmentValue clearSparseCapacity(
+            "NM_FEM_FULL_CONTACT_SPARSE_PRIVATE_CAPACITY", nullptr);
+        ScopedEnvironmentValue clearSparseParity(
+            "NM_FEM_FULL_CONTACT_SPARSE_PRIVATE_PARITY", nullptr);
+        Runtime activationRuntime;
+        const RuntimeDiagnostics activationInitialized =
+            activationRuntime.initialize(matterWorld, configuration);
+        require(activationInitialized.encoded,
+                "sparse free-body overflow activation initialization failed: " +
+                    activationInitialized.message);
+        numi::cardboard::ShippingRigidWorldRunner activationRunner(
+            rigidBundle, activationRuntime,
+            static_cast<float>(source.world.frameTimestep), matterWorld);
+        const RuntimeStateSnapshot initial = activationRuntime.snapshot();
+        require(initial.available,
+                "sparse free-body overflow activation initial snapshot is unavailable: " +
+                    initial.message);
+        activated = activateSparseFreeBodyMortar(
+            source, activationRuntime, activationRunner, 1299u,
+            source.interfaceGapM, acceptedActivationGapM, activationTrace);
+        activatedSceneBodies = activationRunner.sceneBodies();
+        require(activationRunner.q().empty() && activationRunner.v().empty() &&
+                    activatedSceneBodies.size() ==
+                        rigidBundle.initialSceneBodies.size(),
+                "sparse free-body overflow activation checkpoint has invalid rigid state");
+    }
+    Runtime runtime;
+    const RuntimeDiagnostics initialized = runtime.initialize(matterWorld, configuration);
+    require(initialized.encoded,
+            "sparse free-body overflow initialization failed: " + initialized.message);
+    const RuntimeDiagnostics restored = runtime.restore(activated);
+    require(restored.encoded,
+            "sparse free-body overflow could not restore the accepted activation snapshot: " +
+                restored.message);
+    numi::cardboard::ShippingRigidWorldRunner runner(
+        std::move(rigidBundle), runtime,
+        static_cast<float>(source.world.frameTimestep), matterWorld);
+    runner.restoreAcceptedSceneBodies(activatedSceneBodies);
+    const RuntimeStateSnapshot restoredActivation = runtime.snapshot();
+    requireSnapshotOperatorParity(
+        activated, restoredActivation,
+        "restored overflow mortar activation");
+    requireAcceptedStateUnchanged(
+        activated, restoredActivation,
+        "restored overflow mortar activation");
+    requireFullSnapshotRestoreParity(
+        activated, restoredActivation,
+        "restored overflow mortar activation");
+    require(runner.sceneBodies().size() == activatedSceneBodies.size() &&
+                std::memcmp(runner.sceneBodies().data(),
+                            activatedSceneBodies.data(),
+                            activatedSceneBodies.size() *
+                                sizeof(MRBodyStateGPU)) == 0,
+            "sparse overflow runtime did not retain the accepted activation scene-body checkpoint");
+    std::vector<MRABABodyWrenchGPU> wrenches(5u);
+    wrenches[4].force = {0.0f, 0.0f, 100.0f, 0.0f};
+    id<MTLDevice> device = MTLCreateSystemDefaultDevice();
+    require(device != nil, "native Metal device unavailable for overflow wrench");
+    id<MTLBuffer> wrenchBuffer = makeBuffer(device, wrenches);
+    const RuntimeStateSnapshot before = restoredActivation;
+    require(before.available,
+            "free-body overflow initial snapshot is unavailable");
+    const std::uint64_t diagnosticIndex = diagnosticStateOutput
+        ? diagnosticStateOutput->begin(1300u, activated) : 0u;
+    const std::vector<MRBodyStateGPU> beforeScene = runner.sceneBodies();
+    numi::cardboard::ShippingRigidWorldRunner::StepResult nativeStep;
+    std::string trace;
+    {
+        ScopedEnvironmentValue trialTrace(
+            "NM_FEM_RESIDUAL_ARMIJO_TRACE_ROOT", "1300");
+        StderrCapture capture;
+        nativeStep = runner.step(
+            std::span<const MRBodyStateGPU>(runner.sceneBodies().data(), 4u),
+            nullptr, 0u, nullptr, 0u, (__bridge void*)wrenchBuffer,
+            5u, 5u, 1300u, 0.0f, false);
+        trace = capture.finish();
+    }
+    retainFixtureTrace("free-body-overflow-control-1300", trace);
+    if (nativeStep.diagnostics.succeeded())
+        ++nativeFEMTransactionsExecuted;
+    const RuntimeStateSnapshot after = runtime.snapshot();
+    require(after.available,
+            "free-body overflow rollback snapshot is unavailable");
+    if (diagnosticStateOutput)
+        diagnosticStateOutput->finish(
+            diagnosticIndex, &after, "native_step_rejected_or_accepted");
+    const bool overflowTerminal = after.statuses.size() == 1u &&
+        after.statuses[0].code == NM_STATUS_CAPACITY_OVERFLOW;
+    const bool overflowTrial = trace.find(
+        "\"trial_status\":{\"code\":2") != std::string::npos;
+    require((overflowTerminal || overflowTrial) &&
+                !nativeStep.matterAcceptance.accepted,
+            "one-sample sparse free-body trial did not fail closed on active candidate overflow; trace=" +
+                trace + " engine_diagnostic=" + nativeStep.diagnostics.message);
+    requireAcceptedStateUnchanged(activated, after,
+                                  "sparse free-body candidate overflow");
+    require(runner.sceneBodies().size() == beforeScene.size() &&
+                std::memcmp(runner.sceneBodies().data(), beforeScene.data(),
+                            beforeScene.size() * sizeof(MRBodyStateGPU)) == 0,
+            "sparse free-body candidate overflow changed the accepted engine scene");
+    require(after.solverCertificates.size() == 1u &&
+                after.solverCertificates[0].validity.w <= 0.5f,
+            "sparse free-body candidate overflow retained a valid certificate");
+    std::cout << "sparse_private_free_body_overflow_rollback=pass"
+              << " capacity=1 terminal_status="
+              << (after.statuses.empty() ? NM_INVALID_INDEX :
+                  after.statuses[0].code)
+              << " candidate_overflow_trial="
+              << (overflowTrial ? "true" : "false")
+              << " accepted_mortar_activation_setup=true"
+              << " setup_control_step=1299 authored_gap_m="
+              << source.interfaceGapM
+              << " measured_accepted_gap_m=" << acceptedActivationGapM
+              << " gap_within_contact_slop=true overlap_claim=false"
+              << " gap_within_contact_slop=true overlap_claim=false"
+              << " fem_material_rigid_and_engine_scene_unchanged=true"
+              << " physical_validation=false synthetic_fixture=true\n";
+}
+#endif
 
 void runSelfSurfaceScratchAliasParity(const MaterialProgram& bulk) {
     const std::string outputRoot = diagnosticStateOutputPath;
@@ -2573,6 +3334,93 @@ void requireAcceptedStateUnchanged(const RuntimeStateSnapshot& before,
                               "rigid states", reason);
 }
 
+void requireFullSnapshotRestoreParity(const RuntimeStateSnapshot& before,
+                                      const RuntimeStateSnapshot& after,
+                                      const char* reason) {
+    require(before.available && after.available,
+            std::string(reason) + " snapshot is unavailable");
+    require(before.sourcePhysicsFingerprint == after.sourcePhysicsFingerprint &&
+                before.deviceProgramFingerprint == after.deviceProgramFingerprint,
+            std::string(reason) + " source/device identity changed");
+    require(before.controlStep == after.controlStep &&
+                before.physicsSubstep == after.physicsSubstep &&
+                before.identificationGeneration == after.identificationGeneration &&
+                before.identificationCheckpoint == after.identificationCheckpoint &&
+                before.identificationAdvanced == after.identificationAdvanced &&
+                before.sutureProxyBindingRevision == after.sutureProxyBindingRevision &&
+                before.coupledTimestepMultiplier == after.coupledTimestepMultiplier &&
+                before.coupledTimestepDivisor == after.coupledTimestepDivisor &&
+                before.fgmresIterationBudgetOverride ==
+                    after.fgmresIterationBudgetOverride &&
+                before.newtonIterationBudgetOverride ==
+                    after.newtonIterationBudgetOverride &&
+                before.allocationGeneration == after.allocationGeneration &&
+                before.learnedWeightRevision == after.learnedWeightRevision &&
+                before.materialStateStride == after.materialStateStride,
+            std::string(reason) + " snapshot metadata changed");
+#define REQUIRE_RESTORED_VECTOR(field, label) \
+    requireVectorBitIdentical(before.field, after.field, label, reason)
+    REQUIRE_RESTORED_VECTOR(sutureProxyEdges, "suture proxy bindings");
+    REQUIRE_RESTORED_VECTOR(particles, "particles");
+    REQUIRE_RESTORED_VECTOR(femNodes, "FEM nodes");
+    REQUIRE_RESTORED_VECTOR(femFields, "FEM fields");
+    REQUIRE_RESTORED_VECTOR(vascularState, "vascular state");
+    REQUIRE_RESTORED_VECTOR(vascularClock, "vascular clock");
+    REQUIRE_RESTORED_VECTOR(femTopologyNodes, "FEM topology nodes");
+    REQUIRE_RESTORED_VECTOR(femTopologyTetrahedra, "FEM topology tetrahedra");
+    REQUIRE_RESTORED_VECTOR(cohesiveFaces, "cohesive faces");
+    REQUIRE_RESTORED_VECTOR(punctureChannels, "puncture channels");
+    REQUIRE_RESTORED_VECTOR(topologyStates, "topology state");
+    REQUIRE_RESTORED_VECTOR(statuses, "completion status");
+    REQUIRE_RESTORED_VECTOR(solverCertificates, "solver certificates");
+    REQUIRE_RESTORED_VECTOR(mpmActiveNodeIndices, "MPM active nodes");
+    REQUIRE_RESTORED_VECTOR(mpmNodeToActive, "MPM node map");
+    REQUIRE_RESTORED_VECTOR(mpmActiveNodeCounts, "MPM active counts");
+    REQUIRE_RESTORED_VECTOR(rigidGeneralizedCandidate, "rigid generalized state");
+    REQUIRE_RESTORED_VECTOR(learnedWeights, "learned weights");
+    REQUIRE_RESTORED_VECTOR(adaptive, "adaptive state");
+    REQUIRE_RESTORED_VECTOR(schedulers, "scheduler state");
+    REQUIRE_RESTORED_VECTOR(reactions, "rigid reactions");
+    REQUIRE_RESTORED_VECTOR(rigidStates, "rigid states");
+    REQUIRE_RESTORED_VECTOR(contactSamples, "contact samples");
+    REQUIRE_RESTORED_VECTOR(deformableContactFailures, "deformable contact failures");
+    REQUIRE_RESTORED_VECTOR(contactHistories, "rigid contact histories");
+    REQUIRE_RESTORED_VECTOR(humanSupportHistories, "human support histories");
+    REQUIRE_RESTORED_VECTOR(humanSupportConsequences, "human support consequences");
+    REQUIRE_RESTORED_VECTOR(deformableContactHistories,
+                            "deformable contact histories");
+    REQUIRE_RESTORED_VECTOR(particleMaterialState, "particle material state");
+    REQUIRE_RESTORED_VECTOR(femMaterialState, "FEM material state");
+    REQUIRE_RESTORED_VECTOR(identification, "identification posterior");
+    REQUIRE_RESTORED_VECTOR(environmentParameters, "environment parameters");
+    REQUIRE_RESTORED_VECTOR(femRegionalGalerkinLinearizationNodes,
+                            "regional linearization nodes");
+    REQUIRE_RESTORED_VECTOR(femRegionalGalerkinLinearizationMaterialState,
+                            "regional linearization material history");
+    REQUIRE_RESTORED_VECTOR(femRegionalGalerkinLinearizationSchedulerExponent,
+                            "regional linearization scheduler");
+    REQUIRE_RESTORED_VECTOR(femRegionalGalerkinLinearizationLocalFHigh,
+                            "regional linearization deformation high words");
+    REQUIRE_RESTORED_VECTOR(femRegionalGalerkinLinearizationLocalFLow,
+                            "regional linearization deformation low words");
+    REQUIRE_RESTORED_VECTOR(femRegionalGalerkinBasisP, "regional basis P");
+    REQUIRE_RESTORED_VECTOR(femRegionalGalerkinEffectiveBasisP,
+                            "regional effective basis P");
+    REQUIRE_RESTORED_VECTOR(femRegionalGalerkinOperatorAP, "regional operator AP");
+    REQUIRE_RESTORED_VECTOR(femRegionalGalerkinPivotedRAP, "regional RAP");
+    REQUIRE_RESTORED_VECTOR(femRegionalGalerkinPivots, "regional pivots");
+    REQUIRE_RESTORED_VECTOR(femRegionalGalerkinFactorValid,
+                            "regional factor validity");
+#undef REQUIRE_RESTORED_VECTOR
+    require(before.femRegionalGalerkinDiagnosticsAvailable ==
+                after.femRegionalGalerkinDiagnosticsAvailable &&
+                before.femRegionalGalerkinModeCount ==
+                    after.femRegionalGalerkinModeCount &&
+                before.femRegionalGalerkinDiagnosticsMessage ==
+                    after.femRegionalGalerkinDiagnosticsMessage,
+            std::string(reason) + " regional diagnostic metadata changed");
+}
+
 void runSparsePrivateOverflow(const MaterialProgram& bulk,
                               const std::uint32_t capacity) {
     require(capacity == 1u,
@@ -2702,14 +3550,13 @@ void verifySparsePrivateAdmission(const MaterialProgram& bulk,
         "requires the full-contact Armijo selector");
 
     MeshAndWorld freeBodySource = makeWorld(bulk, false, true, 5.0e-6);
-    // This case is specifically exercising the sparse private-contact
-    // runtime rejection for a free rigid unknown. Keep that expected failure
-    // independent of the optional regional contact preconditioner, whose
-    // authored scope intentionally excludes free generalized bodies.
+    // This case verifies runtime admission of the one supported sparse free
+    // rigid scope. Keep it independent of the optional regional contact
+    // preconditioner, whose authored scope excludes free generalized bodies.
     freeBodySource.world.mixedSolver.femPreconditioner =
         FEMPreconditionerMode::scalarDiagonal;
     // makeWorld() authors all-zero regional labels when the fixture-wide
-    // selector is enabled. The negative free-body case deliberately uses the
+    // selector is enabled. This free-body case deliberately uses the
     // scalar preconditioner, so remove those labels as well; otherwise source
     // compilation rejects the inconsistent selector before sparse-runtime
     // admission gets a chance to exercise the intended free-DOF guard.
@@ -2718,7 +3565,7 @@ void verifySparsePrivateAdmission(const MaterialProgram& bulk,
     freeBodySource.world.rigidProxies.at(kAnvilBody).sceneBodyIndex = kAnvilBody;
     const CompiledWorld freeBodyWorld = compile(freeBodySource.world);
     require(freeBodyWorld.dispatch.rigidGeneralizedCapacity == 6u,
-            "sparse free-rigid rejection fixture did not author one free body");
+            "sparse free-rigid admission fixture did not author one free body");
     const std::string capacity = std::to_string(
         std::max(1u, freeBodyWorld.dispatch.contactPairCount - 1u));
     ScopedEnvironmentValue sparseCapacity(
@@ -2734,13 +3581,11 @@ void verifySparsePrivateAdmission(const MaterialProgram& bulk,
     freeBodyConfiguration.captureDiagnostics = false;
     const RuntimeDiagnostics freeBodyInitialized =
         freeBodyRuntime.initialize(freeBodyWorld, freeBodyConfiguration);
-    require(!freeBodyInitialized.encoded &&
-                freeBodyInitialized.message.find(
-                    "sparse_private_contact_does_not_support_free_rigid_unknowns") !=
-                    std::string::npos,
-            "sparse private contact did not reject free-rigid DOF before allocation");
+    require(freeBodyInitialized.encoded,
+            "sparse private contact rejected the bounded free-BOX source before allocation: " +
+                freeBodyInitialized.message);
     std::cout << "sparse_private_admission=pass malformed_capacity=true"
-              << " missing_selector=true free_rigid_unknowns=true\n";
+              << " missing_selector=true bounded_free_box_initialized=true\n";
 }
 
 void runSparsePrivateHighPairAdmission(const MaterialProgram& bulk) {
@@ -2845,6 +3690,10 @@ void verifySparsePrivateSizingAdmission() {
                 freeRigidUnsupported.error ==
                     SparsePrivateContactAdmissionError::free_rigid_unknowns_unsupported,
             "sparse admission allowed free rigid generalized unknowns");
+    const auto boundedFreeBox =
+        admitSparsePrivateContact(1u, 65537u, 64u, false, true, true);
+    require(boundedFreeBox.admitted(),
+            "sparse admission rejected the explicitly bounded one-BOX six-DOF scope");
 
     const auto capacityExceedsPairDomain =
         admitSparsePrivateContact(1u, 8u, 9u, false, false);
@@ -2854,12 +3703,36 @@ void verifySparsePrivateSizingAdmission() {
                         candidate_capacity_exceeds_pair_domain,
             "sparse admission allowed candidate capacity past the canonical pair domain");
 
+    NMCohesiveFaceGPU dormantMixed{};
+    dormantMixed.adjacency.w = NM_TOPOLOGY_ACTIVE |
+        NM_TOPOLOGY_PAIRED_COHESIVE | NM_TOPOLOGY_COHESIVE_MIXED_MODE |
+        NM_TOPOLOGY_COHESIVE_DORMANT;
+    dormantMixed.lawIdentity.x = NM_COHESIVE_LAW_MIXED_MODE_BILINEAR;
+    dormantMixed.lawIdentity.y = 0u;
+    require(!numi::matter::detail::fullContactArmijoSupportsCohesiveFaces({}) &&
+                numi::matter::detail::fullContactArmijoSupportsCohesiveFaces(
+                    std::span<const NMCohesiveFaceGPU>(&dormantMixed, 1u)),
+            "full-contact admission must allow a valid authored dormant mixed face");
+    NMCohesiveFaceGPU activeMixed = dormantMixed;
+    activeMixed.adjacency.w &= ~NM_TOPOLOGY_COHESIVE_DORMANT;
+    require(numi::matter::detail::fullContactArmijoSupportsCohesiveFaces(
+                std::span<const NMCohesiveFaceGPU>(&activeMixed, 1u)),
+            "activation state must not change structural full-contact eligibility");
+    NMCohesiveFaceGPU unsupportedDormant = dormantMixed;
+    unsupportedDormant.adjacency.w &= ~NM_TOPOLOGY_COHESIVE_MIXED_MODE;
+    unsupportedDormant.lawIdentity.x = NM_COHESIVE_LAW_TRYDING_MODE_I;
+    require(!numi::matter::detail::fullContactArmijoSupportsCohesiveFaces(
+                std::span<const NMCohesiveFaceGPU>(&unsupportedDormant, 1u)),
+            "inactive unsupported cohesive law must remain outside full-contact scope");
+
     std::cout << "sparse_private_sizing=pass"
               << " P_above_65536=65537 flattened_u32_overflow=rejected"
               << " dense_pair_limit=" << detail::kDensePrivateContactPairLimit
               << " private_budget_bytes="
               << detail::kSparsePrivateContactScratchBudgetBytes
-              << " free_rigid_unknowns=rejected\n";
+              << " free_rigid_unknowns=rejected"
+              << " dormant_mixed_authored_scope=admitted"
+              << " inactive_unsupported_law=rejected\n";
 }
 
 void runOverflowRollback(const MaterialProgram& bulk,
@@ -3199,7 +4072,7 @@ int main(int argc, const char* argv[]) {
     @autoreleasepool {
         try {
             require(argc >= 2,
-                "usage: cardboard-full-contact-armijo-check BULK.nmatter [--cpu-only|--overflow|--prescribed-box-overflow|--prescribed-box-sweep-reject|--prescribed-box-translation|--private-self-sweep|--sparse-private-parity|--sparse-private-overflow|--sparse-private-admission|--sparse-private-high-pair-admission|--self-surface-scratch-alias-parity|--cohesive-scratch-alias-parity] [--regional-contact-preconditioner] [--extended-budget] [--accurate-paper] [--newton-iterations N] [--diagnostic-state-output DIR]");
+                "usage: cardboard-full-contact-armijo-check BULK.nmatter [--cpu-only|--overflow|--prescribed-box-overflow|--prescribed-box-sweep-reject|--prescribed-box-translation|--private-self-sweep|--sparse-private-parity|--sparse-private-overflow|--sparse-private-admission|--sparse-private-high-pair-admission|--sparse-free-body-parity|--sparse-free-body-overflow|--self-surface-scratch-alias-parity|--cohesive-scratch-alias-parity] [--regional-contact-preconditioner] [--extended-budget] [--accurate-paper] [--newton-iterations N] [--diagnostic-state-output DIR]");
             bool cpuOnly = false;
             bool overflow = false;
             bool prescribedBoxOverflow = false;
@@ -3210,6 +4083,8 @@ int main(int argc, const char* argv[]) {
             bool sparsePrivateOverflow = false;
             bool sparsePrivateAdmission = false;
             bool sparsePrivateHighPairAdmission = false;
+            bool sparseFreeBodyParity = false;
+            bool sparseFreeBodyOverflow = false;
             bool selfSurfaceScratchAliasParity = false;
             bool cohesiveScratchAliasParity = false;
             for (int index = 2; index < argc; ++index) {
@@ -3232,6 +4107,10 @@ int main(int argc, const char* argv[]) {
                     sparsePrivateAdmission = true;
                 else if (option == "--sparse-private-high-pair-admission")
                     sparsePrivateHighPairAdmission = true;
+                else if (option == "--sparse-free-body-parity")
+                    sparseFreeBodyParity = true;
+                else if (option == "--sparse-free-body-overflow")
+                    sparseFreeBodyOverflow = true;
                 else if (option == "--self-surface-scratch-alias-parity")
                     selfSurfaceScratchAliasParity = true;
                 else if (option == "--cohesive-scratch-alias-parity")
@@ -3265,6 +4144,7 @@ int main(int argc, const char* argv[]) {
                                   privateSelfSweep || sparsePrivateParity ||
                                   sparsePrivateOverflow || sparsePrivateAdmission ||
                                   sparsePrivateHighPairAdmission ||
+                                  sparseFreeBodyParity || sparseFreeBodyOverflow ||
                                   selfSurfaceScratchAliasParity ||
                                   cohesiveScratchAliasParity)),
                     "CPU and overflow modes are exclusive");
@@ -3282,7 +4162,9 @@ int main(int argc, const char* argv[]) {
                 static_cast<unsigned>(sparsePrivateParity) +
                 static_cast<unsigned>(sparsePrivateOverflow) +
                 static_cast<unsigned>(sparsePrivateAdmission) +
-                static_cast<unsigned>(sparsePrivateHighPairAdmission);
+                static_cast<unsigned>(sparsePrivateHighPairAdmission) +
+                static_cast<unsigned>(sparseFreeBodyParity) +
+                static_cast<unsigned>(sparseFreeBodyOverflow);
             require(sparseModeCount <= 1u,
                     "choose only one sparse private-contact regression mode");
             require(!selfSurfaceScratchAliasParity || sparseModeCount == 0u,
@@ -3306,9 +4188,16 @@ int main(int argc, const char* argv[]) {
                           prescribedBoxSweepReject || prescribedBoxTranslation ||
                           privateSelfSweep),
                     "sparse private-contact modes must run separately");
+            require(!(sparseFreeBodyParity && sparseFreeBodyOverflow),
+                    "choose either free-body parity or its overflow control");
+#if !defined(NUMI_CARDBOARD_METAL_WORLD)
+            require(!sparseFreeBodyParity && !sparseFreeBodyOverflow,
+                    "sparse free-body checks require the integrated MetalWorld target");
+#endif
             require(diagnosticStateOutputPath.empty() || sparsePrivateParity ||
                         sparsePrivateOverflow || selfSurfaceScratchAliasParity ||
-                        cohesiveScratchAliasParity,
+                        cohesiveScratchAliasParity || sparseFreeBodyParity ||
+                        sparseFreeBodyOverflow,
                     "diagnostic state output is supported only for retained contact parity or overflow modes");
             require(!(cpuOnly && !diagnosticStateOutputPath.empty()),
                     "diagnostic state export requires a native transaction run");
@@ -3438,6 +4327,26 @@ int main(int argc, const char* argv[]) {
                           << " physical_validation=false synthetic_law=true\n";
                 return 0;
             }
+#if defined(NUMI_CARDBOARD_METAL_WORLD)
+            if (sparseFreeBodyParity) {
+                runSparseFreeBodyParity(bulk);
+                std::cout << "PASS sparse private free-body dense parity"
+                          << " checks=" << checks
+                          << " native_fem_transactions_executed="
+                          << nativeFEMTransactionsExecuted
+                          << " physical_validation=false synthetic_fixture=true\n";
+                return 0;
+            }
+            if (sparseFreeBodyOverflow) {
+                runSparseFreeBodyOverflow(bulk);
+                std::cout << "PASS sparse private free-body overflow rollback"
+                          << " checks=" << checks
+                          << " native_fem_transactions_executed="
+                          << nativeFEMTransactionsExecuted
+                          << " physical_validation=false synthetic_fixture=true\n";
+                return 0;
+            }
+#endif
             if (overflow || prescribedBoxOverflow)
                 runOverflowRollback(bulk, prescribedBoxOverflow);
             else if (prescribedBoxSweepReject)

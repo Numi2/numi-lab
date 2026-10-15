@@ -193,6 +193,45 @@ void testCompositionAndFiniteMassProxy() {
             "rigid snapshot verifier missed an accepted inverse-inertia mismatch");
 }
 
+void testWorldInertiaCheckpointUsesAcceptedOrientation() {
+    const std::array<MRBodyStateGPU, 4> tools{
+        makeShippingKinematicSceneBody({0.0, 0.0, 1.0}),
+        makeShippingKinematicSceneBody({0.0, 0.0, -1.0}),
+        makeShippingKinematicSceneBody({0.0, 100.0, 0.0}),
+        makeShippingKinematicSceneBody({0.0, -100.0, 0.0})};
+    const auto bundle = makeShippingRigidWorld(tools, fixtureSpec());
+    const MRBodyPropertiesGPU& properties = bundle.model.bodies.at(4u);
+    MRBodyStateGPU state = bundle.initialSceneBodies.at(4u);
+    require(shippingWorldInverseInertiaMatchesPose(properties, state),
+            "identity-pose checkpoint did not match the body-frame inverse inertia");
+
+    // A quarter turn about world z swaps the anisotropic x/y body axes. Write
+    // that independently expected world tensor to catch a local-vs-world
+    // checkpoint comparison regression.
+    const float quarterTurn = static_cast<float>(std::sqrt(0.5));
+    state.orientation = {0.0f, 0.0f, quarterTurn, quarterTurn};
+    state.inverseInertiaWorldRow0 = {
+        properties.inverseInertiaRow1.y, 0.0f, 0.0f, 0.0f};
+    state.inverseInertiaWorldRow1 = {
+        0.0f, properties.inverseInertiaRow0.x, 0.0f, 0.0f};
+    state.inverseInertiaWorldRow2 = {
+        0.0f, 0.0f, properties.inverseInertiaRow2.z, 0.0f};
+    require(shippingWorldInverseInertiaMatchesPose(properties, state),
+            "accepted rotated checkpoint was compared against a body-frame tensor");
+
+    state.inverseInertiaWorldRow0.y = 0.1f;
+    require(!shippingWorldInverseInertiaMatchesPose(properties, state),
+            "checkpoint verifier accepted a corrupted rotated inertia component");
+    state.inverseInertiaWorldRow0.y = 0.0f;
+    state.orientation = {0.0f, 0.0f, 0.0f, 0.0f};
+    require(!shippingWorldInverseInertiaMatchesPose(properties, state),
+            "checkpoint verifier normalized a degenerate orientation into a valid tensor");
+    state.orientation = {0.0f, 0.0f, 0.0f,
+                         std::numeric_limits<float>::quiet_NaN()};
+    require(!shippingWorldInverseInertiaMatchesPose(properties, state),
+            "checkpoint verifier admitted a nonfinite orientation");
+}
+
 void testMeasuredRoofFootprintBinding() {
     const auto nominal = shippingAuthoredNominalImpactorHalfExtents(
         0.300, 0.200, 0.025);
@@ -632,6 +671,7 @@ void testCompressionAndFpeakSchedules() {
 int main() {
     try {
         testCompositionAndFiniteMassProxy();
+        testWorldInertiaCheckpointUsesAcceptedOrientation();
         testMeasuredRoofFootprintBinding();
         testInvalidGeometryFailsClosed();
         testContactImpulseConventionAndActiveCount();
@@ -641,7 +681,7 @@ int main() {
         testRigidMomentumAndEnergyLedger();
         testGravityTransferAndExternalWorkBalance();
         testCompressionAndFpeakSchedules();
-        std::cout << "shipping rigid bridge CPU checks passed: 9 groups\n";
+        std::cout << "shipping rigid bridge CPU checks passed: 10 groups\n";
         return 0;
     } catch (const std::exception& error) {
         std::cerr << error.what() << '\n';

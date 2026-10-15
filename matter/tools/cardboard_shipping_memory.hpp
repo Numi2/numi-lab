@@ -5,13 +5,16 @@
 // a lower bound, never a substitute for RuntimeDiagnostics::residentBytes.
 
 #include "numi/matter/shared.h"
+#include "numi/matter/sparse_private_contact_admission.hpp"
 
 #include <algorithm>
 #include <bit>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
+#include <cstring>
 #include <limits>
+#include <span>
 #include <stdexcept>
 #include <string>
 
@@ -62,10 +65,12 @@ struct ShippingPrebuildMemoryScreen {
 // A pre-allocation envelope for the shipping protocol. Runtime does not
 // expose per-arena counters, so the FEM/tet/Krylov-derived base is deliberately
 // padded to exceed the measured case032 initialization ratio. Known optional
-// arenas (RAP, cohesive state, private Armijo contact) and host overlap are
-// then counted separately. RuntimeDiagnostics/currentAllocatedSize remain
-// required observations; this envelope is not described as an exact allocator
-// report.
+// arenas (RAP, cohesive state, private Armijo contact), host mesh/compile
+// allocations, and retained host checkpoints are added as a conservative
+// simultaneous-allocation model. Upload staging and one snapshot readback
+// reserve appear in both side subtotals but are counted once in the combined
+// estimate. RuntimeDiagnostics/currentAllocatedSize remain required
+// observations; this envelope is not an exact allocator report.
 struct ShippingMemoryBudgetInput {
     std::uint64_t nodeCount = 0u;
     std::uint64_t tetrahedronCount = 0u;
@@ -81,6 +86,7 @@ struct ShippingMemoryBudgetInput {
     std::uint64_t surfaceFaceCount = 0u;
     bool compactImmutableSurfaceMap = false;
     std::uint64_t rigidGeneralizedCapacity = 0u;
+    std::uint64_t rigidQCapacity = 0u;
     std::uint64_t rigidBodyCount = 0u;
     std::uint64_t rigidProxyCount = 0u;
     std::uint64_t materialStateStride = 0u;
@@ -104,6 +110,16 @@ struct ShippingMemoryBudgetInput {
     // Required bytes are estimated independently from currently allocated
     // bytes so preflight can fail closed without pretending to allocate them.
     bool fullContactArmijoRequired = false;
+    bool deformableSelfContactEnabled = false;
+    bool fullContactArmijoAliasesSurfaceScratch = false;
+    bool fullContactArmijoAliasesCohesiveScratch = false;
+    bool sparsePrivateContactRequested = false;
+    bool sparsePrivateContactParity = false;
+    std::uint64_t sparsePrivateContactCapacity = 0u;
+    bool sparsePrivateContactBoundedFreeBoxScope = false;
+    // Probe-side validation of optional runtime selectors. A nonempty value
+    // makes shipping admission fail closed before any native initialization.
+    std::string runtimeConfigurationFailure;
 };
 
 struct ShippingMemoryBudget {
@@ -126,14 +142,27 @@ struct ShippingMemoryBudget {
     std::uint64_t requiredRigidContactArmijoBytes = 0u;
     std::uint64_t requiredFullContactArmijoBytes = 0u;
     std::uint64_t requiredCohesiveArmijoBytes = 0u;
+    std::uint64_t sparsePrivateContactBytes = 0u;
+    bool privateRigidContactAdmitted = true;
+    std::string privateRigidContactFailure;
     bool requiredResidualDescentArenaAdmitted = true;
     std::string requiredResidualDescentArenaFailure;
     std::uint64_t uploadStagingBytes = 0u;
     std::uint64_t snapshotReadbackBytes = 0u;
+    // Modeled Metal allocation envelope. Upload staging and one snapshot
+    // readback reserve are included here and also appear in the host-side
+    // subtotal below because both sides may need those buffers during the
+    // transfer; the combined estimate counts each shared reserve once.
     std::uint64_t estimatedMetalPeakBytes = 0u;
     std::uint64_t hostMeshAndCompileBytes = 0u;
     std::uint64_t hostCheckpointBytes = 0u;
+    // Host-only subtotal, including upload/readback reserves shared with the
+    // Metal envelope. This is not an observed process-footprint measurement.
     std::uint64_t estimatedHostPeakBytes = 0u;
+    // Conservative modeled simultaneous allocation total:
+    // Metal envelope + host mesh/compile objects + retained checkpoints.
+    // Shared upload/readback reserves are already in the Metal envelope and
+    // are therefore not added again from the host subtotal.
     std::uint64_t estimatedPeakDomainBytes = 0u;
     std::uint64_t limitBytes = kShippingPeakMemoryLimitBytes;
     bool withinLimit = false;
@@ -153,11 +182,187 @@ inline std::uint64_t shippingMemoryCheckedAdd(
     return left + right;
 }
 
+inline std::uint64_t shippingCombinedAllocationPeakBytes(
+    const ShippingMemoryBudget& budget) {
+    return shippingMemoryCheckedAdd(
+        shippingMemoryCheckedAdd(budget.estimatedMetalPeakBytes,
+                                 budget.hostMeshAndCompileBytes),
+        budget.hostCheckpointBytes);
+}
+
 inline std::uint64_t shippingMemoryCheckedMultiply3(
     const std::uint64_t first, const std::uint64_t second,
     const std::uint64_t third) {
     return shippingMemoryCheckedMultiply(
         shippingMemoryCheckedMultiply(first, second), third);
+}
+
+struct ShippingSparsePrivateContactOptions {
+    bool requested = false;
+    bool parity = false;
+    std::uint32_t capacity = 0u;
+    const char* error = nullptr;
+};
+
+struct ShippingFullContactSelectorOptions {
+    bool requested = false;
+    bool selectsAllSteps = false;
+    std::uint32_t controlStep = 0u;
+    const char* error = nullptr;
+};
+
+// Runtime accepts `all` or an unsigned decimal uint32 control-step index.
+// Mirror that syntax in the shipping preflight so a malformed selector cannot
+// be reported as a viable sparse allocation before Runtime rejects it.
+inline ShippingFullContactSelectorOptions parseShippingFullContactSelector(
+    const char* selectorText) noexcept {
+    ShippingFullContactSelectorOptions result;
+    result.requested = selectorText != nullptr;
+    if (!result.requested) return result;
+    if (std::strcmp(selectorText, "all") == 0) {
+        result.selectsAllSteps = true;
+        return result;
+    }
+    if (selectorText[0] == '\0') {
+        result.error = "full-contact Armijo selector is empty";
+        return result;
+    }
+    std::uint64_t value = 0u;
+    for (const char* cursor = selectorText; *cursor != '\0'; ++cursor) {
+        if (*cursor < '0' || *cursor > '9') {
+            result.error =
+                "full-contact Armijo selector must be decimal or all";
+            return result;
+        }
+        const std::uint32_t digit = static_cast<std::uint32_t>(*cursor - '0');
+        if (value >
+            (std::numeric_limits<std::uint32_t>::max() - digit) / 10u) {
+            result.error = "full-contact Armijo selector exceeds uint32 indexing";
+            return result;
+        }
+        value = value * 10u + digit;
+    }
+    result.controlStep = static_cast<std::uint32_t>(value);
+    return result;
+}
+
+[[nodiscard]] inline bool shippingRigidPrivatePairDomainAdmitted(
+    const std::uint64_t pairCount,
+    const bool sparseRequested) noexcept {
+    return pairCount != 0u &&
+        (sparseRequested ||
+         pairCount <= numi::matter::detail::kDensePrivateContactPairLimit);
+}
+
+// Keep the shipping preflight parser byte-for-byte compatible with runtime's
+// strict decimal environment contract. This function accepts the captured
+// text so CPU checks can exercise malformed values without mutating process
+// state.
+inline ShippingSparsePrivateContactOptions
+parseShippingSparsePrivateContactOptions(
+    const char* capacityText,
+    const char* parityText) noexcept {
+    ShippingSparsePrivateContactOptions result;
+    result.requested = capacityText != nullptr;
+    if (parityText != nullptr) {
+        if (std::strcmp(parityText, "1") != 0) {
+            result.error =
+                "NM_FEM_FULL_CONTACT_SPARSE_PRIVATE_PARITY must be exactly 1";
+            return result;
+        }
+        result.parity = true;
+    }
+    if (!result.requested) {
+        if (result.parity)
+            result.error =
+                "sparse private parity requires an explicit candidate capacity";
+        return result;
+    }
+    if (capacityText[0] == '\0') {
+        result.error =
+            "NM_FEM_FULL_CONTACT_SPARSE_PRIVATE_CAPACITY must be a positive decimal integer";
+        return result;
+    }
+    std::uint64_t value = 0u;
+    for (const char* cursor = capacityText; *cursor != '\0'; ++cursor) {
+        if (*cursor < '0' || *cursor > '9') {
+            result.error =
+                "NM_FEM_FULL_CONTACT_SPARSE_PRIVATE_CAPACITY must contain only decimal digits";
+            return result;
+        }
+        const std::uint32_t digit = static_cast<std::uint32_t>(*cursor - '0');
+        if (value >
+            (std::numeric_limits<std::uint32_t>::max() - digit) / 10u) {
+            result.error =
+                "sparse private candidate capacity exceeds uint32 indexing";
+            return result;
+        }
+        value = value * 10u + digit;
+    }
+    if (value == 0u) {
+        result.error =
+            "NM_FEM_FULL_CONTACT_SPARSE_PRIVATE_CAPACITY must be positive";
+        return result;
+    }
+    result.capacity = static_cast<std::uint32_t>(value);
+    return result;
+}
+
+// Allocation-time predicate mirrored from the runtime's bounded sparse
+// one-body BOX scope. The transaction encoder still checks the uploaded body
+// bridge, exact pair coverage, and force rows before dispatch.
+inline bool shippingSparsePrivateBoundedFreeBoxLayout(
+    const NMMatterDispatchGPU& dispatch,
+    const std::span<const NMRigidProxyGPU> proxies) noexcept {
+    if (dispatch.rigidGeneralizedCapacity != 6u ||
+        dispatch.rigidQCapacity != 0u ||
+        proxies.size() != dispatch.rigidProxyCount || proxies.empty())
+        return false;
+    bool hasFreeBody = false;
+    bool hasCapsule = false;
+    bool hasBox = false;
+    std::uint32_t freeBodyIndex = NM_INVALID_INDEX;
+    std::uint32_t freeSceneBodyIndex = NM_INVALID_INDEX;
+    for (const NMRigidProxyGPU& proxy : proxies) {
+        if (proxy.adaptiveObjectIndex != NM_INVALID_INDEX) return false;
+        if (proxy.shapeKind == NM_RIGID_CAPSULE) {
+            hasCapsule = true;
+            if (proxy.flags != NM_RIGID_PRESCRIBED_TRANSLATION ||
+                proxy.generalizedFreeBodyIndex != NM_INVALID_INDEX ||
+                proxy.bodyIndex == NM_INVALID_INDEX)
+                return false;
+            continue;
+        }
+        if (proxy.shapeKind != NM_RIGID_BOX) return false;
+        hasBox = true;
+        if (proxy.generalizedFreeBodyIndex != NM_INVALID_INDEX) {
+            if (proxy.flags != NM_RIGID_DYNAMIC ||
+                proxy.generalizedFreeBodyIndex != 0u ||
+                proxy.bodyIndex == NM_INVALID_INDEX ||
+                proxy.sceneBodyIndex == NM_INVALID_INDEX ||
+                proxy.reserved2 != 0u)
+                return false;
+            if (hasFreeBody &&
+                (freeBodyIndex != proxy.bodyIndex ||
+                 freeSceneBodyIndex != proxy.sceneBodyIndex))
+                return false;
+            hasFreeBody = true;
+            freeBodyIndex = proxy.bodyIndex;
+            freeSceneBodyIndex = proxy.sceneBodyIndex;
+            continue;
+        }
+        const bool staticBox = proxy.flags == 0u &&
+            proxy.sceneBodyIndex == NM_INVALID_INDEX;
+        const bool prescribedBox =
+            proxy.flags == NM_RIGID_PRESCRIBED_TRANSLATION &&
+            proxy.bodyIndex != NM_INVALID_INDEX &&
+            proxy.sceneBodyIndex == NM_INVALID_INDEX &&
+            proxy.reserved2 == 0u;
+        if ((!staticBox && !prescribedBox) ||
+            (proxy.flags & NM_RIGID_ARTICULATED) != 0u)
+            return false;
+    }
+    return hasFreeBody && hasCapsule && hasBox;
 }
 
 inline std::uint64_t shippingPersistentContactBytes(
@@ -304,10 +509,15 @@ inline ShippingMemoryBudget estimateShippingMemoryBudget(
         input.compactPreconditionerRegionCount > 32u ||
         input.contactPairCount > std::numeric_limits<std::uint32_t>::max() ||
         input.activeContactCapacity > input.contactPairCount ||
+        input.rigidQCapacity > std::numeric_limits<std::uint32_t>::max() ||
         input.deformableContactCapacity > std::numeric_limits<std::uint32_t>::max() ||
         input.rigidProxyCount > std::numeric_limits<std::uint32_t>::max() ||
         input.rigidBodyCount > std::numeric_limits<std::uint32_t>::max() ||
         input.surfaceFaceCount > std::numeric_limits<std::uint32_t>::max() ||
+        input.sparsePrivateContactCapacity >
+            std::numeric_limits<std::uint32_t>::max() ||
+        (input.sparsePrivateContactParity &&
+         !input.sparsePrivateContactRequested) ||
         (input.regionalGalerkinEnabled &&
          input.compactPreconditionerRegionCount == 0u) ||
         (input.regionalGalerkinBlockFineEnabled &&
@@ -464,27 +674,63 @@ inline ShippingMemoryBudget estimateShippingMemoryBudget(
             "shipping contact BVH primitive count exceeds bit-ceil range");
     if (input.rigidContactArmijoEnabled ||
         input.fullContactArmijoRequired) {
-        constexpr std::uint64_t boxArmijoMaximumBytes = 36ull * 1024ull * 1024ull;
-        const std::uint64_t samples = shippingMemoryCheckedMultiply3(
-            environments, input.contactPairCount, 160u);
-        const std::uint64_t activePairIndexBytes =
-            input.rigidGeneralizedCapacity == 0u ? 0u :
-                shippingMemoryCheckedAdd(
+        constexpr std::uint64_t boxArmijoMaximumBytes =
+            numi::matter::detail::kSparsePrivateContactScratchBudgetBytes;
+        std::uint64_t bytes = 0u;
+        bool admitted = false;
+        if (input.sparsePrivateContactRequested) {
+            const auto sparse = numi::matter::detail::admitSparsePrivateContact(
+                asU32(environments, "environment count"),
+                asU32(input.contactPairCount, "contact pair count"),
+                asU32(input.sparsePrivateContactCapacity,
+                      "sparse contact candidate capacity"),
+                input.sparsePrivateContactParity,
+                input.rigidGeneralizedCapacity != 0u ||
+                    input.rigidQCapacity != 0u,
+                input.sparsePrivateContactBoundedFreeBoxScope);
+            bytes = sparse.totalBytes;
+            admitted = sparse.admitted();
+            if (!admitted)
+                result.privateRigidContactFailure =
+                    numi::matter::detail::sparsePrivateContactAdmissionErrorText(sparse.error);
+        } else {
+            const std::uint64_t samples = shippingMemoryCheckedMultiply3(
+                environments, input.contactPairCount,
+                sizeof(NMContactSampleGPU));
+            const bool hasRigidRows = input.rigidGeneralizedCapacity != 0u;
+            const std::uint64_t activePairIndexBytes = hasRigidRows
+                ? shippingMemoryCheckedAdd(
                     shippingMemoryCheckedMultiply3(
                         environments, input.activeContactCapacity,
                         sizeof(std::uint32_t)),
                     shippingMemoryCheckedMultiply3(
                         environments, input.contactPairCount,
-                        sizeof(std::uint32_t)));
-        const std::uint64_t activeCounts = input.rigidGeneralizedCapacity == 0u
-            ? 0u : shippingMemoryCheckedMultiply(
-                environments, sizeof(std::uint32_t));
-        const std::uint64_t bytes = shippingMemoryCheckedAdd(
-            shippingMemoryCheckedAdd(samples, activePairIndexBytes), activeCounts);
-        const bool admitted = environments <= 4u &&
-            input.contactPairCount <= 65536u &&
-            input.rigidProxyCount >= 2u && input.rigidProxyCount <= 16u &&
-            samples <= boxArmijoMaximumBytes;
+                        sizeof(std::uint32_t)))
+                : 0u;
+            const std::uint64_t activeCounts = hasRigidRows
+                ? shippingMemoryCheckedMultiply(
+                    environments, sizeof(std::uint32_t)) : 0u;
+            bytes = shippingMemoryCheckedAdd(
+                shippingMemoryCheckedAdd(samples, activePairIndexBytes),
+                activeCounts);
+            admitted = environments <= 4u &&
+                numi::matter::detail::densePrivateContactPairDomainSupported(
+                    asU32(input.contactPairCount, "contact pair count")) &&
+                input.rigidProxyCount >= 2u && input.rigidProxyCount <= 16u &&
+                samples <= boxArmijoMaximumBytes;
+            if (!admitted)
+                result.privateRigidContactFailure =
+                    "dense private pair domain or sample arena is outside runtime admission";
+        }
+        admitted = admitted && input.rigidProxyCount >= 2u &&
+            input.rigidProxyCount <= 16u;
+        if (!admitted && result.privateRigidContactFailure.empty())
+            result.privateRigidContactFailure =
+                "rigid proxy count is outside runtime admission";
+        if (admitted) result.privateRigidContactFailure.clear();
+        result.privateRigidContactAdmitted = admitted;
+        result.sparsePrivateContactBytes = input.sparsePrivateContactRequested
+            ? bytes : 0u;
         if (input.rigidContactArmijoEnabled)
             result.rigidContactArmijoBytes = bytes;
         if (input.fullContactArmijoRequired)
@@ -492,7 +738,9 @@ inline ShippingMemoryBudget estimateShippingMemoryBudget(
         if (!admitted && input.fullContactArmijoRequired) {
             result.requiredResidualDescentArenaAdmitted = false;
             result.requiredResidualDescentArenaFailure =
-                "rigid-contact private arena exceeds runtime pair/proxy/sample caps";
+                result.privateRigidContactFailure.empty()
+                    ? "rigid-contact private arena exceeds runtime admission"
+                    : result.privateRigidContactFailure;
         }
         if (!admitted && input.rigidContactArmijoEnabled)
             throw std::length_error(
@@ -503,16 +751,42 @@ inline ShippingMemoryBudget estimateShippingMemoryBudget(
         input.fullContactArmijoRequired) {
         const std::uint64_t leafCount = primitiveCount == 0u ? 0u :
             static_cast<std::uint64_t>(std::bit_ceil(primitiveCount));
-        const std::uint64_t surfaceBytes = shippingMemoryCheckedMultiply3(
-            environments, primitiveCount,
-            sizeof(NMContinuumSurfacePrimitiveGPU) + 4u * sizeof(std::uint32_t));
-        const std::uint64_t bvhBytes = shippingMemoryCheckedMultiply3(
-            environments, leafCount, 4u * sizeof(nm_float4));
-        const std::uint64_t contactBytes = shippingMemoryCheckedMultiply3(
-            environments, input.deformableContactCapacity, 480u);
+        const std::uint64_t privateSurfaceBytes =
+            input.fullContactArmijoAliasesSurfaceScratch ? 0u :
+                shippingMemoryCheckedAdd(
+                    shippingMemoryCheckedMultiply3(
+                        environments, primitiveCount,
+                        sizeof(NMContinuumSurfacePrimitiveGPU) +
+                            4u * sizeof(std::uint32_t)),
+                    shippingMemoryCheckedMultiply3(
+                        environments, leafCount,
+                        4u * sizeof(nm_float4)));
+        constexpr std::uint64_t perDeformableCandidateBytes =
+            sizeof(NMDeformableContactCandidateGPU) +
+            sizeof(NMDeformableContactGPU) +
+            2u * sizeof(std::uint32_t) + 6u * sizeof(std::uint32_t);
+        const std::uint64_t candidateBytes = shippingMemoryCheckedMultiply3(
+            environments, input.deformableContactCapacity,
+            perDeformableCandidateBytes);
+        const std::uint64_t nodeRangeBytes = shippingMemoryCheckedMultiply3(
+            environments,
+            shippingMemoryCheckedAdd(input.nodeCount, input.gridNodeCount),
+            sizeof(NMIncidenceRangeGPU));
+        const std::uint64_t perEnvironmentBytes = shippingMemoryCheckedAdd(
+            shippingMemoryCheckedAdd(candidateBytes, nodeRangeBytes),
+            shippingMemoryCheckedMultiply(
+                environments, 4u * sizeof(std::uint32_t) +
+                    sizeof(NMIndirectDispatchGPU)));
         deformableArmijoBytes = shippingMemoryCheckedAdd(
-            shippingMemoryCheckedAdd(surfaceBytes, bvhBytes), contactBytes);
-        const bool admitted = deformableArmijoBytes <= 128ull * 1024ull * 1024ull &&
+            privateSurfaceBytes, perEnvironmentBytes);
+        const bool countsSupported = environments <= 4u &&
+            input.tetrahedronCount <= 32768u &&
+            input.nodeCount <= kShippingFullContactArmijoNodeLimit &&
+            input.deformableContactCapacity <= 131072u &&
+            primitiveCount <= std::numeric_limits<std::uint32_t>::max() &&
+            leafCount <= std::numeric_limits<std::uint32_t>::max() / 4u;
+        const bool admitted = countsSupported &&
+            deformableArmijoBytes <= 128ull * 1024ull * 1024ull &&
             input.environmentCount <= 4u && input.tetrahedronCount <= 32768u &&
             input.nodeCount <= kShippingFullContactArmijoNodeLimit &&
             input.deformableContactCapacity <= 131072u;
@@ -529,15 +803,24 @@ inline ShippingMemoryBudget estimateShippingMemoryBudget(
         if (!admitted && input.fullContactArmijoEnabled)
             throw std::length_error(
                 "shipping full-contact Armijo arena is outside runtime admission caps");
+        if (input.fullContactArmijoRequired &&
+            !input.deformableSelfContactEnabled) {
+            result.requiredResidualDescentArenaAdmitted = false;
+            if (result.requiredResidualDescentArenaFailure.empty())
+                result.requiredResidualDescentArenaFailure =
+                    "full-contact Armijo requires deformable self-contact enabled on the source FEM object";
+        }
     }
     if (input.cohesiveArmijoEnabled || input.fullContactArmijoRequired) {
-        const std::uint64_t bytes = shippingMemoryCheckedMultiply3(
+        const std::uint64_t arenaBytes = shippingMemoryCheckedMultiply3(
             environments, faces,
             sizeof(NMCohesiveFaceGPU) + sizeof(NMCohesiveFaceVectorGPU));
+        const std::uint64_t bytes =
+            input.fullContactArmijoAliasesCohesiveScratch ? 0u : arenaBytes;
         constexpr std::uint64_t maximumCohesiveArmijoBytes =
             8ull * 1024ull * 1024ull;
         const bool admitted = faces > 0u && faces <= 4096u &&
-            environments <= 4u && bytes <= maximumCohesiveArmijoBytes;
+            environments <= 4u && arenaBytes <= maximumCohesiveArmijoBytes;
         if (input.cohesiveArmijoEnabled)
             result.cohesiveArmijoBytes = bytes;
         if (input.fullContactArmijoRequired)
@@ -582,11 +865,13 @@ inline ShippingMemoryBudget estimateShippingMemoryBudget(
                                  result.hostCheckpointBytes),
         shippingMemoryCheckedAdd(result.uploadStagingBytes,
                                  result.snapshotReadbackBytes));
-    // Metal currentAllocatedSize and the process footprint can overlap on
-    // unified-memory Macs. Report each component and gate on their maximum;
-    // do not sum the observations as though they were disjoint storage.
-    result.estimatedPeakDomainBytes = std::max(
-        result.estimatedMetalPeakBytes, result.estimatedHostPeakBytes);
+    // This is a modeled allocation inventory, not a comparison of observed
+    // unified-memory counters. The Metal envelope and the host mesh/compile
+    // objects/checkpoints have distinct allocation lifetimes and are summed.
+    // Upload staging and one snapshot readback reserve are present in both
+    // subreports but counted once through the Metal envelope.
+    result.estimatedPeakDomainBytes =
+        shippingCombinedAllocationPeakBytes(result);
     result.withinLimit = result.estimatedPeakDomainBytes <= result.limitBytes &&
         (!input.fullContactArmijoRequired ||
          result.requiredResidualDescentArenaAdmitted);

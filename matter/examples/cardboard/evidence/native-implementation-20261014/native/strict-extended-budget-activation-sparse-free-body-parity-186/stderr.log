@@ -1,0 +1,1 @@
+FAIL full-contact residual Armijo fixture: accepted activation snapshot could not be restored into the full-contact runtime: Matter snapshot changed immutable FEM topology events or accounting

@@ -1,0 +1,1 @@
+{"completed_modes":[],"elapsed_seconds":0.004190957988612354,"event":"study_failure","message":"max patch node count must be in [1,32]","timeout":false,"type":"ValueError"}

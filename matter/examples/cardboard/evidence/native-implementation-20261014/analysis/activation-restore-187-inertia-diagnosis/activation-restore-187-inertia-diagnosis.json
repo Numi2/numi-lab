@@ -1,0 +1,134 @@
+{
+  "schema": "numi.cardboard.activation-restore-inertia-diagnosis.v1",
+  "classification": "CHECKPOINT_VERIFIER_FRAME_BUG_CONFIRMED_FROM_RETAINED_MATTER_PROXY_READBACK",
+  "failed_case": "latched-mortar-restore-sparse-free-body-parity-187",
+  "native_receipt": {
+    "schema": "numi.cardboard.native-run-receipt.v2",
+    "execution_started": true,
+    "source_inputs_unchanged": true,
+    "changed_inputs": [],
+    "exit_code": 1,
+    "timed_out": false,
+    "wall_seconds": 1.8095767080085352,
+    "finished_at_utc": "2026-10-15T04:06:03.475077+00:00"
+  },
+  "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-selected-newton-rap-and-validated-replay-integrated-060",
+  "evidence_sha256": {
+    "prediction.json": "3ac4ed8d70a7230e7d324b213c41c7138e6c5140efa3b57fa00a8b0e35abe774",
+    "receipt.json": "6c3bae593b2e487c5653cf7e65d11b95ac640314d4d244e4e7aa26596a58e863",
+    "stdout.log": "b9cfd2240a76fe8947ed52537aec88565a2cea7e0250189d17e7c00cacd786fa",
+    "stderr.log": "46e8f2e22def9ed6ecc0059711ffb74470ca036f2780921dccf0135d607b1f1d",
+    "accepted_after_raw_snapshot": "0e2b9326b6111cd63ea0d9fbc23a890311d68b611d0cb9c9e7aa4dad52ab48c7",
+    "attempt_metadata": "d521e04de732170f7b6c008ec29eeaf0b4d8268c655d289cb631b295598d5e2b",
+    "driver_header": "1702190c9b66a3e8f1f699edd394ad03a48e2d113217d6b7995378a23507282b",
+    "free_body_inertia_writer": "2c33dfb6c5eddfb7c9ce7015d8e746e2ae8010597d0d906092e3c2f17b2a8682"
+  },
+  "source_geometry_and_properties": {
+    "synthetic_fixture_board_length_m": 0.004,
+    "synthetic_fixture_board_width_m": 0.004,
+    "support_overhang_m": 0.00025,
+    "support_thickness_m": 0.001,
+    "support_box_half_extents_body_m": [
+      0.00225,
+      0.00225,
+      0.0005
+    ],
+    "free_body_mass_kg": 1.0,
+    "body_frame_inverse_inertia_diagonal_fp32": [
+      564705.875,
+      564705.875,
+      296296.28125
+    ],
+    "derivation": "diag(3/(m*(hy^2+hz^2)), 3/(m*(hx^2+hz^2)), 3/(m*(hx^2+hy^2))) rounded to FP32, as authored in makeShippingRigidWorld"
+  },
+  "retained_after_snapshot_rigid_proxy_index_1": {
+    "orientation_xyzw_fp32_hex": [
+      "0x1.22e1ap-28",
+      "-0x1.ee7c12p-29",
+      "-0x1.13a54p-34",
+      "0x1p+0"
+    ],
+    "orientation_norm": 1.0,
+    "inverse_inertia_world_rows_fp32_hex": [
+      [
+        "0x1.13bc3cp+19",
+        "-0x1.84f08cp-37",
+        "0x1.fa4db4p-10"
+      ],
+      [
+        "-0x1.d18b84p-37",
+        "0x1.13bc3cp+19",
+        "0x1.29d572p-9"
+      ],
+      [
+        "0x1.fa4db6p-10",
+        "0x1.29d572p-9",
+        "0x1.215a12p+18"
+      ]
+    ],
+    "inverse_inertia_world_rows_decimal": [
+      [
+        564705.875,
+        -1.1054329326909418e-11,
+        0.0019313946831971407
+      ],
+      [
+        -1.323158423105486e-11,
+        564705.875,
+        0.0022722913417965174
+      ],
+      [
+        0.0019313947996124625,
+        0.0022722913417965174,
+        296296.28125
+      ]
+    ]
+  },
+  "independent_R_body_inverse_inertia_RT_fp32": [
+    [
+      564705.875,
+      -1.6350726328440146e-11,
+      0.0019313945667818189
+    ],
+    [
+      -1.6350726328440146e-11,
+      564705.875,
+      0.002272291574627161
+    ],
+    [
+      0.0019313945667818189,
+      0.002272291574627161,
+      296296.28125
+    ]
+  ],
+  "expected_minus_observed_world_tensor": [
+    [
+      0.0,
+      -5.296397001530728e-12,
+      -1.1641532182693481e-10
+    ],
+    [
+      -3.1191420973852857e-12,
+      0.0,
+      2.3283064365386963e-10
+    ],
+    [
+      -2.3283064365386963e-10,
+      2.3283064365386963e-10,
+      0.0
+    ]
+  ],
+  "maximum_absolute_matrix_difference": 2.3283064365386963e-10,
+  "old_local_vs_world_comparison": {
+    "per_row_absolute_tolerances": [
+      11.2941175,
+      2e-05,
+      2e-05
+    ],
+    "row_1_column_z_difference": 0.0022722913417965174,
+    "row_1_column_z_old_tolerance": 2e-05,
+    "why_it_rejected": "The old verifier compares body-frame properties.inverseInertiaRow1.x (0) directly with world-frame inverseInertiaWorldRow1.z (about 0.00227229). Its row-1 threshold is 2e-5, so it rejects the correct rotated world tensor."
+  },
+  "diagnostic_limit": "The retained raw diagnostic snapshot contains Matter proxy rigidStates, not the paired MetalWorld MRBodyStateGPU array. It provides the accepted projected orientation/world inertia that identifies the frame mismatch; the native runner failure is the later checkpoint verifier call.",
+  "fix": "Compare world inverse inertia to R(q)*I_body^-1*R(q)^T at the checkpoint orientation. Mass/inverse-mass checks and rigid state identity remain unchanged."
+}

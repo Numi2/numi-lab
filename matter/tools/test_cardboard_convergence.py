@@ -469,6 +469,59 @@ class CardboardConvergenceTests(unittest.TestCase):
         self.assertEqual(result["status"], "inconclusive_evidence")
         self.assertEqual(result["reasons"][0]["code"], "unreadable_json")
 
+    def test_regional_comparisons_bind_projection_and_cache_policy(self) -> None:
+        a = cc._load_run(fake_run(self.root, "regional-a"))
+        b = cc._load_run(fake_run(self.root, "regional-b", nx=4))
+        for run in (a, b):
+            run.manifest["solver"].update({
+                "fgmres_preconditioner": "regional_galerkin_block_jacobi",
+                "fgmres_algorithmic_tangent_cache": True,
+                "paper_compensated_arithmetic": True,
+                "safeguarded_paper_hill_initializer": True})
+            run.manifest["paper_projection_residual_scaling"] = {"enabled": True}
+            run.manifest["paper_hill_accurate_projection"] = {"enabled": True}
+        cc._same_solver_controls(a, b)
+        b.manifest["solver"]["fgmres_algorithmic_tangent_cache"] = False
+        with self.assertRaisesRegex(cc.IncompatibleError, "tangent_cache differs"):
+            cc._same_solver_controls(a, b)
+        b.manifest["solver"]["fgmres_algorithmic_tangent_cache"] = True
+        b.manifest["paper_hill_accurate_projection"]["enabled"] = False
+        with self.assertRaisesRegex(cc.IncompatibleError, "accurate_projection differs"):
+            cc._same_solver_controls(a, b)
+        b.manifest["paper_hill_accurate_projection"]["enabled"] = True
+        del b.manifest["solver"]["safeguarded_paper_hill_initializer"]
+        with self.assertRaisesRegex(cc.EvidenceError, "explicit arithmetic/initializer"):
+            cc._same_solver_controls(a, b)
+
+    def test_source_projection_requires_both_cooked_flags_and_matching_world(self) -> None:
+        a = cc._load_run(fake_run(self.root, "source15-a"))
+        b = cc._load_run(fake_run(self.root, "source15-b", nx=4))
+        for run in (a, b):
+            run.manifest["solver"].update({"paper_compensated_arithmetic": True,
+                                          "safeguarded_paper_hill_initializer": False})
+            flags = {role + suffix: value for role in ("liner", "medium")
+                     for suffix, value in (("_flags", 0x50),
+                                           ("_generic_compensated_implicit_projection", True),
+                                           ("_compensated_paper_arithmetic", True))}
+            run.manifest["compensated_source_paper_projection"] = {
+                "enabled": True, "source_material_indices": [0, 1],
+                "source_map_sha256": run.manifest["materials"]["regional_map_sha256"],
+                "compiled_world_fingerprint": run.manifest["compiled_world_fingerprint"],
+                "effective_compiled_flags": flags}
+        cc._same_solver_controls(a, b)
+        policy = b.manifest["compensated_source_paper_projection"]
+        policy["effective_compiled_flags"]["medium_flags"] = 0x10
+        with self.assertRaisesRegex(cc.EvidenceError, "compiled medium"):
+            cc._same_solver_controls(a, b)
+        policy["effective_compiled_flags"]["medium_flags"] = 0x50
+        policy["compiled_world_fingerprint"] += 1
+        with self.assertRaisesRegex(cc.EvidenceError, "different compiled world"):
+            cc._same_solver_controls(a, b)
+        policy["compiled_world_fingerprint"] -= 1
+        policy["enabled"] = False
+        with self.assertRaisesRegex(cc.IncompatibleError, "source_paper_projection differs"):
+            cc._same_solver_controls(a, b)
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

@@ -1036,7 +1036,7 @@ private:
                     NM_CONSTITUTIVE_POLYCONVEX_ICNN ||
                 material.projectionKind >
                     NM_MATERIAL_PROJECTION_DRUCKER_PRAGER ||
-                material.localNewtonIterations > 16u) {
+                material.localNewtonIterations > 32u) {
                 return failIndexed(
                     "material",
                     index,

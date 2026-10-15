@@ -5,6 +5,16 @@ when the checkout advanced to `bf9e90cb`; the first published solver milestone
 is `05fe5430`. The current checkout also retains unrelated upstream `9d0526d2`. The kraft 205 / NSSC 126 / finite elastic starch recipe and the
 miniature regression fixture remain the starting physical model.
 
+The source060 continuation is documented in
+[the solver ledger](solver-progress-20261014.md). Its latest complete failed
+coupon attempts accept three of27 controls, then reject control3 without
+relaxing the certificate. Strict diagnostic-on/off histories agree. Independent
+same-input assembly now agrees with the captured native operator action;
+complete physical convergence and shipping assembly remain open. The256-node
+offline Schwarz result is a conditioning experiment only, not a native solver
+milestone. No assembled shipping checkpoint or qualified compression peak
+exists from which to execute the gravity or drop branches.
+
 | Verdict | Current evidence | Remaining qualification |
 | --- | --- | --- |
 | Solver correctness | Stable Fischer–Burmeister derivatives; scoped material/element actions; native mixed cohesive frame, regional Galerkin/grip transition and finite-body bridge checks; 80 native CCD checks; source49 combined-contact cases112/113 pass 3 accepted transactions plus rejection, 12 byte-identical on/off payloads, 18-vector rollback and 384 healthy true-residual rows; direct swept validation109 and prescribed BOX translation111 pass | Complete coupon remains unqualified: case108 timed out with 2/27 controls. Initially touching unbonded separating paths are explicitly unsupported by the private sweep gate. Full-cycle and zero-response noise-floor gates remain open |
@@ -255,3 +265,11 @@ The integrated build passes59 selected CPU checks. Native147 verifies the full l
 Explicitly selecting compensated implicit arithmetic in143 repairs the previously failing C1 center tangent to1.161e-6 worst relative error. Its perturbed F13 projection still fails; the separately captured liner CD unload reaches the16-iteration ceiling. Regional paper AP146 still disagrees with FP64 by2.808664 despite captured deformation/history/timestep inputs. Original-protocol141/142 now fail at control22, while captured control19 passes; their53 production outputs are byte-identical. Full coupon convergence, calibrated damage/debonding, fixture-free shipping assembly and crushing/drop histories remain open. The detailed stage and numerical limitations are recorded in `solver-progress-20261014.md`.
 
 The exact full-world allocation model now includes528,444 nodes,1,477,728 tetrahedra,260,835 cohesive faces and all12 rigid proxies. Compact faces and explicit contact capacity estimate8.59 GB with the tangent cache; several individual runtime arenas still reject the world. This estimate does not qualify the16 GiB simultaneous peak. No fixture-free full-box assembled checkpoint,70% compression curve, qualified Fpeak, gravity crush or100 mm drop has completed. Those six numerical/material/assembly/prediction verdicts remain separate in the source-bound evidence index.
+
+## Source55–57 continuation and corrected allocation accounting
+
+Native157/161 complete the compensated asymmetric C1 material-point suite with an explicitly authored32-iteration local budget and unchanged stress/state/tangent tolerances. Native162 passes the1% assembled reference-action gate after accepted plastic loading; its0.003023 stiffness-only difference still exceeds the tighter element gate. The full coupon remains unresolved: instrument160 reproduces152 bytewise and measures genuine linear residual stagnation through1,024 columns, followed by rejected residual descent. These bounded component passes do not qualify a complete coupon or a refinement series.
+
+The old simultaneous allocation model underestimated separate host storage by using a maximum of modeled domains. It now counts the Metal envelope plus distinct source/compile mesh storage and retained host checkpoints, with shared upload/readback reserves counted once. The unoptimized12-proxy example is21.552 GB and is rejected. The exact-topology sparse, no-free-rigid, aliases-on planning scenario is12.023 GiB including tangent cache after adding the documented coarse host reserve; that reserve is an engineering estimate, and count/arena limits still reject the shipping world. No actual whole-process16 GiB qualification is claimed. Earlier underestimated reports remain retained with explicit supersession notes.
+
+The probe can explicitly compile the compensated generic15-state source bilinear/C1 policy, binds the effective compiled flags and world fingerprint in its manifest, and keeps default material policy unchanged. Resolution admission preserves that policy and constant equivalent force accuracy under timestep refinement; it rejects legacy or mixed-policy manifests it cannot reconstruct. Sparse private contact has a bounded free-BOX implementation, but the first native instruments163/164 stop during test setup and do not qualify that path. Angular BOX trial CCD, gravity/actuator transfer, complete scoring/assembly, calibrated damage/debonding, slow compression and all gravity/drop predictions remain open.

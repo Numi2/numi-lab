@@ -1,0 +1,11 @@
+cardboard_step_timing={"schema":1,"control_step":0,"stage":"encode_begin","scope":"prescribed_fem_transaction"}
+fem_residual_armijo_enabled={"schema":1,"root":0,"trials":24,"metric":"per_environment_free_dof_l2_impulse","history":"accepted_state_read_only"}
+cardboard_step_timing={"schema":1,"control_step":0,"stage":"encode_end","encoding_wall_s":0.799922}
+cardboard_step_timing={"schema":1,"control_step":0,"stage":"completed","encoding_wall_s":0.799922,"commit_and_wait_wall_s":238.773,"gpu_wall_s":238.704,"command_buffer_status":4}
+cardboard_step_timing={"schema":1,"control_step":1,"stage":"encode_begin","scope":"prescribed_fem_transaction"}
+fem_residual_armijo_enabled={"schema":1,"root":1,"trials":24,"metric":"per_environment_free_dof_l2_impulse","history":"accepted_state_read_only"}
+cardboard_step_timing={"schema":1,"control_step":1,"stage":"encode_end","encoding_wall_s":0.472573}
+cardboard_step_timing={"schema":1,"control_step":1,"stage":"completed","encoding_wall_s":0.472573,"commit_and_wait_wall_s":360.707,"gpu_wall_s":360.687,"command_buffer_status":4}
+cardboard_step_timing={"schema":1,"control_step":2,"stage":"encode_begin","scope":"prescribed_fem_transaction"}
+fem_residual_armijo_enabled={"schema":1,"root":2,"trials":24,"metric":"per_environment_free_dof_l2_impulse","history":"accepted_state_read_only"}
+cardboard_step_timing={"schema":1,"control_step":2,"stage":"encode_end","encoding_wall_s":0.54607}

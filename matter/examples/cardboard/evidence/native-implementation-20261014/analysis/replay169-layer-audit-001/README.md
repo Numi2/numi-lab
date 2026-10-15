@@ -1,0 +1,13 @@
+# Replay 169 layer audit
+
+This is a read-only audit of the source-bound captured-center replay. It records a failed numerical comparison, not a physical simulation: the run took zero physical FEM steps. See `report.json` for hashes and exact aggregate values.
+
+The replay input binds 2,880 source-paper material centers (1,440 per environment), plus 192 skipped elastic-glue centers. It verifies captured production inputs were unchanged. In the loaded environment, the ordinary material replay matches captured P/state/tangent at relative errors below 5.0e-9. The accurate/scaled/compensated material replay reports a passing internal local projection on all 1,440 records, but fails the overall exact-reference comparison on all 1,440. The held environment has zero deformation direction and is inconclusive for tangent validation.
+
+For a representative loaded liner center (environment 0, tet 0), the accurate checker reports local residual 1.24e-14 under threshold 2.07e-8, yet its stress and state differ from the FP64 root by about 1.68e-4 relative, and the independent source-equation residual at that replay state is 4.37e-6. The exact FP64 root projection residual is 1.11e-16. The tiny `two_word_state_residual_floor` is only the residual after rounding the FP64 root into two float words; it is not a measured production-noise floor.
+
+The first measured discrepancy is therefore at the material-point returned state/stress, before assembly. Its precise implementation cause is unresolved. The checker’s reported `residual_disagreement_over_representation_floor` is not a valid quantitative comparison: it subtracts the row-scaled compiled norm from a different, source-equation residual norm. In addition, the JSON omits the accurate Metal candidate state and per-row residuals, preventing independent verification of that candidate.
+
+The appropriate next step is diagnostic serialization of the accurate high/low state, both compiled and independent per-row residuals at the same candidate, row scales, actual compiled flags, and iteration trace. Preserve separate labels for original captured state, ordinary replay state, accurate replay state, and exact reference state. Do not change the material law or tolerance based on this replay alone.
+
+Key frozen source anchors: `cardboard_paper_gpu_check.mm` sets accurate policy before compile (983–1003), replays captured F/high-low and accepted state (1210–1271), and writes oracle metrics without the accurate candidate state (1352–1436); `cardboard_paper_projection_scaling.hpp` defines component row scaling (11–14, 29–43, 49–62); `common.metalinc` computes the scaled projection residual and uses the unchanged projection threshold (1427–1477).

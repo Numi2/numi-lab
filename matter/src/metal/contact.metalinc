@@ -5781,6 +5781,105 @@ kernel void nm_contact_compact_active(
     }
 }
 
+// Compact active free-body trial contacts from the private sparse sample
+// arena. `pairIds` and `candidateCounts` describe the trial's bounded sample
+// slots; canonical pair IDs and accepted contact histories remain dense and
+// unchanged. `activeSlotsByPair` maps canonical pair IDs to compact active
+// indices, while `slotsByPair` retains the separate canonical-pair to sample
+// slot map used by the private six-row rigid residual gather.
+kernel void nm_contact_compact_active_sparse(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant uint& candidateCapacity [[buffer(1)]],
+    constant uint& activeCapacity [[buffer(2)]],
+    device const uint* pairIds [[buffer(3)]],
+    device const uint* candidateCounts [[buffer(4)]],
+    device const NMContactSampleGPU* samples [[buffer(5)]],
+    device uint* slotsByPair [[buffer(6)]],
+    device uint* activePairs [[buffer(7)]],
+    device uint* activeSlotsByPair [[buffer(8)]],
+    device uint* activeCounts [[buffer(9)]],
+    device NMMatterStatusGPU* statuses [[buffer(10)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint environment [[threadgroup_position_in_grid]]
+) {
+    if (lane >= 32u || environment >= dispatch.environmentCount) return;
+    const uint pairBase = environment * dispatch.contactPairCount;
+    const uint candidateBase = environment * candidateCapacity;
+    const uint activeBaseOffset = environment * activeCapacity;
+    for (uint pair = lane; pair < dispatch.contactPairCount; pair += 32u) {
+        slotsByPair[pairBase + pair] = NM_INVALID_INDEX;
+        activeSlotsByPair[pairBase + pair] = NM_INVALID_INDEX;
+    }
+    threadgroup uint activeBase;
+    threadgroup uint candidateCount;
+    if (lane == 0u) {
+        activeBase = 0u;
+        activeCounts[environment] = 0u;
+        candidateCount = candidateCounts[environment];
+        if (candidateCount > candidateCapacity) {
+            recordFailure(
+                statuses[environment], NM_STATUS_CAPACITY_OVERFLOW,
+                NM_INVALID_INDEX, candidateCount,
+                float4(float(candidateCount), float(candidateCapacity),
+                       float(dispatch.contactPairCount), 0.0f));
+            candidateCount = candidateCapacity;
+        }
+    }
+    simdgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+    if (statuses[environment].code != 0u) return;
+    for (uint first = 0u; first < candidateCount; first += 32u) {
+        const uint slot = first + lane;
+        uint pair = NM_INVALID_INDEX;
+        uint selected = 0u;
+        if (slot < candidateCount) {
+            pair = pairIds[candidateBase + slot];
+            if (pair >= dispatch.contactPairCount) {
+                recordFailure(
+                    statuses[environment], NM_STATUS_INVALID_DISPATCH,
+                    NM_INVALID_INDEX, slot,
+                    float4(float(pair), float(dispatch.contactPairCount),
+                           float(slot), 0.0f));
+            } else {
+                if (slot > 0u && pair <= pairIds[candidateBase + slot - 1u]) {
+                    recordFailure(
+                        statuses[environment], NM_STATUS_INVALID_DISPATCH,
+                        NM_INVALID_INDEX, slot,
+                        float4(float(pair),
+                               float(pairIds[candidateBase + slot - 1u]),
+                               float(slot), 1.0f));
+                }
+                const NMContactSampleGPU sample =
+                    samples[candidateBase + slot];
+                if ((sample.identity.w & NM_CONTACT_VALID) != 0u) {
+                    selected = 1u;
+                    slotsByPair[pairBase + pair] = slot;
+                }
+            }
+        }
+        const uint prefix = simd_prefix_exclusive_sum(selected);
+        const uint chunkCount = simd_sum(selected);
+        const uint base = activeBase;
+        if (selected != 0u) {
+            if (base + prefix < activeCapacity) {
+                const uint activeSlot = base + prefix;
+                activePairs[activeBaseOffset + activeSlot] = pair;
+                activeSlotsByPair[pairBase + pair] = activeSlot;
+            } else {
+                recordFailure(
+                    statuses[environment], NM_STATUS_CAPACITY_OVERFLOW,
+                    NM_INVALID_INDEX, base + prefix,
+                    float4(float(base + prefix), float(activeCapacity),
+                           float(candidateCount), 1.0f));
+            }
+        }
+        simdgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+        if (lane == 0u) activeBase += chunkCount;
+        simdgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+    }
+    if (lane == 0u)
+        activeCounts[environment] = min(activeBase, activeCapacity);
+}
+
 kernel void nm_contact_checkpoint_histories(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     device const float4* accepted [[buffer(1)]],

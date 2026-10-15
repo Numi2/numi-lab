@@ -259,6 +259,7 @@ def _load_run(path: Path) -> RunData:
                                      ("frame_map_sha256", "frame_map_sha256")):
         if not result.get(result_key) or result.get(result_key) != mat_manifest.get(manifest_key):
             raise EvidenceError("map_digest_mismatch", f"result and manifest {result_key} differ or are missing")
+    _source_projection_policy(manifest)
 
     nodes = mesh.get("nodes_m")
     tetrahedra = mesh.get("tetrahedra")
@@ -588,6 +589,34 @@ def _same_materials(a: RunData, b: RunData) -> None:
         raise IncompatibleError("material_map_mismatch", "material region names differ")
 
 
+def _source_projection_policy(manifest: dict[str, Any]) -> bool:
+    """Check that the requested source15 policy reached both cooked materials."""
+    policy = manifest.get("compensated_source_paper_projection", {})
+    if not isinstance(policy, dict) or type(policy.get("enabled", False)) is not bool:
+        raise EvidenceError("invalid_solver_control", "source paper projection policy must be boolean")
+    if not policy.get("enabled", False):
+        return False
+    if manifest.get("solver", {}).get("paper_compensated_arithmetic") is not True:
+        raise EvidenceError("missing_projection_policy", "source projection lacks explicit compensated arithmetic")
+    if policy.get("source_material_indices") != [0, 1]:
+        raise EvidenceError("projection_policy_mismatch", "source projection does not identify the complete paper pair")
+    if (policy.get("source_map_sha256") != manifest.get("materials", {}).get("regional_map_sha256")
+            or policy.get("compiled_world_fingerprint") != manifest.get("compiled_world_fingerprint")):
+        raise EvidenceError("projection_policy_mismatch", "source projection is bound to a different compiled world or material map")
+    flags = policy.get("effective_compiled_flags", {})
+    if not isinstance(flags, dict):
+        raise EvidenceError("projection_policy_mismatch", "compiled source projection flags are missing")
+    # shared.h: PAPER_COMPENSATED_ARITHMETIC (bit4),
+    # GENERIC_COMPENSATED_IMPLICIT_PROJECTION (bit6).
+    for role in ("liner", "medium"):
+        word = flags.get(role + "_flags")
+        if (type(word) is not int or word < 0 or word & 0x50 != 0x50
+                or flags.get(role + "_generic_compensated_implicit_projection") is not True
+                or flags.get(role + "_compensated_paper_arithmetic") is not True):
+            raise EvidenceError("projection_policy_mismatch", f"compiled {role} did not retain the source projection policy")
+    return True
+
+
 def _same_solver_controls(a: RunData, b: RunData, *,
                           allow_force_matched_tolerance: bool = False) -> None:
     sa, sb = a.manifest["solver"], b.manifest["solver"]
@@ -600,10 +629,41 @@ def _same_solver_controls(a: RunData, b: RunData, *,
     if gradients[0] != gradients[1]:
         raise IncompatibleError("solver_control_mismatch", "deformation gradient arithmetic differs")
     preconditioners = [s.get("fgmres_preconditioner", "scalar_diagonal") for s in (sa, sb)]
-    if any(value not in {"scalar_diagonal", "regional_tangent_fem_diagonal"} for value in preconditioners):
+    if any(value not in {"scalar_diagonal", "regional_tangent_fem_diagonal",
+                         "regional_galerkin_rap", "regional_galerkin_block_jacobi",
+                         "regional_galerkin_contact_rap"} for value in preconditioners):
         raise EvidenceError("unknown_preconditioner", "unrecognized FGMRES preconditioner")
     if preconditioners[0] != preconditioners[1]:
         raise IncompatibleError("solver_control_mismatch", "FGMRES preconditioner differs")
+    # New manifests explicitly bind arithmetic and conditioning controls. Older
+    # ordinary exports remain descriptive; nondefault projection exports need
+    # both flags because their former manifests could omit an authored policy.
+    for run in (a, b):
+        solver = run.manifest["solver"]
+        nondefault_projection = any(
+            run.manifest.get(key, {}).get("enabled", False)
+            for key in ("paper_projection_residual_scaling", "paper_hill_accurate_projection",
+                        "generic_compensated_implicit_projection", "compensated_source_paper_projection"))
+        if nondefault_projection and any(key not in solver for key in
+                ("paper_compensated_arithmetic", "safeguarded_paper_hill_initializer")):
+            raise EvidenceError("missing_projection_policy",
+                                "nondefault projection export lacks its explicit arithmetic/initializer policy")
+    for key in ("fgmres_algorithmic_tangent_cache", "paper_compensated_arithmetic",
+                "safeguarded_paper_hill_initializer"):
+        values = [solver.get(key, False) for solver in (sa, sb)]
+        if any(type(value) is not bool for value in values):
+            raise EvidenceError("invalid_solver_control", f"solver control {key} must be boolean")
+        if values[0] != values[1]:
+            raise IncompatibleError("solver_control_mismatch", f"solver control {key} differs")
+    for key in ("paper_projection_residual_scaling", "paper_hill_accurate_projection",
+                "generic_compensated_implicit_projection", "compensated_source_paper_projection"):
+        values = [run.manifest.get(key, {}).get("enabled", False) for run in (a, b)]
+        if any(type(value) is not bool for value in values):
+            raise EvidenceError("invalid_solver_control", f"projection control {key} must be boolean")
+        if values[0] != values[1]:
+            raise IncompatibleError("solver_control_mismatch", f"projection control {key} differs")
+    for run in (a, b):
+        _source_projection_policy(run.manifest)
     for key in COMMON_SOLVER_FIELDS:
         if key not in sa or key not in sb:
             raise EvidenceError("missing_solver_control", f"solver control {key} is missing")

@@ -1,0 +1,2 @@
+device=Apple M4 production_projection_and_algorithmic_tangent=true physical_steps=0
+captured_fem_center_records=3072 paper_centers=2880 replayed=2880 glue_skipped=192 ordinary_invalid=0 accurate_invalid=0 exact_center_reference_projection_failures=0 exact_tangent_reference_projection_failures=0 ordinary_nonpass=1440 accurate_fp64_nonpass=1852 physical_steps=0 emitted_json_schema_validated=true

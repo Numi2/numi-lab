@@ -589,10 +589,10 @@ void validateWorld(
         });
     }
     if (options.localMaterialNewtonIterations == 0u ||
-        options.localMaterialNewtonIterations > 16u) {
+        options.localMaterialNewtonIterations > 32u) {
         diagnostics.push_back({
             Diagnostic::Severity::error, 0u, 0u,
-            "local material Newton iteration budget must be between 1 and 16",
+            "local material Newton iteration budget must be between 1 and 32",
         });
     }
     if (options.maximumRateExponent != 0u &&

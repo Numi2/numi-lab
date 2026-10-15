@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/Users/home/cardboard-implementation-20261014/analysis/source175-cached-operator-audit-001/cpu-schwarz-precision-058/study.py", line 341, in <module>
+    result = run()
+  File "/Users/home/cardboard-implementation-20261014/analysis/source175-cached-operator-audit-001/cpu-schwarz-precision-058/study.py", line 228, in run
+    patches, membership = STUDY.build_graph_patches(topo, free_nodes, PATCH_NODES, ANCHOR_STRIDE)
+  File "/Users/home/numi-cardboard-20261006/matter/tools/cardboard_offline_conditioning_study.py", line 684, in build_graph_patches
+    raise ValueError("max patch node count must be in [1,32]")
+ValueError: max patch node count must be in [1,32]

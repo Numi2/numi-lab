@@ -1,0 +1,13 @@
+{
+  "schema": "numi.cardboard.cpu-analytic-derivative-prediction.v1",
+  "started_at_utc": "2026-10-15T04:22:00.441043+00:00",
+  "bindings": {
+    "/Users/home/cardboard-implementation-20261014/analysis/canonical192-analytic-derivative-audit-001/run.py": "ae0afb10783edac3d09df077d63219d751e56803fa3ca0ea41677ae4d2410c43",
+    "/Users/home/cardboard-implementation-20261014/analysis/canonical192-analytic-derivative-audit-001/audit.mm": "60445958e867e1ac49144529997e28d7279ce0cfbd660f8c1b3511011ce39493",
+    "/Users/home/cardboard-implementation-20261014/native/canonical-fp32-all-center-replay-192/center-replay.jsonl": "6cfbe8daca85fe8fe26d9bc28596b2ee8260815d41f0114facc76b1c8c76bc58",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-canonical-fp32-replay-and-rigid-checkpoint-integrated-061/matter/tools/cardboard_solver_reference.hpp": "9055ddda423484ae24482abb1fc6f00e81fd221f07cb822b89805ffdd4bb39f7",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-canonical-fp32-replay-and-rigid-checkpoint-integrated-061/matter/tools/cardboard_paper_reference.hpp": "11adec4ced05ac58240bc5efac462f88bf3813a1ed41056edd9ae1347bc1f298"
+  },
+  "prediction": "Differentiate the complete source13 implicit equations independently at exact captured FP32-promoted inputs. Compare native accurate tangent before interpreting branch-crossing centered differences. Sweep both one-sided and centered differences, recording multiplier/yield gap and local failures. Full-vector relative comparisons are descriptive; no measured Metal absolute noise floors, source15/damage, full solver or physical qualification.",
+  "physical_steps": 0
+}

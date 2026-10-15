@@ -7,11 +7,13 @@
 #include <bit>
 #include <cmath>
 #include <cstring>
+#include <cstdlib>
 #include <filesystem>
 #include <functional>
 #include <iomanip>
 #include <iostream>
 #include <limits>
+#include <memory>
 #include <sstream>
 #include <utility>
 
@@ -94,6 +96,7 @@ Inputs manufactured(const CompiledWorld& w){
 std::vector<NMFEMElementVectorGPU> dispatch(Device& d,const CompiledWorld& w,const Inputs& input,bool tangent,bool cached=false){
     need(!cached||tangent,"cached tangent action requires the FEM operator");
     NMMicrostepGPU micro{};micro.flags=NM_MICROSTEP_FGMRES_OPERATOR;micro.time={w.dispatch.gravityAndTimestep.w,1/w.dispatch.gravityAndTimestep.w,0,0};
+    const std::uint32_t forceCompletedCacheRebuild=0u;
     std::vector<float> parameters;for(unsigned e=0;e<2;++e)for(const auto& p:w.parameters)parameters.push_back(p.valueAndBounds.x);
     const auto objects=buffer(d.device,w.objects),materials=buffer(d.device,w.materials),programs=buffer(d.device,w.scalarPrograms),instructions=buffer(d.device,w.instructions);
     const auto params=buffer(d.device,parameters),nodes=buffer(d.device,input.nodes),tets=buffer(d.device,repeat(w.fem.tetrahedra)),state=buffer(d.device,input.state);
@@ -122,6 +125,8 @@ std::vector<NMFEMElementVectorGPU> dispatch(Device& d,const CompiledWorld& w,con
         [encoder setBuffer:tangentCacheValid offset:0 atIndex:13];
         [encoder setBuffer:status offset:0 atIndex:14];
         [encoder setBuffer:solver offset:0 atIndex:15];
+        [encoder setBytes:&forceCompletedCacheRebuild
+            length:sizeof(forceCompletedCacheRebuild) atIndex:16];
         [encoder dispatchThreads:MTLSizeMake(count,1,1)
             threadsPerThreadgroup:MTLSizeMake(32,1,1)];
         [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
@@ -465,6 +470,8 @@ struct Run {
 };
 void checkAcceptedPlasticCacheActions(Device& device,
                                      MaterialProgram paperMaterial){
+    need(std::getenv("NM_FEM_FORCE_COMPLETED_TANGENT_CACHE_REBUILD") == nullptr,
+         "cache tail parity fixture owns the completed-cache rebuild policy");
     // This source-derived 15-state bilinear-tension-fit program is used here
     // as a native evaluator fixture. Geometry, imposed displacement, and
     // accepted path remain synthetic and do not calibrate a corrugated board.
@@ -484,6 +491,60 @@ void checkAcceptedPlasticCacheActions(Device& device,
 
     Run run(device,authored);
     Run directRun(device,directAuthored);
+    // The override is captured at initialization. Both cache runs then use
+    // identical authored worlds and full accepted loading/unloading paths.
+    // Restore any caller policy even if runtime initialization throws.
+    struct ForcedTailRebuild {
+        bool hadOriginal = false;
+        std::string original;
+        ForcedTailRebuild() {
+            if (const char* value = std::getenv(
+                    "NM_FEM_FORCE_COMPLETED_TANGENT_CACHE_REBUILD")) {
+                hadOriginal = true;
+                original = value;
+            }
+            need(setenv("NM_FEM_FORCE_COMPLETED_TANGENT_CACHE_REBUILD", "1", 1) == 0,
+                 "cannot author tangent-cache rebuild control");
+        }
+        ~ForcedTailRebuild() {
+            if (hadOriginal)
+                setenv("NM_FEM_FORCE_COMPLETED_TANGENT_CACHE_REBUILD",
+                       original.c_str(), 1);
+            else unsetenv("NM_FEM_FORCE_COMPLETED_TANGENT_CACHE_REBUILD");
+        }
+    };
+    std::unique_ptr<Run> forcedRebuildRun;
+    {
+        ForcedTailRebuild force;
+        forcedRebuildRun = std::make_unique<Run>(device, authored);
+    }
+    const auto compareTailRebuild = [&](const RuntimeStateSnapshot& guarded,
+                                       const RuntimeStateSnapshot& forced,
+                                       const char* phase,
+                                       const bool rejected = false) {
+        need(same(guarded.femNodes, forced.femNodes) &&
+             same(guarded.femFields, forced.femFields) &&
+             same(guarded.femMaterialState, forced.femMaterialState) &&
+             same(guarded.femTopologyTetrahedra, forced.femTopologyTetrahedra) &&
+             same(guarded.solverCertificates, forced.solverCertificates),
+             std::string("completed-cache rebuild changed physical history/certificate at ") + phase);
+        need(guarded.statuses.size() == forced.statuses.size(),
+             "cache tail comparison status arity");
+        for (std::size_t environment = 0u; environment < guarded.statuses.size();
+             ++environment) {
+            need(guarded.statuses[environment].code == forced.statuses[environment].code,
+                 "cache tail changed terminal status");
+            if (rejected && environment == 0u)
+                need(guarded.solverCertificates[environment].validity.w == 0.0f,
+                     "cache tail late rejection retained an accepted certificate");
+        }
+        std::cout << "{\"schema\":1,\"record\":\"completed_tangent_cache_rebuild_parity\","
+                     "\"phase\":\"" << phase
+                  << "\",\"physical_history_bitwise_equal\":true,"
+                     "\"certificates_bitwise_equal\":true,"
+                     "\"late_rejection\":" << (rejected ? "true" : "false")
+                  << ",\"physical_validation\":false}\n";
+    };
     const auto compareAcceptedRuns = [&](const RuntimeStateSnapshot& direct,
                                          const RuntimeStateSnapshot& cached,
                                          const char* phase) {
@@ -576,9 +637,12 @@ void checkAcceptedPlasticCacheActions(Device& device,
                                                "accumulated_multiplier");
     run.step(0u);
     directRun.step(0u);
+    forcedRebuildRun->step(0u);
     const RuntimeStateSnapshot elastic=run.state();
     const RuntimeStateSnapshot directElastic=directRun.state();
     compareAcceptedRuns(directElastic,elastic,"elastic-initial");
+    const RuntimeStateSnapshot forcedElastic = forcedRebuildRun->state();
+    compareTailRebuild(elastic, forcedElastic, "elastic-initial");
     need(elastic.solverCertificates.size()==2u,
          "elastic bilinear paper snapshot lacks certificates");
     for(const auto& cert:elastic.solverCertificates)
@@ -590,9 +654,11 @@ void checkAcceptedPlasticCacheActions(Device& device,
     const auto directLoadTargets=paperShearTargets(directElastic,5.0e-6f);
     run.step(1u,-1,-1,loadTargets);
     directRun.step(1u,-1,-1,directLoadTargets);
+    forcedRebuildRun->step(1u,-1,-1,paperShearTargets(forcedElastic,5.0e-6f));
     const RuntimeStateSnapshot loaded=run.state();
     const RuntimeStateSnapshot directLoaded=directRun.state();
     compareAcceptedRuns(directLoaded,loaded,"accepted-plastic-load");
+    compareTailRebuild(loaded,forcedRebuildRun->state(),"accepted-plastic-load");
     need(loaded.solverCertificates.size()==2u,
          "loaded bilinear paper snapshot lacks certificates");
     for(const auto& cert:loaded.solverCertificates)
@@ -612,9 +678,11 @@ void checkAcceptedPlasticCacheActions(Device& device,
     run.step(2u,-1,-1,unloadTargets);
     directRun.step(2u,-1,-1,
                    paperShearTargets(directElastic,0.0f));
+    forcedRebuildRun->step(2u,-1,-1,paperShearTargets(forcedElastic,0.0f));
     const RuntimeStateSnapshot unloaded=run.state();
     const RuntimeStateSnapshot directUnloaded=directRun.state();
     compareAcceptedRuns(directUnloaded,unloaded,"accepted-unload");
+    compareTailRebuild(unloaded,forcedRebuildRun->state(),"accepted-unload");
     need(unloaded.solverCertificates.size()==2u,
          "unloaded bilinear paper snapshot lacks certificates");
     for(const auto& cert:unloaded.solverCertificates)
@@ -646,6 +714,17 @@ void checkAcceptedPlasticCacheActions(Device& device,
         <<",\"maximum_load_to_unload_state_difference\":"<<maximumHistoryChange
         <<",\"tangent_preconditioner_direct_cache_history_parity\":true"
         <<",\"physical_validation\":false}\n";
+    // Deliberately reject postCommit for environment zero after the complete
+    // accepted load/unload fixture, then compare restored history and cleared
+    // publication certificates for both rebuilding policies.
+    run.step(3u,0);
+    forcedRebuildRun->step(3u,0);
+    const auto rejected = run.state();
+    compareTailRebuild(rejected,forcedRebuildRun->state(),
+                       "late-postcommit-rejection",true);
+    envSame(unloaded.femNodes,rejected.femNodes,0u,"guarded rejected nodes");
+    envSame(unloaded.femMaterialState,rejected.femMaterialState,0u,
+            "guarded rejected material history");
 }
 bool physicalSame(const RuntimeStateSnapshot& a,const RuntimeStateSnapshot& b){return same(a.femNodes,b.femNodes)&&same(a.femFields,b.femFields)&&same(a.femMaterialState,b.femMaterialState)&&same(a.femTopologyTetrahedra,b.femTopologyTetrahedra);}
 void integratedChecks(Device& d,const MaterialProgram& material){

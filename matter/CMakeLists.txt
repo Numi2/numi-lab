@@ -117,6 +117,12 @@ if(BUILD_TESTING)
         add_test(NAME matter.analysis.cardboard_regional_conditioning
             COMMAND "${Python3_EXECUTABLE}" -m unittest
                 test_cardboard_regional_conditioning_audit)
+        add_test(NAME matter.analysis.cardboard_cached_operator_audit
+            COMMAND "${Python3_EXECUTABLE}" -m unittest
+                test_cardboard_cached_operator_audit)
+        add_test(NAME matter.analysis.cardboard_offline_conditioning_study
+            COMMAND "${Python3_EXECUTABLE}" -m unittest
+                test_cardboard_offline_conditioning_study)
         add_test(NAME matter.analysis.cardboard_diagnostic_history
             COMMAND "${Python3_EXECUTABLE}" -m unittest
                 test_cardboard_diagnostic_history_compare)
@@ -133,6 +139,8 @@ if(BUILD_TESTING)
             matter.analysis.cardboard_retained_capture_audit
             matter.analysis.cardboard_stage_resolution
             matter.analysis.cardboard_regional_conditioning
+            matter.analysis.cardboard_cached_operator_audit
+            matter.analysis.cardboard_offline_conditioning_study
             matter.analysis.cardboard_diagnostic_history
             matter.analysis.cardboard_solver_pair
             matter.analysis.cardboard_solver_assembly

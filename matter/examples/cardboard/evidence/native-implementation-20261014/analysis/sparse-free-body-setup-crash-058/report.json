@@ -1,0 +1,112 @@
+{
+  "schema": "numi.cardboard.sparse-setup-crash-audit.v1",
+  "physical_validation": false,
+  "cases": {
+    "corrected-sparse-free-body-native-parity-167": {
+      "receipt_path": "/Users/home/cardboard-implementation-20261014/native/corrected-sparse-free-body-native-parity-167/receipt.json",
+      "receipt_sha256": "a89ada3798acbf1bcde93df35c4005a367b02a54ba1205bfc70f54d3da1f980f",
+      "exit_code": -6,
+      "timed_out": false
+    },
+    "corrected-sparse-free-body-overflow-rollback-168": {
+      "receipt_path": "/Users/home/cardboard-implementation-20261014/native/corrected-sparse-free-body-overflow-rollback-168/receipt.json",
+      "receipt_sha256": "983659ca2b64bce349ebd7b2137f10c60ce1b8b7996074c6662ec3cbbf6f7e27",
+      "exit_code": -6,
+      "timed_out": false
+    }
+  },
+  "crash_reports": [
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/sparse-free-body-setup-crash-058/numi-matter-cardboard-full-contact-armijo-check-2026-10-15-050716.000.ips",
+      "sha256": "67ff79800848c86633ba3c1a8e2d4bb2f52374c3db8558c49696fb86a8df7e83",
+      "bytes": 10854,
+      "pid": 66825,
+      "proc_name": "numi-matter-cardboard-full-contact-armijo-check",
+      "proc_launch": "2026-10-15 05:07:11.1308 +0200",
+      "exception": {
+        "codes": "0x0000000000000000, 0x0000000000000000",
+        "rawCodes": [
+          0,
+          0
+        ],
+        "type": "EXC_CRASH",
+        "signal": "SIGABRT"
+      },
+      "termination": {
+        "flags": 0,
+        "code": 6,
+        "namespace": "SIGNAL",
+        "indicator": "Abort trap: 6",
+        "byProc": "numi-matter-cardboard-full-conta",
+        "byPid": 66825
+      },
+      "triggered_top_symbols": [
+        "__pthread_kill",
+        "pthread_kill",
+        "abort",
+        "__assert_rtn",
+        "MTLReportFailure.cold.1",
+        "MTLReportFailure",
+        "-[_MTLCommandEncoder dealloc]",
+        "-[AGXG16GFamilyComputeContext dealloc]",
+        "AutoreleasePoolPage::releaseUntil(objc_object**)",
+        "objc_autoreleasePoolPop",
+        "metalrobo::MetalWorldContext::submitImpl(metalrobo::CompiledWorld const&, metalrobo::MetalWorldBatch const&, metalrobo::MetalWorldStepConfig const&, metalrobo::MetalWorldResidentState*, bool, metalrobo::MetalWorldSubmission&)",
+        "metalrobo::MetalWorldContext::run(metalrobo::CompiledWorld const&, metalrobo::MetalWorldBatch const&, metalrobo::MetalWorldStepConfig const&, metalrobo::MetalWorldResult&)",
+        "numi::cardboard::ShippingRigidWorldRunner::step(std::__1::span<MRBodyStateGPU const, 18446744073709551615ul>, void*, unsigned int, void*, unsigned int, void*, unsigned int, unsigned int, unsigned int, float, bool)",
+        "(anonymous namespace)::runSparseFreeBodyOverflow(numi::matter::MaterialProgram const&)",
+        "main"
+      ]
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/sparse-free-body-setup-crash-058/numi-matter-cardboard-full-contact-armijo-check-2026-10-15-050716.ips",
+      "sha256": "3045da6c7d7520dc3aa35bed2cda0ec9dd511f60740d0d1f72db8c805fd348c6",
+      "bytes": 11673,
+      "pid": 66792,
+      "proc_name": "numi-matter-cardboard-full-contact-armijo-check",
+      "proc_launch": "2026-10-15 05:07:09.7841 +0200",
+      "exception": {
+        "codes": "0x0000000000000000, 0x0000000000000000",
+        "rawCodes": [
+          0,
+          0
+        ],
+        "type": "EXC_CRASH",
+        "signal": "SIGABRT"
+      },
+      "termination": {
+        "flags": 0,
+        "code": 6,
+        "namespace": "SIGNAL",
+        "indicator": "Abort trap: 6",
+        "byProc": "numi-matter-cardboard-full-conta",
+        "byPid": 66792
+      },
+      "triggered_top_symbols": [
+        "__pthread_kill",
+        "pthread_kill",
+        "abort",
+        "__assert_rtn",
+        "MTLReportFailure.cold.1",
+        "MTLReportFailure",
+        "-[_MTLCommandEncoder dealloc]",
+        "-[AGXG16GFamilyComputeContext dealloc]",
+        "AutoreleasePoolPage::releaseUntil(objc_object**)",
+        "objc_autoreleasePoolPop",
+        "metalrobo::MetalWorldContext::submitImpl(metalrobo::CompiledWorld const&, metalrobo::MetalWorldBatch const&, metalrobo::MetalWorldStepConfig const&, metalrobo::MetalWorldResidentState*, bool, metalrobo::MetalWorldSubmission&)",
+        "metalrobo::MetalWorldContext::run(metalrobo::CompiledWorld const&, metalrobo::MetalWorldBatch const&, metalrobo::MetalWorldStepConfig const&, metalrobo::MetalWorldResult&)",
+        "numi::cardboard::ShippingRigidWorldRunner::step(std::__1::span<MRBodyStateGPU const, 18446744073709551615ul>, void*, unsigned int, void*, unsigned int, void*, unsigned int, unsigned int, unsigned int, float, bool)",
+        "(anonymous namespace)::runSparseFreeBodySequence(numi::matter::MaterialProgram const&, bool, unsigned int, double, double, unsigned int)",
+        "(anonymous namespace)::runSparseFreeBodyParity(numi::matter::MaterialProgram const&)"
+      ]
+    }
+  ],
+  "source57_runtime": {
+    "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-captured-reference-and-rigid-instrument-repair-integrated-057/matter/src/runtime.mm",
+    "sha256": "509d6f79af288cafc9ee3fd306c8c74921853a9d054eec5cff2a5b4e9267ff25"
+  },
+  "first_scope_rejection": "requires_bounded_mixed_cohesive_trial_arena",
+  "cause": "Dormant mixed cohesive faces were excluded by cached initialization eligibility. Sparse scope rejection then returned with an active compute encoder; encoder destruction aborted MetalWorld submission.",
+  "repair_scope": "Validate structural eligibility of every authored potentially active face, preserve per-transaction activation; close encoder and release transaction ownership on three sparse-request rejection paths. Native qualification pending source58 runs172/173.",
+  "activation_fixture": "A separately accepted 5 micrometre positive face gap within 10 micrometre contact slop; this is a synthetic contact-range activation, not geometric overlap or full-box assembly."
+}
