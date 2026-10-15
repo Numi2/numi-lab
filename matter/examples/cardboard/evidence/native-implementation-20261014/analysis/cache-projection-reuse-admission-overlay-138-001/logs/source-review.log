@@ -1,0 +1,29 @@
+{
+  "adaptive_mpm_contact_multiphysics_and_mutation_rejections_retained": true,
+  "at_least_one_reusable_accurate_15_state_material_required": true,
+  "base_file_sha256": {
+    "matter/src/metal/fem.metalinc": "09c3a806224067777aadd26274581ff46be8c9b14282525a7ff805bbb335d03c",
+    "matter/src/runtime.mm": "8c56679c1e547da78f5973382a07ea371b0f3492bebd611cfe73e15f952c959b"
+  },
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-cache-projection-reuse-runtime-136",
+  "candidate_file_sha256": {
+    "matter/src/metal/fem.metalinc": "33edccfec4a2faee1b0bfd7a59aa7847ac707ac3c56baa9a0030e858eeba7170",
+    "matter/src/runtime.mm": "39db08fab320cfb4d44d1c61470dee05b6a66948d01b028a19206b0aeea008b6"
+  },
+  "finite_elastic_starch_is_limited_to_zero_state_generic_neohookean_three_parameter_no_rate_no_state_path": true,
+  "native437_original_failure_retained": true,
+  "native_off_on_history_parity": "NOT_RUN",
+  "only_ipc_capability_rejection_removed": true,
+  "patch_dry_run": "PASS",
+  "patch_sha256": "54eacbff9a4a1b1a9c896e629de772a78042dc3ce68a981a04e6b3eb69dd877a",
+  "physical_qualification": false,
+  "production_tangent_cache_kernel_unchanged": true,
+  "retained_snapshot_compressed_sha256": "e6e78de87d550abc0d62d23ad375678150f36afe4ce4151c7d4d823f50712ee3",
+  "retained_snapshot_manifest": "/Users/home/cardboard-implementation-20261014/analysis/retained-source-snapshot136-001/source-136.json.gz",
+  "retained_snapshot_uncompressed_sha256": "bbed39024cae91f7ff058ab2a474810634ba50118f5e73b583354e994d086d20",
+  "schema": "numi.cardboard.cache_projection_reuse_admission_review.v1",
+  "source134_reuse_sibling_exact_after_guard_removal": true,
+  "source136_unconditional_ipc_flag_verified": true,
+  "starch_elements_use_legacy_projection_path": true,
+  "symlinks": []
+}

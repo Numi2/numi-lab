@@ -1,0 +1,97 @@
+[
+  {
+    "argv": [
+      "xcrun",
+      "-sdk",
+      "macosx",
+      "metal",
+      "-std=metal4.0",
+      "-O0",
+      "-fno-fast-math",
+      "-I",
+      "/Users/home/cardboard-implementation-20261014/snapshots/source-cache-projection-reuse-runtime-136/matter/include",
+      "-I",
+      "/Users/home/cardboard-implementation-20261014/snapshots/source-cache-projection-reuse-runtime-136/include",
+      "-c",
+      "/Users/home/cardboard-implementation-20261014/analysis/cache-projection-reuse-admission-overlay-138-001/logs/compile-view/matter_kernels.metal",
+      "-o",
+      "/Users/home/cardboard-implementation-20261014/analysis/cache-projection-reuse-admission-overlay-138-001/logs/NumiMatter-O0.air"
+    ],
+    "exit_code": 0,
+    "log": "logs/metal-o0.log",
+    "name": "metal-o0"
+  },
+  {
+    "argv": [
+      "xcrun",
+      "-sdk",
+      "macosx",
+      "metal",
+      "-std=metal4.0",
+      "-O3",
+      "-fno-fast-math",
+      "-I",
+      "/Users/home/cardboard-implementation-20261014/snapshots/source-cache-projection-reuse-runtime-136/matter/include",
+      "-I",
+      "/Users/home/cardboard-implementation-20261014/snapshots/source-cache-projection-reuse-runtime-136/include",
+      "-c",
+      "/Users/home/cardboard-implementation-20261014/analysis/cache-projection-reuse-admission-overlay-138-001/logs/compile-view/matter_kernels.metal",
+      "-o",
+      "/Users/home/cardboard-implementation-20261014/analysis/cache-projection-reuse-admission-overlay-138-001/logs/NumiMatter-O3.air"
+    ],
+    "exit_code": 0,
+    "log": "logs/metal-o3.log",
+    "name": "metal-o3"
+  },
+  {
+    "argv": [
+      "xcrun",
+      "-sdk",
+      "macosx",
+      "metallib",
+      "/Users/home/cardboard-implementation-20261014/analysis/cache-projection-reuse-admission-overlay-138-001/logs/NumiMatter-O3.air",
+      "-o",
+      "/Users/home/cardboard-implementation-20261014/analysis/cache-projection-reuse-admission-overlay-138-001/logs/NumiMatter-O3.metallib"
+    ],
+    "exit_code": 0,
+    "log": "logs/metallib-link-o3.log",
+    "name": "metallib-link-o3"
+  },
+  {
+    "argv": [
+      "xcrun",
+      "-sdk",
+      "macosx",
+      "clang++",
+      "-x",
+      "objective-c++",
+      "-std=c++20",
+      "-fobjc-arc",
+      "-fsyntax-only",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-Werror",
+      "-I",
+      "/Users/home/cardboard-implementation-20261014/snapshots/source-cache-projection-reuse-runtime-136/matter/include",
+      "-I",
+      "/Users/home/cardboard-implementation-20261014/snapshots/source-cache-projection-reuse-runtime-136/matter/src",
+      "-I",
+      "/Users/home/cardboard-implementation-20261014/snapshots/source-cache-projection-reuse-runtime-136/include",
+      "-DNUMI_MATTER_DEFAULT_METALLIB=\"\"",
+      "/Users/home/cardboard-implementation-20261014/analysis/cache-projection-reuse-admission-overlay-138-001/candidate/matter/src/runtime.mm"
+    ],
+    "exit_code": 0,
+    "log": "logs/runtime-host-syntax.log",
+    "name": "runtime-host-syntax"
+  },
+  {
+    "argv": [
+      "python3",
+      "/Users/home/cardboard-implementation-20261014/analysis/cache-projection-reuse-admission-overlay-138-001/verify_overlay.py"
+    ],
+    "exit_code": 0,
+    "log": "logs/source-review.log",
+    "name": "source-review"
+  }
+]

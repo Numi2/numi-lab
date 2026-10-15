@@ -1,0 +1,48 @@
+{
+  "schema": "numi.cardboard.reference023-publication-binding.v1",
+  "prior_binding_sha256": "2fe713fca064bf9433dab71d70e0c575e91796b6db873bf921319649bde9c2bb",
+  "prior_pathspec_sha256": "54fd2332a91c0ca3d6c94b637166226cddcbb14ef52dfd84ae7c66e51dc4e237",
+  "prior_pathspec_entries": 1187,
+  "historical_prefix": {
+    "path": "summary-reference022.json",
+    "records": 1282,
+    "sha256": "a7183b6bf2fa89e6461ecd5d2de86a5cf026d33a0a36a3684ef6ff1ea091ac67"
+  },
+  "cases": [
+    "analysis/cache-projection-reuse-admission-overlay-138-001",
+    "analysis/source139-cache-admission-integration-001",
+    "analysis/retained-source-snapshot139-001",
+    "analysis/source139-root-integration-preflight-001",
+    "solver/cache-reuse-full-history-parity-441",
+    "analysis/native441-cache-reuse-history-parity-001",
+    "analysis/native439-direct-operator-abi-adjudication-001",
+    "analysis/publication022-independent-byte-audit-001",
+    "analysis/native-truncated-cgls-direction-replay-440",
+    "analysis/native-truncated-cgls-direction-adjudication-001",
+    "solver/repeated-cauchy-full-coupon-438",
+    "analysis/repeated-cauchy442-inputs-001",
+    "solver/repeated-cauchy-full-coupon-442",
+    "analysis/native442-repeated-fallback-adjudication-001",
+    "analysis/native442-repeated-fallback-adjudication-002",
+    "analysis/source125-fp64-smooth-direction-sweep-005",
+    "analysis/generated-closed-depfile-retirement-016",
+    "analysis/publication023-preflight-001"
+  ],
+  "summary_sha256": "38da763f3d87b50d78eca8b081ef0c6581e4f1db1a90c1512ddbb4a553e27288",
+  "previous_prefix_records": 1282,
+  "new_case_records": 18,
+  "copied_files": 530,
+  "all_archived_bytes_verified": true,
+  "physical_validation": false,
+  "execution_started_false_case": "solver/repeated-cauchy-full-coupon-438",
+  "superseded_adjudication": "analysis/native442-repeated-fallback-adjudication-001",
+  "authoritative_adjudication": "analysis/native442-repeated-fallback-adjudication-002",
+  "six_axis_verdicts": {
+    "solver_correctness": "component-qualified; complete-contact-cycle open",
+    "numerical_convergence": "unqualified",
+    "component_calibration": "source-data and synthetic laws; native forward calibration open",
+    "analogue_validation": "open",
+    "physical_assembly_in_simulation": "unexecuted",
+    "crush_impact_prediction": "unexecuted"
+  }
+}

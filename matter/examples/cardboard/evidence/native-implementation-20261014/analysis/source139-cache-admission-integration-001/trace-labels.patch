@@ -1,0 +1,31 @@
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -11494,7 +11494,7 @@
+                                 options:MTLResourceStorageModePrivate];
+                         }
+                         std::fprintf(stderr,
+-                            "fem_residual_armijo_trace_enabled={\"schema\":3,\"root\":%u,\"maximum_newton_records\":64,\"base_status_capture\":%s}\n",
++                            "fem_residual_armijo_trace_enabled={\"schema\":3,\"root\":%u,\"default_maximum_newton_records\":64,\"base_status_capture\":%s}\n",
+                             static_cast<std::uint32_t>(parsed),
+                             femResidualArmijoBaseStatusCapture != nil
+                                 ? "true" : "false");
+@@ -11708,7 +11708,7 @@
+                         femBaseCauchyFallbackSelectedRoot = true;
+                         if (femBaseCauchyFallbackAllNewtonIterations) {
+                             std::fprintf(stderr,
+-                                "fem_base_cauchy_all_newton_enabled={\"schema\":1,\"root\":%u,\"scope\":\"all_newton_iterations_on_one_control_step\",\"physical_operator_changed\":false}\n",
++                                "fem_base_cauchy_all_newton_enabled={\"schema\":1,\"root\":%u,\"scope\":\"all_newton_iterations_on_one_control_step\",\"maximum_trace_records\":512,\"physical_operator_changed\":false}\n",
+                                 femBaseCauchyFallbackRoot);
+                         } else std::fprintf(stderr,
+                             "fem_base_cauchy_fallback_enabled={\"schema\":1,\"root\":%u,\"iteration\":%u,\"direction\":\"base_state_A_transpose_b\",\"certificate_scope\":\"original_newton_delta_only\",\"armijo_trials\":%u}\n",
+@@ -11822,8 +11822,8 @@
+                     if (!femResidualArmijoTraceNoticeLogged) {
+                         femResidualArmijoTraceNoticeLogged = true;
+                         std::fprintf(stderr,
+-                            "fem_residual_armijo_trace_stopped={\"schema\":1,\"root\":%u,\"reason\":\"record_cap_64\"}\n",
+-                            request.controlStep);
++                            "fem_residual_armijo_trace_stopped={\"schema\":2,\"root\":%u,\"reason\":\"record_cap\",\"maximum_trace_records\":%u}\n",
++                            request.controlStep, maximumTraceRecords);
+                     }
+                     femResidualArmijoTraceEnabled = false;
+                     return true;

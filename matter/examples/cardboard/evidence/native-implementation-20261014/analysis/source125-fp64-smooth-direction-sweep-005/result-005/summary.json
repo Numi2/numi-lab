@@ -1,0 +1,703 @@
+{
+  "center": {
+    "independent_A_vs_saved_419_center_action": {
+      "actual_l2": 0.00018444849085536545,
+      "difference_l2": 1.4171062195584349e-11,
+      "max_component_abs": 8.29423683106409e-12,
+      "reference_l2": 0.00018444849064302578,
+      "relative_to_reference": 7.682937467355292e-08
+    },
+    "projection": {
+      "0": {
+        "failure_examples": [],
+        "max_dynamic_correction": 1.4126033066354257e-08,
+        "max_reference_scaled_residual": 6.886903722870286e-11,
+        "max_updates": 9,
+        "name": "hajali2009_liner_hill_bilinear_fit",
+        "projection_success": 1152,
+        "rows": 1152
+      },
+      "1": {
+        "failure_examples": [],
+        "max_dynamic_correction": 1.9212223083515108e-08,
+        "max_reference_scaled_residual": 1.9936917607130692e-10,
+        "max_updates": 8,
+        "name": "hajali2009_medium_hill_bilinear_fit",
+        "projection_success": 576,
+        "rows": 576
+      }
+    },
+    "signed_terms": {
+      "direction_contract": "H=grad(delta_v) in per-second local F units; dx=dt*delta_v; A delta_v=M delta_v-dt^2 K delta_v",
+      "free_node_mask_applied": true,
+      "mass_action_M_dv_Ns": {
+        "l2": 8.296144813959961e-05,
+        "signed_work_dv_dot": 0.014972904461489247
+      },
+      "stiffness_action_minus_dt2_K_Ns": {
+        "l2": 0.00020354027180267492,
+        "signed_work_dv_dot": -0.01581523577898292
+      },
+      "total_A_dv_Ns": {
+        "l2": 0.00018444849085536545,
+        "signed_work_dv_dot": -0.0008423313174936729
+      }
+    }
+  },
+  "limitations": [
+    "All perturbations are ideal unquantized FP64 F0 +/- epsilon*dt*H with fixed accepted history; native FP32 realized endpoints are excluded.",
+    "Projection rows must pass the existing residual and dynamic correction limits. Failed rows are retained and suppress assembled actions.",
+    "Per-tet errors are relative Frobenius errors of the local directional 3x3 response; they do not establish a full componentwise tangent pass.",
+    "The global A action has near-canceling mass and signed stiffness contributions; normalization by the small total action amplifies force-action differences.",
+    "The rise in secant error at the smallest steps is recorded as observed sensitivity only, not a calibrated universal noise floor.",
+    "No native Metal tangent qualification, complete coupon, calibration, or physical validation is claimed."
+  ],
+  "schema": "numi.cardboard.source125-fp64-smooth-direction-sweep-summary.v1",
+  "scope": "environment 0, root1/Newton48, fixed captured accepted history, all 1920 tetrahedra; ideal unquantized FP64 direction sweep",
+  "status": "complete_diagnostic",
+  "sweep": {
+    "best_complete_centered_assembled_action": {
+      "A_relative_error": 2.246205000497411e-05,
+      "K_relative_error": 2.035514244057008e-05,
+      "epsilon_power": 22
+    },
+    "best_complete_epsilon_by_worst_per_tet_material_relative_error": {
+      "epsilon_power": 20,
+      "liner_max_per_tet_relative_error": 1.2764862986241555e-06,
+      "liner_rows_above_1e-6": 2,
+      "medium_max_per_tet_relative_error": 1.1637442004162242e-06,
+      "medium_rows_above_1e-6": 3
+    },
+    "coarsest_plus_projection_failure": {
+      "epsilon_power": 14,
+      "reason": "RuntimeError: FP64 return map stalled iteration1 rows[0] norm[90.89963043]",
+      "tetrahedron": 1691
+    },
+    "endpoint_branch_transition_totals": {
+      "lambda_activity": 0,
+      "reference_FB_arithmetic_path": 0,
+      "scope": "observable endpoint classifications only, not internal return-map trace",
+      "yield_residual_sign": 0
+    },
+    "epsilon_powers": [
+      14,
+      30
+    ],
+    "fully_projection_gated_points": 16,
+    "paper_material_rows_per_side": 1728,
+    "point_count": 17,
+    "points": [
+      {
+        "all_projection_rows_passed": false,
+        "assembled_centered_A_relative_error": null,
+        "assembled_centered_K_relative_error": null,
+        "assembled_signed_work_mass": null,
+        "assembled_signed_work_stiffness": null,
+        "assembled_signed_work_total": null,
+        "endpoint_F_delta_l2": 0.005107625980730765,
+        "epsilon": 6.103515625e-05,
+        "epsilon_power": 14,
+        "material": {
+          "0": {
+            "centered_per_tet_max_relative_error": 0.004644113412383006,
+            "centered_per_tet_p99_relative_error": 0.0007572068721615081,
+            "centered_per_tet_rows_above_1e-6": 60,
+            "centered_pooled_relative_error": 0.0006779538211914341,
+            "centered_stress_cancellation_ratio": 0.006496275668757303,
+            "centered_stress_difference_l2_Pa": 154957.8392231708,
+            "minus_pooled_relative_error": 0.2790274576030332,
+            "plus_pooled_relative_error": 0.27871577244244844
+          },
+          "1": {
+            "centered_per_tet_max_relative_error": 0.05692486700887694,
+            "centered_per_tet_p99_relative_error": 9.071790009359247e-05,
+            "centered_per_tet_rows_above_1e-6": 82,
+            "centered_pooled_relative_error": 0.002725414224163097,
+            "centered_stress_cancellation_ratio": 0.0027537163285226,
+            "centered_stress_difference_l2_Pa": 22892.080355833987,
+            "minus_pooled_relative_error": 0.0056323330718722085,
+            "plus_pooled_relative_error": 0.0014405396391967377
+          }
+        },
+        "minus_projection_rows": 1728,
+        "plus_projection_rows": 1727
+      },
+      {
+        "all_projection_rows_passed": true,
+        "assembled_centered_A_relative_error": 0.8283755576365949,
+        "assembled_centered_K_relative_error": 0.7506751372311656,
+        "assembled_signed_work_mass": 0.014972904461489247,
+        "assembled_signed_work_stiffness": -0.01144764787462228,
+        "assembled_signed_work_total": 0.0035252565868669683,
+        "endpoint_F_delta_l2": 0.0025538129903653825,
+        "epsilon": 3.0517578125e-05,
+        "epsilon_power": 15,
+        "material": {
+          "0": {
+            "centered_per_tet_max_relative_error": 0.006893804993452037,
+            "centered_per_tet_p99_relative_error": 0.00018875581209068762,
+            "centered_per_tet_rows_above_1e-6": 46,
+            "centered_pooled_relative_error": 0.0006422802373896496,
+            "centered_stress_cancellation_ratio": 0.003248191949141966,
+            "centered_stress_difference_l2_Pa": 77480.92298113169,
+            "minus_pooled_relative_error": 0.13947443977862287,
+            "plus_pooled_relative_error": 0.1394002603046064
+          },
+          "1": {
+            "centered_per_tet_max_relative_error": 0.11690381202696948,
+            "centered_per_tet_p99_relative_error": 2.2639875687221088e-05,
+            "centered_per_tet_rows_above_1e-6": 45,
+            "centered_pooled_relative_error": 0.004893095418363836,
+            "centered_stress_cancellation_ratio": 0.001377140747769416,
+            "centered_stress_difference_l2_Pa": 11455.640409347307,
+            "minus_pooled_relative_error": 0.000718344093025646,
+            "plus_pooled_relative_error": 0.009813958531462505
+          }
+        },
+        "minus_projection_rows": 1728,
+        "plus_projection_rows": 1728
+      },
+      {
+        "all_projection_rows_passed": true,
+        "assembled_centered_A_relative_error": 0.9180054802810813,
+        "assembled_centered_K_relative_error": 0.8318979037178192,
+        "assembled_signed_work_mass": 0.014972904461489247,
+        "assembled_signed_work_stiffness": -0.011089326825904255,
+        "assembled_signed_work_total": 0.003883577635584993,
+        "endpoint_F_delta_l2": 0.0012769064951826913,
+        "epsilon": 1.52587890625e-05,
+        "epsilon_power": 16,
+        "material": {
+          "0": {
+            "centered_per_tet_max_relative_error": 0.011791648729027581,
+            "centered_per_tet_p99_relative_error": 4.7154944530199364e-05,
+            "centered_per_tet_rows_above_1e-6": 39,
+            "centered_pooled_relative_error": 0.0010702568128803812,
+            "centered_stress_cancellation_ratio": 0.0016241016486993904,
+            "centered_stress_difference_l2_Pa": 38740.69707527003,
+            "minus_pooled_relative_error": 0.06972744444631555,
+            "plus_pooled_relative_error": 0.06973753622406585
+          },
+          "1": {
+            "centered_per_tet_max_relative_error": 0.029243514398291072,
+            "centered_per_tet_p99_relative_error": 5.6596903162300756e-06,
+            "centered_per_tet_rows_above_1e-6": 19,
+            "centered_pooled_relative_error": 0.0012240088928325264,
+            "centered_stress_cancellation_ratio": 0.0006886072708485296,
+            "centered_stress_difference_l2_Pa": 5728.121976334831,
+            "minus_pooled_relative_error": 0.0003592697637805047,
+            "plus_pooled_relative_error": 0.002475336483278913
+          }
+        },
+        "minus_projection_rows": 1728,
+        "plus_projection_rows": 1728
+      },
+      {
+        "all_projection_rows_passed": true,
+        "assembled_centered_A_relative_error": 0.006904550849241046,
+        "assembled_centered_K_relative_error": 0.006256914039160226,
+        "assembled_signed_work_mass": 0.014972904461489247,
+        "assembled_signed_work_stiffness": -0.015696802406438386,
+        "assembled_signed_work_total": -0.0007238979449491385,
+        "endpoint_F_delta_l2": 0.0006384532475913456,
+        "epsilon": 7.62939453125e-06,
+        "epsilon_power": 17,
+        "material": {
+          "0": {
+            "centered_per_tet_max_relative_error": 7.12478112972527e-05,
+            "centered_per_tet_p99_relative_error": 1.037001041705313e-05,
+            "centered_per_tet_rows_above_1e-6": 29,
+            "centered_pooled_relative_error": 9.160133758424538e-06,
+            "centered_stress_cancellation_ratio": 0.0008120528638398678,
+            "centered_stress_difference_l2_Pa": 19370.409956103358,
+            "minus_pooled_relative_error": 0.03486128409009894,
+            "plus_pooled_relative_error": 0.03485641846743722
+          },
+          "1": {
+            "centered_per_tet_max_relative_error": 2.5201706530232887e-05,
+            "centered_per_tet_p99_relative_error": 1.4149281608996156e-06,
+            "centered_per_tet_rows_above_1e-6": 7,
+            "centered_pooled_relative_error": 1.0720435955590599e-06,
+            "centered_stress_cancellation_ratio": 0.0003443107863336762,
+            "centered_stress_difference_l2_Pa": 2864.1198134368697,
+            "minus_pooled_relative_error": 0.0001796607983151412,
+            "plus_pooled_relative_error": 0.00017973357937251642
+          }
+        },
+        "minus_projection_rows": 1728,
+        "plus_projection_rows": 1728
+      },
+      {
+        "all_projection_rows_passed": true,
+        "assembled_centered_A_relative_error": 0.0017259083842892952,
+        "assembled_centered_K_relative_error": 0.001564020692403359,
+        "assembled_signed_work_mass": 0.014972904461489247,
+        "assembled_signed_work_stiffness": -0.015785627665698486,
+        "assembled_signed_work_total": -0.0008127232042092372,
+        "endpoint_F_delta_l2": 0.0003192266237956728,
+        "epsilon": 3.814697265625e-06,
+        "epsilon_power": 18,
+        "material": {
+          "0": {
+            "centered_per_tet_max_relative_error": 1.780810423685556e-05,
+            "centered_per_tet_p99_relative_error": 2.5923504697336014e-06,
+            "centered_per_tet_rows_above_1e-6": 17,
+            "centered_pooled_relative_error": 2.289985707653095e-06,
+            "centered_stress_cancellation_ratio": 0.0004060265321168833,
+            "centered_stress_difference_l2_Pa": 9685.208989608447,
+            "minus_pooled_relative_error": 0.017430033192602383,
+            "plus_pooled_relative_error": 0.017428816863532225
+          },
+          "1": {
+            "centered_per_tet_max_relative_error": 4.547269671028193e-06,
+            "centered_per_tet_p99_relative_error": 3.538360017632231e-07,
+            "centered_per_tet_rows_above_1e-6": 1,
+            "centered_pooled_relative_error": 1.9636820846478515e-07,
+            "centered_stress_cancellation_ratio": 0.00017215540511509878,
+            "centered_stress_difference_l2_Pa": 1432.0599212716077,
+            "minus_pooled_relative_error": 8.983734995423397e-05,
+            "plus_pooled_relative_error": 8.98530947099591e-05
+          }
+        },
+        "minus_projection_rows": 1728,
+        "plus_projection_rows": 1728
+      },
+      {
+        "all_projection_rows_passed": true,
+        "assembled_centered_A_relative_error": 0.0004314510812062967,
+        "assembled_centered_K_relative_error": 0.0003909815983913506,
+        "assembled_signed_work_mass": 0.014972904461489247,
+        "assembled_signed_work_stiffness": -0.015807833763543257,
+        "assembled_signed_work_total": -0.0008349293020540086,
+        "endpoint_F_delta_l2": 0.0001596133118978364,
+        "epsilon": 1.9073486328125e-06,
+        "epsilon_power": 19,
+        "material": {
+          "0": {
+            "centered_per_tet_max_relative_error": 4.451785654953299e-06,
+            "centered_per_tet_p99_relative_error": 6.480832856108822e-07,
+            "centered_per_tet_rows_above_1e-6": 10,
+            "centered_pooled_relative_error": 5.7252086613594e-07,
+            "centered_stress_cancellation_ratio": 0.00020301327855562035,
+            "centered_stress_difference_l2_Pa": 4842.604995935922,
+            "minus_pooled_relative_error": 0.00871486460730457,
+            "plus_pooled_relative_error": 0.00871456046006871
+          },
+          "1": {
+            "centered_per_tet_max_relative_error": 1.0641156793402874e-06,
+            "centered_per_tet_p99_relative_error": 2.8403111246640005e-07,
+            "centered_per_tet_rows_above_1e-6": 1,
+            "centered_pooled_relative_error": 4.795773939002407e-08,
+            "centered_stress_cancellation_ratio": 8.6077703949195e-05,
+            "centered_stress_difference_l2_Pa": 716.0299616071787,
+            "minus_pooled_relative_error": 4.492065343661497e-05,
+            "plus_pooled_relative_error": 4.4925036539403496e-05
+          }
+        },
+        "minus_projection_rows": 1728,
+        "plus_projection_rows": 1728
+      },
+      {
+        "all_projection_rows_passed": true,
+        "assembled_centered_A_relative_error": 0.00010790639902965136,
+        "assembled_centered_K_relative_error": 9.778493601479036e-05,
+        "assembled_signed_work_mass": 0.014972904461489247,
+        "assembled_signed_work_stiffness": -0.015813385292497914,
+        "assembled_signed_work_total": -0.0008404808310086664,
+        "endpoint_F_delta_l2": 7.98066559489182e-05,
+        "epsilon": 9.5367431640625e-07,
+        "epsilon_power": 20,
+        "material": {
+          "0": {
+            "centered_per_tet_max_relative_error": 1.2764862986241555e-06,
+            "centered_per_tet_p99_relative_error": 5.72921826564287e-07,
+            "centered_per_tet_rows_above_1e-6": 2,
+            "centered_pooled_relative_error": 1.4334194812971794e-07,
+            "centered_stress_cancellation_ratio": 0.00010150664084775933,
+            "centered_stress_difference_l2_Pa": 2421.3025608063454,
+            "minus_pooled_relative_error": 0.004357394249574574,
+            "plus_pooled_relative_error": 0.004357318885958889
+          },
+          "1": {
+            "centered_per_tet_max_relative_error": 1.1637442004162242e-06,
+            "centered_per_tet_p99_relative_error": 6.16757765153709e-07,
+            "centered_per_tet_rows_above_1e-6": 3,
+            "centered_pooled_relative_error": 2.950078511280131e-08,
+            "centered_stress_cancellation_ratio": 4.303885219359034e-05,
+            "centered_stress_difference_l2_Pa": 358.0149812996413,
+            "minus_pooled_relative_error": 2.2462241862884863e-05,
+            "plus_pooled_relative_error": 2.246122487296215e-05
+          }
+        },
+        "minus_projection_rows": 1728,
+        "plus_projection_rows": 1728
+      },
+      {
+        "all_projection_rows_passed": true,
+        "assembled_centered_A_relative_error": 2.9140481999164582e-05,
+        "assembled_centered_K_relative_error": 2.640714724384852e-05,
+        "assembled_signed_work_mass": 0.014972904461489247,
+        "assembled_signed_work_stiffness": -0.015814773144247826,
+        "assembled_signed_work_total": -0.0008418686827585779,
+        "endpoint_F_delta_l2": 3.99033279744591e-05,
+        "epsilon": 4.76837158203125e-07,
+        "epsilon_power": 21,
+        "material": {
+          "0": {
+            "centered_per_tet_max_relative_error": 1.2172920952456262e-06,
+            "centered_per_tet_p99_relative_error": 9.656265519359932e-07,
+            "centered_per_tet_rows_above_1e-6": 9,
+            "centered_pooled_relative_error": 3.992459847237122e-08,
+            "centered_stress_cancellation_ratio": 5.075332063243442e-05,
+            "centered_stress_difference_l2_Pa": 1210.6512885519332,
+            "minus_pooled_relative_error": 0.0021786879018882736,
+            "plus_pooled_relative_error": 0.0021786692708399115
+          },
+          "1": {
+            "centered_per_tet_max_relative_error": 3.1444039389656133e-06,
+            "centered_per_tet_p99_relative_error": 1.1503572029824994e-06,
+            "centered_per_tet_rows_above_1e-6": 8,
+            "centered_pooled_relative_error": 5.018891283945012e-08,
+            "centered_stress_cancellation_ratio": 2.1519426066828288e-05,
+            "centered_stress_difference_l2_Pa": 179.00749023484101,
+            "minus_pooled_relative_error": 1.123276882649605e-05,
+            "plus_pooled_relative_error": 1.1230525486778837e-05
+          }
+        },
+        "minus_projection_rows": 1728,
+        "plus_projection_rows": 1728
+      },
+      {
+        "all_projection_rows_passed": true,
+        "assembled_centered_A_relative_error": 2.246205000497411e-05,
+        "assembled_centered_K_relative_error": 2.035514244057008e-05,
+        "assembled_signed_work_mass": 0.014972904461489247,
+        "assembled_signed_work_stiffness": -0.01581512002462817,
+        "assembled_signed_work_total": -0.0008422155631389226,
+        "endpoint_F_delta_l2": 1.995166398722955e-05,
+        "epsilon": 2.384185791015625e-07,
+        "epsilon_power": 22,
+        "material": {
+          "0": {
+            "centered_per_tet_max_relative_error": 4.106835061275009e-06,
+            "centered_per_tet_p99_relative_error": 1.8385364905587456e-06,
+            "centered_per_tet_rows_above_1e-6": 81,
+            "centered_pooled_relative_error": 3.658719285908296e-08,
+            "centered_stress_cancellation_ratio": 2.5376660352800076e-05,
+            "centered_stress_difference_l2_Pa": 605.3256455453574,
+            "minus_pooled_relative_error": 0.0010893438649145057,
+            "plus_pooled_relative_error": 0.0010893383101486082
+          },
+          "1": {
+            "centered_per_tet_max_relative_error": 4.00272971837904e-06,
+            "centered_per_tet_p99_relative_error": 2.3342966857630572e-06,
+            "centered_per_tet_rows_above_1e-6": 29,
+            "centered_pooled_relative_error": 1.06556684764926e-07,
+            "centered_stress_cancellation_ratio": 1.0759713023464817e-05,
+            "centered_stress_difference_l2_Pa": 89.5037450139454,
+            "minus_pooled_relative_error": 5.618117827028586e-06,
+            "plus_pooled_relative_error": 5.625142386169741e-06
+          }
+        },
+        "minus_projection_rows": 1728,
+        "plus_projection_rows": 1728
+      },
+      {
+        "all_projection_rows_passed": true,
+        "assembled_centered_A_relative_error": 3.9929297509449134e-05,
+        "assembled_centered_K_relative_error": 3.618398757801196e-05,
+        "assembled_signed_work_mass": 0.014972904461489247,
+        "assembled_signed_work_stiffness": -0.0158152070780804,
+        "assembled_signed_work_total": -0.000842302616591152,
+        "endpoint_F_delta_l2": 9.975831993614775e-06,
+        "epsilon": 1.1920928955078125e-07,
+        "epsilon_power": 23,
+        "material": {
+          "0": {
+            "centered_per_tet_max_relative_error": 1.5009699591234124e-05,
+            "centered_per_tet_p99_relative_error": 3.6018443672175207e-06,
+            "centered_per_tet_rows_above_1e-6": 243,
+            "centered_pooled_relative_error": 6.875118774274705e-08,
+            "centered_stress_cancellation_ratio": 1.2688330149670504e-05,
+            "centered_stress_difference_l2_Pa": 302.6628221846722,
+            "minus_pooled_relative_error": 0.000544673470974749,
+            "plus_pooled_relative_error": 0.000544670228269487
+          },
+          "1": {
+            "centered_per_tet_max_relative_error": 1.0701168045401645e-05,
+            "centered_per_tet_p99_relative_error": 3.6990998313843423e-06,
+            "centered_per_tet_rows_above_1e-6": 72,
+            "centered_pooled_relative_error": 2.0827604312501968e-07,
+            "centered_stress_cancellation_ratio": 5.379856550648137e-06,
+            "centered_stress_difference_l2_Pa": 44.75187282810216,
+            "minus_pooled_relative_error": 2.8414495652975404e-06,
+            "plus_pooled_relative_error": 2.813288339767009e-06
+          }
+        },
+        "minus_projection_rows": 1728,
+        "plus_projection_rows": 1728
+      },
+      {
+        "all_projection_rows_passed": true,
+        "assembled_centered_A_relative_error": 8.751302234355572e-05,
+        "assembled_centered_K_relative_error": 7.930442834973503e-05,
+        "assembled_signed_work_mass": 0.014972904461489247,
+        "assembled_signed_work_stiffness": -0.015815227926623935,
+        "assembled_signed_work_total": -0.0008423234651346884,
+        "endpoint_F_delta_l2": 4.987915996807388e-06,
+        "epsilon": 5.960464477539063e-08,
+        "epsilon_power": 24,
+        "material": {
+          "0": {
+            "centered_per_tet_max_relative_error": 9.43987685540336e-06,
+            "centered_per_tet_p99_relative_error": 6.3346041842735555e-06,
+            "centered_per_tet_rows_above_1e-6": 430,
+            "centered_pooled_relative_error": 1.4015591480673663e-07,
+            "centered_stress_cancellation_ratio": 6.344165108826738e-06,
+            "centered_stress_difference_l2_Pa": 151.33141190936206,
+            "minus_pooled_relative_error": 0.0002723387962226554,
+            "plus_pooled_relative_error": 0.0002723397050017558
+          },
+          "1": {
+            "centered_per_tet_max_relative_error": 2.8361761802782693e-05,
+            "centered_per_tet_p99_relative_error": 1.2119197991639177e-05,
+            "centered_per_tet_rows_above_1e-6": 189,
+            "centered_pooled_relative_error": 4.370962535590581e-07,
+            "centered_stress_cancellation_ratio": 2.6899282450775032e-06,
+            "centered_stress_difference_l2_Pa": 22.375936162123338,
+            "minus_pooled_relative_error": 1.5366215248800494e-06,
+            "plus_pooled_relative_error": 1.5174799088745374e-06
+          }
+        },
+        "minus_projection_rows": 1728,
+        "plus_projection_rows": 1728
+      },
+      {
+        "all_projection_rows_passed": true,
+        "assembled_centered_A_relative_error": 0.0001738194708062038,
+        "assembled_centered_K_relative_error": 0.00015751545769067082,
+        "assembled_signed_work_mass": 0.014972904461489247,
+        "assembled_signed_work_stiffness": -0.015815234118294778,
+        "assembled_signed_work_total": -0.0008423296568055308,
+        "endpoint_F_delta_l2": 2.493957998403694e-06,
+        "epsilon": 2.9802322387695312e-08,
+        "epsilon_power": 25,
+        "material": {
+          "0": {
+            "centered_per_tet_max_relative_error": 2.1392625809945112e-05,
+            "centered_per_tet_p99_relative_error": 1.4282624806404228e-05,
+            "centered_per_tet_rows_above_1e-6": 518,
+            "centered_pooled_relative_error": 2.746989432255763e-07,
+            "centered_stress_cancellation_ratio": 3.1720825458036337e-06,
+            "centered_stress_difference_l2_Pa": 75.66570575008046,
+            "minus_pooled_relative_error": 0.00013617218999972632,
+            "plus_pooled_relative_error": 0.00013617264020029092
+          },
+          "1": {
+            "centered_per_tet_max_relative_error": 3.2410309291349215e-05,
+            "centered_per_tet_p99_relative_error": 1.6611939305524316e-05,
+            "centered_per_tet_rows_above_1e-6": 330,
+            "centered_pooled_relative_error": 8.487697996820005e-07,
+            "centered_stress_cancellation_ratio": 1.344964132179361e-06,
+            "centered_stress_difference_l2_Pa": 11.187968161215704,
+            "minus_pooled_relative_error": 1.3936694331834664e-06,
+            "plus_pooled_relative_error": 1.3789492892128302e-06
+          }
+        },
+        "minus_projection_rows": 1728,
+        "plus_projection_rows": 1728
+      },
+      {
+        "all_projection_rows_passed": true,
+        "assembled_centered_A_relative_error": 0.00035465482308422625,
+        "assembled_centered_K_relative_error": 0.0003213887173928925,
+        "assembled_signed_work_mass": 0.014972904461489247,
+        "assembled_signed_work_stiffness": -0.01581523717321975,
+        "assembled_signed_work_total": -0.0008423327117305038,
+        "endpoint_F_delta_l2": 1.246978999201847e-06,
+        "epsilon": 1.4901161193847656e-08,
+        "epsilon_power": 26,
+        "material": {
+          "0": {
+            "centered_per_tet_max_relative_error": 3.988773671360324e-05,
+            "centered_per_tet_p99_relative_error": 2.8899732724148827e-05,
+            "centered_per_tet_rows_above_1e-6": 598,
+            "centered_pooled_relative_error": 5.520285964544381e-07,
+            "centered_stress_cancellation_ratio": 1.5860412316481436e-06,
+            "centered_stress_difference_l2_Pa": 37.83285189108678,
+            "minus_pooled_relative_error": 6.814732205989107e-05,
+            "plus_pooled_relative_error": 6.808367145167821e-05
+          },
+          "1": {
+            "centered_per_tet_max_relative_error": 7.348735474204162e-05,
+            "centered_per_tet_p99_relative_error": 5.05659478622029e-05,
+            "centered_per_tet_rows_above_1e-6": 461,
+            "centered_pooled_relative_error": 1.7233559127009975e-06,
+            "centered_stress_cancellation_ratio": 6.724820244760948e-07,
+            "centered_stress_difference_l2_Pa": 5.593983734443913,
+            "minus_pooled_relative_error": 2.407301425972948e-06,
+            "plus_pooled_relative_error": 2.3990742837442324e-06
+          }
+        },
+        "minus_projection_rows": 1728,
+        "plus_projection_rows": 1728
+      },
+      {
+        "all_projection_rows_passed": true,
+        "assembled_centered_A_relative_error": 0.0007612004023853196,
+        "assembled_centered_K_relative_error": 0.0006898009136716915,
+        "assembled_signed_work_mass": 0.014972904461489247,
+        "assembled_signed_work_stiffness": -0.015815234630921993,
+        "assembled_signed_work_total": -0.0008423301694327448,
+        "endpoint_F_delta_l2": 6.234894996009235e-07,
+        "epsilon": 7.450580596923828e-09,
+        "epsilon_power": 27,
+        "material": {
+          "0": {
+            "centered_per_tet_max_relative_error": 0.0001246506764758579,
+            "centered_per_tet_p99_relative_error": 6.47557398822527e-05,
+            "centered_per_tet_rows_above_1e-6": 759,
+            "centered_pooled_relative_error": 1.1493191231350312e-06,
+            "centered_stress_cancellation_ratio": 7.930206524794234e-07,
+            "centered_stress_difference_l2_Pa": 18.916426819919405,
+            "minus_pooled_relative_error": 3.409167426912659e-05,
+            "plus_pooled_relative_error": 3.416023441744648e-05
+          },
+          "1": {
+            "centered_per_tet_max_relative_error": 0.00018546996710170656,
+            "centered_per_tet_p99_relative_error": 9.428711853262575e-05,
+            "centered_per_tet_rows_above_1e-6": 535,
+            "centered_pooled_relative_error": 3.4706771679383244e-06,
+            "centered_stress_cancellation_ratio": 3.362411080025593e-07,
+            "centered_stress_difference_l2_Pa": 2.796992663830161,
+            "minus_pooled_relative_error": 4.775156164729555e-06,
+            "plus_pooled_relative_error": 4.964868502420893e-06
+          }
+        },
+        "minus_projection_rows": 1728,
+        "plus_projection_rows": 1728
+      },
+      {
+        "all_projection_rows_passed": true,
+        "assembled_centered_A_relative_error": 0.0013406942665920348,
+        "assembled_centered_K_relative_error": 0.00121493909770878,
+        "assembled_signed_work_mass": 0.014972904461489247,
+        "assembled_signed_work_stiffness": -0.01581524225269195,
+        "assembled_signed_work_total": -0.0008423377912027025,
+        "endpoint_F_delta_l2": 3.1174474980046173e-07,
+        "epsilon": 3.725290298461914e-09,
+        "epsilon_power": 28,
+        "material": {
+          "0": {
+            "centered_per_tet_max_relative_error": 0.0004730271999236168,
+            "centered_per_tet_p99_relative_error": 0.00011463394725384392,
+            "centered_per_tet_rows_above_1e-6": 958,
+            "centered_pooled_relative_error": 2.14407378843822e-06,
+            "centered_stress_cancellation_ratio": 3.965103033386467e-07,
+            "centered_stress_difference_l2_Pa": 9.458212863687367,
+            "minus_pooled_relative_error": 1.737521974635329e-05,
+            "plus_pooled_relative_error": 1.7333230370647632e-05
+          },
+          "1": {
+            "centered_per_tet_max_relative_error": 0.00013518934892769316,
+            "centered_per_tet_p99_relative_error": 0.00011975098269223024,
+            "centered_per_tet_rows_above_1e-6": 563,
+            "centered_pooled_relative_error": 6.628099114098379e-06,
+            "centered_stress_cancellation_ratio": 1.6812049974375174e-07,
+            "centered_stress_difference_l2_Pa": 1.3984958805784637,
+            "minus_pooled_relative_error": 8.99463998099492e-06,
+            "plus_pooled_relative_error": 9.31649757771373e-06
+          }
+        },
+        "minus_projection_rows": 1728,
+        "plus_projection_rows": 1728
+      },
+      {
+        "all_projection_rows_passed": true,
+        "assembled_centered_A_relative_error": 0.002686816788372535,
+        "assembled_centered_K_relative_error": 0.0024347972881780373,
+        "assembled_signed_work_mass": 0.014972904461489247,
+        "assembled_signed_work_stiffness": -0.01581522263948557,
+        "assembled_signed_work_total": -0.000842318177996323,
+        "endpoint_F_delta_l2": 1.5587237490023087e-07,
+        "epsilon": 1.862645149230957e-09,
+        "epsilon_power": 29,
+        "material": {
+          "0": {
+            "centered_per_tet_max_relative_error": 0.00029578991048699734,
+            "centered_per_tet_p99_relative_error": 0.00021215643326535103,
+            "centered_per_tet_rows_above_1e-6": 1078,
+            "centered_pooled_relative_error": 4.362141097946479e-06,
+            "centered_stress_cancellation_ratio": 1.9825518337972492e-07,
+            "centered_stress_difference_l2_Pa": 4.729107188252455,
+            "minus_pooled_relative_error": 1.0290691366759398e-05,
+            "plus_pooled_relative_error": 1.0472185936624947e-05
+          },
+          "1": {
+            "centered_per_tet_max_relative_error": 0.0005162261984593304,
+            "centered_per_tet_p99_relative_error": 0.00037269056383354676,
+            "centered_per_tet_rows_above_1e-6": 574,
+            "centered_pooled_relative_error": 1.3380374367637843e-05,
+            "centered_stress_cancellation_ratio": 8.406024216179615e-08,
+            "centered_stress_difference_l2_Pa": 0.6992478761535382,
+            "minus_pooled_relative_error": 1.777799464523771e-05,
+            "plus_pooled_relative_error": 1.882371190448971e-05
+          }
+        },
+        "minus_projection_rows": 1728,
+        "plus_projection_rows": 1728
+      },
+      {
+        "all_projection_rows_passed": true,
+        "assembled_centered_A_relative_error": 0.005630678395622465,
+        "assembled_centered_K_relative_error": 0.005102528965723949,
+        "assembled_signed_work_mass": 0.014972904461489247,
+        "assembled_signed_work_stiffness": -0.01581524940369325,
+        "assembled_signed_work_total": -0.0008423449422040024,
+        "endpoint_F_delta_l2": 7.793618745011543e-08,
+        "epsilon": 9.313225746154785e-10,
+        "epsilon_power": 30,
+        "material": {
+          "0": {
+            "centered_per_tet_max_relative_error": 0.0006901485704387089,
+            "centered_per_tet_p99_relative_error": 0.0004796665203356661,
+            "centered_per_tet_rows_above_1e-6": 1122,
+            "centered_pooled_relative_error": 8.734189912947803e-06,
+            "centered_stress_cancellation_ratio": 9.912755698258081e-08,
+            "centered_stress_difference_l2_Pa": 2.3645527662312724,
+            "minus_pooled_relative_error": 1.2341940389711823e-05,
+            "plus_pooled_relative_error": 1.1096140646864848e-05
+          },
+          "1": {
+            "centered_per_tet_max_relative_error": 0.0010463083355643531,
+            "centered_per_tet_p99_relative_error": 0.00041450926760513756,
+            "centered_per_tet_rows_above_1e-6": 576,
+            "centered_pooled_relative_error": 2.6554987185133874e-05,
+            "centered_stress_cancellation_ratio": 4.203014103316129e-08,
+            "centered_stress_difference_l2_Pa": 0.3496241040479546,
+            "minus_pooled_relative_error": 3.641133085299577e-05,
+            "plus_pooled_relative_error": 3.515681848363701e-05
+          }
+        },
+        "minus_projection_rows": 1728,
+        "plus_projection_rows": 1728
+      }
+    ]
+  },
+  "warnings": [
+    {
+      "category": "RuntimeWarning",
+      "count": 1215,
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "count": 1134,
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    }
+  ]
+}

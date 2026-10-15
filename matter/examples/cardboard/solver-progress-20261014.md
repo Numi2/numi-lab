@@ -1,5 +1,9 @@
 # Native solver progress and unresolved qualification
 
+## Current milestone: source139 cache admission and attempted-history parity
+
+The [source139 report](solver-cache-parity-source139.md) records the corrected cache admission and exact full attempted-history parity:64 Armijo records,4,096 true-residual records and33 physical output files are byte identical. Repeated raw fallback still exhausts64 Newton iterations and rolls back. The independent ideal FP64 sweep meets the assembled1% gate over a resolved range but narrowly misses the all-row1e-6 material gate; native derivative/noise qualification remains open. Complete coupon, resolution, calibration, shipping assembly and crush/drop gates remain open.
+
 ## Current milestone: source135 exact-state descent experiment
 
 The [source135 report](solver-milestone-source135.md) records the measured13.224% nonlinear-residual decrease at the exact Newton48 rejection. Newton53 still rejects and the full control rolls back. Exact native operator checks, feature-off full attempted-history parity and independent complete endpoint replay are retained separately. Source137 builds69 selected targets and passes74 CPU tests; its repeated fallback remains experimental. The cache candidate passes isolated word comparisons but rejects the actual source136 coupon at initialization. Complete nonlinear/contact, resolution, calibration, shipping assembly and crush/drop gates remain open.

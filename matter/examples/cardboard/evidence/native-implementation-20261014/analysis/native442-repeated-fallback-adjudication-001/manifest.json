@@ -1,0 +1,20 @@
+{
+  "audit_script": {
+    "bytes": 21784,
+    "path": "/Users/home/cardboard-implementation-20261014/analysis/native442-repeated-fallback-adjudication-001/audit.py",
+    "sha256": "6e99d4d5ebd718c5ab5a0d1959564ba88a494f9002d767b86e22d52e48216274"
+  },
+  "created_at_utc": "2026-10-15T21:09:08.483951+00:00",
+  "receipt": {
+    "bytes": 305,
+    "path": "/Users/home/cardboard-implementation-20261014/solver/repeated-cauchy-full-coupon-442/receipt.json",
+    "sha256": "f3eb696d82073183569ad932b166de582e7075bdb0823ee9117baefe5875b48a"
+  },
+  "report": {
+    "bytes": 257784,
+    "path": "/Users/home/cardboard-implementation-20261014/analysis/native442-repeated-fallback-adjudication-001/report.json",
+    "sha256": "e0ad8f32df9b564fe16acaffe254a119d9d0086457d5b264c1339916a711bc8d"
+  },
+  "schema": "numi.cardboard.native442-repeated-fallback-adjudication-manifest.v1",
+  "status": "failed_accepted_prefix_only"
+}

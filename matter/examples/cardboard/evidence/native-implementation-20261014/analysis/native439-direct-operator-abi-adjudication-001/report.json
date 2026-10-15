@@ -1,0 +1,149 @@
+{
+  "all_exits_zero": true,
+  "all_inputs_unchanged": true,
+  "all_recorded_input_hashes_current": true,
+  "case_count": 5,
+  "cases": [
+    {
+      "case": "matter-metal-cardboard_coupled_free_box_operator",
+      "changed_inputs": [],
+      "executed_build_verified": true,
+      "exit_code": 0,
+      "receipt_sha256": "d57d80cd0c8fd9bb8045de3742205496dc146bb5b66ff0f99e9db65436d67136",
+      "source_build_sha256": "f3e98462c0be7b42fb2fb776ef9d4b6841b4e5369d4de67fc5bb9f4f32cdfae2",
+      "source_inputs_unchanged": true,
+      "stderr": {
+        "bytes": 0,
+        "lines": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "text": ""
+      },
+      "stdout": {
+        "bytes": 2357,
+        "last_line": "result=PASS",
+        "lines": 7,
+        "sha256": "d06b39cfcb1c283fc0b5e82be549097fe193644e62a7f1042c2e0fba38c6da97"
+      },
+      "timed_out": false,
+      "tool_path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-137/matter/numi-matter-cardboard-coupled-free-box-operator-check",
+      "tool_sha256": "5bdbbade67fef46e8f80a66a009408bdf77225c552c71ffb132688e3219e432a",
+      "wall_seconds": 18.758188457984943
+    },
+    {
+      "case": "matter-metal-cardboard_material",
+      "changed_inputs": [],
+      "executed_build_verified": true,
+      "exit_code": 0,
+      "receipt_sha256": "79cde8bffdbdd9ef47f0504961baea0039b311f6a1bb6e963d0e24ef34063beb",
+      "source_build_sha256": "f3e98462c0be7b42fb2fb776ef9d4b6841b4e5369d4de67fc5bb9f4f32cdfae2",
+      "source_inputs_unchanged": true,
+      "stderr": {
+        "bytes": 0,
+        "lines": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "text": ""
+      },
+      "stdout": {
+        "bytes": 848,
+        "last_line": "PASS cardboard_gpu_check checks=50 production_kernels=FEM_internal_forces+apply_operator physical_steps=0 crease_plasticity_and_cardboard_qualification=false",
+        "lines": 4,
+        "sha256": "e12833bf02ca1b2f07c6c0e6a54e5f9b08f606e9911f94f6df50c9cfa8366678"
+      },
+      "timed_out": false,
+      "tool_path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-137/matter/numi-matter-cardboard-gpu-check",
+      "tool_sha256": "4b6a86856da31c60e8a7c70c0958fb94d28a114715d2019807899d184b39a246",
+      "wall_seconds": 0.4036681249854155
+    },
+    {
+      "case": "matter-metal-fem_material_frame",
+      "changed_inputs": [],
+      "executed_build_verified": true,
+      "exit_code": 0,
+      "receipt_sha256": "60e6a4acb582eb705b1edbf33c183b8726145363d56215bc728f9fc40675fa7b",
+      "source_build_sha256": "f3e98462c0be7b42fb2fb776ef9d4b6841b4e5369d4de67fc5bb9f4f32cdfae2",
+      "source_inputs_unchanged": true,
+      "stderr": {
+        "bytes": 72,
+        "lines": 1,
+        "sha256": "513c1b41efbe704f82b0e39e2f5343fcf9118542fbe2579c5aaae05ffbff04e9",
+        "text": "matter_tangent_cache_control={\"schema\":1,\"completed_tail_rebuild\":true}"
+      },
+      "stdout": {
+        "bytes": 5697,
+        "last_line": "fem_material_frame_check=pass anatomical_wall_qualified=false source_density_supplied=false active_cardiac_source_reproduced=false",
+        "lines": 18,
+        "sha256": "6d6b5edf36cf321e951532e7306acdf15da46e1f0a6d98a0c0b170b13a78beda"
+      },
+      "timed_out": false,
+      "tool_path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-137/matter/numi-matter-fem-material-frame-check",
+      "tool_sha256": "af195f0cd50d5c74ae00c2723ee288764b970eead307899cdb6019807bbf8820",
+      "wall_seconds": 58.87086724996334
+    },
+    {
+      "case": "matter-metal-fem_reference",
+      "changed_inputs": [],
+      "executed_build_verified": true,
+      "exit_code": 0,
+      "receipt_sha256": "084a5a4188839f6ef5a0f08debe23338496af0f9cf2b9f8fc687cc65f9e920e8",
+      "source_build_sha256": "f3e98462c0be7b42fb2fb776ef9d4b6841b4e5369d4de67fc5bb9f4f32cdfae2",
+      "source_inputs_unchanged": true,
+      "stderr": {
+        "bytes": 0,
+        "lines": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "text": ""
+      },
+      "stdout": {
+        "bytes": 3641,
+        "last_line": "fem_reference_check=pass unloaded_reference_recovered=false anatomical_wall_qualified=false source_density_supplied=false active_cardiac_source_reproduced=false",
+        "lines": 19,
+        "sha256": "506215804ec58b33f9fa08f5b32074901aca00377410121f36bac5e973aeedb0"
+      },
+      "timed_out": false,
+      "tool_path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-137/matter/numi-matter-fem-reference-check",
+      "tool_sha256": "cb0dae9eae0bda41979cd1d48856903ecf95620c9ab76ef6648049e79aaeed7d",
+      "wall_seconds": 19.308411750011146
+    },
+    {
+      "case": "matter-metal-fem_regional_material",
+      "changed_inputs": [],
+      "executed_build_verified": true,
+      "exit_code": 0,
+      "receipt_sha256": "44c783e9232472fa67668960ddd0d43d121efd3d6ec7c63a3960998e6ab127f5",
+      "source_build_sha256": "f3e98462c0be7b42fb2fb776ef9d4b6841b4e5369d4de67fc5bb9f4f32cdfae2",
+      "source_inputs_unchanged": true,
+      "stderr": {
+        "bytes": 0,
+        "lines": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "text": ""
+      },
+      "stdout": {
+        "bytes": 2487,
+        "last_line": "fem_regional_material_check=pass anatomical_wall_qualified=false source_density_supplied=false active_cardiac_source_reproduced=false",
+        "lines": 15,
+        "sha256": "7090b56fe106f21ede29b556dd182fcbe27afe9a5855a7e4da3aa2dab59ee2a4"
+      },
+      "timed_out": false,
+      "tool_path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-137/matter/numi-matter-fem-regional-material-check",
+      "tool_sha256": "69a7cb2e875cec784fb4a427c35d941acac6cc7e7733fe422226207ec2d072d1",
+      "wall_seconds": 214.51846345799277
+    }
+  ],
+  "coverage_note": "Four direct operator tools use cache mode 0. fem_material_frame executes both direct mode 0 and strict cached mode 1. No direct tool in this five-case suite selects cache mode 2; mode 2 was source-reviewed separately.",
+  "input_scope_note": "All five predictions record 797 hashed inputs each (785 source, 10 runtime, 2 external). The audit rehashed every one at its recorded source_snapshot/runtime_dir/external_inputs path; per-run receipts also report unchanged inputs.",
+  "recorded_input_hashes_per_case": 797,
+  "runtime_build_dir": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-137",
+  "schema": "numi.cardboard.native439_abi_adjudication.v1",
+  "scope": "Direct-operator ABI regression only. No full coupon, calibrated material qualification, or physical cardboard assembly claim.",
+  "source_build_path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-137/source-build.json",
+  "source_build_sha256": "f3e98462c0be7b42fb2fb776ef9d4b6841b4e5369d4de67fc5bb9f4f32cdfae2",
+  "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-repeated-cauchy-fallback-137",
+  "suite_manifest_sha256": "abe446fdfc56181a116fefee49068e50f483492fcd58c26d6868bd08f884dc61",
+  "suite_path": "/Users/home/cardboard-implementation-20261014/native/source137-direct-operator-abi-439",
+  "suite_receipt_sha256": "7d4a848710039d67ec9c938ece76940791d08c39f169be4228e3e6b42984bc91",
+  "timing_note": "The regional material native run took 214.518 seconds within its 240-second bound. Earlier regional-material CTest records inspected for source107/115/137 were --cpu-only (~0.71\u20130.76 seconds), not comparable GPU timings; no earlier standalone native regional-material duration was found.",
+  "total_wall_seconds": 314.1111827500281,
+  "verdict": "PASS_FIVE_NATIVE_REGRESSION_CASES",
+  "verified_suite_manifest_entries": 33
+}

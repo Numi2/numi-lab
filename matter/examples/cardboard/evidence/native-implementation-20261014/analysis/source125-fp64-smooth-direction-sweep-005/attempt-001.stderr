@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "/Users/home/cardboard-implementation-20261014/analysis/source125-fp64-smooth-direction-sweep-005/sweep.py", line 567, in <module>
+    main()
+  File "/Users/home/cardboard-implementation-20261014/analysis/source125-fp64-smooth-direction-sweep-005/sweep.py", line 418, in main
+    projection = projection_summary(ids, result)
+  File "/Users/home/cardboard-implementation-20261014/analysis/source125-fp64-smooth-direction-sweep-005/sweep.py", line 369, in projection_summary
+    'refinement_updates_total': int(np.sum(refinements)),
+  File "/Users/home/.pyenv/versions/3.10.12/lib/python3.10/site-packages/numpy/_core/fromnumeric.py", line 2466, in sum
+    return _wrapreduction(
+  File "/Users/home/.pyenv/versions/3.10.12/lib/python3.10/site-packages/numpy/_core/fromnumeric.py", line 86, in _wrapreduction
+    return ufunc.reduce(obj, axis, dtype, out, **passkwargs)
+TypeError: unsupported operand type(s) for +: 'dict' and 'dict'

@@ -1,0 +1,3724 @@
+{
+  "build_artifacts": {
+    "133": {
+      "artifacts": {
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/lib/libmetalrobo.dylib": {
+          "bytes": 8449664,
+          "expected_sha256": "4654be4288f62d662468a7c31565b259648c001e833201b58da4b33d5a52405d",
+          "matches": true,
+          "observed_sha256": "4654be4288f62d662468a7c31565b259648c001e833201b58da4b33d5a52405d"
+        },
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/matter/numi-matter-cardboard-probe": {
+          "bytes": 2621048,
+          "expected_sha256": "be71e8eeeaefbb690b3e0dda427812afa24d091d6f97bbf4e2b7ceffd075d55f",
+          "matches": true,
+          "observed_sha256": "be71e8eeeaefbb690b3e0dda427812afa24d091d6f97bbf4e2b7ceffd075d55f"
+        },
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/matter/shaders/NumiMatter.metallib": {
+          "bytes": 6692507,
+          "expected_sha256": "b0f6c901e2fa7ddd129d3d22e3fc61caf93089863c556e555351d322736ec187",
+          "matches": true,
+          "observed_sha256": "b0f6c901e2fa7ddd129d3d22e3fc61caf93089863c556e555351d322736ec187"
+        },
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/matter/shaders/NumiMatterPhysicalStateDigest.metallib": {
+          "bytes": 80076,
+          "expected_sha256": "0401b29d3ac2165153f36bea19786be653a10a242eed140e1c9008595ec1f729",
+          "matches": true,
+          "observed_sha256": "0401b29d3ac2165153f36bea19786be653a10a242eed140e1c9008595ec1f729"
+        },
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/shaders/MetalRobo.metallib": {
+          "bytes": 5300911,
+          "expected_sha256": "61a548c69e6ec9c5c95480d54dbcf2fd851744e2a5e799397c59960e2fb27334",
+          "matches": true,
+          "observed_sha256": "61a548c69e6ec9c5c95480d54dbcf2fd851744e2a5e799397c59960e2fb27334"
+        },
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/shaders/MetalRoboHyperPolicy.metallib": {
+          "bytes": 48434,
+          "expected_sha256": "0229cfae6afd3f1c75244e6814dd542e07a0f2a8082a636b1a6038dfa2573cef",
+          "matches": true,
+          "observed_sha256": "0229cfae6afd3f1c75244e6814dd542e07a0f2a8082a636b1a6038dfa2573cef"
+        },
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/shaders/NumiNeuron.metallib": {
+          "bytes": 66974,
+          "expected_sha256": "e7243f197f9312ff28abefc6ffe5b17b3f52916175b445e65e026f760e42665a",
+          "matches": true,
+          "observed_sha256": "e7243f197f9312ff28abefc6ffe5b17b3f52916175b445e65e026f760e42665a"
+        }
+      },
+      "metadata": {
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeCache.txt": {
+          "bytes": 28002,
+          "expected_sha256": "fab8c4456cef31b80670183a5dbcb2761efa050d16e6eee7c8c69b083c07ec6b",
+          "matches": true,
+          "observed_sha256": "fab8c4456cef31b80670183a5dbcb2761efa050d16e6eee7c8c69b083c07ec6b"
+        },
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/compile_commands.json": {
+          "bytes": 477868,
+          "expected_sha256": "d112eac628c198b3716325bd7d200c85fa8ce6e027b10bd49a2c7ef254fe0638",
+          "matches": true,
+          "observed_sha256": "d112eac628c198b3716325bd7d200c85fa8ce6e027b10bd49a2c7ef254fe0638"
+        }
+      },
+      "source_build_receipt": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/source-build.json",
+      "source_build_receipt_sha256": "6f6d8876a260b77cfbcf6823d6ad439ecf601a7c93b3b3611dbf41c1fdbf0951",
+      "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-base-state-cauchy-armijo-133",
+      "targets": [
+        "numi-matter-cardboard-probe"
+      ]
+    },
+    "134": {
+      "artifacts": {
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-134/matter/numi-matter-cardboard-tangent-cache-projection-reuse-check": {
+          "bytes": 499240,
+          "expected_sha256": "dcb1c280678105fbb3b86068eccbfe19aa2dae227e0bc3486e57447916649bb6",
+          "matches": true,
+          "observed_sha256": "dcb1c280678105fbb3b86068eccbfe19aa2dae227e0bc3486e57447916649bb6"
+        },
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-134/matter/shaders/NumiMatter.metallib": {
+          "bytes": 6860129,
+          "expected_sha256": "671cf60821c89edfe9ea3627053ce29b7625c23c62bd6066f23ff4fcf28da933",
+          "matches": true,
+          "observed_sha256": "671cf60821c89edfe9ea3627053ce29b7625c23c62bd6066f23ff4fcf28da933"
+        },
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-134/matter/shaders/NumiMatterPhysicalStateDigest.metallib": {
+          "bytes": 80076,
+          "expected_sha256": "0401b29d3ac2165153f36bea19786be653a10a242eed140e1c9008595ec1f729",
+          "matches": true,
+          "observed_sha256": "0401b29d3ac2165153f36bea19786be653a10a242eed140e1c9008595ec1f729"
+        }
+      },
+      "metadata": {
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-134/CMakeCache.txt": {
+          "bytes": 28050,
+          "expected_sha256": "858747346f13bc905ad61688854d0cf0724a200f7465f84cea9b10566ed27190",
+          "matches": true,
+          "observed_sha256": "858747346f13bc905ad61688854d0cf0724a200f7465f84cea9b10566ed27190"
+        },
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-134/compile_commands.json": {
+          "bytes": 500211,
+          "expected_sha256": "d6399180d5a95f2f5c6f670c35d2aa4056077134177d870cd31c7d7fa76616e1",
+          "matches": true,
+          "observed_sha256": "d6399180d5a95f2f5c6f670c35d2aa4056077134177d870cd31c7d7fa76616e1"
+        }
+      },
+      "source_build_receipt": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-134/source-build.json",
+      "source_build_receipt_sha256": "10dfb53dd3878faa84b6cec07277b1b1cf379327384249dbff2917afb2258f61",
+      "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-cache-projection-reuse-checker-fixed-134",
+      "targets": [
+        "numi-matter-cardboard-tangent-cache-projection-reuse-check"
+      ]
+    },
+    "135": {
+      "artifacts": {
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/lib/libmetalrobo.dylib": {
+          "bytes": 8449664,
+          "expected_sha256": "9d064d7129268c4e43f4731bb632f786c178c3ead054441aa85d0475153a8240",
+          "matches": true,
+          "observed_sha256": "9d064d7129268c4e43f4731bb632f786c178c3ead054441aa85d0475153a8240"
+        },
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/matter/numi-matter-cardboard-probe": {
+          "bytes": 2621048,
+          "expected_sha256": "f5f7bacc060a0da28cd29b05de70d8bfbf091837246b73030fe1dca91a5c48fe",
+          "matches": true,
+          "observed_sha256": "f5f7bacc060a0da28cd29b05de70d8bfbf091837246b73030fe1dca91a5c48fe"
+        },
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/matter/shaders/NumiMatter.metallib": {
+          "bytes": 6692507,
+          "expected_sha256": "b0f6c901e2fa7ddd129d3d22e3fc61caf93089863c556e555351d322736ec187",
+          "matches": true,
+          "observed_sha256": "b0f6c901e2fa7ddd129d3d22e3fc61caf93089863c556e555351d322736ec187"
+        },
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/matter/shaders/NumiMatterPhysicalStateDigest.metallib": {
+          "bytes": 80076,
+          "expected_sha256": "0401b29d3ac2165153f36bea19786be653a10a242eed140e1c9008595ec1f729",
+          "matches": true,
+          "observed_sha256": "0401b29d3ac2165153f36bea19786be653a10a242eed140e1c9008595ec1f729"
+        },
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/shaders/MetalRobo.metallib": {
+          "bytes": 5300911,
+          "expected_sha256": "61a548c69e6ec9c5c95480d54dbcf2fd851744e2a5e799397c59960e2fb27334",
+          "matches": true,
+          "observed_sha256": "61a548c69e6ec9c5c95480d54dbcf2fd851744e2a5e799397c59960e2fb27334"
+        },
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/shaders/MetalRoboHyperPolicy.metallib": {
+          "bytes": 48434,
+          "expected_sha256": "0229cfae6afd3f1c75244e6814dd542e07a0f2a8082a636b1a6038dfa2573cef",
+          "matches": true,
+          "observed_sha256": "0229cfae6afd3f1c75244e6814dd542e07a0f2a8082a636b1a6038dfa2573cef"
+        },
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/shaders/NumiNeuron.metallib": {
+          "bytes": 66974,
+          "expected_sha256": "e7243f197f9312ff28abefc6ffe5b17b3f52916175b445e65e026f760e42665a",
+          "matches": true,
+          "observed_sha256": "e7243f197f9312ff28abefc6ffe5b17b3f52916175b445e65e026f760e42665a"
+        }
+      },
+      "metadata": {
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeCache.txt": {
+          "bytes": 28026,
+          "expected_sha256": "cb9a2e2de4d77bf7ffd1dfeeddf090549c93b8a9f8e1d57e6271b08f9b3582f2",
+          "matches": true,
+          "observed_sha256": "cb9a2e2de4d77bf7ffd1dfeeddf090549c93b8a9f8e1d57e6271b08f9b3582f2"
+        },
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/compile_commands.json": {
+          "bytes": 488290,
+          "expected_sha256": "e2b063ca2b8d9f0ad070fe542c1402051284f8998ed8a13aef789d04caf5bf92",
+          "matches": true,
+          "observed_sha256": "e2b063ca2b8d9f0ad070fe542c1402051284f8998ed8a13aef789d04caf5bf92"
+        }
+      },
+      "source_build_receipt": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/source-build.json",
+      "source_build_receipt_sha256": "5f701259422feb34672bab8c78fab5ef3656b017d6e1a82b6f783215b958d61d",
+      "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-cauchy-positive-mass-admission-135",
+      "targets": [
+        "numi-matter-cardboard-probe"
+      ]
+    },
+    "136": {
+      "artifacts": {
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/lib/libmetalrobo.dylib": {
+          "bytes": 8451888,
+          "expected_sha256": "5a1141fb6c93f1379d5c3ab60b8d391ddeadc7f79e1c0520f361a59db80a2d51",
+          "matches": true,
+          "observed_sha256": "5a1141fb6c93f1379d5c3ab60b8d391ddeadc7f79e1c0520f361a59db80a2d51"
+        },
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/matter/numi-matter-cardboard-probe": {
+          "bytes": 2623272,
+          "expected_sha256": "1cde2b3f6451c39f06474135ada8d4517740882364fb87fbf4a664cf99ee1076",
+          "matches": true,
+          "observed_sha256": "1cde2b3f6451c39f06474135ada8d4517740882364fb87fbf4a664cf99ee1076"
+        },
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/matter/shaders/NumiMatter.metallib": {
+          "bytes": 6885574,
+          "expected_sha256": "db388cc46299be2786241f483a1a72d5d789da5ec2f4ec29724ba1c7a9990320",
+          "matches": true,
+          "observed_sha256": "db388cc46299be2786241f483a1a72d5d789da5ec2f4ec29724ba1c7a9990320"
+        },
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/matter/shaders/NumiMatterPhysicalStateDigest.metallib": {
+          "bytes": 80076,
+          "expected_sha256": "0401b29d3ac2165153f36bea19786be653a10a242eed140e1c9008595ec1f729",
+          "matches": true,
+          "observed_sha256": "0401b29d3ac2165153f36bea19786be653a10a242eed140e1c9008595ec1f729"
+        },
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/shaders/MetalRobo.metallib": {
+          "bytes": 5300911,
+          "expected_sha256": "61a548c69e6ec9c5c95480d54dbcf2fd851744e2a5e799397c59960e2fb27334",
+          "matches": true,
+          "observed_sha256": "61a548c69e6ec9c5c95480d54dbcf2fd851744e2a5e799397c59960e2fb27334"
+        },
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/shaders/MetalRoboHyperPolicy.metallib": {
+          "bytes": 48434,
+          "expected_sha256": "0229cfae6afd3f1c75244e6814dd542e07a0f2a8082a636b1a6038dfa2573cef",
+          "matches": true,
+          "observed_sha256": "0229cfae6afd3f1c75244e6814dd542e07a0f2a8082a636b1a6038dfa2573cef"
+        },
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/shaders/NumiNeuron.metallib": {
+          "bytes": 66974,
+          "expected_sha256": "e7243f197f9312ff28abefc6ffe5b17b3f52916175b445e65e026f760e42665a",
+          "matches": true,
+          "observed_sha256": "e7243f197f9312ff28abefc6ffe5b17b3f52916175b445e65e026f760e42665a"
+        }
+      },
+      "metadata": {
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeCache.txt": {
+          "bytes": 28026,
+          "expected_sha256": "417aac8c58012753b99d7100ecea5b7ae598935e006fdbaff40e9a627e84a830",
+          "matches": true,
+          "observed_sha256": "417aac8c58012753b99d7100ecea5b7ae598935e006fdbaff40e9a627e84a830"
+        },
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/compile_commands.json": {
+          "bytes": 488290,
+          "expected_sha256": "4b1b1b5cf827419d3f527052d05111a125d8cc6d983232ac004a67abf129bf0e",
+          "matches": true,
+          "observed_sha256": "4b1b1b5cf827419d3f527052d05111a125d8cc6d983232ac004a67abf129bf0e"
+        }
+      },
+      "source_build_receipt": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/source-build.json",
+      "source_build_receipt_sha256": "49b7460557cfa83881e31456d3823a6a313021efef5d347b459a2a95db12b80a",
+      "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-cache-projection-reuse-runtime-136",
+      "targets": [
+        "numi-matter-cardboard-probe"
+      ]
+    }
+  },
+  "files": {
+    "133": [
+      {
+        "allocated_bytes": 200704,
+        "bytes": 198772,
+        "device": 16777233,
+        "inode": 192060146,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/apple/CaptureManifestJSON.mm.o.d",
+        "sha256": "4c666d6c1fef4736eb817b37c8e94d422d3c4b883c9e09416bde7bf58713c474"
+      },
+      {
+        "allocated_bytes": 286720,
+        "bytes": 286038,
+        "device": 16777233,
+        "inode": 192060150,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/apple/EnvironmentCooker.mm.o.d",
+        "sha256": "873d0584d6f9478b12856afed51c5b926331686c49ff97666c2da2f88b579b14"
+      },
+      {
+        "allocated_bytes": 204800,
+        "bytes": 202154,
+        "device": 16777233,
+        "inode": 192060148,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/apple/HardwareOutcomeJSON.mm.o.d",
+        "sha256": "928a040340d3dd81efb9d9c01d91cb1e669e60a90e16f789042418f5b9371ea8"
+      },
+      {
+        "allocated_bytes": 344064,
+        "bytes": 342924,
+        "device": 16777233,
+        "inode": 192060162,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/apple/VisualAssetCooker.mm.o.d",
+        "sha256": "9fc11202eb868c03ae917cf1f078a173be1dd3997844640904ba52c8a1917578"
+      },
+      {
+        "allocated_bytes": 155648,
+        "bytes": 152178,
+        "device": 16777233,
+        "inode": 192060207,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/c_api.cpp.o.d",
+        "sha256": "8b8c5ef009004ffc3755b6d9a9703ae8c6ff9e1fedb4e67fa329c1bb30345d6d"
+      },
+      {
+        "allocated_bytes": 122880,
+        "bytes": 119226,
+        "device": 16777233,
+        "inode": 192060045,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/ArticulatedActuation.cpp.o.d",
+        "sha256": "d6c321cb520c02df9438d4fa09ddb38eb72963f5d946213672c7dc4158b659c1"
+      },
+      {
+        "allocated_bytes": 114688,
+        "bytes": 113172,
+        "device": 16777233,
+        "inode": 192060123,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/ArticulatedCollision.cpp.o.d",
+        "sha256": "952d57f5efaa51bc2efc20f66a5e12baff83c4fe4656072ad046db1c63e90673"
+      },
+      {
+        "allocated_bytes": 114688,
+        "bytes": 110788,
+        "device": 16777233,
+        "inode": 192060110,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/ArticulatedContact.cpp.o.d",
+        "sha256": "6e120320e603d8f177c115576f6db84905906b109b25d7be69cfb5ae30e49ee5"
+      },
+      {
+        "allocated_bytes": 114688,
+        "bytes": 111464,
+        "device": 16777233,
+        "inode": 192060047,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/ArticulatedDynamics.cpp.o.d",
+        "sha256": "1ccc9ccba5563bf7c1eae9b9dd8a9bb5f249fea4137f013455aa5f9b372eed6b"
+      },
+      {
+        "allocated_bytes": 122880,
+        "bytes": 119522,
+        "device": 16777233,
+        "inode": 192060108,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/ArticulatedJointLimits.cpp.o.d",
+        "sha256": "8c8986567c166e72fb2dbc884407352b34952f2dfa549255d6b642d1b6f872bf"
+      },
+      {
+        "allocated_bytes": 122880,
+        "bytes": 119815,
+        "device": 16777233,
+        "inode": 192060118,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/ArticulatedMixedConstraints.cpp.o.d",
+        "sha256": "c2d42b1c791e6d8e27defe264594e18c3d1a36836b33c4dce1246223220ec3e3"
+      },
+      {
+        "allocated_bytes": 122880,
+        "bytes": 121782,
+        "device": 16777233,
+        "inode": 192060120,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/ArticulatedRigidCollision.cpp.o.d",
+        "sha256": "31c73d5a96ba26211e52e68fed6096f63a5b820366578f764001a2ccb01bb340"
+      },
+      {
+        "allocated_bytes": 126976,
+        "bytes": 123124,
+        "device": 16777233,
+        "inode": 192060125,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/ArticulatedRigidWorld.cpp.o.d",
+        "sha256": "83396b6559be7cb88f98cfdbcc69ad1c8e17b13950705569e5847a41fde878a4"
+      },
+      {
+        "allocated_bytes": 122880,
+        "bytes": 121891,
+        "device": 16777233,
+        "inode": 192060127,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/ArticulatedWorld.cpp.o.d",
+        "sha256": "d79ecdf2009d010b2ca86eda60b4427706dbddf1811d9234e9cfc1de09cd32e6"
+      },
+      {
+        "allocated_bytes": 110592,
+        "bytes": 108743,
+        "device": 16777233,
+        "inode": 192060048,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/Collision.cpp.o.d",
+        "sha256": "cfbe9a1596cd15f6dd30247c35b552297cd5546b91d9ba207fed14e4994843bc"
+      },
+      {
+        "allocated_bytes": 90112,
+        "bytes": 86160,
+        "device": 16777233,
+        "inode": 192059951,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/CompiledMetalMultiArticulatedContactProgram.cpp.o.d",
+        "sha256": "d830f199c51f8b786414b1c805e9f23422cf9e1f9444942706e309dc07e65539"
+      },
+      {
+        "allocated_bytes": 118784,
+        "bytes": 114945,
+        "device": 16777233,
+        "inode": 192059950,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/CompiledMetalMultiArticulatedProgram.cpp.o.d",
+        "sha256": "097cdbb9c8093c521087d2e2855521a323860a9e5ea8d15124f4e14c4770ade2"
+      },
+      {
+        "allocated_bytes": 114688,
+        "bytes": 113863,
+        "device": 16777233,
+        "inode": 192060133,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/ConstraintIR.cpp.o.d",
+        "sha256": "34251c0dc069c50a61bdb80c211636b70f35bf35dd6b87cbbb319e409b09512e"
+      },
+      {
+        "allocated_bytes": 114688,
+        "bytes": 112332,
+        "device": 16777233,
+        "inode": 192060135,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/ConstraintSolver.cpp.o.d",
+        "sha256": "ad1368beb7064e58c33588204ec1777f5d96fc30123534878ef6f0ef8bac0713"
+      },
+      {
+        "allocated_bytes": 122880,
+        "bytes": 119145,
+        "device": 16777233,
+        "inode": 192060114,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/CoupledArticulatedRigidContact.cpp.o.d",
+        "sha256": "c80f84d0eea67b9c3d1c9b3a441afaf7a09acdd271f1a42ad70165c56f5b0be8"
+      },
+      {
+        "allocated_bytes": 106496,
+        "bytes": 105878,
+        "device": 16777233,
+        "inode": 192059939,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/CpuDynamics.cpp.o.d",
+        "sha256": "d45d43ffdc6f3bf8026494d2123fdc37cb451def1afbcd3f946aeae15e61a4df"
+      },
+      {
+        "allocated_bytes": 118784,
+        "bytes": 115195,
+        "device": 16777233,
+        "inode": 192060032,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/DiscreteElasticRod.cpp.o.d",
+        "sha256": "12ffb3c90ee948119d2064f80c0ef19a481a549500e9eeb9500e5c55024c3608"
+      },
+      {
+        "allocated_bytes": 114688,
+        "bytes": 113034,
+        "device": 16777233,
+        "inode": 192060015,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/EmbodiedTactile.cpp.o.d",
+        "sha256": "64ac72dc6e85ebac9ce302b89f859bba73ede755ba99461e7e9bafddd822f16a"
+      },
+      {
+        "allocated_bytes": 114688,
+        "bytes": 111184,
+        "device": 16777233,
+        "inode": 192059941,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/EngineModel.cpp.o.d",
+        "sha256": "efe521e9c42ccea080fb5df98f9ea8e052c5b61dc9de8b91617e3d3a10f02ec7"
+      },
+      {
+        "allocated_bytes": 122880,
+        "bytes": 121173,
+        "device": 16777233,
+        "inode": 192059943,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/EngineModelComposer.cpp.o.d",
+        "sha256": "091b3adf8772832493eedff5484c8ee8a44420b50a0e6ed3ec1751af6f78c08b"
+      },
+      {
+        "allocated_bytes": 139264,
+        "bytes": 138543,
+        "device": 16777233,
+        "inode": 192059962,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/EpisodeTwinCompiler.cpp.o.d",
+        "sha256": "78a7bd82404443ee09191f767d0600e445057eeabf381f826eec3bddc845a6c3"
+      },
+      {
+        "allocated_bytes": 81920,
+        "bytes": 78270,
+        "device": 16777233,
+        "inode": 192059931,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/Franka.cpp.o.d",
+        "sha256": "4ecd02adba8e999e9f50b59258c2ababc8bbc972a5e7b084de25da2ad866a356"
+      },
+      {
+        "allocated_bytes": 86016,
+        "bytes": 83164,
+        "device": 16777233,
+        "inode": 192059935,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/FrankaEngine.cpp.o.d",
+        "sha256": "e1d81730a892241ef92028211194d7c539f52063908c13afc555aff9639facad"
+      },
+      {
+        "allocated_bytes": 110592,
+        "bytes": 110483,
+        "device": 16777233,
+        "inode": 192059937,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/FrankaHand.cpp.o.d",
+        "sha256": "dec7dbc8582485cdf2c7b1ab385ea11e92c2d646b9495f9bb16eae8db7effc25"
+      },
+      {
+        "allocated_bytes": 131072,
+        "bytes": 131031,
+        "device": 16777233,
+        "inode": 192059947,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/FrankaWorld.cpp.o.d",
+        "sha256": "8c8033c6cd1f579e9a626e8d52856abf6be8f096cf69ae8258a35558f397f7cb"
+      },
+      {
+        "allocated_bytes": 106496,
+        "bytes": 106309,
+        "device": 16777233,
+        "inode": 192060034,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/FreeBodyDynamics.cpp.o.d",
+        "sha256": "abe46e2f2b7ce9ab5befce40eb1510130dd3f902cb3bbec37645d23e688f384a"
+      },
+      {
+        "allocated_bytes": 114688,
+        "bytes": 110848,
+        "device": 16777233,
+        "inode": 192059994,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/G1.cpp.o.d",
+        "sha256": "3f74f2f2e615fce8b47e67260a7736d9a80f2d8c08071fc8801edb940e309ca2"
+      },
+      {
+        "allocated_bytes": 118784,
+        "bytes": 115123,
+        "device": 16777233,
+        "inode": 192059990,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/GeometryCooker.cpp.o.d",
+        "sha256": "7daba149adf7d6ae715b18f97aae5161755f42c31b8c06dc018ca21f314d8133"
+      },
+      {
+        "allocated_bytes": 122880,
+        "bytes": 121966,
+        "device": 16777233,
+        "inode": 192060040,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/HeterogeneousWorld.cpp.o.d",
+        "sha256": "7e3e13f31e4f1a37e2448b7fb2054396b5274fe039ef63a5701ae24dae78aa0a"
+      },
+      {
+        "allocated_bytes": 98304,
+        "bytes": 97988,
+        "device": 16777233,
+        "inode": 192060075,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/HumanBehaviorAcceptedStateRoot.cpp.o.d",
+        "sha256": "5f05a5d2fae86416b5ad00984104c3de3ae066ef4a3ea454f86bad704685c7f7"
+      },
+      {
+        "allocated_bytes": 131072,
+        "bytes": 130487,
+        "device": 16777233,
+        "inode": 192060081,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/HumanBehaviorNativeAudit.cpp.o.d",
+        "sha256": "54bb2f435e8cb8afec5a7785c126cb1858c352d5c9c60f3a62421929456bf975"
+      },
+      {
+        "allocated_bytes": 110592,
+        "bytes": 109479,
+        "device": 16777233,
+        "inode": 192060072,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/HumanBehaviorProgram.cpp.o.d",
+        "sha256": "ec922486a3d54b7b1896f19692371390a23b8f674c1d8bb0c1f97dd430dad964"
+      },
+      {
+        "allocated_bytes": 98304,
+        "bytes": 97667,
+        "device": 16777233,
+        "inode": 192060079,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/HumanBehaviorStateComponents.cpp.o.d",
+        "sha256": "9ee73d6ef65e6fbda39e9c13b34e4cceff8acef4b048c681e54845cc9c7c92ee"
+      },
+      {
+        "allocated_bytes": 110592,
+        "bytes": 110388,
+        "device": 16777233,
+        "inode": 192060077,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/HumanBehaviorTrial.cpp.o.d",
+        "sha256": "3d2b77af7a1d82e8a955e83a28c0ff1f77e5128736ba5f882507dc49370ab6ac"
+      },
+      {
+        "allocated_bytes": 135168,
+        "bytes": 133183,
+        "device": 16777233,
+        "inode": 192060003,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/HyperPolicyPacks.cpp.o.d",
+        "sha256": "38c1ede8e422123752194a48f01dcd5a1a9ea45177b73f9d9416405d5f2effe9"
+      },
+      {
+        "allocated_bytes": 126976,
+        "bytes": 124312,
+        "device": 16777233,
+        "inode": 192060001,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/HyperPolicyProgram.cpp.o.d",
+        "sha256": "1205f3da68d5d8aee72f9fefbfdd1943a2f737648a14a38ca2bb280bc21acdfc"
+      },
+      {
+        "allocated_bytes": 135168,
+        "bytes": 132661,
+        "device": 16777233,
+        "inode": 192060019,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/LearningPacks.cpp.o.d",
+        "sha256": "fdd90395e3c331ee022654f22f5367a243e34018189e01481d889c684dbd5ced"
+      },
+      {
+        "allocated_bytes": 131072,
+        "bytes": 129810,
+        "device": 16777233,
+        "inode": 192060007,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/LocomotionWorld.cpp.o.d",
+        "sha256": "69fb06dae3507a72142367787eefb73e906e7c60b3e1a49d91412037683c073b"
+      },
+      {
+        "allocated_bytes": 102400,
+        "bytes": 102158,
+        "device": 16777233,
+        "inode": 192059956,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/MatterSnapshotArchive.cpp.o.d",
+        "sha256": "0070a88d7ba7c26e95c2f274b77f745c767209c771ba8d978261216c7feca6fa"
+      },
+      {
+        "allocated_bytes": 114688,
+        "bytes": 111746,
+        "device": 16777233,
+        "inode": 192060051,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/MillardMuscleReference.cpp.o.d",
+        "sha256": "244069dde1d06fe7486cfdda51e2eccdfbe2ba0c88b4741f69f830c7584daaf5"
+      },
+      {
+        "allocated_bytes": 94208,
+        "bytes": 91332,
+        "device": 16777233,
+        "inode": 192059930,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/Model.cpp.o.d",
+        "sha256": "2bce1f557ffc9f38b65cd2da2258287c72c0ba368924a6fcf2ecd9b83e25bcd2"
+      },
+      {
+        "allocated_bytes": 131072,
+        "bytes": 128777,
+        "device": 16777233,
+        "inode": 192060010,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/MotionCompiler.cpp.o.d",
+        "sha256": "c47004961d637df676ead8d5b3ed6ae19d101587c3d0e08723a3c4021425f0b7"
+      },
+      {
+        "allocated_bytes": 114688,
+        "bytes": 111482,
+        "device": 16777233,
+        "inode": 192060055,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/MujocoMuscleReference.cpp.o.d",
+        "sha256": "d439fcf0b438af90d6431b3f28fc8bb20d30e80d17e1c9ea759b92e333aafd92"
+      },
+      {
+        "allocated_bytes": 122880,
+        "bytes": 119802,
+        "device": 16777233,
+        "inode": 192060139,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/MultiArticulatedContact.cpp.o.d",
+        "sha256": "af0d0f701c5b6898f5d9c49f13960501e9add5c89db12f5c4b5350c6e2ee22bf"
+      },
+      {
+        "allocated_bytes": 122880,
+        "bytes": 119517,
+        "device": 16777233,
+        "inode": 192060128,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/MultiArticulatedWorld.cpp.o.d",
+        "sha256": "dcdc8e14d7a8c7dabcad991f23130bcf020768c9ed04e77aff29746f494b0e07"
+      },
+      {
+        "allocated_bytes": 94208,
+        "bytes": 92526,
+        "device": 16777233,
+        "inode": 192060036,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/Multicopter.cpp.o.d",
+        "sha256": "d4a909cfcdd22d2eb1d357dad778b7af8d59ab6545b9b6c55c3eeff8138d5656"
+      },
+      {
+        "allocated_bytes": 126976,
+        "bytes": 125231,
+        "device": 16777233,
+        "inode": 192059968,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/NeuronCulture.cpp.o.d",
+        "sha256": "e5d8620cd103a1e445315d1f571dafb5afec03a485045bf9422d1ce8bfb3fa05"
+      },
+      {
+        "allocated_bytes": 131072,
+        "bytes": 128175,
+        "device": 16777233,
+        "inode": 192059978,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/NeuronCultureArtifacts.cpp.o.d",
+        "sha256": "46522cfbe4221e532370c58cac5e7689fad7816f396b18d8e3365d0c50c9a7e0"
+      },
+      {
+        "allocated_bytes": 122880,
+        "bytes": 121008,
+        "device": 16777233,
+        "inode": 192059974,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/NeuronCultureEmbodiment.cpp.o.d",
+        "sha256": "24aa2ebdf480de20942538cfbdb777108519686721aa8baab72c5b860267f80d"
+      },
+      {
+        "allocated_bytes": 126976,
+        "bytes": 124105,
+        "device": 16777233,
+        "inode": 192059976,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/NeuronCultureProtocol.cpp.o.d",
+        "sha256": "26d6d90641c4844048e93a6d1e4c8ec9d27c432410337013bb36059627170041"
+      },
+      {
+        "allocated_bytes": 16384,
+        "bytes": 16139,
+        "device": 16777233,
+        "inode": 192060060,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/NumanXExactTransaction.cpp.o.d",
+        "sha256": "6c0a3bd4c54a9ef0966d03a9b40c71bec1cf68af723a5e943ce20eda915ee714"
+      },
+      {
+        "allocated_bytes": 106496,
+        "bytes": 105779,
+        "device": 16777233,
+        "inode": 192060087,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/NumiHumanCartilage.cpp.o.d",
+        "sha256": "fd5082f9c6a7b84e33b8a825bc5d197c868f1f1e615c6d6e041fa969f29ced36"
+      },
+      {
+        "allocated_bytes": 126976,
+        "bytes": 123525,
+        "device": 16777233,
+        "inode": 192060105,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/NumiHumanContinuumMap.cpp.o.d",
+        "sha256": "d93758e64950b4c9f36179e10aef0cc6b44882b0ff47e0ca7a85f1697a51ec98"
+      },
+      {
+        "allocated_bytes": 110592,
+        "bytes": 108089,
+        "device": 16777233,
+        "inode": 192060061,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/NumiHumanInitialState.cpp.o.d",
+        "sha256": "de37467f37623c0a141f741a914509fb9c5f6fa69e4ad3fadf80f96a2089c03b"
+      },
+      {
+        "allocated_bytes": 106496,
+        "bytes": 106473,
+        "device": 16777233,
+        "inode": 192060053,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/NumiHumanJointEquality.cpp.o.d",
+        "sha256": "40b93f09804bfef8ce9355b9a807101e7fcd6caa651629b8997d408dc761dd64"
+      },
+      {
+        "allocated_bytes": 106496,
+        "bytes": 105764,
+        "device": 16777233,
+        "inode": 192060097,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/NumiHumanKnee.cpp.o.d",
+        "sha256": "d1590251616a80ae131d3b23f63f37a9ff3e349851363e8c122cb61dfeeb80ef"
+      },
+      {
+        "allocated_bytes": 114688,
+        "bytes": 110869,
+        "device": 16777233,
+        "inode": 192060099,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/NumiHumanKneeContact.cpp.o.d",
+        "sha256": "a716474250132bb9ddf475e5deb90a6dc2a928e1cac7771e1a71b5cde3d4f6d3"
+      },
+      {
+        "allocated_bytes": 139264,
+        "bytes": 136318,
+        "device": 16777233,
+        "inode": 192060112,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/NumiHumanLoadedKnee.cpp.o.d",
+        "sha256": "f4c49787f95c90c22669094b32006fd68aacc6a4251c0609bb837129bf826625"
+      },
+      {
+        "allocated_bytes": 98304,
+        "bytes": 96837,
+        "device": 16777233,
+        "inode": 192060101,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/NumiHumanLoadedKneeNumanX.cpp.o.d",
+        "sha256": "ab7831034c0c6950ce1967d3e0a1ccee9d4adf9e97e84f435a2bc613c6f79cb9"
+      },
+      {
+        "allocated_bytes": 233472,
+        "bytes": 229656,
+        "device": 16777233,
+        "inode": 192060088,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/NumiHumanMuscleEquilibrium.cpp.o.d",
+        "sha256": "fb191280273256d1d0b9bdd2554032f10f4ad9e4330cafcff5405f97075ffa57"
+      },
+      {
+        "allocated_bytes": 118784,
+        "bytes": 117924,
+        "device": 16777233,
+        "inode": 192060065,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/NumiHumanProductionOwnerEvidenceWriter.cpp.o.d",
+        "sha256": "4b332b83de2cad5f04584faac11c22e6abc8b041cec62b85fd3189901d0d2ca5"
+      },
+      {
+        "allocated_bytes": 122880,
+        "bytes": 120575,
+        "device": 16777233,
+        "inode": 192060067,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/NumiHumanProductionOwnerSnapshot.cpp.o.d",
+        "sha256": "7fc32bc4c922dcc78f8fa3df5597192f0de325abb7b718b9aed5f0c7a2870f1d"
+      },
+      {
+        "allocated_bytes": 57344,
+        "bytes": 54543,
+        "device": 16777233,
+        "inode": 192060057,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/NumiHumanRuntimeIdentity.cpp.o.d",
+        "sha256": "d6a729ab087ad97bfcc7195169c17613f057b8312ae4f1c3664373daa4886dd4"
+      },
+      {
+        "allocated_bytes": 135168,
+        "bytes": 132358,
+        "device": 16777233,
+        "inode": 192060069,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/NumiHumanSourceConstraints.cpp.o.d",
+        "sha256": "a8edf2f633dfd11deb11fb3a808a9e52b254c90bf7ac426275db8b475f3e1771"
+      },
+      {
+        "allocated_bytes": 110592,
+        "bytes": 109613,
+        "device": 16777233,
+        "inode": 192060043,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/NumiHumanSupport.cpp.o.d",
+        "sha256": "60a6ea83ccb702c3fd2f4bb37df6ffe2890d575471890e3b4304028bda1335ea"
+      },
+      {
+        "allocated_bytes": 114688,
+        "bytes": 110780,
+        "device": 16777233,
+        "inode": 192060089,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/NumiHumanTendon.cpp.o.d",
+        "sha256": "825e1951ef463a40720b6e46961b2501aaf329d135cd4b5329dc66c0cc1f72db"
+      },
+      {
+        "allocated_bytes": 110592,
+        "bytes": 108503,
+        "device": 16777233,
+        "inode": 192060083,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/NumiHumanTensionNetwork.cpp.o.d",
+        "sha256": "f253ff06de29730a1332c6295c744085fe30ff12a6515865ebdd4644b4ea03ca"
+      },
+      {
+        "allocated_bytes": 131072,
+        "bytes": 128795,
+        "device": 16777233,
+        "inode": 192060103,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/NumiHumanTissueBinding.cpp.o.d",
+        "sha256": "cd15ab8c858a91870909565f83586678d22d4e4cb11731caef97f857dba19c7c"
+      },
+      {
+        "allocated_bytes": 114688,
+        "bytes": 112028,
+        "device": 16777233,
+        "inode": 192060095,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/NumiHumanTissueMass.cpp.o.d",
+        "sha256": "82859d18255fa99943204a83913419df9a64c13d53164fe12f18a571ffdcbeab"
+      },
+      {
+        "allocated_bytes": 106496,
+        "bytes": 105516,
+        "device": 16777233,
+        "inode": 192059986,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/OpenSimFunction.cpp.o.d",
+        "sha256": "7fec9335466ec2b465790c745804fb927e5a4eb0da51b0506093abfdd24a0659"
+      },
+      {
+        "allocated_bytes": 114688,
+        "bytes": 111470,
+        "device": 16777233,
+        "inode": 192059992,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/OpenSimMobileRoot.cpp.o.d",
+        "sha256": "e17f22437e626ec782f2d53fa669c4b5a55f98637573625f9d43b8aaa5ea8a5f"
+      },
+      {
+        "allocated_bytes": 106496,
+        "bytes": 105946,
+        "device": 16777233,
+        "inode": 192059988,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/OpenSimSpatialTransform.cpp.o.d",
+        "sha256": "a5467fc91156e7b3c3732e081af14d9cde44f1f6ff1e9279576c1ec477615fee"
+      },
+      {
+        "allocated_bytes": 57344,
+        "bytes": 54085,
+        "device": 16777233,
+        "inode": 192060038,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/PX4X500.cpp.o.d",
+        "sha256": "40caf8217312dc7126a236916ef6ee190fb7b09b5bd909fd8d12f786f0392e8a"
+      },
+      {
+        "allocated_bytes": 122880,
+        "bytes": 120579,
+        "device": 16777233,
+        "inode": 192059945,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/ParallelABASchedule.cpp.o.d",
+        "sha256": "75b217d8eeb5e4c907d546398ec2c8de3726b9bd331fb8f36bd9670f0aa1ba62"
+      },
+      {
+        "allocated_bytes": 122880,
+        "bytes": 121751,
+        "device": 16777233,
+        "inode": 192059999,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/PolicyProgram.cpp.o.d",
+        "sha256": "78f3cb3f10b01cb16ab1d87c7ee0ae4c6f27b58d44f498c3f010efd49a98494d"
+      },
+      {
+        "allocated_bytes": 225280,
+        "bytes": 225029,
+        "device": 16777233,
+        "inode": 192060142,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/QualityContactSolver.cpp.o.d",
+        "sha256": "bfbd719235341b61f9194a4b394f7285f7b7246aab386e761a772350179c0fe4"
+      },
+      {
+        "allocated_bytes": 143360,
+        "bytes": 141486,
+        "device": 16777233,
+        "inode": 192059972,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/R2S2R.cpp.o.d",
+        "sha256": "3287f9384c2afc57f1cca134a48e956b8928cc757e57911f49e1f9f272107067"
+      },
+      {
+        "allocated_bytes": 110592,
+        "bytes": 109720,
+        "device": 16777233,
+        "inode": 192060131,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/ReferenceConicSolver.cpp.o.d",
+        "sha256": "ecb464ceab8a819bc41d4912c3c5409a6556f9d19fc1a746de44bdfeb0a19eac"
+      },
+      {
+        "allocated_bytes": 118784,
+        "bytes": 117551,
+        "device": 16777233,
+        "inode": 192060144,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/RigidBodyWorld.cpp.o.d",
+        "sha256": "4e1b70ae44020e0ee985ec603417e1fcc9a58a4823bac6547a9d60c8a3ccca07"
+      },
+      {
+        "allocated_bytes": 143360,
+        "bytes": 140956,
+        "device": 16777233,
+        "inode": 192059997,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/RobotDescriptionCooker.cpp.o.d",
+        "sha256": "04dde5a3fdf4338f206ba73d2fa5ec75c9270ea976e98dde6701f2d878a87202"
+      },
+      {
+        "allocated_bytes": 143360,
+        "bytes": 140149,
+        "device": 16777233,
+        "inode": 192059954,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/RunProgram.cpp.o.d",
+        "sha256": "0cd00af30f38bf3a772eb4cce24b49d69541798d05d11cf7f6e77c3d840363d1"
+      },
+      {
+        "allocated_bytes": 106496,
+        "bytes": 106175,
+        "device": 16777233,
+        "inode": 192060016,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/SurgicalAssets.cpp.o.d",
+        "sha256": "43cfeed51267afa53496278fa3e5b620eb58e36b1fb6f474e3208b8ba84c74d1"
+      },
+      {
+        "allocated_bytes": 114688,
+        "bytes": 113961,
+        "device": 16777233,
+        "inode": 192060021,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/SurgicalKnot.cpp.o.d",
+        "sha256": "4b0e9f60949a9a0c8464e7782d7dea5409db7bf0d8edf6859e0f2b96bccc29d6"
+      },
+      {
+        "allocated_bytes": 114688,
+        "bytes": 111314,
+        "device": 16777233,
+        "inode": 192060012,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/SurgicalPSM.cpp.o.d",
+        "sha256": "61910df4224042759a0407bb65addd876cb48f1599b34accca01a7280c2939e1"
+      },
+      {
+        "allocated_bytes": 106496,
+        "bytes": 105920,
+        "device": 16777233,
+        "inode": 192060030,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/SurgicalThreadTargeting.cpp.o.d",
+        "sha256": "258ac6e4f46baefa561d9add25cfe8258e2e8932bd003d3801602c0e93cf5043"
+      },
+      {
+        "allocated_bytes": 126976,
+        "bytes": 126423,
+        "device": 16777233,
+        "inode": 192060023,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/SurgicalVisual.cpp.o.d",
+        "sha256": "3e0e85e45fb7cb4618968f5017cb2d9ff9178bf5386f8d1ddf5a20dc9689100a"
+      },
+      {
+        "allocated_bytes": 122880,
+        "bytes": 119605,
+        "device": 16777233,
+        "inode": 192060024,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/SurgicalWorld.cpp.o.d",
+        "sha256": "75e95539e4f4e711dd0653c42219fbebff212af146b341a4805098d74b9c98ac"
+      },
+      {
+        "allocated_bytes": 135168,
+        "bytes": 132697,
+        "device": 16777233,
+        "inode": 192059984,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/Tactile.cpp.o.d",
+        "sha256": "5552f158c781cda47ddbfd24d8d6f7f6f1fe6685f607ae177afb7d278bc121ad"
+      },
+      {
+        "allocated_bytes": 126976,
+        "bytes": 125275,
+        "device": 16777233,
+        "inode": 192059981,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/TactileDebug.cpp.o.d",
+        "sha256": "76193fb55c720d29b8102197cfe5fbe12964323bf9a34709467a2b1406b3617d"
+      },
+      {
+        "allocated_bytes": 118784,
+        "bytes": 116320,
+        "device": 16777233,
+        "inode": 192060004,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/TaskProgram.cpp.o.d",
+        "sha256": "34fe2962fcb78c4740b6b0cc785a07f5edef3aaf8d6c4efd052eae063bd619c8"
+      },
+      {
+        "allocated_bytes": 147456,
+        "bytes": 144895,
+        "device": 16777233,
+        "inode": 192059966,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/VisualPlatform.cpp.o.d",
+        "sha256": "c7c93f61e86f12b7e698f2ee4c1fb00c0256700ac86548be1fe5b9002d9c18eb"
+      },
+      {
+        "allocated_bytes": 139264,
+        "bytes": 136011,
+        "device": 16777233,
+        "inode": 192059970,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/VisualPresentation.cpp.o.d",
+        "sha256": "556e9bed5337b69564dcc24fb470ece304741869f94dda92512c6946f1780a13"
+      },
+      {
+        "allocated_bytes": 139264,
+        "bytes": 136494,
+        "device": 16777233,
+        "inode": 192060028,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/Wave.cpp.o.d",
+        "sha256": "de68f3bdc3e5d16a6f68ae166ca0792241283251f06799493c81fab40100d35e"
+      },
+      {
+        "allocated_bytes": 114688,
+        "bytes": 114458,
+        "device": 16777233,
+        "inode": 192059958,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/WorldCompiler.cpp.o.d",
+        "sha256": "67487d92ea2a8f5e7d1cdda191e691cc7a3a3042cebaba494a92409f1d49fe3d"
+      },
+      {
+        "allocated_bytes": 106496,
+        "bytes": 102556,
+        "device": 16777233,
+        "inode": 192059960,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/core/WorldPack.cpp.o.d",
+        "sha256": "c0aecb6ec299678fb4a46c0a4f1ba94ce8f3a810b27b0551e52f79076dfdc36e"
+      },
+      {
+        "allocated_bytes": 253952,
+        "bytes": 250339,
+        "device": 16777233,
+        "inode": 192060177,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/metal/MetalArticulatedABA.mm.o.d",
+        "sha256": "cabb598ce72fda526a982eab6e582c5978fa0abd184ec50227dabd416e542343"
+      },
+      {
+        "allocated_bytes": 253952,
+        "bytes": 250363,
+        "device": 16777233,
+        "inode": 192060181,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/metal/MetalArticulatedInverseMass.mm.o.d",
+        "sha256": "af8aff3d0f7bf7a0d967fa003367886d7456ceeb32b0bb108f456d220d3b91dc"
+      },
+      {
+        "allocated_bytes": 299008,
+        "bytes": 296575,
+        "device": 16777233,
+        "inode": 192060168,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/metal/MetalArticulatedOperator.mm.o.d",
+        "sha256": "3800dc26560d4e376d9260b096261be4428a17bfdf41c4fe1134cd0257ac0179"
+      },
+      {
+        "allocated_bytes": 258048,
+        "bytes": 254580,
+        "device": 16777233,
+        "inode": 192060183,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/metal/MetalDiscreteElasticRod.mm.o.d",
+        "sha256": "954d2d7d99b3b5db45f9b69c8f92d99efc53f95446bb46583ee7df402bc9ecc5"
+      },
+      {
+        "allocated_bytes": 237568,
+        "bytes": 234600,
+        "device": 16777233,
+        "inode": 192060153,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/metal/MetalHumanBehaviorTelemetry.mm.o.d",
+        "sha256": "bd6f3f5eeb3e9a85cf4993370015136bc4cde0f40b78cd6d1df56ccc87637d1b"
+      },
+      {
+        "allocated_bytes": 270336,
+        "bytes": 266748,
+        "device": 16777233,
+        "inode": 192060205,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/metal/MetalHybridRenderer.mm.o.d",
+        "sha256": "c57f0ea87c76fcbadd6e6b4edeff15328792a80d01a6097556ea2c3d51e33aa8"
+      },
+      {
+        "allocated_bytes": 249856,
+        "bytes": 246013,
+        "device": 16777233,
+        "inode": 192060194,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/metal/MetalHyperPolicy.mm.o.d",
+        "sha256": "b71fe6d1210ebe398b6d172dd6831810bf5e22cc52bb45c32dcf52765762fe87"
+      },
+      {
+        "allocated_bytes": 253952,
+        "bytes": 253059,
+        "device": 16777233,
+        "inode": 192060174,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/metal/MetalMultiArticulatedABA.mm.o.d",
+        "sha256": "c085fcf261828b5893b26bd3d8b17681aa6d9294f251a8b3219d3fe89f4f04fc"
+      },
+      {
+        "allocated_bytes": 258048,
+        "bytes": 257423,
+        "device": 16777233,
+        "inode": 192060185,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/metal/MetalMultiArticulatedConstraints.mm.o.d",
+        "sha256": "e9ee74ee53715ca4e50c2c9e24c799210b8ac23479405d525554c03e7f4919ff"
+      },
+      {
+        "allocated_bytes": 258048,
+        "bytes": 257599,
+        "device": 16777233,
+        "inode": 192060192,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/metal/MetalMultiArticulatedContact.mm.o.d",
+        "sha256": "7ed1ff7545702c294b73ac47bef3f55b1e57eb5f823aa2b31939c1f043c08bf6"
+      },
+      {
+        "allocated_bytes": 253952,
+        "bytes": 253083,
+        "device": 16777233,
+        "inode": 192060179,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/metal/MetalMultiArticulatedInverseMass.mm.o.d",
+        "sha256": "bff5265a1ffff91e28b5c2b198a474ea337461b9c989a2ed794fae372b5614e3"
+      },
+      {
+        "allocated_bytes": 217088,
+        "bytes": 215660,
+        "device": 16777233,
+        "inode": 192060201,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/metal/MetalNeuronCulture.mm.o.d",
+        "sha256": "cc71bb82abaaeae493f6c638c141b438dad2f8a7b1ab752923f9103b776dbea7"
+      },
+      {
+        "allocated_bytes": 245760,
+        "bytes": 243936,
+        "device": 16777233,
+        "inode": 192060160,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/metal/MetalNumanXCoupledHuman.mm.o.d",
+        "sha256": "e336c1207bb362d71b95901984af9bcbbb79c926c3cee998dd7a41f2fdbc5a99"
+      },
+      {
+        "allocated_bytes": 258048,
+        "bytes": 254606,
+        "device": 16777233,
+        "inode": 192060155,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/metal/MetalNumanXHumanIO.mm.o.d",
+        "sha256": "d86b08965521e75f058d4c65ccf33670c699835d8866ff99d628a6679097fdc9"
+      },
+      {
+        "allocated_bytes": 249856,
+        "bytes": 248814,
+        "device": 16777233,
+        "inode": 192060166,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/metal/MetalNumanXHumanMatter.mm.o.d",
+        "sha256": "7f97c499d97ca11951d1d894609f923403055e82f6526c644d23fd8cc37f8978"
+      },
+      {
+        "allocated_bytes": 245760,
+        "bytes": 242408,
+        "device": 16777233,
+        "inode": 192060188,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/metal/MetalQualityContactSolver.mm.o.d",
+        "sha256": "c673a80f9a3b9701cb85684cd260db4d64adeec69500a55af7b5ac2e865ca436"
+      },
+      {
+        "allocated_bytes": 262144,
+        "bytes": 259063,
+        "device": 16777233,
+        "inode": 192060197,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/metal/MetalRunInspector.mm.o.d",
+        "sha256": "dc2b25c298de83057004109ff4ffef926657d51df889f14c915e29d4b1ae69aa"
+      },
+      {
+        "allocated_bytes": 258048,
+        "bytes": 257883,
+        "device": 16777233,
+        "inode": 192060204,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/metal/MetalTactile.mm.o.d",
+        "sha256": "4d95bd7dc2ebd6d22cfe922972e4773d2b2ed38ed9d482fb12bdd5831858ceb7"
+      },
+      {
+        "allocated_bytes": 245760,
+        "bytes": 242270,
+        "device": 16777233,
+        "inode": 192060190,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/metal/MetalUnifiedQualitySolver.mm.o.d",
+        "sha256": "2c5c60fcdef2144a01932602da2c795d2ea579a7faeee9011d45fe61fac32a34"
+      },
+      {
+        "allocated_bytes": 258048,
+        "bytes": 255378,
+        "device": 16777233,
+        "inode": 192060206,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/metal/MetalWorld.mm.o.d",
+        "sha256": "32bbfb4f56ec9a0de1412114df01e6bfd94654165112ace6fdad1afc0dcace13"
+      },
+      {
+        "allocated_bytes": 258048,
+        "bytes": 255143,
+        "device": 16777233,
+        "inode": 192060196,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/metal/MetalWorldFamily.mm.o.d",
+        "sha256": "e011529dd17ed5cb87da5aa7dde302aae6ca2210d3b277fad08b18807c5114eb"
+      },
+      {
+        "allocated_bytes": 221184,
+        "bytes": 217361,
+        "device": 16777233,
+        "inode": 192060158,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/metal/NumanXBridgeV1.mm.o.d",
+        "sha256": "34a8bd981a2e979427e9d2013263b3cc63aa0d4a25d5ae31252bee0e0e734aea"
+      },
+      {
+        "allocated_bytes": 258048,
+        "bytes": 256521,
+        "device": 16777233,
+        "inode": 192060173,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/metal/NumanXRuntimeV1.mm.o.d",
+        "sha256": "9fd45922f4aa454c652c0d233f5c1e05a123cb07873ddb5b85a63fff72c18c20"
+      },
+      {
+        "allocated_bytes": 245760,
+        "bytes": 242308,
+        "device": 16777233,
+        "inode": 192060170,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/metal/NumiHumanExtensorHoodMetal.mm.o.d",
+        "sha256": "b19e8ce3581071c6c650c160148f9a08e9d57f98f69c35c708e0da9f5ddaab3c"
+      },
+      {
+        "allocated_bytes": 229376,
+        "bytes": 228473,
+        "device": 16777233,
+        "inode": 192060116,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/metal/NumiHumanLoadedKneeBinding.mm.o.d",
+        "sha256": "470bf2271cbc46ea96d9a380d8c78e39f18b1512c7b5b0bf33f381693cbfb2a1"
+      },
+      {
+        "allocated_bytes": 245760,
+        "bytes": 245475,
+        "device": 16777233,
+        "inode": 192060164,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles/metalrobo.dir/src/metal/NumiHumanTendonMetal.mm.o.d",
+        "sha256": "284fafab15d72ef3d136dc6e1674cc8ddf7ec381ba8c6177c17ae1dae35eebaf"
+      }
+    ],
+    "134": [],
+    "135": [
+      {
+        "allocated_bytes": 200704,
+        "bytes": 198916,
+        "device": 16777233,
+        "inode": 192069316,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/apple/CaptureManifestJSON.mm.o.d",
+        "sha256": "7c7552c2923140bd52479ed1ed62ec4d136aefefcf54f9b887eb3f0137019cf1"
+      },
+      {
+        "allocated_bytes": 286720,
+        "bytes": 286086,
+        "device": 16777233,
+        "inode": 192069320,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/apple/EnvironmentCooker.mm.o.d",
+        "sha256": "2fb2c6ad55366f6d12287a8a553c5a0b91979f7dbf5510d204d2f0157e91c7be"
+      },
+      {
+        "allocated_bytes": 204800,
+        "bytes": 202262,
+        "device": 16777233,
+        "inode": 192069318,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/apple/HardwareOutcomeJSON.mm.o.d",
+        "sha256": "dd85c3b13855e8020c5419e3577c1db550c99cc1fce24d378e29d1e98c65bcb1"
+      },
+      {
+        "allocated_bytes": 344064,
+        "bytes": 342972,
+        "device": 16777233,
+        "inode": 192069331,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/apple/VisualAssetCooker.mm.o.d",
+        "sha256": "8c801bc1208b80bfaa513013254cc99a97ab9a90d78668350659667b946b52a6"
+      },
+      {
+        "allocated_bytes": 155648,
+        "bytes": 152586,
+        "device": 16777233,
+        "inode": 192069377,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/c_api.cpp.o.d",
+        "sha256": "b67fc8e9de26ed2bc90ef547ad03ec6ddf457d502ce4621f9df4b2983282416b"
+      },
+      {
+        "allocated_bytes": 122880,
+        "bytes": 119298,
+        "device": 16777233,
+        "inode": 192069219,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/ArticulatedActuation.cpp.o.d",
+        "sha256": "e12b6a05cc52840945b17492699ac193a43c44e9cd715e7afbf93524e678a7da"
+      },
+      {
+        "allocated_bytes": 114688,
+        "bytes": 113268,
+        "device": 16777233,
+        "inode": 192069293,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/ArticulatedCollision.cpp.o.d",
+        "sha256": "908e70a6a71c62b2fdeaa5032ba49fbf139ca499d769a40f2e45924a73a273f6"
+      },
+      {
+        "allocated_bytes": 114688,
+        "bytes": 110872,
+        "device": 16777233,
+        "inode": 192069279,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/ArticulatedContact.cpp.o.d",
+        "sha256": "7a5ba03ac4d40641ebb676a3f862e420d0efb50251641962fb36e4227c1cfff7"
+      },
+      {
+        "allocated_bytes": 114688,
+        "bytes": 111536,
+        "device": 16777233,
+        "inode": 192069222,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/ArticulatedDynamics.cpp.o.d",
+        "sha256": "1525de802395006b803125c4231cbbdf08ec6d9d0e0142e5fe0483db4ec33b0a"
+      },
+      {
+        "allocated_bytes": 122880,
+        "bytes": 119612,
+        "device": 16777233,
+        "inode": 192069277,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/ArticulatedJointLimits.cpp.o.d",
+        "sha256": "6f65816821a9311572ab547f3cb1cd5ad4b0c7bd9d26d03c692b48be17da5702"
+      },
+      {
+        "allocated_bytes": 122880,
+        "bytes": 119917,
+        "device": 16777233,
+        "inode": 192069286,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/ArticulatedMixedConstraints.cpp.o.d",
+        "sha256": "5c9bec3abceb515ce0f0ed8e0a18b2f433632717ea7b82b6c1f61033791ff343"
+      },
+      {
+        "allocated_bytes": 122880,
+        "bytes": 121914,
+        "device": 16777233,
+        "inode": 192069290,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/ArticulatedRigidCollision.cpp.o.d",
+        "sha256": "59551f96c0562bb86bb7ebbeafce5e6cbf4c03be8b242ca1f481b45818f70610"
+      },
+      {
+        "allocated_bytes": 126976,
+        "bytes": 123268,
+        "device": 16777233,
+        "inode": 192069295,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/ArticulatedRigidWorld.cpp.o.d",
+        "sha256": "3f44f7b814e1b9b3c75a411e00414b6434ab2e7e52e6d68760de5ac7a42d4da3"
+      },
+      {
+        "allocated_bytes": 122880,
+        "bytes": 122029,
+        "device": 16777233,
+        "inode": 192069297,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/ArticulatedWorld.cpp.o.d",
+        "sha256": "75db01dbec8cf42faab27b15ddc9175f9e7e234dfc509c9476cc35aae77ac10c"
+      },
+      {
+        "allocated_bytes": 110592,
+        "bytes": 108779,
+        "device": 16777233,
+        "inode": 192069221,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/Collision.cpp.o.d",
+        "sha256": "25c1b8089c315a4568b17b57c9c3691489157434f48b1b79ce3b2c214c771e40"
+      },
+      {
+        "allocated_bytes": 90112,
+        "bytes": 86298,
+        "device": 16777233,
+        "inode": 192069124,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/CompiledMetalMultiArticulatedContactProgram.cpp.o.d",
+        "sha256": "2ec461d1bb66c23c6f819f3f8e71a92a115def544939e0ce6130f8d31ce3b340"
+      },
+      {
+        "allocated_bytes": 118784,
+        "bytes": 115035,
+        "device": 16777233,
+        "inode": 192069122,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/CompiledMetalMultiArticulatedProgram.cpp.o.d",
+        "sha256": "9ab994b3a17ed249fd9fc7c6a4a4d5d83d620090e4bff65beacad7b820b84cfb"
+      },
+      {
+        "allocated_bytes": 114688,
+        "bytes": 113899,
+        "device": 16777233,
+        "inode": 192069303,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/ConstraintIR.cpp.o.d",
+        "sha256": "4347f638d4e88c8fa239bdebb64fa2d097a8027f59705141ddc7486c76bf25c1"
+      },
+      {
+        "allocated_bytes": 114688,
+        "bytes": 112368,
+        "device": 16777233,
+        "inode": 192069305,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/ConstraintSolver.cpp.o.d",
+        "sha256": "c1cd7442c5554f0cfddd3634cc8241219c2968317b7da193d684169b835f3b76"
+      },
+      {
+        "allocated_bytes": 122880,
+        "bytes": 119241,
+        "device": 16777233,
+        "inode": 192069282,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/CoupledArticulatedRigidContact.cpp.o.d",
+        "sha256": "ec92dab3e61df660d31caa443229304925cae14ca86f29d21ecc3fe9a48748d6"
+      },
+      {
+        "allocated_bytes": 106496,
+        "bytes": 105896,
+        "device": 16777233,
+        "inode": 192069111,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/CpuDynamics.cpp.o.d",
+        "sha256": "17b948b54ddabe8008de22e8bee15b17bb4d4903e88d94bf40d28ad8e31c5466"
+      },
+      {
+        "allocated_bytes": 118784,
+        "bytes": 115207,
+        "device": 16777233,
+        "inode": 192069206,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/DiscreteElasticRod.cpp.o.d",
+        "sha256": "abd734acbaef893eab352d5f8ec0156deb682b9e770fc9171fa419b478401f90"
+      },
+      {
+        "allocated_bytes": 114688,
+        "bytes": 113178,
+        "device": 16777233,
+        "inode": 192069186,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/EmbodiedTactile.cpp.o.d",
+        "sha256": "10d5656632fa432fa5020254ecfe74bface0b647955aadb70af948ae5498d974"
+      },
+      {
+        "allocated_bytes": 114688,
+        "bytes": 111250,
+        "device": 16777233,
+        "inode": 192069113,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/EngineModel.cpp.o.d",
+        "sha256": "c074672a81e2a75f33e60eec870a6c0f0ec2b0bf35e975d3659874baeefab691"
+      },
+      {
+        "allocated_bytes": 122880,
+        "bytes": 121245,
+        "device": 16777233,
+        "inode": 192069115,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/EngineModelComposer.cpp.o.d",
+        "sha256": "fc848a9111d6d2e183a7cef19232d90f5bf26f36eb9c57df6b35aca214cb32b6"
+      },
+      {
+        "allocated_bytes": 139264,
+        "bytes": 138657,
+        "device": 16777233,
+        "inode": 192069135,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/EpisodeTwinCompiler.cpp.o.d",
+        "sha256": "ce03baf77a6f1d9ef26eccf57b6bff57fc9c38bfe1daf407f3296e226978132c"
+      },
+      {
+        "allocated_bytes": 81920,
+        "bytes": 78288,
+        "device": 16777233,
+        "inode": 192069103,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/Franka.cpp.o.d",
+        "sha256": "7ce4c7ca90ae86611df2064c76a87f0b7c4fbed2ad749d7c4628614943323de4"
+      },
+      {
+        "allocated_bytes": 86016,
+        "bytes": 83242,
+        "device": 16777233,
+        "inode": 192069107,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/FrankaEngine.cpp.o.d",
+        "sha256": "47c6a8ddc2ce64a486c7a0e9551ff2765700a4d335424c9e6150695fce3f5236"
+      },
+      {
+        "allocated_bytes": 110592,
+        "bytes": 110555,
+        "device": 16777233,
+        "inode": 192069109,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/FrankaHand.cpp.o.d",
+        "sha256": "86899221f35e842a84b4cae078936c5e4882597c8da6aa4f249e9821c4bd5ac3"
+      },
+      {
+        "allocated_bytes": 135168,
+        "bytes": 131283,
+        "device": 16777233,
+        "inode": 192069119,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/FrankaWorld.cpp.o.d",
+        "sha256": "fb219eb21749fbbe84fb8f6dfca9e169861c78e661644bf7156f59185a6ca6c9"
+      },
+      {
+        "allocated_bytes": 106496,
+        "bytes": 106345,
+        "device": 16777233,
+        "inode": 192069208,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/FreeBodyDynamics.cpp.o.d",
+        "sha256": "80bcc105e7520264a1384f9b61812ee0778d0c942051ef8851b127a81eeb6027"
+      },
+      {
+        "allocated_bytes": 114688,
+        "bytes": 110932,
+        "device": 16777233,
+        "inode": 192069166,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/G1.cpp.o.d",
+        "sha256": "1009898fb5aa759a7bd6e466a582281d9f4f0c4d6cb422b7f79da72da1ee0e15"
+      },
+      {
+        "allocated_bytes": 118784,
+        "bytes": 115195,
+        "device": 16777233,
+        "inode": 192069162,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/GeometryCooker.cpp.o.d",
+        "sha256": "e79bb001c708044b4231b3c1a6b1786f74d866e6f279e67278665aea6fea7235"
+      },
+      {
+        "allocated_bytes": 122880,
+        "bytes": 122068,
+        "device": 16777233,
+        "inode": 192069213,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/HeterogeneousWorld.cpp.o.d",
+        "sha256": "7a9af5487f32bc69cfc9c2d813916a8348d86f492412230f5d0abb9b82115852"
+      },
+      {
+        "allocated_bytes": 98304,
+        "bytes": 98006,
+        "device": 16777233,
+        "inode": 192069244,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/HumanBehaviorAcceptedStateRoot.cpp.o.d",
+        "sha256": "7f5a23c5766d2b46f537648ff161f9ef9d162578f1c751bf3a21dfa035b80b3b"
+      },
+      {
+        "allocated_bytes": 131072,
+        "bytes": 130691,
+        "device": 16777233,
+        "inode": 192069253,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/HumanBehaviorNativeAudit.cpp.o.d",
+        "sha256": "352e21cd10c90f9ab23ec263190f04fed125ebc5111fb19b204b32b826d86c34"
+      },
+      {
+        "allocated_bytes": 110592,
+        "bytes": 109521,
+        "device": 16777233,
+        "inode": 192069246,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/HumanBehaviorProgram.cpp.o.d",
+        "sha256": "7ea42fa80e4f7034745afef093c703a48087bb6f1c612fdf56f8d0d3e9291069"
+      },
+      {
+        "allocated_bytes": 98304,
+        "bytes": 97739,
+        "device": 16777233,
+        "inode": 192069251,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/HumanBehaviorStateComponents.cpp.o.d",
+        "sha256": "5ffb231ad84c0583c736a3655b98a23aef4baf199ee3f153fcc540eb14a5c06f"
+      },
+      {
+        "allocated_bytes": 110592,
+        "bytes": 110400,
+        "device": 16777233,
+        "inode": 192069249,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/HumanBehaviorTrial.cpp.o.d",
+        "sha256": "61fda8ec857b2fea60347c7746588e1b97bc255989c0b80cd7514264e7c5132c"
+      },
+      {
+        "allocated_bytes": 135168,
+        "bytes": 133345,
+        "device": 16777233,
+        "inode": 192069175,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/HyperPolicyPacks.cpp.o.d",
+        "sha256": "197b3b35b864821af79e2a6f15c976fbe5916fa6e3f78f68fa0b9a993b012fd9"
+      },
+      {
+        "allocated_bytes": 126976,
+        "bytes": 124414,
+        "device": 16777233,
+        "inode": 192069173,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/HyperPolicyProgram.cpp.o.d",
+        "sha256": "734ac2a213a062657656fcff3f2866ddec6fdd7ad063f2ec18175862d14540c8"
+      },
+      {
+        "allocated_bytes": 135168,
+        "bytes": 132805,
+        "device": 16777233,
+        "inode": 192069192,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/LearningPacks.cpp.o.d",
+        "sha256": "0ff98bfb36e43917a2be16fd73f77b1bd7476a5f74adc9c128339c857b073372"
+      },
+      {
+        "allocated_bytes": 131072,
+        "bytes": 130044,
+        "device": 16777233,
+        "inode": 192069179,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/LocomotionWorld.cpp.o.d",
+        "sha256": "8e48523e8b962ee20aaa8481c2409eee28ef0c7f3226e9467da621e4df9366c7"
+      },
+      {
+        "allocated_bytes": 102400,
+        "bytes": 102212,
+        "device": 16777233,
+        "inode": 192069129,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/MatterSnapshotArchive.cpp.o.d",
+        "sha256": "0b55412fea6e3bbafe125572ab2dd8e1e28e735d5d51c833e1d7b441f1000322"
+      },
+      {
+        "allocated_bytes": 114688,
+        "bytes": 111830,
+        "device": 16777233,
+        "inode": 192069225,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/MillardMuscleReference.cpp.o.d",
+        "sha256": "6eaeb99929edd0281106598dba95c3e043eb792a3b2359370a1ac1380f339eca"
+      },
+      {
+        "allocated_bytes": 94208,
+        "bytes": 91350,
+        "device": 16777233,
+        "inode": 192069102,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/Model.cpp.o.d",
+        "sha256": "67bdf0de3fb465b06ed7b9dabce532a4c6ff23ae4bb3785920829233d04a25a5"
+      },
+      {
+        "allocated_bytes": 131072,
+        "bytes": 128933,
+        "device": 16777233,
+        "inode": 192069181,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/MotionCompiler.cpp.o.d",
+        "sha256": "5451bb34fbb0e99e0dfa289c0608ede9aeb5f0583de572cd7ca0b4b281eb25a3"
+      },
+      {
+        "allocated_bytes": 114688,
+        "bytes": 111560,
+        "device": 16777233,
+        "inode": 192069228,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/MujocoMuscleReference.cpp.o.d",
+        "sha256": "e35bf89c2cc12abdba3b588de12a6123574097defaa468aee0ed3e271bf2d44e"
+      },
+      {
+        "allocated_bytes": 122880,
+        "bytes": 119904,
+        "device": 16777233,
+        "inode": 192069308,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/MultiArticulatedContact.cpp.o.d",
+        "sha256": "e24ee733262e6db696f06fe21256aff4a724d704fc2681dd13ec527706b92da9"
+      },
+      {
+        "allocated_bytes": 122880,
+        "bytes": 119607,
+        "device": 16777233,
+        "inode": 192069298,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/MultiArticulatedWorld.cpp.o.d",
+        "sha256": "ab97d43cf380456a55f7ba8ab3e8ba4cdb497a0bf89034be75c696f9b32c5ea5"
+      },
+      {
+        "allocated_bytes": 94208,
+        "bytes": 92574,
+        "device": 16777233,
+        "inode": 192069209,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/Multicopter.cpp.o.d",
+        "sha256": "99786db18ff9941f24ef1adabb8e82bdb4272cd865ec8d8dba119f4394a498e8"
+      },
+      {
+        "allocated_bytes": 126976,
+        "bytes": 125249,
+        "device": 16777233,
+        "inode": 192069142,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/NeuronCulture.cpp.o.d",
+        "sha256": "147e785b525c25e7a9a46db44243cb77aeeb35c2323c8376ca0c74176342c081"
+      },
+      {
+        "allocated_bytes": 131072,
+        "bytes": 128199,
+        "device": 16777233,
+        "inode": 192069150,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/NeuronCultureArtifacts.cpp.o.d",
+        "sha256": "5f4cd6d1ef5066c19161de6cdb27a445581903dc06971618a860cb809204d14f"
+      },
+      {
+        "allocated_bytes": 122880,
+        "bytes": 121080,
+        "device": 16777233,
+        "inode": 192069146,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/NeuronCultureEmbodiment.cpp.o.d",
+        "sha256": "4ac646b90a03045ef728b067896f82209ce10bd976aa697483c2c1f76f970819"
+      },
+      {
+        "allocated_bytes": 126976,
+        "bytes": 124129,
+        "device": 16777233,
+        "inode": 192069148,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/NeuronCultureProtocol.cpp.o.d",
+        "sha256": "641eb197499e690c3e31028a0eb806782b208ff1cd2a701a3f5686841f3a0113"
+      },
+      {
+        "allocated_bytes": 16384,
+        "bytes": 16205,
+        "device": 16777233,
+        "inode": 192069234,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/NumanXExactTransaction.cpp.o.d",
+        "sha256": "fc5a4dfe4d7a3376a3a059521173ddbf6a4a0eefb0f254c8ea684b71df02cb4f"
+      },
+      {
+        "allocated_bytes": 106496,
+        "bytes": 105791,
+        "device": 16777233,
+        "inode": 192069257,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/NumiHumanCartilage.cpp.o.d",
+        "sha256": "363869a8c80664eac3dd3376486d2bd60dc8a6da02d3cfaf566abf1940767704"
+      },
+      {
+        "allocated_bytes": 126976,
+        "bytes": 123537,
+        "device": 16777233,
+        "inode": 192069274,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/NumiHumanContinuumMap.cpp.o.d",
+        "sha256": "624540d197a79c894e17480f880c394b84878cd27ade3d06e9673244edd642e1"
+      },
+      {
+        "allocated_bytes": 110592,
+        "bytes": 108131,
+        "device": 16777233,
+        "inode": 192069236,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/NumiHumanInitialState.cpp.o.d",
+        "sha256": "96a7add0c38d5ffaa78af6331ba1af4ae873e4f58a92beae12e7be6c5f0affc7"
+      },
+      {
+        "allocated_bytes": 110592,
+        "bytes": 106515,
+        "device": 16777233,
+        "inode": 192069227,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/NumiHumanJointEquality.cpp.o.d",
+        "sha256": "9ea171cb06e5710fc83a5fb91ff00c916aea1eed86ba4bb413afa38c21ecae86"
+      },
+      {
+        "allocated_bytes": 106496,
+        "bytes": 105776,
+        "device": 16777233,
+        "inode": 192069266,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/NumiHumanKnee.cpp.o.d",
+        "sha256": "e056f3d9b0383bb5a0a1a479eb65232350ec19d6eb3e40cd1455436976153d79"
+      },
+      {
+        "allocated_bytes": 114688,
+        "bytes": 110887,
+        "device": 16777233,
+        "inode": 192069268,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/NumiHumanKneeContact.cpp.o.d",
+        "sha256": "9a891dfdde4a6dbd5f5eb33ba041a5a653553e6875cb5a409f4b8c4990f97c2e"
+      },
+      {
+        "allocated_bytes": 139264,
+        "bytes": 136576,
+        "device": 16777233,
+        "inode": 192069281,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/NumiHumanLoadedKnee.cpp.o.d",
+        "sha256": "6a03b6ce19ab5ea611a5abc81c72d155ac0f108972d0524cf234102e050a84f9"
+      },
+      {
+        "allocated_bytes": 98304,
+        "bytes": 96849,
+        "device": 16777233,
+        "inode": 192069269,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/NumiHumanLoadedKneeNumanX.cpp.o.d",
+        "sha256": "d61d407d81c8bada6cac7662681bead06acea0eb214f50f465b3bf049f0cc83a"
+      },
+      {
+        "allocated_bytes": 233472,
+        "bytes": 229770,
+        "device": 16777233,
+        "inode": 192069260,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/NumiHumanMuscleEquilibrium.cpp.o.d",
+        "sha256": "19553b768b88d0d315d82eacda6eb4347f91a2a2e421cab1d5f710f3cda2ae2e"
+      },
+      {
+        "allocated_bytes": 118784,
+        "bytes": 117936,
+        "device": 16777233,
+        "inode": 192069238,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/NumiHumanProductionOwnerEvidenceWriter.cpp.o.d",
+        "sha256": "09b26908caafdeaab07db3e187be0c4b36214e3903e5352efd38bcfffd74f59f"
+      },
+      {
+        "allocated_bytes": 122880,
+        "bytes": 120665,
+        "device": 16777233,
+        "inode": 192069242,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/NumiHumanProductionOwnerSnapshot.cpp.o.d",
+        "sha256": "f0f8b69a1d8d1d43aeeaf06b5350fe3ac14f4c809f9b653d5df7bbfd6c1f0497"
+      },
+      {
+        "allocated_bytes": 57344,
+        "bytes": 54555,
+        "device": 16777233,
+        "inode": 192069232,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/NumiHumanRuntimeIdentity.cpp.o.d",
+        "sha256": "8c8a8676ee91bed231180e628f8697ff4c5d741a45b37789c3e617ce7da4696f"
+      },
+      {
+        "allocated_bytes": 135168,
+        "bytes": 132508,
+        "device": 16777233,
+        "inode": 192069240,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/NumiHumanSourceConstraints.cpp.o.d",
+        "sha256": "0d1894511d93b1d93ddf00fa5218b58d7124de066db3e0275be26c78399e5a87"
+      },
+      {
+        "allocated_bytes": 110592,
+        "bytes": 109661,
+        "device": 16777233,
+        "inode": 192069217,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/NumiHumanSupport.cpp.o.d",
+        "sha256": "d1462dad2223378aa7cf7c7cfbef8132fb8db49287d8610827cfd190d67acec7"
+      },
+      {
+        "allocated_bytes": 114688,
+        "bytes": 110864,
+        "device": 16777233,
+        "inode": 192069258,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/NumiHumanTendon.cpp.o.d",
+        "sha256": "eab6418575528006a5ea15ab653fa02fae29d3a06bcfdc65d1576f254889db71"
+      },
+      {
+        "allocated_bytes": 110592,
+        "bytes": 108515,
+        "device": 16777233,
+        "inode": 192069255,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/NumiHumanTensionNetwork.cpp.o.d",
+        "sha256": "5f5b3cd1e8ff36eaecced0155ba0abd247bb67ad960325a05b96a85b3da1a482"
+      },
+      {
+        "allocated_bytes": 131072,
+        "bytes": 128927,
+        "device": 16777233,
+        "inode": 192069272,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/NumiHumanTissueBinding.cpp.o.d",
+        "sha256": "d55cc8a6030795e7c4e75ae21711738fd62ac91f87ea9a6c5322d95f58d8768c"
+      },
+      {
+        "allocated_bytes": 114688,
+        "bytes": 112100,
+        "device": 16777233,
+        "inode": 192069264,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/NumiHumanTissueMass.cpp.o.d",
+        "sha256": "838e1303d8357fec3d06e20f2a72963488717839136b7b30525b0460abd62d55"
+      },
+      {
+        "allocated_bytes": 106496,
+        "bytes": 105528,
+        "device": 16777233,
+        "inode": 192069157,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/OpenSimFunction.cpp.o.d",
+        "sha256": "9b086183882beed0c215cd906168fd8dce50887174b8af29552faf9c4eccd7ac"
+      },
+      {
+        "allocated_bytes": 114688,
+        "bytes": 111548,
+        "device": 16777233,
+        "inode": 192069164,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/OpenSimMobileRoot.cpp.o.d",
+        "sha256": "1d7ff59cbb97b931cfa76e260146ae9ec830c8c586c8b4dda135434ab457f662"
+      },
+      {
+        "allocated_bytes": 106496,
+        "bytes": 105976,
+        "device": 16777233,
+        "inode": 192069159,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/OpenSimSpatialTransform.cpp.o.d",
+        "sha256": "3307cb6d82a10f5bb0d0db04943a4687b97b7ac3407cd23620040094dab7631b"
+      },
+      {
+        "allocated_bytes": 57344,
+        "bytes": 54127,
+        "device": 16777233,
+        "inode": 192069212,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/PX4X500.cpp.o.d",
+        "sha256": "9f1bbf4f49d39ae0cb04231c2aa1c23cfb1ff7a75d98ade65be591e464b6fbb9"
+      },
+      {
+        "allocated_bytes": 122880,
+        "bytes": 120657,
+        "device": 16777233,
+        "inode": 192069117,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/ParallelABASchedule.cpp.o.d",
+        "sha256": "7b282e44347b89a5417480cf0e956254c59ff58f5c1e1447f5271d3728ffd486"
+      },
+      {
+        "allocated_bytes": 122880,
+        "bytes": 121817,
+        "device": 16777233,
+        "inode": 192069171,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/PolicyProgram.cpp.o.d",
+        "sha256": "7814cca560ae1b64574c51d78e92abce048f40e2a76da1d05b5661aa14771477"
+      },
+      {
+        "allocated_bytes": 225280,
+        "bytes": 225071,
+        "device": 16777233,
+        "inode": 192069310,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/QualityContactSolver.cpp.o.d",
+        "sha256": "ca04449ad8b8d43d87deb93d8f4957d9bdd94da8521911113dd42eba84fdcca9"
+      },
+      {
+        "allocated_bytes": 143360,
+        "bytes": 141594,
+        "device": 16777233,
+        "inode": 192069144,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/R2S2R.cpp.o.d",
+        "sha256": "0700ccd975a75ab10a061011043754c58a94503c38157bdb53b096e5acfd7712"
+      },
+      {
+        "allocated_bytes": 110592,
+        "bytes": 109756,
+        "device": 16777233,
+        "inode": 192069301,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/ReferenceConicSolver.cpp.o.d",
+        "sha256": "4dee0133359bf8635b750f62a3a80401affa954986a79a2fa020ceac560c7ede"
+      },
+      {
+        "allocated_bytes": 118784,
+        "bytes": 117617,
+        "device": 16777233,
+        "inode": 192069313,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/RigidBodyWorld.cpp.o.d",
+        "sha256": "b51fdbd8708850c50f1fc29bafaefba0d3116ed645625eb14591c785c4b6752e"
+      },
+      {
+        "allocated_bytes": 143360,
+        "bytes": 141034,
+        "device": 16777233,
+        "inode": 192069169,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/RobotDescriptionCooker.cpp.o.d",
+        "sha256": "265e43b042b237f48430c7f8604ef39c1e8796c9fa0fda2cd716f8b9b0d7e1d6"
+      },
+      {
+        "allocated_bytes": 143360,
+        "bytes": 140401,
+        "device": 16777233,
+        "inode": 192069126,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/RunProgram.cpp.o.d",
+        "sha256": "d18f8a9d3307e8f7e48870e3290142bc9aaa7da532308faf26733686b93a39a3"
+      },
+      {
+        "allocated_bytes": 106496,
+        "bytes": 106211,
+        "device": 16777233,
+        "inode": 192069188,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/SurgicalAssets.cpp.o.d",
+        "sha256": "feb7d5147491119815b6afb99b5c742dc10439302462459f3c81090279530746"
+      },
+      {
+        "allocated_bytes": 114688,
+        "bytes": 114039,
+        "device": 16777233,
+        "inode": 192069195,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/SurgicalKnot.cpp.o.d",
+        "sha256": "b9f549da34cbb41705b02a5fea822e0ef1cb2f956bcee296630faf0b1a176973"
+      },
+      {
+        "allocated_bytes": 114688,
+        "bytes": 111386,
+        "device": 16777233,
+        "inode": 192069184,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/SurgicalPSM.cpp.o.d",
+        "sha256": "07024b085e6438fcf2225da963227dfc33ba9f4989142ee89831ac01fdc5d671"
+      },
+      {
+        "allocated_bytes": 106496,
+        "bytes": 105932,
+        "device": 16777233,
+        "inode": 192069204,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/SurgicalThreadTargeting.cpp.o.d",
+        "sha256": "52adff736c03cc2436207a6098a3ea4a892ea4b0ce9a0b5420455394fac4e8fc"
+      },
+      {
+        "allocated_bytes": 126976,
+        "bytes": 126489,
+        "device": 16777233,
+        "inode": 192069194,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/SurgicalVisual.cpp.o.d",
+        "sha256": "26ed48b249482c45d8ff17baf983748703cc1212669a3668224553bcdd4545ef"
+      },
+      {
+        "allocated_bytes": 122880,
+        "bytes": 119695,
+        "device": 16777233,
+        "inode": 192069199,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/SurgicalWorld.cpp.o.d",
+        "sha256": "9a92c71acd7ff5c4562a27b655aa51aafb1ca114b2a656d81ce854820bc5f3dd"
+      },
+      {
+        "allocated_bytes": 135168,
+        "bytes": 132775,
+        "device": 16777233,
+        "inode": 192069155,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/Tactile.cpp.o.d",
+        "sha256": "7e87b9140bc862010a9b7be924f93811a16e31b7c04588a862b74e8a948c0216"
+      },
+      {
+        "allocated_bytes": 126976,
+        "bytes": 125359,
+        "device": 16777233,
+        "inode": 192069153,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/TactileDebug.cpp.o.d",
+        "sha256": "e242d434e305b7060767a185cf07b9ef46c18398d95d4361118bd52fe12e0cc0"
+      },
+      {
+        "allocated_bytes": 118784,
+        "bytes": 116500,
+        "device": 16777233,
+        "inode": 192069177,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/TaskProgram.cpp.o.d",
+        "sha256": "864e9251b2ee00c1a618140e4a32a6f39ac4d483fe44f5b94255e4348d429ef6"
+      },
+      {
+        "allocated_bytes": 147456,
+        "bytes": 145159,
+        "device": 16777233,
+        "inode": 192069138,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/VisualPlatform.cpp.o.d",
+        "sha256": "db243483ae85afe903e754bf931e45146fb82754ed8b409954dd8367d9fa2211"
+      },
+      {
+        "allocated_bytes": 139264,
+        "bytes": 136059,
+        "device": 16777233,
+        "inode": 192069140,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/VisualPresentation.cpp.o.d",
+        "sha256": "bcce3c91e4a56c234c0fb3d6e9bda411d6d1a60444b1ea94683831afb6728ca9"
+      },
+      {
+        "allocated_bytes": 139264,
+        "bytes": 136584,
+        "device": 16777233,
+        "inode": 192069202,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/Wave.cpp.o.d",
+        "sha256": "8cd5a3e44bee7069615f3e3b131c3e5e7bfaa996bf82e64385aeee0a3b67f837"
+      },
+      {
+        "allocated_bytes": 114688,
+        "bytes": 114560,
+        "device": 16777233,
+        "inode": 192069131,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/WorldCompiler.cpp.o.d",
+        "sha256": "d3e0a1e6c00da72b8a1389e837dd307a60735c6cd74fd39169d12d527c2b2942"
+      },
+      {
+        "allocated_bytes": 106496,
+        "bytes": 102664,
+        "device": 16777233,
+        "inode": 192069133,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/core/WorldPack.cpp.o.d",
+        "sha256": "6eac867db5f043e4f25364d4c41044e90e28dec39a6086353cd3b3a55dfa232f"
+      },
+      {
+        "allocated_bytes": 253952,
+        "bytes": 250411,
+        "device": 16777233,
+        "inode": 192069345,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/metal/MetalArticulatedABA.mm.o.d",
+        "sha256": "cc25478a64ed24a07ae1c9c0d9942a989ff13ff67895545af16dc99d0449a71a"
+      },
+      {
+        "allocated_bytes": 253952,
+        "bytes": 250435,
+        "device": 16777233,
+        "inode": 192069349,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/metal/MetalArticulatedInverseMass.mm.o.d",
+        "sha256": "d4c78eda39133030030e3b17760864c52933c5e9b5aaad8531095a08259be15f"
+      },
+      {
+        "allocated_bytes": 299008,
+        "bytes": 296899,
+        "device": 16777233,
+        "inode": 192069338,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/metal/MetalArticulatedOperator.mm.o.d",
+        "sha256": "f98c475dbc06d1006570a48bdfaf53cbea3955bdbf9a56d73d928afbdbe69b73"
+      },
+      {
+        "allocated_bytes": 258048,
+        "bytes": 254664,
+        "device": 16777233,
+        "inode": 192069353,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/metal/MetalDiscreteElasticRod.mm.o.d",
+        "sha256": "36d84f7617bc86fca2169bce4ac174069d2fb88d0a0e11d3d4f2cb36c93d6b04"
+      },
+      {
+        "allocated_bytes": 237568,
+        "bytes": 234750,
+        "device": 16777233,
+        "inode": 192069322,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/metal/MetalHumanBehaviorTelemetry.mm.o.d",
+        "sha256": "ec751af5c47d0a7288552e2a60ce351cdc432cca67c7ca0c9a9fb1ea1c86704b"
+      },
+      {
+        "allocated_bytes": 270336,
+        "bytes": 266994,
+        "device": 16777233,
+        "inode": 192069374,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/metal/MetalHybridRenderer.mm.o.d",
+        "sha256": "a7dfd4d0b5cadc8a51ccc23d954219817ab0a87d59a2dfa97643a68ed23240e7"
+      },
+      {
+        "allocated_bytes": 249856,
+        "bytes": 246211,
+        "device": 16777233,
+        "inode": 192069362,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/metal/MetalHyperPolicy.mm.o.d",
+        "sha256": "ae023b3b239be62533075e3611a65837fe32b6424cd3433b20b26042111fee24"
+      },
+      {
+        "allocated_bytes": 253952,
+        "bytes": 253137,
+        "device": 16777233,
+        "inode": 192069347,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/metal/MetalMultiArticulatedABA.mm.o.d",
+        "sha256": "1338e8dd3361e32d1facb6aa0f4d265e3127dcce1c1156dedd725c09ae0af14e"
+      },
+      {
+        "allocated_bytes": 258048,
+        "bytes": 257513,
+        "device": 16777233,
+        "inode": 192069355,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/metal/MetalMultiArticulatedConstraints.mm.o.d",
+        "sha256": "8f765bda64d5183c839a52809c718b847fca3a52a0e863647767fce6a36231c8"
+      },
+      {
+        "allocated_bytes": 258048,
+        "bytes": 257791,
+        "device": 16777233,
+        "inode": 192069363,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/metal/MetalMultiArticulatedContact.mm.o.d",
+        "sha256": "eec7f305db929d2855f278b3034b20db8feb36466d75a1d27987c4116c2200f2"
+      },
+      {
+        "allocated_bytes": 253952,
+        "bytes": 253161,
+        "device": 16777233,
+        "inode": 192069350,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/metal/MetalMultiArticulatedInverseMass.mm.o.d",
+        "sha256": "8dc8a6c504cb836a35d51a4bc3ccde466e5633fe241774a35c1c9f1c59bee71a"
+      },
+      {
+        "allocated_bytes": 217088,
+        "bytes": 215732,
+        "device": 16777233,
+        "inode": 192069370,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/metal/MetalNeuronCulture.mm.o.d",
+        "sha256": "a96d5c96d2a1c11705036b3245b8607e1fc9c884036224ceeb1bebc1f7db0ea2"
+      },
+      {
+        "allocated_bytes": 245760,
+        "bytes": 243996,
+        "device": 16777233,
+        "inode": 192069329,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/metal/MetalNumanXCoupledHuman.mm.o.d",
+        "sha256": "b862d00e874f96ef5fded1b9937befc5ed696281e5db605fa92648a92f6bcc0b"
+      },
+      {
+        "allocated_bytes": 258048,
+        "bytes": 254750,
+        "device": 16777233,
+        "inode": 192069324,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/metal/MetalNumanXHumanIO.mm.o.d",
+        "sha256": "3cc76015528c6e7f161f12805c98e7fb0f4fe324e45d8e9ee5b2416f0e69f380"
+      },
+      {
+        "allocated_bytes": 249856,
+        "bytes": 249042,
+        "device": 16777233,
+        "inode": 192069335,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/metal/MetalNumanXHumanMatter.mm.o.d",
+        "sha256": "657b88596a0e4e0673dbcfedc50320e7cbcc3eb7095b9585c408d172610dcc53"
+      },
+      {
+        "allocated_bytes": 245760,
+        "bytes": 242456,
+        "device": 16777233,
+        "inode": 192069358,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/metal/MetalQualityContactSolver.mm.o.d",
+        "sha256": "36c1047c42eae22b0ff72b69669aa6f7a581bdf2e14b4d765c29278aeac27dcd"
+      },
+      {
+        "allocated_bytes": 262144,
+        "bytes": 259315,
+        "device": 16777233,
+        "inode": 192069366,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/metal/MetalRunInspector.mm.o.d",
+        "sha256": "2498b7ac4a75695c38ff3e971bff6734a927ad9755ce30e9dbd75e73f7828de3"
+      },
+      {
+        "allocated_bytes": 258048,
+        "bytes": 257967,
+        "device": 16777233,
+        "inode": 192069373,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/metal/MetalTactile.mm.o.d",
+        "sha256": "76cf0bba21fe1214163af69e7c5f3927a68f63df75d9a86b29b17b324b57cb82"
+      },
+      {
+        "allocated_bytes": 245760,
+        "bytes": 242312,
+        "device": 16777233,
+        "inode": 192069360,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/metal/MetalUnifiedQualitySolver.mm.o.d",
+        "sha256": "eef167f26dd93138af6fae8668a8f6e3f8f5db17a098977ceee029f93c0f1765"
+      },
+      {
+        "allocated_bytes": 258048,
+        "bytes": 255606,
+        "device": 16777233,
+        "inode": 192069376,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/metal/MetalWorld.mm.o.d",
+        "sha256": "f94cdf6fa1402400ab4a4837a491bc081d5092efbd41d35a376e9b3f4ae34cf1"
+      },
+      {
+        "allocated_bytes": 258048,
+        "bytes": 255263,
+        "device": 16777233,
+        "inode": 192069367,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/metal/MetalWorldFamily.mm.o.d",
+        "sha256": "c42e6fee1a21e04a1f175f16da0b21203db5b9ebc1da86afec8e696152fe1ede"
+      },
+      {
+        "allocated_bytes": 221184,
+        "bytes": 217517,
+        "device": 16777233,
+        "inode": 192069327,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/metal/NumanXBridgeV1.mm.o.d",
+        "sha256": "45d4e40698bd8c891bf3f1c40110813c9cb33512dc1c4b0b63af7811a2d6ac0f"
+      },
+      {
+        "allocated_bytes": 258048,
+        "bytes": 256881,
+        "device": 16777233,
+        "inode": 192069343,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/metal/NumanXRuntimeV1.mm.o.d",
+        "sha256": "a18b38f7920dca17981069e380d5706bb1415e5bf07539cfdf97c1e82a2d2498"
+      },
+      {
+        "allocated_bytes": 245760,
+        "bytes": 242440,
+        "device": 16777233,
+        "inode": 192069340,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/metal/NumiHumanExtensorHoodMetal.mm.o.d",
+        "sha256": "6acfa6baeb6ae48b0945670af0ad95cb63faad71814a95f39a0a78125435c473"
+      },
+      {
+        "allocated_bytes": 229376,
+        "bytes": 228611,
+        "device": 16777233,
+        "inode": 192069287,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/metal/NumiHumanLoadedKneeBinding.mm.o.d",
+        "sha256": "273e296dd641942f2bb01adf7a37be5e25b401555cd5dd0ae7082fcd9c6f1d52"
+      },
+      {
+        "allocated_bytes": 245760,
+        "bytes": 245577,
+        "device": 16777233,
+        "inode": 192069333,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles/metalrobo.dir/src/metal/NumiHumanTendonMetal.mm.o.d",
+        "sha256": "2d8a767c9fa5b862964eee3093edc480998362fe95af57c4adadf0ffdb92c6b9"
+      }
+    ],
+    "136": [
+      {
+        "allocated_bytes": 200704,
+        "bytes": 198916,
+        "device": 16777233,
+        "inode": 192079646,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/apple/CaptureManifestJSON.mm.o.d",
+        "sha256": "7c780807e296b995c9032c3c90284fb72cb525226822efef2e398552ed7ecc92"
+      },
+      {
+        "allocated_bytes": 286720,
+        "bytes": 286086,
+        "device": 16777233,
+        "inode": 192079649,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/apple/EnvironmentCooker.mm.o.d",
+        "sha256": "4fe708bd9c6374168dff6793aa3a22cd41437b799751d4bd0b1bfb928f2733b4"
+      },
+      {
+        "allocated_bytes": 204800,
+        "bytes": 202262,
+        "device": 16777233,
+        "inode": 192079645,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/apple/HardwareOutcomeJSON.mm.o.d",
+        "sha256": "c4313711466d637bab66a8675cb0f53c5a80ddec71a63d1d1ccb3cf9f8c5aa60"
+      },
+      {
+        "allocated_bytes": 344064,
+        "bytes": 342972,
+        "device": 16777233,
+        "inode": 192079660,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/apple/VisualAssetCooker.mm.o.d",
+        "sha256": "9dc238a243a6d466d3a0e413ef28548aa740140cad10f362d7c60da1cbb78cb1"
+      },
+      {
+        "allocated_bytes": 155648,
+        "bytes": 152586,
+        "device": 16777233,
+        "inode": 192079946,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/c_api.cpp.o.d",
+        "sha256": "5a07fbdf1b1b9ab409e6d2c176a34e6b0a201c9296b66123db2e331bf673947d"
+      },
+      {
+        "allocated_bytes": 122880,
+        "bytes": 119298,
+        "device": 16777233,
+        "inode": 192079536,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/ArticulatedActuation.cpp.o.d",
+        "sha256": "359d2330e7e49bcc27719114ee6e964c8c57e79066beab31be7d3097e0074eaa"
+      },
+      {
+        "allocated_bytes": 114688,
+        "bytes": 113268,
+        "device": 16777233,
+        "inode": 192079624,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/ArticulatedCollision.cpp.o.d",
+        "sha256": "a0eaab9ee73c1ec8691c25f5a238f58177aa9ead4791b7bb71280b6d2f2d51dd"
+      },
+      {
+        "allocated_bytes": 114688,
+        "bytes": 110872,
+        "device": 16777233,
+        "inode": 192079611,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/ArticulatedContact.cpp.o.d",
+        "sha256": "f4870049382073dd370785ba51b8f06ccc83014b7eb9ed69677cd3eaf8d8dfa3"
+      },
+      {
+        "allocated_bytes": 114688,
+        "bytes": 111536,
+        "device": 16777233,
+        "inode": 192079538,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/ArticulatedDynamics.cpp.o.d",
+        "sha256": "8b396e006fe6e834895255b5ad43ab85ef55e592de6cfe1744767bf88d6bdf02"
+      },
+      {
+        "allocated_bytes": 122880,
+        "bytes": 119612,
+        "device": 16777233,
+        "inode": 192079609,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/ArticulatedJointLimits.cpp.o.d",
+        "sha256": "440c162ed8a6380aef50a17499049f071696503dd01766142c934d9cf76f146a"
+      },
+      {
+        "allocated_bytes": 122880,
+        "bytes": 119917,
+        "device": 16777233,
+        "inode": 192079617,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/ArticulatedMixedConstraints.cpp.o.d",
+        "sha256": "092ea864df37229fcc6c23ab8b9c5db2a5daeb9e2988ca828817454c3a902646"
+      },
+      {
+        "allocated_bytes": 122880,
+        "bytes": 121914,
+        "device": 16777233,
+        "inode": 192079621,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/ArticulatedRigidCollision.cpp.o.d",
+        "sha256": "9dac80999cd6211eb324884c5bcb8b419951e07a8d5975e63e238d10be089c1c"
+      },
+      {
+        "allocated_bytes": 126976,
+        "bytes": 123268,
+        "device": 16777233,
+        "inode": 192079626,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/ArticulatedRigidWorld.cpp.o.d",
+        "sha256": "81dd5ca99c9f78badd8ebe97ef56d849f4d17f71da4c1cf1507173a6fad1b3e0"
+      },
+      {
+        "allocated_bytes": 122880,
+        "bytes": 122029,
+        "device": 16777233,
+        "inode": 192079628,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/ArticulatedWorld.cpp.o.d",
+        "sha256": "d3b919ef50b812d683a33f4a121ac3889bcc94bf1daa889a175437c56792ff3a"
+      },
+      {
+        "allocated_bytes": 110592,
+        "bytes": 108779,
+        "device": 16777233,
+        "inode": 192079540,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/Collision.cpp.o.d",
+        "sha256": "4561393c47db24790faf26a738a7ac763f4cf671646b1932ed27c766d2c1943a"
+      },
+      {
+        "allocated_bytes": 90112,
+        "bytes": 86298,
+        "device": 16777233,
+        "inode": 192079433,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/CompiledMetalMultiArticulatedContactProgram.cpp.o.d",
+        "sha256": "eb6de3ddd82b8f5d695f9f507124cc9af988c8316f2ebff6d1502af0852b8ce4"
+      },
+      {
+        "allocated_bytes": 118784,
+        "bytes": 115035,
+        "device": 16777233,
+        "inode": 192079431,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/CompiledMetalMultiArticulatedProgram.cpp.o.d",
+        "sha256": "9ba39865120c9bf0a74204190730db017c66c296f44cf668d0e42c2ce1dcc1ad"
+      },
+      {
+        "allocated_bytes": 114688,
+        "bytes": 113899,
+        "device": 16777233,
+        "inode": 192079634,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/ConstraintIR.cpp.o.d",
+        "sha256": "e0f26d052a7b778458c89575cc548ac37736bef503388b9a1b3aff23157cfc76"
+      },
+      {
+        "allocated_bytes": 114688,
+        "bytes": 112368,
+        "device": 16777233,
+        "inode": 192079636,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/ConstraintSolver.cpp.o.d",
+        "sha256": "8f4ed0ae8bb92cc1dc7aa078302160dedaa254f7a6df8a4b51f20136b6d4909f"
+      },
+      {
+        "allocated_bytes": 122880,
+        "bytes": 119241,
+        "device": 16777233,
+        "inode": 192079613,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/CoupledArticulatedRigidContact.cpp.o.d",
+        "sha256": "38f351eddc3c3b782b4c0cd72df7d704fdab6a8c62e4fa6a9c8bcb9c48ad7996"
+      },
+      {
+        "allocated_bytes": 106496,
+        "bytes": 105896,
+        "device": 16777233,
+        "inode": 192079420,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/CpuDynamics.cpp.o.d",
+        "sha256": "d34727ca24c4acd61a261977136fe413c437100d07079068d04a82043c59a4bc"
+      },
+      {
+        "allocated_bytes": 118784,
+        "bytes": 115207,
+        "device": 16777233,
+        "inode": 192079520,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/DiscreteElasticRod.cpp.o.d",
+        "sha256": "b0c8f4dd7c2bd7203dd91656b8c866e2e35b43f33272f108fcf58c9f1cf64e1d"
+      },
+      {
+        "allocated_bytes": 114688,
+        "bytes": 113178,
+        "device": 16777233,
+        "inode": 192079503,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/EmbodiedTactile.cpp.o.d",
+        "sha256": "473406e5503a8502d9c70cb65ee2334f0e816f081d29146d2207018535028bff"
+      },
+      {
+        "allocated_bytes": 114688,
+        "bytes": 111250,
+        "device": 16777233,
+        "inode": 192079422,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/EngineModel.cpp.o.d",
+        "sha256": "73726e96481140fbb11ab55def2d86e252db601e9c4fe30c3ef402e425f5b870"
+      },
+      {
+        "allocated_bytes": 122880,
+        "bytes": 121245,
+        "device": 16777233,
+        "inode": 192079424,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/EngineModelComposer.cpp.o.d",
+        "sha256": "c6a1dda92ad41e58c91de5a6e8fe46087db3919fcc3c6f775038410fb7f02976"
+      },
+      {
+        "allocated_bytes": 139264,
+        "bytes": 138657,
+        "device": 16777233,
+        "inode": 192079449,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/EpisodeTwinCompiler.cpp.o.d",
+        "sha256": "a1c69dd8b87e81721d1d6692322373b9068bd9d10c2eb12e80832a2ebc327dc4"
+      },
+      {
+        "allocated_bytes": 81920,
+        "bytes": 78288,
+        "device": 16777233,
+        "inode": 192079412,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/Franka.cpp.o.d",
+        "sha256": "496bd32958d0d42d5f88602629caed57bd6c62021838b07cb8b7ad09e8baa336"
+      },
+      {
+        "allocated_bytes": 86016,
+        "bytes": 83242,
+        "device": 16777233,
+        "inode": 192079416,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/FrankaEngine.cpp.o.d",
+        "sha256": "e908021679e9e0f51c6b29ccfe87cecaccb101cdfff28a884cba25315f052b33"
+      },
+      {
+        "allocated_bytes": 110592,
+        "bytes": 110555,
+        "device": 16777233,
+        "inode": 192079418,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/FrankaHand.cpp.o.d",
+        "sha256": "3260a614413e57f59d465dc486afddf841f8e502a80e8ee5aeb83c02c06afbdd"
+      },
+      {
+        "allocated_bytes": 135168,
+        "bytes": 131283,
+        "device": 16777233,
+        "inode": 192079428,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/FrankaWorld.cpp.o.d",
+        "sha256": "93b0ae4866a1a3765f79e52d3a19f0ea91451c7607654ef7a857bd2821487736"
+      },
+      {
+        "allocated_bytes": 106496,
+        "bytes": 106345,
+        "device": 16777233,
+        "inode": 192079525,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/FreeBodyDynamics.cpp.o.d",
+        "sha256": "944a7f67d41c41bf01d3255f0ea4d6e48ac07f6520a1fd509ab5d9cc207d6260"
+      },
+      {
+        "allocated_bytes": 114688,
+        "bytes": 110932,
+        "device": 16777233,
+        "inode": 192079481,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/G1.cpp.o.d",
+        "sha256": "389d98dd191dff91899f9b13082e91c387c50e6a61536747e666afc206775192"
+      },
+      {
+        "allocated_bytes": 118784,
+        "bytes": 115195,
+        "device": 16777233,
+        "inode": 192079475,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/GeometryCooker.cpp.o.d",
+        "sha256": "19c1eca45c4ca7ab410d89e10c23fbb547db0bac7419f447cabff235d74ae61f"
+      },
+      {
+        "allocated_bytes": 122880,
+        "bytes": 122068,
+        "device": 16777233,
+        "inode": 192079530,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/HeterogeneousWorld.cpp.o.d",
+        "sha256": "2b1a3f861588278af737064f1e4b45890dc0224511c42275be5643dc48e7c6c4"
+      },
+      {
+        "allocated_bytes": 98304,
+        "bytes": 98006,
+        "device": 16777233,
+        "inode": 192079561,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/HumanBehaviorAcceptedStateRoot.cpp.o.d",
+        "sha256": "498d350dbf9323be9525351105e072f38c6c62f2cae378a468900506d402a25d"
+      },
+      {
+        "allocated_bytes": 131072,
+        "bytes": 130691,
+        "device": 16777233,
+        "inode": 192079577,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/HumanBehaviorNativeAudit.cpp.o.d",
+        "sha256": "cee34f05c82bf5b80ea7cceb000003684143ef0f64f9e5a324ea3d54c73b7abe"
+      },
+      {
+        "allocated_bytes": 110592,
+        "bytes": 109521,
+        "device": 16777233,
+        "inode": 192079563,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/HumanBehaviorProgram.cpp.o.d",
+        "sha256": "aa495ef47944ea6a60d29a027762df04ea1425bc270d99d1e38fc7698e1354aa"
+      },
+      {
+        "allocated_bytes": 98304,
+        "bytes": 97739,
+        "device": 16777233,
+        "inode": 192079568,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/HumanBehaviorStateComponents.cpp.o.d",
+        "sha256": "a2b220fa7e8683184638e000f60e98e7419920ac9f91c47824e559bbd8582b6e"
+      },
+      {
+        "allocated_bytes": 110592,
+        "bytes": 110400,
+        "device": 16777233,
+        "inode": 192079566,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/HumanBehaviorTrial.cpp.o.d",
+        "sha256": "37766f3aff597a07db36a97f8f57c8ce368356d6af1a458353c9082d1748a78e"
+      },
+      {
+        "allocated_bytes": 135168,
+        "bytes": 133345,
+        "device": 16777233,
+        "inode": 192079491,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/HyperPolicyPacks.cpp.o.d",
+        "sha256": "0523698584ad765dfa3b2788a5e0e6b58df19303fb4fb50012b09246d760c4a9"
+      },
+      {
+        "allocated_bytes": 126976,
+        "bytes": 124414,
+        "device": 16777233,
+        "inode": 192079488,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/HyperPolicyProgram.cpp.o.d",
+        "sha256": "50af7caf9ac78c85029223bcff0360ecb88c529dc936db60b07c9dad41b9568a"
+      },
+      {
+        "allocated_bytes": 135168,
+        "bytes": 132805,
+        "device": 16777233,
+        "inode": 192079507,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/LearningPacks.cpp.o.d",
+        "sha256": "ccdecb883428dd5041d514256af61d458d3317ced74de6225943e0ca4edc8728"
+      },
+      {
+        "allocated_bytes": 131072,
+        "bytes": 130044,
+        "device": 16777233,
+        "inode": 192079495,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/LocomotionWorld.cpp.o.d",
+        "sha256": "4ec763606ab00d113226a196a880d28a55599f6276d89b0b56f4b789df7b3bcc"
+      },
+      {
+        "allocated_bytes": 102400,
+        "bytes": 102212,
+        "device": 16777233,
+        "inode": 192079443,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/MatterSnapshotArchive.cpp.o.d",
+        "sha256": "976841aead611a69fe4383a9ecbcbce5c8cb7e50fefad2423b9d39861ef42872"
+      },
+      {
+        "allocated_bytes": 114688,
+        "bytes": 111830,
+        "device": 16777233,
+        "inode": 192079542,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/MillardMuscleReference.cpp.o.d",
+        "sha256": "4254c0fbbea2611b054da9468de2dd53b283e1303e0f05cf7f51b216a7c33abc"
+      },
+      {
+        "allocated_bytes": 94208,
+        "bytes": 91350,
+        "device": 16777233,
+        "inode": 192079411,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/Model.cpp.o.d",
+        "sha256": "851634541b916611b4700adfbfcf561765ecc71e69641141aba8197c4fd4e1ba"
+      },
+      {
+        "allocated_bytes": 131072,
+        "bytes": 128933,
+        "device": 16777233,
+        "inode": 192079497,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/MotionCompiler.cpp.o.d",
+        "sha256": "5527cd428125caf197fcf06bb136b3ee318d53f32170bb6aeb410d47a79bfec9"
+      },
+      {
+        "allocated_bytes": 114688,
+        "bytes": 111560,
+        "device": 16777233,
+        "inode": 192079546,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/MujocoMuscleReference.cpp.o.d",
+        "sha256": "fa2ebec34ec5b108e414742737b32d10b43ca7736912ca7da18b9c509e642a98"
+      },
+      {
+        "allocated_bytes": 122880,
+        "bytes": 119904,
+        "device": 16777233,
+        "inode": 192079638,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/MultiArticulatedContact.cpp.o.d",
+        "sha256": "cfab315ff5c09a0c2ccb15b97da0d73fc11af484b2f7a4898e80e54a7141134b"
+      },
+      {
+        "allocated_bytes": 122880,
+        "bytes": 119607,
+        "device": 16777233,
+        "inode": 192079629,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/MultiArticulatedWorld.cpp.o.d",
+        "sha256": "f90a6c29278a65b30f020f745e4b8e5fab0b893533f8c53b8a70bdb7b419aab2"
+      },
+      {
+        "allocated_bytes": 94208,
+        "bytes": 92574,
+        "device": 16777233,
+        "inode": 192079524,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/Multicopter.cpp.o.d",
+        "sha256": "492599c3c31d13dcb3a924e50a07430d47428e7bb76284f06cb602f17a944f16"
+      },
+      {
+        "allocated_bytes": 126976,
+        "bytes": 125249,
+        "device": 16777233,
+        "inode": 192079455,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/NeuronCulture.cpp.o.d",
+        "sha256": "c8cc687c4b2defed8a2e27b5c0ae6ebb6dbb9de56a46b2f3ee79cb8297665411"
+      },
+      {
+        "allocated_bytes": 131072,
+        "bytes": 128199,
+        "device": 16777233,
+        "inode": 192079462,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/NeuronCultureArtifacts.cpp.o.d",
+        "sha256": "336430bc6948f89d8a49a7ba27361194a19462c73461797d53673bedf53ca728"
+      },
+      {
+        "allocated_bytes": 122880,
+        "bytes": 121080,
+        "device": 16777233,
+        "inode": 192079460,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/NeuronCultureEmbodiment.cpp.o.d",
+        "sha256": "391290f538015d23ffa6ceefbfbdab9755d4d1ffc68a6c59542f82fabe8c2a9f"
+      },
+      {
+        "allocated_bytes": 126976,
+        "bytes": 124129,
+        "device": 16777233,
+        "inode": 192079464,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/NeuronCultureProtocol.cpp.o.d",
+        "sha256": "ca33bd7824648fb6fc34797264205604ef122ebd64018a592253cfc1765d5e28"
+      },
+      {
+        "allocated_bytes": 16384,
+        "bytes": 16205,
+        "device": 16777233,
+        "inode": 192079551,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/NumanXExactTransaction.cpp.o.d",
+        "sha256": "7af741140f1431923fc005f24b7146c0b07576c5211c9cd0b9585e0d8bc56b3d"
+      },
+      {
+        "allocated_bytes": 106496,
+        "bytes": 105791,
+        "device": 16777233,
+        "inode": 192079588,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/NumiHumanCartilage.cpp.o.d",
+        "sha256": "343f69c008b506b03e4d4f94b6d203fe074f48dcaaf6a587c1a172f6654054be"
+      },
+      {
+        "allocated_bytes": 126976,
+        "bytes": 123537,
+        "device": 16777233,
+        "inode": 192079605,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/NumiHumanContinuumMap.cpp.o.d",
+        "sha256": "37d2e7d7c1bf85ca5ddc9c6e8604f17fdcbeb09498f8f179768b307cccfb1512"
+      },
+      {
+        "allocated_bytes": 110592,
+        "bytes": 108131,
+        "device": 16777233,
+        "inode": 192079553,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/NumiHumanInitialState.cpp.o.d",
+        "sha256": "7d08afd6fa11acafb96b66f279d485a288edfc6058a5fcab2ac2a54ccb1b9309"
+      },
+      {
+        "allocated_bytes": 110592,
+        "bytes": 106515,
+        "device": 16777233,
+        "inode": 192079544,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/NumiHumanJointEquality.cpp.o.d",
+        "sha256": "b6bbe70921a91038882ab8904efdf648ba38f2b6a708b373de0363aefcac3be1"
+      },
+      {
+        "allocated_bytes": 106496,
+        "bytes": 105776,
+        "device": 16777233,
+        "inode": 192079596,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/NumiHumanKnee.cpp.o.d",
+        "sha256": "89251e6456d143ef778345f168427c73a9ee3988ccdf85c6309cf3be01920d5a"
+      },
+      {
+        "allocated_bytes": 114688,
+        "bytes": 110887,
+        "device": 16777233,
+        "inode": 192079600,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/NumiHumanKneeContact.cpp.o.d",
+        "sha256": "0e4798795794932ad40b9efe2e18fa6216c2ba4be85c69086136058244f6f9f4"
+      },
+      {
+        "allocated_bytes": 139264,
+        "bytes": 136576,
+        "device": 16777233,
+        "inode": 192079614,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/NumiHumanLoadedKnee.cpp.o.d",
+        "sha256": "7b0a93b75a851d363235ede0c2f8ab5d32296b10a2ba2e1eadbc0e1a4c83bf5c"
+      },
+      {
+        "allocated_bytes": 98304,
+        "bytes": 96849,
+        "device": 16777233,
+        "inode": 192079598,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/NumiHumanLoadedKneeNumanX.cpp.o.d",
+        "sha256": "989f122207386040f8d655d55659beffc721b1b624e7e6d93e50cd8133c42e7d"
+      },
+      {
+        "allocated_bytes": 233472,
+        "bytes": 229770,
+        "device": 16777233,
+        "inode": 192079591,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/NumiHumanMuscleEquilibrium.cpp.o.d",
+        "sha256": "877c36b036e5aadad7e0112705085a593e33ca169c9035f1db7a9e97d50ea194"
+      },
+      {
+        "allocated_bytes": 118784,
+        "bytes": 117936,
+        "device": 16777233,
+        "inode": 192079555,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/NumiHumanProductionOwnerEvidenceWriter.cpp.o.d",
+        "sha256": "421fea8903eec55681aacb07ffb793eb2af96773af20f546f9b52eae29f7c292"
+      },
+      {
+        "allocated_bytes": 122880,
+        "bytes": 120665,
+        "device": 16777233,
+        "inode": 192079559,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/NumiHumanProductionOwnerSnapshot.cpp.o.d",
+        "sha256": "58389a97192878ad6a295681de6f55cb030e295a164c1024083fe3e73dcf44fb"
+      },
+      {
+        "allocated_bytes": 57344,
+        "bytes": 54555,
+        "device": 16777233,
+        "inode": 192079549,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/NumiHumanRuntimeIdentity.cpp.o.d",
+        "sha256": "988355e2c9bacbd03bc1739961c790e2e2f247f361c79a16ec11e99f1cb52396"
+      },
+      {
+        "allocated_bytes": 135168,
+        "bytes": 132508,
+        "device": 16777233,
+        "inode": 192079557,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/NumiHumanSourceConstraints.cpp.o.d",
+        "sha256": "fe39a5556bb1c218a1d779d3eaec67a754d57fc836ec39bcc4e778f1fec94399"
+      },
+      {
+        "allocated_bytes": 110592,
+        "bytes": 109661,
+        "device": 16777233,
+        "inode": 192079534,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/NumiHumanSupport.cpp.o.d",
+        "sha256": "a83e32af53fb6f5d54a2c107dbef376237cf80117018ecdc3c44535a076809a8"
+      },
+      {
+        "allocated_bytes": 114688,
+        "bytes": 110864,
+        "device": 16777233,
+        "inode": 192079586,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/NumiHumanTendon.cpp.o.d",
+        "sha256": "3dfbbc375a229057349fbc500568acc12e9fc733815f23c76adf7dac259aafe0"
+      },
+      {
+        "allocated_bytes": 110592,
+        "bytes": 108515,
+        "device": 16777233,
+        "inode": 192079584,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/NumiHumanTensionNetwork.cpp.o.d",
+        "sha256": "a77ae7980432b1217839e31807018e81d88e3270279f0033d653a197c207ec46"
+      },
+      {
+        "allocated_bytes": 131072,
+        "bytes": 128927,
+        "device": 16777233,
+        "inode": 192079603,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/NumiHumanTissueBinding.cpp.o.d",
+        "sha256": "e1067a1a591671258d7ba1c4e9f347930002615c9171f29170a8b307cecf70c5"
+      },
+      {
+        "allocated_bytes": 114688,
+        "bytes": 112100,
+        "device": 16777233,
+        "inode": 192079594,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/NumiHumanTissueMass.cpp.o.d",
+        "sha256": "0e084792a9b6349f46c9ae7c293a1f062131af7e826e4aa90a945bb2bd96d481"
+      },
+      {
+        "allocated_bytes": 106496,
+        "bytes": 105528,
+        "device": 16777233,
+        "inode": 192079469,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/OpenSimFunction.cpp.o.d",
+        "sha256": "0f4356b1c5c0ea19424bc75c012444898f92c157d536735800348ce6b3b0b066"
+      },
+      {
+        "allocated_bytes": 114688,
+        "bytes": 111548,
+        "device": 16777233,
+        "inode": 192079477,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/OpenSimMobileRoot.cpp.o.d",
+        "sha256": "7fab832c2e4c0a532690c60aaca3067771a0c7ba7a159bd0718a97c5f89b86f9"
+      },
+      {
+        "allocated_bytes": 106496,
+        "bytes": 105976,
+        "device": 16777233,
+        "inode": 192079473,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/OpenSimSpatialTransform.cpp.o.d",
+        "sha256": "5af799c7aeb6f56d216b41e7a6a1f3e10fd976ab03e2a475a3952af6a00f3577"
+      },
+      {
+        "allocated_bytes": 57344,
+        "bytes": 54127,
+        "device": 16777233,
+        "inode": 192079528,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/PX4X500.cpp.o.d",
+        "sha256": "b86f92fd781e4cff6bcc3586a78778511d04829b1b762f42b30ed12dcaba334a"
+      },
+      {
+        "allocated_bytes": 122880,
+        "bytes": 120657,
+        "device": 16777233,
+        "inode": 192079426,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/ParallelABASchedule.cpp.o.d",
+        "sha256": "dee681df0a0e8ba6ac9fc7cd15f7b2fd91b85de6c769bb281b0d4da21fbcb050"
+      },
+      {
+        "allocated_bytes": 122880,
+        "bytes": 121817,
+        "device": 16777233,
+        "inode": 192079486,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/PolicyProgram.cpp.o.d",
+        "sha256": "f97bbd12608eb02f280cce4f766781493146824346bb6ceb3b252d6580b2bf69"
+      },
+      {
+        "allocated_bytes": 225280,
+        "bytes": 225071,
+        "device": 16777233,
+        "inode": 192079641,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/QualityContactSolver.cpp.o.d",
+        "sha256": "941a93753c72be2eb0609f440040ceb8ce9d7d0cbab438e1dd82ab472e4b756d"
+      },
+      {
+        "allocated_bytes": 143360,
+        "bytes": 141594,
+        "device": 16777233,
+        "inode": 192079458,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/R2S2R.cpp.o.d",
+        "sha256": "18a574a58cc5a20a5b1c7516861364ff840752f6f375b1ef9d553eb7900b5b27"
+      },
+      {
+        "allocated_bytes": 110592,
+        "bytes": 109756,
+        "device": 16777233,
+        "inode": 192079632,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/ReferenceConicSolver.cpp.o.d",
+        "sha256": "1fa6633a44f030d0b40e27973edcc60138751651ca5052874910dcc93f68b638"
+      },
+      {
+        "allocated_bytes": 118784,
+        "bytes": 117617,
+        "device": 16777233,
+        "inode": 192079643,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/RigidBodyWorld.cpp.o.d",
+        "sha256": "a0c0f45dbe44c7cb606324dff4373b984abfa1a9ee4eeff0ad0f7d66c9c24ae4"
+      },
+      {
+        "allocated_bytes": 143360,
+        "bytes": 141034,
+        "device": 16777233,
+        "inode": 192079484,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/RobotDescriptionCooker.cpp.o.d",
+        "sha256": "2ddec63d87475e3f694e5f0adc9083dcf6c19fa893007c727a5f6710b958b27e"
+      },
+      {
+        "allocated_bytes": 143360,
+        "bytes": 140401,
+        "device": 16777233,
+        "inode": 192079436,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/RunProgram.cpp.o.d",
+        "sha256": "6cc7afc928f26c6264de2b78d0e7a90a217eb9084b8b03f587ae98d7933a7505"
+      },
+      {
+        "allocated_bytes": 106496,
+        "bytes": 106211,
+        "device": 16777233,
+        "inode": 192079505,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/SurgicalAssets.cpp.o.d",
+        "sha256": "463e56c26fa0a0c798e8c58e0d8525811cb7ef45806b9579e684a884928f123e"
+      },
+      {
+        "allocated_bytes": 114688,
+        "bytes": 114039,
+        "device": 16777233,
+        "inode": 192079510,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/SurgicalKnot.cpp.o.d",
+        "sha256": "c92c48b0a30d2e7785b811dd872b9fa9f2b0df305cb4a5d17f2dce5d89877b36"
+      },
+      {
+        "allocated_bytes": 114688,
+        "bytes": 111386,
+        "device": 16777233,
+        "inode": 192079500,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/SurgicalPSM.cpp.o.d",
+        "sha256": "f874fc819363d97525899386119cb03399bb9aa4152317c4995063a7adba72d6"
+      },
+      {
+        "allocated_bytes": 106496,
+        "bytes": 105932,
+        "device": 16777233,
+        "inode": 192079518,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/SurgicalThreadTargeting.cpp.o.d",
+        "sha256": "cf0dc77aff66bbadea2dc00ce3b93cbd5ad04aac3cf69318c6701a5aebcc457d"
+      },
+      {
+        "allocated_bytes": 126976,
+        "bytes": 126489,
+        "device": 16777233,
+        "inode": 192079509,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/SurgicalVisual.cpp.o.d",
+        "sha256": "fdb02d8c1a3ce973e2fdfc829269227a2b29ea341d5f7d74f230dd36aaedeb56"
+      },
+      {
+        "allocated_bytes": 122880,
+        "bytes": 119695,
+        "device": 16777233,
+        "inode": 192079513,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/SurgicalWorld.cpp.o.d",
+        "sha256": "ea9491063a4a6cf2cc88c68bc1fabcf8ec08ee40211cf1b6103ff47847f30719"
+      },
+      {
+        "allocated_bytes": 135168,
+        "bytes": 132775,
+        "device": 16777233,
+        "inode": 192079470,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/Tactile.cpp.o.d",
+        "sha256": "606191005fd5a3f1cf32087e9eca016727066a6805be3be2d89be096755eb5bd"
+      },
+      {
+        "allocated_bytes": 126976,
+        "bytes": 125359,
+        "device": 16777233,
+        "inode": 192079467,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/TactileDebug.cpp.o.d",
+        "sha256": "1d44d9660096a9a79265e2027fdfd7d7da5dd99417cc3b4840ef520802efcf33"
+      },
+      {
+        "allocated_bytes": 118784,
+        "bytes": 116500,
+        "device": 16777233,
+        "inode": 192079492,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/TaskProgram.cpp.o.d",
+        "sha256": "123b6b4de8b09b20148312e68c7da99f9b391aaac52a7c05c07035ce8458ef10"
+      },
+      {
+        "allocated_bytes": 147456,
+        "bytes": 145159,
+        "device": 16777233,
+        "inode": 192079452,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/VisualPlatform.cpp.o.d",
+        "sha256": "5382077c97982e7d894ae2bc4386705b012cc553c559737ad768c1ae2bda0371"
+      },
+      {
+        "allocated_bytes": 139264,
+        "bytes": 136059,
+        "device": 16777233,
+        "inode": 192079454,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/VisualPresentation.cpp.o.d",
+        "sha256": "18df51d4303620fb5f134d21b68ca827e0fdb5d8f16cca44026c58968cb75f05"
+      },
+      {
+        "allocated_bytes": 139264,
+        "bytes": 136584,
+        "device": 16777233,
+        "inode": 192079516,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/Wave.cpp.o.d",
+        "sha256": "80602a97e4fd2ec486eb03ca2f8adbb624fec8e6b5b3ecf937e2ccd482f33063"
+      },
+      {
+        "allocated_bytes": 114688,
+        "bytes": 114560,
+        "device": 16777233,
+        "inode": 192079445,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/WorldCompiler.cpp.o.d",
+        "sha256": "eae58678c2659b8aed16bcb8071ba922466f051739d1e7e7cb98962c68b43915"
+      },
+      {
+        "allocated_bytes": 106496,
+        "bytes": 102664,
+        "device": 16777233,
+        "inode": 192079447,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/core/WorldPack.cpp.o.d",
+        "sha256": "bfae85df5ff6b11152467e8270224892a578c5a8efee8c8ef9eacc2d9ebfa8a9"
+      },
+      {
+        "allocated_bytes": 253952,
+        "bytes": 250411,
+        "device": 16777233,
+        "inode": 192079675,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/metal/MetalArticulatedABA.mm.o.d",
+        "sha256": "7f811d257e872fa28e3ae22fe0d4ef00bd7e0132448d8badc7c2f63f4857dbd0"
+      },
+      {
+        "allocated_bytes": 253952,
+        "bytes": 250435,
+        "device": 16777233,
+        "inode": 192079678,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/metal/MetalArticulatedInverseMass.mm.o.d",
+        "sha256": "3217c2f90c3d8a1b9a3a0b4a4c5d76944ad6d7b9a7c0a59ee77317aec19d2f7c"
+      },
+      {
+        "allocated_bytes": 299008,
+        "bytes": 296899,
+        "device": 16777233,
+        "inode": 192079667,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/metal/MetalArticulatedOperator.mm.o.d",
+        "sha256": "66061dac830fe0382255e5c540b9d85b8fb5447868005c835759d7c0caeee055"
+      },
+      {
+        "allocated_bytes": 258048,
+        "bytes": 254664,
+        "device": 16777233,
+        "inode": 192079680,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/metal/MetalDiscreteElasticRod.mm.o.d",
+        "sha256": "0b6d2ee09e8194b9fa27ab4245dce1d12f5befeb798a8d8740d338ca5ad6da13"
+      },
+      {
+        "allocated_bytes": 237568,
+        "bytes": 234750,
+        "device": 16777233,
+        "inode": 192079651,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/metal/MetalHumanBehaviorTelemetry.mm.o.d",
+        "sha256": "f4667fe58f95ed5fdc1e94fd358ff24115a9db3226a03d00104b7ec947701ce8"
+      },
+      {
+        "allocated_bytes": 270336,
+        "bytes": 266994,
+        "device": 16777233,
+        "inode": 192079831,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/metal/MetalHybridRenderer.mm.o.d",
+        "sha256": "6c8316bc2e65d8b83a6c94c0fb26c9f4fc1536d5aacb0123ad7589fafd2819b2"
+      },
+      {
+        "allocated_bytes": 249856,
+        "bytes": 246211,
+        "device": 16777233,
+        "inode": 192079704,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/metal/MetalHyperPolicy.mm.o.d",
+        "sha256": "84950f5736fa58b1b4480183be06c06aa22e9d733b3afaec2525dc3d2062d707"
+      },
+      {
+        "allocated_bytes": 253952,
+        "bytes": 253137,
+        "device": 16777233,
+        "inode": 192079674,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/metal/MetalMultiArticulatedABA.mm.o.d",
+        "sha256": "dc833f95f36860d81fd9895af87bfea1c3359f8acf04fcaee5b633122b32cf8e"
+      },
+      {
+        "allocated_bytes": 258048,
+        "bytes": 257513,
+        "device": 16777233,
+        "inode": 192079684,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/metal/MetalMultiArticulatedConstraints.mm.o.d",
+        "sha256": "f4629c329a68ab332dcf3704bcb69fbb3d5eb80e83f8159c6e28279b4c4496aa"
+      },
+      {
+        "allocated_bytes": 258048,
+        "bytes": 257791,
+        "device": 16777233,
+        "inode": 192079701,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/metal/MetalMultiArticulatedContact.mm.o.d",
+        "sha256": "5e95c986a56fd7b2964b6f24ca5227abf5275ff6212ddc95195843863c48a11a"
+      },
+      {
+        "allocated_bytes": 253952,
+        "bytes": 253161,
+        "device": 16777233,
+        "inode": 192079681,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/metal/MetalMultiArticulatedInverseMass.mm.o.d",
+        "sha256": "c55873d205f6fe7b73171051f8bff1011c6659cb32a3082622bb9a8c89915b2d"
+      },
+      {
+        "allocated_bytes": 217088,
+        "bytes": 215732,
+        "device": 16777233,
+        "inode": 192079775,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/metal/MetalNeuronCulture.mm.o.d",
+        "sha256": "74d2d2ddedd6063fca14cfdf84516d35e060a881171769b554bfd6d0625e4eba"
+      },
+      {
+        "allocated_bytes": 245760,
+        "bytes": 243996,
+        "device": 16777233,
+        "inode": 192079658,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/metal/MetalNumanXCoupledHuman.mm.o.d",
+        "sha256": "be68c385935b5031d6d98c8d5035fce0d34d819811f2e0e3863a24c46c2867de"
+      },
+      {
+        "allocated_bytes": 258048,
+        "bytes": 254750,
+        "device": 16777233,
+        "inode": 192079652,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/metal/MetalNumanXHumanIO.mm.o.d",
+        "sha256": "c3c6c776df403e40669be63c7b61b17b67fe4e5d56d7db2f6ac0bd7adca93b10"
+      },
+      {
+        "allocated_bytes": 249856,
+        "bytes": 249042,
+        "device": 16777233,
+        "inode": 192079665,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/metal/MetalNumanXHumanMatter.mm.o.d",
+        "sha256": "3fdcfbb44e7da6a247dcd747acfcbbc66b6e07308ec725d356b7ea62b31e979d"
+      },
+      {
+        "allocated_bytes": 245760,
+        "bytes": 242456,
+        "device": 16777233,
+        "inode": 192079688,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/metal/MetalQualityContactSolver.mm.o.d",
+        "sha256": "9ad5c647b9f32f9ae9f085b8dcf37742a6ea1fa6990f0dfd9c6cd6fd5875e85e"
+      },
+      {
+        "allocated_bytes": 262144,
+        "bytes": 259315,
+        "device": 16777233,
+        "inode": 192079761,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/metal/MetalRunInspector.mm.o.d",
+        "sha256": "cf5bb5bb2556c8dbe9fe107ed641a423f9f51858df6646bfa91dc4af2d23c8c2"
+      },
+      {
+        "allocated_bytes": 258048,
+        "bytes": 257967,
+        "device": 16777233,
+        "inode": 192079830,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/metal/MetalTactile.mm.o.d",
+        "sha256": "3a64bee68854c91c3a6b90fadcf2d3c2ec82b8ff9c9b747bd5732cefa3b06f25"
+      },
+      {
+        "allocated_bytes": 245760,
+        "bytes": 242312,
+        "device": 16777233,
+        "inode": 192079695,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/metal/MetalUnifiedQualitySolver.mm.o.d",
+        "sha256": "27a6abcc22cfa7658e59eaaa86f51dc54e08a4c458d905edda511e47e0941322"
+      },
+      {
+        "allocated_bytes": 258048,
+        "bytes": 255606,
+        "device": 16777233,
+        "inode": 192079901,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/metal/MetalWorld.mm.o.d",
+        "sha256": "3001495573e169fdb91f8bb9d74500af53439ad37d8a638a59399209c8bd7625"
+      },
+      {
+        "allocated_bytes": 258048,
+        "bytes": 255263,
+        "device": 16777233,
+        "inode": 192079759,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/metal/MetalWorldFamily.mm.o.d",
+        "sha256": "021af670bea7cad3c4f939f9bf705c9f86ab28a4b5ad8fd39fe44c7dedcace0b"
+      },
+      {
+        "allocated_bytes": 221184,
+        "bytes": 217517,
+        "device": 16777233,
+        "inode": 192079656,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/metal/NumanXBridgeV1.mm.o.d",
+        "sha256": "f74ee0a1dd3fc9cae9b6145bb45fc22454298618f9e37a4f2db2b78129e02417"
+      },
+      {
+        "allocated_bytes": 258048,
+        "bytes": 256881,
+        "device": 16777233,
+        "inode": 192079672,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/metal/NumanXRuntimeV1.mm.o.d",
+        "sha256": "222ddb4c3f9e6d483da172e4a2cce9b71ebf220a1f473c81069bb1f101739518"
+      },
+      {
+        "allocated_bytes": 245760,
+        "bytes": 242440,
+        "device": 16777233,
+        "inode": 192079669,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/metal/NumiHumanExtensorHoodMetal.mm.o.d",
+        "sha256": "03dbed8fde908e4591129ffdd6e246c7179d20c8065cc0f88bd345e88ff1f97d"
+      },
+      {
+        "allocated_bytes": 229376,
+        "bytes": 228611,
+        "device": 16777233,
+        "inode": 192079619,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/metal/NumiHumanLoadedKneeBinding.mm.o.d",
+        "sha256": "43367f67a4ed778fec3e4a941052cffe6e096ced7e0799db8e30b8e7e1d7d0f8"
+      },
+      {
+        "allocated_bytes": 245760,
+        "bytes": 245577,
+        "device": 16777233,
+        "inode": 192079663,
+        "mode": "0o644",
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles/metalrobo.dir/src/metal/NumiHumanTendonMetal.mm.o.d",
+        "sha256": "47934878d9c30b2cf83da17ed3814f7f2dbccca4dab5e4a2bb4aa4eb2e99189d"
+      }
+    ]
+  },
+  "filesystem": {
+    "available_bytes": 2906722304,
+    "f_bavail": 709649,
+    "f_bfree": 709649,
+    "f_blocks": 120691733,
+    "f_bsize": 1048576,
+    "f_frsize": 4096,
+    "free_bytes": 2906722304,
+    "path": "/Users/home"
+  },
+  "safety_scan": {
+    "lsof_non_lsof_open_rows": [],
+    "lsof_runs": [
+      {
+        "command": [
+          "lsof",
+          "+D",
+          "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles"
+        ],
+        "returncode": 1,
+        "stderr": "",
+        "stdout": ""
+      },
+      {
+        "command": [
+          "lsof",
+          "+D",
+          "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-134/CMakeFiles"
+        ],
+        "returncode": 1,
+        "stderr": "",
+        "stdout": ""
+      },
+      {
+        "command": [
+          "lsof",
+          "+D",
+          "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles"
+        ],
+        "returncode": 1,
+        "stderr": "",
+        "stdout": ""
+      },
+      {
+        "command": [
+          "lsof",
+          "+D",
+          "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles"
+        ],
+        "returncode": 1,
+        "stderr": "",
+        "stdout": ""
+      }
+    ],
+    "ps_command": [
+      "ps",
+      "-Ao",
+      "pid,ppid,stat,etime,command"
+    ],
+    "ps_target_path_matches": [],
+    "timestamp_utc": "2026-10-15T21:25:42Z"
+  },
+  "schema": "numi.cardboard.generated_depfile_retirement.before.v1",
+  "scope": {
+    "133": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/CMakeFiles",
+    "134": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-134/CMakeFiles",
+    "135": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/CMakeFiles",
+    "136": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/CMakeFiles"
+  }
+}

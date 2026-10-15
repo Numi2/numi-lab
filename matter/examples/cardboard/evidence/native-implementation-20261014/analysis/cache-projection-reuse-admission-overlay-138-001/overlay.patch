@@ -1,0 +1,82 @@
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -3197,8 +3197,7 @@
+             constexpr std::uint32_t unsupportedMatterFlags =
+                 NM_MATTER_ADAPTIVE | NM_MATTER_CONTACT | NM_MATTER_MIXED_FEM |
+                 NM_MATTER_MULTIPHYSICS | NM_MATTER_MUTATION |
+-                NM_MATTER_LEARNED_MATERIAL | NM_MATTER_IDENTIFICATION |
+-                NM_MATTER_IPC;
++                NM_MATTER_LEARNED_MATERIAL | NM_MATTER_IDENTIFICATION;
+             if ((world.dispatch.flags & unsupportedMatterFlags) != 0u ||
+                 world.dispatch.gridNodeCount != 0u ||
+                 world.dispatch.particleCount != 0u ||
+@@ -3240,6 +3239,7 @@
+                     ineligible.emplace_back("object_must_be_active_immutable_contact_free_FEM");
+             }
+             std::size_t activeTetrahedra = 0u;
++            std::size_t reusableTetrahedra = 0u;
+             for (const NMTetrahedronGPU& tetrahedron : world.fem.tetrahedra) {
+                 if ((tetrahedron.identity.w & NM_OBJECT_ACTIVE) == 0u) continue;
+                 ++activeTetrahedra;
+@@ -3250,6 +3250,31 @@
+                 }
+                 const NMMaterialGPU& material =
+                     world.materials[tetrahedron.identity.x];
++                // The source coupon also has finite elastic starch glue. Match
++                // the validator's stateless finite-elastic arithmetic policy;
++                // these elements stay on the original repeated-projection path.
++                constexpr std::uint32_t starchExcludedFlags =
++                    NM_MATERIAL_HAS_STATE | NM_MATERIAL_HAS_IMPLICIT_STATE |
++                    NM_MATERIAL_HAS_DISSIPATION |
++                    NM_MATERIAL_PAPER_HILL_SCALAR_INITIALIZER |
++                    NM_MATERIAL_PAPER_HILL_ACCURATE_PROJECTION |
++                    NM_MATERIAL_GENERIC_COMPENSATED_IMPLICIT_PROJECTION |
++                    NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION;
++                const bool finiteElasticStarch =
++                    (material.flags & NM_MATERIAL_PAPER_COMPENSATED_ARITHMETIC) != 0u &&
++                    (material.flags & starchExcludedFlags) == 0u &&
++                    material.stateCount == 0u && material.parameterCount == 3u &&
++                    material.constitutiveKind == NM_CONSTITUTIVE_NEO_HOOKEAN &&
++                    material.projectionKind == NM_MATERIAL_PROJECTION_GENERIC &&
++                    material.stateUpdateProgramOffset == NM_INVALID_INDEX &&
++                    material.dissipationProgram == NM_INVALID_INDEX &&
++                    material.viscousStressProgramOffset == NM_INVALID_INDEX &&
++                    material.viscousTangentProgramOffset == NM_INVALID_INDEX &&
++                    material.implicitResidualProgramOffset == NM_INVALID_INDEX &&
++                    material.implicitJacobianProgramOffset == NM_INVALID_INDEX &&
++                    material.implicitDeformationProgramOffset == NM_INVALID_INDEX &&
++                    material.stressStateDerivativeProgramOffset == NM_INVALID_INDEX;
++                if (finiteElasticStarch) continue;
+                 constexpr std::uint32_t requiredMaterialFlags =
+                     NM_MATERIAL_GENERIC_COMPENSATED_IMPLICIT_PROJECTION |
+                     NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION;
+@@ -3258,12 +3283,15 @@
+                     (material.flags & requiredMaterialFlags) !=
+                         requiredMaterialFlags) {
+                     ineligible.emplace_back(
+-                        "every_active_tetrahedron_requires_compensated_scaled_generic_15_state_material");
++                        "active materials must be finite-elastic starch or compensated scaled generic 15-state paper");
+                     break;
+                 }
++                ++reusableTetrahedra;
+             }
+             if (activeTetrahedra == 0u)
+                 ineligible.emplace_back("at_least_one_active_tetrahedron_required");
++            if (reusableTetrahedra == 0u)
++                ineligible.emplace_back("at_least_one_active_15_state_paper_tetrahedron_required");
+             if (!ineligible.empty()) {
+                 diagnostics.message =
+                     "cache projection reuse ineligible for the single static FEM coupon scope:";
+--- a/matter/src/metal/fem.metalinc
++++ b/matter/src/metal/fem.metalinc
+@@ -3083,10 +3083,6 @@
+         material.projectionKind == NM_MATERIAL_PROJECTION_GENERIC &&
+         usesCompensatedImplicitCandidate(material) &&
+         usesScaledCorrectionProjection(material);
+-    // Runtime mode 1 is admitted only for this exact coupon material policy.
+-    // Do not silently turn an explicitly requested reuse build into the
+-    // ordinary repeated-projection path if an input escapes that admission.
+-    if (!reuseAccuratePaperProjection) return;
+     // The evaluator initializes/returns up to NM_MAX_MATERIAL_STATE words.
+     // Keep full-size local arrays even though this reuse policy is 15-state.
+     float reusedProjectedState[NM_MAX_MATERIAL_STATE];

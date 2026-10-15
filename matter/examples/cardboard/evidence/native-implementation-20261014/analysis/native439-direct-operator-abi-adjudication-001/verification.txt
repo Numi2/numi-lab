@@ -1,0 +1,5 @@
+Native439 ABI adjudication verification: PASS
+33 suite manifest entries match exact size and SHA-256.
+Five native receipts all have execution_started=true, exit_code=0, timed_out=false, source_inputs_unchanged=true, and changed_inputs=[].
+All 3,985 recorded source/runtime/external input hashes match their bound paths.
+PASS: suite files and all five receipts plus 3,985 recorded input hashes revalidated

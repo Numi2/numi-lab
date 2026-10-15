@@ -1,0 +1,33 @@
+{
+  "created_utc": "2026-10-15T21:09:46Z",
+  "files": {
+    "README.md": {
+      "bytes": 734,
+      "sha256": "0d109c3799898b49f91ad375d93eb1ece5a321bbd08db3afdfeeabc14518699e"
+    },
+    "audit.py": {
+      "bytes": 14604,
+      "sha256": "bc48a3373e91dade0fb413fa5e672eae0173763dbc02f026917faa983bd441da"
+    },
+    "report.json": {
+      "bytes": 21791,
+      "sha256": "16f65783db42f12f6b6d9f7cd9da0261f5b87406298a9b91537fadcf84975694"
+    },
+    "verification.log": {
+      "bytes": 6046,
+      "sha256": "8636e2c86b5160b1f54e246f3ec6ba025809c3fa41f821262f0add76405a173b"
+    }
+  },
+  "result": "PASS",
+  "schema": "numi.cardboard.publication022_independent_audit_package.v1",
+  "summary": {
+    "cases": 57,
+    "cleanup_only_advisory": true,
+    "files": 1184,
+    "gzip_stream_verified": 62,
+    "no_deletion_or_staging": true,
+    "physical_validation": false,
+    "raw_exact": 1122,
+    "staged_paths": 0
+  }
+}

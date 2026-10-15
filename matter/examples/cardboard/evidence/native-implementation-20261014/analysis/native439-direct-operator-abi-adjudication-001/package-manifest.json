@@ -1,0 +1,24 @@
+{
+  "files": {
+    "README.md": {
+      "bytes": 1054,
+      "sha256": "9c7a82fbf92719d4c5f56918095772e015fb4f2a27f68f58f52b4c5150c40918"
+    },
+    "report.json": {
+      "bytes": 7827,
+      "sha256": "b9c34bbd55935fde7c73467510c38790aae08e41a2362835fad3185348ca6cf2"
+    },
+    "verification.txt": {
+      "bytes": 405,
+      "sha256": "bf11e281a3750c6ec3906d97a51fee394adea467dc73802c163debc77ba43e0f"
+    },
+    "verify.py": {
+      "bytes": 2181,
+      "sha256": "b25c5616d0240bedbfe0df840b107d475c40c089f43b50b9f71d0b9b3db5dfe9"
+    }
+  },
+  "inventory_excludes": "package-manifest.json itself",
+  "schema": "numi.cardboard.analysis-package.v1",
+  "source_suite_manifest_sha256": "abe446fdfc56181a116fefee49068e50f483492fcd58c26d6868bd08f884dc61",
+  "source_suite_receipt_sha256": "7d4a848710039d67ec9c938ece76940791d08c39f169be4228e3e6b42984bc91"
+}

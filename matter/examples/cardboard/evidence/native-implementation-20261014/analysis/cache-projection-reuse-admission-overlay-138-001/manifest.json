@@ -1,0 +1,274 @@
+{
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-cache-projection-reuse-runtime-136",
+  "changed_files": {
+    "matter/src/metal/fem.metalinc": {
+      "base_sha256": "09c3a806224067777aadd26274581ff46be8c9b14282525a7ff805bbb335d03c",
+      "candidate_sha256": "33edccfec4a2faee1b0bfd7a59aa7847ac707ac3c56baa9a0030e858eeba7170"
+    },
+    "matter/src/runtime.mm": {
+      "base_sha256": "8c56679c1e547da78f5973382a07ea371b0f3492bebd611cfe73e15f952c959b",
+      "candidate_sha256": "39db08fab320cfb4d44d1c61470dee05b6a66948d01b028a19206b0aeea008b6"
+    }
+  },
+  "created_utc": "2026-10-15",
+  "inventory": [
+    {
+      "bytes": 3481,
+      "path": "README.md",
+      "sha256": "5868c4b0484b2e70a14799f444c1cbfe87b47238b7f6a1737e223f9f0a80aed9"
+    },
+    {
+      "bytes": 252266,
+      "path": "base/matter/src/metal/fem.metalinc",
+      "sha256": "09c3a806224067777aadd26274581ff46be8c9b14282525a7ff805bbb335d03c"
+    },
+    {
+      "bytes": 1786677,
+      "path": "base/matter/src/runtime.mm",
+      "sha256": "8c56679c1e547da78f5973382a07ea371b0f3492bebd611cfe73e15f952c959b"
+    },
+    {
+      "bytes": 251991,
+      "path": "candidate/matter/src/metal/fem.metalinc",
+      "sha256": "33edccfec4a2faee1b0bfd7a59aa7847ac707ac3c56baa9a0030e858eeba7170"
+    },
+    {
+      "bytes": 1788732,
+      "path": "candidate/matter/src/runtime.mm",
+      "sha256": "39db08fab320cfb4d44d1c61470dee05b6a66948d01b028a19206b0aeea008b6"
+    },
+    {
+      "bytes": 2286432,
+      "path": "logs/NumiMatter-O0.air",
+      "sha256": "2485276d158c97abc6c57710b36909890f478c4e94c9c0a05cff80e59e7deea9"
+    },
+    {
+      "bytes": 1582096,
+      "path": "logs/NumiMatter-O3.air",
+      "sha256": "2ea673a505f353e90faa2421ca09e5aaf679589dd4ad0d6b0296187bd83f494d"
+    },
+    {
+      "bytes": 6885766,
+      "path": "logs/NumiMatter-O3.metallib",
+      "sha256": "8ae24956e00f8dccb868ffcea969f35c920afb1142de028baccbf57c34fa6343"
+    },
+    {
+      "bytes": 561,
+      "path": "logs/compile-view/matter_kernels.metal",
+      "sha256": "37d3530284e2361b20f805409768c65446fc13186c50e94f286b73256debe168"
+    },
+    {
+      "bytes": 57229,
+      "path": "logs/compile-view/metal/accepted_state_proof.metalinc",
+      "sha256": "1782bb5ea45d2dc67d7e50a92d403c1508942989edfd9dce7d4a6f08ea459987"
+    },
+    {
+      "bytes": 26326,
+      "path": "logs/compile-view/metal/adaptive.metalinc",
+      "sha256": "48575bba875c8e7b6eba0138d542ac521acce8261a544a01390997d3eef0a332"
+    },
+    {
+      "bytes": 102970,
+      "path": "logs/compile-view/metal/common.metalinc",
+      "sha256": "61ace798a14c1ca0ba1f2cfb5c8161ec43c9e7a0f8a6b05bb1ef0ce9f9ca3380"
+    },
+    {
+      "bytes": 417426,
+      "path": "logs/compile-view/metal/contact.metalinc",
+      "sha256": "cd5aaee17244b52e0b6eebb81cf2fcaff4fbbfb47fe43726fc5bbacec2e9527a"
+    },
+    {
+      "bytes": 251991,
+      "path": "logs/compile-view/metal/fem.metalinc",
+      "sha256": "33edccfec4a2faee1b0bfd7a59aa7847ac707ac3c56baa9a0030e858eeba7170"
+    },
+    {
+      "bytes": 401346,
+      "path": "logs/compile-view/metal/fgmres.metalinc",
+      "sha256": "207a577afec7f68d39a95fb5bc47ea7e1ca8af5193b65448ee29644b236fbf06"
+    },
+    {
+      "bytes": 14923,
+      "path": "logs/compile-view/metal/human_equality.metalinc",
+      "sha256": "7d258cd6479fd54655d17dc16668713209ae418e62d73d44e1992c7e34b0c927"
+    },
+    {
+      "bytes": 7795,
+      "path": "logs/compile-view/metal/human_limits.metalinc",
+      "sha256": "cb63fbad03fe852e532acbdf984f5147d5897595c21b68572de430793a15a87e"
+    },
+    {
+      "bytes": 37743,
+      "path": "logs/compile-view/metal/identification_scheduler.metalinc",
+      "sha256": "94f3056e9b22b59b1dc90c2d05d0e0112e7dd22553871be39b16666853f972a7"
+    },
+    {
+      "bytes": 46773,
+      "path": "logs/compile-view/metal/mixed_fem.metalinc",
+      "sha256": "9f3fba45290c92cc782393c420520b25c7d630fa080b9e2aff1d9f52a33d1681"
+    },
+    {
+      "bytes": 45856,
+      "path": "logs/compile-view/metal/mpm.metalinc",
+      "sha256": "eb0198a7b62252ef102fd94fbc908beb9e95da6d74bffb21ea68101013710643"
+    },
+    {
+      "bytes": 86748,
+      "path": "logs/compile-view/metal/numi_human.metalinc",
+      "sha256": "f211dc328beced30cb199af32b294ad9f21da9eaf1ca2d3ccbe441eb3806fda4"
+    },
+    {
+      "bytes": 18467,
+      "path": "logs/compile-view/metal/physical_state_digest.metalinc",
+      "sha256": "d3ceee9e4fc00d2b426e4d84e294d1c7c68702708acb49ad4459217d4baa6cec"
+    },
+    {
+      "bytes": 9438,
+      "path": "logs/compile-view/metal/sha256.metalinc",
+      "sha256": "c74148c9ce8ec4949edae4170341ab5a7dc3d791637d5147a165c76c653aff64"
+    },
+    {
+      "bytes": 2328,
+      "path": "logs/compile-view/metal/sha256_kernels.metalinc",
+      "sha256": "849e78fe9cb80b79019e26f659f1ee42930c9d787bf0ceb7a8976df0b53618bc"
+    },
+    {
+      "bytes": 156284,
+      "path": "logs/compile-view/metal/topology_mutation.metalinc",
+      "sha256": "77b99f7395dc77bea95945996ec3d963c5ecb4c79ea0325a11b43de8a6b9c726"
+    },
+    {
+      "bytes": 96838,
+      "path": "logs/compile-view/metal/vascular.metalinc",
+      "sha256": "407ded09d29938ab2556ca3f5b9c38ba3a610b00993484a0051b2e124d772d09"
+    },
+    {
+      "bytes": 2464,
+      "path": "logs/metal-o0.log",
+      "sha256": "2af3dd47ac16805eb835e7d91e7eec6643adf4a005cf877e48f648631449ce67"
+    },
+    {
+      "bytes": 2464,
+      "path": "logs/metal-o3.log",
+      "sha256": "2af3dd47ac16805eb835e7d91e7eec6643adf4a005cf877e48f648631449ce67"
+    },
+    {
+      "bytes": 0,
+      "path": "logs/metallib-link-o3.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "path": "logs/runtime-host-syntax.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 1812,
+      "path": "logs/source-review-report.json",
+      "sha256": "0f3a1fab8a73dcf333c075f24e097655c5860a4384cac35b73a3179e31122c71"
+    },
+    {
+      "bytes": 1812,
+      "path": "logs/source-review.log",
+      "sha256": "0f3a1fab8a73dcf333c075f24e097655c5860a4384cac35b73a3179e31122c71"
+    },
+    {
+      "bytes": 3267,
+      "path": "logs/validation-commands.json",
+      "sha256": "1a9da9680248d354952e10435ec4bb6abc14d57b57494a341c654fbc5070eaae"
+    },
+    {
+      "bytes": 5037,
+      "path": "overlay.patch",
+      "sha256": "54eacbff9a4a1b1a9c896e629de772a78042dc3ce68a981a04e6b3eb69dd877a"
+    },
+    {
+      "bytes": 11545,
+      "path": "verify_overlay.py",
+      "sha256": "03bac9e39dc79e91f8348741f6ec327dde77b930c71c3f72dc15e27592d07d47"
+    }
+  ],
+  "native437": {
+    "case": "/Users/home/cardboard-implementation-20261014/solver/cache-reuse-full-history-parity-437",
+    "exit_code": 1,
+    "files": {
+      "output/failure.txt": {
+        "bytes": 241,
+        "sha256": "97b40716f6b8ab7cf1964d732da1653b9635ab249bf13f2c673cfe832200824b"
+      },
+      "output/manifest.json": {
+        "bytes": 11737,
+        "sha256": "df027c89c5b674d4c4292041a0baeaa790116aff4fc2dde7c2388d36d1efb2fd"
+      },
+      "receipt.json": {
+        "bytes": 306,
+        "sha256": "e157c0d6364f242f3d9b883897a3d14ec3633d87f9cc5419084a6eec0071f73b"
+      }
+    },
+    "observed_failure": "adaptive_MPM_or_multiphysics_state_is_unsupported every_active_tetrahedron_requires_compensated_scaled_generic_15_state_material",
+    "physical_steps": 0,
+    "receipt_source_inputs_unchanged": true,
+    "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-cache-projection-reuse-runtime-136",
+    "status": "initialization_failed_before_fem_step"
+  },
+  "overlay_id": "cache-projection-reuse-admission-overlay-138-001",
+  "patch_sha256": "54eacbff9a4a1b1a9c896e629de772a78042dc3ce68a981a04e6b3eb69dd877a",
+  "retained_base": {
+    "bundle": "/Users/home/cardboard-implementation-20261014/analysis/retained-source-snapshot136-001/source-136.json.gz",
+    "bundle_sha256": "e6e78de87d550abc0d62d23ad375678150f36afe4ce4151c7d4d823f50712ee3",
+    "compressed_source_sha256": "e6e78de87d550abc0d62d23ad375678150f36afe4ce4151c7d4d823f50712ee3",
+    "source_build_sha256": "49b7460557cfa83881e31456d3823a6a313021efef5d347b459a2a95db12b80a",
+    "uncompressed_source_sha256": "bbed39024cae91f7ff058ab2a474810634ba50118f5e73b583354e994d086d20"
+  },
+  "review_input_files": {
+    "matter/include/numi/matter/shared.h": {
+      "bytes": 58294,
+      "sha256": "cd173c076905f660aa8aecc900e6f6aba8d69406996f3cccf2e0656c753ff871"
+    },
+    "matter/src/compiler_impl.cpp": {
+      "bytes": 172110,
+      "sha256": "474e717759ded2ecf81a0590dd7f5cb51da8a1041eacddff33c971ccb96152df"
+    },
+    "matter/src/validation_impl.cpp": {
+      "bytes": 140407,
+      "sha256": "853bafec74a952b3ded64f95558e563b869ba02c6ddcbd8dfb3bb6a25df3b808"
+    }
+  },
+  "schema": "numi.cardboard.overlay_candidate.v2",
+  "scope": {
+    "default_behavior_changed": false,
+    "minimum_reusable_15_state_tets": 1,
+    "mode": "opt-in NM_FEM_CACHE_PROJECTION_REUSE=1",
+    "only_removed_global_flag_rejection": "NM_MATTER_IPC, verified unconditional in source compiler",
+    "retained_rejections": [
+      "adaptive",
+      "contact",
+      "mixed_fem",
+      "multiphysics",
+      "mutation",
+      "learned_material",
+      "identification",
+      "grid/particle/MPM counts",
+      "rigid proxies/contact pairs",
+      "cohesive/Human/field/vascular",
+      "unsupported objects/topology"
+    ],
+    "starch_path": "existing repeated-projection path; it is not included in projected-state reuse",
+    "supported_active_material_classes": [
+      "compensated scaled generic 15-state paper",
+      "zero-state finite elastic generic Neo-Hookean with 3 parameters and no state/dissipation/viscous/implicit programs"
+    ]
+  },
+  "symlinks": [],
+  "validation": {
+    "metal_o0": "PASS with two warnings in unchanged fgmres.metalinc about potentially uninitialized threadgroup sharedValid/refinementValid",
+    "metal_o3": "PASS with same two warnings in unchanged fgmres.metalinc",
+    "metallib_link_o3": "PASS",
+    "native_off_on_history_parity": "NOT_RUN",
+    "patch_dry_run": "PASS",
+    "performance_claim": "NONE",
+    "physical_qualification": false,
+    "source136_checks": "PASS",
+    "strict_host_syntax": "PASS"
+  }
+}

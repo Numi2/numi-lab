@@ -1,0 +1,39 @@
+{
+  "question": "Can short CGLS directions reduce the captured actual nonlinear residual?",
+  "prediction": "Compare exact-CSR FP64 CGLS at32/64/128 and FP32 emulation controls16/128 with source125 native residual. Linear residual ratios decrease through128; native direction and nonlinear curve remain unknown. Recompute signed trial geometry, projections and force/residual. Zero physical transactions and no original-Newton certificate transfer.",
+  "package_manifest_sha256": "37d9bfcf6706f38d08f5cfc89a2f60c0df74b9f3da35e78ada43df4c82fa6b4e",
+  "commands": {
+    "fp64_iter032": [
+      "/Users/home/cardboard-implementation-20261014/analysis/native-residual-direction-replay-419-001/build/native_residual_direction",
+      "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/output/compiled.nmatterpack",
+      "/Users/home/cardboard-implementation-20261014/analysis/captured419-truncated-cgls-directions-001/replay-inputs/fp64_iter032.input.bin",
+      "/Users/home/cardboard-implementation-20261014/analysis/native-truncated-cgls-direction-replay-440/fp64_iter032"
+    ],
+    "fp64_iter064": [
+      "/Users/home/cardboard-implementation-20261014/analysis/native-residual-direction-replay-419-001/build/native_residual_direction",
+      "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/output/compiled.nmatterpack",
+      "/Users/home/cardboard-implementation-20261014/analysis/captured419-truncated-cgls-directions-001/replay-inputs/fp64_iter064.input.bin",
+      "/Users/home/cardboard-implementation-20261014/analysis/native-truncated-cgls-direction-replay-440/fp64_iter064"
+    ],
+    "fp64_iter128": [
+      "/Users/home/cardboard-implementation-20261014/analysis/native-residual-direction-replay-419-001/build/native_residual_direction",
+      "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/output/compiled.nmatterpack",
+      "/Users/home/cardboard-implementation-20261014/analysis/captured419-truncated-cgls-directions-001/replay-inputs/fp64_iter128.input.bin",
+      "/Users/home/cardboard-implementation-20261014/analysis/native-truncated-cgls-direction-replay-440/fp64_iter128"
+    ],
+    "emulated_fp32_iter016": [
+      "/Users/home/cardboard-implementation-20261014/analysis/native-residual-direction-replay-419-001/build/native_residual_direction",
+      "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/output/compiled.nmatterpack",
+      "/Users/home/cardboard-implementation-20261014/analysis/captured419-truncated-cgls-directions-001/replay-inputs/emulated_fp32_iter016.input.bin",
+      "/Users/home/cardboard-implementation-20261014/analysis/native-truncated-cgls-direction-replay-440/emulated_fp32_iter016"
+    ],
+    "emulated_fp32_iter128": [
+      "/Users/home/cardboard-implementation-20261014/analysis/native-residual-direction-replay-419-001/build/native_residual_direction",
+      "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/output/compiled.nmatterpack",
+      "/Users/home/cardboard-implementation-20261014/analysis/captured419-truncated-cgls-directions-001/replay-inputs/emulated_fp32_iter128.input.bin",
+      "/Users/home/cardboard-implementation-20261014/analysis/native-truncated-cgls-direction-replay-440/emulated_fp32_iter128"
+    ]
+  },
+  "helper_program_sha256": "b2f37a4eaaf922eb8ed8c5cbc721ab8ef174c230b56bc02f522b44ca5b3aea1f",
+  "source_build_sha256": "35b821184ca36ad57c529bc0e33e4f20519996def1c312f8ac0f8028ecadb8e6"
+}

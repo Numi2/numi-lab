@@ -1,0 +1,26 @@
+{
+  "classification": "CPU-only source-bound adjudication; no solver or physical qualification",
+  "external_bindings": {
+    "cgls_package_manifest_sha256": "37d9bfcf6706f38d08f5cfc89a2f60c0df74b9f3da35e78ada43df4c82fa6b4e",
+    "helper_compiled_program_sha256": "b2f37a4eaaf922eb8ed8c5cbc721ab8ef174c230b56bc02f522b44ca5b3aea1f",
+    "native440_manifest_sha256": "95de3ad4851a72207d7dc563d9e527dd5dd6d899d7b803b78f106077b4fd15d6",
+    "native440_prediction_sha256": "b7254c88057289bd228236d1e030751e8ea93125e149cf43b890b5035faa7a7d",
+    "native440_receipt_sha256": "5eb86b3d37bf1209b988437d8f38fccab12df1fb8e7d00d824e82767de7bc110",
+    "source125_build_manifest_sha256": "35b821184ca36ad57c529bc0e33e4f20519996def1c312f8ac0f8028ecadb8e6"
+  },
+  "files": {
+    "README.md": {
+      "bytes": 3302,
+      "sha256": "738197b01a1c464742f7ac7fb4c4c4051a0ada5a7862139cc44d4e16feddaa5d"
+    },
+    "audit.py": {
+      "bytes": 17816,
+      "sha256": "7907bc5b6650c431058561a5934dff082f8b51cea90d6f61833a57705a921183"
+    },
+    "report.json": {
+      "bytes": 65310,
+      "sha256": "00a82049d602ab7db7895185e08f43e71accd9eaba56c4ce747e350d052aebce"
+    }
+  },
+  "schema": "numi.cardboard.native440-truncated-cgls-direction-adjudication-package.v1"
+}

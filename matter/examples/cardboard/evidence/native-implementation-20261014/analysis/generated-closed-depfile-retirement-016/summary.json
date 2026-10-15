@@ -1,0 +1,22 @@
+{
+  "build_numbers": [
+    133,
+    134,
+    135,
+    136
+  ],
+  "deleted_allocated_bytes": 56946688,
+  "deleted_count": 378,
+  "deleted_logical_bytes": 56150316,
+  "files": {},
+  "filesystem_available_bytes_after": 2954272768,
+  "filesystem_available_bytes_before": 2906722304,
+  "filesystem_available_bytes_delta": 47550464,
+  "manifest_sha256": {
+    "after.json": "56ee4042c81ed87c15c8ec7f423ca87faef715e9df680b2ea9f3e9355e1658da",
+    "before.json": "f9fefd7d1f80fc72340b0de47ea6c4e5675fa4332c24973d47f1da0a51caeb0d"
+  },
+  "post_cleanup_safety_scan_clear": true,
+  "schema": "numi.cardboard.generated_depfile_retirement.summary.v1",
+  "source_build_artifacts_verified_before_and_after": true
+}

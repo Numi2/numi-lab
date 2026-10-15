@@ -1,0 +1,11 @@
+{
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-coupon-cache-admission-139",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-repeated-cauchy-fallback-137",
+  "admission_overlay_manifest_sha256": "fbb3c61cfd7367c4c32bd65a59ff225969e82b8e2451642d91d5fffc81dc5484",
+  "changed_files": {
+    "matter/src/metal/fem.metalinc": "33edccfec4a2faee1b0bfd7a59aa7847ac707ac3c56baa9a0030e858eeba7170",
+    "matter/src/runtime.mm": "53fb2217362fbb78bcaafdf3a3a850927d6f830dd8f9d72490c076ecbe04c5a7"
+  },
+  "trace_label_erratum": "source137 actual selected cap512 had two stale64 labels; corrected here without changing observer budget or numerical execution",
+  "physical_steps": 0
+}

@@ -1,5 +1,9 @@
 # Cardboard implementation and evidence ledger
 
+## Current milestone: source139 cache admission and attempted-history parity
+
+The [source139 report](solver-cache-parity-source139.md) records the cache admission repair and exact parity across the entire attempted coupon history. Repeated raw Cauchy fallback still exhausts64 Newton iterations and rolls back. Independent FP64 perturbations resolve finite-step curvature and meet the assembled1% gate over a range, while the all-row material derivative gate remains open. Native residual replays of CPU CGLS proposals are separate from integrated solver qualification. No completed coupon, resolution study, calibrated corrugated failure, released shipping assembly or crush/drop result is qualified. Earlier reports retain their original revision scope.
+
 ## Current milestone: source135 exact-state descent experiment
 
 The [source135 report](solver-milestone-source135.md) records a native residual-descent repair at control1/Newton48, followed by a later Newton53 rejection and complete control rollback. Independent GPU transpose/forward checks and fallback-disabled history parity pass. The captured matrix has condition number4.59e7; complete independent finite endpoint secants agree closely with native while remaining far from the center tangent. Source137 builds69 selected targets and passes74 CPU tests, but repeated fallback and cache optimization remain experimental. No complete coupon, resolution series, calibrated corrugated failure, released shipping assembly or crush/drop result is qualified. Earlier milestones retain their original scope.

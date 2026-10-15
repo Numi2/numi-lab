@@ -1,0 +1,23 @@
+[
+  "/Users/home/.pyenv/versions/3.10.12/bin/python3",
+  "/Users/home/numi-cardboard-20261006/matter/tools/cardboard_source_bound_run.py",
+  "--source-snapshot",
+  "/Users/home/cardboard-implementation-20261014/snapshots/source-compensated-local-tangent-integrated-053",
+  "--runtime-dir",
+  "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-053",
+  "--build-provenance",
+  "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-053/source-build.json",
+  "--case",
+  "/Users/home/cardboard-implementation-20261014/native/sparse-private-admission-controls-139",
+  "--timeout",
+  "60",
+  "--question",
+  "Do sparse admission negative controls reach their intended validator under regional contact selection?",
+  "--prediction",
+  "Reject malformed capacities and free rigid unknowns at the intended sparse admission layer; high-pair sizing is not native transaction qualification.",
+  "--",
+  "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-053/matter/numi-matter-cardboard-full-contact-armijo-check",
+  "/Users/home/cardboard-implementation-20261014/snapshots/source-compensated-local-tangent-integrated-053/matter/materials/hajali2009_liner_hill_ideal.nmatter",
+  "--regional-contact-preconditioner",
+  "--sparse-private-admission"
+]

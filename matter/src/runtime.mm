@@ -3197,8 +3197,7 @@ RuntimeDiagnostics Runtime::initialize(
             constexpr std::uint32_t unsupportedMatterFlags =
                 NM_MATTER_ADAPTIVE | NM_MATTER_CONTACT | NM_MATTER_MIXED_FEM |
                 NM_MATTER_MULTIPHYSICS | NM_MATTER_MUTATION |
-                NM_MATTER_LEARNED_MATERIAL | NM_MATTER_IDENTIFICATION |
-                NM_MATTER_IPC;
+                NM_MATTER_LEARNED_MATERIAL | NM_MATTER_IDENTIFICATION;
             if ((world.dispatch.flags & unsupportedMatterFlags) != 0u ||
                 world.dispatch.gridNodeCount != 0u ||
                 world.dispatch.particleCount != 0u ||
@@ -3240,6 +3239,7 @@ RuntimeDiagnostics Runtime::initialize(
                     ineligible.emplace_back("object_must_be_active_immutable_contact_free_FEM");
             }
             std::size_t activeTetrahedra = 0u;
+            std::size_t reusableTetrahedra = 0u;
             for (const NMTetrahedronGPU& tetrahedron : world.fem.tetrahedra) {
                 if ((tetrahedron.identity.w & NM_OBJECT_ACTIVE) == 0u) continue;
                 ++activeTetrahedra;
@@ -3250,6 +3250,31 @@ RuntimeDiagnostics Runtime::initialize(
                 }
                 const NMMaterialGPU& material =
                     world.materials[tetrahedron.identity.x];
+                // The source coupon also has finite elastic starch glue. Match
+                // the validator's stateless finite-elastic arithmetic policy;
+                // these elements stay on the original repeated-projection path.
+                constexpr std::uint32_t starchExcludedFlags =
+                    NM_MATERIAL_HAS_STATE | NM_MATERIAL_HAS_IMPLICIT_STATE |
+                    NM_MATERIAL_HAS_DISSIPATION |
+                    NM_MATERIAL_PAPER_HILL_SCALAR_INITIALIZER |
+                    NM_MATERIAL_PAPER_HILL_ACCURATE_PROJECTION |
+                    NM_MATERIAL_GENERIC_COMPENSATED_IMPLICIT_PROJECTION |
+                    NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION;
+                const bool finiteElasticStarch =
+                    (material.flags & NM_MATERIAL_PAPER_COMPENSATED_ARITHMETIC) != 0u &&
+                    (material.flags & starchExcludedFlags) == 0u &&
+                    material.stateCount == 0u && material.parameterCount == 3u &&
+                    material.constitutiveKind == NM_CONSTITUTIVE_NEO_HOOKEAN &&
+                    material.projectionKind == NM_MATERIAL_PROJECTION_GENERIC &&
+                    material.stateUpdateProgramOffset == NM_INVALID_INDEX &&
+                    material.dissipationProgram == NM_INVALID_INDEX &&
+                    material.viscousStressProgramOffset == NM_INVALID_INDEX &&
+                    material.viscousTangentProgramOffset == NM_INVALID_INDEX &&
+                    material.implicitResidualProgramOffset == NM_INVALID_INDEX &&
+                    material.implicitJacobianProgramOffset == NM_INVALID_INDEX &&
+                    material.implicitDeformationProgramOffset == NM_INVALID_INDEX &&
+                    material.stressStateDerivativeProgramOffset == NM_INVALID_INDEX;
+                if (finiteElasticStarch) continue;
                 constexpr std::uint32_t requiredMaterialFlags =
                     NM_MATERIAL_GENERIC_COMPENSATED_IMPLICIT_PROJECTION |
                     NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION;
@@ -3258,12 +3283,15 @@ RuntimeDiagnostics Runtime::initialize(
                     (material.flags & requiredMaterialFlags) !=
                         requiredMaterialFlags) {
                     ineligible.emplace_back(
-                        "every_active_tetrahedron_requires_compensated_scaled_generic_15_state_material");
+                        "active materials must be finite-elastic starch or compensated scaled generic 15-state paper");
                     break;
                 }
+                ++reusableTetrahedra;
             }
             if (activeTetrahedra == 0u)
                 ineligible.emplace_back("at_least_one_active_tetrahedron_required");
+            if (reusableTetrahedra == 0u)
+                ineligible.emplace_back("at_least_one_active_15_state_paper_tetrahedron_required");
             if (!ineligible.empty()) {
                 diagnostics.message =
                     "cache projection reuse ineligible for the single static FEM coupon scope:";
@@ -11466,7 +11494,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                 options:MTLResourceStorageModePrivate];
                         }
                         std::fprintf(stderr,
-                            "fem_residual_armijo_trace_enabled={\"schema\":3,\"root\":%u,\"maximum_newton_records\":64,\"base_status_capture\":%s}\n",
+                            "fem_residual_armijo_trace_enabled={\"schema\":3,\"root\":%u,\"default_maximum_newton_records\":64,\"base_status_capture\":%s}\n",
                             static_cast<std::uint32_t>(parsed),
                             femResidualArmijoBaseStatusCapture != nil
                                 ? "true" : "false");
@@ -11680,7 +11708,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         femBaseCauchyFallbackSelectedRoot = true;
                         if (femBaseCauchyFallbackAllNewtonIterations) {
                             std::fprintf(stderr,
-                                "fem_base_cauchy_all_newton_enabled={\"schema\":1,\"root\":%u,\"scope\":\"all_newton_iterations_on_one_control_step\",\"physical_operator_changed\":false}\n",
+                                "fem_base_cauchy_all_newton_enabled={\"schema\":1,\"root\":%u,\"scope\":\"all_newton_iterations_on_one_control_step\",\"maximum_trace_records\":512,\"physical_operator_changed\":false}\n",
                                 femBaseCauchyFallbackRoot);
                         } else std::fprintf(stderr,
                             "fem_base_cauchy_fallback_enabled={\"schema\":1,\"root\":%u,\"iteration\":%u,\"direction\":\"base_state_A_transpose_b\",\"certificate_scope\":\"original_newton_delta_only\",\"armijo_trials\":%u}\n",
@@ -11794,8 +11822,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     if (!femResidualArmijoTraceNoticeLogged) {
                         femResidualArmijoTraceNoticeLogged = true;
                         std::fprintf(stderr,
-                            "fem_residual_armijo_trace_stopped={\"schema\":1,\"root\":%u,\"reason\":\"record_cap_64\"}\n",
-                            request.controlStep);
+                            "fem_residual_armijo_trace_stopped={\"schema\":2,\"root\":%u,\"reason\":\"record_cap\",\"maximum_trace_records\":%u}\n",
+                            request.controlStep, maximumTraceRecords);
                     }
                     femResidualArmijoTraceEnabled = false;
                     return true;

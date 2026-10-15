@@ -1,0 +1,743 @@
+{
+  "conclusion": "The opt-in base-state Cauchy fallback was attempted at environment 0, Newton 48 after the numerically identical primary Newton history through Newton 47 and identical primary-48 residual/trial values. Its captured g, A*g and tau agree with the independent native-kernel audit433; alpha=1 reduces the measured Armijo residual by about 13.22%. Newton updates 49\u201352 then accept. Newton53 rejects with status10. The physical transaction rolls back to the same visible accepted geometry as native434. The 27-control coupon is still failed after one accepted bent control; no convergence, calibration, or physical qualification follows.",
+  "created_at_utc": "2026-10-15T20:47:09.288843+00:00",
+  "fallback": {
+    "certificate_scope": "The original Newton certificate does not certify the Cauchy direction.",
+    "direction_kind": "raw_A_transpose_b",
+    "environment1": {
+      "accepted": true,
+      "base_l2": 6.78000447e-08,
+      "certified_noop": true,
+      "selected_alpha": 1,
+      "trial_l2": 6.78000447e-08,
+      "trial_outcome": "certified_noop"
+    },
+    "independent433_A_gradient_l2": 3.768778333324008e-05,
+    "independent433_gradient_l2": 5.8775098295882344e-05,
+    "independent433_tau_fp32": 2.4321229457855225,
+    "independent433_tau_fp64": 2.4321226973367622,
+    "native_A_gradient_l2": 3.76877833e-05,
+    "native_gradient_l2": 5.87750983e-05,
+    "native_tau": 2.43212295,
+    "newton_iteration": 48,
+    "original_newton_converged_flag_environment0": true,
+    "relative_differences": {
+      "A_gradient_l2": 8.819855435346167e-10,
+      "gradient_l2": 7.005785900749878e-11,
+      "native_tau_vs_fp64": 1.0388589283102005e-07
+    },
+    "residual_armijo_environment0": {
+      "accepted": true,
+      "base_l2": 0.00018444375,
+      "fractional_reduction": 0.13224371658025824,
+      "ratio": 0.8677562834197418,
+      "selected_alpha": 1,
+      "trial_l2": 0.000160052223,
+      "trial_outcome": "selected_trial_accepted"
+    }
+  },
+  "physical_history_and_rollback": {
+    "accepted_snapshot_files_byte_identical": {
+      "accepted_step_000001_bent.obj": true,
+      "accepted_step_000001_held_reference.obj": true,
+      "accepted_step_000002_held_reference.obj": true,
+      "compiled.nmatterpack": true,
+      "initial.obj": true,
+      "material_state_000002_bent.json": true,
+      "mesh.json": true
+    },
+    "byte_identical_output_files": 31,
+    "candidate_nodes_note": "The rejected-conditioning candidate_nodes buffer differs; it captures a rejected solver candidate, not a committed accepted state.",
+    "differing_output_paths": [
+      "manifest.json",
+      "observations.csv",
+      "rejected-conditioning-000002/candidate_nodes.bin",
+      "rejected-conditioning-000002/manifest.json"
+    ],
+    "first_status5_binary_byte_identical": true,
+    "observation_differences": {
+      "1:0": {
+        "failing_index": [
+          "48",
+          "53"
+        ],
+        "fgmres_iterations": [
+          "44",
+          "69"
+        ],
+        "status_diagnostic_x": [
+          "0.00018444375018589199",
+          "0.00015587054076604545"
+        ],
+        "status_diagnostic_y": [
+          "0.00018444383749738336",
+          "0.00015587075904477388"
+        ]
+      }
+    },
+    "observations_exact_rows": [
+      "step0/env0",
+      "step0/env1",
+      "step1/env1"
+    ],
+    "output_file_count_each": 35,
+    "rejected_diagnostic_geometry_matches_last_accepted_bent_geometry": true,
+    "terminal_result": {
+      "accepted_steps": 1,
+      "exit_code": 2,
+      "failure": "Matter rejected step 1; status, diagnostic state OBJ, and CSV observations were retained; rejected geometry is not an accepted animation frame",
+      "physical_validation": false,
+      "status": "failed",
+      "step_1_bent_certificate_observation": {
+        "certificate_raw_accepted_flag": false,
+        "interpretation": "The raw acceptance flag is false; the retained zero-valued certificate fields do not represent a passing certificate after status-10 rejection.",
+        "recorded_certificate_correction": 0.0,
+        "recorded_certificate_residual": 0.0,
+        "step_accepted": false
+      },
+      "timed_out": false
+    }
+  },
+  "post_fallback_history": {
+    "accepted_newton_iterations_49_through_52": [
+      {
+        "alpha": 0.03125,
+        "base_l2": 0.000160052223,
+        "newton_iteration": 49,
+        "trial_l2": 0.000155886693
+      },
+      {
+        "alpha": 0.000244140625,
+        "base_l2": 0.000155886693,
+        "newton_iteration": 50,
+        "trial_l2": 0.000155870934
+      },
+      {
+        "alpha": 3.81469727e-06,
+        "base_l2": 0.000155870934,
+        "newton_iteration": 51,
+        "trial_l2": 0.000155870628
+      },
+      {
+        "alpha": 1.1920929e-07,
+        "base_l2": 0.000155870628,
+        "newton_iteration": 52,
+        "trial_l2": 0.000155870541
+      }
+    ],
+    "newton53": {
+      "accepted": false,
+      "base_l2": 0.000155870541,
+      "failing_index": 53,
+      "last_trial_l2": 0.000155870759,
+      "line_search_trials": 24,
+      "selected_alpha": 0,
+      "status_code": 10
+    }
+  },
+  "primary_history": {
+    "after_newton53_status_gate": {
+      "environment0_status_code": 10,
+      "interpretation": "Trace stream continued, but these are status-gated sentinels, not valid residual measurements.",
+      "newton_iterations": [
+        54,
+        63
+      ],
+      "operator_status_code": 4,
+      "true_l2_sentinel": -1
+    },
+    "armijo_records_each": 64,
+    "armijo_trace_tail": {
+      "direction_counts": {
+        "base_cauchy": 1,
+        "newton": 63
+      },
+      "last_recorded_newton_iteration": 62,
+      "note": "The extra Cauchy record consumes one slot, so the Armijo trace ends at Newton 62; residual-cycle records run through 63.",
+      "records_435": 64,
+      "trace_stop_reason": "record_cap_64"
+    },
+    "cycles_per_newton_each": 64,
+    "newton48_allowed_difference": "The status is cleared in 435 after its primary Armijo rejection so the explicitly selected fallback can be tried; 434 retains terminal status 10.",
+    "newton48_only_difference_paths": [
+      "/environments/0/solver_status/code",
+      "/environments/0/solver_status/diagnostics/0",
+      "/environments/0/solver_status/diagnostics/1",
+      "/environments/0/solver_status/diagnostics/2",
+      "/environments/0/solver_status/diagnostics/3",
+      "/environments/0/solver_status/failing_index",
+      "/environments/0/solver_status/object_index",
+      "/environments/0/solver_status_code"
+    ],
+    "newton_iteration_range": [
+      0,
+      63
+    ],
+    "primary_newton_48_numeric_and_trial_fields_exact": true,
+    "primary_newton_records_0_through_47_exact_all_fields": true,
+    "true_residual_cycles_0_through_48_exact": true,
+    "true_residual_cycles_each": 4096
+  },
+  "schema": "numi.cardboard.native435-enabled-fallback-adjudication.v1",
+  "scope": {
+    "cpu_only_adjudication": true,
+    "gpu_runs_by_auditor": 0,
+    "native_runs": [
+      "434 fallback disabled",
+      "435 fallback enabled at environment 0 Newton 48"
+    ],
+    "source_edits": 0
+  },
+  "source_and_run_bindings": {
+    "command_comparison": {
+      "added_environment": {
+        "NM_FEM_BASE_CAUCHY_FALLBACK_SELECTOR": "1:48"
+      },
+      "added_external_input": "/Users/home/cardboard-implementation-20261014/analysis/native433-cauchy-kernel-adjudication-001/report.json",
+      "changed_driver_options": [
+        "--build-provenance",
+        "--case",
+        "--input-file",
+        "--prediction",
+        "--question",
+        "--runtime-dir",
+        "--source-snapshot"
+      ],
+      "common_environment_exact_after_runpath_normalization": {
+        "NM_FEM_COUPLED_CAPTURE_PATH": "<run>/operator-capture",
+        "NM_FEM_COUPLED_CAPTURE_SELECTOR": "1:48",
+        "NM_FEM_GRAPH_PARALLEL_LU_SEARCH": "1",
+        "NM_FEM_REGIONAL_CURRENT_RESTART_AUGMENTATION": "1",
+        "NM_FEM_RESIDUAL_ARMIJO_ROOT": "all",
+        "NM_FEM_RESIDUAL_ARMIJO_TRACE_ROOT": "1",
+        "NM_FEM_STATUS5_CAPTURE_PATH": "<run>/first-status5",
+        "NM_FEM_STATUS5_CAPTURE_ROOT": "1",
+        "NM_FEM_TRUE_RESIDUAL_CERTIFY": "1",
+        "NM_FEM_TRUE_RESIDUAL_ROOT": "1",
+        "NUMI_CARDBOARD_STEP_TIMING": "1"
+      },
+      "driver_source_paths": [
+        "source133",
+        "source135"
+      ],
+      "interpretation": "The executable, metallib, source-bound runner and run/source paths differ by their frozen build snapshot. The physical probe argv matches after replacing only executable/output/material/metallib paths. Common solver environment controls match; 435 adds only the opt-in fallback selector. Driver provenance also adds the exact report433 input.",
+      "same_liner_medium_material_sha256": {
+        "hajali2009_liner_hill_bilinear_fit.nmatter": "a2720b90f2004f2eccf180063e7ecc4e0acdda93f700c4fd357914fc24d2255a",
+        "hajali2009_medium_hill_bilinear_fit.nmatter": "76f2bef552822708c36b5acc9f92bd44e7bb92c578e5e46adb64a1a2e82e47f9"
+      },
+      "same_normalized_physical_probe_argv": true,
+      "source135_scope": "Only runtime.mm differs from source133; frozen-source.json describes the change as fail-closed positive-finite immutable-mass admission for the opted-in fallback.",
+      "source_snapshot_delta_files": [
+        "matter/src/runtime.mm"
+      ]
+    },
+    "native433_cauchy_report": {
+      "bytes": 12192,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native433-cauchy-kernel-adjudication-001/report.json",
+      "sha256": "0f7e4706316ae03cf1d35bfd8bfc706a04a618d7c0ccdd93561d627edb90fb70"
+    },
+    "runs": {
+      "native434": {
+        "command": {
+          "bytes": 3289,
+          "path": "/Users/home/cardboard-implementation-20261014/native-434-command.json",
+          "sha256": "a5ce47033b103f8f2acdefd9ae5bafd86717a2a47e6327ad5e60fb40bac6d8ee"
+        },
+        "external_cauchy_report": null,
+        "external_source_build": {
+          "bytes": 96050,
+          "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-disabled-parity-434/inputs/external/source-build.json",
+          "sha256": "6f6d8876a260b77cfbcf6823d6ad439ecf601a7c93b3b3611dbf41c1fdbf0951"
+        },
+        "first_status5_binary": {
+          "bytes": 13568,
+          "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-disabled-parity-434/first-status5.bin",
+          "sha256": "0f3ae7cd18df40df8ad3bbed0b55491b43f1ee67c321eab2287c46e18a43239f"
+        },
+        "first_status5_json": {
+          "bytes": 873,
+          "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-disabled-parity-434/first-status5.json",
+          "sha256": "f1d771bd1edae926b1b71d33e5a8e3099f6fd8bbb581b2b6da50519029bd3e50"
+        },
+        "output_files": {
+          "accepted_step_000001_bent.obj": {
+            "bytes": 61946,
+            "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-disabled-parity-434/output/accepted_step_000001_bent.obj",
+            "sha256": "42fbb543657063c3c3df7eed3ec4d07dc820f5f2ab887e2d3ceb6c3bfd68a522"
+          },
+          "accepted_step_000001_held_reference.obj": {
+            "bytes": 56470,
+            "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-disabled-parity-434/output/accepted_step_000001_held_reference.obj",
+            "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+          },
+          "accepted_step_000002_held_reference.obj": {
+            "bytes": 56470,
+            "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-disabled-parity-434/output/accepted_step_000002_held_reference.obj",
+            "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+          },
+          "compiled.nmatterpack": {
+            "bytes": 1984768,
+            "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-disabled-parity-434/output/compiled.nmatterpack",
+            "sha256": "cafbf36052bbfa72e8be49fdba8b23e900469c9f15136a14a4ec1e4c0b5ccf7c"
+          },
+          "initial.obj": {
+            "bytes": 56470,
+            "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-disabled-parity-434/output/initial.obj",
+            "sha256": "463cd80289b72a58009f859f2a3184966984029daa8d3687ec9035e18c6481af"
+          },
+          "manifest.json": {
+            "bytes": 11719,
+            "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-disabled-parity-434/output/manifest.json",
+            "sha256": "5e58411cca7473a5a6edfe403589fec108e9ccf0f1232aca22c9e09a4e528363"
+          },
+          "material_state_000002_bent.json": {
+            "bytes": 971641,
+            "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-disabled-parity-434/output/material_state_000002_bent.json",
+            "sha256": "fb270a40f77d2251451e1ca1ab2c09e1c4779775a9f073fde25a6b6218ef2ee4"
+          },
+          "mesh.json": {
+            "bytes": 160425,
+            "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-disabled-parity-434/output/mesh.json",
+            "sha256": "6a2f786a47e61014ee4b27f609eb3c2f666677223ddaa30297aeea1fcfd8ca56"
+          },
+          "observations.csv": {
+            "bytes": 2596,
+            "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-disabled-parity-434/output/observations.csv",
+            "sha256": "e2d7d7c09d87aa6989f4923691a57b2e99c6db7e6babaacb585cad8ace138d17"
+          },
+          "rejected-conditioning-000002/AP.bin": {
+            "bytes": 733824,
+            "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-disabled-parity-434/output/rejected-conditioning-000002/AP.bin",
+            "sha256": "d181a9d064474ef2147c1c5c4be5b841b8120c3f4aaf5c7e660a87fb0acff48e"
+          },
+          "rejected-conditioning-000002/P.bin": {
+            "bytes": 366912,
+            "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-disabled-parity-434/output/rejected-conditioning-000002/P.bin",
+            "sha256": "2626e4bbb205fa1c7e40bdaf3f2e72d11f831ec53431c3062bcc85d69a50f6b5"
+          },
+          "rejected-conditioning-000002/candidate_nodes.bin": {
+            "bytes": 141120,
+            "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-disabled-parity-434/output/rejected-conditioning-000002/candidate_nodes.bin",
+            "sha256": "c4f2b8d790494949da5be98e876b911db2655dc88e7417416906c91412557269"
+          },
+          "rejected-conditioning-000002/effective_P.bin": {
+            "bytes": 733824,
+            "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-disabled-parity-434/output/rejected-conditioning-000002/effective_P.bin",
+            "sha256": "9bf372c75cafcf84bc1e21a20ee3305e7619affffe6415bb9d3398f79970214c"
+          },
+          "rejected-conditioning-000002/factor_valid.bin": {
+            "bytes": 8,
+            "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-disabled-parity-434/output/rejected-conditioning-000002/factor_valid.bin",
+            "sha256": "64ed86b909d6d0502b64b28db0ea1272ffb358e20e9b1d88b63ccb07fa900cf5"
+          },
+          "rejected-conditioning-000002/manifest.json": {
+            "bytes": 5545,
+            "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-disabled-parity-434/output/rejected-conditioning-000002/manifest.json",
+            "sha256": "bc0bf5594de9a1327f491e89ea9e2a8a417512869edebc77b6db55a955f4642d"
+          },
+          "rejected-conditioning-000002/node_block_inverse.bin": {
+            "bytes": 0,
+            "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-disabled-parity-434/output/rejected-conditioning-000002/node_block_inverse.bin",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "rejected-conditioning-000002/pivoted_RAP.bin": {
+            "bytes": 5408,
+            "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-disabled-parity-434/output/rejected-conditioning-000002/pivoted_RAP.bin",
+            "sha256": "3ee151c5d64838a16fe82e3f90e92b73f97c7b834ce7f855017492de4c6a87e9"
+          },
+          "rejected-conditioning-000002/pivots.bin": {
+            "bytes": 208,
+            "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-disabled-parity-434/output/rejected-conditioning-000002/pivots.bin",
+            "sha256": "b15351752746ad304892b36595184c9b83246883ef1d0628cdfda0983a499369"
+          },
+          "rejected-conditioning-000002/restart_Aq.bin": {
+            "bytes": 14112,
+            "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-disabled-parity-434/output/rejected-conditioning-000002/restart_Aq.bin",
+            "sha256": "0f97790543329f8249a5b0ede1f5847b264bf4a2d08f661a948bd69bd96836e7"
+          },
+          "rejected-conditioning-000002/restart_Aq_by_environment.bin": {
+            "bytes": 28224,
+            "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-disabled-parity-434/output/rejected-conditioning-000002/restart_Aq_by_environment.bin",
+            "sha256": "58addadd982be00456b092d551a587a0a25373b1465956ed31bafb61416471f3"
+          },
+          "rejected-conditioning-000002/restart_attempt_counts_by_environment.bin": {
+            "bytes": 8,
+            "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-disabled-parity-434/output/rejected-conditioning-000002/restart_attempt_counts_by_environment.bin",
+            "sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc"
+          },
+          "rejected-conditioning-000002/restart_factor_valid_by_environment.bin": {
+            "bytes": 8,
+            "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-disabled-parity-434/output/rejected-conditioning-000002/restart_factor_valid_by_environment.bin",
+            "sha256": "7c9fa136d4413fa6173637e883b6998d32e1d675f88cddff9dcbcf331820f4b8"
+          },
+          "rejected-conditioning-000002/restart_generations_by_environment.bin": {
+            "bytes": 32,
+            "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-disabled-parity-434/output/rejected-conditioning-000002/restart_generations_by_environment.bin",
+            "sha256": "af9613760f72635fbdb44a5a0a63c39f12af30f950a6ee5c971be188e89c4051"
+          },
+          "rejected-conditioning-000002/restart_mode_scales_by_environment.bin": {
+            "bytes": 8,
+            "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-disabled-parity-434/output/rejected-conditioning-000002/restart_mode_scales_by_environment.bin",
+            "sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc"
+          },
+          "rejected-conditioning-000002/restart_mode_valid_by_environment.bin": {
+            "bytes": 8,
+            "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-disabled-parity-434/output/rejected-conditioning-000002/restart_mode_valid_by_environment.bin",
+            "sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc"
+          },
+          "rejected-conditioning-000002/restart_pivoted_RAP.bin": {
+            "bytes": 2916,
+            "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-disabled-parity-434/output/rejected-conditioning-000002/restart_pivoted_RAP.bin",
+            "sha256": "3dae92d06f364fa6ea8e434c89a3d9d40cb995af8e46e50fff5ff91bd28fe112"
+          },
+          "rejected-conditioning-000002/restart_pivoted_RAP_by_environment.bin": {
+            "bytes": 5832,
+            "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-disabled-parity-434/output/rejected-conditioning-000002/restart_pivoted_RAP_by_environment.bin",
+            "sha256": "d1575943c8a4713d0cdfc917aff7903805fab6350d7fcdc2000ccd7839ccd134"
+          },
+          "rejected-conditioning-000002/restart_pivots.bin": {
+            "bytes": 108,
+            "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-disabled-parity-434/output/rejected-conditioning-000002/restart_pivots.bin",
+            "sha256": "77133f431d5e12dd850002c0d3d4e0fecbe3a7a699d604dc8c5eae9976e1d260"
+          },
+          "rejected-conditioning-000002/restart_pivots_by_environment.bin": {
+            "bytes": 216,
+            "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-disabled-parity-434/output/rejected-conditioning-000002/restart_pivots_by_environment.bin",
+            "sha256": "a5645e7a3fa0866cde8842c4dab96567507c3d1a3c028b816bc63f6966367b70"
+          },
+          "rejected-conditioning-000002/restart_q.bin": {
+            "bytes": 14112,
+            "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-disabled-parity-434/output/rejected-conditioning-000002/restart_q.bin",
+            "sha256": "0f97790543329f8249a5b0ede1f5847b264bf4a2d08f661a948bd69bd96836e7"
+          },
+          "rejected-conditioning-000002/restart_q_by_environment.bin": {
+            "bytes": 28224,
+            "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-disabled-parity-434/output/rejected-conditioning-000002/restart_q_by_environment.bin",
+            "sha256": "58addadd982be00456b092d551a587a0a25373b1465956ed31bafb61416471f3"
+          },
+          "rejected-conditioning-000002/restart_raw_norm_squared_by_environment.bin": {
+            "bytes": 8,
+            "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-disabled-parity-434/output/rejected-conditioning-000002/restart_raw_norm_squared_by_environment.bin",
+            "sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc"
+          },
+          "rejected-conditioning-000002/restart_target_scales_by_environment.bin": {
+            "bytes": 8,
+            "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-disabled-parity-434/output/rejected-conditioning-000002/restart_target_scales_by_environment.bin",
+            "sha256": "2431a542b1d360d60cb12534b6a57b80e36c8dc2fbbf8276fecb598f8bd1554b"
+          },
+          "rejected_step_diagnostic_000002_bent.obj": {
+            "bytes": 61946,
+            "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-disabled-parity-434/output/rejected_step_diagnostic_000002_bent.obj",
+            "sha256": "42fbb543657063c3c3df7eed3ec4d07dc820f5f2ab887e2d3ceb6c3bfd68a522"
+          },
+          "result.json": {
+            "bytes": 698,
+            "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-disabled-parity-434/output/result.json",
+            "sha256": "6600e9b15bba128d2ef4ed2c5c4a181e91fdc8600a4171ecdd7e1c2eb04efcba"
+          }
+        },
+        "prediction": {
+          "bytes": 103200,
+          "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-disabled-parity-434/prediction.json",
+          "sha256": "010241521c74d590ae02ae63562502a95f616b9a506aa9dc38ea8b6d432f9d40"
+        },
+        "receipt": {
+          "bytes": 306,
+          "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-disabled-parity-434/receipt.json",
+          "sha256": "30813c2f1efb0e45c609373aa0763195ccc66ab52d2a8c1ed803e635cf408a2e"
+        },
+        "runtime_metallib": {
+          "bytes": 6692507,
+          "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-disabled-parity-434/inputs/runtime/matter/shaders/NumiMatter.metallib",
+          "sha256": "b0f6c901e2fa7ddd129d3d22e3fc61caf93089863c556e555351d322736ec187"
+        },
+        "runtime_probe": {
+          "bytes": 2621048,
+          "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-disabled-parity-434/inputs/runtime/matter/numi-matter-cardboard-probe",
+          "sha256": "be71e8eeeaefbb690b3e0dda427812afa24d091d6f97bbf4e2b7ceffd075d55f"
+        },
+        "stderr": {
+          "bytes": 4434042,
+          "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-disabled-parity-434/stderr.log",
+          "sha256": "8f1bb9261b5edd5190f66bf8f071e1a9ef2ec612f925ed6c89bcb5784472e3a9"
+        },
+        "stdout": {
+          "bytes": 343,
+          "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-disabled-parity-434/stdout.log",
+          "sha256": "9e9e87625cf0549628c2668a29decf5dfeec04db6a5f649642e4c81a51e79fc3"
+        }
+      },
+      "native435": {
+        "command": {
+          "bytes": 3613,
+          "path": "/Users/home/cardboard-implementation-20261014/native-435-command.json",
+          "sha256": "5de63d38bf24028044bb75bfc080429fa03947671e75177cc6236aaf9bf09228"
+        },
+        "external_cauchy_report": {
+          "bytes": 12192,
+          "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-first-failure-enabled-435/inputs/external/report.json",
+          "sha256": "0f7e4706316ae03cf1d35bfd8bfc706a04a618d7c0ccdd93561d627edb90fb70"
+        },
+        "external_source_build": {
+          "bytes": 96068,
+          "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-first-failure-enabled-435/inputs/external/source-build.json",
+          "sha256": "5f701259422feb34672bab8c78fab5ef3656b017d6e1a82b6f783215b958d61d"
+        },
+        "first_status5_binary": {
+          "bytes": 13568,
+          "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-first-failure-enabled-435/first-status5.bin",
+          "sha256": "0f3ae7cd18df40df8ad3bbed0b55491b43f1ee67c321eab2287c46e18a43239f"
+        },
+        "first_status5_json": {
+          "bytes": 879,
+          "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-first-failure-enabled-435/first-status5.json",
+          "sha256": "0453e9fb79e127e138f066dbf5a1f7d8e825b762e93466fa613ece2dab3e1c57"
+        },
+        "output_files": {
+          "accepted_step_000001_bent.obj": {
+            "bytes": 61946,
+            "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-first-failure-enabled-435/output/accepted_step_000001_bent.obj",
+            "sha256": "42fbb543657063c3c3df7eed3ec4d07dc820f5f2ab887e2d3ceb6c3bfd68a522"
+          },
+          "accepted_step_000001_held_reference.obj": {
+            "bytes": 56470,
+            "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-first-failure-enabled-435/output/accepted_step_000001_held_reference.obj",
+            "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+          },
+          "accepted_step_000002_held_reference.obj": {
+            "bytes": 56470,
+            "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-first-failure-enabled-435/output/accepted_step_000002_held_reference.obj",
+            "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+          },
+          "compiled.nmatterpack": {
+            "bytes": 1984768,
+            "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-first-failure-enabled-435/output/compiled.nmatterpack",
+            "sha256": "cafbf36052bbfa72e8be49fdba8b23e900469c9f15136a14a4ec1e4c0b5ccf7c"
+          },
+          "initial.obj": {
+            "bytes": 56470,
+            "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-first-failure-enabled-435/output/initial.obj",
+            "sha256": "463cd80289b72a58009f859f2a3184966984029daa8d3687ec9035e18c6481af"
+          },
+          "manifest.json": {
+            "bytes": 11737,
+            "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-first-failure-enabled-435/output/manifest.json",
+            "sha256": "544f8758b6da90a0fec11a1dba10277769d4fd00faf4d788a8ad4954e58dcce4"
+          },
+          "material_state_000002_bent.json": {
+            "bytes": 971641,
+            "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-first-failure-enabled-435/output/material_state_000002_bent.json",
+            "sha256": "fb270a40f77d2251451e1ca1ab2c09e1c4779775a9f073fde25a6b6218ef2ee4"
+          },
+          "mesh.json": {
+            "bytes": 160425,
+            "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-first-failure-enabled-435/output/mesh.json",
+            "sha256": "6a2f786a47e61014ee4b27f609eb3c2f666677223ddaa30297aeea1fcfd8ca56"
+          },
+          "observations.csv": {
+            "bytes": 2596,
+            "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-first-failure-enabled-435/output/observations.csv",
+            "sha256": "b8181c6421b294318ba9656f2cbd42eee2687860363de5a9d231e82e82cf8ae6"
+          },
+          "rejected-conditioning-000002/AP.bin": {
+            "bytes": 733824,
+            "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-first-failure-enabled-435/output/rejected-conditioning-000002/AP.bin",
+            "sha256": "d181a9d064474ef2147c1c5c4be5b841b8120c3f4aaf5c7e660a87fb0acff48e"
+          },
+          "rejected-conditioning-000002/P.bin": {
+            "bytes": 366912,
+            "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-first-failure-enabled-435/output/rejected-conditioning-000002/P.bin",
+            "sha256": "2626e4bbb205fa1c7e40bdaf3f2e72d11f831ec53431c3062bcc85d69a50f6b5"
+          },
+          "rejected-conditioning-000002/candidate_nodes.bin": {
+            "bytes": 141120,
+            "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-first-failure-enabled-435/output/rejected-conditioning-000002/candidate_nodes.bin",
+            "sha256": "4aed9a7b5fc03e87819f0b392052183277e330cf0bdfe7a01744fe9c07b5d090"
+          },
+          "rejected-conditioning-000002/effective_P.bin": {
+            "bytes": 733824,
+            "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-first-failure-enabled-435/output/rejected-conditioning-000002/effective_P.bin",
+            "sha256": "9bf372c75cafcf84bc1e21a20ee3305e7619affffe6415bb9d3398f79970214c"
+          },
+          "rejected-conditioning-000002/factor_valid.bin": {
+            "bytes": 8,
+            "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-first-failure-enabled-435/output/rejected-conditioning-000002/factor_valid.bin",
+            "sha256": "64ed86b909d6d0502b64b28db0ea1272ffb358e20e9b1d88b63ccb07fa900cf5"
+          },
+          "rejected-conditioning-000002/manifest.json": {
+            "bytes": 5545,
+            "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-first-failure-enabled-435/output/rejected-conditioning-000002/manifest.json",
+            "sha256": "1b88831068f58af8f75aa9520ba17ae2bcbc633fe60020b1b41028058f6ef31b"
+          },
+          "rejected-conditioning-000002/node_block_inverse.bin": {
+            "bytes": 0,
+            "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-first-failure-enabled-435/output/rejected-conditioning-000002/node_block_inverse.bin",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "rejected-conditioning-000002/pivoted_RAP.bin": {
+            "bytes": 5408,
+            "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-first-failure-enabled-435/output/rejected-conditioning-000002/pivoted_RAP.bin",
+            "sha256": "3ee151c5d64838a16fe82e3f90e92b73f97c7b834ce7f855017492de4c6a87e9"
+          },
+          "rejected-conditioning-000002/pivots.bin": {
+            "bytes": 208,
+            "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-first-failure-enabled-435/output/rejected-conditioning-000002/pivots.bin",
+            "sha256": "b15351752746ad304892b36595184c9b83246883ef1d0628cdfda0983a499369"
+          },
+          "rejected-conditioning-000002/restart_Aq.bin": {
+            "bytes": 14112,
+            "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-first-failure-enabled-435/output/rejected-conditioning-000002/restart_Aq.bin",
+            "sha256": "0f97790543329f8249a5b0ede1f5847b264bf4a2d08f661a948bd69bd96836e7"
+          },
+          "rejected-conditioning-000002/restart_Aq_by_environment.bin": {
+            "bytes": 28224,
+            "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-first-failure-enabled-435/output/rejected-conditioning-000002/restart_Aq_by_environment.bin",
+            "sha256": "58addadd982be00456b092d551a587a0a25373b1465956ed31bafb61416471f3"
+          },
+          "rejected-conditioning-000002/restart_attempt_counts_by_environment.bin": {
+            "bytes": 8,
+            "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-first-failure-enabled-435/output/rejected-conditioning-000002/restart_attempt_counts_by_environment.bin",
+            "sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc"
+          },
+          "rejected-conditioning-000002/restart_factor_valid_by_environment.bin": {
+            "bytes": 8,
+            "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-first-failure-enabled-435/output/rejected-conditioning-000002/restart_factor_valid_by_environment.bin",
+            "sha256": "7c9fa136d4413fa6173637e883b6998d32e1d675f88cddff9dcbcf331820f4b8"
+          },
+          "rejected-conditioning-000002/restart_generations_by_environment.bin": {
+            "bytes": 32,
+            "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-first-failure-enabled-435/output/rejected-conditioning-000002/restart_generations_by_environment.bin",
+            "sha256": "af9613760f72635fbdb44a5a0a63c39f12af30f950a6ee5c971be188e89c4051"
+          },
+          "rejected-conditioning-000002/restart_mode_scales_by_environment.bin": {
+            "bytes": 8,
+            "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-first-failure-enabled-435/output/rejected-conditioning-000002/restart_mode_scales_by_environment.bin",
+            "sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc"
+          },
+          "rejected-conditioning-000002/restart_mode_valid_by_environment.bin": {
+            "bytes": 8,
+            "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-first-failure-enabled-435/output/rejected-conditioning-000002/restart_mode_valid_by_environment.bin",
+            "sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc"
+          },
+          "rejected-conditioning-000002/restart_pivoted_RAP.bin": {
+            "bytes": 2916,
+            "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-first-failure-enabled-435/output/rejected-conditioning-000002/restart_pivoted_RAP.bin",
+            "sha256": "3dae92d06f364fa6ea8e434c89a3d9d40cb995af8e46e50fff5ff91bd28fe112"
+          },
+          "rejected-conditioning-000002/restart_pivoted_RAP_by_environment.bin": {
+            "bytes": 5832,
+            "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-first-failure-enabled-435/output/rejected-conditioning-000002/restart_pivoted_RAP_by_environment.bin",
+            "sha256": "d1575943c8a4713d0cdfc917aff7903805fab6350d7fcdc2000ccd7839ccd134"
+          },
+          "rejected-conditioning-000002/restart_pivots.bin": {
+            "bytes": 108,
+            "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-first-failure-enabled-435/output/rejected-conditioning-000002/restart_pivots.bin",
+            "sha256": "77133f431d5e12dd850002c0d3d4e0fecbe3a7a699d604dc8c5eae9976e1d260"
+          },
+          "rejected-conditioning-000002/restart_pivots_by_environment.bin": {
+            "bytes": 216,
+            "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-first-failure-enabled-435/output/rejected-conditioning-000002/restart_pivots_by_environment.bin",
+            "sha256": "a5645e7a3fa0866cde8842c4dab96567507c3d1a3c028b816bc63f6966367b70"
+          },
+          "rejected-conditioning-000002/restart_q.bin": {
+            "bytes": 14112,
+            "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-first-failure-enabled-435/output/rejected-conditioning-000002/restart_q.bin",
+            "sha256": "0f97790543329f8249a5b0ede1f5847b264bf4a2d08f661a948bd69bd96836e7"
+          },
+          "rejected-conditioning-000002/restart_q_by_environment.bin": {
+            "bytes": 28224,
+            "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-first-failure-enabled-435/output/rejected-conditioning-000002/restart_q_by_environment.bin",
+            "sha256": "58addadd982be00456b092d551a587a0a25373b1465956ed31bafb61416471f3"
+          },
+          "rejected-conditioning-000002/restart_raw_norm_squared_by_environment.bin": {
+            "bytes": 8,
+            "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-first-failure-enabled-435/output/rejected-conditioning-000002/restart_raw_norm_squared_by_environment.bin",
+            "sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc"
+          },
+          "rejected-conditioning-000002/restart_target_scales_by_environment.bin": {
+            "bytes": 8,
+            "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-first-failure-enabled-435/output/rejected-conditioning-000002/restart_target_scales_by_environment.bin",
+            "sha256": "2431a542b1d360d60cb12534b6a57b80e36c8dc2fbbf8276fecb598f8bd1554b"
+          },
+          "rejected_step_diagnostic_000002_bent.obj": {
+            "bytes": 61946,
+            "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-first-failure-enabled-435/output/rejected_step_diagnostic_000002_bent.obj",
+            "sha256": "42fbb543657063c3c3df7eed3ec4d07dc820f5f2ab887e2d3ceb6c3bfd68a522"
+          },
+          "result.json": {
+            "bytes": 698,
+            "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-first-failure-enabled-435/output/result.json",
+            "sha256": "6600e9b15bba128d2ef4ed2c5c4a181e91fdc8600a4171ecdd7e1c2eb04efcba"
+          }
+        },
+        "prediction": {
+          "bytes": 103586,
+          "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-first-failure-enabled-435/prediction.json",
+          "sha256": "9ebd74f7a70ff7058870d72b91c898048c7f03ee85e69e6fc337df23c4adf67e"
+        },
+        "receipt": {
+          "bytes": 306,
+          "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-first-failure-enabled-435/receipt.json",
+          "sha256": "4691a0a51ad2861f0a24e91d19bac2f273be39e9e961980328629c16d5711ba7"
+        },
+        "runtime_metallib": {
+          "bytes": 6692507,
+          "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-first-failure-enabled-435/inputs/runtime/matter/shaders/NumiMatter.metallib",
+          "sha256": "b0f6c901e2fa7ddd129d3d22e3fc61caf93089863c556e555351d322736ec187"
+        },
+        "runtime_probe": {
+          "bytes": 2621048,
+          "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-first-failure-enabled-435/inputs/runtime/matter/numi-matter-cardboard-probe",
+          "sha256": "f5f7bacc060a0da28cd29b05de70d8bfbf091837246b73030fe1dca91a5c48fe"
+        },
+        "stderr": {
+          "bytes": 4457845,
+          "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-first-failure-enabled-435/stderr.log",
+          "sha256": "fe2937442d99e10fb5a5f65a25c88fbc53ff0b096fad0bd693956855e20e7fa3"
+        },
+        "stdout": {
+          "bytes": 343,
+          "path": "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-first-failure-enabled-435/stdout.log",
+          "sha256": "9e9e87625cf0549628c2668a29decf5dfeec04db6a5f649642e4c81a51e79fc3"
+        }
+      }
+    },
+    "source_snapshots": {
+      "source133": {
+        "CMakeLists.txt": {
+          "bytes": 236387,
+          "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-base-state-cauchy-armijo-133/CMakeLists.txt",
+          "sha256": "41416ae49d88b043712588d8a4d579f59a5b6b7a0bb128b1117f83c27320af37"
+        },
+        "configure-support-source.json": {
+          "bytes": 148389,
+          "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-base-state-cauchy-armijo-133/configure-support-source.json",
+          "sha256": "7f6f2afa927ae0373fa8027597fade97174cb867415fb38640e4e01767cfe3f1"
+        },
+        "frozen-source.json": {
+          "bytes": 93900,
+          "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-base-state-cauchy-armijo-133/frozen-source.json",
+          "sha256": "48d0c2da92cc8557507faa67bf80b3730c669075e25fd0d8ce202ff08ba2d973"
+        }
+      },
+      "source135": {
+        "CMakeLists.txt": {
+          "bytes": 236387,
+          "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-cauchy-positive-mass-admission-135/CMakeLists.txt",
+          "sha256": "41416ae49d88b043712588d8a4d579f59a5b6b7a0bb128b1117f83c27320af37"
+        },
+        "configure-support-source.json": {
+          "bytes": 148389,
+          "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-cauchy-positive-mass-admission-135/configure-support-source.json",
+          "sha256": "7f6f2afa927ae0373fa8027597fade97174cb867415fb38640e4e01767cfe3f1"
+        },
+        "frozen-source.json": {
+          "bytes": 94075,
+          "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-cauchy-positive-mass-admission-135/frozen-source.json",
+          "sha256": "40f0196428da88be0ecb951a03a9989c51e44405abd8393f13970e1f7239b9a8"
+        }
+      }
+    }
+  },
+  "status": "fallback_local_acceptance_observed_following_newton_rejection; coupon_still_failed"
+}

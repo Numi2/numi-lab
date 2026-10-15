@@ -1,0 +1,19 @@
+{
+  "changed_files": [
+    {
+      "path": "matter/src/metal/fem.metalinc",
+      "before_sha256": "09c3a806224067777aadd26274581ff46be8c9b14282525a7ff805bbb335d03c",
+      "candidate_sha256": "33edccfec4a2faee1b0bfd7a59aa7847ac707ac3c56baa9a0030e858eeba7170"
+    },
+    {
+      "path": "matter/src/runtime.mm",
+      "before_sha256": "827eeecfa8c85b9c4d955da4b0fced2e9c479d0da0a9f8c419d9126e1049651e",
+      "candidate_sha256": "53fb2217362fbb78bcaafdf3a3a850927d6f830dd8f9d72490c076ecbe04c5a7"
+    }
+  ],
+  "selected_source_files_verified": 785,
+  "build_sha256": "fe88a4bbf5172fca5376a6dbd996f570e9ee98b99f639e8f45a1b851fb25b6be",
+  "native441_parity_sha256": "6c11e834db85ea2a2f3b6728e7b969125c6fee1bfecc435bf11fa39b00d03fee",
+  "source_retention_sha256": "fb0329f29063932a7c92305222c4ead139db48e9a877760ce2f4cd9c11ca16b5",
+  "scope": "Correct opt-in paper projection cache reuse admission for existing elastic starch and compiler IPC capability; original starch path and physical operator retained. Full attempted source139/cache-on history equals source133/cache-off native434 numerical/physical history. Both fail Newton48; complete coupon remains unqualified. Fix stale observer-cap labels without budget change."
+}

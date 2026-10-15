@@ -1,0 +1,94 @@
+{
+  "schema": "numi.cardboard.cache_reuse_native_attempted_history_parity.v1",
+  "verdict": "PASS_for_exact_attempted_history_only",
+  "output_files": 35,
+  "byte_exact_output_files": 33,
+  "metadata_differences": [
+    {
+      "path": "manifest.json",
+      "left_bytes": 11719,
+      "right_bytes": 11713,
+      "left_sha256": "5e58411cca7473a5a6edfe403589fec108e9ccf0f1232aca22c9e09a4e528363",
+      "right_sha256": "ba318fad270cb12994b4614925e9a9613b806f7897e48ddfade50e6c41f6f137",
+      "equal": false,
+      "json_differences": [
+        {
+          "field": "$/materials/glue_path",
+          "left": "/Users/home/cardboard-implementation-20261014/snapshots/source-base-state-cauchy-armijo-133/matter/materials/starch2007_finite_glue_elastic.nmatter",
+          "right": "/Users/home/cardboard-implementation-20261014/snapshots/source-coupon-cache-admission-139/matter/materials/starch2007_finite_glue_elastic.nmatter"
+        },
+        {
+          "field": "$/materials/liner_path",
+          "left": "/Users/home/cardboard-implementation-20261014/snapshots/source-base-state-cauchy-armijo-133/matter/materials/hajali2009_liner_hill_bilinear_fit.nmatter",
+          "right": "/Users/home/cardboard-implementation-20261014/snapshots/source-coupon-cache-admission-139/matter/materials/hajali2009_liner_hill_bilinear_fit.nmatter"
+        },
+        {
+          "field": "$/materials/medium_path",
+          "left": "/Users/home/cardboard-implementation-20261014/snapshots/source-base-state-cauchy-armijo-133/matter/materials/hajali2009_medium_hill_bilinear_fit.nmatter",
+          "right": "/Users/home/cardboard-implementation-20261014/snapshots/source-coupon-cache-admission-139/matter/materials/hajali2009_medium_hill_bilinear_fit.nmatter"
+        }
+      ]
+    },
+    {
+      "path": "rejected-conditioning-000002/manifest.json",
+      "left_bytes": 5545,
+      "right_bytes": 5545,
+      "left_sha256": "bc0bf5594de9a1327f491e89ea9e2a8a417512869edebc77b6db55a955f4642d",
+      "right_sha256": "9beeccdebf140e57b82be272d56d32a2ab8166a71eb7b0c0cf8e8fc7bdfad4ed",
+      "equal": false,
+      "json_differences": [
+        {
+          "field": "$/device_program_fingerprint",
+          "left": "10853248014080943761",
+          "right": "11696512877127033271"
+        }
+      ]
+    }
+  ],
+  "armijo_records_byte_exact": 64,
+  "true_residual_records_byte_exact": 4096,
+  "stdout_byte_exact": true,
+  "first_status5_payload_byte_exact": true,
+  "all_other_numerical_status_fields_byte_exact": true,
+  "only_notice_difference": "maximum_newton_records renamed default_maximum_newton_records64; cap unchanged in this run",
+  "physical_probe_argv_equal_after_path_normalization": true,
+  "environment_difference": "NM_FEM_CACHE_PROJECTION_REUSE=1 only",
+  "source_build139_sha256": "fe88a4bbf5172fca5376a6dbd996f570e9ee98b99f639e8f45a1b851fb25b6be",
+  "receipts": {
+    "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-disabled-parity-434": {
+      "schema": "numi.cardboard.native-run-receipt.v2",
+      "execution_started": true,
+      "source_inputs_unchanged": true,
+      "changed_inputs": [],
+      "exit_code": 2,
+      "timed_out": false,
+      "termination_errors": [],
+      "wall_seconds": 435.73525612504454,
+      "finished_at_utc": "2026-10-15T20:30:54.990720+00:00"
+    },
+    "/Users/home/cardboard-implementation-20261014/solver/cache-reuse-full-history-parity-441": {
+      "schema": "numi.cardboard.native-run-receipt.v2",
+      "execution_started": true,
+      "source_inputs_unchanged": true,
+      "changed_inputs": [],
+      "exit_code": 2,
+      "timed_out": false,
+      "termination_errors": [],
+      "wall_seconds": 366.3586659579887,
+      "finished_at_utc": "2026-10-15T21:16:27.635086+00:00"
+    }
+  },
+  "run_bindings": {
+    "/Users/home/cardboard-implementation-20261014/solver/base-cauchy-disabled-parity-434": {
+      "receipt.json": "30813c2f1efb0e45c609373aa0763195ccc66ab52d2a8c1ed803e635cf408a2e",
+      "stderr.log": "8f1bb9261b5edd5190f66bf8f071e1a9ef2ec612f925ed6c89bcb5784472e3a9",
+      "output/result.json": "6600e9b15bba128d2ef4ed2c5c4a181e91fdc8600a4171ecdd7e1c2eb04efcba"
+    },
+    "/Users/home/cardboard-implementation-20261014/solver/cache-reuse-full-history-parity-441": {
+      "receipt.json": "cd247099ad0e77ca22827a6adc46588d197b1dbbd6b1730192b94d8c5a3176f6",
+      "stderr.log": "5aa1a9cd97a8e9eec5fe9aaf2db238b73cb8ca0fbe3da36605ebd394821e54c8",
+      "output/result.json": "6600e9b15bba128d2ef4ed2c5c4a181e91fdc8600a4171ecdd7e1c2eb04efcba"
+    }
+  },
+  "qualification_limit": "Both complete attempted histories reject loading control1 at Newton48 after one accepted control. No complete coupon, convergence or performance qualification. Source136 initialization failure437 remains preserved. Timing is one observation per source; no speedup claim."
+}

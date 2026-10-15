@@ -1,0 +1,496 @@
+{
+  "cleanup_candidates": {
+    "combined_snapshot_plus_depfile_gross_bytes": 527069184,
+    "combined_snapshot_plus_depfile_gross_mib": 502.65,
+    "does_not_include_or_remove_final_binaries_metallibs_source_build_records_or_science_histories": true,
+    "generated_clang_depfiles": {
+      "builds": [
+        133,
+        134,
+        135,
+        136
+      ],
+      "recommendation": "candidate only if these old build trees no longer need incremental dependency state; final linked artifacts remain separately verified",
+      "st_blocks_bytes": 63836160
+    },
+    "intermediate_object_files": {
+      "builds": [
+        133,
+        134,
+        135,
+        136
+      ],
+      "recommendation": "optional only; excluded from conservative proposal because .o files are binary intermediates",
+      "st_blocks_bytes": 46985216
+    },
+    "net_apfs_reclaim_measured": false,
+    "observed_free_bytes": 774180864,
+    "old_build_open_handles": [],
+    "snapshot_source_trees": {
+      "bundle_base_commit_present": true,
+      "bundles_currently_untracked": true,
+      "paths": [
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-base-state-cauchy-armijo-133",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-cache-projection-reuse-checker-fixed-134",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-cauchy-positive-mass-admission-135",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-cache-projection-reuse-runtime-136"
+      ],
+      "recommendation": "candidate only after committing or independently securing the restore bundles; APFS clone/shared-extent reclaimed bytes are unknown",
+      "restore_bundles_st_blocks_bytes": 2772992,
+      "st_blocks_bytes": 463233024
+    }
+  },
+  "created_utc": "2026-10-15T21:09:46Z",
+  "disk": {
+    "free_user_bytes": 774180864,
+    "path": "/Users/home",
+    "total_bytes": 494353338368
+  },
+  "git_safety": {
+    "git_status_excerpt": [
+      "M matter/CMakeLists.txt",
+      " M matter/examples/cardboard/evidence/native-implementation-20261014/summary.json",
+      " M matter/examples/cardboard/implementation-20261014.md",
+      " M matter/examples/cardboard/solver-progress-20261014.md",
+      " M matter/include/numi/matter/shared.h",
+      " M matter/src/metal/common.metalinc",
+      " M matter/src/metal/contact.metalinc",
+      " M matter/src/metal/fem.metalinc",
+      " M matter/src/metal/fgmres.metalinc",
+      " M matter/src/runtime.mm",
+      " M matter/tools/cardboard_bilinear15_capture_diagnostic_check.mm",
+      " M matter/tools/cardboard_coupled_free_box_operator_check.mm",
+      " M matter/tools/cardboard_gpu_check.mm",
+      " M matter/tools/fem_material_frame_check.mm",
+      " M matter/tools/fem_reference_check.mm",
+      " M matter/tools/fem_regional_material_check.mm",
+      "?? matter/examples/cardboard/evidence/native-implementation-20261014/analysis/cache-projection-reuse-runtime-overlay-136-001/",
+      "?? matter/examples/cardboard/evidence/native-implementation-20261014/analysis/cache-reuse-native431432-inputs-001/",
+      "?? matter/examples/cardboard/evidence/native-implementation-20261014/analysis/captured-base-state-cauchy-419-001/",
+      "?? matter/examples/cardboard/evidence/native-implementation-20261014/analysis/captured-residual-cauchy-419-001/",
+      "?? matter/examples/cardboard/evidence/native-implementation-20261014/analysis/captured419-linear-conditioning-001/",
+      "?? matter/examples/cardboard/evidence/native-implementation-20261014/analysis/captured419-regularized-directions-001/",
+      "?? matter/examples/cardboard/evidence/native-implementation-20261014/analysis/captured419-truncated-cgls-directions-001/",
+      "?? matter/examples/cardboard/evidence/native-implementation-20261014/analysis/cauchy-operator-tools-abi-overlay-137-001/",
+      "?? matter/examples/cardboard/evidence/native-implementation-20261014/analysis/generated-closed-object-dependency-retirement-015/",
+      "?? matter/examples/cardboard/evidence/native-implementation-20261014/analysis/generated-dependency-table-retirement-006/",
+      "?? matter/examples/cardboard/evidence/native-implementation-20261014/analysis/generated-overlay-dependency-table-retirement-001/",
+      "?? matter/examples/cardboard/evidence/native-implementation-20261014/analysis/native-base-cauchy-fallback-133/",
+      "?? matter/examples/cardboard/evidence/native-implementation-20261014/analysis/native-base-cauchy-kernel-133-metal-overlay-001/",
+      "?? matter/examples/cardboard/evidence/native-implementation-20261014/analysis/native-base-cauchy-kernel-check-133-001/",
+      "?? matter/examples/cardboard/evidence/native-implementation-20261014/analysis/native-base-cauchy-kernel-result-433/",
+      "?? matter/examples/cardboard/evidence/native-implementation-20261014/analysis/native-base-cauchy-replay-result-429/",
+      "?? matter/examples/cardboard/evidence/native-implementation-20261014/analysis/native-regularized-direction-adjudication-001/",
+      "?? matter/examples/cardboard/evidence/native-implementation-20261014/analysis/native-regularized-direction-replay-436/",
+      "?? matter/examples/cardboard/evidence/native-implementation-20261014/analysis/native-residual-direction-replay-419-001/",
+      "?? matter/examples/cardboard/evidence/native-implementation-20261014/analysis/native-transpose-cauchy-operator-430/",
+      "?? matter/examples/cardboard/evidence/native-implementation-20261014/analysis/native429-cauchy-adjudication-001/",
+      "?? matter/examples/cardboard/evidence/native-implementation-20261014/analysis/native430-transpose-adjudication-001/",
+      "?? matter/examples/cardboard/evidence/native-implementation-20261014/analysis/native431432-cache-parity-adjudication-001/",
+      "?? matter/examples/cardboard/evidence/native-implementation-20261014/analysis/native433-cauchy-kernel-adjudication-001/"
+    ],
+    "guards_untracked_and_excluded_from_pathspec": true,
+    "staged_count": 0,
+    "staged_paths": [],
+    "unrelated_untracked_guards": [
+      "matter/examples/cardboard/evidence/native-implementation-20261014/solver/regional-bending-captured-cycle-057/analysis-057/replay-build-037/CMakeFiles/4.0.1/CompilerIdOBJCXX/",
+      "matter/tools/evidence/cohesive-scratch-alias/"
+    ]
+  },
+  "inputs": {
+    "binding_sha256": "2fe713fca064bf9433dab71d70e0c575e91796b6db873bf921319649bde9c2bb",
+    "builder": "/Users/home/cardboard-implementation-20261014/archive_reference022.py",
+    "builder_sha256": "ed637ba08672bc2508ce993f1a055eb562eb4bc308dd15d1552492e71a87178e",
+    "pathspec": "/Users/home/cardboard-implementation-20261014/publication-reference022-pathspec.nul",
+    "pathspec_bytes": 180185,
+    "pathspec_sha256": "54fd2332a91c0ca3d6c94b637166226cddcbb14ef52dfd84ae7c66e51dc4e237",
+    "publication_root": "/Users/home/numi-cardboard-20261006/matter/examples/cardboard/evidence/native-implementation-20261014",
+    "reference021_sha256": "1d4179111b0a694263bde5c023af1ed4cc05a4702d75002ffd112664d6783df7",
+    "summary_sha256": "a7183b6bf2fa89e6461ecd5d2de86a5cf026d33a0a36a3684ef6ff1ea091ac67"
+  },
+  "no_deletion_or_staging_performed": true,
+  "old_build_generated_allocations": {
+    "133": {
+      ".a": {
+        "files": 2,
+        "logical_bytes": 2742640,
+        "st_blocks_bytes": 2748416
+      },
+      ".air": {
+        "files": 56,
+        "logical_bytes": 4672000,
+        "st_blocks_bytes": 4780032
+      },
+      ".d": {
+        "files": 141,
+        "logical_bytes": 20977624,
+        "st_blocks_bytes": 21270528
+      },
+      ".dylib": {
+        "files": 1,
+        "logical_bytes": 8449664,
+        "st_blocks_bytes": 8450048
+      },
+      ".metallib": {
+        "files": 5,
+        "logical_bytes": 12188902,
+        "st_blocks_bytes": 12197888
+      },
+      ".o": {
+        "files": 140,
+        "logical_bytes": 15382928,
+        "st_blocks_bytes": 15659008
+      }
+    },
+    "134": {
+      ".a": {
+        "files": 2,
+        "logical_bytes": 2729328,
+        "st_blocks_bytes": 2732032
+      },
+      ".air": {
+        "files": 1,
+        "logical_bytes": 32512,
+        "st_blocks_bytes": 32768
+      },
+      ".d": {
+        "files": 1,
+        "logical_bytes": 5966,
+        "st_blocks_bytes": 8192
+      },
+      ".metallib": {
+        "files": 2,
+        "logical_bytes": 6940205,
+        "st_blocks_bytes": 6942720
+      }
+    },
+    "135": {
+      ".a": {
+        "files": 2,
+        "logical_bytes": 2742832,
+        "st_blocks_bytes": 2748416
+      },
+      ".air": {
+        "files": 56,
+        "logical_bytes": 4672960,
+        "st_blocks_bytes": 4784128
+      },
+      ".d": {
+        "files": 141,
+        "logical_bytes": 20991532,
+        "st_blocks_bytes": 21278720
+      },
+      ".dylib": {
+        "files": 1,
+        "logical_bytes": 8449664,
+        "st_blocks_bytes": 8450048
+      },
+      ".metallib": {
+        "files": 5,
+        "logical_bytes": 12188902,
+        "st_blocks_bytes": 12197888
+      },
+      ".o": {
+        "files": 140,
+        "logical_bytes": 15383128,
+        "st_blocks_bytes": 15659008
+      }
+    },
+    "136": {
+      ".a": {
+        "files": 2,
+        "logical_bytes": 2755112,
+        "st_blocks_bytes": 2760704
+      },
+      ".air": {
+        "files": 56,
+        "logical_bytes": 4677856,
+        "st_blocks_bytes": 4788224
+      },
+      ".d": {
+        "files": 141,
+        "logical_bytes": 20991532,
+        "st_blocks_bytes": 21278720
+      },
+      ".dylib": {
+        "files": 1,
+        "logical_bytes": 8451888,
+        "st_blocks_bytes": 8454144
+      },
+      ".metallib": {
+        "files": 5,
+        "logical_bytes": 12381969,
+        "st_blocks_bytes": 12394496
+      },
+      ".o": {
+        "files": 140,
+        "logical_bytes": 15393760,
+        "st_blocks_bytes": 15667200
+      }
+    }
+  },
+  "old_build_outputs": {
+    "133": {
+      "artifact_count": 7,
+      "artifacts": [
+        {
+          "exists": true,
+          "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/lib/libmetalrobo.dylib",
+          "sha256_matches": true
+        },
+        {
+          "exists": true,
+          "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/matter/numi-matter-cardboard-probe",
+          "sha256_matches": true
+        },
+        {
+          "exists": true,
+          "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/matter/shaders/NumiMatter.metallib",
+          "sha256_matches": true
+        },
+        {
+          "exists": true,
+          "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/matter/shaders/NumiMatterPhysicalStateDigest.metallib",
+          "sha256_matches": true
+        },
+        {
+          "exists": true,
+          "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/shaders/MetalRobo.metallib",
+          "sha256_matches": true
+        },
+        {
+          "exists": true,
+          "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/shaders/MetalRoboHyperPolicy.metallib",
+          "sha256_matches": true
+        },
+        {
+          "exists": true,
+          "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-133/shaders/NumiNeuron.metallib",
+          "sha256_matches": true
+        }
+      ],
+      "artifacts_verified": true,
+      "metadata_path": "/Users/home/numi-cardboard-20261006/matter/examples/cardboard/evidence/native-implementation-20261014/analysis/publication022-preflight-001/source-build-133.json",
+      "metadata_sha256": "6f6d8876a260b77cfbcf6823d6ad439ecf601a7c93b3b3611dbf41c1fdbf0951"
+    },
+    "134": {
+      "artifact_count": 3,
+      "artifacts": [
+        {
+          "exists": true,
+          "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-134/matter/numi-matter-cardboard-tangent-cache-projection-reuse-check",
+          "sha256_matches": true
+        },
+        {
+          "exists": true,
+          "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-134/matter/shaders/NumiMatter.metallib",
+          "sha256_matches": true
+        },
+        {
+          "exists": true,
+          "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-134/matter/shaders/NumiMatterPhysicalStateDigest.metallib",
+          "sha256_matches": true
+        }
+      ],
+      "artifacts_verified": true,
+      "metadata_path": "/Users/home/numi-cardboard-20261006/matter/examples/cardboard/evidence/native-implementation-20261014/analysis/publication022-preflight-001/source-build-134.json",
+      "metadata_sha256": "10dfb53dd3878faa84b6cec07277b1b1cf379327384249dbff2917afb2258f61"
+    },
+    "135": {
+      "artifact_count": 7,
+      "artifacts": [
+        {
+          "exists": true,
+          "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/lib/libmetalrobo.dylib",
+          "sha256_matches": true
+        },
+        {
+          "exists": true,
+          "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/matter/numi-matter-cardboard-probe",
+          "sha256_matches": true
+        },
+        {
+          "exists": true,
+          "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/matter/shaders/NumiMatter.metallib",
+          "sha256_matches": true
+        },
+        {
+          "exists": true,
+          "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/matter/shaders/NumiMatterPhysicalStateDigest.metallib",
+          "sha256_matches": true
+        },
+        {
+          "exists": true,
+          "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/shaders/MetalRobo.metallib",
+          "sha256_matches": true
+        },
+        {
+          "exists": true,
+          "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/shaders/MetalRoboHyperPolicy.metallib",
+          "sha256_matches": true
+        },
+        {
+          "exists": true,
+          "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-135/shaders/NumiNeuron.metallib",
+          "sha256_matches": true
+        }
+      ],
+      "artifacts_verified": true,
+      "metadata_path": "/Users/home/numi-cardboard-20261006/matter/examples/cardboard/evidence/native-implementation-20261014/analysis/publication022-preflight-001/source-build-135.json",
+      "metadata_sha256": "5f701259422feb34672bab8c78fab5ef3656b017d6e1a82b6f783215b958d61d"
+    },
+    "136": {
+      "artifact_count": 7,
+      "artifacts": [
+        {
+          "exists": true,
+          "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/lib/libmetalrobo.dylib",
+          "sha256_matches": true
+        },
+        {
+          "exists": true,
+          "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/matter/numi-matter-cardboard-probe",
+          "sha256_matches": true
+        },
+        {
+          "exists": true,
+          "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/matter/shaders/NumiMatter.metallib",
+          "sha256_matches": true
+        },
+        {
+          "exists": true,
+          "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/matter/shaders/NumiMatterPhysicalStateDigest.metallib",
+          "sha256_matches": true
+        },
+        {
+          "exists": true,
+          "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/shaders/MetalRobo.metallib",
+          "sha256_matches": true
+        },
+        {
+          "exists": true,
+          "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/shaders/MetalRoboHyperPolicy.metallib",
+          "sha256_matches": true
+        },
+        {
+          "exists": true,
+          "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-136/shaders/NumiNeuron.metallib",
+          "sha256_matches": true
+        }
+      ],
+      "artifacts_verified": true,
+      "metadata_path": "/Users/home/numi-cardboard-20261006/matter/examples/cardboard/evidence/native-implementation-20261014/analysis/publication022-preflight-001/source-build-136.json",
+      "metadata_sha256": "49b7460557cfa83881e31456d3823a6a313021efef5d347b459a2a95db12b80a"
+    }
+  },
+  "publication": {
+    "all_archive_hashes_and_sizes_match": true,
+    "archived_file_rows": 1184,
+    "current_records": 1282,
+    "gzip_archive_bytes": 36135937,
+    "gzip_files_stream_verified": 62,
+    "gzip_source_bytes": 112695783,
+    "historical_records_reference021": 1225,
+    "historical_records_unchanged_prefix": true,
+    "new_cases": 57,
+    "pathspec_entries": 1187,
+    "pathspec_matches_exact_copy_and_summary_set": true,
+    "physical_validation": false,
+    "raw_archive_bytes": 80497341,
+    "raw_exact_files": 1122,
+    "raw_source_bytes": 80497341,
+    "schema": "numi.cardboard.reference022-publication-binding.v1"
+  },
+  "result": "PASS",
+  "schema": "numi.cardboard.publication022_independent_byte_audit.v1",
+  "snapshot_retirement_candidates": {
+    "base_commit_present": true,
+    "note": "Restore bundles are currently untracked in the checkout; do not retire source trees until the recovery bundles are committed or equivalently secured. APFS clone/shared-extent reclaim is not measured by st_blocks.",
+    "snapshots": [
+      {
+        "bundle_allocated": {
+          "file_count": 16,
+          "logical_bytes": 666280,
+          "st_blocks_bytes": 704512
+        },
+        "bundle_claims_all_reconstructed_bytes_verified": true,
+        "bundle_claims_complete_disk_restoration": true,
+        "bundle_file_count": 1821,
+        "bundle_git_status": "?? matter/examples/cardboard/evidence/native-implementation-20261014/analysis/retained-source-snapshot133-001/",
+        "bundle_manifest_sha256": "b4401417d11dfef1eeda7156d998af17dc670215e3ab28997e903096230f7879",
+        "bundle_path": "/Users/home/numi-cardboard-20261006/matter/examples/cardboard/evidence/native-implementation-20261014/analysis/retained-source-snapshot133-001",
+        "git_base_revision": "8c00ae13d78331c938311ca80d78857c4deefe75",
+        "number": 133,
+        "snapshot_allocated": {
+          "file_count": 1823,
+          "logical_bytes": 112000557,
+          "st_blocks_bytes": 115798016
+        },
+        "snapshot_path": "/Users/home/cardboard-implementation-20261014/snapshots/source-base-state-cauchy-armijo-133"
+      },
+      {
+        "bundle_allocated": {
+          "file_count": 15,
+          "logical_bytes": 609558,
+          "st_blocks_bytes": 647168
+        },
+        "bundle_claims_all_reconstructed_bytes_verified": true,
+        "bundle_claims_complete_disk_restoration": true,
+        "bundle_file_count": 1821,
+        "bundle_git_status": "?? matter/examples/cardboard/evidence/native-implementation-20261014/analysis/retained-source-snapshot134-001/",
+        "bundle_manifest_sha256": "f4e4af2154c235fafd7c9e371a4ea80369cb894e5f7012ce81705c9365a54878",
+        "bundle_path": "/Users/home/numi-cardboard-20261006/matter/examples/cardboard/evidence/native-implementation-20261014/analysis/retained-source-snapshot134-001",
+        "git_base_revision": "8c00ae13d78331c938311ca80d78857c4deefe75",
+        "number": 134,
+        "snapshot_allocated": {
+          "file_count": 1823,
+          "logical_bytes": 112012566,
+          "st_blocks_bytes": 115818496
+        },
+        "snapshot_path": "/Users/home/cardboard-implementation-20261014/snapshots/source-cache-projection-reuse-checker-fixed-134"
+      },
+      {
+        "bundle_allocated": {
+          "file_count": 16,
+          "logical_bytes": 666609,
+          "st_blocks_bytes": 708608
+        },
+        "bundle_claims_all_reconstructed_bytes_verified": true,
+        "bundle_claims_complete_disk_restoration": true,
+        "bundle_file_count": 1821,
+        "bundle_git_status": "?? matter/examples/cardboard/evidence/native-implementation-20261014/analysis/retained-source-snapshot135-001/",
+        "bundle_manifest_sha256": "098a23cb566f0ca2138f08ed6b45e43a193c6749b9d156175bde207b4cc943c3",
+        "bundle_path": "/Users/home/numi-cardboard-20261006/matter/examples/cardboard/evidence/native-implementation-20261014/analysis/retained-source-snapshot135-001",
+        "git_base_revision": "8c00ae13d78331c938311ca80d78857c4deefe75",
+        "number": 135,
+        "snapshot_allocated": {
+          "file_count": 1823,
+          "logical_bytes": 112001656,
+          "st_blocks_bytes": 115798016
+        },
+        "snapshot_path": "/Users/home/cardboard-implementation-20261014/snapshots/source-cauchy-positive-mass-admission-135"
+      },
+      {
+        "bundle_allocated": {
+          "file_count": 16,
+          "logical_bytes": 668152,
+          "st_blocks_bytes": 712704
+        },
+        "bundle_claims_all_reconstructed_bytes_verified": true,
+        "bundle_claims_complete_disk_restoration": true,
+        "bundle_file_count": 1821,
+        "bundle_git_status": "?? matter/examples/cardboard/evidence/native-implementation-20261014/analysis/retained-source-snapshot136-001/",
+        "bundle_manifest_sha256": "78952e521f478f3b0e9093656de35adb4c8e11852fa74f002b1501cde672826a",
+        "bundle_path": "/Users/home/numi-cardboard-20261006/matter/examples/cardboard/evidence/native-implementation-20261014/analysis/retained-source-snapshot136-001",
+        "git_base_revision": "8c00ae13d78331c938311ca80d78857c4deefe75",
+        "number": 136,
+        "snapshot_allocated": {
+          "file_count": 1823,
+          "logical_bytes": 112016418,
+          "st_blocks_bytes": 115818496
+        },
+        "snapshot_path": "/Users/home/cardboard-implementation-20261014/snapshots/source-cache-projection-reuse-runtime-136"
+      }
+    ]
+  }
+}

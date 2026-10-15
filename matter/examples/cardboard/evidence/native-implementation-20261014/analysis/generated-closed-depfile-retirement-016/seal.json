@@ -1,0 +1,55 @@
+{
+  "builds": [
+    133,
+    134,
+    135,
+    136
+  ],
+  "files": {
+    "README.md": {
+      "bytes": 1661,
+      "sha256": "261107c17cf43e5c9552e072751a029d2a9888ac3019ee7d4bcee131d8cae9f6"
+    },
+    "after.json": {
+      "bytes": 15609,
+      "sha256": "56ee4042c81ed87c15c8ec7f423ca87faef715e9df680b2ea9f3e9355e1658da"
+    },
+    "before.json": {
+      "bytes": 163385,
+      "sha256": "f9fefd7d1f80fc72340b0de47ea6c4e5675fa4332c24973d47f1da0a51caeb0d"
+    },
+    "retire.py": {
+      "bytes": 7655,
+      "sha256": "bc9a3a39b6f614981371770ced3857c123458e02e9c5095c4de1e341c0ec0bff"
+    },
+    "summary.json": {
+      "bytes": 700,
+      "sha256": "287279b715e40e180960bd3b63305a9f48d929fbfe8fdff311f868b02ae5af42"
+    }
+  },
+  "review_manifest_sha256": "bb0f4b8f24d6f79bc7fcc8dab611d45c3291621e87bf7bee800a6cd28c95cdcb",
+  "review_package": "/Users/home/cardboard-implementation-20261014/analysis/native-cgls-runtime-review-140-001",
+  "schema": "numi.cardboard.generated_depfile_retirement.package.v1",
+  "summary": {
+    "build_numbers": [
+      133,
+      134,
+      135,
+      136
+    ],
+    "deleted_allocated_bytes": 56946688,
+    "deleted_count": 378,
+    "deleted_logical_bytes": 56150316,
+    "files": {},
+    "filesystem_available_bytes_after": 2954272768,
+    "filesystem_available_bytes_before": 2906722304,
+    "filesystem_available_bytes_delta": 47550464,
+    "manifest_sha256": {
+      "after.json": "56ee4042c81ed87c15c8ec7f423ca87faef715e9df680b2ea9f3e9355e1658da",
+      "before.json": "f9fefd7d1f80fc72340b0de47ea6c4e5675fa4332c24973d47f1da0a51caeb0d"
+    },
+    "post_cleanup_safety_scan_clear": true,
+    "schema": "numi.cardboard.generated_depfile_retirement.summary.v1",
+    "source_build_artifacts_verified_before_and_after": true
+  }
+}

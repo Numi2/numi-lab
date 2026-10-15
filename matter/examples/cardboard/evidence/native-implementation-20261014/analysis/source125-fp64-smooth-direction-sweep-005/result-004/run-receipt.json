@@ -1,0 +1,18 @@
+{
+  "bindings": {
+    "README_sha256": "5470181e822cc39ae8a8dedf45befb203db00c8b785768b0af886e5cc053cd2e",
+    "initial_failed_attempt_kind": "instrument script failed before producing output because the first draft treated projection refinement-pass dictionaries as numeric counts; preserved diagnostic only, no endpoint/output was committed",
+    "initial_failed_attempt_stderr_sha256": "02cd5f982384e206f01d6294c67378dc7c5ffd7e91342a71f53aa205d2b5d865",
+    "initial_failed_attempt_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "report_sha256": "54ec074d246b1ce58b30180c6ffdf0f9a42d72d5a12caaea5c063027fc8789bd",
+    "runner_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "runner_stdout_sha256": "c0e5538a85f6c1a9a6660eb738f4d8bf3a5041f72531fcfa94f68ebcd32d0ac6",
+    "script_sha256": "0656d00bd23cf22899886260522c33e35db49715042a2495e03d5ec6d342bbf7",
+    "summary_sha256": "be3618a6abdda46beddd9000e792b7c557b882b01bffc381949c13178410200f"
+  },
+  "command": "OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 MKL_NUM_THREADS=1 /Users/home/.pyenv/versions/3.10.12/bin/python3 /Users/home/cardboard-implementation-20261014/analysis/source125-fp64-smooth-direction-sweep-005/sweep.py --output /Users/home/cardboard-implementation-20261014/analysis/source125-fp64-smooth-direction-sweep-005/result-004",
+  "exit_status": 0,
+  "output_path": "/Users/home/cardboard-implementation-20261014/analysis/source125-fp64-smooth-direction-sweep-005/result-004",
+  "schema": "numi.cardboard.source125-fp64-smooth-direction-sweep-run-receipt.v1",
+  "wall_seconds": 5.8932310420204885
+}

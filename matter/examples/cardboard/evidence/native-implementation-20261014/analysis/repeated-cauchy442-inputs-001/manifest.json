@@ -1,0 +1,17 @@
+{
+  "scope": "Distinct immutable external input basenames repair native438 wrapper preflight; no physical inputs changed.",
+  "files": {
+    "native433-report.json": {
+      "source": "/Users/home/cardboard-implementation-20261014/analysis/native433-cauchy-kernel-adjudication-001/report.json",
+      "sha256": "0f7e4706316ae03cf1d35bfd8bfc706a04a618d7c0ccdd93561d627edb90fb70"
+    },
+    "native435-report.json": {
+      "source": "/Users/home/cardboard-implementation-20261014/analysis/native435-enabled-fallback-adjudication-001/report.json",
+      "sha256": "34084bfe7b8dc5b92b320aa2c03ee69e64df04f46a70b3b8fb19862b79482770"
+    },
+    "selector-review.md": {
+      "source": "/Users/home/cardboard-implementation-20261014/analysis/repeated-cauchy-selector-review-137-001/report.md",
+      "sha256": "f31af08ff51483c68728ba1357bb04ecd1cd2494adf244b6220df704056420e4"
+    }
+  }
+}

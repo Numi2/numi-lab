@@ -1,0 +1,49 @@
+{
+  "commands": {
+    "fp64_iter032.preflight": {
+      "exit_code": 0,
+      "timed_out": false
+    },
+    "fp64_iter032.native": {
+      "exit_code": 0,
+      "timed_out": false
+    },
+    "fp64_iter064.preflight": {
+      "exit_code": 0,
+      "timed_out": false
+    },
+    "fp64_iter064.native": {
+      "exit_code": 0,
+      "timed_out": false
+    },
+    "fp64_iter128.preflight": {
+      "exit_code": 0,
+      "timed_out": false
+    },
+    "fp64_iter128.native": {
+      "exit_code": 0,
+      "timed_out": false
+    },
+    "emulated_fp32_iter016.preflight": {
+      "exit_code": 0,
+      "timed_out": false
+    },
+    "emulated_fp32_iter016.native": {
+      "exit_code": 0,
+      "timed_out": false
+    },
+    "emulated_fp32_iter128.preflight": {
+      "exit_code": 0,
+      "timed_out": false
+    },
+    "emulated_fp32_iter128.native": {
+      "exit_code": 0,
+      "timed_out": false
+    }
+  },
+  "wall_seconds": 7.797007041051984,
+  "physical_transactions": 0,
+  "prepared_inputs_unchanged": true,
+  "helper_and_build_bindings_unchanged": true,
+  "finished_at_utc": "2026-10-15T20:58:41.229646+00:00"
+}

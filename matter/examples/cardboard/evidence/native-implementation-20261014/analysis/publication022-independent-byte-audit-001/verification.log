@@ -1,0 +1,209 @@
+{
+  "result": "PASS",
+  "publication": {
+    "schema": "numi.cardboard.reference022-publication-binding.v1",
+    "new_cases": 57,
+    "archived_file_rows": 1184,
+    "pathspec_entries": 1187,
+    "pathspec_matches_exact_copy_and_summary_set": true,
+    "historical_records_reference021": 1225,
+    "current_records": 1282,
+    "historical_records_unchanged_prefix": true,
+    "raw_exact_files": 1122,
+    "gzip_files_stream_verified": 62,
+    "raw_source_bytes": 80497341,
+    "gzip_source_bytes": 112695783,
+    "raw_archive_bytes": 80497341,
+    "gzip_archive_bytes": 36135937,
+    "all_archive_hashes_and_sizes_match": true,
+    "physical_validation": false
+  },
+  "disk": {
+    "path": "/Users/home",
+    "total_bytes": 494353338368,
+    "free_user_bytes": 774180864
+  },
+  "snapshot_retirement_candidates": [
+    {
+      "number": 133,
+      "bundle_path": "/Users/home/numi-cardboard-20261006/matter/examples/cardboard/evidence/native-implementation-20261014/analysis/retained-source-snapshot133-001",
+      "bundle_git_status": "?? matter/examples/cardboard/evidence/native-implementation-20261014/analysis/retained-source-snapshot133-001/",
+      "snapshot_allocated": {
+        "file_count": 1823,
+        "logical_bytes": 112000557,
+        "st_blocks_bytes": 115798016
+      },
+      "bundle_allocated": {
+        "file_count": 16,
+        "logical_bytes": 666280,
+        "st_blocks_bytes": 704512
+      }
+    },
+    {
+      "number": 134,
+      "bundle_path": "/Users/home/numi-cardboard-20261006/matter/examples/cardboard/evidence/native-implementation-20261014/analysis/retained-source-snapshot134-001",
+      "bundle_git_status": "?? matter/examples/cardboard/evidence/native-implementation-20261014/analysis/retained-source-snapshot134-001/",
+      "snapshot_allocated": {
+        "file_count": 1823,
+        "logical_bytes": 112012566,
+        "st_blocks_bytes": 115818496
+      },
+      "bundle_allocated": {
+        "file_count": 15,
+        "logical_bytes": 609558,
+        "st_blocks_bytes": 647168
+      }
+    },
+    {
+      "number": 135,
+      "bundle_path": "/Users/home/numi-cardboard-20261006/matter/examples/cardboard/evidence/native-implementation-20261014/analysis/retained-source-snapshot135-001",
+      "bundle_git_status": "?? matter/examples/cardboard/evidence/native-implementation-20261014/analysis/retained-source-snapshot135-001/",
+      "snapshot_allocated": {
+        "file_count": 1823,
+        "logical_bytes": 112001656,
+        "st_blocks_bytes": 115798016
+      },
+      "bundle_allocated": {
+        "file_count": 16,
+        "logical_bytes": 666609,
+        "st_blocks_bytes": 708608
+      }
+    },
+    {
+      "number": 136,
+      "bundle_path": "/Users/home/numi-cardboard-20261006/matter/examples/cardboard/evidence/native-implementation-20261014/analysis/retained-source-snapshot136-001",
+      "bundle_git_status": "?? matter/examples/cardboard/evidence/native-implementation-20261014/analysis/retained-source-snapshot136-001/",
+      "snapshot_allocated": {
+        "file_count": 1823,
+        "logical_bytes": 112016418,
+        "st_blocks_bytes": 115818496
+      },
+      "bundle_allocated": {
+        "file_count": 16,
+        "logical_bytes": 668152,
+        "st_blocks_bytes": 712704
+      }
+    }
+  ],
+  "old_build_generated_allocations": {
+    "133": {
+      ".d": {
+        "files": 141,
+        "logical_bytes": 20977624,
+        "st_blocks_bytes": 21270528
+      },
+      ".o": {
+        "files": 140,
+        "logical_bytes": 15382928,
+        "st_blocks_bytes": 15659008
+      },
+      ".a": {
+        "files": 2,
+        "logical_bytes": 2742640,
+        "st_blocks_bytes": 2748416
+      },
+      ".metallib": {
+        "files": 5,
+        "logical_bytes": 12188902,
+        "st_blocks_bytes": 12197888
+      },
+      ".air": {
+        "files": 56,
+        "logical_bytes": 4672000,
+        "st_blocks_bytes": 4780032
+      },
+      ".dylib": {
+        "files": 1,
+        "logical_bytes": 8449664,
+        "st_blocks_bytes": 8450048
+      }
+    },
+    "134": {
+      ".a": {
+        "files": 2,
+        "logical_bytes": 2729328,
+        "st_blocks_bytes": 2732032
+      },
+      ".metallib": {
+        "files": 2,
+        "logical_bytes": 6940205,
+        "st_blocks_bytes": 6942720
+      },
+      ".air": {
+        "files": 1,
+        "logical_bytes": 32512,
+        "st_blocks_bytes": 32768
+      },
+      ".d": {
+        "files": 1,
+        "logical_bytes": 5966,
+        "st_blocks_bytes": 8192
+      }
+    },
+    "135": {
+      ".d": {
+        "files": 141,
+        "logical_bytes": 20991532,
+        "st_blocks_bytes": 21278720
+      },
+      ".o": {
+        "files": 140,
+        "logical_bytes": 15383128,
+        "st_blocks_bytes": 15659008
+      },
+      ".a": {
+        "files": 2,
+        "logical_bytes": 2742832,
+        "st_blocks_bytes": 2748416
+      },
+      ".metallib": {
+        "files": 5,
+        "logical_bytes": 12188902,
+        "st_blocks_bytes": 12197888
+      },
+      ".air": {
+        "files": 56,
+        "logical_bytes": 4672960,
+        "st_blocks_bytes": 4784128
+      },
+      ".dylib": {
+        "files": 1,
+        "logical_bytes": 8449664,
+        "st_blocks_bytes": 8450048
+      }
+    },
+    "136": {
+      ".d": {
+        "files": 141,
+        "logical_bytes": 20991532,
+        "st_blocks_bytes": 21278720
+      },
+      ".o": {
+        "files": 140,
+        "logical_bytes": 15393760,
+        "st_blocks_bytes": 15667200
+      },
+      ".a": {
+        "files": 2,
+        "logical_bytes": 2755112,
+        "st_blocks_bytes": 2760704
+      },
+      ".metallib": {
+        "files": 5,
+        "logical_bytes": 12381969,
+        "st_blocks_bytes": 12394496
+      },
+      ".air": {
+        "files": 56,
+        "logical_bytes": 4677856,
+        "st_blocks_bytes": 4788224
+      },
+      ".dylib": {
+        "files": 1,
+        "logical_bytes": 8451888,
+        "st_blocks_bytes": 8454144
+      }
+    }
+  },
+  "report_path": "/Users/home/cardboard-implementation-20261014/analysis/publication022-independent-byte-audit-001/report.json"
+}

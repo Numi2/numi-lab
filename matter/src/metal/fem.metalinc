@@ -3083,10 +3083,6 @@ kernel void nm_fem_build_algorithmic_tangent_cache_projection_reuse_diagnostic(
         material.projectionKind == NM_MATERIAL_PROJECTION_GENERIC &&
         usesCompensatedImplicitCandidate(material) &&
         usesScaledCorrectionProjection(material);
-    // Runtime mode 1 is admitted only for this exact coupon material policy.
-    // Do not silently turn an explicitly requested reuse build into the
-    // ordinary repeated-projection path if an input escapes that admission.
-    if (!reuseAccuratePaperProjection) return;
     // The evaluator initializes/returns up to NM_MAX_MATERIAL_STATE words.
     // Keep full-size local arrays even though this reuse policy is 15-state.
     float reusedProjectedState[NM_MAX_MATERIAL_STATE];

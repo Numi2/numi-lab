@@ -1,0 +1,98 @@
+{
+  "schema": "numi.cardboard.publication023-preflight-files.v1",
+  "files": {
+    "README.md": {
+      "bytes": 1192,
+      "sha256": "441c4c2c629545854a8fe415b30bbadbd5dcd5e1b72da9f50e054b76cd15ee11"
+    },
+    "archive_reference023.py": {
+      "bytes": 10162,
+      "sha256": "461c3f505c761bc645beba38c004826f66668fff28bd7413922f9adb10aacdd8"
+    },
+    "assemble_source139.py": {
+      "bytes": 4856,
+      "sha256": "fd433208d5d571136d8de286cc28e50a3a49a417fd29a19510d009be46795c78"
+    },
+    "audit_native441.py": {
+      "bytes": 4520,
+      "sha256": "0ba6b5fba270f9bb671e5f6aaab79823d9a6cdadc1ba98ea1c367b37479e6605"
+    },
+    "build-command-139.json": {
+      "bytes": 795,
+      "sha256": "67cb62e55710b877bcb0b6c8f9c93d7d3a6cccde6e3d4c882b3273e1d0c3158b"
+    },
+    "build139-runner.log": {
+      "bytes": 136,
+      "sha256": "4077cce218a1bf2d5aa168d2eefe20047482b75049bbacfce1e21fc58e8672f2"
+    },
+    "integrate_root139.py": {
+      "bytes": 2272,
+      "sha256": "461a36a52b1815fa99884ecf9547394b77fb8b81326a2327ee7286f6864151dd"
+    },
+    "native-438-command.json": {
+      "bytes": 4105,
+      "sha256": "9d2cbed2b0af74255978b1505ebe0441dbf27bee1ba699d04c8d76ff5348ab53"
+    },
+    "native-438-runner.log": {
+      "bytes": 331,
+      "sha256": "05d288d0c6ac33f4b0cb1b65128396c74df46045615c95fade1a4c2b19efda53"
+    },
+    "native-441-command.json": {
+      "bytes": 3625,
+      "sha256": "b319cfdbc7ed5ccc645f8d7aedd0b998c1f836a6aea0d25957c2c0562799fd23"
+    },
+    "native-441-preflight.json": {
+      "bytes": 4252,
+      "sha256": "da99e8db98077dd5aca58ab225e739e8ed360a08aedeb8095bc0b3520d91cdc0"
+    },
+    "native-441-runner.log": {
+      "bytes": 285,
+      "sha256": "e6d72ac8c4b6bb5cd5d1527e3e4bb0b0afb4eee2bd0b2f258d1904ec9019b7b5"
+    },
+    "native-442-command.json": {
+      "bytes": 4099,
+      "sha256": "de47c9dedc12aa98d947b2ace3dccbe790e5ac88709701de92e1fea14ccf1460"
+    },
+    "native-442-runner.log": {
+      "bytes": 285,
+      "sha256": "680ca094ca226aa1df27b678463225e168d06cfed6c20576cf80d0d696b25e39"
+    },
+    "prepare_native438.py": {
+      "bytes": 1838,
+      "sha256": "8c1bb093c44ecdb66607507c496e89067a25494a158833ff747de70b15d07dac"
+    },
+    "prepare_native441.py": {
+      "bytes": 1860,
+      "sha256": "59dc3d3448ef22ade8efac05c48470ec5d9945fa13824c2620f9fc261dd9894e"
+    },
+    "prepare_native442.py": {
+      "bytes": 1322,
+      "sha256": "ae4cff8e1fa03352b9b2a2a7df780f749db4c1e85700f33fbd7f33ef4d6a2601"
+    },
+    "publication023-cases-prepared.json": {
+      "bytes": 6262,
+      "sha256": "925059e095043fe254953f07e46ae066bcddd06b1dc692855b471cd90bba1890"
+    },
+    "retain_snapshot139.py": {
+      "bytes": 5330,
+      "sha256": "1dcdc75d36d8b8edf9fef09cb0eb52943eb543d4e8d05d41224aeeb741c898d9"
+    },
+    "run_native439.py": {
+      "bytes": 3090,
+      "sha256": "9b9bbb095c646be812a7787e4b0cb68831d5719459a9b920d74004976efba01a"
+    },
+    "run_native440.py": {
+      "bytes": 3422,
+      "sha256": "f04f5d84a76376ab3ec1cf974f5808b7822e94dd9d8f7abe4f30974107fd6a39"
+    },
+    "source-build-139.json": {
+      "bytes": 97454,
+      "sha256": "fe88a4bbf5172fca5376a6dbd996f570e9ee98b99f639e8f45a1b851fb25b6be"
+    },
+    "sparse-private-admission-controls-139-command.json": {
+      "bytes": 1273,
+      "sha256": "6aeba6f84d07d1ca57e744a0abde907f1d343f06791c7fa7cadca033a3e7d013"
+    }
+  },
+  "self_binding": "preflight-files.json is bound by the publication case file inventory; omitted from this self-referential list."
+}
