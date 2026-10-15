@@ -1,0 +1,92 @@
+{
+  "schema": "numi.cardboard.native380-adjudication.v1",
+  "verdict": "FAIL_MATERIAL_PROJECTION_AFTER_EFFECTIVE_BUDGET_REPAIR",
+  "receipt": {
+    "schema": "numi.cardboard.native-run-receipt.v2",
+    "execution_started": true,
+    "source_inputs_unchanged": true,
+    "changed_inputs": [],
+    "exit_code": 2,
+    "timed_out": false,
+    "termination_errors": [],
+    "wall_seconds": 586.3866911249934,
+    "finished_at_utc": "2026-10-15T16:37:39.333134+00:00"
+  },
+  "actual_compiled_material_budgets": [
+    32,
+    32,
+    32
+  ],
+  "accepted_control_count": 1,
+  "required_control_count": 27,
+  "first_observed_failed_iteration": {
+    "iteration": 0,
+    "base_health": "invalid_pretrial_solver_status",
+    "status": {
+      "code": 5,
+      "environment": 0,
+      "object_index": 0,
+      "failing_index": 674,
+      "completed_microsteps": 0,
+      "fgmres_iterations": 0,
+      "contact_count": 0,
+      "event_count": 0,
+      "diagnostics": [
+        1.00030255,
+        0,
+        0,
+        0
+      ]
+    },
+    "pretrial": {
+      "code": 5,
+      "environment": 0,
+      "object_index": 0,
+      "failing_index": 674,
+      "completed_microsteps": 0,
+      "fgmres_iterations": 0,
+      "contact_count": 0,
+      "event_count": 0,
+      "diagnostics": [
+        1.00030255,
+        0,
+        0,
+        0
+      ]
+    },
+    "trial_outcome": "blocked_by_pretrial_solver_status"
+  },
+  "root1_trace_rows": 64,
+  "control0_csv_rows_equal": true,
+  "physical_geometry_comparisons": {
+    "initial.obj": {
+      "equal": true,
+      "native380_sha256": "463cd80289b72a58009f859f2a3184966984029daa8d3687ec9035e18c6481af",
+      "native370_sha256": "463cd80289b72a58009f859f2a3184966984029daa8d3687ec9035e18c6481af"
+    },
+    "mesh.json": {
+      "equal": true,
+      "native380_sha256": "6a2f786a47e61014ee4b27f609eb3c2f666677223ddaa30297aeea1fcfd8ca56",
+      "native370_sha256": "6a2f786a47e61014ee4b27f609eb3c2f666677223ddaa30297aeea1fcfd8ca56"
+    },
+    "accepted_step_000001_bent.obj": {
+      "equal": true,
+      "native380_sha256": "42fbb543657063c3c3df7eed3ec4d07dc820f5f2ab887e2d3ceb6c3bfd68a522",
+      "native370_sha256": "42fbb543657063c3c3df7eed3ec4d07dc820f5f2ab887e2d3ceb6c3bfd68a522"
+    },
+    "accepted_step_000001_held_reference.obj": {
+      "equal": true,
+      "native380_sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f",
+      "native370_sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+    }
+  },
+  "inputs": {
+    "/Users/home/cardboard-implementation-20261014/solver/explicit32-certified-coupon-380/receipt.json": "8568553137ec86cc64f667c5d174506e18fbd6a30641c99abd40c69aed6c0a9e",
+    "/Users/home/cardboard-implementation-20261014/solver/explicit32-certified-coupon-380/output/manifest.json": "053a6ce46f8ab96a39413e0800fe89e1e27a2cf7d9d3b847d0b099528f1baba3",
+    "/Users/home/cardboard-implementation-20261014/solver/explicit32-certified-coupon-380/output/result.json": "6600e9b15bba128d2ef4ed2c5c4a181e91fdc8600a4171ecdd7e1c2eb04efcba",
+    "/Users/home/cardboard-implementation-20261014/solver/explicit32-certified-coupon-380/stderr.log": "9519e62d3c07ab065fc636e62252b675ed5414fa621b285b8ff9fd43e0d61de1",
+    "/Users/home/cardboard-implementation-20261014/solver/explicit32-certified-coupon-380/output/compiled.nmatterpack": "cafbf36052bbfa72e8be49fdba8b23e900469c9f15136a14a4ec1e4c0b5ccf7c",
+    "/Users/home/cardboard-implementation-20261014/solver/cached-true-residual-certification-coupon-370/output/compiled.nmatterpack": "3c25f41c6c26654ccf3f8b4f4b510bbb64ab0ea0f52b94d05d8b1fa4060fafe5"
+  },
+  "limits": "Failure674 must be replayed independently. Source379 local repair remains valid; full coupon and numerical convergence remain unqualified. No unaccepted geometry is an animation frame."
+}

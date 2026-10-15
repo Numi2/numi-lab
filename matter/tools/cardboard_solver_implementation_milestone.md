@@ -48,8 +48,10 @@ J=0.9977456927. The 32-update descriptor converges in 18 updates, with final
 projection residual 4.7503e-14. The instrument exports raw FP32 words; it does
 not export the native correction norm. The 32-update point is a controlled
 local recompile, not the complete native370 trajectory. The full 27-control
-source109 rerun is separately retained as native380 and must finish before
-any complete-coupon claim.
+source109 rerun, native380, confirms compiled budgets of 32 but still accepts
+only control0. Control1/Newton0 rejects tetrahedron674. Control0 CSV rows and
+both accepted geometry files exactly match native370. The newly exposed
+material failure needs its own replay; no complete-coupon claim is justified.
 
 ## Diagnostics, contact and convergence reporting
 

@@ -1,0 +1,20 @@
+{
+  "schema": "numi.cardboard.main-compatibility-reference014.v1",
+  "git_head": "15dad0a08b477f56a32e74b862c7060b5844bf0f",
+  "upstream": "03cd38cd",
+  "fresh_targets": [
+    "numi-matter-cardboard-probe",
+    "numi-matter-cardboard-bilinear15-projection-policy-check"
+  ],
+  "source_build_sha256": "54dfeb48ec7583d4a9002d1ee83ef8c956c89ede5157b485e3114c95f2642baa",
+  "policy_cpu_check_exit_code": 0,
+  "compile_only_effective_budgets": [
+    32,
+    32,
+    32
+  ],
+  "main_cardboard_files_match109_110": true,
+  "native_metal_execution": false,
+  "physical_steps": 0,
+  "prior_native_evidence_rebound_to_main": false
+}

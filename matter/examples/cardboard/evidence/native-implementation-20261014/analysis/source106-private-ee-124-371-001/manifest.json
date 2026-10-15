@@ -1,0 +1,114 @@
+{
+  "schema": "numi.cardboard.source106_private_ee_reproduction_manifest.v1",
+  "scope": "CPU-only reconstruction and source-transcribed CCD analysis; no production edits or GPU run",
+  "command": "python3 reproduce_ee.py",
+  "files": {
+    "analysis_script": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/source106-private-ee-124-371-001/reproduce_ee.py",
+      "sha256": "135ed60933ac435b3d5da8ba1153feb92297bc3556faf99ab9bbd7609630b1f3",
+      "bytes": 25780
+    },
+    "result": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/source106-private-ee-124-371-001/reproduction.json",
+      "sha256": "d26db265d27806334e1d088e6309c2855870015a1235422f0ebc85737c27e03a",
+      "bytes": 65522
+    },
+    "readme": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/source106-private-ee-124-371-001/README.md",
+      "sha256": "fd939b394b050e88579e579f931e79bd9d1c4881d35a5b2f87d26b44379a9497",
+      "bytes": 3496
+    },
+    "source106_native_manifest": {
+      "path": "/Users/home/cardboard-implementation-20261014/native/capture-lifetime-default-parity-371/center-capture.coupled.json",
+      "sha256": "4aab7d6893abf7d5c0184f6c3df3032dc93025b771bcde552463ac41fd3b7b02",
+      "bytes": 44701
+    },
+    "source106_native_payload": {
+      "path": "/Users/home/cardboard-implementation-20261014/native/capture-lifetime-default-parity-371/center-capture.coupled.bin",
+      "sha256": "965d38af46af2bbc311cb1534193b8892581cb4d4548936dfc8d7ba9db0cc2e4",
+      "bytes": 11670948
+    },
+    "source106_native_log": {
+      "path": "/Users/home/cardboard-implementation-20261014/native/capture-lifetime-default-parity-371/diagnostic-state/dense/fixture-free-body-control-1201.log",
+      "sha256": "878a18a5d8765d5507edeede9fc5915771ebc2875f1ee4730d10cb78413db7de",
+      "bytes": 60745
+    },
+    "source106_receipt": {
+      "path": "/Users/home/cardboard-implementation-20261014/native/capture-lifetime-default-parity-371/receipt.json",
+      "sha256": "31639a7dfa579c36142f360e789fe26d19e3a7a4ec1090482dc209119284c05f",
+      "bytes": 306
+    },
+    "source106_prediction": {
+      "path": "/Users/home/cardboard-implementation-20261014/native/capture-lifetime-default-parity-371/prediction.json",
+      "sha256": "11327303d5b55022c557eeb56974bad3a7dc9003000827d92dfa2a4f7b80eec9",
+      "bytes": 101693
+    },
+    "source106_build": {
+      "path": "/Users/home/cardboard-implementation-20261014/native/capture-lifetime-default-parity-371/inputs/external/source-build.json",
+      "sha256": "35c8397eb559fef6ddb3ea5fbc474d0e6b9acde086dd9082d95f1d53250b6af3",
+      "bytes": 116915
+    },
+    "source103_native_manifest": {
+      "path": "/Users/home/cardboard-implementation-20261014/native/first-fatal-private-trial-358/private-trial.coupled.json",
+      "sha256": "3d4b183e2f7ba467d6f084ce0aef9c061173dc93ba49d47966428772236eb0cd",
+      "bytes": 37234
+    },
+    "source103_native_payload": {
+      "path": "/Users/home/cardboard-implementation-20261014/native/first-fatal-private-trial-358/private-trial.coupled.bin",
+      "sha256": "8126b3baa007e1da436447bd8bfaa91ab51a53be72471ff1c7133897089deea0",
+      "bytes": 19467248
+    },
+    "source103_native_log": {
+      "path": "/Users/home/cardboard-implementation-20261014/native/first-fatal-private-trial-358/stderr.log",
+      "sha256": "43bc3ddc26deecbe7c44fa5a8636fb841b49b502cc003331b299a8836ade8ddb",
+      "bytes": 38732
+    },
+    "source103_receipt": {
+      "path": "/Users/home/cardboard-implementation-20261014/native/first-fatal-private-trial-358/receipt.json",
+      "sha256": "20e277611fe1a79e1e38f2b9f66c8bf5f3a685440a005014ccb39f16d4b8a5c1",
+      "bytes": 305
+    },
+    "source103_prediction": {
+      "path": "/Users/home/cardboard-implementation-20261014/native/first-fatal-private-trial-358/prediction.json",
+      "sha256": "2e3f5fa5b977a1a72b728ff1bdaaa75b1cc7a4589e26c380ed3c0fec4cf21756",
+      "bytes": 101168
+    },
+    "source103_build": {
+      "path": "/Users/home/cardboard-implementation-20261014/native/first-fatal-private-trial-358/inputs/external/source-build.json",
+      "sha256": "b4c036f65383b5fce246144c3a81526050ad327252f5859d9b4c0504888bce6b",
+      "bytes": 116210
+    },
+    "source106_contact": {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-capture-callback-lifetime-106/matter/src/metal/contact.metalinc",
+      "sha256": "b9ec3915b63bdee729ff0902c390e137e0f6b5d005d06e6a7136c534be3d510b",
+      "bytes": 406206
+    },
+    "source106_common": {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-capture-callback-lifetime-106/matter/src/metal/common.metalinc",
+      "sha256": "e53feb0402a461f355cf2ee5c3af89f95eb49176178e60d997d4a9cc6588a182",
+      "bytes": 96571
+    },
+    "source106_shared": {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-capture-callback-lifetime-106/matter/include/numi/matter/shared.h",
+      "sha256": "ae84a7fb79e5b79ad813b249c720b9ace6105fde81f555cbd784afafa721e691",
+      "bytes": 55682
+    },
+    "source103_contact": {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-whole-mortar-proof-103/matter/src/metal/contact.metalinc",
+      "sha256": "427aca061ad2c6d2218b5eae0bc7620132a1ef9fff9f688390ccc96ca8a27ffc",
+      "bytes": 406189
+    },
+    "source103_common": {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-whole-mortar-proof-103/matter/src/metal/common.metalinc",
+      "sha256": "e53feb0402a461f355cf2ee5c3af89f95eb49176178e60d997d4a9cc6588a182",
+      "bytes": 96571
+    },
+    "source103_shared": {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-whole-mortar-proof-103/matter/include/numi/matter/shared.h",
+      "sha256": "ae84a7fb79e5b79ad813b249c720b9ace6105fde81f555cbd784afafa721e691",
+      "bytes": 55682
+    }
+  },
+  "source_pair": "source106 N7 private trial candidate 124, primitive pair 24/127, generic EE edgeA1/edgeB0",
+  "status": "native code6 uncertified; CPU source transcription enters thickness at production loop call17; discrepancy retained"
+}

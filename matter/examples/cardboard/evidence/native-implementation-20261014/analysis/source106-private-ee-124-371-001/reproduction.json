@@ -1,0 +1,1997 @@
+{
+  "schema": "numi.cardboard.source106-private-ee-reproduction.v1",
+  "scope": "CPU-only exact-input reconstruction and source-transcribed FP32 EE trace; no GPU dispatch and no production edits",
+  "native_observation": {
+    "run371_manifest": "/Users/home/cardboard-implementation-20261014/native/capture-lifetime-default-parity-371/center-capture.coupled.json",
+    "run371_manifest_sha256": "4aab7d6893abf7d5c0184f6c3df3032dc93025b771bcde552463ac41fd3b7b02",
+    "run371_payload_sha256": "965d38af46af2bbc311cb1534193b8892581cb4d4548936dfc8d7ba9db0cc2e4",
+    "trial358_manifest": "/Users/home/cardboard-implementation-20261014/native/first-fatal-private-trial-358/private-trial.coupled.json",
+    "trial358_manifest_sha256": "3d4b183e2f7ba467d6f084ce0aef9c061173dc93ba49d47966428772236eb0cd",
+    "trial358_payload_sha256": "8126b3baa007e1da436447bd8bfaa91ab51a53be72471ff1c7133897089deea0",
+    "root": 1201,
+    "newton_iteration": 7,
+    "trial358": 23,
+    "source_physics_fingerprint": "915f50b10edc2e46",
+    "source106_device_program_fingerprint": "a2f17ae449a1605d",
+    "source103_device_program_fingerprint": "ce63481efb49444f",
+    "candidate_identity": [
+      24,
+      127,
+      124,
+      1
+    ],
+    "candidate_count_center371": 400,
+    "diagnostic_words": [
+      24,
+      127,
+      1,
+      0
+    ],
+    "diagnostic_decoding": "source106 EE failure writes [candidate.x,candidate.y,edgeA,edgeB]; this is primitive pair 24/127, edgeA=1, edgeB=0. The source106 generic VT failure marker stores diagnostic.w=3+direction. Pair incidence ranges are empty, so the mortar complement path is not entered.",
+    "native_n7_trial_status": {
+      "code": 6,
+      "environment": 0,
+      "object_index": 0,
+      "failing_index": 124,
+      "completed_microsteps": 0,
+      "fgmres_iterations": 0,
+      "contact_count": 0,
+      "event_count": 0,
+      "diagnostics": [
+        24,
+        127,
+        1,
+        0
+      ]
+    },
+    "native_n7_trial_alpha": 1.1920928955078125e-07,
+    "native_n7_trial_log_sha256": "878a18a5d8765d5507edeede9fc5915771ebc2875f1ee4730d10cb78413db7de",
+    "source103_trial358_log_sha256": "43bc3ddc26deecbe7c44fa5a8636fb841b49b502cc003331b299a8836ade8ddb",
+    "source103_trial358_actual_failure": {
+      "code": 6,
+      "environment": 0,
+      "object_index": 0,
+      "failing_index": 283,
+      "completed_microsteps": 0,
+      "fgmres_iterations": 0,
+      "contact_count": 0,
+      "event_count": 0,
+      "diagnostics": [
+        92,
+        127,
+        0,
+        0
+      ]
+    }
+  },
+  "lineage": {
+    "accepted_nodes_371_sha256": "a506f9a19bbeba51f2551d7fdc3b6cd60218901d6a5e8cd5e00fa29f0c13f01c",
+    "accepted_nodes_358_sha256": "a506f9a19bbeba51f2551d7fdc3b6cd60218901d6a5e8cd5e00fa29f0c13f01c",
+    "accepted_nodes_equal_bitwise": true,
+    "solution_correction_371_sha256": "6c2044c8c5ddef590965df20e4c58cc82f8d63d6e1ab65459385635e152c622a",
+    "solution_correction_358_sha256": "6c2044c8c5ddef590965df20e4c58cc82f8d63d6e1ab65459385635e152c622a",
+    "solution_correction_equal_bitwise": true,
+    "pair_candidate_hash_371": "22884cc2b427959195281ea41046c4888d06d8e71fd6ebad1af70249fddb5e8d",
+    "pair_candidate_hash_358": "22884cc2b427959195281ea41046c4888d06d8e71fd6ebad1af70249fddb5e8d",
+    "pair_identity_equal": true,
+    "source106_trial_reconstruction_vs_source103_trial358": {
+      "position_max_ulp": 1,
+      "velocity_max_ulp": 0,
+      "position_exact_components": 107,
+      "velocity_exact_components": 108
+    },
+    "device_programs_differ": true,
+    "geometry_basis": "source106 N7 trial positions/velocities are reconstructed from its center nodes, accepted state, correction, and recorded Armijo alpha using nm_fem_apply_solution semantics. Source103 trial358 is only a cross-build geometry comparison; node position/velocity ULP distances are reported and device fingerprints differ. The edgeEdgeCCD bodies match byte-for-byte."
+  },
+  "input": {
+    "edgeA_local_corners": [
+      1,
+      2
+    ],
+    "edgeB_local_corners": [
+      0,
+      1
+    ],
+    "points_start_f32": [
+      [
+        0.0019999989308416843,
+        2.338440108218265e-09,
+        4.0965517200675095e-07
+      ],
+      [
+        0.0020000094082206488,
+        1.0602715150298536e-08,
+        0.0010003643110394478
+      ],
+      [
+        -1.0073042489011641e-07,
+        -0.002000063192099333,
+        0.0010102948872372508
+      ],
+      [
+        0.0019998939242213964,
+        -5.803402203241603e-08,
+        0.0010104248067364097
+      ]
+    ],
+    "points_start_f32_bits": [
+      "3b03126a",
+      "3120b246",
+      "34dbee94",
+      "3b031297",
+      "3236273c",
+      "3a831ea8",
+      "b3d85123",
+      "bb03137e",
+      "3a846bdf",
+      "3b0310a7",
+      "b3794115",
+      "3a84703b"
+    ],
+    "points_finish_f32": [
+      [
+        0.0019999986980110407,
+        2.9628124398328737e-09,
+        5.193819561100099e-07
+      ],
+      [
+        0.0020000124350190163,
+        1.2710065888654754e-08,
+        0.0010004544164985418
+      ],
+      [
+        -1.0065601685482761e-07,
+        -0.0020000634249299765,
+        0.0010103340027853847
+      ],
+      [
+        0.0019998939242213964,
+        -5.813201653381839e-08,
+        0.0010104527464136481
+      ]
+    ],
+    "points_finish_f32_bits": [
+      "3b031269",
+      "314b9a59",
+      "350b6ba8",
+      "3b0312a4",
+      "325a5b76",
+      "3a8321ae",
+      "b3d8283b",
+      "bb03137f",
+      "3a846d2f",
+      "3b0310a7",
+      "b379acd4",
+      "3a84712b"
+    ],
+    "thickness_m_f32": 9.999999747378752e-06,
+    "other_inputs": {
+      "pair_candidate_371": {
+        "name": "deformable_contact_candidates",
+        "source": "deformable_contact_candidates",
+        "dtype": "record:NMDeformableContactCandidateGPU",
+        "count": 18336,
+        "element_bytes": 16,
+        "offset": 8105652,
+        "byte_count": 293376,
+        "capacity_snapshot": true,
+        "sha256": "22884cc2b427959195281ea41046c4888d06d8e71fd6ebad1af70249fddb5e8d"
+      },
+      "pair_candidate_358": {
+        "name": "deformable_candidates_private_trial",
+        "phase": "private_contact_rebuild_before_free_body_terms",
+        "dtype": "record:NMDeformableContactCandidateGPU",
+        "count": 18336,
+        "element_bytes": 16,
+        "offset": 10735920,
+        "byte_count": 293376,
+        "sha256": "22884cc2b427959195281ea41046c4888d06d8e71fd6ebad1af70249fddb5e8d"
+      },
+      "accepted_371": {
+        "name": "fem_accepted_nodes",
+        "source": "fem_accepted_nodes",
+        "dtype": "record:NMFEMNodeStateGPU",
+        "count": 36,
+        "element_bytes": 80,
+        "offset": 108380,
+        "byte_count": 2880,
+        "capacity_snapshot": true,
+        "sha256": "a506f9a19bbeba51f2551d7fdc3b6cd60218901d6a5e8cd5e00fa29f0c13f01c"
+      },
+      "accepted_358": {
+        "name": "fem_accepted_nodes",
+        "phase": "candidate_before_private_contact_rebuild",
+        "dtype": "record:NMFEMNodeStateGPU",
+        "count": 36,
+        "element_bytes": 80,
+        "offset": 103336,
+        "byte_count": 2880,
+        "sha256": "a506f9a19bbeba51f2551d7fdc3b6cd60218901d6a5e8cd5e00fa29f0c13f01c"
+      },
+      "correction_371": {
+        "name": "fem_solution_correction",
+        "source": "fem_solution_correction",
+        "dtype": "float32x4",
+        "count": 78,
+        "element_bytes": 16,
+        "offset": 152852,
+        "byte_count": 1248,
+        "capacity_snapshot": true,
+        "sha256": "6c2044c8c5ddef590965df20e4c58cc82f8d63d6e1ab65459385635e152c622a"
+      },
+      "correction_358": {
+        "name": "fem_solution_correction",
+        "phase": "candidate_before_private_contact_rebuild",
+        "dtype": "float32x4",
+        "count": 78,
+        "element_bytes": 16,
+        "offset": 2334368,
+        "byte_count": 1248,
+        "sha256": "6c2044c8c5ddef590965df20e4c58cc82f8d63d6e1ab65459385635e152c622a"
+      },
+      "base_candidate_371": {
+        "name": "fem_candidate_nodes",
+        "source": "fem_candidate_nodes",
+        "dtype": "record:NMFEMNodeStateGPU",
+        "count": 36,
+        "element_bytes": 80,
+        "offset": 111260,
+        "byte_count": 2880,
+        "capacity_snapshot": true,
+        "sha256": "6d144c033e8dc02c5b2f370bbed3434f7b8eaf110a6163020437319f0668d80b"
+      },
+      "trial_candidate_358": {
+        "name": "fem_armijo_candidate_nodes",
+        "phase": "private_contact_rebuild_before_free_body_terms",
+        "dtype": "record:NMFEMNodeStateGPU",
+        "count": 36,
+        "element_bytes": 80,
+        "offset": 10677608,
+        "byte_count": 2880,
+        "sha256": "632850255390335c7ce86ff5ddd2461e333d94619e962dcab17712806dec1b5b"
+      },
+      "primitive_358": {
+        "name": "surface_primitives_private_trial",
+        "phase": "private_contact_rebuild_before_free_body_terms",
+        "dtype": "record:NMContinuumSurfacePrimitiveGPU",
+        "count": 192,
+        "element_bytes": 64,
+        "offset": 10704160,
+        "byte_count": 12288,
+        "sha256": "36532233b9e3f3b4edf3b67e3e6af3a400c84f391b7a6f982d04a2aa164ccdec"
+      },
+      "dispatch_358": {
+        "name": "dispatch_buffer",
+        "phase": "candidate_before_private_contact_rebuild",
+        "dtype": "record:NMMatterDispatchGPU",
+        "count": 1,
+        "element_bytes": 192,
+        "offset": 0,
+        "byte_count": 192,
+        "sha256": "3b61936c220ceb15a44603e43548ecce336af465bf8b49c138657265c6dd8a17"
+      },
+      "ranges_358": {
+        "name": "cohesive_surface_face_ranges",
+        "phase": "candidate_before_private_contact_rebuild",
+        "dtype": "record:NMIncidenceRangeGPU",
+        "count": 192,
+        "element_bytes": 16,
+        "offset": 2328384,
+        "byte_count": 3072,
+        "sha256": "a014829099d7f5b54e6abb41ae24a609342ac0b2e3994c025f0b43c0481fea69"
+      },
+      "refs_358": {
+        "name": "cohesive_surface_face_refs",
+        "phase": "candidate_before_private_contact_rebuild",
+        "dtype": "uint32",
+        "count": 8,
+        "element_bytes": 4,
+        "offset": 2331456,
+        "byte_count": 32,
+        "sha256": "0f3612dc05de84d9bd7a46f1194663a3b0919a9f39cb5193bf6bd6a78ab1a429"
+      },
+      "ranges_24": [
+        1,
+        0,
+        4294967295,
+        0
+      ],
+      "ranges_127": [
+        2,
+        0,
+        4294967295,
+        0
+      ],
+      "refs": [
+        99,
+        0,
+        0,
+        0,
+        16,
+        0,
+        1,
+        0
+      ],
+      "primitive24": [
+        2,
+        5,
+        14,
+        0,
+        24,
+        0,
+        1,
+        1,
+        990014115,
+        3137583669,
+        3072837036,
+        897987983,
+        990100074,
+        925367363,
+        981758265,
+        871080969
+      ],
+      "primitive127": [
+        28,
+        32,
+        31,
+        0,
+        127,
+        0,
+        1,
+        1,
+        3072953762,
+        3137583941,
+        981670996,
+        906377150,
+        990099565,
+        925289579,
+        981844150,
+        858390563
+      ],
+      "dt_seconds_f32": 9.999999747378752e-05,
+      "dt_bits": "38d1b717",
+      "thickness_f32": 9.999999747378752e-06,
+      "thickness_bits": "3727c5ac",
+      "source_start_expression": "finish - dt * velocity, componentwise FP32",
+      "source106_native_trial_alpha": 1.1920928955078125e-07,
+      "source106_native_trial_alpha_bits": "34000000",
+      "source106_trial_status": {
+        "code": 6,
+        "environment": 0,
+        "object_index": 0,
+        "failing_index": 124,
+        "completed_microsteps": 0,
+        "fgmres_iterations": 0,
+        "contact_count": 0,
+        "event_count": 0,
+        "diagnostics": [
+          24,
+          127,
+          1,
+          0
+        ]
+      },
+      "source103_trial358_status": {
+        "code": 6,
+        "environment": 0,
+        "object_index": 0,
+        "failing_index": 283,
+        "completed_microsteps": 0,
+        "fgmres_iterations": 0,
+        "contact_count": 0,
+        "event_count": 0,
+        "diagnostics": [
+          92,
+          127,
+          0,
+          0
+        ]
+      },
+      "source106_trial_candidate_vs_source103_trial358": {
+        "position_max_ulp": 1,
+        "velocity_max_ulp": 0,
+        "position_exact_components": 107,
+        "velocity_exact_components": 108
+      }
+    }
+  },
+  "source_bindings": {
+    "source106_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-capture-callback-lifetime-106",
+    "source106_contact_sha256": "b9ec3915b63bdee729ff0902c390e137e0f6b5d005d06e6a7136c534be3d510b",
+    "source106_common_sha256": "e53feb0402a461f355cf2ee5c3af89f95eb49176178e60d997d4a9cc6588a182",
+    "source106_shared_sha256": "ae84a7fb79e5b79ad813b249c720b9ace6105fde81f555cbd784afafa721e691",
+    "source103_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-whole-mortar-proof-103",
+    "source103_contact_sha256": "427aca061ad2c6d2218b5eae0bc7620132a1ef9fff9f688390ccc96ca8a27ffc",
+    "edgeEdgeCCD_function_sha256": "2ceb256e8d7a43c78cdb3b0613f7ebca1e39a4d41add45ca1c400beffc29199c",
+    "source106_failure_marker": "nm_contact_narrowphase_deformable triangle/triangle edge loop: diagnostic(candidate.identity.x,candidate.identity.y,edgeA,edgeB)"
+  },
+  "results": {
+    "source_transcribed_fp32": {
+      "16": {
+        "limit": 16,
+        "certified": false,
+        "hit": false,
+        "terminal": "iteration_exhausted",
+        "effective_thickness": 1.000190695776837e-05,
+        "distance_roundoff": 1.9074091195392384e-09,
+        "speed_bound": 1.4884511756463326e-07,
+        "iterations": [
+          {
+            "iteration": 0,
+            "time": 0.0,
+            "s": 1.0,
+            "t": 1.0,
+            "pointP": [
+              0.0020000094082206488,
+              1.0602715150298536e-08,
+              0.0010003643110394478
+            ],
+            "pointQ": [
+              0.0019998939242213964,
+              -5.803402203241603e-08,
+              0.0010104248067364097
+            ],
+            "delta": [
+              1.1548399925231934e-07,
+              6.863673718271457e-08,
+              -1.006049569696188e-05
+            ],
+            "distance": 1.0061392458737828e-05,
+            "gap": 5.948550096945837e-08,
+            "delta_axis_separated": {
+              "min_projection": 9.999282156059053e-06,
+              "margin": 3.814912830080175e-09,
+              "threshold": 1.0005722288042307e-05
+            },
+            "initial_cross_axis_checks": [
+              {
+                "axis": [
+                  1.9999145024485188e-06,
+                  -1.9999040432594484e-06,
+                  -4.426306543514613e-12
+                ],
+                "orientation_dot": -9.373199509306665e-14,
+                "certified": false,
+                "details": {
+                  "min_projection": 3.21975974770794e-08,
+                  "margin": 3.814912830080175e-09,
+                  "threshold": 1.0005722288042307e-05
+                }
+              },
+              {
+                "axis": [
+                  1.9998753941763425e-06,
+                  -1.9998647076135967e-06,
+                  -7.979632579702134e-12
+                ],
+                "orientation_dot": -9.776453599582777e-14,
+                "certified": false,
+                "details": {
+                  "min_projection": 3.3154751832853435e-08,
+                  "margin": 3.814912830080175e-09,
+                  "threshold": 1.0005722288042307e-05
+                }
+              }
+            ],
+            "step": 0.39964696764945984
+          },
+          {
+            "iteration": 1,
+            "time": 0.39964696764945984,
+            "s": 1.0,
+            "t": 1.0,
+            "pointP": [
+              0.002000010572373867,
+              1.1444910796853947e-08,
+              0.0010004002833738923
+            ],
+            "pointQ": [
+              0.0019998939242213964,
+              -5.807318359529745e-08,
+              0.0010104358661919832
+            ],
+            "delta": [
+              1.1664815247058868e-07,
+              6.95180943921514e-08,
+              -1.0035582818090916e-05
+            ],
+            "distance": 1.0036501407739706e-05,
+            "gap": 3.459444997133687e-08,
+            "delta_axis_separated": {
+              "min_projection": 9.999283065553755e-06,
+              "margin": 3.814912830080175e-09,
+              "threshold": 1.0005722288042307e-05
+            },
+            "step": 0.23241911828517914
+          },
+          {
+            "iteration": 2,
+            "time": 0.6320660710334778,
+            "s": 1.0,
+            "t": 1.0,
+            "pointP": [
+              0.002000011270865798,
+              1.193470033911126e-08,
+              0.0010004212381318212
+            ],
+            "pointQ": [
+              0.0019998939242213964,
+              -5.809596359540592e-08,
+              0.0010104425018653274
+            ],
+            "delta": [
+              1.1734664440155029e-07,
+              7.003066571087402e-08,
+              -1.0021263733506203e-05
+            ],
+            "distance": 1.0022195056080818e-05,
+            "gap": 2.028809831244871e-08,
+            "delta_axis_separated": {
+              "min_projection": 9.999283065553755e-06,
+              "margin": 3.814912830080175e-09,
+              "threshold": 1.0005722288042307e-05
+            },
+            "step": 0.13630342483520508
+          },
+          {
+            "iteration": 3,
+            "time": 0.7683694958686829,
+            "s": 1.0,
+            "t": 1.0,
+            "pointP": [
+              0.0020000117365270853,
+              1.222193901639912e-08,
+              0.0010004335781559348
+            ],
+            "pointQ": [
+              0.0019998939242213964,
+              -5.810931824612453e-08,
+              0.0010104463435709476
+            ],
+            "delta": [
+              1.1781230568885803e-07,
+              7.033125370980997e-08,
+              -1.0012765415012836e-05
+            ],
+            "distance": 1.001370583253447e-05,
+            "gap": 1.1798874766100198e-08,
+            "delta_axis_separated": {
+              "min_projection": 9.999282156059053e-06,
+              "margin": 3.814912830080175e-09,
+              "threshold": 1.0005722288042307e-05
+            },
+            "step": 0.07926947623491287
+          },
+          {
+            "iteration": 4,
+            "time": 0.8476389646530151,
+            "s": 1.0,
+            "t": 1.0,
+            "pointP": [
+              0.002000011969357729,
+              1.2388987613576319e-08,
+              0.0010004406794905663
+            ],
+            "pointQ": [
+              0.0019998939242213964,
+              -5.811708803094007e-08,
+              0.0010104484390467405
+            ],
+            "delta": [
+              1.180451363325119e-07,
+              7.050607564451639e-08,
+              -1.0007759556174278e-05
+            ],
+            "distance": 1.000870452116942e-05,
+            "gap": 6.797563401050866e-09,
+            "delta_axis_separated": {
+              "min_projection": 9.999283065553755e-06,
+              "margin": 3.814912830080175e-09,
+              "threshold": 1.0005722288042307e-05
+            },
+            "step": 0.04566870257258415
+          },
+          {
+            "iteration": 5,
+            "time": 0.8933076858520508,
+            "s": 1.0,
+            "t": 1.0,
+            "pointP": [
+              0.0020000122021883726,
+              1.2485227962599765e-08,
+              0.0010004447540268302
+            ],
+            "pointQ": [
+              0.0019998939242213964,
+              -5.812156089746168e-08,
+              0.0010104498360306025
+            ],
+            "delta": [
+              1.1827796697616577e-07,
+              7.060678797188302e-08,
+              -1.0005082003772259e-05
+            ],
+            "distance": 1.0006030606746208e-05,
+            "gap": 4.123648977838457e-09,
+            "delta_axis_separated": {
+              "min_projection": 9.999282156059053e-06,
+              "margin": 3.814912830080175e-09,
+              "threshold": 1.0005722288042307e-05
+            },
+            "step": 0.02770429477095604
+          },
+          {
+            "iteration": 6,
+            "time": 0.9210119843482971,
+            "s": 1.0,
+            "t": 1.0,
+            "pointP": [
+              0.0020000122021883726,
+              1.2543610594661914e-08,
+              0.0010004473151639104
+            ],
+            "pointQ": [
+              0.0019998939242213964,
+              -5.812427517071228e-08,
+              0.0010104505345225334
+            ],
+            "delta": [
+              1.1827796697616577e-07,
+              7.066788754173103e-08,
+              -1.0003219358623028e-05
+            ],
+            "distance": 1.0004167961596977e-05,
+            "gap": 2.2610038286074996e-09,
+            "delta_axis_separated": {
+              "min_projection": 9.999283065553755e-06,
+              "margin": 3.814912830080175e-09,
+              "threshold": 1.0005722288042307e-05
+            },
+            "step": 0.015190312638878822
+          },
+          {
+            "iteration": 7,
+            "time": 0.9362022876739502,
+            "s": 1.0,
+            "t": 1.0,
+            "pointP": [
+              0.0020000122021883726,
+              1.2575621433086326e-08,
+              0.0010004487121477723
+            ],
+            "pointQ": [
+              0.0019998939242213964,
+              -5.812576731045738e-08,
+              0.0010104510001838207
+            ],
+            "delta": [
+              1.1827796697616577e-07,
+              7.070138963172212e-08,
+              -1.0002288036048412e-05
+            ],
+            "distance": 1.0003237548517063e-05,
+            "gap": 1.330590748693794e-09,
+            "delta_axis_separated": {
+              "min_projection": 9.999282156059053e-06,
+              "margin": 3.814912830080175e-09,
+              "threshold": 1.0005722288042307e-05
+            },
+            "step": 0.008939431980252266
+          },
+          {
+            "iteration": 8,
+            "time": 0.9451417326927185,
+            "s": 1.0,
+            "t": 1.0,
+            "pointP": [
+              0.0020000122021883726,
+              1.2594460585546585e-08,
+              0.001000449527055025
+            ],
+            "pointQ": [
+              0.0019998939242213964,
+              -5.812664127802236e-08,
+              0.0010104512330144644
+            ],
+            "delta": [
+              1.1827796697616577e-07,
+              7.072110008721211e-08,
+              -1.0001705959439278e-05
+            ],
+            "distance": 1.0002655471907929e-05,
+            "gap": 7.485141395591199e-10,
+            "delta_axis_separated": {
+              "min_projection": 9.999283065553755e-06,
+              "margin": 3.814912830080175e-09,
+              "threshold": 1.0005722288042307e-05
+            },
+            "step": 0.00502881221473217
+          },
+          {
+            "iteration": 9,
+            "time": 0.9501705169677734,
+            "s": 1.0,
+            "t": 1.0,
+            "pointP": [
+              0.0020000124350190163,
+              1.2605057442272027e-08,
+              0.0010004498763009906
+            ],
+            "pointQ": [
+              0.0019998939242213964,
+              -5.8127135105223715e-08,
+              0.0010104513494297862
+            ],
+            "delta": [
+              1.1851079761981964e-07,
+              7.073219165931732e-08,
+              -1.0001473128795624e-05
+            ],
+            "distance": 1.000242536974838e-05,
+            "gap": 5.184119800105691e-10,
+            "delta_axis_separated": {
+              "min_projection": 9.999283975048456e-06,
+              "margin": 3.814912830080175e-09,
+              "threshold": 1.0005722288042307e-05
+            },
+            "step": 0.0034828954376280308
+          },
+          {
+            "iteration": 10,
+            "time": 0.9536533951759338,
+            "s": 1.0,
+            "t": 1.0,
+            "pointP": [
+              0.0020000122021883726,
+              1.261239734873243e-08,
+              0.001000450225546956
+            ],
+            "pointQ": [
+              0.0019998939242213964,
+              -5.812747616573688e-08,
+              0.001010451465845108
+            ],
+            "delta": [
+              1.1827796697616577e-07,
+              7.073987262629089e-08,
+              -1.000124029815197e-05
+            ],
+            "distance": 1.000218981062062e-05,
+            "gap": 2.828528522513807e-10,
+            "delta_axis_separated": {
+              "min_projection": 9.999283065553755e-06,
+              "margin": 3.814912830080175e-09,
+              "threshold": 1.0005722288042307e-05
+            },
+            "step": 0.0019003166817128658
+          },
+          {
+            "iteration": 11,
+            "time": 0.9555537104606628,
+            "s": 1.0,
+            "t": 1.0,
+            "pointP": [
+              0.0020000124350190163,
+              1.2616402145226857e-08,
+              0.0010004504583775997
+            ],
+            "pointQ": [
+              0.0019998939242213964,
+              -5.812766090684818e-08,
+              0.001010451465845108
+            ],
+            "delta": [
+              1.1851079761981964e-07,
+              7.074406482843187e-08,
+              -1.0001007467508316e-05
+            ],
+            "distance": 1.0001959708461072e-05,
+            "gap": 5.275069270282984e-11,
+            "delta_axis_separated": {
+              "min_projection": 9.999283975048456e-06,
+              "margin": 3.814912830080175e-09,
+              "threshold": 1.0005722288042307e-05
+            },
+            "step": 0.00035439987550489604
+          },
+          {
+            "iteration": 12,
+            "time": 0.9559081196784973,
+            "s": 1.0,
+            "t": 1.0,
+            "pointP": [
+              0.0020000124350190163,
+              1.2617149103277825e-08,
+              0.0010004504583775997
+            ],
+            "pointQ": [
+              0.0019998939242213964,
+              -5.812769288127129e-08,
+              0.001010451465845108
+            ],
+            "delta": [
+              1.1851079761981964e-07,
+              7.074483932001385e-08,
+              -1.0001007467508316e-05
+            ],
+            "distance": 1.0001959708461072e-05,
+            "gap": 5.275069270282984e-11,
+            "delta_axis_separated": {
+              "min_projection": 9.999283975048456e-06,
+              "margin": 3.814912830080175e-09,
+              "threshold": 1.0005722288042307e-05
+            },
+            "step": 0.00035439987550489604
+          },
+          {
+            "iteration": 13,
+            "time": 0.9562625288963318,
+            "s": 1.0,
+            "t": 1.0,
+            "pointP": [
+              0.0020000122021883726,
+              1.2617895173150373e-08,
+              0.0010004504583775997
+            ],
+            "pointQ": [
+              0.0019998939242213964,
+              -5.8127731961121754e-08,
+              0.0010104515822604299
+            ],
+            "delta": [
+              1.1827796697616577e-07,
+              7.074562802245055e-08,
+              -1.0001123882830143e-05
+            ],
+            "distance": 1.0002073395298794e-05,
+            "gap": 1.6643753042444587e-10,
+            "delta_axis_separated": {
+              "min_projection": 9.999283065553755e-06,
+              "margin": 3.814912830080175e-09,
+              "threshold": 1.0005722288042307e-05
+            },
+            "step": 0.0011181927984580398
+          },
+          {
+            "iteration": 14,
+            "time": 0.9573807120323181,
+            "s": 1.0,
+            "t": 1.0,
+            "pointP": [
+              0.0020000124350190163,
+              1.2620252398676257e-08,
+              0.0010004505747929215
+            ],
+            "pointQ": [
+              0.0019998939242213964,
+              -5.812783854253212e-08,
+              0.0010104515822604299
+            ],
+            "delta": [
+              1.1851079761981964e-07,
+              7.074809360574363e-08,
+              -1.0001007467508316e-05
+            ],
+            "distance": 1.0001959708461072e-05,
+            "gap": 5.275069270282984e-11,
+            "delta_axis_separated": {
+              "min_projection": 9.999283975048456e-06,
+              "margin": 3.814912830080175e-09,
+              "threshold": 1.0005722288042307e-05
+            },
+            "step": 0.00035439987550489604
+          },
+          {
+            "iteration": 15,
+            "time": 0.9577351212501526,
+            "s": 1.0,
+            "t": 1.0,
+            "pointP": [
+              0.0020000122021883726,
+              1.2620999356727225e-08,
+              0.0010004505747929215
+            ],
+            "pointQ": [
+              0.0019998939242213964,
+              -5.8127874069668906e-08,
+              0.0010104515822604299
+            ],
+            "delta": [
+              1.1827796697616577e-07,
+              7.074887520275297e-08,
+              -1.0001007467508316e-05
+            ],
+            "distance": 1.0001956979976967e-05,
+            "gap": 5.002220859751105e-11,
+            "delta_axis_separated": {
+              "min_projection": 9.999283065553755e-06,
+              "margin": 3.814912830080175e-09,
+              "threshold": 1.0005722288042307e-05
+            },
+            "step": 0.0003360688569955528
+          }
+        ]
+      },
+      "17": {
+        "limit": 17,
+        "certified": true,
+        "hit": true,
+        "terminal": "distance_within_effective_thickness",
+        "effective_thickness": 1.000190695776837e-05,
+        "distance_roundoff": 1.9074091195392384e-09,
+        "speed_bound": 1.4884511756463326e-07,
+        "iterations": [
+          {
+            "iteration": 0,
+            "time": 0.0,
+            "s": 1.0,
+            "t": 1.0,
+            "pointP": [
+              0.0020000094082206488,
+              1.0602715150298536e-08,
+              0.0010003643110394478
+            ],
+            "pointQ": [
+              0.0019998939242213964,
+              -5.803402203241603e-08,
+              0.0010104248067364097
+            ],
+            "delta": [
+              1.1548399925231934e-07,
+              6.863673718271457e-08,
+              -1.006049569696188e-05
+            ],
+            "distance": 1.0061392458737828e-05,
+            "gap": 5.948550096945837e-08,
+            "delta_axis_separated": {
+              "min_projection": 9.999282156059053e-06,
+              "margin": 3.814912830080175e-09,
+              "threshold": 1.0005722288042307e-05
+            },
+            "initial_cross_axis_checks": [
+              {
+                "axis": [
+                  1.9999145024485188e-06,
+                  -1.9999040432594484e-06,
+                  -4.426306543514613e-12
+                ],
+                "orientation_dot": -9.373199509306665e-14,
+                "certified": false,
+                "details": {
+                  "min_projection": 3.21975974770794e-08,
+                  "margin": 3.814912830080175e-09,
+                  "threshold": 1.0005722288042307e-05
+                }
+              },
+              {
+                "axis": [
+                  1.9998753941763425e-06,
+                  -1.9998647076135967e-06,
+                  -7.979632579702134e-12
+                ],
+                "orientation_dot": -9.776453599582777e-14,
+                "certified": false,
+                "details": {
+                  "min_projection": 3.3154751832853435e-08,
+                  "margin": 3.814912830080175e-09,
+                  "threshold": 1.0005722288042307e-05
+                }
+              }
+            ],
+            "step": 0.39964696764945984
+          },
+          {
+            "iteration": 1,
+            "time": 0.39964696764945984,
+            "s": 1.0,
+            "t": 1.0,
+            "pointP": [
+              0.002000010572373867,
+              1.1444910796853947e-08,
+              0.0010004002833738923
+            ],
+            "pointQ": [
+              0.0019998939242213964,
+              -5.807318359529745e-08,
+              0.0010104358661919832
+            ],
+            "delta": [
+              1.1664815247058868e-07,
+              6.95180943921514e-08,
+              -1.0035582818090916e-05
+            ],
+            "distance": 1.0036501407739706e-05,
+            "gap": 3.459444997133687e-08,
+            "delta_axis_separated": {
+              "min_projection": 9.999283065553755e-06,
+              "margin": 3.814912830080175e-09,
+              "threshold": 1.0005722288042307e-05
+            },
+            "step": 0.23241911828517914
+          },
+          {
+            "iteration": 2,
+            "time": 0.6320660710334778,
+            "s": 1.0,
+            "t": 1.0,
+            "pointP": [
+              0.002000011270865798,
+              1.193470033911126e-08,
+              0.0010004212381318212
+            ],
+            "pointQ": [
+              0.0019998939242213964,
+              -5.809596359540592e-08,
+              0.0010104425018653274
+            ],
+            "delta": [
+              1.1734664440155029e-07,
+              7.003066571087402e-08,
+              -1.0021263733506203e-05
+            ],
+            "distance": 1.0022195056080818e-05,
+            "gap": 2.028809831244871e-08,
+            "delta_axis_separated": {
+              "min_projection": 9.999283065553755e-06,
+              "margin": 3.814912830080175e-09,
+              "threshold": 1.0005722288042307e-05
+            },
+            "step": 0.13630342483520508
+          },
+          {
+            "iteration": 3,
+            "time": 0.7683694958686829,
+            "s": 1.0,
+            "t": 1.0,
+            "pointP": [
+              0.0020000117365270853,
+              1.222193901639912e-08,
+              0.0010004335781559348
+            ],
+            "pointQ": [
+              0.0019998939242213964,
+              -5.810931824612453e-08,
+              0.0010104463435709476
+            ],
+            "delta": [
+              1.1781230568885803e-07,
+              7.033125370980997e-08,
+              -1.0012765415012836e-05
+            ],
+            "distance": 1.001370583253447e-05,
+            "gap": 1.1798874766100198e-08,
+            "delta_axis_separated": {
+              "min_projection": 9.999282156059053e-06,
+              "margin": 3.814912830080175e-09,
+              "threshold": 1.0005722288042307e-05
+            },
+            "step": 0.07926947623491287
+          },
+          {
+            "iteration": 4,
+            "time": 0.8476389646530151,
+            "s": 1.0,
+            "t": 1.0,
+            "pointP": [
+              0.002000011969357729,
+              1.2388987613576319e-08,
+              0.0010004406794905663
+            ],
+            "pointQ": [
+              0.0019998939242213964,
+              -5.811708803094007e-08,
+              0.0010104484390467405
+            ],
+            "delta": [
+              1.180451363325119e-07,
+              7.050607564451639e-08,
+              -1.0007759556174278e-05
+            ],
+            "distance": 1.000870452116942e-05,
+            "gap": 6.797563401050866e-09,
+            "delta_axis_separated": {
+              "min_projection": 9.999283065553755e-06,
+              "margin": 3.814912830080175e-09,
+              "threshold": 1.0005722288042307e-05
+            },
+            "step": 0.04566870257258415
+          },
+          {
+            "iteration": 5,
+            "time": 0.8933076858520508,
+            "s": 1.0,
+            "t": 1.0,
+            "pointP": [
+              0.0020000122021883726,
+              1.2485227962599765e-08,
+              0.0010004447540268302
+            ],
+            "pointQ": [
+              0.0019998939242213964,
+              -5.812156089746168e-08,
+              0.0010104498360306025
+            ],
+            "delta": [
+              1.1827796697616577e-07,
+              7.060678797188302e-08,
+              -1.0005082003772259e-05
+            ],
+            "distance": 1.0006030606746208e-05,
+            "gap": 4.123648977838457e-09,
+            "delta_axis_separated": {
+              "min_projection": 9.999282156059053e-06,
+              "margin": 3.814912830080175e-09,
+              "threshold": 1.0005722288042307e-05
+            },
+            "step": 0.02770429477095604
+          },
+          {
+            "iteration": 6,
+            "time": 0.9210119843482971,
+            "s": 1.0,
+            "t": 1.0,
+            "pointP": [
+              0.0020000122021883726,
+              1.2543610594661914e-08,
+              0.0010004473151639104
+            ],
+            "pointQ": [
+              0.0019998939242213964,
+              -5.812427517071228e-08,
+              0.0010104505345225334
+            ],
+            "delta": [
+              1.1827796697616577e-07,
+              7.066788754173103e-08,
+              -1.0003219358623028e-05
+            ],
+            "distance": 1.0004167961596977e-05,
+            "gap": 2.2610038286074996e-09,
+            "delta_axis_separated": {
+              "min_projection": 9.999283065553755e-06,
+              "margin": 3.814912830080175e-09,
+              "threshold": 1.0005722288042307e-05
+            },
+            "step": 0.015190312638878822
+          },
+          {
+            "iteration": 7,
+            "time": 0.9362022876739502,
+            "s": 1.0,
+            "t": 1.0,
+            "pointP": [
+              0.0020000122021883726,
+              1.2575621433086326e-08,
+              0.0010004487121477723
+            ],
+            "pointQ": [
+              0.0019998939242213964,
+              -5.812576731045738e-08,
+              0.0010104510001838207
+            ],
+            "delta": [
+              1.1827796697616577e-07,
+              7.070138963172212e-08,
+              -1.0002288036048412e-05
+            ],
+            "distance": 1.0003237548517063e-05,
+            "gap": 1.330590748693794e-09,
+            "delta_axis_separated": {
+              "min_projection": 9.999282156059053e-06,
+              "margin": 3.814912830080175e-09,
+              "threshold": 1.0005722288042307e-05
+            },
+            "step": 0.008939431980252266
+          },
+          {
+            "iteration": 8,
+            "time": 0.9451417326927185,
+            "s": 1.0,
+            "t": 1.0,
+            "pointP": [
+              0.0020000122021883726,
+              1.2594460585546585e-08,
+              0.001000449527055025
+            ],
+            "pointQ": [
+              0.0019998939242213964,
+              -5.812664127802236e-08,
+              0.0010104512330144644
+            ],
+            "delta": [
+              1.1827796697616577e-07,
+              7.072110008721211e-08,
+              -1.0001705959439278e-05
+            ],
+            "distance": 1.0002655471907929e-05,
+            "gap": 7.485141395591199e-10,
+            "delta_axis_separated": {
+              "min_projection": 9.999283065553755e-06,
+              "margin": 3.814912830080175e-09,
+              "threshold": 1.0005722288042307e-05
+            },
+            "step": 0.00502881221473217
+          },
+          {
+            "iteration": 9,
+            "time": 0.9501705169677734,
+            "s": 1.0,
+            "t": 1.0,
+            "pointP": [
+              0.0020000124350190163,
+              1.2605057442272027e-08,
+              0.0010004498763009906
+            ],
+            "pointQ": [
+              0.0019998939242213964,
+              -5.8127135105223715e-08,
+              0.0010104513494297862
+            ],
+            "delta": [
+              1.1851079761981964e-07,
+              7.073219165931732e-08,
+              -1.0001473128795624e-05
+            ],
+            "distance": 1.000242536974838e-05,
+            "gap": 5.184119800105691e-10,
+            "delta_axis_separated": {
+              "min_projection": 9.999283975048456e-06,
+              "margin": 3.814912830080175e-09,
+              "threshold": 1.0005722288042307e-05
+            },
+            "step": 0.0034828954376280308
+          },
+          {
+            "iteration": 10,
+            "time": 0.9536533951759338,
+            "s": 1.0,
+            "t": 1.0,
+            "pointP": [
+              0.0020000122021883726,
+              1.261239734873243e-08,
+              0.001000450225546956
+            ],
+            "pointQ": [
+              0.0019998939242213964,
+              -5.812747616573688e-08,
+              0.001010451465845108
+            ],
+            "delta": [
+              1.1827796697616577e-07,
+              7.073987262629089e-08,
+              -1.000124029815197e-05
+            ],
+            "distance": 1.000218981062062e-05,
+            "gap": 2.828528522513807e-10,
+            "delta_axis_separated": {
+              "min_projection": 9.999283065553755e-06,
+              "margin": 3.814912830080175e-09,
+              "threshold": 1.0005722288042307e-05
+            },
+            "step": 0.0019003166817128658
+          },
+          {
+            "iteration": 11,
+            "time": 0.9555537104606628,
+            "s": 1.0,
+            "t": 1.0,
+            "pointP": [
+              0.0020000124350190163,
+              1.2616402145226857e-08,
+              0.0010004504583775997
+            ],
+            "pointQ": [
+              0.0019998939242213964,
+              -5.812766090684818e-08,
+              0.001010451465845108
+            ],
+            "delta": [
+              1.1851079761981964e-07,
+              7.074406482843187e-08,
+              -1.0001007467508316e-05
+            ],
+            "distance": 1.0001959708461072e-05,
+            "gap": 5.275069270282984e-11,
+            "delta_axis_separated": {
+              "min_projection": 9.999283975048456e-06,
+              "margin": 3.814912830080175e-09,
+              "threshold": 1.0005722288042307e-05
+            },
+            "step": 0.00035439987550489604
+          },
+          {
+            "iteration": 12,
+            "time": 0.9559081196784973,
+            "s": 1.0,
+            "t": 1.0,
+            "pointP": [
+              0.0020000124350190163,
+              1.2617149103277825e-08,
+              0.0010004504583775997
+            ],
+            "pointQ": [
+              0.0019998939242213964,
+              -5.812769288127129e-08,
+              0.001010451465845108
+            ],
+            "delta": [
+              1.1851079761981964e-07,
+              7.074483932001385e-08,
+              -1.0001007467508316e-05
+            ],
+            "distance": 1.0001959708461072e-05,
+            "gap": 5.275069270282984e-11,
+            "delta_axis_separated": {
+              "min_projection": 9.999283975048456e-06,
+              "margin": 3.814912830080175e-09,
+              "threshold": 1.0005722288042307e-05
+            },
+            "step": 0.00035439987550489604
+          },
+          {
+            "iteration": 13,
+            "time": 0.9562625288963318,
+            "s": 1.0,
+            "t": 1.0,
+            "pointP": [
+              0.0020000122021883726,
+              1.2617895173150373e-08,
+              0.0010004504583775997
+            ],
+            "pointQ": [
+              0.0019998939242213964,
+              -5.8127731961121754e-08,
+              0.0010104515822604299
+            ],
+            "delta": [
+              1.1827796697616577e-07,
+              7.074562802245055e-08,
+              -1.0001123882830143e-05
+            ],
+            "distance": 1.0002073395298794e-05,
+            "gap": 1.6643753042444587e-10,
+            "delta_axis_separated": {
+              "min_projection": 9.999283065553755e-06,
+              "margin": 3.814912830080175e-09,
+              "threshold": 1.0005722288042307e-05
+            },
+            "step": 0.0011181927984580398
+          },
+          {
+            "iteration": 14,
+            "time": 0.9573807120323181,
+            "s": 1.0,
+            "t": 1.0,
+            "pointP": [
+              0.0020000124350190163,
+              1.2620252398676257e-08,
+              0.0010004505747929215
+            ],
+            "pointQ": [
+              0.0019998939242213964,
+              -5.812783854253212e-08,
+              0.0010104515822604299
+            ],
+            "delta": [
+              1.1851079761981964e-07,
+              7.074809360574363e-08,
+              -1.0001007467508316e-05
+            ],
+            "distance": 1.0001959708461072e-05,
+            "gap": 5.275069270282984e-11,
+            "delta_axis_separated": {
+              "min_projection": 9.999283975048456e-06,
+              "margin": 3.814912830080175e-09,
+              "threshold": 1.0005722288042307e-05
+            },
+            "step": 0.00035439987550489604
+          },
+          {
+            "iteration": 15,
+            "time": 0.9577351212501526,
+            "s": 1.0,
+            "t": 1.0,
+            "pointP": [
+              0.0020000122021883726,
+              1.2620999356727225e-08,
+              0.0010004505747929215
+            ],
+            "pointQ": [
+              0.0019998939242213964,
+              -5.8127874069668906e-08,
+              0.0010104515822604299
+            ],
+            "delta": [
+              1.1827796697616577e-07,
+              7.074887520275297e-08,
+              -1.0001007467508316e-05
+            ],
+            "distance": 1.0001956979976967e-05,
+            "gap": 5.002220859751105e-11,
+            "delta_axis_separated": {
+              "min_projection": 9.999283065553755e-06,
+              "margin": 3.814912830080175e-09,
+              "threshold": 1.0005722288042307e-05
+            },
+            "step": 0.0003360688569955528
+          },
+          {
+            "iteration": 16,
+            "time": 0.9580711722373962,
+            "s": 1.0,
+            "t": 1.0,
+            "pointP": [
+              0.0020000124350190163,
+              1.2621706346749306e-08,
+              0.0010004506912082434
+            ],
+            "pointQ": [
+              0.0019998939242213964,
+              -5.8127909596805694e-08,
+              0.0010104515822604299
+            ],
+            "delta": [
+              1.1851079761981964e-07,
+              7.074961416719816e-08,
+              -1.0000891052186489e-05
+            ],
+            "distance": 1.0001843293139245e-05,
+            "gap": -6.366462912410498e-11,
+            "terminal": "distance_within_effective_thickness"
+          }
+        ]
+      },
+      "33": {
+        "limit": 33,
+        "certified": true,
+        "hit": true,
+        "terminal": "distance_within_effective_thickness",
+        "effective_thickness": 1.000190695776837e-05,
+        "distance_roundoff": 1.9074091195392384e-09,
+        "speed_bound": 1.4884511756463326e-07,
+        "iterations": [
+          {
+            "iteration": 0,
+            "time": 0.0,
+            "s": 1.0,
+            "t": 1.0,
+            "pointP": [
+              0.0020000094082206488,
+              1.0602715150298536e-08,
+              0.0010003643110394478
+            ],
+            "pointQ": [
+              0.0019998939242213964,
+              -5.803402203241603e-08,
+              0.0010104248067364097
+            ],
+            "delta": [
+              1.1548399925231934e-07,
+              6.863673718271457e-08,
+              -1.006049569696188e-05
+            ],
+            "distance": 1.0061392458737828e-05,
+            "gap": 5.948550096945837e-08,
+            "delta_axis_separated": {
+              "min_projection": 9.999282156059053e-06,
+              "margin": 3.814912830080175e-09,
+              "threshold": 1.0005722288042307e-05
+            },
+            "initial_cross_axis_checks": [
+              {
+                "axis": [
+                  1.9999145024485188e-06,
+                  -1.9999040432594484e-06,
+                  -4.426306543514613e-12
+                ],
+                "orientation_dot": -9.373199509306665e-14,
+                "certified": false,
+                "details": {
+                  "min_projection": 3.21975974770794e-08,
+                  "margin": 3.814912830080175e-09,
+                  "threshold": 1.0005722288042307e-05
+                }
+              },
+              {
+                "axis": [
+                  1.9998753941763425e-06,
+                  -1.9998647076135967e-06,
+                  -7.979632579702134e-12
+                ],
+                "orientation_dot": -9.776453599582777e-14,
+                "certified": false,
+                "details": {
+                  "min_projection": 3.3154751832853435e-08,
+                  "margin": 3.814912830080175e-09,
+                  "threshold": 1.0005722288042307e-05
+                }
+              }
+            ],
+            "step": 0.39964696764945984
+          },
+          {
+            "iteration": 1,
+            "time": 0.39964696764945984,
+            "s": 1.0,
+            "t": 1.0,
+            "pointP": [
+              0.002000010572373867,
+              1.1444910796853947e-08,
+              0.0010004002833738923
+            ],
+            "pointQ": [
+              0.0019998939242213964,
+              -5.807318359529745e-08,
+              0.0010104358661919832
+            ],
+            "delta": [
+              1.1664815247058868e-07,
+              6.95180943921514e-08,
+              -1.0035582818090916e-05
+            ],
+            "distance": 1.0036501407739706e-05,
+            "gap": 3.459444997133687e-08,
+            "delta_axis_separated": {
+              "min_projection": 9.999283065553755e-06,
+              "margin": 3.814912830080175e-09,
+              "threshold": 1.0005722288042307e-05
+            },
+            "step": 0.23241911828517914
+          },
+          {
+            "iteration": 2,
+            "time": 0.6320660710334778,
+            "s": 1.0,
+            "t": 1.0,
+            "pointP": [
+              0.002000011270865798,
+              1.193470033911126e-08,
+              0.0010004212381318212
+            ],
+            "pointQ": [
+              0.0019998939242213964,
+              -5.809596359540592e-08,
+              0.0010104425018653274
+            ],
+            "delta": [
+              1.1734664440155029e-07,
+              7.003066571087402e-08,
+              -1.0021263733506203e-05
+            ],
+            "distance": 1.0022195056080818e-05,
+            "gap": 2.028809831244871e-08,
+            "delta_axis_separated": {
+              "min_projection": 9.999283065553755e-06,
+              "margin": 3.814912830080175e-09,
+              "threshold": 1.0005722288042307e-05
+            },
+            "step": 0.13630342483520508
+          },
+          {
+            "iteration": 3,
+            "time": 0.7683694958686829,
+            "s": 1.0,
+            "t": 1.0,
+            "pointP": [
+              0.0020000117365270853,
+              1.222193901639912e-08,
+              0.0010004335781559348
+            ],
+            "pointQ": [
+              0.0019998939242213964,
+              -5.810931824612453e-08,
+              0.0010104463435709476
+            ],
+            "delta": [
+              1.1781230568885803e-07,
+              7.033125370980997e-08,
+              -1.0012765415012836e-05
+            ],
+            "distance": 1.001370583253447e-05,
+            "gap": 1.1798874766100198e-08,
+            "delta_axis_separated": {
+              "min_projection": 9.999282156059053e-06,
+              "margin": 3.814912830080175e-09,
+              "threshold": 1.0005722288042307e-05
+            },
+            "step": 0.07926947623491287
+          },
+          {
+            "iteration": 4,
+            "time": 0.8476389646530151,
+            "s": 1.0,
+            "t": 1.0,
+            "pointP": [
+              0.002000011969357729,
+              1.2388987613576319e-08,
+              0.0010004406794905663
+            ],
+            "pointQ": [
+              0.0019998939242213964,
+              -5.811708803094007e-08,
+              0.0010104484390467405
+            ],
+            "delta": [
+              1.180451363325119e-07,
+              7.050607564451639e-08,
+              -1.0007759556174278e-05
+            ],
+            "distance": 1.000870452116942e-05,
+            "gap": 6.797563401050866e-09,
+            "delta_axis_separated": {
+              "min_projection": 9.999283065553755e-06,
+              "margin": 3.814912830080175e-09,
+              "threshold": 1.0005722288042307e-05
+            },
+            "step": 0.04566870257258415
+          },
+          {
+            "iteration": 5,
+            "time": 0.8933076858520508,
+            "s": 1.0,
+            "t": 1.0,
+            "pointP": [
+              0.0020000122021883726,
+              1.2485227962599765e-08,
+              0.0010004447540268302
+            ],
+            "pointQ": [
+              0.0019998939242213964,
+              -5.812156089746168e-08,
+              0.0010104498360306025
+            ],
+            "delta": [
+              1.1827796697616577e-07,
+              7.060678797188302e-08,
+              -1.0005082003772259e-05
+            ],
+            "distance": 1.0006030606746208e-05,
+            "gap": 4.123648977838457e-09,
+            "delta_axis_separated": {
+              "min_projection": 9.999282156059053e-06,
+              "margin": 3.814912830080175e-09,
+              "threshold": 1.0005722288042307e-05
+            },
+            "step": 0.02770429477095604
+          },
+          {
+            "iteration": 6,
+            "time": 0.9210119843482971,
+            "s": 1.0,
+            "t": 1.0,
+            "pointP": [
+              0.0020000122021883726,
+              1.2543610594661914e-08,
+              0.0010004473151639104
+            ],
+            "pointQ": [
+              0.0019998939242213964,
+              -5.812427517071228e-08,
+              0.0010104505345225334
+            ],
+            "delta": [
+              1.1827796697616577e-07,
+              7.066788754173103e-08,
+              -1.0003219358623028e-05
+            ],
+            "distance": 1.0004167961596977e-05,
+            "gap": 2.2610038286074996e-09,
+            "delta_axis_separated": {
+              "min_projection": 9.999283065553755e-06,
+              "margin": 3.814912830080175e-09,
+              "threshold": 1.0005722288042307e-05
+            },
+            "step": 0.015190312638878822
+          },
+          {
+            "iteration": 7,
+            "time": 0.9362022876739502,
+            "s": 1.0,
+            "t": 1.0,
+            "pointP": [
+              0.0020000122021883726,
+              1.2575621433086326e-08,
+              0.0010004487121477723
+            ],
+            "pointQ": [
+              0.0019998939242213964,
+              -5.812576731045738e-08,
+              0.0010104510001838207
+            ],
+            "delta": [
+              1.1827796697616577e-07,
+              7.070138963172212e-08,
+              -1.0002288036048412e-05
+            ],
+            "distance": 1.0003237548517063e-05,
+            "gap": 1.330590748693794e-09,
+            "delta_axis_separated": {
+              "min_projection": 9.999282156059053e-06,
+              "margin": 3.814912830080175e-09,
+              "threshold": 1.0005722288042307e-05
+            },
+            "step": 0.008939431980252266
+          },
+          {
+            "iteration": 8,
+            "time": 0.9451417326927185,
+            "s": 1.0,
+            "t": 1.0,
+            "pointP": [
+              0.0020000122021883726,
+              1.2594460585546585e-08,
+              0.001000449527055025
+            ],
+            "pointQ": [
+              0.0019998939242213964,
+              -5.812664127802236e-08,
+              0.0010104512330144644
+            ],
+            "delta": [
+              1.1827796697616577e-07,
+              7.072110008721211e-08,
+              -1.0001705959439278e-05
+            ],
+            "distance": 1.0002655471907929e-05,
+            "gap": 7.485141395591199e-10,
+            "delta_axis_separated": {
+              "min_projection": 9.999283065553755e-06,
+              "margin": 3.814912830080175e-09,
+              "threshold": 1.0005722288042307e-05
+            },
+            "step": 0.00502881221473217
+          },
+          {
+            "iteration": 9,
+            "time": 0.9501705169677734,
+            "s": 1.0,
+            "t": 1.0,
+            "pointP": [
+              0.0020000124350190163,
+              1.2605057442272027e-08,
+              0.0010004498763009906
+            ],
+            "pointQ": [
+              0.0019998939242213964,
+              -5.8127135105223715e-08,
+              0.0010104513494297862
+            ],
+            "delta": [
+              1.1851079761981964e-07,
+              7.073219165931732e-08,
+              -1.0001473128795624e-05
+            ],
+            "distance": 1.000242536974838e-05,
+            "gap": 5.184119800105691e-10,
+            "delta_axis_separated": {
+              "min_projection": 9.999283975048456e-06,
+              "margin": 3.814912830080175e-09,
+              "threshold": 1.0005722288042307e-05
+            },
+            "step": 0.0034828954376280308
+          },
+          {
+            "iteration": 10,
+            "time": 0.9536533951759338,
+            "s": 1.0,
+            "t": 1.0,
+            "pointP": [
+              0.0020000122021883726,
+              1.261239734873243e-08,
+              0.001000450225546956
+            ],
+            "pointQ": [
+              0.0019998939242213964,
+              -5.812747616573688e-08,
+              0.001010451465845108
+            ],
+            "delta": [
+              1.1827796697616577e-07,
+              7.073987262629089e-08,
+              -1.000124029815197e-05
+            ],
+            "distance": 1.000218981062062e-05,
+            "gap": 2.828528522513807e-10,
+            "delta_axis_separated": {
+              "min_projection": 9.999283065553755e-06,
+              "margin": 3.814912830080175e-09,
+              "threshold": 1.0005722288042307e-05
+            },
+            "step": 0.0019003166817128658
+          },
+          {
+            "iteration": 11,
+            "time": 0.9555537104606628,
+            "s": 1.0,
+            "t": 1.0,
+            "pointP": [
+              0.0020000124350190163,
+              1.2616402145226857e-08,
+              0.0010004504583775997
+            ],
+            "pointQ": [
+              0.0019998939242213964,
+              -5.812766090684818e-08,
+              0.001010451465845108
+            ],
+            "delta": [
+              1.1851079761981964e-07,
+              7.074406482843187e-08,
+              -1.0001007467508316e-05
+            ],
+            "distance": 1.0001959708461072e-05,
+            "gap": 5.275069270282984e-11,
+            "delta_axis_separated": {
+              "min_projection": 9.999283975048456e-06,
+              "margin": 3.814912830080175e-09,
+              "threshold": 1.0005722288042307e-05
+            },
+            "step": 0.00035439987550489604
+          },
+          {
+            "iteration": 12,
+            "time": 0.9559081196784973,
+            "s": 1.0,
+            "t": 1.0,
+            "pointP": [
+              0.0020000124350190163,
+              1.2617149103277825e-08,
+              0.0010004504583775997
+            ],
+            "pointQ": [
+              0.0019998939242213964,
+              -5.812769288127129e-08,
+              0.001010451465845108
+            ],
+            "delta": [
+              1.1851079761981964e-07,
+              7.074483932001385e-08,
+              -1.0001007467508316e-05
+            ],
+            "distance": 1.0001959708461072e-05,
+            "gap": 5.275069270282984e-11,
+            "delta_axis_separated": {
+              "min_projection": 9.999283975048456e-06,
+              "margin": 3.814912830080175e-09,
+              "threshold": 1.0005722288042307e-05
+            },
+            "step": 0.00035439987550489604
+          },
+          {
+            "iteration": 13,
+            "time": 0.9562625288963318,
+            "s": 1.0,
+            "t": 1.0,
+            "pointP": [
+              0.0020000122021883726,
+              1.2617895173150373e-08,
+              0.0010004504583775997
+            ],
+            "pointQ": [
+              0.0019998939242213964,
+              -5.8127731961121754e-08,
+              0.0010104515822604299
+            ],
+            "delta": [
+              1.1827796697616577e-07,
+              7.074562802245055e-08,
+              -1.0001123882830143e-05
+            ],
+            "distance": 1.0002073395298794e-05,
+            "gap": 1.6643753042444587e-10,
+            "delta_axis_separated": {
+              "min_projection": 9.999283065553755e-06,
+              "margin": 3.814912830080175e-09,
+              "threshold": 1.0005722288042307e-05
+            },
+            "step": 0.0011181927984580398
+          },
+          {
+            "iteration": 14,
+            "time": 0.9573807120323181,
+            "s": 1.0,
+            "t": 1.0,
+            "pointP": [
+              0.0020000124350190163,
+              1.2620252398676257e-08,
+              0.0010004505747929215
+            ],
+            "pointQ": [
+              0.0019998939242213964,
+              -5.812783854253212e-08,
+              0.0010104515822604299
+            ],
+            "delta": [
+              1.1851079761981964e-07,
+              7.074809360574363e-08,
+              -1.0001007467508316e-05
+            ],
+            "distance": 1.0001959708461072e-05,
+            "gap": 5.275069270282984e-11,
+            "delta_axis_separated": {
+              "min_projection": 9.999283975048456e-06,
+              "margin": 3.814912830080175e-09,
+              "threshold": 1.0005722288042307e-05
+            },
+            "step": 0.00035439987550489604
+          },
+          {
+            "iteration": 15,
+            "time": 0.9577351212501526,
+            "s": 1.0,
+            "t": 1.0,
+            "pointP": [
+              0.0020000122021883726,
+              1.2620999356727225e-08,
+              0.0010004505747929215
+            ],
+            "pointQ": [
+              0.0019998939242213964,
+              -5.8127874069668906e-08,
+              0.0010104515822604299
+            ],
+            "delta": [
+              1.1827796697616577e-07,
+              7.074887520275297e-08,
+              -1.0001007467508316e-05
+            ],
+            "distance": 1.0001956979976967e-05,
+            "gap": 5.002220859751105e-11,
+            "delta_axis_separated": {
+              "min_projection": 9.999283065553755e-06,
+              "margin": 3.814912830080175e-09,
+              "threshold": 1.0005722288042307e-05
+            },
+            "step": 0.0003360688569955528
+          },
+          {
+            "iteration": 16,
+            "time": 0.9580711722373962,
+            "s": 1.0,
+            "t": 1.0,
+            "pointP": [
+              0.0020000124350190163,
+              1.2621706346749306e-08,
+              0.0010004506912082434
+            ],
+            "pointQ": [
+              0.0019998939242213964,
+              -5.8127909596805694e-08,
+              0.0010104515822604299
+            ],
+            "delta": [
+              1.1851079761981964e-07,
+              7.074961416719816e-08,
+              -1.0000891052186489e-05
+            ],
+            "distance": 1.0001843293139245e-05,
+            "gap": -6.366462912410498e-11,
+            "terminal": "distance_within_effective_thickness"
+          }
+        ]
+      }
+    },
+    "independent_fp64_geometric_minimum": {
+      "method": "FP64 promoted captured FP32 endpoints; dense sampling plus local golden-section refinement; not a formal CCD certificate",
+      "sample_count": 20001,
+      "minimum_distance": 9.999283199365255e-06,
+      "minimum_time": 0.9999999999939837,
+      "effective_thickness": 1.0001907156498291e-05,
+      "clearance": -2.623957133036014e-09
+    }
+  },
+  "interpretation": {
+    "failure_type": "source106 native N7 last-trial generic EE call returned uncertified; the status is not proof of physical interpenetration",
+    "vt_hypothesis": "ruled out for diagnostic [24,127,1,0]; separate VT replay is an unrelated certified miss",
+    "mortar_hypothesis": "ruled out for pair24/127: both incidence ranges have count zero",
+    "16_17_33": "17 is the source106 production edgeEdgeCCD loop bound; 16 is a comparison cap; 33 is diagnostic extension only. The CPU transcription hits on call 17 while native source106 returns uncertified, so this does not establish that a larger production bound would resolve the native case.",
+    "cross_build_status": "source103 trial358 uses the same accepted state and correction and its reconstructed geometry is within one position ULP of source106, but its recorded failure is a different pair (92/127, edge0/edge0). It is not the source106 native failure.",
+    "precision": "CPU FP32 transcription follows source expression ordering but is not bitwise Metal evidence. The hit-vs-uncertified margin is only about 0.05\u20130.06 nm; the independent FP64 minimum lies within the effective thickness band but is not a formal production CCD certificate."
+  },
+  "limitations": [
+    "No GPU execution or native replay in this package.",
+    "Trial358 binary was source103; source106 371 supplies the authoritative N7 status, pair, and line-search alpha. Its candidate geometry is reconstructed from source106 arrays and cross-checked against the source103 candidate without claiming that the source103 device capture is source106.",
+    "A later 33-iteration CPU extension cannot qualify a larger production bound.",
+    "The FP64 geometric minimum does not prove continuous separation under the production rounding/certificate rules."
+  ]
+}

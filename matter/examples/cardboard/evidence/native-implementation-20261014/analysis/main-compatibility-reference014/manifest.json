@@ -1,0 +1,18 @@
+{
+  "files": {
+    "report.json": "2daeb4502322af9365fdc248b3b19950da6c69c2d8d4921358319025f4f9fca6",
+    "audit.py": "3d1558f0f4885ae95d5f78be602b90a8f531bd65aca4bbab114fb686bf957ecc",
+    "runner.log": "f4272665c2a6f0d9d89e27729e76c469d6a1024217d4158e8a584ace131c0abd",
+    "command.json": "b93617c51113b0e47c1bdb9f9325990ba376592bd5f08368956ccc7bb7545fda",
+    "source-build.json": "54dfeb48ec7583d4a9002d1ee83ef8c956c89ede5157b485e3114c95f2642baa",
+    "compile32/stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "compile32/stdout.log": "ef2622c21c96f65ce4202b9e59cb3ab985d76bfff83136252091cef01be54869",
+    "compile32/prediction.json": "a7ec1d633dac3f0ffedade8dd9db508b2af337dee2a1651b41035d845c8198d1",
+    "compile32/receipt.json": "8e9e9bd9ce741e593df384174b1979a87c5929aee16636b6244c90fb6c166926",
+    "compile32/output/initial.obj": "463cd80289b72a58009f859f2a3184966984029daa8d3687ec9035e18c6481af",
+    "compile32/output/result.json": "c4821c575d261163648cb87f0beb48f793c0bd0839e7400898a328573e826849",
+    "compile32/output/mesh.json": "6a2f786a47e61014ee4b27f609eb3c2f666677223ddaa30297aeea1fcfd8ca56",
+    "compile32/output/manifest.json": "d71184dae8bfbfd945c934ceeadd5992e5ab9b6c6f0090082c894bea978e53fa",
+    "compile32/output/compiled.nmatterpack": "cafbf36052bbfa72e8be49fdba8b23e900469c9f15136a14a4ec1e4c0b5ccf7c"
+  }
+}

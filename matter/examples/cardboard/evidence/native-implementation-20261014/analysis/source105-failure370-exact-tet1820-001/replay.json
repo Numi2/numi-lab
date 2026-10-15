@@ -1,0 +1,656 @@
+{
+  "schema": "numi.cardboard.source105-rejected-row-replay.v1",
+  "classification": "CPU-only independent equation replay from exact retained candidate-node, compiled package, material-parameter, and rolled-back accepted-history inputs. Python transcription of compensated F construction is source-derived but not native-bit-confirmed. No production physics or tolerances changed.",
+  "run": "/Users/home/cardboard-implementation-20261014/solver/cached-true-residual-certification-coupon-370",
+  "input_sha256": {
+    "solver/cached-true-residual-certification-coupon-370/output/compiled.nmatterpack": "3c25f41c6c26654ccf3f8b4f4b510bbb64ab0ea0f52b94d05d8b1fa4060fafe5",
+    "solver/cached-true-residual-certification-coupon-370/output/rejected-conditioning-000002/candidate_nodes.bin": "1ec2da4c997fac19986f5ad196c01dc653457297ae5da767f891d0bd05ea4b92",
+    "solver/cached-true-residual-certification-coupon-370/output/rejected-conditioning-000002/manifest.json": "23f8b3bb9f55c6a301c2293bdfb395253121a9ebfed591752f095b3aad444c7b",
+    "solver/cached-true-residual-certification-coupon-370/output/mesh.json": "6a2f786a47e61014ee4b27f609eb3c2f666677223ddaa30297aeea1fcfd8ca56",
+    "solver/cached-true-residual-certification-coupon-370/output/material_state_000002_bent.json": "6f1b2031dc933cacec54142e9521e914d30a5f8f2889d6bd589e46878c3bfbbc",
+    "solver/cached-true-residual-certification-coupon-370/output/observations.csv": "bd4f40714260623aa06ba62c1abf4dc7efe67bfb9d274681023b3de162b1dcb7",
+    "solver/cached-true-residual-certification-coupon-370/prediction.json": "f2be9e3dbeb90cf3598cd6e3a227240203128719055c7fdaa7597ac8a7b4b057",
+    "solver/cached-true-residual-certification-coupon-370/output/manifest.json": "67a766eebc35ebfeb26b122899ff9137ae62fb4f0122465cb715e04e8bd1e711",
+    "solver/cached-true-residual-certification-coupon-370/output/result.json": "efe7c58e3578aacd4c4cde5df0fe15b4e6e352d26e18425e5ad7e58b5a2253fb"
+  },
+  "source_sha256": {
+    "matter/src/metal/common.metalinc": "e53feb0402a461f355cf2ee5c3af89f95eb49176178e60d997d4a9cc6588a182",
+    "matter/src/metal/fem.metalinc": "742cf561ee1ed91e20ed797e664595f675302437a3d583f8c5768da6cb3d008e",
+    "matter/src/compiler_impl.cpp": "9dc5cd30bc781704552936531120d28fd6bb95572d2793c7c4a0dd819143272c",
+    "matter/src/validation_impl.cpp": "298c8cd8052309610ef0d85c22eb638aadb8cd5a589978b5599a5043e342c048",
+    "matter/include/numi/matter/fem_compensated_deformation.h": "47d61e2f85bfbea5aac370211e56251ff67f0c7a28d577c276fd285b88225f33",
+    "include/metalrobo/compensated_geometry_gpu.h": "1bf85c7e7b8b2102c5e0e6f3fbba88e2b30530e6b5fbb33375fb581d5261d84e",
+    "include/metalrobo/compensated_translation_gpu.h": "a04166e5c8ef76db05271c8c9b084f0b2edc9bb4a7e6bfe1986527a4f8c09097",
+    "matter/materials/hajali2009_medium_hill_bilinear_fit.nmatter": "76f2bef552822708c36b5acc9f92bd44e7bb92c578e5e46adb64a1a2e82e47f9",
+    "matter/tools/cardboard_probe.mm": "af5196370b4c812bc6a71d603987b3ce3ae47d88769bfd54a23851e0c325e059"
+  },
+  "package_header": {
+    "magic": "NUMIMATTERPKG",
+    "version": 19,
+    "endian_marker": "0x01020304",
+    "matter_abi": 45,
+    "section_count": 65,
+    "physics_fingerprint": 7918250992036473017,
+    "fingerprint": 7918250992036473017,
+    "header_hash": 2647169844479680544
+  },
+  "compiled_world_fingerprint": 7918250992036473017,
+  "failed_record": {
+    "control_step": 1,
+    "environment": 0,
+    "status_code": 5,
+    "status_name": "NM_STATUS_INVALID_DEFORMATION",
+    "object_index": 0,
+    "tetrahedron_index": 1820,
+    "native_status_diagnostic_x": 0.99774569272995,
+    "candidate_geometry_det_fp64_from_node_positions": 0.9977456535479515,
+    "diagnostic_det_difference": -3.918199842356529e-08,
+    "candidate_was_rejected_not_accepted_history": true
+  },
+  "compiled_tet": {
+    "nodes": [
+      584,
+      880,
+      878,
+      881
+    ],
+    "inverse_rest_rows_fp32": [
+      [
+        1499.8914794921875,
+        0.0,
+        -5235.6015625
+      ],
+      [
+        -2500.004150390625,
+        100.0,
+        0.0
+      ],
+      [
+        1000.11279296875,
+        -0.0,
+        5235.6015625
+      ]
+    ],
+    "inverse_rest_row0_w_rest_volume": 1.2733313015100833e-10,
+    "identity": [
+      1,
+      0,
+      1,
+      259
+    ],
+    "material_frame_quaternion_xyzw_fp32": [
+      0.0,
+      0.09487719088792801,
+      0.0,
+      0.9954890012741089
+    ],
+    "material_frame_quaternion_norm_squared_fp32": 1.0,
+    "material_index": 1
+  },
+  "candidate_nodes": {
+    "layout": "environment-major NMFEMNodeStateGPU, stride 80; reference displacement offset 64; velocity offset 16",
+    "reference_displacement_fp32": [
+      [
+        -9.040366535373323e-07,
+        -3.573615847685119e-10,
+        1.2759271328377508e-07
+      ],
+      [
+        -1.8849968910217285e-06,
+        0.0,
+        1.0477378964424133e-09
+      ],
+      [
+        -8.999888336802542e-07,
+        5.613559617145825e-10,
+        1.323519001061868e-07
+      ],
+      [
+        -1.6763806343078613e-06,
+        0.0,
+        8.731149137020111e-10
+      ]
+    ],
+    "reference_displacement_fp32_bits": [
+      [
+        "0xb572aced",
+        "0xafc4762c",
+        "0x3409006b"
+      ],
+      [
+        "0xb5fd0000",
+        "0x00000000",
+        "0x30900000"
+      ],
+      [
+        "0xb57196c3",
+        "0x301a4dea",
+        "0x340e1c9d"
+      ],
+      [
+        "0xb5e10000",
+        "0x00000000",
+        "0x30700000"
+      ]
+    ],
+    "velocity_fp32_m_per_s": [
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        -0.009424984455108643,
+        0.0,
+        7.8580342233181e-06
+      ],
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        -0.008381903171539307,
+        0.0,
+        6.402842700481415e-06
+      ]
+    ],
+    "velocity_fp32_bits": [
+      [
+        "0x00000000",
+        "0x00000000",
+        "0x00000000"
+      ],
+      [
+        "0xbc1a6b40",
+        "0x00000000",
+        "0x3703d600"
+      ],
+      [
+        "0x00000000",
+        "0x00000000",
+        "0x00000000"
+      ],
+      [
+        "0xbc095440",
+        "0x00000000",
+        "0x36d6d800"
+      ]
+    ]
+  },
+  "compiled_material": {
+    "index": 1,
+    "parameter_offset": 28,
+    "parameter_count": 28,
+    "state_count": 15,
+    "local_newton_iterations_compiled": 16,
+    "flags": 213,
+    "parameters_fp32": [
+      679.0,
+      4524848640.0,
+      1631051264.0,
+      17900030.0,
+      293591136.0,
+      213716.359375,
+      192867.015625,
+      1039000000.0,
+      226340000.0,
+      198720000.0,
+      9391000.0,
+      5.612051963806152,
+      2.841099262237549,
+      -1.8410991430282593,
+      76554.5859375,
+      76554.5859375,
+      9.998966217041016,
+      1880207232.0,
+      287131232.0,
+      0.9448831081390381,
+      0.9235268235206604,
+      1.0,
+      3.7709527015686035,
+      9.99999993922529e-09,
+      0.0010000000474974513,
+      1.9999999949504854e-06,
+      9.99999993922529e-09,
+      10.0
+    ],
+    "parameter_records_float4_fp32": [
+      [
+        679.0,
+        679.0,
+        679.0,
+        0.0
+      ],
+      [
+        4524848640.0,
+        4524848640.0,
+        4524848640.0,
+        0.0
+      ],
+      [
+        1631051264.0,
+        1631051264.0,
+        1631051264.0,
+        0.0
+      ],
+      [
+        17900030.0,
+        17900030.0,
+        17900030.0,
+        0.0
+      ],
+      [
+        293591136.0,
+        293591136.0,
+        293591136.0,
+        0.0
+      ],
+      [
+        213716.359375,
+        213716.359375,
+        213716.359375,
+        0.0
+      ],
+      [
+        192867.015625,
+        192867.015625,
+        192867.015625,
+        0.0
+      ],
+      [
+        1039000000.0,
+        1039000000.0,
+        1039000000.0,
+        0.0
+      ],
+      [
+        226340000.0,
+        226340000.0,
+        226340000.0,
+        0.0
+      ],
+      [
+        198720000.0,
+        198720000.0,
+        198720000.0,
+        0.0
+      ],
+      [
+        9391000.0,
+        9391000.0,
+        9391000.0,
+        0.0
+      ],
+      [
+        5.612051963806152,
+        5.612051963806152,
+        5.612051963806152,
+        0.0
+      ],
+      [
+        2.841099262237549,
+        2.841099262237549,
+        2.841099262237549,
+        0.0
+      ],
+      [
+        -1.8410991430282593,
+        -1.8410991430282593,
+        -1.8410991430282593,
+        0.0
+      ],
+      [
+        76554.5859375,
+        76554.5859375,
+        76554.5859375,
+        0.0
+      ],
+      [
+        76554.5859375,
+        76554.5859375,
+        76554.5859375,
+        0.0
+      ],
+      [
+        9.998966217041016,
+        9.998966217041016,
+        9.998966217041016,
+        0.0
+      ],
+      [
+        1880207232.0,
+        1880207232.0,
+        1880207232.0,
+        0.0
+      ],
+      [
+        287131232.0,
+        287131232.0,
+        287131232.0,
+        0.0
+      ],
+      [
+        0.9448831081390381,
+        0.9448831081390381,
+        0.9448831081390381,
+        0.0
+      ],
+      [
+        0.9235268235206604,
+        0.9235268235206604,
+        0.9235268235206604,
+        0.0
+      ],
+      [
+        1.0,
+        1.0,
+        1.0,
+        0.0
+      ],
+      [
+        3.7709527015686035,
+        3.7709527015686035,
+        3.7709527015686035,
+        0.0
+      ],
+      [
+        9.99999993922529e-09,
+        9.99999993922529e-09,
+        9.99999993922529e-09,
+        0.0
+      ],
+      [
+        0.0010000000474974513,
+        0.0010000000474974513,
+        0.0010000000474974513,
+        0.0
+      ],
+      [
+        1.9999999949504854e-06,
+        1.9999999949504854e-06,
+        1.9999999949504854e-06,
+        0.0
+      ],
+      [
+        9.99999993922529e-09,
+        9.99999993922529e-09,
+        9.99999993922529e-09,
+        0.0
+      ],
+      [
+        10.0,
+        10.0,
+        10.0,
+        0.0
+      ]
+    ],
+    "parameter_fp32_bits": [
+      "0x4429c000",
+      "0x4f86d9db",
+      "0x4ec26fbc",
+      "0x4b8890ff",
+      "0x4d8bfec3",
+      "0x4850b517",
+      "0x483c58c1",
+      "0x4e77b787",
+      "0x4d57daca",
+      "0x4d3d83a0",
+      "0x4b0f4b98",
+      "0x40b395ee",
+      "0x4035d492",
+      "0xbfeba923",
+      "0x4795854b",
+      "0x4795854b",
+      "0x411ffbc4",
+      "0x4ee0235f",
+      "0x4d88ea33",
+      "0x3f71e3dc",
+      "0x3f6c6c41",
+      "0x3f800000",
+      "0x4071574a",
+      "0x322bcc77",
+      "0x3a83126f",
+      "0x360637bd",
+      "0x322bcc77",
+      "0x41200000"
+    ],
+    "accepted_state_rolled_back_fp32": [
+      -5.451483708895921e-09,
+      -1.0161453900536799e-08,
+      1.56129367212543e-08,
+      6.094907689657703e-08,
+      4.687205728259869e-05,
+      -2.8370344962169725e-10,
+      -0.02016034908592701,
+      -0.0012898114509880543,
+      7.524222019128501e-05,
+      3.3223054742848035e-06,
+      0.0025549735873937607,
+      -0.00011840039223898202,
+      2.396383820268966e-07,
+      6.598602518013211e-29,
+      1.589009762883275e-26
+    ],
+    "accepted_state_fp32_bits": [
+      "0xb1bb4fc2",
+      "0xb22e928c",
+      "0x32861d36",
+      "0x3382e31c",
+      "0x3844987d",
+      "0xaf9bf7b6",
+      "0xbca52751",
+      "0xbaa90ee4",
+      "0x389dcb5c",
+      "0x365ef4c6",
+      "0x3b277158",
+      "0xb8f84dba",
+      "0x3480a7a6",
+      "0x10a74b61",
+      "0x149d5e2f"
+    ]
+  },
+  "deformation_words_source_transcription": {
+    "F_high_fp32": [
+      [
+        0.9795770049095154,
+        4.047819857078139e-07,
+        0.18954521417617798
+      ],
+      [
+        -1.3781263987766579e-06,
+        1.0000001192092896,
+        -2.650985493346525e-07
+      ],
+      [
+        -0.18922075629234314,
+        4.7591868224117206e-07,
+        0.9819337129592896
+      ]
+    ],
+    "F_high_bits": [
+      [
+        "0x3f7ac58f",
+        "0x34d950d0",
+        "0x3e421824"
+      ],
+      [
+        "0xb5b8f810",
+        "0x3f800001",
+        "0xb48e52de"
+      ],
+      [
+        "0xbe41c316",
+        "0x34ff81c4",
+        "0x3f7b6002"
+      ]
+    ],
+    "F_low_fp32": [
+      [
+        2.2649880193625904e-08,
+        0.0,
+        -2.1128834237771343e-09
+      ],
+      [
+        -3.86084427503406e-14,
+        -2.7337534902471816e-08,
+        1.0715526671545034e-14
+      ],
+      [
+        6.852474587759616e-09,
+        0.0,
+        3.74739839159588e-09
+      ]
+    ],
+    "F_low_bits": [
+      [
+        "0x32c28f9d",
+        "0x00000000",
+        "0xb111323d"
+      ],
+      [
+        "0xa92de081",
+        "0xb2ead3e0",
+        "0x284108a5"
+      ],
+      [
+        "0x31eb7301",
+        "0x00000000",
+        "0x3180c277"
+      ]
+    ],
+    "F_widened_sum": [
+      [
+        0.9795770275593956,
+        4.047819857078139e-07,
+        0.18954521206329455
+      ],
+      [
+        -1.3781264373851006e-06,
+        1.0000000918717546,
+        -2.650985386191258e-07
+      ],
+      [
+        -0.18922074943986855,
+        4.7591868224117206e-07,
+        0.9819337167066879
+      ]
+    ],
+    "native_words_confirmed": false,
+    "limitation": "Frame normalization uses CPU float32 reciprocal-sqrt; Metal rsqrt/FMA contraction may change last bits. Capture374 is the pending native confirmation."
+  },
+  "budget_binding": {
+    "argv_material_iterations_requested": 32,
+    "manifest_requested_local_material_iterations": 32,
+    "compiled_material_local_newton_iterations": 16,
+    "accurate_projection_enabled": true,
+    "compiler_source_rule": "genericBilinear15AccurateProjection ? 16u : options.localMaterialNewtonIterations",
+    "compiler_validation_rule": "accurate bilinear15 requires localNewtonIterations == 16",
+    "observed_contract_mismatch": true,
+    "interpretation": "Explicit CLI request 32 is recorded but silently ignored for this opt-in; compiler and validator deliberately force 16. The run manifest therefore needs both requested and effective values to avoid ambiguity."
+  },
+  "fp64_independent_scaled_projection": {
+    "method": "bilinear15_reference.py equations and row/variable-scaled local solve; same residual tolerance 2e-8, correction tolerance 2e-8, authored residual infinity-norm Armijo with 16 backtracks; no tolerance changes",
+    "initialization": "accepted ep and histories; six stress-state seed components initialized from the authored generic state-update equations C(E-ep)/sigma_ref",
+    "f32_Fpair_widened_sum_used": true,
+    "Fdot_and_timestep_are_constitutively_unused": true,
+    "budgets": {
+      "16": {
+        "status": "iteration_exhausted",
+        "iterations": 16,
+        "residual_inf_scaled": 2.072117490292443e-10,
+        "authored_residual_threshold": 4.0059938957354095e-08,
+        "state_inf": 1.002996947867705,
+        "scaled_correction_inf": 1.6050875861181396e-07,
+        "correction_threshold": 2e-08,
+        "iterations_are_newton_updates": 16,
+        "returned_state": [
+          -0.00020595064280413925,
+          -0.0003790939763494928,
+          0.0005850446191527439,
+          1.3935574858717116e-07,
+          -6.390340982429528e-05,
+          -1.6791958216374574e-07,
+          -1.002996947867705,
+          9.222587992174621e-08,
+          -0.0010397694486027442,
+          4.973346777889664e-09,
+          -7.0265042569251656e-06,
+          -8.141019777141428e-05,
+          0.00020618565185720236,
+          6.598602518013211e-29,
+          4.395339567293027e-07
+        ]
+      },
+      "17": {
+        "status": "converged",
+        "iterations": 17,
+        "residual_inf_scaled": 2.42406059367163e-15,
+        "authored_residual_threshold": 4.005993895742205e-08,
+        "state_inf": 1.0029969478711025,
+        "scaled_correction_inf": 4.127675664532843e-12,
+        "correction_threshold": 2e-08,
+        "minimum_variable_scale": 9.99999993922529e-09,
+        "maximum_variable_scale": 1.0029969478711025,
+        "minimum_row_scale": 9.99999993922529e-09,
+        "maximum_row_scale": 1.1140947170906537,
+        "iterations_are_newton_updates": 17,
+        "returned_state": [
+          -0.0002059506427978295,
+          -0.00037909397633805305,
+          0.0005850446191349944,
+          1.3935574858716669e-07,
+          -6.390340982428973e-05,
+          -1.679195821593522e-07,
+          -1.0029969478711025,
+          9.222369614191356e-08,
+          -0.0010397694485692907,
+          4.973346778079116e-09,
+          -7.0265042571928805e-06,
+          -8.141019777238646e-05,
+          0.00020618565185089242,
+          6.598602518013211e-29,
+          4.3953402727835246e-07
+        ]
+      },
+      "32": {
+        "status": "converged",
+        "iterations": 17,
+        "residual_inf_scaled": 2.42406059367163e-15,
+        "authored_residual_threshold": 4.005993895742205e-08,
+        "state_inf": 1.0029969478711025,
+        "scaled_correction_inf": 4.127675664532843e-12,
+        "correction_threshold": 2e-08,
+        "minimum_variable_scale": 9.99999993922529e-09,
+        "maximum_variable_scale": 1.0029969478711025,
+        "minimum_row_scale": 9.99999993922529e-09,
+        "maximum_row_scale": 1.1140947170906537,
+        "iterations_are_newton_updates": 17,
+        "returned_state": [
+          -0.0002059506427978295,
+          -0.00037909397633805305,
+          0.0005850446191349944,
+          1.3935574858716669e-07,
+          -6.390340982428973e-05,
+          -1.679195821593522e-07,
+          -1.0029969478711025,
+          9.222369614191356e-08,
+          -0.0010397694485692907,
+          4.973346778079116e-09,
+          -7.0265042571928805e-06,
+          -8.141019777238646e-05,
+          0.00020618565185089242,
+          6.598602518013211e-29,
+          4.3953402727835246e-07
+        ]
+      }
+    },
+    "interpretation": "If the source-transcribed F words are confirmed, this CPU reference needs 17 updates to satisfy the unchanged scaled-correction gate, while compiled budget16 ends after 16 updates with a correction above 2e-8. This is consistent with, but does not prove the cause of, native projection failure."
+  },
+  "evidence_limits": [
+    "The candidate deformation determinant matches the native failure diagnostic; it is not the accepted checkpoint geometry.",
+    "The accepted history is exported after rollback and is used as the pre-failure accepted state.",
+    "The Python source transcription is not bitwise Metal output and its F high/low pair awaits the selected native capture.",
+    "The CPU FP64 replay cannot establish production FP32 iteration behavior or a physical constitutive qualification."
+  ]
+}

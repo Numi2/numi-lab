@@ -1,0 +1,13 @@
+{
+  "schema": "numi.cardboard.reference015-publication-binding.v1",
+  "cases": [
+    "solver/explicit32-certified-coupon-380",
+    "analysis/source109-native380-adjudication-001",
+    "analysis/main-compatibility-reference014",
+    "analysis/source106-private-ee-124-371-001",
+    "analysis/source105-failure370-exact-tet1820-001"
+  ],
+  "summary_sha256": "de5884188e935274dcde3cfecf49530f9d7b530ad05b44bf0ba2faf5713ba555",
+  "copied_files": 63,
+  "physical_validation": false
+}
