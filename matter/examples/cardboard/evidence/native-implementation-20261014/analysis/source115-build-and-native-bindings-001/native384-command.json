@@ -1,0 +1,20 @@
+[
+  "/Users/home/.pyenv/versions/3.10.12/bin/python3",
+  "/Users/home/numi-cardboard-20261006/matter/tools/cardboard_source_bound_run.py",
+  "--source-snapshot",
+  "/Users/home/numi-cardboard-20261006",
+  "--runtime-dir",
+  "/Users/home/numi-cardboard-20261006/build-cardboard-main-compatibility016",
+  "--build-provenance",
+  "/Users/home/numi-cardboard-20261006/build-cardboard-main-compatibility016/source-build.json",
+  "--case",
+  "/Users/home/cardboard-implementation-20261014/native/current-main-ccd-routing-384",
+  "--timeout",
+  "120",
+  "--question",
+  "Does the freshly built current-main integration pass the same169 production native CCD/routing checks as source115?",
+  "--prediction",
+  "All5adoptedfiles matchsource115bytes; rootCMake includes prior concurrentHuman changes. Native384mustpasssame169checks andmatchingCCDcorpora asnative381. Scopeisrouting/CCDcontracts withzeroFEMtransactions; priorFEMevidenceisnotreboundtocurrentmain.",
+  "--",
+  "/Users/home/numi-cardboard-20261006/build-cardboard-main-compatibility016/matter/numi-matter-cardboard-contact-ccd-native-check"
+]

@@ -1,0 +1,99 @@
+{
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-explicit-material-budget-109",
+  "base_snapshot_manifest_sha256": "7ca5a29490ab5f7cb33e3935bee6c0ed3088ff45639738379e5e7f4c349c5358",
+  "cmake": "No CMake changes. Existing target matter/tools/cardboard_contact_ccd_native_check.mm is already registered as numi-matter-cardboard-contact-ccd-native-check / matter.metal.cardboard_contact_ccd_native.",
+  "files": [
+    {
+      "path": "matter/src/runtime.mm",
+      "role": "base_modified",
+      "sha256": "4d1b86e16819c7811b04e7ae745dfe81ee31ffa1451ad9259fa8b4b92c39d12b"
+    },
+    {
+      "path": "matter/src/metal/contact.metalinc",
+      "role": "base_modified",
+      "sha256": "1636c24f766abadd9187809aaaf9511842a56b68f9856cea2154bdc31bc1a603"
+    },
+    {
+      "path": "matter/tools/cardboard_contact_ccd_native_check.mm",
+      "role": "base_modified",
+      "sha256": "a6e913f735e356165106a937312d6b439ba4f31a7f8778fc2ceec02c2a106b5a"
+    },
+    {
+      "path": "matter/include/numi/matter/shared.h",
+      "role": "unchanged_abi_or_target_dependency",
+      "sha256": "ae84a7fb79e5b79ad813b249c720b9ace6105fde81f555cbd784afafa721e691"
+    },
+    {
+      "path": "matter/CMakeLists.txt",
+      "role": "unchanged_abi_or_target_dependency",
+      "sha256": "031c7f9a497a245aa222d832918812ba561673ec6774925ca0cfb49198425bea"
+    },
+    {
+      "path": "overlay/matter/src/runtime.mm",
+      "role": "overlay_or_validation",
+      "sha256": "3c467b04e72512b53a5ba9e1f3ee4132f293b0d2e6ac22acc0c3936512319e74"
+    },
+    {
+      "path": "overlay/matter/src/metal/contact.metalinc",
+      "role": "overlay_or_validation",
+      "sha256": "28bfbee02d2ea396e171f10e1b383980da245f2c91426089b2e867493a139e23"
+    },
+    {
+      "path": "overlay/matter/tools/cardboard_contact_ccd_native_check.mm",
+      "role": "overlay_or_validation",
+      "sha256": "aa11afb30b9f5fde07bff5353d21df8dc6663e0729127fede683c7a9dd49778c"
+    },
+    {
+      "path": "contract_test.py",
+      "role": "overlay_or_validation",
+      "sha256": "77255eb5b51b13ecea13aaa8452f2019cdbaaf405b1ec917525c7b0f1f40f075"
+    },
+    {
+      "path": "overlay.patch",
+      "role": "overlay_or_validation",
+      "sha256": "998334874f75d2865411488f291c52db03abb2c4d71a2bcc7fea894f63a5ca58"
+    },
+    {
+      "path": "contract-tests.stdout.txt",
+      "role": "overlay_or_validation",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "contract-tests.stderr.txt",
+      "role": "overlay_or_validation",
+      "sha256": "fa4448e1857bc3a6054612cf55b78d11552d92252abdae3f47ca4047fbad7028"
+    },
+    {
+      "path": "README.md",
+      "role": "overlay_or_validation",
+      "sha256": "831b775549062ee783b45396de7dd3279aeb84292eaf0e56943a7b645328b4ca"
+    }
+  ],
+  "memory": {
+    "allocation_path": "privateScratch; charged to residentBytes",
+    "existing_maximum_candidate_capacity_per_environment": 131072,
+    "existing_maximum_environment_count": 4,
+    "extra_scratch_formula": "environmentCount * deformableContactCapacity * sizeof(NMMatterStatusGPU)",
+    "maximum_extra_scratch_bytes": 25165824,
+    "status_record_bytes": 48
+  },
+  "parent_overlay": {
+    "manifest_sha256": "ce9baea6a8b9171b5bd84727290b2cca9662d0d24f42e80d403c8e15b35f32a1",
+    "path": "/Users/home/cardboard-implementation-20261014/analysis/deterministic-private-ccd-status-overlay-002"
+  },
+  "schema": "numi.matter.deterministic_private_ccd_status_overlay.v2",
+  "scope": "Per-candidate private deformable narrowphase failure records plus production reducer. Extends the existing native CCD checker target to directly dispatch the production narrowphase clear path and reducer.",
+  "selection_contract": "Reducer chooses the lowest failed candidate slot within the clamped active prefix for a fixed candidate sequence, preserving any earlier non-success environment status. Upstream geometry-independent pair-order determinism is not claimed.",
+  "test_coverage": {
+    "producer_kernel": "Production nm_contact_narrowphase_deformable dispatched with private selector, stale status slots, inactive/empty candidate prefixes; verifies per-slot clear and unchanged environment status. Does not trigger a geometric producer failure branch.",
+    "recordFailure_counters": "Selected tuple verified while environment, completedMicrosteps, fgmresIterations, contactCount, and eventCount remain unchanged.",
+    "reducer_kernel": "Production nm_contact_reduce_deformable_narrowphase_failures dispatched with multi-environment fixed statuses, multiple failed slots, earlier phase status, healthy prefix, empty prefix, and stale tail."
+  },
+  "validation": {
+    "cpu_contract_exit_status": 0,
+    "cpu_contract_tests": 14,
+    "metal_compile": "not_run",
+    "native_gpu": "not_run",
+    "source109_patch_dry_run": "pass"
+  }
+}

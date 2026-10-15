@@ -65,6 +65,19 @@ the failure attribution. This is a supported nondeterministic selection
 explanation, not proof that both candidates failed in both executions.
 Erroneous initial branch attributions are retained with their correction.
 
+Source115 records private deformable narrowphase failures per candidate and
+reduces them in ascending slot order, preserving any earlier environment
+failure. Ordinary contact keeps its established first-writer behavior. Native381
+passes 169 production CCD/routing checks, including an actual uncertified query
+through the failure producer, both selectors, and ordered reduction. The query
+uses finite synthetic coordinates whose squared relative distances overflow;
+it tests status routing and is not a physical contact specimen. Native384
+repeats all 169 checks on a freshly built current-main integration with identical
+output. Native383 matches all 145 center-capture arrays and all 32 Armijo rows
+from native378. Transaction payloads match apart from their explicitly reported
+eight-byte device-program fingerprint. Both runs reject residual descent at
+Newton9; output parity does not qualify full nonlinear contact.
+
 Source107 extends the edge-edge conservative search bound from 17 to 33 while
 keeping its speed bound, separation band and failure policy. Native377 passes
 94 direct/helper checks, including the captured near-band ray. That ray
@@ -86,6 +99,16 @@ cancellation and opposite-direction springback from passing. Schema v2 records
 the corrected definitions. Thirteen resolution and nineteen convergence-reader
 tests pass; these are synthetic evaluator checks. Source109 and predecessors
 pass 69 build targets and 74 CPU checks. Neither count is physical evidence.
+
+Source115 also rejects ambiguous duplicate crack-band ownership when adjacent
+tetrahedra select the same complete shared face for the same damage mode.
+Although each element's V/A identity holds, summing both full face budgets
+would dissipate twice Gc times the physical area. The mesh builders reject this
+case because no one-sided owner is supplied. This exact-coordinate guard and
+its interior-cut control do not calibrate a damage law or resolve the source
+paper's absolute compression-energy convention. Source115 passes the same
+69 build targets and 74 CPU checks; fresh current-main probe, contact-checker
+and damage-builder targets compile, and the damage-builder CPU check passes.
 
 ## Remaining qualification gates
 

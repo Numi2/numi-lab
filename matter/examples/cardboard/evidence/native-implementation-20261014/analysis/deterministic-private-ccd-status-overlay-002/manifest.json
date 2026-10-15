@@ -1,0 +1,66 @@
+{
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-explicit-material-budget-109",
+  "base_snapshot_manifest_sha256": "7ca5a29490ab5f7cb33e3935bee6c0ed3088ff45639738379e5e7f4c349c5358",
+  "extra_private_memory": "sizeof(NMMatterStatusGPU)=48 bytes; environments * deformableContactCapacity records. At the existing maxima (4 environments, 131072 slots), 25165824 bytes (24 MiB). Allocated through privateScratch and residentBytes; no capacity limits changed.",
+  "files": [
+    {
+      "path": "matter/src/runtime.mm",
+      "role": "modified",
+      "sha256": "4d1b86e16819c7811b04e7ae745dfe81ee31ffa1451ad9259fa8b4b92c39d12b"
+    },
+    {
+      "path": "matter/src/metal/contact.metalinc",
+      "role": "modified",
+      "sha256": "1636c24f766abadd9187809aaaf9511842a56b68f9856cea2154bdc31bc1a603"
+    },
+    {
+      "path": "matter/include/numi/matter/shared.h",
+      "role": "unchanged_abi_dependency",
+      "sha256": "ae84a7fb79e5b79ad813b249c720b9ace6105fde81f555cbd784afafa721e691"
+    },
+    {
+      "path": "overlay/matter/src/runtime.mm",
+      "role": "overlay_or_validation",
+      "sha256": "3c467b04e72512b53a5ba9e1f3ee4132f293b0d2e6ac22acc0c3936512319e74"
+    },
+    {
+      "path": "overlay/matter/src/metal/contact.metalinc",
+      "role": "overlay_or_validation",
+      "sha256": "9be46b9915a8f87edb3d48cacb8740c2fc956075c419a4547a41d59f270809a5"
+    },
+    {
+      "path": "contract_test.py",
+      "role": "overlay_or_validation",
+      "sha256": "0f7b232bdcf01ed3be5862a1c00c1c5175e2350014bd32b2cbec29196f62eb03"
+    },
+    {
+      "path": "overlay.patch",
+      "role": "overlay_or_validation",
+      "sha256": "e28d1301f97b4af13e09894df2815c9423af86b1462679c4906d04122d4279ff"
+    },
+    {
+      "path": "contract-tests.stdout.txt",
+      "role": "overlay_or_validation",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "contract-tests.stderr.txt",
+      "role": "overlay_or_validation",
+      "sha256": "21b110aa4d64cfe4185ad07c2517ad78d8801094675969287eb5f9817e2c9731"
+    },
+    {
+      "path": "README.md",
+      "role": "documentation",
+      "sha256": "78e27ab9cd01749d11d49296635fdd80771c06cb6101a83101349c6b91cc776b"
+    }
+  ],
+  "schema": "numi.matter.deterministic_private_ccd_status_overlay.v1",
+  "scope": "Private FEM Armijo deformable narrowphase only: collect one status per candidate slot, then select the lowest failing slot before contact compaction. Ordinary mode preserves the prior first-writer status path.",
+  "status_selection": "Lowest candidate slot among candidateCounts[environment], not a geometry-independent pair ordering; upstream candidate order remains the ordering contract.",
+  "validation": {
+    "contract_test_count": 9,
+    "contract_tests_returncode": 0,
+    "metal_compile": "not_run",
+    "native_gpu": "not_run"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "schema": "numi.cardboard.main-compatibility-reference016.v1",
+  "git_head_before_changes": "a41da498e197bc963fd241354cb325af72ea2c16",
+  "fresh_targets": [
+    "numi-matter-cardboard-probe",
+    "numi-matter-cardboard-contact-ccd-native-check",
+    "numi-matter-cardboard-damage-builder-check"
+  ],
+  "source_build_sha256": "5b48b03415b5db644ef7d2e994631845ab2a73f96cd98c5c69546a4094e19be5",
+  "all5_adopted_files_match115": true,
+  "damage_builder_cpu_check": {
+    "argv": [
+      "/Users/home/numi-cardboard-20261006/build-cardboard-main-compatibility016/matter/numi-matter-cardboard-damage-builder-check"
+    ],
+    "observed_exit_code": 0,
+    "recording": "Root exec tool directly executed this freshly built checker; printed cardboard_damage_builder_cpu_passed, synthetic Gc only, physical calibration not claimed."
+  },
+  "native_case": "/Users/home/cardboard-implementation-20261014/native/current-main-ccd-routing-384",
+  "native_receipt_sha256": "a0c57ac54a1bede9290991b8a6f0b054128fb7df9492654210231f7eb9cd2114",
+  "native_checks": 169,
+  "native_stdout_exact381": true,
+  "physical_steps": 0,
+  "prior_FEM_evidence_rebound_to_main": false
+}

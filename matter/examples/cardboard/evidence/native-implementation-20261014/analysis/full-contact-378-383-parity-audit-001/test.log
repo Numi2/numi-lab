@@ -1,0 +1,12 @@
+test_381_control_interpretation_is_never_physical_qualification (test_audit.AuditContractTests.test_381_control_interpretation_is_never_physical_qualification) ... ok
+test_local_material_budget_is_separate_from_authored_newton_budget (test_audit.AuditContractTests.test_local_material_budget_is_separate_from_authored_newton_budget) ... ok
+test_only_output_paths_are_normalized_in_argv (test_audit.AuditContractTests.test_only_output_paths_are_normalized_in_argv) ... ok
+test_snapshot_comparison_only_masks_device_fingerprint (test_audit.AuditContractTests.test_snapshot_comparison_only_masks_device_fingerprint) ... ok
+test_source_delta_binding_is_exact (test_audit.AuditContractTests.test_source_delta_binding_is_exact) ... ok
+test_strict_json_rejects_nonstandard_tokens (test_audit.AuditContractTests.test_strict_json_rejects_nonstandard_tokens) ... ok
+test_tuple_difference_needs_failure_generation_order_evidence (test_audit.AuditContractTests.test_tuple_difference_needs_failure_generation_order_evidence) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.044s
+
+OK

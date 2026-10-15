@@ -2334,6 +2334,7 @@ struct Runtime::State {
     std::uint64_t femArmijoCohesivePageBytes = 0u;
     id<MTLBuffer> femArmijoDeformableCandidates = nil;
     id<MTLBuffer> femArmijoDeformableCandidateCounts = nil;
+    id<MTLBuffer> femArmijoDeformableCandidateStatuses = nil;
     id<MTLBuffer> femArmijoDeformableContacts = nil;
     id<MTLBuffer> femArmijoDeformableActiveIndices = nil;
     id<MTLBuffer> femArmijoDeformableActiveCounts = nil;
@@ -4182,6 +4183,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_contact_scatter_deformable_candidates",
             "nm_contact_validate_armijo_deformable_sweep",
             "nm_contact_narrowphase_deformable",
+            "nm_contact_reduce_deformable_narrowphase_failures",
             "nm_contact_capture_deformable_failure",
             "nm_contact_compact_deformable",
             "nm_contact_scan_deformable_active_counts",
@@ -6256,6 +6258,10 @@ RuntimeDiagnostics Runtime::initialize(
                     candidate->femArmijoDeformableCandidateCounts =
                         privateScratch<std::uint32_t>(candidate->device,
                             environments, valid, candidate->residentBytes);
+                    candidate->femArmijoDeformableCandidateStatuses =
+                        privateScratch<NMMatterStatusGPU>(candidate->device,
+                            multiplied(static_cast<std::size_t>(capacity)),
+                            valid, candidate->residentBytes);
                     candidate->femArmijoDeformableContacts =
                         privateScratch<NMDeformableContactGPU>(candidate->device,
                             multiplied(static_cast<std::size_t>(capacity)),
@@ -14395,6 +14401,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 dispatchThreads("nm_contact_scatter_deformable_candidates", surfacePrimitiveTotal, [&] {
                     bindSurfaceBVHQuery(state.femSurfaceSortIndicesB);
                 });
+                const std::uint32_t narrowphaseDeterministicFailureSelection = 0u;
                 dispatchThreads(
                     "nm_contact_narrowphase_deformable",
                     environments * state.dispatch.deformableContactCapacity,
@@ -14418,6 +14425,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                      offset:0u atIndex:14u];
                         [encoder setBuffer:state.cohesiveFacesCandidate
                                      offset:0u atIndex:15u];
+                        [encoder setBytes:&narrowphaseDeterministicFailureSelection
+                                   length:sizeof(narrowphaseDeterministicFailureSelection)
+                                  atIndex:16u];
+                        [encoder setBuffer:state.deformableContactHistoriesCheckpoint
+                                   offset:0u atIndex:17u];
                     }
                 );
                 if (state.captureDiagnostics) {
@@ -14953,6 +14965,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                offset:0u atIndex:11u];
                 });
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                const std::uint32_t narrowphaseDeterministicFailureSelection = 1u;
                 dispatchThreads("nm_contact_narrowphase_deformable",
                     environments * state.dispatch.deformableContactCapacity,
                     [&] {
@@ -14978,6 +14991,21 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.cohesiveSurfaceFaceRefs
                                  offset:0u atIndex:14u];
                     [encoder setBuffer:cohesiveFaces offset:0u atIndex:15u];
+                    [encoder setBytes:&narrowphaseDeterministicFailureSelection
+                               length:sizeof(narrowphaseDeterministicFailureSelection)
+                              atIndex:16u];
+                    [encoder setBuffer:state.femArmijoDeformableCandidateStatuses
+                               offset:0u atIndex:17u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                dispatchThreads("nm_contact_reduce_deformable_narrowphase_failures",
+                    environments, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.femArmijoDeformableCandidateCounts
+                               offset:0u atIndex:1u];
+                    [encoder setBuffer:state.femArmijoDeformableCandidateStatuses
+                               offset:0u atIndex:2u];
+                    [encoder setBuffer:trialStatuses offset:0u atIndex:3u];
                 });
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 dispatchGroups32("nm_contact_compact_deformable",

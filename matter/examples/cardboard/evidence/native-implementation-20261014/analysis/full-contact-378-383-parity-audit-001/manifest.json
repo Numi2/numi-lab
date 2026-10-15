@@ -1,0 +1,413 @@
+{
+  "381_scope": {
+    "captured_ee_diagnostic_only": true,
+    "checks": 169,
+    "exit_code": 0,
+    "geometric_failure_producer_control": {
+      "candidate_velocities_m_per_s": [
+        -2e+20,
+        2e+20
+      ],
+      "dt_s": 1,
+      "environment_success_preserved_before_reducer": true,
+      "expected_failure_path": "pointPointCCD_uncertified_then_recordDeformableNarrowphaseFailure",
+      "geometry": "finite_point_point_inputs_with_overflowing_relative_dot_products",
+      "kernel": "nm_contact_narrowphase_deformable",
+      "ordinary_selector": 0,
+      "ordinary_selector_environment_tuple_verified": true,
+      "ordinary_selector_private_scratch_preserved": true,
+      "physical_qualification": false,
+      "positions_m": [
+        1e+20,
+        -1e+20
+      ],
+      "primitive_pair": [
+        0,
+        1
+      ],
+      "private_candidate_status_before_reducer_verified": true,
+      "private_selector": 1,
+      "reducer_propagated_producer_tuple": true,
+      "thickness_m": 0.001
+    },
+    "interpretation": "Native routing/control evidence only; zero FEM steps and no physical-contact or full-box qualification.",
+    "physical_qualification": false,
+    "physical_steps": 0,
+    "receipt_sha256": "bcff673aa028b737323c4251f573188a881ec13b965afdca8e2b06dda3b5ab83",
+    "status": "pass",
+    "stdout_sha256": "a93ab3e1fe9d570c466402ed168d1b655fc78407a4212209e229e4d75447f586"
+  },
+  "armijo_status_binding": {
+    "all_armijo_records_exact": true,
+    "deterministic_status_rows_exact": true,
+    "failure_code": 10,
+    "failure_environment": 0,
+    "failure_index": 9,
+    "failure_object": 0,
+    "first_nonzero_solver_status_iteration": 9,
+    "records": 32
+  },
+  "capture_bindings": {
+    "all_145_arrays_exact": true,
+    "array_payload_bytes": 11670948,
+    "payload_sha256": "19482f9561aac98e1093d95b469ad7af4d96d54730448be85efd458b82f9d5e5",
+    "schema": {
+      "all_145_array_bytes_exact": true,
+      "array_count_baseline": 145,
+      "array_count_candidate": 145,
+      "array_names_and_descriptors_exact": true,
+      "baseline_device_program_fingerprint": "465b0d473f9f4973",
+      "baseline_manifest_sha256": "aa79660708a335f47d66f6792fdfc645cce1ed3d527ce8b6efbd3de1f50ad43a",
+      "baseline_source_physics_fingerprint": "915f50b10edc2e46",
+      "candidate_device_program_fingerprint": "1a4d455a205df1db",
+      "candidate_manifest_sha256": "2f9e50f5a147b6c4456f8aefb6fc8b6ba5fd9edcdda0961181eff20929cda2fc",
+      "candidate_order_evidence": {
+        "exact_order_array_names": [
+          "deformable_contact_candidates",
+          "deformable_contact_active_indices",
+          "deformable_contact_active_counts",
+          "deformable_contact_active_offsets",
+          "deformable_contact_global_active_indices"
+        ],
+        "required_order_arrays": [
+          "deformable_contact_candidates",
+          "deformable_contact_active_indices",
+          "deformable_contact_active_counts",
+          "deformable_contact_active_offsets",
+          "deformable_contact_global_active_indices"
+        ],
+        "same_selected_capture_generation": true,
+        "scope_warning": "This proves candidate order only for the selected Newton-7 center capture; it does not bind a later Newton failure unless that failure occurs at iteration 7.",
+        "selected_center_candidate_order_exact": true
+      },
+      "candidate_source_physics_fingerprint": "915f50b10edc2e46",
+      "device_program_fingerprint_equal": false,
+      "manifest_metadata_differences": [
+        {
+          "baseline": "465b0d473f9f4973",
+          "candidate": "1a4d455a205df1db",
+          "field": "device_program_fingerprint"
+        }
+      ],
+      "manifest_metadata_equal_except_run_payload_path": false,
+      "payload_byte_count": 11670948,
+      "payload_sha256_baseline": "19482f9561aac98e1093d95b469ad7af4d96d54730448be85efd458b82f9d5e5",
+      "payload_sha256_candidate": "19482f9561aac98e1093d95b469ad7af4d96d54730448be85efd458b82f9d5e5",
+      "source_physics_fingerprint_equal": true
+    }
+  },
+  "files": [
+    {
+      "bytes": 3177,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/full-contact-378-383-parity-audit-001/README.md",
+      "role": "audit_package_file",
+      "sha256": "c27e9bfc76e1e428db2db9371d2b1bdcfe40cbe7e8a17b9bd8ed9a28530aac71"
+    },
+    {
+      "bytes": 43918,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/full-contact-378-383-parity-audit-001/audit.py",
+      "role": "audit_package_file",
+      "sha256": "37595b46463c47c6270971531e9bddd45397a19297ec22703da6f64b09b2d202"
+    },
+    {
+      "bytes": 4039,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/full-contact-378-383-parity-audit-001/test_audit.py",
+      "role": "audit_package_file",
+      "sha256": "c37c2f9cd5261a9a6bb945c06ba8acc74d45e7a267e2cfe231609dc9e4f3228e"
+    },
+    {
+      "bytes": 267,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/full-contact-378-383-parity-audit-001/audit.log",
+      "role": "audit_package_file",
+      "sha256": "0abd75cd045ce930e8b4d530593a3f9ecf8c6cb62773daf6812588cb315fa328"
+    },
+    {
+      "bytes": 1117,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/full-contact-378-383-parity-audit-001/test.log",
+      "role": "audit_package_file",
+      "sha256": "3671887b82af339ffa2ff60aeac0ce950ac4aba0f45e22683570c37edeb33178"
+    },
+    {
+      "bytes": 31456,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/full-contact-378-383-parity-audit-001/report.json",
+      "role": "audit_package_file",
+      "sha256": "68dc39e14efbb5cba07fc43e3813ac9f669f1478e542a52f3ee62b4f20a8568e"
+    }
+  ],
+  "inputs": [
+    {
+      "bytes": 305,
+      "path": "/Users/home/cardboard-implementation-20261014/native/ccd-continuation-full-contact-378/receipt.json",
+      "role": "378_native_receipt",
+      "sha256": "a37b3fd79e08cb58db9f13307ea7317c0b2e9d010409fb6eef1d22e28e1dd8b2"
+    },
+    {
+      "bytes": 101698,
+      "path": "/Users/home/cardboard-implementation-20261014/native/ccd-continuation-full-contact-378/prediction.json",
+      "role": "378_native_prediction",
+      "sha256": "68353a7681b0277dff06dd3af6092026099958317c168fa13345a0ec583fd48a"
+    },
+    {
+      "bytes": 1229,
+      "path": "/Users/home/cardboard-implementation-20261014/native/ccd-continuation-full-contact-378/stdout.log",
+      "role": "378_native_stdout",
+      "sha256": "6207db36146aa493ad0e5593223b154dc3a3f926f9250cca88d1635188176c5d"
+    },
+    {
+      "bytes": 62157,
+      "path": "/Users/home/cardboard-implementation-20261014/native/ccd-continuation-full-contact-378/stderr.log",
+      "role": "378_native_stderr",
+      "sha256": "172138aaa1b0f835d7a4e4f714d6bc1cd04c3c56a4c28136edcc10ebb35d2ece"
+    },
+    {
+      "bytes": 44699,
+      "path": "/Users/home/cardboard-implementation-20261014/native/ccd-continuation-full-contact-378/center-capture.coupled.json",
+      "role": "378_center_capture_manifest",
+      "sha256": "aa79660708a335f47d66f6792fdfc645cce1ed3d527ce8b6efbd3de1f50ad43a"
+    },
+    {
+      "bytes": 11670948,
+      "path": "/Users/home/cardboard-implementation-20261014/native/ccd-continuation-full-contact-378/center-capture.coupled.bin",
+      "role": "378_center_capture_payload",
+      "sha256": "19482f9561aac98e1093d95b469ad7af4d96d54730448be85efd458b82f9d5e5"
+    },
+    {
+      "bytes": 116897,
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-107/source-build.json",
+      "role": "378_source_build_receipt",
+      "sha256": "91cd00bd62fc9c1a284eeaec1e68ef588412dbcb9c59dc10442691e530bd0cf1"
+    },
+    {
+      "bytes": 94898,
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-ee-ccd-continuation-107/frozen-source.json",
+      "role": "378_frozen_source_manifest",
+      "sha256": "1def7ff09c9b2968d5a1fa699eaa4131a1bcb3974ded2dfb66d8a060975483ce"
+    },
+    {
+      "bytes": 305,
+      "path": "/Users/home/cardboard-implementation-20261014/native/deterministic-private-ccd-full-contact-383/receipt.json",
+      "role": "383_native_receipt",
+      "sha256": "3ca260dab88a166f5bee126afb6c94df7c1434bbdad022ad2df3c5454558c5b6"
+    },
+    {
+      "bytes": 101899,
+      "path": "/Users/home/cardboard-implementation-20261014/native/deterministic-private-ccd-full-contact-383/prediction.json",
+      "role": "383_native_prediction",
+      "sha256": "196bccfa25b2df3ee132aa0779358c0904cbf2ed548830b997bb36d30b0d6f5b"
+    },
+    {
+      "bytes": 1229,
+      "path": "/Users/home/cardboard-implementation-20261014/native/deterministic-private-ccd-full-contact-383/stdout.log",
+      "role": "383_native_stdout",
+      "sha256": "6207db36146aa493ad0e5593223b154dc3a3f926f9250cca88d1635188176c5d"
+    },
+    {
+      "bytes": 62166,
+      "path": "/Users/home/cardboard-implementation-20261014/native/deterministic-private-ccd-full-contact-383/stderr.log",
+      "role": "383_native_stderr",
+      "sha256": "f0e9217380fc61a0400c5eaaad1eb110f75494974652d661db9448a3726ed296"
+    },
+    {
+      "bytes": 44708,
+      "path": "/Users/home/cardboard-implementation-20261014/native/deterministic-private-ccd-full-contact-383/center-capture.coupled.json",
+      "role": "383_center_capture_manifest",
+      "sha256": "2f9e50f5a147b6c4456f8aefb6fc8b6ba5fd9edcdda0961181eff20929cda2fc"
+    },
+    {
+      "bytes": 11670948,
+      "path": "/Users/home/cardboard-implementation-20261014/native/deterministic-private-ccd-full-contact-383/center-capture.coupled.bin",
+      "role": "383_center_capture_payload",
+      "sha256": "19482f9561aac98e1093d95b469ad7af4d96d54730448be85efd458b82f9d5e5"
+    },
+    {
+      "bytes": 116900,
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-115/source-build.json",
+      "role": "383_source_build_receipt",
+      "sha256": "a8aebb8893481fddac6f6bd972f9931733a24f9ce642ecccc59eb96ee89f0c04"
+    },
+    {
+      "bytes": 94846,
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-private-ccd-fracture-115/frozen-source.json",
+      "role": "383_frozen_source_manifest",
+      "sha256": "12a5a9629afa6487f9326432fa16284c75cc074f9323cb773a0a5c9a1b0ec867"
+    },
+    {
+      "bytes": 305,
+      "path": "/Users/home/cardboard-implementation-20261014/native/deterministic-private-ccd-producer-reducer-381/receipt.json",
+      "role": "381_native_receipt",
+      "sha256": "bcff673aa028b737323c4251f573188a881ec13b965afdca8e2b06dda3b5ab83"
+    },
+    {
+      "bytes": 101329,
+      "path": "/Users/home/cardboard-implementation-20261014/native/deterministic-private-ccd-producer-reducer-381/prediction.json",
+      "role": "381_native_prediction",
+      "sha256": "ce6d85909b901d73c1e7a6977c1213614cc06a6820b2e8a0430280793cb22136"
+    },
+    {
+      "bytes": 6217,
+      "path": "/Users/home/cardboard-implementation-20261014/native/deterministic-private-ccd-producer-reducer-381/stdout.log",
+      "role": "381_native_stdout",
+      "sha256": "a93ab3e1fe9d570c466402ed168d1b655fc78407a4212209e229e4d75447f586"
+    },
+    {
+      "bytes": 0,
+      "path": "/Users/home/cardboard-implementation-20261014/native/deterministic-private-ccd-producer-reducer-381/stderr.log",
+      "role": "381_native_stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 116900,
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-115/source-build.json",
+      "role": "381_source_build_receipt",
+      "sha256": "a8aebb8893481fddac6f6bd972f9931733a24f9ce642ecccc59eb96ee89f0c04"
+    },
+    {
+      "bytes": 94846,
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-private-ccd-fracture-115/frozen-source.json",
+      "role": "381_frozen_source_manifest",
+      "sha256": "12a5a9629afa6487f9326432fa16284c75cc074f9323cb773a0a5c9a1b0ec867"
+    },
+    {
+      "bytes": 1920,
+      "path": "/Users/home/cardboard-implementation-20261014/native-378-command.json",
+      "role": "native_runner_command",
+      "sha256": "bb01d0b41c154fb6fabd78199dda0f02fe3110b7501fde6158212ebe0ba9e940"
+    },
+    {
+      "bytes": 2131,
+      "path": "/Users/home/cardboard-implementation-20261014/native-383-command.json",
+      "role": "native_runner_command",
+      "sha256": "a0e66f608eb607f8ea3709f6eadc1da8985901c0294fcd5ba36f4e0f97b37458"
+    },
+    {
+      "bytes": 1568,
+      "path": "/Users/home/cardboard-implementation-20261014/native-381-command.json",
+      "role": "native_runner_command",
+      "sha256": "72a4d5c9ecb8b57053fe94e57a2bfc39ed1bed4e6b28330b8c2a3d55c98525fb"
+    }
+  ],
+  "limits": [
+    "Parity is not convergence or physical qualification; both full-contact native attempts exited 1 and remain failures.",
+    "The exact 145-array capture is Newton 7, not the later Newton 9 failure; it cannot prove candidate ordering at Newton 9.",
+    "The 381 producer/reducer control ran zero physical FEM steps and is routing evidence only.",
+    "No causal performance comparison is made between 378 and 383."
+  ],
+  "manifest_self_hashing": "manifest.json is deliberately excluded from its own files list; hash the exact file after creation for external binding.",
+  "native_run_bindings": {
+    "378": {
+      "checker_material_policy": {
+        "accurate_paper_override": false,
+        "checker_assignment_occurrences": 3,
+        "checker_source_sha256": "95e52efd34aeffab1d220b4fa8840b885001dbc156d4a1d8f793210e3c40d0f3",
+        "compensated_material_arithmetic": true,
+        "fixture_authored_newton_iterations": 32,
+        "local_material_newton_iterations": 16,
+        "override_absent": true
+      },
+      "execution_started": true,
+      "exit_code": 1,
+      "prediction_sha256": "68353a7681b0277dff06dd3af6092026099958317c168fa13345a0ec583fd48a",
+      "receipt_sha256": "a37b3fd79e08cb58db9f13307ea7317c0b2e9d010409fb6eef1d22e28e1dd8b2",
+      "source_build_sha256": "91cd00bd62fc9c1a284eeaec1e68ef588412dbcb9c59dc10442691e530bd0cf1",
+      "source_inputs_unchanged": true,
+      "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-ee-ccd-continuation-107",
+      "timed_out": false,
+      "wall_seconds": 175.4764981669723
+    },
+    "383": {
+      "checker_material_policy": {
+        "accurate_paper_override": false,
+        "checker_assignment_occurrences": 3,
+        "checker_source_sha256": "95e52efd34aeffab1d220b4fa8840b885001dbc156d4a1d8f793210e3c40d0f3",
+        "compensated_material_arithmetic": true,
+        "fixture_authored_newton_iterations": 32,
+        "local_material_newton_iterations": 16,
+        "override_absent": true
+      },
+      "execution_started": true,
+      "exit_code": 1,
+      "prediction_sha256": "196bccfa25b2df3ee132aa0779358c0904cbf2ed548830b997bb36d30b0d6f5b",
+      "receipt_sha256": "3ca260dab88a166f5bee126afb6c94df7c1434bbdad022ad2df3c5454558c5b6",
+      "source_build_sha256": "a8aebb8893481fddac6f6bd972f9931733a24f9ce642ecccc59eb96ee89f0c04",
+      "source_inputs_unchanged": true,
+      "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-private-ccd-fracture-115",
+      "timed_out": false,
+      "wall_seconds": 9.321690958051477
+    }
+  },
+  "package_root": "/Users/home/cardboard-implementation-20261014/analysis/full-contact-378-383-parity-audit-001",
+  "package_status": "sealed_offline_audit",
+  "report_status": "COMPARISON_COMPLETE_OUTPUT_PARITY",
+  "schema": "numi.cardboard.full_contact_378_383_parity_package.v1",
+  "snapshot_identity_exception": {
+    "baseline_device_program_fingerprint": "465b0d473f9f4973",
+    "candidate_device_program_fingerprint": "1a4d455a205df1db",
+    "exact_differing_byte_offsets": [
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19
+    ],
+    "interpretation": "Only the serialized device-program fingerprint differs in transaction snapshot binaries; it is reported, not normalized away.",
+    "source_physics_fingerprint": "915f50b10edc2e46"
+  },
+  "source_bindings": {
+    "baseline_manifest_sha256": "1def7ff09c9b2968d5a1fa699eaa4131a1bcb3974ded2dfb66d8a060975483ce",
+    "candidate_manifest_sha256": "12a5a9629afa6487f9326432fa16284c75cc074f9323cb773a0a5c9a1b0ec867",
+    "changed_files": {
+      "matter/include/numi/matter/matter.hpp": [
+        "3afd1dbe987b0cf3a386a69d335489ca38342984d9a5f4c52f2ddcd094ded633",
+        "798e124cdf0b97370a7e1412526693b0f2469985df2b5e985ad3a8acbe00808a"
+      ],
+      "matter/src/compiler_impl.cpp": [
+        "9dc5cd30bc781704552936531120d28fd6bb95572d2793c7c4a0dd819143272c",
+        "474e717759ded2ecf81a0590dd7f5cb51da8a1041eacddff33c971ccb96152df"
+      ],
+      "matter/src/metal/contact.metalinc": [
+        "1636c24f766abadd9187809aaaf9511842a56b68f9856cea2154bdc31bc1a603",
+        "28bfbee02d2ea396e171f10e1b383980da245f2c91426089b2e867493a139e23"
+      ],
+      "matter/src/regional_graph_schwarz.hpp": [
+        "a8a6328d608ba7db4943025f15d35d750968755a8826de32b14b479752c9121d",
+        "927ec6c22f713ece4e68909fa12cf60f8614a22accc1444b770a404c47d0e4cf"
+      ],
+      "matter/src/runtime.mm": [
+        "2e26d26a04326a3ce567cccb60d213da8f4a8ceaf178c98153939f1b68752fd7",
+        "3c467b04e72512b53a5ba9e1f3ee4132f293b0d2e6ac22acc0c3936512319e74"
+      ],
+      "matter/src/validation_impl.cpp": [
+        "298c8cd8052309610ef0d85c22eb638aadb8cd5a589978b5599a5043e342c048",
+        "853bafec74a952b3ded64f95558e563b869ba02c6ddcbd8dfb3bb6a25df3b808"
+      ],
+      "matter/tools/cardboard_bilinear15_projection_policy_check.cpp": [
+        "d7206a61f70b6c5392c97c31201683721aefb9db8c3cdaeb1f07467526d7d6df",
+        "8e76c3435a18b2eeb2680c6b726dd4b6cb9bbd4e64dd48095d401120780b6c2d"
+      ],
+      "matter/tools/cardboard_contact_ccd_native_check.mm": [
+        "a6e913f735e356165106a937312d6b439ba4f31a7f8778fc2ceec02c2a106b5a",
+        "676ff1f75b2c8634a8bbf5a78046037533c125f21622f4d5172533364a5feb4b"
+      ],
+      "matter/tools/cardboard_damage_builder.hpp": [
+        "8ff365b0b50bceb4113b58d72f29b7977d70159241c83ed1c4e7fd0a0501124a",
+        "889a8d51fb47066a0a38e57e3cd2ffe50ca8e61100b749f6af336eb0fa7b581b"
+      ],
+      "matter/tools/cardboard_damage_builder_check.cpp": [
+        "1f25e96a2fc07a306e4c32ed1eea4ee98e5374a6de7753574881abbe611d8c3d",
+        "e420c7dc197ffecf32794172a68603f170141788a62a2c2fb12549a4d03cbe32"
+      ],
+      "matter/tools/cardboard_probe.mm": [
+        "af5196370b4c812bc6a71d603987b3ce3ae47d88769bfd54a23851e0c325e059",
+        "6917e515993e1da26d09d946bf8a3f58c7066ad183b19131aa466e94e8d32e99"
+      ],
+      "matter/tools/regional_graph_completed_tail_check.cpp": [
+        "bfdc93f22dc12827af3620c36d675aef940f7b1a533bace9d4f8d9f44f2022d3",
+        "496ecc347435624c9822905f6ba008241792bba9b381ea8ed967306315b07cca"
+      ]
+    },
+    "file_count": 781
+  }
+}

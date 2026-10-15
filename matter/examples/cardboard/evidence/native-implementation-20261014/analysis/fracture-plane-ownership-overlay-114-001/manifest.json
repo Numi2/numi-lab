@@ -1,0 +1,36 @@
+{
+  "schema": "numi.cardboard.fracture-plane-ownership-overlay.v1",
+  "overlay_id": "114",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-explicit-material-budget-109",
+  "base_snapshot_frozen_source_sha256": "7ca5a29490ab5f7cb33e3935bee6c0ed3088ff45639738379e5e7f4c349c5358",
+  "scope": "Reject exact same-mode selected crack-plane area duplicated on a shared tetrahedron face in both mesh damage builders.",
+  "files": {
+    "patch.diff": "f99bdcb5b6b6f348a5da2b05cabce2c34c74a430a6d7b55b9383ed7add13f063",
+    "overlay/matter/tools/cardboard_damage_builder.hpp": "889a8d51fb47066a0a38e57e3cd2ffe50ca8e61100b749f6af336eb0fa7b581b",
+    "overlay/matter/tools/cardboard_damage_builder_check.cpp": "e420c7dc197ffecf32794172a68603f170141788a62a2c2fb12549a4d03cbe32",
+    "verify_fixture.py": "4e1cef5a1771afd9ea9b698ec6be2f684c6570ad2b76cad055ae7b9b4c12bacf",
+    "README.md": "c4ac8bd25197c1cb490c9f17b66046184064235da0f6c830446c58d12920c32d",
+    "base/cardboard_damage_builder.hpp": "8ff365b0b50bceb4113b58d72f29b7977d70159241c83ed1c4e7fd0a0501124a",
+    "base/cardboard_damage_builder_check.cpp": "1f25e96a2fc07a306e4c32ed1eea4ee98e5374a6de7753574881abbe611d8c3d"
+  },
+  "base_files_sha256": {
+    "matter/tools/cardboard_damage_builder.hpp": "8ff365b0b50bceb4113b58d72f29b7977d70159241c83ed1c4e7fd0a0501124a",
+    "matter/tools/cardboard_damage_builder_check.cpp": "1f25e96a2fc07a306e4c32ed1eea4ee98e5374a6de7753574881abbe611d8c3d"
+  },
+  "checks": {
+    "patch_roundtrip": "passed; applying patch.diff to copies of both exact source-109 files reproduces overlay bytes",
+    "independent_fixture_arithmetic": {
+      "status": "passed",
+      "command": "python3 /Users/home/cardboard-implementation-20261014/analysis/fracture-plane-ownership-overlay-114-001/verify_fixture.py",
+      "result": "A=0.5 m^2, V/A=1/3 m, synthetic Gc=100 J/m^2 gives 50 J per tet and duplicated sum 100 J"
+    },
+    "C++ regression": "added to cardboard_damage_builder_check.cpp; not compiled or run per task constraint",
+    "CMake_CTest_native_GPU": "not changed or run"
+  },
+  "limits": [
+    "The guard only detects exact shared-face vertex coordinates; this API does not carry mesh node IDs.",
+    "The guard rejects ambiguous same-mode full-face duplication; it does not implement one-sided ownership.",
+    "This geometry/builder utility is not evidence that a damage law is enabled in the shipping probe.",
+    "Gc fixture values are synthetic only; no calibration or physical claim."
+  ]
+}

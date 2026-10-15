@@ -1,0 +1,7 @@
+{
+  "stage": "prepatch_manifest_semantics_check",
+  "exception": "AssertionError: base_modified runtime SHA is candidate bytes in overlay004, unlike overlay003 base bytes",
+  "patch_started": false,
+  "build_started": false,
+  "snapshot_reused_only_after_all_109_hashes_verified": true
+}

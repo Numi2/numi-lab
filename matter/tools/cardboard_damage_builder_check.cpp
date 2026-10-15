@@ -313,6 +313,59 @@ void testFailClosedMissingInputs() {
                   "mesh builder admitted duplicate element identities");
 }
 
+void testMeshSharedFaceCrackBandOwnership() {
+    auto upper = requestFor(70u, 1.0, {0.0, 0.0, 0.0});
+    upper.referenceVerticesM = {{{0.0, 0.0, 0.0}, {1.0, 0.0, 0.0},
+                                 {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}}};
+    auto lower = requestFor(71u, 1.0, {0.0, 0.0, 0.0});
+    lower.referenceVerticesM = {{{0.0, 0.0, 0.0}, {1.0, 0.0, 0.0},
+                                 {0.0, 1.0, 0.0}, {0.0, 0.0, -1.0}}};
+
+    // The selected nu9 plane is exactly the shared z=0 face from both sides.
+    // Each element-local V/A budget is valid in isolation, but their sum
+    // counts the same physical face twice. No one-sided owner is authored.
+    upper.selectedPlanes[0].normal = {0.0, 0.0, 1.0};
+    upper.selectedPlanes[0].offsetFromCentroidM = -0.25;
+    lower.selectedPlanes[0].normal = {0.0, 0.0, 1.0};
+    lower.selectedPlanes[0].offsetFromCentroidM = 0.25;
+    const auto upperCut = computeTetCrackPlaneGeometry(
+        upper.referenceVerticesM, upper.selectedPlanes[0]);
+    const auto lowerCut = computeTetCrackPlaneGeometry(
+        lower.referenceVerticesM, lower.selectedPlanes[0]);
+    constexpr double syntheticGcJPerM2 = 100.0;
+    const double upperBudget = makeTetFractureEnergyBudget(
+        upperCut, syntheticGcJPerM2).dissipatedEnergyJ;
+    const double lowerBudget = makeTetFractureEnergyBudget(
+        lowerCut, syntheticGcJPerM2).dissipatedEnergyJ;
+    require(upperCut.referenceAreaM2 == lowerCut.referenceAreaM2 &&
+            near(upperBudget, syntheticGcJPerM2 * 0.5, 1.0e-14) &&
+            near(lowerBudget, syntheticGcJPerM2 * 0.5, 1.0e-14) &&
+            near(upperBudget + lowerBudget,
+                 2.0 * syntheticGcJPerM2 * upperCut.referenceAreaM2,
+                 1.0e-14),
+            "shared-face fixture did not expose the duplicate element-local area budget");
+
+    expectInvalid([&] { (void)buildMeshDamagePrograms({upper, lower}); },
+                  "mesh builder admitted duplicate shared-face crack-band area");
+    expectInvalid([&] { (void)buildMeshDamageProgramPool({upper, lower}); },
+                  "pooled mesh builder admitted duplicate shared-face crack-band area");
+
+    // A selected plane that cuts both adjacent tets internally is not a shared
+    // face duplicate and remains admitted.
+    auto interiorUpper = upper;
+    auto interiorLower = lower;
+    for (auto* request : {&interiorUpper, &interiorLower}) {
+        request->selectedPlanes[0].normal = {1.0, 0.0, 0.0};
+        request->selectedPlanes[0].offsetFromCentroidM = 0.0;
+        request->selectedPlanes[2].normal = {1.0, 1.0, 0.0};
+        request->selectedPlanes[2].offsetFromCentroidM = 0.0;
+    }
+    const auto admitted = buildMeshDamagePrograms(
+        {interiorUpper, interiorLower});
+    require(admitted.size() == 2u,
+            "interior crack-band cuts were rejected as shared-face duplicates");
+}
+
 void testOwnGradeCompressionEnergyIdentity() {
     using Convention = numi_cardboard::robertsson2023::CompressionEnergyConvention;
     const auto absolute = numi_cardboard::robertsson2023::makePublishedReferenceMaterial(
@@ -349,6 +402,7 @@ int main() {
     try {
         testActualElementAreasAndLengths();
         testFailClosedMissingInputs();
+        testMeshSharedFaceCrackBandOwnership();
         testOwnGradeCompressionEnergyIdentity();
         std::cout << "cardboard_damage_builder_cpu_passed\n"
                   << "callable_generation=two distinct per-element 27-state programs\n"

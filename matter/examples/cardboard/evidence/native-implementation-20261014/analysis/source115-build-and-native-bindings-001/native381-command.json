@@ -1,0 +1,20 @@
+[
+  "/Users/home/.pyenv/versions/3.10.12/bin/python3",
+  "/Users/home/cardboard-implementation-20261014/snapshots/source-private-ccd-fracture-115/matter/tools/cardboard_source_bound_run.py",
+  "--source-snapshot",
+  "/Users/home/cardboard-implementation-20261014/snapshots/source-private-ccd-fracture-115",
+  "--runtime-dir",
+  "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-115",
+  "--build-provenance",
+  "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-115/source-build.json",
+  "--case",
+  "/Users/home/cardboard-implementation-20261014/native/deterministic-private-ccd-producer-reducer-381",
+  "--timeout",
+  "120",
+  "--question",
+  "Do the production private deformable CCD failure producer and ordered reducer route actual geometric-query failure deterministically while ordinary mode and existing CCD controls remain unchanged?",
+  "--prediction",
+  "Production narrowphase finite-input overflow control must write only its private candidate record before reduction, then propagate its exact tuple; ordinary selector must write the environment status and preserve candidate scratch. Seeded reducer controls cover lowest-slot selection, earlier failure preservation, empty/inactive prefixes, multiple environments and counters. Artificial overflow is a routing test only. Existing direct and helper CCD checks must pass. Zero FEM transactions; no physical-contact or full-box qualification.",
+  "--",
+  "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-115/matter/numi-matter-cardboard-contact-ccd-native-check"
+]

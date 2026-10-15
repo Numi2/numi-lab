@@ -147,6 +147,142 @@ struct MeshDamageProgramPool {
     std::vector<ElementDamageMapping> elementMappings;
 };
 
+// The element-local crack-band identity (Gc / l_e) V_e = Gc A_e assumes that
+// each physical crack patch has one owner.  When a selected plane lies exactly
+// on an interior tetrahedron face, the geometry primitive correctly reports
+// that full face area for each adjacent element.  Summing both element budgets
+// would count the same selected crack patch twice.  This mesh-level builder
+// has no one-sided ownership input, so reject that ambiguous topology instead
+// of silently choosing an owner or double-counting its fracture energy.
+inline void validateNoDuplicateSharedFaceCrackBandArea(
+    const std::vector<ElementDamageRequest>& requests) {
+    struct FaceRecord {
+        std::uint64_t key = 0u;
+        std::size_t requestIndex = 0u;
+        std::size_t faceIndex = 0u;
+        std::uint8_t selectedModeMask = 0u;
+    };
+    constexpr std::array<std::array<std::size_t, 3>, 4> faces{{
+        {{1u, 2u, 3u}}, {{0u, 2u, 3u}},
+        {{0u, 1u, 3u}}, {{0u, 1u, 2u}},
+    }};
+
+    const auto faceVertices = [&](std::size_t requestIndex,
+                                  std::size_t faceIndex) {
+        const auto& request = requests.at(requestIndex);
+        const auto& face = faces.at(faceIndex);
+        return std::array<FractureVec3, 3>{{
+            request.referenceVerticesM[face[0]],
+            request.referenceVerticesM[face[1]],
+            request.referenceVerticesM[face[2]],
+        }};
+    };
+    const auto sameFace = [&](const FaceRecord& a, const FaceRecord& b) {
+        auto first = faceVertices(a.requestIndex, a.faceIndex);
+        auto second = faceVertices(b.requestIndex, b.faceIndex);
+        const auto lessPoint = [](FractureVec3 x, FractureVec3 y) {
+            if (x.x != y.x) return x.x < y.x;
+            if (x.y != y.y) return x.y < y.y;
+            return x.z < y.z;
+        };
+        std::sort(first.begin(), first.end(), lessPoint);
+        std::sort(second.begin(), second.end(), lessPoint);
+        for (std::size_t i = 0u; i < first.size(); ++i)
+            if (first[i].x != second[i].x || first[i].y != second[i].y ||
+                first[i].z != second[i].z)
+                return false;
+        return true;
+    };
+    const auto faceHash = [](std::array<FractureVec3, 3> points) {
+        std::sort(points.begin(), points.end(), [](FractureVec3 a,
+                                                    FractureVec3 b) {
+            if (a.x != b.x) return a.x < b.x;
+            if (a.y != b.y) return a.y < b.y;
+            return a.z < b.z;
+        });
+        std::uint64_t hash = 1469598103934665603ull;
+        for (const FractureVec3 point : points) {
+            for (double coordinate : {point.x, point.y, point.z}) {
+                // Canonicalize signed zero so identical shared coordinates
+                // always enter the same candidate bucket.
+                if (coordinate == 0.0) coordinate = 0.0;
+                const std::uint64_t bits =
+                    std::bit_cast<std::uint64_t>(coordinate);
+                hash ^= bits;
+                hash *= 1099511628211ull;
+            }
+        }
+        return hash;
+    };
+    const auto polygonIsFace = [](const TetCrackPlaneGeometry& cut,
+                                  const std::array<FractureVec3, 3>& face) {
+        if (cut.cutPolygonReferenceM.size() != face.size()) return false;
+        for (const FractureVec3 vertex : face) {
+            const bool found = std::any_of(
+                cut.cutPolygonReferenceM.begin(), cut.cutPolygonReferenceM.end(),
+                [&](FractureVec3 point) {
+                    // Shared mesh vertices originate from the same authored
+                    // coordinates; exact comparison avoids inventing a
+                    // geometric tolerance or merging nearby distinct faces.
+                    return point.x == vertex.x && point.y == vertex.y &&
+                           point.z == vertex.z;
+                });
+            if (!found) return false;
+        }
+        return true;
+    };
+
+    // Hash face keys into a compact O(T) record array, then confirm coordinate
+    // equality inside each hash bucket. Collisions can cost comparisons but
+    // cannot cause false shared-face rejection. No per-tet polygon archive is
+    // retained, keeping the check bounded for large meshes.
+    std::vector<FaceRecord> records;
+    if (requests.size() > records.max_size() / faces.size())
+        throw std::length_error("damage mesh has too many tetrahedra for face ownership checks");
+    records.reserve(requests.size() * 4u);
+    for (std::size_t requestIndex = 0u;
+         requestIndex < requests.size(); ++requestIndex) {
+        const auto& request = requests[requestIndex];
+        std::array<TetCrackPlaneGeometry, 4> cuts{};
+        for (std::size_t mode = 0u; mode < request.selectedPlanes.size(); ++mode)
+            cuts[mode] = computeTetCrackPlaneGeometry(
+                request.referenceVerticesM, request.selectedPlanes[mode]);
+
+        for (std::size_t faceIndex = 0u; faceIndex < faces.size(); ++faceIndex) {
+            const auto points = faceVertices(requestIndex, faceIndex);
+            FaceRecord record;
+            record.key = faceHash(points);
+            record.requestIndex = requestIndex;
+            record.faceIndex = faceIndex;
+            for (std::size_t mode = 0u; mode < cuts.size(); ++mode)
+                if (polygonIsFace(cuts[mode], points))
+                    record.selectedModeMask |=
+                        static_cast<std::uint8_t>(1u << mode);
+            records.push_back(record);
+        }
+    }
+    std::sort(records.begin(), records.end(), [](const FaceRecord& a,
+                                                  const FaceRecord& b) {
+        return a.key < b.key;
+    });
+    for (std::size_t first = 0u; first < records.size();) {
+        std::size_t last = first + 1u;
+        while (last < records.size() && records[first].key == records[last].key)
+            ++last;
+        for (std::size_t i = first; i < last; ++i) {
+            for (std::size_t j = i + 1u; j < last; ++j) {
+                if (records[i].requestIndex == records[j].requestIndex ||
+                    (records[i].selectedModeMask & records[j].selectedModeMask) == 0u ||
+                    !sameFace(records[i], records[j]))
+                    continue;
+                throw std::invalid_argument(
+                    "mesh damage plane has duplicate element-local crack-band area on a shared tetrahedron face; provide one-sided ownership or move the selected plane into the elements");
+            }
+        }
+        first = last;
+    }
+}
+
 inline std::uint64_t nativeProgramSignature(const MaterialProgram& material) {
     std::uint64_t hash = 1469598103934665603ull;
     const auto mix = [&](const void* data, const std::size_t size) {
@@ -429,6 +565,7 @@ inline MeshDamageProgramPool buildMeshDamageProgramPool(
     const std::vector<ElementDamageRequest>& requests) {
     if (requests.empty())
         throw std::invalid_argument("cannot build a damage program pool for an empty mesh");
+    validateNoDuplicateSharedFaceCrackBandArea(requests);
     MeshDamageProgramPool pool;
     pool.materialIndices.reserve(requests.size());
     pool.elementMappings.reserve(requests.size());
@@ -481,6 +618,7 @@ inline std::vector<ElementDamageProgram> buildMeshDamagePrograms(
     const std::vector<ElementDamageRequest>& requests) {
     if (requests.empty())
         throw std::invalid_argument("cannot build damage programs for an empty mesh");
+    validateNoDuplicateSharedFaceCrackBandArea(requests);
     std::vector<ElementDamageProgram> result;
     result.reserve(requests.size());
     for (const auto& request : requests)

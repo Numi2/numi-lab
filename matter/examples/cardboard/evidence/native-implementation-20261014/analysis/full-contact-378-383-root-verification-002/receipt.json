@@ -1,0 +1,14 @@
+{
+  "argv": [
+    "/Users/home/.pyenv/versions/3.10.12/bin/python3",
+    "/Users/home/cardboard-implementation-20261014/analysis/full-contact-378-383-parity-audit-001/audit.py",
+    "--candidate-run",
+    "/Users/home/cardboard-implementation-20261014/native/deterministic-private-ccd-full-contact-383",
+    "--output",
+    "/Users/home/cardboard-implementation-20261014/analysis/full-contact-378-383-root-verification-002/report.json"
+  ],
+  "exit_code": 0,
+  "report_exact_agent": true,
+  "report_sha256": "68dc39e14efbb5cba07fc43e3813ac9f669f1478e542a52f3ee62b4f20a8568e",
+  "full_contact_qualified": false
+}

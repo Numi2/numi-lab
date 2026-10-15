@@ -1,0 +1,111 @@
+{
+  "schema": "numi.matter.deterministic_private_ccd_status_overlay.v3",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-explicit-material-budget-109",
+  "base_snapshot_manifest_sha256": "7ca5a29490ab5f7cb33e3935bee6c0ed3088ff45639738379e5e7f4c349c5358",
+  "parent_overlay": {
+    "path": "/Users/home/cardboard-implementation-20261014/analysis/deterministic-private-ccd-status-overlay-003",
+    "manifest_sha256": "7c90c28d796b837fafec5b5855214fb63555b5ac4a821610c437bb944f746bd1"
+  },
+  "scope": "Private per-candidate deformable narrowphase failure records plus ascending-slot reducer, with native checker controls that dispatch the production geometric failure producer in private and ordinary modes.",
+  "selection_contract": "For selector 1, producer records the failure in the candidate slot and leaves environment status unchanged until the reducer; reducer chooses the lowest failed candidate slot within the active prefix while preserving earlier environment failure. Selector 0 retains ordinary first-writer environment status behavior.",
+  "cmake": "No CMake changes. Existing target matter/tools/cardboard_contact_ccd_native_check.mm is already registered as numi-matter-cardboard-contact-ccd-native-check / matter.metal.cardboard_contact_ccd_native.",
+  "geometric_failure_control": {
+    "path": "Production nm_contact_narrowphase_deformable point-point branch -> pointPointCCD -> uncertified result -> recordDeformableNarrowphaseFailure.",
+    "authored_inputs": "One active point-point candidate, positions (+1e20,-1e20), candidate velocities (-2e20,+2e20), dt=1, thickness=1e-3; all authored float inputs are finite.",
+    "failure_mechanism": "Finite FP32 relative position/velocity squared terms overflow; discriminant/time/distance become non-finite and pointPointCCD returns uncertified. This is an artificial status-routing witness, not a physical contact specimen.",
+    "private_expected": "Candidate tuple CONTACT_FAILURE, object 0, slot 0, diagnostics [0,1,0,0]; environment remains byte-identical success before reduction; reducer then propagates the tuple and preserves counters.",
+    "ordinary_expected": "With selector 0 the same tuple is written to environment status; candidate-status sentinel remains byte-identical.",
+    "physical_qualification": false
+  },
+  "files": [
+    {
+      "path": "matter/src/runtime.mm",
+      "role": "base_modified",
+      "sha256": "3c467b04e72512b53a5ba9e1f3ee4132f293b0d2e6ac22acc0c3936512319e74"
+    },
+    {
+      "path": "matter/src/metal/contact.metalinc",
+      "role": "base_modified",
+      "sha256": "28bfbee02d2ea396e171f10e1b383980da245f2c91426089b2e867493a139e23"
+    },
+    {
+      "path": "matter/tools/cardboard_contact_ccd_native_check.mm",
+      "role": "base_modified",
+      "sha256": "676ff1f75b2c8634a8bbf5a78046037533c125f21622f4d5172533364a5feb4b"
+    },
+    {
+      "path": "matter/include/numi/matter/shared.h",
+      "role": "unchanged_abi_or_target_dependency",
+      "sha256": "ae84a7fb79e5b79ad813b249c720b9ace6105fde81f555cbd784afafa721e691"
+    },
+    {
+      "path": "matter/CMakeLists.txt",
+      "role": "unchanged_abi_or_target_dependency",
+      "sha256": "031c7f9a497a245aa222d832918812ba561673ec6774925ca0cfb49198425bea"
+    },
+    {
+      "path": "overlay/matter/src/runtime.mm",
+      "role": "overlay_or_validation",
+      "sha256": "3c467b04e72512b53a5ba9e1f3ee4132f293b0d2e6ac22acc0c3936512319e74"
+    },
+    {
+      "path": "overlay/matter/src/metal/contact.metalinc",
+      "role": "overlay_or_validation",
+      "sha256": "28bfbee02d2ea396e171f10e1b383980da245f2c91426089b2e867493a139e23"
+    },
+    {
+      "path": "overlay/matter/tools/cardboard_contact_ccd_native_check.mm",
+      "role": "overlay_or_validation",
+      "sha256": "676ff1f75b2c8634a8bbf5a78046037533c125f21622f4d5172533364a5feb4b"
+    },
+    {
+      "path": "contract_test.py",
+      "role": "overlay_or_validation",
+      "sha256": "53877118e63049937e89dad71a5af1bc853d5b55d42c470a79d5775aefff5bfb"
+    },
+    {
+      "path": "overlay.patch",
+      "role": "overlay_or_validation",
+      "sha256": "35a880ef308f23110b1f81f2b5ae0c670316d5af8dee7b44f03f632997b39b3f"
+    },
+    {
+      "path": "contract-tests.stdout.txt",
+      "role": "overlay_or_validation",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "contract-tests.stderr.txt",
+      "role": "overlay_or_validation",
+      "sha256": "15232a404147b54abb82a8d5cb551f3835b0507c8b1347d7b19e69517c487355"
+    },
+    {
+      "path": "patch-dry-run.log",
+      "role": "overlay_or_validation",
+      "sha256": "05e627d6bb1c7a37e5b2bbaf5dd1224383f82eab4096daa8254242a0a6780521"
+    },
+    {
+      "path": "README.md",
+      "role": "overlay_or_validation",
+      "sha256": "cab061a00de9cef58ba46af4ade33b59e13fe8223cc3a73372327408ac8bae1b"
+    }
+  ],
+  "memory": {
+    "runtime_private_status_allocation": "environmentCount * deformableContactCapacity * sizeof(NMMatterStatusGPU)",
+    "maximum_extra_scratch_bytes": 25165824,
+    "status_record_bytes": 48,
+    "native_checker_fixture": "single environment, one candidate slot; fixed buffers only"
+  },
+  "test_coverage": {
+    "producer_clear": "Production narrowphase selector 1 clears stale private status slots and preserves healthy environment statuses.",
+    "geometric_producer": "Production point-point failure branch exercised by a finite-input overflow control in selector 1 and selector 0; status tuple and routing checked, then private tuple is reduced.",
+    "reducer": "Multi-environment producer/reducer controls cover minimum slot, earlier phase status, empty active prefix, healthy prefix, stale tail, and counter preservation.",
+    "physics_scope": "Status routing only. No physically meaningful contact or full simulation qualification."
+  },
+  "validation": {
+    "cpu_contract_exit_status": 0,
+    "cpu_contract_tests": 18,
+    "source109_patch_dry_run": "pass",
+    "metal_compile": "not_run",
+    "native_gpu": "not_run"
+  }
+}

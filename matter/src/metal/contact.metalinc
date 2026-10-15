@@ -3672,6 +3672,28 @@ kernel void nm_contact_capture_deformable_failure(
     failures[environment] = captured;
 }
 
+inline void recordDeformableNarrowphaseFailure(
+    const uint deterministicSelection,
+    device NMMatterStatusGPU* environmentStatuses,
+    device NMMatterStatusGPU* candidateStatuses,
+    const uint environment,
+    const uint global,
+    const uint code,
+    const uint objectIndex,
+    const uint failingIndex,
+    const float4 diagnostics
+) {
+    if (deterministicSelection != 0u) {
+        // One invocation owns this slot, so its failure tuple has no writer race.
+        recordFailure(candidateStatuses[global], code, objectIndex,
+                      failingIndex, diagnostics);
+    } else {
+        // Preserve the established first-writer behavior for ordinary contact.
+        recordFailure(environmentStatuses[environment], code, objectIndex,
+                      failingIndex, diagnostics);
+    }
+}
+
 kernel void nm_contact_narrowphase_deformable(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     constant NMMicrostepGPU& microstep [[buffer(1)]],
@@ -3689,11 +3711,15 @@ kernel void nm_contact_narrowphase_deformable(
     device const NMIncidenceRangeGPU* cohesiveSurfaceFaceRanges [[buffer(13)]],
     device const nm_uint4* cohesiveSurfaceFaceRefs [[buffer(14)]],
     device const NMCohesiveFaceGPU* cohesiveFaces [[buffer(15)]],
+    constant uint& deterministicStatusSelection [[buffer(16)]],
+    device NMMatterStatusGPU* candidateStatuses [[buffer(17)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint capacity = dispatch.deformableContactCapacity;
     const uint total = dispatch.environmentCount * capacity;
     if (global >= total || capacity == 0u) return;
+    if (deterministicStatusSelection != 0u)
+        candidateStatuses[global] = {};
     const NMDeformableContactHistoryGPU previous = histories[global];
     contacts[global] = {};
     const uint environment = global / capacity;
@@ -3790,10 +3816,12 @@ kernel void nm_contact_narrowphase_deformable(
             start[0], finish[0], start[3], finish[3],
             thickness, toi, normal, point, separation, certified);
         if (!certified) {
-            recordFailure(statuses[environment],
+            recordDeformableNarrowphaseFailure(
+                deterministicStatusSelection, statuses, candidateStatuses,
+                environment, global,
                 NM_STATUS_CONTACT_FAILURE, left.nodesAndObject.w, slot,
                 float4(float(candidate.identity.x),
-                       float(candidate.identity.y), 0.0f, 0.0f));
+                    float(candidate.identity.y), 0.0f, 0.0f));
             return;
         }
         if (hit) {
@@ -3826,10 +3854,12 @@ kernel void nm_contact_narrowphase_deformable(
             thickness, toi, normal, barycentric, point, separation,
             certified);
         if (!certified) {
-            recordFailure(statuses[environment],
+            recordDeformableNarrowphaseFailure(
+                deterministicStatusSelection, statuses, candidateStatuses,
+                environment, global,
                 NM_STATUS_CONTACT_FAILURE, left.nodesAndObject.w, slot,
                 float4(float(candidate.identity.x),
-                       float(candidate.identity.y), 1.0f, 0.0f));
+                    float(candidate.identity.y), 1.0f, 0.0f));
             return;
         }
         if (hit) {
@@ -3860,10 +3890,12 @@ kernel void nm_contact_narrowphase_deformable(
                     dispatch, left, right, environment,
                     cohesiveSurfaceFaceRanges, cohesiveSurfaceFaceRefs,
                     cohesiveFaces, mortarPatches)) {
-                recordFailure(statuses[environment],
+                recordDeformableNarrowphaseFailure(
+                    deterministicStatusSelection, statuses, candidateStatuses,
+                    environment, global,
                     NM_STATUS_CONTACT_FAILURE, left.nodesAndObject.w, slot,
                     float4(float(candidate.identity.x),
-                           float(candidate.identity.y), 0.0f, 1.0f));
+                        float(candidate.identity.y), 0.0f, 1.0f));
                 return;
             }
         }
@@ -3893,11 +3925,13 @@ kernel void nm_contact_narrowphase_deformable(
                     start, finish, start + 3u, finish + 3u,
                     thickness, selected);
             if (!validPartitions || !certified) {
-                recordFailure(statuses[environment],
+                recordDeformableNarrowphaseFailure(
+                    deterministicStatusSelection, statuses, candidateStatuses,
+                    environment, global,
                     NM_STATUS_CONTACT_FAILURE, left.nodesAndObject.w, slot,
                     float4(float(candidate.identity.x),
-                           float(candidate.identity.y),
-                           validPartitions ? 1.0f : 0.0f, 0.0f));
+                        float(candidate.identity.y),
+                        validPartitions ? 1.0f : 0.0f, 0.0f));
                 return;
             }
             if (selected.found != 0u) {
@@ -3934,11 +3968,13 @@ kernel void nm_contact_narrowphase_deformable(
                     thickness, toi, normal, barycentric, point, separation,
                     certified);
                 if (!certified) {
-                    recordFailure(statuses[environment],
+                    recordDeformableNarrowphaseFailure(
+                        deterministicStatusSelection, statuses, candidateStatuses,
+                        environment, global,
                         NM_STATUS_CONTACT_FAILURE, left.nodesAndObject.w, slot,
                         float4(float(candidate.identity.x),
-                               float(candidate.identity.y),
-                               float(vertexIndex), float(3u + direction)));
+                            float(candidate.identity.y),
+                            float(vertexIndex), float(3u + direction)));
                     return;
                 }
                 if (hit && toi < bestTOI) {
@@ -3995,11 +4031,13 @@ kernel void nm_contact_narrowphase_deformable(
                     thickness, toi, normal, parameters, point, separation,
                     certified);
                 if (!certified) {
-                    recordFailure(statuses[environment],
+                    recordDeformableNarrowphaseFailure(
+                        deterministicStatusSelection, statuses, candidateStatuses,
+                        environment, global,
                         NM_STATUS_CONTACT_FAILURE, left.nodesAndObject.w, slot,
                         float4(float(candidate.identity.x),
-                               float(candidate.identity.y),
-                               float(edgeA), float(edgeB)));
+                            float(candidate.identity.y),
+                            float(edgeA), float(edgeB)));
                     return;
                 }
                 if (hit && toi < bestTOI) {
@@ -4193,7 +4231,9 @@ kernel void nm_contact_narrowphase_deformable(
     if (!finite3(bestNormal) || !finite3(bestPoint) ||
         !isfinite(bestSeparation) || !all(isfinite(bestWeights)) ||
         !isfinite(bestExtraWeightsX) || !isfinite(bestExtraWeightsY)) {
-        recordFailure(statuses[environment],
+        recordDeformableNarrowphaseFailure(
+            deterministicStatusSelection, statuses, candidateStatuses,
+            environment, global,
             NM_STATUS_CONTACT_FAILURE, bestPositiveObject, slot,
             float4(bestSeparation, bestTOI, 0.0f, 0.0f));
         return;
@@ -4547,6 +4587,32 @@ kernel void nm_contact_narrowphase_deformable(
 // Stable device compaction keeps the dynamic rows dense for every downstream
 // primal solve while preserving candidate order and therefore deterministic
 // history ownership.
+kernel void nm_contact_reduce_deformable_narrowphase_failures(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const uint* candidateCounts [[buffer(1)]],
+    device const NMMatterStatusGPU* candidateStatuses [[buffer(2)]],
+    device NMMatterStatusGPU* statuses [[buffer(3)]],
+    uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount ||
+        dispatch.deformableContactCapacity == 0u ||
+        statuses[environment].code != NM_STATUS_SUCCESS) return;
+    const uint capacity = dispatch.deformableContactCapacity;
+    const uint count = min(candidateCounts[environment], capacity);
+    const uint base = environment * capacity;
+    // Candidate slots are emitted in deterministic source traversal order.
+    // Selecting the first failing slot makes the reported status independent
+    // of Metal thread arrival order without changing contact acceptance.
+    for (uint slot = 0u; slot < count; ++slot) {
+        const NMMatterStatusGPU failure = candidateStatuses[base + slot];
+        if (failure.code == NM_STATUS_SUCCESS) continue;
+        recordFailure(statuses[environment], failure.code,
+                      failure.objectIndex, failure.failingIndex,
+                      failure.diagnostics);
+        return;
+    }
+}
+
 kernel void nm_contact_compact_deformable(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     device const NMDeformableContactGPU* contacts [[buffer(1)]],

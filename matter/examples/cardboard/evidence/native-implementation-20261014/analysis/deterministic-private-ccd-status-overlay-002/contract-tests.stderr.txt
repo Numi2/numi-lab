@@ -1,0 +1,14 @@
+test_earlier_phase_failure_is_preserved (__main__.StatusReducerContract) ... ok
+test_empty_candidate_list_is_noop (__main__.StatusReducerContract) ... ok
+test_kernel_has_one_per_slot_status_writer_path (__main__.StatusReducerContract) ... ok
+test_minimum_failed_candidate_slot_wins_independent_of_arrival (__main__.StatusReducerContract) ... ok
+test_no_private_failure_is_success_passthrough (__main__.StatusReducerContract) ... ok
+test_only_private_path_enables_candidate_status_mode (__main__.StatusReducerContract) ... ok
+test_reducer_preserves_status_precedence_and_scans_lowest_slot (__main__.StatusReducerContract) ... ok
+test_reducer_runs_after_narrowphase_before_compaction (__main__.StatusReducerContract) ... ok
+test_unused_stale_tail_status_is_not_selected (__main__.StatusReducerContract) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.001s
+
+OK

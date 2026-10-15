@@ -1,0 +1,12 @@
+{
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-private-ccd-fracture-115",
+  "selected_source_files": 781,
+  "support_files": 1068,
+  "changes": {
+    "matter/src/runtime.mm": "3c467b04e72512b53a5ba9e1f3ee4132f293b0d2e6ac22acc0c3936512319e74",
+    "matter/src/metal/contact.metalinc": "28bfbee02d2ea396e171f10e1b383980da245f2c91426089b2e867493a139e23",
+    "matter/tools/cardboard_contact_ccd_native_check.mm": "676ff1f75b2c8634a8bbf5a78046037533c125f21622f4d5172533364a5feb4b",
+    "matter/tools/cardboard_damage_builder.hpp": "889a8d51fb47066a0a38e57e3cd2ffe50ca8e61100b749f6af336eb0fa7b581b",
+    "matter/tools/cardboard_damage_builder_check.cpp": "e420c7dc197ffecf32794172a68603f170141788a62a2c2fb12549a4d03cbe32"
+  }
+}

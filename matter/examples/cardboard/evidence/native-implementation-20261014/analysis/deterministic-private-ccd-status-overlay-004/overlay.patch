@@ -1,0 +1,820 @@
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -2334,6 +2334,7 @@
+     std::uint64_t femArmijoCohesivePageBytes = 0u;
+     id<MTLBuffer> femArmijoDeformableCandidates = nil;
+     id<MTLBuffer> femArmijoDeformableCandidateCounts = nil;
++    id<MTLBuffer> femArmijoDeformableCandidateStatuses = nil;
+     id<MTLBuffer> femArmijoDeformableContacts = nil;
+     id<MTLBuffer> femArmijoDeformableActiveIndices = nil;
+     id<MTLBuffer> femArmijoDeformableActiveCounts = nil;
+@@ -4182,6 +4183,7 @@
+             "nm_contact_scatter_deformable_candidates",
+             "nm_contact_validate_armijo_deformable_sweep",
+             "nm_contact_narrowphase_deformable",
++            "nm_contact_reduce_deformable_narrowphase_failures",
+             "nm_contact_capture_deformable_failure",
+             "nm_contact_compact_deformable",
+             "nm_contact_scan_deformable_active_counts",
+@@ -6256,6 +6258,10 @@
+                     candidate->femArmijoDeformableCandidateCounts =
+                         privateScratch<std::uint32_t>(candidate->device,
+                             environments, valid, candidate->residentBytes);
++                    candidate->femArmijoDeformableCandidateStatuses =
++                        privateScratch<NMMatterStatusGPU>(candidate->device,
++                            multiplied(static_cast<std::size_t>(capacity)),
++                            valid, candidate->residentBytes);
+                     candidate->femArmijoDeformableContacts =
+                         privateScratch<NMDeformableContactGPU>(candidate->device,
+                             multiplied(static_cast<std::size_t>(capacity)),
+@@ -14395,6 +14401,7 @@
+                 dispatchThreads("nm_contact_scatter_deformable_candidates", surfacePrimitiveTotal, [&] {
+                     bindSurfaceBVHQuery(state.femSurfaceSortIndicesB);
+                 });
++                const std::uint32_t narrowphaseDeterministicFailureSelection = 0u;
+                 dispatchThreads(
+                     "nm_contact_narrowphase_deformable",
+                     environments * state.dispatch.deformableContactCapacity,
+@@ -14418,6 +14425,11 @@
+                                      offset:0u atIndex:14u];
+                         [encoder setBuffer:state.cohesiveFacesCandidate
+                                      offset:0u atIndex:15u];
++                        [encoder setBytes:&narrowphaseDeterministicFailureSelection
++                                   length:sizeof(narrowphaseDeterministicFailureSelection)
++                                  atIndex:16u];
++                        [encoder setBuffer:state.deformableContactHistoriesCheckpoint
++                                   offset:0u atIndex:17u];
+                     }
+                 );
+                 if (state.captureDiagnostics) {
+@@ -14953,6 +14965,7 @@
+                                offset:0u atIndex:11u];
+                 });
+                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++                const std::uint32_t narrowphaseDeterministicFailureSelection = 1u;
+                 dispatchThreads("nm_contact_narrowphase_deformable",
+                     environments * state.dispatch.deformableContactCapacity,
+                     [&] {
+@@ -14978,6 +14991,21 @@
+                     [encoder setBuffer:state.cohesiveSurfaceFaceRefs
+                                  offset:0u atIndex:14u];
+                     [encoder setBuffer:cohesiveFaces offset:0u atIndex:15u];
++                    [encoder setBytes:&narrowphaseDeterministicFailureSelection
++                               length:sizeof(narrowphaseDeterministicFailureSelection)
++                              atIndex:16u];
++                    [encoder setBuffer:state.femArmijoDeformableCandidateStatuses
++                               offset:0u atIndex:17u];
++                });
++                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++                dispatchThreads("nm_contact_reduce_deformable_narrowphase_failures",
++                    environments, [&] {
++                    setDispatch();
++                    [encoder setBuffer:state.femArmijoDeformableCandidateCounts
++                               offset:0u atIndex:1u];
++                    [encoder setBuffer:state.femArmijoDeformableCandidateStatuses
++                               offset:0u atIndex:2u];
++                    [encoder setBuffer:trialStatuses offset:0u atIndex:3u];
+                 });
+                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                 dispatchGroups32("nm_contact_compact_deformable",
+--- a/matter/src/metal/contact.metalinc
++++ b/matter/src/metal/contact.metalinc
+@@ -3672,6 +3672,28 @@
+     failures[environment] = captured;
+ }
+ 
++inline void recordDeformableNarrowphaseFailure(
++    const uint deterministicSelection,
++    device NMMatterStatusGPU* environmentStatuses,
++    device NMMatterStatusGPU* candidateStatuses,
++    const uint environment,
++    const uint global,
++    const uint code,
++    const uint objectIndex,
++    const uint failingIndex,
++    const float4 diagnostics
++) {
++    if (deterministicSelection != 0u) {
++        // One invocation owns this slot, so its failure tuple has no writer race.
++        recordFailure(candidateStatuses[global], code, objectIndex,
++                      failingIndex, diagnostics);
++    } else {
++        // Preserve the established first-writer behavior for ordinary contact.
++        recordFailure(environmentStatuses[environment], code, objectIndex,
++                      failingIndex, diagnostics);
++    }
++}
++
+ kernel void nm_contact_narrowphase_deformable(
+     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+     constant NMMicrostepGPU& microstep [[buffer(1)]],
+@@ -3689,11 +3711,15 @@
+     device const NMIncidenceRangeGPU* cohesiveSurfaceFaceRanges [[buffer(13)]],
+     device const nm_uint4* cohesiveSurfaceFaceRefs [[buffer(14)]],
+     device const NMCohesiveFaceGPU* cohesiveFaces [[buffer(15)]],
++    constant uint& deterministicStatusSelection [[buffer(16)]],
++    device NMMatterStatusGPU* candidateStatuses [[buffer(17)]],
+     uint global [[thread_position_in_grid]]
+ ) {
+     const uint capacity = dispatch.deformableContactCapacity;
+     const uint total = dispatch.environmentCount * capacity;
+     if (global >= total || capacity == 0u) return;
++    if (deterministicStatusSelection != 0u)
++        candidateStatuses[global] = {};
+     const NMDeformableContactHistoryGPU previous = histories[global];
+     contacts[global] = {};
+     const uint environment = global / capacity;
+@@ -3790,10 +3816,12 @@
+             start[0], finish[0], start[3], finish[3],
+             thickness, toi, normal, point, separation, certified);
+         if (!certified) {
+-            recordFailure(statuses[environment],
++            recordDeformableNarrowphaseFailure(
++                deterministicStatusSelection, statuses, candidateStatuses,
++                environment, global,
+                 NM_STATUS_CONTACT_FAILURE, left.nodesAndObject.w, slot,
+                 float4(float(candidate.identity.x),
+-                       float(candidate.identity.y), 0.0f, 0.0f));
++                    float(candidate.identity.y), 0.0f, 0.0f));
+             return;
+         }
+         if (hit) {
+@@ -3826,10 +3854,12 @@
+             thickness, toi, normal, barycentric, point, separation,
+             certified);
+         if (!certified) {
+-            recordFailure(statuses[environment],
++            recordDeformableNarrowphaseFailure(
++                deterministicStatusSelection, statuses, candidateStatuses,
++                environment, global,
+                 NM_STATUS_CONTACT_FAILURE, left.nodesAndObject.w, slot,
+                 float4(float(candidate.identity.x),
+-                       float(candidate.identity.y), 1.0f, 0.0f));
++                    float(candidate.identity.y), 1.0f, 0.0f));
+             return;
+         }
+         if (hit) {
+@@ -3860,10 +3890,12 @@
+                     dispatch, left, right, environment,
+                     cohesiveSurfaceFaceRanges, cohesiveSurfaceFaceRefs,
+                     cohesiveFaces, mortarPatches)) {
+-                recordFailure(statuses[environment],
++                recordDeformableNarrowphaseFailure(
++                    deterministicStatusSelection, statuses, candidateStatuses,
++                    environment, global,
+                     NM_STATUS_CONTACT_FAILURE, left.nodesAndObject.w, slot,
+                     float4(float(candidate.identity.x),
+-                           float(candidate.identity.y), 0.0f, 1.0f));
++                        float(candidate.identity.y), 0.0f, 1.0f));
+                 return;
+             }
+         }
+@@ -3893,11 +3925,13 @@
+                     start, finish, start + 3u, finish + 3u,
+                     thickness, selected);
+             if (!validPartitions || !certified) {
+-                recordFailure(statuses[environment],
++                recordDeformableNarrowphaseFailure(
++                    deterministicStatusSelection, statuses, candidateStatuses,
++                    environment, global,
+                     NM_STATUS_CONTACT_FAILURE, left.nodesAndObject.w, slot,
+                     float4(float(candidate.identity.x),
+-                           float(candidate.identity.y),
+-                           validPartitions ? 1.0f : 0.0f, 0.0f));
++                        float(candidate.identity.y),
++                        validPartitions ? 1.0f : 0.0f, 0.0f));
+                 return;
+             }
+             if (selected.found != 0u) {
+@@ -3934,11 +3968,13 @@
+                     thickness, toi, normal, barycentric, point, separation,
+                     certified);
+                 if (!certified) {
+-                    recordFailure(statuses[environment],
++                    recordDeformableNarrowphaseFailure(
++                        deterministicStatusSelection, statuses, candidateStatuses,
++                        environment, global,
+                         NM_STATUS_CONTACT_FAILURE, left.nodesAndObject.w, slot,
+                         float4(float(candidate.identity.x),
+-                               float(candidate.identity.y),
+-                               float(vertexIndex), float(3u + direction)));
++                            float(candidate.identity.y),
++                            float(vertexIndex), float(3u + direction)));
+                     return;
+                 }
+                 if (hit && toi < bestTOI) {
+@@ -3995,11 +4031,13 @@
+                     thickness, toi, normal, parameters, point, separation,
+                     certified);
+                 if (!certified) {
+-                    recordFailure(statuses[environment],
++                    recordDeformableNarrowphaseFailure(
++                        deterministicStatusSelection, statuses, candidateStatuses,
++                        environment, global,
+                         NM_STATUS_CONTACT_FAILURE, left.nodesAndObject.w, slot,
+                         float4(float(candidate.identity.x),
+-                               float(candidate.identity.y),
+-                               float(edgeA), float(edgeB)));
++                            float(candidate.identity.y),
++                            float(edgeA), float(edgeB)));
+                     return;
+                 }
+                 if (hit && toi < bestTOI) {
+@@ -4193,7 +4231,9 @@
+     if (!finite3(bestNormal) || !finite3(bestPoint) ||
+         !isfinite(bestSeparation) || !all(isfinite(bestWeights)) ||
+         !isfinite(bestExtraWeightsX) || !isfinite(bestExtraWeightsY)) {
+-        recordFailure(statuses[environment],
++        recordDeformableNarrowphaseFailure(
++            deterministicStatusSelection, statuses, candidateStatuses,
++            environment, global,
+             NM_STATUS_CONTACT_FAILURE, bestPositiveObject, slot,
+             float4(bestSeparation, bestTOI, 0.0f, 0.0f));
+         return;
+@@ -4547,6 +4587,32 @@
+ // Stable device compaction keeps the dynamic rows dense for every downstream
+ // primal solve while preserving candidate order and therefore deterministic
+ // history ownership.
++kernel void nm_contact_reduce_deformable_narrowphase_failures(
++    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
++    device const uint* candidateCounts [[buffer(1)]],
++    device const NMMatterStatusGPU* candidateStatuses [[buffer(2)]],
++    device NMMatterStatusGPU* statuses [[buffer(3)]],
++    uint environment [[thread_position_in_grid]]
++) {
++    if (environment >= dispatch.environmentCount ||
++        dispatch.deformableContactCapacity == 0u ||
++        statuses[environment].code != NM_STATUS_SUCCESS) return;
++    const uint capacity = dispatch.deformableContactCapacity;
++    const uint count = min(candidateCounts[environment], capacity);
++    const uint base = environment * capacity;
++    // Candidate slots are emitted in deterministic source traversal order.
++    // Selecting the first failing slot makes the reported status independent
++    // of Metal thread arrival order without changing contact acceptance.
++    for (uint slot = 0u; slot < count; ++slot) {
++        const NMMatterStatusGPU failure = candidateStatuses[base + slot];
++        if (failure.code == NM_STATUS_SUCCESS) continue;
++        recordFailure(statuses[environment], failure.code,
++                      failure.objectIndex, failure.failingIndex,
++                      failure.diagnostics);
++        return;
++    }
++}
++
+ kernel void nm_contact_compact_deformable(
+     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+     device const NMDeformableContactGPU* contacts [[buffer(1)]],
+--- a/matter/tools/cardboard_contact_ccd_native_check.mm
++++ b/matter/tools/cardboard_contact_ccd_native_check.mm
+@@ -14,9 +14,14 @@
+ #include <string>
+ #include <vector>
+ 
++#include "numi/matter/shared.h"
++
+ #ifndef NUMI_MATTER_METALLIB
+ #error "CMake must define NUMI_MATTER_METALLIB"
+ #endif
++
++static_assert(sizeof(NMMatterStatusGPU) == 48u);
++static_assert(alignof(NMMatterStatusGPU) == 16u);
+ 
+ namespace {
+ using Float4 = std::array<float, 4>;
+@@ -373,7 +378,7 @@
+                          const std::size_t byteCount) {
+     id<MTLBuffer> buffer = [device newBufferWithBytes:bytes
+         length:byteCount options:MTLResourceStorageModeShared];
+-    require(buffer != nil, "Metal CCD fixture buffer allocation failed");
++    require(buffer != nil, "Metal contact regression buffer allocation failed");
+     return buffer;
+ }
+ 
+@@ -382,13 +387,15 @@
+                                          NSString* name) {
+     NSError* error = nil;
+     id<MTLFunction> function = [library newFunctionWithName:name];
+-    require(function != nil, "required production CCD kernel missing");
++    require(function != nil,
++        std::string("required production contact kernel missing: ") +
++            [name UTF8String]);
+     id<MTLComputePipelineState> pipeline =
+         [device newComputePipelineStateWithFunction:function error:&error];
+     require(pipeline != nil, error != nil
+-        ? std::string("CCD kernel pipeline creation failed: ") +
++        ? std::string("contact kernel pipeline creation failed: ") +
+             [[error localizedDescription] UTF8String]
+-        : "CCD kernel pipeline creation failed");
++        : "contact kernel pipeline creation failed");
+     return pipeline;
+ }
+ 
+@@ -423,6 +430,450 @@
+             : "CCD command failed");
+     std::memcpy(output.data(), outputBuffer.contents, output.size() * sizeof(Float4));
+     return output;
++}
++
++NMMatterStatusGPU statusRecord(
++    const std::uint32_t code,
++    const std::uint32_t environment,
++    const std::uint32_t objectIndex,
++    const std::uint32_t failingIndex,
++    const std::uint32_t completedMicrosteps,
++    const std::uint32_t fgmresIterations,
++    const std::uint32_t contactCount,
++    const std::uint32_t eventCount,
++    const nm_float4 diagnostics
++) {
++    NMMatterStatusGPU value{};
++    value.code = code;
++    value.environment = environment;
++    value.objectIndex = objectIndex;
++    value.failingIndex = failingIndex;
++    value.completedMicrosteps = completedMicrosteps;
++    value.fgmresIterations = fgmresIterations;
++    value.contactCount = contactCount;
++    value.eventCount = eventCount;
++    value.diagnostics = diagnostics;
++    return value;
++}
++
++void checkStatusTuple(const NMMatterStatusGPU& value,
++                      const std::uint32_t code,
++                      const std::uint32_t objectIndex,
++                      const std::uint32_t failingIndex,
++                      const nm_float4 diagnostics,
++                      const std::string& name) {
++    require(value.code == code && value.objectIndex == objectIndex &&
++            value.failingIndex == failingIndex &&
++            value.diagnostics.x == diagnostics.x &&
++            value.diagnostics.y == diagnostics.y &&
++            value.diagnostics.z == diagnostics.z &&
++            value.diagnostics.w == diagnostics.w,
++            name + ": production reducer selected or copied the wrong status tuple");
++}
++
++bool byteIdenticalStatus(const NMMatterStatusGPU& a,
++                         const NMMatterStatusGPU& b) {
++    return std::memcmp(&a, &b, sizeof(NMMatterStatusGPU)) == 0;
++}
++
++void checkProductionStatusReducer(id<MTLDevice> device,
++                                  id<MTLCommandQueue> queue,
++                                  id<MTLComputePipelineState> pipeline) {
++    NMMatterDispatchGPU dispatch{};
++    dispatch.abiVersion = NM_MATTER_ABI_VERSION;
++    dispatch.environmentCount = 4u;
++    dispatch.deformableContactCapacity = 4u;
++    const std::vector<std::uint32_t> candidateCounts{4u, 3u, 0u, 2u};
++    std::vector<NMMatterStatusGPU> initialStatuses{
++        statusRecord(NM_STATUS_SUCCESS, 0u, 71u, 72u, 7u, 8u, 9u, 10u,
++                     nm_float4{1.0f, 2.0f, 3.0f, 4.0f}),
++        statusRecord(NM_STATUS_NONFINITE_INPUT, 1u, 81u, 82u, 11u, 12u, 13u, 14u,
++                     nm_float4{5.0f, 6.0f, 7.0f, 8.0f}),
++        statusRecord(NM_STATUS_SUCCESS, 2u, 91u, 92u, 15u, 16u, 17u, 18u,
++                     nm_float4{9.0f, 10.0f, 11.0f, 12.0f}),
++        statusRecord(NM_STATUS_SUCCESS, 3u, 101u, 102u, 19u, 20u, 21u, 22u,
++                     nm_float4{13.0f, 14.0f, 15.0f, 16.0f}),
++    };
++    std::vector<NMMatterStatusGPU> candidateStatuses(
++        dispatch.environmentCount * dispatch.deformableContactCapacity);
++    for (std::uint32_t environment = 0u;
++         environment < dispatch.environmentCount; ++environment) {
++        for (std::uint32_t slot = 0u;
++             slot < dispatch.deformableContactCapacity; ++slot) {
++            candidateStatuses[environment * dispatch.deformableContactCapacity + slot] =
++                statusRecord(NM_STATUS_SUCCESS, environment, 200u + slot, 300u + slot,
++                             31u + slot, 41u + slot, 51u + slot, 61u + slot,
++                             nm_float4{float(environment), float(slot), 0.0f, 0.0f});
++        }
++    }
++    const nm_float4 slotOneDiagnostics{24.0f, 127.0f, 1.0f, 0.0f};
++    const nm_float4 slotThreeDiagnostics{92.0f, 127.0f, 0.0f, 0.0f};
++    candidateStatuses[1u] = statusRecord(
++        NM_STATUS_CONTACT_FAILURE, 0u, 240u, 1u, 0u, 0u, 0u, 0u,
++        slotOneDiagnostics);
++    candidateStatuses[3u] = statusRecord(
++        NM_STATUS_CONTACT_FAILURE, 0u, 920u, 3u, 0u, 0u, 0u, 0u,
++        slotThreeDiagnostics);
++    // A private failure cannot replace an earlier phase failure.
++    candidateStatuses[4u] = statusRecord(
++        NM_STATUS_CONTACT_FAILURE, 1u, 241u, 0u, 0u, 0u, 0u, 0u,
++        slotOneDiagnostics);
++    // This stale failure lies beyond environment 2's empty active prefix.
++    candidateStatuses[8u] = statusRecord(
++        NM_STATUS_CONTACT_FAILURE, 2u, 242u, 0u, 0u, 0u, 0u, 0u,
++        slotOneDiagnostics);
++    // This stale failure lies beyond environment 3's two healthy candidates.
++    candidateStatuses[15u] = statusRecord(
++        NM_STATUS_CONTACT_FAILURE, 3u, 243u, 3u, 0u, 0u, 0u, 0u,
++        slotThreeDiagnostics);
++
++    const auto dispatchBuffer = makeBuffer(device, &dispatch, sizeof(dispatch));
++    const auto countBuffer = makeBuffer(device, candidateCounts.data(),
++        candidateCounts.size() * sizeof(candidateCounts.front()));
++    const auto candidateBuffer = makeBuffer(device, candidateStatuses.data(),
++        candidateStatuses.size() * sizeof(candidateStatuses.front()));
++    const auto statusBuffer = makeBuffer(device, initialStatuses.data(),
++        initialStatuses.size() * sizeof(initialStatuses.front()));
++    id<MTLCommandBuffer> command = [queue commandBuffer];
++    require(command != nil, "status reducer command buffer creation failed");
++    id<MTLComputeCommandEncoder> encoder = [command computeCommandEncoder];
++    require(encoder != nil, "status reducer command encoder creation failed");
++    [encoder setComputePipelineState:pipeline];
++    [encoder setBuffer:dispatchBuffer offset:0u atIndex:0u];
++    [encoder setBuffer:countBuffer offset:0u atIndex:1u];
++    [encoder setBuffer:candidateBuffer offset:0u atIndex:2u];
++    [encoder setBuffer:statusBuffer offset:0u atIndex:3u];
++    const NSUInteger width = std::max<NSUInteger>(1u, std::min<NSUInteger>(
++        pipeline.maxTotalThreadsPerThreadgroup, 32u));
++    [encoder dispatchThreads:MTLSizeMake(dispatch.environmentCount, 1u, 1u)
++        threadsPerThreadgroup:MTLSizeMake(width, 1u, 1u)];
++    [encoder endEncoding];
++    [command commit];
++    [command waitUntilCompleted];
++    require(command.status == MTLCommandBufferStatusCompleted,
++        command.error != nil
++            ? std::string("production status reducer command failed: ") +
++                [[command.error localizedDescription] UTF8String]
++            : "production status reducer command failed");
++
++    const auto* result = static_cast<const NMMatterStatusGPU*>(statusBuffer.contents);
++    checkStatusTuple(result[0], NM_STATUS_CONTACT_FAILURE, 240u, 1u,
++                     slotOneDiagnostics, "environment0/minimum-slot");
++    require(result[0].environment == initialStatuses[0].environment &&
++            result[0].completedMicrosteps == initialStatuses[0].completedMicrosteps &&
++            result[0].fgmresIterations == initialStatuses[0].fgmresIterations &&
++            result[0].contactCount == initialStatuses[0].contactCount &&
++            result[0].eventCount == initialStatuses[0].eventCount,
++            "status reducer overwrote completed-microstep/FGMRES/contact/event counters");
++    require(byteIdenticalStatus(result[1], initialStatuses[1]),
++            "status reducer overwrote an earlier environment failure");
++    require(byteIdenticalStatus(result[2], initialStatuses[2]),
++            "empty active candidate prefix selected stale candidate status");
++    require(byteIdenticalStatus(result[3], initialStatuses[3]),
++            "healthy environment selected a stale failure beyond its active prefix");
++}
++
++void checkProductionNarrowphaseClearsCandidateStatuses(
++    id<MTLDevice> device,
++    id<MTLCommandQueue> queue,
++    id<MTLComputePipelineState> pipeline
++) {
++    NMMatterDispatchGPU dispatch{};
++    dispatch.abiVersion = NM_MATTER_ABI_VERSION;
++    dispatch.environmentCount = 2u;
++    dispatch.objectCount = 1u;
++    dispatch.deformableContactCapacity = 3u;
++    NMMicrostepGPU microstep{};
++    const std::vector<std::uint32_t> candidateCounts{1u, 0u};
++    const std::size_t total = std::size_t(dispatch.environmentCount) *
++        dispatch.deformableContactCapacity;
++    const std::vector<NMContinuumObjectGPU> objects(1u);
++    const std::vector<NMMaterialGPU> materials(1u);
++    const std::vector<NMFEMNodeStateGPU> femNodes(1u);
++    const std::vector<NMSchedulerStateGPU> schedulers(1u);
++    const std::vector<NMGridNodeStateGPU> gridNodes(1u);
++    const std::vector<NMContinuumSurfacePrimitiveGPU> primitives(1u);
++    // identity.w is zero, so each counted row exits as inactive after the
++    // production kernel clears its private candidate-status slot.
++    const std::vector<NMDeformableContactCandidateGPU> candidates(total);
++    const std::vector<NMDeformableContactHistoryGPU> histories(total);
++    std::vector<NMDeformableContactGPU> contacts(total);
++    std::vector<NMMatterStatusGPU> statuses(dispatch.environmentCount);
++    for (std::uint32_t environment = 0u;
++         environment < dispatch.environmentCount; ++environment) {
++        statuses[environment] = statusRecord(
++            NM_STATUS_SUCCESS, environment, 0u, 0u, 0u, 0u, 0u, 0u,
++            nm_float4{0.0f, 0.0f, 0.0f, 0.0f});
++    }
++    std::vector<NMMatterStatusGPU> candidateStatuses(total);
++    for (std::size_t slot = 0u; slot < total; ++slot) {
++        candidateStatuses[slot] = statusRecord(
++            NM_STATUS_CONTACT_FAILURE, static_cast<std::uint32_t>(slot / 3u),
++            500u + static_cast<std::uint32_t>(slot),
++            600u + static_cast<std::uint32_t>(slot), 7u, 8u, 9u, 10u,
++            nm_float4{1.0f, 2.0f, 3.0f, 4.0f});
++    }
++    const std::vector<NMIncidenceRangeGPU> cohesiveRanges(1u);
++    const std::vector<nm_uint4> cohesiveRefs(1u);
++    const std::vector<NMCohesiveFaceGPU> cohesiveFaces(1u);
++
++    const auto objectBuffer = makeBuffer(device, objects.data(), sizeof(objects.front()));
++    const auto materialBuffer = makeBuffer(device, materials.data(), sizeof(materials.front()));
++    const auto femNodeBuffer = makeBuffer(device, femNodes.data(), sizeof(femNodes.front()));
++    const auto schedulerBuffer = makeBuffer(device, schedulers.data(), sizeof(schedulers.front()));
++    const auto gridNodeBuffer = makeBuffer(device, gridNodes.data(), sizeof(gridNodes.front()));
++    const auto primitiveBuffer = makeBuffer(device, primitives.data(), sizeof(primitives.front()));
++    const auto candidateInputBuffer = makeBuffer(device, candidates.data(),
++        candidates.size() * sizeof(candidates.front()));
++    const auto countBuffer = makeBuffer(device, candidateCounts.data(),
++        candidateCounts.size() * sizeof(candidateCounts.front()));
++    const auto historyBuffer = makeBuffer(device, histories.data(),
++        histories.size() * sizeof(histories.front()));
++    const auto contactBuffer = makeBuffer(device, contacts.data(),
++        contacts.size() * sizeof(contacts.front()));
++    const auto statusBuffer = makeBuffer(device, statuses.data(),
++        statuses.size() * sizeof(statuses.front()));
++    const auto rangeBuffer = makeBuffer(device, cohesiveRanges.data(),
++        sizeof(cohesiveRanges.front()));
++    const auto refsBuffer = makeBuffer(device, cohesiveRefs.data(), sizeof(cohesiveRefs.front()));
++    const auto faceBuffer = makeBuffer(device, cohesiveFaces.data(), sizeof(cohesiveFaces.front()));
++    const auto candidateStatusBuffer = makeBuffer(device, candidateStatuses.data(),
++        candidateStatuses.size() * sizeof(candidateStatuses.front()));
++    const auto dispatchBuffer = makeBuffer(device, &dispatch, sizeof(dispatch));
++    const std::uint32_t deterministicSelection = 1u;
++
++    id<MTLCommandBuffer> command = [queue commandBuffer];
++    require(command != nil, "narrowphase clear command buffer creation failed");
++    id<MTLComputeCommandEncoder> encoder = [command computeCommandEncoder];
++    require(encoder != nil, "narrowphase clear command encoder creation failed");
++    [encoder setComputePipelineState:pipeline];
++    [encoder setBuffer:dispatchBuffer offset:0u atIndex:0u];
++    [encoder setBytes:&microstep length:sizeof(microstep) atIndex:1u];
++    [encoder setBuffer:objectBuffer offset:0u atIndex:2u];
++    [encoder setBuffer:materialBuffer offset:0u atIndex:3u];
++    [encoder setBuffer:femNodeBuffer offset:0u atIndex:4u];
++    [encoder setBuffer:schedulerBuffer offset:0u atIndex:5u];
++    [encoder setBuffer:gridNodeBuffer offset:0u atIndex:6u];
++    [encoder setBuffer:primitiveBuffer offset:0u atIndex:7u];
++    [encoder setBuffer:candidateInputBuffer offset:0u atIndex:8u];
++    [encoder setBuffer:countBuffer offset:0u atIndex:9u];
++    [encoder setBuffer:historyBuffer offset:0u atIndex:10u];
++    [encoder setBuffer:contactBuffer offset:0u atIndex:11u];
++    [encoder setBuffer:statusBuffer offset:0u atIndex:12u];
++    [encoder setBuffer:rangeBuffer offset:0u atIndex:13u];
++    [encoder setBuffer:refsBuffer offset:0u atIndex:14u];
++    [encoder setBuffer:faceBuffer offset:0u atIndex:15u];
++    [encoder setBytes:&deterministicSelection length:sizeof(deterministicSelection)
++               atIndex:16u];
++    [encoder setBuffer:candidateStatusBuffer offset:0u atIndex:17u];
++    const NSUInteger width = std::max<NSUInteger>(1u, std::min<NSUInteger>(
++        pipeline.maxTotalThreadsPerThreadgroup, 32u));
++    [encoder dispatchThreads:MTLSizeMake(total, 1u, 1u)
++        threadsPerThreadgroup:MTLSizeMake(width, 1u, 1u)];
++    [encoder endEncoding];
++    [command commit];
++    [command waitUntilCompleted];
++    require(command.status == MTLCommandBufferStatusCompleted,
++        command.error != nil
++            ? std::string("production narrowphase clear command failed: ") +
++                [[command.error localizedDescription] UTF8String]
++            : "production narrowphase clear command failed");
++
++    const auto* cleared = static_cast<const NMMatterStatusGPU*>(candidateStatusBuffer.contents);
++    const NMMatterStatusGPU zero{};
++    for (std::size_t slot = 0u; slot < total; ++slot)
++        require(byteIdenticalStatus(cleared[slot], zero),
++                "production narrowphase did not clear a stale private status slot");
++    const auto* outputStatuses = static_cast<const NMMatterStatusGPU*>(statusBuffer.contents);
++    for (std::uint32_t environment = 0u;
++         environment < dispatch.environmentCount; ++environment) {
++        const NMMatterStatusGPU healthy = statusRecord(
++            NM_STATUS_SUCCESS, environment, 0u, 0u, 0u, 0u, 0u, 0u,
++            nm_float4{0.0f, 0.0f, 0.0f, 0.0f});
++        require(byteIdenticalStatus(outputStatuses[environment], healthy),
++                "inactive narrowphase status-reset specimen changed environment status");
++    }
++}
++
++void checkProductionNarrowphaseGeometricFailure(
++    id<MTLDevice> device,
++    id<MTLCommandQueue> queue,
++    id<MTLComputePipelineState> narrowphasePipeline,
++    id<MTLComputePipelineState> reducerPipeline
++) {
++    NMMatterDispatchGPU dispatch{};
++    dispatch.abiVersion = NM_MATTER_ABI_VERSION;
++    dispatch.environmentCount = 1u;
++    dispatch.objectCount = 1u;
++    dispatch.gridNodeCount = 2u;
++    dispatch.deformableContactCapacity = 1u;
++    dispatch.gravityAndTimestep = nm_float4{0.0f, 0.0f, 0.0f, 1.0f};
++    dispatch.numericalLimits.x = kThickness;
++
++    NMMicrostepGPU microstep{};
++    const std::vector<NMContinuumObjectGPU> objects(1u);
++    const std::vector<NMMaterialGPU> materials(1u);
++    const std::vector<NMFEMNodeStateGPU> femNodes(1u);
++    std::vector<NMSchedulerStateGPU> schedulers(1u);
++    schedulers[0].baseExponent = 0u;
++    schedulers[0].activeExponent = 0u;
++    std::vector<NMGridNodeStateGPU> gridNodes(2u);
++    // All authored inputs are finite. Their finite positions and velocities
++    // intentionally make the point-point relative dot products overflow, so
++    // pointPointCCD produces an uncertified non-finite sweep result through
++    // its real geometric branch (rather than through the input reject path).
++    gridNodes[0].positionAndMass = nm_float4{1.0e20f, 0.0f, 0.0f, 1.0f};
++    gridNodes[0].velocityAndInverseMass = nm_float4{0.0f, 0.0f, 0.0f, 1.0f};
++    gridNodes[0].candidateVelocity = nm_float4{-2.0e20f, 0.0f, 0.0f, 0.0f};
++    gridNodes[1].positionAndMass = nm_float4{-1.0e20f, 0.0f, 0.0f, 1.0f};
++    gridNodes[1].velocityAndInverseMass = nm_float4{0.0f, 0.0f, 0.0f, 1.0f};
++    gridNodes[1].candidateVelocity = nm_float4{2.0e20f, 0.0f, 0.0f, 0.0f};
++
++    std::vector<NMContinuumSurfacePrimitiveGPU> primitives(2u);
++    primitives[0].nodesAndObject = nm_uint4{0u, NM_INVALID_INDEX,
++                                             NM_INVALID_INDEX, 0u};
++    primitives[0].identity = nm_uint4{0u, NM_CONTINUUM_SURFACE_POINT,
++                                      0u, NM_TOPOLOGY_ACTIVE};
++    primitives[1].nodesAndObject = nm_uint4{1u, NM_INVALID_INDEX,
++                                             NM_INVALID_INDEX, 0u};
++    primitives[1].identity = nm_uint4{1u, NM_CONTINUUM_SURFACE_POINT,
++                                      0u, NM_TOPOLOGY_ACTIVE};
++    std::vector<NMDeformableContactCandidateGPU> candidates(1u);
++    candidates[0].identity = nm_uint4{0u, 1u, 0u, NM_TOPOLOGY_ACTIVE};
++    const std::vector<std::uint32_t> candidateCounts{1u};
++    const std::vector<NMDeformableContactHistoryGPU> histories(1u);
++    std::vector<NMDeformableContactGPU> contacts(1u);
++    const NMMatterStatusGPU healthy = statusRecord(
++        NM_STATUS_SUCCESS, 0u, 17u, 18u, 7u, 8u, 9u, 10u,
++        nm_float4{1.0f, 2.0f, 3.0f, 4.0f});
++    const NMMatterStatusGPU staleCandidate = statusRecord(
++        NM_STATUS_TOPOLOGY_FAILURE, 0u, 500u, 600u, 31u, 41u, 51u, 61u,
++        nm_float4{5.0f, 6.0f, 7.0f, 8.0f});
++    std::vector<NMMatterStatusGPU> statuses{healthy};
++    std::vector<NMMatterStatusGPU> candidateStatuses{staleCandidate};
++    const std::vector<NMIncidenceRangeGPU> cohesiveRanges(1u);
++    const std::vector<nm_uint4> cohesiveRefs(1u);
++    const std::vector<NMCohesiveFaceGPU> cohesiveFaces(1u);
++
++    const auto dispatchBuffer = makeBuffer(device, &dispatch, sizeof(dispatch));
++    const auto objectBuffer = makeBuffer(device, objects.data(), sizeof(objects.front()));
++    const auto materialBuffer = makeBuffer(device, materials.data(), sizeof(materials.front()));
++    const auto femNodeBuffer = makeBuffer(device, femNodes.data(), sizeof(femNodes.front()));
++    const auto schedulerBuffer = makeBuffer(device, schedulers.data(), sizeof(schedulers.front()));
++    const auto gridNodeBuffer = makeBuffer(device, gridNodes.data(),
++        gridNodes.size() * sizeof(gridNodes.front()));
++    const auto primitiveBuffer = makeBuffer(device, primitives.data(),
++        primitives.size() * sizeof(primitives.front()));
++    const auto candidateBuffer = makeBuffer(device, candidates.data(),
++        candidates.size() * sizeof(candidates.front()));
++    const auto countBuffer = makeBuffer(device, candidateCounts.data(),
++        candidateCounts.size() * sizeof(candidateCounts.front()));
++    const auto historyBuffer = makeBuffer(device, histories.data(), sizeof(histories.front()));
++    const auto contactBuffer = makeBuffer(device, contacts.data(), sizeof(contacts.front()));
++    const auto statusBuffer = makeBuffer(device, statuses.data(), sizeof(statuses.front()));
++    const auto rangeBuffer = makeBuffer(device, cohesiveRanges.data(), sizeof(cohesiveRanges.front()));
++    const auto refsBuffer = makeBuffer(device, cohesiveRefs.data(), sizeof(cohesiveRefs.front()));
++    const auto faceBuffer = makeBuffer(device, cohesiveFaces.data(), sizeof(cohesiveFaces.front()));
++    const auto candidateStatusBuffer = makeBuffer(device, candidateStatuses.data(),
++        sizeof(candidateStatuses.front()));
++
++    auto dispatchNarrowphase = [&](const std::uint32_t selection) {
++        id<MTLCommandBuffer> command = [queue commandBuffer];
++        require(command != nil, "geometric producer command buffer creation failed");
++        id<MTLComputeCommandEncoder> encoder = [command computeCommandEncoder];
++        require(encoder != nil, "geometric producer command encoder creation failed");
++        [encoder setComputePipelineState:narrowphasePipeline];
++        [encoder setBuffer:dispatchBuffer offset:0u atIndex:0u];
++        [encoder setBytes:&microstep length:sizeof(microstep) atIndex:1u];
++        [encoder setBuffer:objectBuffer offset:0u atIndex:2u];
++        [encoder setBuffer:materialBuffer offset:0u atIndex:3u];
++        [encoder setBuffer:femNodeBuffer offset:0u atIndex:4u];
++        [encoder setBuffer:schedulerBuffer offset:0u atIndex:5u];
++        [encoder setBuffer:gridNodeBuffer offset:0u atIndex:6u];
++        [encoder setBuffer:primitiveBuffer offset:0u atIndex:7u];
++        [encoder setBuffer:candidateBuffer offset:0u atIndex:8u];
++        [encoder setBuffer:countBuffer offset:0u atIndex:9u];
++        [encoder setBuffer:historyBuffer offset:0u atIndex:10u];
++        [encoder setBuffer:contactBuffer offset:0u atIndex:11u];
++        [encoder setBuffer:statusBuffer offset:0u atIndex:12u];
++        [encoder setBuffer:rangeBuffer offset:0u atIndex:13u];
++        [encoder setBuffer:refsBuffer offset:0u atIndex:14u];
++        [encoder setBuffer:faceBuffer offset:0u atIndex:15u];
++        [encoder setBytes:&selection length:sizeof(selection) atIndex:16u];
++        [encoder setBuffer:candidateStatusBuffer offset:0u atIndex:17u];
++        [encoder dispatchThreads:MTLSizeMake(1u, 1u, 1u)
++            threadsPerThreadgroup:MTLSizeMake(1u, 1u, 1u)];
++        [encoder endEncoding];
++        [command commit];
++        [command waitUntilCompleted];
++        require(command.status == MTLCommandBufferStatusCompleted,
++            command.error != nil
++                ? std::string("geometric producer command failed: ") +
++                    [[command.error localizedDescription] UTF8String]
++                : "geometric producer command failed");
++    };
++
++    dispatchNarrowphase(1u);
++    const nm_float4 expectedDiagnostics{0.0f, 1.0f, 0.0f, 0.0f};
++    const auto* privateStatus =
++        static_cast<const NMMatterStatusGPU*>(candidateStatusBuffer.contents);
++    checkStatusTuple(privateStatus[0], NM_STATUS_CONTACT_FAILURE, 0u, 0u,
++                     expectedDiagnostics,
++                     "private geometric producer candidate status");
++    const auto* privateEnvironment =
++        static_cast<const NMMatterStatusGPU*>(statusBuffer.contents);
++    require(byteIdenticalStatus(privateEnvironment[0], healthy),
++            "private geometric failure changed environment status before reducer");
++
++    id<MTLCommandBuffer> reduceCommand = [queue commandBuffer];
++    require(reduceCommand != nil, "geometric reducer command buffer creation failed");
++    id<MTLComputeCommandEncoder> reduceEncoder = [reduceCommand computeCommandEncoder];
++    require(reduceEncoder != nil, "geometric reducer command encoder creation failed");
++    [reduceEncoder setComputePipelineState:reducerPipeline];
++    [reduceEncoder setBuffer:dispatchBuffer offset:0u atIndex:0u];
++    [reduceEncoder setBuffer:countBuffer offset:0u atIndex:1u];
++    [reduceEncoder setBuffer:candidateStatusBuffer offset:0u atIndex:2u];
++    [reduceEncoder setBuffer:statusBuffer offset:0u atIndex:3u];
++    [reduceEncoder dispatchThreads:MTLSizeMake(1u, 1u, 1u)
++        threadsPerThreadgroup:MTLSizeMake(1u, 1u, 1u)];
++    [reduceEncoder endEncoding];
++    [reduceCommand commit];
++    [reduceCommand waitUntilCompleted];
++    require(reduceCommand.status == MTLCommandBufferStatusCompleted,
++        reduceCommand.error != nil
++            ? std::string("geometric reducer command failed: ") +
++                [[reduceCommand.error localizedDescription] UTF8String]
++            : "geometric reducer command failed");
++    const auto* reduced = static_cast<const NMMatterStatusGPU*>(statusBuffer.contents);
++    checkStatusTuple(reduced[0], NM_STATUS_CONTACT_FAILURE, 0u, 0u,
++                     expectedDiagnostics,
++                     "reduced private geometric producer status");
++    require(reduced[0].completedMicrosteps == healthy.completedMicrosteps &&
++            reduced[0].fgmresIterations == healthy.fgmresIterations &&
++            reduced[0].contactCount == healthy.contactCount &&
++            reduced[0].eventCount == healthy.eventCount,
++            "geometric failure reducer changed completed-microstep/FGMRES/contact/event counters");
++
++    // Reset the buffers and exercise the same geometric branch with the legacy
++    // selector. It must write the same first-writer environment tuple, while
++    // leaving the private scratch sentinel untouched.
++    std::memcpy(statusBuffer.contents, &healthy, sizeof(healthy));
++    std::memcpy(candidateStatusBuffer.contents, &staleCandidate,
++                sizeof(staleCandidate));
++    dispatchNarrowphase(0u);
++    const auto* ordinaryStatus = static_cast<const NMMatterStatusGPU*>(statusBuffer.contents);
++    checkStatusTuple(ordinaryStatus[0], NM_STATUS_CONTACT_FAILURE, 0u, 0u,
++                     expectedDiagnostics,
++                     "ordinary geometric producer environment status");
++    require(ordinaryStatus[0].completedMicrosteps == healthy.completedMicrosteps &&
++            ordinaryStatus[0].fgmresIterations == healthy.fgmresIterations &&
++            ordinaryStatus[0].contactCount == healthy.contactCount &&
++            ordinaryStatus[0].eventCount == healthy.eventCount,
++            "ordinary geometric producer changed completed-microstep/FGMRES/contact/event counters");
++    const auto* ordinaryCandidate =
++        static_cast<const NMMatterStatusGPU*>(candidateStatusBuffer.contents);
++    require(byteIdenticalStatus(ordinaryCandidate[0], staleCandidate),
++            "ordinary geometric failure wrote or cleared private candidate status");
+ }
+ 
+ void checkDirect(const std::vector<Case>& cases,
+@@ -535,6 +986,15 @@
+                 @"numi_matter_metal::nm_contact_ccd_regression");
+             id<MTLComputePipelineState> newtonPipeline = makePipeline(device, library,
+                 @"numi_matter_metal::nm_contact_newton_ccd_regression");
++            id<MTLComputePipelineState> narrowphasePipeline = makePipeline(device, library,
++                @"numi_matter_metal::nm_contact_narrowphase_deformable");
++            id<MTLComputePipelineState> statusReducerPipeline = makePipeline(device, library,
++                @"numi_matter_metal::nm_contact_reduce_deformable_narrowphase_failures");
++            checkProductionNarrowphaseClearsCandidateStatuses(
++                device, queue, narrowphasePipeline);
++            checkProductionStatusReducer(device, queue, statusReducerPipeline);
++            checkProductionNarrowphaseGeometricFailure(
++                device, queue, narrowphasePipeline, statusReducerPipeline);
+             const std::vector<Float4> direct = run(device, queue, directPipeline,
+                 directInput, static_cast<std::uint32_t>(directCases.size()), 1u);
+             const std::vector<Float4> helper = run(device, queue, newtonPipeline,
+@@ -543,7 +1003,7 @@
+             checkNewton(helperCases, helper);
+ 
+             std::cout << std::setprecision(9)
+-                << "{\"schema\":\"numi.matter.contact-ccd-native-regression.v1\","
++                << "{\"schema\":\"numi.matter.contact-ccd-native-regression.v3\","
+                 << "\"case_corpus_sha256\":\"" << sha256(directInput) << "\","
+                 << "\"helper_case_corpus_sha256\":\"" << sha256(helperInput) << "\","
+                 << "\"captured_diagnostic_ray_sha256\":\"" << kCapturedRaySha256 << "\","
+@@ -572,6 +1032,32 @@
+                 << "\"captured_ee_physical_qualification\":false,"
+                 << "\"direct_cases\":" << directCases.size() << ','
+                 << "\"helper_cases\":" << helperCases.size() << ','
++                << "\"production_private_status_instrument\":{"
++                << "\"narrowphase_kernel\":\"nm_contact_narrowphase_deformable\","
++                << "\"reducer_kernel\":\"nm_contact_reduce_deformable_narrowphase_failures\","
++                << "\"status_reset_environment_count\":2,"
++                << "\"status_reset_capacity_per_environment\":3,"
++                << "\"status_reset_records_checked\":6,"
++                << "\"reducer_environment_count\":4,"
++                << "\"candidate_capacity_per_environment\":4,"
++                << "\"active_candidate_counts\":[4,3,0,2],"
++                << "\"reducer_cases\":[\"minimum_slot_wins\",\"earlier_phase_failure_preserved\",\"empty_prefix_ignores_stale_tail\",\"healthy_prefix_ignores_stale_tail\"],"
++                << "\"producer_clear_verified\":true,"
++                << "\"native_device_action\":true},"
++                << "\"geometric_failure_producer_control\":{"
++                << "\"kernel\":\"nm_contact_narrowphase_deformable\","
++                << "\"geometry\":\"finite_point_point_inputs_with_overflowing_relative_dot_products\","
++                << "\"primitive_pair\":[0,1],\"positions_m\":[1e20,-1e20],"
++                << "\"candidate_velocities_m_per_s\":[-2e20,2e20],"
++                << "\"dt_s\":1,\"thickness_m\":0.001,"
++                << "\"private_selector\":1,\"ordinary_selector\":0,"
++                << "\"expected_failure_path\":\"pointPointCCD_uncertified_then_recordDeformableNarrowphaseFailure\","
++                << "\"private_candidate_status_before_reducer_verified\":true,"
++                << "\"environment_success_preserved_before_reducer\":true,"
++                << "\"reducer_propagated_producer_tuple\":true,"
++                << "\"ordinary_selector_environment_tuple_verified\":true,"
++                << "\"ordinary_selector_private_scratch_preserved\":true,"
++                << "\"physical_qualification\":false},"
+                 << "\"direct_results\":[";
+             for (std::size_t i = 0; i < directCases.size(); ++i) {
+                 if (i) std::cout << ',';

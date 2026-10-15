@@ -1,0 +1,18 @@
+{
+  "schema": "numi.cardboard.actual-source-restoration-cli.v1",
+  "argv": [
+    "/Users/home/.pyenv/versions/3.10.12/bin/python3",
+    "/Users/home/cardboard-implementation-20261014/analysis/retained-source-snapshot115-001/restore.py",
+    "--repository",
+    "/Users/home/numi-cardboard-20261006",
+    "--number",
+    "115",
+    "--output",
+    "/Users/home/cardboard-implementation-20261014/cardboard-source115-cli-58qetzbn/restored"
+  ],
+  "exit_code": 0,
+  "files_verified": 1851,
+  "restore_cli_sha256": "12fd185010ef21bfe383ecc6faa315b99853b7d0899344173a53091cdb4398d4",
+  "task_temporary_copy_removed_after_exact_byte_verification": true,
+  "original_snapshot_and_package_retained": true
+}

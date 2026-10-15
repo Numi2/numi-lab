@@ -1,0 +1,25 @@
+{
+  "schema": "numi.cardboard.reference016-publication-binding.v1",
+  "cases": [
+    "analysis/deterministic-private-ccd-status-overlay-002",
+    "analysis/deterministic-private-ccd-status-overlay-003",
+    "analysis/deterministic-private-ccd-status-overlay-004",
+    "analysis/fracture-plane-ownership-overlay-114-001",
+    "analysis/source115-private-ccd-fracture-integration-001",
+    "analysis/source115-private-ccd-fracture-integration-002",
+    "analysis/retained-source-snapshot115-001",
+    "analysis/source115-restoration-cli-001",
+    "analysis/source115-main-adoption-001",
+    "analysis/source115-build-and-native-bindings-001",
+    "analysis/full-contact-378-383-parity-audit-001",
+    "analysis/full-contact-378-383-root-verification-002",
+    "analysis/main-compatibility-reference016",
+    "cpu-checks-115",
+    "native/deterministic-private-ccd-producer-reducer-381",
+    "native/deterministic-private-ccd-full-contact-383",
+    "native/current-main-ccd-routing-384"
+  ],
+  "summary_sha256": "d1284205f38ccba177facb2a931323b4325b29f2b9ee02b0545a1d552d859897",
+  "copied_files": 159,
+  "physical_validation": false
+}

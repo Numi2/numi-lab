@@ -1,0 +1,16 @@
+{
+  "schema": "numi.cardboard.source115-native-bindings.v1",
+  "files": {
+    "native381-command.json": "72a4d5c9ecb8b57053fe94e57a2bfc39ed1bed4e6b28330b8c2a3d55c98525fb",
+    "build-command.json": "48a4f11e3a36316ca76b7ccfe39cbed707d5381045eeff7b4af0c61b001dfdee",
+    "main-build-command.json": "4a4c1cfba6b6a5c348a61d9d069bc69fb2ec8baa76acb124390d2c65ed1b8b98",
+    "source-build.json": "a8aebb8893481fddac6f6bd972f9931733a24f9ce642ecccc59eb96ee89f0c04",
+    "native383-command.json": "a0e66f608eb607f8ea3709f6eadc1da8985901c0294fcd5ba36f4e0f97b37458",
+    "native384-command.json": "b2be341445867ceb5dc01f6922860c58677a12af906374cd473d86d5ffb900c0"
+  },
+  "build_targets_passed": 69,
+  "cpu_checks_passed": 74,
+  "native_routing_checks_passed": 169,
+  "full_contact": "samefailed378trajectory; all145centerarrays and32Armijo rowsmatch, devicefingerprintreportedseparately",
+  "physical_qualification": false
+}
