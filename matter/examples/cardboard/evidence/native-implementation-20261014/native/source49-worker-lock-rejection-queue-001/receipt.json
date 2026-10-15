@@ -1,0 +1,22 @@
+{
+  "schema": "numi.cardboard.orchestration-rejection.v1",
+  "execution_started": false,
+  "exit_code": 1,
+  "timed_out": false,
+  "attempted_cases": [
+    "private-self-sweep-partial-mortar-109",
+    "certified-newton-ccd-prefix-110",
+    "box-uploaded-pose-translation-111",
+    "contact-private-sweep-regional-112",
+    "contact-private-sweep-control-113",
+    "finite-body-private-sweep-114",
+    "bilinear-current-source-115"
+  ],
+  "failure": "another source-bound native worker owns this checkout",
+  "owner_case": "solver/current-complete-coupon-cycle-108",
+  "native_jobs_launched": 0,
+  "production_histories_modified": false,
+  "source_build_sha256": "c538892fbb4501e611b022fca341e87a20802419da1e04d523e4e13e5a4d393e",
+  "qualification": false,
+  "note": "Nonblocking single-GPU admission correctly rejects competing queue. No case directories or predictions were created; rerun after owner exits."
+}

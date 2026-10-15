@@ -49,6 +49,173 @@ def load_catalog(path: Path = CATALOG) -> dict[str, Any]:
     return catalog
 
 
+def validate_haj_ali_marker_centers(
+    rows: list[dict[str, str]],
+    dataset: dict[str, Any],
+    sources: dict[str, dict[str, Any]],
+    data_dir: Path = DATA,
+) -> list[str]:
+    """Validate selected plot-glyph centers without treating them as raw data."""
+    errors: list[str] = []
+    prefix = "haj_ali_2009_experimental_marker_centers_v1"
+    if dataset.get("source_ids") != ["haj_ali_2009"]:
+        errors.append(f"{prefix}: direct marker pixels must bind only to Haj-Ali 2009")
+    digitization = dataset.get("digitization") or {}
+    source = sources.get("haj_ali_2009") or {}
+    render = digitization.get("render") or {}
+    source_render = source.get("page_render") or {}
+    render_hash = source_render.get("sha256")
+    if not render_hash or render.get("sha256") != render_hash:
+        errors.append(f"{prefix}: render hash must match the registered source page image")
+    if digitization.get("source_pdf_sha256") is not None:
+        errors.append(f"{prefix}: do not imply that the page render is an original PDF raster")
+    ledger = digitization.get("pixel_ledger") or {}
+    pixel_ledger: dict[str, Any] | None = None
+    ledger_name = ledger.get("file")
+    if not ledger_name or not ledger.get("sha256"):
+        errors.append(f"{prefix}: reviewed pixel-coordinate ledger must be hash-bound")
+    else:
+        ledger_path = (data_dir / str(ledger_name)).resolve()
+        if data_dir.resolve() not in ledger_path.parents:
+            errors.append(f"{prefix}: pixel ledger escapes the source-data package")
+        elif not ledger_path.is_file():
+            errors.append(f"{prefix}: missing pixel ledger {ledger_name}")
+        elif sha256(ledger_path) != ledger.get("sha256"):
+            errors.append(f"{prefix}: pixel-ledger SHA256 mismatch")
+        else:
+            try:
+                pixel_ledger = json.loads(ledger_path.read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError) as exc:
+                errors.append(f"{prefix}: cannot read pixel ledger: {exc}")
+                pixel_ledger = None
+    if pixel_ledger is None:
+        pixel_ledger = {}
+
+    panels = (digitization.get("axis_mapping") or {}).get("panels") or {}
+    expected_series = {
+        "haj_ali_2009_liner_MD_marker_cloud",
+        "haj_ali_2009_liner_CD_marker_cloud",
+        "haj_ali_2009_medium_NSSC_MD_marker_cloud",
+        "haj_ali_2009_medium_NSSC_CD_marker_cloud",
+    }
+    if set(panels) != expected_series:
+        errors.append(f"{prefix}: expected exactly the four Fig. 1-2 plot panels")
+    by_series: dict[str, list[dict[str, str]]] = {}
+    selected_ids: set[str] = set()
+    unresolved_series: set[str] = set()
+    for line, point in enumerate(rows, start=2):
+        series = point.get("series_id", "")
+        by_series.setdefault(series, []).append(point)
+        panel = panels.get(series)
+        if not panel:
+            errors.append(f"{prefix}:{line}: unknown curve group")
+            continue
+        if point.get("source_id") != "haj_ali_2009":
+            errors.append(f"{prefix}:{line}: CSV source id must bind to Haj-Ali 2009")
+        if point.get("source_render_sha256") != render_hash:
+            errors.append(f"{prefix}:{line}: CSV render hash disagrees with catalog")
+        status = point.get("record_status")
+        if status == "selected_marker_center":
+            if point.get("observation_class") != "digitized_plot_marker_center_estimate_not_raw_measurement":
+                errors.append(f"{prefix}:{line}: selected glyph must remain a plot estimate, not a raw measurement")
+            point_id = point.get("point_id", "")
+            if not point_id or point_id in selected_ids:
+                errors.append(f"{prefix}:{line}: selected marker-center identifier is missing or duplicated")
+            selected_ids.add(point_id)
+            try:
+                x, y = int(point["x_pixel"]), int(point["y_pixel"])
+                eps, sig = float(point["strain_mm_per_mm"]), float(point["stress_MPa"])
+                frame = panel["plot_frame_px"]
+                ranges = panel["axis_ranges"]
+                x0, x1 = int(frame["x0"]), int(frame["x1"])
+                yt, yb = int(frame["y_top"]), int(frame["y_bottom"])
+                if not (x0 <= x <= x1 and yt <= y <= yb):
+                    errors.append(f"{prefix}:{line}: selected center lies outside its plot frame")
+                expected_eps = float(ranges["strain_mm_per_mm"][0]) + (
+                    (x - x0) * (float(ranges["strain_mm_per_mm"][1]) - float(ranges["strain_mm_per_mm"][0])) / (x1 - x0)
+                )
+                expected_sig = float(ranges["stress_MPa"][0]) + (
+                    (yb - y) * (float(ranges["stress_MPa"][1]) - float(ranges["stress_MPa"][0])) / (yb - yt)
+                )
+                if not math.isfinite(eps) or not math.isfinite(sig) or not math.isclose(eps, expected_eps, rel_tol=0.0, abs_tol=5e-12) or not math.isclose(sig, expected_sig, rel_tol=0.0, abs_tol=5e-10):
+                    errors.append(f"{prefix}:{line}: plotted units do not match the registered pixel transform")
+                center_bound = float(point["marker_center_halfwidth_px"])
+                axis_bound = float(point["axis_line_halfwidth_px"])
+                eps_bound = float(point["strain_halfwidth_mm_per_mm"])
+                sig_bound = float(point["stress_halfwidth_MPa"])
+                total_px = center_bound + axis_bound
+                expected_eps_bound = total_px * (float(ranges["strain_mm_per_mm"][1]) - float(ranges["strain_mm_per_mm"][0])) / (x1 - x0)
+                expected_sig_bound = total_px * (float(ranges["stress_MPa"][1]) - float(ranges["stress_MPa"][0])) / (yb - yt)
+                if center_bound <= 0.0 or axis_bound <= 0.0 or not math.isclose(eps_bound, expected_eps_bound, rel_tol=0.0, abs_tol=5e-13) or not math.isclose(sig_bound, expected_sig_bound, rel_tol=0.0, abs_tol=5e-12):
+                    errors.append(f"{prefix}:{line}: finite pixel-localization uncertainty is missing or inconsistent")
+                for field in ("plot_x0_px", "plot_x1_px", "plot_y_top_px", "plot_y_bottom_px"):
+                    frame_key = {"plot_x0_px": "x0", "plot_x1_px": "x1",
+                                 "plot_y_top_px": "y_top", "plot_y_bottom_px": "y_bottom"}[field]
+                    if int(point[field]) != int(frame[frame_key]):
+                        errors.append(f"{prefix}:{line}: CSV plot frame disagrees with catalog panel")
+                        break
+            except (KeyError, TypeError, ValueError, OverflowError):
+                errors.append(f"{prefix}:{line}: selected marker row has malformed pixel/unit values")
+        elif status == "unresolved_overlap_region":
+            unresolved_series.add(series)
+            if point.get("observation_class") != "unresolved_plot_overplot_region_not_observation":
+                errors.append(f"{prefix}:{line}: ambiguous overlap area must not be encoded as an observation")
+            if any(point.get(field, "").strip() for field in ("x_pixel", "y_pixel", "strain_mm_per_mm", "stress_MPa")):
+                errors.append(f"{prefix}:{line}: unresolved overlap row must not contain invented coordinates")
+            if not point.get("note") or not point.get("unresolved_bbox_x0_px"):
+                errors.append(f"{prefix}:{line}: unresolved overlap bounds/reason are missing")
+        else:
+            errors.append(f"{prefix}:{line}: unexpected record status")
+    if set(by_series) != expected_series:
+        errors.append(f"{prefix}: dataset must contain all four marker-cloud panels")
+    if unresolved_series != expected_series:
+        errors.append(f"{prefix}: each panel must retain its unresolved-overplot region")
+    for series in expected_series & set(by_series):
+        points = [p for p in by_series[series] if p.get("record_status") == "selected_marker_center"]
+        orders = []
+        for point in points:
+            try:
+                orders.append(int(point["point_order"]))
+            except (KeyError, ValueError):
+                errors.append(f"{prefix}:{series}: selected center lacks an order index")
+        if orders != list(range(1, len(points) + 1)):
+            errors.append(f"{prefix}:{series}: point ordering must be contiguous and stable")
+        if len(points) != int(panels[series].get("selected_visible_center_count", -1)):
+            errors.append(f"{prefix}:{series}: selected visible-center count differs from ledger metadata")
+        source_panel = next((p for p in pixel_ledger.get("panels", [])
+                             if p.get("series_id") == series), None)
+        if source_panel is None:
+            errors.append(f"{prefix}:{series}: hash-bound raw pixel ledger lacks this panel")
+        else:
+            actual_pixels = []
+            for point in points:
+                try:
+                    actual_pixels.append([int(point["x_pixel"]), int(point["y_pixel"])])
+                except (KeyError, ValueError):
+                    pass
+            if actual_pixels != source_panel.get("selected_marker_centers_xy_px"):
+                errors.append(f"{prefix}:{series}: CSV pixel centers differ from the hash-bound coordinate ledger")
+            catalog_frame = panels[series].get("plot_frame_px") or {}
+            source_frame = {"x0": source_panel.get("x0_px"), "x1": source_panel.get("x1_px"),
+                            "y_top": source_panel.get("y_top_px"), "y_bottom": source_panel.get("y_bottom_px")}
+            catalog_ranges = panels[series].get("axis_ranges") or {}
+            source_ranges = {
+                "strain_mm_per_mm": [source_panel.get("strain_min_mm_per_mm"), source_panel.get("strain_max_mm_per_mm")],
+                "stress_MPa": [source_panel.get("stress_min_MPa"), source_panel.get("stress_max_MPa")],
+            }
+            if catalog_frame != source_frame or catalog_ranges != source_ranges:
+                errors.append(f"{prefix}:{series}: catalog plot frame/ranges differ from the pixel ledger")
+            if panels[series].get("selected_visible_center_count") != source_panel.get("selected_center_count"):
+                errors.append(f"{prefix}:{series}: catalog center count differs from the pixel ledger")
+            if panels[series].get("unresolved_overlap_bbox_px") != source_panel.get("unresolved_bbox_px"):
+                errors.append(f"{prefix}:{series}: unresolved region differs from the pixel ledger")
+    if dataset.get("class") != "partial_digitized_plot_marker_centers_not_raw_measurements":
+        errors.append(f"{prefix}: dataset class must preserve plot-estimate status")
+    if dataset.get("calibration_scope") != "same_source_plot_estimates_only_not_independent_validation":
+        errors.append(f"{prefix}: selected points cannot be split or described as independent validation")
+    return errors
+
+
 def validate_catalog(catalog: dict[str, Any], data_dir: Path = DATA) -> list[str]:
     errors: list[str] = []
     sources = {row.get("id"): row for row in catalog.get("sources", [])}
@@ -142,6 +309,8 @@ def validate_catalog(catalog: dict[str, Any], data_dir: Path = DATA) -> list[str
                 errors.append(f"{dataset_id}: expected three linked nodes for each of four published curves")
             if any("compression" in str(p.get("series_id", "")).lower() for p in rows):
                 errors.append(f"{dataset_id}: compression response is not digitized from these fits")
+        if dataset_id == "haj_ali_2009_experimental_marker_centers_v1":
+            errors.extend(validate_haj_ali_marker_centers(rows, row, sources, data_dir))
         if dataset_id == "popil_2012_ect_rate_fit":
             for index, point in enumerate(rows, start=2):
                 if point.get("observation_class") != "published_equation_evaluation":
@@ -385,6 +554,8 @@ def package_audit(catalog: dict[str, Any]) -> dict[str, Any]:
                  for row in catalog.get("source_conflicts", [])}
     pin_dataset = next((row for row in catalog.get("datasets", [])
                         if row.get("id") == "johnson_popil_pin_force_displacement"), {})
+    haj_marker_dataset = next((row for row in catalog.get("datasets", [])
+                               if row.get("id") == "haj_ali_2009_experimental_marker_centers_v1"), {})
     pin_profile = next((row for row in catalog.get("fixture_profiles", [])
                         if row.get("id") == "johnson_popil_pin_adhesion_engineering_prototype"), {})
     return {
@@ -406,7 +577,10 @@ def package_audit(catalog: dict[str, Any]) -> dict[str, Any]:
             "source_exact_geometry": pin_profile.get("source_exact_geometry"),
         },
         "haj_ali_full_hardening_curve_available": False,
-        "haj_ali_curve_reason": "the author-posted page-4 render exposes the four source-labeled bilinear tension-fit lines, now retained as bounded digitized fit estimates; raw experimental marker curves and compression curves remain unavailable",
+        "haj_ali_curve_reason": "the author-posted page-4 render supplies selected marker-center plot estimates; full raw numeric traces, occluded marker counts, specimen identities, and compression curves remain unavailable",
+        "haj_ali_marker_plot_center_estimates_available": bool(haj_marker_dataset),
+        "haj_ali_marker_plot_center_estimate_count": (haj_marker_dataset.get("curve_identity") or {}).get("selected_visible_marker_centers", 0),
+        "haj_ali_marker_plot_center_scope": "selected visible pixel centers from four panels in the same publication; partial, no specimen mapping, not raw data, and not an independent validation set",
         "haj_ali_bilinear_tension_fit_estimate_available": True,
         "haj_ali_bilinear_tension_fit_reason": "four fitted tension lines are represented by Table 1 yield anchors plus one pixel-read endpoint each; they are source-model fit estimates, not raw experimental traces or specimen replicates",
         "robertsson_strength_hardening_table_available": True,

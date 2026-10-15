@@ -513,3 +513,11 @@ Metal projection. CPU FP32 bytecode replay identifies a generated derivative
 division-domain failure in the hardening partition expression. An algebraically
 equivalent dimensionless expression is being verified; the failing asset is
 not native-qualified. The retained 13-state ideal regression remains separate.
+
+## Source49: bounded contact transactions pass
+
+The immutable source49 build passes56 selected CPU checks and native109–115. Cases112/113 each complete the dormant-contact, bond-activation, loaded-correction and deliberate-rejection sequence (three accepted transactions, one rejection;3,725 assertions). All12 exported production payloads are byte-identical with diagnostics on/off. All18 accepted-history vectors and both cursors are restored on rejection. There are384 healthy read-only full true-residual rows and no excluded production-failure rows. Selected private trial and next production reassembly residual norms match exactly. Direct sweep109 passes2,014 controls/assertions, including partial-mortar covered and uncovered crossings and explicit unsupported initial-touch separation. BOX111 now measures the uploaded pose and passes2,962 assertions, including translation and rejection restoration. CCD110 passes80; finite-body114 passes244; bilinear115 preserves source47 material-point results.
+
+This closes the bounded combined-contact instrument failure, not full solver or shipping qualification. Case108’s final retained CSV contains two of27 accepted coupon controls before600-second timeout; the earlier one-control live reading was a prefix. No actual refinement series or assembled full-box checkpoint passes. All source48 and earlier failed evidence remains available.
+
+Case116 reduces only configured work ceilings to8 Newton passes/512 restart16 columns. It rejects control0 after45.4 seconds at residual2.066e-5, above1e-6, with FG128. The held reference environment passes but the bent environment fails; this is not an accepted coupon control. The unchanged strict rejection remains authoritative.

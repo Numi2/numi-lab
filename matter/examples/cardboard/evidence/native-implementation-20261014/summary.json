@@ -11912,6 +11912,1077 @@
           "repository_copy": "analysis/full-contact-history-compare-104-105-008/full-contact-history-compare-104-105-008.json"
         }
       ]
+    },
+    {
+      "case": "native/bilinear-current-source-115",
+      "external_root": "/Users/home/cardboard-implementation-20261014/native/bilinear-current-source-115",
+      "physical_box_qualification": false,
+      "files": [
+        {
+          "name": "prediction.json",
+          "bytes": 93490,
+          "sha256": "0dda564b366844e2d7310e7bb4cc21372bacb94dc55a963ef291acc5f1331d44",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/bilinear-current-source-115/prediction.json",
+          "repository_copy": "native/bilinear-current-source-115/prediction.json"
+        },
+        {
+          "name": "receipt.json",
+          "bytes": 278,
+          "sha256": "838f3287c75a72a4fc77aa06124f14e8604466ea9854db944c92d22b40728087",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/bilinear-current-source-115/receipt.json",
+          "repository_copy": "native/bilinear-current-source-115/receipt.json"
+        },
+        {
+          "name": "stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/bilinear-current-source-115/stderr.log",
+          "repository_copy": "native/bilinear-current-source-115/stderr.log"
+        },
+        {
+          "name": "stdout.log",
+          "bytes": 18300,
+          "sha256": "8219a2c47712688c0bf1fa92e612e7fae35e4d5d7aa1a18fb0f222a5dd9fa21b",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/bilinear-current-source-115/stdout.log",
+          "repository_copy": "native/bilinear-current-source-115/stdout.log"
+        }
+      ],
+      "receipt": {
+        "schema": "numi.cardboard.native-run-receipt.v2",
+        "execution_started": true,
+        "source_inputs_unchanged": true,
+        "changed_inputs": [],
+        "exit_code": 0,
+        "timed_out": false,
+        "wall_seconds": 2.8213780840160325,
+        "finished_at_utc": "2026-10-15T00:30:18.652269+00:00"
+      },
+      "argv": [
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-049/matter/numi-matter-cardboard-bilinear-paper-gpu-check",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-curves-and-trial-instruments-integrated-049/matter/materials/hajali2009_liner_hill_bilinear_fit.nmatter",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-curves-and-trial-instruments-integrated-049/matter/materials/hajali2009_medium_hill_bilinear_fit.nmatter",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-curves-and-trial-instruments-integrated-049/matter/examples/cardboard/source-data/haj_ali_2009_bilinear_tension_fit_nodes.csv"
+      ],
+      "environment": {},
+      "question": "Does current integrated source preserve both source-fit15-state Metal material-point updates and complete tangent columns?",
+      "prediction": "Resolved nonzero responses retain1e-3 accuracy against exact-input FP64. No recipe damage calibration or zero noise-floor claim follows.",
+      "executed_build_verified": true
+    },
+    {
+      "case": "native/box-uploaded-pose-translation-111",
+      "external_root": "/Users/home/cardboard-implementation-20261014/native/box-uploaded-pose-translation-111",
+      "physical_box_qualification": false,
+      "files": [
+        {
+          "name": "prediction.json",
+          "bytes": 93206,
+          "sha256": "27031a845b7385413a39530d0d6498ca89fe8aabf638350a93ab83130e5b623d",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/box-uploaded-pose-translation-111/prediction.json",
+          "repository_copy": "native/box-uploaded-pose-translation-111/prediction.json"
+        },
+        {
+          "name": "receipt.json",
+          "bytes": 277,
+          "sha256": "9f561fff5be5b0ae43e701df06523e51246bdefa3fac52dbb5dfc39ec1eab013",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/box-uploaded-pose-translation-111/receipt.json",
+          "repository_copy": "native/box-uploaded-pose-translation-111/receipt.json"
+        },
+        {
+          "name": "stderr.log",
+          "bytes": 906,
+          "sha256": "abf70fe2112899a3095f46127584a6d7b359650ed560998e08a5f0eaaefea0b2",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/box-uploaded-pose-translation-111/stderr.log",
+          "repository_copy": "native/box-uploaded-pose-translation-111/stderr.log"
+        },
+        {
+          "name": "stdout.log",
+          "bytes": 1450,
+          "sha256": "9f646ca14bd43305c8ff49223c403c0e47c401d713222ede3135f42a080281bf",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/box-uploaded-pose-translation-111/stdout.log",
+          "repository_copy": "native/box-uploaded-pose-translation-111/stdout.log"
+        }
+      ],
+      "receipt": {
+        "schema": "numi.cardboard.native-run-receipt.v2",
+        "execution_started": true,
+        "source_inputs_unchanged": true,
+        "changed_inputs": [],
+        "exit_code": 0,
+        "timed_out": false,
+        "wall_seconds": 2.194288625032641,
+        "finished_at_utc": "2026-10-15T00:25:12.942543+00:00"
+      },
+      "argv": [
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-049/matter/numi-matter-cardboard-full-contact-armijo-check",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-curves-and-trial-instruments-integrated-049/matter/materials/hajali2009_liner_hill_ideal.nmatter",
+        "--prescribed-box-translation"
+      ],
+      "environment": {},
+      "question": "Does uploaded-runtime tool clearance and complete conservative contact capacity permit genuine prescribedBOX translation and transactional rejection rollback?",
+      "prediction": "Clean disjoint half-pad geometry, exact uploaded capsule pose and18336 candidate reserve must pass before the same strict production acceptance certificate.",
+      "executed_build_verified": true
+    },
+    {
+      "case": "native/certified-newton-ccd-prefix-110",
+      "external_root": "/Users/home/cardboard-implementation-20261014/native/certified-newton-ccd-prefix-110",
+      "physical_box_qualification": false,
+      "files": [
+        {
+          "name": "prediction.json",
+          "bytes": 92948,
+          "sha256": "7b79bb371dbf6d7fc21690b992e71d9afed0dce003aa3774f7ee743d1bb4495f",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/certified-newton-ccd-prefix-110/prediction.json",
+          "repository_copy": "native/certified-newton-ccd-prefix-110/prediction.json"
+        },
+        {
+          "name": "receipt.json",
+          "bytes": 279,
+          "sha256": "e1ac691c563c35bd9802c4f35859438d5dd99dc0b13a149cd17264f04c9ebd40",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/certified-newton-ccd-prefix-110/receipt.json",
+          "repository_copy": "native/certified-newton-ccd-prefix-110/receipt.json"
+        },
+        {
+          "name": "stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/certified-newton-ccd-prefix-110/stderr.log",
+          "repository_copy": "native/certified-newton-ccd-prefix-110/stderr.log"
+        },
+        {
+          "name": "stdout.log",
+          "bytes": 3065,
+          "sha256": "d3b217397a4bc653f90cd5b5a779891402931966639ad2eb398cf49b2c611daa",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/certified-newton-ccd-prefix-110/stdout.log",
+          "repository_copy": "native/certified-newton-ccd-prefix-110/stdout.log"
+        }
+      ],
+      "receipt": {
+        "schema": "numi.cardboard.native-run-receipt.v2",
+        "execution_started": true,
+        "source_inputs_unchanged": true,
+        "changed_inputs": [],
+        "exit_code": 0,
+        "timed_out": false,
+        "wall_seconds": 0.43727345805382356,
+        "finished_at_utc": "2026-10-15T00:25:10.462393+00:00"
+      },
+      "argv": [
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-049/matter/numi-matter-cardboard-contact-ccd-native-check"
+      ],
+      "environment": {},
+      "question": "Does strict JSON export preserve all productionCCD crossing/miss/degeneracy and separately certified shorter-ray controls?",
+      "prediction": "All80 native checks must pass with finite-or-null JSON values and unchanged geometric corpus; no physical fixture qualification is inferred.",
+      "executed_build_verified": true
+    },
+    {
+      "case": "native/contact-private-sweep-control-113",
+      "external_root": "/Users/home/cardboard-implementation-20261014/native/contact-private-sweep-control-113",
+      "physical_box_qualification": false,
+      "files": [
+        {
+          "name": "diagnostic-state/transaction-000000-after.bin",
+          "bytes": 936467,
+          "sha256": "90b9918d6700a93a95dfcec7b36a182a3bd3d07d29994d5da585fbdda3415b6b",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/contact-private-sweep-control-113/diagnostic-state/transaction-000000-after.bin",
+          "repository_copy": "native/contact-private-sweep-control-113/diagnostic-state/transaction-000000-after.bin"
+        },
+        {
+          "name": "diagnostic-state/transaction-000000-before.bin",
+          "bytes": 936467,
+          "sha256": "c75064c07750fbf300b792021f1d57b891c1194968495d9e3fd1b54e95b68798",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/contact-private-sweep-control-113/diagnostic-state/transaction-000000-before.bin",
+          "repository_copy": "native/contact-private-sweep-control-113/diagnostic-state/transaction-000000-before.bin"
+        },
+        {
+          "name": "diagnostic-state/transaction-000000.json",
+          "bytes": 6581,
+          "sha256": "ca4d01559d7a623f7e9e4e2554e6c9643b7e7242505976e6a3279a9ff0af777e",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/contact-private-sweep-control-113/diagnostic-state/transaction-000000.json",
+          "repository_copy": "native/contact-private-sweep-control-113/diagnostic-state/transaction-000000.json"
+        },
+        {
+          "name": "diagnostic-state/transaction-000001-after.bin",
+          "bytes": 936467,
+          "sha256": "073dc2ddc5c63f4c76bb7ae56a5081a7c7ede262f68c441c6a1b2ba0e5773205",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/contact-private-sweep-control-113/diagnostic-state/transaction-000001-after.bin",
+          "repository_copy": "native/contact-private-sweep-control-113/diagnostic-state/transaction-000001-after.bin"
+        },
+        {
+          "name": "diagnostic-state/transaction-000001-before.bin",
+          "bytes": 936467,
+          "sha256": "c75064c07750fbf300b792021f1d57b891c1194968495d9e3fd1b54e95b68798",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/contact-private-sweep-control-113/diagnostic-state/transaction-000001-before.bin",
+          "repository_copy": "native/contact-private-sweep-control-113/diagnostic-state/transaction-000001-before.bin"
+        },
+        {
+          "name": "diagnostic-state/transaction-000001.json",
+          "bytes": 6579,
+          "sha256": "0db48a6976e8e3ce2235eeeab668773fb839dd3d19b1f77f3037abb552cf1555",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/contact-private-sweep-control-113/diagnostic-state/transaction-000001.json",
+          "repository_copy": "native/contact-private-sweep-control-113/diagnostic-state/transaction-000001.json"
+        },
+        {
+          "name": "diagnostic-state/transaction-000002-after.bin",
+          "bytes": 936467,
+          "sha256": "a2ea880a74ec66daf42878a48d13f3632390b7fb90fe9fe55c784ac050629f1d",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/contact-private-sweep-control-113/diagnostic-state/transaction-000002-after.bin",
+          "repository_copy": "native/contact-private-sweep-control-113/diagnostic-state/transaction-000002-after.bin"
+        },
+        {
+          "name": "diagnostic-state/transaction-000002-before.bin",
+          "bytes": 936467,
+          "sha256": "073dc2ddc5c63f4c76bb7ae56a5081a7c7ede262f68c441c6a1b2ba0e5773205",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/contact-private-sweep-control-113/diagnostic-state/transaction-000002-before.bin",
+          "repository_copy": "native/contact-private-sweep-control-113/diagnostic-state/transaction-000002-before.bin"
+        },
+        {
+          "name": "diagnostic-state/transaction-000002.json",
+          "bytes": 6680,
+          "sha256": "8ce25dd4294f547bdbb3efdabe41af41e7423c8fbf0da5bc940262216fcf7052",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/contact-private-sweep-control-113/diagnostic-state/transaction-000002.json",
+          "repository_copy": "native/contact-private-sweep-control-113/diagnostic-state/transaction-000002.json"
+        },
+        {
+          "name": "diagnostic-state/transaction-000003-after.bin",
+          "bytes": 936467,
+          "sha256": "2c1e0ebe038622c74da6a51604bc6c10261380e9ef60d97cc17c4a7798707140",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/contact-private-sweep-control-113/diagnostic-state/transaction-000003-after.bin",
+          "repository_copy": "native/contact-private-sweep-control-113/diagnostic-state/transaction-000003-after.bin"
+        },
+        {
+          "name": "diagnostic-state/transaction-000003-before.bin",
+          "bytes": 936467,
+          "sha256": "a2ea880a74ec66daf42878a48d13f3632390b7fb90fe9fe55c784ac050629f1d",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/contact-private-sweep-control-113/diagnostic-state/transaction-000003-before.bin",
+          "repository_copy": "native/contact-private-sweep-control-113/diagnostic-state/transaction-000003-before.bin"
+        },
+        {
+          "name": "diagnostic-state/transaction-000003.json",
+          "bytes": 6685,
+          "sha256": "384b1996c8f88d32c67712b46a89dab8ebc16f088b8734477c9c6e6cccc800d4",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/contact-private-sweep-control-113/diagnostic-state/transaction-000003.json",
+          "repository_copy": "native/contact-private-sweep-control-113/diagnostic-state/transaction-000003.json"
+        },
+        {
+          "name": "prediction.json",
+          "bytes": 93377,
+          "sha256": "eb098c4f9ae0503e58e7637ac74f9e75ccbd0c75a328531f9ff0f6c72465360b",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/contact-private-sweep-control-113/prediction.json",
+          "repository_copy": "native/contact-private-sweep-control-113/prediction.json"
+        },
+        {
+          "name": "receipt.json",
+          "bytes": 277,
+          "sha256": "ec8b053ca20daac0f99e1dae93c0a7e210534a12ddd74eeac6034f12ec3e81ec",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/contact-private-sweep-control-113/receipt.json",
+          "repository_copy": "native/contact-private-sweep-control-113/receipt.json"
+        },
+        {
+          "name": "stderr.log",
+          "bytes": 23311,
+          "sha256": "9d9ffb35bca894a1a5c22e605b9811b91b8a20ab5661e28cc2d2eab73f42608e",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/contact-private-sweep-control-113/stderr.log",
+          "repository_copy": "native/contact-private-sweep-control-113/stderr.log"
+        },
+        {
+          "name": "stdout.log",
+          "bytes": 1068,
+          "sha256": "ab9d4d8292f12405d68a5110a16974538d5d8eb6e1e992cc2d076a990c0f5fba",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/contact-private-sweep-control-113/stdout.log",
+          "repository_copy": "native/contact-private-sweep-control-113/stdout.log"
+        }
+      ],
+      "receipt": {
+        "schema": "numi.cardboard.native-run-receipt.v2",
+        "execution_started": true,
+        "source_inputs_unchanged": true,
+        "changed_inputs": [],
+        "exit_code": 0,
+        "timed_out": false,
+        "wall_seconds": 144.9693654999719,
+        "finished_at_utc": "2026-10-15T00:30:13.269141+00:00"
+      },
+      "argv": [
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-049/matter/numi-matter-cardboard-full-contact-armijo-check",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-curves-and-trial-instruments-integrated-049/matter/materials/hajali2009_liner_hill_ideal.nmatter",
+        "--extended-budget",
+        "--accurate-paper",
+        "--newton-iterations",
+        "24",
+        "--regional-contact-preconditioner",
+        "--diagnostic-state-output",
+        "/Users/home/cardboard-implementation-20261014/native/contact-private-sweep-control-113/diagnostic-state"
+      ],
+      "environment": {},
+      "question": "Does the new private self-contact trial path preserve diagnostic-on/off production histories?",
+      "prediction": "Exact source/physical inputs and18 persistent rollback vectors must match. Healthy full-linear residual rows are necessary for that diagnostic qualification.",
+      "executed_build_verified": true
+    },
+    {
+      "case": "native/contact-private-sweep-regional-112",
+      "external_root": "/Users/home/cardboard-implementation-20261014/native/contact-private-sweep-regional-112",
+      "physical_box_qualification": false,
+      "files": [
+        {
+          "name": "diagnostic-state/transaction-000000-after.bin",
+          "bytes": 936467,
+          "sha256": "90b9918d6700a93a95dfcec7b36a182a3bd3d07d29994d5da585fbdda3415b6b",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/contact-private-sweep-regional-112/diagnostic-state/transaction-000000-after.bin",
+          "repository_copy": "native/contact-private-sweep-regional-112/diagnostic-state/transaction-000000-after.bin"
+        },
+        {
+          "name": "diagnostic-state/transaction-000000-before.bin",
+          "bytes": 936467,
+          "sha256": "c75064c07750fbf300b792021f1d57b891c1194968495d9e3fd1b54e95b68798",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/contact-private-sweep-regional-112/diagnostic-state/transaction-000000-before.bin",
+          "repository_copy": "native/contact-private-sweep-regional-112/diagnostic-state/transaction-000000-before.bin"
+        },
+        {
+          "name": "diagnostic-state/transaction-000000.json",
+          "bytes": 6581,
+          "sha256": "ca4d01559d7a623f7e9e4e2554e6c9643b7e7242505976e6a3279a9ff0af777e",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/contact-private-sweep-regional-112/diagnostic-state/transaction-000000.json",
+          "repository_copy": "native/contact-private-sweep-regional-112/diagnostic-state/transaction-000000.json"
+        },
+        {
+          "name": "diagnostic-state/transaction-000001-after.bin",
+          "bytes": 936467,
+          "sha256": "073dc2ddc5c63f4c76bb7ae56a5081a7c7ede262f68c441c6a1b2ba0e5773205",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/contact-private-sweep-regional-112/diagnostic-state/transaction-000001-after.bin",
+          "repository_copy": "native/contact-private-sweep-regional-112/diagnostic-state/transaction-000001-after.bin"
+        },
+        {
+          "name": "diagnostic-state/transaction-000001-before.bin",
+          "bytes": 936467,
+          "sha256": "c75064c07750fbf300b792021f1d57b891c1194968495d9e3fd1b54e95b68798",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/contact-private-sweep-regional-112/diagnostic-state/transaction-000001-before.bin",
+          "repository_copy": "native/contact-private-sweep-regional-112/diagnostic-state/transaction-000001-before.bin"
+        },
+        {
+          "name": "diagnostic-state/transaction-000001.json",
+          "bytes": 6579,
+          "sha256": "0db48a6976e8e3ce2235eeeab668773fb839dd3d19b1f77f3037abb552cf1555",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/contact-private-sweep-regional-112/diagnostic-state/transaction-000001.json",
+          "repository_copy": "native/contact-private-sweep-regional-112/diagnostic-state/transaction-000001.json"
+        },
+        {
+          "name": "diagnostic-state/transaction-000002-after.bin",
+          "bytes": 936467,
+          "sha256": "a2ea880a74ec66daf42878a48d13f3632390b7fb90fe9fe55c784ac050629f1d",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/contact-private-sweep-regional-112/diagnostic-state/transaction-000002-after.bin",
+          "repository_copy": "native/contact-private-sweep-regional-112/diagnostic-state/transaction-000002-after.bin"
+        },
+        {
+          "name": "diagnostic-state/transaction-000002-before.bin",
+          "bytes": 936467,
+          "sha256": "073dc2ddc5c63f4c76bb7ae56a5081a7c7ede262f68c441c6a1b2ba0e5773205",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/contact-private-sweep-regional-112/diagnostic-state/transaction-000002-before.bin",
+          "repository_copy": "native/contact-private-sweep-regional-112/diagnostic-state/transaction-000002-before.bin"
+        },
+        {
+          "name": "diagnostic-state/transaction-000002.json",
+          "bytes": 6680,
+          "sha256": "8ce25dd4294f547bdbb3efdabe41af41e7423c8fbf0da5bc940262216fcf7052",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/contact-private-sweep-regional-112/diagnostic-state/transaction-000002.json",
+          "repository_copy": "native/contact-private-sweep-regional-112/diagnostic-state/transaction-000002.json"
+        },
+        {
+          "name": "diagnostic-state/transaction-000003-after.bin",
+          "bytes": 936467,
+          "sha256": "2c1e0ebe038622c74da6a51604bc6c10261380e9ef60d97cc17c4a7798707140",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/contact-private-sweep-regional-112/diagnostic-state/transaction-000003-after.bin",
+          "repository_copy": "native/contact-private-sweep-regional-112/diagnostic-state/transaction-000003-after.bin"
+        },
+        {
+          "name": "diagnostic-state/transaction-000003-before.bin",
+          "bytes": 936467,
+          "sha256": "a2ea880a74ec66daf42878a48d13f3632390b7fb90fe9fe55c784ac050629f1d",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/contact-private-sweep-regional-112/diagnostic-state/transaction-000003-before.bin",
+          "repository_copy": "native/contact-private-sweep-regional-112/diagnostic-state/transaction-000003-before.bin"
+        },
+        {
+          "name": "diagnostic-state/transaction-000003.json",
+          "bytes": 6685,
+          "sha256": "384b1996c8f88d32c67712b46a89dab8ebc16f088b8734477c9c6e6cccc800d4",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/contact-private-sweep-regional-112/diagnostic-state/transaction-000003.json",
+          "repository_copy": "native/contact-private-sweep-regional-112/diagnostic-state/transaction-000003.json"
+        },
+        {
+          "name": "prediction.json",
+          "bytes": 93672,
+          "sha256": "448f50ccbaefd1eb51a71596002da79f6b98c9b9fc25a955cdcbd94a037e20a0",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/contact-private-sweep-regional-112/prediction.json",
+          "repository_copy": "native/contact-private-sweep-regional-112/prediction.json"
+        },
+        {
+          "name": "receipt.json",
+          "bytes": 278,
+          "sha256": "c2777c0fcd643047a0966f48b72f56b6c66b6b5b1be5b14869eab286df63cdd1",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/contact-private-sweep-regional-112/receipt.json",
+          "repository_copy": "native/contact-private-sweep-regional-112/receipt.json"
+        },
+        {
+          "name": "stderr.log",
+          "bytes": 900682,
+          "sha256": "8291b58951ec3659dc5528017af7e60fd0da132f09318a9d145101ec605b42bf",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/contact-private-sweep-regional-112/stderr.log"
+        },
+        {
+          "name": "stdout.log",
+          "bytes": 1068,
+          "sha256": "ab9d4d8292f12405d68a5110a16974538d5d8eb6e1e992cc2d076a990c0f5fba",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/contact-private-sweep-regional-112/stdout.log",
+          "repository_copy": "native/contact-private-sweep-regional-112/stdout.log"
+        }
+      ],
+      "receipt": {
+        "schema": "numi.cardboard.native-run-receipt.v2",
+        "execution_started": true,
+        "source_inputs_unchanged": true,
+        "changed_inputs": [],
+        "exit_code": 0,
+        "timed_out": false,
+        "wall_seconds": 154.59567016694928,
+        "finished_at_utc": "2026-10-15T00:27:47.949270+00:00"
+      },
+      "argv": [
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-049/matter/numi-matter-cardboard-full-contact-armijo-check",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-curves-and-trial-instruments-integrated-049/matter/materials/hajali2009_liner_hill_ideal.nmatter",
+        "--extended-budget",
+        "--accurate-paper",
+        "--newton-iterations",
+        "24",
+        "--regional-contact-preconditioner",
+        "--diagnostic-state-output",
+        "/Users/home/cardboard-implementation-20261014/native/contact-private-sweep-regional-112/diagnostic-state"
+      ],
+      "environment": {
+        "NM_FEM_NEWTON_TRACE_ROOT": "0",
+        "NM_FEM_CONTACT_TRACE_ROOT": "0",
+        "NM_FEM_CONTACT_TRACE_ITERATION": "1",
+        "NM_FEM_TRUE_RESIDUAL_ROOT": "0",
+        "NM_FEM_TRUE_RESIDUAL_RESTART": "0"
+      },
+      "question": "Does complete nonlinear contact pass with conservative capacity, distinct control cursor labels and a recomputed exact private base-to-trial swept self-contact gate?",
+      "prediction": "Every private trial must certify all discovered candidates at exactly its tested update fraction; statuses and final production certificate remain unchanged. Failures are retained.",
+      "executed_build_verified": true
+    },
+    {
+      "case": "native/finite-body-private-sweep-114",
+      "external_root": "/Users/home/cardboard-implementation-20261014/native/finite-body-private-sweep-114",
+      "physical_box_qualification": false,
+      "files": [
+        {
+          "name": "prediction.json",
+          "bytes": 93179,
+          "sha256": "dbb36bec522acbfe6c48e986c6fd0bff21cebd01337c5c984a68c46fb61a937f",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/finite-body-private-sweep-114/prediction.json",
+          "repository_copy": "native/finite-body-private-sweep-114/prediction.json"
+        },
+        {
+          "name": "receipt.json",
+          "bytes": 278,
+          "sha256": "c1a92f95bf416a84a62e010283742683ce4a81df93834874e21c49aaa8702d61",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/finite-body-private-sweep-114/receipt.json",
+          "repository_copy": "native/finite-body-private-sweep-114/receipt.json"
+        },
+        {
+          "name": "stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/finite-body-private-sweep-114/stderr.log",
+          "repository_copy": "native/finite-body-private-sweep-114/stderr.log"
+        },
+        {
+          "name": "stdout.log",
+          "bytes": 239,
+          "sha256": "46e1e4b9244a5e2c581c92dac063a59edfb1f668620ccc8a1ddd302f3d8bad76",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/finite-body-private-sweep-114/stdout.log",
+          "repository_copy": "native/finite-body-private-sweep-114/stdout.log"
+        }
+      ],
+      "receipt": {
+        "schema": "numi.cardboard.native-run-receipt.v2",
+        "execution_started": true,
+        "source_inputs_unchanged": true,
+        "changed_inputs": [],
+        "exit_code": 0,
+        "timed_out": false,
+        "wall_seconds": 1.8689307090244256,
+        "finished_at_utc": "2026-10-15T00:30:15.533938+00:00"
+      },
+      "argv": [
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-049/numi-matter-cardboard-shipping-rigid-native-check",
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-049/matter/shaders/NumiMatter.metallib",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-curves-and-trial-instruments-integrated-049/matter/materials/hajali2009_liner_hill_ideal.nmatter"
+      ],
+      "environment": {},
+      "question": "Does the private self-contact gate preserve supported finite-mass gravity transfer and release?",
+      "prediction": "All244 bounded native bridge assertions must pass including momentum and rejection restoration; no shipping capacity is inferred.",
+      "executed_build_verified": true
+    },
+    {
+      "case": "native/private-self-sweep-partial-mortar-109",
+      "external_root": "/Users/home/cardboard-implementation-20261014/native/private-self-sweep-partial-mortar-109",
+      "physical_box_qualification": false,
+      "files": [
+        {
+          "name": "prediction.json",
+          "bytes": 93306,
+          "sha256": "0107f995677ac11a1e0bc2638ae4f8e76cff8eb3051fe71bd97994926dc31f9f",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/private-self-sweep-partial-mortar-109/prediction.json",
+          "repository_copy": "native/private-self-sweep-partial-mortar-109/prediction.json"
+        },
+        {
+          "name": "receipt.json",
+          "bytes": 279,
+          "sha256": "cc58aa84227e14094fa2d6ced00207babceaa45aaa3c33232b543418db371cd7",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/private-self-sweep-partial-mortar-109/receipt.json",
+          "repository_copy": "native/private-self-sweep-partial-mortar-109/receipt.json"
+        },
+        {
+          "name": "stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/private-self-sweep-partial-mortar-109/stderr.log",
+          "repository_copy": "native/private-self-sweep-partial-mortar-109/stderr.log"
+        },
+        {
+          "name": "stdout.log",
+          "bytes": 856,
+          "sha256": "f5d493adc59000970485958f1fc5dc4ba13d097e7debd1621505ecd59d48e748",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/private-self-sweep-partial-mortar-109/stdout.log",
+          "repository_copy": "native/private-self-sweep-partial-mortar-109/stdout.log"
+        }
+      ],
+      "receipt": {
+        "schema": "numi.cardboard.native-run-receipt.v2",
+        "execution_started": true,
+        "source_inputs_unchanged": true,
+        "changed_inputs": [],
+        "exit_code": 0,
+        "timed_out": false,
+        "wall_seconds": 0.22150545800104737,
+        "finished_at_utc": "2026-10-15T00:25:09.727816+00:00"
+      },
+      "argv": [
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-049/matter/numi-matter-cardboard-full-contact-armijo-check",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-curves-and-trial-instruments-integrated-049/matter/materials/hajali2009_liner_hill_ideal.nmatter",
+        "--private-self-sweep"
+      ],
+      "environment": {},
+      "question": "Does the exact namespaced production gate reject endpoint-clear unbonded and partial-uncovered crossings, admit separated/covered controls, and explicitly reject unsupported initially-touching separation?",
+      "prediction": "All six direct-kernel geometric cases retain the same collision floor and tested trajectory. Covered subregions must avoid duplicate contact while uncovered crossings fail. Runtime transactions are qualified separately.",
+      "executed_build_verified": true
+    },
+    {
+      "case": "native/source49-worker-lock-rejection-queue-001",
+      "external_root": "/Users/home/cardboard-implementation-20261014/native/source49-worker-lock-rejection-queue-001",
+      "physical_box_qualification": false,
+      "files": [
+        {
+          "name": "receipt.json",
+          "bytes": 912,
+          "sha256": "885e071a7210a00b271cd3ef10c7b040ee2fd49c501ebbbcdd0b99d51db2e97e",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/source49-worker-lock-rejection-queue-001/receipt.json",
+          "repository_copy": "native/source49-worker-lock-rejection-queue-001/receipt.json"
+        }
+      ],
+      "receipt": {
+        "schema": "numi.cardboard.orchestration-rejection.v1",
+        "execution_started": false,
+        "exit_code": 1,
+        "timed_out": false,
+        "attempted_cases": [
+          "private-self-sweep-partial-mortar-109",
+          "certified-newton-ccd-prefix-110",
+          "box-uploaded-pose-translation-111",
+          "contact-private-sweep-regional-112",
+          "contact-private-sweep-control-113",
+          "finite-body-private-sweep-114",
+          "bilinear-current-source-115"
+        ],
+        "failure": "another source-bound native worker owns this checkout",
+        "owner_case": "solver/current-complete-coupon-cycle-108",
+        "native_jobs_launched": 0,
+        "production_histories_modified": false,
+        "source_build_sha256": "c538892fbb4501e611b022fca341e87a20802419da1e04d523e4e13e5a4d393e",
+        "qualification": false,
+        "note": "Nonblocking single-GPU admission correctly rejects competing queue. No case directories or predictions were created; rerun after owner exits."
+      }
+    },
+    {
+      "case": "solver/bounded-budget-complete-coupon-cycle-116",
+      "external_root": "/Users/home/cardboard-implementation-20261014/solver/bounded-budget-complete-coupon-cycle-116",
+      "physical_box_qualification": false,
+      "files": [
+        {
+          "name": "output/manifest.json",
+          "bytes": 10889,
+          "sha256": "88f010542e685204b3db29870c218216cb4826cbdbe49dc0e480c129e785d5f3",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/bounded-budget-complete-coupon-cycle-116/output/manifest.json",
+          "repository_copy": "solver/bounded-budget-complete-coupon-cycle-116/output/manifest.json"
+        },
+        {
+          "name": "output/material_state_000001_bent.json",
+          "bytes": 301781,
+          "sha256": "94521297783219fed54d2ec5986cd97089814c8d3591b30d3bba40faae3ee99c",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/bounded-budget-complete-coupon-cycle-116/output/material_state_000001_bent.json"
+        },
+        {
+          "name": "output/mesh.json",
+          "bytes": 160425,
+          "sha256": "6a2f786a47e61014ee4b27f609eb3c2f666677223ddaa30297aeea1fcfd8ca56",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/bounded-budget-complete-coupon-cycle-116/output/mesh.json",
+          "repository_copy": "solver/bounded-budget-complete-coupon-cycle-116/output/mesh.json"
+        },
+        {
+          "name": "output/observations.csv",
+          "bytes": 1519,
+          "sha256": "c8626ed7737fec73095407fb35d913108943f9cfeccadbbd000ba0defb47563b",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/bounded-budget-complete-coupon-cycle-116/output/observations.csv",
+          "repository_copy": "solver/bounded-budget-complete-coupon-cycle-116/output/observations.csv"
+        },
+        {
+          "name": "output/rejected-conditioning-000001/AP.bin",
+          "bytes": 733824,
+          "sha256": "109fc61e8adada0eab1bbadd57fd425cf0a963d02d7ffefbdab02a6a20696fc3",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/bounded-budget-complete-coupon-cycle-116/output/rejected-conditioning-000001/AP.bin",
+          "repository_copy": "solver/bounded-budget-complete-coupon-cycle-116/output/rejected-conditioning-000001/AP.bin"
+        },
+        {
+          "name": "output/rejected-conditioning-000001/P.bin",
+          "bytes": 366912,
+          "sha256": "2626e4bbb205fa1c7e40bdaf3f2e72d11f831ec53431c3062bcc85d69a50f6b5",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/bounded-budget-complete-coupon-cycle-116/output/rejected-conditioning-000001/P.bin",
+          "repository_copy": "solver/bounded-budget-complete-coupon-cycle-116/output/rejected-conditioning-000001/P.bin"
+        },
+        {
+          "name": "output/rejected-conditioning-000001/candidate_nodes.bin",
+          "bytes": 141120,
+          "sha256": "02ce825febbce3c4a88489ce9cddbbbe25aa571847c59c51fae43b8ce4e90930",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/bounded-budget-complete-coupon-cycle-116/output/rejected-conditioning-000001/candidate_nodes.bin",
+          "repository_copy": "solver/bounded-budget-complete-coupon-cycle-116/output/rejected-conditioning-000001/candidate_nodes.bin"
+        },
+        {
+          "name": "output/rejected-conditioning-000001/effective_P.bin",
+          "bytes": 733824,
+          "sha256": "9bf372c75cafcf84bc1e21a20ee3305e7619affffe6415bb9d3398f79970214c",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/bounded-budget-complete-coupon-cycle-116/output/rejected-conditioning-000001/effective_P.bin",
+          "repository_copy": "solver/bounded-budget-complete-coupon-cycle-116/output/rejected-conditioning-000001/effective_P.bin"
+        },
+        {
+          "name": "output/rejected-conditioning-000001/factor_valid.bin",
+          "bytes": 8,
+          "sha256": "64ed86b909d6d0502b64b28db0ea1272ffb358e20e9b1d88b63ccb07fa900cf5",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/bounded-budget-complete-coupon-cycle-116/output/rejected-conditioning-000001/factor_valid.bin",
+          "repository_copy": "solver/bounded-budget-complete-coupon-cycle-116/output/rejected-conditioning-000001/factor_valid.bin"
+        },
+        {
+          "name": "output/rejected-conditioning-000001/manifest.json",
+          "bytes": 1769,
+          "sha256": "50d1e96c0c48a1b9a7a90ce1d84e5c2e3f164b16231ac041bf59b99d943849a6",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/bounded-budget-complete-coupon-cycle-116/output/rejected-conditioning-000001/manifest.json",
+          "repository_copy": "solver/bounded-budget-complete-coupon-cycle-116/output/rejected-conditioning-000001/manifest.json"
+        },
+        {
+          "name": "output/rejected-conditioning-000001/node_block_inverse.bin",
+          "bytes": 84672,
+          "sha256": "8f015dc0ebc27ac56fd76c6a8e18b329126dc4bbaa577d5e315ddd8b0a84493c",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/bounded-budget-complete-coupon-cycle-116/output/rejected-conditioning-000001/node_block_inverse.bin",
+          "repository_copy": "solver/bounded-budget-complete-coupon-cycle-116/output/rejected-conditioning-000001/node_block_inverse.bin"
+        },
+        {
+          "name": "output/rejected-conditioning-000001/pivoted_RAP.bin",
+          "bytes": 5408,
+          "sha256": "ec703270873e09d665325d40f24c6969ac0a83c0756cc97226ffec70fbac92f9",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/bounded-budget-complete-coupon-cycle-116/output/rejected-conditioning-000001/pivoted_RAP.bin",
+          "repository_copy": "solver/bounded-budget-complete-coupon-cycle-116/output/rejected-conditioning-000001/pivoted_RAP.bin"
+        },
+        {
+          "name": "output/rejected-conditioning-000001/pivots.bin",
+          "bytes": 208,
+          "sha256": "d96f9a408a0e2e577575e02f6bb6a304af5226c37af79fbe8b26989bf9d0ebb9",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/bounded-budget-complete-coupon-cycle-116/output/rejected-conditioning-000001/pivots.bin",
+          "repository_copy": "solver/bounded-budget-complete-coupon-cycle-116/output/rejected-conditioning-000001/pivots.bin"
+        },
+        {
+          "name": "output/result.json",
+          "bytes": 642,
+          "sha256": "abc92caa941a609754031b718e5db2df86323dd321da71d9bf21cc6676257c95",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/bounded-budget-complete-coupon-cycle-116/output/result.json",
+          "repository_copy": "solver/bounded-budget-complete-coupon-cycle-116/output/result.json"
+        },
+        {
+          "name": "prediction.json",
+          "bytes": 94602,
+          "sha256": "30c5345b5d18fb8e520d3c16994f1efa25aa80951206cb64572d2e7807dec77e",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/bounded-budget-complete-coupon-cycle-116/prediction.json",
+          "repository_copy": "solver/bounded-budget-complete-coupon-cycle-116/prediction.json"
+        },
+        {
+          "name": "receipt.json",
+          "bytes": 277,
+          "sha256": "b1c860bedf85af11d4caf5d7104530b960fba3b1fcb6bca14754e12bd43ccc92",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/bounded-budget-complete-coupon-cycle-116/receipt.json",
+          "repository_copy": "solver/bounded-budget-complete-coupon-cycle-116/receipt.json"
+        },
+        {
+          "name": "stderr.log",
+          "bytes": 146,
+          "sha256": "377847371d3bf4deaa204724a0a5ab8de5dda0c3b713e4f34df0643cc2ebbf73",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/bounded-budget-complete-coupon-cycle-116/stderr.log",
+          "repository_copy": "solver/bounded-budget-complete-coupon-cycle-116/stderr.log"
+        },
+        {
+          "name": "stdout.log",
+          "bytes": 287,
+          "sha256": "a7206b71ee3f0e2b63cd0caaf38166f6e0d6bd2ba0dfeaf8f5058c8628be46d9",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/bounded-budget-complete-coupon-cycle-116/stdout.log",
+          "repository_copy": "solver/bounded-budget-complete-coupon-cycle-116/stdout.log"
+        }
+      ],
+      "receipt": {
+        "schema": "numi.cardboard.native-run-receipt.v2",
+        "execution_started": true,
+        "source_inputs_unchanged": true,
+        "changed_inputs": [],
+        "exit_code": 2,
+        "timed_out": false,
+        "wall_seconds": 45.42581558402162,
+        "finished_at_utc": "2026-10-15T00:31:20.860964+00:00"
+      },
+      "argv": [
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-049/matter/numi-matter-cardboard-probe",
+        "--preset",
+        "literature2009",
+        "--line-search-steps",
+        "24",
+        "--accurate-paper-projection",
+        "--scaled-paper-residuals",
+        "--without-self-contact",
+        "--reference-displacement-gradient",
+        "--compensated-paper-arithmetic",
+        "--safeguarded-paper-initializer",
+        "--residual-tolerance",
+        "1e-6",
+        "--newton-iterations",
+        "8",
+        "--fgmres-restart",
+        "16",
+        "--fgmres-iterations",
+        "512",
+        "--fgmres-preconditioner",
+        "regional-galerkin-block",
+        "--steps",
+        "12",
+        "--hold-steps",
+        "3",
+        "--unload-steps",
+        "6",
+        "--relax-steps",
+        "3",
+        "--release-steps",
+        "3",
+        "--nx",
+        "8",
+        "--ny",
+        "2",
+        "--thickness-slices",
+        "1",
+        "--bend-angle",
+        ".375",
+        "--dt",
+        ".0001",
+        "--material-iterations",
+        "16",
+        "--metallib",
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-049/matter/shaders/NumiMatter.metallib",
+        "--output",
+        "/Users/home/cardboard-implementation-20261014/solver/bounded-budget-complete-coupon-cycle-116/output",
+        "--liner-material",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-curves-and-trial-instruments-integrated-049/matter/materials/hajali2009_liner_hill_ideal.nmatter",
+        "--medium-material",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-curves-and-trial-instruments-integrated-049/matter/materials/hajali2009_medium_hill_ideal.nmatter"
+      ],
+      "environment": {
+        "NM_FEM_RESIDUAL_ARMIJO_ROOT": "all"
+      },
+      "question": "Can the same27-control coupon cycle complete using8 Newton passes and512 restart16 Krylov columns, while retaining strict1e-6 production acceptance and identical physical paths/material/history?",
+      "prediction": "Only configured numerical work ceilings change, with no relaxed tolerance/operator. Every loading/hold/withdrawal/relaxation/release control must be accepted; compare the first2 controls with source48case108. Failure is retained and cannot qualify convergence.",
+      "executed_build_verified": true
+    },
+    {
+      "case": "solver/current-complete-coupon-cycle-108",
+      "external_root": "/Users/home/cardboard-implementation-20261014/solver/current-complete-coupon-cycle-108",
+      "physical_box_qualification": false,
+      "files": [
+        {
+          "name": "output/manifest.json",
+          "bytes": 10849,
+          "sha256": "9f3aa1264cbd909194b5704851f88f543ddfd5901b3e8488cd45c0889138a3d0",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/current-complete-coupon-cycle-108/output/manifest.json",
+          "repository_copy": "solver/current-complete-coupon-cycle-108/output/manifest.json"
+        },
+        {
+          "name": "output/mesh.json",
+          "bytes": 160425,
+          "sha256": "6a2f786a47e61014ee4b27f609eb3c2f666677223ddaa30297aeea1fcfd8ca56",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/current-complete-coupon-cycle-108/output/mesh.json",
+          "repository_copy": "solver/current-complete-coupon-cycle-108/output/mesh.json"
+        },
+        {
+          "name": "output/observations.csv",
+          "bytes": 2712,
+          "sha256": "109f8ce8baf5630fcfde94f264a0b83a470decde4ffb2a3df890252dbb88f102",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/current-complete-coupon-cycle-108/output/observations.csv",
+          "repository_copy": "solver/current-complete-coupon-cycle-108/output/observations.csv"
+        },
+        {
+          "name": "prediction.json",
+          "bytes": 94040,
+          "sha256": "06465161a8820adede44c5c3ae1832d823f9d5b3d8a86a36b71a2f33a7457c13",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/current-complete-coupon-cycle-108/prediction.json",
+          "repository_copy": "solver/current-complete-coupon-cycle-108/prediction.json"
+        },
+        {
+          "name": "receipt.json",
+          "bytes": 278,
+          "sha256": "07a96d3c4c5c56306d1ea7ca92b66e373b6fbd40deaf02b701afcb33b766f1ca",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/current-complete-coupon-cycle-108/receipt.json",
+          "repository_copy": "solver/current-complete-coupon-cycle-108/receipt.json"
+        },
+        {
+          "name": "stderr.log",
+          "bytes": 438,
+          "sha256": "97b14fb6f15fbba9cef5d8fbe48c3d6e8272c4c1de63b02215bf704a46c35aa9",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/current-complete-coupon-cycle-108/stderr.log",
+          "repository_copy": "solver/current-complete-coupon-cycle-108/stderr.log"
+        },
+        {
+          "name": "stdout.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/current-complete-coupon-cycle-108/stdout.log",
+          "repository_copy": "solver/current-complete-coupon-cycle-108/stdout.log"
+        }
+      ],
+      "receipt": {
+        "schema": "numi.cardboard.native-run-receipt.v2",
+        "execution_started": true,
+        "source_inputs_unchanged": true,
+        "changed_inputs": [],
+        "exit_code": -15,
+        "timed_out": true,
+        "wall_seconds": 600.1981371659786,
+        "finished_at_utc": "2026-10-15T00:24:02.964574+00:00"
+      },
+      "argv": [
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-048/matter/numi-matter-cardboard-probe",
+        "--preset",
+        "literature2009",
+        "--line-search-steps",
+        "24",
+        "--accurate-paper-projection",
+        "--scaled-paper-residuals",
+        "--without-self-contact",
+        "--reference-displacement-gradient",
+        "--compensated-paper-arithmetic",
+        "--safeguarded-paper-initializer",
+        "--residual-tolerance",
+        "1e-6",
+        "--newton-iterations",
+        "64",
+        "--fgmres-restart",
+        "16",
+        "--fgmres-iterations",
+        "1024",
+        "--fgmres-preconditioner",
+        "regional-galerkin-block",
+        "--steps",
+        "12",
+        "--hold-steps",
+        "3",
+        "--unload-steps",
+        "6",
+        "--relax-steps",
+        "3",
+        "--release-steps",
+        "3",
+        "--nx",
+        "8",
+        "--ny",
+        "2",
+        "--thickness-slices",
+        "1",
+        "--bend-angle",
+        ".375",
+        "--dt",
+        ".0001",
+        "--material-iterations",
+        "16",
+        "--metallib",
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-048/matter/shaders/NumiMatter.metallib",
+        "--output",
+        "/Users/home/cardboard-implementation-20261014/solver/current-complete-coupon-cycle-108/output",
+        "--liner-material",
+        "/Users/home/cardboard-implementation-20261014/snapshots/private-swept-contact-integrated-048/matter/materials/hajali2009_liner_hill_ideal.nmatter",
+        "--medium-material",
+        "/Users/home/cardboard-implementation-20261014/snapshots/private-swept-contact-integrated-048/matter/materials/hajali2009_medium_hill_ideal.nmatter"
+      ],
+      "environment": {
+        "NM_FEM_RESIDUAL_ARMIJO_ROOT": "all"
+      },
+      "question": "Does current integrated solver complete the27-control loading, hold, withdrawal, relaxation and release coupon cycle at unchanged recipe/operator/global tolerance without diagnostic readbacks?",
+      "prediction": "The exact ideal Hill regression recipe, physical paths, dt, restart16 and1e-6 production certificate remain fixed. Only all27 accepted controls constitute a complete cycle; failures/timeouts and prefixes remain unqualified.",
+      "executed_build_verified": true
+    },
+    {
+      "case": "build/source-build-049",
+      "external_root": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-049",
+      "physical_box_qualification": false,
+      "files": [
+        {
+          "name": "provenance-command-0.log",
+          "bytes": 1218,
+          "sha256": "b908d80b63c77ccad2a3f2394bd97fdd6787439dea58add3ea6de885b7d5eae0",
+          "external_path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-049/provenance-command-0.log",
+          "repository_copy": "build/source-build-049/provenance-command-0.log"
+        },
+        {
+          "name": "provenance-command-1.log",
+          "bytes": 31681,
+          "sha256": "ea219d65dcee859227ade45f848543b9b5f14b9c6093e1659cbfa60fefe636f0",
+          "external_path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-049/provenance-command-1.log",
+          "repository_copy": "build/source-build-049/provenance-command-1.log"
+        },
+        {
+          "name": "source-build.json",
+          "bytes": 102168,
+          "sha256": "c538892fbb4501e611b022fca341e87a20802419da1e04d523e4e13e5a4d393e",
+          "external_path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-049/source-build.json",
+          "repository_copy": "build/source-build-049/source-build.json"
+        }
+      ],
+      "build_receipt": {
+        "schema": "numi.cardboard.source-build.v1",
+        "success": true,
+        "targets": [
+          "numi-matter-cardboard-barrier-scale-check",
+          "numi-matter-cardboard-box-assembly-controller-check",
+          "numi-matter-cardboard-box-blank-check",
+          "numi-matter-cardboard-cohesive-face-check",
+          "numi-matter-cardboard-compensated-deformation-check",
+          "numi-matter-cardboard-damage-builder-check",
+          "numi-matter-cardboard-delamination-reference-check",
+          "numi-matter-cardboard-expression-cache-check",
+          "numi-matter-cardboard-fracture-regularization-check",
+          "numi-matter-cardboard-full-contact-armijo-check",
+          "numi-matter-cardboard-generic-compensated-projection-check",
+          "numi-matter-cardboard-glue-mesh-check",
+          "numi-matter-cardboard-material-check",
+          "numi-matter-cardboard-mixed-cohesive-check",
+          "numi-matter-cardboard-mixed-cohesive-face-check",
+          "numi-matter-cardboard-mixed-cohesive-frame-check",
+          "numi-matter-cardboard-paper-material-check",
+          "numi-matter-cardboard-pin-adhesion-fixture-check",
+          "numi-matter-cardboard-probe",
+          "numi-matter-cardboard-profile-check",
+          "numi-matter-cardboard-retained-damage-fp64-oracle-check",
+          "numi-matter-cardboard-retained-matrix-damage-check",
+          "numi-matter-cardboard-retained-matrix-damage-metal-check",
+          "numi-matter-cardboard-shipping-closure-mesh-check",
+          "numi-matter-cardboard-shipping-driver-check",
+          "numi-matter-cardboard-shipping-memory-check",
+          "numi-matter-cardboard-shipping-protocol-check",
+          "numi-matter-cardboard-shipping-snapshot-check",
+          "numi-matter-cardboard-solver-replay",
+          "numi-matter-cardboard-starch-interface-mesh-check",
+          "numi-matter-cardboard-tooling-check",
+          "numi-matter-fem-material-frame-compiler-check",
+          "numi-matter-fem-reference-check",
+          "numi-matter-fem-regional-galerkin-compiler-check",
+          "numi-matter-fem-regional-galerkin-native-check",
+          "numi-matter-fem-static-surface-map-check",
+          "numi-matter-fixed-convex-contact-step-check",
+          "numi-matter-robertsson-fem-coupling-check",
+          "numi-matter-stateful-check",
+          "numi-matter-cardboard-solver-pair-replay",
+          "numi-matter-cardboard-reaction-observables-check",
+          "numi-matter-cardboard-capsule-armijo-check",
+          "numi-matter-cardboard-shipping-rigid-driver-check",
+          "numi-matter-cardboard-shipping-rigid-native-check",
+          "numi-matter-cardboard-bilinear-paper-gpu-check",
+          "numi-matter-cardboard-contact-ccd-native-check"
+        ],
+        "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-curves-and-trial-instruments-integrated-049",
+        "source_bindings": 726,
+        "artifact_bindings": 54,
+        "finished_at_utc": "2026-10-15T00:16:59.285564+00:00",
+        "error": null
+      }
+    },
+    {
+      "case": "cpu-checks-049",
+      "external_root": "/Users/home/cardboard-implementation-20261014/cpu-checks-049",
+      "physical_box_qualification": false,
+      "files": [
+        {
+          "name": "receipt.json",
+          "bytes": 3040,
+          "sha256": "d7b65e31c535d541ab96f95b079e0275ffc14c2b9b9f97fa755f5a033f6f97b0",
+          "external_path": "/Users/home/cardboard-implementation-20261014/cpu-checks-049/receipt.json",
+          "repository_copy": "cpu-checks-049/receipt.json"
+        },
+        {
+          "name": "selected-tests.txt",
+          "bytes": 2413,
+          "sha256": "07bd664201a4521dfb13a9639ca497d79b713f438d05afdc71bbfa2a1d181866",
+          "external_path": "/Users/home/cardboard-implementation-20261014/cpu-checks-049/selected-tests.txt",
+          "repository_copy": "cpu-checks-049/selected-tests.txt"
+        },
+        {
+          "name": "stdout.log",
+          "bytes": 10663,
+          "sha256": "987cfd3d63fde9892de80be6bc3693aac6937c60d4fd849b8a338a2847b60fdd",
+          "external_path": "/Users/home/cardboard-implementation-20261014/cpu-checks-049/stdout.log",
+          "repository_copy": "cpu-checks-049/stdout.log"
+        }
+      ],
+      "receipt": {
+        "schema": "numi.cardboard.cpu-check-receipt.v1",
+        "argv": [
+          "ctest",
+          "--test-dir",
+          "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-049",
+          "--output-on-failure",
+          "-j",
+          "4",
+          "-R",
+          "^(matter.compiler.cardboard_solver_reference|matter.analysis.cardboard_source_data|matter.analysis.cardboard_calibration_ensemble|matter.analysis.cardboard_resolution_study|matter.analysis.cardboard_convergence|matter.analysis.cardboard_tooling|matter.analysis.cardboard_newton_trace|matter.analysis.cardboard_accepted_animation|matter.analysis.cardboard_capsule_side_derivative|matter.compiler.cardboard_tooling|matter.compiler.cardboard_barrier_scale|matter.compiler.cardboard_profile|matter.compiler.cardboard_fracture_regularization|matter.compiler.cardboard_starch_interface_mesh|matter.compiler.cardboard_glue_mesh|matter.compiler.cardboard_box_blank|matter.compiler.cardboard_shipping_protocol|matter.compiler.cardboard_box_assembly_controller|matter.compiler.cardboard_damage_builder|matter.compiler.cardboard_retained_matrix_damage|cardboard-compensated-deformation|matter.compiler.fem_static_surface_map|matter.compiler.cardboard_pin_adhesion_fixture|matter.compiler.cardboard_retained_damage_fp64_oracle|matter.compiler.cardboard_generic_compensated_projection|matter.compiler.fem_regional_galerkin|matter.compiler.fixed_convex_contact_step|matter.compiler.cardboard_shipping_driver|matter.compiler.cardboard_shipping_memory|matter.compiler.cardboard_shipping_closure_mesh|matter.compiler.cardboard_shipping_snapshot|matter.compiler.cardboard_mixed_cohesive_frame|matter.compiler.cardboard_mixed_cohesive|matter.compiler.cardboard_paper|matter.compiler.cardboard_expression_cache|matter.compiler.cardboard_delamination_reference|matter.compiler.cardboard_material|matter.compiler.fem_material_frame|matter.compiler.stateful_roundtrip|matter.compiler.cardboard_mixed_cohesive_face|matter.compiler.cardboard_cohesive_face|matter.compiler.fem_reference|matter.compiler.cardboard_robertsson_fem_coupling|matter.analysis.cardboard_deformable_derivative|matter.analysis.cardboard_retained_capture_audit|matter.analysis.cardboard_stage_resolution|matter.analysis.cardboard_regional_conditioning|matter.analysis.cardboard_diagnostic_history|matter.analysis.cardboard_solver_pair|matter.analysis.cardboard_solver_assembly|matter.analysis.cardboard_full_contact_history|matter.compiler.cardboard_reaction_observables|matter.compiler.cardboard_full_contact_armijo|matter.compiler.cardboard_shipping_rigid_driver|matter.compiler.cardboard_bilinear_liner_rest_fp32|matter.compiler.cardboard_bilinear_medium_rest_fp32)$"
+        ],
+        "started_at_utc": "2026-10-15T00:17:21.493427+00:00",
+        "finished_at_utc": "2026-10-15T00:18:07.987625+00:00",
+        "exit_code": 0,
+        "source_build": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-049/source-build.json",
+        "source_build_sha256": "c538892fbb4501e611b022fca341e87a20802419da1e04d523e4e13e5a4d393e",
+        "physical_steps": 0,
+        "physical_validation": false
+      }
+    },
+    {
+      "case": "analysis/full-contact-history-compare-112-113-009",
+      "external_root": "/Users/home/cardboard-implementation-20261014/native",
+      "physical_box_qualification": false,
+      "files": [
+        {
+          "name": "full-contact-history-compare-112-113-009.json",
+          "bytes": 7148,
+          "sha256": "8e3e6179d2d5add06bc708c80928c05514720971f92e1b00cb3e420a4c7608d9",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/full-contact-history-compare-112-113-009.json",
+          "repository_copy": "analysis/full-contact-history-compare-112-113-009/full-contact-history-compare-112-113-009.json"
+        }
+      ]
     }
   ],
   "verdicts": {
@@ -11923,9 +12994,9 @@
     "crush_impact_prediction": "unexecuted"
   },
   "qualification": {
-    "solver_correctness": "Scoped actual Metal contact/material actions and diagnostic parity measured; pair-aware061local/frame/element/gather replay complete. 063/064 exposeBOXrollbackbug;044source081/079verify18persistentvectorsrestoredandrawparity. Actual08128contactactionsmax2.2143e-4relative. Complete nonlinear-contact cycle and noise-floor strict gates remain open. Source46 regional AP with active cohesive face passes. Source48 104/105 accept dormant contact and activation with byte-identical payloads and384healthy true-residual rows, then fail an instrument cursor assertion before loaded/rollback stages. Source48 direct validator test101 has namespaced lookup error; production kernel is present. Invalid legacy fixture and all failures are retained.",
-    "numerical_convergence": "057/058failafter1of27controls;061accepts3of27before900stimeout. No complete mesh/time refinement series qualified.",
-    "component_calibration": "Published tensile hardening and analogue sources retained; source47 case09515-state Metal projection/stress/tangents/loading/unloading passes resolved1e-3 checks, synthetic30state derivative instrument passes scoped checks. Pin fixture/HMA calibration and exact recipe identification remain open.",
+    "solver_correctness": "Source49 full-contact112/113 pass3725checks each:3 accepted native transactions and1deliberate rejection,12 raw production payloads byte-identical,18 persistent rollback vectors unchanged,384healthy true-residual rows and0excluded failures. Native109direct swept validator2014checks,110CCD80,111prescribedBOXtranslation2962and3transactions,114finitebody244,115bilinear complete tangents allpass. Selected private trial matches next production residual exactly. These bounded synthetic/component results do not qualify complete coupon/noise-floor/fullshipping; prior failed captures/instruments retained.",
+    "numerical_convergence": "057/058failafter1of27controls;061accepts3of27before900stimeout;source48case108accepts2of27before600stimeout. No complete mesh/time refinement series qualified.",
+    "component_calibration": "Source49 retains278hash-bound published marker-center estimates with pixel/axis uncertainty and4overplots, calibrationonly unknownspecimens;15-state nativebilinear115checks pass resolved1e-3 gates. Current tensile onset uses symmetriccompression-basedHill surface; pressure/multiaxial transfer and tensile damage notidentified. Pin fixture/HMA calibration and exactrecipe identification remainopen.",
     "analogue_validation": "UNQUALIFIED",
     "physical_assembly_in_simulation": "UNEXECUTED",
     "crush_impact_prediction": "UNEXECUTED"

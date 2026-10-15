@@ -23,6 +23,23 @@
 
 namespace numi::cardboard {
 
+// The shipping scoring assembly has three fixed-orientation score families.
+// Each family owns one capsule punch and two box rails; the shipping world
+// adds a platen, floor, and finite-mass impactor proxy/body slot.
+inline constexpr std::uint32_t kShippingScoreToolFamilyCount = 3u;
+inline constexpr std::uint32_t kShippingRigidProxiesPerScoreFamily = 3u;
+inline constexpr std::uint32_t kShippingAdditionalRigidProxyCount = 3u;
+inline constexpr std::uint32_t kShippingSceneBodiesPerScoreFamily = 2u;
+inline constexpr std::uint32_t kShippingAdditionalBodySlotCount = 3u;
+inline constexpr std::uint32_t kShippingScoreToolProxyCount =
+    kShippingScoreToolFamilyCount * kShippingRigidProxiesPerScoreFamily;
+inline constexpr std::uint32_t kShippingRigidProxyCount =
+    kShippingScoreToolProxyCount + kShippingAdditionalRigidProxyCount;
+inline constexpr std::uint32_t kShippingScoreToolSceneBodyCount =
+    kShippingScoreToolFamilyCount * kShippingSceneBodiesPerScoreFamily;
+inline constexpr std::uint32_t kShippingRigidBodyCount =
+    kShippingScoreToolSceneBodyCount + kShippingAdditionalBodySlotCount;
+
 // Engineering diagnostic defaults, not published manufacturing tolerances.
 // The residual bound scales with authored board caliper so the same controller
 // remains meaningful when the coupon/blank dimensions change.
@@ -330,7 +347,8 @@ inline BoxScoreToolingSet makeSequentialBoxScoreTooling(
         if (found == result.families.end()) {
             familyIndex = static_cast<std::uint32_t>(result.families.size());
             BoxScoreToolingSet::SequentialFamily family;
-            family.scoreBodyIndex = 2u * familyIndex;
+            family.scoreBodyIndex =
+                kShippingSceneBodiesPerScoreFamily * familyIndex;
             family.supportBodyIndex = family.scoreBodyIndex + 1u;
             family.referenceCenter = {
                 0.5 * (line.first.x + line.second.x),
@@ -346,7 +364,7 @@ inline BoxScoreToolingSet makeSequentialBoxScoreTooling(
         result.scoreLineFamilyIndices[scoreIndex] = familyIndex;
         result.families[familyIndex].scoreLineIndices.push_back(scoreIndex);
     }
-    if (result.families.size() != 3u)
+    if (result.families.size() != kShippingScoreToolFamilyCount)
         throw std::invalid_argument(
             "shipping score-line layout must reduce to three fixed-orientation families");
     result.scoreBodyIndex = result.families.front().scoreBodyIndex;
@@ -357,7 +375,7 @@ inline BoxScoreToolingSet makeSequentialBoxScoreTooling(
     const double extension = punchOverhang - punchRadius;
     const double railHalfWidth = 0.5 * supportRailWidth;
     const double railOffset = 0.5 * channelWidth + railHalfWidth;
-    result.proxies.reserve(result.families.size() * 3u);
+    result.proxies.reserve(kShippingScoreToolProxyCount);
     for (const auto& family : result.families) {
         const double halfCenterline =
             0.5 * family.lineLength + extension;
@@ -408,6 +426,9 @@ inline BoxScoreToolingSet makeSequentialBoxScoreTooling(
             result.proxies.push_back(rail);
         }
     }
+    if (result.proxies.size() != kShippingScoreToolProxyCount)
+        throw std::logic_error(
+            "shipping score tooling proxy count differs from its shared layout");
     return result;
 }
 
@@ -419,7 +440,8 @@ inline std::vector<MRBodyStateGPU> makeBoxToolBodyStates(
         parkedHeight <= tooling.boardCaliper + 2.0 * tooling.punchRadius)
         throw std::invalid_argument("box tool body-state inputs are invalid");
     const std::uint32_t bodyCount = tooling.sequentialFamilies
-        ? static_cast<std::uint32_t>(tooling.families.size() * 2u) : 2u;
+        ? static_cast<std::uint32_t>(tooling.families.size() *
+              kShippingSceneBodiesPerScoreFamily) : 2u;
     std::vector<MRBodyStateGPU> result(
         static_cast<std::size_t>(environmentCount) * bodyCount);
     for (std::uint32_t environment = 0u;

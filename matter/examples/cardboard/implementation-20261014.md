@@ -7,9 +7,9 @@ miniature regression fixture remain the starting physical model.
 
 | Verdict | Current evidence | Remaining qualification |
 | --- | --- | --- |
-| Solver correctness | Stable Fischer–Burmeister derivatives; scoped material/element actions; native mixed cohesive frame, regional Galerkin/grip transition and finite-body bridge checks; 80 native CCD checks; source48 clean combined-contact fixture accepts dormant contact and activation with identical diagnostic on/off payloads and 384 healthy true-residual rows | Complete coupon remains unqualified. The source48 fixture then fails an instrument cursor assertion before loaded/rollback stages. A private swept self-contact gate is implemented; its direct test has a namespaced lookup error. Full-cycle and zero-response noise-floor gates remain open |
+| Solver correctness | Stable Fischer–Burmeister derivatives; scoped material/element actions; native mixed cohesive frame, regional Galerkin/grip transition and finite-body bridge checks; 80 native CCD checks; source49 combined-contact cases112/113 pass 3 accepted transactions plus rejection, 12 byte-identical on/off payloads, 18-vector rollback and 384 healthy true-residual rows; direct swept validation109 and prescribed BOX translation111 pass | Complete coupon remains unqualified: case108 timed out with 2/27 controls. Initially touching unbonded separating paths are explicitly unsupported by the private sweep gate. Full-cycle and zero-response noise-floor gates remain open |
 | Numerical convergence | Sequential source-bound resolution runner and strict full-history comparisons implemented | Actual 8/16/32 × 2/4/8 × 1/2/4 spatial and dt/2/dt/4 histories have not qualified |
-| Component calibration | Versioned source identities, condition split, published bilinear tensile fits, retained-recipe damage/rate/densification and feasible-set tooling; source47 case095 verifies both 15-state hardening assets on Metal at rest, MD/CD loading, unloading and reloading, including all nine tangent columns; own-grade Robertsson absolute-energy discrepancy is recorded | Point-update correctness and four fitted tensile slopes do not establish a calibrated corrugated failure law. Complete pin fixture, damage/interface validation, multiaxial transfer and exact-recipe identification remain open |
+| Component calibration | Versioned source identities, condition split, 278 primary-figure marker estimates with pixel uncertainty and unknown specimen identity, published bilinear tensile fits, retained-recipe damage/rate/densification and feasible-set tooling; source47 case095 and source49 case115 verify both 15-state hardening assets on Metal at rest, MD/CD loading, unloading and reloading, including all nine tangent columns; own-grade Robertsson absolute-energy discrepancy is recorded | Point-update correctness and four fitted tensile slopes do not establish a calibrated corrugated failure law; the current Hill tensile onset remains compression based. Complete pin fixture, damage/interface validation, multiaxial transfer and exact-recipe identification remain open |
 | Analogue validation | Explicit transfer uncertainty and separate ECT/scored-bend series | Simulated source fixtures and held-out curve comparisons |
 | Physical assembly in simulation | Shipping blank and stage/checkpoint helpers pass CPU checks; native initialization uses 10.50 GB Metal allocation with zero physical steps | All twelve score operations, coupon-derived allowance, wall/tab/flap forming, adhesive activation, clamp release, settled assembly and accepted stage checkpoints |
 | Crush/impact prediction | Finite-mass rigid/FEM bridge passes 244 native assertions, repeated with source47 in case100; staged box protocol is implemented | Native box compression/first peak, gravity transfer, centered and offset drops, energy/momentum accounting, and impact time refinement |
@@ -180,8 +180,8 @@ loading body bring the compiled proxy total to 12. Tools relocate through
 accepted fixed-orientation translation steps; no FEM interior rotation sets
 panel geometry. This resolves the authored scene's former 39-proxy count mismatch but leaves
 5,440,536 dense node/proxy pairs and the other shipping runtime caps open.
-Accepted BOX translation and physical score completion still need qualification.
-The source48 prebuild estimator still uses the legacy 39-proxy/5-body reserve;
+Source49 case111 accepts the prescribed BOX translation and verifies its uploaded pose plus rejection rollback. Physical score completion still needs qualification.
+The source48 prebuild estimator used the legacy 39-proxy/5-body reserve;
 source49 replaces it with shared constants for the actual 12-proxy/9-body scene.
 This estimator correction is separate from native physics admission.
 
@@ -229,3 +229,11 @@ because no healthy linear solve occurs. Source48 reserves all 18,336 possible
 primitive pairs for that small fixture and adds a private base-to-trial swept
 gate for new and inactive self-contact candidates. Its native outcomes must
 be recorded separately.
+
+## Published source49 native instrument milestone
+
+The integrated source49 build passes all 56 selected CPU checks. Native cases109–115 all pass: the exact production swept-contact kernel distinguishes six crossing/coverage controls (2,014 assertions); the CCD corpus passes80; the prescribed BOX instrument passes2,962 assertions across three native transactions; combined-contact cases112/113 each pass3,725 assertions with three accepted transactions and one deliberate rejection; the finite-body bridge passes244; and the bilinear Metal point update retains its complete stress/state/tangent comparisons. These counts refer to bounded synthetic or component instruments.
+
+The on/off comparator records12 byte-identical production payloads, restoration of18 persistent vectors and both accepted cursors after rejection,384 healthy full-operator true-residual rows, and no excluded failed-production rows. The selected private trial and the next production reassembly have exactly matching residual norms. Source48’s failed namespaced lookup, cursor and uploaded-pose assertions remain retained. Source49 repairs those instruments without changing their physical tolerances. Loaded/rejected fixture traces were checked in memory but not exported in this source; source50 adds explicit trace retention.
+
+Case108 remains a complete-cycle failure: after600 seconds it retained two of27 accepted controls. It does not qualify mesh or time convergence. Configured-work-budget case116 (8 Newton passes/512 restart16 columns) rejects its first control after45.4 seconds at residual2.066e-5, above the unchanged1e-6 gate. The rejection and conditioning capture are retained. Every shipping scoring, folding, closure, settled-checkpoint, compression and heavy-object stage remains unqualified.

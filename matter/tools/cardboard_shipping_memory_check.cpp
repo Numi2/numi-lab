@@ -1,4 +1,5 @@
 #include "cardboard_shipping_memory.hpp"
+#include "cardboard_box_assembly_controller.hpp"
 
 #include <cstdlib>
 #include <iostream>
@@ -53,22 +54,73 @@ void run() {
         prebuild, preflightOnlyOptions);
     require(preflightOnlyBudget.withinLimit,
             "shipping preflight-only arena estimate exceeded the 16 GiB planning limit");
+    // Build the exact shared shipping tooling composition used by the probe:
+    // three score families, each with a capsule punch and two rail boxes,
+    // followed by platen, floor, and impactor slots.
+    GlueMeshConfig sectionConfig;
+    sectionConfig.length = 1.025;
+    sectionConfig.pitch = 0.0079;
+    sectionConfig.caliper = 0.004210;
+    sectionConfig.linerThickness = 0.000277;
+    sectionConfig.mediumThickness = 0.000191;
+    sectionConfig.glueMinimumGap = 0.000100;
+    sectionConfig.bondWidth = 0.000800;
+    sectionConfig.nxPerPitch = 4u;
+    sectionConfig.thicknessSlices = 1u;
+    sectionConfig.allowPartialTerminalPitch = true;
+    const auto section = buildConformingGlueCrossSection(sectionConfig);
+    FEFCO0201BlankConfig blankConfig;
+    blankConfig.panelLength = 0.300;
+    blankConfig.panelWidth = 0.200;
+    blankConfig.wallHeight = 0.200;
+    blankConfig.manufacturerJointWidth = 0.025;
+    blankConfig.slotKerf = 0.001;
+    blankConfig.subdivisionsPerBand = 1u;
+    const auto blank = buildFEFCO0201Blank(blankConfig, section);
+    const ShippingScoreToolDefaults scoreDefaults;
+    const double pitchOverhang = 0.25 * sectionConfig.pitch;
+    const auto tooling = makeSequentialBoxScoreTooling(
+        blank, scoreDefaults.punchRadiusM, pitchOverhang,
+        pitchOverhang, pitchOverhang, 0.001, pitchOverhang,
+        scoreDefaults.channelWidthM, scoreDefaults.supportRailWidthM);
+    const auto scoreToolBodies = makeBoxToolBodyStates(tooling, 1u, 0.050);
+    const std::uint64_t observedProxyCount = tooling.proxies.size() +
+        kShippingAdditionalRigidProxyCount;
+    const std::uint64_t observedBodySlotCount = scoreToolBodies.size() +
+        kShippingAdditionalBodySlotCount;
+    require(tooling.families.size() == kShippingScoreToolFamilyCount &&
+                tooling.proxies.size() == kShippingScoreToolProxyCount &&
+                scoreToolBodies.size() == kShippingScoreToolSceneBodyCount &&
+                observedProxyCount == kShippingRigidProxyCount &&
+                observedBodySlotCount == kShippingRigidBodyCount,
+            "prebuild shipping rigid counts diverged from executable score tooling and scene composition");
+
     ShippingPrebuildArenaOptions fullWorldOptions;
-    fullWorldOptions.rigidProxyCount = 39u;
-    fullWorldOptions.rigidBodyCount = 5u;
+    fullWorldOptions.rigidProxyCount = observedProxyCount;
+    fullWorldOptions.rigidBodyCount = observedBodySlotCount;
     fullWorldOptions.cohesiveFaceUpperBound =
         prebuild.nominalTetrahedronCount / 5u;
     fullWorldOptions.compactImmutableSurfaceMap = true;
     const auto fullDefaultCapacityBudget =
         estimateShippingPrebuildMemoryBudget(prebuild, fullWorldOptions);
-    require(!fullDefaultCapacityBudget.withinLimit,
-            "full shipping contact upper bound with default slots passed the 16 GiB gate");
+    require(fullDefaultCapacityBudget.withinLimit,
+            "twelve-proxy shipping prebuild estimate exceeded the memory-only 16 GiB envelope");
+    fullWorldOptions.requireFullContactResidualDescent = true;
+    const auto requiredFullDefaultCapacityBudget =
+        estimateShippingPrebuildMemoryBudget(prebuild, fullWorldOptions);
+    require(!requiredFullDefaultCapacityBudget.withinLimit &&
+                !requiredFullDefaultCapacityBudget.requiredResidualDescentArenaAdmitted &&
+                requiredFullDefaultCapacityBudget.requiredRigidContactArmijoBytes > 0u,
+            "shipping estimate admitted required full-contact arenas beyond the native pair cap");
     fullWorldOptions.deformableContactCapacity = 1048576u;
     const auto explicitCapacityBudget =
         estimateShippingPrebuildMemoryBudget(prebuild, fullWorldOptions);
-    require(explicitCapacityBudget.withinLimit &&
+    require(!explicitCapacityBudget.withinLimit &&
+                !explicitCapacityBudget.requiredResidualDescentArenaAdmitted &&
+                explicitCapacityBudget.estimatedPeakDomainBytes <
+                    requiredFullDefaultCapacityBudget.estimatedPeakDomainBytes &&
                 explicitCapacityBudget.rigidContactRuntimeBytes > 0u,
-            "explicit contact-capacity prebuild estimate omitted tool-contact arenas");
+            "explicit deformable capacity did not reduce the estimate while preserving the rigid-pair rejection");
     const auto longer = screenShippingPrebuildMemory(10.0, 0.0079);
     require(longer.estimatedNodeCount > prebuild.estimatedNodeCount &&
                 longer.estimatedTetrahedronCount > prebuild.estimatedTetrahedronCount,
@@ -128,8 +180,8 @@ void run() {
     shipping.deformableContactCapacity =
         8u * kShippingReferenceTetrahedra;
     shipping.rigidGeneralizedCapacity = 6u;
-    shipping.rigidBodyCount = 5u;
-    shipping.rigidProxyCount = 4u;
+    shipping.rigidBodyCount = kShippingRigidBodyCount;
+    shipping.rigidProxyCount = kShippingRigidProxyCount;
     shipping.materialStateStride = 27u;
     shipping.compactPreconditionerRegionCount = 3u;
     shipping.environmentCount = 1u;
@@ -280,7 +332,7 @@ void run() {
                   "shipping budget admitted private Armijo contact above runtime limits");
     auto requiredButUnselected = shipping;
     requiredButUnselected.fullContactArmijoRequired = true;
-    requiredButUnselected.rigidProxyCount = 39u;
+    requiredButUnselected.rigidProxyCount = kShippingRigidProxyCount;
     requiredButUnselected.contactPairCount =
         requiredButUnselected.nodeCount * requiredButUnselected.rigidProxyCount;
     requiredButUnselected.activeContactCapacity =

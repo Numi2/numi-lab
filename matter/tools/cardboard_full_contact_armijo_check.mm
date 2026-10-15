@@ -1483,18 +1483,37 @@ struct Fixture {
     }
 };
 
+enum class PrivateSelfSweepCase {
+    unbondedCrossing,
+    separatedMiss,
+    fullyCoveredCrossing,
+    partialUncoveredCrossing,
+    partialCoveredCrossing,
+    initiallyTouchingSeparating,
+};
+
 NMMatterStatusGPU runPrivateSelfSweepKernelCase(
         id<MTLDevice> device,
         id<MTLCommandQueue> queue,
         id<MTLComputePipelineState> pipeline,
-        const bool crossing,
-        const bool fullyCoveredMortar) {
+        const PrivateSelfSweepCase fixtureCase) {
+    const bool hasMortar =
+        fixtureCase == PrivateSelfSweepCase::fullyCoveredCrossing ||
+        fixtureCase == PrivateSelfSweepCase::partialUncoveredCrossing ||
+        fixtureCase == PrivateSelfSweepCase::partialCoveredCrossing;
+    const bool partialMortar =
+        fixtureCase == PrivateSelfSweepCase::partialUncoveredCrossing ||
+        fixtureCase == PrivateSelfSweepCase::partialCoveredCrossing;
+    const bool separatedMiss =
+        fixtureCase == PrivateSelfSweepCase::separatedMiss;
+    const bool initiallyTouching =
+        fixtureCase == PrivateSelfSweepCase::initiallyTouchingSeparating;
     NMMatterDispatchGPU dispatch{};
     dispatch.environmentCount = 1u;
     dispatch.objectCount = 1u;
     dispatch.femNodeCount = 8u;
     dispatch.tetrahedronCount = 2u;
-    dispatch.cohesiveFaceCount = fullyCoveredMortar ? 1u : 0u;
+    dispatch.cohesiveFaceCount = hasMortar ? 1u : 0u;
     dispatch.deformableContactCapacity = 1u;
     dispatch.numericalLimits = {1.0e-3f, 0.0f, 1.0e-8f, 1.0e20f};
 
@@ -1516,9 +1535,16 @@ NMMatterStatusGPU runPrivateSelfSweepKernelCase(
         base[featureIndex + 1u].positionAndMass =
             {point[0], point[1], point[2], 1.0f};
         trial[featureIndex + 1u] = base[featureIndex + 1u];
-        const float startZ = 2.0e-4f;
-        const float endZ = crossing ? -2.0e-4f : 2.0e-4f;
-        const float lateral = crossing || fullyCoveredMortar ? 0.0f : 2.0e-2f;
+        const float startZ = initiallyTouching ? 0.0f : 2.0e-4f;
+        float endZ = 2.0e-4f;
+        if (fixtureCase == PrivateSelfSweepCase::unbondedCrossing ||
+            fixtureCase == PrivateSelfSweepCase::fullyCoveredCrossing ||
+            fixtureCase == PrivateSelfSweepCase::partialUncoveredCrossing)
+            endZ = -2.0e-4f;
+        else if (fixtureCase == PrivateSelfSweepCase::partialCoveredCrossing &&
+                 featureIndex == 0u)
+            endZ = -2.0e-4f;
+        const float lateral = separatedMiss ? 2.0e-2f : 0.0f;
         base[featureIndex + 5u].positionAndMass =
             {point[0] + lateral, point[1], startZ, 1.0f};
         trial[featureIndex + 5u].positionAndMass =
@@ -1545,14 +1571,15 @@ NMMatterStatusGPU runPrivateSelfSweepKernelCase(
     candidate.identity = {0u, 4u, 0u, NM_TOPOLOGY_ACTIVE};
     const std::uint32_t candidateCount = 1u;
 
-    // A full-parent mortar record is an explicit control: coincident motion
-    // across the covered×covered patch must not be mistaken for ordinary
-    // self-contact. The other cases have no cohesive table entry.
+    // Full- and partial-parent mortar records exercise the exact production
+    // partition. For the partial patch, barycentric x>=0.35 is covered; the
+    // covered-only crossing moves the x=1 corner through the lower face while
+    // the complement remains separated by more than the CCD floor.
     std::vector<NMIncidenceRangeGPU> ranges(8u);
     std::array<nm_uint4, 2> references{};
     NMCohesiveFaceGPU face{};
     std::vector<NMCohesiveFaceGPU> faces;
-    if (fullyCoveredMortar) {
+    if (hasMortar) {
         ranges[0u] = {0u, 1u, 0u, 0u};
         references[0u] = {4u, 0u, 0u, 0u};
         face.nodesAndFirst = {1u, 2u, 3u, 0u};
@@ -1564,14 +1591,20 @@ NMMatterStatusGPU runPrivateSelfSweepKernelCase(
         };
         face.separatedNodes = {5u, 6u, 7u, 0u};
         face.lawIdentity.x = NM_COHESIVE_LAW_MIXED_MODE_BILINEAR;
-        const std::array<nm_float4, 3> identityWeights = {{
-            {1.0f, 0.0f, 0.0f, 0.0f},
-            {0.0f, 1.0f, 0.0f, 0.0f},
-            {0.0f, 0.0f, 1.0f, 0.0f},
-        }};
-        for (std::size_t index = 0u; index < identityWeights.size(); ++index) {
-            face.mortarSideAVertexWeights[index] = identityWeights[index];
-            face.mortarSideBVertexWeights[index] = identityWeights[index];
+        const std::array<nm_float4, 3> patchWeights = partialMortar
+            ? std::array<nm_float4, 3>{{
+                {1.0f, 0.0f, 0.0f, 0.0f},
+                {0.35f, 0.65f, 0.0f, 0.0f},
+                {0.35f, 0.0f, 0.65f, 0.0f},
+            }}
+            : std::array<nm_float4, 3>{{
+                {1.0f, 0.0f, 0.0f, 0.0f},
+                {0.0f, 1.0f, 0.0f, 0.0f},
+                {0.0f, 0.0f, 1.0f, 0.0f},
+            }};
+        for (std::size_t index = 0u; index < patchWeights.size(); ++index) {
+            face.mortarSideAVertexWeights[index] = patchWeights[index];
+            face.mortarSideBVertexWeights[index] = patchWeights[index];
         }
         faces.push_back(face);
     } else {
@@ -1651,7 +1684,8 @@ void verifyPrivateSelfSweepValidator() {
         (libraryError != nil ? std::string([[libraryError description] UTF8String])
                              : std::string("unknown Metal library error")));
     id<MTLFunction> function = [library
-        newFunctionWithName:@"nm_contact_validate_armijo_deformable_sweep"];
+        newFunctionWithName:
+            @"numi_matter_metal::nm_contact_validate_armijo_deformable_sweep"];
     require(function != nil,
             "production private self-sweep validator kernel is missing");
     NSError* pipelineError = nil;
@@ -1664,20 +1698,37 @@ void verifyPrivateSelfSweepValidator() {
     require(queue != nil, "private self-sweep test command queue unavailable");
 
     const NMMatterStatusGPU crossing = runPrivateSelfSweepKernelCase(
-        device, queue, pipeline, true, false);
+        device, queue, pipeline, PrivateSelfSweepCase::unbondedCrossing);
     require(crossing.code == NM_STATUS_CONTACT_FAILURE,
             "endpoint-clear triangle sweep crossing was not rejected by production validator");
     const NMMatterStatusGPU miss = runPrivateSelfSweepKernelCase(
-        device, queue, pipeline, false, false);
+        device, queue, pipeline, PrivateSelfSweepCase::separatedMiss);
     require(miss.code == NM_STATUS_SUCCESS,
             "separated triangle sweep miss was not admitted by production validator");
     const NMMatterStatusGPU covered = runPrivateSelfSweepKernelCase(
-        device, queue, pipeline, true, true);
+        device, queue, pipeline, PrivateSelfSweepCase::fullyCoveredCrossing);
     require(covered.code == NM_STATUS_SUCCESS,
             "fully covered active mortar parent pair duplicated self-contact rejection");
+    const NMMatterStatusGPU partialUncovered = runPrivateSelfSweepKernelCase(
+        device, queue, pipeline,
+        PrivateSelfSweepCase::partialUncoveredCrossing);
+    require(partialUncovered.code == NM_STATUS_CONTACT_FAILURE,
+            "crossing through the uncovered complement of a partial active mortar patch was admitted");
+    const NMMatterStatusGPU partialCovered = runPrivateSelfSweepKernelCase(
+        device, queue, pipeline, PrivateSelfSweepCase::partialCoveredCrossing);
+    require(partialCovered.code == NM_STATUS_SUCCESS,
+            "crossing confined to a partial active mortar patch duplicated self-contact rejection");
+    const NMMatterStatusGPU touchingSeparating = runPrivateSelfSweepKernelCase(
+        device, queue, pipeline,
+        PrivateSelfSweepCase::initiallyTouchingSeparating);
+    require(touchingSeparating.code == NM_STATUS_CONTACT_FAILURE,
+            "initially touching unbonded separating ray was not explicitly rejected as unsupported");
     std::cout << "private_self_sweep_validator=pass"
               << " endpoint_clear_crossing=rejected separated_miss=accepted"
               << " fully_covered_mortar_crossing=excluded_from_self_contact"
+              << " partial_uncovered_crossing=rejected"
+              << " partial_covered_crossing=excluded_from_self_contact"
+              << " initial_unbonded_touch_separating=rejected_unsupported"
               << " direct_production_kernel=true runtime_transaction=false\n";
 }
 
@@ -1956,7 +2007,10 @@ void runAcceptedAndRollback(const MaterialProgram& bulk) {
     StepResult closed;
     {
         StderrCapture stderrCapture;
-        closed = run.step(0u, false, true);
+        // A fresh public control cursor is zero. Use distinct nonzero labels
+        // so this test observes advancement, rather than comparing 0 with 0
+        // after a genuinely accepted first transaction.
+        closed = run.step(1u, false, true);
         captured = stderrCapture.finish();
     }
     emitSelectedDeformableContactCapture(captured);
@@ -1978,12 +2032,12 @@ void runAcceptedAndRollback(const MaterialProgram& bulk) {
     // The second selected step starts from the accepted, active interface. It
     // must execute a nonzero FEM correction while the mixed face, rigid tools,
     // and private deformable self-contact path are all enabled.
-    setenv("NM_FEM_RESIDUAL_ARMIJO_TRACE_ROOT", "1", 1);
+    setenv("NM_FEM_RESIDUAL_ARMIJO_TRACE_ROOT", "2", 1);
     std::string loadedTrace;
     StepResult loaded;
     {
         StderrCapture stderrCapture;
-        loaded = run.step(1u);
+        loaded = run.step(2u);
         loadedTrace = stderrCapture.finish();
     }
     emitSelectedDeformableContactCapture(loadedTrace);
@@ -2002,13 +2056,13 @@ void runAcceptedAndRollback(const MaterialProgram& bulk) {
             "active-interface nonlinear correction did not enter the Armijo private trial path");
     verifySelectedTrialsAndCandidateAgreement(loadedTrace);
 
-    setenv("NM_FEM_RESIDUAL_ARMIJO_TRACE_ROOT", "2", 1);
+    setenv("NM_FEM_RESIDUAL_ARMIJO_TRACE_ROOT", "3", 1);
     const RuntimeStateSnapshot beforeFailure = loaded.snapshot;
     std::string rejectedTrace;
     StepResult rejected;
     {
         StderrCapture stderrCapture;
-        rejected = run.step(2u, true, false);
+        rejected = run.step(3u, true, false);
         rejectedTrace = stderrCapture.finish();
     }
     require(rejectedTrace.find("fem_full_contact_residual_armijo_enabled=") !=
@@ -2209,12 +2263,17 @@ void runPrescribedBoxTranslationAcceptance(const MaterialProgram& bulk) {
     const auto* const uploadedBodies =
         static_cast<const MRBodyStateGPU*>(run.bodyBuffer.contents);
     const MRBodyStateGPU& uploadedPunchBody = uploadedBodies[kPunchBody];
+    const MRBodyStateGPU uploadedSupportBody = uploadedBodies[kAnvilBody];
     const RigidProxySource& punchProxy =
         source.world.rigidProxies.at(kPunchBody);
+    const RigidProxySource& supportProxy =
+        source.world.rigidProxies.at(kAnvilBody);
     require(punchProxy.shape == NM_RIGID_CAPSULE &&
             std::isfinite(punchProxy.radiusOrOffset) &&
             punchProxy.radiusOrOffset > 0.0,
             "prescribed BOX clearance preflight requires the authored punch capsule");
+    require(supportProxy.shape == NM_RIGID_BOX,
+            "prescribed BOX translation fixture requires the authored support BOX");
     const ToolQuaternion punchOrientation = normalized(ToolQuaternion{
         double(uploadedPunchBody.orientation.x),
         double(uploadedPunchBody.orientation.y),
@@ -2253,6 +2312,44 @@ void runPrescribedBoxTranslationAcceptance(const MaterialProgram& bulk) {
                 NM_RIGID_PRESCRIBED_TRANSLATION,
             "separated-translation fixture did not compile a prescribed BOX proxy");
 
+    const ToolQuaternion supportStartOrientation = normalized(ToolQuaternion{
+        double(uploadedSupportBody.orientation.x),
+        double(uploadedSupportBody.orientation.y),
+        double(uploadedSupportBody.orientation.z),
+        double(uploadedSupportBody.orientation.w),
+    });
+    const ToolVec3 supportStartPosition{
+        double(uploadedSupportBody.position.x),
+        double(uploadedSupportBody.position.y),
+        double(uploadedSupportBody.position.z),
+    };
+    const ToolVec3 supportLocalCenter{
+        supportProxy.localCenter[0], supportProxy.localCenter[1],
+        supportProxy.localCenter[2],
+    };
+    const ToolVec3 expectedStartProxyCenter = supportStartPosition +
+        rotate(supportStartOrientation, supportLocalCenter);
+    const double stepDuration = run.runtime.timestepSeconds();
+    const ToolVec3 supportVelocity{
+        double(uploadedSupportBody.linearVelocityAndInverseMass.x),
+        double(uploadedSupportBody.linearVelocityAndInverseMass.y),
+        double(uploadedSupportBody.linearVelocityAndInverseMass.z),
+    };
+    // Match the native fixture's uploaded float endpoint arithmetic exactly;
+    // this is the commanded body pose, then the authored proxy transform is
+    // applied to obtain its expected accepted center.
+    const float endpointDt = static_cast<float>(stepDuration);
+    const ToolVec3 expectedEndBodyPosition{
+        double(uploadedSupportBody.position.x +
+            uploadedSupportBody.linearVelocityAndInverseMass.x * endpointDt),
+        double(uploadedSupportBody.position.y +
+            uploadedSupportBody.linearVelocityAndInverseMass.y * endpointDt),
+        double(uploadedSupportBody.position.z +
+            uploadedSupportBody.linearVelocityAndInverseMass.z * endpointDt),
+    };
+    const ToolVec3 expectedEndProxyCenter = expectedEndBodyPosition +
+        rotate(supportStartOrientation, supportLocalCenter);
+
     // Request control step 1 so the public cursor's controlStep field visibly
     // advances from the freshly initialized zero cursor.
     const StepResult acceptedStep = run.step(1u);
@@ -2265,21 +2362,46 @@ void runPrescribedBoxTranslationAcceptance(const MaterialProgram& bulk) {
     require(accepted.rigidStates.size() == before.rigidStates.size() &&
             accepted.rigidStates.size() == 2u,
             "prescribed BOX translation changed the rigid-state layout");
-    const NMRigidStateGPU& oldBox = before.rigidStates[kAnvilBody];
     const NMRigidStateGPU& newBox = accepted.rigidStates[kAnvilBody];
-    constexpr double kExpectedTranslation = 1.0e-5;
-    require(std::abs(double(newBox.centerAndRadius.x) - oldBox.centerAndRadius.x -
-                kExpectedTranslation) <= 2.0e-7 &&
-            std::abs(double(newBox.bodyCenter.x) - oldBox.bodyCenter.x -
-                kExpectedTranslation) <= 2.0e-7 &&
-            std::abs(double(newBox.centerAndRadius.y) - oldBox.centerAndRadius.y) <= 1.0e-7 &&
-            std::abs(double(newBox.centerAndRadius.z) - oldBox.centerAndRadius.z) <= 1.0e-7,
+    const ToolVec3 measuredEndBodyPosition{
+        double(newBox.bodyCenter.x), double(newBox.bodyCenter.y),
+        double(newBox.bodyCenter.z),
+    };
+    const ToolVec3 measuredEndProxyCenter{
+        double(newBox.centerAndRadius.x), double(newBox.centerAndRadius.y),
+        double(newBox.centerAndRadius.z),
+    };
+    constexpr double kAcceptedPoseTolerance = 2.0e-7;
+    require(length(measuredEndProxyCenter - expectedEndProxyCenter) <=
+                kAcceptedPoseTolerance &&
+            length(measuredEndBodyPosition - expectedEndBodyPosition) <=
+                kAcceptedPoseTolerance,
             "accepted prescribed BOX center did not advance by dt times its authored velocity");
-    require(std::memcmp(&newBox.extent, &oldBox.extent, sizeof(oldBox.extent)) == 0 &&
-            std::memcmp(&newBox.orientation, &oldBox.orientation,
-                sizeof(oldBox.orientation)) == 0 &&
-            newBox.linearVelocityAndInverseMass.x ==
-                oldBox.linearVelocityAndInverseMass.x,
+    const ToolQuaternion expectedSupportOrientation = multiply(
+        supportStartOrientation, normalized(ToolQuaternion{
+            supportProxy.localOrientation[0],
+            supportProxy.localOrientation[1],
+            supportProxy.localOrientation[2],
+            supportProxy.localOrientation[3],
+        }));
+    const bool orientationMatches =
+        std::abs(double(newBox.orientation.x) - expectedSupportOrientation.x) <= 1.0e-6 &&
+        std::abs(double(newBox.orientation.y) - expectedSupportOrientation.y) <= 1.0e-6 &&
+        std::abs(double(newBox.orientation.z) - expectedSupportOrientation.z) <= 1.0e-6 &&
+        std::abs(double(newBox.orientation.w) - expectedSupportOrientation.w) <= 1.0e-6;
+    const bool extentMatches =
+        std::abs(double(newBox.extent.x) - supportProxy.localExtent[0]) <= 1.0e-7 &&
+        std::abs(double(newBox.extent.y) - supportProxy.localExtent[1]) <= 1.0e-7 &&
+        std::abs(double(newBox.extent.z) - supportProxy.localExtent[2]) <= 1.0e-7;
+    const bool velocityMatches =
+        std::abs(double(newBox.linearVelocityAndInverseMass.x) - supportVelocity.x) <= 1.0e-7 &&
+        std::abs(double(newBox.linearVelocityAndInverseMass.y) - supportVelocity.y) <= 1.0e-7 &&
+        std::abs(double(newBox.linearVelocityAndInverseMass.z) - supportVelocity.z) <= 1.0e-7;
+    const double measuredTranslation = measuredEndBodyPosition.x -
+                                       supportStartPosition.x;
+    const double expectedTranslation = expectedEndBodyPosition.x -
+                                       supportStartPosition.x;
+    require(extentMatches && orientationMatches && velocityMatches,
             "accepted prescribed BOX translation changed its fixed shape/orientation/velocity");
 
     // Each mismatch is attempted from the same last accepted translated pose.
@@ -2293,7 +2415,20 @@ void runPrescribedBoxTranslationAcceptance(const MaterialProgram& bulk) {
                                 "orientation");
 
     std::cout << "prescribed_box_separated_translation=pass"
-              << " accepted_translation_m=" << kExpectedTranslation
+              << " initial_body_center_m=(" << supportStartPosition.x << ','
+              << supportStartPosition.y << ',' << supportStartPosition.z << ')'
+              << " initial_proxy_center_m=(" << expectedStartProxyCenter.x << ','
+              << expectedStartProxyCenter.y << ',' << expectedStartProxyCenter.z << ')'
+              << " expected_final_body_center_m=(" << expectedEndBodyPosition.x << ','
+              << expectedEndBodyPosition.y << ',' << expectedEndBodyPosition.z << ')'
+              << " measured_final_body_center_m=(" << measuredEndBodyPosition.x << ','
+              << measuredEndBodyPosition.y << ',' << measuredEndBodyPosition.z << ')'
+              << " expected_final_proxy_center_m=(" << expectedEndProxyCenter.x << ','
+              << expectedEndProxyCenter.y << ',' << expectedEndProxyCenter.z << ')'
+              << " measured_final_proxy_center_m=(" << measuredEndProxyCenter.x << ','
+              << measuredEndProxyCenter.y << ',' << measuredEndProxyCenter.z << ')'
+              << " expected_translation_m=" << expectedTranslation
+              << " measured_translation_m=" << measuredTranslation
               << " endpoint_velocity_mismatch=reject orientation_mismatch=reject"
               << " rejected_state_rollback=true kinematic_geometry_contract_only=true\n";
 }

@@ -35,6 +35,7 @@ identifiability result, not a passing calibration.
 |---|---|
 | `haj_ali_2009_yield_anchors.csv` | Four Table 1 tensile yield anchors for 205 gsm kraft liner and 126 gsm NSSC medium are usable as source-grade yield anchors. Compression values are separately marked as the article's 60%-of-tension modeling assumption. They are not compression measurements. The retained author-posted page-4 render makes the four solid bilinear tension-fit lines in Figs. 1–2 readable. Those source-fit estimates are stored separately from the Table 1 anchors; raw experimental marker traces and specimen identities remain unavailable, and compression rows remain assumptions. |
 | `haj_ali_2009_bilinear_tension_fit_nodes.csv` | Twelve linked nodes: origin, Table 1 tensile-yield point, and one visually read endpoint on each of the four source-labeled bilinear tension-fit lines in Figs. 1–2. Tangent intervals propagate ±2 px endpoint readout, ±1 px axis-line location, and Table 1 rounding. The CSV also derives a uniaxial plastic modulus `H=E*Et/(E-Et)` from each tangent and Table 2 E. This is an estimate of the authors' fitted curves, not raw experimental traces, individual tests, a full multiaxial fit, or a confidence interval. Compression curves are excluded. |
+| `haj_ali_2009_experimental_marker_centers_v1.csv` | Selected visible marker-glyph centers from the same four Fig. 1–2 panels, transformed from integer raster pixels to strain/stress using the registered plot frames. The CSV includes a ±1.5 px glyph-center bound and ±1 px axis-line bound and one explicitly unresolved overplot region per panel. This is a partial visual extraction, not raw instrument data: hidden/overlapping marker counts and specimen/replicate identities remain unresolved. These points are from the same publication and are calibration inputs only, not an independent or held-out validation set. The reviewed pixel ledger is separately hash-bound. |
 | `popil_2012_ect_table2.csv` | Published C-flute ECT/caliper/basis-weight rows. The commercial 42-26C-42 board and separate IPST lab board stay distinct. Use as structural analogue holdout only. |
 | `popil_2012_ect_rate_fit.csv` | Derived evaluations of the article's regression `ECT = 0.239 ln(v) + 6.47 ± 0.01`, with `v` in mm/min. The source calls ±0.01 the mean regression error; it is not a confidence interval. These are equation evaluations, not observed points. The 12.5 mm/min evaluation (7.073612 kN/m) is distinct from the Table 2 commercial result (7.9 kN/m), so the series are not merged. |
 | `johnson_popil_2016_pin_force_displacement_digitized.csv` | Sparse visual estimates directly digitized from the Georgia Tech authors' 2016 presentation slide 15: load in N against displacement in mm for two illustrative defect traces. The 2015 article is separately recorded as protocol/study context. Its article Figure 4 is not pixel-digitized here and exact curve-to-specimen identity is unresolved. The high-response trace is truncated to the visible branch; the annotated later branch is excluded. |
@@ -100,9 +101,15 @@ rendered plots. The retained page-4 render is hash-bound outside the repository.
 `cardboard_source_haj_ali_digitize.py` reads one endpoint from each solid
 source-labeled bilinear tension-fit line and joins it to the Table 1 yield node.
 This supplies an approximate source-model tangent for MD/CD liner and NSSC
-medium. It does not recover raw experimental marker traces, specimen scatter,
-or compression data; the published compression response remains a modeling
-assumption. The original PDF download returned 404 in this session.
+medium. `cardboard_haj_ali_marker_digitize.py` converts selected, reviewed
+pixel centers in `haj_ali_2009_experimental_marker_centers_v1_pixels.json`
+from the same page render into plot-axis units. The marker rows are partial
+plot estimates: the full raw experimental traces, exact count of overplotted
+symbols, and specimen identities were not recovered. The marker and fit-node
+datasets come from the same published panels, so they cannot be separated into
+calibration and validation evidence. Neither digitization supplies specimen
+scatter or compression data; the published compression response remains a
+modeling assumption. The original PDF download returned 404 in this session.
 
 The [Aduke et al. open article](https://doi.org/10.3390/mca29040070)
 provides the crease-bend analogue. The ratio is kept separate from absolute

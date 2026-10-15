@@ -315,4 +315,3 @@ inline std::array<double, 3> shippingImpactStartCenter(
 }
 
 } // namespace numi::cardboard
-

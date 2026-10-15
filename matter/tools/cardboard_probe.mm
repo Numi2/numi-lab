@@ -2726,8 +2726,14 @@ MeshSource buildMesh(const Arguments& arguments,
             shippingBody.initialCenterM = {100.0, 1.0, 100.0};
             shippingBody.gravityMPerS2 = {0.0, -9.80665, 0.0};
             shippingBody.timestepSeconds = arguments.timestepSeconds;
+            require(result.boxScoreTooling->families.size() ==
+                        numi::cardboard::kShippingScoreToolFamilyCount &&
+                    result.boxScoreTooling->proxies.size() ==
+                        numi::cardboard::kShippingScoreToolProxyCount,
+                    "shipping tool factory diverged from its prebuild composition counts");
             const std::uint32_t scoreToolBodyCount = static_cast<std::uint32_t>(
-                result.boxScoreTooling->families.size() * 2u);
+                result.boxScoreTooling->families.size() *
+                numi::cardboard::kShippingSceneBodiesPerScoreFamily);
             result.world.rigidProxies.push_back(
                 numi::cardboard::makeShippingCompressionPlatenProxy(
                     {0.5 * blank.config.panelLength, 0.002,
@@ -2742,6 +2748,9 @@ MeshSource buildMesh(const Arguments& arguments,
         result.world.rigidProxies.push_back(
                 numi::cardboard::makeShippingImpactorProxy(
                     shippingBody, scoreToolBodyCount + 2u));
+        require(result.world.rigidProxies.size() ==
+                    numi::cardboard::kShippingRigidProxyCount,
+                "shipping tool composition differs from its prebuild rigid-proxy count");
         }
 #else
         require(!arguments.shippingBox,
@@ -4799,8 +4808,10 @@ numi::cardboard::ShippingMemoryBudget shippingPrebuildMemoryBudget(
         (arguments.shippingStarchLaw || arguments.shippingHmaLaw)
             ? shippingMemoryCheckedMultiply(
                   screen.nominalTetrahedronCount, 1u) / 5u : 0u;
-    options.rigidProxyCount = arguments.shippingBox ? 39u : 0u;
-    options.rigidBodyCount = arguments.shippingBox ? 5u : 0u;
+    options.rigidProxyCount = arguments.shippingBox
+        ? kShippingRigidProxyCount : 0u;
+    options.rigidBodyCount = arguments.shippingBox
+        ? kShippingRigidBodyCount : 0u;
     options.fgmresRestart = arguments.fgmresRestart;
     options.compactImmutableSurfaceMap = arguments.compactImmutableSurfaces;
     options.requireFullContactResidualDescent = arguments.shippingBox;
@@ -5097,11 +5108,16 @@ void writeShippingPrebuildMemoryScreen(
                    : numi::cardboard::shippingMemoryCheckedMultiply(
                          estimate.nominalTetrahedronCount, 8u))
            << ", \"rigid_proxy_count_bound\": "
-           << (arguments.shippingBox ? 39u : 0u)
+           << (arguments.shippingBox
+                   ? numi::cardboard::kShippingRigidProxyCount : 0u)
+           << ", \"rigid_body_count_bound\": "
+           << (arguments.shippingBox
+                   ? numi::cardboard::kShippingRigidBodyCount : 0u)
            << ", \"contact_pair_count_upper_bound\": "
            << (arguments.shippingBox
                    ? numi::cardboard::shippingMemoryCheckedMultiply(
-                         estimate.nominalNodeCount, 39u)
+                         estimate.nominalNodeCount,
+                         numi::cardboard::kShippingRigidProxyCount)
                    : 0u) << "},\n"
            << "  \"required_residual_descent\": {\"required_for_shipping_physics\": "
            << (arguments.shippingBox ? "true" : "false")
@@ -6444,13 +6460,27 @@ int executeBoxAssemblyNative(
     const auto& blank = *mesh.boxBlank;
     const auto& tooling = *mesh.boxScoreTooling;
     const std::uint32_t scoreToolSceneBodyCount = tooling.sequentialFamilies
-        ? static_cast<std::uint32_t>(tooling.families.size() * 2u) : 2u;
+        ? static_cast<std::uint32_t>(tooling.families.size() *
+              numi::cardboard::kShippingSceneBodiesPerScoreFamily) : 2u;
 #ifdef NUMI_CARDBOARD_METAL_WORLD
     const std::uint32_t shippingPlatenBodyIndex = scoreToolSceneBodyCount;
     const std::uint32_t shippingFloorBodyIndex = scoreToolSceneBodyCount + 1u;
     const std::uint32_t shippingToolSceneBodyCount = scoreToolSceneBodyCount + 2u;
     const std::uint32_t shippingFreeBodyIndex = shippingToolSceneBodyCount;
     const std::uint32_t shippingSceneBodyCount = shippingToolSceneBodyCount + 1u;
+    if (arguments.shippingBox)
+        require(tooling.sequentialFamilies &&
+                    tooling.families.size() ==
+                        numi::cardboard::kShippingScoreToolFamilyCount &&
+                    tooling.proxies.size() ==
+                        numi::cardboard::kShippingScoreToolProxyCount &&
+                    scoreToolSceneBodyCount ==
+                        numi::cardboard::kShippingScoreToolSceneBodyCount &&
+                    shippingSceneBodyCount ==
+                        numi::cardboard::kShippingRigidBodyCount &&
+                    compiled.world.dispatch.rigidProxyCount ==
+                        numi::cardboard::kShippingRigidProxyCount,
+                "compiled shipping tools/body slots diverged from shared prebuild counts");
 #endif
     const double compiledSubstrateMassKg = arguments.shippingBox
         ? compiledSubstrateNodalMassKg(compiled.world) : 0.0;
@@ -6679,12 +6709,21 @@ int executeBoxAssemblyNative(
 #ifdef NUMI_CARDBOARD_METAL_WORLD
         if (arguments.shippingBox) {
             require(tooling.sequentialFamilies &&
-                        scoreToolSceneBodyCount == 6u,
+                        tooling.families.size() ==
+                            numi::cardboard::kShippingScoreToolFamilyCount &&
+                        tooling.proxies.size() ==
+                            numi::cardboard::kShippingScoreToolProxyCount &&
+                        scoreToolSceneBodyCount ==
+                            numi::cardboard::kShippingScoreToolSceneBodyCount,
                     "shipping scoring requires exactly three reusable tool families");
             const auto& acceptedScene = run.shippingRigidSceneBodies();
             if (!acceptedScene.empty()) {
                 haveAcceptedShippingScene = true;
-                const std::size_t toolBodyCount = scoreToolSceneBodyCount + 2u;
+                const std::size_t toolBodyCount = scoreToolSceneBodyCount +
+                    2u;
+                require(toolBodyCount + 1u ==
+                            numi::cardboard::kShippingRigidBodyCount,
+                        "shipping scene body slots differ from its prebuild rigid-body count");
                 require(acceptedScene.size() == toolBodyCount + 1u &&
                             run.shippingRigidToolSceneBodyCount() == toolBodyCount,
                         "shipping accepted scene does not match its compiled shared-tool layout");

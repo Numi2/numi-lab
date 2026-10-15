@@ -1,6 +1,6 @@
 {
   "schema": "numi.cardboard.source_data_catalog.v1",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "scope": "Published-data-only package. No new physical measurements. Every digitized estimate is labeled and carries visual extraction uncertainty.",
   "recipe": "The approved literature2009 cross-source recipe remains unchanged; do not transfer constituent, damage or interface properties across grades without explicit bounded-analogue treatment.",
   "sources": [
@@ -12,7 +12,7 @@
         "https://doi.org/10.1016/j.compstruct.2008.02.001",
         "https://www.researchgate.net/publication/223896964_Refined_nonlinear_finite_element_models_for_corrugated_fiberboard"
       ],
-      "access_state": "Peer-reviewed article. The author-posted full-text page is publicly readable. Its page-4 PNG render exposes the plotted bilinear tension-fit lines for Figs. 1-2; the pixel asset is retained outside the repository and hash-bound below. The plotted experimental marker cloud is not available as raw numeric data. The direct PDF download link returned HTTP 404 in this session; the publisher PDF remains access-controlled.",
+      "access_state": "Peer-reviewed article. The author-posted full-text page is publicly readable. Its page-4 PNG render exposes the plotted marker clouds and fitted lines for Figs. 1-2. Selected visible marker centers are separately digitized as plot estimates; the source provides no raw numeric test files or marker-to-specimen mapping. The direct PDF download link returned HTTP 404 in this session; the publisher PDF remains access-controlled.",
       "external_original_pdf": null,
       "external_original_sha256": null,
       "page_render": {
@@ -26,7 +26,7 @@
         ],
         "viewer_page_index": 4,
         "printed_page": 324,
-        "note": "This is the author-page-rendered article page image, not the original PDF. The viewer adds the page text/axis labels as accessible overlay; the chart pixels are retained exactly as served."
+        "note": "Author-page-rendered article page image, not the original PDF. The page raster contains the chart pixels; axis labels/ranges are transcribed from the article/accessible viewer context. The retained image bytes are hash-bound exactly as served."
       }
     },
     {
@@ -243,7 +243,7 @@
       "limits": [
         "CSV points are tabulated anchors, not reconstructed full curves.",
         "Compression rows are source model assumptions at about 60% of tension, not measured compression curves.",
-        "Figs. 1-2 also show fitted bilinear tension lines; see the separate digitized-fit-estimate dataset. Raw experimental marker traces and replicate identities remain unavailable."
+        "Figs. 1-2 also show fitted bilinear tension lines; see the separate fit-estimate dataset. Selected visible marker centers are retained in a second plot-digitization dataset, but the complete raw traces, occluded marker count, and replicate identities remain unavailable."
       ],
       "sha256": "ede6b47229eb02f1d1de278035c995eaa358919c55384398cbe33fe3de3c9f04",
       "calibration_scope": "calibration_anchor_only_for_four_source_grade_tensile_yield_values"
@@ -312,7 +312,7 @@
       },
       "limits": [
         "These are digitized estimates of the authors’ bilinear tension-fit lines, not raw experimental observations.",
-        "Only one plotted endpoint per series is read; no full raw curve, marker cloud, replicate, or specimen mapping is available.",
+        "Only one plotted endpoint per fit series is read in this dataset; the separate marker-center dataset contains selected visible plot glyphs, not raw measurements, complete traces, or specimen mappings.",
         "The paper’s compressive curves are modeling assumptions and are not digitized as measurements.",
         "Do not use tangent intervals as statistical confidence intervals or as grade-transfer uncertainty.",
         "Conditioning and test rate are not stated in accessible text.",
@@ -320,6 +320,205 @@
       ],
       "sha256": "83f5778db797f0fb9996416848abb91c18f9102f4c3707aea9ea267b1eeb0d82",
       "calibration_scope": "source_model_fit_curve_estimate_for_four_grade_axis_groups_only_not_independent_specimen_calibration"
+    },
+    {
+      "id": "haj_ali_2009_experimental_marker_centers_v1",
+      "file": "haj_ali_2009_experimental_marker_centers_v1.csv",
+      "source_ids": [
+        "haj_ali_2009"
+      ],
+      "class": "partial_digitized_plot_marker_centers_not_raw_measurements",
+      "split": "same_published_curve_groups_calibration_only_no_holdout",
+      "specimen": "205 g/m2 unbleached southern softwood kraft liner (Figs. 1a,b) and 126 g/m2 NSSC medium (Figs. 2a,b); article reports 1 x 7 in tensile coupons but no marker-to-specimen identity.",
+      "condition": "Figure/text access does not provide a per-marker condition, specimen identifier, or test rate.",
+      "failure": "Selected visible stress-strain marker glyphs in four published panels; dense overlap/occlusion and specimen assignment remain unresolved.",
+      "source_location": "Figs. 1(a,b) and 2(a,b), printed p. 324.",
+      "units": {
+        "strain": "mm/mm (dimensionless)",
+        "stress": "MPa",
+        "pixel": "raster pixel coordinate"
+      },
+      "curve_identity": {
+        "panel_count": 4,
+        "selected_visible_marker_centers": 278,
+        "groups": [
+          "205 gsm liner MD",
+          "205 gsm liner CD",
+          "126 gsm NSSC medium MD",
+          "126 gsm NSSC medium CD"
+        ],
+        "stored_representation": "Selected visible marker-glyph centers in four panel clouds plus one non-observation unresolved-overplot region record per panel.",
+        "raw_numeric_test_data_recovered": false,
+        "complete_marker_cloud_recovered": false,
+        "overplotted_or_occluded_marker_count": "unresolved",
+        "specimen_replicate_mapping": "unavailable",
+        "independence": "same publication and curve panels as the bilinear fit estimates; these points are not an independent validation set."
+      },
+      "digitization": {
+        "method": "Convert selected pixel centers in the reviewed coordinate ledger using the registered linear plot frames. Candidate detection was a bright-center/dark-neighborhood pass followed by visual overlay review; two Fig. 1(a) legend detections were removed. The selected coordinate set is intentionally partial where markers overlap.",
+        "tool": "matter/tools/cardboard_haj_ali_marker_digitize.py",
+        "pixel_ledger": {
+          "file": "haj_ali_2009_experimental_marker_centers_v1_pixels.json",
+          "sha256": "862bf0cc84217bc96f0bc1eeddea900b9664330d916728e7f65cb317ef5ffe6c"
+        },
+        "render": {
+          "path": "/Users/home/cardboard-research-20261006/primary-access/haj-ali-2009-rendered-pages/page-4.png",
+          "sha256": "bffb53d8685c5990b2fa43f120ac0382493e893db2284b4f8c24adff6a48a6d5",
+          "url": "https://www.researchgate.net/profile/Roman-Popil/publication/223896964/viewer/AS:1078658240393218@1634183573648/background/4.png",
+          "asset_kind": "author_posted_article_page_render",
+          "source_pdf_sha256": null,
+          "size_px": [
+            1041,
+            1269
+          ],
+          "page_index": 4,
+          "printed_page": 324
+        },
+        "axis_mapping": {
+          "panels": {
+            "haj_ali_2009_liner_MD_marker_cloud": {
+              "series_id": "haj_ali_2009_liner_MD_marker_cloud",
+              "figure": "Fig. 1(a)",
+              "component": "liner",
+              "basis_weight_g_m2": 205,
+              "axis": "MD",
+              "plot_frame_px": {
+                "x0": 146,
+                "x1": 493,
+                "y_top": 8,
+                "y_bottom": 357
+              },
+              "axis_ranges": {
+                "strain_mm_per_mm": [
+                  0.0,
+                  0.025
+                ],
+                "stress_MPa": [
+                  0.0,
+                  70.0
+                ]
+              },
+              "selected_visible_center_count": 56,
+              "unresolved_overlap_bbox_px": [
+                280,
+                45,
+                405,
+                170
+              ]
+            },
+            "haj_ali_2009_liner_CD_marker_cloud": {
+              "series_id": "haj_ali_2009_liner_CD_marker_cloud",
+              "figure": "Fig. 1(b)",
+              "component": "liner",
+              "basis_weight_g_m2": 205,
+              "axis": "CD",
+              "plot_frame_px": {
+                "x0": 567,
+                "x1": 918,
+                "y_top": 8,
+                "y_bottom": 358
+              },
+              "axis_ranges": {
+                "strain_mm_per_mm": [
+                  0.0,
+                  0.05
+                ],
+                "stress_MPa": [
+                  0.0,
+                  40.0
+                ]
+              },
+              "selected_visible_center_count": 64,
+              "unresolved_overlap_bbox_px": [
+                610,
+                140,
+                760,
+                285
+              ]
+            },
+            "haj_ali_2009_medium_NSSC_MD_marker_cloud": {
+              "series_id": "haj_ali_2009_medium_NSSC_MD_marker_cloud",
+              "figure": "Fig. 2(a)",
+              "component": "medium_NSSC",
+              "basis_weight_g_m2": 126,
+              "axis": "MD",
+              "plot_frame_px": {
+                "x0": 146,
+                "x1": 491,
+                "y_top": 513,
+                "y_bottom": 860
+              },
+              "axis_ranges": {
+                "strain_mm_per_mm": [
+                  0.0,
+                  0.02
+                ],
+                "stress_MPa": [
+                  0.0,
+                  40.0
+                ]
+              },
+              "selected_visible_center_count": 59,
+              "unresolved_overlap_bbox_px": [
+                185,
+                625,
+                355,
+                815
+              ]
+            },
+            "haj_ali_2009_medium_NSSC_CD_marker_cloud": {
+              "series_id": "haj_ali_2009_medium_NSSC_CD_marker_cloud",
+              "figure": "Fig. 2(b)",
+              "component": "medium_NSSC",
+              "basis_weight_g_m2": 126,
+              "axis": "CD",
+              "plot_frame_px": {
+                "x0": 575,
+                "x1": 921,
+                "y_top": 513,
+                "y_bottom": 859
+              },
+              "axis_ranges": {
+                "strain_mm_per_mm": [
+                  0.0,
+                  0.03
+                ],
+                "stress_MPa": [
+                  0.0,
+                  15.0
+                ]
+              },
+              "selected_visible_center_count": 99,
+              "unresolved_overlap_bbox_px": [
+                640,
+                555,
+                880,
+                725
+              ]
+            }
+          },
+          "x": "strain = x_min + (x_pixel - x0)*(x_max - x_min)/(x1 - x0)",
+          "y": "stress = y_min + (y_bottom - y_pixel)*(y_max - y_min)/(y_bottom - y_top)",
+          "axis_source": "printed/accessible plot labels transcribed into the hash-bound per-panel frame; pixel coordinates are inclusive axis-line center estimates"
+        },
+        "uncertainty": {
+          "marker_center_halfwidth_px": 1.5,
+          "axis_line_halfwidth_px": 1.0,
+          "propagation": "conservative linear sum of 2.5 px mapped independently through each linear axis scale",
+          "scope": "pixel center and axis-line localization only; excludes marker stroke ambiguity, plot reproduction, specimen scatter, testing error, and unobserved/occluded markers"
+        },
+        "unresolved_regions": "One bounding rectangle per panel marks dense overlapping plot glyphs; it is not a datapoint and carries no invented coordinate or marker count."
+      },
+      "limits": [
+        "These are selected digitized estimates of plotted marker centers, not raw numeric measurements or instrument exports.",
+        "The selected centers are a partial visual record; symbols may overlap or be occluded, and the exact total marker count is unresolved.",
+        "No marker is assigned to a specimen, replicate, experimental run, or fitted line; the four panel clouds remain grouped by source panel only.",
+        "The pixel-localization bound is not a statistical confidence interval and excludes specimen/test scatter.",
+        "These points come from the same published curve panels as the bilinear fit estimates and cannot be presented as held-out validation.",
+        "Compression curves and assumptions are outside this dataset."
+      ],
+      "sha256": "7a2dd7a351586971566fe34ca144b511d0b2014ab13f4cd7c9de0e87c2cf39b9",
+      "calibration_scope": "same_source_plot_estimates_only_not_independent_validation"
     },
     {
       "id": "popil_2012_ect_table2",

@@ -706,4 +706,3 @@ inline MeshProgramPool buildMeshProgramPool(const std::vector<ElementRequest>& r
 }
 
 } // namespace numi::cardboard::retained_damage
-

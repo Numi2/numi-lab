@@ -833,7 +833,7 @@ int main(int argc, const char* argv[]) {
                 << " rotated_force_error_N=" <<
                     norm(rotated.forceOnB - expectedRotatedForce)
                 << " intact_tangent_relative_error=" << tangentRelativeError
-                << " activation_rejection_rollback=true" 
+                << " activation_rejection_rollback=true"
                 << " failed_endpoint_rollback=true checkpoint_replay=true"
                 << " explicit_mortar_activation=true command_rejection_rollback=true"
                 << " physical_starch_qualification=false\n";

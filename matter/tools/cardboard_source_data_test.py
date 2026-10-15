@@ -145,6 +145,9 @@ class SourceDataPackageTests(unittest.TestCase):
         audit = source_data.package_audit(self.catalog)
         self.assertFalse(audit["haj_ali_full_hardening_curve_available"])
         self.assertIn("author-posted page-4 render", audit["haj_ali_curve_reason"])
+        self.assertTrue(audit["haj_ali_marker_plot_center_estimates_available"])
+        self.assertEqual(audit["haj_ali_marker_plot_center_estimate_count"], 278)
+        self.assertIn("not raw data", audit["haj_ali_marker_plot_center_scope"])
         self.assertTrue(audit["haj_ali_bilinear_tension_fit_estimate_available"])
         self.assertIn("not raw experimental traces", audit["haj_ali_bilinear_tension_fit_reason"])
         dataset = next(d for d in self.catalog["datasets"] if d["id"] == "haj_ali_2009_yield_anchors")
@@ -187,6 +190,88 @@ class SourceDataPackageTests(unittest.TestCase):
         liner_cd = next(r for r in fit_rows if r["series_id"] == "haj_ali_2009_liner_CD_bilinear_tension"
                         and r["point_role"] == "digitized_bilinear_fit_endpoint")
         self.assertEqual((int(liner_cd["x_pixel"]), int(liner_cd["y_pixel"])), (882, 49))
+
+    def test_haj_ali_marker_centers_are_pixel_bound_partial_plot_estimates(self) -> None:
+        dataset = next(d for d in self.catalog["datasets"]
+                       if d["id"] == "haj_ali_2009_experimental_marker_centers_v1")
+        path = source_data.DATA / dataset["file"]
+        with path.open(encoding="utf-8", newline="") as stream:
+            rows = list(csv.DictReader(stream))
+        selected = [r for r in rows if r["record_status"] == "selected_marker_center"]
+        unresolved = [r for r in rows if r["record_status"] == "unresolved_overlap_region"]
+        self.assertEqual(len(selected), 278)
+        self.assertEqual(len(unresolved), 4)
+        self.assertEqual({r["series_id"] for r in selected}, {
+            "haj_ali_2009_liner_MD_marker_cloud",
+            "haj_ali_2009_liner_CD_marker_cloud",
+            "haj_ali_2009_medium_NSSC_MD_marker_cloud",
+            "haj_ali_2009_medium_NSSC_CD_marker_cloud",
+        })
+        self.assertTrue(all(r["observation_class"] ==
+                            "digitized_plot_marker_center_estimate_not_raw_measurement"
+                            for r in selected))
+        self.assertNotIn((191, 43), {(int(r["x_pixel"]), int(r["y_pixel"])) for r in selected})
+        self.assertNotIn((191, 32), {(int(r["x_pixel"]), int(r["y_pixel"])) for r in selected})
+        self.assertTrue(all(r["observation_class"] ==
+                            "unresolved_plot_overplot_region_not_observation"
+                            and not r["x_pixel"] and not r["strain_mm_per_mm"]
+                            and r["unresolved_bbox_x0_px"]
+                            for r in unresolved))
+        self.assertFalse({"specimen_id", "replicate_id", "trace_id"} & set(selected[0]))
+        self.assertEqual(dataset["calibration_scope"],
+                         "same_source_plot_estimates_only_not_independent_validation")
+        self.assertFalse(dataset["curve_identity"]["raw_numeric_test_data_recovered"])
+        self.assertFalse(dataset["curve_identity"]["complete_marker_cloud_recovered"])
+        self.assertEqual(dataset["curve_identity"]["overplotted_or_occluded_marker_count"], "unresolved")
+        self.assertEqual(source_data.validate_haj_ali_marker_centers(
+            rows, dataset, {s["id"]: s for s in self.catalog["sources"]}), [])
+
+        corrupt = [dict(r) for r in rows]
+        corrupt[0]["observation_class"] = "raw_measurement"
+        errors = source_data.validate_haj_ali_marker_centers(
+            corrupt, dataset, {s["id"]: s for s in self.catalog["sources"]})
+        self.assertTrue(any("plot estimate, not a raw measurement" in error for error in errors))
+        corrupt = [dict(r) for r in rows]
+        corrupt[0]["stress_MPa"] = "999"
+        errors = source_data.validate_haj_ali_marker_centers(
+            corrupt, dataset, {s["id"]: s for s in self.catalog["sources"]})
+        self.assertTrue(any("pixel transform" in error for error in errors))
+        corrupt = [dict(r) for r in rows]
+        corrupt[0]["x_pixel"] = str(int(corrupt[0]["x_pixel"]) + 1)
+        panel = dataset["digitization"]["axis_mapping"]["panels"][corrupt[0]["series_id"]]
+        x0, x1 = panel["plot_frame_px"]["x0"], panel["plot_frame_px"]["x1"]
+        xmin, xmax = panel["axis_ranges"]["strain_mm_per_mm"]
+        corrupt[0]["strain_mm_per_mm"] = str(
+            xmin + (int(corrupt[0]["x_pixel"]) - x0) * (xmax - xmin) / (x1 - x0))
+        errors = source_data.validate_haj_ali_marker_centers(
+            corrupt, dataset, {s["id"]: s for s in self.catalog["sources"]})
+        self.assertTrue(any("differ from the hash-bound coordinate ledger" in error for error in errors))
+        misbound = json.loads(json.dumps(dataset))
+        misbound["digitization"]["render"]["sha256"] = "0" * 64
+        errors = source_data.validate_haj_ali_marker_centers(
+            rows, misbound, {s["id"]: s for s in self.catalog["sources"]})
+        self.assertTrue(any("render hash must match" in error for error in errors))
+        corrupt = [dict(r) for r in rows]
+        unresolved_row = next(r for r in corrupt if r["record_status"] == "unresolved_overlap_region")
+        unresolved_row["strain_mm_per_mm"] = "0.123"
+        errors = source_data.validate_haj_ali_marker_centers(
+            corrupt, dataset, {s["id"]: s for s in self.catalog["sources"]})
+        self.assertTrue(any("must not contain invented coordinates" in error for error in errors))
+
+    def test_haj_ali_marker_digitizer_reproduces_registered_csv_when_render_exists(self) -> None:
+        render = Path("/Users/home/cardboard-research-20261006/primary-access/haj-ali-2009-rendered-pages/page-4.png")
+        if not render.is_file():
+            self.skipTest("hash-bound author-page render is unavailable on this host")
+        script = Path(__file__).with_name("cardboard_haj_ali_marker_digitize.py")
+        committed = source_data.DATA / "haj_ali_2009_experimental_marker_centers_v1.csv"
+        with tempfile.TemporaryDirectory() as temp:
+            output = Path(temp) / "reproduced.csv"
+            result = subprocess.run(
+                [sys.executable, str(script), "--page-render", str(render), "--output", str(output)],
+                check=False, capture_output=True, text=True,
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(output.read_bytes(), committed.read_bytes())
 
     def test_robertsson_eq18_energy_branch_conflict_is_exact_and_hash_bound(self) -> None:
         audit = source_data.package_audit(self.catalog)
