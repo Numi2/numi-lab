@@ -1,0 +1,15 @@
+{
+  "schema": "numi.cardboard.source104-publication-adoption.v1",
+  "archive_cases": 22,
+  "archive_files_verified": 257,
+  "restored_original_bytes": 98112063,
+  "source_files_adopted": [
+    "matter/src/metal/contact.metalinc",
+    "matter/src/metal/fem.metalinc",
+    "matter/src/runtime.mm"
+  ],
+  "all_selected_source_files_match_snapshot": 778,
+  "source_build_sha256": "759eabcfbc4c940cf85c9a8061b394445907b99b2186d3bb26382cebb6bf15f3",
+  "physical_qualification": false,
+  "health_package_erratum": "Old manifest and per-file old hashes retained. README and five validation logs were overwritten by package author; original log bytes could not be recovered. Exact source overlay verified before integration; independent build104,73CPUchecks and native362 parity receipts retained."
+}

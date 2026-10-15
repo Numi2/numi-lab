@@ -1,0 +1,628 @@
+{
+  "armijo_trace": {
+    "all_armijo_records_equal_after_dropping_root_only": false,
+    "control_root": 0,
+    "control_root_first_env0": {
+      "accepted": true,
+      "base_l2": 0.00485658878,
+      "solver_status_code": 0,
+      "trial_l2": 0.00131248205
+    },
+    "control_root_last_env0": {
+      "accepted": true,
+      "base_l2": 5.6905202e-07,
+      "solver_status_code": 0,
+      "trial_l2": 5.6905202e-07
+    },
+    "diagnostic_root": 2,
+    "diagnostic_root_first_env0": {
+      "accepted": true,
+      "base_l2": 0.00484730257,
+      "solver_status_code": 0,
+      "trial_l2": 0.00131644239
+    },
+    "diagnostic_root_last_env0": {
+      "accepted": false,
+      "base_l2": 0,
+      "solver_status_code": 10,
+      "trial_l2": 0.000767543504
+    },
+    "equal_record_count_after_dropping_root_only": 0,
+    "iteration_ranges": {
+      "control": [
+        0,
+        63
+      ],
+      "diagnostic": [
+        0,
+        63
+      ]
+    },
+    "reason": "The selected trace roots differ (control step 2 vs control step 0), so rows describe different physical Newton states. They are retained separately and are not used as an on/off telemetry parity claim.",
+    "records_each": {
+      "control": 64,
+      "diagnostic": 64
+    },
+    "telemetry_comparable": false
+  },
+  "attempts": {
+    "control": {
+      "accepted_steps": 2,
+      "exit_code": 2,
+      "failure": "Matter rejected step 2; status, diagnostic state OBJ, and CSV observations were retained; rejected geometry is not an accepted animation frame",
+      "path": "/Users/home/cardboard-implementation-20261014/solver/reset-order-augmentation-complete-coupon-352",
+      "physical_validation": false,
+      "result_status": "failed",
+      "timed_out": false,
+      "wall_seconds": 571.8911482500262
+    },
+    "diagnostic": {
+      "accepted_steps": 2,
+      "exit_code": 2,
+      "failure": "Matter rejected step 2; status, diagnostic state OBJ, and CSV observations were retained; rejected geometry is not an accepted animation frame",
+      "path": "/Users/home/cardboard-implementation-20261014/solver/reset-augmentation-first-failure-capture-360",
+      "physical_validation": false,
+      "result_status": "failed",
+      "timed_out": false,
+      "wall_seconds": 1497.5789216670091
+    }
+  },
+  "capture_status_lines": [
+    "fem_regional_rap_capture_skipped={\"schema\":1,\"root\":2,\"iteration\":23,\"reason\":\"invalid_layout_or_aggregate_32MiB_cap\",\"bytes\":22890320,\"other_readback_upper_bound\":17818224}",
+    "fem_newton_trace_skipped={\"schema\":1,\"root\":2,\"reason\":\"newton_iteration_cap_32\"}"
+  ],
+  "comparison": "physical_output_byte_identical",
+  "note": "Both are failed physical attempts. Byte parity does not make either run successful or physically qualified.",
+  "operator_fd_capture": {
+    "interpretation": "No residual action comparison is admitted for a record with plus/minus stage status 5 or unavailable residual norms; zero direction is inconclusive.",
+    "payload_bytes": 38105896,
+    "payload_exists": true,
+    "payload_path": "/Users/home/cardboard-implementation-20261014/solver/reset-augmentation-first-failure-capture-360/operator-capture",
+    "payload_sha256": "548dce37fbe5a28a609dd6bc45318926072c878774ea0caffa3237d925cebb33",
+    "record_count": 1,
+    "records": [
+      {
+        "contract": {
+          "comparison": "A*delta_v versus -(R_plus-R_minus)/(2*epsilon) on free nodes",
+          "position_delta": "dt*epsilon*delta_v",
+          "residual_units": "impulse",
+          "scope": "no-contact explicit FEM",
+          "unknown": "velocity correction"
+        },
+        "environments": [
+          {
+            "direction_nonzero_by_epsilon": [
+              true,
+              true
+            ],
+            "environment": 0,
+            "epsilon_pairs": [
+              {
+                "admissible_for_derivative_comparison": false,
+                "centered_fd_l2": null,
+                "direction_nonzero": true,
+                "epsilon": 0.03125,
+                "free_node_count": 846,
+                "input_integrity_flag": 1,
+                "maximum_delta_velocity_m_s": 13760.1719,
+                "maximum_position_perturbation_m": 0.0430005342,
+                "minimum_j_plus_minus": [
+                  0.914639354,
+                  0.908961535
+                ],
+                "operator_action_l2": null,
+                "operator_status_code": 0,
+                "position_delta_m": 3.12499992e-06,
+                "relative_error": null,
+                "residual_minus_l2": null,
+                "residual_plus_l2": null,
+                "stage_status_codes_plus_minus": [
+                  5,
+                  5
+                ]
+              },
+              {
+                "admissible_for_derivative_comparison": false,
+                "centered_fd_l2": null,
+                "direction_nonzero": true,
+                "epsilon": 0.015625,
+                "free_node_count": 846,
+                "input_integrity_flag": 1,
+                "maximum_delta_velocity_m_s": 13760.1719,
+                "maximum_position_perturbation_m": 0.0215002671,
+                "minimum_j_plus_minus": [
+                  0.279992044,
+                  0.0675355196
+                ],
+                "operator_action_l2": null,
+                "operator_status_code": 0,
+                "position_delta_m": 1.56249996e-06,
+                "relative_error": null,
+                "residual_minus_l2": null,
+                "residual_plus_l2": null,
+                "stage_status_codes_plus_minus": [
+                  5,
+                  5
+                ]
+              }
+            ],
+            "operator_status_code_by_epsilon": [
+              0,
+              0
+            ]
+          },
+          {
+            "direction_nonzero_by_epsilon": [
+              false,
+              false
+            ],
+            "environment": 1,
+            "epsilon_pairs": [
+              {
+                "admissible_for_derivative_comparison": false,
+                "centered_fd_l2": 0,
+                "direction_nonzero": false,
+                "epsilon": 0.03125,
+                "free_node_count": 846,
+                "input_integrity_flag": 1,
+                "maximum_delta_velocity_m_s": 0,
+                "maximum_position_perturbation_m": 0,
+                "minimum_j_plus_minus": [
+                  1,
+                  1
+                ],
+                "operator_action_l2": 0,
+                "operator_status_code": 0,
+                "position_delta_m": 3.12499992e-06,
+                "relative_error": 0,
+                "residual_minus_l2": 6.78000447e-08,
+                "residual_plus_l2": 6.78000447e-08,
+                "stage_status_codes_plus_minus": [
+                  0,
+                  0
+                ]
+              },
+              {
+                "admissible_for_derivative_comparison": false,
+                "centered_fd_l2": 0,
+                "direction_nonzero": false,
+                "epsilon": 0.015625,
+                "free_node_count": 846,
+                "input_integrity_flag": 1,
+                "maximum_delta_velocity_m_s": 0,
+                "maximum_position_perturbation_m": 0,
+                "minimum_j_plus_minus": [
+                  1,
+                  1
+                ],
+                "operator_action_l2": 0,
+                "operator_status_code": 0,
+                "position_delta_m": 1.56249996e-06,
+                "relative_error": 0,
+                "residual_minus_l2": 6.78000447e-08,
+                "residual_plus_l2": 6.78000447e-08,
+                "stage_status_codes_plus_minus": [
+                  0,
+                  0
+                ]
+              }
+            ],
+            "operator_status_code_by_epsilon": [
+              0,
+              0
+            ]
+          }
+        ],
+        "newton_iteration": 23,
+        "root": 2
+      }
+    ]
+  },
+  "physical_output_files": {
+    "byte_identical": true,
+    "count": 37,
+    "differing_files": [],
+    "hashes": {
+      "control": {
+        "accepted_step_000001_bent.obj": {
+          "bytes": 61973,
+          "sha256": "6eb2fe9694fde8357552e10c0246ef342733bf82f374ccb72d3b8b577b60d9bf"
+        },
+        "accepted_step_000001_held_reference.obj": {
+          "bytes": 56470,
+          "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+        },
+        "accepted_step_000002_bent.obj": {
+          "bytes": 61952,
+          "sha256": "51219b4257c4f42aae25d50d69bdbc0fd153a2a14b5bf0e85ab560c142d6fb70"
+        },
+        "accepted_step_000002_held_reference.obj": {
+          "bytes": 56470,
+          "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+        },
+        "accepted_step_000003_held_reference.obj": {
+          "bytes": 56470,
+          "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+        },
+        "compiled.nmatterpack": {
+          "bytes": 1984768,
+          "sha256": "3c25f41c6c26654ccf3f8b4f4b510bbb64ab0ea0f52b94d05d8b1fa4060fafe5"
+        },
+        "initial.obj": {
+          "bytes": 56470,
+          "sha256": "463cd80289b72a58009f859f2a3184966984029daa8d3687ec9035e18c6481af"
+        },
+        "manifest.json": {
+          "bytes": 11508,
+          "sha256": "2a34ad4f3328616fb5660fe22022941ca9ace9383ca9f1f1b7262ecfd4350ec8"
+        },
+        "material_state_000003_bent.json": {
+          "bytes": 970565,
+          "sha256": "e352376a5e63ae33802d6eedb225839e4e71d0245076679fe51b5fe938a45a2b"
+        },
+        "mesh.json": {
+          "bytes": 160425,
+          "sha256": "6a2f786a47e61014ee4b27f609eb3c2f666677223ddaa30297aeea1fcfd8ca56"
+        },
+        "observations.csv": {
+          "bytes": 3550,
+          "sha256": "1fe013a2c2f6bcf7fe2db34784586e4627d859ebe4f44200027246d60e992dd1"
+        },
+        "rejected-conditioning-000003/AP.bin": {
+          "bytes": 733824,
+          "sha256": "d181a9d064474ef2147c1c5c4be5b841b8120c3f4aaf5c7e660a87fb0acff48e"
+        },
+        "rejected-conditioning-000003/P.bin": {
+          "bytes": 366912,
+          "sha256": "2626e4bbb205fa1c7e40bdaf3f2e72d11f831ec53431c3062bcc85d69a50f6b5"
+        },
+        "rejected-conditioning-000003/candidate_nodes.bin": {
+          "bytes": 141120,
+          "sha256": "dcd6b8ea62c05c3ef9a04dc4d46ece7e7fbad58101d8d55d2bee6dfd9d7e8614"
+        },
+        "rejected-conditioning-000003/effective_P.bin": {
+          "bytes": 733824,
+          "sha256": "9bf372c75cafcf84bc1e21a20ee3305e7619affffe6415bb9d3398f79970214c"
+        },
+        "rejected-conditioning-000003/factor_valid.bin": {
+          "bytes": 8,
+          "sha256": "64ed86b909d6d0502b64b28db0ea1272ffb358e20e9b1d88b63ccb07fa900cf5"
+        },
+        "rejected-conditioning-000003/manifest.json": {
+          "bytes": 5545,
+          "sha256": "f2775bdc8f1747dcda5136b2bbe890e1d0645804df304c66bfe3143e90d955ad"
+        },
+        "rejected-conditioning-000003/node_block_inverse.bin": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "rejected-conditioning-000003/pivoted_RAP.bin": {
+          "bytes": 5408,
+          "sha256": "3ee151c5d64838a16fe82e3f90e92b73f97c7b834ce7f855017492de4c6a87e9"
+        },
+        "rejected-conditioning-000003/pivots.bin": {
+          "bytes": 208,
+          "sha256": "b15351752746ad304892b36595184c9b83246883ef1d0628cdfda0983a499369"
+        },
+        "rejected-conditioning-000003/restart_Aq.bin": {
+          "bytes": 14112,
+          "sha256": "0f97790543329f8249a5b0ede1f5847b264bf4a2d08f661a948bd69bd96836e7"
+        },
+        "rejected-conditioning-000003/restart_Aq_by_environment.bin": {
+          "bytes": 28224,
+          "sha256": "58addadd982be00456b092d551a587a0a25373b1465956ed31bafb61416471f3"
+        },
+        "rejected-conditioning-000003/restart_attempt_counts_by_environment.bin": {
+          "bytes": 8,
+          "sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc"
+        },
+        "rejected-conditioning-000003/restart_factor_valid_by_environment.bin": {
+          "bytes": 8,
+          "sha256": "7c9fa136d4413fa6173637e883b6998d32e1d675f88cddff9dcbcf331820f4b8"
+        },
+        "rejected-conditioning-000003/restart_generations_by_environment.bin": {
+          "bytes": 32,
+          "sha256": "af9613760f72635fbdb44a5a0a63c39f12af30f950a6ee5c971be188e89c4051"
+        },
+        "rejected-conditioning-000003/restart_mode_scales_by_environment.bin": {
+          "bytes": 8,
+          "sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc"
+        },
+        "rejected-conditioning-000003/restart_mode_valid_by_environment.bin": {
+          "bytes": 8,
+          "sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc"
+        },
+        "rejected-conditioning-000003/restart_pivoted_RAP.bin": {
+          "bytes": 2916,
+          "sha256": "3dae92d06f364fa6ea8e434c89a3d9d40cb995af8e46e50fff5ff91bd28fe112"
+        },
+        "rejected-conditioning-000003/restart_pivoted_RAP_by_environment.bin": {
+          "bytes": 5832,
+          "sha256": "d1575943c8a4713d0cdfc917aff7903805fab6350d7fcdc2000ccd7839ccd134"
+        },
+        "rejected-conditioning-000003/restart_pivots.bin": {
+          "bytes": 108,
+          "sha256": "77133f431d5e12dd850002c0d3d4e0fecbe3a7a699d604dc8c5eae9976e1d260"
+        },
+        "rejected-conditioning-000003/restart_pivots_by_environment.bin": {
+          "bytes": 216,
+          "sha256": "a5645e7a3fa0866cde8842c4dab96567507c3d1a3c028b816bc63f6966367b70"
+        },
+        "rejected-conditioning-000003/restart_q.bin": {
+          "bytes": 14112,
+          "sha256": "0f97790543329f8249a5b0ede1f5847b264bf4a2d08f661a948bd69bd96836e7"
+        },
+        "rejected-conditioning-000003/restart_q_by_environment.bin": {
+          "bytes": 28224,
+          "sha256": "58addadd982be00456b092d551a587a0a25373b1465956ed31bafb61416471f3"
+        },
+        "rejected-conditioning-000003/restart_raw_norm_squared_by_environment.bin": {
+          "bytes": 8,
+          "sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc"
+        },
+        "rejected-conditioning-000003/restart_target_scales_by_environment.bin": {
+          "bytes": 8,
+          "sha256": "2431a542b1d360d60cb12534b6a57b80e36c8dc2fbbf8276fecb598f8bd1554b"
+        },
+        "rejected_step_diagnostic_000003_bent.obj": {
+          "bytes": 61952,
+          "sha256": "51219b4257c4f42aae25d50d69bdbc0fd153a2a14b5bf0e85ab560c142d6fb70"
+        },
+        "result.json": {
+          "bytes": 698,
+          "sha256": "4afcdb2310cf87130417399775dc132cb0509f805f537bfe0fa28b3c3ae7b2d5"
+        }
+      },
+      "diagnostic": {
+        "accepted_step_000001_bent.obj": {
+          "bytes": 61973,
+          "sha256": "6eb2fe9694fde8357552e10c0246ef342733bf82f374ccb72d3b8b577b60d9bf"
+        },
+        "accepted_step_000001_held_reference.obj": {
+          "bytes": 56470,
+          "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+        },
+        "accepted_step_000002_bent.obj": {
+          "bytes": 61952,
+          "sha256": "51219b4257c4f42aae25d50d69bdbc0fd153a2a14b5bf0e85ab560c142d6fb70"
+        },
+        "accepted_step_000002_held_reference.obj": {
+          "bytes": 56470,
+          "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+        },
+        "accepted_step_000003_held_reference.obj": {
+          "bytes": 56470,
+          "sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+        },
+        "compiled.nmatterpack": {
+          "bytes": 1984768,
+          "sha256": "3c25f41c6c26654ccf3f8b4f4b510bbb64ab0ea0f52b94d05d8b1fa4060fafe5"
+        },
+        "initial.obj": {
+          "bytes": 56470,
+          "sha256": "463cd80289b72a58009f859f2a3184966984029daa8d3687ec9035e18c6481af"
+        },
+        "manifest.json": {
+          "bytes": 11508,
+          "sha256": "2a34ad4f3328616fb5660fe22022941ca9ace9383ca9f1f1b7262ecfd4350ec8"
+        },
+        "material_state_000003_bent.json": {
+          "bytes": 970565,
+          "sha256": "e352376a5e63ae33802d6eedb225839e4e71d0245076679fe51b5fe938a45a2b"
+        },
+        "mesh.json": {
+          "bytes": 160425,
+          "sha256": "6a2f786a47e61014ee4b27f609eb3c2f666677223ddaa30297aeea1fcfd8ca56"
+        },
+        "observations.csv": {
+          "bytes": 3550,
+          "sha256": "1fe013a2c2f6bcf7fe2db34784586e4627d859ebe4f44200027246d60e992dd1"
+        },
+        "rejected-conditioning-000003/AP.bin": {
+          "bytes": 733824,
+          "sha256": "d181a9d064474ef2147c1c5c4be5b841b8120c3f4aaf5c7e660a87fb0acff48e"
+        },
+        "rejected-conditioning-000003/P.bin": {
+          "bytes": 366912,
+          "sha256": "2626e4bbb205fa1c7e40bdaf3f2e72d11f831ec53431c3062bcc85d69a50f6b5"
+        },
+        "rejected-conditioning-000003/candidate_nodes.bin": {
+          "bytes": 141120,
+          "sha256": "dcd6b8ea62c05c3ef9a04dc4d46ece7e7fbad58101d8d55d2bee6dfd9d7e8614"
+        },
+        "rejected-conditioning-000003/effective_P.bin": {
+          "bytes": 733824,
+          "sha256": "9bf372c75cafcf84bc1e21a20ee3305e7619affffe6415bb9d3398f79970214c"
+        },
+        "rejected-conditioning-000003/factor_valid.bin": {
+          "bytes": 8,
+          "sha256": "64ed86b909d6d0502b64b28db0ea1272ffb358e20e9b1d88b63ccb07fa900cf5"
+        },
+        "rejected-conditioning-000003/manifest.json": {
+          "bytes": 5545,
+          "sha256": "f2775bdc8f1747dcda5136b2bbe890e1d0645804df304c66bfe3143e90d955ad"
+        },
+        "rejected-conditioning-000003/node_block_inverse.bin": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "rejected-conditioning-000003/pivoted_RAP.bin": {
+          "bytes": 5408,
+          "sha256": "3ee151c5d64838a16fe82e3f90e92b73f97c7b834ce7f855017492de4c6a87e9"
+        },
+        "rejected-conditioning-000003/pivots.bin": {
+          "bytes": 208,
+          "sha256": "b15351752746ad304892b36595184c9b83246883ef1d0628cdfda0983a499369"
+        },
+        "rejected-conditioning-000003/restart_Aq.bin": {
+          "bytes": 14112,
+          "sha256": "0f97790543329f8249a5b0ede1f5847b264bf4a2d08f661a948bd69bd96836e7"
+        },
+        "rejected-conditioning-000003/restart_Aq_by_environment.bin": {
+          "bytes": 28224,
+          "sha256": "58addadd982be00456b092d551a587a0a25373b1465956ed31bafb61416471f3"
+        },
+        "rejected-conditioning-000003/restart_attempt_counts_by_environment.bin": {
+          "bytes": 8,
+          "sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc"
+        },
+        "rejected-conditioning-000003/restart_factor_valid_by_environment.bin": {
+          "bytes": 8,
+          "sha256": "7c9fa136d4413fa6173637e883b6998d32e1d675f88cddff9dcbcf331820f4b8"
+        },
+        "rejected-conditioning-000003/restart_generations_by_environment.bin": {
+          "bytes": 32,
+          "sha256": "af9613760f72635fbdb44a5a0a63c39f12af30f950a6ee5c971be188e89c4051"
+        },
+        "rejected-conditioning-000003/restart_mode_scales_by_environment.bin": {
+          "bytes": 8,
+          "sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc"
+        },
+        "rejected-conditioning-000003/restart_mode_valid_by_environment.bin": {
+          "bytes": 8,
+          "sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc"
+        },
+        "rejected-conditioning-000003/restart_pivoted_RAP.bin": {
+          "bytes": 2916,
+          "sha256": "3dae92d06f364fa6ea8e434c89a3d9d40cb995af8e46e50fff5ff91bd28fe112"
+        },
+        "rejected-conditioning-000003/restart_pivoted_RAP_by_environment.bin": {
+          "bytes": 5832,
+          "sha256": "d1575943c8a4713d0cdfc917aff7903805fab6350d7fcdc2000ccd7839ccd134"
+        },
+        "rejected-conditioning-000003/restart_pivots.bin": {
+          "bytes": 108,
+          "sha256": "77133f431d5e12dd850002c0d3d4e0fecbe3a7a699d604dc8c5eae9976e1d260"
+        },
+        "rejected-conditioning-000003/restart_pivots_by_environment.bin": {
+          "bytes": 216,
+          "sha256": "a5645e7a3fa0866cde8842c4dab96567507c3d1a3c028b816bc63f6966367b70"
+        },
+        "rejected-conditioning-000003/restart_q.bin": {
+          "bytes": 14112,
+          "sha256": "0f97790543329f8249a5b0ede1f5847b264bf4a2d08f661a948bd69bd96836e7"
+        },
+        "rejected-conditioning-000003/restart_q_by_environment.bin": {
+          "bytes": 28224,
+          "sha256": "58addadd982be00456b092d551a587a0a25373b1465956ed31bafb61416471f3"
+        },
+        "rejected-conditioning-000003/restart_raw_norm_squared_by_environment.bin": {
+          "bytes": 8,
+          "sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc"
+        },
+        "rejected-conditioning-000003/restart_target_scales_by_environment.bin": {
+          "bytes": 8,
+          "sha256": "2431a542b1d360d60cb12534b6a57b80e36c8dc2fbbf8276fecb598f8bd1554b"
+        },
+        "rejected_step_diagnostic_000003_bent.obj": {
+          "bytes": 61952,
+          "sha256": "51219b4257c4f42aae25d50d69bdbc0fd153a2a14b5bf0e85ab560c142d6fb70"
+        },
+        "result.json": {
+          "bytes": 698,
+          "sha256": "4afcdb2310cf87130417399775dc132cb0509f805f537bfe0fa28b3c3ae7b2d5"
+        }
+      }
+    },
+    "identical_file_count": 37
+  },
+  "qualification": "not_qualified",
+  "raw_evidence_files": {
+    "control": {
+      "observations": {
+        "bytes": 3550,
+        "present": true,
+        "sha256": "1fe013a2c2f6bcf7fe2db34784586e4627d859ebe4f44200027246d60e992dd1"
+      },
+      "operator_fd_capture": {
+        "bytes": null,
+        "present": false,
+        "sha256": null
+      },
+      "prediction": {
+        "bytes": 102498,
+        "present": true,
+        "sha256": "02e4d90f85ba605c7d1a45f16d50692203d86dee12b6932d315da39ee0ad7c51"
+      },
+      "receipt": {
+        "bytes": 305,
+        "present": true,
+        "sha256": "19f483b9d22647f104b4394326486cb4bada52ae00ca3c0b9bf4add6fdbb518d"
+      },
+      "result": {
+        "bytes": 698,
+        "present": true,
+        "sha256": "4afcdb2310cf87130417399775dc132cb0509f805f537bfe0fa28b3c3ae7b2d5"
+      },
+      "stderr": {
+        "bytes": 339942,
+        "present": true,
+        "sha256": "d842cd9852a6a163b24cf9a887396fe0968b30784b6ae87702ad051a05994edb"
+      },
+      "stdout": {
+        "bytes": 343,
+        "present": true,
+        "sha256": "88f2d58c1ea365d40fb4b16ebd8b6d10197aef0d12588d4310fd4bef6a7bdb7c"
+      }
+    },
+    "diagnostic": {
+      "observations": {
+        "bytes": 3550,
+        "present": true,
+        "sha256": "1fe013a2c2f6bcf7fe2db34784586e4627d859ebe4f44200027246d60e992dd1"
+      },
+      "operator_fd_capture": {
+        "bytes": 38105896,
+        "present": true,
+        "sha256": "548dce37fbe5a28a609dd6bc45318926072c878774ea0caffa3237d925cebb33"
+      },
+      "prediction": {
+        "bytes": 102763,
+        "present": true,
+        "sha256": "7bab817e48d15c03587e6effc6e6ba3c888a1f1cb820982ccfb76ba6aebc5e33"
+      },
+      "receipt": {
+        "bytes": 306,
+        "present": true,
+        "sha256": "d623591647a91ca07626e18fef6c78358e60c0d9ab7c38d465e79a2f6c18c474"
+      },
+      "result": {
+        "bytes": 698,
+        "present": true,
+        "sha256": "4afcdb2310cf87130417399775dc132cb0509f805f537bfe0fa28b3c3ae7b2d5"
+      },
+      "stderr": {
+        "bytes": 344147,
+        "present": true,
+        "sha256": "e279be355ef56ff7f7532b16a8a0706fc238d333d91d0ede7aa27a5dda7a1db5"
+      },
+      "stdout": {
+        "bytes": 343,
+        "present": true,
+        "sha256": "88f2d58c1ea365d40fb4b16ebd8b6d10197aef0d12588d4310fd4bef6a7bdb7c"
+      }
+    }
+  },
+  "schema": "numi.cardboard.source101_capture360_control352_audit.v1",
+  "source_and_protocol": {
+    "all_other_environment_values_equal": true,
+    "archived_input_hashes_verified": true,
+    "argv_equal_except_declared_output_path": true,
+    "build_provenance": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-101/source-build.json",
+    "changed_environment_keys": [
+      "NM_FEM_NEWTON_TRACE_ROOT",
+      "NM_FEM_OPERATOR_FD_CAPTURE_PATH",
+      "NM_FEM_OPERATOR_FD_SELECTOR",
+      "NM_FEM_REGIONAL_RAP_CAPTURE_ONLY",
+      "NM_FEM_RESIDUAL_ARMIJO_TRACE_ROOT",
+      "NM_FEM_TRUE_RESIDUAL_NEWTON_SELECTOR",
+      "NM_FEM_TRUE_RESIDUAL_ROOT"
+    ],
+    "prediction_input_hashes_equal": true,
+    "runtime_dir": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-101",
+    "shared_armijo_algorithm_root": "all",
+    "source_build_provenance_sha256": "b40d30669b286449a3c5d50da2c865a052cd69c1e9f556132f0fc4bc66cd9fb0",
+    "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-boundary-reset-order-101",
+    "true_residual_restart": "0"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "baseline_run": "/Users/home/cardboard-implementation-20261014/native/first-fatal-center-359",
+  "candidate_run": "/Users/home/cardboard-implementation-20261014/native/health-and-vt-marker-firstfatal-362",
+  "error": "run input hashes differ outside reviewed source/build provenance: ['external/source-build.json', 'runtime/lib/libmetalrobo.dylib', 'runtime/matter/numi-matter-cardboard-full-contact-armijo-check', 'runtime/matter/shaders/NumiMatter.metallib', 'source/matter/src/metal/contact.metalinc', 'source/matter/src/metal/fem.metalinc', 'source/matter/src/runtime.mm']",
+  "schema": "numi.cardboard.source104_vs_source103_native_parity.v1",
+  "status": "FAIL_CLOSED"
+}

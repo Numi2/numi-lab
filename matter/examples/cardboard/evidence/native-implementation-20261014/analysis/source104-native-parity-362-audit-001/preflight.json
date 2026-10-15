@@ -1,0 +1,140 @@
+{
+  "baseline": {
+    "armijo_trace_count": 32,
+    "capture_array_count": 145,
+    "capture_manifest_sha256": "f3344db91f0edba415119dd639956507ba0efacfe0c459042dc4d8b83087ff1b",
+    "capture_payload_sha256": "965d38af46af2bbc311cb1534193b8892581cb4d4548936dfc8d7ba9db0cc2e4",
+    "exit_code": 1,
+    "prediction_sha256": "0088a3d2db831b46dac34db72d1f18822e82a3eec8864a2103bf20419d167d04",
+    "receipt_sha256": "8f6b5dc36c239e25223dab6b1fb8e7b4bb51150e5d1b386de57a802133e69661",
+    "run": "/Users/home/cardboard-implementation-20261014/native/first-fatal-center-359"
+  },
+  "candidate_capture_manifest_present": true,
+  "candidate_files_seen": [
+    "center-capture.coupled.bin",
+    "center-capture.coupled.json",
+    "diagnostic-state",
+    "inputs",
+    "prediction.json",
+    "receipt.json",
+    "stderr.log",
+    "stdout.log"
+  ],
+  "candidate_parity_status": "PENDING_NATIVE_362_RECEIPT_AND_CAPTURE",
+  "candidate_receipt_present": true,
+  "ccd_package_002": {
+    "compiled_artifacts": {
+      "README.md": {
+        "actual": "146187269249f48246c0e2479b0256e1e254cd6178b98105c8251803e7fc6233",
+        "expected": "146187269249f48246c0e2479b0256e1e254cd6178b98105c8251803e7fc6233",
+        "match": true
+      },
+      "build.sh": {
+        "actual": "002a2a42107b6698023c465399fb5437db57106a85dd3c52318e8920915c4cf2",
+        "expected": "002a2a42107b6698023c465399fb5437db57106a85dd3c52318e8920915c4cf2",
+        "match": true
+      },
+      "compile/build.log": {
+        "actual": "ea6f705d5bc3e86b3160c7717d4c0ebe34f706cb67bfaed7e8baaca430c6f042",
+        "expected": "ea6f705d5bc3e86b3160c7717d4c0ebe34f706cb67bfaed7e8baaca430c6f042",
+        "match": true
+      },
+      "compile/diagnostic_pair.air": {
+        "actual": "4a27eb50dc281c0c9c37d3d9d6c96745559ca67a4dd431ee46147c85a266cf05",
+        "expected": "4a27eb50dc281c0c9c37d3d9d6c96745559ca67a4dd431ee46147c85a266cf05",
+        "match": true
+      },
+      "compile/diagnostic_pair.metallib": {
+        "actual": "c7038566197e207275de5ca63f7d25689ccdd3e4edc7ec383591208596dc34cf",
+        "expected": "c7038566197e207275de5ca63f7d25689ccdd3e4edc7ec383591208596dc34cf",
+        "match": true
+      },
+      "compile/pair_ccd_native_check": {
+        "actual": "e3d7966cc7b9d2e90dc5091e9522b4e6eea40952dc2ef3999b31f5720734fffa",
+        "expected": "e3d7966cc7b9d2e90dc5091e9522b4e6eea40952dc2ef3999b31f5720734fffa",
+        "match": true
+      },
+      "cpu-audit.json": {
+        "actual": "3a96000ee9ee4fccb07bf8c78a3653db7901702b7b06c4f0e1fee3ec0acc8b3d",
+        "expected": "3a96000ee9ee4fccb07bf8c78a3653db7901702b7b06c4f0e1fee3ec0acc8b3d",
+        "match": true
+      },
+      "cpu-tests.log": {
+        "actual": "4c244c3504d5cee3c88bef58cb40bcc14b6adfd6e8c622566a0ce745dca217b1",
+        "expected": "4c244c3504d5cee3c88bef58cb40bcc14b6adfd6e8c622566a0ce745dca217b1",
+        "match": true
+      },
+      "cpu-verify.log": {
+        "actual": "3a96000ee9ee4fccb07bf8c78a3653db7901702b7b06c4f0e1fee3ec0acc8b3d",
+        "expected": "3a96000ee9ee4fccb07bf8c78a3653db7901702b7b06c4f0e1fee3ec0acc8b3d",
+        "match": true
+      },
+      "diagnostic_pair.metal": {
+        "actual": "7e4a3b1ed78c53551f0d5d30ac50c9b5b59e0c3cbc913be66dd006295abe2432",
+        "expected": "7e4a3b1ed78c53551f0d5d30ac50c9b5b59e0c3cbc913be66dd006295abe2432",
+        "match": true
+      },
+      "pair_ccd_native_check.mm": {
+        "actual": "96fbe9a36a9352e320c1f53038a31da1d5c1dd20d424e6f0c36bf2a049be9780",
+        "expected": "96fbe9a36a9352e320c1f53038a31da1d5c1dd20d424e6f0c36bf2a049be9780",
+        "match": true
+      },
+      "prepare_pair_inputs.py": {
+        "actual": "9e7787990d672ab4c6f5c55b78fd1d6ca9fcf6c59f4514d628d73774479d8d12",
+        "expected": "9e7787990d672ab4c6f5c55b78fd1d6ca9fcf6c59f4514d628d73774479d8d12",
+        "match": true
+      },
+      "prepared/cases.bin": {
+        "actual": "e116911335b4fbf88683535cde08a97b26ca99bc1975989d67532196c2ff996f",
+        "expected": "e116911335b4fbf88683535cde08a97b26ca99bc1975989d67532196c2ff996f",
+        "match": true
+      },
+      "prepared/prepared.json": {
+        "actual": "d1e544342095a563e55b18dc160fd344052c8db50eed14a8dbddd178eb019fe9",
+        "expected": "d1e544342095a563e55b18dc160fd344052c8db50eed14a8dbddd178eb019fe9",
+        "match": true
+      },
+      "test_package_contract.py": {
+        "actual": "a1387014c903f19f8b8af61b37a2c95e3be2fff1ef71fa81b2b63f9bb3830b5e",
+        "expected": "a1387014c903f19f8b8af61b37a2c95e3be2fff1ef71fa81b2b63f9bb3830b5e",
+        "match": true
+      },
+      "verify_pair_package.py": {
+        "actual": "7e0e2fae6ada3b96f9b7a0d244e34f77b68bfa114608e99ac0a19b8e2fffc986",
+        "expected": "7e0e2fae6ada3b96f9b7a0d244e34f77b68bfa114608e99ac0a19b8e2fffc986",
+        "match": true
+      }
+    },
+    "compiled_artifacts_match_manifest": true,
+    "host_sha256": "96fbe9a36a9352e320c1f53038a31da1d5c1dd20d424e6f0c36bf2a049be9780",
+    "manifest_sha256": "2aaf4a4e71c205530599e5ee2205f4269213a4d4ffca86b2e6ebccea9ab0884a",
+    "read_only_verifier_recheck": "PASS",
+    "synthetic_parser_tests": "10/10 recorded",
+    "verifier_sha256": "7e0e2fae6ada3b96f9b7a0d244e34f77b68bfa114608e99ac0a19b8e2fffc986"
+  },
+  "native_362_command_sha256": "1600d8cfd4c4bfeb92d908ae49daaa4f24d1c9bf3b77ffcd898a6d090c74215b",
+  "schema": "numi.cardboard.source104_vs_source103_parity_preflight.v1",
+  "source_bindings": {
+    "changed_source_files": {
+      "matter/src/metal/contact.metalinc": [
+        "427aca061ad2c6d2218b5eae0bc7620132a1ef9fff9f688390ccc96ca8a27ffc",
+        "b9ec3915b63bdee729ff0902c390e137e0f6b5d005d06e6a7136c534be3d510b"
+      ],
+      "matter/src/metal/fem.metalinc": [
+        "f4b5cd60dbe7ace7a54636746a00b5e7186d6c1f4890eb0718c138af9c753ae4",
+        "742cf561ee1ed91e20ed797e664595f675302437a3d583f8c5768da6cb3d008e"
+      ],
+      "matter/src/runtime.mm": [
+        "836605dca3f6b264d5ee04a9f65b66997ecbdc39f60709039c7e1ac59becb087",
+        "119148dedc593742dfe7f62c1b06c99e488b6c40a783aa839722f70d2da59c20"
+      ]
+    },
+    "source103_snapshot_manifest_sha256": "a7169546e652c78651382fe38dd7477cef9f3ad9cf005ea729c7c7bbc2b67d27",
+    "source103_vt_consumer_audit_sha256": "4407aec5fcc5b38774af6ba119d17c1b475b042d1adb4b2bcf40900dac6f0076",
+    "source103_vt_marker_manifest_sha256": "31912f229c401283252b761c21437fa84d0799072f0fc29d4cff670fb09565cc",
+    "source104_health_manifest_sha256": "50cda7335592088bba4ff064c612e1b985d75e7cd298db27c8c4f943beec357a",
+    "source104_integration_sha256": "9dc1ebf3de1574c8aeeb2592e92ed56d1f53d1e0e9a70f537ec7ddb63a91814e",
+    "source104_snapshot_manifest_sha256": "40a978c154980895e6db8609ed2ffeb92ce0608254d5434ee780d838120abe65",
+    "source_file_count": 778
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "status": "rejected before arithmetic comparisons",
+  "reason": "glue tetrahedra have zero logical material state; 15 is allocated stride, not every material state length",
+  "production_verdict": null
+}

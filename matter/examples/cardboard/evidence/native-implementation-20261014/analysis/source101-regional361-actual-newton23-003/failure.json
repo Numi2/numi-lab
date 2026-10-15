@@ -1,0 +1,5 @@
+{
+  "status": "rejected before arithmetic comparisons",
+  "reason": "audit transposed deformation words; source capture stores three row-major float4 records",
+  "production_verdict": null
+}

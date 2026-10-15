@@ -1,5 +1,16 @@
 # Native solver progress and unresolved qualification
 
+## Current milestone: source104
+
+Source104 adds health-aware private-trial diagnostics and disjoint generic VT
+failure markers. Its68-target build,73 CPU tests and native362 failed-prefix
+physical parity pass. Actual coupon captures360/361 expose false Arnoldi
+completion at control2/Newton23 while independent cached AP/factor checks agree
+below5e-7. Perturbed material evaluations fail, so their derivative comparison
+is inconclusive. The complete physical trajectories still reject. See
+[the source104 report](solver-milestone-source104.md) for retained evidence,
+the overwritten-log erratum and the six separate verdicts.
+
 ## Current milestone: source103
 
 Source103 builds68 targets and passes73 CPU checks. Native353 passes all16

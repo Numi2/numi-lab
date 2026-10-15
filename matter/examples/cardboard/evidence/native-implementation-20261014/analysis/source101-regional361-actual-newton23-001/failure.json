@@ -1,0 +1,5 @@
+{
+  "status": "reader rejected before arithmetic comparisons",
+  "reason": "graph patch 13 includes a fixed node",
+  "interpretation": "Older reader assumed all potential patch nodes remain free. No production defect or factor result inferred."
+}

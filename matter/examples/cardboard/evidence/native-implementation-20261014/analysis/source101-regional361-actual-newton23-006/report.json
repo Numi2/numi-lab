@@ -1,0 +1,264 @@
+{
+  "schema": "numi.cardboard.actual-newton-regional-audit.v1",
+  "capture_integrity": {
+    "schema": "numi.matter.regional_rap_capture.v1",
+    "capture_point": "after_regional_rap_and_graph_factor_barrier_before_fgmres_correction",
+    "source_physics_fingerprint": "6de3475316b7e8b9",
+    "device_program_fingerprint": "c330e03d605afd25",
+    "root": 2,
+    "iteration": 23,
+    "environment": 0,
+    "linearization_generation": 12884901911,
+    "candidate_linearization_sha256": "f1dd93b423728d11338f5cfa7693592f9dfe108d2fab1c606f4b1719cff99626",
+    "payload_sha256": "535cad15b3fc1d56b6537f591e80e45f331081802e5b28ef49dc0f938904e14e",
+    "manifest_sha256": "ec3908f9880def353b006a3a2a990911e5a602f7fea52e0f5933b65b44689ea5",
+    "patch_count": 27,
+    "patch_node_count": 2089,
+    "dof_count": 6267,
+    "matrix_float_count": 4721337,
+    "pivot_count": 6267,
+    "layout_checksum_fnv1a32": 1292406985,
+    "all_graph_factors_valid": true,
+    "all_free_nodes_covered": true,
+    "topology_validation": {
+      "status": "structural_only_no_topology_input"
+    },
+    "limitations": [
+      "byte/layout integrity only",
+      "not a native FGMRES convergence result",
+      "not material calibration or physical qualification"
+    ]
+  },
+  "potential_mask_and_exact_topology_digest_match": true,
+  "older_independent_layout_comparison": {
+    "patches": false,
+    "patch_nodes": false,
+    "rows": false,
+    "node_patch_offsets": false,
+    "node_patch_values": false,
+    "node_coverage": false
+  },
+  "same_generation360_state_byte_matches": {
+    "candidate_nodes": true,
+    "material_history": true,
+    "deformation_high": true,
+    "deformation_low": true,
+    "algorithmic_tangent_cache": true
+  },
+  "ordinary360_361_files_byte_identical": 37,
+  "armijo_rows_identical": 64,
+  "AP_relative_difference": 1.0259022335984584e-07,
+  "AP_maximum_absolute_difference": 5.928065878457733e-09,
+  "coarse_LU_reconstruction_relative_difference": 1.3776599695190233e-07,
+  "patches": [
+    {
+      "index": 0,
+      "nodes": 256,
+      "dofs": 768,
+      "relative_factor_reconstruction_difference": 4.257481892758861e-07,
+      "maximum_absolute_difference": 3.807776567388288e-07
+    },
+    {
+      "index": 1,
+      "nodes": 256,
+      "dofs": 768,
+      "relative_factor_reconstruction_difference": 2.916318460827237e-07,
+      "maximum_absolute_difference": 3.38341253569574e-07
+    },
+    {
+      "index": 2,
+      "nodes": 256,
+      "dofs": 768,
+      "relative_factor_reconstruction_difference": 2.546951285627543e-07,
+      "maximum_absolute_difference": 3.3282220324171163e-07
+    },
+    {
+      "index": 3,
+      "nodes": 256,
+      "dofs": 768,
+      "relative_factor_reconstruction_difference": 3.7959391478563067e-07,
+      "maximum_absolute_difference": 4.550456355056909e-07
+    },
+    {
+      "index": 4,
+      "nodes": 256,
+      "dofs": 768,
+      "relative_factor_reconstruction_difference": 3.074311862653927e-07,
+      "maximum_absolute_difference": 4.542982645627802e-07
+    },
+    {
+      "index": 5,
+      "nodes": 256,
+      "dofs": 768,
+      "relative_factor_reconstruction_difference": 3.42035674017291e-07,
+      "maximum_absolute_difference": 3.963727668310213e-07
+    },
+    {
+      "index": 6,
+      "nodes": 256,
+      "dofs": 768,
+      "relative_factor_reconstruction_difference": 4.0028950564682273e-07,
+      "maximum_absolute_difference": 4.3446951286663094e-07
+    },
+    {
+      "index": 7,
+      "nodes": 256,
+      "dofs": 768,
+      "relative_factor_reconstruction_difference": 3.3647069971388306e-07,
+      "maximum_absolute_difference": 3.0597247047126075e-07
+    },
+    {
+      "index": 8,
+      "nodes": 1,
+      "dofs": 3,
+      "relative_factor_reconstruction_difference": 5.221008777365374e-08,
+      "maximum_absolute_difference": 3.694564348899476e-09
+    },
+    {
+      "index": 9,
+      "nodes": 1,
+      "dofs": 3,
+      "relative_factor_reconstruction_difference": 1.9939438413922634e-07,
+      "maximum_absolute_difference": 4.178551968325728e-08
+    },
+    {
+      "index": 10,
+      "nodes": 1,
+      "dofs": 3,
+      "relative_factor_reconstruction_difference": 4.663923722072531e-08,
+      "maximum_absolute_difference": 4.079548879265538e-09
+    },
+    {
+      "index": 11,
+      "nodes": 1,
+      "dofs": 3,
+      "relative_factor_reconstruction_difference": 4.756819522392377e-08,
+      "maximum_absolute_difference": 6.1378676585732705e-09
+    },
+    {
+      "index": 12,
+      "nodes": 1,
+      "dofs": 3,
+      "relative_factor_reconstruction_difference": 2.0636631501474322e-08,
+      "maximum_absolute_difference": 2.5329157937736824e-09
+    },
+    {
+      "index": 13,
+      "nodes": 12,
+      "dofs": 36,
+      "relative_factor_reconstruction_difference": 0.0,
+      "maximum_absolute_difference": 0.0
+    },
+    {
+      "index": 14,
+      "nodes": 12,
+      "dofs": 36,
+      "relative_factor_reconstruction_difference": 0.0,
+      "maximum_absolute_difference": 0.0
+    },
+    {
+      "index": 15,
+      "nodes": 1,
+      "dofs": 3,
+      "relative_factor_reconstruction_difference": 0.0,
+      "maximum_absolute_difference": 0.0
+    },
+    {
+      "index": 16,
+      "nodes": 1,
+      "dofs": 3,
+      "relative_factor_reconstruction_difference": 0.0,
+      "maximum_absolute_difference": 0.0
+    },
+    {
+      "index": 17,
+      "nodes": 1,
+      "dofs": 3,
+      "relative_factor_reconstruction_difference": 0.0,
+      "maximum_absolute_difference": 0.0
+    },
+    {
+      "index": 18,
+      "nodes": 1,
+      "dofs": 3,
+      "relative_factor_reconstruction_difference": 0.0,
+      "maximum_absolute_difference": 0.0
+    },
+    {
+      "index": 19,
+      "nodes": 1,
+      "dofs": 3,
+      "relative_factor_reconstruction_difference": 0.0,
+      "maximum_absolute_difference": 0.0
+    },
+    {
+      "index": 20,
+      "nodes": 1,
+      "dofs": 3,
+      "relative_factor_reconstruction_difference": 0.0,
+      "maximum_absolute_difference": 0.0
+    },
+    {
+      "index": 21,
+      "nodes": 1,
+      "dofs": 3,
+      "relative_factor_reconstruction_difference": 0.0,
+      "maximum_absolute_difference": 0.0
+    },
+    {
+      "index": 22,
+      "nodes": 1,
+      "dofs": 3,
+      "relative_factor_reconstruction_difference": 0.0,
+      "maximum_absolute_difference": 0.0
+    },
+    {
+      "index": 23,
+      "nodes": 1,
+      "dofs": 3,
+      "relative_factor_reconstruction_difference": 0.0,
+      "maximum_absolute_difference": 0.0
+    },
+    {
+      "index": 24,
+      "nodes": 1,
+      "dofs": 3,
+      "relative_factor_reconstruction_difference": 0.0,
+      "maximum_absolute_difference": 0.0
+    },
+    {
+      "index": 25,
+      "nodes": 1,
+      "dofs": 3,
+      "relative_factor_reconstruction_difference": 0.0,
+      "maximum_absolute_difference": 0.0
+    },
+    {
+      "index": 26,
+      "nodes": 1,
+      "dofs": 3,
+      "relative_factor_reconstruction_difference": 0.0,
+      "maximum_absolute_difference": 0.0
+    }
+  ],
+  "maximum_patch_factor_reconstruction_difference": 4.257481892758861e-07,
+  "inputs_sha256": {
+    "/Users/home/cardboard-implementation-20261014/analysis/source101-regional361-actual-newton23-006/potential_mask_reader.py": "d7d1da074d874f9111355c5bdee92d3c482faf2f157a86332db163133b92c078",
+    "/Users/home/cardboard-implementation-20261014/solver/reset-augmentation-first-failure-rap-only-361/operator-capture.regional.json": "ec3908f9880def353b006a3a2a990911e5a602f7fea52e0f5933b65b44689ea5",
+    "/Users/home/cardboard-implementation-20261014/solver/reset-augmentation-first-failure-rap-only-361/operator-capture.regional.bin": "535cad15b3fc1d56b6537f591e80e45f331081802e5b28ef49dc0f938904e14e",
+    "/Users/home/cardboard-implementation-20261014/solver/reset-augmentation-first-failure-rap-only-361/prediction.json": "5394702539afef4bbce90d929dd20ce7845a3a86d345934980b3ea2ebbc61d5e",
+    "/Users/home/cardboard-implementation-20261014/solver/reset-augmentation-first-failure-rap-only-361/receipt.json": "a15d44ff226491ce6606f204a2ade9b6faa111e805152e0591c754d204a1be2a",
+    "/Users/home/cardboard-implementation-20261014/solver/reset-augmentation-first-failure-capture-360/operator-capture": "548dce37fbe5a28a609dd6bc45318926072c878774ea0caffa3237d925cebb33",
+    "/Users/home/cardboard-implementation-20261014/analysis/source101-control2-newton23-audit-004/result-360/environment-0-operator-audit.operator.npz": "ed5809db58dcbf5d944d427b20ee40c488f86273674b700c9dbb02dc9c018193",
+    "/Users/home/cardboard-implementation-20261014/analysis/source101-control2-newton23-audit-004/result-360/environment-0-operator-audit.vectors.npz": "f4af205fa19556f9501d60627b0eeda1692b6e3ca20407f4c26a5153eaefc14d"
+  },
+  "limits": [
+    "Zero native/physical transactions executed by this CPU audit.",
+    "Older independent graph constructor does not reproduce current patch layout; this report validates captured row maps/checksum and topology/mask digests, not independent layout generation.",
+    "A is reconstructed from captured cached tangents; no independent constitutive accuracy qualification.",
+    "The capture is before FGMRES correction, with 26 base modes, not the later augmented cycle6 operator.",
+    "Potential fixed coordinates are compared to identity rows and columns, as production graph conditioning requires.",
+    "LU reconstruction differences include production FP32 factorization and accumulation; no universal noise floor is measured.",
+    "Both physical attempts still reject after two of27 controls; no mesh/time convergence or full-box qualification."
+  ]
+}

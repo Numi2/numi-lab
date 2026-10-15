@@ -1,0 +1,65 @@
+{
+  "schema": "numi.cardboard.captured-cached-fp64-linear-solve.v1",
+  "source_snapshot": "source-boundary-reset-order-101",
+  "control_step": 2,
+  "newton_iteration": 23,
+  "environment": 0,
+  "operator_scope": "FP64 reconstruction of the captured native cached-tangent matrix; exact unsymmetric CSR retained",
+  "matrix_shape": [
+    2538,
+    2538
+  ],
+  "matrix_nnz": 71046,
+  "algorithm": {
+    "library": "SciPy SuperLU",
+    "permc_spec": "COLAMD",
+    "diag_pivot_thresh": 1.0,
+    "equilibrate": true,
+    "condition_estimator": "onenormest inverse via LU solves and transpose solves",
+    "condition_estimator_t": 3,
+    "condition_estimator_itmax": 8,
+    "numpy_seed": 1729
+  },
+  "metrics": {
+    "rhs_l2_Ns": 0.0007675436840183076,
+    "unchanged_forcing": 0.015625,
+    "forcing_target_Ns": 1.1992870062786056e-05,
+    "fp64_solution_l2_m_per_s": 24135.58806199391,
+    "captured_native_solution_l2_m_per_s": 24346.271164603815,
+    "captured_native_solution_relative_distance_from_fp64": 0.008729147984715755,
+    "fp64_residual_l2_Ns": 1.5330634740174885e-13,
+    "fp64_residual_relative_to_rhs": 1.997363154617427e-10,
+    "fp64_residual_backward_error_norm2_numerator_over_norm1_bound": 3.2368142754499443e-18,
+    "fp32_quantized_fp64_solution_residual_l2_Ns": 1.2978585833148666e-05,
+    "captured_native_solution_residual_l2_Ns": 0.00021583075239008936,
+    "maximum_fp64_solution_component_m_per_s": 13640.187100911238,
+    "operator_norm1": 1.9623861216212592,
+    "inverse_norm1_iterative_lower_estimate": 11334418817.603962,
+    "condition1_iterative_lower_estimate": 22242506184.308857
+  },
+  "software": {
+    "python": "3.10.12",
+    "numpy": "2.2.5",
+    "scipy": "1.15.3"
+  },
+  "warnings": [],
+  "inputs_sha256": {
+    "/Users/home/cardboard-implementation-20261014/analysis/source101-control2-newton23-audit-004/result-360/environment-0-operator-audit.operator.npz": "ed5809db58dcbf5d944d427b20ee40c488f86273674b700c9dbb02dc9c018193",
+    "/Users/home/cardboard-implementation-20261014/analysis/source101-control2-newton23-audit-004/result-360/environment-0-operator-audit.vectors.npz": "f4af205fa19556f9501d60627b0eeda1692b6e3ca20407f4c26a5153eaefc14d",
+    "/Users/home/cardboard-implementation-20261014/analysis/source101-control2-newton23-audit-004/result-360/environment-0-operator-audit.json": "7e2876a4fbeec7bf1184b1090ce3d32d196a522d73f7b6a062c3f7b3040d1fb7",
+    "/Users/home/cardboard-implementation-20261014/solver/reset-augmentation-first-failure-capture-360/prediction.json": "7bab817e48d15c03587e6effc6e6ba3c888a1f1cb820982ccfb76ba6aebc5e33",
+    "/Users/home/cardboard-implementation-20261014/solver/reset-augmentation-first-failure-capture-360/receipt.json": "d623591647a91ca07626e18fef6c78358e60c0d9ab7c38d465e79a2f6c18c474",
+    "/Users/home/cardboard-implementation-20261014/solver/reset-augmentation-first-failure-capture-360/operator-capture": "548dce37fbe5a28a609dd6bc45318926072c878774ea0caffa3237d925cebb33"
+  },
+  "limits": [
+    "Zero native or physical transactions executed.",
+    "This solves captured cached matrices; it does not independently validate the paper constitutive law or its derivative.",
+    "FP64 matrix reconstruction is not the same arithmetic as a native Metal matvec.",
+    "The residual of one FP32-quantized solution is a sensitivity check, not a lower bound over all representable FP32 solutions or a measured noise floor.",
+    "The iterative condition estimate is a lower estimate, not an exact singular-value condition number.",
+    "No tolerance, physical parameter, accepted state or runtime source is changed."
+  ],
+  "physical_validation": false,
+  "native_transactions": 0,
+  "finished_at_utc": "2026-10-15T14:48:52.261709+00:00"
+}

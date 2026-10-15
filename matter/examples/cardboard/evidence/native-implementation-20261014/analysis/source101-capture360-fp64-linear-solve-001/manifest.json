@@ -1,0 +1,8 @@
+{
+  "schema": "numi.cardboard.analysis-package.v1",
+  "files": {
+    "analyze.py": "ae0838bdf30486b41ca89914affef5d432bd90c99c2d756441a23e5ec590abfa",
+    "linear-vectors.npz": "59ea4513076634bc349acfe5f1fd8e3edbcfce4b7e923af8d75d9032ec6e3325",
+    "report.json": "8b92e45bfd667ee458450558d17aa3dd135cfd4c8a3b52e89cf24b3a818ee619"
+  }
+}

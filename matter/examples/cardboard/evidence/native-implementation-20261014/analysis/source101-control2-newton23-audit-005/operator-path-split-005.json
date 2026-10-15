@@ -1,0 +1,133 @@
+{
+  "bindings": {
+    "analysis004/fgmres-cycle-360.csv": "83052bfff6ac40a8b01b97a1e066a87d302a9906ad9c84bed2e3c8bd58f79c07",
+    "analysis004/result-360/environment-0-operator-audit.json": "7e2876a4fbeec7bf1184b1090ce3d32d196a522d73f7b6a062c3f7b3040d1fb7",
+    "analysis004/result-360/environment-0-operator-audit.vectors.npz": "f4af205fa19556f9501d60627b0eeda1692b6e3ca20407f4c26a5153eaefc14d",
+    "run/operator-capture": "548dce37fbe5a28a609dd6bc45318926072c878774ea0caffa3237d925cebb33",
+    "run/output/manifest.json": "2a34ad4f3328616fb5660fe22022941ca9ace9383ca9f1f1b7262ecfd4350ec8",
+    "run/prediction.json": "7bab817e48d15c03587e6effc6e6ba3c888a1f1cb820982ccfb76ba6aebc5e33",
+    "run/receipt.json": "d623591647a91ca07626e18fef6c78358e60c0d9ab7c38d465e79a2f6c18c474",
+    "source101/fgmres.metalinc": "eef8a0919636c513716528dcf04cf9d175801c25e7159125808cbb59a9b696d6",
+    "source101/runtime.mm": "836605dca3f6b264d5ee04a9f65b66997ecbdc39f60709039c7e1ac59becb087"
+  },
+  "cache_configuration": {
+    "capture_cache_available": true,
+    "capture_cache_policy_enabled": true,
+    "capture_cache_snapshot_guard": true,
+    "capture_cache_source": "read-only snapshot of the production per-tetrahedron algorithmic tangent cache; no recomputation",
+    "interpretation": "The production Arnoldi FGMRES path uses selected cached 15-state local tangent matrices under this run setting; the fresh true-residual and selected operator-FD paths use useCache=0.",
+    "manifest_fgmres_algorithmic_tangent_cache": true
+  },
+  "captured_center_derivative_check": {
+    "assembled_action_difference_noise_floor": "not measured",
+    "assembled_fp64_action_relative_difference": 0.00806973283870116,
+    "center_tangent_material_accuracy_threshold_1e-3": "not evaluated against an independent local reference",
+    "epsilon_pairs": [
+      {
+        "epsilon": 0.03125,
+        "minimum_J_plus_minus": [
+          0.914639354,
+          0.908961535
+        ],
+        "plus_minus_status": [
+          5,
+          5
+        ]
+      },
+      {
+        "epsilon": 0.015625,
+        "minimum_J_plus_minus": [
+          0.279992044,
+          0.0675355196
+        ],
+        "plus_minus_status": [
+          5,
+          5
+        ]
+      }
+    ],
+    "fp64_centered_derivative_threshold_1e-6": "inconclusive; both endpoint evaluations of each captured epsilon pair returned status 5, leaving no finite-difference vector to compare",
+    "per_tet_projection_status_and_finite_cache": "all 1,920 selected environment-0 records valid/finite"
+  },
+  "classification": "source-bound diagnostic; rejected physical transaction; no solver or material qualification",
+  "first_layer_findings": {
+    "center_material_or_tangent_accuracy_gate_1e-3": "Not directly tested per tet against an independent reference. The assembled action comparison is .807%, above 1e-3 if naively used as a gate, but this is not a direct local tangent accuracy metric and has no native noise-floor calibration.",
+    "fp64_derivative_gate_1e-6": "Unavailable/inconclusive. Both captured finite-difference epsilon pairs (0.03125 and 0.015625) have plus/minus stage status 5, so no valid assembled FD derivative comparison was produced.",
+    "local_projection_health": "All 1,920 env0 tets have valid finite projection/tangent cache records. This is status/finiteness only, not a center accuracy test.",
+    "noise_floor": "Not established. No repeat-source or native matched-path floor was measured.",
+    "operator_path_mismatch": "Confirmed structurally: Arnoldi uses cache, true residual uses fresh tangent; no matched native cache-vs-fresh action pair is present.",
+    "outer_step": "Newton23 subsequently failed after 24 line-search backtracks; no accepted trial. Later rows are latched failure records.",
+    "recurrence_gap": "The offline cached-tangent reconstructed residual norm for the same correction is 22.10x the cycle-6 Arnoldi estimate, while its scalar norm is within 0.023% of the fresh native residual norm. This makes a cache/fresh path discrepancy alone insufficient to explain the scalar gap, but does not prove recurrence loss because the cached side is offline FP64 reconstructed and the true residual vector is not exported."
+  },
+  "limitations": [
+    "No production change was made.",
+    "No same-vector native useCache=1 A(delta) output exists in this run.",
+    "The fresh true-residual vector is not exported; only its norm/max component is available.",
+    "No default solver change is justified by this one rejected selected Newton capture."
+  ],
+  "native_true_residual": {
+    "arnoldi_estimate_Ns": 9.7661823e-06,
+    "fresh_b_minus_Ax_l2_Ns": 0.000215781765,
+    "interpretation": "Observational fresh b-Ax result; it does not replace the Arnoldi residual or change convergence state in this run.",
+    "linear_forcing_target_Ns": 1.1992869984375e-05,
+    "replacement_enabled": false,
+    "restart_cycle": 6,
+    "true_over_arnoldi": 22.094791841024715,
+    "true_over_target": 17.992504319744388
+  },
+  "same_vector_operator_comparison": {
+    "cached_reconstruction_residual_over_cycle6_arnoldi_estimate": 22.099807863517903,
+    "max_abs_action_difference_Ns": 1.933147341129989e-06,
+    "meaning": "This compares native useCache=0 action against an offline FP64 assembly from captured cached tangents, not against a second native useCache=1 matvec. The .807% action difference combines possible tangent-path differences and offline/native arithmetic/assembly differences; it has no measured noise floor.",
+    "native_fresh_action_l2_Ns": 0.0007835284607949732,
+    "native_fresh_residual_vector_l2_Ns": 0.0002157817650338037,
+    "offline_cached_tangent_reconstruction_action_l2_Ns": 0.0007828460877612863,
+    "offline_cached_tangent_reconstruction_minus_native_fresh_action_l2_Ns": 6.322865350134169e-06,
+    "offline_cached_tangent_reconstruction_residual_l2_Ns": 0.00021583075239008936,
+    "relative_action_difference": 0.00806973283870116,
+    "residual_norm_difference_Ns": 4.898735628564932e-08,
+    "residual_norm_difference_relative_to_native_fresh": 0.00022702268784378102,
+    "vector_contract": "operator capture and the true-residual element call both bind the selected state.femSolution correction vector; capture is after FGMRES and before line search. The fresh native action is recorded as production_A_delta_v_impulse_Ns."
+  },
+  "schema": "numi.cardboard.source101-operator-path-split.v1",
+  "selected_state": {
+    "control_step": 2,
+    "environment": 0,
+    "free_dof_count": 2538,
+    "newton_iteration": 23,
+    "node_count": 882,
+    "tetrahedra": 1920
+  },
+  "source_hashes": {
+    "fgmres.metalinc": "eef8a0919636c513716528dcf04cf9d175801c25e7159125808cbb59a9b696d6",
+    "runtime.mm": "836605dca3f6b264d5ee04a9f65b66997ecbdc39f60709039c7e1ac59becb087"
+  },
+  "source_refs": {
+    "arnoldi_element_operator": {
+      "file": "matter/src/runtime.mm",
+      "lines": "19484-19515",
+      "meaning": "FGMRES column path applies A to the preconditioned basis; passes cache buffers and useCache=1 iff executionBudgets.w==1."
+    },
+    "capture_call_order": {
+      "file": "matter/src/runtime.mm",
+      "lines": "20711-20735",
+      "meaning": "Selected operator FD capture is emitted after the Newton FGMRES work, at selected solverIteration."
+    },
+    "operator_capture_element_operator": {
+      "file": "matter/src/runtime.mm",
+      "lines": "11470-11498",
+      "meaning": "The selected source-bound operator capture binds femSolution and useCache=0; cached tangent matrices are snapshotted separately."
+    },
+    "true_residual_element_operator": {
+      "file": "matter/src/runtime.mm",
+      "lines": "20272-20308",
+      "meaning": "Fresh b-Ax measurement binds femSolution, dummy cache buffers, and useCache=0."
+    },
+    "true_residual_policy": {
+      "file": "matter/src/runtime.mm",
+      "lines": "20375-20395",
+      "meaning": "replaceTrueResidual is driven by femTrueResidualRestartEnabled; this run explicitly had NM_FEM_TRUE_RESIDUAL_RESTART=0."
+    }
+  },
+  "source_snapshot": "source-boundary-reset-order-101"
+}

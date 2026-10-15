@@ -1,0 +1,6 @@
+{
+  "status": "audit serialization failed after arithmetic",
+  "reason": "NumPy int64 patch counts were not converted to JSON integers; BLAS emitted runtime warnings",
+  "production_verdict": null,
+  "next_scope": "use explicit finite-checked non-BLAS contractions and scalar JSON types; preserve failed attempt"
+}

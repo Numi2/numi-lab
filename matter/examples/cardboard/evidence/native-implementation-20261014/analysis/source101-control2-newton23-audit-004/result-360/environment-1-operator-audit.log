@@ -1,0 +1,1 @@
+{"schema": "numi.cardboard.cached-operator-audit.v1", "output": "/Users/home/cardboard-implementation-20261014/analysis/source101-control2-newton23-audit-004/result-360/environment-1-operator-audit.json", "capture_sha256": "548dce37fbe5a28a609dd6bc45318926072c878774ea0caffa3237d925cebb33", "action_relative_l2_error": null, "spectral_status": "not_requested"}

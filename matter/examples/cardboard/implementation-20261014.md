@@ -1,5 +1,15 @@
 # Cardboard implementation and evidence ledger
 
+## Current milestone: source104
+
+The diagnostic-only source104 changes pass68 build targets,73 CPU tests and
+native362 physical-history parity against source103. Exact failed-state
+captures360/361 identify premature Arnoldi completion and closely reproduced
+regional algebra; they do not complete the nonlinear trajectory. Derivative,
+mesh/time, calibrated damage, shipping assembly and crush/drop gates remain
+open. See [the source104 report](solver-milestone-source104.md), including its
+explicit evidence-retention erratum. Earlier entries retain their source scope.
+
 ## Current milestone: source103
 
 The integrated source103 contact and restart repairs build68 targets and pass

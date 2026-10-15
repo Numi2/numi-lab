@@ -1,0 +1,138 @@
+{
+  "artifact_inventory": {
+    "algorithm": "sha256",
+    "excludes": [
+      "manifest.json (self-reference)",
+      "manifest.sha256 (external manifest seal)"
+    ],
+    "files": [
+      {
+        "bytes": 1168,
+        "path": "README.failed-review-v1.md",
+        "sha256": "aa2198d91b54162ef1d967eedb0dc05c27e15ea37e78b1a94ca581e688fe54e5"
+      },
+      {
+        "bytes": 3230,
+        "path": "README.md",
+        "sha256": "f4ae5edf8c4af750f1fda42ffae00da8ad4f80f8d4fb0b07ee3fa78d9beb6904"
+      },
+      {
+        "bytes": 1437200,
+        "path": "matter/armijo-health-check.air",
+        "sha256": "ed15b79d6fd770f43a2c510f95fbfef781779210ef308f76980c0b277263c744"
+      },
+      {
+        "bytes": 561,
+        "path": "matter/src/matter_kernels.metal",
+        "sha256": "37d3530284e2361b20f805409768c65446fc13186c50e94f286b73256debe168"
+      },
+      {
+        "bytes": 236395,
+        "path": "matter/src/metal/fem.metalinc",
+        "sha256": "742cf561ee1ed91e20ed797e664595f675302437a3d583f8c5768da6cb3d008e"
+      },
+      {
+        "bytes": 235852,
+        "path": "matter/src/metal/fem.metalinc.base",
+        "sha256": "f4b5cd60dbe7ace7a54636746a00b5e7186d6c1f4890eb0718c138af9c753ae4"
+      },
+      {
+        "bytes": 1682786,
+        "path": "matter/src/runtime.mm",
+        "sha256": "119148dedc593742dfe7f62c1b06c99e488b6c40a783aa839722f70d2da59c20"
+      },
+      {
+        "bytes": 1675797,
+        "path": "matter/src/runtime.mm.base",
+        "sha256": "836605dca3f6b264d5ee04a9f65b66997ecbdc39f60709039c7e1ac59becb087"
+      },
+      {
+        "bytes": 2950,
+        "path": "matter/tools/armijo_health_contract.py",
+        "sha256": "5d88a51826a7874bd2b87b4b7ce6177608929a70fb7d888141f76b3be660a590"
+      },
+      {
+        "bytes": 3907,
+        "path": "matter/tools/tests/test_armijo_health_contract.py",
+        "sha256": "6131a2809f27a8a43f3ca69d94154742a26b2703356df18c2164e02964fd2166"
+      },
+      {
+        "bytes": 15307,
+        "path": "overlay.patch",
+        "sha256": "55ca2db4ddc45ea4d0d463fa0283a181face599f63a9c15e543bffe8415234a3"
+      },
+      {
+        "bytes": 132,
+        "path": "validation/manifest-seal-check.log",
+        "sha256": "ff7d1f97d6ae177023828bee3387fc62446dfd3b6bec66bd0d4a1e2101427862"
+      },
+      {
+        "bytes": 2990,
+        "path": "validation/metal-compile.log",
+        "sha256": "4c197da52e960719c9eb00925993a9caf7ee01a27ce775f55c108fcd185afb66"
+      },
+      {
+        "bytes": 680,
+        "path": "validation/objcxx-syntax.log",
+        "sha256": "4abd50bd1eabd7526a1826565313dea6fc8b1f288cb73067cd235ab8b6de4f28"
+      },
+      {
+        "bytes": 225,
+        "path": "validation/patch-dry-run.log",
+        "sha256": "adf049f505e45adb3df2391892fffea5b7651b4c6db00eb73654c36fcd125d05"
+      },
+      {
+        "bytes": 1083,
+        "path": "validation/python-contract-tests.log",
+        "sha256": "4a8170486e86a6aa7929655fc30c51ad1ca2328a12a76f2ac9229621fcbbcf0d"
+      },
+      {
+        "bytes": 2099,
+        "path": "validation/results.json",
+        "sha256": "8366c1c457dcfa0274eaaaff5f6b567fe5c37716260cec9d39f67c0c31a38f1c"
+      }
+    ]
+  },
+  "base_files": {
+    "matter/src/metal/fem.metalinc": "f4b5cd60dbe7ace7a54636746a00b5e7186d6c1f4890eb0718c138af9c753ae4",
+    "matter/src/runtime.mm": "836605dca3f6b264d5ee04a9f65b66997ecbdc39f60709039c7e1ac59becb087"
+  },
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-boundary-reset-order-101",
+  "base_snapshot_103": "same_frozen_source_files_and_hashes",
+  "diagnostic_only": true,
+  "max_record_snapshot_bytes": 16384,
+  "max_trace_records": 64,
+  "metal_compile": "pass_with_two_preexisting_fgmres_threadgroup_warnings",
+  "native_gpu_qualification": false,
+  "overlay_files": {
+    "matter/src/metal/fem.metalinc": "742cf561ee1ed91e20ed797e664595f675302437a3d583f8c5768da6cb3d008e",
+    "matter/src/runtime.mm": "119148dedc593742dfe7f62c1b06c99e488b6c40a783aa839722f70d2da59c20",
+    "overlay.patch": "55ca2db4ddc45ea4d0d463fa0283a181face599f63a9c15e543bffe8415234a3"
+  },
+  "patch_dry_run": "pass_against_source101",
+  "production_mechanics_changed": false,
+  "python_contract_tests": 7,
+  "review_v1": {
+    "issues": "base_l2 semantics unconditional; certified no-op status scratch mislabeled as selected trial; initial v1 README incorrectly listed overlay hashes as base hashes",
+    "preserved_record": "README.failed-review-v1.md"
+  },
+  "runtime_objcxx_syntax": "pass",
+  "same_base_snapshot_103": true,
+  "schema": "numi.matter.armijo_health_metadata_overlay.v2",
+  "schema_change": 3,
+  "source_base": {
+    "files": {
+      "matter/src/metal/fem.metalinc": "f4b5cd60dbe7ace7a54636746a00b5e7186d6c1f4890eb0718c138af9c753ae4",
+      "matter/src/runtime.mm": "836605dca3f6b264d5ee04a9f65b66997ecbdc39f60709039c7e1ac59becb087"
+    },
+    "same_base_snapshot_103": true,
+    "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-boundary-reset-order-101"
+  },
+  "validation": {
+    "metal_compile": "pass_two_preexisting_fgmres_threadgroup_warnings",
+    "native_gpu_qualification": false,
+    "patch_dry_run": "pass_against_source101",
+    "python_contract_tests": "pass_5_tests",
+    "runtime_objcxx_syntax": "pass"
+  }
+}

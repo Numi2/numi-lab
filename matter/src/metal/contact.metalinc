@@ -3938,7 +3938,7 @@ kernel void nm_contact_narrowphase_deformable(
                         NM_STATUS_CONTACT_FAILURE, left.nodesAndObject.w, slot,
                         float4(float(candidate.identity.x),
                                float(candidate.identity.y),
-                               float(vertexIndex), 0.0f));
+                               float(vertexIndex), float(3u + direction)));
                     return;
                 }
                 if (hit && toi < bestTOI) {

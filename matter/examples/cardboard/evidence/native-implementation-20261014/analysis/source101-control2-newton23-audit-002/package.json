@@ -1,0 +1,15 @@
+{
+  "expected_capture_selector": "2:23",
+  "files": {
+    "README.md": "a3ba51e93b115fd304ee2a76d2ca71b5b226794317bf19590d088ef420171dcd",
+    "run_operator_audit.py": "6a89acf019b3338b9e9fbe4676bc98095e6396674aff9371049b367d4e19de8c"
+  },
+  "schema": "numi.cardboard.control2-newton23-audit-package.v2",
+  "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-boundary-reset-order-101",
+  "supersedes": "../source101-control2-newton23-audit-001 (retained unchanged; wrapper NameError at baseline_manifest reference)",
+  "validation": {
+    "incomplete_native_run": "refused before output creation",
+    "native_capture_360": "pending; no claim",
+    "python_compile": "passed"
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "expected_capture_selector": "2:23",
+  "native_run": "/Users/home/cardboard-implementation-20261014/solver/reset-augmentation-first-failure-capture-360",
+  "native_run_hashes": {
+    "operator-capture": "548dce37fbe5a28a609dd6bc45318926072c878774ea0caffa3237d925cebb33",
+    "prediction.json": "7bab817e48d15c03587e6effc6e6ba3c888a1f1cb820982ccfb76ba6aebc5e33",
+    "receipt.json": "d623591647a91ca07626e18fef6c78358e60c0d9ab7c38d465e79a2f6c18c474",
+    "stderr.log": "e279be355ef56ff7f7532b16a8a0706fc238d333d91d0ede7aa27a5dda7a1db5"
+  },
+  "outputs": {
+    "captured_material_health.json": "23b34103542d182a2d3976b0d725ec02946c1c822a962e0e099c9eabb0626143",
+    "environment-0-operator-audit.json": "7e2876a4fbeec7bf1184b1090ce3d32d196a522d73f7b6a062c3f7b3040d1fb7",
+    "environment-1-operator-audit.json": "4d8b77a6471a11010b2a7e800f6ca070111ce40085717d36e037db650527faec",
+    "summary.json": "3f385cc02381522eccc8d83767a18a81776c701cd47421a3f8ee510417dd86f3"
+  },
+  "package_files": {
+    "README.md": "6ab4afcbd0a6ea10435992fdc95771ee3b067390cbc468f54d126d54496430e8",
+    "fgmres-cycle-360.csv": "83052bfff6ac40a8b01b97a1e066a87d302a9906ad9c84bed2e3c8bd58f79c07",
+    "findings-360.json": "d1a95fd6fed2eb14afa86e2652aad8a44ab78954c8a1bf04fa4454653226ebb5",
+    "run_operator_audit.py": "2731baf786cb71577a5d45228e427a7d46e0608d3328f4302139e64df0a21244"
+  },
+  "schema": "numi.cardboard.source101-control2-newton23-audit-package.v4",
+  "source_auditor_sha256": "2ce80f9b3c989efd058bdbcc29661d10701061cfde459d64cca06c0d6caeee38",
+  "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-boundary-reset-order-101",
+  "supersedes": [
+    "../source101-control2-newton23-audit-001",
+    "../source101-control2-newton23-audit-002",
+    "../source101-control2-newton23-audit-003"
+  ],
+  "validation": {
+    "native_run": "complete exit 2; full physical step rejected",
+    "noise_floor": "not established",
+    "operator_capture_binding": "source/input/capture selectors match",
+    "python_compile": "passed"
+  }
+}

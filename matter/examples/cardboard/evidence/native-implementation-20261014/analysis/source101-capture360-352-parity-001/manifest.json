@@ -1,0 +1,25 @@
+{
+  "excludes": [
+    "manifest.json (self-reference)",
+    "manifest.sha256 (external seal)"
+  ],
+  "files": [
+    {
+      "bytes": 2891,
+      "path": "README.md",
+      "sha256": "64a5edef57e33ca5e2545eb04f23d8a38bb7540f1a550cc7148cb119ea918d28"
+    },
+    {
+      "bytes": 13823,
+      "path": "compare.py",
+      "sha256": "27db785e842f49e6a2a37483c836cb3a5339b54fcde547a4d65c1cd783dcd233"
+    },
+    {
+      "bytes": 24958,
+      "path": "report.json",
+      "sha256": "b97eabfcf9eb872e22738cf9b9a5c475d70caaed6ebe57797762a398eebe2ae4"
+    }
+  ],
+  "qualification": "not_qualified",
+  "schema": "numi.cardboard.source101_capture360_control352_audit_package.v1"
+}

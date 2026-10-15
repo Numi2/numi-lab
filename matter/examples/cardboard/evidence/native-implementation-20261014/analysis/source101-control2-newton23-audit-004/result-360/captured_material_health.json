@@ -1,0 +1,149 @@
+{
+  "environments": [
+    {
+      "all_center_records_auditable": true,
+      "by_material": {
+        "hajali2009_liner_hill_bilinear_fit": {
+          "cached_tangent_count": 1152,
+          "cached_tangent_nonfinite_tet_ids": [],
+          "invalid_projection_tet_ids": [],
+          "max_projection_correction": 0.0610716753,
+          "max_projection_residual": 1.97687395e-08,
+          "nonzero_terminal_status_tet_ids": [],
+          "projection_iteration_counts": {
+            "1": 2,
+            "10": 1,
+            "2": 872,
+            "4": 2,
+            "5": 25,
+            "6": 100,
+            "7": 127,
+            "8": 14,
+            "9": 9
+          },
+          "projection_valid_count": 1152,
+          "terminal_status_counts": {
+            "0": 1152
+          },
+          "tetrahedron_count": 1152
+        },
+        "hajali2009_medium_hill_bilinear_fit": {
+          "cached_tangent_count": 576,
+          "cached_tangent_nonfinite_tet_ids": [],
+          "invalid_projection_tet_ids": [],
+          "max_projection_correction": 0.195478901,
+          "max_projection_residual": 2.12944524e-08,
+          "nonzero_terminal_status_tet_ids": [],
+          "projection_iteration_counts": {
+            "1": 13,
+            "2": 308,
+            "4": 5,
+            "5": 21,
+            "6": 84,
+            "7": 125,
+            "8": 10,
+            "9": 10
+          },
+          "projection_valid_count": 576,
+          "terminal_status_counts": {
+            "0": 576
+          },
+          "tetrahedron_count": 576
+        },
+        "starch2007_finite_glue_elastic": {
+          "cached_tangent_count": 192,
+          "cached_tangent_nonfinite_tet_ids": [],
+          "invalid_projection_tet_ids": [],
+          "max_projection_correction": 0.0,
+          "max_projection_residual": 0.0,
+          "nonzero_terminal_status_tet_ids": [],
+          "projection_iteration_counts": {
+            "0": 192
+          },
+          "projection_valid_count": 192,
+          "terminal_status_counts": {
+            "0": 192
+          },
+          "tetrahedron_count": 192
+        }
+      },
+      "environment": 0,
+      "missing_tangent_tet_ids": [],
+      "nonzero_or_missing_terminal_status_tet_ids": [],
+      "projection_invalid_tet_ids": [],
+      "tetrahedron_records": 1920
+    },
+    {
+      "all_center_records_auditable": true,
+      "by_material": {
+        "hajali2009_liner_hill_bilinear_fit": {
+          "cached_tangent_count": 1152,
+          "cached_tangent_nonfinite_tet_ids": [],
+          "invalid_projection_tet_ids": [],
+          "max_projection_correction": 0.0,
+          "max_projection_residual": 5.00001008e-16,
+          "nonzero_terminal_status_tet_ids": [],
+          "projection_iteration_counts": {
+            "1": 1152
+          },
+          "projection_valid_count": 1152,
+          "terminal_status_counts": {
+            "0": 1152
+          },
+          "tetrahedron_count": 1152
+        },
+        "hajali2009_medium_hill_bilinear_fit": {
+          "cached_tangent_count": 576,
+          "cached_tangent_nonfinite_tet_ids": [],
+          "invalid_projection_tet_ids": [],
+          "max_projection_correction": 1.1370993e-05,
+          "max_projection_residual": 5.46046227e-13,
+          "nonzero_terminal_status_tet_ids": [],
+          "projection_iteration_counts": {
+            "1": 96,
+            "2": 480
+          },
+          "projection_valid_count": 576,
+          "terminal_status_counts": {
+            "0": 576
+          },
+          "tetrahedron_count": 576
+        },
+        "starch2007_finite_glue_elastic": {
+          "cached_tangent_count": 192,
+          "cached_tangent_nonfinite_tet_ids": [],
+          "invalid_projection_tet_ids": [],
+          "max_projection_correction": 0.0,
+          "max_projection_residual": 0.0,
+          "nonzero_terminal_status_tet_ids": [],
+          "projection_iteration_counts": {
+            "0": 192
+          },
+          "projection_valid_count": 192,
+          "terminal_status_counts": {
+            "0": 192
+          },
+          "tetrahedron_count": 192
+        }
+      },
+      "environment": 1,
+      "missing_tangent_tet_ids": [],
+      "nonzero_or_missing_terminal_status_tet_ids": [],
+      "projection_invalid_tet_ids": [],
+      "tetrahedron_records": 1920
+    }
+  ],
+  "integrity": {
+    "cached_tangent_snapshot_bitwise_guard_included": true,
+    "production_inputs_bitwise_unchanged": true,
+    "record": "integrity"
+  },
+  "limits": [
+    "This checks capture fields and native status markers; it is not an independent material replay."
+  ],
+  "schema": "numi.cardboard.captured-material-health.v1",
+  "selection": {
+    "control_step": 2,
+    "newton_iteration": 23
+  }
+}

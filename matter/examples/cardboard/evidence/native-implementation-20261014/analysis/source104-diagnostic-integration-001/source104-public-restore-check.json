@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "/Users/home/.pyenv/versions/3.10.12/bin/python3",
+    "/Users/home/cardboard-implementation-20261014/analysis/retained-source-snapshot104-001/restore.py",
+    "--repository",
+    "/Users/home/numi-cardboard-20261006",
+    "--number",
+    "104",
+    "--output",
+    "/Users/home/cardboard-implementation-20261014/source104-cli-parent-28iggju7/source104"
+  ],
+  "exit_code": 0,
+  "stdout": "{\"number\": 104, \"files\": 1848, \"exact_bytes_verified\": true, \"output\": \"/Users/home/cardboard-implementation-20261014/source104-cli-parent-28iggju7/source104\", \"actual_build_success\": true}\n",
+  "stderr": "",
+  "temporary_restored_source_removed_after_verification": true,
+  "restore_script_sha256": "aecc8dde85ab4beea625abc5ce0b6bcb2f0596f9ce9cc3e020e79d7e8fe10b9b"
+}

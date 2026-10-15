@@ -1,0 +1,15 @@
+{
+  "base_audit": "../source101-control2-newton23-audit-004",
+  "files": {
+    "README.md": "325f3a3d8573adfa8987eff682f1123e755ec2bcada717a1658e6c0e05e86512",
+    "operator-path-split-005.json": "dcab6db90bc6c69945b9d48eead38baef78c800626b05933f16b70e717670fb9"
+  },
+  "native_run": "/Users/home/cardboard-implementation-20261014/solver/reset-augmentation-first-failure-capture-360",
+  "schema": "numi.cardboard.source101-operator-path-split-package.v1",
+  "validation": {
+    "accuracy_gates": "center 1e-3 and derivative 1e-6 not closed",
+    "native_replay": "not run; analysis-only addendum",
+    "solver_change": "none",
+    "source_binding": "verified against 360 prediction/source hashes"
+  }
+}

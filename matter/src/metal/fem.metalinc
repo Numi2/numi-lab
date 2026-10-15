@@ -4458,6 +4458,17 @@ kernel void nm_fem_armijo_measure_trial(
     metrics[environment] = state;
 }
 
+// Observational snapshot of solver health at Armijo entry. This is separate
+// from trialStatuses because private trial evaluation mutates that arena.
+kernel void nm_fem_armijo_capture_base_status(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMMatterStatusGPU* statuses [[buffer(1)]],
+    device NMMatterStatusGPU* baseStatuses [[buffer(2)]],
+    uint environment [[thread_position_in_grid]]) {
+    if (environment >= dispatch.environmentCount) return;
+    baseStatuses[environment] = statuses[environment];
+}
+
 kernel void nm_fem_armijo_decide(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     constant NMMicrostepGPU& microstep [[buffer(1)]],

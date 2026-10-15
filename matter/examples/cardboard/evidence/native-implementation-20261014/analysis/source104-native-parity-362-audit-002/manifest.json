@@ -1,0 +1,25 @@
+{
+  "artifacts": {
+    "/Users/home/cardboard-implementation-20261014/analysis/source104-native-parity-362-audit-002/README.md": "8492c2da2ec2a3c081984f97a77472ba81e53be0d5b36d901b73f4f69287f12f",
+    "/Users/home/cardboard-implementation-20261014/analysis/source104-native-parity-362-audit-002/audit.py": "55f285b34919044524dbf82ac5cdfdffe1e66c8f905d340d75be621528f1a753",
+    "/Users/home/cardboard-implementation-20261014/analysis/source104-native-parity-362-audit-002/source104-vs-source103-report.json": "39d3c3a0840aa2dfa59b908e84e4507d363a69bb98d09b3473c9e69dcc20f7a9",
+    "/Users/home/cardboard-implementation-20261014/analysis/source104-native-parity-362-audit-002/test_audit.py": "b1c4065557bcc2f712a43f9a43c95c2f9fa6dece546905a6081e9f393d130947",
+    "/Users/home/cardboard-implementation-20261014/native/first-fatal-center-359/center-capture.coupled.bin": "965d38af46af2bbc311cb1534193b8892581cb4d4548936dfc8d7ba9db0cc2e4",
+    "/Users/home/cardboard-implementation-20261014/native/first-fatal-center-359/center-capture.coupled.json": "f3344db91f0edba415119dd639956507ba0efacfe0c459042dc4d8b83087ff1b",
+    "/Users/home/cardboard-implementation-20261014/native/first-fatal-center-359/prediction.json": "0088a3d2db831b46dac34db72d1f18822e82a3eec8864a2103bf20419d167d04",
+    "/Users/home/cardboard-implementation-20261014/native/first-fatal-center-359/receipt.json": "8f6b5dc36c239e25223dab6b1fb8e7b4bb51150e5d1b386de57a802133e69661",
+    "/Users/home/cardboard-implementation-20261014/native/health-and-vt-marker-firstfatal-362/center-capture.coupled.bin": "965d38af46af2bbc311cb1534193b8892581cb4d4548936dfc8d7ba9db0cc2e4",
+    "/Users/home/cardboard-implementation-20261014/native/health-and-vt-marker-firstfatal-362/center-capture.coupled.json": "44ce64b4f69c58abcf3786d59f6392b8dde760ee9751f13ae7a03be4baec29da",
+    "/Users/home/cardboard-implementation-20261014/native/health-and-vt-marker-firstfatal-362/prediction.json": "76e7dbff579bcfdecf505346527ff6c1eb113b794f467d87446a4a3c66a18ee1",
+    "/Users/home/cardboard-implementation-20261014/native/health-and-vt-marker-firstfatal-362/receipt.json": "cdcad4c5578618fc1dab90327708d480e8511f9a8bc464dfdcebc17a0cb43c3a",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-contact-health-diagnostics-104/frozen-source.json": "40a978c154980895e6db8609ed2ffeb92ce0608254d5434ee780d838120abe65",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-whole-mortar-proof-103/frozen-source.json": "a7169546e652c78651382fe38dd7477cef9f3ad9cf005ea729c7c7bbc2b67d27",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-103/source-build.json": "b4c036f65383b5fce246144c3a81526050ad327252f5859d9b4c0504888bce6b",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-104/source-build.json": "759eabcfbc4c940cf85c9a8061b394445907b99b2186d3bb26382cebb6bf15f3"
+  },
+  "audit_report_sha256": "39d3c3a0840aa2dfa59b908e84e4507d363a69bb98d09b3473c9e69dcc20f7a9",
+  "schema": "numi.cardboard.source104_parity_audit_manifest.v1",
+  "status": "PASS_EXACT_PARITY_WITH_DECLARED_DIAGNOSTIC_DELTAS",
+  "test_command": "/Users/home/.pyenv/versions/3.10.12/bin/python3 test_audit.py",
+  "test_status": "synthetic contract tests passed"
+}

@@ -1,0 +1,6 @@
+{
+  "status": "rejected before arithmetic comparisons",
+  "reason": "old independent graph constructor does not reproduce current source101 potential-node patch layout",
+  "production_verdict": null,
+  "next_scope": "verify exact topology and potential-mask digests, capture layout checksum/row maps and physical block arithmetic; do not claim independent layout-constructor qualification"
+}

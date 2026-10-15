@@ -1,0 +1,42 @@
+{
+  "schema": "numi.cardboard.source104-diagnostic-integration.v1",
+  "scope": "Diagnostic-only integration of pre-Armijo solver status snapshots, health-aware raw residual labels, and disjoint generic VT failure markers. No physical operator, CCD threshold, solver tolerance, contact iteration budget, acceptance rule, or history update changes. Native parity remains required.",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-whole-mortar-proof-103",
+  "base_manifest_sha256": "a7169546e652c78651382fe38dd7477cef9f3ad9cf005ea729c7c7bbc2b67d27",
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-contact-health-diagnostics-104",
+  "selected_source_files": 778,
+  "support_files": 1068,
+  "changes": {
+    "matter/src/metal/contact.metalinc": {
+      "before": "427aca061ad2c6d2218b5eae0bc7620132a1ef9fff9f688390ccc96ca8a27ffc",
+      "after": "b9ec3915b63bdee729ff0902c390e137e0f6b5d005d06e6a7136c534be3d510b"
+    },
+    "matter/src/metal/fem.metalinc": {
+      "before": "f4b5cd60dbe7ace7a54636746a00b5e7186d6c1f4890eb0718c138af9c753ae4",
+      "after": "742cf561ee1ed91e20ed797e664595f675302437a3d583f8c5768da6cb3d008e"
+    },
+    "matter/src/runtime.mm": {
+      "before": "836605dca3f6b264d5ee04a9f65b66997ecbdc39f60709039c7e1ac59becb087",
+      "after": "119148dedc593742dfe7f62c1b06c99e488b6c40a783aa839722f70d2da59c20"
+    }
+  },
+  "patches": [
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/armijo-health-metadata-overlay-002/overlay.patch",
+      "sha256": "55ca2db4ddc45ea4d0d463fa0283a181face599f63a9c15e543bffe8415234a3",
+      "exit_code": 0,
+      "stdout": "patching file 'matter/src/runtime.mm'\npatching file 'matter/src/metal/fem.metalinc'\n",
+      "stderr": ""
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/source103-vt-failure-marker-001/patch.diff",
+      "sha256": "8816452ffa56bd784b80b19661eb7e9edc3cc11ca1778054d4ccbbd3233249c5",
+      "exit_code": 0,
+      "stdout": "patching file 'matter/src/metal/contact.metalinc'\n",
+      "stderr": ""
+    }
+  ],
+  "health_manifest_sha256": "651161fb1cf5a3615598a2617c1c0de8efa85806600312fdecdc5b00f8016e9b",
+  "vt_marker_manifest_sha256": "31912f229c401283252b761c21437fa84d0799072f0fc29d4cff670fb09565cc",
+  "native_parity": "pending"
+}

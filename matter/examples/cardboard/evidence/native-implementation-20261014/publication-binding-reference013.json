@@ -1,0 +1,32 @@
+{
+  "schema": "numi.cardboard.reference013-publication-binding.v1",
+  "cases": [
+    "analysis/source104-diagnostic-integration-001",
+    "analysis/retained-source-snapshot104-001",
+    "analysis/source104-native-parity-362-audit-001",
+    "analysis/source104-native-parity-362-audit-002",
+    "analysis/source101-capture360-352-parity-001",
+    "analysis/source101-capture360-fp64-linear-solve-001",
+    "analysis/source101-control2-newton23-audit-001",
+    "analysis/source101-control2-newton23-audit-002",
+    "analysis/source101-control2-newton23-audit-003",
+    "analysis/source101-control2-newton23-audit-004",
+    "analysis/source101-control2-newton23-audit-005",
+    "analysis/source101-regional361-actual-newton23-001",
+    "analysis/source101-regional361-actual-newton23-002",
+    "analysis/source101-regional361-actual-newton23-003",
+    "analysis/source101-regional361-actual-newton23-004",
+    "analysis/source101-regional361-actual-newton23-005",
+    "analysis/source101-regional361-actual-newton23-006",
+    "native/health-and-vt-marker-firstfatal-362",
+    "solver/reset-augmentation-first-failure-capture-360",
+    "solver/reset-augmentation-first-failure-rap-only-361",
+    "cpu-checks-104",
+    "build/source-build-104",
+    "analysis/source104-publication-adoption-001"
+  ],
+  "summary_sha256": "552227d750f045bd03460edca51e5ff039dc7e111b6ac9e6e3aa3c83f3128f1b",
+  "copied_files": 259,
+  "source104_build_sha256": "759eabcfbc4c940cf85c9a8061b394445907b99b2186d3bb26382cebb6bf15f3",
+  "physical_validation": false
+}

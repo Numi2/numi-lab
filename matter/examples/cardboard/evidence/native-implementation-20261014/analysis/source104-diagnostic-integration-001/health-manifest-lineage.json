@@ -1,0 +1,84 @@
+{
+  "schema": "numi.cardboard.manifest-count-erratum.v2",
+  "at_integration_sha256": "651161fb1cf5a3615598a2617c1c0de8efa85806600312fdecdc5b00f8016e9b",
+  "corrected_count_manifest_sha256": "50cda7335592088bba4ff064c612e1b985d75e7cd298db27c8c4f943beec357a",
+  "source_overlay_bytes_and_patch_unchanged": true,
+  "inventory_unchanged": false,
+  "changed_inventory": {
+    "README.md": {
+      "before": {
+        "bytes": 3230,
+        "path": "README.md",
+        "sha256": "f4ae5edf8c4af750f1fda42ffae00da8ad4f80f8d4fb0b07ee3fa78d9beb6904"
+      },
+      "after": {
+        "bytes": 3887,
+        "path": "README.md",
+        "sha256": "560c7eee1d1d15d9edba59d3a099c1beafe33b4c3bedb69e6bccdf1304547f38"
+      }
+    },
+    "validation/manifest-seal-check.log": {
+      "before": {
+        "bytes": 132,
+        "path": "validation/manifest-seal-check.log",
+        "sha256": "ff7d1f97d6ae177023828bee3387fc62446dfd3b6bec66bd0d4a1e2101427862"
+      },
+      "after": {
+        "bytes": 113,
+        "path": "validation/manifest-seal-check.log",
+        "sha256": "d3dd34ada4396bd9fb13a50a7a15fbed2227c9af2c56f81ef9e2aea2bd697cc0"
+      }
+    },
+    "validation/metal-compile.log": {
+      "before": {
+        "bytes": 2990,
+        "path": "validation/metal-compile.log",
+        "sha256": "4c197da52e960719c9eb00925993a9caf7ee01a27ce775f55c108fcd185afb66"
+      },
+      "after": {
+        "bytes": 2259,
+        "path": "validation/metal-compile.log",
+        "sha256": "b48906b9a63ece1d2ad174a01c2fd54e1e03e0d9ce47e75ae90f18e8f7cf8e72"
+      }
+    },
+    "validation/objcxx-syntax.log": {
+      "before": {
+        "bytes": 680,
+        "path": "validation/objcxx-syntax.log",
+        "sha256": "4abd50bd1eabd7526a1826565313dea6fc8b1f288cb73067cd235ab8b6de4f28"
+      },
+      "after": {
+        "bytes": 0,
+        "path": "validation/objcxx-syntax.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "validation/patch-dry-run.log": {
+      "before": {
+        "bytes": 225,
+        "path": "validation/patch-dry-run.log",
+        "sha256": "adf049f505e45adb3df2391892fffea5b7651b4c6db00eb73654c36fcd125d05"
+      },
+      "after": {
+        "bytes": 84,
+        "path": "validation/patch-dry-run.log",
+        "sha256": "668ada9ce208f8b2580e0d2ca86e5ea43b3243e5038e878d5c0ae8b5617a916b"
+      }
+    },
+    "validation/python-contract-tests.log": {
+      "before": {
+        "bytes": 1083,
+        "path": "validation/python-contract-tests.log",
+        "sha256": "4a8170486e86a6aa7929655fc30c51ad1ca2328a12a76f2ac9229621fcbbcf0d"
+      },
+      "after": {
+        "bytes": 925,
+        "path": "validation/python-contract-tests.log",
+        "sha256": "3cb0eb36a1fde626c756fbcbd742f8a2bdc59a99f058c037f62555dc505819fe"
+      }
+    }
+  },
+  "old_inventory_verification": "All old listed hashes and sizes were verified by assemble_source_104.py immediately before snapshot copying and build.",
+  "old_log_retention": "Recovery requested from package author; availability not yet established. Do not claim old validation log hashes resolve to current corrected package files.",
+  "change": "Author corrected stale 5-tests label to 7 tests and also rewrote README and validation outputs in the sealed package. Original manifest retained. Source104 compiled independently from exact unchanged overlay bytes and has its own complete build and73 CPU-test receipts."
+}

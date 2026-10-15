@@ -4017,6 +4017,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fem_armijo_prepare_candidate",
             "nm_fem_armijo_validate_geometry",
             "nm_fem_armijo_measure_trial",
+            "nm_fem_armijo_capture_base_status",
             "nm_fem_operator_fd_initialize",
             "nm_fem_operator_fd_begin_pair",
             "nm_fem_operator_fd_negate_direction",
@@ -9821,9 +9822,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 return true;
             };
             // Optional compact trace for one Newton microstep. FGMRES already
-            // stores the exact assembled full-space residual norm at the start
-            // of each Newton solve in nonlinear.y. This trace does not copy a
-            // partial FEM residual or label an Arnoldi estimate as b-Ax.
+            // stores the raw full-space residual metric at the start of each
+            // Newton solve in nonlinear.y. Interpret it as a complete assembled
+            // residual only when the pretrial solver status is healthy. This
+            // trace does not copy a partial FEM residual or label an Arnoldi
+            // estimate as b-Ax.
             bool femNewtonTraceNoticeLogged = false;
             bool femNewtonTraceSelectorErrorLogged = false;
             bool femNewtonTraceCapturedAny = false;
@@ -10941,6 +10944,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
             bool femResidualArmijoTraceEnabled = false;
             bool femResidualArmijoTraceNoticeLogged = false;
             std::uint32_t femResidualArmijoTraceRecords = 0u;
+            id<MTLBuffer> femResidualArmijoBaseStatusCapture = nil;
             if (const char* selector = std::getenv(
                     "NM_FEM_RESIDUAL_ARMIJO_TRACE_ROOT")) {
                 char* end = nullptr;
@@ -10958,9 +10962,20 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         femResidualArmijoTraceNoticeLogged = true;
                     } else {
                         femResidualArmijoTraceEnabled = true;
+                        const NSUInteger baseStatusBytes =
+                            environments * sizeof(NMMatterStatusGPU);
+                        constexpr NSUInteger maximumBaseStatusBytes = 16u * 1024u;
+                        if (environments != 0u &&
+                            baseStatusBytes <= maximumBaseStatusBytes) {
+                            femResidualArmijoBaseStatusCapture = [state.device
+                                newBufferWithLength:baseStatusBytes
+                                options:MTLResourceStorageModePrivate];
+                        }
                         std::fprintf(stderr,
-                            "fem_residual_armijo_trace_enabled={\"schema\":1,\"root\":%u,\"maximum_newton_records\":64}\n",
-                            static_cast<std::uint32_t>(parsed));
+                            "fem_residual_armijo_trace_enabled={\"schema\":3,\"root\":%u,\"maximum_newton_records\":64,\"base_status_capture\":%s}\n",
+                            static_cast<std::uint32_t>(parsed),
+                            femResidualArmijoBaseStatusCapture != nil
+                                ? "true" : "false");
                     }
                 }
             }
@@ -11128,6 +11143,19 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     micro.solverIteration == selectedIteration;
                 return true;
             };
+            const auto encodeFEMResidualArmijoBaseStatus = [&]() {
+                if (!femResidualArmijoTraceEnabled ||
+                    femResidualArmijoBaseStatusCapture == nil ||
+                    femResidualArmijoTraceRecords >= 64u) return;
+                dispatchThreads("nm_fem_armijo_capture_base_status",
+                    environments, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.statuses offset:0u atIndex:1u];
+                    [encoder setBuffer:femResidualArmijoBaseStatusCapture
+                                 offset:0u atIndex:2u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            };
             const auto encodeFEMResidualArmijoTrace = [&]() -> bool {
                 if (!femResidualArmijoTraceEnabled) return true;
                 constexpr std::uint32_t maximumTraceRecords = 64u;
@@ -11151,8 +11179,17 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     environments * sizeof(NMMatterStatusGPU);
                 const NSUInteger trialStatusBytes =
                     environments * sizeof(NMMatterStatusGPU);
-                const NSUInteger bytes = metricBytes + lineSearchBytes +
-                    statusBytes + trialStatusBytes + environmentLineSearchBytes;
+                const NSUInteger baseStatusBytes =
+                    environments * sizeof(NMMatterStatusGPU);
+                const NSUInteger baseStatusUnalignedOffset = metricBytes +
+                    lineSearchBytes + statusBytes + trialStatusBytes +
+                    environmentLineSearchBytes;
+                constexpr NSUInteger baseStatusAlignment =
+                    alignof(NMMatterStatusGPU);
+                const NSUInteger baseStatusOffset =
+                    (baseStatusUnalignedOffset + baseStatusAlignment - 1u) &
+                    ~(baseStatusAlignment - 1u);
+                const NSUInteger bytes = baseStatusOffset + baseStatusBytes;
                 constexpr NSUInteger maximumSnapshotBytes = 16u * 1024u;
                 if (environments == 0u || bytes > maximumSnapshotBytes) {
                     if (!femResidualArmijoTraceNoticeLogged) {
@@ -11213,6 +11250,14 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     toBuffer:snapshot destinationOffset:metricBytes + lineSearchBytes +
                         statusBytes + trialStatusBytes
                     size:environmentLineSearchBytes];
+                const bool baseStatusCaptureAvailable =
+                    femResidualArmijoBaseStatusCapture != nil;
+                if (baseStatusCaptureAvailable) {
+                    [copy copyFromBuffer:femResidualArmijoBaseStatusCapture
+                        sourceOffset:0u toBuffer:snapshot
+                        destinationOffset:baseStatusOffset
+                        size:baseStatusBytes];
+                }
                 [copy endEncoding];
                 ++femResidualArmijoTraceRecords;
                 const auto capturedRoot = request.controlStep;
@@ -11222,6 +11267,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 const auto capturedLineSearchBytes = lineSearchBytes;
                 const auto capturedStatusBytes = statusBytes;
                 const auto capturedTrialStatusBytes = trialStatusBytes;
+                const auto capturedBaseStatusOffset = baseStatusOffset;
+                const bool capturedBaseStatusAvailable =
+                    baseStatusCaptureAvailable;
+                const auto capturedTrialBudget =
+                    state.mixedSolverValue.nonlinearIterations.w;
                 const auto capturedAppendTraceFloat = appendTraceFloat;
                 [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed) {
                     if (completed.status != MTLCommandBufferStatusCompleted) {
@@ -11246,15 +11296,21 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             data + capturedMetricBytes + capturedLineSearchBytes +
                                 capturedStatusBytes +
                                 capturedTrialStatusBytes);
+                    const auto* baseStatuses = capturedBaseStatusAvailable
+                        ? reinterpret_cast<const NMMatterStatusGPU*>(
+                            data + capturedBaseStatusOffset)
+                        : nullptr;
                     std::ostringstream line;
                     line << std::setprecision(9)
-                         << "fem_residual_armijo_iteration={\"schema\":1,\"root\":"
+                         << "fem_residual_armijo_iteration={\"schema\":3,\"root\":"
                          << capturedRoot << ",\"newton_iteration\":"
                          << capturedIteration
-                         << ",\"semantics\":{\"base_l2\":\"exact assembled free-node mechanical residual before this Newton correction, impulse units\","
+                         << ",\"semantics\":{\"base_l2\":\"raw recorded free-node metric in impulse units; interpret as the complete assembled mechanical residual only when base_health is healthy_at_armijo_entry\","
                          << "\"trial_l2\":\"selected residual if accepted, otherwise last tested residual\","
                          << "\"trial_alpha\":\"selected alpha if accepted, otherwise last tested alpha\","
-                         << "\"environment_line_search_alpha\":\"environment-scoped alpha read by rigid apply; residual Armijo may update the FEM object alpha independently\"},\"environments\":[";
+                         << "\"environment_line_search_alpha\":\"environment-scoped alpha read by rigid apply; residual Armijo may update the FEM object alpha independently\","
+                         << "\"base_status\":\"captured immediately before this Armijo trial loop\","
+                         << "\"trial_status\":\"last loop-pass scratch, not necessarily a tested private trial; after selected acceptance it may be an unused gated tail status\"},\"environments\":[";
                     for (std::uint32_t environment = 0u;
                          environment < capturedEnvironments; ++environment) {
                         if (environment != 0u) line << ',';
@@ -11268,6 +11324,52 @@ RuntimeDiagnostics Runtime::encodeImpl(
                              << (metrics[environment].w > 0.5f ? "true" : "false")
                              << ",\"certified_noop\":"
                              << (metrics[environment].w > 1.5f ? "true" : "false");
+                        const bool selectedAccepted =
+                            metrics[environment].w > 0.5f;
+                        const float selectedTrialCount = lineSearch[environment].z;
+                        const bool certifiedNoop = metrics[environment].w > 1.5f;
+                        const bool noPrivateTrial = certifiedNoop ||
+                            !std::isfinite(selectedTrialCount) ||
+                            selectedTrialCount <= 0.0f;
+                        const bool unusedTailStatus = selectedAccepted &&
+                            !noPrivateTrial &&
+                            selectedTrialCount < static_cast<float>(capturedTrialBudget);
+                        line << ",\"trial_outcome\":\""
+                             << (selectedAccepted
+                                    ? (metrics[environment].w > 1.5f
+                                        ? "certified_noop" : "selected_trial_accepted")
+                                    : (baseStatuses != nullptr &&
+                                       baseStatuses[environment].code != 0u
+                                        ? "blocked_by_pretrial_solver_status"
+                                        : (trialStatus[environment].code != 0u
+                                            ? "last_tested_trial_rejected"
+                                            : "no_trial_accepted_status_clear")))
+                             << "\",\"last_trial_status_role\":\""
+                             << (certifiedNoop
+                                    ? "no_private_trial_certified_noop"
+                                    : (noPrivateTrial && selectedAccepted
+                                        ? "no_private_trial_reported"
+                                        : (unusedTailStatus
+                                            ? "unused_tail_after_selected_accept"
+                                            : (selectedAccepted
+                                                ? "selected_trial_status"
+                                                : "last_tested_trial_status"))))
+                             << "\",\"base_health\":\"";
+                        const char* baseHealth = nullptr;
+                        if (baseStatuses == nullptr) {
+                            baseHealth = "unavailable_status_snapshot_missing";
+                        } else if (baseStatuses[environment].code != 0u) {
+                            baseHealth = "invalid_pretrial_solver_status";
+                        } else if (!std::isfinite(metrics[environment].x)) {
+                            baseHealth = "invalid_nonfinite_base_metric";
+                        } else {
+                            baseHealth = "healthy_at_armijo_entry";
+                        }
+                        line << baseHealth << "\",\"base_residual_interpretation\":\""
+                             << (std::strcmp(baseHealth, "healthy_at_armijo_entry") == 0
+                                    ? "complete_assembled_free_dof_residual"
+                                    : "raw_metric_only_base_not_qualified_as_complete_residual")
+                             << "\"";
                         line << ",\"selected_alpha\":";
                         capturedAppendTraceFloat(line, lineSearch[environment].x);
                         line << ",\"environment_line_search_alpha\":";
@@ -11307,6 +11409,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         };
                         appendStatus("solver_status", status[environment]);
                         appendStatus("trial_status", trialStatus[environment]);
+                        if (baseStatuses != nullptr)
+                            appendStatus("pretrial_status", baseStatuses[environment]);
+                        else
+                            line << ",\"pretrial_status\":null";
                         line << '}';
                     }
                     line << "]}\n";
@@ -20737,6 +20843,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
             if (femResidualArmijoEnabled &&
                 !femCapsuleResidualArmijoEnabled &&
                 !femCapsuleBoxResidualArmijoEnabled) {
+                encodeFEMResidualArmijoBaseStatus();
                 for (std::uint32_t trialIndex = 0u;
                      trialIndex < state.mixedSolverValue
                          .nonlinearIterations.w; ++trialIndex) {
@@ -21268,6 +21375,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 // environment synchronization. It starts from that actual
                 // feasible alpha and no later limiter may shrink the chosen
                 // trial before the normal apply/certificate path.
+                encodeFEMResidualArmijoBaseStatus();
                 for (std::uint32_t trialIndex = 0u;
                      trialIndex < state.mixedSolverValue
                          .nonlinearIterations.w; ++trialIndex) {
