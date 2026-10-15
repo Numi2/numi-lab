@@ -3,6 +3,31 @@ import Foundation
 import AVFoundation
 import AppKit
 
+
+// The initial source frame and the first GPU accepted frame can both identify
+// t=0. Keep both original images and wall timestamps. Once physical time has
+// advanced, require strict progress; a stalled or backward run still fails.
+func validateMovieClocks(_ wall: [Double], _ simulated: [Double]) throws
+    -> (maxGap: Double, startupHolds: Int) {
+    guard !wall.isEmpty, wall.count == simulated.count,
+          wall.allSatisfy({ $0.isFinite && $0 >= 0 }),
+          simulated.allSatisfy({ $0.isFinite && $0 >= 0 }) else {
+        throw NSError(domain: "invalid-presentation-clocks", code: 9)
+    }
+    var maxGap = 0.0
+    var startupHolds = 0
+    for i in 1..<wall.count {
+        let gap = wall[i] - wall[i-1]
+        let startupHold = simulated[i] == 0 && simulated[i-1] == 0
+        guard gap > 0 && (simulated[i] > simulated[i-1] || startupHold) else {
+            throw NSError(domain: "nonmonotonic-presentation", code: 6)
+        }
+        if startupHold { startupHolds += 1 }
+        maxGap = max(maxGap, gap)
+    }
+    return (maxGap, startupHolds)
+}
+
 let root = URL(fileURLWithPath: CommandLine.arguments[1])
 let asset = AVURLAsset(url: root.appendingPathComponent("native-viewer.mov"))
 let generator = AVAssetImageGenerator(asset: asset)
@@ -41,15 +66,8 @@ do {
     guard timestamps.count == simulatedTimes.count else {
         throw NSError(domain: "movie-surface-frame-count-mismatch", code: 5)
     }
-    var maxGap = 0.0
-    for i in 1..<timestamps.count {
-        let gap = timestamps[i].seconds - timestamps[i-1].seconds
-        guard gap > 0 && simulatedTimes[i] > simulatedTimes[i-1] else {
-            throw NSError(domain: "nonmonotonic-presentation", code: 6)
-        }
-        maxGap = max(maxGap, gap)
-    }
-    print("frames=\(timestamps.count) timing_markers=\(timingMarkers) first_wall_s=\(timestamps[0].seconds) last_wall_s=\(timestamps.last!.seconds) max_gap_wall_s=\(maxGap) duration_wall_s=\(asset.duration.seconds)")
+    let clocks = try validateMovieClocks(timestamps.map { $0.seconds }, simulatedTimes)
+    print("frames=\(timestamps.count) timing_markers=\(timingMarkers) first_wall_s=\(timestamps[0].seconds) last_wall_s=\(timestamps.last!.seconds) max_gap_wall_s=\(clocks.maxGap) startup_zero_time_holds=\(clocks.startupHolds) duration_wall_s=\(asset.duration.seconds)")
     var selected = [("initial", 0), ("middle", timestamps.count/2), ("final", timestamps.count-1)]
     if CommandLine.arguments.count > 2 {
         let layerNames = CommandLine.arguments.count > 3 && CommandLine.arguments[3] == "7"

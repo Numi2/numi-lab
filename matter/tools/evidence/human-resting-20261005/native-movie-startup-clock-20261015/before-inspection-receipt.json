@@ -1,0 +1,13 @@
+{
+  "command": [
+    "/Users/n/numi-human-retained-delivery-20261009/native-movie-inspector-build-20261015-001/inspect-resting-movie",
+    "/Users/n/numi-human-retained-delivery-20261009/native-movie-inspector-build-20261015-001/smoke-native007"
+  ],
+  "elapsed_seconds": 0.298930165998172,
+  "exit_code": 1,
+  "input_sha256": {
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/registered-resting-head-body-native-emission-diagnostic-007/native-run/native-viewer.mov": "589e40bd8df349885a20c1248e43e3ed680b684a8e5ad91133cf27e304a2ba3c",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/registered-resting-head-body-native-emission-diagnostic-007/native-run/resting-surface-audit.csv": "bfca461007dd1070a91979f62ce54f9d93b36d8db6c3a8901d725cfa29ef14ed"
+  },
+  "scope": "Movie-inspector smoke check on retained .002-second startup evidence only; not current anatomy, layer-tour, endurance or physiological qualification."
+}
