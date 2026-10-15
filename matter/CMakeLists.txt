@@ -78,6 +78,10 @@ if(BUILD_TESTING)
     if(Python3_Interpreter_FOUND)
         add_test(NAME matter.analysis.cardboard_source_data
             COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tools/cardboard_source_data_test.py")
+        add_test(NAME matter.analysis.cardboard_pin_source_observables
+            COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tools/cardboard_pin_adhesion_source_observables_test.py")
+        set_tests_properties(matter.analysis.cardboard_pin_source_observables
+            PROPERTIES TIMEOUT 60 LABELS "matter;cardboard;sources;identifiability")
         add_test(NAME matter.analysis.cardboard_calibration_ensemble
             COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tools/cardboard_calibration_ensemble_test.py")
         add_test(NAME matter.analysis.cardboard_resolution_study
@@ -142,6 +146,18 @@ if(BUILD_TESTING)
     endif()
 endif()
 add_executable(numi-matter-cardboard-tooling-check tools/cardboard_tooling_check.cpp)
+add_executable(numi-matter-cardboard-contact-candidate-domain-check
+    tools/cardboard_contact_candidate_domain_check.cpp)
+target_include_directories(numi-matter-cardboard-contact-candidate-domain-check PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/include")
+target_compile_options(numi-matter-cardboard-contact-candidate-domain-check PRIVATE
+    -Wall -Wextra -Wpedantic -Werror)
+if(BUILD_TESTING)
+    add_test(NAME matter.compiler.cardboard_contact_candidate_domain
+        COMMAND numi-matter-cardboard-contact-candidate-domain-check)
+    set_tests_properties(matter.compiler.cardboard_contact_candidate_domain PROPERTIES
+        LABELS "matter;cardboard;contact;candidate-domain;cpu" TIMEOUT 30)
+endif()
 add_executable(numi-matter-cardboard-reaction-observables-check tools/cardboard_reaction_observables_check.cpp)
 target_include_directories(numi-matter-cardboard-reaction-observables-check PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}/include" "${CMAKE_CURRENT_SOURCE_DIR}/../include")
@@ -816,6 +832,29 @@ if(APPLE)
             matter.compiler.cardboard_bilinear_medium_rest_fp32 PROPERTIES
             LABELS "matter;cardboard;plasticity;fp32-domain"
             TIMEOUT 30)
+    endif()
+    # The C1 compression-asymmetry transfer candidate stays separate from the
+    # ordinary 15-state source-fit defaults and the 13-state ideal regression.
+    add_executable(numi-matter-cardboard-asymmetric-c1-paper-gpu-check
+        tools/cardboard_asymmetric_c1_paper_gpu_check.mm)
+    add_dependencies(numi-matter-cardboard-asymmetric-c1-paper-gpu-check
+        numi_cardboard_paper_shaders)
+    target_link_libraries(numi-matter-cardboard-asymmetric-c1-paper-gpu-check PRIVATE
+        numi_matter_compiler "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    target_compile_options(numi-matter-cardboard-asymmetric-c1-paper-gpu-check PRIVATE
+        -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
+    target_compile_definitions(numi-matter-cardboard-asymmetric-c1-paper-gpu-check PRIVATE
+        NUMI_CARDBOARD_PAPER_METALLIB="${NUMI_CARDBOARD_PAPER_METALLIB}")
+    if(BUILD_TESTING)
+        add_test(NAME matter.metal.cardboard_asymmetric_c1_paper
+            COMMAND numi-matter-cardboard-asymmetric-c1-paper-gpu-check
+                "${CMAKE_CURRENT_SOURCE_DIR}/materials/hajali2009_liner_hill_asymmetric_c1_transfer.nmatter"
+                "${CMAKE_CURRENT_SOURCE_DIR}/materials/hajali2009_medium_hill_asymmetric_c1_transfer.nmatter"
+                "${CMAKE_CURRENT_SOURCE_DIR}/examples/cardboard/source-data/haj_ali_2009_bilinear_tension_fit_nodes.csv"
+                "${CMAKE_CURRENT_SOURCE_DIR}/examples/cardboard/source-data/haj_ali_2009_asymmetric_c1_transfer_v1.csv")
+        set_tests_properties(matter.metal.cardboard_asymmetric_c1_paper PROPERTIES
+            LABELS "matter;cardboard;plasticity;native-material-point;c1-transfer"
+            TIMEOUT 300)
     endif()
     set(NUMI_CARDBOARD_DELAMINATION_AIR
         "${NUMI_MATTER_SHADER_DIR}/cardboard_bleached_delamination_check.air")

@@ -413,8 +413,9 @@ typedef struct NM_ALIGN16 NMMixedSolverGPU {
     // Newton, FGMRES restart, total FGMRES, determinant backtracking.
     nm_uint4 nonlinearIterations;
     // Field-smoother passes, mutation restarts, FEM preconditioner selector,
-    // reserved. Selector 2 is regional RAP with scalar fine correction;
-    // selector 3 uses the same RAP with a 3x3 nodal block fine correction.
+    // FEM algorithmic tangent-cache policy (0 disabled, 1 enabled). Selector
+    // 2 is regional RAP with scalar fine correction; selector 3 uses the same
+    // RAP with a 3x3 nodal block fine correction.
     nm_uint4 executionBudgets;
     // Equilibrium, volume, pressure, and transport relative residuals.
     nm_float4 residualTolerances;

@@ -589,7 +589,8 @@ def make_tet_audit(tets: list[dict[str, Any]], sources: dict[str, tuple[dict[str
 
 
 def analyze(capture_path: Path, prediction_path: Path, receipt_path: Path,
-            replay_path: Path, output_path: Path, branch_band: float) -> dict[str, Any]:
+            replay_path: Path, output_path: Path, branch_band: float,
+            reference_derivative_sweep: bool = False) -> dict[str, Any]:
     if output_path.exists():
         raise FileExistsError(f"refusing to overwrite {output_path}")
     if not replay_path.is_file() or not os.access(replay_path, os.X_OK):
@@ -608,7 +609,10 @@ def analyze(capture_path: Path, prediction_path: Path, receipt_path: Path,
     snapshot = Path(prediction["source_snapshot"])
     liner_source = snapshot / "matter/materials/hajali2009_liner_hill_ideal.nmatter"
     medium_source = snapshot / "matter/materials/hajali2009_medium_hill_ideal.nmatter"
-    process = subprocess.run([str(replay_path.resolve()), str(liner_source), str(medium_source)],
+    replay_command = [str(replay_path.resolve()), str(liner_source), str(medium_source)]
+    if reference_derivative_sweep:
+        replay_command.append("--derivative-sweep")
+    process = subprocess.run(replay_command,
                              input="\n".join(rows) + "\n",
                              text=True, capture_output=True, check=False)
     replay_output_path.write_text(process.stdout, encoding="utf-8")
@@ -691,6 +695,22 @@ def analyze(capture_path: Path, prediction_path: Path, receipt_path: Path,
             },
             "strict_gate": "inconclusive_no_measured_noise_floor",
         })
+        if reference_derivative_sweep:
+            sweep_centers = [value.get("FP64_derivative_sweep", {}) for key, value in replay_rows.items()
+                             if key.startswith(f"e{environment}_") and key.endswith("_s0")]
+            environment_summaries[-1]["FP64_derivative_sweep"] = {
+                "center_count": len(sweep_centers),
+                "two_adjacent_smooth_refinements_pass": sum(
+                    value.get("verdict") == "two_adjacent_smooth_refinements_pass" for value in sweep_centers),
+                "zero_direction_inconclusive": sum(
+                    value.get("verdict") == "inconclusive_zero_direction" for value in sweep_centers),
+                "no_adjacent_resolved_pass": sum(
+                    value.get("verdict") == "no_adjacent_resolved_pass" for value in sweep_centers),
+                "missing_sweep": sum(not value for value in sweep_centers),
+                "failed_independent_projections": sum(
+                    row.get("valid") is not True for value in sweep_centers for row in value.get("rows", [])),
+                "Metal_noise_floor_measured": False,
+            }
     summary = {
         "schema": SCHEMA,
         "binding": {
@@ -699,6 +719,7 @@ def analyze(capture_path: Path, prediction_path: Path, receipt_path: Path,
             "prediction_sha256": sha256(prediction_path),
             "receipt_sha256": sha256(receipt_path),
             "replay_executable_sha256": sha256(replay_path),
+            "replay_command": replay_command,
             "replay_source_sha256": {
                 "cardboard_solver_pair_replay.cpp": sha256(Path(__file__).with_name("cardboard_solver_pair_replay.cpp")),
                 "cardboard_solver_reference.hpp": sha256(Path(__file__).with_name("cardboard_solver_reference.hpp")),
@@ -772,12 +793,15 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("replay", type=Path, help="compiled cardboard_solver_pair_replay executable")
     parser.add_argument("output", type=Path)
     parser.add_argument("--near-yield-band", type=float, default=1.0e-6)
+    parser.add_argument("--reference-derivative-sweep", action="store_true",
+                        help="refine independent FP64 perturbations at every captured center; no Metal noise-floor qualification")
     args = parser.parse_args(argv)
     if not math.isfinite(args.near_yield_band) or args.near_yield_band <= 0:
         parser.error("--near-yield-band must be finite and positive")
     try:
         result = analyze(args.capture, args.prediction, args.receipt,
-                         args.replay, args.output, args.near_yield_band)
+                         args.replay, args.output, args.near_yield_band,
+                         args.reference_derivative_sweep)
     except (ValueError, RuntimeError, FileNotFoundError, FileExistsError) as error:
         print(f"FAIL {error}", file=sys.stderr)
         return 2

@@ -4274,6 +4274,41 @@ inline bool rigidWitness(
     }
 }
 
+inline bool armijoRigidWorldBounds(
+    const NMRigidProxyGPU proxy,
+    const NMRigidStateGPU rigid,
+    thread float3& minimum,
+    thread float3& maximum
+) {
+    if (!all(isfinite(rigid.centerAndRadius)) ||
+        !all(isfinite(rigid.extent)) ||
+        !all(isfinite(rigid.orientation))) return false;
+    if (proxy.shapeKind == NM_RIGID_CAPSULE) {
+        if (!(rigid.centerAndRadius.w >= 0.0f)) return false;
+        const float3 radius = float3(rigid.centerAndRadius.w);
+        minimum = min(rigid.centerAndRadius.xyz, rigid.extent.xyz) - radius;
+        maximum = max(rigid.centerAndRadius.xyz, rigid.extent.xyz) + radius;
+        return finite3(minimum) && finite3(maximum);
+    }
+    if (proxy.shapeKind == NM_RIGID_BOX) {
+        const float orientationNorm2 = dot(rigid.orientation, rigid.orientation);
+        if (!(orientationNorm2 > 1.0e-20f) ||
+            !isfinite(orientationNorm2) || any(rigid.extent.xyz < float3(0.0f)))
+            return false;
+        const float4 orientation = quaternionNormalize(rigid.orientation);
+        const float3 extent = rigid.extent.xyz;
+        const float3 axisX = quaternionRotate(orientation, float3(1.0f, 0.0f, 0.0f));
+        const float3 axisY = quaternionRotate(orientation, float3(0.0f, 1.0f, 0.0f));
+        const float3 axisZ = quaternionRotate(orientation, float3(0.0f, 0.0f, 1.0f));
+        const float3 halfBounds = abs(axisX) * extent.x +
+            abs(axisY) * extent.y + abs(axisZ) * extent.z;
+        minimum = rigid.centerAndRadius.xyz - halfBounds;
+        maximum = rigid.centerAndRadius.xyz + halfBounds;
+        return finite3(minimum) && finite3(maximum);
+    }
+    return false;
+}
+
 kernel void nm_contact_capture_prescribed_endpoint(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     device const NMRigidStateGPU* states [[buffer(1)]],
@@ -4882,6 +4917,16 @@ kernel void nm_contact_clear_trial_samples(
     if (global < total) samples[global] = {};
 }
 
+kernel void nm_contact_clear_sparse_trial_samples(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant uint& candidateCapacity [[buffer(1)]],
+    device NMContactSampleGPU* samples [[buffer(2)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * candidateCapacity;
+    if (global < total) samples[global] = {};
+}
+
 inline bool embeddedPunctureChannelAdmits(
     const NMMatterDispatchGPU dispatch,
     const uint environment,
@@ -4953,6 +4998,203 @@ inline bool embeddedPunctureChannelAdmits(
     return currentAdmitted && predictedAdmitted;
 }
 
+// Trial-only broadphase for the sparse private Armijo sample arena. The dense
+// pair table is unchanged; each thread writes a candidate flag at its original
+// pair ID. A separate stable scan converts flags to sorted IDs and pair slots.
+kernel void nm_contact_build_armijo_sparse_pair_flags(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMFEMNodeStateGPU* femNodes [[buffer(1)]],
+    device const NMRigidProxyGPU* rigidProxies [[buffer(2)]],
+    device const NMRigidStateGPU* rigidStates [[buffer(3)]],
+    device const NMContactPairGPU* pairs [[buffer(4)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(5)]],
+    device const MRBodyStateGPU* acceptedBodies [[buffer(6)]],
+    constant NMBridgeDispatchGPU& bridge [[buffer(7)]],
+    device uint* candidateSlotByPair [[buffer(8)]],
+    device NMMatterStatusGPU* statuses [[buffer(9)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.contactPairCount;
+    if (global >= total || dispatch.contactPairCount == 0u) return;
+    const uint environment = global / dispatch.contactPairCount;
+    const uint pairIndex = global - environment * dispatch.contactPairCount;
+    candidateSlotByPair[global] = NM_INVALID_INDEX;
+    if (!environmentHealthy(statuses, environment)) return;
+    const NMContactPairGPU pair = pairs[pairIndex];
+    if (pair.continuumNode < dispatch.gridNodeCount ||
+        pair.continuumNode - dispatch.gridNodeCount >= dispatch.femNodeCount ||
+        pair.objectIndex >= dispatch.objectCount ||
+        pair.rigidProxy >= dispatch.rigidProxyCount) {
+        recordFailure(statuses[environment], NM_STATUS_INVALID_DISPATCH,
+            pair.objectIndex, pairIndex,
+            float4(float(pair.continuumNode), float(pair.rigidProxy),
+                float(dispatch.gridNodeCount), float(dispatch.femNodeCount)));
+        return;
+    }
+    const uint femNode = pair.continuumNode - dispatch.gridNodeCount;
+    const NMFEMNodeStateGPU node = femNodes[
+        environment * dispatch.femNodeCount + femNode];
+    const float3 point = node.positionAndMass.xyz;
+    const float3 acceptedFEMVelocity =
+        node.velocityAndInverseMass.xyz - node.deltaVelocity.xyz;
+    if (!finite3(point) || !finite3(acceptedFEMVelocity)) {
+        recordFailure(statuses[environment], NM_STATUS_CONTACT_FAILURE,
+            pair.objectIndex, pairIndex,
+            float4(point, maximumAbsoluteCoordinate(acceptedFEMVelocity)));
+        return;
+    }
+    const NMRigidProxyGPU proxy = rigidProxies[pair.rigidProxy];
+    const NMRigidStateGPU rigid = rigidStates[
+        environment * dispatch.rigidProxyCount + pair.rigidProxy];
+    float3 boundsMinimum;
+    float3 boundsMaximum;
+    if (!armijoRigidWorldBounds(proxy, rigid, boundsMinimum, boundsMaximum)) {
+        recordFailure(statuses[environment], NM_STATUS_INVALID_DISPATCH,
+            pair.objectIndex, pairIndex,
+            float4(float(proxy.shapeKind), float(pair.rigidProxy), 0.0f, -1.0f));
+        return;
+    }
+
+    float3 acceptedRigidVelocity = float3(0.0f);
+    float angularSpeed = 0.0f;
+    float maximumLever = 0.0f;
+    if (proxy.bodyIndex != NM_INVALID_INDEX &&
+        proxy.bodyIndex < bridge.currentBodyCount &&
+        bridge.currentBodyStride >= bridge.currentBodyCount) {
+        const MRBodyStateGPU body = acceptedBodies[
+            environment * bridge.currentBodyStride + proxy.bodyIndex];
+        if (!all(isfinite(body.linearVelocityAndInverseMass)) ||
+            !all(isfinite(body.angularVelocity)) ||
+            !finite3(body.position.xyz)) {
+            recordFailure(statuses[environment], NM_STATUS_CONTACT_FAILURE,
+                pair.objectIndex, pairIndex,
+                float4(body.linearVelocityAndInverseMass.xyz,
+                    float(pair.rigidProxy)));
+            return;
+        }
+        acceptedRigidVelocity = body.linearVelocityAndInverseMass.xyz;
+        angularSpeed = length(body.angularVelocity.xyz);
+        if (!isfinite(angularSpeed)) {
+            recordFailure(statuses[environment], NM_STATUS_CONTACT_FAILURE,
+                pair.objectIndex, pairIndex,
+                float4(body.angularVelocity.xyz, float(pair.rigidProxy)));
+            return;
+        }
+        if (proxy.shapeKind == NM_RIGID_CAPSULE) {
+            maximumLever = max(
+                length(rigid.centerAndRadius.xyz - body.position.xyz),
+                length(rigid.extent.xyz - body.position.xyz)) +
+                rigid.centerAndRadius.w;
+        } else {
+            maximumLever = length(
+                rigid.centerAndRadius.xyz - body.position.xyz) +
+                length(rigid.extent.xyz);
+        }
+    } else if (proxy.bodyIndex != NM_INVALID_INDEX) {
+        recordFailure(statuses[environment], NM_STATUS_INVALID_DISPATCH,
+            pair.objectIndex, pairIndex,
+            float4(float(proxy.bodyIndex), float(bridge.currentBodyCount),
+                float(bridge.currentBodyStride), -2.0f));
+        return;
+    }
+    if (!isfinite(maximumLever)) {
+        recordFailure(statuses[environment], NM_STATUS_CONTACT_FAILURE,
+            pair.objectIndex, pairIndex,
+            float4(maximumLever, float(pair.rigidProxy), 0.0f, -3.0f));
+        return;
+    }
+    const NMSchedulerStateGPU scheduler = schedulers[
+        environment * dispatch.objectCount + pair.objectIndex];
+    const float dt = objectTimestep(dispatch, scheduler);
+    const float slop = dispatch.numericalLimits.x;
+    const float3 relativeVelocityBound = acceptedFEMVelocity -
+        acceptedRigidVelocity;
+    const float closingDistanceBound = dt * (
+        length(relativeVelocityBound) + angularSpeed * maximumLever);
+    const float coordinateScale = max(
+        max(maximumAbsoluteCoordinate(point),
+            maximumAbsoluteCoordinate(boundsMinimum)),
+        max(maximumAbsoluteCoordinate(boundsMaximum), slop));
+    const float roundoffPad = kGeometryFloor +
+        32.0f * kEpsilon * max(coordinateScale, 1.0e-12f);
+    const float expansion = slop + closingDistanceBound + roundoffPad;
+    if (!(dt > 0.0f) || !isfinite(dt) || !(slop > 0.0f) ||
+        !isfinite(slop) || !isfinite(closingDistanceBound) ||
+        !isfinite(expansion) || !(expansion >= slop)) {
+        recordFailure(statuses[environment], NM_STATUS_INVALID_DISPATCH,
+            pair.objectIndex, pairIndex,
+            float4(dt, slop, closingDistanceBound, expansion));
+        return;
+    }
+    const float3 outside = max(
+        max(boundsMinimum - point, float3(0.0f)),
+        point - boundsMaximum);
+    const float aabbDistance = length(outside);
+    if (!isfinite(aabbDistance)) {
+        recordFailure(statuses[environment], NM_STATUS_CONTACT_FAILURE,
+            pair.objectIndex, pairIndex,
+            float4(aabbDistance, expansion, float(pair.rigidProxy), 0.0f));
+        return;
+    }
+    if (aabbDistance <= expansion) candidateSlotByPair[global] = 1u;
+}
+
+// One stable 32-lane scan is intentionally used for the first bounded slice.
+// It emits pair IDs in original canonical order and never truncates: exceeding
+// the authored fixed candidate capacity marks the environment failed.
+kernel void nm_contact_scan_armijo_sparse_pair_flags(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant uint& candidateCapacity [[buffer(1)]],
+    device uint* candidateSlotByPair [[buffer(2)]],
+    device uint* candidatePairIds [[buffer(3)]],
+    device uint* candidateCounts [[buffer(4)]],
+    device NMMatterStatusGPU* statuses [[buffer(5)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint environment [[threadgroup_position_in_grid]]
+) {
+    if (lane >= 32u || environment >= dispatch.environmentCount) return;
+    const uint pairCount = dispatch.contactPairCount;
+    const uint pairBase = environment * pairCount;
+    const uint outputBase = environment * candidateCapacity;
+    threadgroup uint candidateBase;
+    if (lane == 0u) candidateBase = 0u;
+    simdgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+    if (!environmentHealthy(statuses, environment)) {
+        if (lane == 0u) candidateCounts[environment] = 0u;
+        return;
+    }
+    for (uint first = 0u; first < pairCount; first += 32u) {
+        const uint pair = first + lane;
+        const uint selected = pair < pairCount &&
+            candidateSlotByPair[pairBase + pair] == 1u ? 1u : 0u;
+        const uint prefix = simd_prefix_exclusive_sum(selected);
+        const uint chunkCount = simd_sum(selected);
+        const uint base = candidateBase;
+        if (pair < pairCount) {
+            if (selected != 0u && base + prefix < candidateCapacity) {
+                const uint slot = base + prefix;
+                candidatePairIds[outputBase + slot] = pair;
+                candidateSlotByPair[pairBase + pair] = slot;
+            } else {
+                candidateSlotByPair[pairBase + pair] = NM_INVALID_INDEX;
+            }
+        }
+        simdgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+        if (lane == 0u) candidateBase += chunkCount;
+        simdgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+    }
+    if (lane == 0u) {
+        const uint candidateCount = candidateBase;
+        candidateCounts[environment] = min(candidateCount, candidateCapacity);
+        if (candidateCount > candidateCapacity) {
+            recordFailure(statuses[environment], NM_STATUS_CAPACITY_OVERFLOW,
+                NM_INVALID_INDEX, candidateCount,
+                float4(float(candidateCount), float(candidateCapacity),
+                    float(pairCount), 1.0f));
+        }
+    }
+}
+
 kernel void nm_contact_evaluate(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     constant NMMicrostepGPU& microstep [[buffer(1)]],
@@ -4972,15 +5214,37 @@ kernel void nm_contact_evaluate(
     constant NMBridgeDispatchGPU& bridge [[buffer(15)]],
     device const MRBodyStateGPU* acceptedBodies [[buffer(16)]],
     device const NMPunctureChannelGPU* punctureChannels [[buffer(17)]],
+    device const uint* candidatePairIds [[buffer(18)]],
+    device const uint* candidateCounts [[buffer(19)]],
+    constant uint& candidateCapacity [[buffer(20)]],
+    constant uint& compactCandidates [[buffer(21)]],
     uint global [[thread_position_in_grid]]
 ) {
-    const uint total = dispatch.environmentCount * dispatch.contactPairCount;
+    const uint pairStride = compactCandidates != 0u
+        ? candidateCapacity : dispatch.contactPairCount;
+    const uint total = dispatch.environmentCount * pairStride;
     if (global >= total || dispatch.contactPairCount == 0u) {
         return;
     }
-    const uint environment = global / dispatch.contactPairCount;
-    const uint pairIndex = global - environment * dispatch.contactPairCount;
+    if (pairStride == 0u) return;
+    const uint environment = global / pairStride;
+    const uint slot = global - environment * pairStride;
+    if (compactCandidates != 0u && slot >= candidateCounts[environment])
+        return;
+    const uint pairIndex = compactCandidates != 0u
+        ? candidatePairIds[environment * candidateCapacity + slot]
+        : slot;
+    const uint sampleIndex = environment * pairStride + slot;
+    const uint historyIndex =
+        environment * dispatch.contactPairCount + pairIndex;
     if (!environmentHealthy(statuses, environment)) {
+        return;
+    }
+    if (pairIndex >= dispatch.contactPairCount) {
+        recordFailure(statuses[environment], NM_STATUS_INVALID_DISPATCH,
+            NM_INVALID_INDEX, pairIndex,
+            float4(float(pairIndex), float(dispatch.contactPairCount),
+                float(slot), float(candidateCapacity)));
         return;
     }
     const NMContactPairGPU pair = pairs[pairIndex];
@@ -5213,7 +5477,7 @@ kernel void nm_contact_evaluate(
     const float3 laggedFriction = tangentSpeed > 0.0f
         ? frictionLimit * tangentVelocity / regularizedSpeed
         : float3(0.0f);
-    const float4 previousHistory = histories[global];
+    const float4 previousHistory = histories[historyIndex];
     const bool validHistory = finite3(previousHistory.xyz) &&
         isfinite(previousHistory.w) && previousHistory.w >= 0.0f;
     const float historyNormal = normalImpulse;
@@ -5304,7 +5568,7 @@ kernel void nm_contact_evaluate(
         sample.barrierHessianRow0,
         sample.barrierHessianRow1,
         sample.barrierHessianRow2);
-    samples[global] = sample;
+    samples[sampleIndex] = sample;
 }
 
 // MetalWorld integrates free/articulated bodies and DER nodes after Matter's
@@ -6559,6 +6823,113 @@ kernel void nm_contact_accumulate_fem_residual(
     // mechanical/pressure residual. Replacing this value would discard
     // internal force, pressure, field-coupling and learned-material terms and
     // reduce the following solve to a staged contact-only correction.
+    residual[global] += float4(impulse, 0.0f);
+}
+
+inline bool sameArmijoContactSampleFields(
+    const NMContactSampleGPU first,
+    const NMContactSampleGPU second
+) {
+    return all(first.identity == second.identity) &&
+        all(as_type<uint4>(first.pointAndSeparation) ==
+            as_type<uint4>(second.pointAndSeparation)) &&
+        all(as_type<uint4>(first.normalAndVelocity) ==
+            as_type<uint4>(second.normalAndVelocity)) &&
+        all(as_type<uint4>(first.admissionVelocityAndNormal) ==
+            as_type<uint4>(second.admissionVelocityAndNormal)) &&
+        all(as_type<uint4>(first.impulseAndNormal) ==
+            as_type<uint4>(second.impulseAndNormal)) &&
+        all(as_type<uint4>(first.angularImpulseAndTangent) ==
+            as_type<uint4>(second.angularImpulseAndTangent)) &&
+        all(as_type<uint4>(first.barrier) == as_type<uint4>(second.barrier)) &&
+        all(as_type<uint4>(first.barrierHessianRow0) ==
+            as_type<uint4>(second.barrierHessianRow0)) &&
+        all(as_type<uint4>(first.barrierHessianRow1) ==
+            as_type<uint4>(second.barrierHessianRow1)) &&
+        all(as_type<uint4>(first.barrierHessianRow2) ==
+            as_type<uint4>(second.barrierHessianRow2));
+}
+
+kernel void nm_contact_compare_armijo_sparse_samples(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant uint& candidateCapacity [[buffer(1)]],
+    device const NMContactSampleGPU* denseSamples [[buffer(2)]],
+    device const NMContactSampleGPU* sparseSamples [[buffer(3)]],
+    device const uint* candidateSlotByPair [[buffer(4)]],
+    device const uint* candidatePairIds [[buffer(5)]],
+    device NMMatterStatusGPU* statuses [[buffer(6)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.contactPairCount;
+    if (global >= total || dispatch.contactPairCount == 0u) return;
+    const uint environment = global / dispatch.contactPairCount;
+    const uint pairIndex = global - environment * dispatch.contactPairCount;
+    if (!environmentHealthy(statuses, environment)) return;
+    const uint slot = candidateSlotByPair[global];
+    NMContactSampleGPU sparseSample{};
+    if (slot != NM_INVALID_INDEX) {
+        if (slot >= candidateCapacity) {
+            recordFailure(statuses[environment], NM_STATUS_INVALID_DISPATCH,
+                NM_INVALID_INDEX, pairIndex,
+                float4(float(slot), float(candidateCapacity), float(pairIndex), 1.0f));
+            return;
+        }
+        if (candidatePairIds[environment * candidateCapacity + slot] != pairIndex) {
+            recordFailure(statuses[environment], NM_STATUS_CONTACT_FAILURE,
+                NM_INVALID_INDEX, pairIndex,
+                float4(float(slot),
+                    float(candidatePairIds[environment * candidateCapacity + slot]),
+                    float(pairIndex), 2.0f));
+            return;
+        }
+        sparseSample = sparseSamples[
+            environment * candidateCapacity + slot];
+    }
+    const NMContactSampleGPU denseSample = denseSamples[global];
+    if (!sameArmijoContactSampleFields(denseSample, sparseSample)) {
+        recordFailure(statuses[environment], NM_STATUS_CONTACT_FAILURE,
+            denseSample.identity.z, pairIndex,
+            float4(float(denseSample.identity.w), float(sparseSample.identity.w),
+                float(slot), 3.0f));
+    }
+}
+
+kernel void nm_contact_accumulate_fem_residual_sparse(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const uint* nodeIncidence [[buffer(1)]],
+    device const NMIncidenceRangeGPU* nodeRanges [[buffer(2)]],
+    device const NMContactSampleGPU* samples [[buffer(3)]],
+    device const uint* candidateSlotByPair [[buffer(4)]],
+    constant uint& candidateCapacity [[buffer(5)]],
+    device float4* residual [[buffer(6)]],
+    device NMMatterStatusGPU* statuses [[buffer(7)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global >= total || dispatch.femNodeCount == 0u) return;
+    const uint environment = global / dispatch.femNodeCount;
+    if (!environmentHealthy(statuses, environment)) return;
+    const uint femNode = global - environment * dispatch.femNodeCount;
+    const uint unifiedNode = dispatch.gridNodeCount + femNode;
+    const NMIncidenceRangeGPU range = nodeRanges[unifiedNode];
+    float3 impulse = float3(0.0f);
+    const uint pairBase = environment * dispatch.contactPairCount;
+    const uint sampleBase = environment * candidateCapacity;
+    for (uint local = 0u; local < range.count; ++local) {
+        const uint pair = nodeIncidence[range.first + local];
+        if (pair >= dispatch.contactPairCount) continue;
+        const uint slot = candidateSlotByPair[pairBase + pair];
+        if (slot == NM_INVALID_INDEX) continue;
+        if (slot >= candidateCapacity) {
+            recordFailure(statuses[environment], NM_STATUS_INVALID_DISPATCH,
+                NM_INVALID_INDEX, pair,
+                float4(float(slot), float(candidateCapacity), float(femNode), 4.0f));
+            return;
+        }
+        const NMContactSampleGPU sample = samples[sampleBase + slot];
+        if ((sample.identity.w & NM_CONTACT_VALID) != 0u)
+            impulse -= sample.impulseAndNormal.xyz;
+    }
     residual[global] += float4(impulse, 0.0f);
 }
 

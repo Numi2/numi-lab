@@ -191,6 +191,58 @@ class SourceDataPackageTests(unittest.TestCase):
                         and r["point_role"] == "digitized_bilinear_fit_endpoint")
         self.assertEqual((int(liner_cd["x_pixel"]), int(liner_cd["y_pixel"])), (882, 49))
 
+    def test_haj_ali_asymmetric_files_are_hash_bound_model_inputs(self) -> None:
+        expected = {
+            "haj_ali_2009_asymmetric_transfer_parameters_v1": {
+                "csv_sha256": "47dc13cb3ced9dac438df21354b3236d53223eed0842fe97806d32507b890e0a",
+                "csv_rows": 24,
+                "assets": {
+                    "matter/materials/hajali2009_liner_hill_asymmetric_transfer.nmatter":
+                        "377236230f1802b10aba8c994df86d545a7694bc11885b3592275d36aa0eefe5",
+                    "matter/materials/hajali2009_medium_hill_asymmetric_transfer.nmatter":
+                        "f5f0e1475a9b0a87c0c30b27b6ab5f26a04a92e50ed5ca9b5c775477ed8f6a7b",
+                },
+                "required_limit": "nondifferentiable zero-stress corner",
+            },
+            "haj_ali_2009_asymmetric_c1_transfer_parameters_v1": {
+                "csv_sha256": "5fccfea7ca49776cef6782f6fa8eff1876de38f643c6993c3b2829135f446e48",
+                "csv_rows": 30,
+                "assets": {
+                    "matter/materials/hajali2009_liner_hill_asymmetric_c1_transfer.nmatter":
+                        "f5951cd7fb63684a4fdcca58457af5d769fe466cc640370be54d9a4ac4309a43",
+                    "matter/materials/hajali2009_medium_hill_asymmetric_c1_transfer.nmatter":
+                        "40e8bd9aa61ed946661c162c395397f958bab71306df8bec8df1140e78ae95bb",
+                },
+                "required_limit": "width is numerical regularization",
+            },
+        }
+        repo_root = source_data.REPO
+        for dataset_id, binding in expected.items():
+            with self.subTest(dataset=dataset_id):
+                dataset = next(d for d in self.catalog["datasets"]
+                               if d["id"] == dataset_id)
+                self.assertEqual(dataset["class"],
+                                 "explicit_constitutive_model_parameters_not_observations")
+                self.assertIn("no_specimen_or_heldout_split", dataset["split"])
+                self.assertIn("not_independent_validation", dataset["calibration_scope"])
+                csv_path = source_data.DATA / dataset["file"]
+                self.assertEqual(source_data.sha256(csv_path), binding["csv_sha256"])
+                with csv_path.open(encoding="utf-8", newline="") as stream:
+                    rows = list(csv.DictReader(stream))
+                self.assertEqual(len(rows), binding["csv_rows"])
+                self.assertTrue(all(row["origin"] and row["notes"] and
+                                    row["unit"] in {"MPa", "one"} for row in rows))
+                self.assertNotIn("observation_class", rows[0])
+                self.assertEqual(dataset["source_ids"], ["haj_ali_2009"])
+                self.assertEqual({asset["path"]: asset["sha256"]
+                                  for asset in dataset["model_assets"]}, binding["assets"])
+                for relative, digest in binding["assets"].items():
+                    self.assertEqual(source_data.sha256(repo_root / relative), digest)
+                self.assertTrue(any(binding["required_limit"] in limit
+                                    for limit in dataset["limits"]))
+                self.assertNotIn("held_out", dataset["calibration_scope"])
+                self.assertIn("not_independent_validation", dataset["calibration_scope"])
+
     def test_haj_ali_marker_centers_are_pixel_bound_partial_plot_estimates(self) -> None:
         dataset = next(d for d in self.catalog["datasets"]
                        if d["id"] == "haj_ali_2009_experimental_marker_centers_v1")

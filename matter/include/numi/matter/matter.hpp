@@ -399,6 +399,10 @@ struct MixedSolverSource {
     // path preserves the historical implementation.
     FEMPreconditionerMode femPreconditioner =
         FEMPreconditionerMode::scalarDiagonal;
+    // Opt-in per-Newton cache of the complete unsymmetric 9x9 material-frame
+    // algorithmic dP/dF map for pure-FEM FGMRES products. Regional AP,
+    // Armijo trials, and final true-residual certification remain direct.
+    bool cacheFEMAlgorithmicTangent = false;
     double relativeResidual = 1.0e-4;
     double volumeTolerance = 1.0e-4;
     double pressureTolerance = 1.0e-4;

@@ -322,6 +322,91 @@
       "calibration_scope": "source_model_fit_curve_estimate_for_four_grade_axis_groups_only_not_independent_specimen_calibration"
     },
     {
+      "id": "haj_ali_2009_asymmetric_transfer_parameters_v1",
+      "file": "haj_ali_2009_asymmetric_transfer_v1.csv",
+      "source_ids": [
+        "haj_ali_2009"
+      ],
+      "class": "explicit_constitutive_model_parameters_not_observations",
+      "split": "fixed_model_parameter_transfer_no_specimen_or_heldout_split",
+      "specimen": "Parameters reference the article's 205 g/m2 unbleached southern softwood kraft liner and 126 g/m2 NSSC medium grades; no specimen-level observations are encoded here.",
+      "condition": "Constitutive parameter record only. Article test conditioning/rate is unavailable for the plotted fits; compression and some through-thickness/shear inputs are model assumptions.",
+      "failure": "The exact-ReLU asymmetric transfer is a provisional model candidate; its zero-stress return-map corner trace is retained separately and is not treated as a passed material law.",
+      "source_location": "Haj-Ali et al. (2009), Tables 1-3 and Figs. 1-2; DOI 10.1016/j.compstruct.2008.02.001. Tensile hardening transfers additionally reference the separate bilinear-fit endpoint record.",
+      "units": {
+        "stress": "MPa",
+        "hardening_modulus": "MPa",
+        "normalized_transfer_parameter": "dimensionless"
+      },
+      "model_assets": [
+        {
+          "path": "matter/materials/hajali2009_liner_hill_asymmetric_transfer.nmatter",
+          "role": "liner exact-ReLU provisional constitutive model",
+          "sha256": "377236230f1802b10aba8c994df86d545a7694bc11885b3592275d36aa0eefe5"
+        },
+        {
+          "path": "matter/materials/hajali2009_medium_hill_asymmetric_transfer.nmatter",
+          "role": "NSSC medium exact-ReLU provisional constitutive model",
+          "sha256": "f5f0e1475a9b0a87c0c30b27b6ab5f26a04a92e50ed5ca9b5c775477ed8f6a7b"
+        }
+      ],
+      "limits": [
+        "CSV rows are model parameters and derived inputs, not material test observations.",
+        "The source assumes compression strengths at 0.6 times tensile strengths; this transfer uses those assumptions and the Beldie-derived ZD values, not measured compression curves.",
+        "The asymmetric transfer changes multiaxial and pressure response; the source does not identify these responses.",
+        "Directional hardening scales use the same published bilinear tension-fit plots as calibration inputs; there are no specimen identities or held-out curves.",
+        "The exact ReLU branch has a nondifferentiable zero-stress corner. A retained corner return-map failure is evidence against admitting this exact variant as qualified."
+      ],
+      "sha256": "47dc13cb3ced9dac438df21354b3236d53223eed0842fe97806d32507b890e0a",
+      "calibration_scope": "same_published_curve_parameter_transfer_only_provisional_not_independent_validation"
+    },
+    {
+      "id": "haj_ali_2009_asymmetric_c1_transfer_parameters_v1",
+      "file": "haj_ali_2009_asymmetric_c1_transfer_v1.csv",
+      "source_ids": [
+        "haj_ali_2009"
+      ],
+      "class": "explicit_constitutive_model_parameters_not_observations",
+      "split": "fixed_model_parameter_transfer_no_specimen_or_heldout_split",
+      "specimen": "Parameters reference the article's 205 g/m2 unbleached southern softwood kraft liner and 126 g/m2 NSSC medium grades; no specimen-level observations are encoded here.",
+      "condition": "Constitutive parameter record only. Article test conditioning/rate is unavailable for the plotted fits; compression and some through-thickness/shear inputs are model assumptions.",
+      "failure": "C1 is an explicit nondefault numerical transfer candidate. Its width and fitted directional scales are assumptions/calibration inputs; it is not qualified for physical damage or folding.",
+      "source_location": "Haj-Ali et al. (2009), Tables 1-3 and Figs. 1-2; DOI 10.1016/j.compstruct.2008.02.001. Tensile hardening transfers additionally reference the separate bilinear-fit endpoint record.",
+      "units": {
+        "stress": "MPa",
+        "hardening_modulus": "MPa",
+        "normalized_transfer_parameter": "dimensionless",
+        "compression_smoothing_width": "dimensionless normalized stress"
+      },
+      "model_assets": [
+        {
+          "path": "matter/materials/hajali2009_liner_hill_asymmetric_c1_transfer.nmatter",
+          "role": "liner C1 transfer constitutive model",
+          "sha256": "f5951cd7fb63684a4fdcca58457af5d769fe466cc640370be54d9a4ac4309a43"
+        },
+        {
+          "path": "matter/materials/hajali2009_medium_hill_asymmetric_c1_transfer.nmatter",
+          "role": "NSSC medium C1 transfer constitutive model",
+          "sha256": "40e8bd9aa61ed946661c162c395397f958bab71306df8bec8df1140e78ae95bb"
+        }
+      ],
+      "numerical_regularization": {
+        "compression_smoothing_width": 5e-6,
+        "normalized_stress_positive_part": "C1 Huber-like regularization of max(-s,0); r_delta(0)=delta/4, so it is not exact ReLU and shifts the zero-stress radius slightly",
+        "width_sensitivity_record": "three-width CPU calibration receipt required; width is numerical and is not a physical parameter"
+      },
+      "limits": [
+        "CSV rows are model parameters and derived inputs, not material test observations.",
+        "The source assumes compression strengths at 0.6 times tensile strengths; this transfer uses those assumptions and the Beldie-derived ZD values, not measured compression curves.",
+        "The asymmetric transfer changes multiaxial and pressure response; the source does not identify these responses.",
+        "Directional hardening scales use the same published bilinear tension-fit plots as calibration inputs; there are no specimen identities or held-out curves.",
+        "The C1 width is numerical regularization, not physical calibration. Zero-stress shift and width sensitivity remain explicit.",
+        "No successful FEM folding/damage/assembly qualification is implied by material-point checks or curve calibration."
+      ],
+      "sha256": "5fccfea7ca49776cef6782f6fa8eff1876de38f643c6993c3b2829135f446e48",
+      "calibration_scope": "same_published_curve_parameter_transfer_only_not_independent_validation_or_physical_damage_qualification"
+    },
+    {
       "id": "haj_ali_2009_experimental_marker_centers_v1",
       "file": "haj_ali_2009_experimental_marker_centers_v1.csv",
       "source_ids": [

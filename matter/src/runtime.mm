@@ -3,6 +3,7 @@
 
 #include "numi/matter/matter.hpp"
 #include "numi/matter/detail.hpp"
+#include "numi/matter/sparse_private_contact_admission.hpp"
 #include "numi/matter/regional_galerkin_bending_basis.hpp"
 #include "fem_reference_geometry.hpp"
 #include "numi/matter/accepted_state_apply_gpu.h"
@@ -47,6 +48,64 @@
 
 namespace numi::matter {
 namespace {
+
+struct SparseArmijoContactOptions {
+    bool requested = false;
+    bool parity = false;
+    std::uint32_t capacity = 0u;
+    const char* error = nullptr;
+};
+
+SparseArmijoContactOptions sparseArmijoContactOptionsFromEnvironment() noexcept {
+    SparseArmijoContactOptions result;
+    const char* capacityText = std::getenv(
+        "NM_FEM_FULL_CONTACT_SPARSE_PRIVATE_CAPACITY");
+    const char* parityText = std::getenv(
+        "NM_FEM_FULL_CONTACT_SPARSE_PRIVATE_PARITY");
+    result.requested = capacityText != nullptr;
+    if (parityText != nullptr) {
+        if (std::strcmp(parityText, "1") != 0) {
+            result.error =
+                "NM_FEM_FULL_CONTACT_SPARSE_PRIVATE_PARITY must be exactly 1";
+            return result;
+        }
+        result.parity = true;
+    }
+    if (!result.requested) {
+        if (result.parity) {
+            result.error =
+                "sparse private parity requires an explicit candidate capacity";
+        }
+        return result;
+    }
+    if (capacityText[0] == '\0') {
+        result.error =
+            "NM_FEM_FULL_CONTACT_SPARSE_PRIVATE_CAPACITY must be a positive decimal integer";
+        return result;
+    }
+    std::uint64_t value = 0u;
+    for (const char* cursor = capacityText; *cursor != '\0'; ++cursor) {
+        if (*cursor < '0' || *cursor > '9') {
+            result.error =
+                "NM_FEM_FULL_CONTACT_SPARSE_PRIVATE_CAPACITY must contain only decimal digits";
+            return result;
+        }
+        const std::uint32_t digit = static_cast<std::uint32_t>(*cursor - '0');
+        if (value > (std::numeric_limits<std::uint32_t>::max() - digit) / 10u) {
+            result.error =
+                "sparse private candidate capacity exceeds uint32 indexing";
+            return result;
+        }
+        value = value * 10u + digit;
+    }
+    if (value == 0u) {
+        result.error =
+            "NM_FEM_FULL_CONTACT_SPARSE_PRIVATE_CAPACITY must be positive";
+        return result;
+    }
+    result.capacity = static_cast<std::uint32_t>(value);
+    return result;
+}
 
 // Contact primitives retain their all-four-faces-per-tet indexing in the
 // legacy path. The opt-in immutable surface map compacts only the FEM source
@@ -1538,6 +1597,15 @@ struct Runtime::State {
     id<MTLBuffer> femArmijoContactSamples = nil;
     // Separate bounded contact samples for the larger static-BOX scoring slice.
     id<MTLBuffer> femArmijoBoxContactSamples = nil;
+    // Opt-in private Armijo compaction only. Dense contact-pair/history IDs
+    // remain immutable; these map each canonical pair to a temporary slot.
+    id<MTLBuffer> femArmijoSparseContactSlotsByPair = nil;
+    id<MTLBuffer> femArmijoSparseContactPairIds = nil;
+    id<MTLBuffer> femArmijoSparseContactCandidateCounts = nil;
+    id<MTLBuffer> femArmijoSparseContactReferenceSamples = nil;
+    std::uint32_t femArmijoSparseContactCapacity = 0u;
+    bool femArmijoSparseContactRequested = false;
+    bool femArmijoSparseContactParity = false;
     // Private self-contact broadphase/narrowphase arena used only by the
     // combined cohesive + rigid-tool + deformable-contact Armijo mode.
     id<MTLBuffer> femArmijoSurfacePrimitives = nil;
@@ -1580,6 +1648,11 @@ struct Runtime::State {
     id<MTLBuffer> fgmresLeastSquares = nil;
     id<MTLBuffer> fgmresRestartCoefficients = nil;
     id<MTLBuffer> fgmresStates = nil;
+    // Optional per-tetrahedron unsymmetric 9x9 material-frame dP/dF cache.
+    // It is rebuilt at each Newton linearization and used only by ordinary
+    // FGMRES element products; direct residual/Armijo paths never read it.
+    id<MTLBuffer> femAlgorithmicTangentCache = nil;
+    id<MTLBuffer> femAlgorithmicTangentCacheValid = nil;
     // Source-bound, opt-in regional RAP preconditioner. femRegionalBasis is
     // the immutable authored P; femRegionalEffectiveBasis is P projected
     // through each environment's current candidate Dirichlet mask. AP and
@@ -2134,6 +2207,63 @@ RuntimeDiagnostics Runtime::initialize(
         }
         auto candidate = std::make_unique<State>();
         candidate->dispatch = world.dispatch;
+        const SparseArmijoContactOptions sparseArmijoOptions =
+            sparseArmijoContactOptionsFromEnvironment();
+        if (sparseArmijoOptions.error != nullptr) {
+            diagnostics.message = sparseArmijoOptions.error;
+            return diagnostics;
+        }
+        if (sparseArmijoOptions.requested) {
+            const char* rootSelector = std::getenv(
+                "NM_FEM_FULL_CONTACT_RESIDUAL_ARMIJO_ROOT");
+            if (rootSelector == nullptr) {
+                diagnostics.message =
+                    "sparse private contact capacity requires the full-contact Armijo selector";
+                return diagnostics;
+            }
+            if (std::strcmp(rootSelector, "all") != 0) {
+                if (rootSelector[0] == '\0') {
+                    diagnostics.message =
+                        "full-contact Armijo selector is empty while sparse private contact is requested";
+                    return diagnostics;
+                }
+                std::uint64_t selectedRoot = 0u;
+                for (const char* cursor = rootSelector; *cursor != '\0'; ++cursor) {
+                    if (*cursor < '0' || *cursor > '9') {
+                        diagnostics.message =
+                            "sparse private contact requires a decimal full-contact Armijo selector or all";
+                        return diagnostics;
+                    }
+                    const std::uint32_t digit =
+                        static_cast<std::uint32_t>(*cursor - '0');
+                    if (selectedRoot >
+                        (std::numeric_limits<std::uint32_t>::max() - digit) / 10u) {
+                        diagnostics.message =
+                            "full-contact Armijo selector exceeds uint32 indexing";
+                        return diagnostics;
+                    }
+                    selectedRoot = selectedRoot * 10u + digit;
+                }
+            }
+            const auto sparseAdmission = detail::admitSparsePrivateContact(
+                world.dispatch.environmentCount,
+                world.dispatch.contactPairCount,
+                sparseArmijoOptions.capacity,
+                sparseArmijoOptions.parity,
+                world.dispatch.rigidGeneralizedCapacity != 0u ||
+                    world.dispatch.rigidQCapacity != 0u);
+            if (!sparseAdmission.admitted()) {
+                diagnostics.message =
+                    detail::sparsePrivateContactAdmissionErrorText(
+                        sparseAdmission.error);
+                return diagnostics;
+            }
+            candidate->femArmijoSparseContactRequested = true;
+            candidate->femArmijoSparseContactParity =
+                sparseArmijoOptions.parity;
+            candidate->femArmijoSparseContactCapacity =
+                sparseArmijoOptions.capacity;
+        }
         candidate->materialNames.reserve(world.constitutive.size());
         candidate->materialParameterOffsets.reserve(world.constitutive.size());
         candidate->materialParameterNames.reserve(world.constitutive.size());
@@ -2865,6 +2995,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_mpm_p2g",
             "nm_mpm_compact_active_nodes",
             "nm_fem_internal_forces",
+            "nm_fem_build_algorithmic_tangent_cache",
             "nm_fem_cohesive_face_forces",
             "nm_fem_add_cohesive_residual",
             "nm_fem_cohesive_face_operator",
@@ -3031,6 +3162,10 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_contact_scan_deformable_node_incidence",
             "nm_contact_scatter_deformable_node_incidence",
             "nm_contact_evaluate",
+            "nm_contact_clear_sparse_trial_samples",
+            "nm_contact_build_armijo_sparse_pair_flags",
+            "nm_contact_scan_armijo_sparse_pair_flags",
+            "nm_contact_compare_armijo_sparse_samples",
             "nm_contact_certify_post_commit_rigid",
             "nm_contact_compact_active",
             "nm_contact_checkpoint_histories",
@@ -3042,6 +3177,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_contact_rollback_deformable_contact_histories",
             "nm_contact_prepare_articulated_queries",
             "nm_contact_accumulate_fem_residual",
+            "nm_contact_accumulate_fem_residual_sparse",
             "nm_contact_accumulate_deformable_fem_residual",
             "nm_contact_publish_fem_constraint_contact_force",
             "nm_contact_publish_primal_history",
@@ -4555,14 +4691,55 @@ RuntimeDiagnostics Runtime::initialize(
             if ((std::getenv("NM_FEM_CAPSULE_BOX_RESIDUAL_ARMIJO_ROOT") != nullptr ||
                  std::getenv("NM_FEM_FULL_CONTACT_RESIDUAL_ARMIJO_ROOT") != nullptr) &&
                 world.dispatch.contactPairCount != 0u &&
-                world.dispatch.contactPairCount <= 65536u && environments <= 4u &&
-                static_cast<std::size_t>(environments) *
-                    world.dispatch.contactPairCount <=
-                    (36u * 1024u * 1024u) / sizeof(NMContactSampleGPU)) {
-                candidate->femArmijoBoxContactSamples =
-                    privateScratch<NMContactSampleGPU>(candidate->device,
-                        multiplied(world.dispatch.contactPairCount),
-                        valid, candidate->residentBytes);
+                (candidate->femArmijoSparseContactRequested ||
+                 detail::densePrivateContactPairDomainSupported(
+                     world.dispatch.contactPairCount)) &&
+                environments <= 4u) {
+                if (candidate->femArmijoSparseContactRequested) {
+                    const auto sparseAdmission =
+                        detail::admitSparsePrivateContact(
+                            world.dispatch.environmentCount,
+                            world.dispatch.contactPairCount,
+                            candidate->femArmijoSparseContactCapacity,
+                            candidate->femArmijoSparseContactParity,
+                            world.dispatch.rigidGeneralizedCapacity != 0u ||
+                                world.dispatch.rigidQCapacity != 0u);
+                    if (!sparseAdmission.admitted()) {
+                        diagnostics.message =
+                            detail::sparsePrivateContactAdmissionErrorText(
+                                sparseAdmission.error);
+                        return diagnostics;
+                    }
+                    candidate->femArmijoBoxContactSamples =
+                        privateScratch<NMContactSampleGPU>(candidate->device,
+                            multiplied(candidate->femArmijoSparseContactCapacity),
+                            valid, candidate->residentBytes);
+                    candidate->femArmijoSparseContactSlotsByPair =
+                        privateScratch<std::uint32_t>(candidate->device,
+                            multiplied(world.dispatch.contactPairCount),
+                            valid, candidate->residentBytes);
+                    candidate->femArmijoSparseContactPairIds =
+                        privateScratch<std::uint32_t>(candidate->device,
+                            multiplied(candidate->femArmijoSparseContactCapacity),
+                            valid, candidate->residentBytes);
+                    candidate->femArmijoSparseContactCandidateCounts =
+                        privateScratch<std::uint32_t>(candidate->device,
+                            environments, valid, candidate->residentBytes);
+                    if (candidate->femArmijoSparseContactParity) {
+                        candidate->femArmijoSparseContactReferenceSamples =
+                            privateScratch<NMContactSampleGPU>(candidate->device,
+                                multiplied(world.dispatch.contactPairCount),
+                                valid, candidate->residentBytes);
+                    }
+                } else if (static_cast<std::size_t>(environments) *
+                        world.dispatch.contactPairCount <=
+                        (36u * 1024u * 1024u) /
+                            sizeof(NMContactSampleGPU)) {
+                    candidate->femArmijoBoxContactSamples =
+                        privateScratch<NMContactSampleGPU>(candidate->device,
+                            multiplied(world.dispatch.contactPairCount),
+                            valid, candidate->residentBytes);
+                }
                 if (world.dispatch.rigidGeneralizedCapacity != 0u) {
                     candidate->femArmijoContactActivePairs =
                         privateScratch<std::uint32_t>(candidate->device,
@@ -4779,6 +4956,42 @@ RuntimeDiagnostics Runtime::initialize(
         candidate->fgmresStates = privateScratch<NMFGMRESStateGPU>(
             candidate->device, fgmresSystemTotal,
             valid, candidate->residentBytes);
+        if (world.mixedSolver.executionBudgets.w == 1u) {
+            const std::uint64_t totalTetrahedra =
+                static_cast<std::uint64_t>(world.dispatch.environmentCount) *
+                world.dispatch.tetrahedronCount;
+            constexpr std::uint64_t cacheScalarsPerTetrahedron = 81u;
+            if (totalTetrahedra == 0u ||
+                totalTetrahedra >
+                    std::numeric_limits<std::uint32_t>::max() /
+                        cacheScalarsPerTetrahedron ||
+                totalTetrahedra >
+                    std::numeric_limits<std::size_t>::max() /
+                        (cacheScalarsPerTetrahedron * sizeof(float))) {
+                diagnostics.message =
+                    "algorithmic tangent cache exceeds checked Metal indexing";
+                return diagnostics;
+            }
+            const std::uint64_t tangentBytes = totalTetrahedra *
+                cacheScalarsPerTetrahedron * sizeof(float);
+            const std::uint64_t validBytes = totalTetrahedra *
+                sizeof(std::uint32_t);
+            if (tangentBytes > candidate->device.maxBufferLength ||
+                validBytes > candidate->device.maxBufferLength) {
+                diagnostics.message =
+                    "algorithmic tangent cache exceeds one Metal buffer limit";
+                return diagnostics;
+            }
+            candidate->femAlgorithmicTangentCache =
+                privateScratch<float>(candidate->device,
+                    static_cast<std::size_t>(totalTetrahedra *
+                        cacheScalarsPerTetrahedron),
+                    valid, candidate->residentBytes);
+            candidate->femAlgorithmicTangentCacheValid =
+                privateScratch<std::uint32_t>(candidate->device,
+                    static_cast<std::size_t>(totalTetrahedra),
+                    valid, candidate->residentBytes);
+        }
         if (candidate->femRegionalModeCount != 0u) {
             const std::size_t modes = candidate->femRegionalModeCount;
             const std::size_t nodes = world.dispatch.femNodeCount;
@@ -8090,6 +8303,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     const bool allowCohesive = false,
                     const bool allowDeformableSelfContact = false,
                     const bool allowFreeRigidBody = false) -> const char* {
+                if (state.femArmijoSparseContactRequested &&
+                    (!allowCohesive || !allowDeformableSelfContact))
+                    return "sparse_private_contact_is_scoped_to_full_contact_armijo";
+                if (state.femArmijoSparseContactRequested && allowFreeRigidBody)
+                    return "sparse_private_contact_does_not_support_free_rigid_unknowns";
                 if (!state.femResidualArmijoScratchEnabled)
                     return "armijo_scratch_was_not_reserved_at_runtime_creation";
                 if (retainPreparedState || request.enablePreparedState ||
@@ -8160,19 +8378,45 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     return allowFreeRigidBody
                         ? "requires_fem_plus_one_six_dof_free_rigid_body_unknowns"
                         : "requires_fem_nodes_as_only_generalized_unknowns";
+                const std::uint64_t denseContactBytes =
+                    std::uint64_t(state.dispatch.environmentCount) *
+                    state.dispatch.contactPairCount *
+                    sizeof(NMContactSampleGPU);
+                const auto sparseAdmission =
+                    detail::admitSparsePrivateContact(
+                        state.dispatch.environmentCount,
+                        state.dispatch.contactPairCount,
+                        state.femArmijoSparseContactCapacity,
+                        state.femArmijoSparseContactParity,
+                        state.dispatch.rigidGeneralizedCapacity != 0u ||
+                            state.dispatch.rigidQCapacity != 0u);
+                const bool sparseArenaValid =
+                    !state.femArmijoSparseContactRequested ||
+                    (sparseAdmission.admitted() &&
+                     state.femArmijoSparseContactSlotsByPair != nil &&
+                     state.femArmijoSparseContactPairIds != nil &&
+                     state.femArmijoSparseContactCandidateCounts != nil &&
+                     (!state.femArmijoSparseContactParity ||
+                      state.femArmijoSparseContactReferenceSamples != nil));
+                const bool denseArenaValid =
+                    state.femArmijoSparseContactRequested ||
+                    (denseContactBytes <= 36ull * 1024ull * 1024ull &&
+                     state.femArmijoBoxContactSamples != nil);
                 if (state.dispatch.contactPairCount == 0u ||
-                    state.dispatch.contactPairCount > 65536u ||
-                    static_cast<std::size_t>(state.dispatch.environmentCount) *
-                        state.dispatch.contactPairCount >
-                        (36u * 1024u * 1024u) /
-                            sizeof(NMContactSampleGPU) ||
+                    (!state.femArmijoSparseContactRequested &&
+                     !detail::densePrivateContactPairDomainSupported(
+                         state.dispatch.contactPairCount)) ||
+                    (state.femArmijoSparseContactRequested &&
+                     !sparseAdmission.admitted()) ||
+                    (state.femArmijoSparseContactRequested &&
+                     state.femArmijoBoxContactSamples == nil) ||
+                    !denseArenaValid || !sparseArenaValid ||
                     state.dispatch.rigidProxyCount < 2u ||
                     state.dispatch.rigidProxyCount > 16u ||
                     state.contactPairLayout.size() !=
                         state.dispatch.contactPairCount ||
                     state.rigidProxyLayout.size() !=
                         state.dispatch.rigidProxyCount ||
-                    state.femArmijoBoxContactSamples == nil ||
                     (allowFreeRigidBody &&
                      (state.femArmijoPrimalContactArguments == nil ||
                       state.femArmijoContactActivePairs == nil ||
@@ -8346,6 +8590,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
             bool femCapsuleBoxResidualArmijoEnabled = false;
             bool femFreeRigidResidualArmijoEnabled = false;
             bool femFullContactResidualArmijoEnabled = false;
+            bool femSparsePrivateContactEnabled = false;
             if (const char* selector =
                     std::getenv("NM_FEM_RESIDUAL_ARMIJO_ROOT")) {
                 const bool everyControlStep = std::strcmp(selector, "all") == 0;
@@ -8461,15 +8706,34 @@ RuntimeDiagnostics Runtime::encodeImpl(
             if (fullContactArmijoSelector != nullptr) {
                 const unsigned long parsed = fullContactArmijoSelectedRoot;
                 if (!fullContactArmijoSelectorValid) {
+                    if (state.femArmijoSparseContactRequested) {
+                        diagnostics.message =
+                            "sparse private contact request has an invalid full-contact Armijo selector";
+                        ownership->preDynamicsOpen = false;
+                        return diagnostics;
+                    }
                     std::fprintf(stderr,
                         "fem_full_contact_residual_armijo_error={\"schema\":1,\"reason\":\"invalid_control_step_selector\"}\n");
                 } else if (parsed == request.controlStep) {
                     if (femResidualArmijoEnabled) {
+                        if (state.femArmijoSparseContactRequested) {
+                            diagnostics.message =
+                                "sparse private contact cannot fall back when another residual Armijo mode owns this transaction";
+                            ownership->preDynamicsOpen = false;
+                            return diagnostics;
+                        }
                         std::fprintf(stderr,
                             "fem_full_contact_residual_armijo_skipped={\"schema\":1,\"root\":%u,\"reason\":\"mutually_exclusive_with_other_residual_armijo_modes\"}\n",
                             static_cast<std::uint32_t>(parsed));
                     } else if (const char* reason =
                                    femFullContactResidualArmijoScope()) {
+                        if (state.femArmijoSparseContactRequested) {
+                            diagnostics.message =
+                                std::string("sparse private contact request rejected: ") +
+                                reason;
+                            ownership->preDynamicsOpen = false;
+                            return diagnostics;
+                        }
                         std::fprintf(stderr,
                             "fem_full_contact_residual_armijo_skipped={\"schema\":1,\"root\":%u,\"reason\":\"%s\"}\n",
                             static_cast<std::uint32_t>(parsed), reason);
@@ -8480,12 +8744,20 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         femCapsuleBoxResidualArmijoEnabled = true;
                         femFreeRigidResidualArmijoEnabled =
                             hasOneFreeRigidBodyUnknown;
+                        femSparsePrivateContactEnabled =
+                            state.femArmijoSparseContactRequested;
                         std::fprintf(stderr,
-                            "fem_full_contact_residual_armijo_enabled={\"schema\":1,\"root\":%u,\"trials\":%u,\"rigid_unknowns\":%u,\"metric\":\"exact_production_volume_plus_mixed_cohesive_plus_capsule_box_plus_deformable_contact_free_dof_l2_impulse\",\"history\":\"accepted_history_read_only_per_trial\",\"private_contact_arena_bytes_cap\":%u}\n",
+                            "fem_full_contact_residual_armijo_enabled={\"schema\":1,\"root\":%u,\"trials\":%u,\"rigid_unknowns\":%u,\"metric\":\"exact_production_volume_plus_mixed_cohesive_plus_capsule_box_plus_deformable_contact_free_dof_l2_impulse\",\"history\":\"accepted_history_read_only_per_trial\",\"private_contact_arena_bytes_cap\":%u,\"private_contact_layout\":\"%s\",\"sparse_candidate_capacity\":%u,\"sparse_parity\":%s}\n",
                             static_cast<std::uint32_t>(parsed),
                             static_cast<std::uint32_t>(state.mixedSolverValue.nonlinearIterations.w),
                             state.dispatch.rigidGeneralizedCapacity,
-                            128u * 1024u * 1024u);
+                            128u * 1024u * 1024u,
+                            femSparsePrivateContactEnabled ? "sparse" : "dense",
+                            femSparsePrivateContactEnabled
+                                ? state.femArmijoSparseContactCapacity : 0u,
+                            femSparsePrivateContactEnabled &&
+                                    state.femArmijoSparseContactParity
+                                ? "true" : "false");
                     }
                 }
             }
@@ -9023,6 +9295,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.learnedWeightsCandidate offset:0u atIndex:20u];
                     [encoder setBuffer:state.mixedSolver offset:0u atIndex:21u];
                     [encoder setBuffer:state.fgmresStates offset:0u atIndex:22u];
+                    [encoder setBuffer:state.dummy offset:0u atIndex:23u];
+                    [encoder setBuffer:state.dummy offset:0u atIndex:24u];
+                    const std::uint32_t useCache = 0u;
+                    [encoder setBytes:&useCache length:sizeof(useCache) atIndex:25u];
                 });
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 dispatchThreads("nm_fgmres_gather_nodes", femNodeTotal, [&] {
@@ -11802,6 +12078,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                    offset:0u atIndex:5u];
                     });
                 dispatchThreads("nm_contact_evaluate", pairTotal, [&] {
+                    const std::uint32_t unusedCandidateCapacity = 0u;
+                    const std::uint32_t denseCandidateMode = 0u;
                     setDispatch();
                     [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
                     [encoder setBuffer:state.objects offset:0u atIndex:2u];
@@ -11821,6 +12099,16 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:currentBodies offset:0u atIndex:16u];
                     [encoder setBuffer:state.punctureChannelsCandidate
                                  offset:0u atIndex:17u];
+                    [encoder setBuffer:state.contactActivePairs
+                                 offset:0u atIndex:18u];
+                    [encoder setBuffer:state.contactActiveCounts
+                                 offset:0u atIndex:19u];
+                    [encoder setBytes:&unusedCandidateCapacity
+                               length:sizeof(unusedCandidateCapacity)
+                              atIndex:20u];
+                    [encoder setBytes:&denseCandidateMode
+                               length:sizeof(denseCandidateMode)
+                              atIndex:21u];
                 });
                 dispatchGroups32("nm_contact_compact_active", environments, [&] {
                     setDispatch();
@@ -13021,6 +13309,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                      offset:0u atIndex:21u];
                         [encoder setBuffer:state.fgmresStates
                                      offset:0u atIndex:22u];
+                        [encoder setBuffer:state.dummy offset:0u atIndex:23u];
+                        [encoder setBuffer:state.dummy offset:0u atIndex:24u];
+                        const std::uint32_t useCache = 0u;
+                        [encoder setBytes:&useCache
+                                   length:sizeof(useCache) atIndex:25u];
                     });
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                     const bool includeCohesiveRAP =
@@ -13206,6 +13499,35 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.humanSupportContacts
                              offset:0u atIndex:21u];
             });
+            if (restartCycle == 0u &&
+                state.mixedSolverValue.executionBudgets.w == 1u) {
+                dispatchThreads("nm_fem_build_algorithmic_tangent_cache",
+                    tetrahedronTotal, [&] {
+                    setDispatch();
+                    [encoder setBytes:&operatorMicro
+                               length:sizeof(operatorMicro) atIndex:1u];
+                    [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                    [encoder setBuffer:state.materials offset:0u atIndex:3u];
+                    [encoder setBuffer:state.scalarPrograms offset:0u atIndex:4u];
+                    [encoder setBuffer:state.instructions offset:0u atIndex:5u];
+                    [encoder setBuffer:state.environmentParameters
+                                 offset:0u atIndex:6u];
+                    [encoder setBuffer:state.femCandidate offset:0u atIndex:7u];
+                    [encoder setBuffer:state.femTetrahedraCandidate
+                                 offset:0u atIndex:8u];
+                    [encoder setBuffer:state.femMaterialStateAccepted
+                                 offset:0u atIndex:9u];
+                    [encoder setBuffer:state.schedulers offset:0u atIndex:10u];
+                    [encoder setBuffer:state.adaptive offset:0u atIndex:11u];
+                    [encoder setBuffer:state.femAlgorithmicTangentCache
+                                 offset:0u atIndex:12u];
+                    [encoder setBuffer:state.femAlgorithmicTangentCacheValid
+                                 offset:0u atIndex:13u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:14u];
+                    [encoder setBuffer:state.fgmresStates offset:0u atIndex:15u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            }
             if (state.mixedSolverValue.executionBudgets.z == 0u) {
                 dispatchThreads(
                     "nm_fgmres_build_preconditioner", femNodeTotal, [&] {
@@ -13645,6 +13967,15 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.learnedWeightsCandidate offset:0u atIndex:20u];
                     [encoder setBuffer:state.mixedSolver offset:0u atIndex:21u];
                     [encoder setBuffer:state.fgmresStates offset:0u atIndex:22u];
+                    [encoder setBuffer:state.femAlgorithmicTangentCache != nil
+                            ? state.femAlgorithmicTangentCache : state.dummy
+                                 offset:0u atIndex:23u];
+                    [encoder setBuffer:state.femAlgorithmicTangentCacheValid != nil
+                            ? state.femAlgorithmicTangentCacheValid : state.dummy
+                                 offset:0u atIndex:24u];
+                    const std::uint32_t useCache =
+                        state.mixedSolverValue.executionBudgets.w == 1u ? 1u : 0u;
+                    [encoder setBytes:&useCache length:sizeof(useCache) atIndex:25u];
                 });
                 dispatchThreads("nm_fem_cohesive_face_operator",
                     cohesiveFaceTotal, [&] {
@@ -14179,6 +14510,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                  offset:0u atIndex:20u];
                     [encoder setBuffer:state.mixedSolver offset:0u atIndex:21u];
                     [encoder setBuffer:state.fgmresStates offset:0u atIndex:22u];
+                    [encoder setBuffer:state.dummy offset:0u atIndex:23u];
+                    [encoder setBuffer:state.dummy offset:0u atIndex:24u];
+                    const std::uint32_t useCache = 0u;
+                    [encoder setBytes:&useCache length:sizeof(useCache) atIndex:25u];
                 });
                 dispatchThreads("nm_fem_cohesive_face_operator",
                     cohesiveFaceTotal, [&] {
@@ -15139,12 +15474,86 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         });
                     }
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
-                    dispatchThreads(
-                        "nm_contact_clear_trial_samples", pairTotal, [&] {
-                        setDispatch();
-                        [encoder setBuffer:armijoContactSamples
-                                     offset:0u atIndex:1u];
-                    });
+                    const NSUInteger sparseArmijoSampleTotal =
+                        environments * state.femArmijoSparseContactCapacity;
+                    const std::uint32_t sparseCapacity =
+                        state.femArmijoSparseContactCapacity;
+                    const std::uint32_t denseCandidateMode = 0u;
+                    const std::uint32_t compactCandidateMode = 1u;
+                    id<MTLBuffer> candidatePairIds =
+                        femSparsePrivateContactEnabled
+                            ? state.femArmijoSparseContactPairIds
+                            : state.contactActivePairs;
+                    id<MTLBuffer> candidateCounts =
+                        femSparsePrivateContactEnabled
+                            ? state.femArmijoSparseContactCandidateCounts
+                            : state.contactActiveCounts;
+                    const auto encodeArmijoContactEvaluation =
+                        [&](id<MTLBuffer> outputSamples,
+                            const std::uint32_t capacity,
+                            const std::uint32_t compactMode) {
+                        const NSUInteger evaluationTotal = compactMode != 0u
+                            ? sparseArmijoSampleTotal : pairTotal;
+                        dispatchThreads("nm_contact_evaluate", evaluationTotal, [&] {
+                            setDispatch();
+                            [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
+                            [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                            [encoder setBuffer:state.materials offset:0u atIndex:3u];
+                            [encoder setBuffer:state.gridNodes offset:0u atIndex:4u];
+                            [encoder setBuffer:state.femArmijoCandidate offset:0u atIndex:5u];
+                            [encoder setBuffer:state.rigidProxies offset:0u atIndex:6u];
+                            [encoder setBuffer:(femFreeRigidResidualArmijoEnabled
+                                    ? state.femArmijoRigidStates
+                                    : state.rigidStates)
+                                         offset:0u atIndex:7u];
+                            [encoder setBuffer:state.contactPairs offset:0u atIndex:8u];
+                            [encoder setBuffer:state.schedulers offset:0u atIndex:9u];
+                            [encoder setBuffer:state.adaptive offset:0u atIndex:10u];
+                            [encoder setBuffer:outputSamples offset:0u atIndex:11u];
+                            [encoder setBuffer:state.mpmNodeGenerations offset:0u atIndex:12u];
+                            [encoder setBuffer:state.femArmijoStatuses offset:0u atIndex:13u];
+                            [encoder setBuffer:nonlinearHistories offset:0u atIndex:14u];
+                            [encoder setBytes:&bridge length:sizeof(bridge) atIndex:15u];
+                            [encoder setBuffer:currentBodies offset:0u atIndex:16u];
+                            [encoder setBuffer:state.punctureChannelsCandidate
+                                         offset:0u atIndex:17u];
+                            [encoder setBuffer:candidatePairIds
+                                         offset:0u atIndex:18u];
+                            [encoder setBuffer:candidateCounts
+                                         offset:0u atIndex:19u];
+                            [encoder setBytes:&capacity length:sizeof(capacity)
+                                      atIndex:20u];
+                            [encoder setBytes:&compactMode length:sizeof(compactMode)
+                                      atIndex:21u];
+                        });
+                    };
+                    if (femSparsePrivateContactEnabled) {
+                        if (state.femArmijoSparseContactParity) {
+                            dispatchThreads(
+                                "nm_contact_clear_trial_samples", pairTotal, [&] {
+                                setDispatch();
+                                [encoder setBuffer:
+                                    state.femArmijoSparseContactReferenceSamples
+                                             offset:0u atIndex:1u];
+                            });
+                        }
+                        dispatchThreads(
+                            "nm_contact_clear_sparse_trial_samples",
+                            sparseArmijoSampleTotal, [&] {
+                            setDispatch();
+                            [encoder setBytes:&sparseCapacity
+                                      length:sizeof(sparseCapacity) atIndex:1u];
+                            [encoder setBuffer:armijoContactSamples
+                                         offset:0u atIndex:2u];
+                        });
+                    } else {
+                        dispatchThreads(
+                            "nm_contact_clear_trial_samples", pairTotal, [&] {
+                            setDispatch();
+                            [encoder setBuffer:armijoContactSamples
+                                         offset:0u atIndex:1u];
+                        });
+                    }
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                     dispatchThreads(
                         "nm_contact_validate_fem_rigid_armijo_path",
@@ -15163,31 +15572,86 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:state.femArmijoStatuses offset:0u atIndex:9u];
                     });
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
-                    dispatchThreads("nm_contact_evaluate", pairTotal, [&] {
-                        setDispatch();
-                        [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
-                        [encoder setBuffer:state.objects offset:0u atIndex:2u];
-                        [encoder setBuffer:state.materials offset:0u atIndex:3u];
-                        [encoder setBuffer:state.gridNodes offset:0u atIndex:4u];
-                        [encoder setBuffer:state.femArmijoCandidate offset:0u atIndex:5u];
-                        [encoder setBuffer:state.rigidProxies offset:0u atIndex:6u];
-                        [encoder setBuffer:(femFreeRigidResidualArmijoEnabled
-                                ? state.femArmijoRigidStates
-                                : state.rigidStates)
-                                     offset:0u atIndex:7u];
-                        [encoder setBuffer:state.contactPairs offset:0u atIndex:8u];
-                        [encoder setBuffer:state.schedulers offset:0u atIndex:9u];
-                        [encoder setBuffer:state.adaptive offset:0u atIndex:10u];
-                        [encoder setBuffer:armijoContactSamples
-                                     offset:0u atIndex:11u];
-                        [encoder setBuffer:state.mpmNodeGenerations offset:0u atIndex:12u];
-                        [encoder setBuffer:state.femArmijoStatuses offset:0u atIndex:13u];
-                        [encoder setBuffer:nonlinearHistories offset:0u atIndex:14u];
-                        [encoder setBytes:&bridge length:sizeof(bridge) atIndex:15u];
-                        [encoder setBuffer:currentBodies offset:0u atIndex:16u];
-                        [encoder setBuffer:state.punctureChannelsCandidate
-                                     offset:0u atIndex:17u];
-                    });
+                    if (femSparsePrivateContactEnabled) {
+                        dispatchThreads(
+                            "nm_contact_build_armijo_sparse_pair_flags",
+                            pairTotal, [&] {
+                            setDispatch();
+                            [encoder setBuffer:state.femArmijoCandidate
+                                         offset:0u atIndex:1u];
+                            [encoder setBuffer:state.rigidProxies
+                                         offset:0u atIndex:2u];
+                            [encoder setBuffer:(femFreeRigidResidualArmijoEnabled
+                                    ? state.femArmijoRigidStates
+                                    : state.rigidStates)
+                                         offset:0u atIndex:3u];
+                            [encoder setBuffer:state.contactPairs
+                                         offset:0u atIndex:4u];
+                            [encoder setBuffer:state.schedulers
+                                         offset:0u atIndex:5u];
+                            [encoder setBuffer:currentBodies
+                                         offset:0u atIndex:6u];
+                            [encoder setBytes:&bridge length:sizeof(bridge)
+                                      atIndex:7u];
+                            [encoder setBuffer:state.femArmijoSparseContactSlotsByPair
+                                         offset:0u atIndex:8u];
+                            [encoder setBuffer:state.femArmijoStatuses
+                                         offset:0u atIndex:9u];
+                        });
+                        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                        dispatchGroups32(
+                            "nm_contact_scan_armijo_sparse_pair_flags",
+                            environments, [&] {
+                            setDispatch();
+                            [encoder setBytes:&sparseCapacity
+                                      length:sizeof(sparseCapacity) atIndex:1u];
+                            [encoder setBuffer:state.femArmijoSparseContactSlotsByPair
+                                         offset:0u atIndex:2u];
+                            [encoder setBuffer:state.femArmijoSparseContactPairIds
+                                         offset:0u atIndex:3u];
+                            [encoder setBuffer:state.femArmijoSparseContactCandidateCounts
+                                         offset:0u atIndex:4u];
+                            [encoder setBuffer:state.femArmijoStatuses
+                                         offset:0u atIndex:5u];
+                        });
+                        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                        if (state.femArmijoSparseContactParity) {
+                            encodeArmijoContactEvaluation(
+                                state.femArmijoSparseContactReferenceSamples,
+                                0u, denseCandidateMode);
+                            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                        }
+                        encodeArmijoContactEvaluation(
+                            armijoContactSamples, sparseCapacity,
+                            compactCandidateMode);
+                        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                        if (state.femArmijoSparseContactParity) {
+                            dispatchThreads(
+                                "nm_contact_compare_armijo_sparse_samples",
+                                pairTotal, [&] {
+                                setDispatch();
+                                [encoder setBytes:&sparseCapacity
+                                          length:sizeof(sparseCapacity) atIndex:1u];
+                                [encoder setBuffer:
+                                    state.femArmijoSparseContactReferenceSamples
+                                             offset:0u atIndex:2u];
+                                [encoder setBuffer:armijoContactSamples
+                                             offset:0u atIndex:3u];
+                                [encoder setBuffer:
+                                    state.femArmijoSparseContactSlotsByPair
+                                             offset:0u atIndex:4u];
+                                [encoder setBuffer:
+                                    state.femArmijoSparseContactPairIds
+                                             offset:0u atIndex:5u];
+                                [encoder setBuffer:state.femArmijoStatuses
+                                             offset:0u atIndex:6u];
+                            });
+                            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                        }
+                    } else {
+                        encodeArmijoContactEvaluation(
+                            armijoContactSamples, 0u, denseCandidateMode);
+                    }
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                     if (femFreeRigidResidualArmijoEnabled) {
                         dispatchGroups32(
@@ -15210,15 +15674,38 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         });
                         [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                     }
-                    dispatchThreads(
-                        "nm_contact_accumulate_fem_residual", femNodeTotal, [&] {
-                        setDispatch();
-                        [encoder setBuffer:state.contactNodeIncidence offset:0u atIndex:1u];
-                        [encoder setBuffer:state.contactNodeRanges offset:0u atIndex:2u];
-                        [encoder setBuffer:armijoContactSamples
-                                     offset:0u atIndex:3u];
-                        [encoder setBuffer:state.femArmijoResidual offset:0u atIndex:4u];
-                    });
+                    if (femSparsePrivateContactEnabled) {
+                        dispatchThreads(
+                            "nm_contact_accumulate_fem_residual_sparse",
+                            femNodeTotal, [&] {
+                            setDispatch();
+                            [encoder setBuffer:state.contactNodeIncidence
+                                         offset:0u atIndex:1u];
+                            [encoder setBuffer:state.contactNodeRanges
+                                         offset:0u atIndex:2u];
+                            [encoder setBuffer:armijoContactSamples
+                                         offset:0u atIndex:3u];
+                            [encoder setBuffer:
+                                state.femArmijoSparseContactSlotsByPair
+                                         offset:0u atIndex:4u];
+                            [encoder setBytes:&sparseCapacity
+                                      length:sizeof(sparseCapacity) atIndex:5u];
+                            [encoder setBuffer:state.femArmijoResidual
+                                         offset:0u atIndex:6u];
+                            [encoder setBuffer:state.femArmijoStatuses
+                                         offset:0u atIndex:7u];
+                        });
+                    } else {
+                        dispatchThreads(
+                            "nm_contact_accumulate_fem_residual", femNodeTotal, [&] {
+                            setDispatch();
+                            [encoder setBuffer:state.contactNodeIncidence offset:0u atIndex:1u];
+                            [encoder setBuffer:state.contactNodeRanges offset:0u atIndex:2u];
+                            [encoder setBuffer:armijoContactSamples
+                                         offset:0u atIndex:3u];
+                            [encoder setBuffer:state.femArmijoResidual offset:0u atIndex:4u];
+                        });
+                    }
                     if (femFullContactResidualArmijoEnabled) {
                         [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                         if (!encodeArmijoDeformableContact(

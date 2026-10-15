@@ -1,0 +1,1 @@
+FAIL full-contact residual Armijo fixture: full-contact fixture compile failed: regional Galerkin IDs require one compact source label per explicit FEM tetrahedron and may only be authored when that preconditioner is selected; 

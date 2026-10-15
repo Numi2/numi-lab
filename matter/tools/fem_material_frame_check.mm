@@ -5,12 +5,15 @@
 #include "cardiac_material_reference.hpp"
 #include <algorithm>
 #include <bit>
+#include <cmath>
 #include <cstring>
+#include <filesystem>
 #include <functional>
 #include <iomanip>
 #include <iostream>
 #include <limits>
 #include <sstream>
+#include <utility>
 
 // Synthetic conforming two-tet constitutive and transaction fixture. The
 // Guccione law is sourced; this geometry, density, loading and other path
@@ -58,12 +61,14 @@ CompiledWorld cook(const WorldSource& s){auto c=compileWorld(s,{.maximumRateExpo
 
 struct Device {
     id<MTLDevice> device;id<MTLCommandQueue> queue;id<MTLLibrary> library;
-    id<MTLComputePipelineState> forcePipeline,operatorPipeline;
+    id<MTLComputePipelineState> forcePipeline,operatorPipeline,tangentCachePipeline;
     Device(){device=MTLCreateSystemDefaultDevice();need(device!=nil,"Metal unavailable");
         need([[device name] rangeOfString:@"Apple"].location!=NSNotFound&&[[device name] rangeOfString:@"Paravirtual"].location==NSNotFound,"physical Apple Metal required");
         queue=[device newCommandQueue];NSError* error=nil;
         library=[device newLibraryWithURL:[NSURL fileURLWithPath:[NSString stringWithUTF8String:NUMI_MATTER_METALLIB]] error:&error];need(library!=nil,"production Matter metallib unavailable");
-        forcePipeline=make(@"numi_matter_metal::nm_fem_internal_forces");operatorPipeline=make(@"numi_matter_metal::nm_fem_apply_operator_elements");}
+        forcePipeline=make(@"numi_matter_metal::nm_fem_internal_forces");
+        operatorPipeline=make(@"numi_matter_metal::nm_fem_apply_operator_elements");
+        tangentCachePipeline=make(@"numi_matter_metal::nm_fem_build_algorithmic_tangent_cache");}
     id<MTLComputePipelineState> make(NSString* name){NSError* error=nil;auto f=[library newFunctionWithName:name];need(f!=nil,"production FEM function missing");auto p=[device newComputePipelineStateWithFunction:f error:&error];need(p!=nil,"production FEM pipeline failed");return p;}
 };
 struct Inputs {
@@ -86,7 +91,8 @@ Inputs manufactured(const CompiledWorld& w){
     for(unsigned e=0;e<2*w.dispatch.tetrahedronCount;++e)for(unsigned i=0;i<w.stateInitials.size();++i)v.state[e*w.dispatch.materialStateStride+i]=w.stateInitials[i];
     return v;
 }
-std::vector<NMFEMElementVectorGPU> dispatch(Device& d,const CompiledWorld& w,const Inputs& input,bool tangent){
+std::vector<NMFEMElementVectorGPU> dispatch(Device& d,const CompiledWorld& w,const Inputs& input,bool tangent,bool cached=false){
+    need(!cached||tangent,"cached tangent action requires the FEM operator");
     NMMicrostepGPU micro{};micro.flags=NM_MICROSTEP_FGMRES_OPERATOR;micro.time={w.dispatch.gravityAndTimestep.w,1/w.dispatch.gravityAndTimestep.w,0,0};
     std::vector<float> parameters;for(unsigned e=0;e<2;++e)for(const auto& p:w.parameters)parameters.push_back(p.valueAndBounds.x);
     const auto objects=buffer(d.device,w.objects),materials=buffer(d.device,w.materials),programs=buffer(d.device,w.scalarPrograms),instructions=buffer(d.device,w.instructions);
@@ -95,18 +101,53 @@ std::vector<NMFEMElementVectorGPU> dispatch(Device& d,const CompiledWorld& w,con
     const auto learned=buffer(d.device,w.learnedMaterials),layers=buffer(d.device,w.learnedLayers),weights=buffer(d.device,w.learnedWeights),direction=buffer(d.device,input.direction);
     const auto solver=buffer(d.device,std::vector<NMFGMRESStateGPU>(2)),status=buffer(d.device,std::vector<NMMatterStatusGPU>(2));
     const unsigned count=2*w.dispatch.tetrahedronCount;const auto output=buffer(d.device,std::vector<NMFEMElementVectorGPU>(count));
-    auto command=[d.queue commandBuffer];auto encoder=[command computeCommandEncoder];[encoder setComputePipelineState:tangent?d.operatorPipeline:d.forcePipeline];
+    const auto tangentCache=buffer(d.device,std::vector<float>(std::size_t(count)*81u));
+    const auto tangentCacheValid=buffer(d.device,std::vector<std::uint32_t>(count));
+    auto command=[d.queue commandBuffer];auto encoder=[command computeCommandEncoder];
+    if(cached){
+        [encoder setComputePipelineState:d.tangentCachePipeline];
+        [encoder setBytes:&w.dispatch length:sizeof(w.dispatch) atIndex:0];
+        [encoder setBytes:&micro length:sizeof(micro) atIndex:1];
+        [encoder setBuffer:objects offset:0 atIndex:2];
+        [encoder setBuffer:materials offset:0 atIndex:3];
+        [encoder setBuffer:programs offset:0 atIndex:4];
+        [encoder setBuffer:instructions offset:0 atIndex:5];
+        [encoder setBuffer:params offset:0 atIndex:6];
+        [encoder setBuffer:nodes offset:0 atIndex:7];
+        [encoder setBuffer:tets offset:0 atIndex:8];
+        [encoder setBuffer:state offset:0 atIndex:9];
+        [encoder setBuffer:schedulers offset:0 atIndex:10];
+        [encoder setBuffer:adaptive offset:0 atIndex:11];
+        [encoder setBuffer:tangentCache offset:0 atIndex:12];
+        [encoder setBuffer:tangentCacheValid offset:0 atIndex:13];
+        [encoder setBuffer:status offset:0 atIndex:14];
+        [encoder setBuffer:solver offset:0 atIndex:15];
+        [encoder dispatchThreads:MTLSizeMake(count,1,1)
+            threadsPerThreadgroup:MTLSizeMake(32,1,1)];
+        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+    }
+    [encoder setComputePipelineState:tangent?d.operatorPipeline:d.forcePipeline];
     [encoder setBytes:&w.dispatch length:sizeof(w.dispatch) atIndex:0];[encoder setBytes:&micro length:sizeof(micro) atIndex:1];
     [encoder setBuffer:objects offset:0 atIndex:2];[encoder setBuffer:materials offset:0 atIndex:3];[encoder setBuffer:programs offset:0 atIndex:4];[encoder setBuffer:instructions offset:0 atIndex:5];
     [encoder setBuffer:params offset:0 atIndex:6];[encoder setBuffer:nodes offset:0 atIndex:7];[encoder setBuffer:tets offset:0 atIndex:8];[encoder setBuffer:state offset:0 atIndex:9];
     if(tangent){[encoder setBuffer:direction offset:0 atIndex:10];[encoder setBuffer:schedulers offset:0 atIndex:11];[encoder setBuffer:adaptive offset:0 atIndex:12];[encoder setBuffer:output offset:0 atIndex:13];[encoder setBuffer:status offset:0 atIndex:14];
         [encoder setBuffer:mixed offset:0 atIndex:16];[encoder setBuffer:fields offset:0 atIndex:17];[encoder setBuffer:learned offset:0 atIndex:18];[encoder setBuffer:layers offset:0 atIndex:19];[encoder setBuffer:weights offset:0 atIndex:20];
-        [encoder setBytes:&w.mixedSolver length:sizeof(w.mixedSolver) atIndex:21];[encoder setBuffer:solver offset:0 atIndex:22];}
+        [encoder setBytes:&w.mixedSolver length:sizeof(w.mixedSolver) atIndex:21];
+        [encoder setBuffer:solver offset:0 atIndex:22];
+        [encoder setBuffer:tangentCache offset:0 atIndex:23];
+        [encoder setBuffer:tangentCacheValid offset:0 atIndex:24];
+        const std::uint32_t useTangentCache=cached?1u:0u;
+        [encoder setBytes:&useTangentCache length:sizeof(useTangentCache) atIndex:25];}
     else{[encoder setBuffer:schedulers offset:0 atIndex:10];[encoder setBuffer:adaptive offset:0 atIndex:11];[encoder setBuffer:output offset:0 atIndex:12];[encoder setBuffer:status offset:0 atIndex:13];
         [encoder setBuffer:mixed offset:0 atIndex:14];[encoder setBuffer:fields offset:0 atIndex:15];[encoder setBuffer:learned offset:0 atIndex:16];[encoder setBuffer:layers offset:0 atIndex:17];[encoder setBuffer:weights offset:0 atIndex:18];}
     [encoder dispatchThreads:MTLSizeMake(count,1,1) threadsPerThreadgroup:MTLSizeMake(32,1,1)];[encoder endEncoding];[command commit];[command waitUntilCompleted];
     need(command.status==MTLCommandBufferStatusCompleted,"direct production FEM command failed");
     const auto* statuses=static_cast<const NMMatterStatusGPU*>(status.contents);for(unsigned e=0;e<2;++e)need(statuses[e].code==NM_STATUS_SUCCESS,"direct production FEM rejected state code="+std::to_string(statuses[e].code));
+    if(cached){
+        const auto* valid=static_cast<const std::uint32_t*>(tangentCacheValid.contents);
+        for(unsigned i=0;i<count;++i)need(valid[i]==1u,
+            "production tangent cache did not build an active tetrahedron entry index="+std::to_string(i));
+    }
     const auto* values=static_cast<const NMFEMElementVectorGPU*>(output.contents);return {values,values+count};
 }
 Matrix gradient(const CompiledWorld& w,const Inputs& v,unsigned e,unsigned ti,bool rate=false,bool direction=false){
@@ -120,6 +161,150 @@ std::array<Vec,4> forces(const NMTetrahedronGPU& t,const Matrix& p){
 }
 std::array<Vec,4> forces(const NMFEMElementVectorGPU& v){return {xyz(v.node0),xyz(v.node1),xyz(v.node2),xyz(v.node3)};}
 double difference(const std::vector<NMFEMElementVectorGPU>& a,const std::vector<NMFEMElementVectorGPU>& b){double error=0,scale=0;need(a.size()==b.size(),"element output arity");for(unsigned e=0;e<a.size();++e){const auto x=forces(a[e]),y=forces(b[e]);for(unsigned n=0;n<4;++n)for(unsigned i=0;i<3;++i){error=std::max(error,std::abs(x[n][i]-y[n][i]));scale=std::max(scale,std::abs(y[n][i]));}}return error/std::max(1e-10,scale);}
+struct ActionDifference { double maximumAbsolute=0.0; double maximumDirect=0.0; };
+ActionDifference actionDifference(const std::vector<NMFEMElementVectorGPU>& direct,
+                                  const std::vector<NMFEMElementVectorGPU>& cached){
+    need(direct.size()==cached.size(),"direct/cache element output arity");
+    ActionDifference result;
+    for(std::size_t element=0;element<direct.size();++element){
+        const auto a=forces(direct[element]),b=forces(cached[element]);
+        for(unsigned node=0;node<4;++node)for(unsigned axis=0;axis<3;++axis){
+            need(std::isfinite(a[node][axis])&&std::isfinite(b[node][axis]),
+                 "nonfinite direct/cache element action");
+            result.maximumAbsolute=std::max(result.maximumAbsolute,
+                std::abs(a[node][axis]-b[node][axis]));
+            result.maximumDirect=std::max(result.maximumDirect,
+                std::abs(a[node][axis]));
+        }
+    }
+    return result;
+}
+void randomizeWorldDirection(Inputs& input,const unsigned seed){
+    std::uint32_t state=seed==0u?0x6d2b79f5u:seed;
+    const auto sample=[&](){
+        state^=state<<13u;state^=state>>17u;state^=state<<5u;
+        const double unit=double(state>>8u)/16777216.0;
+        return static_cast<float>((2.0*unit-1.0)*0.002);
+    };
+    for(auto& value:input.direction)value={sample(),sample(),sample(),0.0f};
+}
+void affineBasisWorldDirection(Inputs& input,const CompiledWorld& world,
+                               const unsigned row,const unsigned column){
+    need(row<3u&&column<3u,"affine material tangent basis index");
+    std::fill(input.direction.begin(),input.direction.end(),nm_float4{});
+    const unsigned nodesPerEnvironment=world.dispatch.femNodeCount;
+    for(unsigned environment=0;environment<world.dispatch.environmentCount;
+        ++environment){
+        const unsigned base=environment*nodesPerEnvironment;
+        for(unsigned node=0;node<nodesPerEnvironment;++node){
+            const auto& reference=world.fem.nodes[node].positionAndMass;
+            const float component=column==0u?reference.x:
+                column==1u?reference.y:reference.z;
+            auto& direction=input.direction[base+node];
+            if(row==0u)direction.x=component;
+            else if(row==1u)direction.y=component;
+            else direction.z=component;
+        }
+    }
+}
+void checkCachedOperatorActions(Device& device,const CompiledWorld& world,
+                                const Inputs& base,const char* stateName){
+    double maximumRelative=0.0,maximumAbsolute=0.0,maximumDirect=0.0;
+    constexpr unsigned basisSamples=9u;
+    constexpr unsigned randomSamples=6u;
+    for(unsigned sample=0;sample<basisSamples+randomSamples;++sample){
+        Inputs input=base;
+        if(sample<basisSamples){
+            affineBasisWorldDirection(input,world,sample/3u,sample%3u);
+        }else{
+            randomizeWorldDirection(input,
+                0x9e3779b9u+0x85ebca6bu*(sample-basisSamples));
+        }
+        const auto direct=dispatch(device,world,input,true,false);
+        const auto cached=dispatch(device,world,input,true,true);
+        const ActionDifference error=actionDifference(direct,cached);
+        maximumAbsolute=std::max(maximumAbsolute,error.maximumAbsolute);
+        maximumDirect=std::max(maximumDirect,error.maximumDirect);
+        maximumRelative=std::max(maximumRelative,difference(direct,cached));
+    }
+    const double absoluteBound=1.0e-6+1.0e-3*maximumDirect;
+    std::cout<<std::setprecision(12)
+        <<"{\"schema\":1,\"record\":\"native_algorithmic_tangent_cache_action_parity\""
+        <<",\"physical_validation\":false,\"material_state\":\""<<stateName<<"\""
+        <<",\"material_frames\":\"rotated per tetrahedron\""
+        <<",\"affine_deformation_basis_actions\":"<<basisSamples
+        <<",\"fixed_seed_random_world_direction_samples\":"<<randomSamples
+        <<",\"maximum_relative_element_force_error\":"<<maximumRelative
+        <<",\"maximum_absolute_element_force_error_N\":"<<maximumAbsolute
+        <<",\"maximum_direct_element_force_N\":"<<maximumDirect
+        <<",\"absolute_bound_N\":"<<absoluteBound
+        <<",\"pass\":"<<(maximumAbsolute<=absoluteBound?"true":"false")<<"}\n";
+    need(maximumAbsolute<=absoluteBound,
+         std::string("native cached tangent action differs from direct production action for ")+stateName);
+}
+Inputs acceptedInputs(const RuntimeStateSnapshot& snapshot){
+    Inputs input;
+    input.nodes=snapshot.femNodes;
+    input.fields=snapshot.femFields;
+    input.state=snapshot.femMaterialState;
+    const std::size_t environments=snapshot.statuses.size();
+    need(environments==2u&&input.nodes.size()%environments==0u,
+         "accepted snapshot environment/node count is inconsistent");
+    input.direction.resize(input.nodes.size()*2u);
+    need(input.nodes.size()>0u,
+         "accepted snapshot FEM node count is inconsistent");
+    need(input.fields.size()==input.nodes.size(),
+         "accepted snapshot FEM field count is inconsistent");
+    return input;
+}
+std::uint32_t materialStateIndex(const MaterialProgram& material,
+                                const char* name){
+    for(std::uint32_t index=0;index<material.internalState.size();++index)
+        if(material.internalState[index].name==name)return index;
+    throw std::runtime_error(std::string("missing source state ")+name);
+}
+double maximumMaterialHistory(const RuntimeStateSnapshot& snapshot,
+                              const std::uint32_t stateIndex){
+    need(snapshot.materialStateStride>stateIndex,
+         "accepted material snapshot lacks requested history");
+    const std::size_t environments=snapshot.statuses.size();
+    need(environments==2u&&snapshot.femTopologyTetrahedra.size()%environments==0u,
+         "accepted snapshot environment/tetrahedron count is inconsistent");
+    const std::size_t expected=snapshot.femTopologyTetrahedra.size()*
+        snapshot.materialStateStride;
+    need(snapshot.femMaterialState.size()==expected,
+         "accepted material snapshot state arity is inconsistent");
+    double maximum=-std::numeric_limits<double>::infinity();
+    for(std::size_t cell=0;cell<snapshot.femTopologyTetrahedra.size();++cell){
+        const float value=snapshot.femMaterialState[
+            cell*snapshot.materialStateStride+stateIndex];
+        need(std::isfinite(value),"accepted plastic history is nonfinite");
+        maximum=std::max(maximum,double(value));
+    }
+    return maximum;
+}
+std::vector<nm_float4> paperShearTargets(
+    const RuntimeStateSnapshot& reference,const float displacement){
+    std::vector<nm_float4> targets(reference.femNodes.size());
+    const std::size_t environments=reference.statuses.size();
+    need(environments==2u&&reference.femNodes.size()%environments==0u,
+         "bilinear-paper fixture environment count changed");
+    const std::size_t nodesPerEnvironment=reference.femNodes.size()/environments;
+    need(nodesPerEnvironment>=5u,
+         "bilinear-paper fixture topology changed");
+    for(std::uint32_t environment=0;environment<environments;
+        ++environment){
+        const std::size_t base=std::size_t(environment)*nodesPerEnvironment;
+        for(const auto& [node,sign]:
+                {std::pair<std::uint32_t,float>{3u,1.0f},
+                 std::pair<std::uint32_t,float>{4u,-1.0f}}){
+            const auto& position=reference.femNodes[base+node].positionAndMass;
+            targets[base+node]={position.x+sign*displacement,position.y,
+                                position.z,3.0f};
+        }
+    }
+    return targets;
+}
 using Oracle=std::function<ref::Result(const Matrix&,const Matrix&,const Matrix&,const Matrix&)>;
 double compare(const CompiledWorld& w,const Inputs& v,const std::vector<NMFEMElementVectorGPU>& actual,bool tangent,const Oracle& oracle){
     double error=0,scale=0;
@@ -200,6 +385,7 @@ void directChecks(Device& d,const MaterialProgram& guccione){
     const double forceError=compare(w,v,force,false,passive),tangentError=compare(w,v,tangent,true,passive),fd=finiteDifference(d,w,v,tangent);
     need(forceError<3e-4&&tangentError<3e-4,"source Guccione production frame oracle mismatch force="+number(forceError)+" tangent="+number(tangentError));
     need(fd<3e-3,"production frame tangent differs from force FD: "+number(fd));
+    checkCachedOperatorActions(d,w,v,"rotated-anisotropic-elastic");
     auto identitySource=s;for(auto& q:identitySource.objects[0].femMaterialFrameRotations)q={0,0,0,1};
     const auto wi=cook(identitySource),wl=cook(source(guccione,false));
     const auto identityForce=dispatch(d,wi,v,false),legacyForce=dispatch(d,wl,v,false);
@@ -223,6 +409,7 @@ void directChecks(Device& d,const MaterialProgram& guccione){
     const auto rf=dispatch(d,wr,vr,false),rt=dispatch(d,wr,vr,true);
     const double rfe=compare(wr,vr,rf,false,rate),rte=compare(wr,vr,rt,true,rate),rfd=finiteDifference(d,wr,vr,rt);
     need(rfe<3e-4&&rte<3e-3&&rfd<4e-3,"synthetic state/rate frame path mismatch force="+number(rfe)+" tangent="+number(rte)+" fd="+number(rfd));
+    checkCachedOperatorActions(d,wr,vr,"rotated-state-rate");
 
     auto activeMaterial=guccione;activeMaterial.mixed.maximumActiveTension=12000;
     const auto wa=cook(source(activeMaterial,true,true));auto va=manufactured(wa);const unsigned count=2*wa.dispatch.femNodeCount;
@@ -254,19 +441,107 @@ struct Run {
         const auto initialized=runtime.initialize(world,c);need(initialized.encoded,initialized.message);statuses=buffer(device.device,std::vector<MRMetalWorldStatusGPU>(2));}
     RuntimeStateSnapshot state(){auto s=runtime.snapshot();need(s.available,s.message);return s;}
     void restore(const RuntimeStateSnapshot& s){const auto r=runtime.restore(s);need(r.encoded,r.message);}
-    void step(unsigned index,int reject=-1,int reset=-1){
+    void step(unsigned index,int reject=-1,int reset=-1,
+              const std::vector<nm_float4>& femTargets={}){
         auto* incoming=static_cast<MRMetalWorldStatusGPU*>(statuses.contents);for(unsigned e=0;e<2;++e){incoming[e]={};incoming[e].environment=e;}
         auto command=[device.queue commandBuffer];EncodeRequest request;request.commandBuffer=(__bridge void*)command;request.environmentStatuses=(__bridge void*)statuses;
         request.controlStep=index;request.physicsSubsteps=1;request.timestepSeconds=runtime.timestepSeconds();request.runAdaptiveTransfer=false;
-        id<MTLBuffer> resets=nil,failure=nil;
+        id<MTLBuffer> resets=nil,failure=nil,targets=nil;
+        if(!femTargets.empty()){
+            const std::size_t expected=std::size_t(world.dispatch.environmentCount)*
+                world.dispatch.femNodeCount;
+            need(femTargets.size()==expected,"frame test FEM target arity");
+            targets=buffer(device.device,femTargets);
+            request.femKinematicTargets=(__bridge void*)targets;
+            request.femKinematicTargetCount=static_cast<std::uint32_t>(femTargets.size());
+        }
         if(reset>=0){std::vector<unsigned> mask((index+1)*2);mask[index*2+unsigned(reset)]=1;resets=buffer(device.device,mask);request.resetMasks=(__bridge void*)resets;request.resetMaskStepStride=2;}
         request.phase=EncodePhase::preDynamics;auto result=runtime.encode(request);need(result.encoded,result.message);
         if(reject>=0){MRMetalWorldStatusGPU bad{};bad.environment=unsigned(reject);bad.code=MR_STEP_DID_NOT_CONVERGE;failure=buffer(device.device,std::vector<MRMetalWorldStatusGPU>{bad});auto blit=[command blitCommandEncoder];[blit copyFromBuffer:failure sourceOffset:0 toBuffer:statuses destinationOffset:unsigned(reject)*sizeof(bad) size:sizeof(bad)];[blit endEncoding];}
         request.phase=EncodePhase::postCommit;result=runtime.encode(request);need(result.encoded,result.message);[command commit];[command waitUntilCompleted];need(command.status==MTLCommandBufferStatusCompleted,"integrated frame command failed");
         const auto after=state();for(unsigned e=0;e<2;++e)if(int(e)!=reject)need(after.statuses[e].code==NM_STATUS_SUCCESS,"integrated frame step="+std::to_string(index)+" env="+std::to_string(e)+" status="+std::to_string(after.statuses[e].code)+" residual="+number(after.statuses[e].diagnostics.z));
-        if(reject>=0)need(after.statuses[unsigned(reject)].code!=NM_STATUS_SUCCESS,"injected frame rejection lost");(void)resets;(void)failure;
+        if(reject>=0)need(after.statuses[unsigned(reject)].code!=NM_STATUS_SUCCESS,"injected frame rejection lost");(void)resets;(void)failure;(void)targets;
     }
 };
+void checkAcceptedPlasticCacheActions(Device& device,
+                                     MaterialProgram paperMaterial){
+    // This source-derived 15-state bilinear-tension-fit program is used here
+    // as a native evaluator fixture. Geometry, imposed displacement, and
+    // accepted path remain synthetic and do not calibrate a corrugated board.
+    paperMaterial.genericCompensatedImplicitProjection=true;
+    WorldSource authored=source(paperMaterial,true,false);
+    authored.objects.front().femInitialVelocity={0.0,0.0,0.0};
+    authored.mixedSolver.cacheFEMAlgorithmicTangent=true;
+    const CompiledWorld world=cook(authored);
+    need(world.dispatch.environmentCount==2u&&
+         world.dispatch.tetrahedronCount==2u&&
+         world.dispatch.materialStateStride>=paperMaterial.internalState.size(),
+         "source-derived bilinear paper fixture compiled with an unexpected layout");
+
+    Run run(device,authored);
+    const auto plasticIndex=materialStateIndex(paperMaterial,
+                                               "accumulated_multiplier");
+    run.step(0u);
+    const RuntimeStateSnapshot elastic=run.state();
+    need(elastic.solverCertificates.size()==2u,
+         "elastic bilinear paper snapshot lacks certificates");
+    for(const auto& cert:elastic.solverCertificates)
+        need(cert.validity.w>0.5f,
+             "elastic bilinear paper state is not solver-certified");
+    checkCachedOperatorActions(device,world,acceptedInputs(elastic),
+                               "accepted-elastic-initial");
+    const auto loadTargets=paperShearTargets(elastic,5.0e-6f);
+    run.step(1u,-1,-1,loadTargets);
+    const RuntimeStateSnapshot loaded=run.state();
+    need(loaded.solverCertificates.size()==2u,
+         "loaded bilinear paper snapshot lacks certificates");
+    for(const auto& cert:loaded.solverCertificates)
+        need(cert.validity.w>0.5f,
+             "loaded bilinear paper state is not solver-certified");
+    const double loadedPlastic=maximumMaterialHistory(loaded,plasticIndex);
+    need(loadedPlastic>1.0e-9,
+         "accepted bilinear-paper load did not activate plastic history");
+    const Inputs loadedInputs=acceptedInputs(loaded);
+    checkCachedOperatorActions(device,world,loadedInputs,
+                               "accepted-plastic-after-load");
+
+    // Return both temporarily gripped nodes to their original x positions.
+    // Stress-like states unload, while the accepted multiplier remains
+    // irreversible; this is a distinct accepted history, not a trial state.
+    const auto unloadTargets=paperShearTargets(elastic,0.0f);
+    run.step(2u,-1,-1,unloadTargets);
+    const RuntimeStateSnapshot unloaded=run.state();
+    need(unloaded.solverCertificates.size()==2u,
+         "unloaded bilinear paper snapshot lacks certificates");
+    for(const auto& cert:unloaded.solverCertificates)
+        need(cert.validity.w>0.5f,
+             "unloaded bilinear paper state is not solver-certified");
+    const double unloadedPlastic=maximumMaterialHistory(unloaded,plasticIndex);
+    need(unloadedPlastic+2.0e-7>=loadedPlastic,
+         "accepted plastic multiplier decreased during unloading");
+    const Inputs unloadedInputs=acceptedInputs(unloaded);
+    checkCachedOperatorActions(device,world,unloadedInputs,
+                               "accepted-plastic-after-unload");
+    double maximumHistoryChange=0.0;
+    need(loaded.femMaterialState.size()==unloaded.femMaterialState.size(),
+         "load/unload material history arity changed");
+    for(std::size_t index=0;index<loaded.femMaterialState.size();++index)
+        maximumHistoryChange=std::max(maximumHistoryChange,
+            std::abs(double(unloaded.femMaterialState[index])-
+                     double(loaded.femMaterialState[index])));
+    need(maximumHistoryChange>1.0e-7,
+         "accepted unload did not produce a distinct constitutive state");
+    std::cout<<std::setprecision(12)
+        <<"{\"schema\":1,\"record\":\"accepted_bilinear_paper_plastic_history\""
+        <<",\"source_material\":\""<<paperMaterial.name<<"\""
+        <<",\"state_count\":"<<paperMaterial.internalState.size()
+        <<",\"material_frames\":\"rotated per tetrahedron\""
+        <<",\"loading_accepted\":true,\"unloading_accepted\":true"
+        <<",\"maximum_loaded_plastic_multiplier\":"<<loadedPlastic
+        <<",\"maximum_unloaded_plastic_multiplier\":"<<unloadedPlastic
+        <<",\"maximum_load_to_unload_state_difference\":"<<maximumHistoryChange
+        <<",\"physical_validation\":false}\n";
+}
 bool physicalSame(const RuntimeStateSnapshot& a,const RuntimeStateSnapshot& b){return same(a.femNodes,b.femNodes)&&same(a.femFields,b.femFields)&&same(a.femMaterialState,b.femMaterialState)&&same(a.femTopologyTetrahedra,b.femTopologyTetrahedra);}
 void integratedChecks(Device& d,const MaterialProgram& material){
     Run run(d,source(material));const auto initial=run.state();RuntimeStateSnapshot one;constexpr unsigned steps=16;
@@ -300,7 +575,13 @@ void integratedChecks(Device& d,const MaterialProgram& material){
 
 int main(int argc,char** argv){@autoreleasepool{try{
     need(argc==2,"usage: fem-material-frame-check GUCCIONE.nmatter");auto parsed=parseMatterFile(argv[1]);need(parsed.succeeded(),diagnostic(parsed.diagnostics));set(parsed.material,"density",1000); // synthetic only
+    const auto paperPath=std::filesystem::path(argv[1]).parent_path()/
+        "hajali2009_liner_hill_bilinear_fit.nmatter";
+    auto paper=parseMatterFile(paperPath.string());
+    need(paper.succeeded(),"source-derived bilinear paper material parse failed: "+
+         diagnostic(paper.diagnostics));
     Device device;std::cout<<std::setprecision(17)<<"frame_device="<<[device.device name].UTF8String<<" abi="<<NM_MATTER_ABI_VERSION<<'\n';
     directChecks(device,parsed.material);learnedFrameChecks(device);integratedChecks(device,parsed.material);
+    checkAcceptedPlasticCacheActions(device,paper.material);
     std::cout<<"fem_material_frame_check=pass anatomical_wall_qualified=false source_density_supplied=false active_cardiac_source_reproduced=false\n";return 0;
 }catch(const std::exception& error){std::cerr<<"fem material frame check failed: "<<error.what()<<'\n';return 1;}}}

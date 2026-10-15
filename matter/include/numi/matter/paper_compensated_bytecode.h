@@ -39,6 +39,60 @@ inline MRCompensatedScalar nmPaperStateWords(NMPaperCandidateState state,unsigne
     return {state.high[index],state.low ? state.low[index] : 0.0f};
 }
 
+// Two-word pivoted elimination for the local implicit tangent solve. It keeps
+// the same pivot floor and equations as solveLocalMaterialSystem; only the
+// arithmetic precision of the compensated-material path changes.
+inline bool nmPaperSolveCompensatedSystem(
+    NM_PAPER_THREAD MRCompensatedScalar* matrix,
+    NM_PAPER_THREAD MRCompensatedScalar* rightHandSide,
+    const unsigned count) {
+    if (count==0u||count>NM_MAX_MATERIAL_STATE) return false;
+    for (unsigned column=0u;column<count;++column) {
+        unsigned pivot=column;
+        auto diagonal=matrix[column*count+column];
+        float pivotMagnitude=abs(diagonal.high+diagonal.low);
+        for (unsigned row=column+1u;row<count;++row) {
+            const auto value=matrix[row*count+column];
+            const float magnitude=abs(value.high+value.low);
+            if (magnitude>pivotMagnitude) { pivot=row; pivotMagnitude=magnitude; }
+        }
+        if (!(pivotMagnitude>1.0e-8f)||!mrCompensatedFinite(pivotMagnitude)) return false;
+        if (pivot!=column) {
+            for (unsigned entry=column;entry<count;++entry) {
+                const auto value=matrix[column*count+entry];
+                matrix[column*count+entry]=matrix[pivot*count+entry];
+                matrix[pivot*count+entry]=value;
+            }
+            const auto value=rightHandSide[column];
+            rightHandSide[column]=rightHandSide[pivot];
+            rightHandSide[pivot]=value;
+        }
+        diagonal=matrix[column*count+column];
+        for (unsigned row=column+1u;row<count;++row) {
+            const auto factor=mrCompensatedDivide(matrix[row*count+column],diagonal);
+            matrix[row*count+column]={0.0f,0.0f};
+            for (unsigned entry=column+1u;entry<count;++entry) {
+                matrix[row*count+entry]=mrCompensatedAdd(matrix[row*count+entry],
+                    mrCompensatedNegate(mrCompensatedMultiply(
+                        factor,matrix[column*count+entry])));
+            }
+            rightHandSide[row]=mrCompensatedAdd(rightHandSide[row],
+                mrCompensatedNegate(mrCompensatedMultiply(factor,rightHandSide[column])));
+        }
+    }
+    for (int row=int(count)-1;row>=0;--row) {
+        MRCompensatedScalar value=rightHandSide[unsigned(row)];
+        for (unsigned column=unsigned(row)+1u;column<count;++column)
+            value=mrCompensatedAdd(value,mrCompensatedNegate(mrCompensatedMultiply(
+                matrix[unsigned(row)*count+column],rightHandSide[column])));
+        rightHandSide[unsigned(row)]=mrCompensatedDivide(
+            value,matrix[unsigned(row)*count+unsigned(row)]);
+        if (!mrCompensatedFinite(rightHandSide[unsigned(row)].high)||
+            !mrCompensatedFinite(rightHandSide[unsigned(row)].low)) return false;
+    }
+    return true;
+}
+
 // Range-reduced log with two-word arithmetic. The positive argument and
 // authored domain remain unchanged. The atanh series has |y|<=1/3 after
 // reduction. Twelve terms bound truncation below two-word rounding after
@@ -148,7 +202,9 @@ inline float nmPaperCompensatedBytecode(
     NM_PAPER_THREAD const float* f,NM_PAPER_THREAD const float* direction,
     NM_PAPER_THREAD const float* rate,float timestep,float temperature,
     NM_PAPER_THREAD bool& valid,NM_PAPER_THREAD bool* nonfinite=nullptr,
-    NM_PAPER_THREAD const float* fLow=nullptr) {
+    NM_PAPER_THREAD const float* fLow=nullptr,
+    NM_PAPER_THREAD MRCompensatedScalar* resultWords=nullptr) {
+    if (resultWords) *resultWords={0.0f,0.0f};
     if(program.maximumStack>NM_EXPRESSION_STACK_CAPACITY ||
        !(timestep>=0.0f)||!mrCompensatedFinite(timestep)||!mrCompensatedFinite(temperature)) {
         valid=false;return 0.0f;
@@ -248,6 +304,7 @@ inline float nmPaperCompensatedBytecode(
     if(depth!=1u) {valid=false;return 0.0f;}
     const float result=stack[0].high+stack[0].low;
     if(!mrCompensatedFinite(result)) {valid=false;if(nonfinite)*nonfinite=true;return 0.0f;}
+    if (resultWords) *resultWords=stack[0];
     return result;
 }
 #undef NM_PAPER_DEVICE

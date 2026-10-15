@@ -241,6 +241,7 @@ std::vector<NMFEMElementVectorGPU> dispatch(Device& device,const CompiledWorld& 
     auto solver=buffer(device.device,std::vector<NMFGMRESStateGPU>(1));
     auto statuses=buffer(device.device,std::vector<NMMatterStatusGPU>(1));
     auto output=buffer(device.device,std::vector<NMFEMElementVectorGPU>(1));
+    auto tangentCacheDummy=buffer(device.device,std::vector<std::uint32_t>(1));
     id<MTLCommandBuffer> command=[device.queue commandBuffer];
     id<MTLComputeCommandEncoder> encoder=[command computeCommandEncoder];
     [encoder setComputePipelineState:tangent?device.op:device.force];
@@ -258,6 +259,10 @@ std::vector<NMFEMElementVectorGPU> dispatch(Device& device,const CompiledWorld& 
         [encoder setBuffer:layers offset:0 atIndex:19];[encoder setBuffer:weights offset:0 atIndex:20];
         [encoder setBytes:&world.mixedSolver length:sizeof(world.mixedSolver) atIndex:21];
         [encoder setBuffer:solver offset:0 atIndex:22];
+        [encoder setBuffer:tangentCacheDummy offset:0 atIndex:23];
+        [encoder setBuffer:tangentCacheDummy offset:0 atIndex:24];
+        const std::uint32_t useCache=0u;
+        [encoder setBytes:&useCache length:sizeof(useCache) atIndex:25];
     } else {
         [encoder setBuffer:schedulers offset:0 atIndex:10];[encoder setBuffer:adaptive offset:0 atIndex:11];
         [encoder setBuffer:output offset:0 atIndex:12];[encoder setBuffer:statuses offset:0 atIndex:13];

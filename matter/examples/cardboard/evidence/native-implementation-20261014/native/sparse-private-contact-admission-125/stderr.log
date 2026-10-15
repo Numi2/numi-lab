@@ -1,0 +1,1 @@
+FAIL full-contact residual Armijo fixture: sparse runtime admission did not reject as expected: capacity must be positive; got: NM_FEM_FULL_CONTACT_SPARSE_PRIVATE_CAPACITY must be positive

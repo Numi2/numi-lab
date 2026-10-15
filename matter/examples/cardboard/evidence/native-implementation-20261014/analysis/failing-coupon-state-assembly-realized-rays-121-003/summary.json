@@ -1,0 +1,851 @@
+{
+  "schema": "numi.cardboard.solver-assembly-audit.v1",
+  "binding": {
+    "capture_sha256": "2941086227d123ccc354cc073b76758a04c60e403e94f2a8cd838b629376bcc2",
+    "pair_summary_sha256": "66cb5d7cbe806b656da7715296a7eebe4f263d6b2f69d5335da91584763bca4a",
+    "replay_output_sha256": "21c689e46fb002dd7b4552b113f6a2e491fe6a318ee991095deee867f95b83ee",
+    "analyzer_sha256": "36e51ee9ab6515409e1424943c8cc5d6cf46744e153daf4dfcdc0a81fb821b79",
+    "normalization_source_sha256": "8d247bdceeb1d06fd28f0e40fa90028d0b2faa7a149ea6a30140a2507dd01a5b",
+    "pair_analyzer_source_sha256": "8c160f378d241796c1018dc12597d2212ce569a704f20a3537da402caebfd674",
+    "realized_ray_replay_binding": {
+      "command": [
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-049/matter/numi-matter-cardboard-solver-pair-replay",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-curves-and-trial-instruments-integrated-049/matter/materials/hajali2009_liner_hill_ideal.nmatter",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-curves-and-trial-instruments-integrated-049/matter/materials/hajali2009_medium_hill_ideal.nmatter"
+      ],
+      "returncode": 0,
+      "row_count": 13824,
+      "executable_sha256": "94595428094e664fa26560c5b90af9471b4f4c5c2182ddc3ac6900068d83a59d",
+      "liner_sha256": "787bf121f4ce359235e28691892e9d77adffde05faf10f2a90593d9f4b32398d",
+      "medium_sha256": "ecfd9de3f4550a6a269d7a6559781b16e15316cf3d587093f2e11a2e6942a8e8",
+      "input_sha256": "5dab969bc1a905ad2e59ffad7e3616b50dc41f8888842057775430a1ad7e1d25",
+      "output_sha256": "a1536bc1cd12b154bd259fbbce78ebeb90772868b8e0e9bf106ced23ce0903b3",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "complete_valid_source_replay"
+    }
+  },
+  "scope": "captured bulk-plus-mass operator and element-frame transformations; full nonlinear contact operator not qualified",
+  "run_completion": {
+    "receipt_timed_out": false,
+    "receipt_exit_code": 2,
+    "full_history_complete": false,
+    "scope_note": "a complete selected Newton capture may be analyzed after timeout; timeout does not establish full-history completion"
+  },
+  "layer_maxima": {
+    "stress_frame": {
+      "max_relative_error": 1.2459330456032167e-07,
+      "environment": 0,
+      "tet_id": 902
+    },
+    "tangent_frame": {
+      "max_relative_error": 1.1666347113676241e-07,
+      "environment": 0,
+      "tet_id": 869
+    },
+    "element_force": {
+      "max_relative_error": 5.412247755845779e-07,
+      "environment": 0,
+      "tet_id": 1739
+    },
+    "element_tangent": {
+      "max_relative_error": 4.6739860814993145e-07,
+      "environment": 0,
+      "tet_id": 772
+    }
+  },
+  "environments": [
+    {
+      "environment": 0,
+      "free_nodes": 846,
+      "production_gather": {
+        "absolute_error": 5.799512881380069e-12,
+        "reference_scale": 3.850679274967829e-05,
+        "relative_error": 1.5061012531168343e-07,
+        "nonzero_reference": true,
+        "verdict": "descriptive_only_no_measured_noise_floor"
+      },
+      "captured_candidate_FP64_assembled_action": {
+        "absolute_error": 6.068114215181932e-11,
+        "reference_scale": 3.850679242733313e-05,
+        "relative_error": 1.5758555394176707e-06,
+        "nonzero_reference": true,
+        "verdict": "descriptive_only_no_measured_noise_floor"
+      },
+      "reprojected_FP64_assembled_action": {
+        "absolute_error": 2.611362757840496e-10,
+        "reference_scale": 3.850679242737558e-05,
+        "relative_error": 6.781563961125994e-06,
+        "nonzero_reference": true,
+        "verdict": "descriptive_only_no_measured_noise_floor"
+      },
+      "mass_action_l2_Ns": 1.6613805702623629e-07,
+      "captured_stiffness_action_l2_Ns": 9.2728620651418e-05,
+      "production_action_l2_Ns": 9.274632110050751e-05,
+      "inferred_frozen_external_impulse_l2_Ns": 2.852726065350011e-11,
+      "external_source_independently_validated": false,
+      "strict_gate": "inconclusive_no_measured_noise_floor",
+      "perturbations": [
+        {
+          "epsilon": 0.00048828125,
+          "side": "plus",
+          "residual_gather": {
+            "absolute_error": 1.589129728076454e-11,
+            "reference_scale": 3.852274022999647e-05,
+            "relative_error": 4.125173127842676e-07,
+            "nonzero_reference": true,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "realized_delta_v": {
+            "absolute_error": 1.1350493878126144e-09,
+            "reference_scale": 5.6069624406518415e-05,
+            "relative_error": 2.024357037927043e-05,
+            "nonzero_reference": true,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "realized_u_velocity_relation": {
+            "absolute_error": 3.885227778605352e-13,
+            "reference_scale": 5.606934286571949e-09,
+            "relative_error": 6.929326401969943e-05,
+            "nonzero_reference": true,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          }
+        },
+        {
+          "epsilon": 0.00048828125,
+          "side": "minus",
+          "residual_gather": {
+            "absolute_error": 1.141998213070255e-11,
+            "reference_scale": 3.856047476104487e-05,
+            "relative_error": 2.961577159376526e-07,
+            "nonzero_reference": true,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "realized_delta_v": {
+            "absolute_error": 1.1350493878126144e-09,
+            "reference_scale": 5.6069624406518415e-05,
+            "relative_error": 2.024357037927043e-05,
+            "nonzero_reference": true,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "realized_u_velocity_relation": {
+            "absolute_error": 3.892638029403747e-13,
+            "reference_scale": 5.606934286571949e-09,
+            "relative_error": 6.942542627485806e-05,
+            "nonzero_reference": true,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          }
+        },
+        {
+          "epsilon": 0.000244140625,
+          "side": "plus",
+          "residual_gather": {
+            "absolute_error": 2.2289627706962014e-11,
+            "reference_scale": 3.853222096955778e-05,
+            "relative_error": 5.784672449732872e-07,
+            "nonzero_reference": true,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "realized_delta_v": {
+            "absolute_error": 1.722582965157926e-09,
+            "reference_scale": 2.8034812203259207e-05,
+            "relative_error": 6.144442676015735e-05,
+            "nonzero_reference": true,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "realized_u_velocity_relation": {
+            "absolute_error": 4.060691670068617e-13,
+            "reference_scale": 2.8036534077961923e-09,
+            "relative_error": 0.0001448357225175175,
+            "nonzero_reference": true,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          }
+        },
+        {
+          "epsilon": 0.000244140625,
+          "side": "minus",
+          "residual_gather": {
+            "absolute_error": 1.3099511826623216e-11,
+            "reference_scale": 3.855086891345997e-05,
+            "relative_error": 3.3979809523954837e-07,
+            "nonzero_reference": true,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "realized_delta_v": {
+            "absolute_error": 1.722582965157926e-09,
+            "reference_scale": 2.8034812203259207e-05,
+            "relative_error": 6.144442676015735e-05,
+            "nonzero_reference": true,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "realized_u_velocity_relation": {
+            "absolute_error": 4.0454006247289676e-13,
+            "reference_scale": 2.8036534077961923e-09,
+            "relative_error": 0.0001442903253832951,
+            "nonzero_reference": true,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          }
+        }
+      ],
+      "centered_actions": [
+        {
+          "epsilon": 0.00048828125,
+          "comparison": {
+            "absolute_error": 1.3042531463725027e-06,
+            "reference_scale": 3.8642436265945435e-05,
+            "relative_error": 0.033751835350037354,
+            "nonzero_reference": true,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "branch_crossing_tetrahedra": 0,
+          "near_yield_tetrahedra": 0,
+          "smooth_branch_eligible": true,
+          "strict_gate": "inconclusive_no_measured_noise_floor"
+        },
+        {
+          "epsilon": 0.000244140625,
+          "comparison": {
+            "absolute_error": 2.9296197681105696e-06,
+            "reference_scale": 3.8154423236846924e-05,
+            "relative_error": 0.07678322772499267,
+            "nonzero_reference": true,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "branch_crossing_tetrahedra": 0,
+          "near_yield_tetrahedra": 0,
+          "smooth_branch_eligible": true,
+          "strict_gate": "inconclusive_no_measured_noise_floor"
+        }
+      ],
+      "one_sided_actions": [
+        {
+          "epsilon": 0.00048828125,
+          "side": "plus",
+          "comparison": {
+            "absolute_error": 2.3021214019536274e-06,
+            "reference_scale": 3.813207149505615e-05,
+            "relative_error": 0.060372314214613254,
+            "nonzero_reference": true,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "branch_crossing_tetrahedra": 0,
+          "near_yield_tetrahedra": 0,
+          "smooth_branch_eligible": true,
+          "strict_gate": "inconclusive_no_measured_noise_floor"
+        },
+        {
+          "epsilon": 0.00048828125,
+          "side": "minus",
+          "comparison": {
+            "absolute_error": 2.5207491489709355e-06,
+            "reference_scale": 3.915280103683472e-05,
+            "relative_error": 0.0643823451251784,
+            "nonzero_reference": true,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "branch_crossing_tetrahedra": 0,
+          "near_yield_tetrahedra": 0,
+          "smooth_branch_eligible": true,
+          "strict_gate": "inconclusive_no_measured_noise_floor"
+        },
+        {
+          "epsilon": 0.000244140625,
+          "side": "plus",
+          "comparison": {
+            "absolute_error": 3.909544830094092e-06,
+            "reference_scale": 3.740191459655762e-05,
+            "relative_error": 0.10452793318911853,
+            "nonzero_reference": true,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "branch_crossing_tetrahedra": 0,
+          "near_yield_tetrahedra": 0,
+          "smooth_branch_eligible": true,
+          "strict_gate": "inconclusive_no_measured_noise_floor"
+        },
+        {
+          "epsilon": 0.000244140625,
+          "side": "minus",
+          "comparison": {
+            "absolute_error": 3.6837218431173824e-06,
+            "reference_scale": 3.890693187713623e-05,
+            "relative_error": 0.09468034782979462,
+            "nonzero_reference": true,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "branch_crossing_tetrahedra": 0,
+          "near_yield_tetrahedra": 0,
+          "smooth_branch_eligible": true,
+          "strict_gate": "inconclusive_no_measured_noise_floor"
+        }
+      ],
+      "realized_ray_decomposition": [
+        {
+          "epsilon": 0.00048828125,
+          "actual_ray_status": "measured",
+          "mass_action_actual_l2_Ns": 1.6613765079596533e-07,
+          "mass_action_intended_l2_Ns": 1.6613805702623629e-07,
+          "native_stiffness_action_intended_l2_Ns": 9.272861426591211e-05,
+          "source_stiffness_action_actual_l2_Ns": 9.276224051278179e-05,
+          "source_stiffness_action_realized_velocity_l2_Ns": 9.302521395184112e-05,
+          "source_stiffness_action_intended_l2_Ns": 9.272880974855525e-05,
+          "native_operator_vs_source_intended_tangent": {
+            "absolute_error": 2.611362757840496e-10,
+            "reference_scale": 3.850679242737558e-05,
+            "relative_error": 6.781563961125994e-06,
+            "nonzero_reference": true,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "native_residual_FD_vs_native_stress_FD": {
+            "absolute_error": 1.4798323051744612e-08,
+            "reference_scale": 3.8640159793565596e-05,
+            "relative_error": 0.0003829777912618479,
+            "nonzero_reference": true,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "native_stress_FD_vs_source_stress_FD": {
+            "absolute_error": 9.290764363130665e-09,
+            "reference_scale": 3.8642609281042746e-05,
+            "relative_error": 0.00024042797668139142,
+            "nonzero_reference": true,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "source_stress_FD_vs_source_actual_tangent": {
+            "absolute_error": 5.097667015341745e-10,
+            "reference_scale": 3.864260378002751e-05,
+            "relative_error": 1.3191831079396577e-05,
+            "nonzero_reference": true,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "source_actual_vs_intended_tangent_action": {
+            "absolute_error": 1.304121680587166e-06,
+            "reference_scale": 3.850679242737558e-05,
+            "relative_error": 0.033867315306689336,
+            "nonzero_reference": true,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "source_realized_velocity_vs_intended_tangent_action": {
+            "absolute_error": 9.530545239319147e-07,
+            "reference_scale": 3.850679242737558e-05,
+            "relative_error": 0.024750296346531343,
+            "nonzero_reference": true,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "source_F_ray_vs_velocity_ray_tangent_action": {
+            "absolute_error": 1.6956274445953857e-06,
+            "reference_scale": 3.861524520686658e-05,
+            "relative_error": 0.04391082940200697,
+            "nonzero_reference": true,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "native_operator_vs_source_actual_tangent": {
+            "absolute_error": 1.3041215790676703e-06,
+            "reference_scale": 3.864260378002751e-05,
+            "relative_error": 0.033748284315709275,
+            "nonzero_reference": true,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "kinematic_velocity_ray_vs_intended": {
+            "absolute_error": 2.3245811462402344e-06,
+            "reference_scale": 0.11483059078454971,
+            "relative_error": 2.024357037927043e-05,
+            "nonzero_reference": true,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "actual_ray_tangent_rows_missing_due_zero_F": 0,
+          "zero_direction_inconclusive_count": 0,
+          "decomposition_scope": {
+            "residual_vs_native_stress": "residual assembly/scatter and impulse arithmetic",
+            "native_vs_source_stress": "native constitutive evaluation versus independent FP64 source stress at captured F",
+            "source_secant_vs_source_tangent": "finite epsilon and source branch/projection curvature",
+            "actual_vs_intended_tangent": "realized F/velocity ray representation and input perturbation difference",
+            "sign_contract": "A_FD=-(R_plus-R_minus)/(2 epsilon); A=M*dv-dt^2*K",
+            "qualification": "diagnostic_only_noise_floor_unmeasured"
+          },
+          "element_count": 1920
+        },
+        {
+          "epsilon": 0.000244140625,
+          "actual_ray_status": "measured",
+          "mass_action_actual_l2_Ns": 1.6613735324634496e-07,
+          "mass_action_intended_l2_Ns": 1.6613805702623629e-07,
+          "native_stiffness_action_intended_l2_Ns": 9.272861426591211e-05,
+          "source_stiffness_action_actual_l2_Ns": 9.311294032067653e-05,
+          "source_stiffness_action_realized_velocity_l2_Ns": 9.258095772218643e-05,
+          "source_stiffness_action_intended_l2_Ns": 9.272880974855525e-05,
+          "native_operator_vs_source_intended_tangent": {
+            "absolute_error": 2.611362757840496e-10,
+            "reference_scale": 3.850679242737558e-05,
+            "relative_error": 6.781563961125994e-06,
+            "nonzero_reference": true,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "native_residual_FD_vs_native_stress_FD": {
+            "absolute_error": 3.6565874852819325e-08,
+            "reference_scale": 3.819098911169974e-05,
+            "relative_error": 0.0009574477043753086,
+            "nonzero_reference": true,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "native_stress_FD_vs_source_stress_FD": {
+            "absolute_error": 1.7939127764922444e-08,
+            "reference_scale": 3.8206220360661894e-05,
+            "relative_error": 0.0004695342170876717,
+            "nonzero_reference": true,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "source_stress_FD_vs_source_actual_tangent": {
+            "absolute_error": 6.668148055138825e-11,
+            "reference_scale": 3.820620974761471e-05,
+            "relative_error": 1.745304781392279e-06,
+            "nonzero_reference": true,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "source_actual_vs_intended_tangent_action": {
+            "absolute_error": 2.926736649379783e-06,
+            "reference_scale": 3.850679242737558e-05,
+            "relative_error": 0.07600572431213673,
+            "nonzero_reference": true,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "source_realized_velocity_vs_intended_tangent_action": {
+            "absolute_error": 3.19038040952431e-06,
+            "reference_scale": 3.850679242737558e-05,
+            "relative_error": 0.0828524062486227,
+            "nonzero_reference": true,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "source_F_ray_vs_velocity_ray_tangent_action": {
+            "absolute_error": 1.473025734346261e-06,
+            "reference_scale": 3.861004331363302e-05,
+            "relative_error": 0.03815136187185117,
+            "nonzero_reference": true,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "native_operator_vs_source_actual_tangent": {
+            "absolute_error": 2.9267337047446035e-06,
+            "reference_scale": 3.820620974761471e-05,
+            "relative_error": 0.07660361297491242,
+            "nonzero_reference": true,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "kinematic_velocity_ray_vs_intended": {
+            "absolute_error": 7.055699825286865e-06,
+            "reference_scale": 0.11483059078454971,
+            "relative_error": 6.144442676015735e-05,
+            "nonzero_reference": true,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "actual_ray_tangent_rows_missing_due_zero_F": 0,
+          "zero_direction_inconclusive_count": 0,
+          "decomposition_scope": {
+            "residual_vs_native_stress": "residual assembly/scatter and impulse arithmetic",
+            "native_vs_source_stress": "native constitutive evaluation versus independent FP64 source stress at captured F",
+            "source_secant_vs_source_tangent": "finite epsilon and source branch/projection curvature",
+            "actual_vs_intended_tangent": "realized F/velocity ray representation and input perturbation difference",
+            "sign_contract": "A_FD=-(R_plus-R_minus)/(2 epsilon); A=M*dv-dt^2*K",
+            "qualification": "diagnostic_only_noise_floor_unmeasured"
+          },
+          "element_count": 1920
+        }
+      ]
+    },
+    {
+      "environment": 1,
+      "free_nodes": 846,
+      "production_gather": {
+        "absolute_error": 0.0,
+        "reference_scale": 0.0,
+        "relative_error": null,
+        "nonzero_reference": false,
+        "verdict": "descriptive_only_no_measured_noise_floor"
+      },
+      "captured_candidate_FP64_assembled_action": {
+        "absolute_error": 0.0,
+        "reference_scale": 0.0,
+        "relative_error": null,
+        "nonzero_reference": false,
+        "verdict": "descriptive_only_no_measured_noise_floor"
+      },
+      "reprojected_FP64_assembled_action": {
+        "absolute_error": 0.0,
+        "reference_scale": 0.0,
+        "relative_error": null,
+        "nonzero_reference": false,
+        "verdict": "descriptive_only_no_measured_noise_floor"
+      },
+      "mass_action_l2_Ns": 0.0,
+      "captured_stiffness_action_l2_Ns": 0.0,
+      "production_action_l2_Ns": 0.0,
+      "inferred_frozen_external_impulse_l2_Ns": 4.890174196787677e-15,
+      "external_source_independently_validated": false,
+      "strict_gate": "inconclusive_no_measured_noise_floor",
+      "perturbations": [
+        {
+          "epsilon": 0.00048828125,
+          "side": "plus",
+          "residual_gather": {
+            "absolute_error": 4.83116246173962e-15,
+            "reference_scale": 8.656818467098874e-09,
+            "relative_error": 5.580759813898083e-07,
+            "nonzero_reference": true,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "realized_delta_v": {
+            "absolute_error": 0.0,
+            "reference_scale": 0.0,
+            "relative_error": null,
+            "nonzero_reference": false,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "realized_u_velocity_relation": {
+            "absolute_error": 0.0,
+            "reference_scale": 0.0,
+            "relative_error": null,
+            "nonzero_reference": false,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          }
+        },
+        {
+          "epsilon": 0.00048828125,
+          "side": "minus",
+          "residual_gather": {
+            "absolute_error": 4.83116246173962e-15,
+            "reference_scale": 8.656818467098874e-09,
+            "relative_error": 5.580759813898083e-07,
+            "nonzero_reference": true,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "realized_delta_v": {
+            "absolute_error": 0.0,
+            "reference_scale": 0.0,
+            "relative_error": null,
+            "nonzero_reference": false,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "realized_u_velocity_relation": {
+            "absolute_error": 0.0,
+            "reference_scale": 0.0,
+            "relative_error": null,
+            "nonzero_reference": false,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          }
+        },
+        {
+          "epsilon": 0.000244140625,
+          "side": "plus",
+          "residual_gather": {
+            "absolute_error": 4.83116246173962e-15,
+            "reference_scale": 8.656818467098874e-09,
+            "relative_error": 5.580759813898083e-07,
+            "nonzero_reference": true,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "realized_delta_v": {
+            "absolute_error": 0.0,
+            "reference_scale": 0.0,
+            "relative_error": null,
+            "nonzero_reference": false,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "realized_u_velocity_relation": {
+            "absolute_error": 0.0,
+            "reference_scale": 0.0,
+            "relative_error": null,
+            "nonzero_reference": false,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          }
+        },
+        {
+          "epsilon": 0.000244140625,
+          "side": "minus",
+          "residual_gather": {
+            "absolute_error": 4.83116246173962e-15,
+            "reference_scale": 8.656818467098874e-09,
+            "relative_error": 5.580759813898083e-07,
+            "nonzero_reference": true,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "realized_delta_v": {
+            "absolute_error": 0.0,
+            "reference_scale": 0.0,
+            "relative_error": null,
+            "nonzero_reference": false,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "realized_u_velocity_relation": {
+            "absolute_error": 0.0,
+            "reference_scale": 0.0,
+            "relative_error": null,
+            "nonzero_reference": false,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          }
+        }
+      ],
+      "centered_actions": [
+        {
+          "epsilon": 0.00048828125,
+          "comparison": {
+            "absolute_error": 0.0,
+            "reference_scale": 0.0,
+            "relative_error": null,
+            "nonzero_reference": false,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "branch_crossing_tetrahedra": 0,
+          "near_yield_tetrahedra": 0,
+          "smooth_branch_eligible": false,
+          "strict_gate": "inconclusive_no_measured_noise_floor"
+        },
+        {
+          "epsilon": 0.000244140625,
+          "comparison": {
+            "absolute_error": 0.0,
+            "reference_scale": 0.0,
+            "relative_error": null,
+            "nonzero_reference": false,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "branch_crossing_tetrahedra": 0,
+          "near_yield_tetrahedra": 0,
+          "smooth_branch_eligible": false,
+          "strict_gate": "inconclusive_no_measured_noise_floor"
+        }
+      ],
+      "one_sided_actions": [
+        {
+          "epsilon": 0.00048828125,
+          "side": "plus",
+          "comparison": {
+            "absolute_error": 0.0,
+            "reference_scale": 0.0,
+            "relative_error": null,
+            "nonzero_reference": false,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "branch_crossing_tetrahedra": 0,
+          "near_yield_tetrahedra": 0,
+          "smooth_branch_eligible": false,
+          "strict_gate": "inconclusive_no_measured_noise_floor"
+        },
+        {
+          "epsilon": 0.00048828125,
+          "side": "minus",
+          "comparison": {
+            "absolute_error": 0.0,
+            "reference_scale": 0.0,
+            "relative_error": null,
+            "nonzero_reference": false,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "branch_crossing_tetrahedra": 0,
+          "near_yield_tetrahedra": 0,
+          "smooth_branch_eligible": false,
+          "strict_gate": "inconclusive_no_measured_noise_floor"
+        },
+        {
+          "epsilon": 0.000244140625,
+          "side": "plus",
+          "comparison": {
+            "absolute_error": 0.0,
+            "reference_scale": 0.0,
+            "relative_error": null,
+            "nonzero_reference": false,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "branch_crossing_tetrahedra": 0,
+          "near_yield_tetrahedra": 0,
+          "smooth_branch_eligible": false,
+          "strict_gate": "inconclusive_no_measured_noise_floor"
+        },
+        {
+          "epsilon": 0.000244140625,
+          "side": "minus",
+          "comparison": {
+            "absolute_error": 0.0,
+            "reference_scale": 0.0,
+            "relative_error": null,
+            "nonzero_reference": false,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "branch_crossing_tetrahedra": 0,
+          "near_yield_tetrahedra": 0,
+          "smooth_branch_eligible": false,
+          "strict_gate": "inconclusive_no_measured_noise_floor"
+        }
+      ],
+      "realized_ray_decomposition": [
+        {
+          "epsilon": 0.00048828125,
+          "actual_ray_status": "inconclusive_zero_realized_velocity_ray",
+          "mass_action_actual_l2_Ns": 0.0,
+          "mass_action_intended_l2_Ns": 0.0,
+          "native_stiffness_action_intended_l2_Ns": 0.0,
+          "source_stiffness_action_actual_l2_Ns": 0.0,
+          "source_stiffness_action_realized_velocity_l2_Ns": 0.0,
+          "source_stiffness_action_intended_l2_Ns": 0.0,
+          "native_operator_vs_source_intended_tangent": {
+            "absolute_error": 0.0,
+            "reference_scale": 0.0,
+            "relative_error": null,
+            "nonzero_reference": false,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "native_residual_FD_vs_native_stress_FD": {
+            "absolute_error": 0.0,
+            "reference_scale": 0.0,
+            "relative_error": null,
+            "nonzero_reference": false,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "native_stress_FD_vs_source_stress_FD": {
+            "absolute_error": 0.0,
+            "reference_scale": 0.0,
+            "relative_error": null,
+            "nonzero_reference": false,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "source_stress_FD_vs_source_actual_tangent": {
+            "absolute_error": 0.0,
+            "reference_scale": 0.0,
+            "relative_error": null,
+            "nonzero_reference": false,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "source_actual_vs_intended_tangent_action": {
+            "absolute_error": 0.0,
+            "reference_scale": 0.0,
+            "relative_error": null,
+            "nonzero_reference": false,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "source_realized_velocity_vs_intended_tangent_action": {
+            "absolute_error": 0.0,
+            "reference_scale": 0.0,
+            "relative_error": null,
+            "nonzero_reference": false,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "source_F_ray_vs_velocity_ray_tangent_action": {
+            "absolute_error": 0.0,
+            "reference_scale": 0.0,
+            "relative_error": null,
+            "nonzero_reference": false,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "native_operator_vs_source_actual_tangent": {
+            "absolute_error": 0.0,
+            "reference_scale": 0.0,
+            "relative_error": null,
+            "nonzero_reference": false,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "kinematic_velocity_ray_vs_intended": {
+            "absolute_error": 0.0,
+            "reference_scale": 0.0,
+            "relative_error": null,
+            "nonzero_reference": false,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "actual_ray_tangent_rows_missing_due_zero_F": 1728,
+          "zero_direction_inconclusive_count": 1920,
+          "decomposition_scope": {
+            "residual_vs_native_stress": "residual assembly/scatter and impulse arithmetic",
+            "native_vs_source_stress": "native constitutive evaluation versus independent FP64 source stress at captured F",
+            "source_secant_vs_source_tangent": "finite epsilon and source branch/projection curvature",
+            "actual_vs_intended_tangent": "realized F/velocity ray representation and input perturbation difference",
+            "sign_contract": "A_FD=-(R_plus-R_minus)/(2 epsilon); A=M*dv-dt^2*K",
+            "qualification": "diagnostic_only_noise_floor_unmeasured"
+          },
+          "element_count": 1920
+        },
+        {
+          "epsilon": 0.000244140625,
+          "actual_ray_status": "inconclusive_zero_realized_velocity_ray",
+          "mass_action_actual_l2_Ns": 0.0,
+          "mass_action_intended_l2_Ns": 0.0,
+          "native_stiffness_action_intended_l2_Ns": 0.0,
+          "source_stiffness_action_actual_l2_Ns": 0.0,
+          "source_stiffness_action_realized_velocity_l2_Ns": 0.0,
+          "source_stiffness_action_intended_l2_Ns": 0.0,
+          "native_operator_vs_source_intended_tangent": {
+            "absolute_error": 0.0,
+            "reference_scale": 0.0,
+            "relative_error": null,
+            "nonzero_reference": false,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "native_residual_FD_vs_native_stress_FD": {
+            "absolute_error": 0.0,
+            "reference_scale": 0.0,
+            "relative_error": null,
+            "nonzero_reference": false,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "native_stress_FD_vs_source_stress_FD": {
+            "absolute_error": 0.0,
+            "reference_scale": 0.0,
+            "relative_error": null,
+            "nonzero_reference": false,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "source_stress_FD_vs_source_actual_tangent": {
+            "absolute_error": 0.0,
+            "reference_scale": 0.0,
+            "relative_error": null,
+            "nonzero_reference": false,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "source_actual_vs_intended_tangent_action": {
+            "absolute_error": 0.0,
+            "reference_scale": 0.0,
+            "relative_error": null,
+            "nonzero_reference": false,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "source_realized_velocity_vs_intended_tangent_action": {
+            "absolute_error": 0.0,
+            "reference_scale": 0.0,
+            "relative_error": null,
+            "nonzero_reference": false,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "source_F_ray_vs_velocity_ray_tangent_action": {
+            "absolute_error": 0.0,
+            "reference_scale": 0.0,
+            "relative_error": null,
+            "nonzero_reference": false,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "native_operator_vs_source_actual_tangent": {
+            "absolute_error": 0.0,
+            "reference_scale": 0.0,
+            "relative_error": null,
+            "nonzero_reference": false,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "kinematic_velocity_ray_vs_intended": {
+            "absolute_error": 0.0,
+            "reference_scale": 0.0,
+            "relative_error": null,
+            "nonzero_reference": false,
+            "verdict": "descriptive_only_no_measured_noise_floor"
+          },
+          "actual_ray_tangent_rows_missing_due_zero_F": 1728,
+          "zero_direction_inconclusive_count": 1920,
+          "decomposition_scope": {
+            "residual_vs_native_stress": "residual assembly/scatter and impulse arithmetic",
+            "native_vs_source_stress": "native constitutive evaluation versus independent FP64 source stress at captured F",
+            "source_secant_vs_source_tangent": "finite epsilon and source branch/projection curvature",
+            "actual_vs_intended_tangent": "realized F/velocity ray representation and input perturbation difference",
+            "sign_contract": "A_FD=-(R_plus-R_minus)/(2 epsilon); A=M*dv-dt^2*K",
+            "qualification": "diagnostic_only_noise_floor_unmeasured"
+          },
+          "element_count": 1920
+        }
+      ]
+    }
+  ],
+  "strict_gate": "inconclusive_no_measured_noise_floor",
+  "physical_validation": false,
+  "terminal_failure_explained": false
+}

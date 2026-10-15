@@ -137,6 +137,27 @@ class DiagnosticHistoryComparatorTests(unittest.TestCase):
         with self.assertRaisesRegex(compare.ComparisonError, "physical argv differs"):
             compare.compare_attempts(self.left, self.right)
 
+    def test_output_pair_may_precede_bound_material_arguments(self):
+        for case in (self.left, self.right):
+            path, value = self._prediction(case)
+            value["argv"].extend(["--liner-material", "/sealed/source/liner.nmatter"])
+            _write_json(path, value)
+        report = compare.compare_attempts(self.left, self.right)
+        self.assertEqual(report["comparison"], "byte_identical")
+        path, value = self._prediction(self.right)
+        value["argv"][-1] = "/sealed/source/other.nmatter"
+        _write_json(path, value)
+        with self.assertRaisesRegex(compare.ComparisonError, "physical argv differs"):
+            compare.compare_attempts(self.left, self.right)
+
+    def test_private_epsilon_scale_is_allowlisted_without_qualification(self):
+        path, value = self._prediction(self.left)
+        value["environment"]["NM_FEM_OPERATOR_FD_EPSILON_SCALE"] = ".125"
+        _write_json(path, value)
+        report = compare.compare_attempts(self.left, self.right)
+        self.assertEqual(report["comparison"], "byte_identical")
+        self.assertEqual(report["qualification"]["status"], "not_qualified")
+
     def test_unallowlisted_environment_difference_is_rejected(self):
         path, value = self._prediction(self.right)
         value["environment"]["NM_FEM_RESIDUAL_TOLERANCE"] = "looser"

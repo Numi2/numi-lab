@@ -417,7 +417,7 @@ private:
                 NM_MIXED_FIELD_SMOOTHER_MAX_PASSES ||
             solver.executionBudgets.y == 0u ||
             solver.executionBudgets.z > 4u ||
-            solver.executionBudgets.w != 0u ||
+            solver.executionBudgets.w > 1u ||
             !finite4(solver.residualTolerances) ||
             !(solver.residualTolerances.x > 0.0f) ||
             solver.residualTolerances.y < 0.0f ||
@@ -443,6 +443,69 @@ private:
             solver.globalization.w < 0.0f ||
             solver.globalization.w > 1.0f) {
             return fail("mixed solver policy is invalid");
+        }
+        if (solver.executionBudgets.w == 1u) {
+            constexpr std::uint32_t maximumCachedTangentEnvironments = 4u;
+            constexpr std::uint64_t tangentScalarsPerTetrahedron = 81u;
+            const std::uint64_t tetrahedronCount =
+                world_.dispatch.tetrahedronCount;
+            const std::uint64_t environmentCount =
+                world_.dispatch.environmentCount;
+            const bool sizeOverflow = environmentCount != 0u &&
+                tetrahedronCount >
+                    std::numeric_limits<std::uint64_t>::max() /
+                        environmentCount;
+            const std::uint64_t entryCount = sizeOverflow ? 0u :
+                tetrahedronCount * environmentCount;
+            const bool tangentSizeOverflow = sizeOverflow ||
+                entryCount > std::numeric_limits<std::uint64_t>::max() /
+                    (tangentScalarsPerTetrahedron * sizeof(float)) ||
+                entryCount > std::numeric_limits<std::uint32_t>::max() /
+                    tangentScalarsPerTetrahedron;
+            if (world_.dispatch.environmentCount == 0u ||
+                world_.dispatch.environmentCount >
+                    maximumCachedTangentEnvironments ||
+                world_.dispatch.tetrahedronCount == 0u ||
+                world_.objects.empty() || world_.dispatch.rigidGeneralizedCapacity != 0u ||
+                world_.dispatch.rigidQCapacity != 0u ||
+                world_.dispatch.particleCount != 0u ||
+                world_.dispatch.gridNodeCount != 0u ||
+                world_.dispatch.mpmActiveNodeCapacity != 0u ||
+                world_.dispatch.mpmGridCount != 0u ||
+                world_.dispatch.mpmBlockCount != 0u ||
+                world_.dispatch.identificationCandidateCount != 0u ||
+                world_.vascular.layout.ranges.z != 0u ||
+                !world_.vascular.unknowns.empty() ||
+                !world_.learnedMaterials.empty() ||
+                !world_.learnedLayers.empty() ||
+                !world_.learnedWeights.empty() ||
+                !world_.fem.humanAttachments.empty() ||
+                !world_.fem.fieldBoundaries.empty() ||
+                !world_.fem.cohesiveFaces.empty() ||
+                !world_.fem.punctureChannels.empty() ||
+                !world_.fem.mutationCommands.empty() ||
+                tangentSizeOverflow ||
+                std::any_of(world_.objects.begin(), world_.objects.end(),
+                    [](const NMContinuumObjectGPU& object) {
+                        return object.representation != NM_REPRESENTATION_FEM ||
+                            (object.flags & (NM_OBJECT_MIXED_FEM |
+                                             NM_OBJECT_MULTIPHYSICS |
+                                             NM_OBJECT_ADAPTIVE |
+                                             NM_OBJECT_MUTABLE_TOPOLOGY |
+                                             NM_OBJECT_IDENTIFIABLE)) != 0u;
+                    }) ||
+                std::any_of(world_.materials.begin(), world_.materials.end(),
+                    [](const NMMaterialGPU& material) {
+                        return material.constitutiveKind ==
+                            NM_CONSTITUTIVE_POLYCONVEX_ICNN;
+                    })) {
+                return fail(
+                    "algorithmic FEM tangent cache requires at most four "
+                    "environments of pure explicit FEM with no generalized "
+                    "rigid, MPM, multiphysics, Human, learned, cohesive, "
+                    "adaptive, or mutable-topology blocks and a checked cache size"
+                );
+            }
         }
         if (solver.executionBudgets.z == 1u) {
             if (world_.objects.empty() || !world_.learnedMaterials.empty() ||

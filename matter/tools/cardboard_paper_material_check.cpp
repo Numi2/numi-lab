@@ -2,6 +2,7 @@
 #include "cardboard_paper_reference.hpp"
 #include "cardboard_paper_projection_scaling.hpp"
 #include "cardboard_paper_material_selection.hpp"
+#include "cardboard_asymmetric_c1_material_oracle.hpp"
 #include "numi/matter/paper_compensated_bytecode.h"
 
 #include <algorithm>
@@ -17,11 +18,13 @@
 #include <sstream>
 #include <stdexcept>
 #include <string>
+#include <tuple>
 #include <vector>
 
 namespace {
 using namespace numi::matter;
 namespace paper=numi_cardboard_paper;
+namespace c1oracle=numi_cardboard_asymmetric_c1_oracle;
 unsigned checks=0;
 constexpr double kNumericalResidualScale=10.0;
 
@@ -525,7 +528,7 @@ CompiledPoint64 projectCompiled64(const ConstitutiveProgram& program,
     for(unsigned iteration=0;iteration<256u;++iteration) {
         const auto residual=residualAt(candidate);
         const double norm=maxAbs(residual);
-        if(norm<2.0e-11) { converged=true; break; }
+        if(norm<2.0e-13) { converged=true; break; }
         auto jacobian=compiledJacobian15(program,f,accepted,candidate);
         std::array<double,kStates> rhs{},correction{};
         for(unsigned row=0;row<kStates;++row) rhs[row]=-residual[row];
@@ -533,11 +536,13 @@ CompiledPoint64 projectCompiled64(const ConstitutiveProgram& program,
             "bilinear source-fit local Newton Jacobian is singular");
         double step=1.0;
         bool acceptedStep=false;
+        double lastTrialNorm=std::numeric_limits<double>::infinity();
         for(unsigned backtrack=0;backtrack<24u;++backtrack) {
             std::array<double,kStates> trial=candidate;
             for(unsigned state=0;state<kStates;++state)
                 trial[state]+=step*correction[state];
             const double trialNorm=maxAbs(residualAt(trial));
+            lastTrialNorm=trialNorm;
             if(std::isfinite(trialNorm) && trialNorm<norm) {
                 candidate=trial;
                 acceptedStep=true;
@@ -553,11 +558,12 @@ CompiledPoint64 projectCompiled64(const ConstitutiveProgram& program,
             for(double value:candidate) detail<<number(value)<<',';
             detail<<" residuals=";
             for(double value:residual) detail<<number(value)<<',';
+            detail<<" last_step="<<number(step)<<" last_trial_norm="<<number(lastTrialNorm);
             throw std::runtime_error(detail.str());
         }
     }
     const double finalNorm=maxAbs(residualAt(candidate));
-    if(!converged) converged=finalNorm<2.0e-11;
+    if(!converged) converged=finalNorm<2.0e-13;
     if(!converged) {
         std::ostringstream detail;
         detail<<"bilinear source-fit local projection did not converge; residual="
@@ -582,6 +588,11 @@ struct UniaxialPoint {
     double lateralResidualMPa=0.0;
 };
 
+std::array<double,9> compiledAlgorithmicTangent15(
+    const ConstitutiveProgram& program,const paper::Matrix& f,
+    const paper::Matrix& h,const std::array<double,15>& accepted,
+    const std::array<double,15>& candidate);
+
 UniaxialPoint stressFreeUniaxialPoint(const ConstitutiveProgram& program,
     const unsigned axis,const double engineeringStrain) {
     require(axis<2u,"source-fit uniaxial test only admits MD/CD axes");
@@ -603,25 +614,25 @@ UniaxialPoint stressFreeUniaxialPoint(const ConstitutiveProgram& program,
     const std::array<double,15> accepted{};
     CompiledPoint64 point;
     double lateralNorm=std::numeric_limits<double>::infinity();
-    for(unsigned iteration=0;iteration<12u;++iteration) {
+    for(unsigned iteration=0;iteration<24u;++iteration) {
         point=projectCompiled64(program,f,accepted);
         const std::array<double,2> residual{
             point.firstPiolaMPa[lateralComponents[0]],
             point.firstPiolaMPa[lateralComponents[1]]};
         lateralNorm=std::max(std::abs(residual[0]),std::abs(residual[1]));
         if(lateralNorm<2.0e-7) break;
-        constexpr double h=2.0e-6;
+        // Stay within the C1 compression transition when this helper is used
+        // by the asymmetric candidate. The registered normalized-stress band
+        // is 5e-6; a strain perturbation of 2e-6 crosses that entire branch
+        // for these orthotropic moduli and produces a biased lateral Jacobian.
         std::array<double,4> jacobian{};
         for(unsigned column=0;column<2u;++column) {
-            paper::Matrix plusF=f,minusF=f;
-            plusF[lateralStretches[column]]+=h;
-            minusF[lateralStretches[column]]-=h;
-            const auto plus=projectCompiled64(program,plusF,accepted);
-            const auto minus=projectCompiled64(program,minusF,accepted);
+            paper::Matrix direction{};
+            direction[lateralStretches[column]]=1.0;
+            const auto tangent=compiledAlgorithmicTangent15(
+                program,f,direction,accepted,point.state);
             for(unsigned row=0;row<2u;++row)
-                jacobian[2u*row+column]=
-                    (plus.firstPiolaMPa[lateralComponents[row]]-
-                     minus.firstPiolaMPa[lateralComponents[row]])/(2.0*h);
+                jacobian[2u*row+column]=tangent[lateralComponents[row]];
         }
         const double determinant=jacobian[0]*jacobian[3]-jacobian[1]*jacobian[2];
         require(std::isfinite(determinant)&&std::abs(determinant)>1.0e-10,
@@ -672,6 +683,16 @@ struct SourceFitCurve {
     double plasticHardeningMPa=0.0;
     double plasticHardeningLowMPa=0.0;
     double plasticHardeningHighMPa=0.0;
+};
+
+struct MarkerCenter {
+    std::string component;
+    std::string axis;
+    std::string pointId;
+    double strain=0.0;
+    double stressMPa=0.0;
+    double strainHalfwidth=0.0;
+    double stressHalfwidthMPa=0.0;
 };
 
 std::vector<std::string> splitCsvRow(const std::string& line) {
@@ -765,6 +786,109 @@ std::vector<SourceFitCurve> readSourceFitCurves(const std::filesystem::path& pat
     return result;
 }
 
+std::vector<MarkerCenter> readMarkerCenters(const std::filesystem::path& path) {
+    std::ifstream input(path);
+    require(input.good(),"cannot open hash-registered Haj-Ali marker centers: "+path.string());
+    std::string line;
+    require(static_cast<bool>(std::getline(input,line)),"Haj-Ali marker-center CSV is empty");
+    const auto header=splitCsvRow(line);
+    const auto column=[&](const std::string& name) {
+        const auto found=std::find(header.begin(),header.end(),name);
+        require(found!=header.end(),"marker-center CSV lacks column "+name);
+        return static_cast<std::size_t>(std::distance(header.begin(),found));
+    };
+    const auto sourceColumn=column("source_id");
+    const auto componentColumn=column("component");
+    const auto axisColumn=column("axis");
+    const auto statusColumn=column("record_status");
+    const auto idColumn=column("point_id");
+    const auto strainColumn=column("strain_mm_per_mm");
+    const auto stressColumn=column("stress_MPa");
+    const auto strainWidthColumn=column("strain_halfwidth_mm_per_mm");
+    const auto stressWidthColumn=column("stress_halfwidth_MPa");
+    const auto renderHashColumn=column("source_render_sha256");
+    const auto classColumn=column("observation_class");
+    constexpr std::string_view expectedRenderHash=
+        "bffb53d8685c5990b2fa43f120ac0382493e893db2284b4f8c24adff6a48a6d5";
+    constexpr std::string_view expectedClass=
+        "digitized_plot_marker_center_estimate_not_raw_measurement";
+    std::vector<MarkerCenter> result;
+    std::map<std::string,unsigned> counts;
+    while(std::getline(input,line)) {
+        if(line.empty())continue;
+        const auto fields=splitCsvRow(line);
+        require(fields.size()==header.size(),"marker-center CSV row has an unexpected field count");
+        if(fields[statusColumn]!="selected_marker_center")continue;
+        require(fields[sourceColumn]=="haj_ali_2009"&&fields[renderHashColumn]==expectedRenderHash&&
+                fields[classColumn]==expectedClass,
+            "marker center lost its source/render/estimate identity");
+        MarkerCenter point;
+        point.component=fields[componentColumn];
+        point.axis=fields[axisColumn];
+        point.pointId=fields[idColumn];
+        point.strain=std::stod(fields[strainColumn]);
+        point.stressMPa=std::stod(fields[stressColumn]);
+        point.strainHalfwidth=std::stod(fields[strainWidthColumn]);
+        point.stressHalfwidthMPa=std::stod(fields[stressWidthColumn]);
+        require(!point.pointId.empty()&&std::isfinite(point.strain)&&
+                std::isfinite(point.stressMPa)&&point.strain>=0.0&&
+                point.strainHalfwidth>0.0&&point.stressHalfwidthMPa>0.0,
+            "marker center has invalid coordinates or uncertainty");
+        const std::string key=point.component+"/"+point.axis;
+        ++counts[key];
+        result.push_back(std::move(point));
+    }
+    require(result.size()==278u,
+        "marker calibration must use the 278 selected centers, excluding unresolved overplot regions");
+    require(counts["liner/MD"]==56u&&counts["liner/CD"]==64u&&
+            counts["medium_NSSC/MD"]==59u&&counts["medium_NSSC/CD"]==99u,
+        "marker calibration center counts differ from the four reviewed plot panels");
+    std::cout<<"marker_input source_render_sha256="<<expectedRenderHash
+        <<" marker_csv_sha256=7a2dd7a351586971566fe34ca144b511d0b2014ab13f4cd7c9de0e87c2cf39b9"
+        <<" selected_centers="<<result.size()
+        <<" classification=calibration_only_not_raw_measurements_or_validation\n";
+    return result;
+}
+
+using AsymmetricTransferRecords =
+    std::map<std::tuple<std::string,std::string,std::string>,double>;
+
+AsymmetricTransferRecords readAsymmetricTransferRecords(
+    const std::filesystem::path& path) {
+    std::ifstream input(path);
+    require(input.good(),"cannot open versioned C1 asymmetric-transfer input record");
+    std::string line;
+    require(static_cast<bool>(std::getline(input,line)),"C1 transfer CSV is empty");
+    const auto header=splitCsvRow(line);
+    const auto column=[&](const std::string& name) {
+        const auto found=std::find(header.begin(),header.end(),name);
+        require(found!=header.end(),"C1 transfer CSV lacks column "+name);
+        return static_cast<std::size_t>(std::distance(header.begin(),found));
+    };
+    const auto modelColumn=column("model");
+    const auto axisColumn=column("axis");
+    const auto quantityColumn=column("quantity");
+    const auto valueColumn=column("value");
+    const auto unitColumn=column("unit");
+    AsymmetricTransferRecords result;
+    unsigned dataRows=0u;
+    while(std::getline(input,line)) {
+        if(line.empty())continue;
+        const auto fields=splitCsvRow(line);
+        require(fields.size()==header.size(),"C1 transfer CSV row width changed");
+        const auto key=std::make_tuple(fields[modelColumn],fields[axisColumn],
+                                       fields[quantityColumn]);
+        const double value=std::stod(fields[valueColumn]);
+        require(std::isfinite(value),"C1 transfer CSV contains a nonfinite number");
+        require(result.emplace(key,value).second,"C1 transfer CSV has a duplicate model parameter");
+        if(fields[quantityColumn]=="compression_smoothing_width")
+            require(fields[unitColumn]=="one","C1 smoothing width must be dimensionless");
+        ++dataRows;
+    }
+    require(dataRows==30u,"C1 transfer CSV row count changed without a version update");
+    return result;
+}
+
 void checkBilinearFitMaterial(const MaterialProgram& fit,
     const MaterialProgram& ideal,const paper::MaterialKind kind,
     const std::vector<SourceFitCurve>& curves) {
@@ -834,6 +958,437 @@ void checkBilinearFitMaterial(const MaterialProgram& fit,
         require(insideDigitizedInterval,
             "compiled source-fit law's observed uniaxial total-stress slope misses the digitized tangent interval: "+
             fit.name+" "+axis+" error="+number(relative));
+    }
+}
+
+std::array<double,9> compiledAlgorithmicTangent15(
+    const ConstitutiveProgram& program,const paper::Matrix& f,
+    const paper::Matrix& h,const std::array<double,15>& accepted,
+    const std::array<double,15>& candidate) {
+    std::array<double,225> jacobian=compiledJacobian15(program,f,accepted,candidate);
+    std::array<double,15> rhs{},stateDirection{};
+    const paper::Matrix zero{};
+    for(unsigned state=0;state<15u;++state)
+        rhs[state]=-evaluate(program.implicitDeformationDirections.at(state),
+            program.material,f,h,accepted,candidate);
+    require(solveLinear15(jacobian,rhs,stateDirection),
+        "asymmetric candidate implicit material Jacobian is singular");
+    std::array<double,9> tangent{};
+    for(unsigned component=0;component<9u;++component) {
+        tangent[component]=evaluate(program.tangentVector.at(component),
+            program.material,f,h,accepted,candidate);
+        for(unsigned state=0;state<15u;++state)
+            tangent[component]+=evaluate(
+                program.stressStateDerivatives.at(component*15u+state),
+                program.material,f,zero,accepted,candidate)*stateDirection[state];
+    }
+    // The authored source law stores stress and tangent coefficients in Pa;
+    // CompiledPoint64 exposes first Piola stress in MPa for the fit comparison.
+    for(double& value:tangent)value*=1.0e-6;
+    return tangent;
+}
+
+void setParameterValue(MaterialProgram& material,const std::string& name,const double value) {
+    const auto found=std::find_if(material.parameters.begin(),material.parameters.end(),
+        [&](const Parameter& parameter){return parameter.name==name;});
+    require(found!=material.parameters.end(),"missing transfer parameter "+name);
+    require(!found->identifiable && found->lower==found->upper,
+        "source-transfer parameter must remain fixed and nonidentifiable: "+name);
+    found->defaultValue=value;
+}
+
+double sourceFitTangentForAxis(const ConstitutiveProgram& program,
+    const SourceFitCurve& curve,const unsigned axis) {
+    require(axis<2u,"source-fit tangent only supports MD/CD");
+    const double span=curve.endpointStrain-curve.yieldStrain;
+    const auto a=stressFreeUniaxialPoint(program,axis,curve.yieldStrain+0.30*span);
+    const auto b=stressFreeUniaxialPoint(program,axis,curve.yieldStrain+0.70*span);
+    return (b.stressMPa-a.stressMPa)/(0.40*span);
+}
+
+std::array<double,2> sourceFitTangents(const ConstitutiveProgram& program,
+    const SourceFitCurve& md,const SourceFitCurve& cd) {
+    return {sourceFitTangentForAxis(program,md,0u),
+            sourceFitTangentForAxis(program,cd,1u)};
+}
+
+struct AsymmetricTransferFit {
+    std::array<double,2> scales{};
+    std::array<double,2> slopes{};
+};
+
+AsymmetricTransferFit fitAsymmetricTransferScales(const ConstitutiveProgram& baseline,
+    const SourceFitCurve& md,const SourceFitCurve& cd,const double initialMd,
+    const double initialCd) {
+    const std::array<double,2> target{md.tangentMPa,cd.tangentMPa};
+    const std::array<const SourceFitCurve*,2> curves{&md,&cd};
+    const std::array<const char*,2> names{
+        "fit_transfer_scale_md","fit_transfer_scale_cd"};
+    std::array<double,2> scales{initialMd,initialCd};
+    const auto measured=[&](const std::array<double,2>& values) {
+        ConstitutiveProgram trial=baseline;
+        setParameterValue(trial.material,names[0],values[0]);
+        setParameterValue(trial.material,names[1],values[1]);
+        return sourceFitTangents(trial,md,cd);
+    };
+    for(unsigned coordinatePass=0u;coordinatePass<4u;++coordinatePass) {
+        for(unsigned axis=0u;axis<2u;++axis) {
+            const auto at=[&](double value) {
+                ConstitutiveProgram trial=baseline;
+                setParameterValue(trial.material,names[0],scales[0]);
+                setParameterValue(trial.material,names[1],scales[1]);
+                setParameterValue(trial.material,names[axis],value);
+                return sourceFitTangentForAxis(trial,*curves[axis],axis);
+            };
+            double x0=scales[axis];
+            double y0=at(x0);
+            if(std::abs(y0-target[axis])/target[axis]<2.0e-6)continue;
+            double x1=y0>target[axis]?x0*0.8:x0*1.2;
+            double y1=at(x1);
+            for(unsigned expand=0u;expand<16u&&
+                (y0-target[axis])*(y1-target[axis])>0.0;++expand) {
+                x1=y0>target[axis]?x1*0.5:x1*2.0;
+                require(x1>0.0&&x1<128.0,
+                    "asymmetric transfer fit could not bracket a positive scale");
+                y1=at(x1);
+            }
+            require((y0-target[axis])*(y1-target[axis])<=0.0,
+                "asymmetric hardening transfer tangent could not be bracketed");
+            for(unsigned iteration=0u;iteration<24u;++iteration) {
+                double x2=x1-(y1-target[axis])*(x1-x0)/(y1-y0);
+                const double low=std::min(x0,x1),high=std::max(x0,x1);
+                if(!std::isfinite(x2)||x2<=low+0.1*(high-low)||x2>=high-0.1*(high-low))
+                    x2=0.5*(x0+x1);
+                const double y2=at(x2);
+                if(std::abs(y2-target[axis])/target[axis]<2.0e-6) {
+                    x0=x2;y0=y2;x1=x2;y1=y2;break;
+                }
+                if((y0-target[axis])*(y2-target[axis])<=0.0) {x1=x2;y1=y2;}
+                else {x0=x2;y0=y2;}
+            }
+            scales[axis]=std::abs(y0-target[axis])<std::abs(y1-target[axis])?x0:x1;
+        }
+        const auto slopes=measured(scales);
+        if(std::abs(slopes[0]-target[0])/target[0]<2.0e-6&&
+           std::abs(slopes[1]-target[1])/target[1]<2.0e-6)
+            return {scales,slopes};
+    }
+    const auto final=measured(scales);
+    require(std::abs(final[0]-target[0])/target[0]<5.0e-4&&
+            std::abs(final[1]-target[1])/target[1]<5.0e-4,
+        "asymmetric hardening transfer fit did not converge to both source-fit tangents");
+    return {scales,final};
+}
+
+void reportMarkerCurveResiduals(const ConstitutiveProgram& program,
+    const std::vector<MarkerCenter>& markers,const std::string& component) {
+    struct Statistics {
+        unsigned count=0u;
+        unsigned withinVerticalReadout=0u;
+        double squaredError=0.0;
+        double absoluteError=0.0;
+        double maximumAbsoluteError=0.0;
+    };
+    std::map<std::string,Statistics> statistics;
+    for(const auto& marker:markers) {
+        if(marker.component!=component)continue;
+        const unsigned axis=marker.axis=="MD"?0u:(marker.axis=="CD"?1u:2u);
+        require(axis<2u,"marker calibration contains a non-MD/CD test axis");
+        const auto model=stressFreeUniaxialPoint(program,axis,marker.strain);
+        const double residual=model.stressMPa-marker.stressMPa;
+        auto& aggregate=statistics[marker.axis];
+        ++aggregate.count;
+        aggregate.squaredError+=residual*residual;
+        aggregate.absoluteError+=std::abs(residual);
+        aggregate.maximumAbsoluteError=std::max(aggregate.maximumAbsoluteError,std::abs(residual));
+        if(std::abs(residual)<=marker.stressHalfwidthMPa)++aggregate.withinVerticalReadout;
+    }
+    for(const auto& [axis,aggregate]:statistics) {
+        require(aggregate.count>0u,"marker calibration has an empty source curve");
+        std::cout<<program.material.name<<" marker_curve_calibration component="<<component
+            <<" axis="<<axis<<" n="<<aggregate.count
+            <<" rmse_MPa="<<number(std::sqrt(aggregate.squaredError/aggregate.count))
+            <<" mae_MPa="<<number(aggregate.absoluteError/aggregate.count)
+            <<" max_abs_residual_MPa="<<number(aggregate.maximumAbsoluteError)
+            <<" within_vertical_pixel_readout="<<aggregate.withinVerticalReadout
+            <<"/"<<aggregate.count
+            <<" x_uncertainty_not_propagated=true classification=calibration_only_not_validation\n";
+    }
+}
+
+void checkAsymmetricTransferCandidate(const MaterialProgram& candidate,
+    const MaterialProgram& ideal,const paper::MaterialKind kind,
+    const std::vector<SourceFitCurve>& curves,const std::vector<MarkerCenter>& markers,
+    const AsymmetricTransferRecords& transferRecords,const bool fullCalibration) {
+    const bool liner=kind==paper::MaterialKind::liner;
+    const bool c1Regularized=candidate.name.find("_asymmetric_c1_transfer")!=std::string::npos;
+    const std::string expectedName=liner
+        ?(c1Regularized?"hajali2009_liner_hill_asymmetric_c1_transfer":
+                        "hajali2009_liner_hill_asymmetric_transfer")
+        :(c1Regularized?"hajali2009_medium_hill_asymmetric_c1_transfer":
+                        "hajali2009_medium_hill_asymmetric_transfer");
+    require(candidate.name==expectedName,
+        "asymmetric transfer candidate has unexpected material identity");
+    require(candidate.internalState.size()==15u &&
+                candidate.stateImplicitRoots.size()==15u &&
+                candidate.stateUpdateRoots.size()==15u,
+        "asymmetric transfer candidate must preserve the 15-state tensile-hardening model");
+    for(const char* name:{"density","c11","c22","c33","c12","c13","c23",
+                           "g12","g13","g23","sigma_ref","hill_L","hill_M",
+                           "hill_N","q_floor",
+                           "fb_epsilon","residual_scale"})
+        checkParameter(candidate,name,parameterValue(ideal,name));
+    const double f=parameterValue(candidate,"hill_F");
+    const double g=parameterValue(candidate,"hill_G");
+    const double h=parameterValue(candidate,"hill_H");
+    require(f+g>0.0 && f+h>0.0 && g+h>0.0,
+        "tensile Hill normal quadratic is not positive semidefinite");
+    const double sigmaRefMPa=parameterValue(candidate,"sigma_ref")/1.0e6;
+    const double qFloor=parameterValue(candidate,"q_floor");
+    const double compressionWidth=c1Regularized
+        ?parameterValue(candidate,"compression_smoothing_width"):0.0;
+    if(c1Regularized)
+        require(compressionWidth>0.0 && compressionWidth<=1.0e-4,
+            "C1 compression positive-part width must be an explicit small numerical regularizer");
+    const std::array<double,3> tensile=liner
+        ?std::array<double,3>{38.2,18.4,12.55}
+        :std::array<double,3>{15.65,8.06,5.38};
+    const std::array<double,3> compression=liner
+        ?std::array<double,3>{22.92,11.02,7.52}
+        :std::array<double,3>{9.391,4.836,3.23};
+    const std::array<double,3> tensilePairSum{g+h,f+h,f+g};
+    const std::string modelName=candidate.name;
+    const auto record=[&](const std::string& axis,const std::string& quantity) {
+        const auto found=transferRecords.find({modelName,axis,quantity});
+        require(found!=transferRecords.end(),
+            "versioned C1 source-data record is missing "+modelName+"/"+axis+"/"+quantity);
+        return found->second;
+    };
+    if(c1Regularized) {
+        const double declaredWidth=record("all","compression_smoothing_width");
+        require(std::abs(compressionWidth-declaredWidth)<1.0e-15,
+            "C1 material smoothing width differs from its versioned source-data record");
+        require(std::abs(parameterValue(candidate,"fit_transfer_scale_md")-
+                         record("MD","fit_transfer_scale"))<2.0e-12 &&
+                std::abs(parameterValue(candidate,"fit_transfer_scale_cd")-
+                         record("CD","fit_transfer_scale"))<2.0e-12,
+            "C1 material transfer scales differ from their versioned source-data record");
+    }
+    const std::array<double,3> reLu{parameterValue(candidate,"compression_k11"),
+        parameterValue(candidate,"compression_k22"),
+        parameterValue(candidate,"compression_k33")};
+    for(unsigned axis=0;axis<3u;++axis) {
+        require(reLu[axis]>=0.0,"compression ReLU coefficient must be nonnegative");
+        const double computed=sigmaRefMPa*(1.0/compression[axis]-1.0/tensile[axis]);
+        require(std::abs(reLu[axis]-computed)<2.0e-12,
+            "compression ReLU coefficient differs from the declared Table 3 transfer inputs axis="+
+            std::to_string(axis)+" actual="+number(reLu[axis])+" expected="+number(computed));
+        const double expectedPair=std::pow(sigmaRefMPa/tensile[axis],2);
+        require(std::abs(tensilePairSum[axis]-expectedPair)<2.0e-12,
+            "asymmetric Hill quadratic is not derived from the source tensile strengths axis="+
+            std::to_string(axis)+" actual="+number(tensilePairSum[axis])+" expected="+
+            number(expectedPair));
+        const double stretchCoeff=axis==0u?g+h:(axis==1u?f+h:f+g);
+        const double stressTension=tensile[axis]/sigmaRefMPa;
+        const double stressCompression=-compression[axis]/sigmaRefMPa;
+        const auto positivePart=[&](const double value) {
+            if(!c1Regularized) return std::max(-value,0.0);
+            if(value>=compressionWidth) return 0.0;
+            if(value<=-compressionWidth) return -value;
+            const double delta=compressionWidth;
+            return (delta-value)*(delta-value)/(4.0*delta);
+        };
+        const auto qFor=[&](const double axisStress) {
+            double q=std::sqrt(stretchCoeff*axisStress*axisStress+qFloor*qFloor);
+            for(unsigned component=0;component<3u;++component)
+                q+=reLu[component]*positivePart(component==axis?axisStress:0.0);
+            return q;
+        };
+        const double qTension=qFor(stressTension);
+        const double qCompression=qFor(stressCompression);
+        const double regularizerShift=0.25*compressionWidth*
+            (reLu[(axis+1u)%3u]+reLu[(axis+2u)%3u]);
+        std::cout<<candidate.name<<" axis="<<axis
+            <<" q_at_Table3_tension="<<number(qTension)
+            <<" q_at_Table3_compression="<<number(qCompression)
+            <<" C1_zero-stress_shift="<<number(regularizerShift)<<"\n";
+        const double radiusTolerance=c1Regularized?1.0e-5:1.0e-10;
+        require(std::abs(qTension-1.0)<radiusTolerance &&
+                    std::abs(qCompression-1.0)<radiusTolerance,
+            "asymmetric transfer uniaxial radii miss Table 3 strengths beyond the declared regularization shift");
+    }
+    const auto compiled=detail::compileConstitutive(candidate,NM_EXPRESSION_STACK_CAPACITY);
+    require(compiled.succeeded(),"generic asymmetric 15-state material did not compile: "+
+        diagnostics(compiled.diagnostics));
+    require(compiled.program.implicitResiduals.size()==15u &&
+                compiled.program.implicitJacobians.size()==225u &&
+                compiled.program.implicitDeformationDirections.size()==15u &&
+                compiled.program.stressStateDerivatives.size()==135u,
+        "asymmetric transfer did not retain its full implicit stress/state tangent chain");
+
+    // Keep the native checker backed by a second, equation-level FP64 oracle.
+    // This intentionally does not call the compiler's bytecode evaluator: it
+    // independently differentiates the declared 15-state StVK/Hill/Huber
+    // system, then compares projection, stress and all nine tangent columns.
+    // It is a CPU implementation cross-check, not native Metal evidence.
+    const std::array<std::pair<paper::Matrix,const char*>,5> oracleCases{{
+        {paper::identity(),"rest"},
+        {paper::Matrix{1.035,0,0,0,0.995,0,0,0,0.999},"positive_MD"},
+        {paper::Matrix{0.965,0,0,0,1.004,0,0,0,1.001},"negative_MD"},
+        {paper::Matrix{1.0+2.0e-7,0,0,0,1.0-1.0e-7,0,0,0,1.0},"near_zero"},
+        {paper::Matrix{1.012,0.0012,0,0,0.997,0,0,0,1.003},"mixed"}}};
+    const c1oracle::State zeroAccepted{};
+    for(const auto& [fOracle,caseName]:oracleCases) {
+        const auto independent=c1oracle::project(compiled.program,fOracle,zeroAccepted);
+        const auto bytecode=projectCompiled64(compiled.program,fOracle,zeroAccepted);
+        double maxStateError=0.0,maxStressErrorPa=0.0,maxStressScalePa=1.0;
+        unsigned worstState=0u;
+        for(unsigned state=0;state<15u;++state) {
+            const double error=std::abs(independent.state[state]-bytecode.state[state]);
+            if(error>maxStateError){maxStateError=error;worstState=state;}
+        }
+        for(unsigned componentIndex=0;componentIndex<9u;++componentIndex) {
+            const double referencePa=bytecode.firstPiolaMPa[componentIndex]*1.0e6;
+            maxStressErrorPa=std::max(maxStressErrorPa,
+                std::abs(independent.firstPiolaPa[componentIndex]-referencePa));
+            maxStressScalePa=std::max(maxStressScalePa,std::abs(referencePa));
+        }
+        std::cout<<candidate.name<<" independent_oracle_case="<<caseName
+            <<" state_inf_error="<<number(maxStateError)
+            <<" worst_state="<<worstState
+            <<" manual_value="<<number(independent.state[worstState])
+            <<" bytecode_value="<<number(bytecode.state[worstState])
+            <<" stress_relative_error="<<number(maxStressErrorPa/maxStressScalePa)
+            <<" classification=cpu_oracle_crosscheck_not_native\n";
+        require(maxStateError<1.0e-6 && maxStressErrorPa/maxStressScalePa<1.0e-6,
+            "manual C1 oracle disagrees with compiled FP64 law: "+candidate.name+
+            " case="+caseName);
+        double worstTangentRelative=0.0;
+        for(unsigned column=0;column<9u;++column) {
+            paper::Matrix direction{};direction[column]=1.0;
+            const auto independentTangent=c1oracle::tangent(
+                compiled.program,fOracle,direction,zeroAccepted,independent.state);
+            const auto bytecodeTangent=compiledAlgorithmicTangent15(
+                compiled.program,fOracle,direction,zeroAccepted,bytecode.state);
+            double error=0.0,scale=1.0;
+            for(unsigned row=0;row<9u;++row) {
+                const double bytecodePa=bytecodeTangent[row]*1.0e6;
+                error=std::max(error,std::abs(independentTangent[row]-bytecodePa));
+                scale=std::max(scale,std::abs(bytecodePa));
+            }
+            worstTangentRelative=std::max(worstTangentRelative,error/scale);
+        }
+        std::cout<<candidate.name<<" independent_oracle_case="<<caseName
+            <<" all9_tangent_columns_max_relative_error="<<number(worstTangentRelative)
+            <<" classification=cpu_oracle_crosscheck_not_native\n";
+        require(worstTangentRelative<2.0e-5,
+            "manual C1 tangent disagrees with compiled FP64 law: "+candidate.name+
+            " case="+caseName);
+    }
+
+    const std::string component=liner?"liner":"medium_NSSC";
+    const auto findCurve=[&](const std::string& axis)->const SourceFitCurve& {
+        const auto found=std::find_if(curves.begin(),curves.end(),[&](const auto& curve) {
+            return curve.component==component && curve.axis==axis;
+        });
+        require(found!=curves.end(),"registered source-fit CSV lacks "+component+" "+axis);
+        return *found;
+    };
+    const auto& mdCurve=findCurve("MD");
+    const auto& cdCurve=findCurve("CD");
+    checkParameter(candidate,"hardening_md",mdCurve.plasticHardeningMPa*1.0e6);
+    checkParameter(candidate,"hardening_cd",cdCurve.plasticHardeningMPa*1.0e6);
+    const double authoredMd=parameterValue(candidate,"fit_transfer_scale_md");
+    const double authoredCd=parameterValue(candidate,"fit_transfer_scale_cd");
+    std::array<double,2> authoredSlopes{};
+    if(fullCalibration) {
+        const auto fitted=fitAsymmetricTransferScales(compiled.program,mdCurve,cdCurve,
+            tensilePairSum[0],tensilePairSum[1]);
+        std::cout<<candidate.name<<" selected_width_normalized_stress="
+            <<number(compressionWidth)<<" fit_transfer_scale_md="<<number(fitted.scales[0])
+            <<" fit_transfer_scale_cd="<<number(fitted.scales[1])
+            <<" calibration_tangents_MPa=["<<number(fitted.slopes[0])<<','
+            <<number(fitted.slopes[1])<<"] source_Et_MPa=["
+            <<number(mdCurve.tangentMPa)<<','<<number(cdCurve.tangentMPa)<<"]\n";
+        require(std::abs(authoredMd-fitted.scales[0])<2.0e-7&&
+                std::abs(authoredCd-fitted.scales[1])<2.0e-7,
+            "authored transfer scales do not reproduce the CPU source-tangent fit");
+        authoredSlopes=fitted.slopes;
+        reportMarkerCurveResiduals(compiled.program,markers,component);
+
+        // Width is a numerical modeling assumption; recompute each tangent
+        // using the same strict local projection certificate.
+        for(const double width:{5.0e-6,2.5e-6,1.25e-6}) {
+            ConstitutiveProgram widthProgram=compiled.program;
+            setParameterValue(widthProgram.material,"fit_transfer_scale_md",authoredMd);
+            setParameterValue(widthProgram.material,"fit_transfer_scale_cd",authoredCd);
+            setParameterValue(widthProgram.material,"compression_smoothing_width",width);
+            const auto slopes=sourceFitTangents(widthProgram,mdCurve,cdCurve);
+            std::cout<<candidate.name<<" width_sensitivity width="<<number(width)
+                <<" tangent_MPa=["<<number(slopes[0])<<','<<number(slopes[1])<<"]"
+                <<" delta_from_selected_MPa=["<<number(slopes[0]-authoredSlopes[0])<<','
+                <<number(slopes[1]-authoredSlopes[1])<<"] local_certificate_max=2e-11\n";
+            require(std::isfinite(slopes[0])&&std::isfinite(slopes[1]),
+                "C1 smoothing width sensitivity produced a nonfinite tangent");
+        }
+        require(fitted.slopes[0]>=mdCurve.tangentLowMPa&&
+                fitted.slopes[0]<=mdCurve.tangentHighMPa&&
+                fitted.slopes[1]>=cdCurve.tangentLowMPa&&
+                fitted.slopes[1]<=cdCurve.tangentHighMPa,
+            "chosen C1 width fit does not fall inside the digitized tangent intervals");
+    } else {
+        authoredSlopes=sourceFitTangents(compiled.program,mdCurve,cdCurve);
+        std::cout<<candidate.name<<" authored_transfer_slopes_MPa=["
+            <<number(authoredSlopes[0])<<','<<number(authoredSlopes[1])
+            <<"] source_Et_MPa=["<<number(mdCurve.tangentMPa)<<','
+            <<number(cdCurve.tangentMPa)<<"] source_data_check=pass\n";
+        require(authoredSlopes[0]>=mdCurve.tangentLowMPa&&
+                authoredSlopes[0]<=mdCurve.tangentHighMPa&&
+                authoredSlopes[1]>=cdCurve.tangentLowMPa&&
+                authoredSlopes[1]<=cdCurve.tangentHighMPa,
+            "authored C1 transfer scales miss the source-fit tangent intervals");
+    }
+
+    // Compare the complete implicit algorithmic tangent against branch-preserving
+    // stress differences on tensile and compressive multiaxial states.
+    const std::array<std::pair<paper::Matrix,const char*>,2> probes{{
+        {paper::Matrix{1.04,0,0,0,1.01,0,0,0,1.005},"tensile"},
+        {paper::Matrix{0.97,0,0,0,0.99,0,0,0,0.995},"compressive"}}};
+    for(const auto& [fProbe,label]:probes) {
+        const std::array<double,15> accepted{};
+        const auto center=projectCompiled64(compiled.program,fProbe,accepted);
+        paper::Matrix direction{}; direction[0]=1.0;
+        const auto tangent=compiledAlgorithmicTangent15(
+            compiled.program,fProbe,direction,accepted,center.state);
+        constexpr double step=2.0e-7;
+        paper::Matrix plusF=fProbe,minusF=fProbe;
+        plusF[0]+=step;minusF[0]-=step;
+        const auto plus=projectCompiled64(compiled.program,plusF,accepted);
+        const auto minus=projectCompiled64(compiled.program,minusF,accepted);
+        double maxError=0.0,maxScale=1.0;
+        unsigned worstComponent=0u;
+        double worstFiniteDifference=0.0,worstTangent=0.0;
+        for(unsigned componentIndex=0;componentIndex<9u;++componentIndex) {
+            const double finiteDifference=(plus.firstPiolaMPa[componentIndex]-
+                minus.firstPiolaMPa[componentIndex])/(2.0*step);
+            if(std::abs(finiteDifference-tangent[componentIndex])>maxError) {
+                maxError=std::abs(finiteDifference-tangent[componentIndex]);
+                worstComponent=componentIndex;
+                worstFiniteDifference=finiteDifference;
+                worstTangent=tangent[componentIndex];
+            }
+            maxScale=std::max({maxScale,std::abs(finiteDifference),
+                               std::abs(tangent[componentIndex])});
+        }
+        const double relative=maxError/maxScale;
+        std::cout<<candidate.name<<" tangent_branch="<<label
+                 <<" relative_fd_error="<<number(relative)
+                 <<" worst_component="<<worstComponent
+                 <<" fd="<<number(worstFiniteDifference)
+                 <<" tangent="<<number(worstTangent)<<"\n";
+        require(relative<1.0e-3,
+            "asymmetric transfer complete implicit tangent misses branch-preserving finite differences: "+
+            candidate.name+" branch="+label+" relative="+number(relative));
     }
 }
 
@@ -1447,6 +2002,39 @@ void checkDualRootInitialization() {
         "duplicate implicit equation was not rejected");
 }
 
+void checkSelectNonnegativeLanguageAndDerivative() {
+    const std::string prefix=
+        "material select_branch { parameter density : kg/m^3 = 1; "
+        "parameter p : Pa = 1; state x : one = 0; model generic; "
+        "energy = 0.5*p*pow(F(0,0)-1,2); update x = x; ";
+    const std::string suffix=" }";
+    const auto parsed=parseMatter(prefix+
+        "implicit x = next(x)-select_nonnegative(next(x),next(x),0);"+suffix);
+    require(parsed.succeeded(),"select_nonnegative should parse and preserve arm dimensions: "+
+        diagnostics(parsed.diagnostics));
+    const auto compiled=detail::compileConstitutive(parsed.material,NM_EXPRESSION_STACK_CAPACITY);
+    require(compiled.succeeded(),"select_nonnegative should compile with an implicit derivative: "+
+        diagnostics(compiled.diagnostics));
+    const paper::Matrix identity=paper::identity(),zero{};
+    const std::array<double,1> accepted{};
+    const auto derivative=[&](double value) {
+        const std::array<double,1> candidate{value};
+        return evaluate(compiled.program.implicitJacobians.at(0),compiled.program.material,
+                        identity,zero,accepted,candidate);
+    };
+    require(std::abs(derivative(0.25))<1.0e-12,
+        "select_nonnegative positive arm derivative is incorrect");
+    require(std::abs(derivative(-0.25)-1.0)<1.0e-12,
+        "select_nonnegative negative arm derivative is incorrect");
+    require(std::abs(derivative(0.0))<1.0e-12,
+        "select_nonnegative zero tie must select the nonnegative arm derivative");
+    const auto badDimensions=parseMatter(prefix+
+        "implicit x = next(x)-select_nonnegative(next(x),next(x),p);"+suffix);
+    require(!badDimensions.succeeded() &&
+                diagnostics(badDimensions.diagnostics).find("arms require identical dimensions")!=std::string::npos,
+        "select_nonnegative must reject branch arms with different dimensions");
+}
+
 void checkComplementarityBranches() {
     const auto parsed=parseMatter("material fb_branches { parameter density : kg/m^3 = 1; "
         "parameter p : Pa = 1; parameter eps : one = 0.00000001; state x : one = 0; "
@@ -1555,6 +2143,25 @@ void replayCaptured(const numi::matter::MaterialProgram& liner,
 int main(int argc,char** argv) {
     try {
         const auto root=std::filesystem::path(__FILE__).parent_path().parent_path();
+        if(argc==2&&std::string(argv[1])=="--asymmetric-c1-calibration") {
+            const auto fitCurves=readSourceFitCurves(
+                root/"examples/cardboard/source-data/haj_ali_2009_bilinear_tension_fit_nodes.csv");
+            const auto markerCenters=readMarkerCenters(
+                root/"examples/cardboard/source-data/haj_ali_2009_experimental_marker_centers_v1.csv");
+            const auto transferRecords=readAsymmetricTransferRecords(
+                root/"examples/cardboard/source-data/haj_ali_2009_asymmetric_c1_transfer_v1.csv");
+            checkAsymmetricTransferCandidate(
+                parse(root/"materials/hajali2009_liner_hill_asymmetric_c1_transfer.nmatter"),
+                parse(root/"materials/hajali2009_liner_hill_ideal.nmatter"),
+                paper::MaterialKind::liner,fitCurves,markerCenters,transferRecords,true);
+            checkAsymmetricTransferCandidate(
+                parse(root/"materials/hajali2009_medium_hill_asymmetric_c1_transfer.nmatter"),
+                parse(root/"materials/hajali2009_medium_hill_ideal.nmatter"),
+                paper::MaterialKind::medium,fitCurves,markerCenters,transferRecords,true);
+            std::cout<<"checks="<<checks
+                <<" status=pass classification=source_curve_calibration_only_not_validation\n";
+            return 0;
+        }
         if((argc==4 || (argc==5&&std::string(argv[4])=="--scaled-residuals")) && std::string(argv[1])=="--replay-captured") {
             auto liner=parse(argv[2]),medium=parse(argv[3]);
             if(argc==5) {
@@ -1568,15 +2175,26 @@ int main(int argc,char** argv) {
         require(argc<=3,"expected optional liner and medium material paths");
         const MaterialProgram linerSource=parse(linerPath);
         const MaterialProgram mediumSource=parse(mediumPath);
+        checkSelectNonnegativeLanguageAndDerivative();
         checkMaterialSelectionDefaults(root/"materials");
         const auto fitCurves=readSourceFitCurves(
             root/"examples/cardboard/source-data/haj_ali_2009_bilinear_tension_fit_nodes.csv");
+        const auto transferRecords=readAsymmetricTransferRecords(
+            root/"examples/cardboard/source-data/haj_ali_2009_asymmetric_c1_transfer_v1.csv");
         const auto linerFit=parse(root/"materials/hajali2009_liner_hill_bilinear_fit.nmatter");
         const auto mediumFit=parse(root/"materials/hajali2009_medium_hill_bilinear_fit.nmatter");
         checkBilinearFitMaterial(linerFit,parse(root/"materials/hajali2009_liner_hill_ideal.nmatter"),
             paper::MaterialKind::liner,fitCurves);
         checkBilinearFitMaterial(mediumFit,parse(root/"materials/hajali2009_medium_hill_ideal.nmatter"),
             paper::MaterialKind::medium,fitCurves);
+        checkAsymmetricTransferCandidate(
+            parse(root/"materials/hajali2009_liner_hill_asymmetric_c1_transfer.nmatter"),
+            parse(root/"materials/hajali2009_liner_hill_ideal.nmatter"),
+            paper::MaterialKind::liner,fitCurves,{},transferRecords,false);
+        checkAsymmetricTransferCandidate(
+            parse(root/"materials/hajali2009_medium_hill_asymmetric_c1_transfer.nmatter"),
+            parse(root/"materials/hajali2009_medium_hill_ideal.nmatter"),
+            paper::MaterialKind::medium,fitCurves,{},transferRecords,false);
         checkDualRootInitialization();
         checkComplementarityBranches();
         checkAuthoredSource(linerSource,paper::liner);

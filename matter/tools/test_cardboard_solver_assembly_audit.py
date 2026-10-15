@@ -59,6 +59,34 @@ class AssemblyAuditTests(unittest.TestCase):
             for side in r['perturbations']:
                 self.assertLess(side['residual_gather']['absolute_error'],1e-15)
                 self.assertEqual(side['realized_u_velocity_relation']['absolute_error'],0)
+            self.assertEqual(len(r['one_sided_actions']),4)
+            for side in r['one_sided_actions']:
+                self.assertLess(side['comparison']['relative_error'],.001)
+                self.assertTrue(side['smooth_branch_eligible'])
+
+    def test_one_sided_branch_eligibility_is_independent(self):
+        h,n,t=fixture(); tangent=t[0]['center']['dP_local_Pa_per_mps']
+        replay={}
+        for s,q in enumerate((.9,1.1,.8,1.05,.85)):
+            replay[f'e0_t0_s{s}']=dict(valid=True,elastic_trial_q=q,
+                oracle_tangent_at_captured_candidate_Pa_per_s=tangent,
+                oracle_tangent_at_reprojected_state_Pa_per_s=tangent)
+        r,_=audit.audit_environment(h,n,t,replay,0)
+        for centered in r['centered_actions']:
+            self.assertFalse(centered['smooth_branch_eligible'])
+        for side in r['one_sided_actions']:
+            self.assertEqual(side['branch_crossing_tetrahedra'],int(side['side']=='plus'))
+            self.assertEqual(side['smooth_branch_eligible'],side['side']=='minus')
+
+    def test_near_yield_side_remains_inconclusive(self):
+        h,n,t=fixture(); tangent=t[0]['center']['dP_local_Pa_per_mps']
+        replay={f'e0_t0_s{s}':dict(valid=True,elastic_trial_q=1.,
+            oracle_tangent_at_captured_candidate_Pa_per_s=tangent,
+            oracle_tangent_at_reprojected_state_Pa_per_s=tangent) for s in range(5)}
+        r,_=audit.audit_environment(h,n,t,replay,0)
+        for side in r['one_sided_actions']:
+            self.assertEqual(side['near_yield_tetrahedra'],1)
+            self.assertFalse(side['smooth_branch_eligible'])
 
     def test_wrong_residual_sign_is_detected(self):
         h,n,t=fixture()
@@ -104,6 +132,49 @@ class AssemblyAuditTests(unittest.TestCase):
         self.assertIsNone(r['relative_error'])
         self.assertFalse(r['nonzero_reference'])
         self.assertEqual(r['verdict'],'descriptive_only_no_measured_noise_floor')
+
+    def realized_ray_fixture(self, zero=False):
+        h=np.diag([.1,.2,.3]); eps=.03125; dt=.1
+        header=dict(epsilon_values=[eps],dt_seconds_by_environment=[dt])
+        h_f=np.eye(3)
+        dv=np.array([[0.,0.,0.],[.1,0.,0.],[0.,.2,0.],[0.,0.,.3]])
+        if zero:
+            dv[:]=0
+        nodes=[]
+        for i in range(4):
+            up=eps*dt*dv[i]
+            um=-eps*dt*dv[i]
+            nodes.append(dict(environment=0,node_id=i,
+                center=dict(reference_u_m=[0.,0.,0.]),
+                epsilon_pair_realized_velocity_delta_m_s=[
+                    (eps*dv[i]).tolist(),(-eps*dv[i]).tolist()],
+                epsilon_pair_realized_u_delta_m=[up.tolist(),um.tolist()]))
+        t=dict(environment=0,tet_id=0,node_ids=[0,1,2,3],
+            inverse_rest_rows=np.eye(3).tolist(),frame_xyzw=[0.,0.,0.,1.],
+            center=dict(F_local=np.eye(3).tolist(),F_direction_local_per_s=h.tolist()),
+            perturbations=[])
+        for sign in (1.,-1.):
+            f=np.eye(3)+sign*eps*dt*h if not zero else np.eye(3)
+            t['perturbations'].append(dict(F_local=f.tolist(),F_local_low=np.zeros((3,3)).tolist()))
+        return header,{(0,n['node_id']):n for n in nodes},t,h
+
+    def test_realized_velocity_and_two_word_F_rays_are_separated(self):
+        h,nodes,t,intended=self.realized_ray_fixture()
+        ray=audit.reconstruct_realized_pair(h,nodes,t,0,0)
+        self.assertEqual(ray['centered_ray_status'],'measured')
+        self.assertLess(ray['kinematic_metrics']['realized_velocity_vs_intended_H']['absolute_error'],1e-14)
+        self.assertLess(ray['kinematic_metrics']['realized_F_vs_intended_H']['absolute_error'],2e-14)
+        self.assertLess(ray['kinematic_metrics']['realized_F_vs_velocity_H']['absolute_error'],2e-14)
+        self.assertEqual(ray['kinematic_metrics']['requested_nonzero_u_components_lost'],0)
+        self.assertEqual(ray['kinematic_metrics']['max_abs_side_u_minus_dt_delta_v_m'],0.)
+
+    def test_zero_realized_ray_is_inconclusive_not_a_pass(self):
+        h,nodes,t,_=self.realized_ray_fixture(zero=True)
+        ray=audit.reconstruct_realized_pair(h,nodes,t,0,0)
+        self.assertEqual(ray['centered_ray_status'],'inconclusive_zero_realized_velocity_ray')
+        self.assertTrue(ray['kinematic_metrics']['zero_ray_is_inconclusive'])
+        self.assertEqual(ray['kinematic_metrics']['realized_velocity_vs_intended_H']['comparison_status'],
+                         'inconclusive_zero_realized_velocity_ray')
 
 
 if __name__=='__main__': unittest.main()

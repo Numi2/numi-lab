@@ -281,7 +281,7 @@ constexpr std::uint32_t kMaximumRegionalGalerkinModes = 32u;
         source.fieldSmootherPasses,
         source.mutationRestarts,
         static_cast<std::uint32_t>(source.femPreconditioner),
-        0u,
+        source.cacheFEMAlgorithmicTangent ? 1u : 0u,
     };
     result.residualTolerances = f4(
         source.relativeResidual,

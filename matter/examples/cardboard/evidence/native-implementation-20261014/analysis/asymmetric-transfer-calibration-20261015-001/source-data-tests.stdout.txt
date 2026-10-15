@@ -1,0 +1,15 @@
+{
+  "status": "not_identified",
+  "identified_parameters": [],
+  "unidentified_parameters": [
+    "same-grade cured bridge thickness and density",
+    "local normal and shear cohesive peak tractions",
+    "mode-I fracture energy GIc",
+    "mode-II fracture energy GIIc",
+    "mixed-mode criterion and exponent",
+    "critical opening and sliding separations",
+    "rate dependence at impact rates",
+    "moisture/conditioning dependence"
+  ],
+  "reason": "the available pin, HMA and bulk-paper sources do not supply a same-grade internal-starch traction-separation calibration"
+}

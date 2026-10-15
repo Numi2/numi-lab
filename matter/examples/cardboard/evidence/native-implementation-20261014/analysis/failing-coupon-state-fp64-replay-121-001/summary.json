@@ -1,0 +1,295 @@
+{
+  "schema": "numi.cardboard.solver-pair-analysis.v1",
+  "binding": {
+    "prediction_schema": "numi.cardboard.native-prediction.v1",
+    "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-curves-and-trial-instruments-integrated-049",
+    "native_command": [
+      "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-049/matter/numi-matter-cardboard-probe",
+      "--preset",
+      "literature2009",
+      "--line-search-steps",
+      "24",
+      "--accurate-paper-projection",
+      "--scaled-paper-residuals",
+      "--without-self-contact",
+      "--reference-displacement-gradient",
+      "--compensated-paper-arithmetic",
+      "--safeguarded-paper-initializer",
+      "--residual-tolerance",
+      "1e-6",
+      "--newton-iterations",
+      "24",
+      "--fgmres-restart",
+      "16",
+      "--fgmres-iterations",
+      "512",
+      "--fgmres-preconditioner",
+      "regional-galerkin-block",
+      "--steps",
+      "12",
+      "--hold-steps",
+      "3",
+      "--unload-steps",
+      "6",
+      "--relax-steps",
+      "3",
+      "--release-steps",
+      "3",
+      "--nx",
+      "8",
+      "--ny",
+      "2",
+      "--thickness-slices",
+      "1",
+      "--bend-angle",
+      ".375",
+      "--dt",
+      ".0001",
+      "--material-iterations",
+      "16",
+      "--metallib",
+      "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-049/matter/shaders/NumiMatter.metallib",
+      "--output",
+      "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-smaller-epsilon-capture-121/output",
+      "--liner-material",
+      "/Users/home/cardboard-implementation-20261014/snapshots/source-curves-and-trial-instruments-integrated-049/matter/materials/hajali2009_liner_hill_ideal.nmatter",
+      "--medium-material",
+      "/Users/home/cardboard-implementation-20261014/snapshots/source-curves-and-trial-instruments-integrated-049/matter/materials/hajali2009_medium_hill_ideal.nmatter"
+    ],
+    "required_transforms_present": [
+      "--safeguarded-paper-initializer",
+      "--compensated-paper-arithmetic",
+      "--accurate-paper-projection",
+      "--scaled-paper-residuals"
+    ],
+    "input_hash_count": 736,
+    "receipt_exit_code": 2,
+    "receipt_timed_out": false,
+    "receipt_wall_seconds": 308.03492037497927,
+    "capture_selector": "1:3",
+    "verified_source_hashes": {
+      "source/matter/materials/hajali2009_liner_hill_ideal.nmatter": "787bf121f4ce359235e28691892e9d77adffde05faf10f2a90593d9f4b32398d",
+      "source/matter/materials/hajali2009_medium_hill_ideal.nmatter": "ecfd9de3f4550a6a269d7a6559781b16e15316cf3d587093f2e11a2e6942a8e8",
+      "source/matter/tools/cardboard_probe.mm": "0d41909beb56a95f5a303b0bd9d0cde6d1836b1af0fa92619b7cf860bda68c65",
+      "source/matter/tools/cardboard_paper_projection_scaling.hpp": "9b05e0fffbf5f350d7c4fc98ad05f8df2029c358c857f217d107b488fc5dc001",
+      "source/matter/include/numi/matter/paper_compensated_bytecode.h": "0b43cb3453db8f46239dfa17442d4ac0e7e0be6ca9cdae9b703576d2abfd3d76",
+      "source/matter/include/numi/matter/compiler.hpp": "0acddd3e8d8cd62abac2b3883d0694ed6ddd8816cb2313b132fd5b54327e7c46",
+      "source/matter/src/compiler_impl.cpp": "509203f1aca6e10f319a09c5e2ba6d5066066408c47b1a51cdd994054d532b4a",
+      "source/matter/src/constitutive_impl.cpp": "379aabf5123cc5ab3c27accffaf563737c8f092fe45ed1cec790429011c1cd25",
+      "source/matter/src/metal/common.metalinc": "664c4b7dcb6fa4230ea1753bfd3fee11b0704cccb4a7587a7f173ea00688729f",
+      "source/matter/src/metal/fem.metalinc": "ba383e05202ea61830ae25db9a793fd14c7b04dcd934e4340a4630127593fad9"
+    },
+    "capture_sha256": "2941086227d123ccc354cc073b76758a04c60e403e94f2a8cd838b629376bcc2",
+    "prediction_sha256": "d187f864cb9443d16009f3b38db77973466c36e0e24913bff214c25035ba5317",
+    "receipt_sha256": "164f91ade28c35f574b4296e555ef45e8f4b5848293dbac72d603c9529e5fdcc",
+    "replay_executable_sha256": "94595428094e664fa26560c5b90af9471b4f4c5c2182ddc3ac6900068d83a59d",
+    "replay_source_sha256": {
+      "cardboard_solver_pair_replay.cpp": "5f1c6eab513003086a47dba42b3fd9b8a22cc95d020b8cff6269357d2024d4e4",
+      "cardboard_solver_reference.hpp": "9055ddda423484ae24482abb1fc6f00e81fd221f07cb822b89805ffdd4bb39f7",
+      "cardboard_paper_projection_scaling.hpp": "9b05e0fffbf5f350d7c4fc98ad05f8df2029c358c857f217d107b488fc5dc001"
+    },
+    "analyzer_sha256": "0f1aa58ae66e1ccf8988077af7e9388e1595ef06b0633d23aba3f6e91046753a",
+    "replay_input_sha256": "9b02bc97686aa1532bac09793d8ba7085dca8e394777b6cb17602ae66b638aeb",
+    "replay_output_sha256": "21c689e46fb002dd7b4552b113f6a2e491fe6a318ee991095deee867f95b83ee",
+    "replay_source_material_sha256": {
+      "liner": "787bf121f4ce359235e28691892e9d77adffde05faf10f2a90593d9f4b32398d",
+      "medium": "ecfd9de3f4550a6a269d7a6559781b16e15316cf3d587093f2e11a2e6942a8e8"
+    }
+  },
+  "selection": {
+    "root": 1,
+    "newton_iteration": 3,
+    "environments": 2,
+    "tets_in_capture": 3840,
+    "paper_tets_replayed": 3456,
+    "selected_capture_terminal_integrity": true
+  },
+  "run_completion": {
+    "receipt_timed_out": false,
+    "receipt_exit_code": 2,
+    "full_history_complete": false,
+    "scope_note": "a complete selected Newton capture may be analyzed after timeout; timeout does not establish full-history completion"
+  },
+  "builder_transforms": {
+    "validated_from_sealed_native_argv": [
+      "--safeguarded-paper-initializer",
+      "--compensated-paper-arithmetic",
+      "--accurate-paper-projection",
+      "--scaled-paper-residuals"
+    ],
+    "source_equation_note": "initializer and accurate-projection policies produced the captured native candidate; compensated arithmetic and scaled residuals are replayed on transformed source roots; the independent FP64 oracle solves the same zero-set separately",
+    "F_replay_contract": "every captured FP32 F high and low word is widened separately then summed in FP64",
+    "candidate_state_replay_contract": "every captured FP32 projected-state high and low word is widened separately then summed in FP64",
+    "parameter_contract": "per-tet parameter values are read from the selected environment table and exact native material descriptor; defaults are never substituted",
+    "row_scale_contract": "13 row-scale constants are recomputed from the hash-bound material source defaults, which match this capture's per-environment constants; captured residual_scale is evaluated from each environment parameter row"
+  },
+  "replay": {
+    "returncode": 0,
+    "invalid_rows": 0,
+    "output_errors": []
+  },
+  "near_yield_diagnostic_band": {
+    "q_units": "dimensionless",
+    "width": 1e-06,
+    "physical_tolerance": false
+  },
+  "analysis_counts": {
+    "tet_audits": 3456,
+    "reference_projection_failures": 0,
+    "center_candidate_stress_comparisons": 3456,
+    "center_candidate_stress_comparisons_with_nonzero_reference": 2304,
+    "center_candidate_tangent_comparisons_with_nonzero_reference": 1728,
+    "near_yield_centers": 0
+  },
+  "transformed_source_residual_parity": {
+    "compared_center_rows": 3456,
+    "maximum_absolute_difference_from_native_projection_residual": 0.0,
+    "qualification": "diagnostic only; no threshold is asserted"
+  },
+  "per_environment_diagnostics": [
+    {
+      "environment": 0,
+      "paper_tetrahedra": 1728,
+      "elastic_trial_branch_counts": {
+        "elastic_trial": 1211,
+        "plastic_trial": 517
+      },
+      "captured_candidate_yield_surface_counts": {
+        "inside_yield_surface": 1211,
+        "on_yield_surface_within_diagnostic_band": 517
+      },
+      "nonzero_local_direction_tetrahedra": 1728,
+      "zero_local_direction_tetrahedra": 0,
+      "native_stress_vs_candidate_oracle_relative_error": {
+        "finite_count": 1728,
+        "total_count": 1728,
+        "statistics": {
+          "min": 2.619193200942792e-10,
+          "median": 2.4048346277065015e-08,
+          "p95": 4.6215186693804456e-08,
+          "max": 5.84359514409424e-08
+        }
+      },
+      "native_tangent_vs_candidate_oracle_relative_error": {
+        "finite_count": 1728,
+        "total_count": 1728,
+        "statistics": {
+          "min": 4.6146934653964264e-10,
+          "median": 3.159404495754266e-08,
+          "p95": 1.2431523464019552e-06,
+          "max": 2.3173411523884e-05
+        }
+      },
+      "candidate_state_vs_reprojected_reference_relative_error": {
+        "finite_count": 1728,
+        "total_count": 1728,
+        "statistics": {
+          "min": 6.48808568944174e-14,
+          "median": 3.2984592595554984e-10,
+          "p95": 3.5556049687237644e-08,
+          "max": 8.913182278254303e-08
+        }
+      },
+      "independent_candidate_scaled_residual_inf": {
+        "finite_count": 1728,
+        "total_count": 1728,
+        "statistics": {
+          "min": 4.685244163124547e-14,
+          "median": 9.135516891063971e-10,
+          "p95": 1.6365359834495414e-08,
+          "max": 2.000157628092485e-08
+        }
+      },
+      "source_vm_vs_native_reported_residual_absolute_difference": {
+        "finite_count": 1728,
+        "total_count": 1728,
+        "statistics": {
+          "min": 0.0,
+          "median": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        }
+      },
+      "finite_difference_pairs": {
+        "count": 3456,
+        "smooth_branch_eligible": 3456,
+        "near_yield_unresolved": 0,
+        "branch_crossing": 0,
+        "incomplete_or_unresolved": 0,
+        "zero_captured_direction": 0
+      },
+      "strict_gate": "inconclusive_no_measured_noise_floor"
+    },
+    {
+      "environment": 1,
+      "paper_tetrahedra": 1728,
+      "elastic_trial_branch_counts": {
+        "elastic_trial": 1728
+      },
+      "captured_candidate_yield_surface_counts": {
+        "inside_yield_surface": 1728
+      },
+      "nonzero_local_direction_tetrahedra": 0,
+      "zero_local_direction_tetrahedra": 1728,
+      "native_stress_vs_candidate_oracle_relative_error": {
+        "finite_count": 576,
+        "total_count": 1728,
+        "statistics": {
+          "min": 1.6121077164734403e-08,
+          "median": 3.040767375030481e-08,
+          "p95": 9.697761303302334e-08,
+          "max": 9.697761303302334e-08
+        }
+      },
+      "native_tangent_vs_candidate_oracle_relative_error": {
+        "finite_count": 0,
+        "total_count": 1728,
+        "statistics": null
+      },
+      "candidate_state_vs_reprojected_reference_relative_error": {
+        "finite_count": 576,
+        "total_count": 1728,
+        "statistics": {
+          "min": 5.8114202525861776e-09,
+          "median": 1.3436349399158148e-08,
+          "p95": 1.0356710453151276e-07,
+          "max": 1.0356710453151276e-07
+        }
+      },
+      "independent_candidate_scaled_residual_inf": {
+        "finite_count": 1728,
+        "total_count": 1728,
+        "statistics": {
+          "min": 1.1102230246251565e-15,
+          "median": 1.1102230246251565e-15,
+          "p95": 9.148881857586357e-12,
+          "max": 9.148881857586357e-12
+        }
+      },
+      "source_vm_vs_native_reported_residual_absolute_difference": {
+        "finite_count": 1728,
+        "total_count": 1728,
+        "statistics": {
+          "min": 0.0,
+          "median": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        }
+      },
+      "finite_difference_pairs": {
+        "count": 3456,
+        "smooth_branch_eligible": 0,
+        "near_yield_unresolved": 0,
+        "branch_crossing": 0,
+        "incomplete_or_unresolved": 3456,
+        "zero_captured_direction": 3456
+      },
+      "strict_gate": "inconclusive_no_measured_noise_floor"
+    }
+  ],
+  "strict_gate": "inconclusive_no_measured_noise_floor",
+  "analysis_exit_code": 3,
+  "solver_correctness": "unqualified",
+  "physical_validation": false,
+  "terminal_failure_explained": false
+}

@@ -3,6 +3,7 @@
 
 #include "metalrobo/engine_types.h"
 #include "numi/matter/matter.hpp"
+#include "cardboard_solver_reference.hpp"
 
 #include <algorithm>
 #include <array>
@@ -16,6 +17,7 @@
 #include <limits>
 #include <stdexcept>
 #include <string>
+#include <utility>
 #include <vector>
 
 #ifndef NUMI_MATTER_METALLIB
@@ -88,7 +90,8 @@ std::uint32_t regionOf(const NMTetrahedronGPU& tet) {
 }
 
 WorldSource source(const MaterialProgram& material,
-                   const FEMPreconditionerMode mode) {
+                   const FEMPreconditionerMode mode,
+                   const bool useTangentCache = false) {
     WorldSource world;
     world.environmentCount = 1u;
     world.frameTimestep = 2.0e-5;
@@ -97,6 +100,7 @@ WorldSource source(const MaterialProgram& material,
     world.mixedSolver.newtonIterations = 12u;
     world.mixedSolver.fgmresRestart = 16u;
     world.mixedSolver.fgmresIterations = 64u;
+    world.mixedSolver.cacheFEMAlgorithmicTangent = useTangentCache;
     // The inherited default comparison (case regional-rap-invariance-021)
     // admitted very different accepted Newton residuals: 5.05793e-5 for the
     // scalar selector and 1.67512e-8 for regional RAP, with a 2.99% relative
@@ -143,6 +147,95 @@ WorldSource source(const MaterialProgram& material,
         mode == FEMPreconditionerMode::regionalGalerkinContact)
         object.femPreconditionerRegionIds = {0u,1u};
     world.objects = {std::move(object)};
+    return world;
+}
+
+using PaperParameters = numi_cardboard_paper::Parameters;
+using PaperState = numi_cardboard_paper::State;
+
+double requiredParameter(const MaterialProgram& material,
+                         const std::string_view name) {
+    for (const Parameter& parameter : material.parameters) {
+        if (parameter.name == name) return parameter.defaultValue;
+    }
+    throw std::runtime_error("paper oracle parameter missing: " +
+                             std::string(name));
+}
+
+PaperParameters paperParameters(const MaterialProgram& material) {
+    using namespace numi_cardboard_paper;
+    need(material.internalState.size() == 13u,
+         "native paper regional oracle only admits the authored 13-state ideal-Hill layout");
+    constexpr std::array<std::string_view, 13> expectedStates{
+        "ep11", "ep22", "ep33", "ep23", "ep13", "ep12",
+        "sbar11", "sbar22", "sbar33", "sbar23", "sbar13", "sbar12",
+        "accumulated_multiplier"};
+    for (std::size_t index = 0u; index < expectedStates.size(); ++index) {
+        need(material.internalState[index].name == expectedStates[index],
+             "native paper regional oracle state order differs from its 13-state source reference");
+    }
+    PaperParameters result{};
+    result.name = material.name;
+    result.density = requiredParameter(material, "density");
+    constexpr double kPascalPerMegapascal = 1.0e6;
+    result.c = {
+        requiredParameter(material, "c11") / kPascalPerMegapascal,
+        requiredParameter(material, "c22") / kPascalPerMegapascal,
+        requiredParameter(material, "c33") / kPascalPerMegapascal,
+        requiredParameter(material, "c12") / kPascalPerMegapascal,
+        requiredParameter(material, "c13") / kPascalPerMegapascal,
+        requiredParameter(material, "c23") / kPascalPerMegapascal};
+    result.shear = {
+        requiredParameter(material, "g12") / kPascalPerMegapascal,
+        requiredParameter(material, "g13") / kPascalPerMegapascal,
+        requiredParameter(material, "g23") / kPascalPerMegapascal};
+    result.sigmaReference = requiredParameter(material, "sigma_ref") /
+        kPascalPerMegapascal;
+    result.hill = {
+        requiredParameter(material, "hill_F"),
+        requiredParameter(material, "hill_G"),
+        requiredParameter(material, "hill_H"),
+        requiredParameter(material, "hill_L"),
+        requiredParameter(material, "hill_M"),
+        requiredParameter(material, "hill_N")};
+    result.qFloor = requiredParameter(material, "q_floor");
+    result.fischerBurmeisterEpsilon = requiredParameter(material, "fb_epsilon");
+    return result;
+}
+
+WorldSource paperSource(MaterialProgram material,
+                        const FEMPreconditionerMode mode,
+                        const double displacementScale,
+                        const bool rotateMaterialAxes = false) {
+    need(material.internalState.size() == 13u,
+         "paper regional fixture requires a 13-state source program");
+    material.paperHillScalarInitializer = true;
+    material.paperCompensatedArithmetic = true;
+    material.paperHillAccurateProjection = true;
+    for (Parameter& parameter : material.parameters)
+        parameter.identifiable = false;
+    WorldSource world = source(material, mode);
+    world.gravity = {0.0, 0.0, -9.81};
+    ObjectSource& object = world.objects.front();
+    object.name = "source_bound_haj_ali_ideal_hill_native_regional_fixture";
+    if (rotateMaterialAxes) {
+        // A single uniform 30-degree in-plane material rotation. This is a
+        // numerical frame-invariance fixture, not a measured paper orientation.
+        object.femMaterialFrameRotations = {
+            {{0.0, 0.0, 0.25881904510252074, 0.9659258262890683}},
+            {{0.0, 0.0, 0.25881904510252074, 0.9659258262890683}}};
+        object.femMaterialFrameSourceIdentity = {
+            0x4f97be12a8c630d5ull, 0x8a42d1e6f937b05cull,
+            0x7c19e5a20b6438dfull, 0xd34a0f6182be759cull};
+    }
+    for (std::size_t node = 3u; node < object.femNodes.size(); ++node) {
+        for (unsigned axis = 0u; axis < 3u; ++axis) {
+            object.femNodes[node][axis] = object.femReferenceNodes[node][axis] +
+                displacementScale *
+                    (object.femNodes[node][axis] -
+                     object.femReferenceNodes[node][axis]);
+        }
+    }
     return world;
 }
 
@@ -545,6 +638,23 @@ Mat gradientFrom(const std::array<Vec,4>& values,const Mat& inverseRest) {
     return multiply(dp,inverseRest);
 }
 
+Mat materialFrameMatrix(const NMTetrahedronGPU& tetrahedron) {
+    const double x = tetrahedron.materialFrameRotation.x;
+    const double y = tetrahedron.materialFrameRotation.y;
+    const double z = tetrahedron.materialFrameRotation.z;
+    const double w = tetrahedron.materialFrameRotation.w;
+    const double inverseNorm = 1.0 / std::sqrt(x*x + y*y + z*z + w*w);
+    const double qx = x * inverseNorm, qy = y * inverseNorm;
+    const double qz = z * inverseNorm, qw = w * inverseNorm;
+    return {
+        1.0 - 2.0*(qy*qy+qz*qz), 2.0*(qx*qy-qz*qw),
+            2.0*(qx*qz+qy*qw),
+        2.0*(qx*qy+qz*qw), 1.0 - 2.0*(qx*qx+qz*qz),
+            2.0*(qy*qz-qx*qw),
+        2.0*(qx*qz-qy*qw), 2.0*(qy*qz+qx*qw),
+            1.0 - 2.0*(qx*qx+qy*qy)};
+}
+
 Mat neoHookeanDirectional(const Mat& f,const Mat& d,const double mu,const double lambda) {
     const double j=determinant(f);need(j>0,"oracle deformation inverted");
     const Mat inv=inverse(f), invT=transpose(inv), dT=transpose(d);
@@ -595,6 +705,90 @@ std::vector<Vec> fp64AP(const CompiledWorld& world,
                     candidate.positionAndMass.w));
             else accumulated[n]={};
             result[std::size_t(mode)*nodes+n]=accumulated[n];}
+    }
+    return result;
+}
+
+std::vector<Vec> fp64PaperAP(const CompiledWorld& world,
+                             const RuntimeStateSnapshot& snapshot,
+                             const BasisResult& basis,
+                             const PaperParameters& parameters) {
+    using namespace numi_cardboard_solver;
+    const std::size_t nodes = world.dispatch.femNodeCount;
+    const std::size_t tetrahedra = world.fem.tetrahedra.size();
+    const std::size_t stateStride = snapshot.materialStateStride;
+    need(snapshot.femRegionalGalerkinLinearizationNodes.size() == nodes,
+         "paper FP64 AP oracle requires the captured regional linearization nodes");
+    need(stateStride == world.dispatch.materialStateStride && stateStride == 13u &&
+         snapshot.femMaterialState.size() == tetrahedra * stateStride,
+         "paper FP64 AP oracle requires one accepted 13-state row per tetrahedron");
+    const double dt = world.dispatch.gravityAndTimestep.w;
+    constexpr double kPascalPerMegapascal = 1.0e6;
+    std::vector<Vec> result(std::size_t(basis.modes) * nodes);
+    for (std::uint32_t mode = 0u; mode < basis.modes; ++mode) {
+        std::vector<Vec> accumulated(nodes);
+        for (std::size_t tetIndex = 0u; tetIndex < tetrahedra; ++tetIndex) {
+            const NMTetrahedronGPU& tet = world.fem.tetrahedra[tetIndex];
+            const std::array<std::uint32_t, 4> ids{
+                tet.nodes.x, tet.nodes.y, tet.nodes.z, tet.nodes.w};
+            std::array<Vec, 4> x{};
+            std::array<Vec, 4> direction{};
+            for (unsigned local = 0u; local < 4u; ++local) {
+                x[local] = from4(snapshot.femRegionalGalerkinLinearizationNodes[ids[local]]
+                                     .positionAndMass);
+                direction[local] = basis.vectors[
+                    std::size_t(mode) * nodes + ids[local]];
+            }
+            const Mat invR = inverseRest(tet);
+            const Mat fWorld = gradientFrom(x, invR);
+            const Mat dFWorld = gradientFrom(direction, invR);
+            const bool framed =
+                (world.objects.at(tet.identity.y).flags &
+                 NM_OBJECT_FEM_MATERIAL_FRAME) != 0u;
+            const Mat q = materialFrameMatrix(tet);
+            const Mat f = framed ? multiply(fWorld, q) : fWorld;
+            const Mat dF = framed ? multiply(dFWorld, q) : dFWorld;
+            PaperState accepted{};
+            for (std::size_t state = 0u; state < accepted.size(); ++state) {
+                accepted[state] = snapshot.femMaterialState[
+                    tetIndex * stateStride + state];
+                need(std::isfinite(accepted[state]),
+                     "paper snapshot contains a nonfinite accepted state");
+            }
+            const auto projected = project(parameters, f, accepted);
+            Mat dP = directionalTangent(parameters, f, dF,
+                                        accepted, projected.state);
+            for (double& value : dP) value *= kPascalPerMegapascal;
+            if (framed) dP = multiply(dP, transpose(q));
+            const Mat h = scale(multiply(dP, transpose(invR)),
+                                -double(tet.inverseRestRow0.w));
+            std::array<Vec, 4> local{};
+            for (unsigned axis = 0u; axis < 3u; ++axis) {
+                local[1][axis] = h[3u * axis];
+                local[2][axis] = h[3u * axis + 1u];
+                local[3][axis] = h[3u * axis + 2u];
+                local[0][axis] = -(local[1][axis] + local[2][axis] +
+                                   local[3][axis]);
+            }
+            for (unsigned localNode = 0u; localNode < 4u; ++localNode)
+                accumulated[ids[localNode]] = add(
+                    accumulated[ids[localNode]],
+                    scale(local[localNode], dt * dt));
+        }
+        for (std::size_t node = 0u; node < nodes; ++node) {
+            const NMFEMNodeStateGPU& candidate =
+                snapshot.femRegionalGalerkinLinearizationNodes[node];
+            const float marker = candidate.restAndFixed.w;
+            const bool fixedVelocity = marker == 1.0f || marker == 3.0f;
+            if (!fixedVelocity) {
+                accumulated[node] = add(accumulated[node], scale(
+                    basis.vectors[std::size_t(mode) * nodes + node],
+                    candidate.positionAndMass.w));
+            } else {
+                accumulated[node] = {};
+            }
+            result[std::size_t(mode) * nodes + node] = accumulated[node];
+        }
     }
     return result;
 }
@@ -971,11 +1165,162 @@ void checkRegionalExport(const RunResult& regional) {
     }
 }
 
+void checkPaperRegionalExport(const RunResult& regional,
+                              const PaperParameters& parameters,
+                              const double displacementScale,
+                              const std::string_view fixtureCase) {
+    const auto& world = regional.world;
+    const auto& snapshot = regional.snapshot;
+    need(snapshot.femRegionalGalerkinDiagnosticsAvailable,
+         "native paper AP export unavailable: " +
+             snapshot.femRegionalGalerkinDiagnosticsMessage);
+    const BasisResult expectedP = fp64Basis(world);
+    const BasisResult effectiveP =
+        projectBasisThroughSnapshotMask(expectedP, snapshot);
+    const auto expectedAP = fp64PaperAP(world, snapshot, effectiveP, parameters);
+    const auto expectedAPFlat = flatten(expectedAP);
+    const auto nativeAP = flatten(snapshot.femRegionalGalerkinOperatorAP);
+    const double apError = relativeError(nativeAP, expectedAPFlat);
+    double maximumPlasticStrainState = 0.0;
+    double maximumMultiplierState = 0.0;
+    need(snapshot.materialStateStride == 13u,
+         "paper regional snapshot did not preserve its 13-state material stride");
+    for (std::size_t tet = 0u; tet < world.fem.tetrahedra.size(); ++tet) {
+        for (std::size_t state = 0u; state < 6u; ++state) {
+            maximumPlasticStrainState = std::max(
+                maximumPlasticStrainState,
+                std::abs(double(snapshot.femMaterialState[tet * 13u + state])));
+        }
+        maximumMultiplierState = std::max(
+            maximumMultiplierState,
+            std::abs(double(snapshot.femMaterialState[tet * 13u + 12u])));
+    }
+    std::cout << std::setprecision(12)
+        << "{\"schema\":1,\"record\":\"native_paper_regional_AP\""
+        << ",\"physical_validation\":false"
+        << ",\"source_material\":\"" << parameters.name << "\""
+        << ",\"selector\":" << world.mixedSolver.executionBudgets.z
+        << ",\"fixture_case\":\"" << fixtureCase << "\""
+        << ",\"material_frame_enabled\":"
+        << ((world.objects.front().flags & NM_OBJECT_FEM_MATERIAL_FRAME) != 0u
+                ? "true" : "false")
+        << ",\"displacement_scale\":" << displacementScale
+        << ",\"material_state_stride\":" << snapshot.materialStateStride
+        << ",\"maximum_accepted_plastic_strain_state\":"
+        << maximumPlasticStrainState
+        << ",\"maximum_accepted_multiplier_state\":"
+        << maximumMultiplierState
+        << ",\"native_AP_relative_error\":" << apError
+        << ",\"FP64_oracle\":\"source-parameterized 13-state Haj-Ali ideal-Hill StVK, analytic implicit tangent\""
+        << ",\"AP_includes_consistent_mass_and_element_tangent\":true}\n";
+    need(std::isfinite(apError) && apError < 5.0e-3,
+         "native regional AP differs from independent source-parameterized paper tangent: " +
+             std::to_string(apError));
+}
+
+void checkInvariance(const RunResult& left, const RunResult& right);
+std::vector<nm_float4> singleNodeTarget(
+    const RuntimeStateSnapshot& snapshot,
+    std::uint32_t nodeIndex,
+    float command);
+
+void checkPaperRegionalNative(const MaterialProgram& parsedMaterial) {
+    const PaperParameters parameters = paperParameters(parsedMaterial);
+    constexpr double lowDisplacementScale = 1.0e-3;
+    const WorldSource regionalSource = paperSource(
+        parsedMaterial, FEMPreconditionerMode::regionalGalerkin,
+        lowDisplacementScale);
+    const WorldSource enrichedSource = paperSource(
+        parsedMaterial, FEMPreconditionerMode::regionalGalerkinContact,
+        lowDisplacementScale);
+    const CompiledWorld regionalWorld = cook(regionalSource);
+    const CompiledWorld enrichedWorld = cook(enrichedSource);
+    need(regionalWorld.dispatch.materialStateStride == 13u &&
+         enrichedWorld.dispatch.materialStateStride == 13u,
+         "paper native fixture compiled to an unexpected internal-state stride");
+    need(regionalWorld.mixedSolver.residualTolerances.x ==
+             enrichedWorld.mixedSolver.residualTolerances.x,
+         "paper selector comparison changed the nonlinear residual tolerance");
+    NativeRun regionalRun(regionalWorld, NUMI_MATTER_METALLIB);
+    NativeRun enrichedRun(enrichedWorld, NUMI_MATTER_METALLIB);
+    const RunResult regional = regionalRun.run();
+    const RunResult enriched = enrichedRun.run();
+    checkPaperRegionalExport(regional, parameters, lowDisplacementScale,
+                             "low_F_regional_scalar_fine");
+    checkPaperRegionalExport(enriched, parameters, lowDisplacementScale,
+                             "low_F_regional_contact_enriched");
+    checkInvariance(regional, enriched);
+
+    const CompiledWorld rotatedRegionalWorld = cook(paperSource(
+        parsedMaterial, FEMPreconditionerMode::regionalGalerkin,
+        lowDisplacementScale, true));
+    const CompiledWorld rotatedEnrichedWorld = cook(paperSource(
+        parsedMaterial, FEMPreconditionerMode::regionalGalerkinContact,
+        lowDisplacementScale, true));
+    NativeRun rotatedRegionalRun(rotatedRegionalWorld, NUMI_MATTER_METALLIB);
+    NativeRun rotatedEnrichedRun(rotatedEnrichedWorld, NUMI_MATTER_METALLIB);
+    const RunResult rotatedRegional = rotatedRegionalRun.run();
+    const RunResult rotatedEnriched = rotatedEnrichedRun.run();
+    checkPaperRegionalExport(rotatedRegional, parameters, lowDisplacementScale,
+                             "rotated_low_F_regional_scalar_fine");
+    checkPaperRegionalExport(rotatedEnriched, parameters, lowDisplacementScale,
+                             "rotated_low_F_regional_contact_enriched");
+    checkInvariance(rotatedRegional, rotatedEnriched);
+
+    const auto runCompressedHistory = [&](const FEMPreconditionerMode mode) {
+        WorldSource compressedSource = paperSource(parsedMaterial, mode, 0.0, true);
+        compressedSource.gravity = {0.0, 0.0, 0.0};
+        NativeRun compressedRun(cook(compressedSource), NUMI_MATTER_METALLIB);
+        const RunResult initial = compressedRun.run(0u);
+        need(initial.snapshot.femNodes.size() == 5u,
+             "paper history fixture changed the two-tet node layout");
+        auto target = singleNodeTarget(initial.snapshot, 1u, 3.0f);
+        // A 50 um shortening of the MD edge is a manufactured source-history
+        // probe, not a paper specimen loading claim. Hold this accepted grip
+        // for a second transaction so regional AP is built from a nonzero
+        // accepted 13-state history.
+        target[1].x -= 5.0e-5f;
+        const RunResult loaded = compressedRun.run(1u, target);
+        const RunResult held = compressedRun.run(2u, target);
+        need(held.snapshot.femNodes[1u].restAndFixed.w == 3.0f,
+             "paper history fixture did not retain its accepted temporary grip");
+        double plasticHistory = 0.0;
+        for (std::size_t tet = 0u;
+             tet < compressedSource.objects.front().tetrahedra.size(); ++tet) {
+            for (std::size_t state = 0u; state < 6u; ++state) {
+                plasticHistory = std::max(plasticHistory, std::abs(double(
+                    held.snapshot.femMaterialState[tet * 13u + state])));
+            }
+        }
+        need(plasticHistory > 1.0e-10,
+             "manufactured MD compression did not produce accepted paper plastic history");
+        checkPaperRegionalExport(held, parameters, 0.0,
+            mode == FEMPreconditionerMode::regionalGalerkin
+                ? "accepted_history_regional_scalar_fine"
+                : "accepted_history_regional_contact_enriched");
+        return std::pair<RunResult, double>{held, plasticHistory};
+    };
+    const auto regionalHistory = runCompressedHistory(
+        FEMPreconditionerMode::regionalGalerkin);
+    const auto enrichedHistory = runCompressedHistory(
+        FEMPreconditionerMode::regionalGalerkinContact);
+    checkInvariance(regionalHistory.first, enrichedHistory.first);
+    std::cout << "PASS native source-bound 13-state paper regional RAP low-F oracle"
+              << " source_material=" << parsedMaterial.name
+              << " low_F_selector2_and4_transactions=2"
+              << " rotated_low_F_selector2_and4_transactions=2"
+              << " rotated_accepted_history_selector2_and4_transactions=6"
+              << " max_accepted_plastic_strain="
+              << std::max(regionalHistory.second, enrichedHistory.second)
+              << " physical_validation=false" << '\n';
+}
+
 const char* selectorName(const RunResult& run) {
     switch (run.world.mixedSolver.executionBudgets.z) {
         case 0u: return "scalar_diagonal";
         case 2u: return "regional_galerkin_scalar_fine";
         case 3u: return "regional_galerkin_block_jacobi_fine";
+        case 4u: return "regional_galerkin_contact_enriched";
         default: return "unsupported_selector";
     }
 }
@@ -1062,6 +1407,10 @@ void checkInvariance(const RunResult& left,const RunResult& right) {
         <<",\"fgmres_iteration_delta\":"
         <<(static_cast<std::int64_t>(statusB.fgmresIterations)-
            static_cast<std::int64_t>(statusA.fgmresIterations))
+        <<",\"algorithmic_tangent_cache_a\":"
+        <<(left.world.mixedSolver.executionBudgets.w==1u?"true":"false")
+        <<",\"algorithmic_tangent_cache_b\":"
+        <<(right.world.mixedSolver.executionBudgets.w==1u?"true":"false")
         <<",\"all_solution_fields_finite\":"
         <<(allSolutionFieldsFinite?"true":"false")
         <<",\"mass_and_inverse_mass_match\":"
@@ -1081,6 +1430,46 @@ void checkInvariance(const RunResult& left,const RunResult& right) {
         "selector changed accepted physical solution beyond the FP32 comparison bound");
     need(certDelta<=2.0e-6*certScale,
         "selector changed the final nonlinear certificate materially");
+}
+
+void checkTangentCacheInvariance(const MaterialProgram& material) {
+    const CompiledWorld directWorld = cook(source(
+        material, FEMPreconditionerMode::regionalGalerkin, false));
+    const CompiledWorld cachedWorld = cook(source(
+        material, FEMPreconditionerMode::regionalGalerkin, true));
+    need(directWorld.dispatch.femNodeCount == cachedWorld.dispatch.femNodeCount &&
+         directWorld.fem.tetrahedra.size() == cachedWorld.fem.tetrahedra.size() &&
+         directWorld.mixedSolver.residualTolerances.x ==
+             cachedWorld.mixedSolver.residualTolerances.x,
+         "tangent-cache comparison changed the physical fixture or tolerance");
+    need(directWorld.mixedSolver.executionBudgets.w == 0u &&
+         cachedWorld.mixedSolver.executionBudgets.w == 1u,
+         "tangent-cache comparison did not compile the requested policies");
+
+    NativeRun directRun(directWorld, NUMI_MATTER_METALLIB);
+    NativeRun cachedRun(cachedWorld, NUMI_MATTER_METALLIB);
+    const RunResult direct = directRun.run();
+    const RunResult cached = cachedRun.run();
+    need(direct.snapshot.statuses.at(0u).fgmresIterations > 0u &&
+         cached.snapshot.statuses.at(0u).fgmresIterations > 0u,
+         "tangent-cache comparison did not execute nonzero FGMRES work");
+    checkInvariance(direct, cached);
+    std::cout << std::setprecision(12)
+        << "{\"schema\":1,\"record\":\"regional_algorithmic_tangent_cache\""
+        << ",\"physical_validation\":false"
+        << ",\"direct_fgmres_iterations\":"
+        << direct.snapshot.statuses.at(0u).fgmresIterations
+        << ",\"cached_fgmres_iterations\":"
+        << cached.snapshot.statuses.at(0u).fgmresIterations
+        << ",\"direct_final_certificate_valid\":"
+        << (direct.snapshot.solverCertificates.at(0u).validity.w > 0.5f
+                ? "true" : "false")
+        << ",\"cached_final_certificate_valid\":"
+        << (cached.snapshot.solverCertificates.at(0u).validity.w > 0.5f
+                ? "true" : "false")
+        << ",\"direct_world_fingerprint\":" << direct.world.fingerprint
+        << ",\"cached_world_fingerprint\":" << cached.world.fingerprint
+        << "}\n";
 }
 
 std::vector<nm_float4> singleNodeTarget(
@@ -1280,7 +1669,17 @@ void checkActiveCohesiveAP(const MaterialProgram& material) {
 int main(int argc,char** argv) {
     @autoreleasepool {
         try {
-            need(argc==2,"usage: fem-regional-galerkin-native-check <starch-material.nmatter>");
+            if (argc == 3 && std::string_view(argv[1]) == "--paper-only") {
+                const auto paperParsed = parseMatterFile(argv[2]);
+                need(paperParsed.succeeded(),
+                     "cannot parse source-bound 13-state paper material");
+                const MaterialProgram& paperMaterial = paperParsed.material;
+                need(paperMaterial.internalState.size() == 13u,
+                     "--paper-only requires the independently referenced 13-state ideal-Hill material");
+                checkPaperRegionalNative(paperMaterial);
+                return 0;
+            }
+            need(argc==2,"usage: fem-regional-galerkin-native-check <starch-material.nmatter> | --paper-only <13-state-paper-material.nmatter>");
             const auto parsed=parseMatterFile(argv[1]);
             need(parsed.succeeded(),"cannot parse elastic starch material");
             MaterialProgram material=parsed.material;
@@ -1314,11 +1713,12 @@ int main(int argc,char** argv) {
             checkInvariance(regional,block);
             checkGripMaskTransition(material);
             checkActiveCohesiveAP(material);
+            checkTangentCacheInvariance(material);
             std::cout<<"PASS regional RAP/block-Jacobi source-bound FP64 and selector invariance"
-                     <<" native_transactions=6 physical_validation=false"
+                     <<" native_transactions=8 physical_validation=false"
                      <<" grip_transition_transactions=3"
-                     <<" active_cohesive_transactions=2"
-                     <<" scope=synthetic-elastic-and-active-mortar-operator"<<'\n';
+                     <<" active_cohesive_transactions=2 tangent_cache_transactions=2"
+                     <<" scope=synthetic-elastic-and-active-mortar-operator-and-pure-FEM-cache"<<'\n';
             return 0;
         } catch(const std::exception& e) {
             std::cerr<<"FAIL regional RAP native checker: "<<e.what()<<'\n';

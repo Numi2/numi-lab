@@ -1956,7 +1956,9 @@ kernel void nm_fgmres_build_tangent_fem_preconditioner(
                 femMaterialInput(object, tetrahedron, deformationDirection),
                 femMaterialInput(object, tetrahedron, deformationRate),
                 femMaterialInput(object, tetrahedron, rateDirection),
-                dt, material.bulk.y, analytic, tangent, valid,deformationLow);
+                dt, material.bulk.y, analytic, tangent, valid,
+                nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
+                deformationLow);
             (void)analytic;
             const bool finiteTangent = all(isfinite(tangent[0])) &&
                 all(isfinite(tangent[1])) && all(isfinite(tangent[2]));
@@ -2164,6 +2166,7 @@ kernel void nm_fgmres_build_tangent_fem_block_preconditioner(
                 femMaterialInput(object, tetrahedron, deformationRate),
                 femMaterialInput(object, tetrahedron, rateDirection),
                 dt, material.bulk.y, analytic, tangent, valid,
+                nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
                 deformationLow);
             (void)analytic;
             const bool finiteTangent = all(isfinite(tangent[0])) &&

@@ -32,6 +32,8 @@ DIAGNOSTIC_ENV_KEYS = frozenset({
     "NM_FEM_NEWTON_TRACE_ROOT",
     "NM_FEM_OPERATOR_FD_SELECTOR",
     "NM_FEM_OPERATOR_FD_CAPTURE_PATH",
+    # Changes only the private perturbation pair, never the production update.
+    "NM_FEM_OPERATOR_FD_EPSILON_SCALE",
 })
 
 
@@ -154,8 +156,6 @@ def _load_attempt(case_dir: Path, *, state_fixture: bool = False) -> dict[str, A
     output_dir = retained_output.resolve(strict=True)
     if Path(argv[output_index + 1]).resolve() != output_dir:
         raise ComparisonError(f"argv output directory does not identify retained output: {case_dir}")
-    if output_index + 2 != len(argv):
-        raise ComparisonError(f"--output must be the final argv pair: {case_dir}")
     artifact_hashes = build.get("artifacts_sha256")
     if not isinstance(artifact_hashes, dict):
         raise ComparisonError(f"source-build receipt lacks artifact hashes: {case_dir}")

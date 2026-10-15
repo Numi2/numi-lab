@@ -30,6 +30,7 @@
 
 #include <algorithm>
 #include <array>
+#include <chrono>
 #include <cmath>
 #include <cstdint>
 #include <cstring>
@@ -141,6 +142,7 @@ struct Arguments {
     bool compensatedPaperArithmetic = false;
     bool accuratePaperProjection = false;
     bool compensatedImplicitProjection = false;
+    bool cacheFEMAlgorithmicTangent = false;
     std::array<double, 13> linerProjectionScales{};
     std::array<double, 13> mediumProjectionScales{};
     std::array<double, 3> shippingInsideM{0.300, 0.200, 0.200};
@@ -1166,6 +1168,7 @@ void printUsage() {
         << "  --line-search-steps N  nonlinear/contact trial steps [1, 32] (default 8)\n"
         << "  --accurate-paper-projection  opt-in strict Hill state projection; requires compensated arithmetic (pair with --scaled-paper-residuals in the comparison study)\n"
         << "  --compensated-implicit-projection  opt in to compensated residual evaluation for retained-matrix generic implicit damage overlays\n"
+        << "  --cache-fem-algorithmic-tangent  opt-in per-Newton full material tangent cache for FGMRES; private trials and final certificates use direct evaluation\n"
         << "  --fgmres-preconditioner scalar|regional-tangent-diagonal|regional-galerkin|regional-galerkin-block|regional-galerkin-contact\n"
         << "    regional-galerkin modes require authored compact constituent regions; selectors 2/3 are contact-free. Contact selector 4 uses the enriched 32-mode RAP/block estimate and admits one immutable explicit FEM object (<=8192 nodes, <=32768 tets, <=4096 cohesive faces), one environment, no dynamic/generalized rigid or multiphysics rows, and only static/kinematic non-articulated contact proxies\n"
         << "  --bend-angle DEGREES   final right-grip rotation\n"
@@ -1309,6 +1312,10 @@ Arguments parseArguments(const int argc, const char* argv[]) {
         }
         if (option == "--compensated-implicit-projection") {
             arguments.compensatedImplicitProjection = true;
+            continue;
+        }
+        if (option == "--cache-fem-algorithmic-tangent") {
+            arguments.cacheFEMAlgorithmicTangent = true;
             continue;
         }
         if (option == "--shipping-impact-dt-refinement") {
@@ -2372,8 +2379,10 @@ MeshSource buildMesh(const Arguments& arguments,
         object.femCapacity.deformableContacts =
             arguments.deformableContactCapacity;
     object.deformableContact = glueMaterial != nullptr && !arguments.disableSelfContact;
-    object.deformableSelfContact = object.deformableContact &&
-        !arguments.shippingStarchLaw.has_value();
+    // Cohesion carries tension; its duplicated substrates still need closure
+    // contact after opening or debonding. Intact interface coverage is handled
+    // by the native contact exclusions, not by disabling the whole object.
+    object.deformableSelfContact = object.deformableContact;
     object.characteristicLength = std::min(
         arguments.linerThicknessM, arguments.mediumThicknessM) /
         static_cast<double>(arguments.thicknessSlices);
@@ -2453,6 +2462,7 @@ MeshSource buildMesh(const Arguments& arguments,
     result.world.mixedSolver.fgmresRestart = arguments.fgmresRestart;
     result.world.mixedSolver.lineSearchSteps = arguments.lineSearchSteps;
     result.world.mixedSolver.femPreconditioner = arguments.femPreconditioner;
+    result.world.mixedSolver.cacheFEMAlgorithmicTangent = arguments.cacheFEMAlgorithmicTangent;
     result.world.mixedSolver.newtonIterations = arguments.newtonIterations;
     result.world.materials = {linerMaterial, mediumMaterial};
     if (glueMaterial != nullptr) result.world.materials.push_back(*glueMaterial);
@@ -3632,6 +3642,9 @@ void writeManifest(const std::filesystem::path& path,
                    ? "once_per_newton_linearization"
                    : "legacy_each_krylov_restart_cycle")
            << "\",\n"
+           << "    \"fgmres_algorithmic_tangent_cache\": "
+           << (compiled.world.mixedSolver.executionBudgets.w == 1u ? "true" : "false")
+           << ",\n"
            << "    \"line_search_steps\": "
            << compiled.world.mixedSolver.nonlinearIterations.w << ",\n"
            << "    \"relative_residual_tolerance\": "
@@ -4449,6 +4462,14 @@ public:
         request.timestepSeconds = static_cast<float>(stepTimestepSeconds);
         request.runAdaptiveTransfer = false;
         request.phase = EncodePhase::preDynamics;
+        const char* timingSelector = std::getenv("NUMI_CARDBOARD_STEP_TIMING");
+        const bool recordStepTiming = timingSelector != nullptr &&
+            std::strcmp(timingSelector, "1") == 0;
+        const auto encodeStart = std::chrono::steady_clock::now();
+        if (recordStepTiming)
+            std::cerr << "cardboard_step_timing={\"schema\":1,\"control_step\":"
+                      << index << ",\"stage\":\"encode_begin\","
+                      << "\"scope\":\"prescribed_fem_transaction\"}\n";
         const RuntimeDiagnostics pre = runtime_.encode(request);
         require(pre.encoded, "Matter preDynamics encode failed: " + pre.message);
 
@@ -4489,8 +4510,31 @@ public:
         request.cohesiveActivationCommandStride = 0u;
         const RuntimeDiagnostics post = runtime_.encode(request);
         require(post.encoded, "Matter postCommit encode failed: " + post.message);
+        const auto encodeEnd = std::chrono::steady_clock::now();
+        if (recordStepTiming)
+            std::cerr << "cardboard_step_timing={\"schema\":1,\"control_step\":"
+                      << index << ",\"stage\":\"encode_end\",\"encoding_wall_s\":"
+                      << std::chrono::duration<double>(encodeEnd - encodeStart).count()
+                      << "}\n";
         [command commit];
         [command waitUntilCompleted];
+        if (recordStepTiming) {
+            const auto completed = std::chrono::steady_clock::now();
+            const double gpuStart = command.GPUStartTime;
+            const double gpuEnd = command.GPUEndTime;
+            std::cerr << "cardboard_step_timing={\"schema\":1,\"control_step\":"
+                      << index << ",\"stage\":\"completed\",\"encoding_wall_s\":"
+                      << std::chrono::duration<double>(encodeEnd - encodeStart).count()
+                      << ",\"commit_and_wait_wall_s\":"
+                      << std::chrono::duration<double>(completed - encodeEnd).count()
+                      << ",\"gpu_wall_s\":";
+            if (std::isfinite(gpuStart) && std::isfinite(gpuEnd) &&
+                gpuStart > 0.0 && gpuEnd >= gpuStart)
+                std::cerr << gpuEnd - gpuStart;
+            else std::cerr << "null";
+            std::cerr << ",\"command_buffer_status\":"
+                      << static_cast<unsigned long>(command.status) << "}\n";
+        }
         require(command.status == MTLCommandBufferStatusCompleted,
                 "Matter Metal command buffer failed");
 

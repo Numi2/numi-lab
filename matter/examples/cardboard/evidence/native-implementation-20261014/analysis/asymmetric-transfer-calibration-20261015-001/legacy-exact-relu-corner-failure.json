@@ -1,0 +1,41 @@
+{
+  "classification": "failure evidence; not physical validation, not a fresh measurement, and not a qualified material point.",
+  "fresh_measurement": false,
+  "interpretation": "Failure at the nonsmooth zero-stress ReLU corner. Partial reported values only; no full local residual vector, accepted state, or production native receipt is available.",
+  "material": "liner",
+  "model_variant": "exact-ReLU asymmetric transfer candidate (provisional; not qualified)",
+  "original_raw_receipt_available": false,
+  "provenance": "Reconstructed only from the project-owner report dated 2026-10-15; the original solver log and complete input/state vector were not located. This is not a new reproduction.",
+  "record_status": "reported_legacy_failure_reconstruction",
+  "reported_corner_iteration": {
+    "last_trial_scale": 5.960464477539063e-08,
+    "last_trial_scaled_residual": 0.08464579,
+    "normalized_scratch_stress_sbar33": -2.9223e-06,
+    "outcome": "failed_return_map; final trial did not reduce the reported residual",
+    "scaled_fischer_burmeister_residual": 0.08464555
+  },
+  "reported_input": {
+    "F11_inferred_from_reported_engineering_strain": 1.0123435,
+    "F22": 0.99960885,
+    "F33": 0.9928137,
+    "accepted_material_history": "not available",
+    "engineering_strain_MD": 0.0123435,
+    "loading_description": "liner MD tensile strain near the exact zero-stress compression-corner return-map case",
+    "unreported_deformation_components": "not available; do not infer zero shear or a complete F matrix"
+  },
+  "schema": "numi.cardboard.exact_relu_corner_failure.v1",
+  "source_bindings": {
+    "liner_material": {
+      "path": "matter/materials/hajali2009_liner_hill_asymmetric_transfer.nmatter",
+      "sha256": "377236230f1802b10aba8c994df86d545a7694bc11885b3592275d36aa0eefe5"
+    },
+    "medium_material": {
+      "path": "matter/materials/hajali2009_medium_hill_asymmetric_transfer.nmatter",
+      "sha256": "f5f0e1475a9b0a87c0c30b27b6ab5f26a04a92e50ed5ca9b5c775477ed8f6a7b"
+    },
+    "parameter_csv": {
+      "path": "matter/examples/cardboard/source-data/haj_ali_2009_asymmetric_transfer_v1.csv",
+      "sha256": "47dc13cb3ced9dac438df21354b3236d53223eed0842fe97806d32507b890e0a"
+    }
+  }
+}

@@ -1,0 +1,191 @@
+{
+  "case": "sparse-private-contact-parity-134",
+  "classification": "source-bound failed native fixture; postCommit rejection did not clear certificate publication bit",
+  "finding": "The attempt at requested control step 3 was rejected during postCommit with status code 1 and diagnostics [-3,-3,-3,-3]. Accepted physical-state component hashes and accepted control step remain unchanged (step 2), but the candidate certificate payload changed and validity.w remained 1. The source-052 native binary therefore publishes a certificate for a rejected transaction. Source-054 fix inserts the existing late-failure invalidator after postCommit validation and before status latch/rollback; requires a fresh build and native regression before closure.",
+  "prediction": {
+    "argv": [
+      "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-052/matter/numi-matter-cardboard-full-contact-armijo-check",
+      "/Users/home/cardboard-implementation-20261014/snapshots/source-preconditioner-call-and-sparse-domain-integrated-052/matter/materials/hajali2009_liner_hill_ideal.nmatter",
+      "--extended-budget",
+      "--accurate-paper",
+      "--newton-iterations",
+      "24",
+      "--regional-contact-preconditioner",
+      "--sparse-private-parity",
+      "--diagnostic-state-output",
+      "/Users/home/cardboard-implementation-20261014/native/sparse-private-contact-parity-134/diagnostic-state"
+    ],
+    "inputs_sha256_matches_source_build": true,
+    "sha256": "6cfc390752a3052133eb479451b4a9f7ebe5907f37e62d268db9edf4845056c2",
+    "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-preconditioner-call-and-sparse-domain-integrated-052"
+  },
+  "preserved_artifacts": {
+    "diagnostic-state/dense/transaction-000002-after.bin": "056248a35e62d04f6ca70aa44115bf3cea2621eee331b9f891ecb77dac01586f",
+    "diagnostic-state/dense/transaction-000002-before.bin": "b3359d9514664e1d070d68948e682bb36475bd5c917f439dd0f914794e88d58b",
+    "stderr.log": "056ee93c21b9f60788f3c8c13699d72d980b3be92df8fb17d0cef3394cc3f5d4",
+    "stdout.log": "679c8eaca99b3259ecde634fd5b354e6ac502895c75cec70b8a82c4895c3eea0"
+  },
+  "qualification": "not a physical box result; failed instrumentation/solver transaction",
+  "receipt": {
+    "exit_code": 1,
+    "sha256": "bb522c553a62e392251b35feeca5f88d6e686608975e8ffdcd35d3f18f695b96",
+    "source_inputs_unchanged": true,
+    "timed_out": false,
+    "wall_seconds": 93.9435727079981
+  },
+  "schema": "numi.cardboard.postcommit-certificate-analysis.v1",
+  "source_build": {
+    "artifacts": {
+      "matter/numi-matter-cardboard-full-contact-armijo-check": {
+        "matches_source_build": true,
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-052/matter/numi-matter-cardboard-full-contact-armijo-check",
+        "sha256": "e8df73c24c53cbba6ca55dd578843205c11f8522932c2d536986d8f25ad3d9ef",
+        "source_build_sha256": "e8df73c24c53cbba6ca55dd578843205c11f8522932c2d536986d8f25ad3d9ef"
+      },
+      "matter/shaders/NumiMatter.metallib": {
+        "matches_source_build": true,
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-052/matter/shaders/NumiMatter.metallib",
+        "sha256": "0f0528de16a62254d37059b91c1834cb023f6652362f0395ffbd13f1e2fe2162",
+        "source_build_sha256": "0f0528de16a62254d37059b91c1834cb023f6652362f0395ffbd13f1e2fe2162"
+      }
+    },
+    "sha256": "9ceace3065ebe267258f5e7884ac28a9b42ae1a27075701d1c5d44c11e990f80",
+    "source_files": {
+      "matter/include/numi/matter/shared.h": {
+        "matches_source_build": true,
+        "sha256": "e1b4a229e58227280e2a1e263fa6535f325333e9edcacfd93498f699790c30d3",
+        "source_build_sha256": "e1b4a229e58227280e2a1e263fa6535f325333e9edcacfd93498f699790c30d3"
+      },
+      "matter/src/metal/contact.metalinc": {
+        "matches_source_build": true,
+        "sha256": "e541b2929817a0a882bf2c1dd9571fbd69d68e98bd57e1070f9cea9294e26d04",
+        "source_build_sha256": "e541b2929817a0a882bf2c1dd9571fbd69d68e98bd57e1070f9cea9294e26d04"
+      },
+      "matter/src/runtime.mm": {
+        "matches_source_build": true,
+        "sha256": "48d8437263889b8b550b66bfb294ed17a6c8a6499386478c291c89bfcd638ec6",
+        "source_build_sha256": "48d8437263889b8b550b66bfb294ed17a6c8a6499386478c291c89bfcd638ec6"
+      },
+      "matter/tools/cardboard_full_contact_armijo_check.mm": {
+        "matches_source_build": true,
+        "sha256": "fdddc68f3421f86e200a399f15870ff93924eb358114a213786c13717ff26c2e",
+        "source_build_sha256": "fdddc68f3421f86e200a399f15870ff93924eb358114a213786c13717ff26c2e"
+      }
+    },
+    "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-preconditioner-call-and-sparse-domain-integrated-052"
+  },
+  "transaction": {
+    "accepted": false,
+    "accepted_state_vector_hash_equalities": {
+      "cohesiveFaces": true,
+      "contactHistories": true,
+      "deformableContactHistories": true,
+      "environmentParameters": true,
+      "femFields": true,
+      "femMaterialState": true,
+      "femNodes": true,
+      "femTopologyNodes": true,
+      "femTopologyTetrahedra": true,
+      "humanSupportConsequences": true,
+      "humanSupportHistories": true,
+      "particleMaterialState": true,
+      "particles": true,
+      "punctureChannels": true,
+      "rigidStates": true,
+      "topologyStates": true,
+      "vascularClock": true,
+      "vascularState": true
+    },
+    "after_certificate": {
+      "contact": [
+        6.42737505e-05,
+        4.88129444e-07,
+        6.64285243e-21,
+        2.40215695e-06
+      ],
+      "nonlinear": [
+        7.28016047e-08,
+        0,
+        0,
+        0
+      ],
+      "transport": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "validity": [
+        0.992484868,
+        0,
+        0,
+        1
+      ]
+    },
+    "after_control_step": 2,
+    "after_status": {
+      "code": 1,
+      "completed_microsteps": 1,
+      "contact_count": 0,
+      "diagnostics": [
+        -3,
+        -3,
+        -3,
+        -3
+      ],
+      "environment": 0,
+      "event_count": 0,
+      "failing_index": 0,
+      "fgmres_iterations": 80,
+      "object_index": 4294967295
+    },
+    "all_accepted_state_vector_hashes_unchanged": true,
+    "attempt_index": 2,
+    "before_certificate": {
+      "contact": [
+        2.82847941e-05,
+        1.18050957e-06,
+        0,
+        8.18802505e-07
+      ],
+      "nonlinear": [
+        4.2165837e-08,
+        0,
+        0,
+        0
+      ],
+      "transport": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "validity": [
+        0.996320248,
+        0,
+        0,
+        1
+      ]
+    },
+    "before_control_step": 2,
+    "before_status": {
+      "code": 0,
+      "completed_microsteps": 1,
+      "contact_count": 2,
+      "diagnostics": [
+        0.996320248,
+        0,
+        0,
+        0.107935101
+      ],
+      "environment": 0,
+      "event_count": 0,
+      "failing_index": 4294967295,
+      "fgmres_iterations": 54,
+      "object_index": 4294967295
+    },
+    "completion_stage": "snapshot_after_completion",
+    "sha256": "93d240e8148eadaa4c2ebb4f1ffb65b2e8cfe4a2b8438685e540a9d5e7e8e617",
+    "stale_publication_bit": true
+  }
+}

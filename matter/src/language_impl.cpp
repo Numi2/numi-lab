@@ -899,6 +899,20 @@ private:
             expect(TokenKind::comma, "',' in function");
             return expression(material);
         }();
+        if (token.text == "select_nonnegative") {
+            expect(TokenKind::comma, "',' before select_nonnegative negative arm");
+            const std::uint32_t third = expression(material);
+            expect(TokenKind::rightParen, "')' after select_nonnegative");
+            const Dimension dimension = material.expressions.nodes[second].dimension;
+            if (material.expressions.nodes[third].dimension != dimension) {
+                error(token, "select_nonnegative arms require identical dimensions");
+            }
+            Expr result;
+            result.kind = ExprKind::selectNonnegative;
+            result.dimension = dimension;
+            result.arguments = {first, second, third, NM_INVALID_INDEX, NM_INVALID_INDEX};
+            return material.expressions.append(result);
+        }
         if (token.text == "min" || token.text == "max") {
             expect(TokenKind::rightParen, "')'");
             return binary(material,

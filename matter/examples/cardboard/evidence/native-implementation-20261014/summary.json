@@ -12983,6 +12983,3402 @@
           "repository_copy": "analysis/full-contact-history-compare-112-113-009/full-contact-history-compare-112-113-009.json"
         }
       ]
+    },
+    {
+      "case": "native/asymmetric-c1-material-point-122",
+      "external_root": "/Users/home/cardboard-implementation-20261014/native/asymmetric-c1-material-point-122",
+      "physical_box_qualification": false,
+      "files": [
+        {
+          "name": "prediction.json",
+          "bytes": 95772,
+          "sha256": "7df2009b25d87d1f45079e9b3e86f7a48f5e8586d4ee22e89d42ece3f29e9c2b",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/asymmetric-c1-material-point-122/prediction.json",
+          "repository_copy": "native/asymmetric-c1-material-point-122/prediction.json"
+        },
+        {
+          "name": "receipt.json",
+          "bytes": 278,
+          "sha256": "2b0ee60642781f6b7f0796ae112408ddfa5687d6dde59d82eed9ef97f5a1427c",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/asymmetric-c1-material-point-122/receipt.json",
+          "repository_copy": "native/asymmetric-c1-material-point-122/receipt.json"
+        },
+        {
+          "name": "stderr.log",
+          "bytes": 147,
+          "sha256": "67b70cf83ca786606438b44ef83ec2aae9225861864a0a95725cb9ed2d55f77f",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/asymmetric-c1-material-point-122/stderr.log",
+          "repository_copy": "native/asymmetric-c1-material-point-122/stderr.log"
+        },
+        {
+          "name": "stdout.log",
+          "bytes": 5317,
+          "sha256": "d31385da65a82796cb15ac2014bb0568d00e46f3fb259cd2a963258ade8da10a",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/asymmetric-c1-material-point-122/stdout.log",
+          "repository_copy": "native/asymmetric-c1-material-point-122/stdout.log"
+        }
+      ],
+      "receipt": {
+        "schema": "numi.cardboard.native-run-receipt.v2",
+        "execution_started": true,
+        "source_inputs_unchanged": true,
+        "changed_inputs": [],
+        "exit_code": 1,
+        "timed_out": false,
+        "wall_seconds": 1.6366710839793086,
+        "finished_at_utc": "2026-10-15T01:09:05.607304+00:00"
+      },
+      "argv": [
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-050/matter/numi-matter-cardboard-asymmetric-c1-paper-gpu-check",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-cache-sparse-asymmetric-integrated-050/matter/materials/hajali2009_liner_hill_asymmetric_c1_transfer.nmatter",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-cache-sparse-asymmetric-integrated-050/matter/materials/hajali2009_medium_hill_asymmetric_c1_transfer.nmatter",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-cache-sparse-asymmetric-integrated-050/matter/examples/cardboard/source-data/haj_ali_2009_bilinear_tension_fit_nodes.csv",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-cache-sparse-asymmetric-integrated-050/matter/examples/cardboard/source-data/haj_ali_2009_asymmetric_c1_transfer_v1.csv"
+      ],
+      "environment": {},
+      "question": "Does the C1 asymmetry transferlaw satisfy nativecomplete15-state projection/stress/tangent/loading/unloading andrest contracts against itsmanual independentFP64oracle?",
+      "prediction": "Bothsourcegrades andall9tangentcolumns must satisfy1e-3nonzerogates; nativebranchsweeps andrestFP32floors retained. Sourcecompression/shear assumptions, unknownmixedloading, C1width andsamecurvefitremaintransferuncertainty; physicaldamagecalibrationnotimplied.",
+      "executed_build_verified": true
+    },
+    {
+      "case": "native/asymmetric-c1-tangent-operand-capture-130",
+      "external_root": "/Users/home/cardboard-implementation-20261014/native/asymmetric-c1-tangent-operand-capture-130",
+      "physical_box_qualification": false,
+      "files": [
+        {
+          "name": "prediction.json",
+          "bytes": 96310,
+          "sha256": "fd6c6070f1d73687813c9794f8b2cfd63936171bed97b5d2d7e77178812bd68f",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/asymmetric-c1-tangent-operand-capture-130/prediction.json",
+          "repository_copy": "native/asymmetric-c1-tangent-operand-capture-130/prediction.json"
+        },
+        {
+          "name": "receipt.json",
+          "bytes": 277,
+          "sha256": "c1aeaac3b35ddd76bc91b918358f0b4ce5d2a222967421edab30e08310cb0652",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/asymmetric-c1-tangent-operand-capture-130/receipt.json",
+          "repository_copy": "native/asymmetric-c1-tangent-operand-capture-130/receipt.json"
+        },
+        {
+          "name": "stderr.log",
+          "bytes": 214,
+          "sha256": "5c05c9ec8d0b3d52750a5bbc223b4ba3730cce1579c1165b4d368455f7013803",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/asymmetric-c1-tangent-operand-capture-130/stderr.log",
+          "repository_copy": "native/asymmetric-c1-tangent-operand-capture-130/stderr.log"
+        },
+        {
+          "name": "stdout.log",
+          "bytes": 21324,
+          "sha256": "245e716714ed178c96e0a876b2a0ddfef93566faf2bb5c16d5cffa3a7a3ae7c4",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/asymmetric-c1-tangent-operand-capture-130/stdout.log",
+          "repository_copy": "native/asymmetric-c1-tangent-operand-capture-130/stdout.log"
+        }
+      ],
+      "receipt": {
+        "schema": "numi.cardboard.native-run-receipt.v2",
+        "execution_started": true,
+        "source_inputs_unchanged": true,
+        "changed_inputs": [],
+        "exit_code": 1,
+        "timed_out": false,
+        "wall_seconds": 22.54941229202086,
+        "finished_at_utc": "2026-10-15T01:30:48.209554+00:00"
+      },
+      "argv": [
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-052/matter/numi-matter-cardboard-asymmetric-c1-paper-gpu-check",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-preconditioner-call-and-sparse-domain-integrated-052/matter/materials/hajali2009_liner_hill_asymmetric_c1_transfer.nmatter",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-preconditioner-call-and-sparse-domain-integrated-052/matter/materials/hajali2009_medium_hill_asymmetric_c1_transfer.nmatter",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-preconditioner-call-and-sparse-domain-integrated-052/matter/examples/cardboard/source-data/haj_ali_2009_bilinear_tension_fit_nodes.csv",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-preconditioner-call-and-sparse-domain-integrated-052/matter/examples/cardboard/source-data/haj_ali_2009_asymmetric_c1_transfer_v1.csv",
+        "--diagnostic-tangent-capture"
+      ],
+      "environment": {},
+      "question": "Which exact native local-system and stress-derivative operands cause the failed compression tangent column?",
+      "prediction": "Preserve and export the exact positive r_F, J, state direction and opposing tangent terms. Original 1e-3 tangent gate remains; capture alone cannot qualify the model.",
+      "executed_build_verified": true,
+      "note": "Ordinary generic FP32 material point: failed compression tangent, then distinct CD-unload local projection failure. Complete raw operands retained."
+    },
+    {
+      "case": "native/compensated-c1-material-point-136",
+      "external_root": "/Users/home/cardboard-implementation-20261014/native/compensated-c1-material-point-136",
+      "physical_box_qualification": false,
+      "files": [
+        {
+          "name": "prediction.json",
+          "bytes": 96313,
+          "sha256": "45727b7a898b6a337ea22eb1489a90cfd826757fe629325d079dec0dbd05ef19",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/compensated-c1-material-point-136/prediction.json",
+          "repository_copy": "native/compensated-c1-material-point-136/prediction.json"
+        },
+        {
+          "name": "receipt.json",
+          "bytes": 278,
+          "sha256": "48c9bfef4d27835982a79d02e590bf2440f40dd1444d6c87a98efe1f9078b570",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/compensated-c1-material-point-136/receipt.json",
+          "repository_copy": "native/compensated-c1-material-point-136/receipt.json"
+        },
+        {
+          "name": "stderr.log",
+          "bytes": 150,
+          "sha256": "6ac70bc9f47625a6a3bee4105543d4a10977a0c53d77ae85d679fcf848413449",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/compensated-c1-material-point-136/stderr.log",
+          "repository_copy": "native/compensated-c1-material-point-136/stderr.log"
+        },
+        {
+          "name": "stdout.log",
+          "bytes": 12335,
+          "sha256": "b76e7952406d4fb508ff60e7be3d482c65eeba5ea19fbc8c99d1fad519970808",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/compensated-c1-material-point-136/stdout.log",
+          "repository_copy": "native/compensated-c1-material-point-136/stdout.log"
+        }
+      ],
+      "receipt": {
+        "schema": "numi.cardboard.native-run-receipt.v2",
+        "execution_started": true,
+        "source_inputs_unchanged": true,
+        "changed_inputs": [],
+        "exit_code": 1,
+        "timed_out": false,
+        "wall_seconds": 43.148147083004005,
+        "finished_at_utc": "2026-10-15T01:48:34.624524+00:00"
+      },
+      "argv": [
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-053/matter/numi-matter-cardboard-asymmetric-c1-paper-gpu-check",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-compensated-local-tangent-integrated-053/matter/materials/hajali2009_liner_hill_asymmetric_c1_transfer.nmatter",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-compensated-local-tangent-integrated-053/matter/materials/hajali2009_medium_hill_asymmetric_c1_transfer.nmatter",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-compensated-local-tangent-integrated-053/matter/examples/cardboard/source-data/haj_ali_2009_bilinear_tension_fit_nodes.csv",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-compensated-local-tangent-integrated-053/matter/examples/cardboard/source-data/haj_ali_2009_asymmetric_c1_transfer_v1.csv",
+        "--diagnostic-tangent-capture"
+      ],
+      "environment": {},
+      "question": "Does two-word local derivative propagation repair the resolved F13 tangent loss without changing the material equations or tolerance?",
+      "prediction": "Require the original 1e-3 native tangent comparison including the captured F13 direction; retain any independent load/unload projection failure. No component calibration or box qualification is inferred.",
+      "executed_build_verified": true,
+      "note": "Checker still authors ordinary generic FP32 policy; new compensated branch is not selected. MD tangent remains failed and F13 finite-difference projection fails before CD unload. Not native qualification of the precision patch."
+    },
+    {
+      "case": "native/compensated-material-frame-cache-140",
+      "external_root": "/Users/home/cardboard-implementation-20261014/native/compensated-material-frame-cache-140",
+      "physical_box_qualification": false,
+      "files": [
+        {
+          "name": "prediction.json",
+          "bytes": 95599,
+          "sha256": "24a914e4f474b0da5245a84a042bbd5129d23538002562660eb417e7b2ccc771",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/compensated-material-frame-cache-140/prediction.json",
+          "repository_copy": "native/compensated-material-frame-cache-140/prediction.json"
+        },
+        {
+          "name": "receipt.json",
+          "bytes": 278,
+          "sha256": "a29483302cf4edb41f36bba0c7b18291c9be24058e5d059e22d296a9f649acc5",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/compensated-material-frame-cache-140/receipt.json",
+          "repository_copy": "native/compensated-material-frame-cache-140/receipt.json"
+        },
+        {
+          "name": "stderr.log",
+          "bytes": 153,
+          "sha256": "5cec77822c8c18c871cf9393931bfb4993abcf0147d94ff998f14e5cc3314216",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/compensated-material-frame-cache-140/stderr.log",
+          "repository_copy": "native/compensated-material-frame-cache-140/stderr.log"
+        },
+        {
+          "name": "stdout.log",
+          "bytes": 29,
+          "sha256": "94d375a55dcaf5077d8aa6c7b142a622986deebd9bea5c2c634d927ae6d2fbb7",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/compensated-material-frame-cache-140/stdout.log",
+          "repository_copy": "native/compensated-material-frame-cache-140/stdout.log"
+        }
+      ],
+      "receipt": {
+        "schema": "numi.cardboard.native-run-receipt.v2",
+        "execution_started": true,
+        "source_inputs_unchanged": true,
+        "changed_inputs": [],
+        "exit_code": 1,
+        "timed_out": false,
+        "wall_seconds": 0.4918845830252394,
+        "finished_at_utc": "2026-10-15T01:52:10.669179+00:00"
+      },
+      "argv": [
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-053/matter/numi-matter-fem-material-frame-check",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-compensated-local-tangent-integrated-053/matter/materials/hajali2009_liner_hill_bilinear_fit.nmatter"
+      ],
+      "environment": {},
+      "question": "Does the exact material-frame tangent cache preserve all native direct actions after the compensated tangent repair?",
+      "prediction": "Require the existing native direct/cache basis and random-direction gates across rotated loaded/unloaded states. Retain projection or frame failures.",
+      "executed_build_verified": true
+    },
+    {
+      "case": "native/full-tangent-cache-frame-actions-123",
+      "external_root": "/Users/home/cardboard-implementation-20261014/native/full-tangent-cache-frame-actions-123",
+      "physical_box_qualification": false,
+      "files": [
+        {
+          "name": "prediction.json",
+          "bytes": 95118,
+          "sha256": "fd114ef6bc62ea241ae99f2a2bae6f0fe359859cd58e92af2ec8e4da3d99d0c1",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/full-tangent-cache-frame-actions-123/prediction.json",
+          "repository_copy": "native/full-tangent-cache-frame-actions-123/prediction.json"
+        },
+        {
+          "name": "receipt.json",
+          "bytes": 278,
+          "sha256": "91649671e08bdbcb3960931f97a9376cfb19b9a937b519ded08020050c6e244f",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/full-tangent-cache-frame-actions-123/receipt.json",
+          "repository_copy": "native/full-tangent-cache-frame-actions-123/receipt.json"
+        },
+        {
+          "name": "stderr.log",
+          "bytes": 220,
+          "sha256": "9374ee045363ec11d5c587cbeac1c77e6e572b799f4caa723abb79faf961638a",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/full-tangent-cache-frame-actions-123/stderr.log",
+          "repository_copy": "native/full-tangent-cache-frame-actions-123/stderr.log"
+        },
+        {
+          "name": "stdout.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/full-tangent-cache-frame-actions-123/stdout.log",
+          "repository_copy": "native/full-tangent-cache-frame-actions-123/stdout.log"
+        }
+      ],
+      "receipt": {
+        "schema": "numi.cardboard.native-run-receipt.v2",
+        "execution_started": true,
+        "source_inputs_unchanged": true,
+        "changed_inputs": [],
+        "exit_code": 1,
+        "timed_out": false,
+        "wall_seconds": 0.3428628339897841,
+        "finished_at_utc": "2026-10-15T01:09:06.243954+00:00"
+      },
+      "argv": [
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-050/matter/numi-matter-fem-material-frame-check",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-cache-sparse-asymmetric-integrated-050/matter/materials/guccione1995_myocardium.nmatter"
+      ],
+      "environment": {},
+      "question": "Does the perNewtonfulltangent cache preserve directproductionelement actions for9basis6randomdirections atrotatedanisotropic/state/rate andsourcepaper elasticplasticunloadedacceptedstates?",
+      "prediction": "Eachstate must retainacceptedcertificate/history andresolvedcached/directelementerror<=1e-3. Rate input directiondFdt=dF/dt andmaterialframe transformsunchanged. Fullbox/timeconvergence notimplied.",
+      "executed_build_verified": true
+    },
+    {
+      "case": "native/full-tangent-cache-frame-actions-124",
+      "external_root": "/Users/home/cardboard-implementation-20261014/native/full-tangent-cache-frame-actions-124",
+      "physical_box_qualification": false,
+      "files": [
+        {
+          "name": "prediction.json",
+          "bytes": 95091,
+          "sha256": "7d02aba0946c7f5703218583553b2aef1263400b077681a064a71c5242714a65",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/full-tangent-cache-frame-actions-124/prediction.json",
+          "repository_copy": "native/full-tangent-cache-frame-actions-124/prediction.json"
+        },
+        {
+          "name": "receipt.json",
+          "bytes": 277,
+          "sha256": "3f642922b4c2ea91acb74e976a10093237156cdf31d585480d3e5e742db7d8da",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/full-tangent-cache-frame-actions-124/receipt.json",
+          "repository_copy": "native/full-tangent-cache-frame-actions-124/receipt.json"
+        },
+        {
+          "name": "stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/full-tangent-cache-frame-actions-124/stderr.log",
+          "repository_copy": "native/full-tangent-cache-frame-actions-124/stderr.log"
+        },
+        {
+          "name": "stdout.log",
+          "bytes": 3963,
+          "sha256": "431da33708e73635076179e4ce7b44e92f24e53c23662d2ba9f4960b90132d0a",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/full-tangent-cache-frame-actions-124/stdout.log",
+          "repository_copy": "native/full-tangent-cache-frame-actions-124/stdout.log"
+        }
+      ],
+      "receipt": {
+        "schema": "numi.cardboard.native-run-receipt.v2",
+        "execution_started": true,
+        "source_inputs_unchanged": true,
+        "changed_inputs": [],
+        "exit_code": 0,
+        "timed_out": false,
+        "wall_seconds": 54.51285850000568,
+        "finished_at_utc": "2026-10-15T01:14:04.904392+00:00"
+      },
+      "argv": [
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-050/matter/numi-matter-fem-material-frame-check",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-cache-sparse-asymmetric-integrated-050/matter/materials/rodero2021_ventricular_guccione_passive.nmatter"
+      ],
+      "environment": {},
+      "question": "Does the cached full material tangent preserve direct native element actions at accepted rotated, anisotropic, plastic and rate dependent states?",
+      "prediction": "All nine basis and six random element actions must preserve accepted history and certificates and meet the 1e-3 comparison gate. This bounded test does not qualify full box assembly or convergence.",
+      "executed_build_verified": true
+    },
+    {
+      "case": "native/regional-direct-cache-128",
+      "external_root": "/Users/home/cardboard-implementation-20261014/native/regional-direct-cache-128",
+      "physical_box_qualification": false,
+      "files": [
+        {
+          "name": "prediction.json",
+          "bytes": 95390,
+          "sha256": "ec1a5f9cf667e1d327ff5b8c3b7c9f423541c5d251bf665c8744d428223130c7",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/regional-direct-cache-128/prediction.json",
+          "repository_copy": "native/regional-direct-cache-128/prediction.json"
+        },
+        {
+          "name": "receipt.json",
+          "bytes": 276,
+          "sha256": "a3a9c21c7ab691d18e9b5b1571ca32cbddfe182fcc66a638b09dad54dab393af",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/regional-direct-cache-128/receipt.json",
+          "repository_copy": "native/regional-direct-cache-128/receipt.json"
+        },
+        {
+          "name": "stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/regional-direct-cache-128/stderr.log",
+          "repository_copy": "native/regional-direct-cache-128/stderr.log"
+        },
+        {
+          "name": "stdout.log",
+          "bytes": 55389,
+          "sha256": "081722fb92c7075bb21ee72de2f37ebcf49101bc11f7e26193f90a718c71b23b",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/regional-direct-cache-128/stdout.log",
+          "repository_copy": "native/regional-direct-cache-128/stdout.log"
+        }
+      ],
+      "receipt": {
+        "schema": "numi.cardboard.native-run-receipt.v2",
+        "execution_started": true,
+        "source_inputs_unchanged": true,
+        "changed_inputs": [],
+        "exit_code": 0,
+        "timed_out": false,
+        "wall_seconds": 5.11918566696113,
+        "finished_at_utc": "2026-10-15T01:20:19.950911+00:00"
+      },
+      "argv": [
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-051/matter/numi-matter-fem-regional-galerkin-native-check",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-cache-sparse-asymmetric-integrated-051/matter/materials/starch2007_finite_glue_elastic.nmatter"
+      ],
+      "environment": {},
+      "question": "Does native cached FGMRES preserve direct solving and a fresh direct terminal certificate in the regional fixture?",
+      "prediction": "The authored direct and cache worlds must produce accepted steps, actual FGMRES work, unchanged physical semantics and positions/residuals within the existing invariance bounds. Full coupon convergence is separate.",
+      "executed_build_verified": true
+    },
+    {
+      "case": "native/retained-sparse-private-overflow-138",
+      "external_root": "/Users/home/cardboard-implementation-20261014/native/retained-sparse-private-overflow-138",
+      "physical_box_qualification": false,
+      "files": [
+        {
+          "name": "diagnostic-state/fixture-sparse-overflow.log",
+          "bytes": 15325,
+          "sha256": "ef4bab499b4d5ea758500f5fe25bb962169d7f3f6dc2e24e9ad3f7f6ed816c7d",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/retained-sparse-private-overflow-138/diagnostic-state/fixture-sparse-overflow.log",
+          "repository_copy": "native/retained-sparse-private-overflow-138/diagnostic-state/fixture-sparse-overflow.log"
+        },
+        {
+          "name": "diagnostic-state/transaction-000000-after.bin",
+          "bytes": 906855,
+          "sha256": "2c4f83e77ec772e702883747fd962a94b877ab11d6d5101d695e542e506348bd",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/retained-sparse-private-overflow-138/diagnostic-state/transaction-000000-after.bin",
+          "repository_copy": "native/retained-sparse-private-overflow-138/diagnostic-state/transaction-000000-after.bin"
+        },
+        {
+          "name": "diagnostic-state/transaction-000000-before.bin",
+          "bytes": 906855,
+          "sha256": "9a030b222dbb08b34838419e06378b5a522f702ba12f8fa0374b9cda5f793445",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/retained-sparse-private-overflow-138/diagnostic-state/transaction-000000-before.bin",
+          "repository_copy": "native/retained-sparse-private-overflow-138/diagnostic-state/transaction-000000-before.bin"
+        },
+        {
+          "name": "diagnostic-state/transaction-000000.json",
+          "bytes": 6495,
+          "sha256": "cec12f6ee32024aecbb5339f539271d1653d85f5d8b808f969e7a06ae1a89d9c",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/retained-sparse-private-overflow-138/diagnostic-state/transaction-000000.json",
+          "repository_copy": "native/retained-sparse-private-overflow-138/diagnostic-state/transaction-000000.json"
+        },
+        {
+          "name": "prediction.json",
+          "bytes": 95816,
+          "sha256": "da23e1421386936137fd05067453a91df408d171a9d23a8d40e313eae44a352d",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/retained-sparse-private-overflow-138/prediction.json",
+          "repository_copy": "native/retained-sparse-private-overflow-138/prediction.json"
+        },
+        {
+          "name": "receipt.json",
+          "bytes": 277,
+          "sha256": "20412ed06047424a210b34dff2f9a4f2a0b4881c7e3fad7b9ee585b328487702",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/retained-sparse-private-overflow-138/receipt.json",
+          "repository_copy": "native/retained-sparse-private-overflow-138/receipt.json"
+        },
+        {
+          "name": "stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/retained-sparse-private-overflow-138/stderr.log",
+          "repository_copy": "native/retained-sparse-private-overflow-138/stderr.log"
+        },
+        {
+          "name": "stdout.log",
+          "bytes": 1265,
+          "sha256": "908325f587acd0d377c7e8b9bdcbb8db5ec3cf2093b2b6f71d467d040c0cb875",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/retained-sparse-private-overflow-138/stdout.log",
+          "repository_copy": "native/retained-sparse-private-overflow-138/stdout.log"
+        }
+      ],
+      "receipt": {
+        "schema": "numi.cardboard.native-run-receipt.v2",
+        "execution_started": true,
+        "source_inputs_unchanged": true,
+        "changed_inputs": [],
+        "exit_code": 0,
+        "timed_out": false,
+        "wall_seconds": 0.928858167026192,
+        "finished_at_utc": "2026-10-15T01:52:09.477570+00:00"
+      },
+      "argv": [
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-053/matter/numi-matter-cardboard-full-contact-armijo-check",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-compensated-local-tangent-integrated-053/matter/materials/hajali2009_liner_hill_ideal.nmatter",
+        "--sparse-private-overflow",
+        "--diagnostic-state-output",
+        "/Users/home/cardboard-implementation-20261014/native/retained-sparse-private-overflow-138/diagnostic-state"
+      ],
+      "environment": {},
+      "question": "What terminal status, certificate and accepted-history rollback follow a private rigid contact candidate capacity overflow?",
+      "prediction": "Retain the exact private-trial capacity status, final status, before/after histories and trace; never equate a trial capacity failure with terminal capacity status.",
+      "executed_build_verified": true
+    },
+    {
+      "case": "native/source-paper-regional-preconditioner-137",
+      "external_root": "/Users/home/cardboard-implementation-20261014/native/source-paper-regional-preconditioner-137",
+      "physical_box_qualification": false,
+      "files": [
+        {
+          "name": "prediction.json",
+          "bytes": 95656,
+          "sha256": "3e5511ab8db138be75850fa01653bd9a4ce5ba10d9bb4d21151fbedb9b2fe969",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/source-paper-regional-preconditioner-137/prediction.json",
+          "repository_copy": "native/source-paper-regional-preconditioner-137/prediction.json"
+        },
+        {
+          "name": "receipt.json",
+          "bytes": 278,
+          "sha256": "82882ff4992bf4534482b6a3091b049347d69e42da134c375071ee440fcfd32a",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/source-paper-regional-preconditioner-137/receipt.json",
+          "repository_copy": "native/source-paper-regional-preconditioner-137/receipt.json"
+        },
+        {
+          "name": "stderr.log",
+          "bytes": 123,
+          "sha256": "78097f8c07e372f8a6e2ce7f6cf1449ff104b0963fd59fd6c71afda1d973bd66",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/source-paper-regional-preconditioner-137/stderr.log",
+          "repository_copy": "native/source-paper-regional-preconditioner-137/stderr.log"
+        },
+        {
+          "name": "stdout.log",
+          "bytes": 540,
+          "sha256": "6ca8dd970a2b1d9672f662ca119d834f4a458ac08635d68ce3810da6030ff845",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/source-paper-regional-preconditioner-137/stdout.log",
+          "repository_copy": "native/source-paper-regional-preconditioner-137/stdout.log"
+        }
+      ],
+      "receipt": {
+        "schema": "numi.cardboard.native-run-receipt.v2",
+        "execution_started": true,
+        "source_inputs_unchanged": true,
+        "changed_inputs": [],
+        "exit_code": 1,
+        "timed_out": false,
+        "wall_seconds": 213.26182358298684,
+        "finished_at_utc": "2026-10-15T01:52:08.236126+00:00"
+      },
+      "argv": [
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-053/matter/numi-matter-fem-regional-galerkin-native-check",
+        "--paper-only",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-compensated-local-tangent-integrated-053/matter/materials/hajali2009_liner_hill_ideal.nmatter"
+      ],
+      "environment": {},
+      "question": "Do repaired native regional tangent preconditioners agree with an independent FP64 paper oracle at low F, rotated frames and accepted plastic history?",
+      "prediction": "Require the authored AP comparison gates and accepted nonzero plastic history. This checks synthetic conditioning/operator arithmetic only.",
+      "executed_build_verified": true
+    },
+    {
+      "case": "native/sparse-private-admission-controls-139",
+      "external_root": "/Users/home/cardboard-implementation-20261014/native/sparse-private-admission-controls-139",
+      "physical_box_qualification": false,
+      "files": [
+        {
+          "name": "prediction.json",
+          "bytes": 95674,
+          "sha256": "565a4ea192edf4b4110f18ae1c9e88bdc0275f2fa1e9fda730904ad6f679e36a",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/sparse-private-admission-controls-139/prediction.json",
+          "repository_copy": "native/sparse-private-admission-controls-139/prediction.json"
+        },
+        {
+          "name": "receipt.json",
+          "bytes": 279,
+          "sha256": "319609bd670a8d92a812b4e4529adfce80d6851936953a27f04c30261d5ec39c",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/sparse-private-admission-controls-139/receipt.json",
+          "repository_copy": "native/sparse-private-admission-controls-139/receipt.json"
+        },
+        {
+          "name": "stderr.log",
+          "bytes": 228,
+          "sha256": "295d73db253fe0ada6645c8035031357634b7560b6ece214846063ca794625c8",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/sparse-private-admission-controls-139/stderr.log",
+          "repository_copy": "native/sparse-private-admission-controls-139/stderr.log"
+        },
+        {
+          "name": "stdout.log",
+          "bytes": 681,
+          "sha256": "e3bf90d9a1c114e129cf9942ae2b5f7e33dfa7e35e2124c594517c3525398dbf",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/sparse-private-admission-controls-139/stdout.log",
+          "repository_copy": "native/sparse-private-admission-controls-139/stdout.log"
+        }
+      ],
+      "receipt": {
+        "schema": "numi.cardboard.native-run-receipt.v2",
+        "execution_started": true,
+        "source_inputs_unchanged": true,
+        "changed_inputs": [],
+        "exit_code": 1,
+        "timed_out": false,
+        "wall_seconds": 0.10973837500205263,
+        "finished_at_utc": "2026-10-15T01:52:09.881201+00:00"
+      },
+      "argv": [
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-053/matter/numi-matter-cardboard-full-contact-armijo-check",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-compensated-local-tangent-integrated-053/matter/materials/hajali2009_liner_hill_ideal.nmatter",
+        "--regional-contact-preconditioner",
+        "--sparse-private-admission"
+      ],
+      "environment": {},
+      "question": "Do sparse admission negative controls reach their intended validator under regional contact selection?",
+      "prediction": "Reject malformed capacities and free rigid unknowns at the intended sparse admission layer; high-pair sizing is not native transaction qualification.",
+      "executed_build_verified": true
+    },
+    {
+      "case": "native/sparse-private-contact-admission-125",
+      "external_root": "/Users/home/cardboard-implementation-20261014/native/sparse-private-contact-admission-125",
+      "physical_box_qualification": false,
+      "files": [
+        {
+          "name": "prediction.json",
+          "bytes": 95573,
+          "sha256": "08e0265707eb74463de2b9b5d795b2143a09bc3321f46232e88a969786cc393d",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/sparse-private-contact-admission-125/prediction.json",
+          "repository_copy": "native/sparse-private-contact-admission-125/prediction.json"
+        },
+        {
+          "name": "receipt.json",
+          "bytes": 278,
+          "sha256": "a61c4296aac43da9f726063782ff56b76d400f0d1cc279698a13eef13d98965d",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/sparse-private-contact-admission-125/receipt.json",
+          "repository_copy": "native/sparse-private-contact-admission-125/receipt.json"
+        },
+        {
+          "name": "stderr.log",
+          "bytes": 189,
+          "sha256": "fdcc3a4501ddaf85c3f94d62e76c613c7c68d051e1dd5f2318679cdb171ce0d8",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/sparse-private-contact-admission-125/stderr.log",
+          "repository_copy": "native/sparse-private-contact-admission-125/stderr.log"
+        },
+        {
+          "name": "stdout.log",
+          "bytes": 611,
+          "sha256": "43d08208a18db648f89ff8e19c6447bd897a25b8c55ab3701c7f78543feb149a",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/sparse-private-contact-admission-125/stdout.log",
+          "repository_copy": "native/sparse-private-contact-admission-125/stdout.log"
+        }
+      ],
+      "receipt": {
+        "schema": "numi.cardboard.native-run-receipt.v2",
+        "execution_started": true,
+        "source_inputs_unchanged": true,
+        "changed_inputs": [],
+        "exit_code": 1,
+        "timed_out": false,
+        "wall_seconds": 0.5443806250113994,
+        "finished_at_utc": "2026-10-15T01:16:42.766408+00:00"
+      },
+      "argv": [
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-051/matter/numi-matter-cardboard-full-contact-armijo-check",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-cache-sparse-asymmetric-integrated-051/matter/materials/hajali2009_liner_hill_ideal.nmatter",
+        "--extended-budget",
+        "--accurate-paper",
+        "--newton-iterations",
+        "24",
+        "--regional-contact-preconditioner",
+        "--sparse-private-admission"
+      ],
+      "environment": {},
+      "question": "Does compact private rigid-contact evaluation preserve the tested production operator and accepted transactional history?",
+      "prediction": "Malformed capacities and unsupported generalized motion must reject; fixed capacity overflow must retain rollback; dense and sparse accepted trial histories must agree in the bounded fixture. This does not admit the shipping mesh.",
+      "executed_build_verified": true
+    },
+    {
+      "case": "native/sparse-private-contact-admission-131",
+      "external_root": "/Users/home/cardboard-implementation-20261014/native/sparse-private-contact-admission-131",
+      "physical_box_qualification": false,
+      "files": [
+        {
+          "name": "prediction.json",
+          "bytes": 95885,
+          "sha256": "6c0eb144846e1d039f7a2a1c38c46896d300bbb088e59c796c1dbda57dc7edb3",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/sparse-private-contact-admission-131/prediction.json",
+          "repository_copy": "native/sparse-private-contact-admission-131/prediction.json"
+        },
+        {
+          "name": "receipt.json",
+          "bytes": 279,
+          "sha256": "19c8c6f32cf9e362b4549838f2a5bc28bbe96585556e311d414886c648fb14e6",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/sparse-private-contact-admission-131/receipt.json",
+          "repository_copy": "native/sparse-private-contact-admission-131/receipt.json"
+        },
+        {
+          "name": "stderr.log",
+          "bytes": 398,
+          "sha256": "18fedae24eaa04fbaf471095c69fb72321dd77a7adbc5d86729396dca6cd10fd",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/sparse-private-contact-admission-131/stderr.log",
+          "repository_copy": "native/sparse-private-contact-admission-131/stderr.log"
+        },
+        {
+          "name": "stdout.log",
+          "bytes": 772,
+          "sha256": "4d2aa5b94677e0fda5706fcc691d507b43d4ea806332c6e5a3ab73721455ed46",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/sparse-private-contact-admission-131/stdout.log",
+          "repository_copy": "native/sparse-private-contact-admission-131/stdout.log"
+        }
+      ],
+      "receipt": {
+        "schema": "numi.cardboard.native-run-receipt.v2",
+        "execution_started": true,
+        "source_inputs_unchanged": true,
+        "changed_inputs": [],
+        "exit_code": 1,
+        "timed_out": false,
+        "wall_seconds": 0.16512229200452566,
+        "finished_at_utc": "2026-10-15T01:30:48.685636+00:00"
+      },
+      "argv": [
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-052/matter/numi-matter-cardboard-full-contact-armijo-check",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-preconditioner-call-and-sparse-domain-integrated-052/matter/materials/hajali2009_liner_hill_ideal.nmatter",
+        "--extended-budget",
+        "--accurate-paper",
+        "--newton-iterations",
+        "24",
+        "--regional-contact-preconditioner",
+        "--sparse-private-admission"
+      ],
+      "environment": {},
+      "question": "Does compact private rigid-contact evaluation preserve the tested production operator and accepted transactional history?",
+      "prediction": "Malformed capacities and unsupported generalized motion must reject; fixed capacity overflow must retain rollback; dense and sparse accepted trial histories must agree in the bounded fixture. This does not admit the shipping mesh.",
+      "executed_build_verified": true,
+      "note": "Negative fixture was rejected by regional free-body compiler validation before its intended sparse validator; not a sparse admission failure."
+    },
+    {
+      "case": "native/sparse-private-contact-high-pair-initialization-133",
+      "external_root": "/Users/home/cardboard-implementation-20261014/native/sparse-private-contact-high-pair-initialization-133",
+      "physical_box_qualification": false,
+      "files": [
+        {
+          "name": "prediction.json",
+          "bytes": 95895,
+          "sha256": "e659daef6f99cfa322be42304d33d68e8323a61cda20ca97e02c476c6a8d0356",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/sparse-private-contact-high-pair-initialization-133/prediction.json",
+          "repository_copy": "native/sparse-private-contact-high-pair-initialization-133/prediction.json"
+        },
+        {
+          "name": "receipt.json",
+          "bytes": 278,
+          "sha256": "203749d878ed16ac441004e6032d8c1af54f9ec8d4f6c709d0aebf46bb2e97bc",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/sparse-private-contact-high-pair-initialization-133/receipt.json",
+          "repository_copy": "native/sparse-private-contact-high-pair-initialization-133/receipt.json"
+        },
+        {
+          "name": "stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/sparse-private-contact-high-pair-initialization-133/stderr.log",
+          "repository_copy": "native/sparse-private-contact-high-pair-initialization-133/stderr.log"
+        },
+        {
+          "name": "stdout.log",
+          "bytes": 1175,
+          "sha256": "a550c5fbc16166774aa5e83046d2ebe222685d98a69f7440fa718ba361e609cb",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/sparse-private-contact-high-pair-initialization-133/stdout.log",
+          "repository_copy": "native/sparse-private-contact-high-pair-initialization-133/stdout.log"
+        }
+      ],
+      "receipt": {
+        "schema": "numi.cardboard.native-run-receipt.v2",
+        "execution_started": true,
+        "source_inputs_unchanged": true,
+        "changed_inputs": [],
+        "exit_code": 0,
+        "timed_out": false,
+        "wall_seconds": 0.2140086250146851,
+        "finished_at_utc": "2026-10-15T01:31:42.794869+00:00"
+      },
+      "argv": [
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-052/matter/numi-matter-cardboard-full-contact-armijo-check",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-preconditioner-call-and-sparse-domain-integrated-052/matter/materials/hajali2009_liner_hill_ideal.nmatter",
+        "--extended-budget",
+        "--accurate-paper",
+        "--newton-iterations",
+        "24",
+        "--regional-contact-preconditioner",
+        "--sparse-private-high-pair-admission"
+      ],
+      "environment": {},
+      "question": "Does compact private rigid-contact evaluation preserve the tested production operator and accepted transactional history?",
+      "prediction": "Malformed capacities and unsupported generalized motion must reject; fixed capacity overflow must retain rollback; dense and sparse accepted trial histories must agree in the bounded fixture. This does not admit the shipping mesh.",
+      "executed_build_verified": true,
+      "note": "High canonical pair domain initialization only; zero physical FEM transactions."
+    },
+    {
+      "case": "native/sparse-private-contact-overflow-126",
+      "external_root": "/Users/home/cardboard-implementation-20261014/native/sparse-private-contact-overflow-126",
+      "physical_box_qualification": false,
+      "files": [
+        {
+          "name": "prediction.json",
+          "bytes": 95572,
+          "sha256": "e20ed0588fd4b1f913c9fcb610c27d0f75edcb3d281286b94c10e5c0ac148145",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/sparse-private-contact-overflow-126/prediction.json",
+          "repository_copy": "native/sparse-private-contact-overflow-126/prediction.json"
+        },
+        {
+          "name": "receipt.json",
+          "bytes": 277,
+          "sha256": "69a3f27cc17f677a84b29fb1ebf6620e6583925a05b3beff9e77db908361e8b0",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/sparse-private-contact-overflow-126/receipt.json",
+          "repository_copy": "native/sparse-private-contact-overflow-126/receipt.json"
+        },
+        {
+          "name": "stderr.log",
+          "bytes": 116,
+          "sha256": "947453ce939ba9a945993731d447fd6ca591e74302fe2f5bd8756dbc08e25c92",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/sparse-private-contact-overflow-126/stderr.log",
+          "repository_copy": "native/sparse-private-contact-overflow-126/stderr.log"
+        },
+        {
+          "name": "stdout.log",
+          "bytes": 611,
+          "sha256": "43d08208a18db648f89ff8e19c6447bd897a25b8c55ab3701c7f78543feb149a",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/sparse-private-contact-overflow-126/stdout.log",
+          "repository_copy": "native/sparse-private-contact-overflow-126/stdout.log"
+        }
+      ],
+      "receipt": {
+        "schema": "numi.cardboard.native-run-receipt.v2",
+        "execution_started": true,
+        "source_inputs_unchanged": true,
+        "changed_inputs": [],
+        "exit_code": 1,
+        "timed_out": false,
+        "wall_seconds": 16.69187579199206,
+        "finished_at_utc": "2026-10-15T01:16:59.756588+00:00"
+      },
+      "argv": [
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-051/matter/numi-matter-cardboard-full-contact-armijo-check",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-cache-sparse-asymmetric-integrated-051/matter/materials/hajali2009_liner_hill_ideal.nmatter",
+        "--extended-budget",
+        "--accurate-paper",
+        "--newton-iterations",
+        "24",
+        "--regional-contact-preconditioner",
+        "--sparse-private-overflow"
+      ],
+      "environment": {},
+      "question": "Does compact private rigid-contact evaluation preserve the tested production operator and accepted transactional history?",
+      "prediction": "Malformed capacities and unsupported generalized motion must reject; fixed capacity overflow must retain rollback; dense and sparse accepted trial histories must agree in the bounded fixture. This does not admit the shipping mesh.",
+      "executed_build_verified": true
+    },
+    {
+      "case": "native/sparse-private-contact-overflow-132",
+      "external_root": "/Users/home/cardboard-implementation-20261014/native/sparse-private-contact-overflow-132",
+      "physical_box_qualification": false,
+      "files": [
+        {
+          "name": "prediction.json",
+          "bytes": 95884,
+          "sha256": "96657e781cd5a634eb845e3dc6813e21708733114bb997de6e083f2e3db65d75",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/sparse-private-contact-overflow-132/prediction.json",
+          "repository_copy": "native/sparse-private-contact-overflow-132/prediction.json"
+        },
+        {
+          "name": "receipt.json",
+          "bytes": 277,
+          "sha256": "45287e8b422433e23e78b14fe067f7478676ea9b43f31d813b0b00632fdae9a6",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/sparse-private-contact-overflow-132/receipt.json",
+          "repository_copy": "native/sparse-private-contact-overflow-132/receipt.json"
+        },
+        {
+          "name": "stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/sparse-private-contact-overflow-132/stderr.log",
+          "repository_copy": "native/sparse-private-contact-overflow-132/stderr.log"
+        },
+        {
+          "name": "stdout.log",
+          "bytes": 1102,
+          "sha256": "ec1030bb381e71df40ec30ffc42ffe0b46cac5e387b0f4c0dee13a0b7bb1d60a",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/sparse-private-contact-overflow-132/stdout.log",
+          "repository_copy": "native/sparse-private-contact-overflow-132/stdout.log"
+        }
+      ],
+      "receipt": {
+        "schema": "numi.cardboard.native-run-receipt.v2",
+        "execution_started": true,
+        "source_inputs_unchanged": true,
+        "changed_inputs": [],
+        "exit_code": 0,
+        "timed_out": false,
+        "wall_seconds": 53.31187012500595,
+        "finished_at_utc": "2026-10-15T01:31:42.293595+00:00"
+      },
+      "argv": [
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-052/matter/numi-matter-cardboard-full-contact-armijo-check",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-preconditioner-call-and-sparse-domain-integrated-052/matter/materials/hajali2009_liner_hill_ideal.nmatter",
+        "--extended-budget",
+        "--accurate-paper",
+        "--newton-iterations",
+        "24",
+        "--regional-contact-preconditioner",
+        "--sparse-private-overflow"
+      ],
+      "environment": {},
+      "question": "Does compact private rigid-contact evaluation preserve the tested production operator and accepted transactional history?",
+      "prediction": "Malformed capacities and unsupported generalized motion must reject; fixed capacity overflow must retain rollback; dense and sparse accepted trial histories must agree in the bounded fixture. This does not admit the shipping mesh.",
+      "executed_build_verified": true,
+      "note": "Changed assertion scope from126: private trial capacity status2, terminal nonlinear10, accepted-history rollback. Raw trace was not exported; no causal claim about the preconditioner repair."
+    },
+    {
+      "case": "native/sparse-private-contact-parity-127",
+      "external_root": "/Users/home/cardboard-implementation-20261014/native/sparse-private-contact-parity-127",
+      "physical_box_qualification": false,
+      "files": [
+        {
+          "name": "prediction.json",
+          "bytes": 95570,
+          "sha256": "120f1371d0e33fadeb4ff502df39152962ecb2bd276d9672b6fe3a4d21b9dc61",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/sparse-private-contact-parity-127/prediction.json",
+          "repository_copy": "native/sparse-private-contact-parity-127/prediction.json"
+        },
+        {
+          "name": "receipt.json",
+          "bytes": 276,
+          "sha256": "95a0b9d5c3c3e0e2d7b0ffd4bc753f9bebe71f055e1df65d027e9ce1def37e32",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/sparse-private-contact-parity-127/receipt.json",
+          "repository_copy": "native/sparse-private-contact-parity-127/receipt.json"
+        },
+        {
+          "name": "stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/sparse-private-contact-parity-127/stderr.log",
+          "repository_copy": "native/sparse-private-contact-parity-127/stderr.log"
+        },
+        {
+          "name": "stdout.log",
+          "bytes": 1426,
+          "sha256": "5aa5b430c596d31f99dec52344d044951f747be7c7569ad02a30777505d7b854",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/sparse-private-contact-parity-127/stdout.log",
+          "repository_copy": "native/sparse-private-contact-parity-127/stdout.log"
+        }
+      ],
+      "receipt": {
+        "schema": "numi.cardboard.native-run-receipt.v2",
+        "execution_started": true,
+        "source_inputs_unchanged": true,
+        "changed_inputs": [],
+        "exit_code": 0,
+        "timed_out": false,
+        "wall_seconds": 194.370076332998,
+        "finished_at_utc": "2026-10-15T01:20:14.425723+00:00"
+      },
+      "argv": [
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-051/matter/numi-matter-cardboard-full-contact-armijo-check",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-cache-sparse-asymmetric-integrated-051/matter/materials/hajali2009_liner_hill_ideal.nmatter",
+        "--extended-budget",
+        "--accurate-paper",
+        "--newton-iterations",
+        "24",
+        "--regional-contact-preconditioner",
+        "--sparse-private-parity"
+      ],
+      "environment": {},
+      "question": "Does compact private rigid-contact evaluation preserve the tested production operator and accepted transactional history?",
+      "prediction": "Malformed capacities and unsupported generalized motion must reject; fixed capacity overflow must retain rollback; dense and sparse accepted trial histories must agree in the bounded fixture. This does not admit the shipping mesh.",
+      "executed_build_verified": true
+    },
+    {
+      "case": "native/sparse-private-contact-parity-134",
+      "external_root": "/Users/home/cardboard-implementation-20261014/native/sparse-private-contact-parity-134",
+      "physical_box_qualification": false,
+      "files": [
+        {
+          "name": "diagnostic-state/dense/fixture-activation.log",
+          "bytes": 388,
+          "sha256": "26ddf888bb758743e492e83a578c2dc486cafbf6136534b504ed37925079319c",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/sparse-private-contact-parity-134/diagnostic-state/dense/fixture-activation.log",
+          "repository_copy": "native/sparse-private-contact-parity-134/diagnostic-state/dense/fixture-activation.log"
+        },
+        {
+          "name": "diagnostic-state/dense/fixture-loaded.log",
+          "bytes": 23379,
+          "sha256": "c2fe28101ffb42fa84be2898d7d2276bff8d78bf76b4baaca971959366b5fa63",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/sparse-private-contact-parity-134/diagnostic-state/dense/fixture-loaded.log",
+          "repository_copy": "native/sparse-private-contact-parity-134/diagnostic-state/dense/fixture-loaded.log"
+        },
+        {
+          "name": "diagnostic-state/dense/fixture-rejected.log",
+          "bytes": 23458,
+          "sha256": "9c865936235827554aeafd75af56762c0c9b7967ebe4c189cfbed4b8c552eda2",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/sparse-private-contact-parity-134/diagnostic-state/dense/fixture-rejected.log",
+          "repository_copy": "native/sparse-private-contact-parity-134/diagnostic-state/dense/fixture-rejected.log"
+        },
+        {
+          "name": "diagnostic-state/dense/transaction-000000-after.bin",
+          "bytes": 936467,
+          "sha256": "e080ab5697a6c6225243afcc42983a06450da0f4a3ecafe3c75d39df9d114e1f",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/sparse-private-contact-parity-134/diagnostic-state/dense/transaction-000000-after.bin",
+          "repository_copy": "native/sparse-private-contact-parity-134/diagnostic-state/dense/transaction-000000-after.bin"
+        },
+        {
+          "name": "diagnostic-state/dense/transaction-000000-before.bin",
+          "bytes": 936467,
+          "sha256": "77f120cf8f190d36d49b4bc350887c68c367fdb0704ee9c634344caf0fec64bc",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/sparse-private-contact-parity-134/diagnostic-state/dense/transaction-000000-before.bin",
+          "repository_copy": "native/sparse-private-contact-parity-134/diagnostic-state/dense/transaction-000000-before.bin"
+        },
+        {
+          "name": "diagnostic-state/dense/transaction-000000.json",
+          "bytes": 6580,
+          "sha256": "1b84741bff2b383a77529942fabf2a538a8478bc94ef55268088f3eb2e4a1c18",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/sparse-private-contact-parity-134/diagnostic-state/dense/transaction-000000.json",
+          "repository_copy": "native/sparse-private-contact-parity-134/diagnostic-state/dense/transaction-000000.json"
+        },
+        {
+          "name": "diagnostic-state/dense/transaction-000001-after.bin",
+          "bytes": 936467,
+          "sha256": "b3359d9514664e1d070d68948e682bb36475bd5c917f439dd0f914794e88d58b",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/sparse-private-contact-parity-134/diagnostic-state/dense/transaction-000001-after.bin",
+          "repository_copy": "native/sparse-private-contact-parity-134/diagnostic-state/dense/transaction-000001-after.bin"
+        },
+        {
+          "name": "diagnostic-state/dense/transaction-000001-before.bin",
+          "bytes": 936467,
+          "sha256": "e080ab5697a6c6225243afcc42983a06450da0f4a3ecafe3c75d39df9d114e1f",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/sparse-private-contact-parity-134/diagnostic-state/dense/transaction-000001-before.bin",
+          "repository_copy": "native/sparse-private-contact-parity-134/diagnostic-state/dense/transaction-000001-before.bin"
+        },
+        {
+          "name": "diagnostic-state/dense/transaction-000001.json",
+          "bytes": 6680,
+          "sha256": "5b61832e5b21387a65dfb2ee9421f9b772b18ad7d57684904573695ef30244de",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/sparse-private-contact-parity-134/diagnostic-state/dense/transaction-000001.json",
+          "repository_copy": "native/sparse-private-contact-parity-134/diagnostic-state/dense/transaction-000001.json"
+        },
+        {
+          "name": "diagnostic-state/dense/transaction-000002-after.bin",
+          "bytes": 936467,
+          "sha256": "056248a35e62d04f6ca70aa44115bf3cea2621eee331b9f891ecb77dac01586f",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/sparse-private-contact-parity-134/diagnostic-state/dense/transaction-000002-after.bin",
+          "repository_copy": "native/sparse-private-contact-parity-134/diagnostic-state/dense/transaction-000002-after.bin"
+        },
+        {
+          "name": "diagnostic-state/dense/transaction-000002-before.bin",
+          "bytes": 936467,
+          "sha256": "b3359d9514664e1d070d68948e682bb36475bd5c917f439dd0f914794e88d58b",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/sparse-private-contact-parity-134/diagnostic-state/dense/transaction-000002-before.bin",
+          "repository_copy": "native/sparse-private-contact-parity-134/diagnostic-state/dense/transaction-000002-before.bin"
+        },
+        {
+          "name": "diagnostic-state/dense/transaction-000002.json",
+          "bytes": 6670,
+          "sha256": "93d240e8148eadaa4c2ebb4f1ffb65b2e8cfe4a2b8438685e540a9d5e7e8e617",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/sparse-private-contact-parity-134/diagnostic-state/dense/transaction-000002.json",
+          "repository_copy": "native/sparse-private-contact-parity-134/diagnostic-state/dense/transaction-000002.json"
+        },
+        {
+          "name": "postcommit-certificate-analysis.json",
+          "bytes": 7210,
+          "sha256": "ac26e2eb2f76060c2bfafcac8be35e2d757462e5882d3b692e30230b157141ed",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/sparse-private-contact-parity-134/postcommit-certificate-analysis.json",
+          "repository_copy": "native/sparse-private-contact-parity-134/postcommit-certificate-analysis.json"
+        },
+        {
+          "name": "prediction.json",
+          "bytes": 96026,
+          "sha256": "6cfc390752a3052133eb479451b4a9f7ebe5907f37e62d268db9edf4845056c2",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/sparse-private-contact-parity-134/prediction.json",
+          "repository_copy": "native/sparse-private-contact-parity-134/prediction.json"
+        },
+        {
+          "name": "receipt.json",
+          "bytes": 276,
+          "sha256": "bb522c553a62e392251b35feeca5f88d6e686608975e8ffdcd35d3f18f695b96",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/sparse-private-contact-parity-134/receipt.json",
+          "repository_copy": "native/sparse-private-contact-parity-134/receipt.json"
+        },
+        {
+          "name": "stderr.log",
+          "bytes": 115,
+          "sha256": "056ee93c21b9f60788f3c8c13699d72d980b3be92df8fb17d0cef3394cc3f5d4",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/sparse-private-contact-parity-134/stderr.log",
+          "repository_copy": "native/sparse-private-contact-parity-134/stderr.log"
+        },
+        {
+          "name": "stdout.log",
+          "bytes": 883,
+          "sha256": "679c8eaca99b3259ecde634fd5b354e6ac502895c75cec70b8a82c4895c3eea0",
+          "external_path": "/Users/home/cardboard-implementation-20261014/native/sparse-private-contact-parity-134/stdout.log",
+          "repository_copy": "native/sparse-private-contact-parity-134/stdout.log"
+        }
+      ],
+      "receipt": {
+        "schema": "numi.cardboard.native-run-receipt.v2",
+        "execution_started": true,
+        "source_inputs_unchanged": true,
+        "changed_inputs": [],
+        "exit_code": 1,
+        "timed_out": false,
+        "wall_seconds": 93.9435727079981,
+        "finished_at_utc": "2026-10-15T01:33:17.015577+00:00"
+      },
+      "argv": [
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-052/matter/numi-matter-cardboard-full-contact-armijo-check",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-preconditioner-call-and-sparse-domain-integrated-052/matter/materials/hajali2009_liner_hill_ideal.nmatter",
+        "--extended-budget",
+        "--accurate-paper",
+        "--newton-iterations",
+        "24",
+        "--regional-contact-preconditioner",
+        "--sparse-private-parity",
+        "--diagnostic-state-output",
+        "/Users/home/cardboard-implementation-20261014/native/sparse-private-contact-parity-134/diagnostic-state"
+      ],
+      "environment": {},
+      "question": "Does compact private rigid-contact evaluation preserve the tested production operator and accepted transactional history?",
+      "prediction": "Malformed capacities and unsupported generalized motion must reject; fixed capacity overflow must retain rollback; dense and sparse accepted trial histories must agree in the bounded fixture. This does not admit the shipping mesh.",
+      "executed_build_verified": true,
+      "note": "Late postCommit intentional rejection restores physical history but leaves candidate certificate validity set; failed parity/rollback instrument. Retained dense diagnostic state is authoritative."
+    },
+    {
+      "case": "solver/cached-complete-coupon-cycle-129",
+      "external_root": "/Users/home/cardboard-implementation-20261014/solver/cached-complete-coupon-cycle-129",
+      "physical_box_qualification": false,
+      "files": [
+        {
+          "name": "interruption.json",
+          "bytes": 670,
+          "sha256": "7b2307f18c3515bbc80876f2d468157f9ff3d35fdcccc9032771bf8d89277f5e",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/cached-complete-coupon-cycle-129/interruption.json",
+          "repository_copy": "solver/cached-complete-coupon-cycle-129/interruption.json"
+        },
+        {
+          "name": "output/manifest.json",
+          "bytes": 10923,
+          "sha256": "74d2a286d42f08ad34d3a101d34faa3c6f2f63f835f7b08d6b5060a47afb8b52",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/cached-complete-coupon-cycle-129/output/manifest.json",
+          "repository_copy": "solver/cached-complete-coupon-cycle-129/output/manifest.json"
+        },
+        {
+          "name": "output/mesh.json",
+          "bytes": 160425,
+          "sha256": "6a2f786a47e61014ee4b27f609eb3c2f666677223ddaa30297aeea1fcfd8ca56",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/cached-complete-coupon-cycle-129/output/mesh.json",
+          "repository_copy": "solver/cached-complete-coupon-cycle-129/output/mesh.json"
+        },
+        {
+          "name": "output/observations.csv",
+          "bytes": 1791,
+          "sha256": "98406263d6575a4998956b1c90346c874c90d49ce442f3dcac356f6b2a92caa5",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/cached-complete-coupon-cycle-129/output/observations.csv",
+          "repository_copy": "solver/cached-complete-coupon-cycle-129/output/observations.csv"
+        },
+        {
+          "name": "prediction.json",
+          "bytes": 96853,
+          "sha256": "f2aaf6c32128b4498b51ed70b7988faff42deac4ea06704af76e66484b555149",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/cached-complete-coupon-cycle-129/prediction.json",
+          "repository_copy": "solver/cached-complete-coupon-cycle-129/prediction.json"
+        },
+        {
+          "name": "receipt.json",
+          "bytes": 280,
+          "sha256": "115872af2384bbcb617d086a02146608e09ce1ad8446a435fe4df6a6d0583cdb",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/cached-complete-coupon-cycle-129/receipt.json",
+          "repository_copy": "solver/cached-complete-coupon-cycle-129/receipt.json"
+        },
+        {
+          "name": "stderr.log",
+          "bytes": 895,
+          "sha256": "941b62b540d72de9a2c7c9dc777c3b6d089cf70716fa69bf9b7344ad89e968ea",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/cached-complete-coupon-cycle-129/stderr.log",
+          "repository_copy": "solver/cached-complete-coupon-cycle-129/stderr.log"
+        },
+        {
+          "name": "stdout.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/cached-complete-coupon-cycle-129/stdout.log",
+          "repository_copy": "solver/cached-complete-coupon-cycle-129/stdout.log"
+        }
+      ],
+      "receipt": {
+        "schema": "numi.cardboard.native-run-receipt.v2",
+        "execution_started": true,
+        "source_inputs_unchanged": true,
+        "changed_inputs": [],
+        "exit_code": -15,
+        "timed_out": false,
+        "wall_seconds": 343.17356554197613,
+        "finished_at_utc": "2026-10-15T01:26:03.412732+00:00"
+      },
+      "argv": [
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-051/matter/numi-matter-cardboard-probe",
+        "--preset",
+        "literature2009",
+        "--line-search-steps",
+        "24",
+        "--accurate-paper-projection",
+        "--scaled-paper-residuals",
+        "--without-self-contact",
+        "--reference-displacement-gradient",
+        "--compensated-paper-arithmetic",
+        "--safeguarded-paper-initializer",
+        "--residual-tolerance",
+        "1e-6",
+        "--newton-iterations",
+        "64",
+        "--fgmres-restart",
+        "16",
+        "--fgmres-iterations",
+        "1024",
+        "--fgmres-preconditioner",
+        "regional-galerkin-block",
+        "--steps",
+        "12",
+        "--hold-steps",
+        "3",
+        "--unload-steps",
+        "6",
+        "--relax-steps",
+        "3",
+        "--release-steps",
+        "3",
+        "--nx",
+        "8",
+        "--ny",
+        "2",
+        "--thickness-slices",
+        "1",
+        "--bend-angle",
+        ".375",
+        "--dt",
+        ".0001",
+        "--material-iterations",
+        "16",
+        "--metallib",
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-051/matter/shaders/NumiMatter.metallib",
+        "--output",
+        "/Users/home/cardboard-implementation-20261014/solver/cached-complete-coupon-cycle-129/output",
+        "--liner-material",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-cache-sparse-asymmetric-integrated-051/matter/materials/hajali2009_liner_hill_ideal.nmatter",
+        "--medium-material",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-cache-sparse-asymmetric-integrated-051/matter/materials/hajali2009_medium_hill_ideal.nmatter",
+        "--cache-fem-algorithmic-tangent"
+      ],
+      "environment": {
+        "NM_FEM_RESIDUAL_ARMIJO_ROOT": "all",
+        "NUMI_CARDBOARD_STEP_TIMING": "1"
+      },
+      "question": "Does caching the full local constitutive tangent permit completion of all 27 original coupon loading, holding, withdrawal, relaxation and release controls with the unchanged strict production certificate?",
+      "prediction": "Same physical inputs as108 and restart16, no relaxed tolerances. Complete history requires all27controls and direct terminal residual<=1e-6. Failure/timeout and timing are retained; accepted prefixes do not establish convergence.",
+      "executed_build_verified": true,
+      "note": "Deliberately terminated when the preconditioner optional-output buffer defect was confirmed; no complete cycle or timeout qualification."
+    },
+    {
+      "case": "solver/diagnostic-budget-complete-coupon-cycle-117",
+      "external_root": "/Users/home/cardboard-implementation-20261014/solver/diagnostic-budget-complete-coupon-cycle-117",
+      "physical_box_qualification": false,
+      "files": [
+        {
+          "name": "output/manifest.json",
+          "bytes": 10890,
+          "sha256": "aab056b25307dc779ed8a64a180e9e7716c7a02eac20b620b4f219836b7859b5",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/diagnostic-budget-complete-coupon-cycle-117/output/manifest.json",
+          "repository_copy": "solver/diagnostic-budget-complete-coupon-cycle-117/output/manifest.json"
+        },
+        {
+          "name": "output/material_state_000002_bent.json",
+          "bytes": 780012,
+          "sha256": "dbb2992a862f0ee3de4ea4209cd099f685c3231677fe50c6a99a1e3640062e07",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/diagnostic-budget-complete-coupon-cycle-117/output/material_state_000002_bent.json"
+        },
+        {
+          "name": "output/mesh.json",
+          "bytes": 160425,
+          "sha256": "6a2f786a47e61014ee4b27f609eb3c2f666677223ddaa30297aeea1fcfd8ca56",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/diagnostic-budget-complete-coupon-cycle-117/output/mesh.json",
+          "repository_copy": "solver/diagnostic-budget-complete-coupon-cycle-117/output/mesh.json"
+        },
+        {
+          "name": "output/observations.csv",
+          "bytes": 2570,
+          "sha256": "5faac312ebd9de1aad03ad6c2902cef86484e64e71267d5b34f5a6e68f74ea9b",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/diagnostic-budget-complete-coupon-cycle-117/output/observations.csv",
+          "repository_copy": "solver/diagnostic-budget-complete-coupon-cycle-117/output/observations.csv"
+        },
+        {
+          "name": "output/rejected-conditioning-000002/AP.bin",
+          "bytes": 733824,
+          "sha256": "dc7f8ed8c31ee4fd77c6cce06e37c80bb838d648cbd9ccbb16c8e2b1dbfb97bf",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/diagnostic-budget-complete-coupon-cycle-117/output/rejected-conditioning-000002/AP.bin",
+          "repository_copy": "solver/diagnostic-budget-complete-coupon-cycle-117/output/rejected-conditioning-000002/AP.bin"
+        },
+        {
+          "name": "output/rejected-conditioning-000002/P.bin",
+          "bytes": 366912,
+          "sha256": "2626e4bbb205fa1c7e40bdaf3f2e72d11f831ec53431c3062bcc85d69a50f6b5",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/diagnostic-budget-complete-coupon-cycle-117/output/rejected-conditioning-000002/P.bin",
+          "repository_copy": "solver/diagnostic-budget-complete-coupon-cycle-117/output/rejected-conditioning-000002/P.bin"
+        },
+        {
+          "name": "output/rejected-conditioning-000002/candidate_nodes.bin",
+          "bytes": 141120,
+          "sha256": "715f49e2a96fc967dad2daf92b226b36eb1e27d84d50014f44d9f5301435ca84",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/diagnostic-budget-complete-coupon-cycle-117/output/rejected-conditioning-000002/candidate_nodes.bin",
+          "repository_copy": "solver/diagnostic-budget-complete-coupon-cycle-117/output/rejected-conditioning-000002/candidate_nodes.bin"
+        },
+        {
+          "name": "output/rejected-conditioning-000002/effective_P.bin",
+          "bytes": 733824,
+          "sha256": "9bf372c75cafcf84bc1e21a20ee3305e7619affffe6415bb9d3398f79970214c",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/diagnostic-budget-complete-coupon-cycle-117/output/rejected-conditioning-000002/effective_P.bin",
+          "repository_copy": "solver/diagnostic-budget-complete-coupon-cycle-117/output/rejected-conditioning-000002/effective_P.bin"
+        },
+        {
+          "name": "output/rejected-conditioning-000002/factor_valid.bin",
+          "bytes": 8,
+          "sha256": "64ed86b909d6d0502b64b28db0ea1272ffb358e20e9b1d88b63ccb07fa900cf5",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/diagnostic-budget-complete-coupon-cycle-117/output/rejected-conditioning-000002/factor_valid.bin",
+          "repository_copy": "solver/diagnostic-budget-complete-coupon-cycle-117/output/rejected-conditioning-000002/factor_valid.bin"
+        },
+        {
+          "name": "output/rejected-conditioning-000002/manifest.json",
+          "bytes": 1769,
+          "sha256": "67734e7080613d2471d88988d3d4ef8681c146fdb2ac04e8a868598fcd3575c7",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/diagnostic-budget-complete-coupon-cycle-117/output/rejected-conditioning-000002/manifest.json",
+          "repository_copy": "solver/diagnostic-budget-complete-coupon-cycle-117/output/rejected-conditioning-000002/manifest.json"
+        },
+        {
+          "name": "output/rejected-conditioning-000002/node_block_inverse.bin",
+          "bytes": 84672,
+          "sha256": "c3f480eaf7016cdb888e192d66c67f750d58981336d50a875ad6a4b243aab264",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/diagnostic-budget-complete-coupon-cycle-117/output/rejected-conditioning-000002/node_block_inverse.bin",
+          "repository_copy": "solver/diagnostic-budget-complete-coupon-cycle-117/output/rejected-conditioning-000002/node_block_inverse.bin"
+        },
+        {
+          "name": "output/rejected-conditioning-000002/pivoted_RAP.bin",
+          "bytes": 5408,
+          "sha256": "466bf3519d3c7afbb06d8a5a04b595693860723dbcdeb589d6447ea48c104d6f",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/diagnostic-budget-complete-coupon-cycle-117/output/rejected-conditioning-000002/pivoted_RAP.bin",
+          "repository_copy": "solver/diagnostic-budget-complete-coupon-cycle-117/output/rejected-conditioning-000002/pivoted_RAP.bin"
+        },
+        {
+          "name": "output/rejected-conditioning-000002/pivots.bin",
+          "bytes": 208,
+          "sha256": "05a9be21ecac171980999ee577ec38409f65a9b7a43b629921c25e5d99fe1bf5",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/diagnostic-budget-complete-coupon-cycle-117/output/rejected-conditioning-000002/pivots.bin",
+          "repository_copy": "solver/diagnostic-budget-complete-coupon-cycle-117/output/rejected-conditioning-000002/pivots.bin"
+        },
+        {
+          "name": "output/result.json",
+          "bytes": 642,
+          "sha256": "2af81b0bc4153b746fcfa4b058acaaf47e3bb9484d1ea0dbb121e7a96373b172",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/diagnostic-budget-complete-coupon-cycle-117/output/result.json",
+          "repository_copy": "solver/diagnostic-budget-complete-coupon-cycle-117/output/result.json"
+        },
+        {
+          "name": "prediction.json",
+          "bytes": 94522,
+          "sha256": "7bdddb9a8a6bc9e9dbbd252e762281ec2e41c7b34816507a726fd1b48e419717",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/diagnostic-budget-complete-coupon-cycle-117/prediction.json",
+          "repository_copy": "solver/diagnostic-budget-complete-coupon-cycle-117/prediction.json"
+        },
+        {
+          "name": "receipt.json",
+          "bytes": 276,
+          "sha256": "2fdf10827f959e880ffa0f098e8b97d1ce456759e3e37f7b07064fa22828136f",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/diagnostic-budget-complete-coupon-cycle-117/receipt.json",
+          "repository_copy": "solver/diagnostic-budget-complete-coupon-cycle-117/receipt.json"
+        },
+        {
+          "name": "stderr.log",
+          "bytes": 118569,
+          "sha256": "1226c1a82158297c222b66dd37cc0254893d18c8f4890b416b5451f27a5f8fcd",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/diagnostic-budget-complete-coupon-cycle-117/stderr.log",
+          "repository_copy": "solver/diagnostic-budget-complete-coupon-cycle-117/stderr.log"
+        },
+        {
+          "name": "stdout.log",
+          "bytes": 287,
+          "sha256": "3eba8a0cb2e5cdb4aa5dc0c939beac5a6263a6336e570e80925fea2731fcb02b",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/diagnostic-budget-complete-coupon-cycle-117/stdout.log",
+          "repository_copy": "solver/diagnostic-budget-complete-coupon-cycle-117/stdout.log"
+        }
+      ],
+      "receipt": {
+        "schema": "numi.cardboard.native-run-receipt.v2",
+        "execution_started": true,
+        "source_inputs_unchanged": true,
+        "changed_inputs": [],
+        "exit_code": 2,
+        "timed_out": false,
+        "wall_seconds": 307.198884500016,
+        "finished_at_utc": "2026-10-15T00:37:05.158079+00:00"
+      },
+      "argv": [
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-049/matter/numi-matter-cardboard-probe",
+        "--preset",
+        "literature2009",
+        "--line-search-steps",
+        "24",
+        "--accurate-paper-projection",
+        "--scaled-paper-residuals",
+        "--without-self-contact",
+        "--reference-displacement-gradient",
+        "--compensated-paper-arithmetic",
+        "--safeguarded-paper-initializer",
+        "--residual-tolerance",
+        "1e-6",
+        "--newton-iterations",
+        "24",
+        "--fgmres-restart",
+        "16",
+        "--fgmres-iterations",
+        "512",
+        "--fgmres-preconditioner",
+        "regional-galerkin-block",
+        "--steps",
+        "12",
+        "--hold-steps",
+        "3",
+        "--unload-steps",
+        "6",
+        "--relax-steps",
+        "3",
+        "--release-steps",
+        "3",
+        "--nx",
+        "8",
+        "--ny",
+        "2",
+        "--thickness-slices",
+        "1",
+        "--bend-angle",
+        ".375",
+        "--dt",
+        ".0001",
+        "--material-iterations",
+        "16",
+        "--metallib",
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-049/matter/shaders/NumiMatter.metallib",
+        "--output",
+        "/Users/home/cardboard-implementation-20261014/solver/diagnostic-budget-complete-coupon-cycle-117/output",
+        "--liner-material",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-curves-and-trial-instruments-integrated-049/matter/materials/hajali2009_liner_hill_ideal.nmatter",
+        "--medium-material",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-curves-and-trial-instruments-integrated-049/matter/materials/hajali2009_medium_hill_ideal.nmatter"
+      ],
+      "environment": {
+        "NM_FEM_RESIDUAL_ARMIJO_ROOT": "all",
+        "NM_FEM_NEWTON_TRACE_ROOT": "0"
+      },
+      "question": "Does24 Newton passes at512restart16 columns complete the unchanged27-control coupon cycle, and which nonlinear/linear/certificate layer rejects if not?",
+      "prediction": "Strict1e-6 production acceptance, idealrecipe, paths anddt are unchanged. Root0 diagnostic is read-only. Complete cycle requires27accepted controls, no accepted prefix qualification.",
+      "executed_build_verified": true
+    },
+    {
+      "case": "solver/failing-coupon-diagnostic-off-119",
+      "external_root": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-diagnostic-off-119",
+      "physical_box_qualification": false,
+      "files": [
+        {
+          "name": "output/manifest.json",
+          "bytes": 10890,
+          "sha256": "aab056b25307dc779ed8a64a180e9e7716c7a02eac20b620b4f219836b7859b5",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-diagnostic-off-119/output/manifest.json",
+          "repository_copy": "solver/failing-coupon-diagnostic-off-119/output/manifest.json"
+        },
+        {
+          "name": "output/material_state_000002_bent.json",
+          "bytes": 780012,
+          "sha256": "dbb2992a862f0ee3de4ea4209cd099f685c3231677fe50c6a99a1e3640062e07",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-diagnostic-off-119/output/material_state_000002_bent.json"
+        },
+        {
+          "name": "output/mesh.json",
+          "bytes": 160425,
+          "sha256": "6a2f786a47e61014ee4b27f609eb3c2f666677223ddaa30297aeea1fcfd8ca56",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-diagnostic-off-119/output/mesh.json",
+          "repository_copy": "solver/failing-coupon-diagnostic-off-119/output/mesh.json"
+        },
+        {
+          "name": "output/observations.csv",
+          "bytes": 2570,
+          "sha256": "5faac312ebd9de1aad03ad6c2902cef86484e64e71267d5b34f5a6e68f74ea9b",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-diagnostic-off-119/output/observations.csv",
+          "repository_copy": "solver/failing-coupon-diagnostic-off-119/output/observations.csv"
+        },
+        {
+          "name": "output/rejected-conditioning-000002/AP.bin",
+          "bytes": 733824,
+          "sha256": "dc7f8ed8c31ee4fd77c6cce06e37c80bb838d648cbd9ccbb16c8e2b1dbfb97bf",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-diagnostic-off-119/output/rejected-conditioning-000002/AP.bin",
+          "repository_copy": "solver/failing-coupon-diagnostic-off-119/output/rejected-conditioning-000002/AP.bin"
+        },
+        {
+          "name": "output/rejected-conditioning-000002/P.bin",
+          "bytes": 366912,
+          "sha256": "2626e4bbb205fa1c7e40bdaf3f2e72d11f831ec53431c3062bcc85d69a50f6b5",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-diagnostic-off-119/output/rejected-conditioning-000002/P.bin",
+          "repository_copy": "solver/failing-coupon-diagnostic-off-119/output/rejected-conditioning-000002/P.bin"
+        },
+        {
+          "name": "output/rejected-conditioning-000002/candidate_nodes.bin",
+          "bytes": 141120,
+          "sha256": "715f49e2a96fc967dad2daf92b226b36eb1e27d84d50014f44d9f5301435ca84",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-diagnostic-off-119/output/rejected-conditioning-000002/candidate_nodes.bin",
+          "repository_copy": "solver/failing-coupon-diagnostic-off-119/output/rejected-conditioning-000002/candidate_nodes.bin"
+        },
+        {
+          "name": "output/rejected-conditioning-000002/effective_P.bin",
+          "bytes": 733824,
+          "sha256": "9bf372c75cafcf84bc1e21a20ee3305e7619affffe6415bb9d3398f79970214c",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-diagnostic-off-119/output/rejected-conditioning-000002/effective_P.bin",
+          "repository_copy": "solver/failing-coupon-diagnostic-off-119/output/rejected-conditioning-000002/effective_P.bin"
+        },
+        {
+          "name": "output/rejected-conditioning-000002/factor_valid.bin",
+          "bytes": 8,
+          "sha256": "64ed86b909d6d0502b64b28db0ea1272ffb358e20e9b1d88b63ccb07fa900cf5",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-diagnostic-off-119/output/rejected-conditioning-000002/factor_valid.bin",
+          "repository_copy": "solver/failing-coupon-diagnostic-off-119/output/rejected-conditioning-000002/factor_valid.bin"
+        },
+        {
+          "name": "output/rejected-conditioning-000002/manifest.json",
+          "bytes": 1769,
+          "sha256": "67734e7080613d2471d88988d3d4ef8681c146fdb2ac04e8a868598fcd3575c7",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-diagnostic-off-119/output/rejected-conditioning-000002/manifest.json",
+          "repository_copy": "solver/failing-coupon-diagnostic-off-119/output/rejected-conditioning-000002/manifest.json"
+        },
+        {
+          "name": "output/rejected-conditioning-000002/node_block_inverse.bin",
+          "bytes": 84672,
+          "sha256": "c3f480eaf7016cdb888e192d66c67f750d58981336d50a875ad6a4b243aab264",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-diagnostic-off-119/output/rejected-conditioning-000002/node_block_inverse.bin",
+          "repository_copy": "solver/failing-coupon-diagnostic-off-119/output/rejected-conditioning-000002/node_block_inverse.bin"
+        },
+        {
+          "name": "output/rejected-conditioning-000002/pivoted_RAP.bin",
+          "bytes": 5408,
+          "sha256": "466bf3519d3c7afbb06d8a5a04b595693860723dbcdeb589d6447ea48c104d6f",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-diagnostic-off-119/output/rejected-conditioning-000002/pivoted_RAP.bin",
+          "repository_copy": "solver/failing-coupon-diagnostic-off-119/output/rejected-conditioning-000002/pivoted_RAP.bin"
+        },
+        {
+          "name": "output/rejected-conditioning-000002/pivots.bin",
+          "bytes": 208,
+          "sha256": "05a9be21ecac171980999ee577ec38409f65a9b7a43b629921c25e5d99fe1bf5",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-diagnostic-off-119/output/rejected-conditioning-000002/pivots.bin",
+          "repository_copy": "solver/failing-coupon-diagnostic-off-119/output/rejected-conditioning-000002/pivots.bin"
+        },
+        {
+          "name": "output/result.json",
+          "bytes": 642,
+          "sha256": "2af81b0bc4153b746fcfa4b058acaaf47e3bb9484d1ea0dbb121e7a96373b172",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-diagnostic-off-119/output/result.json",
+          "repository_copy": "solver/failing-coupon-diagnostic-off-119/output/result.json"
+        },
+        {
+          "name": "prediction.json",
+          "bytes": 94523,
+          "sha256": "98d6e8ecaa2f15c2c4a8243374f33da9af89224f44972b8b46e3f3188b3ca236",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-diagnostic-off-119/prediction.json",
+          "repository_copy": "solver/failing-coupon-diagnostic-off-119/prediction.json"
+        },
+        {
+          "name": "receipt.json",
+          "bytes": 276,
+          "sha256": "8ec1e538de52be508e0a23a48011000ec921968767166e8989c7de55cae3484b",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-diagnostic-off-119/receipt.json",
+          "repository_copy": "solver/failing-coupon-diagnostic-off-119/receipt.json"
+        },
+        {
+          "name": "stderr.log",
+          "bytes": 292,
+          "sha256": "0bca728b77d9650fa1266f72b990d928396f56058a5fa6940dff1f5ecaf77094",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-diagnostic-off-119/stderr.log",
+          "repository_copy": "solver/failing-coupon-diagnostic-off-119/stderr.log"
+        },
+        {
+          "name": "stdout.log",
+          "bytes": 287,
+          "sha256": "3eba8a0cb2e5cdb4aa5dc0c939beac5a6263a6336e570e80925fea2731fcb02b",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-diagnostic-off-119/stdout.log",
+          "repository_copy": "solver/failing-coupon-diagnostic-off-119/stdout.log"
+        }
+      ],
+      "receipt": {
+        "schema": "numi.cardboard.native-run-receipt.v2",
+        "execution_started": true,
+        "source_inputs_unchanged": true,
+        "changed_inputs": [],
+        "exit_code": 2,
+        "timed_out": false,
+        "wall_seconds": 307.299249667034,
+        "finished_at_utc": "2026-10-15T00:52:59.053425+00:00"
+      },
+      "argv": [
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-049/matter/numi-matter-cardboard-probe",
+        "--preset",
+        "literature2009",
+        "--line-search-steps",
+        "24",
+        "--accurate-paper-projection",
+        "--scaled-paper-residuals",
+        "--without-self-contact",
+        "--reference-displacement-gradient",
+        "--compensated-paper-arithmetic",
+        "--safeguarded-paper-initializer",
+        "--residual-tolerance",
+        "1e-6",
+        "--newton-iterations",
+        "24",
+        "--fgmres-restart",
+        "16",
+        "--fgmres-iterations",
+        "512",
+        "--fgmres-preconditioner",
+        "regional-galerkin-block",
+        "--steps",
+        "12",
+        "--hold-steps",
+        "3",
+        "--unload-steps",
+        "6",
+        "--relax-steps",
+        "3",
+        "--release-steps",
+        "3",
+        "--nx",
+        "8",
+        "--ny",
+        "2",
+        "--thickness-slices",
+        "1",
+        "--bend-angle",
+        ".375",
+        "--dt",
+        ".0001",
+        "--material-iterations",
+        "16",
+        "--metallib",
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-049/matter/shaders/NumiMatter.metallib",
+        "--output",
+        "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-diagnostic-off-119/output",
+        "--liner-material",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-curves-and-trial-instruments-integrated-049/matter/materials/hajali2009_liner_hill_ideal.nmatter",
+        "--medium-material",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-curves-and-trial-instruments-integrated-049/matter/materials/hajali2009_medium_hill_ideal.nmatter"
+      ],
+      "environment": {
+        "NM_FEM_RESIDUAL_ARMIJO_ROOT": "all"
+      },
+      "question": "Does disabling every privatecapture preserve the complete accepted/rejected productionhistory of root1/Newton3 capturedcase118?",
+      "prediction": "Exactsource49physicalinputs,24Newton512restart16, idealmaterial andstrict1e-6 certificate match118. Expectedsamefirstacceptedcontrol andsecondrejection; allproduction CSV/OBJ/raw conditioning outputs mustbe byte-identical. Failure notsolverqualification.",
+      "executed_build_verified": true
+    },
+    {
+      "case": "solver/failing-coupon-small-epsilon-capture-120",
+      "external_root": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-small-epsilon-capture-120",
+      "physical_box_qualification": false,
+      "files": [
+        {
+          "name": "operator-capture",
+          "bytes": 34388413,
+          "sha256": "dfec6d006a63e68a2e027e191254f01c378584066a04914c342617d3e94b44f6",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-small-epsilon-capture-120/operator-capture"
+        },
+        {
+          "name": "output/manifest.json",
+          "bytes": 10890,
+          "sha256": "aab056b25307dc779ed8a64a180e9e7716c7a02eac20b620b4f219836b7859b5",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-small-epsilon-capture-120/output/manifest.json",
+          "repository_copy": "solver/failing-coupon-small-epsilon-capture-120/output/manifest.json"
+        },
+        {
+          "name": "output/material_state_000002_bent.json",
+          "bytes": 780012,
+          "sha256": "dbb2992a862f0ee3de4ea4209cd099f685c3231677fe50c6a99a1e3640062e07",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-small-epsilon-capture-120/output/material_state_000002_bent.json"
+        },
+        {
+          "name": "output/mesh.json",
+          "bytes": 160425,
+          "sha256": "6a2f786a47e61014ee4b27f609eb3c2f666677223ddaa30297aeea1fcfd8ca56",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-small-epsilon-capture-120/output/mesh.json",
+          "repository_copy": "solver/failing-coupon-small-epsilon-capture-120/output/mesh.json"
+        },
+        {
+          "name": "output/observations.csv",
+          "bytes": 2570,
+          "sha256": "5faac312ebd9de1aad03ad6c2902cef86484e64e71267d5b34f5a6e68f74ea9b",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-small-epsilon-capture-120/output/observations.csv",
+          "repository_copy": "solver/failing-coupon-small-epsilon-capture-120/output/observations.csv"
+        },
+        {
+          "name": "output/rejected-conditioning-000002/AP.bin",
+          "bytes": 733824,
+          "sha256": "dc7f8ed8c31ee4fd77c6cce06e37c80bb838d648cbd9ccbb16c8e2b1dbfb97bf",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-small-epsilon-capture-120/output/rejected-conditioning-000002/AP.bin",
+          "repository_copy": "solver/failing-coupon-small-epsilon-capture-120/output/rejected-conditioning-000002/AP.bin"
+        },
+        {
+          "name": "output/rejected-conditioning-000002/P.bin",
+          "bytes": 366912,
+          "sha256": "2626e4bbb205fa1c7e40bdaf3f2e72d11f831ec53431c3062bcc85d69a50f6b5",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-small-epsilon-capture-120/output/rejected-conditioning-000002/P.bin",
+          "repository_copy": "solver/failing-coupon-small-epsilon-capture-120/output/rejected-conditioning-000002/P.bin"
+        },
+        {
+          "name": "output/rejected-conditioning-000002/candidate_nodes.bin",
+          "bytes": 141120,
+          "sha256": "715f49e2a96fc967dad2daf92b226b36eb1e27d84d50014f44d9f5301435ca84",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-small-epsilon-capture-120/output/rejected-conditioning-000002/candidate_nodes.bin",
+          "repository_copy": "solver/failing-coupon-small-epsilon-capture-120/output/rejected-conditioning-000002/candidate_nodes.bin"
+        },
+        {
+          "name": "output/rejected-conditioning-000002/effective_P.bin",
+          "bytes": 733824,
+          "sha256": "9bf372c75cafcf84bc1e21a20ee3305e7619affffe6415bb9d3398f79970214c",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-small-epsilon-capture-120/output/rejected-conditioning-000002/effective_P.bin",
+          "repository_copy": "solver/failing-coupon-small-epsilon-capture-120/output/rejected-conditioning-000002/effective_P.bin"
+        },
+        {
+          "name": "output/rejected-conditioning-000002/factor_valid.bin",
+          "bytes": 8,
+          "sha256": "64ed86b909d6d0502b64b28db0ea1272ffb358e20e9b1d88b63ccb07fa900cf5",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-small-epsilon-capture-120/output/rejected-conditioning-000002/factor_valid.bin",
+          "repository_copy": "solver/failing-coupon-small-epsilon-capture-120/output/rejected-conditioning-000002/factor_valid.bin"
+        },
+        {
+          "name": "output/rejected-conditioning-000002/manifest.json",
+          "bytes": 1769,
+          "sha256": "67734e7080613d2471d88988d3d4ef8681c146fdb2ac04e8a868598fcd3575c7",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-small-epsilon-capture-120/output/rejected-conditioning-000002/manifest.json",
+          "repository_copy": "solver/failing-coupon-small-epsilon-capture-120/output/rejected-conditioning-000002/manifest.json"
+        },
+        {
+          "name": "output/rejected-conditioning-000002/node_block_inverse.bin",
+          "bytes": 84672,
+          "sha256": "c3f480eaf7016cdb888e192d66c67f750d58981336d50a875ad6a4b243aab264",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-small-epsilon-capture-120/output/rejected-conditioning-000002/node_block_inverse.bin",
+          "repository_copy": "solver/failing-coupon-small-epsilon-capture-120/output/rejected-conditioning-000002/node_block_inverse.bin"
+        },
+        {
+          "name": "output/rejected-conditioning-000002/pivoted_RAP.bin",
+          "bytes": 5408,
+          "sha256": "466bf3519d3c7afbb06d8a5a04b595693860723dbcdeb589d6447ea48c104d6f",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-small-epsilon-capture-120/output/rejected-conditioning-000002/pivoted_RAP.bin",
+          "repository_copy": "solver/failing-coupon-small-epsilon-capture-120/output/rejected-conditioning-000002/pivoted_RAP.bin"
+        },
+        {
+          "name": "output/rejected-conditioning-000002/pivots.bin",
+          "bytes": 208,
+          "sha256": "05a9be21ecac171980999ee577ec38409f65a9b7a43b629921c25e5d99fe1bf5",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-small-epsilon-capture-120/output/rejected-conditioning-000002/pivots.bin",
+          "repository_copy": "solver/failing-coupon-small-epsilon-capture-120/output/rejected-conditioning-000002/pivots.bin"
+        },
+        {
+          "name": "output/result.json",
+          "bytes": 642,
+          "sha256": "2af81b0bc4153b746fcfa4b058acaaf47e3bb9484d1ea0dbb121e7a96373b172",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-small-epsilon-capture-120/output/result.json",
+          "repository_copy": "solver/failing-coupon-small-epsilon-capture-120/output/result.json"
+        },
+        {
+          "name": "prediction.json",
+          "bytes": 94811,
+          "sha256": "a15edd60844ccb2271fc8f016dcbd341be2c503b1d0786724ea19de3b0de6b30",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-small-epsilon-capture-120/prediction.json",
+          "repository_copy": "solver/failing-coupon-small-epsilon-capture-120/prediction.json"
+        },
+        {
+          "name": "receipt.json",
+          "bytes": 278,
+          "sha256": "d050a900c417b915cea398d55ba32c2c361faa7c0d0b0c1025794ffe3cb14dc8",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-small-epsilon-capture-120/receipt.json",
+          "repository_copy": "solver/failing-coupon-small-epsilon-capture-120/receipt.json"
+        },
+        {
+          "name": "stderr.log",
+          "bytes": 122413,
+          "sha256": "3dde357db5a797db9ffe6f82b26a3fde99103b2ddefd6fe752c1a3378aec5b79",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-small-epsilon-capture-120/stderr.log",
+          "repository_copy": "solver/failing-coupon-small-epsilon-capture-120/stderr.log"
+        },
+        {
+          "name": "stdout.log",
+          "bytes": 287,
+          "sha256": "3eba8a0cb2e5cdb4aa5dc0c939beac5a6263a6336e570e80925fea2731fcb02b",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-small-epsilon-capture-120/stdout.log",
+          "repository_copy": "solver/failing-coupon-small-epsilon-capture-120/stdout.log"
+        }
+      ],
+      "receipt": {
+        "schema": "numi.cardboard.native-run-receipt.v2",
+        "execution_started": true,
+        "source_inputs_unchanged": true,
+        "changed_inputs": [],
+        "exit_code": 2,
+        "timed_out": false,
+        "wall_seconds": 306.82599933299934,
+        "finished_at_utc": "2026-10-15T00:58:25.943594+00:00"
+      },
+      "argv": [
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-049/matter/numi-matter-cardboard-probe",
+        "--preset",
+        "literature2009",
+        "--line-search-steps",
+        "24",
+        "--accurate-paper-projection",
+        "--scaled-paper-residuals",
+        "--without-self-contact",
+        "--reference-displacement-gradient",
+        "--compensated-paper-arithmetic",
+        "--safeguarded-paper-initializer",
+        "--residual-tolerance",
+        "1e-6",
+        "--newton-iterations",
+        "24",
+        "--fgmres-restart",
+        "16",
+        "--fgmres-iterations",
+        "512",
+        "--fgmres-preconditioner",
+        "regional-galerkin-block",
+        "--steps",
+        "12",
+        "--hold-steps",
+        "3",
+        "--unload-steps",
+        "6",
+        "--relax-steps",
+        "3",
+        "--release-steps",
+        "3",
+        "--nx",
+        "8",
+        "--ny",
+        "2",
+        "--thickness-slices",
+        "1",
+        "--bend-angle",
+        ".375",
+        "--dt",
+        ".0001",
+        "--material-iterations",
+        "16",
+        "--metallib",
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-049/matter/shaders/NumiMatter.metallib",
+        "--output",
+        "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-small-epsilon-capture-120/output",
+        "--liner-material",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-curves-and-trial-instruments-integrated-049/matter/materials/hajali2009_liner_hill_ideal.nmatter",
+        "--medium-material",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-curves-and-trial-instruments-integrated-049/matter/materials/hajali2009_medium_hill_ideal.nmatter"
+      ],
+      "environment": {
+        "NM_FEM_RESIDUAL_ARMIJO_ROOT": "all",
+        "NM_FEM_NEWTON_TRACE_ROOT": "1",
+        "NM_FEM_OPERATOR_FD_SELECTOR": "1:3",
+        "NM_FEM_OPERATOR_FD_CAPTURE_PATH": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-small-epsilon-capture-120/operator-capture",
+        "NM_FEM_OPERATOR_FD_EPSILON_SCALE": ".125"
+      },
+      "question": "At the same rejected root1/Newton3 candidate, does a smaller representable perturbation avoid yield-branch transitions and resolve the centered/one-sided derivative?",
+      "prediction": "Source49 complete production history must remain identical to118/119. Epsilon scale1/8 gives .00390625/.001953125; branch changes and unresolved FP32 differences remain inconclusive, with no global tolerances changed.",
+      "executed_build_verified": true
+    },
+    {
+      "case": "solver/failing-coupon-smaller-epsilon-capture-121",
+      "external_root": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-smaller-epsilon-capture-121",
+      "physical_box_qualification": false,
+      "files": [
+        {
+          "name": "operator-capture",
+          "bytes": 34391324,
+          "sha256": "2941086227d123ccc354cc073b76758a04c60e403e94f2a8cd838b629376bcc2",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-smaller-epsilon-capture-121/operator-capture"
+        },
+        {
+          "name": "output/manifest.json",
+          "bytes": 10890,
+          "sha256": "aab056b25307dc779ed8a64a180e9e7716c7a02eac20b620b4f219836b7859b5",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-smaller-epsilon-capture-121/output/manifest.json",
+          "repository_copy": "solver/failing-coupon-smaller-epsilon-capture-121/output/manifest.json"
+        },
+        {
+          "name": "output/material_state_000002_bent.json",
+          "bytes": 780012,
+          "sha256": "dbb2992a862f0ee3de4ea4209cd099f685c3231677fe50c6a99a1e3640062e07",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-smaller-epsilon-capture-121/output/material_state_000002_bent.json"
+        },
+        {
+          "name": "output/mesh.json",
+          "bytes": 160425,
+          "sha256": "6a2f786a47e61014ee4b27f609eb3c2f666677223ddaa30297aeea1fcfd8ca56",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-smaller-epsilon-capture-121/output/mesh.json",
+          "repository_copy": "solver/failing-coupon-smaller-epsilon-capture-121/output/mesh.json"
+        },
+        {
+          "name": "output/observations.csv",
+          "bytes": 2570,
+          "sha256": "5faac312ebd9de1aad03ad6c2902cef86484e64e71267d5b34f5a6e68f74ea9b",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-smaller-epsilon-capture-121/output/observations.csv",
+          "repository_copy": "solver/failing-coupon-smaller-epsilon-capture-121/output/observations.csv"
+        },
+        {
+          "name": "output/rejected-conditioning-000002/AP.bin",
+          "bytes": 733824,
+          "sha256": "dc7f8ed8c31ee4fd77c6cce06e37c80bb838d648cbd9ccbb16c8e2b1dbfb97bf",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-smaller-epsilon-capture-121/output/rejected-conditioning-000002/AP.bin",
+          "repository_copy": "solver/failing-coupon-smaller-epsilon-capture-121/output/rejected-conditioning-000002/AP.bin"
+        },
+        {
+          "name": "output/rejected-conditioning-000002/P.bin",
+          "bytes": 366912,
+          "sha256": "2626e4bbb205fa1c7e40bdaf3f2e72d11f831ec53431c3062bcc85d69a50f6b5",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-smaller-epsilon-capture-121/output/rejected-conditioning-000002/P.bin",
+          "repository_copy": "solver/failing-coupon-smaller-epsilon-capture-121/output/rejected-conditioning-000002/P.bin"
+        },
+        {
+          "name": "output/rejected-conditioning-000002/candidate_nodes.bin",
+          "bytes": 141120,
+          "sha256": "715f49e2a96fc967dad2daf92b226b36eb1e27d84d50014f44d9f5301435ca84",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-smaller-epsilon-capture-121/output/rejected-conditioning-000002/candidate_nodes.bin",
+          "repository_copy": "solver/failing-coupon-smaller-epsilon-capture-121/output/rejected-conditioning-000002/candidate_nodes.bin"
+        },
+        {
+          "name": "output/rejected-conditioning-000002/effective_P.bin",
+          "bytes": 733824,
+          "sha256": "9bf372c75cafcf84bc1e21a20ee3305e7619affffe6415bb9d3398f79970214c",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-smaller-epsilon-capture-121/output/rejected-conditioning-000002/effective_P.bin",
+          "repository_copy": "solver/failing-coupon-smaller-epsilon-capture-121/output/rejected-conditioning-000002/effective_P.bin"
+        },
+        {
+          "name": "output/rejected-conditioning-000002/factor_valid.bin",
+          "bytes": 8,
+          "sha256": "64ed86b909d6d0502b64b28db0ea1272ffb358e20e9b1d88b63ccb07fa900cf5",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-smaller-epsilon-capture-121/output/rejected-conditioning-000002/factor_valid.bin",
+          "repository_copy": "solver/failing-coupon-smaller-epsilon-capture-121/output/rejected-conditioning-000002/factor_valid.bin"
+        },
+        {
+          "name": "output/rejected-conditioning-000002/manifest.json",
+          "bytes": 1769,
+          "sha256": "67734e7080613d2471d88988d3d4ef8681c146fdb2ac04e8a868598fcd3575c7",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-smaller-epsilon-capture-121/output/rejected-conditioning-000002/manifest.json",
+          "repository_copy": "solver/failing-coupon-smaller-epsilon-capture-121/output/rejected-conditioning-000002/manifest.json"
+        },
+        {
+          "name": "output/rejected-conditioning-000002/node_block_inverse.bin",
+          "bytes": 84672,
+          "sha256": "c3f480eaf7016cdb888e192d66c67f750d58981336d50a875ad6a4b243aab264",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-smaller-epsilon-capture-121/output/rejected-conditioning-000002/node_block_inverse.bin",
+          "repository_copy": "solver/failing-coupon-smaller-epsilon-capture-121/output/rejected-conditioning-000002/node_block_inverse.bin"
+        },
+        {
+          "name": "output/rejected-conditioning-000002/pivoted_RAP.bin",
+          "bytes": 5408,
+          "sha256": "466bf3519d3c7afbb06d8a5a04b595693860723dbcdeb589d6447ea48c104d6f",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-smaller-epsilon-capture-121/output/rejected-conditioning-000002/pivoted_RAP.bin",
+          "repository_copy": "solver/failing-coupon-smaller-epsilon-capture-121/output/rejected-conditioning-000002/pivoted_RAP.bin"
+        },
+        {
+          "name": "output/rejected-conditioning-000002/pivots.bin",
+          "bytes": 208,
+          "sha256": "05a9be21ecac171980999ee577ec38409f65a9b7a43b629921c25e5d99fe1bf5",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-smaller-epsilon-capture-121/output/rejected-conditioning-000002/pivots.bin",
+          "repository_copy": "solver/failing-coupon-smaller-epsilon-capture-121/output/rejected-conditioning-000002/pivots.bin"
+        },
+        {
+          "name": "output/result.json",
+          "bytes": 642,
+          "sha256": "2af81b0bc4153b746fcfa4b058acaaf47e3bb9484d1ea0dbb121e7a96373b172",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-smaller-epsilon-capture-121/output/result.json",
+          "repository_copy": "solver/failing-coupon-smaller-epsilon-capture-121/output/result.json"
+        },
+        {
+          "name": "prediction.json",
+          "bytes": 94825,
+          "sha256": "d187f864cb9443d16009f3b38db77973466c36e0e24913bff214c25035ba5317",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-smaller-epsilon-capture-121/prediction.json",
+          "repository_copy": "solver/failing-coupon-smaller-epsilon-capture-121/prediction.json"
+        },
+        {
+          "name": "receipt.json",
+          "bytes": 278,
+          "sha256": "164f91ade28c35f574b4296e555ef45e8f4b5848293dbac72d603c9529e5fdcc",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-smaller-epsilon-capture-121/receipt.json",
+          "repository_copy": "solver/failing-coupon-smaller-epsilon-capture-121/receipt.json"
+        },
+        {
+          "name": "stderr.log",
+          "bytes": 122436,
+          "sha256": "c0e2806af3e8e92bc8b3d434ec7aa12f554ceadce142f2537bfbd13345862f28",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-smaller-epsilon-capture-121/stderr.log",
+          "repository_copy": "solver/failing-coupon-smaller-epsilon-capture-121/stderr.log"
+        },
+        {
+          "name": "stdout.log",
+          "bytes": 287,
+          "sha256": "3eba8a0cb2e5cdb4aa5dc0c939beac5a6263a6336e570e80925fea2731fcb02b",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-smaller-epsilon-capture-121/stdout.log",
+          "repository_copy": "solver/failing-coupon-smaller-epsilon-capture-121/stdout.log"
+        }
+      ],
+      "receipt": {
+        "schema": "numi.cardboard.native-run-receipt.v2",
+        "execution_started": true,
+        "source_inputs_unchanged": true,
+        "changed_inputs": [],
+        "exit_code": 2,
+        "timed_out": false,
+        "wall_seconds": 308.03492037497927,
+        "finished_at_utc": "2026-10-15T01:04:46.720939+00:00"
+      },
+      "argv": [
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-049/matter/numi-matter-cardboard-probe",
+        "--preset",
+        "literature2009",
+        "--line-search-steps",
+        "24",
+        "--accurate-paper-projection",
+        "--scaled-paper-residuals",
+        "--without-self-contact",
+        "--reference-displacement-gradient",
+        "--compensated-paper-arithmetic",
+        "--safeguarded-paper-initializer",
+        "--residual-tolerance",
+        "1e-6",
+        "--newton-iterations",
+        "24",
+        "--fgmres-restart",
+        "16",
+        "--fgmres-iterations",
+        "512",
+        "--fgmres-preconditioner",
+        "regional-galerkin-block",
+        "--steps",
+        "12",
+        "--hold-steps",
+        "3",
+        "--unload-steps",
+        "6",
+        "--relax-steps",
+        "3",
+        "--release-steps",
+        "3",
+        "--nx",
+        "8",
+        "--ny",
+        "2",
+        "--thickness-slices",
+        "1",
+        "--bend-angle",
+        ".375",
+        "--dt",
+        ".0001",
+        "--material-iterations",
+        "16",
+        "--metallib",
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-049/matter/shaders/NumiMatter.metallib",
+        "--output",
+        "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-smaller-epsilon-capture-121/output",
+        "--liner-material",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-curves-and-trial-instruments-integrated-049/matter/materials/hajali2009_liner_hill_ideal.nmatter",
+        "--medium-material",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-curves-and-trial-instruments-integrated-049/matter/materials/hajali2009_medium_hill_ideal.nmatter"
+      ],
+      "environment": {
+        "NM_FEM_RESIDUAL_ARMIJO_ROOT": "all",
+        "NM_FEM_NEWTON_TRACE_ROOT": "1",
+        "NM_FEM_OPERATOR_FD_SELECTOR": "1:3",
+        "NM_FEM_OPERATOR_FD_CAPTURE_PATH": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-smaller-epsilon-capture-121/operator-capture",
+        "NM_FEM_OPERATOR_FD_EPSILON_SCALE": ".015625"
+      },
+      "question": "At the same rejected root1/Newton3 state, does the next eighth-size representable perturbation produce branch-preserving native action comparisons?",
+      "prediction": "Source49 complete accepted/rejected production history must match118/119/120. Epsilon scale1/64 gives .00048828125/.000244140625. Everybranchchange, realizeddeformation discrepancy and unresolvedFP32floor remainsreported; no tolerance change.",
+      "executed_build_verified": true
+    },
+    {
+      "case": "solver/failing-coupon-state-capture-118",
+      "external_root": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-capture-118",
+      "physical_box_qualification": false,
+      "files": [
+        {
+          "name": "operator-capture",
+          "bytes": 34356113,
+          "sha256": "24bdda0af1c010fb661d112b0cf80ef4617af8e3d45c7422ab76ac944932ff8b",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-capture-118/operator-capture"
+        },
+        {
+          "name": "output/manifest.json",
+          "bytes": 10890,
+          "sha256": "aab056b25307dc779ed8a64a180e9e7716c7a02eac20b620b4f219836b7859b5",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-capture-118/output/manifest.json",
+          "repository_copy": "solver/failing-coupon-state-capture-118/output/manifest.json"
+        },
+        {
+          "name": "output/material_state_000002_bent.json",
+          "bytes": 780012,
+          "sha256": "dbb2992a862f0ee3de4ea4209cd099f685c3231677fe50c6a99a1e3640062e07",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-capture-118/output/material_state_000002_bent.json"
+        },
+        {
+          "name": "output/mesh.json",
+          "bytes": 160425,
+          "sha256": "6a2f786a47e61014ee4b27f609eb3c2f666677223ddaa30297aeea1fcfd8ca56",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-capture-118/output/mesh.json",
+          "repository_copy": "solver/failing-coupon-state-capture-118/output/mesh.json"
+        },
+        {
+          "name": "output/observations.csv",
+          "bytes": 2570,
+          "sha256": "5faac312ebd9de1aad03ad6c2902cef86484e64e71267d5b34f5a6e68f74ea9b",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-capture-118/output/observations.csv",
+          "repository_copy": "solver/failing-coupon-state-capture-118/output/observations.csv"
+        },
+        {
+          "name": "output/rejected-conditioning-000002/AP.bin",
+          "bytes": 733824,
+          "sha256": "dc7f8ed8c31ee4fd77c6cce06e37c80bb838d648cbd9ccbb16c8e2b1dbfb97bf",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-capture-118/output/rejected-conditioning-000002/AP.bin",
+          "repository_copy": "solver/failing-coupon-state-capture-118/output/rejected-conditioning-000002/AP.bin"
+        },
+        {
+          "name": "output/rejected-conditioning-000002/P.bin",
+          "bytes": 366912,
+          "sha256": "2626e4bbb205fa1c7e40bdaf3f2e72d11f831ec53431c3062bcc85d69a50f6b5",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-capture-118/output/rejected-conditioning-000002/P.bin",
+          "repository_copy": "solver/failing-coupon-state-capture-118/output/rejected-conditioning-000002/P.bin"
+        },
+        {
+          "name": "output/rejected-conditioning-000002/candidate_nodes.bin",
+          "bytes": 141120,
+          "sha256": "715f49e2a96fc967dad2daf92b226b36eb1e27d84d50014f44d9f5301435ca84",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-capture-118/output/rejected-conditioning-000002/candidate_nodes.bin",
+          "repository_copy": "solver/failing-coupon-state-capture-118/output/rejected-conditioning-000002/candidate_nodes.bin"
+        },
+        {
+          "name": "output/rejected-conditioning-000002/effective_P.bin",
+          "bytes": 733824,
+          "sha256": "9bf372c75cafcf84bc1e21a20ee3305e7619affffe6415bb9d3398f79970214c",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-capture-118/output/rejected-conditioning-000002/effective_P.bin",
+          "repository_copy": "solver/failing-coupon-state-capture-118/output/rejected-conditioning-000002/effective_P.bin"
+        },
+        {
+          "name": "output/rejected-conditioning-000002/factor_valid.bin",
+          "bytes": 8,
+          "sha256": "64ed86b909d6d0502b64b28db0ea1272ffb358e20e9b1d88b63ccb07fa900cf5",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-capture-118/output/rejected-conditioning-000002/factor_valid.bin",
+          "repository_copy": "solver/failing-coupon-state-capture-118/output/rejected-conditioning-000002/factor_valid.bin"
+        },
+        {
+          "name": "output/rejected-conditioning-000002/manifest.json",
+          "bytes": 1769,
+          "sha256": "67734e7080613d2471d88988d3d4ef8681c146fdb2ac04e8a868598fcd3575c7",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-capture-118/output/rejected-conditioning-000002/manifest.json",
+          "repository_copy": "solver/failing-coupon-state-capture-118/output/rejected-conditioning-000002/manifest.json"
+        },
+        {
+          "name": "output/rejected-conditioning-000002/node_block_inverse.bin",
+          "bytes": 84672,
+          "sha256": "c3f480eaf7016cdb888e192d66c67f750d58981336d50a875ad6a4b243aab264",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-capture-118/output/rejected-conditioning-000002/node_block_inverse.bin",
+          "repository_copy": "solver/failing-coupon-state-capture-118/output/rejected-conditioning-000002/node_block_inverse.bin"
+        },
+        {
+          "name": "output/rejected-conditioning-000002/pivoted_RAP.bin",
+          "bytes": 5408,
+          "sha256": "466bf3519d3c7afbb06d8a5a04b595693860723dbcdeb589d6447ea48c104d6f",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-capture-118/output/rejected-conditioning-000002/pivoted_RAP.bin",
+          "repository_copy": "solver/failing-coupon-state-capture-118/output/rejected-conditioning-000002/pivoted_RAP.bin"
+        },
+        {
+          "name": "output/rejected-conditioning-000002/pivots.bin",
+          "bytes": 208,
+          "sha256": "05a9be21ecac171980999ee577ec38409f65a9b7a43b629921c25e5d99fe1bf5",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-capture-118/output/rejected-conditioning-000002/pivots.bin",
+          "repository_copy": "solver/failing-coupon-state-capture-118/output/rejected-conditioning-000002/pivots.bin"
+        },
+        {
+          "name": "output/result.json",
+          "bytes": 642,
+          "sha256": "2af81b0bc4153b746fcfa4b058acaaf47e3bb9484d1ea0dbb121e7a96373b172",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-capture-118/output/result.json",
+          "repository_copy": "solver/failing-coupon-state-capture-118/output/result.json"
+        },
+        {
+          "name": "prediction.json",
+          "bytes": 94825,
+          "sha256": "936525c7c3650e4c912f0080651121cc5a0b419921362e12c34a8c2bd6529e7d",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-capture-118/prediction.json",
+          "repository_copy": "solver/failing-coupon-state-capture-118/prediction.json"
+        },
+        {
+          "name": "receipt.json",
+          "bytes": 277,
+          "sha256": "5259ae67d1880de9c68e1a8467b712bbbf2b9512e6b2174fb6bb5cd4cba47e5e",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-capture-118/receipt.json",
+          "repository_copy": "solver/failing-coupon-state-capture-118/receipt.json"
+        },
+        {
+          "name": "stderr.log",
+          "bytes": 122396,
+          "sha256": "c75b3e63e30162a1a39fff73017fa88f6ea585928764739620ab6b0be2d81e2a",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-capture-118/stderr.log",
+          "repository_copy": "solver/failing-coupon-state-capture-118/stderr.log"
+        },
+        {
+          "name": "stdout.log",
+          "bytes": 287,
+          "sha256": "3eba8a0cb2e5cdb4aa5dc0c939beac5a6263a6336e570e80925fea2731fcb02b",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-capture-118/stdout.log",
+          "repository_copy": "solver/failing-coupon-state-capture-118/stdout.log"
+        }
+      ],
+      "receipt": {
+        "schema": "numi.cardboard.native-run-receipt.v2",
+        "execution_started": true,
+        "source_inputs_unchanged": true,
+        "changed_inputs": [],
+        "exit_code": 2,
+        "timed_out": false,
+        "wall_seconds": 307.5120399160078,
+        "finished_at_utc": "2026-10-15T00:44:14.757504+00:00"
+      },
+      "argv": [
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-049/matter/numi-matter-cardboard-probe",
+        "--preset",
+        "literature2009",
+        "--line-search-steps",
+        "24",
+        "--accurate-paper-projection",
+        "--scaled-paper-residuals",
+        "--without-self-contact",
+        "--reference-displacement-gradient",
+        "--compensated-paper-arithmetic",
+        "--safeguarded-paper-initializer",
+        "--residual-tolerance",
+        "1e-6",
+        "--newton-iterations",
+        "24",
+        "--fgmres-restart",
+        "16",
+        "--fgmres-iterations",
+        "512",
+        "--fgmres-preconditioner",
+        "regional-galerkin-block",
+        "--steps",
+        "12",
+        "--hold-steps",
+        "3",
+        "--unload-steps",
+        "6",
+        "--relax-steps",
+        "3",
+        "--release-steps",
+        "3",
+        "--nx",
+        "8",
+        "--ny",
+        "2",
+        "--thickness-slices",
+        "1",
+        "--bend-angle",
+        ".375",
+        "--dt",
+        ".0001",
+        "--material-iterations",
+        "16",
+        "--metallib",
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-049/matter/shaders/NumiMatter.metallib",
+        "--output",
+        "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-capture-118/output",
+        "--liner-material",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-curves-and-trial-instruments-integrated-049/matter/materials/hajali2009_liner_hill_ideal.nmatter",
+        "--medium-material",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-curves-and-trial-instruments-integrated-049/matter/materials/hajali2009_medium_hill_ideal.nmatter"
+      ],
+      "environment": {
+        "NM_FEM_RESIDUAL_ARMIJO_ROOT": "all",
+        "NM_FEM_NEWTON_TRACE_ROOT": "1",
+        "NM_FEM_OPERATOR_FD_SELECTOR": "1:3",
+        "NM_FEM_OPERATOR_FD_CAPTURE_PATH": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-capture-118/operator-capture"
+      },
+      "question": "At the actual next rejected coupon control1/Newton3, do exactinput FP64 material/tangent/frame/assembly replay and pairednative perturbedactions identify a derivative-chain discrepancy?",
+      "prediction": "Capture is private/read-only; same24Newton512restart16 andstrict1e-6 production history must reproduce source49case117. Material, element andassembled derivative gatesremain1e-3/1% withnoise floors. Branch-crossing centered differencesareinconclusive; everyrejectionretained.",
+      "executed_build_verified": true
+    },
+    {
+      "case": "solver/repaired-preconditioner-complete-coupon-cycle-135",
+      "external_root": "/Users/home/cardboard-implementation-20261014/solver/repaired-preconditioner-complete-coupon-cycle-135",
+      "physical_box_qualification": false,
+      "files": [
+        {
+          "name": "output/manifest.json",
+          "bytes": 10965,
+          "sha256": "f21160e6f9da93f65a1337364173bd1fecf0e306bed5a19230183faf779eea67",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/repaired-preconditioner-complete-coupon-cycle-135/output/manifest.json",
+          "repository_copy": "solver/repaired-preconditioner-complete-coupon-cycle-135/output/manifest.json"
+        },
+        {
+          "name": "output/mesh.json",
+          "bytes": 160425,
+          "sha256": "6a2f786a47e61014ee4b27f609eb3c2f666677223ddaa30297aeea1fcfd8ca56",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/repaired-preconditioner-complete-coupon-cycle-135/output/mesh.json",
+          "repository_copy": "solver/repaired-preconditioner-complete-coupon-cycle-135/output/mesh.json"
+        },
+        {
+          "name": "output/observations.csv",
+          "bytes": 2708,
+          "sha256": "48799b6b4faa879057f2f4da3f89c269b8e1120f108ba8cb08eabb9948f7a161",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/repaired-preconditioner-complete-coupon-cycle-135/output/observations.csv",
+          "repository_copy": "solver/repaired-preconditioner-complete-coupon-cycle-135/output/observations.csv"
+        },
+        {
+          "name": "prediction.json",
+          "bytes": 97181,
+          "sha256": "940fd72efd7a6c224d89241471f117247a81a3d68edd701c080459428c78b8aa",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/repaired-preconditioner-complete-coupon-cycle-135/prediction.json",
+          "repository_copy": "solver/repaired-preconditioner-complete-coupon-cycle-135/prediction.json"
+        },
+        {
+          "name": "receipt.json",
+          "bytes": 278,
+          "sha256": "c08c3836601734cb6c197ba72dbe045efb24a8c1f62bc88336271cb6c7d2b16a",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/repaired-preconditioner-complete-coupon-cycle-135/receipt.json",
+          "repository_copy": "solver/repaired-preconditioner-complete-coupon-cycle-135/receipt.json"
+        },
+        {
+          "name": "stderr.log",
+          "bytes": 1430,
+          "sha256": "0b761e34e6c300fd236c272c511d056380b97977cb3a233d4cc07c6fed276553",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/repaired-preconditioner-complete-coupon-cycle-135/stderr.log",
+          "repository_copy": "solver/repaired-preconditioner-complete-coupon-cycle-135/stderr.log"
+        },
+        {
+          "name": "stdout.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/repaired-preconditioner-complete-coupon-cycle-135/stdout.log",
+          "repository_copy": "solver/repaired-preconditioner-complete-coupon-cycle-135/stdout.log"
+        }
+      ],
+      "receipt": {
+        "schema": "numi.cardboard.native-run-receipt.v2",
+        "execution_started": true,
+        "source_inputs_unchanged": true,
+        "changed_inputs": [],
+        "exit_code": -15,
+        "timed_out": true,
+        "wall_seconds": 600.2095877500251,
+        "finished_at_utc": "2026-10-15T01:43:17.533670+00:00"
+      },
+      "argv": [
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-052/matter/numi-matter-cardboard-probe",
+        "--preset",
+        "literature2009",
+        "--line-search-steps",
+        "24",
+        "--accurate-paper-projection",
+        "--scaled-paper-residuals",
+        "--without-self-contact",
+        "--reference-displacement-gradient",
+        "--compensated-paper-arithmetic",
+        "--safeguarded-paper-initializer",
+        "--residual-tolerance",
+        "1e-6",
+        "--newton-iterations",
+        "64",
+        "--fgmres-restart",
+        "16",
+        "--fgmres-iterations",
+        "1024",
+        "--fgmres-preconditioner",
+        "regional-galerkin-block",
+        "--steps",
+        "12",
+        "--hold-steps",
+        "3",
+        "--unload-steps",
+        "6",
+        "--relax-steps",
+        "3",
+        "--release-steps",
+        "3",
+        "--nx",
+        "8",
+        "--ny",
+        "2",
+        "--thickness-slices",
+        "1",
+        "--bend-angle",
+        ".375",
+        "--dt",
+        ".0001",
+        "--material-iterations",
+        "16",
+        "--metallib",
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-052/matter/shaders/NumiMatter.metallib",
+        "--output",
+        "/Users/home/cardboard-implementation-20261014/solver/repaired-preconditioner-complete-coupon-cycle-135/output",
+        "--liner-material",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-preconditioner-call-and-sparse-domain-integrated-052/matter/materials/hajali2009_liner_hill_ideal.nmatter",
+        "--medium-material",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-preconditioner-call-and-sparse-domain-integrated-052/matter/materials/hajali2009_medium_hill_ideal.nmatter",
+        "--cache-fem-algorithmic-tangent"
+      ],
+      "environment": {
+        "NM_FEM_RESIDUAL_ARMIJO_ROOT": "all",
+        "NUMI_CARDBOARD_STEP_TIMING": "1"
+      },
+      "question": "Does fixing the scalar and block tangent preconditioner optional-buffer arguments permit complete physical coupon loading and release with unchanged acceptance criteria?",
+      "prediction": "All27controls must complete with fresh direct terminal residual<=1e-6 and unchanged physical inputs/restart16. Only buffers and deformation low-word delivery are repaired; neither equations nor tolerances change. Failure/prefix/timeout are retained.",
+      "executed_build_verified": true,
+      "note": "600-second timeout, two of27 controls complete. GPU207\u2013216sec/step; no complete coupon or mesh/time convergence."
+    },
+    {
+      "case": "build/source-build-050",
+      "external_root": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-050",
+      "physical_box_qualification": false,
+      "files": [
+        {
+          "name": "provenance-command-0.log",
+          "bytes": 1290,
+          "sha256": "9cab4873c995c02c675c127ee491d899cb4cea4d06575bc31bb08775251879ad",
+          "external_path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-050/provenance-command-0.log",
+          "repository_copy": "build/source-build-050/provenance-command-0.log"
+        },
+        {
+          "name": "provenance-command-1.log",
+          "bytes": 32914,
+          "sha256": "3ea6973b65271a1327b92e845b59437bb52c2a6883e96b25a6c3e05e5bca700a",
+          "external_path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-050/provenance-command-1.log",
+          "repository_copy": "build/source-build-050/provenance-command-1.log"
+        },
+        {
+          "name": "source-build.json",
+          "bytes": 104896,
+          "sha256": "8930aa0ba328031dce06303f54744a45af21f3cc5039fe232d11539139775f8d",
+          "external_path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-050/source-build.json",
+          "repository_copy": "build/source-build-050/source-build.json"
+        }
+      ],
+      "build_receipt": {
+        "schema": "numi.cardboard.source-build.v1",
+        "success": true,
+        "targets": [
+          "numi-matter-cardboard-barrier-scale-check",
+          "numi-matter-cardboard-box-assembly-controller-check",
+          "numi-matter-cardboard-box-blank-check",
+          "numi-matter-cardboard-cohesive-face-check",
+          "numi-matter-cardboard-compensated-deformation-check",
+          "numi-matter-cardboard-damage-builder-check",
+          "numi-matter-cardboard-delamination-reference-check",
+          "numi-matter-cardboard-expression-cache-check",
+          "numi-matter-cardboard-fracture-regularization-check",
+          "numi-matter-cardboard-full-contact-armijo-check",
+          "numi-matter-cardboard-generic-compensated-projection-check",
+          "numi-matter-cardboard-glue-mesh-check",
+          "numi-matter-cardboard-material-check",
+          "numi-matter-cardboard-mixed-cohesive-check",
+          "numi-matter-cardboard-mixed-cohesive-face-check",
+          "numi-matter-cardboard-mixed-cohesive-frame-check",
+          "numi-matter-cardboard-paper-material-check",
+          "numi-matter-cardboard-pin-adhesion-fixture-check",
+          "numi-matter-cardboard-probe",
+          "numi-matter-cardboard-profile-check",
+          "numi-matter-cardboard-retained-damage-fp64-oracle-check",
+          "numi-matter-cardboard-retained-matrix-damage-check",
+          "numi-matter-cardboard-retained-matrix-damage-metal-check",
+          "numi-matter-cardboard-shipping-closure-mesh-check",
+          "numi-matter-cardboard-shipping-driver-check",
+          "numi-matter-cardboard-shipping-memory-check",
+          "numi-matter-cardboard-shipping-protocol-check",
+          "numi-matter-cardboard-shipping-snapshot-check",
+          "numi-matter-cardboard-solver-replay",
+          "numi-matter-cardboard-starch-interface-mesh-check",
+          "numi-matter-cardboard-tooling-check",
+          "numi-matter-fem-material-frame-compiler-check",
+          "numi-matter-fem-reference-check",
+          "numi-matter-fem-regional-galerkin-compiler-check",
+          "numi-matter-fem-regional-galerkin-native-check",
+          "numi-matter-fem-static-surface-map-check",
+          "numi-matter-fixed-convex-contact-step-check",
+          "numi-matter-robertsson-fem-coupling-check",
+          "numi-matter-stateful-check",
+          "numi-matter-cardboard-solver-pair-replay",
+          "numi-matter-cardboard-reaction-observables-check",
+          "numi-matter-cardboard-capsule-armijo-check",
+          "numi-matter-cardboard-shipping-rigid-driver-check",
+          "numi-matter-cardboard-shipping-rigid-native-check",
+          "numi-matter-cardboard-bilinear-paper-gpu-check",
+          "numi-matter-cardboard-contact-ccd-native-check",
+          "numi-matter-cardboard-asymmetric-c1-paper-gpu-check",
+          "numi-matter-fem-material-frame-check",
+          "numi-matter-cardboard-contact-candidate-domain-check"
+        ],
+        "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-cache-sparse-asymmetric-integrated-050",
+        "source_bindings": 739,
+        "artifact_bindings": 57,
+        "finished_at_utc": "2026-10-15T01:07:05.791843+00:00",
+        "error": null
+      }
+    },
+    {
+      "case": "build/source-build-051",
+      "external_root": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-051",
+      "physical_box_qualification": false,
+      "files": [
+        {
+          "name": "provenance-command-0.log",
+          "bytes": 1218,
+          "sha256": "e28a54468fb1a3ba0aab9ded5b80241d88443e59d350bac5794b23c015e7fb1d",
+          "external_path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-051/provenance-command-0.log",
+          "repository_copy": "build/source-build-051/provenance-command-0.log"
+        },
+        {
+          "name": "provenance-command-1.log",
+          "bytes": 33840,
+          "sha256": "127c3f241a3b4db85865fee37df6df43b59cfe875660c36a851144640556cd08",
+          "external_path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-051/provenance-command-1.log",
+          "repository_copy": "build/source-build-051/provenance-command-1.log"
+        },
+        {
+          "name": "source-build.json",
+          "bytes": 105730,
+          "sha256": "d4b6beaa31e1233dcc66e88ff94e699b4c02520b09707485799cf29e8416f9b1",
+          "external_path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-051/source-build.json",
+          "repository_copy": "build/source-build-051/source-build.json"
+        }
+      ],
+      "build_receipt": {
+        "schema": "numi.cardboard.source-build.v1",
+        "success": true,
+        "targets": [
+          "numi-matter-cardboard-barrier-scale-check",
+          "numi-matter-cardboard-box-assembly-controller-check",
+          "numi-matter-cardboard-box-blank-check",
+          "numi-matter-cardboard-cohesive-face-check",
+          "numi-matter-cardboard-compensated-deformation-check",
+          "numi-matter-cardboard-damage-builder-check",
+          "numi-matter-cardboard-delamination-reference-check",
+          "numi-matter-cardboard-expression-cache-check",
+          "numi-matter-cardboard-fracture-regularization-check",
+          "numi-matter-cardboard-full-contact-armijo-check",
+          "numi-matter-cardboard-generic-compensated-projection-check",
+          "numi-matter-cardboard-glue-mesh-check",
+          "numi-matter-cardboard-material-check",
+          "numi-matter-cardboard-mixed-cohesive-check",
+          "numi-matter-cardboard-mixed-cohesive-face-check",
+          "numi-matter-cardboard-mixed-cohesive-frame-check",
+          "numi-matter-cardboard-paper-material-check",
+          "numi-matter-cardboard-pin-adhesion-fixture-check",
+          "numi-matter-cardboard-probe",
+          "numi-matter-cardboard-profile-check",
+          "numi-matter-cardboard-retained-damage-fp64-oracle-check",
+          "numi-matter-cardboard-retained-matrix-damage-check",
+          "numi-matter-cardboard-retained-matrix-damage-metal-check",
+          "numi-matter-cardboard-shipping-closure-mesh-check",
+          "numi-matter-cardboard-shipping-driver-check",
+          "numi-matter-cardboard-shipping-memory-check",
+          "numi-matter-cardboard-shipping-protocol-check",
+          "numi-matter-cardboard-shipping-snapshot-check",
+          "numi-matter-cardboard-solver-replay",
+          "numi-matter-cardboard-starch-interface-mesh-check",
+          "numi-matter-cardboard-tooling-check",
+          "numi-matter-fem-material-frame-compiler-check",
+          "numi-matter-fem-reference-check",
+          "numi-matter-fem-regional-galerkin-compiler-check",
+          "numi-matter-fem-regional-galerkin-native-check",
+          "numi-matter-fem-static-surface-map-check",
+          "numi-matter-fixed-convex-contact-step-check",
+          "numi-matter-robertsson-fem-coupling-check",
+          "numi-matter-stateful-check",
+          "numi-matter-cardboard-solver-pair-replay",
+          "numi-matter-cardboard-reaction-observables-check",
+          "numi-matter-cardboard-capsule-armijo-check",
+          "numi-matter-cardboard-shipping-rigid-driver-check",
+          "numi-matter-cardboard-shipping-rigid-native-check",
+          "numi-matter-cardboard-bilinear-paper-gpu-check",
+          "numi-matter-cardboard-contact-ccd-native-check",
+          "numi-matter-cardboard-asymmetric-c1-paper-gpu-check",
+          "numi-matter-fem-material-frame-check",
+          "numi-matter-cardboard-contact-candidate-domain-check",
+          "numi-matter-cardboard-gpu-check",
+          "numi-matter-fem-regional-material-check"
+        ],
+        "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-cache-sparse-asymmetric-integrated-051",
+        "source_bindings": 741,
+        "artifact_bindings": 59,
+        "finished_at_utc": "2026-10-15T01:15:59.108893+00:00",
+        "error": null
+      }
+    },
+    {
+      "case": "build/source-build-052",
+      "external_root": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-052",
+      "physical_box_qualification": false,
+      "files": [
+        {
+          "name": "provenance-command-0.log",
+          "bytes": 1218,
+          "sha256": "869b4cf9bc50e261a25856c4b5116563300574b8852f075a12403415e2d3c097",
+          "external_path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-052/provenance-command-0.log",
+          "repository_copy": "build/source-build-052/provenance-command-0.log"
+        },
+        {
+          "name": "provenance-command-1.log",
+          "bytes": 33938,
+          "sha256": "f0815f750232f466f5dec2e95f8f71dd5efe140c23b32c1ccaef8fe3e3d35d59",
+          "external_path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-052/provenance-command-1.log",
+          "repository_copy": "build/source-build-052/provenance-command-1.log"
+        },
+        {
+          "name": "source-build.json",
+          "bytes": 106042,
+          "sha256": "9ceace3065ebe267258f5e7884ac28a9b42ae1a27075701d1c5d44c11e990f80",
+          "external_path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-052/source-build.json",
+          "repository_copy": "build/source-build-052/source-build.json"
+        }
+      ],
+      "build_receipt": {
+        "schema": "numi.cardboard.source-build.v1",
+        "success": true,
+        "targets": [
+          "numi-matter-cardboard-barrier-scale-check",
+          "numi-matter-cardboard-box-assembly-controller-check",
+          "numi-matter-cardboard-box-blank-check",
+          "numi-matter-cardboard-cohesive-face-check",
+          "numi-matter-cardboard-compensated-deformation-check",
+          "numi-matter-cardboard-damage-builder-check",
+          "numi-matter-cardboard-delamination-reference-check",
+          "numi-matter-cardboard-expression-cache-check",
+          "numi-matter-cardboard-fracture-regularization-check",
+          "numi-matter-cardboard-full-contact-armijo-check",
+          "numi-matter-cardboard-generic-compensated-projection-check",
+          "numi-matter-cardboard-glue-mesh-check",
+          "numi-matter-cardboard-material-check",
+          "numi-matter-cardboard-mixed-cohesive-check",
+          "numi-matter-cardboard-mixed-cohesive-face-check",
+          "numi-matter-cardboard-mixed-cohesive-frame-check",
+          "numi-matter-cardboard-paper-material-check",
+          "numi-matter-cardboard-pin-adhesion-fixture-check",
+          "numi-matter-cardboard-probe",
+          "numi-matter-cardboard-profile-check",
+          "numi-matter-cardboard-retained-damage-fp64-oracle-check",
+          "numi-matter-cardboard-retained-matrix-damage-check",
+          "numi-matter-cardboard-retained-matrix-damage-metal-check",
+          "numi-matter-cardboard-shipping-closure-mesh-check",
+          "numi-matter-cardboard-shipping-driver-check",
+          "numi-matter-cardboard-shipping-memory-check",
+          "numi-matter-cardboard-shipping-protocol-check",
+          "numi-matter-cardboard-shipping-snapshot-check",
+          "numi-matter-cardboard-solver-replay",
+          "numi-matter-cardboard-starch-interface-mesh-check",
+          "numi-matter-cardboard-tooling-check",
+          "numi-matter-fem-material-frame-compiler-check",
+          "numi-matter-fem-reference-check",
+          "numi-matter-fem-regional-galerkin-compiler-check",
+          "numi-matter-fem-regional-galerkin-native-check",
+          "numi-matter-fem-static-surface-map-check",
+          "numi-matter-fixed-convex-contact-step-check",
+          "numi-matter-robertsson-fem-coupling-check",
+          "numi-matter-stateful-check",
+          "numi-matter-cardboard-solver-pair-replay",
+          "numi-matter-cardboard-reaction-observables-check",
+          "numi-matter-cardboard-capsule-armijo-check",
+          "numi-matter-cardboard-shipping-rigid-driver-check",
+          "numi-matter-cardboard-shipping-rigid-native-check",
+          "numi-matter-cardboard-bilinear-paper-gpu-check",
+          "numi-matter-cardboard-contact-ccd-native-check",
+          "numi-matter-cardboard-asymmetric-c1-paper-gpu-check",
+          "numi-matter-fem-material-frame-check",
+          "numi-matter-cardboard-contact-candidate-domain-check",
+          "numi-matter-cardboard-gpu-check",
+          "numi-matter-fem-regional-material-check"
+        ],
+        "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-preconditioner-call-and-sparse-domain-integrated-052",
+        "source_bindings": 743,
+        "artifact_bindings": 59,
+        "finished_at_utc": "2026-10-15T01:30:19.755774+00:00",
+        "error": null
+      }
+    },
+    {
+      "case": "build/source-build-053",
+      "external_root": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-053",
+      "physical_box_qualification": false,
+      "files": [
+        {
+          "name": "provenance-command-0.log",
+          "bytes": 1218,
+          "sha256": "4b9a1c85ff2e024c1a03bdec869dc95b5e9be7c3e582ec2def39289678802211",
+          "external_path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-053/provenance-command-0.log",
+          "repository_copy": "build/source-build-053/provenance-command-0.log"
+        },
+        {
+          "name": "provenance-command-1.log",
+          "bytes": 33854,
+          "sha256": "172fc0454ad3807d6c293045e1f34fe5c42e0b0f045ecd7ca3a5319bc5f65ff5",
+          "external_path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-053/provenance-command-1.log",
+          "repository_copy": "build/source-build-053/provenance-command-1.log"
+        },
+        {
+          "name": "source-build.json",
+          "bytes": 106006,
+          "sha256": "d2eeee5285297739915db369bc6376476b49b9d28bf91c03f48ca6ee2b6190a3",
+          "external_path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-053/source-build.json",
+          "repository_copy": "build/source-build-053/source-build.json"
+        }
+      ],
+      "build_receipt": {
+        "schema": "numi.cardboard.source-build.v1",
+        "success": true,
+        "targets": [
+          "numi-matter-cardboard-barrier-scale-check",
+          "numi-matter-cardboard-box-assembly-controller-check",
+          "numi-matter-cardboard-box-blank-check",
+          "numi-matter-cardboard-cohesive-face-check",
+          "numi-matter-cardboard-compensated-deformation-check",
+          "numi-matter-cardboard-damage-builder-check",
+          "numi-matter-cardboard-delamination-reference-check",
+          "numi-matter-cardboard-expression-cache-check",
+          "numi-matter-cardboard-fracture-regularization-check",
+          "numi-matter-cardboard-full-contact-armijo-check",
+          "numi-matter-cardboard-generic-compensated-projection-check",
+          "numi-matter-cardboard-glue-mesh-check",
+          "numi-matter-cardboard-material-check",
+          "numi-matter-cardboard-mixed-cohesive-check",
+          "numi-matter-cardboard-mixed-cohesive-face-check",
+          "numi-matter-cardboard-mixed-cohesive-frame-check",
+          "numi-matter-cardboard-paper-material-check",
+          "numi-matter-cardboard-pin-adhesion-fixture-check",
+          "numi-matter-cardboard-probe",
+          "numi-matter-cardboard-profile-check",
+          "numi-matter-cardboard-retained-damage-fp64-oracle-check",
+          "numi-matter-cardboard-retained-matrix-damage-check",
+          "numi-matter-cardboard-retained-matrix-damage-metal-check",
+          "numi-matter-cardboard-shipping-closure-mesh-check",
+          "numi-matter-cardboard-shipping-driver-check",
+          "numi-matter-cardboard-shipping-memory-check",
+          "numi-matter-cardboard-shipping-protocol-check",
+          "numi-matter-cardboard-shipping-snapshot-check",
+          "numi-matter-cardboard-solver-replay",
+          "numi-matter-cardboard-starch-interface-mesh-check",
+          "numi-matter-cardboard-tooling-check",
+          "numi-matter-fem-material-frame-compiler-check",
+          "numi-matter-fem-reference-check",
+          "numi-matter-fem-regional-galerkin-compiler-check",
+          "numi-matter-fem-regional-galerkin-native-check",
+          "numi-matter-fem-static-surface-map-check",
+          "numi-matter-fixed-convex-contact-step-check",
+          "numi-matter-robertsson-fem-coupling-check",
+          "numi-matter-stateful-check",
+          "numi-matter-cardboard-solver-pair-replay",
+          "numi-matter-cardboard-reaction-observables-check",
+          "numi-matter-cardboard-capsule-armijo-check",
+          "numi-matter-cardboard-shipping-rigid-driver-check",
+          "numi-matter-cardboard-shipping-rigid-native-check",
+          "numi-matter-cardboard-bilinear-paper-gpu-check",
+          "numi-matter-cardboard-contact-ccd-native-check",
+          "numi-matter-cardboard-asymmetric-c1-paper-gpu-check",
+          "numi-matter-fem-material-frame-check",
+          "numi-matter-cardboard-contact-candidate-domain-check",
+          "numi-matter-cardboard-gpu-check",
+          "numi-matter-fem-regional-material-check"
+        ],
+        "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-compensated-local-tangent-integrated-053",
+        "source_bindings": 743,
+        "artifact_bindings": 59,
+        "finished_at_utc": "2026-10-15T01:47:15.252449+00:00",
+        "error": null
+      }
+    },
+    {
+      "case": "cpu-checks-051",
+      "external_root": "/Users/home/cardboard-implementation-20261014/cpu-checks-051",
+      "physical_box_qualification": false,
+      "files": [
+        {
+          "name": "receipt.json",
+          "bytes": 3129,
+          "sha256": "732cca6ce41d85c6da69f7eb88060451ff21b87bda1fd8346e09c4d6bc5e2e35",
+          "external_path": "/Users/home/cardboard-implementation-20261014/cpu-checks-051/receipt.json",
+          "repository_copy": "cpu-checks-051/receipt.json"
+        },
+        {
+          "name": "selected-tests.txt",
+          "bytes": 2502,
+          "sha256": "454786f7627d14fec22853b4794f8a8bb99fadb21f8d1e492681233697e7910d",
+          "external_path": "/Users/home/cardboard-implementation-20261014/cpu-checks-051/selected-tests.txt",
+          "repository_copy": "cpu-checks-051/selected-tests.txt"
+        },
+        {
+          "name": "stdout.log",
+          "bytes": 11031,
+          "sha256": "f19eed62033127b81cbb0b0f927d1e5ac1a40d731058e4dcebab0e01f41993a0",
+          "external_path": "/Users/home/cardboard-implementation-20261014/cpu-checks-051/stdout.log",
+          "repository_copy": "cpu-checks-051/stdout.log"
+        }
+      ],
+      "receipt": {
+        "schema": "numi.cardboard.cpu-check-receipt.v1",
+        "argv": [
+          "ctest",
+          "--test-dir",
+          "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-051",
+          "--output-on-failure",
+          "-j",
+          "4",
+          "-R",
+          "^(matter.compiler.cardboard_solver_reference|matter.analysis.cardboard_source_data|matter.analysis.cardboard_calibration_ensemble|matter.analysis.cardboard_resolution_study|matter.analysis.cardboard_convergence|matter.analysis.cardboard_tooling|matter.analysis.cardboard_newton_trace|matter.analysis.cardboard_accepted_animation|matter.analysis.cardboard_capsule_side_derivative|matter.compiler.cardboard_tooling|matter.compiler.cardboard_barrier_scale|matter.compiler.cardboard_profile|matter.compiler.cardboard_fracture_regularization|matter.compiler.cardboard_starch_interface_mesh|matter.compiler.cardboard_glue_mesh|matter.compiler.cardboard_box_blank|matter.compiler.cardboard_shipping_protocol|matter.compiler.cardboard_box_assembly_controller|matter.compiler.cardboard_damage_builder|matter.compiler.cardboard_retained_matrix_damage|cardboard-compensated-deformation|matter.compiler.fem_static_surface_map|matter.compiler.cardboard_pin_adhesion_fixture|matter.compiler.cardboard_retained_damage_fp64_oracle|matter.compiler.cardboard_generic_compensated_projection|matter.compiler.fem_regional_galerkin|matter.compiler.fixed_convex_contact_step|matter.compiler.cardboard_shipping_driver|matter.compiler.cardboard_shipping_memory|matter.compiler.cardboard_shipping_closure_mesh|matter.compiler.cardboard_shipping_snapshot|matter.compiler.cardboard_mixed_cohesive_frame|matter.compiler.cardboard_mixed_cohesive|matter.compiler.cardboard_paper|matter.compiler.cardboard_expression_cache|matter.compiler.cardboard_delamination_reference|matter.compiler.cardboard_material|matter.compiler.fem_material_frame|matter.compiler.stateful_roundtrip|matter.compiler.cardboard_mixed_cohesive_face|matter.compiler.cardboard_cohesive_face|matter.compiler.fem_reference|matter.compiler.cardboard_robertsson_fem_coupling|matter.analysis.cardboard_deformable_derivative|matter.analysis.cardboard_retained_capture_audit|matter.analysis.cardboard_stage_resolution|matter.analysis.cardboard_regional_conditioning|matter.analysis.cardboard_diagnostic_history|matter.analysis.cardboard_solver_pair|matter.analysis.cardboard_solver_assembly|matter.analysis.cardboard_full_contact_history|matter.compiler.cardboard_reaction_observables|matter.compiler.cardboard_full_contact_armijo|matter.compiler.cardboard_shipping_rigid_driver|matter.compiler.cardboard_bilinear_liner_rest_fp32|matter.compiler.cardboard_bilinear_medium_rest_fp32|matter.compiler.cardboard_contact_candidate_domain|matter.compiler.fem_regional_material)$"
+        ],
+        "started_at_utc": "2026-10-15T01:16:43.049355+00:00",
+        "finished_at_utc": "2026-10-15T01:17:32.306679+00:00",
+        "exit_code": 0,
+        "source_build": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-051/source-build.json",
+        "source_build_sha256": "d4b6beaa31e1233dcc66e88ff94e699b4c02520b09707485799cf29e8416f9b1",
+        "physical_steps": 0,
+        "physical_validation": false
+      }
+    },
+    {
+      "case": "cpu-checks-052",
+      "external_root": "/Users/home/cardboard-implementation-20261014/cpu-checks-052",
+      "physical_box_qualification": false,
+      "files": [
+        {
+          "name": "receipt.json",
+          "bytes": 3178,
+          "sha256": "f83231ae5c39a64071c64ddc0da861b7b63cf116537efe30cdd66c0e91bdd599",
+          "external_path": "/Users/home/cardboard-implementation-20261014/cpu-checks-052/receipt.json",
+          "repository_copy": "cpu-checks-052/receipt.json"
+        },
+        {
+          "name": "selected-tests.txt",
+          "bytes": 2551,
+          "sha256": "c129289a519522c125739504ef34bc3bf95707804596e4056472137756e28db9",
+          "external_path": "/Users/home/cardboard-implementation-20261014/cpu-checks-052/selected-tests.txt",
+          "repository_copy": "cpu-checks-052/selected-tests.txt"
+        },
+        {
+          "name": "stdout.log",
+          "bytes": 11244,
+          "sha256": "ccb9d1e7c6913ca961c64105092e22e92201e89b3bf901177745e4a7041448ba",
+          "external_path": "/Users/home/cardboard-implementation-20261014/cpu-checks-052/stdout.log",
+          "repository_copy": "cpu-checks-052/stdout.log"
+        }
+      ],
+      "receipt": {
+        "schema": "numi.cardboard.cpu-check-receipt.v1",
+        "argv": [
+          "ctest",
+          "--test-dir",
+          "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-052",
+          "--output-on-failure",
+          "-j",
+          "4",
+          "-R",
+          "^(matter.compiler.cardboard_solver_reference|matter.analysis.cardboard_source_data|matter.analysis.cardboard_calibration_ensemble|matter.analysis.cardboard_resolution_study|matter.analysis.cardboard_convergence|matter.analysis.cardboard_tooling|matter.analysis.cardboard_newton_trace|matter.analysis.cardboard_accepted_animation|matter.analysis.cardboard_capsule_side_derivative|matter.compiler.cardboard_tooling|matter.compiler.cardboard_barrier_scale|matter.compiler.cardboard_profile|matter.compiler.cardboard_fracture_regularization|matter.compiler.cardboard_starch_interface_mesh|matter.compiler.cardboard_glue_mesh|matter.compiler.cardboard_box_blank|matter.compiler.cardboard_shipping_protocol|matter.compiler.cardboard_box_assembly_controller|matter.compiler.cardboard_damage_builder|matter.compiler.cardboard_retained_matrix_damage|cardboard-compensated-deformation|matter.compiler.fem_static_surface_map|matter.compiler.cardboard_pin_adhesion_fixture|matter.compiler.cardboard_retained_damage_fp64_oracle|matter.compiler.cardboard_generic_compensated_projection|matter.compiler.fem_regional_galerkin|matter.compiler.fixed_convex_contact_step|matter.compiler.cardboard_shipping_driver|matter.compiler.cardboard_shipping_memory|matter.compiler.cardboard_shipping_closure_mesh|matter.compiler.cardboard_shipping_snapshot|matter.compiler.cardboard_mixed_cohesive_frame|matter.compiler.cardboard_mixed_cohesive|matter.compiler.cardboard_paper|matter.compiler.cardboard_expression_cache|matter.compiler.cardboard_delamination_reference|matter.compiler.cardboard_material|matter.compiler.fem_material_frame|matter.compiler.stateful_roundtrip|matter.compiler.cardboard_mixed_cohesive_face|matter.compiler.cardboard_cohesive_face|matter.compiler.fem_reference|matter.compiler.cardboard_robertsson_fem_coupling|matter.analysis.cardboard_deformable_derivative|matter.analysis.cardboard_retained_capture_audit|matter.analysis.cardboard_stage_resolution|matter.analysis.cardboard_regional_conditioning|matter.analysis.cardboard_diagnostic_history|matter.analysis.cardboard_solver_pair|matter.analysis.cardboard_solver_assembly|matter.analysis.cardboard_full_contact_history|matter.compiler.cardboard_reaction_observables|matter.compiler.cardboard_full_contact_armijo|matter.compiler.cardboard_shipping_rigid_driver|matter.compiler.cardboard_bilinear_liner_rest_fp32|matter.compiler.cardboard_bilinear_medium_rest_fp32|matter.compiler.cardboard_contact_candidate_domain|matter.compiler.fem_regional_material|matter.analysis.cardboard_pin_source_observables)$"
+        ],
+        "started_at_utc": "2026-10-15T01:30:26.513716+00:00",
+        "finished_at_utc": "2026-10-15T01:31:15.679067+00:00",
+        "exit_code": 0,
+        "source_build": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-052/source-build.json",
+        "source_build_sha256": "9ceace3065ebe267258f5e7884ac28a9b42ae1a27075701d1c5d44c11e990f80",
+        "physical_steps": 0,
+        "physical_validation": false
+      }
+    },
+    {
+      "case": "cpu-checks-053",
+      "external_root": "/Users/home/cardboard-implementation-20261014/cpu-checks-053",
+      "physical_box_qualification": false,
+      "files": [
+        {
+          "name": "receipt.json",
+          "bytes": 3178,
+          "sha256": "ba2f6c3db9bfcbcfb421f8d7b4e102bb43fbf8e17dc3bd3cb9ef53e02efbb548",
+          "external_path": "/Users/home/cardboard-implementation-20261014/cpu-checks-053/receipt.json",
+          "repository_copy": "cpu-checks-053/receipt.json"
+        },
+        {
+          "name": "selected-tests.txt",
+          "bytes": 2551,
+          "sha256": "c129289a519522c125739504ef34bc3bf95707804596e4056472137756e28db9",
+          "external_path": "/Users/home/cardboard-implementation-20261014/cpu-checks-053/selected-tests.txt",
+          "repository_copy": "cpu-checks-053/selected-tests.txt"
+        },
+        {
+          "name": "stdout.log",
+          "bytes": 11244,
+          "sha256": "358ce878841aed1059cab2df9827767240230694aba1586193f4213a02760f99",
+          "external_path": "/Users/home/cardboard-implementation-20261014/cpu-checks-053/stdout.log",
+          "repository_copy": "cpu-checks-053/stdout.log"
+        }
+      ],
+      "receipt": {
+        "schema": "numi.cardboard.cpu-check-receipt.v1",
+        "argv": [
+          "ctest",
+          "--test-dir",
+          "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-053",
+          "--output-on-failure",
+          "-j",
+          "4",
+          "-R",
+          "^(matter.compiler.cardboard_solver_reference|matter.analysis.cardboard_source_data|matter.analysis.cardboard_calibration_ensemble|matter.analysis.cardboard_resolution_study|matter.analysis.cardboard_convergence|matter.analysis.cardboard_tooling|matter.analysis.cardboard_newton_trace|matter.analysis.cardboard_accepted_animation|matter.analysis.cardboard_capsule_side_derivative|matter.compiler.cardboard_tooling|matter.compiler.cardboard_barrier_scale|matter.compiler.cardboard_profile|matter.compiler.cardboard_fracture_regularization|matter.compiler.cardboard_starch_interface_mesh|matter.compiler.cardboard_glue_mesh|matter.compiler.cardboard_box_blank|matter.compiler.cardboard_shipping_protocol|matter.compiler.cardboard_box_assembly_controller|matter.compiler.cardboard_damage_builder|matter.compiler.cardboard_retained_matrix_damage|cardboard-compensated-deformation|matter.compiler.fem_static_surface_map|matter.compiler.cardboard_pin_adhesion_fixture|matter.compiler.cardboard_retained_damage_fp64_oracle|matter.compiler.cardboard_generic_compensated_projection|matter.compiler.fem_regional_galerkin|matter.compiler.fixed_convex_contact_step|matter.compiler.cardboard_shipping_driver|matter.compiler.cardboard_shipping_memory|matter.compiler.cardboard_shipping_closure_mesh|matter.compiler.cardboard_shipping_snapshot|matter.compiler.cardboard_mixed_cohesive_frame|matter.compiler.cardboard_mixed_cohesive|matter.compiler.cardboard_paper|matter.compiler.cardboard_expression_cache|matter.compiler.cardboard_delamination_reference|matter.compiler.cardboard_material|matter.compiler.fem_material_frame|matter.compiler.stateful_roundtrip|matter.compiler.cardboard_mixed_cohesive_face|matter.compiler.cardboard_cohesive_face|matter.compiler.fem_reference|matter.compiler.cardboard_robertsson_fem_coupling|matter.analysis.cardboard_deformable_derivative|matter.analysis.cardboard_retained_capture_audit|matter.analysis.cardboard_stage_resolution|matter.analysis.cardboard_regional_conditioning|matter.analysis.cardboard_diagnostic_history|matter.analysis.cardboard_solver_pair|matter.analysis.cardboard_solver_assembly|matter.analysis.cardboard_full_contact_history|matter.compiler.cardboard_reaction_observables|matter.compiler.cardboard_full_contact_armijo|matter.compiler.cardboard_shipping_rigid_driver|matter.compiler.cardboard_bilinear_liner_rest_fp32|matter.compiler.cardboard_bilinear_medium_rest_fp32|matter.compiler.cardboard_contact_candidate_domain|matter.compiler.fem_regional_material|matter.analysis.cardboard_pin_source_observables)$"
+        ],
+        "started_at_utc": "2026-10-15T01:47:51.173156+00:00",
+        "finished_at_utc": "2026-10-15T01:48:43.792491+00:00",
+        "exit_code": 0,
+        "source_build": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-053/source-build.json",
+        "source_build_sha256": "d2eeee5285297739915db369bc6376476b49b9d28bf91c03f48ca6ee2b6190a3",
+        "physical_steps": 0,
+        "physical_validation": false
+      }
+    },
+    {
+      "case": "analysis/diagnostic-history-compare-118-119-010",
+      "external_root": "/Users/home/cardboard-implementation-20261014/solver",
+      "physical_box_qualification": false,
+      "files": [
+        {
+          "name": "diagnostic-history-compare-118-119-010.json",
+          "bytes": 9264,
+          "sha256": "71d3434b11d2a8e8bfb11aef56586e53f207079ec1104e9bf9c3a6ab0f91379f",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/diagnostic-history-compare-118-119-010.json",
+          "repository_copy": "analysis/diagnostic-history-compare-118-119-010/diagnostic-history-compare-118-119-010.json"
+        }
+      ]
+    },
+    {
+      "case": "analysis/diagnostic-history-compare-120-119-011",
+      "external_root": "/Users/home/cardboard-implementation-20261014/solver",
+      "physical_box_qualification": false,
+      "files": [
+        {
+          "name": "diagnostic-history-compare-120-119-011.json",
+          "bytes": 9307,
+          "sha256": "97dfbc12644b3a11e554dc653024d060f35f6add473b6f9dce0986bfc73542d8",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/diagnostic-history-compare-120-119-011.json",
+          "repository_copy": "analysis/diagnostic-history-compare-120-119-011/diagnostic-history-compare-120-119-011.json"
+        }
+      ]
+    },
+    {
+      "case": "analysis/diagnostic-history-compare-121-119-012",
+      "external_root": "/Users/home/cardboard-implementation-20261014/solver",
+      "physical_box_qualification": false,
+      "files": [
+        {
+          "name": "diagnostic-history-compare-121-119-012.json",
+          "bytes": 9307,
+          "sha256": "40b53a7c89fe44a52e5d9a51e02b8fee11bbd81f819f101741865047362a835e",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/diagnostic-history-compare-121-119-012.json",
+          "repository_copy": "analysis/diagnostic-history-compare-121-119-012/diagnostic-history-compare-121-119-012.json"
+        }
+      ]
+    },
+    {
+      "case": "analysis/failing-coupon-state-assembly-replay-118-001",
+      "external_root": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-assembly-replay-118-001",
+      "physical_box_qualification": false,
+      "files": [
+        {
+          "name": "element-audit.jsonl",
+          "bytes": 3230412,
+          "sha256": "c7785bd57196f603711b4b582e471d5ebf82f313acd7d2eac30cc9079aff5869",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-assembly-replay-118-001/element-audit.jsonl"
+        },
+        {
+          "name": "summary.json",
+          "bytes": 14080,
+          "sha256": "e03c62265174033a2d7049adb916dad519c3dddd012ecd03be6cdc8ae8b73bb3",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-assembly-replay-118-001/summary.json",
+          "repository_copy": "analysis/failing-coupon-state-assembly-replay-118-001/summary.json"
+        }
+      ]
+    },
+    {
+      "case": "analysis/failing-coupon-state-assembly-replay-118-002",
+      "external_root": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-assembly-replay-118-002",
+      "physical_box_qualification": false,
+      "files": [
+        {
+          "name": "element-audit.jsonl",
+          "bytes": 3230412,
+          "sha256": "c7785bd57196f603711b4b582e471d5ebf82f313acd7d2eac30cc9079aff5869",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-assembly-replay-118-002/element-audit.jsonl"
+        },
+        {
+          "name": "summary.json",
+          "bytes": 18502,
+          "sha256": "078afb538a7c9634cac8740886b6830757794570e0b66f5c5671af58e22f82c6",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-assembly-replay-118-002/summary.json",
+          "repository_copy": "analysis/failing-coupon-state-assembly-replay-118-002/summary.json"
+        }
+      ]
+    },
+    {
+      "case": "analysis/failing-coupon-state-assembly-replay-120-001",
+      "external_root": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-assembly-replay-120-001",
+      "physical_box_qualification": false,
+      "files": [
+        {
+          "name": "element-audit.jsonl",
+          "bytes": 3230412,
+          "sha256": "c7785bd57196f603711b4b582e471d5ebf82f313acd7d2eac30cc9079aff5869",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-assembly-replay-120-001/element-audit.jsonl"
+        },
+        {
+          "name": "summary.json",
+          "bytes": 18557,
+          "sha256": "6d2accdd86bc600f944177c258b190f91dad89b392334bca92aec988a63c0603",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-assembly-replay-120-001/summary.json",
+          "repository_copy": "analysis/failing-coupon-state-assembly-replay-120-001/summary.json"
+        }
+      ]
+    },
+    {
+      "case": "analysis/failing-coupon-state-assembly-replay-121-001",
+      "external_root": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-assembly-replay-121-001",
+      "physical_box_qualification": false,
+      "files": [
+        {
+          "name": "element-audit.jsonl",
+          "bytes": 3230412,
+          "sha256": "c7785bd57196f603711b4b582e471d5ebf82f313acd7d2eac30cc9079aff5869",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-assembly-replay-121-001/element-audit.jsonl"
+        },
+        {
+          "name": "summary.json",
+          "bytes": 18609,
+          "sha256": "8c4507f811fdbd2a71c03c2b0d7552f8ea6acf396d7a78aa6052e6b1ac6bff9f",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-assembly-replay-121-001/summary.json",
+          "repository_copy": "analysis/failing-coupon-state-assembly-replay-121-001/summary.json"
+        }
+      ]
+    },
+    {
+      "case": "analysis/failing-coupon-state-fp64-replay-118-001",
+      "external_root": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-fp64-replay-118-001",
+      "physical_box_qualification": false,
+      "files": [
+        {
+          "name": "replay-input.tsv",
+          "bytes": 17186179,
+          "sha256": "38570c9cc76501b21b935664b661e8ee56f5343a201e35340a3d60c461792b71",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-fp64-replay-118-001/replay-input.tsv"
+        },
+        {
+          "name": "replay-output.jsonl",
+          "bytes": 50674925,
+          "sha256": "a2adb07cde6ab48e0d35120335587cabef501e9e20f5310a685fc527c91ab61e",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-fp64-replay-118-001/replay-output.jsonl"
+        },
+        {
+          "name": "replay-stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-fp64-replay-118-001/replay-stderr.txt",
+          "repository_copy": "analysis/failing-coupon-state-fp64-replay-118-001/replay-stderr.txt"
+        },
+        {
+          "name": "summary.json",
+          "bytes": 11772,
+          "sha256": "dd0c90e1afb0dc4344813c838c6b92a091f4234466921420f9e512848c8d5b8f",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-fp64-replay-118-001/summary.json",
+          "repository_copy": "analysis/failing-coupon-state-fp64-replay-118-001/summary.json"
+        },
+        {
+          "name": "tetrahedron-audit.jsonl",
+          "bytes": 26927661,
+          "sha256": "f159ab805cb11891af66126ae5e88412353dbbde395efbb86590f4111c3a6390",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-fp64-replay-118-001/tetrahedron-audit.jsonl"
+        }
+      ]
+    },
+    {
+      "case": "analysis/failing-coupon-state-fp64-replay-120-001",
+      "external_root": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-fp64-replay-120-001",
+      "physical_box_qualification": false,
+      "files": [
+        {
+          "name": "replay-input.tsv",
+          "bytes": 17205173,
+          "sha256": "b4b6997675b625421ea01c0956974d82f2d1eb2d4060daaf9e36ec7a842a6fa3",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-fp64-replay-120-001/replay-input.tsv"
+        },
+        {
+          "name": "replay-output.jsonl",
+          "bytes": 50716192,
+          "sha256": "8e7b79a28f27aa701a3fc9e3d464623bc4e344a7e688d69ed5916c04bae38f26",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-fp64-replay-120-001/replay-output.jsonl"
+        },
+        {
+          "name": "replay-stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-fp64-replay-120-001/replay-stderr.txt",
+          "repository_copy": "analysis/failing-coupon-state-fp64-replay-120-001/replay-stderr.txt"
+        },
+        {
+          "name": "summary.json",
+          "bytes": 11780,
+          "sha256": "12e234bb7cba4b14a82c462ad5923525c8b53fea6ef50391ef82d6e7d3d8b930",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-fp64-replay-120-001/summary.json",
+          "repository_copy": "analysis/failing-coupon-state-fp64-replay-120-001/summary.json"
+        },
+        {
+          "name": "tetrahedron-audit.jsonl",
+          "bytes": 26994272,
+          "sha256": "0244a182af6fbe41caf545bc255c3893e8538f2eac792133760f93b307c01125",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-fp64-replay-120-001/tetrahedron-audit.jsonl"
+        }
+      ]
+    },
+    {
+      "case": "analysis/failing-coupon-state-fp64-replay-121-001",
+      "external_root": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-fp64-replay-121-001",
+      "physical_box_qualification": false,
+      "files": [
+        {
+          "name": "replay-input.tsv",
+          "bytes": 17192523,
+          "sha256": "9b02bc97686aa1532bac09793d8ba7085dca8e394777b6cb17602ae66b638aeb",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-fp64-replay-121-001/replay-input.tsv"
+        },
+        {
+          "name": "replay-output.jsonl",
+          "bytes": 50697508,
+          "sha256": "21c689e46fb002dd7b4552b113f6a2e491fe6a318ee991095deee867f95b83ee",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-fp64-replay-121-001/replay-output.jsonl"
+        },
+        {
+          "name": "replay-stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-fp64-replay-121-001/replay-stderr.txt",
+          "repository_copy": "analysis/failing-coupon-state-fp64-replay-121-001/replay-stderr.txt"
+        },
+        {
+          "name": "summary.json",
+          "bytes": 11782,
+          "sha256": "66cb5d7cbe806b656da7715296a7eebe4f263d6b2f69d5335da91584763bca4a",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-fp64-replay-121-001/summary.json",
+          "repository_copy": "analysis/failing-coupon-state-fp64-replay-121-001/summary.json"
+        },
+        {
+          "name": "tetrahedron-audit.jsonl",
+          "bytes": 27042940,
+          "sha256": "4ff394076a60fb184c2c91175a9aece6c205c5db33574729e0d7fe5f24c93204",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-fp64-replay-121-001/tetrahedron-audit.jsonl"
+        }
+      ]
+    },
+    {
+      "case": "analysis/failing-coupon-state-fp64-replay-121-sweep-002",
+      "external_root": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-fp64-replay-121-sweep-002",
+      "physical_box_qualification": false,
+      "files": [
+        {
+          "name": "replay-input.tsv",
+          "bytes": 17192523,
+          "sha256": "9b02bc97686aa1532bac09793d8ba7085dca8e394777b6cb17602ae66b638aeb",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-fp64-replay-121-sweep-002/replay-input.tsv"
+        },
+        {
+          "name": "replay-output.jsonl",
+          "bytes": 59790179,
+          "sha256": "70e1928376b052177b8cfc46eb6c470ba462125e2f21ad985768b66754da308b",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-fp64-replay-121-sweep-002/replay-output.jsonl"
+        },
+        {
+          "name": "replay-stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-fp64-replay-121-sweep-002/replay-stderr.txt",
+          "repository_copy": "analysis/failing-coupon-state-fp64-replay-121-sweep-002/replay-stderr.txt"
+        },
+        {
+          "name": "summary.json",
+          "bytes": 12953,
+          "sha256": "e72e287ed096987045a01b35cd8766bcb4edddfb854e09d1809ff214f217f145",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-fp64-replay-121-sweep-002/summary.json",
+          "repository_copy": "analysis/failing-coupon-state-fp64-replay-121-sweep-002/summary.json"
+        },
+        {
+          "name": "tetrahedron-audit.jsonl",
+          "bytes": 27042940,
+          "sha256": "4ff394076a60fb184c2c91175a9aece6c205c5db33574729e0d7fe5f24c93204",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-fp64-replay-121-sweep-002/tetrahedron-audit.jsonl"
+        }
+      ]
+    },
+    {
+      "case": "analysis/failing-coupon-state-assembly-realized-rays-121-001",
+      "external_root": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-assembly-realized-rays-121-001",
+      "physical_box_qualification": false,
+      "files": [
+        {
+          "name": "realized-ray-replay-input.tsv",
+          "bytes": 10512312,
+          "sha256": "2fdfc17727110963030676edde67e83c4d1d361eac21d96d6c326fc9f706795c",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-assembly-realized-rays-121-001/realized-ray-replay-input.tsv"
+        },
+        {
+          "name": "realized-ray-replay-output.jsonl",
+          "bytes": 27500872,
+          "sha256": "1ab1d73058481147a8aa640ce898cb43eb604c4315cb352e46aaeb34f9d1f81d",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-assembly-realized-rays-121-001/realized-ray-replay-output.jsonl"
+        },
+        {
+          "name": "realized-ray-replay-stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-assembly-realized-rays-121-001/realized-ray-replay-stderr.txt",
+          "repository_copy": "analysis/failing-coupon-state-assembly-realized-rays-121-001/realized-ray-replay-stderr.txt"
+        }
+      ]
+    },
+    {
+      "case": "analysis/failing-coupon-state-assembly-realized-rays-121-002",
+      "external_root": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-assembly-realized-rays-121-002",
+      "physical_box_qualification": false,
+      "files": [
+        {
+          "name": "element-audit.jsonl",
+          "bytes": 3230412,
+          "sha256": "c7785bd57196f603711b4b582e471d5ebf82f313acd7d2eac30cc9079aff5869",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-assembly-realized-rays-121-002/element-audit.jsonl"
+        },
+        {
+          "name": "realized-ray-element-audit.jsonl",
+          "bytes": 20103661,
+          "sha256": "f40633bb54c1a0e5d47d64e108bdbbf27e2dfb6cbaa9d3be508c3764fce486be",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-assembly-realized-rays-121-002/realized-ray-element-audit.jsonl"
+        },
+        {
+          "name": "realized-ray-replay-input.tsv",
+          "bytes": 10512312,
+          "sha256": "2fdfc17727110963030676edde67e83c4d1d361eac21d96d6c326fc9f706795c",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-assembly-realized-rays-121-002/realized-ray-replay-input.tsv"
+        },
+        {
+          "name": "realized-ray-replay-output.jsonl",
+          "bytes": 27500872,
+          "sha256": "1ab1d73058481147a8aa640ce898cb43eb604c4315cb352e46aaeb34f9d1f81d",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-assembly-realized-rays-121-002/realized-ray-replay-output.jsonl"
+        },
+        {
+          "name": "realized-ray-replay-stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-assembly-realized-rays-121-002/realized-ray-replay-stderr.txt",
+          "repository_copy": "analysis/failing-coupon-state-assembly-realized-rays-121-002/realized-ray-replay-stderr.txt"
+        },
+        {
+          "name": "summary.json",
+          "bytes": 33285,
+          "sha256": "2e412d27fb24e5a8dec046189b98b47c69b4d7b664f98cda734b84cb0be284a6",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-assembly-realized-rays-121-002/summary.json",
+          "repository_copy": "analysis/failing-coupon-state-assembly-realized-rays-121-002/summary.json"
+        }
+      ]
+    },
+    {
+      "case": "analysis/failing-coupon-state-assembly-realized-rays-121-003",
+      "external_root": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-assembly-realized-rays-121-003",
+      "physical_box_qualification": false,
+      "files": [
+        {
+          "name": "element-audit.jsonl",
+          "bytes": 3230412,
+          "sha256": "c7785bd57196f603711b4b582e471d5ebf82f313acd7d2eac30cc9079aff5869",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-assembly-realized-rays-121-003/element-audit.jsonl"
+        },
+        {
+          "name": "realized-ray-element-audit.jsonl",
+          "bytes": 20721301,
+          "sha256": "0e3ccbf509e997ec2245cb7ddc01fcdd368ed82a1d2a171f923e4e49211efc24",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-assembly-realized-rays-121-003/realized-ray-element-audit.jsonl"
+        },
+        {
+          "name": "realized-ray-replay-input.tsv",
+          "bytes": 21072277,
+          "sha256": "5dab969bc1a905ad2e59ffad7e3616b50dc41f8888842057775430a1ad7e1d25",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-assembly-realized-rays-121-003/realized-ray-replay-input.tsv"
+        },
+        {
+          "name": "realized-ray-replay-output.jsonl",
+          "bytes": 55048657,
+          "sha256": "a1536bc1cd12b154bd259fbbce78ebeb90772868b8e0e9bf106ced23ce0903b3",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-assembly-realized-rays-121-003/realized-ray-replay-output.jsonl"
+        },
+        {
+          "name": "realized-ray-replay-stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-assembly-realized-rays-121-003/realized-ray-replay-stderr.txt",
+          "repository_copy": "analysis/failing-coupon-state-assembly-realized-rays-121-003/realized-ray-replay-stderr.txt"
+        },
+        {
+          "name": "summary.json",
+          "bytes": 36098,
+          "sha256": "4b19827ea0650bdd2aa9d28d78364b218c053e661df86c104cf4e4eeee3bdf5f",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-assembly-realized-rays-121-003/summary.json",
+          "repository_copy": "analysis/failing-coupon-state-assembly-realized-rays-121-003/summary.json"
+        }
+      ]
+    },
+    {
+      "case": "analysis/failing-coupon-state-assembly-realized-rays-121-004",
+      "external_root": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-assembly-realized-rays-121-004",
+      "physical_box_qualification": false,
+      "files": [
+        {
+          "name": "element-audit.jsonl",
+          "bytes": 3230412,
+          "sha256": "c7785bd57196f603711b4b582e471d5ebf82f313acd7d2eac30cc9079aff5869",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-assembly-realized-rays-121-004/element-audit.jsonl"
+        },
+        {
+          "name": "realized-ray-element-audit.jsonl",
+          "bytes": 21180349,
+          "sha256": "d160e0907818394d7e6046e18b15d61c36a2913ab369e99176be7304fa99175b",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-assembly-realized-rays-121-004/realized-ray-element-audit.jsonl"
+        },
+        {
+          "name": "realized-ray-replay-input.tsv",
+          "bytes": 28059973,
+          "sha256": "bfd47ad2dd32ecd14a7a8b1d67c27a8c218b9d2ab62884ae71cca772bdd4b208",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-assembly-realized-rays-121-004/realized-ray-replay-input.tsv"
+        },
+        {
+          "name": "realized-ray-replay-output.jsonl",
+          "bytes": 75441107,
+          "sha256": "e693fd39ae441846c15dd7cdc01b22028e1d8241b74bd899b031bba1e5494405",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-assembly-realized-rays-121-004/realized-ray-replay-output.jsonl"
+        },
+        {
+          "name": "realized-ray-replay-stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-assembly-realized-rays-121-004/realized-ray-replay-stderr.txt",
+          "repository_copy": "analysis/failing-coupon-state-assembly-realized-rays-121-004/realized-ray-replay-stderr.txt"
+        },
+        {
+          "name": "summary.json",
+          "bytes": 38878,
+          "sha256": "a2092a0c630f4c984b9ea606ecc9fa2b51d78361afde3089b4d00b8ca97aed38",
+          "external_path": "/Users/home/cardboard-implementation-20261014/solver/failing-coupon-state-assembly-realized-rays-121-004/summary.json",
+          "repository_copy": "analysis/failing-coupon-state-assembly-realized-rays-121-004/summary.json"
+        }
+      ]
+    },
+    {
+      "case": "analysis/asymmetric-transfer-calibration-20261015-001",
+      "external_root": "/Users/home/cardboard-implementation-20261014/analysis/asymmetric-transfer-calibration-20261015-001",
+      "physical_box_qualification": false,
+      "files": [
+        {
+          "name": "README.md",
+          "bytes": 1223,
+          "sha256": "0b35fcfcfc677c918b231d7181c39bc6c51b1e85ec08c1af0b63165b4e7a64c5",
+          "external_path": "/Users/home/cardboard-implementation-20261014/analysis/asymmetric-transfer-calibration-20261015-001/README.md",
+          "repository_copy": "analysis/asymmetric-transfer-calibration-20261015-001/README.md"
+        },
+        {
+          "name": "c1-width3-cpu-calibration.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "external_path": "/Users/home/cardboard-implementation-20261014/analysis/asymmetric-transfer-calibration-20261015-001/c1-width3-cpu-calibration.stderr.txt",
+          "repository_copy": "analysis/asymmetric-transfer-calibration-20261015-001/c1-width3-cpu-calibration.stderr.txt"
+        },
+        {
+          "name": "c1-width3-cpu-calibration.stdout.txt",
+          "bytes": 9350,
+          "sha256": "093a00129e984315e42c7335bfc07cabb0b4e0e1e26ada1118a4dc8b59ea2e36",
+          "external_path": "/Users/home/cardboard-implementation-20261014/analysis/asymmetric-transfer-calibration-20261015-001/c1-width3-cpu-calibration.stdout.txt",
+          "repository_copy": "analysis/asymmetric-transfer-calibration-20261015-001/c1-width3-cpu-calibration.stdout.txt"
+        },
+        {
+          "name": "legacy-exact-relu-corner-failure.json",
+          "bytes": 2226,
+          "sha256": "5f5c82dee608c6f9c00dfeaea04849d7925fe6ff45468d12c63fc681b93e3604",
+          "external_path": "/Users/home/cardboard-implementation-20261014/analysis/asymmetric-transfer-calibration-20261015-001/legacy-exact-relu-corner-failure.json",
+          "repository_copy": "analysis/asymmetric-transfer-calibration-20261015-001/legacy-exact-relu-corner-failure.json"
+        },
+        {
+          "name": "run-manifest.json",
+          "bytes": 4410,
+          "sha256": "b4ab8648bca35fbf0897eea5413eb523bbd24989f72ad5ffc40c851670e327db",
+          "external_path": "/Users/home/cardboard-implementation-20261014/analysis/asymmetric-transfer-calibration-20261015-001/run-manifest.json",
+          "repository_copy": "analysis/asymmetric-transfer-calibration-20261015-001/run-manifest.json"
+        },
+        {
+          "name": "source-data-tests.stderr.txt",
+          "bytes": 3764,
+          "sha256": "9da0ed66176e072fa1a07c6e4835e19ede8bff54c8254a02597ec795ddc6523f",
+          "external_path": "/Users/home/cardboard-implementation-20261014/analysis/asymmetric-transfer-calibration-20261015-001/source-data-tests.stderr.txt",
+          "repository_copy": "analysis/asymmetric-transfer-calibration-20261015-001/source-data-tests.stderr.txt"
+        },
+        {
+          "name": "source-data-tests.stdout.txt",
+          "bytes": 580,
+          "sha256": "e24828de5254af5829f5d04b9610dd65b3b8057c22d4a5b419e9856b37a42f0c",
+          "external_path": "/Users/home/cardboard-implementation-20261014/analysis/asymmetric-transfer-calibration-20261015-001/source-data-tests.stdout.txt",
+          "repository_copy": "analysis/asymmetric-transfer-calibration-20261015-001/source-data-tests.stdout.txt"
+        }
+      ]
+    },
+    {
+      "case": "analysis/shipping-allocation-preflight-3231b850",
+      "external_root": "/Users/home/cardboard-implementation-20261014",
+      "physical_box_qualification": false,
+      "files": [
+        {
+          "name": "shipping-allocation-preflight-3231b850.json",
+          "bytes": 13422,
+          "sha256": "c74e8eab10ac3fd7c210041d7e7555176bd0d3dd7b67f2ad4356414dd7ba8563",
+          "external_path": "/Users/home/cardboard-implementation-20261014/shipping-allocation-preflight-3231b850.json",
+          "repository_copy": "analysis/shipping-allocation-preflight-3231b850/shipping-allocation-preflight-3231b850.json"
+        }
+      ]
     }
   ],
   "verdicts": {
@@ -12994,9 +16390,9 @@
     "crush_impact_prediction": "unexecuted"
   },
   "qualification": {
-    "solver_correctness": "Source49 full-contact112/113 pass3725checks each:3 accepted native transactions and1deliberate rejection,12 raw production payloads byte-identical,18 persistent rollback vectors unchanged,384healthy true-residual rows and0excluded failures. Native109direct swept validator2014checks,110CCD80,111prescribedBOXtranslation2962and3transactions,114finitebody244,115bilinear complete tangents allpass. Selected private trial matches next production residual exactly. These bounded synthetic/component results do not qualify complete coupon/noise-floor/fullshipping; prior failed captures/instruments retained.",
-    "numerical_convergence": "057/058failafter1of27controls;061accepts3of27before900stimeout;source48case108accepts2of27before600stimeout. No complete mesh/time refinement series qualified.",
-    "component_calibration": "Source49 retains278hash-bound published marker-center estimates with pixel/axis uncertainty and4overplots, calibrationonly unknownspecimens;15-state nativebilinear115checks pass resolved1e-3 gates. Current tensile onset uses symmetriccompression-basedHill surface; pressure/multiaxial transfer and tensile damage notidentified. Pin fixture/HMA calibration and exactrecipe identification remainopen.",
+    "solver_correctness": "Bounded source49 contact and source51 cache instruments pass; new source52 tests expose a wrong optional-output argument in both preconditioner kernels (repaired52), unresolved ordinary C1 tangent cancellation, and a late-rejection certificate publication defect (134, repair pending54). Source49 rich capture1:3 is retained but original control19:3 capture remains open. FP64 source50 sweep121 passes all1728 nonzero bent directions at1e-6; assembled Metal FD remains inconclusive without measured absolute noise floors and realized-ray agreement. No full solver qualification.",
+    "numerical_convergence": "No complete mesh/time study. Latest repaired52 case135 times out600s after two of27 controls; all earlier incomplete/rejected cycles retained.",
+    "component_calibration": "Published tensile marker/slope calibration package and nondefault convex asymmetry transfer candidates are versioned with uncertainty and source assumptions. No held-out specimen validation, native C1 qualification, matched damage/debonding calibration, identified local starch/HMA fracture parameters or exact-recipe calibration. Partial pin source observables remain distinct from whole-fixture calibration.",
     "analogue_validation": "UNQUALIFIED",
     "physical_assembly_in_simulation": "UNEXECUTED",
     "crush_impact_prediction": "UNEXECUTED"

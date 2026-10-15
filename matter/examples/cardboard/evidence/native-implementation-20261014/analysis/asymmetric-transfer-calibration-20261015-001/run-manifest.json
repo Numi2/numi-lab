@@ -1,0 +1,96 @@
+{
+  "artifacts_sha256": {
+    "c1_parameter_csv": "5fccfea7ca49776cef6782f6fa8eff1876de38f643c6993c3b2829135f446e48",
+    "calibration_stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "calibration_stdout": "093a00129e984315e42c7335bfc07cabb0b4e0e1e26ada1118a4dc8b59ea2e36",
+    "catalog": "f812ca264c3f0cd15e98178aeae090332eb753d127a199906a9ebc800e3a62c1",
+    "checker_executable": "8e52d0334055edb026d1c4d8d90e75ab299ca000405a8297858bf99fbf914baf",
+    "checker_source_at_seal": "d93babee941133758a0db410a8eb65422d3d0fc71d387f3bf1f347979775cab9",
+    "exact_relu_parameter_csv": "47dc13cb3ced9dac438df21354b3236d53223eed0842fe97806d32507b890e0a",
+    "legacy_failure_reconstruction": "5f5c82dee608c6f9c00dfeaea04849d7925fe6ff45468d12c63fc681b93e3604",
+    "liner_c1_asset": "f5951cd7fb63684a4fdcca58457af5d769fe466cc640370be54d9a4ac4309a43",
+    "liner_exact_relu_asset": "377236230f1802b10aba8c994df86d545a7694bc11885b3592275d36aa0eefe5",
+    "marker_centers_csv": "7a2dd7a351586971566fe34ca144b511d0b2014ab13f4cd7c9de0e87c2cf39b9",
+    "medium_c1_asset": "40e8bd9aa61ed946661c162c395397f958bab71306df8bec8df1140e78ae95bb",
+    "medium_exact_relu_asset": "f5f0e1475a9b0a87c0c30b27b6ab5f26a04a92e50ed5ca9b5c775477ed8f6a7b",
+    "readme": "0b35fcfcfc677c918b231d7181c39bc6c51b1e85ec08c1af0b63165b4e7a64c5",
+    "source_data_test_stderr": "9da0ed66176e072fa1a07c6e4835e19ede8bff54c8254a02597ec795ddc6523f",
+    "source_data_test_stdout": "e24828de5254af5829f5d04b9610dd65b3b8057c22d4a5b419e9856b37a42f0c",
+    "source_fit_nodes_csv": "83f5778db797f0fb9996416848abb91c18f9102f4c3707aea9ea267b1eeb0d82"
+  },
+  "c1": {
+    "liner": {
+      "fit_transfer_scale_cd": 1.34841365741,
+      "fit_transfer_scale_md": 0.326033484805,
+      "marker_rmse_MPa": {
+        "CD": 2.72781654236,
+        "MD": 2.39598744111
+      },
+      "max_width_tangent_change_MPa": {
+        "CD": 1.48519245613e-05,
+        "MD": 2.78320735561e-05
+      },
+      "within_vertical_readout": {
+        "CD": "0/64",
+        "MD": "10/56"
+      }
+    },
+    "medium_NSSC": {
+      "fit_transfer_scale_cd": 1.23608594378,
+      "fit_transfer_scale_md": 0.338795826592,
+      "marker_rmse_MPa": {
+        "CD": 0.821585085845,
+        "MD": 2.68776038331
+      },
+      "max_width_tangent_change_MPa": {
+        "CD": 2.17784719325e-05,
+        "MD": 5.66194382827e-05
+      },
+      "within_vertical_readout": {
+        "CD": "19/99",
+        "MD": "7/59"
+      }
+    },
+    "normalized_stress_width": 5e-06,
+    "width_sensitivity_normalized_stress": [
+      5e-06,
+      2.5e-06,
+      1.25e-06
+    ]
+  },
+  "checks": 2350688803,
+  "classification": "CPU constitutive source-curve calibration and oracle cross-check only; not independent validation, not native Metal execution, not physical board qualification",
+  "command": "./build-cardboard-world/matter/numi-matter-cardboard-paper-material-check --asymmetric-c1-calibration",
+  "exit_code": 0,
+  "gpu_execution": false,
+  "host": {
+    "machine": "arm64",
+    "platform": "macOS-26.6-arm64-arm-64bit-Mach-O"
+  },
+  "limitations": [
+    "Source-fit endpoints and marker glyphs are digitized estimates from the same published figures, not independent observations.",
+    "Horizontal strain-coordinate uncertainty is not propagated into the marker residual summary.",
+    "Compression strengths use the source 0.6-times-tension assumption; out-of-plane and shear inputs include assumptions/derived values.",
+    "The C1 width is numerical regularization; its small zero-stress radius shift and width sensitivity are reported.",
+    "The exact-ReLU failure JSON is a partial reconstruction from a project-owner report because the original raw log and complete input/state were unavailable."
+  ],
+  "repository_revision_at_run": "3231b850876fbbacce9a307cd2f246b8a7bd70c5",
+  "schema": "numi.cardboard.asymmetric_transfer_cpu_calibration_receipt.v1",
+  "source_curves": {
+    "groups": [
+      "liner MD",
+      "liner CD",
+      "NSSC medium MD",
+      "NSSC medium CD"
+    ],
+    "selected_marker_centers": 278,
+    "usage": "same published plots used for parameter transfer; calibration residuals only; no held-out specimens or raw test traces"
+  },
+  "source_data_test": {
+    "command": "python3 matter/tools/cardboard_source_data_test.py",
+    "status": "passed",
+    "tests": 23
+  },
+  "status": "completed_pass",
+  "timestamp_local": "2026-10-15"
+}

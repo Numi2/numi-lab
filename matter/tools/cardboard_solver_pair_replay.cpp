@@ -192,8 +192,72 @@ bool safeKey(const std::string& key) {
         });
 }
 
+void writeDerivativeSweep(const paper::Parameters& parameters,
+                          const paper::Matrix& f, const paper::Matrix& direction,
+                          const paper::State& accepted,
+                          const paper::Matrix& tangent) {
+    double directionScale = 0.0;
+    for (double value : direction) directionScale = std::max(directionScale, std::abs(value));
+    std::cout << ",\"FP64_derivative_sweep\":{\"history\":\"same_captured_accepted_state\","
+                 "\"direction_scale_per_s\":" << directionScale
+              << ",\"stress_units\":\"Pa/s\",\"smooth_gate\":1e-6,\"rows\":[";
+    if (!(directionScale > 0.0)) {
+        std::cout << "],\"verdict\":\"inconclusive_zero_direction\"}";
+        return;
+    }
+    const auto trialQ = [&](const paper::Matrix& value) {
+        return paper::hillEquivalent(parameters, paper::normalizedSecondPiola(
+            parameters, value, paper::plasticStrain(accepted)));
+    };
+    const auto branch = [](double q) {
+        return std::abs(q - 1.0) <= 1e-6 ? 0 : (q > 1.0 ? 1 : -1);
+    };
+    const int centerBranch = branch(trialQ(f));
+    bool previousPass = false, adjacentPass = false;
+    for (unsigned refinement = 0; refinement < 14u; ++refinement) {
+        if (refinement) std::cout << ',';
+        const double epsilon = std::ldexp(1e-5 / directionScale, -static_cast<int>(refinement));
+        paper::Matrix plus = f, minus = f;
+        for (unsigned i = 0; i < 9u; ++i) {
+            plus[i] += epsilon * direction[i];
+            minus[i] -= epsilon * direction[i];
+        }
+        std::cout << "{\"epsilon_seconds\":" << epsilon;
+        try {
+            const auto pp = oracle::project(parameters, plus, accepted);
+            const auto pm = oracle::project(parameters, minus, accepted);
+            const bool smooth = centerBranch != 0 && branch(trialQ(plus)) == centerBranch &&
+                branch(trialQ(minus)) == centerBranch;
+            double error = 0.0, scale = 0.0, realizedError = 0.0;
+            for (unsigned i = 0; i < 9u; ++i) {
+                const double fd = (pp.firstPiola[i] - pm.firstPiola[i]) / (2.0 * epsilon);
+                error = std::max(error, std::abs(fd - tangent[i]) * 1e6);
+                scale = std::max(scale, std::abs(tangent[i]) * 1e6);
+                realizedError = std::max(realizedError, std::abs(
+                    (plus[i] - minus[i]) / (2.0 * epsilon) - direction[i]));
+            }
+            const bool pass = smooth && scale > 0.0 && error / scale <= 1e-6;
+            adjacentPass = adjacentPass || (pass && previousPass);
+            previousPass = pass;
+            std::cout << ",\"valid\":true,\"smooth_branch_eligible\":" << (smooth ? "true" : "false")
+                      << ",\"absolute_error_Pa_per_s\":" << error
+                      << ",\"reference_scale_Pa_per_s\":" << scale
+                      << ",\"relative_error\":";
+            if (scale > 0.0) std::cout << error / scale; else std::cout << "null";
+            std::cout << ",\"realized_direction_absolute_error_per_s\":" << realizedError
+                      << ",\"projection_residuals\": [" << pp.residual << ',' << pm.residual << "]}";
+        } catch (const std::exception&) {
+            previousPass = false;
+            std::cout << ",\"valid\":false,\"reason\":\"independent_projection_failed\"}";
+        }
+    }
+    std::cout << "],\"verdict\":\""
+              << (adjacentPass ? "two_adjacent_smooth_refinements_pass" : "no_adjacent_resolved_pass")
+              << "\",\"Metal_noise_floor_measured\":false}";
+}
+
 void replayRow(std::istringstream& input, const std::string& key, const std::string& kind,
-               const CompiledSourceMaterial& source) {
+               const CompiledSourceMaterial& source, bool derivativeSweep) {
     const auto fWords = readF32WordPair<9>(input, "F high/low word pair");
     const auto directionWords = readF32Words<9>(input, "local deformation direction");
     const auto acceptedWords = readF32Words<kStateCount>(input, "accepted material state");
@@ -289,15 +353,17 @@ void replayRow(std::istringstream& input, const std::string& key, const std::str
               << ",\"candidate_q\":" << paper::hillEquivalent(parameters.paper, candidateNormalizedStress)
               << ",\"elastic_trial_q\":" << paper::hillEquivalent(parameters.paper, acceptedTrialStress)
               << ",\"lambda_increment_candidate\":" << candidate[12] - accepted[12]
-              << ",\"lambda_increment_reprojected\":" << projection.state[12] - accepted[12]
-              << "}\n";
+              << ",\"lambda_increment_reprojected\":" << projection.state[12] - accepted[12];
+    if (derivativeSweep && key.ends_with("_s0"))
+        writeDerivativeSweep(parameters.paper, f, direction, accepted, tangentAtReprojected);
+    std::cout << "}\n";
 }
 } // namespace
 
 int main(int argc, char** argv) {
     std::cout << std::setprecision(17);
-    if (argc != 3) {
-        std::cerr << "usage: cardboard-solver-pair-replay LINER.nmatter MEDIUM.nmatter\n"
+    if (argc != 3 && !(argc == 4 && std::string(argv[3]) == "--derivative-sweep")) {
+        std::cerr << "usage: cardboard-solver-pair-replay LINER.nmatter MEDIUM.nmatter [--derivative-sweep]\n"
                   << "stdin rows: key liner|medium F_hi[9] F_lo[9] H[9] accepted[13] "
                      "candidate_hi[13] candidate_lo[13] parameters[20]\n";
         return 1;
@@ -324,7 +390,7 @@ int main(int argc, char** argv) {
         try {
             if (kind != "liner" && kind != "medium")
                 throw std::runtime_error("unsupported captured paper kind");
-            replayRow(input, key, kind, sources[kind == "liner" ? 0u : 1u]);
+            replayRow(input, key, kind, sources[kind == "liner" ? 0u : 1u], argc == 4);
         } catch (const std::exception& error) {
             ++failedRows;
             std::cout << "{\"schema\":\"numi.cardboard.solver-pair-replay.v1\",\"key\":\""

@@ -1,0 +1,1 @@
+FAIL C1 native material-point check: hajali2009_liner_hill_asymmetric_c1_transfer_CD_unload Metal projection/stress validity failed valid=0 projection_valid=0 residual=0.00191828 iterations=16 flags=0x3f failure=7

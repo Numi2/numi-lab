@@ -7,6 +7,7 @@
 #include "cardboard_shipping_snapshot.hpp"
 #include "metalrobo/engine_types.h"
 #include "numi/matter/matter.hpp"
+#include "numi/matter/sparse_private_contact_admission.hpp"
 
 #include <algorithm>
 #include <array>
@@ -777,7 +778,8 @@ void verifyLegacyDetachedTetGeometryRejected() {
 MeshAndWorld makeWorld(const MaterialProgram& bulk,
                        const bool forceDeformableOverflow = false,
                        const bool partialMortarPatch = false,
-                       const double initialMortarGap = kActivationGap) {
+                       const double initialMortarGap = kActivationGap,
+                       const bool highSparsePairDomain = false) {
     MeshAndWorld result;
     WorldSource& source = result.world;
     source.environmentCount = kEnvironmentCount;
@@ -1066,6 +1068,66 @@ MeshAndWorld makeWorld(const MaterialProgram& bulk,
     interface.activationGapToleranceM = kActivationTolerance;
     pad.femCohesiveMortarPatches.push_back(interface);
 
+    if (highSparsePairDomain) {
+        // Keep this construction just above the legacy dense pair limit while
+        // remaining inside the full-contact fixture's node/tet/proxy bounds.
+        // The extra tetrahedra are isolated, fixed, and far from every tool;
+        // they enlarge the canonical FEM/tool pair domain without adding
+        // active mechanics to the bounded sparse-index admission test.
+        constexpr std::uint32_t kHighPairProxyCount = 9u;
+        constexpr std::uint32_t kHighPairTarget =
+            detail::kDensePrivateContactPairLimit + 1u;
+        const std::size_t targetContactNodes =
+            (static_cast<std::size_t>(kHighPairTarget) +
+             kHighPairProxyCount - 1u) / kHighPairProxyCount;
+        require(source.rigidProxies.size() == 0u,
+                "high-pair proxy sources must be appended before tooling creation");
+        require(pad.femContactNodes.size() < targetContactNodes,
+                "high-pair baseline already exceeds its authored target");
+        const std::size_t additionalContactNodes =
+            targetContactNodes - pad.femContactNodes.size();
+        const std::size_t additionalTetrahedra =
+            (additionalContactNodes + 3u) / 4u;
+        require(pad.femNodes.size() + additionalTetrahedra * 4u <= 8192u &&
+                pad.tetrahedra.size() + additionalTetrahedra <= 32768u,
+                "high-pair sparse fixture exceeds the bounded FEM dimensions");
+        constexpr double kRemoteNodeBaseX = 0.25;
+        constexpr double kRemoteNodeY = 0.3;
+        constexpr double kRemoteNodeZ = 0.4;
+        constexpr double kRemoteTetSize = 0.0005;
+        constexpr double kRemoteTetSpacing = 0.001;
+        for (std::size_t tetrahedron = 0u;
+             tetrahedron < additionalTetrahedra; ++tetrahedron) {
+            const double x = kRemoteNodeBaseX +
+                static_cast<double>(tetrahedron) * kRemoteTetSpacing;
+            const std::uint32_t firstNode =
+                static_cast<std::uint32_t>(pad.femNodes.size());
+            pad.femNodes.push_back({x, kRemoteNodeY, kRemoteNodeZ});
+            pad.femNodes.push_back({x + kRemoteTetSize, kRemoteNodeY,
+                                    kRemoteNodeZ});
+            pad.femNodes.push_back({x, kRemoteNodeY + kRemoteTetSize,
+                                    kRemoteNodeZ});
+            pad.femNodes.push_back({x, kRemoteNodeY,
+                                    kRemoteNodeZ + kRemoteTetSize});
+            pad.tetrahedra.push_back({{
+                firstNode, firstNode + 1u, firstNode + 2u, firstNode + 3u
+            }});
+            for (std::uint32_t local = 0u; local < 4u; ++local) {
+                pad.femContactNodes.push_back(firstNode + local);
+                pad.femFixedNodes.push_back(firstNode + local);
+            }
+        }
+        std::sort(pad.femContactNodes.begin(), pad.femContactNodes.end());
+        pad.femContactNodes.erase(std::unique(pad.femContactNodes.begin(),
+            pad.femContactNodes.end()), pad.femContactNodes.end());
+        require(pad.femContactNodes.size() >= targetContactNodes,
+                "high-pair source did not reach the intended contact-node count");
+        require(pad.femContactNodes.size() * kHighPairProxyCount >
+                    detail::kDensePrivateContactPairLimit,
+                "high-pair source did not exceed the legacy dense pair domain");
+        pad.femCapacity.deformableContacts = 131072u;
+    }
+
     // The two split material subdomains begin stress-free in the authored
     // reference configuration. The initial physical gap is part of those
     // two source meshes; activation later latches only the local interface
@@ -1127,6 +1189,20 @@ MeshAndWorld makeWorld(const MaterialProgram& bulk,
     result.tooling.punch.prescribedEndPoseTranslation = true;
     result.tooling.support.bodyIndex = kAnvilBody;
     source.rigidProxies = {result.tooling.punch, result.tooling.support};
+    if (highSparsePairDomain) {
+        for (std::uint32_t proxyIndex = 2u; proxyIndex < 9u; ++proxyIndex) {
+            RigidProxySource remote;
+            remote.shape = NM_RIGID_BOX;
+            remote.localCenter = {
+                -1.0 + 0.05 * static_cast<double>(proxyIndex - 2u),
+                1.0,
+                1.0,
+            };
+            remote.localExtent = {0.001, 0.001, 0.001};
+            remote.materialIndex = 0u;
+            source.rigidProxies.push_back(remote);
+        }
+    }
     source.objects.push_back(std::move(pad));
     return result;
 }
@@ -1275,9 +1351,55 @@ void emitSelectedDeformableContactCapture(const std::string& trace) {
     std::fflush(stderr);
 }
 
+void retainFixtureTrace(const char* stage, const std::string& trace) {
+    if (diagnosticStateOutputPath.empty()) return;
+    const auto path = std::filesystem::path(diagnosticStateOutputPath) /
+        (std::string("fixture-") + stage + ".log");
+    if (std::filesystem::exists(path))
+        throw std::runtime_error("refusing to replace a retained fixture trace");
+    std::ofstream output(path, std::ios::binary | std::ios::out);
+    if (!output) throw std::runtime_error("could not retain fixture trace");
+    output.write(trace.data(), static_cast<std::streamsize>(trace.size()));
+    output.flush();
+    if (!output.good()) throw std::runtime_error("incomplete retained fixture trace");
+}
+
 struct StepResult {
     RuntimeStateSnapshot snapshot;
     std::string trace;
+};
+
+struct AcceptedRollbackSequence {
+    RuntimeStateSnapshot initial;
+    StepResult activation;
+    StepResult loaded;
+    StepResult rejected;
+};
+
+class ScopedEnvironmentValue {
+public:
+    ScopedEnvironmentValue(const char* name, const char* value)
+        : name_(name) {
+        if (const char* previous = std::getenv(name_.c_str())) {
+            hadPrevious_ = true;
+            previous_ = previous;
+        }
+        if (value != nullptr) setenv(name_.c_str(), value, 1);
+        else unsetenv(name_.c_str());
+    }
+
+    ~ScopedEnvironmentValue() {
+        if (hadPrevious_) setenv(name_.c_str(), previous_.c_str(), 1);
+        else unsetenv(name_.c_str());
+    }
+
+    ScopedEnvironmentValue(const ScopedEnvironmentValue&) = delete;
+    ScopedEnvironmentValue& operator=(const ScopedEnvironmentValue&) = delete;
+
+private:
+    std::string name_;
+    std::string previous_;
+    bool hadPrevious_ = false;
 };
 
 struct Fixture {
@@ -1326,6 +1448,13 @@ struct Fixture {
         const CreaseToolingGeometry& tooling = source.tooling;
         MRBodyStateGPU supportBody =
             bodyAt({{0.0, 0.0, 0.0}, {0.0, 0.0, 0.0, 1.0}}, 0.0f);
+        if (world.dispatch.rigidGeneralizedCapacity == 6u) {
+            supportBody.linearVelocityAndInverseMass.w = 1.0f;
+            supportBody.inverseInertiaWorldRow0.x = 1.0f;
+            supportBody.inverseInertiaWorldRow1.y = 1.0f;
+            supportBody.inverseInertiaWorldRow2.z = 1.0f;
+            supportBody.flagsAndIndices[0] = MR_MOTION_DYNAMIC;
+        }
         if (translateSupportBox)
             supportBody.linearVelocityAndInverseMass.x = 0.1f;
         if (sweepSupportBox)
@@ -1439,6 +1568,11 @@ struct Fixture {
         request.rigid.currentBodies = (__bridge void*)endpointBuffer;
         request.rigid.currentBodyCount = 2u;
         request.rigid.currentBodyStride = 2u;
+        if (world.dispatch.rigidGeneralizedCapacity == 6u) {
+            request.rigid.sceneBodies = (__bridge void*)endpointBuffer;
+            request.rigid.sceneBodyCount = 2u;
+            request.rigid.sceneStride = 2u;
+        }
         if (commandActivation) {
             request.cohesiveActivationCommands = (__bridge void*)activationBuffer;
             request.cohesiveActivationCommandCount = 1u;
@@ -1989,7 +2123,7 @@ void runDormantUncoveredContact(const MaterialProgram& bulk) {
               << " interface_remained_dormant=true parent_face_contact_history=true\n";
 }
 
-void runAcceptedAndRollback(const MaterialProgram& bulk) {
+AcceptedRollbackSequence runAcceptedAndRollback(const MaterialProgram& bulk) {
     MeshAndWorld source = makeWorld(bulk, false, true, 5.0e-6);
     verifyPartialMortarSource(source);
     Fixture run(source);
@@ -2013,6 +2147,8 @@ void runAcceptedAndRollback(const MaterialProgram& bulk) {
         closed = run.step(1u, false, true);
         captured = stderrCapture.finish();
     }
+    closed.trace = captured;
+    retainFixtureTrace("activation", captured);
     emitSelectedDeformableContactCapture(captured);
     require(captured.find("fem_full_contact_residual_armijo_enabled=") !=
                 std::string::npos &&
@@ -2040,6 +2176,8 @@ void runAcceptedAndRollback(const MaterialProgram& bulk) {
         loaded = run.step(2u);
         loadedTrace = stderrCapture.finish();
     }
+    loaded.trace = loadedTrace;
+    retainFixtureTrace("loaded", loadedTrace);
     emitSelectedDeformableContactCapture(loadedTrace);
     requireAccepted(loaded.snapshot);
     require(loaded.snapshot.cohesiveFaces.size() == 1u &&
@@ -2065,6 +2203,8 @@ void runAcceptedAndRollback(const MaterialProgram& bulk) {
         rejected = run.step(3u, true, false);
         rejectedTrace = stderrCapture.finish();
     }
+    rejected.trace = rejectedTrace;
+    retainFixtureTrace("rejected", rejectedTrace);
     require(rejectedTrace.find("fem_full_contact_residual_armijo_enabled=") !=
                 std::string::npos &&
             rejectedTrace.find("fem_residual_armijo_iteration=") !=
@@ -2100,6 +2240,480 @@ void runAcceptedAndRollback(const MaterialProgram& bulk) {
             "rejected full-contact transaction changed accepted deformable-contact history");
     std::cout << "full_contact_rejection_rollback=pass certificate_cleared=true"
               << " cursor_and_all_histories_unchanged=true\n";
+    return {initial, std::move(closed), std::move(loaded), std::move(rejected)};
+}
+
+template<class T>
+void requireVectorBitIdentical(const std::vector<T>& expected,
+                               const std::vector<T>& actual,
+                               const char* field,
+                               const char* stage) {
+    static_assert(std::is_trivially_copyable_v<T>);
+    require(expected.size() == actual.size(),
+            std::string("sparse/dense ") + stage + " " + field +
+                " count differs");
+    if (!expected.empty())
+        require(std::memcmp(expected.data(), actual.data(),
+                    expected.size() * sizeof(T)) == 0,
+                std::string("sparse/dense ") + stage + " " + field +
+                    " bytes differ");
+}
+
+void requireSnapshotOperatorParity(const RuntimeStateSnapshot& dense,
+                                   const RuntimeStateSnapshot& sparse,
+                                   const char* stage) {
+    require(dense.available && sparse.available,
+            std::string("sparse/dense ") + stage + " snapshot unavailable");
+    require(dense.sourcePhysicsFingerprint == sparse.sourcePhysicsFingerprint,
+            std::string("sparse/dense ") + stage +
+                " source physics identity differs");
+    require(dense.controlStep == sparse.controlStep &&
+                dense.physicsSubstep == sparse.physicsSubstep &&
+                dense.materialStateStride == sparse.materialStateStride,
+            std::string("sparse/dense ") + stage +
+                " accepted cursor or material stride differs");
+    requireVectorBitIdentical(dense.femNodes, sparse.femNodes,
+                              "FEM nodes", stage);
+    requireVectorBitIdentical(dense.femMaterialState, sparse.femMaterialState,
+                              "bulk history", stage);
+    requireVectorBitIdentical(dense.cohesiveFaces, sparse.cohesiveFaces,
+                              "cohesive history", stage);
+    requireVectorBitIdentical(dense.contactHistories, sparse.contactHistories,
+                              "rigid-contact history", stage);
+    requireVectorBitIdentical(dense.deformableContactHistories,
+                              sparse.deformableContactHistories,
+                              "deformable-contact history", stage);
+    requireVectorBitIdentical(dense.contactSamples, sparse.contactSamples,
+                              "accepted contact samples", stage);
+    requireVectorBitIdentical(dense.rigidStates, sparse.rigidStates,
+                              "rigid states", stage);
+    requireVectorBitIdentical(dense.reactions, sparse.reactions,
+                              "rigid reactions", stage);
+    requireVectorBitIdentical(dense.statuses, sparse.statuses,
+                              "status", stage);
+    requireVectorBitIdentical(dense.solverCertificates,
+                              sparse.solverCertificates,
+                              "solver certificate", stage);
+}
+
+void requireTraceOperatorParity(const std::string& dense,
+                               const std::string& sparse,
+                               const char* stage) {
+    const std::vector<TrialRecord> denseTrials = traceRecords(dense);
+    const std::vector<TrialRecord> sparseTrials = traceRecords(sparse);
+    require(denseTrials.size() == sparseTrials.size(),
+            std::string("sparse/dense ") + stage +
+                " Armijo trial count differs");
+    for (std::size_t index = 0u; index < denseTrials.size(); ++index) {
+        const TrialRecord& a = denseTrials[index];
+        const TrialRecord& b = sparseTrials[index];
+        const auto sameNumber = [](const double x, const double y) {
+            return std::isfinite(x) && std::isfinite(y) &&
+                std::abs(x - y) <= 2.0e-7 *
+                    std::max({1.0e-12, std::abs(x), std::abs(y)});
+        };
+        require(a.iteration == b.iteration && a.accepted == b.accepted &&
+                    sameNumber(a.base, b.base) && sameNumber(a.trial, b.trial) &&
+                    sameNumber(a.alpha, b.alpha) &&
+                    sameNumber(a.selected, b.selected),
+                std::string("sparse/dense ") + stage +
+                    " production residual, trial, or selected alpha differs");
+    }
+}
+
+void requireSequenceOperatorParity(const AcceptedRollbackSequence& dense,
+                                   const AcceptedRollbackSequence& sparse) {
+    requireSnapshotOperatorParity(dense.initial, sparse.initial, "initial");
+    const std::array<const StepResult*, 3> denseSteps = {
+        &dense.activation, &dense.loaded, &dense.rejected};
+    const std::array<const StepResult*, 3> sparseSteps = {
+        &sparse.activation, &sparse.loaded, &sparse.rejected};
+    constexpr std::array<const char*, 3> stageNames = {
+        "activation", "loaded", "rejected"};
+    for (std::size_t index = 0u; index < stageNames.size(); ++index) {
+        requireSnapshotOperatorParity(denseSteps[index]->snapshot,
+                                      sparseSteps[index]->snapshot,
+                                      stageNames[index]);
+        requireTraceOperatorParity(denseSteps[index]->trace,
+                                   sparseSteps[index]->trace,
+                                   stageNames[index]);
+        const std::string denseMarker =
+            "\"private_contact_layout\":\"dense\"";
+        const std::string sparseMarker =
+            "\"private_contact_layout\":\"sparse\"";
+        require(denseSteps[index]->trace.find(denseMarker) != std::string::npos,
+                std::string("dense ") + stageNames[index] +
+                    " did not execute the dense private residual path");
+        require(sparseSteps[index]->trace.find(sparseMarker) != std::string::npos &&
+                    sparseSteps[index]->trace.find("\"sparse_parity\":true") !=
+                        std::string::npos,
+                std::string("sparse ") + stageNames[index] +
+                    " did not execute the parity-checked sparse path");
+    }
+}
+
+void runSparsePrivateParity(const MaterialProgram& bulk) {
+    const MeshAndWorld geometry = makeWorld(bulk, false, true, 5.0e-6);
+    const CompiledWorld compiled = compile(geometry.world);
+    const std::uint32_t pairCount = compiled.dispatch.contactPairCount;
+    require(pairCount > 1u,
+            "sparse parity fixture requires at least two canonical FEM/tool pairs");
+
+    ScopedEnvironmentValue clearCapacity(
+        "NM_FEM_FULL_CONTACT_SPARSE_PRIVATE_CAPACITY", nullptr);
+    ScopedEnvironmentValue clearParity(
+        "NM_FEM_FULL_CONTACT_SPARSE_PRIVATE_PARITY", nullptr);
+    const std::string outputRoot = diagnosticStateOutputPath;
+    std::unique_ptr<DiagnosticStateOutput> parentDiagnosticOutput =
+        std::move(diagnosticStateOutput);
+    const auto selectOutput = [&](const char* label) {
+        if (outputRoot.empty()) return;
+        diagnosticStateOutput.reset();
+        const auto directory = std::filesystem::path(outputRoot) / label;
+        if (std::filesystem::exists(directory))
+            throw std::runtime_error(
+                "sparse parity trace subdirectory must be new: " +
+                directory.string());
+        diagnosticStateOutputPath = directory.string();
+        diagnosticStateOutput = std::make_unique<DiagnosticStateOutput>(
+            diagnosticStateOutputPath);
+    };
+    const auto restoreOutput = [&]() {
+        diagnosticStateOutput.reset();
+        diagnosticStateOutput = std::move(parentDiagnosticOutput);
+        diagnosticStateOutputPath = outputRoot;
+    };
+
+    AcceptedRollbackSequence dense;
+    AcceptedRollbackSequence sparse;
+    try {
+        selectOutput("dense");
+        dense = runAcceptedAndRollback(bulk);
+
+        const std::string capacity = std::to_string(pairCount - 1u);
+        ScopedEnvironmentValue sparseCapacity(
+            "NM_FEM_FULL_CONTACT_SPARSE_PRIVATE_CAPACITY", capacity.c_str());
+        ScopedEnvironmentValue sparseParity(
+            "NM_FEM_FULL_CONTACT_SPARSE_PRIVATE_PARITY", "1");
+        selectOutput("sparse");
+        sparse = runAcceptedAndRollback(bulk);
+        restoreOutput();
+    } catch (...) {
+        restoreOutput();
+        throw;
+    }
+    requireSequenceOperatorParity(dense, sparse);
+    std::cout << "sparse_private_dense_parity=pass"
+              << " canonical_pair_count=" << pairCount
+              << " sparse_capacity=" << (pairCount - 1u)
+              << " candidate_set_strictly_bounded_below_dense=true"
+              << " internal_sample_field_parity=true"
+              << " accepted_and_rollback_histories_bit_identical=true"
+              << " physical_validation=false synthetic_law=true\n";
+}
+
+void requireAcceptedStateUnchanged(const RuntimeStateSnapshot& before,
+                                   const RuntimeStateSnapshot& after,
+                                   const char* reason) {
+    require(after.controlStep == before.controlStep &&
+                after.physicsSubstep == before.physicsSubstep,
+            std::string(reason) + " advanced the accepted cursor");
+    requireVectorBitIdentical(before.femNodes, after.femNodes,
+                              "FEM nodes", reason);
+    requireVectorBitIdentical(before.femMaterialState, after.femMaterialState,
+                              "bulk history", reason);
+    requireVectorBitIdentical(before.cohesiveFaces, after.cohesiveFaces,
+                              "cohesive history", reason);
+    requireVectorBitIdentical(before.contactHistories, after.contactHistories,
+                              "rigid-contact history", reason);
+    requireVectorBitIdentical(before.deformableContactHistories,
+                              after.deformableContactHistories,
+                              "deformable-contact history", reason);
+    requireVectorBitIdentical(before.rigidStates, after.rigidStates,
+                              "rigid states", reason);
+}
+
+void runSparsePrivateOverflow(const MaterialProgram& bulk,
+                              const std::uint32_t capacity) {
+    require(capacity == 1u,
+            "sparse overflow regression uses its authored one-sample capacity");
+    const std::string capacityText = std::to_string(capacity);
+    ScopedEnvironmentValue sparseCapacity(
+        "NM_FEM_FULL_CONTACT_SPARSE_PRIVATE_CAPACITY", capacityText.c_str());
+    ScopedEnvironmentValue clearParity(
+        "NM_FEM_FULL_CONTACT_SPARSE_PRIVATE_PARITY", nullptr);
+    MeshAndWorld source = makeWorld(bulk, false, true, 5.0e-6);
+    verifyPartialMortarSource(source);
+    Fixture run(source);
+    const RuntimeStateSnapshot before = run.snapshot();
+    std::string trace;
+    StepResult rejected;
+    {
+        StderrCapture capture;
+        setenv("NM_FEM_RESIDUAL_ARMIJO_TRACE_ROOT", "1", 1);
+        try {
+            rejected = run.step(1u, false, true);
+        } catch (...) {
+            trace = capture.finish();
+            retainFixtureTrace("sparse-overflow", trace);
+            throw;
+        }
+        trace = capture.finish();
+    }
+    rejected.trace = trace;
+    retainFixtureTrace("sparse-overflow", trace);
+    const std::uint32_t observedTerminalStatus =
+        rejected.snapshot.statuses.size() == 1u
+            ? rejected.snapshot.statuses[0].code : NM_INVALID_INDEX;
+    const bool observedTrialCapacityOverflow = trace.find(
+        "\"trial_status\":{\"code\":2") != std::string::npos;
+    std::cout << std::setprecision(std::numeric_limits<float>::max_digits10)
+              << "sparse_private_overflow_observation= status="
+              << observedTerminalStatus
+              << " trial_capacity_overflow="
+              << (observedTrialCapacityOverflow ? "true" : "false");
+    if (rejected.snapshot.solverCertificates.size() == 1u) {
+        const NMSolverCertificateGPU& observed =
+            rejected.snapshot.solverCertificates[0];
+        std::cout << " certificate_nonlinear=[" << observed.nonlinear.x << ','
+                  << observed.nonlinear.y << ',' << observed.nonlinear.z << ','
+                  << observed.nonlinear.w << "] certificate_contact=["
+                  << observed.contact.x << ',' << observed.contact.y << ','
+                  << observed.contact.z << ',' << observed.contact.w
+                  << "] certificate_transport=[" << observed.transport.x << ','
+                  << observed.transport.y << ',' << observed.transport.z << ','
+                  << observed.transport.w << "] certificate_validity=["
+                  << observed.validity.x << ',' << observed.validity.y << ','
+                  << observed.validity.z << ',' << observed.validity.w << ']';
+    } else {
+        std::cout << " certificate=missing";
+    }
+    std::cout << " raw_trace_retained="
+              << (!diagnosticStateOutputPath.empty() ? "true" : "false")
+              << " physical_validation=false\n";
+    require(trace.find("\"private_contact_layout\":\"sparse\"") !=
+                std::string::npos,
+            "sparse overflow case did not select compact private samples");
+    require(rejected.snapshot.statuses.size() == 1u,
+            "sparse overflow case returned no environment status");
+    const std::uint32_t terminalStatus = rejected.snapshot.statuses[0].code;
+    const bool terminalCapacityOverflow =
+        terminalStatus == NM_STATUS_CAPACITY_OVERFLOW;
+    const bool trialCapacityOverflow = trace.find(
+        "\"trial_status\":{\"code\":2") != std::string::npos;
+    if (!terminalCapacityOverflow && !trialCapacityOverflow) {
+        const NMMatterStatusGPU& status = rejected.snapshot.statuses[0];
+        std::ostringstream detail;
+        detail << "undersized sparse private contact arena produced no capacity-overflow status"
+               << " terminal_code=" << status.code
+               << " object_index=" << status.objectIndex
+               << " failing_index=" << status.failingIndex
+               << " diagnostics=(" << status.diagnostics.x << ','
+               << status.diagnostics.y << ',' << status.diagnostics.z << ','
+               << status.diagnostics.w << ") trace=" << trace;
+        throw std::runtime_error(detail.str());
+    }
+    require(rejected.snapshot.solverCertificates.size() == 1u &&
+                rejected.snapshot.solverCertificates[0].validity.w <= 0.5f,
+            "sparse candidate overflow retained a valid solver certificate");
+    requireAcceptedStateUnchanged(before, rejected.snapshot,
+                                  "sparse candidate overflow");
+    std::cout << "sparse_private_overflow_rollback=pass"
+              << " capacity=" << capacity
+              << " terminal_status=" << terminalStatus
+              << " candidate_overflow_trial="
+              << (trialCapacityOverflow ? "true" : "false")
+              << " accepted_state_and_histories_unchanged=true"
+              << " certificate_cleared=true physical_validation=false\n";
+}
+
+void requireSparseInitializationRejected(const CompiledWorld& world,
+                                         const char* capacity,
+                                         const char* parity,
+                                         const char* selector,
+                                         const char* expectedReason) {
+    ScopedEnvironmentValue capacityValue(
+        "NM_FEM_FULL_CONTACT_SPARSE_PRIVATE_CAPACITY", capacity);
+    ScopedEnvironmentValue parityValue(
+        "NM_FEM_FULL_CONTACT_SPARSE_PRIVATE_PARITY", parity);
+    ScopedEnvironmentValue selectorValue(
+        "NM_FEM_FULL_CONTACT_RESIDUAL_ARMIJO_ROOT", selector);
+    Runtime runtime;
+    RuntimeConfiguration configuration;
+    configuration.metallib = NUMI_MATTER_METALLIB;
+    configuration.environmentCount = world.dispatch.environmentCount;
+    configuration.captureDiagnostics = false;
+    const RuntimeDiagnostics initialized = runtime.initialize(world, configuration);
+    require(!initialized.encoded &&
+                initialized.message.find(expectedReason) != std::string::npos,
+            std::string("sparse runtime admission did not reject as expected: ") +
+                expectedReason + "; got: " + initialized.message);
+}
+
+void verifySparsePrivateAdmission(const MaterialProgram& bulk,
+                                  const CompiledWorld& staticWorld) {
+    requireSparseInitializationRejected(staticWorld, "0", nullptr, "all",
+        "must be positive");
+    requireSparseInitializationRejected(staticWorld, "4x", nullptr, "all",
+        "only decimal digits");
+    requireSparseInitializationRejected(staticWorld, nullptr, "1", "all",
+        "explicit candidate capacity");
+    requireSparseInitializationRejected(staticWorld, "1", nullptr, nullptr,
+        "requires the full-contact Armijo selector");
+
+    MeshAndWorld freeBodySource = makeWorld(bulk, false, true, 5.0e-6);
+    // This case is specifically exercising the sparse private-contact
+    // runtime rejection for a free rigid unknown. Keep that expected failure
+    // independent of the optional regional contact preconditioner, whose
+    // authored scope intentionally excludes free generalized bodies.
+    freeBodySource.world.mixedSolver.femPreconditioner =
+        FEMPreconditionerMode::scalarDiagonal;
+    freeBodySource.world.rigidProxies.at(kAnvilBody).dynamic = true;
+    freeBodySource.world.rigidProxies.at(kAnvilBody).sceneBodyIndex = kAnvilBody;
+    const CompiledWorld freeBodyWorld = compile(freeBodySource.world);
+    require(freeBodyWorld.dispatch.rigidGeneralizedCapacity == 6u,
+            "sparse free-rigid rejection fixture did not author one free body");
+    const std::string capacity = std::to_string(
+        std::max(1u, freeBodyWorld.dispatch.contactPairCount - 1u));
+    ScopedEnvironmentValue sparseCapacity(
+        "NM_FEM_FULL_CONTACT_SPARSE_PRIVATE_CAPACITY", capacity.c_str());
+    ScopedEnvironmentValue clearParity(
+        "NM_FEM_FULL_CONTACT_SPARSE_PRIVATE_PARITY", nullptr);
+    ScopedEnvironmentValue fullContactSelector(
+        "NM_FEM_FULL_CONTACT_RESIDUAL_ARMIJO_ROOT", "all");
+    Runtime freeBodyRuntime;
+    RuntimeConfiguration freeBodyConfiguration;
+    freeBodyConfiguration.metallib = NUMI_MATTER_METALLIB;
+    freeBodyConfiguration.environmentCount = freeBodyWorld.dispatch.environmentCount;
+    freeBodyConfiguration.captureDiagnostics = false;
+    const RuntimeDiagnostics freeBodyInitialized =
+        freeBodyRuntime.initialize(freeBodyWorld, freeBodyConfiguration);
+    require(!freeBodyInitialized.encoded &&
+                freeBodyInitialized.message.find(
+                    "sparse_private_contact_does_not_support_free_rigid_unknowns") !=
+                    std::string::npos,
+            "sparse private contact did not reject free-rigid DOF before allocation");
+    std::cout << "sparse_private_admission=pass malformed_capacity=true"
+              << " missing_selector=true free_rigid_unknowns=true\n";
+}
+
+void runSparsePrivateHighPairAdmission(const MaterialProgram& bulk) {
+    require(diagnosticStateOutputPath.empty(),
+            "high-pair initialization mode does not accept transaction state dumps");
+    MeshAndWorld source = makeWorld(
+        bulk, false, true, kActivationGap, true);
+    const CompiledWorld world = compile(source.world);
+    require(world.dispatch.femNodeCount <= 8192u &&
+                world.dispatch.tetrahedronCount <= 32768u &&
+                world.dispatch.cohesiveFaceCount == 1u &&
+                world.dispatch.rigidProxyCount == 9u &&
+                world.dispatch.contactPairCount >
+                    detail::kDensePrivateContactPairLimit &&
+                world.dispatch.deformableContactCapacity <= 131072u,
+            "high-pair constructor escaped another bounded full-contact dimension");
+    require(world.dispatch.environmentCount == 1u &&
+                world.dispatch.rigidGeneralizedCapacity == 0u &&
+                world.dispatch.rigidQCapacity == 0u,
+            "high-pair fixture must have one static/kinematic FEM environment");
+
+    ScopedEnvironmentValue fullContactSelector(
+        "NM_FEM_FULL_CONTACT_RESIDUAL_ARMIJO_ROOT", "all");
+    const std::string capacity = "64";
+    ScopedEnvironmentValue sparseCapacity(
+        "NM_FEM_FULL_CONTACT_SPARSE_PRIVATE_CAPACITY", capacity.c_str());
+    ScopedEnvironmentValue sparseParity(
+        "NM_FEM_FULL_CONTACT_SPARSE_PRIVATE_PARITY", "1");
+    Runtime runtime;
+    RuntimeConfiguration configuration;
+    configuration.metallib = NUMI_MATTER_METALLIB;
+    configuration.environmentCount = world.dispatch.environmentCount;
+    configuration.captureDiagnostics = false;
+    const RuntimeDiagnostics initialized = runtime.initialize(world, configuration);
+    require(initialized.encoded,
+            "sparse private initialization rejected the bounded P>65536 world: " +
+                initialized.message);
+    const auto sizing = detail::admitSparsePrivateContact(
+        world.dispatch.environmentCount,
+        world.dispatch.contactPairCount,
+        64u,
+        true,
+        false);
+    require(sizing.admitted(),
+            "high-pair fixture disagrees with shared sparse byte admission");
+    std::cout << "sparse_private_high_pair_admission=pass"
+              << " environments=" << world.dispatch.environmentCount
+              << " nodes=" << world.dispatch.femNodeCount
+              << " tets=" << world.dispatch.tetrahedronCount
+              << " cohesive_faces=" << world.dispatch.cohesiveFaceCount
+              << " static_proxies=" << world.dispatch.rigidProxyCount
+              << " canonical_pairs=" << world.dispatch.contactPairCount
+              << " sparse_capacity=64 parity=true sparse_arena_bytes="
+              << sizing.totalBytes
+              << " dense_limit=" << detail::kDensePrivateContactPairLimit
+              << " native_fem_transactions_executed=0 physical_validation=false\n";
+}
+
+void verifySparsePrivateSizingAdmission() {
+    using detail::SparsePrivateContactAdmissionError;
+    using detail::admitSparsePrivateContact;
+
+    static_assert(sizeof(NMContactSampleGPU) == 160u);
+    require(detail::densePrivateContactPairDomainSupported(65536u) &&
+                !detail::densePrivateContactPairDomainSupported(65537u),
+            "legacy dense private pair-domain cap changed with sparse admission");
+    const auto justAboveDenseDomain =
+        admitSparsePrivateContact(1u, 65537u, 64u, true, false);
+    require(justAboveDenseDomain.admitted() &&
+                justAboveDenseDomain.sampleBytes == 64u * 160u &&
+                justAboveDenseDomain.pairSlotBytes == 65537u * 4u &&
+                justAboveDenseDomain.candidateIdBytes == 64u * 4u &&
+                justAboveDenseDomain.parityReferenceBytes == 65537u * 160u &&
+                justAboveDenseDomain.candidateCountBytes == 16u &&
+                justAboveDenseDomain.totalBytes ==
+                    64u * 160u + 65537u * 4u + 64u * 4u +
+                    65537u * 160u + 16u &&
+                justAboveDenseDomain.totalBytes <=
+                    detail::kSparsePrivateContactScratchBudgetBytes,
+            "sparse byte/index admission failed immediately above the legacy dense cap");
+
+    const auto oversizedFlattenedDomain = admitSparsePrivateContact(
+        4u, std::numeric_limits<std::uint32_t>::max(), 1u, false, false);
+    require(!oversizedFlattenedDomain.admitted() &&
+                oversizedFlattenedDomain.error ==
+                    SparsePrivateContactAdmissionError::
+                        flattened_pair_domain_exceeds_uint32,
+            "sparse admission allowed a flattened Metal uint index to wrap");
+
+    const auto overBudget = admitSparsePrivateContact(
+        1u, 1'000'000u, 1u, true, false);
+    require(!overBudget.admitted() &&
+                overBudget.error ==
+                    SparsePrivateContactAdmissionError::scratch_budget_exceeded &&
+                overBudget.totalBytes >
+                    detail::kSparsePrivateContactScratchBudgetBytes,
+            "sparse admission allowed the private arena to exceed 36 MiB");
+
+    const auto freeRigidUnsupported =
+        admitSparsePrivateContact(1u, 65537u, 64u, false, true);
+    require(!freeRigidUnsupported.admitted() &&
+                freeRigidUnsupported.error ==
+                    SparsePrivateContactAdmissionError::free_rigid_unknowns_unsupported,
+            "sparse admission allowed free rigid generalized unknowns");
+
+    const auto capacityExceedsPairDomain =
+        admitSparsePrivateContact(1u, 8u, 9u, false, false);
+    require(!capacityExceedsPairDomain.admitted() &&
+                capacityExceedsPairDomain.error ==
+                    SparsePrivateContactAdmissionError::
+                        candidate_capacity_exceeds_pair_domain,
+            "sparse admission allowed candidate capacity past the canonical pair domain");
+
+    std::cout << "sparse_private_sizing=pass"
+              << " P_above_65536=65537 flattened_u32_overflow=rejected"
+              << " dense_pair_limit=" << detail::kDensePrivateContactPairLimit
+              << " private_budget_bytes="
+              << detail::kSparsePrivateContactScratchBudgetBytes
+              << " free_rigid_unknowns=rejected\n";
 }
 
 void runOverflowRollback(const MaterialProgram& bulk,
@@ -2439,13 +3053,17 @@ int main(int argc, const char* argv[]) {
     @autoreleasepool {
         try {
             require(argc >= 2,
-                "usage: cardboard-full-contact-armijo-check BULK.nmatter [--cpu-only|--overflow|--prescribed-box-overflow|--prescribed-box-sweep-reject|--prescribed-box-translation|--private-self-sweep] [--regional-contact-preconditioner] [--extended-budget] [--accurate-paper] [--newton-iterations N] [--diagnostic-state-output DIR]");
+                "usage: cardboard-full-contact-armijo-check BULK.nmatter [--cpu-only|--overflow|--prescribed-box-overflow|--prescribed-box-sweep-reject|--prescribed-box-translation|--private-self-sweep|--sparse-private-parity|--sparse-private-overflow|--sparse-private-admission|--sparse-private-high-pair-admission] [--regional-contact-preconditioner] [--extended-budget] [--accurate-paper] [--newton-iterations N] [--diagnostic-state-output DIR]");
             bool cpuOnly = false;
             bool overflow = false;
             bool prescribedBoxOverflow = false;
             bool prescribedBoxSweepReject = false;
             bool prescribedBoxTranslation = false;
             bool privateSelfSweep = false;
+            bool sparsePrivateParity = false;
+            bool sparsePrivateOverflow = false;
+            bool sparsePrivateAdmission = false;
+            bool sparsePrivateHighPairAdmission = false;
             for (int index = 2; index < argc; ++index) {
                 const std::string option(argv[index]);
                 if (option == "--cpu-only") cpuOnly = true;
@@ -2458,6 +3076,14 @@ int main(int argc, const char* argv[]) {
                     prescribedBoxTranslation = true;
                 else if (option == "--private-self-sweep")
                     privateSelfSweep = true;
+                else if (option == "--sparse-private-parity")
+                    sparsePrivateParity = true;
+                else if (option == "--sparse-private-overflow")
+                    sparsePrivateOverflow = true;
+                else if (option == "--sparse-private-admission")
+                    sparsePrivateAdmission = true;
+                else if (option == "--sparse-private-high-pair-admission")
+                    sparsePrivateHighPairAdmission = true;
                 else if (option == "--regional-contact-preconditioner")
                     regionalContactPreconditioner = true;
                 else if (option == "--extended-budget") extendedBudget = true;
@@ -2484,7 +3110,9 @@ int main(int argc, const char* argv[]) {
             }
             require(!(cpuOnly && (overflow || prescribedBoxOverflow ||
                                   prescribedBoxSweepReject || prescribedBoxTranslation ||
-                                  privateSelfSweep)),
+                                  privateSelfSweep || sparsePrivateParity ||
+                                  sparsePrivateOverflow || sparsePrivateAdmission ||
+                                  sparsePrivateHighPairAdmission)),
                     "CPU and overflow modes are exclusive");
             require(!privateSelfSweep || !(overflow || prescribedBoxOverflow ||
                                   prescribedBoxSweepReject || prescribedBoxTranslation),
@@ -2496,6 +3124,21 @@ int main(int argc, const char* argv[]) {
                     "choose only one prescribed-box regression mode");
             require(!(prescribedBoxTranslation && prescribedBoxOverflow),
                     "choose only one prescribed-box regression mode");
+            const unsigned sparseModeCount =
+                static_cast<unsigned>(sparsePrivateParity) +
+                static_cast<unsigned>(sparsePrivateOverflow) +
+                static_cast<unsigned>(sparsePrivateAdmission) +
+                static_cast<unsigned>(sparsePrivateHighPairAdmission);
+            require(sparseModeCount <= 1u,
+                    "choose only one sparse private-contact regression mode");
+            require(sparseModeCount == 0u ||
+                        !(overflow || prescribedBoxOverflow ||
+                          prescribedBoxSweepReject || prescribedBoxTranslation ||
+                          privateSelfSweep),
+                    "sparse private-contact modes must run separately");
+            require(diagnosticStateOutputPath.empty() || sparsePrivateParity ||
+                        sparsePrivateOverflow,
+                    "diagnostic state output is supported only for sparse parity or overflow modes");
             require(!(cpuOnly && !diagnosticStateOutputPath.empty()),
                     "diagnostic state export requires a native transaction run");
             if (extendedBudget) std::cout <<
@@ -2515,6 +3158,7 @@ int main(int argc, const char* argv[]) {
             verifyArmijoRequiresResolvedDescent();
             verifyAuthoredLineSearchBudget(bulk);
             verifyPrescribedBoxCompilerAdmission(bulk);
+            verifySparsePrivateSizingAdmission();
             if (privateSelfSweep) {
                 verifyPrivateSelfSweepValidator();
                 std::cout << "PASS private self-sweep validator fixture"
@@ -2571,6 +3215,40 @@ int main(int argc, const char* argv[]) {
             if (!diagnosticStateOutputPath.empty())
                 diagnosticStateOutput = std::make_unique<DiagnosticStateOutput>(
                     diagnosticStateOutputPath);
+            if (sparsePrivateAdmission) {
+                verifySparsePrivateAdmission(bulk, compiled);
+                std::cout << "PASS sparse private-contact admission fixture"
+                          << " native_fem_transactions_executed="
+                          << nativeFEMTransactionsExecuted
+                          << " physical_validation=false synthetic_law=true\n";
+                return 0;
+            }
+            if (sparsePrivateHighPairAdmission) {
+                runSparsePrivateHighPairAdmission(bulk);
+                std::cout << "PASS sparse private high-pair initialization fixture"
+                          << " native_fem_transactions_executed="
+                          << nativeFEMTransactionsExecuted
+                          << " physical_validation=false synthetic_law=true\n";
+                return 0;
+            }
+            if (sparsePrivateParity) {
+                runSparsePrivateParity(bulk);
+                std::cout << "PASS sparse private-contact parity fixture"
+                          << " checks=" << checks
+                          << " native_fem_transactions_executed="
+                          << nativeFEMTransactionsExecuted
+                          << " physical_validation=false synthetic_law=true\n";
+                return 0;
+            }
+            if (sparsePrivateOverflow) {
+                runSparsePrivateOverflow(bulk, 1u);
+                std::cout << "PASS sparse private-contact overflow fixture"
+                          << " checks=" << checks
+                          << " native_fem_transactions_executed="
+                          << nativeFEMTransactionsExecuted
+                          << " physical_validation=false synthetic_law=true\n";
+                return 0;
+            }
             if (overflow || prescribedBoxOverflow)
                 runOverflowRollback(bulk, prescribedBoxOverflow);
             else if (prescribedBoxSweepReject)

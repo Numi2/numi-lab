@@ -1,0 +1,9 @@
+{
+  "schema": "numi.cardboard.deliberate-run-interruption.v1",
+  "at_utc": "2026-10-15T01:26:03.215797+00:00",
+  "pid": 61009,
+  "reason": "Confirmed wrong optional argument in both scalar and block tangent preconditioner calls: nine-float deformation low buffer bound as projected-state output, which clears NM_MAX_MATERIAL_STATE entries. Stop obsolete unsafe native code before repair.",
+  "frozen_affected_source": "/Users/home/cardboard-implementation-20261014/snapshots/source-cache-sparse-asymmetric-integrated-051/matter/src/metal/fgmres.metalinc",
+  "source_sha256": "f15cfcf3cd46692ce00015f77a5271b46258c7ba3f8725e7c8f9cd3e309a43e6",
+  "qualification": false
+}

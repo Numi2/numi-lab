@@ -199,6 +199,29 @@ int main() {
         require(validateCompiledWorldLayout(world, &layoutError),
             "regional compiled layout rejected: " + layoutError);
 
+        WorldSource cachedTangentSource = source;
+        cachedTangentSource.mixedSolver.cacheFEMAlgorithmicTangent = true;
+        const CompileResult cachedTangentCompiled =
+            compileWorld(cachedTangentSource);
+        require(cachedTangentCompiled.succeeded(),
+            "valid pure-FEM tangent-cache source failed: " +
+                diagnostics(cachedTangentCompiled));
+        const CompiledWorld& cachedTangentWorld = cachedTangentCompiled.world;
+        require(cachedTangentWorld.mixedSolver.executionBudgets.w == 1u &&
+                cachedTangentWorld.fingerprint != world.fingerprint &&
+                cachedTangentWorld.physicsFingerprint != world.physicsFingerprint,
+            "tangent-cache policy was not cooked and fingerprint-bound");
+        layoutError.clear();
+        require(validateCompiledWorldLayout(cachedTangentWorld, &layoutError),
+            "tangent-cache compiled layout rejected: " + layoutError);
+        WorldSource fourEnvironmentTangentSource = cachedTangentSource;
+        fourEnvironmentTangentSource.environmentCount = 4u;
+        const CompileResult fourEnvironmentTangent =
+            compileWorld(fourEnvironmentTangentSource);
+        require(fourEnvironmentTangent.succeeded(),
+            "tangent-cache four-environment boundary was rejected: " +
+                diagnostics(fourEnvironmentTangent));
+
         WorldSource blockSource = source;
         blockSource.mixedSolver.femPreconditioner =
             FEMPreconditionerMode::regionalGalerkinBlockJacobi;
@@ -301,6 +324,26 @@ int main() {
                 decodedRegion(decoded.fem.tetrahedra[1].identity.w) == 1u,
             "package round-trip lost regional selector or tet labels");
 
+        const auto cachedTangentPackagePath =
+            std::filesystem::temp_directory_path() /
+            ("numi-fem-tangent-cache-" + std::to_string(
+                std::chrono::steady_clock::now().time_since_epoch().count()) +
+             ".nmpkg");
+        packageError.clear();
+        require(writePackage(cachedTangentCompiled, cachedTangentPackagePath,
+                             &packageError),
+            "tangent-cache package write failed: " + packageError);
+        CompiledWorld decodedCachedTangent;
+        require(readPackage(cachedTangentPackagePath, decodedCachedTangent,
+                            nullptr, &packageError),
+            "tangent-cache package read failed: " + packageError);
+        std::filesystem::remove(cachedTangentPackagePath);
+        require(decodedCachedTangent.fingerprint == cachedTangentWorld.fingerprint &&
+                decodedCachedTangent.physicsFingerprint ==
+                    cachedTangentWorld.physicsFingerprint &&
+                decodedCachedTangent.mixedSolver.executionBudgets.w == 1u,
+            "package round-trip lost the tangent-cache policy identity");
+
         const auto blockPackagePath = std::filesystem::temp_directory_path() /
             ("numi-regional-block-jacobi-" + std::to_string(
                 std::chrono::steady_clock::now().time_since_epoch().count()) +
@@ -344,6 +387,15 @@ int main() {
         invalid = source;
         invalid.environmentCount = 5u;
         denied(invalid, "environment-bound");
+        invalid = cachedTangentSource;
+        invalid.environmentCount = 5u;
+        denied(invalid, "tangent-cache-environment-bound");
+        invalid = cachedTangentSource;
+        invalid.objects.front().mixedFEM = true;
+        denied(invalid, "tangent-cache-mixed-fem-scope");
+        invalid = contactSource;
+        invalid.mixedSolver.cacheFEMAlgorithmicTangent = true;
+        denied(invalid, "tangent-cache-cohesive-contact-scope");
         invalid = blockSource;
         invalid.objects.front().femPreconditionerRegionIds.clear();
         denied(invalid, "selector-3-missing-labels");
@@ -422,7 +474,8 @@ int main() {
 
         std::cout << "PASS fem_regional_galerkin_compiler checks=" << checks
                   << " physical_steps=0 selectors=2,3,4 regions=2 "
-                     "selector4_contact_cohesive=1 package_roundtrip=1\n";
+                     "selector4_contact_cohesive=1 tangent_cache=1 "
+                     "package_roundtrip=1\n";
         return 0;
     } catch (const std::exception& error) {
         std::cerr << "FAIL fem_regional_galerkin_compiler checks=" << checks
