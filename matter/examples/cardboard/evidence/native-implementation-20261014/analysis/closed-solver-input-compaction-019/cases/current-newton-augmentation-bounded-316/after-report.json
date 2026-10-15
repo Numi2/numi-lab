@@ -1,0 +1,24 @@
+{
+  "archive_bytes": 16836864,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/archives/current-newton-augmentation-bounded-316/inputs.tar.gz",
+  "archive_sha256": "a5ea4e869594e2e5e6a268b27dbaf4ee252cdc12ef379ab3c8099fc027f2013e",
+  "before_manifest_sha256": "d64262f0acd00535302fa17b5e4e77e081d950cf0e78e883ec7b893e7e08ff8f",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/current-newton-augmentation-bounded-316",
+  "case_input_directories_preserved": true,
+  "filesystem_available_after_bytes": 1141362688,
+  "filesystem_available_before_bytes": 1104719872,
+  "filesystem_delta_bytes": 36642816,
+  "original_allocated_bytes": 53538816,
+  "original_input_files_removed": 786,
+  "original_logical_bytes": 51932557,
+  "physical_or_solver_qualification": false,
+  "pointer_path": "/Users/home/cardboard-implementation-20261014/solver/current-newton-augmentation-bounded-316/inputs.compaction.json",
+  "pointer_sha256": "af0214be12f0070e0dc0713d1f2832f4eecb6b3a8798be1a18e5cfc12ce9e223",
+  "prediction_and_receipt_preserved": true,
+  "restoration_verification": {
+    "verified_bytes": 51932557,
+    "verified_dirs": 32,
+    "verified_files": 786
+  },
+  "schema": "numi.cardboard.closed-solver-input-compaction.case-after.v1"
+}

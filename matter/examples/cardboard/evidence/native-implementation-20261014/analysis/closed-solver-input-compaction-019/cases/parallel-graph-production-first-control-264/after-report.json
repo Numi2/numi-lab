@@ -1,0 +1,24 @@
+{
+  "archive_bytes": 15541018,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/archives/parallel-graph-production-first-control-264/inputs.tar.gz",
+  "archive_sha256": "f639133cc86a24e74e002b199902e3181a2c4b45412af049eb1a990ff2668bfe",
+  "before_manifest_sha256": "797a13aa370989c27bd3d80851819375fbde8d3f6a79497bb4ab4776b831aef3",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/parallel-graph-production-first-control-264",
+  "case_input_directories_preserved": true,
+  "filesystem_available_after_bytes": 2297118720,
+  "filesystem_available_before_bytes": 2263465984,
+  "filesystem_delta_bytes": 33652736,
+  "original_allocated_bytes": 49586176,
+  "original_input_files_removed": 772,
+  "original_logical_bytes": 48000855,
+  "physical_or_solver_qualification": false,
+  "pointer_path": "/Users/home/cardboard-implementation-20261014/solver/parallel-graph-production-first-control-264/inputs.compaction.json",
+  "pointer_sha256": "6c4cb5aba8a8c388f2b94ef7d3687a40aa7f3a00f4a7783c027bf7a78c1be252",
+  "prediction_and_receipt_preserved": true,
+  "restoration_verification": {
+    "verified_bytes": 48000855,
+    "verified_dirs": 32,
+    "verified_files": 772
+  },
+  "schema": "numi.cardboard.closed-solver-input-compaction.case-after.v1"
+}

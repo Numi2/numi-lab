@@ -1,0 +1,24 @@
+{
+  "archive_bytes": 15541020,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/archives/budgeted-refined-nx16-first-control-265/inputs.tar.gz",
+  "archive_sha256": "956f217dd822516ee02b1e382bfec501cfec956eaff23c76dfc0295dcf39316e",
+  "before_manifest_sha256": "d9adc3cec14c9f4ce8e0f3dd7dff54ac173887231713e2ad3c901631a8b5b6a4",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/budgeted-refined-nx16-first-control-265",
+  "case_input_directories_preserved": true,
+  "filesystem_available_after_bytes": 2331168768,
+  "filesystem_available_before_bytes": 2297077760,
+  "filesystem_delta_bytes": 34091008,
+  "original_allocated_bytes": 49586176,
+  "original_input_files_removed": 772,
+  "original_logical_bytes": 48000855,
+  "physical_or_solver_qualification": false,
+  "pointer_path": "/Users/home/cardboard-implementation-20261014/solver/budgeted-refined-nx16-first-control-265/inputs.compaction.json",
+  "pointer_sha256": "81678322d4cf00e0017e4da374746101728f6e846095468d7600fd3e48b52a4d",
+  "prediction_and_receipt_preserved": true,
+  "restoration_verification": {
+    "verified_bytes": 48000855,
+    "verified_dirs": 32,
+    "verified_files": 772
+  },
+  "schema": "numi.cardboard.closed-solver-input-compaction.case-after.v1"
+}

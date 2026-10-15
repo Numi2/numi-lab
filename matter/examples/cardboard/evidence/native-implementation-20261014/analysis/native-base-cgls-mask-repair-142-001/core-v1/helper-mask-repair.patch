@@ -1,0 +1,11 @@
+--- /Users/home/cardboard-implementation-20261014/snapshots/source-bounded-native-cgls-141/matter/src/metal/base_cgls.metalinc	2026-10-15 23:21:28
++++ /Users/home/cardboard-implementation-20261014/analysis/native-base-cgls-mask-repair-142-001/source/matter/src/metal/base_cgls.metalinc	2026-10-15 23:34:11
+@@ -242,7 +242,7 @@
+                 errorBits |= kBaseCGLSErrorNonzeroConstrainedRow;
+             continue;
+         }
+-        if (mask.w != 0.0f || any((mask.xyz != float3(0.0f)) &
++        if (mask.w != 0.0f || any((mask.xyz == float3(0.0f)) &
+             ((ri.xyz != float3(0.0f)) | (si.xyz != float3(0.0f))))) {
+             errorBits |= kBaseCGLSErrorNonzeroConstrainedRow;
+         }

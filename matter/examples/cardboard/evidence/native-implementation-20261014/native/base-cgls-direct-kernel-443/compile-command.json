@@ -1,0 +1,18 @@
+[
+  "clang++",
+  "-std=c++20",
+  "-fobjc-arc",
+  "-O2",
+  "-Wall",
+  "-Wextra",
+  "-Wpedantic",
+  "-Werror",
+  "-DNUMI_BASE_CGLS_CHECK_METALLIB=\"/Users/home/cardboard-implementation-20261014/analysis/native-base-cgls-candidate-139-overlay-001/native/build/BaseCGLSCheck.metallib\"",
+  "/Users/home/cardboard-implementation-20261014/analysis/native-base-cgls-candidate-139-overlay-001/native/base_cgls_native_check.mm",
+  "-framework",
+  "Foundation",
+  "-framework",
+  "Metal",
+  "-o",
+  "/Users/home/cardboard-implementation-20261014/native/base-cgls-direct-kernel-443/base-cgls-native-check"
+]

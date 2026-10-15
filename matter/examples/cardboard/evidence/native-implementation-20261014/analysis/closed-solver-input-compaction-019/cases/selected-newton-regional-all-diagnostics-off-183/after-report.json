@@ -1,0 +1,24 @@
+{
+  "archive_bytes": 15181798,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/archives/selected-newton-regional-all-diagnostics-off-183/inputs.tar.gz",
+  "archive_sha256": "8e0f79f2401657b657bd4f61ab0f94c4f5cbb89b78b641be584f905347eb518f",
+  "before_manifest_sha256": "71d24113f1d5494502547f368dbac226b8615aae5cbef18771e2ecd36911fa4d",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/selected-newton-regional-all-diagnostics-off-183",
+  "case_input_directories_preserved": true,
+  "filesystem_available_after_bytes": 2919854080,
+  "filesystem_available_before_bytes": 2886639616,
+  "filesystem_delta_bytes": 33214464,
+  "original_allocated_bytes": 48541696,
+  "original_input_files_removed": 760,
+  "original_logical_bytes": 46971125,
+  "physical_or_solver_qualification": false,
+  "pointer_path": "/Users/home/cardboard-implementation-20261014/solver/selected-newton-regional-all-diagnostics-off-183/inputs.compaction.json",
+  "pointer_sha256": "7db7167a8126a9c00fc7a441d6beb5112f37dca53246ea047ca7d0de70f2ee8d",
+  "prediction_and_receipt_preserved": true,
+  "restoration_verification": {
+    "verified_bytes": 46971125,
+    "verified_dirs": 32,
+    "verified_files": 760
+  },
+  "schema": "numi.cardboard.closed-solver-input-compaction.case-after.v1"
+}

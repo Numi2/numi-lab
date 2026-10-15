@@ -1,0 +1,29 @@
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -11821,7 +11821,7 @@
+                             std::fprintf(stderr,
+                                 "fem_base_cauchy_all_newton_enabled={\"schema\":1,\"root\":%u,\"scope\":\"all_newton_iterations_on_one_control_step\",\"maximum_trace_records\":512,\"physical_operator_changed\":false}\n",
+                                 femBaseCauchyFallbackRoot);
+-                        } else std::fprintf(stderr,
++                        } else if (femBaseCGLSIterations == 0u) std::fprintf(stderr,
+                             "fem_base_cauchy_fallback_enabled={\"schema\":1,\"root\":%u,\"iteration\":%u,\"direction\":\"base_state_A_transpose_b\",\"certificate_scope\":\"original_newton_delta_only\",\"armijo_trials\":%u}\n",
+                             femBaseCauchyFallbackRoot,
+                             femBaseCauchyFallbackIteration,
+@@ -22439,7 +22439,7 @@
+                         formatFloat(line, values[e].x);
+                         line << (capturedCGLSIterations != 0u ? ",\"linear_residual_l2\":" : ",\"gradient_action_l2\":");
+                         formatFloat(line, values[e].y);
+-                        line << (capturedCGLSIterations != 0u ? ",\"b_dot_Ap\":" : ",\"tau\":");
++                        line << (capturedCGLSIterations != 0u ? ",\"b_dot_Ax\":" : ",\"tau\":");
+                         formatFloat(line, values[e].z);
+                         line << ",\"original_newton_converged\":"
+                              << (values[e].w > 0.5f ? "true" : "false") << '}';
+@@ -22907,7 +22907,7 @@
+                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                 }
+                 if (!encodeFEMResidualArmijoTrace(
+-                        directionPass == 1u ? "base_cauchy" : "newton")) {
++                        directionPass == 1u ? (femBaseCGLSIterations != 0u ? "base_cgls" : "base_cauchy") : "newton")) {
+                     ownership->preDynamicsOpen = false;
+                     return diagnostics;
+                 }

@@ -1,0 +1,66 @@
+{
+  "classification": "exact source-bound 419 capture-to-stderr fingerprint verification plus run450 world/compiled-pack/dimension/selector correspondence; directional action reference only",
+  "evidence_report_sha256": "7f1cc80cee95dcc5695b44db74de4614bb28f1f67ca704e74563b5ad06ae1146",
+  "interpretation": [
+    "The 419 capture is bound to its own source, prediction, receipt, stderr, root/Newton selector, world fingerprint and execution fingerprint.",
+    "Run450 and the 419 capture share the compiled package hash and world fingerprint, and have matching dimensions and selected root/Newton.",
+    "Run450 itself emitted a rich-capture skip for environment_count_out_of_scope; this addendum does not claim a full run450 operator capture or exact internal state-history identity.",
+    "The 419 operator capture supports selected-vector directional A*x and A-transpose*r comparisons only, not whole-matrix identity or physical qualification."
+  ],
+  "reference_419": {
+    "bound_input_count": 793,
+    "capture_header_root_iteration": [
+      1,
+      48
+    ],
+    "capture_integrity": {
+      "cached_tangent_snapshot_bitwise_guard_included": true,
+      "production_inputs_bitwise_unchanged": true,
+      "record": "integrity"
+    },
+    "capture_path": "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/operator-capture",
+    "capture_sha256": "f2d42314cfee0428ecd285ebb9dbd5da1556624e3e92af1d12240fd8106b309a",
+    "execution_fingerprint_header_hex": "7fad2607fcd060e7",
+    "execution_fingerprint_match": true,
+    "execution_fingerprint_stderr_hex": "7fad2607fcd060e7",
+    "prediction_selector": "1:48",
+    "prediction_sha256": "41b37af2747cfa551fae60eaddd7681cd7c7dbc859a402e641677ec23bd957d6",
+    "receipt_sha256": "0826a69a65ea4a0d76ef95e56c5d0d7f5238f4de746dd6daf81f11a87907f67d",
+    "selector_match": true,
+    "source_module_path": "/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125/matter/tools/cardboard_cached_operator_audit.py",
+    "source_module_sha256": "2ce80f9b3c989efd058bdbcc29661d10701061cfde459d64cca06c0d6caeee38",
+    "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125",
+    "stderr_sha256": "f6fe513bfafc9ae4f4f38b2377c1cddaeb1ce78374886295cb92db2bf6c48198",
+    "world_fingerprint_header_hex": "75c1264bc96ac2d9",
+    "world_fingerprint_match": true,
+    "world_fingerprint_stderr_hex": "75c1264bc96ac2d9"
+  },
+  "run_450": {
+    "cgls_binary_sha256": "d09d8b76b6d1beb15a39e872d19aed4c2d3b8b6f33cfbfd49d25c19bdfafd099",
+    "compiled_pack_sha256": "cafbf36052bbfa72e8be49fdba8b23e900469c9f15136a14a4ec1e4c0b5ccf7c",
+    "compiled_pack_sha256_419": "cafbf36052bbfa72e8be49fdba8b23e900469c9f15136a14a4ec1e4c0b5ccf7c",
+    "compiled_world_fingerprint_hex": "75c1264bc96ac2d9",
+    "compiled_world_fingerprint_hex_419": "75c1264bc96ac2d9",
+    "exit_code": 2,
+    "prediction_sha256": "d2678ec8c0a8aae9316e2a9c4eba757bbd8075d45cbe647d1af835068b832260",
+    "receipt_sha256": "958e07dc51d541c7e483d44403bdfa1ee6f6b8058d0025c50a2063f89f64b34c",
+    "same_compiled_pack": true,
+    "same_compiled_world": true,
+    "same_environment_node_tet_dimensions": true,
+    "same_root_newton_selector": true,
+    "snapshot_header": {
+      "environments": 2,
+      "iteration_cap": 64,
+      "magic": "0x534c4743",
+      "nodes_per_environment": 882,
+      "reserved": 0,
+      "segments": 12,
+      "unknowns": 3528,
+      "version": 1
+    },
+    "source_inputs_unchanged": true,
+    "stderr_sha256": "b5ae5ced00920cbda990e923064df518b527311cb24d95a27a4e0b1e1559e984",
+    "timed_out": false
+  },
+  "schema": "numi.cardboard.native450_reference_capture_fingerprint_addendum.v1"
+}

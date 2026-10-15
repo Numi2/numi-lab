@@ -1,0 +1,133 @@
+{
+  "base_manifest_sha256": "e22f2d17ff26f71e1b2919db32652820c664e02802a2a8fca8067a6cccaa680e",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-coupon-cache-admission-139",
+  "core_helper_sha256": "24563b7d4d54c894c1f6ace75dca060429159752500c394e78a69a4fc0ae3b2c",
+  "files": [
+    {
+      "bytes": 2821,
+      "path": "README.md",
+      "sha256": "9b4149c7827f87950a01c7fb0d379101632c8159797e9747ce2d508d13cedd55"
+    },
+    {
+      "bytes": 1877,
+      "path": "core-v1/README.md",
+      "sha256": "536a4cc8566f77088c456b9ae6c9433596430b588ca6d1663bd35b732578c7d5"
+    },
+    {
+      "bytes": 362,
+      "path": "core-v1/cmake-dependency.patch",
+      "sha256": "d080521fbc21f4a19780ff5b573e7e69341006bbf8bda229e48f48d319b8e7e0"
+    },
+    {
+      "bytes": 171,
+      "path": "core-v1/core-overlay.patch",
+      "sha256": "a20dafcad1b16bbc953bcd3ae61bb0ceba65a142f7143de9e73d2f05855616ca"
+    },
+    {
+      "bytes": 13217,
+      "path": "core-v1/cpu/cgls_reference.py",
+      "sha256": "f528887b17ace8eb3ddd3b30fff1b7b82f31bf1e1bed68341fba7393526389ea"
+    },
+    {
+      "bytes": 3841,
+      "path": "core-v1/cpu/test_cgls_reference.py",
+      "sha256": "29a3424460ba26c2be1ac40b8fe04d6f03f71ccdf2dea23c0a1a64a3dc2f7717"
+    },
+    {
+      "bytes": 23723,
+      "path": "core-v1/source/matter/src/metal/base_cgls.metalinc",
+      "sha256": "24563b7d4d54c894c1f6ace75dca060429159752500c394e78a69a4fc0ae3b2c"
+    },
+    {
+      "bytes": 13217,
+      "path": "cpu/cgls_reference.py",
+      "sha256": "f528887b17ace8eb3ddd3b30fff1b7b82f31bf1e1bed68341fba7393526389ea"
+    },
+    {
+      "bytes": 2217,
+      "path": "cpu/replay_419.json",
+      "sha256": "47c9cf2de4e36d2344ff19b04e736b88b6b7295216b5e97d0ed6402a6010181c"
+    },
+    {
+      "bytes": 6837,
+      "path": "cpu/replay_419.py",
+      "sha256": "5c0e62f0181fe47572e8c8bb3adf981db39523a44f8544137d21bed619ca3f52"
+    },
+    {
+      "bytes": 2217,
+      "path": "cpu/replay_419.stdout.json",
+      "sha256": "47c9cf2de4e36d2344ff19b04e736b88b6b7295216b5e97d0ed6402a6010181c"
+    },
+    {
+      "bytes": 578,
+      "path": "cpu/test-receipt.log",
+      "sha256": "8232699f91a9018ce7f99a5ed9c107495ef57bcf1bfe0e847c13d35f195bc47b"
+    },
+    {
+      "bytes": 4591,
+      "path": "cpu/test_cgls_reference.py",
+      "sha256": "9d1609b0af1cb1a20beb8ded3f32ed4538ece3e2ba0a160e19489a3684a14276"
+    },
+    {
+      "bytes": 19470,
+      "path": "native/base_cgls_native_check.mm",
+      "sha256": "52704cd08ee4a7b5a6666bc99f0a68abf1c3d6f3c18fd5e7d32ec607d883c22f"
+    },
+    {
+      "bytes": 78,
+      "path": "native/base_cgls_syntax.metal",
+      "sha256": "9005babad348b35ca98ccad41f29c759dc90e82f8762599af8aa19fe5d8fdae9"
+    },
+    {
+      "bytes": 3287,
+      "path": "native/base_cgls_test_actions.metal",
+      "sha256": "40bc30b5a9aadc21f472e84f95b5f2e337c9e791322bf97900783a41384d772d"
+    },
+    {
+      "bytes": 63692,
+      "path": "native/build/BaseCGLSCheck.metallib",
+      "sha256": "8d93b8027bfb18512b55fa95ea4a57e4d7f8afb836fe9385b438b12140fc1f30"
+    },
+    {
+      "bytes": 17136,
+      "path": "native/build/base_cgls_syntax.air",
+      "sha256": "732b389059d717a4bb9bef0fd6827ec6870ea08f94318edb06459de61708bae4"
+    },
+    {
+      "bytes": 21056,
+      "path": "native/build/base_cgls_test_actions.air",
+      "sha256": "db19540f4c28a2a4f0a0f50c74257588b924e2e8a22d7326c00f889eddc98e38"
+    },
+    {
+      "bytes": 47,
+      "path": "native/compile-only.log",
+      "sha256": "5bb2c9c89412edaedc2749a021cf94b1d8adea0a669c282f893926fdaa8cc703"
+    },
+    {
+      "bytes": 683,
+      "path": "native/compile_only.sh",
+      "sha256": "415006717ed3bfec84530486e701ef93c4d04ad8342f9076a360a9bd84c796d8"
+    },
+    {
+      "bytes": 23723,
+      "path": "source/matter/src/metal/base_cgls.metalinc",
+      "sha256": "24563b7d4d54c894c1f6ace75dca060429159752500c394e78a69a4fc0ae3b2c"
+    }
+  ],
+  "frozen_base_revision": "7ebc64a666c4bd5e1ff61b3684655979ab80dc60",
+  "limitations": [
+    "The source code is a private bounded candidate generator only.",
+    "The direct checker has not been executed on native Metal/GPU.",
+    "The CPU capture-419 replay is not production-action parity or nonlinear-solve evidence.",
+    "No original FGMRES/Newton certificate transfers to a CGLS direction."
+  ],
+  "package_root": "/Users/home/cardboard-implementation-20261014/analysis/native-base-cgls-candidate-139-overlay-001",
+  "schema": "numi.cardboard.native-base-cgls-overlay.v1",
+  "validation": {
+    "capture_419_cpu_replay": "receipt retained in cpu/replay_419.stdout.json",
+    "cpu_test_receipt": "6/6 pass in cpu/test-receipt.log; current default Python lacks NumPy, so this turn did not rerun it",
+    "metal_compile_only": "pass; native/compile_only.sh exit 0",
+    "native_checker_execution": "not run; GPU execution is parent-owned",
+    "objcxx_host_syntax": "pass as part of compile_only.sh"
+  }
+}

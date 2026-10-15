@@ -1,0 +1,24 @@
+{
+  "archive_bytes": 16777141,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/archives/selected-failure-true-residual-replacement-363/inputs.tar.gz",
+  "archive_sha256": "1c7ca7770a6e90bfa243111bfd937bb77fe6807396a6d752d5bec965ad7fd21b",
+  "before_manifest_sha256": "48a9a222366e484dabe4a4f67565993627aecdfec60a4ae34e088de44439a756",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/selected-failure-true-residual-replacement-363",
+  "case_input_directories_preserved": true,
+  "filesystem_available_after_bytes": 1248509952,
+  "filesystem_available_before_bytes": 1212977152,
+  "filesystem_delta_bytes": 35532800,
+  "original_allocated_bytes": 52273152,
+  "original_input_files_removed": 789,
+  "original_logical_bytes": 50655864,
+  "physical_or_solver_qualification": false,
+  "pointer_path": "/Users/home/cardboard-implementation-20261014/solver/selected-failure-true-residual-replacement-363/inputs.compaction.json",
+  "pointer_sha256": "c7082c8135114dd4421d1871913daadbfdc13f4c5d7e2985fa89120cddd7bf32",
+  "prediction_and_receipt_preserved": true,
+  "restoration_verification": {
+    "verified_bytes": 50655864,
+    "verified_dirs": 32,
+    "verified_files": 789
+  },
+  "schema": "numi.cardboard.closed-solver-input-compaction.case-after.v1"
+}

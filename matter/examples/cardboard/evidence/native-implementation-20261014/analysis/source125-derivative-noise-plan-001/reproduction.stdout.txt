@@ -1,0 +1,75 @@
+/Users/home/cardboard-implementation-20261014/analysis/source125-derivative-noise-plan-001/report.json
+{
+  "endpoint_representation": [
+    {
+      "epsilon": 0.03125,
+      "paper_side_rows": 3456,
+      "environment_status_word_counts_at_capture": {
+        "5": 3456
+      },
+      "native_local_projection_valid_counts": {
+        "True": 3456
+      },
+      "native_local_projection_valid_rows": 3456,
+      "max_abs_F_wordpair_vs_ideal_requested_endpoint": 1.1771810703997687e-07,
+      "realized_centered_direction_relative_error": {
+        "count": 1728,
+        "max": 1.1100461619593993e-05,
+        "median": 4.5613678315546706e-07
+      },
+      "interpretation": "endpoint input representation diagnostic only; not a derivative noise floor"
+    },
+    {
+      "epsilon": 0.015625,
+      "paper_side_rows": 3456,
+      "environment_status_word_counts_at_capture": {
+        "0": 3456
+      },
+      "native_local_projection_valid_counts": {
+        "True": 3456
+      },
+      "native_local_projection_valid_rows": 3456,
+      "max_abs_F_wordpair_vs_ideal_requested_endpoint": 4.6001714659738013e-08,
+      "realized_centered_direction_relative_error": {
+        "count": 1728,
+        "max": 1.6825337056618678e-05,
+        "median": 6.589640454747217e-07
+      },
+      "interpretation": "endpoint input representation diagnostic only; not a derivative noise floor"
+    }
+  ],
+  "work_by_material": {
+    "0": {
+      "elements": 1152,
+      "v_dot_Kv_J": 2327130.2471576706,
+      "v_dot_minus_dt2_Kv_J": -0.023271301308011597,
+      "element_directional_work_sign_counts": {
+        "positive": 9,
+        "negative": 1143,
+        "zero": 0
+      }
+    },
+    "1": {
+      "elements": 576,
+      "v_dot_Kv_J": -644636.3738609077,
+      "v_dot_minus_dt2_Kv_J": 0.006446363416290895,
+      "element_directional_work_sign_counts": {
+        "positive": 0,
+        "negative": 576,
+        "zero": 0
+      }
+    },
+    "2": {
+      "elements": 192,
+      "v_dot_Kv_J": -100970.21548229721,
+      "v_dot_minus_dt2_Kv_J": 0.001009702104337865,
+      "element_directional_work_sign_counts": {
+        "positive": 3,
+        "negative": 189,
+        "zero": 0
+      }
+    }
+  },
+  "reported_work": -0.015815235779008018,
+  "recomputed_work": -0.01581523578738284
+}

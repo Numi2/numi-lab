@@ -1,0 +1,8 @@
+{
+  "before_runtime_sha256": "a2141a24913f6addefb76ff39a05490cce613a453d5f10b9011599be3077a117",
+  "after_runtime_sha256": "98de105f42899272cb5dcd1584cbdbad6c29603a900ba1b7ead2012a16c8edbc",
+  "capture_is_default_off_readonly_and_one_selected_newton": true,
+  "physical_steps": 0,
+  "status": "AWAITING_NATIVE_PARITY_AND_CAPTURE",
+  "binary_layout": "Little-endian uint32[8] header magic0x534c4743/version1/E/N/U/cap/12/0; each subsequent segment starts at16-byte aligned offset. x,r,s,p,Ax,b,mask=float4[U];envMap=uint32[U];scalars=float4[E];control=uint4[E];errors=uint32[E];selected=uint32[E]."
+}

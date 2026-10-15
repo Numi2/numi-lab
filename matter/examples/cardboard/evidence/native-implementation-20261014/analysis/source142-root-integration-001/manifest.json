@@ -1,0 +1,7 @@
+{
+  "schema": "numi.cardboard.integration_seal.v1",
+  "files": {
+    "report.json": "29de6f5d8503d6b80a5103318c9d91bbc6ab0730f9406aa87e26f6dc9825c7bd",
+    "integrate.py": "efd578e67c1486dd22e9f34f4c0e36b7a1495f8b4ee745ab1429a6ea625d67fd"
+  }
+}

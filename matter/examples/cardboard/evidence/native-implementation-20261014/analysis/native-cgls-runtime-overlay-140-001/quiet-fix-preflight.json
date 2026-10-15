@@ -1,0 +1,10 @@
+{
+  "runtime_before_sha256": "02e1ae803cc899fb0237380725a6d7d2b7bc3dfd8d27b5116bf400b83bfba129",
+  "runtime_after_sha256": "504f9a939954893cf364542b63cbbba878b4362431d32e96bfa551f6c5f5d5f7",
+  "adapter_before_sha256": "ae2988641a8a6b707952ab2fe567143cd2805bb7df12db39e7893e4c5823cde1",
+  "adapter_after_sha256": "18ba6a966feddd1b777da184f19df9e8083f1c5b6c5f5d19ee736a0d8d6819eb",
+  "scratch_maximum_bytes": 1900624,
+  "scope": "Prepare private b and mask zero for nonselected environments; selected b retains all input field/w bits for fail-closed validation. Original base RHS, statuses and corrections are untouched.",
+  "physical_steps": 0,
+  "status": "AWAITING_INTEGRATED_BUILD_AND_NATIVE_CHECKS"
+}

@@ -1,0 +1,24 @@
+{
+  "archive_bytes": 15827684,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/archives/accurate-source15-complete-coupon-cycle-288/inputs.tar.gz",
+  "archive_sha256": "971ac3b0ceb3d83897cf4df5c97a15d7c04de7cf440b21736ca536a4ac68fb42",
+  "before_manifest_sha256": "28e5a7979b598ad2ba96e0be71d96361df54490388e05d3335e904a0b83475ff",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/accurate-source15-complete-coupon-cycle-288",
+  "case_input_directories_preserved": true,
+  "filesystem_available_after_bytes": 1760018432,
+  "filesystem_available_before_bytes": 1725550592,
+  "filesystem_delta_bytes": 34467840,
+  "original_allocated_bytes": 50409472,
+  "original_input_files_removed": 782,
+  "original_logical_bytes": 48802860,
+  "physical_or_solver_qualification": false,
+  "pointer_path": "/Users/home/cardboard-implementation-20261014/solver/accurate-source15-complete-coupon-cycle-288/inputs.compaction.json",
+  "pointer_sha256": "d274e386801b4e2d199bc15b5229403afaa854a535b58d8daea53323d96f1a3a",
+  "prediction_and_receipt_preserved": true,
+  "restoration_verification": {
+    "verified_bytes": 48802860,
+    "verified_dirs": 32,
+    "verified_files": 782
+  },
+  "schema": "numi.cardboard.closed-solver-input-compaction.case-after.v1"
+}

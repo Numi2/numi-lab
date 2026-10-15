@@ -1,0 +1,35 @@
+{
+  "manifest": {
+    "bytes": 9763,
+    "path": "/Users/home/cardboard-implementation-20261014/analysis/native450-independent-review-001/manifest.json",
+    "sha256": "129b23c899f564e0e834aeb253ddf205791bac6a2b517d47c4048480f370e706"
+  },
+  "review_files": {
+    "README.md": {
+      "bytes": 3526,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native450-independent-review-001/README.md",
+      "sha256": "7384deb111ee529689d3f8c284c98b642b687fb6f1e73b5c781958d075ebc010"
+    },
+    "audit.py": {
+      "bytes": 23028,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native450-independent-review-001/audit.py",
+      "sha256": "755f7c3edc56ac8eb2f3debdb9fd1659b324560847f9f6f822adf62fcaea324b"
+    },
+    "report.json": {
+      "bytes": 10865,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native450-independent-review-001/report.json",
+      "sha256": "0378293a0c455938b3ed964d88251d04d5316054c5c401b934e2c95c10239eb2"
+    },
+    "seal.py": {
+      "bytes": 3830,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native450-independent-review-001/seal.py",
+      "sha256": "f972349c2ba97301a14f32dedd3edb8bb788ba6718816b3e343ce8018e6a0917"
+    },
+    "validation.log": {
+      "bytes": 629,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native450-independent-review-001/validation.log",
+      "sha256": "36e6af641d326b96285b47d7b7d435de8646ecfdf54825cbd5cd380d5e808908"
+    }
+  },
+  "schema": "numi.cardboard.native450_independent_review_seal.v1"
+}

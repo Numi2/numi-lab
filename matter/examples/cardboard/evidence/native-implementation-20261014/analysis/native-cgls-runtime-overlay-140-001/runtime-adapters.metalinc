@@ -1,0 +1,115 @@
+// Runtime-only adapters for the bounded, default-off CGLS direction experiment.
+// Derive row spaces from the actual Newton candidate, not authored tag guesses.
+kernel void nm_fgmres_prepare_base_cgls_layout(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
+    device const NMFEMNodeStateGPU* candidate [[buffer(1)]],
+    device const float4* metrics [[buffer(2)]],
+    device float4* mask [[buffer(3)]],
+    device uint* rowEnvironment [[buffer(4)]],
+    device uint* selected [[buffer(5)]],
+    device const float4* baseRHS [[buffer(6)]],
+    device float4* preparedRHS [[buffer(7)]],
+    uint global [[thread_position_in_grid]]) {
+    if (global >= layout.unknownCount) return;
+    const uint count = dispatch.environmentCount * dispatch.femNodeCount;
+    if (count == 0u) return;
+    const uint localGlobal = global % count;
+    const uint environment = localGlobal / dispatch.femNodeCount;
+    rowEnvironment[global] = environment;
+    const bool active = metrics[environment].w == 3.0f;
+    preparedRHS[global] = active ? baseRHS[global] : float4(0.0f);
+    float4 value = float4(0.0f);
+    if (global < count) {
+        const NMFEMNodeStateGPU node = candidate[global];
+        const bool free = !femStaticConstraint(node.restAndFixed.w) &&
+            isfinite(node.positionAndMass.w) && node.positionAndMass.w > 0.0f;
+        if (active && free) value = float4(1.0f, 1.0f, 1.0f, 0.0f);
+        if (global % dispatch.femNodeCount == 0u)
+            selected[environment] = metrics[environment].w == 3.0f ? 1u : 0u;
+    }
+    mask[global] = value;
+}
+
+// Installing x is separate from its construction: the old linear certificate
+// certifies delta only. No CGLS status is a production convergence certificate.
+kernel void nm_fgmres_install_base_cgls_direction(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
+    device float4* metrics [[buffer(1)]],
+    device const NMFEMNodeStateGPU* candidate [[buffer(2)]],
+    device const float4* baseRHS [[buffer(3)]],
+    device const float4* x [[buffer(4)]],
+    device const float4* ax [[buffer(5)]],
+    device const uint4* control [[buffer(6)]],
+    device const atomic_uint* errors [[buffer(7)]],
+    device float4* solution [[buffer(8)]],
+    device float4* lineSearch [[buffer(9)]],
+    device float* environmentLineSearch [[buffer(10)]],
+    device float4* trace [[buffer(11)]],
+    device NMFGMRESStateGPU* states [[buffer(12)]],
+    device NMMatterStatusGPU* statuses [[buffer(13)]],
+    device NMMatterStatusGPU* trialStatuses [[buffer(14)]],
+    constant uint& solverIteration [[buffer(15)]],
+    uint environment [[thread_position_in_grid]]) {
+    if (environment >= dispatch.environmentCount) return;
+    float4 metric = metrics[environment];
+    if (metric.w != 3.0f) {
+        trace[environment] = float4(0.0f);
+        return;
+    }
+    const uint4 c = control[environment];
+    const bool originalCertified = states[environment].diagnostics.z > 0.5f;
+    bool valid = environmentHealthy(statuses, environment) && originalCertified &&
+        c.w == 1u && (c.x == 2u || c.x == 3u) &&
+        ((c.x == 2u && c.y == c.z) || (c.x == 3u && c.y <= c.z)) &&
+        atomic_load_explicit(errors + environment, memory_order_relaxed) == 0u;
+    const uint base = environment * dispatch.femNodeCount;
+    const uint fieldBase = dispatch.environmentCount * dispatch.femNodeCount;
+    float xn = 0.0f, xc = 0.0f, rn = 0.0f, rc = 0.0f;
+    float descent = 0.0f, dc = 0.0f;
+    for (uint node = 0u; node < dispatch.femNodeCount; ++node) {
+        const uint global = base + node;
+        const uint field = fieldBase + global;
+        const NMFEMNodeStateGPU n = candidate[global];
+        const bool free = !femStaticConstraint(n.restAndFixed.w) &&
+            isfinite(n.positionAndMass.w) && n.positionAndMass.w > 0.0f;
+        const float4 v = x[global], b = baseRHS[global], a = ax[global];
+        valid = valid && all(isfinite(v)) && all(isfinite(b)) &&
+            all(isfinite(a)) && v.w == 0.0f;
+        if (free) {
+            fgmresCompensatedAdd(xn, xc, dot(v.xyz, v.xyz));
+            fgmresCompensatedAdd(rn, rc, dot(b.xyz - a.xyz, b.xyz - a.xyz));
+            fgmresCompensatedAdd(descent, dc, dot(b.xyz, a.xyz));
+        } else valid = valid && all(v == float4(0.0f));
+        valid = valid && field < layout.unknownCount &&
+            all(baseRHS[field] == float4(0.0f)) &&
+            all(x[field] == float4(0.0f)) && all(ax[field] == float4(0.0f));
+    }
+    valid = valid && isfinite(xn) && xn > 0.0f && isfinite(rn) && rn >= 0.0f &&
+        isfinite(descent) && descent > 0.0f;
+    trace[environment] = float4(valid ? sqrt(xn) : INFINITY,
+        valid ? sqrt(rn) : INFINITY, valid ? descent : INFINITY,
+        originalCertified ? 1.0f : 0.0f);
+    if (!valid) {
+        metric.w = 4.0f;
+        metrics[environment] = metric;
+        recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
+            NM_INVALID_INDEX, solverIteration,
+            float4(float(c.x), float(c.y), descent, xn));
+        return;
+    }
+    for (uint node = 0u; node < dispatch.femNodeCount; ++node) {
+        const uint global = base + node;
+        solution[global] = x[global];
+        solution[fieldBase + global] = float4(0.0f);
+    }
+    states[environment].diagnostics.z = 0.0f;
+    metric.w = 0.0f;
+    metric.y = INFINITY;
+    metric.z = 0.0f;
+    metrics[environment] = metric;
+    lineSearch[environment] = float4(0.0f, INFINITY, 0.0f, float(solverIteration));
+    environmentLineSearch[environment] = 0.0f;
+    trialStatuses[environment] = {};
+}

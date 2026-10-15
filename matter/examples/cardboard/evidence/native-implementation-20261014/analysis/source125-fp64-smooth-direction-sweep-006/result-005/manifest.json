@@ -1,0 +1,22 @@
+{
+  "schema": "numi.cardboard.source125-fp64-smooth-direction-rowwise-interval-addendum-manifest.v1",
+  "input_result004": "/Users/home/cardboard-implementation-20261014/analysis/source125-fp64-smooth-direction-sweep-006/result-004",
+  "input_sha256": {
+    "report.json": "2a2ffd1bb9205b847f7b34119ccd38d98c2d5cc91d4801792017195f831798ba",
+    "rowwise-epsilon.npz": "ff069778e806ee0a2a16d26f2d50fcaa0209a2edcaab1446dfec54f1634c579d",
+    "manifest.json": "ef6bc40c184e5177a1ba83704113e65815ed66b2e07748460d18e8217554f5ce"
+  },
+  "script_path": "/Users/home/cardboard-implementation-20261014/analysis/source125-fp64-smooth-direction-sweep-006/intervals.py",
+  "script_sha256": "476107d818a946d248c3b054d57c28a060f328190c77ae45a8ce0f014ac6fe24",
+  "outputs": {
+    "README.md_sha256": "23b81fc6a31d5f11dafc2e3469ad6a8073d101e1de06a63b8d12936bee33dad9",
+    "rowwise-window-intervals.json_sha256": "00b81e42398c609c0237dd09d064c2e13338e54645fee18b5c0a807bdb5ab8f8"
+  },
+  "command": [
+    "/Users/home/.pyenv/versions/3.10.12/bin/python3",
+    "/Users/home/cardboard-implementation-20261014/analysis/source125-fp64-smooth-direction-sweep-006/intervals.py",
+    "--output",
+    "/Users/home/cardboard-implementation-20261014/analysis/source125-fp64-smooth-direction-sweep-006/result-005"
+  ],
+  "execution": "CPU-only postprocessing; source125 result-004 outputs immutable"
+}

@@ -1,0 +1,2 @@
+native/compile_only.sh: exit 0
+Metal test actions compiled and linked; original synthetic checker passed strict Objective-C++ syntax checking. No GPU execution performed.

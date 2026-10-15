@@ -1,0 +1,30 @@
+{
+  "baseline_prefix_self_integrity": {
+    "actual_canonical_record_sha256": "7c2a02c6ce36333b88caa3a476fb1ea09885b1d58be022628c9312dabd4c22ab",
+    "actual_record_count": 48,
+    "baseline_canonical_record_sha256": "7c2a02c6ce36333b88caa3a476fb1ea09885b1d58be022628c9312dabd4c22ab",
+    "baseline_record_count": 48,
+    "classification": "exact parsed residual-Armijo record parity before the selected Newton; it does not prove every internal solver state or physical history byte-identical",
+    "exact_pretarget_trace_parity": true,
+    "expected_iteration_count": 48,
+    "mismatch_iterations": [],
+    "missing_actual_iterations": [],
+    "missing_baseline_iterations": [],
+    "root": 1,
+    "target_newton_iteration_exclusive": 48
+  },
+  "baseline_receipt_sha256": "e076c7e3cc9403043ce47ea2cb73f54e3aa61dd3b8f24b55c0b84ba0960940ae",
+  "baseline_run": "/Users/home/cardboard-implementation-20261014/solver/cgls-disabled-history-parity-445",
+  "baseline_source_prediction_sha256": "a826bdf380397a2d2e3c5eed3d4a4ecdd3fa2b6fd7b9d5ee0fe3e629ec94f68e",
+  "baseline_stderr_sha256": "04baea125614fcd5a12f37205bbe71504d263ecb6e8892e653901ade1e5767b0",
+  "cli_help_passed": true,
+  "native450_status": "incomplete at receipt creation; no base-cgls.bin or top-level completion receipt is present; no numerical claim made",
+  "py_compile_passed": true,
+  "python": "/Users/home/.pyenv/versions/3.10.12/bin/python3",
+  "python_version": "3.10.12 (main, May 15 2025, 18:07:36) [Clang 17.0.0 (clang-1700.0.13.3)]",
+  "schema": "numi.cardboard.native_cgls_audit_tool_cpu_validation.v1",
+  "unit_command": "/Users/home/.pyenv/versions/3.10.12/bin/python3 -m unittest -v /Users/home/cardboard-implementation-20261014/analysis/native450-cgls-candidate-audit-tool-001/test_audit_cgls_snapshot.py",
+  "unit_tests": 7,
+  "unit_tests_failed": 0,
+  "unit_tests_passed": 7
+}

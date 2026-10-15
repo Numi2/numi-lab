@@ -1,0 +1,24 @@
+{
+  "archive_bytes": 16777112,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/archives/reset-augmentation-first-failure-rap-only-361/inputs.tar.gz",
+  "archive_sha256": "3829cc5ac75f83a1723268eb0d11895625a4443a1d6497f98c5b809a9e6b9830",
+  "before_manifest_sha256": "6fa0d71965b6d924c6b066d1903ad66b2bc7626bcc51342a719a2968b87db877",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/reset-augmentation-first-failure-rap-only-361",
+  "case_input_directories_preserved": true,
+  "filesystem_available_after_bytes": 2399928320,
+  "filesystem_available_before_bytes": 2364489728,
+  "filesystem_delta_bytes": 35438592,
+  "original_allocated_bytes": 52273152,
+  "original_input_files_removed": 789,
+  "original_logical_bytes": 50655864,
+  "physical_or_solver_qualification": false,
+  "pointer_path": "/Users/home/cardboard-implementation-20261014/solver/reset-augmentation-first-failure-rap-only-361/inputs.compaction.json",
+  "pointer_sha256": "89f71e54d706a96640bd011804475396da224f3c379c77dcce44d9fcabb96aa0",
+  "prediction_and_receipt_preserved": true,
+  "restoration_verification": {
+    "verified_bytes": 50655864,
+    "verified_dirs": 32,
+    "verified_files": 789
+  },
+  "schema": "numi.cardboard.closed-solver-input-compaction.case-after.v1"
+}

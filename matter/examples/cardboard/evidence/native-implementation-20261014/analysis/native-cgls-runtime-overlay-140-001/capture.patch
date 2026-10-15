@@ -1,0 +1,109 @@
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -11680,6 +11680,25 @@
+                     return diagnostics;
+                 }
+                 femBaseCGLSIterations = std::strcmp(cglsIterations, "32") == 0 ? 32u : 64u;
++            }
++            std::uint32_t femBaseCGLSCaptureIteration = NM_INVALID_INDEX;
++            std::string femBaseCGLSCapturePath;
++            const char* cglsCapturePath = std::getenv("NM_FEM_BASE_CGLS_CAPTURE_PATH");
++            const char* cglsCaptureNewton = std::getenv("NM_FEM_BASE_CGLS_CAPTURE_NEWTON");
++            if (cglsCapturePath != nullptr || cglsCaptureNewton != nullptr) {
++                char* end = nullptr;
++                const unsigned long parsed = cglsCaptureNewton == nullptr ? 257ul :
++                    std::strtoul(cglsCaptureNewton, &end, 10);
++                if (femBaseCGLSIterations == 0u || cglsCapturePath == nullptr ||
++                    *cglsCapturePath == '\0' || cglsCaptureNewton == nullptr ||
++                    end == cglsCaptureNewton || *end != '\0' || parsed > 256ul ||
++                    std::to_string(parsed) != cglsCaptureNewton) {
++                    diagnostics.message = "bounded CGLS capture requires path and canonical Newton index0..256";
++                    ownership->preDynamicsOpen = false;
++                    return diagnostics;
++                }
++                femBaseCGLSCaptureIteration = static_cast<std::uint32_t>(parsed);
++                femBaseCGLSCapturePath = cglsCapturePath;
+             }
+             if (femBaseCauchyFallbackRequested) {
+                 const auto rejectBaseCauchy = [&](const char* reason) {
+@@ -22308,7 +22327,55 @@
+                 }
+                 [copy copyFromBuffer:state.femBaseCauchyTrace sourceOffset:0u
+                     toBuffer:snapshot destinationOffset:0u size:bytes];
++                // Optional bounded read-only snapshot of generated scratch.
++                // Header uint32[8]: magic CGLS, version, E, N, U, cap, segmentCount,0.
++                // Twelve aligned segments: x,r,s,p,Ax,b,mask,envMap,scalars,control,errors,selected.
++                id<MTLBuffer> cglsSnapshot = nil;
++                NSUInteger cglsSnapshotBytes = 0u;
++                const bool captureCGLS = femBaseCGLSIterations != 0u &&
++                    nonlinearIteration == femBaseCGLSCaptureIteration &&
++                    !femBaseCGLSCapturePath.empty();
++                if (captureCGLS) {
++                    const std::uint32_t unknowns = state.fgmresLayout.unknownCount;
++                    const std::array<id<MTLBuffer>, 12> sourceBuffers = {
++                        state.femBaseCGLSX, state.femBaseCGLSR, state.femBaseCGLSS,
++                        state.femBaseCGLSP, state.femBaseCGLSQ,
++                        state.femBaseCauchyRightHandSide, state.femBaseCGLSMask,
++                        state.femBaseCGLSEnvironment, state.femBaseCGLSScalars,
++                        state.femBaseCGLSControl, state.femBaseCGLSErrors,
++                        state.femBaseCGLSSelected};
++                    const NSUInteger vectorBytes = unknowns * sizeof(nm_float4);
++                    const std::array<NSUInteger, 12> sizes = {
++                        vectorBytes, vectorBytes, vectorBytes, vectorBytes,
++                        vectorBytes, vectorBytes, vectorBytes,
++                        unknowns * sizeof(std::uint32_t),
++                        environments * sizeof(nm_float4), environments * sizeof(nm_uint4),
++                        environments * sizeof(std::uint32_t), environments * sizeof(std::uint32_t)};
++                    std::array<NSUInteger, 12> offsets{};
++                    cglsSnapshotBytes = 8u * sizeof(std::uint32_t);
++                    for (std::size_t i = 0u; i < sizes.size(); ++i) {
++                        cglsSnapshotBytes = (cglsSnapshotBytes + 15u) & ~NSUInteger(15u);
++                        offsets[i] = cglsSnapshotBytes;
++                        cglsSnapshotBytes += sizes[i];
++                    }
++                    cglsSnapshot = [state.device newBufferWithLength:cglsSnapshotBytes
++                        options:MTLResourceStorageModeShared];
++                    if (cglsSnapshot == nil) {
++                        [copy endEncoding];
++                        diagnostics.message = "CGLS scratch snapshot allocation failed";
++                        return false;
++                    }
++                    std::memset(cglsSnapshot.contents, 0, cglsSnapshotBytes);
++                    const std::array<std::uint32_t, 8> header = {
++                        0x534c4743u, 1u, static_cast<std::uint32_t>(environments),
++                        state.dispatch.femNodeCount, unknowns, femBaseCGLSIterations, 12u, 0u};
++                    std::memcpy(cglsSnapshot.contents, header.data(), sizeof(header));
++                    for (std::size_t i = 0u; i < sizes.size(); ++i)
++                        [copy copyFromBuffer:sourceBuffers[i] sourceOffset:0u
++                            toBuffer:cglsSnapshot destinationOffset:offsets[i] size:sizes[i]];
++                }
+                 [copy endEncoding];
++                const auto capturedCGLSPath = captureCGLS ? femBaseCGLSCapturePath : std::string();
+                 const auto capturedRoot = request.controlStep;
+                 const auto capturedIteration = nonlinearIteration;
+                 const auto capturedEnvironments = environments;
+@@ -22316,6 +22383,24 @@
+                 const auto capturedCGLSIterations = femBaseCGLSIterations;
+                 [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed) {
+                     if (completed.status != MTLCommandBufferStatusCompleted) return;
++                    if (cglsSnapshot != nil) {
++                        const int fd = ::open(capturedCGLSPath.c_str(),
++                            O_WRONLY | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR);
++                        bool complete = fd >= 0;
++                        std::size_t written = 0u;
++                        const auto* raw = static_cast<const unsigned char*>(cglsSnapshot.contents);
++                        while (complete && written < cglsSnapshotBytes) {
++                            const ssize_t count = ::write(fd, raw + written, cglsSnapshotBytes - written);
++                            if (count < 0 && errno == EINTR) continue;
++                            if (count <= 0) complete = false;
++                            else written += static_cast<std::size_t>(count);
++                        }
++                        if (fd >= 0 && ::close(fd) != 0) complete = false;
++                        std::fprintf(stderr,
++                            "fem_base_cgls_capture={\"schema\":1,\"root\":%u,\"newton_iteration\":%u,\"bytes\":%zu,\"expected_bytes\":%zu,\"complete\":%s,\"physical_state_changed\":false}\n",
++                            capturedRoot, capturedIteration, written,
++                            static_cast<std::size_t>(cglsSnapshotBytes), complete ? "true" : "false");
++                    }
+                     const auto* values = static_cast<const nm_float4*>(snapshot.contents);
+                     std::ostringstream line;
+                     if (capturedCGLSIterations != 0u) {

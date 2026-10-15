@@ -1,0 +1,9 @@
+{
+  "schema": "numi.cardboard.root_adjudication_seal.v1",
+  "files": {
+    "report.json": "7b6589d34e1fbc8507d040c251e65e58a340e520320a0312551585104cbf2d73",
+    "adjudicate.py": "2a169c3700f38d73784fc471f2a72a47c86b202c24265c0c4c987d3edad2049e",
+    "initial-consumer-failure.json": "345dde8c65731d9c2f84facb429cb37984b348024c399ec0a562ec5bf69f7070"
+  },
+  "physical_validation": false
+}

@@ -1,0 +1,618 @@
+{
+  "aggregate_work": {
+    "algorithmic_material_component_J": 0.12681567861811857,
+    "contraction_vs_independent_assembled_report_difference_J": 9.534114158230023e-08,
+    "contraction_vs_native_element_action_difference_J": 9.670011383647314e-08,
+    "full_A_signed_work_from_independent_assembled_report_J": -0.0008423313175187709,
+    "geometric_initial_stress_component_J": -0.14263081905598488,
+    "interpretation": "The captured global ray has a negative stiffness contribution after -dt^2 K; the product-rule split shows the dominant negative term is the initial-stress/geometric component in compressive liner regions. The remaining algorithmic material component is positive in aggregate along this direction. This explains the sign without establishing whether the modeled constitutive law is physically adequate or the nonlinear solve should accept this direction.",
+    "mass_M_signed_work_J": 0.014972904461489247,
+    "mass_plus_contraction_A_work_J": -0.0008422359763771894,
+    "split_closure_J": -1.3877787807814457e-16,
+    "stiffness_minus_dt2K_signed_work_from_full_cached_C_contraction_J": -0.015815140437866436,
+    "stiffness_minus_dt2K_signed_work_from_independent_FP64_directional_actions_J": -0.015815236916729668,
+    "stiffness_minus_dt2K_signed_work_from_independent_assembled_report_J": -0.015815235779008018,
+    "stiffness_minus_dt2K_signed_work_from_native_element_force_action_J": -0.015815237137980272
+  },
+  "bindings": {
+    "/Users/home/cardboard-implementation-20261014/analysis/operator-fd-e2-adapter-001/coupon419-003/environment-0.npz": "e20eeb559f5976e6b9ddb2ae605ea6860908cde3a1d255ea80832b24840c8353",
+    "/Users/home/cardboard-implementation-20261014/analysis/source125-fp64-smooth-direction-sweep-006/result-004/report.json": "2a2ffd1bb9205b847f7b34119ccd38d98c2d5cc91d4801792017195f831798ba",
+    "/Users/home/cardboard-implementation-20261014/analysis/source125-fp64-smooth-direction-sweep-006/result-005/rowwise-window-intervals.json": "00b81e42398c609c0237dd09d064c2e13338e54645fee18b5c0a807bdb5ab8f8",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125/matter/materials/hajali2009_liner_hill_bilinear_fit.nmatter": "a2720b90f2004f2eccf180063e7ecc4e0acdda93f700c4fd357914fc24d2255a",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125/matter/materials/hajali2009_medium_hill_bilinear_fit.nmatter": "76f2bef552822708c36b5acc9f92bd44e7bb92c578e5e46adb64a1a2e82e47f9",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125/matter/materials/starch2007_finite_glue_elastic.nmatter": "39fac837793259ab875d02ae2500475d9d974c2880fbb404867dead7c52eb2c1",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125/matter/src/metal/fem.metalinc": "70c2f396045f9abdcfdc32f5714e6e3a400f5566e5a7824353e11b307de52b7d",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125/matter/src/metal/fgmres.metalinc": "1c423e02e189df17c925e0b77ded87465098278f836011c16aad1bb8f92bcec0",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125/matter/tools/cardboard_bilinear_material_oracle.hpp": "90cc525579f2c9d26fa5916738d1280d0644fd7a91fb84e1db4d1414be7901b0",
+    "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/operator-capture": "f2d42314cfee0428ecd285ebb9dbd5da1556624e3e92af1d12240fd8106b309a"
+  },
+  "evidence_class": "bounded CPU-only decomposition of the selected source125/Newton48 production tangent capture; diagnostic analysis, not a solver or material qualification",
+  "finding": {
+    "captured_ray_operator_sign": "The signed quadratic form of A=M-dt^2*K is negative on this captured correction ray (-8.42236e-4 J from the C contraction, versus -8.42331e-4 J in the independent assembled report).",
+    "first_piola_geometric_classification": "For top negative liner tet 1440, the exact product-rule split is -0.02323785 J geometric initial-stress contribution plus +0.00092361 J algorithmic material contribution, giving -0.02231424 J total. Its recovered second-Piola principal stresses are approximately [-0.380524,-0.017361,+0.002986] MPa.",
+    "material_classification": "All three material groups have positive aggregate Cmaterial directional work on this one ray. The 12 negative tet-level A stiffness contributions are 9 liner tets and 3 glue tets; the liner terms dominate by many orders of magnitude.",
+    "physical_interpretation_limit": "This identifies the finite-state initial-stress/geometric term as the negative-work owner along the captured direction. It is consistent with compressive prestress and is not, by itself, evidence of a sign bug or a physical energy violation. Major-symmetry outliers and small negative eigenvalues in the subtracted Cmaterial remain measured but not adjudicated."
+  },
+  "formula_and_sign_contract": {
+    "direction_and_rate": "H is captured grad(delta_v), units s^-1; production tangent also receives rateDirection=H/dt. The cache contract is dP/dF with that fixed-dt rate coupling.",
+    "frame": "Material frame Q is an orthogonal reference-coordinate rotation: F_local=F_world*Q, H_local=H_world*Q, P_local=P_world*Q. Q is fixed in this Newton tangent; no additional frame derivative is included.",
+    "material_energy_source": "The Haj-Ali-derived 15-state assets define a StVK-style quadratic energy in Green-strain components minus implicit plastic strains; stress is generated from this energy/state system, so P=F*S in each fixed local reference frame.",
+    "operator_sign": "Internal element force is -V*P*Dm^-T. Therefore v^T K v = -V*(H:C:H), and the stiffness contribution to A=M-dt^2*K is dt^2*V*(H:C:H).",
+    "tangent_split": "C = dP/dF, P=F*S; Cgeo[iJ,kL] = delta(i,k)*S[L,J], Cmaterial=C-Cgeo. This is an exact product-rule split at captured F,P; Cmaterial includes the implicit projection/algorithmic state response. It is not a split into separate source elastic/plastic energy potentials."
+  },
+  "frame_transform_checks": {
+    "F_world_times_Q_to_F_local": {
+      "max": 6.671275032567214e-08,
+      "min": 1.1984236449233384e-09,
+      "p50": 2.722727384723453e-08,
+      "p95": 4.5706619745300414e-08,
+      "p99": 5.399345888139889e-08
+    },
+    "H_world_times_Q_to_H_local": {
+      "max": 9.831967351641471e-08,
+      "min": 0.0,
+      "p50": 0.0,
+      "p95": 5.277278211576635e-08,
+      "p99": 6.862784080423688e-08
+    },
+    "P_world_times_Q_to_P_local": {
+      "max": 8.698575537151177e-08,
+      "min": 0.0,
+      "p50": 0.0,
+      "p95": 5.63395829391266e-08,
+      "p99": 6.914304201332487e-08
+    },
+    "Q_determinant": {
+      "max": 1.0000000000000002,
+      "min": 1.0,
+      "p50": 1.0,
+      "p95": 1.0,
+      "p99": 1.0000000000000002
+    },
+    "Q_orthogonality": {
+      "max": 1.5755025489104359e-16,
+      "min": 0.0,
+      "p50": 0.0,
+      "p95": 1.5755025489104359e-16,
+      "p99": 1.5755025489104359e-16
+    }
+  },
+  "limitations": [
+    "The source capture is a selected rejected-solver Newton linearization; it is not a successful coupon history or physical experiment.",
+    "The C matrices are production FP32 cached tangents, promoted for arithmetic. The independent FP64 projection evidence is directional and does not provide an independent full 9x9 C matrix at every tet.",
+    "The geometric/material split is an algebraic product-rule split for P=F*S; Cmaterial includes the implicit constitutive-state derivative and is not equal to an independently identified elastic modulus.",
+    "Negative eigenvalues of sym(C) and negative A-work are local/operator diagnostics. They do not by themselves prove an implementation defect, an energy violation, or a physical buckling mode.",
+    "No new constitutive projection, native run, tolerance change, calibration, or physical qualification was performed."
+  ],
+  "material_summaries": {
+    "0": {
+      "A_stiffness_work_geometric_initial_stress_J": -0.14337732493117122,
+      "A_stiffness_work_independent_FP64_directional_action_J": -0.023271302337756417,
+      "A_stiffness_work_material_algorithmic_J": 0.12010613558796478,
+      "A_stiffness_work_total_J": -0.023271189343206638,
+      "C_material_symmetric_part_has_negative_min_eigenvalue_tet_count": 1001,
+      "C_symmetric_part_has_negative_min_eigenvalue_tet_count": 608,
+      "S_second_Piola_symmetry_relative": {
+        "max": 2.6473449876958243e-08,
+        "min": 1.2436115680695515e-11,
+        "p50": 1.1196653561865346e-09,
+        "p95": 6.502107716406142e-09,
+        "p99": 1.2463571153062328e-08
+      },
+      "major_asymmetry_relative_geometric": {
+        "max": 2.6473449876958246e-08,
+        "min": 1.2436115680695515e-11,
+        "p50": 1.1196653561865346e-09,
+        "p95": 6.502107716406142e-09,
+        "p99": 1.2463571153062328e-08
+      },
+      "major_asymmetry_relative_material": {
+        "max": 0.0004465696872905333,
+        "min": 7.047182736299837e-16,
+        "p50": 9.893187184191735e-14,
+        "p95": 4.541090172432423e-07,
+        "p99": 9.595796220386733e-07
+      },
+      "major_asymmetry_relative_total": {
+        "max": 0.0004465826842113711,
+        "min": 0.0,
+        "p50": 0.0,
+        "p95": 4.540750168730652e-07,
+        "p99": 9.595607948013658e-07
+      },
+      "material_name": "hajali2009_liner_hill_bilinear_fit",
+      "max_action_relative_error_vs_capture": 2.7340148531931616e-06,
+      "max_action_relative_error_vs_independent_FP64": 2.729125952855845e-06,
+      "native_element_action_work_J": -0.023271302437652623,
+      "negative_geometric_work_tet_count": 570,
+      "negative_material_work_tet_count": 0,
+      "negative_total_work_tet_count": 9,
+      "p95_action_relative_error_vs_capture": 1.180985197051061e-07,
+      "p95_action_relative_error_vs_independent_FP64": 1.1266225518880571e-07,
+      "positive_accumulated_multiplier_increment_tet_count_gt_1e-12": 153,
+      "split_closure_J": -1.942890293094024e-16,
+      "sym_C_material_min_eigenvalue_Pa": {
+        "max": 8.724938062774536,
+        "min": -121.32483457031026,
+        "p50": -7.99515869570155,
+        "p95": 3.000774635789657,
+        "p99": 6.00520954882753
+      },
+      "sym_C_material_min_eigenvalue_ratio": {
+        "max": 1.7817187661255113e-09,
+        "min": -2.4782353354358444e-08,
+        "p50": -1.633211346857851e-09,
+        "p95": 6.128120845299148e-10,
+        "p99": 1.226458081649327e-09
+      },
+      "sym_C_min_eigenvalue_Pa": {
+        "max": 25760.55889043588,
+        "min": -930537.4382331499,
+        "p50": -2771.563494306548,
+        "p95": 15335.867993405385,
+        "p99": 21739.659610640774
+      },
+      "sym_C_min_eigenvalue_ratio": {
+        "max": 5.259498332884585e-06,
+        "min": -0.0001901751456034252,
+        "p50": -5.663890737525425e-07,
+        "p95": 3.131413234798876e-06,
+        "p99": 4.4385726219220104e-06
+      },
+      "tangent_contraction_vs_native_action_abs_J": 1.1309444598525675e-07,
+      "tet_count": 1152
+    },
+    "1": {
+      "A_stiffness_work_geometric_initial_stress_J": 0.000744421759504902,
+      "A_stiffness_work_independent_FP64_directional_action_J": 0.006446363437994837,
+      "A_stiffness_work_material_algorithmic_J": 0.005701925527856944,
+      "A_stiffness_work_total_J": 0.0064463472873618755,
+      "C_material_symmetric_part_has_negative_min_eigenvalue_tet_count": 536,
+      "C_symmetric_part_has_negative_min_eigenvalue_tet_count": 399,
+      "S_second_Piola_symmetry_relative": {
+        "max": 6.087498818401223e-08,
+        "min": 3.8421759658561407e-10,
+        "p50": 1.891638582479396e-08,
+        "p95": 4.5861642656917675e-08,
+        "p99": 5.582477858864089e-08
+      },
+      "major_asymmetry_relative_geometric": {
+        "max": 6.087498818401223e-08,
+        "min": 3.842175965856141e-10,
+        "p50": 1.891638582479396e-08,
+        "p95": 4.586164265691766e-08,
+        "p99": 5.582477858864089e-08
+      },
+      "major_asymmetry_relative_material": {
+        "max": 0.005389317299047285,
+        "min": 1.530599699851113e-14,
+        "p50": 1.6069391023825723e-12,
+        "p95": 0.00011282555197720268,
+        "p99": 0.0013744069964866969
+      },
+      "major_asymmetry_relative_total": {
+        "max": 0.005389317204290664,
+        "min": 0.0,
+        "p50": 0.0,
+        "p95": 0.00011282418617861922,
+        "p99": 0.0013744055951495234
+      },
+      "material_name": "hajali2009_medium_hill_bilinear_fit",
+      "max_action_relative_error_vs_capture": 1.6390257433562996e-05,
+      "max_action_relative_error_vs_independent_FP64": 1.6387840147458348e-05,
+      "native_element_action_work_J": 0.006446363099085118,
+      "negative_geometric_work_tet_count": 280,
+      "negative_material_work_tet_count": 0,
+      "negative_total_work_tet_count": 0,
+      "p95_action_relative_error_vs_capture": 2.495480493420287e-06,
+      "p95_action_relative_error_vs_independent_FP64": 2.4969366596689547e-06,
+      "positive_accumulated_multiplier_increment_tet_count_gt_1e-12": 356,
+      "split_closure_J": 2.949029909160572e-17,
+      "sym_C_material_min_eigenvalue_Pa": {
+        "max": 15.23136904465458,
+        "min": -1187.1320131431105,
+        "p50": -13.451195406891944,
+        "p95": 0.5296847273128538,
+        "p99": 5.583903036924868
+      },
+      "sym_C_material_min_eigenvalue_ratio": {
+        "max": 3.3445970455323306e-09,
+        "min": -2.606971057182716e-07,
+        "p50": -2.955752950736074e-09,
+        "p95": 1.1664362010261816e-10,
+        "p99": 1.2270357440452879e-09
+      },
+      "sym_C_min_eigenvalue_Pa": {
+        "max": 30720.4036045115,
+        "min": -374150.01912324375,
+        "p50": -13196.265096561827,
+        "p95": 9151.682285650868,
+        "p99": 17915.615485004142
+      },
+      "sym_C_min_eigenvalue_ratio": {
+        "max": 6.7412769648568314e-06,
+        "min": -8.218638463611213e-05,
+        "p50": -2.9094872664985467e-06,
+        "p95": 2.0106401468368842e-06,
+        "p99": 3.943531808328455e-06
+      },
+      "tangent_contraction_vs_native_action_abs_J": -1.5811723242352416e-08,
+      "tet_count": 576
+    },
+    "2": {
+      "A_stiffness_work_geometric_initial_stress_J": 2.084115681464932e-06,
+      "A_stiffness_work_independent_FP64_directional_action_J": 0.0010097019830319126,
+      "A_stiffness_work_material_algorithmic_J": 0.0010076175022968616,
+      "A_stiffness_work_total_J": 0.0010097016179783258,
+      "C_material_symmetric_part_has_negative_min_eigenvalue_tet_count": 167,
+      "C_symmetric_part_has_negative_min_eigenvalue_tet_count": 156,
+      "S_second_Piola_symmetry_relative": {
+        "max": 8.016717324497214e-08,
+        "min": 2.0804709693183542e-10,
+        "p50": 1.987235181027912e-08,
+        "p95": 5.912511094543305e-08,
+        "p99": 7.750549813340483e-08
+      },
+      "major_asymmetry_relative_geometric": {
+        "max": 8.016717324497214e-08,
+        "min": 2.0804709693183537e-10,
+        "p50": 1.987235181027912e-08,
+        "p95": 5.912511094543304e-08,
+        "p99": 7.750549813340483e-08
+      },
+      "major_asymmetry_relative_material": {
+        "max": 1.3350776635813499e-11,
+        "min": 1.7421848494697263e-14,
+        "p50": 2.062767401883052e-12,
+        "p95": 8.210801681943616e-12,
+        "p99": 1.1739502215303452e-11
+      },
+      "major_asymmetry_relative_total": {
+        "max": 0.0,
+        "min": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0
+      },
+      "material_name": "starch2007_finite_glue_elastic",
+      "max_action_relative_error_vs_capture": 6.180371511247585e-06,
+      "max_action_relative_error_vs_independent_FP64": 6.156588383446138e-06,
+      "native_element_action_work_J": 0.0010097022005872318,
+      "negative_geometric_work_tet_count": 99,
+      "negative_material_work_tet_count": 0,
+      "negative_total_work_tet_count": 3,
+      "p95_action_relative_error_vs_capture": 2.051877510177546e-06,
+      "p95_action_relative_error_vs_independent_FP64": 2.044701062446867e-06,
+      "positive_accumulated_multiplier_increment_tet_count_gt_1e-12": 0,
+      "split_closure_J": -6.505213034913027e-19,
+      "sym_C_material_min_eigenvalue_Pa": {
+        "max": 4.490625675754014,
+        "min": -12.936426485597183,
+        "p50": -5.287257175426449,
+        "p95": 2.869887705007499,
+        "p99": 4.454778604880873
+      },
+      "sym_C_material_min_eigenvalue_ratio": {
+        "max": 4.490195127021508e-09,
+        "min": -1.2936627276226547e-08,
+        "p50": -5.287385611259444e-09,
+        "p95": 2.8700629281344206e-09,
+        "p99": 4.454592832681024e-09
+      },
+      "sym_C_min_eigenvalue_Pa": {
+        "max": 42321.246122146695,
+        "min": -102138.866557297,
+        "p50": -24514.186610750286,
+        "p95": 25612.68937333736,
+        "p99": 41389.87068494116
+      },
+      "sym_C_min_eigenvalue_ratio": {
+        "max": 4.232635950396737e-05,
+        "min": -0.00010212564514887409,
+        "p50": -2.4513790271801138e-05,
+        "p95": 2.5614921062465873e-05,
+        "p99": 4.139531708884626e-05
+      },
+      "tangent_contraction_vs_native_action_abs_J": -5.826089059975115e-10,
+      "tet_count": 192
+    }
+  },
+  "negative_tangent_contribution_count": 12,
+  "schema": "numi.cardboard.source125.per_tet_tangent_energy.v1",
+  "selection": {
+    "cache_policy_enabled": true,
+    "cache_valid_tet_count": 1920,
+    "cached_matrix_contract": "dP_local/dF_local at the captured Newton linearization; basis perturbation also induces delta(Fdot)=delta(F)/dt with fixed dt",
+    "capture_schema": "numi.cardboard.fem-newton-capture.v1",
+    "dt_seconds": 9.99999975e-05,
+    "environment": 0,
+    "environment_count": 2,
+    "execution_fingerprint_hex": "7fad2607fcd060e7",
+    "matrix_layout": "row-major 9x9, local material frame",
+    "newton_iteration": 48,
+    "node_count": 882,
+    "production_inputs_bitwise_unchanged": true,
+    "root": 1,
+    "tetrahedron_count": 1920,
+    "world_fingerprint_hex": "75c1264bc96ac2d9"
+  },
+  "source_reference_projection": {
+    "hardening_scope": "The assets use positive source-fit MD/CD hardening values (liner 4019.9227/609.0611 MPa; medium 1880.2072/287.1312 MPa) but document zero compression/shear hardening assumptions and transfer assumptions. No generic monotonicity is inferred from this one direction.",
+    "projection_evidence": "The separate independent FP64 bytecode interpreter/projector uses the same authored implicit residual/Jacobian and fixed accepted history. Result-005 reports 1728/1728 paper rows with at least three contiguous predeclared epsilon-grid points passing its pointwise local 1e-6 derivative gate plus strict endpoint projection/branch checks. This is independent directional evidence, not a full tensor energy-positivity theorem.",
+    "small_strain_elastic_blocks": {
+      "0": {
+        "all_authored_shear_coefficients_positive": true,
+        "material_name": "hajali2009_liner_hill_bilinear_fit",
+        "normal_block_positive_definite": true,
+        "normal_green_strain_block_eigenvalues_MPa": [
+          19.09999980812073,
+          2065.687937145245,
+          4895.948043705848
+        ],
+        "shear_coefficients_MPa": {
+          "g12": 1222.0,
+          "g13": 166.28,
+          "g23": 137.28
+        }
+      },
+      "1": {
+        "all_authored_shear_coefficients_positive": true,
+        "material_name": "hajali2009_medium_hill_bilinear_fit",
+        "normal_block_positive_definite": true,
+        "normal_green_strain_block_eigenvalues_MPa": [
+          17.899999748130647,
+          1601.5652908322982,
+          4554.33449781282
+        ],
+        "shear_coefficients_MPa": {
+          "g12": 1039.0,
+          "g13": 226.34,
+          "g23": 198.72
+        }
+      }
+    },
+    "source_equations": "The two 15-state material assets define Green-strain/StVK-like anisotropic stored energy, normalized second-Piola stress states, associated Hill flow with smoothed positive-epsilon complementarity, and separate MD/CD tensile-hardening accumulations; see the exact source lines recorded in README."
+  },
+  "top_negative_contribution_tets": [
+    {
+      "A_stiffness_work_geometric_initial_stress_J": -0.023237847805402743,
+      "A_stiffness_work_material_algorithmic_J": 0.0009236098045657282,
+      "A_stiffness_work_total_J": -0.022314238000837015,
+      "E_principal_strain_eigenvalues": [
+        -0.006665358968796726,
+        3.9950214123771796e-06,
+        0.006649375102873538
+      ],
+      "S_principal_stress_eigenvalues_Pa": [
+        -380524.02510961914,
+        -17361.091066716854,
+        2986.2544532477045
+      ],
+      "captured_accumulated_multiplier_increment": 1.3792694499937005e-05,
+      "material_index": 0,
+      "material_name": "hajali2009_liner_hill_bilinear_fit",
+      "sym_C_min_eigenvalue_Pa": -377001.15835917776,
+      "tet_id": 1440
+    },
+    {
+      "A_stiffness_work_geometric_initial_stress_J": -0.02307479014376811,
+      "A_stiffness_work_material_algorithmic_J": 0.0009507053785868521,
+      "A_stiffness_work_total_J": -0.022124084765181254,
+      "E_principal_strain_eigenvalues": [
+        -0.006601438106634158,
+        9.382286137531247e-06,
+        0.006567808392567349
+      ],
+      "S_principal_stress_eigenvalues_Pa": [
+        -378977.0729908665,
+        -6290.424200526763,
+        3077.324980301601
+      ],
+      "captured_accumulated_multiplier_increment": 1.3640497899938679e-05,
+      "material_index": 0,
+      "material_name": "hajali2009_liner_hill_bilinear_fit",
+      "sym_C_min_eigenvalue_Pa": -375552.35660294484,
+      "tet_id": 1441
+    },
+    {
+      "A_stiffness_work_geometric_initial_stress_J": -0.023238025212909796,
+      "A_stiffness_work_material_algorithmic_J": 0.001140526492533493,
+      "A_stiffness_work_total_J": -0.022097498720376304,
+      "E_principal_strain_eigenvalues": [
+        -0.006649390345086143,
+        1.0442340326840515e-05,
+        0.006632064380986312
+      ],
+      "S_principal_stress_eigenvalues_Pa": [
+        -378102.5977042354,
+        -6844.767901768677,
+        2664.289842512626
+      ],
+      "captured_accumulated_multiplier_increment": 1.3757423399937009e-05,
+      "material_index": 0,
+      "material_name": "hajali2009_liner_hill_bilinear_fit",
+      "sym_C_min_eigenvalue_Pa": -376611.51586985553,
+      "tet_id": 482
+    },
+    {
+      "A_stiffness_work_geometric_initial_stress_J": -0.022289825048787553,
+      "A_stiffness_work_material_algorithmic_J": 0.00028264942301161797,
+      "A_stiffness_work_total_J": -0.022007175625775963,
+      "E_principal_strain_eigenvalues": [
+        -0.014979639701676003,
+        4.843928661118218e-06,
+        0.015044052298550237
+      ],
+      "S_principal_stress_eigenvalues_Pa": [
+        -173206.07356310697,
+        -322.32811536508535,
+        7584.7519016740425
+      ],
+      "captured_accumulated_multiplier_increment": 3.1290292099936084e-05,
+      "material_index": 0,
+      "material_name": "hajali2009_liner_hill_bilinear_fit",
+      "sym_C_min_eigenvalue_Pa": -168193.72247837257,
+      "tet_id": 1464
+    },
+    {
+      "A_stiffness_work_geometric_initial_stress_J": -0.022105968995613998,
+      "A_stiffness_work_material_algorithmic_J": 0.0006178405693822248,
+      "A_stiffness_work_total_J": -0.021488128426231937,
+      "E_principal_strain_eigenvalues": [
+        -0.015194585880693567,
+        9.5475133838245e-06,
+        0.014908056203878996
+      ],
+      "S_principal_stress_eigenvalues_Pa": [
+        -171266.88198833936,
+        -2154.7159463481157,
+        11497.022193137316
+      ],
+      "captured_accumulated_multiplier_increment": 3.1371211699939515e-05,
+      "material_index": 0,
+      "material_name": "hajali2009_liner_hill_bilinear_fit",
+      "sym_C_min_eigenvalue_Pa": -164067.7538232536,
+      "tet_id": 1465
+    },
+    {
+      "A_stiffness_work_geometric_initial_stress_J": -0.021940580253249062,
+      "A_stiffness_work_material_algorithmic_J": 0.0008100512921260807,
+      "A_stiffness_work_total_J": -0.02113052896112298,
+      "E_principal_strain_eigenvalues": [
+        -0.014986127289751091,
+        9.896104817753633e-06,
+        0.015050898070759811
+      ],
+      "S_principal_stress_eigenvalues_Pa": [
+        -168337.8058129813,
+        4299.824469113598,
+        11255.700308967156
+      ],
+      "captured_accumulated_multiplier_increment": 3.1301657099936065e-05,
+      "material_index": 0,
+      "material_name": "hajali2009_liner_hill_bilinear_fit",
+      "sym_C_min_eigenvalue_Pa": -161961.44243957044,
+      "tet_id": 506
+    },
+    {
+      "A_stiffness_work_geometric_initial_stress_J": -0.01786600767056979,
+      "A_stiffness_work_material_algorithmic_J": 0.0010095041539676024,
+      "A_stiffness_work_total_J": -0.016856503516602186,
+      "E_principal_strain_eigenvalues": [
+        -0.0064972494884403455,
+        3.1103626658265965e-06,
+        0.0064341563088561385
+      ],
+      "S_principal_stress_eigenvalues_Pa": [
+        -291925.72281752096,
+        -15557.344709821764,
+        1899.249151250244
+      ],
+      "captured_accumulated_multiplier_increment": 1.3390874299947809e-05,
+      "material_index": 0,
+      "material_name": "hajali2009_liner_hill_bilinear_fit",
+      "sym_C_min_eigenvalue_Pa": -289974.2116340485,
+      "tet_id": 484
+    },
+    {
+      "A_stiffness_work_geometric_initial_stress_J": -0.01770396363375399,
+      "A_stiffness_work_material_algorithmic_J": 0.0009950046999960935,
+      "A_stiffness_work_total_J": -0.016708958933757886,
+      "E_principal_strain_eigenvalues": [
+        -0.006707754463311131,
+        1.0454057090525982e-05,
+        0.006558300735078599
+      ],
+      "S_principal_stress_eigenvalues_Pa": [
+        -290166.52818805457,
+        -887.2091079219708,
+        2203.539471918681
+      ],
+      "captured_accumulated_multiplier_increment": 1.374155819994863e-05,
+      "material_index": 0,
+      "material_name": "hajali2009_liner_hill_bilinear_fit",
+      "sym_C_min_eigenvalue_Pa": -287687.7307378651,
+      "tet_id": 485
+    },
+    {
+      "A_stiffness_work_geometric_initial_stress_J": -0.017835850008143847,
+      "A_stiffness_work_material_algorithmic_J": 0.001297780995458135,
+      "A_stiffness_work_total_J": -0.016538069012685723,
+      "E_principal_strain_eigenvalues": [
+        -0.006723062280751195,
+        5.169127123983692e-06,
+        0.006573788261747827
+      ],
+      "S_principal_stress_eigenvalues_Pa": [
+        -290884.2387767745,
+        -11022.645536044918,
+        438.50515078213886
+      ],
+      "captured_accumulated_multiplier_increment": 1.3773329599948715e-05,
+      "material_index": 0,
+      "material_name": "hajali2009_liner_hill_bilinear_fit",
+      "sym_C_min_eigenvalue_Pa": -288464.34962437855,
+      "tet_id": 1443
+    },
+    {
+      "A_stiffness_work_geometric_initial_stress_J": -3.675462451641875e-08,
+      "A_stiffness_work_material_algorithmic_J": 1.4326690373985711e-08,
+      "A_stiffness_work_total_J": -2.2427934142431677e-08,
+      "E_principal_strain_eigenvalues": [
+        -0.00022351717513900994,
+        -2.4796798955241277e-06,
+        0.00012875808235766767
+      ],
+      "S_principal_stress_eigenvalues_Pa": [
+        -91270.42448389647,
+        -23218.108341236675,
+        17158.33212911402
+      ],
+      "captured_accumulated_multiplier_increment": 0.0,
+      "material_index": 2,
+      "material_name": "starch2007_finite_glue_elastic",
+      "sym_C_min_eigenvalue_Pa": -57235.78078558846,
+      "tet_id": 878
+    },
+    {
+      "A_stiffness_work_geometric_initial_stress_J": -3.664495056176108e-08,
+      "A_stiffness_work_material_algorithmic_J": 1.839590682099193e-08,
+      "A_stiffness_work_total_J": -1.8249043740770438e-08,
+      "E_principal_strain_eigenvalues": [
+        -0.0002235883878122619,
+        -1.9413399183708206e-06,
+        0.0001288327038292174
+      ],
+      "S_principal_stress_eigenvalues_Pa": [
+        -91167.28417138732,
+        -22927.407116877446,
+        17306.27112669188
+      ],
+      "captured_accumulated_multiplier_increment": 0.0,
+      "material_index": 2,
+      "material_name": "starch2007_finite_glue_elastic",
+      "sym_C_min_eigenvalue_Pa": -57041.30907252145,
+      "tet_id": 1836
+    },
+    {
+      "A_stiffness_work_geometric_initial_stress_J": -1.1990846070474588e-07,
+      "A_stiffness_work_material_algorithmic_J": 1.1397353439870276e-07,
+      "A_stiffness_work_total_J": -5.934926305995292e-09,
+      "E_principal_strain_eigenvalues": [
+        -0.00046527599874027247,
+        -4.157349714542381e-06,
+        0.0003846844708478043
+      ],
+      "S_principal_stress_eigenvalues_Pa": [
+        -162954.97772672336,
+        -20920.81439204299,
+        98646.90430370855
+      ],
+      "captured_accumulated_multiplier_increment": 0.0,
+      "material_index": 2,
+      "material_name": "starch2007_finite_glue_elastic",
+      "sym_C_min_eigenvalue_Pa": -91919.64310259695,
+      "tet_id": 1904
+    }
+  ]
+}

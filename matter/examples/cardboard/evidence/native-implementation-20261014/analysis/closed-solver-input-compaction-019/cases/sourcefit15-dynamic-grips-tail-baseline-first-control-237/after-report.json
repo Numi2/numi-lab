@@ -1,0 +1,24 @@
+{
+  "archive_bytes": 15483118,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/archives/sourcefit15-dynamic-grips-tail-baseline-first-control-237/inputs.tar.gz",
+  "archive_sha256": "936a6d9d8359ac2e3bb34d89146fa616395ea539574f4c00c1ea82c496b61e96",
+  "before_manifest_sha256": "d44212cdd662918ad2bbd0fd51fcb5b7a74b15613ea44f9656d0830132339d23",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/sourcefit15-dynamic-grips-tail-baseline-first-control-237",
+  "case_input_directories_preserved": true,
+  "filesystem_available_after_bytes": 2479333376,
+  "filesystem_available_before_bytes": 2446217216,
+  "filesystem_delta_bytes": 33116160,
+  "original_allocated_bytes": 49278976,
+  "original_input_files_removed": 767,
+  "original_logical_bytes": 47711125,
+  "physical_or_solver_qualification": false,
+  "pointer_path": "/Users/home/cardboard-implementation-20261014/solver/sourcefit15-dynamic-grips-tail-baseline-first-control-237/inputs.compaction.json",
+  "pointer_sha256": "cf530970938a27b7d2a0f89513cdafc6f818558143def2fb44fabd1d91247a71",
+  "prediction_and_receipt_preserved": true,
+  "restoration_verification": {
+    "verified_bytes": 47711125,
+    "verified_dirs": 32,
+    "verified_files": 767
+  },
+  "schema": "numi.cardboard.closed-solver-input-compaction.case-after.v1"
+}

@@ -1,0 +1,50 @@
+{
+  "bindings": {
+    "A_free_csr_sha256": "6b1d7f76b0a747cd28fa4ee53ef8b5316dd25ae390860a97242f1d91f63990ed",
+    "base_rhs_sha256": "af22b09232b270e5cc15184d09cd8ed3d8f86b83bf08e765f510d6777fcaa8cb",
+    "capture_sha256": "f2d42314cfee0428ecd285ebb9dbd5da1556624e3e92af1d12240fd8106b309a",
+    "dt_seconds": 9.999999747378752e-05,
+    "free_nodes": 846,
+    "input_report_sha256": "490acb6be474e2aa9c48fe03f61538ac5727cd28e5af675c0ee42e7382c92d16",
+    "matrix_semantics": "A=M+dt^2*K; K=-d(f_internal)/d(v), local full unsymmetric dP/dF cache; fixed rows/columns eliminated",
+    "nnz": 71046,
+    "node_count": 882,
+    "shape": [
+      2538,
+      2538
+    ],
+    "source125_assembler_sha256": "2ce80f9b3c989efd058bdbcc29661d10701061cfde459d64cca06c0d6caeee38"
+  },
+  "classification": "CPU FP32 recurrence reference against source125 captured unsymmetric free-DOF A; diagnostic candidate only, no native parity or certificate claim",
+  "limitations": [
+    "No GPU execution was performed.",
+    "The CPU recurrence uses FP32 matrix actions and is not claimed bitwise equivalent to the production matrix-free Metal actions.",
+    "CGLS directions are alternative total corrections from the captured Newton center and do not inherit FGMRES convergence/certification.",
+    "This replay does not include contact, rigid, field, cohesive, or physical nonlinear trial behavior."
+  ],
+  "results": [
+    {
+      "cap": 32,
+      "error": null,
+      "fp32_reference_direction_l2_m_per_s": 0.0024415758568347157,
+      "gamma_terminal": 1.0759111483682471e-11,
+      "independent_fp64_linear_residual_l2_Ns": 5.5265696859078383e-05,
+      "initial_rhs_l2_Ns": 0.00018444380407784322,
+      "iterations": 32,
+      "reduction_ratio": 0.29963433651451843,
+      "status": 2
+    },
+    {
+      "cap": 64,
+      "error": null,
+      "fp32_reference_direction_l2_m_per_s": 0.0033240167549354305,
+      "gamma_terminal": 5.745208562363269e-12,
+      "independent_fp64_linear_residual_l2_Ns": 4.343244097639211e-05,
+      "initial_rhs_l2_Ns": 0.00018444380407784322,
+      "iterations": 64,
+      "reduction_ratio": 0.23547790717904382,
+      "status": 2
+    }
+  ],
+  "schema": "numi.cardboard.base-cgls-cpu-replay-419.v1"
+}

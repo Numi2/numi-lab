@@ -1,0 +1,170 @@
+{
+  "schema": "numi.cardboard.native450_root_adjudication.v1",
+  "created_at_utc": "2026-10-15T22:15:27.600930+00:00",
+  "bindings": {
+    "candidate_audit": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native450-cgls-candidate-audit-001/report.json",
+      "sha256": "7f1cc80cee95dcc5695b44db74de4614bb28f1f67ca704e74563b5ad06ae1146"
+    },
+    "candidate_seal": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native450-cgls-candidate-audit-seal-001/seal.json",
+      "sha256": "e03e0eb2316f689be966d9aa6a4087ca7ab9ef26b65f8490b0431d8171630c8a"
+    },
+    "observer_parity": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native450-capture-off-parity-001/report.json",
+      "sha256": "100edf77d4cf802b0292b6ba012f111b1d436eedb4ba6ce5e2cafce19a79c6c0"
+    },
+    "tangent_energy": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/source125-per-tet-tangent-energy-001/report.json",
+      "sha256": "ce3e978336a3e7911b8f0993787f8b7516018b40ba88a01f359793e6ef53ccb1"
+    },
+    "native450_receipt": {
+      "path": "/Users/home/cardboard-implementation-20261014/solver/bounded-cgls64-exact-state-450/receipt.json",
+      "sha256": "958e07dc51d541c7e483d44403bdfa1ee6f6b8058d0025c50a2063f89f64b34c"
+    },
+    "native452_receipt": {
+      "path": "/Users/home/cardboard-implementation-20261014/solver/bounded-cgls64-capture-off-parity-452/receipt.json",
+      "sha256": "94208a97f7e0c5c80c2325dd8e25b2ed311bb6337c25130459e8df3852f7ddb3"
+    },
+    "source142_preflight": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/source142-five-file-preflight-001/report.json",
+      "sha256": "abb1b3e5ed0dccf2345816384a829c17637be46c8a87c51f0d6e9951818086bc"
+    }
+  },
+  "native450_complete_attempt_failed": true,
+  "native450_accepted_control_steps": 1,
+  "selected_directional_native_action_gate": "PASS at the captured nonzero directions; relative A*x error 1.448038139e-7 and A-transpose*r error 1.437122784e-7; not a full-matrix derivative certificate",
+  "selected_native_nonlinear_descent": {
+    "base_l2": 0.00018444375,
+    "trial_l2": 4.85483652e-05,
+    "exact_tested_and_selected_alpha": 1,
+    "relative_reduction": 0.7367849807868252,
+    "old_newton_certificate_transferred": false
+  },
+  "observer_history_parity": {
+    "pass": true,
+    "full_attempt": true,
+    "physical_outputs": 35,
+    "armijo_records": 64,
+    "true_residual_records": 4096
+  },
+  "later_observed_primary_steps": [
+    {
+      "newton_iteration": 49,
+      "direction_kind": "newton",
+      "accepted": true,
+      "selected_alpha": 0.0009765625,
+      "trial_l2": 4.85014716e-05
+    },
+    {
+      "newton_iteration": 50,
+      "direction_kind": "newton",
+      "accepted": true,
+      "selected_alpha": 0.0009765625,
+      "trial_l2": 4.84926677e-05
+    },
+    {
+      "newton_iteration": 51,
+      "direction_kind": "newton",
+      "accepted": true,
+      "selected_alpha": 0.03125,
+      "trial_l2": 4.71436106e-05
+    },
+    {
+      "newton_iteration": 52,
+      "direction_kind": "newton",
+      "accepted": true,
+      "selected_alpha": 0.03125,
+      "trial_l2": 4.68167345e-05
+    },
+    {
+      "newton_iteration": 53,
+      "direction_kind": "newton",
+      "accepted": true,
+      "selected_alpha": 0.015625,
+      "trial_l2": 4.66539423e-05
+    },
+    {
+      "newton_iteration": 54,
+      "direction_kind": "newton",
+      "accepted": true,
+      "selected_alpha": 0.0078125,
+      "trial_l2": 4.64941913e-05
+    },
+    {
+      "newton_iteration": 55,
+      "direction_kind": "newton",
+      "accepted": true,
+      "selected_alpha": 0.0078125,
+      "trial_l2": 4.63848482e-05
+    },
+    {
+      "newton_iteration": 56,
+      "direction_kind": "newton",
+      "accepted": true,
+      "selected_alpha": 0.0078125,
+      "trial_l2": 4.6358251e-05
+    },
+    {
+      "newton_iteration": 57,
+      "direction_kind": "newton",
+      "accepted": true,
+      "selected_alpha": 0.000122070312,
+      "trial_l2": 4.6355588e-05
+    },
+    {
+      "newton_iteration": 58,
+      "direction_kind": "newton",
+      "accepted": true,
+      "selected_alpha": 0.001953125,
+      "trial_l2": 4.63195756e-05
+    },
+    {
+      "newton_iteration": 59,
+      "direction_kind": "newton",
+      "accepted": true,
+      "selected_alpha": 0.00390625,
+      "trial_l2": 4.62823664e-05
+    },
+    {
+      "newton_iteration": 60,
+      "direction_kind": "newton",
+      "accepted": true,
+      "selected_alpha": 0.001953125,
+      "trial_l2": 4.62386743e-05
+    },
+    {
+      "newton_iteration": 61,
+      "direction_kind": "newton",
+      "accepted": true,
+      "selected_alpha": 0.001953125,
+      "trial_l2": 4.6204168e-05
+    },
+    {
+      "newton_iteration": 62,
+      "direction_kind": "newton",
+      "accepted": true,
+      "selected_alpha": 0.001953125,
+      "trial_l2": 4.61822601e-05
+    }
+  ],
+  "terminal_trace_limit": "The 64-record cap contains N0-47, both N48 passes, and N49-62. N63 Armijo outcome is unavailable. True-residual traces reach N63 and the terminal bounded control fails/rolls back. Do not infer the unrecorded final Armijo branch.",
+  "repeated_control1_trial_admitted": false,
+  "repeated_control1_trial_decision": "Defer the proposed same-budget1:all451 experiment. Its GPU mask makes fallback inert on observed accepted N49-62; it could alter unobserved N63 and is not proven redundant. It does not directly address the observed tiny accepted Newton steps.",
+  "next_implementation": "Default-off explicit residual-minimizing CGLS-primary direction policy from selected Newton48, with all ordinary nonlinear tests, final certificate and rollback unchanged. This is a new solver experiment, not a constitutive parameter change.",
+  "physical_operator_interpretation": "The independent per-tet contraction attributes the captured negative quadratic form mainly to compressive initial-stress/geometric stiffness, offset by a positive aggregate algorithmic material contribution. No sign defect is demonstrated. Source transfer and compression/shear hardening assumptions remain open.",
+  "limits": [
+    "Native FP32 finite-difference material/element gates remain noise-inconclusive.",
+    "No complete coupon cycle, spatial/time/slower-loading convergence or nonlinear-contact trajectory is qualified.",
+    "No calibrated corrugated damage, independent starch fixture validation, physical shipping assembly, Fpeak, gravity crush or drop result.",
+    "448 is retained as an incomplete ENOSPC operational incident without a terminal native receipt or inferred CGLS outcome."
+  ],
+  "six_axis_verdicts": {
+    "solver_correctness": "bounded CGLS helper/action/descent and observer-history parity qualified; full trajectory and derivative/contact qualification open",
+    "numerical_convergence": "unqualified",
+    "component_calibration": "partial source-bound constituent fits; corrugated damage/debonding open",
+    "analogue_validation": "whole-fixture held-out validation open",
+    "physical_assembly_in_simulation": "unexecuted",
+    "crush_impact_prediction": "unexecuted"
+  }
+}

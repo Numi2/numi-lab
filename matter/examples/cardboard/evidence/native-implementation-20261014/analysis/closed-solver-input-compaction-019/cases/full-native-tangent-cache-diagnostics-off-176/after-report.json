@@ -1,0 +1,24 @@
+{
+  "archive_bytes": 15068765,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/archives/full-native-tangent-cache-diagnostics-off-176/inputs.tar.gz",
+  "archive_sha256": "b43e46b78bf082cf5b9d79674ae4e8f6f0f9326bd732960876f613bb9e7360ff",
+  "before_manifest_sha256": "7ed9f982af7db7225bbeb4e9ba7d98f505a65f3f689a4187469f97becf6ad32a",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/full-native-tangent-cache-diagnostics-off-176",
+  "case_input_directories_preserved": true,
+  "filesystem_available_after_bytes": 3051175936,
+  "filesystem_available_before_bytes": 3018117120,
+  "filesystem_delta_bytes": 33058816,
+  "original_allocated_bytes": 48164864,
+  "original_input_files_removed": 756,
+  "original_logical_bytes": 46609767,
+  "physical_or_solver_qualification": false,
+  "pointer_path": "/Users/home/cardboard-implementation-20261014/solver/full-native-tangent-cache-diagnostics-off-176/inputs.compaction.json",
+  "pointer_sha256": "5e11f8a36b61f36877b4ee5046bfa0bde7cfb57f57f3432fc1ccef610def633f",
+  "prediction_and_receipt_preserved": true,
+  "restoration_verification": {
+    "verified_bytes": 46609767,
+    "verified_dirs": 32,
+    "verified_files": 756
+  },
+  "schema": "numi.cardboard.closed-solver-input-compaction.case-after.v1"
+}

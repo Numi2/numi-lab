@@ -1,0 +1,18 @@
+wrote /Users/home/cardboard-implementation-20261014/analysis/native450-independent-review-001/report.json
+{
+  "verdict": "LIMITED_CGLS_TRIAL_AND_CAPTURE_PARITY_CONFIRMED; FULL_SOLVER_CONVERGENCE_NOT_QUALIFIED",
+  "record_count": 64,
+  "late_count": 14,
+  "outputs": 35,
+  "CGLS_trial": {
+    "accepted": true,
+    "base_l2": 0.00018444375,
+    "trial_l2": 4.85483652e-05,
+    "selected_alpha": 1,
+    "relative_reduction": 0.7367849807868252,
+    "base_health": "healthy_at_armijo_entry",
+    "solver_status_code": 0,
+    "tail_status_role": "unused_tail_after_selected_accept",
+    "Newton_certificate_transferred": false
+  }
+}

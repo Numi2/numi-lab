@@ -1,0 +1,16 @@
+{
+  "source": "/Users/home/cardboard-implementation-20261014/snapshots/source-bounded-native-cgls-141",
+  "base": "/Users/home/cardboard-implementation-20261014/snapshots/source-coupon-cache-admission-139",
+  "core_kernel_sha256": "24563b7d4d54c894c1f6ace75dca060429159752500c394e78a69a4fc0ae3b2c",
+  "runtime_binding_sha256": "5dc9a970e4792bba47432770dfa4c5d6048697d35ec19851be632ae57a040734",
+  "changed_files": {
+    "matter/src/runtime.mm": "1917384f3d82c43c1c63e040ebe796c43f7ab017cc0ef0f474ca94d3bd511ebb",
+    "matter/src/metal/fgmres.metalinc": "e5ebc5a8942fc4b7b23ccc8beebc2b88370860b9544996eb882a9ace87111b90",
+    "matter/src/metal/base_cgls.metalinc": "24563b7d4d54c894c1f6ace75dca060429159752500c394e78a69a4fc0ae3b2c",
+    "matter/src/metal/base_cgls_runtime.metalinc": "9c889ffa751411980498f6a4536e1c8ffacbe472a37d559f291b5893874fa74c",
+    "matter/CMakeLists.txt": "2763c841225947f88218450536f77d428009a8878bc053bd278b2c353e262293"
+  },
+  "selected_sources": 787,
+  "physical_steps": 0,
+  "status": "AWAITING_BUILD_AND_NATIVE_CHECKS"
+}

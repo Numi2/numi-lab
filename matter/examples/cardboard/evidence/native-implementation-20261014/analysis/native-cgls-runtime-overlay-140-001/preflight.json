@@ -1,0 +1,9 @@
+{
+  "source": "/Users/home/cardboard-implementation-20261014/snapshots/source-coupon-cache-admission-139",
+  "base_runtime_sha256": "53fb2217362fbb78bcaafdf3a3a850927d6f830dd8f9d72490c076ecbe04c5a7",
+  "candidate_runtime_sha256": "a2141a24913f6addefb76ff39a05490cce613a453d5f10b9011599be3077a117",
+  "runtime_adapters_sha256": "ae2988641a8a6b707952ab2fe567143cd2805bb7df12db39e7893e4c5823cde1",
+  "physical_steps": 0,
+  "status": "AWAITING_KERNEL_INTEGRATION_AND_BUILD",
+  "scope": "Default-off bounded CGLS candidate generator; original operator, true Newton certificate, nonlinear Armijo and rollback gates are unchanged. New direction clears original convergence latch before trial."
+}

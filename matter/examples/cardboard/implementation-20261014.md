@@ -1,5 +1,9 @@
 # Cardboard implementation and evidence ledger
 
+## Current milestone: source142 bounded native CGLS
+
+The [source142 report](solver-cgls-source142.md) records the repaired native CGLS helper, closely agreeing selected operator actions and a 73.68% nonlinear residual decrease at control 1/Newton 48. Capture-on/off runs preserve the complete attempted history, but both fail and roll back the control. Independent FP64 intervals resolve every captured paper direction at the 1e-6 gate; the native FP32 derivative comparison remains noise-inconclusive. The negative captured stiffness work is dominated by compressive geometric stiffness. No complete coupon, resolution study, calibrated corrugated failure, released shipping assembly or crush/drop result is qualified. Earlier reports retain their original scope.
+
 ## Current milestone: source139 cache admission and attempted-history parity
 
 The [source139 report](solver-cache-parity-source139.md) records the cache admission repair and exact parity across the entire attempted coupon history. Repeated raw Cauchy fallback still exhausts64 Newton iterations and rolls back. Independent FP64 perturbations resolve finite-step curvature and meet the assembled1% gate over a range, while the all-row material derivative gate remains open. Native residual replays of CPU CGLS proposals are separate from integrated solver qualification. No completed coupon, resolution study, calibrated corrugated failure, released shipping assembly or crush/drop result is qualified. Earlier reports retain their original revision scope.

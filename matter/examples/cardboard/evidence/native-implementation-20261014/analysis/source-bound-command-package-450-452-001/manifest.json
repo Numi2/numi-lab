@@ -1,0 +1,26 @@
+{
+  "checks_passed": true,
+  "files": [
+    {
+      "bytes": 737,
+      "path": "README.md",
+      "sha256": "700da0ee9dd3494aedf5fe425df017784343bfc9b99e41efbafb85283494eda6"
+    },
+    {
+      "bytes": 4773,
+      "path": "native-450-command.json",
+      "sha256": "61fefd629ed4cb79ff9f9b75b38ce9d69c5eadd11f354250f3d5d1539dffb4bc"
+    },
+    {
+      "bytes": 4465,
+      "path": "native-452-command.json",
+      "sha256": "d79f2fb180d2fe0315f22bf382bcf620bc2adc56342f99d929c37561a9ef5bc8"
+    },
+    {
+      "bytes": 9867,
+      "path": "source-bound-command-package.json",
+      "sha256": "d3fec393aaaa363f525e7b68147d2848b8ddd8a2d0225db9ec70a21a262af67a"
+    }
+  ],
+  "schema": "numi.cardboard.source_bound_command_package_manifest.v1"
+}

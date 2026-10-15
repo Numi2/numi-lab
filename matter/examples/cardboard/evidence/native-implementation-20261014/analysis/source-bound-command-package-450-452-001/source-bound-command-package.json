@@ -1,0 +1,159 @@
+{
+  "classification": "compact command/runner binding; source/build/run input payloads referenced rather than duplicated",
+  "limits": [
+    "Command binding is separate from numerical parity.",
+    "Both runs terminate after one accepted step then a status-10 failure; no completed coupon claim."
+  ],
+  "pair": {
+    "added_environment_keys": [],
+    "common_environment_differences": {
+      "NM_FEM_COUPLED_CAPTURE_PATH": {
+        "450": "/Users/home/cardboard-implementation-20261014/solver/bounded-cgls64-exact-state-450/operator-capture",
+        "452": "/Users/home/cardboard-implementation-20261014/solver/bounded-cgls64-capture-off-parity-452/operator-capture"
+      },
+      "NM_FEM_STATUS5_CAPTURE_PATH": {
+        "450": "/Users/home/cardboard-implementation-20261014/solver/bounded-cgls64-exact-state-450/first-status5",
+        "452": "/Users/home/cardboard-implementation-20261014/solver/bounded-cgls64-capture-off-parity-452/first-status5"
+      }
+    },
+    "common_environment_equal_after_run_path_normalization": true,
+    "only_functional_capture_keys_removed": true,
+    "output_paths": {
+      "450": "/Users/home/cardboard-implementation-20261014/solver/bounded-cgls64-exact-state-450/output",
+      "452": "/Users/home/cardboard-implementation-20261014/solver/bounded-cgls64-capture-off-parity-452/output"
+    },
+    "probe_args_equal_except_output_path": true,
+    "removed_environment_keys": [
+      "NM_FEM_BASE_CGLS_CAPTURE_NEWTON",
+      "NM_FEM_BASE_CGLS_CAPTURE_PATH"
+    ],
+    "run_destination_differences_normalize": true
+  },
+  "runner": {
+    "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-bounded-native-cgls-mask-repair-142/matter/tools/cardboard_source_bound_run.py",
+    "retained_manifest_path": "/Users/home/cardboard-implementation-20261014/analysis/retained-source-snapshot142-001/manifest.json",
+    "retained_manifest_sha256": "54689bcf40a6016504270a0320f471ab2ca5adce8b2d48308b67eaeb8dfc302c",
+    "retained_snapshot_entry": {
+      "bytes": 12188,
+      "executable": false,
+      "path": "matter/tools/cardboard_source_bound_run.py",
+      "sha256": "fb08ce5428944fd09cea52abf9c07a8e7ff8746ed8763b2a262f2898147ae3ff",
+      "storage": "git_base"
+    },
+    "retained_source142_archive": "/Users/home/cardboard-implementation-20261014/analysis/retained-source-snapshot142-001/source-142.json.gz",
+    "retained_source142_sha256": "741e1929f16fe2f128232e9142278874e4998ae390659d57a7786b4b9e4e9f6d",
+    "sha256": "fb08ce5428944fd09cea52abf9c07a8e7ff8746ed8763b2a262f2898147ae3ff"
+  },
+  "runs": {
+    "450": {
+      "build_provenance_path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-142/source-build.json",
+      "build_provenance_sha256": "2be135f609c920de6d538639df9448b4f51eddb3d802ed31827f3454a8f0f7a9",
+      "checks": {
+        "cli_case_matches_guard": true,
+        "command_hash_matches_guard": true,
+        "command_hash_matches_launch": true,
+        "guard_no_space_abort": true,
+        "prediction_build_equal": true,
+        "prediction_env_equal": true,
+        "prediction_inputs_equal": true,
+        "prediction_probe_argv_equal": true,
+        "prediction_runtime_equal": true,
+        "prediction_source_equal": true,
+        "prediction_timeout_equal": true,
+        "receipt_exit_guard_equal": true,
+        "receipt_terminal": true
+      },
+      "command_copy_path": "/Users/home/cardboard-implementation-20261014/analysis/source-bound-command-package-450-452-001/native-450-command.json",
+      "command_copy_sha256": "61fefd629ed4cb79ff9f9b75b38ce9d69c5eadd11f354250f3d5d1539dffb4bc",
+      "command_path": "/Users/home/cardboard-implementation-20261014/native-450-command.json",
+      "command_sha256": "61fefd629ed4cb79ff9f9b75b38ce9d69c5eadd11f354250f3d5d1539dffb4bc",
+      "environment": {
+        "NM_FEM_BASE_CAUCHY_FALLBACK_SELECTOR": "1:48",
+        "NM_FEM_BASE_CGLS_CAPTURE_NEWTON": "48",
+        "NM_FEM_BASE_CGLS_CAPTURE_PATH": "/Users/home/cardboard-implementation-20261014/solver/bounded-cgls64-exact-state-450/base-cgls.bin",
+        "NM_FEM_BASE_CGLS_ITERATIONS": "64",
+        "NM_FEM_CACHE_PROJECTION_REUSE": "1",
+        "NM_FEM_COUPLED_CAPTURE_PATH": "/Users/home/cardboard-implementation-20261014/solver/bounded-cgls64-exact-state-450/operator-capture",
+        "NM_FEM_COUPLED_CAPTURE_SELECTOR": "1:48",
+        "NM_FEM_GRAPH_PARALLEL_LU_SEARCH": "1",
+        "NM_FEM_REGIONAL_CURRENT_RESTART_AUGMENTATION": "1",
+        "NM_FEM_RESIDUAL_ARMIJO_ROOT": "all",
+        "NM_FEM_RESIDUAL_ARMIJO_TRACE_ROOT": "1",
+        "NM_FEM_STATUS5_CAPTURE_PATH": "/Users/home/cardboard-implementation-20261014/solver/bounded-cgls64-exact-state-450/first-status5",
+        "NM_FEM_STATUS5_CAPTURE_ROOT": "1",
+        "NM_FEM_TRUE_RESIDUAL_CERTIFY": "1",
+        "NM_FEM_TRUE_RESIDUAL_ROOT": "1",
+        "NUMI_CARDBOARD_STEP_TIMING": "1"
+      },
+      "external_inputs": [
+        "/Users/home/cardboard-implementation-20261014/analysis/native-cgls-runtime-review-140-001/manifest.json",
+        "/Users/home/cardboard-implementation-20261014/native/base-cgls-mask-repair-check-447/receipt.json",
+        "/Users/home/cardboard-implementation-20261014/analysis/native445-cgls-disabled-history-parity-001/report.json",
+        "/Users/home/cardboard-implementation-20261014/analysis/native-base-cgls-mask-repair-142-001/source-overlay.json",
+        "/Users/home/cardboard-implementation-20261014/analysis/native448-incomplete-io-incident-001/incident.json",
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-142/source-build.json"
+      ],
+      "guard_launch_sha256": "20ceae5416bcaf3e2bf93b619494753f83cf45ac643183fce6991db79a54936c",
+      "guard_receipt_sha256": "0876815404426cac811c72c2c46f16b739c8dfa4a7e052c0b329860741e99f58",
+      "prediction_sha256": "d2678ec8c0a8aae9316e2a9c4eba757bbd8075d45cbe647d1af835068b832260",
+      "run_receipt_sha256": "958e07dc51d541c7e483d44403bdfa1ee6f6b8058d0025c50a2063f89f64b34c",
+      "runtime_dir": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-142",
+      "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-bounded-native-cgls-mask-repair-142"
+    },
+    "452": {
+      "build_provenance_path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-142/source-build.json",
+      "build_provenance_sha256": "2be135f609c920de6d538639df9448b4f51eddb3d802ed31827f3454a8f0f7a9",
+      "checks": {
+        "cli_case_matches_guard": true,
+        "command_hash_matches_guard": true,
+        "command_hash_matches_launch": true,
+        "guard_no_space_abort": true,
+        "prediction_build_equal": true,
+        "prediction_env_equal": true,
+        "prediction_inputs_equal": true,
+        "prediction_probe_argv_equal": true,
+        "prediction_runtime_equal": true,
+        "prediction_source_equal": true,
+        "prediction_timeout_equal": true,
+        "receipt_exit_guard_equal": true,
+        "receipt_terminal": true
+      },
+      "command_copy_path": "/Users/home/cardboard-implementation-20261014/analysis/source-bound-command-package-450-452-001/native-452-command.json",
+      "command_copy_sha256": "d79f2fb180d2fe0315f22bf382bcf620bc2adc56342f99d929c37561a9ef5bc8",
+      "command_path": "/Users/home/cardboard-implementation-20261014/native-452-command.json",
+      "command_sha256": "d79f2fb180d2fe0315f22bf382bcf620bc2adc56342f99d929c37561a9ef5bc8",
+      "environment": {
+        "NM_FEM_BASE_CAUCHY_FALLBACK_SELECTOR": "1:48",
+        "NM_FEM_BASE_CGLS_ITERATIONS": "64",
+        "NM_FEM_CACHE_PROJECTION_REUSE": "1",
+        "NM_FEM_COUPLED_CAPTURE_PATH": "/Users/home/cardboard-implementation-20261014/solver/bounded-cgls64-capture-off-parity-452/operator-capture",
+        "NM_FEM_COUPLED_CAPTURE_SELECTOR": "1:48",
+        "NM_FEM_GRAPH_PARALLEL_LU_SEARCH": "1",
+        "NM_FEM_REGIONAL_CURRENT_RESTART_AUGMENTATION": "1",
+        "NM_FEM_RESIDUAL_ARMIJO_ROOT": "all",
+        "NM_FEM_RESIDUAL_ARMIJO_TRACE_ROOT": "1",
+        "NM_FEM_STATUS5_CAPTURE_PATH": "/Users/home/cardboard-implementation-20261014/solver/bounded-cgls64-capture-off-parity-452/first-status5",
+        "NM_FEM_STATUS5_CAPTURE_ROOT": "1",
+        "NM_FEM_TRUE_RESIDUAL_CERTIFY": "1",
+        "NM_FEM_TRUE_RESIDUAL_ROOT": "1",
+        "NUMI_CARDBOARD_STEP_TIMING": "1"
+      },
+      "external_inputs": [
+        "/Users/home/cardboard-implementation-20261014/analysis/native-cgls-runtime-review-140-001/manifest.json",
+        "/Users/home/cardboard-implementation-20261014/native/base-cgls-mask-repair-check-447/receipt.json",
+        "/Users/home/cardboard-implementation-20261014/analysis/native445-cgls-disabled-history-parity-001/report.json",
+        "/Users/home/cardboard-implementation-20261014/analysis/native-base-cgls-mask-repair-142-001/source-overlay.json",
+        "/Users/home/cardboard-implementation-20261014/analysis/native448-incomplete-io-incident-001/incident.json",
+        "/Users/home/cardboard-implementation-20261014/analysis/cgls-capture-off452-inputs-001/native450-observer-on-receipt.json",
+        "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-142/source-build.json"
+      ],
+      "guard_launch_sha256": "b1360e9f4ae917994ed38f7c2100cb666fe8ce7010a2ec3dbc117b1e66ef2aab",
+      "guard_receipt_sha256": "97f8466e2bc5b67b01c1773ae075f11a3d079cc9ab7a7efc8c1f21c3de3b93e8",
+      "prediction_sha256": "23a16edd20c1095ff0303397b98615a11e37167427a4bddac3696b3378ec7b6c",
+      "run_receipt_sha256": "94208a97f7e0c5c80c2325dd8e25b2ed311bb6337c25130459e8df3852f7ddb3",
+      "runtime_dir": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-142",
+      "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-bounded-native-cgls-mask-repair-142"
+    }
+  },
+  "schema": "numi.cardboard.source_bound_command_package_450_452.v1"
+}

@@ -1,0 +1,26 @@
+{
+  "classification": "CPU-tested read-only parity auditor; native452 execution pending",
+  "files": {
+    "README.md": {
+      "bytes": 1791,
+      "sha256": "fb41a559286463c24d832a8da780304750176b60e6bc748f2d68fd25f2bcfe47"
+    },
+    "audit_capture_observer_parity.py": {
+      "bytes": 14923,
+      "sha256": "cf79d940ce2a912532a9548a903b713900d7ec31abad901986d5ae20dea9c51e"
+    },
+    "cpu-validation.json": {
+      "bytes": 810,
+      "sha256": "46c7a0b1e9dd71ea616dce46872786a7350180ff03c35b9fb21ed52c40265c02"
+    },
+    "preflight.json": {
+      "bytes": 1144,
+      "sha256": "30324c3c736cd96cfd5f9457e8ae080f5f241f85523ace1745f044fe149ac6ed"
+    },
+    "test_audit_capture_observer_parity.py": {
+      "bytes": 2576,
+      "sha256": "101dbc4c5e202d6f4ed637d313f6bd43600c56fb3195b302f53222b6f80c897b"
+    }
+  },
+  "schema": "numi.cardboard.native450_capture_off_parity_tool_manifest.v1"
+}

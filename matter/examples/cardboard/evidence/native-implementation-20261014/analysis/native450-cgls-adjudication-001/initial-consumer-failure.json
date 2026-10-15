@@ -1,0 +1,6 @@
+{
+  "execution_kind": "CPU analysis consumer only",
+  "error": "Initial analyzer searched fem_residual_armijo= instead of actual fem_residual_armijo_iteration= and failed post-row-count assertion before report emission. Native artifacts were read only.",
+  "corrected_action": "Use actual production prefix and assert14 observed postcandidate rows.",
+  "physical_validation": false
+}

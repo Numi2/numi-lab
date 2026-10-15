@@ -1,0 +1,24 @@
+{
+  "archive_bytes": 15541002,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/archives/sourcefit15-fg32-control1-newton63-capture-266/inputs.tar.gz",
+  "archive_sha256": "7273d862f0b5eea0f5a799cc69fc5863fa69ab2d0119d994e98d8b56ce5985e9",
+  "before_manifest_sha256": "6bd06427a2ce08f1440fb512873837774eee773a3ac54250a496767896907b3e",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/sourcefit15-fg32-control1-newton63-capture-266",
+  "case_input_directories_preserved": true,
+  "filesystem_available_after_bytes": 2263523328,
+  "filesystem_available_before_bytes": 2226122752,
+  "filesystem_delta_bytes": 37400576,
+  "original_allocated_bytes": 49586176,
+  "original_input_files_removed": 772,
+  "original_logical_bytes": 48000855,
+  "physical_or_solver_qualification": false,
+  "pointer_path": "/Users/home/cardboard-implementation-20261014/solver/sourcefit15-fg32-control1-newton63-capture-266/inputs.compaction.json",
+  "pointer_sha256": "b29a74a8123a1c31eef43a0f895720b7f7fdaef2d9824885a337aacb3350f5df",
+  "prediction_and_receipt_preserved": true,
+  "restoration_verification": {
+    "verified_bytes": 48000855,
+    "verified_dirs": 32,
+    "verified_files": 772
+  },
+  "schema": "numi.cardboard.closed-solver-input-compaction.case-after.v1"
+}

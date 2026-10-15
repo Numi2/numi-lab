@@ -1,0 +1,193 @@
+{
+  "schema": "numi.cardboard.source125.native-derivative-input-audit.v1",
+  "claim_scope": "source125 root1/Newton48 captured operator/material input audit; no physical coupon qualification",
+  "capture": {
+    "path": "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/operator-capture",
+    "sha256": "f2d42314cfee0428ecd285ebb9dbd5da1556624e3e92af1d12240fd8106b309a",
+    "root": 1,
+    "newton_iteration": 48,
+    "environment": 0,
+    "node_count": 882,
+    "tetrahedron_count": 1920,
+    "paper_tetrahedra": 1728,
+    "dt_seconds_binary32_promoted": 9.999999747378752e-05,
+    "epsilon_values": [
+      0.03125,
+      0.015625
+    ],
+    "F_encoding": "F_local high FP32 + F_local_low FP32, each word widened before sum",
+    "fixed_accepted_history": true,
+    "production_inputs_bitwise_unchanged": true
+  },
+  "endpoint_representation": [
+    {
+      "epsilon": 0.03125,
+      "paper_side_rows": 3456,
+      "environment_status_word_counts_at_capture": {
+        "5": 3456
+      },
+      "native_local_projection_valid_counts": {
+        "True": 3456
+      },
+      "native_local_projection_valid_rows": 3456,
+      "max_abs_F_wordpair_vs_ideal_requested_endpoint": 1.1771810703997687e-07,
+      "realized_centered_direction_relative_error": {
+        "count": 1728,
+        "max": 1.1100461619593993e-05,
+        "median": 4.5613678315546706e-07
+      },
+      "interpretation": "endpoint input representation diagnostic only; not a derivative noise floor"
+    },
+    {
+      "epsilon": 0.015625,
+      "paper_side_rows": 3456,
+      "environment_status_word_counts_at_capture": {
+        "0": 3456
+      },
+      "native_local_projection_valid_counts": {
+        "True": 3456
+      },
+      "native_local_projection_valid_rows": 3456,
+      "max_abs_F_wordpair_vs_ideal_requested_endpoint": 4.6001714659738013e-08,
+      "realized_centered_direction_relative_error": {
+        "count": 1728,
+        "max": 1.6825337056618678e-05,
+        "median": 6.589640454747217e-07
+      },
+      "interpretation": "endpoint input representation diagnostic only; not a derivative noise floor"
+    }
+  ],
+  "stress_projection_same_input_reference": {
+    "source_report": "/Users/home/cardboard-implementation-20261014/analysis/operator-fd-e2-adapter-001/coupon419-003/report.json",
+    "source_report_sha256": "c918a287f0de7966d50813a70fa7d9d3917746a6fc5de8dca57283fbf375ba76",
+    "pair_results": [
+      {
+        "epsilon": 0.03125,
+        "native_global_FD_admissible": false,
+        "materials": {
+          "minus_material_0": {
+            "native_rows": 1152,
+            "fp64_projection_success": 1151,
+            "native_stress_vs_fp64_global_relative": 2.661821217477941e-08,
+            "native_stress_vs_fp64_abs_component_max_Pa": 61.99375629425049,
+            "plastic_multiplier_branch_crossings": 1
+          },
+          "minus_material_1": {
+            "native_rows": 576,
+            "fp64_projection_success": 576,
+            "native_stress_vs_fp64_global_relative": 2.4936430373645242e-08,
+            "native_stress_vs_fp64_abs_component_max_Pa": 0.060541685903444886,
+            "plastic_multiplier_branch_crossings": 5
+          },
+          "plus_material_0": {
+            "native_rows": 1152,
+            "fp64_projection_success": 1151,
+            "native_stress_vs_fp64_global_relative": 1.9688663898064267e-08,
+            "native_stress_vs_fp64_abs_component_max_Pa": 50.248692750930786,
+            "plastic_multiplier_branch_crossings": 3
+          },
+          "plus_material_1": {
+            "native_rows": 576,
+            "fp64_projection_success": 576,
+            "native_stress_vs_fp64_global_relative": 2.4644878240702743e-08,
+            "native_stress_vs_fp64_abs_component_max_Pa": 0.03649369953200221,
+            "plastic_multiplier_branch_crossings": 10
+          }
+        }
+      },
+      {
+        "epsilon": 0.015625,
+        "native_global_FD_admissible": true,
+        "materials": {
+          "minus_material_0": {
+            "native_rows": 1152,
+            "fp64_projection_success": 1151,
+            "native_stress_vs_fp64_global_relative": 2.2327289887668233e-08,
+            "native_stress_vs_fp64_abs_component_max_Pa": 12.431596875190735,
+            "plastic_multiplier_branch_crossings": 0
+          },
+          "minus_material_1": {
+            "native_rows": 576,
+            "fp64_projection_success": 576,
+            "native_stress_vs_fp64_global_relative": 2.5380319189329174e-08,
+            "native_stress_vs_fp64_abs_component_max_Pa": 0.03083775599952787,
+            "plastic_multiplier_branch_crossings": 7
+          },
+          "plus_material_0": {
+            "native_rows": 1152,
+            "fp64_projection_success": 1152,
+            "native_stress_vs_fp64_global_relative": 2.9967210965696414e-08,
+            "native_stress_vs_fp64_abs_component_max_Pa": 15.04731285572052,
+            "plastic_multiplier_branch_crossings": 2
+          },
+          "plus_material_1": {
+            "native_rows": 576,
+            "fp64_projection_success": 576,
+            "native_stress_vs_fp64_global_relative": 2.696068111911551e-08,
+            "native_stress_vs_fp64_abs_component_max_Pa": 0.03120660048443824,
+            "plastic_multiplier_branch_crossings": 24
+          }
+        }
+      }
+    ]
+  },
+  "operator_quadratic_form": {
+    "source_sweep_report": "/Users/home/cardboard-implementation-20261014/analysis/source125-fp64-smooth-direction-sweep-006/result-004/report.json",
+    "source_sweep_sha256": "2a2ffd1bb9205b847f7b34119ccd38d98c2d5cc91d4801792017195f831798ba",
+    "definition": "K is the derivative of assembled internal force with respect to displacement; source action is A*dv=M*dv-dt^2*K*dv.",
+    "reported_mass_signed_work_J": 0.014972904461489247,
+    "reported_minus_dt2_K_signed_work_J": -0.015815235779008018,
+    "reported_total_A_signed_work_J": -0.0008423313175187709,
+    "independent_elementwise_material_breakdown": {
+      "0": {
+        "elements": 1152,
+        "v_dot_Kv_J": 2327130.2471576706,
+        "v_dot_minus_dt2_Kv_J": -0.023271301308011597,
+        "element_directional_work_sign_counts": {
+          "positive": 9,
+          "negative": 1143,
+          "zero": 0
+        }
+      },
+      "1": {
+        "elements": 576,
+        "v_dot_Kv_J": -644636.3738609077,
+        "v_dot_minus_dt2_Kv_J": 0.006446363416290895,
+        "element_directional_work_sign_counts": {
+          "positive": 0,
+          "negative": 576,
+          "zero": 0
+        }
+      },
+      "2": {
+        "elements": 192,
+        "v_dot_Kv_J": -100970.21548229721,
+        "v_dot_minus_dt2_Kv_J": 0.001009702104337865,
+        "element_directional_work_sign_counts": {
+          "positive": 3,
+          "negative": 189,
+          "zero": 0
+        }
+      }
+    },
+    "independent_minus_dt2_K_sum_J": -0.01581523578738284,
+    "breakdown_matches_reported_minus_dt2_K": true,
+    "interpretation": "The negative contribution is in the material-tangent internal-force derivative after the -dt^2 factor; the audited assembly has no separate geometric-stiffness matrix. It is not a residual-sign bookkeeping mismatch. Negative directional work alone does not establish a physical-energy violation or software defect."
+  },
+  "source_hashes": {
+    "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/operator-capture": "f2d42314cfee0428ecd285ebb9dbd5da1556624e3e92af1d12240fd8106b309a",
+    "/Users/home/cardboard-implementation-20261014/analysis/operator-fd-e2-adapter-001/coupon419-003/environment-0.npz": "e20eeb559f5976e6b9ddb2ae605ea6860908cde3a1d255ea80832b24840c8353",
+    "/Users/home/cardboard-implementation-20261014/analysis/source125-fp64-smooth-direction-sweep-006/result-004/report.json": "2a2ffd1bb9205b847f7b34119ccd38d98c2d5cc91d4801792017195f831798ba",
+    "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/receipt.json": "0826a69a65ea4a0d76ef95e56c5d0d7f5238f4de746dd6daf81f11a87907f67d",
+    "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/prediction.json": "41b37af2747cfa551fae60eaddd7681cd7c7dbc859a402e641677ec23bd957d6",
+    "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/output/compiled.nmatterpack": "cafbf36052bbfa72e8be49fdba8b23e900469c9f15136a14a4ec1e4c0b5ccf7c",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-125/source-build.json": "35b821184ca36ad57c529bc0e33e4f20519996def1c312f8ac0f8028ecadb8e6",
+    "/Users/home/cardboard-implementation-20261014/analysis/operator-fd-e2-adapter-001/coupon419-003/report.json": "c918a287f0de7966d50813a70fa7d9d3917746a6fc5de8dca57283fbf375ba76",
+    "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py": "c17010564a98fe63da0c8b88be81313685a65cfbd57ff82292e797cab5a0fdf3",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125/matter/src/runtime.mm": "1719f14310d643ca96c520eb47b3028f8259f85e3da0d263460921b06d94ac74",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125/matter/include/numi/matter/shared.h": "cd173c076905f660aa8aecc900e6f6aba8d69406996f3cccf2e0656c753ff871",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125/matter/src/metal/common.metalinc": "441a3f86f21979a086a0356f5fd2b91f692ba94dbd09a28d07ea9756c1246a5a",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125/matter/src/metal/fem.metalinc": "70c2f396045f9abdcfdc32f5714e6e3a400f5566e5a7824353e11b307de52b7d",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125/matter/src/metal/fgmres.metalinc": "1c423e02e189df17c925e0b77ded87465098278f836011c16aad1bb8f92bcec0"
+  }
+}

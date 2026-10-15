@@ -1,0 +1,12 @@
+{
+  "all_artifacts_unchanged": true,
+  "available_after": 189186048,
+  "available_before": 121716736,
+  "available_delta": 67469312,
+  "deleted_allocated_bytes": 69550080,
+  "deleted_count": 616,
+  "deleted_logical_bytes": 68277907,
+  "inventory_sha256": "43faae528f67e7751e14fa5927502ec15a75f695632d53c5588af8eb6560f6ad",
+  "open_handles_after": 0,
+  "open_handles_before": 0
+}

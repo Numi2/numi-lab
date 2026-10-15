@@ -1,0 +1,23 @@
+{
+  "candidate_runtime_sha256": "1917384f3d82c43c1c63e040ebe796c43f7ab017cc0ef0f474ca94d3bd511ebb",
+  "runtime_adapters_sha256": "18ba6a966feddd1b777da184f19df9e8083f1c5b6c5f5d19ee736a0d8d6819eb",
+  "physical_steps": 0,
+  "status": "AWAITING_SOURCE141_BUILD_AND_NATIVE_CHECKS",
+  "prior_preflight_scope": "Each preflight records its own historical draft stage; final-runtime-binding identifies current bytes. Failed draft ABI and quiet-layout assumptions are preserved in their sequential patches.",
+  "ordered_generators": [
+    "prepare.py",
+    "extend_capture.py",
+    "fix_abi.py",
+    "fix_quiet.py",
+    "finalize.py"
+  ],
+  "ordered_patches": [
+    "runtime.patch",
+    "capture.patch",
+    "abi-and-allocation-fixes.patch",
+    "quiet-environment-fixes.patch",
+    "final-metadata.patch"
+  ],
+  "current_new_scratch_bound_bytes": 1900624,
+  "old_base_rhs_trace_additional_bound_bytes": 262176
+}

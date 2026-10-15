@@ -1,0 +1,24 @@
+{
+  "archive_bytes": 15181762,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/archives/selected-newton-regional-rap-and-operator-capture-182/inputs.tar.gz",
+  "archive_sha256": "7d4c2e1ca6c607815b46afcea97d5e2defa36bd17cf930ea5ce49c4e13c46190",
+  "before_manifest_sha256": "ec42c27cba89ba63d40aa00dfcabe38c7dd46f199075e9134d192074ddaa91b2",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/selected-newton-regional-rap-and-operator-capture-182",
+  "case_input_directories_preserved": true,
+  "filesystem_available_after_bytes": 2886676480,
+  "filesystem_available_before_bytes": 2848198656,
+  "filesystem_delta_bytes": 38477824,
+  "original_allocated_bytes": 48541696,
+  "original_input_files_removed": 760,
+  "original_logical_bytes": 46971125,
+  "physical_or_solver_qualification": false,
+  "pointer_path": "/Users/home/cardboard-implementation-20261014/solver/selected-newton-regional-rap-and-operator-capture-182/inputs.compaction.json",
+  "pointer_sha256": "8a221e65d7aab3564fef867d6ce636277bd7814c46845d491e21ea08ff9484a7",
+  "prediction_and_receipt_preserved": true,
+  "restoration_verification": {
+    "verified_bytes": 46971125,
+    "verified_dirs": 32,
+    "verified_files": 760
+  },
+  "schema": "numi.cardboard.closed-solver-input-compaction.case-after.v1"
+}

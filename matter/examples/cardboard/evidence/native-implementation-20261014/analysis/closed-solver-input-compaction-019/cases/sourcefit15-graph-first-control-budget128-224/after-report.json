@@ -1,0 +1,24 @@
+{
+  "archive_bytes": 15059891,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/archives/sourcefit15-graph-first-control-budget128-224/inputs.tar.gz",
+  "archive_sha256": "48db909c39b9ae9185e496d54f563ec0306a28e354abfc142c7a138e41f72734",
+  "before_manifest_sha256": "7e37fbefaa991b35d7aab7a29e715d5d005a90e3ce84eb7a97df588d60581c6f",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/sourcefit15-graph-first-control-budget128-224",
+  "case_input_directories_preserved": true,
+  "filesystem_available_after_bytes": 2613190656,
+  "filesystem_available_before_bytes": 2579419136,
+  "filesystem_delta_bytes": 33771520,
+  "original_allocated_bytes": 48541696,
+  "original_input_files_removed": 763,
+  "original_logical_bytes": 46973652,
+  "physical_or_solver_qualification": false,
+  "pointer_path": "/Users/home/cardboard-implementation-20261014/solver/sourcefit15-graph-first-control-budget128-224/inputs.compaction.json",
+  "pointer_sha256": "72e39057a7c4253284260a89d9a04e25e90e2e930336f19fbd975d23f5214b11",
+  "prediction_and_receipt_preserved": true,
+  "restoration_verification": {
+    "verified_bytes": 46973652,
+    "verified_dirs": 32,
+    "verified_files": 763
+  },
+  "schema": "numi.cardboard.closed-solver-input-compaction.case-after.v1"
+}

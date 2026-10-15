@@ -1,0 +1,26 @@
+# Independent source review: optional base-state CGLS direction
+
+## Result
+
+The final bound source is internally coherent for a **default-off, narrowly scoped experimental direction**. I found no remaining source-level mismatch in the CGLS recurrence, row layout, cached operator modes, or Armijo handoff. The final binding is explicitly **not native qualification**: its status is `AWAITING_SOURCE141_BUILD_AND_NATIVE_CHECKS`, and `physical_steps` is 0.
+
+## What I checked
+
+- The host parser accepts only CGLS caps 32 or 64, requires the fallback selector, and fail-closes if the exact `U = 2*E*N` FEM row layout or optional capture arguments are invalid. Fallback admission also requires the same selected residual-Armijo root/Newton, true-residual certification, one static FEM object, `E<=2`, `N<=4096`, `T<=32768`, single execution budget, valid tangent-cache buffers, positive finite authored nodal masses, and the residual-Armijo scope predicate (`candidate/matter/src/runtime.mm:11683-11828`).
+- The preserved RHS is captured before FGMRES repurposes its residual workspace (`runtime.mm:19162-19175`). It zeros constrained mechanical rows but retains field backing rows so the later CGLS validation rejects any nonzero field RHS instead of silently dropping it (`source139/fgmres.metalinc:5215-5240`).
+- The adapter derives its binary XYZ free-row mask from the actual FEM candidate's constraint tag and positive finite mass. It creates environment mapping for the full two-block vector, zeroes the quiet environment's RHS, and only sets each selected marker from the first mechanical block (`runtime-adapters.metalinc:3-32`). The installer checks environment health, the original FGMRES certificate, selected control/status, finite vectors, positive descent, all constrained rows zero, and all field rows zero before it replaces the direction. It clears the prior certificate latch before the new direction goes to ordinary Armijo; it does not relabel that certificate as covering CGLS (`runtime-adapters.metalinc:34-115`).
+- The recurrence implements matrix-free CGLS: initialize with `s=p=A^T b`, then use `alpha=(s,s)/(Ap,Ap)`, update `x,r`, recompute `s=A^T r`, and `beta=(s_new,s_new)/(s,s)`. It validates exact layout, mask values, environment map, finiteness, denominators, quiet-environment zeros, and field/constrained rows. Iteration count/status updates are separated from vector updates by their own dispatch boundary (`base_cgls.metalinc:65-180`, and subsequent recurrence kernels in the same bound file).
+- The runtime selects the existing production element operator with tangent-cache mode 3 for transpose and 4 for forward; these use the same cached 9x9 element tangent, with mode 3 reading its transposed row-major entries. The ordinary gather remains the outer nodal assembly, and the true-residual flag bypasses the completed-FGMRES early return read-only (`source139/fem.metalinc:3238-3275`, `source139/fgmres.metalinc:5064-5100`, `runtime.mm:22459-22551`). The required clear/action/recurrence barriers are present between dependent dispatches (`runtime.mm:22552-22672`).
+- The Cauchy route uses the preserved base RHS to form `A^T b`, then `A(A^T b)`, and `tau=||A^T b||^2/||A(A^T b)||^2`; it checks positive descent and hands the direction through the ordinary nonlinear Armijo transaction. CGLS similarly recomputes `A*x` and retains an explicit “original Newton certificate does not apply” trace. The primary Newton pass remains first (`runtime.mm:22459-22714`).
+- The final preflight binds 1,900,624 bytes of new CGLS scratch, plus 262,176 bytes for the earlier base-RHS/trace allocation. These are bounded experimental allocations, not shipping-size admission.
+
+## Review notes and limits
+
+1. The CGLS `for` loop is statically bounded at 32/64, but host dispatches still issue operator actions after an environment's recurrence status becomes terminal before the cap. The status guards suppress further vector updates, so this is a possible avoidable performance cost rather than a source-level correctness failure; native timing should expose it before any optimization.
+2. The recurrence's compensated accumulation reduces error but remains FP32 and is not an exact solve or a condition-independent descent guarantee. Breakdown, invalid input, exhausted iteration cap, non-descent, or failed ordinary Armijo must continue to reject/rollback through existing gates.
+3. No physical operator coefficients, accepted histories, tolerance, or final acceptance rule are changed by the reviewed path. No claim is made that this fallback converges the coupon or qualifies full-contact/damage cases.
+4. The referenced `host-syntax*.log` files in the construction overlay are empty and do not constitute build evidence. The build manifest says the integrated source141 build/native checks are still pending; require those separately.
+
+## Final source binding
+
+See `manifest.json` for file SHA-256 and byte-length bindings. Final runtime SHA-256 is `1917384f3d82c43c1c63e040ebe796c43f7ab017cc0ef0f474ca94d3bd511ebb`; adapter SHA-256 is `18ba6a966feddd1b777da184f19df9e8083f1c5b6c5f5d19ee736a0d8d6819eb`. Binding file SHA-256 is recorded in the manifest. Earlier preflights are historical stage records only.

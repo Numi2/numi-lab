@@ -1,0 +1,56 @@
+{
+  "schema": "numi.cardboard.native-base-cgls-stage-diagnostic.v1",
+  "package_root": "/Users/home/cardboard-implementation-20261014/analysis/native-base-cgls-diagnostic-443-001",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-bounded-native-cgls-141",
+  "base_checker_package": "/Users/home/cardboard-implementation-20261014/analysis/native-base-cgls-candidate-139-overlay-001",
+  "base_checker_sha256": "52704cd08ee4a7b5a6666bc99f0a68abf1c3d6f3c18fd5e7d32ec607d883c22f",
+  "helper_sha256": "24563b7d4d54c894c1f6ace75dca060429159752500c394e78a69a4fc0ae3b2c",
+  "native_443_failure": "/Users/home/cardboard-implementation-20261014/native/base-cgls-direct-kernel-443",
+  "native_443_checker_sha256": "52704cd08ee4a7b5a6666bc99f0a68abf1c3d6f3c18fd5e7d32ec607d883c22f",
+  "diagnostic_checker_sha256": "717068ebeba718d4ce44b0bdacb81ffff8ac2605b7519b5ffffed7a1fbc2c0ae",
+  "metallib_sha256": "8d93b8027bfb18512b55fa95ea4a57e4d7f8afb836fe9385b438b12140fc1f30",
+  "changed_files": [
+    "native/base_cgls_native_check.mm"
+  ],
+  "validation": {
+    "strict_metal_objcxx_compile": "pass",
+    "native_gpu_execution": "not run; parent owns GPU queue"
+  },
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 1743,
+      "sha256": "ccf276fbe8a775c5cf52baeb475690da1de9b3fa42169b2396c2d0dde5a85180"
+    },
+    {
+      "path": "native/base_cgls_native_check.mm",
+      "bytes": 22383,
+      "sha256": "717068ebeba718d4ce44b0bdacb81ffff8ac2605b7519b5ffffed7a1fbc2c0ae"
+    },
+    {
+      "path": "native/diagnostic-checker.patch",
+      "bytes": 7795,
+      "sha256": "8bbe26da8fd06db068687e1beb6b8207e587cf2c3fd30571862fdf496ff40e54"
+    },
+    {
+      "path": "native/compile_only.sh",
+      "bytes": 683,
+      "sha256": "415006717ed3bfec84530486e701ef93c4d04ad8342f9076a360a9bd84c796d8"
+    },
+    {
+      "path": "native/compile-diagnostic.log",
+      "bytes": 242,
+      "sha256": "add8e01ea6a6a16c3459252bcb42b3f23d3b01329a0ef872912d5f8f5972fbf7"
+    },
+    {
+      "path": "source/matter/src/metal/base_cgls.metalinc",
+      "bytes": 23723,
+      "sha256": "24563b7d4d54c894c1f6ace75dca060429159752500c394e78a69a4fc0ae3b2c"
+    }
+  ],
+  "limitations": [
+    "Diagnostic-only checker instrumentation.",
+    "No helper/kernel or production source change.",
+    "No native result is claimed; native446 must bind these exact checker and metallib hashes."
+  ]
+}

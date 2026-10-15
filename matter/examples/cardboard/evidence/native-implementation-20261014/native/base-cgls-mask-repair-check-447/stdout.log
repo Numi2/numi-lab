@@ -1,0 +1,1 @@
+base CGLS direct-kernel checks=678 status=3 completed=19 max_direction_abs_error=5.96046e-08 max_direction_scale=1.41937 residual_before=4.63681 residual_after=1.3328e-07

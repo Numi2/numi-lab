@@ -1,0 +1,249 @@
+{
+  "armijo": {
+    "Armijo_trace_record_cap": 64,
+    "CGLS48": {
+      "Newton_certificate_transferred": false,
+      "accepted": true,
+      "base_health": "healthy_at_armijo_entry",
+      "base_l2": 0.00018444375,
+      "relative_reduction": 0.7367849807868252,
+      "selected_alpha": 1,
+      "solver_status_code": 0,
+      "tail_status_role": "unused_tail_after_selected_accept",
+      "trial_l2": 4.85483652e-05
+    },
+    "N63_armijo_outcome": "UNKNOWN: trace hit its 64-record cap before this decision; do not infer accepted or exhausted",
+    "Newton48": {
+      "accepted": false,
+      "base_l2": 0.00018444375,
+      "last_tested_alpha": 1.1920929e-07,
+      "solver_status_code": 0
+    },
+    "Newton63_Armijo_record_present": false,
+    "Newton63_true_residual_final_cycle_present": true,
+    "exact_record_parity_on_off": true,
+    "exact_true_residual_parity_on_off": true,
+    "later_primary_newton_49_through_62": [
+      {
+        "alpha": 0.0009765625,
+        "base_l2": 4.85483652e-05,
+        "newton_iteration": 49,
+        "trial_l2": 4.85014716e-05
+      },
+      {
+        "alpha": 0.0009765625,
+        "base_l2": 4.85014716e-05,
+        "newton_iteration": 50,
+        "trial_l2": 4.84926677e-05
+      },
+      {
+        "alpha": 0.03125,
+        "base_l2": 4.84926677e-05,
+        "newton_iteration": 51,
+        "trial_l2": 4.71436106e-05
+      },
+      {
+        "alpha": 0.03125,
+        "base_l2": 4.71436106e-05,
+        "newton_iteration": 52,
+        "trial_l2": 4.68167345e-05
+      },
+      {
+        "alpha": 0.015625,
+        "base_l2": 4.68167345e-05,
+        "newton_iteration": 53,
+        "trial_l2": 4.66539423e-05
+      },
+      {
+        "alpha": 0.0078125,
+        "base_l2": 4.66539423e-05,
+        "newton_iteration": 54,
+        "trial_l2": 4.64941913e-05
+      },
+      {
+        "alpha": 0.0078125,
+        "base_l2": 4.64941913e-05,
+        "newton_iteration": 55,
+        "trial_l2": 4.63848482e-05
+      },
+      {
+        "alpha": 0.0078125,
+        "base_l2": 4.63848482e-05,
+        "newton_iteration": 56,
+        "trial_l2": 4.6358251e-05
+      },
+      {
+        "alpha": 0.000122070312,
+        "base_l2": 4.6358251e-05,
+        "newton_iteration": 57,
+        "trial_l2": 4.6355588e-05
+      },
+      {
+        "alpha": 0.001953125,
+        "base_l2": 4.6355588e-05,
+        "newton_iteration": 58,
+        "trial_l2": 4.63195756e-05
+      },
+      {
+        "alpha": 0.00390625,
+        "base_l2": 4.63195756e-05,
+        "newton_iteration": 59,
+        "trial_l2": 4.62823664e-05
+      },
+      {
+        "alpha": 0.001953125,
+        "base_l2": 4.62823664e-05,
+        "newton_iteration": 60,
+        "trial_l2": 4.62386743e-05
+      },
+      {
+        "alpha": 0.001953125,
+        "base_l2": 4.62386743e-05,
+        "newton_iteration": 61,
+        "trial_l2": 4.6204168e-05
+      },
+      {
+        "alpha": 0.001953125,
+        "base_l2": 4.6204168e-05,
+        "newton_iteration": 62,
+        "trial_l2": 4.61822601e-05
+      }
+    ],
+    "recorded_true_residual_cycle_rows_per_newton": 64,
+    "root1_records_off": 64,
+    "root1_records_on": 64,
+    "true_residual_cycles_off": 4096,
+    "true_residual_cycles_on": 4096
+  },
+  "bound_capture_off_parity_report_sha256": "100edf77d4cf802b0292b6ba012f111b1d436eedb4ba6ce5e2cafce19a79c6c0",
+  "bound_root_adjudication_sha256": "7b6589d34e1fbc8507d040c251e65e58a340e520320a0312551585104cbf2d73",
+  "bound_root_candidate_report_sha256": "7f1cc80cee95dcc5695b44db74de4614bb28f1f67ca704e74563b5ad06ae1146",
+  "cgls": {
+    "Ax_l2": 0.00017927615699800192,
+    "b_l2": 0.00018444380407784322,
+    "cap": 64,
+    "capture_marker_complete": true,
+    "capture_marker_physical_state_changed": false,
+    "captured_b_dot_Ax_independent_fsum": 3.2136495980069126e-08,
+    "captured_r_vs_b_minus_Ax_l2": 8.074681083010165e-11,
+    "direction_marker_certificate_applies": false,
+    "error_bits": 0,
+    "field_backing_exact_zero": true,
+    "finite_all_snapshot_float_arrays": true,
+    "free_node_count": 846,
+    "iterations": 64,
+    "p_l2": 9.555020904726578e-06,
+    "quiet_environment_exact_zero": true,
+    "r_l2": 4.3433460070661115e-05,
+    "s_l2": 2.405649183235133e-06,
+    "selected_environment": 0,
+    "status_code": 2,
+    "status_name": "exhausted",
+    "x_l2": 0.003323899703521488
+  },
+  "history_and_operator": {
+    "capture_on_off_output_file_count": 35,
+    "capture_on_off_outputs_byte_identical": true,
+    "compiled_pack_sha256": "cafbf36052bbfa72e8be49fdba8b23e900469c9f15136a14a4ec1e4c0b5ccf7c",
+    "existing_1_percent_directional_gates_pass": true,
+    "native_ATr_direction_relative_error": 1.437122783812886e-07,
+    "native_Ax_direction_relative_error": 1.4480381394566878e-07,
+    "pretarget_0_through_47_vs445_record_count": 48,
+    "pretarget_exact_parity": true,
+    "same_root_newton_direction_capture": {
+      "environment": 0,
+      "newton": 48,
+      "root": 1
+    },
+    "scope_limit": "two directional FEM actions on a separate same-world/root/Newton capture with bitwise-matching RHS; the CGLS snapshot does not contain candidate nodes, so full candidate-state identity is not established; not whole-matrix identity and not the original Newton solve certificate"
+  },
+  "independent_checks": "This review independently re-hashed all prediction inputs for runs450 and452, parsed the CGLS binary, compared selected run traces, and checked source gates; root reports are separately bound corroboration.",
+  "limitations": [
+    "Only one physical control step was accepted; the full run exited 2 and rolled back the subsequent failed step.",
+    "CGLS status exhausted at 64 iterations; its direction received ordinary nonlinear Armijo but did not inherit the Newton FGMRES true-residual certificate.",
+    "The CGLS direction action and transpose-action are directional comparisons, not full operator or contact qualification.",
+    "Armijo telemetry stops at 64 records; although Newton true-residual cycles are logged through iteration63, its Armijo branch remains unknown.",
+    "The per-run rich coupled capture was skipped because E=2 is out of its capture scope; the operator reference is from a separate same-world/root/Newton capture.",
+    "No complete coupon cycle or physical validation is demonstrated."
+  ],
+  "run": {
+    "accepted_control_steps": 1,
+    "binary_bytes": 409368,
+    "binary_sha256": "d09d8b76b6d1beb15a39e872d19aed4c2d3b8b6f33cfbfd49d25c19bdfafd099",
+    "exit_code": 2,
+    "input_hash_audit_capture_off": {
+      "count": 801,
+      "environment": {
+        "NM_FEM_BASE_CAUCHY_FALLBACK_SELECTOR": "1:48",
+        "NM_FEM_BASE_CGLS_ITERATIONS": "64",
+        "NM_FEM_CACHE_PROJECTION_REUSE": "1",
+        "NM_FEM_COUPLED_CAPTURE_PATH": "/Users/home/cardboard-implementation-20261014/solver/bounded-cgls64-capture-off-parity-452/operator-capture",
+        "NM_FEM_COUPLED_CAPTURE_SELECTOR": "1:48",
+        "NM_FEM_GRAPH_PARALLEL_LU_SEARCH": "1",
+        "NM_FEM_REGIONAL_CURRENT_RESTART_AUGMENTATION": "1",
+        "NM_FEM_RESIDUAL_ARMIJO_ROOT": "all",
+        "NM_FEM_RESIDUAL_ARMIJO_TRACE_ROOT": "1",
+        "NM_FEM_STATUS5_CAPTURE_PATH": "/Users/home/cardboard-implementation-20261014/solver/bounded-cgls64-capture-off-parity-452/first-status5",
+        "NM_FEM_STATUS5_CAPTURE_ROOT": "1",
+        "NM_FEM_TRUE_RESIDUAL_CERTIFY": "1",
+        "NM_FEM_TRUE_RESIDUAL_ROOT": "1",
+        "NUMI_CARDBOARD_STEP_TIMING": "1"
+      },
+      "inventory_sha256": "8e36a57ca4e6a83d6e70ad8ee20110d637d201d4db438f4135c9cb01f2087076",
+      "runtime_dir": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-142",
+      "source_snapshot_matches": true,
+      "verified": 801
+    },
+    "input_hash_audit_on": {
+      "count": 800,
+      "environment": {
+        "NM_FEM_BASE_CAUCHY_FALLBACK_SELECTOR": "1:48",
+        "NM_FEM_BASE_CGLS_CAPTURE_NEWTON": "48",
+        "NM_FEM_BASE_CGLS_CAPTURE_PATH": "/Users/home/cardboard-implementation-20261014/solver/bounded-cgls64-exact-state-450/base-cgls.bin",
+        "NM_FEM_BASE_CGLS_ITERATIONS": "64",
+        "NM_FEM_CACHE_PROJECTION_REUSE": "1",
+        "NM_FEM_COUPLED_CAPTURE_PATH": "/Users/home/cardboard-implementation-20261014/solver/bounded-cgls64-exact-state-450/operator-capture",
+        "NM_FEM_COUPLED_CAPTURE_SELECTOR": "1:48",
+        "NM_FEM_GRAPH_PARALLEL_LU_SEARCH": "1",
+        "NM_FEM_REGIONAL_CURRENT_RESTART_AUGMENTATION": "1",
+        "NM_FEM_RESIDUAL_ARMIJO_ROOT": "all",
+        "NM_FEM_RESIDUAL_ARMIJO_TRACE_ROOT": "1",
+        "NM_FEM_STATUS5_CAPTURE_PATH": "/Users/home/cardboard-implementation-20261014/solver/bounded-cgls64-exact-state-450/first-status5",
+        "NM_FEM_STATUS5_CAPTURE_ROOT": "1",
+        "NM_FEM_TRUE_RESIDUAL_CERTIFY": "1",
+        "NM_FEM_TRUE_RESIDUAL_ROOT": "1",
+        "NUMI_CARDBOARD_STEP_TIMING": "1"
+      },
+      "inventory_sha256": "485be9e91c993f5ebe2b5e58fea2b69b09cf0a8a1d66d5b8ec866ac734845d6a",
+      "runtime_dir": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-142",
+      "source_snapshot_matches": true,
+      "verified": 800
+    },
+    "path": "/Users/home/cardboard-implementation-20261014/solver/bounded-cgls64-exact-state-450",
+    "physical_validation": false,
+    "prediction_sha256": "d2678ec8c0a8aae9316e2a9c4eba757bbd8075d45cbe647d1af835068b832260",
+    "receipt_sha256": "958e07dc51d541c7e483d44403bdfa1ee6f6b8058d0025c50a2063f89f64b34c",
+    "source_inputs_unchanged": true,
+    "status": "failed",
+    "stderr_sha256": "b5ae5ced00920cbda990e923064df518b527311cb24d95a27a4e0b1e1559e984",
+    "timed_out": false
+  },
+  "schema": "numi.cardboard.native450_independent_review.v1",
+  "selector_all_interpretation": {
+    "N63": "unobserved by Armijo trace; a 1:all run could differ there if primary Armijo exhausted, so same-budget repeat is not proven redundant",
+    "observed_N49_to_N62": "all recorded primary trials accepted; fallback direction helper predicate is not active for these accepted states",
+    "source_condition": "base-CGLS helper prepare/build/install gates require Armijo metric state w==3; primary accepted steps set w=1, exhaustion may set w=3"
+  },
+  "source_snapshot": {
+    "compiled_world_hex": "0x75c1264bc96ac2d9",
+    "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-bounded-native-cgls-mask-repair-142",
+    "relevant_file_sha256": {
+      "base_cgls": "439f702b6b92b913cff204ba3fd2a73757280cf68f9b7808c5cefcfa3de9b04e",
+      "base_cgls_runtime": "9c889ffa751411980498f6a4536e1c8ffacbe472a37d559f291b5893874fa74c",
+      "fem": "33edccfec4a2faee1b0bfd7a59aa7847ac707ac3c56baa9a0030e858eeba7170",
+      "fgmres": "e5ebc5a8942fc4b7b23ccc8beebc2b88370860b9544996eb882a9ace87111b90",
+      "runtime": "1917384f3d82c43c1c63e040ebe796c43f7ab017cc0ef0f474ca94d3bd511ebb"
+    }
+  },
+  "verdict": "LIMITED_CGLS_TRIAL_AND_CAPTURE_PARITY_CONFIRMED; FULL_SOLVER_CONVERGENCE_NOT_QUALIFIED"
+}

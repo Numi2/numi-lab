@@ -1,0 +1,24 @@
+{
+  "archive_bytes": 15541003,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/archives/budgeted-graph-legacy-first-control-263/inputs.tar.gz",
+  "archive_sha256": "6e442533c26fe3fdb258ae0b2c18a75bf9bf6b7be1d959d4bd6dea0b427fbe51",
+  "before_manifest_sha256": "ccf090e50807459a000f150b9f7bee39521bb1082fe117310a7be0897a296061",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/budgeted-graph-legacy-first-control-263",
+  "case_input_directories_preserved": true,
+  "filesystem_available_after_bytes": 2365251584,
+  "filesystem_available_before_bytes": 2331107328,
+  "filesystem_delta_bytes": 34144256,
+  "original_allocated_bytes": 49586176,
+  "original_input_files_removed": 772,
+  "original_logical_bytes": 48000855,
+  "physical_or_solver_qualification": false,
+  "pointer_path": "/Users/home/cardboard-implementation-20261014/solver/budgeted-graph-legacy-first-control-263/inputs.compaction.json",
+  "pointer_sha256": "cb3f13666e1195c9bea9b6f7cc878482065fb143ffc001d94e786a3941051b9f",
+  "prediction_and_receipt_preserved": true,
+  "restoration_verification": {
+    "verified_bytes": 48000855,
+    "verified_dirs": 32,
+    "verified_files": 772
+  },
+  "schema": "numi.cardboard.closed-solver-input-compaction.case-after.v1"
+}

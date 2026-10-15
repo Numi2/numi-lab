@@ -1,0 +1,24 @@
+{
+  "commands": {
+    "450": {
+      "path": "/Users/home/cardboard-implementation-20261014/native-450-command.json",
+      "sha256": "61fefd629ed4cb79ff9f9b75b38ce9d69c5eadd11f354250f3d5d1539dffb4bc"
+    },
+    "452": {
+      "path": "/Users/home/cardboard-implementation-20261014/native-452-command.json",
+      "sha256": "d79f2fb180d2fe0315f22bf382bcf620bc2adc56342f99d929c37561a9ef5bc8"
+    }
+  },
+  "native_execution": "not performed by this analyzer agent",
+  "only_removed_env_keys": [
+    "NM_FEM_BASE_CGLS_CAPTURE_NEWTON",
+    "NM_FEM_BASE_CGLS_CAPTURE_PATH"
+  ],
+  "physical_probe_argv_equal_except_output_path": true,
+  "prepared_command_pair": "PASS",
+  "remaining_env_values_equal_after_run_path_normalization": true,
+  "run450_prediction_sha256": "d2678ec8c0a8aae9316e2a9c4eba757bbd8075d45cbe647d1af835068b832260",
+  "schema": "numi.cardboard.native450_capture_off_parity_preflight.v1",
+  "source142_cached_operator_audit_module_sha256": "2ce80f9b3c989efd058bdbcc29661d10701061cfde459d64cca06c0d6caeee38",
+  "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-bounded-native-cgls-mask-repair-142"
+}

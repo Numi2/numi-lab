@@ -1,0 +1,36 @@
+{
+  "files": {
+    "base-cgls-native-check": {
+      "bytes": 122360,
+      "sha256": "be6569b2ee4c0b017bcf1354607d3e32934ea9668b61ac6aaf88ddaff9abeb62"
+    },
+    "command.json": {
+      "bytes": 127,
+      "sha256": "15bb9d3d6d4e67e0c4677182af8e65d33c3da0a953f4d6b5f030c4a1678e24eb"
+    },
+    "compile-command.json": {
+      "bytes": 598,
+      "sha256": "094ea79ff91cb8f33cf869b9cdddd729f829961ebae536c379a710e723808eb8"
+    },
+    "compile.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "receipt.json": {
+      "bytes": 1580,
+      "sha256": "1cddd95959f8ef5addf146f504baf53d09fedbfb505c11dd95d4f790e9431047"
+    },
+    "runner.py": {
+      "bytes": 2698,
+      "sha256": "2f95bcda215ff3ae1d8e47833519d4c447a705f4ef7b89aafd47210fa1c43a53"
+    },
+    "stderr.log": {
+      "bytes": 42654,
+      "sha256": "8f50d1f6dc9c2ba6145f0b06b6471b4dcc05c1febd0c5c863cdfda34fb03ebbc"
+    },
+    "stdout.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

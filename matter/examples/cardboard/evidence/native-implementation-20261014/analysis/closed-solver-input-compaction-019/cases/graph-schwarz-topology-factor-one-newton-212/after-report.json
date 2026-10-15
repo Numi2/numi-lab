@@ -1,0 +1,24 @@
+{
+  "archive_bytes": 15058060,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/archives/graph-schwarz-topology-factor-one-newton-212/inputs.tar.gz",
+  "archive_sha256": "f5f7eac156c6b6ce3303b77c31bbc6573e03070ea840e52ee120e87f5d6891e9",
+  "before_manifest_sha256": "afd29fc822d580df5d6aacf5bd016b22ced0202fa708aefa943605d6c06a8e3b",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/graph-schwarz-topology-factor-one-newton-212",
+  "case_input_directories_preserved": true,
+  "filesystem_available_after_bytes": 2985308160,
+  "filesystem_available_before_bytes": 2951987200,
+  "filesystem_delta_bytes": 33320960,
+  "original_allocated_bytes": 48533504,
+  "original_input_files_removed": 763,
+  "original_logical_bytes": 46965184,
+  "physical_or_solver_qualification": false,
+  "pointer_path": "/Users/home/cardboard-implementation-20261014/solver/graph-schwarz-topology-factor-one-newton-212/inputs.compaction.json",
+  "pointer_sha256": "b5867021e20173e90fd7c22f920e309aef52eea2cfd650cce7615853fb28b049",
+  "prediction_and_receipt_preserved": true,
+  "restoration_verification": {
+    "verified_bytes": 46965184,
+    "verified_dirs": 32,
+    "verified_files": 763
+  },
+  "schema": "numi.cardboard.closed-solver-input-compaction.case-after.v1"
+}

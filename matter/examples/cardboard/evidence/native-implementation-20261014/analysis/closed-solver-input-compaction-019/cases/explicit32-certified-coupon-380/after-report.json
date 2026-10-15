@@ -1,0 +1,24 @@
+{
+  "archive_bytes": 16991018,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/archives/explicit32-certified-coupon-380/inputs.tar.gz",
+  "archive_sha256": "ad8ace8bdcdd2f5b0c826897370038121b57c6eceb482571bfda658a5f2f73a8",
+  "before_manifest_sha256": "cc6aa56e9541b629a110768096abc133e247b63304d2fbbe3cf37461c81f1674",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/explicit32-certified-coupon-380",
+  "case_input_directories_preserved": true,
+  "filesystem_available_after_bytes": 1177169920,
+  "filesystem_available_before_bytes": 1141243904,
+  "filesystem_delta_bytes": 35926016,
+  "original_allocated_bytes": 52699136,
+  "original_input_files_removed": 792,
+  "original_logical_bytes": 51063704,
+  "physical_or_solver_qualification": false,
+  "pointer_path": "/Users/home/cardboard-implementation-20261014/solver/explicit32-certified-coupon-380/inputs.compaction.json",
+  "pointer_sha256": "27a52c7d58c44c5c9434367f9049b78e87bb6bb02fa37d4b840b2a3e0bb364fc",
+  "prediction_and_receipt_preserved": true,
+  "restoration_verification": {
+    "verified_bytes": 51063704,
+    "verified_dirs": 32,
+    "verified_files": 792
+  },
+  "schema": "numi.cardboard.closed-solver-input-compaction.case-after.v1"
+}

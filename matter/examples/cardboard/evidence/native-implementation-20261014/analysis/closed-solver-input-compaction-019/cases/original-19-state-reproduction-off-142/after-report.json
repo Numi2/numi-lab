@@ -1,0 +1,24 @@
+{
+  "archive_bytes": 14954114,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/archives/original-19-state-reproduction-off-142/inputs.tar.gz",
+  "archive_sha256": "3a1161dc3c3dc3c8007baf46be73f2ae9d4fe2a1ec5d484b2b5258b79e2c3eea",
+  "before_manifest_sha256": "1a3eb0c0b2ceb118e9ba1ec59ba72f7b9bce94ac11e20d8719da9cc83777764c",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/original-19-state-reproduction-off-142",
+  "case_input_directories_preserved": true,
+  "filesystem_available_after_bytes": 3215663104,
+  "filesystem_available_before_bytes": 3182714880,
+  "filesystem_delta_bytes": 32948224,
+  "original_allocated_bytes": 47730688,
+  "original_input_files_removed": 753,
+  "original_logical_bytes": 46186850,
+  "physical_or_solver_qualification": false,
+  "pointer_path": "/Users/home/cardboard-implementation-20261014/solver/original-19-state-reproduction-off-142/inputs.compaction.json",
+  "pointer_sha256": "f2610029e47412d99babc3366285915b5a7f8a084a53e8778dee6c1d3da4e0bd",
+  "prediction_and_receipt_preserved": true,
+  "restoration_verification": {
+    "verified_bytes": 46186850,
+    "verified_dirs": 32,
+    "verified_files": 753
+  },
+  "schema": "numi.cardboard.closed-solver-input-compaction.case-after.v1"
+}

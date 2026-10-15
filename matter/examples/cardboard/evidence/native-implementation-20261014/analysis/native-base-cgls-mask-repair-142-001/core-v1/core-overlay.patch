@@ -1,0 +1,8 @@
+--- a/matter/src/metal/fgmres.metalinc
++++ b/matter/src/metal/fgmres.metalinc
+@@ -8339,3 +8339,4 @@
+ }
+ 
+ } // namespace numi_matter_metal
++
+#include "base_cgls.metalinc"

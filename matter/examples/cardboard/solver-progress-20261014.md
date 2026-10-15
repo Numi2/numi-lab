@@ -1,5 +1,9 @@
 # Native solver progress and unresolved qualification
 
+## Current milestone: source142 bounded native CGLS
+
+The [source142 report](solver-cgls-source142.md) records 678 direct helper checks, selected actual FEM forward/transpose action errors below 1.5e-7 and a 73.68% nonlinear residual decrease at the difficult state. Observer parity covers all 35 outputs, 64 Armijo records and 4,096 true-residual records; both complete attempts still fail. Later observed Newton steps accept small fractions, and the final Armijo branch is outside the trace cap. Pointwise FP64 derivative intervals pass for every captured paper direction; native FP32 finite differences remain noise-inconclusive. Complete coupon, convergence, calibration, assembly and crush/drop qualification remain open.
+
 ## Current milestone: source139 cache admission and attempted-history parity
 
 The [source139 report](solver-cache-parity-source139.md) records the corrected cache admission and exact full attempted-history parity:64 Armijo records,4,096 true-residual records and33 physical output files are byte identical. Repeated raw fallback still exhausts64 Newton iterations and rolls back. The independent ideal FP64 sweep meets the assembled1% gate over a resolved range but narrowly misses the all-row1e-6 material gate; native derivative/noise qualification remains open. Complete coupon, resolution, calibration, shipping assembly and crush/drop gates remain open.

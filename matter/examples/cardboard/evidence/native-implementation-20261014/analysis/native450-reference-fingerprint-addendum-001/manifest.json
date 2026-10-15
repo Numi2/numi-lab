@@ -1,0 +1,17 @@
+{
+  "files": {
+    "README.md": {
+      "bytes": 1121,
+      "sha256": "9264e5ece2b6d5d047b3f26a86cd7ffd7ee59b3ba0b35b29e31546c9cf53f03e"
+    },
+    "addendum.json": {
+      "bytes": 3751,
+      "sha256": "47b64ed702f066858a36e69d3b9f72afd10dae77eb5d8abe2c3647abfea75cd8"
+    },
+    "verify_reference_binding.py": {
+      "bytes": 7403,
+      "sha256": "dec8e2e86178aee71e097f0688b11afe80e734f151f8abb127b79c9adbc00a20"
+    }
+  },
+  "schema": "numi.cardboard.native450_reference_fingerprint_addendum_manifest.v1"
+}

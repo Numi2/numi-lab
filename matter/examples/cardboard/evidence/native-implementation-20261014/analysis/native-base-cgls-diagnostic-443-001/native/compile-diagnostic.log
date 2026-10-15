@@ -1,0 +1,2 @@
+compile_only.sh: exit 0
+Metal test-actions source compiled and linked to standalone metallib; Objective-C++ checker syntax check passed with -Wall -Wextra -Wpedantic -Werror. Native/GPU execution intentionally not run by this package author.

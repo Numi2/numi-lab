@@ -1,0 +1,24 @@
+{
+  "archive_bytes": 16777165,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/archives/reset-order-augmentation-complete-coupon-351/inputs.tar.gz",
+  "archive_sha256": "ce6a5361888e1d1ff1256594e28cf5dcdf34dcc92b33bf64e371ea869890bc68",
+  "before_manifest_sha256": "9831de634b2ce80b80b76cf24d3636f8f567875631c88576152cea8ed23a0a41",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/reset-order-augmentation-complete-coupon-351",
+  "case_input_directories_preserved": true,
+  "filesystem_available_after_bytes": 1388687360,
+  "filesystem_available_before_bytes": 1353449472,
+  "filesystem_delta_bytes": 35237888,
+  "original_allocated_bytes": 52273152,
+  "original_input_files_removed": 789,
+  "original_logical_bytes": 50655864,
+  "physical_or_solver_qualification": false,
+  "pointer_path": "/Users/home/cardboard-implementation-20261014/solver/reset-order-augmentation-complete-coupon-351/inputs.compaction.json",
+  "pointer_sha256": "e1e0222700395b51fe73fdc079fdf0791c3f791f388a1eb0941c600e7d82030d",
+  "prediction_and_receipt_preserved": true,
+  "restoration_verification": {
+    "verified_bytes": 50655864,
+    "verified_dirs": 32,
+    "verified_files": 789
+  },
+  "schema": "numi.cardboard.closed-solver-input-compaction.case-after.v1"
+}

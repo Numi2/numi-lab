@@ -1,0 +1,299 @@
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -1761,6 +1761,7 @@
+     bool enableVascularDense45 = false;
+     bool femResidualArmijoScratchEnabled = false;
+     bool femBaseCauchyScratchEnabled = false;
++    bool femBaseCGLSScratchEnabled = false;
+     bool femArmijoMixedCohesiveSupported = false;
+     std::size_t acceptedStateProofResidentByteCount = 0u;
+     std::size_t residentBytes = 0u;
+@@ -2279,6 +2280,17 @@
+     // from the true-residual certificate's RHS/operator arenas.
+     id<MTLBuffer> femBaseCauchyRightHandSide = nil;
+     id<MTLBuffer> femBaseCauchyTrace = nil;
++    id<MTLBuffer> femBaseCGLSX = nil;
++    id<MTLBuffer> femBaseCGLSR = nil;
++    id<MTLBuffer> femBaseCGLSS = nil;
++    id<MTLBuffer> femBaseCGLSP = nil;
++    id<MTLBuffer> femBaseCGLSQ = nil;
++    id<MTLBuffer> femBaseCGLSMask = nil;
++    id<MTLBuffer> femBaseCGLSEnvironment = nil;
++    id<MTLBuffer> femBaseCGLSSelected = nil;
++    id<MTLBuffer> femBaseCGLSScalars = nil;
++    id<MTLBuffer> femBaseCGLSControl = nil;
++    id<MTLBuffer> femBaseCGLSErrors = nil;
+     id<MTLBuffer> femConstraintReactions = nil;
+     id<MTLBuffer> femConstraintContactForces = nil;
+     id<MTLBuffer> femLineSearch = nil;
+@@ -6064,6 +6076,12 @@
+             operatorFDRichCaptureRequested;
+         candidate->femBaseCauchyScratchEnabled =
+             std::getenv("NM_FEM_BASE_CAUCHY_FALLBACK_SELECTOR") != nullptr;
++        candidate->femBaseCGLSScratchEnabled =
++            std::getenv("NM_FEM_BASE_CGLS_ITERATIONS") != nullptr &&
++            candidate->femBaseCauchyScratchEnabled &&
++            candidate->dispatch.environmentCount <= 2u &&
++            candidate->dispatch.femNodeCount <= 4096u &&
++            candidate->dispatch.tetrahedronCount <= 32768u;
+         candidate->femResidualArmijoScratchEnabled =
+             std::getenv("NM_FEM_RESIDUAL_ARMIJO_ROOT") != nullptr ||
+             std::getenv("NM_FEM_CAPSULE_RESIDUAL_ARMIJO_ROOT") != nullptr ||
+@@ -6110,6 +6128,39 @@
+                 candidate->femBaseCauchyTrace = privateScratch<nm_float4>(
+                     candidate->device, environments,
+                     valid, candidate->residentBytes);
++            }
++            if (candidate->femBaseCGLSScratchEnabled) {
++                // Five vectors plus a mask/map belong to this direction
++                // experiment; they never alias accepted physical history.
++                candidate->femBaseCGLSX = privateScratch<nm_float4>(
++                    candidate->device, candidate->fgmresLayout.unknownCount,
++                    valid, candidate->residentBytes);
++                candidate->femBaseCGLSR = privateScratch<nm_float4>(
++                    candidate->device, candidate->fgmresLayout.unknownCount,
++                    valid, candidate->residentBytes);
++                candidate->femBaseCGLSS = privateScratch<nm_float4>(
++                    candidate->device, candidate->fgmresLayout.unknownCount,
++                    valid, candidate->residentBytes);
++                candidate->femBaseCGLSP = privateScratch<nm_float4>(
++                    candidate->device, candidate->fgmresLayout.unknownCount,
++                    valid, candidate->residentBytes);
++                candidate->femBaseCGLSQ = privateScratch<nm_float4>(
++                    candidate->device, candidate->fgmresLayout.unknownCount,
++                    valid, candidate->residentBytes);
++                candidate->femBaseCGLSMask = privateScratch<nm_float4>(
++                    candidate->device, candidate->fgmresLayout.unknownCount,
++                    valid, candidate->residentBytes);
++                candidate->femBaseCGLSEnvironment = privateScratch<std::uint32_t>(
++                    candidate->device, candidate->fgmresLayout.unknownCount,
++                    valid, candidate->residentBytes);
++                candidate->femBaseCGLSSelected = privateScratch<std::uint32_t>(
++                    candidate->device, environments, valid, candidate->residentBytes);
++                candidate->femBaseCGLSScalars = privateScratch<nm_float4>(
++                    candidate->device, environments, valid, candidate->residentBytes);
++                candidate->femBaseCGLSControl = privateScratch<nm_uint4>(
++                    candidate->device, environments, valid, candidate->residentBytes);
++                candidate->femBaseCGLSErrors = privateScratch<std::uint32_t>(
++                    candidate->device, environments, valid, candidate->residentBytes);
+             }
+             if (world.dispatch.rigidGeneralizedCapacity != 0u) {
+                 candidate->femArmijoRigidCandidate =
+@@ -11613,6 +11664,23 @@
+             const char* baseCauchySelector = std::getenv(
+                 "NM_FEM_BASE_CAUCHY_FALLBACK_SELECTOR");
+             femBaseCauchyFallbackRequested = baseCauchySelector != nullptr;
++            std::uint32_t femBaseCGLSIterations = 0u;
++            if (const char* cglsIterations = std::getenv("NM_FEM_BASE_CGLS_ITERATIONS")) {
++                if (!femBaseCauchyFallbackRequested ||
++                    (std::strcmp(cglsIterations, "32") != 0 &&
++                     std::strcmp(cglsIterations, "64") != 0) ||
++                    !state.femBaseCGLSScratchEnabled ||
++                    state.fgmresLayout.unknownCount !=
++                        2u * state.dispatch.environmentCount * state.dispatch.femNodeCount) {
++                    std::fprintf(stderr,
++                        "fem_base_cgls_rejected={\"schema\":1,\"control_step\":%u,\"reason\":\"requires_selected_cached_pure_fem_fallback_and_exact_32_or_64_iterations\"}\n",
++                        request.controlStep);
++                    diagnostics.message = "requested bounded base CGLS experiment is unsupported";
++                    ownership->preDynamicsOpen = false;
++                    return diagnostics;
++                }
++                femBaseCGLSIterations = std::strcmp(cglsIterations, "32") == 0 ? 32u : 64u;
++            }
+             if (femBaseCauchyFallbackRequested) {
+                 const auto rejectBaseCauchy = [&](const char* reason) {
+                     femBaseCauchyFallbackConfigValid = false;
+@@ -11706,6 +11774,11 @@
+                         rejectBaseCauchy(reason);
+                     } else if (femBaseCauchyFallbackRoot == request.controlStep) {
+                         femBaseCauchyFallbackSelectedRoot = true;
++                        if (femBaseCGLSIterations != 0u) {
++                            std::fprintf(stderr,
++                                "fem_base_cgls_enabled={\"schema\":1,\"root\":%u,\"iterations\":%u,\"operator_changed\":false,\"linear_solve_claim\":false}\n",
++                                femBaseCauchyFallbackRoot, femBaseCGLSIterations);
++                        }
+                         if (femBaseCauchyFallbackAllNewtonIterations) {
+                             std::fprintf(stderr,
+                                 "fem_base_cauchy_all_newton_enabled={\"schema\":1,\"root\":%u,\"scope\":\"all_newton_iterations_on_one_control_step\",\"maximum_trace_records\":512,\"physical_operator_changed\":false}\n",
+@@ -22240,20 +22313,30 @@
+                 const auto capturedIteration = nonlinearIteration;
+                 const auto capturedEnvironments = environments;
+                 const auto formatFloat = appendTraceFloat;
++                const auto capturedCGLSIterations = femBaseCGLSIterations;
+                 [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed) {
+                     if (completed.status != MTLCommandBufferStatusCompleted) return;
+                     const auto* values = static_cast<const nm_float4*>(snapshot.contents);
+                     std::ostringstream line;
+-                    line << "fem_base_cauchy_direction={\"schema\":1,\"root\":"
++                    if (capturedCGLSIterations != 0u) {
++                        line << "fem_base_cgls_direction={\"schema\":1,\"root\":"
++                             << capturedRoot << ",\"newton_iteration\":" << capturedIteration
++                             << ",\"direction_kind\":\"truncated_unregularized_CGLS\",\"iteration_budget\":"
++                             << capturedCGLSIterations
++                             << ",\"original_newton_certificate_applies_to_direction\":false,\"environments\":[";
++                    } else line << "fem_base_cauchy_direction={\"schema\":1,\"root\":"
+                          << capturedRoot << ",\"newton_iteration\":" << capturedIteration
+                          << ",\"direction_kind\":\"raw_A_transpose_b\","
+                          << "\"original_newton_certificate_applies_to_cauchy\":false,\"environments\":[";
+                     for (std::uint32_t e = 0u; e < capturedEnvironments; ++e) {
+                         if (e != 0u) line << ',';
+-                        line << "{\"environment\":" << e << ",\"gradient_l2\":";
++                        line << "{\"environment\":" << e;
++                        line << (capturedCGLSIterations != 0u ? ",\"candidate_l2\":" : ",\"gradient_l2\":");
+                         formatFloat(line, values[e].x);
+-                        line << ",\"gradient_action_l2\":"; formatFloat(line, values[e].y);
+-                        line << ",\"tau\":"; formatFloat(line, values[e].z);
++                        line << (capturedCGLSIterations != 0u ? ",\"linear_residual_l2\":" : ",\"gradient_action_l2\":");
++                        formatFloat(line, values[e].y);
++                        line << (capturedCGLSIterations != 0u ? ",\"b_dot_Ap\":" : ",\"tau\":");
++                        formatFloat(line, values[e].z);
+                         line << ",\"original_newton_converged\":"
+                              << (values[e].w > 0.5f ? "true" : "false") << '}';
+                     }
+@@ -22274,14 +22357,15 @@
+                 cauchyOperatorMicro.flags |= NM_MICROSTEP_FGMRES_OPERATOR |
+                     NM_MICROSTEP_FGMRES_TRUE_RESIDUAL;
+                 const auto action = [&](const std::uint32_t cacheMode,
++                                         id<MTLBuffer> cauchyInput,
+                                          id<MTLBuffer> cauchyOutput) {
+-                    const std::uint32_t useGradient = cacheMode == 4u ? 1u : 0u;
++                    const std::uint32_t useGradient = 0u;
+                     dispatchThreads("nm_fgmres_prepare_base_cauchy_action",
+                         femNodeTotal, [&] {
+                         setDispatch();
+                         [encoder setBuffer:state.femArmijoMetrics offset:0u atIndex:1u];
+-                        [encoder setBuffer:state.femBaseCauchyRightHandSide offset:0u atIndex:2u];
+-                        [encoder setBuffer:state.femArmijoResidual offset:0u atIndex:3u];
++                        [encoder setBuffer:cauchyInput offset:0u atIndex:2u];
++                        [encoder setBuffer:cauchyInput offset:0u atIndex:3u];
+                         [encoder setBuffer:state.femCandidate offset:0u atIndex:4u];
+                         [encoder setBuffer:state.femArmijoDirection offset:0u atIndex:5u];
+                         [encoder setBytes:&useGradient length:sizeof(useGradient) atIndex:6u];
+@@ -22361,8 +22445,125 @@
+                 });
+                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                 };
+-                action(3u, state.femArmijoResidual);
+-                action(4u, state.femOperatorValue);
++                if (femBaseCGLSIterations != 0u) {
++                    const std::uint32_t cglsUnknowns = state.fgmresLayout.unknownCount;
++                    const auto rows = [&]() {
++                        [encoder setBytes:&cglsUnknowns length:sizeof(cglsUnknowns) atIndex:0u];
++                        [encoder setBytes:&environments length:sizeof(environments) atIndex:1u];
++                        [encoder setBuffer:state.femBaseCGLSMask offset:0u atIndex:2u];
++                        [encoder setBuffer:state.femBaseCGLSEnvironment offset:0u atIndex:3u];
++                    };
++                    const auto barrier = [&]() {
++                        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++                    };
++                    dispatchThreads("nm_fgmres_prepare_base_cgls_layout", cglsUnknowns, [&] {
++                        setDispatch();
++                        [encoder setBuffer:state.femCandidate offset:0u atIndex:1u];
++                        [encoder setBuffer:state.femArmijoMetrics offset:0u atIndex:2u];
++                        [encoder setBuffer:state.femBaseCGLSMask offset:0u atIndex:3u];
++                        [encoder setBuffer:state.femBaseCGLSEnvironment offset:0u atIndex:4u];
++                        [encoder setBuffer:state.femBaseCGLSSelected offset:0u atIndex:5u];
++                    }); barrier();
++                    dispatchThreads("nm_fgmres_base_cgls_initialize_state", environments, [&] {
++                        [encoder setBytes:&environments length:sizeof(environments) atIndex:0u];
++                        [encoder setBytes:&femBaseCGLSIterations length:sizeof(femBaseCGLSIterations) atIndex:1u];
++                        [encoder setBuffer:state.femBaseCGLSSelected offset:0u atIndex:2u];
++                        [encoder setBuffer:state.femBaseCGLSScalars offset:0u atIndex:3u];
++                        [encoder setBuffer:state.femBaseCGLSControl offset:0u atIndex:4u];
++                        [encoder setBuffer:state.femBaseCGLSErrors offset:0u atIndex:5u];
++                    }); barrier();
++                    dispatchThreads("nm_fgmres_clear_true_operator", cglsUnknowns, [&] {
++                        setDispatch();
++                        [encoder setBuffer:state.femBaseCGLSS offset:0u atIndex:1u];
++                    }); barrier();
++                    action(3u, state.femBaseCauchyRightHandSide, state.femBaseCGLSS);
++                    dispatchThreads("nm_fgmres_base_cgls_initialize_vectors", cglsUnknowns, [&] {
++                        rows();
++                        [encoder setBuffer:state.femBaseCGLSSelected offset:0u atIndex:4u];
++                        [encoder setBuffer:state.femBaseCauchyRightHandSide offset:0u atIndex:5u];
++                        [encoder setBuffer:state.femBaseCGLSS offset:0u atIndex:6u];
++                        [encoder setBuffer:state.femBaseCGLSX offset:0u atIndex:7u];
++                        [encoder setBuffer:state.femBaseCGLSR offset:0u atIndex:8u];
++                        [encoder setBuffer:state.femBaseCGLSS offset:0u atIndex:9u];
++                        [encoder setBuffer:state.femBaseCGLSP offset:0u atIndex:10u];
++                        [encoder setBuffer:state.femBaseCGLSQ offset:0u atIndex:11u];
++                        [encoder setBuffer:state.femBaseCGLSErrors offset:0u atIndex:12u];
++                    }); barrier();
++                    dispatchGroups32("nm_fgmres_base_cgls_measure_initial", environments, [&] {
++                        rows();
++                        [encoder setBuffer:state.femBaseCGLSR offset:0u atIndex:4u];
++                        [encoder setBuffer:state.femBaseCGLSS offset:0u atIndex:5u];
++                        [encoder setBuffer:state.femBaseCGLSScalars offset:0u atIndex:6u];
++                        [encoder setBuffer:state.femBaseCGLSControl offset:0u atIndex:7u];
++                        [encoder setBuffer:state.femBaseCGLSErrors offset:0u atIndex:8u];
++                    }); barrier();
++                    for (std::uint32_t iteration = 0u; iteration < femBaseCGLSIterations; ++iteration) {
++                        action(4u, state.femBaseCGLSP, state.femBaseCGLSQ);
++                        dispatchGroups32("nm_fgmres_base_cgls_form_alpha", environments, [&] {
++                            rows();
++                            [encoder setBuffer:state.femBaseCGLSQ offset:0u atIndex:4u];
++                            [encoder setBuffer:state.femBaseCGLSScalars offset:0u atIndex:5u];
++                            [encoder setBuffer:state.femBaseCGLSControl offset:0u atIndex:6u];
++                            [encoder setBuffer:state.femBaseCGLSErrors offset:0u atIndex:7u];
++                        }); barrier();
++                        dispatchThreads("nm_fgmres_base_cgls_update_xr", cglsUnknowns, [&] {
++                            rows();
++                            [encoder setBuffer:state.femBaseCGLSScalars offset:0u atIndex:4u];
++                            [encoder setBuffer:state.femBaseCGLSControl offset:0u atIndex:5u];
++                            [encoder setBuffer:state.femBaseCGLSP offset:0u atIndex:6u];
++                            [encoder setBuffer:state.femBaseCGLSQ offset:0u atIndex:7u];
++                            [encoder setBuffer:state.femBaseCGLSX offset:0u atIndex:8u];
++                            [encoder setBuffer:state.femBaseCGLSR offset:0u atIndex:9u];
++                        }); barrier();
++                        dispatchThreads("nm_fgmres_base_cgls_complete_iteration", environments, [&] {
++                            [encoder setBytes:&environments length:sizeof(environments) atIndex:0u];
++                            [encoder setBuffer:state.femBaseCGLSControl offset:0u atIndex:1u];
++                        }); barrier();
++                        action(3u, state.femBaseCGLSR, state.femBaseCGLSS);
++                        dispatchGroups32("nm_fgmres_base_cgls_form_beta", environments, [&] {
++                            rows();
++                            [encoder setBuffer:state.femBaseCGLSS offset:0u atIndex:4u];
++                            [encoder setBuffer:state.femBaseCGLSScalars offset:0u atIndex:5u];
++                            [encoder setBuffer:state.femBaseCGLSControl offset:0u atIndex:6u];
++                            [encoder setBuffer:state.femBaseCGLSErrors offset:0u atIndex:7u];
++                        }); barrier();
++                        dispatchThreads("nm_fgmres_base_cgls_update_p", cglsUnknowns, [&] {
++                            rows();
++                            [encoder setBuffer:state.femBaseCGLSScalars offset:0u atIndex:4u];
++                            [encoder setBuffer:state.femBaseCGLSControl offset:0u atIndex:5u];
++                            [encoder setBuffer:state.femBaseCGLSS offset:0u atIndex:6u];
++                            [encoder setBuffer:state.femBaseCGLSP offset:0u atIndex:7u];
++                        }); barrier();
++                    }
++                    dispatchThreads("nm_fgmres_base_cgls_finalize", environments, [&] {
++                        [encoder setBytes:&environments length:sizeof(environments) atIndex:0u];
++                        [encoder setBuffer:state.femBaseCGLSScalars offset:0u atIndex:1u];
++                        [encoder setBuffer:state.femBaseCGLSControl offset:0u atIndex:2u];
++                        [encoder setBuffer:state.femBaseCGLSErrors offset:0u atIndex:3u];
++                    }); barrier();
++                    action(4u, state.femBaseCGLSX, state.femBaseCGLSQ);
++                    dispatchThreads("nm_fgmres_install_base_cgls_direction", environments, [&] {
++                        setDispatch();
++                        [encoder setBuffer:state.femArmijoMetrics offset:0u atIndex:1u];
++                        [encoder setBuffer:state.femCandidate offset:0u atIndex:2u];
++                        [encoder setBuffer:state.femBaseCauchyRightHandSide offset:0u atIndex:3u];
++                        [encoder setBuffer:state.femBaseCGLSX offset:0u atIndex:4u];
++                        [encoder setBuffer:state.femBaseCGLSQ offset:0u atIndex:5u];
++                        [encoder setBuffer:state.femBaseCGLSControl offset:0u atIndex:6u];
++                        [encoder setBuffer:state.femBaseCGLSErrors offset:0u atIndex:7u];
++                        [encoder setBuffer:state.femSolution offset:0u atIndex:8u];
++                        [encoder setBuffer:state.femLineSearch offset:0u atIndex:9u];
++                        [encoder setBuffer:state.environmentLineSearch offset:0u atIndex:10u];
++                        [encoder setBuffer:state.femBaseCauchyTrace offset:0u atIndex:11u];
++                        [encoder setBuffer:state.fgmresStates offset:0u atIndex:12u];
++                        [encoder setBuffer:state.statuses offset:0u atIndex:13u];
++                        [encoder setBuffer:state.femArmijoStatuses offset:0u atIndex:14u];
++                        [encoder setBytes:&nonlinearIteration length:sizeof(nonlinearIteration) atIndex:15u];
++                    }); barrier();
++                    return;
++                }
++                action(3u, state.femBaseCauchyRightHandSide, state.femArmijoResidual);
++                action(4u, state.femArmijoResidual, state.femOperatorValue);
+                 dispatchThreads("nm_fgmres_build_base_cauchy_direction",
+                     environments, [&] {
+                     setDispatch();

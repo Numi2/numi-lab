@@ -1,0 +1,24 @@
+{
+  "archive_bytes": 15059875,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/archives/graph-schwarz-final-newton-fd-scale-1over256-220/inputs.tar.gz",
+  "archive_sha256": "2ff8552f024d5edf81541eef20b4c3c6c47927d043e9091dfa06682ce0f63c4a",
+  "before_manifest_sha256": "48e54090d9217546dc088493e0638eada813058bac7ed9ec710f15dc3a7fe871",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/graph-schwarz-final-newton-fd-scale-1over256-220",
+  "case_input_directories_preserved": true,
+  "filesystem_available_after_bytes": 2847100928,
+  "filesystem_available_before_bytes": 2813513728,
+  "filesystem_delta_bytes": 33587200,
+  "original_allocated_bytes": 48541696,
+  "original_input_files_removed": 763,
+  "original_logical_bytes": 46973652,
+  "physical_or_solver_qualification": false,
+  "pointer_path": "/Users/home/cardboard-implementation-20261014/solver/graph-schwarz-final-newton-fd-scale-1over256-220/inputs.compaction.json",
+  "pointer_sha256": "ab68bba34261e7e221242da0d8582a60a12710b85af7f539e5bd639186990ce8",
+  "prediction_and_receipt_preserved": true,
+  "restoration_verification": {
+    "verified_bytes": 46973652,
+    "verified_dirs": 32,
+    "verified_files": 763
+  },
+  "schema": "numi.cardboard.closed-solver-input-compaction.case-after.v1"
+}

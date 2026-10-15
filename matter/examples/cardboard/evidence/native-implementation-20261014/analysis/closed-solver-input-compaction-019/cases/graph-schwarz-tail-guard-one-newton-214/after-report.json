@@ -1,0 +1,24 @@
+{
+  "archive_bytes": 15059871,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/archives/graph-schwarz-tail-guard-one-newton-214/inputs.tar.gz",
+  "archive_sha256": "6839567e3fbb6351496ba2d5c274a55c5ef658a0930267a559573fbf0a66e943",
+  "before_manifest_sha256": "8b014ae4fef0ff2f82a4a888e0922dfd2e9f7aaf795d6d7ab5434739b071d9f3",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/graph-schwarz-tail-guard-one-newton-214",
+  "case_input_directories_preserved": true,
+  "filesystem_available_after_bytes": 2713452544,
+  "filesystem_available_before_bytes": 2680020992,
+  "filesystem_delta_bytes": 33431552,
+  "original_allocated_bytes": 48541696,
+  "original_input_files_removed": 763,
+  "original_logical_bytes": 46973652,
+  "physical_or_solver_qualification": false,
+  "pointer_path": "/Users/home/cardboard-implementation-20261014/solver/graph-schwarz-tail-guard-one-newton-214/inputs.compaction.json",
+  "pointer_sha256": "0ad9d82def14249f1b34eed1d027528c717b4232152f4f1b22824260f382c22b",
+  "prediction_and_receipt_preserved": true,
+  "restoration_verification": {
+    "verified_bytes": 46973652,
+    "verified_dirs": 32,
+    "verified_files": 763
+  },
+  "schema": "numi.cardboard.closed-solver-input-compaction.case-after.v1"
+}

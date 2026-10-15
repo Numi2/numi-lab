@@ -1,0 +1,121 @@
+{
+  "classification": "complete attempted-history observer parity only; no coupon completion or physical qualification",
+  "command_comparison": {
+    "environment": {
+      "added_keys": [],
+      "all_remaining_environment_values_equal_after_run_path_normalization": true,
+      "prediction_environment_delta_exact": true,
+      "removed_keys": [
+        "NM_FEM_BASE_CGLS_CAPTURE_NEWTON",
+        "NM_FEM_BASE_CGLS_CAPTURE_PATH"
+      ],
+      "removed_keys_exact": true
+    },
+    "input_files_off": [
+      "/Users/home/cardboard-implementation-20261014/analysis/native-cgls-runtime-review-140-001/manifest.json",
+      "/Users/home/cardboard-implementation-20261014/native/base-cgls-mask-repair-check-447/receipt.json",
+      "/Users/home/cardboard-implementation-20261014/analysis/native445-cgls-disabled-history-parity-001/report.json",
+      "/Users/home/cardboard-implementation-20261014/analysis/native-base-cgls-mask-repair-142-001/source-overlay.json",
+      "/Users/home/cardboard-implementation-20261014/analysis/native448-incomplete-io-incident-001/incident.json",
+      "/Users/home/cardboard-implementation-20261014/analysis/cgls-capture-off452-inputs-001/native450-observer-on-receipt.json"
+    ],
+    "input_files_on": [
+      "/Users/home/cardboard-implementation-20261014/analysis/native-cgls-runtime-review-140-001/manifest.json",
+      "/Users/home/cardboard-implementation-20261014/native/base-cgls-mask-repair-check-447/receipt.json",
+      "/Users/home/cardboard-implementation-20261014/analysis/native445-cgls-disabled-history-parity-001/report.json",
+      "/Users/home/cardboard-implementation-20261014/analysis/native-base-cgls-mask-repair-142-001/source-overlay.json",
+      "/Users/home/cardboard-implementation-20261014/analysis/native448-incomplete-io-incident-001/incident.json"
+    ],
+    "off_command_sha256": "d79f2fb180d2fe0315f22bf382bcf620bc2adc56342f99d929c37561a9ef5bc8",
+    "on_command_sha256": "61fefd629ed4cb79ff9f9b75b38ce9d69c5eadd11f354250f3d5d1539dffb4bc",
+    "probe_args_equal_except_output_path": true
+  },
+  "compiled_input_comparison": {
+    "compiled_pack_sha256_equal": true,
+    "runtime_dir_equal": true,
+    "runtime_input_hashes_equal": true,
+    "source_input_hashes_equal": true,
+    "source_snapshot_equal": true,
+    "world_fingerprint_equal": true,
+    "world_fingerprint_hex": "75c1264bc96ac2d9"
+  },
+  "excluded_observer_material": {
+    "CGLS_snapshot_absent_in_off_run": true,
+    "capture_only_stderr_prefixes": [
+      "cardboard_step_timing=",
+      "fem_coupled_capture_",
+      "fem_base_cgls_capture=",
+      "fem_base_cgls_direction="
+    ],
+    "status5_payload_compared": true
+  },
+  "history_comparison": {
+    "armijo_record_count_off": 64,
+    "armijo_record_count_on": 64,
+    "both_processes_reached_terminal_receipt": true,
+    "complete_receipts": true,
+    "first_status5_manifest_equal_after_run_path_normalization": true,
+    "first_status5_payload_byte_exact": true,
+    "first_status5_payload_present_both": true,
+    "full_armijo_trace_byte_exact": true,
+    "full_true_residual_trace_byte_exact": true,
+    "observations_byte_exact": true,
+    "output_file_differences": [],
+    "physical_output_file_count": 35,
+    "physical_output_files_byte_exact": 35,
+    "remaining_stderr_byte_exact_after_run_path_normalization": true,
+    "remaining_stderr_lines_after_exclusions_off": 4167,
+    "remaining_stderr_lines_after_exclusions_on": 4167,
+    "same_exit_code": true,
+    "stdout_byte_exact": true,
+    "true_residual_record_count_off": 4096,
+    "true_residual_record_count_on": 4096
+  },
+  "limits": [
+    "A pass means the capture observer did not change this attempted trajectory under these exact source/build/settings. It is not a solver or physical qualification.",
+    "The comparison removes only CGLS capture markers, full-capture markers, and timing lines from stderr. Numerical Armijo and true-residual records remain in the comparison.",
+    "The CGLS candidate direction/trace cannot transfer the original Newton certificate; final acceptance remains independently reported."
+  ],
+  "parity_pass": true,
+  "run_off": {
+    "CGLS_binary_absent": true,
+    "path": "/Users/home/cardboard-implementation-20261014/solver/bounded-cgls64-capture-off-parity-452",
+    "prediction_sha256": "23a16edd20c1095ff0303397b98615a11e37167427a4bddac3696b3378ec7b6c",
+    "receipt_exit_code": 2,
+    "receipt_sha256": "94208a97f7e0c5c80c2325dd8e25b2ed311bb6337c25130459e8df3852f7ddb3",
+    "receipt_timed_out": false,
+    "result": {
+      "accepted_steps": 1,
+      "compiled_world_fingerprint": 8485105279886344921,
+      "failure": "Matter rejected step 1; status, diagnostic state OBJ, and CSV observations were retained; rejected geometry is not an accepted animation frame",
+      "nodes": 882,
+      "physical_validation": false,
+      "schema": "numi.cardboard.probe-result.v1",
+      "status": "failed",
+      "tetrahedra": 1920
+    },
+    "stderr_sha256": "d58b04c059189f3ddffa046d8699d99e700e2e834f01a239f0935e9df309e36d",
+    "stdout_sha256": "9e9e87625cf0549628c2668a29decf5dfeec04db6a5f649642e4c81a51e79fc3"
+  },
+  "run_on": {
+    "CGLS_binary_sha256": "d09d8b76b6d1beb15a39e872d19aed4c2d3b8b6f33cfbfd49d25c19bdfafd099",
+    "path": "/Users/home/cardboard-implementation-20261014/solver/bounded-cgls64-exact-state-450",
+    "prediction_sha256": "d2678ec8c0a8aae9316e2a9c4eba757bbd8075d45cbe647d1af835068b832260",
+    "receipt_exit_code": 2,
+    "receipt_sha256": "958e07dc51d541c7e483d44403bdfa1ee6f6b8058d0025c50a2063f89f64b34c",
+    "receipt_timed_out": false,
+    "result": {
+      "accepted_steps": 1,
+      "compiled_world_fingerprint": 8485105279886344921,
+      "failure": "Matter rejected step 1; status, diagnostic state OBJ, and CSV observations were retained; rejected geometry is not an accepted animation frame",
+      "nodes": 882,
+      "physical_validation": false,
+      "schema": "numi.cardboard.probe-result.v1",
+      "status": "failed",
+      "tetrahedra": 1920
+    },
+    "stderr_sha256": "b5ae5ced00920cbda990e923064df518b527311cb24d95a27a4e0b1e1559e984",
+    "stdout_sha256": "9e9e87625cf0549628c2668a29decf5dfeec04db6a5f649642e4c81a51e79fc3"
+  },
+  "schema": "numi.cardboard.native_cgls_capture_observer_parity.v1"
+}

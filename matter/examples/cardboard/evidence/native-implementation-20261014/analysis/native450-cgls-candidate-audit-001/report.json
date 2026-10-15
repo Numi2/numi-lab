@@ -1,0 +1,538 @@
+{
+  "schema": "numi.cardboard.native_cgls_snapshot_audit.v2",
+  "classification": "read-only snapshot/layout/status audit with optional same-world directional operator replay; not a physical solve or solver certificate",
+  "run_binding": {
+    "run_dir": "/Users/home/cardboard-implementation-20261014/solver/bounded-cgls64-exact-state-450",
+    "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-bounded-native-cgls-mask-repair-142",
+    "prediction_sha256": "d2678ec8c0a8aae9316e2a9c4eba757bbd8075d45cbe647d1af835068b832260",
+    "receipt_sha256": "958e07dc51d541c7e483d44403bdfa1ee6f6b8058d0025c50a2063f89f64b34c",
+    "stderr_sha256": "b5ae5ced00920cbda990e923064df518b527311cb24d95a27a4e0b1e1559e984",
+    "source_module_sha256": "2ce80f9b3c989efd058bdbcc29661d10701061cfde459d64cca06c0d6caeee38",
+    "prediction_inputs": {
+      "input_count": 800,
+      "verified_count": 800,
+      "all_prediction_inputs_verified": true
+    },
+    "run_exit_code": 2,
+    "timed_out": false,
+    "CGLS_root": 1,
+    "CGLS_newton_iteration": 48,
+    "binary_sha256": "d09d8b76b6d1beb15a39e872d19aed4c2d3b8b6f33cfbfd49d25c19bdfafd099",
+    "binary_bytes": 409368
+  },
+  "snapshot_header": {
+    "magic_hex": "0x534c4743",
+    "version": 1,
+    "environment_count": 2,
+    "nodes_per_environment": 882,
+    "unknown_count": 3528,
+    "iteration_cap": 64,
+    "segment_count": 12,
+    "file_bytes": 409368,
+    "sha256": "d09d8b76b6d1beb15a39e872d19aed4c2d3b8b6f33cfbfd49d25c19bdfafd099",
+    "segments": [
+      {
+        "name": "x",
+        "offset": 32,
+        "bytes": 56448
+      },
+      {
+        "name": "r",
+        "offset": 56480,
+        "bytes": 56448
+      },
+      {
+        "name": "s",
+        "offset": 112928,
+        "bytes": 56448
+      },
+      {
+        "name": "p",
+        "offset": 169376,
+        "bytes": 56448
+      },
+      {
+        "name": "Ax",
+        "offset": 225824,
+        "bytes": 56448
+      },
+      {
+        "name": "b",
+        "offset": 282272,
+        "bytes": 56448
+      },
+      {
+        "name": "mask",
+        "offset": 338720,
+        "bytes": 56448
+      },
+      {
+        "name": "row_environment",
+        "offset": 395168,
+        "bytes": 14112
+      },
+      {
+        "name": "scalars",
+        "offset": 409280,
+        "bytes": 32
+      },
+      {
+        "name": "control",
+        "offset": 409312,
+        "bytes": 32
+      },
+      {
+        "name": "errors",
+        "offset": 409344,
+        "bytes": 8
+      },
+      {
+        "name": "selected",
+        "offset": 409360,
+        "bytes": 8
+      }
+    ]
+  },
+  "native_state": {
+    "selected_environment": 0,
+    "status": 2,
+    "status_name": "exhausted",
+    "completed_iterations": 64,
+    "cap": 64,
+    "error_bits": 0,
+    "selected_word": 1,
+    "status_valid": true,
+    "direction_marker_selected_environment": {
+      "environment": 0,
+      "candidate_l2": 0.00332389981,
+      "linear_residual_l2": 4.34334615e-05,
+      "b_dot_Ax": 3.21364944e-08,
+      "original_newton_converged": true
+    },
+    "scalars_gamma_alpha_beta_bnorm2": [
+      5.787147670799353e-12,
+      7.059413909912109,
+      1.453755497932434,
+      3.4019517869410265e-08
+    ],
+    "x_l2": 0.0033238997035214875,
+    "r_l2": 4.3433460070661115e-05,
+    "s_l2": 2.405649183235133e-06,
+    "p_l2": 9.555020904726576e-06,
+    "Ax_l2": 0.00017927615699800192,
+    "b_l2": 0.00018444380407784324
+  },
+  "scope_checks": {
+    "field_backing_exact_zero": {
+      "x": true,
+      "r": true,
+      "s": true,
+      "p": true,
+      "Ax": true,
+      "b": true,
+      "mask": true
+    },
+    "quiet_environment_exact_zero_idle": {
+      "1": {
+        "x": true,
+        "r": true,
+        "s": true,
+        "p": true,
+        "Ax": true,
+        "b": true,
+        "mask": true,
+        "errors_zero": true,
+        "scalars_zero": true,
+        "control_idle": true,
+        "selected_zero": true
+      }
+    },
+    "selected_mask_free_row_count": 846,
+    "selected_mask_vs_reference": {
+      "available": true,
+      "classification": "exact selected-environment free-node mask comparison against the bound rich operator capture",
+      "free_node_count": 846,
+      "native_free_node_count": 846,
+      "exact_match": true,
+      "mismatch_node_count": 0
+    },
+    "original_newton_certificate_applies_to_CGLS_direction": false
+  },
+  "armijo_trial": {
+    "record_count_for_selected_root_newton": 2,
+    "records": [
+      {
+        "direction_kind": "newton",
+        "selected_environment": {
+          "base_l2": 0.00018444375,
+          "trial_l2": 0.000184443837,
+          "trial_alpha": 1.1920929e-07,
+          "accepted": false,
+          "certified_noop": false,
+          "trial_outcome": "no_trial_accepted_status_clear",
+          "last_trial_status_role": "last_tested_trial_status",
+          "base_health": "healthy_at_armijo_entry",
+          "base_residual_interpretation": "complete_assembled_free_dof_residual",
+          "selected_alpha": 0,
+          "environment_line_search_alpha": 0,
+          "minimum_J": 0.998457968,
+          "line_search_raw": [
+            0,
+            0.998457968,
+            0,
+            48
+          ],
+          "solver_status_code": 0,
+          "solver_status": {
+            "code": 0,
+            "environment": 0,
+            "object_index": 4294967295,
+            "failing_index": 4294967295,
+            "completed_microsteps": 0,
+            "fgmres_iterations": 44,
+            "contact_count": 0,
+            "event_count": 0,
+            "diagnostics": [
+              null,
+              0,
+              0,
+              0
+            ]
+          },
+          "trial_status": {
+            "code": 0,
+            "environment": 0,
+            "object_index": 0,
+            "failing_index": 0,
+            "completed_microsteps": 0,
+            "fgmres_iterations": 0,
+            "contact_count": 0,
+            "event_count": 0,
+            "diagnostics": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "pretrial_status": {
+            "code": 0,
+            "environment": 0,
+            "object_index": 4294967295,
+            "failing_index": 4294967295,
+            "completed_microsteps": 0,
+            "fgmres_iterations": 44,
+            "contact_count": 0,
+            "event_count": 0,
+            "diagnostics": [
+              null,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        "cgls_direction": false,
+        "accepted_non_noop_CGLS_trial": false
+      },
+      {
+        "direction_kind": "base_cgls",
+        "selected_environment": {
+          "base_l2": 0.00018444375,
+          "trial_l2": 4.85483652e-05,
+          "trial_alpha": 1,
+          "accepted": true,
+          "certified_noop": false,
+          "trial_outcome": "selected_trial_accepted",
+          "last_trial_status_role": "unused_tail_after_selected_accept",
+          "base_health": "healthy_at_armijo_entry",
+          "base_residual_interpretation": "complete_assembled_free_dof_residual",
+          "selected_alpha": 1,
+          "environment_line_search_alpha": 1,
+          "minimum_J": 0.99845916,
+          "line_search_raw": [
+            1,
+            0.99845916,
+            1,
+            48
+          ],
+          "solver_status_code": 0,
+          "solver_status": {
+            "code": 0,
+            "environment": 0,
+            "object_index": 4294967295,
+            "failing_index": 4294967295,
+            "completed_microsteps": 0,
+            "fgmres_iterations": 44,
+            "contact_count": 0,
+            "event_count": 0,
+            "diagnostics": [
+              null,
+              0,
+              0,
+              0
+            ]
+          },
+          "trial_status": {
+            "code": 10,
+            "environment": 0,
+            "object_index": 0,
+            "failing_index": 0,
+            "completed_microsteps": 0,
+            "fgmres_iterations": 0,
+            "contact_count": 0,
+            "event_count": 0,
+            "diagnostics": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "pretrial_status": {
+            "code": 0,
+            "environment": 0,
+            "object_index": 4294967295,
+            "failing_index": 4294967295,
+            "completed_microsteps": 0,
+            "fgmres_iterations": 44,
+            "contact_count": 0,
+            "event_count": 0,
+            "diagnostics": [
+              null,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        "cgls_direction": true,
+        "accepted_non_noop_CGLS_trial": true
+      }
+    ],
+    "accepted_non_noop_CGLS_trial": true,
+    "classification": "ordinary residual Armijo evidence only; no original Newton certificate transfers to the CGLS direction"
+  },
+  "pretarget_history_comparison": {
+    "baseline": {
+      "available": true,
+      "run_dir": "/Users/home/cardboard-implementation-20261014/solver/cgls-disabled-history-parity-445",
+      "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-bounded-native-cgls-141",
+      "source_module_sha256": "2ce80f9b3c989efd058bdbcc29661d10701061cfde459d64cca06c0d6caeee38",
+      "prediction_sha256": "a826bdf380397a2d2e3c5eed3d4a4ecdd3fa2b6fd7b9d5ee0fe3e629ec94f68e",
+      "receipt_sha256": "e076c7e3cc9403043ce47ea2cb73f54e3aa61dd3b8f24b55c0b84ba0960940ae",
+      "stderr_sha256": "04baea125614fcd5a12f37205bbe71504d263ecb6e8892e653901ade1e5767b0",
+      "prediction_inputs": {
+        "input_count": 796,
+        "verified_count": 796,
+        "all_prediction_inputs_verified": true
+      },
+      "run_exit_code": 2,
+      "compiled_world_fingerprint_hex": "75c1264bc96ac2d9",
+      "compiled_pack_sha256": "cafbf36052bbfa72e8be49fdba8b23e900469c9f15136a14a4ec1e4c0b5ccf7c",
+      "same_compiled_world": true,
+      "same_compiled_pack": true
+    },
+    "classification": "exact parsed residual-Armijo record parity before the selected Newton; it does not prove every internal solver state or physical history byte-identical",
+    "root": 1,
+    "target_newton_iteration_exclusive": 48,
+    "actual_record_count": 48,
+    "baseline_record_count": 48,
+    "expected_iteration_count": 48,
+    "missing_actual_iterations": [],
+    "missing_baseline_iterations": [],
+    "mismatch_iterations": [],
+    "actual_canonical_record_sha256": "7c2a02c6ce36333b88caa3a476fb1ea09885b1d58be022628c9312dabd4c22ab",
+    "baseline_canonical_record_sha256": "7c2a02c6ce36333b88caa3a476fb1ea09885b1d58be022628c9312dabd4c22ab",
+    "exact_pretarget_trace_parity": true,
+    "same_compiled_world": true,
+    "same_compiled_pack": true,
+    "pretarget_trace_parity_with_compiled_identity": true
+  },
+  "target_rich_operator_capture_scope": {
+    "root": 1,
+    "newton_iteration": 48,
+    "completed_markers": [],
+    "skipped_markers": [
+      {
+        "schema": 1,
+        "root": 1,
+        "iteration": 48,
+        "reason": "environment_count_out_of_scope",
+        "bytes": 0,
+        "requested_present_payload_bytes": 0,
+        "observed": {
+          "capture_byte_cap_bytes": 33554432,
+          "minimum_full_contact_arena_bytes": 17723008,
+          "environment_count": 2,
+          "fem_node_count": 882,
+          "tetrahedron_count": 1920,
+          "particle_count": 0,
+          "grid_node_count": 0,
+          "mpm_grid_count": 0,
+          "mpm_block_count": 0,
+          "mpm_block_lookup_count": 0,
+          "object_count": 1,
+          "material_state_stride": 15,
+          "material_history_elements": 115200,
+          "contact_pair_count": 0,
+          "deformable_contact_capacity": 15360,
+          "cohesive_face_count": 0,
+          "rigid_proxy_count": 0,
+          "rigid_generalized_capacity": 0,
+          "unknown_count": 3528,
+          "vascular_unknown_count": 0,
+          "identification_candidate_count": 0,
+          "mutation_command_count": 0,
+          "deformable_contact_buffer_bytes": 13271040,
+          "deformable_candidate_buffer_bytes": 491520,
+          "accepted_contact_history_bytes": 1474560,
+          "candidate_contact_history_bytes": 1474560,
+          "active_index_buffer_bytes": 122880,
+          "active_count_buffer_bytes": 16,
+          "candidate_count_buffer_bytes": 16,
+          "node_incidence_buffer_bytes": 737280,
+          "node_ranges_buffer_bytes": 28224,
+          "active_offsets_buffer_bytes": 16,
+          "global_active_indices_buffer_bytes": 122880,
+          "active_dispatch_buffer_bytes": 16
+        },
+        "physical_state_changed": false
+      }
+    ],
+    "classification": "runtime emitted a bounded skip marker"
+  },
+  "reference_operator": {
+    "capture_sha256": "f2d42314cfee0428ecd285ebb9dbd5da1556624e3e92af1d12240fd8106b309a",
+    "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125",
+    "world_fingerprint_hex": "75c1264bc96ac2d9",
+    "binding": null
+  },
+  "action_comparison": {
+    "available": true,
+    "classification": "same-byte-compiled-world and same root/Newton rich capture; directional action parity only, not whole-matrix identity",
+    "reference_run": "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419",
+    "reference_capture_sha256": "f2d42314cfee0428ecd285ebb9dbd5da1556624e3e92af1d12240fd8106b309a",
+    "reference_source_module_sha256": "2ce80f9b3c989efd058bdbcc29661d10701061cfde459d64cca06c0d6caeee38",
+    "reference_prediction_inputs": {
+      "input_count": 793,
+      "verified_count": 793,
+      "all_prediction_inputs_verified": true
+    },
+    "reference_binding_source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125",
+    "compiled_pack_sha256": "cafbf36052bbfa72e8be49fdba8b23e900469c9f15136a14a4ec1e4c0b5ccf7c",
+    "compiled_pack_hash_equal": true,
+    "world_fingerprint_hex": "75c1264bc96ac2d9",
+    "root": 1,
+    "newton_iteration": 48,
+    "environment": 0,
+    "free_node_count": 846,
+    "operator_shape": [
+      2538,
+      2538
+    ],
+    "operator_nnz": 71046,
+    "native_b_vs_reference_center_rhs": {
+      "shape_match": true,
+      "finite": true,
+      "difference_l2": 0.0,
+      "reference_l2": 0.00018444380407784322,
+      "relative_l2": 0.0,
+      "max_abs": 0.0,
+      "threshold": null,
+      "meaning": "descriptive action comparison; no noise-floor or qualification gate"
+    },
+    "native_b_fp32_words_vs_reference_rhs": {
+      "shape_match": true,
+      "left_count": 2538,
+      "bitwise_word_match": true,
+      "mismatch_count": 0,
+      "first_mismatch_index": null,
+      "first_left_word_hex": null,
+      "first_right_word_hex": null,
+      "numeric_max_abs_difference_after_fp32_cast": 0.0,
+      "meaning": "FP32-cast word comparison only; source JSON may not preserve signed-zero spelling, so this is reported rather than treated as an unconditional capture-integrity gate"
+    },
+    "native_Ax_vs_reference_Ax_on_native_x": {
+      "shape_match": true,
+      "finite": true,
+      "difference_l2": 2.595987123996877e-11,
+      "reference_l2": 0.0001792761567019848,
+      "relative_l2": 1.4480381394566878e-07,
+      "max_abs": 6.4549101605254275e-12,
+      "threshold": null,
+      "meaning": "descriptive action comparison; no noise-floor or qualification gate"
+    },
+    "native_s_vs_reference_ATr_on_native_r": {
+      "shape_match": true,
+      "finite": true,
+      "difference_l2": 3.4572133793754773e-13,
+      "reference_l2": 2.405649272501971e-06,
+      "relative_l2": 1.437122783812886e-07,
+      "max_abs": 1.1612038656660457e-13,
+      "threshold": null,
+      "meaning": "descriptive action comparison; no noise-floor or qualification gate"
+    },
+    "native_recurrence_r_vs_b_minus_native_Ax": {
+      "shape_match": true,
+      "finite": true,
+      "difference_l2": 8.074681083010165e-11,
+      "reference_l2": 4.343345911322046e-05,
+      "relative_l2": 1.8590923329319536e-06,
+      "max_abs": 2.6560087462712545e-11,
+      "threshold": null,
+      "meaning": "descriptive action comparison; no noise-floor or qualification gate"
+    },
+    "reference_linear_residual_l2_from_native_Ax": 4.3433460377460894e-05,
+    "reference_action_residual_l2_from_native_Ax": 2.595987123996877e-11,
+    "threshold": null,
+    "native_Ax_existing_assembled_1_percent_gate": {
+      "threshold_relative_l2": 0.01,
+      "applicable_for_nonzero_finite_reference_action": true,
+      "relative_error": 1.4480381394566878e-07,
+      "absolute_difference_l2": 2.595987123996877e-11,
+      "reference_action_l2": 0.0001792761567019848,
+      "within_existing_1_percent_gate": true,
+      "meaning": "applies the existing 1% assembled-action gate to this bound nonzero vector action; it is not a whole-matrix or solver certificate and adds no absolute noise-floor claim"
+    },
+    "native_s_existing_assembled_1_percent_gate": {
+      "threshold_relative_l2": 0.01,
+      "applicable_for_nonzero_finite_reference_action": true,
+      "relative_error": 1.437122783812886e-07,
+      "absolute_difference_l2": 3.4572133793754773e-13,
+      "reference_action_l2": 2.405649272501971e-06,
+      "within_existing_1_percent_gate": true,
+      "meaning": "applies the existing 1% assembled-action gate to this bound nonzero vector action; it is not a whole-matrix or solver certificate and adds no absolute noise-floor claim"
+    }
+  },
+  "limitations": [
+    "Any coupled-capture skip is reported from this run's own root/Newton skip marker; an absent marker is not treated as a completed capture.",
+    "If supplied, 419 CSR replay is checked only on native x and r, with same compiled world, pack, root, Newton, E, and N; this is directional action parity, not a proof of full matrix equality.",
+    "All action differences are report-only and have no qualified noise-floor or acceptance threshold.",
+    "The CGLS direction does not inherit the original Newton/FGMRES certificate and this audit does not accept or qualify a physical transaction."
+  ],
+  "analyzer_binding": {
+    "script_path": "/Users/home/cardboard-implementation-20261014/analysis/native450-cgls-candidate-audit-tool-001/audit_cgls_snapshot.py",
+    "script_sha256": "20fb48f577960505929c900dfdf5399bff6d191883ca2d70c5d6b31a95cae02b",
+    "argv": [
+      "/Users/home/cardboard-implementation-20261014/analysis/native450-cgls-candidate-audit-tool-001/audit_cgls_snapshot.py",
+      "--binary",
+      "/Users/home/cardboard-implementation-20261014/solver/bounded-cgls64-exact-state-450/base-cgls.bin",
+      "--run-dir",
+      "/Users/home/cardboard-implementation-20261014/solver/bounded-cgls64-exact-state-450",
+      "--source-snapshot",
+      "/Users/home/cardboard-implementation-20261014/snapshots/source-bounded-native-cgls-mask-repair-142",
+      "--operator-environment",
+      "0",
+      "--reference-run-dir",
+      "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419",
+      "--reference-environment",
+      "0",
+      "--baseline-run-dir",
+      "/Users/home/cardboard-implementation-20261014/solver/cgls-disabled-history-parity-445",
+      "--output",
+      "/Users/home/cardboard-implementation-20261014/analysis/native450-cgls-candidate-audit-001"
+    ],
+    "python_version": "3.10.12 (main, May 15 2025, 18:07:36) [Clang 17.0.0 (clang-1700.0.13.3)]"
+  }
+}

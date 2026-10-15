@@ -1,0 +1,24 @@
+{
+  "archive_bytes": 15486248,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/archives/sourcefit15-stable-prefix-complete-coupon-cycle-247/inputs.tar.gz",
+  "archive_sha256": "0511605665ffc880a06b54c6c8f5fccaf62391669be31d94ef1893dca8ab77ea",
+  "before_manifest_sha256": "83b14c3e26187018d2267202ca1ba93db90fe3a455997d2e10c7d1a9df69261b",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/sourcefit15-stable-prefix-complete-coupon-cycle-247",
+  "case_input_directories_preserved": true,
+  "filesystem_available_after_bytes": 2379763712,
+  "filesystem_available_before_bytes": 2338062336,
+  "filesystem_delta_bytes": 41701376,
+  "original_allocated_bytes": 49299456,
+  "original_input_files_removed": 768,
+  "original_logical_bytes": 47730740,
+  "physical_or_solver_qualification": false,
+  "pointer_path": "/Users/home/cardboard-implementation-20261014/solver/sourcefit15-stable-prefix-complete-coupon-cycle-247/inputs.compaction.json",
+  "pointer_sha256": "1cfc644df97dd6f4bd5b07776717b6a4f0a5f05e6e87ffc4fc31d56d887d6962",
+  "prediction_and_receipt_preserved": true,
+  "restoration_verification": {
+    "verified_bytes": 47730740,
+    "verified_dirs": 32,
+    "verified_files": 768
+  },
+  "schema": "numi.cardboard.closed-solver-input-compaction.case-after.v1"
+}

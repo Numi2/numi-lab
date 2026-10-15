@@ -1,0 +1,19 @@
+{
+  "schema": "numi.cardboard.direct_base_cgls_kernel_check.v1",
+  "source_inputs_unchanged": true,
+  "input_hashes": {
+    "/Users/home/cardboard-implementation-20261014/analysis/native-base-cgls-diagnostic-443-001/native/base_cgls_native_check.mm": "717068ebeba718d4ce44b0bdacb81ffff8ac2605b7519b5ffffed7a1fbc2c0ae",
+    "/Users/home/cardboard-implementation-20261014/analysis/native-base-cgls-diagnostic-443-001/native/build/BaseCGLSCheck.metallib": "8d93b8027bfb18512b55fa95ea4a57e4d7f8afb836fe9385b438b12140fc1f30",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-bounded-native-cgls-141/matter/src/metal/base_cgls.metalinc": "24563b7d4d54c894c1f6ace75dca060429159752500c394e78a69a4fc0ae3b2c",
+    "/Users/home/cardboard-implementation-20261014/analysis/native-base-cgls-diagnostic-443-001/source-overlay.json": "e4bd11393f895047bbf2db134b632fd1b932d5aa45d7cb96aa4027fa52c60edf",
+    "/Users/home/cardboard-implementation-20261014/analysis/native-base-cgls-diagnostic-443-001/native/base_cgls_test_actions.metal": "40bc30b5a9aadc21f472e84f95b5f2e337c9e791322bf97900783a41384d772d"
+  },
+  "binary_sha256": "be6569b2ee4c0b017bcf1354607d3e32934ea9668b61ac6aaf88ddaff9abeb62",
+  "execution_started": true,
+  "exit_code": 1,
+  "timed_out": false,
+  "wall_seconds": 0.486076665984001,
+  "finished_at_utc": "2026-10-15T21:33:41.873482+00:00",
+  "evidence_scope": "Diagnostic-only stage trace of unchanged native443 helper recurrence and synthetic CSR actions. Does not qualify production FEM action parity or a nonlinear physical step.",
+  "physical_steps": 0
+}

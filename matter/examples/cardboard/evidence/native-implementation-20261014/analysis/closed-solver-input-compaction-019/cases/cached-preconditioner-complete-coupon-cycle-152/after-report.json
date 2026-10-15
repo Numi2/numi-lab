@@ -1,0 +1,24 @@
+{
+  "archive_bytes": 15003997,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/archives/cached-preconditioner-complete-coupon-cycle-152/inputs.tar.gz",
+  "archive_sha256": "806a147dc440a34a1bce4d635dc5ef915e594db35d72d52bc7f11e217ebbe8b2",
+  "before_manifest_sha256": "b0aa49788fb1788146ae9c02da1e7534a7d4f3d51e4248701b75928109762b53",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/cached-preconditioner-complete-coupon-cycle-152",
+  "case_input_directories_preserved": true,
+  "filesystem_available_after_bytes": 3150077952,
+  "filesystem_available_before_bytes": 3117178880,
+  "filesystem_delta_bytes": 32899072,
+  "original_allocated_bytes": 47894528,
+  "original_input_files_removed": 755,
+  "original_logical_bytes": 46335880,
+  "physical_or_solver_qualification": false,
+  "pointer_path": "/Users/home/cardboard-implementation-20261014/solver/cached-preconditioner-complete-coupon-cycle-152/inputs.compaction.json",
+  "pointer_sha256": "78935ebfe8fcff10335355d67efcf4ff7066e62c7a475b43a971a21bc3a6bcc6",
+  "prediction_and_receipt_preserved": true,
+  "restoration_verification": {
+    "verified_bytes": 46335880,
+    "verified_dirs": 32,
+    "verified_files": 755
+  },
+  "schema": "numi.cardboard.closed-solver-input-compaction.case-after.v1"
+}

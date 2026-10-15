@@ -1,0 +1,24 @@
+{
+  "archive_bytes": 20607665,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/archives/two-stage-certified-coupon-409/inputs.tar.gz",
+  "archive_sha256": "3c24dcdb34b7e0f880f4f1b8bf0d8a9699221c1a06129c27087d25737ed5c2ab",
+  "before_manifest_sha256": "37b1779f5e671044515b61e290d7412fe10ef204d3ba7bca02cb9b01cc85fc52",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/two-stage-certified-coupon-409",
+  "case_input_directories_preserved": true,
+  "filesystem_available_after_bytes": 1068457984,
+  "filesystem_available_before_bytes": 1029742592,
+  "filesystem_delta_bytes": 38715392,
+  "original_allocated_bytes": 59613184,
+  "original_input_files_removed": 793,
+  "original_logical_bytes": 57993289,
+  "physical_or_solver_qualification": false,
+  "pointer_path": "/Users/home/cardboard-implementation-20261014/solver/two-stage-certified-coupon-409/inputs.compaction.json",
+  "pointer_sha256": "d911839e34a8a9b948e516e33b6945839e449e2d0f1d932ff651ec4e6af75b8b",
+  "prediction_and_receipt_preserved": true,
+  "restoration_verification": {
+    "verified_bytes": 57993289,
+    "verified_dirs": 32,
+    "verified_files": 793
+  },
+  "schema": "numi.cardboard.closed-solver-input-compaction.case-after.v1"
+}

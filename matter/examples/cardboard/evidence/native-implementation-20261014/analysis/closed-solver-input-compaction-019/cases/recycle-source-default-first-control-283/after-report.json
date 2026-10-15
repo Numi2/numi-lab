@@ -1,0 +1,24 @@
+{
+  "archive_bytes": 15700457,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/archives/recycle-source-default-first-control-283/inputs.tar.gz",
+  "archive_sha256": "26e382bf309cf466f406107c08b3aa5a3e21be7fc3c40629782aa73eeb1e4f0d",
+  "before_manifest_sha256": "d4c270b8120ef07aa66a2f2799237df28aceeb423e0439745cb574b3aebe5736",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/recycle-source-default-first-control-283",
+  "case_input_directories_preserved": true,
+  "filesystem_available_after_bytes": 1794342912,
+  "filesystem_available_before_bytes": 1759965184,
+  "filesystem_delta_bytes": 34377728,
+  "original_allocated_bytes": 50176000,
+  "original_input_files_removed": 781,
+  "original_logical_bytes": 48569357,
+  "physical_or_solver_qualification": false,
+  "pointer_path": "/Users/home/cardboard-implementation-20261014/solver/recycle-source-default-first-control-283/inputs.compaction.json",
+  "pointer_sha256": "27ee54850ba21197fb8b1854352907441445ebbaa41ae7eb176c34acd87b459a",
+  "prediction_and_receipt_preserved": true,
+  "restoration_verification": {
+    "verified_bytes": 48569357,
+    "verified_dirs": 32,
+    "verified_files": 781
+  },
+  "schema": "numi.cardboard.closed-solver-input-compaction.case-after.v1"
+}

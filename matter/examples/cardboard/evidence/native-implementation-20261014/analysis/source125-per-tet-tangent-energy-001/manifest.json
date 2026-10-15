@@ -1,0 +1,44 @@
+{
+  "evidence_class": "bounded CPU-only analysis; no source edits or GPU work",
+  "inputs_sha256": {
+    "/Users/home/cardboard-implementation-20261014/analysis/operator-fd-e2-adapter-001/coupon419-003/environment-0.npz": "e20eeb559f5976e6b9ddb2ae605ea6860908cde3a1d255ea80832b24840c8353",
+    "/Users/home/cardboard-implementation-20261014/analysis/operator-fd-e2-adapter-001/coupon419-003/manifest.json": "69adcf3c267b28b25f723b61c6ee093d8ffc203027bd340ff0b677fb79fc7b8d",
+    "/Users/home/cardboard-implementation-20261014/analysis/source125-fp64-smooth-direction-sweep-006/result-004/report.json": "2a2ffd1bb9205b847f7b34119ccd38d98c2d5cc91d4801792017195f831798ba",
+    "/Users/home/cardboard-implementation-20261014/analysis/source125-fp64-smooth-direction-sweep-006/result-005/rowwise-window-intervals.json": "00b81e42398c609c0237dd09d064c2e13338e54645fee18b5c0a807bdb5ab8f8",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125/frozen-source.json": "dc354c1d0c9619b07d33de0c867239dc260f7fe572372769d6e5e9dde7b023e5",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125/matter/materials/hajali2009_liner_hill_bilinear_fit.nmatter": "a2720b90f2004f2eccf180063e7ecc4e0acdda93f700c4fd357914fc24d2255a",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125/matter/materials/hajali2009_medium_hill_bilinear_fit.nmatter": "76f2bef552822708c36b5acc9f92bd44e7bb92c578e5e46adb64a1a2e82e47f9",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125/matter/materials/starch2007_finite_glue_elastic.nmatter": "39fac837793259ab875d02ae2500475d9d974c2880fbb404867dead7c52eb2c1",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125/matter/src/metal/fem.metalinc": "70c2f396045f9abdcfdc32f5714e6e3a400f5566e5a7824353e11b307de52b7d",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125/matter/src/metal/fgmres.metalinc": "1c423e02e189df17c925e0b77ded87465098278f836011c16aad1bb8f92bcec0",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125/matter/tools/cardboard_bilinear_material_oracle.hpp": "90cc525579f2c9d26fa5916738d1280d0644fd7a91fb84e1db4d1414be7901b0",
+    "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/inputs/external/source-build.json": "35b821184ca36ad57c529bc0e33e4f20519996def1c312f8ac0f8028ecadb8e6",
+    "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/operator-capture": "f2d42314cfee0428ecd285ebb9dbd5da1556624e3e92af1d12240fd8106b309a",
+    "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/prediction.json": "41b37af2747cfa551fae60eaddd7681cd7c7dbc859a402e641677ec23bd957d6",
+    "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/receipt.json": "0826a69a65ea4a0d76ef95e56c5d0d7f5238f4de746dd6daf81f11a87907f67d"
+  },
+  "outputs_sha256": {
+    "README.md": "289e38f912694fbdd64f8e04f8af31fa8a0234be8ff2872ef9fd95284d0cbc1b",
+    "audit.py": "fde394f0063168cef71d623abe1c087a1f2f5e18335b25187062a01c5290e70a",
+    "per-tet.csv": "7f6213346629b3d263605522088e6c0180b69fbb52eeeeba2bc1451922998b57",
+    "report.json": "ce3e978336a3e7911b8f0993787f8b7516018b40ba88a01f359793e6ef53ccb1",
+    "reproduction.stdout.txt": "1738c26b620a1b4aecca65e60dea8c98265282560cf7c1d00ece385e732d63e8"
+  },
+  "result_summary": {
+    "algorithmic_material_component_J": 0.12681567861811857,
+    "contraction_vs_independent_assembled_report_difference_J": 9.534114158230023e-08,
+    "contraction_vs_native_element_action_difference_J": 9.670011383647314e-08,
+    "full_A_signed_work_from_independent_assembled_report_J": -0.0008423313175187709,
+    "geometric_initial_stress_component_J": -0.14263081905598488,
+    "interpretation": "The captured global ray has a negative stiffness contribution after -dt^2 K; the product-rule split shows the dominant negative term is the initial-stress/geometric component in compressive liner regions. The remaining algorithmic material component is positive in aggregate along this direction. This explains the sign without establishing whether the modeled constitutive law is physically adequate or the nonlinear solve should accept this direction.",
+    "mass_M_signed_work_J": 0.014972904461489247,
+    "mass_plus_contraction_A_work_J": -0.0008422359763771894,
+    "split_closure_J": -1.3877787807814457e-16,
+    "stiffness_minus_dt2K_signed_work_from_full_cached_C_contraction_J": -0.015815140437866436,
+    "stiffness_minus_dt2K_signed_work_from_independent_FP64_directional_actions_J": -0.015815236916729668,
+    "stiffness_minus_dt2K_signed_work_from_independent_assembled_report_J": -0.015815235779008018,
+    "stiffness_minus_dt2K_signed_work_from_native_element_force_action_J": -0.015815237137980272
+  },
+  "schema": "numi.cardboard.source125-per-tet-tangent-energy-manifest.v1",
+  "tet_records": 1920
+}

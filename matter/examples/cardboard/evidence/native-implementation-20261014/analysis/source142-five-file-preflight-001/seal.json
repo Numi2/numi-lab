@@ -1,0 +1,17 @@
+{
+  "files": [
+    {
+      "bytes": 1804,
+      "path": "README.md",
+      "sha256": "90a134b05298f9dbc75e939999809ed2561c09698e285967b5924dc9350bf820"
+    },
+    {
+      "bytes": 104072,
+      "path": "report.json",
+      "sha256": "abb1b3e5ed0dccf2345816384a829c17637be46c8a87c51f0d6e9951818086bc"
+    }
+  ],
+  "readme_sha256": "90a134b05298f9dbc75e939999809ed2561c09698e285967b5924dc9350bf820",
+  "report_sha256": "abb1b3e5ed0dccf2345816384a829c17637be46c8a87c51f0d6e9951818086bc",
+  "schema": "numi.cardboard.source142_five_file_preflight_seal.v1"
+}

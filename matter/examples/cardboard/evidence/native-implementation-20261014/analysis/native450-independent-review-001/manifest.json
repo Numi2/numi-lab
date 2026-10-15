@@ -1,0 +1,191 @@
+{
+  "bound_evidence": {
+    "root_adjudication": {
+      "bytes": 7115,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native450-cgls-adjudication-001/report.json",
+      "sha256": "7b6589d34e1fbc8507d040c251e65e58a340e520320a0312551585104cbf2d73"
+    },
+    "root_candidate_audit": {
+      "bytes": 19418,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native450-cgls-candidate-audit-001/report.json",
+      "sha256": "7f1cc80cee95dcc5695b44db74de4614bb28f1f67ca704e74563b5ad06ae1146"
+    },
+    "root_capture_parity": {
+      "bytes": 6247,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native450-capture-off-parity-001/report.json",
+      "sha256": "100edf77d4cf802b0292b6ba012f111b1d436eedb4ba6ce5e2cafce19a79c6c0"
+    },
+    "run419_operator_capture": {
+      "bytes": 38811258,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/operator-capture",
+      "sha256": "f2d42314cfee0428ecd285ebb9dbd5da1556624e3e92af1d12240fd8106b309a"
+    },
+    "run419_prediction": {
+      "bytes": 103495,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/prediction.json",
+      "sha256": "41b37af2747cfa551fae60eaddd7681cd7c7dbc859a402e641677ec23bd957d6"
+    },
+    "run419_receipt": {
+      "bytes": 306,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/receipt.json",
+      "sha256": "0826a69a65ea4a0d76ef95e56c5d0d7f5238f4de746dd6daf81f11a87907f67d"
+    },
+    "run419_stderr": {
+      "bytes": 4592580,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/stderr.log",
+      "sha256": "f6fe513bfafc9ae4f4f38b2377c1cddaeb1ce78374886295cb92db2bf6c48198"
+    },
+    "run445_compiled_pack": {
+      "bytes": 1984768,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/cgls-disabled-history-parity-445/output/compiled.nmatterpack",
+      "sha256": "cafbf36052bbfa72e8be49fdba8b23e900469c9f15136a14a4ec1e4c0b5ccf7c"
+    },
+    "run445_prediction": {
+      "bytes": 103800,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/cgls-disabled-history-parity-445/prediction.json",
+      "sha256": "a826bdf380397a2d2e3c5eed3d4a4ecdd3fa2b6fd7b9d5ee0fe3e629ec94f68e"
+    },
+    "run445_stderr": {
+      "bytes": 4434049,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/cgls-disabled-history-parity-445/stderr.log",
+      "sha256": "04baea125614fcd5a12f37205bbe71504d263ecb6e8892e653901ade1e5767b0"
+    },
+    "run450_cgls_snapshot": {
+      "bytes": 409368,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/bounded-cgls64-exact-state-450/base-cgls.bin",
+      "sha256": "d09d8b76b6d1beb15a39e872d19aed4c2d3b8b6f33cfbfd49d25c19bdfafd099"
+    },
+    "run450_compiled_pack": {
+      "bytes": 1984768,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/bounded-cgls64-exact-state-450/output/compiled.nmatterpack",
+      "sha256": "cafbf36052bbfa72e8be49fdba8b23e900469c9f15136a14a4ec1e4c0b5ccf7c"
+    },
+    "run450_output_manifest": {
+      "bytes": 11740,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/bounded-cgls64-exact-state-450/output/manifest.json",
+      "sha256": "b5261b0f60e2ed24b88d3571f9c9c9369c48a496ed570776642e518d2f7626b7"
+    },
+    "run450_prediction": {
+      "bytes": 105305,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/bounded-cgls64-exact-state-450/prediction.json",
+      "sha256": "d2678ec8c0a8aae9316e2a9c4eba757bbd8075d45cbe647d1af835068b832260"
+    },
+    "run450_receipt": {
+      "bytes": 305,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/bounded-cgls64-exact-state-450/receipt.json",
+      "sha256": "958e07dc51d541c7e483d44403bdfa1ee6f6b8058d0025c50a2063f89f64b34c"
+    },
+    "run450_result": {
+      "bytes": 698,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/bounded-cgls64-exact-state-450/output/result.json",
+      "sha256": "6600e9b15bba128d2ef4ed2c5c4a181e91fdc8600a4171ecdd7e1c2eb04efcba"
+    },
+    "run450_status5": {
+      "bytes": 13568,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/bounded-cgls64-exact-state-450/first-status5.bin",
+      "sha256": "0f3ae7cd18df40df8ad3bbed0b55491b43f1ee67c321eab2287c46e18a43239f"
+    },
+    "run450_stderr": {
+      "bytes": 4503736,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/bounded-cgls64-exact-state-450/stderr.log",
+      "sha256": "b5ae5ced00920cbda990e923064df518b527311cb24d95a27a4e0b1e1559e984"
+    },
+    "run450_stdout": {
+      "bytes": 343,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/bounded-cgls64-exact-state-450/stdout.log",
+      "sha256": "9e9e87625cf0549628c2668a29decf5dfeec04db6a5f649642e4c81a51e79fc3"
+    },
+    "run452_compiled_pack": {
+      "bytes": 1984768,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/bounded-cgls64-capture-off-parity-452/output/compiled.nmatterpack",
+      "sha256": "cafbf36052bbfa72e8be49fdba8b23e900469c9f15136a14a4ec1e4c0b5ccf7c"
+    },
+    "run452_prediction": {
+      "bytes": 105105,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/bounded-cgls64-capture-off-parity-452/prediction.json",
+      "sha256": "23a16edd20c1095ff0303397b98615a11e37167427a4bddac3696b3378ec7b6c"
+    },
+    "run452_receipt": {
+      "bytes": 305,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/bounded-cgls64-capture-off-parity-452/receipt.json",
+      "sha256": "94208a97f7e0c5c80c2325dd8e25b2ed311bb6337c25130459e8df3852f7ddb3"
+    },
+    "run452_result": {
+      "bytes": 698,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/bounded-cgls64-capture-off-parity-452/output/result.json",
+      "sha256": "6600e9b15bba128d2ef4ed2c5c4a181e91fdc8600a4171ecdd7e1c2eb04efcba"
+    },
+    "run452_status5": {
+      "bytes": 13568,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/bounded-cgls64-capture-off-parity-452/first-status5.bin",
+      "sha256": "0f3ae7cd18df40df8ad3bbed0b55491b43f1ee67c321eab2287c46e18a43239f"
+    },
+    "run452_stderr": {
+      "bytes": 4503591,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/bounded-cgls64-capture-off-parity-452/stderr.log",
+      "sha256": "d58b04c059189f3ddffa046d8699d99e700e2e834f01a239f0935e9df309e36d"
+    },
+    "run452_stdout": {
+      "bytes": 343,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/bounded-cgls64-capture-off-parity-452/stdout.log",
+      "sha256": "9e9e87625cf0549628c2668a29decf5dfeec04db6a5f649642e4c81a51e79fc3"
+    },
+    "snapshot125_operator_module": {
+      "bytes": 44728,
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125/matter/tools/cardboard_cached_operator_audit.py",
+      "sha256": "2ce80f9b3c989efd058bdbcc29661d10701061cfde459d64cca06c0d6caeee38"
+    },
+    "snapshot142_source_module": {
+      "bytes": 44728,
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-bounded-native-cgls-mask-repair-142/matter/tools/cardboard_cached_operator_audit.py",
+      "sha256": "2ce80f9b3c989efd058bdbcc29661d10701061cfde459d64cca06c0d6caeee38"
+    }
+  },
+  "limits": [
+    "No native execution or source mutation in this review.",
+    "Reference operator capture is separate run419; matching world/pack/root/Newton and RHS are bound, but full candidate-node byte identity is not established.",
+    "No full coupon, solver-convergence, or physical qualification.",
+    "N63 Armijo result is absent due the 64-record cap; the true-residual cycle rows do not reveal that branch."
+  ],
+  "noncopied_prediction_inventory_audits": {
+    "run450": {
+      "checked_count": 800,
+      "inventory_sha256": "485be9e91c993f5ebe2b5e58fea2b69b09cf0a8a1d66d5b8ec866ac734845d6a",
+      "prediction_sha256": "d2678ec8c0a8aae9316e2a9c4eba757bbd8075d45cbe647d1af835068b832260"
+    },
+    "run452": {
+      "checked_count": 801,
+      "inventory_sha256": "8e36a57ca4e6a83d6e70ad8ee20110d637d201d4db438f4135c9cb01f2087076",
+      "prediction_sha256": "23a16edd20c1095ff0303397b98615a11e37167427a4bddac3696b3378ec7b6c"
+    }
+  },
+  "review_files": {
+    "README.md": {
+      "bytes": 3526,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native450-independent-review-001/README.md",
+      "sha256": "7384deb111ee529689d3f8c284c98b642b687fb6f1e73b5c781958d075ebc010"
+    },
+    "audit.py": {
+      "bytes": 23028,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native450-independent-review-001/audit.py",
+      "sha256": "755f7c3edc56ac8eb2f3debdb9fd1659b324560847f9f6f822adf62fcaea324b"
+    },
+    "report.json": {
+      "bytes": 10865,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native450-independent-review-001/report.json",
+      "sha256": "0378293a0c455938b3ed964d88251d04d5316054c5c401b934e2c95c10239eb2"
+    },
+    "seal.py": {
+      "bytes": 3830,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native450-independent-review-001/seal.py",
+      "sha256": "f972349c2ba97301a14f32dedd3edb8bb788ba6718816b3e343ce8018e6a0917"
+    },
+    "validation.log": {
+      "bytes": 629,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native450-independent-review-001/validation.log",
+      "sha256": "36e6af641d326b96285b47d7b7d435de8646ecfdf54825cbd5cd380d5e808908"
+    }
+  },
+  "schema": "numi.cardboard.native450_independent_review_manifest.v1",
+  "verdict": "LIMITED_CGLS_TRIAL_AND_CAPTURE_PARITY_CONFIRMED; FULL_SOLVER_CONVERGENCE_NOT_QUALIFIED"
+}

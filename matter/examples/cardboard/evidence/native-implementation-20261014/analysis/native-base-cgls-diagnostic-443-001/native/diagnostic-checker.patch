@@ -1,0 +1,121 @@
+--- /Users/home/cardboard-implementation-20261014/analysis/native-base-cgls-candidate-139-overlay-001/native/base_cgls_native_check.mm	2026-10-15 23:18:16
++++ /Users/home/cardboard-implementation-20261014/analysis/native-base-cgls-diagnostic-443-001/native/base_cgls_native_check.mm	2026-10-15 23:32:46
+@@ -7,6 +7,7 @@
+ #include <cstdint>
+ #include <cstring>
+ #include <functional>
++#include <iomanip>
+ #include <iostream>
+ #include <stdexcept>
+ #include <string>
+@@ -275,48 +276,94 @@
+             auto columnATB=buffer(device,AT.columns,"AT columns");
+             auto valuesATB=buffer(device,AT.values,"AT values");
+             auto freeB=buffer(device,freeNodes,"free nodes");
++
++            auto dumpStage = [&](const std::string& stage) {
++                const auto* controls = static_cast<const U4*>(controlB.contents);
++                const auto* scalars = static_cast<const F4*>(scalarsB.contents);
++                const auto* errors = static_cast<const U*>(errorsB.contents);
++                const auto* xv = static_cast<const F4*>(xB.contents);
++                const auto* rv = static_cast<const F4*>(rB.contents);
++                const auto* sv = static_cast<const F4*>(sB.contents);
++                const auto* pv = static_cast<const F4*>(pB.contents);
++                const auto* qv = static_cast<const F4*>(qB.contents);
++                std::cerr << std::setprecision(9) << "CGLS_STAGE " << stage;
++                for (U env = 0u; env < E; ++env) {
++                    double x2=0.0, r2=0.0, s2=0.0, p2=0.0, q2=0.0;
++                    for (U node = 0u; node < N; ++node) {
++                        const U i = env * N + node;
++                        for (U axis = 0u; axis < 3u; ++axis) {
++                            const double a=(&xv[i].x)[axis], br=(&rv[i].x)[axis];
++                            const double cs=(&sv[i].x)[axis], d=(&pv[i].x)[axis];
++                            const double f=(&qv[i].x)[axis];
++                            x2+=a*a; r2+=br*br; s2+=cs*cs; p2+=d*d; q2+=f*f;
++                        }
++                    }
++                    std::cerr << " env" << env
++                        << " control=[" << controls[env][0] << ',' << controls[env][1]
++                        << ',' << controls[env][2] << ',' << controls[env][3] << ']'
++                        << " scalars=[" << scalars[env].x << ',' << scalars[env].y
++                        << ',' << scalars[env].z << ',' << scalars[env].w << ']'
++                        << " errors=" << errors[env]
++                        << " norms=[" << std::sqrt(x2) << ',' << std::sqrt(r2)
++                        << ',' << std::sqrt(s2) << ',' << std::sqrt(p2)
++                        << ',' << std::sqrt(q2) << ']';
++                }
++                std::cerr << '\n';
++            };
+ 
+             run(device,queue,initState,1u,32u,[&](id<MTLComputeCommandEncoder> e){
+                 count(e,E,0u);count(e,Cap,1u);b(e,selectedB,2u);b(e,scalarsB,3u);b(e,controlB,4u);b(e,errorsB,5u);
+             });
++            dumpStage("initialize_state");
+             clearOutput(device,queue,clear,sB,UCount);
+             applyAction(device,queue,applyAT,offsetATB,columnATB,valuesATB,freeB,rhsB,sB,controlB,N,FreeCount,DofCount);
++            dumpStage("initial_AT_rhs");
+             run(device,queue,initVectors,(UCount+63u)/64u,64u,[&](id<MTLComputeCommandEncoder> e){
+                 count(e,UCount,0u);count(e,E,1u);b(e,maskB,2u);b(e,envB,3u);b(e,selectedB,4u);
+                 b(e,rhsB,5u);b(e,sB,6u);b(e,xB,7u);b(e,rB,8u);b(e,sB,9u);b(e,pB,10u);b(e,qB,11u);b(e,errorsB,12u);
+             });
++            dumpStage("initialize_vectors");
+             run(device,queue,measure,E,32u,[&](id<MTLComputeCommandEncoder> e){
+                 count(e,UCount,0u);count(e,E,1u);b(e,maskB,2u);b(e,envB,3u);b(e,rhsB,4u);
+                 b(e,rB,5u);b(e,sB,6u);b(e,scalarsB,7u);b(e,controlB,8u);b(e,errorsB,9u);
+             });
++            dumpStage("measure_initial");
+             for (U it=0u;it<Cap;++it) {
+                 clearOutput(device,queue,clear,qB,UCount);
+                 applyAction(device,queue,applyA,offsetAB,columnAB,valuesAB,freeB,pB,qB,controlB,N,FreeCount,DofCount);
++                dumpStage("iter"+std::to_string(it)+".apply_A");
+                 run(device,queue,formAlpha,E,32u,[&](id<MTLComputeCommandEncoder> e){
+                     count(e,UCount,0u);count(e,E,1u);b(e,maskB,2u);b(e,envB,3u);b(e,qB,4u);
+                     b(e,scalarsB,5u);b(e,controlB,6u);b(e,errorsB,7u);
+                 });
++                dumpStage("iter"+std::to_string(it)+".form_alpha");
+                 run(device,queue,updateXR,(UCount+63u)/64u,64u,[&](id<MTLComputeCommandEncoder> e){
+                     count(e,UCount,0u);count(e,E,1u);b(e,maskB,2u);b(e,envB,3u);b(e,scalarsB,4u);
+                     b(e,controlB,5u);b(e,pB,6u);b(e,qB,7u);b(e,xB,8u);b(e,rB,9u);b(e,errorsB,10u);
+                 });
++                dumpStage("iter"+std::to_string(it)+".update_xr");
+                 run(device,queue,complete,1u,32u,[&](id<MTLComputeCommandEncoder> e){
+                     count(e,E,0u);b(e,controlB,1u);b(e,errorsB,2u);
+                 });
++                dumpStage("iter"+std::to_string(it)+".complete_iteration");
+                 clearOutput(device,queue,clear,sB,UCount);
+                 applyAction(device,queue,applyAT,offsetATB,columnATB,valuesATB,freeB,rB,sB,controlB,N,FreeCount,DofCount);
++                dumpStage("iter"+std::to_string(it)+".apply_AT_r");
+                 run(device,queue,formBeta,E,32u,[&](id<MTLComputeCommandEncoder> e){
+                     count(e,UCount,0u);count(e,E,1u);b(e,maskB,2u);b(e,envB,3u);b(e,sB,4u);
+                     b(e,scalarsB,5u);b(e,controlB,6u);b(e,errorsB,7u);
+                 });
++                dumpStage("iter"+std::to_string(it)+".form_beta");
+                 run(device,queue,updateP,(UCount+63u)/64u,64u,[&](id<MTLComputeCommandEncoder> e){
+                     count(e,UCount,0u);count(e,E,1u);b(e,maskB,2u);b(e,envB,3u);b(e,scalarsB,4u);
+                     b(e,controlB,5u);b(e,sB,6u);b(e,pB,7u);b(e,errorsB,8u);
+                 });
++                dumpStage("iter"+std::to_string(it)+".update_p");
+             }
+             run(device,queue,finalize,1u,32u,[&](id<MTLComputeCommandEncoder> e){
+                 count(e,E,0u);b(e,controlB,1u);b(e,errorsB,2u);
+             });
++            dumpStage("finalize");
+             const auto* nativeX=static_cast<const F4*>(xB.contents);
+             const auto* nativeControl=static_cast<const U4*>(controlB.contents);
+             const auto* nativeErrors=static_cast<const U*>(errorsB.contents);
+@@ -355,12 +402,15 @@
+             run(device,queue,initState,1u,32u,[&](id<MTLComputeCommandEncoder> e){
+                 count(e,E,0u);count(e,Cap,1u);b(e,selectedB,2u);b(e,scalarsB,3u);b(e,controlB,4u);b(e,errorsB,5u);
+             });
++            dumpStage("initialize_state");
+             clearOutput(device,queue,clear,sB,UCount);
+             applyAction(device,queue,applyAT,offsetATB,columnATB,valuesATB,freeB,rhsB,sB,controlB,N,FreeCount,DofCount);
++            dumpStage("initial_AT_rhs");
+             run(device,queue,initVectors,(UCount+63u)/64u,64u,[&](id<MTLComputeCommandEncoder> e){
+                 count(e,UCount,0u);count(e,E,1u);b(e,maskB,2u);b(e,envB,3u);b(e,selectedB,4u);
+                 b(e,rhsB,5u);b(e,sB,6u);b(e,xB,7u);b(e,rB,8u);b(e,sB,9u);b(e,pB,10u);b(e,qB,11u);b(e,errorsB,12u);
+             });
++            dumpStage("initialize_vectors");
+             run(device,queue,measure,E,32u,[&](id<MTLComputeCommandEncoder> e){
+                 count(e,UCount,0u);count(e,E,1u);b(e,maskB,2u);b(e,envB,3u);b(e,rhsB,4u);
+                 b(e,rB,5u);b(e,sB,6u);b(e,scalarsB,7u);b(e,controlB,8u);b(e,errorsB,9u);

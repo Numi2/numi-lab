@@ -1,0 +1,24 @@
+{
+  "archive_bytes": 15068765,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/archives/full-native-tangent-cache-failing-coupon-capture-175/inputs.tar.gz",
+  "archive_sha256": "4a62fbd14097526c7e49d3d5400d17004f1cd4188c245386eb06a67e59de9e2a",
+  "before_manifest_sha256": "35661d0b95691f712d9ee03f6f0974b83148a22fe5421cf4f44d5ad19d9c268f",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/full-native-tangent-cache-failing-coupon-capture-175",
+  "case_input_directories_preserved": true,
+  "filesystem_available_after_bytes": 3018182656,
+  "filesystem_available_before_bytes": 2985263104,
+  "filesystem_delta_bytes": 32919552,
+  "original_allocated_bytes": 48164864,
+  "original_input_files_removed": 756,
+  "original_logical_bytes": 46609767,
+  "physical_or_solver_qualification": false,
+  "pointer_path": "/Users/home/cardboard-implementation-20261014/solver/full-native-tangent-cache-failing-coupon-capture-175/inputs.compaction.json",
+  "pointer_sha256": "b72592c10a14e2e979956712d6acd9ab02a6e3a54cdca695525957e871c51df4",
+  "prediction_and_receipt_preserved": true,
+  "restoration_verification": {
+    "verified_bytes": 46609767,
+    "verified_dirs": 32,
+    "verified_files": 756
+  },
+  "schema": "numi.cardboard.closed-solver-input-compaction.case-after.v1"
+}

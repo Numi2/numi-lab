@@ -1,0 +1,412 @@
+{
+  "schema": "numi.cardboard.calibration_continuity_map.v1",
+  "classification": "read-only evidence map; no physical qualification; historical tests remain bound to their own source/build snapshots",
+  "current_source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-bounded-native-cgls-mask-repair-142",
+  "source_hash_references": [
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-bounded-native-cgls-mask-repair-142/matter/CMakeLists.txt",
+      "bytes": 111572,
+      "sha256": "2763c841225947f88218450536f77d428009a8878bc053bd278b2c353e262293",
+      "binding": "source142"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-bounded-native-cgls-mask-repair-142/matter/examples/cardboard/source-data/README.md",
+      "bytes": 18439,
+      "sha256": "d36db88d84ad5a8190208cb4b74b8b6abef0381f322126a70276345b26f6390b",
+      "binding": "source142"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-bounded-native-cgls-mask-repair-142/matter/examples/cardboard/source-data/catalog.json",
+      "bytes": 66022,
+      "sha256": "f812ca264c3f0cd15e98178aeae090332eb753d127a199906a9ebc800e3a62c1",
+      "binding": "source142"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-bounded-native-cgls-mask-repair-142/matter/examples/cardboard/source-data/haj_ali_2009_yield_anchors.csv",
+      "bytes": 1812,
+      "sha256": "ede6b47229eb02f1d1de278035c995eaa358919c55384398cbe33fe3de3c9f04",
+      "binding": "source142"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-bounded-native-cgls-mask-repair-142/matter/examples/cardboard/source-data/haj_ali_2009_bilinear_tension_fit_nodes.csv",
+      "bytes": 10901,
+      "sha256": "83f5778db797f0fb9996416848abb91c18f9102f4c3707aea9ea267b1eeb0d82",
+      "binding": "source142"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-bounded-native-cgls-mask-repair-142/matter/examples/cardboard/source-data/haj_ali_2009_experimental_marker_centers_v1.csv",
+      "bytes": 160757,
+      "sha256": "7a2dd7a351586971566fe34ca144b511d0b2014ab13f4cd7c9de0e87c2cf39b9",
+      "binding": "source142"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-bounded-native-cgls-mask-repair-142/matter/examples/cardboard/source-data/popil_2012_ect_table2.csv",
+      "bytes": 876,
+      "sha256": "34de91e5707f175ac2c65e9e3e56cf9c2dc99d8dadfa203cba8e72422e4333f2",
+      "binding": "source142"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-bounded-native-cgls-mask-repair-142/matter/examples/cardboard/source-data/popil_2012_ect_rate_fit.csv",
+      "bytes": 911,
+      "sha256": "cd3c913b972ccf79f7c8c08100b3529a29afc293f05a1c2d90e02c4f535391b4",
+      "binding": "source142"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-bounded-native-cgls-mask-repair-142/matter/examples/cardboard/source-data/nagasawa_2012_fig9_scored_bend_envelope.csv",
+      "bytes": 31329,
+      "sha256": "12b1c668e0fae49d0c63ab4e3fed3a6b3191d84444f9e8f38465ce34f6a18983",
+      "binding": "source142"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-bounded-native-cgls-mask-repair-142/matter/examples/cardboard/source-data/mrowczynski_2021_box_bct_holdout.csv",
+      "bytes": 1302,
+      "sha256": "402f49def648cba133ee7726f9bde7dd4de39bb671d55338766a55d317238e37",
+      "binding": "source142"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-bounded-native-cgls-mask-repair-142/matter/examples/cardboard/source-data/johnson_popil_2016_pin_force_displacement_digitized.csv",
+      "bytes": 4276,
+      "sha256": "3ca6b0ede409e8b031a193a16ec59480769f257c151a87d5264cbadb994e1b06",
+      "binding": "source142"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-bounded-native-cgls-mask-repair-142/matter/examples/cardboard/source-data/johnson_popil_2016_pin_strength_summary_digitized.csv",
+      "bytes": 2981,
+      "sha256": "94bf7e2d738f1b99457a656f89b3eb76758fbc057fc6ba5444b4be2b6171e994",
+      "binding": "source142"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-bounded-native-cgls-mask-repair-142/matter/examples/cardboard/source-data/pin_adhesion_fixture_profile.json",
+      "bytes": 4016,
+      "sha256": "73ff7757c68a5f1db15a255b2ce3e8958ccd662a07562fe73c33b1c96eb7572f",
+      "binding": "source142"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-bounded-native-cgls-mask-repair-142/matter/examples/cardboard/source-data/conde_2012_hma_joint_scope.csv",
+      "bytes": 660,
+      "sha256": "186fc9e53c6edd25a49c7f1aa7a7d417a4c9a29f9eda43f818bce74cda727da3",
+      "binding": "source142"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-bounded-native-cgls-mask-repair-142/matter/examples/cardboard/source-data/robertsson_2023_eq18_source_extract.md",
+      "bytes": 6563,
+      "sha256": "fd1ddbfb50d039232b359d58e0a2245151e70cd42755dc8fbfb08b0acf71bddc",
+      "binding": "source142"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-bounded-native-cgls-mask-repair-142/matter/examples/cardboard/source-data/robertsson_2023_eq18_compression_branch.csv",
+      "bytes": 1381,
+      "sha256": "8392aef6412eda1467e787a265a6ae6094f3ce81368187e3937a0e061340608e",
+      "binding": "source142"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-bounded-native-cgls-mask-repair-142/matter/tools/cardboard_source_data.py",
+      "bytes": 52578,
+      "sha256": "8f0580c4787ff1d1835d3be806f0c7d82d9840f8ca915690bb8b7d957a5633a5",
+      "binding": "source142"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-bounded-native-cgls-mask-repair-142/matter/tools/cardboard_source_data_test.py",
+      "bytes": 34624,
+      "sha256": "3e7d9d6a1a6e9161bc013a1e2d729e0f961b8196f538d3b8b6135bdcea1f8848",
+      "binding": "source142"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-bounded-native-cgls-mask-repair-142/matter/tools/cardboard_calibration_ensemble.py",
+      "bytes": 104242,
+      "sha256": "07a2d53ffbfa64d829b84c7624890ac1c152dcd0774b5259ee72f2d83240a5ee",
+      "binding": "source142"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-bounded-native-cgls-mask-repair-142/matter/tools/cardboard_calibration_ensemble_test.py",
+      "bytes": 55445,
+      "sha256": "78fa2894e0f85275abc98e262bd8416008be7e2e8544d7166a85be4c877458d7",
+      "binding": "source142"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-bounded-native-cgls-mask-repair-142/matter/tools/cardboard_pin_adhesion_fixture.hpp",
+      "bytes": 21235,
+      "sha256": "3ba1bae6fab8ac801939720e5df6f026b26e7b827e6f1751b89d09db753f5d67",
+      "binding": "source142"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-bounded-native-cgls-mask-repair-142/matter/tools/cardboard_pin_adhesion_fixture_check.cpp",
+      "bytes": 13586,
+      "sha256": "4c77ffe80c391cfc33415d94e136099675d69dd93f705edc1824a118c38234de",
+      "binding": "source142"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-bounded-native-cgls-mask-repair-142/matter/tools/cardboard_pin_adhesion_source_observables.py",
+      "bytes": 22005,
+      "sha256": "ae4666b900586d5e18dae7d8716bed7f8a8ea640bc446797e7c9b89908dcd530",
+      "binding": "source142"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-bounded-native-cgls-mask-repair-142/matter/tools/cardboard_pin_adhesion_source_observables_test.py",
+      "bytes": 4257,
+      "sha256": "85e62aa046d67af59084b952d1b162282d6b52093308357a9848a1759ca1c787",
+      "binding": "source142"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-bounded-native-cgls-mask-repair-142/matter/tools/cardboard_fracture_regularization.hpp",
+      "bytes": 16979,
+      "sha256": "d88d5bb677b37a3ee38fd5d0fed1c72d7178718ec768d97c2df61b4bf1393bfb",
+      "binding": "source142"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-bounded-native-cgls-mask-repair-142/matter/tools/cardboard_retained_matrix_damage.hpp",
+      "bytes": 36433,
+      "sha256": "2542d465c280070837e95acd80ef9fe6bb6444bd3897ed61f1e0998427d83d74",
+      "binding": "source142"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-bounded-native-cgls-mask-repair-142/matter/tools/cardboard_retained_matrix_damage_check.cpp",
+      "bytes": 80789,
+      "sha256": "5d54910aebb1beb78e0d5108b1fbd57ec3398939a7bb4299e96dedc1dcb44d6f",
+      "binding": "source142"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-bounded-native-cgls-mask-repair-142/matter/tools/cardboard_damage_cohesive_transaction_check.mm",
+      "bytes": 46325,
+      "sha256": "55c21fc32c42ad765f14a482f7fa50dba4710158ade3c4b08cdd5670056295eb",
+      "binding": "source142"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-bounded-native-cgls-mask-repair-142/matter/tools/cardboard_damage_cohesive_transaction_parameters.json",
+      "bytes": 2110,
+      "sha256": "1dd5b84d1dd37e61dcab0d6ee713cbb9a0730ed67dccb853c0fd204e3bcf542c",
+      "binding": "source142"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-bounded-native-cgls-mask-repair-142/matter/tools/robertsson_fem_coupling_check.mm",
+      "bytes": 33439,
+      "sha256": "755ff822c826553de655413f5ead270c071f99a36bad9988acacdd338fb75380",
+      "binding": "source142"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-bounded-native-cgls-mask-repair-142/matter/tools/robertsson2023_material.hpp",
+      "bytes": 21807,
+      "sha256": "52dc8daf9e417e773ec25ef288561460e786d7aa1e5dce8f715f94ebc61da3f7",
+      "binding": "source142"
+    }
+  ],
+  "historical_evidence_hash_references": [
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/asymmetric-transfer-calibration-20261015-001/README.md",
+      "bytes": 1223,
+      "sha256": "0b35fcfcfc677c918b231d7181c39bc6c51b1e85ec08c1af0b63165b4e7a64c5"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/asymmetric-transfer-calibration-20261015-001/run-manifest.json",
+      "bytes": 4410,
+      "sha256": "b4ab8648bca35fbf0897eea5413eb523bbd24989f72ad5ffc40c851670e327db"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/asymmetric-transfer-calibration-20261015-001/c1-width3-cpu-calibration.stdout.txt",
+      "bytes": 9350,
+      "sha256": "093a00129e984315e42c7335bfc07cabb0b4e0e1e26ada1118a4dc8b59ea2e36"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/asymmetric-transfer-calibration-20261015-001/source-data-tests.stdout.txt",
+      "bytes": 580,
+      "sha256": "e24828de5254af5829f5d04b9610dd65b3b8057c22d4a5b419e9856b37a42f0c"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/robertsson-eq18-adjudication-001/README.md",
+      "bytes": 2796,
+      "sha256": "ce4258d2c5c1162bceb375e2fdad8bedd36918481c295caa135279ce989ae6ca"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/robertsson-eq18-adjudication-001/report.json",
+      "bytes": 8472,
+      "sha256": "529389b5da9c648b176523291d5811dd7905f3a60df97f19f9313ffe322f8d12"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/robertsson-eq18-adjudication-001/manifest.json",
+      "bytes": 2598,
+      "sha256": "e16e99e8d14f31ae7fdb26863b70a6a331aa9eabe244d93492dedf33d75c2745"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/fracture-plane-ownership-overlay-114-001/README.md",
+      "bytes": 2711,
+      "sha256": "c4ac8bd25197c1cb490c9f17b66046184064235da0f6c830446c58d12920c32d"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/fracture-plane-ownership-overlay-114-001/manifest.json",
+      "bytes": 2519,
+      "sha256": "6bccfd38ef37d49624a2ec24acb27c69e3135e1e520c8da7c565f4343a164a3b"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/shipping-damage-face-ownership-memory-audit-115-002/README.md",
+      "bytes": 4281,
+      "sha256": "f3dfb12f713601639d3e7ae5e04e9995aa48a5bdd551870080fc27e60171dc81"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/shipping-damage-face-ownership-memory-audit-115-002/report.json",
+      "bytes": 5280,
+      "sha256": "913e8c901b4b9a2d23a6543e45282cdbd928abd762de6ea319097adab6df3db8"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/shipping-damage-face-ownership-memory-audit-115-002/manifest.json",
+      "bytes": 3203,
+      "sha256": "483d94eedc5e36ffa8fffc31548e8a64062de8aa64ee774dff35bf92369c807e"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/cardboard-damage-cohesive-transaction-074-overlay/README.md",
+      "bytes": 3883,
+      "sha256": "244fd5a9a215aab1e4948c43e5de54176938a334fecf0566f2aa0762c20f3c5c"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/cardboard-damage-cohesive-transaction-074-overlay/source-overlay.json",
+      "bytes": 97922,
+      "sha256": "6cc28efe7748efa287478af4897136defff2d8c3f7783a77db7701bc6bc20b77"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/coupled-damage-starch-interface-transactions-236/receipt.json",
+      "bytes": 306,
+      "sha256": "a5110c7d0b8f6890f2d269d4b8eda69fa34fa47b1380a79905e1d1901452fae4"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/coupled-damage-starch-interface-transactions-236/prediction.json",
+      "bytes": 98164,
+      "sha256": "0dd013b1a4ac0ac17e198cf62899ddc24c461ba57162adc8fb83b8a327a561e2"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/coupled-damage-starch-interface-transactions-236/stdout.log",
+      "bytes": 271,
+      "sha256": "81a7ea8c67163c68ac0a54bed0acd46f1ce1dc201819cc31fda2f7754193ccbf"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/pin-fixture-preflight-051/receipt.json",
+      "bytes": 279,
+      "sha256": "b075802050373ac4b07d856e1ae2b70d2084de0e8d69c35fe0608bb1f82755f7"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/pin-fixture-preflight-051/prediction.json",
+      "bytes": 84708,
+      "sha256": "a9a23f0c70703707c354bc64fa5998dc0d080f32142a415b582859876fdd6d04"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/pin-fixture-preflight-051/stdout.log",
+      "bytes": 210,
+      "sha256": "cabe40b73e83d0fa9f62c96fa60cd4d14bf3d5064630d9b1d1bdba733202ade4"
+    }
+  ],
+  "domains": [
+    {
+      "name": "Haj-Ali tensile hardening",
+      "source": "source-data Haj-Ali yield anchors, visually digitized bilinear fit nodes and partial marker centers; `hajali2009_{liner,medium}_hill_bilinear_fit.nmatter` in source142",
+      "bounded_evidence": "23 source-data tests and same-source C1 CPU calibration (2,350,688,803 checks, 278 selected marker centers) in asymmetric-transfer-calibration-20261015-001; all-point production entry check native/rationalized-all-paper-entry-points-300 passes all 3456 rows for one captured direction",
+      "remaining": "source curves/markers are same-paper and chart-derived, no raw traces/specimen IDs; compression remains 60%-of-tension assumption; next run full source-bound coupon load/unload once solver completes, compare whole source conditions; do not call same-paper C1 heldout or full multiaxial validation"
+    },
+    {
+      "name": "Robertsson absolute energy",
+      "source": "source-data/robertsson_2023_eq18_source_extract.md, robertsson_2023_eq18_compression_branch.csv, robertsson_2023_strength_hardening.csv; tools/robertsson2023_material.hpp and robertsson_fem_coupling_check.mm",
+      "bounded_evidence": "analysis/robertsson-eq18-adjudication-001 70-digit CPU algebra audit; source142 registers matter.compiler.cardboard_robertsson_fem_coupling and matter.metal.cardboard_robertsson_fem_coupling (no corresponding native receipt located)",
+      "remaining": "paper literal -2 compression gives negative Psi0 against nearby nonnegative premise; recentering shifts damage-driving A=Psi0, not neutral. Next separate-grade source-bound native equation coupling after build; no transfer to kraft/NSSC; resolve author convention/full 27-state damage and calibration separately"
+    },
+    {
+      "name": "Tet crack-area / fracture energy",
+      "source": "tools/cardboard_fracture_regularization.hpp, cardboard_retained_matrix_damage.hpp and source142 CMake CPU test targets",
+      "bounded_evidence": "V/A geometry formula and synthetic Gc*A analytic cut, rotated frame, winding, scale, subdivision tests; overlay114 shared-face duplicate-ownership guard arithmetic fixture but no C++ build/native/full mesh at seal; overlay115 full-face ambiguity guard CPU checker passes using 091 compiler archive, no full mesh/Metal",
+      "remaining": "next integrate114/115 and run CPU CTest; then evolving mesh-level selected-plane crack/damage path and dissipated energy under refinement, exact one-sided ownership, source-bound Gc needed. No physical Gc/path calibration; not mesh-objective qualification"
+    },
+    {
+      "name": "Johnson-Popil pin",
+      "source": "pin_adhesion_fixture_profile.json, 2015 protocol record, 2016 slide15/16 digitized traces; tools/cardboard_pin_adhesion_fixture.hpp, source-observables tool, ensemble tool",
+      "bounded_evidence": "CPU geometry/source-observable and calibration-ensemble tests (27 admission tests, plus 3 observables); native pin-fixture-preflight051 compiled 50x160 but `compile_only`, accepted_steps=0, physical_validation=false (older source033/build034)",
+      "remaining": "engineering pin dimensions are not Emerson dimensions. Next actual four-phase native history (approach/open/withdraw/released hold), whole visible slide15 trace as bounded analogue only; high-response peak censored, slide16 work unit N-m conflicts with N-by-mm curve, no same-grade local starch fit"
+    },
+    {
+      "name": "ECT / slow-rate",
+      "source": "source-data/popil_2012_ect_table2.csv and popil_2012_ect_rate_fit.csv; ensemble tool",
+      "bounded_evidence": "source-data and whole-condition ensemble admission tests; Table2 commercial 42-26C-42 and IPST lab board are separate; rate regression rows are equation evaluations (12.5 mm/min 7.073612 kN/m vs Table2 commercial 7.9 kN/m)",
+      "remaining": "next source-bound native ECT fixture full specimen geometry/rate/history for each condition then whole-fixture analogue holdout; do not merge the equation prediction with observed Table2 value"
+    },
+    {
+      "name": "Scored bend",
+      "source": "source-data/nagasawa_2012_fig9_scored_bend_envelope.csv, catalog.json; ensemble tool",
+      "bounded_evidence": "complete group retained as pooled ten-trace envelope from two specimens, 1-degree sampling, lower response censored 1-34 degrees; split tests prohibit point-wise splitting",
+      "remaining": "next full native scored-bend protocol/history as cross-grade analogue holdout; maintain censoring and uncertainty; not current-recipe fit"
+    },
+    {
+      "name": "Box BCT",
+      "source": "source-data/mrowczynski_2021_box_bct_holdout.csv; tools/bct_capacity_history_producer.py, test_bct_capacity_history_producer.py, test_bct_source_bound_harness.py, cardboard_calibration_ensemble.py",
+      "bounded_evidence": "source142 registers complete-capacity producer and source-bound harness tests; whole condition ensemble admission. Source is separate double-wall grades BC-780 and EB-965",
+      "remaining": "next native full-stroke BCT artifact bound to nominal curve/source/build/checkpoint plus 70%-stroke and half-speed branches and mesh/time; package complete capacity history/receipt. Do not admit expected_steps or caller protocol id alone"
+    },
+    {
+      "name": "HMA / starch activation",
+      "source": "source-data/conde_2012_hma_joint_scope.csv; `starch2007_finite_glue_elastic.nmatter`; source142 synthetic transaction checker and parameters",
+      "bounded_evidence": "native/coupled-damage-starch-interface-transactions-236 receipt exit0: 118 checks, 10 native transactions, two independent interface activations, load/unload, damage history, rejection rollback and restored continuation; JSON declares synthetic test-only; not calibration.",
+      "remaining": "source HMA is hot melt HM-577, not internal starch; no same-grade starch strength/GIc/GIIc/mixed-mode/rate/moisture dataset. Next qualification only after solver is ready: source-bound HMA analogue as distinct material, or obtain matched starch data; separate bookkeeping activation from law/physical interface validity"
+    }
+  ],
+  "global_boundary": "README says no new physical measurements; check-cohesive exits 3 intentionally because no source identifies the current starch cohesive law. Calibration ensemble requires complete hash-bound native histories/certificates and does not fit or invent candidates.",
+  "source137_cpu_test_confirmation": {
+    "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-repeated-cauchy-fallback-137",
+    "receipt_path": "/Users/home/cardboard-implementation-20261014/cpu-checks-137/receipt.json",
+    "receipt_sha256": "256fcdf93b0fed428fb0ebd988f94bd172db7232fa525d36248f99bb220a9724",
+    "stdout_path": "/Users/home/cardboard-implementation-20261014/cpu-checks-137/stdout.log",
+    "stdout_sha256": "6daad5c74dec0fad2768b96366781c9da3a2014c5eb39c11342f5169190b33f1",
+    "selected_tests_path": "/Users/home/cardboard-implementation-20261014/cpu-checks-137/selected-tests.txt",
+    "selected_tests_sha256": "29ad80c1d057859bc59f31e175e3a23819334b9e6cd22f2d910189c49bcc4d62",
+    "result": "74/74 selected CTests passed; physical_steps=0 and physical_validation=false",
+    "relevant_targets": {
+      "matter.compiler.cardboard_fracture_regularization": "36/74 passed, 1.11 sec",
+      "matter.compiler.cardboard_robertsson_fem_coupling": "72/74 passed, 1.32 sec",
+      "matter.compiler.cardboard_retained_matrix_damage": "74/74 passed, 52.19 sec"
+    },
+    "source_hash_comparison": [
+      {
+        "path": "matter/tools/cardboard_fracture_regularization.hpp",
+        "source137_sha256": "d88d5bb677b37a3ee38fd5d0fed1c72d7178718ec768d97c2df61b4bf1393bfb",
+        "source142_sha256": "d88d5bb677b37a3ee38fd5d0fed1c72d7178718ec768d97c2df61b4bf1393bfb",
+        "identical": true
+      },
+      {
+        "path": "matter/tools/cardboard_fracture_regularization_check.cpp",
+        "source137_sha256": "d19660946c81c5b42b1503a8212487636f73a42427d25eb19a5ebc435aed718c",
+        "source142_sha256": "d19660946c81c5b42b1503a8212487636f73a42427d25eb19a5ebc435aed718c",
+        "identical": true
+      },
+      {
+        "path": "matter/tools/cardboard_retained_matrix_damage.hpp",
+        "source137_sha256": "2542d465c280070837e95acd80ef9fe6bb6444bd3897ed61f1e0998427d83d74",
+        "source142_sha256": "2542d465c280070837e95acd80ef9fe6bb6444bd3897ed61f1e0998427d83d74",
+        "identical": true
+      },
+      {
+        "path": "matter/tools/cardboard_retained_matrix_damage_check.cpp",
+        "source137_sha256": "5d54910aebb1beb78e0d5108b1fbd57ec3398939a7bb4299e96dedc1dcb44d6f",
+        "source142_sha256": "5d54910aebb1beb78e0d5108b1fbd57ec3398939a7bb4299e96dedc1dcb44d6f",
+        "identical": true
+      },
+      {
+        "path": "matter/tools/robertsson_fem_coupling_check.mm",
+        "source137_sha256": "755ff822c826553de655413f5ead270c071f99a36bad9988acacdd338fb75380",
+        "source142_sha256": "755ff822c826553de655413f5ead270c071f99a36bad9988acacdd338fb75380",
+        "identical": true
+      },
+      {
+        "path": "matter/tools/robertsson2023_material.hpp",
+        "source137_sha256": "52dc8daf9e417e773ec25ef288561460e786d7aa1e5dce8f715f94ebc61da3f7",
+        "source142_sha256": "52dc8daf9e417e773ec25ef288561460e786d7aa1e5dce8f715f94ebc61da3f7",
+        "identical": true
+      },
+      {
+        "path": "matter/examples/cardboard/source-data/README.md",
+        "source137_sha256": "d36db88d84ad5a8190208cb4b74b8b6abef0381f322126a70276345b26f6390b",
+        "source142_sha256": "d36db88d84ad5a8190208cb4b74b8b6abef0381f322126a70276345b26f6390b",
+        "identical": true
+      },
+      {
+        "path": "matter/examples/cardboard/source-data/catalog.json",
+        "source137_sha256": "f812ca264c3f0cd15e98178aeae090332eb753d127a199906a9ebc800e3a62c1",
+        "source142_sha256": "f812ca264c3f0cd15e98178aeae090332eb753d127a199906a9ebc800e3a62c1",
+        "identical": true
+      }
+    ],
+    "scope": "These source files and source-data README/catalog are byte-identical in 137 and 142, so the cited CPU component results apply to these components in 142. They do not establish full shipping mesh, native Metal for Robertsson, or physical qualification."
+  }
+}

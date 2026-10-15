@@ -1,0 +1,339 @@
+{
+  "analyzer_output": "/Users/home/cardboard-implementation-20261014/analysis/native450-cgls-candidate-audit-001",
+  "analyzer_report_sha256": "7f1cc80cee95dcc5695b44db74de4614bb28f1f67ca704e74563b5ad06ae1146",
+  "analyzer_script_sha256": "20fb48f577960505929c900dfdf5399bff6d191883ca2d70c5d6b31a95cae02b",
+  "analyzer_tool_manifest_sha256": "3ffd5fd2cdfb88a249ae108a78bc7a454b34c51dbd47d31b2b3c60f8592b1618",
+  "artifact_bindings": [
+    {
+      "bytes": 105305,
+      "label": "run prediction",
+      "path": "/Users/home/cardboard-implementation-20261014/solver/bounded-cgls64-exact-state-450/prediction.json",
+      "sha256": "d2678ec8c0a8aae9316e2a9c4eba757bbd8075d45cbe647d1af835068b832260"
+    },
+    {
+      "bytes": 305,
+      "label": "run receipt",
+      "path": "/Users/home/cardboard-implementation-20261014/solver/bounded-cgls64-exact-state-450/receipt.json",
+      "sha256": "958e07dc51d541c7e483d44403bdfa1ee6f6b8058d0025c50a2063f89f64b34c"
+    },
+    {
+      "bytes": 4503736,
+      "label": "run stderr",
+      "path": "/Users/home/cardboard-implementation-20261014/solver/bounded-cgls64-exact-state-450/stderr.log",
+      "sha256": "b5ae5ced00920cbda990e923064df518b527311cb24d95a27a4e0b1e1559e984"
+    },
+    {
+      "bytes": 343,
+      "label": "run stdout",
+      "path": "/Users/home/cardboard-implementation-20261014/solver/bounded-cgls64-exact-state-450/stdout.log",
+      "sha256": "9e9e87625cf0549628c2668a29decf5dfeec04db6a5f649642e4c81a51e79fc3"
+    },
+    {
+      "bytes": 1984768,
+      "label": "run compiled pack",
+      "path": "/Users/home/cardboard-implementation-20261014/solver/bounded-cgls64-exact-state-450/output/compiled.nmatterpack",
+      "sha256": "cafbf36052bbfa72e8be49fdba8b23e900469c9f15136a14a4ec1e4c0b5ccf7c"
+    },
+    {
+      "bytes": 11740,
+      "label": "run output manifest",
+      "path": "/Users/home/cardboard-implementation-20261014/solver/bounded-cgls64-exact-state-450/output/manifest.json",
+      "sha256": "b5261b0f60e2ed24b88d3571f9c9c9369c48a496ed570776642e518d2f7626b7"
+    },
+    {
+      "bytes": 2658,
+      "label": "run observations",
+      "path": "/Users/home/cardboard-implementation-20261014/solver/bounded-cgls64-exact-state-450/output/observations.csv",
+      "sha256": "b779720a403170ed42ddbb029b01dea1bb2c75edee468c5c0075ce28104d1db4"
+    },
+    {
+      "bytes": 409368,
+      "label": "CGLS snapshot",
+      "path": "/Users/home/cardboard-implementation-20261014/solver/bounded-cgls64-exact-state-450/base-cgls.bin",
+      "sha256": "d09d8b76b6d1beb15a39e872d19aed4c2d3b8b6f33cfbfd49d25c19bdfafd099"
+    },
+    {
+      "bytes": 13568,
+      "label": "status5 snapshot",
+      "path": "/Users/home/cardboard-implementation-20261014/solver/bounded-cgls64-exact-state-450/first-status5.bin",
+      "sha256": "0f3ae7cd18df40df8ad3bbed0b55491b43f1ee67c321eab2287c46e18a43239f"
+    },
+    {
+      "bytes": 872,
+      "label": "status5 manifest",
+      "path": "/Users/home/cardboard-implementation-20261014/solver/bounded-cgls64-exact-state-450/first-status5.json",
+      "sha256": "e7e22019962007beb1aadd0d284b32296bddf845d74adfc1b83f56378f7c6bda"
+    },
+    {
+      "bytes": 103800,
+      "label": "baseline prediction",
+      "path": "/Users/home/cardboard-implementation-20261014/solver/cgls-disabled-history-parity-445/prediction.json",
+      "sha256": "a826bdf380397a2d2e3c5eed3d4a4ecdd3fa2b6fd7b9d5ee0fe3e629ec94f68e"
+    },
+    {
+      "bytes": 305,
+      "label": "baseline receipt",
+      "path": "/Users/home/cardboard-implementation-20261014/solver/cgls-disabled-history-parity-445/receipt.json",
+      "sha256": "e076c7e3cc9403043ce47ea2cb73f54e3aa61dd3b8f24b55c0b84ba0960940ae"
+    },
+    {
+      "bytes": 4434049,
+      "label": "baseline stderr",
+      "path": "/Users/home/cardboard-implementation-20261014/solver/cgls-disabled-history-parity-445/stderr.log",
+      "sha256": "04baea125614fcd5a12f37205bbe71504d263ecb6e8892e653901ade1e5767b0"
+    },
+    {
+      "bytes": 1984768,
+      "label": "baseline compiled pack",
+      "path": "/Users/home/cardboard-implementation-20261014/solver/cgls-disabled-history-parity-445/output/compiled.nmatterpack",
+      "sha256": "cafbf36052bbfa72e8be49fdba8b23e900469c9f15136a14a4ec1e4c0b5ccf7c"
+    },
+    {
+      "bytes": 103495,
+      "label": "reference prediction",
+      "path": "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/prediction.json",
+      "sha256": "41b37af2747cfa551fae60eaddd7681cd7c7dbc859a402e641677ec23bd957d6"
+    },
+    {
+      "bytes": 306,
+      "label": "reference receipt",
+      "path": "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/receipt.json",
+      "sha256": "0826a69a65ea4a0d76ef95e56c5d0d7f5238f4de746dd6daf81f11a87907f67d"
+    },
+    {
+      "bytes": 4592580,
+      "label": "reference stderr",
+      "path": "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/stderr.log",
+      "sha256": "f6fe513bfafc9ae4f4f38b2377c1cddaeb1ce78374886295cb92db2bf6c48198"
+    },
+    {
+      "bytes": 38811258,
+      "label": "reference operator capture",
+      "path": "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/operator-capture",
+      "sha256": "f2d42314cfee0428ecd285ebb9dbd5da1556624e3e92af1d12240fd8106b309a"
+    },
+    {
+      "bytes": 1386,
+      "label": "tool manifest",
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native450-cgls-candidate-audit-tool-001/manifest.json",
+      "sha256": "3ffd5fd2cdfb88a249ae108a78bc7a454b34c51dbd47d31b2b3c60f8592b1618"
+    },
+    {
+      "bytes": 36042,
+      "label": "analyzer script",
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native450-cgls-candidate-audit-tool-001/audit_cgls_snapshot.py",
+      "sha256": "20fb48f577960505929c900dfdf5399bff6d191883ca2d70c5d6b31a95cae02b"
+    },
+    {
+      "bytes": 19418,
+      "label": "analyzer output report",
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native450-cgls-candidate-audit-001/report.json",
+      "sha256": "7f1cc80cee95dcc5695b44db74de4614bb28f1f67ca704e74563b5ad06ae1146"
+    },
+    {
+      "bytes": 153,
+      "label": "analyzer output manifest",
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native450-cgls-candidate-audit-001/manifest.json",
+      "sha256": "1240b206dea1dea413e45fef4ed8ded969f29b026b748e4a40ce630def50f718"
+    },
+    {
+      "bytes": 23723,
+      "label": "source142 CGLS kernel",
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-bounded-native-cgls-mask-repair-142/matter/src/metal/base_cgls.metalinc",
+      "sha256": "439f702b6b92b913cff204ba3fd2a73757280cf68f9b7808c5cefcfa3de9b04e"
+    },
+    {
+      "bytes": 1812192,
+      "label": "source142 runtime",
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-bounded-native-cgls-mask-repair-142/matter/src/runtime.mm",
+      "sha256": "1917384f3d82c43c1c63e040ebe796c43f7ab017cc0ef0f474ca94d3bd511ebb"
+    },
+    {
+      "bytes": 44728,
+      "label": "reference source module",
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125/matter/tools/cardboard_cached_operator_audit.py",
+      "sha256": "2ce80f9b3c989efd058bdbcc29661d10701061cfde459d64cca06c0d6caeee38"
+    },
+    {
+      "bytes": 4773,
+      "label": "prepared native command",
+      "path": "/Users/home/cardboard-implementation-20261014/native-450-command.json",
+      "sha256": "61fefd629ed4cb79ff9f9b75b38ce9d69c5eadd11f354250f3d5d1539dffb4bc"
+    }
+  ],
+  "cgls_snapshot_sha256": "d09d8b76b6d1beb15a39e872d19aed4c2d3b8b6f33cfbfd49d25c19bdfafd099",
+  "exact_analyzer_command": [
+    "/Users/home/.pyenv/versions/3.10.12/bin/python3",
+    "/Users/home/cardboard-implementation-20261014/analysis/native450-cgls-candidate-audit-tool-001/audit_cgls_snapshot.py",
+    "--binary",
+    "/Users/home/cardboard-implementation-20261014/solver/bounded-cgls64-exact-state-450/base-cgls.bin",
+    "--run-dir",
+    "/Users/home/cardboard-implementation-20261014/solver/bounded-cgls64-exact-state-450",
+    "--source-snapshot",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-bounded-native-cgls-mask-repair-142",
+    "--operator-environment",
+    "0",
+    "--reference-run-dir",
+    "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419",
+    "--reference-environment",
+    "0",
+    "--baseline-run-dir",
+    "/Users/home/cardboard-implementation-20261014/solver/cgls-disabled-history-parity-445",
+    "--output",
+    "/Users/home/cardboard-implementation-20261014/analysis/native450-cgls-candidate-audit-001"
+  ],
+  "key_results": {
+    "accepted_steps": 1,
+    "all_800_prediction_inputs_verified": true,
+    "capture_observer_parity_with_452": "pending; separate required on/off matched replay",
+    "cgls_status": "exhausted",
+    "completed_iterations": 64,
+    "iteration_cap": 64,
+    "newton_direction_armijo_accepted": true,
+    "newton_iteration": 48,
+    "physical_validation": false,
+    "pretarget_armijo_records_exactly_match_445": true,
+    "rich_capture_scope": "runtime emitted a bounded skip marker",
+    "root": 1,
+    "rundown_status_code_control1_environment0": 10,
+    "selected_environment": 0
+  },
+  "limits": [
+    "The 419 operator capture is a bound directional action reference only; run450 full rich capture was skipped because environment_count=2.",
+    "FP32 RHS word parity, A*x and A-transpose*r action checks are selected-vector comparisons, not full matrix identity.",
+    "The Newton certificate does not transfer to the CGLS direction; ordinary residual Armijo acceptance only.",
+    "Run450 ended with exit code 2 after one accepted control; the later bent control step was rejected.",
+    "Capture-observer on/off physical-history parity is not established by this run."
+  ],
+  "run_classification": "CGLS trial direction accepted by residual Armijo at selected Newton, but native transaction/control step later fails; not a completed solve or physical qualification",
+  "run_launch_command_argv": [
+    "/Users/home/.pyenv/versions/3.10.12/bin/python3",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-bounded-native-cgls-mask-repair-142/matter/tools/cardboard_source_bound_run.py",
+    "--source-snapshot",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-bounded-native-cgls-mask-repair-142",
+    "--runtime-dir",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-142",
+    "--build-provenance",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-142/source-build.json",
+    "--case",
+    "/Users/home/cardboard-implementation-20261014/solver/bounded-cgls64-exact-state-450",
+    "--timeout",
+    "4800",
+    "--question",
+    "Repeat incomplete-I/O attempt448 with identical source142/protocol: does native CGLS64 produce a verified descent candidate at exact primary Armijo failure1:48?",
+    "--env",
+    "NM_FEM_RESIDUAL_ARMIJO_ROOT=all",
+    "--env",
+    "NUMI_CARDBOARD_STEP_TIMING=1",
+    "--env",
+    "NM_FEM_RESIDUAL_ARMIJO_TRACE_ROOT=1",
+    "--env",
+    "NM_FEM_TRUE_RESIDUAL_ROOT=1",
+    "--env",
+    "NM_FEM_GRAPH_PARALLEL_LU_SEARCH=1",
+    "--env",
+    "NM_FEM_REGIONAL_CURRENT_RESTART_AUGMENTATION=1",
+    "--env",
+    "NM_FEM_TRUE_RESIDUAL_CERTIFY=1",
+    "--env",
+    "NM_FEM_COUPLED_CAPTURE_SELECTOR=1:48",
+    "--env",
+    "NM_FEM_COUPLED_CAPTURE_PATH=/Users/home/cardboard-implementation-20261014/solver/bounded-cgls64-exact-state-450/operator-capture",
+    "--env",
+    "NM_FEM_STATUS5_CAPTURE_ROOT=1",
+    "--env",
+    "NM_FEM_STATUS5_CAPTURE_PATH=/Users/home/cardboard-implementation-20261014/solver/bounded-cgls64-exact-state-450/first-status5",
+    "--env",
+    "NM_FEM_CACHE_PROJECTION_REUSE=1",
+    "--input-file",
+    "/Users/home/cardboard-implementation-20261014/analysis/native-cgls-runtime-review-140-001/manifest.json",
+    "--env",
+    "NM_FEM_BASE_CAUCHY_FALLBACK_SELECTOR=1:48",
+    "--env",
+    "NM_FEM_BASE_CGLS_ITERATIONS=64",
+    "--env",
+    "NM_FEM_BASE_CGLS_CAPTURE_NEWTON=48",
+    "--env",
+    "NM_FEM_BASE_CGLS_CAPTURE_PATH=/Users/home/cardboard-implementation-20261014/solver/bounded-cgls64-exact-state-450/base-cgls.bin",
+    "--input-file",
+    "/Users/home/cardboard-implementation-20261014/native/base-cgls-mask-repair-check-447/receipt.json",
+    "--input-file",
+    "/Users/home/cardboard-implementation-20261014/analysis/native445-cgls-disabled-history-parity-001/report.json",
+    "--input-file",
+    "/Users/home/cardboard-implementation-20261014/analysis/native-base-cgls-mask-repair-142-001/source-overlay.json",
+    "--input-file",
+    "/Users/home/cardboard-implementation-20261014/analysis/native448-incomplete-io-incident-001/incident.json",
+    "--",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-142/matter/numi-matter-cardboard-probe",
+    "--preset",
+    "literature2009",
+    "--line-search-steps",
+    "24",
+    "--without-self-contact",
+    "--reference-displacement-gradient",
+    "--compensated-paper-arithmetic",
+    "--residual-tolerance",
+    "1e-6",
+    "--newton-iterations",
+    "64",
+    "--fgmres-restart",
+    "16",
+    "--fgmres-iterations",
+    "1024",
+    "--fgmres-preconditioner",
+    "regional-galerkin-schwarz",
+    "--steps",
+    "12",
+    "--hold-steps",
+    "3",
+    "--unload-steps",
+    "6",
+    "--relax-steps",
+    "3",
+    "--release-steps",
+    "3",
+    "--nx",
+    "8",
+    "--ny",
+    "2",
+    "--thickness-slices",
+    "1",
+    "--bend-angle",
+    ".375",
+    "--dt",
+    ".0001",
+    "--material-iterations",
+    "32",
+    "--metallib",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-142/matter/shaders/NumiMatter.metallib",
+    "--output",
+    "/Users/home/cardboard-implementation-20261014/solver/bounded-cgls64-exact-state-450/output",
+    "--liner-material",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-bounded-native-cgls-mask-repair-142/matter/materials/hajali2009_liner_hill_bilinear_fit.nmatter",
+    "--medium-material",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-bounded-native-cgls-mask-repair-142/matter/materials/hajali2009_medium_hill_bilinear_fit.nmatter",
+    "--cache-fem-algorithmic-tangent",
+    "--compensated-source-paper-projection",
+    "--accurate-source-paper-projection"
+  ],
+  "run_receipt": {
+    "changed_inputs": [],
+    "exit_code": 2,
+    "path": "/Users/home/cardboard-implementation-20261014/solver/bounded-cgls64-exact-state-450/receipt.json",
+    "sha256": "958e07dc51d541c7e483d44403bdfa1ee6f6b8058d0025c50a2063f89f64b34c",
+    "source_inputs_unchanged": true,
+    "timed_out": false
+  },
+  "schema": "numi.cardboard.native_cgls_candidate_seal.v1",
+  "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-bounded-native-cgls-mask-repair-142",
+  "stdout_result": {
+    "accepted_steps": 1,
+    "compiled_world_fingerprint": 8485105279886344921,
+    "failure": "Matter rejected step 1; status, diagnostic state OBJ, and CSV observations were retained; rejected geometry is not an accepted animation frame",
+    "nodes": 882,
+    "physical_validation": false,
+    "schema": "numi.cardboard.probe-result.v1",
+    "status": "failed",
+    "tetrahedra": 1920
+  }
+}

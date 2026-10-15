@@ -1,0 +1,24 @@
+{
+  "archive_bytes": 16777160,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/archives/reset-order-augmentation-off-N28-capture27-345/inputs.tar.gz",
+  "archive_sha256": "5dba158e3454f595c83f44dba89c8e4ee5f339090455c4cd152f6342b1b24b9a",
+  "before_manifest_sha256": "fa8e3f4346e59b03b049c0207238d1556b60df4a9fa7ed0881d298e6d934ab99",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/reset-order-augmentation-off-N28-capture27-345",
+  "case_input_directories_preserved": true,
+  "filesystem_available_after_bytes": 1318248448,
+  "filesystem_available_before_bytes": 1283555328,
+  "filesystem_delta_bytes": 34693120,
+  "original_allocated_bytes": 52273152,
+  "original_input_files_removed": 789,
+  "original_logical_bytes": 50655864,
+  "physical_or_solver_qualification": false,
+  "pointer_path": "/Users/home/cardboard-implementation-20261014/solver/reset-order-augmentation-off-N28-capture27-345/inputs.compaction.json",
+  "pointer_sha256": "8e883dfaa70e71fb65e447c71d94f7c5711a7d83eab997a7e223f582e0a3f590",
+  "prediction_and_receipt_preserved": true,
+  "restoration_verification": {
+    "verified_bytes": 50655864,
+    "verified_dirs": 32,
+    "verified_files": 789
+  },
+  "schema": "numi.cardboard.closed-solver-input-compaction.case-after.v1"
+}

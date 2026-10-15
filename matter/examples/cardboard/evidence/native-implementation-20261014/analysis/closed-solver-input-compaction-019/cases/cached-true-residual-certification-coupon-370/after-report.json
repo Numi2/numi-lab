@@ -1,0 +1,24 @@
+{
+  "archive_bytes": 16987295,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/archives/cached-true-residual-certification-coupon-370/inputs.tar.gz",
+  "archive_sha256": "b6ba40b72a40fdeedb76baa209dc0b57ce136093d98a58eee6729e576cb27731",
+  "before_manifest_sha256": "ebe22eeab3933e4197729878a5e02288e7d6d2011c01b343c00df83221899ed6",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/cached-true-residual-certification-coupon-370",
+  "case_input_directories_preserved": true,
+  "filesystem_available_after_bytes": 1213001728,
+  "filesystem_available_before_bytes": 1177133056,
+  "filesystem_delta_bytes": 35868672,
+  "original_allocated_bytes": 52678656,
+  "original_input_files_removed": 791,
+  "original_logical_bytes": 51049183,
+  "physical_or_solver_qualification": false,
+  "pointer_path": "/Users/home/cardboard-implementation-20261014/solver/cached-true-residual-certification-coupon-370/inputs.compaction.json",
+  "pointer_sha256": "c0f6a19944f916e6a27c75520c5bb4d77b125df675aff2304a828c4a3c3b095a",
+  "prediction_and_receipt_preserved": true,
+  "restoration_verification": {
+    "verified_bytes": 51049183,
+    "verified_dirs": 32,
+    "verified_files": 791
+  },
+  "schema": "numi.cardboard.closed-solver-input-compaction.case-after.v1"
+}

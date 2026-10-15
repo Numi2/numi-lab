@@ -1,0 +1,8 @@
+{
+  "before_sha256": "98de105f42899272cb5dcd1584cbdbad6c29603a900ba1b7ead2012a16c8edbc",
+  "after_sha256": "02e1ae803cc899fb0237380725a6d7d2b7bc3dfd8d27b5116bf400b83bfba129",
+  "uncompiled_draft_abi_failures_preserved_in_prior_patch": true,
+  "creation_scratch_bound_bytes_upper": 1638480,
+  "physical_steps": 0,
+  "status": "AWAITING_INTEGRATED_BUILD_AND_NATIVE_CHECKS"
+}

@@ -1,0 +1,24 @@
+{
+  "archive_bytes": 15421122,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/archives/graph-schwarz-first-control-factor-capture-204/inputs.tar.gz",
+  "archive_sha256": "eda60a96c15f08f984983c09cd1059275c276fed3c15d278f51af370b1d1078f",
+  "before_manifest_sha256": "4bd6c3f08c00789a2123c8b99bfa38aa654f93971c61180127fb514c2077d7ed",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/graph-schwarz-first-control-factor-capture-204",
+  "case_input_directories_preserved": true,
+  "filesystem_available_after_bytes": 2580115456,
+  "filesystem_available_before_bytes": 2546688000,
+  "filesystem_delta_bytes": 33427456,
+  "original_allocated_bytes": 49025024,
+  "original_input_files_removed": 763,
+  "original_logical_bytes": 47455741,
+  "physical_or_solver_qualification": false,
+  "pointer_path": "/Users/home/cardboard-implementation-20261014/solver/graph-schwarz-first-control-factor-capture-204/inputs.compaction.json",
+  "pointer_sha256": "0c36a79ab1478ae5534637957d914b09bab60fd8e3806b8da72dd6d01273459a",
+  "prediction_and_receipt_preserved": true,
+  "restoration_verification": {
+    "verified_bytes": 47455741,
+    "verified_dirs": 32,
+    "verified_files": 763
+  },
+  "schema": "numi.cardboard.closed-solver-input-compaction.case-after.v1"
+}

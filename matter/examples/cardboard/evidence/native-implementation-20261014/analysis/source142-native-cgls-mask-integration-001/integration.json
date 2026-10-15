@@ -1,0 +1,11 @@
+{
+  "source": "/Users/home/cardboard-implementation-20261014/snapshots/source-bounded-native-cgls-mask-repair-142",
+  "base": "/Users/home/cardboard-implementation-20261014/snapshots/source-bounded-native-cgls-141",
+  "changed_files": {
+    "matter/src/metal/base_cgls.metalinc": "439f702b6b92b913cff204ba3fd2a73757280cf68f9b7808c5cefcfa3de9b04e"
+  },
+  "native447_receipt_sha256": "0f0674b66e58d302d93ea7817a8775bae6a90b2953d5a32599cfb8b4f3b43134",
+  "selected_sources": 787,
+  "physical_steps": 0,
+  "status": "AWAITING_BUILD_AND_PRODUCTION_NATIVE_CHECKS"
+}

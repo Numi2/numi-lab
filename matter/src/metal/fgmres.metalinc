@@ -8339,3 +8339,6 @@ kernel void nm_human_support_certify(
 }
 
 } // namespace numi_matter_metal
+
+#include "base_cgls.metalinc"
+#include "base_cgls_runtime.metalinc"

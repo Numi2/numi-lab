@@ -593,6 +593,8 @@ if(APPLE)
             src/metal/mpm.metalinc
             src/metal/fem.metalinc
             src/metal/fgmres.metalinc
+            src/metal/base_cgls.metalinc
+            src/metal/base_cgls_runtime.metalinc
             src/metal/vascular.metalinc
             src/metal/human_equality.metalinc
             src/metal/human_limits.metalinc

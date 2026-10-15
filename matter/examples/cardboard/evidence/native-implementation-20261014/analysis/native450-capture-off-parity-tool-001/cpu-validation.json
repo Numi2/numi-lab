@@ -1,0 +1,13 @@
+{
+  "cli_help_passed": true,
+  "failed": 0,
+  "native452_result": "pending; no parity verdict before full run receipt",
+  "passed": 3,
+  "prepared_command_preflight": "PASS: exactly the two designated CGLS capture environment keys removed; all normalized probe arguments and other environment values match",
+  "py_compile_passed": true,
+  "python": "3.10.12 (main, May 15 2025, 18:07:36) [Clang 17.0.0 (clang-1700.0.13.3)]",
+  "python_path": "/Users/home/.pyenv/versions/3.10.12/bin/python3",
+  "schema": "numi.cardboard.native450_capture_off_parity_tool_cpu_validation.v1",
+  "unit_command": "/Users/home/.pyenv/versions/3.10.12/bin/python3 -m unittest -v /Users/home/cardboard-implementation-20261014/analysis/native450-capture-off-parity-tool-001/test_audit_capture_observer_parity.py",
+  "unit_tests": 3
+}

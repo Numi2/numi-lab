@@ -1,0 +1,24 @@
+{
+  "archive_bytes": 15510887,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/archives/sourcefit15-fg32-control1-capture-cycle-258/inputs.tar.gz",
+  "archive_sha256": "b0d7e5f028cace91b26e64d80b474c57430f886f5325e7bfc23848339e4d347e",
+  "before_manifest_sha256": "b8b5b4c6df79c9ed73186915a94e41f7231774578781f907ca02fb29cf6d571a",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/sourcefit15-fg32-control1-capture-cycle-258",
+  "case_input_directories_preserved": true,
+  "filesystem_available_after_bytes": 2314428416,
+  "filesystem_available_before_bytes": 2281406464,
+  "filesystem_delta_bytes": 33021952,
+  "original_allocated_bytes": 49414144,
+  "original_input_files_removed": 768,
+  "original_logical_bytes": 47837889,
+  "physical_or_solver_qualification": false,
+  "pointer_path": "/Users/home/cardboard-implementation-20261014/solver/sourcefit15-fg32-control1-capture-cycle-258/inputs.compaction.json",
+  "pointer_sha256": "95ec7947ee9ae4655b3a3f21d77bdf3eb028378c765e849c96d45e25a0074927",
+  "prediction_and_receipt_preserved": true,
+  "restoration_verification": {
+    "verified_bytes": 47837889,
+    "verified_dirs": 32,
+    "verified_files": 768
+  },
+  "schema": "numi.cardboard.closed-solver-input-compaction.case-after.v1"
+}

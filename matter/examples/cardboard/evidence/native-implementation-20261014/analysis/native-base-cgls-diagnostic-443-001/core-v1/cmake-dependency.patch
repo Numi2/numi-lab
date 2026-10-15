@@ -1,0 +1,10 @@
+--- a/matter/CMakeLists.txt
++++ b/matter/CMakeLists.txt
+@@ -593,6 +593,7 @@
+             src/metal/mpm.metalinc
+             src/metal/fem.metalinc
+             src/metal/fgmres.metalinc
++            src/metal/base_cgls.metalinc
+             src/metal/vascular.metalinc
+             src/metal/human_equality.metalinc
+             src/metal/human_limits.metalinc

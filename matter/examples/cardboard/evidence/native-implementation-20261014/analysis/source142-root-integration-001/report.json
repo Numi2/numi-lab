@@ -1,0 +1,21 @@
+{
+  "schema": "numi.cardboard.source142_root_integration.v1",
+  "created_at_utc": "2026-10-15T22:15:39.171899+00:00",
+  "prior_root_head": "f156a97610d0098e18627b6c5fd8433f9e4813ee",
+  "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-bounded-native-cgls-mask-repair-142",
+  "frozen_source_sha256": "b0b14da5a0a4f65d7f7fc103be9d04cbf03ec3d2e322af6791e23b1f8125aba6",
+  "all_787_selected_source_hashes_match": true,
+  "changed_files": {
+    "matter/CMakeLists.txt": "2763c841225947f88218450536f77d428009a8878bc053bd278b2c353e262293",
+    "matter/src/metal/base_cgls.metalinc": "439f702b6b92b913cff204ba3fd2a73757280cf68f9b7808c5cefcfa3de9b04e",
+    "matter/src/metal/base_cgls_runtime.metalinc": "9c889ffa751411980498f6a4536e1c8ffacbe472a37d559f291b5893874fa74c",
+    "matter/src/metal/fgmres.metalinc": "e5ebc5a8942fc4b7b23ccc8beebc2b88370860b9544996eb882a9ace87111b90",
+    "matter/src/runtime.mm": "1917384f3d82c43c1c63e040ebe796c43f7ab017cc0ef0f474ca94d3bd511ebb"
+  },
+  "native450_root_adjudication_sha256": "7b6589d34e1fbc8507d040c251e65e58a340e520320a0312551585104cbf2d73",
+  "native450_452_observer_parity_sha256": "100edf77d4cf802b0292b6ba012f111b1d436eedb4ba6ce5e2cafce19a79c6c0",
+  "default_off": true,
+  "complete_coupon_qualified": false,
+  "physical_validation": false,
+  "qualification_scope": "Synthetic helper678checks; selected actualFEM A/A-transpose actions; exactN48nonlineartrial; fullobserver attempted-historyparity. Source141 feature-off fullhistory comparison is retained separately, not claimed as a freshsource142disabled run."
+}

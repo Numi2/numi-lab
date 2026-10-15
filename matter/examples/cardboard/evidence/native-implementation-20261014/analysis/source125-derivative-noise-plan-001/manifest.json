@@ -1,0 +1,48 @@
+{
+  "schema": "numi.cardboard.source125-derivative-noise-plan.v1",
+  "evidence_class": "source-bound CPU-only audit/proposal; not a solver run or qualification",
+  "command": "/Users/home/.pyenv/versions/3.10.12/bin/python3 /Users/home/cardboard-implementation-20261014/analysis/source125-derivative-noise-plan-001/audit.py --output /Users/home/cardboard-implementation-20261014/analysis/source125-derivative-noise-plan-001/report.json",
+  "exit_code": 0,
+  "source_and_input_sha256": {
+    "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/operator-capture": "f2d42314cfee0428ecd285ebb9dbd5da1556624e3e92af1d12240fd8106b309a",
+    "/Users/home/cardboard-implementation-20261014/analysis/operator-fd-e2-adapter-001/coupon419-003/environment-0.npz": "e20eeb559f5976e6b9ddb2ae605ea6860908cde3a1d255ea80832b24840c8353",
+    "/Users/home/cardboard-implementation-20261014/analysis/source125-fp64-smooth-direction-sweep-006/result-004/report.json": "2a2ffd1bb9205b847f7b34119ccd38d98c2d5cc91d4801792017195f831798ba",
+    "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/receipt.json": "0826a69a65ea4a0d76ef95e56c5d0d7f5238f4de746dd6daf81f11a87907f67d",
+    "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/prediction.json": "41b37af2747cfa551fae60eaddd7681cd7c7dbc859a402e641677ec23bd957d6",
+    "/Users/home/cardboard-implementation-20261014/solver/two-stage-first-failure-rich-fd-419/output/compiled.nmatterpack": "cafbf36052bbfa72e8be49fdba8b23e900469c9f15136a14a4ec1e4c0b5ccf7c",
+    "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-125/source-build.json": "35b821184ca36ad57c529bc0e33e4f20519996def1c312f8ac0f8028ecadb8e6",
+    "/Users/home/cardboard-implementation-20261014/analysis/operator-fd-e2-adapter-001/coupon419-003/report.json": "c918a287f0de7966d50813a70fa7d9d3917746a6fc5de8dca57283fbf375ba76",
+    "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py": "c17010564a98fe63da0c8b88be81313685a65cfbd57ff82292e797cab5a0fdf3",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125/matter/src/runtime.mm": "1719f14310d643ca96c520eb47b3028f8259f85e3da0d263460921b06d94ac74",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125/matter/include/numi/matter/shared.h": "cd173c076905f660aa8aecc900e6f6aba8d69406996f3cccf2e0656c753ff871",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125/matter/src/metal/common.metalinc": "441a3f86f21979a086a0356f5fd2b91f692ba94dbd09a28d07ea9756c1246a5a",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125/matter/src/metal/fem.metalinc": "70c2f396045f9abdcfdc32f5714e6e3a400f5566e5a7824353e11b307de52b7d",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-status5-vtccd-diagnostics-125/matter/src/metal/fgmres.metalinc": "1c423e02e189df17c925e0b77ded87465098278f836011c16aad1bb8f92bcec0"
+  },
+  "files": {
+    "audit.py": {
+      "bytes": 10806,
+      "sha256": "75c4ba5fae8eaab4c80c8104e72536df027c2e12816f2abaf01286475bf2ba78"
+    },
+    "README.md": {
+      "bytes": 7966,
+      "sha256": "1fa513d7685cad63b78adbf10b2faacac1a67bab5274fd95644ef251265ef8ae"
+    },
+    "report.json": {
+      "bytes": 9932,
+      "sha256": "75ae828ebf3ea370dd6ccdd7908fb8775f91f0948bacebee6782a826580e3d18"
+    },
+    "reproduction.stdout.txt": {
+      "bytes": 2275,
+      "sha256": "35257f792c7c682c0451ba3bd0f5369549f10046a44e2334ef9b238ad67a9f18"
+    }
+  },
+  "checks": {
+    "strict_json_no_nan": true,
+    "capture_selection": "root 1 / Newton 48 / environment 0",
+    "production_inputs_unchanged": true,
+    "local_side_projection_valid_all_paper_rows": true,
+    "independent_element_signed_work_reproduces_report": true,
+    "gpu_used": false
+  }
+}

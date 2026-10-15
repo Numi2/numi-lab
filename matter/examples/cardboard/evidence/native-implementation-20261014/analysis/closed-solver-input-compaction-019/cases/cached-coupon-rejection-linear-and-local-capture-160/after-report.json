@@ -1,0 +1,24 @@
+{
+  "archive_bytes": 15003963,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/archives/cached-coupon-rejection-linear-and-local-capture-160/inputs.tar.gz",
+  "archive_sha256": "5784ff46e934d414a4b97e859bb9e6f03dc72bb266b51ed8b9cd1255e0b24189",
+  "before_manifest_sha256": "a3075026a76fc29366963424c723c2cfc1ca48636db2f14deaa3fcf90eefe557",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/cached-coupon-rejection-linear-and-local-capture-160",
+  "case_input_directories_preserved": true,
+  "filesystem_available_after_bytes": 3182743552,
+  "filesystem_available_before_bytes": 3150020608,
+  "filesystem_delta_bytes": 32722944,
+  "original_allocated_bytes": 47894528,
+  "original_input_files_removed": 755,
+  "original_logical_bytes": 46335880,
+  "physical_or_solver_qualification": false,
+  "pointer_path": "/Users/home/cardboard-implementation-20261014/solver/cached-coupon-rejection-linear-and-local-capture-160/inputs.compaction.json",
+  "pointer_sha256": "16d5b47ccfcfff3b3f2a5259602445b80261a8ae8c1531506bd31bf36da33464",
+  "prediction_and_receipt_preserved": true,
+  "restoration_verification": {
+    "verified_bytes": 46335880,
+    "verified_dirs": 32,
+    "verified_files": 755
+  },
+  "schema": "numi.cardboard.closed-solver-input-compaction.case-after.v1"
+}

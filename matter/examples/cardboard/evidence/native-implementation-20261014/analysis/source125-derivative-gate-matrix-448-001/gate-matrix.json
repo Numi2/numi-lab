@@ -1,0 +1,81 @@
+{
+  "schema": "numi.cardboard.source125_derivative_gate_matrix.v1",
+  "status": "scoped_diagnostic_matrix",
+  "scope": {
+    "capture": "source125 control_step=1, environment=0, root=1/Newton48",
+    "state": "one captured accepted history and one nonzero direction; zero physical transactions",
+    "limits": "not a 9x9 material derivative study, not all coupon states, not a completed coupon or physical calibration"
+  },
+  "gates": [
+    {
+      "gate": "center independent material projection",
+      "verdict": "pass_scoped",
+      "rows": {"liner": 1152, "medium": 576},
+      "maximum_tight_reference_scaled_residual": {"liner": 1.9965211331745533e-12, "medium": 1.981137200749782e-12},
+      "maximum_tight_dynamic_correction": {"liner": 5.014357269269954e-13, "medium": 1.0673123234014252e-11},
+      "limit": "Observed predicates cover lambda increment sign, yield residual sign, and FB arithmetic path; internal return-map subiteration branches are not captured."
+    },
+    {
+      "gate": "center native element force versus independent FP64",
+      "verdict": "pass_scoped",
+      "tets": 1920,
+      "relative_l2_error": 7.619825176390342e-8,
+      "maximum_component_absolute_error_N": 1.0531184117812398e-7
+    },
+    {
+      "gate": "center assembled A action, A=M-dt^2 K",
+      "verdict": "pass_scoped_1_percent_gate",
+      "native_fresh_vs_independent_relative_l2": 2.8227460308936193e-5,
+      "native_fresh_vs_capture_relative_l2": 0.0,
+      "native_cache_vs_fresh_relative_l2": 1.508052765159535e-4,
+      "ideal_FP64_centered_A_secant_vs_A_at_epsilon_2^-22_relative_l2": 2.246175154854501e-5,
+      "limit": "One direction only. Signed stiffness and mass contributions nearly cancel; this does not substitute for the local 1e-6 per-tet gate."
+    },
+    {
+      "gate": "ideal FP64 local tangent versus centered secant",
+      "verdict": "pass_scoped_pointwise_direction",
+      "paper_rows": 1728,
+      "rows_with_at_least_3_adjacent_predeclared_grid_points": 1728,
+      "minimum_longest_valid_interval_points": 4,
+      "liner_longest_interval_min_median_max": [4, 11, 17],
+      "medium_longest_interval_min_median_max": [4, 11, 15],
+      "per_row_gate": "relative Frobenius error <= 1e-6, both independent endpoint projections pass, and available endpoint branch predicates match center",
+      "shared_grid_diagnostic": {"maximum_rows_passing_together": 1716, "at_epsilon_power": 20, "shared_epsilon_required": false},
+      "edge_and_trend_limits": {"rows_without_any_adjacent_nonincreasing_error_step": {"liner": 51, "medium": 11}, "longest_interval_representatives_at_high_epsilon_edge_power14": {"liner": 1089, "medium": 484}, "liner_representatives_at_low_epsilon_edge_power30": 2},
+      "limit": "The pointwise gate does not require one shared epsilon. Edge-touching intervals have no evidence beyond the tested grid, and some pass intervals show no decreasing-error segment."
+    },
+    {
+      "gate": "native FP32 directional residual/action derivative",
+      "verdict": "fail_at_tested_1e-3_gate; absolute_noise_floor_unresolved",
+      "best_tested_epsilon": 6.103515625e-5,
+      "best_relative_error": 1.0948066880685303,
+      "all_native_sweep_samples_resolved_noise_floor": false,
+      "limit": "Environment 1 has a zero direction and is inconclusive. The separate epsilon=2^-14 per-element force audit omits tet1691 after an independent plus-projection failure; its full 1920-tet secant is unavailable."
+    },
+    {
+      "gate": "source125 absolute endpoint rounding/noise envelope",
+      "verdict": "inconclusive",
+      "limit": "No exact source125 per-tet side F high/low, Fdot, and stress readback is retained for the FP32 perturbation sweep. A separate 90-digit source315 study measured absolute endpoint disagreements and passed selected rows/rays only; it is not transferable to source125 and is not a universal floor."
+    }
+  ],
+  "native448": {
+    "verdict": "incomplete_diagnostic; CGLS execution unresolved",
+    "observed": "One CSV row is accepted; a later row has status 10 and zero completed microsteps. Rich E2 capture was skipped and the trace stopped at its 64-record cap.",
+    "caveat": "The CSV fgmres_iterations field does not identify a Newton iteration. No case-level receipt or source snapshot is present; ENOSPC may have interrupted outputs."
+  },
+  "next_smallest_diagnostic": "For source125 root1/Newton48 and this same captured direction, retain exact same-generation native center and plus/minus per-tet F high/low/Fdot, projected state, stress, tangent, accepted history, status, and available branch flags; compare native stresses/element actions with independent FP64 at those exact represented inputs and retain absolute component errors.",
+  "evidence": [
+    {"path": "/Users/home/cardboard-implementation-20261014/analysis/source125-fp64-smooth-direction-sweep-006/result-004/report.json", "sha256": "2a2ffd1bb9205b847f7b34119ccd38d98c2d5cc91d4801792017195f831798ba"},
+    {"path": "/Users/home/cardboard-implementation-20261014/analysis/source125-fp64-smooth-direction-sweep-006/result-004/manifest.json", "sha256": "ef6bc40c184e5177a1ba83704113e65815ed66b2e07748460d18e8217554f5ce"},
+    {"path": "/Users/home/cardboard-implementation-20261014/analysis/source125-fp64-smooth-direction-sweep-006/result-005/rowwise-window-intervals.json", "sha256": "00b81e42398c609c0237dd09d064c2e13338e54645fee18b5c0a807bdb5ab8f8"},
+    {"path": "/Users/home/cardboard-implementation-20261014/analysis/source125-fp64-smooth-direction-sweep-006/result-005/manifest.json", "sha256": "9d9b1eb12f737ee6269829bb2933923e1aa7dc59ff434ba3ba733924b7fd60c0"},
+    {"path": "/Users/home/cardboard-implementation-20261014/analysis/source125-kinematics-and-native424-force-audit-003/report.json", "sha256": "ac341f55c0dbb2462d142fcf0165ca570d06eec9aa432944a0863067343b8664"},
+    {"path": "/Users/home/cardboard-implementation-20261014/analysis/source125-kinematics-and-native424-force-audit-003/manifest.json", "sha256": "6827a2990bf96e69d2a0ffa2e00f64ac9c42cc6d1cc4e57bf203879d073fc5e9"},
+    {"path": "/Users/home/cardboard-implementation-20261014/analysis/native424-residual-sweep-audit-001/report.json", "sha256": "ccf8bb7d2b3e5d1f7e73279445882c40eb7916d460a8cd8314689e2e28be645e3"},
+    {"path": "/Users/home/cardboard-implementation-20261014/analysis/native-operator-term-replay-result-422/result/replay-report.json", "sha256": "e440d6f80e49c80c09b77d27f5a985e7961aa77e0ad10c2a571edd2e6a0f8f7c"},
+    {"path": "/Users/home/cardboard-implementation-20261014/analysis/selected-material-direction-adjudication-011/report.json", "sha256": "e244b0a52c2cf473737f423f53451fea530ff5dca0a555bea07641265f5023d0"},
+    {"path": "/Users/home/cardboard-implementation-20261014/solver/bounded-cgls64-exact-state-448/output/observations.csv", "sha256": "c15c81cef5098398c04bb16db8313bed1a96efe14b07a9a486ff611ea2fe8f6d"},
+    {"path": "/Users/home/cardboard-implementation-20261014/solver/bounded-cgls64-exact-state-448/stderr.log", "sha256": "28725d6fad39b11bb5499eaeecf07d4041db1d1135f2e9934b878ab0b51d137f"},
+    {"path": "/Users/home/cardboard-implementation-20261014/native-448-command.json", "sha256": "724d9304d53cd25772e9fa3a6616899398bb84bc7b443b420cad9b28f5a009e3"}
+  ]
+}

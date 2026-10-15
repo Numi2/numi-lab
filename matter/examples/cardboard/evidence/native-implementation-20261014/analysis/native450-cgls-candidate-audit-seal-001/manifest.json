@@ -1,0 +1,15 @@
+{
+  "bound_analyzer_manifest_sha256": "1240b206dea1dea413e45fef4ed8ded969f29b026b748e4a40ce630def50f718",
+  "bound_report_sha256": "7f1cc80cee95dcc5695b44db74de4614bb28f1f67ca704e74563b5ad06ae1146",
+  "files": {
+    "README.md": {
+      "bytes": 1225,
+      "sha256": "bae5e472e6095baa8475cfd1c0fc215be02a7fcdb99bc0071488069aa647e785"
+    },
+    "seal.json": {
+      "bytes": 15357,
+      "sha256": "e03e0eb2316f689be966d9aa6a4087ca7ab9ef26b65f8490b0431d8171630c8a"
+    }
+  },
+  "schema": "numi.cardboard.native_cgls_candidate_seal_manifest.v1"
+}

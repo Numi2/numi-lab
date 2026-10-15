@@ -1,0 +1,21 @@
+{
+  "files": {
+    "README.md": {
+      "bytes": 1344,
+      "sha256": "7140e8785bf48729b6f95f88b08f9a2fb00e1b64bdbc96b836fd5d7b5a9314ce"
+    },
+    "after.json": {
+      "bytes": 7823,
+      "sha256": "92b034db6f377f9fdabfc8d8a87ebe95471285d6aae8c43c5c5033ad78bb65a7"
+    },
+    "before.json": {
+      "bytes": 273365,
+      "sha256": "59b87ba95a06b354b7512f1fcc03adab9a3675e30fc014317432d5d042964fcc"
+    },
+    "summary.json": {
+      "bytes": 379,
+      "sha256": "f1016dbe44eaa824d49855895576186bb4fdb028f307544f4d2a9d62b0041985"
+    }
+  },
+  "schema": "numi.cardboard.generated_closed_build_cache_retirement.seal.v1"
+}

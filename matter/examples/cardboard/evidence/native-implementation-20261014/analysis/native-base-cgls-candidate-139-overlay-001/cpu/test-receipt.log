@@ -1,0 +1,11 @@
+test_bad_caps_fail_closed (__main__.CGLSReferenceTests) ... ok
+test_nonbinary_mask_and_bad_environment_map_fail_closed (__main__.CGLSReferenceTests) ... ok
+test_nonsymmetric_recurrence_is_finite_and_descending (__main__.CGLSReferenceTests) ... ok
+test_nonzero_fixed_rhs_fails_closed (__main__.CGLSReferenceTests) ... ok
+test_quiet_environment_must_be_exact_zero (__main__.CGLSReferenceTests) ... ok
+test_small_matrix_has_an_explicit_transpose (__main__.CGLSReferenceTests) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.008s
+
+OK

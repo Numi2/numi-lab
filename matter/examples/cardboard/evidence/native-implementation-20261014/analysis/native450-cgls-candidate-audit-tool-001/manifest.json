@@ -1,0 +1,32 @@
+{
+  "baseline445": {
+    "prediction_sha256": "a826bdf380397a2d2e3c5eed3d4a4ecdd3fa2b6fd7b9d5ee0fe3e629ec94f68e",
+    "receipt_sha256": "e076c7e3cc9403043ce47ea2cb73f54e3aa61dd3b8f24b55c0b84ba0960940ae",
+    "run_dir": "/Users/home/cardboard-implementation-20261014/solver/cgls-disabled-history-parity-445",
+    "stderr_sha256": "04baea125614fcd5a12f37205bbe71504d263ecb6e8892e653901ade1e5767b0"
+  },
+  "bound_source142": {
+    "operator_audit_module_sha256": "2ce80f9b3c989efd058bdbcc29661d10701061cfde459d64cca06c0d6caeee38",
+    "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-bounded-native-cgls-mask-repair-142"
+  },
+  "classification": "CPU-tested analysis tool only; native450 evidence pending",
+  "files": {
+    "README.md": {
+      "bytes": 2843,
+      "sha256": "41e2697b3b237f35512e9800654c6f1b468680595ce905be1637eedaa1fe8dd1"
+    },
+    "audit_cgls_snapshot.py": {
+      "bytes": 36042,
+      "sha256": "20fb48f577960505929c900dfdf5399bff6d191883ca2d70c5d6b31a95cae02b"
+    },
+    "cpu-validation.json": {
+      "bytes": 1858,
+      "sha256": "2dd42a00a009d8e9cc55e372d280e36564b83ed849d786a7354a23514b56dc90"
+    },
+    "test_audit_cgls_snapshot.py": {
+      "bytes": 5477,
+      "sha256": "c94b2368eb39cb82aac1cb830c9d47965b9565ef7c962777dc2d81c8a4705f02"
+    }
+  },
+  "schema": "numi.cardboard.native_cgls_candidate_audit_tool_manifest.v1"
+}

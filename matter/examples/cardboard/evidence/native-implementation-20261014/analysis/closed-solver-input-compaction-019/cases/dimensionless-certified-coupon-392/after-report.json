@@ -1,0 +1,24 @@
+{
+  "archive_bytes": 16528760,
+  "archive_path": "/Users/home/cardboard-implementation-20261014/analysis/closed-solver-input-compaction-019/archives/dimensionless-certified-coupon-392/inputs.tar.gz",
+  "archive_sha256": "4e494e4879772abcc5585299bd72dbd64c6f9c20a14cd400e218ceae50d0b6a1",
+  "before_manifest_sha256": "fd2a31aa4920c4567d537aa2a75c1d3116b2759b331096d5592ac9be144295c3",
+  "case": "/Users/home/cardboard-implementation-20261014/solver/dimensionless-certified-coupon-392",
+  "case_input_directories_preserved": true,
+  "filesystem_available_after_bytes": 2246418432,
+  "filesystem_available_before_bytes": 2399907840,
+  "filesystem_delta_bytes": -153489408,
+  "original_allocated_bytes": 52051968,
+  "original_input_files_removed": 791,
+  "original_logical_bytes": 50426416,
+  "physical_or_solver_qualification": false,
+  "pointer_path": "/Users/home/cardboard-implementation-20261014/solver/dimensionless-certified-coupon-392/inputs.compaction.json",
+  "pointer_sha256": "0816afa758cb7b71373397356faea2fdc8ea790d46ab74e2b2b077b94c1cd672",
+  "prediction_and_receipt_preserved": true,
+  "restoration_verification": {
+    "verified_bytes": 50426416,
+    "verified_dirs": 32,
+    "verified_files": 791
+  },
+  "schema": "numi.cardboard.closed-solver-input-compaction.case-after.v1"
+}

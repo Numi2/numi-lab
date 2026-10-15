@@ -1,0 +1,21 @@
+{
+  "schema": "numi.cardboard.base-cgls-core-overlay.v1",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-coupon-cache-admission-139",
+  "base_manifest_sha256": "e22f2d17ff26f71e1b2919db32652820c664e02802a2a8fca8067a6cccaa680e",
+  "files": {
+    "source/matter/src/metal/base_cgls.metalinc": "24563b7d4d54c894c1f6ace75dca060429159752500c394e78a69a4fc0ae3b2c",
+    "core-overlay.patch": "a20dafcad1b16bbc953bcd3ae61bb0ceba65a142f7143de9e73d2f05855616ca",
+    "cmake-dependency.patch": "d080521fbc21f4a19780ff5b573e7e69341006bbf8bda229e48f48d319b8e7e0",
+    "cpu/cgls_reference.py": "f528887b17ace8eb3ddd3b30fff1b7b82f31bf1e1bed68341fba7393526389ea",
+    "cpu/test_cgls_reference.py": "29a3424460ba26c2be1ac40b8fe04d6f03f71ccdf2dea23c0a1a64a3dc2f7717"
+  },
+  "validation": {
+    "metal_and_host_compile_only": "pass",
+    "cpu_tests": "6/6 pass in cpu/test-receipt.log",
+    "gpu_execution": "not run"
+  },
+  "limitations": [
+    "No runtime bindings, admission, nonlinear trial, installation, or certificate transfer are included.",
+    "No production operator parity or nonlinear physical-solve claim is made."
+  ]
+}

@@ -1,0 +1,5 @@
+{
+  "execution_started": false,
+  "physical_steps": 0,
+  "error": "FileNotFoundError: diagnostic package manifest is named source-overlay.json, not manifest.json. No compile or GPU command executed."
+}
