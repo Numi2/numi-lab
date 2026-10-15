@@ -1,0 +1,1176 @@
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -10058,6 +10058,85 @@
+                                 femOperatorFDTraceRoot, femOperatorFDTraceIteration,
+                                 0.03125f * femOperatorFDEpsilonScale,
+                                 0.015625f * femOperatorFDEpsilonScale);
++                        }
++                    }
++                }
++            }
++            // Exact post-FGMRES, pre-Armijo snapshot for a bounded fully
++            // coupled failure replay. The optional path is a stem; the
++            // callback writes <stem>.bin and <stem>.json with O_EXCL. This
++            // path owns no production state and reserves no persistent arena.
++            bool femCoupledCaptureRequested = false;
++            bool femCoupledCaptureConfigValid = true;
++            bool femCoupledCaptureCaptured = false;
++            bool femCoupledCaptureRHSReady = false;
++            std::uint32_t femCoupledCaptureRoot = 0u;
++            std::uint32_t femCoupledCaptureIteration = 0u;
++            std::string femCoupledCapturePath;
++            const char* femCoupledCaptureSelector =
++                std::getenv("NM_FEM_COUPLED_CAPTURE_SELECTOR");
++            const char* femCoupledCapturePathText =
++                std::getenv("NM_FEM_COUPLED_CAPTURE_PATH");
++            femCoupledCaptureRequested =
++                femCoupledCaptureSelector != nullptr ||
++                femCoupledCapturePathText != nullptr;
++            if (femCoupledCaptureRequested) {
++                const auto failCoupledCaptureConfig = [&](const char* reason) {
++                    femCoupledCaptureConfigValid = false;
++                    std::fprintf(stderr,
++                        "fem_coupled_capture_error={\"schema\":1,\"reason\":\"%s\",\"physical_state_changed\":false}\n",
++                        reason);
++                };
++                if (femCoupledCaptureSelector == nullptr ||
++                    femCoupledCaptureSelector[0] == '\0' ||
++                    femCoupledCapturePathText == nullptr ||
++                    femCoupledCapturePathText[0] == '\0') {
++                    failCoupledCaptureConfig(
++                        "selector_and_nonempty_capture_path_are_both_required");
++                } else if (std::getenv("NM_FEM_OPERATOR_FD_SELECTOR") != nullptr) {
++                    failCoupledCaptureConfig(
++                        "operator_fd_capture_cannot_share_the_bounded_readback");
++                } else {
++                    const char* separator = std::strchr(
++                        femCoupledCaptureSelector, ':');
++                    const char* selectorEnd = femCoupledCaptureSelector +
++                        std::strlen(femCoupledCaptureSelector);
++                    const auto digitsOnly = [](const char* begin,
++                                               const char* end) {
++                        if (begin >= end) return false;
++                        for (const char* cursor = begin; cursor != end;
++                             ++cursor) {
++                            if (*cursor < '0' || *cursor > '9') return false;
++                        }
++                        return true;
++                    };
++                    char* rootEnd = nullptr;
++                    char* iterationEnd = nullptr;
++                    const unsigned long root = std::strtoul(
++                        femCoupledCaptureSelector, &rootEnd, 10);
++                    const unsigned long iteration = separator == nullptr
++                        ? 0ul : std::strtoul(separator + 1, &iterationEnd, 10);
++                    if (separator == nullptr || rootEnd == femCoupledCaptureSelector ||
++                        !digitsOnly(femCoupledCaptureSelector, separator) ||
++                        !digitsOnly(separator + 1, selectorEnd) ||
++                        std::strchr(separator + 1, ':') != nullptr ||
++                        rootEnd != separator || iterationEnd == separator + 1 ||
++                        *iterationEnd != '\0' ||
++                        root > std::numeric_limits<std::uint32_t>::max() ||
++                        iteration > 255ul) {
++                        failCoupledCaptureConfig(
++                            "selector_must_be_root_colon_zero_based_iteration_0_to_255");
++                    } else {
++                        femCoupledCaptureRoot =
++                            static_cast<std::uint32_t>(root);
++                        femCoupledCaptureIteration =
++                            static_cast<std::uint32_t>(iteration);
++                        femCoupledCapturePath = femCoupledCapturePathText;
++                        if (femCoupledCaptureRoot == request.controlStep) {
++                            std::fprintf(stderr,
++                                "fem_coupled_capture_enabled={\"schema\":1,\"root\":%u,\"iteration\":%u,\"capture_point\":\"after_fgmres_before_armijo\",\"readback_cap_bytes\":33554432}\n",
++                                femCoupledCaptureRoot,
++                                femCoupledCaptureIteration);
+                         }
+                     }
+                 }
+@@ -14004,6 +14083,1013 @@
+             for (std::uint32_t nonlinearIteration = 0u;
+                  nonlinearIteration < nonlinearIterationBudget;
+                  ++nonlinearIteration) {
++            const auto encodeFEMCoupledNewtonCapture = [&]() -> bool {
++                if (!femCoupledCaptureRequested ||
++                    !femCoupledCaptureConfigValid ||
++                    femCoupledCaptureCaptured ||
++                    femCoupledCaptureRoot != request.controlStep ||
++                    femCoupledCaptureIteration != nonlinearIteration) {
++                    return true;
++                }
++                femCoupledCaptureCaptured = true;
++                const auto emitSkipped = [&](const char* reason,
++                                             const std::uint64_t bytes = 0u) {
++                    std::fprintf(stderr,
++                        "fem_coupled_capture_skipped={\"schema\":1,\"root\":%u,\"iteration\":%u,\"reason\":\"%s\",\"bytes\":%llu,\"physical_state_changed\":false}\n",
++                        femCoupledCaptureRoot, femCoupledCaptureIteration,
++                        reason, static_cast<unsigned long long>(bytes));
++                };
++                if (state.dispatch.environmentCount != 1u ||
++                    state.dispatch.femNodeCount > 2048u ||
++                    state.dispatch.tetrahedronCount > 8192u ||
++                    state.dispatch.particleCount != 0u ||
++                    state.dispatch.mpmGridCount != 0u ||
++                    state.dispatch.mpmBlockCount != 0u ||
++                    state.dispatch.mpmBlockLookupCount != 0u ||
++                    state.dispatch.rigidProxyCount > 64u ||
++                    request.rigid.currentBodyCount > 64u ||
++                    request.rigid.currentBodyStride > 64u ||
++                    request.rigid.bodyWrenchCount > 64u ||
++                    request.rigid.bodyWrenchStride > 64u ||
++                    request.rigid.sceneBodyCount > 64u ||
++                    request.rigid.sceneStride > 64u ||
++                    request.rigid.qStride > 64u ||
++                    request.rigid.vStride > 64u ||
++                    request.rigid.externalWrenchCount > 64u ||
++                    request.rigid.externalWrenchStride > 64u ||
++                    request.rigidContactConstraintStride > 64u ||
++                    state.fgmresLayout.unknownCount > 8192u ||
++                    state.dispatch.contactPairCount > 131072u ||
++                    state.dispatch.deformableContactCapacity > 16384u ||
++                    state.dispatch.cohesiveFaceCount > 8192u ||
++                    state.dispatch.objectCount > 64u ||
++                    state.dispatch.materialStateStride > 64u ||
++                    state.fgmresLayout.vascularUnknownCount != 0u ||
++                    state.dispatch.identificationCandidateCount != 0u ||
++                    request.mutationCommandCount != 0u ||
++                    state.enableVascularDense45) {
++                    emitSkipped("coupled_readback_scope_limit");
++                    return true;
++                }
++                // This snapshot captures one free, non-articulated rigid
++                // candidate through the coupled generalized buffers. The
++                // articulated q/v path has additional model-owned state and
++                // is deliberately outside this replay format.
++                if (coupledArticulatedNv != 0u) {
++                    emitSkipped("articulated_generalized_unknowns_not_supported");
++                    return true;
++                }
++                if (!femCoupledCaptureRHSReady ||
++                    state.femTrueResidualRightHandSide == nil) {
++                    emitSkipped("pre_fgmres_full_rhs_not_preserved");
++                    return true;
++                }
++
++                constexpr std::uint64_t captureCap = 32u * 1024u * 1024u;
++                constexpr std::size_t captureArrayCap = 192u;
++                struct CoupledCaptureArray {
++                    std::string name;
++                    std::string sourceName;
++                    std::string dtype;
++                    std::uint64_t offset = 0u;
++                    std::uint64_t byteCount = 0u;
++                    std::uint64_t elementBytes = 0u;
++                    std::uint64_t count = 0u;
++                    std::uint32_t sourceSlot = NM_INVALID_INDEX;
++                    std::vector<unsigned char> hostBytes;
++                };
++                std::vector<CoupledCaptureArray> arrays;
++                std::vector<void*> sources;
++                std::vector<std::string> omittedOptional;
++                std::uint64_t payloadBytes = 0u;
++                bool layoutValid = true;
++                const auto appendBuffer = [&](const char* name,
++                                              const char* dtype,
++                                              const std::uint64_t elementBytes,
++                                              id<MTLBuffer> source,
++                                              const bool required) {
++                    if (source == nil) {
++                        if (required) layoutValid = false;
++                        else omittedOptional.emplace_back(name);
++                        return;
++                    }
++                    if (elementBytes == 0u || source.length == 0u ||
++                        source.length % elementBytes != 0u ||
++                        source.length > state.device.maxBufferLength ||
++                        source.length > captureCap ||
++                        payloadBytes > captureCap - source.length ||
++                        arrays.size() >= captureArrayCap) {
++                        layoutValid = false;
++                        return;
++                    }
++                    CoupledCaptureArray array;
++                    array.name = name;
++                    array.sourceName = name;
++                    array.dtype = dtype;
++                    array.offset = payloadBytes;
++                    array.byteCount = source.length;
++                    array.elementBytes = elementBytes;
++                    array.count = source.length / elementBytes;
++                    array.sourceSlot = static_cast<std::uint32_t>(sources.size());
++                    sources.push_back((__bridge void*)source);
++                    arrays.push_back(std::move(array));
++                    payloadBytes += source.length;
++                };
++                const auto appendBorrowed = [&](const char* name,
++                                                const char* dtype,
++                                                const std::uint64_t elementBytes,
++                                                void* borrowed,
++                                                const bool required) {
++                    id<MTLBuffer> source = borrowed == nullptr
++                        ? nil : (__bridge id<MTLBuffer>)borrowed;
++                    appendBuffer(name, dtype, elementBytes, source, required);
++                };
++                const auto appendHost = [&](const char* name,
++                                            const char* dtype,
++                                            const void* data,
++                                            const std::uint64_t byteCount,
++                                            const std::uint64_t elementBytes) {
++                    if (data == nullptr || byteCount == 0u || elementBytes == 0u ||
++                        byteCount % elementBytes != 0u ||
++                        byteCount > captureCap ||
++                        payloadBytes > captureCap - byteCount ||
++                        arrays.size() >= captureArrayCap) {
++                        layoutValid = false;
++                        return;
++                    }
++                    CoupledCaptureArray array;
++                    array.name = name;
++                    array.sourceName = "host_snapshot";
++                    array.dtype = dtype;
++                    array.offset = payloadBytes;
++                    array.byteCount = byteCount;
++                    array.elementBytes = elementBytes;
++                    array.count = byteCount / elementBytes;
++                    const auto* first = static_cast<const unsigned char*>(data);
++                    array.hostBytes.assign(first, first + byteCount);
++                    arrays.push_back(std::move(array));
++                    payloadBytes += byteCount;
++                };
++                const std::uint64_t envNodes =
++                    static_cast<std::uint64_t>(state.dispatch.environmentCount) *
++                    state.dispatch.femNodeCount;
++                const std::uint64_t envTets =
++                    static_cast<std::uint64_t>(state.dispatch.environmentCount) *
++                    state.dispatch.tetrahedronCount;
++                const std::uint64_t envCohesive =
++                    static_cast<std::uint64_t>(state.dispatch.environmentCount) *
++                    state.dispatch.cohesiveFaceCount;
++                appendHost("dispatch_record", "record:NMMatterDispatchGPU",
++                    &state.dispatch, sizeof(state.dispatch), sizeof(state.dispatch));
++                appendHost("fgmres_layout_record", "record:NMFGMRESLayoutGPU",
++                    &state.fgmresLayout, sizeof(state.fgmresLayout),
++                    sizeof(state.fgmresLayout));
++                appendHost("microstep_record", "record:NMMicrostepGPU",
++                    &micro, sizeof(micro), sizeof(micro));
++                const std::array<std::uint32_t, 5> coupledLayout = {
++                    state.coupledQStride, state.coupledVStride,
++                    state.coupledBodyStride,
++                    state.coupledCandidateCompensatedTranslation ? 1u : 0u,
++                    coupledArticulatedNv};
++                appendHost("coupled_layout", "uint32x5",
++                    coupledLayout.data(), sizeof(coupledLayout),
++                    sizeof(std::uint32_t));
++                appendHost("human_support_dispatch",
++                    "record:NMHumanSupportDispatchGPU",
++                    &state.humanSupportDispatch, sizeof(state.humanSupportDispatch),
++                    sizeof(state.humanSupportDispatch));
++                appendHost("human_equality_dispatch",
++                    "record:NMHumanEqualityDispatchGPU",
++                    &state.humanEqualityDispatch,
++                    sizeof(state.humanEqualityDispatch),
++                    sizeof(state.humanEqualityDispatch));
++                appendHost("human_limit_dispatch",
++                    "record:NMHumanLimitDispatchGPU",
++                    &state.humanLimitDispatch, sizeof(state.humanLimitDispatch),
++                    sizeof(state.humanLimitDispatch));
++                const std::array<std::uint32_t, 8> regionalGraphLayout = {
++                    state.femRegionalGraphPatchCount,
++                    state.femRegionalGraphPatchNodeCount,
++                    state.femRegionalGraphDofCount,
++                    state.femRegionalGraphMatrixFloatCount,
++                    state.femRegionalGraphPivotCount,
++                    state.femRegionalGraphLayoutChecksum,
++                    state.femRegionalGraphParallelSearch,
++                    state.femRegionalModeCount};
++                appendHost("regional_graph_layout", "uint32x8",
++                    regionalGraphLayout.data(), sizeof(regionalGraphLayout),
++                    sizeof(std::uint32_t));
++                appendBuffer("dispatch_buffer", "record:NMMatterDispatchGPU",
++                    sizeof(NMMatterDispatchGPU), state.dispatchBuffer, true);
++                appendBuffer("mixed_solver", "record:NMMixedSolverGPU",
++                    sizeof(NMMixedSolverGPU), state.mixedSolver, true);
++                appendBuffer("objects", "record:NMContinuumObjectGPU",
++                    sizeof(NMContinuumObjectGPU), state.objects, true);
++                appendBuffer("materials", "record:NMMaterialGPU",
++                    sizeof(NMMaterialGPU), state.materials, true);
++                appendBuffer("cohesive_materials", "record:NMCohesiveMaterialGPU",
++                    sizeof(NMCohesiveMaterialGPU), state.cohesiveMaterials, false);
++                appendBuffer("mixed_materials", "record:NMMixedMaterialGPU",
++                    sizeof(NMMixedMaterialGPU), state.mixedMaterials, false);
++                appendBuffer("mixed_field_solution", "float32x4",
++                    sizeof(nm_float4), state.mixedFieldSolution, false);
++                appendBuffer("mixed_field_residual", "float32x4",
++                    sizeof(nm_float4), state.mixedFieldResidual, false);
++                appendBuffer("mixed_field_preconditioned", "float32x4",
++                    sizeof(nm_float4), state.mixedFieldPreconditioned, false);
++                appendBuffer("mixed_field_inverse_diagonal", "float32x4",
++                    sizeof(nm_float4), state.mixedFieldInverseDiagonal, false);
++                appendBuffer("mixed_field_operator", "float32x4",
++                    sizeof(nm_float4), state.mixedFieldOperator, false);
++                appendBuffer("learned_materials", "record:NMLearnedMaterialGPU",
++                    sizeof(NMLearnedMaterialGPU), state.learnedMaterials, false);
++                appendBuffer("learned_layers", "record:NMLearnedLayerGPU",
++                    sizeof(NMLearnedLayerGPU), state.learnedLayers, false);
++                appendBuffer("learned_weights_candidate", "float32",
++                    sizeof(float), state.learnedWeightsCandidate, false);
++                appendBuffer("learned_weights_accepted", "float32",
++                    sizeof(float), state.learnedWeightsAccepted, false);
++                appendBuffer("learned_weight_defaults", "float32",
++                    sizeof(float), state.learnedWeightDefaults, false);
++                appendBuffer("scalar_programs", "record:NMScalarProgramGPU",
++                    sizeof(NMScalarProgramGPU), state.scalarPrograms, true);
++                appendBuffer("instructions", "record:NMExpressionInstructionGPU",
++                    sizeof(NMExpressionInstructionGPU), state.instructions, true);
++                appendBuffer("parameter_defaults", "float32",
++                    sizeof(float), state.parameterDefaults, false);
++                appendBuffer("environment_parameters", "float32",
++                    sizeof(float), state.environmentParameters, true);
++                appendBuffer("fem_accepted_nodes", "record:NMFEMNodeStateGPU",
++                    sizeof(NMFEMNodeStateGPU), state.femAccepted, true);
++                appendBuffer("fem_candidate_nodes", "record:NMFEMNodeStateGPU",
++                    sizeof(NMFEMNodeStateGPU), state.femCandidate, true);
++                appendBuffer("tetrahedra_accepted", "record:NMTetrahedronGPU",
++                    sizeof(NMTetrahedronGPU), state.femTetrahedraAccepted, true);
++                appendBuffer("tetrahedra_candidate", "record:NMTetrahedronGPU",
++                    sizeof(NMTetrahedronGPU), state.femTetrahedraCandidate, true);
++                appendBuffer("material_history_accepted", "float32",
++                    sizeof(float), state.femMaterialStateAccepted, true);
++                appendBuffer("material_history_candidate", "float32",
++                    sizeof(float), state.femMaterialStateCandidate, true);
++                appendBuffer("fields_accepted", "record:NMFEMFieldStateGPU",
++                    sizeof(NMFEMFieldStateGPU), state.femFieldsAccepted, false);
++                appendBuffer("fields_candidate", "record:NMFEMFieldStateGPU",
++                    sizeof(NMFEMFieldStateGPU), state.femFieldsCandidate, false);
++                appendBuffer("node_ranges", "record:NMIncidenceRangeGPU",
++                    sizeof(NMIncidenceRangeGPU), state.femNodeRanges, true);
++                appendBuffer("tetrahedron_node_incidence", "uint32",
++                    sizeof(std::uint32_t), state.femNodeIncidence, true);
++                appendBuffer("cohesive_node_ranges", "record:NMIncidenceRangeGPU",
++                    sizeof(NMIncidenceRangeGPU), state.femCohesiveNodeRanges, false);
++                appendBuffer("cohesive_node_incidence", "uint32",
++                    sizeof(std::uint32_t), state.femCohesiveNodeIncidence, false);
++                appendBuffer("surface_faces", "record:NMFEMSurfaceFaceGPU",
++                    sizeof(NMFEMSurfaceFaceGPU), state.femSurfaceFaces, false);
++                appendBuffer("surface_primitives", "record:NMContinuumSurfacePrimitiveGPU",
++                    sizeof(NMContinuumSurfacePrimitiveGPU),
++                    state.continuumSurfacePrimitives, false);
++                appendBuffer("fields_boundaries", "record:NMFieldBoundaryGPU",
++                    sizeof(NMFieldBoundaryGPU), state.fieldBoundaries, false);
++                appendBuffer("fem_topology_nodes_accepted",
++                    "record:NMFEMTopologyNodeGPU", sizeof(NMFEMTopologyNodeGPU),
++                    state.femTopologyNodesAccepted, false);
++                appendBuffer("fem_topology_nodes_candidate",
++                    "record:NMFEMTopologyNodeGPU", sizeof(NMFEMTopologyNodeGPU),
++                    state.femTopologyNodesCandidate, false);
++                appendBuffer("adaptive_state", "record:NMAdaptiveStateGPU",
++                    sizeof(NMAdaptiveStateGPU), state.adaptive, true);
++                appendBuffer("scheduler_state", "record:NMSchedulerStateGPU",
++                    sizeof(NMSchedulerStateGPU), state.schedulers, true);
++                appendBuffer("solver_statuses", "record:NMMatterStatusGPU",
++                    sizeof(NMMatterStatusGPU), state.statuses, true);
++                appendBuffer("deformable_contact_failures",
++                    "record:NMDeformableContactFailureGPU",
++                    sizeof(NMDeformableContactFailureGPU),
++                    state.deformableContactFailures, false);
++                appendBuffer("solver_certificates", "record:NMSolverCertificateGPU",
++                    sizeof(NMSolverCertificateGPU), state.solverCertificates, false);
++                appendBuffer("element_forces", "record:NMFEMElementVectorGPU",
++                    sizeof(NMFEMElementVectorGPU), state.elementForces, false);
++                appendBuffer("element_operator", "record:NMFEMElementVectorGPU",
++                    sizeof(NMFEMElementVectorGPU), state.elementOperator, false);
++                appendBuffer("cohesive_faces_accepted", "record:NMCohesiveFaceGPU",
++                    sizeof(NMCohesiveFaceGPU), state.cohesiveFacesAccepted, false);
++                appendBuffer("cohesive_faces_candidate", "record:NMCohesiveFaceGPU",
++                    sizeof(NMCohesiveFaceGPU), state.cohesiveFacesCandidate, false);
++                appendBuffer("cohesive_face_forces", "record:NMCohesiveFaceVectorGPU",
++                    sizeof(NMCohesiveFaceVectorGPU), state.cohesiveFaceForces, false);
++                appendBuffer("cohesive_face_operator", "record:NMCohesiveFaceVectorGPU",
++                    sizeof(NMCohesiveFaceVectorGPU), state.cohesiveFaceOperator, false);
++                appendBuffer("cohesive_surface_face_ranges", "record:NMIncidenceRangeGPU",
++                    sizeof(NMIncidenceRangeGPU), state.cohesiveSurfaceFaceRanges, false);
++                appendBuffer("cohesive_surface_face_refs", "uint32",
++                    sizeof(std::uint32_t), state.cohesiveSurfaceFaceRefs, false);
++                appendBuffer("fem_solution_correction", "float32x4",
++                    sizeof(nm_float4), state.femSolution, true);
++                appendBuffer("fem_rhs_after_fgmres", "float32x4",
++                    sizeof(nm_float4), state.femResidual, true);
++                appendBuffer("full_rhs_before_fgmres", "float32x4",
++                    sizeof(nm_float4), state.femTrueResidualRightHandSide, true);
++                appendBuffer("fem_direction_workspace", "float32x4",
++                    sizeof(nm_float4), state.femDirection, false);
++                appendBuffer("fem_operator_action_workspace", "float32x4",
++                    sizeof(nm_float4), state.femOperatorValue, false);
++                appendBuffer("fgmres_state", "record:NMFGMRESStateGPU",
++                    sizeof(NMFGMRESStateGPU), state.fgmresStates, true);
++                appendBuffer("constraint_reactions", "float32x4",
++                    sizeof(nm_float4), state.femConstraintReactions, false);
++                appendBuffer("constraint_contact_forces", "float32x4",
++                    sizeof(nm_float4), state.femConstraintContactForces, false);
++                appendBuffer("human_attachments", "record:NMFEMHumanAttachmentGPU",
++                    sizeof(NMFEMHumanAttachmentGPU), state.femHumanAttachments, false);
++                appendBuffer("human_attachment_point_jacobians", "float32",
++                    sizeof(float), state.femHumanAttachmentPointJacobians, false);
++                appendBuffer("human_attachment_point_queries", "float32x4",
++                    sizeof(nm_float4), state.femHumanAttachmentPointQueries, false);
++                appendBuffer("human_attachment_residual_impulses", "float32x4",
++                    sizeof(nm_float4), state.femHumanAttachmentResidualImpulses, false);
++                appendBuffer("human_attachment_raw_reactions", "float32x4",
++                    sizeof(nm_float4), state.femHumanAttachmentRawReactions, false);
++                appendBuffer("human_attachment_operator", "float32x4",
++                    sizeof(nm_float4), state.femHumanAttachmentOperator, false);
++                appendBuffer("human_equality_rows",
++                    "record:NMHumanJointEqualityGPU",
++                    sizeof(NMHumanJointEqualityGPU), state.humanEqualityRows, false);
++                appendBuffer("human_equality_linearization", "float32x4",
++                    sizeof(nm_float4), state.humanEqualityLinearization, false);
++                appendBuffer("human_equality_factor", "float32",
++                    sizeof(float), state.humanEqualityFactor, false);
++                appendBuffer("human_limit_rows", "record:NMHumanJointLimitGPU",
++                    sizeof(NMHumanJointLimitGPU), state.humanLimitRows, false);
++                appendBuffer("human_limit_linearization", "float32x4",
++                    sizeof(nm_float4), state.humanLimitLinearization, false);
++                appendBuffer("human_limit_tangent", "float32",
++                    sizeof(float), state.humanLimitTangent, false);
++                appendBuffer("human_support_contacts",
++                    "record:NMHumanSupportContactGPU",
++                    sizeof(NMHumanSupportContactGPU), state.humanSupportContacts, false);
++                appendBuffer("human_support_point_queries",
++                    "record:NMHumanSupportPointQueryGPU",
++                    sizeof(NMHumanSupportPointQueryGPU),
++                    state.humanSupportPointQueries, false);
++                appendBuffer("human_support_point_jacobians", "float32",
++                    sizeof(float), state.humanSupportPointJacobians, false);
++                appendBuffer("human_support_samples", "record:NMContactSampleGPU",
++                    sizeof(NMContactSampleGPU), state.humanSupportSamples, false);
++                appendBuffer("human_support_linearizations",
++                    "record:NMHumanSupportKKTGPU",
++                    sizeof(NMHumanSupportKKTGPU), state.humanSupportLinearizations, false);
++                appendBuffer("human_support_histories_accepted", "float32x4",
++                    sizeof(nm_float4), state.humanSupportHistoriesAccepted, false);
++                appendBuffer("human_support_histories_candidate", "float32x4",
++                    sizeof(nm_float4), state.humanSupportHistoriesCandidate, false);
++                appendBuffer("human_support_working_set", "uint32",
++                    sizeof(std::uint32_t), state.humanSupportWorkingSet, false);
++                appendBuffer("human_support_cone_working_set", "uint32",
++                    sizeof(std::uint32_t), state.humanSupportConeWorkingSet, false);
++                appendBuffer("human_support_cone_targets", "float32x4",
++                    sizeof(nm_float4), state.humanSupportConeTargets, false);
++                appendBuffer("human_support_consequences_accepted",
++                    "record:NMHumanSupportConsequenceGPU",
++                    sizeof(NMHumanSupportConsequenceGPU),
++                    state.humanSupportConsequencesAccepted, false);
++                appendBuffer("human_support_consequences_candidate",
++                    "record:NMHumanSupportConsequenceGPU",
++                    sizeof(NMHumanSupportConsequenceGPU),
++                    state.humanSupportConsequencesCandidate, false);
++                if (!state.humanSupportContactLayout.empty()) {
++                    appendHost("human_support_contact_layout",
++                        "record:NMHumanSupportContactGPU",
++                        state.humanSupportContactLayout.data(),
++                        state.humanSupportContactLayout.size() *
++                            sizeof(NMHumanSupportContactGPU),
++                        sizeof(NMHumanSupportContactGPU));
++                } else {
++                    omittedOptional.emplace_back("human_support_contact_layout");
++                }
++                appendBuffer("rigid_proxies", "record:NMRigidProxyGPU",
++                    sizeof(NMRigidProxyGPU), state.rigidProxies, false);
++                appendBuffer("rigid_states", "record:NMRigidStateGPU",
++                    sizeof(NMRigidStateGPU), state.rigidStates, false);
++                appendBuffer("coupled_generalized_input", "float32",
++                    sizeof(float), state.coupledGeneralizedInput, false);
++                appendBuffer("coupled_generalized_output", "float32",
++                    sizeof(float), state.coupledGeneralizedOutput, false);
++                appendBuffer("coupled_generalized_candidate", "float32",
++                    sizeof(float), state.coupledGeneralizedCandidate, false);
++                appendBuffer("coupled_point_jacobians", "float32",
++                    sizeof(float), state.coupledPointJacobians, false);
++                appendBuffer("coupled_inverse_statuses", "uint32",
++                    sizeof(std::uint32_t), state.coupledInverseStatuses, false);
++                appendBuffer("coupled_candidate_q", "float32",
++                    sizeof(float), state.coupledCandidateQ, false);
++                appendBuffer("coupled_candidate_bodies", "record:MRBodyStateGPU",
++                    sizeof(MRBodyStateGPU), state.coupledCandidateBodies, false);
++                appendBuffer("coupled_candidate_root_translation", "float32x4",
++                    sizeof(nm_float4), state.coupledCandidateRootTranslation, false);
++                appendBuffer("coupled_candidate_body_position_low", "float32x4",
++                    sizeof(nm_float4), state.coupledCandidateBodyPositionLow, false);
++                appendBuffer("contact_pairs", "record:NMContactPairGPU",
++                    sizeof(NMContactPairGPU), state.contactPairs, false);
++                appendBuffer("contact_samples", "record:NMContactSampleGPU",
++                    sizeof(NMContactSampleGPU), state.contactSamples, false);
++                appendBuffer("contact_histories_accepted", "float32x4",
++                    sizeof(nm_float4), state.contactHistoriesAccepted, false);
++                appendBuffer("contact_histories_candidate", "float32x4",
++                    sizeof(nm_float4), state.contactHistoriesCandidate, false);
++                appendBuffer("contact_active_pairs", "record:NMContactPairGPU",
++                    sizeof(NMContactPairGPU), state.contactActivePairs, false);
++                appendBuffer("contact_active_slots_by_pair", "uint32",
++                    sizeof(std::uint32_t), state.contactActiveSlotsByPair, false);
++                appendBuffer("contact_active_counts", "uint32x4",
++                    sizeof(nm_uint4), state.contactActiveCounts, false);
++                appendBuffer("deformable_contacts", "record:NMDeformableContactGPU",
++                    sizeof(NMDeformableContactGPU), state.deformableContacts, false);
++                appendBuffer("deformable_contact_candidates",
++                    "record:NMDeformableContactCandidateGPU",
++                    sizeof(NMDeformableContactCandidateGPU),
++                    state.deformableContactCandidates, false);
++                appendBuffer("deformable_contact_candidate_counts", "uint32x4",
++                    sizeof(nm_uint4), state.deformableContactCandidateCounts, false);
++                appendBuffer("deformable_contact_histories_accepted",
++                    "record:NMDeformableContactHistoryGPU",
++                    sizeof(NMDeformableContactHistoryGPU),
++                    state.deformableContactHistoriesAccepted, false);
++                appendBuffer("deformable_contact_histories_candidate",
++                    "record:NMDeformableContactHistoryGPU",
++                    sizeof(NMDeformableContactHistoryGPU),
++                    state.deformableContactHistoriesCandidate, false);
++                appendBuffer("deformable_contact_active_indices", "uint32",
++                    sizeof(std::uint32_t), state.deformableContactActiveIndices, false);
++                appendBuffer("deformable_contact_active_counts", "uint32x4",
++                    sizeof(nm_uint4), state.deformableContactActiveCounts, false);
++                appendBuffer("deformable_contact_node_incidence", "uint32",
++                    sizeof(std::uint32_t), state.deformableContactNodeIncidence, false);
++                appendBuffer("deformable_contact_node_ranges",
++                    "record:NMIncidenceRangeGPU", sizeof(NMIncidenceRangeGPU),
++                    state.deformableContactNodeRanges, false);
++                appendBuffer("deformable_contact_active_offsets", "uint32",
++                    sizeof(std::uint32_t), state.deformableContactActiveOffsets, false);
++                appendBuffer("deformable_contact_global_active_indices", "uint32",
++                    sizeof(std::uint32_t), state.deformableContactGlobalActiveIndices, false);
++                appendBuffer("deformable_contact_active_dispatch",
++                    "record:NMIndirectDispatchGPU", sizeof(NMIndirectDispatchGPU),
++                    state.deformableContactActiveDispatch, false);
++                appendBuffer("algorithmic_tangent_cache", "float32",
++                    sizeof(float), state.femAlgorithmicTangentCache, false);
++                appendBuffer("algorithmic_tangent_cache_valid", "uint32",
++                    sizeof(std::uint32_t), state.femAlgorithmicTangentCacheValid, false);
++                appendBuffer("fgmres_basis", "float32x4",
++                    sizeof(nm_float4), state.fgmresBasis, true);
++                appendBuffer("fgmres_preconditioned_basis", "float32x4",
++                    sizeof(nm_float4), state.fgmresPreconditionedBasis, true);
++                appendBuffer("fgmres_hessenberg", "float32",
++                    sizeof(float), state.fgmresHessenberg, true);
++                appendBuffer("fgmres_rotations", "float32",
++                    sizeof(float), state.fgmresRotations, true);
++                appendBuffer("fgmres_least_squares", "float32",
++                    sizeof(float), state.fgmresLeastSquares, true);
++                appendBuffer("fgmres_restart_coefficients", "float32",
++                    sizeof(float), state.fgmresRestartCoefficients, true);
++                appendBuffer("regional_basis", "float32x4",
++                    sizeof(nm_float4), state.femRegionalBasis, false);
++                appendBuffer("regional_effective_basis", "float32x4",
++                    sizeof(nm_float4), state.femRegionalEffectiveBasis, false);
++                appendBuffer("regional_ap", "float32x4",
++                    sizeof(nm_float4), state.femRegionalAP, false);
++                appendBuffer("regional_coarse_matrix", "float32",
++                    sizeof(float), state.femRegionalCoarseMatrix, false);
++                appendBuffer("regional_coarse_pivots", "uint32",
++                    sizeof(std::uint32_t), state.femRegionalCoarsePivots, false);
++                appendBuffer("regional_coarse_rhs", "float32",
++                    sizeof(float), state.femRegionalCoarseRHS, false);
++                appendBuffer("regional_coarse_coefficients", "float32",
++                    sizeof(float), state.femRegionalCoarseCoefficients, false);
++                appendBuffer("regional_coarse_valid", "uint32",
++                    sizeof(std::uint32_t), state.femRegionalCoarseValid, false);
++                appendBuffer("regional_node_block_inverse", "float32x4",
++                    sizeof(nm_float4), state.femRegionalNodeBlockInverse, false);
++                const bool graphSchwarzSelected =
++                    state.mixedSolverValue.executionBudgets.z == 5u;
++                appendBuffer("regional_graph_patches", "uint32x4",
++                    sizeof(nm_uint4), state.femRegionalGraphPatches,
++                    graphSchwarzSelected);
++                appendBuffer("regional_graph_patch_nodes", "uint32",
++                    sizeof(std::uint32_t), state.femRegionalGraphPatchNodes,
++                    graphSchwarzSelected);
++                appendBuffer("regional_graph_rows", "uint32x4",
++                    sizeof(nm_uint4), state.femRegionalGraphRows,
++                    graphSchwarzSelected);
++                appendBuffer("regional_graph_node_patch_offsets", "uint32",
++                    sizeof(std::uint32_t), state.femRegionalGraphNodePatchOffsets,
++                    graphSchwarzSelected);
++                appendBuffer("regional_graph_node_patch_values", "uint32",
++                    sizeof(std::uint32_t), state.femRegionalGraphNodePatchValues,
++                    graphSchwarzSelected);
++                appendBuffer("regional_graph_node_coverage", "uint32",
++                    sizeof(std::uint32_t), state.femRegionalGraphNodeCoverage,
++                    graphSchwarzSelected);
++                appendBuffer("regional_graph_factors", "float32",
++                    sizeof(float), state.femRegionalGraphFactors,
++                    graphSchwarzSelected);
++                appendBuffer("regional_graph_pivots", "uint32",
++                    sizeof(std::uint32_t), state.femRegionalGraphPivots,
++                    graphSchwarzSelected);
++                appendBuffer("regional_graph_factor_valid", "uint32",
++                    sizeof(std::uint32_t), state.femRegionalGraphFactorValid,
++                    graphSchwarzSelected);
++                appendBuffer("regional_graph_patch_corrections", "float32x4",
++                    sizeof(nm_float4), state.femRegionalGraphPatchCorrections,
++                    graphSchwarzSelected);
++                if (graphSchwarzSelected) {
++                    omittedOptional.emplace_back(
++                        "regional_graph_original_matrices_reconstruct_from_same_candidate_operator");
++                }
++                appendBorrowed("borrowed_rigid_q", "float32", sizeof(float),
++                    request.rigid.q, request.rigid.qStride != 0u);
++                appendBorrowed("borrowed_rigid_v", "float32", sizeof(float),
++                    request.rigid.v, request.rigid.vStride != 0u);
++                appendBorrowed("borrowed_current_bodies", "record:MRBodyStateGPU",
++                    sizeof(MRBodyStateGPU), request.rigid.currentBodies,
++                    request.rigid.currentBodyCount != 0u);
++                appendBorrowed("borrowed_scene_bodies", "record:MRBodyStateGPU",
++                    sizeof(MRBodyStateGPU), request.rigid.sceneBodies,
++                    request.rigid.sceneBodyCount != 0u);
++                appendBorrowed("borrowed_body_wrenches", "record:MRABABodyWrenchGPU",
++                    sizeof(MRABABodyWrenchGPU), request.rigid.bodyWrenches,
++                    request.rigid.bodyWrenchCount != 0u);
++                appendBorrowed("borrowed_external_wrenches", "record:MRABABodyWrenchGPU",
++                    sizeof(MRABABodyWrenchGPU), request.rigid.externalWrenches,
++                    request.rigid.externalWrenchCount != 0u);
++                appendBorrowed("borrowed_fem_external_forces", "float32x4",
++                    sizeof(nm_float4), request.femExternalForces, false);
++                appendBorrowed("borrowed_fem_kinematic_targets", "float32x4",
++                    sizeof(nm_float4), request.femKinematicTargets, false);
++                appendBorrowed("borrowed_rigid_contact_constraints", "byte",
++                    1u, request.rigidContactConstraints,
++                    request.rigidContactConstraintStride != 0u ||
++                        request.rigidContactConstraints != nullptr);
++                appendBorrowed("borrowed_rigid_contact_statuses", "byte",
++                    1u, request.rigidContactStatuses,
++                    request.rigidContactConstraintStride != 0u ||
++                        request.rigidContactStatuses != nullptr);
++                const auto requireMinimumBufferBytes = [&](const char* name,
++                                                            id<MTLBuffer> source,
++                                                            const std::uint64_t minimumBytes) {
++                    if (source == nil || source.length < minimumBytes) {
++                        layoutValid = false;
++                        omittedOptional.emplace_back(
++                            std::string("extent_error:") + name);
++                    }
++                };
++                const std::uint64_t expectedNodeBytes =
++                    envNodes * sizeof(NMFEMNodeStateGPU);
++                const std::uint64_t expectedTetBytes =
++                    envTets * sizeof(NMTetrahedronGPU);
++                const std::uint64_t expectedMaterialStateBytes =
++                    envNodes * state.dispatch.materialStateStride * sizeof(float);
++                const std::uint64_t expectedVectorBytes =
++                    static_cast<std::uint64_t>(state.fgmresLayout.unknownCount) *
++                    sizeof(nm_float4);
++                const std::uint64_t expectedCohesiveBytes =
++                    envCohesive * sizeof(NMCohesiveFaceGPU);
++                const std::uint64_t expectedContactPairs =
++                    static_cast<std::uint64_t>(state.dispatch.environmentCount) *
++                    state.dispatch.contactPairCount;
++                const std::uint64_t expectedContactHistoryBytes =
++                    expectedContactPairs * sizeof(nm_float4);
++                const std::uint32_t configuredFGMRESRestart = std::clamp(
++                    state.mixedSolverValue.nonlinearIterations.y,
++                    1u, static_cast<std::uint32_t>(NM_MIXED_FGMRES_RESTART));
++                const std::uint64_t expectedFGMRESBasisBytes =
++                    expectedVectorBytes * (configuredFGMRESRestart + 1u);
++                const std::uint64_t expectedFGMRESPreconditionedBasisBytes =
++                    expectedVectorBytes * configuredFGMRESRestart;
++                const std::uint64_t expectedFGMRESHessenbergBytes =
++                    static_cast<std::uint64_t>(state.dispatch.environmentCount) *
++                    (NM_MIXED_FGMRES_RESTART + 1u) *
++                    NM_MIXED_FGMRES_RESTART * sizeof(float);
++                const std::uint64_t expectedFGMRESRotationsBytes =
++                    static_cast<std::uint64_t>(state.dispatch.environmentCount) *
++                    NM_MIXED_FGMRES_RESTART * 2u * sizeof(float);
++                const std::uint64_t expectedFGMRESScalarsBytes =
++                    static_cast<std::uint64_t>(state.dispatch.environmentCount) *
++                    (NM_MIXED_FGMRES_RESTART + 1u) * sizeof(float);
++                requireMinimumBufferBytes("fem_accepted_nodes", state.femAccepted,
++                    expectedNodeBytes);
++                requireMinimumBufferBytes("fem_candidate_nodes", state.femCandidate,
++                    expectedNodeBytes);
++                requireMinimumBufferBytes("tetrahedra_accepted",
++                    state.femTetrahedraAccepted, expectedTetBytes);
++                requireMinimumBufferBytes("tetrahedra_candidate",
++                    state.femTetrahedraCandidate, expectedTetBytes);
++                requireMinimumBufferBytes("material_history_accepted",
++                    state.femMaterialStateAccepted, expectedMaterialStateBytes);
++                requireMinimumBufferBytes("material_history_candidate",
++                    state.femMaterialStateCandidate, expectedMaterialStateBytes);
++                requireMinimumBufferBytes("fem_solution_correction",
++                    state.femSolution, expectedVectorBytes);
++                requireMinimumBufferBytes("fem_rhs_after_fgmres",
++                    state.femResidual, expectedVectorBytes);
++                requireMinimumBufferBytes("full_rhs_before_fgmres",
++                    state.femTrueResidualRightHandSide, expectedVectorBytes);
++                requireMinimumBufferBytes("fgmres_basis", state.fgmresBasis,
++                    expectedFGMRESBasisBytes);
++                requireMinimumBufferBytes("fgmres_preconditioned_basis",
++                    state.fgmresPreconditionedBasis,
++                    expectedFGMRESPreconditionedBasisBytes);
++                requireMinimumBufferBytes("fgmres_hessenberg",
++                    state.fgmresHessenberg, expectedFGMRESHessenbergBytes);
++                requireMinimumBufferBytes("fgmres_rotations",
++                    state.fgmresRotations, expectedFGMRESRotationsBytes);
++                requireMinimumBufferBytes("fgmres_least_squares",
++                    state.fgmresLeastSquares, expectedFGMRESScalarsBytes);
++                requireMinimumBufferBytes("fgmres_restart_coefficients",
++                    state.fgmresRestartCoefficients,
++                    expectedFGMRESScalarsBytes);
++                if (state.femRegionalModeCount != 0u) {
++                    const std::uint64_t regionalModeNodes =
++                        static_cast<std::uint64_t>(state.femRegionalModeCount) *
++                        state.dispatch.femNodeCount;
++                    const std::uint64_t regionalVectorBytes =
++                        regionalModeNodes * sizeof(nm_float4);
++                    const std::uint64_t regionalMatrixBytes =
++                        static_cast<std::uint64_t>(state.femRegionalModeCount) *
++                        state.femRegionalModeCount * sizeof(float);
++                    requireMinimumBufferBytes("regional_basis",
++                        state.femRegionalBasis, regionalVectorBytes);
++                    requireMinimumBufferBytes("regional_effective_basis",
++                        state.femRegionalEffectiveBasis, regionalVectorBytes);
++                    requireMinimumBufferBytes("regional_ap",
++                        state.femRegionalAP, regionalVectorBytes);
++                    requireMinimumBufferBytes("regional_coarse_matrix",
++                        state.femRegionalCoarseMatrix, regionalMatrixBytes);
++                }
++                if (graphSchwarzSelected) {
++                    requireMinimumBufferBytes("regional_graph_patches",
++                        state.femRegionalGraphPatches,
++                        static_cast<std::uint64_t>(
++                            state.femRegionalGraphPatchCount) * sizeof(nm_uint4));
++                    requireMinimumBufferBytes("regional_graph_patch_nodes",
++                        state.femRegionalGraphPatchNodes,
++                        static_cast<std::uint64_t>(
++                            state.femRegionalGraphPatchNodeCount) *
++                            sizeof(std::uint32_t));
++                    requireMinimumBufferBytes("regional_graph_rows",
++                        state.femRegionalGraphRows,
++                        static_cast<std::uint64_t>(
++                            state.femRegionalGraphPatchNodeCount) *
++                            sizeof(nm_uint4));
++                    requireMinimumBufferBytes("regional_graph_factors",
++                        state.femRegionalGraphFactors,
++                        static_cast<std::uint64_t>(
++                            state.femRegionalGraphMatrixFloatCount) * sizeof(float));
++                    requireMinimumBufferBytes("regional_graph_pivots",
++                        state.femRegionalGraphPivots,
++                        static_cast<std::uint64_t>(
++                            state.femRegionalGraphPivotCount) *
++                            sizeof(std::uint32_t));
++                    requireMinimumBufferBytes("regional_graph_factor_valid",
++                        state.femRegionalGraphFactorValid,
++                        static_cast<std::uint64_t>(
++                            state.femRegionalGraphPatchCount) *
++                            sizeof(std::uint32_t));
++                    requireMinimumBufferBytes("regional_graph_patch_corrections",
++                        state.femRegionalGraphPatchCorrections,
++                        static_cast<std::uint64_t>(
++                            state.femRegionalGraphPatchNodeCount) *
++                            sizeof(nm_float4));
++                }
++                requireMinimumBufferBytes("rigid_proxies", state.rigidProxies,
++                    static_cast<std::uint64_t>(state.dispatch.rigidProxyCount) *
++                        sizeof(NMRigidProxyGPU));
++                requireMinimumBufferBytes("rigid_states", state.rigidStates,
++                    static_cast<std::uint64_t>(state.dispatch.environmentCount) *
++                        state.dispatch.rigidProxyCount * sizeof(NMRigidStateGPU));
++                if (state.dispatch.cohesiveFaceCount != 0u) {
++                    requireMinimumBufferBytes("cohesive_faces_accepted",
++                        state.cohesiveFacesAccepted, expectedCohesiveBytes);
++                    requireMinimumBufferBytes("cohesive_faces_candidate",
++                        state.cohesiveFacesCandidate, expectedCohesiveBytes);
++                }
++                if (state.dispatch.contactPairCount != 0u) {
++                    requireMinimumBufferBytes("contact_pairs", state.contactPairs,
++                        expectedContactPairs * sizeof(NMContactPairGPU));
++                    requireMinimumBufferBytes("contact_samples", state.contactSamples,
++                        expectedContactPairs * sizeof(NMContactSampleGPU));
++                    requireMinimumBufferBytes("contact_histories_accepted",
++                        state.contactHistoriesAccepted, expectedContactHistoryBytes);
++                    requireMinimumBufferBytes("contact_histories_candidate",
++                        state.contactHistoriesCandidate, expectedContactHistoryBytes);
++                }
++                if (!layoutValid || arrays.empty() || payloadBytes == 0u ||
++                    payloadBytes > captureCap ||
++                    payloadBytes > state.device.maxBufferLength) {
++                    emitSkipped("invalid_or_over_32_mib_capture_layout", payloadBytes);
++                    return true;
++                }
++                id<MTLBuffer> snapshot = [state.device
++                    newBufferWithLength:static_cast<NSUInteger>(payloadBytes)
++                    options:MTLResourceStorageModeShared];
++                if (snapshot == nil || snapshot.length < payloadBytes ||
++                    snapshot.length > captureCap ||
++                    snapshot.length > state.device.maxBufferLength) {
++                    emitSkipped("bounded_shared_snapshot_allocation_failed",
++                        payloadBytes);
++                    return true;
++                }
++                auto* snapshotBytes = static_cast<unsigned char*>(snapshot.contents);
++                if (snapshotBytes == nullptr) {
++                    emitSkipped("shared_snapshot_contents_unavailable", payloadBytes);
++                    return true;
++                }
++                for (const auto& array : arrays) {
++                    if (!array.hostBytes.empty()) {
++                        std::memcpy(snapshotBytes + array.offset,
++                            array.hostBytes.data(), array.byteCount);
++                    }
++                }
++                [encoder endEncoding];
++                encoder = nil;
++                id<MTLBlitCommandEncoder> copy =
++                    [commandBuffer blitCommandEncoder];
++                if (copy == nil) {
++                    emitSkipped("readback_blit_encoder_unavailable", payloadBytes);
++                    encoder = [commandBuffer computeCommandEncoder];
++                    if (encoder == nil) {
++                        diagnostics.message =
++                            "failed to resume Matter after coupled Newton readback";
++                        return false;
++                    }
++                    [encoder setLabel:@"Numi Matter coupled Newton readback continuation"];
++                    return true;
++                }
++                for (const auto& array : arrays) {
++                    if (array.sourceSlot == NM_INVALID_INDEX) continue;
++                    id<MTLBuffer> source = (__bridge id<MTLBuffer>)
++                        sources[array.sourceSlot];
++                    [copy copyFromBuffer:source sourceOffset:0u
++                        toBuffer:snapshot
++                        destinationOffset:static_cast<NSUInteger>(array.offset)
++                        size:static_cast<NSUInteger>(array.byteCount)];
++                }
++                [copy endEncoding];
++                const auto capturedArrays = arrays;
++                const auto capturedPath = femCoupledCapturePath;
++                const auto capturedPayloadBytes = payloadBytes;
++                const auto capturedRoot = femCoupledCaptureRoot;
++                const auto capturedIteration = femCoupledCaptureIteration;
++                const auto capturedWorldFingerprint = state.worldFingerprint;
++                const auto capturedExecutionFingerprint = state.executionFingerprint;
++                const auto capturedDeviceID =
++                    static_cast<std::uint64_t>(state.device.registryID);
++                const auto capturedDeviceName = nsString(state.device.name);
++                const auto capturedDispatch = state.dispatch;
++                const auto capturedLayout = state.fgmresLayout;
++                const auto capturedMixedSolver = state.mixedSolverValue;
++                const auto capturedMicro = micro;
++                const auto capturedGraphTopologySHA256 =
++                    state.femRegionalGraphSourceTopologySHA256;
++                const auto capturedGraphFreeMaskSHA256 =
++                    state.femRegionalGraphSourceFreeMaskSHA256;
++                const auto capturedGraphPotentialMaskSHA256 =
++                    state.femRegionalGraphPotentialMaskSHA256;
++                const auto capturedGraphLayoutChecksum =
++                    state.femRegionalGraphLayoutChecksum;
++                const auto capturedGraphPatchCount =
++                    state.femRegionalGraphPatchCount;
++                const auto capturedGraphPatchNodeCount =
++                    state.femRegionalGraphPatchNodeCount;
++                const auto capturedGraphDofCount =
++                    state.femRegionalGraphDofCount;
++                const auto capturedGraphMatrixFloatCount =
++                    state.femRegionalGraphMatrixFloatCount;
++                const auto capturedGraphPivotCount =
++                    state.femRegionalGraphPivotCount;
++                const auto capturedGraphParallelSearch =
++                    state.femRegionalGraphParallelSearch;
++                const auto capturedRegionalModeCount = state.femRegionalModeCount;
++                const auto capturedPhysicsSubstep = request.physicsSubstep;
++                const auto capturedPhysicsSubsteps = request.physicsSubsteps;
++                const auto capturedRigidWorldPhysicsSubstep =
++                    request.rigidWorldPhysicsSubstep;
++                const auto capturedCurrentBodyCount = request.rigid.currentBodyCount;
++                const auto capturedCurrentBodyStride = request.rigid.currentBodyStride;
++                const auto capturedSceneBodyCount = request.rigid.sceneBodyCount;
++                const auto capturedSceneStride = request.rigid.sceneStride;
++                const auto capturedQStride = request.rigid.qStride;
++                const auto capturedVStride = request.rigid.vStride;
++                const auto capturedBodyWrenchCount = request.rigid.bodyWrenchCount;
++                const auto capturedBodyWrenchStride = request.rigid.bodyWrenchStride;
++                const auto capturedExternalWrenchCount = request.rigid.externalWrenchCount;
++                const auto capturedExternalWrenchStride = request.rigid.externalWrenchStride;
++                const auto capturedRigidContactConstraintStride =
++                    request.rigidContactConstraintStride;
++                const auto capturedCoupledArticulatedNv = coupledArticulatedNv;
++                [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed) {
++                    if (completed.status != MTLCommandBufferStatusCompleted) {
++                        std::fprintf(stderr,
++                            "fem_coupled_capture_failed={\"schema\":1,\"root\":%u,\"iteration\":%u,\"command_buffer_status\":%lu}\n",
++                            capturedRoot, capturedIteration,
++                            static_cast<unsigned long>(completed.status));
++                        return;
++                    }
++                    const auto* data = static_cast<const unsigned char*>(snapshot.contents);
++                    if (data == nullptr) {
++                        std::fprintf(stderr,
++                            "fem_coupled_capture_failed={\"schema\":1,\"root\":%u,\"iteration\":%u,\"reason\":\"snapshot_contents_missing\"}\n",
++                            capturedRoot, capturedIteration);
++                        return;
++                    }
++                    std::ostringstream manifest;
++                    manifest << std::setprecision(9)
++                        << "{\"schema\":\"numi.matter.coupled_newton_capture.v1\","
++                        << "\"byte_order\":\"little_endian\","
++                        << "\"capture_point\":\"after_fgmres_measure_and_human_direction_map_before_armijo_trial\","
++                        << "\"capture_kind\":\"raw_transaction_candidate_not_checkpoint\","
++                        << "\"source_physics_fingerprint\":"
++                        << jsonQuoted(hexU64(capturedWorldFingerprint)) << ','
++                        << "\"device_program_fingerprint\":"
++                        << jsonQuoted(hexU64(capturedExecutionFingerprint)) << ','
++                        << "\"device\":{\"name\":" << jsonQuoted(capturedDeviceName)
++                        << ",\"registry_id\":" << capturedDeviceID << "},"
++                        << "\"root\":" << capturedRoot
++                        << ",\"iteration\":" << capturedIteration
++                        << ",\"control_step\":" << capturedMicro.controlStep
++                        << ",\"physics_substep\":" << capturedPhysicsSubstep
++                        << ",\"physics_substeps\":" << capturedPhysicsSubsteps
++                        << ",\"rigid_world_physics_substep\":"
++                        << capturedRigidWorldPhysicsSubstep
++                        << ",\"microtick\":" << capturedMicro.microtick
++                        << ",\"microtick_count\":" << capturedMicro.microtickCount
++                        << ",\"dt_seconds\":" << capturedMicro.time.x
++                        << ",\"environment_count\":" << capturedDispatch.environmentCount
++                        << ",\"node_count\":" << capturedDispatch.femNodeCount
++                        << ",\"tetrahedron_count\":" << capturedDispatch.tetrahedronCount
++                        << ",\"cohesive_face_count\":" << capturedDispatch.cohesiveFaceCount
++                        << ",\"contact_pair_count\":" << capturedDispatch.contactPairCount
++                        << ",\"deformable_contact_capacity\":"
++                        << capturedDispatch.deformableContactCapacity
++                        << ",\"rigid_proxy_count\":" << capturedDispatch.rigidProxyCount
++                        << ",\"rigid_generalized_capacity\":"
++                        << capturedDispatch.rigidGeneralizedCapacity
++                        << ",\"material_state_stride\":"
++                        << capturedDispatch.materialStateStride
++                        << ",\"dispatch\":{\"abi_version\":" << capturedDispatch.abiVersion
++                        << ",\"flags\":" << capturedDispatch.flags
++                        << ",\"object_count\":" << capturedDispatch.objectCount
++                        << ",\"material_count\":" << capturedDispatch.materialCount
++                        << ",\"parameter_count\":" << capturedDispatch.parameterCount
++                        << ",\"rigid_q_capacity\":" << capturedDispatch.rigidQCapacity
++                        << ",\"maximum_rate_exponent\":" << capturedDispatch.maximumRateExponent
++                        << "},\"fgmres_layout\":{\"support_contact_count\":"
++                        << capturedLayout.supportContactCount
++                        << ",\"support_base\":" << capturedLayout.supportBase
++                        << ",\"unknown_count\":" << capturedLayout.unknownCount
++                        << ",\"vascular_unknown_count\":"
++                        << capturedLayout.vascularUnknownCount
++                        << ",\"vascular_base\":" << capturedLayout.vascularBase
++                        << ",\"vascular_residual_tolerance\":"
++                        << capturedLayout.vascularResidualTolerance
++                        << "},\"microstep\":{\"control_step\":"
++                        << capturedMicro.controlStep << ",\"microtick\":"
++                        << capturedMicro.microtick << ",\"microtick_count\":"
++                        << capturedMicro.microtickCount << ",\"solver_iteration\":"
++                        << capturedMicro.solverIteration << ",\"seed_lo\":"
++                        << capturedMicro.seedLo << ",\"seed_hi\":" << capturedMicro.seedHi
++                        << ",\"flags\":" << capturedMicro.flags
++                        << ",\"generation\":" << capturedMicro.reserved
++                        << ",\"time\":[" << capturedMicro.time.x << ','
++                        << capturedMicro.time.y << ',' << capturedMicro.time.z << ','
++                        << capturedMicro.time.w << "]},\"mixed_solver\":{\"newton_budget\":"
++                        << capturedMixedSolver.nonlinearIterations.x
++                        << ",\"restart\":" << capturedMixedSolver.nonlinearIterations.y
++                        << ",\"fgmres_budget\":" << capturedMixedSolver.nonlinearIterations.z
++                        << ",\"line_search_steps\":" << capturedMixedSolver.nonlinearIterations.w
++                        << ",\"preconditioner_selector\":"
++                        << capturedMixedSolver.executionBudgets.z
++                        << ",\"rigid_articulated_nv\":"
++                        << capturedCoupledArticulatedNv
++                        << "},\"regional_graph\":{\"patch_count\":"
++                        << capturedGraphPatchCount
++                        << ",\"patch_node_count\":" << capturedGraphPatchNodeCount
++                        << ",\"dof_count\":" << capturedGraphDofCount
++                        << ",\"matrix_float_count\":"
++                        << capturedGraphMatrixFloatCount
++                        << ",\"pivot_count\":" << capturedGraphPivotCount
++                        << ",\"layout_checksum\":" << capturedGraphLayoutChecksum
++                        << ",\"parallel_search\":" << capturedGraphParallelSearch
++                        << ",\"regional_mode_count\":" << capturedRegionalModeCount
++                        << ",\"source_topology_sha256\":"
++                        << jsonQuoted(capturedGraphTopologySHA256)
++                        << ",\"source_free_mask_sha256\":"
++                        << jsonQuoted(capturedGraphFreeMaskSHA256)
++                        << ",\"potential_mask_sha256\":"
++                        << jsonQuoted(capturedGraphPotentialMaskSHA256)
++                        << ",\"original_matrices_included\":false},"
++                        << "\"rigid_borrowed_layout\":{\"current_body_count\":"
++                        << capturedCurrentBodyCount << ",\"current_body_stride\":"
++                        << capturedCurrentBodyStride << ",\"scene_body_count\":"
++                        << capturedSceneBodyCount << ",\"scene_stride\":"
++                        << capturedSceneStride << ",\"q_stride\":" << capturedQStride
++                        << ",\"v_stride\":" << capturedVStride
++                        << ",\"body_wrench_count\":" << capturedBodyWrenchCount
++                        << ",\"body_wrench_stride\":" << capturedBodyWrenchStride
++                        << ",\"external_wrench_count\":" << capturedExternalWrenchCount
++                        << ",\"external_wrench_stride\":"
++                        << capturedExternalWrenchStride
++                        << ",\"rigid_contact_constraint_stride\":"
++                        << capturedRigidContactConstraintStride << "},"
++                        << "\"vector_semantics\":{\"rhs\":\"full_rhs_before_fgmres is exact assembled full-space RHS copied from femResidual before FGMRES reuses it\","
++                        << "\"correction\":\"fem_solution_correction plus coupled_generalized_output are the completed Newton correction before Armijo\","
++                        << "\"post_fgmres_workspace\":\"fem_rhs_after_fgmres and solver state are diagnostic workspaces, not the original RHS\","
++                        << "\"transaction\":\"the capture is raw read-only input state for replay and is not an accepted checkpoint\"},"
++                        << "\"rhs_preserved_before_fgmres\":"
++                        << (femCoupledCaptureRHSReady ? "true" : "false")
++                        << ",\"payload\":{\"file\":"
++                        << jsonQuoted(capturedPath + ".coupled.bin")
++                        << ",\"byte_count\":" << capturedPayloadBytes
++                        << ",\"sha256\":"
++                        << jsonQuoted(sha256Hex(data,
++                            static_cast<std::size_t>(capturedPayloadBytes)))
++                        << "},\"max_payload_bytes\":33554432"
++                        << ",\"max_arrays\":192"
++                        << ",\"array_count\":" << capturedArrays.size()
++                        << ",\"omitted_optional_buffers\":[";
++                    for (std::size_t index = 0u; index < omittedOptional.size(); ++index) {
++                        if (index != 0u) manifest << ',';
++                        manifest << jsonQuoted(omittedOptional[index]);
++                    }
++                    manifest << "],\"arrays\":[";
++                    for (std::size_t index = 0u; index < capturedArrays.size(); ++index) {
++                        const auto& array = capturedArrays[index];
++                        if (index != 0u) manifest << ',';
++                        manifest << "{\"name\":" << jsonQuoted(array.name)
++                            << ",\"source\":" << jsonQuoted(array.sourceName)
++                            << ",\"dtype\":" << jsonQuoted(array.dtype)
++                            << ",\"count\":" << array.count
++                            << ",\"element_bytes\":" << array.elementBytes
++                            << ",\"offset\":" << array.offset
++                            << ",\"byte_count\":" << array.byteCount
++                            << ",\"capacity_snapshot\":true,\"sha256\":"
++                            << jsonQuoted(sha256Hex(data + array.offset,
++                                static_cast<std::size_t>(array.byteCount))) << '}';
++                    }
++                    manifest << "]}\n";
++                    const std::string manifestText = manifest.str();
++                    const std::string binaryPath = capturedPath + ".coupled.bin";
++                    const std::string manifestPath = capturedPath + ".coupled.json";
++                    int binaryFD = ::open(binaryPath.c_str(),
++                        O_WRONLY | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR);
++                    if (binaryFD < 0) {
++                        std::fprintf(stderr,
++                            "fem_coupled_capture_error={\"schema\":1,\"root\":%u,\"reason\":\"binary_exclusive_create_failed\",\"errno\":%d}\n",
++                            capturedRoot, errno);
++                        return;
++                    }
++                    int manifestFD = ::open(manifestPath.c_str(),
++                        O_WRONLY | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR);
++                    if (manifestFD < 0) {
++                        const int savedErrno = errno;
++                        ::close(binaryFD);
++                        ::unlink(binaryPath.c_str());
++                        std::fprintf(stderr,
++                            "fem_coupled_capture_error={\"schema\":1,\"root\":%u,\"reason\":\"manifest_exclusive_create_failed\",\"errno\":%d}\n",
++                            capturedRoot, savedErrno);
++                        return;
++                    }
++                    const bool binaryWritten = writeAllBytes(binaryFD, data,
++                        static_cast<std::size_t>(capturedPayloadBytes));
++                    const bool manifestWritten = binaryWritten && writeAllBytes(
++                        manifestFD, manifestText.data(), manifestText.size());
++                    const int binaryClose = ::close(binaryFD);
++                    const int manifestClose = ::close(manifestFD);
++                    if (!binaryWritten || !manifestWritten || binaryClose != 0 ||
++                        manifestClose != 0) {
++                        ::unlink(binaryPath.c_str());
++                        ::unlink(manifestPath.c_str());
++                        std::fprintf(stderr,
++                            "fem_coupled_capture_error={\"schema\":1,\"root\":%u,\"reason\":\"write_or_close_failed\",\"errno\":%d}\n",
++                            capturedRoot, errno);
++                        return;
++                    }
++                    std::fprintf(stderr,
++                        "fem_coupled_capture_complete={\"schema\":1,\"root\":%u,\"iteration\":%u,\"bytes\":%llu,\"arrays\":%lu,\"manifest\":%s}\n",
++                        capturedRoot, capturedIteration,
++                        static_cast<unsigned long long>(capturedPayloadBytes),
++                        static_cast<unsigned long>(capturedArrays.size()),
++                        jsonQuoted(manifestPath).c_str());
++                }];
++                encoder = [commandBuffer computeCommandEncoder];
++                if (encoder == nil) {
++                    diagnostics.message =
++                        "failed to resume Matter after coupled Newton readback";
++                    return false;
++                }
++                [encoder setLabel:@"Numi Matter coupled Newton readback continuation"];
++                return true;
++            };
++
+             micro.solverIteration = nonlinearIteration;
+             femTrueResidualEnabled = femTrueResidualRootSelected &&
+                 (!femTrueResidualNewtonSelectorSpecified ||
+@@ -14485,14 +15571,56 @@
+                 femTrueResidualRootSelected = false;
+                 femTrueResidualRestartEnabled = false;
+             }
+-            if (femTrueResidualEnabled) {
++            const bool femCoupledCaptureNewtonSelected =
++                femCoupledCaptureRequested && femCoupledCaptureConfigValid &&
++                !femCoupledCaptureCaptured &&
++                femCoupledCaptureRoot == request.controlStep &&
++                femCoupledCaptureIteration == nonlinearIteration &&
++                state.dispatch.environmentCount == 1u &&
++                state.dispatch.femNodeCount <= 2048u &&
++                state.dispatch.tetrahedronCount <= 8192u &&
++                state.dispatch.particleCount == 0u &&
++                state.dispatch.mpmGridCount == 0u &&
++                state.dispatch.mpmBlockCount == 0u &&
++                state.dispatch.mpmBlockLookupCount == 0u &&
++                state.dispatch.rigidProxyCount <= 64u &&
++                request.rigid.currentBodyCount <= 64u &&
++                request.rigid.currentBodyStride <= 64u &&
++                request.rigid.bodyWrenchCount <= 64u &&
++                request.rigid.bodyWrenchStride <= 64u &&
++                request.rigid.sceneBodyCount <= 64u &&
++                request.rigid.sceneStride <= 64u &&
++                request.rigid.qStride <= 64u &&
++                request.rigid.vStride <= 64u &&
++                request.rigid.externalWrenchCount <= 64u &&
++                request.rigid.externalWrenchStride <= 64u &&
++                request.rigidContactConstraintStride <= 64u &&
++                state.fgmresLayout.unknownCount <= 8192u &&
++                state.dispatch.contactPairCount <= 131072u &&
++                state.dispatch.deformableContactCapacity <= 16384u &&
++                state.dispatch.cohesiveFaceCount <= 8192u &&
++                state.dispatch.objectCount <= 64u &&
++                state.dispatch.materialStateStride <= 64u &&
++                state.fgmresLayout.vascularUnknownCount == 0u &&
++                state.dispatch.identificationCandidateCount == 0u &&
++                coupledArticulatedNv == 0u &&
++                request.mutationCommandCount == 0u &&
++                !state.enableVascularDense45;
++            if (femTrueResidualEnabled || femCoupledCaptureNewtonSelected) {
+                 dispatchThreads("nm_fgmres_preserve_true_rhs",
+                     state.fgmresLayout.unknownCount, [&] {
+                     setDispatch();
++                    [encoder setBytes:&state.fgmresLayout
++                               length:sizeof(state.fgmresLayout) atIndex:30u];
+                     [encoder setBuffer:state.femResidual offset:0u atIndex:1u];
+                     [encoder setBuffer:state.femTrueResidualRightHandSide
+                                  offset:0u atIndex:2u];
+                 });
++                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++                if (femCoupledCaptureNewtonSelected &&
++                    state.femTrueResidualRightHandSide != nil) {
++                    femCoupledCaptureRHSReady = true;
++                }
+             }
+             const float nonlinearTolerance = std::max(
+                 state.mixedSolverValue.residualTolerances.x, 0.0f);
+@@ -16776,6 +17904,15 @@
+             );
+ 
+             micro.solverIteration = nonlinearIteration;
++            if (femCoupledCaptureRequested && femCoupledCaptureConfigValid &&
++                !femCoupledCaptureCaptured &&
++                femCoupledCaptureRoot == request.controlStep &&
++                femCoupledCaptureIteration == micro.solverIteration) {
++                if (!encodeFEMCoupledNewtonCapture()) {
++                    ownership->preDynamicsOpen = false;
++                    return diagnostics;
++                }
++            }
+             if (femOperatorFDTraceEnabled && !femOperatorFDTraceCaptured &&
+                 femOperatorFDTraceRoot == request.controlStep &&
+                 femOperatorFDTraceIteration == micro.solverIteration) {

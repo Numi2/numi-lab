@@ -1,0 +1,15 @@
+{
+  "schema": "numi.cardboard.cohesive_tiled_overlay.v1",
+  "base_snapshot": "source-portable-bct-binding-tests-081",
+  "base_path": "/Users/home/cardboard-implementation-20261014/snapshots/source-portable-bct-binding-tests-081",
+  "base_files_sha256": "base-081-sha256.txt",
+  "overlay_files_sha256": "overlay-files.sha256",
+  "integration_patch": "patch-from-081.diff",
+  "abi_changed": false,
+  "native_gpu_run": false,
+  "physical_validation": false,
+  "synthetic_law": true,
+  "cpu_helper_checks": 61,
+  "page_allocation_correction": "pageElements already includes environmentCount; privateScratch receives total pageElements directly and its allocated byte length must equal checked pageBytes.",
+  "patch_sha256": "838b7cd357823ed3583d17994f79039e0eeff520bff86058a7e5ee0235e7f64b"
+}

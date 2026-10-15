@@ -1,0 +1,11 @@
+{
+  "schema": "numi.cardboard.overlay-validation.v1",
+  "probe_syntax_exit_code": 0,
+  "cpu_preflight_check_exit_code": 0,
+  "prior_compile_attempt": "Initial hand invocation omitted top-level include path and failed before compilation; corrected explicit include path succeeded. No GPU steps.",
+  "file_sha256": {
+    "files/matter/tools/cardboard_probe.mm": "7fb3f0f649162715ca3e818d074ae296785ff24bde5434b37ac25770e4199d9d",
+    "files/matter/tools/cardboard_shipping_memory.hpp": "937b316f75469559eb2d9ca8484edaee1060376b48cd5748f262b01a6f837c4e",
+    "files/matter/tools/cardboard_shipping_memory_check.cpp": "4cce5796fd2f22787def0e9de2aa6d566bfbf4b8ee1bbd8e80f408593f65acd3"
+  }
+}

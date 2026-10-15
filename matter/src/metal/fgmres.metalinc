@@ -1723,6 +1723,317 @@ kernel void nm_fgmres_regional_project_basis(
         : authoredBasis[mode * nodes + node];
 }
 
+// Reset the conditioning-only recycle at the start of each physical
+// microstep. It is never checkpointed or accepted as physical state.
+kernel void nm_fgmres_reset_regional_recycle(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device float4* acceptedCorrection [[buffer(1)]],
+    device uint* selectedMode [[buffer(2)]],
+    uint global [[thread_position_in_grid]]) {
+    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global >= total || dispatch.femNodeCount == 0u) return;
+    acceptedCorrection[global] = float4(0.0f);
+    if (global % dispatch.femNodeCount == 0u)
+        selectedMode[global / dispatch.femNodeCount] = 0u;
+}
+
+// Capture only the FEM part of the accepted line-search-scaled Newton
+// correction. nm_fem_apply_solution has already applied alpha in-place to
+// solution.xyz; multiplying by alpha again here would change the mode.
+kernel void nm_fgmres_capture_regional_recycle(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMFEMNodeStateGPU* candidate [[buffer(1)]],
+    device const float4* lineSearch [[buffer(2)]],
+    device const float4* solution [[buffer(3)]],
+    device const NMMatterStatusGPU* statuses [[buffer(4)]],
+    device float4* acceptedCorrection [[buffer(5)]],
+    uint global [[thread_position_in_grid]]) {
+    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global >= total || dispatch.femNodeCount == 0u) return;
+    const uint environment = global / dispatch.femNodeCount;
+    const NMFEMNodeStateGPU state = candidate[global];
+    const uint objectIndex = 0u;
+    const float alpha = dispatch.objectCount == 1u
+        ? lineSearch[environment * dispatch.objectCount + objectIndex].x
+        : 0.0f;
+    const bool constrained = state.restAndFixed.w == 1.0f ||
+        state.restAndFixed.w == 3.0f;
+    const float3 increment = solution[global].xyz;
+    const bool eligible = environmentHealthy(statuses, environment) &&
+        alpha > 0.0f && isfinite(alpha) && !constrained;
+    // Preserve nonfinite eligible entries so the next-Newton selector can
+    // reject the whole direction. Replacing only bad nodes with zero would
+    // silently turn a corrupt vector into a different, apparently valid mode.
+    acceptedCorrection[global] = eligible
+        ? float4(increment, 0.0f) : float4(0.0f);
+}
+
+// Restore the deterministic final source slot whenever the recycle candidate
+// cannot be certified against the current candidate's constraint-projected
+// source span.
+inline void nm_fgmres_restore_regional_recycle_fallback(
+    device const float4* authoredBasis,
+    device const NMFEMNodeStateGPU* candidate,
+    device float4* effectiveBasis,
+    uint environment,
+    uint lane,
+    uint nodes,
+    uint targetBase,
+    uint baseModeCount
+) {
+    const uint nodeBase = environment * nodes;
+    for (uint node = lane; node < nodes; node += 32u) {
+        const NMFEMNodeStateGPU state = candidate[nodeBase + node];
+        const bool constrained = state.restAndFixed.w == 1.0f ||
+            state.restAndFixed.w == 3.0f;
+        effectiveBasis[targetBase + node] = constrained
+            ? float4(0.0f)
+            : authoredBasis[baseModeCount * nodes + node];
+    }
+}
+
+// Replace the static fallback in the final source slot only when the previous
+// accepted Newton correction is finite and independent of the retained
+// candidate-masked source span. Dynamic grips can make the projected source
+// modes non-orthogonal, so first construct a rank-revealing orthonormal basis
+// in bounded per-environment scratch. The authored/effective P used by AP/RAP
+// is never modified by this test.
+kernel void nm_fgmres_regional_select_recycle_mode(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const float4* authoredBasis [[buffer(1)]],
+    device const NMFEMNodeStateGPU* candidate [[buffer(2)]],
+    device const float4* acceptedCorrection [[buffer(3)]],
+    device float4* effectiveBasis [[buffer(4)]],
+    device uint* selectedMode [[buffer(5)]],
+    device const NMMatterStatusGPU* statuses [[buffer(6)]],
+    constant uint& baseModeCount [[buffer(7)]],
+    constant uint& modeCount [[buffer(8)]],
+    device float4* orthogonalBasis [[buffer(9)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint environment [[threadgroup_position_in_grid]]) {
+    if (lane >= 32u || environment >= dispatch.environmentCount ||
+        dispatch.femNodeCount == 0u || baseModeCount == 0u ||
+        modeCount != baseModeCount + 1u || modeCount > 32u ||
+        !environmentHealthy(statuses, environment)) return;
+    const uint nodes = dispatch.femNodeCount;
+    const uint nodeBase = environment * nodes;
+    const uint basisBase = environment * modeCount * nodes;
+    const uint targetBase = basisBase + baseModeCount * nodes;
+    const uint orthogonalBase = environment * baseModeCount * nodes;
+    if (lane == 0u) selectedMode[environment] = 0u;
+
+    // The source-authored P rows are orthonormal before candidate projection.
+    // Zeroing dynamic fixed/gripped nodes can change their Gram matrix. Build
+    // a two-pass MGS basis of those projected rows; dependent rows are stored
+    // as exact zero. A squared relative cutoff of 1e-10 corresponds to a
+    // relative residual norm of 1e-5. If discarded rows still correlate with
+    // the candidate residual, the final check below fails closed to fallback.
+    bool sourceBasisFinite = true;
+    for (uint mode = 0u; mode < baseModeCount; ++mode) {
+        const uint sourceBase = basisBase + mode * nodes;
+        const uint workBase = orthogonalBase + mode * nodes;
+        float rawNorm2 = 0.0f;
+        bool rowFinite = true;
+        for (uint node = lane; node < nodes; node += 32u) {
+            const float3 value = effectiveBasis[sourceBase + node].xyz;
+            rowFinite = rowFinite && all(isfinite(value));
+            orthogonalBasis[workBase + node] = float4(value, 0.0f);
+            rawNorm2 += dot(value, value);
+        }
+        rawNorm2 = simd_sum(rawNorm2);
+        rowFinite = simd_all(rowFinite);
+        simdgroup_barrier(mem_flags::mem_device);
+        if (!rowFinite || !isfinite(rawNorm2)) {
+            sourceBasisFinite = false;
+            break;
+        }
+        if (!(rawNorm2 > 0.0f)) {
+            for (uint node = lane; node < nodes; node += 32u)
+                orthogonalBasis[workBase + node] = float4(0.0f);
+            simdgroup_barrier(mem_flags::mem_device);
+            continue;
+        }
+
+        bool rowValid = true;
+        for (uint pass = 0u; pass < 2u; ++pass) {
+            for (uint prior = 0u; prior < mode; ++prior) {
+                const uint priorBase = orthogonalBase + prior * nodes;
+                float projection = 0.0f;
+                for (uint node = lane; node < nodes; node += 32u)
+                    projection += dot(orthogonalBasis[priorBase + node].xyz,
+                        orthogonalBasis[workBase + node].xyz);
+                projection = simd_sum(projection);
+                if (!isfinite(projection)) {
+                    rowValid = false;
+                    break;
+                }
+                for (uint node = lane; node < nodes; node += 32u)
+                    orthogonalBasis[workBase + node].xyz -=
+                        projection * orthogonalBasis[priorBase + node].xyz;
+                simdgroup_barrier(mem_flags::mem_device);
+            }
+            if (!rowValid) break;
+        }
+        if (!rowValid) {
+            sourceBasisFinite = false;
+            break;
+        }
+
+        float residualNorm2 = 0.0f;
+        bool residualFinite = true;
+        for (uint node = lane; node < nodes; node += 32u) {
+            const float3 value = orthogonalBasis[workBase + node].xyz;
+            residualFinite = residualFinite && all(isfinite(value));
+            residualNorm2 += dot(value, value);
+        }
+        residualNorm2 = simd_sum(residualNorm2);
+        residualFinite = simd_all(residualFinite);
+        if (!residualFinite || !isfinite(residualNorm2)) {
+            sourceBasisFinite = false;
+            break;
+        }
+        if (residualNorm2 > rawNorm2 * 1.0e-10f) {
+            const float inverseNorm = rsqrt(residualNorm2);
+            if (!(inverseNorm > 0.0f) || !isfinite(inverseNorm)) {
+                sourceBasisFinite = false;
+                break;
+            }
+            for (uint node = lane; node < nodes; node += 32u)
+                orthogonalBasis[workBase + node] *= inverseNorm;
+        } else if (residualNorm2 == 0.0f) {
+            // Exactly dependent projected rows add no direction.
+            for (uint node = lane; node < nodes; node += 32u)
+                orthogonalBasis[workBase + node] = float4(0.0f);
+        } else {
+            // A small nonzero residual is rank-ambiguous at this precision.
+            // Dropping it could falsely admit a recycle vector in that omitted
+            // direction, so keep the deterministic fallback for this Newton.
+            sourceBasisFinite = false;
+            break;
+        }
+        simdgroup_barrier(mem_flags::mem_device);
+    }
+
+    if (!sourceBasisFinite) {
+        nm_fgmres_restore_regional_recycle_fallback(authoredBasis,
+            candidate, effectiveBasis, environment, lane, nodes, targetBase,
+            baseModeCount);
+        return;
+    }
+
+    float rawNorm2 = 0.0f;
+    bool finite = true;
+    for (uint node = lane; node < nodes; node += 32u) {
+        const NMFEMNodeStateGPU state = candidate[nodeBase + node];
+        const bool constrained = state.restAndFixed.w == 1.0f ||
+            state.restAndFixed.w == 3.0f;
+        const float3 source = acceptedCorrection[nodeBase + node].xyz;
+        finite = finite && all(isfinite(source));
+        const float3 value = constrained ? float3(0.0f) : source;
+        effectiveBasis[targetBase + node] = float4(value, 0.0f);
+        rawNorm2 += dot(value, value);
+    }
+    rawNorm2 = simd_sum(rawNorm2);
+    finite = simd_all(finite);
+    if (!finite || !(rawNorm2 > 1.0e-24f) || !isfinite(rawNorm2)) {
+        nm_fgmres_restore_regional_recycle_fallback(authoredBasis,
+            candidate, effectiveBasis, environment, lane, nodes, targetBase,
+            baseModeCount);
+        return;
+    }
+
+    for (uint pass = 0u; pass < 2u; ++pass) {
+        for (uint mode = 0u; mode < baseModeCount; ++mode) {
+            const uint sourceBase = orthogonalBase + mode * nodes;
+            float projection = 0.0f;
+            for (uint node = lane; node < nodes; node += 32u)
+                projection += dot(orthogonalBasis[sourceBase + node].xyz,
+                    effectiveBasis[targetBase + node].xyz);
+            projection = simd_sum(projection);
+            if (!isfinite(projection)) {
+                finite = false;
+                break;
+            }
+            for (uint node = lane; node < nodes; node += 32u)
+                effectiveBasis[targetBase + node].xyz -=
+                    projection * orthogonalBasis[sourceBase + node].xyz;
+            simdgroup_barrier(mem_flags::mem_device);
+        }
+        if (!finite) break;
+    }
+
+    float projectedNorm2 = 0.0f;
+    bool residualFinite = true;
+    for (uint node = lane; node < nodes; node += 32u) {
+        const float3 value = effectiveBasis[targetBase + node].xyz;
+        residualFinite = residualFinite && all(isfinite(value));
+        projectedNorm2 += dot(value, value);
+    }
+    projectedNorm2 = simd_sum(projectedNorm2);
+    residualFinite = simd_all(residualFinite);
+    bool orthogonalToSource = residualFinite && isfinite(projectedNorm2) &&
+        projectedNorm2 > 0.0f;
+    // The relative test protects against a near-dependent projected row being
+    // discarded by the rank cutoff and then falsely admitting a vector that
+    // still lies in the original effective source span.
+    if (orthogonalToSource) {
+        const float inverseResidualNorm = rsqrt(projectedNorm2);
+        if (!(inverseResidualNorm > 0.0f) || !isfinite(inverseResidualNorm)) {
+            orthogonalToSource = false;
+        } else {
+            for (uint mode = 0u; mode < baseModeCount; ++mode) {
+                const uint sourceBase = basisBase + mode * nodes;
+                float sourceNorm2 = 0.0f;
+                float sourceDotResidual = 0.0f;
+                bool sourceFinite = true;
+                for (uint node = lane; node < nodes; node += 32u) {
+                    const float3 source = effectiveBasis[sourceBase + node].xyz;
+                    const float3 residual = effectiveBasis[targetBase + node].xyz;
+                    sourceFinite = sourceFinite && all(isfinite(source));
+                    sourceNorm2 += dot(source, source);
+                    sourceDotResidual += dot(source, residual);
+                }
+                sourceNorm2 = simd_sum(sourceNorm2);
+                sourceDotResidual = simd_sum(sourceDotResidual);
+                sourceFinite = simd_all(sourceFinite);
+                if (!sourceFinite || !isfinite(sourceNorm2) ||
+                    !isfinite(sourceDotResidual)) {
+                    orthogonalToSource = false;
+                    break;
+                }
+                if (sourceNorm2 > 0.0f) {
+                    const float relativeCorrelation =
+                        abs(sourceDotResidual) * rsqrt(sourceNorm2) *
+                        inverseResidualNorm;
+                    if (!isfinite(relativeCorrelation) ||
+                        relativeCorrelation > 1.0e-4f) {
+                        orthogonalToSource = false;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    const bool independent = finite && orthogonalToSource &&
+        projectedNorm2 > rawNorm2 * 1.0e-10f;
+    if (!independent) {
+        nm_fgmres_restore_regional_recycle_fallback(authoredBasis,
+            candidate, effectiveBasis, environment, lane, nodes, targetBase,
+            baseModeCount);
+        return;
+    }
+    const float inverseNorm = rsqrt(projectedNorm2);
+    if (!(inverseNorm > 0.0f) || !isfinite(inverseNorm)) {
+        nm_fgmres_restore_regional_recycle_fallback(authoredBasis,
+            candidate, effectiveBasis, environment, lane, nodes, targetBase,
+            baseModeCount);
+        return;
+    }
+    for (uint node = lane; node < nodes; node += 32u)
+        effectiveBasis[targetBase + node] *= inverseNorm;
+    if (lane == 0u) selectedMode[environment] = 1u;
+}
+
 // Opt-in snapshot source for independent RAP replay. It captures the exact
 // FEM candidate used at the current Newton linearization; it does not write
 // solver or accepted physical state.

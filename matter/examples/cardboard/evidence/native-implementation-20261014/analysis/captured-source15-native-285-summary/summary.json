@@ -1,0 +1,529 @@
+{
+  "all_local_direction_assessment": {
+    "feasible_extension": "At each exact point, evaluate nine matrix basis directions H_j and set rateDirection_j=H_j/dt using the same float32 division convention as fem.metalinc. Since captured Fdot is zero and the runtime forms rateDirection=deformationDirection/dt, this reconstructs the local algorithmic tangent map without new physical states.",
+    "reason": "Each captured point contains one deformationDirection/rateDirection and one 9-component tangent action, not a full 9x9 local map.",
+    "required_reference_work": "Generate nine independent reference tangent actions per point from the same parameters, accepted state, F_high/F_low, Fdot, dt, and branch; retain basis-by-basis validity and branch diagnostics. Do not infer the nine actions by applying a single directional result.",
+    "status": "not tested by this run"
+  },
+  "captures": {
+    "N0": {
+      "branches": [
+        "no_resolved_multiplier_increase"
+      ],
+      "count": 8,
+      "default": {
+        "all_status": "pass",
+        "iterations": {
+          "max": 4.0,
+          "median": 4.0,
+          "min": 1.0
+        },
+        "state_relative_l2_max": 3.304314822632051e-08,
+        "stress_relative_l2_max": 0.0,
+        "tangent_relative_l2_max": 0.0
+      },
+      "multiplier_increment_max": 3.7053223934384354e-12,
+      "multiplier_increment_min": 3.64492840791559e-12,
+      "optin": {
+        "all_status": "pass",
+        "iterations": {
+          "max": 15.0,
+          "median": 15.0,
+          "min": 9.0
+        },
+        "projection_residual": {
+          "max": 5.918713869706993e-14,
+          "median": 5.153700816801221e-14,
+          "min": 4.684295486223622e-15
+        },
+        "state_relative_l2": {
+          "max": 8.264817753147881e-09,
+          "median": 1.2474333897783918e-09,
+          "min": 7.813895018132023e-10
+        },
+        "stress_relative_l2": {
+          "max": 4.2647366345886594e-08,
+          "median": 2.6069620159843027e-08,
+          "min": 1.4962623781454805e-08
+        },
+        "tangent_relative_l2": {
+          "max": 0.0008022716502590679,
+          "median": 0.0006994698655375014,
+          "min": 6.309957917845225e-05
+        }
+      },
+      "repeat_difference_max_abs": {
+        "state": 0.0,
+        "stress": 0.0,
+        "tangent": 0.0
+      },
+      "tet_ids": [
+        750,
+        751,
+        758,
+        608,
+        763,
+        1722,
+        1723,
+        1704
+      ]
+    },
+    "N63": {
+      "branches": [
+        "multiplier_increased"
+      ],
+      "count": 8,
+      "default": {
+        "all_status": "pass",
+        "iterations": {
+          "max": 7.0,
+          "median": 7.0,
+          "min": 6.0
+        },
+        "state_relative_l2_max": 3.517590487227054e-08,
+        "stress_relative_l2_max": 0.0,
+        "tangent_relative_l2_max": 0.0
+      },
+      "multiplier_increment_max": 1.0320120068589371e-05,
+      "multiplier_increment_min": 5.360306708735434e-06,
+      "optin": {
+        "all_status": "pass",
+        "iterations": {
+          "max": 7.0,
+          "median": 7.0,
+          "min": 6.0
+        },
+        "projection_residual": {
+          "max": 1.3387840169798437e-08,
+          "median": 1.6643213196498863e-10,
+          "min": 1.786510002432795e-11
+        },
+        "state_relative_l2": {
+          "max": 1.6174710660644577e-10,
+          "median": 5.791216921990884e-11,
+          "min": 5.878329716549716e-12
+        },
+        "stress_relative_l2": {
+          "max": 3.808942978138644e-08,
+          "median": 2.121295762592224e-08,
+          "min": 9.860771195585888e-09
+        },
+        "tangent_relative_l2": {
+          "max": 2.721367851288419e-08,
+          "median": 2.1190717854055287e-08,
+          "min": 7.395743861740234e-09
+        }
+      },
+      "repeat_difference_max_abs": {
+        "state": 0.0,
+        "stress": 0.0,
+        "tangent": 0.0
+      },
+      "tet_ids": [
+        750,
+        751,
+        758,
+        608,
+        763,
+        1722,
+        1723,
+        1704
+      ]
+    }
+  },
+  "case_rows": [
+    {
+      "branch_indicator": "no_resolved_multiplier_increase",
+      "capture": "N0",
+      "default_iterations": 1,
+      "default_relative_errors": {
+        "state_relative_l2": 2.752072045804895e-16,
+        "stress_relative_l2": 0,
+        "tangent_relative_l2": 0
+      },
+      "id": "N0-medium-tet750",
+      "multiplier_increment": 3.64492840791559e-12,
+      "optin_iterations": 9,
+      "optin_projection_residual": 4.684295486223622e-15,
+      "optin_relative_errors": {
+        "state_relative_l2": 7.813895018132023e-10,
+        "stress_relative_l2": 2.4631350631002954e-08,
+        "tangent_relative_l2": 6.309957917845225e-05
+      },
+      "tet_id": 750
+    },
+    {
+      "branch_indicator": "no_resolved_multiplier_increase",
+      "capture": "N0",
+      "default_iterations": 4,
+      "default_relative_errors": {
+        "state_relative_l2": 3.056886213716919e-08,
+        "stress_relative_l2": 0,
+        "tangent_relative_l2": 0
+      },
+      "id": "N0-medium-tet751",
+      "multiplier_increment": 3.697927747104511e-12,
+      "optin_iterations": 15,
+      "optin_projection_residual": 5.5107150396735416e-14,
+      "optin_relative_errors": {
+        "state_relative_l2": 8.264817753147881e-09,
+        "stress_relative_l2": 3.7757461930763686e-08,
+        "tangent_relative_l2": 0.0007514401614839032
+      },
+      "tet_id": 751
+    },
+    {
+      "branch_indicator": "no_resolved_multiplier_increase",
+      "capture": "N0",
+      "default_iterations": 1,
+      "default_relative_errors": {
+        "state_relative_l2": 8.836889973115361e-17,
+        "stress_relative_l2": 0,
+        "tangent_relative_l2": 0
+      },
+      "id": "N0-medium-tet758",
+      "multiplier_increment": 3.654222295029012e-12,
+      "optin_iterations": 9,
+      "optin_projection_residual": 1.9315874854458626e-14,
+      "optin_relative_errors": {
+        "state_relative_l2": 1.6109336809898256e-09,
+        "stress_relative_l2": 1.9169629189571423e-08,
+        "tangent_relative_l2": 0.000259307583955681
+      },
+      "tet_id": 758
+    },
+    {
+      "branch_indicator": "no_resolved_multiplier_increase",
+      "capture": "N0",
+      "default_iterations": 4,
+      "default_relative_errors": {
+        "state_relative_l2": 3.304314822632051e-08,
+        "stress_relative_l2": 0,
+        "tangent_relative_l2": 0
+      },
+      "id": "N0-medium-tet608",
+      "multiplier_increment": 3.6845127927103945e-12,
+      "optin_iterations": 15,
+      "optin_projection_residual": 4.4647987564039315e-14,
+      "optin_relative_errors": {
+        "state_relative_l2": 4.225105892888027e-09,
+        "stress_relative_l2": 1.4962623781454805e-08,
+        "tangent_relative_l2": 0.000597646091436673
+      },
+      "tet_id": 608
+    },
+    {
+      "branch_indicator": "no_resolved_multiplier_increase",
+      "capture": "N0",
+      "default_iterations": 4,
+      "default_relative_errors": {
+        "state_relative_l2": 2.0523201096588493e-08,
+        "stress_relative_l2": 0,
+        "tangent_relative_l2": 0
+      },
+      "id": "N0-medium-tet763",
+      "multiplier_increment": 3.698791459401046e-12,
+      "optin_iterations": 15,
+      "optin_projection_residual": 5.0220515680071687e-14,
+      "optin_relative_errors": {
+        "state_relative_l2": 1.2022152976907328e-09,
+        "stress_relative_l2": 4.2647366345886594e-08,
+        "tangent_relative_l2": 0.0006846654143104683
+      },
+      "tet_id": 763
+    },
+    {
+      "branch_indicator": "no_resolved_multiplier_increase",
+      "capture": "N0",
+      "default_iterations": 4,
+      "default_relative_errors": {
+        "state_relative_l2": 5.598986606730637e-09,
+        "stress_relative_l2": 0,
+        "tangent_relative_l2": 0
+      },
+      "id": "N0-medium-tet1722",
+      "multiplier_increment": 3.692794568413714e-12,
+      "optin_iterations": 15,
+      "optin_projection_residual": 5.353573487298924e-14,
+      "optin_relative_errors": {
+        "state_relative_l2": 1.1539984021654917e-09,
+        "stress_relative_l2": 1.5450783993391483e-08,
+        "tangent_relative_l2": 0.0007253113751936385
+      },
+      "tet_id": 1722
+    },
+    {
+      "branch_indicator": "no_resolved_multiplier_increase",
+      "capture": "N0",
+      "default_iterations": 4,
+      "default_relative_errors": {
+        "state_relative_l2": 2.0497590872189896e-08,
+        "stress_relative_l2": 0,
+        "tangent_relative_l2": 0
+      },
+      "id": "N0-medium-tet1723",
+      "multiplier_increment": 3.7053223934384354e-12,
+      "optin_iterations": 15,
+      "optin_projection_residual": 5.918713869706993e-14,
+      "optin_relative_errors": {
+        "state_relative_l2": 1.2926514818660509e-09,
+        "stress_relative_l2": 3.40183118725488e-08,
+        "tangent_relative_l2": 0.0008022716502590679
+      },
+      "tet_id": 1723
+    },
+    {
+      "branch_indicator": "no_resolved_multiplier_increase",
+      "capture": "N0",
+      "default_iterations": 4,
+      "default_relative_errors": {
+        "state_relative_l2": 8.478004914719007e-09,
+        "stress_relative_l2": 0,
+        "tangent_relative_l2": 0
+      },
+      "id": "N0-medium-tet1704",
+      "multiplier_increment": 3.690397542041224e-12,
+      "optin_iterations": 15,
+      "optin_projection_residual": 5.2853500655952734e-14,
+      "optin_relative_errors": {
+        "state_relative_l2": 1.2000755242112025e-09,
+        "stress_relative_l2": 2.75078896886831e-08,
+        "tangent_relative_l2": 0.0007142743167645345
+      },
+      "tet_id": 1704
+    },
+    {
+      "branch_indicator": "multiplier_increased",
+      "capture": "N63",
+      "default_iterations": 7,
+      "default_relative_errors": {
+        "state_relative_l2": 2.1190471797018157e-08,
+        "stress_relative_l2": 0,
+        "tangent_relative_l2": 0
+      },
+      "id": "N63-medium-tet750",
+      "multiplier_increment": 1.0320120068589371e-05,
+      "optin_iterations": 7,
+      "optin_projection_residual": 3.1110150566782124e-10,
+      "optin_relative_errors": {
+        "state_relative_l2": 1.6174710660644577e-10,
+        "stress_relative_l2": 2.676587386322502e-08,
+        "tangent_relative_l2": 2.3575521899547043e-08
+      },
+      "tet_id": 750
+    },
+    {
+      "branch_indicator": "multiplier_increased",
+      "capture": "N63",
+      "default_iterations": 7,
+      "default_relative_errors": {
+        "state_relative_l2": 3.517590487227054e-08,
+        "stress_relative_l2": 0,
+        "tangent_relative_l2": 0
+      },
+      "id": "N63-medium-tet751",
+      "multiplier_increment": 1.031777730146848e-05,
+      "optin_iterations": 7,
+      "optin_projection_residual": 2.03909139573355e-10,
+      "optin_relative_errors": {
+        "state_relative_l2": 6.075064590632492e-11,
+        "stress_relative_l2": 1.2859726261056684e-08,
+        "tangent_relative_l2": 2.4684010290065567e-08
+      },
+      "tet_id": 751
+    },
+    {
+      "branch_indicator": "multiplier_increased",
+      "capture": "N63",
+      "default_iterations": 7,
+      "default_relative_errors": {
+        "state_relative_l2": 2.31139766374799e-08,
+        "stress_relative_l2": 0,
+        "tangent_relative_l2": 0
+      },
+      "id": "N63-medium-tet758",
+      "multiplier_increment": 9.957412976362915e-06,
+      "optin_iterations": 7,
+      "optin_projection_residual": 1.2895512435662226e-10,
+      "optin_relative_errors": {
+        "state_relative_l2": 5.959837280326558e-11,
+        "stress_relative_l2": 1.0570101732960185e-08,
+        "tangent_relative_l2": 7.395743861740234e-09
+      },
+      "tet_id": 758
+    },
+    {
+      "branch_indicator": "multiplier_increased",
+      "capture": "N63",
+      "default_iterations": 6,
+      "default_relative_errors": {
+        "state_relative_l2": 9.9344815992009e-09,
+        "stress_relative_l2": 0,
+        "tangent_relative_l2": 0
+      },
+      "id": "N63-medium-tet608",
+      "multiplier_increment": 7.847706417752812e-06,
+      "optin_iterations": 7,
+      "optin_projection_residual": 1.786510002432795e-11,
+      "optin_relative_errors": {
+        "state_relative_l2": 5.622596563655209e-11,
+        "stress_relative_l2": 1.5660041388619463e-08,
+        "tangent_relative_l2": 1.4780777796609334e-08
+      },
+      "tet_id": 608
+    },
+    {
+      "branch_indicator": "multiplier_increased",
+      "capture": "N63",
+      "default_iterations": 7,
+      "default_relative_errors": {
+        "state_relative_l2": 2.5417227749383027e-08,
+        "stress_relative_l2": 0,
+        "tangent_relative_l2": 0
+      },
+      "id": "N63-medium-tet763",
+      "multiplier_increment": 6.486976181744155e-06,
+      "optin_iterations": 7,
+      "optin_projection_residual": 1.2766690482557408e-10,
+      "optin_relative_errors": {
+        "state_relative_l2": 1.2790130823836878e-11,
+        "stress_relative_l2": 2.8394476865656425e-08,
+        "tangent_relative_l2": 2.721367851288419e-08
+      },
+      "tet_id": 763
+    },
+    {
+      "branch_indicator": "multiplier_increased",
+      "capture": "N63",
+      "default_iterations": 7,
+      "default_relative_errors": {
+        "state_relative_l2": 2.464404198904929e-08,
+        "stress_relative_l2": 0,
+        "tangent_relative_l2": 0
+      },
+      "id": "N63-medium-tet1722",
+      "multiplier_increment": 6.290297255722408e-06,
+      "optin_iterations": 6,
+      "optin_projection_residual": 3.00455910151598e-10,
+      "optin_relative_errors": {
+        "state_relative_l2": 5.878329716549716e-12,
+        "stress_relative_l2": 3.370854356692716e-08,
+        "tangent_relative_l2": 1.8805913808563528e-08
+      },
+      "tet_id": 1722
+    },
+    {
+      "branch_indicator": "multiplier_increased",
+      "capture": "N63",
+      "default_iterations": 7,
+      "default_relative_errors": {
+        "state_relative_l2": 4.8793295170931325e-09,
+        "stress_relative_l2": 0,
+        "tangent_relative_l2": 0
+      },
+      "id": "N63-medium-tet1723",
+      "multiplier_increment": 5.965055283935549e-06,
+      "optin_iterations": 6,
+      "optin_projection_residual": 1.3387840169798437e-08,
+      "optin_relative_errors": {
+        "state_relative_l2": 1.4690836136081356e-10,
+        "stress_relative_l2": 3.808942978138644e-08,
+        "tangent_relative_l2": 2.4524431714995486e-08
+      },
+      "tet_id": 1723
+    },
+    {
+      "branch_indicator": "multiplier_increased",
+      "capture": "N63",
+      "default_iterations": 7,
+      "default_relative_errors": {
+        "state_relative_l2": 1.916780787303241e-08,
+        "stress_relative_l2": 0,
+        "tangent_relative_l2": 0
+      },
+      "id": "N63-medium-tet1704",
+      "multiplier_increment": 5.360306708735434e-06,
+      "optin_iterations": 7,
+      "optin_projection_residual": 1.181826858598356e-10,
+      "optin_relative_errors": {
+        "state_relative_l2": 9.530873928401476e-12,
+        "stress_relative_l2": 9.860771195585888e-09,
+        "tangent_relative_l2": 1.331412182664878e-08
+      },
+      "tet_id": 1704
+    }
+  ],
+  "lineage": {
+    "build_artifacts_verified": 73,
+    "compile_time_base_lineage_token": "98fe026ee2007982e48f89547a435a2957db3978fb3730e008fdbb99d08f5704",
+    "direct_native_artifacts": [
+      {
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-086/lib/libmetalrobo.dylib",
+        "sha256": "b88ee5fdacb91a8909d3ee97c9a86da090aeac0cedc34fef9d0dac9c7d50e64d"
+      },
+      {
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-086/matter/numi-matter-cardboard-bilinear15-captured-point-check",
+        "sha256": "0ec673f6a60870233f115fca980964ab4840b43d5e179261b61c020a2467d805"
+      },
+      {
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-086/matter/shaders/NumiMatter.metallib",
+        "sha256": "51c38a9b27b750227d61fae7f38a09de4030ede739d00e29557adfcf3db27bca"
+      },
+      {
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-086/matter/shaders/cardboard_paper_check.metallib",
+        "sha256": "a129573c4f5f67de208ddac16afaa032c09d595cc2b9f4c7137bcf37b7e0bbc6"
+      },
+      {
+        "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-086/shaders/MetalRobo.metallib",
+        "sha256": "61a548c69e6ec9c5c95480d54dbcf2fd851744e2a5e799397c59960e2fb27334"
+      }
+    ],
+    "frozen_source_manifest_sha256": "769a5e34c1d919293cb263fd27fbd041a482d22016c2818eec41d44e47935752",
+    "input_json_path": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-native-capture-overlay-086-v2/evidence/captured-point-inputs.json",
+    "input_json_sha256": "4147dfbdd75587dd932d9e22d210b3725bbf8d38f24c0494151f5474dbf9d66b",
+    "lineage_note": "The header token is compiled into CMake and is distinct from the SHA-256 of this run snapshot frozen-source.json.",
+    "prediction_bound_input_counts": {
+      "external": 1,
+      "runtime": 9,
+      "source": 772
+    },
+    "prediction_bound_inputs_verified": 782,
+    "prediction_sha256": "dd4c84b61be543e75f684692151fda5464c30df81fd6323cbe4d8ea610fce3e9",
+    "receipt_sha256": "5a8793c81062214d7fc0c4fb0e0b41f1034a0ac412354473c89c7db5ad9e2625",
+    "source_build_changed_sources": [],
+    "source_build_path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-086/source-build.json",
+    "source_build_sha256": "120c809d6d0ea9a0c1ed27a25df3c20748f186f62c64164eb54f09e745524c1b",
+    "source_build_success": true,
+    "source_material_sha256": "76f2bef552822708c36b5acc9f92bd44e7bb92c578e5e46adb64a1a2e82e47f9",
+    "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-captured-point-and-contact-scope-086",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_sha256": "b1e4499f9a9f7c68fc394ccfc136452517e038606ca257e1b97ff6b8d75e0017"
+  },
+  "policy_details": {
+    "default": "both captured source flags enabled, accurate local projection flag disabled, explicit material iteration option 32",
+    "optin": "same captured source flags, accurate 15-state policy enabled, compiled local budget 16",
+    "optin_compiled_local_iteration_budget": 16,
+    "relative_gate": 0.001,
+    "repeat_interpretation": "identical-run variation only; not a representability or accuracy bound"
+  },
+  "receipt": {
+    "exit_code": 0,
+    "source_inputs_unchanged": true,
+    "timed_out": false,
+    "wall_seconds": 22.912765125045553
+  },
+  "result_schema": "numi.cardboard.bilinear15-native-captured-point-result.v2",
+  "result_scope": {
+    "cases": 16,
+    "failed": 0,
+    "inconclusive": 0,
+    "passed": 16,
+    "physical_steps": 0,
+    "physical_validation": false,
+    "policy_scope": "single captured material-point direction per case",
+    "relative_gate": 0.001
+  },
+  "run_id": "captured-source15-local-accuracy-285",
+  "schema": "numi.cardboard.captured-source15-native-summary.v1",
+  "verification": "pass"
+}

@@ -1,0 +1,54 @@
+{
+  "captured_correction_control": {
+    "independent": true,
+    "is_previous_newton_increment": false,
+    "max_abs_P_dot_selected": 5.967108885390131e-17,
+    "projected_norm_ratio": 0.9751356495603846,
+    "raw_norm": 2.3738187576293748
+  },
+  "dynamic_masked_basis_controls": {
+    "base_mode_count": 3,
+    "candidate_accepted": true,
+    "candidate_max_normalized_source_correlation": 0.0,
+    "candidate_projected_norm_ratio": 0.37796447300922725,
+    "dependent_candidate_reason": "dependent_candidate",
+    "dependent_candidate_rejected": true,
+    "environment_count": 2,
+    "fixture_basis_dot_after_mask": 0.35355339059327373,
+    "interpretation": "synthetic CPU algebra and indexing controls; no Metal or solver qualification",
+    "near_rank_ambiguous_basis_rejected": true,
+    "near_rank_ambiguous_reason": "rank_ambiguous",
+    "node_count": 5,
+    "oracle_fp64_qr_direction_error": 4.002966042486721e-16,
+    "workspace_environment_ranges_disjoint": true,
+    "workspace_float4_count": 30
+  },
+  "predicate_controls": {
+    "dependent_rejected_to_fallback": true,
+    "independent_candidate_accepted": true,
+    "nonfinite_rejected_to_fallback": true,
+    "zero_rejected_to_fallback": true
+  },
+  "schema": "numi.cardboard.accepted-correction-recycle-cpu-check.v1",
+  "source_capture": {
+    "P_sha256": "2626e4bbb205fa1c7e40bdaf3f2e72d11f831ec53431c3062bcc85d69a50f6b5",
+    "captured_mode_count": 26,
+    "correction_npz_sha256": "99d1e759503544dacd097d696c980cdef02a6ad1d18617f6379d9a06c1498555",
+    "environment_count": 2,
+    "fixed_node_count": 36,
+    "interpretation": "N63 native FGMRES correction is an offline same-Newton control, not a captured preceding-Newton line-search increment",
+    "mesh_sha256": "6a2f786a47e61014ee4b27f609eb3c2f666677223ddaa30297aeea1fcfd8ca56",
+    "node_count": 882,
+    "regional_manifest_sha256": "8e7e13562301717091d1655e502ec5eeb48d3657f8b52123ced601f41d4b5251",
+    "root": "/Users/home/cardboard-implementation-20261014",
+    "run_manifest_sha256": "d8e5558c78e3f567a6e25dc7c1021c1ec121674961ff3513419875b3d100d069",
+    "vectors_npz_sha256": "6f27e7b9dc588a88331d69e17c6fcf77886ef3bfeb29abb521310fe84779ead6"
+  },
+  "static_fallback": {
+    "independent": true,
+    "independent_projected_norm_ratio": 0.24709184044769344,
+    "name": "source-basis orthogonalized bending y^4",
+    "raw_norm": 29.179504317880838
+  },
+  "verdict": "CPU vector-algebra controls pass; no native kernel or solver-performance qualification"
+}

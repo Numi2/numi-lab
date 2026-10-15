@@ -27,6 +27,7 @@
 #include <limits>
 #include <map>
 #include <memory>
+#include <optional>
 #include <regex>
 #include <sstream>
 #include <stdexcept>
@@ -68,6 +69,7 @@ bool regionalContactPreconditioner = false;
 std::uint32_t authoredNewtonIterations = 0u;
 
 std::string diagnosticStateOutputPath;
+std::string tiledParityCurrentStage = "not_started";
 
 std::string indexedDiagnosticStem(const std::uint64_t index) {
     std::ostringstream stem;
@@ -785,7 +787,8 @@ MeshAndWorld makeWorld(const MaterialProgram& bulk,
                        const bool forceDeformableOverflow = false,
                        const bool partialMortarPatch = false,
                        const double initialMortarGap = kActivationGap,
-                       const bool highSparsePairDomain = false) {
+                       const bool highSparsePairDomain = false,
+                       const std::uint32_t cohesivePatchTileCount = 1u) {
     MeshAndWorld result;
     WorldSource& source = result.world;
     source.environmentCount = kEnvironmentCount;
@@ -1072,7 +1075,74 @@ MeshAndWorld makeWorld(const MaterialProgram& bulk,
     interface.stableIdentifier = kFaceId;
     interface.cohesiveMaterialIndex = 0u;
     interface.activationGapToleranceM = kActivationTolerance;
-    pad.femCohesiveMortarPatches.push_back(interface);
+    require(cohesivePatchTileCount == 0u || cohesivePatchTileCount == 1u ||
+                cohesivePatchTileCount == 3u,
+            "cohesive fixture supports zero, one, or a three-triangle partition");
+    if (cohesivePatchTileCount == 0u) {
+        // Keep this identical full-contact world as a negative control for a
+        // tiled request with no authored cohesive faces.
+    } else if (cohesivePatchTileCount == 1u) {
+        pad.femCohesiveMortarPatches.push_back(interface);
+    } else {
+        // Partition the authored integration triangle into three disjoint
+        // triangles around its centroid. This keeps the exact same mortar
+        // surface for both solver modes while forcing the tiled path to cross
+        // page boundaries when PAGE_FACES=1.
+        const auto sideACenter = [&] {
+            std::array<double, 3> center{};
+            for (const auto& row : interface.sideAVertexBarycentric)
+                for (unsigned axis = 0u; axis < 3u; ++axis)
+                    center[axis] += row[axis] / 3.0;
+            return center;
+        }();
+        const auto sideBCenter = [&] {
+            std::array<double, 3> center{};
+            for (const auto& row : interface.sideBVertexBarycentric)
+                for (unsigned axis = 0u; axis < 3u; ++axis)
+                    center[axis] += row[axis] / 3.0;
+            return center;
+        }();
+        const std::array<std::array<unsigned, 3>, 3> tileVertices{{
+            {{0u, 1u, 3u}}, {{1u, 2u, 3u}}, {{2u, 0u, 3u}}
+        }};
+        std::array<std::array<double, 3>, 4> sideA{};
+        std::array<std::array<double, 3>, 4> sideB{};
+        for (unsigned vertex = 0u; vertex < 3u; ++vertex) {
+            sideA[vertex] = interface.sideAVertexBarycentric[vertex];
+            sideB[vertex] = interface.sideBVertexBarycentric[vertex];
+        }
+        sideA[3] = sideACenter;
+        sideB[3] = sideBCenter;
+        double areaFractionSum = 0.0;
+        for (std::uint32_t tile = 0u; tile < tileVertices.size(); ++tile) {
+            CohesiveMortarPatchSource part = interface;
+            part.stableIdentifier = kFaceId + tile;
+            for (unsigned vertex = 0u; vertex < 3u; ++vertex) {
+                part.sideAVertexBarycentric[vertex] =
+                    sideA[tileVertices[tile][vertex]];
+                part.sideBVertexBarycentric[vertex] =
+                    sideB[tileVertices[tile][vertex]];
+            }
+            const auto& rows = part.sideAVertexBarycentric;
+            const double determinantValue =
+                (rows[1][0] - rows[0][0]) * (rows[2][1] - rows[0][1]) -
+                (rows[1][1] - rows[0][1]) * (rows[2][0] - rows[0][0]);
+            require(std::isfinite(determinantValue) &&
+                        std::abs(determinantValue) > 1.0e-12,
+                    "cohesive page-partition generated a degenerate integration triangle");
+            areaFractionSum += std::abs(determinantValue);
+            pad.femCohesiveMortarPatches.push_back(std::move(part));
+        }
+        const auto& original = interface.sideAVertexBarycentric;
+        const double originalAreaFraction = std::abs(
+            (original[1][0] - original[0][0]) *
+                (original[2][1] - original[0][1]) -
+            (original[1][1] - original[0][1]) *
+                (original[2][0] - original[0][0]));
+        require(std::abs(areaFractionSum - originalAreaFraction) <=
+                    1.0e-12 * std::max(1.0, originalAreaFraction),
+                "cohesive page-partition does not conserve the authored mortar area");
+    }
 
     if (highSparsePairDomain) {
         // Keep this construction just above the legacy dense pair limit while
@@ -1378,6 +1448,7 @@ struct StepResult {
 struct AcceptedRollbackSequence {
     RuntimeStateSnapshot initial;
     StepResult activation;
+    std::optional<StepResult> closure;
     StepResult loaded;
     StepResult rejected;
 };
@@ -1487,7 +1558,8 @@ struct Fixture {
                 "fixture body or status buffer unavailable");
         require(world.dispatch.contactPairCount > 0u &&
                 world.dispatch.deformableContactCapacity > 0u &&
-                world.dispatch.cohesiveFaceCount == 1u &&
+                world.dispatch.cohesiveFaceCount ==
+                    source.world.objects.at(0u).femCohesiveMortarPatches.size() &&
                 world.dispatch.rigidProxyCount == 2u,
                 "compiled fixture lacks contact, mortar, or rigid source rows");
         require(world.contact.rigidProxies.size() == 2u &&
@@ -1524,7 +1596,8 @@ struct Fixture {
                     const bool rejectPostCommit = false,
                     const bool commandActivation = false,
                     const bool mismatchSupportVelocity = false,
-                    const bool mismatchSupportOrientation = false) {
+                    const bool mismatchSupportOrientation = false,
+                    const std::vector<nm_float4>* kinematicTargets = nullptr) {
         RuntimeStateSnapshot before;
         if (diagnosticStateOutput) {
             before = runtime.snapshot();
@@ -1563,17 +1636,30 @@ struct Fixture {
         id<MTLBuffer> endpointBuffer = makeBuffer(device, endpoint);
         id<MTLBuffer> postBuffer = rejectPostCommit
             ? makeBuffer(device, postEndpoint) : endpointBuffer;
+        if (kinematicTargets != nullptr)
+            require(kinematicTargets->size() ==
+                        static_cast<std::size_t>(world.dispatch.environmentCount) *
+                            nodeCount,
+                    "fixture kinematic targets do not cover every node/environment");
+        id<MTLBuffer> kinematicTargetBuffer = kinematicTargets != nullptr
+            ? makeBuffer(device, *kinematicTargets) : nil;
         std::vector<MRMetalWorldStatusGPU> statusValues(world.dispatch.environmentCount);
         for (std::uint32_t env = 0u; env < world.dispatch.environmentCount; ++env)
             statusValues[env].environment = env;
         std::memcpy(statuses.contents, statusValues.data(),
                     statusValues.size() * sizeof(MRMetalWorldStatusGPU));
 
-        NMCohesiveActivationCommandGPU activation{};
-        activation.identity = {0u, 0u, kFaceId, 0u};
+        std::vector<NMCohesiveActivationCommandGPU> activationCommands;
+        if (commandActivation) {
+            activationCommands.reserve(world.fem.cohesiveFaces.size());
+            for (const NMCohesiveFaceGPU& face : world.fem.cohesiveFaces) {
+                NMCohesiveActivationCommandGPU activation{};
+                activation.identity = {0u, 0u, face.adjacency.z, 0u};
+                activationCommands.push_back(activation);
+            }
+        }
         id<MTLBuffer> activationBuffer = commandActivation
-            ? makeBuffer(device, std::vector<NMCohesiveActivationCommandGPU>{activation})
-            : nil;
+            ? makeBuffer(device, activationCommands) : nil;
         id<MTLCommandBuffer> command = [queue commandBuffer];
         require(command != nil, "Metal command buffer unavailable");
         EncodeRequest request;
@@ -1589,7 +1675,8 @@ struct Fixture {
         }
         if (commandActivation) {
             request.cohesiveActivationCommands = (__bridge void*)activationBuffer;
-            request.cohesiveActivationCommandCount = 1u;
+            request.cohesiveActivationCommandCount =
+                static_cast<std::uint32_t>(activationCommands.size());
             request.cohesiveActivationCommandStride =
                 sizeof(NMCohesiveActivationCommandGPU);
         }
@@ -1597,6 +1684,11 @@ struct Fixture {
         request.physicsSubsteps = 1u;
         request.timestepSeconds = runtime.timestepSeconds();
         request.runAdaptiveTransfer = false;
+        if (kinematicTargets != nullptr) {
+            request.femKinematicTargets = (__bridge void*)kinematicTargetBuffer;
+            request.femKinematicTargetCount =
+                static_cast<std::uint32_t>(kinematicTargets->size());
+        }
         request.phase = EncodePhase::preDynamics;
         stage = "encode_pre_dynamics";
         auto encoded = runtime.encode(request);
@@ -2430,20 +2522,221 @@ void runDormantUncoveredContact(const MaterialProgram& bulk) {
               << " interface_remained_dormant=true parent_face_contact_history=true\n";
 }
 
+struct CohesiveTestBasis {
+    Point3 normal{};
+    Point3 tangent1{};
+    Point3 tangent2{};
+};
+
+CohesiveTestBasis cohesiveTestBasis(
+        const RuntimeStateSnapshot& snapshot,
+        const Fixture& fixture,
+        const CohesiveMortarPatchSource& patch,
+        const std::uint32_t environment) {
+    require(fixture.world.dispatch.cohesiveFaceCount != 0u &&
+                environment < fixture.world.dispatch.environmentCount,
+            "cohesive test basis requires an existing face/environment");
+    const std::size_t faceIndex =
+        static_cast<std::size_t>(environment) *
+            fixture.world.dispatch.cohesiveFaceCount;
+    require(faceIndex < snapshot.cohesiveFaces.size(),
+            "cohesive test basis face is outside the accepted snapshot");
+    const NMCohesiveFaceGPU& face = snapshot.cohesiveFaces[faceIndex];
+    const std::size_t nodeBase =
+        static_cast<std::size_t>(environment) * fixture.nodeCount;
+    const auto position = [&](const std::uint32_t node) {
+        require(node < fixture.nodeCount && nodeBase + node < snapshot.femNodes.size(),
+                "cohesive test basis references an invalid FEM node");
+        const nm_float4 value = snapshot.femNodes[nodeBase + node].positionAndMass;
+        return Point3{value.x, value.y, value.z};
+    };
+    Point3 normal{face.geometry.x, face.geometry.y, face.geometry.z};
+    double normalLength = std::sqrt(dot(normal, normal));
+    require(std::isfinite(normalLength) && normalLength > 1.0e-12,
+            "cohesive activation did not retain a finite reference normal");
+    for (double& component : normal) component /= normalLength;
+    const Point3 initialGap = subtract(
+        position(patch.sideBNodes[0]), position(patch.sideANodes[0]));
+    if (dot(initialGap, normal) < 0.0)
+        for (double& component : normal) component = -component;
+
+    Point3 tangent1{face.activationTangent1.x,
+                    face.activationTangent1.y,
+                    face.activationTangent1.z};
+    const double tangentLength = std::sqrt(dot(tangent1, tangent1));
+    require(std::isfinite(tangentLength) && tangentLength > 1.0e-12,
+            "cohesive activation did not retain a finite tangent");
+    for (double& component : tangent1) component /= tangentLength;
+    const double normalProjection = dot(tangent1, normal);
+    for (unsigned axis = 0u; axis < 3u; ++axis)
+        tangent1[axis] -= normalProjection * normal[axis];
+    const double projectedTangentLength = std::sqrt(dot(tangent1, tangent1));
+    require(std::isfinite(projectedTangentLength) &&
+                projectedTangentLength > 1.0e-8,
+            "cohesive activation tangent is parallel to its reference normal");
+    for (double& component : tangent1)
+        component /= projectedTangentLength;
+    const Point3 tangent2 = cross(normal, tangent1);
+    (void)patch;
+    return {normal, tangent1, tangent2};
+}
+
+std::vector<nm_float4> cohesiveInterfaceGripTargets(
+        const Fixture& fixture,
+        const CohesiveMortarPatchSource& patch,
+        const RuntimeStateSnapshot& accepted,
+        const std::array<double, 3>& normalOffset,
+        const std::array<double, 3>& tangent1Offset,
+        const std::array<double, 3>& tangent2Offset) {
+    const std::uint32_t environmentCount = fixture.world.dispatch.environmentCount;
+    const std::uint64_t totalNodes =
+        static_cast<std::uint64_t>(environmentCount) * fixture.nodeCount;
+    require(totalNodes <= std::numeric_limits<std::uint32_t>::max() &&
+                totalNodes == accepted.femNodes.size(),
+            "cohesive grip targets exceed the native dense target stream");
+    std::vector<nm_float4> targets(static_cast<std::size_t>(totalNodes));
+    for (std::uint32_t environment = 0u;
+         environment < environmentCount; ++environment) {
+        const CohesiveTestBasis basis = cohesiveTestBasis(
+            accepted, fixture, patch, environment);
+        const std::size_t nodeBase =
+            static_cast<std::size_t>(environment) * fixture.nodeCount;
+        for (unsigned local = 0u; local < 3u; ++local) {
+            const std::uint32_t lowerNode = patch.sideANodes[local];
+            const std::uint32_t upperNode = patch.sideBNodes[local];
+            require(lowerNode < fixture.nodeCount && upperNode < fixture.nodeCount,
+                    "cohesive grip target node is outside the FEM object");
+            const nm_float4 lower =
+                accepted.femNodes[nodeBase + lowerNode].positionAndMass;
+            const nm_float4 upper =
+                accepted.femNodes[nodeBase + upperNode].positionAndMass;
+            targets[nodeBase + lowerNode] =
+                {lower.x, lower.y, lower.z, 3.0f};
+            Point3 target{upper.x, upper.y, upper.z};
+            for (unsigned axis = 0u; axis < 3u; ++axis) {
+                target[axis] += normalOffset[local] * basis.normal[axis] +
+                    tangent1Offset[local] * basis.tangent1[axis] +
+                    tangent2Offset[local] * basis.tangent2[axis];
+            }
+            targets[nodeBase + upperNode] = {
+                static_cast<float>(target[0]),
+                static_cast<float>(target[1]),
+                static_cast<float>(target[2]), 3.0f};
+        }
+    }
+    return targets;
+}
+
+void requireGripTargetsAccepted(
+        const RuntimeStateSnapshot& snapshot,
+        const Fixture& fixture,
+        const std::vector<nm_float4>& targets,
+        const char* label) {
+    require(snapshot.femNodes.size() == targets.size(),
+            std::string(label) + " snapshot has the wrong node count");
+    for (std::size_t index = 0u; index < targets.size(); ++index) {
+        if (targets[index].w != 3.0f) continue;
+        const NMFEMNodeStateGPU& node = snapshot.femNodes[index];
+        const double positionError = std::sqrt(
+            std::pow(double(node.positionAndMass.x - targets[index].x), 2.0) +
+            std::pow(double(node.positionAndMass.y - targets[index].y), 2.0) +
+            std::pow(double(node.positionAndMass.z - targets[index].z), 2.0));
+        require(node.restAndFixed.w == 3.0f && positionError <= 1.0e-8,
+                std::string(label) + " did not commit every temporary grip target");
+    }
+    (void)fixture;
+}
+
+void requireInterfaceMotion(
+        const RuntimeStateSnapshot& before,
+        const RuntimeStateSnapshot& after,
+        const Fixture& fixture,
+        const CohesiveMortarPatchSource& patch,
+        const std::array<double, 3>& expectedNormal,
+        const std::array<double, 3>& expectedTangent1,
+        const std::array<double, 3>& expectedTangent2,
+        const char* label) {
+    for (std::uint32_t environment = 0u;
+         environment < fixture.world.dispatch.environmentCount; ++environment) {
+        const CohesiveTestBasis basis = cohesiveTestBasis(
+            before, fixture, patch, environment);
+        const std::size_t nodeBase =
+            static_cast<std::size_t>(environment) * fixture.nodeCount;
+        for (unsigned local = 0u; local < 3u; ++local) {
+            const auto gap = [&](const RuntimeStateSnapshot& state) {
+                const nm_float4 a = state.femNodes[
+                    nodeBase + patch.sideANodes[local]].positionAndMass;
+                const nm_float4 b = state.femNodes[
+                    nodeBase + patch.sideBNodes[local]].positionAndMass;
+                return Point3{double(b.x - a.x), double(b.y - a.y),
+                              double(b.z - a.z)};
+            };
+            const Point3 delta = subtract(gap(after), gap(before));
+            const std::array<double, 3> measured{
+                dot(delta, basis.normal), dot(delta, basis.tangent1),
+                dot(delta, basis.tangent2)};
+            const std::array<double, 3> expected{
+                expectedNormal[local], expectedTangent1[local],
+                expectedTangent2[local]};
+            for (unsigned component = 0u; component < 3u; ++component)
+                require(std::abs(measured[component] - expected[component]) <=
+                            1.0e-8,
+                        std::string(label) +
+                            " committed interface motion disagrees with its authored target");
+        }
+    }
+}
+
 AcceptedRollbackSequence runAcceptedAndRollback(
         const MaterialProgram& bulk,
         const bool aliasProductionSurfaceScratch = false,
-        const bool aliasCohesiveCandidateScratch = false) {
-    MeshAndWorld source = makeWorld(bulk, false, true, 5.0e-6);
+        const bool aliasCohesiveCandidateScratch = false,
+        const std::uint32_t cohesivePatchTileCount = 1u,
+        const bool exerciseClosureAndNonuniformShear = false) {
+    tiledParityCurrentStage = "geometry_build";
+    MeshAndWorld source = makeWorld(
+        bulk, false, true, 5.0e-6, false, cohesivePatchTileCount);
     verifyPartialMortarSource(source);
-    Fixture run(source, false, false, false, false,
-                aliasProductionSurfaceScratch,
-                aliasCohesiveCandidateScratch);
-    const RuntimeStateSnapshot initial = run.snapshot();
-    require(initial.cohesiveFaces.size() == 1u &&
-            (initial.cohesiveFaces[0].adjacency.w &
-                NM_TOPOLOGY_COHESIVE_DORMANT) != 0u,
-            "fixture must begin with one dormant mixed-mode mortar face");
+    std::unique_ptr<Fixture> run;
+    std::string initializationTrace;
+    tiledParityCurrentStage = "fixture_initialization";
+    {
+        StderrCapture capture;
+        try {
+            run = std::make_unique<Fixture>(source, false, false, false, false,
+                aliasProductionSurfaceScratch, aliasCohesiveCandidateScratch);
+        } catch (...) {
+            initializationTrace = capture.finish();
+            retainFixtureTrace("initialization", initializationTrace);
+            throw;
+        }
+        initializationTrace = capture.finish();
+    }
+    retainFixtureTrace("initialization", initializationTrace);
+    if (std::getenv("NM_FEM_FULL_CONTACT_TILED_COHESIVE") != nullptr) {
+        const std::uint32_t expectedPages = cohesivePatchTileCount;
+        require(initializationTrace.find("fem_cohesive_private_page_arena=") !=
+                    std::string::npos &&
+                initializationTrace.find("\"page_capacity\":1") !=
+                    std::string::npos &&
+                initializationTrace.find("\"page_count\":" +
+                    std::to_string(expectedPages)) !=
+                    std::string::npos &&
+                initializationTrace.find("\"face_state_clone_bytes\":0") !=
+                    std::string::npos,
+            "tiled runtime did not report the requested three-page, no-clone arena");
+    } else {
+        require(initializationTrace.find("fem_cohesive_private_page_arena=") ==
+                    std::string::npos,
+            "legacy control unexpectedly allocated the tiled cohesive arena");
+    }
+    const RuntimeStateSnapshot initial = run->snapshot();
+    require(initial.cohesiveFaces.size() == cohesivePatchTileCount &&
+            std::all_of(initial.cohesiveFaces.begin(),
+                initial.cohesiveFaces.end(), [](const NMCohesiveFaceGPU& face) {
+                    return (face.adjacency.w & NM_TOPOLOGY_COHESIVE_DORMANT) != 0u;
+                }),
+            "fixture must begin with all authored mixed-mode mortar faces dormant");
     require(std::count_if(source.world.objects[0].femFixedNodes.begin(),
                 source.world.objects[0].femFixedNodes.end(),
                 [](std::uint32_t) { return true; }) == 4,
@@ -2456,49 +2749,150 @@ AcceptedRollbackSequence runAcceptedAndRollback(
         // A fresh public control cursor is zero. Use distinct nonzero labels
         // so this test observes advancement, rather than comparing 0 with 0
         // after a genuinely accepted first transaction.
-        closed = run.step(1u, false, true);
+        setenv("NM_FEM_RESIDUAL_ARMIJO_TRACE_ROOT", "1", 1);
+        tiledParityCurrentStage = "activation_step";
+        try {
+            closed = run->step(1u, false, true);
+        } catch (...) {
+            captured = stderrCapture.finish();
+            retainFixtureTrace("activation", captured);
+            throw;
+        }
         captured = stderrCapture.finish();
     }
     closed.trace = captured;
     retainFixtureTrace("activation", captured);
     emitSelectedDeformableContactCapture(captured);
+    tiledParityCurrentStage = "activation_validation";
     require(captured.find("fem_full_contact_residual_armijo_enabled=") !=
                 std::string::npos &&
             captured.find("fem_full_contact_residual_armijo_skipped=") ==
                 std::string::npos,
             "full-contact Armijo did not admit the mixed/tool/self-contact source: " + captured);
     requireAccepted(closed.snapshot);
-    require(closed.snapshot.cohesiveFaces.size() == 1u &&
-            (closed.snapshot.cohesiveFaces[0].adjacency.w &
-                NM_TOPOLOGY_COHESIVE_DORMANT) == 0u,
-            "accepted explicit setting command did not activate the mortar face");
+    require(closed.snapshot.cohesiveFaces.size() == cohesivePatchTileCount &&
+            std::all_of(closed.snapshot.cohesiveFaces.begin(),
+                closed.snapshot.cohesiveFaces.end(), [](const NMCohesiveFaceGPU& face) {
+                    return (face.adjacency.w & NM_TOPOLOGY_COHESIVE_DORMANT) == 0u;
+                }),
+            "accepted explicit setting commands did not activate all mortar faces");
     require(hasMortarParentContact(closed.snapshot, source),
             "active partial mortar face lost ordinary contact on its uncovered parent region");
     require(closed.snapshot.controlStep > initial.controlStep,
             "accepted endpoint activation did not advance the accepted cursor");
 
-    // The second selected step starts from the accepted, active interface. It
+    // The selected parity fixture optionally drives accepted compression,
+    // then a nonuniform mixed-mode opening/shear field through the same native
+    // transaction path. Both variants use the same absolute temporary-grip
+    // target buffers, so legacy and tiled paths see byte-identical commands.
+    std::optional<StepResult> closure;
+    if (exerciseClosureAndNonuniformShear) {
+        const CohesiveMortarPatchSource& patch =
+            source.world.objects.at(0u).femCohesiveMortarPatches.at(0u);
+        const std::array<double, 3> closing{
+            -2.0e-6, -2.0e-6, -2.0e-6};
+        const std::array<double, 3> zeroShear{};
+        const auto closureTargets = cohesiveInterfaceGripTargets(
+            *run, patch, closed.snapshot, closing, zeroShear, zeroShear);
+        setenv("NM_FEM_RESIDUAL_ARMIJO_TRACE_ROOT", "2", 1);
+        std::string closureTrace;
+        StepResult closureStep;
+        {
+            StderrCapture stderrCapture;
+            tiledParityCurrentStage = "closure_step";
+            try {
+                closureStep = run->step(2u, false, false, false, false,
+                                        &closureTargets);
+            } catch (...) {
+                closureTrace = stderrCapture.finish();
+                retainFixtureTrace("closure", closureTrace);
+                throw;
+            }
+            closureTrace = stderrCapture.finish();
+        }
+        closureStep.trace = closureTrace;
+        retainFixtureTrace("closure", closureTrace);
+        tiledParityCurrentStage = "closure_validation";
+        requireAccepted(closureStep.snapshot);
+        requireGripTargetsAccepted(closureStep.snapshot, *run,
+                                   closureTargets, "accepted closure");
+        requireInterfaceMotion(closed.snapshot, closureStep.snapshot, *run,
+            patch, closing, zeroShear, zeroShear, "accepted closure");
+        require(closureStep.snapshot.cohesiveFaces.size() ==
+                    cohesivePatchTileCount &&
+                std::all_of(closureStep.snapshot.cohesiveFaces.begin(),
+                    closureStep.snapshot.cohesiveFaces.end(),
+                    [](const NMCohesiveFaceGPU& face) {
+                        return (face.adjacency.w &
+                            NM_TOPOLOGY_COHESIVE_DORMANT) == 0u;
+                    }),
+                "accepted closure lost an activated cohesive face");
+        emitSelectedDeformableContactCapture(closureTrace);
+        closure = std::move(closureStep);
+    }
+
+    // The next selected step starts from the accepted, active interface. It
     // must execute a nonzero FEM correction while the mixed face, rigid tools,
     // and private deformable self-contact path are all enabled.
-    setenv("NM_FEM_RESIDUAL_ARMIJO_TRACE_ROOT", "2", 1);
+    const std::uint32_t loadedStep = exerciseClosureAndNonuniformShear ? 3u : 2u;
+    setenv("NM_FEM_RESIDUAL_ARMIJO_TRACE_ROOT",
+           exerciseClosureAndNonuniformShear ? "3" : "2", 1);
     std::string loadedTrace;
     StepResult loaded;
+    std::vector<nm_float4> loadingTargets;
+    const RuntimeStateSnapshot& loadingStart =
+        closure.has_value() ? closure->snapshot : closed.snapshot;
+    if (exerciseClosureAndNonuniformShear) {
+        const CohesiveMortarPatchSource& patch =
+            source.world.objects.at(0u).femCohesiveMortarPatches.at(0u);
+        const std::array<double, 3> opening{4.0e-6, 6.0e-6, 8.0e-6};
+        const std::array<double, 3> shear1{0.0, 1.5e-6, 3.0e-6};
+        const std::array<double, 3> shear2{1.0e-6, -1.0e-6, 2.0e-6};
+        loadingTargets = cohesiveInterfaceGripTargets(
+            *run, patch, loadingStart, opening, shear1, shear2);
+    }
     {
         StderrCapture stderrCapture;
-        loaded = run.step(2u);
+        tiledParityCurrentStage = "loaded_step";
+        try {
+            loaded = run->step(loadedStep, false, false, false, false,
+                exerciseClosureAndNonuniformShear ? &loadingTargets : nullptr);
+        } catch (...) {
+            loadedTrace = stderrCapture.finish();
+            retainFixtureTrace("loaded", loadedTrace);
+            throw;
+        }
         loadedTrace = stderrCapture.finish();
     }
     loaded.trace = loadedTrace;
     retainFixtureTrace("loaded", loadedTrace);
     emitSelectedDeformableContactCapture(loadedTrace);
+    tiledParityCurrentStage = "loaded_validation";
     requireAccepted(loaded.snapshot);
-    require(loaded.snapshot.cohesiveFaces.size() == 1u &&
-            (loaded.snapshot.cohesiveFaces[0].adjacency.w &
-                NM_TOPOLOGY_COHESIVE_DORMANT) == 0u,
-            "loaded solve lost its accepted mixed mortar interface");
+    if (exerciseClosureAndNonuniformShear) {
+        const CohesiveMortarPatchSource& patch =
+            source.world.objects.at(0u).femCohesiveMortarPatches.at(0u);
+        requireGripTargetsAccepted(loaded.snapshot, *run,
+                                   loadingTargets, "nonuniform opening/shear");
+        const std::array<double, 3> opening{4.0e-6, 6.0e-6, 8.0e-6};
+        const std::array<double, 3> shear1{0.0, 1.5e-6, 3.0e-6};
+        const std::array<double, 3> shear2{1.0e-6, -1.0e-6, 2.0e-6};
+        requireInterfaceMotion(loadingStart, loaded.snapshot, *run,
+            patch, opening, shear1, shear2, "nonuniform opening/shear");
+        require(*std::max_element(opening.begin(), opening.end()) -
+                    *std::min_element(opening.begin(), opening.end()) > 1.0e-6 &&
+                *std::max_element(shear1.begin(), shear1.end()) > 1.0e-6,
+            "fixture inputs do not contain nonuniform opening and tangential shear");
+    }
+    require(loaded.snapshot.cohesiveFaces.size() == cohesivePatchTileCount &&
+            std::all_of(loaded.snapshot.cohesiveFaces.begin(),
+                loaded.snapshot.cohesiveFaces.end(), [](const NMCohesiveFaceGPU& face) {
+                    return (face.adjacency.w & NM_TOPOLOGY_COHESIVE_DORMANT) == 0u;
+                }),
+            "loaded solve lost an accepted mixed mortar interface");
     require(hasMortarParentContact(loaded.snapshot, source),
             "loaded active mortar solve lost uncovered-parent contact history");
-    require(maxFreeDisplacement(loaded.snapshot, closed.snapshot, run.nodeCount) > 1.0e-8,
+    require(maxFreeDisplacement(loaded.snapshot, closed.snapshot, run->nodeCount) > 1.0e-8,
             "accepted full-contact Armijo step had no nonzero free-node response");
     require(loadedTrace.find("fem_full_contact_residual_armijo_enabled=") !=
                 std::string::npos &&
@@ -2506,17 +2900,27 @@ AcceptedRollbackSequence runAcceptedAndRollback(
             "active-interface nonlinear correction did not enter the Armijo private trial path");
     verifySelectedTrialsAndCandidateAgreement(loadedTrace);
 
-    setenv("NM_FEM_RESIDUAL_ARMIJO_TRACE_ROOT", "3", 1);
+    setenv("NM_FEM_RESIDUAL_ARMIJO_TRACE_ROOT",
+           exerciseClosureAndNonuniformShear ? "4" : "3", 1);
     const RuntimeStateSnapshot beforeFailure = loaded.snapshot;
     std::string rejectedTrace;
     StepResult rejected;
     {
         StderrCapture stderrCapture;
-        rejected = run.step(3u, true, false);
+        tiledParityCurrentStage = "rejected_step";
+        try {
+            rejected = run->step(exerciseClosureAndNonuniformShear ? 4u : 3u,
+                                 true, false);
+        } catch (...) {
+            rejectedTrace = stderrCapture.finish();
+            retainFixtureTrace("rejected", rejectedTrace);
+            throw;
+        }
         rejectedTrace = stderrCapture.finish();
     }
     rejected.trace = rejectedTrace;
     retainFixtureTrace("rejected", rejectedTrace);
+    tiledParityCurrentStage = "rollback_validation";
     require(rejectedTrace.find("fem_full_contact_residual_armijo_enabled=") !=
                 std::string::npos &&
             rejectedTrace.find("fem_residual_armijo_iteration=") !=
@@ -2550,9 +2954,338 @@ AcceptedRollbackSequence runAcceptedAndRollback(
                 beforeFailure.deformableContactHistories.size() *
                     sizeof(NMDeformableContactHistoryGPU)) == 0,
             "rejected full-contact transaction changed accepted deformable-contact history");
+    tiledParityCurrentStage = "sequence_complete";
     std::cout << "full_contact_rejection_rollback=pass certificate_cleared=true"
               << " cursor_and_all_histories_unchanged=true\n";
-    return {initial, std::move(closed), std::move(loaded), std::move(rejected)};
+    return {initial, std::move(closed), std::move(closure),
+            std::move(loaded), std::move(rejected)};
+}
+
+void requireSnapshotOperatorParity(const RuntimeStateSnapshot& dense,
+                                   const RuntimeStateSnapshot& sparse,
+                                   const char* stage);
+
+void runTiledZeroFaceReject(const MaterialProgram& bulk) {
+    MeshAndWorld source = makeWorld(bulk, false, true, 5.0e-6, false, 0u);
+    bool rejected = false;
+    std::string message;
+    try {
+        Fixture run(source);
+    } catch (const std::exception& error) {
+        rejected = true;
+        message = error.what();
+    }
+    require(rejected && message.find(
+                "invalid face/environment dimensions or unencodable face-slot incidence") !=
+                std::string::npos,
+            "zero-face tiled request was not rejected at initialization with its specific reason");
+    std::cout << "tiled_zero_face=fail_closed_before_transaction=true\n";
+}
+
+std::string tiledParityJsonEscape(const std::string& value) {
+    std::ostringstream escaped;
+    for (const unsigned char character : value) {
+        switch (character) {
+            case '"': escaped << "\\\""; break;
+            case '\\': escaped << "\\\\"; break;
+            case '\n': escaped << "\\n"; break;
+            case '\r': escaped << "\\r"; break;
+            case '\t': escaped << "\\t"; break;
+            default:
+                if (character < 0x20u) {
+                    escaped << "\\u00" << std::hex << std::setw(2)
+                            << std::setfill('0') << unsigned(character)
+                            << std::dec;
+                } else {
+                    escaped << static_cast<char>(character);
+                }
+        }
+    }
+    return escaped.str();
+}
+
+AcceptedRollbackSequence runTiledSequence(
+        const MaterialProgram& bulk,
+        const std::uint32_t faceCount,
+        const bool tiled);
+
+struct TiledParityDiagnosticArm {
+    std::uint32_t faceCount = 0u;
+    std::string label;
+    std::string stage;
+    std::string error;
+    std::optional<AcceptedRollbackSequence> sequence;
+    std::uint64_t transactionCount = 0u;
+};
+
+TiledParityDiagnosticArm runTiledDiagnosticArm(
+        const MaterialProgram& bulk,
+        const std::uint32_t faceCount,
+        const bool tiled,
+        const std::filesystem::path& outputRoot) {
+    TiledParityDiagnosticArm arm;
+    arm.faceCount = faceCount;
+    arm.label = tiled ? "tiled" : "legacy";
+    const auto faceDirectory = outputRoot /
+        ("face-count-" + std::to_string(faceCount));
+    std::filesystem::create_directories(faceDirectory);
+    const auto armDirectory = faceDirectory / arm.label;
+    if (std::filesystem::exists(armDirectory))
+        throw std::runtime_error("refusing to replace tiled parity diagnostics: " +
+                                 armDirectory.string());
+
+    const std::string previousOutputPath = diagnosticStateOutputPath;
+    std::unique_ptr<DiagnosticStateOutput> previousOutput =
+        std::move(diagnosticStateOutput);
+    diagnosticStateOutputPath = armDirectory.string();
+    diagnosticStateOutput = std::make_unique<DiagnosticStateOutput>(
+        diagnosticStateOutputPath);
+    arm.transactionCount = nativeFEMTransactionsExecuted;
+    tiledParityCurrentStage = "arm_start";
+    try {
+        arm.sequence = runTiledSequence(bulk, faceCount, tiled);
+        arm.stage = "sequence_complete";
+    } catch (const std::exception& error) {
+        arm.stage = tiledParityCurrentStage;
+        arm.error = error.what();
+    } catch (...) {
+        arm.stage = tiledParityCurrentStage;
+        arm.error = "non-standard exception";
+    }
+    arm.transactionCount = nativeFEMTransactionsExecuted - arm.transactionCount;
+    diagnosticStateOutput.reset();
+    diagnosticStateOutput = std::move(previousOutput);
+    diagnosticStateOutputPath = previousOutputPath;
+
+    const auto resultPath = armDirectory / "arm-result.json";
+    std::ofstream result(resultPath, std::ios::out | std::ios::trunc);
+    if (!result)
+        throw std::runtime_error("could not write tiled parity arm result");
+    result << "{\"schema\":\"numi.cardboard.tiled_cohesive_parity_arm.v1\""
+           << ",\"face_count\":" << faceCount
+           << ",\"layout\":\"" << arm.label << "\""
+           << ",\"status\":\""
+           << (arm.sequence.has_value() ? "completed" : "failed_prefix")
+           << "\",\"last_stage\":\""
+           << tiledParityJsonEscape(arm.stage) << "\""
+           << ",\"native_transactions_executed\":"
+           << arm.transactionCount
+           << ",\"error\":\""
+           << tiledParityJsonEscape(arm.error) << "\"}\n";
+    result.flush();
+    if (!result)
+        throw std::runtime_error("incomplete tiled parity arm result");
+    return arm;
+}
+
+void writeTiledParityDiagnosticSummary(
+        const std::filesystem::path& outputRoot,
+        const std::vector<TiledParityDiagnosticArm>& arms,
+        const std::string& comparisonStatus,
+        const std::string& comparisonError) {
+    const auto summaryPath = outputRoot / "tiled-parity-result.json";
+    std::ofstream summary(summaryPath, std::ios::out | std::ios::trunc);
+    if (!summary)
+        throw std::runtime_error("could not write tiled parity summary");
+    summary << "{\"schema\":\"numi.cardboard.tiled_cohesive_parity_run.v1\""
+            << ",\"physical_validation\":false"
+            << ",\"solver_or_material_inputs_changed\":false"
+            << ",\"command_schedule\":\"same activation, closure, opening/shear, and rollback calls for all arms\""
+            << ",\"comparison_status\":\""
+            << tiledParityJsonEscape(comparisonStatus) << "\""
+            << ",\"comparison_error\":\""
+            << tiledParityJsonEscape(comparisonError) << "\""
+            << ",\"arms\":[";
+    for (std::size_t index = 0; index < arms.size(); ++index) {
+        if (index != 0u) summary << ',';
+        const auto& arm = arms[index];
+        summary << "{\"face_count\":" << arm.faceCount
+                << ",\"layout\":\""
+                << tiledParityJsonEscape(arm.label) << "\""
+                << ",\"status\":\""
+                << (arm.sequence.has_value() ? "completed" : "failed_prefix")
+                << "\",\"last_stage\":\""
+                << tiledParityJsonEscape(arm.stage) << "\""
+                << ",\"native_transactions_executed\":"
+                << arm.transactionCount
+                << ",\"error\":\""
+                << tiledParityJsonEscape(arm.error) << "\"}";
+    }
+    summary << "]}\n";
+    summary.flush();
+    if (!summary) throw std::runtime_error("incomplete tiled parity summary");
+}
+
+AcceptedRollbackSequence runTiledSequence(
+        const MaterialProgram& bulk,
+        const std::uint32_t faceCount,
+        const bool tiled) {
+    ScopedEnvironmentValue tiledMode(
+        "NM_FEM_FULL_CONTACT_TILED_COHESIVE", tiled ? "1" : nullptr);
+    ScopedEnvironmentValue pageFaces(
+        "NM_FEM_FULL_CONTACT_TILED_COHESIVE_PAGE_FACES",
+        tiled ? "1" : nullptr);
+    return runAcceptedAndRollback(bulk, false, false, faceCount, true);
+}
+
+void runTiledCohesiveParity(const MaterialProgram& bulk) {
+    const std::uint64_t transactionCountAtStart = nativeFEMTransactionsExecuted;
+    const bool retainDiagnostics = !diagnosticStateOutputPath.empty();
+    const std::filesystem::path outputRoot(diagnosticStateOutputPath);
+    if (retainDiagnostics && !std::filesystem::create_directory(outputRoot))
+        throw std::runtime_error(
+            "tiled parity diagnostic output must name a new, unused directory");
+    if (!retainDiagnostics) {
+        ScopedEnvironmentValue tiledMode(
+            "NM_FEM_FULL_CONTACT_TILED_COHESIVE", "1");
+        ScopedEnvironmentValue pageFaces(
+            "NM_FEM_FULL_CONTACT_TILED_COHESIVE_PAGE_FACES", nullptr);
+        runTiledZeroFaceReject(bulk);
+    }
+
+    if (retainDiagnostics) {
+        try {
+            ScopedEnvironmentValue tiledMode(
+                "NM_FEM_FULL_CONTACT_TILED_COHESIVE", "1");
+            ScopedEnvironmentValue pageFaces(
+                "NM_FEM_FULL_CONTACT_TILED_COHESIVE_PAGE_FACES", nullptr);
+            runTiledZeroFaceReject(bulk);
+            std::ofstream zeroFace(outputRoot / "zero-face-control.txt",
+                                   std::ios::out | std::ios::trunc);
+            if (!zeroFace)
+                throw std::runtime_error("could not retain zero-face control result");
+            zeroFace << "status=failed_closed_before_transaction\n"
+                     << "interpretation=expected_negative_control\n";
+        } catch (const std::exception& error) {
+            std::ofstream zeroFace(outputRoot / "zero-face-control.txt",
+                                   std::ios::out | std::ios::trunc);
+            if (zeroFace)
+                zeroFace << "status=control_failed\nerror=" << error.what() << '\n';
+            throw;
+        }
+        std::vector<TiledParityDiagnosticArm> arms;
+        arms.reserve(4u);
+        arms.push_back(runTiledDiagnosticArm(bulk, 1u, false, outputRoot));
+        arms.push_back(runTiledDiagnosticArm(bulk, 1u, true, outputRoot));
+        arms.push_back(runTiledDiagnosticArm(bulk, 3u, false, outputRoot));
+        arms.push_back(runTiledDiagnosticArm(bulk, 3u, true, outputRoot));
+
+        std::string comparisonStatus = "failed_prefix_partial_comparison";
+        std::string comparisonError;
+        try {
+            const auto comparePair = [&](const std::size_t legacyIndex,
+                                         const std::size_t tiledIndex,
+                                         const char* label) {
+                if (!arms[legacyIndex].sequence.has_value() ||
+                    !arms[tiledIndex].sequence.has_value()) return;
+                const AcceptedRollbackSequence& legacy =
+                    *arms[legacyIndex].sequence;
+                const AcceptedRollbackSequence& tiled =
+                    *arms[tiledIndex].sequence;
+                requireSnapshotOperatorParity(legacy.initial, tiled.initial,
+                    (std::string(label) + " initial dormant state").c_str());
+                requireSnapshotOperatorParity(legacy.activation.snapshot,
+                    tiled.activation.snapshot,
+                    (std::string(label) + " accepted activation").c_str());
+                require(legacy.closure.has_value() == tiled.closure.has_value(),
+                    std::string(label) + " arms disagree on closure completion");
+                if (legacy.closure.has_value())
+                    requireSnapshotOperatorParity(legacy.closure->snapshot,
+                        tiled.closure->snapshot,
+                        (std::string(label) + " accepted closure").c_str());
+                requireSnapshotOperatorParity(legacy.loaded.snapshot,
+                    tiled.loaded.snapshot,
+                    (std::string(label) + " accepted nonuniform opening/shear").c_str());
+                requireSnapshotOperatorParity(legacy.rejected.snapshot,
+                    tiled.rejected.snapshot,
+                    (std::string(label) + " rejected post-commit rollback").c_str());
+            };
+            comparePair(0u, 1u, "one-face");
+            comparePair(2u, 3u, "three-face multipage");
+            const bool allCompleted = std::all_of(arms.begin(), arms.end(),
+                [](const TiledParityDiagnosticArm& arm) {
+                    return arm.sequence.has_value();
+                });
+            if (allCompleted) comparisonStatus = "operator_parity_pass";
+        } catch (const std::exception& error) {
+            comparisonStatus = "comparison_failed";
+            comparisonError = error.what();
+        }
+        writeTiledParityDiagnosticSummary(outputRoot, arms,
+                                           comparisonStatus, comparisonError);
+        const bool allCompleted = std::all_of(arms.begin(), arms.end(),
+            [](const TiledParityDiagnosticArm& arm) {
+                return arm.sequence.has_value();
+            });
+        if (!allCompleted || comparisonStatus != "operator_parity_pass")
+            throw std::runtime_error(
+                "tiled cohesive parity diagnostics retained; one or more arms "
+                "failed before full comparison");
+        std::cout << "PASS tiled cohesive full-contact parity"
+                  << " checks=" << checks
+                  << " native_fem_transactions_executed="
+                  << (nativeFEMTransactionsExecuted - transactionCountAtStart)
+                  << " face_count_cases=1,3 page_capacity=1 page_count_cases=1,3"
+                  << " accepted_activation=true accepted_closure=true"
+                  << " accepted_nonuniform_opening_shear=true"
+                  << " reject_rollback=true snapshot_history_certificate_bitwise=true"
+                  << " physical_validation=false synthetic_law=true\n";
+        return;
+    }
+
+    const AcceptedRollbackSequence legacyOne =
+        runTiledSequence(bulk, 1u, false);
+    const AcceptedRollbackSequence tiledOne =
+        runTiledSequence(bulk, 1u, true);
+    const auto compareSequence = [](const AcceptedRollbackSequence& legacy,
+                                    const AcceptedRollbackSequence& tiled,
+                                    const char* label) {
+        requireSnapshotOperatorParity(legacy.initial, tiled.initial,
+            (std::string(label) + " initial dormant state").c_str());
+        requireSnapshotOperatorParity(legacy.activation.snapshot,
+            tiled.activation.snapshot,
+            (std::string(label) + " accepted activation").c_str());
+        if (legacy.closure.has_value() && tiled.closure.has_value())
+            requireSnapshotOperatorParity(legacy.closure->snapshot,
+                tiled.closure->snapshot,
+                (std::string(label) + " accepted closure").c_str());
+        else
+            require(legacy.closure.has_value() == tiled.closure.has_value(),
+                "legacy and tiled cases disagree on closure coverage");
+        requireSnapshotOperatorParity(legacy.loaded.snapshot,
+            tiled.loaded.snapshot,
+            (std::string(label) + " accepted nonuniform opening/shear").c_str());
+        requireSnapshotOperatorParity(legacy.rejected.snapshot,
+            tiled.rejected.snapshot,
+            (std::string(label) + " rejected post-commit rollback").c_str());
+    };
+    compareSequence(legacyOne, tiledOne, "one-face");
+    require(tiledOne.loaded.snapshot.cohesiveFaces.size() == 1u &&
+            (tiledOne.loaded.snapshot.cohesiveFaces[0].adjacency.w &
+                NM_TOPOLOGY_COHESIVE_DORMANT) == 0u,
+            "one-face tiled trial did not preserve its accepted mixed face");
+
+    const AcceptedRollbackSequence legacyThree =
+        runTiledSequence(bulk, 3u, false);
+    const AcceptedRollbackSequence tiledThree =
+        runTiledSequence(bulk, 3u, true);
+    compareSequence(legacyThree, tiledThree, "three-face multipage");
+    require(tiledThree.loaded.snapshot.cohesiveFaces.size() == 3u &&
+            std::all_of(tiledThree.loaded.snapshot.cohesiveFaces.begin(),
+                tiledThree.loaded.snapshot.cohesiveFaces.end(),
+                [](const NMCohesiveFaceGPU& face) {
+                    return (face.adjacency.w & NM_TOPOLOGY_COHESIVE_DORMANT) == 0u;
+                }),
+            "three-face multipage loading did not leave every partition active");
+    std::cout << "PASS tiled cohesive full-contact parity"
+              << " checks=" << checks
+              << " native_fem_transactions_executed="
+              << (nativeFEMTransactionsExecuted - transactionCountAtStart)
+              << " face_count_cases=1,3 page_capacity=1 page_count_cases=1,3"
+              << " accepted_activation=true accepted_closure=true"
+              << " accepted_nonuniform_opening_shear=true"
+              << " reject_rollback=true snapshot_history_certificate_bitwise=true"
+              << " physical_validation=false synthetic_law=true\n";
 }
 
 template<class T>
@@ -2586,6 +3319,13 @@ void requireSnapshotOperatorParity(const RuntimeStateSnapshot& dense,
                 " accepted cursor or material stride differs");
     requireVectorBitIdentical(dense.femNodes, sparse.femNodes,
                               "FEM nodes", stage);
+    requireVectorBitIdentical(dense.femFields, sparse.femFields,
+                              "FEM fields", stage);
+    requireVectorBitIdentical(dense.femTopologyNodes, sparse.femTopologyNodes,
+                              "FEM topology nodes", stage);
+    requireVectorBitIdentical(dense.femTopologyTetrahedra,
+                              sparse.femTopologyTetrahedra,
+                              "FEM topology tetrahedra", stage);
     requireVectorBitIdentical(dense.femMaterialState, sparse.femMaterialState,
                               "bulk history", stage);
     requireVectorBitIdentical(dense.cohesiveFaces, sparse.cohesiveFaces,
@@ -2606,6 +3346,13 @@ void requireSnapshotOperatorParity(const RuntimeStateSnapshot& dense,
     requireVectorBitIdentical(dense.solverCertificates,
                               sparse.solverCertificates,
                               "solver certificate", stage);
+    requireVectorBitIdentical(dense.schedulers, sparse.schedulers,
+                              "scheduler state", stage);
+    requireVectorBitIdentical(dense.adaptive, sparse.adaptive,
+                              "adaptive state", stage);
+    requireVectorBitIdentical(dense.deformableContactFailures,
+                              sparse.deformableContactFailures,
+                              "deformable contact failures", stage);
 }
 
 void requireTraceOperatorParity(const std::string& dense,
@@ -4366,7 +5113,7 @@ int main(int argc, const char* argv[]) {
     @autoreleasepool {
         try {
             require(argc >= 2,
-                "usage: cardboard-full-contact-armijo-check BULK.nmatter [--cpu-only|--overflow|--prescribed-box-overflow|--prescribed-box-sweep-reject|--prescribed-box-translation|--private-self-sweep|--sparse-private-parity|--sparse-private-overflow|--sparse-private-admission|--sparse-private-high-pair-admission|--sparse-free-body-parity|--sparse-free-body-overflow|--self-surface-scratch-alias-parity|--cohesive-scratch-alias-parity] [--regional-contact-preconditioner] [--extended-budget] [--accurate-paper] [--compensated-material-arithmetic] [--newton-iterations N] [--diagnostic-state-output DIR]");
+                "usage: cardboard-full-contact-armijo-check BULK.nmatter [--cpu-only|--overflow|--prescribed-box-overflow|--prescribed-box-sweep-reject|--prescribed-box-translation|--private-self-sweep|--sparse-private-parity|--sparse-private-overflow|--sparse-private-admission|--sparse-private-high-pair-admission|--sparse-free-body-parity|--sparse-free-body-overflow|--self-surface-scratch-alias-parity|--cohesive-scratch-alias-parity|--cohesive-tiled-parity] [--regional-contact-preconditioner] [--extended-budget] [--accurate-paper] [--compensated-material-arithmetic] [--newton-iterations N] [--diagnostic-state-output DIR]");
             bool cpuOnly = false;
             bool overflow = false;
             bool prescribedBoxOverflow = false;
@@ -4382,6 +5129,7 @@ int main(int argc, const char* argv[]) {
             bool sparseFreeBodyOverflow = false;
             bool selfSurfaceScratchAliasParity = false;
             bool cohesiveScratchAliasParity = false;
+            bool cohesiveTiledParity = false;
             for (int index = 2; index < argc; ++index) {
                 const std::string option(argv[index]);
                 if (option == "--cpu-only") cpuOnly = true;
@@ -4412,6 +5160,8 @@ int main(int argc, const char* argv[]) {
                     selfSurfaceScratchAliasParity = true;
                 else if (option == "--cohesive-scratch-alias-parity")
                     cohesiveScratchAliasParity = true;
+                else if (option == "--cohesive-tiled-parity")
+                    cohesiveTiledParity = true;
                 else if (option == "--regional-contact-preconditioner")
                     regionalContactPreconditioner = true;
                 else if (option == "--extended-budget") extendedBudget = true;
@@ -4446,7 +5196,8 @@ int main(int argc, const char* argv[]) {
                                   sparsePrivateHighPairAdmission ||
                                   sparseFreeBodyParity || sparseFreeBodyOverflow ||
                                   selfSurfaceScratchAliasParity ||
-                                  cohesiveScratchAliasParity)),
+                                  cohesiveScratchAliasParity ||
+                                  cohesiveTiledParity)),
                     "CPU and overflow modes are exclusive");
             require(!armijoAlphaPublication ||
                         !(cpuOnly || overflow || prescribedBoxOverflow ||
@@ -4455,7 +5206,8 @@ int main(int argc, const char* argv[]) {
                           sparsePrivateOverflow || sparsePrivateAdmission ||
                           sparsePrivateHighPairAdmission || sparseFreeBodyParity ||
                           sparseFreeBodyOverflow || selfSurfaceScratchAliasParity ||
-                          cohesiveScratchAliasParity || regionalContactPreconditioner ||
+                          cohesiveScratchAliasParity || cohesiveTiledParity ||
+                          regionalContactPreconditioner ||
                           extendedBudget || accuratePaper || compensatedMaterialArithmetic ||
                           authoredNewtonIterations != 0u ||
                           !diagnosticStateOutputPath.empty()),
@@ -4485,6 +5237,16 @@ int main(int argc, const char* argv[]) {
                     "cohesive scratch alias parity must run separately from sparse private modes");
             require(!(selfSurfaceScratchAliasParity && cohesiveScratchAliasParity),
                     "run one scratch-alias parity mode at a time");
+            require(!cohesiveTiledParity ||
+                        !(overflow || prescribedBoxOverflow ||
+                          prescribedBoxSweepReject || prescribedBoxTranslation ||
+                          privateSelfSweep || sparseModeCount != 0u ||
+                          selfSurfaceScratchAliasParity ||
+                          cohesiveScratchAliasParity || regionalContactPreconditioner ||
+                          extendedBudget || accuratePaper ||
+                          compensatedMaterialArithmetic ||
+                          authoredNewtonIterations != 0u),
+                    "tiled cohesive parity owns its solver and material settings");
             require(!selfSurfaceScratchAliasParity ||
                         !(overflow || prescribedBoxOverflow ||
                           prescribedBoxSweepReject || prescribedBoxTranslation ||
@@ -4508,11 +5270,26 @@ int main(int argc, const char* argv[]) {
 #endif
             require(diagnosticStateOutputPath.empty() || sparsePrivateParity ||
                         sparsePrivateOverflow || selfSurfaceScratchAliasParity ||
-                        cohesiveScratchAliasParity || sparseFreeBodyParity ||
-                        sparseFreeBodyOverflow,
+                        cohesiveScratchAliasParity || cohesiveTiledParity ||
+                        sparseFreeBodyParity || sparseFreeBodyOverflow,
                     "diagnostic state output is supported only for retained contact parity or overflow modes");
             require(!(cpuOnly && !diagnosticStateOutputPath.empty()),
                     "diagnostic state export requires a native transaction run");
+            // This parity fixture owns its numerical setup. The same material
+            // policy and solver budgets are applied to both legacy and tiled
+            // arms so that the comparison reaches the tiled force path under
+            // the already-qualified local-projection and convergence settings.
+            // The strict 1e-7 relative residual remains unchanged in makeWorld().
+            // User-supplied modifiers remain rejected above to keep the fixture
+            // protocol deterministic and visible in its output.
+            if (cohesiveTiledParity) {
+                extendedBudget = true;
+                accuratePaper = true;
+                regionalContactPreconditioner = true;
+                std::cout << "tiled_fixture_owned_numerics=accurate_paper,regional_contact,"
+                             "fgmres256,restart16,line_search24,newton32"
+                             " residual_tolerance_unchanged=1e-7\n";
+            }
             if (extendedBudget) std::cout <<
                 "authored_extended_budget=fgmres256,restart16,line_search24 relative_residual_unchanged=1e-7\n";
             std::cout << "authored_newton_iterations=" <<
@@ -4547,6 +5324,10 @@ int main(int argc, const char* argv[]) {
                 verifyPrivateSelfSweepValidator();
                 std::cout << "PASS private self-sweep validator fixture"
                           << " checks=" << checks << '\n';
+                return 0;
+            }
+            if (cohesiveTiledParity) {
+                runTiledCohesiveParity(bulk);
                 return 0;
             }
             MeshAndWorld source = makeWorld(

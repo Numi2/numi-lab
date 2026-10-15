@@ -1,0 +1,415 @@
+--- a/matter/tools/cardboard_full_contact_armijo_check.mm
++++ b/matter/tools/cardboard_full_contact_armijo_check.mm
+@@ -69,6 +69,7 @@
+ std::uint32_t authoredNewtonIterations = 0u;
+ 
+ std::string diagnosticStateOutputPath;
++std::string tiledParityCurrentStage = "not_started";
+ 
+ std::string indexedDiagnosticStem(const std::uint64_t index) {
+     std::ostringstream stem;
+@@ -2692,17 +2693,26 @@
+         const bool aliasCohesiveCandidateScratch = false,
+         const std::uint32_t cohesivePatchTileCount = 1u,
+         const bool exerciseClosureAndNonuniformShear = false) {
++    tiledParityCurrentStage = "geometry_build";
+     MeshAndWorld source = makeWorld(
+         bulk, false, true, 5.0e-6, false, cohesivePatchTileCount);
+     verifyPartialMortarSource(source);
+     std::unique_ptr<Fixture> run;
+     std::string initializationTrace;
++    tiledParityCurrentStage = "fixture_initialization";
+     {
+         StderrCapture capture;
+-        run = std::make_unique<Fixture>(source, false, false, false, false,
+-            aliasProductionSurfaceScratch, aliasCohesiveCandidateScratch);
++        try {
++            run = std::make_unique<Fixture>(source, false, false, false, false,
++                aliasProductionSurfaceScratch, aliasCohesiveCandidateScratch);
++        } catch (...) {
++            initializationTrace = capture.finish();
++            retainFixtureTrace("initialization", initializationTrace);
++            throw;
++        }
+         initializationTrace = capture.finish();
+     }
++    retainFixtureTrace("initialization", initializationTrace);
+     if (std::getenv("NM_FEM_FULL_CONTACT_TILED_COHESIVE") != nullptr) {
+         const std::uint32_t expectedPages = cohesivePatchTileCount;
+         require(initializationTrace.find("fem_cohesive_private_page_arena=") !=
+@@ -2740,12 +2750,20 @@
+         // so this test observes advancement, rather than comparing 0 with 0
+         // after a genuinely accepted first transaction.
+         setenv("NM_FEM_RESIDUAL_ARMIJO_TRACE_ROOT", "1", 1);
+-        closed = run->step(1u, false, true);
++        tiledParityCurrentStage = "activation_step";
++        try {
++            closed = run->step(1u, false, true);
++        } catch (...) {
++            captured = stderrCapture.finish();
++            retainFixtureTrace("activation", captured);
++            throw;
++        }
+         captured = stderrCapture.finish();
+     }
+     closed.trace = captured;
+     retainFixtureTrace("activation", captured);
+     emitSelectedDeformableContactCapture(captured);
++    tiledParityCurrentStage = "activation_validation";
+     require(captured.find("fem_full_contact_residual_armijo_enabled=") !=
+                 std::string::npos &&
+             captured.find("fem_full_contact_residual_armijo_skipped=") ==
+@@ -2781,12 +2799,20 @@
+         StepResult closureStep;
+         {
+             StderrCapture stderrCapture;
+-            closureStep = run->step(2u, false, false, false, false,
+-                                    &closureTargets);
++            tiledParityCurrentStage = "closure_step";
++            try {
++                closureStep = run->step(2u, false, false, false, false,
++                                        &closureTargets);
++            } catch (...) {
++                closureTrace = stderrCapture.finish();
++                retainFixtureTrace("closure", closureTrace);
++                throw;
++            }
+             closureTrace = stderrCapture.finish();
+         }
+         closureStep.trace = closureTrace;
+         retainFixtureTrace("closure", closureTrace);
++        tiledParityCurrentStage = "closure_validation";
+         requireAccepted(closureStep.snapshot);
+         requireGripTargetsAccepted(closureStep.snapshot, *run,
+                                    closureTargets, "accepted closure");
+@@ -2827,13 +2853,21 @@
+     }
+     {
+         StderrCapture stderrCapture;
+-        loaded = run->step(loadedStep, false, false, false, false,
+-            exerciseClosureAndNonuniformShear ? &loadingTargets : nullptr);
++        tiledParityCurrentStage = "loaded_step";
++        try {
++            loaded = run->step(loadedStep, false, false, false, false,
++                exerciseClosureAndNonuniformShear ? &loadingTargets : nullptr);
++        } catch (...) {
++            loadedTrace = stderrCapture.finish();
++            retainFixtureTrace("loaded", loadedTrace);
++            throw;
++        }
+         loadedTrace = stderrCapture.finish();
+     }
+     loaded.trace = loadedTrace;
+     retainFixtureTrace("loaded", loadedTrace);
+     emitSelectedDeformableContactCapture(loadedTrace);
++    tiledParityCurrentStage = "loaded_validation";
+     requireAccepted(loaded.snapshot);
+     if (exerciseClosureAndNonuniformShear) {
+         const CohesiveMortarPatchSource& patch =
+@@ -2873,12 +2907,20 @@
+     StepResult rejected;
+     {
+         StderrCapture stderrCapture;
+-        rejected = run->step(exerciseClosureAndNonuniformShear ? 4u : 3u,
+-                             true, false);
++        tiledParityCurrentStage = "rejected_step";
++        try {
++            rejected = run->step(exerciseClosureAndNonuniformShear ? 4u : 3u,
++                                 true, false);
++        } catch (...) {
++            rejectedTrace = stderrCapture.finish();
++            retainFixtureTrace("rejected", rejectedTrace);
++            throw;
++        }
+         rejectedTrace = stderrCapture.finish();
+     }
+     rejected.trace = rejectedTrace;
+     retainFixtureTrace("rejected", rejectedTrace);
++    tiledParityCurrentStage = "rollback_validation";
+     require(rejectedTrace.find("fem_full_contact_residual_armijo_enabled=") !=
+                 std::string::npos &&
+             rejectedTrace.find("fem_residual_armijo_iteration=") !=
+@@ -2912,6 +2954,7 @@
+                 beforeFailure.deformableContactHistories.size() *
+                     sizeof(NMDeformableContactHistoryGPU)) == 0,
+             "rejected full-contact transaction changed accepted deformable-contact history");
++    tiledParityCurrentStage = "sequence_complete";
+     std::cout << "full_contact_rejection_rollback=pass certificate_cleared=true"
+               << " cursor_and_all_histories_unchanged=true\n";
+     return {initial, std::move(closed), std::move(closure),
+@@ -2939,9 +2982,143 @@
+     std::cout << "tiled_zero_face=fail_closed_before_transaction=true\n";
+ }
+ 
++std::string tiledParityJsonEscape(const std::string& value) {
++    std::ostringstream escaped;
++    for (const unsigned char character : value) {
++        switch (character) {
++            case '"': escaped << "\\\""; break;
++            case '\\': escaped << "\\\\"; break;
++            case '\n': escaped << "\\n"; break;
++            case '\r': escaped << "\\r"; break;
++            case '\t': escaped << "\\t"; break;
++            default:
++                if (character < 0x20u) {
++                    escaped << "\\u00" << std::hex << std::setw(2)
++                            << std::setfill('0') << unsigned(character)
++                            << std::dec;
++                } else {
++                    escaped << static_cast<char>(character);
++                }
++        }
++    }
++    return escaped.str();
++}
++
+ AcceptedRollbackSequence runTiledSequence(
+         const MaterialProgram& bulk,
+         const std::uint32_t faceCount,
++        const bool tiled);
++
++struct TiledParityDiagnosticArm {
++    std::uint32_t faceCount = 0u;
++    std::string label;
++    std::string stage;
++    std::string error;
++    std::optional<AcceptedRollbackSequence> sequence;
++    std::uint64_t transactionCount = 0u;
++};
++
++TiledParityDiagnosticArm runTiledDiagnosticArm(
++        const MaterialProgram& bulk,
++        const std::uint32_t faceCount,
++        const bool tiled,
++        const std::filesystem::path& outputRoot) {
++    TiledParityDiagnosticArm arm;
++    arm.faceCount = faceCount;
++    arm.label = tiled ? "tiled" : "legacy";
++    const auto faceDirectory = outputRoot /
++        ("face-count-" + std::to_string(faceCount));
++    std::filesystem::create_directories(faceDirectory);
++    const auto armDirectory = faceDirectory / arm.label;
++    if (std::filesystem::exists(armDirectory))
++        throw std::runtime_error("refusing to replace tiled parity diagnostics: " +
++                                 armDirectory.string());
++
++    const std::string previousOutputPath = diagnosticStateOutputPath;
++    std::unique_ptr<DiagnosticStateOutput> previousOutput =
++        std::move(diagnosticStateOutput);
++    diagnosticStateOutputPath = armDirectory.string();
++    diagnosticStateOutput = std::make_unique<DiagnosticStateOutput>(
++        diagnosticStateOutputPath);
++    arm.transactionCount = nativeFEMTransactionsExecuted;
++    tiledParityCurrentStage = "arm_start";
++    try {
++        arm.sequence = runTiledSequence(bulk, faceCount, tiled);
++        arm.stage = "sequence_complete";
++    } catch (const std::exception& error) {
++        arm.stage = tiledParityCurrentStage;
++        arm.error = error.what();
++    } catch (...) {
++        arm.stage = tiledParityCurrentStage;
++        arm.error = "non-standard exception";
++    }
++    arm.transactionCount = nativeFEMTransactionsExecuted - arm.transactionCount;
++    diagnosticStateOutput.reset();
++    diagnosticStateOutput = std::move(previousOutput);
++    diagnosticStateOutputPath = previousOutputPath;
++
++    const auto resultPath = armDirectory / "arm-result.json";
++    std::ofstream result(resultPath, std::ios::out | std::ios::trunc);
++    if (!result)
++        throw std::runtime_error("could not write tiled parity arm result");
++    result << "{\"schema\":\"numi.cardboard.tiled_cohesive_parity_arm.v1\""
++           << ",\"face_count\":" << faceCount
++           << ",\"layout\":\"" << arm.label << "\""
++           << ",\"status\":\""
++           << (arm.sequence.has_value() ? "completed" : "failed_prefix")
++           << "\",\"last_stage\":\""
++           << tiledParityJsonEscape(arm.stage) << "\""
++           << ",\"native_transactions_executed\":"
++           << arm.transactionCount
++           << ",\"error\":\""
++           << tiledParityJsonEscape(arm.error) << "\"}\n";
++    result.flush();
++    if (!result)
++        throw std::runtime_error("incomplete tiled parity arm result");
++    return arm;
++}
++
++void writeTiledParityDiagnosticSummary(
++        const std::filesystem::path& outputRoot,
++        const std::vector<TiledParityDiagnosticArm>& arms,
++        const std::string& comparisonStatus,
++        const std::string& comparisonError) {
++    const auto summaryPath = outputRoot / "tiled-parity-result.json";
++    std::ofstream summary(summaryPath, std::ios::out | std::ios::trunc);
++    if (!summary)
++        throw std::runtime_error("could not write tiled parity summary");
++    summary << "{\"schema\":\"numi.cardboard.tiled_cohesive_parity_run.v1\""
++            << ",\"physical_validation\":false"
++            << ",\"solver_or_material_inputs_changed\":false"
++            << ",\"command_schedule\":\"same activation, closure, opening/shear, and rollback calls for all arms\""
++            << ",\"comparison_status\":\""
++            << tiledParityJsonEscape(comparisonStatus) << "\""
++            << ",\"comparison_error\":\""
++            << tiledParityJsonEscape(comparisonError) << "\""
++            << ",\"arms\":[";
++    for (std::size_t index = 0; index < arms.size(); ++index) {
++        if (index != 0u) summary << ',';
++        const auto& arm = arms[index];
++        summary << "{\"face_count\":" << arm.faceCount
++                << ",\"layout\":\""
++                << tiledParityJsonEscape(arm.label) << "\""
++                << ",\"status\":\""
++                << (arm.sequence.has_value() ? "completed" : "failed_prefix")
++                << "\",\"last_stage\":\""
++                << tiledParityJsonEscape(arm.stage) << "\""
++                << ",\"native_transactions_executed\":"
++                << arm.transactionCount
++                << ",\"error\":\""
++                << tiledParityJsonEscape(arm.error) << "\"}";
++    }
++    summary << "]}\n";
++    summary.flush();
++    if (!summary) throw std::runtime_error("incomplete tiled parity summary");
++}
++
++AcceptedRollbackSequence runTiledSequence(
++        const MaterialProgram& bulk,
++        const std::uint32_t faceCount,
+         const bool tiled) {
+     ScopedEnvironmentValue tiledMode(
+         "NM_FEM_FULL_CONTACT_TILED_COHESIVE", tiled ? "1" : nullptr);
+@@ -2953,7 +3130,12 @@
+ 
+ void runTiledCohesiveParity(const MaterialProgram& bulk) {
+     const std::uint64_t transactionCountAtStart = nativeFEMTransactionsExecuted;
+-    {
++    const bool retainDiagnostics = !diagnosticStateOutputPath.empty();
++    const std::filesystem::path outputRoot(diagnosticStateOutputPath);
++    if (retainDiagnostics && !std::filesystem::create_directory(outputRoot))
++        throw std::runtime_error(
++            "tiled parity diagnostic output must name a new, unused directory");
++    if (!retainDiagnostics) {
+         ScopedEnvironmentValue tiledMode(
+             "NM_FEM_FULL_CONTACT_TILED_COHESIVE", "1");
+         ScopedEnvironmentValue pageFaces(
+@@ -2961,6 +3143,96 @@
+         runTiledZeroFaceReject(bulk);
+     }
+ 
++    if (retainDiagnostics) {
++        try {
++            ScopedEnvironmentValue tiledMode(
++                "NM_FEM_FULL_CONTACT_TILED_COHESIVE", "1");
++            ScopedEnvironmentValue pageFaces(
++                "NM_FEM_FULL_CONTACT_TILED_COHESIVE_PAGE_FACES", nullptr);
++            runTiledZeroFaceReject(bulk);
++            std::ofstream zeroFace(outputRoot / "zero-face-control.txt",
++                                   std::ios::out | std::ios::trunc);
++            if (!zeroFace)
++                throw std::runtime_error("could not retain zero-face control result");
++            zeroFace << "status=failed_closed_before_transaction\n"
++                     << "interpretation=expected_negative_control\n";
++        } catch (const std::exception& error) {
++            std::ofstream zeroFace(outputRoot / "zero-face-control.txt",
++                                   std::ios::out | std::ios::trunc);
++            if (zeroFace)
++                zeroFace << "status=control_failed\nerror=" << error.what() << '\n';
++            throw;
++        }
++        std::vector<TiledParityDiagnosticArm> arms;
++        arms.reserve(4u);
++        arms.push_back(runTiledDiagnosticArm(bulk, 1u, false, outputRoot));
++        arms.push_back(runTiledDiagnosticArm(bulk, 1u, true, outputRoot));
++        arms.push_back(runTiledDiagnosticArm(bulk, 3u, false, outputRoot));
++        arms.push_back(runTiledDiagnosticArm(bulk, 3u, true, outputRoot));
++
++        std::string comparisonStatus = "failed_prefix_partial_comparison";
++        std::string comparisonError;
++        try {
++            const auto comparePair = [&](const std::size_t legacyIndex,
++                                         const std::size_t tiledIndex,
++                                         const char* label) {
++                if (!arms[legacyIndex].sequence.has_value() ||
++                    !arms[tiledIndex].sequence.has_value()) return;
++                const AcceptedRollbackSequence& legacy =
++                    *arms[legacyIndex].sequence;
++                const AcceptedRollbackSequence& tiled =
++                    *arms[tiledIndex].sequence;
++                requireSnapshotOperatorParity(legacy.initial, tiled.initial,
++                    (std::string(label) + " initial dormant state").c_str());
++                requireSnapshotOperatorParity(legacy.activation.snapshot,
++                    tiled.activation.snapshot,
++                    (std::string(label) + " accepted activation").c_str());
++                require(legacy.closure.has_value() == tiled.closure.has_value(),
++                    std::string(label) + " arms disagree on closure completion");
++                if (legacy.closure.has_value())
++                    requireSnapshotOperatorParity(legacy.closure->snapshot,
++                        tiled.closure->snapshot,
++                        (std::string(label) + " accepted closure").c_str());
++                requireSnapshotOperatorParity(legacy.loaded.snapshot,
++                    tiled.loaded.snapshot,
++                    (std::string(label) + " accepted nonuniform opening/shear").c_str());
++                requireSnapshotOperatorParity(legacy.rejected.snapshot,
++                    tiled.rejected.snapshot,
++                    (std::string(label) + " rejected post-commit rollback").c_str());
++            };
++            comparePair(0u, 1u, "one-face");
++            comparePair(2u, 3u, "three-face multipage");
++            const bool allCompleted = std::all_of(arms.begin(), arms.end(),
++                [](const TiledParityDiagnosticArm& arm) {
++                    return arm.sequence.has_value();
++                });
++            if (allCompleted) comparisonStatus = "operator_parity_pass";
++        } catch (const std::exception& error) {
++            comparisonStatus = "comparison_failed";
++            comparisonError = error.what();
++        }
++        writeTiledParityDiagnosticSummary(outputRoot, arms,
++                                           comparisonStatus, comparisonError);
++        const bool allCompleted = std::all_of(arms.begin(), arms.end(),
++            [](const TiledParityDiagnosticArm& arm) {
++                return arm.sequence.has_value();
++            });
++        if (!allCompleted || comparisonStatus != "operator_parity_pass")
++            throw std::runtime_error(
++                "tiled cohesive parity diagnostics retained; one or more arms "
++                "failed before full comparison");
++        std::cout << "PASS tiled cohesive full-contact parity"
++                  << " checks=" << checks
++                  << " native_fem_transactions_executed="
++                  << (nativeFEMTransactionsExecuted - transactionCountAtStart)
++                  << " face_count_cases=1,3 page_capacity=1 page_count_cases=1,3"
++                  << " accepted_activation=true accepted_closure=true"
++                  << " accepted_nonuniform_opening_shear=true"
++                  << " reject_rollback=true snapshot_history_certificate_bitwise=true"
++                  << " physical_validation=false synthetic_law=true\n";
++        return;
++    }
++
+     const AcceptedRollbackSequence legacyOne =
+         runTiledSequence(bulk, 1u, false);
+     const AcceptedRollbackSequence tiledOne =
+@@ -4973,8 +5245,7 @@
+                           cohesiveScratchAliasParity || regionalContactPreconditioner ||
+                           extendedBudget || accuratePaper ||
+                           compensatedMaterialArithmetic ||
+-                          authoredNewtonIterations != 0u ||
+-                          !diagnosticStateOutputPath.empty()),
++                          authoredNewtonIterations != 0u),
+                     "tiled cohesive parity owns its solver and material settings");
+             require(!selfSurfaceScratchAliasParity ||
+                         !(overflow || prescribedBoxOverflow ||
+@@ -4999,8 +5270,8 @@
+ #endif
+             require(diagnosticStateOutputPath.empty() || sparsePrivateParity ||
+                         sparsePrivateOverflow || selfSurfaceScratchAliasParity ||
+-                        cohesiveScratchAliasParity || sparseFreeBodyParity ||
+-                        sparseFreeBodyOverflow,
++                        cohesiveScratchAliasParity || cohesiveTiledParity ||
++                        sparseFreeBodyParity || sparseFreeBodyOverflow,
+                     "diagnostic state output is supported only for retained contact parity or overflow modes");
+             require(!(cpuOnly && !diagnosticStateOutputPath.empty()),
+                     "diagnostic state export requires a native transaction run");

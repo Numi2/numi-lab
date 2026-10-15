@@ -526,8 +526,8 @@ void run() {
             std::abs(cases[0].massKg - 0.5 * 100.0 / 9.80665) < 1.0e-14 &&
             cases[0].restoreCheckpointSha256 == cases[5].restoreCheckpointSha256 &&
             std::abs(cases[1].impactorCenterZ - 0.152) < 1.0e-14 &&
-            std::abs(cases[0].impactorPlanLengthM - 0.372) < 1.0e-14 &&
-            std::abs(cases[0].impactorPlanWidthM - 0.2496) < 1.0e-14 &&
+            std::abs(cases[0].impactorPlanLengthM - std::sqrt(1.2) * 0.310) < 1.0e-14 &&
+            std::abs(cases[0].impactorPlanWidthM - std::sqrt(1.2) * 0.208) < 1.0e-14 &&
             cases[0].impactorPlanBasis.find("accepted outer-roof") !=
                 std::string::npos &&
             std::abs(cases[1].impactorStartCenterY -

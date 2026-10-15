@@ -235,15 +235,17 @@ void testWorldInertiaCheckpointUsesAcceptedOrientation() {
 void testMeasuredRoofFootprintBinding() {
     const auto nominal = shippingAuthoredNominalImpactorHalfExtents(
         0.300, 0.200, 0.025);
-    require(nominal == std::array<double, 3>{0.180, 0.025, 0.120},
-            "authored nominal impactor should be 1.2 times nominal outer dimensions");
+    require(std::abs(4.0 * nominal[0] * nominal[2] / (0.300 * 0.200) - 1.2) < 1.0e-14 &&
+                std::abs(nominal[0] / nominal[2] - 1.5) < 1.0e-14 && nominal[1] == 0.025,
+            "authored nominal impactor must have 20 percent larger area and preserve aspect ratio");
     ShippingOuterRoofMeasurement measurement;
     measurement.bounds.minimumX = -0.050;
     measurement.bounds.maximumX = 0.050;
     measurement.bounds.minimumZ = 0.100;
     measurement.bounds.maximumZ = 0.300;
     measurement.bounds.valid = true;
-    const std::array<double, 3> measured{0.060, 0.025, 0.120};
+    const std::array<double, 3> measured{0.5 * std::sqrt(1.2) * 0.100, 0.025,
+                                         0.5 * std::sqrt(1.2) * 0.200};
     require(shippingImpactorHalfExtentsMatchMeasuredRoof(measurement, measured),
             "roof-derived half-extents were not matched to their measured bounds");
     auto mismatched = measured;
@@ -643,9 +645,10 @@ void testCompressionAndFpeakSchedules() {
     acceptedCheckpoint.measuredOuterRoof.bounds = {
         -0.150, 0.150, -0.100, 0.100, 0.200, 12u, true};
     const auto cases = makeShippingDropCases(acceptedPeak, acceptedCheckpoint);
-    require(cases.size() == 6u && cases[0].impactorPlanLengthM == 0.36 &&
-            cases[0].impactorPlanWidthM == 0.24,
-            "shipping drop impactor footprint is not 1.2 times the 300 by 200 mm top");
+    require(cases.size() == 6u && std::abs(cases[0].impactorPlanLengthM * cases[0].impactorPlanWidthM /
+                         (0.300 * 0.200) - 1.2) < 1.0e-14 &&
+            std::abs(cases[0].impactorPlanLengthM / cases[0].impactorPlanWidthM - 1.5) < 1.0e-14,
+            "shipping drop impactor footprint must have 20 percent larger area at the measured aspect ratio");
     constexpr std::array<double, 3> ratios{0.5, 1.0, 1.5};
     for (std::size_t index = 0u; index < cases.size(); ++index) {
         const auto& item = cases[index];

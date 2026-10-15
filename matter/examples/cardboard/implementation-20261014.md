@@ -1,11 +1,16 @@
 # Cardboard implementation and evidence ledger
 
-Current continuation: source079 builds all60 targets and passes all67 selected
-CPU checks. It repairs exhausted-trial shared fractions and adds bounded graph
-layout fallback plus opt-in deterministic contact incidence and parallel LU
-search. Actual first-control263/264 histories match257 byte for byte. Direct
-native259–261 pass their bounded checks. Free-body262 and refined-mesh265 still
-fail; complete coupon247/258 reject after one accepted control. See
+Current continuation: source086 builds all65 targets and passes all71 selected
+CPU checks. The scoped, dimensionally scaled15-state projection policy passes
+all16 selected captured native material points in285. This is a local numerical
+check, not a complete coupon. Default-disabled conditioning run283 preserves
+all64 Armijo records and accepted payloads from263 byte for byte. Opt-in
+accepted-correction recycling284 regresses that first control and remains
+disabled. Free-body278/279/286 and tiled-cohesive280 remain failed; coupled
+candidate readback286 is still skipped by its independent arena scope guard.
+Complete coupon247/258/266 reject after one accepted control. Local-policy
+attempt288 normally rejects its first control after371.71s, with status5 at
+tet1528; its first failing material/deformation layer remains under diagnosis. See
 [solver progress](solver-progress-20261014.md) for exact scopes and retained
 failures. No complete mesh/time study, accepted fixture-free shipping assembly,
 qualified capacity, gravity crush or drop impact exists.
@@ -27,7 +32,7 @@ exists from which to execute the gravity or drop branches.
 
 | Verdict | Current evidence | Remaining qualification |
 | --- | --- | --- |
-| Solver correctness | Shared FEM/rigid tested update fraction repaired; exact-word material, element and assembled action checks; stable graph prefix and dynamic grip transactions; smooth BOX action independently differentiated at 50/80 digits; bounded coupled damage/bond/checkpoint transactions; source077 stateless precision and admission CPU checks | Compensated native255/262 advances beyond the old setup but the free-body trajectory remains failed. Exhausted fractions are repaired; the reported post-failure residual jump remains under diagnosis. Near-zero FP32 differences remain inconclusive where unresolved |
+| Solver correctness | Shared tested update fractions and rollback; selected exact-word independent material/element/assembled actions; native285 local accuracy policy on16 captured points; source08665targets/71CPU checks | Full coupon/contact trajectories remain failed. Recycling284 is a conditioning regression and stays disabled. Selected action accuracy is not all-direction or near-zero qualification; candidate capture286 still exceeds its diagnostic scope |
 | Numerical convergence | Complete-history runners preserve duration, paths, rate, tolerances and failed cases | No complete 8/16/32, 2/4/8, 1/2/4 or timestep triplet has qualified. A first-control pass is not a complete coupon |
 | Component calibration | Versioned published curves, pixel uncertainty, bilinear tensile fits and explicit compression/shear assumptions; synthetic progressive-damage and interface laws execute transactionally | No matched corrugated damage or local starch/HMA fracture identification; source-grade transfer and Robertsson absolute-energy convention remain open |
 | Analogue validation | Separate ECT, scored-bend, pin and BCT series with source identities and transfer rules | Whole native source fixtures and held-out comparisons. Partial pin windows cannot supply full peaks or full work; unrelated grades cannot be labeled same grade |

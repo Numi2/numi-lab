@@ -1,0 +1,46 @@
+{
+  "schema": "numi.cardboard.integrated-source-overlay.v1",
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-tiled-cohesive-and-portable-coupled-check-082",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-portable-bct-binding-tests-081",
+  "overlay_patch_sha256": "838b7cd357823ed3583d17994f79039e0eeff520bff86058a7e5ee0235e7f64b",
+  "coupled_fixture_original_sha256": "a9861e58b8dfc89761c11119005a2e215510cd8ceb48a7666a700d7527a3b9c4",
+  "changed": {
+    "matter/CMakeLists.txt": {
+      "before": "d4e73d1d8fb1d659da1e56035cfa31f72cf12fac87b93c5c746dbfae7e36bcb3",
+      "after": "e98eb35e831d94089326992389aad8fac3fb40bc06b2e2364c114bae9e2a96be"
+    },
+    "matter/src/metal/fem.metalinc": {
+      "before": "a88938e11b76a6c6b4ade53007bca543c642828e9a6c91ae5ddb66e9bda0bda9",
+      "after": "f4b5cd60dbe7ace7a54636746a00b5e7186d6c1f4890eb0718c138af9c753ae4"
+    },
+    "matter/src/runtime.mm": {
+      "before": "951cfaeafb3bee22b547ff4d8f9fce2c5c9c226364deecf8f4205e13c742cb56",
+      "after": "3962403a2ea6441012ddcb2402770a5712342242232825eb374de823cdd5bddd"
+    },
+    "matter/src/runtime.mm.orig": {
+      "before": null,
+      "after": "951cfaeafb3bee22b547ff4d8f9fce2c5c9c226364deecf8f4205e13c742cb56"
+    },
+    "matter/tools/cardboard_cohesive_armijo_tiles.hpp": {
+      "before": null,
+      "after": "7dba67cc95f9f4271d2b277fd40b35ee82c33c6a59757d24ab4c0be0b4a4f2c6"
+    },
+    "matter/tools/cardboard_cohesive_armijo_tiles_check.cpp": {
+      "before": null,
+      "after": "34fc33e8c080f9a01f1b46f9f3bcf0fd86198effd8fdfd31ca7bb47db4b1cdd3"
+    },
+    "matter/tools/cardboard_coupled_free_box_operator_check.mm": {
+      "before": null,
+      "after": "f0958dd5a90b0cb2f725de3cae4f4a2d0f05ff8cccf8d08bde8ed93c2170e465"
+    },
+    "matter/tools/cardboard_full_contact_armijo_check.mm": {
+      "before": "c0e1d7079b36acea714570ab341143d305ca7f08c1d2304b2164bc6b52e7e112",
+      "after": "b7d0fa1a777c0f28438873bd5b84825d5bbc3bc2685c2e5052cbf20b33d2de1b"
+    },
+    "matter/tools/cardboard_full_contact_armijo_check.mm.orig": {
+      "before": null,
+      "after": "c0e1d7079b36acea714570ab341143d305ca7f08c1d2304b2164bc6b52e7e112"
+    }
+  },
+  "scope": "Opt-in bounded ordered cohesive trial force pages with transactional histories; portable coupled FEM/rigid full-operator reference fixture; includes BCT binding harness080 and portable tests081. No shipping-scale or physical qualification."
+}

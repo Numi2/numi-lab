@@ -1,0 +1,6 @@
+[  0%] Built target numi_cardboard_paper_shaders
+[ 50%] Built target numi_matter_compiler_objects
+[100%] Built target numi_matter_compiler
+[100%] Building OBJCXX object matter/CMakeFiles/numi-matter-cardboard-bilinear15-captured-point-check.dir/tools/cardboard_bilinear15_captured_point_check.mm.o
+[100%] Linking CXX executable numi-matter-cardboard-bilinear15-captured-point-check
+[100%] Built target numi-matter-cardboard-bilinear15-captured-point-check

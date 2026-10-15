@@ -352,15 +352,16 @@ physical coupon, material calibration or shipping-box trajectory.
 
 The published cardboard milestone adds bounded native graph-patch conditioning,
 shared FEM/rigid line-search fraction publication and exact-word FP64 replay.
-Source073 passes 54 build targets and 62 selected CPU checks. Source077 passes
-57 build targets and 66 selected CPU checks, including the narrowly admitted
-stateless compensated-material option and strict published-data evidence
-admission. Native validation of that precision option remains pending. The source076
-continuation adds dynamic grip coverage while restoring byte-identical output
-for that successful first coupon control, plus bounded coupled damage/bond
-transactions and a high-precision smooth BOX derivative audit. Its complete
-cycle remains unqualified; the retained strict contact setup still fails.
-Its compiler-admission CPU failure is repaired in source077. Full loading/release convergence,
+Source086 passes65 build targets and71 selected CPU checks. Its scoped local
+projection policy passes16 selected captured native material points against
+independent references. Default-disabled conditioning preserves the successful
+first coupon control byte for byte; opt-in accepted-correction recycling
+regresses that control and remains disabled. Ordered private cohesive pages
+have bounded accounting, but native parity and shipping-scale admission remain
+open. Coupled candidate readback still skips the failed fixture's reserved
+arena scope, and complete coupon trajectories remain failed. Dynamic grip,
+synthetic damage/bond transactions and smooth BOX derivative checks are bounded
+component evidence. Full loading/release convergence,
 calibrated corrugated failure, shipping-box assembly and crushing remain open. See
 [the solver evidence ledger](examples/cardboard/solver-progress-20261014.md)
 and [the source-bound archive](examples/cardboard/evidence/native-implementation-20261014/summary.json)

@@ -1,0 +1,531 @@
+--- a/matter/include/numi/matter/matter.hpp
++++ b/matter/include/numi/matter/matter.hpp
+@@ -242,6 +242,10 @@
+     // persistent state remains FP32; unsupported scalar opcodes/layouts fail
+     // compiler or world validation rather than falling back to ordinary math.
+     bool genericCompensatedImplicitProjection = false;
++    // Opt-in scaled residual/correction convergence for the retained 15-state
++    // bilinear Hill bytecode law. Requires genericCompensatedImplicitProjection;
++    // it changes only the local projection solve policy and iteration budget.
++    bool genericBilinear15AccurateProjection = false;
+     std::vector<Parameter> parameters;
+     std::vector<InternalState> internalState;
+     ExpressionGraph expressions;
+--- a/matter/include/numi/matter/shared.h
++++ b/matter/include/numi/matter/shared.h
+@@ -157,6 +157,7 @@
+     NM_MATERIAL_PAPER_COMPENSATED_ARITHMETIC = 1u << 4u,
+     NM_MATERIAL_PAPER_HILL_ACCURATE_PROJECTION = 1u << 5u,
+     NM_MATERIAL_GENERIC_COMPENSATED_IMPLICIT_PROJECTION = 1u << 6u,
++    NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION = 1u << 7u,
+ };
+ 
+ enum NMMaterialProjectionKind : nm_u32 {
+--- a/matter/src/constitutive_impl.cpp
++++ b/matter/src/constitutive_impl.cpp
+@@ -1073,7 +1073,8 @@
+     result.program.material = material;
+     if (material.paperHillScalarInitializer || material.paperCompensatedArithmetic ||
+         material.paperHillAccurateProjection ||
+-        material.genericCompensatedImplicitProjection) {
++        material.genericCompensatedImplicitProjection ||
++        material.genericBilinear15AccurateProjection) {
+         const std::array<std::string_view,20> parameters{"density","c11","c22","c33",
+             "c12","c13","c23","g12","g13","g23","sigma_ref","hill_F","hill_G",
+             "hill_H","hill_L","hill_M","hill_N","q_floor","fb_epsilon","residual_scale"};
+@@ -1105,6 +1106,33 @@
+             material.stateImplicitRoots.size()==material.internalState.size() &&
+             std::ranges::all_of(material.stateImplicitRoots,
+                 [](const std::uint32_t root) { return root!=NM_INVALID_INDEX; });
++        const std::array<std::string_view,28> bilinear15Parameters{
++            "density","c11","c22","c33","c12","c13","c23","g12","g13","g23",
++            "sigma_ref","hill_F","hill_G","hill_H","hill_L","hill_M","hill_N",
++            "hardening_md","hardening_cd","fit_transfer_scale_md","fit_transfer_scale_cd",
++            "hardening_md_flow_scale","hardening_cd_flow_scale","hardening_smoothing_width",
++            "hardening_weight_scale","q_floor","fb_epsilon","residual_scale"};
++        const std::array<std::string_view,15> bilinear15States{
++            "ep11","ep22","ep33","ep23","ep13","ep12","sbar11","sbar22",
++            "sbar33","sbar23","sbar13","sbar12","accumulated_multiplier",
++            "hardening_md_accumulation","hardening_cd_accumulation"};
++        bool bilinear15AccurateLayout = material.genericBilinear15AccurateProjection &&
++            material.genericCompensatedImplicitProjection &&
++            !material.paperHillScalarInitializer &&
++            !material.paperHillAccurateProjection && material.hint==ConstitutiveHint::generic &&
++            material.dissipationRoot==NM_INVALID_INDEX && !material.learned.has_value() &&
++            material.parameters.size()==bilinear15Parameters.size() &&
++            material.internalState.size()==bilinear15States.size() &&
++            material.stateImplicitRoots.size()==bilinear15States.size() &&
++            std::ranges::all_of(material.stateImplicitRoots,
++                [](const std::uint32_t root) { return root!=NM_INVALID_INDEX; });
++        for (unsigned i=0;bilinear15AccurateLayout && i<bilinear15Parameters.size();++i)
++            bilinear15AccurateLayout=material.parameters[i].name==bilinear15Parameters[i] &&
++                std::isfinite(material.parameters[i].defaultValue);
++        for (unsigned i=0;bilinear15AccurateLayout && i<bilinear15States.size();++i)
++            bilinear15AccurateLayout=material.internalState[i].name==bilinear15States[i];
++        if (bilinear15AccurateLayout)
++            bilinear15AccurateLayout=material.parameters[26].defaultValue>0.0;
+         const auto rateOrHistoryDependency = [&](const std::uint32_t root) {
+             if (root == NM_INVALID_INDEX || root >= material.expressions.nodes.size())
+                 return root != NM_INVALID_INDEX;
+@@ -1149,6 +1177,7 @@
+             !rateOrHistoryDependency(material.validityRoot);
+         if((material.genericCompensatedImplicitProjection &&
+                 !genericProjectionLayout) ||
++           (material.genericBilinear15AccurateProjection && !bilinear15AccurateLayout) ||
+            ((material.paperHillScalarInitializer ||
+              material.paperCompensatedArithmetic ||
+              material.paperHillAccurateProjection) &&
+@@ -1416,7 +1445,9 @@
+         (material.paperCompensatedArithmetic ? NM_MATERIAL_PAPER_COMPENSATED_ARITHMETIC : 0u) |
+         (material.paperHillAccurateProjection ? NM_MATERIAL_PAPER_HILL_ACCURATE_PROJECTION : 0u) |
+         (material.genericCompensatedImplicitProjection
+-            ? NM_MATERIAL_GENERIC_COMPENSATED_IMPLICIT_PROJECTION : 0u);
++            ? NM_MATERIAL_GENERIC_COMPENSATED_IMPLICIT_PROJECTION : 0u) |
++        (material.genericBilinear15AccurateProjection
++            ? NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION : 0u);
+     gpu.stateInitialOffset = NM_INVALID_INDEX;
+     gpu.stateUpdateProgramOffset = NM_INVALID_INDEX;
+     gpu.dissipationProgram = NM_INVALID_INDEX;
+@@ -1431,7 +1462,7 @@
+     gpu.implicitJacobianProgramOffset = NM_INVALID_INDEX;
+     gpu.implicitDeformationProgramOffset = NM_INVALID_INDEX;
+     gpu.stressStateDerivativeProgramOffset = NM_INVALID_INDEX;
+-    gpu.localNewtonIterations = 8u;
++    gpu.localNewtonIterations = material.genericBilinear15AccurateProjection ? 16u : 8u;
+     gpu.stateTransferMask = 0u;
+     for (std::uint32_t state = 0u; state < material.internalState.size(); ++state) {
+         const auto transfer = material.internalState[state].transfer;
+@@ -1575,6 +1606,10 @@
+         const std::uint32_t policy=NM_MATERIAL_GENERIC_COMPENSATED_IMPLICIT_PROJECTION;
+         fingerprint=hashBytes(&policy,sizeof(policy),fingerprint);
+     }
++    if(material.genericBilinear15AccurateProjection) {
++        const std::uint32_t policy=NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION;
++        fingerprint=hashBytes(&policy,sizeof(policy),fingerprint);
++    }
+     if (result.program.dissipation.has_value()) {
+         fingerprint = hashBytes(
+             result.program.dissipation->instructions.data(),
+--- a/matter/src/compiler_impl.cpp
++++ b/matter/src/compiler_impl.cpp
+@@ -897,7 +897,9 @@
+         }
+         ConstitutiveProgram program = std::move(compiled.program);
+         const auto firstMaterialProgram=world.scalarPrograms.size();
+-        program.gpu.localNewtonIterations = options.localMaterialNewtonIterations;
++        program.gpu.localNewtonIterations =
++            program.material.genericBilinear15AccurateProjection
++                ? 16u : options.localMaterialNewtonIterations;
+         program.gpu.parameterOffset =
+             static_cast<nm_u32>(world.parameters.size());
+         program.gpu.stateInitialOffset =
+--- a/matter/src/validation_impl.cpp
++++ b/matter/src/validation_impl.cpp
+@@ -39,7 +39,8 @@
+     NM_MATERIAL_PAPER_HILL_SCALAR_INITIALIZER |
+     NM_MATERIAL_PAPER_COMPENSATED_ARITHMETIC |
+     NM_MATERIAL_PAPER_HILL_ACCURATE_PROJECTION |
+-    NM_MATERIAL_GENERIC_COMPENSATED_IMPLICIT_PROJECTION;
++    NM_MATERIAL_GENERIC_COMPENSATED_IMPLICIT_PROJECTION |
++    NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION;
+ constexpr std::uint32_t kKnownObjectFlags =
+     NM_OBJECT_ACTIVE |
+     NM_OBJECT_TWO_WAY_COUPLED |
+@@ -1091,6 +1092,8 @@
+             }
+             const bool genericCompensatedProjection =
+                 (material.flags & NM_MATERIAL_GENERIC_COMPENSATED_IMPLICIT_PROJECTION)!=0u;
++            const bool genericBilinear15AccurateProjection =
++                (material.flags & NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION)!=0u;
+             const bool finiteElasticStarchArithmetic =
+                 (material.flags & NM_MATERIAL_PAPER_COMPENSATED_ARITHMETIC)!=0u &&
+                 (material.flags & NM_MATERIAL_PAPER_HILL_SCALAR_INITIALIZER)==0u &&
+@@ -1127,6 +1130,17 @@
+                                     NM_MATERIAL_PAPER_HILL_ACCURATE_PROJECTION))!=0u)) {
+                 return failIndexed("material",index,
+                     "generic compensated projection requires a generic implicit bytecode layout and cannot use Hill-only policies");
++            }
++            if (genericBilinear15AccurateProjection &&
++                (!genericCompensatedProjection || material.stateCount!=15u ||
++                 material.parameterCount!=28u || material.localNewtonIterations!=16u ||
++                 material.constitutiveKind!=NM_CONSTITUTIVE_BYTECODE ||
++                 material.projectionKind!=NM_MATERIAL_PROJECTION_GENERIC ||
++                 (material.flags & NM_MATERIAL_HAS_IMPLICIT_STATE)==0u ||
++                 (material.flags & (NM_MATERIAL_PAPER_HILL_SCALAR_INITIALIZER |
++                                    NM_MATERIAL_PAPER_HILL_ACCURATE_PROJECTION))!=0u)) {
++                return failIndexed("material",index,
++                    "accurate bilinear-15 projection requires the 15-state/28-parameter generic implicit compensated layout and a 16-step local budget");
+             }
+             if ((material.flags & (NM_MATERIAL_PAPER_HILL_SCALAR_INITIALIZER|NM_MATERIAL_PAPER_COMPENSATED_ARITHMETIC|NM_MATERIAL_PAPER_HILL_ACCURATE_PROJECTION)) != 0u &&
+                 !finiteElasticStarchArithmetic &&
+--- a/matter/src/metal/common.metalinc
++++ b/matter/src/metal/common.metalinc
+@@ -1025,6 +1025,61 @@
+         if (!isfinite(rightHandSide[uint(row)])) return false;
+     }
+     return true;
++}
++
++// Equilibrate the Newton system in dimensionless state coordinates.  With
++// deltaState = stateScale * y, each row is divided by its weighted L1 norm;
++// this leaves the root unchanged while making the correction test comparable
++// across the mixed strain/stress-history state units in the 15-state law.
++inline bool solveScaledLocalMaterialSystem(
++    thread float* matrix,
++    thread float* rightHandSide,
++    device const float* acceptedState,
++    const thread float* candidateState,
++    const uint count,
++    const float scaleFloor,
++    thread float& scaledCorrectionNorm
++) {
++    if (!(scaleFloor > 0.0f) || !isfinite(scaleFloor) ||
++        count == 0u || count > NM_MAX_MATERIAL_STATE) return false;
++    float stateScale[NM_MAX_MATERIAL_STATE];
++    float rowScale[NM_MAX_MATERIAL_STATE];
++    for (uint column = 0u; column < count; ++column) {
++        if (!isfinite(acceptedState[column]) || !isfinite(candidateState[column]))
++            return false;
++        stateScale[column] = max(max(abs(acceptedState[column]),
++                                     abs(candidateState[column])), scaleFloor);
++        if (!(stateScale[column] > 0.0f) || !isfinite(stateScale[column]))
++            return false;
++    }
++    for (uint row = 0u; row < count; ++row) {
++        float weightedRowNorm = 0.0f;
++        for (uint column = 0u; column < count; ++column) {
++            const float entry = matrix[row * count + column];
++            if (!isfinite(entry)) return false;
++            weightedRowNorm += abs(entry) * stateScale[column];
++        }
++        if (!(weightedRowNorm > 0.0f) || !isfinite(weightedRowNorm) ||
++            !isfinite(rightHandSide[row])) return false;
++        rowScale[row] = weightedRowNorm;
++    }
++    for (uint row = 0u; row < count; ++row) {
++        for (uint column = 0u; column < count; ++column) {
++            matrix[row * count + column] =
++                matrix[row * count + column] * stateScale[column] / rowScale[row];
++        }
++        rightHandSide[row] /= rowScale[row];
++    }
++    if (!solveLocalMaterialSystem(matrix, rightHandSide, count)) return false;
++    scaledCorrectionNorm = 0.0f;
++    for (uint state = 0u; state < count; ++state) {
++        const float scaledCorrection = rightHandSide[state];
++        if (!isfinite(scaledCorrection)) return false;
++        scaledCorrectionNorm = max(scaledCorrectionNorm, abs(scaledCorrection));
++        rightHandSide[state] = scaledCorrection * stateScale[state];
++        if (!isfinite(rightHandSide[state])) return false;
++    }
++    return isfinite(scaledCorrectionNorm);
+ }
+ 
+ template<typename CandidatePointer>
+@@ -1262,6 +1317,11 @@
+                               NM_MATERIAL_GENERIC_COMPENSATED_IMPLICIT_PROJECTION)) != 0u;
+ }
+ 
++inline bool usesScaledCorrectionProjection(const NMMaterialGPU material) {
++    return (material.flags &
++        NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION) != 0u;
++}
++
+ inline bool projectMaterialState(
+     const NMMaterialGPU material,
+     device const NMScalarProgramGPU* programs,
+@@ -1317,6 +1377,7 @@
+     if (stageFlagsOutput != nullptr)
+         *stageFlagsOutput |= kMaterialDiagProjectionEntered;
+     const bool accurateCandidate = usesCompensatedImplicitCandidate(material);
++    const bool scaledCorrectionPolicy = usesScaledCorrectionProjection(material);
+     float localCandidateLow[NM_MAX_MATERIAL_STATE];
+     thread float* candidateLow = projectedLowOutput != nullptr
+         ? projectedLowOutput : localCandidateLow;
+@@ -1467,7 +1528,9 @@
+         if (residualNormOutput != nullptr) *residualNormOutput = residualNorm;
+         if (stateNormOutput != nullptr) *stateNormOutput = stateNorm;
+         if (iterationOutput != nullptr) *iterationOutput = iteration + 1u;
+-        if (residualNorm <= projectionTolerance * (1.0f + stateNorm)) {
++        const bool residualConverged =
++            residualNorm <= projectionTolerance * (1.0f + stateNorm);
++        if (residualConverged && !scaledCorrectionPolicy) {
+             if (traceProjection) {
+                 projectionIterationTrace[traceRecord+0u]=9.0f;
+                 projectionIterationTrace[3]=1.0f;
+@@ -1478,8 +1541,15 @@
+         }
+         if (stageFlagsOutput != nullptr)
+             *stageFlagsOutput |= kMaterialDiagLocalSolveAttempted;
+-        if (!solveLocalMaterialSystem(
+-                jacobian, residual, material.stateCount)) {
++        float scaledCorrectionNorm = 0.0f;
++        const bool localSolveSucceeded = scaledCorrectionPolicy
++            ? solveScaledLocalMaterialSystem(
++                jacobian, residual, acceptedState, projectedState,
++                material.stateCount,
++                parameters[material.parameterOffset + 26u],
++                scaledCorrectionNorm)
++            : solveLocalMaterialSystem(jacobian, residual, material.stateCount);
++        if (!localSolveSucceeded) {
+             if (terminalFailureOutput != nullptr)
+                 *terminalFailureOutput = kMaterialFailureLocalSolveFailed;
+             if (traceProjection) projectionIterationTrace[7]=
+@@ -1494,6 +1564,16 @@
+         }
+         if (stageFlagsOutput != nullptr)
+             *stageFlagsOutput |= kMaterialDiagLocalSolveSucceeded;
++        if (residualConverged && scaledCorrectionPolicy &&
++            scaledCorrectionNorm <= 2.0e-8f) {
++            if (traceProjection) {
++                projectionIterationTrace[traceRecord+0u]=9.0f;
++                projectionIterationTrace[3]=1.0f;
++            }
++            if (stageFlagsOutput != nullptr)
++                *stageFlagsOutput |= kMaterialDiagProjectionConverged;
++            return true;
++        }
+         float trialState[NM_MAX_MATERIAL_STATE];
+         float trialLow[NM_MAX_MATERIAL_STATE];
+         float trialResidual[NM_MAX_MATERIAL_STATE];
+@@ -1581,7 +1661,7 @@
+     if (!evaluateImplicitMaterialSystem(
+             material, programs, instructions, parameters, acceptedState,
+             candidate, deformation, float3x3(0.0f), deformationRate,
+-            timestep, temperature, residual, jacobian, false,
++            timestep, temperature, residual, jacobian, scaledCorrectionPolicy,
+             &finalNonfinite, deformationLow)) {
+         if (terminalFailureOutput != nullptr)
+             *terminalFailureOutput = finalNonfinite
+@@ -1606,8 +1686,28 @@
+         projectionIterationTrace[4]=residualNorm;
+         projectionIterationTrace[5]=stateNorm;
+     }
+-    const bool converged =
+-        residualNorm <= projectionTolerance * (1.0f + stateNorm);
++    bool converged = residualNorm <= projectionTolerance * (1.0f + stateNorm);
++    float finalScaledCorrectionNorm = 0.0f;
++    if (converged && scaledCorrectionPolicy) {
++        for (uint state = 0u; state < material.stateCount; ++state)
++            residual[state] = -residual[state];
++        if (stageFlagsOutput != nullptr)
++            *stageFlagsOutput |= kMaterialDiagLocalSolveAttempted;
++        if (!solveScaledLocalMaterialSystem(
++                jacobian, residual, acceptedState, projectedState,
++                material.stateCount,
++                parameters[material.parameterOffset + 26u],
++                finalScaledCorrectionNorm)) {
++            if (terminalFailureOutput != nullptr)
++                *terminalFailureOutput = kMaterialFailureLocalSolveFailed;
++            if (traceProjection) projectionIterationTrace[7]=
++                float(kMaterialFailureLocalSolveFailed);
++            return false;
++        }
++        if (stageFlagsOutput != nullptr)
++            *stageFlagsOutput |= kMaterialDiagLocalSolveSucceeded;
++        converged = finalScaledCorrectionNorm <= 2.0e-8f;
++    }
+     if (traceProjection) {
+         if (converged) projectionIterationTrace[3]=1.0f;
+         else projectionIterationTrace[7]=
+--- a/matter/CMakeLists.txt
++++ b/matter/CMakeLists.txt
+@@ -360,6 +360,14 @@
+ target_include_directories(numi-matter-cardboard-generic-compensated-projection-check PRIVATE
+     "${CMAKE_CURRENT_SOURCE_DIR}/../include")
+ target_compile_options(numi-matter-cardboard-generic-compensated-projection-check PRIVATE -Wall -Wextra -Wpedantic -Werror)
++add_executable(numi-matter-cardboard-bilinear15-projection-policy-check
++    tools/cardboard_bilinear15_projection_policy_check.cpp)
++target_link_libraries(numi-matter-cardboard-bilinear15-projection-policy-check
++    PRIVATE numi_matter_compiler)
++target_include_directories(numi-matter-cardboard-bilinear15-projection-policy-check PRIVATE
++    "${CMAKE_CURRENT_SOURCE_DIR}/../include")
++target_compile_options(numi-matter-cardboard-bilinear15-projection-policy-check PRIVATE
++    -Wall -Wextra -Wpedantic -Werror)
+ if(BUILD_TESTING)
+     add_test(NAME matter.compiler.fem_static_surface_map COMMAND numi-matter-fem-static-surface-map-check)
+     set_tests_properties(matter.compiler.fem_static_surface_map PROPERTIES LABELS "matter;compiler;contact;cpu")
+@@ -369,6 +377,11 @@
+     set_tests_properties(matter.compiler.cardboard_retained_damage_fp64_oracle PROPERTIES LABELS "matter;cardboard;reference;cpu")
+     add_test(NAME matter.compiler.cardboard_generic_compensated_projection COMMAND numi-matter-cardboard-generic-compensated-projection-check)
+     set_tests_properties(matter.compiler.cardboard_generic_compensated_projection PROPERTIES LABELS "matter;cardboard;projection;cpu" TIMEOUT 120)
++    add_test(NAME matter.compiler.cardboard_bilinear15_projection_policy
++        COMMAND numi-matter-cardboard-bilinear15-projection-policy-check
++            "${CMAKE_CURRENT_SOURCE_DIR}/materials")
++    set_tests_properties(matter.compiler.cardboard_bilinear15_projection_policy PROPERTIES
++        LABELS "matter;cardboard;projection;cpu;synthetic" TIMEOUT 60)
+ endif()
+ target_link_libraries(numi-matter-fem-regional-galerkin-compiler-check PRIVATE
+     numi_matter_compiler)
+--- a/matter/tools/cardboard_bilinear15_projection_policy_check.cpp
++++ b/matter/tools/cardboard_bilinear15_projection_policy_check.cpp
+@@ -0,0 +1,169 @@
++#define main cardboard_retained_matrix_damage_legacy_cpu_main
++#include "cardboard_retained_matrix_damage_check.cpp"
++#undef main
++
++#include "numi/matter/detail.hpp"
++
++#include <filesystem>
++#include <iostream>
++#include <stdexcept>
++#include <string>
++
++namespace {
++
++void need(const bool condition, const std::string& message) {
++    if (!condition) throw std::runtime_error(message);
++}
++
++numi::matter::CompileResult compileOneMaterial(
++    const numi::matter::MaterialProgram& material) {
++    using namespace numi::matter;
++    WorldSource source;
++    source.materials = {material};
++    source.gravity = {0.0, 0.0, 0.0};
++    source.environmentCount = 1u;
++    source.frameTimestep = 2.0e-3;
++    ObjectSource object;
++    object.name = "bilinear15_scaled_correction_cpu_fixture";
++    object.representation = Representation::fem;
++    object.deformableContact = false;
++    object.deformableSelfContact = false;
++    object.mixedFEM = false;
++    object.femNodes = {{0.0,0.0,0.0},{0.001,0.0,0.0},
++                       {0.0,0.001,0.0},{0.0,0.0,0.001}};
++    object.tetrahedra = {{0u,1u,2u,3u}};
++    object.characteristicLength = 0.001;
++    source.objects = {object};
++    CompileOptions options;
++    options.maximumRateExponent = 0u;
++    options.emitSpecializedMetal = false;
++    return compileWorld(source, options);
++}
++
++void checkBilinear15ScaledCorrectionPolicy(const std::filesystem::path& materials) {
++    using namespace numi::matter;
++    MaterialProgram source = parse(materials / "hajali2009_medium_hill_bilinear_fit.nmatter");
++    need(source.name == "hajali2009_medium_hill_bilinear_fit" &&
++         source.internalState.size() == 15u && source.parameters.size() == 28u,
++         "bilinear-15 source layout changed; do not silently retarget this policy");
++
++    const auto legacy = numi::matter::detail::compileConstitutive(
++        source, NM_EXPRESSION_STACK_CAPACITY);
++    need(legacy.succeeded(), "unmodified bilinear-15 source no longer compiles");
++    MaterialProgram compensatedDefault = source;
++    compensatedDefault.genericCompensatedImplicitProjection = true;
++    compensatedDefault.paperCompensatedArithmetic = true;
++    const auto compensatedLegacy = numi::matter::detail::compileConstitutive(
++        compensatedDefault, NM_EXPRESSION_STACK_CAPACITY);
++    need(compensatedLegacy.succeeded(),
++         "the production source15 combination of generic implicit and compensated paper arithmetic must compile");
++    need(compensatedLegacy.program.gpu.localNewtonIterations == 8u &&
++         (compensatedLegacy.program.gpu.flags &
++          NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION) == 0u,
++         "the default source15 compensated policy changed without the new opt-in flag");
++
++    MaterialProgram candidate = compensatedDefault;
++    candidate.genericBilinear15AccurateProjection = true;
++    const auto compiled = numi::matter::detail::compileConstitutive(
++        candidate, NM_EXPRESSION_STACK_CAPACITY);
++    need(compiled.succeeded(), "scaled-correction bilinear-15 policy failed compiler admission");
++    need((compiled.program.gpu.flags &
++          NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION) != 0u &&
++         (compiled.program.gpu.flags &
++          NM_MATERIAL_GENERIC_COMPENSATED_IMPLICIT_PROJECTION) != 0u,
++         "compiled material omitted an opt-in projection policy flag");
++    need(compiled.program.gpu.localNewtonIterations == 16u,
++         "the scoped local iteration budget is not 16");
++    need(compiled.program.fingerprint != legacy.program.fingerprint,
++         "material fingerprint did not bind the scaled-correction policy");
++    need(compiled.program.implicitResiduals.size() == 15u &&
++         compiled.program.implicitJacobians.size() == 225u &&
++         compiled.program.implicitDeformationDirections.size() == 15u &&
++         compiled.program.stressStateDerivatives.size() == 135u,
++         "policy changed or omitted complete 15-state derivative programs");
++
++    auto noCompensatedCandidate = candidate;
++    noCompensatedCandidate.genericCompensatedImplicitProjection = false;
++    need(!numi::matter::detail::compileConstitutive(
++             noCompensatedCandidate,NM_EXPRESSION_STACK_CAPACITY).succeeded(),
++         "scaled-correction policy was admitted without the generic compensated evaluator");
++    auto hillConflict = candidate;
++    hillConflict.paperHillAccurateProjection = true;
++    need(!numi::matter::detail::compileConstitutive(
++             hillConflict,NM_EXPRESSION_STACK_CAPACITY).succeeded(),
++         "generic bilinear-15 policy combined with an unrelated Hill-only projection policy");
++    auto paperArithmeticOnly = source;
++    paperArithmeticOnly.paperCompensatedArithmetic = true;
++    need(!numi::matter::detail::compileConstitutive(
++             paperArithmeticOnly,NM_EXPRESSION_STACK_CAPACITY).succeeded(),
++         "15-state source arithmetic flag was admitted without its generic compensated implicit evaluator");
++    auto invalidFloor = candidate;
++    for (auto& parameter : invalidFloor.parameters)
++        if (parameter.name == "fb_epsilon") parameter.defaultValue = 0.0;
++    need(!numi::matter::detail::compileConstitutive(
++             invalidFloor,NM_EXPRESSION_STACK_CAPACITY).succeeded(),
++         "scaled-correction policy admitted a nonpositive state scale floor");
++
++    const auto world = compileOneMaterial(candidate);
++    const std::string worldFailure = world.diagnostics.empty() ? "no compiler diagnostic" : world.diagnostics.front().message;
++    need(world.succeeded(), "scoped projection world failed compilation: " + worldFailure);
++    const auto legacyWorld = compileOneMaterial(compensatedDefault);
++    need(legacyWorld.succeeded() &&
++         legacyWorld.world.materials[0].localNewtonIterations == 8u &&
++         (legacyWorld.world.materials[0].flags &
++          NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION) == 0u,
++         "the opt-in policy changed the production default world material budget or flags");
++    std::string error;
++    need(validateCompiledWorldLayout(world.world, &error),
++         "scoped projection world failed package validation: " + error);
++    auto wrongBudget = world.world;
++    wrongBudget.materials[0].localNewtonIterations = 8u;
++    wrongBudget.fingerprint = compiledWorldFingerprint(wrongBudget);
++    error.clear();
++    need(!validateCompiledWorldLayout(wrongBudget, &error),
++         "validator admitted the scaled-correction flag with the old iteration budget");
++    auto wrongStateCount = world.world;
++    wrongStateCount.materials[0].stateCount = 14u;
++    wrongStateCount.fingerprint = compiledWorldFingerprint(wrongStateCount);
++    error.clear();
++    need(!validateCompiledWorldLayout(wrongStateCount, &error),
++         "validator admitted a malformed state count for the specialized convergence policy");
++
++    const auto packagePath = std::filesystem::temp_directory_path() /
++        "numi-cardboard-bilinear15-scaled-correction-policy.nmatterpkg";
++    std::filesystem::remove(packagePath);
++    CompileResult package;
++    package.world = world.world;
++    need(writePackage(package, packagePath, &error),
++         "could not serialize the scoped policy package: " + error);
++    CompiledWorld restored;
++    need(readPackage(packagePath, restored, nullptr, &error),
++         "could not restore the scoped policy package: " + error);
++    std::filesystem::remove(packagePath);
++    need(validateCompiledWorldLayout(restored, &error) &&
++         restored.fingerprint == world.world.fingerprint &&
++         restored.materials[0].localNewtonIterations == 16u &&
++         (restored.materials[0].flags &
++          NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION) != 0u,
++         "package roundtrip lost the local projection policy or iteration budget");
++    std::cout << "bilinear15_scaled_correction_policy_cpu_check_passed"
++              << " state_count=15 parameter_count=28 local_iterations=16"
++              << " package_roundtrip=pass native_metal_execution=not_run"
++              << " physical_validation=false\n";
++}
++
++} // namespace
++
++int main(int argc, char** argv) {
++    try {
++        const auto materials = argc > 1
++            ? std::filesystem::path(argv[1])
++            : std::filesystem::path(__FILE__).parent_path().parent_path() / "materials";
++        checkBilinear15ScaledCorrectionPolicy(materials);
++        return 0;
++    } catch (const std::exception& error) {
++        std::cerr << "bilinear-15 scaled-correction policy CPU check failed: "
++                  << error.what() << '\n';
++        return 1;
++    }
++}

@@ -1770,15 +1770,23 @@ kernel void nm_fem_cohesive_face_forces(
     device NMCohesiveFaceVectorGPU* faceForces [[buffer(13)]],
     device NMMatterStatusGPU* statuses [[buffer(14)]],
     device const NMCohesiveMaterialGPU* cohesiveMaterials [[buffer(15)]],
+    constant uint& pageFaceStart [[buffer(16)]],
+    constant uint& pageFaceCount [[buffer(17)]],
+    constant uint& writeHistory [[buffer(18)]],
     uint global [[thread_position_in_grid]]
 ) {
-    const uint total = dispatch.environmentCount * dispatch.cohesiveFaceCount;
-    if (global >= total || dispatch.cohesiveFaceCount == 0u) return;
+    if (pageFaceCount == 0u || dispatch.cohesiveFaceCount == 0u ||
+        pageFaceStart > dispatch.cohesiveFaceCount ||
+        pageFaceCount > dispatch.cohesiveFaceCount - pageFaceStart) return;
+    const uint total = dispatch.environmentCount * pageFaceCount;
+    if (global >= total) return;
     faceForces[global] = {};
-    const uint environment = global / dispatch.cohesiveFaceCount;
-    const uint localFace = global - environment * dispatch.cohesiveFaceCount;
+    const uint environment = global / pageFaceCount;
+    const uint pageLocalFace = global - environment * pageFaceCount;
+    const uint localFace = pageFaceStart + pageLocalFace;
+    const uint faceGlobal = environment * dispatch.cohesiveFaceCount + localFace;
     if (!environmentHealthy(statuses, environment)) return;
-    const NMCohesiveFaceGPU acceptedFace = acceptedFaces[global];
+    const NMCohesiveFaceGPU acceptedFace = acceptedFaces[faceGlobal];
     const bool mixedMode =
         (acceptedFace.adjacency.w & NM_TOPOLOGY_COHESIVE_MIXED_MODE) != 0u;
     // A command may have activated a mortar face in the candidate arena at
@@ -1786,8 +1794,8 @@ kernel void nm_fem_cohesive_face_forces(
     // reference for every Newton evaluation, but always start irreversible
     // quadrature history from acceptedFaces below.
     const NMCohesiveFaceGPU face = mixedMode
-        ? candidateFaces[global] : acceptedFace;
-    if (!mixedMode) candidateFaces[global] = face;
+        ? candidateFaces[faceGlobal] : acceptedFace;
+    if (writeHistory != 0u && !mixedMode) candidateFaces[faceGlobal] = face;
     if ((face.adjacency.w & (NM_TOPOLOGY_ACTIVE | NM_TOPOLOGY_PAIRED_COHESIVE)) !=
         (NM_TOPOLOGY_ACTIVE | NM_TOPOLOGY_PAIRED_COHESIVE)) return;
     const uint objectIndex = face.adjacency.y;
@@ -1906,7 +1914,7 @@ kernel void nm_fem_cohesive_face_forces(
         }
         next.state = float4(maximumDamage, averageRho,
             averageTraction, totalDissipation);
-        candidateFaces[global] = next;
+        if (writeHistory != 0u) candidateFaces[faceGlobal] = next;
         for (uint slot = 0u; slot < 3u; ++slot) {
             float3 sideAForce = nodalForceA[slot];
             for (uint axis = 0u; axis < 3u; ++axis) {
@@ -1991,7 +1999,7 @@ kernel void nm_fem_cohesive_face_forces(
     );
     const float timestep = objectTimestep(dispatch, scheduler);
     device const float* acceptedState =
-        reinterpret_cast<device const float*>(&acceptedFaces[global].state);
+        reinterpret_cast<device const float*>(&acceptedFaces[faceGlobal].state);
     float projectedState[NM_MAX_MATERIAL_STATE];
     bool valid = projectMaterialState(material, programs, instructions,
         materialParameters, acceptedState, deformation, deformationRate,
@@ -2015,7 +2023,7 @@ kernel void nm_fem_cohesive_face_forces(
     next.state.z = traction;
     next.state.w = face.state.w + face.geometry.w *
         0.5f * (face.state.z + traction) * (opening - previousOpening);
-    candidateFaces[global] = next;
+    if (writeHistory != 0u) candidateFaces[faceGlobal] = next;
     const float nodalForce = face.geometry.w * traction / 3.0f;
     faceForces[global].node[0] = float4(nodalForce * normal, 0.0f);
     faceForces[global].node[1] = float4(nodalForce * normal, 0.0f);
@@ -2023,6 +2031,103 @@ kernel void nm_fem_cohesive_face_forces(
     faceForces[global].node[3] = float4(-nodalForce * normal, 0.0f);
     faceForces[global].node[4] = float4(-nodalForce * normal, 0.0f);
     faceForces[global].node[5] = float4(-nodalForce * normal, 0.0f);
+}
+
+
+// Private Armijo tile gather. Each node visits its existing canonical
+// face/slot incidence list in order and adds only this face page. Pages are
+// issued in ascending face order; float additions therefore match the legacy
+// full-face gather without atomics or a per-face state clone.
+kernel void nm_fem_accumulate_cohesive_page_forces(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMicrostepGPU& microstep [[buffer(1)]],
+    device const NMContinuumObjectGPU* objects [[buffer(2)]],
+    device const uint* incidence [[buffer(3)]],
+    device const NMIncidenceRangeGPU* ranges [[buffer(4)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(5)]],
+    device const NMAdaptiveStateGPU* adaptive [[buffer(6)]],
+    device const NMCohesiveFaceVectorGPU* pageForces [[buffer(7)]],
+    device float4* forceAccumulator [[buffer(8)]],
+    device NMMatterStatusGPU* statuses [[buffer(9)]],
+    constant uint& pageFaceStart [[buffer(10)]],
+    constant uint& pageFaceCount [[buffer(11)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global >= total || dispatch.femNodeCount == 0u ||
+        pageFaceCount == 0u || pageFaceStart > dispatch.cohesiveFaceCount ||
+        pageFaceCount > dispatch.cohesiveFaceCount - pageFaceStart) return;
+    const uint environment = global / dispatch.femNodeCount;
+    if (!environmentHealthy(statuses, environment)) return;
+    const NMIncidenceRangeGPU range = ranges[global];
+    if (range.objectIndex == NM_INVALID_INDEX ||
+        range.objectIndex >= dispatch.objectCount || range.count == 0u) return;
+    const uint objectGlobal = environment * dispatch.objectCount + range.objectIndex;
+    const NMContinuumObjectGPU object = objects[range.objectIndex];
+    if (!objectDue(object, schedulers[objectGlobal], adaptive[objectGlobal],
+                   microstep)) return;
+    float3 force = forceAccumulator[global].xyz;
+    for (uint local = 0u; local < range.count; ++local) {
+        const uint encoded = incidence[range.first + local];
+        const uint faceIndex = encoded / 6u;
+        const uint slot = encoded - faceIndex * 6u;
+        if (faceIndex >= dispatch.cohesiveFaceCount || slot >= 6u ||
+            faceIndex < pageFaceStart ||
+            faceIndex - pageFaceStart >= pageFaceCount) continue;
+        const uint pageIndex = environment * pageFaceCount +
+            (faceIndex - pageFaceStart);
+        force += pageForces[pageIndex].node[slot].xyz;
+    }
+    forceAccumulator[global] = float4(force, 0.0f);
+}
+
+// Apply the completed ordered nodal gather once, at the same point in residual
+// assembly as nm_fem_add_cohesive_residual. This preserves the legacy
+// residual += dt*force operation and constrained reaction sign.
+kernel void nm_fem_apply_cohesive_force_accumulator(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMicrostepGPU& microstep [[buffer(1)]],
+    device const NMContinuumObjectGPU* objects [[buffer(2)]],
+    device const NMFEMNodeStateGPU* candidateNodes [[buffer(3)]],
+    device const NMIncidenceRangeGPU* ranges [[buffer(4)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(5)]],
+    device const NMAdaptiveStateGPU* adaptive [[buffer(6)]],
+    device const float4* forceAccumulator [[buffer(7)]],
+    device float4* residual [[buffer(8)]],
+    device float4* preconditioned [[buffer(9)]],
+    device float4* direction [[buffer(10)]],
+    device float4* reactions [[buffer(11)]],
+    device NMMatterStatusGPU* statuses [[buffer(12)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global >= total || dispatch.femNodeCount == 0u) return;
+    const uint environment = global / dispatch.femNodeCount;
+    if (!environmentHealthy(statuses, environment)) return;
+    const NMIncidenceRangeGPU range = ranges[global];
+    if (range.objectIndex == NM_INVALID_INDEX ||
+        range.objectIndex >= dispatch.objectCount || range.count == 0u) return;
+    const uint objectGlobal = environment * dispatch.objectCount + range.objectIndex;
+    const NMContinuumObjectGPU object = objects[range.objectIndex];
+    const NMSchedulerStateGPU scheduler = schedulers[objectGlobal];
+    if (!objectDue(object, scheduler, adaptive[objectGlobal], microstep)) return;
+    const float3 force = forceAccumulator[global].xyz;
+    if (!finite3(force)) {
+        recordFailure(statuses[environment], NM_STATUS_NONFINITE_RESULT,
+            range.objectIndex, global, float4(force, 0.0f));
+        return;
+    }
+    const NMFEMNodeStateGPU node = candidateNodes[global];
+    const float dt = objectTimestep(dispatch, scheduler);
+    if (femStaticConstraint(node.restAndFixed.w) ||
+        node.positionAndMass.w <= 0.0f) {
+        reactions[global] += float4(force, 0.0f);
+        return;
+    }
+    const float3 correction = node.velocityAndInverseMass.w * dt * force;
+    residual[global].xyz += dt * force;
+    preconditioned[global].xyz += correction;
+    direction[global].xyz += correction;
 }
 
 kernel void nm_fem_add_cohesive_residual(

@@ -1,0 +1,5 @@
+# Tiled cohesive preflight accounting
+
+External overlay against frozen082. The optional tiled evaluator now has matching modeled prebuild and compiled arena accounting. The force page is bounded at8MiB including environment stride; persistent cohesive faces and forces remain fully counted. Invalid text, conflicting selectors, aliasing, or oversized pages fail closed and retain conservative accounting. No solver/contact/node/tet caps are lifted. The native runtime must still check actual buffers, kernel scope and allocation. A modeled budget is not a measured memory peak or shipping-scale admission.
+
+The shipping-memory CPU check passes, including planned260835face accounting at1/4environments, explicit one-face pages, malformed environment options, byte caps and the independent8192node limit. Probe Objective-C++ syntax passes against the matching frozen082 includes. A first manual compilation omitted the repository include directory and failed before compilation; the corrected command succeeded. No GPU step was run for this overlay.

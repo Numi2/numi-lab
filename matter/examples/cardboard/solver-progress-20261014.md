@@ -1,5 +1,68 @@
 # Native solver progress and unresolved qualification
 
+## Source080–086: local projection accuracy and measured conditioning regression
+
+Source086 builds all65 targets and passes all71 selected CPU checks. No global
+certificate tolerance, physical material parameter, loading path or timestep
+was relaxed. Independent replay of captured control1/Newton0 distinguishes a
+small authored local residual from a sufficiently accurate implicit tangent:
+near yield, tiny projected-state changes can substantially change the tangent.
+The opt-in15-state policy scales local equations and corrections and requires
+both the existing residual criterion and a componentwise correction criterion.
+It compiles to16 local iterations; the original run's explicit32-iteration
+policy remains available as the default control.
+
+Native285 replays eight exact captured medium inputs from Newton0 and eight
+from Newton63, using the production material entry point. All16 default/off
+responses reproduce their captured production targets and all16 opt-in
+responses meet the1e-3 nonzero stress/state/tangent norm gates against the
+independent reference. Newton0 references include separate50/80-digit checks;
+Newton63 uses the separately retained FP64 projection. This is one direction
+at each selected point, not every element or direction. Repeated identical
+evaluations measure nondeterminism only; a zero repeat difference is not an
+absolute FP32 accuracy floor. Raw words and every result row are retained.
+
+Full27-control attempt288 with that opt-in policy rejects its first control
+normally after371.71s, without a timeout. Status5 names tet1528 and reports
+J=0.997513; that positive determinant alone does not identify which material or
+deformation check failed. The existing source086 compiler forces a16-iteration
+local ceiling for this policy even when the CLI requests32. The exact first
+candidate and return-map path need comparison before assigning the cause or
+altering the solver. The selected16-point pass does not qualify this trajectory.
+
+The actual late Newton63 cached assembled action in266 agrees with independent
+unsymmetrized assembly within5.19649e-5 relative for the captured direction.
+Its native true linear residual is0.84136 of the RHS, while an offline direct
+solve of that independently assembled matrix reaches1.79e-11. The discrepancy
+is therefore not closed by another generic action check. Near-null bending
+actions, local projection accuracy and conditioning are being checked separately.
+The failed full27-control trajectory still accepts only one control.
+
+Native282 passes a small masked/nonorthogonal basis kernel fixture, but the
+actual accepted-correction recycling run284 fails the first coupon control at
+1.77112e-4 versus the unchanged1e-6 tolerance. It is a measured regression and
+remains opt-in and disabled. Default-disabled run283 accepts and preserves all64
+Armijo records and physical outputs from263 byte for byte. A synthetic kernel
+pass does not establish production conditioning or complete-cycle convergence.
+
+The private cohesive residual evaluator now has an opt-in ordered page path
+bounded to8MiB, without a full trial-face clone. CPU layout/accounting checks
+pass, but native280 fails before a complete legacy/tiled comparison. Source086
+adds stage-specific retained diagnostics without changing its physical targets.
+The bounded coupled FEM/freeBOX action checker270/272 passes independently,
+and strict contact fixtures273/274 pass4298 assertions over six transactions
+each, with exact selected-trial/production continuity. These component checks
+do not qualify the distinct failed free-body fixture278/279/286.
+
+Coupled readback279 skips an incidental-particle guard. Source086 repairs that
+guard and validates total history extent, but286 still skips because the
+reserved deformable-contact capacity exceeds its capture scope. Both skips
+remain explicit; neither is evidence of a captured failing candidate. All
+failed attempts, original instruments and normal failures/timeouts are retained.
+Lossless compressed copies of the two key failed coupon captures accompany
+the source-bound archive; these are diagnostic captures, not assembled-box
+restart checkpoints.
+
 ## Source079 bounded conditioning and rejected-trial repair
 
 All 60 build targets and 67 selected CPU checks pass. Native259 passes 2,185

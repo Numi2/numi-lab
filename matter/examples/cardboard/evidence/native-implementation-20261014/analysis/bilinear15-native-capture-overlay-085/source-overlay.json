@@ -1,0 +1,42 @@
+{
+  "schema": "numi.source_overlay.v1",
+  "overlay_id": "bilinear15-native-capture-overlay-085",
+  "classification": "bounded_native_point_checker_overlay; native execution not performed",
+  "base": {
+    "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-scaled-projection-and-coupled-capture-084",
+    "frozen_source_json_sha256": "98fe026ee2007982e48f89547a435a2957db3978fb3730e008fdbb99d08f5704"
+  },
+  "changed_files": {
+    "matter/CMakeLists.txt": {
+      "sha256": "618b27b49c1cef5b951abc3ceb0556e9ebc195d149c6ce6492b3bd0a2f35ea77",
+      "base_sha256": "63e92b43a6a83080773bd5426d0ba6d4b9a38b7b24168243a3b781a5fb71f14f"
+    },
+    "matter/tools/cardboard_paper_check.metal": {
+      "sha256": "ef83c6b0e8d91236446a3ae558e58c100ceaf59258a754645c7ae7c739249bc5",
+      "base_sha256": "9996e7f8770cdd5f7103273adaca9e2adecb12a1ac1ba5607a723876253e53dd"
+    },
+    "matter/tools/cardboard_bilinear15_captured_point_check.mm": {
+      "sha256": "7d9ba61214f85bb5c4550a3cddfe1fd307be7607b130423882cb8ff260e871f0",
+      "base_sha256": null
+    }
+  },
+  "patch_sha256": "71857f4f2eeefe14e22250d9718c54e1fb0f2a3e065f0a359a38323c1b92d5f1",
+  "inputs": {
+    "captured_point_inputs_json_sha256": "4147dfbdd75587dd932d9e22d210b3725bbf8d38f24c0494151f5474dbf9d66b",
+    "source_medium_material_sha256": "76f2bef552822708c36b5acc9f92bd44e7bb92c578e5e46adb64a1a2e82e47f9"
+  },
+  "verification": {
+    "cmake_configure": "PASS (BUILD_TESTING=OFF)",
+    "target_build": "PASS; see evidence/build-compile.log",
+    "cpu_admission": "PASS; see evidence/cpu-admission.log; native_metal_execution=false",
+    "negative_parameter_binding": "PASS rejection; see evidence/cpu-admission-mutation.log",
+    "native_point_replay": "NOT_RUN_NO_GPU",
+    "evidence_sha256": {
+      "build-compile.log": "a182045f7478efc4ad86165f85ef2323fbd188863695ab9e9299b0278aba061a",
+      "cpu-admission.log": "744efb1337117c4d231295da91bc93a6b7e665d0a9ac7fb56b4b7c59f72fe7fd",
+      "cpu-admission-mutation.log": "473d7cdb096d1ffd3f72a9a1e17caefc7b56deb9b5d30c6246702f97ec32de10",
+      "captured-point-inputs.json": "4147dfbdd75587dd932d9e22d210b3725bbf8d38f24c0494151f5474dbf9d66b"
+    }
+  },
+  "generated_utc": "2026-10-15T08:55:58.084802+00:00"
+}

@@ -61,6 +61,60 @@ struct SparseArmijoContactOptions {
     const char* error = nullptr;
 };
 
+struct TiledCohesiveArmijoOptions {
+    bool requested = false;
+    bool hasPageCapacityOverride = false;
+    std::uint32_t pageCapacityOverride = 0u;
+    const char* error = nullptr;
+};
+
+TiledCohesiveArmijoOptions tiledCohesiveArmijoOptionsFromEnvironment() noexcept {
+    TiledCohesiveArmijoOptions result;
+    const char* text = std::getenv("NM_FEM_FULL_CONTACT_TILED_COHESIVE");
+    result.requested = text != nullptr;
+    if (text != nullptr && std::strcmp(text, "1") != 0)
+        result.error =
+            "NM_FEM_FULL_CONTACT_TILED_COHESIVE must be exactly 1";
+    const char* pageText = std::getenv(
+        "NM_FEM_FULL_CONTACT_TILED_COHESIVE_PAGE_FACES");
+    if (pageText != nullptr) {
+        result.hasPageCapacityOverride = true;
+        if (!result.requested) {
+            result.error =
+                "tiled cohesive page-face override requires tiled cohesive mode";
+            return result;
+        }
+        if (*pageText == '\0') {
+            result.error =
+                "NM_FEM_FULL_CONTACT_TILED_COHESIVE_PAGE_FACES must be a positive uint32";
+            return result;
+        }
+        std::uint64_t value = 0u;
+        for (const char* cursor = pageText; *cursor != '\0'; ++cursor) {
+            if (*cursor < '0' || *cursor > '9') {
+                result.error =
+                    "NM_FEM_FULL_CONTACT_TILED_COHESIVE_PAGE_FACES must be a positive uint32";
+                return result;
+            }
+            const std::uint32_t digit =
+                static_cast<std::uint32_t>(*cursor - '0');
+            if (value > (std::numeric_limits<std::uint32_t>::max() - digit) / 10u) {
+                result.error =
+                    "NM_FEM_FULL_CONTACT_TILED_COHESIVE_PAGE_FACES exceeds uint32";
+                return result;
+            }
+            value = value * 10u + digit;
+        }
+        if (value == 0u) {
+            result.error =
+                "NM_FEM_FULL_CONTACT_TILED_COHESIVE_PAGE_FACES must be positive";
+            return result;
+        }
+        result.pageCapacityOverride = static_cast<std::uint32_t>(value);
+    }
+    return result;
+}
+
 SparseArmijoContactOptions sparseArmijoContactOptionsFromEnvironment() noexcept {
     SparseArmijoContactOptions result;
     const char* capacityText = std::getenv(
@@ -629,7 +683,8 @@ constexpr std::size_t kFEMOperatorFDParameterCaptureValuesPerSlot = 4u;
     const std::uint64_t worldFingerprint,
     const std::uint64_t metallibFingerprint,
     const std::uint64_t metallibByteCount,
-    const RuntimeConfiguration& configuration
+    const RuntimeConfiguration& configuration,
+    const bool regionalAcceptedCorrectionRecycle
 ) noexcept {
     std::uint64_t hash = 14695981039346656037ull;
     hash = mixFingerprint(hash, worldFingerprint);
@@ -643,6 +698,8 @@ constexpr std::size_t kFEMOperatorFDParameterCaptureValuesPerSlot = 4u;
     hash = mixFingerprint(hash, configuration.automaticIdentification ? 1u : 0u);
     hash = mixFingerprint(hash, configuration.adaptiveTransfer ? 1u : 0u);
     hash = mixFingerprint(hash, configuration.coupledCandidateCompensatedTranslation ? 1u : 0u);
+    hash = mixFingerprint(hash,
+        regionalAcceptedCorrectionRecycle ? 1u : 0u);
     hash = mixFingerprint(hash, detail::hashBytes(
         configuration.humanJointEqualities.data(),
         configuration.humanJointEqualities.size_bytes()));
@@ -1197,6 +1254,7 @@ template <typename T>
 struct RegionalGalerkinBasis {
     std::vector<nm_float4> values; // [mode][compiled FEM node]
     std::uint32_t modeCount = 0u;
+    std::uint32_t recycleBaseModeCount = 0u;
     std::string error;
 };
 
@@ -1285,7 +1343,8 @@ struct RegionalGraphSchwarzHostLayout {
 }
 
 [[nodiscard]] RegionalGalerkinBasis buildRegionalGalerkinBasis(
-    const CompiledWorld& world
+    const CompiledWorld& world,
+    const bool reserveAcceptedCorrectionSlot = false
 ) {
     constexpr std::uint32_t maximumRegions = 5u;
     constexpr std::uint32_t modesPerRegion = 6u;
@@ -1331,8 +1390,15 @@ struct RegionalGraphSchwarzHostLayout {
         result.error = "regional Galerkin environment count must be between one and four";
         return result;
     }
+    const std::uint64_t recycleCorrectionFloat4Count =
+        reserveAcceptedCorrectionSlot ? environments * nodes : 0u;
+    const std::uint64_t recycleOrthogonalFloat4Count =
+        reserveAcceptedCorrectionSlot
+            ? environments * nodes * (modes - 1u)
+            : 0u;
     const std::uint64_t scalarCount =
         nodes * modes + 2u * environments * nodes * modes +
+        recycleCorrectionFloat4Count + recycleOrthogonalFloat4Count +
         environments * modes * modes +
         environments * modes * 2u + environments * modes + environments;
     const std::uint64_t blockFineFloat4Count =
@@ -1345,7 +1411,7 @@ struct RegionalGraphSchwarzHostLayout {
     if (scalarCount > maximumSafeScalars ||
         blockFineFloat4Count > maximumSafeScalars -
             std::min(scalarCount, maximumSafeScalars)) {
-        result.error = "regional Galerkin P/AP/coarse plus fine-correction scratch exceeds the 256 MiB admission bound";
+        result.error = "regional Galerkin P/AP/coarse plus recycle/fine-correction scratch exceeds the 256 MiB admission bound";
         return result;
     }
     std::array<std::vector<double>, maximumRegions> nodalVolume;
@@ -1508,6 +1574,49 @@ struct RegionalGraphSchwarzHostLayout {
                 admitCandidate(std::move(candidate));
             }
         }
+    }
+    if (reserveAcceptedCorrectionSlot) {
+        const std::size_t baseCount = orthonormal.size();
+        if (baseCount == 0u || baseCount >= maximumModes) {
+            result.error =
+                "accepted-correction recycle requires one spare independent regional mode";
+            return result;
+        }
+        bool fallbackAdmitted = false;
+        std::array<double, 3> recycleMinimum{
+            INFINITY, INFINITY, INFINITY};
+        std::array<double, 3> recycleMaximum{
+            -INFINITY, -INFINITY, -INFINITY};
+        for (std::size_t node = 0u; node < nodeCount; ++node) {
+            const auto x = position(static_cast<std::uint32_t>(node));
+            for (unsigned axis = 0u; axis < 3u; ++axis) {
+                recycleMinimum[axis] = std::min(recycleMinimum[axis], x[axis]);
+                recycleMaximum[axis] = std::max(recycleMaximum[axis], x[axis]);
+            }
+        }
+        const auto recycleCoordinates = regionalBendingCoordinates(
+            recycleMinimum, recycleMaximum);
+        if (enrichBending && recycleCoordinates.available) {
+            std::vector<double> candidate(nodeCount * 3u, 0.0);
+            for (std::size_t node = 0u; node < nodeCount; ++node) {
+                if (!(nodalTotal[node] > 0.0) ||
+                    world.fem.nodes[node].restAndFixed.w != 0.0f) continue;
+                const auto value = regionalBendingTrialField(
+                    recycleCoordinates,
+                    position(static_cast<std::uint32_t>(node)), 8u);
+                for (unsigned axis = 0u; axis < 3u; ++axis)
+                    candidate[3u * node + axis] = value[axis];
+            }
+            admitCandidate(std::move(candidate));
+            fallbackAdmitted = orthonormal.size() == baseCount + 1u;
+        }
+        if (!fallbackAdmitted) {
+            result.error =
+                "accepted-correction recycle has no independent static fallback mode";
+            return result;
+        }
+        result.recycleBaseModeCount =
+            static_cast<std::uint32_t>(baseCount);
     }
     if (orthonormal.empty() || orthonormal.size() > maximumModes) {
         result.error = "regional Galerkin basis has no independent free modes";
@@ -2192,6 +2301,13 @@ struct Runtime::State {
     // cohesiveFacesAccepted, mutate only candidate-derived face response, and
     // the selected endpoint rebuilds production forces before their next read.
     bool femArmijoAliasesCohesiveScratch = false;
+    // Optional bounded full-contact trial path. It reads accepted face history
+    // and the transaction's activation reference directly; only one page of
+    // per-face forces is resident, and node incidence order is preserved.
+    bool femArmijoTiledCohesiveRequested = false;
+    std::uint32_t femArmijoCohesivePageCapacity = 0u;
+    std::uint32_t femArmijoCohesivePageCount = 0u;
+    std::uint64_t femArmijoCohesivePageBytes = 0u;
     id<MTLBuffer> femArmijoDeformableCandidates = nil;
     id<MTLBuffer> femArmijoDeformableCandidateCounts = nil;
     id<MTLBuffer> femArmijoDeformableContacts = nil;
@@ -2239,6 +2355,15 @@ struct Runtime::State {
     // at each Newton linearization. These are solver-only scratch arenas.
     id<MTLBuffer> femRegionalBasis = nil;
     id<MTLBuffer> femRegionalEffectiveBasis = nil;
+    // Optional solver-only recycle: the last source mode is a deterministic
+    // bending fallback on Newton 0 and whenever the accepted correction is
+    // zero/dependent. An independent correction from the preceding accepted
+    // Newton line search replaces that one effective-basis slot only.
+    id<MTLBuffer> femRegionalAcceptedCorrection = nil;
+    // Per-environment two-pass MGS scratch for the dynamically masked source
+    // modes. The authored/effective P buffers remain unchanged for RAP.
+    id<MTLBuffer> femRegionalRecycleOrthogonalBasis = nil;
+    id<MTLBuffer> femRegionalRecycleModeState = nil;
     id<MTLBuffer> femRegionalLinearizationNodes = nil;
     id<MTLBuffer> femRegionalLinearizationMaterialState = nil;
     id<MTLBuffer> femRegionalLinearizationSchedulerExponent = nil;
@@ -2271,6 +2396,8 @@ struct Runtime::State {
     id<MTLBuffer> femRegionalGraphFactorValid = nil;
     id<MTLBuffer> femRegionalGraphPatchCorrections = nil;
     std::uint32_t femRegionalModeCount = 0u;
+    std::uint32_t femRegionalRecycleBaseModeCount = 0u;
+    bool femRegionalAcceptedCorrectionRecycleEnabled = false;
     std::uint32_t femRegionalGraphPatchCount = 0u;
     std::uint32_t femRegionalGraphParallelSearch = 0u;
     std::uint32_t femRegionalGraphPatchNodeCount = 0u;
@@ -2817,6 +2944,17 @@ RuntimeDiagnostics Runtime::initialize(
         }
         auto candidate = std::make_unique<State>();
         candidate->dispatch = world.dispatch;
+        const char* acceptedCorrectionRecycle = std::getenv(
+            "NM_FEM_REGIONAL_ACCEPTED_CORRECTION_RECYCLE");
+        if (acceptedCorrectionRecycle != nullptr) {
+            if (std::strcmp(acceptedCorrectionRecycle, "1") != 0 ||
+                world.mixedSolver.executionBudgets.z != 5u) {
+                diagnostics.message =
+                    "accepted-correction regional recycle requires exact value 1 and selector 5";
+                return diagnostics;
+            }
+            candidate->femRegionalAcceptedCorrectionRecycleEnabled = true;
+        }
         const char* parallelGraphSearch = std::getenv("NM_FEM_GRAPH_PARALLEL_LU_SEARCH");
         if (parallelGraphSearch != nullptr) {
             if (std::strcmp(parallelGraphSearch, "1") != 0 ||
@@ -2912,6 +3050,30 @@ RuntimeDiagnostics Runtime::initialize(
             std::fprintf(stderr,
                 "matter_tangent_cache_control={\"schema\":1,\"completed_tail_rebuild\":true}\n");
         }
+        const TiledCohesiveArmijoOptions tiledCohesiveOptions =
+            tiledCohesiveArmijoOptionsFromEnvironment();
+        if (tiledCohesiveOptions.error != nullptr) {
+            diagnostics.message = tiledCohesiveOptions.error;
+            return diagnostics;
+        }
+        if (tiledCohesiveOptions.requested &&
+            std::getenv("NM_FEM_FULL_CONTACT_RESIDUAL_ARMIJO_ROOT") == nullptr) {
+            diagnostics.message =
+                "tiled cohesive private evaluation requires the full-contact Armijo selector";
+            return diagnostics;
+        }
+        if (tiledCohesiveOptions.requested &&
+            (std::getenv("NM_FEM_RESIDUAL_ARMIJO_ROOT") != nullptr ||
+             std::getenv("NM_FEM_CAPSULE_RESIDUAL_ARMIJO_ROOT") != nullptr ||
+             std::getenv("NM_FEM_CAPSULE_BOX_RESIDUAL_ARMIJO_ROOT") != nullptr ||
+             std::getenv("NM_FEM_COHESIVE_RESIDUAL_ARMIJO_ROOT") != nullptr ||
+             std::getenv("NM_FEM_FULL_CONTACT_REUSE_COHESIVE_SCRATCH") != nullptr)) {
+            diagnostics.message =
+                "tiled cohesive private evaluation requires the exclusive full-contact selector without face-scratch aliasing";
+            return diagnostics;
+        }
+        candidate->femArmijoTiledCohesiveRequested =
+            tiledCohesiveOptions.requested;
         const SparseArmijoContactOptions sparseArmijoOptions =
             sparseArmijoContactOptionsFromEnvironment();
         if (sparseArmijoOptions.error != nullptr) {
@@ -3479,7 +3641,8 @@ RuntimeDiagnostics Runtime::initialize(
             world.fingerprint,
             executableImageFingerprint,
             executableImageByteCount,
-            configuration
+            configuration,
+            candidate->femRegionalAcceptedCorrectionRecycleEnabled
         );
         candidate->acceptedStateProofProgramFingerprint =
             candidate->acceptedStateProofMujocoBytesPerEnvironmentCapacity ==
@@ -3724,6 +3887,8 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fem_internal_forces",
             "nm_fem_build_algorithmic_tangent_cache",
             "nm_fem_cohesive_face_forces",
+            "nm_fem_accumulate_cohesive_page_forces",
+            "nm_fem_apply_cohesive_force_accumulator",
             "nm_fem_add_cohesive_residual",
             "nm_fem_cohesive_face_operator",
             "nm_fem_prepare_cohesive_activation",
@@ -3778,6 +3943,9 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fgmres_precondition_coarse",
             "nm_fgmres_regional_load_mode",
             "nm_fgmres_regional_project_basis",
+            "nm_fgmres_reset_regional_recycle",
+            "nm_fgmres_capture_regional_recycle",
+            "nm_fgmres_regional_select_recycle_mode",
             "nm_fgmres_regional_capture_linearization",
             "nm_fgmres_regional_capture_constitutive_linearization",
             "nm_fgmres_regional_store_ap",
@@ -4058,16 +4226,71 @@ RuntimeDiagnostics Runtime::initialize(
         RegionalGalerkinBasis regionalGalerkinBasis;
         if (usesRegionalGalerkinPreconditioner(
                 world.mixedSolver.executionBudgets.z)) {
-            regionalGalerkinBasis = buildRegionalGalerkinBasis(world);
+            regionalGalerkinBasis = buildRegionalGalerkinBasis(world,
+                candidate->femRegionalAcceptedCorrectionRecycleEnabled);
             if (!regionalGalerkinBasis.error.empty()) {
                 diagnostics.message = regionalGalerkinBasis.error;
                 return diagnostics;
             }
             candidate->femRegionalModeCount =
                 regionalGalerkinBasis.modeCount;
+            candidate->femRegionalRecycleBaseModeCount =
+                regionalGalerkinBasis.recycleBaseModeCount;
             candidate->femRegionalBasis = uploads.one(
                 std::span<const nm_float4>(regionalGalerkinBasis.values),
                 valid, candidate->residentBytes);
+            if (candidate->femRegionalAcceptedCorrectionRecycleEnabled) {
+                const std::size_t nodeCount =
+                    static_cast<std::size_t>(world.dispatch.femNodeCount);
+                if (nodeCount != 0u && environments >
+                    std::numeric_limits<std::size_t>::max() / nodeCount) {
+                    diagnostics.message =
+                        "accepted-correction recycle E*N allocation overflows size_t";
+                    return diagnostics;
+                }
+                const std::size_t baseModeCount =
+                    static_cast<std::size_t>(
+                        candidate->femRegionalRecycleBaseModeCount);
+                if (nodeCount != 0u && baseModeCount >
+                    std::numeric_limits<std::size_t>::max() / nodeCount) {
+                    diagnostics.message =
+                        "accepted-correction recycle M*N allocation overflows size_t";
+                    return diagnostics;
+                }
+                const std::size_t modeNodeCount = nodeCount * baseModeCount;
+                if (modeNodeCount != 0u && environments >
+                    std::numeric_limits<std::size_t>::max() / modeNodeCount) {
+                    diagnostics.message =
+                        "accepted-correction recycle E*M*N allocation overflows size_t";
+                    return diagnostics;
+                }
+                const std::size_t environmentModeNodeCount =
+                    environments * modeNodeCount;
+                const std::size_t environmentNodeCount =
+                    environments * nodeCount;
+                candidate->femRegionalAcceptedCorrection = privateScratch<nm_float4>(
+                    candidate->device, environmentNodeCount,
+                    valid, candidate->residentBytes);
+                candidate->femRegionalRecycleOrthogonalBasis =
+                    privateScratch<nm_float4>(candidate->device,
+                        environmentModeNodeCount, valid,
+                        candidate->residentBytes);
+                candidate->femRegionalRecycleModeState =
+                    privateScratch<std::uint32_t>(candidate->device,
+                        environments, valid,
+                        candidate->residentBytes);
+                if (candidate->femRegionalRecycleBaseModeCount == 0u ||
+                    candidate->femRegionalModeCount !=
+                        candidate->femRegionalRecycleBaseModeCount + 1u) {
+                    diagnostics.message =
+                        "accepted-correction recycle did not reserve exactly one fallback mode";
+                    return diagnostics;
+                }
+                std::fprintf(stderr,
+                    "matter_regional_recycle_control={\"schema\":1,\"accepted_scaled_fem_correction\":true,\"base_modes\":%u,\"mode_count\":%u,\"static_fallback\":\"regional_bending_y4\"}\n",
+                    candidate->femRegionalRecycleBaseModeCount,
+                    candidate->femRegionalModeCount);
+            }
         }
         RegionalGraphSchwarzHostLayout graphSchwarz;
         if (world.mixedSolver.executionBudgets.z == 5u) {
@@ -5587,36 +5810,122 @@ RuntimeDiagnostics Runtime::initialize(
                         multiplied(world.dispatch.rigidProxyCount),
                         valid, candidate->residentBytes);
             }
-            constexpr std::size_t maximumCohesiveArmijoBytes =
-                8u * 1024u * 1024u;
-            std::size_t cohesiveArmijoBytes = maximumCohesiveArmijoBytes + 1u;
-            if (world.dispatch.cohesiveFaceCount <= 4096u &&
-                environments <= 4u) {
-                cohesiveArmijoBytes = static_cast<std::size_t>(environments) *
-                    world.dispatch.cohesiveFaceCount *
-                    (sizeof(NMCohesiveFaceGPU) +
-                     sizeof(NMCohesiveFaceVectorGPU));
-            }
-            if ((std::getenv("NM_FEM_COHESIVE_RESIDUAL_ARMIJO_ROOT") != nullptr ||
-                 std::getenv("NM_FEM_FULL_CONTACT_RESIDUAL_ARMIJO_ROOT") != nullptr) &&
-                world.dispatch.cohesiveFaceCount != 0u &&
-                world.dispatch.cohesiveFaceCount <= 4096u &&
-                environments <= 4u &&
-                cohesiveArmijoBytes <= maximumCohesiveArmijoBytes) {
-                if (candidate->femArmijoAliasesCohesiveScratch) {
-                    candidate->femArmijoCohesiveFaces =
-                        candidate->cohesiveFacesCandidate;
-                    candidate->femArmijoCohesiveFaceForces =
-                        candidate->cohesiveFaceForces;
-                } else {
-                    candidate->femArmijoCohesiveFaces =
-                        privateScratch<NMCohesiveFaceGPU>(candidate->device,
-                            multiplied(world.dispatch.cohesiveFaceCount),
-                            valid, candidate->residentBytes);
-                    candidate->femArmijoCohesiveFaceForces =
-                        privateScratch<NMCohesiveFaceVectorGPU>(candidate->device,
-                            multiplied(world.dispatch.cohesiveFaceCount),
-                            valid, candidate->residentBytes);
+            constexpr std::uint64_t maximumCohesiveArmijoBytes =
+                8ull * 1024ull * 1024ull;
+            if (candidate->femArmijoTiledCohesiveRequested) {
+                const std::uint64_t faceCount = world.dispatch.cohesiveFaceCount;
+                const std::uint64_t environmentCount = environments;
+                const std::uint64_t faceVectorBytes =
+                    sizeof(NMCohesiveFaceVectorGPU);
+                if (faceCount == 0u || environmentCount == 0u ||
+                    environmentCount > 4u || faceVectorBytes == 0u ||
+                    faceCount >
+                        std::numeric_limits<std::uint32_t>::max() / 6u ||
+                    environmentCount >
+                        std::numeric_limits<std::uint64_t>::max() /
+                            faceVectorBytes) {
+                    diagnostics.message =
+                        "tiled cohesive private evaluation has invalid face/environment dimensions or unencodable face-slot incidence";
+                    return diagnostics;
+                }
+                const std::uint64_t bytesPerPageFace =
+                    environmentCount * faceVectorBytes;
+                const std::uint64_t maximumPageFaces =
+                    maximumCohesiveArmijoBytes / bytesPerPageFace;
+                if (tiledCohesiveOptions.hasPageCapacityOverride &&
+                    tiledCohesiveOptions.pageCapacityOverride > maximumPageFaces) {
+                    diagnostics.message =
+                        "requested tiled cohesive page exceeds the checked 8 MiB cap";
+                    return diagnostics;
+                }
+                const std::uint64_t pageCapacity =
+                    std::min(faceCount,
+                        tiledCohesiveOptions.hasPageCapacityOverride
+                            ? std::uint64_t(tiledCohesiveOptions.pageCapacityOverride)
+                            : maximumPageFaces);
+                const std::uint64_t pageElements =
+                    environmentCount * pageCapacity;
+                if (pageCapacity == 0u ||
+                    pageCapacity > std::numeric_limits<std::uint32_t>::max() ||
+                    pageElements > std::numeric_limits<std::uint32_t>::max() ||
+                    pageElements > std::numeric_limits<std::size_t>::max()) {
+                    diagnostics.message =
+                        "tiled cohesive private force page exceeds checked uint32 dispatch capacity";
+                    return diagnostics;
+                }
+                const std::uint64_t pageCount =
+                    1u + (faceCount - 1u) / pageCapacity;
+                const std::uint64_t pageBytes =
+                    environmentCount * pageCapacity * faceVectorBytes;
+                if (pageCount > std::numeric_limits<std::uint32_t>::max() ||
+                    pageBytes > maximumCohesiveArmijoBytes ||
+                    pageBytes > std::numeric_limits<std::size_t>::max() ||
+                    pageBytes > candidate->device.maxBufferLength) {
+                    diagnostics.message =
+                        "tiled cohesive private force page exceeds its 8 MiB or Metal buffer bound";
+                    return diagnostics;
+                }
+                candidate->femArmijoCohesivePageCapacity =
+                    static_cast<std::uint32_t>(pageCapacity);
+                candidate->femArmijoCohesivePageCount =
+                    static_cast<std::uint32_t>(pageCount);
+                candidate->femArmijoCohesivePageBytes = pageBytes;
+                candidate->femArmijoCohesiveFaceForces =
+                    privateScratch<NMCohesiveFaceVectorGPU>(candidate->device,
+                        // pageElements is already environment-major. The
+                        // privateScratch helper takes a total element count;
+                        // passing it through multiplied() would square the
+                        // environment factor while the admission bound above
+                        // accounts for only one factor.
+                        static_cast<std::size_t>(pageElements),
+                        valid, candidate->residentBytes);
+                if (!valid || candidate->femArmijoCohesiveFaceForces == nil ||
+                    candidate->femArmijoCohesiveFaceForces.length != pageBytes) {
+                    diagnostics.message =
+                        "failed to allocate bounded tiled cohesive force page";
+                    return diagnostics;
+                }
+                std::fprintf(stderr,
+                    "fem_cohesive_private_page_arena={\"schema\":1,\"mode\":\"ordered_face_tiles\",\"face_count\":%u,\"environment_count\":%u,\"page_capacity\":%u,\"page_count\":%u,\"scratch_bytes\":%llu,\"scratch_cap_bytes\":%llu,\"face_state_clone_bytes\":0}\n",
+                    world.dispatch.cohesiveFaceCount,
+                    static_cast<std::uint32_t>(environments),
+                    candidate->femArmijoCohesivePageCapacity,
+                    candidate->femArmijoCohesivePageCount,
+                    static_cast<unsigned long long>(
+                        candidate->femArmijoCohesivePageBytes),
+                    static_cast<unsigned long long>(
+                        maximumCohesiveArmijoBytes));
+            } else {
+                std::size_t cohesiveArmijoBytes =
+                    static_cast<std::size_t>(maximumCohesiveArmijoBytes) + 1u;
+                if (world.dispatch.cohesiveFaceCount <= 4096u &&
+                    environments <= 4u) {
+                    cohesiveArmijoBytes = static_cast<std::size_t>(environments) *
+                        world.dispatch.cohesiveFaceCount *
+                        (sizeof(NMCohesiveFaceGPU) +
+                         sizeof(NMCohesiveFaceVectorGPU));
+                }
+                if ((std::getenv("NM_FEM_COHESIVE_RESIDUAL_ARMIJO_ROOT") != nullptr ||
+                     std::getenv("NM_FEM_FULL_CONTACT_RESIDUAL_ARMIJO_ROOT") != nullptr) &&
+                    world.dispatch.cohesiveFaceCount != 0u &&
+                    world.dispatch.cohesiveFaceCount <= 4096u &&
+                    environments <= 4u &&
+                    cohesiveArmijoBytes <= maximumCohesiveArmijoBytes) {
+                    if (candidate->femArmijoAliasesCohesiveScratch) {
+                        candidate->femArmijoCohesiveFaces =
+                            candidate->cohesiveFacesCandidate;
+                        candidate->femArmijoCohesiveFaceForces =
+                            candidate->cohesiveFaceForces;
+                    } else {
+                        candidate->femArmijoCohesiveFaces =
+                            privateScratch<NMCohesiveFaceGPU>(candidate->device,
+                                multiplied(world.dispatch.cohesiveFaceCount),
+                                valid, candidate->residentBytes);
+                        candidate->femArmijoCohesiveFaceForces =
+                            privateScratch<NMCohesiveFaceVectorGPU>(candidate->device,
+                                multiplied(world.dispatch.cohesiveFaceCount),
+                                valid, candidate->residentBytes);
+                    }
                 }
             }
             if (candidate->femArmijoAliasesCohesiveScratch &&
@@ -9174,6 +9483,76 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.vascularAccepted offset:0u atIndex:20u];
                 });
             };
+            const auto encodeTiledCohesiveTrialResidual = [&]() {
+                const std::uint32_t faceCount = state.dispatch.cohesiveFaceCount;
+                const std::uint32_t pageCapacity =
+                    state.femArmijoCohesivePageCapacity;
+                for (std::uint32_t pageStart = 0u;
+                     pageStart < faceCount;) {
+                    const std::uint32_t pageCount = std::min(
+                        pageCapacity, faceCount - pageStart);
+                    const std::uint32_t pageThreads32 =
+                        state.dispatch.environmentCount * pageCount;
+                    const std::uint32_t trialReadOnly = 0u;
+                    dispatchThreads("nm_fem_cohesive_face_forces",
+                        pageThreads32, [&] {
+                        setDispatch();
+                        [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
+                        [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                        [encoder setBuffer:state.materials offset:0u atIndex:3u];
+                        [encoder setBuffer:state.scalarPrograms offset:0u atIndex:4u];
+                        [encoder setBuffer:state.instructions offset:0u atIndex:5u];
+                        [encoder setBuffer:state.environmentParameters offset:0u atIndex:6u];
+                        [encoder setBuffer:state.femAccepted offset:0u atIndex:7u];
+                        [encoder setBuffer:state.femArmijoCandidate offset:0u atIndex:8u];
+                        [encoder setBuffer:state.cohesiveFacesAccepted offset:0u atIndex:9u];
+                        [encoder setBuffer:state.cohesiveFacesCandidate offset:0u atIndex:10u];
+                        [encoder setBuffer:state.schedulers offset:0u atIndex:11u];
+                        [encoder setBuffer:state.adaptive offset:0u atIndex:12u];
+                        [encoder setBuffer:state.femArmijoCohesiveFaceForces offset:0u atIndex:13u];
+                        [encoder setBuffer:state.femArmijoStatuses offset:0u atIndex:14u];
+                        [encoder setBuffer:state.cohesiveMaterials offset:0u atIndex:15u];
+                        [encoder setBytes:&pageStart length:sizeof(pageStart) atIndex:16u];
+                        [encoder setBytes:&pageCount length:sizeof(pageCount) atIndex:17u];
+                        [encoder setBytes:&trialReadOnly
+                                   length:sizeof(trialReadOnly) atIndex:18u];
+                    });
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    dispatchThreads("nm_fem_accumulate_cohesive_page_forces",
+                        femNodeTotal, [&] {
+                        setDispatch();
+                        [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
+                        [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                        [encoder setBuffer:state.femCohesiveNodeIncidence offset:0u atIndex:3u];
+                        [encoder setBuffer:state.femCohesiveNodeRanges offset:0u atIndex:4u];
+                        [encoder setBuffer:state.schedulers offset:0u atIndex:5u];
+                        [encoder setBuffer:state.adaptive offset:0u atIndex:6u];
+                        [encoder setBuffer:state.femArmijoCohesiveFaceForces offset:0u atIndex:7u];
+                        [encoder setBuffer:state.femArmijoOperatorValue offset:0u atIndex:8u];
+                        [encoder setBuffer:state.femArmijoStatuses offset:0u atIndex:9u];
+                        [encoder setBytes:&pageStart length:sizeof(pageStart) atIndex:10u];
+                        [encoder setBytes:&pageCount length:sizeof(pageCount) atIndex:11u];
+                    });
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    pageStart += pageCount;
+                }
+                dispatchThreads("nm_fem_apply_cohesive_force_accumulator",
+                    femNodeTotal, [&] {
+                    setDispatch();
+                    [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
+                    [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                    [encoder setBuffer:state.femArmijoCandidate offset:0u atIndex:3u];
+                    [encoder setBuffer:state.femCohesiveNodeRanges offset:0u atIndex:4u];
+                    [encoder setBuffer:state.schedulers offset:0u atIndex:5u];
+                    [encoder setBuffer:state.adaptive offset:0u atIndex:6u];
+                    [encoder setBuffer:state.femArmijoOperatorValue offset:0u atIndex:7u];
+                    [encoder setBuffer:state.femArmijoResidual offset:0u atIndex:8u];
+                    [encoder setBuffer:state.femArmijoPreconditioned offset:0u atIndex:9u];
+                    [encoder setBuffer:state.femArmijoDirection offset:0u atIndex:10u];
+                    [encoder setBuffer:state.femArmijoConstraintReactions offset:0u atIndex:11u];
+                    [encoder setBuffer:state.femArmijoStatuses offset:0u atIndex:12u];
+                });
+            };
             // Opt-in, bounded copies at a single requested root preserve the
             // failing Newton iterate before transactional rollback. The caller
             // retains submission authority; no new queue, commit, or wait.
@@ -9727,12 +10106,20 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 if (const char* reason = femCapsuleBoxResidualArmijoScope(
                         true, true, hasOneFreeRigidBodyUnknown))
                     return reason;
-                if (state.femArmijoCohesiveFaces == nil ||
-                    state.femArmijoCohesiveFaceForces == nil ||
+                const bool cohesivePageArenaAvailable =
+                    state.femArmijoTiledCohesiveRequested
+                        ? (state.femArmijoCohesiveFaceForces != nil &&
+                           state.femArmijoCohesivePageCapacity != 0u &&
+                           state.femArmijoCohesivePageCount != 0u &&
+                           state.femArmijoCohesivePageBytes <=
+                               8ull * 1024ull * 1024ull)
+                        : (state.femArmijoCohesiveFaces != nil &&
+                           state.femArmijoCohesiveFaceForces != nil &&
+                           state.dispatch.cohesiveFaceCount <= 4096u);
+                if (!cohesivePageArenaAvailable ||
                     !state.femArmijoMixedCohesiveSupported ||
-                    state.dispatch.cohesiveFaceCount == 0u ||
-                    state.dispatch.cohesiveFaceCount > 4096u)
-                    return "requires_bounded_mixed_cohesive_trial_arena";
+                    state.dispatch.cohesiveFaceCount == 0u)
+                    return "requires_checked_mixed_cohesive_trial_arena";
                 if (!state.femArmijoDeformableContactScratchEnabled ||
                     state.femArmijoSurfacePrimitives == nil ||
                     state.femArmijoSurfaceBVHBounds == nil ||
@@ -9936,8 +10323,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             state.dispatch.rigidGeneralizedCapacity,
                             128u * 1024u * 1024u,
                             femSparsePrivateContactEnabled ? "sparse" : "dense",
-                            state.femArmijoAliasesCohesiveScratch
-                                ? "production_candidate_force_alias" : "private",
+                            state.femArmijoTiledCohesiveRequested
+                                ? "ordered_face_tiles"
+                                : (state.femArmijoAliasesCohesiveScratch
+                                    ? "production_candidate_force_alias" : "private"),
                             femSparsePrivateContactEnabled
                                 ? state.femArmijoSparseContactCapacity : 0u,
                             femSparsePrivateContactEnabled &&
@@ -10058,6 +10447,145 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                 femOperatorFDTraceRoot, femOperatorFDTraceIteration,
                                 0.03125f * femOperatorFDEpsilonScale,
                                 0.015625f * femOperatorFDEpsilonScale);
+                        }
+                    }
+                }
+            }
+            // Exact post-FGMRES, pre-Armijo snapshot for a bounded fully
+            // coupled failure replay. The optional path is a stem; the
+            // callback writes <stem>.bin and <stem>.json with O_EXCL. This
+            // path owns no production state and reserves no persistent arena.
+            bool femCoupledCaptureRequested = false;
+            bool femCoupledCaptureConfigValid = true;
+            bool femCoupledCaptureCaptured = false;
+            bool femCoupledCaptureRHSReady = false;
+            std::uint32_t femCoupledCaptureRoot = 0u;
+            std::uint32_t femCoupledCaptureIteration = 0u;
+            std::string femCoupledCapturePath;
+            constexpr std::uint64_t femCoupledCaptureCapBytes =
+                32u * 1024u * 1024u;
+            constexpr std::uint32_t femCoupledCaptureParticleCap = 64u;
+            const auto femCoupledCaptureScopeFailure = [&]() -> const char* {
+                if (state.dispatch.environmentCount != 1u)
+                    return "environment_count_out_of_scope";
+                if (state.dispatch.femNodeCount > 2048u)
+                    return "fem_node_count_out_of_scope";
+                if (state.dispatch.tetrahedronCount > 8192u)
+                    return "tetrahedron_count_out_of_scope";
+                if (state.dispatch.particleCount > femCoupledCaptureParticleCap)
+                    return "particle_count_out_of_scope";
+                if (state.dispatch.gridNodeCount != 0u ||
+                    state.dispatch.mpmGridCount != 0u ||
+                    state.dispatch.mpmBlockCount != 0u ||
+                    state.dispatch.mpmBlockLookupCount != 0u)
+                    return "mpm_mechanics_requires_grid_readback";
+                if (state.dispatch.rigidProxyCount > 64u ||
+                    request.rigid.currentBodyCount > 64u ||
+                    request.rigid.currentBodyStride > 64u ||
+                    request.rigid.bodyWrenchCount > 64u ||
+                    request.rigid.bodyWrenchStride > 64u ||
+                    request.rigid.sceneBodyCount > 64u ||
+                    request.rigid.sceneStride > 64u ||
+                    request.rigid.qStride > 64u ||
+                    request.rigid.vStride > 64u ||
+                    request.rigid.externalWrenchCount > 64u ||
+                    request.rigid.externalWrenchStride > 64u ||
+                    request.rigidContactConstraintStride > 64u)
+                    return "rigid_layout_out_of_scope";
+                if (state.fgmresLayout.unknownCount > 8192u)
+                    return "unknown_count_out_of_scope";
+                if (state.dispatch.contactPairCount > 131072u)
+                    return "contact_pair_count_out_of_scope";
+                if (state.dispatch.deformableContactCapacity > 16384u)
+                    return "deformable_contact_capacity_out_of_scope";
+                if (state.dispatch.cohesiveFaceCount > 8192u)
+                    return "cohesive_face_count_out_of_scope";
+                if (state.dispatch.objectCount > 64u)
+                    return "object_count_out_of_scope";
+                if (state.dispatch.materialStateStride > NM_MAX_MATERIAL_STATE)
+                    return "material_state_stride_exceeds_material_state_limit";
+                if (state.fgmresLayout.vascularUnknownCount != 0u ||
+                    state.dispatch.identificationCandidateCount != 0u ||
+                    request.mutationCommandCount != 0u ||
+                    state.enableVascularDense45)
+                    return "vascular_identification_or_mutation_state_out_of_scope";
+                const std::uint64_t envTets =
+                    static_cast<std::uint64_t>(state.dispatch.environmentCount) *
+                    state.dispatch.tetrahedronCount;
+                const std::uint64_t envParticles =
+                    static_cast<std::uint64_t>(state.dispatch.environmentCount) *
+                    state.dispatch.particleCount;
+                const std::uint64_t historyElements =
+                    (2u * envTets + 4u * envParticles) *
+                    state.dispatch.materialStateStride;
+                if (historyElements > femCoupledCaptureCapBytes / sizeof(float))
+                    return "material_history_exceeds_capture_byte_bound";
+                return nullptr;
+            };
+            const char* femCoupledCaptureSelector =
+                std::getenv("NM_FEM_COUPLED_CAPTURE_SELECTOR");
+            const char* femCoupledCapturePathText =
+                std::getenv("NM_FEM_COUPLED_CAPTURE_PATH");
+            femCoupledCaptureRequested =
+                femCoupledCaptureSelector != nullptr ||
+                femCoupledCapturePathText != nullptr;
+            if (femCoupledCaptureRequested) {
+                const auto failCoupledCaptureConfig = [&](const char* reason) {
+                    femCoupledCaptureConfigValid = false;
+                    std::fprintf(stderr,
+                        "fem_coupled_capture_error={\"schema\":1,\"reason\":\"%s\",\"physical_state_changed\":false}\n",
+                        reason);
+                };
+                if (femCoupledCaptureSelector == nullptr ||
+                    femCoupledCaptureSelector[0] == '\0' ||
+                    femCoupledCapturePathText == nullptr ||
+                    femCoupledCapturePathText[0] == '\0') {
+                    failCoupledCaptureConfig(
+                        "selector_and_nonempty_capture_path_are_both_required");
+                } else if (std::getenv("NM_FEM_OPERATOR_FD_SELECTOR") != nullptr) {
+                    failCoupledCaptureConfig(
+                        "operator_fd_capture_cannot_share_the_bounded_readback");
+                } else {
+                    const char* separator = std::strchr(
+                        femCoupledCaptureSelector, ':');
+                    const char* selectorEnd = femCoupledCaptureSelector +
+                        std::strlen(femCoupledCaptureSelector);
+                    const auto digitsOnly = [](const char* begin,
+                                               const char* end) {
+                        if (begin >= end) return false;
+                        for (const char* cursor = begin; cursor != end;
+                             ++cursor) {
+                            if (*cursor < '0' || *cursor > '9') return false;
+                        }
+                        return true;
+                    };
+                    char* rootEnd = nullptr;
+                    char* iterationEnd = nullptr;
+                    const unsigned long root = std::strtoul(
+                        femCoupledCaptureSelector, &rootEnd, 10);
+                    const unsigned long iteration = separator == nullptr
+                        ? 0ul : std::strtoul(separator + 1, &iterationEnd, 10);
+                    if (separator == nullptr || rootEnd == femCoupledCaptureSelector ||
+                        !digitsOnly(femCoupledCaptureSelector, separator) ||
+                        !digitsOnly(separator + 1, selectorEnd) ||
+                        std::strchr(separator + 1, ':') != nullptr ||
+                        rootEnd != separator || iterationEnd == separator + 1 ||
+                        *iterationEnd != '\0' ||
+                        root > std::numeric_limits<std::uint32_t>::max() ||
+                        iteration > 255ul) {
+                        failCoupledCaptureConfig(
+                            "selector_must_be_root_colon_zero_based_iteration_0_to_255");
+                    } else {
+                        femCoupledCaptureRoot =
+                            static_cast<std::uint32_t>(root);
+                        femCoupledCaptureIteration =
+                            static_cast<std::uint32_t>(iteration);
+                        femCoupledCapturePath = femCoupledCapturePathText;
+                        if (femCoupledCaptureRoot == request.controlStep) {
+                            std::fprintf(stderr,
+                                "fem_coupled_capture_enabled={\"schema\":1,\"root\":%u,\"iteration\":%u,\"capture_point\":\"after_fgmres_before_armijo\",\"readback_cap_bytes\":33554432}\n",
+                                femCoupledCaptureRoot,
+                                femCoupledCaptureIteration);
                         }
                     }
                 }
@@ -14001,9 +14529,1136 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 nonlinearBudgetOverride == 0u
                     ? state.mixedSolverValue.nonlinearIterations.x
                     : nonlinearBudgetOverride;
+            if (state.femRegionalAcceptedCorrectionRecycleEnabled) {
+                dispatchThreads("nm_fgmres_reset_regional_recycle",
+                    femNodeTotal, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.femRegionalAcceptedCorrection
+                                 offset:0u atIndex:1u];
+                    [encoder setBuffer:state.femRegionalRecycleModeState
+                                 offset:0u atIndex:2u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            }
             for (std::uint32_t nonlinearIteration = 0u;
                  nonlinearIteration < nonlinearIterationBudget;
                  ++nonlinearIteration) {
+            const auto encodeFEMCoupledNewtonCapture = [&]() -> bool {
+                if (!femCoupledCaptureRequested ||
+                    !femCoupledCaptureConfigValid ||
+                    femCoupledCaptureCaptured ||
+                    femCoupledCaptureRoot != request.controlStep ||
+                    femCoupledCaptureIteration != nonlinearIteration) {
+                    return true;
+                }
+                femCoupledCaptureCaptured = true;
+                const auto emitSkipped = [&](const char* reason,
+                                             const std::uint64_t bytes = 0u) {
+                    std::fprintf(stderr,
+                        "fem_coupled_capture_skipped={\"schema\":1,\"root\":%u,\"iteration\":%u,\"reason\":\"%s\",\"bytes\":%llu,\"physical_state_changed\":false}\n",
+                        femCoupledCaptureRoot, femCoupledCaptureIteration,
+                        reason, static_cast<unsigned long long>(bytes));
+                };
+                if (const char* scopeFailure = femCoupledCaptureScopeFailure()) {
+                    const bool historyExtentSafe =
+                        state.dispatch.environmentCount == 1u &&
+                        state.dispatch.tetrahedronCount <= 8192u &&
+                        state.dispatch.particleCount <= femCoupledCaptureParticleCap &&
+                        state.dispatch.materialStateStride <= NM_MAX_MATERIAL_STATE;
+                    const std::uint64_t historyElements = historyExtentSafe
+                        ? (2u * static_cast<std::uint64_t>(
+                               state.dispatch.environmentCount) *
+                               state.dispatch.tetrahedronCount +
+                           4u * static_cast<std::uint64_t>(
+                               state.dispatch.environmentCount) *
+                               state.dispatch.particleCount) *
+                               state.dispatch.materialStateStride
+                        : std::numeric_limits<std::uint64_t>::max();
+                    std::fprintf(stderr,
+                        "fem_coupled_capture_skipped={\"schema\":1,\"root\":%u,\"iteration\":%u,\"reason\":\"%s\",\"bytes\":0,\"observed\":{\"environment_count\":%u,\"fem_node_count\":%u,\"tetrahedron_count\":%u,\"particle_count\":%u,\"grid_node_count\":%u,\"mpm_grid_count\":%u,\"mpm_block_count\":%u,\"mpm_block_lookup_count\":%u,\"material_state_stride\":%u,\"material_history_elements\":%llu},\"physical_state_changed\":false}\n",
+                        femCoupledCaptureRoot, femCoupledCaptureIteration,
+                        scopeFailure, state.dispatch.environmentCount,
+                        state.dispatch.femNodeCount, state.dispatch.tetrahedronCount,
+                        state.dispatch.particleCount, state.dispatch.gridNodeCount,
+                        state.dispatch.mpmGridCount, state.dispatch.mpmBlockCount,
+                        state.dispatch.mpmBlockLookupCount,
+                        state.dispatch.materialStateStride,
+                        static_cast<unsigned long long>(historyElements));
+                    return true;
+                }
+                // This snapshot captures one free, non-articulated rigid
+                // candidate through the coupled generalized buffers. The
+                // articulated q/v path has additional model-owned state and
+                // is deliberately outside this replay format.
+                if (coupledArticulatedNv != 0u) {
+                    emitSkipped("articulated_generalized_unknowns_not_supported");
+                    return true;
+                }
+                if (!femCoupledCaptureRHSReady ||
+                    state.femTrueResidualRightHandSide == nil) {
+                    emitSkipped("pre_fgmres_full_rhs_not_preserved");
+                    return true;
+                }
+
+                constexpr std::uint64_t captureCap =
+                    femCoupledCaptureCapBytes;
+                constexpr std::size_t captureArrayCap = 192u;
+                struct CoupledCaptureArray {
+                    std::string name;
+                    std::string sourceName;
+                    std::string dtype;
+                    std::uint64_t offset = 0u;
+                    std::uint64_t byteCount = 0u;
+                    std::uint64_t elementBytes = 0u;
+                    std::uint64_t count = 0u;
+                    std::uint32_t sourceSlot = NM_INVALID_INDEX;
+                    std::vector<unsigned char> hostBytes;
+                };
+                std::vector<CoupledCaptureArray> arrays;
+                std::vector<void*> sources;
+                std::vector<std::string> omittedOptional;
+                std::uint64_t payloadBytes = 0u;
+                bool layoutValid = true;
+                const auto appendBuffer = [&](const char* name,
+                                              const char* dtype,
+                                              const std::uint64_t elementBytes,
+                                              id<MTLBuffer> source,
+                                              const bool required) {
+                    if (source == nil) {
+                        if (required) layoutValid = false;
+                        else omittedOptional.emplace_back(name);
+                        return;
+                    }
+                    if (elementBytes == 0u || source.length == 0u ||
+                        source.length % elementBytes != 0u ||
+                        source.length > state.device.maxBufferLength ||
+                        source.length > captureCap ||
+                        payloadBytes > captureCap - source.length ||
+                        arrays.size() >= captureArrayCap) {
+                        layoutValid = false;
+                        return;
+                    }
+                    CoupledCaptureArray array;
+                    array.name = name;
+                    array.sourceName = name;
+                    array.dtype = dtype;
+                    array.offset = payloadBytes;
+                    array.byteCount = source.length;
+                    array.elementBytes = elementBytes;
+                    array.count = source.length / elementBytes;
+                    array.sourceSlot = static_cast<std::uint32_t>(sources.size());
+                    sources.push_back((__bridge void*)source);
+                    arrays.push_back(std::move(array));
+                    payloadBytes += source.length;
+                };
+                const auto appendBorrowed = [&](const char* name,
+                                                const char* dtype,
+                                                const std::uint64_t elementBytes,
+                                                void* borrowed,
+                                                const bool required) {
+                    id<MTLBuffer> source = borrowed == nullptr
+                        ? nil : (__bridge id<MTLBuffer>)borrowed;
+                    appendBuffer(name, dtype, elementBytes, source, required);
+                };
+                const auto appendHost = [&](const char* name,
+                                            const char* dtype,
+                                            const void* data,
+                                            const std::uint64_t byteCount,
+                                            const std::uint64_t elementBytes) {
+                    if (data == nullptr || byteCount == 0u || elementBytes == 0u ||
+                        byteCount % elementBytes != 0u ||
+                        byteCount > captureCap ||
+                        payloadBytes > captureCap - byteCount ||
+                        arrays.size() >= captureArrayCap) {
+                        layoutValid = false;
+                        return;
+                    }
+                    CoupledCaptureArray array;
+                    array.name = name;
+                    array.sourceName = "host_snapshot";
+                    array.dtype = dtype;
+                    array.offset = payloadBytes;
+                    array.byteCount = byteCount;
+                    array.elementBytes = elementBytes;
+                    array.count = byteCount / elementBytes;
+                    const auto* first = static_cast<const unsigned char*>(data);
+                    array.hostBytes.assign(first, first + byteCount);
+                    arrays.push_back(std::move(array));
+                    payloadBytes += byteCount;
+                };
+                const std::uint64_t envNodes =
+                    static_cast<std::uint64_t>(state.dispatch.environmentCount) *
+                    state.dispatch.femNodeCount;
+                const std::uint64_t envTets =
+                    static_cast<std::uint64_t>(state.dispatch.environmentCount) *
+                    state.dispatch.tetrahedronCount;
+                const std::uint64_t envCohesive =
+                    static_cast<std::uint64_t>(state.dispatch.environmentCount) *
+                    state.dispatch.cohesiveFaceCount;
+                appendHost("dispatch_record", "record:NMMatterDispatchGPU",
+                    &state.dispatch, sizeof(state.dispatch), sizeof(state.dispatch));
+                appendHost("fgmres_layout_record", "record:NMFGMRESLayoutGPU",
+                    &state.fgmresLayout, sizeof(state.fgmresLayout),
+                    sizeof(state.fgmresLayout));
+                appendHost("microstep_record", "record:NMMicrostepGPU",
+                    &micro, sizeof(micro), sizeof(micro));
+                const std::array<std::uint32_t, 5> coupledLayout = {
+                    state.coupledQStride, state.coupledVStride,
+                    state.coupledBodyStride,
+                    state.coupledCandidateCompensatedTranslation ? 1u : 0u,
+                    coupledArticulatedNv};
+                appendHost("coupled_layout", "uint32x5",
+                    coupledLayout.data(), sizeof(coupledLayout),
+                    sizeof(std::uint32_t));
+                appendHost("human_support_dispatch",
+                    "record:NMHumanSupportDispatchGPU",
+                    &state.humanSupportDispatch, sizeof(state.humanSupportDispatch),
+                    sizeof(state.humanSupportDispatch));
+                appendHost("human_equality_dispatch",
+                    "record:NMHumanEqualityDispatchGPU",
+                    &state.humanEqualityDispatch,
+                    sizeof(state.humanEqualityDispatch),
+                    sizeof(state.humanEqualityDispatch));
+                appendHost("human_limit_dispatch",
+                    "record:NMHumanLimitDispatchGPU",
+                    &state.humanLimitDispatch, sizeof(state.humanLimitDispatch),
+                    sizeof(state.humanLimitDispatch));
+                const std::array<std::uint32_t, 8> regionalGraphLayout = {
+                    state.femRegionalGraphPatchCount,
+                    state.femRegionalGraphPatchNodeCount,
+                    state.femRegionalGraphDofCount,
+                    state.femRegionalGraphMatrixFloatCount,
+                    state.femRegionalGraphPivotCount,
+                    state.femRegionalGraphLayoutChecksum,
+                    state.femRegionalGraphParallelSearch,
+                    state.femRegionalModeCount};
+                appendHost("regional_graph_layout", "uint32x8",
+                    regionalGraphLayout.data(), sizeof(regionalGraphLayout),
+                    sizeof(std::uint32_t));
+                appendBuffer("dispatch_buffer", "record:NMMatterDispatchGPU",
+                    sizeof(NMMatterDispatchGPU), state.dispatchBuffer, true);
+                appendBuffer("mixed_solver", "record:NMMixedSolverGPU",
+                    sizeof(NMMixedSolverGPU), state.mixedSolver, true);
+                appendBuffer("objects", "record:NMContinuumObjectGPU",
+                    sizeof(NMContinuumObjectGPU), state.objects, true);
+                appendBuffer("materials", "record:NMMaterialGPU",
+                    sizeof(NMMaterialGPU), state.materials, true);
+                appendBuffer("cohesive_materials", "record:NMCohesiveMaterialGPU",
+                    sizeof(NMCohesiveMaterialGPU), state.cohesiveMaterials, false);
+                appendBuffer("mixed_materials", "record:NMMixedMaterialGPU",
+                    sizeof(NMMixedMaterialGPU), state.mixedMaterials, false);
+                appendBuffer("mixed_field_solution", "float32x4",
+                    sizeof(nm_float4), state.mixedFieldSolution, false);
+                appendBuffer("mixed_field_residual", "float32x4",
+                    sizeof(nm_float4), state.mixedFieldResidual, false);
+                appendBuffer("mixed_field_preconditioned", "float32x4",
+                    sizeof(nm_float4), state.mixedFieldPreconditioned, false);
+                appendBuffer("mixed_field_inverse_diagonal", "float32x4",
+                    sizeof(nm_float4), state.mixedFieldInverseDiagonal, false);
+                appendBuffer("mixed_field_operator", "float32x4",
+                    sizeof(nm_float4), state.mixedFieldOperator, false);
+                appendBuffer("learned_materials", "record:NMLearnedMaterialGPU",
+                    sizeof(NMLearnedMaterialGPU), state.learnedMaterials, false);
+                appendBuffer("learned_layers", "record:NMLearnedLayerGPU",
+                    sizeof(NMLearnedLayerGPU), state.learnedLayers, false);
+                appendBuffer("learned_weights_candidate", "float32",
+                    sizeof(float), state.learnedWeightsCandidate, false);
+                appendBuffer("learned_weights_accepted", "float32",
+                    sizeof(float), state.learnedWeightsAccepted, false);
+                appendBuffer("learned_weight_defaults", "float32",
+                    sizeof(float), state.learnedWeightDefaults, false);
+                appendBuffer("scalar_programs", "record:NMScalarProgramGPU",
+                    sizeof(NMScalarProgramGPU), state.scalarPrograms, true);
+                appendBuffer("instructions", "record:NMExpressionInstructionGPU",
+                    sizeof(NMExpressionInstructionGPU), state.instructions, true);
+                appendBuffer("parameter_defaults", "float32",
+                    sizeof(float), state.parameterDefaults, false);
+                appendBuffer("environment_parameters", "float32",
+                    sizeof(float), state.environmentParameters, true);
+                appendBuffer("fem_accepted_nodes", "record:NMFEMNodeStateGPU",
+                    sizeof(NMFEMNodeStateGPU), state.femAccepted, true);
+                appendBuffer("fem_candidate_nodes", "record:NMFEMNodeStateGPU",
+                    sizeof(NMFEMNodeStateGPU), state.femCandidate, true);
+                appendBuffer("tetrahedra_accepted", "record:NMTetrahedronGPU",
+                    sizeof(NMTetrahedronGPU), state.femTetrahedraAccepted, true);
+                appendBuffer("tetrahedra_candidate", "record:NMTetrahedronGPU",
+                    sizeof(NMTetrahedronGPU), state.femTetrahedraCandidate, true);
+                appendBuffer("material_history_accepted", "float32",
+                    sizeof(float), state.femMaterialStateAccepted, true);
+                appendBuffer("material_history_candidate", "float32",
+                    sizeof(float), state.femMaterialStateCandidate, true);
+                const bool particlesPresent = state.dispatch.particleCount != 0u;
+                appendBuffer("particle_defaults", "record:NMParticleStateGPU",
+                    sizeof(NMParticleStateGPU), state.particleDefaults,
+                    particlesPresent);
+                appendBuffer("particles_accepted", "record:NMParticleStateGPU",
+                    sizeof(NMParticleStateGPU), state.particleAccepted,
+                    particlesPresent);
+                appendBuffer("particles_candidate", "record:NMParticleStateGPU",
+                    sizeof(NMParticleStateGPU), state.particleCandidate,
+                    particlesPresent);
+                appendBuffer("particle_checkpoint", "record:NMParticleStateGPU",
+                    sizeof(NMParticleStateGPU), state.particleCheckpoint,
+                    particlesPresent);
+                appendBuffer("particle_material_state_defaults", "float32",
+                    sizeof(float), state.particleMaterialStateDefaults,
+                    particlesPresent);
+                appendBuffer("particle_material_state_accepted", "float32",
+                    sizeof(float), state.particleMaterialStateAccepted,
+                    particlesPresent);
+                appendBuffer("particle_material_state_candidate", "float32",
+                    sizeof(float), state.particleMaterialStateCandidate,
+                    particlesPresent);
+                appendBuffer("particle_material_state_checkpoint", "float32",
+                    sizeof(float), state.particleMaterialStateCheckpoint,
+                    particlesPresent);
+                appendBuffer("mpm_active_node_counts", "uint32",
+                    sizeof(std::uint32_t), state.mpmActiveNodeCounts,
+                    particlesPresent);
+                appendBuffer("mpm_active_dispatch", "record:NMIndirectDispatchGPU",
+                    sizeof(NMIndirectDispatchGPU), state.mpmActiveDispatch,
+                    particlesPresent);
+                appendBuffer("mpm_particle_keys", "record:NMMPMParticleKeyGPU",
+                    sizeof(NMMPMParticleKeyGPU), state.mpmParticleKeys,
+                    particlesPresent);
+                appendBuffer("mpm_sorted_particle_indices", "uint32",
+                    sizeof(std::uint32_t), state.mpmSortedParticleIndices,
+                    particlesPresent);
+                appendBuffer("mpm_environment_active_counts", "uint32",
+                    sizeof(std::uint32_t), state.mpmEnvironmentActiveCounts,
+                    particlesPresent);
+                appendBuffer("fields_accepted", "record:NMFEMFieldStateGPU",
+                    sizeof(NMFEMFieldStateGPU), state.femFieldsAccepted, false);
+                appendBuffer("fields_candidate", "record:NMFEMFieldStateGPU",
+                    sizeof(NMFEMFieldStateGPU), state.femFieldsCandidate, false);
+                appendBuffer("node_ranges", "record:NMIncidenceRangeGPU",
+                    sizeof(NMIncidenceRangeGPU), state.femNodeRanges, true);
+                appendBuffer("tetrahedron_node_incidence", "uint32",
+                    sizeof(std::uint32_t), state.femNodeIncidence, true);
+                appendBuffer("cohesive_node_ranges", "record:NMIncidenceRangeGPU",
+                    sizeof(NMIncidenceRangeGPU), state.femCohesiveNodeRanges, false);
+                appendBuffer("cohesive_node_incidence", "uint32",
+                    sizeof(std::uint32_t), state.femCohesiveNodeIncidence, false);
+                appendBuffer("surface_faces", "record:NMFEMSurfaceFaceGPU",
+                    sizeof(NMFEMSurfaceFaceGPU), state.femSurfaceFaces, false);
+                appendBuffer("surface_primitives", "record:NMContinuumSurfacePrimitiveGPU",
+                    sizeof(NMContinuumSurfacePrimitiveGPU),
+                    state.continuumSurfacePrimitives, false);
+                appendBuffer("fields_boundaries", "record:NMFieldBoundaryGPU",
+                    sizeof(NMFieldBoundaryGPU), state.fieldBoundaries, false);
+                appendBuffer("fem_topology_nodes_accepted",
+                    "record:NMFEMTopologyNodeGPU", sizeof(NMFEMTopologyNodeGPU),
+                    state.femTopologyNodesAccepted, false);
+                appendBuffer("fem_topology_nodes_candidate",
+                    "record:NMFEMTopologyNodeGPU", sizeof(NMFEMTopologyNodeGPU),
+                    state.femTopologyNodesCandidate, false);
+                appendBuffer("adaptive_state", "record:NMAdaptiveStateGPU",
+                    sizeof(NMAdaptiveStateGPU), state.adaptive, true);
+                appendBuffer("scheduler_state", "record:NMSchedulerStateGPU",
+                    sizeof(NMSchedulerStateGPU), state.schedulers, true);
+                appendBuffer("solver_statuses", "record:NMMatterStatusGPU",
+                    sizeof(NMMatterStatusGPU), state.statuses, true);
+                appendBuffer("deformable_contact_failures",
+                    "record:NMDeformableContactFailureGPU",
+                    sizeof(NMDeformableContactFailureGPU),
+                    state.deformableContactFailures, false);
+                appendBuffer("solver_certificates", "record:NMSolverCertificateGPU",
+                    sizeof(NMSolverCertificateGPU), state.solverCertificates, false);
+                appendBuffer("element_forces", "record:NMFEMElementVectorGPU",
+                    sizeof(NMFEMElementVectorGPU), state.elementForces, false);
+                appendBuffer("element_operator", "record:NMFEMElementVectorGPU",
+                    sizeof(NMFEMElementVectorGPU), state.elementOperator, false);
+                appendBuffer("cohesive_faces_accepted", "record:NMCohesiveFaceGPU",
+                    sizeof(NMCohesiveFaceGPU), state.cohesiveFacesAccepted, false);
+                appendBuffer("cohesive_faces_candidate", "record:NMCohesiveFaceGPU",
+                    sizeof(NMCohesiveFaceGPU), state.cohesiveFacesCandidate, false);
+                appendBuffer("cohesive_face_forces", "record:NMCohesiveFaceVectorGPU",
+                    sizeof(NMCohesiveFaceVectorGPU), state.cohesiveFaceForces, false);
+                appendBuffer("cohesive_face_operator", "record:NMCohesiveFaceVectorGPU",
+                    sizeof(NMCohesiveFaceVectorGPU), state.cohesiveFaceOperator, false);
+                appendBuffer("cohesive_surface_face_ranges", "record:NMIncidenceRangeGPU",
+                    sizeof(NMIncidenceRangeGPU), state.cohesiveSurfaceFaceRanges, false);
+                appendBuffer("cohesive_surface_face_refs", "uint32",
+                    sizeof(std::uint32_t), state.cohesiveSurfaceFaceRefs, false);
+                appendBuffer("fem_solution_correction", "float32x4",
+                    sizeof(nm_float4), state.femSolution, true);
+                appendBuffer("fem_rhs_after_fgmres", "float32x4",
+                    sizeof(nm_float4), state.femResidual, true);
+                appendBuffer("full_rhs_before_fgmres", "float32x4",
+                    sizeof(nm_float4), state.femTrueResidualRightHandSide, true);
+                appendBuffer("fem_direction_workspace", "float32x4",
+                    sizeof(nm_float4), state.femDirection, false);
+                appendBuffer("fem_operator_action_workspace", "float32x4",
+                    sizeof(nm_float4), state.femOperatorValue, false);
+                appendBuffer("fgmres_state", "record:NMFGMRESStateGPU",
+                    sizeof(NMFGMRESStateGPU), state.fgmresStates, true);
+                appendBuffer("constraint_reactions", "float32x4",
+                    sizeof(nm_float4), state.femConstraintReactions, false);
+                appendBuffer("constraint_contact_forces", "float32x4",
+                    sizeof(nm_float4), state.femConstraintContactForces, false);
+                appendBuffer("human_attachments", "record:NMFEMHumanAttachmentGPU",
+                    sizeof(NMFEMHumanAttachmentGPU), state.femHumanAttachments, false);
+                appendBuffer("human_attachment_point_jacobians", "float32",
+                    sizeof(float), state.femHumanAttachmentPointJacobians, false);
+                appendBuffer("human_attachment_point_queries", "float32x4",
+                    sizeof(nm_float4), state.femHumanAttachmentPointQueries, false);
+                appendBuffer("human_attachment_residual_impulses", "float32x4",
+                    sizeof(nm_float4), state.femHumanAttachmentResidualImpulses, false);
+                appendBuffer("human_attachment_raw_reactions", "float32x4",
+                    sizeof(nm_float4), state.femHumanAttachmentRawReactions, false);
+                appendBuffer("human_attachment_operator", "float32x4",
+                    sizeof(nm_float4), state.femHumanAttachmentOperator, false);
+                appendBuffer("human_equality_rows",
+                    "record:NMHumanJointEqualityGPU",
+                    sizeof(NMHumanJointEqualityGPU), state.humanEqualityRows, false);
+                appendBuffer("human_equality_linearization", "float32x4",
+                    sizeof(nm_float4), state.humanEqualityLinearization, false);
+                appendBuffer("human_equality_factor", "float32",
+                    sizeof(float), state.humanEqualityFactor, false);
+                appendBuffer("human_limit_rows", "record:NMHumanJointLimitGPU",
+                    sizeof(NMHumanJointLimitGPU), state.humanLimitRows, false);
+                appendBuffer("human_limit_linearization", "float32x4",
+                    sizeof(nm_float4), state.humanLimitLinearization, false);
+                appendBuffer("human_limit_tangent", "float32",
+                    sizeof(float), state.humanLimitTangent, false);
+                appendBuffer("human_support_contacts",
+                    "record:NMHumanSupportContactGPU",
+                    sizeof(NMHumanSupportContactGPU), state.humanSupportContacts, false);
+                appendBuffer("human_support_point_queries",
+                    "record:NMHumanSupportPointQueryGPU",
+                    sizeof(NMHumanSupportPointQueryGPU),
+                    state.humanSupportPointQueries, false);
+                appendBuffer("human_support_point_jacobians", "float32",
+                    sizeof(float), state.humanSupportPointJacobians, false);
+                appendBuffer("human_support_samples", "record:NMContactSampleGPU",
+                    sizeof(NMContactSampleGPU), state.humanSupportSamples, false);
+                appendBuffer("human_support_linearizations",
+                    "record:NMHumanSupportKKTGPU",
+                    sizeof(NMHumanSupportKKTGPU), state.humanSupportLinearizations, false);
+                appendBuffer("human_support_histories_accepted", "float32x4",
+                    sizeof(nm_float4), state.humanSupportHistoriesAccepted, false);
+                appendBuffer("human_support_histories_candidate", "float32x4",
+                    sizeof(nm_float4), state.humanSupportHistoriesCandidate, false);
+                appendBuffer("human_support_working_set", "uint32",
+                    sizeof(std::uint32_t), state.humanSupportWorkingSet, false);
+                appendBuffer("human_support_cone_working_set", "uint32",
+                    sizeof(std::uint32_t), state.humanSupportConeWorkingSet, false);
+                appendBuffer("human_support_cone_targets", "float32x4",
+                    sizeof(nm_float4), state.humanSupportConeTargets, false);
+                appendBuffer("human_support_consequences_accepted",
+                    "record:NMHumanSupportConsequenceGPU",
+                    sizeof(NMHumanSupportConsequenceGPU),
+                    state.humanSupportConsequencesAccepted, false);
+                appendBuffer("human_support_consequences_candidate",
+                    "record:NMHumanSupportConsequenceGPU",
+                    sizeof(NMHumanSupportConsequenceGPU),
+                    state.humanSupportConsequencesCandidate, false);
+                if (!state.humanSupportContactLayout.empty()) {
+                    appendHost("human_support_contact_layout",
+                        "record:NMHumanSupportContactGPU",
+                        state.humanSupportContactLayout.data(),
+                        state.humanSupportContactLayout.size() *
+                            sizeof(NMHumanSupportContactGPU),
+                        sizeof(NMHumanSupportContactGPU));
+                } else {
+                    omittedOptional.emplace_back("human_support_contact_layout");
+                }
+                appendBuffer("rigid_proxies", "record:NMRigidProxyGPU",
+                    sizeof(NMRigidProxyGPU), state.rigidProxies, false);
+                appendBuffer("rigid_states", "record:NMRigidStateGPU",
+                    sizeof(NMRigidStateGPU), state.rigidStates, false);
+                appendBuffer("coupled_generalized_input", "float32",
+                    sizeof(float), state.coupledGeneralizedInput, false);
+                appendBuffer("coupled_generalized_output", "float32",
+                    sizeof(float), state.coupledGeneralizedOutput, false);
+                appendBuffer("coupled_generalized_candidate", "float32",
+                    sizeof(float), state.coupledGeneralizedCandidate, false);
+                appendBuffer("coupled_point_jacobians", "float32",
+                    sizeof(float), state.coupledPointJacobians, false);
+                appendBuffer("coupled_inverse_statuses", "uint32",
+                    sizeof(std::uint32_t), state.coupledInverseStatuses, false);
+                appendBuffer("coupled_candidate_q", "float32",
+                    sizeof(float), state.coupledCandidateQ, false);
+                appendBuffer("coupled_candidate_bodies", "record:MRBodyStateGPU",
+                    sizeof(MRBodyStateGPU), state.coupledCandidateBodies, false);
+                appendBuffer("coupled_candidate_root_translation", "float32x4",
+                    sizeof(nm_float4), state.coupledCandidateRootTranslation, false);
+                appendBuffer("coupled_candidate_body_position_low", "float32x4",
+                    sizeof(nm_float4), state.coupledCandidateBodyPositionLow, false);
+                appendBuffer("contact_pairs", "record:NMContactPairGPU",
+                    sizeof(NMContactPairGPU), state.contactPairs, false);
+                appendBuffer("contact_samples", "record:NMContactSampleGPU",
+                    sizeof(NMContactSampleGPU), state.contactSamples, false);
+                appendBuffer("contact_histories_accepted", "float32x4",
+                    sizeof(nm_float4), state.contactHistoriesAccepted, false);
+                appendBuffer("contact_histories_candidate", "float32x4",
+                    sizeof(nm_float4), state.contactHistoriesCandidate, false);
+                appendBuffer("contact_active_pairs", "record:NMContactPairGPU",
+                    sizeof(NMContactPairGPU), state.contactActivePairs, false);
+                appendBuffer("contact_active_slots_by_pair", "uint32",
+                    sizeof(std::uint32_t), state.contactActiveSlotsByPair, false);
+                appendBuffer("contact_active_counts", "uint32x4",
+                    sizeof(nm_uint4), state.contactActiveCounts, false);
+                appendBuffer("deformable_contacts", "record:NMDeformableContactGPU",
+                    sizeof(NMDeformableContactGPU), state.deformableContacts, false);
+                appendBuffer("deformable_contact_candidates",
+                    "record:NMDeformableContactCandidateGPU",
+                    sizeof(NMDeformableContactCandidateGPU),
+                    state.deformableContactCandidates, false);
+                appendBuffer("deformable_contact_candidate_counts", "uint32x4",
+                    sizeof(nm_uint4), state.deformableContactCandidateCounts, false);
+                appendBuffer("deformable_contact_histories_accepted",
+                    "record:NMDeformableContactHistoryGPU",
+                    sizeof(NMDeformableContactHistoryGPU),
+                    state.deformableContactHistoriesAccepted, false);
+                appendBuffer("deformable_contact_histories_candidate",
+                    "record:NMDeformableContactHistoryGPU",
+                    sizeof(NMDeformableContactHistoryGPU),
+                    state.deformableContactHistoriesCandidate, false);
+                appendBuffer("deformable_contact_active_indices", "uint32",
+                    sizeof(std::uint32_t), state.deformableContactActiveIndices, false);
+                appendBuffer("deformable_contact_active_counts", "uint32x4",
+                    sizeof(nm_uint4), state.deformableContactActiveCounts, false);
+                appendBuffer("deformable_contact_node_incidence", "uint32",
+                    sizeof(std::uint32_t), state.deformableContactNodeIncidence, false);
+                appendBuffer("deformable_contact_node_ranges",
+                    "record:NMIncidenceRangeGPU", sizeof(NMIncidenceRangeGPU),
+                    state.deformableContactNodeRanges, false);
+                appendBuffer("deformable_contact_active_offsets", "uint32",
+                    sizeof(std::uint32_t), state.deformableContactActiveOffsets, false);
+                appendBuffer("deformable_contact_global_active_indices", "uint32",
+                    sizeof(std::uint32_t), state.deformableContactGlobalActiveIndices, false);
+                appendBuffer("deformable_contact_active_dispatch",
+                    "record:NMIndirectDispatchGPU", sizeof(NMIndirectDispatchGPU),
+                    state.deformableContactActiveDispatch, false);
+                appendBuffer("algorithmic_tangent_cache", "float32",
+                    sizeof(float), state.femAlgorithmicTangentCache, false);
+                appendBuffer("algorithmic_tangent_cache_valid", "uint32",
+                    sizeof(std::uint32_t), state.femAlgorithmicTangentCacheValid, false);
+                appendBuffer("fgmres_basis", "float32x4",
+                    sizeof(nm_float4), state.fgmresBasis, true);
+                appendBuffer("fgmres_preconditioned_basis", "float32x4",
+                    sizeof(nm_float4), state.fgmresPreconditionedBasis, true);
+                appendBuffer("fgmres_hessenberg", "float32",
+                    sizeof(float), state.fgmresHessenberg, true);
+                appendBuffer("fgmres_rotations", "float32",
+                    sizeof(float), state.fgmresRotations, true);
+                appendBuffer("fgmres_least_squares", "float32",
+                    sizeof(float), state.fgmresLeastSquares, true);
+                appendBuffer("fgmres_restart_coefficients", "float32",
+                    sizeof(float), state.fgmresRestartCoefficients, true);
+                appendBuffer("regional_basis", "float32x4",
+                    sizeof(nm_float4), state.femRegionalBasis, false);
+                appendBuffer("regional_effective_basis", "float32x4",
+                    sizeof(nm_float4), state.femRegionalEffectiveBasis, false);
+                appendBuffer("regional_ap", "float32x4",
+                    sizeof(nm_float4), state.femRegionalAP, false);
+                appendBuffer("regional_coarse_matrix", "float32",
+                    sizeof(float), state.femRegionalCoarseMatrix, false);
+                appendBuffer("regional_coarse_pivots", "uint32",
+                    sizeof(std::uint32_t), state.femRegionalCoarsePivots, false);
+                appendBuffer("regional_coarse_rhs", "float32",
+                    sizeof(float), state.femRegionalCoarseRHS, false);
+                appendBuffer("regional_coarse_coefficients", "float32",
+                    sizeof(float), state.femRegionalCoarseCoefficients, false);
+                appendBuffer("regional_coarse_valid", "uint32",
+                    sizeof(std::uint32_t), state.femRegionalCoarseValid, false);
+                appendBuffer("regional_node_block_inverse", "float32x4",
+                    sizeof(nm_float4), state.femRegionalNodeBlockInverse, false);
+                const bool graphSchwarzSelected =
+                    state.mixedSolverValue.executionBudgets.z == 5u;
+                appendBuffer("regional_graph_patches", "uint32x4",
+                    sizeof(nm_uint4), state.femRegionalGraphPatches,
+                    graphSchwarzSelected);
+                appendBuffer("regional_graph_patch_nodes", "uint32",
+                    sizeof(std::uint32_t), state.femRegionalGraphPatchNodes,
+                    graphSchwarzSelected);
+                appendBuffer("regional_graph_rows", "uint32x4",
+                    sizeof(nm_uint4), state.femRegionalGraphRows,
+                    graphSchwarzSelected);
+                appendBuffer("regional_graph_node_patch_offsets", "uint32",
+                    sizeof(std::uint32_t), state.femRegionalGraphNodePatchOffsets,
+                    graphSchwarzSelected);
+                appendBuffer("regional_graph_node_patch_values", "uint32",
+                    sizeof(std::uint32_t), state.femRegionalGraphNodePatchValues,
+                    graphSchwarzSelected);
+                appendBuffer("regional_graph_node_coverage", "uint32",
+                    sizeof(std::uint32_t), state.femRegionalGraphNodeCoverage,
+                    graphSchwarzSelected);
+                appendBuffer("regional_graph_factors", "float32",
+                    sizeof(float), state.femRegionalGraphFactors,
+                    graphSchwarzSelected);
+                appendBuffer("regional_graph_pivots", "uint32",
+                    sizeof(std::uint32_t), state.femRegionalGraphPivots,
+                    graphSchwarzSelected);
+                appendBuffer("regional_graph_factor_valid", "uint32",
+                    sizeof(std::uint32_t), state.femRegionalGraphFactorValid,
+                    graphSchwarzSelected);
+                appendBuffer("regional_graph_patch_corrections", "float32x4",
+                    sizeof(nm_float4), state.femRegionalGraphPatchCorrections,
+                    graphSchwarzSelected);
+                if (graphSchwarzSelected) {
+                    omittedOptional.emplace_back(
+                        "regional_graph_original_matrices_reconstruct_from_same_candidate_operator");
+                }
+                appendBorrowed("borrowed_rigid_q", "float32", sizeof(float),
+                    request.rigid.q, request.rigid.qStride != 0u);
+                appendBorrowed("borrowed_rigid_v", "float32", sizeof(float),
+                    request.rigid.v, request.rigid.vStride != 0u);
+                appendBorrowed("borrowed_current_bodies", "record:MRBodyStateGPU",
+                    sizeof(MRBodyStateGPU), request.rigid.currentBodies,
+                    request.rigid.currentBodyCount != 0u);
+                appendBorrowed("borrowed_scene_bodies", "record:MRBodyStateGPU",
+                    sizeof(MRBodyStateGPU), request.rigid.sceneBodies,
+                    request.rigid.sceneBodyCount != 0u);
+                appendBorrowed("borrowed_body_wrenches", "record:MRABABodyWrenchGPU",
+                    sizeof(MRABABodyWrenchGPU), request.rigid.bodyWrenches,
+                    request.rigid.bodyWrenchCount != 0u);
+                appendBorrowed("borrowed_external_wrenches", "record:MRABABodyWrenchGPU",
+                    sizeof(MRABABodyWrenchGPU), request.rigid.externalWrenches,
+                    request.rigid.externalWrenchCount != 0u);
+                appendBorrowed("borrowed_fem_external_forces", "float32x4",
+                    sizeof(nm_float4), request.femExternalForces, false);
+                appendBorrowed("borrowed_fem_kinematic_targets", "float32x4",
+                    sizeof(nm_float4), request.femKinematicTargets, false);
+                appendBorrowed("borrowed_rigid_contact_constraints", "byte",
+                    1u, request.rigidContactConstraints,
+                    request.rigidContactConstraintStride != 0u ||
+                        request.rigidContactConstraints != nullptr);
+                appendBorrowed("borrowed_rigid_contact_statuses", "byte",
+                    1u, request.rigidContactStatuses,
+                    request.rigidContactConstraintStride != 0u ||
+                        request.rigidContactStatuses != nullptr);
+                const auto requireMinimumBufferBytes = [&](const char* name,
+                                                            id<MTLBuffer> source,
+                                                            const std::uint64_t minimumBytes) {
+                    if (source == nil || source.length < minimumBytes) {
+                        layoutValid = false;
+                        omittedOptional.emplace_back(
+                            std::string("extent_error:") + name);
+                    }
+                };
+                const std::uint64_t expectedNodeBytes =
+                    envNodes * sizeof(NMFEMNodeStateGPU);
+                const std::uint64_t expectedTetBytes =
+                    envTets * sizeof(NMTetrahedronGPU);
+                const std::uint64_t expectedMaterialStateBytes =
+                    envTets * state.dispatch.materialStateStride * sizeof(float);
+                const std::uint64_t envParticles =
+                    static_cast<std::uint64_t>(state.dispatch.environmentCount) *
+                    state.dispatch.particleCount;
+                const std::uint64_t expectedParticleBytes =
+                    envParticles * sizeof(NMParticleStateGPU);
+                const std::uint64_t expectedParticleMaterialStateBytes =
+                    envParticles * state.dispatch.materialStateStride * sizeof(float);
+                const std::uint64_t expectedVectorBytes =
+                    static_cast<std::uint64_t>(state.fgmresLayout.unknownCount) *
+                    sizeof(nm_float4);
+                const std::uint64_t expectedCohesiveBytes =
+                    envCohesive * sizeof(NMCohesiveFaceGPU);
+                const std::uint64_t expectedContactPairs =
+                    static_cast<std::uint64_t>(state.dispatch.environmentCount) *
+                    state.dispatch.contactPairCount;
+                const std::uint64_t expectedContactHistoryBytes =
+                    expectedContactPairs * sizeof(nm_float4);
+                const std::uint32_t configuredFGMRESRestart = std::clamp(
+                    state.mixedSolverValue.nonlinearIterations.y,
+                    1u, static_cast<std::uint32_t>(NM_MIXED_FGMRES_RESTART));
+                const std::uint64_t expectedFGMRESBasisBytes =
+                    expectedVectorBytes * (configuredFGMRESRestart + 1u);
+                const std::uint64_t expectedFGMRESPreconditionedBasisBytes =
+                    expectedVectorBytes * configuredFGMRESRestart;
+                const std::uint64_t expectedFGMRESHessenbergBytes =
+                    static_cast<std::uint64_t>(state.dispatch.environmentCount) *
+                    (NM_MIXED_FGMRES_RESTART + 1u) *
+                    NM_MIXED_FGMRES_RESTART * sizeof(float);
+                const std::uint64_t expectedFGMRESRotationsBytes =
+                    static_cast<std::uint64_t>(state.dispatch.environmentCount) *
+                    NM_MIXED_FGMRES_RESTART * 2u * sizeof(float);
+                const std::uint64_t expectedFGMRESScalarsBytes =
+                    static_cast<std::uint64_t>(state.dispatch.environmentCount) *
+                    (NM_MIXED_FGMRES_RESTART + 1u) * sizeof(float);
+                requireMinimumBufferBytes("fem_accepted_nodes", state.femAccepted,
+                    expectedNodeBytes);
+                requireMinimumBufferBytes("fem_candidate_nodes", state.femCandidate,
+                    expectedNodeBytes);
+                requireMinimumBufferBytes("tetrahedra_accepted",
+                    state.femTetrahedraAccepted, expectedTetBytes);
+                requireMinimumBufferBytes("tetrahedra_candidate",
+                    state.femTetrahedraCandidate, expectedTetBytes);
+                requireMinimumBufferBytes("material_history_accepted",
+                    state.femMaterialStateAccepted, expectedMaterialStateBytes);
+                requireMinimumBufferBytes("material_history_candidate",
+                    state.femMaterialStateCandidate, expectedMaterialStateBytes);
+                if (state.dispatch.particleCount != 0u) {
+                    requireMinimumBufferBytes("particle_defaults",
+                        state.particleDefaults, expectedParticleBytes);
+                    requireMinimumBufferBytes("particles_accepted",
+                        state.particleAccepted, expectedParticleBytes);
+                    requireMinimumBufferBytes("particles_candidate",
+                        state.particleCandidate, expectedParticleBytes);
+                    requireMinimumBufferBytes("particle_checkpoint",
+                        state.particleCheckpoint, expectedParticleBytes);
+                    requireMinimumBufferBytes("particle_material_state_defaults",
+                        state.particleMaterialStateDefaults,
+                        expectedParticleMaterialStateBytes);
+                    requireMinimumBufferBytes("particle_material_state_accepted",
+                        state.particleMaterialStateAccepted,
+                        expectedParticleMaterialStateBytes);
+                    requireMinimumBufferBytes("particle_material_state_candidate",
+                        state.particleMaterialStateCandidate,
+                        expectedParticleMaterialStateBytes);
+                    requireMinimumBufferBytes("particle_material_state_checkpoint",
+                        state.particleMaterialStateCheckpoint,
+                        expectedParticleMaterialStateBytes);
+                    requireMinimumBufferBytes("mpm_active_node_counts",
+                        state.mpmActiveNodeCounts,
+                        static_cast<std::uint64_t>(
+                            state.dispatch.environmentCount) *
+                            sizeof(std::uint32_t));
+                    requireMinimumBufferBytes("mpm_active_dispatch",
+                        state.mpmActiveDispatch, sizeof(NMIndirectDispatchGPU));
+                    requireMinimumBufferBytes("mpm_particle_keys",
+                        state.mpmParticleKeys, expectedParticleBytes /
+                            sizeof(NMParticleStateGPU) *
+                            sizeof(NMMPMParticleKeyGPU));
+                    requireMinimumBufferBytes("mpm_sorted_particle_indices",
+                        state.mpmSortedParticleIndices,
+                        envParticles * sizeof(std::uint32_t));
+                    requireMinimumBufferBytes("mpm_environment_active_counts",
+                        state.mpmEnvironmentActiveCounts,
+                        static_cast<std::uint64_t>(
+                            state.dispatch.environmentCount) *
+                            sizeof(std::uint32_t));
+                }
+                requireMinimumBufferBytes("fem_solution_correction",
+                    state.femSolution, expectedVectorBytes);
+                requireMinimumBufferBytes("fem_rhs_after_fgmres",
+                    state.femResidual, expectedVectorBytes);
+                requireMinimumBufferBytes("full_rhs_before_fgmres",
+                    state.femTrueResidualRightHandSide, expectedVectorBytes);
+                requireMinimumBufferBytes("fgmres_basis", state.fgmresBasis,
+                    expectedFGMRESBasisBytes);
+                requireMinimumBufferBytes("fgmres_preconditioned_basis",
+                    state.fgmresPreconditionedBasis,
+                    expectedFGMRESPreconditionedBasisBytes);
+                requireMinimumBufferBytes("fgmres_hessenberg",
+                    state.fgmresHessenberg, expectedFGMRESHessenbergBytes);
+                requireMinimumBufferBytes("fgmres_rotations",
+                    state.fgmresRotations, expectedFGMRESRotationsBytes);
+                requireMinimumBufferBytes("fgmres_least_squares",
+                    state.fgmresLeastSquares, expectedFGMRESScalarsBytes);
+                requireMinimumBufferBytes("fgmres_restart_coefficients",
+                    state.fgmresRestartCoefficients,
+                    expectedFGMRESScalarsBytes);
+                if (state.femRegionalModeCount != 0u) {
+                    const std::uint64_t regionalModeNodes =
+                        static_cast<std::uint64_t>(state.femRegionalModeCount) *
+                        state.dispatch.femNodeCount;
+                    const std::uint64_t regionalVectorBytes =
+                        regionalModeNodes * sizeof(nm_float4);
+                    const std::uint64_t regionalMatrixBytes =
+                        static_cast<std::uint64_t>(state.femRegionalModeCount) *
+                        state.femRegionalModeCount * sizeof(float);
+                    requireMinimumBufferBytes("regional_basis",
+                        state.femRegionalBasis, regionalVectorBytes);
+                    requireMinimumBufferBytes("regional_effective_basis",
+                        state.femRegionalEffectiveBasis, regionalVectorBytes);
+                    requireMinimumBufferBytes("regional_ap",
+                        state.femRegionalAP, regionalVectorBytes);
+                    requireMinimumBufferBytes("regional_coarse_matrix",
+                        state.femRegionalCoarseMatrix, regionalMatrixBytes);
+                }
+                if (graphSchwarzSelected) {
+                    requireMinimumBufferBytes("regional_graph_patches",
+                        state.femRegionalGraphPatches,
+                        static_cast<std::uint64_t>(
+                            state.femRegionalGraphPatchCount) * sizeof(nm_uint4));
+                    requireMinimumBufferBytes("regional_graph_patch_nodes",
+                        state.femRegionalGraphPatchNodes,
+                        static_cast<std::uint64_t>(
+                            state.femRegionalGraphPatchNodeCount) *
+                            sizeof(std::uint32_t));
+                    requireMinimumBufferBytes("regional_graph_rows",
+                        state.femRegionalGraphRows,
+                        static_cast<std::uint64_t>(
+                            state.femRegionalGraphPatchNodeCount) *
+                            sizeof(nm_uint4));
+                    requireMinimumBufferBytes("regional_graph_factors",
+                        state.femRegionalGraphFactors,
+                        static_cast<std::uint64_t>(
+                            state.femRegionalGraphMatrixFloatCount) * sizeof(float));
+                    requireMinimumBufferBytes("regional_graph_pivots",
+                        state.femRegionalGraphPivots,
+                        static_cast<std::uint64_t>(
+                            state.femRegionalGraphPivotCount) *
+                            sizeof(std::uint32_t));
+                    requireMinimumBufferBytes("regional_graph_factor_valid",
+                        state.femRegionalGraphFactorValid,
+                        static_cast<std::uint64_t>(
+                            state.femRegionalGraphPatchCount) *
+                            sizeof(std::uint32_t));
+                    requireMinimumBufferBytes("regional_graph_patch_corrections",
+                        state.femRegionalGraphPatchCorrections,
+                        static_cast<std::uint64_t>(
+                            state.femRegionalGraphPatchNodeCount) *
+                            sizeof(nm_float4));
+                }
+                requireMinimumBufferBytes("rigid_proxies", state.rigidProxies,
+                    static_cast<std::uint64_t>(state.dispatch.rigidProxyCount) *
+                        sizeof(NMRigidProxyGPU));
+                requireMinimumBufferBytes("rigid_states", state.rigidStates,
+                    static_cast<std::uint64_t>(state.dispatch.environmentCount) *
+                        state.dispatch.rigidProxyCount * sizeof(NMRigidStateGPU));
+                if (state.dispatch.cohesiveFaceCount != 0u) {
+                    requireMinimumBufferBytes("cohesive_faces_accepted",
+                        state.cohesiveFacesAccepted, expectedCohesiveBytes);
+                    requireMinimumBufferBytes("cohesive_faces_candidate",
+                        state.cohesiveFacesCandidate, expectedCohesiveBytes);
+                }
+                if (state.dispatch.contactPairCount != 0u) {
+                    requireMinimumBufferBytes("contact_pairs", state.contactPairs,
+                        expectedContactPairs * sizeof(NMContactPairGPU));
+                    requireMinimumBufferBytes("contact_samples", state.contactSamples,
+                        expectedContactPairs * sizeof(NMContactSampleGPU));
+                    requireMinimumBufferBytes("contact_histories_accepted",
+                        state.contactHistoriesAccepted, expectedContactHistoryBytes);
+                    requireMinimumBufferBytes("contact_histories_candidate",
+                        state.contactHistoriesCandidate, expectedContactHistoryBytes);
+                }
+                if (!layoutValid || arrays.empty() || payloadBytes == 0u ||
+                    payloadBytes > captureCap ||
+                    payloadBytes > state.device.maxBufferLength) {
+                    emitSkipped("invalid_or_over_32_mib_capture_layout", payloadBytes);
+                    return true;
+                }
+                id<MTLBuffer> snapshot = [state.device
+                    newBufferWithLength:static_cast<NSUInteger>(payloadBytes)
+                    options:MTLResourceStorageModeShared];
+                if (snapshot == nil || snapshot.length < payloadBytes ||
+                    snapshot.length > captureCap ||
+                    snapshot.length > state.device.maxBufferLength) {
+                    emitSkipped("bounded_shared_snapshot_allocation_failed",
+                        payloadBytes);
+                    return true;
+                }
+                auto* snapshotBytes = static_cast<unsigned char*>(snapshot.contents);
+                if (snapshotBytes == nullptr) {
+                    emitSkipped("shared_snapshot_contents_unavailable", payloadBytes);
+                    return true;
+                }
+                for (const auto& array : arrays) {
+                    if (!array.hostBytes.empty()) {
+                        std::memcpy(snapshotBytes + array.offset,
+                            array.hostBytes.data(), array.byteCount);
+                    }
+                }
+                [encoder endEncoding];
+                encoder = nil;
+                id<MTLBlitCommandEncoder> copy =
+                    [commandBuffer blitCommandEncoder];
+                if (copy == nil) {
+                    emitSkipped("readback_blit_encoder_unavailable", payloadBytes);
+                    encoder = [commandBuffer computeCommandEncoder];
+                    if (encoder == nil) {
+                        diagnostics.message =
+                            "failed to resume Matter after coupled Newton readback";
+                        return false;
+                    }
+                    [encoder setLabel:@"Numi Matter coupled Newton readback continuation"];
+                    return true;
+                }
+                for (const auto& array : arrays) {
+                    if (array.sourceSlot == NM_INVALID_INDEX) continue;
+                    id<MTLBuffer> source = (__bridge id<MTLBuffer>)
+                        sources[array.sourceSlot];
+                    [copy copyFromBuffer:source sourceOffset:0u
+                        toBuffer:snapshot
+                        destinationOffset:static_cast<NSUInteger>(array.offset)
+                        size:static_cast<NSUInteger>(array.byteCount)];
+                }
+                [copy endEncoding];
+                const auto capturedArrays = arrays;
+                const auto capturedArrayPresent = [&](const char* name) {
+                    return std::any_of(capturedArrays.begin(), capturedArrays.end(),
+                        [&](const CoupledCaptureArray& array) {
+                            return array.name == name;
+                        });
+                };
+                const bool capturedMPMActiveNodeCounts =
+                    capturedArrayPresent("mpm_active_node_counts");
+                const bool capturedMPMActiveDispatch =
+                    capturedArrayPresent("mpm_active_dispatch");
+                const auto capturedPath = femCoupledCapturePath;
+                const auto capturedPayloadBytes = payloadBytes;
+                const auto capturedRoot = femCoupledCaptureRoot;
+                const auto capturedIteration = femCoupledCaptureIteration;
+                const auto capturedWorldFingerprint = state.worldFingerprint;
+                const auto capturedExecutionFingerprint = state.executionFingerprint;
+                const auto capturedDeviceID =
+                    static_cast<std::uint64_t>(state.device.registryID);
+                const auto capturedDeviceName = nsString(state.device.name);
+                const auto capturedDispatch = state.dispatch;
+                const auto capturedLayout = state.fgmresLayout;
+                const auto capturedMixedSolver = state.mixedSolverValue;
+                const auto capturedMicro = micro;
+                const auto capturedGraphTopologySHA256 =
+                    state.femRegionalGraphSourceTopologySHA256;
+                const auto capturedGraphFreeMaskSHA256 =
+                    state.femRegionalGraphSourceFreeMaskSHA256;
+                const auto capturedGraphPotentialMaskSHA256 =
+                    state.femRegionalGraphPotentialMaskSHA256;
+                const auto capturedGraphLayoutChecksum =
+                    state.femRegionalGraphLayoutChecksum;
+                const auto capturedGraphPatchCount =
+                    state.femRegionalGraphPatchCount;
+                const auto capturedGraphPatchNodeCount =
+                    state.femRegionalGraphPatchNodeCount;
+                const auto capturedGraphDofCount =
+                    state.femRegionalGraphDofCount;
+                const auto capturedGraphMatrixFloatCount =
+                    state.femRegionalGraphMatrixFloatCount;
+                const auto capturedGraphPivotCount =
+                    state.femRegionalGraphPivotCount;
+                const auto capturedGraphParallelSearch =
+                    state.femRegionalGraphParallelSearch;
+                const auto capturedRegionalModeCount = state.femRegionalModeCount;
+                const auto capturedPhysicsSubstep = request.physicsSubstep;
+                const auto capturedPhysicsSubsteps = request.physicsSubsteps;
+                const auto capturedRigidWorldPhysicsSubstep =
+                    request.rigidWorldPhysicsSubstep;
+                const auto capturedCurrentBodyCount = request.rigid.currentBodyCount;
+                const auto capturedCurrentBodyStride = request.rigid.currentBodyStride;
+                const auto capturedSceneBodyCount = request.rigid.sceneBodyCount;
+                const auto capturedSceneStride = request.rigid.sceneStride;
+                const auto capturedQStride = request.rigid.qStride;
+                const auto capturedVStride = request.rigid.vStride;
+                const auto capturedBodyWrenchCount = request.rigid.bodyWrenchCount;
+                const auto capturedBodyWrenchStride = request.rigid.bodyWrenchStride;
+                const auto capturedExternalWrenchCount = request.rigid.externalWrenchCount;
+                const auto capturedExternalWrenchStride = request.rigid.externalWrenchStride;
+                const auto capturedRigidContactConstraintStride =
+                    request.rigidContactConstraintStride;
+                const auto capturedCoupledArticulatedNv = coupledArticulatedNv;
+                [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed) {
+                    if (completed.status != MTLCommandBufferStatusCompleted) {
+                        std::fprintf(stderr,
+                            "fem_coupled_capture_failed={\"schema\":1,\"root\":%u,\"iteration\":%u,\"command_buffer_status\":%lu}\n",
+                            capturedRoot, capturedIteration,
+                            static_cast<unsigned long>(completed.status));
+                        return;
+                    }
+                    const auto* data = static_cast<const unsigned char*>(snapshot.contents);
+                    if (data == nullptr) {
+                        std::fprintf(stderr,
+                            "fem_coupled_capture_failed={\"schema\":1,\"root\":%u,\"iteration\":%u,\"reason\":\"snapshot_contents_missing\"}\n",
+                            capturedRoot, capturedIteration);
+                        return;
+                    }
+                    std::ostringstream manifest;
+                    manifest << std::setprecision(9)
+                        << "{\"schema\":\"numi.matter.coupled_newton_capture.v1\","
+                        << "\"byte_order\":\"little_endian\","
+                        << "\"capture_point\":\"after_fgmres_measure_and_human_direction_map_before_armijo_trial\","
+                        << "\"capture_kind\":\"raw_transaction_candidate_not_checkpoint\","
+                        << "\"source_physics_fingerprint\":"
+                        << jsonQuoted(hexU64(capturedWorldFingerprint)) << ','
+                        << "\"device_program_fingerprint\":"
+                        << jsonQuoted(hexU64(capturedExecutionFingerprint)) << ','
+                        << "\"device\":{\"name\":" << jsonQuoted(capturedDeviceName)
+                        << ",\"registry_id\":" << capturedDeviceID << "},"
+                        << "\"root\":" << capturedRoot
+                        << ",\"iteration\":" << capturedIteration
+                        << ",\"control_step\":" << capturedMicro.controlStep
+                        << ",\"physics_substep\":" << capturedPhysicsSubstep
+                        << ",\"physics_substeps\":" << capturedPhysicsSubsteps
+                        << ",\"rigid_world_physics_substep\":"
+                        << capturedRigidWorldPhysicsSubstep
+                        << ",\"microtick\":" << capturedMicro.microtick
+                        << ",\"microtick_count\":" << capturedMicro.microtickCount
+                        << ",\"dt_seconds\":" << capturedMicro.time.x
+                        << ",\"environment_count\":" << capturedDispatch.environmentCount
+                        << ",\"node_count\":" << capturedDispatch.femNodeCount
+                        << ",\"tetrahedron_count\":" << capturedDispatch.tetrahedronCount
+                        << ",\"particle_count\":" << capturedDispatch.particleCount
+                        << ",\"grid_node_count\":" << capturedDispatch.gridNodeCount
+                        << ",\"mpm_grid_count\":" << capturedDispatch.mpmGridCount
+                        << ",\"mpm_block_count\":" << capturedDispatch.mpmBlockCount
+                        << ",\"mpm_block_lookup_count\":" << capturedDispatch.mpmBlockLookupCount
+                        << ",\"cohesive_face_count\":" << capturedDispatch.cohesiveFaceCount
+                        << ",\"contact_pair_count\":" << capturedDispatch.contactPairCount
+                        << ",\"deformable_contact_capacity\":"
+                        << capturedDispatch.deformableContactCapacity
+                        << ",\"rigid_proxy_count\":" << capturedDispatch.rigidProxyCount
+                        << ",\"rigid_generalized_capacity\":"
+                        << capturedDispatch.rigidGeneralizedCapacity
+                        << ",\"material_state_stride\":"
+                        << capturedDispatch.materialStateStride
+                        << ",\"particle_scope\":{\"particle_records_present\":"
+                        << (capturedDispatch.particleCount != 0u ? "true" : "false")
+                        << ",\"particle_record_arrays\":[\"particle_defaults\",\"particles_accepted\",\"particles_candidate\",\"particle_checkpoint\",\"particle_material_state_defaults\",\"particle_material_state_accepted\",\"particle_material_state_candidate\",\"particle_material_state_checkpoint\"]"
+                        << ",\"mpm_observation_arrays\":[\"mpm_active_node_counts\",\"mpm_active_dispatch\",\"mpm_particle_keys\",\"mpm_sorted_particle_indices\",\"mpm_environment_active_counts\"]"
+                        << ",\"mpm_active_counts_array_included\":"
+                        << (capturedMPMActiveNodeCounts ? "true" : "false")
+                        << ",\"mpm_active_dispatch_array_included\":"
+                        << (capturedMPMActiveDispatch ? "true" : "false")
+                        << ",\"mechanics_scope\":\"no_grid_or_block_topology\"}"
+                        << ",\"dispatch\":{\"abi_version\":" << capturedDispatch.abiVersion
+                        << ",\"flags\":" << capturedDispatch.flags
+                        << ",\"object_count\":" << capturedDispatch.objectCount
+                        << ",\"material_count\":" << capturedDispatch.materialCount
+                        << ",\"parameter_count\":" << capturedDispatch.parameterCount
+                        << ",\"rigid_q_capacity\":" << capturedDispatch.rigidQCapacity
+                        << ",\"maximum_rate_exponent\":" << capturedDispatch.maximumRateExponent
+                        << "},\"fgmres_layout\":{\"support_contact_count\":"
+                        << capturedLayout.supportContactCount
+                        << ",\"support_base\":" << capturedLayout.supportBase
+                        << ",\"unknown_count\":" << capturedLayout.unknownCount
+                        << ",\"vascular_unknown_count\":"
+                        << capturedLayout.vascularUnknownCount
+                        << ",\"vascular_base\":" << capturedLayout.vascularBase
+                        << ",\"vascular_residual_tolerance\":"
+                        << capturedLayout.vascularResidualTolerance
+                        << "},\"microstep\":{\"control_step\":"
+                        << capturedMicro.controlStep << ",\"microtick\":"
+                        << capturedMicro.microtick << ",\"microtick_count\":"
+                        << capturedMicro.microtickCount << ",\"solver_iteration\":"
+                        << capturedMicro.solverIteration << ",\"seed_lo\":"
+                        << capturedMicro.seedLo << ",\"seed_hi\":" << capturedMicro.seedHi
+                        << ",\"flags\":" << capturedMicro.flags
+                        << ",\"generation\":" << capturedMicro.reserved
+                        << ",\"time\":[" << capturedMicro.time.x << ','
+                        << capturedMicro.time.y << ',' << capturedMicro.time.z << ','
+                        << capturedMicro.time.w << "]},\"mixed_solver\":{\"newton_budget\":"
+                        << capturedMixedSolver.nonlinearIterations.x
+                        << ",\"restart\":" << capturedMixedSolver.nonlinearIterations.y
+                        << ",\"fgmres_budget\":" << capturedMixedSolver.nonlinearIterations.z
+                        << ",\"line_search_steps\":" << capturedMixedSolver.nonlinearIterations.w
+                        << ",\"preconditioner_selector\":"
+                        << capturedMixedSolver.executionBudgets.z
+                        << ",\"rigid_articulated_nv\":"
+                        << capturedCoupledArticulatedNv
+                        << "},\"regional_graph\":{\"patch_count\":"
+                        << capturedGraphPatchCount
+                        << ",\"patch_node_count\":" << capturedGraphPatchNodeCount
+                        << ",\"dof_count\":" << capturedGraphDofCount
+                        << ",\"matrix_float_count\":"
+                        << capturedGraphMatrixFloatCount
+                        << ",\"pivot_count\":" << capturedGraphPivotCount
+                        << ",\"layout_checksum\":" << capturedGraphLayoutChecksum
+                        << ",\"parallel_search\":" << capturedGraphParallelSearch
+                        << ",\"regional_mode_count\":" << capturedRegionalModeCount
+                        << ",\"source_topology_sha256\":"
+                        << jsonQuoted(capturedGraphTopologySHA256)
+                        << ",\"source_free_mask_sha256\":"
+                        << jsonQuoted(capturedGraphFreeMaskSHA256)
+                        << ",\"potential_mask_sha256\":"
+                        << jsonQuoted(capturedGraphPotentialMaskSHA256)
+                        << ",\"original_matrices_included\":false},"
+                        << "\"rigid_borrowed_layout\":{\"current_body_count\":"
+                        << capturedCurrentBodyCount << ",\"current_body_stride\":"
+                        << capturedCurrentBodyStride << ",\"scene_body_count\":"
+                        << capturedSceneBodyCount << ",\"scene_stride\":"
+                        << capturedSceneStride << ",\"q_stride\":" << capturedQStride
+                        << ",\"v_stride\":" << capturedVStride
+                        << ",\"body_wrench_count\":" << capturedBodyWrenchCount
+                        << ",\"body_wrench_stride\":" << capturedBodyWrenchStride
+                        << ",\"external_wrench_count\":" << capturedExternalWrenchCount
+                        << ",\"external_wrench_stride\":"
+                        << capturedExternalWrenchStride
+                        << ",\"rigid_contact_constraint_stride\":"
+                        << capturedRigidContactConstraintStride << "},"
+                        << "\"vector_semantics\":{\"rhs\":\"full_rhs_before_fgmres is exact assembled full-space RHS copied from femResidual before FGMRES reuses it\","
+                        << "\"correction\":\"fem_solution_correction plus coupled_generalized_output are the completed Newton correction before Armijo\","
+                        << "\"post_fgmres_workspace\":\"fem_rhs_after_fgmres and solver state are diagnostic workspaces, not the original RHS\","
+                        << "\"transaction\":\"the capture is raw read-only input state for replay and is not an accepted checkpoint\"},"
+                        << "\"rhs_preserved_before_fgmres\":"
+                        << (femCoupledCaptureRHSReady ? "true" : "false")
+                        << ",\"payload\":{\"file\":"
+                        << jsonQuoted(capturedPath + ".coupled.bin")
+                        << ",\"byte_count\":" << capturedPayloadBytes
+                        << ",\"sha256\":"
+                        << jsonQuoted(sha256Hex(data,
+                            static_cast<std::size_t>(capturedPayloadBytes)))
+                        << "},\"max_payload_bytes\":"
+                        << femCoupledCaptureCapBytes
+                        << ",\"max_arrays\":192"
+                        << ",\"array_count\":" << capturedArrays.size()
+                        << ",\"omitted_optional_buffers\":[";
+                    for (std::size_t index = 0u; index < omittedOptional.size(); ++index) {
+                        if (index != 0u) manifest << ',';
+                        manifest << jsonQuoted(omittedOptional[index]);
+                    }
+                    manifest << "],\"arrays\":[";
+                    for (std::size_t index = 0u; index < capturedArrays.size(); ++index) {
+                        const auto& array = capturedArrays[index];
+                        if (index != 0u) manifest << ',';
+                        manifest << "{\"name\":" << jsonQuoted(array.name)
+                            << ",\"source\":" << jsonQuoted(array.sourceName)
+                            << ",\"dtype\":" << jsonQuoted(array.dtype)
+                            << ",\"count\":" << array.count
+                            << ",\"element_bytes\":" << array.elementBytes
+                            << ",\"offset\":" << array.offset
+                            << ",\"byte_count\":" << array.byteCount
+                            << ",\"capacity_snapshot\":true,\"sha256\":"
+                            << jsonQuoted(sha256Hex(data + array.offset,
+                                static_cast<std::size_t>(array.byteCount))) << '}';
+                    }
+                    manifest << "]}\n";
+                    const std::string manifestText = manifest.str();
+                    const std::string binaryPath = capturedPath + ".coupled.bin";
+                    const std::string manifestPath = capturedPath + ".coupled.json";
+                    int binaryFD = ::open(binaryPath.c_str(),
+                        O_WRONLY | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR);
+                    if (binaryFD < 0) {
+                        std::fprintf(stderr,
+                            "fem_coupled_capture_error={\"schema\":1,\"root\":%u,\"reason\":\"binary_exclusive_create_failed\",\"errno\":%d}\n",
+                            capturedRoot, errno);
+                        return;
+                    }
+                    int manifestFD = ::open(manifestPath.c_str(),
+                        O_WRONLY | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR);
+                    if (manifestFD < 0) {
+                        const int savedErrno = errno;
+                        ::close(binaryFD);
+                        ::unlink(binaryPath.c_str());
+                        std::fprintf(stderr,
+                            "fem_coupled_capture_error={\"schema\":1,\"root\":%u,\"reason\":\"manifest_exclusive_create_failed\",\"errno\":%d}\n",
+                            capturedRoot, savedErrno);
+                        return;
+                    }
+                    const bool binaryWritten = writeAllBytes(binaryFD, data,
+                        static_cast<std::size_t>(capturedPayloadBytes));
+                    const bool manifestWritten = binaryWritten && writeAllBytes(
+                        manifestFD, manifestText.data(), manifestText.size());
+                    const int binaryClose = ::close(binaryFD);
+                    const int manifestClose = ::close(manifestFD);
+                    if (!binaryWritten || !manifestWritten || binaryClose != 0 ||
+                        manifestClose != 0) {
+                        ::unlink(binaryPath.c_str());
+                        ::unlink(manifestPath.c_str());
+                        std::fprintf(stderr,
+                            "fem_coupled_capture_error={\"schema\":1,\"root\":%u,\"reason\":\"write_or_close_failed\",\"errno\":%d}\n",
+                            capturedRoot, errno);
+                        return;
+                    }
+                    std::fprintf(stderr,
+                        "fem_coupled_capture_complete={\"schema\":1,\"root\":%u,\"iteration\":%u,\"bytes\":%llu,\"arrays\":%lu,\"manifest\":%s}\n",
+                        capturedRoot, capturedIteration,
+                        static_cast<unsigned long long>(capturedPayloadBytes),
+                        static_cast<unsigned long>(capturedArrays.size()),
+                        jsonQuoted(manifestPath).c_str());
+                }];
+                encoder = [commandBuffer computeCommandEncoder];
+                if (encoder == nil) {
+                    diagnostics.message =
+                        "failed to resume Matter after coupled Newton readback";
+                    return false;
+                }
+                [encoder setLabel:@"Numi Matter coupled Newton readback continuation"];
+                return true;
+            };
+
             micro.solverIteration = nonlinearIteration;
             femTrueResidualEnabled = femTrueResidualRootSelected &&
                 (!femTrueResidualNewtonSelectorSpecified ||
@@ -14125,6 +15780,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.cohesiveFaceForces offset:0u atIndex:13u];
                 [encoder setBuffer:state.statuses offset:0u atIndex:14u];
                 [encoder setBuffer:state.cohesiveMaterials offset:0u atIndex:15u];
+                const std::uint32_t pageStart = 0u;
+                const std::uint32_t pageCount = state.dispatch.cohesiveFaceCount;
+                const std::uint32_t writeHistory = 1u;
+                [encoder setBytes:&pageStart length:sizeof(pageStart) atIndex:16u];
+                [encoder setBytes:&pageCount length:sizeof(pageCount) atIndex:17u];
+                [encoder setBytes:&writeHistory length:sizeof(writeHistory) atIndex:18u];
             });
             encodeCavityForces();
             dispatchThreads("nm_fem_build_mechanical_residual", femNodeTotal, [&] {
@@ -14485,14 +16146,28 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 femTrueResidualRootSelected = false;
                 femTrueResidualRestartEnabled = false;
             }
-            if (femTrueResidualEnabled) {
+            const bool femCoupledCaptureNewtonSelected =
+                femCoupledCaptureRequested && femCoupledCaptureConfigValid &&
+                !femCoupledCaptureCaptured &&
+                femCoupledCaptureRoot == request.controlStep &&
+                femCoupledCaptureIteration == nonlinearIteration &&
+                femCoupledCaptureScopeFailure() == nullptr &&
+                coupledArticulatedNv == 0u;
+            if (femTrueResidualEnabled || femCoupledCaptureNewtonSelected) {
                 dispatchThreads("nm_fgmres_preserve_true_rhs",
                     state.fgmresLayout.unknownCount, [&] {
                     setDispatch();
+                    [encoder setBytes:&state.fgmresLayout
+                               length:sizeof(state.fgmresLayout) atIndex:30u];
                     [encoder setBuffer:state.femResidual offset:0u atIndex:1u];
                     [encoder setBuffer:state.femTrueResidualRightHandSide
                                  offset:0u atIndex:2u];
                 });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                if (femCoupledCaptureNewtonSelected &&
+                    state.femTrueResidualRightHandSide != nil) {
+                    femCoupledCaptureRHSReady = true;
+                }
             }
             const float nonlinearTolerance = std::max(
                 state.mixedSolverValue.residualTolerances.x, 0.0f);
@@ -14566,6 +16241,36 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                    length:sizeof(regionalModes) atIndex:4u];
                     });
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                if (state.femRegionalAcceptedCorrectionRecycleEnabled) {
+                    const std::uint32_t recycleBaseModes =
+                        state.femRegionalRecycleBaseModeCount;
+                    dispatchGroups32(
+                        "nm_fgmres_regional_select_recycle_mode",
+                        environments, [&] {
+                        setDispatch();
+                        [encoder setBuffer:state.femRegionalBasis
+                                     offset:0u atIndex:1u];
+                        [encoder setBuffer:state.femCandidate
+                                     offset:0u atIndex:2u];
+                        [encoder setBuffer:
+                            state.femRegionalAcceptedCorrection
+                                     offset:0u atIndex:3u];
+                        [encoder setBuffer:state.femRegionalEffectiveBasis
+                                     offset:0u atIndex:4u];
+                        [encoder setBuffer:state.femRegionalRecycleModeState
+                                     offset:0u atIndex:5u];
+                        [encoder setBuffer:state.statuses
+                                     offset:0u atIndex:6u];
+                        [encoder setBytes:&recycleBaseModes
+                                   length:sizeof(recycleBaseModes) atIndex:7u];
+                        [encoder setBytes:&regionalModes
+                                   length:sizeof(regionalModes) atIndex:8u];
+                        [encoder setBuffer:
+                            state.femRegionalRecycleOrthogonalBasis
+                                     offset:0u atIndex:9u];
+                    });
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                }
             }
             if (usesRegionalGalerkinPreconditioner(
                     state.mixedSolverValue.executionBudgets.z) &&
@@ -15161,6 +16866,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         appendCaptureArray("factor_valid", "<u4",
                             {envCount}, sizeof(std::uint32_t),
                             state.femRegionalCoarseValid);
+                        if (state.femRegionalAcceptedCorrectionRecycleEnabled) {
+                            appendCaptureArray("accepted_correction_recycle_mode",
+                                "<u4", {envCount}, sizeof(std::uint32_t),
+                                state.femRegionalRecycleModeState);
+                        }
                         if (state.femRegionalNodeBlockInverse != nil) {
                             appendCaptureArray("node_block_inverse", "<f4x4",
                                 {envCount, nodeCount, 3u}, sizeof(nm_float4),
@@ -16776,6 +18486,15 @@ RuntimeDiagnostics Runtime::encodeImpl(
             );
 
             micro.solverIteration = nonlinearIteration;
+            if (femCoupledCaptureRequested && femCoupledCaptureConfigValid &&
+                !femCoupledCaptureCaptured &&
+                femCoupledCaptureRoot == request.controlStep &&
+                femCoupledCaptureIteration == micro.solverIteration) {
+                if (!encodeFEMCoupledNewtonCapture()) {
+                    ownership->preDynamicsOpen = false;
+                    return diagnostics;
+                }
+            }
             if (femOperatorFDTraceEnabled && !femOperatorFDTraceCaptured &&
                 femOperatorFDTraceRoot == request.controlStep &&
                 femOperatorFDTraceIteration == micro.solverIteration) {
@@ -16856,7 +18575,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:state.learnedLayers offset:0u atIndex:17u];
                         [encoder setBuffer:state.learnedWeightsCandidate offset:0u atIndex:18u];
                     });
-                    if (femCohesiveResidualArmijoEnabled) {
+                    if (femCohesiveResidualArmijoEnabled &&
+                        !state.femArmijoTiledCohesiveRequested) {
                         [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                         // In the default path each Armijo trial starts from
                         // a private copy of the transaction's activation
@@ -16894,6 +18614,13 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             [encoder setBuffer:state.femArmijoCohesiveFaceForces offset:0u atIndex:13u];
                             [encoder setBuffer:state.femArmijoStatuses offset:0u atIndex:14u];
                             [encoder setBuffer:state.cohesiveMaterials offset:0u atIndex:15u];
+                            const std::uint32_t pageStart = 0u;
+                            const std::uint32_t pageCount =
+                                state.dispatch.cohesiveFaceCount;
+                            const std::uint32_t writeHistory = 1u;
+                            [encoder setBytes:&pageStart length:sizeof(pageStart) atIndex:16u];
+                            [encoder setBytes:&pageCount length:sizeof(pageCount) atIndex:17u];
+                            [encoder setBytes:&writeHistory length:sizeof(writeHistory) atIndex:18u];
                         });
                     }
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
@@ -16926,6 +18653,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     });
                     if (femCohesiveResidualArmijoEnabled) {
                         [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                        if (state.femArmijoTiledCohesiveRequested) {
+                            encodeTiledCohesiveTrialResidual();
+                        } else {
                         dispatchThreads("nm_fem_add_cohesive_residual",
                             femNodeTotal, [&] {
                             setDispatch();
@@ -16943,6 +18673,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             [encoder setBuffer:state.femArmijoConstraintReactions offset:0u atIndex:12u];
                             [encoder setBuffer:state.femArmijoStatuses offset:0u atIndex:13u];
                         });
+                        }
                     }
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                     dispatchThreads("nm_fem_armijo_measure_trial", environments, [&] {
@@ -17439,7 +19170,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:state.learnedLayers offset:0u atIndex:17u];
                         [encoder setBuffer:state.learnedWeightsCandidate offset:0u atIndex:18u];
                     });
-                    if (femCohesiveResidualArmijoEnabled) {
+                    if (femCohesiveResidualArmijoEnabled &&
+                        !state.femArmijoTiledCohesiveRequested) {
                         [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                         if (!state.femArmijoAliasesCohesiveScratch) {
                             dispatchThreads("nm_fem_armijo_copy_cohesive_faces",
@@ -17470,6 +19202,13 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             [encoder setBuffer:state.femArmijoCohesiveFaceForces offset:0u atIndex:13u];
                             [encoder setBuffer:state.femArmijoStatuses offset:0u atIndex:14u];
                             [encoder setBuffer:state.cohesiveMaterials offset:0u atIndex:15u];
+                            const std::uint32_t pageStart = 0u;
+                            const std::uint32_t pageCount =
+                                state.dispatch.cohesiveFaceCount;
+                            const std::uint32_t writeHistory = 1u;
+                            [encoder setBytes:&pageStart length:sizeof(pageStart) atIndex:16u];
+                            [encoder setBytes:&pageCount length:sizeof(pageCount) atIndex:17u];
+                            [encoder setBytes:&writeHistory length:sizeof(writeHistory) atIndex:18u];
                         });
                     }
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
@@ -17503,6 +19242,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     });
                     if (femCohesiveResidualArmijoEnabled) {
                         [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                        if (state.femArmijoTiledCohesiveRequested) {
+                            encodeTiledCohesiveTrialResidual();
+                        } else {
                         dispatchThreads("nm_fem_add_cohesive_residual",
                             femNodeTotal, [&] {
                             setDispatch();
@@ -17520,6 +19262,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             [encoder setBuffer:state.femArmijoConstraintReactions offset:0u atIndex:12u];
                             [encoder setBuffer:state.femArmijoStatuses offset:0u atIndex:13u];
                         });
+                        }
                     }
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                     const NSUInteger sparseArmijoSampleTotal =
@@ -17801,7 +19544,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                 state.femArmijoCandidate,
                                 state.femArmijoStatuses,
                                 nonlinearDeformableContactHistories,
-                                state.femArmijoCohesiveFaces)) {
+                                state.femArmijoTiledCohesiveRequested
+                                    ? state.cohesiveFacesCandidate
+                                    : state.femArmijoCohesiveFaces)) {
                             diagnostics.message =
                                 "failed to encode private deformable contact Armijo trial";
                             ownership->preDynamicsOpen = false;
@@ -18001,6 +19746,23 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.mixedMaterials offset:0u atIndex:10u];
                 [encoder setBuffer:state.femFieldsCandidate offset:0u atIndex:11u];
             });
+            if (state.femRegionalAcceptedCorrectionRecycleEnabled) {
+                dispatchThreads("nm_fgmres_capture_regional_recycle",
+                    femNodeTotal, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.femCandidate
+                                 offset:0u atIndex:1u];
+                    [encoder setBuffer:state.femLineSearch
+                                 offset:0u atIndex:2u];
+                    [encoder setBuffer:state.femSolution
+                                 offset:0u atIndex:3u];
+                    [encoder setBuffer:state.statuses
+                                 offset:0u atIndex:4u];
+                    [encoder setBuffer:state.femRegionalAcceptedCorrection
+                                 offset:0u atIndex:5u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            }
             dispatchThreads(
                 "nm_mpm_apply_implicit_solution", mpmActiveNodeTotal, [&] {
                 setDispatch();
@@ -18200,6 +19962,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.cohesiveFaceForces offset:0u atIndex:13u];
                 [encoder setBuffer:state.statuses offset:0u atIndex:14u];
                 [encoder setBuffer:state.cohesiveMaterials offset:0u atIndex:15u];
+                const std::uint32_t pageStart = 0u;
+                const std::uint32_t pageCount = state.dispatch.cohesiveFaceCount;
+                const std::uint32_t writeHistory = 1u;
+                [encoder setBytes:&pageStart length:sizeof(pageStart) atIndex:16u];
+                [encoder setBytes:&pageCount length:sizeof(pageCount) atIndex:17u];
+                [encoder setBytes:&writeHistory length:sizeof(writeHistory) atIndex:18u];
             });
             encodeCavityForces();
             dispatchThreads("nm_fem_build_mechanical_residual", femNodeTotal, [&] {

@@ -1,0 +1,23 @@
+--- a/matter/tools/cardboard_full_contact_armijo_check.mm
++++ b/matter/tools/cardboard_full_contact_armijo_check.mm
+@@ -5004,6 +5004,20 @@
+                     "diagnostic state output is supported only for retained contact parity or overflow modes");
+             require(!(cpuOnly && !diagnosticStateOutputPath.empty()),
+                     "diagnostic state export requires a native transaction run");
++            // This parity fixture owns its numerical setup. The same material
++            // policy and solver budgets are applied to both legacy and tiled
++            // arms so that the comparison reaches the tiled force path under
++            // the already-qualified local-projection and convergence settings.
++            // The strict 1e-7 relative residual remains unchanged in makeWorld().
++            // User-supplied modifiers remain rejected above to keep the fixture
++            // protocol deterministic and visible in its output.
++            if (cohesiveTiledParity) {
++                extendedBudget = true;
++                accuratePaper = true;
++                std::cout << "tiled_fixture_owned_numerics=accurate_paper,"
++                             "fgmres256,restart16,line_search24,newton32"
++                             " residual_tolerance_unchanged=1e-7\n";
++            }
+             if (extendedBudget) std::cout <<
+                 "authored_extended_budget=fgmres256,restart16,line_search24 relative_residual_unchanged=1e-7\n";
+             std::cout << "authored_newton_iterations=" <<

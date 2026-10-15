@@ -1,0 +1,3 @@
+contact_node_incidence_builder={"schema":1,"mode":"stable_corner_sort","environments":1,"capacity":18336,"logical_corners_per_environment":110016,"padded_corners_per_environment":131072,"sort_workspace_bytes":1572864}
+contact_node_incidence_builder={"schema":1,"mode":"stable_corner_sort","environments":1,"capacity":18336,"logical_corners_per_environment":110016,"padded_corners_per_environment":131072,"sort_workspace_bytes":1572864}
+FAIL full-contact residual Armijo fixture: sparse/dense activation comparison requires nonempty production Armijo traces

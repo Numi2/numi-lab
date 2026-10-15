@@ -1,0 +1,37 @@
+{
+  "aggregate_capture_payload_cap_bytes": 33554432,
+  "base_runtime_sha256": "d482a43db6af754b9578f78ac7a814267b104c33ff2750bfe14101b9ec301919",
+  "base_snapshot": "source-accepted-correction-regional-recycle-085",
+  "capture_array_descriptor_cap": 192,
+  "checks": {
+    "gpu_run": "not_run",
+    "objcxx_syntax_only": "passed",
+    "static_scope_check": "passed"
+  },
+  "native_capture_executed": false,
+  "overlay_runtime_sha256": "f9899a9e7772089204fb6c30e4e61d1ef4ea26c45c5c29085719e6f6de586150",
+  "patch_file": "runtime.patch",
+  "patch_sha256": "921125cc6816a226d01c1432b695134b50080d97888fbec40d124f30d0b7cbd2",
+  "possible_unique_array_append_sites": 171,
+  "production_physics_changed": false,
+  "schema": "numi.matter.coupled_capture_scope_overlay.v1",
+  "scope": {
+    "cohesive_faces_max": 8192,
+    "contact_pairs_max": 131072,
+    "deformable_contact_capacity_max": 16384,
+    "environment_count": 1,
+    "fem_nodes_max": 2048,
+    "generalized_unknowns_max": 8192,
+    "material_state_stride_max": "NM_MAX_MATERIAL_STATE",
+    "mpm_block_count_must_equal": 0,
+    "mpm_block_lookup_count_must_equal": 0,
+    "mpm_grid_count_must_equal": 0,
+    "mpm_grid_node_count_must_equal": 0,
+    "objects_max": 64,
+    "particles_max": 64,
+    "rigid_layout_count_max": 64,
+    "tetrahedra_max": 8192
+  },
+  "verification_script": "verify_overlay.py",
+  "verification_script_sha256": "dfe945c563b22f6596f61830cf9a9b02609563b43cf5d531659fb0073667afb0"
+}

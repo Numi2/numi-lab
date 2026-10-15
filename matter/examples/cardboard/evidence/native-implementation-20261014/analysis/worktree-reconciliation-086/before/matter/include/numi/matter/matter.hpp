@@ -1,0 +1,2173 @@
+#pragma once
+
+#include "numi/matter/shared.h"
+#include "numi/matter/human_equality_gpu.h"
+#include "numi/matter/human_limits_gpu.h"
+#include "numi/matter/accepted_state_proof_gpu.h"
+#include "numi/matter/physical_state_digest_gpu.h"
+
+#include <array>
+#include <cstddef>
+#include <cstdint>
+#include <filesystem>
+#include <memory>
+#include <optional>
+#include <span>
+#include <string>
+#include <string_view>
+#include <unordered_map>
+#include <vector>
+
+namespace numi::matter {
+
+struct Dimension {
+    std::int8_t length = 0;
+    std::int8_t mass = 0;
+    std::int8_t time = 0;
+    std::int8_t temperature = 0;
+
+    friend constexpr bool operator==(const Dimension&, const Dimension&) = default;
+};
+
+inline constexpr Dimension kDimensionless{};
+inline constexpr Dimension kLength{1, 0, 0, 0};
+inline constexpr Dimension kMass{0, 1, 0, 0};
+inline constexpr Dimension kTime{0, 0, 1, 0};
+inline constexpr Dimension kTemperature{0, 0, 0, 1};
+inline constexpr Dimension kVelocity{1, 0, -1, 0};
+inline constexpr Dimension kDensity{-3, 1, 0, 0};
+inline constexpr Dimension kPressure{-1, 1, -2, 0};
+inline constexpr Dimension kViscosity{-1, 1, -1, 0};
+inline constexpr Dimension kRate{0, 0, -1, 0};
+inline constexpr Dimension kPowerDensity{-1, 1, -3, 0};
+
+[[nodiscard]] constexpr Dimension operator+(
+    const Dimension left,
+    const Dimension right
+) noexcept {
+    return {
+        static_cast<std::int8_t>(left.length + right.length),
+        static_cast<std::int8_t>(left.mass + right.mass),
+        static_cast<std::int8_t>(left.time + right.time),
+        static_cast<std::int8_t>(left.temperature + right.temperature),
+    };
+}
+
+[[nodiscard]] constexpr Dimension operator-(
+    const Dimension left,
+    const Dimension right
+) noexcept {
+    return {
+        static_cast<std::int8_t>(left.length - right.length),
+        static_cast<std::int8_t>(left.mass - right.mass),
+        static_cast<std::int8_t>(left.time - right.time),
+        static_cast<std::int8_t>(left.temperature - right.temperature),
+    };
+}
+
+[[nodiscard]] constexpr Dimension operator*(
+    const Dimension value,
+    const int exponent
+) noexcept {
+    return {
+        static_cast<std::int8_t>(value.length * exponent),
+        static_cast<std::int8_t>(value.mass * exponent),
+        static_cast<std::int8_t>(value.time * exponent),
+        static_cast<std::int8_t>(value.temperature * exponent),
+    };
+}
+
+struct Diagnostic {
+    enum class Severity : std::uint8_t { note, warning, error };
+    Severity severity = Severity::error;
+    std::size_t line = 0u;
+    std::size_t column = 0u;
+    std::string message;
+};
+
+enum class ExprKind : std::uint8_t {
+    constant,
+    parameter,
+    internalState,
+    candidateState,
+    deformation,
+    deformationDirection,
+    deformationRate,
+    timeStep,
+    temperature,
+    add,
+    subtract,
+    multiply,
+    divide,
+    negate,
+    logarithm,
+    exponential,
+    squareRoot,
+    absolute,
+    minimum,
+    maximum,
+    integerPower,
+    clamp,
+    expm1MinusArgument,
+    fiberExpLinear,
+    // Eager exact branch selection: both value arms are evaluated before the
+    // select, so an invalid inactive arm invalidates the scalar program too.
+    // Its derivative selects the active value arm and ignores the condition's
+    // derivative; at condition == 0 the >= arm is active.
+    // Arguments: condition, value when condition >= 0, value otherwise.
+    selectNonnegative,
+};
+
+struct Expr {
+    ExprKind kind = ExprKind::constant;
+    Dimension dimension{};
+    double constant = 0.0;
+    std::uint32_t index = 0u;
+    int integer = 0;
+    std::array<std::uint32_t, 5> arguments{
+        NM_INVALID_INDEX,
+        NM_INVALID_INDEX,
+        NM_INVALID_INDEX,
+        NM_INVALID_INDEX,
+        NM_INVALID_INDEX,
+    };
+};
+
+struct ExpressionGraph {
+    std::vector<Expr> nodes;
+
+    [[nodiscard]] std::uint32_t append(Expr value);
+    [[nodiscard]] std::uint32_t constant(
+        double value,
+        Dimension dimension = {}
+    );
+};
+
+struct Parameter {
+    std::string name;
+    Dimension dimension{};
+    double defaultValue = 0.0;
+    double lower = 0.0;
+    double upper = 0.0;
+    bool logarithmic = false;
+    bool identifiable = false;
+};
+
+struct InternalState {
+    enum class Transfer : std::uint8_t { average, maximum, sum };
+    std::string name;
+    Dimension dimension{};
+    double initialValue = 0.0;
+    Transfer transfer = Transfer::average;
+};
+
+enum class Representation : std::uint8_t {
+    rigid,
+    mpm,
+    fem,
+};
+
+enum class ConstitutiveHint : std::uint8_t {
+    generic,
+    neoHookean,
+    corotated,
+    druckerPrager,
+    vonMises,
+    viscoHyperelastic,
+    polyconvexICNN,
+};
+
+struct MixedMaterialSource {
+    // Zero requests a compiler-derived hydrostatic tangent at identity.
+    double bulkModulus = 0.0;
+    double thermalExpansion = 0.0;
+    double biotCoefficient = 0.0;
+    double referenceTemperature = 293.15;
+    double heatCapacity = 0.0;
+    double thermalConductivity = 0.0;
+    double heatSource = 0.0;
+    double jouleHeatFraction = 1.0;
+    double poreStorage = 0.0;
+    double poreMobility = 0.0;
+    double poreSource = 0.0;
+    double electricalConductivity = 0.0;
+    double activationDiffusivity = 0.0;
+    double activationOnRate = 0.0;
+    double activationOffRate = 0.0;
+    std::array<double, 3> fibreDirection{1.0, 0.0, 0.0};
+    double maximumActiveTension = 0.0;
+    double activationThreshold = 0.0;
+    double activationSlope = 1.0;
+    double cohesiveStrength = 0.0;
+    double fractureEnergy = 0.0;
+};
+
+struct LearnedLayerSource {
+    std::uint32_t inputWidth = 0u;
+    std::uint32_t outputWidth = 0u;
+    // Row-major input and recurrent ICNN weights followed by one bias per
+    // output. Recurrent weights are constrained nonnegative.
+    std::vector<float> inputWeights;
+    std::vector<float> recurrentWeights;
+    std::vector<float> biases;
+};
+
+struct LearnedMaterialSource {
+    std::uint32_t invariantCount = 4u;
+    float softplusBeta = 4.0f;
+    float determinantFloor = 0.05f;
+    float growthCoefficient = 1.0e-6f;
+    std::vector<LearnedLayerSource> layers;
+    std::uint64_t fingerprint = 0u;
+};
+
+struct MaterialProgram {
+    std::string name;
+    // Opt-in bounded common-subexpression storage for large implicit laws.
+    // Existing materials retain their original stack bytecode.
+    bool cacheExpressions = false;
+    // Numerical initial guess for the exact source-ordered 13-state ideal
+    // Hill law. Generic Newton, authored residuals and all acceptance tests
+    // still run; this never selects a different constitutive operator.
+    bool paperHillScalarInitializer = false;
+    // Two-word evaluation of the same authored ideal-Hill scalar programs.
+    // Kept independent of the initial-guess policy for numerical comparisons.
+    bool paperCompensatedArithmetic = false;
+    // Tighter local acceptance for the source-ordered Hill projection.
+    // Requires compensated arithmetic. It changes numerical accuracy only;
+    // global nonlinear tolerances and the authored law remain unchanged.
+    bool paperHillAccurateProjection = false;
+    // Opt-in ordered two-word scalar evaluation and temporary two-word
+    // candidate history for generic implicit bytecode projections. Accepted
+    // persistent state remains FP32; unsupported scalar opcodes/layouts fail
+    // compiler or world validation rather than falling back to ordinary math.
+    bool genericCompensatedImplicitProjection = false;
+    std::vector<Parameter> parameters;
+    std::vector<InternalState> internalState;
+    ExpressionGraph expressions;
+    std::uint32_t energyRoot = NM_INVALID_INDEX;
+    std::uint32_t dissipationRoot = NM_INVALID_INDEX;
+    std::uint32_t validityRoot = NM_INVALID_INDEX;
+    // One explicit state expression per internal state. Missing entries are
+    // compiled as identity updates. When a state also has an implicit
+    // residual, this expression seeds the generic local Newton solve; the
+    // residual alone determines the accepted candidate state.
+    std::vector<std::uint32_t> stateUpdateRoots;
+    // A residual R(next(state), state, F, Fdot, dt, T) = 0 for each
+    // implicitly integrated state. An explicit update may accompany a
+    // residual as its Newton initial guess; it does not replace the residual.
+    std::vector<std::uint32_t> stateImplicitRoots;
+    std::vector<Representation> supportedRepresentations;
+    ConstitutiveHint hint = ConstitutiveHint::generic;
+    MixedMaterialSource mixed;
+    std::optional<LearnedMaterialSource> learned;
+    double staticFriction = 0.6;
+    double dynamicFriction = 0.5;
+    double restitution = 0.0;
+    double adhesion = 0.0;
+    double minimumDeterminant = 0.05;
+    double maximumDeterminant = 20.0;
+    double maximumStress = 1.0e12;
+    double maximumEnergyDensity = 1.0e12;
+    std::uint64_t fingerprint = 0u;
+};
+
+struct ScalarBytecode {
+    std::vector<NMExpressionInstructionGPU> instructions;
+    std::uint32_t maximumStack = 0u;
+};
+
+struct ConstitutiveProgram {
+    MaterialProgram material;
+    std::array<ScalarBytecode, 9> stress;
+    std::array<ScalarBytecode, 9> tangentVector;
+    std::array<ScalarBytecode, 9> viscousStress;
+    std::array<ScalarBytecode, 9> viscousTangentVector;
+    std::vector<ScalarBytecode> stateUpdates;
+    std::vector<ScalarBytecode> implicitResiduals;
+    std::vector<ScalarBytecode> implicitJacobians;
+    std::vector<ScalarBytecode> implicitDeformationDirections;
+    std::vector<ScalarBytecode> stressStateDerivatives;
+    std::optional<ScalarBytecode> dissipation;
+    std::optional<ScalarBytecode> validity;
+    NMMaterialGPU gpu{};
+    std::vector<NMParameterRangeGPU> parameters;
+    std::uint64_t fingerprint = 0u;
+};
+
+struct ParticleSource {
+    std::array<double, 3> position{};
+    std::array<double, 3> velocity{};
+    double mass = 0.0;
+    double referenceVolume = 0.0;
+};
+
+struct TetrahedronSource {
+    std::array<std::uint32_t, 4> nodes{};
+};
+
+enum class CohesiveLawKind : std::uint32_t {
+    // Preserves the source-bounded Tryding/Biel single-ply Mode-I law.
+    trydingModeI = NM_COHESIVE_LAW_TRYDING_MODE_I,
+    // Explicit engineering bilinear mixed-mode law. This is a separate
+    // authored law and does not imply starch calibration.
+    mixedModeBilinear = NM_COHESIVE_LAW_MIXED_MODE_BILINEAR,
+};
+
+struct CohesiveMaterialSource {
+    std::string name;
+    double normalPenaltyPaPerM = 0.0;
+    double shearPenaltyPaPerM = 0.0;
+    double compressionPenaltyPaPerM = 0.0;
+    double normalStrengthPa = 0.0;
+    double shearStrengthPa = 0.0;
+    double fractureEnergyModeIJPerM2 = 0.0;
+    double fractureEnergyModeIIJPerM2 = 0.0;
+    double bkExponent = 0.0;
+};
+
+// A source-authored zero-thickness interface between two already duplicated
+// triangular faces. Node triples are paired slot-for-slot and must have
+// coincident reference coordinates. Tryding/Biel remains the default legacy
+// law. The mixed-mode law requires an explicit cohesive-material table index
+// and a transactional activation request with a bounded accepted-geometry gap.
+struct CohesiveInterfaceSource {
+    std::array<std::uint32_t, 3> sideANodes{};
+    std::array<std::uint32_t, 3> sideBNodes{};
+    std::uint32_t firstTetrahedron = NM_INVALID_INDEX;
+    std::uint32_t secondTetrahedron = NM_INVALID_INDEX;
+    std::uint32_t materialIndex = 0u;
+    std::uint32_t stableIdentifier = 0u;
+    CohesiveLawKind lawKind = CohesiveLawKind::trydingModeI;
+    std::uint32_t cohesiveMaterialIndex = NM_INVALID_INDEX;
+    std::uint32_t activationControlStep = 0u;
+    double activationGapToleranceM = 0.0;
+};
+
+// A mixed-mode mortar triangle over two independently tessellated parent
+// faces. Each row in the vertex maps gives the barycentric coordinates of one
+// integration-patch vertex in the corresponding side's parent triangle. The
+// patch is dormant until an explicit endpoint activation command is submitted;
+// its constitutive reference area and local gap are latched from that accepted
+// endpoint, without changing either bulk reference mesh.
+struct CohesiveMortarPatchSource {
+    std::array<std::uint32_t, 3> sideANodes{};
+    std::array<std::uint32_t, 3> sideBNodes{};
+    std::array<std::array<double, 3>, 3> sideAVertexBarycentric{};
+    std::array<std::array<double, 3>, 3> sideBVertexBarycentric{};
+    std::uint32_t firstTetrahedron = NM_INVALID_INDEX;
+    std::uint32_t secondTetrahedron = NM_INVALID_INDEX;
+    std::uint32_t materialIndex = 0u;
+    std::uint32_t stableIdentifier = 0u;
+    std::uint32_t cohesiveMaterialIndex = NM_INVALID_INDEX;
+    double activationGapToleranceM = 0.0;
+};
+
+enum class FEMPreconditionerMode : std::uint32_t {
+    scalarDiagonal = 0u,
+    regionalTangentDiagonal = 1u,
+    // Source-bound two-level FEM right preconditioner. Its regional basis is
+    // formed from authored per-tetrahedron region IDs and the coarse operator
+    // is the exact P^T A P action of the production matrix-free operator.
+    regionalGalerkin = 2u,
+    // Exact regional coarse correction, enriched by independent quadratic/
+    // cubic bending trial fields up to 32 modes, with a full 3x3 nodal tangent
+    // block as its fine correction. Conditioning only; the physical operator
+    // and convergence/certificate policy are unchanged.
+    regionalGalerkinBlockJacobi = 3u,
+    // Selector 3's bounded two-level FEM preconditioner for one immutable
+    // explicit FEM object with kinematic rigid contact and immutable cohesive
+    // faces. The coarse AP action includes the production bulk, contact, and
+    // cohesive operators. Dynamic generalized rigid rows remain unsupported.
+    regionalGalerkinContact = 4u,
+    // Source-bound graph-Schwarz patches (bounded to 256 free nodes per patch)
+    // supplement the exact regional RAP coarse correction. Conditioning only;
+    // it does not change the physical operator or acceptance certificate.
+    regionalGalerkinGraphSchwarz = 5u,
+};
+
+struct MixedSolverSource {
+    std::uint32_t newtonIterations = NM_MIXED_NEWTON_ITERATIONS;
+    std::uint32_t fgmresRestart = NM_MIXED_FGMRES_DEFAULT_RESTART;
+    std::uint32_t fgmresIterations = NM_MIXED_FGMRES_ITERATIONS;
+    std::uint32_t lineSearchSteps = NM_MIXED_LINE_SEARCH_STEPS;
+    // This is a fixed-pass right-preconditioner component. FGMRES remains the
+    // sole linear convergence and publication authority.
+    std::uint32_t fieldSmootherPasses =
+        NM_MIXED_FIELD_SMOOTHER_MAX_PASSES;
+    std::uint32_t mutationRestarts = NM_MIXED_MUTATION_RESTARTS;
+    // Opt-in fine FEM tangent diagonal, currently validated only for pure FEM
+    // worlds without mixed/multiphysics or learned constitutive operators.
+    // The regionalGalerkin mode adds a bounded source-region coarse correction
+    // formed from exact production-operator actions. The zero-valued scalar
+    // path preserves the historical implementation.
+    FEMPreconditionerMode femPreconditioner =
+        FEMPreconditionerMode::scalarDiagonal;
+    // Opt-in per-Newton cache of the complete unsymmetric 9x9 material-frame
+    // algorithmic dP/dF map for pure-FEM FGMRES products and conditioning-only
+    // tangent preconditioners/regional AP. Private Armijo trials and final
+    // true-residual certification continue to evaluate the direct path.
+    bool cacheFEMAlgorithmicTangent = false;
+    double relativeResidual = 1.0e-4;
+    double volumeTolerance = 1.0e-4;
+    double pressureTolerance = 1.0e-4;
+    double transportTolerance = 1.0e-4;
+    // Dimensionless floor relative to WorldSource::contactSlop. A separate
+    // coordinate-scale FP32 floor is always retained by the Metal kernel.
+    double minimumContactSeparationRatio = 1.0e-4;
+    double diagonalFloor = 1.0e-8;
+    double initialLMShift = 1.0e-6;
+    double maximumLMShift = 1.0e4;
+    double curvatureTolerance = 1.0e-7;
+    double armijo = 1.0e-4;
+    double minimumTemperature = 1.0;
+    double activationEpsilon = 1.0e-6;
+    double pressureStabilization = 0.1;
+};
+
+struct FEMCapacitySource {
+    // Zero selects the exact authored count. Nonzero values must not be lower
+    // than the authored topology and are fingerprinted without blanket growth.
+    std::uint32_t nodes = 0u;
+    std::uint32_t tetrahedra = 0u;
+    std::uint32_t cohesiveFaces = 0u;
+    std::uint32_t punctureChannels = 0u;
+    std::uint32_t mutationCommands = 0u;
+    // Maximum simultaneously active continuum/rigid contact rows. Zero keeps
+    // the compatibility behavior of reserving every cooked eligible pair.
+    std::uint32_t activeContacts = 0u;
+    // Maximum swept continuum primitive pairs per environment. Zero derives
+    // a linear manifold budget from FEM faces or MPM material points.
+    std::uint32_t deformableContacts = 0u;
+};
+
+struct MultiphysicsSource {
+    bool enabled = false;
+    double initialTemperature = 293.15;
+    double initialMechanicalPressure = 0.0;
+    double initialPorePressure = 0.0;
+    double initialElectricPotential = 0.0;
+    double initialActivation = 0.0;
+};
+
+struct FieldBoundarySource {
+    std::uint32_t node = 0u;
+    std::uint32_t flags = 0u;
+    std::uint32_t stableIdentifier = 0u;
+    std::array<double, 4> value{};
+    std::array<double, 3> flux{};
+};
+
+struct MutationPolicySource {
+    bool enabled = false;
+    bool cohesiveFracture = false;
+    // Minimum accepted normal impulse required before device contact may
+    // trigger puncture. Zero keeps automatic puncture disabled.
+    double punctureImpulseThreshold = 0.0;
+};
+
+struct MutationCommandSource {
+    NMMutationKind kind = NM_MUTATION_DEACTIVATE_TETRAHEDRON;
+    std::uint32_t stableIdentifier = 0u;
+    std::uint32_t controlStep = 0u;
+    std::uint32_t target = NM_INVALID_INDEX;
+    std::uint32_t priority = 0u;
+    std::array<double, 4> geometry0{};
+    std::array<double, 4> geometry1{};
+};
+
+struct RigidProxySource {
+    NMRigidShapeKind shape = NM_RIGID_PLANE;
+    // Global EngineModel body index used by the global body-state and wrench
+    // arenas. NM_INVALID_INDEX creates a world-fixed proxy.
+    std::uint32_t bodyIndex = NM_INVALID_INDEX;
+    // Environment-local scene-body index. Required only for a non-articulated
+    // dynamic proxy that may receive adaptive rigid-state publication.
+    std::uint32_t sceneBodyIndex = NM_INVALID_INDEX;
+    std::uint32_t materialIndex = 0u;
+    // For a puncture-tip capsule, localCenter is the sharp endpoint and
+    // localExtent is the base of the tapered tip segment. Capsule contact is
+    // geometrically symmetric, but this ordering gives topology mutation an
+    // unambiguous physical direction and tract extent.
+    std::array<double, 3> localCenter{};
+    std::array<double, 3> localExtent{};
+    std::array<double, 4> localOrientation{0.0, 0.0, 0.0, 1.0};
+    double radiusOrOffset = 0.0;
+    bool articulated = false;
+    bool dynamic = false;
+    bool punctureTip = false;
+    bool punctureDilator = false;
+    // Pure FEM/no microticks only. currentBodies supplies the endpoint pose and
+    // step velocity in BOTH phases; angular velocity must be exactly zero.
+    // Enables a feasible Newton predictor and swept capsule-node certificate.
+    bool prescribedEndPoseTranslation = false;
+    // Numerical conditioning multiplier for this prescribed capsule's IPC
+    // barrier stiffness only. The default is exactly the legacy response.
+    // Because Coulomb limits follow the normal barrier impulse, nonzero
+    // friction capacity also scales with this multiplier.
+    // This is not a physical contact/material calibration; supported range
+    // is [1, 100] and non-1 values require prescribedEndPoseTranslation.
+    double prescribedBarrierStiffnessScale = 1.0;
+    // Live MetalWorld DER capsule. When enabled, body/scene bindings and local
+    // capsule endpoints are ignored; strandNodeA/B address the global
+    // environment-local rod-node arena and radiusOrOffset remains physical.
+    // The segment follows compatible puncture channels and receives the
+    // equal-and-opposite accepted Matter impulse on-device.
+    bool sutureStrand = false;
+    std::uint32_t strandNodeA = NM_INVALID_INDEX;
+    std::uint32_t strandNodeB = NM_INVALID_INDEX;
+};
+
+struct FEMHumanAttachmentSource {
+    // Object-local authored FEM node. Cooking resolves this to the global FEM
+    // node arena while retaining the owning object in the GPU record.
+    std::uint32_t node = 0u;
+    // Global Numi Human body index. NM_INVALID_INDEX is never a valid
+    // attachment target.
+    std::uint32_t bodyIndex = NM_INVALID_INDEX;
+    // Stable nonzero identity used to preserve attachment provenance across
+    // recooks. Identifiers are unique across the compiled world.
+    std::uint32_t stableIdentifier = 0u;
+    // Attachment point expressed in the target Human body's local frame.
+    std::array<double, 3> localPoint{};
+};
+
+struct ObjectSource {
+    std::string name;
+    std::uint32_t materialIndex = 0u;
+    Representation representation = Representation::mpm;
+    bool automaticRepresentation = false;
+    bool twoWayCoupling = true;
+    bool adaptive = false;
+    bool identifiable = false;
+    // Disable participation in the generic continuum-continuum broadphase.
+    // This is distinct from rigid-proxy contact and is useful when an owning
+    // application supplies a registered interface law instead.
+    bool deformableContact = true;
+    // Thin solids may opt out of same-object deformable contact while still
+    // participating in contact with other continuum and rigid objects.
+    bool deformableSelfContact = true;
+    std::uint32_t rigidBinding = NM_INVALID_INDEX;
+    double characteristicLength = 0.01;
+    // MPM uses a fixed-capacity Eulerian background grid. These bounds are
+    // particle-centre limits in world coordinates; the compiler expands them
+    // by the quadratic B-spline support radius and rejects a particle that
+    // subsequently leaves the cooked domain rather than retaining stale
+    // particle-to-grid bindings.
+    std::array<double, 3> mpmGridMinimum{};
+    std::array<double, 3> mpmGridMaximum{};
+    double rigidTolerance = 1.0e-4;
+    double promotionStrain = 0.01;
+    double demotionStrain = 0.002;
+    std::vector<ParticleSource> particles;
+    // FEM topology is authored in the rest frame; this uniform velocity is
+    // copied to every unconstrained node at initialization.
+    std::array<double, 3> femInitialVelocity{};
+    std::vector<std::array<double, 3>> femNodes;
+    // Optional stress-free material reference coordinates, one per initial
+    // femNodes position. Empty preserves the exact legacy initial=reference
+    // convention. Reference coordinates own rest operators, reference volume
+    // and density-based mass; femNodes remains the initial current geometry.
+    // This admits a supplied reference, never estimates an unloaded state.
+    // Requires immutable explicit non-mixed FEM and fixed material parameters.
+    // Any material frames must be authored in this reference configuration.
+    std::vector<std::array<double, 3>> femReferenceNodes;
+    // SHA256 of the supplied reference and its source/derivation contract.
+    // Required with femReferenceNodes, canonical zero without them.
+    std::array<std::uint64_t, 4> femReferenceSourceIdentity{};
+    // Opt in to F = I + grad(u) in FP32 FEM kinematics, where u is initialized
+    // from femNodes - femReferenceNodes and persists as a separate nodal state
+    // from the materialized absolute position X + u. Requires authored
+    // reference coordinates and per-tet regional material assignments on
+    // explicit, immutable FEM without Human attachments. Empty/false preserves
+    // the legacy current-edge times inverse-reference formulation.
+    bool femReferenceDisplacementGradient = false;
+    // Local FEM node indices whose position is prescribed at the authored
+    // initial femNodes position, including when a separate reference exists.
+    // Fixed nodes retain their assembled mass for accounting,
+    // but have zero velocity and inverse mass in the executable state.
+    std::vector<std::uint32_t> femFixedNodes;
+    // Moving body-frame constraints are distinct from static fixed nodes.
+    // Each authored FEM node may own at most one Human attachment.
+    std::vector<FEMHumanAttachmentSource> femHumanAttachments;
+    // Optional authored collision surface. Empty preserves source-world
+    // compatibility by cooking every FEM node; otherwise only these local
+    // nodes receive continuum/rigid contact rows. Topology mutation may use
+    // reserved capacity for newly exposed nodes in a later active-list pass.
+    std::vector<std::uint32_t> femContactNodes;
+    std::vector<TetrahedronSource> tetrahedra;
+    // Explicitly paired immutable cohesive faces. The default Tryding/Biel
+    // law remains a source-bounded single-ply Mode-I model. The opt-in mixed
+    // bilinear law is an engineering model with explicit authored parameters;
+    // it is not a starch calibration without measured interface inputs.
+    std::vector<CohesiveInterfaceSource> femCohesiveInterfaces;
+    // Mixed-mode interfaces with independent parent-face parameterizations.
+    // Each entry is one triangular mortar integration patch; callers split a
+    // nontriangular overlap into a deterministic patch list.
+    std::vector<CohesiveMortarPatchSource> femCohesiveMortarPatches;
+    // Optional exact per-authored-tetrahedron material indices into
+    // WorldSource::materials. Empty preserves the object material and legacy
+    // mass arithmetic. Nonempty keeps shared nodes and assembles each cell's
+    // cooked density*volume contribution once in FP64 before rounding nodal
+    // mass; it never splits a material interface into independent objects.
+    // Currently requires explicit, immutable, non-mixed FEM without field
+    // boundaries/multiphysics or object-level identification. Selected/default
+    // material parameters must be fixed (not identifiable). All selected
+    // materials must have the same interface response as materialIndex,
+    // which remains the explicitly uniform object/contact interface owner.
+    std::vector<std::uint32_t> femMaterialIndices;
+    // Stable source-region IDs used only by FEMPreconditionerMode::regionalGalerkin.
+    // One label per authored tetrahedron, contiguous from zero, independent of
+    // compiled constitutive-program/material pooling. The runtime uses these
+    // IDs to define a conditioning-only coarse subspace; they do not alter the
+    // physical operator, material assignment, or accepted mechanics.
+    std::vector<std::uint32_t> femPreconditionerRegionIds;
+    // SHA256 of the source regional labels and declared material/density map.
+    // Required with femMaterialIndices, canonical zero without them.
+    std::array<std::uint64_t, 4> femMaterialSourceIdentity{};
+    // Optional immutable material-local basis for every authored tetrahedron,
+    // in the same order. Unit Hamilton quaternions (x,y,z,w) map material axes
+    // into the reference-world axes. With this explicit opt-in, all material
+    // F/Fdot/directional inputs and internal-state semantics use F*Q; Piola
+    // outputs transform back by Q^T. Empty preserves the legacy world basis.
+    // Author any normalization from source fibre/sheet fields separately;
+    // cooking rejects nonunit inputs rather than repairing them.
+    std::vector<std::array<double, 4>> femMaterialFrameRotations;
+    // SHA256 identity of source fields plus their declared basis conversion.
+    // Required with frames; all zero without them. Identity is provenance,
+    // not proof of anatomical calibration.
+    std::array<std::uint64_t, 4> femMaterialFrameSourceIdentity{};
+    bool mixedFEM = true;
+    FEMCapacitySource femCapacity;
+    MultiphysicsSource multiphysics;
+    std::vector<FieldBoundarySource> fieldBoundaries;
+    MutationPolicySource mutationPolicy;
+    std::vector<MutationCommandSource> mutationCommands;
+};
+
+// Vascular laws share the existing Matter transaction and conservative transport.
+// Storage displacement is a hydraulic coordinate, never an absolute blood volume. Units are SI; tolerances are positive,
+// dimensionless bounds on residuals divided by their authored scales.
+struct VascularSpeciesSource {
+    std::uint32_t stableIdentifier = 0u;
+    std::string name;
+    double amountScale = 0.0; // mol
+    double amountResidualTolerance = 0.0;
+};
+enum class VascularStorageKind : std::uint32_t { absoluteVolume = 0u, storageDisplacement = 1u };
+enum class VascularPressureLaw : std::uint32_t { linearCompliance = 0u, ventricularElastance = 1u, atrialElastance = 2u, atanCompliance = 3u, cosinePulseElastance = 4u, deformingCavity = 5u };
+enum class VascularFlowLaw : std::uint32_t { resistanceInertance = 0u, oneWayOrifice = 1u, oneWayResistance = 2u, starlingResistance = 3u, directionalResistance = 4u };
+struct VascularCompartmentSource {
+    std::uint32_t stableIdentifier = 0u;
+    std::string anatomicalIdentifier;
+    double referenceVolume = 0.0; // m3
+    double initialVolume = 0.0;
+    double referencePressure = 0.0; // Pa
+    double compliance = 0.0; // m3/Pa
+    double externalPressure = 0.0;
+    double volumeScale = 0.0; // m3
+    double volumeResidualTolerance = 0.0;
+    std::vector<double> initialSpeciesAmounts; // mol, source species order
+    VascularStorageKind storageKind = VascularStorageKind::absoluteVolume;
+    VascularPressureLaw pressureLaw = VascularPressureLaw::linearCompliance;
+    // Prescribed periodic source law. All fields are zero for linear compliance.
+    double elastanceMin = 0.0, elastanceMax = 0.0; // Pa/m3
+    double periodSeconds = 0.0;
+    // Ventricle: peak and relaxation fractions. Atrium: start and duration.
+    double activationStart = 0.0, activationEnd = 0.0;
+    double sourcePi = 0.0; // preserve the source angular constant
+    double maximumVolumeDisplacement = 0.0; // atan law Vmax, m3
+    double phaseDelay = 0.0; // cosine pulse onset, cycle fraction
+    // Exact integer-seconds rational period; mutually exclusive with periodSeconds.
+    std::uint64_t periodNumeratorSeconds = 0u, periodDenominator = 0u;
+};
+struct VascularConnectionSource {
+    std::uint32_t stableIdentifier = 0u;
+    // Stable source identifiers, resolved by cooking (never vector indices).
+    std::uint32_t fromCompartment = 0u;
+    std::uint32_t toCompartment = 0u;
+    double resistance = 0.0; // Pa s/m3; directional forward R permits zero, other resistive laws require positive R
+    double inertance = 0.0; // Pa s2/m3, nonnegative
+    double initialFlow = 0.0; // m3/s; signed from -> to
+    double flowScale = 0.0; // m3/s
+    double pressureScale = 0.0; // Pa, scales the flow equation
+    double flowResidualTolerance = 0.0;
+    VascularFlowLaw flowLaw = VascularFlowLaw::resistanceInertance;
+    // Q = CV sqrt(max(Pfrom - Pto, 0)); R/L are zero for this law.
+    double orificeCoefficient = 0.0; // m3/(s sqrt(Pa))
+    double downstreamPressureFloor = 0.0; // Starling resistor only, Pa
+    // Explicit signed directional law: R(Q)*Q = Pfrom-Pto. Forward R is
+    // resistance; reverse R must be positive and >= forward R. L/CV/floor
+    // are zero. This is a declared native formulation, not a CARP valve model.
+    double reverseResistance = 0.0; // Pa s/m3; zero for every other flow law
+};
+struct VascularTissueBindingSource {
+    std::uint32_t node = 0u; // object-local FEM node
+    double weight = 0.0; // positive normalized regional identity weight
+};
+struct VascularTissueSource {
+    std::uint32_t stableIdentifier = 0u;
+    std::string anatomicalIdentifier;
+    double volume = 0.0; // m3, fixed reservoir volume in V1
+    std::vector<double> initialSpeciesAmounts;
+    // An optional REAL FEM object/region association is identity only in V1.
+    // Dynamic deformation/pressure feedback is unsupported and rejected.
+    std::uint32_t objectIndex = NM_INVALID_INDEX;
+    std::vector<VascularTissueBindingSource> femRegion;
+    bool mechanicsFeedback = false;
+    // Explicit fluid-momentum ownership. When enabled, the pressure reaction
+    // must name a matching inertial vascular edge. The runtime transfers the
+    // finite-volume blood momentum change to this registered wall region; it
+    // never infers a vessel or density from geometry.
+    bool bloodMomentumTransfer = false;
+    // Optional single-owner blood mechanical mass registration. When set,
+    // this tissue receives the compartment's initial fluid mass over its real
+    // FEM region. Runtime applies only the current-volume mass correction;
+    // pressure-driven vessel momentum and subject-specific density remain
+    // separate qualification gates.
+    std::uint32_t bloodCompartment = 0u; // stable compartment identifier
+    double bloodDensity = 0.0; // kg/m3, positive when bloodCompartment is set
+    // Optional explicit pressure-gradient wall reaction. The authored unit
+    // direction points from pressureFromCompartment toward
+    // pressureToCompartment; the registered FEM region receives the equal and
+    // opposite wall reaction, pressure difference times cross-sectional area.
+    // All four fields are zero when this owner has no pressure reaction. This
+    // is a mechanical transfer contract only; it does not supply anatomy,
+    // perfusion, density calibration, or a second fluid state.
+    std::uint32_t pressureFromCompartment = 0u;
+    std::uint32_t pressureToCompartment = 0u;
+    std::array<double, 3> pressureDirection{};
+    double pressureArea = 0.0; // m2, positive when the contract is enabled
+};
+struct VascularExchangeSource {
+    std::uint32_t stableIdentifier = 0u;
+    std::uint32_t compartment = 0u; // stable identifiers
+    std::uint32_t tissue = 0u;
+    std::uint32_t species = 0u;
+    double permeabilitySurface = 0.0; // m3/s, strictly positive
+    double partitionCoefficient = 0.0; // c_blood - c_tissue / K
+};
+// Source provenance is retained verbatim; the cooked package independently
+// fingerprints the exact FEM geometry, material, incidence and these identities.
+// This contract supplies hydraulic wall work, not blood mechanical mass.
+enum class VascularCavityFaceRole : std::uint32_t {
+    unspecified = 0u, materialWall = 1u, artificialPartitionInterface = 2u
+};
+struct VascularCavityFaceSource {
+    std::uint32_t stableIdentifier = 0u;
+    std::array<std::uint32_t, 3> nodes{}; // object-local real boundary FEM nodes
+    VascularCavityFaceRole role = VascularCavityFaceRole::unspecified;
+};
+struct VascularCavitySource {
+    std::uint32_t stableIdentifier = 0u;
+    std::uint32_t compartment = 0u; // stable compartment identifier
+    std::uint32_t objectIndex = NM_INVALID_INDEX;
+    double initialPressure = 0.0; // absolute Pa; wall uses p - externalPressure
+    double pressureScale = 0.0; // Pa, pressure unknown scale
+    double geometryResidualTolerance = 0.0; // (V - V_cavity) / volumeScale
+    std::array<std::uint64_t, 4> sourceIdentity{};
+    std::array<std::uint64_t, 4> mechanicalIdentity{};
+    std::vector<VascularCavityFaceSource> faces;
+};
+
+struct VascularNetworkSource {
+    // Whole source payload and upstream graph SHA256 bytes as four u64 words.
+    // They are exact provenance, never host pointers or runtime state.
+    std::array<std::uint64_t, 4> contentIdentity{};
+    std::array<std::uint64_t, 4> sourceIdentity{};
+    std::array<std::uint64_t, 4> authoredIdentity{};
+    std::vector<VascularSpeciesSource> species;
+    std::vector<VascularCompartmentSource> compartments;
+    std::vector<VascularConnectionSource> connections;
+    std::vector<VascularTissueSource> tissues;
+    std::vector<VascularExchangeSource> exchanges;
+    std::vector<VascularCavitySource> cavities;
+};
+
+struct WorldSource {
+    double frameTimestep = 1.0 / 60.0;
+    std::array<double, 3> gravity{0.0, 0.0, -9.81};
+    double contactSlop = 1.0e-5;
+    double maximumDepenetrationSpeed = 5.0;
+    std::uint32_t environmentCount = 1u;
+    std::uint32_t identificationCandidates = 0u;
+    // Exact cooked capacity reserved for an articulated primal candidate.
+    // The compatibility defaults match MetalWorld's ABA class. Numi Human
+    // worlds explicitly select up to the 160-DoF/161-q Matter ceiling. These
+    // values do not allocate anything when no articulated proxy is authored.
+    std::uint32_t articulatedDofCapacity = 40u;
+    std::uint32_t articulatedQCapacity = 41u;
+    bool deterministic = true;
+    // Allocation/search optimization only. Requires explicit immutable FEM,
+    // no MPM/adaptation/mutation, and exact node/tet topology capacities.
+    // Duplicated cohesive interface nodes retain both exposed surfaces.
+    bool compactImmutableFEMSurfaces = false;
+    MixedSolverSource mixedSolver;
+    VascularNetworkSource vascular;
+    std::vector<MaterialProgram> materials;
+    std::vector<CohesiveMaterialSource> cohesiveMaterials;
+    std::vector<ObjectSource> objects;
+    std::vector<RigidProxySource> rigidProxies;
+};
+
+struct CookedMPM {
+    std::vector<NMParticleStateGPU> particles;
+    std::vector<NMGridNodeStateGPU> nodes;
+    std::vector<NMMPMGridGPU> grids;
+    std::vector<NMMPMBlockGPU> blocks;
+    std::vector<std::uint32_t> blockLookup;
+    // Retained for package compatibility; live transfers use sparse block
+    // classification and recompute quadratic support from current positions.
+    std::vector<NMMPMStencilGPU> stencils;
+    std::vector<std::uint32_t> nodeIncidence;
+    std::vector<NMIncidenceRangeGPU> nodeRanges;
+};
+
+struct CookedFEM {
+    std::vector<NMFEMNodeStateGPU> nodes;
+    std::vector<NMTetrahedronGPU> tetrahedra;
+    std::vector<NMFEMSurfaceFaceGPU> surfaceFaces;
+    std::vector<std::uint32_t> nodeIncidence;
+    std::vector<NMIncidenceRangeGPU> nodeRanges;
+    std::vector<NMFEMCapacityGPU> capacities;
+    std::vector<NMFEMFieldStateGPU> fields;
+    std::vector<NMFieldBoundaryGPU> fieldBoundaries;
+    std::vector<NMFEMTopologyNodeGPU> topologyNodes;
+    std::vector<NMCohesiveFaceGPU> cohesiveFaces;
+    std::vector<NMMutationCommandGPU> mutationCommands;
+    std::vector<NMPunctureChannelGPU> punctureChannels;
+    std::vector<NMFEMHumanAttachmentGPU> humanAttachments;
+};
+
+struct CookedContact {
+    std::vector<NMRigidProxyGPU> rigidProxies;
+    std::vector<NMContactPairGPU> pairs;
+    std::vector<std::uint32_t> nodeIncidence;
+    std::vector<NMIncidenceRangeGPU> nodeRanges;
+    std::vector<std::uint32_t> rigidIncidence;
+    std::vector<NMIncidenceRangeGPU> rigidRanges;
+};
+
+struct CookedVascular {
+    NMVascularLayoutGPU layout{};
+    NMVascularIdentityGPU identity{};
+    std::vector<NMVascularSpeciesGPU> species;
+    std::vector<NMVascularCompartmentGPU> compartments;
+    std::vector<NMVascularConnectionGPU> connections;
+    std::vector<NMVascularTissueGPU> tissues;
+    std::vector<NMVascularExchangeGPU> exchanges;
+    std::vector<NMVascularTissueBindingGPU> tissueBindings;
+    std::vector<NMVascularUnknownGPU> unknowns;
+    std::vector<NMVascularCavityGPU> cavities;
+    std::vector<NMVascularCavityFaceGPU> cavityFaces;
+    std::vector<std::uint32_t> compartmentCavity; // cavity index or invalid
+    std::vector<std::uint32_t> cavityNodeIncidence; // face indices, node-major
+    std::vector<NMVascularRangeGPU> cavityNodeRanges; // global FEM node order
+    std::vector<std::uint32_t> connectionIncidence;
+    std::vector<NMVascularRangeGPU> connectionRanges;
+    std::vector<std::uint32_t> bloodExchangeIncidence;
+    std::vector<NMVascularRangeGPU> bloodExchangeRanges;
+    std::vector<std::uint32_t> tissueExchangeIncidence;
+    std::vector<NMVascularRangeGPU> tissueExchangeRanges;
+    // Exact UTF-8 names/anatomical IDs, each NUL terminated. Offsets in
+    // identity fields bind semantic IDs without hashing away the strings.
+    std::vector<std::uint8_t> names;
+};
+
+struct CompiledWorld {
+    NMMatterDispatchGPU dispatch{};
+    NMMixedSolverGPU mixedSolver{};
+    std::vector<ConstitutiveProgram> constitutive;
+    std::vector<NMMaterialGPU> materials;
+    std::vector<NMCohesiveMaterialGPU> cohesiveMaterials;
+    std::vector<NMMixedMaterialGPU> mixedMaterials;
+    std::vector<NMParameterRangeGPU> parameters;
+    std::vector<float> stateInitials;
+    std::vector<NMExpressionInstructionGPU> instructions;
+    std::vector<NMScalarProgramGPU> scalarPrograms;
+    std::vector<NMContinuumObjectGPU> objects;
+    CookedMPM mpm;
+    CookedFEM fem;
+    CookedContact contact;
+    CookedVascular vascular;
+    std::vector<NMAdaptiveStateGPU> adaptive;
+    std::vector<NMSchedulerStateGPU> schedulers;
+    std::vector<NMIdentificationDistributionGPU> identification;
+    std::vector<NMLearnedMaterialGPU> learnedMaterials;
+    std::vector<NMLearnedLayerGPU> learnedLayers;
+    std::vector<float> learnedWeights;
+    // Canonical authored-physics identity with allocation-only FEM capacities
+    // removed. This remains stable across compatible topology growth recooks.
+    std::uint64_t physicsFingerprint = 0u;
+    // Exact cooked-package identity, including all arena capacities.
+    std::uint64_t fingerprint = 0u;
+};
+
+struct ParseResult {
+    MaterialProgram material;
+    std::vector<Diagnostic> diagnostics;
+
+    [[nodiscard]] bool succeeded() const noexcept;
+};
+
+struct CompileOptions {
+    double cfl = 0.35;
+    std::uint32_t maximumRateExponent = NM_MAX_RATE_EXPONENT;
+    std::uint32_t maximumExpressionStack = NM_EXPRESSION_STACK_CAPACITY;
+    bool emitSpecializedMetal = true;
+    // Bounded Newton budget for authored generic implicit material state.
+    // Kept at the historical per-material value unless a study explicitly
+    // selects another count; the cooked NMMaterialGPU carries this value.
+    std::uint32_t localMaterialNewtonIterations = 8u;
+};
+
+struct CompileResult {
+    CompiledWorld world;
+    std::string generatedMetal;
+    std::vector<Diagnostic> diagnostics;
+
+    [[nodiscard]] bool succeeded() const noexcept;
+};
+
+[[nodiscard]] ParseResult parseMatter(std::string_view source);
+[[nodiscard]] ParseResult parseMatterFile(const std::filesystem::path& path);
+[[nodiscard]] std::uint64_t compiledWorldFingerprint(
+    const CompiledWorld& world
+) noexcept;
+// Validates every pointer-free range, material program, sparse MPM block,
+// FEM incidence, contact binding, adaptive authority and canonical
+// fingerprint before a cooked world is serialized or allocated on Metal.
+[[nodiscard]] bool validateCompiledWorldLayout(
+    const CompiledWorld& world,
+    std::string* error = nullptr
+);
+[[nodiscard]] CompileResult compileWorld(
+    const WorldSource& source,
+    const CompileOptions& options = {}
+);
+[[nodiscard]] std::string emitSpecializedMetal(
+    std::span<const ConstitutiveProgram> programs
+);
+[[nodiscard]] std::string dimensionName(Dimension dimension);
+
+[[nodiscard]] bool writePackage(
+    const CompileResult& compiled,
+    const std::filesystem::path& path,
+    std::string* error = nullptr
+);
+[[nodiscard]] bool readPackage(
+    const std::filesystem::path& path,
+    CompiledWorld& world,
+    std::string* generatedMetal = nullptr,
+    std::string* error = nullptr
+);
+[[nodiscard]] bool writeLearnedMaterial(
+    const LearnedMaterialSource& material,
+    const std::filesystem::path& path,
+    std::string* error = nullptr
+);
+[[nodiscard]] bool readLearnedMaterial(
+    const std::filesystem::path& path,
+    LearnedMaterialSource& material,
+    std::string* error = nullptr
+);
+
+struct RuntimeConfiguration {
+    std::filesystem::path metallib;
+    std::uint32_t environmentCount = 0u;
+    bool captureEvents = true;
+    bool captureDiagnostics = false;
+    // Normal rollout uses the current identified mean. Candidate sampling and
+    // distribution updates are opt-in because they deliberately perturb the
+    // material parameters of designated environments.
+    bool automaticIdentification = false;
+    bool adaptiveTransfer = true;
+    // Exact initialized upper bound for the borrowed Human MyoSim bytes
+    // hashed per environment. Zero keeps the production proof authority
+    // unavailable; callers must budget this explicitly with the Human arena.
+    std::uint64_t acceptedStateProofMujocoBytesPerEnvironmentCapacity = 0u;
+    // Optional immutable fixed-plane Human support program. The point-query
+    // table is row-major and must have the same count as the contact rows.
+    // Runtime uploads both streams during initialize(); callers may release
+    // the spans after initialize returns.
+    std::span<const NMHumanSupportContactGPU> humanSupportContacts{};
+    std::span<const NMHumanSupportPointQueryGPU> humanSupportPointQueries{};
+    nm_float4 humanSupportGroundPoint{};
+    nm_float4 humanSupportGroundNormal{};
+    // Immutable NHEQ2 source compliance program. Empty retains legacy behavior.
+    std::span<const NMHumanJointEqualityGPU> humanJointEqualities{};
+    NMHumanEqualityDispatchGPU humanEqualityDispatch{};
+    std::uint64_t humanEqualitySourceFingerprint = 0u;
+    // Immutable NHLIM1 scalar stops, sharing the NHEQ2 source clock and
+    // effective-tangent factor. Empty retains the existing behavior.
+    std::span<const NMHumanJointLimitGPU> humanJointLimits{};
+    NMHumanLimitDispatchGPU humanLimitDispatch{};
+    std::uint64_t humanLimitSourceFingerprint = 0u;
+    // Generic legacy callbacks may explicitly retain projected-only geometry.
+    // A configured compensated Human owner must opt in; all candidate services,
+    // support initial poses and accepted-state proofs then carry the full pair.
+    bool coupledCandidateCompensatedTranslation = false;
+    // Optional accepted support-history seed in exact environment-major row
+    // order. Empty preserves legacy zero initialization. A nonempty span must
+    // contain environmentCount * humanSupportContacts.size() float4 records;
+    // Matter owns these as accepted/candidate/checkpoint transactional state.
+    // RuntimeConfiguration is an append-only, rebuild-required C++ surface;
+    // tail placement preserves every pre-existing member offset.
+    std::span<const nm_float4> humanSupportInitialHistories{};
+    // Load and provision the optional direct-byte physical SHA-256 observer.
+    // This additionally requires a nonzero accepted-state MyoSim capacity and
+    // its sibling NumiMatterPhysicalStateDigest.metallib image.
+    bool enablePhysicalStateDigest = false;
+    // Opt into a fused 45-unknown vascular linear solve when the initialized
+    // world is an exact vascular-only, zero-inertance 21/24 network. Ineligible
+    // worlds continue through the general FGMRES path.
+    bool enableVascularDense45 = false;
+};
+
+struct HumanSupportConsequencesView {
+    void* buffer = nullptr; // borrowed id<MTLBuffer>, read-only
+    std::uint64_t gpuAddress = 0u;
+    std::uint64_t elementCount = 0u;
+    std::uint32_t stride = 0u;
+    std::uint32_t reserved0 = 0u;
+};
+
+struct BorrowedRigidWorldBuffers {
+    void* q = nullptr;                   // id<MTLBuffer>, float
+    void* v = nullptr;                   // id<MTLBuffer>, float
+    void* currentBodies = nullptr;       // id<MTLBuffer>, MRBodyStateGPU
+    // Environment-major global body wrench arena. Articulated ABA consumes
+    // its owned body range; MetalWorld scene prediction consumes free-body
+    // entries from the same arena.
+    void* bodyWrenches = nullptr;        // id<MTLBuffer>, MRABABodyWrenchGPU
+    void* sceneBodies = nullptr;         // id<MTLBuffer>, MRBodyStateGPU
+    void* rodNodes = nullptr;             // id<MTLBuffer>, MRRodNodeStateGPU
+    void* rodInverseMasses = nullptr;     // id<MTLBuffer>, float
+    std::uint32_t currentBodyCount = 0u;
+    std::uint32_t currentBodyStride = 0u;
+    std::uint32_t bodyWrenchCount = 0u;
+    std::uint32_t sceneBodyCount = 0u;
+    std::uint32_t bodyWrenchStride = 0u;
+    std::uint32_t sceneStride = 0u;
+    std::uint32_t rodNodeCount = 0u;
+    std::uint32_t rodNodeStride = 0u;
+    std::uint32_t qStride = 0u;
+    std::uint32_t vStride = 0u;
+    // Optional environment-major world-frame external wrench input, indexed
+    // by the global bodyIndex in each current-body block. Each row is an
+    // MRABABodyWrenchGPU: force.xyz is N and torque.xyz is N*m about that
+    // body's COM; .w is ignored. This is read-only and distinct from
+    // bodyWrenches, which remains Matter's output arena. Count is the number
+    // of body rows per environment and stride is the row stride. If present,
+    // count must exactly equal currentBodyCount and stride must be at least
+    // count. Null requires count and stride both zero. Consumed in preDynamics
+    // only; a postCommit request may carry the same borrowed view for the
+    // caller's transaction lifetime, but the wrench is not applied twice.
+    void* externalWrenches = nullptr; // id<MTLBuffer>, MRABABodyWrenchGPU
+    std::uint32_t externalWrenchCount = 0u;
+    std::uint32_t externalWrenchStride = 0u;
+};
+
+enum class EncodePhase : std::uint32_t {
+    preDynamics = 0u,
+    postCommit = 1u,
+};
+
+// Optional same-command-buffer extension point for physiological owners that
+// must advance atomically with Matter's accepted physical state. Buffer fields
+// in the view are borrowed id<MTLBuffer>s; the callback may encode Metal work
+// into commandBuffer but must not commit, wait, read back, retain, or change a
+// resource's ownership. frameBegin follows the control-step checkpoint,
+// candidateReady follows physical candidate certification but precedes Matter
+// commit, microstepComplete follows each accepted inner-step candidate, and
+// frameComplete follows postCommit rollback/status reconciliation. Invalid
+// physical candidates should write the matching NMMatterStatusGPU failure so
+// all Matter owners take their normal rollback.
+enum class AcceptedStepExtensionPhase : std::uint32_t {
+    frameBegin = 0u,
+    candidateReady = 1u,
+    microstepComplete = 2u,
+    frameComplete = 3u,
+};
+
+struct AcceptedStepExtensionView {
+    void* commandBuffer = nullptr; // borrowed id<MTLCommandBuffer>
+    void* matterStatuses = nullptr; // borrowed id<MTLBuffer>, NMMatterStatusGPU[environmentCount]
+    void* vascularAccepted = nullptr; // borrowed id<MTLBuffer>, float4[environmentCount * vascularStateStride]
+    void* vascularCandidate = nullptr;
+    void* vascularCheckpoint = nullptr;
+    void* vascularUnknowns = nullptr; // NMVascularUnknownGPU[vascularStateStride]
+    void* vascularCompartments = nullptr; // NMVascularCompartmentGPU[compartmentCount]
+    void* vascularElastance = nullptr; // float[environmentCount * compartmentCount], exact prepared pressure-law coefficients
+    void* vascularConnections = nullptr; // NMVascularConnectionGPU[connectionCount]
+    void* vascularTissues = nullptr; // NMVascularTissueGPU[tissueCount]
+    void* vascularExchanges = nullptr; // NMVascularExchangeGPU[exchangeCount]
+    void* vascularCavities = nullptr; // NMVascularCavityGPU[cavityCount]
+    void* vascularCompartmentCavity = nullptr; // uint32_t[compartmentCount]
+    void* vascularClockAccepted = nullptr; // NMVascularClockGPU[environmentCount]
+    void* vascularClockCandidate = nullptr;
+    void* vascularClockCheckpoint = nullptr;
+    NMVascularLayoutGPU vascularLayout{};
+    std::uint32_t environmentCount = 0u;
+    std::uint32_t vascularStateStride = 0u;
+    std::uint32_t compartmentCount = 0u;
+    std::uint32_t connectionCount = 0u;
+    std::uint32_t tissueCount = 0u;
+    std::uint32_t exchangeCount = 0u;
+    std::uint32_t cavityCount = 0u;
+    std::uint32_t controlStep = 0u;
+    std::uint32_t physicsSubstep = 0u;
+    std::uint32_t physicsSubsteps = 0u;
+    std::uint32_t microtick = 0u;
+    std::uint32_t microtickCount = 0u;
+    std::int32_t vascularClockQuantumExponent = 0;
+    EncodePhase matterPhase = EncodePhase::preDynamics;
+    std::uint64_t vascularTimestepTicks = 0u;
+    float frameTimestepSeconds = 0.0f;
+    float microstepTimestepSeconds = 0.0f;
+};
+
+using EncodeAcceptedStepExtension = bool (*) (
+    void* context,
+    AcceptedStepExtensionPhase phase,
+    const AcceptedStepExtensionView& view
+);
+
+enum class CoupledCandidateOperation : std::uint32_t {
+    candidateKinematics = 0u,
+    massAction = 1u,
+    inverseMassPreconditioner = 2u,
+    publishCandidate = 3u,
+};
+
+struct CoupledCandidateQuery {
+    void* input = nullptr;
+    void* output = nullptr;
+    void* candidateQ = nullptr;
+    void* candidateBodies = nullptr;
+    void* statuses = nullptr;
+    void* pointQueries = nullptr;
+    void* pointJacobians = nullptr;
+    CoupledCandidateOperation operation =
+        CoupledCandidateOperation::candidateKinematics;
+    std::uint32_t generalizedVectorStride = 0u;
+    std::uint32_t candidateQStride = 0u;
+    std::uint32_t candidateBodyStride = 0u;
+    std::uint32_t statusStride = 0u;
+    std::uint32_t pointCount = 0u;
+    std::uint32_t pointStride = 0u;
+    std::uint32_t pointJacobianStride = 0u;
+    // Borrowed output arenas, environment-major. The root is 48 bytes/env;
+    // body/point lows are float4 with the existing body/point strides.
+    // Geometry outputs belong only to candidateKinematics. Other operations
+    // keep these pointers, addresses and counts canonically null/zero.
+    void* candidateRootTranslation = nullptr;
+    void* candidateBodyPositionLow = nullptr;
+    void* pointPositionLow = nullptr;
+    std::uint64_t candidateRootTranslationGPUAddress = 0u;
+    std::uint64_t candidateBodyPositionLowGPUAddress = 0u;
+    std::uint64_t pointPositionLowGPUAddress = 0u;
+    std::uint64_t candidateRootTranslationElementCount = 0u;
+    std::uint64_t candidateBodyPositionLowElementCount = 0u;
+    std::uint64_t pointPositionLowElementCount = 0u;
+    bool legacyHighOnly = true;
+};
+
+using EncodeCoupledCandidate = bool (*)(
+    void* context,
+    const CoupledCandidateQuery& query
+);
+
+struct EncodeRequest {
+    void* commandBuffer = nullptr; // borrowed id<MTLCommandBuffer>
+    BorrowedRigidWorldBuffers rigid{};
+    EncodePhase phase = EncodePhase::preDynamics;
+    // Optional borrowed [control step][environment] reset stream. A zero
+    // stride disables reset consumption. Selected environments restore their
+    // continuum/adaptive state and parameter overlay; the learned posterior
+    // distribution remains persistent and republishes its current mean.
+    void* resetMasks = nullptr; // id<MTLBuffer>, uint32_t
+    // Borrowed [environment] MRMetalWorldStatusGPU stream. Post-commit
+    // reconciliation uses it to roll continuum state back whenever the
+    // enclosing rigid transaction rejected that environment.
+    void* environmentStatuses = nullptr;
+    // Optional environment-major nodal force field, one float4 per cooked FEM
+    // node. It enters the same implicit mechanical residual as gravity and
+    // constitutive force. Callers retain ownership; w is ignored. A non-null
+    // field must cover exactly environmentCount * femNodeCount records.
+    // Optional pose-only MRBodyStateGPU view at the start of this root.
+    // Human support recovery reads position/orientation only, with
+    // rigid.currentBodyCount/currentBodyStride indexing. Keep it immutable
+    // throughout candidate evaluation. Null uses rigid.currentBodies.
+    // This view never supplies generic rigid proxy dynamics or reconciliation.
+    void* humanSupportInitialBodies = nullptr;
+    // Exact low component paired with humanSupportInitialBodies (or current
+    // bodies when that high arena is omitted). Required by compensated Human
+    // support; pointer, device address and count are checked together.
+    void* humanSupportInitialBodyPositionLow = nullptr;
+    std::uint64_t humanSupportInitialBodyPositionLowGPUAddress = 0u;
+    std::uint64_t humanSupportInitialBodyPositionLowElementCount = 0u;
+    // Accepted source velocity, distinct from rigid.v's free predictor. Used
+    // read-only during the same borrowed Human root when NHEQ2 is configured.
+    void* humanEqualitySourceVelocity = nullptr;
+    // Read-only same-root lower Cholesky of A0, [environment][nv][nv].
+    // Matter factors A0+J^T R^-1 J into separate root-local private storage.
+    void* humanEqualitySourceEffectiveTangentFactor = nullptr;
+    void* femExternalForces = nullptr; // id<MTLBuffer>, float4
+    // Optional absolute world-space targets for cooked fixed FEM nodes. One
+    // float4 covers every environment/node: w <= 0 leaves the constraint
+    // unchanged; w=1 selects an absolute target; w=2 releases an authored
+    // static constraint or temporary grip (xyz ignored, finite required).
+    // Release is idempotent for free nodes, preserves mass and momentum
+    // history, and cannot release Human attachments. A released node cannot
+    // be reattached with w=1. w=3 acquires or updates a temporary grip on a
+    // free pure-FEM node. Targets are interpolated over internal microticks
+    // and participate in the accepted/candidate/checkpoint transaction.
+    void* femKinematicTargets = nullptr; // id<MTLBuffer>, float4
+    // Optional flat device stream of explicit cohesive activation requests.
+    // count is the total number of entries across all environments and stride
+    // must equal sizeof(NMCohesiveActivationCommandGPU). Commands are consumed
+    // only in preDynamics at the first microtick of physics substep zero, and
+    // latch the already accepted FEM pose at that transaction's start. The
+    // command and resulting face activation are rolled back with the native
+    // transaction. postCommit requires a null buffer, zero count, and zero
+    // stride.
+    void* cohesiveActivationCommands = nullptr; // NMCohesiveActivationCommandGPU
+    std::uint32_t cohesiveActivationCommandCount = 0u;
+    std::uint32_t cohesiveActivationCommandStride = 0u;
+    // Optional borrowed final MetalWorld contact solve, laid out
+    // [environment][rigidContactConstraintStride].  Matter consumes it only
+    // during a final post-commit adaptive transfer to re-promote the exact
+    // adaptive fallback body that contacted the rigid world.
+    void* rigidContactConstraints = nullptr; // id<MTLBuffer>, MRContactConstraintGPU
+    void* rigidContactStatuses = nullptr; // id<MTLBuffer>, MRMetalWorldContactStatusGPU
+    void* coupledCandidateContext = nullptr;
+    EncodeCoupledCandidate encodeCoupledCandidate = nullptr;
+    // Optional fixed-stride device command stream. The runtime validates and
+    // stages it into candidate topology; callers retain ownership.
+    void* mutationCommands = nullptr; // NMMutationCommandGPU
+    // Optional complete learned-weight candidate, validated on-device before
+    // it becomes part of the control-step transaction.
+    void* learnedWeightUpdate = nullptr; // float
+    std::uint32_t mutationCommandCount = 0u;
+    std::uint32_t mutationCommandStride = 0u;
+    std::uint32_t learnedWeightCount = 0u;
+    std::uint32_t learnedWeightRevision = 0u;
+    std::uint32_t femExternalForceCount = 0u;
+    std::uint32_t femKinematicTargetCount = 0u;
+    std::uint64_t expectedMutationFingerprint = 0u;
+    std::uint64_t expectedLearnedFingerprint = 0u;
+    std::uint32_t resetMaskStepStride = 0u;
+    std::uint32_t rigidContactConstraintStride = 0u;
+    std::uint32_t articulationRootBody = 0u;
+    std::uint32_t controlStep = 0u;
+    std::uint32_t physicsSubstep = 0u;
+    std::uint32_t physicsSubsteps = 1u;
+    // Optional enclosing MetalWorld substep. Grouped Matter cadence keeps
+    // physicsSubstep local to Matter while failure publication must identify
+    // the exact rigid/DER transaction that was rejected.
+    std::uint32_t rigidWorldPhysicsSubstep = NM_INVALID_INDEX;
+    std::uint64_t seed = 0u;
+    // Per-call frame duration. Zero selects the cooked package duration.
+    float timestepSeconds = 0.0f;
+    bool runIdentification = false;
+    bool runAdaptiveTransfer = false;
+    // Opt in at preDynamics when this transaction will use the later-CB
+    // proposal/ACK/apply/publication protocol. This enables the additional
+    // rollback checkpoints without changing the synchronous hot path. V1 is
+    // fail-closed for identification, reset, multi-substep, and adaptive
+    // transactions because their external control/body authority is not yet
+    // covered by the joint device rollback contract.
+    bool enablePreparedState = false;
+    // Optional transaction-scoped physiological coupling. Matter invokes this
+    // callback at frameBegin, candidateReady, microstepComplete, and
+    // frameComplete while encoding the same borrowed command buffer. The view
+    // exposes Matter's accepted/candidate/checkpoint circulation and status;
+    // callback-owned device state must publish only when frameComplete sees
+    // NM_STATUS_SUCCESS and restore its own checkpoint for a rejected frame.
+    // This remains opt-in and is appended to preserve existing field offsets.
+    void* acceptedStepExtensionContext = nullptr;
+    EncodeAcceptedStepExtension encodeAcceptedStepExtension = nullptr;
+    // Integrated owners may defer publication of the completion cursor until
+    // their external body/Brain gates have passed. The default path publishes
+    // after Matter's own postCommit reconciliation, preserving the standalone
+    // runtime contract. A deferred caller must call
+    // Runtime::encodeAcceptedControlCursorPublication in the same borrowed
+    // command buffer after its final GPU acceptance gate.
+    bool deferAcceptedControlCursorPublication = false;
+};
+
+// Optional final owner acceptance gate for the Matter completion cursor.
+// `statusCodes` points to records whose first uint32 is a status code. Runtime
+// checks every record after Matter's own status array and publishes only when
+// every code equals acceptedStatusCode. This is a borrowed, same-device lease;
+// Runtime neither retains nor reads it back.
+struct AcceptedControlCursorGate {
+    void* statusCodes = nullptr; // id<MTLBuffer>; null means no external gate
+    std::uint32_t recordCount = 0u;
+    std::uint32_t recordStrideBytes = sizeof(std::uint32_t);
+    std::uint32_t acceptedStatusCode = 0u;
+};
+
+// Borrowed, device-only accepted-state proof surface. This is intentionally
+// independent of the NumanX adapter header so Matter remains usable on its own;
+// acceptedStateProofs must nevertheless point to the adapter's exact 128-byte
+// MRNumanXAcceptedStateProofGPU records. The runtime encodes only after the
+// matching prepareAcceptedState(postCommit) has materialized every
+// success-surviving mutation in the same borrowed command buffer. It never
+// creates a queue, commits, waits, reads back, or retains a borrowed resource.
+struct AcceptedStateProofPass {
+    std::uint32_t abiVersion = NM_MATTER_ACCEPTED_STATE_PROOF_ABI_VERSION;
+    std::uint32_t structSize = sizeof(AcceptedStateProofPass);
+    std::uint32_t environmentCount = 0u;
+    std::uint32_t environmentIdentifierBase = 0u;
+
+    void* commandBuffer = nullptr;
+    void* q = nullptr;
+    void* v = nullptr;
+    void* mujocoStates = nullptr;
+    // Borrowed transient transport output. It is validated for exact device
+    // provenance and alias safety but is not part of accepted Matter state;
+    // the owned, checkpointed coupledGeneralizedCandidate is hashed instead.
+    void* matterGeneralizedReaction = nullptr;
+    // Borrowed provisional Human transaction status produced before Matter
+    // proof finalization on the same command buffer. It is an admission
+    // witness, not accepted-state content: only exact Human SUCCESS for this
+    // control step/substep can produce a VALID prepared binding.
+    void* environmentStatuses = nullptr; // MRMetalWorldStatusGPU
+    void* matterStatuses = nullptr;
+    void* acceptedStateProofs = nullptr;
+
+    std::uint64_t qGPUAddress = 0u;
+    std::uint64_t vGPUAddress = 0u;
+    std::uint64_t mujocoStatesGPUAddress = 0u;
+    std::uint64_t matterGeneralizedReactionGPUAddress = 0u;
+    std::uint64_t environmentStatusesGPUAddress = 0u;
+    std::uint64_t matterStatusesGPUAddress = 0u;
+    std::uint64_t acceptedStateProofsGPUAddress = 0u;
+
+    std::uint64_t qElementCount = 0u;
+    std::uint64_t vElementCount = 0u;
+    std::uint64_t mujocoStateCount = 0u;
+    std::uint64_t matterGeneralizedReactionElementCount = 0u;
+    std::uint64_t environmentStatusElementCount = 0u;
+    std::uint64_t matterStatusElementCount = 0u;
+    std::uint64_t acceptedStateProofElementCount = 0u;
+
+    std::uint32_t qStride = 0u;
+    std::uint32_t vStride = 0u;
+    std::uint32_t mujocoStateStride = 0u;
+    std::uint32_t reactionStride = 0u;
+    std::uint32_t environmentStatusStride = 0u;
+    std::uint32_t matterStatusStride = 0u;
+    std::uint32_t acceptedStateProofStride = 0u;
+    std::uint32_t qCoordinateCount = 0u;
+    std::uint32_t dofCount = 0u;
+    // Exact owner slot retained in Matter's private prepared binding and
+    // checked again against the later device-side final decision.
+    std::uint32_t transactionSlot = 0u;
+
+    std::uint64_t programFingerprint = 0u;
+    std::uint64_t stateProofProgramFingerprint = 0u;
+    std::uint64_t transactionFingerprint = 0u;
+    std::uint64_t substepFingerprint = 0u;
+    std::uint64_t acceptedTimestampMicroseconds = 0u;
+    std::uint64_t physicsGeneration = 0u;
+    std::uint64_t linearizationEpoch = 0u;
+    std::uint64_t slotGeneration = 0u;
+    std::uint64_t matterSourcePhysicsFingerprint = 0u;
+    std::uint64_t matterDeviceProgramFingerprint = 0u;
+    // Complete accepted Human translation state; a 48-byte record per env.
+    void* rootTranslation = nullptr;
+    std::uint64_t rootTranslationGPUAddress = 0u;
+    std::uint64_t rootTranslationElementCount = 0u;
+    std::uint32_t rootTranslationStride = 0u;
+};
+
+// Exact-nanosecond accepted-state proof surface. This repeats the borrowed
+// state ranges deliberately: callers cannot select the exact family through a
+// flag on AcceptedStateProofPass, and a legacy timestamp can never be
+// reinterpreted as nanoseconds. inboundAuthority is the private 112-byte
+// HumanIO receipt produced earlier on the same command buffer.
+struct AcceptedStateProofPassV2 {
+    std::uint32_t abiVersion =
+        NM_MATTER_ACCEPTED_STATE_PROOF_ABI_VERSION_V2;
+    std::uint32_t structSize = sizeof(AcceptedStateProofPassV2);
+    std::uint32_t environmentCount = 0u;
+    std::uint32_t environmentIdentifierBase = 0u;
+
+    void* commandBuffer = nullptr;
+    void* q = nullptr;
+    void* v = nullptr;
+    void* mujocoStates = nullptr;
+    void* matterGeneralizedReaction = nullptr;
+    void* environmentStatuses = nullptr;
+    void* matterStatuses = nullptr;
+    void* acceptedStateProofs = nullptr;
+    void* inboundAuthority = nullptr;
+
+    std::uint64_t qGPUAddress = 0u;
+    std::uint64_t vGPUAddress = 0u;
+    std::uint64_t mujocoStatesGPUAddress = 0u;
+    std::uint64_t matterGeneralizedReactionGPUAddress = 0u;
+    std::uint64_t environmentStatusesGPUAddress = 0u;
+    std::uint64_t matterStatusesGPUAddress = 0u;
+    std::uint64_t acceptedStateProofsGPUAddress = 0u;
+    std::uint64_t inboundAuthorityGPUAddress = 0u;
+
+    std::uint64_t qElementCount = 0u;
+    std::uint64_t vElementCount = 0u;
+    std::uint64_t mujocoStateCount = 0u;
+    std::uint64_t matterGeneralizedReactionElementCount = 0u;
+    std::uint64_t environmentStatusElementCount = 0u;
+    std::uint64_t matterStatusElementCount = 0u;
+    std::uint64_t acceptedStateProofElementCount = 0u;
+    std::uint64_t inboundAuthorityByteCount = 0u;
+
+    std::uint32_t qStride = 0u;
+    std::uint32_t vStride = 0u;
+    std::uint32_t mujocoStateStride = 0u;
+    std::uint32_t reactionStride = 0u;
+    std::uint32_t environmentStatusStride = 0u;
+    std::uint32_t matterStatusStride = 0u;
+    std::uint32_t acceptedStateProofStride = 0u;
+    std::uint32_t qCoordinateCount = 0u;
+    std::uint32_t dofCount = 0u;
+    std::uint32_t transactionSlot = 0u;
+    std::uint32_t clockDomain =
+        NM_MATTER_PHYSICAL_CLOCK_DOMAIN_EXACT_NANOSECONDS;
+    std::uint32_t clockQuantumNanoseconds =
+        NM_MATTER_EXACT_CLOCK_QUANTUM_NANOSECONDS;
+    std::uint32_t reserved0 = 0u;
+
+    std::uint64_t programFingerprint = 0u;
+    std::uint64_t stateProofProgramFingerprint = 0u;
+    std::uint64_t transactionFingerprint = 0u;
+    std::uint64_t substepFingerprint = 0u;
+    std::uint64_t acceptedTimestampNanoseconds = 0u;
+    std::uint64_t physicsGeneration = 0u;
+    std::uint64_t linearizationEpoch = 0u;
+    std::uint64_t slotGeneration = 0u;
+    std::uint64_t matterSourcePhysicsFingerprint = 0u;
+    std::uint64_t matterDeviceProgramFingerprint = 0u;
+    std::uint64_t motorCandidateFingerprint = 0u;
+    void* rootTranslation = nullptr;
+    std::uint64_t rootTranslationGPUAddress = 0u;
+    std::uint64_t rootTranslationElementCount = 0u;
+    std::uint32_t rootTranslationStride = 0u;
+};
+
+enum class PhysicalStateDigestMode : std::uint32_t {
+    // Read the quarantined success-surviving state after
+    // prepareAcceptedState on the same borrowed command buffer.
+    preparedCandidate = 1u,
+    // Read the currently accepted state on a separate owner-controlled,
+    // quiescent command buffer. This is used for initial state and for a
+    // direct post-rollback measurement after a rejected root.
+    acceptedQuiescent = 2u,
+};
+
+// Optional direct-byte cryptographic observer. It neither participates in the
+// existing FNV proof/token authority nor changes transaction disposition. The
+// output is a shared NMPhysicalStateDigestGPU record populated on the borrowed
+// command-buffer timeline. Callers may read it only after completion.
+struct PhysicalStateDigestPassV1 {
+    std::uint32_t abiVersion =
+        NM_MATTER_PHYSICAL_STATE_DIGEST_ABI_VERSION;
+    std::uint32_t structSize = sizeof(PhysicalStateDigestPassV1);
+    PhysicalStateDigestMode mode =
+        PhysicalStateDigestMode::preparedCandidate;
+    std::uint32_t environmentCount = 0u;
+    std::uint32_t environmentIdentifierBase = 0u;
+    std::uint32_t clockDomain =
+        NM_MATTER_PHYSICAL_CLOCK_DOMAIN_EXACT_NANOSECONDS;
+    std::uint32_t clockQuantumNanoseconds =
+        NM_MATTER_EXACT_CLOCK_QUANTUM_NANOSECONDS;
+    std::uint32_t reserved0 = 0u;
+
+    void* commandBuffer = nullptr;
+    void* rootTranslation = nullptr;
+    void* q = nullptr;
+    void* v = nullptr;
+    void* mujocoStates = nullptr;
+    void* output = nullptr;
+
+    std::uint64_t rootTranslationGPUAddress = 0u;
+    std::uint64_t qGPUAddress = 0u;
+    std::uint64_t vGPUAddress = 0u;
+    std::uint64_t mujocoStatesGPUAddress = 0u;
+    std::uint64_t outputGPUAddress = 0u;
+
+    std::uint64_t rootTranslationElementCount = 0u;
+    std::uint64_t qElementCount = 0u;
+    std::uint64_t vElementCount = 0u;
+    std::uint64_t mujocoStateCount = 0u;
+    std::uint64_t outputElementCount = 0u;
+
+    std::uint32_t rootTranslationStride = 0u;
+    std::uint32_t qStride = 0u;
+    std::uint32_t vStride = 0u;
+    std::uint32_t mujocoStateStride = 0u;
+
+    // Provenance copied beside (but not mixed into) the content digest.
+    std::uint64_t acceptedTimestampNanoseconds = 0u;
+    std::uint64_t physicsGeneration = 0u;
+    std::uint64_t matterSourcePhysicsFingerprint = 0u;
+    std::uint64_t matterDeviceProgramFingerprint = 0u;
+};
+static_assert(sizeof(PhysicalStateDigestPassV1) == 208u);
+static_assert(alignof(PhysicalStateDigestPassV1) == alignof(std::uint64_t));
+static_assert(offsetof(PhysicalStateDigestPassV1, commandBuffer) == 32u);
+static_assert(offsetof(PhysicalStateDigestPassV1,
+                       rootTranslationGPUAddress) == 80u);
+static_assert(offsetof(PhysicalStateDigestPassV1,
+                       acceptedTimestampNanoseconds) == 176u);
+
+enum class PreparedStateApplyMode : std::uint32_t {
+    validateBrainAck = 0u,
+    forceReject = 1u,
+};
+
+// ABI4 proposal -> Brain ACK -> apply surface.  Proposal, ACK, and action are
+// independent immutable owner/Brain records; Matter validates every record and
+// their transitive fingerprints before it accepts or restores the retained
+// prepared state.  The caller owns all resources and the borrowed command
+// buffer.  Matter writes only matterApplyOutcomes and performs no submission,
+// wait, readback, or retention of a borrowed object.
+struct AcceptedStateApplyPass {
+    std::uint32_t abiVersion = 1u;
+    std::uint32_t structSize = sizeof(AcceptedStateApplyPass);
+    PreparedStateApplyMode mode = PreparedStateApplyMode::validateBrainAck;
+    std::uint32_t reserved0 = 0u;
+
+    std::uint32_t environmentCount = 0u;
+    std::uint32_t environmentIdentifierBase = 0u;
+    std::uint32_t controlStep = 0u;
+    std::uint32_t physicsSubstep = 0u;
+    std::uint32_t physicsSubstepCount = 1u;
+    std::uint32_t transactionSlot = 0u;
+    std::uint32_t reserved1 = 0u;
+    std::uint32_t reserved2 = 0u;
+
+    void* commandBuffer = nullptr;
+    void* proposals = nullptr;
+    void* brainAcks = nullptr;
+    void* applyActions = nullptr;
+    void* matterApplyOutcomes = nullptr;
+    void* proposedPhysicsStateTokens = nullptr;
+
+    std::uint64_t proposalsGPUAddress = 0u;
+    std::uint64_t brainAcksGPUAddress = 0u;
+    std::uint64_t applyActionsGPUAddress = 0u;
+    std::uint64_t matterApplyOutcomesGPUAddress = 0u;
+    std::uint64_t proposedPhysicsStateTokensGPUAddress = 0u;
+
+    std::uint64_t proposalElementCount = 0u;
+    std::uint64_t brainAckElementCount = 0u;
+    std::uint64_t applyActionElementCount = 0u;
+    std::uint64_t matterApplyOutcomeElementCount = 0u;
+    std::uint64_t proposedPhysicsStateTokenBytes = 0u;
+
+    std::uint32_t proposalStride = 0u;
+    std::uint32_t brainAckStride = 0u;
+    std::uint32_t applyActionStride = 0u;
+    std::uint32_t matterApplyOutcomeStride = 0u;
+    std::uint32_t proposedPhysicsStateTokenStrideBytes = 0u;
+    std::uint32_t reserved3 = 0u;
+
+    std::uint64_t ownerProgramFingerprint = 0u;
+    std::uint64_t transactionFingerprint = 0u;
+    std::uint64_t linearizationEpoch = 0u;
+    std::uint64_t slotGeneration = 0u;
+};
+
+// Exact-clock successor to AcceptedStateApplyPass. The owner records remain
+// ABI4, while this distinct host surface selects the V2 prepared binding and
+// carries the token clock family explicitly through Matter's apply dispatch.
+// A 64-byte token size is never used as a family discriminator.
+struct AcceptedStateApplyPassV2 {
+    std::uint32_t abiVersion = 2u;
+    std::uint32_t structSize = sizeof(AcceptedStateApplyPassV2);
+    PreparedStateApplyMode mode = PreparedStateApplyMode::validateBrainAck;
+    std::uint32_t tokenFamily = 2u;
+
+    std::uint32_t environmentCount = 0u;
+    std::uint32_t environmentIdentifierBase = 0u;
+    std::uint32_t controlStep = 0u;
+    std::uint32_t physicsSubstep = 0u;
+    std::uint32_t physicsSubstepCount = 1u;
+    std::uint32_t transactionSlot = 0u;
+    std::uint32_t clockDomain = 2u;
+    std::uint32_t clockQuantumNanoseconds = 1u;
+
+    void* commandBuffer = nullptr;
+    void* proposals = nullptr;
+    void* brainAcks = nullptr;
+    void* applyActions = nullptr;
+    void* matterApplyOutcomes = nullptr;
+    void* proposedPhysicsStateTokens = nullptr;
+
+    std::uint64_t proposalsGPUAddress = 0u;
+    std::uint64_t brainAcksGPUAddress = 0u;
+    std::uint64_t applyActionsGPUAddress = 0u;
+    std::uint64_t matterApplyOutcomesGPUAddress = 0u;
+    std::uint64_t proposedPhysicsStateTokensGPUAddress = 0u;
+
+    std::uint64_t proposalElementCount = 0u;
+    std::uint64_t brainAckElementCount = 0u;
+    std::uint64_t applyActionElementCount = 0u;
+    std::uint64_t matterApplyOutcomeElementCount = 0u;
+    std::uint64_t proposedPhysicsStateTokenBytes = 0u;
+
+    std::uint32_t proposalStride = 0u;
+    std::uint32_t brainAckStride = 0u;
+    std::uint32_t applyActionStride = 0u;
+    std::uint32_t matterApplyOutcomeStride = 0u;
+    std::uint32_t proposedPhysicsStateTokenStrideBytes = 0u;
+    std::uint32_t reserved0 = 0u;
+
+    std::uint64_t ownerProgramFingerprint = 0u;
+    std::uint64_t transactionFingerprint = 0u;
+    std::uint64_t linearizationEpoch = 0u;
+    std::uint64_t slotGeneration = 0u;
+};
+
+enum class PreparedStateDisposition : std::uint32_t {
+    unknown = 0u,
+    prepared = 1u,
+    applying = 2u,
+    resolved = 3u,
+    restoreRequired = 4u,
+    terminalNoTouch = 5u,
+    // ABI4 ACCEPT has applied to both physical owners but is still invisible
+    // to the root. Checkpoints and proof authority remain quarantined until an
+    // exact COMMITTED publication fence is released.
+    acceptedPendingPublication = 6u,
+};
+
+// Pointer-free identity for the last admitted prepared-state proof/apply
+// lifecycle. The query is host metadata only: Runtime's completion handler
+// consumes the existing owned four-byte GPU outcome once, records this exact
+// identity under its ownership mutex, and never rereads a borrowed payload.
+struct PreparedStateDispositionIdentity {
+    std::uint32_t abiVersion = 1u;
+    std::uint32_t structSize = sizeof(PreparedStateDispositionIdentity);
+    std::uint32_t controlStep = 0u;
+    std::uint32_t physicsSubstep = 0u;
+    std::uint32_t physicsSubstepCount = 0u;
+    std::uint32_t transactionSlot = 0u;
+    std::uint32_t reserved0 = 0u;
+    std::uint32_t reserved1 = 0u;
+    std::uint64_t ownerProgramFingerprint = 0u;
+    std::uint64_t transactionFingerprint = 0u;
+    std::uint64_t linearizationEpoch = 0u;
+    std::uint64_t slotGeneration = 0u;
+};
+static_assert(sizeof(PreparedStateDispositionIdentity) == 64u);
+static_assert(alignof(PreparedStateDispositionIdentity) == alignof(std::uint64_t));
+
+// Pointer-free owner/Brain ABI4 publication fence.  The adapter copies this
+// exact 128-byte record from its prevalidated shared lease only after the
+// nonthrow joint Brain publication.  Runtime recomputes the FNV relation and
+// exact prepared identity; event completion or host sequencing alone is never
+// publication authority.
+struct alignas(16) PreparedStatePublicationFence {
+    std::uint32_t abiVersion = 0u;
+    std::uint32_t structBytes = 0u;
+    std::uint32_t status = 0u;
+    std::uint32_t environment = 0u;
+    std::uint32_t controlStep = 0u;
+    std::uint32_t substepIndex = 0u;
+    std::uint32_t physicsSubstepCount = 0u;
+    std::uint32_t reserved0 = 0u;
+    std::uint64_t ownerProgramFingerprint = 0u;
+    std::uint64_t transactionFingerprint = 0u;
+    std::uint64_t linearizationEpoch = 0u;
+    std::uint64_t slotGeneration = 0u;
+    std::uint64_t physicsTokenFingerprint = 0u;
+    std::uint64_t brainProgramFingerprint = 0u;
+    std::uint64_t brainShadowStateFingerprint = 0u;
+    std::uint64_t brainWitnessFingerprint = 0u;
+    std::uint64_t appliedDecisionFingerprint = 0u;
+    std::uint64_t jointCommitFingerprint = 0u;
+    std::uint64_t brainGeneration = 0u;
+    std::uint64_t fenceFingerprint = 0u;
+};
+static_assert(sizeof(PreparedStatePublicationFence) == 128u);
+static_assert(alignof(PreparedStatePublicationFence) == 16u);
+static_assert(offsetof(PreparedStatePublicationFence, fenceFingerprint) == 120u);
+
+// Fallible pre-publication reservation. The adapter derives this exact scalar
+// binding from the immutable owner proposal and completed applied outcome,
+// then adds the Brain commit plan. Runtime retains no borrowed object. A later
+// release must match every field in the COMMITTED fence byte-for-byte.
+struct PreparedStatePublicationBinding {
+    std::uint32_t abiVersion = 1u;
+    std::uint32_t structSize = sizeof(PreparedStatePublicationBinding);
+    // Explicit family of the retained accepted-state proof/token. This value
+    // is derived from the prepared generation, never selected by a publisher.
+    std::uint32_t tokenFamily = 1u;
+    std::uint32_t reserved0 = 0u;
+    std::uint64_t physicsTokenFingerprint = 0u;
+    std::uint64_t brainProgramFingerprint = 0u;
+    std::uint64_t brainShadowStateFingerprint = 0u;
+    std::uint64_t brainWitnessFingerprint = 0u;
+    std::uint64_t matterApplyFingerprint = 0u;
+    std::uint64_t appliedDecisionFingerprint = 0u;
+    std::uint64_t jointCommitFingerprint = 0u;
+    std::uint64_t brainGeneration = 0u;
+};
+static_assert(sizeof(PreparedStatePublicationBinding) == 80u);
+static_assert(alignof(PreparedStatePublicationBinding) ==
+              alignof(std::uint64_t));
+static_assert(offsetof(PreparedStatePublicationBinding, tokenFamily) == 8u);
+static_assert(offsetof(PreparedStatePublicationBinding,
+                       physicsTokenFingerprint) == 16u);
+static_assert(offsetof(PreparedStatePublicationBinding,
+                       matterApplyFingerprint) == 48u);
+static_assert(offsetof(PreparedStatePublicationBinding,
+                       brainGeneration) == 72u);
+
+// Opaque one-shot authority returned only by a successful publication
+// reservation. A stale caller cannot consume a newer accepted root by
+// replaying its public scalar identity. The terminal FNV is deterministic
+// integrity/replay evidence, not cryptographic authentication.
+struct PreparedStatePublicationReservation {
+    std::uint32_t abiVersion = 1u;
+    std::uint32_t structSize = sizeof(PreparedStatePublicationReservation);
+    std::uint32_t transactionSlot = 0u;
+    std::uint32_t reserved0 = 0u;
+    std::uint64_t transactionFingerprint = 0u;
+    std::uint64_t slotGeneration = 0u;
+    std::uint64_t reservationNonce = 0u;
+    std::uint64_t reserved1 = 0u;
+    std::uint64_t reserved2 = 0u;
+    std::uint64_t reservationFingerprint = 0u;
+};
+static_assert(sizeof(PreparedStatePublicationReservation) == 64u);
+static_assert(alignof(PreparedStatePublicationReservation) ==
+              alignof(std::uint64_t));
+static_assert(offsetof(PreparedStatePublicationReservation,
+                       reservationNonce) == 32u);
+static_assert(offsetof(PreparedStatePublicationReservation,
+                       reservationFingerprint) == 56u);
+
+struct RuntimeDiagnostics {
+    bool encoded = false;
+    std::size_t residentBytes = 0u;
+    // Host-side command-graph accounting. These count encoded work requests,
+    // not necessarily active shader lanes, and require no GPU readback.
+    std::uint64_t threadDispatchCount = 0u;
+    std::uint64_t simdgroupDispatchCount = 0u;
+    std::uint64_t indirectDispatchCount = 0u;
+    std::uint64_t requestedThreadCount = 0u;
+    std::uint64_t requestedThreadgroupCount = 0u;
+    // Exact source-compliant rigid preconditioner dispatches encoded by Matter.
+    // This is command-graph ownership evidence, not a GPU convergence result.
+    std::uint64_t humanEqualityPreconditionerDispatchCount = 0u;
+    std::string device;
+    std::string message;
+};
+
+struct TopologyGrowthRequest {
+    bool required = false;
+    std::uint32_t allocationGeneration = 0u;
+    std::uint32_t firstObject = NM_INVALID_INDEX;
+    std::uint32_t reason = NM_STATUS_SUCCESS;
+    std::uint32_t nodes = 0u;
+    std::uint32_t tetrahedra = 0u;
+    std::uint32_t cohesiveFaces = 0u;
+    std::uint32_t punctureChannels = 0u;
+    std::uint32_t incidence = 0u;
+    std::uint32_t mutationCommands = 0u;
+    std::uint32_t rigidContacts = 0u;
+    std::uint32_t deformableContacts = 0u;
+};
+
+// Explicit completion-time diagnostic readback.  This is intentionally a
+// snapshot rather than a live mapped view: authoritative simulation buffers
+// remain private to Metal and callers cannot observe partially encoded work.
+struct RuntimeStateSnapshot {
+    bool available = false;
+    std::string message;
+    // Stable authored-physics identity, independent of allocation growth.
+    std::uint64_t sourcePhysicsFingerprint = 0u;
+    // Exact cooked layout, runtime policy, ABI, and metallib identity. A live
+    // restore requires this identity; source equivalence alone is not enough
+    // to establish byte-compatible private arenas.
+    std::uint64_t deviceProgramFingerprint = 0u;
+    // Completed transaction cursor and automatic-identification ownership.
+    // These are restored with the private state so a replay does not silently
+    // advance a scheduled update twice.
+    std::uint32_t controlStep = 0u;
+    std::uint32_t physicsSubstep = 0u;
+    std::uint32_t identificationGeneration = 0u;
+    std::uint32_t identificationCheckpoint = 0u;
+    bool identificationAdvanced = false;
+    // Live DER edge bound to each compiled strand-proxy slot, in slot order.
+    // The revision advances only after a completed phase-boundary GPU update.
+    std::vector<std::uint32_t> sutureProxyEdges;
+    std::uint64_t sutureProxyBindingRevision = 0u;
+    // Invocation cadence relative to the cooked base DER/Matter timestep.
+    // The active timestep is base * multiplier / divisor. Exactly one side
+    // differs from one, so the ratio has a canonical replay representation.
+    std::uint32_t coupledTimestepMultiplier = 1u;
+    std::uint32_t coupledTimestepDivisor = 1u;
+    // Zero selects the iteration budget fingerprinted into the cooked world.
+    // A nonzero value is a completion-boundary runtime override and is part of
+    // deterministic continuation authority even though it does not resize the
+    // fixed restarted-FGMRES basis.
+    std::uint32_t fgmresIterationBudgetOverride = 0u;
+    // Zero selects the outer Newton budget fingerprinted into the cooked world.
+    // A nonzero completion-boundary override changes only host-encoded outer
+    // reassembly/correction work and is deterministic continuation authority.
+    std::uint32_t newtonIterationBudgetOverride = 0u;
+    std::vector<NMParticleStateGPU> particles;
+    std::vector<NMFEMNodeStateGPU> femNodes;
+    std::vector<NMFEMFieldStateGPU> femFields;
+    // Accepted normalized vascular volume, flow, blood and tissue amounts;
+    // each physical value is x times the cooked unknown variable scale.
+    std::vector<nm_float4> vascularState;
+    // Exact accepted elapsed time in cooked binary clock ticks, per environment.
+    std::vector<NMVascularClockGPU> vascularClock;
+    std::vector<NMFEMTopologyNodeGPU> femTopologyNodes;
+    std::vector<NMTetrahedronGPU> femTopologyTetrahedra;
+    std::vector<NMCohesiveFaceGPU> cohesiveFaces;
+    std::vector<NMPunctureChannelGPU> punctureChannels;
+    std::vector<NMFEMTopologyStateGPU> topologyStates;
+    // Completion-boundary device status, retained even when the enclosing
+    // MetalWorld transaction rolled the physical state back.
+    std::vector<NMMatterStatusGPU> statuses;
+    // Maximum accepted topology/allocation generation across environments.
+    // Exact replay records this beside completed TopologyGrowthRequest values.
+    std::uint32_t allocationGeneration = 0u;
+    std::vector<NMSolverCertificateGPU> solverCertificates;
+    // Deterministic active MPM map from the last completed microstep.
+    std::vector<std::uint32_t> mpmActiveNodeIndices;
+    std::vector<std::uint32_t> mpmNodeToActive;
+    std::vector<std::uint32_t> mpmActiveNodeCounts;
+    // Last accepted/published generalized rigid increment block.
+    std::vector<float> rigidGeneralizedCandidate;
+    std::vector<float> learnedWeights;
+    std::uint32_t learnedWeightRevision = 0u;
+    std::vector<NMAdaptiveStateGPU> adaptive;
+    std::vector<NMSchedulerStateGPU> schedulers;
+    std::vector<NMRigidReactionGPU> reactions;
+    // Completion-boundary projected proxy geometry/kinematics. This is
+    // diagnostic readback for ordinary proxies. For prescribed translating
+    // capsules this also preserves the accepted endpoint used to validate
+    // the next motion; it is not an independently writable rigid state.
+    std::vector<NMRigidStateGPU> rigidStates;
+    // Completion-boundary primal-contact diagnostics, populated only when
+    // RuntimeConfiguration::captureDiagnostics is enabled.
+    std::vector<NMContactSampleGPU> contactSamples;
+    std::vector<NMDeformableContactFailureGPU> deformableContactFailures;
+    std::vector<nm_float4> contactHistories;
+    // Accepted NHCNT Coulomb history and the matching sensor-facing support
+    // consequence. Both are continuation authority, not diagnostics.
+    std::vector<nm_float4> humanSupportHistories;
+    std::vector<NMHumanSupportConsequenceGPU> humanSupportConsequences;
+    std::vector<NMDeformableContactHistoryGPU> deformableContactHistories;
+    std::uint32_t materialStateStride = 0u;
+    std::vector<float> particleMaterialState;
+    std::vector<float> femMaterialState;
+    // Diagnostic posterior state and environment-local parameter overlay.
+    // These are copied only at the explicit snapshot boundary.
+    std::vector<NMIdentificationDistributionGPU> identification;
+    std::vector<float> environmentParameters;
+    // Optional readback of conditioning-only regional Galerkin data.
+    // Populated only when captureDiagnostics is enabled and the complete
+    // bounded export fits the runtime's 64 MiB diagnostic-readback limit.
+    // Authored P is mode-major [mode][FEM node]; effective P and AP are
+    // environment/mode/node-major. Effective P is authored P projected
+    // through the candidate Dirichlet mask captured at this linearization.
+    // coarseMatrix is the in-place pivoted LU of each environment's RAP.
+    // This is diagnostic state, never accepted physical state or a package
+    // continuation field.
+    bool femRegionalGalerkinDiagnosticsAvailable = false;
+    std::uint32_t femRegionalGalerkinModeCount = 0u;
+    std::string femRegionalGalerkinDiagnosticsMessage;
+    // Exact FEM candidate node records from the Newton linearization used to
+    // form AP/RAP. Present only with the bounded regional readback above.
+    std::vector<NMFEMNodeStateGPU> femRegionalGalerkinLinearizationNodes;
+    // Exact accepted constitutive history and per-tet runtime scheduler
+    // exponent sampled at that same AP linearization. These are distinct
+    // from the post-commit femMaterialState/schedulers fields above.
+    std::vector<float> femRegionalGalerkinLinearizationMaterialState;
+    std::vector<std::uint32_t> femRegionalGalerkinLinearizationSchedulerExponent;
+    // Production material-frame F high/low words sampled by the AP capture
+    // kernel, row-major as three float4 rows per tetrahedron.
+    std::vector<nm_float4> femRegionalGalerkinLinearizationLocalFHigh;
+    std::vector<nm_float4> femRegionalGalerkinLinearizationLocalFLow;
+    std::vector<nm_float4> femRegionalGalerkinBasisP;
+    std::vector<nm_float4> femRegionalGalerkinEffectiveBasisP;
+    std::vector<nm_float4> femRegionalGalerkinOperatorAP;
+    std::vector<float> femRegionalGalerkinPivotedRAP;
+    std::vector<std::uint32_t> femRegionalGalerkinPivots;
+    std::vector<std::uint32_t> femRegionalGalerkinFactorValid;
+    // Selector 3 only: [environment][FEM node][3 row-major float4 rows].
+    // xyz stores the inverse nodal velocity block; row0.w is 1 when the full
+    // block passed the finite/pivot guard, otherwise the preconditioner uses
+    // selector 2's componentwise diagonal fallback. This is diagnostic data,
+    // not accepted physical state.
+    std::vector<nm_float4> femRegionalGalerkinNodeBlockInverse;
+};
+
+class Runtime {
+public:
+    Runtime();
+    ~Runtime();
+    Runtime(Runtime&&) noexcept;
+    Runtime& operator=(Runtime&&) noexcept;
+    Runtime(const Runtime&) = delete;
+    Runtime& operator=(const Runtime&) = delete;
+
+    [[nodiscard]] RuntimeDiagnostics initialize(
+        const CompiledWorld& world,
+        const RuntimeConfiguration& configuration = {}
+    );
+    [[nodiscard]] RuntimeDiagnostics encode(const EncodeRequest& request);
+    // Encodes publication of the accepted transaction cursor into an active
+    // borrowed command buffer. Call only after the final external owner gate
+    // has been written in that command buffer. Matter statuses are always
+    // checked; the optional gate covers a coupled owner such as Stand/Brain.
+    // The kernel updates a tiny GPU cursor only if every environment and gate
+    // record reports success. No CPU state readback or queue submission occurs.
+    [[nodiscard]] RuntimeDiagnostics encodeAcceptedControlCursorPublication(
+        void* commandBuffer,
+        std::uint32_t controlStep,
+        std::uint32_t physicsSubstep,
+        const AcceptedControlCursorGate& gate = {}
+    );
+    // Performs the complete success-surviving post-dynamics reconciliation
+    // but retains every rollback checkpoint and quarantines the Runtime until
+    // a later immutable Brain ACK is applied and jointly published.
+    [[nodiscard]] RuntimeDiagnostics prepareAcceptedState(
+        const EncodeRequest& postCommitRequest
+    );
+    // Encodes a fixed-order byte proof of the success-surviving Matter arenas
+    // plus borrowed Human q/v/MyoSim state. It is valid only after the matching
+    // prepareAcceptedState graph on that exact first command buffer; prepared
+    // bytes remain quarantined until later ACK-gated apply and publication.
+    [[nodiscard]] bool encodeAcceptedStateProof(
+        const AcceptedStateProofPass& pass
+    ) noexcept;
+    [[nodiscard]] bool encodeAcceptedStateProofV2(
+        const AcceptedStateProofPassV2& pass
+    ) noexcept;
+    // Optional SHA-256 evidence over the direct Human/Matter state bytes.
+    // It writes only the caller's digest record and never changes the existing
+    // accepted-state proof, prepared token, apply action, or publication state.
+    [[nodiscard]] bool encodePhysicalStateDigestV1(
+        const PhysicalStateDigestPassV1& pass
+    ) noexcept;
+    // Stable identity of the proof shader, arena manifest, and exact initialized
+    // Matter device program. Supply this as the adapter proof-program identity.
+    [[nodiscard]] std::uint64_t
+    acceptedStateProofProgramFingerprint() const noexcept;
+    [[nodiscard]] std::uint64_t
+    acceptedStateProofProgramFingerprintV2() const noexcept;
+    [[nodiscard]] std::size_t
+    acceptedStateProofResidentBytes() const noexcept;
+    // ABI4 apply after an immutable Brain ACK. ACCEPT remains
+    // acceptedPendingPublication; REJECT restores and resolves immediately.
+    [[nodiscard]] bool applyPreparedState(
+        const AcceptedStateApplyPass& pass
+    ) noexcept;
+    [[nodiscard]] bool applyPreparedStateV2(
+        const AcceptedStateApplyPassV2& pass
+    ) noexcept;
+    // Exact-identity lifecycle query. UNKNOWN is returned for an invalid or
+    // stale identity and must fail closed. REJECT reaches RESOLVED; ACCEPT
+    // remains acceptedPendingPublication until releasePublishedRoot validates
+    // a COMMITTED joint fence.
+    [[nodiscard]] PreparedStateDisposition preparedStateDisposition(
+        const PreparedStateDispositionIdentity& identity
+    ) const noexcept;
+    [[nodiscard]] bool reservePublishedRoot(
+        const PreparedStateDispositionIdentity& identity,
+        const PreparedStatePublicationBinding& binding,
+        PreparedStatePublicationReservation& reservation
+    ) noexcept;
+    // Exact compensation for an owner whose joint reservation could not be
+    // completed after Matter accepted its half. This only removes the
+    // unpublished reservation; the accepted state and its publication facts
+    // remain quarantined and may be reserved again.
+    [[nodiscard]] bool cancelPublishedRootReservation(
+        const PreparedStatePublicationReservation& reservation
+    ) noexcept;
+    // Final validation is separated from visibility mutation so a joint owner
+    // can complete every fallible participant check before publishing either
+    // native subsystem. A successful arm quarantines the exact COMMITTED
+    // fence. commitPublishedRootRelease() is a nonallocating, no-return commit
+    // for that same reservation.
+    [[nodiscard]] bool armPublishedRootRelease(
+        const PreparedStatePublicationReservation& reservation,
+        const PreparedStatePublicationFence& publicationFence
+    ) noexcept;
+    void commitPublishedRootRelease(
+        const PreparedStatePublicationReservation& reservation
+    ) noexcept;
+    // Allocation-free/nonthrow release after the joint Brain root has been
+    // published. This is the only ABI4 ACCEPT path that clears checkpoints and
+    // admits a subsequent Runtime transaction.
+    [[nodiscard]] bool releasePublishedRoot(
+        const PreparedStatePublicationReservation& reservation,
+        const PreparedStatePublicationFence& publicationFence
+    ) noexcept;
+    [[nodiscard]] TopologyGrowthRequest pendingTopologyGrowth() const noexcept;
+    // Encode accepted-state migration from an older runtime into this already
+    // initialized, geometrically larger runtime. The caller owns submission;
+    // neither runtime commits or waits for the borrowed command buffer.
+    [[nodiscard]] RuntimeDiagnostics encodeTopologyGrowth(
+        void* commandBuffer,
+        const Runtime& source
+    );
+    // Allocation-owning growth entry point. This destination must be empty;
+    // the expanded world is validated and allocated before migration is
+    // encoded. The caller still owns submission of the borrowed buffer.
+    [[nodiscard]] RuntimeDiagnostics encodeTopologyGrowth(
+        void* commandBuffer,
+        const Runtime& source,
+        const CompiledWorld& expandedWorld,
+        const RuntimeConfiguration& configuration = {}
+    );
+    // Releases a pre/post transaction when the enclosing MetalWorld command
+    // buffer is abandoned before commit. Safe to call for an unrelated or
+    // already-completed command buffer.
+    void cancel(void* commandBuffer) noexcept;
+    [[nodiscard]] bool valid() const noexcept;
+    [[nodiscard]] std::uint64_t fingerprint() const noexcept;
+    [[nodiscard]] std::uint64_t sourcePhysicsFingerprint() const noexcept;
+    // Fingerprint of world semantics, runtime execution policy, ABI and the
+    // exact loaded Matter metallib, used by MetalWorld run identity.
+    [[nodiscard]] std::uint64_t deviceProgramFingerprint() const noexcept;
+    // Internal zero-copy view of accepted support consequences. The buffer is
+    // retained by Runtime and remains private authority; consumers may bind it
+    // read-only on the same device but must not expose its address publicly.
+    [[nodiscard]] HumanSupportConsequencesView
+    humanSupportConsequences() const noexcept;
+
+    // The prepared physical candidate is safe to consume only while encoding
+    // the same command buffer.  It is not accepted/public state; the NumanX
+    // publication transaction owns whether the derived sensor candidate can
+    // later become visible.
+    [[nodiscard]] HumanSupportConsequencesView
+    humanSupportCandidateConsequences() const noexcept;
+    [[nodiscard]] bool automaticIdentificationEnabled() const noexcept;
+    [[nodiscard]] bool adaptiveTransferEnabled() const noexcept;
+    [[nodiscard]] bool requiresBodyWrenches() const noexcept;
+    [[nodiscard]] bool requiresRodNodes() const noexcept;
+    [[nodiscard]] bool requiresCoupledCandidate() const noexcept;
+    [[nodiscard]] std::uint32_t coupledCandidatePointCapacity() const noexcept;
+    // Immutable cooked dimensions used to bind external same-device programs
+    // before they enter a Runtime transaction.
+    [[nodiscard]] std::uint32_t environmentCount() const noexcept;
+    [[nodiscard]] std::uint32_t femNodeCount() const noexcept;
+    [[nodiscard]] std::uint32_t femHumanAttachmentCount() const noexcept;
+    [[nodiscard]] bool requiresRigidContactEvidence() const noexcept;
+    // Move a compact live-DER contact set between completed command buffers.
+    // firstRodEdges is ordered by compiled strand-proxy slot and must contain
+    // unique in-range edges. A transition may replace at most one slot,
+    // retaining every other slot as stable physical ownership; the retired
+    // slot's friction history is cleared on GPU. Sparse sets allow one fixed-
+    // cost graph to follow material through multiple puncture tracts. This
+    // method submits and waits for one bounded maintenance blit/dispatch.
+    [[nodiscard]] RuntimeDiagnostics setSutureProxyEdges(
+        std::span<const std::uint32_t> firstRodEdges,
+        std::uint32_t rodNodeCount
+    );
+    // Selects a power-of-two coarsening of an externally coupled DER/Matter
+    // transaction without moving accepted state. The cooked world must own a
+    // live strand, use no internal Matter microticks, and be between command
+    // buffers. The MetalWorld control step must contain the same number of
+    // base DER substeps. Invocation configuration records the active cadence;
+    // the immutable device-program/layout fingerprint does not change.
+    [[nodiscard]] bool setCoupledTimestepMultiplier(
+        std::uint32_t multiplier
+    ) noexcept;
+    [[nodiscard]] std::uint32_t coupledTimestepMultiplier() const noexcept;
+    // Selects a power-of-two refinement of the externally coupled
+    // DER/Matter transaction. Accepted state is retained, no hidden Matter
+    // microticks are introduced, and the owning MetalWorld step must use the
+    // same refined timestep. Selecting a divisor resets the multiplier to one.
+    [[nodiscard]] bool setCoupledTimestepDivisor(
+        std::uint32_t divisor
+    ) noexcept;
+    [[nodiscard]] std::uint32_t coupledTimestepDivisor() const noexcept;
+    [[nodiscard]] float timestepSeconds() const noexcept;
+    // Select a bounded total restarted-FGMRES iteration budget between
+    // completed command buffers. The restart width, allocated basis, solver
+    // tolerances, and accepted physical state remain unchanged. Passing the
+    // cooked budget removes the runtime override.
+    [[nodiscard]] bool setFGMRESIterationBudget(
+        std::uint32_t iterations
+    ) noexcept;
+    [[nodiscard]] std::uint32_t fgmresIterationBudget() const noexcept;
+    // Select a positive outer Newton reassembly/correction budget between
+    // completed command buffers. Solver tolerances, the inner Krylov policy,
+    // allocated arenas, and accepted physical state remain unchanged. Passing
+    // the cooked budget removes the runtime override.
+    [[nodiscard]] bool setNewtonIterationBudget(
+        std::uint32_t iterations
+    ) noexcept;
+    [[nodiscard]] std::uint32_t newtonIterationBudget() const noexcept;
+    // Synchronously restores a completion-boundary snapshot into an already
+    // initialized runtime with the exact same device-program fingerprint.
+    // All transactional accepted/candidate/checkpoint mirrors are updated as
+    // one bounded Metal command. Validation failures occur before submission;
+    // any device-command failure is reported to the caller.
+    [[nodiscard]] RuntimeDiagnostics restore(
+        const RuntimeStateSnapshot& snapshot
+    );
+    [[nodiscard]] RuntimeStateSnapshot snapshot() const;
+    [[nodiscard]] void* eventBuffer() const noexcept;
+    [[nodiscard]] void* statusBuffer() const noexcept;
+    // Candidate fixed-node force on the owning kinematic boundary, in
+    // world-space newtons (float4 per environment/node, w = 0). Valid only
+    // after an accepted pre-dynamics solve in the same command buffer.
+    [[nodiscard]] void* femConstraintReactionBuffer() const noexcept;
+    // Contact-only force contribution at constrained FEM nodes, in world-space
+    // newtons (float4 per environment/node, w = 0). This is a separate
+    // supplement to femConstraintReactionBuffer(): rigid and deformable
+    // contact impulses are assembled into the nonlinear residual, but are not
+    // currently folded into that bulk/cohesive reaction channel. Human tag-2
+    // attachments are excluded and remain in their articulated reaction
+    // channel. Valid only after an accepted pre-dynamics solve in the same
+    // command buffer; rejected transactions are not accepted reaction evidence.
+    [[nodiscard]] void* femConstraintContactForceBuffer() const noexcept;
+    // Borrowed final assembled unpreconditioned generalized residual, valid
+    // after accepted preDynamics in the same command buffer. Leading FEM rows
+    // are env-major float4; xyz is mechanical impulse imbalance (N s), including
+    // inertia and contact, and w is the mixed pressure row, not a force. Filter
+    // by the candidate constraint mask: contact assembly can populate fixed
+    // rows too. Divide free xyz rows by the actual substep dt only for a
+    // force-imbalance diagnostic; this buffer is not the normalized certificate.
+    // Runtime owns the buffer; callers must not mutate it or retain it beyond
+    // runtime lifetime. Rejected transactions do not provide accepted evidence.
+    [[nodiscard]] void* femMechanicalResidualBuffer() const noexcept;
+    // Borrowed accepted FEM state for same-command-buffer consumers. The
+    // runtime retains ownership; callers must neither mutate nor retain it
+    // beyond the initialized runtime lifetime.
+    [[nodiscard]] void* femAcceptedNodeBuffer() const noexcept;
+    [[nodiscard]] void* parameterBuffer() const noexcept;
+    [[nodiscard]] void* identificationLossBuffer() const noexcept;
+
+private:
+    struct State;
+    struct AcceptedStateProofPassView;
+    struct AcceptedStateApplyPassView;
+    [[nodiscard]] bool encodeAcceptedStateProofImpl(
+        const AcceptedStateProofPassView& pass
+    ) noexcept;
+    [[nodiscard]] RuntimeDiagnostics encodeImpl(
+        const EncodeRequest& request,
+        bool retainPreparedState
+    );
+    [[nodiscard]] bool applyPreparedStateImpl(
+        const AcceptedStateApplyPassView& pass
+    ) noexcept;
+    std::unique_ptr<State> state_;
+};
+
+} // namespace numi::matter

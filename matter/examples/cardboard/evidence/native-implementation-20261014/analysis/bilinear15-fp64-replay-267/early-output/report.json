@@ -1,0 +1,48 @@
+{
+  "schema": "numi.cardboard.bilinear15-independent-fp64-replay.v1",
+  "capture": "/Users/home/cardboard-implementation-20261014/solver/sourcefit15-fg32-control1-capture-cycle-258/operator-capture",
+  "capture_sha256": "14246b2ade8e301d68b33d97f14eb6468e7f8f7dbc4a36249a83e33a25db2541",
+  "source_sha256": {
+    "replay_capture.py": "0e56cf0bd2f9047593cba900e6a113748dbae4def7f9c48cd86815faaf585c96",
+    "bilinear15_reference.py": "c17010564a98fe63da0c8b88be81313685a65cfbd57ff82292e797cab5a0fdf3"
+  },
+  "selection": {
+    "root": 1,
+    "newton_iteration": 0,
+    "environment_count": 2
+  },
+  "paper_tet_count": 3456,
+  "equations": "Independent handwritten15stateHill/tensile-hardening residuals, FP64 safeguardedNewton, complex-step partialJacobian and implicit derivative. No compiler/VM/Metal projection or derivative call. All physical parameters and accepted states roundtrip exactFP32; paired F and candidate words widened independently.",
+  "candidate_projection": {
+    "absolute_max": 3.469291019915499e-08,
+    "relative_max_nonzero": 1.8166675277520176e-05,
+    "worst_index": 135,
+    "global_l2_relative": 1.2804212158903978e-07
+  },
+  "stress_reprojected": {
+    "absolute_max": 0.4961644019931555,
+    "relative_max_nonzero": 1.8179855151418278e-05,
+    "worst_index": 135,
+    "global_l2_relative": 1.258475936343478e-07
+  },
+  "tangent_at_captured_candidate": {
+    "absolute_max": 3527.4537353515625,
+    "relative_max_nonzero": 5.77906348495807e-08,
+    "worst_index": 1529,
+    "global_l2_relative": 1.7130832473970635e-08
+  },
+  "tangent_after_reference_projection": {
+    "absolute_max": 1204128149.3820446,
+    "relative_max_nonzero": 1.0691779367528216,
+    "worst_index": 1486,
+    "global_l2_relative": 0.011778764038950455
+  },
+  "reference_max_scaled_residual": 1.987652941401434e-10,
+  "max_reference_iterations": 17,
+  "limits": [
+    "Nonzero-direction tangent agreement is separate from complete smooth finite-difference gates.",
+    "Zero directional actions do not qualify a relative error.",
+    "No complete coupon/convergence/physical validation claim."
+  ],
+  "wall_seconds": 0.6117648330400698
+}

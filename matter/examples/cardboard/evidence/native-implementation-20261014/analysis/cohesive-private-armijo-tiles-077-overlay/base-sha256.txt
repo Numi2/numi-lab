@@ -1,0 +1,5 @@
+5c70789647a9c0ceacaeb10565aaaee30e2a901761c1d04e6e431fdafe0aeef1  matter/src/runtime.mm
+819f6724c2690c41c07972e6596624672000d35423bba3f1233e0063c47b9564  matter/src/metal/fem.metalinc
+e1b4a229e58227280e2a1e263fa6535f325333e9edcacfd93498f699790c30d3  matter/include/numi/matter/shared.h
+37d3530284e2361b20f805409768c65446fc13186c50e94f286b73256debe168  matter/src/matter_kernels.metal
+c3a8ee4c09c58c0891cda023c4b82ebd0e4036909007fa815e30180af8aee05a  matter/include/numi/matter/matter.hpp

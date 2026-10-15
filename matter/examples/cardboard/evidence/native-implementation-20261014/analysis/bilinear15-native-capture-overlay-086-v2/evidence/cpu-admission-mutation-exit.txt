@@ -1,0 +1,1 @@
+expected nonzero exit; actual exit=1

@@ -1,0 +1,38 @@
+{
+  "schema": "numi.cardboard.cpu-check-receipt.v1",
+  "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-portable-bct-binding-tests-081",
+  "frozen_source_sha256": "792a8fc42eb164acfbd5a4b5e1427061c7644ce5856c5becbcb63623e47d36cf",
+  "commands": [
+    {
+      "argv": [
+        "/Users/home/.pyenv/versions/3.10.12/bin/python3",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-portable-bct-binding-tests-081/matter/tools/test_bct_capacity_history_producer.py"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "/Users/home/.pyenv/versions/3.10.12/bin/python3",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-portable-bct-binding-tests-081/matter/tools/test_bct_source_bound_harness.py"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "/Users/home/.pyenv/versions/3.10.12/bin/python3",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-portable-bct-binding-tests-081/matter/tools/cardboard_calibration_ensemble_test.py"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "/Users/home/.pyenv/versions/3.10.12/bin/python3",
+        "/Users/home/cardboard-implementation-20261014/snapshots/source-portable-bct-binding-tests-081/matter/tools/test_cardboard_resolution_study.py"
+      ],
+      "exit_code": 0
+    }
+  ],
+  "exit_code": 0,
+  "physical_steps": 0,
+  "scope": "Four focused Python suites only afterportabletestpathrepair; no source081nativebuild/runtimeclaim."
+}

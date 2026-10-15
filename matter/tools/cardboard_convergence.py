@@ -594,7 +594,12 @@ def _source_projection_policy(manifest: dict[str, Any]) -> bool:
     policy = manifest.get("compensated_source_paper_projection", {})
     if not isinstance(policy, dict) or type(policy.get("enabled", False)) is not bool:
         raise EvidenceError("invalid_solver_control", "source paper projection policy must be boolean")
+    accurate = policy.get("accurate_bilinear15_projection", False)
+    if type(accurate) is not bool:
+        raise EvidenceError("invalid_solver_control", "accurate source projection policy must be boolean")
     if not policy.get("enabled", False):
+        if accurate:
+            raise EvidenceError("projection_policy_mismatch", "accurate source projection lacks its compensated source policy")
         return False
     if manifest.get("solver", {}).get("paper_compensated_arithmetic") is not True:
         raise EvidenceError("missing_projection_policy", "source projection lacks explicit compensated arithmetic")
@@ -614,6 +619,10 @@ def _source_projection_policy(manifest: dict[str, Any]) -> bool:
                 or flags.get(role + "_generic_compensated_implicit_projection") is not True
                 or flags.get(role + "_compensated_paper_arithmetic") is not True):
             raise EvidenceError("projection_policy_mismatch", f"compiled {role} did not retain the source projection policy")
+        if bool(word & 0x80) != accurate:
+            raise EvidenceError("projection_policy_mismatch", f"compiled {role} scaled-correction flag differs from its requested policy")
+        if accurate and flags.get(role + "_local_newton_iterations") != 16:
+            raise EvidenceError("projection_policy_mismatch", f"compiled {role} scaled-correction policy lacks its exact local budget")
     return True
 
 
@@ -664,6 +673,10 @@ def _same_solver_controls(a: RunData, b: RunData, *,
             raise IncompatibleError("solver_control_mismatch", f"projection control {key} differs")
     for run in (a, b):
         _source_projection_policy(run.manifest)
+    accurate_values = [run.manifest.get("compensated_source_paper_projection", {}).get(
+        "accurate_bilinear15_projection", False) for run in (a, b)]
+    if accurate_values[0] != accurate_values[1]:
+        raise IncompatibleError("solver_control_mismatch", "accurate_bilinear15_projection differs")
     for key in COMMON_SOLVER_FIELDS:
         if key not in sa or key not in sb:
             raise EvidenceError("missing_solver_control", f"solver control {key} is missing")

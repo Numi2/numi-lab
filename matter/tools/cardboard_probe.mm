@@ -116,7 +116,7 @@ struct Arguments {
     std::string shippingRoofMeasurementLoadFailure;
     std::string shippingBlankGeometrySha256;
     std::array<double, 3> shippingImpactorHalfExtentsM{};
-    std::string shippingImpactorGeometrySource = "authored_1.2x_nominal_outer_footprint";
+    std::string shippingImpactorGeometrySource = "authored_1.2x_nominal_outer_area";
     bool shippingImpactorHalfExtentsProvided = false;
     bool shippingImpactorSourceMeasurementValidated = false;
     bool shippingImpactorCompiledProxyMatchesMeasurement = false;
@@ -143,6 +143,7 @@ struct Arguments {
     bool accuratePaperProjection = false;
     bool compensatedImplicitProjection = false;
     bool compensatedSourcePaperProjection = false;
+    bool accurateSourcePaperProjection = false;
     bool cacheFEMAlgorithmicTangent = false;
     std::array<double, 13> linerProjectionScales{};
     std::array<double, 13> mediumProjectionScales{};
@@ -382,6 +383,104 @@ std::string shippingSourceBindingDigest(const Arguments& arguments) {
             << arguments.shippingScoreDepthRatio << '\n'
             << "score_tool_speed_m_s=" << arguments.shippingScoreToolSpeedMPerS << '\n';
     return hexDigest(sha256(binding.str()));
+}
+
+std::string shippingCapacityBindingJson(
+    const Arguments& arguments,
+    const CompiledWorld& world,
+    const std::filesystem::path& outputDirectory,
+    const std::filesystem::path& assembledMatterCheckpoint,
+    const std::string& assembledRigidSidecarSha256,
+    const std::string& nominalCurveSha256,
+    const std::uint64_t nominalPeakSampleIndex,
+    const std::uint64_t nominalAcceptedSampleCount,
+    const double nominalTerminalStrokeFraction,
+    const bool nominalFullStrokeCompleted,
+    const bool nominalRateSensitivityPassed) {
+    if (!arguments.shippingBox || !arguments.shippingCapacityQualification.has_value())
+        return "null";
+
+    require(arguments.shippingDesign.has_value(),
+            "qualified capacity binding requires the frozen shipping design input");
+    const auto& qualification = *arguments.shippingCapacityQualification;
+    require(qualification.schema ==
+                numi::cardboard::kShippingCapacityQualificationSchema,
+            "capacity binding requested for a non-v2 qualification");
+    require(numi::cardboard::shippingCapacityDigestValid(
+                arguments.shippingCapacityQualificationSha256) &&
+                numi::cardboard::shippingCapacityDigestValid(
+                    qualification.sourceBindingSha256) &&
+                numi::cardboard::shippingCapacityDigestValid(
+                    qualification.assembledMatterCheckpointSha256) &&
+                numi::cardboard::shippingCapacityDigestValid(
+                    qualification.assembledRigidSidecarSha256) &&
+                numi::cardboard::shippingCapacityDigestValid(nominalCurveSha256) &&
+                numi::cardboard::shippingCapacityDigestValid(assembledRigidSidecarSha256),
+            "qualified capacity result is missing an artifact digest");
+    require(std::filesystem::is_regular_file(assembledMatterCheckpoint),
+            "qualified capacity result is missing its assembled Matter checkpoint");
+    const auto branchHistoryPath = outputDirectory / "shipping-compression.csv";
+    require(std::filesystem::is_regular_file(branchHistoryPath),
+            "qualified capacity result is missing its branch-history CSV");
+    const double insideHeightM = arguments.shippingDesign->defaults.inside.heightY;
+    require(std::isfinite(insideHeightM) && insideHeightM > 0.0 &&
+                std::isfinite(nominalTerminalStrokeFraction),
+            "qualified capacity result has invalid inside-height or stroke fraction");
+    const std::string sourceBindingSha256 = shippingSourceBindingDigest(arguments);
+    const std::string assembledMatterCheckpointSha256 =
+        hexDigest(sha256File(assembledMatterCheckpoint));
+    const std::string branchHistorySha256 = hexDigest(sha256File(branchHistoryPath));
+    require(qualification.boardRecipeId == "literature2009" &&
+                qualification.sourceBindingSha256 == sourceBindingSha256 &&
+                qualification.assembledMatterCheckpointSha256 ==
+                    assembledMatterCheckpointSha256 &&
+                qualification.assembledRigidSidecarSha256 ==
+                    assembledRigidSidecarSha256 &&
+                qualification.nominalCurveSha256 == nominalCurveSha256 &&
+                qualification.nominalPeakSampleIndex == nominalPeakSampleIndex &&
+                qualification.nominalAcceptedSampleCount ==
+                    nominalAcceptedSampleCount &&
+                qualification.nominalFullStrokeCompleted ==
+                    nominalFullStrokeCompleted &&
+                qualification.nominalRateSensitivityPassed ==
+                    nominalRateSensitivityPassed &&
+                qualification.meshReportSha256.size() == 64u &&
+                qualification.timeReportSha256.size() == 64u,
+            "qualified capacity result no longer matches the validated v2 inputs");
+
+    std::ostringstream json;
+    json << std::setprecision(17)
+         << "{\"schema\":\"numi.cardboard.native-bct-capacity-binding.v1\""
+         << ",\"capacity_qualification_sha256\":\""
+         << arguments.shippingCapacityQualificationSha256 << "\""
+         << ",\"board_recipe_id\":\""
+         << jsonEscape(qualification.boardRecipeId) << "\""
+         << ",\"source_physics_fingerprint\":" << world.physicsFingerprint
+         << ",\"device_program_fingerprint\":" << world.fingerprint
+         << ",\"compiled_world_fingerprint\":" << world.fingerprint
+         << ",\"source_binding_sha256\":\"" << sourceBindingSha256 << "\""
+         << ",\"assembled_matter_checkpoint_sha256\":\""
+         << assembledMatterCheckpointSha256 << "\""
+         << ",\"assembled_rigid_sidecar_sha256\":\""
+         << assembledRigidSidecarSha256 << "\""
+         << ",\"nominal_curve_sha256\":\"" << nominalCurveSha256 << "\""
+         << ",\"nominal_peak_sample_index\":" << nominalPeakSampleIndex
+         << ",\"nominal_accepted_sample_count\":"
+         << nominalAcceptedSampleCount
+         << ",\"nominal_terminal_stroke_fraction\":"
+         << nominalTerminalStrokeFraction
+         << ",\"nominal_full_stroke_completed\":"
+         << (nominalFullStrokeCompleted ? "true" : "false")
+         << ",\"nominal_rate_sensitivity_passed\":"
+         << (nominalRateSensitivityPassed ? "true" : "false")
+         << ",\"inside_height_m\":" << insideHeightM
+         << ",\"mesh_report_sha256\":\""
+         << qualification.meshReportSha256 << "\""
+         << ",\"time_report_sha256\":\""
+         << qualification.timeReportSha256 << "\""
+         << ",\"compression_branch_history_sha256\":\""
+         << branchHistorySha256 << "\"}";
+    return json.str();
 }
 
 std::string shippingBlankGeometryBindingDigest(const MeshSource& mesh) {
@@ -1131,7 +1230,7 @@ void printUsage() {
         << "  --shipping-coupon-evidence FILE  accepted hashed score/fold/release allowance record\n"
         << "  --shipping-capacity-qualification FILE  source-bound mesh/time numerical evidence required before any Fpeak mass is instantiated\n"
         << "  --shipping-roof-measurement FILE  prior accepted-settled roof record used to bind impactor geometry before compile\n"
-        << "  --shipping-impactor-half-extents-mm X,Y,Z  explicit compiled impactor BOX half-extents (default authored 1.2x nominal footprint)\n"
+        << "  --shipping-impactor-half-extents-mm X,Y,Z  explicit compiled impactor BOX half-extents (default authored 1.2x nominal area; aspect ratio preserved)\n"
         << "  --shipping-engineering-assumptions --shipping-allowance-x-mm N --shipping-allowance-y-mm N --shipping-allowance-z-mm N\n"
         << "  --shipping-preflight-only  initialize native arenas and sample memory; do not step\n"
         << "  --compact-immutable-surfaces  use the compiled exterior-face map for immutable shipping FEM contact\n"
@@ -1170,6 +1269,7 @@ void printUsage() {
         << "  --accurate-paper-projection  opt-in strict Hill state projection; requires compensated arithmetic (pair with --scaled-paper-residuals in the comparison study)\n"
         << "  --compensated-implicit-projection  opt in to compensated residual evaluation for retained-matrix generic implicit damage overlays\n"
         << "  --compensated-source-paper-projection  opt in to generic compensated projection for the 15-state source bilinear/C1 liner+medium pair; also requires --compensated-paper-arithmetic\n"
+        << "  --accurate-source-paper-projection  opt in to scaled correction convergence for the bilinear15 pair; requires --compensated-source-paper-projection; local budget 16\n"
         << "  --cache-fem-algorithmic-tangent  opt-in per-Newton full material tangent cache for FGMRES; private trials and final certificates use direct evaluation\n"
         << "  --fgmres-preconditioner scalar|regional-tangent-diagonal|regional-galerkin|regional-galerkin-block|regional-galerkin-contact|regional-galerkin-schwarz\n"
         << "    regional-galerkin modes require authored compact constituent regions; selectors 2/3 are contact-free. Contact selector 4 uses the enriched 32-mode RAP/block estimate and admits one immutable explicit FEM object (<=8192 nodes, <=32768 tets, <=4096 cohesive faces), one environment, no dynamic/generalized rigid or multiphysics rows, and only static/kinematic non-articulated contact proxies\n"
@@ -1315,6 +1415,10 @@ Arguments parseArguments(const int argc, const char* argv[]) {
         }
         if (option == "--compensated-implicit-projection") {
             arguments.compensatedImplicitProjection = true;
+            continue;
+        }
+        if (option == "--accurate-source-paper-projection") {
+            arguments.accurateSourcePaperProjection = true;
             continue;
         }
         if (option == "--compensated-source-paper-projection") {
@@ -1554,6 +1658,9 @@ Arguments parseArguments(const int argc, const char* argv[]) {
                  arguments.preset == "literature2009" &&
                  !arguments.withoutMedium),
             "compensated implicit projection requires explicit retained-matrix damage sets for both literature2009 constituents");
+    require(!arguments.accurateSourcePaperProjection ||
+                arguments.compensatedSourcePaperProjection,
+            "accurate source-paper projection requires --compensated-source-paper-projection");
     require(!arguments.compensatedSourcePaperProjection ||
                 arguments.compensatedPaperArithmetic,
             "compensated source-paper projection requires --compensated-paper-arithmetic");
@@ -2619,6 +2726,8 @@ MeshSource buildMesh(const Arguments& arguments,
                   << "medium_density_kg_m3=" << materialDensity(mediumMaterial) << '\n';
         if (arguments.compensatedSourcePaperProjection)
             mapSource << "generic_compensated_source_paper_projection=1\n";
+        if (arguments.accurateSourcePaperProjection)
+            mapSource << "generic_bilinear15_accurate_projection=1\n";
         for (std::size_t index = 0u; index < result.materialIndices.size(); ++index)
             mapSource << index << ':' << result.materialIndices[index] << '\n';
         const Digest mapDigest = sha256(mapSource.str());
@@ -3735,6 +3844,8 @@ void writeManifest(const std::filesystem::path& path,
     output << "]},\n"
            << "  \"compensated_source_paper_projection\": {\"enabled\": "
            << (arguments.compensatedSourcePaperProjection ? "true" : "false")
+           << ", \"accurate_bilinear15_projection\": "
+           << (arguments.accurateSourcePaperProjection ? "true" : "false")
            << ", \"scope\": \"explicit numerical opt-in for exactly the 15-state source bilinear-fit or asymmetric-C1 liner/medium pair; requires compensated paper arithmetic; no retained-damage overlay or 13-state Hill policy; constitutive equations and global tolerances unchanged\","
               " \"source_material_indices\": ["
            << (arguments.compensatedSourcePaperProjection ? "0,1" : "")
@@ -3744,6 +3855,10 @@ void writeManifest(const std::filesystem::path& path,
            << ", \"effective_compiled_flags\": {\"liner_flags\": "
            << linerCompiledFlags << ", \"medium_flags\": "
            << mediumCompiledFlags
+           << ", \"liner_local_newton_iterations\": "
+           << compiled.world.materials[0].localNewtonIterations
+           << ", \"medium_local_newton_iterations\": "
+           << compiled.world.materials[1].localNewtonIterations
            << ", \"liner_generic_compensated_implicit_projection\": "
            << ((linerCompiledFlags &
                 NM_MATERIAL_GENERIC_COMPENSATED_IMPLICIT_PROJECTION) != 0u
@@ -4956,11 +5071,22 @@ numi::cardboard::ShippingMemoryBudgetInput shippingMemoryBudgetInput(
     if (sparseOptions.requested && !fullContactWillBeSelected)
         recordConfigurationError(
             "sparse private contact capacity requires the full-contact Armijo selector");
+    configureShippingTiledCohesiveTrial(input,
+        std::getenv("NM_FEM_FULL_CONTACT_TILED_COHESIVE"),
+        std::getenv("NM_FEM_FULL_CONTACT_TILED_COHESIVE_PAGE_FACES"),
+        fullContactWillBeSelected && fullContactOptions.error == nullptr &&
+            !present("NM_FEM_RESIDUAL_ARMIJO_ROOT") &&
+            !present("NM_FEM_CAPSULE_RESIDUAL_ARMIJO_ROOT") &&
+            !present("NM_FEM_CAPSULE_BOX_RESIDUAL_ARMIJO_ROOT") &&
+            !present("NM_FEM_COHESIVE_RESIDUAL_ARMIJO_ROOT"),
+        cohesiveAlias != nullptr);
     // A rejected configuration must not shrink the estimate: keep alias
     // savings only when every parsed runtime selector is actually admissible.
     if (!input.runtimeConfigurationFailure.empty()) {
         input.fullContactArmijoAliasesSurfaceScratch = false;
         input.fullContactArmijoAliasesCohesiveScratch = false;
+        input.fullContactArmijoTiledCohesive = false;
+        input.cohesiveTrialPageCapacity = 0u;
     }
     input.rigidContactArmijoEnabled = !arguments.shippingBox &&
         (present("NM_FEM_CAPSULE_RESIDUAL_ARMIJO_ROOT") ||
@@ -5023,6 +5149,15 @@ numi::cardboard::ShippingMemoryBudget shippingPrebuildMemoryBudget(
     if (fullContactSelector.error != nullptr &&
         options.runtimeConfigurationFailure.empty())
         options.runtimeConfigurationFailure = fullContactSelector.error;
+    configureShippingTiledCohesiveTrial(options,
+        std::getenv("NM_FEM_FULL_CONTACT_TILED_COHESIVE"),
+        std::getenv("NM_FEM_FULL_CONTACT_TILED_COHESIVE_PAGE_FACES"),
+        fullContactWillBeSelected && fullContactSelector.error == nullptr &&
+            std::getenv("NM_FEM_RESIDUAL_ARMIJO_ROOT") == nullptr &&
+            std::getenv("NM_FEM_CAPSULE_RESIDUAL_ARMIJO_ROOT") == nullptr &&
+            std::getenv("NM_FEM_CAPSULE_BOX_RESIDUAL_ARMIJO_ROOT") == nullptr &&
+            std::getenv("NM_FEM_COHESIVE_RESIDUAL_ARMIJO_ROOT") == nullptr,
+        std::getenv("NM_FEM_FULL_CONTACT_REUSE_COHESIVE_SCRATCH") != nullptr);
     auto budget = estimateShippingPrebuildMemoryBudget(screen, options);
     if (arguments.femPreconditioner ==
             FEMPreconditionerMode::regionalGalerkin ||
@@ -5105,9 +5240,20 @@ ShippingResidualDescentAdmission shippingResidualDescentAdmission(
     if (world.contact.rigidProxies.size() < 2u ||
         world.contact.rigidProxies.size() > 16u)
         add("rigid proxy count is outside the full-contact Armijo range 2..16");
-    if (world.fem.cohesiveFaces.empty() ||
-        world.fem.cohesiveFaces.size() > 4096u)
-        add("full-contact Armijo requires 1..4096 cohesive faces");
+    if (budgetInput.fullContactArmijoTiledCohesive) {
+        numi::matter::cardboard::cohesive_tiles::Layout layout;
+        if (world.fem.cohesiveFaces.size() > UINT32_MAX ||
+            !numi::matter::cardboard::cohesive_tiles::makeLayout(
+                dispatch.environmentCount,
+                static_cast<std::uint32_t>(world.fem.cohesiveFaces.size()),
+                budgetInput.cohesiveTrialPageCapacity,
+                numi::matter::cardboard::cohesive_tiles::kPrivatePageByteCap,
+                layout))
+            add("tiled cohesive private page exceeds checked face/dispatch/8 MiB limits");
+    } else if (world.fem.cohesiveFaces.empty() ||
+               world.fem.cohesiveFaces.size() > 4096u) {
+        add("full-contact Armijo requires 1..4096 cohesive faces without tiled evaluation");
+    }
 
     if (world.objects.size() != 1u) {
         add("native full-contact Armijo supports exactly one FEM object");
@@ -5251,6 +5397,10 @@ void writeShippingResidualDescentAdmission(
            << (budgetInput.fullContactArmijoAliasesSurfaceScratch ? "true" : "false")
            << ", \"cohesive_scratch_alias\": "
            << (budgetInput.fullContactArmijoAliasesCohesiveScratch ? "true" : "false")
+           << ", \"cohesive_trial_tiled\": "
+           << (budgetInput.fullContactArmijoTiledCohesive ? "true" : "false")
+           << ", \"cohesive_trial_page_capacity\": "
+           << budgetInput.cohesiveTrialPageCapacity
            << ", \"self_contact_enabled\": "
            << (budgetInput.deformableSelfContactEnabled ? "true" : "false")
            << "},\n"
@@ -10665,6 +10815,11 @@ int executeBoxAssemblyNative(
     std::ofstream result(arguments.output / "box-native-result.json");
     if (arguments.shippingBox && !springbackRowsWritten)
         writeSpringbackRows(false, "release_protocol_not_reached");
+    if (arguments.shippingBox) {
+        shippingCompressionLedger.flush();
+        require(shippingCompressionLedger.good(),
+                "failed flushing the accepted compression branch ledger before binding");
+    }
     const std::string finalStatus = shapeFitRejection ? "shape_fit_rejected" :
         nativeFailure ? "failed_native" :
         blockedByBondLaw ? "blocked_missing_cohesive_law" :
@@ -10865,6 +11020,27 @@ int executeBoxAssemblyNative(
            << jsonEscape(shippingCompressionNumericalQualificationStatus) << "\",\n"
            << "  \"native_compression_numerical_capacity_qualification_passed\": "
            << (shippingCompressionNumericallyQualified ? "true" : "false") << ",\n"
+           << "  \"shipping_capacity_binding\": ";
+    if (shippingCompressionNumericallyQualified &&
+        shippingCompressionBothBranchesReachedPeak &&
+        shippingCompressionRateSensitivityPassed) {
+        const double insideHeightM = arguments.shippingDesign
+            ? arguments.shippingDesign->defaults.inside.heightY : 0.0;
+        const double terminalFraction = insideHeightM > 0.0
+            ? shippingCompressionStrokeM / insideHeightM : 0.0;
+        result << shippingCapacityBindingJson(
+            arguments, compiled.world, arguments.output,
+            shippingCrushAssemblyCheckpointPath,
+            shippingSupportRigidSidecarSha256,
+            shippingCompressionNominalCurveSha256,
+            shippingCompressionPeakSampleIndex,
+            shippingCompressionNominalCurveSampleCount,
+            terminalFraction, shippingCompressionBothBranchesReachedPeak,
+            shippingCompressionRateSensitivityPassed);
+    } else {
+        result << "null";
+    }
+    result << ",\n"
            << "  \"native_compression_numerical_capacity_qualification_reason\": \""
            << jsonEscape(shippingCompressionNumericalQualificationReason) << "\",\n"
            << "  \"native_compression_numerical_capacity_qualification_scope\": \"Fpeak mass sizing only; not source-grade or physical-box qualification\",\n"
@@ -11143,7 +11319,7 @@ int executeBoxAssemblyNative(
         result << "null";
     result << ",\n  \"shipping_impactor_footprint_basis\": \""
            << (shippingImpactorFootprintPlan
-                ? "1.2 times measured accepted outer-roof x/z bounds; center and quarter-width offset use the same measured bounds"
+                ? "1.2 times measured accepted outer-roof area, preserving aspect ratio; center and quarter-width offset use the same measured bounds"
                 : "no internal-dimension fallback; requires accepted outer-roof measurement")
            << "\",\n  \"shipping_impactor_actual_outer_roof_coverage_verified\": "
            << (arguments.shippingImpactorSourceMeasurementValidated &&
@@ -11874,6 +12050,13 @@ int execute(Arguments arguments) {
                 "compensated source-paper projection requires exactly 15 fully implicit generic states in each source material");
         liner.genericCompensatedImplicitProjection = true;
         medium.genericCompensatedImplicitProjection = true;
+        if (arguments.accurateSourcePaperProjection) {
+            require(numi::cardboard::paper_materials::isBilinearFitIdentity(liner.name) &&
+                        numi::cardboard::paper_materials::isBilinearFitIdentity(medium.name),
+                    "accurate source-paper projection requires the bilinear15 liner/medium pair");
+            liner.genericBilinear15AccurateProjection = true;
+            medium.genericBilinear15AccurateProjection = true;
+        }
     }
     if (arguments.linerDamageSet && arguments.mediumDamageSet) {
         require(!numi::cardboard::paper_materials::isBilinearFitIdentity(liner.name) &&
@@ -11954,6 +12137,13 @@ int execute(Arguments arguments) {
                     (compiled.world.materials[0].flags & incompatibleHillFlags) == 0u &&
                     (compiled.world.materials[1].flags & incompatibleHillFlags) == 0u,
                 "compiled liner/medium descriptors did not preserve the requested compensated 15-state source policy");
+    }
+    if (arguments.accurateSourcePaperProjection) {
+        for (std::uint32_t index = 0u; index < 2u; ++index)
+            require((compiled.world.materials[index].flags &
+                        NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION) != 0u &&
+                        compiled.world.materials[index].localNewtonIterations == 16u,
+                    "compiled source-paper material omitted scaled-correction policy or its local budget");
     }
     if (arguments.shippingBox) {
         require(mesh.shippingImpactorProxyIndex <

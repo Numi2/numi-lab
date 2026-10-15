@@ -1,0 +1,148 @@
+{
+  "schema": "numi.cardboard.coupled_fem_free_box_operator_checker.v1",
+  "status": "host_compile_link_passed_native_execution_not_run",
+  "scope": {
+    "fixture": "one tetrahedron coupled to one free BOX proxy",
+    "unknowns": "12 FEM velocity increments plus 3 rigid translational and 3 rigid angular increments",
+    "directions": [
+      "fem_only_including_contact_node",
+      "rigid_translation_only",
+      "rigid_rotation_only",
+      "mixed_fem_and_free_box"
+    ],
+    "operator_sign": "A = -dR",
+    "residual_terms": [
+      "FEM internal force and nodal inertia",
+      "rigid translational inertia",
+      "full SO(3) rigid angular inertia at candidate orientation",
+      "opposite FEM/rigid contact impulses",
+      "rigid contact torque about body COM"
+    ],
+    "contact": "source-079 production frictionless BOX inertial-barrier branch; smooth feature and branch required",
+    "material": {
+      "model": "source-authored analytic Neo-Hookean",
+      "density_kg_per_m3": 1000,
+      "mu_Pa": 30000,
+      "lambda_Pa": 50000
+    },
+    "strict_gates": {
+      "fp64_directional_refinement_relative_max": 1e-6,
+      "native_full_scaled_action_relative_max": 1e-3,
+      "native_fem_block_relative_max": 1e-3,
+      "native_rigid_block_relative_max": 1e-3,
+      "unresolved_branch_or_reference": "inconclusive"
+    },
+    "qualification_limit": "operator fixture only; zero FEM steps; no cardboard physical validation"
+  },
+  "source_bindings": {
+    "production_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-runtime-diagnostic-return-repair-079",
+    "production_frozen_source_manifest_sha256": "99e8690094f4c82dd38751a06c08b262ea79c8fa237b56db5f0b54df0d3d5d99",
+    "production_overlay_manifest": "/Users/home/cardboard-implementation-20261014/source-overlay-079.json",
+    "production_overlay_manifest_sha256": "a44352d07a30b95230f2362f52a0b3163a6182254d06106286f1b23bd78ee58e",
+    "publication_binding": "/Users/home/cardboard-implementation-20261014/publication-binding-079.json",
+    "publication_binding_sha256": "6ceef680071fc98780c5899eb6eb28feaea2df7c6b05becd87a5111966d445ac",
+    "source_build_manifest": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-079/source-build.json",
+    "source_build_manifest_sha256": "a1e9c131a669ed304db188779eff247c86514dc771894d44c92b44399c34e7dc",
+    "key_production_source_sha256": {
+      "matter/include/numi/matter/shared.h": "e1b4a229e58227280e2a1e263fa6535f325333e9edcacfd93498f699790c30d3",
+      "matter/include/numi/matter/matter.hpp": "c3a8ee4c09c58c0891cda023c4b82ebd0e4036909007fa815e30180af8aee05a",
+      "matter/src/compiler_impl.cpp": "a194cef5c9e5403bdafe91d864612626afb9ebb86af34ec5b04bf91f3fd1a281",
+      "matter/src/constitutive_impl.cpp": "1283f1eec9718dee77b94e47f5bcbbf3a30f3a81f8c75f2609b41b0d4d6ba5e9",
+      "matter/src/runtime.mm": "951cfaeafb3bee22b547ff4d8f9fce2c5c9c226364deecf8f4205e13c742cb56",
+      "matter/src/metal/contact.metalinc": "9e4ce2d8213c83a9a3e58a64388562cb92638c892b21e612653e92400b654f1f",
+      "matter/src/metal/fem.metalinc": "a88938e11b76a6c6b4ade53007bca543c642828e9a6c91ae5ddb66e9bda0bda9",
+      "matter/src/metal/fgmres.metalinc": "937938ca6ca7b9be286d37d4423bba7d297c0498b562b12375e0c28a31015dbe",
+      "matter/src/matter_kernels.metal": "37d3530284e2361b20f805409768c65446fc13186c50e94f286b73256debe168"
+    },
+    "fp64_reference_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-stateless-compensated-and-validation-admission-077",
+    "fp64_reference_source": "matter/tools/cardboard_free_box_angular_native_check.mm",
+    "fp64_reference_source_sha256": "715318600ebc63b8f0686c6744f5c88462eef71e14d673cc9d8839a9a2b82209",
+    "operator_kernel_exports_verified_in_metallib_strings": [
+      "numi_matter_metal::nm_contact_evaluate",
+      "numi_matter_metal::nm_fem_apply_operator_elements",
+      "numi_matter_metal::nm_fgmres_gather_nodes",
+      "numi_matter_metal::nm_fgmres_apply_free_rigid",
+      "numi_matter_metal::nm_fgmres_apply_primal_rigid_contacts"
+    ]
+  },
+  "build": {
+    "compiler": "/usr/bin/clang++",
+    "architecture": "arm64",
+    "standard": "C++23",
+    "warnings": "-Wall -Wextra -Wpedantic -Werror",
+    "metallib_compile_definition": "NUMI_MATTER_METALLIB=/Users/home/numi-cardboard-20261006/build-cardboard-provenance-079/matter/shaders/NumiMatter.metallib",
+    "compile_argv": [
+      "/usr/bin/clang++",
+      "-O2",
+      "-std=c++23",
+      "-arch",
+      "arm64",
+      "-fPIE",
+      "-x",
+      "objective-c++",
+      "-fobjc-arc",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-Werror",
+      "-I",
+      "/Users/home/cardboard-implementation-20261014/snapshots/source-runtime-diagnostic-return-repair-079/include",
+      "-I",
+      "/Users/home/cardboard-implementation-20261014/snapshots/source-runtime-diagnostic-return-repair-079/matter/include",
+      "-DNUMI_MATTER_METALLIB=\"/Users/home/numi-cardboard-20261006/build-cardboard-provenance-079/matter/shaders/NumiMatter.metallib\"",
+      "-c",
+      "/Users/home/cardboard-implementation-20261014/analysis/coupled-fem-free-box-operator-077/cardboard_coupled_free_box_operator_check.mm",
+      "-o",
+      "/Users/home/cardboard-implementation-20261014/analysis/coupled-fem-free-box-operator-077/build/cardboard_coupled_free_box_operator_check.o"
+    ],
+    "link_argv": [
+      "/usr/bin/clang++",
+      "-O2",
+      "-arch",
+      "arm64",
+      "-Wl,-search_paths_first",
+      "-Wl,-headerpad_max_install_names",
+      "/Users/home/cardboard-implementation-20261014/analysis/coupled-fem-free-box-operator-077/build/cardboard_coupled_free_box_operator_check.o",
+      "-o",
+      "/Users/home/cardboard-implementation-20261014/analysis/coupled-fem-free-box-operator-077/build/cardboard_coupled_free_box_operator_check",
+      "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-079/matter/libnumi_matter_runtime.a",
+      "-framework",
+      "Foundation",
+      "-framework",
+      "Metal",
+      "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-079/matter/libnumi_matter_compiler.a"
+    ],
+    "intended_run_argv": [
+      "/Users/home/cardboard-implementation-20261014/analysis/coupled-fem-free-box-operator-077/build/cardboard_coupled_free_box_operator_check"
+    ],
+    "compile_exit_code": 0,
+    "link_exit_code": 0,
+    "execution_performed": false
+  },
+  "artifacts": {
+    "source": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/coupled-fem-free-box-operator-077/cardboard_coupled_free_box_operator_check.mm",
+      "sha256": "a9861e58b8dfc89761c11119005a2e215510cd8ceb48a7666a700d7527a3b9c4"
+    },
+    "object": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/coupled-fem-free-box-operator-077/build/cardboard_coupled_free_box_operator_check.o",
+      "sha256": "b6f8d816fc4a232e7fc43dc35375b872e9a07778af7e1a4bb5b6def4b6cd4267"
+    },
+    "executable": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/coupled-fem-free-box-operator-077/build/cardboard_coupled_free_box_operator_check",
+      "sha256": "e12f38bae6e94f1b1a66c8f3527f5f9bf2602a77394669ddea46528b28e3ea16"
+    },
+    "metallib": {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-079/matter/shaders/NumiMatter.metallib",
+      "sha256": "37352a802bd589bec3b44ba8c95d2541d2718674bf2ec6cbf4964ebc3f39c8f8"
+    },
+    "runtime_library": {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-079/matter/libnumi_matter_runtime.a",
+      "sha256": "4286448689e541ca0e89eeefa3fb264dee78f7bf1dd7bb2facce06265cd2626e"
+    },
+    "compiler_library": {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-079/matter/libnumi_matter_compiler.a",
+      "sha256": "02e2577036e1ab1c7797fbd2cd911503466b44d389cafd20e781797048d24223"
+    }
+  }
+}

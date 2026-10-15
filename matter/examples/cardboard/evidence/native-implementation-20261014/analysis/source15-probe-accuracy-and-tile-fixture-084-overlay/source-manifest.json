@@ -1,0 +1,33 @@
+{
+  "schema": "numi.cardboard.source15-probe-accuracy-and-tile-fixture.v1",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-tiled-fixture-and-memory-accounting-083",
+  "files": [
+    {
+      "path": "matter/tools/cardboard_convergence.py",
+      "base_sha256": "e9cddae261faf75a05c36c1de6fc3128d76cf20663e0dc670a31b4d577e200de",
+      "overlay_sha256": "db7de31be82f9362b52a3c4c366c72c74d1f6a3df923fdcdab7061eda89dcb7f"
+    },
+    {
+      "path": "matter/tools/cardboard_full_contact_armijo_check.mm",
+      "base_sha256": "6c38e2919097786a2b9e3536bdde428d906009fffb63f29240fa5fcf149b12ed",
+      "overlay_sha256": "96b0ce3677d7f15781a56eac0ba9e838cc24e3df43fdb1df893920bca4cca758"
+    },
+    {
+      "path": "matter/tools/cardboard_probe.mm",
+      "base_sha256": "7fb3f0f649162715ca3e818d074ae296785ff24bde5434b37ac25770e4199d9d",
+      "overlay_sha256": "f767fd009d8d8fa094812d7fd774741caa94e90b8af33972bcea44ce6624c76f"
+    },
+    {
+      "path": "matter/tools/cardboard_resolution_study.py",
+      "base_sha256": "e7bc389b8d1da9503fa6ce7e1b9eddbc6fee0756d6565a86949fa3936e23ffce",
+      "overlay_sha256": "8be7c6bd4f9d0905a1be2006805821bf4665764929d3b4f91d922ad7a8effe5a"
+    },
+    {
+      "path": "matter/tools/test_cardboard_convergence.py",
+      "base_sha256": "50709ba29d96805ab9757e915d854e905e07167a254850afa451df23a649f42a",
+      "overlay_sha256": "ae20faabdc4643d9d378571c926e261aacab67b6794668a2cd8e784be8940bb7"
+    }
+  ],
+  "patch_sha256": "16c5acde68a7bf4e3bdf36af4e4dbf43b21fb1822bda3e0e30c029458fda6ff5",
+  "scope": "Expose explicit scaled bilinear15 projection policy in existing native driver with compiled flag/budget binding; standalone tiled fixture uses same regional contact conditioning as passing273/274 controls. Global tolerances and physical coefficients unchanged."
+}

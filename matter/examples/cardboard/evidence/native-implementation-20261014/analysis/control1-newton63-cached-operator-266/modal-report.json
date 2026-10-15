@@ -1,0 +1,103 @@
+{
+  "schema": "numi.cardboard.offline-modal-conditioning.v1",
+  "rows": [
+    {
+      "mode": 0,
+      "symmetric_part_eigenvalue": -6.437748012726134e-08,
+      "symmetric_eigen_residual": 1.019801872644683e-17,
+      "rhs_projection": -3.337848044651442e-06,
+      "direct_correction_projection": 69.3848041420739,
+      "native_correction_projection": 2.3734014014081204
+    },
+    {
+      "mode": 1,
+      "symmetric_part_eigenvalue": 7.408441947300531e-07,
+      "symmetric_eigen_residual": 9.178016249573047e-17,
+      "rhs_projection": -3.222780575394025e-08,
+      "direct_correction_projection": -0.09215316812722085,
+      "native_correction_projection": -0.026058515380464938
+    },
+    {
+      "mode": 2,
+      "symmetric_part_eigenvalue": 1.7176863709309758e-06,
+      "symmetric_eigen_residual": 7.843438170966389e-17,
+      "rhs_projection": -1.3148889489925378e-07,
+      "direct_correction_projection": -0.09705553869909798,
+      "native_correction_projection": -0.029892966000375498
+    },
+    {
+      "mode": 3,
+      "symmetric_part_eigenvalue": 2.9856138658326275e-06,
+      "symmetric_eigen_residual": 7.578716830796455e-17,
+      "rhs_projection": 2.6058414512959196e-08,
+      "direct_correction_projection": 0.04443302733667158,
+      "native_correction_projection": -0.005328373455581106
+    },
+    {
+      "mode": 4,
+      "symmetric_part_eigenvalue": 4.752538608613995e-06,
+      "symmetric_eigen_residual": 9.102395960663377e-17,
+      "rhs_projection": 5.1952158422455206e-08,
+      "direct_correction_projection": 0.0208254697731462,
+      "native_correction_projection": 0.003026473784850244
+    },
+    {
+      "mode": 5,
+      "symmetric_part_eigenvalue": 5.130316827093216e-06,
+      "symmetric_eigen_residual": 6.766046063997476e-17,
+      "rhs_projection": 1.1252098901103201e-08,
+      "direct_correction_projection": 0.01788122961731864,
+      "native_correction_projection": 0.0035303729330247646
+    },
+    {
+      "mode": 6,
+      "symmetric_part_eigenvalue": 5.546719530333832e-06,
+      "symmetric_eigen_residual": 7.882580852084696e-17,
+      "rhs_projection": 8.598657853908773e-08,
+      "direct_correction_projection": 0.052445290629714814,
+      "native_correction_projection": -0.0006341336931573642
+    },
+    {
+      "mode": 7,
+      "symmetric_part_eigenvalue": 6.340016974789809e-06,
+      "symmetric_eigen_residual": 9.281689849310269e-17,
+      "rhs_projection": 1.1699009449780727e-07,
+      "direct_correction_projection": 0.024627848897921155,
+      "native_correction_projection": 0.013321410318531518
+    },
+    {
+      "mode": 8,
+      "symmetric_part_eigenvalue": 7.297735946371591e-06,
+      "symmetric_eigen_residual": 7.422604359251928e-17,
+      "rhs_projection": -8.944885870533733e-08,
+      "direct_correction_projection": -0.0813626902630741,
+      "native_correction_projection": -0.006526136801494822
+    },
+    {
+      "mode": 9,
+      "symmetric_part_eigenvalue": 7.3634763008947835e-06,
+      "symmetric_eigen_residual": 1.2938154415641208e-16,
+      "rhs_projection": -5.608077584204447e-08,
+      "direct_correction_projection": -0.017139269595834228,
+      "native_correction_projection": -0.00584896890504496
+    },
+    {
+      "mode": 10,
+      "symmetric_part_eigenvalue": 8.728503056576662e-06,
+      "symmetric_eigen_residual": 8.558922560384718e-17,
+      "rhs_projection": 5.838947553667175e-08,
+      "direct_correction_projection": -0.011614614656289227,
+      "native_correction_projection": -0.0003980649953629397
+    },
+    {
+      "mode": 11,
+      "symmetric_part_eigenvalue": 1.3758015734499825e-05,
+      "symmetric_eigen_residual": 2.1170175539784516e-16,
+      "rhs_projection": -4.22019053002029e-07,
+      "direct_correction_projection": -0.035097617340833664,
+      "native_correction_projection": -0.0025975969921709467
+    }
+  ],
+  "first12_direct_direction_fraction": 0.9999923981870142,
+  "limits": "Symmetric-part near-zero diagnostic modes only. Full unsymmetrized physical operator retained, no native preconditioner implementation or physical qualification."
+}

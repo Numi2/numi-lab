@@ -1,0 +1,16 @@
+{
+  "schema": "numi.cardboard.integrated-source-overlay.v1",
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-portable-bct-binding-tests-081",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-prerun-bct-capacity-binding-080",
+  "changed": {
+    "matter/tools/test_bct_capacity_history_producer.py": {
+      "before": "e9347af92c6367199550d4cc28299e9ae1bc67efd77398697aebe4c0bcbbe0b9",
+      "after": "0959cad29a573b5bae3ec4ea48e7dd215618f8109f83f400bb7ca68a84166728"
+    },
+    "matter/tools/test_bct_source_bound_harness.py": {
+      "before": "eb7bc97245a6c1609ab5dadd4bac0644fd7a90ae874c1f749871329cbc747a41",
+      "after": "2217f80048a73f0d98a59843f18542fc8b090adcfcb17cfa085e3178cb795038"
+    }
+  },
+  "scope": "Repair root080testintegration: standaloneoverlayrelativepaths werecopiedintorepotoolswithoutrelocation. Tests now resolve samefrozencheckouttoolsandcatalog, nohardcodedsharedpath. Original080buildsuccess/2of4focusedCPUfailure retained."
+}

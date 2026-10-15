@@ -1,0 +1,230 @@
+[
+  {
+    "correction_tolerance": 1e-08,
+    "status_counts": {
+      "converged": 3456
+    },
+    "mean_iterations": 1.6472800925925926,
+    "max_iterations": 12,
+    "max_authored_residual_fraction": 0.03808539941672471,
+    "max_correction_fraction": 0.9882910003708852,
+    "global_l2_relative_to_strict": 0.0015864320887690301,
+    "max_per_tet_l2_relative_to_strict": 0.27158926641825976,
+    "worst_tet_ids": [
+      {
+        "array_index": 606,
+        "tet_id": 606,
+        "rel": 0.27158926641825976,
+        "iterations": 11,
+        "corr": 7.554754887653804e-10
+      },
+      {
+        "array_index": 688,
+        "tet_id": 688,
+        "rel": 0.22426833751112066,
+        "iterations": 11,
+        "corr": 8.542177775373482e-09
+      },
+      {
+        "array_index": 1469,
+        "tet_id": 1565,
+        "rel": 0.19861376787462198,
+        "iterations": 11,
+        "corr": 3.0002414252528857e-09
+      },
+      {
+        "array_index": 652,
+        "tet_id": 652,
+        "rel": 0.19748889451836085,
+        "iterations": 11,
+        "corr": 9.225035725408091e-09
+      },
+      {
+        "array_index": 767,
+        "tet_id": 767,
+        "rel": 0.1957633569001323,
+        "iterations": 11,
+        "corr": 6.256796264291953e-09
+      },
+      {
+        "array_index": 1629,
+        "tet_id": 1725,
+        "rel": 0.19546098205978168,
+        "iterations": 9,
+        "corr": 6.016525855241051e-12
+      }
+    ],
+    "seconds": 9.692873001098633
+  },
+  {
+    "correction_tolerance": 5e-09,
+    "status_counts": {
+      "converged": 3456
+    },
+    "mean_iterations": 1.9988425925925926,
+    "max_iterations": 12,
+    "max_authored_residual_fraction": 0.03808539941672471,
+    "max_correction_fraction": 0.9969820097033609,
+    "global_l2_relative_to_strict": 0.0015868345798519235,
+    "max_per_tet_l2_relative_to_strict": 0.27158926641825976,
+    "worst_tet_ids": [
+      {
+        "array_index": 606,
+        "tet_id": 606,
+        "rel": 0.27158926641825976,
+        "iterations": 11,
+        "corr": 7.554754887653804e-10
+      },
+      {
+        "array_index": 688,
+        "tet_id": 688,
+        "rel": 0.22388836159812855,
+        "iterations": 12,
+        "corr": 2.247451345148987e-12
+      },
+      {
+        "array_index": 1469,
+        "tet_id": 1565,
+        "rel": 0.19861376787462198,
+        "iterations": 11,
+        "corr": 3.0002414252528857e-09
+      },
+      {
+        "array_index": 652,
+        "tet_id": 652,
+        "rel": 0.19773810252600607,
+        "iterations": 12,
+        "corr": 1.0727612361658317e-12
+      },
+      {
+        "array_index": 767,
+        "tet_id": 767,
+        "rel": 0.19605642937621157,
+        "iterations": 12,
+        "corr": 8.778854561521158e-13
+      },
+      {
+        "array_index": 1629,
+        "tet_id": 1725,
+        "rel": 0.19546098205978168,
+        "iterations": 9,
+        "corr": 6.016525855241051e-12
+      }
+    ],
+    "seconds": 10.714418888092041
+  },
+  {
+    "correction_tolerance": 2e-09,
+    "status_counts": {
+      "converged": 3456
+    },
+    "mean_iterations": 2.0159143518518516,
+    "max_iterations": 13,
+    "max_authored_residual_fraction": 0.03808539941672471,
+    "max_correction_fraction": 0.9797341655332695,
+    "global_l2_relative_to_strict": 0.0015857853629445866,
+    "max_per_tet_l2_relative_to_strict": 0.27158926641825976,
+    "worst_tet_ids": [
+      {
+        "array_index": 606,
+        "tet_id": 606,
+        "rel": 0.27158926641825976,
+        "iterations": 11,
+        "corr": 7.554754887653804e-10
+      },
+      {
+        "array_index": 688,
+        "tet_id": 688,
+        "rel": 0.22388836159812855,
+        "iterations": 12,
+        "corr": 2.247451345148987e-12
+      },
+      {
+        "array_index": 1469,
+        "tet_id": 1565,
+        "rel": 0.19841292158189058,
+        "iterations": 12,
+        "corr": 5.553115921344955e-13
+      },
+      {
+        "array_index": 652,
+        "tet_id": 652,
+        "rel": 0.19773810252600607,
+        "iterations": 12,
+        "corr": 1.0727612361658317e-12
+      },
+      {
+        "array_index": 767,
+        "tet_id": 767,
+        "rel": 0.19605642937621157,
+        "iterations": 12,
+        "corr": 8.778854561521158e-13
+      },
+      {
+        "array_index": 1629,
+        "tet_id": 1725,
+        "rel": 0.19546098205978168,
+        "iterations": 9,
+        "corr": 6.016525855241051e-12
+      }
+    ],
+    "seconds": 10.707552909851074
+  },
+  {
+    "correction_tolerance": 1e-09,
+    "status_counts": {
+      "converged": 3456
+    },
+    "mean_iterations": 2.025462962962963,
+    "max_iterations": 13,
+    "max_authored_residual_fraction": 0.0010962747105662642,
+    "max_correction_fraction": 0.9808823255662158,
+    "global_l2_relative_to_strict": 0.001585787668430986,
+    "max_per_tet_l2_relative_to_strict": 0.27158926641825976,
+    "worst_tet_ids": [
+      {
+        "array_index": 606,
+        "tet_id": 606,
+        "rel": 0.27158926641825976,
+        "iterations": 11,
+        "corr": 7.554754887653804e-10
+      },
+      {
+        "array_index": 688,
+        "tet_id": 688,
+        "rel": 0.22388836159812855,
+        "iterations": 12,
+        "corr": 2.247451345148987e-12
+      },
+      {
+        "array_index": 1469,
+        "tet_id": 1565,
+        "rel": 0.19841292158189058,
+        "iterations": 12,
+        "corr": 5.553115921344955e-13
+      },
+      {
+        "array_index": 652,
+        "tet_id": 652,
+        "rel": 0.19773810252600607,
+        "iterations": 12,
+        "corr": 1.0727612361658317e-12
+      },
+      {
+        "array_index": 767,
+        "tet_id": 767,
+        "rel": 0.19605642937621157,
+        "iterations": 12,
+        "corr": 8.778854561521158e-13
+      },
+      {
+        "array_index": 1629,
+        "tet_id": 1725,
+        "rel": 0.19546098205978168,
+        "iterations": 9,
+        "corr": 6.016525855241051e-12
+      }
+    ],
+    "seconds": 10.759222984313965
+  }
+]

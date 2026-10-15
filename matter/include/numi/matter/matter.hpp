@@ -242,6 +242,10 @@ struct MaterialProgram {
     // persistent state remains FP32; unsupported scalar opcodes/layouts fail
     // compiler or world validation rather than falling back to ordinary math.
     bool genericCompensatedImplicitProjection = false;
+    // Opt-in scaled residual/correction convergence for the retained 15-state
+    // bilinear Hill bytecode law. Requires genericCompensatedImplicitProjection;
+    // it changes only the local projection solve policy and iteration budget.
+    bool genericBilinear15AccurateProjection = false;
     std::vector<Parameter> parameters;
     std::vector<InternalState> internalState;
     ExpressionGraph expressions;

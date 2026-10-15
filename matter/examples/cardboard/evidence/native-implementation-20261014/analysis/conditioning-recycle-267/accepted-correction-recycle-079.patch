@@ -1,0 +1,680 @@
+--- a/matter/include/numi/matter/regional_galerkin_bending_basis.hpp
++++ b/matter/include/numi/matter/regional_galerkin_bending_basis.hpp
+@@ -41,11 +41,12 @@
+     const RegionalBendingCoordinates& coordinates,
+     const std::array<double, 3>& position,
+     unsigned mode) {
+-    if (!coordinates.available || mode >= 8u)
+-        throw std::invalid_argument("regional bending trial requires valid plane extents and mode0..7");
+-    constexpr std::array<std::array<unsigned, 2>, 8> powers{{
++    if (!coordinates.available || mode >= 9u)
++        throw std::invalid_argument("regional bending trial requires valid plane extents and mode0..8");
++    constexpr std::array<std::array<unsigned, 2>, 9> powers{{
+         {2u, 0u}, {3u, 0u}, {0u, 2u}, {1u, 1u},
+-        {2u, 1u}, {1u, 2u}, {0u, 3u}, {4u, 0u}}};
++        {2u, 1u}, {1u, 2u}, {0u, 3u}, {4u, 0u},
++        {0u, 4u}}};
+     const unsigned xAxis = coordinates.planeAxes[0];
+     const unsigned yAxis = coordinates.planeAxes[1];
+     const double x = (position[xAxis] - coordinates.center[xAxis]) /
+--- a/matter/src/metal/fgmres.metalinc
++++ b/matter/src/metal/fgmres.metalinc
+@@ -1721,6 +1721,317 @@
+     effectiveBasis[global] = constrained
+         ? float4(0.0f)
+         : authoredBasis[mode * nodes + node];
++}
++
++// Reset the conditioning-only recycle at the start of each physical
++// microstep. It is never checkpointed or accepted as physical state.
++kernel void nm_fgmres_reset_regional_recycle(
++    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
++    device float4* acceptedCorrection [[buffer(1)]],
++    device uint* selectedMode [[buffer(2)]],
++    uint global [[thread_position_in_grid]]) {
++    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
++    if (global >= total || dispatch.femNodeCount == 0u) return;
++    acceptedCorrection[global] = float4(0.0f);
++    if (global % dispatch.femNodeCount == 0u)
++        selectedMode[global / dispatch.femNodeCount] = 0u;
++}
++
++// Capture only the FEM part of the accepted line-search-scaled Newton
++// correction. nm_fem_apply_solution has already applied alpha in-place to
++// solution.xyz; multiplying by alpha again here would change the mode.
++kernel void nm_fgmres_capture_regional_recycle(
++    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
++    device const NMFEMNodeStateGPU* candidate [[buffer(1)]],
++    device const float4* lineSearch [[buffer(2)]],
++    device const float4* solution [[buffer(3)]],
++    device const NMMatterStatusGPU* statuses [[buffer(4)]],
++    device float4* acceptedCorrection [[buffer(5)]],
++    uint global [[thread_position_in_grid]]) {
++    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
++    if (global >= total || dispatch.femNodeCount == 0u) return;
++    const uint environment = global / dispatch.femNodeCount;
++    const NMFEMNodeStateGPU state = candidate[global];
++    const uint objectIndex = 0u;
++    const float alpha = dispatch.objectCount == 1u
++        ? lineSearch[environment * dispatch.objectCount + objectIndex].x
++        : 0.0f;
++    const bool constrained = state.restAndFixed.w == 1.0f ||
++        state.restAndFixed.w == 3.0f;
++    const float3 increment = solution[global].xyz;
++    const bool eligible = environmentHealthy(statuses, environment) &&
++        alpha > 0.0f && isfinite(alpha) && !constrained;
++    // Preserve nonfinite eligible entries so the next-Newton selector can
++    // reject the whole direction. Replacing only bad nodes with zero would
++    // silently turn a corrupt vector into a different, apparently valid mode.
++    acceptedCorrection[global] = eligible
++        ? float4(increment, 0.0f) : float4(0.0f);
++}
++
++// Restore the deterministic final source slot whenever the recycle candidate
++// cannot be certified against the current candidate's constraint-projected
++// source span.
++inline void nm_fgmres_restore_regional_recycle_fallback(
++    device const float4* authoredBasis,
++    device const NMFEMNodeStateGPU* candidate,
++    device float4* effectiveBasis,
++    uint environment,
++    uint lane,
++    uint nodes,
++    uint targetBase,
++    uint baseModeCount
++) {
++    const uint nodeBase = environment * nodes;
++    for (uint node = lane; node < nodes; node += 32u) {
++        const NMFEMNodeStateGPU state = candidate[nodeBase + node];
++        const bool constrained = state.restAndFixed.w == 1.0f ||
++            state.restAndFixed.w == 3.0f;
++        effectiveBasis[targetBase + node] = constrained
++            ? float4(0.0f)
++            : authoredBasis[baseModeCount * nodes + node];
++    }
++}
++
++// Replace the static fallback in the final source slot only when the previous
++// accepted Newton correction is finite and independent of the retained
++// candidate-masked source span. Dynamic grips can make the projected source
++// modes non-orthogonal, so first construct a rank-revealing orthonormal basis
++// in bounded per-environment scratch. The authored/effective P used by AP/RAP
++// is never modified by this test.
++kernel void nm_fgmres_regional_select_recycle_mode(
++    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
++    device const float4* authoredBasis [[buffer(1)]],
++    device const NMFEMNodeStateGPU* candidate [[buffer(2)]],
++    device const float4* acceptedCorrection [[buffer(3)]],
++    device float4* effectiveBasis [[buffer(4)]],
++    device uint* selectedMode [[buffer(5)]],
++    device const NMMatterStatusGPU* statuses [[buffer(6)]],
++    constant uint& baseModeCount [[buffer(7)]],
++    constant uint& modeCount [[buffer(8)]],
++    device float4* orthogonalBasis [[buffer(9)]],
++    uint lane [[thread_index_in_threadgroup]],
++    uint environment [[threadgroup_position_in_grid]]) {
++    if (lane >= 32u || environment >= dispatch.environmentCount ||
++        dispatch.femNodeCount == 0u || baseModeCount == 0u ||
++        modeCount != baseModeCount + 1u || modeCount > 32u ||
++        !environmentHealthy(statuses, environment)) return;
++    const uint nodes = dispatch.femNodeCount;
++    const uint nodeBase = environment * nodes;
++    const uint basisBase = environment * modeCount * nodes;
++    const uint targetBase = basisBase + baseModeCount * nodes;
++    const uint orthogonalBase = environment * baseModeCount * nodes;
++    if (lane == 0u) selectedMode[environment] = 0u;
++
++    // The source-authored P rows are orthonormal before candidate projection.
++    // Zeroing dynamic fixed/gripped nodes can change their Gram matrix. Build
++    // a two-pass MGS basis of those projected rows; dependent rows are stored
++    // as exact zero. A squared relative cutoff of 1e-10 corresponds to a
++    // relative residual norm of 1e-5. If discarded rows still correlate with
++    // the candidate residual, the final check below fails closed to fallback.
++    bool sourceBasisFinite = true;
++    for (uint mode = 0u; mode < baseModeCount; ++mode) {
++        const uint sourceBase = basisBase + mode * nodes;
++        const uint workBase = orthogonalBase + mode * nodes;
++        float rawNorm2 = 0.0f;
++        bool rowFinite = true;
++        for (uint node = lane; node < nodes; node += 32u) {
++            const float3 value = effectiveBasis[sourceBase + node].xyz;
++            rowFinite = rowFinite && all(isfinite(value));
++            orthogonalBasis[workBase + node] = float4(value, 0.0f);
++            rawNorm2 += dot(value, value);
++        }
++        rawNorm2 = simd_sum(rawNorm2);
++        rowFinite = simd_all(rowFinite);
++        simdgroup_barrier(mem_flags::mem_device);
++        if (!rowFinite || !isfinite(rawNorm2)) {
++            sourceBasisFinite = false;
++            break;
++        }
++        if (!(rawNorm2 > 0.0f)) {
++            for (uint node = lane; node < nodes; node += 32u)
++                orthogonalBasis[workBase + node] = float4(0.0f);
++            simdgroup_barrier(mem_flags::mem_device);
++            continue;
++        }
++
++        bool rowValid = true;
++        for (uint pass = 0u; pass < 2u; ++pass) {
++            for (uint prior = 0u; prior < mode; ++prior) {
++                const uint priorBase = orthogonalBase + prior * nodes;
++                float projection = 0.0f;
++                for (uint node = lane; node < nodes; node += 32u)
++                    projection += dot(orthogonalBasis[priorBase + node].xyz,
++                        orthogonalBasis[workBase + node].xyz);
++                projection = simd_sum(projection);
++                if (!isfinite(projection)) {
++                    rowValid = false;
++                    break;
++                }
++                for (uint node = lane; node < nodes; node += 32u)
++                    orthogonalBasis[workBase + node].xyz -=
++                        projection * orthogonalBasis[priorBase + node].xyz;
++                simdgroup_barrier(mem_flags::mem_device);
++            }
++            if (!rowValid) break;
++        }
++        if (!rowValid) {
++            sourceBasisFinite = false;
++            break;
++        }
++
++        float residualNorm2 = 0.0f;
++        bool residualFinite = true;
++        for (uint node = lane; node < nodes; node += 32u) {
++            const float3 value = orthogonalBasis[workBase + node].xyz;
++            residualFinite = residualFinite && all(isfinite(value));
++            residualNorm2 += dot(value, value);
++        }
++        residualNorm2 = simd_sum(residualNorm2);
++        residualFinite = simd_all(residualFinite);
++        if (!residualFinite || !isfinite(residualNorm2)) {
++            sourceBasisFinite = false;
++            break;
++        }
++        if (residualNorm2 > rawNorm2 * 1.0e-10f) {
++            const float inverseNorm = rsqrt(residualNorm2);
++            if (!(inverseNorm > 0.0f) || !isfinite(inverseNorm)) {
++                sourceBasisFinite = false;
++                break;
++            }
++            for (uint node = lane; node < nodes; node += 32u)
++                orthogonalBasis[workBase + node] *= inverseNorm;
++        } else if (residualNorm2 == 0.0f) {
++            // Exactly dependent projected rows add no direction.
++            for (uint node = lane; node < nodes; node += 32u)
++                orthogonalBasis[workBase + node] = float4(0.0f);
++        } else {
++            // A small nonzero residual is rank-ambiguous at this precision.
++            // Dropping it could falsely admit a recycle vector in that omitted
++            // direction, so keep the deterministic fallback for this Newton.
++            sourceBasisFinite = false;
++            break;
++        }
++        simdgroup_barrier(mem_flags::mem_device);
++    }
++
++    if (!sourceBasisFinite) {
++        nm_fgmres_restore_regional_recycle_fallback(authoredBasis,
++            candidate, effectiveBasis, environment, lane, nodes, targetBase,
++            baseModeCount);
++        return;
++    }
++
++    float rawNorm2 = 0.0f;
++    bool finite = true;
++    for (uint node = lane; node < nodes; node += 32u) {
++        const NMFEMNodeStateGPU state = candidate[nodeBase + node];
++        const bool constrained = state.restAndFixed.w == 1.0f ||
++            state.restAndFixed.w == 3.0f;
++        const float3 source = acceptedCorrection[nodeBase + node].xyz;
++        finite = finite && all(isfinite(source));
++        const float3 value = constrained ? float3(0.0f) : source;
++        effectiveBasis[targetBase + node] = float4(value, 0.0f);
++        rawNorm2 += dot(value, value);
++    }
++    rawNorm2 = simd_sum(rawNorm2);
++    finite = simd_all(finite);
++    if (!finite || !(rawNorm2 > 1.0e-24f) || !isfinite(rawNorm2)) {
++        nm_fgmres_restore_regional_recycle_fallback(authoredBasis,
++            candidate, effectiveBasis, environment, lane, nodes, targetBase,
++            baseModeCount);
++        return;
++    }
++
++    for (uint pass = 0u; pass < 2u; ++pass) {
++        for (uint mode = 0u; mode < baseModeCount; ++mode) {
++            const uint sourceBase = orthogonalBase + mode * nodes;
++            float projection = 0.0f;
++            for (uint node = lane; node < nodes; node += 32u)
++                projection += dot(orthogonalBasis[sourceBase + node].xyz,
++                    effectiveBasis[targetBase + node].xyz);
++            projection = simd_sum(projection);
++            if (!isfinite(projection)) {
++                finite = false;
++                break;
++            }
++            for (uint node = lane; node < nodes; node += 32u)
++                effectiveBasis[targetBase + node].xyz -=
++                    projection * orthogonalBasis[sourceBase + node].xyz;
++            simdgroup_barrier(mem_flags::mem_device);
++        }
++        if (!finite) break;
++    }
++
++    float projectedNorm2 = 0.0f;
++    bool residualFinite = true;
++    for (uint node = lane; node < nodes; node += 32u) {
++        const float3 value = effectiveBasis[targetBase + node].xyz;
++        residualFinite = residualFinite && all(isfinite(value));
++        projectedNorm2 += dot(value, value);
++    }
++    projectedNorm2 = simd_sum(projectedNorm2);
++    residualFinite = simd_all(residualFinite);
++    bool orthogonalToSource = residualFinite && isfinite(projectedNorm2) &&
++        projectedNorm2 > 0.0f;
++    // The relative test protects against a near-dependent projected row being
++    // discarded by the rank cutoff and then falsely admitting a vector that
++    // still lies in the original effective source span.
++    if (orthogonalToSource) {
++        const float inverseResidualNorm = rsqrt(projectedNorm2);
++        if (!(inverseResidualNorm > 0.0f) || !isfinite(inverseResidualNorm)) {
++            orthogonalToSource = false;
++        } else {
++            for (uint mode = 0u; mode < baseModeCount; ++mode) {
++                const uint sourceBase = basisBase + mode * nodes;
++                float sourceNorm2 = 0.0f;
++                float sourceDotResidual = 0.0f;
++                bool sourceFinite = true;
++                for (uint node = lane; node < nodes; node += 32u) {
++                    const float3 source = effectiveBasis[sourceBase + node].xyz;
++                    const float3 residual = effectiveBasis[targetBase + node].xyz;
++                    sourceFinite = sourceFinite && all(isfinite(source));
++                    sourceNorm2 += dot(source, source);
++                    sourceDotResidual += dot(source, residual);
++                }
++                sourceNorm2 = simd_sum(sourceNorm2);
++                sourceDotResidual = simd_sum(sourceDotResidual);
++                sourceFinite = simd_all(sourceFinite);
++                if (!sourceFinite || !isfinite(sourceNorm2) ||
++                    !isfinite(sourceDotResidual)) {
++                    orthogonalToSource = false;
++                    break;
++                }
++                if (sourceNorm2 > 0.0f) {
++                    const float relativeCorrelation =
++                        abs(sourceDotResidual) * rsqrt(sourceNorm2) *
++                        inverseResidualNorm;
++                    if (!isfinite(relativeCorrelation) ||
++                        relativeCorrelation > 1.0e-4f) {
++                        orthogonalToSource = false;
++                        break;
++                    }
++                }
++            }
++        }
++    }
++    const bool independent = finite && orthogonalToSource &&
++        projectedNorm2 > rawNorm2 * 1.0e-10f;
++    if (!independent) {
++        nm_fgmres_restore_regional_recycle_fallback(authoredBasis,
++            candidate, effectiveBasis, environment, lane, nodes, targetBase,
++            baseModeCount);
++        return;
++    }
++    const float inverseNorm = rsqrt(projectedNorm2);
++    if (!(inverseNorm > 0.0f) || !isfinite(inverseNorm)) {
++        nm_fgmres_restore_regional_recycle_fallback(authoredBasis,
++            candidate, effectiveBasis, environment, lane, nodes, targetBase,
++            baseModeCount);
++        return;
++    }
++    for (uint node = lane; node < nodes; node += 32u)
++        effectiveBasis[targetBase + node] *= inverseNorm;
++    if (lane == 0u) selectedMode[environment] = 1u;
+ }
+ 
+ // Opt-in snapshot source for independent RAP replay. It captures the exact
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -629,7 +629,8 @@
+     const std::uint64_t worldFingerprint,
+     const std::uint64_t metallibFingerprint,
+     const std::uint64_t metallibByteCount,
+-    const RuntimeConfiguration& configuration
++    const RuntimeConfiguration& configuration,
++    const bool regionalAcceptedCorrectionRecycle
+ ) noexcept {
+     std::uint64_t hash = 14695981039346656037ull;
+     hash = mixFingerprint(hash, worldFingerprint);
+@@ -643,6 +644,8 @@
+     hash = mixFingerprint(hash, configuration.automaticIdentification ? 1u : 0u);
+     hash = mixFingerprint(hash, configuration.adaptiveTransfer ? 1u : 0u);
+     hash = mixFingerprint(hash, configuration.coupledCandidateCompensatedTranslation ? 1u : 0u);
++    hash = mixFingerprint(hash,
++        regionalAcceptedCorrectionRecycle ? 1u : 0u);
+     hash = mixFingerprint(hash, detail::hashBytes(
+         configuration.humanJointEqualities.data(),
+         configuration.humanJointEqualities.size_bytes()));
+@@ -1197,6 +1200,7 @@
+ struct RegionalGalerkinBasis {
+     std::vector<nm_float4> values; // [mode][compiled FEM node]
+     std::uint32_t modeCount = 0u;
++    std::uint32_t recycleBaseModeCount = 0u;
+     std::string error;
+ };
+ 
+@@ -1285,7 +1289,8 @@
+ }
+ 
+ [[nodiscard]] RegionalGalerkinBasis buildRegionalGalerkinBasis(
+-    const CompiledWorld& world
++    const CompiledWorld& world,
++    const bool reserveAcceptedCorrectionSlot = false
+ ) {
+     constexpr std::uint32_t maximumRegions = 5u;
+     constexpr std::uint32_t modesPerRegion = 6u;
+@@ -1331,8 +1336,15 @@
+         result.error = "regional Galerkin environment count must be between one and four";
+         return result;
+     }
++    const std::uint64_t recycleCorrectionFloat4Count =
++        reserveAcceptedCorrectionSlot ? environments * nodes : 0u;
++    const std::uint64_t recycleOrthogonalFloat4Count =
++        reserveAcceptedCorrectionSlot
++            ? environments * nodes * (modes - 1u)
++            : 0u;
+     const std::uint64_t scalarCount =
+         nodes * modes + 2u * environments * nodes * modes +
++        recycleCorrectionFloat4Count + recycleOrthogonalFloat4Count +
+         environments * modes * modes +
+         environments * modes * 2u + environments * modes + environments;
+     const std::uint64_t blockFineFloat4Count =
+@@ -1345,7 +1357,7 @@
+     if (scalarCount > maximumSafeScalars ||
+         blockFineFloat4Count > maximumSafeScalars -
+             std::min(scalarCount, maximumSafeScalars)) {
+-        result.error = "regional Galerkin P/AP/coarse plus fine-correction scratch exceeds the 256 MiB admission bound";
++        result.error = "regional Galerkin P/AP/coarse plus recycle/fine-correction scratch exceeds the 256 MiB admission bound";
+         return result;
+     }
+     std::array<std::vector<double>, maximumRegions> nodalVolume;
+@@ -1508,6 +1520,49 @@
+                 admitCandidate(std::move(candidate));
+             }
+         }
++    }
++    if (reserveAcceptedCorrectionSlot) {
++        const std::size_t baseCount = orthonormal.size();
++        if (baseCount == 0u || baseCount >= maximumModes) {
++            result.error =
++                "accepted-correction recycle requires one spare independent regional mode";
++            return result;
++        }
++        bool fallbackAdmitted = false;
++        std::array<double, 3> recycleMinimum{
++            INFINITY, INFINITY, INFINITY};
++        std::array<double, 3> recycleMaximum{
++            -INFINITY, -INFINITY, -INFINITY};
++        for (std::size_t node = 0u; node < nodeCount; ++node) {
++            const auto x = position(static_cast<std::uint32_t>(node));
++            for (unsigned axis = 0u; axis < 3u; ++axis) {
++                recycleMinimum[axis] = std::min(recycleMinimum[axis], x[axis]);
++                recycleMaximum[axis] = std::max(recycleMaximum[axis], x[axis]);
++            }
++        }
++        const auto recycleCoordinates = regionalBendingCoordinates(
++            recycleMinimum, recycleMaximum);
++        if (enrichBending && recycleCoordinates.available) {
++            std::vector<double> candidate(nodeCount * 3u, 0.0);
++            for (std::size_t node = 0u; node < nodeCount; ++node) {
++                if (!(nodalTotal[node] > 0.0) ||
++                    world.fem.nodes[node].restAndFixed.w != 0.0f) continue;
++                const auto value = regionalBendingTrialField(
++                    recycleCoordinates,
++                    position(static_cast<std::uint32_t>(node)), 8u);
++                for (unsigned axis = 0u; axis < 3u; ++axis)
++                    candidate[3u * node + axis] = value[axis];
++            }
++            admitCandidate(std::move(candidate));
++            fallbackAdmitted = orthonormal.size() == baseCount + 1u;
++        }
++        if (!fallbackAdmitted) {
++            result.error =
++                "accepted-correction recycle has no independent static fallback mode";
++            return result;
++        }
++        result.recycleBaseModeCount =
++            static_cast<std::uint32_t>(baseCount);
+     }
+     if (orthonormal.empty() || orthonormal.size() > maximumModes) {
+         result.error = "regional Galerkin basis has no independent free modes";
+@@ -2239,6 +2294,15 @@
+     // at each Newton linearization. These are solver-only scratch arenas.
+     id<MTLBuffer> femRegionalBasis = nil;
+     id<MTLBuffer> femRegionalEffectiveBasis = nil;
++    // Optional solver-only recycle: the last source mode is a deterministic
++    // bending fallback on Newton 0 and whenever the accepted correction is
++    // zero/dependent. An independent correction from the preceding accepted
++    // Newton line search replaces that one effective-basis slot only.
++    id<MTLBuffer> femRegionalAcceptedCorrection = nil;
++    // Per-environment two-pass MGS scratch for the dynamically masked source
++    // modes. The authored/effective P buffers remain unchanged for RAP.
++    id<MTLBuffer> femRegionalRecycleOrthogonalBasis = nil;
++    id<MTLBuffer> femRegionalRecycleModeState = nil;
+     id<MTLBuffer> femRegionalLinearizationNodes = nil;
+     id<MTLBuffer> femRegionalLinearizationMaterialState = nil;
+     id<MTLBuffer> femRegionalLinearizationSchedulerExponent = nil;
+@@ -2271,6 +2335,8 @@
+     id<MTLBuffer> femRegionalGraphFactorValid = nil;
+     id<MTLBuffer> femRegionalGraphPatchCorrections = nil;
+     std::uint32_t femRegionalModeCount = 0u;
++    std::uint32_t femRegionalRecycleBaseModeCount = 0u;
++    bool femRegionalAcceptedCorrectionRecycleEnabled = false;
+     std::uint32_t femRegionalGraphPatchCount = 0u;
+     std::uint32_t femRegionalGraphParallelSearch = 0u;
+     std::uint32_t femRegionalGraphPatchNodeCount = 0u;
+@@ -2817,6 +2883,17 @@
+         }
+         auto candidate = std::make_unique<State>();
+         candidate->dispatch = world.dispatch;
++        const char* acceptedCorrectionRecycle = std::getenv(
++            "NM_FEM_REGIONAL_ACCEPTED_CORRECTION_RECYCLE");
++        if (acceptedCorrectionRecycle != nullptr) {
++            if (std::strcmp(acceptedCorrectionRecycle, "1") != 0 ||
++                world.mixedSolver.executionBudgets.z != 5u) {
++                diagnostics.message =
++                    "accepted-correction regional recycle requires exact value 1 and selector 5";
++                return diagnostics;
++            }
++            candidate->femRegionalAcceptedCorrectionRecycleEnabled = true;
++        }
+         const char* parallelGraphSearch = std::getenv("NM_FEM_GRAPH_PARALLEL_LU_SEARCH");
+         if (parallelGraphSearch != nullptr) {
+             if (std::strcmp(parallelGraphSearch, "1") != 0 ||
+@@ -3479,7 +3556,8 @@
+             world.fingerprint,
+             executableImageFingerprint,
+             executableImageByteCount,
+-            configuration
++            configuration,
++            candidate->femRegionalAcceptedCorrectionRecycleEnabled
+         );
+         candidate->acceptedStateProofProgramFingerprint =
+             candidate->acceptedStateProofMujocoBytesPerEnvironmentCapacity ==
+@@ -3778,6 +3856,9 @@
+             "nm_fgmres_precondition_coarse",
+             "nm_fgmres_regional_load_mode",
+             "nm_fgmres_regional_project_basis",
++            "nm_fgmres_reset_regional_recycle",
++            "nm_fgmres_capture_regional_recycle",
++            "nm_fgmres_regional_select_recycle_mode",
+             "nm_fgmres_regional_capture_linearization",
+             "nm_fgmres_regional_capture_constitutive_linearization",
+             "nm_fgmres_regional_store_ap",
+@@ -4058,16 +4139,71 @@
+         RegionalGalerkinBasis regionalGalerkinBasis;
+         if (usesRegionalGalerkinPreconditioner(
+                 world.mixedSolver.executionBudgets.z)) {
+-            regionalGalerkinBasis = buildRegionalGalerkinBasis(world);
++            regionalGalerkinBasis = buildRegionalGalerkinBasis(world,
++                candidate->femRegionalAcceptedCorrectionRecycleEnabled);
+             if (!regionalGalerkinBasis.error.empty()) {
+                 diagnostics.message = regionalGalerkinBasis.error;
+                 return diagnostics;
+             }
+             candidate->femRegionalModeCount =
+                 regionalGalerkinBasis.modeCount;
++            candidate->femRegionalRecycleBaseModeCount =
++                regionalGalerkinBasis.recycleBaseModeCount;
+             candidate->femRegionalBasis = uploads.one(
+                 std::span<const nm_float4>(regionalGalerkinBasis.values),
+                 valid, candidate->residentBytes);
++            if (candidate->femRegionalAcceptedCorrectionRecycleEnabled) {
++                const std::size_t nodeCount =
++                    static_cast<std::size_t>(world.dispatch.femNodeCount);
++                if (nodeCount != 0u && environments >
++                    std::numeric_limits<std::size_t>::max() / nodeCount) {
++                    diagnostics.message =
++                        "accepted-correction recycle E*N allocation overflows size_t";
++                    return diagnostics;
++                }
++                const std::size_t baseModeCount =
++                    static_cast<std::size_t>(
++                        candidate->femRegionalRecycleBaseModeCount);
++                if (nodeCount != 0u && baseModeCount >
++                    std::numeric_limits<std::size_t>::max() / nodeCount) {
++                    diagnostics.message =
++                        "accepted-correction recycle M*N allocation overflows size_t";
++                    return diagnostics;
++                }
++                const std::size_t modeNodeCount = nodeCount * baseModeCount;
++                if (modeNodeCount != 0u && environments >
++                    std::numeric_limits<std::size_t>::max() / modeNodeCount) {
++                    diagnostics.message =
++                        "accepted-correction recycle E*M*N allocation overflows size_t";
++                    return diagnostics;
++                }
++                const std::size_t environmentModeNodeCount =
++                    environments * modeNodeCount;
++                const std::size_t environmentNodeCount =
++                    environments * nodeCount;
++                candidate->femRegionalAcceptedCorrection = privateScratch<nm_float4>(
++                    candidate->device, environmentNodeCount,
++                    valid, candidate->residentBytes);
++                candidate->femRegionalRecycleOrthogonalBasis =
++                    privateScratch<nm_float4>(candidate->device,
++                        environmentModeNodeCount, valid,
++                        candidate->residentBytes);
++                candidate->femRegionalRecycleModeState =
++                    privateScratch<std::uint32_t>(candidate->device,
++                        environments, valid,
++                        candidate->residentBytes);
++                if (candidate->femRegionalRecycleBaseModeCount == 0u ||
++                    candidate->femRegionalModeCount !=
++                        candidate->femRegionalRecycleBaseModeCount + 1u) {
++                    diagnostics.message =
++                        "accepted-correction recycle did not reserve exactly one fallback mode";
++                    return diagnostics;
++                }
++                std::fprintf(stderr,
++                    "matter_regional_recycle_control={\"schema\":1,\"accepted_scaled_fem_correction\":true,\"base_modes\":%u,\"mode_count\":%u,\"static_fallback\":\"regional_bending_y4\"}\n",
++                    candidate->femRegionalRecycleBaseModeCount,
++                    candidate->femRegionalModeCount);
++            }
+         }
+         RegionalGraphSchwarzHostLayout graphSchwarz;
+         if (world.mixedSolver.executionBudgets.z == 5u) {
+@@ -14001,6 +14137,17 @@
+                 nonlinearBudgetOverride == 0u
+                     ? state.mixedSolverValue.nonlinearIterations.x
+                     : nonlinearBudgetOverride;
++            if (state.femRegionalAcceptedCorrectionRecycleEnabled) {
++                dispatchThreads("nm_fgmres_reset_regional_recycle",
++                    femNodeTotal, [&] {
++                    setDispatch();
++                    [encoder setBuffer:state.femRegionalAcceptedCorrection
++                                 offset:0u atIndex:1u];
++                    [encoder setBuffer:state.femRegionalRecycleModeState
++                                 offset:0u atIndex:2u];
++                });
++                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++            }
+             for (std::uint32_t nonlinearIteration = 0u;
+                  nonlinearIteration < nonlinearIterationBudget;
+                  ++nonlinearIteration) {
+@@ -14566,6 +14713,36 @@
+                                    length:sizeof(regionalModes) atIndex:4u];
+                     });
+                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++                if (state.femRegionalAcceptedCorrectionRecycleEnabled) {
++                    const std::uint32_t recycleBaseModes =
++                        state.femRegionalRecycleBaseModeCount;
++                    dispatchGroups32(
++                        "nm_fgmres_regional_select_recycle_mode",
++                        environments, [&] {
++                        setDispatch();
++                        [encoder setBuffer:state.femRegionalBasis
++                                     offset:0u atIndex:1u];
++                        [encoder setBuffer:state.femCandidate
++                                     offset:0u atIndex:2u];
++                        [encoder setBuffer:
++                            state.femRegionalAcceptedCorrection
++                                     offset:0u atIndex:3u];
++                        [encoder setBuffer:state.femRegionalEffectiveBasis
++                                     offset:0u atIndex:4u];
++                        [encoder setBuffer:state.femRegionalRecycleModeState
++                                     offset:0u atIndex:5u];
++                        [encoder setBuffer:state.statuses
++                                     offset:0u atIndex:6u];
++                        [encoder setBytes:&recycleBaseModes
++                                   length:sizeof(recycleBaseModes) atIndex:7u];
++                        [encoder setBytes:&regionalModes
++                                   length:sizeof(regionalModes) atIndex:8u];
++                        [encoder setBuffer:
++                            state.femRegionalRecycleOrthogonalBasis
++                                     offset:0u atIndex:9u];
++                    });
++                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++                }
+             }
+             if (usesRegionalGalerkinPreconditioner(
+                     state.mixedSolverValue.executionBudgets.z) &&
+@@ -15161,6 +15338,11 @@
+                         appendCaptureArray("factor_valid", "<u4",
+                             {envCount}, sizeof(std::uint32_t),
+                             state.femRegionalCoarseValid);
++                        if (state.femRegionalAcceptedCorrectionRecycleEnabled) {
++                            appendCaptureArray("accepted_correction_recycle_mode",
++                                "<u4", {envCount}, sizeof(std::uint32_t),
++                                state.femRegionalRecycleModeState);
++                        }
+                         if (state.femRegionalNodeBlockInverse != nil) {
+                             appendCaptureArray("node_block_inverse", "<f4x4",
+                                 {envCount, nodeCount, 3u}, sizeof(nm_float4),
+@@ -18001,6 +18183,23 @@
+                 [encoder setBuffer:state.mixedMaterials offset:0u atIndex:10u];
+                 [encoder setBuffer:state.femFieldsCandidate offset:0u atIndex:11u];
+             });
++            if (state.femRegionalAcceptedCorrectionRecycleEnabled) {
++                dispatchThreads("nm_fgmres_capture_regional_recycle",
++                    femNodeTotal, [&] {
++                    setDispatch();
++                    [encoder setBuffer:state.femCandidate
++                                 offset:0u atIndex:1u];
++                    [encoder setBuffer:state.femLineSearch
++                                 offset:0u atIndex:2u];
++                    [encoder setBuffer:state.femSolution
++                                 offset:0u atIndex:3u];
++                    [encoder setBuffer:state.statuses
++                                 offset:0u atIndex:4u];
++                    [encoder setBuffer:state.femRegionalAcceptedCorrection
++                                 offset:0u atIndex:5u];
++                });
++                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++            }
+             dispatchThreads(
+                 "nm_mpm_apply_implicit_solution", mpmActiveNodeTotal, [&] {
+                 setDispatch();

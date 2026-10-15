@@ -1,0 +1,3 @@
+951cfaeafb3bee22b547ff4d8f9fce2c5c9c226364deecf8f4205e13c742cb56  /Users/home/cardboard-implementation-20261014/snapshots/source-portable-bct-binding-tests-081/matter/src/runtime.mm
+a88938e11b76a6c6b4ade53007bca543c642828e9a6c91ae5ddb66e9bda0bda9  /Users/home/cardboard-implementation-20261014/snapshots/source-portable-bct-binding-tests-081/matter/src/metal/fem.metalinc
+c0e1d7079b36acea714570ab341143d305ca7f08c1d2304b2164bc6b52e7e112  /Users/home/cardboard-implementation-20261014/snapshots/source-portable-bct-binding-tests-081/matter/tools/cardboard_full_contact_armijo_check.mm

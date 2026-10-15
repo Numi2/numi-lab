@@ -1,0 +1,11 @@
+{
+  "schema": "numi.cardboard.cpu-check-receipt.v1",
+  "exit_code": 8,
+  "source_build": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-080/source-build.json",
+  "source_build_sha256": "2a955f4d5f23830a53312f7dbe910160af300102dfafbd119535a157805daf21",
+  "checks": 4,
+  "passed": 2,
+  "failed": 2,
+  "physical_steps": 0,
+  "failure": "Rootintegrationcopiedexternaltestswithoutrelocatingoverlaypaths. Original080frozenintact."
+}

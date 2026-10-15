@@ -1,0 +1,28 @@
+{
+  "schema": "numi.cardboard.integrated-source-overlay.v1",
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-tiled-fixture-and-memory-accounting-083",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-tiled-cohesive-and-portable-coupled-check-082",
+  "patches_sha256": {
+    "/Users/home/cardboard-implementation-20261014/analysis/cohesive-tiled-fixture-owned-numerics-083-overlay": "6d86b21d4d3a864da57cd54890d3990515bcfbe24baae0f4376cf65df1deaae6",
+    "/Users/home/cardboard-implementation-20261014/analysis/shipping-cohesive-tile-preflight-082-overlay": "be144b16735fb8c945740b3b1a34b1705649b69c18fb6608795eb8b894abadfe"
+  },
+  "changed": {
+    "matter/tools/cardboard_full_contact_armijo_check.mm": {
+      "before": "b7d0fa1a777c0f28438873bd5b84825d5bbc3bc2685c2e5052cbf20b33d2de1b",
+      "after": "6c38e2919097786a2b9e3536bdde428d906009fffb63f29240fa5fcf149b12ed"
+    },
+    "matter/tools/cardboard_probe.mm": {
+      "before": "391995acae354e097bec84c2d86c07e305c3d8b4ea149ba606323f0d24bd39de",
+      "after": "7fb3f0f649162715ca3e818d074ae296785ff24bde5434b37ac25770e4199d9d"
+    },
+    "matter/tools/cardboard_shipping_memory.hpp": {
+      "before": "0aae6e262fa0d8a5bad06f75c6400106b1d93ee1c9a16b612544520608ead633",
+      "after": "937b316f75469559eb2d9ca8484edaee1060376b48cd5748f262b01a6f837c4e"
+    },
+    "matter/tools/cardboard_shipping_memory_check.cpp": {
+      "before": "ac0178c19572f32d39a0df3675ce63fee0662e4a64ccdc3c4e34ca1126c43a4d",
+      "after": "4cce5796fd2f22787def0e9de2aa6d566bfbf4b8ee1bbd8e80f408593f65acd3"
+    }
+  },
+  "scope": "Checker-owned accurate/extended tiled parity setup at unchanged strict tolerance; prebuild/compiled tiled cohesive memory accounting with separate solver/contact caps. Native082 failed setup retained. No shipping-scale execution qualification."
+}

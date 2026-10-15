@@ -522,6 +522,37 @@ class CardboardConvergenceTests(unittest.TestCase):
         with self.assertRaisesRegex(cc.IncompatibleError, "source_paper_projection differs"):
             cc._same_solver_controls(a, b)
 
+    def test_scaled_source_projection_binds_policy_budget_and_comparisons(self) -> None:
+        a = cc._load_run(fake_run(self.root, "accurate15-a"))
+        b = cc._load_run(fake_run(self.root, "accurate15-b", nx=4))
+        for run in (a, b):
+            run.manifest["solver"].update({"paper_compensated_arithmetic": True,
+                                          "safeguarded_paper_hill_initializer": False})
+            flags = {role + suffix: value for role in ("liner", "medium")
+                     for suffix, value in (("_flags", 0xD0),
+                         ("_generic_compensated_implicit_projection", True),
+                         ("_compensated_paper_arithmetic", True),
+                         ("_local_newton_iterations", 16))}
+            run.manifest["compensated_source_paper_projection"] = {
+                "enabled": True, "accurate_bilinear15_projection": True,
+                "source_material_indices": [0, 1],
+                "source_map_sha256": run.manifest["materials"]["regional_map_sha256"],
+                "compiled_world_fingerprint": run.manifest["compiled_world_fingerprint"],
+                "effective_compiled_flags": flags}
+        cc._same_solver_controls(a, b)
+        policy = b.manifest["compensated_source_paper_projection"]
+        policy["effective_compiled_flags"]["medium_local_newton_iterations"] = 8
+        with self.assertRaisesRegex(cc.EvidenceError, "exact local budget"):
+            cc._same_solver_controls(a, b)
+        policy["effective_compiled_flags"]["medium_local_newton_iterations"] = 16
+        policy["accurate_bilinear15_projection"] = False
+        with self.assertRaisesRegex(cc.EvidenceError, "scaled-correction flag"):
+            cc._same_solver_controls(a, b)
+        for role in ("liner", "medium"):
+            policy["effective_compiled_flags"][role + "_flags"] = 0x50
+        with self.assertRaisesRegex(cc.IncompatibleError, "accurate_bilinear15_projection differs"):
+            cc._same_solver_controls(a, b)
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

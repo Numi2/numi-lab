@@ -121,7 +121,83 @@ void checkRuntimeEnvironmentAdmission() {
             "malformed prebuild sparse option did not fail closed with its parse error");
 }
 
+void checkTiledCohesivePreflight() {
+    ShippingPrebuildArenaOptions options;
+    configureShippingTiledCohesiveTrial(options, nullptr, nullptr, false, false);
+    require(!options.fullContactArmijoTiledCohesive &&
+                options.runtimeConfigurationFailure.empty(),
+            "absent tiled cohesive request changed prebuild accounting");
+    configureShippingTiledCohesiveTrial(options, "1", "0003", true, false);
+    require(options.fullContactArmijoTiledCohesive &&
+                options.cohesiveTrialPageCapacity == 3u,
+            "valid tiled cohesive page request did not parse");
+    for (const char* malformed : {"", "0", "+1", " 1", "4294967296"}) {
+        ShippingPrebuildArenaOptions bad;
+        configureShippingTiledCohesiveTrial(bad, "1", malformed, true, false);
+        require(!bad.fullContactArmijoTiledCohesive &&
+                    bad.cohesiveTrialPageCapacity == 0u &&
+                    !bad.runtimeConfigurationFailure.empty(),
+                "malformed tiled page request admitted memory savings");
+    }
+    for (const auto& pair : std::array<std::array<bool, 2>, 2>{{
+             {{false, false}}, {{true, true}}}}) {
+        ShippingPrebuildArenaOptions bad;
+        configureShippingTiledCohesiveTrial(bad, "1", nullptr,
+                                           pair[0], pair[1]);
+        require(!bad.fullContactArmijoTiledCohesive &&
+                    !bad.runtimeConfigurationFailure.empty(),
+                "conflicting tiled selector admitted memory savings");
+    }
+    ShippingPrebuildArenaOptions noTile;
+    configureShippingTiledCohesiveTrial(noTile, nullptr, "1", true, false);
+    require(!noTile.runtimeConfigurationFailure.empty(),
+            "page override without tiling was admitted");
+    ShippingMemoryBudgetInput input;
+    input.nodeCount = 24u;
+    input.tetrahedronCount = 6u;
+    input.cohesiveFaceCount = 260835u;
+    input.contactPairCount = 1u;
+    input.activeContactCapacity = 1u;
+    input.deformableContactCapacity = 1u;
+    input.rigidProxyCount = 2u;
+    input.environmentCount = 1u;
+    input.fullContactArmijoRequired = true;
+    input.deformableSelfContactEnabled = true;
+    const auto legacy = estimateShippingMemoryBudget(input);
+    require(!legacy.requiredResidualDescentArenaAdmitted &&
+                legacy.requiredCohesiveArmijoBytes == 260835ull * 480u,
+            "legacy high-face preflight did not retain its original limit");
+    input.fullContactArmijoTiledCohesive = true;
+    const auto tiled = estimateShippingMemoryBudget(input);
+    require(tiled.requiredResidualDescentArenaAdmitted &&
+                tiled.requiredCohesiveArmijoBytes == 87381ull * 96u &&
+                tiled.cohesiveRuntimeBytes == legacy.cohesiveRuntimeBytes,
+            "tiled preflight omitted force-page or persistent cohesive accounting");
+    input.environmentCount = 4u;
+    const auto multi = estimateShippingMemoryBudget(input);
+    require(multi.requiredResidualDescentArenaAdmitted &&
+                multi.requiredCohesiveArmijoBytes == 4ull * 21845u * 96u,
+            "tiled preflight squared or omitted the environment stride");
+    input.cohesiveTrialPageCapacity = 1u;
+    require(estimateShippingMemoryBudget(input).requiredCohesiveArmijoBytes ==
+                4ull * 96u,
+            "explicit one-face trial page did not match runtime storage");
+    input.nodeCount = kShippingFullContactArmijoNodeLimit + 1u;
+    require(!estimateShippingMemoryBudget(input).requiredResidualDescentArenaAdmitted,
+            "cohesive tiling bypassed the independent full-contact node cap");
+    input.nodeCount = 24u;
+    input.environmentCount = 1u;
+    input.cohesiveTrialPageCapacity = 87382u;
+    require(!estimateShippingMemoryBudget(input).requiredResidualDescentArenaAdmitted,
+            "oversized force page bypassed the runtime 8 MiB cap");
+    input.cohesiveTrialPageCapacity = 0u;
+    input.fullContactArmijoAliasesCohesiveScratch = true;
+    expectFailure([&] { (void)estimateShippingMemoryBudget(input); },
+                  "conflicting cohesive alias and tiling were admitted");
+}
+
 void run() {
+    checkTiledCohesivePreflight();
     checkRuntimeEnvironmentAdmission();
     const auto single = estimateShippingStaticMemoryLowerBound(1000u, 2000u, 1u);
     const auto doubleEnvironment =

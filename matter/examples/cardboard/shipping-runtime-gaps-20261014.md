@@ -10,6 +10,19 @@ plan, not a measured complete native arena or whole-process peak. Shipping
 assembly, released checkpoint, capacity-derived masses, gravity crush and
 impact therefore remain unexecuted.
 
+Source083 updates memory accounting for the opt-in ordered cohesive page path.
+It counts a96-byte force page per face/environment, capped at8MiB, and all
+persistent interface data; it does not assume that all260,835 faces fit a
+legacy cloned trial arena. Invalid page selectors fail closed. The independent
+8,192-node,32,768-tet and contact-capacity restrictions remain, and native280
+does not complete even the small legacy/tiled comparison. This accounting
+change is not measured shipping allocation or execution admission.
+
+The heavy-object footprint convention is now explicit:20% larger means
+1.2 times the roof area, preserving its aspect ratio (linear scale sqrt1.2).
+The previous1.2 scale on each axis implied44% more area. No accepted shipping
+impact used that former convention, and historical evidence is preserved.
+
 The source076 capability inventory checks the actual prepared mesh: 528,444
 nodes, 1,477,728 tetrahedra, 260,835 cohesive faces, 1,054,876 exterior faces
 and 6,335,568 canonical rigid pairs. At one environment, the examined index

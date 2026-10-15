@@ -6,6 +6,7 @@
 
 #include "numi/matter/shared.h"
 #include "numi/matter/sparse_private_contact_admission.hpp"
+#include "cardboard_cohesive_armijo_tiles.hpp"
 
 #include <algorithm>
 #include <bit>
@@ -117,6 +118,8 @@ struct ShippingMemoryBudgetInput {
     bool deformableSelfContactEnabled = false;
     bool fullContactArmijoAliasesSurfaceScratch = false;
     bool fullContactArmijoAliasesCohesiveScratch = false;
+    bool fullContactArmijoTiledCohesive = false;
+    std::uint32_t cohesiveTrialPageCapacity = 0u;
     bool sparsePrivateContactRequested = false;
     bool sparsePrivateContactParity = false;
     std::uint64_t sparsePrivateContactCapacity = 0u;
@@ -338,6 +341,63 @@ parseShippingSparsePrivateContactOptions(
     }
     result.capacity = static_cast<std::uint32_t>(value);
     return result;
+}
+
+// Keep optional trial-arena savings conditional on the same strict text and
+// exclusive-selector contract used by runtime creation. Invalid requests
+// retain the legacy conservative accounting and a configuration failure.
+template<class Options>
+inline void configureShippingTiledCohesiveTrial(
+    Options& options, const char* tiledText, const char* pageText,
+    const bool exclusiveFullContactSelected,
+    const bool cohesiveScratchAliasRequested) {
+    options.fullContactArmijoTiledCohesive = false;
+    options.cohesiveTrialPageCapacity = 0u;
+    const auto reject = [&](const char* error) {
+        if (options.runtimeConfigurationFailure.empty())
+            options.runtimeConfigurationFailure = error;
+    };
+    if (tiledText == nullptr) {
+        if (pageText != nullptr)
+            reject("cohesive trial page capacity requires tiled evaluation");
+        return;
+    }
+    if (std::strcmp(tiledText, "1") != 0) {
+        reject("NM_FEM_FULL_CONTACT_TILED_COHESIVE must be exactly 1");
+        return;
+    }
+    if (!exclusiveFullContactSelected || cohesiveScratchAliasRequested) {
+        reject("tiled cohesive evaluation requires exclusive full-contact Armijo without cohesive scratch aliasing");
+        return;
+    }
+    std::uint32_t capacity = 0u;
+    if (pageText != nullptr) {
+        if (*pageText == '\0') {
+            reject("cohesive trial page capacity must be a positive decimal integer");
+            return;
+        }
+        for (const char* p = pageText; *p != '\0'; ++p) {
+            if (*p < '0' || *p > '9') {
+                reject("cohesive trial page capacity must contain decimal digits only");
+                return;
+            }
+            const auto digit = static_cast<std::uint32_t>(*p - '0');
+            if (capacity >
+                (std::numeric_limits<std::uint32_t>::max() - digit) / 10u) {
+                reject("cohesive trial page capacity exceeds uint32 indexing");
+                return;
+            }
+            capacity = capacity * 10u + digit;
+        }
+        if (capacity == 0u) {
+            reject("cohesive trial page capacity must be positive");
+            return;
+        }
+    }
+    if (options.runtimeConfigurationFailure.empty()) {
+        options.fullContactArmijoTiledCohesive = true;
+        options.cohesiveTrialPageCapacity = capacity;
+    }
 }
 
 // Allocation-time predicate mirrored from the runtime's bounded sparse
@@ -856,12 +916,32 @@ inline ShippingMemoryBudget estimateShippingMemoryBudget(
         const std::uint64_t arenaBytes = shippingMemoryCheckedMultiply3(
             environments, faces,
             sizeof(NMCohesiveFaceGPU) + sizeof(NMCohesiveFaceVectorGPU));
-        const std::uint64_t bytes =
+        std::uint64_t bytes =
             input.fullContactArmijoAliasesCohesiveScratch ? 0u : arenaBytes;
         constexpr std::uint64_t maximumCohesiveArmijoBytes =
             8ull * 1024ull * 1024ull;
-        const bool admitted = faces > 0u && faces <= 4096u &&
+        bool admitted = faces > 0u && faces <= 4096u &&
             environments <= 4u && arenaBytes <= maximumCohesiveArmijoBytes;
+        if (input.fullContactArmijoTiledCohesive) {
+            if (input.fullContactArmijoAliasesCohesiveScratch)
+                throw std::invalid_argument(
+                    "tiled cohesive trial pages cannot alias accepted cohesive scratch");
+            numi::matter::cardboard::cohesive_tiles::Layout layout;
+            admitted = faces <= std::numeric_limits<std::uint32_t>::max() &&
+                environments <= std::numeric_limits<std::uint32_t>::max() &&
+                numi::matter::cardboard::cohesive_tiles::makeLayout(
+                    static_cast<std::uint32_t>(environments),
+                    static_cast<std::uint32_t>(faces),
+                    input.cohesiveTrialPageCapacity,
+                    maximumCohesiveArmijoBytes, layout);
+            // This is the modeled private force page only. The persistent
+            // cohesive faces/forces are included in cohesiveRuntimeBytes.
+            // Runtime still checks the actual Metal device and allocation.
+            if (admitted) bytes = layout.pageBytes;
+        } else if (input.cohesiveTrialPageCapacity != 0u) {
+            throw std::invalid_argument(
+                "cohesive trial page capacity requires tiled evaluation");
+        }
         if (input.cohesiveArmijoEnabled)
             result.cohesiveArmijoBytes = bytes;
         if (input.fullContactArmijoRequired)
@@ -870,7 +950,9 @@ inline ShippingMemoryBudget estimateShippingMemoryBudget(
             result.requiredResidualDescentArenaAdmitted = false;
             if (result.requiredResidualDescentArenaFailure.empty())
                 result.requiredResidualDescentArenaFailure =
-                    "cohesive private arena requires 1..4096 faces and at most 8 MiB";
+                    input.fullContactArmijoTiledCohesive
+                        ? "tiled cohesive private page exceeds checked face/dispatch/8 MiB limits"
+                        : "cohesive private arena requires 1..4096 faces and at most 8 MiB";
         }
         if (!admitted && input.cohesiveArmijoEnabled)
             throw std::length_error(
@@ -1043,6 +1125,8 @@ struct ShippingPrebuildArenaOptions {
     bool compactImmutableSurfaceMap = false;
     bool requireFullContactResidualDescent = false;
     bool deformableSelfContactEnabled = false;
+    bool fullContactArmijoTiledCohesive = false;
+    std::uint32_t cohesiveTrialPageCapacity = 0u;
     bool sparsePrivateContactRequested = false;
     bool sparsePrivateContactParity = false;
     std::uint64_t sparsePrivateContactCapacity = 0u;
@@ -1137,6 +1221,9 @@ inline ShippingMemoryBudget estimateShippingPrebuildMemoryBudget(
         options.requireFullContactResidualDescent;
     input.deformableSelfContactEnabled =
         options.deformableSelfContactEnabled;
+    input.fullContactArmijoTiledCohesive =
+        options.fullContactArmijoTiledCohesive;
+    input.cohesiveTrialPageCapacity = options.cohesiveTrialPageCapacity;
     input.sparsePrivateContactRequested =
         options.sparsePrivateContactRequested;
     input.sparsePrivateContactParity = options.sparsePrivateContactParity;

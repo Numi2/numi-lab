@@ -259,6 +259,8 @@ def _native_base_arguments(run: Any) -> list[str]:
                 or solver.get("safeguarded_paper_hill_initializer", False)):
             raise StudyError("source15 projection cannot use 13-state Hill projection controls")
         args.append("--compensated-source-paper-projection")
+        if manifest["compensated_source_paper_projection"].get("accurate_bilinear15_projection", False):
+            args.append("--accurate-source-paper-projection")
     for feature in ("retained_matrix_damage_overlay", "corrugator_starch_interface",
                     "generic_compensated_implicit_projection"):
         if manifest.get(feature, {}).get("enabled", False):

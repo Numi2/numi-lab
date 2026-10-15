@@ -1,0 +1,33 @@
+{
+  "schema": "numi.cardboard.shipping-footprint-area-overlay.v1",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-tiled-fixture-and-memory-accounting-083",
+  "files": [
+    {
+      "path": "matter/tools/cardboard_shipping_roof.hpp",
+      "base_sha256": "a24ca8f6993094610e04575cc54ba2cde2d6e8f8aafb3a00a6e5098990e83207",
+      "overlay_sha256": "dbf76c177911be6382f9703a28bdfa67879b7ec1f337089add7b0e2f6ad65d6d"
+    },
+    {
+      "path": "matter/tools/cardboard_shipping_protocol.hpp",
+      "base_sha256": "3d7026011610621a2d4acd09da90fd043be943a9d848c40d512b7bd9a6614f9e",
+      "overlay_sha256": "11259c4b6630da489e9277a36b82a51c9c8e824034fe933643d8dd632b08f198"
+    },
+    {
+      "path": "matter/tools/cardboard_shipping_protocol_check.cpp",
+      "base_sha256": "16d3dfac3984357d3e7c5d7c35c21f92c955f9d5fb6833568ceaa8733d083323",
+      "overlay_sha256": "ad8633baea8d351e7546d186d44c81adc98d78945e3cd4c3303245a309274c22"
+    },
+    {
+      "path": "matter/tools/cardboard_shipping_rigid_driver_check.cpp",
+      "base_sha256": "7ad78d8ce0506658743842b868c5243effb32e9c54b2b0bb037aff27647c5d4a",
+      "overlay_sha256": "58be3c89780a40b62ffd2d1e7988ce4f1575dcc97d5802fb62d1eb6005cc53f7"
+    },
+    {
+      "path": "matter/tools/cardboard_probe.mm",
+      "base_sha256": "7fb3f0f649162715ca3e818d074ae296785ff24bde5434b37ac25770e4199d9d",
+      "overlay_sha256": "09890cefa670cdbc95d33a85a8486314fd3a42474a6eb5749cb3638748715a97"
+    }
+  ],
+  "patch_sha256": "9e0086a38b1a5e5a683648718c721dab9767bb8f91b0b459993f4d4bbfcf275a",
+  "scope": "Interpret requested 20% larger footprint as area with unchanged aspect ratio. Previous 1.2x each linear extent produced44% more area. Quarter-width offsets remain tied to measured roof width. Historical native evidence remains bound to original geometry; no accepted full-box impact exists."
+}

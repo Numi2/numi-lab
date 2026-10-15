@@ -1,0 +1,33 @@
+{
+  "schema": "numi.cardboard.integrated-source-overlay.v1",
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-accepted-correction-regional-recycle-085",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-scaled-projection-and-coupled-capture-084",
+  "patch_sha256": "86cee3f2922c540b1c2cddb8788ca3f91fdd4a9e332c4ed8ea569177b496ce56",
+  "patch_application": "patching file 'matter/include/numi/matter/regional_galerkin_bending_basis.hpp'\npatching file 'matter/src/metal/fgmres.metalinc'\npatching file 'matter/src/runtime.mm'\n",
+  "agent_manifest_sha256": "559761403ffad29dc1a2838777396dca7b26c58dbadbdf0f2eceb93fe789c3a9",
+  "agent_checker_sha256": "6ca3856464ba3975772069716a79947aa873d48b3bc18bf867dc418dbae1f02a",
+  "checker_output_metadata_correction": "Report native kernel execution after successful GPU wait, physical_validation=false and physical_steps=0.",
+  "changed": {
+    "matter/CMakeLists.txt": {
+      "before": "63e92b43a6a83080773bd5426d0ba6d4b9a38b7b24168243a3b781a5fb71f14f",
+      "after": "e1bc9dc8af9605be77df57c8679e8a92d88e2ab4b09f2a3d93205a1e731b521c"
+    },
+    "matter/include/numi/matter/regional_galerkin_bending_basis.hpp": {
+      "before": "7159ed999e254b53e4b1be083971392bc26dfcac098b9b621317c61ef1591831",
+      "after": "0a22b181b93cb2c4fc66575d0a0c60d66870716dab63b498c30ac24b652866a7"
+    },
+    "matter/src/metal/fgmres.metalinc": {
+      "before": "937938ca6ca7b9be286d37d4423bba7d297c0498b562b12375e0c28a31015dbe",
+      "after": "92d5e2b57cb392076962a43733bb51b8f30deef4579fc5151b66ae9415783669"
+    },
+    "matter/src/runtime.mm": {
+      "before": "d31c43f98b1c4d99fbd874c868107af618edd345dd67719d337c56fd0cc3cbb4",
+      "after": "d482a43db6af754b9578f78ac7a814267b104c33ff2750bfe14101b9ec301919"
+    },
+    "matter/tools/cardboard_regional_recycle_masked_basis_native_check.mm": {
+      "before": null,
+      "after": "b3bc36d1daf5b1bf294101b09d97fa714d99d2c49363712a0fb8740150250b0a"
+    }
+  },
+  "scope": "Opt-in preceding accepted Newton-correction coarse direction with rank-safe masked projection workspace, exact tested update capture, per-control reset/currentAP rebuild and bounded admission. Native kernel synthetic checker included; production operator/convergence qualification requires actual measured runs."
+}

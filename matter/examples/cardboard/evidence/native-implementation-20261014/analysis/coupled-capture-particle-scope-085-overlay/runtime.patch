@@ -1,0 +1,346 @@
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -10462,6 +10462,66 @@
+             std::uint32_t femCoupledCaptureRoot = 0u;
+             std::uint32_t femCoupledCaptureIteration = 0u;
+             std::string femCoupledCapturePath;
++            constexpr std::uint64_t femCoupledCaptureCapBytes =
++                32u * 1024u * 1024u;
++            constexpr std::uint32_t femCoupledCaptureParticleCap = 64u;
++            const auto femCoupledCaptureScopeFailure = [&]() -> const char* {
++                if (state.dispatch.environmentCount != 1u)
++                    return "environment_count_out_of_scope";
++                if (state.dispatch.femNodeCount > 2048u)
++                    return "fem_node_count_out_of_scope";
++                if (state.dispatch.tetrahedronCount > 8192u)
++                    return "tetrahedron_count_out_of_scope";
++                if (state.dispatch.particleCount > femCoupledCaptureParticleCap)
++                    return "particle_count_out_of_scope";
++                if (state.dispatch.gridNodeCount != 0u ||
++                    state.dispatch.mpmGridCount != 0u ||
++                    state.dispatch.mpmBlockCount != 0u ||
++                    state.dispatch.mpmBlockLookupCount != 0u)
++                    return "mpm_mechanics_requires_grid_readback";
++                if (state.dispatch.rigidProxyCount > 64u ||
++                    request.rigid.currentBodyCount > 64u ||
++                    request.rigid.currentBodyStride > 64u ||
++                    request.rigid.bodyWrenchCount > 64u ||
++                    request.rigid.bodyWrenchStride > 64u ||
++                    request.rigid.sceneBodyCount > 64u ||
++                    request.rigid.sceneStride > 64u ||
++                    request.rigid.qStride > 64u ||
++                    request.rigid.vStride > 64u ||
++                    request.rigid.externalWrenchCount > 64u ||
++                    request.rigid.externalWrenchStride > 64u ||
++                    request.rigidContactConstraintStride > 64u)
++                    return "rigid_layout_out_of_scope";
++                if (state.fgmresLayout.unknownCount > 8192u)
++                    return "unknown_count_out_of_scope";
++                if (state.dispatch.contactPairCount > 131072u)
++                    return "contact_pair_count_out_of_scope";
++                if (state.dispatch.deformableContactCapacity > 16384u)
++                    return "deformable_contact_capacity_out_of_scope";
++                if (state.dispatch.cohesiveFaceCount > 8192u)
++                    return "cohesive_face_count_out_of_scope";
++                if (state.dispatch.objectCount > 64u)
++                    return "object_count_out_of_scope";
++                if (state.dispatch.materialStateStride > NM_MAX_MATERIAL_STATE)
++                    return "material_state_stride_exceeds_material_state_limit";
++                if (state.fgmresLayout.vascularUnknownCount != 0u ||
++                    state.dispatch.identificationCandidateCount != 0u ||
++                    request.mutationCommandCount != 0u ||
++                    state.enableVascularDense45)
++                    return "vascular_identification_or_mutation_state_out_of_scope";
++                const std::uint64_t envTets =
++                    static_cast<std::uint64_t>(state.dispatch.environmentCount) *
++                    state.dispatch.tetrahedronCount;
++                const std::uint64_t envParticles =
++                    static_cast<std::uint64_t>(state.dispatch.environmentCount) *
++                    state.dispatch.particleCount;
++                const std::uint64_t historyElements =
++                    (2u * envTets + 4u * envParticles) *
++                    state.dispatch.materialStateStride;
++                if (historyElements > femCoupledCaptureCapBytes / sizeof(float))
++                    return "material_history_exceeds_capture_byte_bound";
++                return nullptr;
++            };
+             const char* femCoupledCaptureSelector =
+                 std::getenv("NM_FEM_COUPLED_CAPTURE_SELECTOR");
+             const char* femCoupledCapturePathText =
+@@ -14499,36 +14559,31 @@
+                         femCoupledCaptureRoot, femCoupledCaptureIteration,
+                         reason, static_cast<unsigned long long>(bytes));
+                 };
+-                if (state.dispatch.environmentCount != 1u ||
+-                    state.dispatch.femNodeCount > 2048u ||
+-                    state.dispatch.tetrahedronCount > 8192u ||
+-                    state.dispatch.particleCount != 0u ||
+-                    state.dispatch.mpmGridCount != 0u ||
+-                    state.dispatch.mpmBlockCount != 0u ||
+-                    state.dispatch.mpmBlockLookupCount != 0u ||
+-                    state.dispatch.rigidProxyCount > 64u ||
+-                    request.rigid.currentBodyCount > 64u ||
+-                    request.rigid.currentBodyStride > 64u ||
+-                    request.rigid.bodyWrenchCount > 64u ||
+-                    request.rigid.bodyWrenchStride > 64u ||
+-                    request.rigid.sceneBodyCount > 64u ||
+-                    request.rigid.sceneStride > 64u ||
+-                    request.rigid.qStride > 64u ||
+-                    request.rigid.vStride > 64u ||
+-                    request.rigid.externalWrenchCount > 64u ||
+-                    request.rigid.externalWrenchStride > 64u ||
+-                    request.rigidContactConstraintStride > 64u ||
+-                    state.fgmresLayout.unknownCount > 8192u ||
+-                    state.dispatch.contactPairCount > 131072u ||
+-                    state.dispatch.deformableContactCapacity > 16384u ||
+-                    state.dispatch.cohesiveFaceCount > 8192u ||
+-                    state.dispatch.objectCount > 64u ||
+-                    state.dispatch.materialStateStride > 64u ||
+-                    state.fgmresLayout.vascularUnknownCount != 0u ||
+-                    state.dispatch.identificationCandidateCount != 0u ||
+-                    request.mutationCommandCount != 0u ||
+-                    state.enableVascularDense45) {
+-                    emitSkipped("coupled_readback_scope_limit");
++                if (const char* scopeFailure = femCoupledCaptureScopeFailure()) {
++                    const bool historyExtentSafe =
++                        state.dispatch.environmentCount == 1u &&
++                        state.dispatch.tetrahedronCount <= 8192u &&
++                        state.dispatch.particleCount <= femCoupledCaptureParticleCap &&
++                        state.dispatch.materialStateStride <= NM_MAX_MATERIAL_STATE;
++                    const std::uint64_t historyElements = historyExtentSafe
++                        ? (2u * static_cast<std::uint64_t>(
++                               state.dispatch.environmentCount) *
++                               state.dispatch.tetrahedronCount +
++                           4u * static_cast<std::uint64_t>(
++                               state.dispatch.environmentCount) *
++                               state.dispatch.particleCount) *
++                               state.dispatch.materialStateStride
++                        : std::numeric_limits<std::uint64_t>::max();
++                    std::fprintf(stderr,
++                        "fem_coupled_capture_skipped={\"schema\":1,\"root\":%u,\"iteration\":%u,\"reason\":\"%s\",\"bytes\":0,\"observed\":{\"environment_count\":%u,\"fem_node_count\":%u,\"tetrahedron_count\":%u,\"particle_count\":%u,\"grid_node_count\":%u,\"mpm_grid_count\":%u,\"mpm_block_count\":%u,\"mpm_block_lookup_count\":%u,\"material_state_stride\":%u,\"material_history_elements\":%llu},\"physical_state_changed\":false}\n",
++                        femCoupledCaptureRoot, femCoupledCaptureIteration,
++                        scopeFailure, state.dispatch.environmentCount,
++                        state.dispatch.femNodeCount, state.dispatch.tetrahedronCount,
++                        state.dispatch.particleCount, state.dispatch.gridNodeCount,
++                        state.dispatch.mpmGridCount, state.dispatch.mpmBlockCount,
++                        state.dispatch.mpmBlockLookupCount,
++                        state.dispatch.materialStateStride,
++                        static_cast<unsigned long long>(historyElements));
+                     return true;
+                 }
+                 // This snapshot captures one free, non-articulated rigid
+@@ -14545,7 +14600,8 @@
+                     return true;
+                 }
+ 
+-                constexpr std::uint64_t captureCap = 32u * 1024u * 1024u;
++                constexpr std::uint64_t captureCap =
++                    femCoupledCaptureCapBytes;
+                 constexpr std::size_t captureArrayCap = 192u;
+                 struct CoupledCaptureArray {
+                     std::string name;
+@@ -14731,6 +14787,46 @@
+                     sizeof(float), state.femMaterialStateAccepted, true);
+                 appendBuffer("material_history_candidate", "float32",
+                     sizeof(float), state.femMaterialStateCandidate, true);
++                const bool particlesPresent = state.dispatch.particleCount != 0u;
++                appendBuffer("particle_defaults", "record:NMParticleStateGPU",
++                    sizeof(NMParticleStateGPU), state.particleDefaults,
++                    particlesPresent);
++                appendBuffer("particles_accepted", "record:NMParticleStateGPU",
++                    sizeof(NMParticleStateGPU), state.particleAccepted,
++                    particlesPresent);
++                appendBuffer("particles_candidate", "record:NMParticleStateGPU",
++                    sizeof(NMParticleStateGPU), state.particleCandidate,
++                    particlesPresent);
++                appendBuffer("particle_checkpoint", "record:NMParticleStateGPU",
++                    sizeof(NMParticleStateGPU), state.particleCheckpoint,
++                    particlesPresent);
++                appendBuffer("particle_material_state_defaults", "float32",
++                    sizeof(float), state.particleMaterialStateDefaults,
++                    particlesPresent);
++                appendBuffer("particle_material_state_accepted", "float32",
++                    sizeof(float), state.particleMaterialStateAccepted,
++                    particlesPresent);
++                appendBuffer("particle_material_state_candidate", "float32",
++                    sizeof(float), state.particleMaterialStateCandidate,
++                    particlesPresent);
++                appendBuffer("particle_material_state_checkpoint", "float32",
++                    sizeof(float), state.particleMaterialStateCheckpoint,
++                    particlesPresent);
++                appendBuffer("mpm_active_node_counts", "uint32",
++                    sizeof(std::uint32_t), state.mpmActiveNodeCounts,
++                    particlesPresent);
++                appendBuffer("mpm_active_dispatch", "record:NMIndirectDispatchGPU",
++                    sizeof(NMIndirectDispatchGPU), state.mpmActiveDispatch,
++                    particlesPresent);
++                appendBuffer("mpm_particle_keys", "record:NMMPMParticleKeyGPU",
++                    sizeof(NMMPMParticleKeyGPU), state.mpmParticleKeys,
++                    particlesPresent);
++                appendBuffer("mpm_sorted_particle_indices", "uint32",
++                    sizeof(std::uint32_t), state.mpmSortedParticleIndices,
++                    particlesPresent);
++                appendBuffer("mpm_environment_active_counts", "uint32",
++                    sizeof(std::uint32_t), state.mpmEnvironmentActiveCounts,
++                    particlesPresent);
+                 appendBuffer("fields_accepted", "record:NMFEMFieldStateGPU",
+                     sizeof(NMFEMFieldStateGPU), state.femFieldsAccepted, false);
+                 appendBuffer("fields_candidate", "record:NMFEMFieldStateGPU",
+@@ -15047,7 +15143,14 @@
+                 const std::uint64_t expectedTetBytes =
+                     envTets * sizeof(NMTetrahedronGPU);
+                 const std::uint64_t expectedMaterialStateBytes =
+-                    envNodes * state.dispatch.materialStateStride * sizeof(float);
++                    envTets * state.dispatch.materialStateStride * sizeof(float);
++                const std::uint64_t envParticles =
++                    static_cast<std::uint64_t>(state.dispatch.environmentCount) *
++                    state.dispatch.particleCount;
++                const std::uint64_t expectedParticleBytes =
++                    envParticles * sizeof(NMParticleStateGPU);
++                const std::uint64_t expectedParticleMaterialStateBytes =
++                    envParticles * state.dispatch.materialStateStride * sizeof(float);
+                 const std::uint64_t expectedVectorBytes =
+                     static_cast<std::uint64_t>(state.fgmresLayout.unknownCount) *
+                     sizeof(nm_float4);
+@@ -15087,6 +15190,47 @@
+                     state.femMaterialStateAccepted, expectedMaterialStateBytes);
+                 requireMinimumBufferBytes("material_history_candidate",
+                     state.femMaterialStateCandidate, expectedMaterialStateBytes);
++                if (state.dispatch.particleCount != 0u) {
++                    requireMinimumBufferBytes("particle_defaults",
++                        state.particleDefaults, expectedParticleBytes);
++                    requireMinimumBufferBytes("particles_accepted",
++                        state.particleAccepted, expectedParticleBytes);
++                    requireMinimumBufferBytes("particles_candidate",
++                        state.particleCandidate, expectedParticleBytes);
++                    requireMinimumBufferBytes("particle_checkpoint",
++                        state.particleCheckpoint, expectedParticleBytes);
++                    requireMinimumBufferBytes("particle_material_state_defaults",
++                        state.particleMaterialStateDefaults,
++                        expectedParticleMaterialStateBytes);
++                    requireMinimumBufferBytes("particle_material_state_accepted",
++                        state.particleMaterialStateAccepted,
++                        expectedParticleMaterialStateBytes);
++                    requireMinimumBufferBytes("particle_material_state_candidate",
++                        state.particleMaterialStateCandidate,
++                        expectedParticleMaterialStateBytes);
++                    requireMinimumBufferBytes("particle_material_state_checkpoint",
++                        state.particleMaterialStateCheckpoint,
++                        expectedParticleMaterialStateBytes);
++                    requireMinimumBufferBytes("mpm_active_node_counts",
++                        state.mpmActiveNodeCounts,
++                        static_cast<std::uint64_t>(
++                            state.dispatch.environmentCount) *
++                            sizeof(std::uint32_t));
++                    requireMinimumBufferBytes("mpm_active_dispatch",
++                        state.mpmActiveDispatch, sizeof(NMIndirectDispatchGPU));
++                    requireMinimumBufferBytes("mpm_particle_keys",
++                        state.mpmParticleKeys, expectedParticleBytes /
++                            sizeof(NMParticleStateGPU) *
++                            sizeof(NMMPMParticleKeyGPU));
++                    requireMinimumBufferBytes("mpm_sorted_particle_indices",
++                        state.mpmSortedParticleIndices,
++                        envParticles * sizeof(std::uint32_t));
++                    requireMinimumBufferBytes("mpm_environment_active_counts",
++                        state.mpmEnvironmentActiveCounts,
++                        static_cast<std::uint64_t>(
++                            state.dispatch.environmentCount) *
++                            sizeof(std::uint32_t));
++                }
+                 requireMinimumBufferBytes("fem_solution_correction",
+                     state.femSolution, expectedVectorBytes);
+                 requireMinimumBufferBytes("fem_rhs_after_fgmres",
+@@ -15235,6 +15379,16 @@
+                 }
+                 [copy endEncoding];
+                 const auto capturedArrays = arrays;
++                const auto capturedArrayPresent = [&](const char* name) {
++                    return std::any_of(capturedArrays.begin(), capturedArrays.end(),
++                        [&](const CoupledCaptureArray& array) {
++                            return array.name == name;
++                        });
++                };
++                const bool capturedMPMActiveNodeCounts =
++                    capturedArrayPresent("mpm_active_node_counts");
++                const bool capturedMPMActiveDispatch =
++                    capturedArrayPresent("mpm_active_dispatch");
+                 const auto capturedPath = femCoupledCapturePath;
+                 const auto capturedPayloadBytes = payloadBytes;
+                 const auto capturedRoot = femCoupledCaptureRoot;
+@@ -15326,6 +15480,11 @@
+                         << ",\"environment_count\":" << capturedDispatch.environmentCount
+                         << ",\"node_count\":" << capturedDispatch.femNodeCount
+                         << ",\"tetrahedron_count\":" << capturedDispatch.tetrahedronCount
++                        << ",\"particle_count\":" << capturedDispatch.particleCount
++                        << ",\"grid_node_count\":" << capturedDispatch.gridNodeCount
++                        << ",\"mpm_grid_count\":" << capturedDispatch.mpmGridCount
++                        << ",\"mpm_block_count\":" << capturedDispatch.mpmBlockCount
++                        << ",\"mpm_block_lookup_count\":" << capturedDispatch.mpmBlockLookupCount
+                         << ",\"cohesive_face_count\":" << capturedDispatch.cohesiveFaceCount
+                         << ",\"contact_pair_count\":" << capturedDispatch.contactPairCount
+                         << ",\"deformable_contact_capacity\":"
+@@ -15335,6 +15494,15 @@
+                         << capturedDispatch.rigidGeneralizedCapacity
+                         << ",\"material_state_stride\":"
+                         << capturedDispatch.materialStateStride
++                        << ",\"particle_scope\":{\"particle_records_present\":"
++                        << (capturedDispatch.particleCount != 0u ? "true" : "false")
++                        << ",\"particle_record_arrays\":[\"particle_defaults\",\"particles_accepted\",\"particles_candidate\",\"particle_checkpoint\",\"particle_material_state_defaults\",\"particle_material_state_accepted\",\"particle_material_state_candidate\",\"particle_material_state_checkpoint\"]"
++                        << ",\"mpm_observation_arrays\":[\"mpm_active_node_counts\",\"mpm_active_dispatch\",\"mpm_particle_keys\",\"mpm_sorted_particle_indices\",\"mpm_environment_active_counts\"]"
++                        << ",\"mpm_active_counts_array_included\":"
++                        << (capturedMPMActiveNodeCounts ? "true" : "false")
++                        << ",\"mpm_active_dispatch_array_included\":"
++                        << (capturedMPMActiveDispatch ? "true" : "false")
++                        << ",\"mechanics_scope\":\"no_grid_or_block_topology\"}"
+                         << ",\"dispatch\":{\"abi_version\":" << capturedDispatch.abiVersion
+                         << ",\"flags\":" << capturedDispatch.flags
+                         << ",\"object_count\":" << capturedDispatch.objectCount
+@@ -15412,7 +15580,8 @@
+                         << ",\"sha256\":"
+                         << jsonQuoted(sha256Hex(data,
+                             static_cast<std::size_t>(capturedPayloadBytes)))
+-                        << "},\"max_payload_bytes\":33554432"
++                        << "},\"max_payload_bytes\":"
++                        << femCoupledCaptureCapBytes
+                         << ",\"max_arrays\":192"
+                         << ",\"array_count\":" << capturedArrays.size()
+                         << ",\"omitted_optional_buffers\":[";
+@@ -15982,36 +16151,8 @@
+                 !femCoupledCaptureCaptured &&
+                 femCoupledCaptureRoot == request.controlStep &&
+                 femCoupledCaptureIteration == nonlinearIteration &&
+-                state.dispatch.environmentCount == 1u &&
+-                state.dispatch.femNodeCount <= 2048u &&
+-                state.dispatch.tetrahedronCount <= 8192u &&
+-                state.dispatch.particleCount == 0u &&
+-                state.dispatch.mpmGridCount == 0u &&
+-                state.dispatch.mpmBlockCount == 0u &&
+-                state.dispatch.mpmBlockLookupCount == 0u &&
+-                state.dispatch.rigidProxyCount <= 64u &&
+-                request.rigid.currentBodyCount <= 64u &&
+-                request.rigid.currentBodyStride <= 64u &&
+-                request.rigid.bodyWrenchCount <= 64u &&
+-                request.rigid.bodyWrenchStride <= 64u &&
+-                request.rigid.sceneBodyCount <= 64u &&
+-                request.rigid.sceneStride <= 64u &&
+-                request.rigid.qStride <= 64u &&
+-                request.rigid.vStride <= 64u &&
+-                request.rigid.externalWrenchCount <= 64u &&
+-                request.rigid.externalWrenchStride <= 64u &&
+-                request.rigidContactConstraintStride <= 64u &&
+-                state.fgmresLayout.unknownCount <= 8192u &&
+-                state.dispatch.contactPairCount <= 131072u &&
+-                state.dispatch.deformableContactCapacity <= 16384u &&
+-                state.dispatch.cohesiveFaceCount <= 8192u &&
+-                state.dispatch.objectCount <= 64u &&
+-                state.dispatch.materialStateStride <= 64u &&
+-                state.fgmresLayout.vascularUnknownCount == 0u &&
+-                state.dispatch.identificationCandidateCount == 0u &&
+-                coupledArticulatedNv == 0u &&
+-                request.mutationCommandCount == 0u &&
+-                !state.enableVascularDense45;
++                femCoupledCaptureScopeFailure() == nullptr &&
++                coupledArticulatedNv == 0u;
+             if (femTrueResidualEnabled || femCoupledCaptureNewtonSelected) {
+                 dispatchThreads("nm_fgmres_preserve_true_rhs",
+                     state.fgmresLayout.unknownCount, [&] {

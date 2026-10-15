@@ -1,0 +1,94 @@
+{
+  "schema": "numi.cardboard.bilinear15-native-capture-policy-overlay.v1",
+  "classification": "External rebase of the local scaled-correction projection policy onto frozen083, corrected to admit the exact source15 production compensated-arithmetic flag combination; compiler and CPU checks only, no GPU run.",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-tiled-fixture-and-memory-accounting-083",
+  "base_parent_revision": "35bfb518c542a306f563cc364ef8496837068b9a",
+  "base_frozen_source_manifest_sha256": "ef37fb9fc0ea37edafaed34c3c421e69faa5882e722983236d6388eafe763239",
+  "previous_overlay_082_patch_sha256": "cc3ac0efa2db662c50ecc5da2bec6be0d8cc7ed0e8299be412dea9956c338dd2",
+  "previous_overlay_082_status": "retained as the initial form; its prohibition on paperCompensatedArithmetic rejected the actual compensated-source CLI combination and is superseded by this rebase",
+  "files": [
+    {
+      "path": "matter/include/numi/matter/matter.hpp",
+      "base_sha256": "c3a8ee4c09c58c0891cda023c4b82ebd0e4036909007fa815e30180af8aee05a",
+      "overlay_sha256": "7f048978a6126dbf1be5e1e0293556ba5bb1a1eee39d88ebcb9180e9fcdbda95",
+      "change": "modified"
+    },
+    {
+      "path": "matter/include/numi/matter/shared.h",
+      "base_sha256": "e1b4a229e58227280e2a1e263fa6535f325333e9edcacfd93498f699790c30d3",
+      "overlay_sha256": "ae84a7fb79e5b79ad813b249c720b9ace6105fde81f555cbd784afafa721e691",
+      "change": "modified"
+    },
+    {
+      "path": "matter/src/constitutive_impl.cpp",
+      "base_sha256": "1283f1eec9718dee77b94e47f5bcbbf3a30f3a81f8c75f2609b41b0d4d6ba5e9",
+      "overlay_sha256": "b2ddeeef55abee4002caaeca4303fddf3fe410845fe624ab049475ad8e072dbc",
+      "change": "modified"
+    },
+    {
+      "path": "matter/src/compiler_impl.cpp",
+      "base_sha256": "a194cef5c9e5403bdafe91d864612626afb9ebb86af34ec5b04bf91f3fd1a281",
+      "overlay_sha256": "46783699e8fe29c2bec502c987f86f6fc11dc0e832e56886c9cb553e2cc0d350",
+      "change": "modified"
+    },
+    {
+      "path": "matter/src/validation_impl.cpp",
+      "base_sha256": "00e9e973eff1bb262f3ec2d2921270bef7fcc77608d191b1402569fe698374c0",
+      "overlay_sha256": "298c8cd8052309610ef0d85c22eb638aadb8cd5a589978b5599a5043e342c048",
+      "change": "modified"
+    },
+    {
+      "path": "matter/src/metal/common.metalinc",
+      "base_sha256": "0509fe98df6afe6694dec59088ad5d4391177b63133bb38fb0caecb5e1ef7fba",
+      "overlay_sha256": "f783cc641196353c22c9ec41a70711abcd835e9ce9bb6c9cebf3031571fd0366",
+      "change": "modified"
+    },
+    {
+      "path": "matter/CMakeLists.txt",
+      "base_sha256": "e98eb35e831d94089326992389aad8fac3fb40bc06b2e2364c114bae9e2a96be",
+      "overlay_sha256": "63e92b43a6a83080773bd5426d0ba6d4b9a38b7b24168243a3b781a5fb71f14f",
+      "change": "modified"
+    },
+    {
+      "path": "matter/tools/cardboard_bilinear15_projection_policy_check.cpp",
+      "base_sha256": null,
+      "overlay_sha256": "d7206a61f70b6c5392c97c31201683721aefb9db8c3cdaeb1f07467526d7d6df",
+      "change": "added"
+    }
+  ],
+  "patch": {
+    "path": "source-overlay.patch",
+    "sha256": "4db5035dfdc573197e7a32c3fd1e720894504c44c07130ae8c4469f6f75ffbde"
+  },
+  "checks": {
+    "compiler": {
+      "command": "cmake --build build-cpu --target numi-matter-cardboard-bilinear15-projection-policy-check numi-matter-cardboard-generic-compensated-projection-check -j4",
+      "result": "PASS"
+    },
+    "cpu_tests": {
+      "command": "ctest --test-dir build-cpu -R 'matter.compiler.cardboard_(bilinear15_projection_policy|generic_compensated_projection)' --output-on-failure",
+      "result": "2/2 PASS"
+    },
+    "native_metal_execution": "not run; root to build/freeze and run the bounded capture replay harness in the next overlay"
+  },
+  "policy_contract": {
+    "production_flags_off": {
+      "genericCompensatedImplicitProjection": true,
+      "paperCompensatedArithmetic": true,
+      "genericBilinear15AccurateProjection": false,
+      "localNewtonIterations": 8
+    },
+    "opt_in_flags_on": {
+      "genericCompensatedImplicitProjection": true,
+      "paperCompensatedArithmetic": true,
+      "genericBilinear15AccurateProjection": true,
+      "localNewtonIterations": 16
+    },
+    "excluded": "paperHillScalarInitializer and paperHillAccurateProjection remain incompatible; no equation, material parameter, global solver tolerance, or acceptance change"
+  },
+  "limits": [
+    "The policy is admitted only for exact generic 15-state/28-parameter bilinear layout with generic compensated implicit evaluation.",
+    "The 16-step local budget applies only to the opt-in policy; default source15 remains 8.",
+    "This package corrects a compiler/validator compatibility gap; it does not establish native projection accuracy."
+  ]
+}

@@ -17,6 +17,12 @@
 
 namespace numi::cardboard {
 
+// "20% larger footprint" denotes area, preserving the measured roof aspect ratio.
+inline constexpr double kShippingImpactorFootprintAreaRatio = 1.2;
+inline double shippingImpactorPlanScale() {
+    return std::sqrt(kShippingImpactorFootprintAreaRatio);
+}
+
 struct ShippingOuterRoofBounds {
     double minimumX = 0.0;
     double maximumX = 0.0;
@@ -55,7 +61,7 @@ struct ShippingImpactorFootprintPlan {
     std::string sourceCheckpointSha256;
     std::uint64_t sourcePhysicsFingerprint = 0u;
     std::uint64_t compiledWorldFingerprint = 0u;
-    std::string basis = "1.2 times accepted outer-roof x/z extents";
+    std::string basis = "1.2 times accepted outer-roof area; aspect ratio preserved";
 };
 
 inline std::array<double, 3> shippingAuthoredNominalImpactorHalfExtents(
@@ -67,11 +73,11 @@ inline std::array<double, 3> shippingAuthoredNominalImpactorHalfExtents(
           std::isfinite(halfHeightM) && halfHeightM > 0.0))
         throw std::invalid_argument(
             "authored shipping impactor dimensions must be finite and positive");
-    // Full plan size = 1.2 times the nominal outer footprint; the half extents
-    // therefore equal 0.6 times each nominal outer dimension. These are an
+    // Full plan area is 1.2 times the nominal outer footprint. Both planar
+    // dimensions scale by sqrt(1.2). These are an
     // authored geometry default, not evidence that a folded roof has this size.
-    return {0.6 * nominalOuterLengthXM, halfHeightM,
-            0.6 * nominalOuterWidthZM};
+    return {0.5 * shippingImpactorPlanScale() * nominalOuterLengthXM, halfHeightM,
+            0.5 * shippingImpactorPlanScale() * nominalOuterWidthZM};
 }
 
 inline bool shippingImpactorHalfExtentsMatchMeasuredRoof(
@@ -88,9 +94,9 @@ inline bool shippingImpactorHalfExtentsMatchMeasuredRoof(
     // Match the exact FP32 extents that Matter cooks, rather than accepting a
     // loose geometric tolerance that could hide a different collision box.
     return static_cast<float>(halfExtentsM[0]) ==
-               static_cast<float>(0.6 * (bounds.maximumX - bounds.minimumX)) &&
+               static_cast<float>(0.5 * shippingImpactorPlanScale() * (bounds.maximumX - bounds.minimumX)) &&
            static_cast<float>(halfExtentsM[2]) ==
-               static_cast<float>(0.6 * (bounds.maximumZ - bounds.minimumZ));
+               static_cast<float>(0.5 * shippingImpactorPlanScale() * (bounds.maximumZ - bounds.minimumZ));
 }
 
 inline std::string shippingImpactorProxyMismatchReason(
@@ -281,8 +287,8 @@ inline ShippingImpactorFootprintPlan makeShippingImpactorFootprintPlan(
     ShippingImpactorFootprintPlan result;
     const double spanX = bounds.maximumX - bounds.minimumX;
     const double spanZ = bounds.maximumZ - bounds.minimumZ;
-    result.fullLengthX = 1.2 * spanX;
-    result.fullWidthZ = 1.2 * spanZ;
+    result.fullLengthX = shippingImpactorPlanScale() * spanX;
+    result.fullWidthZ = shippingImpactorPlanScale() * spanZ;
     result.centerX = 0.5 * (bounds.minimumX + bounds.maximumX);
     result.centerZ = 0.5 * (bounds.minimumZ + bounds.maximumZ);
     result.quarterWidthOffsetZ = 0.25 * spanZ;
@@ -311,7 +317,7 @@ inline std::array<double, 3> shippingImpactStartCenter(
     return {footprint.centerX,
             footprint.roofY + dropHeightM + halfHeightM,
             footprint.centerZ + offsetFractionOfRoofWidth *
-                (footprint.fullWidthZ / 1.2)};
+                (4.0 * footprint.quarterWidthOffsetZ)};
 }
 
 } // namespace numi::cardboard

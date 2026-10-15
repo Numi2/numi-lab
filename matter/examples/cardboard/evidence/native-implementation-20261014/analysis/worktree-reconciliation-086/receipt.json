@@ -1,0 +1,178 @@
+{
+  "schema": "numi.cardboard.worktree-reconciliation.v1",
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-captured-point-and-contact-scope-086",
+  "rows": [
+    {
+      "path": "matter/CMakeLists.txt",
+      "before": "0a78dc3c1da25b6532085db34441957a748ea07d62a10dfc803c440e09ebf936",
+      "after": "df51df6e659ac345d6b717f3e680cbf810478dfe91158ad0bfbbad3f2d5de337"
+    },
+    {
+      "path": "matter/include/numi/matter/matter.hpp",
+      "before": "c3a8ee4c09c58c0891cda023c4b82ebd0e4036909007fa815e30180af8aee05a",
+      "after": "7f048978a6126dbf1be5e1e0293556ba5bb1a1eee39d88ebcb9180e9fcdbda95"
+    },
+    {
+      "path": "matter/include/numi/matter/regional_galerkin_bending_basis.hpp",
+      "before": "7159ed999e254b53e4b1be083971392bc26dfcac098b9b621317c61ef1591831",
+      "after": "0a22b181b93cb2c4fc66575d0a0c60d66870716dab63b498c30ac24b652866a7"
+    },
+    {
+      "path": "matter/include/numi/matter/shared.h",
+      "before": "e1b4a229e58227280e2a1e263fa6535f325333e9edcacfd93498f699790c30d3",
+      "after": "ae84a7fb79e5b79ad813b249c720b9ace6105fde81f555cbd784afafa721e691"
+    },
+    {
+      "path": "matter/src/compiler_impl.cpp",
+      "before": "a194cef5c9e5403bdafe91d864612626afb9ebb86af34ec5b04bf91f3fd1a281",
+      "after": "46783699e8fe29c2bec502c987f86f6fc11dc0e832e56886c9cb553e2cc0d350"
+    },
+    {
+      "path": "matter/src/constitutive_impl.cpp",
+      "before": "1283f1eec9718dee77b94e47f5bcbbf3a30f3a81f8c75f2609b41b0d4d6ba5e9",
+      "after": "b2ddeeef55abee4002caaeca4303fddf3fe410845fe624ab049475ad8e072dbc"
+    },
+    {
+      "path": "matter/src/metal/common.metalinc",
+      "before": "0509fe98df6afe6694dec59088ad5d4391177b63133bb38fb0caecb5e1ef7fba",
+      "after": "f783cc641196353c22c9ec41a70711abcd835e9ce9bb6c9cebf3031571fd0366"
+    },
+    {
+      "path": "matter/src/metal/fem.metalinc",
+      "before": "a88938e11b76a6c6b4ade53007bca543c642828e9a6c91ae5ddb66e9bda0bda9",
+      "after": "f4b5cd60dbe7ace7a54636746a00b5e7186d6c1f4890eb0718c138af9c753ae4"
+    },
+    {
+      "path": "matter/src/metal/fgmres.metalinc",
+      "before": "937938ca6ca7b9be286d37d4423bba7d297c0498b562b12375e0c28a31015dbe",
+      "after": "92d5e2b57cb392076962a43733bb51b8f30deef4579fc5151b66ae9415783669"
+    },
+    {
+      "path": "matter/src/runtime.mm",
+      "before": "951cfaeafb3bee22b547ff4d8f9fce2c5c9c226364deecf8f4205e13c742cb56",
+      "after": "f9899a9e7772089204fb6c30e4e61d1ef4ea26c45c5c29085719e6f6de586150"
+    },
+    {
+      "path": "matter/src/validation_impl.cpp",
+      "before": "00e9e973eff1bb262f3ec2d2921270bef7fcc77608d191b1402569fe698374c0",
+      "after": "298c8cd8052309610ef0d85c22eb638aadb8cd5a589978b5599a5043e342c048"
+    },
+    {
+      "path": "matter/tools/bct_capacity_history_producer.py",
+      "before": null,
+      "after": "e82da5431fbfcefc68cb47db950b44864540d9d668f5dcbb9366f3fa27b76342"
+    },
+    {
+      "path": "matter/tools/cardboard_bilinear15_captured_point_check.mm",
+      "before": null,
+      "after": "5785c89f06db3854e3cac5d1f668e11fc90dd88245f3b238dc465c81898de510"
+    },
+    {
+      "path": "matter/tools/cardboard_bilinear15_projection_policy_check.cpp",
+      "before": null,
+      "after": "d7206a61f70b6c5392c97c31201683721aefb9db8c3cdaeb1f07467526d7d6df"
+    },
+    {
+      "path": "matter/tools/cardboard_calibration_case_binding.py",
+      "before": null,
+      "after": "03adc449fd4d5c8d7f44ade757f02f2a1f432d88b1ff008d833dbc533ce4a2e5"
+    },
+    {
+      "path": "matter/tools/cardboard_cohesive_armijo_tiles.hpp",
+      "before": null,
+      "after": "7dba67cc95f9f4271d2b277fd40b35ee82c33c6a59757d24ab4c0be0b4a4f2c6"
+    },
+    {
+      "path": "matter/tools/cardboard_cohesive_armijo_tiles_check.cpp",
+      "before": null,
+      "after": "34fc33e8c080f9a01f1b46f9f3bcf0fd86198effd8fdfd31ca7bb47db4b1cdd3"
+    },
+    {
+      "path": "matter/tools/cardboard_convergence.py",
+      "before": "e9cddae261faf75a05c36c1de6fc3128d76cf20663e0dc670a31b4d577e200de",
+      "after": "db7de31be82f9362b52a3c4c366c72c74d1f6a3df923fdcdab7061eda89dcb7f"
+    },
+    {
+      "path": "matter/tools/cardboard_coupled_free_box_operator_check.mm",
+      "before": null,
+      "after": "f0958dd5a90b0cb2f725de3cae4f4a2d0f05ff8cccf8d08bde8ed93c2170e465"
+    },
+    {
+      "path": "matter/tools/cardboard_full_contact_armijo_check.mm",
+      "before": "c0e1d7079b36acea714570ab341143d305ca7f08c1d2304b2164bc6b52e7e112",
+      "after": "6eb68eea4e258866f7c1b41c1c74cbc40ed27b9e06a31a6e1ad503aa8064123c"
+    },
+    {
+      "path": "matter/tools/cardboard_paper_check.metal",
+      "before": "9996e7f8770cdd5f7103273adaca9e2adecb12a1ac1ba5607a723876253e53dd",
+      "after": "ef83c6b0e8d91236446a3ae558e58c100ceaf59258a754645c7ae7c739249bc5"
+    },
+    {
+      "path": "matter/tools/cardboard_probe.mm",
+      "before": "15d6ebf02a0608f6f1e1143b3234bf0a78bea2e29e663d41b6c14acde209c47c",
+      "after": "a05972522a612b4d203987e51d16c0d9d0f939a628ad4c2c00ee98969e1804c5"
+    },
+    {
+      "path": "matter/tools/cardboard_regional_recycle_masked_basis_native_check.mm",
+      "before": null,
+      "after": "b3bc36d1daf5b1bf294101b09d97fa714d99d2c49363712a0fb8740150250b0a"
+    },
+    {
+      "path": "matter/tools/cardboard_resolution_study.py",
+      "before": "e7bc389b8d1da9503fa6ce7e1b9eddbc6fee0756d6565a86949fa3936e23ffce",
+      "after": "8be7c6bd4f9d0905a1be2006805821bf4665764929d3b4f91d922ad7a8effe5a"
+    },
+    {
+      "path": "matter/tools/cardboard_shipping_memory.hpp",
+      "before": "0aae6e262fa0d8a5bad06f75c6400106b1d93ee1c9a16b612544520608ead633",
+      "after": "937b316f75469559eb2d9ca8484edaee1060376b48cd5748f262b01a6f837c4e"
+    },
+    {
+      "path": "matter/tools/cardboard_shipping_memory_check.cpp",
+      "before": "ac0178c19572f32d39a0df3675ce63fee0662e4a64ccdc3c4e34ca1126c43a4d",
+      "after": "4cce5796fd2f22787def0e9de2aa6d566bfbf4b8ee1bbd8e80f408593f65acd3"
+    },
+    {
+      "path": "matter/tools/cardboard_shipping_protocol.hpp",
+      "before": "3d7026011610621a2d4acd09da90fd043be943a9d848c40d512b7bd9a6614f9e",
+      "after": "11259c4b6630da489e9277a36b82a51c9c8e824034fe933643d8dd632b08f198"
+    },
+    {
+      "path": "matter/tools/cardboard_shipping_protocol_check.cpp",
+      "before": "16d3dfac3984357d3e7c5d7c35c21f92c955f9d5fb6833568ceaa8733d083323",
+      "after": "ad8633baea8d351e7546d186d44c81adc98d78945e3cd4c3303245a309274c22"
+    },
+    {
+      "path": "matter/tools/cardboard_shipping_rigid_driver_check.cpp",
+      "before": "7ad78d8ce0506658743842b868c5243effb32e9c54b2b0bb037aff27647c5d4a",
+      "after": "58be3c89780a40b62ffd2d1e7988ce4f1575dcc97d5802fb62d1eb6005cc53f7"
+    },
+    {
+      "path": "matter/tools/cardboard_shipping_roof.hpp",
+      "before": "a24ca8f6993094610e04575cc54ba2cde2d6e8f8aafb3a00a6e5098990e83207",
+      "after": "dbf76c177911be6382f9703a28bdfa67879b7ec1f337089add7b0e2f6ad65d6d"
+    },
+    {
+      "path": "matter/tools/cardboard_source_bound_run.py",
+      "before": "0484c3be3547443169aa5be71665febc8cc20179eb9755be9ee620f724a84b2a",
+      "after": "fb08ce5428944fd09cea52abf9c07a8e7ff8746ed8763b2a262f2898147ae3ff"
+    },
+    {
+      "path": "matter/tools/test_bct_capacity_history_producer.py",
+      "before": null,
+      "after": "0959cad29a573b5bae3ec4ea48e7dd215618f8109f83f400bb7ca68a84166728"
+    },
+    {
+      "path": "matter/tools/test_bct_source_bound_harness.py",
+      "before": null,
+      "after": "2217f80048a73f0d98a59843f18542fc8b090adcfcb17cfa085e3178cb795038"
+    },
+    {
+      "path": "matter/tools/test_cardboard_convergence.py",
+      "before": "50709ba29d96805ab9757e915d854e905e07167a254850afa451df23a649f42a",
+      "after": "ae20faabdc4643d9d378571c926e261aacab67b6794668a2cd8e784be8940bb7"
+    }
+  ],
+  "build_sha256": "120c809d6d0ea9a0c1ed27a25df3c20748f186f62c64164eb54f09e745524c1b",
+  "scope": "65 target build and71CPU checks. Opt-in numerical policies and bounded diagnostics retained separately from actual native qualification. Fullcoupon/convergence/calibrateddamage/fullshipping/crushimpact remain open."
+}

@@ -41,11 +41,12 @@ inline std::array<double, 3> regionalBendingTrialField(
     const RegionalBendingCoordinates& coordinates,
     const std::array<double, 3>& position,
     unsigned mode) {
-    if (!coordinates.available || mode >= 8u)
-        throw std::invalid_argument("regional bending trial requires valid plane extents and mode0..7");
-    constexpr std::array<std::array<unsigned, 2>, 8> powers{{
+    if (!coordinates.available || mode >= 9u)
+        throw std::invalid_argument("regional bending trial requires valid plane extents and mode0..8");
+    constexpr std::array<std::array<unsigned, 2>, 9> powers{{
         {2u, 0u}, {3u, 0u}, {0u, 2u}, {1u, 1u},
-        {2u, 1u}, {1u, 2u}, {0u, 3u}, {4u, 0u}}};
+        {2u, 1u}, {1u, 2u}, {0u, 3u}, {4u, 0u},
+        {0u, 4u}}};
     const unsigned xAxis = coordinates.planeAxes[0];
     const unsigned yAxis = coordinates.planeAxes[1];
     const double x = (position[xAxis] - coordinates.center[xAxis]) /

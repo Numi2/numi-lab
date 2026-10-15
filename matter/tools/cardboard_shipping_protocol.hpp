@@ -840,7 +840,7 @@ struct ShippingDropCase {
     double gravityMPerS2 = 9.80665;
     double impactorPlanLengthM = 0.0;
     double impactorPlanWidthM = 0.0;
-    std::string impactorPlanBasis = "1.2 times accepted outer-roof x/z extents";
+    std::string impactorPlanBasis = "1.2 times accepted outer-roof area; aspect ratio preserved";
     double impactorHeightM = 0.050;
     double impactorCenterX = 0.0;
     double impactorCenterZ = 0.0;

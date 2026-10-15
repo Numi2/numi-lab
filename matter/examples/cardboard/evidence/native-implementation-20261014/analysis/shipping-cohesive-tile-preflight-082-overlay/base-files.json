@@ -1,0 +1,8 @@
+{
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-tiled-cohesive-and-portable-coupled-check-082",
+  "base_sha256": {
+    "matter/tools/cardboard_shipping_memory.hpp": "0aae6e262fa0d8a5bad06f75c6400106b1d93ee1c9a16b612544520608ead633",
+    "matter/tools/cardboard_shipping_memory_check.cpp": "ac0178c19572f32d39a0df3675ce63fee0662e4a64ccdc3c4e34ca1126c43a4d",
+    "matter/tools/cardboard_probe.mm": "391995acae354e097bec84c2d86c07e305c3d8b4ea149ba606323f0d24bd39de"
+  }
+}

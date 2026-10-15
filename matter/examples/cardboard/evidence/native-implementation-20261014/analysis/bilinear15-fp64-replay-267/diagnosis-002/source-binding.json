@@ -1,0 +1,105 @@
+{
+  "created_utc": "2026-10-15",
+  "inputs": {
+    "capture_seed_replay": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/diagnosis-001/captured_seed_reprojection.py",
+      "sha256": "3bd40ca3e767252e63427b9ae52394462caf330de58cbc0e82324970e9f5853a"
+    },
+    "captures": {
+      "N0": {
+        "operator-capture": {
+          "path": "/Users/home/cardboard-implementation-20261014/solver/sourcefit15-fg32-control1-capture-cycle-258/operator-capture",
+          "sha256": "14246b2ade8e301d68b33d97f14eb6468e7f8f7dbc4a36249a83e33a25db2541"
+        },
+        "prediction.json": {
+          "path": "/Users/home/cardboard-implementation-20261014/solver/sourcefit15-fg32-control1-capture-cycle-258/prediction.json",
+          "sha256": "5353804ccf3db15ded51ac74f1feb53ce7de0a786ac3ead3519199f8b981366d"
+        },
+        "receipt.json": {
+          "path": "/Users/home/cardboard-implementation-20261014/solver/sourcefit15-fg32-control1-capture-cycle-258/receipt.json",
+          "sha256": "6f0f6fcabfcdc66157b3715a2537e07eac105e235ead893b565058168574ede3"
+        }
+      },
+      "N63": {
+        "operator-capture": {
+          "path": "/Users/home/cardboard-implementation-20261014/solver/sourcefit15-fg32-control1-newton63-capture-266/operator-capture",
+          "sha256": "13f264ff1bb9688f8ac48f3c940020ff1f1f45d7fbb1713cd2144ba5320b91c2"
+        },
+        "prediction.json": {
+          "path": "/Users/home/cardboard-implementation-20261014/solver/sourcefit15-fg32-control1-newton63-capture-266/prediction.json",
+          "sha256": "cabf5f935d76c4f3227ab25e815a8ffd1628564abb8d8ab4a03e43c17a91fada"
+        },
+        "receipt.json": {
+          "path": "/Users/home/cardboard-implementation-20261014/solver/sourcefit15-fg32-control1-newton63-capture-266/receipt.json",
+          "sha256": "9c4836d0c382c0e6edd2a1a841197c46b64b1d3ef0be26d2482faa1545a015bb"
+        }
+      }
+    },
+    "derived_outputs": {
+      "readme": {
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/diagnosis-002/README.md",
+        "sha256": "e1d5b211e5bbd6c6320cef89e64a84cd5dde83ce101b063394063978dab22ec2"
+      },
+      "report": {
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/diagnosis-002/report.json",
+        "sha256": "d7a432584e5d22df0cc4e181fbf5ac140f65ef8432d1936e7e55534130e29b93"
+      }
+    },
+    "independent_global_solve_audit": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/control1-newton63-cached-operator-266/linear-solve-report.json",
+      "sha256": "98b5faefdacaf92e8c189e9c08e40e51bf8e9b59b77e3448797803378f4c6efb"
+    },
+    "materials": {
+      "hajali2009_liner_hill_bilinear_fit.nmatter": {
+        "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-stateless-compensated-and-validation-admission-077/matter/materials/hajali2009_liner_hill_bilinear_fit.nmatter",
+        "sha256": "a2720b90f2004f2eccf180063e7ecc4e0acdda93f700c4fd357914fc24d2255a"
+      },
+      "hajali2009_medium_hill_bilinear_fit.nmatter": {
+        "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-stateless-compensated-and-validation-admission-077/matter/materials/hajali2009_medium_hill_bilinear_fit.nmatter",
+        "sha256": "76f2bef552822708c36b5acc9f92bd44e7bb92c578e5e46adb64a1a2e82e47f9"
+      }
+    },
+    "prior_reprojection_outputs": {
+      "N0": {
+        "report.json": {
+          "path": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/early-output-002/report.json",
+          "sha256": "6e30b1a236a88ccee7ed35892a3d9a0a067cfe1cd2989796c61909e219a34160"
+        },
+        "rows.npz": {
+          "path": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/early-output-002/rows.npz",
+          "sha256": "daca133f2215f54afdcc2079ee5a70e0567c6294d0cfae6776a1a05a0541d196"
+        }
+      },
+      "N63": {
+        "report.json": {
+          "path": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/late-output-002/report.json",
+          "sha256": "e3461dcd909fd79c619295255ef540ea2869908bed377678f990909b1bb37ee9"
+        },
+        "rows.npz": {
+          "path": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/late-output-002/rows.npz",
+          "sha256": "a347e2168a72e1822f97a4615c43c8be79ecd706fe65b4954915e5b59e635d97"
+        }
+      }
+    },
+    "production_evaluator": {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-stateless-compensated-and-validation-admission-077/matter/src/metal/common.metalinc",
+      "sha256": "0509fe98df6afe6694dec59088ad5d4391177b63133bb38fb0caecb5e1ef7fba"
+    },
+    "reference_equations": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "sha256": "c17010564a98fe63da0c8b88be81313685a65cfbd57ff82292e797cab5a0fdf3"
+    },
+    "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-stateless-compensated-and-validation-admission-077",
+    "strict_tolerance_sweep_script": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/diagnosis-002/refined_root_stability.py",
+      "sha256": "6f7f78ce418599add628e73d76399b9c37ecfe68b010835c1657ab6cc78e9302"
+    }
+  },
+  "interpretation_limits": [
+    "N0 local projection/tangent sensitivity is separate from global Krylov conditioning.",
+    "N63 2e-15 strict solve has three FP64 line-search stalls; complete N63 result uses prior all-row 2e-14 capture-seeded solve.",
+    "No constitutive calibration, complete coupon validation, corrugated-box validation, or physical qualification."
+  ],
+  "schema": "numi.cardboard.bilinear15-fp64-diagnosis-binding.v1",
+  "scope": "Offline local constitutive replay; no production change or GPU run."
+}

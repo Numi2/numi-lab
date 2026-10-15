@@ -1,0 +1,63 @@
+{
+  "schema": "numi.cardboard.diagnostic-physical-parity.v1",
+  "baseline": "/Users/home/cardboard-implementation-20261014/solver/sourcefit15-fg32-control1-capture-cycle-258",
+  "candidate": "/Users/home/cardboard-implementation-20261014/solver/sourcefit15-fg32-control1-newton63-capture-266",
+  "rows": [
+    {
+      "path": "accepted_step_000001_bent.obj",
+      "baseline_sha256": "690130fce829f74eebe56b3ec661c6849e87689b3a80008538424983970c35f7",
+      "candidate_sha256": "690130fce829f74eebe56b3ec661c6849e87689b3a80008538424983970c35f7",
+      "equal": true
+    },
+    {
+      "path": "accepted_step_000001_held_reference.obj",
+      "baseline_sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f",
+      "candidate_sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f",
+      "equal": true
+    },
+    {
+      "path": "accepted_step_000002_held_reference.obj",
+      "baseline_sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f",
+      "candidate_sha256": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f",
+      "equal": true
+    },
+    {
+      "path": "compiled.nmatterpack",
+      "baseline_sha256": "611cb0e96d26348f9d25c73379b6b77915c4b3f603c8ee28f8aadf333ea9cbc0",
+      "candidate_sha256": "611cb0e96d26348f9d25c73379b6b77915c4b3f603c8ee28f8aadf333ea9cbc0",
+      "equal": true
+    },
+    {
+      "path": "initial.obj",
+      "baseline_sha256": "463cd80289b72a58009f859f2a3184966984029daa8d3687ec9035e18c6481af",
+      "candidate_sha256": "463cd80289b72a58009f859f2a3184966984029daa8d3687ec9035e18c6481af",
+      "equal": true
+    },
+    {
+      "path": "material_state_000002_bent.json",
+      "baseline_sha256": "a66f8fb39aea66dc0846ac11ae84f5defc4126434ad8aa9b99f420f76f6b740a",
+      "candidate_sha256": "a66f8fb39aea66dc0846ac11ae84f5defc4126434ad8aa9b99f420f76f6b740a",
+      "equal": true
+    },
+    {
+      "path": "mesh.json",
+      "baseline_sha256": "6a2f786a47e61014ee4b27f609eb3c2f666677223ddaa30297aeea1fcfd8ca56",
+      "candidate_sha256": "6a2f786a47e61014ee4b27f609eb3c2f666677223ddaa30297aeea1fcfd8ca56",
+      "equal": true
+    },
+    {
+      "path": "observations.csv",
+      "baseline_sha256": "cbd8ed4f74166fb22d23c167db446c722edb36b44b91b7637a9f1ae6541ee29b",
+      "candidate_sha256": "cbd8ed4f74166fb22d23c167db446c722edb36b44b91b7637a9f1ae6541ee29b",
+      "equal": true
+    },
+    {
+      "path": "rejected_step_diagnostic_000002_bent.obj",
+      "baseline_sha256": "690130fce829f74eebe56b3ec661c6849e87689b3a80008538424983970c35f7",
+      "candidate_sha256": "690130fce829f74eebe56b3ec661c6849e87689b3a80008538424983970c35f7",
+      "equal": true
+    }
+  ],
+  "all_equal": true,
+  "scope": "Sources077vs079, diagnosticselector1:0vs1:63 and parallelLUoptin. Bothfailedcontrol1. Comparematchingproductionpayloads; rejectedconditioningexports notselected-state evidence."
+}

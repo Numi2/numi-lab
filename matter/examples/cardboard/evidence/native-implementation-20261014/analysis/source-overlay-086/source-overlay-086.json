@@ -1,0 +1,58 @@
+{
+  "schema": "numi.cardboard.integrated-source-overlay.v1",
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-captured-point-and-contact-scope-086",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-accepted-correction-regional-recycle-085",
+  "patches": [
+    {
+      "package": "bilinear15-native-capture-overlay-085",
+      "patch": "source-overlay.patch",
+      "sha256": "71857f4f2eeefe14e22250d9718c54e1fb0f2a3e065f0a359a38323c1b92d5f1",
+      "output": "patching file 'matter/CMakeLists.txt'\npatching file 'matter/tools/cardboard_paper_check.metal'\npatching file 'matter/tools/cardboard_bilinear15_captured_point_check.mm'\n",
+      "exit_code": 0
+    },
+    {
+      "package": "bilinear15-native-capture-overlay-086-v2",
+      "patch": "source-overlay.patch",
+      "sha256": "326e7bfca78de52ae84880279c71fda1429a739f8f0e0669acb87a52cdd7dff4",
+      "output": "patching file 'matter/tools/cardboard_bilinear15_captured_point_check.mm'\n",
+      "exit_code": 0
+    },
+    {
+      "package": "coupled-capture-particle-scope-085-overlay",
+      "patch": "runtime.patch",
+      "sha256": "921125cc6816a226d01c1432b695134b50080d97888fbec40d124f30d0b7cbd2",
+      "output": "patching file 'matter/src/runtime.mm'\n",
+      "exit_code": 0
+    },
+    {
+      "package": "tiled-cohesive-diagnostics-281",
+      "patch": "tiled-cohesive-diagnostics-085.patch",
+      "sha256": "ed0bfa7d2bebbdc80cd84d07b087b3d1cb31d3b9e4ee501a30b79f82c8e8dae3",
+      "output": "patching file 'matter/tools/cardboard_full_contact_armijo_check.mm'\n",
+      "exit_code": 0
+    }
+  ],
+  "changed": {
+    "matter/CMakeLists.txt": {
+      "before": "e1bc9dc8af9605be77df57c8679e8a92d88e2ab4b09f2a3d93205a1e731b521c",
+      "after": "df51df6e659ac345d6b717f3e680cbf810478dfe91158ad0bfbbad3f2d5de337"
+    },
+    "matter/src/runtime.mm": {
+      "before": "d482a43db6af754b9578f78ac7a814267b104c33ff2750bfe14101b9ec301919",
+      "after": "f9899a9e7772089204fb6c30e4e61d1ef4ea26c45c5c29085719e6f6de586150"
+    },
+    "matter/tools/cardboard_bilinear15_captured_point_check.mm": {
+      "before": null,
+      "after": "5785c89f06db3854e3cac5d1f668e11fc90dd88245f3b238dc465c81898de510"
+    },
+    "matter/tools/cardboard_full_contact_armijo_check.mm": {
+      "before": "96b0ce3677d7f15781a56eac0ba9e838cc24e3df43fdb1df893920bca4cca758",
+      "after": "6eb68eea4e258866f7c1b41c1c74cbc40ed27b9e06a31a6e1ad503aa8064123c"
+    },
+    "matter/tools/cardboard_paper_check.metal": {
+      "before": "9996e7f8770cdd5f7103273adaca9e2adecb12a1ac1ba5607a723876253e53dd",
+      "after": "ef83c6b0e8d91236446a3ae558e58c100ceaf59258a754645c7ae7c739249bc5"
+    }
+  },
+  "scope": "Bounded captured bilinear15 point checker retaining all failures; incidental-particle coupled readback admission and precise scope guards; tiled cohesive failed-stage diagnostics. No constitutive or solver update to source085."
+}

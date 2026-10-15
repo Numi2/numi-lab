@@ -1,0 +1,172 @@
+{
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-runtime-diagnostic-return-repair-079",
+  "controls": {
+    "admission": "exact string 1 and selector 5 only; unset preserves prior behavior",
+    "capture": "after nm_fem_apply_solution, stores xyz already scaled by selected Armijo alpha; nonfinite eligible values remain detectable by next selector",
+    "identity": "execution fingerprint includes the opt-in bit",
+    "opt_in": "NM_FEM_REGIONAL_ACCEPTED_CORRECTION_RECYCLE=1",
+    "rebuild": "existing current-candidate AP/RAP build remains in normal order for every Newton",
+    "reset": "clear per-environment correction scratch before each physical microstep/Newton loop",
+    "selection": "Build a per-environment two-pass MGS basis from candidate-masked source modes in separate E*baseModeCount*N scratch. Exact dependent rows are skipped; any finite nonzero row with residual norm squared <= raw norm squared*1e-10 makes the source basis rank-ambiguous and forces static fallback. Project the correction against normalized independent rows and verify relative orthogonality to every original effective row <=1e-4; otherwise fallback.",
+    "sidecar": "optional diagnostic RAP payload adds accepted_correction_recycle_mode uint32[environment], 0=fallback, 1=recycled mode",
+    "slot": "one extra coarse slot; base+1 must be <=32 and host-authored y^4 fallback must be independent",
+    "workspace": {
+      "correction": "private float4 buffer sized with checked E*N product; privateScratch also checks byte sizing and residentBytes",
+      "disabled": "no recycle-specific buffers are allocated when opt-in is unset",
+      "orthogonal_basis": "private float4 buffer sized with checked E*baseModeCount*N products; included in residentBytes and regional 256MiB scratch admission",
+      "source_basis_unchanged": true
+    }
+  },
+  "cpu_artifacts": [
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/conditioning-recycle-267/check_recycle_basis.py",
+      "sha256": "377d6f81a12fbf841c8cac787a7b9d79bf82c604b12fdaf8b74e619a03656e8e"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/conditioning-recycle-267/test_recycle_basis.py",
+      "sha256": "40af7c8e24d4adc7741dd85a2de5b431bf35287e69e7d366e3b7f2111e28c300"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/conditioning-recycle-267/regional_bending_fallback_check.cpp",
+      "sha256": "1c098c574e260ec51cb11c02d1a64560ddb06c316bd325e1cd6c8c066ee3b895"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/conditioning-recycle-267/run-006/cpu-recycle-basis-check.json",
+      "sha256": "9f32a692bddb969c2a7a294f05af9b96dbd590100a8198382b69a374309cd05c"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/conditioning-recycle-267/run-006/python-unittest.log",
+      "sha256": "5cc497c8858c201d5c091098b62dfc94c8296dc51a2330ddfc2a89d636cef89d"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/conditioning-recycle-267/run-006/source-cpu-check.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/conditioning-recycle-267/run-006/cxx-build.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/conditioning-recycle-267/run-006/cxx-check.log",
+      "sha256": "a9f846707b0a77edd1f18fe4d2234e7fd9dd8d777f27f58dc80d59e7b5026aa1"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/conditioning-recycle-267/README.md",
+      "sha256": "dfd7f667633b8029d41f02c82437617ed9df774ab2086a975fb2ac97eb0dbdc1"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/conditioning-recycle-267/regional_recycle_masked_basis_native_check.mm",
+      "sha256": "6ca3856464ba3975772069716a79947aa873d48b3bc18bf867dc418dbae1f02a"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/conditioning-recycle-267/run-006/patch-base079.log",
+      "sha256": "b98b1c526e4a9c33c79b5de23ff87590e36459d01eb8651c74492835008398c0"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/conditioning-recycle-267/run-006/patch-source084.log",
+      "sha256": "b98b1c526e4a9c33c79b5de23ff87590e36459d01eb8651c74492835008398c0"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/conditioning-recycle-267/run-006/native-checker-syntax.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "cpu_validation": {
+    "cxx_command": "c++ -std=c++20 -Wall -Wextra -Werror -Ioverlay/matter/include regional_bending_fallback_check.cpp -o run-006/regional-bending-fallback-check && run-006/regional-bending-fallback-check",
+    "cxx_result": "pass; static y^4 fallback field check passed",
+    "patch_base079_result": "pass; dry-run only",
+    "patch_command": "patch --dry-run -p1 < accepted-correction-recycle-079.patch (run from source-runtime-diagnostic-return-repair-079)",
+    "patch_result": "pass; regenerated from exact base079 to final overlay, pending separate application to source084",
+    "patch_source084_result": "pass; dry-run only, patch applies without conflicts",
+    "python_command": "/Users/home/.pyenv/versions/3.10.12/bin/python3 -m unittest -v test_recycle_basis.py",
+    "python_result": "8 tests passed; includes dynamic-mask MGS, FP64 QR, rank ambiguity, and E=2 scratch offsets",
+    "source_capture_command": "/Users/home/.pyenv/versions/3.10.12/bin/python3 check_recycle_basis.py --output run-006/cpu-recycle-basis-check.json",
+    "source_capture_result": "pass; N63 retrospective correction control plus synthetic E=2 MGS/rank tests; not native solver performance evidence"
+  },
+  "evidence_limits": [
+    "The N63 native FGMRES correction is an offline same-Newton control, not a captured preceding-Newton accepted line-search increment.",
+    "The new dynamic-mask CPU tests are synthetic vector algebra and indexing checks; they do not prove GPU selector behavior or solver convergence.",
+    "Host Objective-C++ syntax and source083 AIR/metallib compilation passed; no GPU execution has been performed.",
+    "The standalone source083 tile fixture 277 failed before parity at nonlinear iteration 23 (status 10, diagnostic 1.61630942e-5); no tile defect is established by that failure.",
+    "No physical/material equation, matrix A, residual tolerance, Armijo condition, or restart length is changed by this proposal."
+  ],
+  "files": [
+    {
+      "base_sha256": "7159ed999e254b53e4b1be083971392bc26dfcac098b9b621317c61ef1591831",
+      "overlay_sha256": "0a22b181b93cb2c4fc66575d0a0c60d66870716dab63b498c30ac24b652866a7",
+      "path": "matter/include/numi/matter/regional_galerkin_bending_basis.hpp"
+    },
+    {
+      "base_sha256": "937938ca6ca7b9be286d37d4423bba7d297c0498b562b12375e0c28a31015dbe",
+      "overlay_sha256": "92d5e2b57cb392076962a43733bb51b8f30deef4579fc5151b66ae9415783669",
+      "path": "matter/src/metal/fgmres.metalinc"
+    },
+    {
+      "base_sha256": "951cfaeafb3bee22b547ff4d8f9fce2c5c9c226364deecf8f4205e13c742cb56",
+      "overlay_sha256": "24a561f52e40c6a5055cdfbb1da60ebe44ecf79b655f4fc9e763ddcaf8ac63de",
+      "path": "matter/src/runtime.mm"
+    }
+  ],
+  "native_checker": {
+    "compile_command": "xcrun --sdk macosx clang++ -std=c++20 -fobjc-arc -fsyntax-only -Wall -Wextra -Wpedantic -Werror -I <source084>/matter/include -DNUMI_MATTER_METALLIB=\"<source085>/matter/build/NumiMatter.metallib\" regional_recycle_masked_basis_native_check.mm",
+    "path": "/Users/home/cardboard-implementation-20261014/analysis/conditioning-recycle-267/regional_recycle_masked_basis_native_check.mm",
+    "production_A_action": "unqualified; only the test-specific candidate-bound synthetic SPD action is checked",
+    "run_contract": "regional_recycle_masked_basis_native_check [source085 metallib path]; requires the selector and project kernels from the source085 overlay metallib; this task did not build or execute the binary",
+    "scope": "E=2 production project/select kernels; candidate masks yield nonorthogonal independent rows in env0 and exactly dependent rows/fallback in env1; checks raw recycled vector; verifies authored P, candidate nodes, status, and retained effective P rows unchanged. A-action check is explicitly a synthetic candidate-bound SPD control, not the production FEM A.",
+    "status": "Objective-C++ syntax pass only; no native execution",
+    "syntax_command": "xcrun --sdk macosx clang++ -std=c++20 -fobjc-arc -fsyntax-only -Wall -Wextra -Wpedantic -Werror -I <source084>/matter/include -DNUMI_MATTER_METALLIB=\"<source085>/matter/build/NumiMatter.metallib\" regional_recycle_masked_basis_native_check.mm",
+    "syntax_result": "pass against frozen source084 headers; no GPU execution"
+  },
+  "patch": {
+    "path": "/Users/home/cardboard-implementation-20261014/analysis/conditioning-recycle-267/accepted-correction-recycle-079.patch",
+    "sha256": "86cee3f2922c540b1c2cddb8788ca3f91fdd4a9e332c4ed8ea569177b496ce56"
+  },
+  "readme_sha256": "dfd7f667633b8029d41f02c82437617ed9df774ab2086a975fb2ac97eb0dbdc1",
+  "schema": "numi.cardboard.accepted-correction-recycle-overlay.v1",
+  "source083_compile_validation": {
+    "artifacts": [
+      {
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/conditioning-recycle-267/compile-source083/runtime-syntax.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/conditioning-recycle-267/compile-source083/metal-baseline.log",
+        "sha256": "50d8cb28ef13adf3c8354b4dde498990a5b99bfaf1c647de652b68ac28d06dfb"
+      },
+      {
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/conditioning-recycle-267/compile-source083/metal-overlay.log",
+        "sha256": "4156cec911a6c1e7cea546abf5d913ec54eb81d4355a15e843c4b6844cb848f5"
+      },
+      {
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/conditioning-recycle-267/compile-source083/shaders/NumiMatter.air",
+        "sha256": "e55b0b82b2654e4ae17b9dc414ccdebffd15da079eb45605254b62f896e4fc96"
+      },
+      {
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/conditioning-recycle-267/compile-source083/shaders/NumiMatter.metallib",
+        "sha256": "464d71048cfd2795d97d1af7e8f1e936cd7da9b5947d7551bb6d0f3b2b00f7b0"
+      },
+      {
+        "path": "/Users/home/cardboard-implementation-20261014/analysis/conditioning-recycle-267/compile-source083/shaders/NumiMatter-baseline.air",
+        "sha256": "0be81eb9910ed4312fc42225e07b04c048389c1d085aeddfdad1cdfc6773ca4d"
+      }
+    ],
+    "base_fgmres_include_sha256": "937938ca6ca7b9be286d37d4423bba7d297c0498b562b12375e0c28a31015dbe",
+    "base_kernel_source_sha256": "37d3530284e2361b20f805409768c65446fc13186c50e94f286b73256debe168",
+    "baseline_warning_comparison": {
+      "baseline": "source083 Matter kernels compile also emitted two existing uninitialized-threadgroup warnings: sharedValid and refinementValid",
+      "baseline_log_sha256": "50d8cb28ef13adf3c8354b4dde498990a5b99bfaf1c647de652b68ac28d06dfb",
+      "overlay": "same two warning classes; no new diagnostics attributed to recycle MGS/workspace code",
+      "overlay_log_sha256": "4156cec911a6c1e7cea546abf5d913ec54eb81d4355a15e843c4b6844cb848f5"
+    },
+    "execution_scope": "compile only; no Metal GPU kernel or solver was launched",
+    "frozen_source_manifest_sha256": "ef37fb9fc0ea37edafaed34c3c421e69faa5882e722983236d6388eafe763239",
+    "host_syntax_command": "xcrun --sdk macosx clang++ -std=c++20 -fobjc-arc -fsyntax-only -Wall -Wextra -I /Users/home/cardboard-implementation-20261014/analysis/conditioning-recycle-267/overlay/matter/include -I /Users/home/cardboard-implementation-20261014/snapshots/source-tiled-fixture-and-memory-accounting-083/matter/include -I /Users/home/cardboard-implementation-20261014/snapshots/source-tiled-fixture-and-memory-accounting-083/include -I /Users/home/cardboard-implementation-20261014/snapshots/source-tiled-fixture-and-memory-accounting-083/matter/src -I /Users/home/cardboard-implementation-20261014/analysis/conditioning-recycle-267/overlay/matter/src -DNUMI_MATTER_DEFAULT_METALLIB=\"\" /Users/home/cardboard-implementation-20261014/analysis/conditioning-recycle-267/overlay/matter/src/runtime.mm",
+    "host_syntax_result": "pass; zero diagnostics; overlay runtime compiled against source083 headers",
+    "isolated_compile_copy_fgmres_include_sha256": "92d5e2b57cb392076962a43733bb51b8f30deef4579fc5151b66ae9415783669",
+    "metal_command": "xcrun --sdk macosx metal -std=metal4.0 -O3 -fno-fast-math -I /Users/home/cardboard-implementation-20261014/snapshots/source-tiled-fixture-and-memory-accounting-083/matter/include -I /Users/home/cardboard-implementation-20261014/snapshots/source-tiled-fixture-and-memory-accounting-083/include -c /Users/home/cardboard-implementation-20261014/analysis/conditioning-recycle-267/compile-source083/matter/src/matter_kernels.metal -o /Users/home/cardboard-implementation-20261014/analysis/conditioning-recycle-267/compile-source083/shaders/NumiMatter.air && xcrun --sdk macosx metallib /Users/home/cardboard-implementation-20261014/analysis/conditioning-recycle-267/compile-source083/shaders/NumiMatter.air -o /Users/home/cardboard-implementation-20261014/analysis/conditioning-recycle-267/compile-source083/shaders/NumiMatter.metallib",
+    "metal_result": "pass; full Matter AIR compilation and metallib link succeeded with overlay fgmres.metalinc and source083 remaining shader/includes",
+    "overlay_fgmres_include_sha256": "92d5e2b57cb392076962a43733bb51b8f30deef4579fc5151b66ae9415783669",
+    "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-tiled-fixture-and-memory-accounting-083"
+  },
+  "status": "external overlay source; source083 host syntax and full Metal compile pass; CPU algebra checks pass; native checker syntax pass only; no GPU execution"
+}

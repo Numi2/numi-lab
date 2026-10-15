@@ -1,5 +1,63 @@
 #include "../src/metal/common.metalinc"
 
+// Replays exact captured source15 inputs through the same production material
+// evaluator.  The second direction matrix is d(Fdot)/d(direction), supplied
+// from the sealed FEM operator capture rather than inferred here.
+kernel void cardboard_bilinear15_captured_point(
+    constant NMMaterialGPU& material [[buffer(0)]],
+    device const NMScalarProgramGPU* programs [[buffer(1)]],
+    device const NMExpressionInstructionGPU* instructions [[buffer(2)]],
+    device const float* parameters [[buffer(3)]],
+    device const float* accepted [[buffer(4)]],
+    device const float* inputs [[buffer(5)]],
+    device float* output [[buffer(6)]],
+    uint index [[thread_position_in_grid]]) {
+    if (index != 0u) return;
+    using namespace numi_matter_metal;
+    float f[9], direction[9], fLow[9], fDot[9], rateDirection[9];
+    for (uint i=0u; i<9u; ++i) {
+        f[i]=inputs[i];
+        direction[i]=inputs[9u+i];
+        fLow[i]=inputs[18u+i];
+        fDot[i]=inputs[27u+i];
+        rateDirection[i]=inputs[36u+i];
+    }
+    const float timestep=inputs[45u];
+    const float temperature=inputs[46u];
+    const bool accurateProjection=inputs[47u]>=0.5f;
+    float state[NM_MAX_MATERIAL_STATE]={0.0f};
+    float stateLow[NM_MAX_MATERIAL_STATE]={0.0f};
+    float residual=-1.0f, stateNorm=0.0f;
+    uint iterations=0u, flags=0u, failure=0u;
+    bool valid=true;
+    float3x3 stress(0.0f), tangent(0.0f);
+    evaluateAlgorithmicStressTangent(
+        material, programs, instructions, parameters, accepted,
+        componentsMatrix(f), componentsMatrix(direction), componentsMatrix(fDot),
+        componentsMatrix(rateDirection), timestep, temperature,
+        stress, tangent, valid, state, &flags, &residual, &stateNorm,
+        &iterations, &failure,
+        fLow,
+        accurateProjection ? stateLow : nullptr);
+    float p[9], dp[9];
+    matrixComponents(stress,p);
+    matrixComponents(tangent,dp);
+    output[0]=valid?1.0f:0.0f;
+    for (uint i=0u;i<9u;++i) { output[1u+i]=p[i]; output[10u+i]=dp[i]; }
+    for (uint i=0u;i<NM_MAX_MATERIAL_STATE;++i) {
+        output[19u+i]=i<material.stateCount?state[i]:0.0f;
+        output[25u+NM_MAX_MATERIAL_STATE+i]=
+            accurateProjection&&i<material.stateCount?stateLow[i]:0.0f;
+    }
+    output[19u+NM_MAX_MATERIAL_STATE]=
+        (flags&kMaterialDiagProjectionConverged)!=0u?1.0f:0.0f;
+    output[20u+NM_MAX_MATERIAL_STATE]=residual;
+    output[21u+NM_MAX_MATERIAL_STATE]=stateNorm;
+    output[22u+NM_MAX_MATERIAL_STATE]=float(iterations);
+    output[23u+NM_MAX_MATERIAL_STATE]=float(flags);
+    output[24u+NM_MAX_MATERIAL_STATE]=float(failure);
+}
+
 // Instrument only: calls the production material projection, stress and
 // consistent tangent. It does not implement a second constitutive law.
 kernel void cardboard_paper_check(

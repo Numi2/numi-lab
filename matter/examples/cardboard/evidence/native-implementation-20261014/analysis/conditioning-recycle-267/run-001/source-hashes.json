@@ -1,0 +1,18 @@
+{
+  "P_bytes": "2626e4bbb205fa1c7e40bdaf3f2e72d11f831ec53431c3062bcc85d69a50f6b5",
+  "P_manifest": "8e7e13562301717091d1655e502ec5eeb48d3657f8b52123ced601f41d4b5251",
+  "effective_P_bytes": "9bf372c75cafcf84bc1e21a20ee3305e7619affffe6415bb9d3398f79970214c",
+  "graph_layout_builder_cpp": "3959e11d414b790872bc6a8cb4b7f6bbff4573872664dd1a0221635e5dbcd9c1",
+  "graph_layout_builder_executable": "efedd5b17ad0b78208e5a861e8f412bd4717c85ea13d97afc8161523b6a6c6c7",
+  "graph_layout_input": "af804bfad0525e483005b1b0aefe5ce5d0a23c3fb197a79f9441f1104e5556ed",
+  "graph_layout_json": "e5c4a9ab731193adc28d035de7b6b66061a4b765696389b2b2c5ea2b406e81af",
+  "graph_source_header": "a8a6328d608ba7db4943025f15d35d750968755a8826de32b14b479752c9121d",
+  "offline_direct_npz": "99d1e759503544dacd097d696c980cdef02a6ad1d18617f6379d9a06c1498555",
+  "operator_npz": "6d4917c07ff47d41f206dd577adb23921f2364a355e05bb95ef2b8dbf5185007",
+  "production_fem_metal": "a88938e11b76a6c6b4ade53007bca543c642828e9a6c91ae5ddb66e9bda0bda9",
+  "production_fgmres_metal": "937938ca6ca7b9be286d37d4423bba7d297c0498b562b12375e0c28a31015dbe",
+  "report_json": "8dd29210f503aa9ae030ae2bc07ac049ec923238656c9eed65c5f0c6355a9f23",
+  "study_script": "c2355040f6c13251d71727747b621775612b5ff0a54bf11b104aade36e3311ac",
+  "topology_npz": "aee02f06cdf0abbd5e1fb8287a37324f0ede6b18977b41e681f267446a45436c",
+  "vectors_npz": "6f27e7b9dc588a88331d69e17c6fcf77886ef3bfeb29abb521310fe84779ead6"
+}

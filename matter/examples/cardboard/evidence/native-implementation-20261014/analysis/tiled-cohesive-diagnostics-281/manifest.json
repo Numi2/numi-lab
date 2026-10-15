@@ -1,0 +1,57 @@
+{
+  "schema": "numi.cardboard.tiled_cohesive_diagnostics_overlay.v1",
+  "status": "syntax_checked_external_overlay_not_native_run",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-accepted-correction-regional-recycle-085",
+  "base_parent_revision": "35bfb518c542a306f563cc364ef8496837068b9a",
+  "base_frozen_source_manifest_sha256": "ea3a6537f7c4b17c01b41364278030fd68c4c08bbedca4427f6c546ee5021457",
+  "files": {
+    "base_frozen_source_manifest": {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-accepted-correction-regional-recycle-085/frozen-source.json",
+      "sha256": "ea3a6537f7c4b17c01b41364278030fd68c4c08bbedca4427f6c546ee5021457"
+    },
+    "base_checker": {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-accepted-correction-regional-recycle-085/matter/tools/cardboard_full_contact_armijo_check.mm",
+      "sha256": "96b0ce3677d7f15781a56eac0ba9e838cc24e3df43fdb1df893920bca4cca758"
+    },
+    "overlay_checker": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/tiled-cohesive-diagnostics-281/overlay/matter/tools/cardboard_full_contact_armijo_check.mm",
+      "sha256": "6eb68eea4e258866f7c1b41c1c74cbc40ed27b9e06a31a6e1ad503aa8064123c"
+    },
+    "patch": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/tiled-cohesive-diagnostics-281/tiled-cohesive-diagnostics-085.patch",
+      "sha256": "ed0bfa7d2bebbdc80cd84d07b087b3d1cb31d3b9e4ee501a30b79f82c8e8dae3"
+    },
+    "syntax_check_log": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/tiled-cohesive-diagnostics-281/syntax-check.log",
+      "sha256": "bde294368bfed77c2cddf8cec271d398aee9cdbab3b26e1059281bd33adb0120"
+    }
+  },
+  "scope": {
+    "only_modified_source": "matter/tools/cardboard_full_contact_armijo_check.mm",
+    "diagnostic_mode": "--cohesive-tiled-parity --diagnostic-state-output <new-directory>",
+    "solver_material_targets_and_parameters_changed": false,
+    "native_gpu_execution_performed": false,
+    "layout": "face-count-1/{legacy,tiled} and face-count-3/{legacy,tiled}",
+    "records": [
+      "per-step before/after snapshots and metadata",
+      "activation/closure/loaded/rejected stderr traces",
+      "failed-prefix arm stage and error",
+      "overall parity/comparison status",
+      "expected zero-face negative control"
+    ],
+    "failure_policy": "run all four layout arms independently; preserve each failed prefix; compare only complete matching pairs; exit nonzero if any arm or comparison fails",
+    "existing_no_diagnostics_path": "unchanged immediate parity sequence"
+  },
+  "checks": {
+    "objcxx_syntax": "pass",
+    "flags": "-std=c++23 -arch arm64 -fobjc-arc -Wall -Wextra -Wpedantic -Werror -fsyntax-only",
+    "patch_dry_run": "pass",
+    "patch_apply_and_byte_compare": "pass",
+    "native_or_gpu_run": "not_run"
+  },
+  "retained_failure_context": {
+    "case": "280",
+    "reported_failure": "code 10, residual 1.69753184e-4, J=0.982559 after about 95 seconds",
+    "interpretation": "diagnostics motivation only; this overlay does not fix or alter the failure"
+  }
+}

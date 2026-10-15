@@ -1,0 +1,151 @@
+{
+  "schema": "numi.cardboard.native-diagnostic-parity.v1",
+  "files": [
+    {
+      "path": "dense/fixture-activation.log",
+      "equal": true,
+      "sha256": "e782e82a2eee014b938de6b44759528bda84beb59a1350cb0d6f8105c8a7ad59",
+      "candidate_sha256": "e782e82a2eee014b938de6b44759528bda84beb59a1350cb0d6f8105c8a7ad59"
+    },
+    {
+      "path": "dense/fixture-loaded.log",
+      "equal": true,
+      "sha256": "d5bdb13f6f724f102c59ed09d1afa78a27775f19e162a4c87965b83e7d70b4d1",
+      "candidate_sha256": "d5bdb13f6f724f102c59ed09d1afa78a27775f19e162a4c87965b83e7d70b4d1"
+    },
+    {
+      "path": "dense/fixture-rejected.log",
+      "equal": true,
+      "sha256": "dd5acee7964a036c3495dd0ad59ce77169cbf2e0ca6bc867ce86d975950726c6",
+      "candidate_sha256": "dd5acee7964a036c3495dd0ad59ce77169cbf2e0ca6bc867ce86d975950726c6"
+    },
+    {
+      "path": "dense/transaction-000000-after.bin",
+      "equal": true,
+      "sha256": "b101e4b178526a3ae05b670a9ea13965e84df1cf08e7ed35cd48399f10fd9513",
+      "candidate_sha256": "b101e4b178526a3ae05b670a9ea13965e84df1cf08e7ed35cd48399f10fd9513"
+    },
+    {
+      "path": "dense/transaction-000000-before.bin",
+      "equal": true,
+      "sha256": "f26f1d6dd649848af12d946bd8be06f7f6752e3f7af7fd91bb3e1093a4b865b7",
+      "candidate_sha256": "f26f1d6dd649848af12d946bd8be06f7f6752e3f7af7fd91bb3e1093a4b865b7"
+    },
+    {
+      "path": "dense/transaction-000000.json",
+      "equal": true,
+      "sha256": "69ecf1c9f1d364cc48900c156a3c073533fc81f986768779de19afc9605d02ea",
+      "candidate_sha256": "69ecf1c9f1d364cc48900c156a3c073533fc81f986768779de19afc9605d02ea"
+    },
+    {
+      "path": "dense/transaction-000001-after.bin",
+      "equal": true,
+      "sha256": "64846df73da36b9b0b6b3c0d28675ce56d538d72ff24d6c74d57265880aaf7ee",
+      "candidate_sha256": "64846df73da36b9b0b6b3c0d28675ce56d538d72ff24d6c74d57265880aaf7ee"
+    },
+    {
+      "path": "dense/transaction-000001-before.bin",
+      "equal": true,
+      "sha256": "b101e4b178526a3ae05b670a9ea13965e84df1cf08e7ed35cd48399f10fd9513",
+      "candidate_sha256": "b101e4b178526a3ae05b670a9ea13965e84df1cf08e7ed35cd48399f10fd9513"
+    },
+    {
+      "path": "dense/transaction-000001.json",
+      "equal": true,
+      "sha256": "f711341c716b41e45a88cd66ea023cc5fd9f9112f0b07b7b03b0b0120374ffec",
+      "candidate_sha256": "f711341c716b41e45a88cd66ea023cc5fd9f9112f0b07b7b03b0b0120374ffec"
+    },
+    {
+      "path": "dense/transaction-000002-after.bin",
+      "equal": true,
+      "sha256": "fbd62584ba13f736d6c890bdb4f68755a992453237e5af69f298e2d94bc53b39",
+      "candidate_sha256": "fbd62584ba13f736d6c890bdb4f68755a992453237e5af69f298e2d94bc53b39"
+    },
+    {
+      "path": "dense/transaction-000002-before.bin",
+      "equal": true,
+      "sha256": "64846df73da36b9b0b6b3c0d28675ce56d538d72ff24d6c74d57265880aaf7ee",
+      "candidate_sha256": "64846df73da36b9b0b6b3c0d28675ce56d538d72ff24d6c74d57265880aaf7ee"
+    },
+    {
+      "path": "dense/transaction-000002.json",
+      "equal": true,
+      "sha256": "4483a3642aaefcc37a04db08d70ef6e147e9b25788bbdf63bfb5d4d3d6905140",
+      "candidate_sha256": "4483a3642aaefcc37a04db08d70ef6e147e9b25788bbdf63bfb5d4d3d6905140"
+    },
+    {
+      "path": "sparse/fixture-activation.log",
+      "equal": true,
+      "sha256": "872d6dd1936010f10b141eac8c47da0e41cde18ac6151a0fd86ca64b0fa23c6b",
+      "candidate_sha256": "872d6dd1936010f10b141eac8c47da0e41cde18ac6151a0fd86ca64b0fa23c6b"
+    },
+    {
+      "path": "sparse/fixture-loaded.log",
+      "equal": true,
+      "sha256": "35eb82e864cfddef9401846b653a9adac39fb745d0bb93e882fadf73b89e2800",
+      "candidate_sha256": "35eb82e864cfddef9401846b653a9adac39fb745d0bb93e882fadf73b89e2800"
+    },
+    {
+      "path": "sparse/fixture-rejected.log",
+      "equal": true,
+      "sha256": "93678671d5d15b3364d52afa2581b6b373b930bf42a299dd69f8b8273a928e13",
+      "candidate_sha256": "93678671d5d15b3364d52afa2581b6b373b930bf42a299dd69f8b8273a928e13"
+    },
+    {
+      "path": "sparse/transaction-000000-after.bin",
+      "equal": true,
+      "sha256": "b101e4b178526a3ae05b670a9ea13965e84df1cf08e7ed35cd48399f10fd9513",
+      "candidate_sha256": "b101e4b178526a3ae05b670a9ea13965e84df1cf08e7ed35cd48399f10fd9513"
+    },
+    {
+      "path": "sparse/transaction-000000-before.bin",
+      "equal": true,
+      "sha256": "f26f1d6dd649848af12d946bd8be06f7f6752e3f7af7fd91bb3e1093a4b865b7",
+      "candidate_sha256": "f26f1d6dd649848af12d946bd8be06f7f6752e3f7af7fd91bb3e1093a4b865b7"
+    },
+    {
+      "path": "sparse/transaction-000000.json",
+      "equal": true,
+      "sha256": "69ecf1c9f1d364cc48900c156a3c073533fc81f986768779de19afc9605d02ea",
+      "candidate_sha256": "69ecf1c9f1d364cc48900c156a3c073533fc81f986768779de19afc9605d02ea"
+    },
+    {
+      "path": "sparse/transaction-000001-after.bin",
+      "equal": true,
+      "sha256": "64846df73da36b9b0b6b3c0d28675ce56d538d72ff24d6c74d57265880aaf7ee",
+      "candidate_sha256": "64846df73da36b9b0b6b3c0d28675ce56d538d72ff24d6c74d57265880aaf7ee"
+    },
+    {
+      "path": "sparse/transaction-000001-before.bin",
+      "equal": true,
+      "sha256": "b101e4b178526a3ae05b670a9ea13965e84df1cf08e7ed35cd48399f10fd9513",
+      "candidate_sha256": "b101e4b178526a3ae05b670a9ea13965e84df1cf08e7ed35cd48399f10fd9513"
+    },
+    {
+      "path": "sparse/transaction-000001.json",
+      "equal": true,
+      "sha256": "f711341c716b41e45a88cd66ea023cc5fd9f9112f0b07b7b03b0b0120374ffec",
+      "candidate_sha256": "f711341c716b41e45a88cd66ea023cc5fd9f9112f0b07b7b03b0b0120374ffec"
+    },
+    {
+      "path": "sparse/transaction-000002-after.bin",
+      "equal": true,
+      "sha256": "fbd62584ba13f736d6c890bdb4f68755a992453237e5af69f298e2d94bc53b39",
+      "candidate_sha256": "fbd62584ba13f736d6c890bdb4f68755a992453237e5af69f298e2d94bc53b39"
+    },
+    {
+      "path": "sparse/transaction-000002-before.bin",
+      "equal": true,
+      "sha256": "64846df73da36b9b0b6b3c0d28675ce56d538d72ff24d6c74d57265880aaf7ee",
+      "candidate_sha256": "64846df73da36b9b0b6b3c0d28675ce56d538d72ff24d6c74d57265880aaf7ee"
+    },
+    {
+      "path": "sparse/transaction-000002.json",
+      "equal": true,
+      "sha256": "4483a3642aaefcc37a04db08d70ef6e147e9b25788bbdf63bfb5d4d3d6905140",
+      "candidate_sha256": "4483a3642aaefcc37a04db08d70ef6e147e9b25788bbdf63bfb5d4d3d6905140"
+    }
+  ],
+  "differences": [],
+  "scope": "Both testprocessesFAILEDaftertwosequencesbeforeparityassertions dueactivationtraceRoot0vsactualcontrol1 instrumentbug. Recordedarrayscanbecomparedbutnotallcheckerqualification. Acceptedstepsandrollbackbeforeinstrumentfailureseparatelyreported."
+}

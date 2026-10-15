@@ -1073,7 +1073,8 @@ ConstitutiveCompileResult compileConstitutive(
     result.program.material = material;
     if (material.paperHillScalarInitializer || material.paperCompensatedArithmetic ||
         material.paperHillAccurateProjection ||
-        material.genericCompensatedImplicitProjection) {
+        material.genericCompensatedImplicitProjection ||
+        material.genericBilinear15AccurateProjection) {
         const std::array<std::string_view,20> parameters{"density","c11","c22","c33",
             "c12","c13","c23","g12","g13","g23","sigma_ref","hill_F","hill_G",
             "hill_H","hill_L","hill_M","hill_N","q_floor","fb_epsilon","residual_scale"};
@@ -1105,6 +1106,33 @@ ConstitutiveCompileResult compileConstitutive(
             material.stateImplicitRoots.size()==material.internalState.size() &&
             std::ranges::all_of(material.stateImplicitRoots,
                 [](const std::uint32_t root) { return root!=NM_INVALID_INDEX; });
+        const std::array<std::string_view,28> bilinear15Parameters{
+            "density","c11","c22","c33","c12","c13","c23","g12","g13","g23",
+            "sigma_ref","hill_F","hill_G","hill_H","hill_L","hill_M","hill_N",
+            "hardening_md","hardening_cd","fit_transfer_scale_md","fit_transfer_scale_cd",
+            "hardening_md_flow_scale","hardening_cd_flow_scale","hardening_smoothing_width",
+            "hardening_weight_scale","q_floor","fb_epsilon","residual_scale"};
+        const std::array<std::string_view,15> bilinear15States{
+            "ep11","ep22","ep33","ep23","ep13","ep12","sbar11","sbar22",
+            "sbar33","sbar23","sbar13","sbar12","accumulated_multiplier",
+            "hardening_md_accumulation","hardening_cd_accumulation"};
+        bool bilinear15AccurateLayout = material.genericBilinear15AccurateProjection &&
+            material.genericCompensatedImplicitProjection &&
+            !material.paperHillScalarInitializer &&
+            !material.paperHillAccurateProjection && material.hint==ConstitutiveHint::generic &&
+            material.dissipationRoot==NM_INVALID_INDEX && !material.learned.has_value() &&
+            material.parameters.size()==bilinear15Parameters.size() &&
+            material.internalState.size()==bilinear15States.size() &&
+            material.stateImplicitRoots.size()==bilinear15States.size() &&
+            std::ranges::all_of(material.stateImplicitRoots,
+                [](const std::uint32_t root) { return root!=NM_INVALID_INDEX; });
+        for (unsigned i=0;bilinear15AccurateLayout && i<bilinear15Parameters.size();++i)
+            bilinear15AccurateLayout=material.parameters[i].name==bilinear15Parameters[i] &&
+                std::isfinite(material.parameters[i].defaultValue);
+        for (unsigned i=0;bilinear15AccurateLayout && i<bilinear15States.size();++i)
+            bilinear15AccurateLayout=material.internalState[i].name==bilinear15States[i];
+        if (bilinear15AccurateLayout)
+            bilinear15AccurateLayout=material.parameters[26].defaultValue>0.0;
         const auto rateOrHistoryDependency = [&](const std::uint32_t root) {
             if (root == NM_INVALID_INDEX || root >= material.expressions.nodes.size())
                 return root != NM_INVALID_INDEX;
@@ -1149,6 +1177,7 @@ ConstitutiveCompileResult compileConstitutive(
             !rateOrHistoryDependency(material.validityRoot);
         if((material.genericCompensatedImplicitProjection &&
                 !genericProjectionLayout) ||
+           (material.genericBilinear15AccurateProjection && !bilinear15AccurateLayout) ||
            ((material.paperHillScalarInitializer ||
              material.paperCompensatedArithmetic ||
              material.paperHillAccurateProjection) &&
@@ -1416,7 +1445,9 @@ ConstitutiveCompileResult compileConstitutive(
         (material.paperCompensatedArithmetic ? NM_MATERIAL_PAPER_COMPENSATED_ARITHMETIC : 0u) |
         (material.paperHillAccurateProjection ? NM_MATERIAL_PAPER_HILL_ACCURATE_PROJECTION : 0u) |
         (material.genericCompensatedImplicitProjection
-            ? NM_MATERIAL_GENERIC_COMPENSATED_IMPLICIT_PROJECTION : 0u);
+            ? NM_MATERIAL_GENERIC_COMPENSATED_IMPLICIT_PROJECTION : 0u) |
+        (material.genericBilinear15AccurateProjection
+            ? NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION : 0u);
     gpu.stateInitialOffset = NM_INVALID_INDEX;
     gpu.stateUpdateProgramOffset = NM_INVALID_INDEX;
     gpu.dissipationProgram = NM_INVALID_INDEX;
@@ -1431,7 +1462,7 @@ ConstitutiveCompileResult compileConstitutive(
     gpu.implicitJacobianProgramOffset = NM_INVALID_INDEX;
     gpu.implicitDeformationProgramOffset = NM_INVALID_INDEX;
     gpu.stressStateDerivativeProgramOffset = NM_INVALID_INDEX;
-    gpu.localNewtonIterations = 8u;
+    gpu.localNewtonIterations = material.genericBilinear15AccurateProjection ? 16u : 8u;
     gpu.stateTransferMask = 0u;
     for (std::uint32_t state = 0u; state < material.internalState.size(); ++state) {
         const auto transfer = material.internalState[state].transfer;
@@ -1573,6 +1604,10 @@ ConstitutiveCompileResult compileConstitutive(
     }
     if(material.genericCompensatedImplicitProjection) {
         const std::uint32_t policy=NM_MATERIAL_GENERIC_COMPENSATED_IMPLICIT_PROJECTION;
+        fingerprint=hashBytes(&policy,sizeof(policy),fingerprint);
+    }
+    if(material.genericBilinear15AccurateProjection) {
+        const std::uint32_t policy=NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION;
         fingerprint=hashBytes(&policy,sizeof(policy),fingerprint);
     }
     if (result.program.dissipation.has_value()) {

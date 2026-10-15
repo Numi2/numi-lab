@@ -1,0 +1,36 @@
+{
+  "schema": "numi.cardboard.integrated-source-overlay.v1",
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-prerun-bct-capacity-binding-080",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-runtime-diagnostic-return-repair-079",
+  "changed": {
+    "matter/CMakeLists.txt": {
+      "before": "0a78dc3c1da25b6532085db34441957a748ea07d62a10dfc803c440e09ebf936",
+      "after": "d4e73d1d8fb1d659da1e56035cfa31f72cf12fac87b93c5c746dbfae7e36bcb3"
+    },
+    "matter/tools/bct_capacity_history_producer.py": {
+      "before": null,
+      "after": "e82da5431fbfcefc68cb47db950b44864540d9d668f5dcbb9366f3fa27b76342"
+    },
+    "matter/tools/cardboard_calibration_case_binding.py": {
+      "before": null,
+      "after": "03adc449fd4d5c8d7f44ade757f02f2a1f432d88b1ff008d833dbc533ce4a2e5"
+    },
+    "matter/tools/cardboard_probe.mm": {
+      "before": "15d6ebf02a0608f6f1e1143b3234bf0a78bea2e29e663d41b6c14acde209c47c",
+      "after": "391995acae354e097bec84c2d86c07e305c3d8b4ea149ba606323f0d24bd39de"
+    },
+    "matter/tools/cardboard_source_bound_run.py": {
+      "before": "0484c3be3547443169aa5be71665febc8cc20179eb9755be9ee620f724a84b2a",
+      "after": "fb08ce5428944fd09cea52abf9c07a8e7ff8746ed8763b2a262f2898147ae3ff"
+    },
+    "matter/tools/test_bct_capacity_history_producer.py": {
+      "before": null,
+      "after": "e9347af92c6367199550d4cc28299e9ae1bc67efd77398697aebe4c0bcbbe0b9"
+    },
+    "matter/tools/test_bct_source_bound_harness.py": {
+      "before": null,
+      "after": "eb7bc97245a6c1609ab5dadd4bac0644fd7a90ae874c1f749871329cbc747a41"
+    }
+  },
+  "scope": "Sealed BCT pre-run candidate/condition/argv and input bindings; post-run raw-manifest verification and nonmutating producer. Synthetic binding tests only. No physical capacity qualification."
+}

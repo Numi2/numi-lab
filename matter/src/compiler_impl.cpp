@@ -897,7 +897,9 @@ CompileResult compileWorld(
         }
         ConstitutiveProgram program = std::move(compiled.program);
         const auto firstMaterialProgram=world.scalarPrograms.size();
-        program.gpu.localNewtonIterations = options.localMaterialNewtonIterations;
+        program.gpu.localNewtonIterations =
+            program.material.genericBilinear15AccurateProjection
+                ? 16u : options.localMaterialNewtonIterations;
         program.gpu.parameterOffset =
             static_cast<nm_u32>(world.parameters.size());
         program.gpu.stateInitialOffset =

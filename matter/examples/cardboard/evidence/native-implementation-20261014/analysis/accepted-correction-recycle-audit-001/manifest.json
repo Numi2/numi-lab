@@ -1,0 +1,82 @@
+{
+  "case_id": "accepted-correction-recycle-first-control-284",
+  "files": {
+    "analysis_json": {
+      "bytes": 89962,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/accepted-correction-recycle-audit-001/audit.json",
+      "sha256": "84d47194ea0a54436d80c9647a19c48eba4652d709a176c688b759f666ce8067"
+    },
+    "analysis_readme": {
+      "bytes": 3029,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/accepted-correction-recycle-audit-001/README.md",
+      "sha256": "7e5df4418bfa66722565e013b6c608fa4f0d3bcb57a9cc902405a56d18b777b2"
+    },
+    "analysis_script": {
+      "bytes": 24737,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/accepted-correction-recycle-audit-001/audit_recycle_capture.py",
+      "sha256": "79b482f7e12bc7cb115897214a90c561fbbd154a982c10790c6deb65367624d6"
+    },
+    "capture_manifest": {
+      "bytes": 7384,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/accepted-correction-recycle-first-control-284/operator-capture.regional.json",
+      "sha256": "b06fc764e9b17b7a71dd3ea6cf320b3391435b91c12fa4eeae45e6cdd80b498c"
+    },
+    "capture_payload": {
+      "bytes": 22961320,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/accepted-correction-recycle-first-control-284/operator-capture.regional.bin",
+      "sha256": "0d6f72da7497f01eeac589e95933836657a49f6547aeaedd2aba0a012dc7f687"
+    },
+    "compiled_world": {
+      "bytes": 1965568,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/accepted-correction-recycle-first-control-284/output/compiled.nmatterpack",
+      "sha256": "611cb0e96d26348f9d25c73379b6b77915c4b3f603c8ee28f8aadf333ea9cbc0"
+    },
+    "native_prediction": {
+      "bytes": 101557,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/accepted-correction-recycle-first-control-284/prediction.json",
+      "sha256": "66c145854ab05fbcf2e64ba6da2ddd89229d7a47bc8af72a59eea239515fb7f3"
+    },
+    "native_receipt": {
+      "bytes": 306,
+      "path": "/Users/home/cardboard-implementation-20261014/solver/accepted-correction-recycle-first-control-284/receipt.json",
+      "sha256": "d88d61e4635f3e2139989136298fdfb4cb47c022a49ac41bcfbb7c681fea7a31"
+    },
+    "operator_audit_reference": {
+      "bytes": 44728,
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-accepted-correction-regional-recycle-085/matter/tools/cardboard_cached_operator_audit.py",
+      "sha256": "2ce80f9b3c989efd058bdbcc29661d10701061cfde459d64cca06c0d6caeee38"
+    },
+    "source_fgmres": {
+      "bytes": 374885,
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-accepted-correction-regional-recycle-085/matter/src/metal/fgmres.metalinc",
+      "sha256": "92d5e2b57cb392076962a43733bb51b8f30deef4579fc5151b66ae9415783669"
+    },
+    "source_graph_layout": {
+      "bytes": 17212,
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-accepted-correction-regional-recycle-085/matter/src/regional_graph_schwarz.hpp",
+      "sha256": "a8a6328d608ba7db4943025f15d35d750968755a8826de32b14b479752c9121d"
+    },
+    "source_runtime": {
+      "bytes": 1490586,
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-accepted-correction-regional-recycle-085/matter/src/runtime.mm",
+      "sha256": "d482a43db6af754b9578f78ac7a814267b104c33ff2750bfe14101b9ec301919"
+    }
+  },
+  "results": {
+    "LU_reconstruction_relative_error": 1.7203688131442923e-07,
+    "RAP_condition_2norm": 2630.5491586671596,
+    "condition_increase_percent_from_recycle_mode": 6.217029720503775,
+    "full_step_status": "failed strict certificate at step 0; accepted_steps=0",
+    "max_true_RAP_residual_l2_fp32": 7.044269569394232e-05,
+    "max_true_RAP_residual_l2_fp64": 3.2011848716603035e-05,
+    "unit_rhs_count": 27
+  },
+  "schema": "numi.cardboard.accepted_correction_recycle_inverse_audit_manifest.v1",
+  "scope": "CPU replay of one captured selector-5 coarse linearization; no full native solve qualification",
+  "selected_state": {
+    "capture_point": "after_regional_rap_and_graph_factor_barrier_before_fgmres_correction",
+    "linearization_generation": 4294967297,
+    "newton_iteration": 1,
+    "root": 0
+  }
+}

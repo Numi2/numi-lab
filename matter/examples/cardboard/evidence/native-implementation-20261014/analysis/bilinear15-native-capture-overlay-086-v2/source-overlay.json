@@ -1,0 +1,41 @@
+{
+  "schema": "numi.source_overlay.v1",
+  "overlay_id": "bilinear15-native-capture-overlay-086-v2",
+  "classification": "bounded checker robustness overlay; native GPU run not performed",
+  "base": {
+    "path": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-native-capture-overlay-085/source",
+    "parent_overlay_manifest_sha256": "c5a270e5adeb41a57918a860518949b4a8721d44bf8a2c9d62ce131d65ed3c44",
+    "parent_overlay_patch_sha256": "71857f4f2eeefe14e22250d9718c54e1fb0f2a3e065f0a359a38323c1b92d5f1",
+    "frozen084_manifest_sha256": "98fe026ee2007982e48f89547a435a2957db3978fb3730e008fdbb99d08f5704"
+  },
+  "changed_files": {
+    "matter/tools/cardboard_bilinear15_captured_point_check.mm": {
+      "sha256": "5785c89f06db3854e3cac5d1f668e11fc90dd88245f3b238dc465c81898de510",
+      "base_sha256": "7d9ba61214f85bb5c4550a3cddfe1fd307be7607b130423882cb8ff260e871f0"
+    }
+  },
+  "patch_sha256": "326e7bfca78de52ae84880279c71fda1429a739f8f0e0669acb87a52cdd7dff4",
+  "inputs": {
+    "captured_point_inputs_json_sha256": "4147dfbdd75587dd932d9e22d210b3725bbf8d38f24c0494151f5474dbf9d66b",
+    "medium_material_sha256": "76f2bef552822708c36b5acc9f92bd44e7bb92c578e5e46adb64a1a2e82e47f9"
+  },
+  "verification": {
+    "cmake_configure": "PASS; see evidence/configure.log",
+    "target_build": "PASS; see evidence/build-compile.log",
+    "cpu_admission": "PASS; checks 16 inputs, default32 vs opt-in16 and sealed bindings; no GPU",
+    "negative_parameter_binding": "PASS rejection at parameter index 0; exit 1; see mutation logs",
+    "native_point_replay": "NOT_RUN_NO_GPU",
+    "native_failure_retention_behavior": "source emits one JSON case record for each parsed input after per-evaluation failures; final failed_count and inconclusive_count gate exit code",
+    "nonfinite_serialization": "nonfinite numbers become JSON null; corresponding native float32 bit words are emitted separately",
+    "repeat_difference_semantics": "diagnostic nondeterminism only; not used as an error bound or accuracy gate",
+    "evidence_sha256": {
+      "configure.log": "b7deccb397a7147da3f3144448e378e660ee781c9b2dd75da42b305d1eaa972a",
+      "build-compile.log": "139ece0f23556307faabdccbfef42ec755f7c3a18215f26f331e4101708c149a",
+      "cpu-admission.log": "744efb1337117c4d231295da91bc93a6b7e665d0a9ac7fb56b4b7c59f72fe7fd",
+      "cpu-admission-mutation.log": "473d7cdb096d1ffd3f72a9a1e17caefc7b56deb9b5d30c6246702f97ec32de10",
+      "cpu-admission-mutation-exit.txt": "cd15fc7114d563825b7113a03dac2178b35b443be967f68241c2f2160a2a55bb",
+      "captured-point-inputs.json": "4147dfbdd75587dd932d9e22d210b3725bbf8d38f24c0494151f5474dbf9d66b"
+    }
+  },
+  "generated_utc": "2026-10-15T09:03:29.466875+00:00"
+}

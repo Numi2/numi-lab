@@ -1,0 +1,1 @@
+{"schema":"numi.matter.regional_recycle_masked_basis_native.v1","environments":2,"nodes_per_environment":5,"base_modes":2,"mode_count":3,"selected":[1,0],"env0_projected_gram_offdiagonal":1,"candidate_bound_synthetic_A_actions_checked":4,"production_FEM_A_qualified":false,"physical_steps":0,"native_kernel_execution":true,"physical_validation":false}

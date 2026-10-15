@@ -1,0 +1,13 @@
+test_environment_major_workspace_offsets_are_disjoint (test_recycle_basis.DynamicMaskMgsTests) ... ok
+test_masked_basis_is_reorthogonalized_before_candidate_projection (test_recycle_basis.DynamicMaskMgsTests) ... ok
+test_masked_dependent_and_rank_ambiguous_basis_fail_closed (test_recycle_basis.DynamicMaskMgsTests) ... ok
+test_flag_is_exact_opt_in_and_fingerprint_bound (test_recycle_basis.OverlayWiringTests) ... ok
+test_reset_select_capture_order_and_registration (test_recycle_basis.OverlayWiringTests) ... ok
+test_independent_finite_direction_is_normalized_and_orthogonal (test_recycle_basis.RecycleBasisGateTests) ... ok
+test_nonfinite_vector_is_rejected (test_recycle_basis.RecycleBasisGateTests) ... ok
+test_zero_and_dependent_vectors_are_rejected (test_recycle_basis.RecycleBasisGateTests) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.002s
+
+OK

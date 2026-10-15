@@ -1,0 +1,163 @@
+{
+  "schema": "numi.cardboard.native-diagnostic-parity.v1",
+  "left": "/Users/home/cardboard-implementation-20261014/native/corrected-trace-contact-incidence-legacy-273",
+  "right": "/Users/home/cardboard-implementation-20261014/native/corrected-trace-contact-incidence-sorted-274",
+  "files": [
+    {
+      "path": "dense/fixture-activation.log",
+      "equal": true,
+      "sha256": "c21a21f9269d33853052994031cde9389d7e45848abcaba37f0f9ea7ee4f90b8",
+      "candidate_sha256": "c21a21f9269d33853052994031cde9389d7e45848abcaba37f0f9ea7ee4f90b8"
+    },
+    {
+      "path": "dense/fixture-loaded.log",
+      "equal": true,
+      "sha256": "d5bdb13f6f724f102c59ed09d1afa78a27775f19e162a4c87965b83e7d70b4d1",
+      "candidate_sha256": "d5bdb13f6f724f102c59ed09d1afa78a27775f19e162a4c87965b83e7d70b4d1"
+    },
+    {
+      "path": "dense/fixture-rejected.log",
+      "equal": true,
+      "sha256": "dd5acee7964a036c3495dd0ad59ce77169cbf2e0ca6bc867ce86d975950726c6",
+      "candidate_sha256": "dd5acee7964a036c3495dd0ad59ce77169cbf2e0ca6bc867ce86d975950726c6"
+    },
+    {
+      "path": "dense/transaction-000000-after.bin",
+      "equal": true,
+      "sha256": "2be481597b850064d789f2aed8564a2f555fb1f6e621a7f73169f668cb0354d9",
+      "candidate_sha256": "2be481597b850064d789f2aed8564a2f555fb1f6e621a7f73169f668cb0354d9"
+    },
+    {
+      "path": "dense/transaction-000000-before.bin",
+      "equal": true,
+      "sha256": "602529314e035096c3bf49a25e0446d61b0fd2e59cdb189a0a57d518a7174102",
+      "candidate_sha256": "602529314e035096c3bf49a25e0446d61b0fd2e59cdb189a0a57d518a7174102"
+    },
+    {
+      "path": "dense/transaction-000000.json",
+      "equal": true,
+      "sha256": "69ecf1c9f1d364cc48900c156a3c073533fc81f986768779de19afc9605d02ea",
+      "candidate_sha256": "69ecf1c9f1d364cc48900c156a3c073533fc81f986768779de19afc9605d02ea"
+    },
+    {
+      "path": "dense/transaction-000001-after.bin",
+      "equal": true,
+      "sha256": "e3920e156296769a2dd7e0289730cc3258a2ae00a92036f53cc4089e2a0cd4cb",
+      "candidate_sha256": "e3920e156296769a2dd7e0289730cc3258a2ae00a92036f53cc4089e2a0cd4cb"
+    },
+    {
+      "path": "dense/transaction-000001-before.bin",
+      "equal": true,
+      "sha256": "2be481597b850064d789f2aed8564a2f555fb1f6e621a7f73169f668cb0354d9",
+      "candidate_sha256": "2be481597b850064d789f2aed8564a2f555fb1f6e621a7f73169f668cb0354d9"
+    },
+    {
+      "path": "dense/transaction-000001.json",
+      "equal": true,
+      "sha256": "f711341c716b41e45a88cd66ea023cc5fd9f9112f0b07b7b03b0b0120374ffec",
+      "candidate_sha256": "f711341c716b41e45a88cd66ea023cc5fd9f9112f0b07b7b03b0b0120374ffec"
+    },
+    {
+      "path": "dense/transaction-000002-after.bin",
+      "equal": true,
+      "sha256": "68f050c8ea8e8bb79fabbb715b0d360b212713718148188243b6f5161d55aa2a",
+      "candidate_sha256": "68f050c8ea8e8bb79fabbb715b0d360b212713718148188243b6f5161d55aa2a"
+    },
+    {
+      "path": "dense/transaction-000002-before.bin",
+      "equal": true,
+      "sha256": "e3920e156296769a2dd7e0289730cc3258a2ae00a92036f53cc4089e2a0cd4cb",
+      "candidate_sha256": "e3920e156296769a2dd7e0289730cc3258a2ae00a92036f53cc4089e2a0cd4cb"
+    },
+    {
+      "path": "dense/transaction-000002.json",
+      "equal": true,
+      "sha256": "4483a3642aaefcc37a04db08d70ef6e147e9b25788bbdf63bfb5d4d3d6905140",
+      "candidate_sha256": "4483a3642aaefcc37a04db08d70ef6e147e9b25788bbdf63bfb5d4d3d6905140"
+    },
+    {
+      "path": "sparse/fixture-activation.log",
+      "equal": true,
+      "sha256": "614ae0e51e7009a67412b830b2a896adf07ed0cf2c8e8f8908225f4365f392d5",
+      "candidate_sha256": "614ae0e51e7009a67412b830b2a896adf07ed0cf2c8e8f8908225f4365f392d5"
+    },
+    {
+      "path": "sparse/fixture-loaded.log",
+      "equal": true,
+      "sha256": "35eb82e864cfddef9401846b653a9adac39fb745d0bb93e882fadf73b89e2800",
+      "candidate_sha256": "35eb82e864cfddef9401846b653a9adac39fb745d0bb93e882fadf73b89e2800"
+    },
+    {
+      "path": "sparse/fixture-rejected.log",
+      "equal": true,
+      "sha256": "93678671d5d15b3364d52afa2581b6b373b930bf42a299dd69f8b8273a928e13",
+      "candidate_sha256": "93678671d5d15b3364d52afa2581b6b373b930bf42a299dd69f8b8273a928e13"
+    },
+    {
+      "path": "sparse/transaction-000000-after.bin",
+      "equal": true,
+      "sha256": "2be481597b850064d789f2aed8564a2f555fb1f6e621a7f73169f668cb0354d9",
+      "candidate_sha256": "2be481597b850064d789f2aed8564a2f555fb1f6e621a7f73169f668cb0354d9"
+    },
+    {
+      "path": "sparse/transaction-000000-before.bin",
+      "equal": true,
+      "sha256": "602529314e035096c3bf49a25e0446d61b0fd2e59cdb189a0a57d518a7174102",
+      "candidate_sha256": "602529314e035096c3bf49a25e0446d61b0fd2e59cdb189a0a57d518a7174102"
+    },
+    {
+      "path": "sparse/transaction-000000.json",
+      "equal": true,
+      "sha256": "69ecf1c9f1d364cc48900c156a3c073533fc81f986768779de19afc9605d02ea",
+      "candidate_sha256": "69ecf1c9f1d364cc48900c156a3c073533fc81f986768779de19afc9605d02ea"
+    },
+    {
+      "path": "sparse/transaction-000001-after.bin",
+      "equal": true,
+      "sha256": "e3920e156296769a2dd7e0289730cc3258a2ae00a92036f53cc4089e2a0cd4cb",
+      "candidate_sha256": "e3920e156296769a2dd7e0289730cc3258a2ae00a92036f53cc4089e2a0cd4cb"
+    },
+    {
+      "path": "sparse/transaction-000001-before.bin",
+      "equal": true,
+      "sha256": "2be481597b850064d789f2aed8564a2f555fb1f6e621a7f73169f668cb0354d9",
+      "candidate_sha256": "2be481597b850064d789f2aed8564a2f555fb1f6e621a7f73169f668cb0354d9"
+    },
+    {
+      "path": "sparse/transaction-000001.json",
+      "equal": true,
+      "sha256": "f711341c716b41e45a88cd66ea023cc5fd9f9112f0b07b7b03b0b0120374ffec",
+      "candidate_sha256": "f711341c716b41e45a88cd66ea023cc5fd9f9112f0b07b7b03b0b0120374ffec"
+    },
+    {
+      "path": "sparse/transaction-000002-after.bin",
+      "equal": true,
+      "sha256": "68f050c8ea8e8bb79fabbb715b0d360b212713718148188243b6f5161d55aa2a",
+      "candidate_sha256": "68f050c8ea8e8bb79fabbb715b0d360b212713718148188243b6f5161d55aa2a"
+    },
+    {
+      "path": "sparse/transaction-000002-before.bin",
+      "equal": true,
+      "sha256": "e3920e156296769a2dd7e0289730cc3258a2ae00a92036f53cc4089e2a0cd4cb",
+      "candidate_sha256": "e3920e156296769a2dd7e0289730cc3258a2ae00a92036f53cc4089e2a0cd4cb"
+    },
+    {
+      "path": "sparse/transaction-000002.json",
+      "equal": true,
+      "sha256": "4483a3642aaefcc37a04db08d70ef6e147e9b25788bbdf63bfb5d4d3d6905140",
+      "candidate_sha256": "4483a3642aaefcc37a04db08d70ef6e147e9b25788bbdf63bfb5d4d3d6905140"
+    }
+  ],
+  "binding": {
+    "/Users/home/cardboard-implementation-20261014/native/corrected-trace-contact-incidence-legacy-273": {
+      "prediction_sha256": "b0fde9e2458cf4daaf38209ab744b420000f78e359a69484dabea26ae79eccff",
+      "receipt_sha256": "56d6ff53ca9b90da7f7882a0287e942ac6c68289bc5af5f9381b9db4f21955d8"
+    },
+    "/Users/home/cardboard-implementation-20261014/native/corrected-trace-contact-incidence-sorted-274": {
+      "prediction_sha256": "74a8ad674b7eb2d9b2900a9ed953a5768cea77cd358d2765a9bf118887980a14",
+      "receipt_sha256": "6e5b7dcd3489b5869b6c6d836101d960be657710b06920685dd4d0043c6601fc"
+    }
+  },
+  "all_equal": true,
+  "scope": "Complete dense/sparse private contact fixture accepted/rejected states and production Armijo traces. Both checkers must pass; synthetic law, no shipping or convergence qualification."
+}

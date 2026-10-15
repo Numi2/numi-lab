@@ -1,0 +1,358 @@
+--- a/matter/tools/cardboard_bilinear15_captured_point_check.mm
++++ b/matter/tools/cardboard_bilinear15_captured_point_check.mm
+@@ -103,6 +103,7 @@
+         if(c=='\\'||c=='"'){out.push_back('\\');out.push_back(c);}
+         else if(c=='\n')out+="\\n";
+         else if(c=='\r')out+="\\r";
++        else if(static_cast<unsigned char>(c)<0x20u){static constexpr char hex[]="0123456789abcdef";out+="\\u00";out.push_back(hex[(static_cast<unsigned char>(c)>>4)&0xf]);out.push_back(hex[static_cast<unsigned char>(c)&0xf]);}
+         else out.push_back(c);
+     }
+     return out;
+@@ -207,7 +208,11 @@
+     bool valid=false,projectionValid=false;
+     Matrix p{},tangent{};
+     State state{};
+-    float residual=0.0f,stateNorm=0.0f;
++    std::array<std::uint32_t,9> pBits{},tangentBits{};
++    std::array<std::uint32_t,15> stateHighBits{},stateLowBits{};
++    std::uint32_t validBits=0u,projectionValidBits=0u;
++    std::uint32_t residualBits=0u,stateNormBits=0u,iterationsBits=0u,flagsBits=0u,failureBits=0u;
++    double residual=0.0,stateNorm=0.0,iterationsRaw=0.0,flagsRaw=0.0,failureRaw=0.0;
+     std::uint32_t iterations=0u,flags=0u,failure=0u;
+ };
+ struct MetalInstrument {
+@@ -263,101 +268,210 @@
+         need(command.status==MTLCommandBufferStatusCompleted,
+              command.error?std::string([[command.error description] UTF8String]):"Metal command failed");
+         const auto* out=static_cast<const float*>(buffers[6].contents);
+-        Response response; response.valid=out[0]==1.0f;
+-        for(unsigned i=0;i<9u;++i){response.p[i]=out[1u+i];response.tangent[i]=out[10u+i];}
+-        for(unsigned i=0;i<15u;++i)response.state[i]=double(out[19u+i])+double(out[25u+NM_MAX_MATERIAL_STATE+i]);
+-        response.projectionValid=out[19u+NM_MAX_MATERIAL_STATE]==1.0f;
+-        response.residual=out[20u+NM_MAX_MATERIAL_STATE];
+-        response.stateNorm=out[21u+NM_MAX_MATERIAL_STATE];
+-        response.iterations=static_cast<std::uint32_t>(out[22u+NM_MAX_MATERIAL_STATE]);
+-        response.flags=static_cast<std::uint32_t>(out[23u+NM_MAX_MATERIAL_STATE]);
+-        response.failure=static_cast<std::uint32_t>(out[24u+NM_MAX_MATERIAL_STATE]);
++        Response response;
++        response.validBits=std::bit_cast<std::uint32_t>(out[0]);
++        response.valid=std::isfinite(out[0])&&out[0]==1.0f;
++        for(unsigned i=0;i<9u;++i) {
++            response.pBits[i]=std::bit_cast<std::uint32_t>(out[1u+i]);
++            response.tangentBits[i]=std::bit_cast<std::uint32_t>(out[10u+i]);
++            response.p[i]=double(out[1u+i]);
++            response.tangent[i]=double(out[10u+i]);
++        }
++        for(unsigned i=0;i<15u;++i) {
++            const float high=out[19u+i],low=out[25u+NM_MAX_MATERIAL_STATE+i];
++            response.stateHighBits[i]=std::bit_cast<std::uint32_t>(high);
++            response.stateLowBits[i]=std::bit_cast<std::uint32_t>(low);
++            response.state[i]=double(high)+double(low);
++        }
++        const float projectionValid=out[19u+NM_MAX_MATERIAL_STATE];
++        response.projectionValidBits=std::bit_cast<std::uint32_t>(projectionValid);
++        response.projectionValid=std::isfinite(projectionValid)&&projectionValid==1.0f;
++        const float residual=out[20u+NM_MAX_MATERIAL_STATE];
++        const float stateNorm=out[21u+NM_MAX_MATERIAL_STATE];
++        const float iterations=out[22u+NM_MAX_MATERIAL_STATE];
++        const float flags=out[23u+NM_MAX_MATERIAL_STATE];
++        const float failure=out[24u+NM_MAX_MATERIAL_STATE];
++        response.residualBits=std::bit_cast<std::uint32_t>(residual);
++        response.stateNormBits=std::bit_cast<std::uint32_t>(stateNorm);
++        response.iterationsBits=std::bit_cast<std::uint32_t>(iterations);
++        response.flagsBits=std::bit_cast<std::uint32_t>(flags);
++        response.failureBits=std::bit_cast<std::uint32_t>(failure);
++        response.residual=double(residual); response.stateNorm=double(stateNorm);
++        response.iterationsRaw=double(iterations); response.flagsRaw=double(flags);
++        response.failureRaw=double(failure);
++        if(std::isfinite(iterations)&&iterations>=0.0f&&iterations<=float(UINT32_MAX))
++            response.iterations=static_cast<std::uint32_t>(iterations);
++        if(std::isfinite(flags)&&flags>=0.0f&&flags<=float(UINT32_MAX))
++            response.flags=static_cast<std::uint32_t>(flags);
++        if(std::isfinite(failure)&&failure>=0.0f&&failure<=float(UINT32_MAX))
++            response.failure=static_cast<std::uint32_t>(failure);
+         return response;
+     }
++
+ };
+-struct Metric { double norm=0.0,referenceNorm=0.0,relative=0.0,maxAbs=0.0; };
++struct Metric { bool finite=false; double norm=0.0,referenceNorm=0.0,relative=0.0,maxAbs=0.0; };
+ template<std::size_t N>
+ Metric metric(const std::array<double,N>& a,const std::array<double,N>& b) {
+     double d2=0.0,b2=0.0,maxAbs=0.0;
+-    for(std::size_t i=0;i<N;++i){const double d=a[i]-b[i];d2+=d*d;b2+=b[i]*b[i];maxAbs=std::max(maxAbs,std::abs(d));}
++    for(std::size_t i=0;i<N;++i) {
++        if(!std::isfinite(a[i])||!std::isfinite(b[i]))
++            return {false,NAN,NAN,NAN,NAN};
++        const double d=a[i]-b[i]; d2+=d*d; b2+=b[i]*b[i]; maxAbs=std::max(maxAbs,std::abs(d));
++    }
+     const double dn=std::sqrt(d2),bn=std::sqrt(b2);
+-    return {dn,bn,bn>0.0?dn/bn:0.0,maxAbs};
+-}
+-template<std::size_t N>
+-double repeatNoise(const std::array<double,N>& a,const std::array<double,N>& b) {
+-    double result=0.0;for(std::size_t i=0;i<N;++i)result=std::max(result,std::abs(a[i]-b[i]));return result;
+-}
+-void jsonArray(std::ostream& out,const std::array<double,15>& v) {
+-    out<<'[';for(std::size_t i=0;i<v.size();++i)out<<(i?",":"")<<v[i];out<<']';
+-}
+-void jsonArray9(std::ostream& out,const Matrix& v) {
+-    out<<'[';for(std::size_t i=0;i<v.size();++i)out<<(i?",":"")<<v[i];out<<']';
+-}
+-
+-void runCase(MetalInstrument& metal,const CompiledWorld& defaultWorld,
+-             const CompiledWorld& accurateWorld,const Case& c) {
+-    const Response offA=metal.evaluate(defaultWorld,c,false);
+-    const Response offB=metal.evaluate(defaultWorld,c,false);
+-    const Response onA=metal.evaluate(accurateWorld,c,true);
+-    const Response onB=metal.evaluate(accurateWorld,c,true);
+-    need(offA.valid&&offA.projectionValid&&offB.valid&&offB.projectionValid,
+-         c.id+" default projection/stress failed");
+-    need(onA.valid&&onA.projectionValid&&onB.valid&&onB.projectionValid,
+-         c.id+" opt-in projection/stress failed");
+-    const Metric offP=metric(offA.p,c.capturedP), offT=metric(offA.tangent,c.capturedTangent);
+-    const Metric offS=metric(offA.state,c.capturedState);
+-    const Metric onP=metric(onA.p,c.referenceP), onT=metric(onA.tangent,c.referenceTangent);
+-    const Metric onS=metric(onA.state,c.referenceState);
+-    const double offNoiseP=repeatNoise(offA.p,offB.p), offNoiseT=repeatNoise(offA.tangent,offB.tangent);
+-    const double offNoiseS=repeatNoise(offA.state,offB.state);
+-    const double onNoiseP=repeatNoise(onA.p,onB.p), onNoiseT=repeatNoise(onA.tangent,onB.tangent);
+-    const double onNoiseS=repeatNoise(onA.state,onB.state);
+-    // Relative comparison is used only when the reference action resolves
+-    // above the measured repeated-run absolute noise. Near-zero actions use
+-    // that measured floor directly and are labeled separately below.
+-    const auto passes=[](const Metric& m,const double noise){
+-        if(m.referenceNorm>10.0*noise) return m.relative<=kRelativeGate;
+-        return m.maxAbs<=8.0*noise;
+-    };
+-    const bool offParity=passes(offP,offNoiseP)&&passes(offT,offNoiseT)&&passes(offS,offNoiseS);
+-    const bool onGate=passes(onP,onNoiseP)&&passes(onT,onNoiseT)&&passes(onS,onNoiseS);
+-    std::cout<<std::setprecision(17)
+-      <<"{\"record\":\"case\",\"id\":\""<<escape(c.id)<<"\",\"capture\":\""<<c.captureLabel
++    if(!std::isfinite(dn)||!std::isfinite(bn)) return {false,NAN,NAN,NAN,NAN};
++    return {true,dn,bn,bn>0.0?dn/bn:NAN,maxAbs};
++}
++template<std::size_t N>
++double repeatDifference(const std::array<double,N>& a,const std::array<double,N>& b) {
++    double result=0.0;
++    for(std::size_t i=0;i<N;++i) {
++        if(!std::isfinite(a[i])||!std::isfinite(b[i])) return NAN;
++        result=std::max(result,std::abs(a[i]-b[i]));
++    }
++    return result;
++}
++void jsonNumber(std::ostream& out,const double value) {
++    if(std::isfinite(value)) out<<value; else out<<"null";
++}
++template<std::size_t N>
++void jsonArray(std::ostream& out,const std::array<double,N>& values) {
++    out<<'[';
++    for(std::size_t i=0;i<N;++i){if(i)out<<',';jsonNumber(out,values[i]);}
++    out<<']';
++}
++template<std::size_t N>
++void jsonBits(std::ostream& out,const std::array<std::uint32_t,N>& values) {
++    out<<'[';
++    for(std::size_t i=0;i<N;++i) {
++        if(i)out<<',';
++        std::ostringstream word; word<<"0x"<<std::hex<<std::setw(8)<<std::setfill('0')<<values[i];
++        out<<'"'<<word.str()<<'"';
++    }
++    out<<']';
++}
++void jsonBitWord(std::ostream& out,const std::uint32_t bits,const bool present) {
++    if(!present){out<<"null";return;}
++    std::ostringstream word; word<<"0x"<<std::hex<<std::setw(8)<<std::setfill('0')<<bits;
++    out<<'"'<<word.str()<<'"';
++}
++template<std::size_t N>
++void jsonMaybeArray(std::ostream& out,const std::array<double,N>& values,const bool present) {
++    if(present)jsonArray(out,values);else out<<"null";
++}
++template<std::size_t N>
++void jsonMaybeBits(std::ostream& out,const std::array<std::uint32_t,N>& values,const bool present) {
++    if(present)jsonBits(out,values);else out<<"null";
++}
++std::string metricStatus(const Metric& m,const bool evaluated=true) {
++    if(!evaluated) return "not_evaluated";
++    if(!m.finite) return "fail_nonfinite";
++    if(m.referenceNorm==0.0) return "inconclusive_zero_reference";
++    if(!std::isfinite(m.relative)) return "fail_nonfinite_metric";
++    return m.relative<=kRelativeGate?"pass_relative_gate":"fail_relative_gate";
++}
++struct Attempt { bool evaluated=false; Response response{}; std::string error; };
++Attempt safeEvaluate(MetalInstrument& metal,const CompiledWorld& world,const Case& c,const bool accurate) {
++    try { return {true,metal.evaluate(world,c,accurate),{}}; }
++    catch(const std::exception& error) { return {false,{},error.what()}; }
++}
++std::string policyStatus(const Attempt& attempt,const Metric& p,const Metric& t,const Metric& state) {
++    if(!attempt.evaluated) return "fail_instrument";
++    if(!attempt.response.valid||!attempt.response.projectionValid) return "fail_projection";
++    const std::array<std::string,3> statuses{metricStatus(p),metricStatus(t),metricStatus(state)};
++    for(const auto& status:statuses) if(status.rfind("fail_",0u)==0u) return "fail_comparison";
++    for(const auto& status:statuses) if(status.rfind("inconclusive_",0u)==0u) return "inconclusive_zero_reference";
++    return "pass";
++}
++void jsonAttempt(std::ostream& out,const Attempt& attempt,const Metric& p,const Metric& t,
++                 const Metric& state,const double repeatP,const double repeatT,const double repeatState,
++                 const char* comparisonTarget) {
++    const Response& r=attempt.response;
++    out<<"{\"status\":\""<<policyStatus(attempt,p,t,state)<<"\",\"comparison_target\":\""<<comparisonTarget<<"\",\"evaluated\":"
++       <<(attempt.evaluated?"true":"false")<<",\"error\":";
++    if(attempt.error.empty()) out<<"null"; else out<<'"'<<escape(attempt.error)<<'"';
++    out<<",\"projection_valid\":";
++    if(attempt.evaluated)out<<(r.projectionValid?"true":"false");else out<<"null";
++    out<<",\"projection_valid_f32_bits\":";jsonBitWord(out,r.projectionValidBits,attempt.evaluated);
++    out<<",\"valid\":";
++    if(attempt.evaluated)out<<(r.valid?"true":"false");else out<<"null";
++    out<<",\"valid_f32_bits\":";jsonBitWord(out,r.validBits,attempt.evaluated);
++    out<<",\"iterations\":"; if(attempt.evaluated)jsonNumber(out,r.iterationsRaw);else out<<"null";
++    out<<",\"iterations_f32_bits\":";jsonBitWord(out,r.iterationsBits,attempt.evaluated);
++    out<<",\"flags\":"; if(attempt.evaluated)jsonNumber(out,r.flagsRaw);else out<<"null";
++    out<<",\"flags_f32_bits\":";jsonBitWord(out,r.flagsBits,attempt.evaluated);
++    out<<",\"failure\":"; if(attempt.evaluated)jsonNumber(out,r.failureRaw);else out<<"null";
++    out<<",\"failure_f32_bits\":";jsonBitWord(out,r.failureBits,attempt.evaluated);
++    out<<",\"projection_residual\":"; if(attempt.evaluated)jsonNumber(out,r.residual);else out<<"null";
++    out<<",\"projection_residual_f32_bits\":";jsonBitWord(out,r.residualBits,attempt.evaluated);
++    out<<",\"projection_state_norm\":"; if(attempt.evaluated)jsonNumber(out,r.stateNorm);else out<<"null";
++    out<<",\"projection_state_norm_f32_bits\":";jsonBitWord(out,r.stateNormBits,attempt.evaluated);
++    out<<",\"stress_relative_l2\":";
++    jsonNumber(out,p.relative); out<<",\"stress_abs_l2\":"; jsonNumber(out,p.norm);
++    out<<",\"stress_target_norm_l2\":"; jsonNumber(out,p.referenceNorm);
++    out<<",\"stress_comparison\":\""<<metricStatus(p,attempt.evaluated)<<"\",\"tangent_relative_l2\":";
++    jsonNumber(out,t.relative); out<<",\"tangent_abs_l2\":"; jsonNumber(out,t.norm);
++    out<<",\"tangent_target_norm_l2\":"; jsonNumber(out,t.referenceNorm);
++    out<<",\"tangent_comparison\":\""<<metricStatus(t,attempt.evaluated)<<"\",\"state_relative_l2\":";
++    jsonNumber(out,state.relative); out<<",\"state_abs_l2\":"; jsonNumber(out,state.norm);
++    out<<",\"state_target_norm_l2\":"; jsonNumber(out,state.referenceNorm);
++    out<<",\"state_comparison\":\""<<metricStatus(state,attempt.evaluated)<<"\""
++       <<",\"repeat_difference_max_abs\":{\"stress\":";
++    jsonNumber(out,repeatP); out<<",\"tangent\":"; jsonNumber(out,repeatT);
++    out<<",\"state\":"; jsonNumber(out,repeatState);
++    out<<"},\"repeat_difference_interpretation\":\"identical-run variation only; not a representability or accuracy bound\""
++       <<",\"stress\":"; jsonMaybeArray(out,r.p,attempt.evaluated);
++    out<<",\"stress_f32_bits\":"; jsonMaybeBits(out,r.pBits,attempt.evaluated);
++    out<<",\"tangent\":"; jsonMaybeArray(out,r.tangent,attempt.evaluated);
++    out<<",\"tangent_f32_bits\":"; jsonMaybeBits(out,r.tangentBits,attempt.evaluated);
++    out<<",\"state\":"; jsonMaybeArray(out,r.state,attempt.evaluated);
++    out<<",\"state_high_f32_bits\":"; jsonMaybeBits(out,r.stateHighBits,attempt.evaluated);
++    out<<",\"state_low_f32_bits\":"; jsonMaybeBits(out,r.stateLowBits,attempt.evaluated);
++    out<<'}';
++}
++std::string runCase(MetalInstrument& metal,const CompiledWorld& defaultWorld,
++                    const CompiledWorld& accurateWorld,const Case& c) {
++    const Attempt offA=safeEvaluate(metal,defaultWorld,c,false);
++    const Attempt offB=safeEvaluate(metal,defaultWorld,c,false);
++    const Attempt onA=safeEvaluate(metal,accurateWorld,c,true);
++    const Attempt onB=safeEvaluate(metal,accurateWorld,c,true);
++    const Metric unavailable{false,NAN,NAN,NAN,NAN};
++    const Metric offP=offA.evaluated?metric(offA.response.p,c.capturedP):unavailable;
++    const Metric offT=offA.evaluated?metric(offA.response.tangent,c.capturedTangent):unavailable;
++    const Metric offS=offA.evaluated?metric(offA.response.state,c.capturedState):unavailable;
++    const Metric onP=onA.evaluated?metric(onA.response.p,c.referenceP):unavailable;
++    const Metric onT=onA.evaluated?metric(onA.response.tangent,c.referenceTangent):unavailable;
++    const Metric onS=onA.evaluated?metric(onA.response.state,c.referenceState):unavailable;
++    const double offRepeatP=offA.evaluated&&offB.evaluated?repeatDifference(offA.response.p,offB.response.p):NAN;
++    const double offRepeatT=offA.evaluated&&offB.evaluated?repeatDifference(offA.response.tangent,offB.response.tangent):NAN;
++    const double offRepeatS=offA.evaluated&&offB.evaluated?repeatDifference(offA.response.state,offB.response.state):NAN;
++    const double onRepeatP=onA.evaluated&&onB.evaluated?repeatDifference(onA.response.p,onB.response.p):NAN;
++    const double onRepeatT=onA.evaluated&&onB.evaluated?repeatDifference(onA.response.tangent,onB.response.tangent):NAN;
++    const double onRepeatS=onA.evaluated&&onB.evaluated?repeatDifference(onA.response.state,onB.response.state):NAN;
++    const std::string offStatus=policyStatus(offA,offP,offT,offS);
++    const std::string onStatus=policyStatus(onA,onP,onT,onS);
++    const bool casePass=offStatus=="pass"&&onStatus=="pass";
++    const bool inconclusive=offStatus.rfind("inconclusive_",0u)==0u||onStatus.rfind("inconclusive_",0u)==0u;
++    const std::string caseStatus=casePass?"pass":(inconclusive&&offStatus.rfind("fail_",0u)!=0u&&onStatus.rfind("fail_",0u)!=0u
++        ?"inconclusive":"fail");
++    std::ostringstream row; row<<std::setprecision(17)
++      <<"{\"record\":\"case\",\"id\":\""<<escape(c.id)<<"\",\"capture\":\""<<escape(c.captureLabel)
+       <<"\",\"tet_id\":"<<c.tet<<",\"branch_indicator\":\""<<escape(c.branchIndicator)
+       <<"\",\"reference_source\":\""<<escape(c.referenceSource)<<"\",\"multiplier_increment\":"<<c.multiplierIncrement
+       <<",\"reference_branch_details\":"<<jsonString(c.branchDetails,"branch details")
+       <<",\"captured_projection_report\":"<<jsonString(c.captureProjection,"projection report")
+       <<",\"compiled_local_iterations_default\":"<<defaultWorld.materials[0].localNewtonIterations
+       <<",\"compiled_local_iterations_optin\":"<<accurateWorld.materials[0].localNewtonIterations
+-      <<",\"default\":{\"status\":\""<<(offParity?"pass_capture_parity":"fail_capture_parity")
+-      <<"\",\"iterations\":"<<offA.iterations<<",\"residual\":"<<offA.residual
+-      <<",\"flags\":"<<offA.flags<<",\"failure\":"<<offA.failure
+-      <<",\"stress_capture_relative_l2\":"<<offP.relative<<",\"stress_capture_abs_l2\":"<<offP.norm
+-      <<",\"tangent_capture_relative_l2\":"<<offT.relative<<",\"tangent_capture_abs_l2\":"<<offT.norm
+-      <<",\"state_capture_abs_l2\":"<<offS.norm<<",\"state_capture_relative_l2\":"<<offS.relative
+-      <<",\"state_capture_comparison\":\""<<(offS.referenceNorm>10.0*offNoiseS?"resolved_relative":"absolute_noise_floor")
+-      <<"\",\"noise_max_abs\":{\"stress\":"<<offNoiseP
+-      <<",\"tangent\":"<<offNoiseT<<",\"state\":"<<offNoiseS<<"},\"state\":";
+-    jsonArray(std::cout,offA.state);
+-    std::cout<<",\"stress\":";jsonArray9(std::cout,offA.p);
+-    std::cout<<",\"tangent\":";jsonArray9(std::cout,offA.tangent);
+-    std::cout<<"},\"optin\":{\"status\":\""<<(onGate?"pass_fp64_reference":"fail_fp64_reference")
+-      <<"\",\"iterations\":"<<onA.iterations<<",\"residual\":"<<onA.residual
+-      <<",\"flags\":"<<onA.flags<<",\"failure\":"<<onA.failure
+-      <<",\"stress_reference_relative_l2\":"<<onP.relative<<",\"stress_reference_abs_l2\":"<<onP.norm
+-      <<",\"tangent_reference_relative_l2\":"<<onT.relative<<",\"tangent_reference_abs_l2\":"<<onT.norm
+-      <<",\"state_reference_abs_l2\":"<<onS.norm<<",\"state_reference_relative_l2\":"<<onS.relative
+-      <<",\"state_reference_comparison\":\""<<(onS.referenceNorm>10.0*onNoiseS?"resolved_relative":"absolute_noise_floor")
+-      <<"\",\"noise_max_abs\":{\"stress\":"<<onNoiseP
+-      <<",\"tangent\":"<<onNoiseT<<",\"state\":"<<onNoiseS<<"},\"state\":";
+-    jsonArray(std::cout,onA.state);
+-    std::cout<<",\"stress\":";jsonArray9(std::cout,onA.p);
+-    std::cout<<",\"tangent\":";jsonArray9(std::cout,onA.tangent);
+-    std::cout<<"}}\n";
+-    need(offParity,c.id+" unchanged/default evaluator does not reproduce the captured production point");
+-    need(onGate,c.id+" opt-in evaluator fails its bounded independent-reference gate");
+-}
+-}
++      <<",\"default\":";
++    jsonAttempt(row,offA,offP,offT,offS,offRepeatP,offRepeatT,offRepeatS,"captured_production_point");
++    row<<",\"optin\":";
++    jsonAttempt(row,onA,onP,onT,onS,onRepeatP,onRepeatT,onRepeatS,"independent_fp64_reference");
++    row<<",\"status\":\""<<caseStatus<<"\"}\n";
++    std::cout<<row.str();
++    return caseStatus;
++}
++
++} // namespace
+ 
+ int main(int argc,char** argv) {
+     @autoreleasepool {
+@@ -399,17 +513,36 @@
+             }
+             MetalInstrument metal;
+             std::cout<<std::setprecision(17)
+-              <<"{\"record\":\"header\",\"schema\":\"numi.cardboard.bilinear15-native-captured-point-result.v1\","
++              <<"{\"record\":\"header\",\"schema\":\"numi.cardboard.bilinear15-native-captured-point-result.v2\","
+               <<"\"base_snapshot_manifest_sha256\":\""<<NUMI_CARDBOARD_BASE_SNAPSHOT_SHA256<<"\","
+               <<"\"source_material_sha256\":\""<<sourceSHA<<"\",\"input_sha256\":\""<<sha256(inputsPath)
+               <<"\",\"physical_steps\":0,\"physical_validation\":false,\"relative_gate\":"<<kRelativeGate
+-              <<",\"noise_floor\":\"maximum absolute difference across two identical native evaluations per policy/case\","
++              <<",\"repeat_difference_interpretation\":\"identical-run variation only; not a representability or accuracy bound\","
++              <<"\"near_zero_policy\":\"inconclusive when the reference norm is exactly zero; no absolute pass is inferred from repeated evaluations\","
+               <<"\"default_policy\":\"both captured source flags enabled, accurate local projection flag disabled, explicit material iteration option 32\","
+               <<"\"optin_policy\":\"same captured source flags, accurate 15-state policy enabled, compiled local budget 16\"}\n";
+-            for(const Case& c:parsed) runCase(metal,defaultWorld,accurateWorld,c);
++            std::size_t passedCount=0u,failedCount=0u,inconclusiveCount=0u;
++            for(const Case& c:parsed) {
++                try {
++                    const std::string status=runCase(metal,defaultWorld,accurateWorld,c);
++                    if(status=="pass") ++passedCount;
++                    else if(status=="inconclusive") ++inconclusiveCount;
++                    else ++failedCount;
++                } catch(const std::exception& error) {
++                    ++failedCount;
++                    std::cout<<"{\"record\":\"case\",\"id\":\""<<escape(c.id)
++                             <<"\",\"capture\":\""<<escape(c.captureLabel)
++                             <<"\",\"tet_id\":"<<c.tet<<",\"status\":\"fail_case_exception\",\"error\":\""
++                             <<escape(error.what())<<"\"}\n";
++                }
++            }
++            const bool allPassed=failedCount==0u&&inconclusiveCount==0u;
+             std::cout<<"{\"record\":\"end\",\"cases\":"<<parsed.size()
+-                     <<",\"status\":\"pass\",\"scope\":\"pointwise native projection/stress/tangent only\"}\n";
+-            return 0;
++                     <<",\"passed_count\":"<<passedCount<<",\"failed_count\":"<<failedCount
++                     <<",\"inconclusive_count\":"<<inconclusiveCount<<",\"status\":\""
++                     <<(allPassed?"pass":(failedCount?"fail":"inconclusive"))
++                     <<"\",\"scope\":\"pointwise native projection/stress/tangent only\"}\n";
++            return allPassed?0:2;
+         } catch(const std::exception& error) {
+             std::cerr<<"FAIL captured bilinear-15 native point replay: "<<error.what()<<'\n';
+             return 1;

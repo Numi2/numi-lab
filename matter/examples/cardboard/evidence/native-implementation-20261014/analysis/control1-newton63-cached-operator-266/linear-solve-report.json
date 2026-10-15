@@ -1,0 +1,15 @@
+{
+  "schema": "numi.cardboard.captured-linear-solve-audit.v1",
+  "operator_sha256": "6d4917c07ff47d41f206dd577adb23921f2364a355e05bb95ef2b8dbf5185007",
+  "vectors_sha256": "6f27e7b9dc588a88331d69e17c6fcf77886ef3bfeb29abb521310fe84779ead6",
+  "dofs": 2538,
+  "rhs_l2": 3.845908252497364e-05,
+  "native_correction_l2": 2.373818757629375,
+  "offline_direct_correction_l2": 69.38556419293148,
+  "native_true_residual_l2": 3.235788803613321e-05,
+  "native_true_residual_relative": 0.8413588133601839,
+  "offline_direct_residual_relative": 1.7858149891675553e-11,
+  "direction_difference_l2_relative_to_direct": 0.9657927806031892,
+  "direction_cosine": 0.9998651125133233,
+  "scope": "Offline diagnostic unsymmetrized sparse solve of captured native cached operator. Does not reproject material, change solver/physics/tolerance, or qualify a native solution."
+}

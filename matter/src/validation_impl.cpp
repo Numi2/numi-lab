@@ -39,7 +39,8 @@ constexpr std::uint32_t kKnownMaterialFlags =
     NM_MATERIAL_PAPER_HILL_SCALAR_INITIALIZER |
     NM_MATERIAL_PAPER_COMPENSATED_ARITHMETIC |
     NM_MATERIAL_PAPER_HILL_ACCURATE_PROJECTION |
-    NM_MATERIAL_GENERIC_COMPENSATED_IMPLICIT_PROJECTION;
+    NM_MATERIAL_GENERIC_COMPENSATED_IMPLICIT_PROJECTION |
+    NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION;
 constexpr std::uint32_t kKnownObjectFlags =
     NM_OBJECT_ACTIVE |
     NM_OBJECT_TWO_WAY_COUPLED |
@@ -1091,6 +1092,8 @@ private:
             }
             const bool genericCompensatedProjection =
                 (material.flags & NM_MATERIAL_GENERIC_COMPENSATED_IMPLICIT_PROJECTION)!=0u;
+            const bool genericBilinear15AccurateProjection =
+                (material.flags & NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION)!=0u;
             const bool finiteElasticStarchArithmetic =
                 (material.flags & NM_MATERIAL_PAPER_COMPENSATED_ARITHMETIC)!=0u &&
                 (material.flags & NM_MATERIAL_PAPER_HILL_SCALAR_INITIALIZER)==0u &&
@@ -1127,6 +1130,17 @@ private:
                                     NM_MATERIAL_PAPER_HILL_ACCURATE_PROJECTION))!=0u)) {
                 return failIndexed("material",index,
                     "generic compensated projection requires a generic implicit bytecode layout and cannot use Hill-only policies");
+            }
+            if (genericBilinear15AccurateProjection &&
+                (!genericCompensatedProjection || material.stateCount!=15u ||
+                 material.parameterCount!=28u || material.localNewtonIterations!=16u ||
+                 material.constitutiveKind!=NM_CONSTITUTIVE_BYTECODE ||
+                 material.projectionKind!=NM_MATERIAL_PROJECTION_GENERIC ||
+                 (material.flags & NM_MATERIAL_HAS_IMPLICIT_STATE)==0u ||
+                 (material.flags & (NM_MATERIAL_PAPER_HILL_SCALAR_INITIALIZER |
+                                    NM_MATERIAL_PAPER_HILL_ACCURATE_PROJECTION))!=0u)) {
+                return failIndexed("material",index,
+                    "accurate bilinear-15 projection requires the 15-state/28-parameter generic implicit compensated layout and a 16-step local budget");
             }
             if ((material.flags & (NM_MATERIAL_PAPER_HILL_SCALAR_INITIALIZER|NM_MATERIAL_PAPER_COMPENSATED_ARITHMETIC|NM_MATERIAL_PAPER_HILL_ACCURATE_PROJECTION)) != 0u &&
                 !finiteElasticStarchArithmetic &&

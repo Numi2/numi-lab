@@ -1,0 +1,26 @@
+{
+  "schema": "numi.cardboard.retained-capture-package.v1",
+  "scope": "Lossless immutable raw failed-Newton captures, not accepted checkpoints or qualified physical runs.",
+  "captures": [
+    {
+      "name": "control1-newton0",
+      "original_path": "/Users/home/cardboard-implementation-20261014/solver/sourcefit15-fg32-control1-capture-cycle-258/operator-capture",
+      "original_bytes": 35953938,
+      "original_sha256": "14246b2ade8e301d68b33d97f14eb6468e7f8f7dbc4a36249a83e33a25db2541",
+      "compressed_path": "control1-newton0.capture.gz",
+      "compressed_bytes": 5301576,
+      "compressed_sha256": "88fcc18353bb6541a45d81ba902347e9408dde652bfb5bbdc453d583ee132631",
+      "roundtrip_sha256_verified": true
+    },
+    {
+      "name": "control1-newton63",
+      "original_path": "/Users/home/cardboard-implementation-20261014/solver/sourcefit15-fg32-control1-newton63-capture-266/operator-capture",
+      "original_bytes": 36444844,
+      "original_sha256": "13f264ff1bb9688f8ac48f3c940020ff1f1f45d7fbb1713cd2144ba5320b91c2",
+      "compressed_path": "control1-newton63.capture.gz",
+      "compressed_bytes": 5983529,
+      "compressed_sha256": "cbe663d550ddadf5aaf20fc41d65b8d881db35eed82dee99acfd238cbaa85300",
+      "roundtrip_sha256_verified": true
+    }
+  ]
+}

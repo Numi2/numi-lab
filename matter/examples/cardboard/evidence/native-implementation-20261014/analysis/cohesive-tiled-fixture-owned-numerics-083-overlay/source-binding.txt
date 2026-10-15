@@ -1,0 +1,2 @@
+base_snapshot=/Users/home/cardboard-implementation-20261014/snapshots/source-tiled-cohesive-and-portable-coupled-check-082
+base_snapshot_manifest_sha256=unavailable

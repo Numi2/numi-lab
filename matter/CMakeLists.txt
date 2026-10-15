@@ -90,6 +90,18 @@ if(BUILD_TESTING)
     set_tests_properties(matter.compiler.cardboard_contact_node_incidence_sort PROPERTIES
         TIMEOUT 30 LABELS "matter;cardboard;contact;cpu;synthetic")
 endif()
+add_executable(numi-matter-cardboard-cohesive-armijo-tiles-check
+    tools/cardboard_cohesive_armijo_tiles_check.cpp)
+target_compile_options(numi-matter-cardboard-cohesive-armijo-tiles-check PRIVATE
+    -Wall -Wextra -Wpedantic -Werror)
+target_include_directories(numi-matter-cardboard-cohesive-armijo-tiles-check PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/include")
+if(BUILD_TESTING)
+    add_test(NAME matter.compiler.cardboard_cohesive_armijo_tiles
+        COMMAND numi-matter-cardboard-cohesive-armijo-tiles-check)
+    set_tests_properties(matter.compiler.cardboard_cohesive_armijo_tiles PROPERTIES
+        TIMEOUT 30 LABELS "matter;cardboard;cohesive;cpu;synthetic")
+endif()
 add_executable(numi-matter-cardboard-solver-replay tools/cardboard_solver_replay.cpp)
 target_compile_options(numi-matter-cardboard-solver-replay PRIVATE -Wall -Wextra -Wpedantic -Werror)
 add_executable(numi-matter-cardboard-solver-pair-replay tools/cardboard_solver_pair_replay.cpp)
@@ -112,6 +124,13 @@ if(BUILD_TESTING)
             COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tools/cardboard_pin_adhesion_source_observables_test.py")
         set_tests_properties(matter.analysis.cardboard_pin_source_observables
             PROPERTIES TIMEOUT 60 LABELS "matter;cardboard;sources;identifiability")
+        add_test(NAME matter.analysis.cardboard_bct_capacity_producer
+            COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tools/test_bct_capacity_history_producer.py")
+        add_test(NAME matter.analysis.cardboard_bct_source_bound_harness
+            COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tools/test_bct_source_bound_harness.py")
+        set_tests_properties(matter.analysis.cardboard_bct_capacity_producer
+            matter.analysis.cardboard_bct_source_bound_harness PROPERTIES
+            TIMEOUT 60 LABELS "matter;cardboard;analysis;synthetic")
         add_test(NAME matter.analysis.cardboard_calibration_ensemble
             COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tools/cardboard_calibration_ensemble_test.py")
         add_test(NAME matter.analysis.cardboard_resolution_study
@@ -341,6 +360,14 @@ target_link_libraries(numi-matter-cardboard-generic-compensated-projection-check
 target_include_directories(numi-matter-cardboard-generic-compensated-projection-check PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}/../include")
 target_compile_options(numi-matter-cardboard-generic-compensated-projection-check PRIVATE -Wall -Wextra -Wpedantic -Werror)
+add_executable(numi-matter-cardboard-bilinear15-projection-policy-check
+    tools/cardboard_bilinear15_projection_policy_check.cpp)
+target_link_libraries(numi-matter-cardboard-bilinear15-projection-policy-check
+    PRIVATE numi_matter_compiler)
+target_include_directories(numi-matter-cardboard-bilinear15-projection-policy-check PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/../include")
+target_compile_options(numi-matter-cardboard-bilinear15-projection-policy-check PRIVATE
+    -Wall -Wextra -Wpedantic -Werror)
 if(BUILD_TESTING)
     add_test(NAME matter.compiler.fem_static_surface_map COMMAND numi-matter-fem-static-surface-map-check)
     set_tests_properties(matter.compiler.fem_static_surface_map PROPERTIES LABELS "matter;compiler;contact;cpu")
@@ -350,6 +377,11 @@ if(BUILD_TESTING)
     set_tests_properties(matter.compiler.cardboard_retained_damage_fp64_oracle PROPERTIES LABELS "matter;cardboard;reference;cpu")
     add_test(NAME matter.compiler.cardboard_generic_compensated_projection COMMAND numi-matter-cardboard-generic-compensated-projection-check)
     set_tests_properties(matter.compiler.cardboard_generic_compensated_projection PROPERTIES LABELS "matter;cardboard;projection;cpu" TIMEOUT 120)
+    add_test(NAME matter.compiler.cardboard_bilinear15_projection_policy
+        COMMAND numi-matter-cardboard-bilinear15-projection-policy-check
+            "${CMAKE_CURRENT_SOURCE_DIR}/materials")
+    set_tests_properties(matter.compiler.cardboard_bilinear15_projection_policy PROPERTIES
+        LABELS "matter;cardboard;projection;cpu;synthetic" TIMEOUT 60)
 endif()
 target_link_libraries(numi-matter-fem-regional-galerkin-compiler-check PRIVATE
     numi_matter_compiler)
@@ -713,6 +745,23 @@ if(APPLE)
         set_tests_properties(matter.metal.cardboard_free_box_angular_native PROPERTIES
             LABELS "matter;cardboard;contact;angular;native-kernel" TIMEOUT 180)
     endif()
+    add_executable(numi-matter-cardboard-coupled-free-box-operator-check
+        tools/cardboard_coupled_free_box_operator_check.mm)
+    add_dependencies(numi-matter-cardboard-coupled-free-box-operator-check numi_matter_shaders)
+    target_link_libraries(numi-matter-cardboard-coupled-free-box-operator-check PRIVATE
+        numi_matter_runtime "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    target_include_directories(numi-matter-cardboard-coupled-free-box-operator-check PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/../include")
+    target_compile_definitions(numi-matter-cardboard-coupled-free-box-operator-check PRIVATE
+        NUMI_MATTER_METALLIB="${NUMI_MATTER_METALLIB}")
+    target_compile_options(numi-matter-cardboard-coupled-free-box-operator-check PRIVATE
+        -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
+    if(BUILD_TESTING)
+        add_test(NAME matter.metal.cardboard_coupled_free_box_operator
+            COMMAND numi-matter-cardboard-coupled-free-box-operator-check)
+        set_tests_properties(matter.metal.cardboard_coupled_free_box_operator PROPERTIES
+            TIMEOUT 180 LABELS "matter;cardboard;contact;native-kernel;synthetic")
+    endif()
     add_executable(numi-matter-cardboard-contact-node-incidence-sort-native-check
         tools/cardboard_contact_node_incidence_sort_native_check.mm)
     add_dependencies(numi-matter-cardboard-contact-node-incidence-sort-native-check
@@ -906,6 +955,20 @@ if(APPLE)
         -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
     target_compile_definitions(numi-matter-cardboard-bilinear-paper-gpu-check PRIVATE
         NUMI_CARDBOARD_PAPER_METALLIB="${NUMI_CARDBOARD_PAPER_METALLIB}")
+    # Exact N0/N63 capture replay for the opt-in 15-state projection policy.
+    # This executable is intentionally not a CTest: it requires sealed external
+    # capture/reference inputs and a physical Apple GPU when explicitly run.
+    add_executable(numi-matter-cardboard-bilinear15-captured-point-check
+        tools/cardboard_bilinear15_captured_point_check.mm)
+    add_dependencies(numi-matter-cardboard-bilinear15-captured-point-check
+        numi_cardboard_paper_shaders)
+    target_link_libraries(numi-matter-cardboard-bilinear15-captured-point-check PRIVATE
+        numi_matter_compiler "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    target_compile_options(numi-matter-cardboard-bilinear15-captured-point-check PRIVATE
+        -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
+    target_compile_definitions(numi-matter-cardboard-bilinear15-captured-point-check PRIVATE
+        NUMI_CARDBOARD_PAPER_METALLIB="${NUMI_CARDBOARD_PAPER_METALLIB}"
+        NUMI_CARDBOARD_BASE_SNAPSHOT_SHA256="98fe026ee2007982e48f89547a435a2957db3978fb3730e008fdbb99d08f5704")
     if(BUILD_TESTING)
         add_test(NAME matter.metal.cardboard_bilinear_paper
             COMMAND numi-matter-cardboard-bilinear-paper-gpu-check
@@ -1499,4 +1562,22 @@ if(APPLE)
     target_compile_options(numi-matter-wet-lab PRIVATE -fobjc-arc -Wall -Wextra -Wno-deprecated-declarations)
     target_compile_definitions(numi-matter-wet-lab PRIVATE NUMI_MATTER_METALLIB="${NUMI_MATTER_METALLIB}")
     install(TARGETS numi-matter-wet-lab RUNTIME DESTINATION bin)
+endif()
+
+
+if(APPLE)
+    add_executable(numi-matter-cardboard-regional-recycle-masked-basis-native-check
+        tools/cardboard_regional_recycle_masked_basis_native_check.mm)
+    target_link_libraries(numi-matter-cardboard-regional-recycle-masked-basis-native-check PRIVATE
+        numi_matter_runtime "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    target_compile_definitions(numi-matter-cardboard-regional-recycle-masked-basis-native-check PRIVATE
+        NUMI_MATTER_METALLIB="${NUMI_MATTER_METALLIB}")
+    target_compile_options(numi-matter-cardboard-regional-recycle-masked-basis-native-check PRIVATE
+        -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
+    if(BUILD_TESTING)
+        add_test(NAME matter.metal.cardboard_regional_recycle_masked_basis
+            COMMAND numi-matter-cardboard-regional-recycle-masked-basis-native-check)
+        set_tests_properties(matter.metal.cardboard_regional_recycle_masked_basis
+            PROPERTIES LABELS "matter;metal;cardboard;synthetic" TIMEOUT 700)
+    endif()
 endif()

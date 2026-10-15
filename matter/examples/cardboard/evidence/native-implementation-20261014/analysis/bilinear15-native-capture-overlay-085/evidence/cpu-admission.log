@@ -1,0 +1,1 @@
+{"record":"cpu_admission","status":"pass","input_sha256":"4147dfbdd75587dd932d9e22d210b3725bbf8d38f24c0494151f5474dbf9d66b","source_material_sha256":"76f2bef552822708c36b5acc9f92bd44e7bb92c578e5e46adb64a1a2e82e47f9","case_count":16,"default_local_iterations":32,"optin_local_iterations":16,"native_metal_execution":false}

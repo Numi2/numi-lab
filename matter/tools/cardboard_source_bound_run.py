@@ -3,6 +3,16 @@
 from pathlib import Path
 import argparse, datetime, fcntl, hashlib, json, os, shutil, subprocess, sys, time
 from cardboard_source_bound_run_support import wait_with_timeout, write_failure_receipt
+from cardboard_calibration_case_binding import (
+    CalibrationBindingError, validate_executed_manifest, validate_pre_run,
+)
+
+
+def _single_argv_value(argv, flag):
+    matches = [index for index, value in enumerate(argv) if value == flag]
+    if len(matches) != 1 or matches[0] + 1 >= len(argv):
+        raise ValueError('native argv must contain exactly one '+flag+' value')
+    return argv[matches[0] + 1]
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--case', required=True)
@@ -14,6 +24,8 @@ parser.add_argument('--source-snapshot')
 parser.add_argument('--runtime-dir')
 parser.add_argument('--build-provenance', help='successful fresh-build receipt; checked before native launch')
 parser.add_argument('--input-file', action='append', default=[])
+parser.add_argument('--ensemble-plan', help='sealed BCT calibration plan; required for --shipping-box')
+parser.add_argument('--case-binding', help='prepared candidate/condition binding; required for --shipping-box')
 parser.add_argument('argv', nargs=argparse.REMAINDER)
 args = parser.parse_args()
 repo = Path(__file__).resolve().parents[2]
@@ -46,6 +58,24 @@ argv = args.argv[1:] if args.argv[0] == '--' else args.argv
 if not argv:
     parser.error('an executable command is required after --')
 argv[0] = str(Path(argv[0]).resolve())
+calibration_identity = None
+calibration_binding_path = None
+required_calibration_inputs = set()
+sealed_external_inputs = [str(Path(value).resolve()) for value in args.input_file]
+if '--shipping-box' in argv:
+    if not args.ensemble_plan or not args.case_binding:
+        raise ValueError('shipping-box runs require --ensemble-plan and --case-binding before execution')
+    calibration_binding_path = Path(args.case_binding).resolve()
+    calibration_identity, auto_inputs = validate_pre_run(
+        Path(args.ensemble_plan), calibration_binding_path, argv, case/'output')
+    required_calibration_inputs = {path.resolve() for path in auto_inputs}
+    existing = {Path(value).resolve() for value in sealed_external_inputs}
+    for path in auto_inputs:
+        if path.resolve() not in existing:
+            sealed_external_inputs.append(str(path.resolve()))
+            existing.add(path.resolve())
+elif args.ensemble_plan or args.case_binding:
+    raise ValueError('BCT plan/binding options require --shipping-box in the native argv')
 source_root = Path(args.source_snapshot).resolve() if args.source_snapshot else repo
 runtime_dir = Path(args.runtime_dir).resolve() if args.runtime_dir else repo/'build-cardboard'
 build_provenance = None
@@ -66,7 +96,8 @@ if args.build_provenance:
         path = Path(filename).resolve()
         if not path.is_relative_to(runtime_dir) or hashlib.sha256(path.read_bytes()).hexdigest() != expected:
             raise ValueError('artifact no longer matches its executed build: '+filename)
-    args.input_file.append(str(provenance_path))
+    if str(provenance_path) not in sealed_external_inputs:
+        sealed_external_inputs.append(str(provenance_path))
 files = []
 for directory in ('matter/include', 'matter/src', 'include', 'src', 'numi', 'cmake', 'schemas',
                   'matter/examples/cardboard/source-data'):
@@ -97,14 +128,21 @@ for path in sorted(set(files)):
     shutil.copy2(path, target)
     bindings[str(relative)] = hashlib.sha256(target.read_bytes()).hexdigest()
     original_bindings[str(path)] = bindings[str(relative)]
-for external in args.input_file:
-    path = Path(external)
+for external in sealed_external_inputs:
+    path = Path(external).resolve()
     relative = 'external/' + path.name
     if relative in bindings: raise ValueError('duplicate external input basename')
     target = case/'inputs'/relative
     target.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(path, target)
-    bindings[relative] = hashlib.sha256(target.read_bytes()).hexdigest()
+    copied_sha = hashlib.sha256(target.read_bytes()).hexdigest()
+    if calibration_identity is not None:
+        expected_calibration_hash = calibration_identity['external_input_sha256'].get(str(path))
+        if expected_calibration_hash is not None and copied_sha != expected_calibration_hash:
+            raise ValueError('calibration input changed between pre-run validation and sealing: '+path.name)
+        if expected_calibration_hash is None and path in required_calibration_inputs:
+            raise ValueError('required calibration input is absent from the pre-run hash identity: '+path.name)
+    bindings[relative] = copied_sha
     original_bindings[str(path.resolve())] = bindings[relative]
 env_delta = dict(value.split('=', 1) for value in args.env)
 seal = {'schema':'numi.cardboard.native-prediction.v1',
@@ -112,7 +150,9 @@ seal = {'schema':'numi.cardboard.native-prediction.v1',
         'question':args.question,'prediction':args.prediction,
         'argv':argv,'environment':env_delta,
         'source_snapshot':str(source_root),'runtime_dir':str(runtime_dir),
-        'external_inputs':args.input_file,'inputs_sha256':bindings,
+        'external_inputs':sealed_external_inputs,'inputs_sha256':bindings,
+        'native_protocol_id': (calibration_identity['native_protocol_id'] if calibration_identity else None),
+        'calibration_case_binding': calibration_identity,
         'executed_build_verified':build_provenance is not None,
         'build_provenance':args.build_provenance,
         'source_binding_limitation':'Listed source, executable and Metal libraries retained; compiler system headers and OS/driver not archived.',
@@ -133,6 +173,23 @@ for path, digest in original_bindings.items():
     try: current = hashlib.sha256(Path(path).read_bytes()).hexdigest()
     except OSError: current = None
     if current != digest: changed_inputs.append(path)
+calibration_validation = None
+calibration_validation_error = None
+if calibration_identity is not None and code == 0 and not run_state['timed_out']:
+    try:
+        manifest_path = case/'output'/'manifest.json'
+        calibration_validation = validate_executed_manifest(
+            manifest_path, calibration_identity, calibration_binding_path)
+    except (CalibrationBindingError, OSError, KeyError, TypeError, ValueError) as error:
+        calibration_validation_error = str(error)
+        calibration_validation = {
+            'status': 'failed',
+            'manifest_sha256': (hashlib.sha256((case/'output'/'manifest.json').read_bytes()).hexdigest()
+                                if (case/'output'/'manifest.json').is_file() else None),
+            'error': calibration_validation_error,
+        }
+elif calibration_identity is not None:
+    calibration_validation = {'status': 'not_run', 'reason': 'native process did not complete successfully'}
 receipt = {'schema':'numi.cardboard.native-run-receipt.v2',
            'execution_started':execution_started,
            'source_inputs_unchanged':not changed_inputs,
@@ -141,6 +198,18 @@ receipt = {'schema':'numi.cardboard.native-run-receipt.v2',
            'termination_errors':run_state['termination_errors'],
            'wall_seconds':time.monotonic()-started,
            'finished_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat()}
+if calibration_identity is not None:
+    receipt.update({
+        'native_protocol_id': calibration_identity['native_protocol_id'],
+        'calibration_plan_sha256': calibration_identity['plan_sha256'],
+        'calibration_case_binding_sha256': calibration_identity['case_binding_sha256'],
+        'calibration_candidate_id': calibration_identity['candidate_id'],
+        'calibration_candidate_sha256': calibration_identity['candidate_sha256'],
+        'calibration_condition_id': calibration_identity['condition_id'],
+        'calibration_parameter_validation': calibration_validation,
+    })
 (case/'receipt.json').write_text(json.dumps(receipt,indent=2)+'\n')
 print(json.dumps(receipt),flush=True)
-raise SystemExit(124 if run_state['timed_out'] else (3 if changed_inputs else (code if code >= 0 else 128-code)))
+raise SystemExit(124 if run_state['timed_out'] else
+                 (3 if changed_inputs or calibration_validation_error else
+                  (code if code >= 0 else 128-code)))

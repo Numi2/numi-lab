@@ -1,0 +1,205 @@
+--- a/matter/tools/cardboard_convergence.py
++++ b/matter/tools/cardboard_convergence.py
+@@ -594,7 +594,12 @@
+     policy = manifest.get("compensated_source_paper_projection", {})
+     if not isinstance(policy, dict) or type(policy.get("enabled", False)) is not bool:
+         raise EvidenceError("invalid_solver_control", "source paper projection policy must be boolean")
++    accurate = policy.get("accurate_bilinear15_projection", False)
++    if type(accurate) is not bool:
++        raise EvidenceError("invalid_solver_control", "accurate source projection policy must be boolean")
+     if not policy.get("enabled", False):
++        if accurate:
++            raise EvidenceError("projection_policy_mismatch", "accurate source projection lacks its compensated source policy")
+         return False
+     if manifest.get("solver", {}).get("paper_compensated_arithmetic") is not True:
+         raise EvidenceError("missing_projection_policy", "source projection lacks explicit compensated arithmetic")
+@@ -614,6 +619,10 @@
+                 or flags.get(role + "_generic_compensated_implicit_projection") is not True
+                 or flags.get(role + "_compensated_paper_arithmetic") is not True):
+             raise EvidenceError("projection_policy_mismatch", f"compiled {role} did not retain the source projection policy")
++        if bool(word & 0x80) != accurate:
++            raise EvidenceError("projection_policy_mismatch", f"compiled {role} scaled-correction flag differs from its requested policy")
++        if accurate and flags.get(role + "_local_newton_iterations") != 16:
++            raise EvidenceError("projection_policy_mismatch", f"compiled {role} scaled-correction policy lacks its exact local budget")
+     return True
+ 
+ 
+@@ -664,6 +673,10 @@
+             raise IncompatibleError("solver_control_mismatch", f"projection control {key} differs")
+     for run in (a, b):
+         _source_projection_policy(run.manifest)
++    accurate_values = [run.manifest.get("compensated_source_paper_projection", {}).get(
++        "accurate_bilinear15_projection", False) for run in (a, b)]
++    if accurate_values[0] != accurate_values[1]:
++        raise IncompatibleError("solver_control_mismatch", "accurate_bilinear15_projection differs")
+     for key in COMMON_SOLVER_FIELDS:
+         if key not in sa or key not in sb:
+             raise EvidenceError("missing_solver_control", f"solver control {key} is missing")
+--- a/matter/tools/cardboard_full_contact_armijo_check.mm
++++ b/matter/tools/cardboard_full_contact_armijo_check.mm
+@@ -4975,7 +4975,7 @@
+                           compensatedMaterialArithmetic ||
+                           authoredNewtonIterations != 0u ||
+                           !diagnosticStateOutputPath.empty()),
+-                    "tiled cohesive parity must run as its own default-budget fixture");
++                    "tiled cohesive parity owns its solver and material settings");
+             require(!selfSurfaceScratchAliasParity ||
+                         !(overflow || prescribedBoxOverflow ||
+                           prescribedBoxSweepReject || prescribedBoxTranslation ||
+@@ -5014,7 +5014,8 @@
+             if (cohesiveTiledParity) {
+                 extendedBudget = true;
+                 accuratePaper = true;
+-                std::cout << "tiled_fixture_owned_numerics=accurate_paper,"
++                regionalContactPreconditioner = true;
++                std::cout << "tiled_fixture_owned_numerics=accurate_paper,regional_contact,"
+                              "fgmres256,restart16,line_search24,newton32"
+                              " residual_tolerance_unchanged=1e-7\n";
+             }
+--- a/matter/tools/cardboard_probe.mm
++++ b/matter/tools/cardboard_probe.mm
+@@ -143,6 +143,7 @@
+     bool accuratePaperProjection = false;
+     bool compensatedImplicitProjection = false;
+     bool compensatedSourcePaperProjection = false;
++    bool accurateSourcePaperProjection = false;
+     bool cacheFEMAlgorithmicTangent = false;
+     std::array<double, 13> linerProjectionScales{};
+     std::array<double, 13> mediumProjectionScales{};
+@@ -1268,6 +1269,7 @@
+         << "  --accurate-paper-projection  opt-in strict Hill state projection; requires compensated arithmetic (pair with --scaled-paper-residuals in the comparison study)\n"
+         << "  --compensated-implicit-projection  opt in to compensated residual evaluation for retained-matrix generic implicit damage overlays\n"
+         << "  --compensated-source-paper-projection  opt in to generic compensated projection for the 15-state source bilinear/C1 liner+medium pair; also requires --compensated-paper-arithmetic\n"
++        << "  --accurate-source-paper-projection  opt in to scaled correction convergence for the bilinear15 pair; requires --compensated-source-paper-projection; local budget 16\n"
+         << "  --cache-fem-algorithmic-tangent  opt-in per-Newton full material tangent cache for FGMRES; private trials and final certificates use direct evaluation\n"
+         << "  --fgmres-preconditioner scalar|regional-tangent-diagonal|regional-galerkin|regional-galerkin-block|regional-galerkin-contact|regional-galerkin-schwarz\n"
+         << "    regional-galerkin modes require authored compact constituent regions; selectors 2/3 are contact-free. Contact selector 4 uses the enriched 32-mode RAP/block estimate and admits one immutable explicit FEM object (<=8192 nodes, <=32768 tets, <=4096 cohesive faces), one environment, no dynamic/generalized rigid or multiphysics rows, and only static/kinematic non-articulated contact proxies\n"
+@@ -1413,6 +1415,10 @@
+         }
+         if (option == "--compensated-implicit-projection") {
+             arguments.compensatedImplicitProjection = true;
++            continue;
++        }
++        if (option == "--accurate-source-paper-projection") {
++            arguments.accurateSourcePaperProjection = true;
+             continue;
+         }
+         if (option == "--compensated-source-paper-projection") {
+@@ -1652,6 +1658,9 @@
+                  arguments.preset == "literature2009" &&
+                  !arguments.withoutMedium),
+             "compensated implicit projection requires explicit retained-matrix damage sets for both literature2009 constituents");
++    require(!arguments.accurateSourcePaperProjection ||
++                arguments.compensatedSourcePaperProjection,
++            "accurate source-paper projection requires --compensated-source-paper-projection");
+     require(!arguments.compensatedSourcePaperProjection ||
+                 arguments.compensatedPaperArithmetic,
+             "compensated source-paper projection requires --compensated-paper-arithmetic");
+@@ -2717,6 +2726,8 @@
+                   << "medium_density_kg_m3=" << materialDensity(mediumMaterial) << '\n';
+         if (arguments.compensatedSourcePaperProjection)
+             mapSource << "generic_compensated_source_paper_projection=1\n";
++        if (arguments.accurateSourcePaperProjection)
++            mapSource << "generic_bilinear15_accurate_projection=1\n";
+         for (std::size_t index = 0u; index < result.materialIndices.size(); ++index)
+             mapSource << index << ':' << result.materialIndices[index] << '\n';
+         const Digest mapDigest = sha256(mapSource.str());
+@@ -3833,6 +3844,8 @@
+     output << "]},\n"
+            << "  \"compensated_source_paper_projection\": {\"enabled\": "
+            << (arguments.compensatedSourcePaperProjection ? "true" : "false")
++           << ", \"accurate_bilinear15_projection\": "
++           << (arguments.accurateSourcePaperProjection ? "true" : "false")
+            << ", \"scope\": \"explicit numerical opt-in for exactly the 15-state source bilinear-fit or asymmetric-C1 liner/medium pair; requires compensated paper arithmetic; no retained-damage overlay or 13-state Hill policy; constitutive equations and global tolerances unchanged\","
+               " \"source_material_indices\": ["
+            << (arguments.compensatedSourcePaperProjection ? "0,1" : "")
+@@ -3842,6 +3855,10 @@
+            << ", \"effective_compiled_flags\": {\"liner_flags\": "
+            << linerCompiledFlags << ", \"medium_flags\": "
+            << mediumCompiledFlags
++           << ", \"liner_local_newton_iterations\": "
++           << compiled.world.materials[0].localNewtonIterations
++           << ", \"medium_local_newton_iterations\": "
++           << compiled.world.materials[1].localNewtonIterations
+            << ", \"liner_generic_compensated_implicit_projection\": "
+            << ((linerCompiledFlags &
+                 NM_MATERIAL_GENERIC_COMPENSATED_IMPLICIT_PROJECTION) != 0u
+@@ -12033,6 +12050,13 @@
+                 "compensated source-paper projection requires exactly 15 fully implicit generic states in each source material");
+         liner.genericCompensatedImplicitProjection = true;
+         medium.genericCompensatedImplicitProjection = true;
++        if (arguments.accurateSourcePaperProjection) {
++            require(numi::cardboard::paper_materials::isBilinearFitIdentity(liner.name) &&
++                        numi::cardboard::paper_materials::isBilinearFitIdentity(medium.name),
++                    "accurate source-paper projection requires the bilinear15 liner/medium pair");
++            liner.genericBilinear15AccurateProjection = true;
++            medium.genericBilinear15AccurateProjection = true;
++        }
+     }
+     if (arguments.linerDamageSet && arguments.mediumDamageSet) {
+         require(!numi::cardboard::paper_materials::isBilinearFitIdentity(liner.name) &&
+@@ -12113,6 +12137,13 @@
+                     (compiled.world.materials[0].flags & incompatibleHillFlags) == 0u &&
+                     (compiled.world.materials[1].flags & incompatibleHillFlags) == 0u,
+                 "compiled liner/medium descriptors did not preserve the requested compensated 15-state source policy");
++    }
++    if (arguments.accurateSourcePaperProjection) {
++        for (std::uint32_t index = 0u; index < 2u; ++index)
++            require((compiled.world.materials[index].flags &
++                        NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION) != 0u &&
++                        compiled.world.materials[index].localNewtonIterations == 16u,
++                    "compiled source-paper material omitted scaled-correction policy or its local budget");
+     }
+     if (arguments.shippingBox) {
+         require(mesh.shippingImpactorProxyIndex <
+--- a/matter/tools/cardboard_resolution_study.py
++++ b/matter/tools/cardboard_resolution_study.py
+@@ -259,6 +259,8 @@
+                 or solver.get("safeguarded_paper_hill_initializer", False)):
+             raise StudyError("source15 projection cannot use 13-state Hill projection controls")
+         args.append("--compensated-source-paper-projection")
++        if manifest["compensated_source_paper_projection"].get("accurate_bilinear15_projection", False):
++            args.append("--accurate-source-paper-projection")
+     for feature in ("retained_matrix_damage_overlay", "corrugator_starch_interface",
+                     "generic_compensated_implicit_projection"):
+         if manifest.get(feature, {}).get("enabled", False):
+--- a/matter/tools/test_cardboard_convergence.py
++++ b/matter/tools/test_cardboard_convergence.py
+@@ -522,6 +522,37 @@
+         with self.assertRaisesRegex(cc.IncompatibleError, "source_paper_projection differs"):
+             cc._same_solver_controls(a, b)
+ 
++    def test_scaled_source_projection_binds_policy_budget_and_comparisons(self) -> None:
++        a = cc._load_run(fake_run(self.root, "accurate15-a"))
++        b = cc._load_run(fake_run(self.root, "accurate15-b", nx=4))
++        for run in (a, b):
++            run.manifest["solver"].update({"paper_compensated_arithmetic": True,
++                                          "safeguarded_paper_hill_initializer": False})
++            flags = {role + suffix: value for role in ("liner", "medium")
++                     for suffix, value in (("_flags", 0xD0),
++                         ("_generic_compensated_implicit_projection", True),
++                         ("_compensated_paper_arithmetic", True),
++                         ("_local_newton_iterations", 16))}
++            run.manifest["compensated_source_paper_projection"] = {
++                "enabled": True, "accurate_bilinear15_projection": True,
++                "source_material_indices": [0, 1],
++                "source_map_sha256": run.manifest["materials"]["regional_map_sha256"],
++                "compiled_world_fingerprint": run.manifest["compiled_world_fingerprint"],
++                "effective_compiled_flags": flags}
++        cc._same_solver_controls(a, b)
++        policy = b.manifest["compensated_source_paper_projection"]
++        policy["effective_compiled_flags"]["medium_local_newton_iterations"] = 8
++        with self.assertRaisesRegex(cc.EvidenceError, "exact local budget"):
++            cc._same_solver_controls(a, b)
++        policy["effective_compiled_flags"]["medium_local_newton_iterations"] = 16
++        policy["accurate_bilinear15_projection"] = False
++        with self.assertRaisesRegex(cc.EvidenceError, "scaled-correction flag"):
++            cc._same_solver_controls(a, b)
++        for role in ("liner", "medium"):
++            policy["effective_compiled_flags"][role + "_flags"] = 0x50
++        with self.assertRaisesRegex(cc.IncompatibleError, "accurate_bilinear15_projection differs"):
++            cc._same_solver_controls(a, b)
++
+ 
+ if __name__ == "__main__":
+     unittest.main(verbosity=2)

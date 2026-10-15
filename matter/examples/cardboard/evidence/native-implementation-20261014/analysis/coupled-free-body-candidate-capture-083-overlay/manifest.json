@@ -1,0 +1,44 @@
+{
+  "schema": "numi.matter.external_runtime_overlay.v1",
+  "name": "bounded coupled free-body Newton candidate capture",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-runtime-diagnostic-return-repair-079",
+  "base_runtime_sha256": "951cfaeafb3bee22b547ff4d8f9fce2c5c9c226364deecf8f4205e13c742cb56",
+  "overlay_runtime_sha256": "99250d34ecd5880d88ccfd730d86254c469c7f4a5b4fc2e5bd198a330b0a2bea",
+  "patch_file": "runtime.patch",
+  "patch_sha256": "0b538c76e92215fd040e3a98fd889cb637ff12cb588464ea0ad64b5a15072ef0",
+  "scope": [
+    "matter/src/runtime.mm"
+  ],
+  "selectors": {
+    "capture": "NM_FEM_COUPLED_CAPTURE_SELECTOR=root:zero_based_iteration",
+    "output_stem": "NM_FEM_COUPLED_CAPTURE_PATH"
+  },
+  "capture_point": "after_fgmres_measure_and_human_direction_map_before_armijo_trial",
+  "readback_limit_bytes": 33554432,
+  "max_arrays": 192,
+  "unique_named_array_slots": 158,
+  "array_names_sha256": "86b96187cd27363d7445143a69fdd8084daa8afe3e71ceedfc3bf63c81994794",
+  "scope_guard": "one environment; FEM <=2048 nodes/8192 tets; no MPM/vascular/identification; bounded contact/cohesive/proxy/body/wrench counts; rejects nonzero articulated generalized q/v; borrowed rigid inputs with nonzero counts must be present; only raw coupled transaction input, not accepted checkpoint",
+  "persistent_mechanics_or_acceptance_changes": false,
+  "compile_validation": {
+    "mode": "Objective-C++ syntax-only, no GPU execution",
+    "source_headers_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-tiled-fixture-and-memory-accounting-083",
+    "source_snapshot_manifest_sha256": "ef37fb9fc0ea37edafaed34c3c421e69faa5882e722983236d6388eafe763239",
+    "command_source": "build-cardboard-provenance-083 compile_commands.json runtime.mm command, replaced source path with overlay runtime, added matter/src include path and -fsyntax-only",
+    "result": "PASS"
+  },
+  "offline_tools": {
+    "reader": "coupled_capture_reader.py",
+    "reader_sha256": "ee959779c7fdfa4c238f0ae2599f1ab0ff47a8cbb1cf1670b81ffb22c123bd86",
+    "tests": "test_coupled_capture_reader.py",
+    "tests_sha256": "6414a3b1fcd7ff5d7a6bca606027a4470dba28892343d260e51382bce58bba73",
+    "test_result": "6 tests PASS"
+  },
+  "limitations": [
+    "No native runtime capture has been executed from this overlay.",
+    "Capture-on/off production-history byte identity is unverified.",
+    "regional_graph_original_matrices is omitted and must be reconstructed from the captured same-candidate operator; all graph inputs/factors/pivots/corrections are included.",
+    "Arrays copy complete MTLBuffer extents; any aggregate or per-buffer extent above the 32 MiB cap fails closed.",
+    "History-directory comparison is only a byte-identity check; source/build/physical-argv receipts must be compared separately and a failed run remains failed."
+  ]
+}
