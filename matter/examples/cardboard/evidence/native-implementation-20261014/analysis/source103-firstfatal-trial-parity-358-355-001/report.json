@@ -1,0 +1,134 @@
+{
+  "schema": "numi.cardboard.private-trial-parity.v1",
+  "capture_on": "native/first-fatal-private-trial-358",
+  "capture_off": "native/whole-mortar-free-body-baseline-355",
+  "source_snapshots": [
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-whole-mortar-proof-103",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-whole-mortar-proof-103"
+  ],
+  "receipts": [
+    {
+      "schema": "numi.cardboard.native-run-receipt.v2",
+      "execution_started": true,
+      "source_inputs_unchanged": true,
+      "changed_inputs": [],
+      "exit_code": 1,
+      "timed_out": false,
+      "termination_errors": [],
+      "wall_seconds": 8.831599584023934,
+      "finished_at_utc": "2026-10-15T14:05:52.680902+00:00"
+    },
+    {
+      "schema": "numi.cardboard.native-run-receipt.v2",
+      "execution_started": true,
+      "source_inputs_unchanged": true,
+      "changed_inputs": [],
+      "exit_code": 1,
+      "timed_out": false,
+      "termination_errors": [],
+      "wall_seconds": 13.476591791026294,
+      "finished_at_utc": "2026-10-15T14:00:25.702618+00:00"
+    }
+  ],
+  "diagnostic_state_files": [
+    {
+      "name": "fixture-free-body-control-1200.log",
+      "bytes_a": 37008,
+      "bytes_b": 37008,
+      "sha256_a": "ccb40283ebb8a4c849a536899fb9ebd87906f0da7fcb785c2f403f666321c8d6",
+      "sha256_b": "ccb40283ebb8a4c849a536899fb9ebd87906f0da7fcb785c2f403f666321c8d6",
+      "byte_identical": true
+    },
+    {
+      "name": "fixture-free-body-control-1201.log",
+      "bytes_a": 37779,
+      "bytes_b": 37254,
+      "sha256_a": "277ec430e08ecc6760ed5217e316303a5c8208122176cc9cca44dbec0e19dc3d",
+      "sha256_b": "0bccee28bcf003cd4d534984d3037c74c04377e9e7f3d4209989fcb7b0f60460",
+      "byte_identical": false
+    },
+    {
+      "name": "transaction-000000-after.bin",
+      "bytes_a": 904359,
+      "bytes_b": 904359,
+      "sha256_a": "62d8c4cb1bb58531d9ff8471ecc4255bcffe20f3e1122a2970a6d65f0b85362a",
+      "sha256_b": "62d8c4cb1bb58531d9ff8471ecc4255bcffe20f3e1122a2970a6d65f0b85362a",
+      "byte_identical": true
+    },
+    {
+      "name": "transaction-000000-before.bin",
+      "bytes_a": 904359,
+      "bytes_b": 904359,
+      "sha256_a": "6d04ef15744f4adf946a642cad32598b957ff3a3fc1729e7fd290ca19af9403b",
+      "sha256_b": "6d04ef15744f4adf946a642cad32598b957ff3a3fc1729e7fd290ca19af9403b",
+      "byte_identical": true
+    },
+    {
+      "name": "transaction-000000.json",
+      "bytes_a": 6559,
+      "bytes_b": 6559,
+      "sha256_a": "249d5249c1a4f2f165bc8468142a8f086ee615465360aac7080d9b9d6d90c5bf",
+      "sha256_b": "249d5249c1a4f2f165bc8468142a8f086ee615465360aac7080d9b9d6d90c5bf",
+      "byte_identical": true
+    },
+    {
+      "name": "transaction-000001-after.bin",
+      "bytes_a": 904359,
+      "bytes_b": 904359,
+      "sha256_a": "4ec700ba4072d4b1c374319fdf6b369eaff90e5c0fd32e6ee488b48950edd4b0",
+      "sha256_b": "4ec700ba4072d4b1c374319fdf6b369eaff90e5c0fd32e6ee488b48950edd4b0",
+      "byte_identical": true
+    },
+    {
+      "name": "transaction-000001-before.bin",
+      "bytes_a": 904359,
+      "bytes_b": 904359,
+      "sha256_a": "62d8c4cb1bb58531d9ff8471ecc4255bcffe20f3e1122a2970a6d65f0b85362a",
+      "sha256_b": "62d8c4cb1bb58531d9ff8471ecc4255bcffe20f3e1122a2970a6d65f0b85362a",
+      "byte_identical": true
+    },
+    {
+      "name": "transaction-000001.json",
+      "bytes_a": 6676,
+      "bytes_b": 6676,
+      "sha256_a": "1920dcf0873634e798740a00313ae9a12fb95fa3fb760eb2a2653cdf40d28e81",
+      "sha256_b": "1920dcf0873634e798740a00313ae9a12fb95fa3fb760eb2a2653cdf40d28e81",
+      "byte_identical": true
+    },
+    {
+      "name": "transaction-000002-after.bin",
+      "bytes_a": 904359,
+      "bytes_b": 904359,
+      "sha256_a": "bcb861cb347014ffc17f4a5559323eedee82e3373facf8e160eaa80b93937a22",
+      "sha256_b": "bcb861cb347014ffc17f4a5559323eedee82e3373facf8e160eaa80b93937a22",
+      "byte_identical": true
+    },
+    {
+      "name": "transaction-000002-before.bin",
+      "bytes_a": 904359,
+      "bytes_b": 904359,
+      "sha256_a": "4ec700ba4072d4b1c374319fdf6b369eaff90e5c0fd32e6ee488b48950edd4b0",
+      "sha256_b": "4ec700ba4072d4b1c374319fdf6b369eaff90e5c0fd32e6ee488b48950edd4b0",
+      "byte_identical": true
+    },
+    {
+      "name": "transaction-000002.json",
+      "bytes_a": 6676,
+      "bytes_b": 6676,
+      "sha256_a": "f7ecf926320abbec393ad1de6b0295a976d3bbfb340da5d1f9893ce268653ac2",
+      "sha256_b": "f7ecf926320abbec393ad1de6b0295a976d3bbfb340da5d1f9893ce268653ac2",
+      "byte_identical": true
+    }
+  ],
+  "armijo_records_identical": true,
+  "armijo_record_count": 32,
+  "nonlog_production_files_byte_identical": true,
+  "instrumentation_notes": [
+    "fem_coupled_trial_capture_enabled={\"schema\":1,\"root\":1201,\"iteration\":7,\"trial\":23,\"phase\":\"both\",\"aggregate_readback_cap_bytes\":33554432,\"capture_point_order\":\"candidate_pre_rebuild_then_residual_stages_then_rebuilt_contact_pre_measurement\"}",
+    "fem_coupled_trial_capture_complete={\"schema\":\"numi.matter.coupled_armijo_trial_capture.v1\",\"root\":1201,\"iteration\":7,\"trial\":23,\"bytes\":19467248,\"arrays\":129,\"manifest\":\"/Users/home/cardboard-implementation-20261014/native/first-fatal-private-trial-358/private-trial.coupled.json\"}"
+  ],
+  "limitations": [
+    "Both runs reject. This is failed-prefix instrument parity, not nonlinear convergence.",
+    "Fixture logs contain instrument messages and are not claimed byte-identical."
+  ]
+}

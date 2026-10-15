@@ -1,5 +1,18 @@
 # Native solver progress and unresolved qualification
 
+## Current milestone: source103
+
+Source103 builds68 targets and passes73 CPU checks. Native353 passes all16
+direct mortar CCD cases; combined-contact356 passes5,683 assertions across
+four native transactions, including exact tested/applied fraction and complete
+rejection rollback. Current-Newton augmentation344 passes its independent
+algebraic consistency audit, but complete coupon352 still rejects control2 at
+Newton23 after two of27 accepted controls. First-fatal free-body captures358/359
+preserve capture-off355's physical histories exactly. No complete numerical
+resolution study or shipping assembly/crush/drop passes. See
+[the source103 report](solver-milestone-source103.md) for scopes and six
+separate verdicts. Earlier entries below retain their original source scope.
+
 ## Selected material derivative refinement: reference011
 
 The published source095 implementation is unchanged. A separately declared

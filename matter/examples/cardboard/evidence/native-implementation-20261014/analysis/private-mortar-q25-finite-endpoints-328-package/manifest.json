@@ -1,0 +1,35 @@
+{
+  "schema": "numi.cardboard.mortar_q25_finite_endpoints_overlay.v1",
+  "status": "candidate_unqualified_native",
+  "base_package": "/Users/home/cardboard-implementation-20261014/analysis/private-mortar-q25-boundary-326/package",
+  "base_manifest_sha256": "22aa540ebb77cc00e467d241c054f2b9179964f053da71cbfcddb57749e0c388",
+  "base_patch_sha256": "441b5e031d24374a7eeee3bfb925849e8bf1cb6605dfbe73493572f1e62b563f",
+  "patch": "finite-endpoints.patch",
+  "patch_sha256": "235221bc8358a901f6808e39cde87a29ae88cec3d65bd88f26659a1927f3d0eb",
+  "changed_files": {
+    "matter/include/numi/matter/mortar_shared_edge_guard.h": {
+      "base_sha256": "424f81a65836457d84593231e2efeca1ccfabaabd869c4a8920bf2403b2cafa1",
+      "after_sha256": "d3893c4b92b75684037347cfa3a068883b85ba63625e6903333fefc797594d26"
+    },
+    "matter/tools/mortar_exact_tiling_check.cpp": {
+      "base_sha256": "e3d0a7a7104cace1bc82739634a78e3f0eaf8de4e6ea9e4b59ced4c74c5fea57",
+      "after_sha256": "0aec9c099bd97012c88aca814cfd88f3595ba18e322eacbf93bfc5a7f4a45d60"
+    }
+  },
+  "contract": "finite-endpoint checks in the exact Q25 endpoint predicates",
+  "tests": {
+    "cpu_command": "clang++ -std=c++17 -Wall -Wextra -Wpedantic -Werror -I source/matter/include source/matter/tools/mortar_exact_tiling_check.cpp -o mortar_exact_tiling_check && ./mortar_exact_tiling_check",
+    "cpu_result": "PASS: mortar_exact_tiling_checks=23 exact_fan_and_tiles=true exact_feature_identity=true",
+    "negative_controls": [
+      "infinite endpoint coordinates reject in segment parameter predicate",
+      "infinite paired world endpoints reject instead of passing inf==inf",
+      "NaN paired mapped vertices reject instead of equality aliasing"
+    ],
+    "metal_compile": "PASS: xcrun metal -std=metal4.0 -O3 -fno-fast-math compiled matter_kernels.metal; metallib linked. Two unrelated pre-existing FGMRES maybe-uninitialized warnings remain.",
+    "patch_application": "PASS: patch --dry-run -p1 against the named base source."
+  },
+  "limitations": [
+    "Does not qualify contact outcomes or a native/GPU trajectory.",
+    "Unsupported or numerically unresolved cases continue to ordinary CCD."
+  ]
+}

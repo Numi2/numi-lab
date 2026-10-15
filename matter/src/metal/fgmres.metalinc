@@ -1684,6 +1684,7 @@ kernel void nm_fgmres_regional_load_mode(
     device float4* direction [[buffer(2)]],
     constant uint& modeCount [[buffer(3)]],
     constant uint& mode [[buffer(4)]],
+    constant uint& modeStride [[buffer(5)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint total = dispatch.environmentCount * dispatch.femNodeCount;
@@ -1692,7 +1693,7 @@ kernel void nm_fgmres_regional_load_mode(
     const uint environment = global / dispatch.femNodeCount;
     const uint node = global % dispatch.femNodeCount;
     direction[global] = regionalBasis[
-        (environment * modeCount + mode) * dispatch.femNodeCount + node];
+        (environment * modeStride + mode) * dispatch.femNodeCount + node];
 }
 
 // Project the immutable source-authored P through the exact FEM candidate
@@ -1704,17 +1705,23 @@ kernel void nm_fgmres_regional_project_basis(
     device const NMFEMNodeStateGPU* candidate [[buffer(2)]],
     device float4* effectiveBasis [[buffer(3)]],
     constant uint& modeCount [[buffer(4)]],
+    constant uint& modeStride [[buffer(5)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint nodes = dispatch.femNodeCount;
-    if (nodes == 0u || modeCount == 0u || modeCount > 32u) return;
-    const uint perEnvironment = modeCount * nodes;
+    if (nodes == 0u || modeCount == 0u || modeCount > 32u ||
+        modeStride < modeCount || modeStride > 32u) return;
+    const uint perEnvironment = modeStride * nodes;
     const uint total = dispatch.environmentCount * perEnvironment;
     if (global >= total) return;
     const uint environment = global / perEnvironment;
     const uint local = global - environment * perEnvironment;
     const uint mode = local / nodes;
     const uint node = local - mode * nodes;
+    if (mode >= modeCount) {
+        effectiveBasis[global] = float4(0.0f);
+        return;
+    }
     const NMFEMNodeStateGPU state = candidate[environment * nodes + node];
     const bool constrained = state.restAndFixed.w == 1.0f ||
         state.restAndFixed.w == 3.0f;
@@ -2110,16 +2117,366 @@ kernel void nm_fgmres_regional_store_ap(
     device float4* regionalAP [[buffer(2)]],
     constant uint& modeCount [[buffer(3)]],
     constant uint& mode [[buffer(4)]],
+    constant uint& modeStride [[buffer(5)]],
+    device const uint* tailPreserved [[buffer(6)]],
+    constant uint& preserveCompletedTail [[buffer(7)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint total = dispatch.environmentCount * dispatch.femNodeCount;
-    if (global >= total || dispatch.femNodeCount == 0u || mode >= modeCount)
+    if (global >= total || dispatch.femNodeCount == 0u ||
+        mode >= modeCount || modeStride < modeCount || modeStride > 32u)
         return;
     const uint environment = global / dispatch.femNodeCount;
     const uint node = global - environment * dispatch.femNodeCount;
-    const uint base = (environment * modeCount + mode) *
+    if (preserveCompletedTail != 0u && tailPreserved[environment] != 0u)
+        return;
+    const uint base = (environment * modeStride + mode) *
         dispatch.femNodeCount;
     regionalAP[base + node] = operatorValue[global];
+}
+
+// Same-Newton restart augmentation, opt-in selector-5 contact-free slice.
+// The extra vector is the correction from the just-completed Arnoldi cycle;
+// its production operator image is recomputed by the runtime before this
+// kernel family is called. Each environment has an independent Krylov state,
+// extra mode, RAP, and generation. No previous-Newton state enters these
+// kernels.
+kernel void nm_fgmres_regional_restart_form_mode(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const float4* zBasis [[buffer(1)]],
+    device const float* leastSquares [[buffer(2)]],
+    device const NMFGMRESStateGPU* states [[buffer(3)]],
+    device const NMFEMNodeStateGPU* candidate [[buffer(4)]],
+    device float4* effectiveBasis [[buffer(5)]],
+    device float4* direction [[buffer(6)]],
+    constant uint& baseModeCount [[buffer(7)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(8)]],
+    device uint4* augmentationGeneration [[buffer(9)]],
+    constant uint& controlStep [[buffer(10)]],
+    constant uint& physicsSubstep [[buffer(11)]],
+    constant uint& newtonIteration [[buffer(12)]],
+    constant uint& restartCycle [[buffer(13)]],
+    device uint* tailPreserved [[buffer(14)]],
+    uint global [[thread_position_in_grid]]) {
+    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global >= total || dispatch.environmentCount == 0u ||
+        dispatch.femNodeCount == 0u || baseModeCount == 0u ||
+        baseModeCount >= 32u) return;
+    const uint environment = global / dispatch.femNodeCount;
+    const uint node = global - environment * dispatch.femNodeCount;
+    if (states[environment].diagnostics.z > 0.5f) {
+        if (node == 0u) tailPreserved[environment] = 1u;
+        return;
+    }
+    if (node == 0u) tailPreserved[environment] = 0u;
+    const uint used = min(uint(states[environment].diagnostics.w),
+                          NM_MIXED_FGMRES_RESTART);
+    float4 value = float4(0.0f);
+    if (states[environment].diagnostics.z <= 0.5f) {
+        for (uint column = 0u; column < used; ++column)
+            value += zBasis[column * layout.unknownCount + global] *
+                leastSquares[fgmresVectorIndex(environment, column)];
+    }
+    if (candidate[global].restAndFixed.w != 0.0f) value = float4(0.0f);
+    const uint extraBase =
+        (environment * (baseModeCount + 1u) + baseModeCount) *
+        dispatch.femNodeCount;
+    effectiveBasis[extraBase + node] = value;
+    direction[global] = value;
+    if (node == 0u) {
+        augmentationGeneration[environment] = uint4(
+            controlStep, physicsSubstep, newtonIteration, restartCycle);
+    }
+}
+
+kernel void nm_fgmres_regional_restart_reset_metadata(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device uint4* augmentationGeneration [[buffer(1)]],
+    device float* rawNormSquared [[buffer(2)]],
+    device float* scaleOut [[buffer(3)]],
+    device uint* modeValid [[buffer(4)]],
+    device float* targetScale [[buffer(5)]],
+    device uint* factorValid [[buffer(6)]],
+    device uint* tailPreserved [[buffer(7)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint environment [[threadgroup_position_in_grid]]) {
+    if (lane != 0u || environment >= dispatch.environmentCount) return;
+    augmentationGeneration[environment] = uint4(0xffffffffu);
+    rawNormSquared[environment] = 0.0f;
+    scaleOut[environment] = 0.0f;
+    modeValid[environment] = 0u;
+    targetScale[environment] = 0.0f;
+    factorValid[environment] = 0u;
+    tailPreserved[environment] = 0u;
+}
+
+kernel void nm_fgmres_regional_restart_cross_rhs(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const float4* effectiveBasis [[buffer(1)]],
+    device const float4* regionalAP [[buffer(2)]],
+    device float* rhs [[buffer(3)]],
+    constant uint& baseModeCount [[buffer(4)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint group [[threadgroup_position_in_grid]]) {
+    if (dispatch.environmentCount == 0u || dispatch.femNodeCount == 0u ||
+        baseModeCount == 0u || baseModeCount >= 32u) return;
+    const uint totalGroups = dispatch.environmentCount * baseModeCount;
+    if (group >= totalGroups) return;
+    const uint environment = group / baseModeCount;
+    const uint mode = group - environment * baseModeCount;
+    float sum = 0.0f;
+    const uint extraBase =
+        (environment * (baseModeCount + 1u) + baseModeCount) *
+        dispatch.femNodeCount;
+    for (uint node = lane; node < dispatch.femNodeCount; node += 32u) {
+        const float4 p = effectiveBasis[
+            (environment * (baseModeCount + 1u) + mode) *
+                dispatch.femNodeCount + node];
+        const float4 aq = regionalAP[extraBase + node];
+        sum += dot(p.xyz, aq.xyz);
+    }
+    sum = simd_sum(sum);
+    if (lane == 0u) rhs[environment * baseModeCount + mode] = sum;
+}
+
+kernel void nm_fgmres_regional_restart_project_mode(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device float4* effectiveBasis [[buffer(1)]],
+    device float4* regionalAP [[buffer(2)]],
+    device const float* baseCoefficients [[buffer(3)]],
+    constant uint& baseModeCount [[buffer(4)]],
+    device const uint* tailPreserved [[buffer(5)]],
+    uint global [[thread_position_in_grid]]) {
+    const uint totalNodes = dispatch.environmentCount * dispatch.femNodeCount;
+    if (dispatch.environmentCount == 0u || global >= totalNodes ||
+        dispatch.femNodeCount == 0u || baseModeCount == 0u ||
+        baseModeCount >= 32u) return;
+    const uint environment = global / dispatch.femNodeCount;
+    const uint node = global - environment * dispatch.femNodeCount;
+    if (tailPreserved[environment] != 0u) return;
+    const uint modes = baseModeCount + 1u;
+    const uint extraBase =
+        (environment * modes + baseModeCount) * dispatch.femNodeCount;
+    float4 q = effectiveBasis[extraBase + node];
+    float4 aq = regionalAP[extraBase + node];
+    for (uint mode = 0u; mode < baseModeCount; ++mode) {
+        const float coefficient =
+            baseCoefficients[environment * baseModeCount + mode];
+        q -= coefficient * effectiveBasis[
+            (environment * modes + mode) * dispatch.femNodeCount + node];
+        aq -= coefficient * regionalAP[
+            (environment * modes + mode) * dispatch.femNodeCount + node];
+    }
+    q.w = 0.0f;
+    aq.w = 0.0f;
+    effectiveBasis[extraBase + node] = q;
+    regionalAP[extraBase + node] = aq;
+}
+
+inline float2 fgmresRestartAccumulateProduct(
+    const float2 accumulator, const float left, const float right) {
+    const float product = left * right;
+    const float productError = fma(left, right, -product);
+    const float high = accumulator.x + product;
+    const float virtualProduct = high - accumulator.x;
+    const float sumError = (accumulator.x - (high - virtualProduct)) +
+        (product - virtualProduct);
+    const float tail = accumulator.y + sumError + productError;
+    const float normalizedHigh = high + tail;
+    return float2(normalizedHigh, tail - (normalizedHigh - high));
+}
+
+kernel void nm_fgmres_regional_restart_measure(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const float4* effectiveBasis [[buffer(1)]],
+    device const float4* regionalAP [[buffer(2)]],
+    device const float* targetScale [[buffer(3)]],
+    device const float* rawNormSquared [[buffer(4)]],
+    device float* scaleOut [[buffer(5)]],
+    device uint* modeValid [[buffer(6)]],
+    constant uint& baseModeCount [[buffer(7)]],
+    device const uint* tailPreserved [[buffer(8)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint environment [[threadgroup_position_in_grid]]) {
+    if (lane != 0u || environment >= dispatch.environmentCount ||
+        tailPreserved[environment] != 0u ||
+        dispatch.femNodeCount == 0u ||
+        baseModeCount == 0u || baseModeCount >= 32u) return;
+    const uint modes = baseModeCount + 1u;
+    const uint extraBase =
+        (environment * modes + baseModeCount) * dispatch.femNodeCount;
+    float2 energy = float2(0.0f);
+    float absoluteProducts = 0.0f;
+    float norm2 = 0.0f;
+    bool finite = true;
+    for (uint node = 0u; node < dispatch.femNodeCount; ++node) {
+        const float3 q = effectiveBasis[extraBase + node].xyz;
+        const float3 aq = regionalAP[extraBase + node].xyz;
+        finite = finite && all(isfinite(q)) && all(isfinite(aq));
+        norm2 += dot(q, q);
+        for (uint axis = 0u; axis < 3u; ++axis) {
+            energy = fgmresRestartAccumulateProduct(
+                energy, q[axis], aq[axis]);
+            absoluteProducts += abs(q[axis] * aq[axis]);
+        }
+    }
+    const float energyValue = energy.x + energy.y;
+    const float rawNorm = rawNormSquared[environment];
+    const float target = targetScale[environment];
+    // The sign/scale test is a measured cancellation guard. Indefinite RAP is
+    // permitted; the test only refuses a Schur energy whose sign is unresolved.
+    const float signFloor = 32.0f * 1.1920928955078125e-7f *
+        absoluteProducts;
+    const float equilibration = sqrt(target / abs(energyValue));
+    const bool independent = isfinite(norm2) && isfinite(rawNorm) &&
+        rawNorm > 0.0f && norm2 > rawNorm * 1.0e-10f;
+    const bool resolved = isfinite(energyValue) && isfinite(absoluteProducts) &&
+        abs(energyValue) > signFloor;
+    const bool bounded = isfinite(target) && target > 0.0f &&
+        isfinite(equilibration) && equilibration >= 1.0e-4f &&
+        equilibration <= 1.0e5f;
+    const bool valid = finite && independent && resolved && bounded;
+    modeValid[environment] = valid ? 1u : 0u;
+    scaleOut[environment] = valid ? equilibration : 0.0f;
+}
+
+kernel void nm_fgmres_regional_restart_scale_mode(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device float4* effectiveBasis [[buffer(1)]],
+    device float4* regionalAP [[buffer(2)]],
+    device const float* scaleIn [[buffer(3)]],
+    device const uint* modeValid [[buffer(4)]],
+    constant uint& baseModeCount [[buffer(5)]],
+    device const uint* tailPreserved [[buffer(6)]],
+    uint global [[thread_position_in_grid]]) {
+    const uint totalNodes = dispatch.environmentCount * dispatch.femNodeCount;
+    if (dispatch.environmentCount == 0u || global >= totalNodes ||
+        dispatch.femNodeCount == 0u || baseModeCount == 0u ||
+        baseModeCount >= 32u) return;
+    const uint environment = global / dispatch.femNodeCount;
+    const uint node = global - environment * dispatch.femNodeCount;
+    if (tailPreserved[environment] != 0u) return;
+    const uint index =
+        (environment * (baseModeCount + 1u) + baseModeCount) *
+            dispatch.femNodeCount + node;
+    if (modeValid[environment] == 0u) {
+        effectiveBasis[index] = float4(0.0f);
+        regionalAP[index] = float4(0.0f);
+        return;
+    }
+    effectiveBasis[index] *= scaleIn[environment];
+    regionalAP[index] *= scaleIn[environment];
+}
+
+kernel void nm_fgmres_regional_restart_clear_if_invalid(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device float4* effectiveBasis [[buffer(1)]],
+    device float4* regionalAP [[buffer(2)]],
+    device const uint* modeValid [[buffer(3)]],
+    constant uint& baseModeCount [[buffer(4)]],
+    uint global [[thread_position_in_grid]]) {
+    const uint totalNodes = dispatch.environmentCount * dispatch.femNodeCount;
+    if (dispatch.environmentCount == 0u || global >= totalNodes ||
+        dispatch.femNodeCount == 0u || baseModeCount == 0u ||
+        baseModeCount >= 32u) return;
+    const uint environment = global / dispatch.femNodeCount;
+    const uint node = global - environment * dispatch.femNodeCount;
+    if (modeValid[environment] != 0u) return;
+    const uint index =
+        (environment * (baseModeCount + 1u) + baseModeCount) *
+            dispatch.femNodeCount + node;
+    effectiveBasis[index] = float4(0.0f);
+    regionalAP[index] = float4(0.0f);
+}
+
+kernel void nm_fgmres_regional_restart_identity_if_invalid(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device float* coarseMatrix [[buffer(1)]],
+    device const uint* modeValid [[buffer(2)]],
+    device const float* targetScale [[buffer(3)]],
+    constant uint& modeCount [[buffer(4)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint environment [[threadgroup_position_in_grid]]) {
+    if (lane != 0u || environment >= dispatch.environmentCount ||
+        modeCount < 2u ||
+        modeCount > 32u) return;
+    const uint matrixBase = environment * modeCount * modeCount;
+    if (modeValid[environment] != 0u) return;
+    const uint last = modeCount - 1u;
+    for (uint row = 0u; row < modeCount; ++row) {
+        coarseMatrix[matrixBase + row * modeCount + last] = 0.0f;
+        coarseMatrix[matrixBase + last * modeCount + row] = 0.0f;
+    }
+    const float fallbackDiagonal = targetScale[environment];
+    coarseMatrix[matrixBase + last * modeCount + last] =
+        isfinite(fallbackDiagonal) && fallbackDiagonal > 0.0f
+            ? fallbackDiagonal : 1.0f;
+}
+
+kernel void nm_fgmres_regional_restart_fallback_if_factor_invalid(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const uint* coarseValid [[buffer(1)]],
+    device uint* modeValid [[buffer(2)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint environment [[threadgroup_position_in_grid]]) {
+    if (lane != 0u || environment >= dispatch.environmentCount) return;
+    if (coarseValid[environment] == 0u) modeValid[environment] = 0u;
+}
+
+kernel void nm_fgmres_regional_restart_measure_raw(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const float4* effectiveBasis [[buffer(1)]],
+    device float* rawNormSquared [[buffer(2)]],
+    constant uint& baseModeCount [[buffer(3)]],
+    device const uint* tailPreserved [[buffer(4)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint environment [[threadgroup_position_in_grid]]) {
+    if (environment >= dispatch.environmentCount ||
+        tailPreserved[environment] != 0u ||
+        dispatch.femNodeCount == 0u || baseModeCount == 0u ||
+        baseModeCount >= 32u) return;
+    const uint base =
+        (environment * (baseModeCount + 1u) + baseModeCount) *
+            dispatch.femNodeCount;
+    float sum = 0.0f;
+    for (uint node = lane; node < dispatch.femNodeCount; node += 32u)
+        sum += dot(effectiveBasis[base + node].xyz,
+                   effectiveBasis[base + node].xyz);
+    sum = simd_sum(sum);
+    if (lane == 0u) rawNormSquared[environment] = sum;
+}
+
+kernel void nm_fgmres_regional_capture_restart_scale(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const float* coarseMatrix [[buffer(1)]],
+    device float* targetScale [[buffer(2)]],
+    constant uint& baseModeCount [[buffer(3)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint environment [[threadgroup_position_in_grid]]) {
+    if (lane != 0u || environment >= dispatch.environmentCount ||
+        baseModeCount == 0u ||
+        baseModeCount > 31u) return;
+    const uint matrixBase = environment * baseModeCount * baseModeCount;
+    float diagonal[32];
+    for (uint index = 0u; index < baseModeCount; ++index) {
+        const float value = abs(coarseMatrix[
+            matrixBase + index * baseModeCount + index]);
+        if (!isfinite(value) || !(value > 0.0f)) {
+            targetScale[environment] = 0.0f;
+            return;
+        }
+        diagonal[index] = value;
+    }
+    for (uint index = 1u; index < baseModeCount; ++index) {
+        const float value = diagonal[index];
+        int cursor = int(index) - 1;
+        while (cursor >= 0 && diagonal[uint(cursor)] > value) {
+            diagonal[uint(cursor) + 1u] = diagonal[uint(cursor)];
+            --cursor;
+        }
+        diagonal[uint(cursor + 1)] = value;
+    }
+    targetScale[environment] = diagonal[baseModeCount / 2u];
 }
 
 kernel void nm_fgmres_regional_build_rap(
@@ -2128,10 +2485,12 @@ kernel void nm_fgmres_regional_build_rap(
     device const float4* regionalAP [[buffer(2)]],
     device float* coarseMatrix [[buffer(3)]],
     constant uint& modeCount [[buffer(4)]],
+    constant uint& modeStride [[buffer(5)]],
     uint lane [[thread_index_in_threadgroup]],
     uint group [[threadgroup_position_in_grid]]
 ) {
-    if (modeCount == 0u || modeCount > 32u ||
+    if (modeCount == 0u || modeCount > 32u || modeStride < modeCount ||
+        modeStride > 32u ||
         dispatch.femNodeCount == 0u) return;
     const uint entriesPerEnvironment = modeCount * modeCount;
     const uint environment = group / entriesPerEnvironment;
@@ -2139,12 +2498,12 @@ kernel void nm_fgmres_regional_build_rap(
     const uint pair = group - environment * entriesPerEnvironment;
     const uint row = pair / modeCount;
     const uint column = pair - row * modeCount;
-    const uint apBase = (environment * modeCount + column) *
+    const uint apBase = (environment * modeStride + column) *
         dispatch.femNodeCount;
     float sum = 0.0f;
     for (uint node = lane; node < dispatch.femNodeCount; node += 32u) {
         const float4 p = regionalBasis[
-            (environment * modeCount + row) * dispatch.femNodeCount + node];
+            (environment * modeStride + row) * dispatch.femNodeCount + node];
         const float4 ap = regionalAP[apBase + node];
         sum += dot(p.xyz, ap.xyz);
     }
@@ -2233,10 +2592,12 @@ kernel void nm_fgmres_regional_project_rhs(
     device const float4* basis [[buffer(2)]],
     device float* coarseRHS [[buffer(3)]],
     constant uint& modeCount [[buffer(4)]],
+    constant uint& modeStride [[buffer(5)]],
     uint lane [[thread_index_in_threadgroup]],
     uint group [[threadgroup_position_in_grid]]
 ) {
-    if (modeCount == 0u || modeCount > 32u ||
+    if (modeCount == 0u || modeCount > 32u || modeStride < modeCount ||
+        modeStride > 32u ||
         dispatch.femNodeCount == 0u) return;
     const uint environment = group / modeCount;
     if (environment >= dispatch.environmentCount) return;
@@ -2245,7 +2606,7 @@ kernel void nm_fgmres_regional_project_rhs(
     float sum = 0.0f;
     for (uint node = lane; node < dispatch.femNodeCount; node += 32u) {
         const float4 p = regionalBasis[
-            (environment * modeCount + mode) * dispatch.femNodeCount + node];
+            (environment * modeStride + mode) * dispatch.femNodeCount + node];
         sum += dot(p.xyz, basis[basisBase + node].xyz);
     }
     sum = simd_sum(sum);
@@ -2314,6 +2675,7 @@ kernel void nm_fgmres_regional_apply_rap(
     device float4* preconditioned [[buffer(6)]],
     constant uint& modeCount [[buffer(7)]],
     device const NMFGMRESStateGPU* states [[buffer(8)]],
+    constant uint& modeStride [[buffer(9)]],
     uint global [[thread_position_in_grid]]
 ) {
     // Balanced two-level right preconditioner:
@@ -2323,7 +2685,8 @@ kernel void nm_fgmres_regional_apply_rap(
     // componentwise fine diagonal used by the scalar smoother.
     const uint total = dispatch.environmentCount * dispatch.femNodeCount;
     if (global >= total || dispatch.femNodeCount == 0u ||
-        modeCount == 0u || modeCount > 32u) return;
+        modeCount == 0u || modeCount > 32u ||
+        modeStride < modeCount || modeStride > 32u) return;
     const uint environment = global / dispatch.femNodeCount;
     const uint node = global - environment * dispatch.femNodeCount;
     if (states[environment].diagnostics.z > 0.5f) {
@@ -2336,9 +2699,9 @@ kernel void nm_fgmres_regional_apply_rap(
     for (uint mode = 0u; mode < modeCount; ++mode) {
         const float coefficient = coefficients[coefficientBase + mode];
         const float4 p = regionalBasis[
-            (environment * modeCount + mode) * dispatch.femNodeCount + node];
+            (environment * modeStride + mode) * dispatch.femNodeCount + node];
         const float4 ap = regionalAP[
-            (environment * modeCount + mode) * dispatch.femNodeCount + node];
+            (environment * modeStride + mode) * dispatch.femNodeCount + node];
         coarseCorrection += coefficient * p.xyz;
         coarseResidual += coefficient * ap.xyz;
     }
@@ -2360,6 +2723,7 @@ kernel void nm_fgmres_regional_apply_block_rap(
     constant uint& modeCount [[buffer(7)]],
     device const NMFGMRESStateGPU* states [[buffer(8)]],
     device const float4* inverseBlockRows [[buffer(9)]],
+    constant uint& modeStride [[buffer(10)]],
     uint global [[thread_position_in_grid]]
 ) {
     // Selector 3 retains the same exact RAP coarse action and uses the full
@@ -2367,7 +2731,8 @@ kernel void nm_fgmres_regional_apply_block_rap(
     // the selector-2 diagonal fallback; neither changes the physical A.
     const uint total = dispatch.environmentCount * dispatch.femNodeCount;
     if (global >= total || dispatch.femNodeCount == 0u ||
-        modeCount == 0u || modeCount > 32u) return;
+        modeCount == 0u || modeCount > 32u ||
+        modeStride < modeCount || modeStride > 32u) return;
     const uint environment = global / dispatch.femNodeCount;
     const uint node = global - environment * dispatch.femNodeCount;
     if (states[environment].diagnostics.z > 0.5f) {
@@ -2380,9 +2745,9 @@ kernel void nm_fgmres_regional_apply_block_rap(
     for (uint mode = 0u; mode < modeCount; ++mode) {
         const float coefficient = coefficients[coefficientBase + mode];
         const float4 p = regionalBasis[
-            (environment * modeCount + mode) * dispatch.femNodeCount + node];
+            (environment * modeStride + mode) * dispatch.femNodeCount + node];
         const float4 ap = regionalAP[
-            (environment * modeCount + mode) * dispatch.femNodeCount + node];
+            (environment * modeStride + mode) * dispatch.femNodeCount + node];
         coarseCorrection += coefficient * p.xyz;
         coarseResidual += coefficient * ap.xyz;
     }
@@ -3103,11 +3468,12 @@ kernel void nm_fgmres_graph_solve_patches(
     device const float* originalMatrices [[buffer(18)]],
     constant uint& refinementMode [[buffer(19)]],
     device const NMFEMNodeStateGPU* candidate [[buffer(20)]],
+    constant uint& modeStride [[buffer(21)]],
     uint lane [[thread_index_in_threadgroup]],
     uint group [[threadgroup_position_in_grid]]) {
     const uint totalGroups = dispatch.environmentCount * patchCount;
     if (group >= totalGroups || patchCount == 0u || modeCount == 0u ||
-        modeCount > 32u) return;
+        modeCount > 32u || modeStride < modeCount || modeStride > 32u) return;
     const uint environment = group / patchCount;
     const uint patchIndex = group - environment * patchCount;
     const uint4 patch = patches[patchIndex];
@@ -3163,7 +3529,7 @@ kernel void nm_fgmres_graph_solve_patches(
             const uint coefficientBase = environment * modeCount;
             for (uint mode = 0u; mode < modeCount; ++mode) {
                 const uint modeNodeBase =
-                    (environment * modeCount + mode) * dispatch.femNodeCount;
+                    (environment * modeStride + mode) * dispatch.femNodeCount;
                 value -= coefficients[coefficientBase + mode] *
                     regionalAP[modeNodeBase + globalNode][axis];
             }
@@ -3396,10 +3762,12 @@ kernel void nm_fgmres_graph_apply_patches(
     constant uint& patchNodeCount [[buffer(10)]],
     constant uint& modeCount [[buffer(11)]],
     device const NMFEMNodeStateGPU* candidate [[buffer(12)]],
+    constant uint& modeStride [[buffer(13)]],
     uint global [[thread_position_in_grid]]) {
     const uint total = dispatch.environmentCount * dispatch.femNodeCount;
     if (global >= total || dispatch.femNodeCount == 0u ||
-        modeCount == 0u || modeCount > 32u) return;
+        modeCount == 0u || modeCount > 32u ||
+        modeStride < modeCount || modeStride > 32u) return;
     const uint environment = global / dispatch.femNodeCount;
     const uint node = global - environment * dispatch.femNodeCount;
     if (states[environment].diagnostics.z > 0.5f) {
@@ -3415,7 +3783,7 @@ kernel void nm_fgmres_graph_apply_patches(
     for (uint mode = 0u; mode < modeCount; ++mode) {
         const float coefficient = coefficients[coefficientBase + mode];
         const uint basisBase =
-            (environment * modeCount + mode) * dispatch.femNodeCount;
+            (environment * modeStride + mode) * dispatch.femNodeCount;
         coarseCorrection += coefficient * regionalBasis[basisBase + node].xyz;
     }
     float3 graphCorrection = float3(0.0f);
@@ -3906,6 +4274,7 @@ kernel void nm_fgmres_apply_free_rigid(
     constant NMPrimalContactArguments& contact [[buffer(4)]],
     device const NMFGMRESStateGPU* states [[buffer(5)]],
     device const float* generalizedCandidate [[buffer(6)]],
+    constant uint& allowConvergedState [[buffer(7)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint total = dispatch.environmentCount *
@@ -3923,7 +4292,8 @@ kernel void nm_fgmres_apply_free_rigid(
     work[row] = float4(0.0f);
     if (proxyIndex >= dispatch.rigidProxyCount) return;
     const NMRigidProxyGPU proxy = contact.rigidProxies[proxyIndex];
-    if (states[environment].diagnostics.z > 0.5f ||
+    if ((states[environment].diagnostics.z > 0.5f &&
+         allowConvergedState == 0u) ||
         (proxy.flags & NM_RIGID_DYNAMIC) == 0u ||
         (proxy.flags & NM_RIGID_ARTICULATED) != 0u) return;
     const NMRigidStateGPU rigid = contact.rigidStates[
@@ -4280,6 +4650,7 @@ kernel void nm_fgmres_apply_primal_rigid_contacts(
     constant NMPrimalContactArguments& contact [[buffer(4)]],
     device const NMFGMRESStateGPU* states [[buffer(5)]],
     device const float* coupledPointJacobians [[buffer(6)]],
+    constant uint& allowConvergedState [[buffer(7)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint total = dispatch.environmentCount *
@@ -4287,7 +4658,8 @@ kernel void nm_fgmres_apply_primal_rigid_contacts(
     if (global >= total || dispatch.rigidGeneralizedCapacity == 0u) return;
     const uint environment = global / dispatch.rigidGeneralizedCapacity;
     const uint dof = global - environment * dispatch.rigidGeneralizedCapacity;
-    if (states[environment].diagnostics.z > 0.5f) return;
+    if (states[environment].diagnostics.z > 0.5f &&
+        allowConvergedState == 0u) return;
     float value = work[fgmresRigidBase(dispatch) + global].x;
     const uint activeCount = min(
         contact.activeCounts[environment], dispatch.reservedMixed1);

@@ -1,0 +1,8 @@
+{
+  "schema": "numi.cardboard.native-diagnostic-receipt.v1",
+  "exit_code": 0,
+  "wall_seconds": 0.2802351249847561,
+  "inputs_unchanged": true,
+  "physical_transactions": 0,
+  "finished_at_utc": "2026-10-15T14:07:30.226396+00:00"
+}

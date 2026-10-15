@@ -1,0 +1,75 @@
+{
+  "base": {
+    "parent_revision": "35bfb518c542a306f563cc364ef8496837068b9a",
+    "patch_check": "git apply --check passed against exact base snapshot",
+    "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-private-mortar-witness-098"
+  },
+  "captured_input_evidence": {
+    "audit_schema": "numi.matter.mortar_exact_tiling_input_audit.v1",
+    "map_audit_sha256": "12f0ae0f3884c7cff5ed0d819970c4dd14b866cf55ced42e33f804923d8a4ce9",
+    "native_status": "319 pre-overlay run: 12/16 cases pass; four expected-positive cases reject. No post-overlay GPU run.",
+    "normalization_discrepancy": "thirds have captured FP32 z=0.3333333432674408 vs XY-reconstructed z=0.333333283662796; difference=5.960464477539063e-8",
+    "package": "/Users/home/cardboard-implementation-20261014/analysis/private-mortar-witness-319-001/cases.jsonl",
+    "package_sha256": "5f67b768aa1fe7b49d599bf65d07e5dbefc5da8663f036477d4deba7b940ba8c",
+    "result": "selected 3-patch fan and 4-tile maps are exact Q25 XY covers on both sides"
+  },
+  "change_scope": [
+    "Exact Q25 proof for 2-4 barycentric XY triangles: directed-edge cancellation, complete parent boundary tiling, and pairwise no-positive-overlap.",
+    "Contact partition emits authored triangles directly only when exact-cover proof succeeds; otherwise existing clipping path remains.",
+    "Suppress only CCD witness for exact paired boundary/vertex material points that are bitwise coincident at sweep start; other features/cells remain checked."
+  ],
+  "classification": "isolated source patch and CPU/compile evidence; native GPU behavior untested",
+  "files": {
+    "contact_metalinc": {
+      "path": "build-source/matter/src/metal/contact.metalinc",
+      "sha256": "79640dad63d5f9c4a923073bdc50cab3665749bedd87ed68c002b97e7aeaae48"
+    },
+    "cpu_check": {
+      "path": "build-source/matter/tools/mortar_exact_tiling_check.cpp",
+      "sha256": "6221d4544e5f3116558a2b884421fd94216e667012840fd60d7899fac7157137"
+    },
+    "guard_header": {
+      "path": "build-source/matter/include/numi/matter/mortar_shared_edge_guard.h",
+      "sha256": "b55f84e75e003b605df829b9e0c1813283d547d535952e6eccea81a8ac9acd8a"
+    },
+    "map_auditor": {
+      "path": "audit_mortar_witness_maps.py",
+      "sha256": "c04a2ee24d3de95fb8da2d02bf22cf7550c23c08d2a953c81b4fc2eb51731c0e"
+    },
+    "matter_metallib": {
+      "path": "build-source/build-private-mortar-320/matter/shaders/NumiMatter.metallib",
+      "sha256": "906f7dae248febe8785284cf4f8acc27bcb26902ef0615839998ec6ccdacb466"
+    },
+    "native_checker_binary": {
+      "path": "build-source/build-private-mortar-320/matter/numi-matter-cardboard-full-contact-armijo-check",
+      "sha256": "795def638d7c944c112eed619186e82d26d5543c6988b1c861cb99d4c8c6fa83"
+    },
+    "native_map_audit": {
+      "path": "native-witness-map-audit.json",
+      "sha256": "12f0ae0f3884c7cff5ed0d819970c4dd14b866cf55ced42e33f804923d8a4ce9"
+    },
+    "patch": {
+      "path": "private-mortar-exact-tiling.patch",
+      "sha256": "4eea3736df376cb6380314a189e36fd7ebad31db7f9cd3473780e0d14102eef7"
+    },
+    "readme": {
+      "path": "README.md",
+      "sha256": "2307a33433aa04a09fc9dc3d2ead7a45e11ce82849ac5721da3617c86682130b"
+    }
+  },
+  "schema": "numi.matter.private_mortar_exact_tiling_overlay.v1",
+  "trajectory_argument": {
+    "contract": "fixed barycentric material points and linear interpolation between captured start and endpoint positions",
+    "finite_thickness_note": "the seam pair is treated as bonded duplicate contact; all other points and features remain CCD candidates",
+    "relative_path": "r(t)=(1-t)r(0)+t*r(1); exact same-point guard proves r(0)=0, hence r(t)=t*r(1)",
+    "scope": "only this same material-point pair; not a whole-cell exemption, not near-matching maps, not nonlinear/rotating trajectories"
+  },
+  "validation": {
+    "cpu_command": "clang++ -std=c++20 -Wall -Wextra -Werror -I matter/include matter/tools/mortar_exact_tiling_check.cpp -o /tmp/mortar_exact_tiling_check && /tmp/mortar_exact_tiling_check",
+    "cpu_result": "11 assertions passed: exact fan/tiles, invalid maps, overlap, orientation, one-ULP mismatch, exact feature identity",
+    "native_target_compile": "passed including Metal shader compilation; no GPU execution",
+    "native_target_compile_command": "cmake --build build-private-mortar-320 --target numi-matter-cardboard-full-contact-armijo-check -j2",
+    "patch_application": "git apply --check passed against exact base snapshot",
+    "sanitizers": "same CPU check passed with -fsanitize=address,undefined"
+  }
+}

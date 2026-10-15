@@ -1,0 +1,6 @@
+{
+  "exit_code": 1,
+  "stdout": "",
+  "stderr": "FAIL regional restart field admission after 1 checks: expected a source-bound FEM material asset path\n",
+  "classification": "Root invocation and unbuilt CMake preflight omitted required asset argument. Failed before compiler test; corrected separately without changing checker/source."
+}

@@ -1,0 +1,79 @@
+{
+  "alpha": 0.00390625,
+  "active": {
+    "center_residual": {
+      "count": 102,
+      "norm": 3.4360311636563682e-06,
+      "max_abs": 1.9574686120904516e-06
+    },
+    "trial_residual": {
+      "count": 102,
+      "norm": 0.010001892630522218,
+      "max_abs": 0.0100018922239542
+    },
+    "production_action": {
+      "count": 102,
+      "norm": 3.429455701340166e-06,
+      "max_abs": 1.950833166119992e-06
+    },
+    "observed_increment": {
+      "count": 102,
+      "norm": 0.009999992296860749,
+      "max_abs": 0.009999992296798155
+    },
+    "linear_predicted_increment": {
+      "count": 102,
+      "norm": 1.3396311333360023e-08,
+      "max_abs": 7.620442055156218e-09
+    },
+    "linear_prediction_error": {
+      "count": 102,
+      "norm": 0.009999999717675304,
+      "max_abs": 0.009999999717619001
+    },
+    "relative_to_predicted_increment": 746474.1202880908,
+    "cosine": -0.55394415306623
+  },
+  "representability": {
+    "velocity_increment": {
+      "count": 108,
+      "norm": 0.00010493311287363961,
+      "max_abs": 2.6366906240582466e-05
+    },
+    "alpha_delta": {
+      "count": 108,
+      "norm": 0.00010493313466523738,
+      "max_abs": 2.6366884412709624e-05
+    },
+    "velocity_rounding": {
+      "count": 108,
+      "norm": 1.425854347194544e-10,
+      "max_abs": 5.093170329928398e-11
+    },
+    "position_increment": {
+      "count": 108,
+      "norm": 1.0547607272282974e-08,
+      "max_abs": 2.6366819838585798e-09
+    },
+    "dt_velocity_increment": {
+      "count": 108,
+      "norm": 1.049331102503118e-08,
+      "max_abs": 2.636690558140981e-09
+    },
+    "position_vs_rate_increment": {
+      "count": 108,
+      "norm": 5.115851942690971e-10,
+      "max_abs": 2.0660118090835567e-10
+    },
+    "reference_displacement_increment": {
+      "count": 108,
+      "norm": 1.0493680351167517e-08,
+      "max_abs": 2.6366819838585798e-09
+    },
+    "reference_vs_rate_increment": {
+      "count": 108,
+      "norm": 1.0217282452353174e-12,
+      "max_abs": 3.660263950587604e-13
+    }
+  }
+}

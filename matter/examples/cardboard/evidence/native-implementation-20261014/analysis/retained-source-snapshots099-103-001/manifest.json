@@ -1,0 +1,50 @@
+{
+  "schema": "numi.cardboard.lossless_source_snapshots.v1",
+  "git_base_revision": "6ebaf0fabcd0f824260b03994aaa13d7cab41c24",
+  "snapshots": [
+    {
+      "number": 99,
+      "manifest": "source-099.json.gz",
+      "compressed_sha256": "e9d9137d6aff1f64d80c1c1ef3c167b58e5917f610946b37ba544cad1001c05f",
+      "uncompressed_sha256": "f448a11e15e561fe67d22daf9f18a1fdb8468576676715453d829f3ecfb8c2a9",
+      "files": 1844,
+      "all_reconstructed_bytes_verified": true
+    },
+    {
+      "number": 100,
+      "manifest": "source-100.json.gz",
+      "compressed_sha256": "0a3b3ccad110faba0991680dfcb5c35d440872f0acc31c7b317a881d857e7e58",
+      "uncompressed_sha256": "f1c3ed421ac6195e0cc3ae3b51e9de93a77ddaf0aeab0e1860536c6807167bc5",
+      "files": 1847,
+      "all_reconstructed_bytes_verified": true
+    },
+    {
+      "number": 101,
+      "manifest": "source-101.json.gz",
+      "compressed_sha256": "b13c5d096d73628cb67ef47c89f71cf27f48fe57f7c749bd6d4d25c6353bbc04",
+      "uncompressed_sha256": "53cc1f7df3c780096de47a4310be455a13920441a4a882f177d84d55ae9b66a7",
+      "files": 1847,
+      "all_reconstructed_bytes_verified": true
+    },
+    {
+      "number": 102,
+      "manifest": "source-102.json.gz",
+      "compressed_sha256": "65680c34c3b5cdff090b2707ba7ba09cc90f66d8b4f02b17abc942a100b03ca1",
+      "uncompressed_sha256": "5689b3692a24d0292ea9c0edd5792b00bff409fc798b6355cc618781aad27608",
+      "files": 779,
+      "all_reconstructed_bytes_verified": true
+    },
+    {
+      "number": 103,
+      "manifest": "source-103.json.gz",
+      "compressed_sha256": "97a1c737ad812a6db1b04ce691602597c0f9d38881a97f0518dc26019813668e",
+      "uncompressed_sha256": "6fc898add1cecfa7bdbf96f5454e88008f1bc6378dad9405563ba09f667dfe1e",
+      "files": 1848,
+      "all_reconstructed_bytes_verified": true,
+      "complete_disk_restoration_verified": true
+    }
+  ],
+  "unique_gzip_source_blobs": 71,
+  "physical_qualification": false,
+  "scope": "Reconstructs exact selected build sources plus verified root-CMake support for099/100/101/103. Retains102 thin configure failure. No binary or scientific outcome is reclassified."
+}

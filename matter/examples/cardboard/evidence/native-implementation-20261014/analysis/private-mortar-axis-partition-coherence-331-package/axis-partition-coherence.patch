@@ -1,0 +1,144 @@
+--- a/matter/include/numi/matter/mortar_shared_edge_guard.h
++++ b/matter/include/numi/matter/mortar_shared_edge_guard.h
+@@ -688,6 +688,46 @@
+     const unsigned int rightCount
+ );
+ 
++inline bool nmMortarGuardProjectedPartitionSharedVerticesAreCoherent(
++    NM_MORTAR_THREAD_POINTER const NMMortarGuardTriangleSweep* cells,
++    const unsigned int count
++) {
++    if (cells == nullptr || count < 2u || count > 4u) return false;
++    for (unsigned int firstCell = 0u; firstCell < count; ++firstCell) {
++        if (cells[firstCell].patchID == 0xffffffffu) return false;
++        for (unsigned int firstVertex = 0u; firstVertex < 3u; ++firstVertex) {
++            const NMMortarGuardPoint3 firstStart =
++                cells[firstCell].start[firstVertex];
++            const NMMortarGuardPoint3 firstFinish =
++                cells[firstCell].finish[firstVertex];
++            if (!nmMortarGuardFinite(firstStart.x) ||
++                !nmMortarGuardFinite(firstStart.y) ||
++                !nmMortarGuardFinite(firstFinish.x) ||
++                !nmMortarGuardFinite(firstFinish.y)) return false;
++            for (unsigned int secondCell = firstCell;
++                 secondCell < count; ++secondCell) {
++                const unsigned int vertexStart =
++                    secondCell == firstCell ? firstVertex + 1u : 0u;
++                for (unsigned int secondVertex = vertexStart;
++                     secondVertex < 3u; ++secondVertex) {
++                    const NMMortarGuardPoint3 secondStart =
++                        cells[secondCell].start[secondVertex];
++                    const NMMortarGuardPoint3 secondFinish =
++                        cells[secondCell].finish[secondVertex];
++                    if (!nmMortarGuardFinite(secondStart.x) ||
++                        !nmMortarGuardFinite(secondStart.y) ||
++                        !nmMortarGuardFinite(secondFinish.x) ||
++                        !nmMortarGuardFinite(secondFinish.y)) return false;
++                    if (nmMortarGuardSameProjectedPoint(firstStart, secondStart) &&
++                        !nmMortarGuardSameProjectedPoint(
++                            firstFinish, secondFinish)) return false;
++                }
++            }
++        }
++    }
++    return true;
++}
++
+ inline bool nmMortarGuardSameProjectedPatchTriangleSweeps(
+     NM_MORTAR_THREAD_POINTER const NMMortarGuardTriangleSweep* leftCells,
+     const unsigned int leftCount,
+@@ -733,7 +773,11 @@
+                 rightFinishPoints[0], rightFinishPoints[1], rightFinishPoints[2]))
+             return false;
+     }
+-    return nmMortarGuardSamePatchTriangleSweeps(
++    return nmMortarGuardProjectedPartitionSharedVerticesAreCoherent(
++            leftProjected, leftCount) &&
++        nmMortarGuardProjectedPartitionSharedVerticesAreCoherent(
++            rightProjected, rightCount) &&
++        nmMortarGuardSamePatchTriangleSweeps(
+         leftProjected, leftCount, rightProjected, rightCount);
+ }
+ 
+--- a/matter/tools/mortar_exact_tiling_check.cpp
++++ b/matter/tools/mortar_exact_tiling_check.cpp
+@@ -440,6 +440,42 @@
+                 fan3Left, 3u, fan3Right, 3u),
+             "three-patch common-vertex fan projected sweeps were rejected");
+ 
++    // A normal-only sweep may pass through zero gap and end with the two
++    // planes interpenetrating. The geometric skip is still valid only because
++    // the complete projected parent and patch tilings remain identical; the
++    // active cohesive law owns normal tension and compression over that full
++    // interface. This fixture verifies the full endpoint trajectory contract,
++    // not a material-force or native contact qualification.
++    const NMMortarGuardPoint3 crossingLeftStart[3] = {
++        point3(0.0f, 0.0f, 0.0f), point3(1.0f, 0.0f, 0.0f),
++        point3(0.0f, 1.0f, 0.0f)};
++    const NMMortarGuardPoint3 crossingLeftFinish[3] = {
++        point3(0.0f, 0.0f, 0.0f), point3(1.0f, 0.0f, 0.0f),
++        point3(0.0f, 1.0f, 0.0f)};
++    const NMMortarGuardPoint3 crossingRightStart[3] = {
++        point3(0.0f, 0.0f, 0.125f), point3(1.0f, 0.0f, 0.125f),
++        point3(0.0f, 1.0f, 0.125f)};
++    const NMMortarGuardPoint3 crossingRightFinish[3] = {
++        point3(0.0f, 0.0f, -0.125f), point3(1.0f, 0.0f, -0.125f),
++        point3(0.0f, 1.0f, -0.125f)};
++    const unsigned int crossingIDs[4] = {60u, 61u, 62u, 0xffffffffu};
++    NMMortarGuardTriangleSweep crossingLeftCells[4] = {};
++    NMMortarGuardTriangleSweep crossingRightCells[4] = {};
++    makePatchSweeps(fan3, crossingIDs, 3u, crossingLeftStart,
++                    crossingLeftFinish, crossingLeftCells);
++    makePatchSweeps(fan3, crossingIDs, 3u, crossingRightStart,
++                    crossingRightFinish, crossingRightCells);
++    unsigned int crossingPermutation[3] = {0u, 0u, 0u};
++    require(crossingRightStart[0].z > crossingLeftStart[0].z &&
++                crossingRightFinish[0].z < crossingLeftFinish[0].z &&
++                nmMortarGuardSameAxisAlignedNormalParentSweep(
++                    crossingLeftStart, crossingLeftFinish,
++                    crossingRightStart, crossingRightFinish,
++                    crossingPermutation) &&
++                nmMortarGuardSameProjectedPatchTriangleSweeps(
++                    crossingLeftCells, 3u, crossingRightCells, 3u),
++            "fully covered normal closure/crossing lost whole-sweep certificate");
++
+     const NMMortarGuardPoint2 midpoint = point(0.5f, 0.5f);
+     const NMMortarGuardTriangle2 split2[4] = {
+         triangle(point(1.0f, 0.0f), midpoint, point(0.0f, 0.0f)),
+@@ -517,6 +553,36 @@
+                 leftCells, 4u, crossWiredCells, 4u),
+             "cross-wired patch IDs passed projected seam certificate");
+ 
++    NMMortarGuardTriangleSweep inconsistentLeft[4] = {};
++    NMMortarGuardTriangleSweep inconsistentRight[4] = {};
++    inconsistentLeft[0].patchID = 50u;
++    inconsistentLeft[1].patchID = 51u;
++    inconsistentRight[0].patchID = 50u;
++    inconsistentRight[1].patchID = 51u;
++    const NMMortarGuardPoint3 firstCellStart[3] = {
++        point3(0.0f, 0.0f, 0.0f), point3(1.0f, 0.0f, 0.0f),
++        point3(0.0f, 1.0f, 0.0f)};
++    const NMMortarGuardPoint3 firstCellFinish[3] = {
++        point3(0.0f, 0.0f, 0.0f), point3(1.0f, 0.0f, 0.0f),
++        point3(0.0f, 1.0f, 0.0f)};
++    const NMMortarGuardPoint3 secondCellStart[3] = {
++        point3(0.0f, 0.0f, 0.0f), point3(0.0f, 1.0f, 0.0f),
++        point3(-1.0f, 0.0f, 0.0f)};
++    const NMMortarGuardPoint3 secondCellFinish[3] = {
++        point3(0.125f, 0.0f, 0.0f), point3(0.125f, 1.0f, 0.0f),
++        point3(-0.875f, 0.0f, 0.0f)};
++    for (unsigned int vertex = 0u; vertex < 3u; ++vertex) {
++        inconsistentLeft[0].start[vertex] = firstCellStart[vertex];
++        inconsistentLeft[0].finish[vertex] = firstCellFinish[vertex];
++        inconsistentLeft[1].start[vertex] = secondCellStart[vertex];
++        inconsistentLeft[1].finish[vertex] = secondCellFinish[vertex];
++        inconsistentRight[0] = inconsistentLeft[0];
++        inconsistentRight[1] = inconsistentLeft[1];
++    }
++    require(!nmMortarGuardSameProjectedPatchTriangleSweeps(
++                inconsistentLeft, 2u, inconsistentRight, 2u),
++            "shared projected start vertices with divergent finish paths were accepted");
++
+     const NMMortarGuardPoint3 rotatedStart[3] = {
+         point3(0.0f, 0.0f, 0.0f), point3(1.0f, 0.0f, 0.0f),
+         point3(0.0f, 0.0f, 1.0f)};

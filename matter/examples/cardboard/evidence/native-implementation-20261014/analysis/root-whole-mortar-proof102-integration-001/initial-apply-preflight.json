@@ -1,0 +1,8 @@
+[
+  {
+    "patch": "/Users/home/cardboard-implementation-20261014/analysis/private-mortar-parent-translation-guard-321-001/whole-parent-identity.patch",
+    "sha256": "036613adaace29b7f64b82bba3e5611964a0156244ed6c2a25d32045e89c409b",
+    "check_exit": 1,
+    "output": "error: patch failed: matter/tools/mortar_exact_tiling_check.cpp:92\nerror: matter/tools/mortar_exact_tiling_check.cpp: patch does not apply\n"
+  }
+]

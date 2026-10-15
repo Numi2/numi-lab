@@ -90,6 +90,33 @@ if(BUILD_TESTING)
     set_tests_properties(matter.compiler.cardboard_contact_node_incidence_sort PROPERTIES
         TIMEOUT 30 LABELS "matter;cardboard;contact;cpu;synthetic")
 endif()
+add_executable(numi-matter-mortar-exact-tiling-check
+    tools/mortar_exact_tiling_check.cpp)
+target_include_directories(numi-matter-mortar-exact-tiling-check PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/include")
+target_compile_options(numi-matter-mortar-exact-tiling-check PRIVATE
+    -Wall -Wextra -Wpedantic -Werror)
+if(BUILD_TESTING)
+    add_test(NAME matter.compiler.mortar_exact_tiling
+        COMMAND numi-matter-mortar-exact-tiling-check)
+    set_tests_properties(matter.compiler.mortar_exact_tiling PROPERTIES
+        TIMEOUT 30 LABELS "matter;cardboard;contact;cpu;synthetic")
+endif()
+add_executable(numi-matter-regional-restart-augmentation-admission-check
+    tools/regional_restart_augmentation_admission_check.cpp)
+target_link_libraries(numi-matter-regional-restart-augmentation-admission-check PRIVATE
+    numi_matter_compiler)
+target_include_directories(numi-matter-regional-restart-augmentation-admission-check PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/../include")
+target_compile_options(numi-matter-regional-restart-augmentation-admission-check PRIVATE
+    -Wall -Wextra -Wpedantic -Werror)
+if(BUILD_TESTING)
+    add_test(NAME matter.compiler.regional_restart_augmentation_admission
+        COMMAND numi-matter-regional-restart-augmentation-admission-check
+            "${CMAKE_CURRENT_SOURCE_DIR}/materials/nagasawa2013_medium_orthotropic.nmatter")
+    set_tests_properties(matter.compiler.regional_restart_augmentation_admission PROPERTIES
+        TIMEOUT 30 LABELS "matter;cardboard;solver;cpu;synthetic")
+endif()
 add_executable(numi-matter-cardboard-cohesive-armijo-tiles-check
     tools/cardboard_cohesive_armijo_tiles_check.cpp)
 target_compile_options(numi-matter-cardboard-cohesive-armijo-tiles-check PRIVATE
@@ -572,6 +599,7 @@ if(APPLE)
             include/numi/matter/accepted_state_proof_gpu.h
             include/numi/matter/shared.h
             include/numi/matter/fiber_exp_linear.h
+            include/numi/matter/mortar_shared_edge_guard.h
             include/numi/matter/human_equality_gpu.h
             include/numi/matter/human_limits_gpu.h
             "${CMAKE_CURRENT_SOURCE_DIR}/../include/metalrobo/engine_types.h"

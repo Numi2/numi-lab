@@ -1,0 +1,30 @@
+{
+  "aggregate_payload_cap_bytes": 33554432,
+  "array_cap": 192,
+  "base098_manifest_sha256": "fd90e26ab3e3a3814b889bcf065056419d8f9eda7b11f77fd541249aa36f011d",
+  "candidate_symlink_count": 0,
+  "center_capture_array_additions_max": 5,
+  "changed_files": [
+    "matter/include/numi/matter/matter.hpp",
+    "matter/src/metal/fgmres.metalinc",
+    "matter/src/metal/mixed_fem.metalinc",
+    "matter/src/runtime.mm",
+    "matter/tools/cardboard_graph_lu_search_native_check.mm",
+    "matter/tools/cardboard_regional_recycle_masked_basis_native_check.mm"
+  ],
+  "patch_dry_run": "PASS",
+  "private_trial_phase_bounds": {
+    "both": 136,
+    "post": 109,
+    "pre": 71
+  },
+  "protected_source098_files_unchanged": [
+    "matter/CMakeLists.txt",
+    "matter/include/numi/matter/mortar_shared_edge_guard.h",
+    "matter/src/metal/contact.metalinc",
+    "matter/tools/cardboard_full_contact_armijo_check.mm"
+  ],
+  "schema": "numi.matter.candidate_overlay_integration_check.v1",
+  "status": "PASS",
+  "verified_source098_entries": 776
+}

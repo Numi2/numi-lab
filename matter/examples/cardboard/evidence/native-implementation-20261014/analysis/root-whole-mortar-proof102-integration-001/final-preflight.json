@@ -1,0 +1,17 @@
+{
+  "schema": "numi.cardboard.overlay-integration-preflight.v1",
+  "finite328": {
+    "patch_sha256": "235221bc8358a901f6808e39cde87a29ae88cec3d65bd88f26659a1927f3d0eb",
+    "cpp_exact_added_lines_sha256": "d1e65668c544cba2ac89e38f0c96df33dda9424f0089dd45ea9a0725cf248a10",
+    "method": "header clean apply; exact added cpp lines inserted at their unique unchanged context"
+  },
+  "coherence331": {
+    "patch_sha256": "eb45e83b8fd085e7b8827511d7ffe12a988f15b3f04cef8cbed29e29443694d0",
+    "clean_apply": true
+  },
+  "changed": {
+    "matter/include/numi/matter/mortar_shared_edge_guard.h": "b4953028b1e3ffd8fba0100b34cc3aad28f7eac812fb1cfd711aaf7cf7b5bbaa",
+    "matter/src/metal/contact.metalinc": "427aca061ad2c6d2218b5eae0bc7620132a1ef9fff9f688390ccc96ca8a27ffc",
+    "matter/tools/mortar_exact_tiling_check.cpp": "0b5922e54d2ed067eef5e03786b523142bb71b906e4e1bffc7738235a1c807e0"
+  }
+}

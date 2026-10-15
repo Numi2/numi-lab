@@ -1,0 +1,1768 @@
+-- The C compiler identification is AppleClang 21.0.0.21000099
+-- The CXX compiler identification is AppleClang 21.0.0.21000099
+-- The OBJCXX compiler identification is AppleClang 21.0.0.21000099
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Detecting OBJCXX compiler ABI info
+-- Detecting OBJCXX compiler ABI info - done
+-- Check for working OBJCXX compiler: /usr/bin/clang++ - skipped
+-- Found SQLite3: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include (found version "3.51.0")
+-- Found LibXml2: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/lib/libxml2.tbd (found version "2.9.13")
+-- Configuring done (1.4s)
+CMake Error at CMakeLists.txt:1214 (add_executable):
+  Cannot find source file:
+
+    apps/benchmark.cpp
+
+
+CMake Error at CMakeLists.txt:1224 (add_executable):
+  Cannot find source file:
+
+    apps/tactile_check.cpp
+
+
+CMake Error at CMakeLists.txt:1234 (add_executable):
+  Cannot find source file:
+
+    apps/tactile_benchmark.cpp
+
+
+CMake Error at CMakeLists.txt:1250 (add_executable):
+  Cannot find source file:
+
+    examples/tactile/main.cpp
+
+
+CMake Error at CMakeLists.txt:1266 (add_executable):
+  Cannot find source file:
+
+    apps/metal_world_contact_probe.cpp
+
+
+CMake Error at CMakeLists.txt:1282 (add_executable):
+  Cannot find source file:
+
+    apps/cpu_probe.cpp
+
+
+CMake Error at CMakeLists.txt:1291 (add_executable):
+  Cannot find source file:
+
+    apps/neuron_culture_probe.mm
+
+
+CMake Error at CMakeLists.txt:1323 (add_executable):
+  Cannot find source file:
+
+    apps/NumiNeuronLab.mm
+
+
+CMake Error at CMakeLists.txt:1349 (add_executable):
+  Cannot find source file:
+
+    apps/opensim_function_probe.cpp
+
+
+CMake Error at CMakeLists.txt:1358 (add_executable):
+  Cannot find source file:
+
+    apps/opensim_spatial_transform_probe.cpp
+
+
+CMake Error at CMakeLists.txt:1373 (add_executable):
+  Cannot find source file:
+
+    apps/opensim_spatial_transform_gpu_probe.mm
+
+
+CMake Error at CMakeLists.txt:1414 (add_executable):
+  Cannot find source file:
+
+    apps/engine_model_probe.cpp
+
+
+CMake Error at CMakeLists.txt:1423 (add_executable):
+  Cannot find source file:
+
+    apps/g1_model_probe.cpp
+
+
+CMake Error at CMakeLists.txt:1432 (add_executable):
+  Cannot find source file:
+
+    apps/task_program_check.cpp
+
+
+CMake Error at CMakeLists.txt:1437 (add_executable):
+  Cannot find source file:
+
+    apps/run_program_check.cpp
+
+
+CMake Error at CMakeLists.txt:1441 (add_executable):
+  Cannot find source file:
+
+    apps/robot_catalog.cpp
+
+
+CMake Error at CMakeLists.txt:1445 (add_executable):
+  Cannot find source file:
+
+    apps/ai_sapiens_compile.cpp
+
+
+CMake Error at CMakeLists.txt:1601 (add_executable):
+  Cannot find source file:
+
+    apps/compensated_translation_check.mm
+
+
+CMake Error at CMakeLists.txt:1609 (add_executable):
+  Cannot find source file:
+
+    apps/compensated_geometry_check.mm
+
+
+CMake Error at CMakeLists.txt:1620 (add_executable):
+  Cannot find source file:
+
+    apps/source_route_precision_check.mm
+
+
+CMake Error at CMakeLists.txt:1640 (add_executable):
+  Cannot find source file:
+
+    apps/numilab_human_extensor_hood_admission_probe.mm
+
+
+CMake Error at CMakeLists.txt:1657 (add_executable):
+  Cannot find source file:
+
+    apps/human_support_precision_check.cpp
+
+
+CMake Error at CMakeLists.txt:1668 (add_executable):
+  Cannot find source file:
+
+    apps/human_behavior_telemetry_check.mm
+
+
+CMake Error at CMakeLists.txt:1676 (add_executable):
+  Cannot find source file:
+
+    apps/human_behavior_program_check.cpp
+
+
+CMake Error at CMakeLists.txt:1683 (add_executable):
+  Cannot find source file:
+
+    apps/human_behavior_trial_check.cpp
+
+
+CMake Error at CMakeLists.txt:1696 (add_executable):
+  Cannot find source file:
+
+    apps/human_behavior_accepted_state_root_check.cpp
+
+
+CMake Error at CMakeLists.txt:1713 (add_executable):
+  Cannot find source file:
+
+    tests/numi_human_cardiac_identity_test.cpp
+
+
+CMake Error at CMakeLists.txt:1716 (add_executable):
+  Cannot find source file:
+
+    tests/numi_human_common_field_test.cpp
+
+
+CMake Error at CMakeLists.txt:1722 (add_executable):
+  Cannot find source file:
+
+    tests/numi_human_common_field_metal_test.mm
+
+
+CMake Error at CMakeLists.txt:1731 (add_executable):
+  Cannot find source file:
+
+    tests/numi_human_hip_capsule_metal_test.mm
+
+
+CMake Error at CMakeLists.txt:1746 (add_executable):
+  Cannot find source file:
+
+    tests/numi_human_per_contact_plane_metal_test.mm
+
+
+CMake Error at CMakeLists.txt:1761 (add_executable):
+  Cannot find source file:
+
+    tests/numi_human_mesh_audit_metal_test.mm
+
+
+CMake Error at CMakeLists.txt:1771 (add_executable):
+  Cannot find source file:
+
+    tests/numi_human_surface_audit_diagnostic_test.cpp
+
+
+CMake Error at CMakeLists.txt:1781 (add_executable):
+  Cannot find source file:
+
+    tests/numi_human_retired_inspection_layers_test.cpp
+
+
+CMake Error at CMakeLists.txt:1791 (add_executable):
+  Cannot find source file:
+
+    tests/numi_human_accepted_geometry_cadence_test.cpp
+
+
+CMake Error at CMakeLists.txt:1799 (add_executable):
+  Cannot find source file:
+
+    tests/numi_human_accepted_q_audit_window_test.cpp
+
+
+CMake Error at CMakeLists.txt:1809 (add_executable):
+  Cannot find source file:
+
+    tests/numi_human_accepted_force_observer_test.cpp
+
+
+CMake Error at CMakeLists.txt:1821 (add_executable):
+  Cannot find source file:
+
+    tests/numi_human_passive_joint_test.cpp
+
+
+CMake Error at CMakeLists.txt:1825 (add_executable):
+  Cannot find source file:
+
+    tests/numi_human_resting_hand_reduction_test.cpp
+
+
+CMake Error at CMakeLists.txt:1829 (add_executable):
+  Cannot find source file:
+
+    tests/numi_human_timed_root_force_test.cpp
+
+
+CMake Error at CMakeLists.txt:1834 (add_executable):
+  Cannot find source file:
+
+    tests/numi_human_initial_state_test.cpp
+
+
+CMake Error at CMakeLists.txt:1841 (add_executable):
+  Cannot find source file:
+
+    tests/numi_human_runtime_identity_test.cpp
+
+
+CMake Error at CMakeLists.txt:1851 (add_executable):
+  Cannot find source file:
+
+    tests/numi_human_root_placement_test.cpp
+
+
+CMake Error at CMakeLists.txt:1868 (add_executable):
+  Cannot find source file:
+
+    tests/numi_human_static_support_test.cpp
+
+
+CMake Error at CMakeLists.txt:1878 (add_executable):
+  Cannot find source file:
+
+    tests/numi_human_motion_observer_test.cpp
+
+
+CMake Error at CMakeLists.txt:1890 (add_executable):
+  Cannot find source file:
+
+    tests/numi_human_friction_test.cpp
+
+
+CMake Error at CMakeLists.txt:1896 (add_executable):
+  Cannot find source file:
+
+    tests/mujoco_muscle_path_batch_test.cpp
+
+
+CMake Error at CMakeLists.txt:1906 (add_executable):
+  Cannot find source file:
+
+    tests/numi_human_continuum_map_test.cpp
+
+
+CMake Error at CMakeLists.txt:1934 (add_executable):
+  Cannot find source file:
+
+    apps/franka_engine_model_probe.cpp
+
+
+CMake Error at CMakeLists.txt:1950 (add_executable):
+  Cannot find source file:
+
+    apps/franka_compiled_run_probe.cpp
+
+
+CMake Error at CMakeLists.txt:1966 (add_executable):
+  Cannot find source file:
+
+    examples/franka_explore/metal_main.cpp
+
+
+CMake Error at CMakeLists.txt:1995 (add_executable):
+  Cannot find source file:
+
+    apps/collision_probe.cpp
+
+
+CMake Error at CMakeLists.txt:2004 (add_executable):
+  Cannot find source file:
+
+    apps/free_body_probe.cpp
+
+
+CMake Error at CMakeLists.txt:2013 (add_executable):
+  Cannot find source file:
+
+    apps/rigid_body_world_probe.cpp
+
+
+CMake Error at CMakeLists.txt:2018 (add_executable):
+  Cannot find source file:
+
+    apps/articulated_dynamics_probe.cpp
+
+
+CMake Error at CMakeLists.txt:2037 (add_executable):
+  Cannot find source file:
+
+    apps/numilab_human_core_reference_probe.cpp
+
+
+CMake Error at CMakeLists.txt:2056 (add_executable):
+  Cannot find source file:
+
+    apps/numilab_human_myosim_reference_probe.cpp
+
+
+CMake Error at CMakeLists.txt:2075 (add_executable):
+  Cannot find source file:
+
+    apps/numilab_human_extensor_hood_reference_probe.cpp
+
+
+CMake Error at CMakeLists.txt:2105 (add_executable):
+  Cannot find source file:
+
+    apps/numilab_human_extensor_hood_source_probe.cpp
+
+
+CMake Error at CMakeLists.txt:2125 (add_executable):
+  Cannot find source file:
+
+    apps/numilab_human_adm_feasibility_probe.cpp
+
+
+CMake Error at CMakeLists.txt:2152 (add_executable):
+  Cannot find source file:
+
+    apps/numilab_human_myosim_visual_probe.mm
+
+
+CMake Error at CMakeLists.txt:2213 (add_executable):
+  Cannot find source file:
+
+    apps/numi_human_tendon_fem_load_probe.mm
+
+
+CMake Error at CMakeLists.txt:2281 (add_executable):
+  Cannot find source file:
+
+    apps/numi_human_costal_cartilage_probe.mm
+
+
+CMake Error at CMakeLists.txt:2311 (add_executable):
+  Cannot find source file:
+
+    apps/numilab_human_open_knee_ligament_probe.mm
+
+
+CMake Error at CMakeLists.txt:2345 (add_executable):
+  Cannot find source file:
+
+    apps/numilab_human_knee_contact_probe.cpp
+
+
+CMake Error at CMakeLists.txt:2364 (add_executable):
+  Cannot find source file:
+
+    tests/numi_human_knee_contact_test.cpp
+
+
+CMake Error at CMakeLists.txt:2392 (add_executable):
+  Cannot find source file:
+
+    apps/millard_muscle_reference_probe.cpp
+
+
+CMake Error at CMakeLists.txt:2408 (add_executable):
+  Cannot find source file:
+
+    apps/articulated_actuation_probe.cpp
+
+
+CMake Error at CMakeLists.txt:2424 (add_executable):
+  Cannot find source file:
+
+    apps/articulated_joint_limits_probe.cpp
+
+
+CMake Error at CMakeLists.txt:2440 (add_executable):
+  Cannot find source file:
+
+    apps/articulated_contact_probe.cpp
+
+
+CMake Error at CMakeLists.txt:2456 (add_executable):
+  Cannot find source file:
+
+    apps/articulated_mixed_constraints_probe.cpp
+
+
+CMake Error at CMakeLists.txt:2472 (add_executable):
+  Cannot find source file:
+
+    apps/multi_articulated_world_probe.cpp
+
+
+CMake Error at CMakeLists.txt:2488 (add_executable):
+  Cannot find source file:
+
+    apps/multi_articulated_contact_probe.cpp
+
+
+CMake Error at CMakeLists.txt:2504 (add_executable):
+  Cannot find source file:
+
+    apps/metal_multi_articulated_contact_probe.cpp
+
+
+CMake Error at CMakeLists.txt:2528 (add_executable):
+  Cannot find source file:
+
+    apps/parallel_aba_schedule_probe.cpp
+
+
+CMake Error at CMakeLists.txt:2552 (add_executable):
+  Cannot find source file:
+
+    apps/multi_articulated_aba_gpu_probe.mm
+
+
+CMake Error at CMakeLists.txt:2570 (add_executable):
+  Cannot find source file:
+
+    apps/multi_articulated_inverse_mass_gpu_probe.mm
+
+
+CMake Error at CMakeLists.txt:2588 (add_executable):
+  Cannot find source file:
+
+    apps/multi_articulated_constraint_gpu_probe.mm
+
+
+CMake Error at CMakeLists.txt:2606 (add_executable):
+  Cannot find source file:
+
+    apps/metal_discrete_elastic_rod_probe.mm
+
+
+CMake Error at CMakeLists.txt:2624 (add_executable):
+  Cannot find source file:
+
+    apps/surgical_knot_mechanics_probe.mm
+
+
+CMake Error at CMakeLists.txt:2651 (add_executable):
+  Cannot find source file:
+
+    apps/surgical_knot_protocol_probe.cpp
+
+
+CMake Error at CMakeLists.txt:2675 (add_executable):
+  Cannot find source file:
+
+    apps/surgical_thread_grasp_probe.mm
+
+
+CMake Error at CMakeLists.txt:2702 (add_executable):
+  Cannot find source file:
+
+    apps/surgical_thread_targeting_probe.cpp
+
+
+CMake Error at CMakeLists.txt:2726 (add_executable):
+  Cannot find source file:
+
+    apps/metal_unified_quality_probe.cpp
+
+
+CMake Error at CMakeLists.txt:2750 (add_executable):
+  Cannot find source file:
+
+    apps/robot_description_cooker_probe.cpp
+
+
+CMake Error at CMakeLists.txt:2771 (add_executable):
+  Cannot find source file:
+
+    apps/dual_psm_world_probe.cpp
+
+
+CMake Error at CMakeLists.txt:2787 (add_executable):
+  Cannot find source file:
+
+    apps/discrete_elastic_rod_probe.cpp
+
+
+CMake Error at CMakeLists.txt:2803 (add_executable):
+  Cannot find source file:
+
+    apps/engine_model_composer_probe.cpp
+
+
+CMake Error at CMakeLists.txt:2819 (add_executable):
+  Cannot find source file:
+
+    apps/heterogeneous_world_probe.cpp
+
+
+CMake Error at CMakeLists.txt:2835 (add_executable):
+  Cannot find source file:
+
+    apps/metal_quality_contact_probe.mm
+
+
+CMake Error at CMakeLists.txt:2853 (add_executable):
+  Cannot find source file:
+
+    apps/g1_collision_contact_probe.cpp
+
+
+CMake Error at CMakeLists.txt:2869 (add_executable):
+  Cannot find source file:
+
+    apps/articulated_world_probe.cpp
+
+
+CMake Error at CMakeLists.txt:2892 (add_executable):
+  Cannot find source file:
+
+    apps/reference_conic_probe.cpp
+
+
+CMake Error at CMakeLists.txt:2897 (add_executable):
+  Cannot find source file:
+
+    apps/quality_contact_probe.cpp
+
+
+CMake Error at CMakeLists.txt:2916 (add_executable):
+  Cannot find source file:
+
+    apps/constraint_ir_probe.cpp
+
+
+CMake Error at CMakeLists.txt:2932 (add_executable):
+  Cannot find source file:
+
+    apps/contact_gpu_probe.mm
+
+
+CMake Error at CMakeLists.txt:2961 (add_executable):
+  Cannot find source file:
+
+    apps/free_body_gpu_probe.mm
+
+
+CMake Error at CMakeLists.txt:2969 (add_executable):
+  Cannot find source file:
+
+    apps/px4_x500_gpu_probe.cpp
+
+
+CMake Error at CMakeLists.txt:2997 (add_executable):
+  Cannot find source file:
+
+    apps/human_reconcile_probe.mm
+
+
+CMake Error at CMakeLists.txt:3007 (add_executable):
+  Cannot find source file:
+
+    apps/matter_surface_bvh_probe.mm
+
+
+CMake Error at CMakeLists.txt:3018 (add_executable):
+  Cannot find source file:
+
+    apps/matter_ccd_probe.mm
+
+
+CMake Error at CMakeLists.txt:3028 (add_executable):
+  Cannot find source file:
+
+    apps/matter_physics_probe.mm
+
+
+CMake Error at CMakeLists.txt:3060 (add_executable):
+  Cannot find source file:
+
+    apps/matter_snapshot_archive_probe.cpp
+
+
+CMake Error at CMakeLists.txt:3084 (add_executable):
+  Cannot find source file:
+
+    apps/surgical_tissue_probe.mm
+
+
+CMake Error at CMakeLists.txt:3119 (add_executable):
+  Cannot find source file:
+
+    tests/numi_human_fem_prestress_stage_test.cpp
+
+
+CMake Error at CMakeLists.txt:3476 (add_executable):
+  Cannot find source file:
+
+    apps/collision_gpu_probe.mm
+
+
+CMake Error at CMakeLists.txt:3505 (add_executable):
+  Cannot find source file:
+
+    apps/deterministic_broadphase_probe.mm
+
+
+CMake Error at CMakeLists.txt:3540 (add_executable):
+  Cannot find source file:
+
+    apps/articulated_operator_gpu_probe.mm
+
+
+CMake Error at CMakeLists.txt:3575 (add_executable):
+  Cannot find source file:
+
+    apps/numanx_transaction_probe.mm
+
+
+CMake Error at CMakeLists.txt:3611 (add_executable):
+  Cannot find source file:
+
+    apps/numi_human_stand_coupling_probe.mm
+
+
+CMake Error at CMakeLists.txt:3659 (add_executable):
+  Cannot find source file:
+
+    apps/numanx_human_io_probe.mm
+
+
+CMake Error at CMakeLists.txt:3690 (add_executable):
+  Cannot find source file:
+
+    apps/numanx_coupled_human_probe.mm
+
+
+CMake Error at CMakeLists.txt:3721 (add_executable):
+  Cannot find source file:
+
+    apps/numanx_human_matter_owner_probe.mm
+
+
+CMake Error at CMakeLists.txt:3752 (add_executable):
+  Cannot find source file:
+
+    apps/numanx_human_matter_v4_probe.mm
+
+
+CMake Error at CMakeLists.txt:3783 (add_executable):
+  Cannot find source file:
+
+    apps/numanx_human_matter_candidate_probe.mm
+
+
+CMake Error at CMakeLists.txt:3814 (add_executable):
+  Cannot find source file:
+
+    apps/numanx_human_matter_adapter_probe.mm
+
+
+CMake Error at CMakeLists.txt:4031 (add_executable):
+  Cannot find source file:
+
+    apps/numanx_matter_accepted_state_proof_probe.mm
+
+
+CMake Error at CMakeLists.txt:4070 (add_executable):
+  Cannot find source file:
+
+    apps/numanx_matter_exact_accepted_state_proof_probe.mm
+
+
+CMake Error at CMakeLists.txt:4109 (add_executable):
+  Cannot find source file:
+
+    apps/numanx_human_matter_exact_v2_lifecycle_probe.mm
+
+
+CMake Error at CMakeLists.txt:4152 (add_executable):
+  Cannot find source file:
+
+    apps/numanx_matter_attachment_runtime_probe.mm
+
+
+CMake Error at CMakeLists.txt:4189 (add_executable):
+  Cannot find source file:
+
+    apps/numanx_matter_capacity_probe.cpp
+
+
+CMake Error at CMakeLists.txt:4218 (add_executable):
+  Cannot find source file:
+
+    tests/numanx_exact_request_v3_contract_test.cpp
+
+
+CMake Error at CMakeLists.txt:4248 (add_executable):
+  Cannot find source file:
+
+    tests/numanx_exact_outbound_v2_contract_test.cpp
+
+
+CMake Error at CMakeLists.txt:4254 (add_executable):
+  Cannot find source file:
+
+    tests/numanx_human_io_exact_v2_contract_test.cpp
+
+
+CMake Error at CMakeLists.txt:4284 (add_executable):
+  Cannot find source file:
+
+    apps/numanx_human_io_exact_receipt_probe.mm
+
+
+CMake Error at CMakeLists.txt:4342 (add_executable):
+  Cannot find source file:
+
+    tests/numi_human_production_owner_snapshot_test.cpp
+
+
+CMake Error at CMakeLists.txt:4372 (add_executable):
+  Cannot find source file:
+
+    tests/numi_human_production_owner_evidence_writer_test.cpp
+
+
+CMake Error at CMakeLists.txt:4898 (add_executable):
+  Cannot find source file:
+
+    apps/articulated_aba_gpu_probe.mm
+
+
+CMake Error at CMakeLists.txt:4933 (add_executable):
+  Cannot find source file:
+
+    apps/articulated_inverse_mass_gpu_probe.mm
+
+
+CMake Error at CMakeLists.txt:4968 (add_executable):
+  Cannot find source file:
+
+    apps/articulated_operator_host_probe.cpp
+
+
+CMake Error at CMakeLists.txt:4984 (add_executable):
+  Cannot find source file:
+
+    apps/articulated_operator_context_probe.cpp
+
+
+CMake Error at CMakeLists.txt:5000 (add_executable):
+  Cannot find source file:
+
+    apps/articulated_aba_host_probe.cpp
+
+
+CMake Error at CMakeLists.txt:5016 (add_executable):
+  Cannot find source file:
+
+    apps/metal_world_probe.cpp
+
+
+CMake Error at CMakeLists.txt:5040 (add_executable):
+  Cannot find source file:
+
+    apps/articulated_inverse_mass_host_probe.cpp
+
+
+CMake Error at CMakeLists.txt:5056 (add_executable):
+  Cannot find source file:
+
+    apps/surgical_psm_probe.cpp
+
+
+CMake Error at CMakeLists.txt:5072 (add_executable):
+  Cannot find source file:
+
+    apps/surgical_assets_probe.cpp
+
+
+CMake Error at CMakeLists.txt:5088 (add_executable):
+  Cannot find source file:
+
+    apps/surgical_metal_operator_probe.cpp
+
+
+CMake Error at CMakeLists.txt:5104 (add_executable):
+  Cannot find source file:
+
+    apps/coupled_articulated_rigid_contact_probe.cpp
+
+
+CMake Error at CMakeLists.txt:5120 (add_executable):
+  Cannot find source file:
+
+    apps/articulated_rigid_collision_probe.cpp
+
+
+CMake Error at CMakeLists.txt:5136 (add_executable):
+  Cannot find source file:
+
+    apps/articulated_rigid_world_probe.cpp
+
+
+CMake Error at CMakeLists.txt:5152 (add_executable):
+  Cannot find source file:
+
+    apps/supported_needle_pickup_probe.cpp
+
+
+CMake Error at CMakeLists.txt:5157 (add_executable):
+  Cannot find source file:
+
+    apps/dual_psm_suture_handoff_probe.cpp
+
+
+CMake Error at CMakeLists.txt:5202 (add_executable):
+  Cannot find source file:
+
+    apps/suture_visual_probe.mm
+
+
+CMake Error at CMakeLists.txt:5688 (add_executable):
+  Cannot find source file:
+
+    apps/world_compiler_probe.cpp
+
+
+CMake Error at CMakeLists.txt:5712 (add_executable):
+  Cannot find source file:
+
+    apps/metal_world_family_probe.cpp
+
+
+CMake Error at CMakeLists.txt:5736 (add_executable):
+  Cannot find source file:
+
+    apps/r2s2r_loop_probe.cpp
+
+
+CMake Error at CMakeLists.txt:5760 (add_executable):
+  Cannot find source file:
+
+    apps/world_pack_tool.cpp
+
+
+CMake Error at CMakeLists.txt:5784 (add_executable):
+  Cannot find source file:
+
+    apps/episode_twin_compile.cpp
+
+
+CMake Error at CMakeLists.txt:5808 (add_executable):
+  Cannot find source file:
+
+    apps/motion_compile.cpp
+
+
+CMake Error at CMakeLists.txt:5833 (add_executable):
+  Cannot find source file:
+
+    apps/episode_twin_product_probe.cpp
+
+
+CMake Error at CMakeLists.txt:5857 (add_executable):
+  Cannot find source file:
+
+    apps/hybrid_renderer_probe.cpp
+
+
+CMake Error at CMakeLists.txt:5881 (add_executable):
+  Cannot find source file:
+
+    apps/visual_reference_probe.mm
+
+
+CMake Error at CMakeLists.txt:5915 (add_executable):
+  Cannot find source file:
+
+    apps/bodyparts3d_visual_probe.mm
+
+
+CMake Error at CMakeLists.txt:5942 (add_executable):
+  Cannot find source file:
+
+    apps/visual_platform_probe.cpp
+
+
+CMake Error at CMakeLists.txt:5951 (add_executable):
+  Cannot find source file:
+
+    apps/visual_cook.cpp
+
+
+CMake Error at CMakeLists.txt:5976 (add_executable):
+  Cannot find source file:
+
+    tools/room_scan_scene.cpp
+
+
+CMake Error at CMakeLists.txt:6000 (add_executable):
+  Cannot find source file:
+
+    apps/environment_cook.cpp
+
+
+CMake Error at CMakeLists.txt:6156 (add_executable):
+  Cannot find source file:
+
+    apps/numanx_human_equality_probe.mm
+
+
+CMake Error at CMakeLists.txt:6179 (add_executable):
+  Cannot find source file:
+
+    apps/numanx_human_limit_probe.mm
+
+
+CMake Error at CMakeLists.txt:6203 (add_executable):
+  Cannot find source file:
+
+    apps/numi_human_tissue_mass_probe.cpp
+
+
+CMake Error at CMakeLists.txt:6208 (add_executable):
+  Cannot find source file:
+
+    apps/numi_human_tissue_binding_check.cpp
+
+
+CMake Error at CMakeLists.txt:6214 (add_executable):
+  Cannot find source file:
+
+    apps/numi_human_loaded_knee_source_constraint_check.cpp
+
+
+CMake Error at CMakeLists.txt:6232 (add_executable):
+  Cannot find source file:
+
+    tests/numi_human_source_constraints_test.cpp
+
+
+CMake Error at CMakeLists.txt:6257 (add_executable):
+  Cannot find source file:
+
+    tests/numi_human_loaded_knee_numanx_test.cpp
+
+
+CMake Error at CMakeLists.txt:6282 (add_executable):
+  Cannot find source file:
+
+    tests/numi_human_loaded_knee_test.cpp
+
+
+CMake Error at CMakeLists.txt:6307 (add_executable):
+  Cannot find source file:
+
+    tests/numi_human_loaded_knee_binding_test.cpp
+
+
+CMake Error at CMakeLists.txt:6354 (add_executable):
+  Cannot find source file:
+
+    tests/numi_human_loaded_knee_source_compliance_test.cpp
+
+
+CMake Error at CMakeLists.txt:6427 (add_executable):
+  Cannot find source file:
+
+    tests/numi_human_bilateral_test.cpp
+
+
+CMake Error at CMakeLists.txt:6433 (add_executable):
+  Cannot find source file:
+
+    apps/human_resting_mesh_deformation_probe.mm
+
+
+CMake Error at CMakeLists.txt:6480 (add_executable):
+  Cannot find source file:
+
+    tests/numi_human_resting_bed_query_test.mm
+
+
+CMake Error at CMakeLists.txt:6492 (add_executable):
+  Cannot find source file:
+
+    tests/numi_human_resting_initial_posture_test.mm
+
+
+CMake Error at CMakeLists.txt:6507 (add_executable):
+  Cannot find source file:
+
+    tests/numi_human_resting_bed_admission_test.mm
+
+
+CMake Error at CMakeLists.txt:1214 (add_executable):
+  No SOURCES given to target: metalrobo_bench
+
+
+CMake Error at CMakeLists.txt:1224 (add_executable):
+  No SOURCES given to target: metalrobo_tactile_check
+
+
+CMake Error at CMakeLists.txt:1234 (add_executable):
+  No SOURCES given to target: metalrobo_tactile_benchmark
+
+
+CMake Error at CMakeLists.txt:1250 (add_executable):
+  No SOURCES given to target: metalrobo_tactile_example
+
+
+CMake Error at CMakeLists.txt:1266 (add_executable):
+  No SOURCES given to target: metalrobo_metal_world_contact_probe
+
+
+CMake Error at CMakeLists.txt:1282 (add_executable):
+  No SOURCES given to target: metalrobo_cpu_probe
+
+
+CMake Error at CMakeLists.txt:1291 (add_executable):
+  No SOURCES given to target: metalrobo_neuron_culture_probe
+
+
+CMake Error at CMakeLists.txt:1323 (add_executable):
+  No SOURCES given to target: NumiNeuronLab
+
+
+CMake Error at CMakeLists.txt:1349 (add_executable):
+  No SOURCES given to target: metalrobo_opensim_function_probe
+
+
+CMake Error at CMakeLists.txt:1358 (add_executable):
+  No SOURCES given to target: metalrobo_opensim_spatial_transform_probe
+
+
+CMake Error at CMakeLists.txt:1373 (add_executable):
+  No SOURCES given to target: metalrobo_opensim_spatial_transform_gpu_probe
+
+
+CMake Error at CMakeLists.txt:1414 (add_executable):
+  No SOURCES given to target: metalrobo_engine_model_probe
+
+
+CMake Error at CMakeLists.txt:1423 (add_executable):
+  No SOURCES given to target: metalrobo_g1_model_probe
+
+
+CMake Error at CMakeLists.txt:1432 (add_executable):
+  No SOURCES given to target: metalrobo_task_program_check
+
+
+CMake Error at CMakeLists.txt:1437 (add_executable):
+  No SOURCES given to target: metalrobo_run_program_check
+
+
+CMake Error at CMakeLists.txt:1441 (add_executable):
+  No SOURCES given to target: metalrobo_robot_catalog
+
+
+CMake Error at CMakeLists.txt:1445 (add_executable):
+  No SOURCES given to target: metalrobo_ai_sapiens_compile
+
+
+CMake Error at CMakeLists.txt:1601 (add_executable):
+  No SOURCES given to target: metalrobo_compensated_translation_check
+
+
+CMake Error at CMakeLists.txt:1609 (add_executable):
+  No SOURCES given to target: metalrobo_compensated_geometry_check
+
+
+CMake Error at CMakeLists.txt:1620 (add_executable):
+  No SOURCES given to target: metalrobo_source_route_precision_check
+
+
+CMake Error at CMakeLists.txt:1640 (add_executable):
+  No SOURCES given to target:
+  metalrobo_numilab_human_extensor_hood_admission_probe
+
+
+CMake Error at CMakeLists.txt:1657 (add_executable):
+  No SOURCES given to target: metalrobo_human_support_precision_check
+
+
+CMake Error at CMakeLists.txt:1668 (add_executable):
+  No SOURCES given to target: metalrobo_human_behavior_telemetry_check
+
+
+CMake Error at CMakeLists.txt:1676 (add_executable):
+  No SOURCES given to target: metalrobo_human_behavior_program_check
+
+
+CMake Error at CMakeLists.txt:1683 (add_executable):
+  No SOURCES given to target: metalrobo_human_behavior_trial_check
+
+
+CMake Error at CMakeLists.txt:1696 (add_executable):
+  No SOURCES given to target:
+  metalrobo_human_behavior_accepted_state_root_check
+
+
+CMake Error at CMakeLists.txt:1713 (add_executable):
+  No SOURCES given to target: metalrobo_numi_human_cardiac_identity_test
+
+
+CMake Error at CMakeLists.txt:1716 (add_executable):
+  No SOURCES given to target: metalrobo_numi_human_common_field_test
+
+
+CMake Error at CMakeLists.txt:1722 (add_executable):
+  No SOURCES given to target: metalrobo_numi_human_common_field_metal_test
+
+
+CMake Error at CMakeLists.txt:1731 (add_executable):
+  No SOURCES given to target: metalrobo_numi_human_hip_capsule_metal_test
+
+
+CMake Error at CMakeLists.txt:1746 (add_executable):
+  No SOURCES given to target:
+  metalrobo_numi_human_per_contact_plane_metal_test
+
+
+CMake Error at CMakeLists.txt:1761 (add_executable):
+  No SOURCES given to target: metalrobo_numi_human_mesh_audit_metal_test
+
+
+CMake Error at CMakeLists.txt:1771 (add_executable):
+  No SOURCES given to target:
+  metalrobo_numi_human_surface_audit_diagnostic_test
+
+
+CMake Error at CMakeLists.txt:1781 (add_executable):
+  No SOURCES given to target:
+  metalrobo_numi_human_retired_inspection_layers_test
+
+
+CMake Error at CMakeLists.txt:1791 (add_executable):
+  No SOURCES given to target:
+  metalrobo_numi_human_accepted_geometry_cadence_test
+
+
+CMake Error at CMakeLists.txt:1799 (add_executable):
+  No SOURCES given to target:
+  metalrobo_numi_human_accepted_q_audit_window_test
+
+
+CMake Error at CMakeLists.txt:1809 (add_executable):
+  No SOURCES given to target:
+  metalrobo_numi_human_accepted_force_observer_test
+
+
+CMake Error at CMakeLists.txt:1821 (add_executable):
+  No SOURCES given to target: metalrobo_numi_human_passive_joint_test
+
+
+CMake Error at CMakeLists.txt:1825 (add_executable):
+  No SOURCES given to target:
+  metalrobo_numi_human_resting_hand_reduction_test
+
+
+CMake Error at CMakeLists.txt:1829 (add_executable):
+  No SOURCES given to target: metalrobo_numi_human_timed_root_force_test
+
+
+CMake Error at CMakeLists.txt:1834 (add_executable):
+  No SOURCES given to target: metalrobo_numi_human_initial_state_test
+
+
+CMake Error at CMakeLists.txt:1841 (add_executable):
+  No SOURCES given to target: metalrobo_numi_human_runtime_identity_test
+
+
+CMake Error at CMakeLists.txt:1851 (add_executable):
+  No SOURCES given to target: metalrobo_numi_human_root_placement_test
+
+
+CMake Error at CMakeLists.txt:1868 (add_executable):
+  No SOURCES given to target: metalrobo_numi_human_static_support_test
+
+
+CMake Error at CMakeLists.txt:1878 (add_executable):
+  No SOURCES given to target: metalrobo_numi_human_motion_observer_test
+
+
+CMake Error at CMakeLists.txt:1890 (add_executable):
+  No SOURCES given to target: metalrobo_numi_human_friction_test
+
+
+CMake Error at CMakeLists.txt:1896 (add_executable):
+  No SOURCES given to target: metalrobo_mujoco_muscle_path_batch_test
+
+
+CMake Error at CMakeLists.txt:1906 (add_executable):
+  No SOURCES given to target: metalrobo_numi_human_continuum_map_test
+
+
+CMake Error at CMakeLists.txt:1934 (add_executable):
+  No SOURCES given to target: metalrobo_franka_engine_model_probe
+
+
+CMake Error at CMakeLists.txt:1950 (add_executable):
+  No SOURCES given to target: metalrobo_franka_compiled_run_probe
+
+
+CMake Error at CMakeLists.txt:1966 (add_executable):
+  No SOURCES given to target: metalrobo_franka_explore
+
+
+CMake Error at CMakeLists.txt:1995 (add_executable):
+  No SOURCES given to target: metalrobo_collision_probe
+
+
+CMake Error at CMakeLists.txt:2004 (add_executable):
+  No SOURCES given to target: metalrobo_free_body_probe
+
+
+CMake Error at CMakeLists.txt:2013 (add_executable):
+  No SOURCES given to target: metalrobo_rigid_body_world_probe
+
+
+CMake Error at CMakeLists.txt:2018 (add_executable):
+  No SOURCES given to target: metalrobo_articulated_dynamics_probe
+
+
+CMake Error at CMakeLists.txt:2037 (add_executable):
+  No SOURCES given to target: metalrobo_numilab_human_core_reference_probe
+
+
+CMake Error at CMakeLists.txt:2056 (add_executable):
+  No SOURCES given to target: metalrobo_numilab_human_myosim_reference_probe
+
+
+CMake Error at CMakeLists.txt:2075 (add_executable):
+  No SOURCES given to target:
+  metalrobo_numilab_human_extensor_hood_reference_probe
+
+
+CMake Error at CMakeLists.txt:2105 (add_executable):
+  No SOURCES given to target:
+  metalrobo_numilab_human_extensor_hood_source_probe
+
+
+CMake Error at CMakeLists.txt:2125 (add_executable):
+  No SOURCES given to target: metalrobo_numilab_human_adm_feasibility_probe
+
+
+CMake Error at CMakeLists.txt:2152 (add_executable):
+  No SOURCES given to target: metalrobo_numilab_human_myosim_visual_probe
+
+
+CMake Error at CMakeLists.txt:2198 (add_executable):
+  No SOURCES given to target: numi-human-native
+
+
+CMake Error at CMakeLists.txt:2213 (add_executable):
+  No SOURCES given to target: metalrobo_numilab_human_tendon_fem_load_probe
+
+
+CMake Error at CMakeLists.txt:2281 (add_executable):
+  No SOURCES given to target: metalrobo_numilab_human_costal_cartilage_probe
+
+
+CMake Error at CMakeLists.txt:2311 (add_executable):
+  No SOURCES given to target:
+  metalrobo_numilab_human_open_knee_ligament_probe
+
+
+CMake Error at CMakeLists.txt:2345 (add_executable):
+  No SOURCES given to target: metalrobo_numilab_human_knee_contact_probe
+
+
+CMake Error at CMakeLists.txt:2364 (add_executable):
+  No SOURCES given to target: metalrobo_numi_human_knee_contact_test
+
+
+CMake Error at CMakeLists.txt:2392 (add_executable):
+  No SOURCES given to target: metalrobo_millard_muscle_reference_probe
+
+
+CMake Error at CMakeLists.txt:2408 (add_executable):
+  No SOURCES given to target: metalrobo_articulated_actuation_probe
+
+
+CMake Error at CMakeLists.txt:2424 (add_executable):
+  No SOURCES given to target: metalrobo_articulated_joint_limits_probe
+
+
+CMake Error at CMakeLists.txt:2440 (add_executable):
+  No SOURCES given to target: metalrobo_articulated_contact_probe
+
+
+CMake Error at CMakeLists.txt:2456 (add_executable):
+  No SOURCES given to target: metalrobo_articulated_mixed_constraints_probe
+
+
+CMake Error at CMakeLists.txt:2472 (add_executable):
+  No SOURCES given to target: metalrobo_multi_articulated_world_probe
+
+
+CMake Error at CMakeLists.txt:2488 (add_executable):
+  No SOURCES given to target: metalrobo_multi_articulated_contact_probe
+
+
+CMake Error at CMakeLists.txt:2504 (add_executable):
+  No SOURCES given to target: metalrobo_metal_multi_articulated_contact_probe
+
+
+CMake Error at CMakeLists.txt:2528 (add_executable):
+  No SOURCES given to target: metalrobo_parallel_aba_schedule_probe
+
+
+CMake Error at CMakeLists.txt:2552 (add_executable):
+  No SOURCES given to target: metalrobo_multi_articulated_aba_gpu_probe
+
+
+CMake Error at CMakeLists.txt:2570 (add_executable):
+  No SOURCES given to target:
+  metalrobo_multi_articulated_inverse_mass_gpu_probe
+
+
+CMake Error at CMakeLists.txt:2588 (add_executable):
+  No SOURCES given to target:
+  metalrobo_multi_articulated_constraint_gpu_probe
+
+
+CMake Error at CMakeLists.txt:2606 (add_executable):
+  No SOURCES given to target: metalrobo_metal_discrete_elastic_rod_probe
+
+
+CMake Error at CMakeLists.txt:2624 (add_executable):
+  No SOURCES given to target: metalrobo_surgical_knot_mechanics_probe
+
+
+CMake Error at CMakeLists.txt:2651 (add_executable):
+  No SOURCES given to target: metalrobo_surgical_knot_protocol_probe
+
+
+CMake Error at CMakeLists.txt:2675 (add_executable):
+  No SOURCES given to target: metalrobo_surgical_thread_grasp_probe
+
+
+CMake Error at CMakeLists.txt:2702 (add_executable):
+  No SOURCES given to target: metalrobo_surgical_thread_targeting_probe
+
+
+CMake Error at CMakeLists.txt:2726 (add_executable):
+  No SOURCES given to target: metalrobo_metal_unified_quality_probe
+
+
+CMake Error at CMakeLists.txt:2750 (add_executable):
+  No SOURCES given to target: metalrobo_robot_description_cooker_probe
+
+
+CMake Error at CMakeLists.txt:2771 (add_executable):
+  No SOURCES given to target: metalrobo_dual_psm_world_probe
+
+
+CMake Error at CMakeLists.txt:2787 (add_executable):
+  No SOURCES given to target: metalrobo_discrete_elastic_rod_probe
+
+
+CMake Error at CMakeLists.txt:2803 (add_executable):
+  No SOURCES given to target: metalrobo_engine_model_composer_probe
+
+
+CMake Error at CMakeLists.txt:2819 (add_executable):
+  No SOURCES given to target: metalrobo_heterogeneous_world_probe
+
+
+CMake Error at CMakeLists.txt:2835 (add_executable):
+  No SOURCES given to target: metalrobo_metal_quality_contact_probe
+
+
+CMake Error at CMakeLists.txt:2853 (add_executable):
+  No SOURCES given to target: metalrobo_g1_collision_contact_probe
+
+
+CMake Error at CMakeLists.txt:2869 (add_executable):
+  No SOURCES given to target: metalrobo_articulated_world_probe
+
+
+CMake Error at CMakeLists.txt:2892 (add_executable):
+  No SOURCES given to target: metalrobo_reference_conic_probe
+
+
+CMake Error at CMakeLists.txt:2897 (add_executable):
+  No SOURCES given to target: metalrobo_quality_contact_probe
+
+
+CMake Error at CMakeLists.txt:2916 (add_executable):
+  No SOURCES given to target: metalrobo_constraint_ir_probe
+
+
+CMake Error at CMakeLists.txt:2932 (add_executable):
+  No SOURCES given to target: metalrobo_contact_gpu_probe
+
+
+CMake Error at CMakeLists.txt:2961 (add_executable):
+  No SOURCES given to target: metalrobo_free_body_gpu_probe
+
+
+CMake Error at CMakeLists.txt:2969 (add_executable):
+  No SOURCES given to target: metalrobo_px4_x500_gpu_probe
+
+
+CMake Error at CMakeLists.txt:2997 (add_executable):
+  No SOURCES given to target: metalrobo_human_reconcile_probe
+
+
+CMake Error at CMakeLists.txt:3007 (add_executable):
+  No SOURCES given to target: metalrobo_matter_surface_bvh_probe
+
+
+CMake Error at CMakeLists.txt:3018 (add_executable):
+  No SOURCES given to target: metalrobo_matter_ccd_probe
+
+
+CMake Error at CMakeLists.txt:3028 (add_executable):
+  No SOURCES given to target: metalrobo_matter_physics_probe
+
+
+CMake Error at CMakeLists.txt:3060 (add_executable):
+  No SOURCES given to target: metalrobo_matter_snapshot_archive_probe
+
+
+CMake Error at CMakeLists.txt:3084 (add_executable):
+  No SOURCES given to target: metalrobo_surgical_tissue_probe
+
+
+CMake Error at CMakeLists.txt:3119 (add_executable):
+  No SOURCES given to target: metalrobo_numi_human_fem_prestress_stage_test
+
+
+CMake Error at CMakeLists.txt:3476 (add_executable):
+  No SOURCES given to target: metalrobo_collision_gpu_probe
+
+
+CMake Error at CMakeLists.txt:3505 (add_executable):
+  No SOURCES given to target: metalrobo_deterministic_broadphase_probe
+
+
+CMake Error at CMakeLists.txt:3540 (add_executable):
+  No SOURCES given to target: metalrobo_articulated_operator_gpu_probe
+
+
+CMake Error at CMakeLists.txt:3575 (add_executable):
+  No SOURCES given to target: metalrobo_numanx_transaction_probe
+
+
+CMake Error at CMakeLists.txt:3611 (add_executable):
+  No SOURCES given to target: metalrobo_numi_human_stand_coupling_probe
+
+
+CMake Error at CMakeLists.txt:3659 (add_executable):
+  No SOURCES given to target: metalrobo_numanx_human_io_probe
+
+
+CMake Error at CMakeLists.txt:3690 (add_executable):
+  No SOURCES given to target: metalrobo_numanx_coupled_human_probe
+
+
+CMake Error at CMakeLists.txt:3721 (add_executable):
+  No SOURCES given to target: metalrobo_numanx_human_matter_owner_probe
+
+
+CMake Error at CMakeLists.txt:3752 (add_executable):
+  No SOURCES given to target: metalrobo_numanx_human_matter_v4_probe
+
+
+CMake Error at CMakeLists.txt:3783 (add_executable):
+  No SOURCES given to target: metalrobo_numanx_human_matter_candidate_probe
+
+
+CMake Error at CMakeLists.txt:3814 (add_executable):
+  No SOURCES given to target: metalrobo_numanx_human_matter_adapter_probe
+
+
+CMake Error at CMakeLists.txt:4031 (add_executable):
+  No SOURCES given to target:
+  metalrobo_numanx_matter_accepted_state_proof_probe
+
+
+CMake Error at CMakeLists.txt:4070 (add_executable):
+  No SOURCES given to target:
+  metalrobo_numanx_matter_exact_accepted_state_proof_probe
+
+
+CMake Error at CMakeLists.txt:4109 (add_executable):
+  No SOURCES given to target:
+  metalrobo_numanx_human_matter_exact_v2_lifecycle_probe
+
+
+CMake Error at CMakeLists.txt:4152 (add_executable):
+  No SOURCES given to target:
+  metalrobo_numanx_matter_attachment_runtime_probe
+
+
+CMake Error at CMakeLists.txt:4189 (add_executable):
+  No SOURCES given to target: metalrobo_numanx_matter_capacity_probe
+
+
+CMake Error at CMakeLists.txt:4218 (add_executable):
+  No SOURCES given to target: metalrobo_numanx_exact_request_v3_contract_test
+
+
+CMake Error at CMakeLists.txt:4248 (add_executable):
+  No SOURCES given to target:
+  metalrobo_numanx_exact_outbound_v2_contract_test
+
+
+CMake Error at CMakeLists.txt:4254 (add_executable):
+  No SOURCES given to target:
+  metalrobo_numanx_human_io_exact_v2_contract_test
+
+
+CMake Error at CMakeLists.txt:4284 (add_executable):
+  No SOURCES given to target: metalrobo_numanx_human_io_exact_receipt_probe
+
+
+CMake Error at CMakeLists.txt:4342 (add_executable):
+  No SOURCES given to target: metalrobo_numanx_production_owner_snapshot_test
+
+
+CMake Error at CMakeLists.txt:4372 (add_executable):
+  No SOURCES given to target:
+  metalrobo_numanx_production_owner_evidence_writer_test
+
+
+CMake Error at CMakeLists.txt:4898 (add_executable):
+  No SOURCES given to target: metalrobo_articulated_aba_gpu_probe
+
+
+CMake Error at CMakeLists.txt:4933 (add_executable):
+  No SOURCES given to target: metalrobo_articulated_inverse_mass_gpu_probe
+
+
+CMake Error at CMakeLists.txt:4968 (add_executable):
+  No SOURCES given to target: metalrobo_articulated_operator_host_probe
+
+
+CMake Error at CMakeLists.txt:4984 (add_executable):
+  No SOURCES given to target: metalrobo_articulated_operator_context_probe
+
+
+CMake Error at CMakeLists.txt:5000 (add_executable):
+  No SOURCES given to target: metalrobo_articulated_aba_host_probe
+
+
+CMake Error at CMakeLists.txt:5016 (add_executable):
+  No SOURCES given to target: metalrobo_metal_world_probe
+
+
+CMake Error at CMakeLists.txt:5040 (add_executable):
+  No SOURCES given to target: metalrobo_articulated_inverse_mass_host_probe
+
+
+CMake Error at CMakeLists.txt:5056 (add_executable):
+  No SOURCES given to target: metalrobo_surgical_psm_probe
+
+
+CMake Error at CMakeLists.txt:5072 (add_executable):
+  No SOURCES given to target: metalrobo_surgical_assets_probe
+
+
+CMake Error at CMakeLists.txt:5088 (add_executable):
+  No SOURCES given to target: metalrobo_surgical_metal_operator_probe
+
+
+CMake Error at CMakeLists.txt:5104 (add_executable):
+  No SOURCES given to target:
+  metalrobo_coupled_articulated_rigid_contact_probe
+
+
+CMake Error at CMakeLists.txt:5120 (add_executable):
+  No SOURCES given to target: metalrobo_articulated_rigid_collision_probe
+
+
+CMake Error at CMakeLists.txt:5136 (add_executable):
+  No SOURCES given to target: metalrobo_articulated_rigid_world_probe
+
+
+CMake Error at CMakeLists.txt:5152 (add_executable):
+  No SOURCES given to target: metalrobo_supported_needle_pickup_probe
+
+
+CMake Error at CMakeLists.txt:5157 (add_executable):
+  No SOURCES given to target: metalrobo_dual_psm_suture_handoff_probe
+
+
+CMake Error at CMakeLists.txt:5202 (add_executable):
+  No SOURCES given to target: metalrobo_suture_visual_probe
+
+
+CMake Error at CMakeLists.txt:5688 (add_executable):
+  No SOURCES given to target: metalrobo_world_compiler_probe
+
+
+CMake Error at CMakeLists.txt:5712 (add_executable):
+  No SOURCES given to target: metalrobo_metal_world_family_probe
+
+
+CMake Error at CMakeLists.txt:5736 (add_executable):
+  No SOURCES given to target: metalrobo_r2s2r_loop_probe
+
+
+CMake Error at CMakeLists.txt:5760 (add_executable):
+  No SOURCES given to target: metalrobo_world_pack
+
+
+CMake Error at CMakeLists.txt:5784 (add_executable):
+  No SOURCES given to target: metalrobo_episode_compile
+
+
+CMake Error at CMakeLists.txt:5808 (add_executable):
+  No SOURCES given to target: metalrobo_motion_compile
+
+
+CMake Error at CMakeLists.txt:5833 (add_executable):
+  No SOURCES given to target: metalrobo_episode_twin_product_probe
+
+
+CMake Error at CMakeLists.txt:5857 (add_executable):
+  No SOURCES given to target: metalrobo_hybrid_renderer_probe
+
+
+CMake Error at CMakeLists.txt:5881 (add_executable):
+  No SOURCES given to target: metalrobo_visual_reference_probe
+
+
+CMake Error at CMakeLists.txt:5915 (add_executable):
+  No SOURCES given to target: metalrobo_bodyparts3d_visual_probe
+
+
+CMake Error at CMakeLists.txt:5942 (add_executable):
+  No SOURCES given to target: metalrobo_visual_platform_probe
+
+
+CMake Error at CMakeLists.txt:5951 (add_executable):
+  No SOURCES given to target: metalrobo_visual_cook
+
+
+CMake Error at CMakeLists.txt:5976 (add_executable):
+  No SOURCES given to target: metalrobo_room_scan_scene
+
+
+CMake Error at CMakeLists.txt:6000 (add_executable):
+  No SOURCES given to target: metalrobo_environment_cook
+
+
+CMake Error at CMakeLists.txt:6156 (add_executable):
+  No SOURCES given to target: metalrobo_numanx_human_equality_probe
+
+
+CMake Error at CMakeLists.txt:6179 (add_executable):
+  No SOURCES given to target: metalrobo_numanx_human_limit_probe
+
+
+CMake Error at CMakeLists.txt:6203 (add_executable):
+  No SOURCES given to target: numi_human_tissue_mass_probe
+
+
+CMake Error at CMakeLists.txt:6208 (add_executable):
+  No SOURCES given to target: numi_human_tissue_binding_check
+
+
+CMake Error at CMakeLists.txt:6214 (add_executable):
+  No SOURCES given to target:
+  metalrobo_numi_human_loaded_knee_source_constraint_check
+
+
+CMake Error at CMakeLists.txt:6232 (add_executable):
+  No SOURCES given to target: metalrobo_numi_human_source_constraints_test
+
+
+CMake Error at CMakeLists.txt:6257 (add_executable):
+  No SOURCES given to target: metalrobo_numi_human_loaded_knee_numanx_test
+
+
+CMake Error at CMakeLists.txt:6282 (add_executable):
+  No SOURCES given to target: metalrobo_numi_human_loaded_knee_test
+
+
+CMake Error at CMakeLists.txt:6307 (add_executable):
+  No SOURCES given to target: metalrobo_numi_human_loaded_knee_binding_test
+
+
+CMake Error at CMakeLists.txt:6354 (add_executable):
+  No SOURCES given to target:
+  metalrobo_numi_human_loaded_knee_source_compliance_test
+
+
+CMake Error at CMakeLists.txt:6427 (add_executable):
+  No SOURCES given to target: metalrobo_numi_human_bilateral_test
+
+
+CMake Error at CMakeLists.txt:6433 (add_executable):
+  No SOURCES given to target: numi_human_resting_mesh_deformation_probe
+
+
+CMake Error at CMakeLists.txt:6480 (add_executable):
+  No SOURCES given to target: numi-human-resting-bed-query-check
+
+
+CMake Error at CMakeLists.txt:6492 (add_executable):
+  No SOURCES given to target: numi-human-resting-initial-posture-check
+
+
+CMake Error at CMakeLists.txt:6507 (add_executable):
+  No SOURCES given to target: numi-human-resting-bed-admission-check
+
+
+CMake Generate step failed.  Build files cannot be regenerated correctly.

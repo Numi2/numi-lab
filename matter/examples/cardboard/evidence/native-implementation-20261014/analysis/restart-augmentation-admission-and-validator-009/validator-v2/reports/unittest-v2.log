@@ -1,0 +1,10 @@
+test_actual323_feature_off_fresh_base_ap (cardboard-implementation-20261014.analysis.restart-augmentation-admission-and-validator-009.validator-v2.test_restart_augmentation_validation_v2.RestartAugmentationV2Tests) ... ok
+test_actual337_factor_fallback_is_not_misread_as_attempt (cardboard-implementation-20261014.analysis.restart-augmentation-admission-and-validator-009.validator-v2.test_restart_augmentation_validation_v2.RestartAugmentationV2Tests) ... ok
+test_augmented_per_environment_synthetic_contract (cardboard-implementation-20261014.analysis.restart-augmentation-admission-and-validator-009.validator-v2.test_restart_augmentation_validation_v2.RestartAugmentationV2Tests) ... ok
+test_capture182_keeps_ap_mismatch_and_reports_fresh_actions (cardboard-implementation-20261014.analysis.restart-augmentation-admission-and-validator-009.validator-v2.test_restart_augmentation_validation_v2.RestartAugmentationV2Tests) ... ok
+test_threshold_overrides_cannot_be_weakened (cardboard-implementation-20261014.analysis.restart-augmentation-admission-and-validator-009.validator-v2.test_restart_augmentation_validation_v2.RestartAugmentationV2Tests) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 9.457s
+
+OK

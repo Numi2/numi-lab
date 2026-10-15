@@ -1,0 +1,5 @@
+PASS: source-private-mortar-witness-098 runtime SHA-256 d2ea134b9c6ec0f00ce9b5c479d36b7f75d727d6b162281f5947cc98c69f543d
+PASS: runtime-only predecessor overlay restart-augmentation-two-env-007 reconstructed SHA-256 b7d85d454326f46fdaa68969d527c6ed9afa2a2e46a5479f76e232b7ec0b74c1
+PASS: capture-stride.patch applies cleanly to that exact predecessor output
+PASS: final runtime SHA-256 46e7208cd1ac37c2845e3da4eaf7d05ac397ecc5791d39b3e3216bba94e3ba46
+NOTE: Objective-C++ compile and native capture validation were not run; integrating owner should compile against the assembled candidate source.

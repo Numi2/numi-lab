@@ -1,0 +1,117 @@
+{
+  "schema": "numi.cardboard.retained_capture_bundle.v1",
+  "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-center-action-twoenv-restart-099",
+  "captures": [
+    {
+      "run": 320,
+      "raw_source": "/Users/home/cardboard-implementation-20261014/native/center-action-private-trial-320/center-capture.coupled.bin",
+      "manifest": "320/center-capture.coupled.json",
+      "manifest_sha256": "ca063906871f0d1947e4cff438dbc490195075f4c68e4ed5c21b9caf57ebc0db",
+      "compressed": "320/center-capture.coupled.bin.gz",
+      "compressed_sha256": "bb4f4686e9e10989a929c9b579f8d4a0cdf9f78eb481adb02318a564cbd1fbdc",
+      "compressed_bytes": 51560,
+      "uncompressed_sha256": "ba17e850e84f9e4a7d3daa66e0159789d7cf2484485dc2ba1ebbaab2e1411b9e",
+      "uncompressed_bytes": 11670948,
+      "restoration_verified": true
+    },
+    {
+      "run": 324,
+      "raw_source": "/Users/home/cardboard-implementation-20261014/native/center-action-private-trial-only-324/private-trial.coupled.bin",
+      "manifest": "324/private-trial.coupled.json",
+      "manifest_sha256": "a2c196cce4685f249458ab6bbe3be04557456e94eeaa4bd51c5083ee4de82afa",
+      "compressed": "324/private-trial.coupled.bin.gz",
+      "compressed_sha256": "0b3ced053876bd0c68324bd749651d3b3cb0576c9baf119e11ca69eacaba6522",
+      "compressed_bytes": 69591,
+      "uncompressed_sha256": "58206c37aa9cd897d490a7dd45979d887b0e2f44992fefad512e943fb10d17ff",
+      "uncompressed_bytes": 19467248,
+      "restoration_verified": true
+    },
+    {
+      "run": 326,
+      "raw_source": "/Users/home/cardboard-implementation-20261014/native/center-action-trial-sweep-326/private-trial.coupled.bin",
+      "manifest": "326/private-trial.coupled.json",
+      "manifest_sha256": "da789d5924433759c724d95df5696a970573be8834a3aeee5cf2910ad323ad0f",
+      "compressed": "326/private-trial.coupled.bin.gz",
+      "compressed_sha256": "6e3dda663b229e5140f51b02538ec3500879a4778f0310eb0c07574be2b43691",
+      "compressed_bytes": 69389,
+      "uncompressed_sha256": "891abe2180a2404d9e700bf2a6c1b84f3db848ef569ee998f0115253f462703b",
+      "uncompressed_bytes": 19467248,
+      "restoration_verified": true
+    },
+    {
+      "run": 327,
+      "raw_source": "/Users/home/cardboard-implementation-20261014/native/center-action-trial-sweep-327/private-trial.coupled.bin",
+      "manifest": "327/private-trial.coupled.json",
+      "manifest_sha256": "ea206e0501d2b5b9b0b0945209ea8d1f56bdcbb12ebe89efa0494835fedfd441",
+      "compressed": "327/private-trial.coupled.bin.gz",
+      "compressed_sha256": "8393b8cedb426dadfc6ea8bfd07a661b5ae0a9aa7672f17d62d36dfb5cdb7519",
+      "compressed_bytes": 69345,
+      "uncompressed_sha256": "4653a6e7021ef9e28ef4ae92c245d71eb94a1764ccc13d4559f2ea8012dc4feb",
+      "uncompressed_bytes": 19467248,
+      "restoration_verified": true
+    },
+    {
+      "run": 328,
+      "raw_source": "/Users/home/cardboard-implementation-20261014/native/center-action-trial-sweep-328/private-trial.coupled.bin",
+      "manifest": "328/private-trial.coupled.json",
+      "manifest_sha256": "fa06a57283bcdab99f66e81a25690af1f70c09012a61585c4463fd391e09a0ee",
+      "compressed": "328/private-trial.coupled.bin.gz",
+      "compressed_sha256": "2f70ded1967fbb705cba2f6850fe885a8c5af0d65555d5346d46965e91ebb00e",
+      "compressed_bytes": 69375,
+      "uncompressed_sha256": "f51b492bfe521c7f71f030a1063d4fc0eae32f4c203da99ca469f424059834c3",
+      "uncompressed_bytes": 19467248,
+      "restoration_verified": true
+    },
+    {
+      "run": 329,
+      "raw_source": "/Users/home/cardboard-implementation-20261014/native/center-action-trial-sweep-329/private-trial.coupled.bin",
+      "manifest": "329/private-trial.coupled.json",
+      "manifest_sha256": "684d07fe9329e6f9f6d50f4a6efbac4b72a49913b933c6e17a7e1158da191083",
+      "compressed": "329/private-trial.coupled.bin.gz",
+      "compressed_sha256": "921c4c1d9e440d9932dd78610fe08b4895cf20cc64d949b1a93d541ff95daf16",
+      "compressed_bytes": 69494,
+      "uncompressed_sha256": "a572cc0e2bf5e38d0154d325ec09a83b663c6be7bd68d15477d570d3abb16e4f",
+      "uncompressed_bytes": 19467248,
+      "restoration_verified": true
+    },
+    {
+      "run": 330,
+      "raw_source": "/Users/home/cardboard-implementation-20261014/native/center-action-trial-sweep-330/private-trial.coupled.bin",
+      "manifest": "330/private-trial.coupled.json",
+      "manifest_sha256": "7d8c2a4cfafde23971d1def8c75bee5a02500b43df70b143cf6a1a62c342a300",
+      "compressed": "330/private-trial.coupled.bin.gz",
+      "compressed_sha256": "a6c9b45ed5b8739a864bd4b8d05d8dc6cdc690832b5efe454c8ee2c2c11363b7",
+      "compressed_bytes": 69476,
+      "uncompressed_sha256": "3ab389ae5dc0c5cc3d2973cc463a660591687a1fe67f16e4f50d96d4eebecb5f",
+      "uncompressed_bytes": 19467248,
+      "restoration_verified": true
+    },
+    {
+      "run": 333,
+      "raw_source": "/Users/home/cardboard-implementation-20261014/native/center-action-feasibility-bracket-333/private-trial.coupled.bin",
+      "manifest": "333/private-trial.coupled.json",
+      "manifest_sha256": "c62cc99acfb766413d604250586704b63e9cd6e5930064329dfb57a277815e74",
+      "compressed": "333/private-trial.coupled.bin.gz",
+      "compressed_sha256": "485721983cb7e2cd7d2af601cd1d5ecaf6cb4ef22ecd55af5098ccb2e89235ef",
+      "compressed_bytes": 69467,
+      "uncompressed_sha256": "8fe7d2943880bb9962b1745569fa4120d88a317fee43b00fbbe9d609cc5d07eb",
+      "uncompressed_bytes": 19467248,
+      "restoration_verified": true
+    },
+    {
+      "run": 334,
+      "raw_source": "/Users/home/cardboard-implementation-20261014/native/center-action-feasibility-bracket-334/private-trial.coupled.bin",
+      "manifest": "334/private-trial.coupled.json",
+      "manifest_sha256": "eeff0101144e3e6e4fffbd46a5b4b9642b2e5bc6ab071ff3969ef4d9ecdeec00",
+      "compressed": "334/private-trial.coupled.bin.gz",
+      "compressed_sha256": "b8640cdbec624e7d623d44d55e85473fbb294180498507618c0f79380c6e1522",
+      "compressed_bytes": 69465,
+      "uncompressed_sha256": "bb645f01802e2d0cfcec1a15ec0769ff988e8f06b1ce4a58610bc82c8c7f6e38",
+      "uncompressed_bytes": 19467248,
+      "restoration_verified": true
+    }
+  ],
+  "accepted_checkpoint": false,
+  "physical_convergence": false,
+  "qualification": "observational Newton-center and rejected/healthy private trial inputs only"
+}

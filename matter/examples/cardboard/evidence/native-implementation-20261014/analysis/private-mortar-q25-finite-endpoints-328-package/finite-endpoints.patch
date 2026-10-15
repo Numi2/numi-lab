@@ -1,0 +1,87 @@
+--- a/matter/include/numi/matter/mortar_shared_edge_guard.h
++++ b/matter/include/numi/matter/mortar_shared_edge_guard.h
+@@ -157,6 +157,12 @@
+     const NMMortarGuardPoint2 rightStart,
+     const NMMortarGuardPoint2 rightEnd
+ ) {
++    const NMMortarGuardPoint2 points[6] = {
++        leftPoint, leftStart, leftEnd,
++        rightPoint, rightStart, rightEnd};
++    for (unsigned int index = 0u; index < 6u; ++index)
++        if (!nmMortarGuardFinite(points[index].x) ||
++            !nmMortarGuardFinite(points[index].y)) return false;
+     if (leftPoint.x == leftStart.x && leftPoint.y == leftStart.y &&
+         rightPoint.x == rightStart.x && rightPoint.y == rightStart.y)
+         return true;
+@@ -355,13 +361,23 @@
+     return a.x == b.x && a.y == b.y && a.z == b.z;
+ }
+ 
++inline bool nmMortarGuardFinitePoint3(const NMMortarGuardPoint3 point) {
++    return nmMortarGuardFinite(point.x) &&
++        nmMortarGuardFinite(point.y) &&
++        nmMortarGuardFinite(point.z);
++}
++
+ inline bool nmMortarGuardSamePairedWorldSegment(
+     const NMMortarGuardPoint3 leftStart,
+     const NMMortarGuardPoint3 leftEnd,
+     const NMMortarGuardPoint3 rightStart,
+     const NMMortarGuardPoint3 rightEnd
+ ) {
+-    return nmMortarGuardSamePoint(leftStart, rightStart) &&
++    return nmMortarGuardFinitePoint3(leftStart) &&
++        nmMortarGuardFinitePoint3(leftEnd) &&
++        nmMortarGuardFinitePoint3(rightStart) &&
++        nmMortarGuardFinitePoint3(rightEnd) &&
++        nmMortarGuardSamePoint(leftStart, rightStart) &&
+         nmMortarGuardSamePoint(leftEnd, rightEnd);
+ }
+ 
+@@ -374,7 +390,11 @@
+     const NMMortarGuardPoint3 leftB,
+     const NMMortarGuardPoint3 rightB
+ ) {
+-    return nmMortarGuardSamePoint(leftA, leftB) &&
++    return nmMortarGuardFinitePoint3(leftA) &&
++        nmMortarGuardFinitePoint3(rightA) &&
++        nmMortarGuardFinitePoint3(leftB) &&
++        nmMortarGuardFinitePoint3(rightB) &&
++        nmMortarGuardSamePoint(leftA, leftB) &&
+         nmMortarGuardSamePoint(rightA, rightB);
+ }
+ 
+--- a/matter/tools/mortar_exact_tiling_check.cpp
++++ b/matter/tools/mortar_exact_tiling_check.cpp
+@@ -137,6 +137,31 @@
+                 exactLeftStart, exactLeftEnd,
+                 exactRightStart, offsetRightEnd),
+             "4 nm other-endpoint physical gap was treated as a paired seam");
++
++    const float infinity = std::numeric_limits<float>::infinity();
++    const float notANumber = std::numeric_limits<float>::quiet_NaN();
++    const NMMortarGuardPoint2 infinitePoint = point(infinity, 0.0f);
++    const NMMortarGuardPoint2 infiniteStart = point(infinity, 0.0f);
++    const NMMortarGuardPoint2 infiniteEnd = point(infinity, 1.0f);
++    require(!nmMortarGuardSameSegmentParameterExactOrQ25(
++                infinitePoint, infiniteStart, infiniteEnd,
++                infinitePoint, infiniteStart, infiniteEnd),
++            "infinite exact edge endpoint passed paired-parameter gate");
++    const NMMortarGuardPoint3 infiniteWorld = {
++        infinity, 0.0f, 0.0f};
++    require(!nmMortarGuardSamePairedWorldSegment(
++                infiniteWorld, infiniteWorld,
++                infiniteWorld, infiniteWorld),
++            "infinite paired world segment passed equality gate");
++    require(!nmMortarGuardExactPairedVertex(
++                infiniteWorld, infiniteWorld,
++                infiniteWorld, infiniteWorld),
++            "infinite paired mapped vertex passed equality gate");
++    const NMMortarGuardPoint3 nanWorld = {
++        notANumber, 0.0f, 0.0f};
++    require(!nmMortarGuardSamePairedWorldSegment(
++                nanWorld, exactLeftEnd, nanWorld, exactRightEnd),
++            "NaN paired world endpoint passed equality gate");
+ }
+ }
+ 

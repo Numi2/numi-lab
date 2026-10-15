@@ -1,0 +1,194 @@
+{
+  "captures": [
+    {
+      "base_dt_f32_hex": "17b7d138",
+      "candidate_identity": [
+        88,
+        127,
+        331,
+        1
+      ],
+      "case": 333,
+      "dispatch_sha256": "3b61936c220ceb15a44603e43548ecce336af465bf8b49c138657265c6dd8a17",
+      "manifest_path": "/Users/home/cardboard-implementation-20261014/native/center-action-feasibility-bracket-333/private-trial.coupled.json",
+      "manifest_sha256": "c62cc99acfb766413d604250586704b63e9cd6e5930064329dfb57a277815e74",
+      "object_dt_f32_hex": "17b7d138",
+      "payload_sha256": "8fe7d2943880bb9962b1745569fa4120d88a317fee43b00fbbe9d609cc5d07eb",
+      "primitive_nodes": [
+        [
+          13,
+          14,
+          17
+        ],
+        [
+          28,
+          32,
+          31
+        ]
+      ],
+      "scheduler_exponent": 0,
+      "thickness_f32_hex": "acc52737"
+    },
+    {
+      "base_dt_f32_hex": "17b7d138",
+      "candidate_identity": [
+        88,
+        127,
+        331,
+        1
+      ],
+      "case": 334,
+      "dispatch_sha256": "3b61936c220ceb15a44603e43548ecce336af465bf8b49c138657265c6dd8a17",
+      "manifest_path": "/Users/home/cardboard-implementation-20261014/native/center-action-feasibility-bracket-334/private-trial.coupled.json",
+      "manifest_sha256": "eeff0101144e3e6e4fffbd46a5b4b9642b2e5bc6ab071ff3969ef4d9ecdeec00",
+      "object_dt_f32_hex": "17b7d138",
+      "payload_sha256": "bb645f01802e2d0cfcec1a15ec0769ff988e8f06b1ce4a58610bc82c8c7f6e38",
+      "primitive_nodes": [
+        [
+          13,
+          14,
+          17
+        ],
+        [
+          28,
+          32,
+          31
+        ]
+      ],
+      "scheduler_exponent": 0,
+      "thickness_f32_hex": "acc52737"
+    }
+  ],
+  "case_count": 4,
+  "case_stride_bytes": 144,
+  "case_stride_float4": 9,
+  "cases": [
+    {
+      "budget": 16,
+      "capture_case": 333,
+      "capture_trial": 20,
+      "edge_node_ids": [
+        [
+          13,
+          14
+        ],
+        [
+          28,
+          32
+        ]
+      ],
+      "index": 0,
+      "kind": "edge_edge",
+      "record_layout": "9 little-endian float4: header; p00,p10,q00,q10; p01,p11,q01,q11",
+      "records_f32_hex": [
+        "0000803facc52737000080410080a643",
+        "d7370532df9f3a325123833a00000000",
+        "9612033b3d273632a81e833a00000000",
+        "2351d8b37e1303bbdf6b843a00000000",
+        "a710033b154179b33c70843a00000000",
+        "77a242322b0f6c323029833a00000000",
+        "a812033b763a6a324623833a00000000",
+        "4d32dab3831303bb2f6f843a00000000",
+        "a310033bf3a97db3eb72843a00000000"
+      ],
+      "thickness_f32_hex": "acc52737"
+    },
+    {
+      "budget": 17,
+      "capture_case": 333,
+      "capture_trial": 20,
+      "edge_node_ids": [
+        [
+          13,
+          14
+        ],
+        [
+          28,
+          32
+        ]
+      ],
+      "index": 1,
+      "kind": "edge_edge",
+      "record_layout": "9 little-endian float4: header; p00,p10,q00,q10; p01,p11,q01,q11",
+      "records_f32_hex": [
+        "0000803facc52737000088410080a643",
+        "d7370532df9f3a325123833a00000000",
+        "9612033b3d273632a81e833a00000000",
+        "2351d8b37e1303bbdf6b843a00000000",
+        "a710033b154179b33c70843a00000000",
+        "77a242322b0f6c323029833a00000000",
+        "a812033b763a6a324623833a00000000",
+        "4d32dab3831303bb2f6f843a00000000",
+        "a310033bf3a97db3eb72843a00000000"
+      ],
+      "thickness_f32_hex": "acc52737"
+    },
+    {
+      "budget": 16,
+      "capture_case": 334,
+      "capture_trial": 21,
+      "edge_node_ids": [
+        [
+          13,
+          14
+        ],
+        [
+          28,
+          32
+        ]
+      ],
+      "index": 0,
+      "kind": "edge_edge",
+      "record_layout": "9 little-endian float4: header; p00,p10,q00,q10; p01,p11,q01,q11",
+      "records_f32_hex": [
+        "0000803facc52737000080410000a743",
+        "d7370532e09f3a325123833a00000000",
+        "9612033b3d273632a81e833a00000000",
+        "2351d8b37e1303bbdf6b843a00000000",
+        "a710033b154179b33c70843a00000000",
+        "73a24232280f6c323029833a00000000",
+        "a812033b723a6a324623833a00000000",
+        "4d32dab3831303bb2f6f843a00000000",
+        "a310033bf2a97db3eb72843a00000000"
+      ],
+      "thickness_f32_hex": "acc52737"
+    },
+    {
+      "budget": 17,
+      "capture_case": 334,
+      "capture_trial": 21,
+      "edge_node_ids": [
+        [
+          13,
+          14
+        ],
+        [
+          28,
+          32
+        ]
+      ],
+      "index": 1,
+      "kind": "edge_edge",
+      "record_layout": "9 little-endian float4: header; p00,p10,q00,q10; p01,p11,q01,q11",
+      "records_f32_hex": [
+        "0000803facc52737000088410000a743",
+        "d7370532e09f3a325123833a00000000",
+        "9612033b3d273632a81e833a00000000",
+        "2351d8b37e1303bbdf6b843a00000000",
+        "a710033b154179b33c70843a00000000",
+        "73a24232280f6c323029833a00000000",
+        "a812033b723a6a324623833a00000000",
+        "4d32dab3831303bb2f6f843a00000000",
+        "a310033bf2a97db3eb72843a00000000"
+      ],
+      "thickness_f32_hex": "acc52737"
+    }
+  ],
+  "classification": "exact captured FP32 endpoints packed for native CCD diagnostics; no GPU result is asserted here",
+  "contact_source_sha256": "3cef6ae3dbd384d7b26ff6b0eb4ecda6da7a32be74cdea0badc5975eef692132",
+  "frozen_source_manifest_sha256": "5fb22c61c280f576f15677c8cf6dbbc174beceaa225973242f6d53f9c7957446",
+  "payload_bytes": 576,
+  "payload_file": "captured-ee-cases.float4.bin",
+  "payload_sha256": "80eaab55f3d471934382eaec6165c2c5a717abafb94cf08dd75f7bb69c42d3f9",
+  "schema": "numi.matter.private_ee_ccd_native_cases.v1"
+}

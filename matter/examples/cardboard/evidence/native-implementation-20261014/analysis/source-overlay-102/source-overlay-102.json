@@ -1,0 +1,55 @@
+{
+  "schema": "numi.cardboard.integration.v1",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-boundary-reset-order-101",
+  "base_manifest_sha256": "3fe62983d15e55d887429f714370df1758ba9e450ae1648b554ce66a41a74680",
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-whole-mortar-proof-102",
+  "packages": [
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/private-mortar-parent-translation-guard-321-001",
+      "manifest_sha256": "7ea7b80e97f55926fbc038fe24325a09300438f0f2620d878506e444f7721e6f"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/private-mortar-parent-translation-nondegenerate-327/package",
+      "manifest_sha256": "1f89de57acd895b02893188786c2ec42fe2320d4042b6fbb0b8e45b9e05d6baa"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/private-mortar-parent-two-sum-range-329/package",
+      "manifest_sha256": "9b52bd2c4d226794d50595b1c2dafc8da34f65fb7f41b5bf922301015f374ba1"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/private-mortar-axis-normal-330/package",
+      "manifest_sha256": "1763c47185033cea23f0c56a3ec12a8e6c44ce6b4b1564309be5f20287f6b423"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/private-mortar-axis-partition-coherence-331/package",
+      "manifest_sha256": "ab90d091d0b932a86d3913d45ff376687c0abdda3332bbe427e32525e4725288"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/private-mortar-q25-finite-endpoints-328/package",
+      "manifest_sha256": "9329ee8ac1942b54ff9cebd1b1c158e001168f475c4ae1ceff8ef8c09b647131"
+    }
+  ],
+  "changed": {
+    "matter/include/numi/matter/mortar_shared_edge_guard.h": {
+      "before": "424f81a65836457d84593231e2efeca1ccfabaabd869c4a8920bf2403b2cafa1",
+      "after": "b4953028b1e3ffd8fba0100b34cc3aad28f7eac812fb1cfd711aaf7cf7b5bbaa"
+    },
+    "matter/src/metal/contact.metalinc": {
+      "before": "71a3135c1dcb30bea61643940a98830339b969d471f5701e7dcce0427c0d30df",
+      "after": "427aca061ad2c6d2218b5eae0bc7620132a1ef9fff9f688390ccc96ca8a27ffc"
+    },
+    "matter/tools/mortar_exact_tiling_check.cpp": {
+      "before": "e3d0a7a7104cace1bc82739634a78e3f0eaf8de4e6ea9e4b59ced4c74c5fea57",
+      "after": "0b5922e54d2ed067eef5e03786b523142bb71b906e4e1bffc7738235a1c807e0"
+    }
+  },
+  "added": [],
+  "deleted": [],
+  "scope": "Source101 plus strictly guarded whole-pair mortar complement certificate: exact full Q25 coverage, exact shape-preserving parent translations, exact 3D identity or horizontal normal-only projected identity, same-ID cell correspondence and shared-vertex path coherence; finite paired-boundary operands. Covered interface compression remains owned by mixed cohesive law. Uncertain/general deformation falls back to unchanged CCD. No tolerance, physical operator, recipe, restart or acceptance change. Native qualification pending.",
+  "root_integration_patch_sha256": "29bd303f86c90c53bbfb057a8f395491be1483bcf726e9a5d9f1b942850b2d9f",
+  "cpu_check": {
+    "exit_code": 0,
+    "assertions": 61,
+    "physical_steps": 0
+  }
+}

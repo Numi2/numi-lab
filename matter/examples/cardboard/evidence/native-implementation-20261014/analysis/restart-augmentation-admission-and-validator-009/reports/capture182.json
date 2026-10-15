@@ -1,0 +1,5 @@
+{
+  "schema": "numi.cardboard.restart-augmentation-validation.v1",
+  "status": "validation_failed",
+  "error": "ValueError: conditioning compact AP differs from rich regional capture"
+}

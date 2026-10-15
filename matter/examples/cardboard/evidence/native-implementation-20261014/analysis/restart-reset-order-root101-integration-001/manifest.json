@@ -1,0 +1,20 @@
+{
+  "schema": "numi.cardboard.reset-order-integration.v1",
+  "upstream_patch": "/Users/home/cardboard-implementation-20261014/analysis/restart-augmentation-target-reset-101/runtime-reset-order.patch",
+  "patch_sha256": "c26e1d3c75feb5e2709def52f5720a0f29eb5fee608e531733f4166aa8ff5f93",
+  "base_runtime_sha256": "a7f1e72fd6b25fcc648ff4f68c3f03ce806988c712b696032058e6ba1d553d9f",
+  "patched_runtime_sha256": "836605dca3f6b264d5ee04a9f65b66997ecbdc39f60709039c7e1ac59becb087",
+  "same_executable_statements_reordered_only": true,
+  "whitespace_normalization": "Nested block was reindented four spaces; no non-whitespace text differs after removing the relocated block.",
+  "reset_before_all_base_operator_and_scale_builds": true,
+  "ordered_dispatch_offsets": {
+    "nm_fgmres_regional_restart_reset_metadata": 1044667,
+    "nm_fgmres_regional_project_basis": 1046073,
+    "nm_fgmres_regional_build_rap": 1070093,
+    "nm_fgmres_regional_capture_restart_scale": 1071083,
+    "nm_fgmres_regional_factor_rap": 1071768,
+    "nm_fgmres_begin": 1111323
+  },
+  "scope": "Move same per-Newton restart-metadata reset before current base AP/RAP/scale construction. Preserve physical operator, equations, thresholds, restart, reset body and per-environment semantics.",
+  "native_qualification": false
+}

@@ -1,0 +1,79 @@
+{
+  "alpha": 1.0,
+  "active": {
+    "center_residual": {
+      "count": 102,
+      "norm": 3.4360311636563682e-06,
+      "max_abs": 1.9574686120904516e-06
+    },
+    "trial_residual": {
+      "count": 102,
+      "norm": 0.010000188835921377,
+      "max_abs": 0.010000188834965229
+    },
+    "production_action": {
+      "count": 102,
+      "norm": 3.429455701340166e-06,
+      "max_abs": 1.950833166119992e-06
+    },
+    "observed_increment": {
+      "count": 102,
+      "norm": 0.009998289288047801,
+      "max_abs": 0.009998288907809183
+    },
+    "linear_predicted_increment": {
+      "count": 102,
+      "norm": 3.429455701340166e-06,
+      "max_abs": 1.950833166119992e-06
+    },
+    "linear_prediction_error": {
+      "count": 102,
+      "norm": 0.010000188638600586,
+      "max_abs": 0.01000018863794594
+    },
+    "relative_to_predicted_increment": 2915.9696201040597,
+    "cosine": -0.5537155066892633
+  },
+  "representability": {
+    "velocity_increment": {
+      "count": 108,
+      "norm": 0.026862882582561306,
+      "max_abs": 0.006749922875314951
+    },
+    "alpha_delta": {
+      "count": 108,
+      "norm": 0.02686288247430077,
+      "max_abs": 0.006749922409653664
+    },
+    "velocity_rounding": {
+      "count": 108,
+      "norm": 9.122100800606608e-10,
+      "max_abs": 4.656612873077393e-10
+    },
+    "position_increment": {
+      "count": 108,
+      "norm": 2.6863080899146804e-06,
+      "max_abs": 6.749922931703622e-07
+    },
+    "dt_velocity_increment": {
+      "count": 108,
+      "norm": 2.686288191098924e-06,
+      "max_abs": 6.749922706566879e-07
+    },
+    "position_vs_rate_increment": {
+      "count": 108,
+      "norm": 6.592831623920439e-10,
+      "max_abs": 1.9482361335096833e-10
+    },
+    "reference_displacement_increment": {
+      "count": 108,
+      "norm": 2.686288259387316e-06,
+      "max_abs": 6.749922931703622e-07
+    },
+    "reference_vs_rate_increment": {
+      "count": 108,
+      "norm": 8.08184370570256e-13,
+      "max_abs": 3.4309432768026953e-13
+    }
+  }
+}

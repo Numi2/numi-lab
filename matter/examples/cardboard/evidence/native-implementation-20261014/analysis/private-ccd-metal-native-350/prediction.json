@@ -1,0 +1,20 @@
+{
+  "schema": "numi.cardboard.native-diagnostic-prediction.v1",
+  "argv": [
+    "/Users/home/cardboard-implementation-20261014/analysis/private-ccd-metal-compare-006/build/run_native",
+    "--metallib",
+    "/Users/home/cardboard-implementation-20261014/analysis/private-ccd-metal-compare-006/build/private_ee_ccd_diagnostic.metallib",
+    "--cases",
+    "/Users/home/cardboard-implementation-20261014/analysis/private-ccd-metal-compare-006/captured-input/captured-ee-cases.float4.bin",
+    "--cases-manifest",
+    "/Users/home/cardboard-implementation-20261014/analysis/private-ccd-metal-compare-006/captured-input/captured-ee-cases.json",
+    "--build-manifest",
+    "/Users/home/cardboard-implementation-20261014/analysis/private-ccd-metal-compare-006/build/build-manifest.json",
+    "--output",
+    "/Users/home/cardboard-implementation-20261014/analysis/private-ccd-metal-native-350/native-result.json"
+  ],
+  "package_manifest_sha256": "66aa47099fc8066be13109a74739b7d43983d706e06a7c68de1bba039ab2de16",
+  "question": "Does unchanged production Metal agree with extracted budget16 helper for exact captured EE rays, and does cap17 certify them?",
+  "prediction": "Require raw scalar budget16 parity before attributing iteration exhaustion. Cap17 may certify or remain failclosed; enclosing physical trial remains unqualified.",
+  "started_at_utc": "2026-10-15T13:58:50.187194+00:00"
+}

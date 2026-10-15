@@ -1,0 +1,123 @@
+{
+  "created_date": "2026-10-15",
+  "files": [
+    {
+      "bytes": 2973,
+      "path": "README.md",
+      "sha256": "dde4b29b395b8a411db6aa9362789656f5b9c9e8ab3d4348d2c04cb842f21517"
+    },
+    {
+      "bytes": 65456,
+      "path": "validate_restart_augmentation.py",
+      "sha256": "587afba536f845d0333e54d9e9b1b697ec88a6a7f35c7d8e75dcb41c58044375"
+    },
+    {
+      "bytes": 16527,
+      "path": "test_restart_augmentation_validation_v3.py",
+      "sha256": "18fb990ec22013d8d75d8d76faeae8edd634d654c1ec69c55d7d2617581105a8"
+    },
+    {
+      "bytes": 1145,
+      "path": "reports/unittest-v3.log",
+      "sha256": "2f2013d0b618d74a923cb06de178d2bca02b14ec28bc24ca724d1eef743baec5"
+    },
+    {
+      "bytes": 10364,
+      "path": "reports/capture341-rejected-attempt-v3.json",
+      "sha256": "c43888f161b673bce3e9316fbdacaf81bf355e50e065989e973d2618672de982"
+    }
+  ],
+  "inputs": [
+    {
+      "bytes": 37626914,
+      "id": "capture341_operator",
+      "path": "/Users/home/cardboard-implementation-20261014/solver/current-newton-augmentation-on-N28-capture27-341/operator-capture",
+      "sha256": "98d60f02f1afe70cccbe9094a81d6eed0852f47463a7e19d4faca4f30bbc87a3"
+    },
+    {
+      "bytes": 5510,
+      "id": "capture341_conditioning_manifest",
+      "path": "/Users/home/cardboard-implementation-20261014/solver/current-newton-augmentation-on-N28-capture27-341/output/rejected-conditioning-000001/manifest.json",
+      "sha256": "031d6fc1c66e22d7c4dd7259dc4adf5b26cd6d809363fc5d7c59b002880f491d"
+    },
+    {
+      "bytes": 698,
+      "id": "capture341_result",
+      "path": "/Users/home/cardboard-implementation-20261014/solver/current-newton-augmentation-on-N28-capture27-341/output/result.json",
+      "sha256": "00f0ba6c70d125a2de265ce466d11ade79260cc3124d070edaf3bb91d9a83f19"
+    },
+    {
+      "bytes": 305,
+      "id": "capture341_receipt",
+      "path": "/Users/home/cardboard-implementation-20261014/solver/current-newton-augmentation-on-N28-capture27-341/receipt.json",
+      "sha256": "6a4e62fe38775b1a99e6b962dedcd33d73408bac47c607425cf037be14a8df54"
+    },
+    {
+      "bytes": 11531,
+      "id": "capture341_run_manifest",
+      "path": "/Users/home/cardboard-implementation-20261014/solver/current-newton-augmentation-on-N28-capture27-341/output/manifest.json",
+      "sha256": "83b8d33d7a1eece5cf54a9ff6f9031bfb77c916b80bb9ef980eaac28dc4bfff8"
+    },
+    {
+      "bytes": 116240,
+      "id": "capture341_source_build",
+      "path": "/Users/home/cardboard-implementation-20261014/solver/current-newton-augmentation-on-N28-capture27-341/inputs/external/source-build.json",
+      "sha256": "1d81c365385eb5d369b37583f084b61baed33a923189b4dea4f31c98dc8726c4"
+    },
+    {
+      "bytes": 43166,
+      "id": "operator_assembler",
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/offline-operator-tool-development-058/cardboard_cached_operator_audit.py",
+      "sha256": "92a6c810192befb789db11b09a7c4e8884cda762b2448c564072d932c6e59383"
+    },
+    {
+      "bytes": 1675701,
+      "id": "source100_runtime",
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-exact-tiling-inactive-fields-100/matter/src/runtime.mm",
+      "sha256": "a7f1e72fd6b25fcc648ff4f68c3f03ce806988c712b696032058e6ba1d553d9f"
+    },
+    {
+      "bytes": 1675797,
+      "id": "source101_runtime",
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-boundary-reset-order-101/matter/src/runtime.mm",
+      "sha256": "836605dca3f6b264d5ee04a9f65b66997ecbdc39f60709039c7e1ac59becb087"
+    },
+    {
+      "bytes": 3548,
+      "id": "reset_patch",
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/restart-augmentation-target-reset-101/runtime-reset-order.patch",
+      "sha256": "c26e1d3c75feb5e2709def52f5720a0f29eb5fee608e531733f4166aa8ff5f93"
+    },
+    {
+      "bytes": 3638,
+      "id": "reset_order_check",
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/restart-augmentation-target-reset-101/check_reset_order.py",
+      "sha256": "14d0171f6fa1f8d37898661307ca52239befb6668146cd11426e9136f0591d6e"
+    },
+    {
+      "bytes": 1350,
+      "id": "reset_order_test",
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/restart-augmentation-target-reset-101/test_reset_order.py",
+      "sha256": "b3f9b0d1ff0a41e6cdc46a2a7ce2fe8443fc1e96b3d9a25baf3428e02598e8c2"
+    }
+  ],
+  "native_findings": {
+    "capture341_accepted_physical_steps": 0,
+    "capture341_admitted_environments": 0,
+    "capture341_attempted_environments": 1,
+    "interpretation": "formed attempt failed closed, q/Aq cleared, base fallback reconstruction checked; not augmentation success"
+  },
+  "schema": "numi.cardboard.restart-augmentation-validator-package.v3",
+  "scope": "offline classification/consistency checks only; no physical or solver performance qualification",
+  "source_context": {
+    "capture_reset_fix_match": false,
+    "native_capture_source": "source-exact-tiling-inactive-fields-100",
+    "reset_fix_source": "source-boundary-reset-order-101"
+  },
+  "test_command": "python -m unittest -v test_restart_augmentation_validation_v3.py",
+  "tests": {
+    "exit_code": 0,
+    "failed": 0,
+    "passed": 8
+  }
+}

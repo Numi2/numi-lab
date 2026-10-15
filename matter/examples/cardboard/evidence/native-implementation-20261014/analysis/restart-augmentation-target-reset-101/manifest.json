@@ -1,0 +1,80 @@
+{
+  "base_runtime_sha256": "a7f1e72fd6b25fcc648ff4f68c3f03ce806988c712b696032058e6ba1d553d9f",
+  "base_source": "source-exact-tiling-inactive-fields-100",
+  "created_date": "2026-10-15",
+  "files": [
+    {
+      "bytes": 1550,
+      "path": "README.md",
+      "sha256": "978a73884e8604eba9d2ca7c5b925e1778726ad6fe4943790a35f4dcef35337e"
+    },
+    {
+      "bytes": 1675797,
+      "path": "runtime.mm",
+      "sha256": "836605dca3f6b264d5ee04a9f65b66997ecbdc39f60709039c7e1ac59becb087"
+    },
+    {
+      "bytes": 3548,
+      "path": "runtime-reset-order.patch",
+      "sha256": "c26e1d3c75feb5e2709def52f5720a0f29eb5fee608e531733f4166aa8ff5f93"
+    },
+    {
+      "bytes": 3638,
+      "path": "check_reset_order.py",
+      "sha256": "14d0171f6fa1f8d37898661307ca52239befb6668146cd11426e9136f0591d6e"
+    },
+    {
+      "bytes": 1350,
+      "path": "test_reset_order.py",
+      "sha256": "b3f9b0d1ff0a41e6cdc46a2a7ce2fe8443fc1e96b3d9a25baf3428e02598e8c2"
+    },
+    {
+      "bytes": 289,
+      "path": "test_reset_order.log",
+      "sha256": "7c749c477e070bf691b6ca78649c2b06197b04496cc00c54bd0803e316a7b553"
+    }
+  ],
+  "inputs": [
+    {
+      "bytes": 1675701,
+      "id": "frozen_source100_runtime",
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-exact-tiling-inactive-fields-100/matter/src/runtime.mm",
+      "sha256": "a7f1e72fd6b25fcc648ff4f68c3f03ce806988c712b696032058e6ba1d553d9f"
+    },
+    {
+      "bytes": 1675797,
+      "id": "frozen_source101_runtime",
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-boundary-reset-order-101/matter/src/runtime.mm",
+      "sha256": "836605dca3f6b264d5ee04a9f65b66997ecbdc39f60709039c7e1ac59becb087"
+    },
+    {
+      "bytes": 5510,
+      "id": "native341_conditioning_manifest",
+      "path": "/Users/home/cardboard-implementation-20261014/solver/current-newton-augmentation-on-N28-capture27-341/output/rejected-conditioning-000001/manifest.json",
+      "sha256": "031d6fc1c66e22d7c4dd7259dc4adf5b26cd6d809363fc5d7c59b002880f491d"
+    },
+    {
+      "bytes": 37626914,
+      "id": "native341_operator_capture",
+      "path": "/Users/home/cardboard-implementation-20261014/solver/current-newton-augmentation-on-N28-capture27-341/operator-capture",
+      "sha256": "98d60f02f1afe70cccbe9094a81d6eed0852f47463a7e19d4faca4f30bbc87a3"
+    },
+    {
+      "bytes": 2558,
+      "id": "native341_independent_report",
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/restart-scale-reset-order-341-001/report.json",
+      "sha256": "ff0085fda0e89e0da8f3470201570ecb68e4b5806ffdf25df397185cc6edd055"
+    }
+  ],
+  "native_qualification": "pending matched native 344/345 rerun; native341 is pre-fix and failed closed",
+  "patched_runtime_sha256": "836605dca3f6b264d5ee04a9f65b66997ecbdc39f60709039c7e1ac59becb087",
+  "patched_source": "source-boundary-reset-order-101",
+  "schema": "numi.cardboard.restart-target-reset-order-package.v1",
+  "test_command": "python -m unittest -v test_reset_order.py",
+  "tests": {
+    "exit_code": 0,
+    "failed": 0,
+    "passed": 2,
+    "scope": "static order and reset binding only"
+  }
+}

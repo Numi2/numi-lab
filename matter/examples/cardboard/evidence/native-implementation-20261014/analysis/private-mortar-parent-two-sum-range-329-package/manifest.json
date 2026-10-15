@@ -1,0 +1,35 @@
+{
+  "schema": "numi.cardboard.mortar_two_sum_range_overlay.v1",
+  "status": "candidate_unqualified_native",
+  "base_package": "/Users/home/cardboard-implementation-20261014/analysis/private-mortar-parent-translation-nondegenerate-327/package",
+  "base_manifest_sha256": "1f89de57acd895b02893188786c2ec42fe2320d4042b6fbb0b8e45b9e05d6baa",
+  "base_patch_sha256": "e0d1135aa6b8d8bd27c88e6ed316f45d561cd61da48a939e9f61f388a6c727e5",
+  "patch": "two-sum-range.patch",
+  "patch_sha256": "70050098680f592d2a03467232177c8dbdd75294674083d62273262bfe444438",
+  "changed_files": {
+    "matter/include/numi/matter/mortar_shared_edge_guard.h": {
+      "base_sha256": "bc468777007a7bcc535ef78b8ce7d767504db39c01130b5de8f15c58af5cfa07",
+      "after_sha256": "3e0cea843ef302d431ab223862b0beaf4d2617bbabfa0c48404fb2b6e0a8b89c"
+    },
+    "matter/tools/mortar_exact_tiling_check.cpp": {
+      "base_sha256": "889bf9e68c857aea4929f2bbe872a6aee55d62c8f6067d04f10e8848a39a75e8",
+      "after_sha256": "e724807066c2fcabfb7e80808e134b48456d373af2f57a12a3f30676405c3a7d"
+    }
+  },
+  "contract": "normal-range guards for exact TwoSum displacement comparison",
+  "tests": {
+    "cpu_command": "clang++ -std=c++17 -Wall -Wextra -Wpedantic -Werror -I source/matter/include source/matter/tools/mortar_exact_tiling_check.cpp -o mortar_exact_tiling_check && ./mortar_exact_tiling_check",
+    "cpu_result": "PASS: mortar_exact_tiling_checks=32 exact_fan_and_tiles=true exact_feature_identity=true whole_parent_sweep_certificate=true patch_identity=true",
+    "negative_controls": [
+      "TwoSum comparison rejects nonfinite, subnormal, below-range, and above-range endpoint operands before computing error-free differences.",
+      "An endpoint difference involving 1.0 and 1.0-2^-30 remains distinguishable despite rounded FP32 subtraction equality.",
+      "Zero is accepted as a valid exact displacement component."
+    ],
+    "metal_compile": "PASS: xcrun metal -std=metal4.0 -O3 -fno-fast-math compiled matter_kernels.metal; metallib linked. Two unrelated pre-existing FGMRES maybe-uninitialized warnings remain.",
+    "patch_application": "PASS: patch --dry-run -p1 against the named base source."
+  },
+  "limitations": [
+    "Does not qualify contact outcomes or a native/GPU trajectory.",
+    "Unsupported or numerically unresolved cases continue to ordinary CCD."
+  ]
+}

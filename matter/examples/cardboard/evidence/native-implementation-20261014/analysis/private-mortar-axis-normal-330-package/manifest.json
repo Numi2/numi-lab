@@ -1,0 +1,48 @@
+{
+  "schema": "numi.cardboard.mortar_axis_normal_relative_overlay.v1",
+  "status": "candidate_unqualified_native",
+  "base_package": "/Users/home/cardboard-implementation-20261014/analysis/private-mortar-parent-two-sum-range-329/package",
+  "base_manifest_sha256": "9b52bd2c4d226794d50595b1c2dafc8da34f65fb7f41b5bf922301015f374ba1",
+  "base_patch_sha256": "70050098680f592d2a03467232177c8dbdd75294674083d62273262bfe444438",
+  "base_source": "/Users/home/cardboard-implementation-20261014/analysis/private-mortar-parent-two-sum-range-329/source",
+  "patch": "axis-normal-relative.patch",
+  "patch_sha256": "95b883f6ffc9c4a73264e8d5c42f5c53e6ece9053a862efd341fcb531d912170",
+  "changed_files": {
+    "matter/include/numi/matter/mortar_shared_edge_guard.h": {
+      "base_sha256": "3e0cea843ef302d431ab223862b0beaf4d2617bbabfa0c48404fb2b6e0a8b89c",
+      "after_sha256": "91790ca1066f377743814971ce5bde185c62ed868bb2f398bb29e304f7507d81"
+    },
+    "matter/src/metal/contact.metalinc": {
+      "base_sha256": "62c86bb4117103e178ca616ed80e6499a1c5af03f53f5cea80e6121d0b13411f",
+      "after_sha256": "b918cefe0dce52bc6ea9940765e52ed641f9262e5b1ce2530409da512a989858"
+    },
+    "matter/tools/mortar_exact_tiling_check.cpp": {
+      "base_sha256": "e724807066c2fcabfb7e80808e134b48456d373af2f57a12a3f30676405c3a7d",
+      "after_sha256": "f5cf36ae6c619e2b393e455706b063b3034e2e471f1bac451f25d51ea495af5a"
+    }
+  },
+  "contract": "Add a whole-parent skip only when both exact Q25 partitions fully cover the parents, both parent triangles are exact common translations that remain in horizontal XY planes, projected parent vertices match exactly at start and finish under one permutation, and each same-ID patch cell has the same projected trajectory. This proves only same-footprint normal-only relative motion; all other cases use ordinary CCD.",
+  "tests": {
+    "cpu_command": "clang++ -std=c++17 -Wall -Wextra -Wpedantic -Werror -I source/matter/include source/matter/tools/mortar_exact_tiling_check.cpp -o mortar_exact_tiling_check && ./mortar_exact_tiling_check",
+    "cpu_result": "PASS: mortar_exact_tiling_checks=47 exact_fan_and_tiles=true exact_feature_identity=true whole_parent_sweep_certificate=true patch_identity=true axis_normal_relative=true",
+    "controls": [
+      "2-, 3-, and 4-patch exact partitions with normal closure/opening accepted",
+      "same-ID dyadic and shared-center fan projected sweeps accepted",
+      "exact 3.725 nm lateral relative translation rejected",
+      "projected shear rejected",
+      "non-horizontal and rotated parent poses rejected",
+      "identical parent paths that collapse at mid-sweep rejected",
+      "cross-wired patch IDs rejected",
+      "numerically unresolved projected cells rejected"
+    ],
+    "metal_compile": "PASS: xcrun -sdk macosx metal -std=metal4.0 -O3 -fno-fast-math compiled matter_kernels.metal; metallib linked. Two unrelated pre-existing FGMRES maybe-uninitialized warnings remain.",
+    "patch_application": "PASS: patch --dry-run -p1 against exact 329 source.",
+    "native": "Not run; no GPU qualification."
+  },
+  "limitations": [
+    "Axis-aligned XY parent planes only; no arbitrary orientation, rotation, tangential slip, shear, deformation, or cross-wired patch mapping.",
+    "This proves projected domain correspondence for exactly represented trajectories, not a full physical mortar/contact qualification.",
+    "FP32 barycentric evaluation that cannot preserve the exact common projected sweep fails closed to ordinary CCD.",
+    "No native/GPU result."
+  ]
+}

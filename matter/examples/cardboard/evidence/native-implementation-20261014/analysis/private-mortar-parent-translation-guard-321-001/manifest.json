@@ -1,0 +1,69 @@
+{
+  "schema": "numi.cardboard.mortar_whole_parent_identity_overlay.v1",
+  "status": "candidate_unqualified_native",
+  "base": "/Users/home/cardboard-implementation-20261014/analysis/exact-mortar-tiling-only-source099-001",
+  "base_manifest_sha256": "b05f916154d984cd406ba3cba9c8fb5e71d46a5e98f0b36880a3210beccfe819",
+  "underlying_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-center-action-twoenv-restart-099",
+  "underlying_snapshot_parent_revision": "35bfb518c542a306f563cc364ef8496837068b9a",
+  "underlying_snapshot_frozen_source_sha256": "5fb22c61c280f576f15677c8cf6dbbc174beceaa225973242f6d53f9c7957446",
+  "base_tiling_patch_sha256": "2a330e83734e7cd628f6be83558f9e126875a1a336e705c7e0c68147aa228563",
+  "patch_path": "/Users/home/cardboard-implementation-20261014/analysis/private-mortar-parent-translation-guard-321-001/whole-parent-identity.patch",
+  "patch_sha256": "036613adaace29b7f64b82bba3e5611964a0156244ed6c2a25d32045e89c409b",
+  "changed_files": [
+    {
+      "path": "matter/include/numi/matter/mortar_shared_edge_guard.h",
+      "before_sha256": "b55f84e75e003b605df829b9e0c1813283d547d535952e6eccea81a8ac9acd8a",
+      "after_sha256": "b739ab5916713be8ed2b54cfd2dfc17fc1656a321a5734c345639b4052519d0c"
+    },
+    {
+      "path": "matter/src/metal/contact.metalinc",
+      "before_sha256": "1c30807b22b8ffb25c992cc595e2c8dfd3b757ecd8d39507e91d5fb1bcd1fa0d",
+      "after_sha256": "62c86bb4117103e178ca616ed80e6499a1c5af03f53f5cea80e6121d0b13411f"
+    },
+    {
+      "path": "matter/tools/mortar_exact_tiling_check.cpp",
+      "before_sha256": "6221d4544e5f3116558a2b884421fd94216e667012840fd60d7899fac7157137",
+      "after_sha256": "dcd549bb132d418c3e230e76dc1fac5666f05f03ca9efa8d0b3e707fd67e5ef5"
+    }
+  ],
+  "cmake_unchanged": true,
+  "proof_contract": {
+    "both_partitions": "each side must consist of 2-4 nondegenerate Q25 cells, all covered by a valid cohesive patch ID, with exact oriented edge cancellation, exact parent-boundary tiling, and no positive-area pair overlap",
+    "parent_sweep": "the two physical parent triangles must match by one exact vertex permutation at both linear-sweep endpoints; nonfinite, duplicate, degenerate, or unmatched geometry declines the skip",
+    "patch_correspondence": "each side must have equal cell count; every left cell must match exactly one right cell with the same coveredPatchIndex and the same computed 3D cell-vertex start/end positions under permutation; these positions are computed with the same FP32 barycentric mapping used by CCD",
+    "fallthrough": "any failed predicate falls through to the existing complement/contact CCD path without changing its tolerances or histories"
+  },
+  "cpu_check": {
+    "cmake_configure": "cmake -S <full source copy> -B <scratch build> -DBUILD_TESTING=ON",
+    "build": "cmake --build <scratch build> --target numi-matter-mortar-exact-tiling-check -j2",
+    "test": "ctest --test-dir <scratch build> -R matter.compiler.mortar_exact_tiling --output-on-failure",
+    "result": "PASS; 24 exact checks; 1/1 CTest passed",
+    "stdout": "mortar_exact_tiling_checks=24 exact_fan_and_tiles=true exact_feature_identity=true whole_parent_sweep_certificate=true patch_identity=true",
+    "binary_sha256": "1e8a259d5e4598f5a705a0ccb6f932bc3bffcee2af234ec78212c06d99178fdd",
+    "build_source_copy": "/Users/home/cardboard-implementation-20261014/analysis/private-mortar-parent-translation-guard-321-001/build-source"
+  },
+  "metal_compile": {
+    "command": "xcrun -sdk macosx metal -std=metal4.0 -O3 -fno-fast-math -I matter/include -I include -c matter/src/matter_kernels.metal -o NumiMatter.air; xcrun -sdk macosx metallib NumiMatter.air -o NumiMatter.metallib",
+    "result": "PASS compile and metallib link; no GPU execution",
+    "air_sha256": "bd18c337cb028c993822e198937aa998806599bcf90fc8dbaa4891f7535dba31",
+    "metallib_sha256": "2022eaca04e5a92422c9a1f0551f897d9b6e9984dda16a9c8a74f0091584013e",
+    "warnings": "Two existing unrelated maybe-uninitialized warnings in matter/src/metal/fgmres.metalinc for sharedValid and refinementValid"
+  },
+  "limitations": [
+    "No GPU/native contact test was run; the predicate is not native-qualified.",
+    "The skip only handles coincident parent triangles with identical linear vertex trajectories, exact full coverage, and exact matching patch-cell trajectories/IDs. Relative translation, opening, shear, differential parent motion, partial covers, unequal patch tessellations, non-Q25 cells, and FP32 world-point mismatches retain the existing CCD path.",
+    "The exact Q25 partition helper is bounded to four cells and may decline valid larger partitions; this is a conservative fallback, not a capacity expansion.",
+    "The same-point/initial-witness suppression from the older 320 proposal is not part of this patch and remains unsafe/unapplied."
+  ],
+  "readme_sha256": "3e3bdfc118fbe21b62d6b5faf9c5e536828e222c15e79d87b0c180776f7a513a",
+  "cmake": {
+    "changed": false,
+    "sha256": "16455ff0e55bbf7a77bfaf43618668ca1c2054d00e67a46d6f2d2f6df87eb6a2",
+    "target": "numi-matter-mortar-exact-tiling-check (existing target from base exact-tiling candidate)"
+  },
+  "patch_application_check": {
+    "command": "patch -p1 -d <fresh copy of exact-mortar-tiling-only-source099-001/source> < whole-parent-identity.patch",
+    "result": "PASS; all three after_sha256 values matched the candidate files",
+    "check_copy": "/Users/home/cardboard-implementation-20261014/analysis/private-mortar-parent-translation-guard-321-001/apply-check"
+  }
+}

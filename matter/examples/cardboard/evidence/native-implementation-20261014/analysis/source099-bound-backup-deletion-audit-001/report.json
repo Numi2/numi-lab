@@ -1,0 +1,23 @@
+{
+  "schema": "numi.cardboard.bound_nonexecuted_backup_audit.v1",
+  "base_manifest": "/Users/home/cardboard-implementation-20261014/snapshots/source-private-mortar-witness-098/frozen-source.json",
+  "new_manifest": "/Users/home/cardboard-implementation-20261014/snapshots/source-center-action-twoenv-restart-099/frozen-source.json",
+  "deleted_bound_paths": {
+    "matter/src/runtime.mm.orig": "aa2486012ced87656933abc7c448188575ac332b747aba2315f550e3d548edd2"
+  },
+  "copied_original_backup_sha256": "aa2486012ced87656933abc7c448188575ac332b747aba2315f550e3d548edd2",
+  "new_source_bindings": 775,
+  "changed_common_paths": [
+    "matter/include/numi/matter/matter.hpp",
+    "matter/src/metal/fgmres.metalinc",
+    "matter/src/metal/mixed_fem.metalinc",
+    "matter/src/runtime.mm",
+    "matter/tools/cardboard_coupled_free_box_operator_check.mm",
+    "matter/tools/cardboard_free_box_angular_native_check.mm",
+    "matter/tools/cardboard_graph_lu_search_native_check.mm",
+    "matter/tools/cardboard_probe.mm",
+    "matter/tools/cardboard_regional_recycle_masked_basis_native_check.mm"
+  ],
+  "scope": "A pre-existing automatic patch .orig artifact was in the source098 binding inventory. The next patch overwrote it in the unfrozen staging tree; source098 itself was unchanged. Both the earlier source098 backup and new staging backup are now preserved separately. Source099 deliberately has no runtime.mm.orig; executable source changes are the9declaredpaths. Exact deleted-path accounting supplements the first integration receipt; build input bytes/manifest unchanged.",
+  "no_native_execution_before_audit": true
+}

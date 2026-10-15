@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "git",
+    "apply",
+    "--check",
+    "/Users/home/cardboard-implementation-20261014/analysis/exact-mortar-tiling-only-source099-001/tiling-only.patch"
+  ],
+  "cwd": "/Users/home/cardboard-implementation-20261014/snapshots/source-center-action-twoenv-restart-099",
+  "exit": 0,
+  "stdout": "",
+  "stderr": ""
+}

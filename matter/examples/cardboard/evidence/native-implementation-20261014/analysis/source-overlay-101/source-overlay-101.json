@@ -1,0 +1,41 @@
+{
+  "schema": "numi.cardboard.integration.v1",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-exact-tiling-inactive-fields-100",
+  "base_manifest_sha256": "69929a454c1406e0fc611e8ec9aea464d47dd90f1007987f6959b9e1d945d1c2",
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-boundary-reset-order-101",
+  "packages": [
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/private-mortar-q25-boundary-326/package",
+      "manifest_sha256": "22aa540ebb77cc00e467d241c054f2b9179964f053da71cbfcddb57749e0c388"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/private-ccd-ca-budget-004",
+      "manifest_sha256": "c716309b178c705417f7353769f994bf26b1cf53554ced97535a41a26140599b"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/restart-reset-order-root101-integration-001",
+      "manifest_sha256": "9158adca5ca0d5555a858abb2467b47c956baff1c300a05942e3d46b9da06cc0"
+    }
+  ],
+  "changed": {
+    "matter/include/numi/matter/mortar_shared_edge_guard.h": {
+      "before": "b55f84e75e003b605df829b9e0c1813283d547d535952e6eccea81a8ac9acd8a",
+      "after": "424f81a65836457d84593231e2efeca1ccfabaabd869c4a8920bf2403b2cafa1"
+    },
+    "matter/src/metal/contact.metalinc": {
+      "before": "1c30807b22b8ffb25c992cc595e2c8dfd3b757ecd8d39507e91d5fb1bcd1fa0d",
+      "after": "71a3135c1dcb30bea61643940a98830339b969d471f5701e7dcce0427c0d30df"
+    },
+    "matter/src/runtime.mm": {
+      "before": "a7f1e72fd6b25fcc648ff4f68c3f03ce806988c712b696032058e6ba1d553d9f",
+      "after": "836605dca3f6b264d5ee04a9f65b66997ecbdc39f60709039c7e1ac59becb087"
+    },
+    "matter/tools/mortar_exact_tiling_check.cpp": {
+      "before": "6221d4544e5f3116558a2b884421fd94216e667012840fd60d7899fac7157137",
+      "after": "e3d0a7a7104cace1bc82739634a78e3f0eaf8de4e6ea9e4b59ced4c74c5fea57"
+    }
+  },
+  "added": [],
+  "deleted": [],
+  "scope": "Source100 plus exact/Q25 paired-boundary witness and exact physical-start segment identity; current-Newton augmentation metadata reset moved before base AP/RAP scale build; edge-edge CCD conservative-advancement cap16to17. No tolerance, physical operator, recipe, restart or acceptance change. No whole-parent skip. Source100 contact regression retained; native qualification pending."
+}

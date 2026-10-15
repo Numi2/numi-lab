@@ -1,0 +1,57 @@
+{
+  "schema": "numi.cardboard.retained_diagnostic_bundle.v1",
+  "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-boundary-reset-order-101",
+  "captures": [
+    {
+      "run": 344,
+      "case": "/Users/home/cardboard-implementation-20261014/solver/reset-order-augmentation-on-N28-capture27-344",
+      "raw_source": "/Users/home/cardboard-implementation-20261014/solver/reset-order-augmentation-on-N28-capture27-344/operator-capture",
+      "uncompressed_bytes": 37625471,
+      "uncompressed_sha256": "89a3624ae54eb481c51874b0b8f0a0a88c523af0e6b1206758ac3adf4f03a01d",
+      "compressed": "344/operator-capture.gz",
+      "compressed_bytes": 6298252,
+      "compressed_sha256": "0a0ff483f131634a681e62c01d2bfce0560b597c4f466c69aa042d001a43b581",
+      "restore_verified": true,
+      "array_count": null
+    },
+    {
+      "run": 345,
+      "case": "/Users/home/cardboard-implementation-20261014/solver/reset-order-augmentation-off-N28-capture27-345",
+      "raw_source": "/Users/home/cardboard-implementation-20261014/solver/reset-order-augmentation-off-N28-capture27-345/operator-capture",
+      "uncompressed_bytes": 37626914,
+      "uncompressed_sha256": "8c0543f01cc52b6b5a623db0b48e1d927a50943cd834d38b9b2e4b0f2723e467",
+      "compressed": "345/operator-capture.gz",
+      "compressed_bytes": 6297835,
+      "compressed_sha256": "59ac876f0a613db8ce9f681e724082229b4e358d01e57357ddfabc4ad6c0eff9",
+      "restore_verified": true,
+      "array_count": null
+    },
+    {
+      "run": 346,
+      "case": "/Users/home/cardboard-implementation-20261014/native/ccd17-actual-private-trial20-346",
+      "raw_source": "/Users/home/cardboard-implementation-20261014/native/ccd17-actual-private-trial20-346/private-trial.coupled.bin",
+      "uncompressed_bytes": 19467248,
+      "uncompressed_sha256": "8b74921348bcc7c37b9d3285111072e1a21d38a4b65e06cbaa2598c25f3d88a5",
+      "compressed": "346/private-trial.coupled.bin.gz",
+      "compressed_bytes": 65753,
+      "compressed_sha256": "fd0786a9873ce82d4dce81af4ccf5fe7d147b09dae7692a948ff56d91939b711",
+      "restore_verified": true,
+      "array_count": 129
+    },
+    {
+      "run": 348,
+      "case": "/Users/home/cardboard-implementation-20261014/native/ccd17-actual-center-capture-348",
+      "raw_source": "/Users/home/cardboard-implementation-20261014/native/ccd17-actual-center-capture-348/center-capture.coupled.bin",
+      "uncompressed_bytes": 11670948,
+      "uncompressed_sha256": "23ace6cdc408637e63f2fb05c2d33e9310d75f22ba48bbd04e24c2b0b74dc99d",
+      "compressed": "348/center-capture.coupled.bin.gz",
+      "compressed_bytes": 43385,
+      "compressed_sha256": "266536f9a53bf24434d057db3ec1a7c0ab00f6b07f5e386891d350b3455a796d",
+      "restore_verified": true,
+      "array_count": 145
+    }
+  ],
+  "accepted_checkpoint": false,
+  "qualification": "Lossless strict failed-run diagnostics; no complete physical trajectory.344 admits currentNewtonaugmentationbutdoesnotacceptstep.346/348selectedNewton12comesafterearlierArmijorejection; cannotcomparethatstatewith099Newtonsasidenticalcandidate.",
+  "restoration": "gzip decompress then check each uncompressed byte extent and SHA256; adjacent original capture manifests remain unmodified"
+}

@@ -1,0 +1,22 @@
+{
+  "schema": "numi.cardboard.private_mortar_physical_map_supplement.v1",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-exact-mortar-seam-diagnostics-097",
+  "frozen_source_json_sha256": "eaabd04412d9128c7ab30881aafa720404ddcc87051b194cfc5f39c51df1a048",
+  "native_input": "/Users/home/cardboard-implementation-20261014/native/exact-mortar-seam-stage-diagnostics-318/stdout.log",
+  "native_input_sha256": "276aea2f30ce703d6308f4d82ef256a284081ca18e3873b1195ec1fe2bf2708c",
+  "capture_case": "three_patch_covered_crossing",
+  "report_sha256": "09702874ef32ae415d914ce7a6090dd33484298f829ac45c831bcc171e7b8ab7",
+  "scope": "exact rational decoding of captured FP32 weights and base-node coordinates; no Metal or native physics rerun",
+  "results": {
+    "raw_xyz_weight_sum": "33554433/33554432",
+    "contact_reconstructed_z": "11184810/33554432",
+    "raw_cohesive_z": "11184811/33554432",
+    "raw_vs_contact_delta_y_m": "8589935/72057594037927936",
+    "raw_vs_contact_delta_z_m": "13743895/2305843009213693952",
+    "side_a_equals_side_b_raw_endpoint_positions_exact": true,
+    "planar_exact_complement_area": "0",
+    "parent_area_m2_decimal": "0.000008000000759959238934293512812701010261662304401397705078125000000000000000000000",
+    "three_raw_patch_area_sum_m2_decimal": "0.0000080000007599592390408749193799572501591239930188833472614735401394508229802531980",
+    "raw_area_excess_m2_decimal": "0.0000000000000000000001065814065672562398974616886174856421833485401394508229802531980"
+  }
+}

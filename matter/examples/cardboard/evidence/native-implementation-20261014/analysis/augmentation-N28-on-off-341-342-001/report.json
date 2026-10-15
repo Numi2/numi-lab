@@ -1,0 +1,90 @@
+{
+  "schema": "numi.cardboard.augmentation-bounded-parity.v1",
+  "on": "/Users/home/cardboard-implementation-20261014/solver/current-newton-augmentation-on-N28-capture27-341",
+  "off": "/Users/home/cardboard-implementation-20261014/solver/current-newton-augmentation-off-N28-capture27-342",
+  "receipts": [
+    {
+      "schema": "numi.cardboard.native-run-receipt.v2",
+      "execution_started": true,
+      "source_inputs_unchanged": true,
+      "changed_inputs": [],
+      "exit_code": 2,
+      "timed_out": false,
+      "termination_errors": [],
+      "wall_seconds": 76.34944820799865,
+      "finished_at_utc": "2026-10-15T13:27:11.524205+00:00"
+    },
+    {
+      "schema": "numi.cardboard.native-run-receipt.v2",
+      "execution_started": true,
+      "source_inputs_unchanged": true,
+      "changed_inputs": [],
+      "exit_code": 2,
+      "timed_out": false,
+      "termination_errors": [],
+      "wall_seconds": 75.86819324997487,
+      "finished_at_utc": "2026-10-15T13:29:07.023863+00:00"
+    }
+  ],
+  "armijo_count": 28,
+  "armijo_identical": true,
+  "output_files": [
+    {
+      "name": "accepted_step_000001_held_reference.obj",
+      "byte_identical": true,
+      "sha256_on": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f",
+      "sha256_off": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f"
+    },
+    {
+      "name": "compiled.nmatterpack",
+      "byte_identical": true,
+      "sha256_on": "a20a340d38ac4fa9da4c4a79f732cfb989ced2aae05c1cbe3bf9ff82d3f2be1d",
+      "sha256_off": "a20a340d38ac4fa9da4c4a79f732cfb989ced2aae05c1cbe3bf9ff82d3f2be1d"
+    },
+    {
+      "name": "initial.obj",
+      "byte_identical": true,
+      "sha256_on": "463cd80289b72a58009f859f2a3184966984029daa8d3687ec9035e18c6481af",
+      "sha256_off": "463cd80289b72a58009f859f2a3184966984029daa8d3687ec9035e18c6481af"
+    },
+    {
+      "name": "manifest.json",
+      "byte_identical": true,
+      "sha256_on": "83b8d33d7a1eece5cf54a9ff6f9031bfb77c916b80bb9ef980eaac28dc4bfff8",
+      "sha256_off": "83b8d33d7a1eece5cf54a9ff6f9031bfb77c916b80bb9ef980eaac28dc4bfff8"
+    },
+    {
+      "name": "material_state_000001_bent.json",
+      "byte_identical": true,
+      "sha256_on": "001d606b85b978952716fa90dc8f5945e9e6ee0e9cdea60c1c6c7f035df62434",
+      "sha256_off": "001d606b85b978952716fa90dc8f5945e9e6ee0e9cdea60c1c6c7f035df62434"
+    },
+    {
+      "name": "mesh.json",
+      "byte_identical": true,
+      "sha256_on": "6a2f786a47e61014ee4b27f609eb3c2f666677223ddaa30297aeea1fcfd8ca56",
+      "sha256_off": "6a2f786a47e61014ee4b27f609eb3c2f666677223ddaa30297aeea1fcfd8ca56"
+    },
+    {
+      "name": "observations.csv",
+      "byte_identical": true,
+      "sha256_on": "aecf6671cd8f0e5bf3478a557f668fa0872dbd5eba615d0c46415edea2ad54c9",
+      "sha256_off": "aecf6671cd8f0e5bf3478a557f668fa0872dbd5eba615d0c46415edea2ad54c9"
+    },
+    {
+      "name": "rejected_step_diagnostic_000001_bent.obj",
+      "byte_identical": true,
+      "sha256_on": "463cd80289b72a58009f859f2a3184966984029daa8d3687ec9035e18c6481af",
+      "sha256_off": "463cd80289b72a58009f859f2a3184966984029daa8d3687ec9035e18c6481af"
+    },
+    {
+      "name": "result.json",
+      "byte_identical": true,
+      "sha256_on": "00f0ba6c70d125a2de265ce466d11ade79260cc3124d070edaf3bb91d9a83f19",
+      "sha256_off": "00f0ba6c70d125a2de265ce466d11ade79260cc3124d070edaf3bb91d9a83f19"
+    }
+  ],
+  "augmentation_attempt_observed": true,
+  "augmentation_admitted": false,
+  "limitation": "Both runs strictly reject and all ordinary outputs match. AtNewton27 enabledpath forms a nonzero raw correction, but zeroed target scale invalidates mode; no augmentation benefit or physical convergence."
+}

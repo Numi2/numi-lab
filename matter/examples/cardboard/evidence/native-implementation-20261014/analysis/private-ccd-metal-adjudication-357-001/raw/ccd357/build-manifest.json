@@ -1,0 +1,34 @@
+{
+  "contact_source": "matter/src/metal/contact.metalinc",
+  "contact_source_sha256": "3cef6ae3dbd384d7b26ff6b0eb4ecda6da7a32be74cdea0badc5975eef692132",
+  "diagnostic_functions": [
+    "numi_matter_metal::edgeEdgeCCD16Diagnostic",
+    "numi_matter_metal::edgeEdgeCCD17Diagnostic"
+  ],
+  "diagnostic_kernel": "numi_matter_metal::nm_contact_ee_ccd_budget_diagnostic",
+  "extracted_production_function_sha256": "a76e6024194848f935521b10ed72fb4b2938a321636bf06faf7ca02e07fb84c9",
+  "flags": [
+    "-std=metal4.0",
+    "-O3",
+    "-fno-fast-math"
+  ],
+  "frozen_source_file_count": 775,
+  "frozen_source_manifest_sha256": "5fb22c61c280f576f15677c8cf6dbbc174beceaa225973242f6d53f9c7957446",
+  "frozen_source_parent_revision": "35bfb518c542a306f563cc364ef8496837068b9a",
+  "frozen_source_root": "/Users/home/cardboard-implementation-20261014/snapshots/source-center-action-twoenv-restart-099",
+  "generated_metal": "private_ee_ccd_diagnostic.metal",
+  "generated_metal_sha256": "b9298fcd0eed812944296c6880ecbd4fac2ebc7306d67bdc319be3a20130a270",
+  "instrumented_16_function_sha256": "96613fc6f1ea3eeb2eda91259994fb40468a2ebc33825b6c528151d3fd5ed3d3",
+  "instrumented_17_function_sha256": "62260b72d5b810148dbc6638e73ba316dfae93904afd8a0ca74176b990538391",
+  "instrumented_function_sha256": "a810aa0e22334f9eb3819bb5cc17f2830b02ef1e87e3cb4accca0d4661782518",
+  "production_function": "numi_matter_metal::edgeEdgeCCD",
+  "production_function_modified": false,
+  "qualification": "source-derived diagnostic only; native results require external execution",
+  "schema": "numi.matter.private_ee_ccd_metal_diagnostic_build.v2",
+  "transformation": [
+    "compile separate 16- and 17-bound clones; the diagnostic input selects one",
+    "rename only the extracted clone symbols; preserve production edgeEdgeCCD",
+    "store existing loop iteration, closest points, and segment parameters",
+    "initialize output-only witness values before the loop"
+  ]
+}

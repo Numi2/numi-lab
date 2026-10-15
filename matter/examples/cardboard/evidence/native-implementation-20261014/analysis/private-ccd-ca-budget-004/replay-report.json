@@ -1,0 +1,4552 @@
+{
+  "accepted_checkpoint": false,
+  "captures": [
+    {
+      "all_finish_f32": [
+        [
+          1.1329226445866425e-08,
+          1.3740456772382004e-08,
+          0.0010006781667470932
+        ],
+        [
+          0.002000013366341591,
+          1.3633885131980605e-08,
+          0.0010005019139498472
+        ],
+        [
+          0.0020000135991722345,
+          0.002000019885599613,
+          0.001000162330456078
+        ],
+        [
+          -1.0160565722117099e-07,
+          -0.002000064356252551,
+          0.00101039360743016
+        ],
+        [
+          0.001999892992898822,
+          -5.906072075845259e-08,
+          0.0010105049004778266
+        ],
+        [
+          -1.071203499236617e-07,
+          -6.41981827698146e-08,
+          0.0010104929096996784
+        ]
+      ],
+      "all_node_ids": [
+        13,
+        14,
+        17,
+        28,
+        32,
+        31
+      ],
+      "all_start_f32": [
+        [
+          7.754315412000778e-09,
+          1.0862975408088005e-08,
+          0.0010005031945183873
+        ],
+        [
+          0.002000009175390005,
+          1.0602716038476956e-08,
+          0.0010003643110394478
+        ],
+        [
+          0.0020000094082206488,
+          0.0020000149961560965,
+          0.001000116695649922
+        ],
+        [
+          -1.0073042489011641e-07,
+          -0.002000063192099333,
+          0.0010102948872372508
+        ],
+        [
+          0.0019998939242213964,
+          -5.803402203241603e-08,
+          0.0010104249231517315
+        ],
+        [
+          -1.0616124512807801e-07,
+          -6.311961442406755e-08,
+          0.001010395702905953
+        ]
+      ],
+      "base_dt_seconds": 9.999999747378752e-05,
+      "candidate": [
+        88,
+        127,
+        331,
+        1
+      ],
+      "dispatch_buffer_sha256": "3b61936c220ceb15a44603e43548ecce336af465bf8b49c138657265c6dd8a17",
+      "edge_node_ids": [
+        [
+          13,
+          14
+        ],
+        [
+          28,
+          32
+        ]
+      ],
+      "finish_a": [
+        [
+          1.1329226445866425e-08,
+          1.3740456772382004e-08,
+          0.0010006781667470932
+        ],
+        [
+          0.002000013366341591,
+          1.3633885131980605e-08,
+          0.0010005019139498472
+        ]
+      ],
+      "finish_a_f32_bits_u32": [
+        [
+          843227767,
+          845942571,
+          981674288
+        ],
+        [
+          990057128,
+          845822582,
+          981672774
+        ]
+      ],
+      "finish_b": [
+        [
+          -1.0160565722117099e-07,
+          -0.002000064356252551,
+          0.00101039360743016
+        ],
+        [
+          0.001999892992898822,
+          -5.906072075845259e-08,
+          0.0010105049004778266
+        ]
+      ],
+      "finish_b_f32_bits_u32": [
+        [
+          3017421389,
+          3137540995,
+          981757743
+        ],
+        [
+          990056611,
+          3011357171,
+          981758699
+        ]
+      ],
+      "fp64_geometry_sweep": {
+        "end_distance_m": 1.0003240024308184e-05,
+        "method": "10001-point double-precision sweep of captured FP32 start/finish endpoint words; descriptive only, not a proof",
+        "minimum": {
+          "distance_m": 1.0003240024308184e-05,
+          "segment_parameters": [
+            0.9999393725796355,
+            1.0
+          ],
+          "time": 1.0
+        },
+        "source_effective_thickness_m": 1.000190695776837e-05,
+        "start_distance_m": 1.0060838213329835e-05
+      },
+      "iteration": 12,
+      "native_case": 333,
+      "native_case_directory": "/Users/home/cardboard-implementation-20261014/native/center-action-feasibility-bracket-333",
+      "object_dt_seconds": 9.999999747378752e-05,
+      "payload_sha256": "8fe7d2943880bb9962b1745569fa4120d88a317fee43b00fbbe9d609cc5d07eb",
+      "primitive_nodes": [
+        [
+          13,
+          14,
+          17
+        ],
+        [
+          28,
+          32,
+          31
+        ]
+      ],
+      "replays": {
+        "difference_form_fp32": {
+          "16": {
+            "certified": false,
+            "effective_thickness_m": 1.000190695776837e-05,
+            "hit": false,
+            "iterations": 16,
+            "reason": "iteration_budget_exhausted",
+            "speed_bound_m": 2.737633337801526e-07,
+            "time": 0.9999701976776123,
+            "trace": [
+              {
+                "distance_m": 1.0060845852422062e-05,
+                "iteration": 0,
+                "segment_parameters": [
+                  0.9999420046806335,
+                  1.0
+                ],
+                "time": 0.0
+              },
+              {
+                "distance_m": 1.004851219477132e-05,
+                "iteration": 1,
+                "segment_parameters": [
+                  0.9999414682388306,
+                  1.0
+                ],
+                "time": 0.21529141068458557
+              },
+              {
+                "distance_m": 1.003862234938424e-05,
+                "iteration": 2,
+                "segment_parameters": [
+                  0.9999408721923828,
+                  1.0
+                ],
+                "time": 0.385530561208725
+              },
+              {
+                "distance_m": 1.0030943485617172e-05,
+                "iteration": 3,
+                "segment_parameters": [
+                  0.9999406337738037,
+                  1.0
+                ],
+                "time": 0.5196442008018494
+              },
+              {
+                "distance_m": 1.002477620204445e-05,
+                "iteration": 4,
+                "segment_parameters": [
+                  0.9999403357505798,
+                  1.0
+                ],
+                "time": 0.6257085204124451
+              },
+              {
+                "distance_m": 1.0020004992838949e-05,
+                "iteration": 5,
+                "segment_parameters": [
+                  0.9999399781227112,
+                  1.0
+                ],
+                "time": 0.7092450857162476
+              },
+              {
+                "distance_m": 1.0016282431024592e-05,
+                "iteration": 6,
+                "segment_parameters": [
+                  0.9999399781227112,
+                  1.0
+                ],
+                "time": 0.7753534317016602
+              },
+              {
+                "distance_m": 1.0013141036324669e-05,
+                "iteration": 7,
+                "segment_parameters": [
+                  0.9999398589134216,
+                  1.0
+                ],
+                "time": 0.8278639912605286
+              },
+              {
+                "distance_m": 1.0010813639382832e-05,
+                "iteration": 8,
+                "segment_parameters": [
+                  0.9999397397041321,
+                  1.0
+                ],
+                "time": 0.8688997030258179
+              },
+              {
+                "distance_m": 1.00089509942336e-05,
+                "iteration": 9,
+                "segment_parameters": [
+                  0.999939501285553,
+                  1.0
+                ],
+                "time": 0.9014339447021484
+              },
+              {
+                "distance_m": 1.0007438504544552e-05,
+                "iteration": 10,
+                "segment_parameters": [
+                  0.999939501285553,
+                  1.0
+                ],
+                "time": 0.9271643161773682
+              },
+              {
+                "distance_m": 1.0006275260820985e-05,
+                "iteration": 11,
+                "segment_parameters": [
+                  0.9999393820762634,
+                  1.0
+                ],
+                "time": 0.9473698735237122
+              },
+              {
+                "distance_m": 1.0005345757235773e-05,
+                "iteration": 12,
+                "segment_parameters": [
+                  0.999939501285553,
+                  1.0
+                ],
+                "time": 0.9633263945579529
+              },
+              {
+                "distance_m": 1.0004647265304811e-05,
+                "iteration": 13,
+                "segment_parameters": [
+                  0.9999393820762634,
+                  1.0
+                ],
+                "time": 0.9758875966072083
+              },
+              {
+                "distance_m": 1.0004066098190378e-05,
+                "iteration": 14,
+                "segment_parameters": [
+                  0.9999392628669739,
+                  1.0
+                ],
+                "time": 0.9858973622322083
+              },
+              {
+                "distance_m": 1.000360043690307e-05,
+                "iteration": 15,
+                "segment_parameters": [
+                  0.9999393820762634,
+                  1.0
+                ],
+                "time": 0.9937842488288879
+              }
+            ]
+          },
+          "17": {
+            "certified": true,
+            "effective_thickness_m": 1.000190695776837e-05,
+            "hit": false,
+            "iterations": 17,
+            "reason": "conservative_step_passes_endpoint",
+            "speed_bound_m": 2.737633337801526e-07,
+            "time": 1.004880428314209,
+            "trace": [
+              {
+                "distance_m": 1.0060845852422062e-05,
+                "iteration": 0,
+                "segment_parameters": [
+                  0.9999420046806335,
+                  1.0
+                ],
+                "time": 0.0
+              },
+              {
+                "distance_m": 1.004851219477132e-05,
+                "iteration": 1,
+                "segment_parameters": [
+                  0.9999414682388306,
+                  1.0
+                ],
+                "time": 0.21529141068458557
+              },
+              {
+                "distance_m": 1.003862234938424e-05,
+                "iteration": 2,
+                "segment_parameters": [
+                  0.9999408721923828,
+                  1.0
+                ],
+                "time": 0.385530561208725
+              },
+              {
+                "distance_m": 1.0030943485617172e-05,
+                "iteration": 3,
+                "segment_parameters": [
+                  0.9999406337738037,
+                  1.0
+                ],
+                "time": 0.5196442008018494
+              },
+              {
+                "distance_m": 1.002477620204445e-05,
+                "iteration": 4,
+                "segment_parameters": [
+                  0.9999403357505798,
+                  1.0
+                ],
+                "time": 0.6257085204124451
+              },
+              {
+                "distance_m": 1.0020004992838949e-05,
+                "iteration": 5,
+                "segment_parameters": [
+                  0.9999399781227112,
+                  1.0
+                ],
+                "time": 0.7092450857162476
+              },
+              {
+                "distance_m": 1.0016282431024592e-05,
+                "iteration": 6,
+                "segment_parameters": [
+                  0.9999399781227112,
+                  1.0
+                ],
+                "time": 0.7753534317016602
+              },
+              {
+                "distance_m": 1.0013141036324669e-05,
+                "iteration": 7,
+                "segment_parameters": [
+                  0.9999398589134216,
+                  1.0
+                ],
+                "time": 0.8278639912605286
+              },
+              {
+                "distance_m": 1.0010813639382832e-05,
+                "iteration": 8,
+                "segment_parameters": [
+                  0.9999397397041321,
+                  1.0
+                ],
+                "time": 0.8688997030258179
+              },
+              {
+                "distance_m": 1.00089509942336e-05,
+                "iteration": 9,
+                "segment_parameters": [
+                  0.999939501285553,
+                  1.0
+                ],
+                "time": 0.9014339447021484
+              },
+              {
+                "distance_m": 1.0007438504544552e-05,
+                "iteration": 10,
+                "segment_parameters": [
+                  0.999939501285553,
+                  1.0
+                ],
+                "time": 0.9271643161773682
+              },
+              {
+                "distance_m": 1.0006275260820985e-05,
+                "iteration": 11,
+                "segment_parameters": [
+                  0.9999393820762634,
+                  1.0
+                ],
+                "time": 0.9473698735237122
+              },
+              {
+                "distance_m": 1.0005345757235773e-05,
+                "iteration": 12,
+                "segment_parameters": [
+                  0.999939501285553,
+                  1.0
+                ],
+                "time": 0.9633263945579529
+              },
+              {
+                "distance_m": 1.0004647265304811e-05,
+                "iteration": 13,
+                "segment_parameters": [
+                  0.9999393820762634,
+                  1.0
+                ],
+                "time": 0.9758875966072083
+              },
+              {
+                "distance_m": 1.0004066098190378e-05,
+                "iteration": 14,
+                "segment_parameters": [
+                  0.9999392628669739,
+                  1.0
+                ],
+                "time": 0.9858973622322083
+              },
+              {
+                "distance_m": 1.000360043690307e-05,
+                "iteration": 15,
+                "segment_parameters": [
+                  0.9999393820762634,
+                  1.0
+                ],
+                "time": 0.9937842488288879
+              },
+              {
+                "distance_m": 1.000325119093759e-05,
+                "iteration": 16,
+                "segment_parameters": [
+                  0.9999393820762634,
+                  1.0
+                ],
+                "time": 0.9999701976776123
+              }
+            ]
+          },
+          "32": {
+            "certified": true,
+            "effective_thickness_m": 1.000190695776837e-05,
+            "hit": false,
+            "iterations": 17,
+            "reason": "conservative_step_passes_endpoint",
+            "speed_bound_m": 2.737633337801526e-07,
+            "time": 1.004880428314209,
+            "trace": [
+              {
+                "distance_m": 1.0060845852422062e-05,
+                "iteration": 0,
+                "segment_parameters": [
+                  0.9999420046806335,
+                  1.0
+                ],
+                "time": 0.0
+              },
+              {
+                "distance_m": 1.004851219477132e-05,
+                "iteration": 1,
+                "segment_parameters": [
+                  0.9999414682388306,
+                  1.0
+                ],
+                "time": 0.21529141068458557
+              },
+              {
+                "distance_m": 1.003862234938424e-05,
+                "iteration": 2,
+                "segment_parameters": [
+                  0.9999408721923828,
+                  1.0
+                ],
+                "time": 0.385530561208725
+              },
+              {
+                "distance_m": 1.0030943485617172e-05,
+                "iteration": 3,
+                "segment_parameters": [
+                  0.9999406337738037,
+                  1.0
+                ],
+                "time": 0.5196442008018494
+              },
+              {
+                "distance_m": 1.002477620204445e-05,
+                "iteration": 4,
+                "segment_parameters": [
+                  0.9999403357505798,
+                  1.0
+                ],
+                "time": 0.6257085204124451
+              },
+              {
+                "distance_m": 1.0020004992838949e-05,
+                "iteration": 5,
+                "segment_parameters": [
+                  0.9999399781227112,
+                  1.0
+                ],
+                "time": 0.7092450857162476
+              },
+              {
+                "distance_m": 1.0016282431024592e-05,
+                "iteration": 6,
+                "segment_parameters": [
+                  0.9999399781227112,
+                  1.0
+                ],
+                "time": 0.7753534317016602
+              },
+              {
+                "distance_m": 1.0013141036324669e-05,
+                "iteration": 7,
+                "segment_parameters": [
+                  0.9999398589134216,
+                  1.0
+                ],
+                "time": 0.8278639912605286
+              },
+              {
+                "distance_m": 1.0010813639382832e-05,
+                "iteration": 8,
+                "segment_parameters": [
+                  0.9999397397041321,
+                  1.0
+                ],
+                "time": 0.8688997030258179
+              },
+              {
+                "distance_m": 1.00089509942336e-05,
+                "iteration": 9,
+                "segment_parameters": [
+                  0.999939501285553,
+                  1.0
+                ],
+                "time": 0.9014339447021484
+              },
+              {
+                "distance_m": 1.0007438504544552e-05,
+                "iteration": 10,
+                "segment_parameters": [
+                  0.999939501285553,
+                  1.0
+                ],
+                "time": 0.9271643161773682
+              },
+              {
+                "distance_m": 1.0006275260820985e-05,
+                "iteration": 11,
+                "segment_parameters": [
+                  0.9999393820762634,
+                  1.0
+                ],
+                "time": 0.9473698735237122
+              },
+              {
+                "distance_m": 1.0005345757235773e-05,
+                "iteration": 12,
+                "segment_parameters": [
+                  0.999939501285553,
+                  1.0
+                ],
+                "time": 0.9633263945579529
+              },
+              {
+                "distance_m": 1.0004647265304811e-05,
+                "iteration": 13,
+                "segment_parameters": [
+                  0.9999393820762634,
+                  1.0
+                ],
+                "time": 0.9758875966072083
+              },
+              {
+                "distance_m": 1.0004066098190378e-05,
+                "iteration": 14,
+                "segment_parameters": [
+                  0.9999392628669739,
+                  1.0
+                ],
+                "time": 0.9858973622322083
+              },
+              {
+                "distance_m": 1.000360043690307e-05,
+                "iteration": 15,
+                "segment_parameters": [
+                  0.9999393820762634,
+                  1.0
+                ],
+                "time": 0.9937842488288879
+              },
+              {
+                "distance_m": 1.000325119093759e-05,
+                "iteration": 16,
+                "segment_parameters": [
+                  0.9999393820762634,
+                  1.0
+                ],
+                "time": 0.9999701976776123
+              }
+            ]
+          }
+        },
+        "weighted_form_fp32": {
+          "16": {
+            "certified": true,
+            "effective_thickness_m": 1.000190695776837e-05,
+            "hit": false,
+            "iterations": 16,
+            "reason": "conservative_step_passes_endpoint",
+            "speed_bound_m": 2.737633337801526e-07,
+            "time": 1.0003987550735474,
+            "trace": [
+              {
+                "distance_m": 1.0060845852422062e-05,
+                "iteration": 0,
+                "segment_parameters": [
+                  0.9999420046806335,
+                  1.0
+                ],
+                "time": 0.0
+              },
+              {
+                "distance_m": 1.0048395779449493e-05,
+                "iteration": 1,
+                "segment_parameters": [
+                  0.9999414682388306,
+                  1.0
+                ],
+                "time": 0.21529141068458557
+              },
+              {
+                "distance_m": 1.003862234938424e-05,
+                "iteration": 2,
+                "segment_parameters": [
+                  0.9999409914016724,
+                  1.0
+                ],
+                "time": 0.38510531187057495
+              },
+              {
+                "distance_m": 1.0030943485617172e-05,
+                "iteration": 3,
+                "segment_parameters": [
+                  0.9999405145645142,
+                  1.0
+                ],
+                "time": 0.519218921661377
+              },
+              {
+                "distance_m": 1.0024892617366277e-05,
+                "iteration": 4,
+                "segment_parameters": [
+                  0.9999404549598694,
+                  1.0
+                ],
+                "time": 0.6252832412719727
+              },
+              {
+                "distance_m": 1.0020004992838949e-05,
+                "iteration": 5,
+                "segment_parameters": [
+                  0.9999399781227112,
+                  1.0
+                ],
+                "time": 0.7092450261116028
+              },
+              {
+                "distance_m": 1.0016282431024592e-05,
+                "iteration": 6,
+                "segment_parameters": [
+                  0.9999399781227112,
+                  1.0
+                ],
+                "time": 0.7753533720970154
+              },
+              {
+                "distance_m": 1.0013141036324669e-05,
+                "iteration": 7,
+                "segment_parameters": [
+                  0.9999398589134216,
+                  1.0
+                ],
+                "time": 0.8278639316558838
+              },
+              {
+                "distance_m": 1.0010813639382832e-05,
+                "iteration": 8,
+                "segment_parameters": [
+                  0.9999397397041321,
+                  1.0
+                ],
+                "time": 0.8688996434211731
+              },
+              {
+                "distance_m": 1.000906831905013e-05,
+                "iteration": 9,
+                "segment_parameters": [
+                  0.9999396204948425,
+                  1.0
+                ],
+                "time": 0.9014338850975037
+              },
+              {
+                "distance_m": 1.0007322089222725e-05,
+                "iteration": 10,
+                "segment_parameters": [
+                  0.9999396204948425,
+                  1.0
+                ],
+                "time": 0.9275928139686584
+              },
+              {
+                "distance_m": 1.0006275260820985e-05,
+                "iteration": 11,
+                "segment_parameters": [
+                  0.9999393820762634,
+                  1.0
+                ],
+                "time": 0.9473731517791748
+              },
+              {
+                "distance_m": 1.00054621725576e-05,
+                "iteration": 12,
+                "segment_parameters": [
+                  0.999939501285553,
+                  1.0
+                ],
+                "time": 0.9633296728134155
+              },
+              {
+                "distance_m": 1.0004647265304811e-05,
+                "iteration": 13,
+                "segment_parameters": [
+                  0.9999393820762634,
+                  1.0
+                ],
+                "time": 0.9763161540031433
+              },
+              {
+                "distance_m": 1.0004066098190378e-05,
+                "iteration": 14,
+                "segment_parameters": [
+                  0.9999392628669739,
+                  1.0
+                ],
+                "time": 0.9863259196281433
+              },
+              {
+                "distance_m": 1.000360043690307e-05,
+                "iteration": 15,
+                "segment_parameters": [
+                  0.9999393820762634,
+                  1.0
+                ],
+                "time": 0.994212806224823
+              }
+            ]
+          },
+          "17": {
+            "certified": true,
+            "effective_thickness_m": 1.000190695776837e-05,
+            "hit": false,
+            "iterations": 16,
+            "reason": "conservative_step_passes_endpoint",
+            "speed_bound_m": 2.737633337801526e-07,
+            "time": 1.0003987550735474,
+            "trace": [
+              {
+                "distance_m": 1.0060845852422062e-05,
+                "iteration": 0,
+                "segment_parameters": [
+                  0.9999420046806335,
+                  1.0
+                ],
+                "time": 0.0
+              },
+              {
+                "distance_m": 1.0048395779449493e-05,
+                "iteration": 1,
+                "segment_parameters": [
+                  0.9999414682388306,
+                  1.0
+                ],
+                "time": 0.21529141068458557
+              },
+              {
+                "distance_m": 1.003862234938424e-05,
+                "iteration": 2,
+                "segment_parameters": [
+                  0.9999409914016724,
+                  1.0
+                ],
+                "time": 0.38510531187057495
+              },
+              {
+                "distance_m": 1.0030943485617172e-05,
+                "iteration": 3,
+                "segment_parameters": [
+                  0.9999405145645142,
+                  1.0
+                ],
+                "time": 0.519218921661377
+              },
+              {
+                "distance_m": 1.0024892617366277e-05,
+                "iteration": 4,
+                "segment_parameters": [
+                  0.9999404549598694,
+                  1.0
+                ],
+                "time": 0.6252832412719727
+              },
+              {
+                "distance_m": 1.0020004992838949e-05,
+                "iteration": 5,
+                "segment_parameters": [
+                  0.9999399781227112,
+                  1.0
+                ],
+                "time": 0.7092450261116028
+              },
+              {
+                "distance_m": 1.0016282431024592e-05,
+                "iteration": 6,
+                "segment_parameters": [
+                  0.9999399781227112,
+                  1.0
+                ],
+                "time": 0.7753533720970154
+              },
+              {
+                "distance_m": 1.0013141036324669e-05,
+                "iteration": 7,
+                "segment_parameters": [
+                  0.9999398589134216,
+                  1.0
+                ],
+                "time": 0.8278639316558838
+              },
+              {
+                "distance_m": 1.0010813639382832e-05,
+                "iteration": 8,
+                "segment_parameters": [
+                  0.9999397397041321,
+                  1.0
+                ],
+                "time": 0.8688996434211731
+              },
+              {
+                "distance_m": 1.000906831905013e-05,
+                "iteration": 9,
+                "segment_parameters": [
+                  0.9999396204948425,
+                  1.0
+                ],
+                "time": 0.9014338850975037
+              },
+              {
+                "distance_m": 1.0007322089222725e-05,
+                "iteration": 10,
+                "segment_parameters": [
+                  0.9999396204948425,
+                  1.0
+                ],
+                "time": 0.9275928139686584
+              },
+              {
+                "distance_m": 1.0006275260820985e-05,
+                "iteration": 11,
+                "segment_parameters": [
+                  0.9999393820762634,
+                  1.0
+                ],
+                "time": 0.9473731517791748
+              },
+              {
+                "distance_m": 1.00054621725576e-05,
+                "iteration": 12,
+                "segment_parameters": [
+                  0.999939501285553,
+                  1.0
+                ],
+                "time": 0.9633296728134155
+              },
+              {
+                "distance_m": 1.0004647265304811e-05,
+                "iteration": 13,
+                "segment_parameters": [
+                  0.9999393820762634,
+                  1.0
+                ],
+                "time": 0.9763161540031433
+              },
+              {
+                "distance_m": 1.0004066098190378e-05,
+                "iteration": 14,
+                "segment_parameters": [
+                  0.9999392628669739,
+                  1.0
+                ],
+                "time": 0.9863259196281433
+              },
+              {
+                "distance_m": 1.000360043690307e-05,
+                "iteration": 15,
+                "segment_parameters": [
+                  0.9999393820762634,
+                  1.0
+                ],
+                "time": 0.994212806224823
+              }
+            ]
+          },
+          "32": {
+            "certified": true,
+            "effective_thickness_m": 1.000190695776837e-05,
+            "hit": false,
+            "iterations": 16,
+            "reason": "conservative_step_passes_endpoint",
+            "speed_bound_m": 2.737633337801526e-07,
+            "time": 1.0003987550735474,
+            "trace": [
+              {
+                "distance_m": 1.0060845852422062e-05,
+                "iteration": 0,
+                "segment_parameters": [
+                  0.9999420046806335,
+                  1.0
+                ],
+                "time": 0.0
+              },
+              {
+                "distance_m": 1.0048395779449493e-05,
+                "iteration": 1,
+                "segment_parameters": [
+                  0.9999414682388306,
+                  1.0
+                ],
+                "time": 0.21529141068458557
+              },
+              {
+                "distance_m": 1.003862234938424e-05,
+                "iteration": 2,
+                "segment_parameters": [
+                  0.9999409914016724,
+                  1.0
+                ],
+                "time": 0.38510531187057495
+              },
+              {
+                "distance_m": 1.0030943485617172e-05,
+                "iteration": 3,
+                "segment_parameters": [
+                  0.9999405145645142,
+                  1.0
+                ],
+                "time": 0.519218921661377
+              },
+              {
+                "distance_m": 1.0024892617366277e-05,
+                "iteration": 4,
+                "segment_parameters": [
+                  0.9999404549598694,
+                  1.0
+                ],
+                "time": 0.6252832412719727
+              },
+              {
+                "distance_m": 1.0020004992838949e-05,
+                "iteration": 5,
+                "segment_parameters": [
+                  0.9999399781227112,
+                  1.0
+                ],
+                "time": 0.7092450261116028
+              },
+              {
+                "distance_m": 1.0016282431024592e-05,
+                "iteration": 6,
+                "segment_parameters": [
+                  0.9999399781227112,
+                  1.0
+                ],
+                "time": 0.7753533720970154
+              },
+              {
+                "distance_m": 1.0013141036324669e-05,
+                "iteration": 7,
+                "segment_parameters": [
+                  0.9999398589134216,
+                  1.0
+                ],
+                "time": 0.8278639316558838
+              },
+              {
+                "distance_m": 1.0010813639382832e-05,
+                "iteration": 8,
+                "segment_parameters": [
+                  0.9999397397041321,
+                  1.0
+                ],
+                "time": 0.8688996434211731
+              },
+              {
+                "distance_m": 1.000906831905013e-05,
+                "iteration": 9,
+                "segment_parameters": [
+                  0.9999396204948425,
+                  1.0
+                ],
+                "time": 0.9014338850975037
+              },
+              {
+                "distance_m": 1.0007322089222725e-05,
+                "iteration": 10,
+                "segment_parameters": [
+                  0.9999396204948425,
+                  1.0
+                ],
+                "time": 0.9275928139686584
+              },
+              {
+                "distance_m": 1.0006275260820985e-05,
+                "iteration": 11,
+                "segment_parameters": [
+                  0.9999393820762634,
+                  1.0
+                ],
+                "time": 0.9473731517791748
+              },
+              {
+                "distance_m": 1.00054621725576e-05,
+                "iteration": 12,
+                "segment_parameters": [
+                  0.999939501285553,
+                  1.0
+                ],
+                "time": 0.9633296728134155
+              },
+              {
+                "distance_m": 1.0004647265304811e-05,
+                "iteration": 13,
+                "segment_parameters": [
+                  0.9999393820762634,
+                  1.0
+                ],
+                "time": 0.9763161540031433
+              },
+              {
+                "distance_m": 1.0004066098190378e-05,
+                "iteration": 14,
+                "segment_parameters": [
+                  0.9999392628669739,
+                  1.0
+                ],
+                "time": 0.9863259196281433
+              },
+              {
+                "distance_m": 1.000360043690307e-05,
+                "iteration": 15,
+                "segment_parameters": [
+                  0.9999393820762634,
+                  1.0
+                ],
+                "time": 0.994212806224823
+              }
+            ]
+          }
+        }
+      },
+      "root": 1201,
+      "scheduler_exponent": 0,
+      "selected_phase": "both",
+      "start_a": [
+        [
+          7.754315412000778e-09,
+          1.0862975408088005e-08,
+          0.0010005031945183873
+        ],
+        [
+          0.002000009175390005,
+          1.0602716038476956e-08,
+          0.0010003643110394478
+        ]
+      ],
+      "start_a_f32_bits_u32": [
+        [
+          839202775,
+          842702815,
+          981672785
+        ],
+        [
+          990057110,
+          842409789,
+          981671592
+        ]
+      ],
+      "start_b": [
+        [
+          -1.0073042489011641e-07,
+          -0.002000063192099333,
+          0.0010102948872372508
+        ],
+        [
+          0.0019998939242213964,
+          -5.803402203241603e-08,
+          0.0010104249231517315
+        ]
+      ],
+      "start_b_f32_bits_u32": [
+        [
+          3017298211,
+          3137540990,
+          981756895
+        ],
+        [
+          990056615,
+          3011068181,
+          981758012
+        ]
+      ],
+      "synthetic_true_hit_controls": {
+        "initial_hit_shift_60nm_budget17": {
+          "difference_form_fp32": {
+            "certified": true,
+            "effective_thickness_m": 1.000190695776837e-05,
+            "hit": true,
+            "iterations": 1,
+            "reason": "thickness_hit",
+            "speed_bound_m": 2.737633337801526e-07,
+            "time": 0.0,
+            "trace": [
+              {
+                "distance_m": 1.0000893780670594e-05,
+                "iteration": 0,
+                "segment_parameters": [
+                  0.9999420046806335,
+                  1.0
+                ],
+                "time": 0.0
+              }
+            ]
+          },
+          "weighted_form_fp32": {
+            "certified": true,
+            "effective_thickness_m": 1.000190695776837e-05,
+            "hit": true,
+            "iterations": 1,
+            "reason": "thickness_hit",
+            "speed_bound_m": 2.737633337801526e-07,
+            "time": 0.0,
+            "trace": [
+              {
+                "distance_m": 1.0000893780670594e-05,
+                "iteration": 0,
+                "segment_parameters": [
+                  0.9999420046806335,
+                  1.0
+                ],
+                "time": 0.0
+              }
+            ]
+          }
+        },
+        "swept_hit_shift_50nm_budget32": {
+          "difference_form_fp32": {
+            "certified": true,
+            "effective_thickness_m": 1.000190695776837e-05,
+            "hit": true,
+            "iterations": 29,
+            "reason": "thickness_hit",
+            "speed_bound_m": 2.737633337801526e-07,
+            "time": 0.15615640580654144,
+            "trace": [
+              {
+                "distance_m": 1.0010904588853009e-05,
+                "iteration": 0,
+                "segment_parameters": [
+                  0.9999420046806335,
+                  1.0
+                ],
+                "time": 0.0
+              },
+              {
+                "distance_m": 1.000904285319848e-05,
+                "iteration": 1,
+                "segment_parameters": [
+                  0.999941885471344,
+                  1.0
+                ],
+                "time": 0.0328664593398571
+              },
+              {
+                "distance_m": 1.0007415767177008e-05,
+                "iteration": 2,
+                "segment_parameters": [
+                  0.999941885471344,
+                  1.0
+                ],
+                "time": 0.058932386338710785
+              },
+              {
+                "distance_m": 1.0006368029280566e-05,
+                "iteration": 3,
+                "segment_parameters": [
+                  0.999941885471344,
+                  1.0
+                ],
+                "time": 0.07905490696430206
+              },
+              {
+                "distance_m": 1.000543670670595e-05,
+                "iteration": 4,
+                "segment_parameters": [
+                  0.9999417662620544,
+                  1.0
+                ],
+                "time": 0.09535026550292969
+              },
+              {
+                "distance_m": 1.0004622708947863e-05,
+                "iteration": 5,
+                "segment_parameters": [
+                  0.9999417662620544,
+                  1.0
+                ],
+                "time": 0.10824369639158249
+              },
+              {
+                "distance_m": 1.0004040632338729e-05,
+                "iteration": 6,
+                "segment_parameters": [
+                  0.9999417662620544,
+                  1.0
+                ],
+                "time": 0.11816376447677612
+              },
+              {
+                "distance_m": 1.0003691386373248e-05,
+                "iteration": 7,
+                "segment_parameters": [
+                  0.9999415874481201,
+                  1.0
+                ],
+                "time": 0.12595762312412262
+              },
+              {
+                "distance_m": 1.000322572508594e-05,
+                "iteration": 8,
+                "segment_parameters": [
+                  0.9999415874481201,
+                  1.0
+                ],
+                "time": 0.13247576355934143
+              },
+              {
+                "distance_m": 1.0002993803936988e-05,
+                "iteration": 9,
+                "segment_parameters": [
+                  0.9999415874481201,
+                  1.0
+                ],
+                "time": 0.13729295134544373
+              },
+              {
+                "distance_m": 1.0002760973293334e-05,
+                "iteration": 10,
+                "segment_parameters": [
+                  0.9999414682388306,
+                  1.0
+                ],
+                "time": 0.1412629783153534
+              },
+              {
+                "distance_m": 1.0002527233154979e-05,
+                "iteration": 11,
+                "segment_parameters": [
+                  0.9999415874481201,
+                  1.0
+                ],
+                "time": 0.1443825215101242
+              },
+              {
+                "distance_m": 1.0002527233154979e-05,
+                "iteration": 12,
+                "segment_parameters": [
+                  0.9999415874481201,
+                  1.0
+                ],
+                "time": 0.14664825797080994
+              },
+              {
+                "distance_m": 1.0002294402511325e-05,
+                "iteration": 13,
+                "segment_parameters": [
+                  0.9999415874481201,
+                  1.0
+                ],
+                "time": 0.14891399443149567
+              },
+              {
+                "distance_m": 1.00021788966842e-05,
+                "iteration": 14,
+                "segment_parameters": [
+                  0.9999415874481201,
+                  1.0
+                ],
+                "time": 0.15032924711704254
+              },
+              {
+                "distance_m": 1.00021788966842e-05,
+                "iteration": 15,
+                "segment_parameters": [
+                  0.9999415874481201,
+                  1.0
+                ],
+                "time": 0.15132258832454681
+              },
+              {
+                "distance_m": 1.00021788966842e-05,
+                "iteration": 16,
+                "segment_parameters": [
+                  0.9999415874481201,
+                  1.0
+                ],
+                "time": 0.1523159295320511
+              },
+              {
+                "distance_m": 1.0002062481362373e-05,
+                "iteration": 17,
+                "segment_parameters": [
+                  0.9999415874481201,
+                  1.0
+                ],
+                "time": 0.15330927073955536
+              },
+              {
+                "distance_m": 1.0002062481362373e-05,
+                "iteration": 18,
+                "segment_parameters": [
+                  0.9999415874481201,
+                  1.0
+                ],
+                "time": 0.1538773626089096
+              },
+              {
+                "distance_m": 1.0001946066040546e-05,
+                "iteration": 19,
+                "segment_parameters": [
+                  0.9999415874481201,
+                  1.0
+                ],
+                "time": 0.15444545447826385
+              },
+              {
+                "distance_m": 1.0001946066040546e-05,
+                "iteration": 20,
+                "segment_parameters": [
+                  0.9999415874481201,
+                  1.0
+                ],
+                "time": 0.15458831191062927
+              },
+              {
+                "distance_m": 1.0001946066040546e-05,
+                "iteration": 21,
+                "segment_parameters": [
+                  0.9999415874481201,
+                  1.0
+                ],
+                "time": 0.1547311693429947
+              },
+              {
+                "distance_m": 1.0001946066040546e-05,
+                "iteration": 22,
+                "segment_parameters": [
+                  0.9999415874481201,
+                  1.0
+                ],
+                "time": 0.1548740267753601
+              },
+              {
+                "distance_m": 1.0001946066040546e-05,
+                "iteration": 23,
+                "segment_parameters": [
+                  0.9999415874481201,
+                  1.0
+                ],
+                "time": 0.15501688420772552
+              },
+              {
+                "distance_m": 1.0002062481362373e-05,
+                "iteration": 24,
+                "segment_parameters": [
+                  0.9999415874481201,
+                  1.0
+                ],
+                "time": 0.15515974164009094
+              },
+              {
+                "distance_m": 1.0001946066040546e-05,
+                "iteration": 25,
+                "segment_parameters": [
+                  0.9999415874481201,
+                  1.0
+                ],
+                "time": 0.1557278335094452
+              },
+              {
+                "distance_m": 1.0001946066040546e-05,
+                "iteration": 26,
+                "segment_parameters": [
+                  0.9999415874481201,
+                  1.0
+                ],
+                "time": 0.1558706909418106
+              },
+              {
+                "distance_m": 1.0001946066040546e-05,
+                "iteration": 27,
+                "segment_parameters": [
+                  0.9999415874481201,
+                  1.0
+                ],
+                "time": 0.15601354837417603
+              },
+              {
+                "distance_m": 1.0001829650718719e-05,
+                "iteration": 28,
+                "segment_parameters": [
+                  0.9999415874481201,
+                  1.0
+                ],
+                "time": 0.15615640580654144
+              }
+            ]
+          },
+          "weighted_form_fp32": {
+            "certified": true,
+            "effective_thickness_m": 1.000190695776837e-05,
+            "hit": true,
+            "iterations": 25,
+            "reason": "thickness_hit",
+            "speed_bound_m": 2.737633337801526e-07,
+            "time": 0.15601684153079987,
+            "trace": [
+              {
+                "distance_m": 1.0010904588853009e-05,
+                "iteration": 0,
+                "segment_parameters": [
+                  0.9999420046806335,
+                  1.0
+                ],
+                "time": 0.0
+              },
+              {
+                "distance_m": 1.0008926437876653e-05,
+                "iteration": 1,
+                "segment_parameters": [
+                  0.999941885471344,
+                  1.0
+                ],
+                "time": 0.0328664593398571
+              },
+              {
+                "distance_m": 1.0007532182498835e-05,
+                "iteration": 2,
+                "segment_parameters": [
+                  0.999941885471344,
+                  1.0
+                ],
+                "time": 0.05850714445114136
+              },
+              {
+                "distance_m": 1.0006251613958739e-05,
+                "iteration": 3,
+                "segment_parameters": [
+                  0.9999417662620544,
+                  1.0
+                ],
+                "time": 0.07905490696430206
+              },
+              {
+                "distance_m": 1.000543670670595e-05,
+                "iteration": 4,
+                "segment_parameters": [
+                  0.9999417662620544,
+                  1.0
+                ],
+                "time": 0.09492502361536026
+              },
+              {
+                "distance_m": 1.000473912426969e-05,
+                "iteration": 5,
+                "segment_parameters": [
+                  0.9999417066574097,
+                  1.0
+                ],
+                "time": 0.10781845450401306
+              },
+              {
+                "distance_m": 1.0004157047660556e-05,
+                "iteration": 6,
+                "segment_parameters": [
+                  0.9999417662620544,
+                  1.0
+                ],
+                "time": 0.11816376447677612
+              },
+              {
+                "distance_m": 1.0003574971051421e-05,
+                "iteration": 7,
+                "segment_parameters": [
+                  0.9999415874481201,
+                  1.0
+                ],
+                "time": 0.12638287246227264
+              },
+              {
+                "distance_m": 1.0003342140407767e-05,
+                "iteration": 8,
+                "segment_parameters": [
+                  0.9999415874481201,
+                  1.0
+                ],
+                "time": 0.13247577846050262
+              },
+              {
+                "distance_m": 1.0002993803936988e-05,
+                "iteration": 9,
+                "segment_parameters": [
+                  0.9999415874481201,
+                  1.0
+                ],
+                "time": 0.13771820068359375
+              },
+              {
+                "distance_m": 1.0002644557971507e-05,
+                "iteration": 10,
+                "segment_parameters": [
+                  0.9999414682388306,
+                  1.0
+                ],
+                "time": 0.14168822765350342
+              },
+              {
+                "distance_m": 1.0002644557971507e-05,
+                "iteration": 11,
+                "segment_parameters": [
+                  0.9999415874481201,
+                  1.0
+                ],
+                "time": 0.1443825215101242
+              },
+              {
+                "distance_m": 1.0002411727327853e-05,
+                "iteration": 12,
+                "segment_parameters": [
+                  0.9999417066574097,
+                  1.0
+                ],
+                "time": 0.147076815366745
+              },
+              {
+                "distance_m": 1.0002294402511325e-05,
+                "iteration": 13,
+                "segment_parameters": [
+                  0.9999417066574097,
+                  1.0
+                ],
+                "time": 0.14892062544822693
+              },
+              {
+                "distance_m": 1.00021788966842e-05,
+                "iteration": 14,
+                "segment_parameters": [
+                  0.9999417066574097,
+                  1.0
+                ],
+                "time": 0.1503358781337738
+              },
+              {
+                "distance_m": 1.00021788966842e-05,
+                "iteration": 15,
+                "segment_parameters": [
+                  0.9999415874481201,
+                  1.0
+                ],
+                "time": 0.15132921934127808
+              },
+              {
+                "distance_m": 1.00021788966842e-05,
+                "iteration": 16,
+                "segment_parameters": [
+                  0.9999417066574097,
+                  1.0
+                ],
+                "time": 0.15232256054878235
+              },
+              {
+                "distance_m": 1.0002062481362373e-05,
+                "iteration": 17,
+                "segment_parameters": [
+                  0.9999417066574097,
+                  1.0
+                ],
+                "time": 0.15331590175628662
+              },
+              {
+                "distance_m": 1.0002062481362373e-05,
+                "iteration": 18,
+                "segment_parameters": [
+                  0.9999415874481201,
+                  1.0
+                ],
+                "time": 0.15388399362564087
+              },
+              {
+                "distance_m": 1.0001946066040546e-05,
+                "iteration": 19,
+                "segment_parameters": [
+                  0.9999415874481201,
+                  1.0
+                ],
+                "time": 0.15445208549499512
+              },
+              {
+                "distance_m": 1.0002062481362373e-05,
+                "iteration": 20,
+                "segment_parameters": [
+                  0.9999415874481201,
+                  1.0
+                ],
+                "time": 0.15459494292736053
+              },
+              {
+                "distance_m": 1.0002062481362373e-05,
+                "iteration": 21,
+                "segment_parameters": [
+                  0.9999415874481201,
+                  1.0
+                ],
+                "time": 0.15516303479671478
+              },
+              {
+                "distance_m": 1.0001946066040546e-05,
+                "iteration": 22,
+                "segment_parameters": [
+                  0.9999415874481201,
+                  1.0
+                ],
+                "time": 0.15573112666606903
+              },
+              {
+                "distance_m": 1.0001946066040546e-05,
+                "iteration": 23,
+                "segment_parameters": [
+                  0.9999415874481201,
+                  1.0
+                ],
+                "time": 0.15587398409843445
+              },
+              {
+                "distance_m": 1.0001829650718719e-05,
+                "iteration": 24,
+                "segment_parameters": [
+                  0.9999415874481201,
+                  1.0
+                ],
+                "time": 0.15601684153079987
+              }
+            ]
+          }
+        }
+      },
+      "synthetic_true_hit_controls_are_non_native": true,
+      "thickness_m": 9.999999747378752e-06,
+      "trial": 20,
+      "vertex_triangle_source_order": {
+        "difference_form_fp32": [
+          {
+            "certified": true,
+            "direction": 0,
+            "effective_thickness_m": 1.000190695776837e-05,
+            "hit": true,
+            "iterations": 1,
+            "reason": "thickness_hit",
+            "time": 0.0,
+            "trace": [
+              {
+                "distance_m": 9.892784873954952e-06,
+                "iteration": 0,
+                "region": "bc",
+                "time": 0.0
+              }
+            ],
+            "vertex_index": 0
+          },
+          {
+            "certified": true,
+            "direction": 0,
+            "effective_thickness_m": 1.000190695776837e-05,
+            "hit": false,
+            "iterations": 13,
+            "reason": "conservative_step_passes_endpoint",
+            "time": 1.0084025859832764,
+            "trace": [
+              {
+                "distance_m": 1.006150614557555e-05,
+                "iteration": 0,
+                "region": "b",
+                "time": 0.0
+              },
+              {
+                "distance_m": 1.004697878670413e-05,
+                "iteration": 1,
+                "region": "b",
+                "time": 0.2520785331726074
+              },
+              {
+                "distance_m": 1.0036053026851732e-05,
+                "iteration": 2,
+                "region": "b",
+                "time": 0.4427126944065094
+              },
+              {
+                "distance_m": 1.002768476610072e-05,
+                "iteration": 3,
+                "region": "b",
+                "time": 0.5871356725692749
+              },
+              {
+                "distance_m": 1.0021410162153188e-05,
+                "iteration": 4,
+                "region": "b",
+                "time": 0.6961645483970642
+              },
+              {
+                "distance_m": 1.0016759006248321e-05,
+                "iteration": 5,
+                "region": "b",
+                "time": 0.7786545753479004
+              },
+              {
+                "distance_m": 1.0013038263423368e-05,
+                "iteration": 6,
+                "region": "b",
+                "time": 0.8414722681045532
+              },
+              {
+                "distance_m": 1.0010367986978963e-05,
+                "iteration": 7,
+                "region": "b",
+                "time": 0.8885528445243835
+              },
+              {
+                "distance_m": 1.0008277058659587e-05,
+                "iteration": 8,
+                "region": "b",
+                "time": 0.9243392944335938
+              },
+              {
+                "distance_m": 1.0006880984292366e-05,
+                "iteration": 9,
+                "region": "b",
+                "time": 0.9512820243835449
+              },
+              {
+                "distance_m": 1.0005604053731076e-05,
+                "iteration": 10,
+                "region": "b",
+                "time": 0.9723199605941772
+              },
+              {
+                "distance_m": 1.0004672731156461e-05,
+                "iteration": 11,
+                "region": "b",
+                "time": 0.9879570603370667
+              },
+              {
+                "distance_m": 1.0003975148720201e-05,
+                "iteration": 12,
+                "region": "b",
+                "time": 0.9996550679206848
+              }
+            ],
+            "vertex_index": 1
+          },
+          {
+            "certified": true,
+            "direction": 0,
+            "effective_thickness_m": 1.000190695776837e-05,
+            "hit": false,
+            "iterations": 1,
+            "reason": "fixed_axis_separation",
+            "time": 0.0,
+            "trace": [
+              {
+                "distance_m": 0.002000099513679743,
+                "iteration": 0,
+                "region": "b",
+                "time": 0.0
+              }
+            ],
+            "vertex_index": 2
+          },
+          {
+            "certified": true,
+            "direction": 1,
+            "effective_thickness_m": 1.000190695776837e-05,
+            "hit": false,
+            "iterations": 1,
+            "reason": "fixed_axis_separation",
+            "time": 0.0,
+            "trace": [
+              {
+                "distance_m": 0.002000098116695881,
+                "iteration": 0,
+                "region": "a",
+                "time": 0.0
+              }
+            ],
+            "vertex_index": 0
+          },
+          {
+            "certified": true,
+            "direction": 1,
+            "effective_thickness_m": 1.000190695776837e-05,
+            "hit": false,
+            "iterations": 15,
+            "reason": "conservative_step_passes_endpoint",
+            "time": 1.0015857219696045,
+            "trace": [
+              {
+                "distance_m": 1.0060846761916764e-05,
+                "iteration": 0,
+                "region": "ab",
+                "time": 0.0
+              },
+              {
+                "distance_m": 1.0047581781691406e-05,
+                "iteration": 1,
+                "region": "ab",
+                "time": 0.23111677169799805
+              },
+              {
+                "distance_m": 1.003722627501702e-05,
+                "iteration": 2,
+                "region": "ab",
+                "time": 0.4102184474468231
+              },
+              {
+                "distance_m": 1.0029197255789768e-05,
+                "iteration": 3,
+                "region": "ab",
+                "time": 0.548713743686676
+              },
+              {
+                "distance_m": 1.0023030881711747e-05,
+                "iteration": 4,
+                "region": "ab",
+                "time": 0.6557254195213318
+              },
+              {
+                "distance_m": 1.0018260582000948e-05,
+                "iteration": 5,
+                "region": "ab",
+                "time": 0.7385572791099548
+              },
+              {
+                "distance_m": 1.001453711069189e-05,
+                "iteration": 6,
+                "region": "ab",
+                "time": 0.8026836514472961
+              },
+              {
+                "distance_m": 1.0011744961957447e-05,
+                "iteration": 7,
+                "region": "ab",
+                "time": 0.8522094488143921
+              },
+              {
+                "distance_m": 1.0009533980337437e-05,
+                "iteration": 8,
+                "region": "ab",
+                "time": 0.8907865881919861
+              },
+              {
+                "distance_m": 1.0007905075326562e-05,
+                "iteration": 9,
+                "region": "ab",
+                "time": 0.9206939339637756
+              },
+              {
+                "distance_m": 1.000650900095934e-05,
+                "iteration": 10,
+                "region": "ab",
+                "time": 0.9442139863967896
+              },
+              {
+                "distance_m": 1.0005461263062898e-05,
+                "iteration": 11,
+                "region": "ab",
+                "time": 0.9622596502304077
+              },
+              {
+                "distance_m": 1.0004647265304811e-05,
+                "iteration": 12,
+                "region": "ab",
+                "time": 0.9761968851089478
+              },
+              {
+                "distance_m": 1.000394877337385e-05,
+                "iteration": 13,
+                "region": "ab",
+                "time": 0.9869422912597656
+              },
+              {
+                "distance_m": 1.0003599527408369e-05,
+                "iteration": 14,
+                "region": "ab",
+                "time": 0.9949487447738647
+              }
+            ],
+            "vertex_index": 1
+          },
+          {
+            "certified": true,
+            "direction": 1,
+            "effective_thickness_m": 1.000190695776837e-05,
+            "hit": true,
+            "iterations": 1,
+            "reason": "thickness_hit",
+            "time": 0.0,
+            "trace": [
+              {
+                "distance_m": 9.89344061963493e-06,
+                "iteration": 0,
+                "region": "a",
+                "time": 0.0
+              }
+            ],
+            "vertex_index": 2
+          }
+        ],
+        "weighted_form_fp32": [
+          {
+            "certified": true,
+            "direction": 0,
+            "effective_thickness_m": 1.000190695776837e-05,
+            "hit": true,
+            "iterations": 1,
+            "reason": "thickness_hit",
+            "time": 0.0,
+            "trace": [
+              {
+                "distance_m": 9.892784873954952e-06,
+                "iteration": 0,
+                "region": "bc",
+                "time": 0.0
+              }
+            ],
+            "vertex_index": 0
+          },
+          {
+            "certified": true,
+            "direction": 0,
+            "effective_thickness_m": 1.000190695776837e-05,
+            "hit": false,
+            "iterations": 13,
+            "reason": "conservative_step_passes_endpoint",
+            "time": 1.008821964263916,
+            "trace": [
+              {
+                "distance_m": 1.006150614557555e-05,
+                "iteration": 0,
+                "region": "b",
+                "time": 0.0
+              },
+              {
+                "distance_m": 1.0046976058220025e-05,
+                "iteration": 1,
+                "region": "b",
+                "time": 0.2520785331726074
+              },
+              {
+                "distance_m": 1.0036053026851732e-05,
+                "iteration": 2,
+                "region": "b",
+                "time": 0.44270116090774536
+              },
+              {
+                "distance_m": 1.002768476610072e-05,
+                "iteration": 3,
+                "region": "b",
+                "time": 0.5871241092681885
+              },
+              {
+                "distance_m": 1.0021407433669083e-05,
+                "iteration": 4,
+                "region": "b",
+                "time": 0.6961529850959778
+              },
+              {
+                "distance_m": 1.0016759006248321e-05,
+                "iteration": 5,
+                "region": "b",
+                "time": 0.7786315083503723
+              },
+              {
+                "distance_m": 1.0013038263423368e-05,
+                "iteration": 6,
+                "region": "b",
+                "time": 0.8414492011070251
+              },
+              {
+                "distance_m": 1.0010365258494858e-05,
+                "iteration": 7,
+                "region": "b",
+                "time": 0.8885297775268555
+              },
+              {
+                "distance_m": 1.0008387107518502e-05,
+                "iteration": 8,
+                "region": "b",
+                "time": 0.924304723739624
+              },
+              {
+                "distance_m": 1.0006764568970539e-05,
+                "iteration": 9,
+                "region": "b",
+                "time": 0.9517129063606262
+              },
+              {
+                "distance_m": 1.0005604053731076e-05,
+                "iteration": 10,
+                "region": "b",
+                "time": 0.9722585082054138
+              },
+              {
+                "distance_m": 1.0004670002672356e-05,
+                "iteration": 11,
+                "region": "b",
+                "time": 0.9878956079483032
+              },
+              {
+                "distance_m": 1.0004091564042028e-05,
+                "iteration": 12,
+                "region": "b",
+                "time": 0.999582052230835
+              }
+            ],
+            "vertex_index": 1
+          },
+          {
+            "certified": true,
+            "direction": 0,
+            "effective_thickness_m": 1.000190695776837e-05,
+            "hit": false,
+            "iterations": 1,
+            "reason": "fixed_axis_separation",
+            "time": 0.0,
+            "trace": [
+              {
+                "distance_m": 0.002000099513679743,
+                "iteration": 0,
+                "region": "b",
+                "time": 0.0
+              }
+            ],
+            "vertex_index": 2
+          },
+          {
+            "certified": true,
+            "direction": 1,
+            "effective_thickness_m": 1.000190695776837e-05,
+            "hit": false,
+            "iterations": 1,
+            "reason": "fixed_axis_separation",
+            "time": 0.0,
+            "trace": [
+              {
+                "distance_m": 0.002000098116695881,
+                "iteration": 0,
+                "region": "a",
+                "time": 0.0
+              }
+            ],
+            "vertex_index": 0
+          },
+          {
+            "certified": true,
+            "direction": 1,
+            "effective_thickness_m": 1.000190695776837e-05,
+            "hit": false,
+            "iterations": 15,
+            "reason": "conservative_step_passes_endpoint",
+            "time": 1.0011292695999146,
+            "trace": [
+              {
+                "distance_m": 1.0060846761916764e-05,
+                "iteration": 0,
+                "region": "ab",
+                "time": 0.0
+              },
+              {
+                "distance_m": 1.0047581781691406e-05,
+                "iteration": 1,
+                "region": "ab",
+                "time": 0.23111677169799805
+              },
+              {
+                "distance_m": 1.003722627501702e-05,
+                "iteration": 2,
+                "region": "ab",
+                "time": 0.4102184474468231
+              },
+              {
+                "distance_m": 1.0029197255789768e-05,
+                "iteration": 3,
+                "region": "ab",
+                "time": 0.548713743686676
+              },
+              {
+                "distance_m": 1.0023147297033574e-05,
+                "iteration": 4,
+                "region": "ab",
+                "time": 0.6557254195213318
+              },
+              {
+                "distance_m": 1.0018260582000948e-05,
+                "iteration": 5,
+                "region": "ab",
+                "time": 0.7390137910842896
+              },
+              {
+                "distance_m": 1.0014653526013717e-05,
+                "iteration": 6,
+                "region": "ab",
+                "time": 0.8031401634216309
+              },
+              {
+                "distance_m": 1.0011744961957447e-05,
+                "iteration": 7,
+                "region": "ab",
+                "time": 0.8531224727630615
+              },
+              {
+                "distance_m": 1.000941756501561e-05,
+                "iteration": 8,
+                "region": "ab",
+                "time": 0.8916996121406555
+              },
+              {
+                "distance_m": 1.0007788660004735e-05,
+                "iteration": 9,
+                "region": "ab",
+                "time": 0.9211504459381104
+              },
+              {
+                "distance_m": 1.000650900095934e-05,
+                "iteration": 10,
+                "region": "ab",
+                "time": 0.9442139863967896
+              },
+              {
+                "distance_m": 1.0005461263062898e-05,
+                "iteration": 11,
+                "region": "ab",
+                "time": 0.9622596502304077
+              },
+              {
+                "distance_m": 1.0004647265304811e-05,
+                "iteration": 12,
+                "region": "ab",
+                "time": 0.9761968851089478
+              },
+              {
+                "distance_m": 1.000394877337385e-05,
+                "iteration": 13,
+                "region": "ab",
+                "time": 0.9869422912597656
+              },
+              {
+                "distance_m": 1.0003483112086542e-05,
+                "iteration": 14,
+                "region": "ab",
+                "time": 0.9949487447738647
+              }
+            ],
+            "vertex_index": 1
+          },
+          {
+            "certified": true,
+            "direction": 1,
+            "effective_thickness_m": 1.000190695776837e-05,
+            "hit": true,
+            "iterations": 1,
+            "reason": "thickness_hit",
+            "time": 0.0,
+            "trace": [
+              {
+                "distance_m": 9.89344061963493e-06,
+                "iteration": 0,
+                "region": "a",
+                "time": 0.0
+              }
+            ],
+            "vertex_index": 2
+          }
+        ]
+      }
+    },
+    {
+      "all_finish_f32": [
+        [
+          1.1329222893152746e-08,
+          1.3740454107846745e-08,
+          0.0010006781667470932
+        ],
+        [
+          0.002000013366341591,
+          1.3633881579266927e-08,
+          0.0010005019139498472
+        ],
+        [
+          0.0020000135991722345,
+          0.002000019885599613,
+          0.001000162330456078
+        ],
+        [
+          -1.0160565722117099e-07,
+          -0.002000064356252551,
+          0.00101039360743016
+        ],
+        [
+          0.001999892992898822,
+          -5.906071720573891e-08,
+          0.0010105049004778266
+        ],
+        [
+          -1.071203499236617e-07,
+          -6.41981827698146e-08,
+          0.0010104929096996784
+        ]
+      ],
+      "all_node_ids": [
+        13,
+        14,
+        17,
+        28,
+        32,
+        31
+      ],
+      "all_start_f32": [
+        [
+          7.754315412000778e-09,
+          1.0862976296266424e-08,
+          0.0010005031945183873
+        ],
+        [
+          0.002000009175390005,
+          1.0602716038476956e-08,
+          0.0010003643110394478
+        ],
+        [
+          0.0020000094082206488,
+          0.0020000149961560965,
+          0.001000116695649922
+        ],
+        [
+          -1.0073042489011641e-07,
+          -0.002000063192099333,
+          0.0010102948872372508
+        ],
+        [
+          0.0019998939242213964,
+          -5.803402203241603e-08,
+          0.0010104249231517315
+        ],
+        [
+          -1.0616124512807801e-07,
+          -6.311961442406755e-08,
+          0.001010395702905953
+        ]
+      ],
+      "base_dt_seconds": 9.999999747378752e-05,
+      "candidate": [
+        88,
+        127,
+        331,
+        1
+      ],
+      "dispatch_buffer_sha256": "3b61936c220ceb15a44603e43548ecce336af465bf8b49c138657265c6dd8a17",
+      "edge_node_ids": [
+        [
+          13,
+          14
+        ],
+        [
+          28,
+          32
+        ]
+      ],
+      "finish_a": [
+        [
+          1.1329222893152746e-08,
+          1.3740454107846745e-08,
+          0.0010006781667470932
+        ],
+        [
+          0.002000013366341591,
+          1.3633881579266927e-08,
+          0.0010005019139498472
+        ]
+      ],
+      "finish_a_f32_bits_u32": [
+        [
+          843227763,
+          845942568,
+          981674288
+        ],
+        [
+          990057128,
+          845822578,
+          981672774
+        ]
+      ],
+      "finish_b": [
+        [
+          -1.0160565722117099e-07,
+          -0.002000064356252551,
+          0.00101039360743016
+        ],
+        [
+          0.001999892992898822,
+          -5.906071720573891e-08,
+          0.0010105049004778266
+        ]
+      ],
+      "finish_b_f32_bits_u32": [
+        [
+          3017421389,
+          3137540995,
+          981757743
+        ],
+        [
+          990056611,
+          3011357170,
+          981758699
+        ]
+      ],
+      "fp64_geometry_sweep": {
+        "end_distance_m": 1.0003240024256549e-05,
+        "method": "10001-point double-precision sweep of captured FP32 start/finish endpoint words; descriptive only, not a proof",
+        "minimum": {
+          "distance_m": 1.0003240024256549e-05,
+          "segment_parameters": [
+            0.9999393725796357,
+            1.0
+          ],
+          "time": 1.0
+        },
+        "source_effective_thickness_m": 1.000190695776837e-05,
+        "start_distance_m": 1.0060838213329835e-05
+      },
+      "iteration": 12,
+      "native_case": 334,
+      "native_case_directory": "/Users/home/cardboard-implementation-20261014/native/center-action-feasibility-bracket-334",
+      "object_dt_seconds": 9.999999747378752e-05,
+      "payload_sha256": "bb645f01802e2d0cfcec1a15ec0769ff988e8f06b1ce4a58610bc82c8c7f6e38",
+      "primitive_nodes": [
+        [
+          13,
+          14,
+          17
+        ],
+        [
+          28,
+          32,
+          31
+        ]
+      ],
+      "replays": {
+        "difference_form_fp32": {
+          "16": {
+            "certified": false,
+            "effective_thickness_m": 1.000190695776837e-05,
+            "hit": false,
+            "iterations": 16,
+            "reason": "iteration_budget_exhausted",
+            "speed_bound_m": 2.737633337801526e-07,
+            "time": 0.9999701976776123,
+            "trace": [
+              {
+                "distance_m": 1.0060845852422062e-05,
+                "iteration": 0,
+                "segment_parameters": [
+                  0.9999420046806335,
+                  1.0
+                ],
+                "time": 0.0
+              },
+              {
+                "distance_m": 1.004851219477132e-05,
+                "iteration": 1,
+                "segment_parameters": [
+                  0.9999414682388306,
+                  1.0
+                ],
+                "time": 0.21529141068458557
+              },
+              {
+                "distance_m": 1.003862234938424e-05,
+                "iteration": 2,
+                "segment_parameters": [
+                  0.9999408721923828,
+                  1.0
+                ],
+                "time": 0.385530561208725
+              },
+              {
+                "distance_m": 1.0030943485617172e-05,
+                "iteration": 3,
+                "segment_parameters": [
+                  0.9999406337738037,
+                  1.0
+                ],
+                "time": 0.5196442008018494
+              },
+              {
+                "distance_m": 1.002477620204445e-05,
+                "iteration": 4,
+                "segment_parameters": [
+                  0.9999403357505798,
+                  1.0
+                ],
+                "time": 0.6257085204124451
+              },
+              {
+                "distance_m": 1.0020004992838949e-05,
+                "iteration": 5,
+                "segment_parameters": [
+                  0.9999399781227112,
+                  1.0
+                ],
+                "time": 0.7092450857162476
+              },
+              {
+                "distance_m": 1.0016282431024592e-05,
+                "iteration": 6,
+                "segment_parameters": [
+                  0.9999399781227112,
+                  1.0
+                ],
+                "time": 0.7753534317016602
+              },
+              {
+                "distance_m": 1.0013141036324669e-05,
+                "iteration": 7,
+                "segment_parameters": [
+                  0.9999398589134216,
+                  1.0
+                ],
+                "time": 0.8278639912605286
+              },
+              {
+                "distance_m": 1.0010813639382832e-05,
+                "iteration": 8,
+                "segment_parameters": [
+                  0.9999397397041321,
+                  1.0
+                ],
+                "time": 0.8688997030258179
+              },
+              {
+                "distance_m": 1.00089509942336e-05,
+                "iteration": 9,
+                "segment_parameters": [
+                  0.999939501285553,
+                  1.0
+                ],
+                "time": 0.9014339447021484
+              },
+              {
+                "distance_m": 1.0007438504544552e-05,
+                "iteration": 10,
+                "segment_parameters": [
+                  0.999939501285553,
+                  1.0
+                ],
+                "time": 0.9271643161773682
+              },
+              {
+                "distance_m": 1.0006275260820985e-05,
+                "iteration": 11,
+                "segment_parameters": [
+                  0.9999393820762634,
+                  1.0
+                ],
+                "time": 0.9473698735237122
+              },
+              {
+                "distance_m": 1.0005345757235773e-05,
+                "iteration": 12,
+                "segment_parameters": [
+                  0.999939501285553,
+                  1.0
+                ],
+                "time": 0.9633263945579529
+              },
+              {
+                "distance_m": 1.0004647265304811e-05,
+                "iteration": 13,
+                "segment_parameters": [
+                  0.9999393820762634,
+                  1.0
+                ],
+                "time": 0.9758875966072083
+              },
+              {
+                "distance_m": 1.0004066098190378e-05,
+                "iteration": 14,
+                "segment_parameters": [
+                  0.9999392628669739,
+                  1.0
+                ],
+                "time": 0.9858973622322083
+              },
+              {
+                "distance_m": 1.000360043690307e-05,
+                "iteration": 15,
+                "segment_parameters": [
+                  0.9999393820762634,
+                  1.0
+                ],
+                "time": 0.9937842488288879
+              }
+            ]
+          },
+          "17": {
+            "certified": true,
+            "effective_thickness_m": 1.000190695776837e-05,
+            "hit": false,
+            "iterations": 17,
+            "reason": "conservative_step_passes_endpoint",
+            "speed_bound_m": 2.737633337801526e-07,
+            "time": 1.004880428314209,
+            "trace": [
+              {
+                "distance_m": 1.0060845852422062e-05,
+                "iteration": 0,
+                "segment_parameters": [
+                  0.9999420046806335,
+                  1.0
+                ],
+                "time": 0.0
+              },
+              {
+                "distance_m": 1.004851219477132e-05,
+                "iteration": 1,
+                "segment_parameters": [
+                  0.9999414682388306,
+                  1.0
+                ],
+                "time": 0.21529141068458557
+              },
+              {
+                "distance_m": 1.003862234938424e-05,
+                "iteration": 2,
+                "segment_parameters": [
+                  0.9999408721923828,
+                  1.0
+                ],
+                "time": 0.385530561208725
+              },
+              {
+                "distance_m": 1.0030943485617172e-05,
+                "iteration": 3,
+                "segment_parameters": [
+                  0.9999406337738037,
+                  1.0
+                ],
+                "time": 0.5196442008018494
+              },
+              {
+                "distance_m": 1.002477620204445e-05,
+                "iteration": 4,
+                "segment_parameters": [
+                  0.9999403357505798,
+                  1.0
+                ],
+                "time": 0.6257085204124451
+              },
+              {
+                "distance_m": 1.0020004992838949e-05,
+                "iteration": 5,
+                "segment_parameters": [
+                  0.9999399781227112,
+                  1.0
+                ],
+                "time": 0.7092450857162476
+              },
+              {
+                "distance_m": 1.0016282431024592e-05,
+                "iteration": 6,
+                "segment_parameters": [
+                  0.9999399781227112,
+                  1.0
+                ],
+                "time": 0.7753534317016602
+              },
+              {
+                "distance_m": 1.0013141036324669e-05,
+                "iteration": 7,
+                "segment_parameters": [
+                  0.9999398589134216,
+                  1.0
+                ],
+                "time": 0.8278639912605286
+              },
+              {
+                "distance_m": 1.0010813639382832e-05,
+                "iteration": 8,
+                "segment_parameters": [
+                  0.9999397397041321,
+                  1.0
+                ],
+                "time": 0.8688997030258179
+              },
+              {
+                "distance_m": 1.00089509942336e-05,
+                "iteration": 9,
+                "segment_parameters": [
+                  0.999939501285553,
+                  1.0
+                ],
+                "time": 0.9014339447021484
+              },
+              {
+                "distance_m": 1.0007438504544552e-05,
+                "iteration": 10,
+                "segment_parameters": [
+                  0.999939501285553,
+                  1.0
+                ],
+                "time": 0.9271643161773682
+              },
+              {
+                "distance_m": 1.0006275260820985e-05,
+                "iteration": 11,
+                "segment_parameters": [
+                  0.9999393820762634,
+                  1.0
+                ],
+                "time": 0.9473698735237122
+              },
+              {
+                "distance_m": 1.0005345757235773e-05,
+                "iteration": 12,
+                "segment_parameters": [
+                  0.999939501285553,
+                  1.0
+                ],
+                "time": 0.9633263945579529
+              },
+              {
+                "distance_m": 1.0004647265304811e-05,
+                "iteration": 13,
+                "segment_parameters": [
+                  0.9999393820762634,
+                  1.0
+                ],
+                "time": 0.9758875966072083
+              },
+              {
+                "distance_m": 1.0004066098190378e-05,
+                "iteration": 14,
+                "segment_parameters": [
+                  0.9999392628669739,
+                  1.0
+                ],
+                "time": 0.9858973622322083
+              },
+              {
+                "distance_m": 1.000360043690307e-05,
+                "iteration": 15,
+                "segment_parameters": [
+                  0.9999393820762634,
+                  1.0
+                ],
+                "time": 0.9937842488288879
+              },
+              {
+                "distance_m": 1.000325119093759e-05,
+                "iteration": 16,
+                "segment_parameters": [
+                  0.9999393820762634,
+                  1.0
+                ],
+                "time": 0.9999701976776123
+              }
+            ]
+          },
+          "32": {
+            "certified": true,
+            "effective_thickness_m": 1.000190695776837e-05,
+            "hit": false,
+            "iterations": 17,
+            "reason": "conservative_step_passes_endpoint",
+            "speed_bound_m": 2.737633337801526e-07,
+            "time": 1.004880428314209,
+            "trace": [
+              {
+                "distance_m": 1.0060845852422062e-05,
+                "iteration": 0,
+                "segment_parameters": [
+                  0.9999420046806335,
+                  1.0
+                ],
+                "time": 0.0
+              },
+              {
+                "distance_m": 1.004851219477132e-05,
+                "iteration": 1,
+                "segment_parameters": [
+                  0.9999414682388306,
+                  1.0
+                ],
+                "time": 0.21529141068458557
+              },
+              {
+                "distance_m": 1.003862234938424e-05,
+                "iteration": 2,
+                "segment_parameters": [
+                  0.9999408721923828,
+                  1.0
+                ],
+                "time": 0.385530561208725
+              },
+              {
+                "distance_m": 1.0030943485617172e-05,
+                "iteration": 3,
+                "segment_parameters": [
+                  0.9999406337738037,
+                  1.0
+                ],
+                "time": 0.5196442008018494
+              },
+              {
+                "distance_m": 1.002477620204445e-05,
+                "iteration": 4,
+                "segment_parameters": [
+                  0.9999403357505798,
+                  1.0
+                ],
+                "time": 0.6257085204124451
+              },
+              {
+                "distance_m": 1.0020004992838949e-05,
+                "iteration": 5,
+                "segment_parameters": [
+                  0.9999399781227112,
+                  1.0
+                ],
+                "time": 0.7092450857162476
+              },
+              {
+                "distance_m": 1.0016282431024592e-05,
+                "iteration": 6,
+                "segment_parameters": [
+                  0.9999399781227112,
+                  1.0
+                ],
+                "time": 0.7753534317016602
+              },
+              {
+                "distance_m": 1.0013141036324669e-05,
+                "iteration": 7,
+                "segment_parameters": [
+                  0.9999398589134216,
+                  1.0
+                ],
+                "time": 0.8278639912605286
+              },
+              {
+                "distance_m": 1.0010813639382832e-05,
+                "iteration": 8,
+                "segment_parameters": [
+                  0.9999397397041321,
+                  1.0
+                ],
+                "time": 0.8688997030258179
+              },
+              {
+                "distance_m": 1.00089509942336e-05,
+                "iteration": 9,
+                "segment_parameters": [
+                  0.999939501285553,
+                  1.0
+                ],
+                "time": 0.9014339447021484
+              },
+              {
+                "distance_m": 1.0007438504544552e-05,
+                "iteration": 10,
+                "segment_parameters": [
+                  0.999939501285553,
+                  1.0
+                ],
+                "time": 0.9271643161773682
+              },
+              {
+                "distance_m": 1.0006275260820985e-05,
+                "iteration": 11,
+                "segment_parameters": [
+                  0.9999393820762634,
+                  1.0
+                ],
+                "time": 0.9473698735237122
+              },
+              {
+                "distance_m": 1.0005345757235773e-05,
+                "iteration": 12,
+                "segment_parameters": [
+                  0.999939501285553,
+                  1.0
+                ],
+                "time": 0.9633263945579529
+              },
+              {
+                "distance_m": 1.0004647265304811e-05,
+                "iteration": 13,
+                "segment_parameters": [
+                  0.9999393820762634,
+                  1.0
+                ],
+                "time": 0.9758875966072083
+              },
+              {
+                "distance_m": 1.0004066098190378e-05,
+                "iteration": 14,
+                "segment_parameters": [
+                  0.9999392628669739,
+                  1.0
+                ],
+                "time": 0.9858973622322083
+              },
+              {
+                "distance_m": 1.000360043690307e-05,
+                "iteration": 15,
+                "segment_parameters": [
+                  0.9999393820762634,
+                  1.0
+                ],
+                "time": 0.9937842488288879
+              },
+              {
+                "distance_m": 1.000325119093759e-05,
+                "iteration": 16,
+                "segment_parameters": [
+                  0.9999393820762634,
+                  1.0
+                ],
+                "time": 0.9999701976776123
+              }
+            ]
+          }
+        },
+        "weighted_form_fp32": {
+          "16": {
+            "certified": true,
+            "effective_thickness_m": 1.000190695776837e-05,
+            "hit": false,
+            "iterations": 16,
+            "reason": "conservative_step_passes_endpoint",
+            "speed_bound_m": 2.737633337801526e-07,
+            "time": 1.0003987550735474,
+            "trace": [
+              {
+                "distance_m": 1.0060845852422062e-05,
+                "iteration": 0,
+                "segment_parameters": [
+                  0.9999420046806335,
+                  1.0
+                ],
+                "time": 0.0
+              },
+              {
+                "distance_m": 1.0048395779449493e-05,
+                "iteration": 1,
+                "segment_parameters": [
+                  0.9999414682388306,
+                  1.0
+                ],
+                "time": 0.21529141068458557
+              },
+              {
+                "distance_m": 1.003862234938424e-05,
+                "iteration": 2,
+                "segment_parameters": [
+                  0.9999409914016724,
+                  1.0
+                ],
+                "time": 0.38510531187057495
+              },
+              {
+                "distance_m": 1.0030943485617172e-05,
+                "iteration": 3,
+                "segment_parameters": [
+                  0.9999405145645142,
+                  1.0
+                ],
+                "time": 0.519218921661377
+              },
+              {
+                "distance_m": 1.0024892617366277e-05,
+                "iteration": 4,
+                "segment_parameters": [
+                  0.9999404549598694,
+                  1.0
+                ],
+                "time": 0.6252832412719727
+              },
+              {
+                "distance_m": 1.0020004992838949e-05,
+                "iteration": 5,
+                "segment_parameters": [
+                  0.9999399781227112,
+                  1.0
+                ],
+                "time": 0.7092450261116028
+              },
+              {
+                "distance_m": 1.0016282431024592e-05,
+                "iteration": 6,
+                "segment_parameters": [
+                  0.9999399781227112,
+                  1.0
+                ],
+                "time": 0.7753533720970154
+              },
+              {
+                "distance_m": 1.0013141036324669e-05,
+                "iteration": 7,
+                "segment_parameters": [
+                  0.9999398589134216,
+                  1.0
+                ],
+                "time": 0.8278639316558838
+              },
+              {
+                "distance_m": 1.0010813639382832e-05,
+                "iteration": 8,
+                "segment_parameters": [
+                  0.9999397397041321,
+                  1.0
+                ],
+                "time": 0.8688996434211731
+              },
+              {
+                "distance_m": 1.000906831905013e-05,
+                "iteration": 9,
+                "segment_parameters": [
+                  0.9999396204948425,
+                  1.0
+                ],
+                "time": 0.9014338850975037
+              },
+              {
+                "distance_m": 1.0007322089222725e-05,
+                "iteration": 10,
+                "segment_parameters": [
+                  0.9999396204948425,
+                  1.0
+                ],
+                "time": 0.9275928139686584
+              },
+              {
+                "distance_m": 1.0006275260820985e-05,
+                "iteration": 11,
+                "segment_parameters": [
+                  0.9999393820762634,
+                  1.0
+                ],
+                "time": 0.9473731517791748
+              },
+              {
+                "distance_m": 1.00054621725576e-05,
+                "iteration": 12,
+                "segment_parameters": [
+                  0.999939501285553,
+                  1.0
+                ],
+                "time": 0.9633296728134155
+              },
+              {
+                "distance_m": 1.0004647265304811e-05,
+                "iteration": 13,
+                "segment_parameters": [
+                  0.9999393820762634,
+                  1.0
+                ],
+                "time": 0.9763161540031433
+              },
+              {
+                "distance_m": 1.0004066098190378e-05,
+                "iteration": 14,
+                "segment_parameters": [
+                  0.9999392628669739,
+                  1.0
+                ],
+                "time": 0.9863259196281433
+              },
+              {
+                "distance_m": 1.000360043690307e-05,
+                "iteration": 15,
+                "segment_parameters": [
+                  0.9999393820762634,
+                  1.0
+                ],
+                "time": 0.994212806224823
+              }
+            ]
+          },
+          "17": {
+            "certified": true,
+            "effective_thickness_m": 1.000190695776837e-05,
+            "hit": false,
+            "iterations": 16,
+            "reason": "conservative_step_passes_endpoint",
+            "speed_bound_m": 2.737633337801526e-07,
+            "time": 1.0003987550735474,
+            "trace": [
+              {
+                "distance_m": 1.0060845852422062e-05,
+                "iteration": 0,
+                "segment_parameters": [
+                  0.9999420046806335,
+                  1.0
+                ],
+                "time": 0.0
+              },
+              {
+                "distance_m": 1.0048395779449493e-05,
+                "iteration": 1,
+                "segment_parameters": [
+                  0.9999414682388306,
+                  1.0
+                ],
+                "time": 0.21529141068458557
+              },
+              {
+                "distance_m": 1.003862234938424e-05,
+                "iteration": 2,
+                "segment_parameters": [
+                  0.9999409914016724,
+                  1.0
+                ],
+                "time": 0.38510531187057495
+              },
+              {
+                "distance_m": 1.0030943485617172e-05,
+                "iteration": 3,
+                "segment_parameters": [
+                  0.9999405145645142,
+                  1.0
+                ],
+                "time": 0.519218921661377
+              },
+              {
+                "distance_m": 1.0024892617366277e-05,
+                "iteration": 4,
+                "segment_parameters": [
+                  0.9999404549598694,
+                  1.0
+                ],
+                "time": 0.6252832412719727
+              },
+              {
+                "distance_m": 1.0020004992838949e-05,
+                "iteration": 5,
+                "segment_parameters": [
+                  0.9999399781227112,
+                  1.0
+                ],
+                "time": 0.7092450261116028
+              },
+              {
+                "distance_m": 1.0016282431024592e-05,
+                "iteration": 6,
+                "segment_parameters": [
+                  0.9999399781227112,
+                  1.0
+                ],
+                "time": 0.7753533720970154
+              },
+              {
+                "distance_m": 1.0013141036324669e-05,
+                "iteration": 7,
+                "segment_parameters": [
+                  0.9999398589134216,
+                  1.0
+                ],
+                "time": 0.8278639316558838
+              },
+              {
+                "distance_m": 1.0010813639382832e-05,
+                "iteration": 8,
+                "segment_parameters": [
+                  0.9999397397041321,
+                  1.0
+                ],
+                "time": 0.8688996434211731
+              },
+              {
+                "distance_m": 1.000906831905013e-05,
+                "iteration": 9,
+                "segment_parameters": [
+                  0.9999396204948425,
+                  1.0
+                ],
+                "time": 0.9014338850975037
+              },
+              {
+                "distance_m": 1.0007322089222725e-05,
+                "iteration": 10,
+                "segment_parameters": [
+                  0.9999396204948425,
+                  1.0
+                ],
+                "time": 0.9275928139686584
+              },
+              {
+                "distance_m": 1.0006275260820985e-05,
+                "iteration": 11,
+                "segment_parameters": [
+                  0.9999393820762634,
+                  1.0
+                ],
+                "time": 0.9473731517791748
+              },
+              {
+                "distance_m": 1.00054621725576e-05,
+                "iteration": 12,
+                "segment_parameters": [
+                  0.999939501285553,
+                  1.0
+                ],
+                "time": 0.9633296728134155
+              },
+              {
+                "distance_m": 1.0004647265304811e-05,
+                "iteration": 13,
+                "segment_parameters": [
+                  0.9999393820762634,
+                  1.0
+                ],
+                "time": 0.9763161540031433
+              },
+              {
+                "distance_m": 1.0004066098190378e-05,
+                "iteration": 14,
+                "segment_parameters": [
+                  0.9999392628669739,
+                  1.0
+                ],
+                "time": 0.9863259196281433
+              },
+              {
+                "distance_m": 1.000360043690307e-05,
+                "iteration": 15,
+                "segment_parameters": [
+                  0.9999393820762634,
+                  1.0
+                ],
+                "time": 0.994212806224823
+              }
+            ]
+          },
+          "32": {
+            "certified": true,
+            "effective_thickness_m": 1.000190695776837e-05,
+            "hit": false,
+            "iterations": 16,
+            "reason": "conservative_step_passes_endpoint",
+            "speed_bound_m": 2.737633337801526e-07,
+            "time": 1.0003987550735474,
+            "trace": [
+              {
+                "distance_m": 1.0060845852422062e-05,
+                "iteration": 0,
+                "segment_parameters": [
+                  0.9999420046806335,
+                  1.0
+                ],
+                "time": 0.0
+              },
+              {
+                "distance_m": 1.0048395779449493e-05,
+                "iteration": 1,
+                "segment_parameters": [
+                  0.9999414682388306,
+                  1.0
+                ],
+                "time": 0.21529141068458557
+              },
+              {
+                "distance_m": 1.003862234938424e-05,
+                "iteration": 2,
+                "segment_parameters": [
+                  0.9999409914016724,
+                  1.0
+                ],
+                "time": 0.38510531187057495
+              },
+              {
+                "distance_m": 1.0030943485617172e-05,
+                "iteration": 3,
+                "segment_parameters": [
+                  0.9999405145645142,
+                  1.0
+                ],
+                "time": 0.519218921661377
+              },
+              {
+                "distance_m": 1.0024892617366277e-05,
+                "iteration": 4,
+                "segment_parameters": [
+                  0.9999404549598694,
+                  1.0
+                ],
+                "time": 0.6252832412719727
+              },
+              {
+                "distance_m": 1.0020004992838949e-05,
+                "iteration": 5,
+                "segment_parameters": [
+                  0.9999399781227112,
+                  1.0
+                ],
+                "time": 0.7092450261116028
+              },
+              {
+                "distance_m": 1.0016282431024592e-05,
+                "iteration": 6,
+                "segment_parameters": [
+                  0.9999399781227112,
+                  1.0
+                ],
+                "time": 0.7753533720970154
+              },
+              {
+                "distance_m": 1.0013141036324669e-05,
+                "iteration": 7,
+                "segment_parameters": [
+                  0.9999398589134216,
+                  1.0
+                ],
+                "time": 0.8278639316558838
+              },
+              {
+                "distance_m": 1.0010813639382832e-05,
+                "iteration": 8,
+                "segment_parameters": [
+                  0.9999397397041321,
+                  1.0
+                ],
+                "time": 0.8688996434211731
+              },
+              {
+                "distance_m": 1.000906831905013e-05,
+                "iteration": 9,
+                "segment_parameters": [
+                  0.9999396204948425,
+                  1.0
+                ],
+                "time": 0.9014338850975037
+              },
+              {
+                "distance_m": 1.0007322089222725e-05,
+                "iteration": 10,
+                "segment_parameters": [
+                  0.9999396204948425,
+                  1.0
+                ],
+                "time": 0.9275928139686584
+              },
+              {
+                "distance_m": 1.0006275260820985e-05,
+                "iteration": 11,
+                "segment_parameters": [
+                  0.9999393820762634,
+                  1.0
+                ],
+                "time": 0.9473731517791748
+              },
+              {
+                "distance_m": 1.00054621725576e-05,
+                "iteration": 12,
+                "segment_parameters": [
+                  0.999939501285553,
+                  1.0
+                ],
+                "time": 0.9633296728134155
+              },
+              {
+                "distance_m": 1.0004647265304811e-05,
+                "iteration": 13,
+                "segment_parameters": [
+                  0.9999393820762634,
+                  1.0
+                ],
+                "time": 0.9763161540031433
+              },
+              {
+                "distance_m": 1.0004066098190378e-05,
+                "iteration": 14,
+                "segment_parameters": [
+                  0.9999392628669739,
+                  1.0
+                ],
+                "time": 0.9863259196281433
+              },
+              {
+                "distance_m": 1.000360043690307e-05,
+                "iteration": 15,
+                "segment_parameters": [
+                  0.9999393820762634,
+                  1.0
+                ],
+                "time": 0.994212806224823
+              }
+            ]
+          }
+        }
+      },
+      "root": 1201,
+      "scheduler_exponent": 0,
+      "selected_phase": "both",
+      "start_a": [
+        [
+          7.754315412000778e-09,
+          1.0862976296266424e-08,
+          0.0010005031945183873
+        ],
+        [
+          0.002000009175390005,
+          1.0602716038476956e-08,
+          0.0010003643110394478
+        ]
+      ],
+      "start_a_f32_bits_u32": [
+        [
+          839202775,
+          842702816,
+          981672785
+        ],
+        [
+          990057110,
+          842409789,
+          981671592
+        ]
+      ],
+      "start_b": [
+        [
+          -1.0073042489011641e-07,
+          -0.002000063192099333,
+          0.0010102948872372508
+        ],
+        [
+          0.0019998939242213964,
+          -5.803402203241603e-08,
+          0.0010104249231517315
+        ]
+      ],
+      "start_b_f32_bits_u32": [
+        [
+          3017298211,
+          3137540990,
+          981756895
+        ],
+        [
+          990056615,
+          3011068181,
+          981758012
+        ]
+      ],
+      "synthetic_true_hit_controls": {
+        "initial_hit_shift_60nm_budget17": {
+          "difference_form_fp32": {
+            "certified": true,
+            "effective_thickness_m": 1.000190695776837e-05,
+            "hit": true,
+            "iterations": 1,
+            "reason": "thickness_hit",
+            "speed_bound_m": 2.737633337801526e-07,
+            "time": 0.0,
+            "trace": [
+              {
+                "distance_m": 1.0000893780670594e-05,
+                "iteration": 0,
+                "segment_parameters": [
+                  0.9999420046806335,
+                  1.0
+                ],
+                "time": 0.0
+              }
+            ]
+          },
+          "weighted_form_fp32": {
+            "certified": true,
+            "effective_thickness_m": 1.000190695776837e-05,
+            "hit": true,
+            "iterations": 1,
+            "reason": "thickness_hit",
+            "speed_bound_m": 2.737633337801526e-07,
+            "time": 0.0,
+            "trace": [
+              {
+                "distance_m": 1.0000893780670594e-05,
+                "iteration": 0,
+                "segment_parameters": [
+                  0.9999420046806335,
+                  1.0
+                ],
+                "time": 0.0
+              }
+            ]
+          }
+        },
+        "swept_hit_shift_50nm_budget32": {
+          "difference_form_fp32": {
+            "certified": true,
+            "effective_thickness_m": 1.000190695776837e-05,
+            "hit": true,
+            "iterations": 29,
+            "reason": "thickness_hit",
+            "speed_bound_m": 2.737633337801526e-07,
+            "time": 0.15615640580654144,
+            "trace": [
+              {
+                "distance_m": 1.0010904588853009e-05,
+                "iteration": 0,
+                "segment_parameters": [
+                  0.9999420046806335,
+                  1.0
+                ],
+                "time": 0.0
+              },
+              {
+                "distance_m": 1.000904285319848e-05,
+                "iteration": 1,
+                "segment_parameters": [
+                  0.999941885471344,
+                  1.0
+                ],
+                "time": 0.0328664593398571
+              },
+              {
+                "distance_m": 1.0007415767177008e-05,
+                "iteration": 2,
+                "segment_parameters": [
+                  0.999941885471344,
+                  1.0
+                ],
+                "time": 0.058932386338710785
+              },
+              {
+                "distance_m": 1.0006368029280566e-05,
+                "iteration": 3,
+                "segment_parameters": [
+                  0.999941885471344,
+                  1.0
+                ],
+                "time": 0.07905490696430206
+              },
+              {
+                "distance_m": 1.000543670670595e-05,
+                "iteration": 4,
+                "segment_parameters": [
+                  0.9999417662620544,
+                  1.0
+                ],
+                "time": 0.09535026550292969
+              },
+              {
+                "distance_m": 1.0004622708947863e-05,
+                "iteration": 5,
+                "segment_parameters": [
+                  0.9999417662620544,
+                  1.0
+                ],
+                "time": 0.10824369639158249
+              },
+              {
+                "distance_m": 1.0004040632338729e-05,
+                "iteration": 6,
+                "segment_parameters": [
+                  0.9999417662620544,
+                  1.0
+                ],
+                "time": 0.11816376447677612
+              },
+              {
+                "distance_m": 1.0003691386373248e-05,
+                "iteration": 7,
+                "segment_parameters": [
+                  0.9999415874481201,
+                  1.0
+                ],
+                "time": 0.12595762312412262
+              },
+              {
+                "distance_m": 1.000322572508594e-05,
+                "iteration": 8,
+                "segment_parameters": [
+                  0.9999415874481201,
+                  1.0
+                ],
+                "time": 0.13247576355934143
+              },
+              {
+                "distance_m": 1.0002993803936988e-05,
+                "iteration": 9,
+                "segment_parameters": [
+                  0.9999415874481201,
+                  1.0
+                ],
+                "time": 0.13729295134544373
+              },
+              {
+                "distance_m": 1.0002760973293334e-05,
+                "iteration": 10,
+                "segment_parameters": [
+                  0.9999414682388306,
+                  1.0
+                ],
+                "time": 0.1412629783153534
+              },
+              {
+                "distance_m": 1.0002527233154979e-05,
+                "iteration": 11,
+                "segment_parameters": [
+                  0.9999415874481201,
+                  1.0
+                ],
+                "time": 0.1443825215101242
+              },
+              {
+                "distance_m": 1.0002527233154979e-05,
+                "iteration": 12,
+                "segment_parameters": [
+                  0.9999415874481201,
+                  1.0
+                ],
+                "time": 0.14664825797080994
+              },
+              {
+                "distance_m": 1.0002294402511325e-05,
+                "iteration": 13,
+                "segment_parameters": [
+                  0.9999415874481201,
+                  1.0
+                ],
+                "time": 0.14891399443149567
+              },
+              {
+                "distance_m": 1.00021788966842e-05,
+                "iteration": 14,
+                "segment_parameters": [
+                  0.9999415874481201,
+                  1.0
+                ],
+                "time": 0.15032924711704254
+              },
+              {
+                "distance_m": 1.00021788966842e-05,
+                "iteration": 15,
+                "segment_parameters": [
+                  0.9999415874481201,
+                  1.0
+                ],
+                "time": 0.15132258832454681
+              },
+              {
+                "distance_m": 1.00021788966842e-05,
+                "iteration": 16,
+                "segment_parameters": [
+                  0.9999415874481201,
+                  1.0
+                ],
+                "time": 0.1523159295320511
+              },
+              {
+                "distance_m": 1.0002062481362373e-05,
+                "iteration": 17,
+                "segment_parameters": [
+                  0.9999415874481201,
+                  1.0
+                ],
+                "time": 0.15330927073955536
+              },
+              {
+                "distance_m": 1.0002062481362373e-05,
+                "iteration": 18,
+                "segment_parameters": [
+                  0.9999415874481201,
+                  1.0
+                ],
+                "time": 0.1538773626089096
+              },
+              {
+                "distance_m": 1.0001946066040546e-05,
+                "iteration": 19,
+                "segment_parameters": [
+                  0.9999415874481201,
+                  1.0
+                ],
+                "time": 0.15444545447826385
+              },
+              {
+                "distance_m": 1.0001946066040546e-05,
+                "iteration": 20,
+                "segment_parameters": [
+                  0.9999415874481201,
+                  1.0
+                ],
+                "time": 0.15458831191062927
+              },
+              {
+                "distance_m": 1.0001946066040546e-05,
+                "iteration": 21,
+                "segment_parameters": [
+                  0.9999415874481201,
+                  1.0
+                ],
+                "time": 0.1547311693429947
+              },
+              {
+                "distance_m": 1.0001946066040546e-05,
+                "iteration": 22,
+                "segment_parameters": [
+                  0.9999415874481201,
+                  1.0
+                ],
+                "time": 0.1548740267753601
+              },
+              {
+                "distance_m": 1.0001946066040546e-05,
+                "iteration": 23,
+                "segment_parameters": [
+                  0.9999415874481201,
+                  1.0
+                ],
+                "time": 0.15501688420772552
+              },
+              {
+                "distance_m": 1.0002062481362373e-05,
+                "iteration": 24,
+                "segment_parameters": [
+                  0.9999415874481201,
+                  1.0
+                ],
+                "time": 0.15515974164009094
+              },
+              {
+                "distance_m": 1.0001946066040546e-05,
+                "iteration": 25,
+                "segment_parameters": [
+                  0.9999415874481201,
+                  1.0
+                ],
+                "time": 0.1557278335094452
+              },
+              {
+                "distance_m": 1.0001946066040546e-05,
+                "iteration": 26,
+                "segment_parameters": [
+                  0.9999415874481201,
+                  1.0
+                ],
+                "time": 0.1558706909418106
+              },
+              {
+                "distance_m": 1.0001946066040546e-05,
+                "iteration": 27,
+                "segment_parameters": [
+                  0.9999415874481201,
+                  1.0
+                ],
+                "time": 0.15601354837417603
+              },
+              {
+                "distance_m": 1.0001829650718719e-05,
+                "iteration": 28,
+                "segment_parameters": [
+                  0.9999415874481201,
+                  1.0
+                ],
+                "time": 0.15615640580654144
+              }
+            ]
+          },
+          "weighted_form_fp32": {
+            "certified": true,
+            "effective_thickness_m": 1.000190695776837e-05,
+            "hit": true,
+            "iterations": 25,
+            "reason": "thickness_hit",
+            "speed_bound_m": 2.737633337801526e-07,
+            "time": 0.15601684153079987,
+            "trace": [
+              {
+                "distance_m": 1.0010904588853009e-05,
+                "iteration": 0,
+                "segment_parameters": [
+                  0.9999420046806335,
+                  1.0
+                ],
+                "time": 0.0
+              },
+              {
+                "distance_m": 1.0008926437876653e-05,
+                "iteration": 1,
+                "segment_parameters": [
+                  0.999941885471344,
+                  1.0
+                ],
+                "time": 0.0328664593398571
+              },
+              {
+                "distance_m": 1.0007532182498835e-05,
+                "iteration": 2,
+                "segment_parameters": [
+                  0.999941885471344,
+                  1.0
+                ],
+                "time": 0.05850714445114136
+              },
+              {
+                "distance_m": 1.0006251613958739e-05,
+                "iteration": 3,
+                "segment_parameters": [
+                  0.9999417662620544,
+                  1.0
+                ],
+                "time": 0.07905490696430206
+              },
+              {
+                "distance_m": 1.000543670670595e-05,
+                "iteration": 4,
+                "segment_parameters": [
+                  0.9999417662620544,
+                  1.0
+                ],
+                "time": 0.09492502361536026
+              },
+              {
+                "distance_m": 1.000473912426969e-05,
+                "iteration": 5,
+                "segment_parameters": [
+                  0.9999417066574097,
+                  1.0
+                ],
+                "time": 0.10781845450401306
+              },
+              {
+                "distance_m": 1.0004157047660556e-05,
+                "iteration": 6,
+                "segment_parameters": [
+                  0.9999417662620544,
+                  1.0
+                ],
+                "time": 0.11816376447677612
+              },
+              {
+                "distance_m": 1.0003574971051421e-05,
+                "iteration": 7,
+                "segment_parameters": [
+                  0.9999415874481201,
+                  1.0
+                ],
+                "time": 0.12638287246227264
+              },
+              {
+                "distance_m": 1.0003342140407767e-05,
+                "iteration": 8,
+                "segment_parameters": [
+                  0.9999415874481201,
+                  1.0
+                ],
+                "time": 0.13247577846050262
+              },
+              {
+                "distance_m": 1.0002993803936988e-05,
+                "iteration": 9,
+                "segment_parameters": [
+                  0.9999415874481201,
+                  1.0
+                ],
+                "time": 0.13771820068359375
+              },
+              {
+                "distance_m": 1.0002644557971507e-05,
+                "iteration": 10,
+                "segment_parameters": [
+                  0.9999414682388306,
+                  1.0
+                ],
+                "time": 0.14168822765350342
+              },
+              {
+                "distance_m": 1.0002644557971507e-05,
+                "iteration": 11,
+                "segment_parameters": [
+                  0.9999415874481201,
+                  1.0
+                ],
+                "time": 0.1443825215101242
+              },
+              {
+                "distance_m": 1.0002411727327853e-05,
+                "iteration": 12,
+                "segment_parameters": [
+                  0.9999417066574097,
+                  1.0
+                ],
+                "time": 0.147076815366745
+              },
+              {
+                "distance_m": 1.0002294402511325e-05,
+                "iteration": 13,
+                "segment_parameters": [
+                  0.9999417066574097,
+                  1.0
+                ],
+                "time": 0.14892062544822693
+              },
+              {
+                "distance_m": 1.00021788966842e-05,
+                "iteration": 14,
+                "segment_parameters": [
+                  0.9999417066574097,
+                  1.0
+                ],
+                "time": 0.1503358781337738
+              },
+              {
+                "distance_m": 1.00021788966842e-05,
+                "iteration": 15,
+                "segment_parameters": [
+                  0.9999415874481201,
+                  1.0
+                ],
+                "time": 0.15132921934127808
+              },
+              {
+                "distance_m": 1.00021788966842e-05,
+                "iteration": 16,
+                "segment_parameters": [
+                  0.9999417066574097,
+                  1.0
+                ],
+                "time": 0.15232256054878235
+              },
+              {
+                "distance_m": 1.0002062481362373e-05,
+                "iteration": 17,
+                "segment_parameters": [
+                  0.9999417066574097,
+                  1.0
+                ],
+                "time": 0.15331590175628662
+              },
+              {
+                "distance_m": 1.0002062481362373e-05,
+                "iteration": 18,
+                "segment_parameters": [
+                  0.9999415874481201,
+                  1.0
+                ],
+                "time": 0.15388399362564087
+              },
+              {
+                "distance_m": 1.0001946066040546e-05,
+                "iteration": 19,
+                "segment_parameters": [
+                  0.9999415874481201,
+                  1.0
+                ],
+                "time": 0.15445208549499512
+              },
+              {
+                "distance_m": 1.0002062481362373e-05,
+                "iteration": 20,
+                "segment_parameters": [
+                  0.9999415874481201,
+                  1.0
+                ],
+                "time": 0.15459494292736053
+              },
+              {
+                "distance_m": 1.0002062481362373e-05,
+                "iteration": 21,
+                "segment_parameters": [
+                  0.9999415874481201,
+                  1.0
+                ],
+                "time": 0.15516303479671478
+              },
+              {
+                "distance_m": 1.0001946066040546e-05,
+                "iteration": 22,
+                "segment_parameters": [
+                  0.9999415874481201,
+                  1.0
+                ],
+                "time": 0.15573112666606903
+              },
+              {
+                "distance_m": 1.0001946066040546e-05,
+                "iteration": 23,
+                "segment_parameters": [
+                  0.9999415874481201,
+                  1.0
+                ],
+                "time": 0.15587398409843445
+              },
+              {
+                "distance_m": 1.0001829650718719e-05,
+                "iteration": 24,
+                "segment_parameters": [
+                  0.9999415874481201,
+                  1.0
+                ],
+                "time": 0.15601684153079987
+              }
+            ]
+          }
+        }
+      },
+      "synthetic_true_hit_controls_are_non_native": true,
+      "thickness_m": 9.999999747378752e-06,
+      "trial": 21,
+      "vertex_triangle_source_order": {
+        "difference_form_fp32": [
+          {
+            "certified": true,
+            "direction": 0,
+            "effective_thickness_m": 1.000190695776837e-05,
+            "hit": true,
+            "iterations": 1,
+            "reason": "thickness_hit",
+            "time": 0.0,
+            "trace": [
+              {
+                "distance_m": 9.892784873954952e-06,
+                "iteration": 0,
+                "region": "bc",
+                "time": 0.0
+              }
+            ],
+            "vertex_index": 0
+          },
+          {
+            "certified": true,
+            "direction": 0,
+            "effective_thickness_m": 1.000190695776837e-05,
+            "hit": false,
+            "iterations": 13,
+            "reason": "conservative_step_passes_endpoint",
+            "time": 1.0084025859832764,
+            "trace": [
+              {
+                "distance_m": 1.006150614557555e-05,
+                "iteration": 0,
+                "region": "b",
+                "time": 0.0
+              },
+              {
+                "distance_m": 1.004697878670413e-05,
+                "iteration": 1,
+                "region": "b",
+                "time": 0.2520785331726074
+              },
+              {
+                "distance_m": 1.0036053026851732e-05,
+                "iteration": 2,
+                "region": "b",
+                "time": 0.4427126944065094
+              },
+              {
+                "distance_m": 1.002768476610072e-05,
+                "iteration": 3,
+                "region": "b",
+                "time": 0.5871356725692749
+              },
+              {
+                "distance_m": 1.0021410162153188e-05,
+                "iteration": 4,
+                "region": "b",
+                "time": 0.6961645483970642
+              },
+              {
+                "distance_m": 1.0016759006248321e-05,
+                "iteration": 5,
+                "region": "b",
+                "time": 0.7786545753479004
+              },
+              {
+                "distance_m": 1.0013038263423368e-05,
+                "iteration": 6,
+                "region": "b",
+                "time": 0.8414722681045532
+              },
+              {
+                "distance_m": 1.0010367986978963e-05,
+                "iteration": 7,
+                "region": "b",
+                "time": 0.8885528445243835
+              },
+              {
+                "distance_m": 1.0008277058659587e-05,
+                "iteration": 8,
+                "region": "b",
+                "time": 0.9243392944335938
+              },
+              {
+                "distance_m": 1.0006880984292366e-05,
+                "iteration": 9,
+                "region": "b",
+                "time": 0.9512820243835449
+              },
+              {
+                "distance_m": 1.0005604053731076e-05,
+                "iteration": 10,
+                "region": "b",
+                "time": 0.9723199605941772
+              },
+              {
+                "distance_m": 1.0004672731156461e-05,
+                "iteration": 11,
+                "region": "b",
+                "time": 0.9879570603370667
+              },
+              {
+                "distance_m": 1.0003975148720201e-05,
+                "iteration": 12,
+                "region": "b",
+                "time": 0.9996550679206848
+              }
+            ],
+            "vertex_index": 1
+          },
+          {
+            "certified": true,
+            "direction": 0,
+            "effective_thickness_m": 1.000190695776837e-05,
+            "hit": false,
+            "iterations": 1,
+            "reason": "fixed_axis_separation",
+            "time": 0.0,
+            "trace": [
+              {
+                "distance_m": 0.002000099513679743,
+                "iteration": 0,
+                "region": "b",
+                "time": 0.0
+              }
+            ],
+            "vertex_index": 2
+          },
+          {
+            "certified": true,
+            "direction": 1,
+            "effective_thickness_m": 1.000190695776837e-05,
+            "hit": false,
+            "iterations": 1,
+            "reason": "fixed_axis_separation",
+            "time": 0.0,
+            "trace": [
+              {
+                "distance_m": 0.002000098116695881,
+                "iteration": 0,
+                "region": "a",
+                "time": 0.0
+              }
+            ],
+            "vertex_index": 0
+          },
+          {
+            "certified": true,
+            "direction": 1,
+            "effective_thickness_m": 1.000190695776837e-05,
+            "hit": false,
+            "iterations": 15,
+            "reason": "conservative_step_passes_endpoint",
+            "time": 1.0015857219696045,
+            "trace": [
+              {
+                "distance_m": 1.0060846761916764e-05,
+                "iteration": 0,
+                "region": "ab",
+                "time": 0.0
+              },
+              {
+                "distance_m": 1.0047581781691406e-05,
+                "iteration": 1,
+                "region": "ab",
+                "time": 0.23111677169799805
+              },
+              {
+                "distance_m": 1.003722627501702e-05,
+                "iteration": 2,
+                "region": "ab",
+                "time": 0.4102184474468231
+              },
+              {
+                "distance_m": 1.0029197255789768e-05,
+                "iteration": 3,
+                "region": "ab",
+                "time": 0.548713743686676
+              },
+              {
+                "distance_m": 1.0023030881711747e-05,
+                "iteration": 4,
+                "region": "ab",
+                "time": 0.6557254195213318
+              },
+              {
+                "distance_m": 1.0018260582000948e-05,
+                "iteration": 5,
+                "region": "ab",
+                "time": 0.7385572791099548
+              },
+              {
+                "distance_m": 1.001453711069189e-05,
+                "iteration": 6,
+                "region": "ab",
+                "time": 0.8026836514472961
+              },
+              {
+                "distance_m": 1.0011744961957447e-05,
+                "iteration": 7,
+                "region": "ab",
+                "time": 0.8522094488143921
+              },
+              {
+                "distance_m": 1.0009533980337437e-05,
+                "iteration": 8,
+                "region": "ab",
+                "time": 0.8907865881919861
+              },
+              {
+                "distance_m": 1.0007905075326562e-05,
+                "iteration": 9,
+                "region": "ab",
+                "time": 0.9206939339637756
+              },
+              {
+                "distance_m": 1.000650900095934e-05,
+                "iteration": 10,
+                "region": "ab",
+                "time": 0.9442139863967896
+              },
+              {
+                "distance_m": 1.0005461263062898e-05,
+                "iteration": 11,
+                "region": "ab",
+                "time": 0.9622596502304077
+              },
+              {
+                "distance_m": 1.0004647265304811e-05,
+                "iteration": 12,
+                "region": "ab",
+                "time": 0.9761968851089478
+              },
+              {
+                "distance_m": 1.000394877337385e-05,
+                "iteration": 13,
+                "region": "ab",
+                "time": 0.9869422912597656
+              },
+              {
+                "distance_m": 1.0003599527408369e-05,
+                "iteration": 14,
+                "region": "ab",
+                "time": 0.9949487447738647
+              }
+            ],
+            "vertex_index": 1
+          },
+          {
+            "certified": true,
+            "direction": 1,
+            "effective_thickness_m": 1.000190695776837e-05,
+            "hit": true,
+            "iterations": 1,
+            "reason": "thickness_hit",
+            "time": 0.0,
+            "trace": [
+              {
+                "distance_m": 9.89344061963493e-06,
+                "iteration": 0,
+                "region": "a",
+                "time": 0.0
+              }
+            ],
+            "vertex_index": 2
+          }
+        ],
+        "weighted_form_fp32": [
+          {
+            "certified": true,
+            "direction": 0,
+            "effective_thickness_m": 1.000190695776837e-05,
+            "hit": true,
+            "iterations": 1,
+            "reason": "thickness_hit",
+            "time": 0.0,
+            "trace": [
+              {
+                "distance_m": 9.892784873954952e-06,
+                "iteration": 0,
+                "region": "bc",
+                "time": 0.0
+              }
+            ],
+            "vertex_index": 0
+          },
+          {
+            "certified": true,
+            "direction": 0,
+            "effective_thickness_m": 1.000190695776837e-05,
+            "hit": false,
+            "iterations": 13,
+            "reason": "conservative_step_passes_endpoint",
+            "time": 1.008821964263916,
+            "trace": [
+              {
+                "distance_m": 1.006150614557555e-05,
+                "iteration": 0,
+                "region": "b",
+                "time": 0.0
+              },
+              {
+                "distance_m": 1.0046976058220025e-05,
+                "iteration": 1,
+                "region": "b",
+                "time": 0.2520785331726074
+              },
+              {
+                "distance_m": 1.0036053026851732e-05,
+                "iteration": 2,
+                "region": "b",
+                "time": 0.44270116090774536
+              },
+              {
+                "distance_m": 1.002768476610072e-05,
+                "iteration": 3,
+                "region": "b",
+                "time": 0.5871241092681885
+              },
+              {
+                "distance_m": 1.0021407433669083e-05,
+                "iteration": 4,
+                "region": "b",
+                "time": 0.6961529850959778
+              },
+              {
+                "distance_m": 1.0016759006248321e-05,
+                "iteration": 5,
+                "region": "b",
+                "time": 0.7786315083503723
+              },
+              {
+                "distance_m": 1.0013038263423368e-05,
+                "iteration": 6,
+                "region": "b",
+                "time": 0.8414492011070251
+              },
+              {
+                "distance_m": 1.0010365258494858e-05,
+                "iteration": 7,
+                "region": "b",
+                "time": 0.8885297775268555
+              },
+              {
+                "distance_m": 1.0008387107518502e-05,
+                "iteration": 8,
+                "region": "b",
+                "time": 0.924304723739624
+              },
+              {
+                "distance_m": 1.0006764568970539e-05,
+                "iteration": 9,
+                "region": "b",
+                "time": 0.9517129063606262
+              },
+              {
+                "distance_m": 1.0005604053731076e-05,
+                "iteration": 10,
+                "region": "b",
+                "time": 0.9722585082054138
+              },
+              {
+                "distance_m": 1.0004670002672356e-05,
+                "iteration": 11,
+                "region": "b",
+                "time": 0.9878956079483032
+              },
+              {
+                "distance_m": 1.0004091564042028e-05,
+                "iteration": 12,
+                "region": "b",
+                "time": 0.999582052230835
+              }
+            ],
+            "vertex_index": 1
+          },
+          {
+            "certified": true,
+            "direction": 0,
+            "effective_thickness_m": 1.000190695776837e-05,
+            "hit": false,
+            "iterations": 1,
+            "reason": "fixed_axis_separation",
+            "time": 0.0,
+            "trace": [
+              {
+                "distance_m": 0.002000099513679743,
+                "iteration": 0,
+                "region": "b",
+                "time": 0.0
+              }
+            ],
+            "vertex_index": 2
+          },
+          {
+            "certified": true,
+            "direction": 1,
+            "effective_thickness_m": 1.000190695776837e-05,
+            "hit": false,
+            "iterations": 1,
+            "reason": "fixed_axis_separation",
+            "time": 0.0,
+            "trace": [
+              {
+                "distance_m": 0.002000098116695881,
+                "iteration": 0,
+                "region": "a",
+                "time": 0.0
+              }
+            ],
+            "vertex_index": 0
+          },
+          {
+            "certified": true,
+            "direction": 1,
+            "effective_thickness_m": 1.000190695776837e-05,
+            "hit": false,
+            "iterations": 15,
+            "reason": "conservative_step_passes_endpoint",
+            "time": 1.0011292695999146,
+            "trace": [
+              {
+                "distance_m": 1.0060846761916764e-05,
+                "iteration": 0,
+                "region": "ab",
+                "time": 0.0
+              },
+              {
+                "distance_m": 1.0047581781691406e-05,
+                "iteration": 1,
+                "region": "ab",
+                "time": 0.23111677169799805
+              },
+              {
+                "distance_m": 1.003722627501702e-05,
+                "iteration": 2,
+                "region": "ab",
+                "time": 0.4102184474468231
+              },
+              {
+                "distance_m": 1.0029197255789768e-05,
+                "iteration": 3,
+                "region": "ab",
+                "time": 0.548713743686676
+              },
+              {
+                "distance_m": 1.0023147297033574e-05,
+                "iteration": 4,
+                "region": "ab",
+                "time": 0.6557254195213318
+              },
+              {
+                "distance_m": 1.0018260582000948e-05,
+                "iteration": 5,
+                "region": "ab",
+                "time": 0.7390137910842896
+              },
+              {
+                "distance_m": 1.0014653526013717e-05,
+                "iteration": 6,
+                "region": "ab",
+                "time": 0.8031401634216309
+              },
+              {
+                "distance_m": 1.0011744961957447e-05,
+                "iteration": 7,
+                "region": "ab",
+                "time": 0.8531224727630615
+              },
+              {
+                "distance_m": 1.000941756501561e-05,
+                "iteration": 8,
+                "region": "ab",
+                "time": 0.8916996121406555
+              },
+              {
+                "distance_m": 1.0007788660004735e-05,
+                "iteration": 9,
+                "region": "ab",
+                "time": 0.9211504459381104
+              },
+              {
+                "distance_m": 1.000650900095934e-05,
+                "iteration": 10,
+                "region": "ab",
+                "time": 0.9442139863967896
+              },
+              {
+                "distance_m": 1.0005461263062898e-05,
+                "iteration": 11,
+                "region": "ab",
+                "time": 0.9622596502304077
+              },
+              {
+                "distance_m": 1.0004647265304811e-05,
+                "iteration": 12,
+                "region": "ab",
+                "time": 0.9761968851089478
+              },
+              {
+                "distance_m": 1.000394877337385e-05,
+                "iteration": 13,
+                "region": "ab",
+                "time": 0.9869422912597656
+              },
+              {
+                "distance_m": 1.0003483112086542e-05,
+                "iteration": 14,
+                "region": "ab",
+                "time": 0.9949487447738647
+              }
+            ],
+            "vertex_index": 1
+          },
+          {
+            "certified": true,
+            "direction": 1,
+            "effective_thickness_m": 1.000190695776837e-05,
+            "hit": true,
+            "iterations": 1,
+            "reason": "thickness_hit",
+            "time": 0.0,
+            "trace": [
+              {
+                "distance_m": 9.89344061963493e-06,
+                "iteration": 0,
+                "region": "a",
+                "time": 0.0
+              }
+            ],
+            "vertex_index": 2
+          }
+        ]
+      }
+    }
+  ],
+  "evidence_class": "CPU source-equation replay; not bit-exact Metal and not native qualification",
+  "interpretation": {
+    "control_limit": "The 50 nm translated-edge true-hit case is a synthetic replay control, not a native fixture or physical measurement.",
+    "effective_thickness": "Computed by the frozen source formula: thickness + ccdDistanceRoundoff(thickness, coordinateScale). No gap, radius, epsilon, or feasibility threshold is changed.",
+    "failure_feature": "CPU source-order replay identifies edge-edge feature (edgeA=0, edgeB=0), nodes [13,14] vs [28,32], as first uncertified after all six preceding vertex-triangle tests certify.",
+    "native_diagnostic_ambiguity": "The native status diagnostic [primitiveA=88, primitiveB=127, z=0, w=0] aliases vertex-triangle vertex 0 and edge-edge (0,0); native status alone does not identify feature kind. The CPU source-order replay localizes the first uncaught branch, but is not a Metal instruction trace.",
+    "rounding_sensitivity": "Two FP32 evaluation forms for the MSL mix operation can differ at the final conservative step. The difference-form replay exhausts at 16 and certifies the miss at 17; weighted-form replay may certify by 16. This is why the one-step extension is a bounded robustness candidate, not proof that a native rerun will pass."
+  },
+  "physical_validation": false,
+  "reader_sha256": "adc508075d4e30508c110d00a3244eaa3eba0ba75ed900629e180df716e05d95",
+  "schema": "numi.cardboard.private_ccd_captured_near_miss_replay.v1",
+  "source_contact_metalinc_sha256": "3cef6ae3dbd384d7b26ff6b0eb4ecda6da7a32be74cdea0badc5975eef692132",
+  "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-center-action-twoenv-restart-099"
+}

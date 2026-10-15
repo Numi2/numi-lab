@@ -1,0 +1,9 @@
+from pathlib import Path
+import json,hashlib,subprocess
+b=Path('/Users/home/cardboard-implementation-20261014');s=b/'staging/source-whole-mortar-proof-102';o=b/'analysis/root-whole-mortar-proof102-integration-001';cpp='matter/tools/mortar_exact_tiling_check.cpp';h=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+p328=b/'analysis/private-mortar-q25-finite-endpoints-328/package/finite-endpoints.patch';subprocess.run(['git','apply','--check','--exclude='+cpp,str(p328)],cwd=s,check=True);subprocess.run(['git','apply','--exclude='+cpp,str(p328)],cwd=s,check=True)
+patch=p328.read_text();tail=patch.split('+++ b/'+cpp+'\n',1)[1];added='\n'.join(line[1:]for line in tail.splitlines()if line.startswith('+'))+'\n';assert added.startswith('\n    const float infinity')and added.endswith('gate");\n')
+t=(s/cpp).read_text();needle='            "4 nm other-endpoint physical gap was treated as a paired seam");\n';assert t.count(needle)==1;t=t.replace(needle,needle+added);(s/cpp).write_text(t)
+p331=b/'analysis/private-mortar-axis-partition-coherence-331/package/axis-partition-coherence.patch';assert h(p331)=='eb45e83b8fd085e7b8827511d7ffe12a988f15b3f04cef8cbed29e29443694d0';subprocess.run(['git','apply','--check',str(p331)],cwd=s,check=True);subprocess.run(['git','apply',str(p331)],cwd=s,check=True)
+receipt=dict(schema='numi.cardboard.overlay-integration-preflight.v1',finite328=dict(patch_sha256=h(p328),cpp_exact_added_lines_sha256=hashlib.sha256(added.encode()).hexdigest(),method='header clean apply; exact added cpp lines inserted at their unique unchanged context'),coherence331=dict(patch_sha256=h(p331),clean_apply=True),changed={rel:h(s/rel)for rel in ['matter/include/numi/matter/mortar_shared_edge_guard.h','matter/src/metal/contact.metalinc',cpp]})
+(o/'final-preflight.json').write_text(json.dumps(receipt,indent=2)+'\n');(o/'finish_script.py').write_bytes(Path(__file__).read_bytes());print(json.dumps(receipt,indent=2))

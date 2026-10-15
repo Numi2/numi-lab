@@ -1,0 +1,136 @@
+diff --git a/matter/include/numi/matter/mortar_shared_edge_guard.h b/matter/include/numi/matter/mortar_shared_edge_guard.h
+--- a/matter/include/numi/matter/mortar_shared_edge_guard.h
++++ b/matter/include/numi/matter/mortar_shared_edge_guard.h
+@@ -450,6 +450,71 @@
+     return nmMortarGuardFinite(areaSquared) && areaSquared > 0.0f;
+ }
+ 
++// Return the canonical two-float expansion of a+b. Under the repository's
++// non-fast floating-point mode, TwoSum preserves the exact real sum of two
++// finite FP32 values as (sum,error), unless the rounded sum overflows.
++inline bool nmMortarGuardTwoSum(
++    const float a,
++    const float b,
++    NM_MORTAR_THREAD_POINTER float* sum,
++    NM_MORTAR_THREAD_POINTER float* error
++) {
++    if (!nmMortarGuardFinite(a) || !nmMortarGuardFinite(b) ||
++        sum == nullptr || error == nullptr) return false;
++    const float rounded = a + b;
++    if (!nmMortarGuardFinite(rounded)) return false;
++    const float bVirtual = rounded - a;
++    const float aVirtual = rounded - bVirtual;
++    const float bRoundoff = b - bVirtual;
++    const float aRoundoff = a - aVirtual;
++    const float residual = aRoundoff + bRoundoff;
++    if (!nmMortarGuardFinite(residual)) return false;
++    *sum = rounded;
++    *error = residual;
++    return true;
++}
++
++inline bool nmMortarGuardExactDifferenceEqual(
++    const float firstFinish,
++    const float firstStart,
++    const float secondFinish,
++    const float secondStart
++) {
++    float firstHigh, firstLow, secondHigh, secondLow;
++    return nmMortarGuardTwoSum(firstFinish, -firstStart,
++                               &firstHigh, &firstLow) &&
++        nmMortarGuardTwoSum(secondFinish, -secondStart,
++                            &secondHigh, &secondLow) &&
++        firstHigh == secondHigh && firstLow == secondLow;
++}
++
++inline bool nmMortarGuardTriangleHasExactCommonTranslation(
++    NM_MORTAR_THREAD_POINTER const NMMortarGuardPoint3* start,
++    NM_MORTAR_THREAD_POINTER const NMMortarGuardPoint3* finish
++) {
++    if (start == nullptr || finish == nullptr) return false;
++    for (unsigned int vertexIndex = 0u; vertexIndex < 3u; ++vertexIndex) {
++        if (!nmMortarGuardFinite(start[vertexIndex].x) ||
++            !nmMortarGuardFinite(start[vertexIndex].y) ||
++            !nmMortarGuardFinite(start[vertexIndex].z) ||
++            !nmMortarGuardFinite(finish[vertexIndex].x) ||
++            !nmMortarGuardFinite(finish[vertexIndex].y) ||
++            !nmMortarGuardFinite(finish[vertexIndex].z)) return false;
++    }
++    for (unsigned int vertexIndex = 1u; vertexIndex < 3u; ++vertexIndex) {
++        if (!nmMortarGuardExactDifferenceEqual(
++                finish[0].x, start[0].x,
++                finish[vertexIndex].x, start[vertexIndex].x) ||
++            !nmMortarGuardExactDifferenceEqual(
++                finish[0].y, start[0].y,
++                finish[vertexIndex].y, start[vertexIndex].y) ||
++            !nmMortarGuardExactDifferenceEqual(
++                finish[0].z, start[0].z,
++                finish[vertexIndex].z, start[vertexIndex].z)) return false;
++    }
++    return true;
++}
++
+ // Certify that two parent triangles describe the same complete physical sweep.
+ // Vertices may be stored in different order, but the same permutation must
+ // match exact FP32 positions at both endpoints. Since the caller's trajectory
+@@ -474,6 +539,15 @@
+             rightStart[0], rightStart[1], rightStart[2]) ||
+         !nmMortarGuardNondegenerateTriangle3(
+             rightFinish[0], rightFinish[1], rightFinish[2])) return false;
++    // Endpoint nondegeneracy alone is insufficient: a deforming triangle can
++    // collapse between the endpoints, invalidating disjoint-cell reasoning.
++    // The whole-parent contact skip currently admits only exact common
++    // translations, which keep each parent shape and area constant throughout
++    // the linear sweep. Other motions remain on the ordinary CCD path.
++    if (!nmMortarGuardTriangleHasExactCommonTranslation(
++            leftStart, leftFinish) ||
++        !nmMortarGuardTriangleHasExactCommonTranslation(
++            rightStart, rightFinish)) return false;
+     bool matchedRight[3] = {false, false, false};
+     for (unsigned int i = 0u; i < 3u; ++i) {
+         const NMMortarGuardPoint3 points[4] = {
+diff --git a/matter/tools/mortar_exact_tiling_check.cpp b/matter/tools/mortar_exact_tiling_check.cpp
+--- a/matter/tools/mortar_exact_tiling_check.cpp
++++ b/matter/tools/mortar_exact_tiling_check.cpp
+@@ -172,6 +172,12 @@
+     require(nmMortarGuardSameTriangleSweep(
+                 leftStart, leftFinish, rightStart, rightFinish),
+             "permuted identical parent sweeps were not certified");
++    require(nmMortarGuardExactDifferenceEqual(
++                1.0f, 0.0f, 1.0f, 0.0f),
++            "identical FP32 translations did not compare equal");
++    require(!nmMortarGuardExactDifferenceEqual(
++                1.0f, 0.0f, 1.0f, 0x1p-30f),
++            "rounded subtraction hid a nonzero translation difference");
+     const auto full0 = triangle(point(1.0f, 0.0f), point(0.0f, 1.0f),
+                                 point(1.0f / 3.0f, 1.0f / 3.0f));
+     const auto full1 = triangle(point(0.0f, 1.0f), point(0.0f, 0.0f),
+@@ -205,6 +211,28 @@
+     require(!nmMortarGuardSameTriangleSweep(
+                 degenerate, degenerate, degenerate, degenerate),
+             "degenerate parent triangle passed sweep identity");
++
++    const NMMortarGuardPoint3 collapseStart[3] = {
++        point3(0.0f, 0.0f, 0.0f), point3(1.0f, 0.0f, 0.0f),
++        point3(0.0f, 1.0f, 0.0f)};
++    const NMMortarGuardPoint3 collapseFinish[3] = {
++        collapseStart[0], collapseStart[2], collapseStart[1]};
++    require(nmMortarGuardNondegenerateTriangle3(
++                collapseStart[0], collapseStart[1], collapseStart[2]) &&
++                nmMortarGuardNondegenerateTriangle3(
++                    collapseFinish[0], collapseFinish[1], collapseFinish[2]),
++            "mid-sweep collapse control endpoints are not nondegenerate");
++    const NMMortarGuardPoint3 collapseMidpoint[3] = {
++        point3(0.0f, 0.0f, 0.0f), point3(0.5f, 0.5f, 0.0f),
++        point3(0.5f, 0.5f, 0.0f)};
++    require(!nmMortarGuardNondegenerateTriangle3(
++                collapseMidpoint[0], collapseMidpoint[1],
++                collapseMidpoint[2]),
++            "adversarial triangle did not collapse at mid-sweep");
++    require(!nmMortarGuardSameTriangleSweep(
++                collapseStart, collapseFinish,
++                collapseStart, collapseFinish),
++            "endpoint-nondegenerate mid-sweep collapse passed guard");
+ 
+     // Adversarial vertex/triangle and edge/edge path. At t=0 the two
+     // triangles meet only at the paired vertex (0,0,0). At t=.2 the moving

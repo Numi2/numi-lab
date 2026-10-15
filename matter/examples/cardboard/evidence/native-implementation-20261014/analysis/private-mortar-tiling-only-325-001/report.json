@@ -1,0 +1,31 @@
+{
+  "schema": "numi.cardboard.native_tiling_adjudication.v1",
+  "count": 16,
+  "passed": 13,
+  "failed": [
+    "four_patch_matched_crossing",
+    "three_patch_boundary_separating",
+    "three_patch_boundary_static_off_edge_overlap"
+  ],
+  "changed_outcomes_from319": [
+    {
+      "case": "three_patch_covered_crossing",
+      "before": 6,
+      "after": 0
+    },
+    {
+      "case": "three_patch_boundary_common_translation",
+      "before": 6,
+      "after": 0
+    },
+    {
+      "case": "three_patch_boundary_static_off_edge_overlap",
+      "before": 6,
+      "after": 0
+    }
+  ],
+  "negative_controls_reject": false,
+  "runtime_transactions": 0,
+  "unsafe_seam_exemption_included": false,
+  "physical_assembly": false
+}

@@ -1,0 +1,7 @@
+{
+  "schema": "numi.cardboard.archive_copy_verification.v1",
+  "records": 902,
+  "unique_copies": 5690,
+  "compressed_tables_restore_verified": 11,
+  "summary_sha256": "ff6080fc5bb17f709b165ec06c4cf5108db5ca69c161bfad4fd9833bdfd53aac"
+}

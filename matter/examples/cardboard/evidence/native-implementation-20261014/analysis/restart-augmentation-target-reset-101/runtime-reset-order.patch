@@ -1,0 +1,64 @@
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -17827,6 +17827,30 @@
+                     state.femRegionalRestartAugmentationEnabled
+                         ? state.femRegionalAugmentedModeCount
+                         : regionalModes;
++                if (state.femRegionalRestartAugmentationEnabled) {
++                    dispatchGroups32(
++                        "nm_fgmres_regional_restart_reset_metadata",
++                        environments, [&] {
++                        setDispatch();
++                        [encoder setBuffer:state.femRegionalRestartGeneration
++                                     offset:0u atIndex:1u];
++                        [encoder setBuffer:state.femRegionalRestartRawNormSquared
++                                     offset:0u atIndex:2u];
++                        [encoder setBuffer:state.femRegionalRestartModeScale
++                                     offset:0u atIndex:3u];
++                        [encoder setBuffer:state.femRegionalRestartModeValid
++                                     offset:0u atIndex:4u];
++                        [encoder setBuffer:state.femRegionalRestartTargetScale
++                                     offset:0u atIndex:5u];
++                        [encoder setBuffer:state.femRegionalAugmentedCoarseValid
++                                     offset:0u atIndex:6u];
++                        [encoder setBuffer:state.femRegionalRestartTailPreserved
++                                     offset:0u atIndex:7u];
++                    });
++                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++                    state.femRegionalRestartGenerationInitialized.store(
++                        true, std::memory_order_release);
++                }
+                 dispatchThreads(
+                     "nm_fgmres_regional_project_basis",
+                     environments * regionalModeStride *
+@@ -18862,30 +18886,6 @@
+                         }
+                     }
+                 }
+-            if (state.femRegionalRestartAugmentationEnabled) {
+-                dispatchGroups32(
+-                    "nm_fgmres_regional_restart_reset_metadata",
+-                    environments, [&] {
+-                    setDispatch();
+-                    [encoder setBuffer:state.femRegionalRestartGeneration
+-                                 offset:0u atIndex:1u];
+-                    [encoder setBuffer:state.femRegionalRestartRawNormSquared
+-                                 offset:0u atIndex:2u];
+-                    [encoder setBuffer:state.femRegionalRestartModeScale
+-                                 offset:0u atIndex:3u];
+-                    [encoder setBuffer:state.femRegionalRestartModeValid
+-                                 offset:0u atIndex:4u];
+-                    [encoder setBuffer:state.femRegionalRestartTargetScale
+-                                 offset:0u atIndex:5u];
+-                    [encoder setBuffer:state.femRegionalAugmentedCoarseValid
+-                                 offset:0u atIndex:6u];
+-                    [encoder setBuffer:state.femRegionalRestartTailPreserved
+-                                 offset:0u atIndex:7u];
+-                });
+-                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+-                state.femRegionalRestartGenerationInitialized.store(
+-                    true, std::memory_order_release);
+-            }
+             for (std::uint32_t restartCycle = 0u;
+                  restartCycle < restartCycleCount;
+                  ++restartCycle) {

@@ -430,12 +430,15 @@ struct CoupledFixture {
         [enc setComputePipelineState:device.base.applyFreeRigid];
         [enc setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
         const uint articulated = 0u;
+        const uint allowConvergedState = 0u;
         [enc setBytes:&articulated length:sizeof(articulated) atIndex:1u];
         [enc setBuffer:vectorB offset:0u atIndex:2u];
         [enc setBuffer:workB offset:0u atIndex:3u];
         [enc setBuffer:contact.argumentBuffer offset:0u atIndex:4u];
         [enc setBuffer:fgmresB offset:0u atIndex:5u];
         [enc setBuffer:candidateB offset:0u atIndex:6u];
+        [enc setBytes:&allowConvergedState length:sizeof(allowConvergedState)
+               atIndex:7u];
         [enc dispatchThreads:MTLSizeMake(6u,1u,1u)
               threadsPerThreadgroup:MTLSizeMake(6u,1u,1u)];
         [enc endEncoding]; [cmd commit]; [cmd waitUntilCompleted];
@@ -453,6 +456,8 @@ struct CoupledFixture {
         [enc setBuffer:fgmresB offset:0u atIndex:5u];
         [enc setBuffer:makeBuffer(device.base.gpu,
             std::vector<float>(18u,0.0f)) offset:0u atIndex:6u];
+        [enc setBytes:&allowConvergedState length:sizeof(allowConvergedState)
+               atIndex:7u];
         [enc dispatchThreads:MTLSizeMake(6u,1u,1u)
               threadsPerThreadgroup:MTLSizeMake(6u,1u,1u)];
         [enc endEncoding]; [cmd commit]; [cmd waitUntilCompleted];

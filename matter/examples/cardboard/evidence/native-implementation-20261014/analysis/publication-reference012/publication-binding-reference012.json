@@ -1,0 +1,18 @@
+{
+  "schema": "numi.cardboard.publication-binding.v2",
+  "parent_revision": "6ebaf0fabcd0f824260b03994aaa13d7cab41c24",
+  "build": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-103/source-build.json",
+  "build_sha256": "b4c036f65383b5fce246144c3a81526050ad327252f5859d9b4c0504888bce6b",
+  "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-whole-mortar-proof-103",
+  "bound_index_files": 778,
+  "all_bound_index_bytes_verified": true,
+  "exact_archive_paths": 5691,
+  "documentation_paths": [
+    "matter/README.md",
+    "matter/examples/cardboard/implementation-20261014.md",
+    "matter/examples/cardboard/solver-progress-20261014.md",
+    "matter/examples/cardboard/shipping-runtime-gaps-20261014.md",
+    "matter/examples/cardboard/solver-milestone-source103.md"
+  ],
+  "limitation": "Bounded source-bound solver/component milestone only. Sixqualificationverdicts remain distinct. Incomplete/failedphysicalruns, observer/checkerintegrationfailures and terminationerrors retained. No fullbox/calibration/convergence/crush/impactcompletion claim."
+}

@@ -1,0 +1,26 @@
+{
+  "schema": "numi.cardboard.configure-context-repair.v1",
+  "failed_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-whole-mortar-proof-102",
+  "failed_build": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-102/source-build.json",
+  "failed_build_sha256": "93d8853c8d42b83d2ec321d80d4b03f1bea8e5380374da9eac437729432e2b19",
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-whole-mortar-proof-103",
+  "selected_source_identical_to102": true,
+  "base101_manifest_sha256": "3fe62983d15e55d887429f714370df1758ba9e450ae1648b554ce66a41a74680",
+  "changed_from101": {
+    "matter/include/numi/matter/mortar_shared_edge_guard.h": {
+      "before": "424f81a65836457d84593231e2efeca1ccfabaabd869c4a8920bf2403b2cafa1",
+      "after": "b4953028b1e3ffd8fba0100b34cc3aad28f7eac812fb1cfd711aaf7cf7b5bbaa"
+    },
+    "matter/src/metal/contact.metalinc": {
+      "before": "71a3135c1dcb30bea61643940a98830339b969d471f5701e7dcce0427c0d30df",
+      "after": "427aca061ad2c6d2218b5eae0bc7620132a1ef9fff9f688390ccc96ca8a27ffc"
+    },
+    "matter/tools/mortar_exact_tiling_check.cpp": {
+      "before": "e3d0a7a7104cace1bc82739634a78e3f0eaf8de4e6ea9e4b59ced4c74c5fea57",
+      "after": "0b5922e54d2ed067eef5e03786b523142bb71b906e4e1bffc7738235a1c807e0"
+    }
+  },
+  "extra_configure_context_files": 1068,
+  "extra_manifest_sha256": "e29ccc4b0823433dac0c5a38cc2abd8b5f9ed9472a157661217443c4b326d110",
+  "scope": "Source101 plus strictly guarded whole-pair mortar complement certificate: exact full Q25 coverage, exact shape-preserving parent translations, exact 3D identity or horizontal normal-only projected identity, same-ID cell correspondence and shared-vertex path coherence; finite paired-boundary operands. Covered interface compression remains owned by mixed cohesive law. Uncertain/general deformation falls back to unchanged CCD. No tolerance, physical operator, recipe, restart or acceptance change. Native qualification pending. Snapshot102 configure failed because its narrow selected-source copy omitted unrelated root-CMake target source files. Source103 retains exact101 configure context and exact102 selected source bytes; failure102 remains retained."
+}

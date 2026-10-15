@@ -1,0 +1,44 @@
+{
+  "schema": "numi.cardboard.mortar_axis_partition_coherence_overlay.v1",
+  "status": "candidate_unqualified_native",
+  "base_package": "/Users/home/cardboard-implementation-20261014/analysis/private-mortar-axis-normal-330/package",
+  "base_manifest_sha256": "1763c47185033cea23f0c56a3ec12a8e6c44ce6b4b1564309be5f20287f6b423",
+  "base_patch_sha256": "95b883f6ffc9c4a73264e8d5c42f5c53e6ece9053a862efd341fcb531d912170",
+  "base_source": "/Users/home/cardboard-implementation-20261014/analysis/private-mortar-axis-normal-330/source",
+  "patch": "axis-partition-coherence.patch",
+  "patch_sha256": "eb45e83b8fd085e7b8827511d7ffe12a988f15b3f04cef8cbed29e29443694d0",
+  "changed_files": {
+    "matter/include/numi/matter/mortar_shared_edge_guard.h": {
+      "base_sha256": "91790ca1066f377743814971ce5bde185c62ed868bb2f398bb29e304f7507d81",
+      "after_sha256": "9b372e924c5de72e64298437a90c0514f2bd624f4c94f49da1aad7411890f133"
+    },
+    "matter/tools/mortar_exact_tiling_check.cpp": {
+      "base_sha256": "f5cf36ae6c619e2b393e455706b063b3034e2e471f1bac451f25d51ea495af5a",
+      "after_sha256": "f95a87717164dd6827be751ac8afeb316b2dcb02daae9a34b43cdd0bcf302ba9"
+    }
+  },
+  "contract": "Require projected shared vertices within each bounded partition to follow one exact common endpoint path. This rejects a partition whose cells meet at the initial state but tear apart along the linear sweep. It supplements, and does not replace, the parent exact-common-translation, exact complete-cover, horizontal-plane, matched parent-vertex, and same-patch-ID trajectory checks.",
+  "whole_sweep_contact_audit": {
+    "relative_gap": "The right-minus-left plane offset is affine in t because each parent follows exact linear common translation and remains horizontal. It may start separated, reach zero, and end interpenetrating; the geometric certificate deliberately does not require a positive final gap.",
+    "contact_ownership": "The shortcut is reached only for two exact full cohesive covers built from active, non-dormant mixed-mode patches. Each matching patch remains geometrically paired for all t, and shared projected vertices remain coherent. The mixed cohesive law has a compression branch (stiffness.z * normal gap when normal gap <= 0) and an intact/damage-scaled tensile branch for positive normal gap, so crossing the interface does not leave an uncovered contact complement in this exact axis-normal case.",
+    "limits": "This is source-level geometric reasoning plus CPU guards, not a native contact-force or physical qualification. It relies on the declared mixed cohesive law being the intended contact response for the fully covered interface; it does not qualify dormant patches, incomplete coverage, tangential slip, rotation, deformation, non-axis-aligned planes, or other contact models."
+  },
+  "tests": {
+    "cpu_command": "clang++ -std=c++17 -Wall -Wextra -Wpedantic -Werror -I source/matter/include source/matter/tools/mortar_exact_tiling_check.cpp -o /tmp/mortar_exact_tiling_check_331 && /tmp/mortar_exact_tiling_check_331",
+    "cpu_result": "PASS: mortar_exact_tiling_checks=49 exact_fan_and_tiles=true exact_feature_identity=true whole_parent_sweep_certificate=true patch_identity=true axis_normal_relative=true",
+    "added_controls": [
+      "Cells sharing an exact projected start vertex but diverging at the finish are rejected.",
+      "A fully covered three-patch interface that starts at +0.125 normal separation and ends at -0.125 is certified geometrically with zero gap at t=0.5; this checks that the proof covers closure through crossing rather than assuming separation."
+    ],
+    "metal_compile": "PASS: matter_kernels.metal compiled with Metal 4.0, -O3, -fno-fast-math and linked into a Metal library. Two unrelated pre-existing FGMRES maybe-uninitialized warnings remain.",
+    "metal_air_sha256": "935708f722c9dee90835257e32c3a29aceb01bf5538447df43ebe9d4925faa5f",
+    "metal_library_sha256": "adf31ca05b8e71cc48eb7ffcc3aceacd3d8d2ccdde40cc240db62a5c1a9fb355",
+    "patch_application": "PASS: git apply --check against the exact 330 source tree.",
+    "native": "Not run; no GPU qualification."
+  },
+  "limitations": [
+    "The new shared-vertex coherence check only closes a trajectory crack within a partition. The parent-level certificate remains required to prove those trajectories arise from fixed barycentric partitions under exact common parent translations.",
+    "The normal-relative shortcut permits the two parallel interface planes to cross. The cohesive compression branch, rather than a separate noncohesive contact law, carries closure for a fully active exact cover.",
+    "No native/GPU run; no claim of shipping assembly qualification."
+  ]
+}

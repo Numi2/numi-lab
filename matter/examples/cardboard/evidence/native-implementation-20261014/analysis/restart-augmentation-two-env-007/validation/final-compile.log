@@ -1,0 +1,13 @@
+Base: source-current-newton-restart-augmentation-096
+Overlay: restart-augmentation-two-env-007/overlay
+Runtime Objective-C++ syntax: 
+PASS
+Graph checker Objective-C++ syntax: 
+PASS
+Masked basis checker Objective-C++ syntax: 
+PASS
+Metal compile: 
+PASS
+Metal library link: 
+PASS
+Native/GPU execution: NOT RUN (root owns native validation).

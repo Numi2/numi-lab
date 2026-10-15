@@ -1,0 +1,38 @@
+[
+  {
+    "patch": "/Users/home/cardboard-implementation-20261014/analysis/private-mortar-parent-translation-guard-321-001/whole-parent-identity.patch",
+    "sha256": "036613adaace29b7f64b82bba3e5611964a0156244ed6c2a25d32045e89c409b",
+    "application": "header and contact clean; cpp exact-function merge",
+    "proof": {
+      "method": "Exact function-preserving merge of disjoint feature and whole-parent tests",
+      "preserved_101_function_sha256": "1822e8aa204f02a1e0762ebf24d826de330c7d82d6e555386224f6a786269e14",
+      "incoming321_sha256": "dcd549bb132d418c3e230e76dc1fac5666f05f03ca9efa8d0b3e707fd67e5ef5",
+      "merged_cpp_sha256": "787f12d87117052ac49080021dad5c13fcb0b37dfea5610f04f8b24cd5698bd4",
+      "verification": "Replacing only preserved101function with original321function reproduces exact321cppbytes"
+    }
+  },
+  {
+    "patch": "/Users/home/cardboard-implementation-20261014/analysis/private-mortar-parent-translation-nondegenerate-327/package/common-translation-nondegenerate.patch",
+    "sha256": "e0d1135aa6b8d8bd27c88e6ed316f45d561cd61da48a939e9f61f388a6c727e5",
+    "check_exit": 0,
+    "output": ""
+  },
+  {
+    "patch": "/Users/home/cardboard-implementation-20261014/analysis/private-mortar-parent-two-sum-range-329/package/two-sum-range.patch",
+    "sha256": "70050098680f592d2a03467232177c8dbdd75294674083d62273262bfe444438",
+    "check_exit": 0,
+    "output": ""
+  },
+  {
+    "patch": "/Users/home/cardboard-implementation-20261014/analysis/private-mortar-axis-normal-330/package/axis-normal-relative.patch",
+    "sha256": "95b883f6ffc9c4a73264e8d5c42f5c53e6ece9053a862efd341fcb531d912170",
+    "check_exit": 0,
+    "output": ""
+  },
+  {
+    "patch": "/Users/home/cardboard-implementation-20261014/analysis/private-mortar-q25-finite-endpoints-328/package/finite-endpoints.patch",
+    "sha256": "235221bc8358a901f6808e39cde87a29ae88cec3d65bd88f26659a1927f3d0eb",
+    "check_exit": 1,
+    "output": "error: patch failed: matter/tools/mortar_exact_tiling_check.cpp:137\nerror: matter/tools/mortar_exact_tiling_check.cpp: patch does not apply\n"
+  }
+]

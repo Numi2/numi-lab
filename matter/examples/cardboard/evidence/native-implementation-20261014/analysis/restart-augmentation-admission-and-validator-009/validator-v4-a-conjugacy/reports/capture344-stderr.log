@@ -1,0 +1,42 @@
+/Users/home/cardboard-implementation-20261014/analysis/restart-augmentation-admission-and-validator-009/validator-v4-a-conjugacy/validate_restart_augmentation.py:613: RuntimeWarning: divide by zero encountered in matmul
+  qnorm2 = float(qf @ qf)
+/Users/home/cardboard-implementation-20261014/analysis/restart-augmentation-admission-and-validator-009/validator-v4-a-conjugacy/validate_restart_augmentation.py:613: RuntimeWarning: overflow encountered in matmul
+  qnorm2 = float(qf @ qf)
+/Users/home/cardboard-implementation-20261014/analysis/restart-augmentation-admission-and-validator-009/validator-v4-a-conjugacy/validate_restart_augmentation.py:613: RuntimeWarning: invalid value encountered in matmul
+  qnorm2 = float(qf @ qf)
+/Users/home/cardboard-implementation-20261014/analysis/restart-augmentation-admission-and-validator-009/validator-v4-a-conjugacy/validate_restart_augmentation.py:304: RuntimeWarning: divide by zero encountered in matmul
+  euclidean_dots = p64.T @ q64
+/Users/home/cardboard-implementation-20261014/analysis/restart-augmentation-admission-and-validator-009/validator-v4-a-conjugacy/validate_restart_augmentation.py:304: RuntimeWarning: overflow encountered in matmul
+  euclidean_dots = p64.T @ q64
+/Users/home/cardboard-implementation-20261014/analysis/restart-augmentation-admission-and-validator-009/validator-v4-a-conjugacy/validate_restart_augmentation.py:304: RuntimeWarning: invalid value encountered in matmul
+  euclidean_dots = p64.T @ q64
+/Users/home/cardboard-implementation-20261014/analysis/restart-augmentation-admission-and-validator-009/validator-v4-a-conjugacy/validate_restart_augmentation.py:356: RuntimeWarning: divide by zero encountered in matmul
+  gram = p64.T @ p64
+/Users/home/cardboard-implementation-20261014/analysis/restart-augmentation-admission-and-validator-009/validator-v4-a-conjugacy/validate_restart_augmentation.py:356: RuntimeWarning: overflow encountered in matmul
+  gram = p64.T @ p64
+/Users/home/cardboard-implementation-20261014/analysis/restart-augmentation-admission-and-validator-009/validator-v4-a-conjugacy/validate_restart_augmentation.py:356: RuntimeWarning: invalid value encountered in matmul
+  gram = p64.T @ p64
+/Users/home/cardboard-implementation-20261014/analysis/restart-augmentation-admission-and-validator-009/validator-v4-a-conjugacy/validate_restart_augmentation.py:313: RuntimeWarning: divide by zero encountered in matmul
+  a_dots = p64.T @ action64
+/Users/home/cardboard-implementation-20261014/analysis/restart-augmentation-admission-and-validator-009/validator-v4-a-conjugacy/validate_restart_augmentation.py:313: RuntimeWarning: overflow encountered in matmul
+  a_dots = p64.T @ action64
+/Users/home/cardboard-implementation-20261014/analysis/restart-augmentation-admission-and-validator-009/validator-v4-a-conjugacy/validate_restart_augmentation.py:313: RuntimeWarning: invalid value encountered in matmul
+  a_dots = p64.T @ action64
+/Users/home/cardboard-implementation-20261014/analysis/restart-augmentation-admission-and-validator-009/validator-v4-a-conjugacy/validate_restart_augmentation.py:317: RuntimeWarning: divide by zero encountered in matmul
+  energy = float(q64 @ action64)
+/Users/home/cardboard-implementation-20261014/analysis/restart-augmentation-admission-and-validator-009/validator-v4-a-conjugacy/validate_restart_augmentation.py:317: RuntimeWarning: overflow encountered in matmul
+  energy = float(q64 @ action64)
+/Users/home/cardboard-implementation-20261014/analysis/restart-augmentation-admission-and-validator-009/validator-v4-a-conjugacy/validate_restart_augmentation.py:317: RuntimeWarning: invalid value encountered in matmul
+  energy = float(q64 @ action64)
+/Users/home/cardboard-implementation-20261014/analysis/restart-augmentation-admission-and-validator-009/validator-v4-a-conjugacy/validate_restart_augmentation.py:633: RuntimeWarning: divide by zero encountered in matmul
+  true_rap = np.column_stack((pmat, qf)).T @ np.column_stack((apmat, aqf))
+/Users/home/cardboard-implementation-20261014/analysis/restart-augmentation-admission-and-validator-009/validator-v4-a-conjugacy/validate_restart_augmentation.py:633: RuntimeWarning: overflow encountered in matmul
+  true_rap = np.column_stack((pmat, qf)).T @ np.column_stack((apmat, aqf))
+/Users/home/cardboard-implementation-20261014/analysis/restart-augmentation-admission-and-validator-009/validator-v4-a-conjugacy/validate_restart_augmentation.py:633: RuntimeWarning: invalid value encountered in matmul
+  true_rap = np.column_stack((pmat, qf)).T @ np.column_stack((apmat, aqf))
+/Users/home/cardboard-implementation-20261014/analysis/restart-augmentation-admission-and-validator-009/validator-v4-a-conjugacy/validate_restart_augmentation.py:638: RuntimeWarning: divide by zero encountered in matmul
+  reconstructed = (np.tril(lu, -1) + np.eye(stride)) @ np.triu(lu)
+/Users/home/cardboard-implementation-20261014/analysis/restart-augmentation-admission-and-validator-009/validator-v4-a-conjugacy/validate_restart_augmentation.py:638: RuntimeWarning: overflow encountered in matmul
+  reconstructed = (np.tril(lu, -1) + np.eye(stride)) @ np.triu(lu)
+/Users/home/cardboard-implementation-20261014/analysis/restart-augmentation-admission-and-validator-009/validator-v4-a-conjugacy/validate_restart_augmentation.py:638: RuntimeWarning: invalid value encountered in matmul
+  reconstructed = (np.tril(lu, -1) + np.eye(stride)) @ np.triu(lu)

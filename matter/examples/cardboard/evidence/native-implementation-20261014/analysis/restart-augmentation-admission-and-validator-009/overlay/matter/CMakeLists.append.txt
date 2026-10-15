@@ -1,0 +1,15 @@
+add_executable(numi-matter-regional-restart-field-admission-check
+    tools/regional_restart_augmentation_admission_check.cpp)
+target_link_libraries(numi-matter-regional-restart-field-admission-check
+    PRIVATE numi_matter_compiler)
+target_include_directories(numi-matter-regional-restart-field-admission-check
+    PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../include")
+target_compile_options(numi-matter-regional-restart-field-admission-check
+    PRIVATE -Wall -Wextra -Wpedantic -Werror)
+if(BUILD_TESTING)
+    add_test(NAME matter.compiler.regional_restart_field_admission
+        COMMAND numi-matter-regional-restart-field-admission-check
+            "${CMAKE_CURRENT_SOURCE_DIR}/materials/hajali2009_liner_hill_ideal.nmatter")
+    set_tests_properties(matter.compiler.regional_restart_field_admission
+        PROPERTIES LABELS "matter;regional;restart;cpu" TIMEOUT 30)
+endif()

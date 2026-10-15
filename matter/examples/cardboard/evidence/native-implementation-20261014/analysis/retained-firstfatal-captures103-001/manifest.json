@@ -1,0 +1,33 @@
+{
+  "schema": "numi.cardboard.retained_diagnostic_bundle.v1",
+  "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-whole-mortar-proof-103",
+  "captures": [
+    {
+      "run": 358,
+      "case": "/Users/home/cardboard-implementation-20261014/native/first-fatal-private-trial-358",
+      "raw_source": "/Users/home/cardboard-implementation-20261014/native/first-fatal-private-trial-358/private-trial.coupled.bin",
+      "uncompressed_bytes": 19467248,
+      "uncompressed_sha256": "8126b3baa007e1da436447bd8bfaa91ab51a53be72471ff1c7133897089deea0",
+      "compressed": "358/private-trial.coupled.bin.gz",
+      "compressed_bytes": 74810,
+      "compressed_sha256": "f7a3ecc94c40a65c2bf7746254088cf3c229a86f1cf2cbea397e6c3f34bf7cec",
+      "restore_verified": true,
+      "array_count": 129
+    },
+    {
+      "run": 359,
+      "case": "/Users/home/cardboard-implementation-20261014/native/first-fatal-center-359",
+      "raw_source": "/Users/home/cardboard-implementation-20261014/native/first-fatal-center-359/center-capture.coupled.bin",
+      "uncompressed_bytes": 11670948,
+      "uncompressed_sha256": "965d38af46af2bbc311cb1534193b8892581cb4d4548936dfc8d7ba9db0cc2e4",
+      "compressed": "359/center-capture.coupled.bin.gz",
+      "compressed_bytes": 54043,
+      "compressed_sha256": "425a8cae07844d8515c863e1d9558e756239e6bcb0397b3e9adf6c79bdc75b91",
+      "restore_verified": true,
+      "array_count": 145
+    }
+  ],
+  "accepted_checkpoint": false,
+  "qualification": "Lossless first-fatal Newton7 failed-run diagnostics. 358 captures private trial23 with CCDstatus6; 359 captures its healthy center. All9nonlogphysicalfiles and all32Armijorecords match capture-off355. The infeasible private trial is not admitted for a complete smooth residual derivative comparison; no postfatal state is used. No accepted physical trajectory or checkpoint.",
+  "restoration": "gzip decompress then check each uncompressed byte extent and SHA256; adjacent original capture manifests remain unmodified"
+}

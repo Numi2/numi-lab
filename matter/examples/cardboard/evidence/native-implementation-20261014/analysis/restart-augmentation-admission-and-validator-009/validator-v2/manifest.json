@@ -1,0 +1,187 @@
+{
+  "base_context": {
+    "feature_off_323_source": "/Users/home/cardboard-implementation-20261014/snapshots/source-center-action-twoenv-restart-099",
+    "historical_182_source": "/Users/home/cardboard-implementation-20261014/snapshots/source-selected-newton-rap-and-validated-replay-integrated-060",
+    "source_100": "/Users/home/cardboard-implementation-20261014/snapshots/source-exact-tiling-inactive-fields-100"
+  },
+  "created_utc": "2026-10-15",
+  "files": [
+    {
+      "bytes": 3377,
+      "path": "README.md",
+      "sha256": "83227dcc4d07e36b8f727bf2e10e8c4451830018cb0e444f313c1792c7073a2f"
+    },
+    {
+      "bytes": 57881,
+      "path": "validate_restart_augmentation.py",
+      "sha256": "d28b5c60a05c275d3d0d7c43a577cd0c1755e5aea079033800319050935999a1"
+    },
+    {
+      "bytes": 11390,
+      "path": "test_restart_augmentation_validation_v2.py",
+      "sha256": "54696c473d4beacbbfe679d63218623530a5c0283c49853e9f4f894e8fb03b53"
+    },
+    {
+      "bytes": 1255,
+      "path": "reports/unittest-v2.log",
+      "sha256": "51de605f89bb3feaf8891c00a25d07c92f79b8c89642d57c869dd8ce11769d98"
+    },
+    {
+      "bytes": 6268,
+      "path": "reports/capture182-base-ap-v2.json",
+      "sha256": "0b206e09d81447435a8a928b19d74f5ec3d4ac6fbaaf93b8cd1469daf1adb9bb"
+    },
+    {
+      "bytes": 5874,
+      "path": "reports/capture323-base-ap-v2.json",
+      "sha256": "e94873edf0cb6c8416e3d20f17a37e83f428c0a9a0fb247959dc8be441fb673b"
+    },
+    {
+      "bytes": 9525,
+      "path": "reports/capture337-restart-diagnostic-v2.json",
+      "sha256": "a3c16d9f207dbddcfc83dd549922d2ede7967876e28d2d0a791087607d8b1285"
+    }
+  ],
+  "findings": {
+    "capture182": "preserved AP sidecar mismatch; validator exits 2",
+    "capture323": "base A*P fresh-action consistent; failed run; no physical acceptance",
+    "capture337": "no augmentation attempt observed; factor_valid environment 0 word is not q/augmented-factor evidence; base A*P consistent but no performance conclusion"
+  },
+  "inputs": [
+    {
+      "bytes": 43166,
+      "id": "independent_operator_assembler",
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/offline-operator-tool-development-058/cardboard_cached_operator_audit.py",
+      "sha256": "92a6c810192befb789db11b09a7c4e8884cda762b2448c564072d932c6e59383"
+    },
+    {
+      "bytes": 37691333,
+      "id": "capture182_operator",
+      "path": "/Users/home/cardboard-implementation-20261014/solver/selected-newton-regional-rap-and-operator-capture-182/operator-capture",
+      "sha256": "27345f7afc7f752388bc76802657386546195ed8b13694df9b39be43be3a8446"
+    },
+    {
+      "bytes": 4859,
+      "id": "capture182_regional_json",
+      "path": "/Users/home/cardboard-implementation-20261014/solver/selected-newton-regional-rap-and-operator-capture-182/operator-capture.regional.json",
+      "sha256": "8a0c68399357d3edf513499864260cdda3e7a239d429941d95a544756eb84eda"
+    },
+    {
+      "bytes": 3909272,
+      "id": "capture182_regional_bin",
+      "path": "/Users/home/cardboard-implementation-20261014/solver/selected-newton-regional-rap-and-operator-capture-182/operator-capture.regional.bin",
+      "sha256": "5ea011af4b6c0835cf88cf9f6005514b79a14a850ba16c2c4a66374e118cb4d4"
+    },
+    {
+      "bytes": 1770,
+      "id": "capture182_conditioning_manifest",
+      "path": "/Users/home/cardboard-implementation-20261014/solver/selected-newton-regional-rap-and-operator-capture-182/output/rejected-conditioning-000004/manifest.json",
+      "sha256": "dd9d4ae302640b2a7203729b4df920aab75705933d019df375fe6d9a06d99875"
+    },
+    {
+      "bytes": 643,
+      "id": "capture182_result",
+      "path": "/Users/home/cardboard-implementation-20261014/solver/selected-newton-regional-rap-and-operator-capture-182/output/result.json",
+      "sha256": "c1bf3fb4fe9c27681ab875895c12cd457e71e3059e4f927ca9ed9103b22c9874"
+    },
+    {
+      "bytes": 278,
+      "id": "capture182_receipt",
+      "path": "/Users/home/cardboard-implementation-20261014/solver/selected-newton-regional-rap-and-operator-capture-182/receipt.json",
+      "sha256": "e8b9feb5f65d6482d2195b8fe388ee5d99572afc061b8cd7f5803f621e0da0c1"
+    },
+    {
+      "bytes": 107524,
+      "id": "capture182_source_build",
+      "path": "/Users/home/cardboard-implementation-20261014/solver/selected-newton-regional-rap-and-operator-capture-182/inputs/external/source-build.json",
+      "sha256": "e4e1b279927396ccde43cf2ec114881ad4ec5c063d5972d136e6c734387dab76"
+    },
+    {
+      "bytes": 37643571,
+      "id": "capture323_operator",
+      "path": "/Users/home/cardboard-implementation-20261014/solver/two-env-current-newton-augmentation-off-bounded-323/operator-capture",
+      "sha256": "2e585d35bf4b5866ed0b8b3baf3f9ef097627342b870d727a16bb1b6c5923d48"
+    },
+    {
+      "bytes": 2875,
+      "id": "capture323_conditioning_manifest",
+      "path": "/Users/home/cardboard-implementation-20261014/solver/two-env-current-newton-augmentation-off-bounded-323/output/rejected-conditioning-000001/manifest.json",
+      "sha256": "273eae8a472d2ebec9e06029639dbb1539070e7d7c4359d33b855028002bbad7"
+    },
+    {
+      "bytes": 698,
+      "id": "capture323_result",
+      "path": "/Users/home/cardboard-implementation-20261014/solver/two-env-current-newton-augmentation-off-bounded-323/output/result.json",
+      "sha256": "4d6f2842a1730805b2cca51c0f1699d70f9f292931f3b3d7fb3d32304274eae0"
+    },
+    {
+      "bytes": 306,
+      "id": "capture323_receipt",
+      "path": "/Users/home/cardboard-implementation-20261014/solver/two-env-current-newton-augmentation-off-bounded-323/receipt.json",
+      "sha256": "1de66a33629a6bdc5b7b34b0ca8dba3aae107941e7b4e3ad27104ecc543baddd"
+    },
+    {
+      "bytes": 95720,
+      "id": "capture323_source_build",
+      "path": "/Users/home/cardboard-implementation-20261014/solver/two-env-current-newton-augmentation-off-bounded-323/inputs/external/source-build.json",
+      "sha256": "9291909aac91305b8655151e022f860b6874f4cc6be02692d7ffc332ac49c857"
+    },
+    {
+      "bytes": 37637299,
+      "id": "capture337_operator",
+      "path": "/Users/home/cardboard-implementation-20261014/solver/current-newton-augmentation-on-N16-337/operator-capture",
+      "sha256": "ee36f61b8eddfc9629e075c43c5f78d76da7e66c6beb5ad9b7180fafae21b446"
+    },
+    {
+      "bytes": 5525,
+      "id": "capture337_conditioning_manifest",
+      "path": "/Users/home/cardboard-implementation-20261014/solver/current-newton-augmentation-on-N16-337/output/rejected-conditioning-000001/manifest.json",
+      "sha256": "779d92b114965caa371e7084055c8e0fd3a6e12f3d8ae809018a79d11bd5a94d"
+    },
+    {
+      "bytes": 699,
+      "id": "capture337_result",
+      "path": "/Users/home/cardboard-implementation-20261014/solver/current-newton-augmentation-on-N16-337/output/result.json",
+      "sha256": "33257e3d4087ed74627367e84644c505a9050d9d59f8e9c993b4db709c0f7102"
+    },
+    {
+      "bytes": 305,
+      "id": "capture337_receipt",
+      "path": "/Users/home/cardboard-implementation-20261014/solver/current-newton-augmentation-on-N16-337/receipt.json",
+      "sha256": "85127b4ee0c4a67ce58a4d88c0d3a82b04588461ef57fdde040403f45a8dadd8"
+    },
+    {
+      "bytes": 11533,
+      "id": "capture337_run_manifest",
+      "path": "/Users/home/cardboard-implementation-20261014/solver/current-newton-augmentation-on-N16-337/output/manifest.json",
+      "sha256": "1426660a803b0e5047ae46d59d79fdbafa86dac21f96544777e48a71639f248d"
+    },
+    {
+      "bytes": 116240,
+      "id": "capture337_source_build",
+      "path": "/Users/home/cardboard-implementation-20261014/solver/current-newton-augmentation-on-N16-337/inputs/external/source-build.json",
+      "sha256": "1d81c365385eb5d369b37583f084b61baed33a923189b4dea4f31c98dc8726c4"
+    },
+    {
+      "bytes": 3540,
+      "id": "native_337_338_parity_report",
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/augmentation-N16-on-off-337-338-001/report.json",
+      "sha256": "1b4688e027c7ae5b2bd240ee9cacf14c245b7c080fb2c87e74b5b0d8cc7ff8fd"
+    }
+  ],
+  "limits": [
+    "diagnostic consistency only",
+    "no performance qualification",
+    "no convergence or physical validation",
+    "native runs failed with zero accepted steps",
+    "source 100 N=16 restart-16 run recorded only 15 columns and did not attempt augmentation"
+  ],
+  "package": "restart-augmentation-validator-v2",
+  "schema": "numi.cardboard.restart-augmentation-validator-package.v2",
+  "validation": {
+    "command": "python3 -m unittest -v /Users/home/cardboard-implementation-20261014/analysis/restart-augmentation-admission-and-validator-009/validator-v2/test_restart_augmentation_validation_v2.py",
+    "native_runs_started_by_this_validator": false,
+    "result": "PASS 5 tests",
+    "test_log_sha256": "51de605f89bb3feaf8891c00a25d07c92f79b8c89642d57c869dd8ce11769d98"
+  }
+}

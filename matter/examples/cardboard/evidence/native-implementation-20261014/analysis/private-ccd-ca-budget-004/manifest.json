@@ -1,0 +1,81 @@
+{
+  "base_contact_source_sha256": "3cef6ae3dbd384d7b26ff6b0eb4ecda6da7a32be74cdea0badc5975eef692132",
+  "candidate_contact_source_sha256": "eee5d4def83e3d8fd5a80a6cb4272b977a05e334cab1b9021402a18bbe324d8d",
+  "change": {
+    "base_loop_bound": 16,
+    "candidate_loop_bound": 17,
+    "function": "edgeEdgeCCD",
+    "other_contact_loops_unchanged": true,
+    "physical_thresholds_changed": false
+  },
+  "classification": "external diagnostic and uncompiled source candidate; no native qualification",
+  "frozen_base": "/Users/home/cardboard-implementation-20261014/snapshots/source-center-action-twoenv-restart-099",
+  "limitations": [
+    "Native status diagnostic does not uniquely encode feature kind; CPU source-order replay localizes EE(0,0) after six preceding VT checks.",
+    "FP32 replay is not bit-exact Metal; weighted and difference-form mix evaluations differ at the near-grazing final step.",
+    "FP64 sweep is descriptive numerical sampling, not an independent continuous-time proof.",
+    "The source patch must be integrated, Metal-compiled, and natively rerun before adoption."
+  ],
+  "local_files": [
+    {
+      "bytes": 4921,
+      "name": "README.md",
+      "sha256": "ba7405d64c59707dfbd79753d13ec79b8b404733d588c0300066ff4171d89e7f"
+    },
+    {
+      "bytes": 24573,
+      "name": "replay.py",
+      "sha256": "bd99b069f72c3ae9a2e6237c4b449968066ad89f1db16e11c924dff1f1f92cab"
+    },
+    {
+      "bytes": 6976,
+      "name": "test_replay.py",
+      "sha256": "271530ee126b3ee7aa31ca69d250a05314c5eb3b6a57f5aca0c7b0d6b4c74656"
+    },
+    {
+      "bytes": 138938,
+      "name": "replay-report.json",
+      "sha256": "e7360fdb6ad2493381dcb942ff3a668e7cbb966c17301cb8be4cd7332c34ad2d"
+    },
+    {
+      "bytes": 522,
+      "name": "contact-16-to-17.patch",
+      "sha256": "cdf20209a4bafcdb7f442f113f1084e033fe4ee3c28a2152aafb538966844847"
+    },
+    {
+      "bytes": 392795,
+      "name": "contact.candidate.metalinc",
+      "sha256": "eee5d4def83e3d8fd5a80a6cb4272b977a05e334cab1b9021402a18bbe324d8d"
+    }
+  ],
+  "native_inputs": [
+    {
+      "case": 333,
+      "manifest": "/Users/home/cardboard-implementation-20261014/native/center-action-feasibility-bracket-333/private-trial.coupled.json",
+      "manifest_sha256": "c62cc99acfb766413d604250586704b63e9cd6e5930064329dfb57a277815e74",
+      "payload": "/Users/home/cardboard-implementation-20261014/native/center-action-feasibility-bracket-333/private-trial.coupled.bin",
+      "payload_sha256": "8fe7d2943880bb9962b1745569fa4120d88a317fee43b00fbbe9d609cc5d07eb",
+      "prediction_sha256": "8a5f9f5b605d8bcca6ff5e40dc3c07747d2a5283ca58060e725d445276570602",
+      "receipt_sha256": "57914ce219243d9b70d9327a37d1b6e4d0cf19358e648dc63880ece64d10f2ae",
+      "stderr_sha256": "474b17c255fada2cbe7d0d5cc4146feff19188dacc0b097c32792272f660b2d8"
+    },
+    {
+      "case": 334,
+      "manifest": "/Users/home/cardboard-implementation-20261014/native/center-action-feasibility-bracket-334/private-trial.coupled.json",
+      "manifest_sha256": "eeff0101144e3e6e4fffbd46a5b4b9642b2e5bc6ab071ff3969ef4d9ecdeec00",
+      "payload": "/Users/home/cardboard-implementation-20261014/native/center-action-feasibility-bracket-334/private-trial.coupled.bin",
+      "payload_sha256": "bb645f01802e2d0cfcec1a15ec0769ff988e8f06b1ce4a58610bc82c8c7f6e38",
+      "prediction_sha256": "011cf1e6e0c10ad4920966a18c82a5eb40043d73602473d2ae0dc1ce2f3540f1",
+      "receipt_sha256": "7129ba61bc1a62f4ee5f2849e029dad11a968f2e27934edbf7bd137be150fdf7",
+      "stderr_sha256": "9f1f85501abdc9688ec91e8a5dbfefd7375b275f9ad2ebd442ac6a5cd85f6981"
+    }
+  ],
+  "patch_sha256": "cdf20209a4bafcdb7f442f113f1084e033fe4ee3c28a2152aafb538966844847",
+  "schema": "numi.cardboard.private_ccd_ca_budget_candidate.v1",
+  "verification": {
+    "command": "python3 -m unittest discover -s /Users/home/cardboard-implementation-20261014/analysis/private-ccd-ca-budget-004 -p test_*.py -v",
+    "metal_build": "not run",
+    "native_gpu": "not run",
+    "result": "6 tests passed"
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "schema": "numi.cardboard.private_mortar_q25_boundary_overlay.v1",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-exact-tiling-inactive-fields-100",
+  "base_frozen_source_manifest_sha256": "69929a454c1406e0fc611e8ec9aea464d47dd90f1007987f6959b9e1d945d1c2",
+  "base_parent_revision": "35bfb518c542a306f563cc364ef8496837068b9a",
+  "patch": "q25-paired-boundary.patch",
+  "patch_sha256": "441b5e031d24374a7eeee3bfb925849e8bf1cb6605dfbe73493572f1e62b563f",
+  "files": {
+    "matter/include/numi/matter/mortar_shared_edge_guard.h": {
+      "base_sha256": "b55f84e75e003b605df829b9e0c1813283d547d535952e6eccea81a8ac9acd8a",
+      "overlay_sha256": "424f81a65836457d84593231e2efeca1ccfabaabd869c4a8920bf2403b2cafa1"
+    },
+    "matter/src/metal/contact.metalinc": {
+      "base_sha256": "1c30807b22b8ffb25c992cc595e2c8dfd3b757ecd8d39507e91d5fb1bcd1fa0d",
+      "overlay_sha256": "1c5c8066cf4795ae3643b72715199117bb964d2f6f9e24bc9ec1f2a20c3beb80"
+    },
+    "matter/tools/mortar_exact_tiling_check.cpp": {
+      "base_sha256": "6221d4544e5f3116558a2b884421fd94216e667012840fd60d7899fac7157137",
+      "overlay_sha256": "e3d0a7a7104cace1bc82739634a78e3f0eaf8de4e6ea9e4b59ced4c74c5fea57"
+    }
+  },
+  "scope": "Remove fuzzy paired-edge witness parameter admission for shared mortar pages. Interior witness pairs require exact Q25 collinearity and equal exact segment parameter; exact corresponding endpoints are allowed. Paired-edge suppression additionally requires exact physical coincidence of both mapped endpoints at the accepted start. The existing 8e-6 value is retained only as a minimum barycentric edge-length degeneracy guard.",
+  "validation": {
+    "cpu": "clang++ -std=c++17 -Wall -Wextra -Wpedantic -Werror .../matter/tools/mortar_exact_tiling_check.cpp; output: mortar_exact_tiling_checks=19 exact_fan_and_tiles=true exact_feature_identity=true",
+    "metal": "xcrun -sdk macosx metal -std=metal4.0 -O3 -fno-fast-math -I matter/include -I include -c matter/src/matter_kernels.metal; succeeds, with two pre-existing uninitialized-threadgroup warnings in fgmres.metalinc.",
+    "native": "Not run. Native case 325 remains the retained pre-fix regression witness; root must rerun the case matrix after applying this overlay.",
+    "cmake": "Full CMake configure on the source archive could not generate because unrelated archived source bindings/swift/MetalRoboTaskRollout.swift is absent. CPU target was compiled directly; full Metal kernel source was compiled directly.",
+    "checker_syntax": "clang++ -std=c++23 -x objective-c++ -fobjc-arc -fsyntax-only -Wall -Wextra -Wpedantic -Werror -Wno-unused-const-variable -Wno-unused-function with the frozen source include roots; succeeds. Without the two warning suppressions, only the pre-existing unused kFreeBodyMortarGap and requireFullSnapshotRestoreParity warnings fail -Werror."
+  },
+  "application": "Apply q25-paired-boundary.patch from the repository root with git apply after verifying base file hashes.",
+  "limitations": [
+    "This is a conservative endpoint/witness admissibility guard; exact physical-start equality can reject seams whose mathematically coincident interpolation evaluates to different FP32 bits.",
+    "It does not fix the separate cases where valid 3-/4-patch positive geometry remains rejected.",
+    "No full contact trajectory, physical qualification, or native GPU result is claimed."
+  ]
+}

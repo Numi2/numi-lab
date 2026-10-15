@@ -1,5 +1,16 @@
 # Shipping-size runtime admission and memory gaps
 
+## Source103 continuation
+
+Native353 now passes all16 bounded mortar CCD cases, including the four valid
+motions rejected by source101. This clears that geometric regression only.
+Combined-contact356 passes its synthetic transaction checks; free-body355
+still fails at its first-fatal Newton7, captured without changing production
+history in358/359. No shipping arena admission, measured process-memory peak,
+accepted shipping step or fixture-free checkpoint follows. The explicit-flute
+counts and independent runtime limits below remain. See
+[the source103 solver report](solver-milestone-source103.md).
+
 ## Reference011 and experimental097 continuation
 
 Selected all-direction material comparisons now resolve the FP64 and native

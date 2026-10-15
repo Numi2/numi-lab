@@ -174,6 +174,7 @@ void encodeProject(id<MTLComputeCommandEncoder> encoder,
     setBuffer(encoder, basis, 2u);
     setBuffer(encoder, coarseRHS, 3u);
     setCount(encoder, modeCount, 4u);
+    setCount(encoder, modeCount, 5u); // modeStride equals modeCount in this fixture.
     [encoder dispatchThreadgroups:MTLSizeMake(modeCount, 1u, 1u)
             threadsPerThreadgroup:MTLSizeMake(32u, 1u, 1u)];
     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
@@ -238,7 +239,8 @@ void encodeSolve(id<MTLComputeCommandEncoder> encoder,
                  id<MTLBuffer> pivots, id<MTLBuffer> factorValid,
                  id<MTLBuffer> corrections, id<MTLBuffer> status,
                  id<MTLBuffer> states, id<MTLBuffer> originalMatrices,
-                 std::uint32_t refinementMode, const InputHeader& header) {
+                 id<MTLBuffer> candidate, std::uint32_t refinementMode,
+                 const InputHeader& header) {
     [encoder setComputePipelineState:pipeline];
     setBuffer(encoder, dispatch, 0u);
     setBuffer(encoder, patches, 1u);
@@ -260,6 +262,8 @@ void encodeSolve(id<MTLComputeCommandEncoder> encoder,
     setBuffer(encoder, states, 17u);
     setBuffer(encoder, originalMatrices, 18u);
     setCount(encoder, refinementMode, 19u);
+    setBuffer(encoder, candidate, 20u);
+    setCount(encoder, header.modeCount, 21u);
     [encoder dispatchThreadgroups:MTLSizeMake(header.patchCount, 1u, 1u)
             threadsPerThreadgroup:MTLSizeMake(256u, 1u, 1u)];
     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
@@ -272,8 +276,8 @@ void encodeApply(id<MTLComputeCommandEncoder> encoder,
                  id<MTLBuffer> nodeCoverage, id<MTLBuffer> regionalBasis,
                  id<MTLBuffer> coefficients, id<MTLBuffer> corrections,
                  id<MTLBuffer> preconditioned, id<MTLBuffer> states,
-                 std::uint32_t patchNodeCount, std::uint32_t modeCount,
-                 std::uint32_t nodeCount) {
+                 id<MTLBuffer> candidate, std::uint32_t patchNodeCount,
+                 std::uint32_t modeCount, std::uint32_t nodeCount) {
     [encoder setComputePipelineState:pipeline];
     setBuffer(encoder, dispatch, 0u);
     setBuffer(encoder, patchNodes, 1u);
@@ -287,6 +291,8 @@ void encodeApply(id<MTLComputeCommandEncoder> encoder,
     setBuffer(encoder, states, 9u);
     setCount(encoder, patchNodeCount, 10u);
     setCount(encoder, modeCount, 11u);
+    setBuffer(encoder, candidate, 12u);
+    setCount(encoder, modeCount, 13u); // modeStride equals modeCount here.
     [encoder dispatchThreads:MTLSizeMake(nodeCount, 1u, 1u)
        threadsPerThreadgroup:MTLSizeMake(256u, 1u, 1u)];
     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
@@ -445,6 +451,16 @@ int main(int argc, char** argv) {
 
             id<MTLBuffer> dispatchBuffer = outputBuffer(device,
                 sizeof(NMMatterDispatchGPU), "dispatch");
+            std::vector<NMFEMNodeStateGPU> graphCandidate(header.nodeCount);
+            for (NMFEMNodeStateGPU& node : graphCandidate) {
+                node.positionAndMass.w = 1.0f;
+                node.velocityAndInverseMass.w = 1.0f;
+            }
+            id<MTLBuffer> candidateBuffer = outputBuffer(device,
+                graphCandidate.size() * sizeof(NMFEMNodeStateGPU),
+                "all-free graph candidate nodes");
+            std::memcpy(candidateBuffer.contents, graphCandidate.data(),
+                        candidateBuffer.length);
             NMMatterDispatchGPU dispatch{};
             dispatch.abiVersion = NM_MATTER_ABI_VERSION;
             dispatch.environmentCount = 1u;
@@ -611,59 +627,59 @@ int main(int argc, char** argv) {
             encodeSolve(encoder, solvePipeline, dispatchBuffer, patches, patchNodes,
                         basis, regionalBasis, regionalAP, coefficients, patchMatrices,
                         pivots, factorValid, corrections0, mode0Status, activeState,
-                        originalMatrices, 0u, header);
+                        originalMatrices, candidateBuffer, 0u, header);
             encodeApply(encoder, applyPipeline, dispatchBuffer, patchNodes,
                         nodePatchOffsets, nodePatchValues, nodeCoverage, regionalBasis,
-                        coefficients, corrections0, preconditioned0, activeState,
+                        coefficients, corrections0, preconditioned0, activeState, candidateBuffer,
                         header.patchNodeCount, header.modeCount, header.nodeCount);
             encodeSolve(encoder, solvePipeline, dispatchBuffer, patches, patchNodes,
                         basis, regionalBasis, regionalAP, coefficients, patchMatrices,
                         pivots, factorValid, corrections1, mode1Status, activeState,
-                        originalMatrices, 1u, header);
+                        originalMatrices, candidateBuffer, 1u, header);
             encodeApply(encoder, applyPipeline, dispatchBuffer, patchNodes,
                         nodePatchOffsets, nodePatchValues, nodeCoverage, regionalBasis,
-                        coefficients, corrections1, preconditioned1, activeState,
+                        coefficients, corrections1, preconditioned1, activeState, candidateBuffer,
                         header.patchNodeCount, header.modeCount, header.nodeCount);
 
             // Exact zero RHS exercises the no-op refinement branch end to end.
             encodeSolve(encoder, solvePipeline, dispatchBuffer, patches, patchNodes,
                         zeroBasis, regionalBasis, zeroAP, zeroCoefficients, patchMatrices,
                         pivots, factorValid, zeroMode0Corrections, zeroMode0Status,
-                        activeState, originalMatrices, 0u, header);
+                        activeState, originalMatrices, candidateBuffer, 0u, header);
             encodeApply(encoder, applyPipeline, dispatchBuffer, patchNodes,
                         nodePatchOffsets, nodePatchValues, nodeCoverage, regionalBasis,
                         zeroCoefficients, zeroMode0Corrections, zeroMode0Preconditioned,
-                        activeState, header.patchNodeCount, header.modeCount,
+                        activeState, candidateBuffer, header.patchNodeCount, header.modeCount,
                         header.nodeCount);
             encodeSolve(encoder, solvePipeline, dispatchBuffer, patches, patchNodes,
                         zeroBasis, regionalBasis, zeroAP, zeroCoefficients, patchMatrices,
                         pivots, factorValid, zeroCorrections, zeroStatus, activeState,
-                        originalMatrices, 1u, header);
+                        originalMatrices, candidateBuffer, 1u, header);
             encodeApply(encoder, applyPipeline, dispatchBuffer, patchNodes,
                         nodePatchOffsets, nodePatchValues, nodeCoverage, regionalBasis,
-                        zeroCoefficients, zeroCorrections, zeroPreconditioned, activeState,
+                        zeroCoefficients, zeroCorrections, zeroPreconditioned, activeState, candidateBuffer,
                         header.patchNodeCount, header.modeCount, header.nodeCount);
 
             // The completed-cycle latch is tested independently of the solve mode.
             encodeSolve(encoder, solvePipeline, dispatchBuffer, patches, patchNodes,
                         basis, regionalBasis, regionalAP, coefficients, patchMatrices,
                         pivots, factorValid, completedCorrections, completedStatus,
-                        completedState, originalMatrices, 1u, header);
+                        completedState, originalMatrices, candidateBuffer, 1u, header);
             encodeApply(encoder, applyPipeline, dispatchBuffer, patchNodes,
                         nodePatchOffsets, nodePatchValues, nodeCoverage, regionalBasis,
                         coefficients, completedCorrections, completedPreconditioned,
-                        completedState, header.patchNodeCount, header.modeCount,
+                        completedState, candidateBuffer, header.patchNodeCount, header.modeCount,
                         header.nodeCount);
 
             // Explicit invalid-factor and invalid-mode admission controls.
             encodeSolve(encoder, solvePipeline, dispatchBuffer, patches, patchNodes,
                         basis, regionalBasis, regionalAP, coefficients, patchMatrices,
                         pivots, invalidFactorValid, invalidFactorCorrections,
-                        invalidFactorStatus, activeState, originalMatrices, 1u, header);
+                        invalidFactorStatus, activeState, originalMatrices, candidateBuffer, 1u, header);
             encodeSolve(encoder, solvePipeline, dispatchBuffer, patches, patchNodes,
                         basis, regionalBasis, regionalAP, coefficients, patchMatrices,
                         pivots, factorValid, invalidModeCorrections,
-                        invalidModeStatus, activeState, originalMatrices, 2u, header);
+                        invalidModeStatus, activeState, originalMatrices, candidateBuffer, 2u, header);
 
             // Separate factor/solve path with one authored singular principal block.
             encodeFactor(encoder, factorPipeline, dispatchBuffer, patches,
@@ -674,7 +690,7 @@ int main(int argc, char** argv) {
                         basis, regionalBasis, regionalAP, coefficients, singularMatrices,
                         singularPivots, singularFactorValid, singularCorrections,
                         singularSolveStatus, activeState, singularOriginalMatrices,
-                        1u, header);
+                        candidateBuffer, 1u, header);
             [encoder endEncoding];
             [command commit];
             [command waitUntilCompleted];

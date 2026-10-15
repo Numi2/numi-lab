@@ -1,0 +1,47 @@
+{
+  "schema": "numi.cardboard.integration.v1",
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-exact-tiling-inactive-fields-100",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-center-action-twoenv-restart-099",
+  "base_manifest_sha256": "5fb22c61c280f576f15677c8cf6dbbc174beceaa225973242f6d53f9c7957446",
+  "tiling_manifest_sha256": "b05f916154d984cd406ba3cba9c8fb5e71d46a5e98f0b36880a3210beccfe819",
+  "admission_manifest_sha256": "e754835b3d72e195f0117cc14903c95bfa4c03f8102f0c0b3a1050b4200b31d0",
+  "explicit_cmake_target_block_concatenation": true,
+  "unsafe_seam_exemption_excluded": true,
+  "changed": {
+    "matter/CMakeLists.txt": {
+      "before": "08170dbb3112cb42dcdd2c46ec0bbc587dd3c950646c76b107430027c162435e",
+      "after": "3d7c54b440f76bd70a600ecfcc2e8e27b82554fa437e25744e8e410121c4f868"
+    },
+    "matter/include/numi/matter/mortar_shared_edge_guard.h": {
+      "before": "aa1d80c197f41a3236c4a31c0663646592b621798e09adbfc8033a6a1fb86478",
+      "after": "b55f84e75e003b605df829b9e0c1813283d547d535952e6eccea81a8ac9acd8a"
+    },
+    "matter/include/numi/matter/regional_restart_augmentation_admission.hpp": {
+      "before": null,
+      "after": "3e40f0fa41c459752f3061d51b251f93a31786f904390f5ba9898b80c6467cb1"
+    },
+    "matter/src/metal/contact.metalinc": {
+      "before": "3cef6ae3dbd384d7b26ff6b0eb4ecda6da7a32be74cdea0badc5975eef692132",
+      "after": "1c30807b22b8ffb25c992cc595e2c8dfd3b757ecd8d39507e91d5fb1bcd1fa0d"
+    },
+    "matter/src/runtime.mm": {
+      "before": "bc62df9185a73aea95bb9c557e8de8b173a446b09c8b0588d09355c276ebd0ba",
+      "after": "a7f1e72fd6b25fcc648ff4f68c3f03ce806988c712b696032058e6ba1d553d9f"
+    },
+    "matter/tools/mortar_exact_tiling_check.cpp": {
+      "before": null,
+      "after": "6221d4544e5f3116558a2b884421fd94216e667012840fd60d7899fac7157137"
+    },
+    "matter/tools/regional_restart_augmentation_admission_check.cpp": {
+      "before": null,
+      "after": "63d385d111ae64bb9ff6c6172a5fc4428222175ecc6d022c94b05a991ed64334"
+    }
+  },
+  "added": [
+    "matter/include/numi/matter/regional_restart_augmentation_admission.hpp",
+    "matter/tools/mortar_exact_tiling_check.cpp",
+    "matter/tools/regional_restart_augmentation_admission_check.cpp"
+  ],
+  "deleted": [],
+  "scope": "Source099 plus exact-Q25 full-cover partition fast path (unsafe seam exemption excluded), inactive required FEM field-state backing admission repair for opt-in same-Newton restart augmentation, and two compiler-backed CPU targets. Physical operator, material recipe, tolerances and certificates unchanged. Native/complete-cycle qualification pending."
+}

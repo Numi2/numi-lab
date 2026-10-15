@@ -1,0 +1,1 @@
+All 16 native production case outcomes match native318 exactly. Twelve expected outcomes pass and four expected-positive cases remain rejected. Witness rows identify the first selected failing cell/feature without changing production results. Full input words and witness rows are retained.

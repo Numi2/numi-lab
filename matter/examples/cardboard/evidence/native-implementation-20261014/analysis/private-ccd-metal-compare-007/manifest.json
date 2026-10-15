@@ -1,0 +1,187 @@
+{
+  "build_manifest_sha256": "2d759284f0f6318fcbf978c50faf401704bd5c0e853ce33978fc03f5819794d3",
+  "cases": {
+    "budgets": [
+      16,
+      17
+    ],
+    "count": 4,
+    "manifest": "captured-input/captured-ee-cases.json",
+    "manifest_sha256": "8091ce1e9b2ade49dbdb3fea116d583b32fc76181d46e9b308568c304760e867",
+    "native_capture_ids": [
+      333,
+      334
+    ],
+    "payload": "captured-input/captured-ee-cases.float4.bin",
+    "payload_sha256": "80eaab55f3d471934382eaec6165c2c5a717abafb94cf08dd75f7bb69c42d3f9"
+  },
+  "classification": "source-bound native diagnostic harness with validated JSON serialization; package preparation does not dispatch GPU work",
+  "files": [
+    {
+      "bytes": 8193,
+      "path": "README.md",
+      "sha256": "36d8c7beaac3de8d52b72efcba22aa83b950eb70b79ac2c4ccfe83ab2f4c6a89"
+    },
+    {
+      "bytes": 1943,
+      "path": "build/build-manifest.json",
+      "sha256": "2d759284f0f6318fcbf978c50faf401704bd5c0e853ce33978fc03f5819794d3"
+    },
+    {
+      "bytes": 1435664,
+      "path": "build/private_ee_ccd_diagnostic.air",
+      "sha256": "ad93aec80c598180304525fb59af99a26daebacb8b709e6a4d7a24d000f49ac7"
+    },
+    {
+      "bytes": 11926,
+      "path": "build/private_ee_ccd_diagnostic.metal",
+      "sha256": "b9298fcd0eed812944296c6880ecbd4fac2ebc7306d67bdc319be3a20130a270"
+    },
+    {
+      "bytes": 6271406,
+      "path": "build/private_ee_ccd_diagnostic.metallib",
+      "sha256": "a4c64f95d3c8782169e58ca2585c2e89ec944a41596100a3e028e68f2a1613be"
+    },
+    {
+      "bytes": 4767,
+      "path": "build/report-only.json",
+      "sha256": "1e019097ab1b73cff19f948be04ec763a8488fac6c271f570d6b0610d7436661"
+    },
+    {
+      "bytes": 150872,
+      "path": "build/run_native",
+      "sha256": "06d7fecf318980db1ccd1ea52da94a782d86d718280fb193d6668fae9a2839df"
+    },
+    {
+      "bytes": 1297,
+      "path": "build_diagnostic.sh",
+      "sha256": "8a12219cea731d73495b5a1cbceaa1d0cb304d9de9c68d5deae6ccf8352266a7"
+    },
+    {
+      "bytes": 576,
+      "path": "captured-input/captured-ee-cases.float4.bin",
+      "sha256": "80eaab55f3d471934382eaec6165c2c5a717abafb94cf08dd75f7bb69c42d3f9"
+    },
+    {
+      "bytes": 5625,
+      "path": "captured-input/captured-ee-cases.json",
+      "sha256": "8091ce1e9b2ade49dbdb3fea116d583b32fc76181d46e9b308568c304760e867"
+    },
+    {
+      "bytes": 772,
+      "path": "evidence/failed-native-350/README.md",
+      "sha256": "69b032dabf7ca749cff65170fc481e96bfb96558eba4a757442c6e04944531aa"
+    },
+    {
+      "bytes": 20086,
+      "path": "evidence/failed-native-350/native-result.json",
+      "sha256": "66b87d17d367bf096fa2d705fd10d1c05b69231c550117bca139f937117f3d7a"
+    },
+    {
+      "bytes": 1391,
+      "path": "evidence/failed-native-350/prediction.json",
+      "sha256": "a9c535fded5d0d5f3a0afe822c0f55da427b6648897781d52352e18c504e25d8"
+    },
+    {
+      "bytes": 234,
+      "path": "evidence/failed-native-350/receipt.json",
+      "sha256": "5693b8444997d456b156f2a9aafe58a67e701e5f3fc1db8529fa9546f7533bc5"
+    },
+    {
+      "bytes": 1979,
+      "path": "evidence/failed-native-350/runner.py",
+      "sha256": "6c6a65b15c443a47673e6533d2a5db698e41d3f93102c2f1da10d0963e6b58b3"
+    },
+    {
+      "bytes": 0,
+      "path": "evidence/failed-native-350/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "path": "evidence/failed-native-350/stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 10710,
+      "path": "generate_metal.py",
+      "sha256": "6302533738cdcd1c27820ed1c3b7618b218e17ce164f5f8cdad15c53aa762c75"
+    },
+    {
+      "bytes": 8127,
+      "path": "prepare_capture_cases.py",
+      "sha256": "e87dc31b83fed95d70e87e49944a0aefa789320da1c2d175452f174e42bb118c"
+    },
+    {
+      "bytes": 26254,
+      "path": "run_native.mm",
+      "sha256": "b532f67c21626e74acc188fba67977811b23a12e376a79e0482399f1c3629d8c"
+    },
+    {
+      "bytes": 5428,
+      "path": "seal_package.py",
+      "sha256": "fb3f6f90bd6bb74508e1dde009a6473d7e61686e89b589657a896ae6c079790c"
+    },
+    {
+      "bytes": 6532,
+      "path": "test_diagnostic.py",
+      "sha256": "138dbf20f051df03b6c249bc2f4ead348c2be61553cc3dba22be9dc4dbaae563"
+    }
+  ],
+  "native_run_argv": [
+    "/Users/home/cardboard-implementation-20261014/analysis/private-ccd-metal-compare-007/build/run_native",
+    "--metallib",
+    "/Users/home/cardboard-implementation-20261014/analysis/private-ccd-metal-compare-007/build/private_ee_ccd_diagnostic.metallib",
+    "--cases",
+    "/Users/home/cardboard-implementation-20261014/analysis/private-ccd-metal-compare-007/captured-input/captured-ee-cases.float4.bin",
+    "--cases-manifest",
+    "/Users/home/cardboard-implementation-20261014/analysis/private-ccd-metal-compare-007/captured-input/captured-ee-cases.json",
+    "--build-manifest",
+    "/Users/home/cardboard-implementation-20261014/analysis/private-ccd-metal-compare-007/build/build-manifest.json",
+    "--output",
+    "/Users/home/cardboard-implementation-20261014/analysis/private-ccd-metal-compare-007/native-result.json"
+  ],
+  "output_contract": {
+    "armijo_or_transaction_acceptance": "not evaluated by this diagnostic",
+    "budget16_parity": "raw bitwise comparison against unchanged production kernel",
+    "classifications": [
+      "certified_hit",
+      "certified_miss",
+      "uncertified_fail_closed"
+    ],
+    "json_self_validation": "full output parsed by NSJSONSerialization and required root/case/iteration structure checked before writing or success",
+    "schema": "numi.matter.private_ee_ccd_metal_diagnostic_result.v2"
+  },
+  "retained_failed_native_attempt": {
+    "attempt": 350,
+    "output": {
+      "bytes": 20086,
+      "json_parse_error": "line 1, column 5580: Expecting property name enclosed in double quotes",
+      "path": "evidence/failed-native-350/native-result.json",
+      "sha256": "66b87d17d367bf096fa2d705fd10d1c05b69231c550117bca139f937117f3d7a"
+    },
+    "receipt": "evidence/failed-native-350/receipt.json",
+    "receipt_exit_code": 0,
+    "serialization_status": "invalid_json; not admitted as diagnostic result"
+  },
+  "schema": "numi.matter.private_ee_ccd_metal_compare_package.v3",
+  "source": {
+    "contact_source_sha256": "3cef6ae3dbd384d7b26ff6b0eb4ecda6da7a32be74cdea0badc5975eef692132",
+    "extracted_edge_edge_ccd_sha256": "a76e6024194848f935521b10ed72fb4b2938a321636bf06faf7ca02e07fb84c9",
+    "frozen_file_count_verified": 775,
+    "frozen_manifest_sha256": "5fb22c61c280f576f15677c8cf6dbbc174beceaa225973242f6d53f9c7957446",
+    "parent_revision": "35bfb518c542a306f563cc364ef8496837068b9a",
+    "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-center-action-twoenv-restart-099"
+  },
+  "validation": {
+    "host_compile": "PASS: Objective-C++ runner compiled with clang++ -std=c++20 -fobjc-arc",
+    "metal_compile": "PASS: generated AIR and metallib with -std=metal4.0 -O3 -fno-fast-math",
+    "metal_warnings": "Two pre-existing sharedValid/refinementValid uninitialized warnings in frozen source fgmres.metalinc",
+    "native_gpu_dispatch": "NOT RUN",
+    "physics_acceptance": "NOT EVALUATED",
+    "python_tests": "PASS: 5 tests after source-bound rebuild",
+    "report_json_validation": "NSJSONSerialization validates the complete four-case document before output; report-only CPU test emits gpu_result=false",
+    "retained_failed_native_350": "Malformed JSON retained under evidence/failed-native-350; not admitted",
+    "solver_acceptance": "NOT EVALUATED"
+  }
+}

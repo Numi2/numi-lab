@@ -1,0 +1,26 @@
+{
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-exact-mortar-seam-diagnostics-097",
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-private-mortar-witness-098",
+  "packages": [
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/private-mortar-witness-diagnostic-318-overlay-001",
+      "manifest_sha256": "e94a84cb2edd295fe52516bca7ae576bb41f8bedd6c34e7dbe9784add8aaf299"
+    }
+  ],
+  "patch_result": {
+    "exit_code": 0,
+    "stdout": "patching file 'matter/src/metal/contact.metalinc'\npatching file 'matter/tools/cardboard_full_contact_armijo_check.mm'\n",
+    "stderr": ""
+  },
+  "changed": {
+    "matter/src/metal/contact.metalinc": {
+      "before": "b3e14b8a291c54c7b890d3b65eb7aa585b1ca9c1ac21d7c9417d0fc72563102b",
+      "after": "3cef6ae3dbd384d7b26ff6b0eb4ecda6da7a32be74cdea0badc5975eef692132"
+    },
+    "matter/tools/cardboard_full_contact_armijo_check.mm": {
+      "before": "0b6658f168db67e7a049b0bd5036a946dc9e6204607a4c3e771666c455e7b5ab",
+      "after": "95e52efd34aeffab1d220b4fa8840b885001dbc156d4a1d8f793210e3c40d0f3"
+    }
+  },
+  "scope": "Source097 plus observational standalone private-mortar witness audit. Production acceptance/history predicates unchanged. No physical qualification."
+}

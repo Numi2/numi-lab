@@ -1,0 +1,468 @@
+{
+  "schema": "numi.cardboard.center_action_linear_prediction.sign_corrected.v1",
+  "capture": {
+    "schema": "numi.matter.coupled_armijo_trial_capture.v1",
+    "root": 1201,
+    "iteration": 12,
+    "trial": 4,
+    "selected_phase": "both",
+    "array_count": 129,
+    "payload_bytes": 19467248,
+    "payload_sha256": "4653a6e7021ef9e28ef4ae92c245d71eb94a1764ccc13d4559f2ea8012dc4feb",
+    "adjacent_payload": "/Users/home/cardboard-implementation-20261014/native/center-action-trial-sweep-327/private-trial.coupled.bin",
+    "phase_counts": {
+      "after_bulk_mechanical_before_cohesive": 5,
+      "after_cohesive_before_rigid_contact": 5,
+      "after_deformable_contact_before_free_body_terms": 5,
+      "after_rigid_contact_before_deformable_rebuild": 5,
+      "armijo_measurement_before_decision": 4,
+      "candidate_before_private_contact_rebuild": 67,
+      "full_residual_before_armijo_measure": 5,
+      "private_contact_rebuild_before_free_body_terms": 33
+    },
+    "accepted_checkpoint": false,
+    "physical_validation": false
+  },
+  "center_capture": {
+    "schema": "numi.matter.coupled_newton_capture.v1",
+    "capture_point": "after_fgmres_measure_and_human_direction_map_before_armijo_trial",
+    "capture_kind": "raw_transaction_candidate_not_checkpoint",
+    "source_physics_fingerprint": "915f50b10edc2e46",
+    "device_program_fingerprint": "f178f09ec9a85ab2",
+    "control_step": 1201,
+    "iteration": 12,
+    "environment_count": 1,
+    "node_count": 36,
+    "tetrahedron_count": 48,
+    "dt_seconds": 9.99999975e-05,
+    "array_count": 145,
+    "payload_bytes": 11670948,
+    "payload_sha256": "ba17e850e84f9e4a7d3daa66e0159789d7cf2484485dc2ba1ebbaab2e1411b9e",
+    "array_names": [
+      "adaptive_state",
+      "borrowed_body_wrenches",
+      "borrowed_current_bodies",
+      "borrowed_external_wrenches",
+      "borrowed_rigid_q",
+      "borrowed_rigid_v",
+      "borrowed_scene_bodies",
+      "center_operator_diagnostic_status",
+      "center_production_jdelta_action",
+      "cohesive_face_forces",
+      "cohesive_face_operator",
+      "cohesive_faces_accepted",
+      "cohesive_faces_candidate",
+      "cohesive_materials",
+      "cohesive_node_incidence",
+      "cohesive_node_ranges",
+      "cohesive_surface_face_ranges",
+      "cohesive_surface_face_refs",
+      "constraint_contact_forces",
+      "constraint_reactions",
+      "contact_active_counts",
+      "contact_active_pairs",
+      "contact_active_slots_by_pair",
+      "contact_histories_accepted",
+      "contact_histories_candidate",
+      "contact_history_used_by_newton_center",
+      "contact_pairs",
+      "contact_samples",
+      "coupled_generalized_candidate",
+      "coupled_generalized_input",
+      "coupled_generalized_output",
+      "coupled_inverse_statuses",
+      "coupled_layout",
+      "coupled_point_jacobians",
+      "deformable_contact_active_counts",
+      "deformable_contact_active_dispatch",
+      "deformable_contact_active_indices",
+      "deformable_contact_active_offsets",
+      "deformable_contact_candidate_counts",
+      "deformable_contact_candidates",
+      "deformable_contact_failures",
+      "deformable_contact_global_active_indices",
+      "deformable_contact_histories_accepted",
+      "deformable_contact_histories_candidate",
+      "deformable_contact_node_incidence",
+      "deformable_contact_node_ranges",
+      "deformable_contacts",
+      "deformable_history_used_by_newton_center",
+      "dispatch_buffer",
+      "dispatch_record",
+      "element_forces",
+      "element_operator",
+      "environment_parameters",
+      "fem_accepted_nodes",
+      "fem_candidate_nodes",
+      "fem_direction_workspace",
+      "fem_operator_action_workspace",
+      "fem_rhs_after_fgmres",
+      "fem_solution_correction",
+      "fem_topology_nodes_accepted",
+      "fem_topology_nodes_candidate",
+      "fgmres_basis",
+      "fgmres_hessenberg",
+      "fgmres_layout_record",
+      "fgmres_least_squares",
+      "fgmres_preconditioned_basis",
+      "fgmres_restart_coefficients",
+      "fgmres_rotations",
+      "fgmres_state",
+      "fgmres_vector_row_map",
+      "fields_accepted",
+      "fields_boundaries",
+      "fields_candidate",
+      "full_rhs_before_fgmres",
+      "human_attachment_operator",
+      "human_attachment_point_jacobians",
+      "human_attachment_point_queries",
+      "human_attachment_raw_reactions",
+      "human_attachment_residual_impulses",
+      "human_attachments",
+      "human_equality_dispatch",
+      "human_equality_factor",
+      "human_equality_linearization",
+      "human_equality_rows",
+      "human_limit_dispatch",
+      "human_limit_linearization",
+      "human_limit_rows",
+      "human_limit_tangent",
+      "human_support_cone_targets",
+      "human_support_cone_working_set",
+      "human_support_consequences_accepted",
+      "human_support_consequences_candidate",
+      "human_support_contacts",
+      "human_support_dispatch",
+      "human_support_histories_accepted",
+      "human_support_histories_candidate",
+      "human_support_linearizations",
+      "human_support_point_jacobians",
+      "human_support_point_queries",
+      "human_support_samples",
+      "human_support_working_set",
+      "instructions",
+      "learned_layers",
+      "learned_materials",
+      "learned_weight_defaults",
+      "learned_weights_accepted",
+      "learned_weights_candidate",
+      "material_history_accepted",
+      "material_history_candidate",
+      "materials",
+      "microstep_record",
+      "mixed_field_inverse_diagonal",
+      "mixed_field_operator",
+      "mixed_field_preconditioned",
+      "mixed_field_residual",
+      "mixed_field_solution",
+      "mixed_materials",
+      "mixed_solver",
+      "mpm_active_dispatch",
+      "mpm_active_node_counts",
+      "mpm_environment_active_counts",
+      "mpm_particle_keys",
+      "mpm_sorted_particle_indices",
+      "node_ranges",
+      "objects",
+      "parameter_defaults",
+      "particle_checkpoint",
+      "particle_defaults",
+      "particle_material_state_accepted",
+      "particle_material_state_candidate",
+      "particle_material_state_checkpoint",
+      "particle_material_state_defaults",
+      "particles_accepted",
+      "particles_candidate",
+      "regional_graph_layout",
+      "rigid_proxies",
+      "rigid_states",
+      "scalar_programs",
+      "scheduler_state",
+      "solver_certificates",
+      "solver_statuses",
+      "surface_primitives",
+      "tetrahedra_accepted",
+      "tetrahedra_candidate",
+      "tetrahedron_node_incidence"
+    ],
+    "native_capture": true,
+    "accepted_checkpoint": false,
+    "physical_convergence": "not_assessed_by_capture_reader"
+  },
+  "center_reader_sha256": "6eccd7277c986dce86978c35365eee14c86fdca90877f4942fc9863b1d35fa15",
+  "joined_generation_keys": [
+    "source_physics_fingerprint",
+    "device_program_fingerprint",
+    "root",
+    "iteration",
+    "control_step",
+    "physics_substep",
+    "physics_substeps",
+    "microtick",
+    "dt_seconds_f32_bits_u32",
+    "environment_count",
+    "node_count",
+    "tetrahedron_count",
+    "cohesive_face_count",
+    "contact_pair_count",
+    "deformable_contact_capacity"
+  ],
+  "reader_sha256": "adc508075d4e30508c110d00a3244eaa3eba0ba75ed900629e180df716e05d95",
+  "alpha": 0.0625,
+  "dt": 9.99999975e-05,
+  "operator_statuses": [
+    {
+      "code": 0,
+      "indices": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "diagnostics": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  ],
+  "history_identity": {
+    "contact_history_used_by_newton_center": {
+      "center_sha256": "bfe9aea58faaa7a48ec7536916d08762538adb5976cdbbd3412c6473ab68ffbc",
+      "trial_sha256": "bfe9aea58faaa7a48ec7536916d08762538adb5976cdbbd3412c6473ab68ffbc",
+      "bytes_equal": true,
+      "bytes": 1152
+    },
+    "deformable_history_used_by_newton_center": {
+      "center_sha256": "128d7ad7f486f32961c7bb9c4047927ee4827e339d4021af2c49c5c68b079b29",
+      "trial_sha256": "128d7ad7f486f32961c7bb9c4047927ee4827e339d4021af2c49c5c68b079b29",
+      "bytes_equal": true,
+      "bytes": 880128
+    }
+  },
+  "groups": {
+    "armijo_free_mechanical_and_rigid": {
+      "center_residual": {
+        "count": 102,
+        "norm": 3.4360311636563682e-06,
+        "max_abs": 1.9574686120904516e-06
+      },
+      "trial_residual": {
+        "count": 102,
+        "norm": 0.010001781756978604,
+        "max_abs": 0.010001781396567822
+      },
+      "production_action": {
+        "count": 102,
+        "norm": 3.429455701340166e-06,
+        "max_abs": 1.950833166119992e-06
+      },
+      "observed_increment": {
+        "count": 102,
+        "norm": 0.009999881471068069,
+        "max_abs": 0.009999881469411775
+      },
+      "linear_predicted_increment": {
+        "count": 102,
+        "norm": 2.1434098133376037e-07,
+        "max_abs": 1.219270728824995e-07
+      },
+      "linear_prediction_error": {
+        "count": 102,
+        "norm": 0.010000000202615836,
+        "max_abs": 0.010000000202545323
+      },
+      "relative_to_predicted_increment": 46654.634780477965,
+      "cosine": -0.5539302599324536
+    },
+    "all_exported_lanes": {
+      "center_residual": {
+        "count": 312,
+        "norm": 3.4360311636563687e-06,
+        "max_abs": 1.9574686120904516e-06
+      },
+      "trial_residual": {
+        "count": 312,
+        "norm": 0.010001781756978604,
+        "max_abs": 0.010001781396567822
+      },
+      "production_action": {
+        "count": 312,
+        "norm": 3.4294557013401664e-06,
+        "max_abs": 1.950833166119992e-06
+      },
+      "observed_increment": {
+        "count": 312,
+        "norm": 0.00999988147106807,
+        "max_abs": 0.009999881469411775
+      },
+      "linear_predicted_increment": {
+        "count": 312,
+        "norm": 2.143409813337604e-07,
+        "max_abs": 1.219270728824995e-07
+      },
+      "linear_prediction_error": {
+        "count": 312,
+        "norm": 0.010000000202615836,
+        "max_abs": 0.010000000202545323
+      },
+      "relative_to_predicted_increment": 46654.634780477965,
+      "cosine": -0.5539302599324535
+    },
+    "fem_xyz": {
+      "center_residual": {
+        "count": 108,
+        "norm": 2.862966800814103e-06,
+        "max_abs": 1.9574686120904516e-06
+      },
+      "trial_residual": {
+        "count": 108,
+        "norm": 2.6850498573124336e-06,
+        "max_abs": 1.8358140323471162e-06
+      },
+      "production_action": {
+        "count": 108,
+        "norm": 2.855201956672383e-06,
+        "max_abs": 1.950833166119992e-06
+      },
+      "observed_increment": {
+        "count": 108,
+        "norm": 1.820039310295267e-07,
+        "max_abs": 1.216545797433355e-07
+      },
+      "linear_predicted_increment": {
+        "count": 108,
+        "norm": 1.7845012229202393e-07,
+        "max_abs": 1.219270728824995e-07
+      },
+      "linear_prediction_error": {
+        "count": 108,
+        "norm": 3.7553594099661205e-08,
+        "max_abs": 2.4523974392898218e-08
+      },
+      "relative_to_predicted_increment": 0.2104430841364557,
+      "cosine": 0.9784836499843086
+    },
+    "field_channels": {
+      "center_residual": {
+        "count": 144,
+        "norm": 0.0,
+        "max_abs": 0.0
+      },
+      "trial_residual": {
+        "count": 144,
+        "norm": 0.0,
+        "max_abs": 0.0
+      },
+      "production_action": {
+        "count": 144,
+        "norm": 0.0,
+        "max_abs": 0.0
+      },
+      "observed_increment": {
+        "count": 144,
+        "norm": 0.0,
+        "max_abs": 0.0
+      },
+      "linear_predicted_increment": {
+        "count": 144,
+        "norm": 0.0,
+        "max_abs": 0.0
+      },
+      "linear_prediction_error": {
+        "count": 144,
+        "norm": 0.0,
+        "max_abs": 0.0
+      },
+      "relative_to_predicted_increment": null,
+      "cosine": null
+    },
+    "free_rigid_generalized": {
+      "center_residual": {
+        "count": 6,
+        "norm": 1.8999292763295156e-06,
+        "max_abs": 1.899927156046033e-06
+      },
+      "trial_residual": {
+        "count": 6,
+        "norm": 0.010001781396568177,
+        "max_abs": 0.010001781396567822
+      },
+      "production_action": {
+        "count": 6,
+        "norm": 1.8997337166215599e-06,
+        "max_abs": 1.8997301367562613e-06
+      },
+      "observed_increment": {
+        "count": 6,
+        "norm": 0.009999881469411779,
+        "max_abs": 0.009999881469411775
+      },
+      "linear_predicted_increment": {
+        "count": 6,
+        "norm": 1.1873335728884749e-07,
+        "max_abs": 1.1873313354726633e-07
+      },
+      "linear_prediction_error": {
+        "count": 6,
+        "norm": 0.010000000202545323,
+        "max_abs": 0.010000000202545323
+      },
+      "relative_to_predicted_increment": 84222.33170934359,
+      "cosine": -0.9999981155515214
+    }
+  },
+  "representability": {
+    "velocity_increment": {
+      "count": 108,
+      "norm": 0.0016789302342838683,
+      "max_abs": 0.00042187003418803215
+    },
+    "alpha_delta": {
+      "count": 108,
+      "norm": 0.0016789301546437981,
+      "max_abs": 0.000421870150603354
+    },
+    "velocity_rounding": {
+      "count": 108,
+      "norm": 2.9260801832100136e-10,
+      "max_abs": 1.1641532182693481e-10
+    },
+    "position_increment": {
+      "count": 108,
+      "norm": 1.680005648229307e-07,
+      "max_abs": 4.2187025428575e-08
+    },
+    "dt_velocity_increment": {
+      "count": 108,
+      "norm": 1.6789301923106127e-07,
+      "max_abs": 4.218700236412813e-08
+    },
+    "position_vs_rate_increment": {
+      "count": 108,
+      "norm": 6.218337583490363e-10,
+      "max_abs": 1.7251073882842258e-10
+    },
+    "reference_displacement_increment": {
+      "count": 108,
+      "norm": 1.6789297087740104e-07,
+      "max_abs": 4.2187025428575e-08
+    },
+    "reference_vs_rate_increment": {
+      "count": 108,
+      "norm": 9.447808738433717e-13,
+      "max_abs": 4.42312921514452e-13
+    }
+  },
+  "limitations": [
+    "Both center and private buffers are Newton right-hand sides b=-R; physical residuals are negated before comparing, so observed physical increment is (-b_trial)-(-b_center). One selected finite trial is observational only; no epsilon sweep or complete derivative qualification.",
+    "The exported all-lane statistics include fixed/reserved rows. Armijo active-row mask is reported independently.",
+    "Contact branch/feature changes and endpoint roundoff require independent follow-up; mismatch alone does not identify the first faulty layer."
+  ],
+  "solver_correctness_qualified": false,
+  "physical_assembly_qualified": false
+}

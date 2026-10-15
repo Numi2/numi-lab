@@ -1,0 +1,21 @@
+{
+  "schema": "numi.cardboard.private_mortar_root103_review.v1",
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-whole-mortar-proof-103",
+  "snapshot_frozen_source_sha256": "a7169546e652c78651382fe38dd7477cef9f3ad9cf005ea729c7c7bbc2b67d27",
+  "review_verdict": "no_actionable_unsafe_false_exclusion_found; native_and_physical_qualification_not_assessed",
+  "reviewed_sources": {
+    "matter/include/numi/matter/mortar_shared_edge_guard.h": "b4953028b1e3ffd8fba0100b34cc3aad28f7eac812fb1cfd711aaf7cf7b5bbaa",
+    "matter/src/metal/contact.metalinc": "427aca061ad2c6d2218b5eae0bc7620132a1ef9fff9f688390ccc96ca8a27ffc",
+    "matter/src/metal/fem.metalinc": "f4b5cd60dbe7ace7a54636746a00b5e7186d6c1f4890eb0718c138af9c753ae4",
+    "matter/tools/mortar_exact_tiling_check.cpp": "0b5922e54d2ed067eef5e03786b523142bb71b906e4e1bffc7735a1c807e0"
+  },
+  "cpu_check": {
+    "binary": "/Users/home/cardboard-implementation-20261014/analysis/private-mortar-root103-proof-review-001/mortar_exact_tiling_check",
+    "binary_sha256": "da5ced65609c532191ad4d1a1830a4174c87419a14ddc19fe05c9304083f8c9e",
+    "command": "clang++ -std=c++17 -Wall -Wextra -Wpedantic -Werror -I snapshots/source-whole-mortar-proof-103/matter/include snapshots/source-whole-mortar-proof-103/matter/tools/mortar_exact_tiling_check.cpp -o analysis/private-mortar-root103-proof-review-001/mortar_exact_tiling_check && analysis/private-mortar-root103-proof-review-001/mortar_exact_tiling_check",
+    "exit_code": 0,
+    "stdout": "mortar_exact_tiling_checks=61 exact_fan_and_tiles=true exact_feature_identity=true whole_parent_sweep_certificate=true patch_identity=true axis_normal_relative=true"
+  },
+  "native_gpu_run": false,
+  "physical_qualification": false
+}

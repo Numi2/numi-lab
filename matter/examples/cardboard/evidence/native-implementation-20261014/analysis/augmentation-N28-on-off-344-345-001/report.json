@@ -1,0 +1,96 @@
+{
+  "schema": "numi.cardboard.augmentation-comparison.v2",
+  "runs": [
+    "/Users/home/cardboard-implementation-20261014/solver/reset-order-augmentation-on-N28-capture27-344",
+    "/Users/home/cardboard-implementation-20261014/solver/reset-order-augmentation-off-N28-capture27-345"
+  ],
+  "receipts": [
+    {
+      "schema": "numi.cardboard.native-run-receipt.v2",
+      "execution_started": true,
+      "source_inputs_unchanged": true,
+      "changed_inputs": [],
+      "exit_code": 2,
+      "timed_out": false,
+      "termination_errors": [],
+      "wall_seconds": 76.22220058296807,
+      "finished_at_utc": "2026-10-15T13:43:51.053673+00:00"
+    },
+    {
+      "schema": "numi.cardboard.native-run-receipt.v2",
+      "execution_started": true,
+      "source_inputs_unchanged": true,
+      "changed_inputs": [],
+      "exit_code": 2,
+      "timed_out": false,
+      "termination_errors": [],
+      "wall_seconds": 76.00901400001021,
+      "finished_at_utc": "2026-10-15T13:46:49.448197+00:00"
+    }
+  ],
+  "armijo_count": 28,
+  "identical_before_first_attempt": true,
+  "changed_newtons": [
+    27
+  ],
+  "output_files": [
+    {
+      "name": "accepted_step_000001_held_reference.obj",
+      "sha256_on": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f",
+      "sha256_off": "67adf9403b645cb4e03a7b84c4ff948d491dc3b45b8f393cfb380a4e568b346f",
+      "identical": true
+    },
+    {
+      "name": "compiled.nmatterpack",
+      "sha256_on": "a20a340d38ac4fa9da4c4a79f732cfb989ced2aae05c1cbe3bf9ff82d3f2be1d",
+      "sha256_off": "a20a340d38ac4fa9da4c4a79f732cfb989ced2aae05c1cbe3bf9ff82d3f2be1d",
+      "identical": true
+    },
+    {
+      "name": "initial.obj",
+      "sha256_on": "463cd80289b72a58009f859f2a3184966984029daa8d3687ec9035e18c6481af",
+      "sha256_off": "463cd80289b72a58009f859f2a3184966984029daa8d3687ec9035e18c6481af",
+      "identical": true
+    },
+    {
+      "name": "manifest.json",
+      "sha256_on": "6df6c7a523b7e0973d6cdd1d77911ebeaeee96bf3620bc50461c5867bd8f669c",
+      "sha256_off": "6df6c7a523b7e0973d6cdd1d77911ebeaeee96bf3620bc50461c5867bd8f669c",
+      "identical": true
+    },
+    {
+      "name": "material_state_000001_bent.json",
+      "sha256_on": "001d606b85b978952716fa90dc8f5945e9e6ee0e9cdea60c1c6c7f035df62434",
+      "sha256_off": "001d606b85b978952716fa90dc8f5945e9e6ee0e9cdea60c1c6c7f035df62434",
+      "identical": true
+    },
+    {
+      "name": "mesh.json",
+      "sha256_on": "6a2f786a47e61014ee4b27f609eb3c2f666677223ddaa30297aeea1fcfd8ca56",
+      "sha256_off": "6a2f786a47e61014ee4b27f609eb3c2f666677223ddaa30297aeea1fcfd8ca56",
+      "identical": true
+    },
+    {
+      "name": "observations.csv",
+      "sha256_on": "0c327c56a1c6518c8062b412f2aec5f051936e2b9632d6d1fb8d2bef73604df2",
+      "sha256_off": "aecf6671cd8f0e5bf3478a557f668fa0872dbd5eba615d0c46415edea2ad54c9",
+      "identical": false
+    },
+    {
+      "name": "rejected_step_diagnostic_000001_bent.obj",
+      "sha256_on": "463cd80289b72a58009f859f2a3184966984029daa8d3687ec9035e18c6481af",
+      "sha256_off": "463cd80289b72a58009f859f2a3184966984029daa8d3687ec9035e18c6481af",
+      "identical": true
+    },
+    {
+      "name": "result.json",
+      "sha256_on": "00f0ba6c70d125a2de265ce466d11ade79260cc3124d070edaf3bb91d9a83f19",
+      "sha256_off": "00f0ba6c70d125a2de265ce466d11ade79260cc3124d070edaf3bb91d9a83f19",
+      "identical": true
+    }
+  ],
+  "qualification": false,
+  "limitations": [
+    "Both runs strictly reject, zero accepted steps. Conditioning may change the Newton correction after a newly admitted restart vector; physical parity is required only before that change. Admission validation is separate."
+  ]
+}

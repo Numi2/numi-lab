@@ -1,0 +1,13 @@
+{
+  "schema": "numi.cardboard.root-contact-integration.v1",
+  "source_overlay_sha256": "09a6ec755d05ee55bc31150556d69523be51977236dd87c473c40f969020d073",
+  "frozen_manifest_sha256": "ffb479cff1cfa38b2f32b9afc385495090c10627d792dd02f2abf23966e2942c",
+  "files": {
+    "continued-preflight.json": "a1f970c1a4cd1dd87b5a6d3048a8875d27185de1ec8318319e253524c0ea67b1",
+    "final-preflight.json": "d388ecbdbe28cadd2b9b1d574e29cf4394e3d1803e375befa996378e7b6dfa4c",
+    "finish_script.py": "df6bf1f80a6a165e03b2c71d851f0dae2c833bb7fecd40cadf66f1bcd96405e8",
+    "initial-apply-preflight.json": "bd8b4a284003f495cb35b60a0e3ba90fec824f6a70035096a6f51fc4958fa035",
+    "source101-to102.patch": "29bd303f86c90c53bbfb057a8f395491be1483bcf726e9a5d9f1b942850b2d9f",
+    "tiling-check": "910085426870b5b34b82d86e05a487a400e1d80ed1e4c00dbb7673564b24a4f8"
+  }
+}

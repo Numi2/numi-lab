@@ -1,0 +1,113 @@
+{
+  "schema": "numi.cardboard.retained_restart_capture_bundle.v1",
+  "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-exact-tiling-inactive-fields-100",
+  "captures": [
+    {
+      "run": 335,
+      "case": "/Users/home/cardboard-implementation-20261014/solver/inactive-field-admission-augmentation-on-335",
+      "raw_source": "/Users/home/cardboard-implementation-20261014/solver/inactive-field-admission-augmentation-on-335/operator-capture",
+      "uncompressed_bytes": 37643572,
+      "uncompressed_sha256": "8fb5526c54a360c4f31565d9ab3718239cff223ccf645bc21849a363e286680c",
+      "compressed": "335/operator-capture.gz",
+      "compressed_bytes": 6363634,
+      "compressed_sha256": "1d19bec12cdd1b0bee6ab0998b8e7f8c23d557e91ce9bbc342774b7b6e6676f8",
+      "restoration_verified": true,
+      "conditioning_manifest": "335/conditioning/manifest.json",
+      "conditioning_manifest_sha256": "e214fa4071f5082bed3baf06e09d1020e4eaec35cfe955c5f740452e0bb78a5a"
+    },
+    {
+      "run": 336,
+      "case": "/Users/home/cardboard-implementation-20261014/solver/inactive-field-admission-augmentation-off-336",
+      "raw_source": "/Users/home/cardboard-implementation-20261014/solver/inactive-field-admission-augmentation-off-336/operator-capture",
+      "uncompressed_bytes": 37643572,
+      "uncompressed_sha256": "8fb5526c54a360c4f31565d9ab3718239cff223ccf645bc21849a363e286680c",
+      "compressed": "336/operator-capture.gz",
+      "compressed_bytes": 6363634,
+      "compressed_sha256": "1d19bec12cdd1b0bee6ab0998b8e7f8c23d557e91ce9bbc342774b7b6e6676f8",
+      "restoration_verified": true,
+      "conditioning_manifest": "336/conditioning/manifest.json",
+      "conditioning_manifest_sha256": "9329fb89d7ec46bd6959b97e232de5414002b3b526a2cae2c6fcd8e361f111af"
+    },
+    {
+      "run": 337,
+      "case": "/Users/home/cardboard-implementation-20261014/solver/current-newton-augmentation-on-N16-337",
+      "raw_source": "/Users/home/cardboard-implementation-20261014/solver/current-newton-augmentation-on-N16-337/operator-capture",
+      "uncompressed_bytes": 37637299,
+      "uncompressed_sha256": "ee36f61b8eddfc9629e075c43c5f78d76da7e66c6beb5ad9b7180fafae21b446",
+      "compressed": "337/operator-capture.gz",
+      "compressed_bytes": 6374345,
+      "compressed_sha256": "0a1fdb3cfa94f415abdbfc7671365c438ebeeee76c5854f50d8282b2cb2098ac",
+      "restoration_verified": true,
+      "conditioning_manifest": "337/conditioning/manifest.json",
+      "conditioning_manifest_sha256": "779d92b114965caa371e7084055c8e0fd3a6e12f3d8ae809018a79d11bd5a94d"
+    },
+    {
+      "run": 338,
+      "case": "/Users/home/cardboard-implementation-20261014/solver/current-newton-augmentation-off-N16-338",
+      "raw_source": "/Users/home/cardboard-implementation-20261014/solver/current-newton-augmentation-off-N16-338/operator-capture",
+      "uncompressed_bytes": 37637299,
+      "uncompressed_sha256": "ee36f61b8eddfc9629e075c43c5f78d76da7e66c6beb5ad9b7180fafae21b446",
+      "compressed": "338/operator-capture.gz",
+      "compressed_bytes": 6374345,
+      "compressed_sha256": "0a1fdb3cfa94f415abdbfc7671365c438ebeeee76c5854f50d8282b2cb2098ac",
+      "restoration_verified": true,
+      "conditioning_manifest": "338/conditioning/manifest.json",
+      "conditioning_manifest_sha256": "3b8150403295d9daa81c1259885e48f09f2245f028147f5a7ed60ff23ed4da2a"
+    },
+    {
+      "run": 339,
+      "case": "/Users/home/cardboard-implementation-20261014/solver/current-newton-augmentation-on-N32-339",
+      "raw_source": "/Users/home/cardboard-implementation-20261014/solver/current-newton-augmentation-on-N32-339/operator-capture",
+      "uncompressed_bytes": 37587275,
+      "uncompressed_sha256": "d073b519df7e2f64a6f2d0a57e72e1c0bb8cd075d9a214179eaf4d9dd4563317",
+      "compressed": "339/operator-capture.gz",
+      "compressed_bytes": 6232369,
+      "compressed_sha256": "9da890f5da1782c8ce6ba46756424d42e5092eda06f2da363bed4f6c445b7055",
+      "restoration_verified": true,
+      "conditioning_manifest": "339/conditioning/manifest.json",
+      "conditioning_manifest_sha256": "e4e0451826e48381cb7cb61154e981965e0aca9efe190b094b132c182c8a816a"
+    },
+    {
+      "run": 340,
+      "case": "/Users/home/cardboard-implementation-20261014/solver/current-newton-augmentation-off-N32-340",
+      "raw_source": "/Users/home/cardboard-implementation-20261014/solver/current-newton-augmentation-off-N32-340/operator-capture",
+      "uncompressed_bytes": 37587275,
+      "uncompressed_sha256": "d073b519df7e2f64a6f2d0a57e72e1c0bb8cd075d9a214179eaf4d9dd4563317",
+      "compressed": "340/operator-capture.gz",
+      "compressed_bytes": 6232369,
+      "compressed_sha256": "9da890f5da1782c8ce6ba46756424d42e5092eda06f2da363bed4f6c445b7055",
+      "restoration_verified": true,
+      "conditioning_manifest": "340/conditioning/manifest.json",
+      "conditioning_manifest_sha256": "1defbc54eee0785a3bf5969c5fb0fac0fd6618f5a9fd1f924052f8fabf06fa10"
+    },
+    {
+      "run": 341,
+      "case": "/Users/home/cardboard-implementation-20261014/solver/current-newton-augmentation-on-N28-capture27-341",
+      "raw_source": "/Users/home/cardboard-implementation-20261014/solver/current-newton-augmentation-on-N28-capture27-341/operator-capture",
+      "uncompressed_bytes": 37626914,
+      "uncompressed_sha256": "98d60f02f1afe70cccbe9094a81d6eed0852f47463a7e19d4faca4f30bbc87a3",
+      "compressed": "341/operator-capture.gz",
+      "compressed_bytes": 6297831,
+      "compressed_sha256": "27436cf9538a1cf7b782d3956a8591c0d17d7bd284d93cd484fa5cfcb97834b1",
+      "restoration_verified": true,
+      "conditioning_manifest": "341/conditioning/manifest.json",
+      "conditioning_manifest_sha256": "031d6fc1c66e22d7c4dd7259dc4adf5b26cd6d809363fc5d7c59b002880f491d"
+    },
+    {
+      "run": 342,
+      "case": "/Users/home/cardboard-implementation-20261014/solver/current-newton-augmentation-off-N28-capture27-342",
+      "raw_source": "/Users/home/cardboard-implementation-20261014/solver/current-newton-augmentation-off-N28-capture27-342/operator-capture",
+      "uncompressed_bytes": 37626914,
+      "uncompressed_sha256": "98d60f02f1afe70cccbe9094a81d6eed0852f47463a7e19d4faca4f30bbc87a3",
+      "compressed": "342/operator-capture.gz",
+      "compressed_bytes": 6297831,
+      "compressed_sha256": "27436cf9538a1cf7b782d3956a8591c0d17d7bd284d93cd484fa5cfcb97834b1",
+      "restoration_verified": true,
+      "conditioning_manifest": "342/conditioning/manifest.json",
+      "conditioning_manifest_sha256": "7d73d832be98a126cf91d64c67592a47cac0319dc93f22de65329e9d96ce0fb5"
+    }
+  ],
+  "accepted_checkpoint": false,
+  "physical_convergence": false,
+  "qualification": "Lossless observational diagnostics from strict failed terminal certificates. Source100 contains a known contact regression; no production promotion or augmentation validity follows from capture restoration."
+}

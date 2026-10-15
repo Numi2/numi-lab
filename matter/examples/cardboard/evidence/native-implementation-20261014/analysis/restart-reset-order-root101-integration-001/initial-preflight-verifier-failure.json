@@ -1,0 +1,6 @@
+{
+  "error": "ValueError: substring not found",
+  "cause": "Root verifier expected original 12-space indentation after block moved into the existing regional block with 16-space indentation. Patch applied and full patched runtime hash matched agent expected value before this diagnostic-verifier failure.",
+  "action": "Preserved patch and staged runtime; replacement verification below ignores whitespace for exact executable block movement.",
+  "patched_runtime_sha256": "836605dca3f6b264d5ee04a9f65b66997ecbdc39f60709039c7e1ac59becb087"
+}

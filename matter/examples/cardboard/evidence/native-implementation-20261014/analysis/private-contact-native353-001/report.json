@@ -1,0 +1,44 @@
+{
+  "schema": "numi.cardboard.private_contact_adjudication.v1",
+  "run": 353,
+  "case": "/Users/home/cardboard-implementation-20261014/native/whole-mortar-proof-353",
+  "receipt": {
+    "schema": "numi.cardboard.native-run-receipt.v2",
+    "execution_started": true,
+    "source_inputs_unchanged": true,
+    "changed_inputs": [],
+    "exit_code": 0,
+    "timed_out": false,
+    "termination_errors": [],
+    "wall_seconds": 7.517586249974556,
+    "finished_at_utc": "2026-10-15T13:59:02.884191+00:00"
+  },
+  "cases": 16,
+  "passed": 16,
+  "negative_controls_reject": true,
+  "failures": [],
+  "changes_vs325": [
+    {
+      "case": "four_patch_matched_crossing",
+      "expected": 0,
+      "previous": 6,
+      "current": 0
+    },
+    {
+      "case": "three_patch_boundary_separating",
+      "expected": 0,
+      "previous": 6,
+      "current": 0
+    },
+    {
+      "case": "three_patch_boundary_static_off_edge_overlap",
+      "expected": 6,
+      "previous": 0,
+      "current": 6
+    }
+  ],
+  "cases_sha256": "1e63d827203bad254aff4f0cd1b28e017aadbe96ac8f14e5ab892d6104bd9a63",
+  "accepted_FEM_transactions": 0,
+  "physical_assembly_qualified": false,
+  "scope": "Direct production contact/private CCD kernel cases only; not a complete FEM trajectory or full contact qualification unless every declared case passes."
+}

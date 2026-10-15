@@ -1,0 +1,33 @@
+{
+  "schema": "numi.source-overlay.v1",
+  "overlay_id": "regional-rich-capture-stride-098-001",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-private-mortar-witness-098",
+  "base_files": [
+    {
+      "path": "matter/src/runtime.mm",
+      "base_sha256": "d2ea134b9c6ec0f00ce9b5c479d36b7f75d727d6b162281f5947cc98c69f543d",
+      "predecessor_overlay": "restart-augmentation-two-env-007",
+      "predecessor_runtime_sha256": "b7d85d454326f46fdaa68969d527c6ed9afa2a2e46a5479f76e232b7ec0b74c1",
+      "predecessor_patch_sha256": "ffd173221510619af733bed4ed5072305b1a8b51c30dd44e06e0cd9198b22e1d",
+      "overlay_sha256": "46e7208cd1ac37c2845e3da4eaf7d05ac397ecc5791d39b3e3216bba94e3ba46"
+    }
+  ],
+  "patch_sha256": "52a01da0e4c00d35c5e8684d1baa2cee11431957250c4ccbd164e47e106187d9",
+  "validation": {
+    "predecessor_reconstruction": "PASS; source-098 runtime plus runtime-only restart-augmentation-two-env-007 patch reproduced predecessor runtime SHA",
+    "patch_application": "PASS; capture-stride.patch applies to exact predecessor runtime",
+    "layout_unit_tests": "PASS; 3 tests",
+    "runtime_objcxx_compile": "NOT RUN; integrating owner should compile candidate",
+    "native_or_gpu_execution": "NOT RUN; capture-only diagnostic patch"
+  },
+  "scope": {
+    "changed_file": "matter/src/runtime.mm",
+    "arrays": "rich RAP capture effective_P and AP only",
+    "capture_shape": "unchanged compact [environment, base_mode, node]",
+    "solver_or_physics_changes": false,
+    "readback_cap": "unchanged existing combined 32 MiB cap"
+  },
+  "limitations": [
+    "The rich RAP capture fix has not yet been compiled or validated against a native artifact."
+  ]
+}

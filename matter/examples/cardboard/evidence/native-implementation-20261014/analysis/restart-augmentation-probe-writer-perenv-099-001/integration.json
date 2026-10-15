@@ -1,0 +1,11 @@
+{
+  "schema": "numi.cardboard.diagnostic_writer_overlay.v1",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-private-mortar-witness-098",
+  "path": "matter/tools/cardboard_probe.mm",
+  "before_sha256": "5d826a8dd80a973181159d065f5e86622adfffafe8bb3fbe9bb259783b617978",
+  "after_sha256": "af5196370b4c812bc6a71d603987b3ce3ae47d88769bfd54a23851e0c325e059",
+  "patch_sha256": "5d5aa9d5527f21afecb6c3e36ef9470014e4cf3c3e7ab6dda7a01d145685a339",
+  "scope": "Observational rejected-conditioning readback only. Preserve legacy env0 payload and add exact environment-major arrays. No physical/loading/operator/certificate change.",
+  "compile_check": "PENDING integrated source099 build",
+  "gpu_execution": "NOT_RUN"
+}

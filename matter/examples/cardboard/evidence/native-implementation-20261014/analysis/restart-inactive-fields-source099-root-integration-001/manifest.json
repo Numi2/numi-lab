@@ -1,0 +1,38 @@
+{
+  "schema": "numi.cardboard.inactive_field_admission_overlay.v1",
+  "base": "/Users/home/cardboard-implementation-20261014/snapshots/source-center-action-twoenv-restart-099",
+  "base_manifest_sha256": "5fb22c61c280f576f15677c8cf6dbbc174beceaa225973242f6d53f9c7957446",
+  "origin": "/Users/home/cardboard-implementation-20261014/analysis/restart-augmentation-admission-and-validator-009",
+  "origin_files_stable_during_copy": true,
+  "changed_files": [
+    {
+      "path": "matter/src/runtime.mm",
+      "before_sha256": "bc62df9185a73aea95bb9c557e8de8b173a446b09c8b0588d09355c276ebd0ba",
+      "after_sha256": "a7f1e72fd6b25fcc648ff4f68c3f03ce806988c712b696032058e6ba1d553d9f"
+    },
+    {
+      "path": "matter/include/numi/matter/regional_restart_augmentation_admission.hpp",
+      "before_sha256": null,
+      "after_sha256": "3e40f0fa41c459752f3061d51b251f93a31786f904390f5ba9898b80c6467cb1"
+    },
+    {
+      "path": "matter/tools/regional_restart_augmentation_admission_check.cpp",
+      "before_sha256": null,
+      "after_sha256": "63d385d111ae64bb9ff6c6172a5fc4428222175ecc6d022c94b05a991ed64334"
+    },
+    {
+      "path": "matter/CMakeLists.txt",
+      "before_sha256": "08170dbb3112cb42dcdd2c46ec0bbc587dd3c950646c76b107430027c162435e",
+      "after_sha256": "fecc11430dd359b6c29f8d09af18f03e6d67cda4bd6c3abcc43411e09b7f3ca9"
+    }
+  ],
+  "patch_sha256": "f402206ababb1c2930070cdc04683f2f281006015f2bc9a591b68a2f40b77c70",
+  "upstream_cpu_binary_sha256": "a67ab5260f49477f9298c8a58858470eb21393aba90847b9e15caa9e8f822a78",
+  "upstream_cpu_command": [
+    "/Users/home/cardboard-implementation-20261014/analysis/restart-augmentation-admission-and-validator-009/regional_restart_augmentation_admission_check",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-center-action-twoenv-restart-099/matter/materials/nagasawa2013_medium_orthotropic.nmatter"
+  ],
+  "upstream_cpu_stdout": "PASS regional restart field admission checks=13 compiled_fem_nodes=4 backing_field_rows=4 physics_steps=0\n",
+  "scope": "Replace nonempty required-field-backing rejection with exact count/finite/inactive-state and object-flag checks. Preserve all other eligibility constraints. No physical operator/certificate/tolerance change. Root fresh source100 build/tests pending.",
+  "retained_preflight_failure": "preflight-missing-asset-argument.json"
+}

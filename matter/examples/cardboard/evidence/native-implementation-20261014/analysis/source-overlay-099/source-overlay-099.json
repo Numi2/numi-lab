@@ -1,0 +1,53 @@
+{
+  "schema": "numi.cardboard.integration.v1",
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-center-action-twoenv-restart-099",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-private-mortar-witness-098",
+  "owner_manifest_sha256": "d32c4c9f63ff9c3a7f1ce12bc7eef15ccb4f95268d20c6b985c229a3e4aab88e",
+  "supplement_manifest_sha256": "de2ee46477ad023469a33d104cdf8303dced88b21665cccd5635f22c44fbe488",
+  "stride_patch_sha256": "52a01da0e4c00d35c5e8684d1baa2cee11431957250c4ccbd164e47e106187d9",
+  "stride_merge_and_zero_fuzz_patch_byteidentical": true,
+  "writer_manifest_sha256": "e35cfc00bf53e817ca2fd57471eadcb2cf4a599b383d340a7ff741ce8709147e",
+  "changed": {
+    "matter/include/numi/matter/matter.hpp": {
+      "before": "ac26950e564b78985e21ae61f9ee5fda28f7fdd4e8bcdb354ede3816e79c3a9e",
+      "after": "3afd1dbe987b0cf3a386a69d335489ca38342984d9a5f4c52f2ddcd094ded633"
+    },
+    "matter/src/metal/fgmres.metalinc": {
+      "before": "a733df504bd75dcef43e20c5d3926a5cd4338d45ded0fb6d7eb6c0480671a555",
+      "after": "eef8a0919636c513716528dcf04cf9d175801c25e7159125808cbb59a9b696d6"
+    },
+    "matter/src/metal/mixed_fem.metalinc": {
+      "before": "5042632a1d44d12cabbc3d09fa6dc9c9f40ac51b3f81ab733ccedd95b58b4f0a",
+      "after": "9f3fba45290c92cc782393c420520b25c7d630fa080b9e2aff1d9f52a33d1681"
+    },
+    "matter/src/runtime.mm": {
+      "before": "d2ea134b9c6ec0f00ce9b5c479d36b7f75d727d6b162281f5947cc98c69f543d",
+      "after": "bc62df9185a73aea95bb9c557e8de8b173a446b09c8b0588d09355c276ebd0ba"
+    },
+    "matter/tools/cardboard_coupled_free_box_operator_check.mm": {
+      "before": "f0958dd5a90b0cb2f725de3cae4f4a2d0f05ff8cccf8d08bde8ed93c2170e465",
+      "after": "f0106a2a005c04bae44376c73394f75e39ede61876aa3010bbd819b5c53499b3"
+    },
+    "matter/tools/cardboard_free_box_angular_native_check.mm": {
+      "before": "715318600ebc63b8f0686c6744f5c88462eef71e14d673cc9d8839a9a2b82209",
+      "after": "0c0781ba7697307264ec0d744440c689cecfec7034e2bfd92e6b525a67e51372"
+    },
+    "matter/tools/cardboard_graph_lu_search_native_check.mm": {
+      "before": "bf29b7f3c9dbb7209e65e05c133cacdd02bee396e8db8c765a845be4c723d411",
+      "after": "7a18c0a8576e20033893cc40318bc26b61957ccad6300fb6cac6c57619775893"
+    },
+    "matter/tools/cardboard_probe.mm": {
+      "before": "5d826a8dd80a973181159d065f5e86622adfffafe8bb3fbe9bb259783b617978",
+      "after": "af5196370b4c812bc6a71d603987b3ce3ae47d88769bfd54a23851e0c325e059"
+    },
+    "matter/tools/cardboard_regional_recycle_masked_basis_native_check.mm": {
+      "before": "b3bc36d1daf5b1bf294101b09d97fa714d99d2c49363712a0fb8740150250b0a",
+      "after": "6d5bd01778d09112ef02272a58e7347ca791387ceced1ed5a43537f0a9312447"
+    }
+  },
+  "scope": "Source098 plus selected-Newton center production Jdelta capture, two-environment current-Newton restart augmentation007, explicit direct-checker allowConverged bindings, compact rich diagnostic RAP readback, and per-env conditioning writer. Production operator/tolerances/certificates unchanged by design; no native parity/conditioning/physical qualification yet.",
+  "patch_results": [
+    "supplement zero-fuzz patch applied successfully before failed inventory",
+    "stride zero-fuzz patch and3way bytes identical; automatic backup preserved outside source before freeze"
+  ]
+}

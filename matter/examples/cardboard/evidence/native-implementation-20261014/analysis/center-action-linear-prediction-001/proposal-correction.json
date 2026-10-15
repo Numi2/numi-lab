@@ -1,0 +1,5 @@
+{
+  "status": "UNEXECUTED_PROPOSAL_SUPERSEDED",
+  "reason": "Center Newton and private trial are distinct producers/selectors and sidecars. Prepared001single-captureconsumer assumption was found wrong by source inspection before execution. Use002cross-capturejoin instead. Originalproposal/scriptsretained.",
+  "physical_qualification": false
+}

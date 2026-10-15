@@ -1,0 +1,7 @@
+test_frozen_base_retains_reset_after_scale_capture (test_reset_order.ResetOrderTests) ... ok
+test_patched_source_resets_before_rap_and_scale_capture (test_reset_order.ResetOrderTests) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.010s
+
+OK

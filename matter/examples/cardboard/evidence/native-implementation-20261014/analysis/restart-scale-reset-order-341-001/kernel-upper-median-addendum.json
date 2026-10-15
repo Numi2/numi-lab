@@ -1,0 +1,18 @@
+{
+  "schema": "numi.cardboard.restart-scale-statistic-addendum.v1",
+  "rows": [
+    {
+      "environment": 0,
+      "statistic": "Kernel chooses upper-middle sorted |diag| at K/2, whereas original report median_absolute_diagonal is the conventional mean of the two central values.",
+      "expected_kernel_upper_middle": 0.009531303360003103,
+      "original_conventional_median": 0.009490857696134242
+    },
+    {
+      "environment": 1,
+      "statistic": "Kernel chooses upper-middle sorted |diag| at K/2, whereas original report median_absolute_diagonal is the conventional mean of the two central values.",
+      "expected_kernel_upper_middle": 0.009753956326952758,
+      "original_conventional_median": 0.009743734600805846
+    }
+  ],
+  "qualification": "FP64 products of captured FP32 P/AP; native reduction roundoff is separate."
+}

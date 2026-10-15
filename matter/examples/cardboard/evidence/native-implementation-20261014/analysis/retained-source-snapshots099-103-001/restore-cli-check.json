@@ -1,0 +1,5 @@
+{
+  "exit_code": 0,
+  "stdout": "{\"number\": 103, \"files\": 1848, \"exact_bytes_verified\": true, \"output\": \"/Users/home/cardboard-implementation-20261014/source103-restore-cli-879xlzho/restored\", \"actual_build_success\": true}\n",
+  "stderr": ""
+}

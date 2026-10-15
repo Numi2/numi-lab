@@ -1,0 +1,17 @@
+{
+  "expected_capture_selector": "2:23",
+  "package_files": {
+    "README.md": "e9be310d7d4b310f045d0fb3fed6cc351f9747d6acc5629f4be487d3c03d1ad4",
+    "run_operator_audit.py": "2b2bf7c7311458fb81c7c4b494c88938e88f81e192959de923e69e8967b07466"
+  },
+  "schema": "numi.cardboard.control2-newton23-audit-package.v1",
+  "source_auditor": "matter/tools/cardboard_cached_operator_audit.py",
+  "source_auditor_sha256": "2ce80f9b3c989efd058bdbcc29661d10701061cfde459d64cca06c0d6caeee38",
+  "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-boundary-reset-order-101",
+  "source_snapshot_id": "source-boundary-reset-order-101",
+  "validation": {
+    "incomplete_native_run": "refused_before_output_creation",
+    "native_capture_360": "pending; no claim made",
+    "python_compile": "passed"
+  }
+}

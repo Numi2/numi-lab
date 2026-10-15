@@ -1,0 +1,11 @@
+{
+  "schema": "numi.cardboard.native-run-receipt.v2",
+  "execution_started": true,
+  "source_inputs_unchanged": true,
+  "changed_inputs": [],
+  "exit_code": 1,
+  "timed_out": false,
+  "termination_errors": [],
+  "wall_seconds": 10.070459500013385,
+  "finished_at_utc": "2026-10-15T12:56:30.750455+00:00"
+}

@@ -1,0 +1,132 @@
+{
+  "build_manifest_sha256": "2d759284f0f6318fcbf978c50faf401704bd5c0e853ce33978fc03f5819794d3",
+  "cases": {
+    "budgets": [
+      16,
+      17
+    ],
+    "count": 4,
+    "manifest": "captured-input/captured-ee-cases.json",
+    "manifest_sha256": "8091ce1e9b2ade49dbdb3fea116d583b32fc76181d46e9b308568c304760e867",
+    "native_capture_ids": [
+      333,
+      334
+    ],
+    "payload": "captured-input/captured-ee-cases.float4.bin",
+    "payload_sha256": "80eaab55f3d471934382eaec6165c2c5a717abafb94cf08dd75f7bb69c42d3f9"
+  },
+  "classification": "source-bound native diagnostic harness; GPU dispatch not run by package preparation",
+  "files": [
+    {
+      "bytes": 5947,
+      "path": "README.md",
+      "sha256": "c14b3ebbfc959b5e2ec9f669a5b9c70a5277010834e438bcbcdc9b45bee1504c"
+    },
+    {
+      "bytes": 1943,
+      "path": "build/build-manifest.json",
+      "sha256": "2d759284f0f6318fcbf978c50faf401704bd5c0e853ce33978fc03f5819794d3"
+    },
+    {
+      "bytes": 1435664,
+      "path": "build/private_ee_ccd_diagnostic.air",
+      "sha256": "85e69cc476456fa698b5da7717675fe8ced888ce95936e287e715807666dfca8"
+    },
+    {
+      "bytes": 11926,
+      "path": "build/private_ee_ccd_diagnostic.metal",
+      "sha256": "b9298fcd0eed812944296c6880ecbd4fac2ebc7306d67bdc319be3a20130a270"
+    },
+    {
+      "bytes": 6271406,
+      "path": "build/private_ee_ccd_diagnostic.metallib",
+      "sha256": "a4c64f95d3c8782169e58ca2585c2e89ec944a41596100a3e028e68f2a1613be"
+    },
+    {
+      "bytes": 148216,
+      "path": "build/run_native",
+      "sha256": "44ce2cc9c7611d7543bd28444d883a85de9d55e1373f818d28ce9e8d428c23f0"
+    },
+    {
+      "bytes": 1297,
+      "path": "build_diagnostic.sh",
+      "sha256": "8a12219cea731d73495b5a1cbceaa1d0cb304d9de9c68d5deae6ccf8352266a7"
+    },
+    {
+      "bytes": 576,
+      "path": "captured-input/captured-ee-cases.float4.bin",
+      "sha256": "80eaab55f3d471934382eaec6165c2c5a717abafb94cf08dd75f7bb69c42d3f9"
+    },
+    {
+      "bytes": 5625,
+      "path": "captured-input/captured-ee-cases.json",
+      "sha256": "8091ce1e9b2ade49dbdb3fea116d583b32fc76181d46e9b308568c304760e867"
+    },
+    {
+      "bytes": 10710,
+      "path": "generate_metal.py",
+      "sha256": "6302533738cdcd1c27820ed1c3b7618b218e17ce164f5f8cdad15c53aa762c75"
+    },
+    {
+      "bytes": 8127,
+      "path": "prepare_capture_cases.py",
+      "sha256": "e87dc31b83fed95d70e87e49944a0aefa789320da1c2d175452f174e42bb118c"
+    },
+    {
+      "bytes": 17347,
+      "path": "run_native.mm",
+      "sha256": "b9c0e7d1bd5dc06cb44314debba950e7a65af7971eea8b5e49d73157a0b3cb33"
+    },
+    {
+      "bytes": 4043,
+      "path": "seal_package.py",
+      "sha256": "992b67f97995a087a05b180486cbeb855e4e10e6a20a90f2007511a778b7b4ea"
+    },
+    {
+      "bytes": 4082,
+      "path": "test_diagnostic.py",
+      "sha256": "57147777fc95289b9f0a9b4b58dec959b32206e9f5828f9ff7820ea8902f0abe"
+    }
+  ],
+  "native_run_argv": [
+    "/Users/home/cardboard-implementation-20261014/analysis/private-ccd-metal-compare-005/build/run_native",
+    "--metallib",
+    "/Users/home/cardboard-implementation-20261014/analysis/private-ccd-metal-compare-005/build/private_ee_ccd_diagnostic.metallib",
+    "--cases",
+    "/Users/home/cardboard-implementation-20261014/analysis/private-ccd-metal-compare-005/captured-input/captured-ee-cases.float4.bin",
+    "--cases-manifest",
+    "/Users/home/cardboard-implementation-20261014/analysis/private-ccd-metal-compare-005/captured-input/captured-ee-cases.json",
+    "--build-manifest",
+    "/Users/home/cardboard-implementation-20261014/analysis/private-ccd-metal-compare-005/build/build-manifest.json",
+    "--output",
+    "/Users/home/cardboard-implementation-20261014/analysis/private-ccd-metal-compare-005/native-result.json"
+  ],
+  "output_contract": {
+    "armijo_or_transaction_acceptance": "not evaluated by this diagnostic",
+    "budget16_parity": "raw bitwise comparison against unchanged production kernel",
+    "classifications": [
+      "certified_hit",
+      "certified_miss",
+      "uncertified_fail_closed"
+    ],
+    "schema": "numi.matter.private_ee_ccd_metal_diagnostic_result.v2"
+  },
+  "schema": "numi.matter.private_ee_ccd_metal_compare_package.v2",
+  "source": {
+    "contact_source_sha256": "3cef6ae3dbd384d7b26ff6b0eb4ecda6da7a32be74cdea0badc5975eef692132",
+    "extracted_edge_edge_ccd_sha256": "a76e6024194848f935521b10ed72fb4b2938a321636bf06faf7ca02e07fb84c9",
+    "frozen_file_count_verified": 775,
+    "frozen_manifest_sha256": "5fb22c61c280f576f15677c8cf6dbbc174beceaa225973242f6d53f9c7957446",
+    "parent_revision": "35bfb518c542a306f563cc364ef8496837068b9a",
+    "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-center-action-twoenv-restart-099"
+  },
+  "validation": {
+    "host_compile": "PASS: Objective-C++ runner compiled with clang++ -std=c++20 -fobjc-arc",
+    "metal_compile": "PASS: generated AIR and metallib with -std=metal4.0 -O3 -fno-fast-math",
+    "metal_warnings": "Two pre-existing sharedValid/refinementValid uninitialized warnings in frozen source fgmres.metalinc",
+    "native_gpu_dispatch": "NOT RUN",
+    "physics_acceptance": "NOT EVALUATED",
+    "python_tests": "PASS: 3 tests",
+    "solver_acceptance": "NOT EVALUATED"
+  }
+}

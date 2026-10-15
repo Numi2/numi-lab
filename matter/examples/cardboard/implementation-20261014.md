@@ -1,5 +1,16 @@
 # Cardboard implementation and evidence ledger
 
+## Current milestone: source103
+
+The integrated source103 contact and restart repairs build68 targets and pass
+73 CPU checks. Native353 passes16/16 mortar geometry cases, and combined-contact
+356 passes5,683 assertions with exact selected-update and rollback checks.
+Complete coupon352 and the free-body355 trajectory still fail; no complete
+resolution study, calibrated damage/debonding, fixture-free shipping assembly
+or crush/drop is qualified. See [the current report](solver-milestone-source103.md)
+and its source-bound evidence. Earlier entries below retain their original
+revision-specific scope.
+
 ## Selected material derivative refinement: reference011
 
 The published source095 implementation is unchanged. A separately declared

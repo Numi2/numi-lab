@@ -1,0 +1,137 @@
+{
+  "schema": "numi.cardboard.private_contact_adjudication.v1",
+  "run": 343,
+  "case": "/Users/home/cardboard-implementation-20261014/native/exact-boundary-ccd17-343",
+  "receipt": {
+    "schema": "numi.cardboard.native-run-receipt.v2",
+    "execution_started": true,
+    "source_inputs_unchanged": true,
+    "changed_inputs": [],
+    "exit_code": 1,
+    "timed_out": false,
+    "termination_errors": [],
+    "wall_seconds": 6.123382416961249,
+    "finished_at_utc": "2026-10-15T13:40:15.704634+00:00"
+  },
+  "cases": 16,
+  "passed": 12,
+  "negative_controls_reject": true,
+  "failures": [
+    {
+      "case": "three_patch_covered_crossing",
+      "expected": {
+        "code": 0,
+        "outcome": "accept closure across three matched mortar patches"
+      },
+      "actual": {
+        "code": 6,
+        "environment": 0,
+        "object_index": 0,
+        "failing_index": 0,
+        "completed_microsteps": 0,
+        "fgmres_iterations": 0,
+        "contact_count": 0,
+        "event_count": 0,
+        "diagnostics": [
+          0,
+          4,
+          0,
+          8.53481785e-10
+        ]
+      }
+    },
+    {
+      "case": "four_patch_matched_crossing",
+      "expected": {
+        "code": 0,
+        "outcome": "accept closure across four matched mortar patches"
+      },
+      "actual": {
+        "code": 6,
+        "environment": 0,
+        "object_index": 0,
+        "failing_index": 0,
+        "completed_microsteps": 0,
+        "fgmres_iterations": 0,
+        "contact_count": 0,
+        "event_count": 0,
+        "diagnostics": [
+          0,
+          4,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "case": "three_patch_boundary_common_translation",
+      "expected": {
+        "code": 0,
+        "outcome": "accept exact common translation over the whole sweep"
+      },
+      "actual": {
+        "code": 6,
+        "environment": 0,
+        "object_index": 0,
+        "failing_index": 0,
+        "completed_microsteps": 0,
+        "fgmres_iterations": 0,
+        "contact_count": 0,
+        "event_count": 0,
+        "diagnostics": [
+          0,
+          4,
+          0,
+          8.53481785e-10
+        ]
+      }
+    },
+    {
+      "case": "three_patch_boundary_separating",
+      "expected": {
+        "code": 0,
+        "outcome": "accept paired shared-edge separation"
+      },
+      "actual": {
+        "code": 6,
+        "environment": 0,
+        "object_index": 0,
+        "failing_index": 0,
+        "completed_microsteps": 0,
+        "fgmres_iterations": 0,
+        "contact_count": 0,
+        "event_count": 0,
+        "diagnostics": [
+          0,
+          4,
+          0,
+          0
+        ]
+      }
+    }
+  ],
+  "changes_vs325": [
+    {
+      "case": "three_patch_covered_crossing",
+      "expected": 0,
+      "previous": 0,
+      "current": 6
+    },
+    {
+      "case": "three_patch_boundary_common_translation",
+      "expected": 0,
+      "previous": 0,
+      "current": 6
+    },
+    {
+      "case": "three_patch_boundary_static_off_edge_overlap",
+      "expected": 6,
+      "previous": 0,
+      "current": 6
+    }
+  ],
+  "cases_sha256": "0efef6404bcc16ecbd334dfc2249b83a1b1ccef1b1875719a4a5c9bc9ba5b7f1",
+  "accepted_FEM_transactions": 0,
+  "physical_assembly_qualified": false,
+  "scope": "Direct production contact/private CCD kernel cases only; not a complete FEM trajectory or full contact qualification unless every declared case passes."
+}

@@ -1,0 +1,7 @@
+from pathlib import Path
+import datetime,hashlib,json,subprocess
+b=Path('/Users/home/cardboard-implementation-20261014');repo=Path('/Users/home/numi-cardboard-20261016');out=b/'cpu-checks-101';out.mkdir(exist_ok=False)
+prior=json.loads((b/'cpu-checks-095/receipt.json').read_text());cmd=[v.replace('provenance-095','provenance-101') for v in prior['argv']];regex=cmd[-1];assert regex.endswith(')$');cmd[-1]=regex[:-2]+'|matter.compiler.mortar_exact_tiling|matter.compiler.regional_restart_augmentation_admission)$'
+query=subprocess.run(cmd[:cmd.index('--output-on-failure')]+['--show-only=json-v1','-R',cmd[-1]],capture_output=True,text=True);assert query.returncode==0,query.stderr;names=[t['name'] for t in json.loads(query.stdout)['tests']];assert len(names)==73,len(names);(out/'selected-tests.txt').write_text('\n'.join(names)+'\n');started=datetime.datetime.now(datetime.timezone.utc).isoformat()
+with (out/'stdout.log').open('x') as f:rc=subprocess.call(cmd,stdout=f,stderr=subprocess.STDOUT)
+build=repo/'build-cardboard-provenance-101/source-build.json';receipt=dict(schema='numi.cardboard.cpu-check-receipt.v1',argv=cmd,started_at_utc=started,finished_at_utc=datetime.datetime.now(datetime.timezone.utc).isoformat(),exit_code=rc,selected_count=len(names),source_build=str(build),source_build_sha256=hashlib.sha256(build.read_bytes()).hexdigest(),physical_steps=0,physical_validation=False);(out/'receipt.json').write_text(json.dumps(receipt,indent=2)+'\n');print('cpu101exit',rc,'tests',len(names),flush=True);raise SystemExit(rc)

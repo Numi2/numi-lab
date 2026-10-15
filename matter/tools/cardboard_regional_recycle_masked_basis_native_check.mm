@@ -225,6 +225,7 @@ int main(int argc, char** argv) {
             setBuffer(encoder, candidateBuffer, 2u);
             setBuffer(encoder, effectiveBuffer, 3u);
             setU32(encoder, kModeCount, 4u);
+            setU32(encoder, kModeCount, 5u); // no padding in this direct fixture.
             [encoder dispatchThreads:MTLSizeMake(kEnvironmentCount *
                 kModeCount * kNodeCount, 1u, 1u)
                 threadsPerThreadgroup:MTLSizeMake(32u, 1u, 1u)];

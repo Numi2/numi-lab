@@ -1891,6 +1891,7 @@ struct RuntimeStateSnapshot {
     bool femRegionalGalerkinDiagnosticsAvailable = false;
     std::uint32_t femRegionalGalerkinModeCount = 0u;
     std::string femRegionalGalerkinDiagnosticsMessage;
+    std::uint64_t femRegionalGalerkinDiagnosticReadbackBytes = 0u;
     // Exact FEM candidate node records from the Newton linearization used to
     // form AP/RAP. Present only with the bounded regional readback above.
     std::vector<NMFEMNodeStateGPU> femRegionalGalerkinLinearizationNodes;
@@ -1909,6 +1910,52 @@ struct RuntimeStateSnapshot {
     std::vector<float> femRegionalGalerkinPivotedRAP;
     std::vector<std::uint32_t> femRegionalGalerkinPivots;
     std::vector<std::uint32_t> femRegionalGalerkinFactorValid;
+    // Optional diagnostics for the same-Newton selector-5 restart augmentation.
+    // The extra mode and its freshly computed A*q are copied from the exact
+    // restart generation below; they are conditioning-only data, not accepted
+    // simulation state. This readback shares the existing 64 MiB regional
+    // snapshot cap and is separate from the rich RAP export's 32 MiB limit.
+    bool femRegionalRestartAugmentationDiagnosticsAvailable = false;
+    std::string femRegionalRestartAugmentationDiagnosticsMessage;
+    std::uint32_t femRegionalRestartBaseModeCount = 0u;
+    std::uint32_t femRegionalRestartAugmentedModeCount = 0u;
+    std::uint32_t femRegionalRestartControlStep = 0xffffffffu;
+    std::uint32_t femRegionalRestartPhysicsSubstep = 0xffffffffu;
+    std::uint32_t femRegionalRestartNewtonIteration = 0xffffffffu;
+    std::uint32_t femRegionalRestartCycle = 0xffffffffu;
+    std::uint32_t femRegionalRestartAttemptCount = 0u;
+    std::uint32_t femRegionalRestartModeValid = 0u;
+    std::uint32_t femRegionalRestartAugmentedFactorValid = 0u;
+    std::uint64_t femRegionalRestartDiagnosticReadbackBytes = 0u;
+    // Environment-major diagnostic contract for selector-5 restart
+    // augmentation. Metadata vectors have environmentCount entries; q/Aq
+    // vectors are [environment][FEM node]; RAP is
+    // [environment][augmented row][augmented column]; pivots are
+    // [environment][augmented row]. A missing attempt is represented by
+    // UINT32_MAX in all four generation words, with attempt/mode/factor
+    // validity zero. Existing scalar fields below remain the environment-0
+    // compatibility view.
+    std::uint32_t femRegionalRestartDiagnosticEnvironmentCount = 0u;
+    std::uint32_t femRegionalRestartDiagnosticNodesPerEnvironment = 0u;
+    std::uint32_t femRegionalRestartDiagnosticModeStride = 0u;
+    std::vector<nm_uint4> femRegionalRestartGenerationsByEnvironment;
+    std::vector<std::uint32_t> femRegionalRestartAttemptCountsByEnvironment;
+    std::vector<float> femRegionalRestartTargetScalesByEnvironment;
+    std::vector<float> femRegionalRestartRawNormSquaredByEnvironment;
+    std::vector<float> femRegionalRestartModeScalesByEnvironment;
+    std::vector<std::uint32_t> femRegionalRestartModeValidByEnvironment;
+    std::vector<std::uint32_t> femRegionalRestartAugmentedFactorValidByEnvironment;
+    std::vector<nm_float4> femRegionalRestartModesQByEnvironment;
+    std::vector<nm_float4> femRegionalRestartOperatorAQByEnvironment;
+    std::vector<float> femRegionalRestartPivotedRAPByEnvironment;
+    std::vector<std::uint32_t> femRegionalRestartPivotsByEnvironment;
+    float femRegionalRestartTargetScale = 0.0f;
+    float femRegionalRestartRawNormSquared = 0.0f;
+    float femRegionalRestartModeScale = 0.0f;
+    std::vector<nm_float4> femRegionalRestartModeQ;
+    std::vector<nm_float4> femRegionalRestartOperatorAQ;
+    std::vector<float> femRegionalRestartPivotedRAP;
+    std::vector<std::uint32_t> femRegionalRestartPivots;
     // Selector 3 only: [environment][FEM node][3 row-major float4 rows].
     // xyz stores the inverse nodal velocity block; row0.w is 1 when the full
     // block passed the finite/pivot guard, otherwise the preconditioner uses

@@ -1,0 +1,1 @@
+This directory contains a read-only source-103 review of the integrated whole-parent mortar skip. `report.md` records the conclusion, exact CPU test command/result, source locations, and limits. `manifest.json` binds the frozen source hashes and the locally built CPU checker executable. No frozen source files were changed by the review artifact.

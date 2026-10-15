@@ -1,0 +1,7 @@
+{
+  "stage": "before_manifest_or_build",
+  "reason": "zero-fuzz patch applied with relocated context and created automatic runtime.mm.orig backup; extra source-binding path rejected by exact changed-file inventory",
+  "disposition": "Preserve exact backup and failed script outside source. No frozen manifest/build/native execution existed. Resume only after exact9-file inventory.",
+  "backup_sha256": "4e9297aeb0a77f301c2653b8ede0a5f4252c20ac6ab70a988fe3313ff3b7036e",
+  "physical_execution": false
+}

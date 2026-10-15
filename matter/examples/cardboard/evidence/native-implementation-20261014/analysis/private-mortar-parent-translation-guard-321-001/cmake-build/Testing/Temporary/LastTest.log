@@ -1,0 +1,30 @@
+Start testing: Oct 15 15:14 CEST
+----------------------------------------------------------
+157/270 Testing: matter.compiler.mortar_exact_tiling
+157/270 Test: matter.compiler.mortar_exact_tiling
+Command: "/Users/home/cardboard-implementation-20261014/analysis/private-mortar-parent-translation-guard-321-001/cmake-build/matter/numi-matter-mortar-exact-tiling-check"
+Directory: /Users/home/cardboard-implementation-20261014/analysis/private-mortar-parent-translation-guard-321-001/cmake-build/matter
+"matter.compiler.mortar_exact_tiling" start time: Oct 15 15:14 CEST
+Output:
+----------------------------------------------------------
+mortar_exact_tiling_checks=24 exact_fan_and_tiles=true exact_feature_identity=true whole_parent_sweep_certificate=true patch_identity=true
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"matter.compiler.mortar_exact_tiling" end time: Oct 15 15:14 CEST
+"matter.compiler.mortar_exact_tiling" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Oct 15 15:14 CEST
+
+cardboard =   0.00 sec*proc
+
+contact =   0.00 sec*proc
+
+cpu =   0.00 sec*proc
+
+matter =   0.00 sec*proc
+
+synthetic =   0.00 sec*proc
+

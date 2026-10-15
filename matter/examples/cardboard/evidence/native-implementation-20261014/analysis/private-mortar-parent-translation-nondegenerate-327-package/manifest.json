@@ -1,0 +1,39 @@
+{
+  "schema": "numi.cardboard.mortar_parent_sweep_nondegenerate_overlay.v1",
+  "status": "candidate_unqualified_native",
+  "base_package": "/Users/home/cardboard-implementation-20261014/analysis/private-mortar-parent-translation-guard-321-001",
+  "base_manifest_sha256": "7ea7b80e97f55926fbc038fe24325a09300438f0f2620d878506e444f7721e6f",
+  "base_patch_sha256": "036613adaace29b7f64b82bba3e5611964a0156244ed6c2a25d32045e89c409b",
+  "base_source_dir": "/Users/home/cardboard-implementation-20261014/analysis/private-mortar-parent-translation-guard-321-001/build-source",
+  "patch": "common-translation-nondegenerate.patch",
+  "patch_sha256": "e0d1135aa6b8d8bd27c88e6ed316f45d561cd61da48a939e9f61f388a6c727e5",
+  "changed_files": {
+    "matter/include/numi/matter/mortar_shared_edge_guard.h": {
+      "base_sha256": "b739ab5916713be8ed2b54cfd2dfc17fc1656a321a5734c345639b4052519d0c",
+      "after_sha256": "bc468777007a7bcc535ef78b8ce7d767504db39c01130b5de8f15c58af5cfa07"
+    },
+    "matter/tools/mortar_exact_tiling_check.cpp": {
+      "base_sha256": "dcd549bb132d418c3e230e76dc1fac5666f05f03ca9efa8d0b3e707fd67e5ef5",
+      "after_sha256": "889bf9e68c857aea4929f2bbe872a6aee55d62c8f6067d04f10e8848a39a75e8"
+    }
+  },
+  "contract": "The whole-parent identity certificate additionally admits only exact common linear translation of each triangle: all three vertex displacement vectors must be exactly equal as dyadic FP32 endpoint differences. Difference equality is checked with an error-free two-float expansion, not rounded FP32 subtraction. A common translation leaves the triangle shape invariant for the complete linear sweep, preventing an endpoint-nondegenerate parent from collapsing in between.",
+  "tests": {
+    "cpu_command": "clang++ -std=c++17 -Wall -Wextra -Wpedantic -Werror -I source/matter/include source/matter/tools/mortar_exact_tiling_check.cpp -o mortar_exact_tiling_check && ./mortar_exact_tiling_check",
+    "cpu_result": "PASS: mortar_exact_tiling_checks=29 exact_fan_and_tiles=true exact_feature_identity=true whole_parent_sweep_certificate=true patch_identity=true",
+    "extra_controls": [
+      "TwoSum distinguishes exact 1.0 translation from 1.0 minus 2^-30 although rounded FP32 subtractions are equal.",
+      "Start and finish triangles are both nondegenerate but exchange two vertices; the midpoint collapses and the sweep guard rejects.",
+      "Exact common translation and permuted identity remain accepted."
+    ],
+    "metal_compile": "PASS; xcrun metal -std=metal4.0 -O3 -fno-fast-math compiled matter_kernels.metal; two unrelated pre-existing FGMRES maybe-uninitialized warnings remain.",
+    "metal_link": "PASS; metallib linked from compiled AIR.",
+    "patch_application": "PASS; patch --dry-run -p1 against the 321 candidate source succeeds.",
+    "native": "Not run; no GPU qualification."
+  },
+  "limitations": [
+    "This overlay narrows 321 to static/common-translation parent triangles and rejects all shape-deforming sweeps even if they remain nondegenerate.",
+    "It does not qualify relative-normal motion, opening, shear, different parent trajectories, or larger patch counts.",
+    "The exact paired-cell mapping and Q25 partition limitations from 321 remain."
+  ]
+}

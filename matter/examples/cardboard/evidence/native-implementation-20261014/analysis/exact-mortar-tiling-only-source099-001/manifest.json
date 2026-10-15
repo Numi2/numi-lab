@@ -1,0 +1,46 @@
+{
+  "schema": "numi.cardboard.exact_tiling_only_overlay.v1",
+  "base": "/Users/home/cardboard-implementation-20261014/snapshots/source-center-action-twoenv-restart-099",
+  "base_manifest_sha256": "5fb22c61c280f576f15677c8cf6dbbc174beceaa225973242f6d53f9c7957446",
+  "source_overlay_manifest_sha256": "6858f94fce23abed8966bc8a79675f7cf626f5be1c4dabe34b5f9b57e3e3f01f",
+  "patch_sha256": "2a330e83734e7cd628f6be83558f9e126875a1a336e705c7e0c68147aa228563",
+  "changed_files": [
+    {
+      "path": "matter/src/metal/contact.metalinc",
+      "before_sha256": "3cef6ae3dbd384d7b26ff6b0eb4ecda6da7a32be74cdea0badc5975eef692132",
+      "after_sha256": "1c30807b22b8ffb25c992cc595e2c8dfd3b757ecd8d39507e91d5fb1bcd1fa0d"
+    },
+    {
+      "path": "matter/include/numi/matter/mortar_shared_edge_guard.h",
+      "before_sha256": "aa1d80c197f41a3236c4a31c0663646592b621798e09adbfc8033a6a1fb86478",
+      "after_sha256": "b55f84e75e003b605df829b9e0c1813283d547d535952e6eccea81a8ac9acd8a"
+    },
+    {
+      "path": "matter/tools/mortar_exact_tiling_check.cpp",
+      "before_sha256": null,
+      "after_sha256": "6221d4544e5f3116558a2b884421fd94216e667012840fd60d7899fac7157137"
+    },
+    {
+      "path": "matter/CMakeLists.txt",
+      "before_sha256": "08170dbb3112cb42dcdd2c46ec0bbc587dd3c950646c76b107430027c162435e",
+      "after_sha256": "16455ff0e55bbf7a77bfaf43618668ca1c2054d00e67a46d6f2d2f6df87eb6a2"
+    }
+  ],
+  "cpu_command": [
+    "clang++",
+    "-std=c++20",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror",
+    "-I",
+    "/Users/home/cardboard-implementation-20261014/analysis/exact-mortar-tiling-only-source099-001/source/matter/include",
+    "/Users/home/cardboard-implementation-20261014/analysis/exact-mortar-tiling-only-source099-001/source/matter/tools/mortar_exact_tiling_check.cpp",
+    "-o",
+    "/Users/home/cardboard-implementation-20261014/analysis/exact-mortar-tiling-only-source099-001/mortar-exact-tiling-check"
+  ],
+  "cpu_exit": 0,
+  "cpu_stdout": "mortar_exact_tiling_checks=11 exact_fan_and_tiles=true exact_feature_identity=true\n",
+  "excluded": "All seam-witness suppression/contact sweep call-site changes from320proposal",
+  "native_qualified": false
+}

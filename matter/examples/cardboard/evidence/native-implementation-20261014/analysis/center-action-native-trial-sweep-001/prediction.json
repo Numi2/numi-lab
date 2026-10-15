@@ -1,0 +1,15 @@
+{
+  "schema": "numi.cardboard.observational_trial_sweep.v1",
+  "center": "/Users/home/cardboard-implementation-20261014/native/center-action-private-trial-320/center-capture.coupled.json",
+  "source_audit_sha256": "21b731fcea330aaea9813f04ec5c5c2bdfc98d3a0823d81276497532c402aaf2",
+  "trials": {
+    "326": 0,
+    "327": 4,
+    "328": 8,
+    "329": 12,
+    "330": 16,
+    "324": 22
+  },
+  "residual_semantics": "Production center and private residual workspaces are Newton RHS b=-R. Observed physical increment b_center-b_trial is compared with alpha*Jdelta.",
+  "qualification": "No derivative gate without branch/representability audit and resolved refinement. Strict physical failures retained."
+}

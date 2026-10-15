@@ -1,0 +1,109 @@
+{
+  "schema": "numi.cardboard.restart-augmentation-base-operator-check.v1",
+  "status": "base_operator_inconsistent_diagnostic",
+  "bindings": {
+    "operator_capture": {
+      "path": "/Users/home/cardboard-implementation-20261014/solver/selected-newton-regional-rap-and-operator-capture-182/operator-capture",
+      "sha256": "27345f7afc7f752388bc76802657386546195ed8b13694df9b39be43be3a8446"
+    },
+    "conditioning_manifest": {
+      "path": "/Users/home/cardboard-implementation-20261014/solver/selected-newton-regional-rap-and-operator-capture-182/output/rejected-conditioning-000004/manifest.json",
+      "sha256": "dd9d4ae302640b2a7203729b4df920aab75705933d019df375fe6d9a06d99875"
+    },
+    "conditioning_arrays": {
+      "AP.bin": "ea035a1c2613be0f6e5a648c9dfe279916daaf0bf71aa0f32d44945740e861fa",
+      "P.bin": "2626e4bbb205fa1c7e40bdaf3f2e72d11f831ec53431c3062bcc85d69a50f6b5",
+      "candidate_nodes.bin": "c971815537243b4fc0483c0aafd097af7f61f7717fc77bec810383a56322dbc7",
+      "effective_P.bin": "9bf372c75cafcf84bc1e21a20ee3305e7619affffe6415bb9d3398f79970214c",
+      "factor_valid.bin": "64ed86b909d6d0502b64b28db0ea1272ffb358e20e9b1d88b63ccb07fa900cf5",
+      "node_block_inverse.bin": "65da529ef5175491ac36eba3405ff5cb28b5615d9105d6c83e192053d397c475",
+      "pivoted_RAP.bin": "c74aa83fbdc58d90a247db93b715b599f3b3721c3e2a5670110ce304328a122f",
+      "pivots.bin": "b15351752746ad304892b36595184c9b83246883ef1d0628cdfda0983a499369"
+    },
+    "assembler": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/offline-operator-tool-development-058/cardboard_cached_operator_audit.py",
+      "sha256": "92a6c810192befb789db11b09a7c4e8884cda762b2448c564072d932c6e59383"
+    },
+    "regional_capture": {
+      "path": "/Users/home/cardboard-implementation-20261014/solver/selected-newton-regional-rap-and-operator-capture-182/operator-capture.regional.json",
+      "sha256": "8a0c68399357d3edf513499864260cdda3e7a239d429941d95a544756eb84eda"
+    }
+  },
+  "linearization": {
+    "root": 3,
+    "newton_iteration": 23,
+    "world_fingerprint_hex": "9405e23ae7e2bcd0",
+    "execution_fingerprint_hex": "692ad59caf1de985",
+    "environment_count": 2,
+    "node_count": 882,
+    "tetrahedron_count": 1920,
+    "base_modes": 26,
+    "candidate_node_bytes_match_rich_center": true
+  },
+  "conditioning_generation": {
+    "control_step": 3,
+    "regional_diagnostics_available": null,
+    "restart_diagnostics_available": null,
+    "restart_diagnostics_message": null
+  },
+  "run": null,
+  "environments": [
+    {
+      "environment": 0,
+      "free_node_count": 846,
+      "fixed_node_count": 36,
+      "mode_count": 26,
+      "P_vs_effective_P_relative_l2": 0.0,
+      "base_AP_fresh_action_relative_limit": 0.002,
+      "base_AP_max_relative_error": 0.9999994521106937,
+      "base_AP_median_relative_error": 0.9999971755523672,
+      "base_AP_worst_mode": {
+        "observed_l2": 0.09990943828272439,
+        "reference_l2": 4.913840220953945e-07,
+        "difference_l2": 0.09990938354341156,
+        "relative_l2": 0.9999994521106937,
+        "max_abs": 0.03560022538474381,
+        "mode": 10,
+        "passed": false
+      },
+      "base_AP_all_modes_passed": false,
+      "operator_assembly": "A=M+dt^2*K; K=-d(f_internal)/d(v), local full unsymmetric dP/dF cache; fixed rows/columns eliminated"
+    },
+    {
+      "environment": 1,
+      "free_node_count": 846,
+      "fixed_node_count": 36,
+      "mode_count": 26,
+      "P_vs_effective_P_relative_l2": 0.0,
+      "base_AP_fresh_action_relative_limit": 0.002,
+      "base_AP_max_relative_error": 5.180186838851629e-07,
+      "base_AP_median_relative_error": 9.691269833111201e-08,
+      "base_AP_worst_mode": {
+        "observed_l2": 0.009248109600949423,
+        "reference_l2": 0.009248108634016152,
+        "difference_l2": 4.7906935639095594e-09,
+        "relative_l2": 5.180186838851629e-07,
+        "max_abs": 1.5967940939496435e-09,
+        "mode": 20,
+        "passed": true
+      },
+      "base_AP_all_modes_passed": true,
+      "operator_assembly": "A=M+dt^2*K; K=-d(f_internal)/d(v), local full unsymmetric dP/dF cache; fixed rows/columns eliminated"
+    }
+  ],
+  "regional_sidecar_exact_comparison": {
+    "P": {
+      "present": true,
+      "exact_match": true
+    },
+    "effective_P": {
+      "present": true,
+      "exact_match": true
+    },
+    "AP": {
+      "present": true,
+      "exact_match": false
+    }
+  },
+  "claim_boundary": "This recomputes the captured base A*P action at the exact rich-capture center. It does not establish restart augmentation, solver convergence, accepted physical state, or physical validation."
+}

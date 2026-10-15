@@ -1,0 +1,1486 @@
+{
+  "schema": "numi.matter.mortar_exact_tiling_input_audit.v1",
+  "classification": "CPU exact-input geometry audit; not native re-execution or qualification",
+  "input_cases_jsonl": "/Users/home/cardboard-implementation-20261014/analysis/private-mortar-witness-319-001/cases.jsonl",
+  "input_cases_jsonl_sha256": "5f67b768aa1fe7b49d599bf65d07e5dbefc5da8663f036477d4deba7b940ba8c",
+  "face_record_bytes": 384,
+  "source_field_offsets_bytes": {
+    "nodesAndFirst": 0,
+    "separatedNodes": 64,
+    "mortarSideAWeights": 224,
+    "mortarSideBWeights": 272
+  },
+  "coordinate_contract": "Q25 is applied to captured FP32 XY values exactly; z normalization residuals are reported, not hidden",
+  "cases": [
+    {
+      "case": "three_patch_covered_crossing",
+      "native_expected": {
+        "code": 0,
+        "outcome": "accept closure across three matched mortar patches"
+      },
+      "native_actual": {
+        "code": 6,
+        "environment": 0,
+        "object_index": 0,
+        "failing_index": 0,
+        "completed_microsteps": 0,
+        "fgmres_iterations": 0,
+        "contact_count": 0,
+        "event_count": 0,
+        "diagnostics": [
+          0,
+          4,
+          0,
+          0
+        ]
+      },
+      "sides": {
+        "A": {
+          "triangles_xy_f32": [
+            [
+              [
+                1.0,
+                0.0
+              ],
+              [
+                0.0,
+                1.0
+              ],
+              [
+                0.3333333432674408,
+                0.3333333432674408
+              ]
+            ],
+            [
+              [
+                0.0,
+                1.0
+              ],
+              [
+                0.0,
+                0.0
+              ],
+              [
+                0.3333333432674408,
+                0.3333333432674408
+              ]
+            ],
+            [
+              [
+                0.0,
+                0.0
+              ],
+              [
+                1.0,
+                0.0
+              ],
+              [
+                0.3333333432674408,
+                0.3333333432674408
+              ]
+            ]
+          ],
+          "exact_cover": {
+            "valid": true,
+            "proof": "exact Q25 directed-edge cancellation and parent-boundary tiling; pairwise SAT",
+            "q25_triangles": [
+              [
+                [
+                  33554432,
+                  0
+                ],
+                [
+                  0,
+                  33554432
+                ],
+                [
+                  11184811,
+                  11184811
+                ]
+              ],
+              [
+                [
+                  0,
+                  33554432
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  11184811,
+                  11184811
+                ]
+              ],
+              [
+                [
+                  0,
+                  0
+                ],
+                [
+                  33554432,
+                  0
+                ],
+                [
+                  11184811,
+                  11184811
+                ]
+              ]
+            ]
+          },
+          "source_normalization_residuals": [
+            {
+              "patch": 0,
+              "vertex": 0,
+              "source_z_f32": 0.0,
+              "xy_reconstructed_z_f32": 0.0,
+              "source_minus_xy_reconstructed_z": 0.0
+            },
+            {
+              "patch": 0,
+              "vertex": 1,
+              "source_z_f32": 0.0,
+              "xy_reconstructed_z_f32": 0.0,
+              "source_minus_xy_reconstructed_z": 0.0
+            },
+            {
+              "patch": 0,
+              "vertex": 2,
+              "source_z_f32": 0.3333333432674408,
+              "xy_reconstructed_z_f32": 0.333333283662796,
+              "source_minus_xy_reconstructed_z": 5.960464477539063e-08
+            },
+            {
+              "patch": 1,
+              "vertex": 0,
+              "source_z_f32": 0.0,
+              "xy_reconstructed_z_f32": 0.0,
+              "source_minus_xy_reconstructed_z": 0.0
+            },
+            {
+              "patch": 1,
+              "vertex": 1,
+              "source_z_f32": 1.0,
+              "xy_reconstructed_z_f32": 1.0,
+              "source_minus_xy_reconstructed_z": 0.0
+            },
+            {
+              "patch": 1,
+              "vertex": 2,
+              "source_z_f32": 0.3333333432674408,
+              "xy_reconstructed_z_f32": 0.333333283662796,
+              "source_minus_xy_reconstructed_z": 5.960464477539063e-08
+            },
+            {
+              "patch": 2,
+              "vertex": 0,
+              "source_z_f32": 1.0,
+              "xy_reconstructed_z_f32": 1.0,
+              "source_minus_xy_reconstructed_z": 0.0
+            },
+            {
+              "patch": 2,
+              "vertex": 1,
+              "source_z_f32": 0.0,
+              "xy_reconstructed_z_f32": 0.0,
+              "source_minus_xy_reconstructed_z": 0.0
+            },
+            {
+              "patch": 2,
+              "vertex": 2,
+              "source_z_f32": 0.3333333432674408,
+              "xy_reconstructed_z_f32": 0.333333283662796,
+              "source_minus_xy_reconstructed_z": 5.960464477539063e-08
+            }
+          ]
+        },
+        "B": {
+          "triangles_xy_f32": [
+            [
+              [
+                1.0,
+                0.0
+              ],
+              [
+                0.0,
+                1.0
+              ],
+              [
+                0.3333333432674408,
+                0.3333333432674408
+              ]
+            ],
+            [
+              [
+                0.0,
+                1.0
+              ],
+              [
+                0.0,
+                0.0
+              ],
+              [
+                0.3333333432674408,
+                0.3333333432674408
+              ]
+            ],
+            [
+              [
+                0.0,
+                0.0
+              ],
+              [
+                1.0,
+                0.0
+              ],
+              [
+                0.3333333432674408,
+                0.3333333432674408
+              ]
+            ]
+          ],
+          "exact_cover": {
+            "valid": true,
+            "proof": "exact Q25 directed-edge cancellation and parent-boundary tiling; pairwise SAT",
+            "q25_triangles": [
+              [
+                [
+                  33554432,
+                  0
+                ],
+                [
+                  0,
+                  33554432
+                ],
+                [
+                  11184811,
+                  11184811
+                ]
+              ],
+              [
+                [
+                  0,
+                  33554432
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  11184811,
+                  11184811
+                ]
+              ],
+              [
+                [
+                  0,
+                  0
+                ],
+                [
+                  33554432,
+                  0
+                ],
+                [
+                  11184811,
+                  11184811
+                ]
+              ]
+            ]
+          },
+          "source_normalization_residuals": [
+            {
+              "patch": 0,
+              "vertex": 0,
+              "source_z_f32": 0.0,
+              "xy_reconstructed_z_f32": 0.0,
+              "source_minus_xy_reconstructed_z": 0.0
+            },
+            {
+              "patch": 0,
+              "vertex": 1,
+              "source_z_f32": 0.0,
+              "xy_reconstructed_z_f32": 0.0,
+              "source_minus_xy_reconstructed_z": 0.0
+            },
+            {
+              "patch": 0,
+              "vertex": 2,
+              "source_z_f32": 0.3333333432674408,
+              "xy_reconstructed_z_f32": 0.333333283662796,
+              "source_minus_xy_reconstructed_z": 5.960464477539063e-08
+            },
+            {
+              "patch": 1,
+              "vertex": 0,
+              "source_z_f32": 0.0,
+              "xy_reconstructed_z_f32": 0.0,
+              "source_minus_xy_reconstructed_z": 0.0
+            },
+            {
+              "patch": 1,
+              "vertex": 1,
+              "source_z_f32": 1.0,
+              "xy_reconstructed_z_f32": 1.0,
+              "source_minus_xy_reconstructed_z": 0.0
+            },
+            {
+              "patch": 1,
+              "vertex": 2,
+              "source_z_f32": 0.3333333432674408,
+              "xy_reconstructed_z_f32": 0.333333283662796,
+              "source_minus_xy_reconstructed_z": 5.960464477539063e-08
+            },
+            {
+              "patch": 2,
+              "vertex": 0,
+              "source_z_f32": 1.0,
+              "xy_reconstructed_z_f32": 1.0,
+              "source_minus_xy_reconstructed_z": 0.0
+            },
+            {
+              "patch": 2,
+              "vertex": 1,
+              "source_z_f32": 0.0,
+              "xy_reconstructed_z_f32": 0.0,
+              "source_minus_xy_reconstructed_z": 0.0
+            },
+            {
+              "patch": 2,
+              "vertex": 2,
+              "source_z_f32": 0.3333333432674408,
+              "xy_reconstructed_z_f32": 0.333333283662796,
+              "source_minus_xy_reconstructed_z": 5.960464477539063e-08
+            }
+          ]
+        }
+      }
+    },
+    {
+      "case": "four_patch_matched_crossing",
+      "native_expected": {
+        "code": 0,
+        "outcome": "accept closure across four matched mortar patches"
+      },
+      "native_actual": {
+        "code": 6,
+        "environment": 0,
+        "object_index": 0,
+        "failing_index": 0,
+        "completed_microsteps": 0,
+        "fgmres_iterations": 0,
+        "contact_count": 0,
+        "event_count": 0,
+        "diagnostics": [
+          0,
+          4,
+          0,
+          0
+        ]
+      },
+      "sides": {
+        "A": {
+          "triangles_xy_f32": [
+            [
+              [
+                1.0,
+                0.0
+              ],
+              [
+                0.5,
+                0.5
+              ],
+              [
+                0.5,
+                0.0
+              ]
+            ],
+            [
+              [
+                0.5,
+                0.5
+              ],
+              [
+                0.0,
+                1.0
+              ],
+              [
+                0.0,
+                0.5
+              ]
+            ],
+            [
+              [
+                0.5,
+                0.0
+              ],
+              [
+                0.0,
+                0.5
+              ],
+              [
+                0.0,
+                0.0
+              ]
+            ],
+            [
+              [
+                0.5,
+                0.5
+              ],
+              [
+                0.0,
+                0.5
+              ],
+              [
+                0.5,
+                0.0
+              ]
+            ]
+          ],
+          "exact_cover": {
+            "valid": true,
+            "proof": "exact Q25 directed-edge cancellation and parent-boundary tiling; pairwise SAT",
+            "q25_triangles": [
+              [
+                [
+                  33554432,
+                  0
+                ],
+                [
+                  16777216,
+                  16777216
+                ],
+                [
+                  16777216,
+                  0
+                ]
+              ],
+              [
+                [
+                  16777216,
+                  16777216
+                ],
+                [
+                  0,
+                  33554432
+                ],
+                [
+                  0,
+                  16777216
+                ]
+              ],
+              [
+                [
+                  16777216,
+                  0
+                ],
+                [
+                  0,
+                  16777216
+                ],
+                [
+                  0,
+                  0
+                ]
+              ],
+              [
+                [
+                  16777216,
+                  16777216
+                ],
+                [
+                  0,
+                  16777216
+                ],
+                [
+                  16777216,
+                  0
+                ]
+              ]
+            ]
+          },
+          "source_normalization_residuals": [
+            {
+              "patch": 0,
+              "vertex": 0,
+              "source_z_f32": 0.0,
+              "xy_reconstructed_z_f32": 0.0,
+              "source_minus_xy_reconstructed_z": 0.0
+            },
+            {
+              "patch": 0,
+              "vertex": 1,
+              "source_z_f32": 0.0,
+              "xy_reconstructed_z_f32": 0.0,
+              "source_minus_xy_reconstructed_z": 0.0
+            },
+            {
+              "patch": 0,
+              "vertex": 2,
+              "source_z_f32": 0.5,
+              "xy_reconstructed_z_f32": 0.5,
+              "source_minus_xy_reconstructed_z": 0.0
+            },
+            {
+              "patch": 1,
+              "vertex": 0,
+              "source_z_f32": 0.0,
+              "xy_reconstructed_z_f32": 0.0,
+              "source_minus_xy_reconstructed_z": 0.0
+            },
+            {
+              "patch": 1,
+              "vertex": 1,
+              "source_z_f32": 0.0,
+              "xy_reconstructed_z_f32": 0.0,
+              "source_minus_xy_reconstructed_z": 0.0
+            },
+            {
+              "patch": 1,
+              "vertex": 2,
+              "source_z_f32": 0.5,
+              "xy_reconstructed_z_f32": 0.5,
+              "source_minus_xy_reconstructed_z": 0.0
+            },
+            {
+              "patch": 2,
+              "vertex": 0,
+              "source_z_f32": 0.5,
+              "xy_reconstructed_z_f32": 0.5,
+              "source_minus_xy_reconstructed_z": 0.0
+            },
+            {
+              "patch": 2,
+              "vertex": 1,
+              "source_z_f32": 0.5,
+              "xy_reconstructed_z_f32": 0.5,
+              "source_minus_xy_reconstructed_z": 0.0
+            },
+            {
+              "patch": 2,
+              "vertex": 2,
+              "source_z_f32": 1.0,
+              "xy_reconstructed_z_f32": 1.0,
+              "source_minus_xy_reconstructed_z": 0.0
+            },
+            {
+              "patch": 3,
+              "vertex": 0,
+              "source_z_f32": 0.0,
+              "xy_reconstructed_z_f32": 0.0,
+              "source_minus_xy_reconstructed_z": 0.0
+            },
+            {
+              "patch": 3,
+              "vertex": 1,
+              "source_z_f32": 0.5,
+              "xy_reconstructed_z_f32": 0.5,
+              "source_minus_xy_reconstructed_z": 0.0
+            },
+            {
+              "patch": 3,
+              "vertex": 2,
+              "source_z_f32": 0.5,
+              "xy_reconstructed_z_f32": 0.5,
+              "source_minus_xy_reconstructed_z": 0.0
+            }
+          ]
+        },
+        "B": {
+          "triangles_xy_f32": [
+            [
+              [
+                1.0,
+                0.0
+              ],
+              [
+                0.5,
+                0.5
+              ],
+              [
+                0.5,
+                0.0
+              ]
+            ],
+            [
+              [
+                0.5,
+                0.5
+              ],
+              [
+                0.0,
+                1.0
+              ],
+              [
+                0.0,
+                0.5
+              ]
+            ],
+            [
+              [
+                0.5,
+                0.0
+              ],
+              [
+                0.0,
+                0.5
+              ],
+              [
+                0.0,
+                0.0
+              ]
+            ],
+            [
+              [
+                0.5,
+                0.5
+              ],
+              [
+                0.0,
+                0.5
+              ],
+              [
+                0.5,
+                0.0
+              ]
+            ]
+          ],
+          "exact_cover": {
+            "valid": true,
+            "proof": "exact Q25 directed-edge cancellation and parent-boundary tiling; pairwise SAT",
+            "q25_triangles": [
+              [
+                [
+                  33554432,
+                  0
+                ],
+                [
+                  16777216,
+                  16777216
+                ],
+                [
+                  16777216,
+                  0
+                ]
+              ],
+              [
+                [
+                  16777216,
+                  16777216
+                ],
+                [
+                  0,
+                  33554432
+                ],
+                [
+                  0,
+                  16777216
+                ]
+              ],
+              [
+                [
+                  16777216,
+                  0
+                ],
+                [
+                  0,
+                  16777216
+                ],
+                [
+                  0,
+                  0
+                ]
+              ],
+              [
+                [
+                  16777216,
+                  16777216
+                ],
+                [
+                  0,
+                  16777216
+                ],
+                [
+                  16777216,
+                  0
+                ]
+              ]
+            ]
+          },
+          "source_normalization_residuals": [
+            {
+              "patch": 0,
+              "vertex": 0,
+              "source_z_f32": 0.0,
+              "xy_reconstructed_z_f32": 0.0,
+              "source_minus_xy_reconstructed_z": 0.0
+            },
+            {
+              "patch": 0,
+              "vertex": 1,
+              "source_z_f32": 0.0,
+              "xy_reconstructed_z_f32": 0.0,
+              "source_minus_xy_reconstructed_z": 0.0
+            },
+            {
+              "patch": 0,
+              "vertex": 2,
+              "source_z_f32": 0.5,
+              "xy_reconstructed_z_f32": 0.5,
+              "source_minus_xy_reconstructed_z": 0.0
+            },
+            {
+              "patch": 1,
+              "vertex": 0,
+              "source_z_f32": 0.0,
+              "xy_reconstructed_z_f32": 0.0,
+              "source_minus_xy_reconstructed_z": 0.0
+            },
+            {
+              "patch": 1,
+              "vertex": 1,
+              "source_z_f32": 0.0,
+              "xy_reconstructed_z_f32": 0.0,
+              "source_minus_xy_reconstructed_z": 0.0
+            },
+            {
+              "patch": 1,
+              "vertex": 2,
+              "source_z_f32": 0.5,
+              "xy_reconstructed_z_f32": 0.5,
+              "source_minus_xy_reconstructed_z": 0.0
+            },
+            {
+              "patch": 2,
+              "vertex": 0,
+              "source_z_f32": 0.5,
+              "xy_reconstructed_z_f32": 0.5,
+              "source_minus_xy_reconstructed_z": 0.0
+            },
+            {
+              "patch": 2,
+              "vertex": 1,
+              "source_z_f32": 0.5,
+              "xy_reconstructed_z_f32": 0.5,
+              "source_minus_xy_reconstructed_z": 0.0
+            },
+            {
+              "patch": 2,
+              "vertex": 2,
+              "source_z_f32": 1.0,
+              "xy_reconstructed_z_f32": 1.0,
+              "source_minus_xy_reconstructed_z": 0.0
+            },
+            {
+              "patch": 3,
+              "vertex": 0,
+              "source_z_f32": 0.0,
+              "xy_reconstructed_z_f32": 0.0,
+              "source_minus_xy_reconstructed_z": 0.0
+            },
+            {
+              "patch": 3,
+              "vertex": 1,
+              "source_z_f32": 0.5,
+              "xy_reconstructed_z_f32": 0.5,
+              "source_minus_xy_reconstructed_z": 0.0
+            },
+            {
+              "patch": 3,
+              "vertex": 2,
+              "source_z_f32": 0.5,
+              "xy_reconstructed_z_f32": 0.5,
+              "source_minus_xy_reconstructed_z": 0.0
+            }
+          ]
+        }
+      }
+    },
+    {
+      "case": "three_patch_boundary_common_translation",
+      "native_expected": {
+        "code": 0,
+        "outcome": "accept exact common translation over the whole sweep"
+      },
+      "native_actual": {
+        "code": 6,
+        "environment": 0,
+        "object_index": 0,
+        "failing_index": 0,
+        "completed_microsteps": 0,
+        "fgmres_iterations": 0,
+        "contact_count": 0,
+        "event_count": 0,
+        "diagnostics": [
+          0,
+          4,
+          0,
+          0
+        ]
+      },
+      "sides": {
+        "A": {
+          "triangles_xy_f32": [
+            [
+              [
+                1.0,
+                0.0
+              ],
+              [
+                0.0,
+                1.0
+              ],
+              [
+                0.3333333432674408,
+                0.3333333432674408
+              ]
+            ],
+            [
+              [
+                0.0,
+                1.0
+              ],
+              [
+                0.0,
+                0.0
+              ],
+              [
+                0.3333333432674408,
+                0.3333333432674408
+              ]
+            ],
+            [
+              [
+                0.0,
+                0.0
+              ],
+              [
+                1.0,
+                0.0
+              ],
+              [
+                0.3333333432674408,
+                0.3333333432674408
+              ]
+            ]
+          ],
+          "exact_cover": {
+            "valid": true,
+            "proof": "exact Q25 directed-edge cancellation and parent-boundary tiling; pairwise SAT",
+            "q25_triangles": [
+              [
+                [
+                  33554432,
+                  0
+                ],
+                [
+                  0,
+                  33554432
+                ],
+                [
+                  11184811,
+                  11184811
+                ]
+              ],
+              [
+                [
+                  0,
+                  33554432
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  11184811,
+                  11184811
+                ]
+              ],
+              [
+                [
+                  0,
+                  0
+                ],
+                [
+                  33554432,
+                  0
+                ],
+                [
+                  11184811,
+                  11184811
+                ]
+              ]
+            ]
+          },
+          "source_normalization_residuals": [
+            {
+              "patch": 0,
+              "vertex": 0,
+              "source_z_f32": 0.0,
+              "xy_reconstructed_z_f32": 0.0,
+              "source_minus_xy_reconstructed_z": 0.0
+            },
+            {
+              "patch": 0,
+              "vertex": 1,
+              "source_z_f32": 0.0,
+              "xy_reconstructed_z_f32": 0.0,
+              "source_minus_xy_reconstructed_z": 0.0
+            },
+            {
+              "patch": 0,
+              "vertex": 2,
+              "source_z_f32": 0.3333333432674408,
+              "xy_reconstructed_z_f32": 0.333333283662796,
+              "source_minus_xy_reconstructed_z": 5.960464477539063e-08
+            },
+            {
+              "patch": 1,
+              "vertex": 0,
+              "source_z_f32": 0.0,
+              "xy_reconstructed_z_f32": 0.0,
+              "source_minus_xy_reconstructed_z": 0.0
+            },
+            {
+              "patch": 1,
+              "vertex": 1,
+              "source_z_f32": 1.0,
+              "xy_reconstructed_z_f32": 1.0,
+              "source_minus_xy_reconstructed_z": 0.0
+            },
+            {
+              "patch": 1,
+              "vertex": 2,
+              "source_z_f32": 0.3333333432674408,
+              "xy_reconstructed_z_f32": 0.333333283662796,
+              "source_minus_xy_reconstructed_z": 5.960464477539063e-08
+            },
+            {
+              "patch": 2,
+              "vertex": 0,
+              "source_z_f32": 1.0,
+              "xy_reconstructed_z_f32": 1.0,
+              "source_minus_xy_reconstructed_z": 0.0
+            },
+            {
+              "patch": 2,
+              "vertex": 1,
+              "source_z_f32": 0.0,
+              "xy_reconstructed_z_f32": 0.0,
+              "source_minus_xy_reconstructed_z": 0.0
+            },
+            {
+              "patch": 2,
+              "vertex": 2,
+              "source_z_f32": 0.3333333432674408,
+              "xy_reconstructed_z_f32": 0.333333283662796,
+              "source_minus_xy_reconstructed_z": 5.960464477539063e-08
+            }
+          ]
+        },
+        "B": {
+          "triangles_xy_f32": [
+            [
+              [
+                1.0,
+                0.0
+              ],
+              [
+                0.0,
+                1.0
+              ],
+              [
+                0.3333333432674408,
+                0.3333333432674408
+              ]
+            ],
+            [
+              [
+                0.0,
+                1.0
+              ],
+              [
+                0.0,
+                0.0
+              ],
+              [
+                0.3333333432674408,
+                0.3333333432674408
+              ]
+            ],
+            [
+              [
+                0.0,
+                0.0
+              ],
+              [
+                1.0,
+                0.0
+              ],
+              [
+                0.3333333432674408,
+                0.3333333432674408
+              ]
+            ]
+          ],
+          "exact_cover": {
+            "valid": true,
+            "proof": "exact Q25 directed-edge cancellation and parent-boundary tiling; pairwise SAT",
+            "q25_triangles": [
+              [
+                [
+                  33554432,
+                  0
+                ],
+                [
+                  0,
+                  33554432
+                ],
+                [
+                  11184811,
+                  11184811
+                ]
+              ],
+              [
+                [
+                  0,
+                  33554432
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  11184811,
+                  11184811
+                ]
+              ],
+              [
+                [
+                  0,
+                  0
+                ],
+                [
+                  33554432,
+                  0
+                ],
+                [
+                  11184811,
+                  11184811
+                ]
+              ]
+            ]
+          },
+          "source_normalization_residuals": [
+            {
+              "patch": 0,
+              "vertex": 0,
+              "source_z_f32": 0.0,
+              "xy_reconstructed_z_f32": 0.0,
+              "source_minus_xy_reconstructed_z": 0.0
+            },
+            {
+              "patch": 0,
+              "vertex": 1,
+              "source_z_f32": 0.0,
+              "xy_reconstructed_z_f32": 0.0,
+              "source_minus_xy_reconstructed_z": 0.0
+            },
+            {
+              "patch": 0,
+              "vertex": 2,
+              "source_z_f32": 0.3333333432674408,
+              "xy_reconstructed_z_f32": 0.333333283662796,
+              "source_minus_xy_reconstructed_z": 5.960464477539063e-08
+            },
+            {
+              "patch": 1,
+              "vertex": 0,
+              "source_z_f32": 0.0,
+              "xy_reconstructed_z_f32": 0.0,
+              "source_minus_xy_reconstructed_z": 0.0
+            },
+            {
+              "patch": 1,
+              "vertex": 1,
+              "source_z_f32": 1.0,
+              "xy_reconstructed_z_f32": 1.0,
+              "source_minus_xy_reconstructed_z": 0.0
+            },
+            {
+              "patch": 1,
+              "vertex": 2,
+              "source_z_f32": 0.3333333432674408,
+              "xy_reconstructed_z_f32": 0.333333283662796,
+              "source_minus_xy_reconstructed_z": 5.960464477539063e-08
+            },
+            {
+              "patch": 2,
+              "vertex": 0,
+              "source_z_f32": 1.0,
+              "xy_reconstructed_z_f32": 1.0,
+              "source_minus_xy_reconstructed_z": 0.0
+            },
+            {
+              "patch": 2,
+              "vertex": 1,
+              "source_z_f32": 0.0,
+              "xy_reconstructed_z_f32": 0.0,
+              "source_minus_xy_reconstructed_z": 0.0
+            },
+            {
+              "patch": 2,
+              "vertex": 2,
+              "source_z_f32": 0.3333333432674408,
+              "xy_reconstructed_z_f32": 0.333333283662796,
+              "source_minus_xy_reconstructed_z": 5.960464477539063e-08
+            }
+          ]
+        }
+      }
+    },
+    {
+      "case": "three_patch_boundary_separating",
+      "native_expected": {
+        "code": 0,
+        "outcome": "accept paired shared-edge separation"
+      },
+      "native_actual": {
+        "code": 6,
+        "environment": 0,
+        "object_index": 0,
+        "failing_index": 0,
+        "completed_microsteps": 0,
+        "fgmres_iterations": 0,
+        "contact_count": 0,
+        "event_count": 0,
+        "diagnostics": [
+          0,
+          4,
+          0,
+          0
+        ]
+      },
+      "sides": {
+        "A": {
+          "triangles_xy_f32": [
+            [
+              [
+                1.0,
+                0.0
+              ],
+              [
+                0.0,
+                1.0
+              ],
+              [
+                0.3333333432674408,
+                0.3333333432674408
+              ]
+            ],
+            [
+              [
+                0.0,
+                1.0
+              ],
+              [
+                0.0,
+                0.0
+              ],
+              [
+                0.3333333432674408,
+                0.3333333432674408
+              ]
+            ],
+            [
+              [
+                0.0,
+                0.0
+              ],
+              [
+                1.0,
+                0.0
+              ],
+              [
+                0.3333333432674408,
+                0.3333333432674408
+              ]
+            ]
+          ],
+          "exact_cover": {
+            "valid": true,
+            "proof": "exact Q25 directed-edge cancellation and parent-boundary tiling; pairwise SAT",
+            "q25_triangles": [
+              [
+                [
+                  33554432,
+                  0
+                ],
+                [
+                  0,
+                  33554432
+                ],
+                [
+                  11184811,
+                  11184811
+                ]
+              ],
+              [
+                [
+                  0,
+                  33554432
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  11184811,
+                  11184811
+                ]
+              ],
+              [
+                [
+                  0,
+                  0
+                ],
+                [
+                  33554432,
+                  0
+                ],
+                [
+                  11184811,
+                  11184811
+                ]
+              ]
+            ]
+          },
+          "source_normalization_residuals": [
+            {
+              "patch": 0,
+              "vertex": 0,
+              "source_z_f32": 0.0,
+              "xy_reconstructed_z_f32": 0.0,
+              "source_minus_xy_reconstructed_z": 0.0
+            },
+            {
+              "patch": 0,
+              "vertex": 1,
+              "source_z_f32": 0.0,
+              "xy_reconstructed_z_f32": 0.0,
+              "source_minus_xy_reconstructed_z": 0.0
+            },
+            {
+              "patch": 0,
+              "vertex": 2,
+              "source_z_f32": 0.3333333432674408,
+              "xy_reconstructed_z_f32": 0.333333283662796,
+              "source_minus_xy_reconstructed_z": 5.960464477539063e-08
+            },
+            {
+              "patch": 1,
+              "vertex": 0,
+              "source_z_f32": 0.0,
+              "xy_reconstructed_z_f32": 0.0,
+              "source_minus_xy_reconstructed_z": 0.0
+            },
+            {
+              "patch": 1,
+              "vertex": 1,
+              "source_z_f32": 1.0,
+              "xy_reconstructed_z_f32": 1.0,
+              "source_minus_xy_reconstructed_z": 0.0
+            },
+            {
+              "patch": 1,
+              "vertex": 2,
+              "source_z_f32": 0.3333333432674408,
+              "xy_reconstructed_z_f32": 0.333333283662796,
+              "source_minus_xy_reconstructed_z": 5.960464477539063e-08
+            },
+            {
+              "patch": 2,
+              "vertex": 0,
+              "source_z_f32": 1.0,
+              "xy_reconstructed_z_f32": 1.0,
+              "source_minus_xy_reconstructed_z": 0.0
+            },
+            {
+              "patch": 2,
+              "vertex": 1,
+              "source_z_f32": 0.0,
+              "xy_reconstructed_z_f32": 0.0,
+              "source_minus_xy_reconstructed_z": 0.0
+            },
+            {
+              "patch": 2,
+              "vertex": 2,
+              "source_z_f32": 0.3333333432674408,
+              "xy_reconstructed_z_f32": 0.333333283662796,
+              "source_minus_xy_reconstructed_z": 5.960464477539063e-08
+            }
+          ]
+        },
+        "B": {
+          "triangles_xy_f32": [
+            [
+              [
+                1.0,
+                0.0
+              ],
+              [
+                0.0,
+                1.0
+              ],
+              [
+                0.3333333432674408,
+                0.3333333432674408
+              ]
+            ],
+            [
+              [
+                0.0,
+                1.0
+              ],
+              [
+                0.0,
+                0.0
+              ],
+              [
+                0.3333333432674408,
+                0.3333333432674408
+              ]
+            ],
+            [
+              [
+                0.0,
+                0.0
+              ],
+              [
+                1.0,
+                0.0
+              ],
+              [
+                0.3333333432674408,
+                0.3333333432674408
+              ]
+            ]
+          ],
+          "exact_cover": {
+            "valid": true,
+            "proof": "exact Q25 directed-edge cancellation and parent-boundary tiling; pairwise SAT",
+            "q25_triangles": [
+              [
+                [
+                  33554432,
+                  0
+                ],
+                [
+                  0,
+                  33554432
+                ],
+                [
+                  11184811,
+                  11184811
+                ]
+              ],
+              [
+                [
+                  0,
+                  33554432
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  11184811,
+                  11184811
+                ]
+              ],
+              [
+                [
+                  0,
+                  0
+                ],
+                [
+                  33554432,
+                  0
+                ],
+                [
+                  11184811,
+                  11184811
+                ]
+              ]
+            ]
+          },
+          "source_normalization_residuals": [
+            {
+              "patch": 0,
+              "vertex": 0,
+              "source_z_f32": 0.0,
+              "xy_reconstructed_z_f32": 0.0,
+              "source_minus_xy_reconstructed_z": 0.0
+            },
+            {
+              "patch": 0,
+              "vertex": 1,
+              "source_z_f32": 0.0,
+              "xy_reconstructed_z_f32": 0.0,
+              "source_minus_xy_reconstructed_z": 0.0
+            },
+            {
+              "patch": 0,
+              "vertex": 2,
+              "source_z_f32": 0.3333333432674408,
+              "xy_reconstructed_z_f32": 0.333333283662796,
+              "source_minus_xy_reconstructed_z": 5.960464477539063e-08
+            },
+            {
+              "patch": 1,
+              "vertex": 0,
+              "source_z_f32": 0.0,
+              "xy_reconstructed_z_f32": 0.0,
+              "source_minus_xy_reconstructed_z": 0.0
+            },
+            {
+              "patch": 1,
+              "vertex": 1,
+              "source_z_f32": 1.0,
+              "xy_reconstructed_z_f32": 1.0,
+              "source_minus_xy_reconstructed_z": 0.0
+            },
+            {
+              "patch": 1,
+              "vertex": 2,
+              "source_z_f32": 0.3333333432674408,
+              "xy_reconstructed_z_f32": 0.333333283662796,
+              "source_minus_xy_reconstructed_z": 5.960464477539063e-08
+            },
+            {
+              "patch": 2,
+              "vertex": 0,
+              "source_z_f32": 1.0,
+              "xy_reconstructed_z_f32": 1.0,
+              "source_minus_xy_reconstructed_z": 0.0
+            },
+            {
+              "patch": 2,
+              "vertex": 1,
+              "source_z_f32": 0.0,
+              "xy_reconstructed_z_f32": 0.0,
+              "source_minus_xy_reconstructed_z": 0.0
+            },
+            {
+              "patch": 2,
+              "vertex": 2,
+              "source_z_f32": 0.3333333432674408,
+              "xy_reconstructed_z_f32": 0.333333283662796,
+              "source_minus_xy_reconstructed_z": 5.960464477539063e-08
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

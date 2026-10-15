@@ -1,0 +1,125 @@
+{
+  "schema": "numi.cardboard.restart-augmentation-base-operator-check.v1",
+  "status": "base_operator_consistent_diagnostic",
+  "bindings": {
+    "operator_capture": {
+      "path": "/Users/home/cardboard-implementation-20261014/solver/two-env-current-newton-augmentation-off-bounded-323/operator-capture",
+      "sha256": "2e585d35bf4b5866ed0b8b3baf3f9ef097627342b870d727a16bb1b6c5923d48"
+    },
+    "conditioning_manifest": {
+      "path": "/Users/home/cardboard-implementation-20261014/solver/two-env-current-newton-augmentation-off-bounded-323/output/rejected-conditioning-000001/manifest.json",
+      "sha256": "273eae8a472d2ebec9e06029639dbb1539070e7d7c4359d33b855028002bbad7"
+    },
+    "conditioning_arrays": {
+      "AP.bin": "54904563d7950fc598b10aa4ad9252ea1cd88e6be6fff9f7268cd19b5aa0fc14",
+      "P.bin": "2626e4bbb205fa1c7e40bdaf3f2e72d11f831ec53431c3062bcc85d69a50f6b5",
+      "candidate_nodes.bin": "0775be697d4e339a1c4d1edf4ac0f89ac774b99d04ad5cd7af436f3623283d7c",
+      "effective_P.bin": "9bf372c75cafcf84bc1e21a20ee3305e7619affffe6415bb9d3398f79970214c",
+      "factor_valid.bin": "64ed86b909d6d0502b64b28db0ea1272ffb358e20e9b1d88b63ccb07fa900cf5",
+      "node_block_inverse.bin": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "pivoted_RAP.bin": "3dd7ed6bc523a90bec8a509696dd1f30d455e25accb52d210cb9bccbae9fffd0",
+      "pivots.bin": "d96f9a408a0e2e577575e02f6bb6a304af5226c37af79fbe8b26989bf9d0ebb9"
+    },
+    "assembler": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/offline-operator-tool-development-058/cardboard_cached_operator_audit.py",
+      "sha256": "92a6c810192befb789db11b09a7c4e8884cda762b2448c564072d932c6e59383"
+    },
+    "regional_capture": null
+  },
+  "source_build": {
+    "path": "/Users/home/cardboard-implementation-20261014/solver/two-env-current-newton-augmentation-off-bounded-323/inputs/external/source-build.json",
+    "sha256": "9291909aac91305b8655151e022f860b6874f4cc6be02692d7ffc332ac49c857",
+    "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-center-action-twoenv-restart-099",
+    "success": true,
+    "source_sha256_manifest_sha256": "9072a90513a26feecea1bd710c4e7b31c195a245efd1b4e32ae3c2d7940a5940"
+  },
+  "linearization": {
+    "root": 0,
+    "newton_iteration": 3,
+    "world_fingerprint_hex": "1aa3cc7e445dcad1",
+    "execution_fingerprint_hex": "ade099843ef981c",
+    "environment_count": 2,
+    "node_count": 882,
+    "tetrahedron_count": 1920,
+    "base_modes": 26,
+    "candidate_node_bytes_match_rich_center": true
+  },
+  "conditioning_generation": {
+    "control_step": 0,
+    "regional_diagnostics_available": true,
+    "restart_diagnostics_available": false,
+    "restart_diagnostics_message": "same-Newton restart augmentation is not enabled"
+  },
+  "restart_augmentation_validation": {
+    "status": "unavailable",
+    "message": "same-Newton restart augmentation is not enabled"
+  },
+  "run": {
+    "result": {
+      "path": "/Users/home/cardboard-implementation-20261014/solver/two-env-current-newton-augmentation-off-bounded-323/output/result.json",
+      "sha256": "4d6f2842a1730805b2cca51c0f1699d70f9f292931f3b3d7fb3d32304274eae0"
+    },
+    "status": "failed",
+    "accepted_steps": 0,
+    "physical_validation": false,
+    "receipt": {
+      "path": "/Users/home/cardboard-implementation-20261014/solver/two-env-current-newton-augmentation-off-bounded-323/receipt.json",
+      "sha256": "1de66a33629a6bdc5b7b34b0ca8dba3aae107941e7b4e3ad27104ecc543baddd",
+      "exit_code": 2,
+      "execution_started": true
+    },
+    "manifest": {
+      "path": "/Users/home/cardboard-implementation-20261014/solver/two-env-current-newton-augmentation-off-bounded-323/output/manifest.json",
+      "sha256": "e5d9d43a8972f7083fe07fde69d5d898803e943b87a5a192e6a230ab8e324d8b",
+      "compiled_world_fingerprint": 1919602708874906321,
+      "accepted_steps": null,
+      "solver_status": null
+    }
+  },
+  "environments": [
+    {
+      "environment": 0,
+      "free_node_count": 846,
+      "fixed_node_count": 36,
+      "mode_count": 26,
+      "P_vs_effective_P_relative_l2": 0.0,
+      "base_AP_fresh_action_relative_limit": 0.002,
+      "base_AP_max_relative_error": 5.034034231031465e-07,
+      "base_AP_median_relative_error": 9.992855249390413e-08,
+      "base_AP_worst_mode": {
+        "observed_l2": 0.00919406167381846,
+        "reference_l2": 0.009194061790803962,
+        "difference_l2": 4.62832217771256e-09,
+        "relative_l2": 5.034034231031465e-07,
+        "max_abs": 1.5790150215729947e-09,
+        "mode": 20,
+        "passed": true
+      },
+      "base_AP_all_modes_passed": true,
+      "operator_assembly": "A=M+dt^2*K; K=-d(f_internal)/d(v), local full unsymmetric dP/dF cache; fixed rows/columns eliminated"
+    },
+    {
+      "environment": 1,
+      "free_node_count": 846,
+      "fixed_node_count": 36,
+      "mode_count": 26,
+      "P_vs_effective_P_relative_l2": 0.0,
+      "base_AP_fresh_action_relative_limit": 0.002,
+      "base_AP_max_relative_error": 5.239553129921954e-07,
+      "base_AP_median_relative_error": 9.520328763274217e-08,
+      "base_AP_worst_mode": {
+        "observed_l2": 0.009248104369455157,
+        "reference_l2": 0.009248103240297227,
+        "difference_l2": 4.845593419482367e-09,
+        "relative_l2": 5.239553129921954e-07,
+        "max_abs": 1.5744645069312464e-09,
+        "mode": 20,
+        "passed": true
+      },
+      "base_AP_all_modes_passed": true,
+      "operator_assembly": "A=M+dt^2*K; K=-d(f_internal)/d(v), local full unsymmetric dP/dF cache; fixed rows/columns eliminated"
+    }
+  ],
+  "regional_sidecar_exact_comparison": null,
+  "claim_boundary": "This recomputes the captured base A*P action at the exact rich-capture center. It does not establish restart augmentation, solver convergence, accepted physical state, or physical validation."
+}

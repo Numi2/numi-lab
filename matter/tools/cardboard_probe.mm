@@ -12326,7 +12326,8 @@ int execute(Arguments arguments) {
     // are diagnostic conditioning data, never accepted physical geometry.
     const auto writeRejectedRegionalConditioning = [&](const std::uint32_t step,
             const RuntimeStateSnapshot& snapshot) {
-        if (!snapshot.femRegionalGalerkinDiagnosticsAvailable) return;
+        if (snapshot.femRegionalGalerkinModeCount == 0u &&
+            snapshot.femRegionalRestartBaseModeCount == 0u) return;
         const auto directory = arguments.output /
             ("rejected-conditioning-" + stepLabel(step + 1u));
         std::filesystem::create_directories(directory);
@@ -12342,8 +12343,51 @@ int execute(Arguments arguments) {
             << "  \"environment_count\": " << arguments.environmentCount << ",\n"
             << "  \"fem_node_count\": " << compiled.world.dispatch.femNodeCount << ",\n"
             << "  \"mode_count\": " << snapshot.femRegionalGalerkinModeCount << ",\n"
+            << "  \"regional_basis_storage_mode_stride\": "
+            << (snapshot.femRegionalRestartAugmentedModeCount != 0u
+                ? snapshot.femRegionalRestartAugmentedModeCount
+                : snapshot.femRegionalGalerkinModeCount) << ",\n"
+            << "  \"exported_base_modes_compacted\": true,\n"
             << "  \"byte_order\": \"native_little_endian\",\n"
             << "  \"layout\": \"P mode-node; effective_P/AP environment-mode-node; RAP pivoted LU environment-row-column; block_inverse environment-node-row\",\n"
+            << "  \"regional_diagnostics_available\": "
+            << (snapshot.femRegionalGalerkinDiagnosticsAvailable ? "true" : "false") << ",\n"
+            << "  \"regional_diagnostics_message\": \""
+            << jsonEscape(snapshot.femRegionalGalerkinDiagnosticsMessage) << "\",\n"
+            << "  \"regional_readback_bytes\": "
+            << snapshot.femRegionalGalerkinDiagnosticReadbackBytes << ",\n"
+            << "  \"restart_augmentation\": {\n"
+            << "    \"diagnostics_available\": "
+            << (snapshot.femRegionalRestartAugmentationDiagnosticsAvailable ? "true" : "false") << ",\n"
+            << "    \"diagnostics_message\": \""
+            << jsonEscape(snapshot.femRegionalRestartAugmentationDiagnosticsMessage) << "\",\n"
+            << "    \"diagnostic_environment_count\": " << snapshot.femRegionalRestartDiagnosticEnvironmentCount << ",\n"
+            << "    \"nodes_per_environment\": " << snapshot.femRegionalRestartDiagnosticNodesPerEnvironment << ",\n"
+            << "    \"augmented_mode_stride\": " << snapshot.femRegionalRestartDiagnosticModeStride << ",\n"
+            << "    \"environment_layout\": \"metadata E; q/Aq E*N float4; augmented RAP E*K*K; pivots E*K; row-major; UINT32_MAX generation denotes no attempt\",\n"
+            << "    \"base_mode_count\": " << snapshot.femRegionalRestartBaseModeCount << ",\n"
+            << "    \"augmented_mode_count\": " << snapshot.femRegionalRestartAugmentedModeCount << ",\n"
+            << "    \"control_step\": " << snapshot.femRegionalRestartControlStep << ",\n"
+            << "    \"physics_substep\": " << snapshot.femRegionalRestartPhysicsSubstep << ",\n"
+            << "    \"newton_iteration\": " << snapshot.femRegionalRestartNewtonIteration << ",\n"
+            << "    \"restart_cycle\": " << snapshot.femRegionalRestartCycle << ",\n"
+            << "    \"attempt_count\": " << snapshot.femRegionalRestartAttemptCount << ",\n"
+            << "    \"mode_valid\": " << snapshot.femRegionalRestartModeValid << ",\n"
+            << "    \"factor_valid\": " << snapshot.femRegionalRestartAugmentedFactorValid << ",\n"
+            << "    \"temporary_metal_readback_bytes\": "
+            << snapshot.femRegionalRestartDiagnosticReadbackBytes << ",\n";
+        const auto writeRestartScalar = [&](const char* name, const float value) {
+            std::uint32_t word = 0u;
+            std::memcpy(&word, &value, sizeof(word));
+            metadata << "    \"" << name << "\": ";
+            if (std::isfinite(value)) metadata << std::setprecision(9) << value;
+            else metadata << "null";
+            metadata << ",\n    \"" << name << "_f32_bits\": " << word << ",\n";
+        };
+        writeRestartScalar("target_scale", snapshot.femRegionalRestartTargetScale);
+        writeRestartScalar("raw_norm_squared", snapshot.femRegionalRestartRawNormSquared);
+        writeRestartScalar("mode_scale", snapshot.femRegionalRestartModeScale);
+        metadata << "    \"accepted_physical_state\": false\n  },\n"
             << "  \"files\": [\n";
         bool first = true;
         const auto writeArena = [&](const char* name, const auto& values) {
@@ -12369,6 +12413,23 @@ int execute(Arguments arguments) {
         writeArena("pivots", snapshot.femRegionalGalerkinPivots);
         writeArena("factor_valid", snapshot.femRegionalGalerkinFactorValid);
         writeArena("node_block_inverse", snapshot.femRegionalGalerkinNodeBlockInverse);
+        if (snapshot.femRegionalRestartAugmentationDiagnosticsAvailable) {
+            writeArena("restart_q", snapshot.femRegionalRestartModeQ);
+            writeArena("restart_Aq", snapshot.femRegionalRestartOperatorAQ);
+            writeArena("restart_pivoted_RAP", snapshot.femRegionalRestartPivotedRAP);
+            writeArena("restart_pivots", snapshot.femRegionalRestartPivots);
+            writeArena("restart_generations_by_environment", snapshot.femRegionalRestartGenerationsByEnvironment);
+            writeArena("restart_attempt_counts_by_environment", snapshot.femRegionalRestartAttemptCountsByEnvironment);
+            writeArena("restart_target_scales_by_environment", snapshot.femRegionalRestartTargetScalesByEnvironment);
+            writeArena("restart_raw_norm_squared_by_environment", snapshot.femRegionalRestartRawNormSquaredByEnvironment);
+            writeArena("restart_mode_scales_by_environment", snapshot.femRegionalRestartModeScalesByEnvironment);
+            writeArena("restart_mode_valid_by_environment", snapshot.femRegionalRestartModeValidByEnvironment);
+            writeArena("restart_factor_valid_by_environment", snapshot.femRegionalRestartAugmentedFactorValidByEnvironment);
+            writeArena("restart_q_by_environment", snapshot.femRegionalRestartModesQByEnvironment);
+            writeArena("restart_Aq_by_environment", snapshot.femRegionalRestartOperatorAQByEnvironment);
+            writeArena("restart_pivoted_RAP_by_environment", snapshot.femRegionalRestartPivotedRAPByEnvironment);
+            writeArena("restart_pivots_by_environment", snapshot.femRegionalRestartPivotsByEnvironment);
+        }
         metadata << "\n  ]\n}\n";
         require(metadata.good(), "rejected conditioning metadata write failed");
     };

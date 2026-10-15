@@ -1,0 +1,64 @@
+{
+  "schema": "numi.source-overlay.v1",
+  "overlay_id": "restart-augmentation-two-env-007",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-current-newton-restart-augmentation-096",
+  "base_files": [
+    {
+      "path": "matter/src/runtime.mm",
+      "base_sha256": "d2ea134b9c6ec0f00ce9b5c479d36b7f75d727d6b162281f5947cc98c69f543d",
+      "overlay_sha256": "b7d85d454326f46fdaa68969d527c6ed9afa2a2e46a5479f76e232b7ec0b74c1"
+    },
+    {
+      "path": "matter/src/metal/fgmres.metalinc",
+      "base_sha256": "a733df504bd75dcef43e20c5d3926a5cd4338d45ded0fb6d7eb6c0480671a555",
+      "overlay_sha256": "3aaaaf5685f14f6e370fb3af7549e540a5e9150ec7e226ec2bbefa765748f74f"
+    },
+    {
+      "path": "matter/include/numi/matter/matter.hpp",
+      "base_sha256": "ac26950e564b78985e21ae61f9ee5fda28f7fdd4e8bcdb354ede3816e79c3a9e",
+      "overlay_sha256": "3afd1dbe987b0cf3a386a69d335489ca38342984d9a5f4c52f2ddcd094ded633"
+    },
+    {
+      "path": "matter/tools/cardboard_graph_lu_search_native_check.mm",
+      "base_sha256": "bf29b7f3c9dbb7209e65e05c133cacdd02bee396e8db8c765a845be4c723d411",
+      "overlay_sha256": "7a18c0a8576e20033893cc40318bc26b61957ccad6300fb6cac6c57619775893"
+    },
+    {
+      "path": "matter/tools/cardboard_regional_recycle_masked_basis_native_check.mm",
+      "base_sha256": "b3bc36d1daf5b1bf294101b09d97fa714d99d2c49363712a0fb8740150250b0a",
+      "overlay_sha256": "6d5bd01778d09112ef02272a58e7347ca791387ceced1ed5a43537f0a9312447"
+    }
+  ],
+  "unchanged_compile_entrypoint": {
+    "path": "matter/src/matter_kernels.metal",
+    "sha256": "37d3530284e2361b20f805409768c65446fc13186c50e94f286b73256debe168",
+    "note": "Copied unchanged into overlay solely so Metal includes the overlay fgmres.metalinc."
+  },
+  "patch_sha256": "ffd173221510619af733bed4ed5072305b1a8b51c30dd44e06e0cd9198b22e1d",
+  "validation": {
+    "runtime_objcxx_syntax": "PASS; clang++ C++2b, ARC, -Wall -Wextra -Wpedantic -Werror",
+    "graph_checker_syntax": "PASS; clang++ C++2b, ARC, -Wall -Wextra -Wpedantic -Werror",
+    "masked_basis_checker_syntax": "PASS; same flags with NUMI_MATTER_METALLIB fixture define",
+    "metal_compile": "PASS; metal4.0 -O3 -fno-fast-math",
+    "metallib_link": "PASS",
+    "native_or_gpu_execution": "NOT RUN; parent owns native validation",
+    "log_path": "/Users/home/cardboard-implementation-20261014/analysis/restart-augmentation-two-env-007/validation/final-compile.log",
+    "log_sha256": "6e2eb072d70eb44752f00faacf30f3dee3ac8b76ee6b141a31a240deb74afd82"
+  },
+  "scope": {
+    "accepted_environment_count": [
+      1,
+      2
+    ],
+    "selector": 5,
+    "object_count": 1,
+    "other_scope_guards": "preserved; MPM, rigid/contact, generalized rigid unknowns, Human, fields, cohesive, mutation, adaptive, learned materials, authored contact, and accepted-correction recycle remain rejected",
+    "material_table": "ordinary per-source material lookup count is no longer misclassified as mixed-FEM",
+    "public_snapshot": "environment-major metadata, q/Aq, augmented RAP, pivots; UINT32_MAX generation sentinel denotes no attempt; scalar fields remain env0 compatibility",
+    "converged_tail": "per-environment internal latch preserves latest actual q/Aq/generation through statically encoded completed restart tails"
+  },
+  "limitations": [
+    "No native two-environment execution or parity result yet.",
+    "No physical solver qualification; this is an opt-in conditioning-only preconditioner experiment."
+  ]
+}

@@ -277,6 +277,7 @@ kernel void nm_mixed_apply_operator_elements(
     device const float4* mechanicalDirection [[buffer(8)]],
     device const NMFEMNodeStateGPU* nodes [[buffer(9)]],
     device const NMFGMRESStateGPU* fgmresStates [[buffer(10)]],
+    constant uint& allowConvergedState [[buffer(11)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint total = dispatch.environmentCount * dispatch.tetrahedronCount;
@@ -293,7 +294,8 @@ kernel void nm_mixed_apply_operator_elements(
     if ((object.flags & NM_OBJECT_MULTIPHYSICS) == 0u ||
         object.materialIndex >= dispatch.mixedMaterialCount ||
         ((microstep.flags & NM_MICROSTEP_FGMRES_OPERATOR) != 0u &&
-         fgmresStates[environment].diagnostics.z > 0.5f)) return;
+         fgmresStates[environment].diagnostics.z > 0.5f &&
+         allowConvergedState == 0u)) return;
     const uint nodeBase = environment * dispatch.femNodeCount;
     float electric = 0.0f;
     for (uint slot = 0u; slot < 4u; ++slot)

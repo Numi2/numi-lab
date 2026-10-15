@@ -1,0 +1,25 @@
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -4,6 +4,7 @@
+ 
+ #include "numi/matter/matter.hpp"
+ #include "numi/matter/detail.hpp"
++#include "numi/matter/regional_restart_augmentation_admission.hpp"
+ #include "numi/matter/sparse_private_contact_admission.hpp"
+ #include "numi/matter/full_contact_armijo_admission.hpp"
+ #include "numi/matter/regional_galerkin_bending_basis.hpp"
+@@ -5743,10 +5744,12 @@
+              !world.vascular.connections.empty() ||
+              !world.vascular.tissues.empty() ||
+              !world.vascular.cavities.empty() ||
+-             !world.fem.fields.empty() ||
++             !detail::regionalRestartFieldsAreMechanical(
++                 world.objects, world.fem.fields,
++                 world.dispatch.femNodeCount) ||
+              !world.fem.fieldBoundaries.empty())) {
+             diagnostics.message =
+-                "same-Newton restart augmentation requires the pure mechanical FEM FGMRES slice without fields, Human rows, or vascular unknowns";
++                "same-Newton restart augmentation requires finite inactive FEM field-state backing, no Human rows, and no vascular unknowns";
+             return diagnostics;
+         }
+         const char* dense45Reason = vascularDense45Ineligibility(world);

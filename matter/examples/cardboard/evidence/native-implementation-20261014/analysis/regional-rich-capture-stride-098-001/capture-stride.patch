@@ -1,0 +1,160 @@
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -816,6 +816,9 @@
+     std::uint64_t elementBytes = 0u;
+     std::uint32_t sourceSlot = 0u;
+     std::uint64_t sourceOffset = 0u;
++    std::uint64_t sourceSegmentBytes = 0u;
++    std::uint64_t sourceSegmentStride = 0u;
++    std::uint64_t sourceSegmentCount = 0u;
+ };
+ 
+ struct RegionalRAPCaptureMetadata {
+@@ -18324,7 +18327,10 @@
+                         std::initializer_list<std::uint64_t> shape,
+                         const std::uint64_t elementBytes,
+                         id<MTLBuffer> source,
+-                        const std::uint64_t sourceOffset = 0u) {
++                        const std::uint64_t sourceOffset = 0u,
++                        const std::uint64_t sourceSegmentBytes = 0u,
++                        const std::uint64_t sourceSegmentStride = 0u,
++                        const std::uint64_t sourceSegmentCount = 0u) {
+                         if (!layoutValid || source == nil || elementBytes == 0u ||
+                             captureArrays.size() >= 32u) {
+                             layoutValid = false;
+@@ -18346,8 +18352,31 @@
+                             return;
+                         }
+                         const std::uint64_t byteCount = count * elementBytes;
+-                        if (sourceOffset > source.length ||
+-                            byteCount > source.length - sourceOffset ||
++                        bool sourceRangeValid = sourceSegmentBytes == 0u &&
++                            sourceSegmentStride == 0u &&
++                            sourceSegmentCount == 0u;
++                        if (sourceSegmentBytes != 0u &&
++                            sourceSegmentStride != 0u &&
++                            sourceSegmentCount != 0u &&
++                            sourceSegmentCount <=
++                                std::numeric_limits<std::uint64_t>::max() /
++                                    sourceSegmentBytes &&
++                            sourceSegmentCount * sourceSegmentBytes == byteCount &&
++                            sourceSegmentCount - 1u <=
++                                (std::numeric_limits<std::uint64_t>::max() -
++                                    sourceOffset) / sourceSegmentStride) {
++                            const std::uint64_t lastSourceOffset = sourceOffset +
++                                (sourceSegmentCount - 1u) * sourceSegmentStride;
++                            sourceRangeValid = lastSourceOffset <= source.length &&
++                                sourceSegmentBytes <=
++                                    source.length - lastSourceOffset;
++                        } else if (sourceSegmentBytes == 0u &&
++                                   sourceSegmentStride == 0u &&
++                                   sourceSegmentCount == 0u) {
++                            sourceRangeValid = sourceOffset <= source.length &&
++                                byteCount <= source.length - sourceOffset;
++                        }
++                        if (!sourceRangeValid ||
+                             payloadBytes > std::numeric_limits<std::uint64_t>::max() -
+                                 byteCount) {
+                             layoutValid = false;
+@@ -18363,20 +18392,56 @@
+                         array.sourceSlot = static_cast<std::uint32_t>(
+                             captureArrays.size());
+                         array.sourceOffset = sourceOffset;
++                        array.sourceSegmentBytes = sourceSegmentBytes;
++                        array.sourceSegmentStride = sourceSegmentStride;
++                        array.sourceSegmentCount = sourceSegmentCount;
+                         captureSources[array.sourceSlot] = source;
+                         captureArrays.push_back(std::move(array));
+                         payloadBytes += byteCount;
+                     };
+                     if (layoutValid) {
++                        const std::uint64_t effectiveModeStride =
++                            state.femRegionalRestartAugmentationEnabled
++                                ? state.femRegionalAugmentedModeCount
++                                : captureRegionalModes;
++                        std::uint64_t effectiveSegmentBytes = 0u;
++                        std::uint64_t effectiveSourceStride = 0u;
++                        const std::uint64_t elementBytes = sizeof(nm_float4);
++                        if (nodeCount == 0u || modeCount == 0u ||
++                            effectiveModeStride == 0u ||
++                            nodeCount >
++                                std::numeric_limits<std::uint64_t>::max() /
++                                    elementBytes) {
++                            layoutValid = false;
++                        } else {
++                            const std::uint64_t nodeBytes =
++                                nodeCount * elementBytes;
++                            if (modeCount >
++                                    std::numeric_limits<std::uint64_t>::max() /
++                                        nodeBytes ||
++                                effectiveModeStride >
++                                    std::numeric_limits<std::uint64_t>::max() /
++                                        nodeBytes) {
++                                layoutValid = false;
++                            } else {
++                                effectiveSegmentBytes = modeCount * nodeBytes;
++                                effectiveSourceStride =
++                                    effectiveModeStride * nodeBytes;
++                            }
++                        }
+                         appendCaptureArray("P", "<f4x4",
+                             {modeCount, nodeCount}, sizeof(nm_float4),
+                             state.femRegionalBasis);
+                         appendCaptureArray("effective_P", "<f4x4",
+                             {envCount, modeCount, nodeCount},
+-                            sizeof(nm_float4), state.femRegionalEffectiveBasis);
++                            sizeof(nm_float4), state.femRegionalEffectiveBasis,
++                            0u, effectiveSegmentBytes, effectiveSourceStride,
++                            envCount);
+                         appendCaptureArray("AP", "<f4x4",
+                             {envCount, modeCount, nodeCount},
+-                            sizeof(nm_float4), state.femRegionalAP);
++                            sizeof(nm_float4), state.femRegionalAP,
++                            0u, effectiveSegmentBytes, effectiveSourceStride,
++                            envCount);
+                         appendCaptureArray("pivoted_RAP", "<f4",
+                             {envCount, modeCount, modeCount}, sizeof(float),
+                             state.femRegionalCoarseMatrix);
+@@ -18553,14 +18618,34 @@
+                                     femOperatorFDTraceIteration);
+                             } else {
+                                 for (const auto& array : captureArrays) {
+-                                    [copy copyFromBuffer:
+-                                        captureSources[array.sourceSlot]
+-                                        sourceOffset:static_cast<NSUInteger>(
+-                                            array.sourceOffset)
+-                                        toBuffer:snapshot
+-                                        destinationOffset:
+-                                            static_cast<NSUInteger>(array.offset)
+-                                        size:static_cast<NSUInteger>(array.byteCount)];
++                                    if (array.sourceSegmentCount == 0u) {
++                                        [copy copyFromBuffer:
++                                            captureSources[array.sourceSlot]
++                                            sourceOffset:static_cast<NSUInteger>(
++                                                array.sourceOffset)
++                                            toBuffer:snapshot
++                                            destinationOffset:
++                                                static_cast<NSUInteger>(array.offset)
++                                            size:static_cast<NSUInteger>(
++                                                array.byteCount)];
++                                    } else {
++                                        for (std::uint64_t segment = 0u;
++                                             segment < array.sourceSegmentCount;
++                                             ++segment) {
++                                            [copy copyFromBuffer:
++                                                captureSources[array.sourceSlot]
++                                                sourceOffset:static_cast<NSUInteger>(
++                                                    array.sourceOffset + segment *
++                                                        array.sourceSegmentStride)
++                                                toBuffer:snapshot
++                                                destinationOffset:
++                                                    static_cast<NSUInteger>(
++                                                        array.offset + segment *
++                                                            array.sourceSegmentBytes)
++                                                size:static_cast<NSUInteger>(
++                                                    array.sourceSegmentBytes)];
++                                        }
++                                    }
+                                 }
+                                 [copy endEncoding];
+                                 RegionalRAPCaptureMetadata metadata;

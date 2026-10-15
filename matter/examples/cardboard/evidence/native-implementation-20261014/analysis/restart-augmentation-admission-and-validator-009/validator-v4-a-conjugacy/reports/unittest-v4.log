@@ -1,0 +1,15 @@
+test_actual323_feature_off_fresh_base_ap (test_restart_augmentation_validation_v4.RestartAugmentationV3Tests) ... ok
+test_actual337_factor_fallback_is_not_misread_as_attempt (test_restart_augmentation_validation_v4.RestartAugmentationV3Tests) ... ok
+test_actual341_formed_but_rejected_attempt_and_identity_fallback (test_restart_augmentation_validation_v4.RestartAugmentationV3Tests) ... ok
+test_actual344_admitted_A_conjugate_restart_readback (test_restart_augmentation_validation_v4.RestartAugmentationV3Tests) ... ok
+test_admitted_mode_requirement_rejects_341_fail_closed_attempt (test_restart_augmentation_validation_v4.RestartAugmentationV3Tests) ... ok
+test_augmented_per_environment_synthetic_A_conjugate_contract (test_restart_augmentation_validation_v4.RestartAugmentationV3Tests) ... ok
+test_capture182_keeps_ap_mismatch_and_reports_fresh_actions (test_restart_augmentation_validation_v4.RestartAugmentationV3Tests) ... ok
+test_no_attempt_accepts_nonzero_current_base_target_scale (test_restart_augmentation_validation_v4.RestartAugmentationV3Tests) ... ok
+test_nonsymmetric_A_projection_requires_A_conjugacy_not_euclidean_q (test_restart_augmentation_validation_v4.RestartAugmentationV3Tests) ... ok
+test_threshold_overrides_cannot_be_weakened (test_restart_augmentation_validation_v4.RestartAugmentationV3Tests) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 16.612s
+
+OK

@@ -1,0 +1,8 @@
+test_augmented_environment_stride_matches_snapshot_compaction (test_capture_segments.CaptureSegmentLayoutTests) ... ok
+test_runtime_uses_segmented_blits_only_for_padded_environment_arrays (test_capture_segments.CaptureSegmentLayoutTests) ... ok
+test_unaugmented_stride_preserves_compact_layout (test_capture_segments.CaptureSegmentLayoutTests) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.016s
+
+OK

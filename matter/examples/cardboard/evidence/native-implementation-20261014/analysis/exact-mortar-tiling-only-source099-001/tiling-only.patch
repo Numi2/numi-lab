@@ -1,0 +1,541 @@
+--- a/matter/src/metal/contact.metalinc
++++ b/matter/src/metal/contact.metalinc
+@@ -1392,6 +1392,74 @@
+     if (patchSet.count > kMaxMortarPatchesPerPrimitivePair) {
+         failureStage = 1u;
+         return false;
++    }
++
++    // Exact authoring maps can already form a complete triangulation of the
++    // parent. Detect that case before sequential FP32 clipping: repeatedly
++    // clipping thirds around a shared vertex can otherwise manufacture a
++    // tiny uncovered cell even though the authored triangles are an exact
++    // nonoverlapping cover. This is an exact Q25 proof only; maps outside
++    // that grid fall through to the ordinary conservative partition path.
++    if (patchSet.count >= 2u) {
++        NMMortarGuardTriangle2 exactTiles[4] = {};
++        bool mapsAvailable = true;
++        for (uint patchIndex = 0u; patchIndex < patchSet.count; ++patchIndex) {
++            const NMMortarPatchRef patchRef = patchSet.patch[patchIndex];
++            const NMCohesiveFaceGPU face = faces[faceBase + patchRef.faceIndex];
++            const bool sideB = forLeftPrimitive
++                ? patchRef.leftIsSideB != 0u
++                : patchRef.leftIsSideB == 0u;
++            float3 mapped[3];
++            if (!mortarPatchInPrimitiveCoordinates(
++                    face, sideB, primitive, gridNodeCount,
++                    mapped[0], mapped[1], mapped[2])) {
++                mapsAvailable = false;
++                break;
++            }
++            const float signedArea = crossMortarBary2(
++                mapped[1] - mapped[0], mapped[2] - mapped[0]);
++            if (!isfinite(signedArea) || abs(signedArea) <= 1.0e-10f) {
++                mapsAvailable = false;
++                break;
++            }
++            for (uint vertexIndex = 0u; vertexIndex < 3u; ++vertexIndex) {
++                const float3 bary = mapped[vertexIndex];
++                if (any(bary < float3(-1.0e-5f)) ||
++                    any(bary > float3(1.00001f)) ||
++                    abs(dot(bary, float3(1.0f)) - 1.0f) > 1.0e-4f) {
++                    mapsAvailable = false;
++                    break;
++                }
++            }
++            exactTiles[patchIndex].p0 = {mapped[0].x, mapped[0].y};
++            exactTiles[patchIndex].p1 = {mapped[1].x, mapped[1].y};
++            exactTiles[patchIndex].p2 = {mapped[2].x, mapped[2].y};
++            if (!mapsAvailable) break;
++        }
++        if (mapsAvailable && nmMortarGuardExactTilingOfParent(
++                exactTiles[0], exactTiles[1], exactTiles[2], exactTiles[3],
++                patchSet.count)) {
++            partition.count = patchSet.count;
++            for (uint patchIndex = 0u; patchIndex < patchSet.count; ++patchIndex) {
++                const NMMortarPatchRef patchRef = patchSet.patch[patchIndex];
++                const NMMortarGuardTriangle2 tile = exactTiles[patchIndex];
++                NMMortarContactSubtriangle triangle{};
++                triangle.bary[0] = float2(tile.p0.x, tile.p0.y);
++                triangle.bary[1] = float2(tile.p1.x, tile.p1.y);
++                triangle.bary[2] = float2(tile.p2.x, tile.p2.y);
++                if (crossMortarBary2(
++                        triangle.bary[1] - triangle.bary[0],
++                        triangle.bary[2] - triangle.bary[0]) < 0.0f) {
++                    const float2 swap = triangle.bary[1];
++                    triangle.bary[1] = triangle.bary[2];
++                    triangle.bary[2] = swap;
++                }
++                triangle.coveredByCohesive = 1u;
++                triangle.coveredPatchIndex = patchRef.faceIndex;
++                partition.triangle[patchIndex] = triangle;
++            }
++            return true;
++        }
+     }
+ 
+     float3 patchCoordinates[kMaxMortarPatchesPerPrimitivePair][3];
+--- a/matter/include/numi/matter/mortar_shared_edge_guard.h
++++ b/matter/include/numi/matter/mortar_shared_edge_guard.h
+@@ -1,5 +1,11 @@
+ #ifndef NUMI_MATTER_MORTAR_SHARED_EDGE_GUARD_H
+ #define NUMI_MATTER_MORTAR_SHARED_EDGE_GUARD_H
++
++#ifdef __METAL_VERSION__
++#define NM_MORTAR_THREAD_POINTER thread
++#else
++#define NM_MORTAR_THREAD_POINTER
++#endif
+ 
+ // A deliberately conservative predicate shared by the Metal partitioner and
+ // its CPU controls. It proves that two mapped triangles have exactly the
+@@ -12,6 +18,17 @@
+     float z;
+ };
+ 
++struct NMMortarGuardPoint2 {
++    float x;
++    float y;
++};
++
++struct NMMortarGuardTriangle2 {
++    NMMortarGuardPoint2 p0;
++    NMMortarGuardPoint2 p1;
++    NMMortarGuardPoint2 p2;
++};
++
+ inline float nmMortarGuardAbs(const float value) {
+     return value < 0.0f ? -value : value;
+ }
+@@ -19,6 +36,293 @@
+ inline bool nmMortarGuardFinite(const float value) {
+     return value == value &&
+         nmMortarGuardAbs(value) <= 3.402823466e+38f;
++}
++
++// The contact partition uses barycentric FP32 input maps. For the common
++// rational maps used by authoring (including thirds and halves), a Q25
++// integer representation is exact and leaves a signed 64-bit determinant
++// budget: each coordinate is at most 2^25, so an orientation determinant is
++// strictly below 2^51. Maps that do not lie exactly on this grid are not
++// rounded; the fast exact-cover proof simply declines them.
++inline bool nmMortarGuardBaryQ25(
++    const float value, NM_MORTAR_THREAD_POINTER long* result) {
++    if (!nmMortarGuardFinite(value) || value < 0.0f || value > 1.0f ||
++        result == nullptr) return false;
++    const float scaled = value * 33554432.0f;
++    const long integer = long(scaled);
++    if (float(integer) != scaled) return false;
++    *result = integer;
++    return true;
++}
++
++inline bool nmMortarGuardPointQ25(
++    const NMMortarGuardPoint2 point,
++    NM_MORTAR_THREAD_POINTER long* x,
++    NM_MORTAR_THREAD_POINTER long* y
++) {
++    return nmMortarGuardBaryQ25(point.x, x) &&
++        nmMortarGuardBaryQ25(point.y, y) &&
++        *x + *y <= 33554432l;
++}
++
++inline long nmMortarGuardOrientQ25(
++    const long ax, const long ay,
++    const long bx, const long by,
++    const long cx, const long cy
++) {
++    return (bx - ax) * (cy - ay) - (by - ay) * (cx - ax);
++}
++
++inline bool nmMortarGuardPointOnSegmentQ25(
++    const long px, const long py,
++    const long ax, const long ay,
++    const long bx, const long by,
++    NM_MORTAR_THREAD_POINTER long* numerator,
++    NM_MORTAR_THREAD_POINTER long* denominator
++) {
++    const long dx = bx - ax;
++    const long dy = by - ay;
++    const long lengthSquared = dx * dx + dy * dy;
++    const long projection = (px - ax) * dx + (py - ay) * dy;
++    if (lengthSquared <= 0 ||
++        nmMortarGuardOrientQ25(ax, ay, bx, by, px, py) != 0 ||
++        projection < 0 || projection > lengthSquared) return false;
++    *numerator = projection;
++    *denominator = lengthSquared;
++    return true;
++}
++
++inline bool nmMortarGuardEqualFractionsQ25(
++    long firstNumerator, long firstDenominator,
++    long secondNumerator, long secondDenominator
++) {
++    if (firstDenominator <= 0 || secondDenominator <= 0 ||
++        firstNumerator < 0 || secondNumerator < 0) return false;
++    // Continued-fraction comparison avoids overflowing a 64-bit cross
++    // product when barycentric edge lengths approach the Q25 bound.
++    for (unsigned int iteration = 0u; iteration < 128u; ++iteration) {
++        const long firstWhole = firstNumerator / firstDenominator;
++        const long secondWhole = secondNumerator / secondDenominator;
++        if (firstWhole != secondWhole) return false;
++        const long firstRemainder = firstNumerator % firstDenominator;
++        const long secondRemainder = secondNumerator % secondDenominator;
++        if (firstRemainder == 0 || secondRemainder == 0)
++            return firstRemainder == 0 && secondRemainder == 0;
++        firstNumerator = firstDenominator;
++        firstDenominator = firstRemainder;
++        secondNumerator = secondDenominator;
++        secondDenominator = secondRemainder;
++    }
++    return false;
++}
++
++inline bool nmMortarGuardSameSegmentParameterQ25(
++    const NMMortarGuardPoint2 leftPoint,
++    const NMMortarGuardPoint2 leftStart,
++    const NMMortarGuardPoint2 leftEnd,
++    const NMMortarGuardPoint2 rightPoint,
++    const NMMortarGuardPoint2 rightStart,
++    const NMMortarGuardPoint2 rightEnd
++) {
++    long px, py, ax, ay, bx, by;
++    long qx, qy, cx, cy, dx, dy;
++    if (!nmMortarGuardPointQ25(leftPoint, &px, &py) ||
++        !nmMortarGuardPointQ25(leftStart, &ax, &ay) ||
++        !nmMortarGuardPointQ25(leftEnd, &bx, &by) ||
++        !nmMortarGuardPointQ25(rightPoint, &qx, &qy) ||
++        !nmMortarGuardPointQ25(rightStart, &cx, &cy) ||
++        !nmMortarGuardPointQ25(rightEnd, &dx, &dy)) return false;
++    long leftNumerator, leftDenominator;
++    long rightNumerator, rightDenominator;
++    return nmMortarGuardPointOnSegmentQ25(
++            px, py, ax, ay, bx, by,
++            &leftNumerator, &leftDenominator) &&
++        nmMortarGuardPointOnSegmentQ25(
++            qx, qy, cx, cy, dx, dy,
++            &rightNumerator, &rightDenominator) &&
++        nmMortarGuardEqualFractionsQ25(
++            leftNumerator, leftDenominator,
++            rightNumerator, rightDenominator);
++}
++
++inline bool nmMortarGuardSeparatedQ25(
++    const long ax, const long ay,
++    const long bx, const long by,
++    const long aInteriorSign,
++    const long b0x, const long b0y,
++    const long b1x, const long b1y,
++    const long b2x, const long b2y
++) {
++    const long s0 = nmMortarGuardOrientQ25(ax, ay, bx, by, b0x, b0y) *
++        aInteriorSign;
++    const long s1 = nmMortarGuardOrientQ25(ax, ay, bx, by, b1x, b1y) *
++        aInteriorSign;
++    const long s2 = nmMortarGuardOrientQ25(ax, ay, bx, by, b2x, b2y) *
++        aInteriorSign;
++    return s0 <= 0 && s1 <= 0 && s2 <= 0;
++}
++
++inline bool nmMortarGuardNoPositiveOverlapQ25(
++    NM_MORTAR_THREAD_POINTER const long* a,
++    NM_MORTAR_THREAD_POINTER const long* b
++) {
++    const long areaA = nmMortarGuardOrientQ25(
++        a[0], a[1], a[2], a[3], a[4], a[5]);
++    const long areaB = nmMortarGuardOrientQ25(
++        b[0], b[1], b[2], b[3], b[4], b[5]);
++    if (areaA == 0 || areaB == 0) return false;
++    const long signA = areaA > 0 ? 1 : -1;
++    const long signB = areaB > 0 ? 1 : -1;
++    for (unsigned int edge = 0; edge < 3u; ++edge) {
++        const unsigned int next = (edge + 1u) % 3u;
++        if (nmMortarGuardSeparatedQ25(
++                a[2u * edge], a[2u * edge + 1u],
++                a[2u * next], a[2u * next + 1u], signA,
++                b[0], b[1], b[2], b[3], b[4], b[5]) ||
++            nmMortarGuardSeparatedQ25(
++                b[2u * edge], b[2u * edge + 1u],
++                b[2u * next], b[2u * next + 1u], signB,
++                a[0], a[1], a[2], a[3], a[4], a[5])) return true;
++    }
++    return false;
++}
++
++inline bool nmMortarGuardExactTilingOfParent(
++    const NMMortarGuardTriangle2 triangle0,
++    const NMMortarGuardTriangle2 triangle1,
++    const NMMortarGuardTriangle2 triangle2,
++    const NMMortarGuardTriangle2 triangle3,
++    const unsigned int triangleCount
++) {
++    if (triangleCount < 2u || triangleCount > 4u) return false;
++    const NMMortarGuardTriangle2 triangles[4] = {
++        triangle0, triangle1, triangle2, triangle3};
++    long coordinates[4][6] = {};
++    constexpr long parentScale = 33554432l;
++    long edgeCoordinates[12][4] = {};
++    bool edgeMatched[12] = {};
++    long boundaryStart[3][12] = {};
++    long boundaryEnd[3][12] = {};
++    unsigned int boundaryCount[3] = {};
++    unsigned int edgeCount = 0u;
++    for (unsigned int triangle = 0; triangle < triangleCount; ++triangle) {
++        const NMMortarGuardPoint2 vertices[3] = {
++            triangles[triangle].p0,
++            triangles[triangle].p1,
++            triangles[triangle].p2};
++        for (unsigned int vertexIndex = 0; vertexIndex < 3u; ++vertexIndex) {
++            long x, y;
++            if (!nmMortarGuardBaryQ25(vertices[vertexIndex].x, &x) ||
++                !nmMortarGuardBaryQ25(vertices[vertexIndex].y, &y) ||
++                x + y > parentScale) return false;
++            coordinates[triangle][2u * vertexIndex] = x;
++            coordinates[triangle][2u * vertexIndex + 1u] = y;
++        }
++        long signedArea = nmMortarGuardOrientQ25(
++            coordinates[triangle][0], coordinates[triangle][1],
++            coordinates[triangle][2], coordinates[triangle][3],
++            coordinates[triangle][4], coordinates[triangle][5]);
++        if (signedArea == 0) return false;
++        if (signedArea < 0) {
++            const long swapX = coordinates[triangle][2];
++            const long swapY = coordinates[triangle][3];
++            coordinates[triangle][2] = coordinates[triangle][4];
++            coordinates[triangle][3] = coordinates[triangle][5];
++            coordinates[triangle][4] = swapX;
++            coordinates[triangle][5] = swapY;
++            signedArea = -signedArea;
++        }
++        for (unsigned int localEdge = 0u; localEdge < 3u; ++localEdge) {
++            const unsigned int next = (localEdge + 1u) % 3u;
++            edgeCoordinates[edgeCount][0] =
++                coordinates[triangle][2u * localEdge];
++            edgeCoordinates[edgeCount][1] =
++                coordinates[triangle][2u * localEdge + 1u];
++            edgeCoordinates[edgeCount][2] =
++                coordinates[triangle][2u * next];
++            edgeCoordinates[edgeCount][3] =
++                coordinates[triangle][2u * next + 1u];
++            ++edgeCount;
++        }
++    }
++    // Every interior edge must cancel with exactly one reversed edge. The
++    // remaining directed edges must tile the three parent edges without a
++    // gap or overlap and retain the parent's counter-clockwise winding.
++    for (unsigned int edge = 0u; edge < edgeCount; ++edge) {
++        if (edgeMatched[edge]) continue;
++        for (unsigned int other = edge + 1u; other < edgeCount; ++other) {
++            const bool reversed =
++                edgeCoordinates[edge][0] == edgeCoordinates[other][2] &&
++                edgeCoordinates[edge][1] == edgeCoordinates[other][3] &&
++                edgeCoordinates[edge][2] == edgeCoordinates[other][0] &&
++                edgeCoordinates[edge][3] == edgeCoordinates[other][1];
++            if (reversed) {
++                edgeMatched[edge] = true;
++                edgeMatched[other] = true;
++                break;
++            }
++        }
++        if (edgeMatched[edge]) continue;
++        const long ax = edgeCoordinates[edge][0];
++        const long ay = edgeCoordinates[edge][1];
++        const long bx = edgeCoordinates[edge][2];
++        const long by = edgeCoordinates[edge][3];
++        unsigned int side = 3u;
++        long intervalStart = 0;
++        long intervalEnd = 0;
++        if (ay == 0 && by == 0 && ax < bx) {
++            side = 0u;
++            intervalStart = ax;
++            intervalEnd = bx;
++        } else if (ax == 0 && bx == 0 && ay > by) {
++            side = 1u;
++            intervalStart = by;
++            intervalEnd = ay;
++        } else if (ax + ay == parentScale &&
++                   bx + by == parentScale && ay < by) {
++            side = 2u;
++            intervalStart = ay;
++            intervalEnd = by;
++        }
++        if (side >= 3u || intervalStart < 0 ||
++            intervalEnd > parentScale || intervalStart >= intervalEnd ||
++            boundaryCount[side] >= edgeCount) return false;
++        const unsigned int slot = boundaryCount[side]++;
++        boundaryStart[side][slot] = intervalStart;
++        boundaryEnd[side][slot] = intervalEnd;
++        edgeMatched[edge] = true;
++    }
++    for (unsigned int side = 0u; side < 3u; ++side) {
++        const unsigned int count = boundaryCount[side];
++        if (count == 0u) return false;
++        // At most twelve directed edges exist; insertion sort is bounded and
++        // keeps this proof deterministic without temporary dynamic storage.
++        for (unsigned int i = 1u; i < count; ++i) {
++            const long start = boundaryStart[side][i];
++            const long end = boundaryEnd[side][i];
++            unsigned int j = i;
++            while (j > 0u && boundaryStart[side][j - 1u] > start) {
++                boundaryStart[side][j] = boundaryStart[side][j - 1u];
++                boundaryEnd[side][j] = boundaryEnd[side][j - 1u];
++                --j;
++            }
++            boundaryStart[side][j] = start;
++            boundaryEnd[side][j] = end;
++        }
++        if (boundaryStart[side][0] != 0) return false;
++        for (unsigned int i = 1u; i < count; ++i)
++            if (boundaryStart[side][i] != boundaryEnd[side][i - 1u]) return false;
++        if (boundaryEnd[side][count - 1u] != parentScale)
++            return false;
++    }
++    for (unsigned int left = 0; left < triangleCount; ++left)
++        for (unsigned int right = left + 1u; right < triangleCount; ++right)
++            if (!nmMortarGuardNoPositiveOverlapQ25(
++                    coordinates[left], coordinates[right])) return false;
++    // Directed edge cancellation plus exact boundary coverage proves the
++    // oriented 2-chain is the parent. Pairwise SAT separately rules out a
++    // positive-area overlap; no floating-point area sum participates.
++    return true;
+ }
+ 
+ inline bool nmMortarGuardSamePoint(
+@@ -129,3 +433,5 @@
+ }
+ 
+ #endif
++
++#undef NM_MORTAR_THREAD_POINTER
+--- a/matter/tools/mortar_exact_tiling_check.cpp
++++ b/matter/tools/mortar_exact_tiling_check.cpp
+@@ -0,0 +1,108 @@
++#include "numi/matter/mortar_shared_edge_guard.h"
++
++#include <cmath>
++#include <cstdint>
++#include <iostream>
++#include <limits>
++#include <stdexcept>
++
++namespace {
++unsigned checks = 0;
++
++void require(bool condition, const char* message) {
++    ++checks;
++    if (!condition) throw std::runtime_error(message);
++}
++
++NMMortarGuardPoint2 point(float x, float y) { return {x, y}; }
++NMMortarGuardTriangle2 triangle(NMMortarGuardPoint2 a,
++                                NMMortarGuardPoint2 b,
++                                NMMortarGuardPoint2 c) {
++    return {a, b, c};
++}
++
++constexpr float q = 1.0f / 3.0f;
++const NMMortarGuardPoint2 e0 = point(1.0f, 0.0f);
++const NMMortarGuardPoint2 e1 = point(0.0f, 1.0f);
++const NMMortarGuardPoint2 e2 = point(0.0f, 0.0f);
++const NMMortarGuardPoint2 center = point(q, q);
++
++void testExactFanAndTiles() {
++    const auto fan0 = triangle(e0, e1, center);
++    const auto fan1 = triangle(e1, e2, center);
++    const auto fan2 = triangle(e2, e0, center);
++    const auto zero = triangle(e2, e2, e2);
++    require(nmMortarGuardExactTilingOfParent(
++                fan0, fan1, fan2, zero, 3u),
++            "exact three-sector fan was not certified");
++
++    const auto m01 = point(0.5f, 0.5f);
++    const auto m12 = point(0.0f, 0.5f);
++    const auto m20 = point(0.5f, 0.0f);
++    const auto tile0 = triangle(e0, m01, m20);
++    const auto tile1 = triangle(m01, e1, m12);
++    const auto tile2 = triangle(m20, m12, e2);
++    const auto tile3 = triangle(m01, m12, m20);
++    require(nmMortarGuardExactTilingOfParent(
++                tile0, tile1, tile2, tile3, 4u),
++            "exact four-tile partition was not certified");
++    require(!nmMortarGuardExactTilingOfParent(
++                fan0, fan1, zero, zero, 2u),
++            "incomplete parent cover was certified");
++    require(!nmMortarGuardExactTilingOfParent(
++                tile0, tile1, tile1, tile3, 4u),
++            "positive-area overlap was certified as a tiling");
++    const auto sameSide = triangle(e0, m01, center);
++    require(!nmMortarGuardExactTilingOfParent(
++                tile0, sameSide, tile2, tile3, 4u),
++            "same-side triangles were accepted as an oriented tiling");
++    const auto reversedFan1 = triangle(center, e2, e1);
++    require(nmMortarGuardExactTilingOfParent(
++                fan0, reversedFan1, fan2, zero, 3u),
++            "orientation normalization rejected a complete cover");
++    const auto shiftedCenter = point(q, std::nextafter(q, 1.0f));
++    const auto mismatchedFan2 = triangle(e2, e0, shiftedCenter);
++    require(!nmMortarGuardExactTilingOfParent(
++                fan0, fan1, mismatchedFan2, zero, 3u),
++            "mismatched fan vertex was rounded into a closed cover");
++    const auto nonQ25 = triangle(e0, e1, point(0.1f, 0.2f));
++    require(!nmMortarGuardExactTilingOfParent(
++                fan0, fan1, nonQ25, zero, 3u),
++            "non-Q25 map was rounded into an exact tiling");
++}
++
++void testExactPairedFeatures() {
++    const auto centerQ = point(q, q);
++    const auto edgeA0 = point(0.0f, 0.0f);
++    const auto edgeA1 = point(q, q);
++    const auto edgeB0 = point(1.0f, 0.0f);
++    const auto edgeB1 = point(q, q);
++    require(nmMortarGuardSameSegmentParameterQ25(
++                centerQ, edgeA0, edgeA1, centerQ, edgeB0, edgeB1),
++            "exact shared endpoint was not recognized");
++    const float oneULP = std::nextafter(0.5f, 1.0f);
++    require(!nmMortarGuardSameSegmentParameterQ25(
++                point(0.5f, 0.5f), point(0.0f, 0.0f), point(0.5f, 0.5f),
++                point(oneULP, 0.5f), point(0.0f, 0.0f), point(0.5f, 0.5f)),
++            "one-ULP mismatched edge witness was treated as paired");
++    require(!nmMortarGuardSameSegmentParameterQ25(
++                point(0.25f, std::nextafter(0.25f, 1.0f)),
++                point(0.0f, 0.0f), point(0.5f, 0.5f),
++                point(0.25f, 0.25f),
++                point(0.0f, 0.0f), point(0.5f, 0.5f)),
++            "near-edge off-line witness was treated as paired");
++}
++}
++
++int main() {
++    try {
++        testExactFanAndTiles();
++        testExactPairedFeatures();
++        std::cout << "mortar_exact_tiling_checks=" << checks
++                  << " exact_fan_and_tiles=true exact_feature_identity=true\n";
++        return 0;
++    } catch (const std::exception& error) {
++        std::cerr << error.what() << '\n';
++        return 1;
++    }
++}
+--- a/matter/CMakeLists.txt
++++ b/matter/CMakeLists.txt
+@@ -88,6 +88,18 @@
+     add_test(NAME matter.compiler.cardboard_contact_node_incidence_sort
+         COMMAND numi-matter-cardboard-contact-node-incidence-sort-check)
+     set_tests_properties(matter.compiler.cardboard_contact_node_incidence_sort PROPERTIES
++        TIMEOUT 30 LABELS "matter;cardboard;contact;cpu;synthetic")
++endif()
++add_executable(numi-matter-mortar-exact-tiling-check
++    tools/mortar_exact_tiling_check.cpp)
++target_include_directories(numi-matter-mortar-exact-tiling-check PRIVATE
++    "${CMAKE_CURRENT_SOURCE_DIR}/include")
++target_compile_options(numi-matter-mortar-exact-tiling-check PRIVATE
++    -Wall -Wextra -Wpedantic -Werror)
++if(BUILD_TESTING)
++    add_test(NAME matter.compiler.mortar_exact_tiling
++        COMMAND numi-matter-mortar-exact-tiling-check)
++    set_tests_properties(matter.compiler.mortar_exact_tiling PROPERTIES
+         TIMEOUT 30 LABELS "matter;cardboard;contact;cpu;synthetic")
+ endif()
+ add_executable(numi-matter-cardboard-cohesive-armijo-tiles-check

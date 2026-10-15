@@ -350,24 +350,24 @@ linearization. Final scratch exported after a rejected transaction is not
 automatically the selected Newton state. These CPU analyses do not qualify a
 physical coupon, material calibration or shipping-box trajectory.
 
-The published source095 cardboard milestone builds66 targets and passes71 CPU
-checks. Its scoped same-equation material-value repair makes all3,456 retained
-paper projections valid. All nine accurate native algorithmic actions at eight
-selected points (three unique states) agree with independent90-digit matrices
-within5.18e-8 per nonzero column. Reference011 now also resolves every nonzero
-FP64 material direction below1e-6 at two declared steps and native stress finite
-differences below1e-3 at1e-4. Actual endpoint operands, absolute component
-arithmetic errors, branch indicators and failed smaller steps remain retained;
-these selected observations are not universal native residual noise bounds.
+The source103 cardboard milestone builds 68 targets and passes 73 CPU checks.
+Its guarded whole-parent mortar motion proof passes all 16 native CCD cases
+in353, including every invalid-overlap control. Combined-contact356 passes
+5,683 assertions across four native transactions, with exact tested/applied
+fractions, selected-residual agreement and rejected-history rollback. These
+are bounded synthetic checks. The opt-in current-Newton restart augmentation
+passes a captured nonsymmetric algebra audit; complete coupon352 still rejects
+control2 at Newton23 after two of27 accepted controls. The separate free-body
+fixture355 fails at Newton7. Captures358/359 preserve its physical history
+exactly and exclude postfatal partial residuals from comparisons.
 
-The failed private trial is retained as129 hash-checked arrays with exact
-capture-on/off production parity. Complete coupon303/304 still rejects after
-two of27 controls. Experimental augmentation096 rejects the actual two-
-environment coupon before GPU; its feature-off one-Newton317 diagnostic also
-fails the strict final certificate. Experimental CCD318 passes12 of16 cases,
-including the corrected positive-gap crossing and new collision negatives,
-but four multi-patch sweep motions still reject. The original314 invalid
-positive fixture and all failures remain retained.
+The prior source095 material comparisons remain bound to their selected
+states: all nine accurate native actions agree with independent90-digit
+matrices within5.18e-8 per nonzero column; declared FP64 and native stress
+finite differences pass their respective1e-6 and1e-3 gates. Actual endpoints,
+branch indicators, failed perturbations and unresolved near-zero comparisons
+remain retained. These are not universal residual-noise bounds. See
+[the source103 report](examples/cardboard/solver-milestone-source103.md).
 
 No complete mesh/time series, matched damage/debonding calibration,
 fixture-free shipping assembly, capacity, crushing or impact is qualified. See

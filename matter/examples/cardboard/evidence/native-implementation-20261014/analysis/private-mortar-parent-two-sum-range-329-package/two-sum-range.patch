@@ -1,0 +1,52 @@
+--- a/matter/include/numi/matter/mortar_shared_edge_guard.h
++++ b/matter/include/numi/matter/mortar_shared_edge_guard.h
+@@ -474,6 +474,17 @@
+     return true;
+ }
+ 
++// The Metal path must not depend on subnormal preservation for the exact
++// two-word translation comparison. Keep endpoint coordinates in a bounded
++// normal range (zero remains valid); any out-of-range authored geometry
++// declines the whole-parent optimization and falls back to CCD.
++inline bool nmMortarGuardSafeTwoSumOperand(const float value) {
++    if (!nmMortarGuardFinite(value)) return false;
++    if (value == 0.0f) return true;
++    const float magnitude = nmMortarGuardAbs(value);
++    return magnitude >= 1.0e-20f && magnitude <= 1.0e20f;
++}
++
+ inline bool nmMortarGuardExactDifferenceEqual(
+     const float firstFinish,
+     const float firstStart,
+@@ -481,7 +492,11 @@
+     const float secondStart
+ ) {
+     float firstHigh, firstLow, secondHigh, secondLow;
+-    return nmMortarGuardTwoSum(firstFinish, -firstStart,
++    return nmMortarGuardSafeTwoSumOperand(firstFinish) &&
++        nmMortarGuardSafeTwoSumOperand(firstStart) &&
++        nmMortarGuardSafeTwoSumOperand(secondFinish) &&
++        nmMortarGuardSafeTwoSumOperand(secondStart) &&
++        nmMortarGuardTwoSum(firstFinish, -firstStart,
+                                &firstHigh, &firstLow) &&
+         nmMortarGuardTwoSum(secondFinish, -secondStart,
+                             &secondHigh, &secondLow) &&
+--- a/matter/tools/mortar_exact_tiling_check.cpp
++++ b/matter/tools/mortar_exact_tiling_check.cpp
+@@ -178,6 +178,16 @@
+     require(!nmMortarGuardExactDifferenceEqual(
+                 1.0f, 0.0f, 1.0f, 0x1p-30f),
+             "rounded subtraction hid a nonzero translation difference");
++    require(!nmMortarGuardExactDifferenceEqual(
++                1.0f, 0.0f, 1.0f,
++                std::numeric_limits<float>::denorm_min()),
++            "subnormal endpoint was admitted to exact translation proof");
++    require(!nmMortarGuardExactDifferenceEqual(
++                1.0e-21f, 0.0f, 1.0e-21f, 0.0f),
++            "sub-1e-20 endpoint was admitted to exact translation proof");
++    require(!nmMortarGuardExactDifferenceEqual(
++                1.0e21f, 0.0f, 1.0e21f, 0.0f),
++            "over-1e20 endpoint was admitted to exact translation proof");
+     const auto full0 = triangle(point(1.0f, 0.0f), point(0.0f, 1.0f),
+                                 point(1.0f / 3.0f, 1.0f / 3.0f));
+     const auto full1 = triangle(point(0.0f, 1.0f), point(0.0f, 0.0f),

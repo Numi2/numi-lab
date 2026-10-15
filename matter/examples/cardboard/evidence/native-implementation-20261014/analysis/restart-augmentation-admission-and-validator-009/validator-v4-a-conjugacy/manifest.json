@@ -1,0 +1,110 @@
+{
+  "schema": "numi.cardboard.restart-augmentation-validator-package.v4",
+  "created_utc": "2026-10-15",
+  "package": "validator-v4-a-conjugacy",
+  "source_base": {
+    "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-boundary-reset-order-101",
+    "source_build_receipt_path": "/Users/home/cardboard-implementation-20261014/solver/reset-order-augmentation-on-N28-capture27-344/inputs/external/source-build.json",
+    "source_build_receipt_sha256": "b40d30669b286449a3c5d50da2c865a052cd69c1e9f556132f0fc4bc66cd9fb0",
+    "source_file_manifest_sha256": "fe5231f9b17cc738946d4a26d62d71725d1ddb1a9b9b2795c41dd79e07c1a901",
+    "build_success": true
+  },
+  "native_run": {
+    "path": "/Users/home/cardboard-implementation-20261014/solver/reset-order-augmentation-on-N28-capture27-344",
+    "run_manifest_sha256": "6df6c7a523b7e0973d6cdd1d77911ebeaeee96bf3620bc50461c5867bd8f669c",
+    "operator_capture_sha256": "89a3624ae54eb481c51874b0b8f0a0a88c523af0e6b1206758ac3adf4f03a01d",
+    "conditioning_manifest_sha256": "602678d0654ad54ca9273b505d52c2b5a587111cf3f3c82c56276bb2d86ef82d",
+    "conditioning_arrays_sha256": {
+      "AP.bin": "8782122ae2c19112fe0063f0876bb4109176941383977fe2c1f23b4184eb3ff4",
+      "P.bin": "2626e4bbb205fa1c7e40bdaf3f2e72d11f831ec53431c3062bcc85d69a50f6b5",
+      "candidate_nodes.bin": "e02d1cbc5d04e16f4c07d2cfe559c874a92fbeb295ea92d127257f5f52961703",
+      "effective_P.bin": "9bf372c75cafcf84bc1e21a20ee3305e7619affffe6415bb9d3398f79970214c",
+      "factor_valid.bin": "64ed86b909d6d0502b64b28db0ea1272ffb358e20e9b1d88b63ccb07fa900cf5",
+      "node_block_inverse.bin": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "pivoted_RAP.bin": "2abb18345df30483c02ef6e1c114a7d0a3e318d10efd5b8d5361bbb3fdf1a42f",
+      "pivots.bin": "d96f9a408a0e2e577575e02f6bb6a304af5226c37af79fbe8b26989bf9d0ebb9",
+      "restart_Aq.bin": "777227be290dbab7ab33caccffbd6b1e3f89766fb39d1317c114bbaf5e79a32a",
+      "restart_Aq_by_environment.bin": "1e84244e15fc8768dcc8f0695e48bbf732d7adc249889a142ae5832a79a34c08",
+      "restart_attempt_counts_by_environment.bin": "7c9fa136d4413fa6173637e883b6998d32e1d675f88cddff9dcbcf331820f4b8",
+      "restart_factor_valid_by_environment.bin": "7c9fa136d4413fa6173637e883b6998d32e1d675f88cddff9dcbcf331820f4b8",
+      "restart_generations_by_environment.bin": "ebce7ee16f629737489427b0a442aa2bd0b4469912998d9e3c4d3c8d20152531",
+      "restart_mode_scales_by_environment.bin": "ad161f7a254528c78f133e48990a34c4a61125f6d340b445ed1fcc2d5db3f95f",
+      "restart_mode_valid_by_environment.bin": "7c9fa136d4413fa6173637e883b6998d32e1d675f88cddff9dcbcf331820f4b8",
+      "restart_pivoted_RAP.bin": "ef6b56d86ee05babc5898a8729cbae5723e115be7409a401604285dbe391cb4d",
+      "restart_pivoted_RAP_by_environment.bin": "dc1109666c1a077842927d325b7cd2e73d92a0c104ea63e70a4dbb27f308816e",
+      "restart_pivots.bin": "fe2ccddae3026a4f5d0b958ff3a5398b0a0ad2023ce467747afa35ffe6911817",
+      "restart_pivots_by_environment.bin": "e6f07569d576a8357174f0cee2381b7c227502cffe4288dd78a2c0c35c62fac6",
+      "restart_q.bin": "516e4059f2df019b174ec2728e9844997c34ce8dee43ef5b3c57d3a46f811f9f",
+      "restart_q_by_environment.bin": "4bff48ad07515205ab9a8e7ba6018d952f3b797cf1d7adadad39c7ee68abf8a1",
+      "restart_raw_norm_squared_by_environment.bin": "d5902e0a6b2ec0eca73c1216340061ea4ed9079680c97d5b56255a09c55eb40a",
+      "restart_target_scales_by_environment.bin": "425285bc1645832ea3018e12e1044ef24b622c3a0b96d4c37ed414d3db181b00"
+    },
+    "result_sha256": "00f0ba6c70d125a2de265ce466d11ade79260cc3124d070edaf3bb91d9a83f19",
+    "receipt_sha256": "1fcb2582ecac70475145e6e30dc611af80feac444001f33e498cb1fff8bf9ebd",
+    "receipt_exit_code": 2,
+    "run_status": "failed",
+    "accepted_steps": 0,
+    "physical_validation": false
+  },
+  "validation": {
+    "report_status": "base_operator_consistent_diagnostic",
+    "augmentation_status": "augmentation_attempts_consistent_diagnostic",
+    "attempted_environments": 1,
+    "admitted_environments": 1,
+    "unit_tests": "10 passed",
+    "physical_qualification": false
+  },
+  "supersedes": {
+    "package": "validator-v3-attempt-states",
+    "report_path": "/Users/home/cardboard-implementation-20261014/analysis/restart-augmentation-admission-and-validator-009/validator-v3-attempt-states/reports/capture344-admitted-v3.json",
+    "v3_report_sha256": "e617a62eae1227e30ee9aadd4408017639b05764b545d90b8284045d8a231e17",
+    "reason": "v3 incorrectly gated Euclidean P^Tq; v4 uses production P^T A q projection invariant and retains P^Tq diagnostic-only"
+  },
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 2570,
+      "sha256": "abd8413f417322d40e28ccfa95f6ffd55c421bb390f4a4e4119b9a501da040bd"
+    },
+    {
+      "path": "ERRATUM-v3.md",
+      "bytes": 844,
+      "sha256": "f857afb34f43bdad531f52ca1b1df048c2cd3c9829d5ccc6235e83f468274481"
+    },
+    {
+      "path": "validate_restart_augmentation.py",
+      "bytes": 76323,
+      "sha256": "61ecbdbea42794574f693bd15db773a3e99648e9bc6fab2f583a71153ac0c54b"
+    },
+    {
+      "path": "test_restart_augmentation_validation.py",
+      "bytes": 13725,
+      "sha256": "2ea84c4cae4892530b8af1d18ee8265c4af2ace69f3917015184c5d594524bf5"
+    },
+    {
+      "path": "test_restart_augmentation_validation_v4.py",
+      "bytes": 22401,
+      "sha256": "953b132b1f520b9acda3544b1e11c0aa10ee0994d29ce164e0df039bca07e3a1"
+    },
+    {
+      "path": "reports/unittest-v4.log",
+      "bytes": 1431,
+      "sha256": "abc1818285a08bb343e0e67b943f63840257756021491b3a849df83c20738e9d"
+    },
+    {
+      "path": "reports/capture344-command.log",
+      "bytes": 102,
+      "sha256": "86f464214bcab2f07816e14c70ab0f4d6d6397e42bac3ffacd7050a5412c474b"
+    },
+    {
+      "path": "reports/capture344-stderr.log",
+      "bytes": 5414,
+      "sha256": "9c30217ad296cab15a6573740d48a780fc5110df1cab07a42c2f948bed57648d"
+    },
+    {
+      "path": "reports/capture344-a-conjugate-v4.json",
+      "bytes": 30166,
+      "sha256": "d0fc94db6449d45ef3bf47d58fd7b5f921e5bc36786b6813c8efecdbae454ee0"
+    }
+  ]
+}

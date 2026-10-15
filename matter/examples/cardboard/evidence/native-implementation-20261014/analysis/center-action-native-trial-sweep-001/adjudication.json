@@ -1,0 +1,25 @@
+{
+  "schema": "numi.cardboard.native_trial_sweep_adjudication.v1",
+  "basis": "source099 center1201:12, separate private trial captures, all production outputs byte-identical to321",
+  "excluded_derivative_runs": [
+    326,
+    327,
+    328,
+    329,
+    330,
+    333,
+    334
+  ],
+  "exclusion_reason": "All private geometry rebuilds return nonzero status6; later RHS lanes are partial evaluations and cannot be interpreted as a derivative mismatch. The approximately0.01 rigid offset reflects the failed branch and skipped guarded terms, not a solver sign defect.",
+  "healthy_runs": [
+    324
+  ],
+  "healthy_alpha": 2.384185791015625e-07,
+  "failed_alpha_adjacent": 4.76837158203125e-07,
+  "qualification": "inconclusive",
+  "limitations": [
+    "Healthy trial22 residual increment is not resolved above the measured arithmetic/kinematic changes; no smooth derivative gate.",
+    "Earlier trial326\u2013328 numeric comparison JSON is preserved as forensic output, superseded by status-feasibility admission.",
+    "Production run still normally rejects; parity is a failed-prefix instrument result."
+  ]
+}

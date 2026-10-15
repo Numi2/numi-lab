@@ -1,0 +1,950 @@
+[
+  {
+    "run": 326,
+    "trial": 0,
+    "status_rows": [
+      {
+        "phase": "candidate_before_private_contact_rebuild",
+        "integers": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "diagnostics": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "phase": "after_bulk_mechanical_before_cohesive",
+        "integers": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "diagnostics": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "phase": "after_cohesive_before_rigid_contact",
+        "integers": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "diagnostics": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "phase": "after_rigid_contact_before_deformable_rebuild",
+        "integers": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "diagnostics": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "phase": "private_contact_rebuild_before_free_body_terms",
+        "integers": [
+          6,
+          0,
+          0,
+          288,
+          0,
+          0,
+          0,
+          0
+        ],
+        "diagnostics": [
+          92.0,
+          168.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "phase": "after_deformable_contact_before_free_body_terms",
+        "integers": [
+          6,
+          0,
+          0,
+          288,
+          0,
+          0,
+          0,
+          0
+        ],
+        "diagnostics": [
+          92.0,
+          168.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "phase": "full_residual_before_armijo_measure",
+        "integers": [
+          6,
+          0,
+          0,
+          288,
+          0,
+          0,
+          0,
+          0
+        ],
+        "diagnostics": [
+          92.0,
+          168.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "phase": "armijo_measurement_before_decision",
+        "integers": [
+          6,
+          0,
+          0,
+          288,
+          0,
+          0,
+          0,
+          0
+        ],
+        "diagnostics": [
+          92.0,
+          168.0,
+          0.0,
+          0.0
+        ]
+      }
+    ]
+  },
+  {
+    "run": 327,
+    "trial": 4,
+    "status_rows": [
+      {
+        "phase": "candidate_before_private_contact_rebuild",
+        "integers": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "diagnostics": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "phase": "after_bulk_mechanical_before_cohesive",
+        "integers": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "diagnostics": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "phase": "after_cohesive_before_rigid_contact",
+        "integers": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "diagnostics": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "phase": "after_rigid_contact_before_deformable_rebuild",
+        "integers": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "diagnostics": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "phase": "private_contact_rebuild_before_free_body_terms",
+        "integers": [
+          6,
+          0,
+          0,
+          288,
+          0,
+          0,
+          0,
+          0
+        ],
+        "diagnostics": [
+          92.0,
+          168.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "phase": "after_deformable_contact_before_free_body_terms",
+        "integers": [
+          6,
+          0,
+          0,
+          288,
+          0,
+          0,
+          0,
+          0
+        ],
+        "diagnostics": [
+          92.0,
+          168.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "phase": "full_residual_before_armijo_measure",
+        "integers": [
+          6,
+          0,
+          0,
+          288,
+          0,
+          0,
+          0,
+          0
+        ],
+        "diagnostics": [
+          92.0,
+          168.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "phase": "armijo_measurement_before_decision",
+        "integers": [
+          6,
+          0,
+          0,
+          288,
+          0,
+          0,
+          0,
+          0
+        ],
+        "diagnostics": [
+          92.0,
+          168.0,
+          0.0,
+          0.0
+        ]
+      }
+    ]
+  },
+  {
+    "run": 328,
+    "trial": 8,
+    "status_rows": [
+      {
+        "phase": "candidate_before_private_contact_rebuild",
+        "integers": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "diagnostics": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "phase": "after_bulk_mechanical_before_cohesive",
+        "integers": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "diagnostics": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "phase": "after_cohesive_before_rigid_contact",
+        "integers": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "diagnostics": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "phase": "after_rigid_contact_before_deformable_rebuild",
+        "integers": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "diagnostics": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "phase": "private_contact_rebuild_before_free_body_terms",
+        "integers": [
+          6,
+          0,
+          0,
+          183,
+          0,
+          0,
+          0,
+          0
+        ],
+        "diagnostics": [
+          36.0,
+          168.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "phase": "after_deformable_contact_before_free_body_terms",
+        "integers": [
+          6,
+          0,
+          0,
+          183,
+          0,
+          0,
+          0,
+          0
+        ],
+        "diagnostics": [
+          36.0,
+          168.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "phase": "full_residual_before_armijo_measure",
+        "integers": [
+          6,
+          0,
+          0,
+          183,
+          0,
+          0,
+          0,
+          0
+        ],
+        "diagnostics": [
+          36.0,
+          168.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "phase": "armijo_measurement_before_decision",
+        "integers": [
+          6,
+          0,
+          0,
+          183,
+          0,
+          0,
+          0,
+          0
+        ],
+        "diagnostics": [
+          36.0,
+          168.0,
+          0.0,
+          0.0
+        ]
+      }
+    ]
+  },
+  {
+    "run": 329,
+    "trial": 12,
+    "status_rows": [
+      {
+        "phase": "candidate_before_private_contact_rebuild",
+        "integers": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "diagnostics": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "phase": "after_bulk_mechanical_before_cohesive",
+        "integers": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "diagnostics": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "phase": "after_cohesive_before_rigid_contact",
+        "integers": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "diagnostics": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "phase": "after_rigid_contact_before_deformable_rebuild",
+        "integers": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "diagnostics": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "phase": "private_contact_rebuild_before_free_body_terms",
+        "integers": [
+          6,
+          0,
+          0,
+          331,
+          0,
+          0,
+          0,
+          0
+        ],
+        "diagnostics": [
+          88.0,
+          127.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "phase": "after_deformable_contact_before_free_body_terms",
+        "integers": [
+          6,
+          0,
+          0,
+          331,
+          0,
+          0,
+          0,
+          0
+        ],
+        "diagnostics": [
+          88.0,
+          127.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "phase": "full_residual_before_armijo_measure",
+        "integers": [
+          6,
+          0,
+          0,
+          331,
+          0,
+          0,
+          0,
+          0
+        ],
+        "diagnostics": [
+          88.0,
+          127.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "phase": "armijo_measurement_before_decision",
+        "integers": [
+          6,
+          0,
+          0,
+          331,
+          0,
+          0,
+          0,
+          0
+        ],
+        "diagnostics": [
+          88.0,
+          127.0,
+          0.0,
+          0.0
+        ]
+      }
+    ]
+  },
+  {
+    "run": 330,
+    "trial": 16,
+    "status_rows": [
+      {
+        "phase": "candidate_before_private_contact_rebuild",
+        "integers": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "diagnostics": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "phase": "after_bulk_mechanical_before_cohesive",
+        "integers": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "diagnostics": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "phase": "after_cohesive_before_rigid_contact",
+        "integers": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "diagnostics": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "phase": "after_rigid_contact_before_deformable_rebuild",
+        "integers": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "diagnostics": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "phase": "private_contact_rebuild_before_free_body_terms",
+        "integers": [
+          6,
+          0,
+          0,
+          331,
+          0,
+          0,
+          0,
+          0
+        ],
+        "diagnostics": [
+          88.0,
+          127.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "phase": "after_deformable_contact_before_free_body_terms",
+        "integers": [
+          6,
+          0,
+          0,
+          331,
+          0,
+          0,
+          0,
+          0
+        ],
+        "diagnostics": [
+          88.0,
+          127.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "phase": "full_residual_before_armijo_measure",
+        "integers": [
+          6,
+          0,
+          0,
+          331,
+          0,
+          0,
+          0,
+          0
+        ],
+        "diagnostics": [
+          88.0,
+          127.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "phase": "armijo_measurement_before_decision",
+        "integers": [
+          6,
+          0,
+          0,
+          331,
+          0,
+          0,
+          0,
+          0
+        ],
+        "diagnostics": [
+          88.0,
+          127.0,
+          0.0,
+          0.0
+        ]
+      }
+    ]
+  },
+  {
+    "run": 324,
+    "trial": 22,
+    "status_rows": [
+      {
+        "phase": "candidate_before_private_contact_rebuild",
+        "integers": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "diagnostics": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "phase": "after_bulk_mechanical_before_cohesive",
+        "integers": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "diagnostics": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "phase": "after_cohesive_before_rigid_contact",
+        "integers": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "diagnostics": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "phase": "after_rigid_contact_before_deformable_rebuild",
+        "integers": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "diagnostics": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "phase": "private_contact_rebuild_before_free_body_terms",
+        "integers": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "diagnostics": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "phase": "after_deformable_contact_before_free_body_terms",
+        "integers": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "diagnostics": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "phase": "full_residual_before_armijo_measure",
+        "integers": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "diagnostics": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "phase": "armijo_measurement_before_decision",
+        "integers": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "diagnostics": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    ]
+  }
+]

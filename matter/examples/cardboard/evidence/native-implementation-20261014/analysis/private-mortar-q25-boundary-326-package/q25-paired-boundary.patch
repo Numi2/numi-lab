@@ -1,0 +1,261 @@
+diff --git a/matter/include/numi/matter/mortar_shared_edge_guard.h b/matter/include/numi/matter/mortar_shared_edge_guard.h
+--- a/matter/include/numi/matter/mortar_shared_edge_guard.h
++++ b/matter/include/numi/matter/mortar_shared_edge_guard.h
+@@ -143,6 +143,29 @@
+         nmMortarGuardEqualFractionsQ25(
+             leftNumerator, leftDenominator,
+             rightNumerator, rightDenominator);
++}
++
++// Boundary witnesses may be one of the exact mapped endpoints even when an
++// endpoint (for example 1/3) is not representable on the Q25 grid. Admit that
++// case only when both sides identify the same corresponding endpoint exactly;
++// interior witnesses still require exact Q25 segment and parameter equality.
++inline bool nmMortarGuardSameSegmentParameterExactOrQ25(
++    const NMMortarGuardPoint2 leftPoint,
++    const NMMortarGuardPoint2 leftStart,
++    const NMMortarGuardPoint2 leftEnd,
++    const NMMortarGuardPoint2 rightPoint,
++    const NMMortarGuardPoint2 rightStart,
++    const NMMortarGuardPoint2 rightEnd
++) {
++    if (leftPoint.x == leftStart.x && leftPoint.y == leftStart.y &&
++        rightPoint.x == rightStart.x && rightPoint.y == rightStart.y)
++        return true;
++    if (leftPoint.x == leftEnd.x && leftPoint.y == leftEnd.y &&
++        rightPoint.x == rightEnd.x && rightPoint.y == rightEnd.y)
++        return true;
++    return nmMortarGuardSameSegmentParameterQ25(
++        leftPoint, leftStart, leftEnd,
++        rightPoint, rightStart, rightEnd);
+ }
+ 
+ inline bool nmMortarGuardSeparatedQ25(
+@@ -332,6 +355,16 @@
+     return a.x == b.x && a.y == b.y && a.z == b.z;
+ }
+ 
++inline bool nmMortarGuardSamePairedWorldSegment(
++    const NMMortarGuardPoint3 leftStart,
++    const NMMortarGuardPoint3 leftEnd,
++    const NMMortarGuardPoint3 rightStart,
++    const NMMortarGuardPoint3 rightEnd
++) {
++    return nmMortarGuardSamePoint(leftStart, rightStart) &&
++        nmMortarGuardSamePoint(leftEnd, rightEnd);
++}
++
+ // A page-boundary correspondence is admitted only when the complete mapped
+ // 3D barycentric vertex agrees on both sides. Near matches are not proof of
+ // the same authored seam and must remain contact candidates.
+diff --git a/matter/src/metal/contact.metalinc b/matter/src/metal/contact.metalinc
+--- a/matter/src/metal/contact.metalinc
++++ b/matter/src/metal/contact.metalinc
+@@ -1711,7 +1711,7 @@
+ // uncovered contact region when both page maps pair the same material edge.
+ // Keep this exemption at the individual CCD witness: the surrounding cell
+ // pair remains active so off-edge or sliding collisions are still tested.
+-constant float kMortarPairedBoundaryBaryTolerance = 8.0e-6f;
++constant float kMortarPairedBoundaryMinimumEdgeLengthBary = 8.0e-6f;
+ 
+ struct NMMortarPairedBoundary {
+     float2 left0;
+@@ -1719,6 +1719,7 @@
+     float2 right0;
+     float2 right1;
+     uint valid;
++    uint startCoincident;
+ };
+ 
+ inline bool mortarBuildPairedBoundary(
+@@ -1729,8 +1730,10 @@
+     thread NMMortarPairedBoundary& boundary
+ ) {
+     boundary.valid = 0u;
+-    const float tolerance2 = kMortarPairedBoundaryBaryTolerance *
+-        kMortarPairedBoundaryBaryTolerance;
++    boundary.startCoincident = 0u;
++    const float minimumEdgeLength2 =
++        kMortarPairedBoundaryMinimumEdgeLengthBary *
++        kMortarPairedBoundaryMinimumEdgeLengthBary;
+     uint commonCount = 0u;
+     uint matchedA[2] = {NM_INVALID_INDEX, NM_INVALID_INDEX};
+     uint matchedB[2] = {NM_INVALID_INDEX, NM_INVALID_INDEX};
+@@ -1762,13 +1765,13 @@
+     const uint a0 = matchedA[0], a1 = matchedA[1];
+     const uint b0 = matchedB[0], b1 = matchedB[1];
+     if (dot(leftA[a1].xy - leftA[a0].xy,
+-            leftA[a1].xy - leftA[a0].xy) <= tolerance2 ||
++            leftA[a1].xy - leftA[a0].xy) <= minimumEdgeLength2 ||
+         dot(rightA[a1].xy - rightA[a0].xy,
+-            rightA[a1].xy - rightA[a0].xy) <= tolerance2 ||
++            rightA[a1].xy - rightA[a0].xy) <= minimumEdgeLength2 ||
+         dot(leftB[b1].xy - leftB[b0].xy,
+-            leftB[b1].xy - leftB[b0].xy) <= tolerance2 ||
++            leftB[b1].xy - leftB[b0].xy) <= minimumEdgeLength2 ||
+         dot(rightB[b1].xy - rightB[b0].xy,
+-            rightB[b1].xy - rightB[b0].xy) <= tolerance2) return true;
++            rightB[b1].xy - rightB[b0].xy) <= minimumEdgeLength2) return true;
+     boundary.left0 = leftA[a0].xy;
+     boundary.left1 = leftA[a1].xy;
+     boundary.right0 = rightA[a0].xy;
+@@ -1777,38 +1780,27 @@
+     return true;
+ }
+ 
+-inline bool mortarBoundaryParameter(
+-    const float2 point,
+-    const float2 edge0,
+-    const float2 edge1,
+-    thread float& parameter
+-) {
+-    const float2 edge = edge1 - edge0;
+-    const float edgeLength2 = dot(edge, edge);
+-    const float tolerance = kMortarPairedBoundaryBaryTolerance;
+-    if (!(edgeLength2 > tolerance * tolerance) || !isfinite(edgeLength2))
+-        return false;
+-    parameter = dot(point - edge0, edge) / edgeLength2;
+-    if (!isfinite(parameter) || parameter < -tolerance ||
+-        parameter > 1.0f + tolerance) return false;
+-    const float2 nearest = edge0 + clamp(parameter, 0.0f, 1.0f) * edge;
+-    const float2 error = point - nearest;
+-    return dot(error, error) <= tolerance * tolerance;
+-}
+-
+ inline bool mortarFeatureIsPairedBoundary(
+     const NMMortarPairedBoundary boundary,
+     const float3 leftBarycentric,
+     const float3 rightBarycentric
+ ) {
+-    if (boundary.valid == 0u) return false;
+-    float leftParameter, rightParameter;
+-    if (!mortarBoundaryParameter(leftBarycentric.xy,
+-            boundary.left0, boundary.left1, leftParameter) ||
+-        !mortarBoundaryParameter(rightBarycentric.xy,
+-            boundary.right0, boundary.right1, rightParameter)) return false;
+-    return abs(leftParameter - rightParameter) <=
+-        kMortarPairedBoundaryBaryTolerance;
++    if (boundary.valid == 0u || boundary.startCoincident == 0u) return false;
++    const NMMortarGuardPoint2 leftPoint = {
++        leftBarycentric.x, leftBarycentric.y};
++    const NMMortarGuardPoint2 leftStart = {
++        boundary.left0.x, boundary.left0.y};
++    const NMMortarGuardPoint2 leftEnd = {
++        boundary.left1.x, boundary.left1.y};
++    const NMMortarGuardPoint2 rightPoint = {
++        rightBarycentric.x, rightBarycentric.y};
++    const NMMortarGuardPoint2 rightStart = {
++        boundary.right0.x, boundary.right0.y};
++    const NMMortarGuardPoint2 rightEnd = {
++        boundary.right1.x, boundary.right1.y};
++    return nmMortarGuardSameSegmentParameterExactOrQ25(
++        leftPoint, leftStart, leftEnd,
++        rightPoint, rightStart, rightEnd);
+ }
+ 
+ inline bool mortarBoundaryWitnessIsNonApproaching(
+@@ -1850,6 +1842,8 @@
+     const uint gridNodeCount,
+     device const NMCohesiveFaceGPU* faces,
+     const uint faceBase,
++    thread const float3* leftStart,
++    thread const float3* rightStart,
+     thread NMMortarPairedBoundary& boundary
+ ) {
+     boundary.valid = 0u;
+@@ -1877,8 +1871,29 @@
+         !mortarPatchInPrimitiveCoordinates(sourceB,
+             refB.leftIsSideB == 0u, rightPrimitive, gridNodeCount,
+             rightB[0], rightB[1], rightB[2])) return false;
+-    return mortarBuildPairedBoundary(
+-        leftA, rightA, leftB, rightB, boundary);
++    if (!mortarBuildPairedBoundary(
++            leftA, rightA, leftB, rightB, boundary)) return false;
++    if (boundary.valid != 0u) {
++        const float3 leftPosition0 = mortarBaryPoint(
++            boundary.left0, leftStart);
++        const float3 leftPosition1 = mortarBaryPoint(
++            boundary.left1, leftStart);
++        const float3 rightPosition0 = mortarBaryPoint(
++            boundary.right0, rightStart);
++        const float3 rightPosition1 = mortarBaryPoint(
++            boundary.right1, rightStart);
++        const NMMortarGuardPoint3 leftWorld0 = {
++            leftPosition0.x, leftPosition0.y, leftPosition0.z};
++        const NMMortarGuardPoint3 leftWorld1 = {
++            leftPosition1.x, leftPosition1.y, leftPosition1.z};
++        const NMMortarGuardPoint3 rightWorld0 = {
++            rightPosition0.x, rightPosition0.y, rightPosition0.z};
++        const NMMortarGuardPoint3 rightWorld1 = {
++            rightPosition1.x, rightPosition1.y, rightPosition1.z};
++        boundary.startCoincident = nmMortarGuardSamePairedWorldSegment(
++            leftWorld0, leftWorld1, rightWorld0, rightWorld1) ? 1u : 0u;
++    }
++    return true;
+ }
+ 
+ inline void considerMortarVertexTriangle(
+@@ -2138,6 +2153,7 @@
+                     patchSet, leftTriangle.coveredPatchIndex,
+                     rightTriangle.coveredPatchIndex, leftPrimitive,
+                     rightPrimitive, gridNodeCount, faces, faceBase,
++                    leftStart, rightStart,
+                     pairedBoundary)) return false;
+ 
+             float3 leftSubStart[3], leftSubFinish[3];
+diff --git a/matter/tools/mortar_exact_tiling_check.cpp b/matter/tools/mortar_exact_tiling_check.cpp
+--- a/matter/tools/mortar_exact_tiling_check.cpp
++++ b/matter/tools/mortar_exact_tiling_check.cpp
+@@ -91,6 +91,52 @@
+                 point(0.25f, 0.25f),
+                 point(0.0f, 0.0f), point(0.5f, 0.5f)),
+             "near-edge off-line witness was treated as paired");
++
++    // The production witness gate requires exact Q25 edge membership and an
++    // exact same segment parameter.  A 4 nm in-plane shift on a 4 mm edge is
++    // a 1e-6 parameter mismatch, which the former 8e-6 tolerance accepted.
++    const auto fullEdge0 = point(0.0f, 0.0f);
++    const auto fullEdge1 = point(1.0f, 0.0f);
++    require(nmMortarGuardSameSegmentParameterExactOrQ25(
++                point(0.5f, 0.0f), fullEdge0, fullEdge1,
++                point(0.5f, 0.0f), fullEdge0, fullEdge1),
++            "exact same-edge Q25 witness was rejected");
++    require(!nmMortarGuardSameSegmentParameterExactOrQ25(
++                point(0.5f, 0.0f), fullEdge0, fullEdge1,
++                point(0.500001f, 0.0f), fullEdge0, fullEdge1),
++            "4 nm off-edge Q25 witness was treated as paired");
++    require(nmMortarGuardSameSegmentParameterExactOrQ25(
++                edgeA1, edgeA0, edgeA1,
++                edgeB1, edgeB0, edgeB1),
++            "exact corresponding non-Q25 endpoint was rejected");
++    require(!nmMortarGuardSameSegmentParameterExactOrQ25(
++                fullEdge0, fullEdge0, fullEdge1,
++                point(0.000001f, 0.0f), fullEdge0, fullEdge1),
++            "4 nm one-vertex offset was treated as a paired endpoint");
++
++    const float worldOffset = 4.0e-9f;
++    require(worldOffset != 0.0f,
++            "4 nm authored world offset vanished in FP32");
++    const NMMortarGuardPoint3 exactLeftStart = {0.0f, 0.0f, 0.0f};
++    const NMMortarGuardPoint3 exactLeftEnd = {0.004f, 0.0f, 0.0f};
++    const NMMortarGuardPoint3 exactRightStart = {0.0f, 0.0f, 0.0f};
++    const NMMortarGuardPoint3 exactRightEnd = {0.004f, 0.0f, 0.0f};
++    require(nmMortarGuardSamePairedWorldSegment(
++                exactLeftStart, exactLeftEnd,
++                exactRightStart, exactRightEnd),
++            "exact coincident physical seam was rejected");
++    const NMMortarGuardPoint3 offsetRightStart = {
++        worldOffset, 0.0f, 0.0f};
++    require(!nmMortarGuardSamePairedWorldSegment(
++                exactLeftStart, exactLeftEnd,
++                offsetRightStart, exactRightEnd),
++            "4 nm one-endpoint physical gap was treated as a paired seam");
++    const NMMortarGuardPoint3 offsetRightEnd = {
++        exactRightEnd.x, worldOffset, exactRightEnd.z};
++    require(!nmMortarGuardSamePairedWorldSegment(
++                exactLeftStart, exactLeftEnd,
++                exactRightStart, offsetRightEnd),
++            "4 nm other-endpoint physical gap was treated as a paired seam");
+ }
+ }
+ 

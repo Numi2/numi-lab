@@ -1,0 +1,43 @@
+--- a/matter/tools/cardboard_probe.mm
++++ b/matter/tools/cardboard_probe.mm
+@@ -12343,6 +12343,11 @@
+             << "  \"environment_count\": " << arguments.environmentCount << ",\n"
+             << "  \"fem_node_count\": " << compiled.world.dispatch.femNodeCount << ",\n"
+             << "  \"mode_count\": " << snapshot.femRegionalGalerkinModeCount << ",\n"
++            << "  \"regional_basis_storage_mode_stride\": "
++            << (snapshot.femRegionalRestartAugmentedModeCount != 0u
++                ? snapshot.femRegionalRestartAugmentedModeCount
++                : snapshot.femRegionalGalerkinModeCount) << ",\n"
++            << "  \"exported_base_modes_compacted\": true,\n"
+             << "  \"byte_order\": \"native_little_endian\",\n"
+             << "  \"layout\": \"P mode-node; effective_P/AP environment-mode-node; RAP pivoted LU environment-row-column; block_inverse environment-node-row\",\n"
+             << "  \"regional_diagnostics_available\": "
+@@ -12356,6 +12361,10 @@
+             << (snapshot.femRegionalRestartAugmentationDiagnosticsAvailable ? "true" : "false") << ",\n"
+             << "    \"diagnostics_message\": \""
+             << jsonEscape(snapshot.femRegionalRestartAugmentationDiagnosticsMessage) << "\",\n"
++            << "    \"diagnostic_environment_count\": " << snapshot.femRegionalRestartDiagnosticEnvironmentCount << ",\n"
++            << "    \"nodes_per_environment\": " << snapshot.femRegionalRestartDiagnosticNodesPerEnvironment << ",\n"
++            << "    \"augmented_mode_stride\": " << snapshot.femRegionalRestartDiagnosticModeStride << ",\n"
++            << "    \"environment_layout\": \"metadata E; q/Aq E*N float4; augmented RAP E*K*K; pivots E*K; row-major; UINT32_MAX generation denotes no attempt\",\n"
+             << "    \"base_mode_count\": " << snapshot.femRegionalRestartBaseModeCount << ",\n"
+             << "    \"augmented_mode_count\": " << snapshot.femRegionalRestartAugmentedModeCount << ",\n"
+             << "    \"control_step\": " << snapshot.femRegionalRestartControlStep << ",\n"
+@@ -12409,6 +12418,17 @@
+             writeArena("restart_Aq", snapshot.femRegionalRestartOperatorAQ);
+             writeArena("restart_pivoted_RAP", snapshot.femRegionalRestartPivotedRAP);
+             writeArena("restart_pivots", snapshot.femRegionalRestartPivots);
++            writeArena("restart_generations_by_environment", snapshot.femRegionalRestartGenerationsByEnvironment);
++            writeArena("restart_attempt_counts_by_environment", snapshot.femRegionalRestartAttemptCountsByEnvironment);
++            writeArena("restart_target_scales_by_environment", snapshot.femRegionalRestartTargetScalesByEnvironment);
++            writeArena("restart_raw_norm_squared_by_environment", snapshot.femRegionalRestartRawNormSquaredByEnvironment);
++            writeArena("restart_mode_scales_by_environment", snapshot.femRegionalRestartModeScalesByEnvironment);
++            writeArena("restart_mode_valid_by_environment", snapshot.femRegionalRestartModeValidByEnvironment);
++            writeArena("restart_factor_valid_by_environment", snapshot.femRegionalRestartAugmentedFactorValidByEnvironment);
++            writeArena("restart_q_by_environment", snapshot.femRegionalRestartModesQByEnvironment);
++            writeArena("restart_Aq_by_environment", snapshot.femRegionalRestartOperatorAQByEnvironment);
++            writeArena("restart_pivoted_RAP_by_environment", snapshot.femRegionalRestartPivotedRAPByEnvironment);
++            writeArena("restart_pivots_by_environment", snapshot.femRegionalRestartPivotsByEnvironment);
+         }
+         metadata << "\n  ]\n}\n";
+         require(metadata.good(), "rejected conditioning metadata write failed");

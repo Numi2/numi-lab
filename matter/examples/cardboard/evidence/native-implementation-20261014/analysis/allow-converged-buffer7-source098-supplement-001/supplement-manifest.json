@@ -1,0 +1,63 @@
+{
+  "candidate_base": "/Users/home/cardboard-implementation-20261014/analysis/center-residual-jdelta-source098-candidate-001",
+  "candidate_manifest_sha256": "d32c4c9f63ff9c3a7f1ce12bc7eef15ccb4f95268d20c6b985c229a3e4aab88e",
+  "candidate_source098_manifest_sha256": "fd90e26ab3e3a3814b889bcf065056419d8f9eda7b11f77fd541249aa36f011d",
+  "candidate_source_patch_sha256": "9e3a1b3bc83fdb45189e3b7d10e483fd59d4808658dc2731c3222bd69648f740",
+  "checks": {
+    "angular-syntax.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "bindings.log": {
+      "bytes": 92,
+      "sha256": "477cc8f189ffb13aacdd1fc7ac544f2e7f5008d680082c7e08b7908b774ff845"
+    },
+    "candidate.log": {
+      "bytes": 1032,
+      "sha256": "1122b9f18de7d4ea3274029ea20323ced5ada655466f4cbf408a18c390eb4e18"
+    },
+    "coupled-syntax.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "patch.log": {
+      "bytes": 146,
+      "sha256": "0ff9917b1e35edb2960e2cad01c1ab52320f425dc66a536f887f861ff2b07677"
+    },
+    "sourcewide.log": {
+      "bytes": 1399,
+      "sha256": "c005dbc61f1812de03c2b20c237b2be90fb6aee3873bf56c7cfb36f6413240ea"
+    }
+  },
+  "direct_dispatches_covered": 4,
+  "files": [
+    {
+      "base_sha256": "715318600ebc63b8f0686c6744f5c88462eef71e14d673cc9d8839a9a2b82209",
+      "path": "matter/tools/cardboard_free_box_angular_native_check.mm",
+      "supplement_sha256": "0c0781ba7697307264ec0d744440c689cecfec7034e2bfd92e6b525a67e51372"
+    },
+    {
+      "base_sha256": "f0958dd5a90b0cb2f725de3cae4f4a2d0f05ff8cccf8d08bde8ed93c2170e465",
+      "path": "matter/tools/cardboard_coupled_free_box_operator_check.mm",
+      "supplement_sha256": "f0106a2a005c04bae44376c73394f75e39ede61876aa3010bbd819b5c53499b3"
+    }
+  ],
+  "native_execution": "not run; static checks only",
+  "package_files": {
+    "README.md": {
+      "bytes": 1403,
+      "sha256": "3736a4f540212d5699d9708c51d5d565fe70a09bd5697e6dedcc4272e1bf3e98"
+    },
+    "verify_buffer_bindings.py": {
+      "bytes": 1864,
+      "sha256": "3ece8424a0920dc5420960ad8f5917447b803c80cd472a149f058d45dc413c81"
+    },
+    "verify_candidate_corrected_copy.py": {
+      "bytes": 5363,
+      "sha256": "ef805577fabb4989b477108f7f107e97a3136c612c74a25e42bf57aed4b47aea"
+    }
+  },
+  "patch_sha256": "1a0e9c7f87cb04f2eae8173eca5d1fa55947629e8b9e408dcce1d5ad6fb8450e",
+  "purpose": "Explicitly bind the new production allowConvergedState scalar at Metal buffer index 7 in direct native checker calls; value remains 0 and solver physics are unchanged.",
+  "schema": "numi.matter.allow_converged_buffer7_supplement.v1"
+}

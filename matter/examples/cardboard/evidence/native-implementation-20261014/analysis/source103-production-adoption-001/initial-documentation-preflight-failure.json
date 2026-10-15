@@ -1,0 +1,6 @@
+{
+  "stage": "atomic apply_patch",
+  "error": "implementation documentation context was an incomplete heading token",
+  "source_mutation": false,
+  "correction": "Re-read exact heading; apply complete patch with observed contexts."
+}
