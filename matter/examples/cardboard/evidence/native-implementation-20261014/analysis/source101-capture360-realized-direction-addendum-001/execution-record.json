@@ -1,0 +1,13 @@
+{
+  "command": "python3 addendum.py",
+  "cpu_bound_seconds": 55,
+  "gpu_used": false,
+  "new_projection_solves": 0,
+  "output_report": "output-001/report.json",
+  "output_rows": "output-001/realized_direction_rows.jsonl",
+  "rows": 1728,
+  "schema": "numi.cardboard.source101-realized-direction-addendum-execution.v1",
+  "status": "completed",
+  "verifier_command": "python3 verify.py",
+  "wall_seconds": 0.09260829200502485
+}

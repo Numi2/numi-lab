@@ -1,0 +1,18 @@
+{
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-material674-trace-116",
+  "source_overlay_sha256": "c05052db14e30ea18705f31e62f8231680311ffa0f0a3bc765733daa8854a8ee",
+  "changes": {
+    "matter/src/metal/common.metalinc": {
+      "base_sha256": "e53feb0402a461f355cf2ee5c3af89f95eb49176178e60d997d4a9cc6588a182",
+      "overlay_sha256": "061995730c58f71d008d43625998d262fc3dd25f4a5d9413ad455d93e2e7b711"
+    },
+    "matter/tools/cardboard_bilinear15_capture_diagnostic_check.mm": {
+      "base_sha256": "1154df63e3acabe95ca4931d463ad928826992cd4d47dd5eba767a6c8ced7d8f",
+      "overlay_sha256": "f6c9a44a4d1c1142590e9818cb2de02ba61b152b613f5e6f41f8bd5f33b8aaa1"
+    }
+  },
+  "all_source_bytes_verified_after_APFS_clone": true,
+  "selected_source_files": 782,
+  "support_files": 1068,
+  "production_equations_tolerances_and_iteration_budgets_unchanged": true
+}

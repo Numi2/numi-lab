@@ -1,0 +1,9 @@
+{
+  "schema": "numi.cardboard.generated-object-retirement.v1",
+  "preflight_sha256": "3186c6bfb1654153c6da65d986fa45d1a548b9103e273176c2d1577012288721",
+  "files_removed": 729,
+  "bytes_removed": 88895504,
+  "free_bytes_before": 496582656,
+  "free_bytes_after": 586584064,
+  "physical_evidence_removed": false
+}

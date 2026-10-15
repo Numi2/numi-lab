@@ -1,0 +1,33 @@
+{
+  "schema": "numi.cardboard.reference017-publication-binding.v1",
+  "cases": [
+    "analysis/source101-capture360-v3-uniform-1728-006",
+    "analysis/source101-tet1186-epsilon-diagnostic-001",
+    "analysis/source101-tet1186-mp90-adjudication-001",
+    "analysis/source101-capture360-realized-direction-addendum-001",
+    "analysis/source101-capture360-common-step-sweep-007",
+    "analysis/source380-tet674-corrected-offset-audit-002",
+    "analysis/source380-generalized-material-point-001",
+    "analysis/source380-dimensionless-armijo-overlay-001",
+    "analysis/source116-material674-trace-integration-001",
+    "analysis/source117-exact674-point-integration-001",
+    "analysis/retained-source-snapshots116-117-001",
+    "analysis/source116-117-restoration-cli-001",
+    "analysis/source116-117-build-and-native-bindings-001",
+    "analysis/full-contact-newton9-residual-audit-385-001",
+    "analysis/full-contact-newton9-root-verification-002",
+    "analysis/robertsson-eq18-adjudication-001",
+    "analysis/shipping-damage-face-ownership-memory-audit-115-001",
+    "analysis/generated-dependency-table-retirement-003",
+    "analysis/generated-object-retirement-003",
+    "native/exact-source380-material674-point-382",
+    "native/full-contact-newton9-center-capture-385",
+    "native/full-contact-capture-off-parity-386",
+    "native/exact-source380-material674-trace-388",
+    "native/full-contact-newton9-trial0-capture-389",
+    "analysis/generated-dependency-file-retirement-004"
+  ],
+  "summary_sha256": "8c528b9dd1765a711a82f1bc5d8d51ef5c17dddc1862ca2f767ca494e728730b",
+  "copied_files": 255,
+  "physical_validation": false
+}

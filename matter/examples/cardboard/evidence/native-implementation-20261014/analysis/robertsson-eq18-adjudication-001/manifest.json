@@ -1,0 +1,52 @@
+{
+  "created_utc": "2026-10-15T17:17:44.680114+00:00",
+  "evidence_class": "external_CPU_source_equation_benchmark",
+  "package": "robertsson-eq18-adjudication-001",
+  "package_bindings": {
+    "README.md": "ce4258d2c5c1162bceb375e2fdad8bedd36918481c295caa135279ce989ae6ca",
+    "benchmark.py": "eebc0dc1eb550f5866d80579da6efd7df386c7b2bfa5a195355114a657695524",
+    "report.json": "529389b5da9c648b176523291d5811dd7905f3a60df97f19f9313ffe322f8d12",
+    "test-run.log": "c54b5e6a371e758842fdb43256d0cb816cb275ad6aa0481675609ed8c76fc342",
+    "test_benchmark.py": "8a4b5fd2dc89290f4e2918a96f2470ce847436575ce284d46b6690f7cfc79051"
+  },
+  "primary_source": {
+    "access": "official publisher open-access HTML; HTML/PDF bytes not retained",
+    "doi": "10.1002/pts.2774",
+    "url": "https://onlinelibrary.wiley.com/doi/full/10.1002/pts.2774"
+  },
+  "repo_bindings": {
+    "repo_audit_note": {
+      "path": "/Users/home/numi-cardboard-20261006/matter/examples/cardboard/source-data/robertsson_2023_absolute_energy_audit.md",
+      "sha256": "df109c5e3d052afd33bae3ecae8ccb80d2da89f20165ccaa499f12c1f5b4c910"
+    },
+    "repo_catalog": {
+      "path": "/Users/home/numi-cardboard-20261006/matter/examples/cardboard/source-data/catalog.json",
+      "sha256": "f812ca264c3f0cd15e98178aeae090332eb753d127a199906a9ebc800e3a62c1"
+    },
+    "repo_cpu_check": {
+      "path": "/Users/home/numi-cardboard-20261006/matter/tools/robertsson_fem_coupling_check.mm",
+      "sha256": "755ff822c826553de655413f5ead270c071f99a36bad9988acacdd338fb75380"
+    },
+    "repo_identity_benchmark": {
+      "path": "/Users/home/numi-cardboard-20261006/matter/examples/cardboard/source-data/robertsson_2023_identity_energy_benchmark.csv",
+      "sha256": "43ab56d710de5a43da450563b2db3a1f7b30caf4c4e3511aebd26e4e800409cd"
+    },
+    "repo_material_builder": {
+      "path": "/Users/home/numi-cardboard-20261006/matter/tools/robertsson2023_material.hpp",
+      "sha256": "52dc8daf9e417e773ec25ef288561460e786d7aa1e5dce8f715f94ebc61da3f7"
+    },
+    "repo_source_extract": {
+      "path": "/Users/home/numi-cardboard-20261006/matter/examples/cardboard/source-data/robertsson_2023_eq18_source_extract.md",
+      "sha256": "fd1ddbfb50d039232b359d58e0a2245151e70cd42755dc8fbfb08b0acf71bddc"
+    }
+  },
+  "run": {
+    "benchmark_command": "python3 benchmark.py --output report.json",
+    "native_or_gpu_execution": false,
+    "python": "3.14.6",
+    "repository_build": false,
+    "tests_command": "python3 -m unittest -v test_benchmark.py",
+    "tests_status": "PASS"
+  },
+  "schema": "numi.cardboard.source_audit_manifest.v1"
+}

@@ -1,0 +1,21 @@
+{
+  "classification": "CPU-only FP64 diagnostic; no native, build, or GPU execution",
+  "command": "OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 /Users/home/.pyenv/versions/3.10.12/bin/python3 replay_uniform_v3.py",
+  "python": "/Users/home/.pyenv/versions/3.10.12/bin/python3",
+  "blas_thread_limits": {
+    "OPENBLAS_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "VECLIB_MAXIMUM_THREADS": "1"
+  },
+  "output": "output-006",
+  "elapsed_seconds": 22.399545666004997,
+  "completed_rows": 1728,
+  "active_tet_ids": "0..863 and 960..1823",
+  "target_deltaF_frobenius": 1e-7,
+  "warning_counts": {
+    "RuntimeWarning: divide by zero encountered in divide at bilinear15_reference.py:40": 17892,
+    "RuntimeWarning: invalid value encountered in divide at bilinear15_reference.py:40": 16628
+  },
+  "warning_total": 34520,
+  "capture_or_production_state_modified": false
+}

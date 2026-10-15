@@ -1,0 +1,134 @@
+{
+  "accepted_history_fixed": true,
+  "classification": "CPU-only explanatory decomposition for one captured point/direction; no universal noise-floor or full validation claim.",
+  "inputs": {
+    "capture": {
+      "path": "/Users/home/cardboard-implementation-20261014/solver/reset-augmentation-first-failure-capture-360/operator-capture",
+      "sha256": "548dce37fbe5a28a609dd6bc45318926072c878774ea0caffa3237d925cebb33"
+    },
+    "direction_helper": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/source101-capture360-directional-fd-001/compare_directional_fd.py",
+      "sha256": "742b0920c4f543e284e41ed18f8dbc78253915a31f39b3ef8d32ff7dec01b5e8"
+    },
+    "mp90_helper": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/medium-tangent-state-sensitivity-1634-002/mp90_endpoint_fd.py",
+      "sha256": "042cd63f87206f4cc8698e16d7ec75348637d1b219a0d0f7fc8b148f0d585913"
+    },
+    "mp90_result": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/source101-tet1186-mp90-adjudication-001/output-002/result.json",
+      "sha256": "237ac0c0a1ceb4ddd65f7e9efcc78424ac2750e5b549388b9b64fc73819f7062"
+    },
+    "mp90_runner": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/source101-capture360-selected-mp90-002/replay_selected.py",
+      "sha256": "aa73eda519a30807f00b741d3b6cc9b73fb8434e9082fbf39955739572f5c089"
+    },
+    "single_row_sweep": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/source101-tet1186-epsilon-diagnostic-001/output-001/row1186.json",
+      "sha256": "e143b710d07bc62c308680c4ac4f6ddc7f41121a8362131ab71813f448707dae"
+    },
+    "v3_rows": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/source101-capture360-v3-uniform-1728-006/output-006/all1728_v3_rows.jsonl",
+      "sha256": "7378794b10863ff2df78b3d5e4d60e6ebdf26abce6791867bfe6d511a9ab0782"
+    }
+  },
+  "interpretation": "Separate the tangent evaluated on the nominal captured rate direction from the direction actually represented by the FP64 endpoint pair. MP90 FD is compared with both. The small per-endpoint stress discrepancy is shown in Pa as well as its derivative-amplified relative effect. No global tolerance is changed.",
+  "mpmath_dps": 90,
+  "projection_gate": "MP90 scaled residual and absolute correction <=1e-70; max48 iterations",
+  "results": [
+    {
+      "epsilon_scalar": 2.6606385866146713e-09,
+      "fp64_central_fd_vs_mp90_fd": {
+        "absolute_l2": 546160.3026705263,
+        "relative_l2": 2.5607747993148527e-07
+      },
+      "fp64_endpoint_stress_vs_mp90": {
+        "minus_abs_Pa": 4.628597396696684e-08,
+        "minus_relative": 5.128167694972061e-14,
+        "plus_abs_Pa": 2.5129565483506844e-07,
+        "plus_relative": 2.784181360307117e-13
+      },
+      "mp90_fd_vs_mp90_tangent_nominal": "0.000000960242126761476010661641",
+      "mp90_fd_vs_mp90_tangent_realized": "5.88865398115261529080814e-12",
+      "projection_converged_center_plus_minus": true,
+      "realized_rate_direction_vs_captured_direction": {
+        "absolute_l2": "0.000567758458140962441352663",
+        "reference_l2": "375849.628842111899386756",
+        "relative_l2": "1.5106000234457281048449e-9"
+      },
+      "tangent_action_actual_realized_vs_nominal": {
+        "absolute_l2": "2048002.75456294590643787",
+        "reference_l2": "2132794784954.60295805233",
+        "relative_l2": "0.000000960243699492418877957693"
+      },
+      "target_deltaF_frobenius": 1e-07,
+      "v3_central_fd_vs_nominal_tangent": 1.214903271565475e-06,
+      "v3_projection_state_vs_mp90_root": {
+        "center": {
+          "absolute_l2": 5.098479651660732e-15,
+          "relative_l2": 1.294770972338037e-13
+        },
+        "minus": {
+          "absolute_l2": 2.019178361219577e-15,
+          "relative_l2": 5.1277526077848556e-14
+        },
+        "mp90_center_absolute_correction": "4.77355412745737276e-94",
+        "mp90_center_scaled_residual": "3.41044981648144079e-87",
+        "plus": {
+          "absolute_l2": 1.0950010552237662e-14,
+          "relative_l2": 2.78078034355729e-13
+        }
+      },
+      "yield_gap_center_mp90": "9.575737270586169582540935e-12",
+      "yield_gap_minus_mp90": "9.575534903323455558993784e-12",
+      "yield_gap_plus_mp90": "9.575939646401997957773679e-12"
+    },
+    {
+      "epsilon_scalar": 7.981915759844013e-10,
+      "fp64_central_fd_vs_mp90_fd": {
+        "absolute_l2": 1118735.7336501724,
+        "relative_l2": 5.245402001801941e-07
+      },
+      "fp64_endpoint_stress_vs_mp90": {
+        "minus_abs_Pa": 5.737331503792143e-08,
+        "minus_relative": 6.356567479172495e-14,
+        "plus_abs_Pa": 1.908430790309679e-07,
+        "plus_relative": 2.11440925670846e-13
+      },
+      "mp90_fd_vs_mp90_tangent_nominal": "0.00000158576818732799948063058",
+      "mp90_fd_vs_mp90_tangent_realized": "5.29979030622424228450718e-13",
+      "projection_converged_center_plus_minus": true,
+      "realized_rate_direction_vs_captured_direction": {
+        "absolute_l2": "0.00115326879017590113692576",
+        "reference_l2": "375849.628842111899386756",
+        "relative_l2": "3.06843136636532355662716e-9"
+      },
+      "tangent_action_actual_realized_vs_nominal": {
+        "absolute_l2": "3382118.41059373814412678",
+        "reference_l2": "2132794784954.60295805233",
+        "relative_l2": "0.00000158576832354066701041275"
+      },
+      "target_deltaF_frobenius": 3e-08,
+      "v3_central_fd_vs_nominal_tangent": 1.1276621749329274e-06,
+      "v3_projection_state_vs_mp90_root": {
+        "center": {
+          "absolute_l2": 5.098479651660732e-15,
+          "relative_l2": 1.294770972338037e-13
+        },
+        "minus": {
+          "absolute_l2": 2.5022510028527725e-15,
+          "relative_l2": 6.35452614637828e-14
+        },
+        "mp90_center_absolute_correction": "4.77355412745737276e-94",
+        "mp90_center_scaled_residual": "3.41044981648144079e-87",
+        "plus": {
+          "absolute_l2": 8.325984265276026e-15,
+          "relative_l2": 2.1144032358185722e-13
+        }
+      },
+      "yield_gap_center_mp90": "9.575737270586169582540935e-12",
+      "yield_gap_minus_mp90": "9.575676559509301050064783e-12",
+      "yield_gap_plus_mp90": "9.575797982432818406383692e-12"
+    }
+  ],
+  "schema": "numi.cardboard.source101-tet1186-mp90-direction-roundoff-analysis.v1"
+}

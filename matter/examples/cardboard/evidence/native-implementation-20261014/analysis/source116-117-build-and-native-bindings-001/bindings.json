@@ -1,0 +1,46 @@
+{
+  "schema": "numi.cardboard.source116-117-native-bindings.v1",
+  "rows": [
+    {
+      "number": 116,
+      "source_build_sha256": "a6c7fd7e767df26b393de72897748f673aec128a7cbf0858351275ae0b4e4c9a",
+      "runtime_artifacts_unchanged": true,
+      "physical_steps": 0
+    },
+    {
+      "number": 117,
+      "source_build_sha256": "2a19a662dc28c5975c8193519bab2452b0fe3e0179add9d737ad14cefceabdcc",
+      "runtime_artifacts_unchanged": true,
+      "physical_steps": 0
+    },
+    {
+      "native": 382,
+      "case": "native/exact-source380-material674-point-382",
+      "receipt_sha256": "d273a6886e45cc776bbdd9e442a64485f1120b2624281b3cdfd2dc4a0f2d0305",
+      "exit_code": 0,
+      "claim": "instrument completed; native failure remains failure"
+    },
+    {
+      "native": 388,
+      "case": "native/exact-source380-material674-trace-388",
+      "receipt_sha256": "2fb2a0abab20c4af9e472790e509091f8d366a278150f60bd9547b1ec61d701f",
+      "exit_code": 0,
+      "claim": "instrument completed; native failure remains failure"
+    },
+    {
+      "native": 385,
+      "case": "native/full-contact-newton9-center-capture-385",
+      "receipt_sha256": "41a1ec05d3b59f1fd0108c45eec50a729af6b41f8bb3fe1632af38f238615f64",
+      "exit_code": 1,
+      "claim": "full-contact attempt failed identically"
+    },
+    {
+      "native": 386,
+      "case": "native/full-contact-capture-off-parity-386",
+      "receipt_sha256": "20aee604b9aa57cf8c86e4e1977fc119524f23a79555a11999de4d6df5f5753a",
+      "exit_code": 1,
+      "claim": "full-contact attempt failed identically"
+    }
+  ],
+  "scientific_qualification": false
+}

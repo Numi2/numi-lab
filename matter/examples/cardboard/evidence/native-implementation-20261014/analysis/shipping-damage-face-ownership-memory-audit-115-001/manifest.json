@@ -1,0 +1,68 @@
+{
+  "artifact_sha256": {
+    "README.md": "5ef7cef8d90231c3d59697e5c702fdfb6cd2aabaea54549d4828cd582e39c104",
+    "audit.py": "601dbea811a6d7acea9a28518e1b645f16e1e84ad8700d66bee53ca37f2617c8",
+    "report.json": "f01d75dadd802e5a58e7bcd6c1e55d894f95f090ce81a75cdae0b20ff683bc67"
+  },
+  "build_performed": false,
+  "checks": [
+    {
+      "check": "probe uses retained pool",
+      "passed": true
+    },
+    {
+      "check": "probe does not call generic per-element crack-band pool",
+      "passed": true
+    },
+    {
+      "check": "retained pool does not call generic ownership guard",
+      "passed": true
+    },
+    {
+      "check": "retained builder uses no generic damage pool",
+      "passed": true
+    },
+    {
+      "check": "generic owner guard reserves four face records per request",
+      "passed": true
+    },
+    {
+      "check": "retained damage plane offset is exactly zero",
+      "passed": true
+    },
+    {
+      "check": "geometry rejects degenerate tetrahedra",
+      "passed": true
+    },
+    {
+      "check": "generic owner check used only by generic pool/program builders",
+      "passed": true
+    },
+    {
+      "check": "shipping builder input is uniqueRequests",
+      "passed": true
+    }
+  ],
+  "gpu_used": false,
+  "native_memory_measured": false,
+  "package": "shipping-damage-face-ownership-memory-audit-115-001",
+  "report_sha256": "f01d75dadd802e5a58e7bcd6c1e55d894f95f090ce81a75cdae0b20ff683bc67",
+  "reproduction_command": "python3 audit.py --root /Users/home/numi-cardboard-20261006 --requests 1477728 --output report.json",
+  "result": "No shipping-prebuild correction is warranted for the new generic FaceRecord vector: it is not allocated by the live retained-matrix shipping damage builder. Its hypothetical generic-builder workspace is host-only and should be a separate transient input if that call path is ever adopted.",
+  "runtime_or_metal_initialized": false,
+  "schema": "numi.cardboard.source_bound_analysis_package.v1",
+  "source_checkout": "/Users/home/numi-cardboard-20261006",
+  "source_checkout_dirty_unrelated_files": true,
+  "source_code_modified_by_this_task": false,
+  "source_git_head": "4fb44c44511609d66eb4443fd8aa3730a39d516b",
+  "source_sha256": {
+    "matter/tools/cardboard_damage_builder.hpp": "889a8d51fb47066a0a38e57e3cd2ffe50ca8e61100b749f6af336eb0fa7b581b",
+    "matter/tools/cardboard_fracture_regularization.hpp": "86ed5f2a2a3168fe4e36a585ad29e785211ff6956afeb70080bc8a82a7315903",
+    "matter/tools/cardboard_probe.mm": "6917e515993e1da26d09d946bf8a3f58c7066ad183b19131aa466e94e8d32e99",
+    "matter/tools/cardboard_retained_matrix_damage.hpp": "58944ad123111a7c4c1c062dbcfab36fec4897f2027b128bde2c8c62b8667384",
+    "matter/tools/cardboard_shipping_allocation_preflight.cpp": "f2c5483f59fd9aa335669634312f2c129bbbfcf4b22d43f9bb09122444626ba6",
+    "matter/tools/cardboard_shipping_allocation_preflight.py": "62d1bc77aef9b90298f4245b7ecfa3f9e00f69207353ea341ffdc4966b72e921",
+    "matter/tools/cardboard_shipping_memory.hpp": "937b316f75469559eb2d9ca8484edaee1060376b48cd5748f262b01a6f837c4e"
+  },
+  "status": "sealed_read_only_audit_no_source_patch"
+}

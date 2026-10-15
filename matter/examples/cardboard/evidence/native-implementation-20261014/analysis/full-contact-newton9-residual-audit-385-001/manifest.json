@@ -1,0 +1,311 @@
+{
+  "external_evidence": [
+    {
+      "bytes": 305,
+      "path": "/Users/home/cardboard-implementation-20261014/native/deterministic-private-ccd-full-contact-383/receipt.json",
+      "sha256": "3ca260dab88a166f5bee126afb6c94df7c1434bbdad022ad2df3c5454558c5b6"
+    },
+    {
+      "bytes": 101899,
+      "path": "/Users/home/cardboard-implementation-20261014/native/deterministic-private-ccd-full-contact-383/prediction.json",
+      "sha256": "196bccfa25b2df3ee132aa0779358c0904cbf2ed548830b997bb36d30b0d6f5b"
+    },
+    {
+      "bytes": 1229,
+      "path": "/Users/home/cardboard-implementation-20261014/native/deterministic-private-ccd-full-contact-383/stdout.log",
+      "sha256": "6207db36146aa493ad0e5593223b154dc3a3f926f9250cca88d1635188176c5d"
+    },
+    {
+      "bytes": 62166,
+      "path": "/Users/home/cardboard-implementation-20261014/native/deterministic-private-ccd-full-contact-383/stderr.log",
+      "sha256": "f0e9217380fc61a0400c5eaaad1eb110f75494974652d661db9448a3726ed296"
+    },
+    {
+      "bytes": 59037,
+      "path": "/Users/home/cardboard-implementation-20261014/native/deterministic-private-ccd-full-contact-383/diagnostic-state/dense/fixture-free-body-control-1200.log",
+      "sha256": "a0606b4b2af671aef658ca5e488dd80cfd12e6b17ddb9a05630a7bec0b0cffd4"
+    },
+    {
+      "bytes": 61213,
+      "path": "/Users/home/cardboard-implementation-20261014/native/deterministic-private-ccd-full-contact-383/diagnostic-state/dense/fixture-free-body-control-1201.log",
+      "sha256": "46968634157f805f90bd31b585be8f5648f6868201f2549636e210f703c62a1d"
+    },
+    {
+      "bytes": 904359,
+      "path": "/Users/home/cardboard-implementation-20261014/native/deterministic-private-ccd-full-contact-383/diagnostic-state/dense/transaction-000000-after.bin",
+      "sha256": "3334cb278d3a73ef482a3cc1fc7e00a07c5f32e8d62f4a76c7862669338d222e"
+    },
+    {
+      "bytes": 904359,
+      "path": "/Users/home/cardboard-implementation-20261014/native/deterministic-private-ccd-full-contact-383/diagnostic-state/dense/transaction-000000-before.bin",
+      "sha256": "7c14c985103da20e622f954206624e22b6dd9176be1ce59154bc3e697c7082c3"
+    },
+    {
+      "bytes": 6559,
+      "path": "/Users/home/cardboard-implementation-20261014/native/deterministic-private-ccd-full-contact-383/diagnostic-state/dense/transaction-000000.json",
+      "sha256": "249d5249c1a4f2f165bc8468142a8f086ee615465360aac7080d9b9d6d90c5bf"
+    },
+    {
+      "bytes": 904359,
+      "path": "/Users/home/cardboard-implementation-20261014/native/deterministic-private-ccd-full-contact-383/diagnostic-state/dense/transaction-000001-after.bin",
+      "sha256": "e9052c2c7c1b755a02f11de54524f4c27c5d26203961e7cbfff060a6a539b927"
+    },
+    {
+      "bytes": 904359,
+      "path": "/Users/home/cardboard-implementation-20261014/native/deterministic-private-ccd-full-contact-383/diagnostic-state/dense/transaction-000001-before.bin",
+      "sha256": "3334cb278d3a73ef482a3cc1fc7e00a07c5f32e8d62f4a76c7862669338d222e"
+    },
+    {
+      "bytes": 6676,
+      "path": "/Users/home/cardboard-implementation-20261014/native/deterministic-private-ccd-full-contact-383/diagnostic-state/dense/transaction-000001.json",
+      "sha256": "1920dcf0873634e798740a00313ae9a12fb95fa3fb760eb2a2653cdf40d28e81"
+    },
+    {
+      "bytes": 904359,
+      "path": "/Users/home/cardboard-implementation-20261014/native/deterministic-private-ccd-full-contact-383/diagnostic-state/dense/transaction-000002-after.bin",
+      "sha256": "b90c699602b7ad5e0ca9427a85d5a840fbaffdcec9cfbcaa079701ca2fda0861"
+    },
+    {
+      "bytes": 904359,
+      "path": "/Users/home/cardboard-implementation-20261014/native/deterministic-private-ccd-full-contact-383/diagnostic-state/dense/transaction-000002-before.bin",
+      "sha256": "e9052c2c7c1b755a02f11de54524f4c27c5d26203961e7cbfff060a6a539b927"
+    },
+    {
+      "bytes": 6685,
+      "path": "/Users/home/cardboard-implementation-20261014/native/deterministic-private-ccd-full-contact-383/diagnostic-state/dense/transaction-000002.json",
+      "sha256": "f42419d4eeae77119f4f1434fa96a732cd56664d7fa88af41b9c61d2881f426d"
+    },
+    {
+      "bytes": 305,
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-newton9-center-capture-385/receipt.json",
+      "sha256": "41a1ec05d3b59f1fd0108c45eec50a729af6b41f8bb3fe1632af38f238615f64"
+    },
+    {
+      "bytes": 101703,
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-newton9-center-capture-385/prediction.json",
+      "sha256": "687e2a7e9aec6def3be16f599fbfdf27fdc282e549a7c0443c4acbca12b50fa1"
+    },
+    {
+      "bytes": 1229,
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-newton9-center-capture-385/stdout.log",
+      "sha256": "6207db36146aa493ad0e5593223b154dc3a3f926f9250cca88d1635188176c5d"
+    },
+    {
+      "bytes": 62163,
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-newton9-center-capture-385/stderr.log",
+      "sha256": "fcc36994c56ff7c24e2c94e7e834e5e167e828307344f4407608afeb32a45e5e"
+    },
+    {
+      "bytes": 59037,
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-newton9-center-capture-385/diagnostic-state/dense/fixture-free-body-control-1200.log",
+      "sha256": "a0606b4b2af671aef658ca5e488dd80cfd12e6b17ddb9a05630a7bec0b0cffd4"
+    },
+    {
+      "bytes": 61210,
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-newton9-center-capture-385/diagnostic-state/dense/fixture-free-body-control-1201.log",
+      "sha256": "0ff8ba2cecce91f392aab320d4c6a5b149daf8d2ce0ce9800b51445687d3afc3"
+    },
+    {
+      "bytes": 904359,
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-newton9-center-capture-385/diagnostic-state/dense/transaction-000000-after.bin",
+      "sha256": "3334cb278d3a73ef482a3cc1fc7e00a07c5f32e8d62f4a76c7862669338d222e"
+    },
+    {
+      "bytes": 904359,
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-newton9-center-capture-385/diagnostic-state/dense/transaction-000000-before.bin",
+      "sha256": "7c14c985103da20e622f954206624e22b6dd9176be1ce59154bc3e697c7082c3"
+    },
+    {
+      "bytes": 6559,
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-newton9-center-capture-385/diagnostic-state/dense/transaction-000000.json",
+      "sha256": "249d5249c1a4f2f165bc8468142a8f086ee615465360aac7080d9b9d6d90c5bf"
+    },
+    {
+      "bytes": 904359,
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-newton9-center-capture-385/diagnostic-state/dense/transaction-000001-after.bin",
+      "sha256": "e9052c2c7c1b755a02f11de54524f4c27c5d26203961e7cbfff060a6a539b927"
+    },
+    {
+      "bytes": 904359,
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-newton9-center-capture-385/diagnostic-state/dense/transaction-000001-before.bin",
+      "sha256": "3334cb278d3a73ef482a3cc1fc7e00a07c5f32e8d62f4a76c7862669338d222e"
+    },
+    {
+      "bytes": 6676,
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-newton9-center-capture-385/diagnostic-state/dense/transaction-000001.json",
+      "sha256": "1920dcf0873634e798740a00313ae9a12fb95fa3fb760eb2a2653cdf40d28e81"
+    },
+    {
+      "bytes": 904359,
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-newton9-center-capture-385/diagnostic-state/dense/transaction-000002-after.bin",
+      "sha256": "b90c699602b7ad5e0ca9427a85d5a840fbaffdcec9cfbcaa079701ca2fda0861"
+    },
+    {
+      "bytes": 904359,
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-newton9-center-capture-385/diagnostic-state/dense/transaction-000002-before.bin",
+      "sha256": "e9052c2c7c1b755a02f11de54524f4c27c5d26203961e7cbfff060a6a539b927"
+    },
+    {
+      "bytes": 6685,
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-newton9-center-capture-385/diagnostic-state/dense/transaction-000002.json",
+      "sha256": "f42419d4eeae77119f4f1434fa96a732cd56664d7fa88af41b9c61d2881f426d"
+    },
+    {
+      "bytes": 44705,
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-newton9-center-capture-385/center-capture.coupled.json",
+      "sha256": "1ba486f1da055b18d59c1e54303a1170a49c1547ccb6c2800562a84f5eb6737a"
+    },
+    {
+      "bytes": 11670948,
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-newton9-center-capture-385/center-capture.coupled.bin",
+      "sha256": "0c4ad7045f9c6020edbb45bfae71d3146c68294fd397ad54c42004c754c61c3a"
+    },
+    {
+      "bytes": 304,
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-capture-off-parity-386/receipt.json",
+      "sha256": "20aee604b9aa57cf8c86e4e1977fc119524f23a79555a11999de4d6df5f5753a"
+    },
+    {
+      "bytes": 101525,
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-capture-off-parity-386/prediction.json",
+      "sha256": "94b01e7535fdc86d1f10fd8bc79566e4fd5ddfbe7530ab1d8e2e18f84559a3f7"
+    },
+    {
+      "bytes": 1229,
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-capture-off-parity-386/stdout.log",
+      "sha256": "6207db36146aa493ad0e5593223b154dc3a3f926f9250cca88d1635188176c5d"
+    },
+    {
+      "bytes": 61789,
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-capture-off-parity-386/stderr.log",
+      "sha256": "51c441c8d4f7f21e3ac3a564bdc7908a1f9e72d650cda2ecbe21f0a30f6263f8"
+    },
+    {
+      "bytes": 59037,
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-capture-off-parity-386/diagnostic-state/dense/fixture-free-body-control-1200.log",
+      "sha256": "a0606b4b2af671aef658ca5e488dd80cfd12e6b17ddb9a05630a7bec0b0cffd4"
+    },
+    {
+      "bytes": 60836,
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-capture-off-parity-386/diagnostic-state/dense/fixture-free-body-control-1201.log",
+      "sha256": "b21b9ed7110489e4089bb5eaac47e68fc80e72b9fd22d8105e1e25a82b8e26be"
+    },
+    {
+      "bytes": 904359,
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-capture-off-parity-386/diagnostic-state/dense/transaction-000000-after.bin",
+      "sha256": "3334cb278d3a73ef482a3cc1fc7e00a07c5f32e8d62f4a76c7862669338d222e"
+    },
+    {
+      "bytes": 904359,
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-capture-off-parity-386/diagnostic-state/dense/transaction-000000-before.bin",
+      "sha256": "7c14c985103da20e622f954206624e22b6dd9176be1ce59154bc3e697c7082c3"
+    },
+    {
+      "bytes": 6559,
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-capture-off-parity-386/diagnostic-state/dense/transaction-000000.json",
+      "sha256": "249d5249c1a4f2f165bc8468142a8f086ee615465360aac7080d9b9d6d90c5bf"
+    },
+    {
+      "bytes": 904359,
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-capture-off-parity-386/diagnostic-state/dense/transaction-000001-after.bin",
+      "sha256": "e9052c2c7c1b755a02f11de54524f4c27c5d26203961e7cbfff060a6a539b927"
+    },
+    {
+      "bytes": 904359,
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-capture-off-parity-386/diagnostic-state/dense/transaction-000001-before.bin",
+      "sha256": "3334cb278d3a73ef482a3cc1fc7e00a07c5f32e8d62f4a76c7862669338d222e"
+    },
+    {
+      "bytes": 6676,
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-capture-off-parity-386/diagnostic-state/dense/transaction-000001.json",
+      "sha256": "1920dcf0873634e798740a00313ae9a12fb95fa3fb760eb2a2653cdf40d28e81"
+    },
+    {
+      "bytes": 904359,
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-capture-off-parity-386/diagnostic-state/dense/transaction-000002-after.bin",
+      "sha256": "b90c699602b7ad5e0ca9427a85d5a840fbaffdcec9cfbcaa079701ca2fda0861"
+    },
+    {
+      "bytes": 904359,
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-capture-off-parity-386/diagnostic-state/dense/transaction-000002-before.bin",
+      "sha256": "e9052c2c7c1b755a02f11de54524f4c27c5d26203961e7cbfff060a6a539b927"
+    },
+    {
+      "bytes": 6685,
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-capture-off-parity-386/diagnostic-state/dense/transaction-000002.json",
+      "sha256": "f42419d4eeae77119f4f1434fa96a732cd56664d7fa88af41b9c61d2881f426d"
+    }
+  ],
+  "limits": [
+    "The linear residual is recomputed in FP64 from exact captured FP32 RHS and same-generation production J*delta operands; it is not an independent reassembly or nonlinear certificate.",
+    "Capture is before the N9 Armijo trials. The final N9 trial alpha comes from the Armijo log; trial geometry is not captured, so displacement representability is an estimate only.",
+    "All three complete native runs exit with expected fixture failure (exit 1). The repeated history does not qualify a completed or converged full-contact step.",
+    "N10+ raw base_l2 is explicitly marked invalid after fatal solver status and is not interpreted as a residual."
+  ],
+  "package_files": {
+    "README.md": {
+      "bytes": 2686,
+      "sha256": "c605f457243aeaf98e09ca1ea57938bbb5d16af404e6ef5a9aaf89bc7defdb80"
+    },
+    "audit.py": {
+      "bytes": 28542,
+      "sha256": "a90ad9dfbebd4e9451e07a0233fe5bb83a64b03ca34e3ceb0eeb59496f787fcd"
+    },
+    "report.json": {
+      "bytes": 17575,
+      "sha256": "ab111b65c50d872a1bf83c86f81d02da6f49ea50fda663e8bbc3b1cd1465f3e6"
+    }
+  },
+  "runs": {
+    "383": {
+      "armijo_records": 32,
+      "canonical_input_map_sha256": "4cf9d588ad91b41f4e17b86309d2104d9e52cfdb1cd4fc6e4829f9d1e9775b5c",
+      "executable_sha256": "82a4f52848b60bad228f8c348dc5c165c65afd168b2062a447c7912374e80f67",
+      "exit_code": 1,
+      "input_file_count": 792,
+      "prediction_sha256": "196bccfa25b2df3ee132aa0779358c0904cbf2ed548830b997bb36d30b0d6f5b",
+      "receipt_sha256": "3ca260dab88a166f5bee126afb6c94df7c1434bbdad022ad2df3c5454558c5b6",
+      "source_build_sha256": "a8aebb8893481fddac6f6bd972f9931733a24f9ce642ecccc59eb96ee89f0c04",
+      "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-private-ccd-fracture-115",
+      "timed_out": false,
+      "wall_seconds": 9.321690958051477
+    },
+    "385": {
+      "armijo_records": 32,
+      "canonical_input_map_sha256": "4cf9d588ad91b41f4e17b86309d2104d9e52cfdb1cd4fc6e4829f9d1e9775b5c",
+      "executable_sha256": "82a4f52848b60bad228f8c348dc5c165c65afd168b2062a447c7912374e80f67",
+      "exit_code": 1,
+      "input_file_count": 792,
+      "prediction_sha256": "687e2a7e9aec6def3be16f599fbfdf27fdc282e549a7c0443c4acbca12b50fa1",
+      "receipt_sha256": "41a1ec05d3b59f1fd0108c45eec50a729af6b41f8bb3fe1632af38f238615f64",
+      "source_build_sha256": "a8aebb8893481fddac6f6bd972f9931733a24f9ce642ecccc59eb96ee89f0c04",
+      "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-private-ccd-fracture-115",
+      "timed_out": false,
+      "wall_seconds": 9.219994958024472
+    },
+    "386": {
+      "armijo_records": 32,
+      "canonical_input_map_sha256": "4cf9d588ad91b41f4e17b86309d2104d9e52cfdb1cd4fc6e4829f9d1e9775b5c",
+      "executable_sha256": "82a4f52848b60bad228f8c348dc5c165c65afd168b2062a447c7912374e80f67",
+      "exit_code": 1,
+      "input_file_count": 792,
+      "prediction_sha256": "94b01e7535fdc86d1f10fd8bc79566e4fd5ddfbe7530ab1d8e2e18f84559a3f7",
+      "receipt_sha256": "20aee604b9aa57cf8c86e4e1977fc119524f23a79555a11999de4d6df5f5753a",
+      "source_build_sha256": "a8aebb8893481fddac6f6bd972f9931733a24f9ce642ecccc59eb96ee89f0c04",
+      "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-private-ccd-fracture-115",
+      "timed_out": false,
+      "wall_seconds": 9.28645937499823
+    }
+  },
+  "schema": "numi.cardboard.full_contact_newton9_residual_audit_manifest.v1",
+  "source_files": {
+    "matter/include/numi/matter/matter.hpp": "798e124cdf0b97370a7e1412526693b0f2469985df2b5e985ad3a8acbe00808a",
+    "matter/include/numi/matter/shared.h": "ae84a7fb79e5b79ad813b249c720b9ace6105fde81f555cbd784afafa721e691",
+    "matter/src/metal/fem.metalinc": "742cf561ee1ed91e20ed797e664595f675302437a3d583f8c5768da6cb3d008e",
+    "matter/src/metal/fgmres.metalinc": "1c423e02e189df17c925e0b77ded87465098278f836011c16aad1bb8f92bcec0",
+    "matter/src/runtime.mm": "3c467b04e72512b53a5ba9e1f3ee4132f293b0d2e6ac22acc0c3936512319e74",
+    "matter/tools/cardboard_full_contact_armijo_check.mm": "95e52efd34aeffab1d220b4fa8840b885001dbc156d4a1d8f793210e3c40d0f3"
+  },
+  "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-private-ccd-fracture-115",
+  "verdict": "OFF_ON_PHYSICAL_HISTORY_PARITY_PASS; SAME_GENERATION_LINEAR_RESIDUAL_MEASURED; FGMRES_ACCEPTED_BY_OUTER_ABSOLUTE_TARGET; FULL_CONTACT_N9_ARMIJO_FAILURE_RETAINED"
+}

@@ -1,0 +1,2313 @@
+#include <metal_stdlib>
+
+#include "numi/matter/shared.h"
+#include "numi/matter/fiber_exp_linear.h"
+#include "numi/matter/hill_scalar_initializer.h"
+#include "numi/matter/paper_compensated_bytecode.h"
+#include "numi/matter/fem_compensated_deformation.h"
+#include "metalrobo/engine_types.h"
+#include "metalrobo/rod_gpu_shared.h"
+
+using namespace metal;
+
+namespace numi_matter_metal {
+
+constant float kEpsilon = 1.1920928955078125e-7f;
+constant float kGeometryFloor = 1.0e-12f;
+// Rest-volume predicates must carry cubic units. This matches the host cooker
+// and keeps sub-millimetre, nondegenerate FEM elements distinct from the
+// length-squared floor used by geometric normalization.
+constant float kTetrahedronVolumeFloor = 1.0e-18f;
+constant float kPi = 3.14159265358979323846f;
+
+// Optional constitutive diagnostics used by bounded material instruments.
+// These bits report progress through the same production projection/tangent
+// path; they do not alter its equations, tolerances, or accepted state.
+constant uint kMaterialDiagProjectionEntered = 1u << 0u;
+constant uint kMaterialDiagStateUpdatesComplete = 1u << 1u;
+constant uint kMaterialDiagImplicitSystemEvaluated = 1u << 2u;
+constant uint kMaterialDiagLocalSolveAttempted = 1u << 3u;
+constant uint kMaterialDiagLocalSolveSucceeded = 1u << 4u;
+constant uint kMaterialDiagNewtonUpdateAccepted = 1u << 5u;
+constant uint kMaterialDiagProjectionConverged = 1u << 6u;
+constant uint kMaterialDiagStressEvaluated = 1u << 7u;
+constant uint kMaterialDiagTangentEvaluated = 1u << 8u;
+constant uint kMaterialDiagImplicitTangentEntered = 1u << 9u;
+constant uint kMaterialDiagImplicitTangentSolved = 1u << 10u;
+
+// Terminal constitutive failure subtype. These are separate from the
+// long-standing progress/stage flags above; appending them to optional
+// diagnostic outputs does not consume material state slots or alter ABI.
+constant uint kMaterialFailureNone = 0u;
+constant uint kMaterialFailureProjectionInputInvalid = 1u;
+constant uint kMaterialFailureStateUpdateInvalid = 2u;
+constant uint kMaterialFailureImplicitEvaluationInvalid = 3u;
+constant uint kMaterialFailureImplicitEvaluationNonfinite = 4u;
+constant uint kMaterialFailureLocalSolveFailed = 5u;
+constant uint kMaterialFailureArmijoNoAcceptedTrial = 6u;
+constant uint kMaterialFailureProjectionIterationExhausted = 7u;
+constant uint kMaterialFailureSpecializedProjectionInvalid = 8u;
+constant uint kMaterialFailureStressEvaluationInvalid = 9u;
+constant uint kMaterialFailureStressNonfinite = 10u;
+constant uint kMaterialFailureTangentEvaluationInvalid = 11u;
+constant uint kMaterialFailureTangentNonfinite = 12u;
+constant uint kMaterialFailureImplicitTangentEvaluationInvalid = 13u;
+constant uint kMaterialFailureImplicitTangentEvaluationNonfinite = 14u;
+constant uint kMaterialFailureImplicitTangentSolveFailed = 15u;
+constant uint kMaterialFailureImplicitTangentDerivativeInvalid = 16u;
+constant uint kMaterialFailureValidityRejected = 17u;
+
+// Optional single-point material projection trace. Production callers pass
+// nullptr and retain the existing equations, tolerances, and iteration path.
+constant uint kMaterialProjectionTraceStateCapacity = 16u;
+constant uint kMaterialProjectionTraceIterationCapacity = 32u;
+constant uint kMaterialProjectionTraceHeaderSlots = 8u;
+constant uint kMaterialProjectionTraceRecordSlots = 6u +
+    7u * kMaterialProjectionTraceStateCapacity +
+    kMaterialProjectionTraceStateCapacity *
+        kMaterialProjectionTraceStateCapacity;
+constant uint kMaterialProjectionTraceSlots =
+    kMaterialProjectionTraceHeaderSlots +
+    kMaterialProjectionTraceIterationCapacity *
+        kMaterialProjectionTraceRecordSlots;
+
+inline float maximumAbsoluteCoordinate(const float3 value) {
+    const float3 magnitude = abs(value);
+    return max(max(magnitude.x, magnitude.y), magnitude.z);
+}
+
+inline float ccdDistanceRoundoff(
+    const float thickness,
+    const float coordinateScale
+) {
+    return 8.0f * kEpsilon *
+        max(max(thickness, coordinateScale), 1.0e-12f);
+}
+
+inline float ipcBarrierEnergy(
+    const float separation,
+    const float thickness,
+    const float stiffness
+) {
+    if (!(thickness > 0.0f) || !(stiffness > 0.0f) ||
+        separation >= thickness) return 0.0f;
+    const float regularizationFloor = 1.0e-4f * thickness;
+    const float distance = max(separation, regularizationFloor);
+    const float squaredDistance = distance * distance;
+    const float squaredThickness = thickness * thickness;
+    const float offset = squaredDistance - squaredThickness;
+    const float logarithm = log(squaredDistance / squaredThickness);
+    const float energyAtDistance = max(-stiffness * offset * offset *
+        logarithm, 0.0f);
+    if (separation >= regularizationFloor) return energyAtDistance;
+
+    // Continue the potential linearly below the evaluation floor. The force
+    // kernel evaluates the radial derivative at this same floor, so a flat
+    // clamp here would report a nonzero force with zero energy derivative.
+    // This C1 continuation keeps the overlap force finite and consistent.
+    const float firstSquared = -stiffness *
+        (2.0f * offset * logarithm +
+         offset * offset / squaredDistance);
+    const float energyDerivativeAtFloor = 2.0f * distance * firstSquared;
+    return max(energyAtDistance + energyDerivativeAtFloor *
+        (separation - regularizationFloor), 0.0f);
+}
+
+inline bool finite3(const float3 value) {
+    return all(isfinite(value));
+}
+
+// Raw-bit classification is required at host-to-Metal boundaries: Apple GPUs
+// may flush FP32 denormals before an arithmetic comparison observes them.
+// Preserve either signed zero, but reject every nonzero subnormal, negative,
+// infinity and NaN value.
+inline bool finiteNonnegativeNormalOrZero(const float value) {
+    const uint bits = as_type<uint>(value);
+    const uint magnitude = bits & 0x7fffffffu;
+    if (magnitude == 0u) return true;
+    return (bits & 0x80000000u) == 0u &&
+        magnitude >= 0x00800000u && magnitude < 0x7f800000u;
+}
+
+inline float3x3 matrixFromRows(
+    const float4 row0,
+    const float4 row1,
+    const float4 row2
+) {
+    return transpose(float3x3(row0.xyz, row1.xyz, row2.xyz));
+}
+
+inline void matrixToRows(
+    const float3x3 value,
+    thread float4& row0,
+    thread float4& row1,
+    thread float4& row2
+) {
+    const float3x3 transposed = transpose(value);
+    row0 = float4(transposed[0], 0.0f);
+    row1 = float4(transposed[1], 0.0f);
+    row2 = float4(transposed[2], 0.0f);
+}
+
+inline void matrixToRows(
+    const float3x3 value,
+    device float4& row0,
+    device float4& row1,
+    device float4& row2
+) {
+    const float3x3 transposed = transpose(value);
+    row0 = float4(transposed[0], 0.0f);
+    row1 = float4(transposed[1], 0.0f);
+    row2 = float4(transposed[2], 0.0f);
+}
+
+inline float3 multiplyRows(
+    const float4 row0,
+    const float4 row1,
+    const float4 row2,
+    const float3 value
+) {
+    return float3(
+        dot(row0.xyz, value),
+        dot(row1.xyz, value),
+        dot(row2.xyz, value)
+    );
+}
+
+inline float determinantSafe(const float3x3 value) {
+    return determinant(value);
+}
+
+inline bool invert3x3(
+    const float3x3 value,
+    thread float3x3& inverseValue
+) {
+    const float determinantValue = determinant(value);
+    float scale = 0.0f;
+    for (uint column = 0u; column < 3u; ++column) {
+        scale = max(scale, max(max(abs(value[column].x), abs(value[column].y)),
+            abs(value[column].z)));
+    }
+    // Inertia is proportional to mass times length squared.  Adaptive
+    // objects may legitimately be millimetre-scale, so a unit absolute
+    // floor rejects their well-conditioned tensors and leaves an invalid
+    // zero inverse inertia for MetalWorld.  Use a purely relative test.
+    if (!(scale > 0.0f) ||
+        !(abs(determinantValue) > 128.0f * kEpsilon * scale * scale * scale) ||
+        !isfinite(determinantValue)) {
+        return false;
+    }
+    const float3 row0 = float3(value[0].x, value[1].x, value[2].x);
+    const float3 row1 = float3(value[0].y, value[1].y, value[2].y);
+    const float3 row2 = float3(value[0].z, value[1].z, value[2].z);
+    inverseValue = transpose(float3x3(
+        cross(row1, row2),
+        cross(row2, row0),
+        cross(row0, row1)
+    )) / determinantValue;
+    return all(isfinite(inverseValue[0])) &&
+        all(isfinite(inverseValue[1])) &&
+        all(isfinite(inverseValue[2]));
+}
+
+inline float3 quaternionRotate(const float4 quaternion, const float3 value) {
+    const float3 imaginary = quaternion.xyz;
+    return value + 2.0f * cross(
+        imaginary,
+        cross(imaginary, value) + quaternion.w * value
+    );
+}
+
+inline float4 quaternionMultiply(const float4 left, const float4 right) {
+    return float4(
+        left.w * right.xyz + right.w * left.xyz + cross(left.xyz, right.xyz),
+        left.w * right.w - dot(left.xyz, right.xyz)
+    );
+}
+
+inline float4 quaternionNormalize(const float4 value) {
+    const float normSquared = dot(value, value);
+    if (!(normSquared > kGeometryFloor) || !isfinite(normSquared)) {
+        return float4(0.0f, 0.0f, 0.0f, 1.0f);
+    }
+    float4 output = value * rsqrt(normSquared);
+    if (output.w < 0.0f) {
+        output = -output;
+    }
+    return output;
+}
+
+inline float4 quaternionFromMatrix(const float3x3 matrix) {
+    const float trace = matrix[0][0] + matrix[1][1] + matrix[2][2];
+    float4 result;
+    if (trace > 0.0f) {
+        const float s = sqrt(max(trace + 1.0f, 0.0f)) * 2.0f;
+        result = float4(
+            (matrix[1][2] - matrix[2][1]) / s,
+            (matrix[2][0] - matrix[0][2]) / s,
+            (matrix[0][1] - matrix[1][0]) / s,
+            0.25f * s
+        );
+    } else if (matrix[0][0] > matrix[1][1] && matrix[0][0] > matrix[2][2]) {
+        const float s = sqrt(max(1.0f + matrix[0][0] - matrix[1][1] - matrix[2][2], 0.0f)) * 2.0f;
+        result = float4(
+            0.25f * s,
+            (matrix[1][0] + matrix[0][1]) / s,
+            (matrix[2][0] + matrix[0][2]) / s,
+            (matrix[1][2] - matrix[2][1]) / s
+        );
+    } else if (matrix[1][1] > matrix[2][2]) {
+        const float s = sqrt(max(1.0f + matrix[1][1] - matrix[0][0] - matrix[2][2], 0.0f)) * 2.0f;
+        result = float4(
+            (matrix[1][0] + matrix[0][1]) / s,
+            0.25f * s,
+            (matrix[2][1] + matrix[1][2]) / s,
+            (matrix[2][0] - matrix[0][2]) / s
+        );
+    } else {
+        const float s = sqrt(max(1.0f + matrix[2][2] - matrix[0][0] - matrix[1][1], 0.0f)) * 2.0f;
+        result = float4(
+            (matrix[2][0] + matrix[0][2]) / s,
+            (matrix[2][1] + matrix[1][2]) / s,
+            0.25f * s,
+            (matrix[0][1] - matrix[1][0]) / s
+        );
+    }
+    return quaternionNormalize(result);
+}
+
+inline float3x3 polarRotation(const float3x3 deformation) {
+    float3x3 rotation = deformation;
+    for (uint iteration = 0u; iteration < 5u; ++iteration) {
+        float3x3 inverseRotation;
+        if (!invert3x3(rotation, inverseRotation)) {
+            return float3x3(1.0f);
+        }
+        rotation = 0.5f * (rotation + transpose(inverseRotation));
+    }
+    if (determinant(rotation) < 0.0f) {
+        rotation[2] = -rotation[2];
+    }
+    return rotation;
+}
+
+inline void recordFailure(
+    device NMMatterStatusGPU& status,
+    const uint code,
+    const uint objectIndex,
+    const uint failingIndex,
+    const float4 diagnostics
+) {
+    device atomic_uint* atomicCode =
+        reinterpret_cast<device atomic_uint*>(&status.code);
+    uint expected = NM_STATUS_SUCCESS;
+    while (!atomic_compare_exchange_weak_explicit(
+        atomicCode,
+        &expected,
+        code,
+        memory_order_relaxed,
+        memory_order_relaxed
+    )) {
+        if (expected != NM_STATUS_SUCCESS) {
+            return;
+        }
+    }
+    status.objectIndex = objectIndex;
+    status.failingIndex = failingIndex;
+    status.diagnostics = diagnostics;
+}
+
+inline bool environmentHealthy(
+    device const NMMatterStatusGPU* statuses,
+    const uint environment
+) {
+    return statuses[environment].code == NM_STATUS_SUCCESS;
+}
+
+inline bool objectDue(
+    const NMContinuumObjectGPU object,
+    const NMSchedulerStateGPU scheduler,
+    const NMAdaptiveStateGPU adaptive,
+    const NMMicrostepGPU microstep
+) {
+    if ((object.flags & NM_OBJECT_ACTIVE) == 0u ||
+        adaptive.activeRepresentation != object.representation ||
+        scheduler.numerical.w <= 0.0f) {
+        return false;
+    }
+    const uint maximumExponent = min(object.solver.y, NM_MAX_RATE_EXPONENT);
+    const uint activeExponent = min(scheduler.activeExponent, maximumExponent);
+    const uint period = 1u << (maximumExponent - activeExponent);
+    return (microstep.microtick % period) == 0u;
+}
+
+inline float objectTimestep(
+    const NMMatterDispatchGPU dispatch,
+    const NMSchedulerStateGPU scheduler
+) {
+    const uint exponent = min(scheduler.activeExponent, dispatch.maximumRateExponent);
+    return dispatch.gravityAndTimestep.w / float(1u << exponent);
+}
+
+template <uint CacheCapacity, typename StatePointer, typename CandidatePointer>
+inline float evaluateScalarProgramWithCandidateCached(
+    const uint programIndex,
+    device const NMScalarProgramGPU* programs,
+    device const NMExpressionInstructionGPU* instructions,
+    device const float* parameters,
+    StatePointer internalState,
+    CandidatePointer candidateState,
+    thread const float* deformation,
+    thread const float* deformationDirection,
+    thread const float* deformationRate,
+    const float timestep,
+    const float temperature,
+    thread bool& valid,
+    thread bool* nonfiniteOutput = nullptr
+) {
+    if (programIndex == NM_INVALID_INDEX) {
+        return 0.0f;
+    }
+    const NMScalarProgramGPU program = programs[programIndex];
+    if (program.maximumStack > NM_EXPRESSION_STACK_CAPACITY ||
+        !(timestep >= 0.0f) || !isfinite(timestep) ||
+        !isfinite(temperature)) {
+        valid = false;
+        return 0.0f;
+    }
+    float stack[NM_EXPRESSION_STACK_CAPACITY];
+    float expressionCache[CacheCapacity > 0u ? CacheCapacity : 1u];
+    uint stackSize = 0u;
+    for (uint local = 0u; local < program.instructionCount; ++local) {
+        const NMExpressionInstructionGPU instruction =
+            instructions[program.firstInstruction + local];
+        const auto push = [&](const float value) {
+            if (stackSize >= NM_EXPRESSION_STACK_CAPACITY || !isfinite(value)) {
+                if (!isfinite(value) && nonfiniteOutput != nullptr)
+                    *nonfiniteOutput = true;
+                valid = false;
+                return;
+            }
+            stack[stackSize++] = value;
+        };
+        const auto pop = [&]() -> float {
+            if (stackSize == 0u) {
+                valid = false;
+                return 0.0f;
+            }
+            return stack[--stackSize];
+        };
+        switch (instruction.opcode) {
+        case NM_EXPR_CONSTANT:
+            push(instruction.immediate.x);
+            break;
+        case NM_EXPR_PARAMETER:
+            push(parameters[instruction.index]);
+            break;
+        case NM_EXPR_F:
+            push(deformation[instruction.index]);
+            break;
+        case NM_EXPR_DF:
+            push(deformationDirection[instruction.index]);
+            break;
+        case NM_EXPR_RATE:
+            push(deformationRate[instruction.index]);
+            break;
+        case NM_EXPR_STATE:
+            if (internalState == nullptr ||
+                instruction.index >= NM_MAX_MATERIAL_STATE) {
+                valid = false;
+                break;
+            }
+            push(internalState[instruction.index]);
+            break;
+        case NM_EXPR_NEXT_STATE:
+            if (candidateState == nullptr ||
+                instruction.index >= NM_MAX_MATERIAL_STATE) {
+                valid = false;
+                break;
+            }
+            push(candidateState[instruction.index]);
+            break;
+        case NM_EXPR_DT:
+            push(timestep);
+            break;
+        case NM_EXPR_TEMPERATURE:
+            push(temperature);
+            break;
+        case NM_EXPR_ADD: {
+            const float right = pop();
+            const float left = pop();
+            push(left + right);
+            break;
+        }
+        case NM_EXPR_SUBTRACT: {
+            const float right = pop();
+            const float left = pop();
+            push(left - right);
+            break;
+        }
+        case NM_EXPR_MULTIPLY: {
+            const float right = pop();
+            const float left = pop();
+            push(left * right);
+            break;
+        }
+        case NM_EXPR_DIVIDE: {
+            const float right = pop();
+            const float left = pop();
+            if (!(abs(right) > kGeometryFloor)) {
+                valid = false;
+                break;
+            }
+            push(left / right);
+            break;
+        }
+        case NM_EXPR_NEGATE:
+            push(-pop());
+            break;
+        case NM_EXPR_LOG: {
+            const float value = pop();
+            if (!(value > 0.0f)) {
+                valid = false;
+                break;
+            }
+            push(log(value));
+            break;
+        }
+        case NM_EXPR_EXP:
+            push(exp(pop()));
+            break;
+        case NM_EXPR_EXPM1_MINUS_X: {
+            const float value = pop();
+            push(exp(value) - 1.0f - value);
+            break;
+        }
+        case NM_EXPR_FIBER_EXP_LINEAR: {
+            const float limit=pop(), c5=pop(), c4=pop(), c3=pop(), stretch=pop();
+            push(numi_matter_fiber::evaluate<float>(stretch,c3,c4,c5,limit,
+                uint(instruction.integer),valid));
+            break;
+        }
+        case NM_EXPR_SQRT: {
+            const float value = pop();
+            if (value < 0.0f) {
+                valid = false;
+                break;
+            }
+            push(sqrt(value));
+            break;
+        }
+        case NM_EXPR_CACHE_STORE:
+            if (instruction.index >= CacheCapacity || stackSize == 0u) {
+                valid = false;
+                break;
+            }
+            expressionCache[instruction.index] = stack[stackSize - 1u];
+            break;
+        case NM_EXPR_CACHE_LOAD:
+            if (instruction.index >= CacheCapacity) {
+                valid = false;
+                break;
+            }
+            push(expressionCache[instruction.index]);
+            break;
+        case NM_EXPR_SELECT_NONNEGATIVE: {
+            const float negative = pop();
+            const float nonnegative = pop();
+            const float condition = pop();
+            push(condition >= 0.0f ? nonnegative : negative);
+            break;
+        }
+        case NM_EXPR_ABS:
+            push(abs(pop()));
+            break;
+        case NM_EXPR_MIN: {
+            const float right = pop();
+            const float left = pop();
+            push(min(left, right));
+            break;
+        }
+        case NM_EXPR_MAX: {
+            const float right = pop();
+            const float left = pop();
+            push(max(left, right));
+            break;
+        }
+        case NM_EXPR_POW_INTEGER: {
+            const float value = pop();
+            const int exponent = instruction.integer;
+            if (exponent < 0 && !(abs(value) > kGeometryFloor)) {
+                valid = false;
+                break;
+            }
+            float result = 1.0f;
+            float factor = value;
+            uint power = uint(exponent < 0 ? -exponent : exponent);
+            while (power != 0u) {
+                if ((power & 1u) != 0u) {
+                    result *= factor;
+                }
+                factor *= factor;
+                power >>= 1u;
+            }
+            push(exponent < 0 ? 1.0f / result : result);
+            break;
+        }
+        case NM_EXPR_CLAMP: {
+            const float upper = pop();
+            const float lower = pop();
+            const float value = pop();
+            if (upper < lower) {
+                valid = false;
+                break;
+            }
+            push(clamp(value, lower, upper));
+            break;
+        }
+        default:
+            valid = false;
+            break;
+        }
+        if (!valid) {
+            return 0.0f;
+        }
+    }
+    if (stackSize != 1u || !isfinite(stack[0])) {
+        if (stackSize == 1u && !isfinite(stack[0]) &&
+            nonfiniteOutput != nullptr)
+            *nonfiniteOutput = true;
+        valid = false;
+        return 0.0f;
+    }
+    return stack[0];
+}
+
+template <typename StatePointer, typename CandidatePointer>
+inline float evaluateScalarProgramWithCandidate(
+    const uint programIndex,
+    device const NMScalarProgramGPU* programs,
+    device const NMExpressionInstructionGPU* instructions,
+    device const float* parameters,
+    StatePointer internalState,
+    CandidatePointer candidateState,
+    thread const float* deformation,
+    thread const float* deformationDirection,
+    thread const float* deformationRate,
+    const float timestep,
+    const float temperature,
+    thread bool& valid,
+    thread bool* nonfiniteOutput = nullptr
+,
+    thread const float* deformationLow = nullptr
+) {
+    if(programIndex!=NM_INVALID_INDEX&&(programs[programIndex].flags&2u)!=0u) {
+        if((programs[programIndex].flags&1u)!=0u)
+            return nmPaperCompensatedBytecode<NM_EXPRESSION_CACHE_CAPACITY>(
+                programs[programIndex],instructions,parameters,internalState,candidateState,
+                deformation,deformationDirection,deformationRate,timestep,temperature,valid,nonfiniteOutput,deformationLow);
+        return nmPaperCompensatedBytecode<0u>(programs[programIndex],instructions,parameters,
+            internalState,candidateState,deformation,deformationDirection,deformationRate,
+            timestep,temperature,valid,nonfiniteOutput,deformationLow);
+    }
+    if (programIndex != NM_INVALID_INDEX && (programs[programIndex].flags&1u)!=0u)
+        return evaluateScalarProgramWithCandidateCached<NM_EXPRESSION_CACHE_CAPACITY>(
+            programIndex, programs, instructions, parameters, internalState,
+            candidateState, deformation, deformationDirection, deformationRate,
+            timestep, temperature, valid, nonfiniteOutput);
+    return evaluateScalarProgramWithCandidateCached<0u>(
+        programIndex, programs, instructions, parameters, internalState,
+        candidateState, deformation, deformationDirection, deformationRate,
+        timestep, temperature, valid, nonfiniteOutput);
+}
+
+// Return the compensated bytecode result without rounding away its low word.
+// The existing float API above remains unchanged for every legacy caller.
+template <typename StatePointer, typename CandidatePointer>
+inline MRCompensatedScalar evaluateScalarProgramWordsWithCandidate(
+    const uint programIndex,
+    device const NMScalarProgramGPU* programs,
+    device const NMExpressionInstructionGPU* instructions,
+    device const float* parameters,
+    StatePointer internalState,
+    CandidatePointer candidateState,
+    thread const float* deformation,
+    thread const float* deformationDirection,
+    thread const float* deformationRate,
+    const float timestep,
+    const float temperature,
+    thread bool& valid,
+    thread bool* nonfiniteOutput=nullptr,
+    thread const float* deformationLow=nullptr) {
+    if (programIndex!=NM_INVALID_INDEX &&
+        (programs[programIndex].flags&2u)!=0u) {
+        MRCompensatedScalar result{0.0f,0.0f};
+        if ((programs[programIndex].flags&1u)!=0u) {
+            (void)nmPaperCompensatedBytecode<NM_EXPRESSION_CACHE_CAPACITY>(
+                programs[programIndex],instructions,parameters,internalState,
+                candidateState,deformation,deformationDirection,deformationRate,
+                timestep,temperature,valid,nonfiniteOutput,deformationLow,&result);
+        } else {
+            (void)nmPaperCompensatedBytecode<0u>(
+                programs[programIndex],instructions,parameters,internalState,
+                candidateState,deformation,deformationDirection,deformationRate,
+                timestep,temperature,valid,nonfiniteOutput,deformationLow,&result);
+        }
+        return result;
+    }
+    const float value=evaluateScalarProgramWithCandidate(
+        programIndex,programs,instructions,parameters,internalState,
+        candidateState,deformation,deformationDirection,deformationRate,
+        timestep,temperature,valid,nonfiniteOutput,deformationLow);
+    return {value,0.0f};
+}
+
+template <typename StatePointer>
+inline float evaluateScalarProgram(
+    const uint programIndex,
+    device const NMScalarProgramGPU* programs,
+    device const NMExpressionInstructionGPU* instructions,
+    device const float* parameters,
+    StatePointer internalState,
+    thread const float* deformation,
+    thread const float* deformationDirection,
+    thread const float* deformationRate,
+    const float timestep,
+    const float temperature,
+    thread bool& valid
+,
+    thread const float* deformationLow = nullptr
+) {
+    return evaluateScalarProgramWithCandidate(
+        programIndex, programs, instructions, parameters,
+        internalState, internalState, deformation, deformationDirection,
+        deformationRate, timestep, temperature, valid
+    , nullptr, deformationLow);
+}
+
+inline void matrixComponents(
+    const float3x3 matrix,
+    thread float* output
+) {
+    for (uint row = 0u; row < 3u; ++row) {
+        for (uint column = 0u; column < 3u; ++column) {
+            output[3u * row + column] = matrix[column][row];
+        }
+    }
+}
+
+inline float3x3 componentsMatrix(thread const float* values) {
+    return transpose(float3x3(
+        float3(values[0], values[1], values[2]),
+        float3(values[3], values[4], values[5]),
+        float3(values[6], values[7], values[8])
+    ));
+}
+
+template <typename StatePointer, typename CandidatePointer>
+inline float3x3 evaluateStressWithCandidate(
+    const NMMaterialGPU material,
+    device const NMScalarProgramGPU* programs,
+    device const NMExpressionInstructionGPU* instructions,
+    device const float* parameters,
+    StatePointer internalState,
+    CandidatePointer candidateState,
+    const float3x3 deformation,
+    const float3x3 deformationRate,
+    const float timestep,
+    const float temperature,
+    thread bool& valid,
+    thread bool* nonfiniteOutput = nullptr
+,
+    thread const float* deformationLow = nullptr
+) {
+    float f[9];
+    float direction[9] = {
+        0.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 0.0f,
+    };
+    float rate[9];
+    matrixComponents(deformation, f);
+    matrixComponents(deformationRate, rate);
+    float values[9];
+    for (uint component = 0u; component < 9u; ++component) {
+        values[component] = evaluateScalarProgramWithCandidate(
+            material.stressProgramOffset + component,
+            programs,
+            instructions,
+            parameters + material.parameterOffset,
+            internalState,
+            candidateState,
+            f,
+            direction,
+            rate,
+            timestep,
+            temperature,
+            valid, nonfiniteOutput
+        , deformationLow);
+        if (!valid) {
+            return float3x3(0.0f);
+        }
+    }
+    float3x3 stress = componentsMatrix(values);
+    if (material.viscousStressProgramOffset != NM_INVALID_INDEX) {
+        for (uint component = 0u; component < 9u; ++component) {
+            values[component] = evaluateScalarProgramWithCandidate(
+                material.viscousStressProgramOffset + component,
+                programs,
+                instructions,
+                parameters + material.parameterOffset,
+                internalState,
+                candidateState,
+                f,
+                direction,
+                rate,
+                timestep,
+                temperature,
+                valid, nonfiniteOutput
+            , deformationLow);
+            if (!valid) {
+                return float3x3(0.0f);
+            }
+        }
+        stress += componentsMatrix(values);
+    }
+    if (!all(isfinite(stress[0])) || !all(isfinite(stress[1])) ||
+        !all(isfinite(stress[2]))) {
+        if (nonfiniteOutput != nullptr) *nonfiniteOutput = true;
+        valid = false;
+        return float3x3(0.0f);
+    }
+    return stress;
+}
+
+template <typename StatePointer>
+inline float3x3 evaluateStress(
+    const NMMaterialGPU material,
+    device const NMScalarProgramGPU* programs,
+    device const NMExpressionInstructionGPU* instructions,
+    device const float* parameters,
+    StatePointer internalState,
+    const float3x3 deformation,
+    const float3x3 deformationRate,
+    const float timestep,
+    const float temperature,
+    thread bool& valid
+,
+    thread const float* deformationLow = nullptr
+) {
+    return evaluateStressWithCandidate(
+        material, programs, instructions, parameters,
+        internalState, internalState, deformation, deformationRate,
+        timestep, temperature, valid
+    , nullptr, deformationLow);
+}
+
+template <typename StatePointer, typename CandidatePointer>
+inline float3x3 evaluateTangentVectorWithCandidate(
+    const NMMaterialGPU material,
+    device const NMScalarProgramGPU* programs,
+    device const NMExpressionInstructionGPU* instructions,
+    device const float* parameters,
+    StatePointer internalState,
+    CandidatePointer candidateState,
+    const float3x3 deformation,
+    const float3x3 deformationDirection,
+    const float3x3 deformationRate,
+    const float3x3 rateDirection,
+    const float timestep,
+    const float temperature,
+    thread bool& valid,
+    thread bool* nonfiniteOutput = nullptr
+,
+    thread const float* deformationLow = nullptr,
+    thread MRCompensatedScalar* tangentWordsOutput = nullptr
+) {
+    float f[9];
+    float direction[9];
+    float rate[9];
+    matrixComponents(deformation, f);
+    matrixComponents(deformationDirection, direction);
+    matrixComponents(deformationRate, rate);
+    float values[9];
+    for (uint component = 0u; component < 9u; ++component) {
+        if (tangentWordsOutput != nullptr) {
+            tangentWordsOutput[component]=evaluateScalarProgramWordsWithCandidate(
+                material.tangentProgramOffset+component,programs,instructions,
+                parameters+material.parameterOffset,internalState,candidateState,
+                f,direction,rate,timestep,temperature,valid,nonfiniteOutput,
+                deformationLow);
+            values[component]=tangentWordsOutput[component].high+
+                tangentWordsOutput[component].low;
+        } else {
+            values[component] = evaluateScalarProgramWithCandidate(
+                material.tangentProgramOffset + component,
+                programs,
+                instructions,
+                parameters + material.parameterOffset,
+                internalState,
+                candidateState,
+                f,
+                direction,
+                rate,
+                timestep,
+                temperature,
+                valid, nonfiniteOutput
+            , deformationLow);
+        }
+        if (!valid) {
+            return float3x3(0.0f);
+        }
+    }
+    float3x3 tangent = componentsMatrix(values);
+    if (material.viscousTangentProgramOffset != NM_INVALID_INDEX) {
+        matrixComponents(rateDirection, direction);
+        for (uint component = 0u; component < 9u; ++component) {
+            if (tangentWordsOutput != nullptr) {
+                const auto viscous=evaluateScalarProgramWordsWithCandidate(
+                    material.viscousTangentProgramOffset+component,programs,
+                    instructions,parameters+material.parameterOffset,
+                    internalState,candidateState,f,direction,rate,timestep,
+                    temperature,valid,nonfiniteOutput,deformationLow);
+                tangentWordsOutput[component]=mrCompensatedAdd(
+                    tangentWordsOutput[component],viscous);
+                values[component]=tangentWordsOutput[component].high+
+                    tangentWordsOutput[component].low;
+            } else {
+                values[component] = evaluateScalarProgramWithCandidate(
+                    material.viscousTangentProgramOffset + component,
+                    programs,
+                    instructions,
+                    parameters + material.parameterOffset,
+                    internalState,
+                    candidateState,
+                    f,
+                    direction,
+                    rate,
+                    timestep,
+                    temperature,
+                    valid, nonfiniteOutput
+                , deformationLow);
+            }
+            if (!valid) {
+                return float3x3(0.0f);
+            }
+        }
+        tangent += componentsMatrix(values);
+    }
+    if (!all(isfinite(tangent[0])) || !all(isfinite(tangent[1])) ||
+        !all(isfinite(tangent[2]))) {
+        if (nonfiniteOutput != nullptr) *nonfiniteOutput = true;
+        valid = false;
+        return float3x3(0.0f);
+    }
+    return tangent;
+}
+
+template <typename StatePointer>
+inline float3x3 evaluateTangentVector(
+    const NMMaterialGPU material,
+    device const NMScalarProgramGPU* programs,
+    device const NMExpressionInstructionGPU* instructions,
+    device const float* parameters,
+    StatePointer internalState,
+    const float3x3 deformation,
+    const float3x3 deformationDirection,
+    const float3x3 deformationRate,
+    const float3x3 rateDirection,
+    const float timestep,
+    const float temperature,
+    thread bool& valid
+,
+    thread const float* deformationLow = nullptr
+) {
+    return evaluateTangentVectorWithCandidate(
+        material, programs, instructions, parameters,
+        internalState, internalState, deformation, deformationDirection,
+        deformationRate, rateDirection, timestep, temperature, valid
+    , nullptr, deformationLow);
+}
+
+inline bool evaluateStateUpdate(
+    const NMMaterialGPU material,
+    const uint stateIndex,
+    device const NMScalarProgramGPU* programs,
+    device const NMExpressionInstructionGPU* instructions,
+    device const float* parameters,
+    device const float* acceptedState,
+    const float3x3 deformation,
+    const float3x3 deformationRate,
+    const float timestep,
+    const float temperature,
+    thread float& nextState
+,
+    thread const float* deformationLow = nullptr
+) {
+    if (stateIndex >= material.stateCount ||
+        material.stateUpdateProgramOffset == NM_INVALID_INDEX ||
+        acceptedState == nullptr) {
+        return false;
+    }
+    float f[9];
+    float direction[9] = {
+        0.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 0.0f,
+    };
+    float rate[9];
+    matrixComponents(deformation, f);
+    matrixComponents(deformationRate, rate);
+    bool valid = true;
+    nextState = evaluateScalarProgram(
+        material.stateUpdateProgramOffset + stateIndex,
+        programs,
+        instructions,
+        parameters + material.parameterOffset,
+        acceptedState,
+        f,
+        direction,
+        rate,
+        timestep,
+        temperature,
+        valid
+    , deformationLow);
+    return valid && isfinite(nextState);
+}
+
+inline bool solveLocalMaterialSystem(
+    thread float* matrix,
+    thread float* rightHandSide,
+    const uint count
+) {
+    for (uint column = 0u; column < count; ++column) {
+        uint pivot = column;
+        float pivotMagnitude = abs(matrix[column * count + column]);
+        for (uint row = column + 1u; row < count; ++row) {
+            const float magnitude = abs(matrix[row * count + column]);
+            if (magnitude > pivotMagnitude) {
+                pivot = row;
+                pivotMagnitude = magnitude;
+            }
+        }
+        if (!(pivotMagnitude > 1.0e-8f) || !isfinite(pivotMagnitude)) {
+            return false;
+        }
+        if (pivot != column) {
+            for (uint entry = column; entry < count; ++entry) {
+                const float value = matrix[column * count + entry];
+                matrix[column * count + entry] = matrix[pivot * count + entry];
+                matrix[pivot * count + entry] = value;
+            }
+            const float value = rightHandSide[column];
+            rightHandSide[column] = rightHandSide[pivot];
+            rightHandSide[pivot] = value;
+        }
+        const float diagonal = matrix[column * count + column];
+        for (uint row = column + 1u; row < count; ++row) {
+            const float factor = matrix[row * count + column] / diagonal;
+            matrix[row * count + column] = 0.0f;
+            for (uint entry = column + 1u; entry < count; ++entry) {
+                matrix[row * count + entry] -=
+                    factor * matrix[column * count + entry];
+            }
+            rightHandSide[row] -= factor * rightHandSide[column];
+        }
+    }
+    for (int row = int(count) - 1; row >= 0; --row) {
+        float value = rightHandSide[uint(row)];
+        for (uint column = uint(row) + 1u; column < count; ++column) {
+            value -= matrix[uint(row) * count + column] *
+                rightHandSide[column];
+        }
+        rightHandSide[uint(row)] =
+            value / matrix[uint(row) * count + uint(row)];
+        if (!isfinite(rightHandSide[uint(row)])) return false;
+    }
+    return true;
+}
+
+// Equilibrate the Newton system in dimensionless state coordinates.  With
+// deltaState = stateScale * y, each row is divided by its weighted L1 norm;
+// this leaves the root unchanged while making the correction test comparable
+// across the mixed strain/stress-history state units in the 15-state law.
+inline bool solveScaledLocalMaterialSystem(
+    thread float* matrix,
+    thread float* rightHandSide,
+    device const float* acceptedState,
+    const thread float* candidateState,
+    const uint count,
+    const float scaleFloor,
+    thread float& scaledCorrectionNorm
+) {
+    if (!(scaleFloor > 0.0f) || !isfinite(scaleFloor) ||
+        count == 0u || count > NM_MAX_MATERIAL_STATE) return false;
+    float stateScale[NM_MAX_MATERIAL_STATE];
+    float rowScale[NM_MAX_MATERIAL_STATE];
+    for (uint column = 0u; column < count; ++column) {
+        if (!isfinite(acceptedState[column]) || !isfinite(candidateState[column]))
+            return false;
+        stateScale[column] = max(max(abs(acceptedState[column]),
+                                     abs(candidateState[column])), scaleFloor);
+        if (!(stateScale[column] > 0.0f) || !isfinite(stateScale[column]))
+            return false;
+    }
+    for (uint row = 0u; row < count; ++row) {
+        float weightedRowNorm = 0.0f;
+        for (uint column = 0u; column < count; ++column) {
+            const float entry = matrix[row * count + column];
+            if (!isfinite(entry)) return false;
+            weightedRowNorm += abs(entry) * stateScale[column];
+        }
+        if (!(weightedRowNorm > 0.0f) || !isfinite(weightedRowNorm) ||
+            !isfinite(rightHandSide[row])) return false;
+        rowScale[row] = weightedRowNorm;
+    }
+    for (uint row = 0u; row < count; ++row) {
+        for (uint column = 0u; column < count; ++column) {
+            matrix[row * count + column] =
+                matrix[row * count + column] * stateScale[column] / rowScale[row];
+        }
+        rightHandSide[row] /= rowScale[row];
+    }
+    if (!solveLocalMaterialSystem(matrix, rightHandSide, count)) return false;
+    scaledCorrectionNorm = 0.0f;
+    for (uint state = 0u; state < count; ++state) {
+        const float scaledCorrection = rightHandSide[state];
+        if (!isfinite(scaledCorrection)) return false;
+        scaledCorrectionNorm = max(scaledCorrectionNorm, abs(scaledCorrection));
+        rightHandSide[state] = scaledCorrection * stateScale[state];
+        if (!isfinite(rightHandSide[state])) return false;
+    }
+    return isfinite(scaledCorrectionNorm);
+}
+
+template<typename CandidatePointer>
+inline bool evaluateImplicitMaterialSystem(
+    const NMMaterialGPU material,
+    device const NMScalarProgramGPU* programs,
+    device const NMExpressionInstructionGPU* instructions,
+    device const float* parameters,
+    device const float* acceptedState,
+    CandidatePointer candidateState,
+    const float3x3 deformation,
+    const float3x3 deformationDirection,
+    const float3x3 deformationRate,
+    const float timestep,
+    const float temperature,
+    thread float* residual,
+    thread float* jacobian,
+    const bool evaluateJacobian,
+    thread bool* nonfiniteOutput = nullptr
+,
+    thread const float* deformationLow = nullptr,
+    thread MRCompensatedScalar* residualWordsOutput = nullptr,
+    thread MRCompensatedScalar* jacobianWordsOutput = nullptr
+) {
+    float f[9];
+    float direction[9];
+    float rate[9];
+    matrixComponents(deformation, f);
+    matrixComponents(deformationDirection, direction);
+    matrixComponents(deformationRate, rate);
+    bool valid = true;
+    for (uint row = 0u; row < material.stateCount; ++row) {
+        if (residualWordsOutput != nullptr) {
+            residualWordsOutput[row]=evaluateScalarProgramWordsWithCandidate(
+                material.implicitResidualProgramOffset+row,programs,instructions,
+                parameters+material.parameterOffset,acceptedState,candidateState,
+                f,direction,rate,timestep,temperature,valid,nonfiniteOutput,
+                deformationLow);
+            residual[row]=residualWordsOutput[row].high+residualWordsOutput[row].low;
+        } else {
+            residual[row] = evaluateScalarProgramWithCandidate(
+                material.implicitResidualProgramOffset + row,
+                programs, instructions, parameters + material.parameterOffset,
+                acceptedState, candidateState, f, direction, rate, timestep,
+                temperature, valid, nonfiniteOutput
+            , deformationLow);
+        }
+        if (!valid) return false;
+        if (!evaluateJacobian) continue;
+        for (uint column = 0u; column < material.stateCount; ++column) {
+            const uint matrixIndex=row*material.stateCount+column;
+            if (jacobianWordsOutput != nullptr) {
+                jacobianWordsOutput[matrixIndex]=evaluateScalarProgramWordsWithCandidate(
+                    material.implicitJacobianProgramOffset+matrixIndex,programs,
+                    instructions,parameters+material.parameterOffset,
+                    acceptedState,candidateState,f,direction,rate,timestep,
+                    temperature,valid,nonfiniteOutput,deformationLow);
+                jacobian[matrixIndex]=jacobianWordsOutput[matrixIndex].high+
+                    jacobianWordsOutput[matrixIndex].low;
+            } else {
+                jacobian[matrixIndex]=evaluateScalarProgramWithCandidate(
+                    material.implicitJacobianProgramOffset +
+                        matrixIndex,
+                    programs, instructions,
+                    parameters + material.parameterOffset,
+                    acceptedState, candidateState, f, direction, rate,
+                    timestep, temperature, valid, nonfiniteOutput
+                , deformationLow);
+            }
+            if (!valid) return false;
+        }
+    }
+    return true;
+}
+
+inline float matrixTrace(const float3x3 value) {
+    return value[0].x + value[1].y + value[2].z;
+}
+
+inline float matrixInner(const float3x3 left, const float3x3 right) {
+    return dot(left[0], right[0]) + dot(left[1], right[1]) +
+        dot(left[2], right[2]);
+}
+
+inline float3x3 matrixDeviator(const float3x3 value) {
+    return value - (matrixTrace(value) / 3.0f) * float3x3(1.0f);
+}
+
+inline float3x3 plasticStateMatrix(device const float* state) {
+    return transpose(float3x3(
+        float3(state[0], state[1], state[2]),
+        float3(state[3], state[4], state[5]),
+        float3(state[6], state[7], state[8])));
+}
+
+inline void storePlasticStateMatrix(
+    const float3x3 value,
+    thread float* state
+) {
+    const float3x3 rows = transpose(value);
+    state[0] = rows[0].x; state[1] = rows[0].y; state[2] = rows[0].z;
+    state[3] = rows[1].x; state[4] = rows[1].y; state[5] = rows[1].z;
+    state[6] = rows[2].x; state[7] = rows[2].y; state[8] = rows[2].z;
+}
+
+// Multiplicative finite-strain elastic predictor / plastic corrector. The
+// accepted state is [Fp(3x3 row-major), accumulated plastic strain]. The
+// returned tangent is the exact directional derivative of the radial
+// algorithmic stress on the current active branch; the plastic-state update
+// uses a second-order exponential map and remains transactional.
+inline bool evaluateSpecializedPlasticity(
+    const NMMaterialGPU material,
+    device const float* acceptedState,
+    const float3x3 deformation,
+    const float3x3 deformationDirection,
+    const bool evaluateDirection,
+    thread float3x3& stress,
+    thread float3x3& tangent,
+    thread float* projectedState
+) {
+    if (acceptedState == nullptr || material.stateCount != 10u ||
+        (material.projectionKind != NM_MATERIAL_PROJECTION_VON_MISES &&
+         material.projectionKind != NM_MATERIAL_PROJECTION_DRUCKER_PRAGER))
+        return false;
+    const float mu = material.bulk.z;
+    const float lambda = material.bulk.w;
+    const float yieldStress = material.inelastic.x;
+    const float hardening = material.inelastic.y;
+    const float druckerAlpha = material.projectionKind ==
+            NM_MATERIAL_PROJECTION_DRUCKER_PRAGER
+        ? material.inelastic.z : 0.0f;
+    const float cohesion = material.projectionKind ==
+            NM_MATERIAL_PROJECTION_DRUCKER_PRAGER
+        ? material.inelastic.w : yieldStress;
+    if (!(mu > 0.0f) || !(lambda + 2.0f * mu / 3.0f > 0.0f) ||
+        !(yieldStress >= 0.0f) || !(hardening >= 0.0f)) return false;
+    const float3x3 plastic = plasticStateMatrix(acceptedState);
+    float3x3 inversePlastic, inverseDeformation;
+    if (!invert3x3(plastic, inversePlastic) ||
+        !invert3x3(deformation, inverseDeformation)) return false;
+    const float3x3 elastic = deformation * inversePlastic;
+    const float elasticJ = determinant(elastic);
+    if (!(elasticJ > kGeometryFloor) || !isfinite(elasticJ)) return false;
+    const float3x3 identity = float3x3(1.0f);
+    const float3x3 leftCauchy = elastic * transpose(elastic);
+    const float bulkModulus = lambda + 2.0f * mu / 3.0f;
+    const float3x3 trialKirchhoff =
+        mu * (leftCauchy - identity) + lambda * log(elasticJ) * identity;
+    const float trialPressure = matrixTrace(trialKirchhoff) / 3.0f;
+    const float3x3 trialDeviator = matrixDeviator(trialKirchhoff);
+    const float deviatorNorm2 = max(matrixInner(
+        trialDeviator, trialDeviator), 0.0f);
+    const float equivalentStress = sqrt(1.5f * deviatorNorm2);
+    const float accumulated = max(acceptedState[9], 0.0f);
+    const float strength =
+        (material.projectionKind == NM_MATERIAL_PROJECTION_DRUCKER_PRAGER
+            ? cohesion : yieldStress) + hardening * accumulated;
+    const float yieldValue = equivalentStress +
+        druckerAlpha * trialPressure - strength;
+    const float denominator = 3.0f * mu + hardening +
+        bulkModulus * druckerAlpha * druckerAlpha;
+    const bool plasticStep = yieldValue > 0.0f &&
+        equivalentStress > 1.0e-10f && denominator > 0.0f;
+    const float increment = plasticStep ? yieldValue / denominator : 0.0f;
+    const float scale = plasticStep
+        ? max(1.0f - 3.0f * mu * increment / equivalentStress, 0.0f)
+        : 1.0f;
+    const float returnedPressure = trialPressure -
+        bulkModulus * druckerAlpha * increment;
+    const float3x3 returnedKirchhoff =
+        scale * trialDeviator + returnedPressure * identity;
+    const float3x3 inverseTranspose = transpose(inverseDeformation);
+    stress = returnedKirchhoff * inverseTranspose;
+    tangent = float3x3(0.0f);
+
+    if (evaluateDirection) {
+        const float3x3 elasticDirection =
+            deformationDirection * inversePlastic;
+        const float3x3 leftCauchyDirection =
+            elasticDirection * transpose(elastic) +
+            elastic * transpose(elasticDirection);
+        const float logJDirection = matrixTrace(
+            inverseDeformation * deformationDirection);
+        const float3x3 trialDirection = mu * leftCauchyDirection +
+            lambda * logJDirection * identity;
+        const float pressureDirection = matrixTrace(trialDirection) / 3.0f;
+        const float3x3 deviatorDirection = matrixDeviator(trialDirection);
+        const float equivalentDirection = equivalentStress > 1.0e-10f
+            ? 1.5f * matrixInner(trialDeviator, deviatorDirection) /
+                equivalentStress : 0.0f;
+        const float yieldDirection = equivalentDirection +
+            druckerAlpha * pressureDirection;
+        const float incrementDirection = plasticStep
+            ? yieldDirection / denominator : 0.0f;
+        const float scaleDirection = plasticStep
+            ? -3.0f * mu * (
+                incrementDirection / equivalentStress -
+                increment * equivalentDirection /
+                    (equivalentStress * equivalentStress))
+            : 0.0f;
+        const float returnedPressureDirection = pressureDirection -
+            bulkModulus * druckerAlpha * incrementDirection;
+        const float3x3 kirchhoffDirection =
+            scale * deviatorDirection + scaleDirection * trialDeviator +
+            returnedPressureDirection * identity;
+        const float3x3 inverseTransposeDirection = -1.0f *
+            inverseTranspose * transpose(deformationDirection) *
+            inverseTranspose;
+        tangent = kirchhoffDirection * inverseTranspose +
+            returnedKirchhoff * inverseTransposeDirection;
+    }
+
+    if (projectedState != nullptr) {
+        const float3x3 flow = equivalentStress > 1.0e-10f
+            ? 1.5f * trialDeviator / equivalentStress +
+                (druckerAlpha / 3.0f) * identity
+            : float3x3(0.0f);
+        const float3x3 plasticIncrement = increment * flow;
+        const float3x3 exponential = identity + plasticIncrement +
+            0.5f * plasticIncrement * plasticIncrement;
+        const float3x3 nextPlastic = exponential * plastic;
+        const float nextPlasticJ = determinant(nextPlastic);
+        if (!(nextPlasticJ > kGeometryFloor) || !isfinite(nextPlasticJ))
+            return false;
+        storePlasticStateMatrix(nextPlastic, projectedState);
+        projectedState[9] = accumulated + increment;
+    }
+    return all(isfinite(stress[0])) && all(isfinite(stress[1])) &&
+        all(isfinite(stress[2])) && all(isfinite(tangent[0])) &&
+        all(isfinite(tangent[1])) && all(isfinite(tangent[2]));
+}
+
+inline bool usesCompensatedImplicitCandidate(const NMMaterialGPU material) {
+    return (material.flags & (NM_MATERIAL_PAPER_HILL_ACCURATE_PROJECTION |
+                              NM_MATERIAL_GENERIC_COMPENSATED_IMPLICIT_PROJECTION)) != 0u;
+}
+
+inline bool usesScaledCorrectionProjection(const NMMaterialGPU material) {
+    return (material.flags &
+        NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION) != 0u;
+}
+
+inline bool projectMaterialState(
+    const NMMaterialGPU material,
+    device const NMScalarProgramGPU* programs,
+    device const NMExpressionInstructionGPU* instructions,
+    device const float* parameters,
+    device const float* acceptedState,
+    const float3x3 deformation,
+    const float3x3 deformationRate,
+    const float timestep,
+    const float temperature,
+    thread float* projectedState,
+    thread float* residualNormOutput = nullptr,
+    thread float* stateNormOutput = nullptr,
+    thread uint* iterationOutput = nullptr,
+    thread uint* stageFlagsOutput = nullptr,
+    thread uint* terminalFailureOutput = nullptr
+,
+    thread const float* deformationLow = nullptr,
+    thread float* projectedLowOutput = nullptr,
+    thread float* projectionIterationTrace = nullptr
+) {
+    if (residualNormOutput != nullptr) *residualNormOutput = -1.0f;
+    if (stateNormOutput != nullptr) *stateNormOutput = 0.0f;
+    if (iterationOutput != nullptr) *iterationOutput = 0u;
+    if (stageFlagsOutput != nullptr) *stageFlagsOutput = 0u;
+    if (terminalFailureOutput != nullptr)
+        *terminalFailureOutput = kMaterialFailureNone;
+    const bool traceProjection = projectionIterationTrace != nullptr &&
+        material.stateCount <= kMaterialProjectionTraceStateCapacity &&
+        material.localNewtonIterations <= kMaterialProjectionTraceIterationCapacity;
+    if (projectionIterationTrace != nullptr) {
+        for (uint i=0u;i<kMaterialProjectionTraceSlots;++i)
+            projectionIterationTrace[i]=0.0f;
+        projectionIterationTrace[0]=1.0f; // schema version
+        projectionIterationTrace[1]=float(material.stateCount);
+        projectionIterationTrace[7]=traceProjection ? 0.0f : -1.0f;
+    }
+    if (traceProjection) {
+        projectionIterationTrace[6]=usesCompensatedImplicitCandidate(material)
+            ? 2.0e-8f : 2.0e-5f;
+    }
+    if (material.stateCount == 0u) {
+        if (stageFlagsOutput != nullptr)
+            *stageFlagsOutput = kMaterialDiagProjectionConverged;
+        return true;
+    }
+    if (acceptedState == nullptr ||
+        material.stateCount > NM_MAX_MATERIAL_STATE) {
+        if (terminalFailureOutput != nullptr)
+            *terminalFailureOutput = kMaterialFailureProjectionInputInvalid;
+        return false;
+    }
+    if (stageFlagsOutput != nullptr)
+        *stageFlagsOutput |= kMaterialDiagProjectionEntered;
+    const bool accurateCandidate = usesCompensatedImplicitCandidate(material);
+    const bool scaledCorrectionPolicy = usesScaledCorrectionProjection(material);
+    float localCandidateLow[NM_MAX_MATERIAL_STATE];
+    thread float* candidateLow = projectedLowOutput != nullptr
+        ? projectedLowOutput : localCandidateLow;
+    for (uint i=0u;i<NM_MAX_MATERIAL_STATE;++i) candidateLow[i]=0.0f;
+    const NMPaperCandidateState candidate{projectedState,
+        accurateCandidate ? candidateLow : nullptr};
+    float initialStateNorm = 0.0f;
+    for (uint state = 0u; state < material.stateCount; ++state) {
+        projectedState[state] = acceptedState[state];
+        initialStateNorm = max(initialStateNorm, abs(acceptedState[state]));
+    }
+    if (stateNormOutput != nullptr) *stateNormOutput = initialStateNorm;
+    if (material.projectionKind != NM_MATERIAL_PROJECTION_GENERIC) {
+        float3x3 stress, tangent;
+        const bool projected = evaluateSpecializedPlasticity(
+            material, acceptedState, deformation, float3x3(0.0f), false,
+            stress, tangent, projectedState);
+        if (projected) {
+            if (stageFlagsOutput != nullptr)
+                *stageFlagsOutput |= kMaterialDiagStateUpdatesComplete |
+                    kMaterialDiagProjectionConverged;
+            if (iterationOutput != nullptr) *iterationOutput = 1u;
+        }
+        else if (terminalFailureOutput != nullptr)
+            *terminalFailureOutput = kMaterialFailureSpecializedProjectionInvalid;
+        return projected;
+    }
+    for (uint state = 0u; state < material.stateCount; ++state) {
+        if (!evaluateStateUpdate(
+                material,
+                state,
+                programs,
+                instructions,
+                parameters,
+                acceptedState,
+                deformation,
+                deformationRate,
+                timestep,
+                temperature,
+                projectedState[state]
+            , deformationLow)) {
+            if (terminalFailureOutput != nullptr)
+                *terminalFailureOutput = kMaterialFailureStateUpdateInvalid;
+            return false;
+        }
+    }
+    if (stageFlagsOutput != nullptr)
+        *stageFlagsOutput |= kMaterialDiagStateUpdatesComplete;
+    if ((material.flags & NM_MATERIAL_PAPER_HILL_SCALAR_INITIALIZER) != 0u) {
+        if (material.stateCount != 13u || material.parameterCount != 20u)
+            return false;
+        float old[13], trial[6];
+        for (uint i=0u;i<13u;++i) old[i]=acceptedState[i];
+        for (uint i=0u;i<6u;++i) trial[i]=projectedState[6u+i];
+        // This is a bounded initial guess only. A failed helper falls back to
+        // the original authored update guess. It cannot commit or bypass any
+        // generic Newton residual, constitutive, or production certificate.
+        // The elastic authored guess already resolves the smoothed FB residual
+        // away from yield. Skip scalar bisection there; Newton still verifies
+        // every row and supplies the complete implicit derivative afterward.
+        if(nmHillScalarInitializerEquivalent(parameters+material.parameterOffset,trial)>1.0f)
+            nmHillScalarInitializeCandidate(parameters + material.parameterOffset,
+                old, trial, projectedState);
+    }
+    if ((material.flags & NM_MATERIAL_HAS_IMPLICIT_STATE) == 0u) {
+        if (stageFlagsOutput != nullptr)
+            *stageFlagsOutput |= kMaterialDiagProjectionConverged;
+        return true;
+    }
+    float residual[NM_MAX_MATERIAL_STATE];
+    float jacobian[NM_MAX_MATERIAL_STATE * NM_MAX_MATERIAL_STATE];
+    const float projectionTolerance =
+        usesCompensatedImplicitCandidate(material)
+        ? 2.0e-8f : 2.0e-5f;
+    for (uint iteration = 0u; iteration < material.localNewtonIterations;
+         ++iteration) {
+        const uint traceRecord = kMaterialProjectionTraceHeaderSlots +
+            iteration * kMaterialProjectionTraceRecordSlots;
+        if (traceProjection) {
+            projectionIterationTrace[2]=float(iteration+1u);
+            projectionIterationTrace[traceRecord+0u]=0.0f;
+            projectionIterationTrace[traceRecord+1u]=-1.0f;
+            projectionIterationTrace[traceRecord+2u]=0.0f;
+            projectionIterationTrace[traceRecord+3u]=0.0f;
+            projectionIterationTrace[traceRecord+4u]=0.0f;
+            projectionIterationTrace[traceRecord+5u]=0.0f;
+            for (uint state=0u;state<kMaterialProjectionTraceStateCapacity;++state) {
+                projectionIterationTrace[traceRecord+6u+state]=0.0f;
+                projectionIterationTrace[traceRecord+6u+
+                    kMaterialProjectionTraceStateCapacity+state]=0.0f;
+                projectionIterationTrace[traceRecord+6u+
+                    2u*kMaterialProjectionTraceStateCapacity+state]=0.0f;
+                projectionIterationTrace[traceRecord+6u+
+                    3u*kMaterialProjectionTraceStateCapacity+state]=0.0f;
+                projectionIterationTrace[traceRecord+6u+
+                    4u*kMaterialProjectionTraceStateCapacity+state]=-1.0f;
+            }
+        }
+        float stateNormBeforeEvaluation = 0.0f;
+        for (uint state = 0u; state < material.stateCount; ++state)
+            stateNormBeforeEvaluation = max(
+                stateNormBeforeEvaluation, abs(projectedState[state]));
+        if (residualNormOutput != nullptr) *residualNormOutput = -1.0f;
+        if (stateNormOutput != nullptr)
+            *stateNormOutput = stateNormBeforeEvaluation;
+        if (iterationOutput != nullptr) *iterationOutput = iteration + 1u;
+        bool implicitNonfinite = false;
+        if (!evaluateImplicitMaterialSystem(
+                material, programs, instructions, parameters, acceptedState,
+                candidate, deformation, float3x3(0.0f), deformationRate,
+                timestep, temperature, residual, jacobian, true,
+                &implicitNonfinite, deformationLow)) {
+            if (terminalFailureOutput != nullptr)
+                *terminalFailureOutput = implicitNonfinite
+                    ? kMaterialFailureImplicitEvaluationNonfinite
+                    : kMaterialFailureImplicitEvaluationInvalid;
+            if (traceProjection) projectionIterationTrace[7]=float(
+                implicitNonfinite ? kMaterialFailureImplicitEvaluationNonfinite
+                                  : kMaterialFailureImplicitEvaluationInvalid);
+            return false;
+        }
+        if (stageFlagsOutput != nullptr)
+            *stageFlagsOutput |= kMaterialDiagImplicitSystemEvaluated;
+        float residualNorm = 0.0f;
+        float stateNorm = 0.0f;
+        for (uint state = 0u; state < material.stateCount; ++state) {
+            residualNorm = max(residualNorm, abs(residual[state]));
+            stateNorm = max(stateNorm, abs(projectedState[state]));
+            if (traceProjection) {
+                projectionIterationTrace[traceRecord+6u+state]=projectedState[state];
+                projectionIterationTrace[traceRecord+6u+
+                    kMaterialProjectionTraceStateCapacity+state]=candidateLow[state];
+                projectionIterationTrace[traceRecord+6u+
+                    2u*kMaterialProjectionTraceStateCapacity+state]=residual[state];
+            }
+            residual[state] = -residual[state];
+        }
+        if (traceProjection) {
+            for (uint i=0u;i<material.stateCount*material.stateCount;++i)
+                projectionIterationTrace[traceRecord+6u+
+                    5u*kMaterialProjectionTraceStateCapacity+i]=jacobian[i];
+            projectionIterationTrace[traceRecord+0u]=1.0f;
+            projectionIterationTrace[traceRecord+3u]=residualNorm;
+            projectionIterationTrace[traceRecord+4u]=stateNorm;
+            projectionIterationTrace[4]=residualNorm;
+            projectionIterationTrace[5]=stateNorm;
+        }
+        if (residualNormOutput != nullptr) *residualNormOutput = residualNorm;
+        if (stateNormOutput != nullptr) *stateNormOutput = stateNorm;
+        if (iterationOutput != nullptr) *iterationOutput = iteration + 1u;
+        const bool residualConverged =
+            residualNorm <= projectionTolerance * (1.0f + stateNorm);
+        if (residualConverged && !scaledCorrectionPolicy) {
+            if (traceProjection) {
+                projectionIterationTrace[traceRecord+0u]=9.0f;
+                projectionIterationTrace[3]=1.0f;
+            }
+            if (stageFlagsOutput != nullptr)
+                *stageFlagsOutput |= kMaterialDiagProjectionConverged;
+            return true;
+        }
+        if (stageFlagsOutput != nullptr)
+            *stageFlagsOutput |= kMaterialDiagLocalSolveAttempted;
+        float scaledCorrectionNorm = 0.0f;
+        const bool localSolveSucceeded = scaledCorrectionPolicy
+            ? solveScaledLocalMaterialSystem(
+                jacobian, residual, acceptedState, projectedState,
+                material.stateCount,
+                parameters[material.parameterOffset + 26u],
+                scaledCorrectionNorm)
+            : solveLocalMaterialSystem(jacobian, residual, material.stateCount);
+        if (!localSolveSucceeded) {
+            if (terminalFailureOutput != nullptr)
+                *terminalFailureOutput = kMaterialFailureLocalSolveFailed;
+            if (traceProjection) projectionIterationTrace[7]=
+                float(kMaterialFailureLocalSolveFailed);
+            return false;
+        }
+        if (traceProjection) {
+            projectionIterationTrace[traceRecord+0u]=3.0f;
+            // Diagnostic-only field: do not feed this value into stopping or
+            // line-search decisions. It preserves the scaled solve quantity
+            // before the state correction is rounded into float32.
+            projectionIterationTrace[traceRecord+5u]=scaledCorrectionPolicy
+                ? scaledCorrectionNorm : -1.0f;
+            for (uint state=0u;state<material.stateCount;++state)
+                projectionIterationTrace[traceRecord+6u+
+                    3u*kMaterialProjectionTraceStateCapacity+state]=residual[state];
+        }
+        if (stageFlagsOutput != nullptr)
+            *stageFlagsOutput |= kMaterialDiagLocalSolveSucceeded;
+        if (residualConverged && scaledCorrectionPolicy &&
+            scaledCorrectionNorm <= 2.0e-8f) {
+            if (traceProjection) {
+                projectionIterationTrace[traceRecord+0u]=9.0f;
+                projectionIterationTrace[3]=1.0f;
+            }
+            if (stageFlagsOutput != nullptr)
+                *stageFlagsOutput |= kMaterialDiagProjectionConverged;
+            return true;
+        }
+        float trialState[NM_MAX_MATERIAL_STATE];
+        float trialLow[NM_MAX_MATERIAL_STATE];
+        float trialResidual[NM_MAX_MATERIAL_STATE];
+        float step = 1.0f;
+        bool acceptedStep = false;
+        // Strongly anisotropic implicit laws can require a first step below
+        // 1/128. Retain the same Armijo/tolerance tests, with a bounded search
+        // down to 1/32768; previously accepted trials still exit immediately.
+        for (uint backtrack = 0u; backtrack < 16u; ++backtrack) {
+            for (uint state = 0u; state < material.stateCount; ++state) {
+                if (accurateCandidate) {
+                    const auto sum=mrCompensatedAdd(
+                        {projectedState[state],candidateLow[state]},
+                        {step*residual[state],0.0f});
+                    trialState[state]=sum.high;
+                    trialLow[state]=sum.low;
+                } else {
+                    trialState[state]=projectedState[state]+step*residual[state];
+                    trialLow[state]=0.0f;
+                }
+            }
+            const NMPaperCandidateState trialCandidate{trialState,
+                accurateCandidate ? trialLow : nullptr};
+            bool trialNonfinite = false;
+            if (!evaluateImplicitMaterialSystem(
+                    material, programs, instructions, parameters,
+                    acceptedState, trialCandidate, deformation,
+                    float3x3(0.0f), deformationRate, timestep, temperature,
+                    trialResidual, jacobian, false, &trialNonfinite, deformationLow)) {
+                if (traceProjection)
+                    projectionIterationTrace[traceRecord+6u+
+                        4u*kMaterialProjectionTraceStateCapacity+backtrack]=-2.0f;
+                step *= 0.5f;
+                continue;
+            }
+            float trialNorm = 0.0f;
+            for (uint state = 0u; state < material.stateCount; ++state)
+                trialNorm = max(trialNorm, abs(trialResidual[state]));
+            if (traceProjection)
+                projectionIterationTrace[traceRecord+6u+
+                    4u*kMaterialProjectionTraceStateCapacity+backtrack]=trialNorm;
+            if (trialNorm <= (1.0f - 1.0e-4f * step) * residualNorm) {
+                for (uint state = 0u; state < material.stateCount; ++state) {
+                    projectedState[state] = trialState[state];
+                    candidateLow[state] = trialLow[state];
+                }
+                acceptedStep = true;
+                if (traceProjection) {
+                    projectionIterationTrace[traceRecord+0u]=7.0f;
+                    projectionIterationTrace[traceRecord+1u]=float(backtrack);
+                    projectionIterationTrace[traceRecord+2u]=step;
+                    for (uint state=0u;state<material.stateCount;++state) {
+                        projectionIterationTrace[traceRecord+6u+
+                            5u*kMaterialProjectionTraceStateCapacity+
+                            kMaterialProjectionTraceStateCapacity*
+                                kMaterialProjectionTraceStateCapacity+state]=trialState[state];
+                        projectionIterationTrace[traceRecord+6u+
+                            6u*kMaterialProjectionTraceStateCapacity+
+                            kMaterialProjectionTraceStateCapacity*
+                                kMaterialProjectionTraceStateCapacity+state]=trialLow[state];
+                    }
+                }
+                if (stageFlagsOutput != nullptr)
+                    *stageFlagsOutput |= kMaterialDiagNewtonUpdateAccepted;
+                break;
+            }
+            step *= 0.5f;
+        }
+        if (!acceptedStep) {
+            if (terminalFailureOutput != nullptr)
+                *terminalFailureOutput = kMaterialFailureArmijoNoAcceptedTrial;
+            if (traceProjection) projectionIterationTrace[7]=
+                float(kMaterialFailureArmijoNoAcceptedTrial);
+            return false;
+        }
+    }
+    float finalStateNormBeforeEvaluation = 0.0f;
+    for (uint state = 0u; state < material.stateCount; ++state)
+        finalStateNormBeforeEvaluation = max(
+            finalStateNormBeforeEvaluation, abs(projectedState[state]));
+    if (residualNormOutput != nullptr) *residualNormOutput = -1.0f;
+    if (stateNormOutput != nullptr)
+        *stateNormOutput = finalStateNormBeforeEvaluation;
+    bool finalNonfinite = false;
+    if (!evaluateImplicitMaterialSystem(
+            material, programs, instructions, parameters, acceptedState,
+            candidate, deformation, float3x3(0.0f), deformationRate,
+            timestep, temperature, residual, jacobian, scaledCorrectionPolicy,
+            &finalNonfinite, deformationLow)) {
+        if (terminalFailureOutput != nullptr)
+            *terminalFailureOutput = finalNonfinite
+                ? kMaterialFailureImplicitEvaluationNonfinite
+                : kMaterialFailureImplicitEvaluationInvalid;
+        if (traceProjection) projectionIterationTrace[7]=float(
+            finalNonfinite ? kMaterialFailureImplicitEvaluationNonfinite
+                           : kMaterialFailureImplicitEvaluationInvalid);
+        return false;
+    }
+    if (stageFlagsOutput != nullptr)
+        *stageFlagsOutput |= kMaterialDiagImplicitSystemEvaluated;
+    float residualNorm = 0.0f;
+    float stateNorm = 0.0f;
+    for (uint state = 0u; state < material.stateCount; ++state) {
+        residualNorm = max(residualNorm, abs(residual[state]));
+        stateNorm = max(stateNorm, abs(projectedState[state]));
+    }
+    if (residualNormOutput != nullptr) *residualNormOutput = residualNorm;
+    if (stateNormOutput != nullptr) *stateNormOutput = stateNorm;
+    if (traceProjection) {
+        projectionIterationTrace[4]=residualNorm;
+        projectionIterationTrace[5]=stateNorm;
+    }
+    bool converged = residualNorm <= projectionTolerance * (1.0f + stateNorm);
+    float finalScaledCorrectionNorm = 0.0f;
+    if (converged && scaledCorrectionPolicy) {
+        for (uint state = 0u; state < material.stateCount; ++state)
+            residual[state] = -residual[state];
+        if (stageFlagsOutput != nullptr)
+            *stageFlagsOutput |= kMaterialDiagLocalSolveAttempted;
+        if (!solveScaledLocalMaterialSystem(
+                jacobian, residual, acceptedState, projectedState,
+                material.stateCount,
+                parameters[material.parameterOffset + 26u],
+                finalScaledCorrectionNorm)) {
+            if (terminalFailureOutput != nullptr)
+                *terminalFailureOutput = kMaterialFailureLocalSolveFailed;
+            if (traceProjection) projectionIterationTrace[7]=
+                float(kMaterialFailureLocalSolveFailed);
+            return false;
+        }
+        if (stageFlagsOutput != nullptr)
+            *stageFlagsOutput |= kMaterialDiagLocalSolveSucceeded;
+        converged = finalScaledCorrectionNorm <= 2.0e-8f;
+    }
+    if (traceProjection) {
+        if (converged) projectionIterationTrace[3]=1.0f;
+        else projectionIterationTrace[7]=
+            float(kMaterialFailureProjectionIterationExhausted);
+    }
+    if (converged && stageFlagsOutput != nullptr)
+        *stageFlagsOutput |= kMaterialDiagProjectionConverged;
+    if (!converged && terminalFailureOutput != nullptr)
+        *terminalFailureOutput = kMaterialFailureProjectionIterationExhausted;
+    return converged;
+}
+
+inline float3x3 evaluateAlgorithmicStress(
+    const NMMaterialGPU material,
+    device const NMScalarProgramGPU* programs,
+    device const NMExpressionInstructionGPU* instructions,
+    device const float* parameters,
+    device const float* acceptedState,
+    const float3x3 deformation,
+    const float3x3 deformationRate,
+    const float timestep,
+    const float temperature,
+    thread bool& valid
+,
+    thread const float* deformationLow = nullptr
+) {
+    if (material.projectionKind != NM_MATERIAL_PROJECTION_GENERIC) {
+        float projectedState[NM_MAX_MATERIAL_STATE];
+        float3x3 stress, tangent;
+        valid = valid && evaluateSpecializedPlasticity(
+            material, acceptedState, deformation, float3x3(0.0f), false,
+            stress, tangent, projectedState);
+        return valid ? stress : float3x3(0.0f);
+    }
+    if (material.stateCount == 0u) {
+        return evaluateStress(
+            material, programs, instructions, parameters, acceptedState,
+            deformation, deformationRate, timestep, temperature, valid
+        , deformationLow);
+    }
+    float projectedState[NM_MAX_MATERIAL_STATE];
+    float projectedLow[NM_MAX_MATERIAL_STATE] = {0.0f};
+    valid = valid && projectMaterialState(
+        material, programs, instructions, parameters, acceptedState,
+        deformation, deformationRate, timestep, temperature, projectedState
+    , nullptr, nullptr, nullptr, nullptr, nullptr, deformationLow, projectedLow);
+    if (!valid) {
+        return float3x3(0.0f);
+    }
+    return evaluateStressWithCandidate(
+        material, programs, instructions, parameters,
+        acceptedState, NMPaperCandidateState{projectedState,
+            usesCompensatedImplicitCandidate(material) ? projectedLow : nullptr},
+        deformation, deformationRate, timestep, temperature, valid
+    , nullptr, deformationLow);
+}
+
+inline void evaluateAlgorithmicStressTangent(
+    const NMMaterialGPU material,
+    device const NMScalarProgramGPU* programs,
+    device const NMExpressionInstructionGPU* instructions,
+    device const float* parameters,
+    device const float* acceptedState,
+    const float3x3 deformation,
+    const float3x3 deformationDirection,
+    const float3x3 deformationRate,
+    const float3x3 rateDirection,
+    const float timestep,
+    const float temperature,
+    thread float3x3& stress,
+    thread float3x3& tangent,
+    thread bool& valid,
+    thread float* returnedProjectedState = nullptr,
+    thread uint* diagnosticStageFlags = nullptr,
+    thread float* diagnosticProjectionResidualNorm = nullptr,
+    thread float* diagnosticProjectionStateNorm = nullptr,
+    thread uint* diagnosticProjectionIterations = nullptr,
+    thread uint* diagnosticTerminalFailure = nullptr
+,
+    thread const float* deformationLow = nullptr,
+    thread float* returnedProjectedLow = nullptr,
+    thread float* projectionIterationTrace = nullptr
+) {
+    if (returnedProjectedLow != nullptr)
+        for (uint i=0u;i<NM_MAX_MATERIAL_STATE;++i) returnedProjectedLow[i]=0.0f;
+    if (diagnosticTerminalFailure != nullptr)
+        *diagnosticTerminalFailure = kMaterialFailureNone;
+    if (diagnosticStageFlags != nullptr) *diagnosticStageFlags = 0u;
+    if (diagnosticProjectionResidualNorm != nullptr)
+        *diagnosticProjectionResidualNorm = -1.0f;
+    if (diagnosticProjectionStateNorm != nullptr)
+        *diagnosticProjectionStateNorm = 0.0f;
+    if (diagnosticProjectionIterations != nullptr)
+        *diagnosticProjectionIterations = 0u;
+    if (returnedProjectedState != nullptr) {
+        for (uint state = 0u; state < NM_MAX_MATERIAL_STATE; ++state)
+            returnedProjectedState[state] = 0.0f;
+        if (acceptedState != nullptr &&
+            material.stateCount <= NM_MAX_MATERIAL_STATE) {
+            for (uint state = 0u; state < material.stateCount; ++state)
+                returnedProjectedState[state] = acceptedState[state];
+        }
+    }
+    if (material.stateCount > NM_MAX_MATERIAL_STATE ||
+        (material.stateCount > 0u && acceptedState == nullptr)) {
+        stress = float3x3(0.0f);
+        tangent = float3x3(0.0f);
+        valid = false;
+        if (diagnosticTerminalFailure != nullptr)
+            *diagnosticTerminalFailure =
+                kMaterialFailureProjectionInputInvalid;
+        return;
+    }
+    if (material.projectionKind != NM_MATERIAL_PROJECTION_GENERIC) {
+        float projectedState[NM_MAX_MATERIAL_STATE];
+        for (uint state = 0u; state < material.stateCount; ++state)
+            projectedState[state] = acceptedState != nullptr
+                ? acceptedState[state] : 0.0f;
+        if (diagnosticStageFlags != nullptr)
+            *diagnosticStageFlags = kMaterialDiagProjectionEntered;
+        valid = valid && evaluateSpecializedPlasticity(
+            material, acceptedState, deformation, deformationDirection,
+            true, stress, tangent, projectedState);
+        if (returnedProjectedState != nullptr) {
+            for (uint state = 0u; state < material.stateCount; ++state)
+                returnedProjectedState[state] = projectedState[state];
+        }
+        if (valid && diagnosticStageFlags != nullptr)
+            *diagnosticStageFlags |= kMaterialDiagStateUpdatesComplete |
+                kMaterialDiagProjectionConverged |
+                kMaterialDiagStressEvaluated | kMaterialDiagTangentEvaluated;
+        if (!valid) {
+            stress = float3x3(0.0f);
+            tangent = float3x3(0.0f);
+            if (diagnosticTerminalFailure != nullptr)
+                *diagnosticTerminalFailure =
+                    kMaterialFailureSpecializedProjectionInvalid;
+        }
+        (void)deformationRate;
+        (void)rateDirection;
+        (void)timestep;
+        (void)temperature;
+        return;
+    }
+    if (material.stateCount == 0u) {
+        bool stressNonfinite = false;
+        stress = evaluateStressWithCandidate(
+            material, programs, instructions, parameters, acceptedState,
+            acceptedState, deformation, deformationRate, timestep,
+            temperature, valid, &stressNonfinite
+        , deformationLow);
+        if (!valid && diagnosticTerminalFailure != nullptr)
+            *diagnosticTerminalFailure = stressNonfinite
+                ? kMaterialFailureStressNonfinite
+                : kMaterialFailureStressEvaluationInvalid;
+        bool tangentNonfinite = false;
+        tangent = evaluateTangentVectorWithCandidate(
+            material, programs, instructions, parameters, acceptedState,
+            acceptedState,
+            deformation, deformationDirection, deformationRate, rateDirection,
+            timestep, temperature, valid, &tangentNonfinite
+        , deformationLow);
+        if (valid && diagnosticStageFlags != nullptr)
+            *diagnosticStageFlags |= kMaterialDiagStressEvaluated |
+                kMaterialDiagTangentEvaluated;
+        if (!valid && diagnosticTerminalFailure != nullptr &&
+            *diagnosticTerminalFailure == kMaterialFailureNone)
+            *diagnosticTerminalFailure = tangentNonfinite
+                ? kMaterialFailureTangentNonfinite
+                : kMaterialFailureTangentEvaluationInvalid;
+        return;
+    }
+
+    float projectedState[NM_MAX_MATERIAL_STATE];
+    float projectedLow[NM_MAX_MATERIAL_STATE] = {0.0f};
+    const NMPaperCandidateState candidate{projectedState,
+        usesCompensatedImplicitCandidate(material) ? projectedLow : nullptr};
+    for (uint state = 0u; state < material.stateCount; ++state)
+        projectedState[state] = acceptedState != nullptr
+            ? acceptedState[state] : 0.0f;
+    const bool validityAccepted = valid;
+    uint projectionFailure = kMaterialFailureNone;
+    const bool projectionSucceeded = valid && projectMaterialState(
+        material, programs, instructions, parameters, acceptedState,
+        deformation, deformationRate, timestep, temperature, projectedState,
+        diagnosticProjectionResidualNorm, diagnosticProjectionStateNorm,
+        diagnosticProjectionIterations, diagnosticStageFlags,
+        &projectionFailure
+    , deformationLow, projectedLow, projectionIterationTrace);
+    if (returnedProjectedState != nullptr) {
+        for (uint state = 0u; state < material.stateCount; ++state)
+            returnedProjectedState[state] = projectedState[state];
+    }
+    if (returnedProjectedLow != nullptr)
+        for (uint state=0u;state<material.stateCount;++state)
+            returnedProjectedLow[state]=projectedLow[state];
+    valid = projectionSucceeded;
+    if (!projectionSucceeded) {
+        stress = float3x3(0.0f);
+        tangent = float3x3(0.0f);
+        if (diagnosticTerminalFailure != nullptr)
+            *diagnosticTerminalFailure = validityAccepted
+                ? projectionFailure : kMaterialFailureValidityRejected;
+        return;
+    }
+    bool stressNonfinite = false;
+    stress = evaluateStressWithCandidate(
+        material, programs, instructions, parameters,
+        acceptedState, candidate,
+        deformation, deformationRate, timestep, temperature, valid,
+        &stressNonfinite
+    , deformationLow);
+    if (!valid && diagnosticTerminalFailure != nullptr)
+        *diagnosticTerminalFailure = stressNonfinite
+            ? kMaterialFailureStressNonfinite
+            : kMaterialFailureStressEvaluationInvalid;
+    if (valid && diagnosticStageFlags != nullptr)
+        *diagnosticStageFlags |= kMaterialDiagStressEvaluated;
+    // Keep the larger 30-state compensated-damage path on its existing
+    // bounded solver. The source-fit paper tangent is a compact 15-state
+    // system and can afford an exact two-word local contraction.
+    const bool compensatedTangentSystem =
+        usesCompensatedImplicitCandidate(material) && material.stateCount<=16u;
+    MRCompensatedScalar fixedTangentWords[9];
+    bool tangentNonfinite = false;
+    tangent = evaluateTangentVectorWithCandidate(
+        material, programs, instructions, parameters,
+        acceptedState, candidate,
+        deformation, deformationDirection, deformationRate, rateDirection,
+        timestep, temperature, valid, &tangentNonfinite
+    , deformationLow,
+        compensatedTangentSystem ? fixedTangentWords : nullptr);
+    if (!valid) {
+        if (diagnosticTerminalFailure != nullptr &&
+            *diagnosticTerminalFailure == kMaterialFailureNone)
+            *diagnosticTerminalFailure = tangentNonfinite
+                ? kMaterialFailureTangentNonfinite
+                : kMaterialFailureTangentEvaluationInvalid;
+        return;
+    }
+    if (diagnosticStageFlags != nullptr)
+        *diagnosticStageFlags |= kMaterialDiagTangentEvaluated;
+
+    if ((material.flags & NM_MATERIAL_HAS_IMPLICIT_STATE) != 0u) {
+        if (diagnosticStageFlags != nullptr)
+            *diagnosticStageFlags |= kMaterialDiagImplicitTangentEntered;
+        if (compensatedTangentSystem) {
+            float residual[16];
+            float jacobian[16*16];
+            MRCompensatedScalar residualWords[16];
+            MRCompensatedScalar jacobianWords[16*16];
+            bool implicitTangentNonfinite=false;
+            valid=evaluateImplicitMaterialSystem(
+                material,programs,instructions,parameters,acceptedState,
+                candidate,deformation,deformationDirection,deformationRate,
+                timestep,temperature,residual,jacobian,true,
+                &implicitTangentNonfinite,deformationLow,residualWords,
+                jacobianWords);
+            if (!valid) {
+                if (diagnosticTerminalFailure != nullptr)
+                    *diagnosticTerminalFailure = implicitTangentNonfinite
+                        ? kMaterialFailureImplicitTangentEvaluationNonfinite
+                        : kMaterialFailureImplicitTangentEvaluationInvalid;
+                return;
+            }
+            if (diagnosticStageFlags != nullptr)
+                *diagnosticStageFlags |= kMaterialDiagImplicitSystemEvaluated;
+
+            float f[9];
+            float direction[9];
+            float rate[9];
+            matrixComponents(deformation,f);
+            matrixComponents(deformationDirection,direction);
+            matrixComponents(deformationRate,rate);
+            MRCompensatedScalar tangentRhs[16];
+            for (uint state=0u;state<material.stateCount;++state) {
+                bool derivativeNonfinite=false;
+                const auto derivative=evaluateScalarProgramWordsWithCandidate(
+                    material.implicitDeformationProgramOffset+state,
+                    programs,instructions,parameters+material.parameterOffset,
+                    acceptedState,candidate,f,direction,rate,timestep,
+                    temperature,valid,&derivativeNonfinite,deformationLow);
+                if (!valid) {
+                    if (diagnosticTerminalFailure != nullptr)
+                        *diagnosticTerminalFailure = derivativeNonfinite
+                            ? kMaterialFailureImplicitTangentEvaluationNonfinite
+                            : kMaterialFailureImplicitTangentDerivativeInvalid;
+                    return;
+                }
+                tangentRhs[state]=mrCompensatedNegate(derivative);
+            }
+            valid=nmPaperSolveCompensatedSystem(
+                jacobianWords,tangentRhs,material.stateCount);
+            if (!valid) {
+                if (diagnosticTerminalFailure != nullptr)
+                    *diagnosticTerminalFailure=
+                        kMaterialFailureImplicitTangentSolveFailed;
+                return;
+            }
+            if (diagnosticStageFlags != nullptr)
+                *diagnosticStageFlags |= kMaterialDiagImplicitTangentSolved;
+
+            float tangentValues[9];
+            for (uint component=0u;component<9u;++component) {
+                MRCompensatedScalar total=fixedTangentWords[component];
+                for (uint state=0u;state<material.stateCount;++state) {
+                    bool derivativeNonfinite=false;
+                    const auto derivative=evaluateScalarProgramWordsWithCandidate(
+                        material.stressStateDerivativeProgramOffset+
+                            component*material.stateCount+state,
+                        programs,instructions,parameters+material.parameterOffset,
+                        acceptedState,candidate,f,direction,rate,timestep,
+                        temperature,valid,&derivativeNonfinite,deformationLow);
+                    if (!valid) {
+                        if (diagnosticTerminalFailure != nullptr)
+                            *diagnosticTerminalFailure = derivativeNonfinite
+                                ? kMaterialFailureImplicitTangentEvaluationNonfinite
+                                : kMaterialFailureImplicitTangentDerivativeInvalid;
+                        return;
+                    }
+                    total=mrCompensatedAdd(total,mrCompensatedMultiply(
+                        derivative,tangentRhs[state]));
+                }
+                tangentValues[component]=total.high+total.low;
+                if (!isfinite(tangentValues[component])) {
+                    valid=false;
+                    if (diagnosticTerminalFailure != nullptr)
+                        *diagnosticTerminalFailure=kMaterialFailureTangentNonfinite;
+                    return;
+                }
+            }
+            tangent=componentsMatrix(tangentValues);
+            return;
+        }
+        float residual[NM_MAX_MATERIAL_STATE];
+        float jacobian[NM_MAX_MATERIAL_STATE * NM_MAX_MATERIAL_STATE];
+        bool implicitTangentNonfinite = false;
+        valid = evaluateImplicitMaterialSystem(
+            material, programs, instructions, parameters, acceptedState,
+            candidate, deformation, deformationDirection,
+            deformationRate, timestep, temperature, residual, jacobian, true,
+            &implicitTangentNonfinite
+        , deformationLow);
+        if (!valid) {
+            if (diagnosticTerminalFailure != nullptr)
+                *diagnosticTerminalFailure = implicitTangentNonfinite
+                    ? kMaterialFailureImplicitTangentEvaluationNonfinite
+                    : kMaterialFailureImplicitTangentEvaluationInvalid;
+            return;
+        }
+        float f[9];
+        float direction[9];
+        float rate[9];
+        matrixComponents(deformation, f);
+        matrixComponents(deformationDirection, direction);
+        matrixComponents(deformationRate, rate);
+        for (uint state = 0u; state < material.stateCount; ++state) {
+            bool derivativeNonfinite = false;
+            residual[state] = -evaluateScalarProgramWithCandidate(
+                material.implicitDeformationProgramOffset + state,
+                programs, instructions, parameters + material.parameterOffset,
+                acceptedState, candidate, f, direction, rate, timestep,
+                temperature, valid, &derivativeNonfinite
+            , deformationLow);
+            if (!valid) {
+                if (diagnosticTerminalFailure != nullptr)
+                    *diagnosticTerminalFailure = derivativeNonfinite
+                        ? kMaterialFailureImplicitTangentEvaluationNonfinite
+                        : kMaterialFailureImplicitTangentDerivativeInvalid;
+                return;
+            }
+        }
+        valid = solveLocalMaterialSystem(
+            jacobian, residual, material.stateCount);
+        if (!valid) {
+            if (diagnosticTerminalFailure != nullptr)
+                *diagnosticTerminalFailure =
+                    kMaterialFailureImplicitTangentSolveFailed;
+            return;
+        }
+        if (diagnosticStageFlags != nullptr)
+            *diagnosticStageFlags |= kMaterialDiagImplicitTangentSolved;
+        float stateContribution[9];
+        for (uint component = 0u; component < 9u; ++component) {
+            stateContribution[component] = 0.0f;
+            for (uint state = 0u; state < material.stateCount; ++state) {
+                bool derivativeNonfinite = false;
+                const float derivative = evaluateScalarProgramWithCandidate(
+                    material.stressStateDerivativeProgramOffset +
+                        component * material.stateCount + state,
+                    programs, instructions,
+                    parameters + material.parameterOffset,
+                    acceptedState, candidate, f, direction, rate,
+                    timestep, temperature, valid, &derivativeNonfinite
+                , deformationLow);
+                if (!valid) {
+                    if (diagnosticTerminalFailure != nullptr)
+                        *diagnosticTerminalFailure = derivativeNonfinite
+                            ? kMaterialFailureImplicitTangentEvaluationNonfinite
+                            : kMaterialFailureImplicitTangentDerivativeInvalid;
+                    return;
+                }
+                stateContribution[component] += derivative * residual[state];
+            }
+        }
+        tangent += componentsMatrix(stateContribution);
+        if (!all(isfinite(tangent[0])) || !all(isfinite(tangent[1])) ||
+            !all(isfinite(tangent[2]))) {
+            valid = false;
+            if (diagnosticTerminalFailure != nullptr)
+                *diagnosticTerminalFailure = kMaterialFailureTangentNonfinite;
+            return;
+        }
+        return;
+    }
+
+    float deformationScale = 1.0f;
+    float directionScale = 0.0f;
+    for (uint column = 0u; column < 3u; ++column) {
+        deformationScale = max(
+            deformationScale,
+            max(max(abs(deformation[column].x), abs(deformation[column].y)),
+                abs(deformation[column].z))
+        );
+        directionScale = max(
+            directionScale,
+            max(max(abs(deformationDirection[column].x),
+                    abs(deformationDirection[column].y)),
+                abs(deformationDirection[column].z))
+        );
+    }
+    if (!(directionScale > kGeometryFloor)) {
+        return;
+    }
+    const float epsilon = clamp(
+        3.4526698e-4f * deformationScale / directionScale,
+        1.0e-6f,
+        1.0e-2f
+    );
+    float perturbedState[NM_MAX_MATERIAL_STATE];
+    uint perturbedFailure = kMaterialFailureNone;
+    bool perturbedValid = projectMaterialState(
+        material, programs, instructions, parameters, acceptedState,
+        deformation + epsilon * deformationDirection,
+        deformationRate + epsilon * rateDirection,
+        timestep, temperature, perturbedState, nullptr, nullptr, nullptr,
+        nullptr, &perturbedFailure
+    , deformationLow);
+    float3x3 perturbedStateStress = float3x3(0.0f);
+    if (perturbedValid) {
+        bool perturbedStressNonfinite = false;
+        perturbedStateStress = evaluateStressWithCandidate(
+            material, programs, instructions, parameters,
+            acceptedState, perturbedState,
+            deformation, deformationRate, timestep, temperature,
+            perturbedValid, &perturbedStressNonfinite
+        , deformationLow);
+        if (!perturbedValid)
+            perturbedFailure = perturbedStressNonfinite
+                ? kMaterialFailureStressNonfinite
+                : kMaterialFailureStressEvaluationInvalid;
+    }
+    if (perturbedValid) {
+        tangent += (perturbedStateStress - stress) / epsilon;
+        if (!all(isfinite(tangent[0])) || !all(isfinite(tangent[1])) ||
+            !all(isfinite(tangent[2]))) {
+            valid = false;
+            if (diagnosticTerminalFailure != nullptr)
+                *diagnosticTerminalFailure = kMaterialFailureTangentNonfinite;
+        }
+        return;
+    }
+
+    perturbedFailure = kMaterialFailureNone;
+    perturbedValid = projectMaterialState(
+        material, programs, instructions, parameters, acceptedState,
+        deformation - epsilon * deformationDirection,
+        deformationRate - epsilon * rateDirection,
+        timestep, temperature, perturbedState, nullptr, nullptr, nullptr,
+        nullptr, &perturbedFailure
+    , deformationLow);
+    if (perturbedValid) {
+        bool perturbedStressNonfinite = false;
+        perturbedStateStress = evaluateStressWithCandidate(
+            material, programs, instructions, parameters,
+            acceptedState, perturbedState,
+            deformation, deformationRate, timestep, temperature,
+            perturbedValid, &perturbedStressNonfinite
+        , deformationLow);
+        if (!perturbedValid)
+            perturbedFailure = perturbedStressNonfinite
+                ? kMaterialFailureStressNonfinite
+                : kMaterialFailureStressEvaluationInvalid;
+    }
+    if (!perturbedValid) {
+        valid = false;
+        if (diagnosticTerminalFailure != nullptr)
+            *diagnosticTerminalFailure = perturbedFailure;
+        return;
+    }
+    tangent += (stress - perturbedStateStress) / epsilon;
+    if (!all(isfinite(tangent[0])) || !all(isfinite(tangent[1])) ||
+        !all(isfinite(tangent[2]))) {
+        valid = false;
+        if (diagnosticTerminalFailure != nullptr)
+            *diagnosticTerminalFailure = kMaterialFailureTangentNonfinite;
+    }
+}
+
+inline bool evaluateMaterialValidity(
+    const NMMaterialGPU material,
+    device const NMScalarProgramGPU* programs,
+    device const NMExpressionInstructionGPU* instructions,
+    device const float* parameters,
+    device const float* internalState,
+    const float3x3 deformation,
+    const float3x3 deformationRate,
+    const float timestep,
+    const float temperature,
+    thread float& margin
+,
+    thread const float* deformationLow = nullptr
+) {
+    if (material.validityProgram == NM_INVALID_INDEX) {
+        margin = 1.0f;
+        return true;
+    }
+    float f[9];
+    float direction[9] = {
+        0.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 0.0f,
+    };
+    float rate[9];
+    matrixComponents(deformation, f);
+    matrixComponents(deformationRate, rate);
+    bool valid = true;
+    margin = evaluateScalarProgram(
+        material.validityProgram,
+        programs,
+        instructions,
+        parameters + material.parameterOffset,
+        internalState,
+        f,
+        direction,
+        rate,
+        timestep,
+        temperature,
+        valid
+    , deformationLow);
+    return valid && isfinite(margin);
+}
+
+inline float maximumAbs(const float3x3 value) {
+    float result = 0.0f;
+    for (uint column = 0u; column < 3u; ++column) {
+        result = max(result, max(max(abs(value[column].x), abs(value[column].y)),
+            abs(value[column].z)));
+    }
+    return result;
+}
+
+inline uint hash32(uint value) {
+    value ^= value >> 16u;
+    value *= 0x7feb352du;
+    value ^= value >> 15u;
+    value *= 0x846ca68bu;
+    value ^= value >> 16u;
+    return value;
+}
+
+inline float uniform01(uint value) {
+    return (float(hash32(value)) + 0.5f) / 4294967296.0f;
+}
+
+inline float normalSample(uint first, uint second) {
+    const float u1 = max(uniform01(first), 1.0e-7f);
+    const float u2 = uniform01(second);
+    return sqrt(-2.0f * log(u1)) * cos(2.0f * kPi * u2);
+}
+
+inline bool bodyDynamic(const MRBodyStateGPU body) {
+    return body.flagsAndIndices[0] == MR_MOTION_DYNAMIC &&
+        body.linearVelocityAndInverseMass.w > 0.0f;
+}
+
+inline float3 bodyInverseInertia(
+    const MRBodyStateGPU body,
+    const float3 value
+) {
+    return float3(
+        dot(body.inverseInertiaWorldRow0.xyz, value),
+        dot(body.inverseInertiaWorldRow1.xyz, value),
+        dot(body.inverseInertiaWorldRow2.xyz, value)
+    );
+}
+
+} // namespace numi_matter_metal

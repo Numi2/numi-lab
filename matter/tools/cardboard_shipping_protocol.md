@@ -186,8 +186,9 @@ gravity-on runner with the same mass/inertia and restores that accepted scene
 state before the drop. The seed transaction is excluded from the 250 ms drop
 observation window. A branch never reuses a rigid-proxy snapshot projected for
 the 1 kg parked body or for another impact mass.
-The impactor plan uses 1.2 times the measured X/Z extents of the accepted
-outer roof after fixture-free settlement. The measurement is exported with its
+The impactor plan has 1.2 times the measured area of the accepted outer roof
+after fixture-free settlement, preserving its aspect ratio. Each measured X/Z
+extent scales by sqrt(1.2). The measurement is exported with its
 exterior-face method, accepted FEM checkpoint SHA, physics fingerprint, and
 compiled-world fingerprint. The center and positive quarter-width offset are
 computed from those same measured bounds. If the accepted exterior roof cannot

@@ -1,0 +1,14 @@
+[
+  "/Users/home/.pyenv/versions/3.10.12/bin/python3",
+  "/Users/home/cardboard-implementation-20261014/snapshots/source-material674-trace-116/matter/tools/cardboard_source_bound_build.py",
+  "--source-snapshot",
+  "/Users/home/cardboard-implementation-20261014/snapshots/source-material674-trace-116",
+  "--build-dir",
+  "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-116",
+  "--cmake-source-relative",
+  ".",
+  "--jobs",
+  "2",
+  "--target",
+  "numi-matter-cardboard-bilinear15-capture-diagnostic-check"
+]

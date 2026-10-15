@@ -1,0 +1,117 @@
+{
+  "artifacts": {
+    "README.md": {
+      "bytes": 2951,
+      "path": "README.md",
+      "sha256": "2e7108f767485d9f7c95b49b6de9d0b89d887b69dc14dcd48e34167dffeb17b5"
+    },
+    "analyze_direction_roundoff.py": {
+      "bytes": 6282,
+      "path": "analyze_direction_roundoff.py",
+      "sha256": "87a8b3188819d6c736646958a5a7ea747ce9fc1d2f3d8f4e862c3d45d18d6308"
+    },
+    "execution-record.json": {
+      "bytes": 478,
+      "path": "execution-record.json",
+      "sha256": "8df5353b338f246dfc108ae038274e7b15a2450da783535edb1aea0d1af3f42d"
+    },
+    "output-001/failed-run.json": {
+      "bytes": 337,
+      "path": "output-001/failed-run.json",
+      "sha256": "4cd456a977e0ca9414fccc805609801a01257d402ade9a12bedf2a71738fdd28"
+    },
+    "output-001/progress.jsonl": {
+      "bytes": 2195,
+      "path": "output-001/progress.jsonl",
+      "sha256": "305e261488638600753a3ba0ff67746fa7b4ca59cd928441ae0df46e8e3a8cee"
+    },
+    "output-002/progress.jsonl": {
+      "bytes": 3680,
+      "path": "output-002/progress.jsonl",
+      "sha256": "3aa64636f4f1ae96d9dfc8f9914e05a556d16ec2852a1c9b8cda02bdd827b791"
+    },
+    "output-002/result.json": {
+      "bytes": 21541,
+      "path": "output-002/result.json",
+      "sha256": "237ac0c0a1ceb4ddd65f7e9efcc78424ac2750e5b549388b9b64fc73819f7062"
+    },
+    "output-003/direction-roundoff.json": {
+      "bytes": 6384,
+      "path": "output-003/direction-roundoff.json",
+      "sha256": "3383b6b1cb1e84834bf8093de260506056d8be8cac59af220c9511a13ea69837"
+    },
+    "replay_mp90.py": {
+      "bytes": 13064,
+      "path": "replay_mp90.py",
+      "sha256": "bb73504cc23e6442b8a23f78a88e0a5b71d05cb185a282829b296d65aa6b4130"
+    },
+    "verify.py": {
+      "bytes": 3734,
+      "path": "verify.py",
+      "sha256": "b5b1c21e3d2cca42b5b048c0d1c6c49c0e810effc8c53136c479a383d3ef6b4d"
+    }
+  },
+  "classification": "CPU-only one-point constitutive precision adjudication; no solver or physical qualification.",
+  "inputs": {
+    "capture": {
+      "path": "/Users/home/cardboard-implementation-20261014/solver/reset-augmentation-first-failure-capture-360/operator-capture",
+      "sha256": "548dce37fbe5a28a609dd6bc45318926072c878774ea0caffa3237d925cebb33"
+    },
+    "direction_helper": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/source101-capture360-directional-fd-001/compare_directional_fd.py",
+      "sha256": "742b0920c4f543e284e41ed18f8dbc78253915a31f39b3ef8d32ff7dec01b5e8"
+    },
+    "fp64_reference": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "sha256": "c17010564a98fe63da0c8b88be81313685a65cfbd57ff82292e797cab5a0fdf3"
+    },
+    "mp90_helper": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/medium-tangent-state-sensitivity-1634-002/mp90_endpoint_fd.py",
+      "sha256": "042cd63f87206f4cc8698e16d7ec75348637d1b219a0d0f7fc8b148f0d585913"
+    },
+    "mp90_runner": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/source101-capture360-selected-mp90-002/replay_selected.py",
+      "sha256": "aa73eda519a30807f00b741d3b6cc9b73fb8434e9082fbf39955739572f5c089"
+    },
+    "mp90_source": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/medium-tangent-state-sensitivity-1634-001/replay.py",
+      "sha256": "3214549746cb872fbf089f59e96ce961b239bae3a724f5da7bbeed9f8b0497f0"
+    },
+    "v3_epsilon_sweep": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/source101-tet1186-epsilon-diagnostic-001/output-001/row1186.json",
+      "sha256": "e143b710d07bc62c308680c4ac4f6ddc7f41121a8362131ab71813f448707dae"
+    },
+    "v3_manifest": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/source101-capture360-v3-uniform-1728-006/manifest.json",
+      "sha256": "2914c54c17ae292de3dbcf630aa3a2b111e0895b0ea6444f671d331102c702e1"
+    },
+    "v3_report": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/source101-capture360-v3-uniform-1728-006/output-006/report.json",
+      "sha256": "dd6bb021cbd0e9b51425c19dd635ad31fc85a660bff667eb7b4a3e2ce39c690a"
+    },
+    "v3_rows": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/source101-capture360-v3-uniform-1728-006/output-006/all1728_v3_rows.jsonl",
+      "sha256": "7378794b10863ff2df78b3d5e4d60e6ebdf26abce6791867bfe6d511a9ab0782"
+    }
+  },
+  "schema": "numi.cardboard.source101-tet1186-mp90-adjudication.v1",
+  "verdict": {
+    "accepted_history_changed": false,
+    "center_and_all_endpoint_projections_converged": true,
+    "mp90_fd_nominal_direction_relative_l2": [
+      9.60242126761476e-07,
+      1.5857681873279996e-06
+    ],
+    "mp90_fd_realized_direction_relative_l2": [
+      5.888653981152615e-12,
+      5.299790306224242e-13
+    ],
+    "production_files_changed": false,
+    "targets": [
+      1e-07,
+      3e-08
+    ],
+    "uniform_v3_gate_changed": false,
+    "universal_noise_floor_claimed": false
+  }
+}

@@ -1,0 +1,381 @@
+{
+  "capture_383": {
+    "array_count": 145,
+    "iteration": 7,
+    "manifest_sha256": "2f9e50f5a147b6c4456f8aefb6fc8b6ba5fd9edcdda0961181eff20929cda2fc",
+    "payload_bytes": 11670948,
+    "payload_sha256": "19482f9561aac98e1093d95b469ad7af4d96d54730448be85efd458b82f9d5e5",
+    "root": 1201
+  },
+  "capture_385": {
+    "all_array_hashes_verified": true,
+    "array_count": 145,
+    "center_operator_diagnostic_code": 0,
+    "device_program_fingerprint": "1a4d455a205df1db",
+    "iteration": 9,
+    "manifest_sha256": "1ba486f1da055b18d59c1e54303a1170a49c1547ccb6c2800562a84f5eb6737a",
+    "payload_bytes": 11670948,
+    "payload_fully_covered_by_contiguous_arrays": true,
+    "payload_sha256": "0c4ad7045f9c6020edbb45bfae71d3146c68294fd397ad54c42004c754c61c3a",
+    "rhs_preserved_before_fgmres": true,
+    "root": 1201,
+    "source_physics_fingerprint": "915f50b10edc2e46"
+  },
+  "capture_386": "not requested; physical no-capture control",
+  "capture_env_only_variation": true,
+  "limits": [
+    "The linear residual is recomputed in FP64 from exact captured FP32 RHS and same-generation production J*delta operands; it is not an independent reassembly or nonlinear certificate.",
+    "Capture is before the N9 Armijo trials. The final N9 trial alpha comes from the Armijo log; trial geometry is not captured, so displacement representability is an estimate only.",
+    "All three complete native runs exit with expected fixture failure (exit 1). The repeated history does not qualify a completed or converged full-contact step.",
+    "N10+ raw base_l2 is explicitly marked invalid after fatal solver status and is not interpreted as a residual."
+  ],
+  "physical_history_parity": [
+    {
+      "armijo_records": 32,
+      "armijo_records_exact": true,
+      "capture_lifecycle_log_only_normalized": [
+        "dense/fixture-free-body-control-1201.log"
+      ],
+      "result": "physical_diagnostic_history_equal",
+      "runs": [
+        "383",
+        "385"
+      ],
+      "stderr_exact_after_capture_lifecycle_lines": true,
+      "stdout_exact": true,
+      "transaction_state_files_byte_identical": [
+        "dense/fixture-free-body-control-1200.log",
+        "dense/transaction-000000-after.bin",
+        "dense/transaction-000000-before.bin",
+        "dense/transaction-000000.json",
+        "dense/transaction-000001-after.bin",
+        "dense/transaction-000001-before.bin",
+        "dense/transaction-000001.json",
+        "dense/transaction-000002-after.bin",
+        "dense/transaction-000002-before.bin",
+        "dense/transaction-000002.json"
+      ]
+    },
+    {
+      "armijo_records": 32,
+      "armijo_records_exact": true,
+      "capture_lifecycle_log_only_normalized": [
+        "dense/fixture-free-body-control-1201.log"
+      ],
+      "result": "physical_diagnostic_history_equal",
+      "runs": [
+        "385",
+        "386"
+      ],
+      "stderr_exact_after_capture_lifecycle_lines": true,
+      "stdout_exact": true,
+      "transaction_state_files_byte_identical": [
+        "dense/fixture-free-body-control-1200.log",
+        "dense/transaction-000000-after.bin",
+        "dense/transaction-000000-before.bin",
+        "dense/transaction-000000.json",
+        "dense/transaction-000001-after.bin",
+        "dense/transaction-000001-before.bin",
+        "dense/transaction-000001.json",
+        "dense/transaction-000002-after.bin",
+        "dense/transaction-000002-before.bin",
+        "dense/transaction-000002.json"
+      ]
+    },
+    {
+      "armijo_records": 32,
+      "armijo_records_exact": true,
+      "capture_lifecycle_log_only_normalized": [
+        "dense/fixture-free-body-control-1201.log"
+      ],
+      "result": "physical_diagnostic_history_equal",
+      "runs": [
+        "383",
+        "386"
+      ],
+      "stderr_exact_after_capture_lifecycle_lines": true,
+      "stdout_exact": true,
+      "transaction_state_files_byte_identical": [
+        "dense/fixture-free-body-control-1200.log",
+        "dense/transaction-000000-after.bin",
+        "dense/transaction-000000-before.bin",
+        "dense/transaction-000000.json",
+        "dense/transaction-000001-after.bin",
+        "dense/transaction-000001-before.bin",
+        "dense/transaction-000001.json",
+        "dense/transaction-000002-after.bin",
+        "dense/transaction-000002-before.bin",
+        "dense/transaction-000002.json"
+      ]
+    }
+  ],
+  "physical_inputs_identical_after_output_path_normalization": true,
+  "run_bindings": {
+    "383": {
+      "armijo_records": 32,
+      "canonical_input_map_sha256": "4cf9d588ad91b41f4e17b86309d2104d9e52cfdb1cd4fc6e4829f9d1e9775b5c",
+      "executable_sha256": "82a4f52848b60bad228f8c348dc5c165c65afd168b2062a447c7912374e80f67",
+      "exit_code": 1,
+      "input_file_count": 792,
+      "prediction_sha256": "196bccfa25b2df3ee132aa0779358c0904cbf2ed548830b997bb36d30b0d6f5b",
+      "receipt_sha256": "3ca260dab88a166f5bee126afb6c94df7c1434bbdad022ad2df3c5454558c5b6",
+      "source_build_sha256": "a8aebb8893481fddac6f6bd972f9931733a24f9ce642ecccc59eb96ee89f0c04",
+      "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-private-ccd-fracture-115",
+      "timed_out": false,
+      "wall_seconds": 9.321690958051477
+    },
+    "385": {
+      "armijo_records": 32,
+      "canonical_input_map_sha256": "4cf9d588ad91b41f4e17b86309d2104d9e52cfdb1cd4fc6e4829f9d1e9775b5c",
+      "executable_sha256": "82a4f52848b60bad228f8c348dc5c165c65afd168b2062a447c7912374e80f67",
+      "exit_code": 1,
+      "input_file_count": 792,
+      "prediction_sha256": "687e2a7e9aec6def3be16f599fbfdf27fdc282e549a7c0443c4acbca12b50fa1",
+      "receipt_sha256": "41a1ec05d3b59f1fd0108c45eec50a729af6b41f8bb3fe1632af38f238615f64",
+      "source_build_sha256": "a8aebb8893481fddac6f6bd972f9931733a24f9ce642ecccc59eb96ee89f0c04",
+      "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-private-ccd-fracture-115",
+      "timed_out": false,
+      "wall_seconds": 9.219994958024472
+    },
+    "386": {
+      "armijo_records": 32,
+      "canonical_input_map_sha256": "4cf9d588ad91b41f4e17b86309d2104d9e52cfdb1cd4fc6e4829f9d1e9775b5c",
+      "executable_sha256": "82a4f52848b60bad228f8c348dc5c165c65afd168b2062a447c7912374e80f67",
+      "exit_code": 1,
+      "input_file_count": 792,
+      "prediction_sha256": "94b01e7535fdc86d1f10fd8bc79566e4fd5ddfbe7530ab1d8e2e18f84559a3f7",
+      "receipt_sha256": "20aee604b9aa57cf8c86e4e1977fc119524f23a79555a11999de4d6df5f5753a",
+      "source_build_sha256": "a8aebb8893481fddac6f6bd972f9931733a24f9ce642ecccc59eb96ee89f0c04",
+      "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-private-ccd-fracture-115",
+      "timed_out": false,
+      "wall_seconds": 9.28645937499823
+    }
+  },
+  "same_generation_linear_residual": {
+    "after_fgmres_workspace_max_abs": 0.0,
+    "after_workspace_is_not_used_as_rhs": true,
+    "armijo_newton10": {
+      "accepted": false,
+      "base_health": "invalid_pretrial_solver_status",
+      "base_l2": 0.0100020813,
+      "base_residual_interpretation": "raw_metric_only_base_not_qualified_as_complete_residual",
+      "solver_status_code": 10,
+      "trial_alpha": 0,
+      "trial_l2": 3.76308299e-06,
+      "trial_outcome": "blocked_by_pretrial_solver_status"
+    },
+    "armijo_newton8": {
+      "accepted": true,
+      "base_health": "healthy_at_armijo_entry",
+      "base_l2": 3.76308412e-06,
+      "base_residual_interpretation": "complete_assembled_free_dof_residual",
+      "solver_status_code": 0,
+      "trial_alpha": 9.53674316e-07,
+      "trial_l2": 3.76308299e-06,
+      "trial_outcome": "selected_trial_accepted"
+    },
+    "armijo_newton9": {
+      "accepted": false,
+      "base_health": "healthy_at_armijo_entry",
+      "base_l2": 3.76308299e-06,
+      "base_residual_interpretation": "complete_assembled_free_dof_residual",
+      "solver_status_code": 10,
+      "trial_alpha": 1.1920929e-07,
+      "trial_l2": 3.76308321e-06,
+      "trial_outcome": "no_trial_accepted_status_clear"
+    },
+    "b_minus_jdelta_l2": 8.176561191043932e-08,
+    "block_metrics": {
+      "1": {
+        "b_minus_jdelta_l2": 8.174802906837025e-08,
+        "jdelta_l2": 3.125674152236089e-06,
+        "max_abs_b_minus_jdelta": 3.377491974987379e-08,
+        "rhs_l2": 3.1355822711240288e-06,
+        "scalar_lanes_in_norm": 144,
+        "stored_float4_slots": 36
+      },
+      "2": {
+        "b_minus_jdelta_l2": 0.0,
+        "jdelta_l2": 0.0,
+        "max_abs_b_minus_jdelta": 0.0,
+        "rhs_l2": 0.0,
+        "scalar_lanes_in_norm": 144,
+        "stored_float4_slots": 36
+      },
+      "3": {
+        "b_minus_jdelta_l2": 1.6955926767563002e-09,
+        "jdelta_l2": 2.0806968338011654e-06,
+        "max_abs_b_minus_jdelta": 1.197750176817891e-09,
+        "rhs_l2": 2.0806056879984105e-06,
+        "scalar_lanes_in_norm": 6,
+        "stored_float4_slots": 6
+      }
+    },
+    "captured_vs_recomputed_norm_delta": {
+      "initial_rhs_absolute": 1.0340761687416874e-13,
+      "linear_residual_absolute": 4.12928989332969e-12,
+      "linear_residual_relative_to_recomputed": 5.0501547005514286e-05
+    },
+    "center_operator_diagnostic_code": 0,
+    "fgmres_state": {
+      "arnoldi_column_field": 0.0,
+      "converged_latch": 1.0,
+      "diagnostics_current_residual_estimate": 8.176974120033265e-08,
+      "diagnostics_initial_residual_norm": 3.7630834412993863e-06,
+      "last_correction_ratio": 0.007323882542550564,
+      "nonlinear_converged_latch": 0.0,
+      "nonlinear_current_residual": 3.7630834412993863e-06,
+      "nonlinear_first_residual": 0.019994786009192467
+    },
+    "history_arrays": {
+      "cohesive_faces_accepted": {
+        "count": 1,
+        "dtype": "record:NMCohesiveFaceGPU",
+        "sha256": "b1ed3feca3c963d19634a04c3ef28b7832e8530d95c0acae9417cbe5eefaa1d1"
+      },
+      "cohesive_faces_candidate": {
+        "count": 1,
+        "dtype": "record:NMCohesiveFaceGPU",
+        "sha256": "77e6723801a8116151d41d977a3337dc50e2f0693e87265e293ecb1c1824cea7"
+      },
+      "contact_histories_accepted": {
+        "count": 72,
+        "dtype": "float32x4",
+        "sha256": "4ef3447c2581143c8ff43c7ded4badb046feac54deb7a06fe9063c6263bc44df"
+      },
+      "contact_histories_candidate": {
+        "count": 72,
+        "dtype": "float32x4",
+        "sha256": "867e6d045643d159ef094e4cb63ab1ae6d001e52df59affed42bad8c2bb35bb2"
+      },
+      "contact_history_used_by_newton_center": {
+        "count": 72,
+        "dtype": "float32x4",
+        "sha256": "867e6d045643d159ef094e4cb63ab1ae6d001e52df59affed42bad8c2bb35bb2"
+      },
+      "deformable_contact_histories_accepted": {
+        "count": 18336,
+        "dtype": "record:NMDeformableContactHistoryGPU",
+        "sha256": "6e7beb937ebb8b4f0c102f1f495ba8aa75e6e915c4b575a3fdd81a59dcb71a6e"
+      },
+      "deformable_contact_histories_candidate": {
+        "count": 18336,
+        "dtype": "record:NMDeformableContactHistoryGPU",
+        "sha256": "7d6956ebeacf0324f75738a0ccdd5efb9b60224552e6031447323fc6c01c986d"
+      },
+      "deformable_history_used_by_newton_center": {
+        "count": 18336,
+        "dtype": "record:NMDeformableContactHistoryGPU",
+        "sha256": "7d6956ebeacf0324f75738a0ccdd5efb9b60224552e6031447323fc6c01c986d"
+      },
+      "material_history_accepted": {
+        "count": 4,
+        "dtype": "float32",
+        "sha256": "374708fff7719dd5979ec875d56cd2286f6d3cf7ec317a3b25632aab28ec37bb"
+      },
+      "material_history_candidate": {
+        "count": 4,
+        "dtype": "float32",
+        "sha256": "374708fff7719dd5979ec875d56cd2286f6d3cf7ec317a3b25632aab28ec37bb"
+      }
+    },
+    "jdelta_l2": 3.7548819182694667e-06,
+    "kinematic_relation": {
+      "all_candidate_reference_displacement_modes": [
+        1.0
+      ],
+      "alpha_position_effect_is_derived_not_captured_trial_geometry": true,
+      "dt_seconds_f32": 9.999999747378752e-05,
+      "fem_candidate_position_components": 108,
+      "fem_candidate_position_relation_exact_components": 108,
+      "fem_delta_velocity_components": 108,
+      "fem_delta_velocity_relation_exact_components": 108,
+      "fixed_fem_nodes": [
+        0,
+        2,
+        6,
+        8
+      ],
+      "last_alpha_separate_fp32_replay": {
+        "components_changed_vs_center": 20,
+        "components_unchanged_vs_center": 76,
+        "free_position_components": 96,
+        "max_abs_position_change_m": 5.684341886080802e-14,
+        "status": "modeled separate-FP32 update only; not a captured trial state and not evidence that geometry quantization caused the failure."
+      },
+      "max_abs_alpha_dt_delta_v_m": 8.7307192930532e-14,
+      "max_abs_newton_velocity_correction_m_per_s": 0.007323858328163624,
+      "ninth_armijo_last_tested_alpha": 1.1920929e-07,
+      "reference_displacement_update_max_abs_error_under_separate_fp32_ops": 5.684341886080802e-14,
+      "source_apply_semantics": "FEM apply adds alpha*delta_v; mode 1 rebuilds u from accepted u + dt*v then position=rest+u; this is a scale estimate, not an observed private-trial candidate."
+    },
+    "linear_and_nonlinear_gate_analysis": {
+      "arnoldi_estimate_under_outer_absolute_target": true,
+      "arnoldi_estimate_under_relative_forcing_target": false,
+      "authored_armijo_coefficient": 0.0001,
+      "authored_diagonal_floor": 1e-08,
+      "authored_relative_residual_tolerance": 1e-07,
+      "captured_fp64_b_minus_jdelta_norm": 8.176561191043932e-08,
+      "captured_native_arnoldi_estimate": 8.176974120033265e-08,
+      "cycle_finalizer_reason": "reachedNonlinearTarget accepts this FGMRES cycle because estimate <= 1e-7 absolute target, although it is above the 0.015625 * ||b|| forcing target; nonlinear_converged_latch remains false, so outer Armijo still runs.",
+      "effective_fgmres_relative_forcing": 0.015625,
+      "initial_linear_rhs_norm": 3.7630833378917694e-06,
+      "last_n9_armijo": {
+        "base_norm": 3.76308299e-06,
+        "fp32_armijo_bound": 3.7630829865520354e-06,
+        "fp32_ulp_at_base_norm": 2.2737367544323206e-13,
+        "last_tested_alpha": 1.1920929e-07,
+        "note": "Only the final tested trial is in this record; the earlier 23 trial values are not captured, so this does not explain every rejection.",
+        "raw_fp64_armijo_decrement": 4.4859445144897717e-17,
+        "strict_descent_required": true,
+        "trial_minus_base_norm": 2.1999999995101567e-13,
+        "trial_norm": 3.76308321e-06
+      },
+      "metric_units_and_scope": "The residual norm combines 36 FEM float4 rows and six rigid generalized scalar rows; field rows are zero. The explicit mechanical entries are impulse residuals, while rigid rotational entries are angular impulses. No mass/stiffness/contact term decomposition was captured, so this norm cannot attribute the remainder to a particular block.",
+      "newton_iteration_zero_based": 9,
+      "outer_absolute_nonlinear_target": 1e-07,
+      "outer_target_first_newton_norm": 0.019994786009192467,
+      "outer_target_formula": "max(diagonalFloor, relativeResidual * max(firstNewtonNorm, 1))",
+      "relative_forcing_absolute_target": 5.87981771545589e-08,
+      "scheduled_forcing": 0.015625,
+      "sqrt_tolerance_forcing_floor": 0.00031622776601683794
+    },
+    "max_abs_b_minus_jdelta": 3.377491974987379e-08,
+    "nonlinear_result": "Newton 9 rejects every line-search candidate; Newton 10+ rows are blocked after fatal status and their raw base_l2 is not an assembled residual.",
+    "padding_max_abs": 0.0,
+    "relative_linear_residual": 0.021728355332212148,
+    "rhs_l2": 3.7630833378917694e-06,
+    "same_generation_operator_cache_used": false,
+    "status_before_armijo_code": 0,
+    "status_before_armijo_fgmres_iterations": 144,
+    "working_contact_history_differs_from_timestep_accepted": true,
+    "working_contact_history_matches_prior_candidate": true
+  },
+  "schema": "numi.cardboard.full_contact_newton9_residual_audit.v1",
+  "source_binding": {
+    "source_file_sha256": {
+      "matter/include/numi/matter/matter.hpp": "798e124cdf0b97370a7e1412526693b0f2469985df2b5e985ad3a8acbe00808a",
+      "matter/include/numi/matter/shared.h": "ae84a7fb79e5b79ad813b249c720b9ace6105fde81f555cbd784afafa721e691",
+      "matter/src/metal/fem.metalinc": "742cf561ee1ed91e20ed797e664595f675302437a3d583f8c5768da6cb3d008e",
+      "matter/src/metal/fgmres.metalinc": "1c423e02e189df17c925e0b77ded87465098278f836011c16aad1bb8f92bcec0",
+      "matter/src/runtime.mm": "3c467b04e72512b53a5ba9e1f3ee4132f293b0d2e6ac22acc0c3936512319e74",
+      "matter/tools/cardboard_full_contact_armijo_check.mm": "95e52efd34aeffab1d220b4fa8840b885001dbc156d4a1d8f793210e3c40d0f3"
+    },
+    "source_lines": {
+      "Armijo acceptance gate": "fem.metalinc:4472-4555",
+      "FEM apply": "fem.metalinc:3282-3335",
+      "FGMRES cycle gates": "fgmres.metalinc:5823-5856",
+      "capture arrays": "runtime.mm:15541-15549",
+      "fixture tolerance": "cardboard_full_contact_armijo_check.mm:808",
+      "forcing construction": "runtime.mm:17974-17983",
+      "node ABI": "shared.h:1111-1118",
+      "rigid apply": "fgmres.metalinc:4826-4840",
+      "row_map": "runtime.mm:15337-15353",
+      "solver defaults": "matter.hpp:415-428",
+      "status/FGMRES ABI": "shared.h:1171-1178;1390-1403",
+      "vector sign semantics": "runtime.mm:16531-16536"
+    },
+    "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-private-ccd-fracture-115"
+  },
+  "verdict": "OFF_ON_PHYSICAL_HISTORY_PARITY_PASS; SAME_GENERATION_LINEAR_RESIDUAL_MEASURED; FGMRES_ACCEPTED_BY_OUTER_ABSOLUTE_TARGET; FULL_CONTACT_N9_ARMIJO_FAILURE_RETAINED"
+}

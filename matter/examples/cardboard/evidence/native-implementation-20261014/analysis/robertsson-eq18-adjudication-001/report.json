@@ -1,0 +1,152 @@
+{
+  "adjudication": {
+    "assertion_conflict": "the article states Psi0>=0 in its Eq. 17 discussion; literal Eq. 18 violates that premise on the admissible diagonal compression path",
+    "compressed_side_limit_MPa": "-0.3332608695652173913043478260869565217391304347826086956521739130434782",
+    "damage_relevance": "A=Psi0; the branch offset changes the damage-driving force and is not a harmless stress-only reference shift",
+    "literal_energy_jump_at_switch_MPa": "0.3332608695652173913043478260869565217391304347826086956521739130434782",
+    "literal_source_equation": "paper_absolute uses printed compression bracket constant -2 and H=1 at I13>=1; this is the source-text equation, not a thermodynamic qualification",
+    "recentered_branch_constant_addition_MPa": "0.3332608695652173913043478260869565217391304347826086956521739130434782",
+    "recentered_status": "engineering thermodynamic correction/legacy comparison; no author code or erratum proves this was used in the paper",
+    "reference_state": "F=Fp=I, kappa=0, alpha=0; H=1; Psi0=0",
+    "source_author_execution": "unresolved: article reports commercial-code simulations and exposes no author implementation source",
+    "tension_value_at_switch_MPa": "0",
+    "transfer": "none to corrugated kraft/NSSC"
+  },
+  "benchmark_rows": [
+    {
+      "Kirchhoff_tau33_MPa": "-0.1839863516543148011806373586978586582231265493992708034711289705870288",
+      "alpha_fixed": "0",
+      "branch": "compression",
+      "convention": "paper_absolute",
+      "dP33_dlambda_MPa": "20.49984306819992423372476703629923535663713811358423776106121989906841",
+      "damage_conjugate_A_Pa": "-332362.5426152471220247872950542820094567490207565656209228371119811630",
+      "first_Piola_P33_MPa": "-0.1858447996508230314955932916139986446698247973730008115869989601889180",
+      "free_energy_Pa": "-332362.5426152471220247872950542820094567490207565656209228371119811630",
+      "lambda_z": "0.99",
+      "psi0_MPa": "-0.3323625426152471220247872950542820094567490207565656209228371119811630"
+    },
+    {
+      "Kirchhoff_tau33_MPa": "-0.1379897637407361008854780190233939936673449120494531026033467279402716",
+      "alpha_fixed": "0.25",
+      "branch": "compression",
+      "convention": "paper_absolute",
+      "dP33_dlambda_MPa": "15.37488230114994317529357527722442651747785358518817832079591492430131",
+      "damage_conjugate_A_Pa": "-332362.5426152471220247872950542820094567490207565656209228371119811630",
+      "first_Piola_P33_MPa": "-0.1393835997381172736216949687104989835023685980297506086902492201416885",
+      "free_energy_Pa": "-249271.9069614353415185904712907115070925617655674242156921278339858722",
+      "lambda_z": "0.99",
+      "psi0_MPa": "-0.3323625426152471220247872950542820094567490207565656209228371119811630"
+    },
+    {
+      "Kirchhoff_tau33_MPa": "-0.1379897637407361008854780190233939936673449120494531026033467279402716",
+      "alpha_fixed": "0.25",
+      "branch": "compression",
+      "convention": "recentered",
+      "dP33_dlambda_MPa": "15.37488230114994317529357527722442651747785358518817832079591492430131",
+      "damage_conjugate_A_Pa": "898.3269499702692795605310326745122823814140260430747293368010623152700",
+      "first_Piola_P33_MPa": "-0.1393835997381172736216949687104989835023685980297506086902492201416885",
+      "free_energy_Pa": "673.7452124777019596703982745058842117860605195323060470026007967364525",
+      "lambda_z": "0.99",
+      "psi0_MPa": "0.000898326949970269279560531032674512282381414026043074729336801062315270"
+    },
+    {
+      "Kirchhoff_tau33_MPa": "0.0",
+      "alpha_fixed": "0",
+      "branch": "tension_at_H_equals_1",
+      "convention": "paper_absolute",
+      "dP33_dlambda_MPa": "56.8",
+      "damage_conjugate_A_Pa": "0.0",
+      "first_Piola_P33_MPa": "0.0",
+      "free_energy_Pa": "0.0",
+      "lambda_z": "1",
+      "psi0_MPa": "0.0"
+    },
+    {
+      "Kirchhoff_tau33_MPa": "5.421818181818181818181818181818181818181818181818181818181818181818183",
+      "alpha_fixed": "0",
+      "branch": "tension",
+      "convention": "paper_absolute",
+      "dP33_dlambda_MPa": "42.67468069120961682945154019534184823441021788129226145755071374906086",
+      "damage_conjugate_A_Pa": "258181.8181818181818181818181818181818181818181818181818181818181818156",
+      "first_Piola_P33_MPa": "4.928925619834710743801652892561983471074380165289256198347107438016530",
+      "free_energy_Pa": "258181.8181818181818181818181818181818181818181818181818181818181818156",
+      "lambda_z": "1.1",
+      "psi0_MPa": "0.2581818181818181818181818181818181818181818181818181818181818181818156"
+    }
+  ],
+  "claim_limit": "not author-code replication, experimental validation, or kraft/NSSC transfer",
+  "evidence_class": "independent_CPU_source_equation_benchmark",
+  "grade_and_units": {
+    "E3_MPa": "28.4",
+    "E6_MPa": "0.365",
+    "E7_dimensionless": "11.5",
+    "density_kg_m3": "788",
+    "energy_and_stress": "MPa-equivalent source quantities; builder scales energy root/stress to Pa",
+    "grade": "single-ply softwood paperboard used in the cited article",
+    "thickness_mm": "0.39"
+  },
+  "qualification": {
+    "meaning": "analytic source-formula consistency for virgin diagonal F13 at fixed damage away from the branch point, plus the exact H=1 branch value",
+    "not_established": [
+      "author executable convention",
+      "damage-dissipation qualification of paper_absolute",
+      "global 27-state return-map correctness",
+      "Metal parity",
+      "folding experiment reproduction",
+      "cross-grade transfer"
+    ],
+    "passed": true
+  },
+  "restricted_path_derivation": {
+    "P33_compression": "(1-alpha)*2*E6*lambda_z*(1-exp(-E7*(lambda_z^2-1)))",
+    "P33_tension": "(1-alpha)*E3*(1-lambda_z^-2)",
+    "damage_derivative_check_at_lambda_0_99": {
+      "absolute_difference_Pa": "9.792434343790771628880188370000000E-37",
+      "central_difference_dPsi_dalpha_Pa": "332362.54261524712202478729505428200945675000000",
+      "central_difference_step": "1E-30",
+      "minus_A_Pa": "332362.5426152471220247872950542820094567490207565656209228371119811630"
+    },
+    "deformation": "Fe=F=diag(1,1,lambda_z), Fp=I, fixed alpha, no plastic update",
+    "derivative_check_at_lambda_0_99": {
+      "Eq20_A1_P33_MPa": "-0.1858447996508230314955932916139986446698247973730008115869989601889180",
+      "absolute_difference_MPa": "7.69991884130010398110820E-47",
+      "central_difference_dW_dlambda_MPa": "-0.18584479965082303149559329161399864466982479745",
+      "central_difference_step": "1E-24"
+    },
+    "energy_compression": "E6*(lambda_z^2 + exp(-E7*(lambda_z^2-1))/E7 + c), c=-2 or -1-1/E7",
+    "energy_tension": "E3*(lambda_z + 1/lambda_z - 2)",
+    "invariants": "I11=I12=I23=Je=1; I13=lambda_z",
+    "one_sided_tangent_limits_MPa_alpha0": {
+      "compression_left": "16.7900",
+      "tension_right": "56.8"
+    },
+    "repository_cpu_expression_evaluator_replay_at_lambda_0_99": {
+      "paper_absolute_A_Pa": "-332362.55055602343",
+      "paper_absolute_free_energy_at_alpha_0_25_Pa": "-249271.91291701756",
+      "paper_absolute_psi0_MPa": "-0.33236255055602343",
+      "recentered_psi0_MPa": "0.0008983352838536924",
+      "reference_comparison": "matches the prior checked-in audit's rounded -332362.550556 Pa A and -249271.912917 Pa free-energy values; these are binary32-leaf replay values, distinct from exact-decimal-source values above",
+      "semantics": "leaf constants rounded to binary32, expression arithmetic in binary64 as in the check's scalar expression walk"
+    },
+    "tangent_compression": "(1-alpha)*2*E6*((1-exp(-E7*(lambda_z^2-1)))+2*E7*lambda_z^2*exp(-E7*(lambda_z^2-1)))",
+    "tangent_tension": "(1-alpha)*2*E3/lambda_z^3",
+    "tau33_compression": "lambda_z*P33 because J=lambda_z"
+  },
+  "schema": "numi.cardboard.robertsson_eq18_absolute_adjudication.v1",
+  "source": {
+    "article": "Robertsson et al., A continuum damage model for creasing and folding of paperboard, Packaging Technology and Science 36(12), 1037-1050 (2023)",
+    "doi": "10.1002/pts.2774",
+    "original_html_or_pdf_archived": false,
+    "primary_url": "https://onlinelibrary.wiley.com/doi/full/10.1002/pts.2774",
+    "retrieval": "official Wiley open-access full-text HTML read 2026-10-15; publisher PDF/executable not used",
+    "source_locations": [
+      "Eq. 2",
+      "Eqs. 6-7",
+      "Eq. 18",
+      "Eqs. 19-20",
+      "Appendix A1",
+      "Table C1",
+      "Eq. 17 discussion"
+    ]
+  }
+}

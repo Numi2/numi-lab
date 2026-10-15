@@ -1,0 +1,48 @@
+{
+  "restorations": [
+    {
+      "number": 116,
+      "exit_code": 0,
+      "output": {
+        "number": 116,
+        "files": 1852,
+        "exact_bytes_verified": true,
+        "output": "/Users/home/cardboard-implementation-20261014/cardboard-source116-cli-9vehnnc_/restored",
+        "actual_build_success": true
+      },
+      "command": [
+        "/Users/home/.pyenv/versions/3.10.12/bin/python3",
+        "/Users/home/cardboard-implementation-20261014/analysis/retained-source-snapshots116-117-001/restore.py",
+        "--repository",
+        "/Users/home/numi-cardboard-20261006",
+        "--number",
+        "116",
+        "--output",
+        "/Users/home/cardboard-implementation-20261014/cardboard-source116-cli-9vehnnc_/restored"
+      ]
+    },
+    {
+      "number": 117,
+      "exit_code": 0,
+      "output": {
+        "number": 117,
+        "files": 1852,
+        "exact_bytes_verified": true,
+        "output": "/Users/home/cardboard-implementation-20261014/cardboard-source117-cli-g43ko3rd/restored",
+        "actual_build_success": true
+      },
+      "command": [
+        "/Users/home/.pyenv/versions/3.10.12/bin/python3",
+        "/Users/home/cardboard-implementation-20261014/analysis/retained-source-snapshots116-117-001/restore.py",
+        "--repository",
+        "/Users/home/numi-cardboard-20261006",
+        "--number",
+        "117",
+        "--output",
+        "/Users/home/cardboard-implementation-20261014/cardboard-source117-cli-g43ko3rd/restored"
+      ]
+    }
+  ],
+  "temporary_verified_copies_removed": true,
+  "source_and_retained_blobs_unchanged": true
+}

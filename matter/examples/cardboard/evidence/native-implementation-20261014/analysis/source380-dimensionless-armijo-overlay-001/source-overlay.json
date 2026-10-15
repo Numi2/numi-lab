@@ -1,0 +1,64 @@
+{
+  "base": {
+    "frozen_source_manifest_sha256": "12a5a9629afa6487f9326432fa16284c75cc074f9323cb773a0a5c9a1b0ec867",
+    "path": "matter/src/metal/common.metalinc",
+    "sha256": "e53feb0402a461f355cf2ee5c3af89f95eb49176178e60d997d4a9cc6588a182",
+    "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-private-ccd-fracture-115"
+  },
+  "change_contract": {
+    "armijo_coefficient_unchanged": 0.0001,
+    "legacy_raw_merit_path_unchanged": true,
+    "line_search_trial_capacity_unchanged": 16,
+    "merit": "max_i(abs(current or trial residual_i) / current frozen row_scale_i)",
+    "raw_residual_gate_unchanged": "2e-8 * (1 + stateNorm)",
+    "row_scale": "sum_j(abs(current pre-solve J_ij) * max(abs(accepted_state_j), abs(candidate_state_j), parameter[26]))",
+    "scaled_correction_gate_unchanged": 2e-08,
+    "selector": "existing NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION policy only",
+    "strict_descent": true,
+    "trace_padding": "For 15-state records, 15 row scales and 16 trial scaled merits fit in 31 unused Jacobian padding floats. A dedicated 16-trial constant keeps this independent of trace iteration depth."
+  },
+  "files": {
+    "README.md": "149a601c43971bf02b7a729be7cebca2a3b06b5b87e5cf2b6e50e36658af2fbc",
+    "analyze_native_trace.py": "6ff926ee1a261546bbb4606bdcc8b75e0df21afffcda7489be4b77058f312f2f",
+    "evidence/cpu-tests.txt": "0ece5aebdaab2fdf393b363c74a8e4c820ea52be333ece375270eec9b1dad621",
+    "evidence/native_trace_row_merit.json": "105a06cb684d80f172dbd04af6803a1038ef35cabbc4262c4e918382fa1ceb79",
+    "evidence/patch-dry-run.txt": "3cae9ff13d2a69c9c4bd4dbce6fa41434e4a5aa1b79f418ad8e9b793240adfbc",
+    "source-overlay.patch": "57568329b9dd944f8d581c71dad1cceea173f3dc9a5385bb92e67fa739b8156b",
+    "source/matter/src/metal/common.metalinc": "36396090a12cb10042f7235a870c2de21f321b706e4cfeb327b0682d831720ca",
+    "tests/armijo_merit_reference.py": "019cf27c009f2a938088b6acfe0e15050588d14ceb82bd8a37de71a8260c9e6b",
+    "tests/test_armijo_merit.py": "89e91ccbcba5990c318edfdaebdfc08c6bbf378c0a5776211c056fe98bd581b6",
+    "tests/test_source_contract.py": "834ef3f958d18a09d117ab30455caddcffdda0184c83d4e52b0d780e61d32c7c"
+  },
+  "limits": [
+    "The motivating source380 trace contains raw trial residual maxima but not trial residual vectors; it cannot establish that the proposed scaled-merit line search accepts any historical trial.",
+    "One CPU acceptance test uses an explicitly synthetic trial vector. It tests merit semantics, not native behavior.",
+    "No Metal compilation, solver transaction, or physical qualification is claimed."
+  ],
+  "motivating_native_evidence": {
+    "audit_path": "evidence/native_trace_row_merit.json",
+    "audit_sha256": "105a06cb684d80f172dbd04af6803a1038ef35cabbc4262c4e918382fa1ceb79",
+    "point_input_path": "/Users/home/cardboard-implementation-20261014/analysis/source380-generalized-material-point-001/native_point_input_674_v2.json",
+    "point_input_sha256": "7925a6eba993e6bf8b4f536352027d18c221f95c215fe73d1b20ebaec6aeb797",
+    "trace_path": "/Users/home/cardboard-implementation-20261014/native/exact-source380-material674-trace-388/output/tet674-env0-source380_exact_compiled_budget32-trace.json",
+    "trace_sha256": "586d8cb6f55feaaba900ce93fa7428e47ee0d8fded300f631190f51668424579"
+  },
+  "name": "source380-dimensionless-armijo-overlay-001",
+  "overlay": {
+    "patch_path": "source-overlay.patch",
+    "patch_sha256": "57568329b9dd944f8d581c71dad1cceea173f3dc9a5385bb92e67fa739b8156b",
+    "path": "source/matter/src/metal/common.metalinc",
+    "sha256": "36396090a12cb10042f7235a870c2de21f321b706e4cfeb327b0682d831720ca"
+  },
+  "schema": "numi.cardboard.source-overlay.v1",
+  "verification": {
+    "cpu_command": "python3 -m unittest discover -s tests -v",
+    "cpu_receipt_path": "evidence/cpu-tests.txt",
+    "cpu_result": "PASS",
+    "cpu_tests": 10,
+    "metal_compile": "NOT RUN",
+    "native_post_overlay_trial": "PENDING parent-owned validation",
+    "patch_dry_run": "PASS against base snapshot",
+    "patch_receipt_path": "evidence/patch-dry-run.txt",
+    "trace_audit": "PASS; exact trace and point-input hashes checked"
+  }
+}

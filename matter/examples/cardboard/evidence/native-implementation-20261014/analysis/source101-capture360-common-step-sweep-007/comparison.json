@@ -1,0 +1,86 @@
+{
+  "schema": "numi.cardboard.common-step-fp64-diagnostic.v1",
+  "steps": [
+    {
+      "target_deltaF_norm": 1e-06,
+      "rows": 1728,
+      "within_1e6": 1695,
+      "exceeded": [
+        290,
+        457,
+        469,
+        481,
+        543,
+        642,
+        643,
+        676,
+        677,
+        823,
+        862,
+        863,
+        1249,
+        1250,
+        1262,
+        1491,
+        1582,
+        1603,
+        1604,
+        1609,
+        1613,
+        1619,
+        1632,
+        1633,
+        1634,
+        1635,
+        1636,
+        1637,
+        1763,
+        1798,
+        1801,
+        1816,
+        1821
+      ],
+      "unresolved": [],
+      "observed_branch_changes": [],
+      "maximum_relative_error": 3.672081264335892e-05,
+      "maximum_error_tet": 1635,
+      "warning_count": 34468,
+      "elapsed_seconds": 22.90788250003243
+    },
+    {
+      "target_deltaF_norm": 3e-07,
+      "rows": 1728,
+      "within_1e6": 1726,
+      "exceeded": [
+        677,
+        1635
+      ],
+      "unresolved": [],
+      "observed_branch_changes": [],
+      "maximum_relative_error": 3.3047617799388336e-06,
+      "maximum_error_tet": 1635,
+      "warning_count": 34444,
+      "elapsed_seconds": 22.447436749993358
+    },
+    {
+      "target_deltaF_norm": 1e-07,
+      "rows": 1728,
+      "within_1e6": 1727,
+      "exceeded": [
+        1186
+      ],
+      "unresolved": [],
+      "observed_branch_changes": [],
+      "maximum_relative_error": 1.214903271565475e-06,
+      "maximum_error_tet": 1186,
+      "warning_count": 34520,
+      "elapsed_seconds": 22.399545666004997
+    }
+  ],
+  "all_projection_checks_pass": true,
+  "all_observed_branch_predicates_stable": true,
+  "no_common_declared_step_meets_every_row": true,
+  "original006_gate_unchanged": true,
+  "native_noise_floor_measured": false,
+  "physical_qualification": false
+}

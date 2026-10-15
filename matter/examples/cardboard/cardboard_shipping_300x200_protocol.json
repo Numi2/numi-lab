@@ -223,7 +223,7 @@
       "drop_height_mm": 100.0,
       "gravity_m_per_s2": 9.80665,
       "impactor_plan": {
-        "basis": "1.2 times the measured x/z extents of the fixture-free settled accepted outer roof",
+        "basis": "1.2 times the measured area of the fixture-free settled accepted outer roof, preserving its aspect ratio; each measured x/z extent scales by sqrt(1.2)",
         "units": "m",
         "measurement_file": "shipping-outer-roof-measurement.json",
         "checkpoint_sha256_bound": true,

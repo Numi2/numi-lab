@@ -1,0 +1,68 @@
+{
+  "classification": "CPU-only all-row FP64 directional diagnostic. All projection gates pass; one resolved row exceeds the 1e-6 tangent/FD threshold.",
+  "files": {
+    "README.md": "5e184ea4cf53b02a0d50b71ee5a50fe055fb722285574b7c8df672e273b5862e",
+    "execution-record.json": "323d8644e474c23bb0c989ff15423f058366ed89175ea652b9038819a434921b",
+    "output-005/all1728_v3_rows.jsonl": "7378794b10863ff2df78b3d5e4d60e6ebdf26abce6791867bfe6d511a9ab0782",
+    "output-005/report.json": "e1aad4655c6743880f152fd84414e1d8373ee284d5c0fb6d9f6b64237df843a9",
+    "output-006/all1728_v3_rows.jsonl": "7378794b10863ff2df78b3d5e4d60e6ebdf26abce6791867bfe6d511a9ab0782",
+    "output-006/report.json": "dd6bb021cbd0e9b51425c19dd635ad31fc85a660bff667eb7b4a3e2ce39c690a",
+    "package005-compatibility.md": "3f942e7696959eb5556d9aaa3c11761e3eed82a8b42f96ab1b693776a995cb07",
+    "replay_uniform_v3.py": "a564cb0810b15fa8a79ed0d4afa11f78977d3a564e18c710b3197ef7f3c2bca1",
+    "setup-attempt-001.json": "591a96e7e7c3351678a7a890463163bb2f518c8bd976f66c4acbb52f3e2e69e7",
+    "setup-attempt-002.json": "f3ca26e048b9fc9844690eae0d5781fea4cc1fb5b99519ef351ebec1b9337c43",
+    "setup-attempt-003.json": "0749820e909b0195aca74529afdc6bb8edf61baee66e106c9adff893d045b377",
+    "verify.py": "b83061b24097b35b2a494faaae94b1759f9208ec7de4e2039ba9c0b21111a52c"
+  },
+  "inputs": {
+    "capture": {
+      "path": "/Users/home/cardboard-implementation-20261014/solver/reset-augmentation-first-failure-capture-360/operator-capture",
+      "sha256": "548dce37fbe5a28a609dd6bc45318926072c878774ea0caffa3237d925cebb33"
+    },
+    "direction_helper": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/source101-capture360-directional-fd-001/compare_directional_fd.py",
+      "sha256": "742b0920c4f543e284e41ed18f8dbc78253915a31f39b3ef8d32ff7dec01b5e8"
+    },
+    "directional_manifest": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/source101-capture360-directional-fd-003/manifest.json",
+      "sha256": "f65b092f5863ed919642e02eefd3cb1804ca6e6fb1dc06627269f992829a8d15"
+    },
+    "directional_rows": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/source101-capture360-directional-fd-003/output/all_1728_row_metrics.csv",
+      "sha256": "226a12e13a5dae5cf17f4189a65d71ba6a5e26c94d14d11407e5712a76979180"
+    },
+    "package005_manifest": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/source101-capture360-small-eps-34-005/manifest.json",
+      "sha256": "aa2943493e6fcf6d5f9fb4cb8c7ce54536ea2c52599186c21963d7623b8026c0"
+    },
+    "package005_report": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/source101-capture360-small-eps-34-005/output-004/report.json",
+      "sha256": "9b58e69fb2046af06e1b80b9a23d6d9600368cb8356148da36e323c33a07c4cc"
+    },
+    "package005_rows": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/source101-capture360-small-eps-34-005/output-004/rows.jsonl",
+      "sha256": "6f2b2828b77f92557f532ff8a80a882b2bf80dc3a12ca41c088ec82bd0febf10"
+    },
+    "reference": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "sha256": "c17010564a98fe63da0c8b88be81313685a65cfbd57ff82292e797cab5a0fdf3"
+    },
+    "v3_continuation_runner": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/source101-capture360-small-eps-34-005/replay_continuation.py",
+      "sha256": "36716c3a41f39805f718dc37d47349e99156f4492afc013586b9a530534df8f6"
+    }
+  },
+  "run": {
+    "branch_signature": "1728/1728 stable for the three exposed predicates",
+    "cpu_only": true,
+    "elapsed_seconds": 22.399545666004997,
+    "epsilon_target_deltaF_frobenius": 1e-07,
+    "fd_tangent_threshold": "1727/1728 <=1e-6; tet1186=1.214903271565475e-6",
+    "gpu": false,
+    "projection_gates": "1728/1728 center and endpoints pass",
+    "python": "/Users/home/.pyenv/versions/3.10.12/bin/python3",
+    "rows": 1728,
+    "tet_id_domain": "0..863 and 960..1823"
+  },
+  "schema": "numi.cardboard.source101-v3-uniform-one-epsilon-audit-manifest.v1"
+}

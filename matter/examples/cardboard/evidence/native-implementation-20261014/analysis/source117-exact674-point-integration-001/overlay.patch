@@ -1,0 +1,110 @@
+--- a/matter/tools/cardboard_source370_material_point_check.mm
++++ b/matter/tools/cardboard_source370_material_point_check.mm
+@@ -31,14 +31,14 @@
+ 
+ namespace {
+ using namespace numi::matter;
+-constexpr std::uint32_t kTargetTet=1820u;
++constexpr std::uint32_t kTargetTet=674u;
+ constexpr std::uint32_t kTargetMaterial=1u;
+ constexpr char kMediumName[]="hajali2009_medium_hill_bilinear_fit";
+-constexpr char kPackageSHA[]="3c25f41c6c26654ccf3f8b4f4b510bbb64ab0ea0f52b94d05d8b1fa4060fafe5";
++constexpr char kPackageSHA[]="cafbf36052bbfa72e8be49fdba8b23e900469c9f15136a14a4ec1e4c0b5ccf7c";
+ constexpr char kCandidateNodesSHA[]="1ec2da4c997fac19986f5ad196c01dc653457297ae5da767f891d0bd05ea4b92";
+-constexpr char kConditioningManifestSHA[]="23f8b3bb9f55c6a301c2293bdfb395253121a9ebfed591752f095b3aad444c7b";
++constexpr char kConditioningManifestSHA[]="2caec04a94e9349d6cb9271a992dcbc9b831037c208cfde8c8c61caeff363b81";
+ constexpr char kAcceptedStateSHA[]="6f1b2031dc933cacec54142e9521e914d30a5f8f2889d6bd589e46878c3bfbbc";
+-constexpr char kRunManifestSHA[]="67a766eebc35ebfeb26b122899ff9137ae62fb4f0122465cb715e04e8bd1e711";
++constexpr char kRunManifestSHA[]="053a6ce46f8ab96a39413e0800fe89e1e27a2cf7d9d3b847d0b099528f1baba3";
+ constexpr char kMediumSHA[]="76f2bef552822708c36b5acc9f92bd44e7bb92c578e5e46adb64a1a2e82e47f9";
+ 
+ void need(const bool ok,const std::string& message) {
+@@ -201,7 +201,7 @@
+     std::string packageError;
+     need(readPackage(packagePath,package,nullptr,&packageError),
+          "370 compiled package could not be read/validated: "+packageError);
+-    need(package.fingerprint==7918250992036473017ull,
++    need(package.fingerprint==8485105279886344921ull,
+          "370 package fingerprint differs from the retained run manifest");
+     NSDictionary* manifest=object(readJSON(manifestPath),"run manifest");
+     need(unsignedInteger(field(manifest,"compiled_world_fingerprint"),"compiled world fingerprint")==
+@@ -228,7 +228,7 @@
+                                         "effective compiled material flags");
+     need(unsignedInteger(field(effectiveFlags,"medium_flags"),"medium flags")==213u&&
+          unsignedInteger(field(effectiveFlags,"medium_local_newton_iterations"),
+-                         "medium compiled local iteration budget")==16u,
++                         "medium compiled local iteration budget")==32u,
+          "370 manifest's actual compiled medium policy differs from the package");
+     NSDictionary* conditioningManifest=object(readJSON(conditioningManifestPath),
+                                               "rejected-candidate conditioning manifest");
+@@ -253,7 +253,7 @@
+          "370 compiled world dimensions differ from the sealed coupon input");
+     need(package.materials[kTargetMaterial].stateCount==15u&&
+          package.materials[kTargetMaterial].parameterCount==28u&&
+-         package.materials[kTargetMaterial].localNewtonIterations==16u&&
++         package.materials[kTargetMaterial].localNewtonIterations==32u&&
+          package.materials[kTargetMaterial].flags==213u,
+          "370 package does not contain the recorded accurate medium descriptor");
+     candidateNodes=readRawVector<NMFEMNodeStateGPU>(candidatePath,
+@@ -273,8 +273,8 @@
+     acceptedState=floatArray<15>(field(row,"state"),"accepted material state");
+     tetrahedron=package.fem.tetrahedra.at(kTargetTet);
+     need(tetrahedron.identity.x==kTargetMaterial&&tetrahedron.identity.y<package.objects.size()&&
+-         tetrahedron.nodes.x==584u&&tetrahedron.nodes.y==880u&&
+-         tetrahedron.nodes.z==878u&&tetrahedron.nodes.w==881u,
++         tetrahedron.nodes.x==228u&&tetrahedron.nodes.y==524u&&
++         tetrahedron.nodes.z==522u&&tetrahedron.nodes.w==525u,
+          "370 compiled target tetrahedron does not match its retained identity/connectivity");
+     need((tetrahedron.identity.w&NM_TETRAHEDRON_REFERENCE_DISPLACEMENT_GRADIENT)!=0u,
+          "370 target tetrahedron is not on the compiled reference-displacement deformation path");
+@@ -300,8 +300,8 @@
+     const auto& source=sourceWorld.materials[0];
+     need(source.localNewtonIterations==expectedSourceBudget,
+          "private source compile did not preserve its explicitly requested local budget");
+-    need(captured.localNewtonIterations==16u,
+-         "immutable source-370 descriptor no longer records its actual 16-update budget");
++    need(captured.localNewtonIterations==32u,
++         "immutable source-380 descriptor no longer records its actual 32-update budget");
+     need(captured.stateCount==source.stateCount&&captured.parameterCount==source.parameterCount&&
+          captured.flags==source.flags&&captured.constitutiveKind==source.constitutiveKind&&
+          captured.projectionKind==source.projectionKind&&
+@@ -409,9 +409,9 @@
+     out<<std::setprecision(17)
+        <<"{\"record\":\"point\",\"policy\":\""<<policy
+        <<"\",\"compiled_local_iterations\":"<<budget
+-       <<",\"immutable_run_package_medium_iterations\":16"
++       <<",\"immutable_run_package_medium_iterations\":32"
+        <<",\"diagnostic_descriptor_is_private_recompile\":true"
+-       <<",\"diagnostic_descriptor_source\":\"same source material asset and parameter words; not the immutable 370 compiled world\""
++       <<",\"diagnostic_descriptor_source\":\"same source material asset and parameter words; not the immutable 380 compiled world\""
+        <<",\"reference_temperature_K\":"<<referenceTemperature
+        <<",\"source_material_flags\":213,\"source_world_fingerprint\":"<<fingerprint
+        <<",\"direct_stress_valid\":"<<(x[2]==1.0f?"true":"false")
+@@ -471,21 +471,21 @@
+                                        candidateNodes,acceptedState,dt);
+     std::ofstream stream(outputPath/"point-replay.jsonl",std::ios::out|std::ios::trunc);
+     need(stream.good(),"cannot create source370 point replay ledger");
+-    stream<<"{\"record\":\"header\",\"schema\":\"numi.cardboard.source370-native-material-point.v1\","
+-      <<"\"base_snapshot_manifest_sha256\":\""<<NUMI_CARDBOARD_SOURCE107_MANIFEST_SHA256
++    stream<<"{\"record\":\"header\",\"schema\":\"numi.cardboard.source380-native-material-point.v1\","
++      <<"\"historical_base_snapshot107_manifest_sha256\":\""<<NUMI_CARDBOARD_SOURCE107_MANIFEST_SHA256
+       <<"\",\"run_package_sha256\":\""<<kPackageSHA
+       <<"\",\"candidate_nodes_sha256\":\""<<kCandidateNodesSHA
+       <<"\",\"accepted_state_sha256\":\""<<kAcceptedStateSHA
+       <<"\",\"run_manifest_sha256\":\""<<kRunManifestSHA
+       <<"\",\"medium_source_sha256\":\""<<kMediumSHA
+-      <<"\",\"environment\":0,\"tet_id\":1820,\"material_index\":1,"
++      <<"\",\"environment\":0,\"tet_id\":674,\"material_index\":1,"
+       <<"\"object_timestep_s\":"<<dt
+-      <<",\"run_requested_local_iterations\":32,\"run_compiled_local_iterations\":16,"
++      <<",\"run_requested_local_iterations\":32,\"run_compiled_local_iterations\":32,"
+       <<"\"diagnostic_budgets_are_point_only\":[16,32],"
+-      <<"\"budget32_is_not_a_replay_of_the_full_370_trajectory\":true,"
++      <<"\"budget32_is_not_a_replay_of_the_full_380_trajectory\":true,"
+       <<"\"input_state_is_accepted_rollback_history\":true,"
+       <<"\"deformation_source\":\"production tetrahedronDeformation + femMaterialDeformationWords over exact rejected candidate_nodes.bin\","
+-      <<"\"material_source\":\"source-bound medium asset recompiled with each explicit local budget; parameter words verified against the 370 package\","
++      <<"\"material_source\":\"source-bound medium asset recompiled with each explicit local budget; parameter words verified against the 380 package\","
+       <<"\"physical_steps\":0,\"physical_validation\":false,"
+       <<"\"accepted_state_f32_words\":";
+     writeBits(stream,acceptedState.data(),acceptedState.size());

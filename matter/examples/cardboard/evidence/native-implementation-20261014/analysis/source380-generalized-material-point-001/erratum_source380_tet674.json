@@ -1,0 +1,41 @@
+{
+  "schema": "numi.cardboard.source380-tet674-erratum.v1",
+  "supersedes_for_these_fields_only": "/Users/home/cardboard-implementation-20261014/analysis/source380-first-failure-tet674-001/audit.json",
+  "original_artifacts_preserved": true,
+  "corrections": [
+    {
+      "field": "case_count_semantics / temperature description",
+      "original_claim": "source-native temperature 0 K",
+      "corrected_value_K": 293.1499938964844,
+      "basis": "source380 compiled package material[1].bulk.y FP32 word; v2 checker reads exact compiled package"
+    },
+    {
+      "field": "Fdet_minus_native_status_diagnostic",
+      "original_value": 0.002556720636401888,
+      "corrected_value": -1.3981052804368233e-07,
+      "basis": "source-transcribed CPU determinant minus native status diagnostic x; the prior value copied the stale tet1820 determinant"
+    }
+  ],
+  "exact_values": {
+    "Fdet_source_transcription": 1.0003024133663518,
+    "Fdet_native_status_diagnostic": 1.0003025531768799,
+    "difference": -1.3981052804368233e-07
+  },
+  "limitations": [
+    "F-high/low words remain CPU-transcribed and are not yet native-confirmed.",
+    "The native local projector terminal failure and iteration trace were not exported by run380.",
+    "This erratum changes no raw source380 run artifacts or accepted/rejected state classification."
+  ],
+  "source380_artifact_sha256": {
+    "receipt.json": "8568553137ec86cc64f667c5d174506e18fbd6a30641c99abd40c69aed6c0a9e",
+    "prediction.json": "c8af3eec8b634e30a36508479acebe6c08c47a365a230d1732cb69e67165282d",
+    "output/manifest.json": "053a6ce46f8ab96a39413e0800fe89e1e27a2cf7d9d3b847d0b099528f1baba3",
+    "output/compiled.nmatterpack": "cafbf36052bbfa72e8be49fdba8b23e900469c9f15136a14a4ec1e4c0b5ccf7c",
+    "output/rejected-conditioning-000002/candidate_nodes.bin": "1ec2da4c997fac19986f5ad196c01dc653457297ae5da767f891d0bd05ea4b92",
+    "output/material_state_000002_bent.json": "6f1b2031dc933cacec54142e9521e914d30a5f8f2889d6bd589e46878c3bfbbc",
+    "output/mesh.json": "6a2f786a47e61014ee4b27f609eb3c2f666677223ddaa30297aeea1fcfd8ca56"
+  },
+  "source380_input_v1_sha256": "86e5918cdabfc3a18a899a21d0ec840a9392d93de43cbc6c01d28e4237bfb23c",
+  "source380_audit_v1_sha256": "595e8f62e7745a2fd292f38da04ee49596bde579bb7f296ecc8a877d1dfa7fe7",
+  "new_input_v2_sha256": "7925a6eba993e6bf8b4f536352027d18c221f95c215fe73d1b20ebaec6aeb797"
+}

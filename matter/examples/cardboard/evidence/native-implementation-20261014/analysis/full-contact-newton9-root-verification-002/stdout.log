@@ -1,0 +1,90 @@
+{
+  "report": "/Users/home/cardboard-implementation-20261014/analysis/full-contact-newton9-root-verification-002/report.json",
+  "verdict": "OFF_ON_PHYSICAL_HISTORY_PARITY_PASS; SAME_GENERATION_LINEAR_RESIDUAL_MEASURED; FGMRES_ACCEPTED_BY_OUTER_ABSOLUTE_TARGET; FULL_CONTACT_N9_ARMIJO_FAILURE_RETAINED",
+  "linear": {
+    "rhs_l2": 3.7630833378917694e-06,
+    "jdelta_l2": 3.7548819182694667e-06,
+    "b_minus_jdelta_l2": 8.176561191043932e-08,
+    "relative_linear_residual": 0.021728355332212148
+  },
+  "pairwise": [
+    {
+      "runs": [
+        "383",
+        "385"
+      ],
+      "result": "physical_diagnostic_history_equal",
+      "transaction_state_files_byte_identical": [
+        "dense/fixture-free-body-control-1200.log",
+        "dense/transaction-000000-after.bin",
+        "dense/transaction-000000-before.bin",
+        "dense/transaction-000000.json",
+        "dense/transaction-000001-after.bin",
+        "dense/transaction-000001-before.bin",
+        "dense/transaction-000001.json",
+        "dense/transaction-000002-after.bin",
+        "dense/transaction-000002-before.bin",
+        "dense/transaction-000002.json"
+      ],
+      "capture_lifecycle_log_only_normalized": [
+        "dense/fixture-free-body-control-1201.log"
+      ],
+      "armijo_records": 32,
+      "armijo_records_exact": true,
+      "stdout_exact": true,
+      "stderr_exact_after_capture_lifecycle_lines": true
+    },
+    {
+      "runs": [
+        "385",
+        "386"
+      ],
+      "result": "physical_diagnostic_history_equal",
+      "transaction_state_files_byte_identical": [
+        "dense/fixture-free-body-control-1200.log",
+        "dense/transaction-000000-after.bin",
+        "dense/transaction-000000-before.bin",
+        "dense/transaction-000000.json",
+        "dense/transaction-000001-after.bin",
+        "dense/transaction-000001-before.bin",
+        "dense/transaction-000001.json",
+        "dense/transaction-000002-after.bin",
+        "dense/transaction-000002-before.bin",
+        "dense/transaction-000002.json"
+      ],
+      "capture_lifecycle_log_only_normalized": [
+        "dense/fixture-free-body-control-1201.log"
+      ],
+      "armijo_records": 32,
+      "armijo_records_exact": true,
+      "stdout_exact": true,
+      "stderr_exact_after_capture_lifecycle_lines": true
+    },
+    {
+      "runs": [
+        "383",
+        "386"
+      ],
+      "result": "physical_diagnostic_history_equal",
+      "transaction_state_files_byte_identical": [
+        "dense/fixture-free-body-control-1200.log",
+        "dense/transaction-000000-after.bin",
+        "dense/transaction-000000-before.bin",
+        "dense/transaction-000000.json",
+        "dense/transaction-000001-after.bin",
+        "dense/transaction-000001-before.bin",
+        "dense/transaction-000001.json",
+        "dense/transaction-000002-after.bin",
+        "dense/transaction-000002-before.bin",
+        "dense/transaction-000002.json"
+      ],
+      "capture_lifecycle_log_only_normalized": [
+        "dense/fixture-free-body-control-1201.log"
+      ],
+      "armijo_records": 32,
+      "armijo_records_exact": true,
+      "stdout_exact": true,
+      "stderr_exact_after_capture_lifecycle_lines": true
+    }
+  ]
+}

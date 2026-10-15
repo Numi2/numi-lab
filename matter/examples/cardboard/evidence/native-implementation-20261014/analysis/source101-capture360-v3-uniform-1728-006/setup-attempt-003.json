@@ -1,0 +1,7 @@
+{
+  "classification": "failed domain assertion; no numerical output files were written",
+  "error": "The directional table has active tet IDs 0..863 and 960..1823, not a contiguous 192..1919 range. The assertion ran before output serialization; the exact directional row-ID set is the corrected domain check.",
+  "script_sha256_at_attempt": null,
+  "source_capture_modified": false,
+  "production_state_modified": false
+}

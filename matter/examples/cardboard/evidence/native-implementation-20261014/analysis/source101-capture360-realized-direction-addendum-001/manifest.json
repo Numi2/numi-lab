@@ -1,0 +1,74 @@
+{
+  "artifacts": {
+    "README.md": {
+      "bytes": 2253,
+      "path": "README.md",
+      "sha256": "d2a2febea806d34640d59736797bbbbff0d10c790f3109d658c73c5d27154db2"
+    },
+    "addendum.py": {
+      "bytes": 11291,
+      "path": "addendum.py",
+      "sha256": "da657f13ab322f80210477941709d7c4867b5a369599241712d854dc6efddc00"
+    },
+    "execution-record.json": {
+      "bytes": 427,
+      "path": "execution-record.json",
+      "sha256": "1b0d5bec0e79218a43c48752ed0cd6be20bcb442ef5e8c87c51b21bc5596114f"
+    },
+    "output-001/realized_direction_rows.jsonl": {
+      "bytes": 2480307,
+      "path": "output-001/realized_direction_rows.jsonl",
+      "sha256": "b85550a4487dd6d6f9329a687e49d15d6ee31966807ea99fb64acdedbf1701a9"
+    },
+    "output-001/report.json": {
+      "bytes": 5661,
+      "path": "output-001/report.json",
+      "sha256": "2f0d7764cfe8f9ec6de324037627d84e6eab1e364251c237dd7bee8612459472"
+    },
+    "verify.py": {
+      "bytes": 2700,
+      "path": "verify.py",
+      "sha256": "231e988efe5dd79a30ea1820ec6d6f1d9f0fe3e4bff77fe3a6a1be2aaa809ec7"
+    }
+  },
+  "classification": "CPU-only explanatory comparison using sealed v3 roots/endpoints; no alternate validation gate.",
+  "inputs": {
+    "capture": {
+      "path": "/Users/home/cardboard-implementation-20261014/solver/reset-augmentation-first-failure-capture-360/operator-capture",
+      "sha256": "548dce37fbe5a28a609dd6bc45318926072c878774ea0caffa3237d925cebb33"
+    },
+    "direction_helper": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/source101-capture360-directional-fd-001/compare_directional_fd.py",
+      "sha256": "742b0920c4f543e284e41ed18f8dbc78253915a31f39b3ef8d32ff7dec01b5e8"
+    },
+    "fp64_reference": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "sha256": "c17010564a98fe63da0c8b88be81313685a65cfbd57ff82292e797cab5a0fdf3"
+    },
+    "v3_report": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/source101-capture360-v3-uniform-1728-006/output-006/report.json",
+      "sha256": "dd6bb021cbd0e9b51425c19dd635ad31fc85a660bff667eb7b4a3e2ce39c690a"
+    },
+    "v3_rows": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/source101-capture360-v3-uniform-1728-006/output-006/all1728_v3_rows.jsonl",
+      "sha256": "7378794b10863ff2df78b3d5e4d60e6ebdf26abce6791867bfe6d511a9ab0782"
+    }
+  },
+  "method": {
+    "accepted_history": "fixed captured FP32 history at center and both endpoints",
+    "endpoint_roots": "reused sealed uniform-v3 converged endpoints",
+    "nominal_comparison": "same central stress difference against tangent action using captured H",
+    "rate_direction": "H_realized=(F_plus-F_minus)/(2*epsilon*dt), with captured dt and configured rate exponent zero",
+    "realized_comparison": "same central stress difference against independent FP64 tangent action using H_realized",
+    "target_deltaF_frobenius": 1e-07
+  },
+  "schema": "numi.cardboard.source101-realized-direction-addendum.v1",
+  "verdict": {
+    "nominal_gate_replaced": false,
+    "nominal_within_1e-6": 1727,
+    "physical_qualification_claimed": false,
+    "realized_direction_within_1e-6": 1728,
+    "rows": 1728,
+    "universal_noise_floor_claimed": false
+  }
+}

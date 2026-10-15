@@ -1,0 +1,3372 @@
+{
+  "accepted_history_policy": "same captured FP32 accepted 15-state history at center and every plus/minus endpoint; center candidate is only an initial numerical seed for endpoint continuation.",
+  "bindings": {
+    "capture": {
+      "path": "/Users/home/cardboard-implementation-20261014/solver/reset-augmentation-first-failure-capture-360/operator-capture",
+      "sha256": "548dce37fbe5a28a609dd6bc45318926072c878774ea0caffa3237d925cebb33"
+    },
+    "directional_rows": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/source101-capture360-directional-fd-003/output/all_1728_row_metrics.csv",
+      "sha256": "226a12e13a5dae5cf17f4189a65d71ba6a5e26c94d14d11407e5712a76979180"
+    },
+    "helper": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/source101-capture360-directional-fd-001/compare_directional_fd.py",
+      "sha256": "742b0920c4f543e284e41ed18f8dbc78253915a31f39b3ef8d32ff7dec01b5e8"
+    },
+    "reference": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "sha256": "c17010564a98fe63da0c8b88be81313685a65cfbd57ff82292e797cab5a0fdf3"
+    },
+    "runner": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/source101-capture360-small-eps-34-005/replay_continuation.py",
+      "sha256": "36716c3a41f39805f718dc37d47349e99156f4492afc013586b9a530534df8f6"
+    }
+  },
+  "branch_predicates": "multiplier-increment sign, yield-gap sign, elastic_smoothed/plastic_smoothed FB selector; continuous Hill q and hardening factor retained; no separate discrete hardening predicate exposed.",
+  "capture_selection": {
+    "environment": 0,
+    "newton_iteration": 23,
+    "root": 2,
+    "tet_id": 1186,
+    "world_fingerprint_hex": "6de3475316b7e8b9"
+  },
+  "classification": "One-row CPU FP64 diagnostic; no native, physical, or universal noise-floor qualification.",
+  "elapsed_seconds": 0.08339433401124552,
+  "limits": [
+    "Perturbation sweep is only for captured row1186 and direction.",
+    "No universal FP64 or native FP32 noise floor is inferred.",
+    "A target-specific pass does not change the full1728 one-epsilon result."
+  ],
+  "projection_policy": {
+    "dynamic_correction_tolerance": 2e-08,
+    "dynamic_scale": "max(abs(old),abs(candidate),parameter[26]) componentwise",
+    "max_backtracks": 24,
+    "max_newton_updates": 4,
+    "residual_tolerance": 2e-10
+  },
+  "row": {
+    "accepted_state_lambda_increment": "5.221529996007524e-06",
+    "center_branch": "plastic",
+    "central_fd_abs_error_Pa_per_s": "206335.51099244517",
+    "central_fd_branch_stable": "True",
+    "central_fd_relative_error": "9.674419332230105e-08",
+    "continuation_v3": {
+      "center_branch": {
+        "delta_multiplier": 5.221529996007524e-06,
+        "fb_selection": "plastic_smoothed",
+        "hardening_factor": 2.0012139539773086,
+        "hill_q": 1.0012139539677327,
+        "multiplier_sign": "positive",
+        "yield_gap": 9.5758956319969e-12,
+        "yield_sign": "nonnegative"
+      },
+      "center_candidate_state_f64": [
+        2.623638304752246e-07,
+        5.253134073991383e-07,
+        -7.87677237874363e-07,
+        7.83754519067722e-06,
+        -0.0013457048026022831,
+        -1.0225432814122232e-07,
+        0.039268575987516145,
+        0.0023602856819733174,
+        4.521460429052051e-05,
+        1.8232355167920445e-06,
+        -0.001047379520115053,
+        -0.0002871594729999592,
+        7.62004146544445e-06,
+        7.596762057010538e-06,
+        2.3272283283907698e-08
+      ],
+      "center_projection": {
+        "backtracks_by_update": [],
+        "continuation_updates": 0,
+        "converged": true,
+        "dynamic_scaled_correction_tolerance": 2e-08,
+        "final_metrics": {
+          "absolute_newton_correction_inf": 4.35150819845825e-19,
+          "branch": {
+            "delta_multiplier": 5.221529996007524e-06,
+            "fb_selection": "plastic_smoothed",
+            "hardening_factor": 2.0012139539773086,
+            "hill_q": 1.0012139539677327,
+            "multiplier_sign": "positive",
+            "yield_gap": 9.5758956319969e-12,
+            "yield_sign": "nonnegative"
+          },
+          "dynamic_state_scaled_correction_inf": 1.8436362308566694e-16,
+          "scaled_residual": 1.5836112030954698e-12
+        },
+        "history": [
+          {
+            "absolute_newton_correction_inf": 4.35150819845825e-19,
+            "branch": {
+              "delta_multiplier": 5.221529996007524e-06,
+              "fb_selection": "plastic_smoothed",
+              "hardening_factor": 2.0012139539773086,
+              "hill_q": 1.0012139539677327,
+              "multiplier_sign": "positive",
+              "yield_gap": 9.5758956319969e-12,
+              "yield_sign": "nonnegative"
+            },
+            "candidate_index": 0,
+            "dynamic_state_scaled_correction_inf": 1.8436362308566694e-16,
+            "scaled_residual": 1.5836112030954698e-12
+          }
+        ],
+        "max_backtracks": 24,
+        "max_updates": 4,
+        "residual_tolerance": 2e-10,
+        "seed_source": "stock_projector_candidate",
+        "stock_projector_failure": null,
+        "stock_projector_iterations": 7,
+        "stock_projector_reported_residual": 1.5836112030954698e-12
+      },
+      "center_stress_Pa": [
+        [
+          900186.5920072112,
+          -6583.0313610985395,
+          -24009.76007103819
+        ],
+        [
+          -6583.670120843961,
+          54097.35796584087,
+          41.83922637884311
+        ],
+        [
+          -27016.585989239673,
+          65.07250777964697,
+          1116.6364555061057
+        ]
+      ],
+      "center_tangent_action_Pa_per_s": [
+        [
+          988465863899.2863,
+          804852077670.8118,
+          1708668539.9011908
+        ],
+        [
+          804113845552.4094,
+          1470989358230.6384,
+          -13339813071.638233
+        ],
+        [
+          336194296313.18604,
+          -18569861382.57297,
+          938233090.3982021
+        ]
+      ],
+      "correction_metric": "max(abs(delta_i)/max(abs(old_i),abs(candidate_i),parameter[26])) matching source101-independent-assembled-action-373-003.",
+      "epsilon_cases": [
+        {
+          "actual_deltaF_minus_frobenius": null,
+          "actual_deltaF_plus_frobenius": null,
+          "branch_signature_stable": true,
+          "center_and_both_endpoints_v3_converged": true,
+          "central_fd_action_Pa_per_s": [
+            [
+              988466065036.234,
+              804852077694.8098,
+              1708668555.4531217
+            ],
+            [
+              804113845574.7114,
+              1470989404246.3745,
+              -13339813627.636543
+            ],
+            [
+              336194296563.88367,
+              -18569861934.442562,
+              938233468.6722643
+            ]
+          ],
+          "central_fd_vs_fp64_tangent": {
+            "absolute_l2": 206335.50510998207,
+            "max_component_absolute": 201136.94775390625,
+            "reference_l2": 2132794784954.6233,
+            "relative_l2": 9.674419056420001e-08
+          },
+          "epsilon_scalar": 2.6606385866146713e-08,
+          "minus": {
+            "F_endpoint": [
+              [
+                1.0001811005098225,
+                -3.0625438759506673e-06,
+                0.0005077374919068598
+              ],
+              [
+                -2.450380084487507e-06,
+                0.9999924991882277,
+                -7.601384838749615e-06
+              ],
+              [
+                -0.0033444913511289595,
+                2.359063213522872e-05,
+                1.0000511941304975
+              ]
+            ],
+            "actual_deltaF_frobenius": 1.0000000000004347e-06,
+            "candidate_state_f64": [
+              2.624097333677057e-07,
+              5.254050433498094e-07,
+              -7.878147767175152e-07,
+              7.842147233810536e-06,
+              -0.0013462312543128703,
+              -1.0230218367458764e-07,
+              0.03926846145570598,
+              0.0023601149353029527,
+              4.5213449010920346e-05,
+              1.8247852897382561e-06,
+              -0.0010473797192331951,
+              -0.00028725287989209586,
+              7.6211449722020765e-06,
+              7.597864191189905e-06,
+              2.3273654710367205e-08
+            ],
+            "continuation": {
+              "backtracks_by_update": [],
+              "continuation_updates": 0,
+              "converged": true,
+              "dynamic_scaled_correction_tolerance": 2e-08,
+              "final_metrics": {
+                "absolute_newton_correction_inf": 4.421511740512362e-19,
+                "branch": {
+                  "delta_multiplier": 5.222633502765151e-06,
+                  "fb_selection": "plastic_smoothed",
+                  "hardening_factor": 2.001214129893704,
+                  "hill_q": 1.0012141298841304,
+                  "multiplier_sign": "positive",
+                  "yield_gap": 9.573453141342725e-12,
+                  "yield_sign": "nonnegative"
+                },
+                "dynamic_state_scaled_correction_inf": 5.586227189615298e-16,
+                "scaled_residual": 2.608409390030019e-12
+              },
+              "history": [
+                {
+                  "absolute_newton_correction_inf": 4.421511740512362e-19,
+                  "branch": {
+                    "delta_multiplier": 5.222633502765151e-06,
+                    "fb_selection": "plastic_smoothed",
+                    "hardening_factor": 2.001214129893704,
+                    "hill_q": 1.0012141298841304,
+                    "multiplier_sign": "positive",
+                    "yield_gap": 9.573453141342725e-12,
+                    "yield_sign": "nonnegative"
+                  },
+                  "candidate_index": 0,
+                  "dynamic_state_scaled_correction_inf": 5.586227189615298e-16,
+                  "scaled_residual": 2.608409390030019e-12
+                }
+              ],
+              "max_backtracks": 24,
+              "max_updates": 4,
+              "residual_tolerance": 2e-10,
+              "seed_source": "stock_projector_candidate",
+              "stock_projector_failure": null,
+              "stock_projector_iterations": 7,
+              "stock_projector_reported_residual": 2.608409390030019e-12
+            },
+            "label": "minus",
+            "realized_direction_match": {
+              "absolute_l2": 4.0256598489094514e-05,
+              "max_component_absolute": 2.7924265395995462e-05,
+              "reference_l2": 375849.6288421119,
+              "relative_l2": 1.0710825660015653e-10
+            },
+            "stress_Pa": [
+              [
+                900183.9644705831,
+                -6585.172772272439,
+                -24009.76461703027
+              ],
+              [
+                -6585.809567873013,
+                54093.444384454124,
+                41.87471155509054
+              ],
+              [
+                -27017.48048603561,
+                65.12191031739782,
+                1116.633959357951
+              ]
+            ]
+          },
+          "minus_one_sided_vs_fp64_tangent": {
+            "absolute_l2": 910012458.8603592,
+            "max_component_absolute": 907197479.1154785,
+            "reference_l2": 2132794784954.6233,
+            "relative_l2": 0.00042667605213584595
+          },
+          "one_sided_gap": {
+            "absolute_l2": 1820433158.5412307,
+            "max_component_absolute": 1814797232.1264648,
+            "reference_l2": 2132322994176.21,
+            "relative_l2": 0.0008537323677103275
+          },
+          "plus": {
+            "F_endpoint": [
+              [
+                1.000181107898834,
+                -3.0555360334056436e-06,
+                0.0005078462773820371
+              ],
+              [
+                -2.453770693803407e-06,
+                0.9999925025556241,
+                -7.6114242859652216e-06
+              ],
+              [
+                -0.003342494390762623,
+                2.3581743026379495e-05,
+                1.000051197074301
+              ]
+            ],
+            "actual_deltaF_frobenius": 1.0000000000004347e-06,
+            "candidate_state_f64": [
+              2.623179278463842e-07,
+              5.252217718562986e-07,
+              -7.875396997026827e-07,
+              7.832943200499104e-06,
+              -0.0013451783508909541,
+              -1.0220648460457378e-07,
+              0.03926869072995503,
+              0.0023604564451953467,
+              4.521575958302492e-05,
+              1.8216851115958861e-06,
+              -0.0010473793209833096,
+              -0.0002870660653007257,
+              7.618937958721587e-06,
+              7.595659923740651e-06,
+              2.3270910982928423e-08
+            ],
+            "continuation": {
+              "backtracks_by_update": [],
+              "continuation_updates": 0,
+              "converged": true,
+              "dynamic_scaled_correction_tolerance": 2e-08,
+              "final_metrics": {
+                "absolute_newton_correction_inf": 4.363900634634806e-19,
+                "branch": {
+                  "delta_multiplier": 5.220426489284661e-06,
+                  "fb_selection": "plastic_smoothed",
+                  "hardening_factor": 2.00121377806097,
+                  "hill_q": 1.0012137780513921,
+                  "multiplier_sign": "positive",
+                  "yield_gap": 9.5776719888363e-12,
+                  "yield_sign": "nonnegative"
+                },
+                "dynamic_state_scaled_correction_inf": 3.3015546412210387e-16,
+                "scaled_residual": 8.942472356430473e-13
+              },
+              "history": [
+                {
+                  "absolute_newton_correction_inf": 4.363900634634806e-19,
+                  "branch": {
+                    "delta_multiplier": 5.220426489284661e-06,
+                    "fb_selection": "plastic_smoothed",
+                    "hardening_factor": 2.00121377806097,
+                    "hill_q": 1.0012137780513921,
+                    "multiplier_sign": "positive",
+                    "yield_gap": 9.5776719888363e-12,
+                    "yield_sign": "nonnegative"
+                  },
+                  "candidate_index": 0,
+                  "dynamic_state_scaled_correction_inf": 3.3015546412210387e-16,
+                  "scaled_residual": 8.942472356430473e-13
+                }
+              ],
+              "max_backtracks": 24,
+              "max_updates": 4,
+              "residual_tolerance": 2e-10,
+              "seed_source": "stock_projector_candidate",
+              "stock_projector_failure": null,
+              "stock_projector_iterations": 7,
+              "stock_projector_reported_residual": 8.942472356430473e-13
+            },
+            "label": "plus",
+            "realized_direction_match": {
+              "absolute_l2": 4.0256598489094514e-05,
+              "max_component_absolute": 2.7924265395995462e-05,
+              "reference_l2": 375849.6288421119,
+              "relative_l2": 1.0710825660015653e-10
+            },
+            "stress_Pa": [
+              [
+                900189.2243723586,
+                -6580.889931391769,
+                -24009.755524731518
+              ],
+              [
+                -6581.530655329973,
+                54101.27192659526,
+                41.803726711131894
+              ],
+              [
+                -27015.691503044727,
+                65.02309493747234,
+                1116.6389519581649
+              ]
+            ]
+          },
+          "plus_one_sided_vs_fp64_tangent": {
+            "absolute_l2": 910420700.6795295,
+            "max_component_absolute": 907599753.0109863,
+            "reference_l2": 2132794784954.6233,
+            "relative_l2": 0.0004268674638094163
+          },
+          "strict_1e-6_diagnostic": "within_threshold_for_this_direction_and_step",
+          "target_deltaF_frobenius": 1e-06
+        },
+        {
+          "actual_deltaF_minus_frobenius": null,
+          "actual_deltaF_plus_frobenius": null,
+          "branch_signature_stable": true,
+          "center_and_both_endpoints_v3_converged": true,
+          "central_fd_action_Pa_per_s": [
+            [
+              988465438061.1906,
+              804852077674.6986,
+              1708668553.1742334
+            ],
+            [
+              804113845556.6512,
+              1470989239515.566,
+              -13339813121.676605
+            ],
+            [
+              336194297825.02045,
+              -18569861435.121223,
+              938234747.0431465
+            ]
+          ],
+          "central_fd_vs_fp64_tangent": {
+            "absolute_l2": 442081.8790487284,
+            "max_component_absolute": 425838.095703125,
+            "reference_l2": 2132794784954.6233,
+            "relative_l2": 2.0727820705831948e-07
+          },
+          "epsilon_scalar": 7.981915759844014e-09,
+          "minus": {
+            "F_endpoint": [
+              [
+                1.0001811030959766,
+                -3.060091131059909e-06,
+                0.0005077755668231719
+              ],
+              [
+                -2.451566797748072e-06,
+                0.9999925003668165,
+                -7.604898645275077e-06
+              ],
+              [
+                -0.0033437924150007416,
+                2.358752094713149e-05,
+                1.0000511951608286
+              ]
+            ],
+            "actual_deltaF_frobenius": 2.999999999996494e-07,
+            "candidate_state_f64": [
+              2.6237760131536337e-07,
+              5.253408981416823e-07,
+              -7.877184994570458e-07,
+              7.838925798058389e-06,
+              -0.001345862738115537,
+              -1.0226868354158396e-07,
+              0.039268541605865216,
+              0.002360234456241026,
+              4.521425770522467e-05,
+              1.8237005150445324e-06,
+              -0.001047379579851923,
+              -0.0002871874951523446,
+              7.620372517468092e-06,
+              7.597092697168766e-06,
+              2.3272694803761413e-08
+            ],
+            "continuation": {
+              "backtracks_by_update": [],
+              "continuation_updates": 0,
+              "converged": true,
+              "dynamic_scaled_correction_tolerance": 2e-08,
+              "final_metrics": {
+                "absolute_newton_correction_inf": 1.2861265770459152e-19,
+                "branch": {
+                  "delta_multiplier": 5.221861048031166e-06,
+                  "fb_selection": "plastic_smoothed",
+                  "hardening_factor": 2.001214006752221,
+                  "hill_q": 1.0012140067426463,
+                  "multiplier_sign": "positive",
+                  "yield_gap": 9.5750074535772e-12,
+                  "yield_sign": "nonnegative"
+                },
+                "dynamic_state_scaled_correction_inf": 2.623454359425546e-16,
+                "scaled_residual": 1.2274065297682163e-12
+              },
+              "history": [
+                {
+                  "absolute_newton_correction_inf": 1.2861265770459152e-19,
+                  "branch": {
+                    "delta_multiplier": 5.221861048031166e-06,
+                    "fb_selection": "plastic_smoothed",
+                    "hardening_factor": 2.001214006752221,
+                    "hill_q": 1.0012140067426463,
+                    "multiplier_sign": "positive",
+                    "yield_gap": 9.5750074535772e-12,
+                    "yield_sign": "nonnegative"
+                  },
+                  "candidate_index": 0,
+                  "dynamic_state_scaled_correction_inf": 2.623454359425546e-16,
+                  "scaled_residual": 1.2274065297682163e-12
+                }
+              ],
+              "max_backtracks": 24,
+              "max_updates": 4,
+              "residual_tolerance": 2e-10,
+              "seed_source": "stock_projector_candidate",
+              "stock_projector_failure": null,
+              "stock_projector_iterations": 7,
+              "stock_projector_reported_residual": 1.2274065297682163e-12
+            },
+            "label": "minus",
+            "realized_direction_match": {
+              "absolute_l2": 0.00015167779435613015,
+              "max_component_absolute": 0.00011403155826883449,
+              "reference_l2": 375849.6288421119,
+              "relative_l2": 4.0355978220174707e-10
+            },
+            "stress_Pa": [
+              [
+                900185.8032394149,
+                -6583.673786396644,
+                -24009.761434868877
+              ],
+              [
+                -6584.311956893579,
+                54096.183851745795,
+                41.84987345291723
+              ],
+              [
+                -27016.85433716534,
+                65.08732962253875,
+                1116.6357066283547
+              ]
+            ]
+          },
+          "minus_one_sided_vs_fp64_tangent": {
+            "absolute_l2": 273109252.03844124,
+            "max_component_absolute": 272252364.6348877,
+            "reference_l2": 2132794784954.6233,
+            "relative_l2": 0.0001280522879955616
+          },
+          "one_sided_gap": {
+            "absolute_l2": 545350798.5879093,
+            "max_component_absolute": 543653053.0783691,
+            "reference_l2": 2132653063446.9587,
+            "relative_l2": 0.0002557147282579902
+          },
+          "plus": {
+            "F_endpoint": [
+              [
+                1.00018110531268,
+                -3.0579887782964018e-06,
+                0.0005078082024657251
+              ],
+              [
+                -2.4525839805428418e-06,
+                0.9999925013770353,
+                -7.607910479439759e-06
+              ],
+              [
+                -0.0033431933268908407,
+                2.3584854214476724e-05,
+                1.0000511960439697
+              ]
+            ],
+            "actual_deltaF_frobenius": 2.999999999996494e-07,
+            "candidate_state_f64": [
+              2.62350059658692e-07,
+              5.252859166930623e-07,
+              -7.876359763517545e-07,
+              7.836164588062018e-06,
+              -0.0013455468670889622,
+              -1.0223997382056508e-07,
+              0.03926861038809629,
+              0.0023603369091972706,
+              4.521495087694506e-05,
+              1.8227704616370643e-06,
+              -0.0010473794603769603,
+              -0.000287131450774935,
+              7.619710413423934e-06,
+              7.596431416934102e-06,
+              2.3271871685405257e-08
+            ],
+            "continuation": {
+              "backtracks_by_update": [],
+              "continuation_updates": 0,
+              "converged": true,
+              "dynamic_scaled_correction_tolerance": 2e-08,
+              "final_metrics": {
+                "absolute_newton_correction_inf": 6.9247918774358055e-18,
+                "branch": {
+                  "delta_multiplier": 5.221198943987008e-06,
+                  "fb_selection": "plastic_smoothed",
+                  "hardening_factor": 2.001213901202401,
+                  "hill_q": 1.0012139011928247,
+                  "multiplier_sign": "positive",
+                  "yield_gap": 9.57633972120675e-12,
+                  "yield_sign": "nonnegative"
+                },
+                "dynamic_state_scaled_correction_inf": 3.0988418376984183e-16,
+                "scaled_residual": 4.702479758239436e-14
+              },
+              "history": [
+                {
+                  "absolute_newton_correction_inf": 6.9247918774358055e-18,
+                  "branch": {
+                    "delta_multiplier": 5.221198943987008e-06,
+                    "fb_selection": "plastic_smoothed",
+                    "hardening_factor": 2.001213901202401,
+                    "hill_q": 1.0012139011928247,
+                    "multiplier_sign": "positive",
+                    "yield_gap": 9.57633972120675e-12,
+                    "yield_sign": "nonnegative"
+                  },
+                  "candidate_index": 0,
+                  "dynamic_state_scaled_correction_inf": 3.0988418376984183e-16,
+                  "scaled_residual": 4.702479758239436e-14
+                }
+              ],
+              "max_backtracks": 24,
+              "max_updates": 4,
+              "residual_tolerance": 2e-10,
+              "seed_source": "stock_projector_candidate",
+              "stock_projector_failure": null,
+              "stock_projector_iterations": 7,
+              "stock_projector_reported_residual": 4.702479758239436e-14
+            },
+            "label": "plus",
+            "realized_direction_match": {
+              "absolute_l2": 0.00015167779435613015,
+              "max_component_absolute": 0.00011403155826883449,
+              "reference_l2": 375849.6288421119,
+              "relative_l2": 4.0355978220174707e-10
+            },
+            "stress_Pa": [
+              [
+                900187.3812089467,
+                -6582.388934132475,
+                -24009.758707179255
+              ],
+              [
+                -6583.028283130696,
+                54098.53211412516,
+                41.82857800053734
+              ],
+              [
+                -27016.31764226606,
+                65.05768500935821,
+                1116.6372044104596
+              ]
+            ]
+          },
+          "plus_one_sided_vs_fp64_tangent": {
+            "absolute_l2": 272241573.02663016,
+            "max_component_absolute": 271400688.44348145,
+            "reference_l2": 2132794784954.6233,
+            "relative_l2": 0.00012764546075745505
+          },
+          "strict_1e-6_diagnostic": "within_threshold_for_this_direction_and_step",
+          "target_deltaF_frobenius": 3e-07
+        },
+        {
+          "actual_deltaF_minus_frobenius": null,
+          "actual_deltaF_plus_frobenius": null,
+          "branch_signature_stable": true,
+          "center_and_both_endpoints_v3_converged": true,
+          "central_fd_action_Pa_per_s": [
+            [
+              988463353735.2512,
+              804852077675.838,
+              1708668391.3731635
+            ],
+            [
+              804113845559.4998,
+              1470988715621.9329,
+              -13339813077.759043
+            ],
+            [
+              336194304540.9043,
+              -18569861403.733097,
+              938241217.0919119
+            ]
+          ],
+          "central_fd_vs_fp64_tangent": {
+            "absolute_l2": 2591139.3618191555,
+            "max_component_absolute": 2510164.0350341797,
+            "reference_l2": 2132794784954.6233,
+            "relative_l2": 1.214903271565475e-06
+          },
+          "epsilon_scalar": 2.6606385866146713e-09,
+          "minus": {
+            "F_endpoint": [
+              [
+                1.0001811038348778,
+                -3.0593903468054066e-06,
+                0.0005077864453706896
+              ],
+              [
+                -2.451905858679662e-06,
+                0.9999925007035562,
+                -7.605902589996638e-06
+              ],
+              [
+                -0.003343592718964108,
+                2.358663203624657e-05,
+                1.000051195455209
+              ]
+            ],
+            "actual_deltaF_frobenius": 9.999999999979869e-08,
+            "candidate_state_f64": [
+              2.6236842075278796e-07,
+              5.25322570976223e-07,
+              -7.876909917290109e-07,
+              7.838005392608098e-06,
+              -0.0013457574477733752,
+              -1.0225911315470935e-07,
+              0.03926856452487892,
+              0.00236026860656867,
+              4.5214488761830993e-05,
+              1.82339052253152e-06,
+              -0.0010473795400274778,
+              -0.00028716881372549196,
+              7.620151816118656e-06,
+              7.596872270387465e-06,
+              2.3272420465997594e-08
+            ],
+            "continuation": {
+              "backtracks_by_update": [],
+              "continuation_updates": 0,
+              "converged": true,
+              "dynamic_scaled_correction_tolerance": 2e-08,
+              "final_metrics": {
+                "absolute_newton_correction_inf": 8.720593582988515e-20,
+                "branch": {
+                  "delta_multiplier": 5.22164034668173e-06,
+                  "fb_selection": "plastic_smoothed",
+                  "hardening_factor": 2.0012139715689456,
+                  "hill_q": 1.0012139715593702,
+                  "multiplier_sign": "positive",
+                  "yield_gap": 9.57545154278705e-12,
+                  "yield_sign": "nonnegative"
+                },
+                "dynamic_state_scaled_correction_inf": 1.91435508879117e-16,
+                "scaled_residual": 8.33603835401228e-13
+              },
+              "history": [
+                {
+                  "absolute_newton_correction_inf": 8.720593582988515e-20,
+                  "branch": {
+                    "delta_multiplier": 5.22164034668173e-06,
+                    "fb_selection": "plastic_smoothed",
+                    "hardening_factor": 2.0012139715689456,
+                    "hill_q": 1.0012139715593702,
+                    "multiplier_sign": "positive",
+                    "yield_gap": 9.57545154278705e-12,
+                    "yield_sign": "nonnegative"
+                  },
+                  "candidate_index": 0,
+                  "dynamic_state_scaled_correction_inf": 1.91435508879117e-16,
+                  "scaled_residual": 8.33603835401228e-13
+                }
+              ],
+              "max_backtracks": 24,
+              "max_updates": 4,
+              "residual_tolerance": 2e-10,
+              "seed_source": "stock_projector_candidate",
+              "stock_projector_failure": null,
+              "stock_projector_iterations": 7,
+              "stock_projector_reported_residual": 8.33603835401228e-13
+            },
+            "label": "minus",
+            "realized_direction_match": {
+              "absolute_l2": 0.0005677584582061709,
+              "max_component_absolute": 0.0003922161661193968,
+              "reference_l2": 375849.6288421119,
+              "relative_l2": 1.5106000236192244e-09
+            },
+            "stress_Pa": [
+              [
+                900186.3290367713,
+                -6583.245503049903,
+                -24009.760525651553
+              ],
+              [
+                -6583.884066378683,
+                54096.966590796,
+                41.842775548437615
+              ],
+              [
+                -27016.675438443668,
+                65.07744849697968,
+                1116.6362058742036
+              ]
+            ]
+          },
+          "minus_one_sided_vs_fp64_tangent": {
+            "absolute_l2": 92764390.47590306,
+            "max_component_absolute": 92441732.76391602,
+            "reference_l2": 2132794784954.6233,
+            "relative_l2": 4.3494287931633655e-05
+          },
+          "one_sided_gap": {
+            "absolute_l2": 180421202.97089845,
+            "max_component_absolute": 179863137.45776367,
+            "reference_l2": 2132746395916.799,
+            "relative_l2": 8.459571345018787e-05
+          },
+          "plus": {
+            "F_endpoint": [
+              [
+                1.0001811045737787,
+                -3.0586895625509044e-06,
+                0.0005077973239182073
+              ],
+              [
+                -2.452244919611252e-06,
+                0.9999925010402957,
+                -7.6069065347181985e-06
+              ],
+              [
+                -0.003343393022927474,
+                2.3585743125361646e-05,
+                1.0000511957495894
+              ]
+            ],
+            "actual_deltaF_frobenius": 9.999999999979869e-08,
+            "candidate_state_f64": [
+              2.623592402001853e-07,
+              5.253042438259066e-07,
+              -7.876634840260918e-07,
+              7.837084989275893e-06,
+              -0.0013456521574311835,
+              -1.0224954324770235e-07,
+              0.039268587452240905,
+              0.0023603027575419223,
+              4.5214719819221316e-05,
+              1.8230805047300706e-06,
+              -0.0010473795002024935,
+              -0.00028715013226635543,
+              7.619931114770587e-06,
+              7.596651843642708e-06,
+              2.3272146093065735e-08
+            ],
+            "continuation": {
+              "backtracks_by_update": [],
+              "continuation_updates": 0,
+              "converged": true,
+              "dynamic_scaled_correction_tolerance": 2e-08,
+              "final_metrics": {
+                "absolute_newton_correction_inf": 6.971340011066504e-18,
+                "branch": {
+                  "delta_multiplier": 5.221419645333661e-06,
+                  "fb_selection": "plastic_smoothed",
+                  "hardening_factor": 2.001213936385672,
+                  "hill_q": 1.0012139363760963,
+                  "multiplier_sign": "positive",
+                  "yield_gap": 9.575673587391975e-12,
+                  "yield_sign": "nonnegative"
+                },
+                "dynamic_state_scaled_correction_inf": 5.467799680856085e-16,
+                "scaled_residual": 2.660585220932341e-12
+              },
+              "history": [
+                {
+                  "absolute_newton_correction_inf": 6.971340011066504e-18,
+                  "branch": {
+                    "delta_multiplier": 5.221419645333661e-06,
+                    "fb_selection": "plastic_smoothed",
+                    "hardening_factor": 2.001213936385672,
+                    "hill_q": 1.0012139363760963,
+                    "multiplier_sign": "positive",
+                    "yield_gap": 9.575673587391975e-12,
+                    "yield_sign": "nonnegative"
+                  },
+                  "candidate_index": 0,
+                  "dynamic_state_scaled_correction_inf": 5.467799680856085e-16,
+                  "scaled_residual": 2.660585220932341e-12
+                }
+              ],
+              "max_backtracks": 24,
+              "max_updates": 4,
+              "residual_tolerance": 2e-10,
+              "seed_source": "stock_projector_candidate",
+              "stock_projector_failure": null,
+              "stock_projector_iterations": 7,
+              "stock_projector_reported_residual": 2.660585220932341e-12
+            },
+            "label": "plus",
+            "realized_direction_match": {
+              "absolute_l2": 0.0005677584582061709,
+              "max_component_absolute": 0.0003922161661193968,
+              "reference_l2": 375849.6288421119,
+              "relative_l2": 1.5106000236192244e-09
+            },
+            "stress_Pa": [
+              [
+                900186.8550255061,
+                -6582.817218961846,
+                -24009.759616421765
+              ],
+              [
+                -6583.456175124387,
+                54097.74934464368,
+                41.835677064334355
+              ],
+              [
+                -27016.496540140335,
+                65.06756695926954,
+                1116.6367051383481
+              ]
+            ]
+          },
+          "plus_one_sided_vs_fp64_tangent": {
+            "absolute_l2": 87659004.71002568,
+            "max_component_absolute": 87421404.69384766,
+            "reference_l2": 2132794784954.6233,
+            "relative_l2": 4.110053406375461e-05
+          },
+          "strict_1e-6_diagnostic": "exceeds_threshold_for_this_direction_and_step",
+          "target_deltaF_frobenius": 1e-07
+        },
+        {
+          "actual_deltaF_minus_frobenius": null,
+          "actual_deltaF_plus_frobenius": null,
+          "branch_signature_stable": true,
+          "center_and_both_endpoints_v3_converged": true,
+          "central_fd_action_Pa_per_s": [
+            [
+              988463637848.8145,
+              804852077687.2327,
+              1708668384.536499
+            ],
+            [
+              804113845561.7788,
+              1470988448157.928,
+              -13339813072.333334
+            ],
+            [
+              336194303542.7513,
+              -18569861404.436348,
+              938261126.4571782
+            ]
+          ],
+          "central_fd_vs_fp64_tangent": {
+            "absolute_l2": 2405072.005887536,
+            "max_component_absolute": 2226050.471801758,
+            "reference_l2": 2132794784954.6233,
+            "relative_l2": 1.1276621749329274e-06
+          },
+          "epsilon_scalar": 7.981915759844013e-10,
+          "minus": {
+            "F_endpoint": [
+              [
+                1.0001811040934931,
+                -3.059145072316331e-06,
+                0.0005077902528623209
+              ],
+              [
+                -2.4520245300057186e-06,
+                0.999992500821415,
+                -7.606253970649184e-06
+              ],
+              [
+                -0.0033435228253512863,
+                2.3586320917436845e-05,
+                1.000051195558242
+              ]
+            ],
+            "actual_deltaF_frobenius": 2.999999999992058e-08,
+            "candidate_state_f64": [
+              2.6236520755826297e-07,
+              5.253161564719347e-07,
+              -7.876813640301976e-07,
+              7.837683251200881e-06,
+              -0.0013457205961536114,
+              -1.0225576363267191e-07,
+              0.03926857254850513,
+              0.0023602805593381875,
+              4.521456963180137e-05,
+              1.8232820191777302e-06,
+              -0.0010473795260887945,
+              -0.00028716227521846644,
+              7.6200745706466774e-06,
+              7.596795121022607e-06,
+              2.3272324439509487e-08
+            ],
+            "continuation": {
+              "backtracks_by_update": [],
+              "continuation_updates": 0,
+              "converged": true,
+              "dynamic_scaled_correction_tolerance": 2e-08,
+              "final_metrics": {
+                "absolute_newton_correction_inf": 4.448046975632594e-19,
+                "branch": {
+                  "delta_multiplier": 5.221563101209752e-06,
+                  "fb_selection": "plastic_smoothed",
+                  "hardening_factor": 2.0012139592548,
+                  "hill_q": 1.001213959245224,
+                  "multiplier_sign": "positive",
+                  "yield_gap": 9.575673587391975e-12,
+                  "yield_sign": "nonnegative"
+                },
+                "dynamic_state_scaled_correction_inf": 5.751268718606736e-16,
+                "scaled_residual": 2.97211187459347e-14
+              },
+              "history": [
+                {
+                  "absolute_newton_correction_inf": 4.448046975632594e-19,
+                  "branch": {
+                    "delta_multiplier": 5.221563101209752e-06,
+                    "fb_selection": "plastic_smoothed",
+                    "hardening_factor": 2.0012139592548,
+                    "hill_q": 1.001213959245224,
+                    "multiplier_sign": "positive",
+                    "yield_gap": 9.575673587391975e-12,
+                    "yield_sign": "nonnegative"
+                  },
+                  "candidate_index": 0,
+                  "dynamic_state_scaled_correction_inf": 5.751268718606736e-16,
+                  "scaled_residual": 2.97211187459347e-14
+                }
+              ],
+              "max_backtracks": 24,
+              "max_updates": 4,
+              "residual_tolerance": 2e-10,
+              "seed_source": "stock_projector_candidate",
+              "stock_projector_failure": null,
+              "stock_projector_iterations": 7,
+              "stock_projector_reported_residual": 2.97211187459347e-14
+            },
+            "label": "minus",
+            "realized_direction_match": {
+              "absolute_l2": 0.001153268790203232,
+              "max_component_absolute": 0.0009181150105632696,
+              "reference_l2": 375849.6288421119,
+              "relative_l2": 3.068431366438041e-09
+            },
+            "stress_Pa": [
+              [
+                900186.5131110395,
+                -6583.095603703409,
+                -24009.760207422547
+              ],
+              [
+                -6583.734304523787,
+                54097.24055301258,
+                41.84029114493701
+              ],
+              [
+                -27016.612823989857,
+                65.0739900056679,
+                1116.6363806139527
+              ]
+            ]
+          },
+          "minus_one_sided_vs_fp64_tangent": {
+            "absolute_l2": 29543836.893202957,
+            "max_component_absolute": 29302889.783813477,
+            "reference_l2": 2132794784954.6233,
+            "relative_l2": 1.3852170448659233e-05
+          },
+          "one_sided_gap": {
+            "absolute_l2": 54454218.10869903,
+            "max_component_absolute": 54153678.62414551,
+            "reference_l2": 2132778541614.1267,
+            "relative_l2": 2.5532054569288313e-05
+          },
+          "plus": {
+            "F_endpoint": [
+              [
+                1.0001811043151634,
+                -3.05893483703998e-06,
+                0.0005077935164265761
+              ],
+              [
+                -2.4521262482851953e-06,
+                0.9999925009224369,
+                -7.6065551540656526e-06
+              ],
+              [
+                -0.003343462916540296,
+                2.358605424417137e-05,
+                1.0000511956465563
+              ]
+            ],
+            "actual_deltaF_frobenius": 2.999999999992058e-08,
+            "candidate_state_f64": [
+              2.623624533924711e-07,
+              5.253106583268138e-07,
+              -7.876731117192848e-07,
+              7.837407130201219e-06,
+              -0.0013456890090509542,
+              -1.0225289266056978e-07,
+              0.03926857942671571,
+              0.0023602908046283003,
+              4.521463894915712e-05,
+              1.8231890138373317e-06,
+              -0.0010473795141412992,
+              -0.00028715667078072545,
+              7.620008360242256e-06,
+              7.596728992999211e-06,
+              2.3272242127598492e-08
+            ],
+            "continuation": {
+              "backtracks_by_update": [],
+              "continuation_updates": 0,
+              "converged": true,
+              "dynamic_scaled_correction_tolerance": 2e-08,
+              "final_metrics": {
+                "absolute_newton_correction_inf": 4.409062929579449e-19,
+                "branch": {
+                  "delta_multiplier": 5.22149689080533e-06,
+                  "fb_selection": "plastic_smoothed",
+                  "hardening_factor": 2.0012139486998177,
+                  "hill_q": 1.0012139486902418,
+                  "multiplier_sign": "positive",
+                  "yield_gap": 9.5758956319969e-12,
+                  "yield_sign": "nonnegative"
+                },
+                "dynamic_state_scaled_correction_inf": 2.41887228643752e-16,
+                "scaled_residual": 9.764938500246872e-13
+              },
+              "history": [
+                {
+                  "absolute_newton_correction_inf": 4.409062929579449e-19,
+                  "branch": {
+                    "delta_multiplier": 5.22149689080533e-06,
+                    "fb_selection": "plastic_smoothed",
+                    "hardening_factor": 2.0012139486998177,
+                    "hill_q": 1.0012139486902418,
+                    "multiplier_sign": "positive",
+                    "yield_gap": 9.5758956319969e-12,
+                    "yield_sign": "nonnegative"
+                  },
+                  "candidate_index": 0,
+                  "dynamic_state_scaled_correction_inf": 2.41887228643752e-16,
+                  "scaled_residual": 9.764938500246872e-13
+                }
+              ],
+              "max_backtracks": 24,
+              "max_updates": 4,
+              "residual_tolerance": 2e-10,
+              "seed_source": "stock_projector_candidate",
+              "stock_projector_failure": null,
+              "stock_projector_iterations": 7,
+              "stock_projector_reported_residual": 9.764938500246872e-13
+            },
+            "label": "plus",
+            "realized_direction_match": {
+              "absolute_l2": 0.001153268790203232,
+              "max_component_absolute": 0.0009181150105632696,
+              "reference_l2": 375849.6288421119,
+              "relative_l2": 3.068431366438041e-09
+            },
+            "stress_Pa": [
+              [
+                900186.6709077053,
+                -6582.96711847699,
+                -24009.75993465361
+              ],
+              [
+                -6583.605937147498,
+                54097.47537912419,
+                41.8381615997069
+              ],
+              [
+                -27016.559154499017,
+                65.07102554435474,
+                1116.6365303963744
+              ]
+            ]
+          },
+          "plus_one_sided_vs_fp64_tangent": {
+            "absolute_l2": 24927121.35905723,
+            "max_component_absolute": 24850788.84033203,
+            "reference_l2": 2132794784954.6233,
+            "relative_l2": 1.1687538592508125e-05
+          },
+          "strict_1e-6_diagnostic": "exceeds_threshold_for_this_direction_and_step",
+          "target_deltaF_frobenius": 3e-08
+        },
+        {
+          "actual_deltaF_minus_frobenius": null,
+          "actual_deltaF_plus_frobenius": null,
+          "branch_signature_stable": true,
+          "center_and_both_endpoints_v3_converged": true,
+          "central_fd_action_Pa_per_s": [
+            [
+              988470501495.7738,
+              804852077675.8381,
+              1708668247.8032002
+            ],
+            [
+              804113845556.0815,
+              1470989705557.3403,
+              -13339813075.716057
+            ],
+            [
+              336194280503.1904,
+              -18569861377.908665,
+              938301491.2663212
+            ]
+          ],
+          "central_fd_vs_fp64_tangent": {
+            "absolute_l2": 4651114.462072483,
+            "max_component_absolute": 4637596.487548828,
+            "reference_l2": 2132794784954.6233,
+            "relative_l2": 2.1807604251861667e-06
+          },
+          "epsilon_scalar": 2.6606385866146713e-10,
+          "minus": {
+            "F_endpoint": [
+              [
+                1.0001811041673832,
+                -3.0590749938908808e-06,
+                0.0005077913407170726
+              ],
+              [
+                -2.4520584360988773e-06,
+                0.999992500855089,
+                -7.60635436512134e-06
+              ],
+              [
+                -0.003343502855747623,
+                2.3586232026348355e-05,
+                1.00005119558768
+              ]
+            ],
+            "actual_deltaF_frobenius": 1.000000000035789e-08,
+            "candidate_state_f64": [
+              2.6236428950275034e-07,
+              5.253143237564376e-07,
+              -7.87678613259188e-07,
+              7.837591210846477e-06,
+              -0.0013457100671193925,
+              -1.0225480663717242e-07,
+              0.03926857484113977,
+              0.0023602839744235157,
+              4.52145927375809e-05,
+              1.823251017650499e-06,
+              -0.0010473795221063028,
+              -0.00028716040707287563,
+              7.6200525005118495e-06,
+              7.596773078347829e-06,
+              2.327229700249728e-08
+            ],
+            "continuation": {
+              "backtracks_by_update": [],
+              "continuation_updates": 0,
+              "converged": true,
+              "dynamic_scaled_correction_tolerance": 2e-08,
+              "final_metrics": {
+                "absolute_newton_correction_inf": 6.956496955903688e-18,
+                "branch": {
+                  "delta_multiplier": 5.221541031074924e-06,
+                  "fb_selection": "plastic_smoothed",
+                  "hardening_factor": 2.001213955736472,
+                  "hill_q": 1.0012139557268969,
+                  "multiplier_sign": "positive",
+                  "yield_gap": 9.57545154278705e-12,
+                  "yield_sign": "nonnegative"
+                },
+                "dynamic_state_scaled_correction_inf": 3.0149285935142856e-16,
+                "scaled_residual": 2.6549020110498824e-12
+              },
+              "history": [
+                {
+                  "absolute_newton_correction_inf": 6.956496955903688e-18,
+                  "branch": {
+                    "delta_multiplier": 5.221541031074924e-06,
+                    "fb_selection": "plastic_smoothed",
+                    "hardening_factor": 2.001213955736472,
+                    "hill_q": 1.0012139557268969,
+                    "multiplier_sign": "positive",
+                    "yield_gap": 9.57545154278705e-12,
+                    "yield_sign": "nonnegative"
+                  },
+                  "candidate_index": 0,
+                  "dynamic_state_scaled_correction_inf": 3.0149285935142856e-16,
+                  "scaled_residual": 2.6549020110498824e-12
+                }
+              ],
+              "max_backtracks": 24,
+              "max_updates": 4,
+              "residual_tolerance": 2e-10,
+              "seed_source": "stock_projector_candidate",
+              "stock_projector_failure": null,
+              "stock_projector_iterations": 7,
+              "stock_projector_reported_residual": 2.6549020110498824e-12
+            },
+            "label": "minus",
+            "realized_direction_match": {
+              "absolute_l2": 0.0042644542388539765,
+              "max_component_absolute": 0.0036999610887278322,
+              "reference_l2": 375849.6288421119,
+              "relative_l2": 1.1346171212118988e-08
+            },
+            "stress_Pa": [
+              [
+                900186.5657075845,
+                -6583.052775302015,
+                -24009.760116499707
+              ],
+              [
+                -6583.69151540575,
+                54097.31882812239,
+                41.83958130232377
+              ],
+              [
+                -27016.59493415397,
+                65.07300185601625,
+                1116.6364305412924
+              ]
+            ]
+          },
+          "minus_one_sided_vs_fp64_tangent": {
+            "absolute_l2": 4642132.824999659,
+            "max_component_absolute": 4628845.556518555,
+            "reference_l2": 2132794784954.6233,
+            "relative_l2": 2.176549219712399e-06
+          },
+          "one_sided_gap": {
+            "absolute_l2": 122939.34167670843,
+            "max_component_absolute": 69699.798828125,
+            "reference_l2": 2132797133051.7192,
+            "relative_l2": 5.764230445152573e-08
+          },
+          "plus": {
+            "F_endpoint": [
+              [
+                1.0001811042412734,
+                -3.05900491546543e-06,
+                0.0005077924285718244
+              ],
+              [
+                -2.4520923421920365e-06,
+                0.9999925008887629,
+                -7.606454759593496e-06
+              ],
+              [
+                -0.0033434828861439595,
+                2.358614313525986e-05,
+                1.0000511956171183
+              ]
+            ],
+            "actual_deltaF_frobenius": 1.000000000035789e-08,
+            "candidate_state_f64": [
+              2.623633714475984e-07,
+              5.253124910416253e-07,
+              -7.876758624892236e-07,
+              7.837499170513256e-06,
+              -0.0013456995380851735,
+              -1.0225384964647179e-07,
+              0.03926857713389255,
+              0.002360287389523139,
+              4.521461584345986e-05,
+              1.8232200158703651e-06,
+              -0.0010473795181238032,
+              -0.00028715853892696195,
+              7.620030430377048e-06,
+              7.596751035673337e-06,
+              2.3272269565224763e-08
+            ],
+            "continuation": {
+              "backtracks_by_update": [],
+              "continuation_updates": 0,
+              "converged": true,
+              "dynamic_scaled_correction_tolerance": 2e-08,
+              "final_metrics": {
+                "absolute_newton_correction_inf": 4.473435144265532e-19,
+                "branch": {
+                  "delta_multiplier": 5.221518960940122e-06,
+                  "fb_selection": "plastic_smoothed",
+                  "hardening_factor": 2.001213952218145,
+                  "hill_q": 1.001213952208569,
+                  "multiplier_sign": "positive",
+                  "yield_gap": 9.5758956319969e-12,
+                  "yield_sign": "nonnegative"
+                },
+                "dynamic_state_scaled_correction_inf": 3.3043838632364253e-16,
+                "scaled_residual": 1.3812396073716766e-12
+              },
+              "history": [
+                {
+                  "absolute_newton_correction_inf": 4.473435144265532e-19,
+                  "branch": {
+                    "delta_multiplier": 5.221518960940122e-06,
+                    "fb_selection": "plastic_smoothed",
+                    "hardening_factor": 2.001213952218145,
+                    "hill_q": 1.001213952208569,
+                    "multiplier_sign": "positive",
+                    "yield_gap": 9.5758956319969e-12,
+                    "yield_sign": "nonnegative"
+                  },
+                  "candidate_index": 0,
+                  "dynamic_state_scaled_correction_inf": 3.3043838632364253e-16,
+                  "scaled_residual": 1.3812396073716766e-12
+                }
+              ],
+              "max_backtracks": 24,
+              "max_updates": 4,
+              "residual_tolerance": 2e-10,
+              "seed_source": "stock_projector_candidate",
+              "stock_projector_failure": null,
+              "stock_projector_iterations": 7,
+              "stock_projector_reported_residual": 1.3812396073716766e-12
+            },
+            "label": "plus",
+            "realized_direction_match": {
+              "absolute_l2": 0.0042644542388539765,
+              "max_component_absolute": 0.0036999610887278322,
+              "reference_l2": 375849.6288421119,
+              "relative_l2": 1.1346171212118988e-08
+            },
+            "stress_Pa": [
+              [
+                900186.6183068383,
+                -6583.009946893209,
+                -24009.760025576736
+              ],
+              [
+                -6583.64872628032,
+                54097.39710355984,
+                41.838871453913555
+              ],
+              [
+                -27016.577044324917,
+                65.07201370224661,
+                1116.6364804709142
+              ]
+            ]
+          },
+          "plus_one_sided_vs_fp64_tangent": {
+            "absolute_l2": 4660889.545514773,
+            "max_component_absolute": 4646347.418701172,
+            "reference_l2": 2132794784954.6233,
+            "relative_l2": 2.1853436525605236e-06
+          },
+          "strict_1e-6_diagnostic": "exceeds_threshold_for_this_direction_and_step",
+          "target_deltaF_frobenius": 1e-08
+        }
+      ],
+      "method": "stock projector candidate followed by safeguarded Newton residual descent; on stock failure only, use the already-converged center candidate as a numerical seed at target F. The accepted history remains the same captured FP32 old state for every center and endpoint.",
+      "residual_metric": "independent source-defined row scaling [1e4]*6+[1]*6+[1e4]*3, max norm; stop <=2e-10.",
+      "target_deltaF_frobenius_norms": [
+        1e-06,
+        3e-07,
+        1e-07,
+        3e-08,
+        1e-08
+      ]
+    },
+    "directional_reference_action_norm_Pa_per_s": "2132794784954.6191",
+    "fd_minus_branch": "plastic",
+    "fd_plus_branch": "plastic",
+    "material": "liner",
+    "native_cached_action_abs_error_Pa_per_s": "432150.74376224226",
+    "native_cached_action_reference_norm_Pa_per_s": "2132794784954.6191",
+    "native_cached_action_relative_error": "2.0262181191119024e-07",
+    "scaled_residual_center": "1.5836112030954698e-12",
+    "scaled_residual_minus": "2.608409390030019e-12",
+    "scaled_residual_plus": "8.942472356430473e-13",
+    "tet_id": "1186",
+    "yield_gap": "9.5758956319969e-12"
+  },
+  "schema": "numi.cardboard.source101-tet-epsilon-diagnostic.v1",
+  "targets_deltaF_frobenius": [
+    1e-06,
+    3e-07,
+    1e-07,
+    3e-08,
+    1e-08
+  ],
+  "warnings": [
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "divide by zero encountered in divide"
+    },
+    {
+      "category": "RuntimeWarning",
+      "filename": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "line": 40,
+      "message": "invalid value encountered in divide"
+    }
+  ]
+}

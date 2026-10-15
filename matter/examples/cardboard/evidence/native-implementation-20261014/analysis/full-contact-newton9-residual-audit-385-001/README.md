@@ -1,0 +1,13 @@
+# Full-contact N9 residual audit (source 115)
+
+This audit compares complete expected-failure runs 383, 385, and 386, then evaluates the exact captured N9 Newton correction against the same-generation production operator action.
+
+The physical-history comparison passes: all transaction payloads, CSV/production state outputs, and 32 Armijo records are byte-identical across capture-on/off runs. Only the selected capture lifecycle lines differ. The full fixture still fails at Newton 9 with status 10; no completed or converged full-contact transaction is claimed.
+
+At the selected center, FP64 arithmetic on captured FP32 operands gives `||b|| = 3.76308334e-6` and `||b - J*delta|| = 8.17656119e-8`. This agrees with the native Arnoldi estimate `8.17697412e-8` to `4.13e-12` absolute. At zero-based Newton iteration 9, the configured relative forcing is 0.015625, so its target is `5.87981772e-8`; the residual is above that target. The FGMRES cycle is nevertheless accepted by the separate `reachedNonlinearTarget` gate at `max(diagonalFloor, relativeResidual * max(firstNewtonNorm, 1)) = 1.0e-7`. The nonlinear-converged latch remains false and Armijo runs.
+
+The first failed layer is outer residual Armijo: base norm `3.76308299e-6`, 24 trials, no accepted candidate, final trial alpha `1.1920929e-7`, and final trial norm `3.76308321e-6`. At that last alpha, the C1 decrement is about `4.49e-17`, below `0.0002` of an FP32 ulp of the base norm. This shows the final trial cannot resolve the requested decrease at the norm precision, but the earlier 23 trial residuals are not present in the capture, so it does not explain every rejection. A separate-FP32 kinematic replay estimates 20 of 96 free position components change at this final alpha; it is not the captured Metal trial state and does not establish geometry quantization as the cause.
+
+The 78-vector row map includes 36 FEM float4 rows, 36 field float4 rows (zero in this fixture), and all six rigid generalized scalars. FEM contributes `8.1748e-8` of the residual norm; rigid contributes `1.6956e-9`. The aggregate action includes coupled FEM and rigid terms, but this capture does not split mass, stiffness, or contact contributions, so no such attribution is made. The residual is an impulse/generalized-impulse norm, with translational and rotational rows carrying different units.
+
+`audit.py` strictly checks source/build/input identity, payload SHA/extents, array SHA values, full diagnostic-state parity, and the same-generation `b - J*delta` calculation. The report is `report.json`. `manifest.json` binds this package and the external source/run evidence; it does not copy or alter the immutable native captures.

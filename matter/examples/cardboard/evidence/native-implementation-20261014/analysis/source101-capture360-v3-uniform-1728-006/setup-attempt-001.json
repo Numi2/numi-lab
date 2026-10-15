@@ -1,0 +1,7 @@
+{
+  "classification": "failed setup attempt; no numerical rows produced",
+  "error": "The first script execution passed the continuation module where the FP32 helper module was expected.",
+  "script_sha256": null,
+  "source_capture_modified": false,
+  "production_state_modified": false
+}

@@ -206,7 +206,7 @@ This gate qualifies use of the numerical Fpeak for load sizing only. It does not
 
 ## Impactor footprint convention
 
-The probe measures upward-facing exterior triangles from the fixture-free settled accepted FEM checkpoint, stores their projected X/Z bounds in `shipping-outer-roof-measurement.json`, and binds the measurement to the checkpoint SHA plus source and compiled-world fingerprints. The full impactor plan is 1.2 times those measured extents; centering and quarter-width offset use the same bounds. A missing/invalid roof measurement blocks gravity/drop scenario construction without discarding completed compression records. This geometry-derived sizing is still not impact contact qualification.
+The probe measures upward-facing exterior triangles from the fixture-free settled accepted FEM checkpoint, stores their projected X/Z bounds in `shipping-outer-roof-measurement.json`, and binds the measurement to the checkpoint SHA plus source and compiled-world fingerprints. The impactor plan has 1.2 times the measured roof area, preserving its aspect ratio; each measured extent scales by sqrt(1.2). Centering and quarter-width offset use the same bounds. A missing/invalid roof measurement blocks gravity/drop scenario construction without discarding completed compression records. This geometry-derived sizing is still not impact contact qualification.
 
 ## Native source44 bounded checks
 

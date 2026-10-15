@@ -1,0 +1,42 @@
+{
+  "schema": "numi.cardboard.source380-generalized-material-point-overlay.v1",
+  "classification": "bounded single-point diagnostic overlay; observation only; no constitutive/solver/physical qualification",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-exact-material-point-112",
+  "base_snapshot_manifest_sha256": "769a5e34c1d919293cb263fd27fbd041a482d22016c2818eec41d44e47935752",
+  "source380_run": "/Users/home/cardboard-implementation-20261014/solver/explicit32-certified-coupon-380",
+  "source380_compiled_package_sha256": "cafbf36052bbfa72e8be49fdba8b23e900469c9f15136a14a4ec1e4c0b5ccf7c",
+  "source380_world_fingerprint": "8485105279886344921",
+  "medium_asset_sha256": "76f2bef552822708c36b5acc9f92bd44e7bb92c578e5e46adb64a1a2e82e47f9",
+  "input_sha256": "7925a6eba993e6bf8b4f536352027d18c221f95c215fe73d1b20ebaec6aeb797",
+  "candidate_nodes_sha256": "1ec2da4c997fac19986f5ad196c01dc653457297ae5da767f891d0bd05ea4b92",
+  "accepted_history_sha256": "6f1b2031dc933cacec54142e9521e914d30a5f8f2889d6bd589e46878c3bfbbc",
+  "mesh_sha256": "6a2f786a47e61014ee4b27f609eb3c2f666677223ddaa30297aeea1fcfd8ca56",
+  "changed_sources": {
+    "matter/src/metal/common.metalinc": {
+      "base_sha256": "e53feb0402a461f355cf2ee5c3af89f95eb49176178e60d997d4a9cc6588a182",
+      "overlay_sha256": "061995730c58f71d008d43625998d262fc3dd25f4a5d9413ad455d93e2e7b711"
+    },
+    "matter/tools/cardboard_bilinear15_capture_diagnostic_check.mm": {
+      "base_sha256": "1154df63e3acabe95ca4931d463ad928826992cd4d47dd5eba767a6c8ced7d8f",
+      "overlay_sha256": "f6c9a44a4d1c1142590e9818cb2de02ba61b152b613f5e6f41f8bd5f33b8aaa1"
+    }
+  },
+  "unchanged_diagnostic_shader_sha256": "23f6f758cda7ccc0e0651e45a298644e6b71a3c25cd5ef2f7c9cbe4ceca40628",
+  "overlay_patch_sha256": "c186e3088a41cc6f38f6b62d3a76d3d4306a34c8436ff99ac1d2cfaa0e6810fa",
+  "input_file_sha256": "7925a6eba993e6bf8b4f536352027d18c221f95c215fe73d1b20ebaec6aeb797",
+  "erratum_sha256": "e1b5edb975ec0419296e438cebb2195a381850ed66f4a3eb4e520af6eef2c015",
+  "cpu_preflight": {
+    "command": "python3 verify_input.py native_point_input_674_v2.json <source109>/matter/materials/hajali2009_medium_hill_bilinear_fit.nmatter",
+    "result": "PASS",
+    "physical_steps": 0
+  },
+  "compile_status": "not run by this subagent; source root requested no build",
+  "native_status": "not run by this subagent; no GPU dispatch",
+  "limitations": [
+    "F high/low inputs remain CPU-transcribed, not native readback; parent is separately adapting a production deformation-word capture.",
+    "The result makes no expected projector pass/fail assertion.",
+    "The existing CMake target is reused; no CMake edits are included."
+  ],
+  "python_preflight_script_sha256": "c9450f2e50d51c73023a80769853b4d8edebab29c0d1f972743d8cc9ea11fb06",
+  "readme_sha256": "85533706ea8d79a89c13c0018d0d03c8aa2493393718dd0d88631d139b424139"
+}

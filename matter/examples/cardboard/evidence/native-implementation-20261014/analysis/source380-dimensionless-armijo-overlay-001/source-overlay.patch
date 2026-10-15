@@ -1,0 +1,167 @@
+--- a/matter/src/metal/common.metalinc
++++ b/matter/src/metal/common.metalinc
+@@ -61,6 +61,7 @@
+ // nullptr and retain the existing equations, tolerances, and iteration path.
+ constant uint kMaterialProjectionTraceStateCapacity = 16u;
+ constant uint kMaterialProjectionTraceIterationCapacity = 16u;
++constant uint kMaterialProjectionArmijoTrialCapacity = 16u;
+ constant uint kMaterialProjectionTraceHeaderSlots = 8u;
+ constant uint kMaterialProjectionTraceRecordSlots = 6u +
+     7u * kMaterialProjectionTraceStateCapacity +
+@@ -1038,8 +1039,12 @@
+     const thread float* candidateState,
+     const uint count,
+     const float scaleFloor,
+-    thread float& scaledCorrectionNorm
+-) {
++    thread float& scaledCorrectionNorm,
++    thread float* rowScalesOutput = nullptr,
++    thread float* scaledResidualNormOutput = nullptr
++) {
++    if (scaledResidualNormOutput != nullptr)
++        *scaledResidualNormOutput = 0.0f;
+     if (!(scaleFloor > 0.0f) || !isfinite(scaleFloor) ||
+         count == 0u || count > NM_MAX_MATERIAL_STATE) return false;
+     float stateScale[NM_MAX_MATERIAL_STATE];
+@@ -1062,6 +1067,13 @@
+         if (!(weightedRowNorm > 0.0f) || !isfinite(weightedRowNorm) ||
+             !isfinite(rightHandSide[row])) return false;
+         rowScale[row] = weightedRowNorm;
++        if (rowScalesOutput != nullptr)
++            rowScalesOutput[row] = weightedRowNorm;
++        if (scaledResidualNormOutput != nullptr) {
++            *scaledResidualNormOutput = max(
++                *scaledResidualNormOutput,
++                abs(rightHandSide[row]) / weightedRowNorm);
++        }
+     }
+     for (uint row = 0u; row < count; ++row) {
+         for (uint column = 0u; column < count; ++column) {
+@@ -1503,6 +1515,7 @@
+             *stageFlagsOutput |= kMaterialDiagImplicitSystemEvaluated;
+         float residualNorm = 0.0f;
+         float stateNorm = 0.0f;
++        float scaledRowScales[NM_MAX_MATERIAL_STATE];
+         for (uint state = 0u; state < material.stateCount; ++state) {
+             residualNorm = max(residualNorm, abs(residual[state]));
+             stateNorm = max(stateNorm, abs(projectedState[state]));
+@@ -1542,12 +1555,14 @@
+         if (stageFlagsOutput != nullptr)
+             *stageFlagsOutput |= kMaterialDiagLocalSolveAttempted;
+         float scaledCorrectionNorm = 0.0f;
++        float scaledResidualNorm = 0.0f;
+         const bool localSolveSucceeded = scaledCorrectionPolicy
+             ? solveScaledLocalMaterialSystem(
+                 jacobian, residual, acceptedState, projectedState,
+                 material.stateCount,
+                 parameters[material.parameterOffset + 26u],
+-                scaledCorrectionNorm)
++                scaledCorrectionNorm, scaledRowScales,
++                &scaledResidualNorm)
+             : solveLocalMaterialSystem(jacobian, residual, material.stateCount);
+         if (!localSolveSucceeded) {
+             if (terminalFailureOutput != nullptr)
+@@ -1569,6 +1584,22 @@
+         }
+         if (stageFlagsOutput != nullptr)
+             *stageFlagsOutput |= kMaterialDiagLocalSolveSucceeded;
++        if (scaledCorrectionPolicy) {
++            for (uint state = 0u; state < material.stateCount; ++state) {
++                const float rowScale = scaledRowScales[state];
++                if (!(rowScale > 0.0f) || !isfinite(rowScale) ||
++                    !isfinite(scaledResidualNorm)) {
++                    if (terminalFailureOutput != nullptr)
++                        *terminalFailureOutput = kMaterialFailureLocalSolveFailed;
++                    return false;
++                }
++            }
++            if (!isfinite(scaledResidualNorm)) {
++                if (terminalFailureOutput != nullptr)
++                    *terminalFailureOutput = kMaterialFailureLocalSolveFailed;
++                return false;
++            }
++        }
+         if (residualConverged && scaledCorrectionPolicy &&
+             scaledCorrectionNorm <= 2.0e-8f) {
+             if (traceProjection) {
+@@ -1584,10 +1615,37 @@
+         float trialResidual[NM_MAX_MATERIAL_STATE];
+         float step = 1.0f;
+         bool acceptedStep = false;
++        // The current Jacobian's weighted L1 row norms, formed from the
++        // current candidate and accepted state scales, are frozen for this
++        // entire line search. This compares dimensionless residual rows and
++        // leaves the independently checked raw residual/correction gates
++        // unchanged.
++        const bool traceScaledArmijo = traceProjection &&
++            scaledCorrectionPolicy &&
++            material.stateCount * material.stateCount +
++                material.stateCount +
++                kMaterialProjectionArmijoTrialCapacity <=
++                    kMaterialProjectionTraceStateCapacity *
++                        kMaterialProjectionTraceStateCapacity;
++        uint scaledTraceBase = 0u;
++        if (traceScaledArmijo) {
++            scaledTraceBase = traceRecord + 6u +
++                5u * kMaterialProjectionTraceStateCapacity +
++                material.stateCount * material.stateCount;
++            for (uint state = 0u; state < material.stateCount; ++state)
++                projectionIterationTrace[scaledTraceBase + state] =
++                    scaledRowScales[state];
++            for (uint backtrack = 0u;
++                 backtrack < kMaterialProjectionArmijoTrialCapacity;
++                 ++backtrack)
++                projectionIterationTrace[scaledTraceBase +
++                    material.stateCount + backtrack] = -1.0f;
++        }
+         // Strongly anisotropic implicit laws can require a first step below
+         // 1/128. Retain the same Armijo/tolerance tests, with a bounded search
+         // down to 1/32768; previously accepted trials still exit immediately.
+-        for (uint backtrack = 0u; backtrack < 16u; ++backtrack) {
++        for (uint backtrack = 0u;
++             backtrack < kMaterialProjectionArmijoTrialCapacity; ++backtrack) {
+             for (uint state = 0u; state < material.stateCount; ++state) {
+                 if (accurateCandidate) {
+                     const auto sum=mrCompensatedAdd(
+@@ -1611,16 +1669,40 @@
+                 if (traceProjection)
+                     projectionIterationTrace[traceRecord+6u+
+                         4u*kMaterialProjectionTraceStateCapacity+backtrack]=-2.0f;
++                if (traceScaledArmijo)
++                    projectionIterationTrace[scaledTraceBase +
++                        material.stateCount + backtrack] = -2.0f;
+                 step *= 0.5f;
+                 continue;
+             }
+             float trialNorm = 0.0f;
++            float trialScaledNorm = 0.0f;
+             for (uint state = 0u; state < material.stateCount; ++state)
+                 trialNorm = max(trialNorm, abs(trialResidual[state]));
+             if (traceProjection)
+                 projectionIterationTrace[traceRecord+6u+
+                     4u*kMaterialProjectionTraceStateCapacity+backtrack]=trialNorm;
+-            if (trialNorm <= (1.0f - 1.0e-4f * step) * residualNorm) {
++            if (scaledCorrectionPolicy) {
++                for (uint state = 0u; state < material.stateCount; ++state)
++                    trialScaledNorm = max(trialScaledNorm,
++                        abs(trialResidual[state]) / scaledRowScales[state]);
++                if (!isfinite(trialScaledNorm)) {
++                    if (traceProjection && traceScaledArmijo)
++                        projectionIterationTrace[scaledTraceBase +
++                            material.stateCount + backtrack] = -2.0f;
++                    step *= 0.5f;
++                    continue;
++                }
++                if (traceScaledArmijo)
++                    projectionIterationTrace[scaledTraceBase +
++                        material.stateCount + backtrack] = trialScaledNorm;
++            }
++            const bool armijoAccepted = scaledCorrectionPolicy
++                ? (trialScaledNorm < scaledResidualNorm &&
++                    trialScaledNorm <=
++                        (1.0f - 1.0e-4f * step) * scaledResidualNorm)
++                : trialNorm <= (1.0f - 1.0e-4f * step) * residualNorm;
++            if (armijoAccepted) {
+                 for (uint state = 0u; state < material.stateCount; ++state) {
+                     projectedState[state] = trialState[state];
+                     candidateLow[state] = trialLow[state];

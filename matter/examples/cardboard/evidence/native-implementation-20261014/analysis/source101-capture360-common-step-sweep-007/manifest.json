@@ -1,0 +1,32 @@
+{
+  "files": {
+    "README.md": "c897cdfdcb19e7e6f8a8c7b2384a9a3c41625e5c9537e6e792d20c173b98ecb9",
+    "comparison.json": "0929251ab49db9e4116df6bf8878cb59e01b90575b2c1b204765ab3c7ce9f7f1",
+    "output-1.0e-06/all1728_v3_rows.jsonl": "87d6166237088e6809afbfd60b06a6c8442403e60f2aa962bfbac0fccab3d2ac",
+    "output-1.0e-06/report.json": "b834f79b38e286f6295b63c4ad823c3800d435a80cb83bf05884ee6c1594b310",
+    "output-3.0e-07/all1728_v3_rows.jsonl": "da5b660aba97a5afa55f028b76b8c3ec12c821ca93176cb6013a9c4e7a8bdb0e",
+    "output-3.0e-07/report.json": "8bf0348eaf901e1d27445c6df4f6a80622b4bf66dcf92f98b290267707ab33e4",
+    "prediction.json": "e7d4d66a58047d8bb7d098f3867e1a173356ae6aaeabf3f2f6a4319147b6ab2d",
+    "row-comparison.jsonl": "0d574539cce003fd917cad09af012c14a12df4500c1fcfb1d065cd11d273742d",
+    "stderr-1e-6.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr-3e-7.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout-1e-6.log": "c8e12a7877a204e8628a30599582f150e1554a5a5f85896a201e9db8683a1ded",
+    "stdout-3e-7.log": "3de57df5cc8011b46d379182962bcce1902c9744623081ea0036126c0cf8ca19",
+    "sweep_uniform.py": "3f379292c339a3cf925e4f01068429abf7562bbda4f46ef08c9f39b527477edb",
+    "verify_and_seal.py": "be4ba15cf97ad7add79bdd2bd6381ffd7679245773fec33c4339a65abdfa492b"
+  },
+  "immutable_external_inputs": {
+    "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py": "c17010564a98fe63da0c8b88be81313685a65cfbd57ff82292e797cab5a0fdf3",
+    "/Users/home/cardboard-implementation-20261014/analysis/source101-capture360-directional-fd-001/compare_directional_fd.py": "742b0920c4f543e284e41ed18f8dbc78253915a31f39b3ef8d32ff7dec01b5e8",
+    "/Users/home/cardboard-implementation-20261014/analysis/source101-capture360-directional-fd-003/output/all_1728_row_metrics.csv": "226a12e13a5dae5cf17f4189a65d71ba6a5e26c94d14d11407e5712a76979180",
+    "/Users/home/cardboard-implementation-20261014/analysis/source101-capture360-small-eps-34-005/manifest.json": "aa2943493e6fcf6d5f9fb4cb8c7ce54536ea2c52599186c21963d7623b8026c0",
+    "/Users/home/cardboard-implementation-20261014/analysis/source101-capture360-small-eps-34-005/output-004/report.json": "9b58e69fb2046af06e1b80b9a23d6d9600368cb8356148da36e323c33a07c4cc",
+    "/Users/home/cardboard-implementation-20261014/analysis/source101-capture360-small-eps-34-005/output-004/rows.jsonl": "6f2b2828b77f92557f532ff8a80a882b2bf80dc3a12ca41c088ec82bd0febf10",
+    "/Users/home/cardboard-implementation-20261014/analysis/source101-capture360-small-eps-34-005/replay_continuation.py": "36716c3a41f39805f718dc37d47349e99156f4492afc013586b9a530534df8f6",
+    "/Users/home/cardboard-implementation-20261014/analysis/source101-capture360-v3-uniform-1728-006/output-006/all1728_v3_rows.jsonl": "7378794b10863ff2df78b3d5e4d60e6ebdf26abce6791867bfe6d511a9ab0782",
+    "/Users/home/cardboard-implementation-20261014/analysis/source101-capture360-v3-uniform-1728-006/output-006/report.json": "dd6bb021cbd0e9b51425c19dd635ad31fc85a660bff667eb7b4a3e2ce39c690a",
+    "/Users/home/cardboard-implementation-20261014/solver/reset-augmentation-first-failure-capture-360/operator-capture": "548dce37fbe5a28a609dd6bc45318926072c878774ea0caffa3237d925cebb33"
+  },
+  "schema": "numi.cardboard.common-step-fp64-package.v1",
+  "source006_manifest_sha256": "2914c54c17ae292de3dbcf630aa3a2b111e0895b0ea6444f671d331102c702e1"
+}

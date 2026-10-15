@@ -1,0 +1,22 @@
+{
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-exact-material674-point-117",
+  "changed_files": {
+    "matter/tools/cardboard_source370_material_point_check.mm": "f02bae340982ad889f5e48488d82c42d25394c82b5af96bc4a51338277c25f21"
+  },
+  "base_files": {
+    "matter/tools/cardboard_source370_material_point_check.mm": "023806c32a018fe4c136d6a83cd1b1c3e838c8df29e856e3ff3f080ce10a54da"
+  },
+  "exact_run_inputs": {
+    "/Users/home/cardboard-implementation-20261014/solver/explicit32-certified-coupon-380/output/compiled.nmatterpack": "cafbf36052bbfa72e8be49fdba8b23e900469c9f15136a14a4ec1e4c0b5ccf7c",
+    "/Users/home/cardboard-implementation-20261014/solver/explicit32-certified-coupon-380/output/rejected-conditioning-000002/candidate_nodes.bin": "1ec2da4c997fac19986f5ad196c01dc653457297ae5da767f891d0bd05ea4b92",
+    "/Users/home/cardboard-implementation-20261014/solver/explicit32-certified-coupon-380/output/rejected-conditioning-000002/manifest.json": "2caec04a94e9349d6cb9271a992dcbc9b831037c208cfde8c8c61caeff363b81",
+    "/Users/home/cardboard-implementation-20261014/solver/explicit32-certified-coupon-380/output/material_state_000002_bent.json": "6f1b2031dc933cacec54142e9521e914d30a5f8f2889d6bd589e46878c3bfbbc",
+    "/Users/home/cardboard-implementation-20261014/solver/explicit32-certified-coupon-380/output/manifest.json": "053a6ce46f8ab96a39413e0800fe89e1e27a2cf7d9d3b847d0b099528f1baba3"
+  },
+  "selected_source_files": 782,
+  "support_files": 1068,
+  "production_material_and_shader_bytes_unchanged_from112": true,
+  "material_outcome_not_an_execution_success_condition": true,
+  "historical_target_name_retained": "numi-matter-cardboard-source370-material-point-check",
+  "limits": "No physical transaction. F and local validity are measured natively; no new derivative or global convergence verdict."
+}

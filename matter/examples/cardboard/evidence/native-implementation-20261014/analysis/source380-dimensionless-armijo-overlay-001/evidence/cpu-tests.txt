@@ -1,0 +1,15 @@
+test_bad_rows_or_nonfinite_trial_fail_closed (test_armijo_merit.DimensionlessArmijoTests.test_bad_rows_or_nonfinite_trial_fail_closed) ... ok
+test_dimensionless_merit_can_accept_when_raw_merit_is_noise_dominated (test_armijo_merit.DimensionlessArmijoTests.test_dimensionless_merit_can_accept_when_raw_merit_is_noise_dominated) ... ok
+test_equal_or_worse_merit_never_accepts_stagnation (test_armijo_merit.DimensionlessArmijoTests.test_equal_or_worse_merit_never_accepts_stagnation) ... ok
+test_row_unit_rescaling_preserves_scaled_merit (test_armijo_merit.DimensionlessArmijoTests.test_row_unit_rescaling_preserves_scaled_merit) ... ok
+test_trace388_row_scales_expose_unit_mismatch (test_armijo_merit.DimensionlessArmijoTests.test_trace388_row_scales_expose_unit_mismatch) ... ok
+test_weights_are_frozen_for_all_trials (test_armijo_merit.DimensionlessArmijoTests.test_weights_are_frozen_for_all_trials) ... ok
+test_15_state_trace_padding_fits_16_trials_independent_of_trace_depth (test_source_contract.SourceContractTests.test_15_state_trace_padding_fits_16_trials_independent_of_trace_depth) ... ok
+test_armijo_is_strict_and_legacy_path_keeps_raw_merit (test_source_contract.SourceContractTests.test_armijo_is_strict_and_legacy_path_keeps_raw_merit) ... ok
+test_existing_material_policy_is_the_only_selector (test_source_contract.SourceContractTests.test_existing_material_policy_is_the_only_selector) ... ok
+test_raw_residual_and_scaled_correction_convergence_gates_remain (test_source_contract.SourceContractTests.test_raw_residual_and_scaled_correction_convergence_gates_remain) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 0.000s
+
+OK

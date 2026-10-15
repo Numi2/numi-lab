@@ -31,6 +31,16 @@ versions that used fixed residual weights for this correction metric are
 retained and superseded. No universal near-zero noise floor or complete
 smooth-branch derivative gate is claimed.
 
+Uniform v3 FP64 replay recomputes all 1,728 directional paper rows, including
+center and both endpoint projections. At deformation-norm steps 1e-6, 3e-7 and
+1e-7, respectively 33, 2 and 1 nominal-direction comparisons exceed the 1e-6
+derivative gate. Every projection passes the residual and dynamic-correction
+checks, and the recorded branch predicates remain stable. No common declared
+step passes every row. A separate realized-endpoint-direction comparison passes
+all 1,728 rows at 1e-7; MP90 adjudication of the remaining nominal outlier
+isolates direction representation and FP64 stress cancellation. These explanatory
+results preserve the original gate and establish no universal noise floor.
+
 ## Effective material budget repair
 
 The probe requested 32 local Newton updates in native370, but the compiler
@@ -51,7 +61,16 @@ local recompile, not the complete native370 trajectory. The full 27-control
 source109 rerun, native380, confirms compiled budgets of 32 but still accepts
 only control0. Control1/Newton0 rejects tetrahedron674. Control0 CSV rows and
 both accepted geometry files exactly match native370. The newly exposed
-material failure needs its own replay; no complete-coupon claim is justified.
+material failure is reproduced by native382 using production deformation
+helpers: all 27 F-high/F-low/Fdot words match the independent point input.
+Both private 16- and 32-update descriptors terminate after update14 with local
+`ArmijoNoAcceptedTrial`, so the local iteration ceiling is not this failure's
+cause. Native388 records all iterations and matches trace-off stress, tangent
+and projected-state bits. Its raw residual is 5.2042e-17, while its scaled
+correction remains 7.2182e-8, above the unchanged 2e-8 gate. Raw mixed-unit
+line-search merit is dominated by a stress row although the frozen-row-scaled
+merit is dominated by complementarity. A candidate dimensionless Armijo repair
+therefore needs native validation; no complete-coupon claim is justified.
 
 ## Diagnostics, contact and convergence reporting
 
@@ -77,6 +96,17 @@ output. Native383 matches all 145 center-capture arrays and all 32 Armijo rows
 from native378. Transaction payloads match apart from their explicitly reported
 eight-byte device-program fingerprint. Both runs reject residual descent at
 Newton9; output parity does not qualify full nonlinear contact.
+
+Native385 captures Newton9, and native386 disables capture. All 32 Armijo rows
+and transaction histories match source115 native383. The full 78-row coupled
+residual, recomputed from captured FP32 operands, is 8.1766e-8, agreeing with
+the Arnoldi estimate within 4.13e-12. It exceeds the relative forcing target
+but satisfies the separate 1e-7 outer-target linear exit; nonlinear convergence
+remains false. Native389 captures the first trial through residual stages.
+That trial fails private vertex-triangle feasibility, so its residual cannot
+be used as a complete Armijo measurement. Neither the final tiny trial's
+roundoff-limited norm nor the first trial's infeasibility explains all 24
+rejections; per-trial feasibility and residual evidence remains necessary.
 
 Source107 extends the edge-edge conservative search bound from 17 to 33 while
 keeping its speed bound, separation band and failure policy. Native377 passes
@@ -109,6 +139,14 @@ its interior-cut control do not calibrate a damage law or resolve the source
 paper's absolute compression-energy convention. Source115 passes the same
 69 build targets and 74 CPU checks; fresh current-main probe, contact-checker
 and damage-builder targets compile, and the damage-builder CPU check passes.
+
+An independent 70-digit Robertsson equation benchmark confirms the printed
+compression branch gives a negative energy limit at the virgin compression
+switch, conflicting with the paper's stated nonnegative-energy premise.
+Recentring preserves within-branch mechanical stress/tangent but changes the
+damage-driving energy. Six CPU equation checks pass; no author implementation
+or erratum establishes which executable convention was used. This remains a
+source-model inconsistency, and its paper grade is separate from kraft/NSSC.
 
 ## Remaining qualification gates
 

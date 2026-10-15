@@ -1,0 +1,18 @@
+{
+  "schema": "numi.cardboard.source380_tet674_corrected_offset_receipt.v1",
+  "classification": "Independent CPU-only artifact audit; no GPU/native point run; no production edits.",
+  "created_at_utc": "2026-10-15T16:51:27.754913+00:00",
+  "files": {
+    "README.md": "64f800d162bcc3ee4edb922d00a6154ec55003638fc4027a214509b6a1e0ab00",
+    "audit.py": "8ac82f1e32c6f31b6b2c5bb5b529e68bae5662abb5222607a9ef29bcf721f18a",
+    "report.json": "fac26aac2dc57e1e58ae02ba2da8f89a785f2db79847a8e6d31ecf1d310f03f8"
+  },
+  "verified": {
+    "candidate_node_buffers_370_380_byte_identical": true,
+    "post_rollback_material_state_exports_370_380_byte_identical": true,
+    "packed_temperature_and_iteration_offsets": true,
+    "input_F_words_recomputed_from_source_transcription": true,
+    "native_F_bits_confirmed": false,
+    "native_failure_cause_identified": false
+  }
+}

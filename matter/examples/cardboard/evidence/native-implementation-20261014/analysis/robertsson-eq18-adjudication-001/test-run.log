@@ -1,0 +1,11 @@
+test_damage_conjugate_uses_absolute_psi0 (test_benchmark.SourceEquationTests.test_damage_conjugate_uses_absolute_psi0) ... ok
+test_energy_and_stress_derivative (test_benchmark.SourceEquationTests.test_energy_and_stress_derivative) ... ok
+test_literal_and_recentered_switch_limits (test_benchmark.SourceEquationTests.test_literal_and_recentered_switch_limits) ... ok
+test_offset_changes_A_but_not_branch_stress_or_tangent (test_benchmark.SourceEquationTests.test_offset_changes_A_but_not_branch_stress_or_tangent) ... ok
+test_prior_builder_check_values_are_binary32_constant_replay (test_benchmark.SourceEquationTests.test_prior_builder_check_values_are_binary32_constant_replay) ... ok
+test_switch_tangents_are_distinct_and_literal_energy_jumps (test_benchmark.SourceEquationTests.test_switch_tangents_are_distinct_and_literal_energy_jumps) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.001s
+
+OK

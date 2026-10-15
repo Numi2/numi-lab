@@ -1,0 +1,7 @@
+{
+  "classification": "failed join assertion; no numerical output files were written",
+  "error": "A completed 1694-row calculation was followed by a join expression that omitted the already-computed package005 34 rows before checking for 1728 unique rows. The assertion ran before output serialization.",
+  "script_sha256_at_attempt": null,
+  "source_capture_modified": false,
+  "production_state_modified": false
+}

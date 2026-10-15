@@ -1,0 +1,239 @@
+{
+  "schema": "numi.cardboard.source380_tet674_corrected_offset_independent_audit.v1",
+  "classification": "Independent CPU/read-only source and artifact audit; no GPU or native point run; not a diagnosis of the remaining native failure.",
+  "source_bindings": {
+    "/Users/home/cardboard-implementation-20261014/analysis/source380-first-failure-tet674-001/native_point_input_674.json": "86e5918cdabfc3a18a899a21d0ec840a9392d93de43cbc6c01d28e4237bfb23c",
+    "/Users/home/cardboard-implementation-20261014/analysis/source380-first-failure-tet674-001/native_point_input_674_summary.json": "8eb73902e6f4414e7fa4b077f8ac530a5991ddca4c855ae6df636e4f2fa642e7",
+    "/Users/home/cardboard-implementation-20261014/analysis/source380-first-failure-tet674-001/replay.json": "54af7fb568e0a5208c88080f1ebd3954a0a115658cd538d088527b0ccd9ac7e8",
+    "/Users/home/cardboard-implementation-20261014/analysis/source380-first-failure-tet674-001/replay_tet674.py": "754bebb599e755d892151725321be082e473d88871a0d3693b790861aab6b4e1",
+    "/Users/home/cardboard-implementation-20261014/analysis/source380-first-failure-tet674-001/make_point_input.py": "40d72eb2614c8016b611db745cf34ceef0bd4a37e0509a9745ee214ac57f64e1",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-explicit-material-budget-109/matter/include/numi/matter/shared.h": "ae84a7fb79e5b79ad813b249c720b9ace6105fde81f555cbd784afafa721e691",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-explicit-material-budget-109/matter/src/metal/fem.metalinc": "742cf561ee1ed91e20ed797e664595f675302437a3d583f8c5768da6cb3d008e",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-explicit-material-budget-109/matter/src/metal/common.metalinc": "e53feb0402a461f355cf2ee5c3af89f95eb49176178e60d997d4a9cc6588a182",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-explicit-material-budget-109/matter/materials/hajali2009_medium_hill_bilinear_fit.nmatter": "76f2bef552822708c36b5acc9f92bd44e7bb92c578e5e46adb64a1a2e82e47f9",
+    "370:receipt": "52cebb74dc750096116e708f07ed765de24b5f25c75f6687ae1be702a3282a20",
+    "370:prediction": "f2be9e3dbeb90cf3598cd6e3a227240203128719055c7fdaa7597ac8a7b4b057",
+    "370:compiled_nmatterpack": "3c25f41c6c26654ccf3f8b4f4b510bbb64ab0ea0f52b94d05d8b1fa4060fafe5",
+    "370:result": "efe7c58e3578aacd4c4cde5df0fe15b4e6e352d26e18425e5ad7e58b5a2253fb",
+    "370:output_manifest": "67a766eebc35ebfeb26b122899ff9137ae62fb4f0122465cb715e04e8bd1e711",
+    "370:candidate_nodes": "1ec2da4c997fac19986f5ad196c01dc653457297ae5da767f891d0bd05ea4b92",
+    "370:conditioning_manifest": "23f8b3bb9f55c6a301c2293bdfb395253121a9ebfed591752f095b3aad444c7b",
+    "370:accepted_material_state": "6f1b2031dc933cacec54142e9521e914d30a5f8f2889d6bd589e46878c3bfbbc",
+    "380:receipt": "8568553137ec86cc64f667c5d174506e18fbd6a30641c99abd40c69aed6c0a9e",
+    "380:prediction": "c8af3eec8b634e30a36508479acebe6c08c47a365a230d1732cb69e67165282d",
+    "380:compiled_nmatterpack": "cafbf36052bbfa72e8be49fdba8b23e900469c9f15136a14a4ec1e4c0b5ccf7c",
+    "380:result": "6600e9b15bba128d2ef4ed2c5c4a181e91fdc8600a4171ecdd7e1c2eb04efcba",
+    "380:output_manifest": "053a6ce46f8ab96a39413e0800fe89e1e27a2cf7d9d3b847d0b099528f1baba3",
+    "380:candidate_nodes": "1ec2da4c997fac19986f5ad196c01dc653457297ae5da767f891d0bd05ea4b92",
+    "380:conditioning_manifest": "2caec04a94e9349d6cb9271a992dcbc9b831037c208cfde8c8c61caeff363b81",
+    "380:accepted_material_state": "6f1b2031dc933cacec54142e9521e914d30a5f8f2889d6bd589e46878c3bfbbc"
+  },
+  "run_comparison": {
+    "candidate_nodes_byte_identical_370_380": true,
+    "candidate_nodes_bytes": 141120,
+    "candidate_nodes_sha256": "1ec2da4c997fac19986f5ad196c01dc653457297ae5da767f891d0bd05ea4b92",
+    "entire_post_rollback_material_state_export_byte_identical_370_380": true,
+    "accepted_state_export_bytes": 971640,
+    "accepted_state_export_sha256": "6f1b2031dc933cacec54142e9521e914d30a5f8f2889d6bd589e46878c3bfbbc",
+    "tet674_accepted_state_bit_identical_after_fp32_roundtrip": true,
+    "compiled_geometry_parameter_sections_equal": {
+      "2": true,
+      "5": true,
+      "6": true,
+      "20": true,
+      "21": true
+    },
+    "material_descriptors_differ_only_in_local_newton_budget": [
+      {
+        "material_index": 0,
+        "changed_u32_words": [
+          {
+            "byte_offset": 80,
+            "run370_u32": 16,
+            "run380_u32": 32
+          }
+        ]
+      },
+      {
+        "material_index": 1,
+        "changed_u32_words": [
+          {
+            "byte_offset": 80,
+            "run370_u32": 16,
+            "run380_u32": 32
+          }
+        ]
+      },
+      {
+        "material_index": 2,
+        "changed_u32_words": []
+      }
+    ],
+    "run370_effective_material_iteration_budget": 16,
+    "run380_effective_material_iteration_budget": 32,
+    "run370_source_physics_fingerprint": "7918250992036473017",
+    "run380_source_physics_fingerprint": "8485105279886344921",
+    "both_runs_failed_before_physical_acceptance": true
+  },
+  "packed_material_offset_check": {
+    "source_layout": "NMMaterialGPU: stateTransferMask aligns at byte 72, localNewtonIterations byte 80, bulk float4 aligned at byte 96, validity float4 byte 144; size 160 bytes.",
+    "material_index": 1,
+    "record_size_bytes": 160,
+    "parameter_offset_float4": 28,
+    "parameter_count": 28,
+    "state_count": 15,
+    "local_newton_iterations_offset_bytes": 80,
+    "local_newton_iterations": 32,
+    "bulk_offset_bytes": 96,
+    "bulk_float4": [
+      679.0,
+      293.1499938964844,
+      0.0,
+      0.0
+    ],
+    "temperature_offset_bytes": 100,
+    "point_input_temperature_K": 293.1499938964844,
+    "temperature_f32_bits": "0x43929333",
+    "validity_offset_bytes": 144,
+    "validity_float4": [
+      0.20000000298023224,
+      2.5,
+      1000000000.0,
+      1000000000.0
+    ],
+    "point_parameters_match_compiled_float4_x_lanes_bitwise": true,
+    "input_numeric_temperature_is_correct_packed_bulk_y": true,
+    "stale_case_count_semantics_text": "one selected production point; needs a checker mode accepting 1 case, compiled accurate budget 32, and source-native temperature 0 K as passed by run380",
+    "stale_text_mentions_zero_kelvin_despite_numeric_value": true
+  },
+  "tet674_state_and_deformation_check": {
+    "tetrahedron": 674,
+    "environment": 0,
+    "material_index": 1,
+    "node_ids": [
+      228,
+      524,
+      522,
+      525
+    ],
+    "candidate_displacements_f32": [
+      [
+        2.56826780287156e-07,
+        1.5826417509856583e-08,
+        9.737304935697466e-07
+      ],
+      [
+        1.52767313466029e-07,
+        2.3179180796972787e-09,
+        1.1602261338339304e-06
+      ],
+      [
+        2.6410390319142607e-07,
+        2.5483666288295126e-09,
+        9.210868370246317e-07
+      ],
+      [
+        8.507447546435287e-08,
+        2.503583118595998e-09,
+        1.1949173313041683e-06
+      ]
+    ],
+    "candidate_velocities_f32_m_per_s": [
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0
+      ]
+    ],
+    "candidate_velocities_all_zero": true,
+    "accepted_history_f32_bits": [
+      "0x29bd6ab7",
+      "0x2a2f6930",
+      "0xaa870f46",
+      "0xadd33f28",
+      "0x3055781b",
+      "0xa8462656",
+      "0x3ca8559b",
+      "0x3a9188ba",
+      "0x3a02b0cc",
+      "0xb8a59fc0",
+      "0x3b275dd3",
+      "0xb991320b",
+      "0x2c8bc24f",
+      "0x2c8b4539",
+      "0x28503232"
+    ],
+    "source_transcribed_F_high_f32_bits": [
+      [
+        "0x3f57d171",
+        "0x35435802",
+        "0xbf09b7af"
+      ],
+      [
+        "0xb498dd5d",
+        "0x3f7fffea",
+        "0x359372f3"
+      ],
+      [
+        "0x3f09b5d8",
+        "0xb6b0a48e",
+        "0x3f57e13d"
+      ]
+    ],
+    "source_transcribed_F_low_f32_bits": [
+      [
+        "0x3220750b",
+        "0x00000000",
+        "0xb261df5b"
+      ],
+      [
+        "0x28377993",
+        "0xb28dc245",
+        "0xa930431b"
+      ],
+      [
+        "0xb28c700b",
+        "0xaa800000",
+        "0xb22dd2e7"
+      ]
+    ],
+    "source_F_pair_reproduces_selected_input_bitwise": true,
+    "source_F_pair_is_native_bit_confirmed": false,
+    "source_F_high_low_widened_determinant": 1.0003024223581578,
+    "source_geometry_determinant_from_candidate_nodes": 1.0003024133663518,
+    "native_status_diagnostic_J": 1.0003025531768799,
+    "source_F_determinant_minus_native_J": -1.3081872207720835e-07,
+    "source_geometry_J_minus_native_J": -1.3981052804368233e-07,
+    "native_J_inside_material_validity": true,
+    "native_failure_status": "NM_STATUS_INVALID_DEFORMATION (5), Newton 0, FGMRES 0, no accepted candidate; the exported diagnostic gives J/max stress but not point-local terminal reason."
+  },
+  "corrections_to_prior_record": {
+    "prior_replay_diagnostic_det_difference": 0.002556720636401888,
+    "prior_record_difference_is_wrong": true,
+    "prior_difference_recomputed_from_candidate_geometry_and_native_J": -1.3981052804368233e-07,
+    "cause": "The old replay field subtracts 0.99774569272994995 instead of the native status J 1.0003025531768799. Its 0.0025567206 value is not the candidate-to-native-J difference; the direct source-geometry difference is about -1.3981e-7.",
+    "prior_point_input_zero_temperature_text_is_stale": true,
+    "numeric_temperature_is_nonzero_and_verified": true
+  },
+  "limitations": [
+    "Source-transcribed F high/low words are bitwise reproducible from captured nodes, packed inverse rest, and material quaternion using the CPU transcription, but have not been confirmed by native instrumentation.",
+    "Native diagnostic J is within validity bounds and close to the source transcription; the exported status does not identify whether material projection, stress validity, or another evaluator gate caused status 5.",
+    "The source380 CPU FP64 projected material state converges in four updates with budget 32, but that is not a native projection replay and does not establish the failure cause.",
+    "Source370 and source380 have different physics fingerprints and iteration budgets; their exact rejected node buffers and accepted-state exports match, so the observed first-failure state is the same. This is not a controlled causal attribution to the budget change."
+  ]
+}

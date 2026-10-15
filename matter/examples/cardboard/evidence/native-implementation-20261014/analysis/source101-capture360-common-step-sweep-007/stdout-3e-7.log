@@ -1,0 +1,53 @@
+{
+  "report": "/Users/home/cardboard-implementation-20261014/analysis/source101-capture360-common-step-sweep-007/output-3.0e-07/report.json",
+  "elapsed_seconds": 22.447436749993358,
+  "selected34": {
+    "row_count": 34,
+    "within_1e_6_count": 32,
+    "exceeds_1e_6_count": 2,
+    "inconclusive_count": 0,
+    "v3_projection_gate_failure_count": 0,
+    "observed_branch_change_count": 0,
+    "max_finite_relative_error": 3.3047617799388336e-06,
+    "max_error_tet_id": 1635,
+    "exceed_tet_ids": [
+      677,
+      1635
+    ],
+    "inconclusive": [],
+    "v3_projection_gate_failure_tet_ids": [],
+    "branch_change_tet_ids": []
+  },
+  "baseline_nonselected1694": {
+    "row_count": 1694,
+    "within_1e_6_count": 1694,
+    "exceeds_1e_6_count": 0,
+    "inconclusive_count": 0,
+    "v3_projection_gate_failure_count": 0,
+    "observed_branch_change_count": 0,
+    "max_finite_relative_error": 4.0391730306861776e-07,
+    "max_error_tet_id": 1184,
+    "exceed_tet_ids": [],
+    "inconclusive": [],
+    "v3_projection_gate_failure_tet_ids": [],
+    "branch_change_tet_ids": []
+  },
+  "combined1728": {
+    "row_count": 1728,
+    "within_1e_6_count": 1726,
+    "exceeds_1e_6_count": 2,
+    "inconclusive_count": 0,
+    "v3_projection_gate_failure_count": 0,
+    "observed_branch_change_count": 0,
+    "max_finite_relative_error": 3.3047617799388336e-06,
+    "max_error_tet_id": 1635,
+    "exceed_tet_ids": [
+      677,
+      1635
+    ],
+    "inconclusive": [],
+    "v3_projection_gate_failure_tet_ids": [],
+    "branch_change_tet_ids": []
+  },
+  "warning_count": 34444
+}

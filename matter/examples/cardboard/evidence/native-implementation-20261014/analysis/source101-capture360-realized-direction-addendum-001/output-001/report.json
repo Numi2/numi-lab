@@ -1,0 +1,135 @@
+{
+  "capture_identity": {
+    "environment": 0,
+    "newton_iteration": 23,
+    "root": 2,
+    "world_fingerprint_hex": "6de3475316b7e8b9"
+  },
+  "classification": "CPU-only diagnostic reusing sealed v3 center/endpoints; no new projection roots, native execution, or physical qualification.",
+  "elapsed_seconds": 0.09260829200502485,
+  "limits": [
+    "The reported center/endpoints and nominal common-step gate come from sealed package006.",
+    "Changing tangent input direction to measured endpoint direction is a diagnostic decomposition, not a corrected validation gate.",
+    "No universal arithmetic noise floor is estimated; sub-micro-Pa cancellation at this point cannot be generalized.",
+    "The common 1e-7 nominal-direction all-row gate remains as reported in package006; this addendum does not promote any alternate gate."
+  ],
+  "metrics": {
+    "fd_vs_nominal_tangent": {
+      "finite_count": 1728,
+      "gt_1e-6_count": 1,
+      "le_1e-6_count": 1727,
+      "max": 1.214904185971578e-06,
+      "max_tet_id": 1186,
+      "median": 8.599019700321318e-09,
+      "p95": 1.257586766863276e-07
+    },
+    "fd_vs_realized_tangent": {
+      "finite_count": 1728,
+      "gt_1e-6_count": 0,
+      "le_1e-6_count": 1728,
+      "max": 7.324849761552614e-07,
+      "max_tet_id": 1515,
+      "median": 4.2867959196701325e-09,
+      "p95": 6.536582991494021e-08
+    },
+    "nominal_strict_count": 1727,
+    "projection_and_recorded_branch_stable_count": 1728,
+    "realized_rate_direction_vs_captured": {
+      "finite_count": 1728,
+      "gt_1e-6_count": 0,
+      "le_1e-6_count": 1728,
+      "max": 1.6105963099131476e-09,
+      "max_tet_id": 1373,
+      "median": 7.820412743244261e-10,
+      "p95": 1.2428393473091439e-09
+    },
+    "realized_strict_count": 1728,
+    "realized_tangent_action_vs_nominal": {
+      "finite_count": 1728,
+      "gt_1e-6_count": 0,
+      "le_1e-6_count": 1728,
+      "max": 9.602437022805662e-07,
+      "max_tet_id": 1186,
+      "median": 7.674858576919529e-09,
+      "p95": 1.0843046401092097e-07
+    },
+    "tet1186": {
+      "actual_deltaF_minus_frobenius": 9.999999999979869e-08,
+      "actual_deltaF_plus_frobenius": 9.999999999979869e-08,
+      "captured_branch_signature_stable": true,
+      "center_and_endpoints_v3_converged": true,
+      "center_branch": {
+        "delta_multiplier": 5.221529996007524e-06,
+        "fb_selection": "plastic_smoothed",
+        "hardening_factor": 2.0012139539773086,
+        "hill_q": 1.0012139539677327,
+        "multiplier_sign": "positive",
+        "yield_gap": 9.5758956319969e-12,
+        "yield_sign": "nonnegative"
+      },
+      "epsilon_scalar": 2.6606385866146713e-09,
+      "fd_vs_nominal_tangent_relative_l2": 1.214904185971578e-06,
+      "fd_vs_realized_tangent_relative_l2": 2.5607600684748406e-07,
+      "material_index": 0,
+      "midpoint_shift_frobenius": 0.0,
+      "minus_branch": {
+        "delta_multiplier": 5.22164034668173e-06,
+        "fb_selection": "plastic_smoothed",
+        "hardening_factor": 2.0012139715689456,
+        "hill_q": 1.0012139715593702,
+        "multiplier_sign": "positive",
+        "yield_gap": 9.57545154278705e-12,
+        "yield_sign": "nonnegative"
+      },
+      "plus_branch": {
+        "delta_multiplier": 5.221419645333661e-06,
+        "fb_selection": "plastic_smoothed",
+        "hardening_factor": 2.001213936385672,
+        "hill_q": 1.0012139363760963,
+        "multiplier_sign": "positive",
+        "yield_gap": 9.575673587391975e-12,
+        "yield_sign": "nonnegative"
+      },
+      "realized_rate_direction_vs_captured_relative_l2": 1.5106000236192244e-09,
+      "realized_tangent_action_vs_nominal_relative_l2": 9.602437022805662e-07,
+      "target_deltaF_frobenius": 1e-07,
+      "tet_id": 1186,
+      "within_1e-6_nominal": false,
+      "within_1e-6_realized": true
+    }
+  },
+  "schema": "numi.cardboard.source101-realized-direction-addendum.v1",
+  "selection": {
+    "accepted_history": "captured FP32 accepted 15-state, fixed across center/endpoints",
+    "center_candidate": "sealed v3 converged FP64 center projection",
+    "rows_completed": 1728,
+    "rows_expected": 1728,
+    "tangent_reference": "independent bilinear15 FP64 implicit tangent at v3 center, applied once to nominal captured H and once to H_realized=(Fplus-Fminus)/(2*epsilon*dt).",
+    "target_deltaF_frobenius": 1e-07
+  },
+  "source_bindings": {
+    "capture": {
+      "path": "/Users/home/cardboard-implementation-20261014/solver/reset-augmentation-first-failure-capture-360/operator-capture",
+      "sha256": "548dce37fbe5a28a609dd6bc45318926072c878774ea0caffa3237d925cebb33"
+    },
+    "direction_helper": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/source101-capture360-directional-fd-001/compare_directional_fd.py",
+      "sha256": "742b0920c4f543e284e41ed18f8dbc78253915a31f39b3ef8d32ff7dec01b5e8"
+    },
+    "reference": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "sha256": "c17010564a98fe63da0c8b88be81313685a65cfbd57ff82292e797cab5a0fdf3"
+    },
+    "report": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/source101-capture360-v3-uniform-1728-006/output-006/report.json",
+      "sha256": "dd6bb021cbd0e9b51425c19dd635ad31fc85a660bff667eb7b4a3e2ce39c690a"
+    },
+    "rows": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/source101-capture360-v3-uniform-1728-006/output-006/all1728_v3_rows.jsonl",
+      "sha256": "7378794b10863ff2df78b3d5e4d60e6ebdf26abce6791867bfe6d511a9ab0782"
+    }
+  },
+  "status": "completed",
+  "timeout_error": null,
+  "warnings": []
+}

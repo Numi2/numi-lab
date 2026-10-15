@@ -1,0 +1,12 @@
+{
+  "decomposition_output": "output-003/direction-roundoff.json",
+  "decomposition_run": "python3 analyze_direction_roundoff.py",
+  "gpu_used": false,
+  "prior_failed_attempt_retained": "output-001/",
+  "root_elapsed_seconds": 2.9270951250218786,
+  "root_output": "output-002/result.json",
+  "root_run": "python3 replay_mp90.py",
+  "root_wall_bound_seconds": 115,
+  "schema": "numi.cardboard.source101-tet1186-mp90-execution.v1",
+  "verification_command": "python3 verify.py"
+}

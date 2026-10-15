@@ -1,0 +1,57 @@
+{
+  "classification": "CPU FP64 diagnostic for one captured tet and one captured direction; no universal noise-floor or full-row pass claim.",
+  "files": {
+    "README.md": "44347aa2af8f5bbd5b9b83a423ab17965f487f84d751ffc5fd5bdf512e024c34",
+    "output-001/row1186.json": "e143b710d07bc62c308680c4ac4f6ddc7f41121a8362131ab71813f448707dae",
+    "replay_tet1186.py": "e42d6c57b66825946207ce088da710537e23bc4c1b03d0b1011ee404806b9ab2",
+    "verify.py": "65c36d8c34b79ba265e11590529ba4f8c5071d513252d950de088075655d576c"
+  },
+  "inputs": {
+    "capture": {
+      "path": "/Users/home/cardboard-implementation-20261014/solver/reset-augmentation-first-failure-capture-360/operator-capture",
+      "sha256": "548dce37fbe5a28a609dd6bc45318926072c878774ea0caffa3237d925cebb33"
+    },
+    "continuation": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/source101-capture360-small-eps-34-005/replay_continuation.py",
+      "sha256": "36716c3a41f39805f718dc37d47349e99156f4492afc013586b9a530534df8f6"
+    },
+    "directional_rows": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/source101-capture360-directional-fd-003/output/all_1728_row_metrics.csv",
+      "sha256": "226a12e13a5dae5cf17f4189a65d71ba6a5e26c94d14d11407e5712a76979180"
+    },
+    "helper": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/source101-capture360-directional-fd-001/compare_directional_fd.py",
+      "sha256": "742b0920c4f543e284e41ed18f8dbc78253915a31f39b3ef8d32ff7dec01b5e8"
+    },
+    "reference": {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/bilinear15-fp64-replay-267/bilinear15_reference.py",
+      "sha256": "c17010564a98fe63da0c8b88be81313685a65cfbd57ff82292e797cab5a0fdf3"
+    }
+  },
+  "run": {
+    "capture_root": 2,
+    "cpu_only": true,
+    "elapsed_seconds": 0.08339433401124552,
+    "gpu": false,
+    "newton_iteration": 23,
+    "projection_and_recorded_branch_predicates": "all five cases pass",
+    "projection_gate": "residual<=2e-10 and dynamic correction<=2e-8 at center and endpoints",
+    "result_relative_l2": [
+      9.674419056420001e-08,
+      2.0727820705831948e-07,
+      1.214903271565475e-06,
+      1.1276621749329274e-06,
+      2.1807604251861667e-06
+    ],
+    "row": 1186,
+    "target_deltaF_frobenius": [
+      1e-06,
+      3e-07,
+      1e-07,
+      3e-08,
+      1e-08
+    ],
+    "warnings": 313
+  },
+  "schema": "numi.cardboard.source101-tet-epsilon-diagnostic-manifest.v1"
+}

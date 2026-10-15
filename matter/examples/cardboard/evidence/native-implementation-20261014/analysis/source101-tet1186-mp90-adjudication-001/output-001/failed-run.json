@@ -1,0 +1,5 @@
+{
+  "classification": "incomplete MP90 attempt; center projection diagnostic retained, no endpoint results",
+  "reason": "The first runner version looked for the 3e-8 endpoint in the uniform package006, which intentionally contains only 1e-7. It stopped before computing any endpoint.",
+  "production_or_capture_state_modified": false
+}

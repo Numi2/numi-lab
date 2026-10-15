@@ -1,0 +1,11 @@
+{
+  "question": "Do common larger representable steps resolve the original nominal-direction FP64 derivative gate for all1728 rows?",
+  "targets_deltaF_norm": [
+    1e-06,
+    3e-07
+  ],
+  "fixed_inputs": "Same immutable006source101capture360, reference, accepted histories, directions, timestep, residual and dynamic correction thresholds; one full uniform center/endpoint replay at each declared step. Preserve006 unchanged.",
+  "expected_scope": "Record every failure, observed branch change and unresolved row; no step chosen after looking at outcomes. No universal noise floor or native/physical qualification.",
+  "source006_runner_sha256": "a564cb0810b15fa8a79ed0d4afa11f78977d3a564e18c710b3197ef7f3c2bca1",
+  "new_runner_sha256": "3f379292c339a3cf925e4f01068429abf7562bbda4f46ef08c9f39b527477edb"
+}
