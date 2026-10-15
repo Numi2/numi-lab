@@ -1811,8 +1811,64 @@ public:
                 return @{@"path":loadedKneeNSString(path.string()),@"sha256":loadedKneeNSString(digest),
                     @"bytes":@(size)};
             };
+            // Capture only the skin-referenced interval of the existing
+            // uploaded influence buffer. This is one load-time evidence copy,
+            // never an alternate simulation or deformation implementation.
+            const std::size_t stride=skinInfluenceLayout==NumiHumanSkinInfluenceLayout::tile32?32u:1u;
+            std::size_t first=weights.size(),end=0u;
+            for(std::size_t v=0;v<count;++v) {
+                const auto& map=uploaded[v];
+                require(map.deformationKind==3u&&map.influenceCount>0u,
+                    "skin replay requires source skin maps with positive influences");
+                const std::size_t begin=map.firstInfluence;
+                require(begin<weights.size()&&
+                    std::size_t(map.influenceCount-1u)<=(weights.size()-1u-begin)/stride,
+                    "skin replay influence range exceeds uploaded records");
+                first=std::min(first,begin);
+                end=std::max(end,begin+std::size_t(map.influenceCount-1u)*stride+1u);
+            }
+            require(first<end&&end<=weights.size()&&influences&&influences.contents&&
+                influences.length==weights.size()*sizeof(MRHumanRestingInfluence)&&
+                std::memcmp(weights.data()+first,
+                    static_cast<const MRHumanRestingInfluence*>(influences.contents)+first,
+                    (end-first)*sizeof(MRHumanRestingInfluence))==0,
+                "skin replay influence evidence differs from uploaded native records");
+            NSMutableDictionary* replayKernel=[NSMutableDictionary dictionary];
+#ifdef NUMI_HUMAN_RESTING_SKIN_SOURCE
+            NSData* replaySource=[NSData dataWithContentsOfFile:@(NUMI_HUMAN_RESTING_SKIN_SOURCE)];
+            require(replaySource&&replaySource.length>0u&&
+                loadedKneeSHA256Hex(loadedKneeSHA256(static_cast<const std::uint8_t*>(replaySource.bytes),replaySource.length))==
+                    NUMI_HUMAN_RESTING_SKIN_SOURCE_SHA256,
+                "skin replay kernel source differs from configure-time pin");
+            replayKernel[@"path"]=@(NUMI_HUMAN_RESTING_SKIN_SOURCE);
+            replayKernel[@"sha256"]=@(NUMI_HUMAN_RESTING_SKIN_SOURCE_SHA256);
+            replayKernel[@"bytes"]=@(replaySource.length);
+            replayKernel[@"math_mode"]=@"safe";
+            replayKernel[@"floating_point_functions"]=@"precise";
+            replayKernel[@"language_version"]=@"4.0";
+#else
+            NSData* replayLibrary=[NSData dataWithContentsOfFile:@(NUMI_HUMAN_RESPIRATION_METALLIB)];
+            require(replayLibrary&&replayLibrary.length>0u&&replayLibrary.length<=64u*1024u*1024u,
+                "skin replay native library is absent or exceeds bounded evidence size");
+            replayKernel[@"path"]=@(NUMI_HUMAN_RESPIRATION_METALLIB);
+            replayKernel[@"sha256"]=loadedKneeNSString(loadedKneeSHA256Hex(loadedKneeSHA256(
+                static_cast<const std::uint8_t*>(replayLibrary.bytes),replayLibrary.length)));
+            replayKernel[@"bytes"]=@(replayLibrary.length);
+#endif
+#ifdef NUMI_HUMAN_RESTING_SKIN_SOURCE
+            NSString* replayKernelMode=@"source";
+#else
+            NSString* replayKernelMode=@"native-library";
+#endif
             capturedSkinSourceMapping=@{
                 @"vertex_map":writeBuffer("skin-source-vertex-map.bin",uploaded,bytes),
+                @"influences":writeBuffer("skin-source-influences.bin",
+                    static_cast<const MRHumanRestingInfluence*>(influences.contents)+first,
+                    (end-first)*sizeof(MRHumanRestingInfluence)),
+                @"influence_first_index":@(first),
+                @"influence_record_stride_bytes":@(sizeof(MRHumanRestingInfluence)),
+                @"influence_layout":skinInfluenceLayout==NumiHumanSkinInfluenceLayout::tile32?@"tile32":@"vertex-major",
+                @"kernel":replayKernel,@"kernel_mode":replayKernelMode,
                 @"anatomy_parameters":writeBuffer("skin-source-anatomy-parameters.bin",
                     anatomyParameters.contents,sizeof(anatomyGPU)),
                 @"vertex_map_record_type":@"MRHumanRestingVertexMap",

@@ -6430,6 +6430,15 @@ if(BUILD_TESTING)
     add_test(NAME numi_human_bilateral COMMAND metalrobo_numi_human_bilateral_test)
 endif()
 
+# Offline replay of uploaded NHSKIN records through the existing viewer kernel.
+# No physical or physiological state advances in this evidence tool.
+add_executable(numi_human_resting_skin_replay apps/human_resting_skin_replay.mm)
+target_include_directories(numi_human_resting_skin_replay PRIVATE apps include matter/include)
+target_compile_features(numi_human_resting_skin_replay PRIVATE cxx_std_20)
+target_compile_options(numi_human_resting_skin_replay PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
+target_link_libraries(numi_human_resting_skin_replay PRIVATE "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+set_target_properties(numi_human_resting_skin_replay PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin")
+
 add_executable(
     numi_human_resting_mesh_deformation_probe
     apps/human_resting_mesh_deformation_probe.mm

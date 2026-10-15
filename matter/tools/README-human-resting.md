@@ -41,3 +41,31 @@ whole-body scene. The circulation remains bound to its source CVSim identities.
 The first retained six-second smoke run and rejection/replay checks are under
 `evidence/human-resting-20261005`. These establish numerical integration only,
 not five-minute stability, physiological validation, or anatomical pumping.
+
+### Retained-pose skin replay
+
+The viewer captures its uploaded skin map, complete positive influence interval,
+anatomy parameters and pinned native kernel owner once when geometry capture is
+requested. These are existing ABI records; no simulation state is added.
+
+Build the `numi_human_resting_skin_replay` target, then run:
+
+```sh
+numi_human_resting_skin_replay SOURCE_RECEIPT SOURCE_SHA256 POSE_RECEIPT POSE_SHA256 NEW_OUTPUT_DIRECTORY
+```
+
+The tool dispatches the existing Metal skin kernel at the retained accepted
+body poses and respiratory swept volumes. Its output is counterfactual geometry
+evidence, not a new accepted physical state. Establish bitwise position parity
+against the source scene's native capture before using other replayed poses for
+anatomy checks. Old receipts without captured influences and kernel identity
+are rejected; do not fabricate these fields.
+
+The focused GPU regression uses an explicitly selected binary and existing
+HumanRespiration library:
+
+```sh
+NUMI_RESTING_SKIN_REPLAY_BIN=/absolute/path/to/numi_human_resting_skin_replay \
+NUMI_RESTING_SKIN_REPLAY_METALLIB=/absolute/path/to/HumanRespiration.metallib \
+python3 matter/tools/test_resting_skin_replay.py -v
+```
