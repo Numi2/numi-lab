@@ -1,0 +1,62 @@
+{
+  "audit_script_sha256": "ce17ea61b704817a0076e715f8fdf4f6c81f7089856c20ccc4cd9b72c5b2ca77",
+  "classification": "read-only archive integrity audit; no repository or archive writes",
+  "command": [
+    "/Users/home/.pyenv/versions/3.10.12/bin/python3",
+    "/Users/home/cardboard-implementation-20261014/analysis/publication025-independent-byte-audit-001/audit.py"
+  ],
+  "inputs": {
+    "/Users/home/cardboard-implementation-20261014/publication-reference024-pathspec.nul": {
+      "bytes": 352755,
+      "sha256": "7ac9978a0f21c6480b49d6d9ac22952aa7587cf0bfd54e86e0b3a0afa7b9ab36"
+    },
+    "/Users/home/cardboard-implementation-20261014/publication-reference025-pathspec.nul": {
+      "bytes": 640015,
+      "sha256": "177caced30e617b4c311b705943d12d30b4d0373d1e7308847b93f542067610d"
+    },
+    "/Users/home/numi-cardboard-20261006/matter/examples/cardboard/evidence/native-implementation-20261014/publication-binding-reference024.json": {
+      "bytes": 3714,
+      "sha256": "635ec94166fa02e415dfaa8df7be54a7fb78e0abc4c4661a912d449c58cd2d29"
+    },
+    "/Users/home/numi-cardboard-20261006/matter/examples/cardboard/evidence/native-implementation-20261014/publication-binding-reference025.json": {
+      "bytes": 5880,
+      "sha256": "908a12e88c411c8240d4ab4c0f220976f6e4cff7d0d939b3bb83bf81406c66fd"
+    },
+    "/Users/home/numi-cardboard-20261006/matter/examples/cardboard/evidence/native-implementation-20261014/summary-reference024.json": {
+      "bytes": 15272670,
+      "sha256": "24e0b44039397159eb0fb0d8018bdff25321acee3452acce5959dc5a3631213b"
+    },
+    "/Users/home/numi-cardboard-20261006/matter/examples/cardboard/evidence/native-implementation-20261014/summary.json": {
+      "bytes": 16784254,
+      "sha256": "0592e4164c784c1ed3d920abe37f673b95144cc3c8c305ae49c8ceff6341b786"
+    }
+  },
+  "output_files": [
+    {
+      "bytes": 10857,
+      "path": "audit.py",
+      "sha256": "ce17ea61b704817a0076e715f8fdf4f6c81f7089856c20ccc4cd9b72c5b2ca77"
+    },
+    {
+      "bytes": 1158,
+      "path": "README.md",
+      "sha256": "a54075785b58dc15fb34b40435ed95616f9f4e41c733752379bc1b53a05e9b45"
+    },
+    {
+      "bytes": 3563,
+      "path": "report.json",
+      "sha256": "e678e9c153ae060ee2c735a0e4b74c8eba00bb44b557903d4d5151bf5bd56c37"
+    }
+  ],
+  "python_version": "3.10.12",
+  "report_sha256": "e678e9c153ae060ee2c735a0e4b74c8eba00bb44b557903d4d5151bf5bd56c37",
+  "result": "pass",
+  "schema": "numi.cardboard.publication025_independent_byte_audit_manifest.v1",
+  "scope": {
+    "cases": 56,
+    "payload_files": 1756,
+    "physical_validation": false,
+    "previous_summary_records_exact": 1342,
+    "prior_pathspec_entries_exact_prefix": 2312
+  }
+}

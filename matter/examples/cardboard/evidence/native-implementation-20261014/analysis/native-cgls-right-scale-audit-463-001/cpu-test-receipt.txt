@@ -1,0 +1,7 @@
+Command: /Users/home/.pyenv/versions/3.10.12/bin/python3 test_audit_capture.py
+Result: PASS 4 tests
+Command: /Users/home/.pyenv/versions/3.10.12/bin/python3 -m py_compile audit_capture.py test_audit_capture.py
+Result: PASS
+Smoke: source149 cardboard_cached_operator_audit.capture_records on retained 419 capture
+Result: PASS root=1 newton=48 nodes=1764 tetrahedra=3840 integrity.production_inputs_bitwise_unchanged=true
+Native/GPU execution: not performed by this package

@@ -1,0 +1,57 @@
+{
+  "artifacts": {
+    "README.md": {
+      "bytes": 3606,
+      "sha256": "d41aabe961129b02a734e4c42669cbd2930f953713af3721ccd7a30b588c652a"
+    },
+    "audit_source_contract.py": {
+      "bytes": 6618,
+      "sha256": "f497bb64772d9c466218e4bdf9c103bbc35dcde1ed58ea022ead6a48af9991d2"
+    },
+    "regional_rap_reference.py": {
+      "bytes": 15247,
+      "sha256": "40ab7f04c5e4fec0c9f574ad533e1d59bbfb3b8037d1815f306c1c14fd292728"
+    },
+    "report.json": {
+      "bytes": 5342,
+      "sha256": "8892689b4315724c48d58719bb9e5de59820c129dd149fba00512c86ce03c052"
+    },
+    "seal_package.py": {
+      "bytes": 4881,
+      "sha256": "d54582309d116da625f274e42992c8571d2e7eac6d09c2e0caaefd718a3728c6"
+    },
+    "source-contract.json": {
+      "bytes": 4808,
+      "sha256": "2e34cfedac5e9d988ec999f8537f26c3f63d0b6dd50bc4a631f98e54e8da16eb"
+    },
+    "source-contract.stdout.json": {
+      "bytes": 4808,
+      "sha256": "2e34cfedac5e9d988ec999f8537f26c3f63d0b6dd50bc4a631f98e54e8da16eb"
+    },
+    "test-receipt.stdout.txt": {
+      "bytes": 979,
+      "sha256": "3dbabc56e93f68fe424df431f4ba05838083f09c9a6a09e1943075287d1b5deb"
+    },
+    "test_regional_rap_reference.py": {
+      "bytes": 12292,
+      "sha256": "9a463367da35d67018ea5e311891701fcbad79e17c21123a7f940ea8dd53eb4a"
+    }
+  },
+  "gpu_execution": false,
+  "manifest_excludes_itself": true,
+  "native_execution": false,
+  "package": "/Users/home/cardboard-implementation-20261014/analysis/regional-rap-transpose-reference-149-001",
+  "schema": "numi.matter.regional_rap_transpose_reference_manifest.v1",
+  "source_files": {
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-block-right-preconditioned-149/matter/src/metal/base_cgls.metalinc": {
+      "sha256": "127d05d6323085ad6abd160ff560b95008981e9421541e9677dddbb3fa253aec"
+    },
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-block-right-preconditioned-149/matter/src/metal/fgmres.metalinc": {
+      "sha256": "8e0b9da3e28e7997eea9ee9db37e89a0bf3b9753d98967c80221e328e5da2af8"
+    },
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-block-right-preconditioned-149/matter/src/runtime.mm": {
+      "sha256": "f859b1ee45390dd844fcbd883356b931ab71d2c36260f53a4b03600b04fb3959"
+    }
+  },
+  "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-block-right-preconditioned-149"
+}

@@ -1,0 +1,45 @@
+{
+  "anchors": {
+    "graph_apply_patches": 3751,
+    "graph_build_patch_matrices": 2904,
+    "graph_factor_patches": 3128,
+    "graph_solve_patches": 3449,
+    "graph_validate_mask": 3104,
+    "regional_apply_block_rap": 2715,
+    "regional_apply_rap": 2668,
+    "regional_build_rap": 2482,
+    "regional_factor_rap": 2518,
+    "regional_project_rhs": 2589,
+    "regional_solve_rap": 2617,
+    "restart_form_mode": 2144,
+    "restart_measure": 2289,
+    "runtime_augmentation_selector": 21146,
+    "runtime_right_scale_transpose": 661
+  },
+  "files": {
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-block-right-preconditioned-149/matter/src/metal/base_cgls.metalinc": {
+      "expected_sha256": "127d05d6323085ad6abd160ff560b95008981e9421541e9677dddbb3fa253aec",
+      "sha256": "127d05d6323085ad6abd160ff560b95008981e9421541e9677dddbb3fa253aec"
+    },
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-block-right-preconditioned-149/matter/src/metal/fgmres.metalinc": {
+      "expected_sha256": "8e0b9da3e28e7997eea9ee9db37e89a0bf3b9753d98967c80221e328e5da2af8",
+      "sha256": "8e0b9da3e28e7997eea9ee9db37e89a0bf3b9753d98967c80221e328e5da2af8"
+    },
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-block-right-preconditioned-149/matter/src/runtime.mm": {
+      "expected_sha256": "f859b1ee45390dd844fcbd883356b931ab71d2c36260f53a4b03600b04fb3959",
+      "sha256": "f859b1ee45390dd844fcbd883356b931ab71d2c36260f53a4b03600b04fb3959"
+    }
+  },
+  "findings": {
+    "augmented_variant": "At restartCycle>0 with augmentation enabled, runtime selects augmented P/AP, augmented RAP/LU/pivots/valid and modeCount. The extra mode carries (control, physicsSubstep, Newton, restartCycle) generation; mismatched generation is inadmissible.",
+    "base_variant": "Runtime selects base mode count at restartCycle=0, but if restart augmentation storage is enabled, modeStride is augmentedModeCount even for the base view. A decoder must slice only modeCount columns while honoring that stride.",
+    "cgls_scope": "CGLS source149 uses a separate nodal block3 S: initialization applies S^T to A^T b, each forward product applies A(S p), and each residual gradient applies S^T A^T r. It does not invoke the regional RAP map inside CGLS.",
+    "regional_action": "source selector 3/4 block-RAP action is z = P c + B (r - AP c), c solves (P^T AP)c=P^T r; B is marked per-node 3x3 inverse block, falling back to componentwise inverse diagonal when row0.w <= 0.5.",
+    "regional_transpose": "No regional RAP transpose kernel is present in source149. The independent algebraic transpose must reverse the composition and solve RAP^T; do not reuse RAP solve or assume symmetry.",
+    "selector5_graph_action": "The graph path forms c=R^-1 P^T r, patch RHS E(r-AP c), and patch correction D_p times that RHS. D_p is the production one-refinement map from stored LU solve F_p and original patch matrix A_p: D_p b=F_p b+F_p(b-A_p F_p b). The apply kernel gathers each patch-node correction and divides each global node by nodeCoverage, then adds P c. Thus H=G D E and S=H+(P-H AP)R^-1 P^T. Its algebraic transpose is H^T+P R^-T(P^T-(AP)^T H^T), with H^T=E^T D^T G^T and D_p^T=2F_p^T-F_p^T A_p^T F_p^T in exact arithmetic. This graph map is source-audited but no selector5 same-generation capture is present in this package, so it is not implemented or qualified here.",
+    "selector5_required_capture": "A rigorous selector5 replay needs one same-generation sidecar with graph patch descriptors [patchNodeOffset,nodeCount,matrixOffset,pivotOffset], sorted global patch-node IDs, graph row map, node-to-patch CSR offsets/values, per-node coverage, original pre-LU patch matrices, in-place LU, final row pivots, factor-valid words, effective P/AP, selected base or augmented RAP LU/pivots/validity, modeCount/modeStride, candidate node fixed/free tags, selected/healthy status, and source/world/program/device plus control/substep/microtick/micro-generation/Newton/dt and candidate-history digests. Patch RHS/coefficient dumps are input-specific and cannot stand in for this map. An arbitrary-vector native output would be needed to verify native forward action; source149 has no selector5 transpose kernel, so transpose parity remains CPU algebraic only.",
+    "unsupported": "This package implements CPU references and tests only for selector 3/4 block-RAP and diagonal fallback. Selector 5 is explicitly unsupported pending the source-bound same-generation capture described above; no generic S test or another generation is used as selector5 evidence."
+  },
+  "schema": "numi.matter.source149_regional_rap_source_contract.v1",
+  "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-block-right-preconditioned-149"
+}

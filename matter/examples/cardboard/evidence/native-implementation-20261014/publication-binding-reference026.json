@@ -1,0 +1,87 @@
+{
+  "schema": "numi.cardboard.reference026-publication-binding.v1",
+  "prior_binding_sha256": "908a12e88c411c8240d4ab4c0f220976f6e4cff7d0d939b3bb83bf81406c66fd",
+  "prior_pathspec_sha256": "177caced30e617b4c311b705943d12d30b4d0373d1e7308847b93f542067610d",
+  "prior_pathspec_entries": 4070,
+  "historical_prefix": {
+    "path": "summary-reference025.json",
+    "records": 1398,
+    "sha256": "0592e4164c784c1ed3d920abe37f673b95144cc3c8c305ae49c8ceff6341b786"
+  },
+  "cases": [
+    "analysis/native-cgls-block-right-preconditioning-overlay-149-001",
+    "analysis/native-cgls-block-right-preconditioning-overlay-149-002",
+    "analysis/native-cgls-right-scale-audit-463-001",
+    "analysis/native-cgls-right-scale-audit-463-002",
+    "analysis/native-cgls-right-scale-checker-149-001",
+    "analysis/native460-kernel-adjudication-001",
+    "analysis/native461-block-right-cgls-command-001",
+    "analysis/native461-block-right-cgls-command-002",
+    "analysis/native461-launch-guard-001",
+    "analysis/native462-463-right-scale-command-package-001",
+    "analysis/native462-launch-guard-001",
+    "analysis/native463-launch-guard-001",
+    "analysis/native463-launch-preflight-attempt-001",
+    "analysis/publication025-commit-and-push-001",
+    "analysis/publication025-independent-byte-audit-001",
+    "analysis/publication025-staged-source-check-001",
+    "analysis/publication026-archive-tool-001",
+    "analysis/regional-rap-transpose-reference-149-001",
+    "analysis/source149-right-block-cgls-integration-001",
+    "analysis/source149-right-scale-disabled462-parity-001",
+    "analysis/source149-root-independent-review-001",
+    "analysis/source149-root-integration-002",
+    "native/cgls-right-scale-kernel-check-460",
+    "solver/cgls-block-right-disabled-parity-462",
+    "solver/cgls-block-right-primary48-461",
+    "solver/cgls-block-right-primary48-463"
+  ],
+  "summary_sha256": "555ed422bb0e41a7c946c8e327d31bcf94c4955e4318716e508fe99a6404aeed",
+  "previous_prefix_records": 1398,
+  "new_case_records": 26,
+  "copied_files": 272,
+  "raw_files": 247,
+  "gzip_files": 25,
+  "all_archived_bytes_verified": true,
+  "physical_validation": false,
+  "six_axis_verdicts": {
+    "solver_correctness": {
+      "status": "partial_component_evidence; complete_nonlinear_solve_unqualified",
+      "evidence": "Native460 actual Metal scale/transpose/CGLS kernels pass synthetic checks. Native463 exact463->455->419 lineage and current local-block/action comparisons pass their scoped audits; all16 late privateupdatesaccepted but control1 still fails. Native462 complete disabledhistory parity passes. MetalFP32finite-difference noisefloor unresolved."
+    },
+    "numerical_convergence": {
+      "status": "unqualified",
+      "evidence": "No completecoupon spatial/time/slower-loadingstudy. Native463 rightblockscaling improves finalprivate residual9.4420302e-6Ns butfailsunchangedcertificate and rollsback; no completehistories."
+    },
+    "component_calibration": {
+      "status": "partial_source_data_only",
+      "evidence": "Publisheddata/grade/absoluteenergy/damage/interface implementations retained. Exactkraft/NSSCprogressivefailure and localstarchstrength/GIc/GIIc remainunidentified."
+    },
+    "analogue_validation": {
+      "status": "unqualified_for_requested_full_sequence",
+      "evidence": "Nearbygrade,fixture,conditioning andrate transfer limits remain; no new validationseriespassed."
+    },
+    "physical_assembly_in_simulation": {
+      "status": "unqualified",
+      "evidence": "No completed12-score fold/lap/endbond/release and fixture-free settledshippingbox. Explicitflutefullcontact/memoryadmission remainopen."
+    },
+    "crush_impact_prediction": {
+      "status": "unexecuted",
+      "evidence": "No qualified nominalcompressionfirstpeak, scenario masses, gravitycrush or100mmdrop; exactbareboximpactvalidationunavailable."
+    }
+  },
+  "excluded_directory_parts": [
+    "__pycache__",
+    "archives",
+    "base",
+    "build",
+    "candidate",
+    "inputs",
+    "restore-check"
+  ],
+  "excluded_directory_prefixes": [
+    "CMakeFiles",
+    ".air"
+  ],
+  "external_recovery_archives": "Closed rawinputs compaction019/020 archives remain external sole recovery archives; keep them. Restore metadata is published."
+}

@@ -1,0 +1,60 @@
+{
+  "schema": "numi.cardboard.native-cgls-right-scale-audit-preparation.v1",
+  "package": "native-cgls-right-scale-audit-463-001",
+  "status": "prepared_pending_native_463_capture",
+  "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-block-right-preconditioned-149",
+  "source_build_receipt": {
+    "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-149/source-build.json",
+    "sha256": "62432124b2960344cf33fe4207e2987c0e28a53e46881dffc6ba4e103115a210"
+  },
+  "source_bound_tools": [
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-block-right-preconditioned-149/matter/tools/cardboard_cached_operator_audit.py",
+      "sha256": "2ce80f9b3c989efd058bdbcc29661d10701061cfde459d64cca06c0d6caeee38"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/base-cgls-state-reader-abi-repair-148-001/tools/read_state_capture.py",
+      "sha256": "ee400288607bf220502fd4670923972f7b79cce2d810f247d6889ed4665f4b48"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-block-right-preconditioned-149/matter/src/runtime.mm",
+      "sha256": "f859b1ee45390dd844fcbd883356b931ab71d2c36260f53a4b03600b04fb3959"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-block-right-preconditioned-149/matter/src/metal/base_cgls.metalinc",
+      "sha256": "127d05d6323085ad6abd160ff560b95008981e9421541e9677dddbb3fa253aec"
+    }
+  ],
+  "command_package_manifest": {
+    "path": "/Users/home/cardboard-implementation-20261014/analysis/native462-463-right-scale-command-package-001/manifest.json",
+    "sha256": "3f50a6c1bc3673006b6a1042e7da0a65f6b261567bf7d211ab17211e275aa4b1"
+  },
+  "files": [
+    {
+      "path": "README.md",
+      "sha256": "f81a7ae7cb56928a351aac059e1e2405619ebe06327e341f7541c98e49a03a64",
+      "size_bytes": 2122
+    },
+    {
+      "path": "audit_capture.py",
+      "sha256": "8587269e1803eeefcdd0e22430f3b3ae7809b38dadcdc6a97bd562f4b8f53a00",
+      "size_bytes": 22361
+    },
+    {
+      "path": "cpu-test-receipt.txt",
+      "sha256": "49f0fe0570fbf01f64fde2205bee677a24f05736f2bbe1f68885b885f73bafea",
+      "size_bytes": 472
+    },
+    {
+      "path": "test_audit_capture.py",
+      "sha256": "99e2d3233db173e6f5c87e8c2d6ab3e5f271d2ea03d768a1356dca00761cfa52",
+      "size_bytes": 2323
+    }
+  ],
+  "native_execution_performed": false,
+  "known_limits": [
+    "No native capture result is included yet.",
+    "Same-run operator reconstruction comparison is descriptive and is not a whole-matrix bit-identity proof.",
+    "No solver certificate or material/physical claim is made."
+  ]
+}

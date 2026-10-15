@@ -1,0 +1,7 @@
+{
+  "utc": "2026-10-15T23:25:12.515694+00:00",
+  "execution_started": false,
+  "reason": "launcher expected canonical B/native-463-command.json, but prepared package contained command only within package directory",
+  "native_case_created": false,
+  "remedy": "copy exact sealed package commands to canonical launcher paths; no command bytes changed"
+}

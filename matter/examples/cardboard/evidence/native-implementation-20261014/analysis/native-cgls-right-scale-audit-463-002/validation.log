@@ -1,0 +1,4 @@
+PASS 4 tests
+PASS 3 strict lineage tests
+PASS 1 retained failed-prefix integration test
+{"valid": true, "output": "/Users/home/cardboard-implementation-20261014/analysis/native-cgls-right-scale-audit-463-002/report.json", "output_sha256": "86ea8bbc951e564f7ddd811c98e8098bd853eb69bab9a14227da4d47daa875f3", "state_join": "463->455->419", "newton_iteration": 48}

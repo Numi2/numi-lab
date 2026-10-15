@@ -1,0 +1,74 @@
+{
+  "schema": "numi.cardboard.native461_source149_input_bindings.v1",
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-block-right-preconditioned-149",
+  "snapshot_sha256": "f98cbfc0aac642d0578d7f0efefb19c288632b73f7b5607b70e19a15e7963bb5",
+  "build_dir": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-149",
+  "bound_artifacts": [
+    {
+      "origin": "/Users/home/cardboard-implementation-20261014/analysis/native-cgls-block-right-preconditioning-overlay-149-002/source-overlay.json",
+      "copied_as": "/Users/home/cardboard-implementation-20261014/analysis/native461-block-right-cgls-command-001/input149/149-source-overlay.json",
+      "bytes": 4890,
+      "sha256": "e158080398d47e1974e34ffcd71af5cd7e563d0fd08c4eb4e53482e7f9a94906"
+    },
+    {
+      "origin": "/Users/home/cardboard-implementation-20261014/analysis/native-cgls-block-right-preconditioning-overlay-149-002/source-overlay.patch",
+      "copied_as": "/Users/home/cardboard-implementation-20261014/analysis/native461-block-right-cgls-command-001/input149/149-source-overlay.patch",
+      "bytes": 31644,
+      "sha256": "e23ed54a067f2f2ad822d84172d21df225aa112e28307f0cbe6299a175da8a86"
+    },
+    {
+      "origin": "/Users/home/cardboard-implementation-20261014/analysis/native-cgls-block-right-preconditioning-overlay-149-002/cpu-test-receipt.txt",
+      "copied_as": "/Users/home/cardboard-implementation-20261014/analysis/native461-block-right-cgls-command-001/input149/149-overlay-cpu-test-receipt.txt",
+      "bytes": 1763,
+      "sha256": "e2f0f3de900a00125ca47c48980eea4093b9785911390380c8e385b68fd092f7"
+    },
+    {
+      "origin": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-block-right-preconditioned-149/frozen-source.json",
+      "copied_as": "/Users/home/cardboard-implementation-20261014/analysis/native461-block-right-cgls-command-001/input149/149-frozen-source.json",
+      "bytes": 94220,
+      "sha256": "f98cbfc0aac642d0578d7f0efefb19c288632b73f7b5607b70e19a15e7963bb5"
+    },
+    {
+      "origin": "/Users/home/cardboard-implementation-20261014/analysis/source149-right-block-cgls-integration-001/source149-integration-manifest.json",
+      "copied_as": "/Users/home/cardboard-implementation-20261014/analysis/native461-block-right-cgls-command-001/input149/149-integration-manifest.json",
+      "bytes": 1883,
+      "sha256": "331015ee6223471d80ec7f960767392867941a043f3c330979522d9c55ac650c"
+    },
+    {
+      "origin": "/Users/home/cardboard-implementation-20261014/analysis/source149-right-block-cgls-integration-001/integration.json",
+      "copied_as": "/Users/home/cardboard-implementation-20261014/analysis/native461-block-right-cgls-command-001/input149/149-integration-evidence.json",
+      "bytes": 5334,
+      "sha256": "ceac1c5b826aafbf15624fd9bf26dee942c019b0b86c28e2aef6ff9eae1bc777"
+    },
+    {
+      "origin": "/Users/home/cardboard-implementation-20261014/analysis/source149-right-block-cgls-integration-001/post-build.json",
+      "copied_as": "/Users/home/cardboard-implementation-20261014/analysis/native461-block-right-cgls-command-001/input149/149-post-build.json",
+      "bytes": 3861,
+      "sha256": "703113f3ecc1c941bd6fe0fedc6500892df3a5489fa0c1bd2d9566a479e126e6"
+    },
+    {
+      "origin": "/Users/home/cardboard-implementation-20261014/analysis/source149-right-block-cgls-integration-001/scope-review.json",
+      "copied_as": "/Users/home/cardboard-implementation-20261014/analysis/native461-block-right-cgls-command-001/input149/149-scope-review.json",
+      "bytes": 3090,
+      "sha256": "ba9fbbaab66ef39fc6e83baad7c0a12983d07e705c622db08d3c2df630c25d2c"
+    },
+    {
+      "origin": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-149/source-build.json",
+      "copied_as": "/Users/home/cardboard-implementation-20261014/analysis/native461-block-right-cgls-command-001/input149/149-source-build-receipt.json",
+      "bytes": 96301,
+      "sha256": "62432124b2960344cf33fe4207e2987c0e28a53e46881dffc6ba4e103115a210"
+    },
+    {
+      "origin": "/Users/home/cardboard-implementation-20261014/analysis/native-cgls-right-scale-checker-149-001/manifest.json",
+      "copied_as": "/Users/home/cardboard-implementation-20261014/analysis/native461-block-right-cgls-command-001/input149/149-right-scale-checker-manifest.json",
+      "bytes": 4386,
+      "sha256": "3619c4e2b5b5208548f36562ffcb1373cdbca4e41971171294b6e1345d67fe0e"
+    },
+    {
+      "origin": "/Users/home/cardboard-implementation-20261014/analysis/native-cgls-right-scale-checker-149-001/build-only-receipt.json",
+      "copied_as": "/Users/home/cardboard-implementation-20261014/analysis/native461-block-right-cgls-command-001/input149/149-right-scale-checker-build-only-receipt.json",
+      "bytes": 483,
+      "sha256": "a69df23907240f7ad4b2e51baf3b15b4f6cc2c648c9d9e683baef48b66cfa4d2"
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+source149 right-scale native checker checks=886 terminal=3 iterations=20 scale_S_abs=0 scale_ST_abs=1.19209e-07 S_vs_ST=0.795 direction_rel_abs=1.19209e-07 direction_scale=1.41937 true_residual_before=4.63681 true_residual_after=4.33928e-07 physical_transactions=0 gpu_checker_not_run_here=1

@@ -1,0 +1,69 @@
+{
+  "schema": "numi.matter.source-overlay.v1",
+  "overlay_id": "native-cgls-block-right-preconditioning-149-002",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-post-release-relaxation-145",
+  "supersedes": {
+    "overlay": "native-cgls-block-right-preconditioning-overlay-149-001",
+    "path": "/Users/home/cardboard-implementation-20261014/analysis/native-cgls-block-right-preconditioning-overlay-149-001",
+    "manifest_sha256": "68046bace6061a848b93dba8e543ba9d8b2748c95215f288c476d0aeb36c54d0",
+    "erratum": "149-001 bound the inverse-diagonal output to state.femPreconditioned. This wrote a conditioning-only builder result into the production FGMRES preconditioner arena. 149-002 binds that output to the private right-scale scratch, which is fully rewritten before its next use."
+  },
+  "base_source_hashes": {
+    "matter/src/runtime.mm": "1a9fcbdda74c921a36b6529033851ae47a460ce51c8373e3794cc8967c5eca7f",
+    "matter/src/metal/fgmres.metalinc": "e5ebc5a8942fc4b7b23ccc8beebc2b88370860b9544996eb882a9ace87111b90",
+    "matter/src/metal/base_cgls.metalinc": "439f702b6b92b913cff204ba3fd2a73757280cf68f9b7808c5cefcfa3de9b04e",
+    "matter/src/metal/base_cgls_runtime.metalinc": "185d575646d9aef59e60bb70b182caf60ca06cf08b161ca78c32d875e6d6a903"
+  },
+  "overlay_source_hashes": {
+    "matter/src/runtime.mm": "f859b1ee45390dd844fcbd883356b931ab71d2c36260f53a4b03600b04fb3959",
+    "matter/src/metal/fgmres.metalinc": "8e0b9da3e28e7997eea9ee9db37e89a0bf3b9753d98967c80221e328e5da2af8",
+    "matter/src/metal/base_cgls.metalinc": "127d05d6323085ad6abd160ff560b95008981e9421541e9677dddbb3fa253aec",
+    "matter/src/metal/base_cgls_runtime.metalinc": "185d575646d9aef59e60bb70b182caf60ca06cf08b161ca78c32d875e6d6a903"
+  },
+  "changed_source_files": [
+    "matter/src/runtime.mm",
+    "matter/src/metal/fgmres.metalinc",
+    "matter/src/metal/base_cgls.metalinc"
+  ],
+  "unchanged_context_files": [
+    "matter/src/metal/base_cgls_runtime.metalinc"
+  ],
+  "patch_path": "source-overlay.patch",
+  "patch_sha256": "e23ed54a067f2f2ad822d84172d21df225aa112e28307f0cbe6299a175da8a86",
+  "cpu_files": {
+    "cpu/right_cgls_reference.py": "2d7ba8666ae836a48b2bd314c2eaff09d8de01c96b233e112cc5a8c3f78a6eb6",
+    "cpu/test_right_cgls_reference.py": "bb43256690a6bc52e79bdba4b5ad622c7f71caa47d81c003c8b2c2f842e74c0c",
+    "cpu/test_source_contract.py": "eaeb9e9f0a5d2ad04046f35237a3b1f035aa1650beeb137bfec4a5d9d286c812"
+  },
+  "cpu_test_receipt": {
+    "path": "cpu-test-receipt.txt",
+    "sha256": "e2f0f3de900a00125ca47c48980eea4093b9785911390380c8e385b68fd092f7",
+    "exit_code": 0,
+    "tests_passed": 14
+  },
+  "runtime_selector": {
+    "name": "NM_FEM_BASE_CGLS_RIGHT_SCALE",
+    "accepted_value": "block3",
+    "requires_existing": "NM_FEM_BASE_CGLS_ITERATIONS=32 or 64 and existing selected CGLS fallback scope",
+    "default": "disabled"
+  },
+  "private_scratch_contract": "Fresh block builder writes inverse diagonal to femBaseCGLSRightScalePhysical (full U-sized private vector), not femPreconditioned; scale application overwrites the U-sized scratch before it is consumed as S*p.",
+  "kernel_api": {
+    "nm_fgmres_base_cgls_validate_right_scale": "0 dispatch, 1 candidate, 2 mask, 3 selected environment, 4 3-row/node inverse S, 5 per-environment errors; dispatch E*N threads",
+    "nm_fgmres_base_cgls_apply_right_scale": "0 U, 1 E, 2 transpose (0=S, 1=S^T), 3 mask, 4 row environment, 5 selected environment, 6 inverse S rows, 7 input, 8 output, 9 errors; dispatch U threads",
+    "nm_fgmres_base_cgls_initialize_vectors": "existing buffers 0-12; 13 useRightScale, 14 inverse S rows",
+    "nm_fgmres_build_tangent_fem_block_preconditioner": "existing buffers 0-19; 20 selected environment array, 21 onlySelected flag; legacy FGMRES binds dummy and zero"
+  },
+  "validation": {
+    "cpu_reference_and_source_contract_tests": "pass, 14/14",
+    "objective_c_metal_build": "not run; pending integrated source149 CPU build",
+    "native_gpu_execution": "not run"
+  },
+  "scope_limits": [
+    "Direction-only conditioning experiment; physical operator, Armijo trials, final installer and original Newton certificate logic are unchanged.",
+    "Block S is built fresh from the current candidate, accepted history, scheduler, and existing production tangent builder. Invalid/free-mass/block/mask inputs fail closed.",
+    "Strict selected CGLS FEM scope and E<=2,N<=4096,T<=32768 remain inherited. Human, contact, multiphysics, and unsupported constraints are not added.",
+    "Root-reported native457 evidence was mixed: block right scaling improved the linear residual, but alpha=1 nonlinear residual was worse than unscaled (5.88705e-5 vs 4.83878e-5); no performance or convergence benefit is claimed.",
+    "CPU tests cover recurrence/layout/failure behavior only; production Metal parity and full-coupon outcomes remain unqualified."
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "schema": "numi.cardboard.publication025-staged-source-check.v1",
+  "utc": "2026-10-15T23:22:03.621255+00:00",
+  "all_selected_source_hashes_match_fresh_build145": 787,
+  "all7changed_code_files_staged_byte_identical": true,
+  "build_receipt_sha256": "b1db366d5cb919f5bb470c201ae83df568349bc6bb6f5b0c45cb332875b764ec",
+  "root_cpu_unit_test_result": "32/32 test_cardboard_convergence + test_cardboard_resolution_study passed via python3 -m unittest; no native action in these tests",
+  "native_full_attempt_default_phase_parity": true,
+  "native_output_claim": "both failed control1; no complete coupon or postrelease execution"
+}

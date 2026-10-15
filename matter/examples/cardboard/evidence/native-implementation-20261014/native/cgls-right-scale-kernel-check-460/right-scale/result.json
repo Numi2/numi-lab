@@ -1,0 +1,19 @@
+{
+  "name": "right-scale",
+  "argv": [
+    "/Users/home/cardboard-implementation-20261014/analysis/native-cgls-right-scale-checker-149-001/native/build/base_cgls_right_scale_check"
+  ],
+  "started_at_utc": "2026-10-15T23:18:27.682327+00:00",
+  "exit_code": 0,
+  "timed_out": false,
+  "timeout_seconds": 180,
+  "wall_seconds": 0.4375241250381805,
+  "expected_exit_code": 0,
+  "output_contract_problems": [],
+  "admission_assertions": [
+    "inactive unsupported-tag environment and nonfinite block are ignored without errors",
+    "selected nonfinite inverse block sets the invalid-right-scale error bit",
+    "fixed, quiet, field, and float4 padding rows remain zero"
+  ],
+  "assertion_interpretation": "Each listed assertion is embedded in the checker; exit_code=0 means it passed, while a nonzero exit preserves the first reported failure in stderr."
+}

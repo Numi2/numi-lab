@@ -1,0 +1,13 @@
+{
+  "inputs": {
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-block-right-preconditioned-149/frozen-source.json": "f98cbfc0aac642d0578d7f0efefb19c288632b73f7b5607b70e19a15e7963bb5",
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-post-release-relaxation-145/frozen-source.json": "35fdfca5606e7e49ab27727a7f9991f1fe7d0999dfc65a46b95d15dd0070bd2c",
+    "/Users/home/cardboard-implementation-20261014/analysis/native-cgls-block-right-preconditioning-overlay-149-002/source-overlay.json": "e158080398d47e1974e34ffcd71af5cd7e563d0fd08c4eb4e53482e7f9a94906"
+  },
+  "files": {
+    "report.json": "7e669b7f3756000454555780251b92195cba527781363956c4d046191c2860db",
+    "attempt-001.py": "59ec3069a3ad80819323d8784df389209eb6a5c819a0de5c87bad6ae5062bce3",
+    "review.py": "4fe66ecbb612ba7a6c270437081be7c6fc783f9edfff8115e7f309fc2992a665",
+    "attempt-001.json": "38a58022cac5da70a44fad362f07f321d851342215584bfed391367bbd1b39bc"
+  }
+}

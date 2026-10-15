@@ -1,0 +1,11 @@
+{
+  "inputs": {
+    "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-block-right-preconditioned-149/frozen-source.json": "f98cbfc0aac642d0578d7f0efefb19c288632b73f7b5607b70e19a15e7963bb5",
+    "/Users/home/cardboard-implementation-20261014/analysis/source149-right-scale-disabled462-parity-001/report.json": "ad42b9e38d4187637d07cada5316e5d2a36dbcdcb8f93156fbd2a2212f8a4deb",
+    "/Users/home/cardboard-implementation-20261014/analysis/native-cgls-right-scale-audit-463-002/report.json": "86ea8bbc951e564f7ddd811c98e8098bd853eb69bab9a14227da4d47daa875f3",
+    "/Users/home/cardboard-implementation-20261014/native/cgls-right-scale-kernel-check-460/receipt.json": "3c0204f276a2d849db10a761a4af421b03007a80088b55fdd779458c08121a70"
+  },
+  "files": {
+    "report.json": "cdc272f17b7110db2e823ca6c8f3c333a3a6b6767e1a07e441762c83a44a21de"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "command": "/Users/home/cardboard-implementation-20261014/analysis/native-cgls-right-scale-checker-149-001/native/build_only.sh",
+  "completed_utc": "2026-10-15T23:10:47Z",
+  "exit_code": 0,
+  "actions": [
+    "Metal offline compile of native/base_cgls_test_actions.metal",
+    "metallib link",
+    "strict Objective-C++ syntax check for both native checkers",
+    "link both native checker executables"
+  ],
+  "native_execution": "not run; root owns the serialized GPU queue"
+}

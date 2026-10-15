@@ -1,0 +1,83 @@
+{
+  "schema": "numi.cardboard.native-cgls-right-scale-command-package.v1",
+  "package_id": "native462-463-right-scale-command-package-001",
+  "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-block-right-preconditioned-149",
+  "package_files": [
+    {
+      "path": "149-input-bindings.json",
+      "sha256": "823799808819cb8ef8c1f8b52e988fe3edeb91ab5557ea38445372094cb80e92",
+      "size_bytes": 4889
+    },
+    {
+      "path": "README.md",
+      "sha256": "05058b8d9a5b9ab499b297ca55eb3f9478d6f11369d9d41e435903f6c4210e7e",
+      "size_bytes": 770
+    },
+    {
+      "path": "native-459-command-reference.json",
+      "sha256": "597ec2bad9b2285c9153a6a6f8d0cc09b95355219543bc8536171c1fbbbe370b",
+      "size_bytes": 6578
+    },
+    {
+      "path": "native-461-command.json",
+      "sha256": "eae0d64ac23356a65fb4aa5af62c5c34dec808d8f410b8e333e99cfbcaddd1d3",
+      "size_bytes": 8462
+    },
+    {
+      "path": "native-462-command.json",
+      "sha256": "82920344390c3d1ecfd1418267459046776d014415d7880e7ec6d684a35e8c3c",
+      "size_bytes": 8318
+    },
+    {
+      "path": "native-463-command.json",
+      "sha256": "82151f17d4f53e4c51f51ae8ec851bb99890bde85e511152047a191a2df1ab4c",
+      "size_bytes": 8400
+    },
+    {
+      "path": "preflight.json",
+      "sha256": "954e8f97f10317552c22b00c32030c2075180b2c7fc8ecd21a2e8470cd7eb76e",
+      "size_bytes": 21834
+    },
+    {
+      "path": "protocol.json",
+      "sha256": "3805f0be58fce263cf8474918cf0ec32fa60a25d6781b58e957d0efd70e99e4a",
+      "size_bytes": 7950
+    },
+    {
+      "path": "seal_preflight.py",
+      "sha256": "f8f0c4ba1014316fe6241ee0f4323d03e83c64ba9a7d4e029c4530d58cd38960",
+      "size_bytes": 2685
+    },
+    {
+      "path": "source149-abi-review.json",
+      "sha256": "28d33a3c6d66e4f9642191590802f4f4127828f4d38634915649b20943115bec",
+      "size_bytes": 3528
+    },
+    {
+      "path": "verify_commands.py",
+      "sha256": "d555474fc316f6e4b75da77dd59f98542b032d542eb6b770f4a1315ebcd09470",
+      "size_bytes": 6329
+    }
+  ],
+  "preserved_failed_461_references": [
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native461-block-right-cgls-command-002/native-461-command.json",
+      "exists": true,
+      "sha256": "eae0d64ac23356a65fb4aa5af62c5c34dec808d8f410b8e333e99cfbcaddd1d3",
+      "size_bytes": 8462
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native461-block-right-cgls-command-002/manifest.json",
+      "exists": true,
+      "sha256": "c959c45bddac027e81f013803c34797518fef2fd44f97bb6a24fde50147c80da",
+      "size_bytes": 2795
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/solver/cgls-block-right-primary48-461/receipt.json",
+      "exists": true,
+      "sha256": "e97ba52c172b11d8df1c50974a9c2fec695e4002b271c8e8abfcde36e0237540",
+      "size_bytes": 434
+    }
+  ],
+  "native_execution_performed": false
+}

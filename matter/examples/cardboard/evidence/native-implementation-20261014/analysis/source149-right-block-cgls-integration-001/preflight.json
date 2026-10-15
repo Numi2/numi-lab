@@ -1,0 +1,17 @@
+{
+  "available_bytes_before_clone": 2192179200,
+  "base_configure_count": 1034,
+  "base_frozen_sha256": "35fdfca5606e7e49ab27727a7f9991f1fe7d0999dfc65a46b95d15dd0070bd2c",
+  "base_inventory_count": 1859,
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-post-release-relaxation-145",
+  "base_source_count": 787,
+  "changed_paths": [
+    "matter/src/runtime.mm",
+    "matter/src/metal/fgmres.metalinc",
+    "matter/src/metal/base_cgls.metalinc"
+  ],
+  "minimum_free_bytes": 1610612736,
+  "no_gpu_or_probe_execution": true,
+  "overlay_manifest_sha256": "e158080398d47e1974e34ffcd71af5cd7e563d0fd08c4eb4e53482e7f9a94906",
+  "overlay_patch_sha256": "e23ed54a067f2f2ad822d84172d21df225aa112e28307f0cbe6299a175da8a86"
+}

@@ -1,0 +1,94 @@
+{
+  "schema": "numi.matter.native_cgls_right_scale_run_receipt.v1",
+  "case_id": "cgls-right-scale-kernel-check-460",
+  "execution_started": true,
+  "one_worker_sequential": true,
+  "native_gpu_execution": true,
+  "physical_transactions": 0,
+  "source_inputs_unchanged": true,
+  "before_hashes": {
+    "/Users/home/cardboard-implementation-20261014/analysis/native-cgls-right-scale-checker-149-001/manifest.json": "3619c4e2b5b5208548f36562ffcb1373cdbca4e41971171294b6e1345d67fe0e",
+    "/Users/home/cardboard-implementation-20261014/analysis/native-cgls-right-scale-checker-149-001/README.md": "2b933c778c37b35865ec49d08c6ee8a9de068d0103550c1625ecf146f6d145df",
+    "/Users/home/cardboard-implementation-20261014/analysis/native-cgls-right-scale-checker-149-001/build-only-receipt.json": "a69df23907240f7ad4b2e51baf3b15b4f6cc2c648c9d9e683baef48b66cfa4d2",
+    "/Users/home/cardboard-implementation-20261014/analysis/native-cgls-right-scale-checker-149-001/source/native-cgls-overlay-149-002.json": "e158080398d47e1974e34ffcd71af5cd7e563d0fd08c4eb4e53482e7f9a94906",
+    "/Users/home/cardboard-implementation-20261014/analysis/native-cgls-right-scale-checker-149-001/source/matter/include/numi/matter/shared.h": "cd173c076905f660aa8aecc900e6f6aba8d69406996f3cccf2e0656c753ff871",
+    "/Users/home/cardboard-implementation-20261014/analysis/native-cgls-right-scale-checker-149-001/source/matter/src/runtime.mm": "f859b1ee45390dd844fcbd883356b931ab71d2c36260f53a4b03600b04fb3959",
+    "/Users/home/cardboard-implementation-20261014/analysis/native-cgls-right-scale-checker-149-001/source/matter/src/metal/fgmres.metalinc": "8e0b9da3e28e7997eea9ee9db37e89a0bf3b9753d98967c80221e328e5da2af8",
+    "/Users/home/cardboard-implementation-20261014/analysis/native-cgls-right-scale-checker-149-001/source/matter/src/metal/base_cgls.metalinc": "127d05d6323085ad6abd160ff560b95008981e9421541e9677dddbb3fa253aec",
+    "/Users/home/cardboard-implementation-20261014/analysis/native-cgls-right-scale-checker-149-001/source/matter/src/metal/base_cgls_runtime.metalinc": "185d575646d9aef59e60bb70b182caf60ca06cf08b161ca78c32d875e6d6a903",
+    "/Users/home/cardboard-implementation-20261014/analysis/native-cgls-right-scale-checker-149-001/native/base_cgls_identity_check.mm": "10027d1bbb49d0c3191c4f84419121e3895294261f0791992e8a8e12a05fdf40",
+    "/Users/home/cardboard-implementation-20261014/analysis/native-cgls-right-scale-checker-149-001/native/right_scale_check.mm": "b77bad2cc3cb9e8b219322f5cccced9ef874171a80dc040017cc3339dde4ac79",
+    "/Users/home/cardboard-implementation-20261014/analysis/native-cgls-right-scale-checker-149-001/native/base_cgls_test_actions.metal": "81d7445b2ef17181d9cb396575f07121fd6117bf57964aba29bf903fbc503ba0",
+    "/Users/home/cardboard-implementation-20261014/analysis/native-cgls-right-scale-checker-149-001/native/compile_only.sh": "60db968795a132d9ab45915f7507ca2410639f1cf93cbfd4f98aab192b32afde",
+    "/Users/home/cardboard-implementation-20261014/analysis/native-cgls-right-scale-checker-149-001/native/build_only.sh": "1cee1215123695c338788ab40b0cb901baaab4f6377ff7d0a275ccccde5e5bfe",
+    "/Users/home/cardboard-implementation-20261014/analysis/native-cgls-right-scale-checker-149-001/native/build/BaseCGLSRightScaleCheck.metallib": "e8fecdf6a34a69dc29b2ae173a1d8c1a489c2ae73c9e18cea952fced7f6772f9",
+    "/Users/home/cardboard-implementation-20261014/analysis/native-cgls-right-scale-checker-149-001/native/build/base_cgls_identity_check": "8a62ebc80e57810e5145cf9f619447c2af1e4ae2255e5fde8eb0394d97affc8a",
+    "/Users/home/cardboard-implementation-20261014/analysis/native-cgls-right-scale-checker-149-001/native/build/base_cgls_right_scale_check": "e6cdc4155c65847b2a21d8e27e6784004304a10c7799ca87970ff6da20ddb07f",
+    "/Users/home/cardboard-implementation-20261014/analysis/native-cgls-block-right-preconditioning-overlay-149-002/source-overlay.json": "e158080398d47e1974e34ffcd71af5cd7e563d0fd08c4eb4e53482e7f9a94906",
+    "/Users/home/cardboard-implementation-20261014/analysis/native-cgls-block-right-preconditioning-overlay-149-002/source-overlay.patch": "e23ed54a067f2f2ad822d84172d21df225aa112e28307f0cbe6299a175da8a86",
+    "/Users/home/cardboard-implementation-20261014/native/run-cgls-right-scale-kernel-check-460.py": "00cd3ce6dc712b84bb0fead1c606ca090ff11db7bca74e60752422fca252e695",
+    "/Users/home/cardboard-implementation-20261014/native/cgls-right-scale-kernel-check-460-command.json": "eef7d10cd69a558a0295bf557428b900c92b3f0a4467440ccfe08fcbc262715f"
+  },
+  "after_hashes": {
+    "/Users/home/cardboard-implementation-20261014/analysis/native-cgls-right-scale-checker-149-001/manifest.json": "3619c4e2b5b5208548f36562ffcb1373cdbca4e41971171294b6e1345d67fe0e",
+    "/Users/home/cardboard-implementation-20261014/analysis/native-cgls-right-scale-checker-149-001/README.md": "2b933c778c37b35865ec49d08c6ee8a9de068d0103550c1625ecf146f6d145df",
+    "/Users/home/cardboard-implementation-20261014/analysis/native-cgls-right-scale-checker-149-001/build-only-receipt.json": "a69df23907240f7ad4b2e51baf3b15b4f6cc2c648c9d9e683baef48b66cfa4d2",
+    "/Users/home/cardboard-implementation-20261014/analysis/native-cgls-right-scale-checker-149-001/source/native-cgls-overlay-149-002.json": "e158080398d47e1974e34ffcd71af5cd7e563d0fd08c4eb4e53482e7f9a94906",
+    "/Users/home/cardboard-implementation-20261014/analysis/native-cgls-right-scale-checker-149-001/source/matter/include/numi/matter/shared.h": "cd173c076905f660aa8aecc900e6f6aba8d69406996f3cccf2e0656c753ff871",
+    "/Users/home/cardboard-implementation-20261014/analysis/native-cgls-right-scale-checker-149-001/source/matter/src/runtime.mm": "f859b1ee45390dd844fcbd883356b931ab71d2c36260f53a4b03600b04fb3959",
+    "/Users/home/cardboard-implementation-20261014/analysis/native-cgls-right-scale-checker-149-001/source/matter/src/metal/fgmres.metalinc": "8e0b9da3e28e7997eea9ee9db37e89a0bf3b9753d98967c80221e328e5da2af8",
+    "/Users/home/cardboard-implementation-20261014/analysis/native-cgls-right-scale-checker-149-001/source/matter/src/metal/base_cgls.metalinc": "127d05d6323085ad6abd160ff560b95008981e9421541e9677dddbb3fa253aec",
+    "/Users/home/cardboard-implementation-20261014/analysis/native-cgls-right-scale-checker-149-001/source/matter/src/metal/base_cgls_runtime.metalinc": "185d575646d9aef59e60bb70b182caf60ca06cf08b161ca78c32d875e6d6a903",
+    "/Users/home/cardboard-implementation-20261014/analysis/native-cgls-right-scale-checker-149-001/native/base_cgls_identity_check.mm": "10027d1bbb49d0c3191c4f84419121e3895294261f0791992e8a8e12a05fdf40",
+    "/Users/home/cardboard-implementation-20261014/analysis/native-cgls-right-scale-checker-149-001/native/right_scale_check.mm": "b77bad2cc3cb9e8b219322f5cccced9ef874171a80dc040017cc3339dde4ac79",
+    "/Users/home/cardboard-implementation-20261014/analysis/native-cgls-right-scale-checker-149-001/native/base_cgls_test_actions.metal": "81d7445b2ef17181d9cb396575f07121fd6117bf57964aba29bf903fbc503ba0",
+    "/Users/home/cardboard-implementation-20261014/analysis/native-cgls-right-scale-checker-149-001/native/compile_only.sh": "60db968795a132d9ab45915f7507ca2410639f1cf93cbfd4f98aab192b32afde",
+    "/Users/home/cardboard-implementation-20261014/analysis/native-cgls-right-scale-checker-149-001/native/build_only.sh": "1cee1215123695c338788ab40b0cb901baaab4f6377ff7d0a275ccccde5e5bfe",
+    "/Users/home/cardboard-implementation-20261014/analysis/native-cgls-right-scale-checker-149-001/native/build/BaseCGLSRightScaleCheck.metallib": "e8fecdf6a34a69dc29b2ae173a1d8c1a489c2ae73c9e18cea952fced7f6772f9",
+    "/Users/home/cardboard-implementation-20261014/analysis/native-cgls-right-scale-checker-149-001/native/build/base_cgls_identity_check": "8a62ebc80e57810e5145cf9f619447c2af1e4ae2255e5fde8eb0394d97affc8a",
+    "/Users/home/cardboard-implementation-20261014/analysis/native-cgls-right-scale-checker-149-001/native/build/base_cgls_right_scale_check": "e6cdc4155c65847b2a21d8e27e6784004304a10c7799ca87970ff6da20ddb07f",
+    "/Users/home/cardboard-implementation-20261014/analysis/native-cgls-block-right-preconditioning-overlay-149-002/source-overlay.json": "e158080398d47e1974e34ffcd71af5cd7e563d0fd08c4eb4e53482e7f9a94906",
+    "/Users/home/cardboard-implementation-20261014/analysis/native-cgls-block-right-preconditioning-overlay-149-002/source-overlay.patch": "e23ed54a067f2f2ad822d84172d21df225aa112e28307f0cbe6299a175da8a86",
+    "/Users/home/cardboard-implementation-20261014/native/run-cgls-right-scale-kernel-check-460.py": "00cd3ce6dc712b84bb0fead1c606ca090ff11db7bca74e60752422fca252e695",
+    "/Users/home/cardboard-implementation-20261014/native/cgls-right-scale-kernel-check-460-command.json": "eef7d10cd69a558a0295bf557428b900c92b3f0a4467440ccfe08fcbc262715f"
+  },
+  "runs": [
+    {
+      "name": "identity-control",
+      "argv": [
+        "/Users/home/cardboard-implementation-20261014/analysis/native-cgls-right-scale-checker-149-001/native/build/base_cgls_identity_check"
+      ],
+      "started_at_utc": "2026-10-15T23:18:27.191737+00:00",
+      "exit_code": 0,
+      "timed_out": false,
+      "timeout_seconds": 180,
+      "wall_seconds": 0.49033812497509643,
+      "expected_exit_code": 0,
+      "output_contract_problems": [],
+      "admission_assertions": [],
+      "assertion_interpretation": "Each listed assertion is embedded in the checker; exit_code=0 means it passed, while a nonzero exit preserves the first reported failure in stderr."
+    },
+    {
+      "name": "right-scale",
+      "argv": [
+        "/Users/home/cardboard-implementation-20261014/analysis/native-cgls-right-scale-checker-149-001/native/build/base_cgls_right_scale_check"
+      ],
+      "started_at_utc": "2026-10-15T23:18:27.682327+00:00",
+      "exit_code": 0,
+      "timed_out": false,
+      "timeout_seconds": 180,
+      "wall_seconds": 0.4375241250381805,
+      "expected_exit_code": 0,
+      "output_contract_problems": [],
+      "admission_assertions": [
+        "inactive unsupported-tag environment and nonfinite block are ignored without errors",
+        "selected nonfinite inverse block sets the invalid-right-scale error bit",
+        "fixed, quiet, field, and float4 padding rows remain zero"
+      ],
+      "assertion_interpretation": "Each listed assertion is embedded in the checker; exit_code=0 means it passed, while a nonzero exit preserves the first reported failure in stderr."
+    }
+  ],
+  "overall_problems": [],
+  "result": "pass",
+  "finished_at_utc": "2026-10-15T23:18:28.121701+00:00"
+}

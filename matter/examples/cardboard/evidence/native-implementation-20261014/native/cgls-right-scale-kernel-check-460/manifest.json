@@ -1,0 +1,44 @@
+{
+  "files": {
+    "command.json": {
+      "bytes": 155,
+      "sha256": "bf0679041d5c7b465feb1d3557cac1c532704560ea39c2df61be7aadf201e85c"
+    },
+    "identity-control/result.json": {
+      "bytes": 622,
+      "sha256": "9746d3e9670bf9849926dbb60f7deca9884e4a74ee26be24c35b17d5c6aa652d"
+    },
+    "identity-control/stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "identity-control/stdout.log": {
+      "bytes": 171,
+      "sha256": "494833846a2f0de785a54a6f9e52fdc403d199fc5d7cfd8e06d1bc413e3846ca"
+    },
+    "prediction.json": {
+      "bytes": 7413,
+      "sha256": "6976f0916858183ae15efbb8bd3b282c3eeba5f59cb835629356a5d6fd825930"
+    },
+    "receipt.json": {
+      "bytes": 10479,
+      "sha256": "3c0204f276a2d849db10a761a4af421b03007a80088b55fdd779458c08121a70"
+    },
+    "right-scale/result.json": {
+      "bytes": 855,
+      "sha256": "dd51d3353487cc48539d90c3242465195638710a3769b00483ddca86f7e675ee"
+    },
+    "right-scale/stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "right-scale/stdout.log": {
+      "bytes": 292,
+      "sha256": "e7b34b4b8e7f8b61694abc64a9544bdd1bc464fa0c28ba25f574536886542527"
+    },
+    "runner.py": {
+      "bytes": 15871,
+      "sha256": "00cd3ce6dc712b84bb0fead1c606ca090ff11db7bca74e60752422fca252e695"
+    }
+  }
+}

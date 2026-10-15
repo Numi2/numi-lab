@@ -1,0 +1,31 @@
+{
+  "schema": "numi.cardboard.source149-root-review.v1",
+  "utc": "2026-10-15T23:14:49.643754+00:00",
+  "source_hash_count": 787,
+  "all_source_hashes_verified": true,
+  "source_diff_from145": [
+    "matter/src/metal/base_cgls.metalinc",
+    "matter/src/metal/fgmres.metalinc",
+    "matter/src/runtime.mm"
+  ],
+  "scope": "bounded opt-in conditioning; no new contact, complete coupon, convergence, or physical qualification",
+  "reviewed_contracts": [
+    "fresh same-Newton block builder uses accepted material history and current cached tangent",
+    "3*E*N inverse rows via environments-multiplying allocation helper, U-sized private physical workspace",
+    "two builder calls bind new20/21 slots; legacy selection filter zero",
+    "S and S-transpose are on the correct sides of A and A-transpose; x converted back before unscaled A*x and original installer",
+    "all new scratch is private; inverseDiagonal output does not alias production preconditioner",
+    "canonical block3 admission requires existing bounded32/64-iteration CGLS path",
+    "invalid or singular selected inverse blocks fail closed; no diagonal fallback admitted by validator",
+    "disabled CGLS vector operations retain original path, though metadata includes explicit null right_scale",
+    "original installer bytes and physical operator sources unchanged"
+  ],
+  "false_positive_review_correction": "Initial subagent concern that row allocation omitted environments was independently rejected: multiplied(perEnvironment) already multiplies by E. No patch was made.",
+  "unresolved": [
+    "native kernel execution pending",
+    "fresh inverse-block construction must be compared to same-state assembled A_nn",
+    "full enabled and disabled production trajectory comparison pending",
+    "reduced linear residual does not ensure nonlinear improvement"
+  ],
+  "result": "PASS_SOURCE_SCOPE_ONLY"
+}

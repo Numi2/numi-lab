@@ -1,0 +1,25 @@
+{
+  "schema": "numi.cardboard.source149_root_integration.v1",
+  "utc": "2026-10-15T23:43:08.746539+00:00",
+  "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-block-right-preconditioned-149",
+  "source_files_verified": 787,
+  "changes": {
+    "matter/src/metal/fgmres.metalinc": {
+      "before": "e5ebc5a8942fc4b7b23ccc8beebc2b88370860b9544996eb882a9ace87111b90",
+      "after": "8e0b9da3e28e7997eea9ee9db37e89a0bf3b9753d98967c80221e328e5da2af8"
+    },
+    "matter/src/runtime.mm": {
+      "before": "1a9fcbdda74c921a36b6529033851ae47a460ce51c8373e3794cc8967c5eca7f",
+      "after": "f859b1ee45390dd844fcbd883356b931ab71d2c36260f53a4b03600b04fb3959"
+    },
+    "matter/src/metal/base_cgls.metalinc": {
+      "before": "439f702b6b92b913cff204ba3fd2a73757280cf68f9b7808c5cefcfa3de9b04e",
+      "after": "127d05d6323085ad6abd160ff560b95008981e9421541e9677dddbb3fa253aec"
+    }
+  },
+  "native_kernel_check460": "pass",
+  "disabled_full_attempt_parity462": "pass",
+  "enabled_native463": "failed control1 and transactional rollback; analytical action consistency via exact463->455->419 join only",
+  "thresholds_or_physical_operator_changed": false,
+  "qualification": "bounded opt-in conditioning software; complete coupon remains unqualified"
+}

@@ -1,0 +1,5 @@
+{
+  "exit_code": 1,
+  "error": "consumer searched installer in base_cgls.metalinc; installer is in unchanged base_cgls_runtime.metalinc",
+  "production_source_mutated": false
+}

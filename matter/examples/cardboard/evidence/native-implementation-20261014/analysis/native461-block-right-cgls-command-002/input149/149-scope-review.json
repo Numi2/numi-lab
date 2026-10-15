@@ -1,0 +1,46 @@
+{
+  "base": "source145 post-release snapshot",
+  "changed_source_paths": [
+    "matter/src/runtime.mm",
+    "matter/src/metal/fgmres.metalinc",
+    "matter/src/metal/base_cgls.metalinc"
+  ],
+  "critical_unchanged_files": {
+    "matter/src/metal/base_cgls_runtime.metalinc": {
+      "byte_identical": true,
+      "source145_sha256": "185d575646d9aef59e60bb70b182caf60ca06cf08b161ca78c32d875e6d6a903",
+      "source149_sha256": "185d575646d9aef59e60bb70b182caf60ca06cf08b161ca78c32d875e6d6a903"
+    },
+    "matter/src/metal/common.metalinc": {
+      "byte_identical": true,
+      "source145_sha256": "61ace798a14c1ca0ba1f2cfb5c8161ec43c9e7a0f8a6b05bb1ef0ce9f9ca3380",
+      "source149_sha256": "61ace798a14c1ca0ba1f2cfb5c8161ec43c9e7a0f8a6b05bb1ef0ce9f9ca3380"
+    },
+    "matter/src/metal/fem.metalinc": {
+      "byte_identical": true,
+      "source145_sha256": "33edccfec4a2faee1b0bfd7a59aa7847ac707ac3c56baa9a0030e858eeba7170",
+      "source149_sha256": "33edccfec4a2faee1b0bfd7a59aa7847ac707ac3c56baa9a0030e858eeba7170"
+    }
+  },
+  "diff_review": {
+    "base_cgls.metalinc": "Adds right-scale validation and vector transform kernels and the initial S^T(A^T b) transform. Existing CGLS recurrence and install kernel are unchanged.",
+    "fgmres.metalinc": "Changes only the existing nodal tangent block preconditioner builder ABI and selected-environment initialization/skip behavior. No element operator kernel is modified.",
+    "runtime.mm": "Adds default-off selector/scratch/capture metadata and dispatches the existing production tangent block builder into private femBaseCGLSRightScalePhysical scratch. The CGLS sequence applies S before the existing A action, S^T after A^T, and S before the final existing A*x/install. It does not edit Newton acceptance thresholds or Armijo evaluation kernels."
+  },
+  "operator_and_acceptance_review": {
+    "final_direction_installer_file": "matter/src/metal/base_cgls_runtime.metalinc",
+    "installer_and_certificate_file_unchanged": true,
+    "physical_matrix_free_operator_file": "matter/src/metal/fem.metalinc",
+    "physical_operator_file_unchanged": true,
+    "remaining_acceptance_common_file_unchanged": true,
+    "scratch_erratum": "149-001 wrote inverse diagonal builder output to femPreconditioned; 149-002 binds private femBaseCGLSRightScalePhysical instead. The private U-vector is completely overwritten by S*p before next consumption.",
+    "whole_delta": "Only the three listed source files plus frozen-source.json differ from source145; no changes were made to FEM material law, residual, Armijo trial, acceptance gate, or final certificate implementation."
+  },
+  "result": "source149 block-right-CGLS overlay",
+  "schema": "numi.cardboard.source149_scope_review.v1",
+  "validation_limits": [
+    "CPU reference/static tests pass 14/14.",
+    "Source-bound probe target compiled successfully with four jobs; no probe executable was run.",
+    "No native GPU parity, full history parity, or full coupon result is included. Root-reported prior alpha=1 evidence was mixed; no performance/convergence benefit is claimed."
+  ]
+}

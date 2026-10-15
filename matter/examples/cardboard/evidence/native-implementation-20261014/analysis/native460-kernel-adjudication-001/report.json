@@ -1,0 +1,21 @@
+{
+  "schema": "numi.cardboard.native460-kernel-adjudication.v1",
+  "utc": "2026-10-15T23:26:31.933675+00:00",
+  "receipt_sha256": "3c0204f276a2d849db10a761a4af421b03007a80088b55fdd779458c08121a70",
+  "actual_native_helpers_executed": true,
+  "one_worker_sequential": true,
+  "identity_checks": 678,
+  "right_scale_checks": 886,
+  "all_before_after_hashes_identical": true,
+  "synthetic_S_and_ST_and_transformed_recurrence": "pass",
+  "physical_transactions": 0,
+  "literal_stdout_erratum": "right-scale stdout contains gpu_checker_not_run_here=1, a stale preparation label embedded in the checker. The source-bound runner receipt, successful executed host binary and actual Metal command-buffer tests establish that native helper execution occurred. This label is preserved and is not used as a verdict.",
+  "unqualified": [
+    "fresh production FEM inverse-block construction",
+    "full nonlinear coupon solve",
+    "mesh/time convergence",
+    "damage calibration",
+    "shipping assembly",
+    "crush/impact"
+  ]
+}

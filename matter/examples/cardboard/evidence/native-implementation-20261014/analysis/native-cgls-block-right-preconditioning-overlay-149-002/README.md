@@ -1,0 +1,11 @@
+# Bounded block-right-scaled CGLS overlay 149-002
+
+This version is based on source145 and preserves the opt-in block-diagonal right scaling from 149-001. It corrects one private-scratch issue in that earlier sealed version. Do not modify the 149-001 artifact; its source and manifest hashes remain its own record.
+
+**Erratum for 149-001:** its selected-Newton block-builder binding sent the inverse-diagonal output to `state.femPreconditioned`. That is the production FGMRES preconditioner arena, so the conditioning-only experiment wrote there even though it did not change the physical operator. 149-002 binds that output to `state.femBaseCGLSRightScalePhysical`, a private U-sized vector scratch. The builder touches only its first E*N rows; the subsequent S*p dispatch writes all U rows before the scratch is read. A static regression asserts the builder's slot 13 points to this private scratch and does not bind `femPreconditioned`.
+
+The selector remains `NM_FEM_BASE_CGLS_RIGHT_SCALE=block3`, requires existing `NM_FEM_BASE_CGLS_ITERATIONS=32` or `64` plus the existing selected pure-FEM CGLS fallback scope, and is disabled by default. At each selected Newton state it builds the 3x3 tangent inverse blocks from the current candidate, accepted material history, scheduler, and production tangent builder. CGLS uses `S^T A^T b`, `A(S p)`, `S^T A^T r`, and final `S y`; all Armijo evaluations and the existing final installer/certificate remain in place. Unsupported constraints, invalid mass, malformed masks, and invalid/nonfinite blocks fail closed. Unselected scale rows are initialized too for deterministic optional snapshots.
+
+The overlay modifies only `runtime.mm`, `fgmres.metalinc`, and `base_cgls.metalinc`; `base_cgls_runtime.metalinc` is unchanged context. CPU reference and source-contract tests pass 14/14. No source149 integrated build or GPU run has been performed in this overlay package. Root-reported native457 results are mixed: the scaled linear residual improved, while the alpha=1 nonlinear residual was worse (5.88705e-5 vs 4.83878e-5). This is an unqualified conditioning experiment, not a solver improvement claim.
+
+Hashes and kernel slots are in `source-overlay.json`.

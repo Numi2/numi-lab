@@ -1,0 +1,6 @@
+{
+  "stage": "output manifest path whitelist",
+  "failure": "AssertionError: rejected-conditioning-000002/manifest.json",
+  "reason": "consumer admitted root manifest only although rejected-condition checkpoints have their own path-bearing manifests",
+  "no_result_claim": true
+}

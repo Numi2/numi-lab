@@ -1,0 +1,74 @@
+{
+  "schema": "numi.cardboard.native461_command_input_package.v1",
+  "package": "/Users/home/cardboard-implementation-20261014/analysis/native461-block-right-cgls-command-002",
+  "artifacts": {
+    "149-input-bindings.json": {
+      "bytes": 4889,
+      "sha256": "823799808819cb8ef8c1f8b52e988fe3edeb91ab5557ea38445372094cb80e92"
+    },
+    "README.md": {
+      "bytes": 1011,
+      "sha256": "0ca2e24dd054d21364f1540ef49d459c49a641973a7ff809b45bebaffa57e739"
+    },
+    "input149/149-frozen-source.json": {
+      "bytes": 94220,
+      "sha256": "f98cbfc0aac642d0578d7f0efefb19c288632b73f7b5607b70e19a15e7963bb5"
+    },
+    "input149/149-integration-evidence.json": {
+      "bytes": 5334,
+      "sha256": "ceac1c5b826aafbf15624fd9bf26dee942c019b0b86c28e2aef6ff9eae1bc777"
+    },
+    "input149/149-integration-manifest.json": {
+      "bytes": 1883,
+      "sha256": "331015ee6223471d80ec7f960767392867941a043f3c330979522d9c55ac650c"
+    },
+    "input149/149-overlay-cpu-test-receipt.txt": {
+      "bytes": 1763,
+      "sha256": "e2f0f3de900a00125ca47c48980eea4093b9785911390380c8e385b68fd092f7"
+    },
+    "input149/149-post-build.json": {
+      "bytes": 3861,
+      "sha256": "703113f3ecc1c941bd6fe0fedc6500892df3a5489fa0c1bd2d9566a479e126e6"
+    },
+    "input149/149-right-scale-checker-build-only-receipt.json": {
+      "bytes": 483,
+      "sha256": "a69df23907240f7ad4b2e51baf3b15b4f6cc2c648c9d9e683baef48b66cfa4d2"
+    },
+    "input149/149-right-scale-checker-manifest.json": {
+      "bytes": 4386,
+      "sha256": "3619c4e2b5b5208548f36562ffcb1373cdbca4e41971171294b6e1345d67fe0e"
+    },
+    "input149/149-scope-review.json": {
+      "bytes": 3090,
+      "sha256": "ba9fbbaab66ef39fc6e83baad7c0a12983d07e705c622db08d3c2df630c25d2c"
+    },
+    "input149/149-source-build-receipt.json": {
+      "bytes": 96301,
+      "sha256": "62432124b2960344cf33fe4207e2987c0e28a53e46881dffc6ba4e103115a210"
+    },
+    "input149/149-source-overlay.json": {
+      "bytes": 4890,
+      "sha256": "e158080398d47e1974e34ffcd71af5cd7e563d0fd08c4eb4e53482e7f9a94906"
+    },
+    "input149/149-source-overlay.patch": {
+      "bytes": 31644,
+      "sha256": "e23ed54a067f2f2ad822d84172d21df225aa112e28307f0cbe6299a175da8a86"
+    },
+    "native-459-command-reference.json": {
+      "bytes": 6578,
+      "sha256": "597ec2bad9b2285c9153a6a6f8d0cc09b95355219543bc8536171c1fbbbe370b"
+    },
+    "native-461-command.json": {
+      "bytes": 8462,
+      "sha256": "eae0d64ac23356a65fb4aa5af62c5c34dec808d8f410b8e333e99cfbcaddd1d3"
+    },
+    "protocol.json": {
+      "bytes": 7950,
+      "sha256": "3805f0be58fce263cf8474918cf0ec32fa60a25d6781b58e957d0efd70e99e4a"
+    },
+    "source149-abi-review.json": {
+      "bytes": 3528,
+      "sha256": "28d33a3c6d66e4f9642191590802f4f4127828f4d38634915649b20943115bec"
+    }
+  }
+}

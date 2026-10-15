@@ -1,0 +1,14 @@
+{
+  "exit_code": 1,
+  "timed_out": false,
+  "termination_errors": [],
+  "error_type": "ValueError",
+  "reason": "requested executable is not identified by this build",
+  "schema": "numi.cardboard.native-run-receipt.v2",
+  "execution_started": false,
+  "source_inputs_unchanged": null,
+  "changed_inputs": null,
+  "stage": "input-seal",
+  "wall_seconds": 0.049790042045060545,
+  "finished_at_utc": "2026-10-15T23:18:41.741758+00:00"
+}

@@ -1,0 +1,12 @@
+test_base_action_and_reverse_composition_match_dense_reference (test_regional_rap_reference.RegionalRAPTransposeTests) ... ok
+test_base_restartzero_uses_modecount_not_padded_stride (test_regional_rap_reference.RegionalRAPTransposeTests) ... ok
+test_block_marker_fallback_fixed_mask_and_bad_generation (test_regional_rap_reference.RegionalRAPTransposeTests) ... ok
+test_factor_transpose_solve_uses_final_row_permutation (test_regional_rap_reference.RegionalRAPTransposeTests) ... ok
+test_invalid_augmentation_is_only_admitted_with_zero_extra_mode_words (test_regional_rap_reference.RegionalRAPTransposeTests) ... ok
+test_restart_augmentation_selected_only_for_current_restart_generation (test_regional_rap_reference.RegionalRAPTransposeTests) ... ok
+test_unhealthy_or_unselected_is_zero_and_invalid_RAP_falls_back_to_B (test_regional_rap_reference.RegionalRAPTransposeTests) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.004s
+
+OK

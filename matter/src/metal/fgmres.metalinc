@@ -4038,16 +4038,21 @@ kernel void nm_fgmres_build_tangent_fem_block_preconditioner(
     device const float* tangentCache [[buffer(17)]],
     device const uint* tangentCacheValid [[buffer(18)]],
     constant uint& useTangentCache [[buffer(19)]],
+    device const uint* selectedEnvironments [[buffer(20)]],
+    constant uint& onlySelectedEnvironments [[buffer(21)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint total = dispatch.environmentCount * dispatch.femNodeCount;
     if (global >= total || dispatch.femNodeCount == 0u) return;
+    const uint environment = global / dispatch.femNodeCount;
     inverseDiagonal[global] = float4(0.0f);
     const uint packedBase = global * 3u;
     inverseBlockRows[packedBase] = float4(0.0f);
     inverseBlockRows[packedBase + 1u] = float4(0.0f);
     inverseBlockRows[packedBase + 2u] = float4(0.0f);
-    const uint environment = global / dispatch.femNodeCount;
+    if (onlySelectedEnvironments != 0u &&
+        (environment >= dispatch.environmentCount ||
+         selectedEnvironments[environment] != 1u)) return;
     const NMIncidenceRangeGPU range = nodeRanges[global];
     if (range.objectIndex == NM_INVALID_INDEX ||
         range.objectIndex >= dispatch.objectCount) return;

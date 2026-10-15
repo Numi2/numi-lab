@@ -1,0 +1,1 @@
+Attempt 001 was not sealed. Its command assembly failed a CPU assertion because the new env selector was inserted between the previous --env flag and value. No command was written and no native process was started. Preserve this failed assembly attempt.

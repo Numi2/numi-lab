@@ -1,0 +1,62 @@
+{
+  "schema": "numi.matter.source-overlay.v1",
+  "overlay_id": "native-cgls-block-right-preconditioning-149-001",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-post-release-relaxation-145",
+  "base_source_hashes": {
+    "matter/src/runtime.mm": "1a9fcbdda74c921a36b6529033851ae47a460ce51c8373e3794cc8967c5eca7f",
+    "matter/src/metal/fgmres.metalinc": "e5ebc5a8942fc4b7b23ccc8beebc2b88370860b9544996eb882a9ace87111b90",
+    "matter/src/metal/base_cgls.metalinc": "439f702b6b92b913cff204ba3fd2a73757280cf68f9b7808c5cefcfa3de9b04e",
+    "matter/src/metal/base_cgls_runtime.metalinc": "185d575646d9aef59e60bb70b182caf60ca06cf08b161ca78c32d875e6d6a903"
+  },
+  "overlay_source_hashes": {
+    "matter/src/runtime.mm": "689995a9434dffa47699016971f0b239ac8a1e0e88a7ee3c01af3df84c11b201",
+    "matter/src/metal/fgmres.metalinc": "8e0b9da3e28e7997eea9ee9db37e89a0bf3b9753d98967c80221e328e5da2af8",
+    "matter/src/metal/base_cgls.metalinc": "127d05d6323085ad6abd160ff560b95008981e9421541e9677dddbb3fa253aec",
+    "matter/src/metal/base_cgls_runtime.metalinc": "185d575646d9aef59e60bb70b182caf60ca06cf08b161ca78c32d875e6d6a903"
+  },
+  "changed_source_files": [
+    "matter/src/runtime.mm",
+    "matter/src/metal/fgmres.metalinc",
+    "matter/src/metal/base_cgls.metalinc"
+  ],
+  "unchanged_context_files": [
+    "matter/src/metal/base_cgls_runtime.metalinc"
+  ],
+  "patch_path": "source-overlay.patch",
+  "patch_sha256": "5199e85db3c94d3bd13ed18bd6abfb624ad0a46791c922b03054b890dbb9f732",
+  "cpu_files": {
+    "cpu/right_cgls_reference.py": "2d7ba8666ae836a48b2bd314c2eaff09d8de01c96b233e112cc5a8c3f78a6eb6",
+    "cpu/test_right_cgls_reference.py": "bb43256690a6bc52e79bdba4b5ad622c7f71caa47d81c003c8b2c2f842e74c0c",
+    "cpu/test_source_contract.py": "d230a7377a51359fedf5d8feac8ad99bf764ddec8bfdfb7efc7ab11c165b98d5"
+  },
+  "cpu_test_receipt": {
+    "path": "cpu-test-receipt.txt",
+    "sha256": "748fb9bb18ff7c42ebbb673df22a77c17ba4acf54f2ff569f5e1891341b13f64",
+    "exit_code": 0,
+    "tests_passed": 13
+  },
+  "runtime_selector": {
+    "name": "NM_FEM_BASE_CGLS_RIGHT_SCALE",
+    "accepted_value": "block3",
+    "requires_existing": "NM_FEM_BASE_CGLS_ITERATIONS=32 or 64 and existing selected CGLS fallback scope",
+    "default": "disabled"
+  },
+  "kernel_api": {
+    "nm_fgmres_base_cgls_validate_right_scale": "0 dispatch, 1 candidate, 2 mask, 3 selected environment, 4 3-row/node inverse S, 5 per-environment errors; dispatch E*N threads",
+    "nm_fgmres_base_cgls_apply_right_scale": "0 U, 1 E, 2 transpose (0=S, 1=S^T), 3 mask, 4 row environment, 5 selected environment, 6 inverse S rows, 7 input, 8 output, 9 errors; dispatch U threads",
+    "nm_fgmres_base_cgls_initialize_vectors": "existing buffers 0-12; 13 useRightScale, 14 inverse S rows",
+    "nm_fgmres_build_tangent_fem_block_preconditioner": "existing buffers 0-19; 20 selected environment array, 21 onlySelected flag; legacy FGMRES binds dummy and zero"
+  },
+  "validation": {
+    "cpu_reference_and_source_contract_tests": "pass, 13/13",
+    "objective_c_metal_build": "not run; parent source integration build required",
+    "native_gpu_execution": "not run"
+  },
+  "scope_limits": [
+    "Direction-only conditioning experiment; physical operator, Armijo trials, final installer and original Newton certificate logic are unchanged.",
+    "Block S is built fresh from the current candidate, accepted history, scheduler, and existing production tangent builder. Invalid/free-mass/block/mask inputs fail closed.",
+    "Strict selected CGLS FEM scope and E<=2,N<=4096,T<=32768 remain inherited. Human, contact, multiphysics, and unsupported constraints are not added.",
+    "Root-reported native457 evidence was mixed: block right scaling improved the linear residual, but alpha=1 nonlinear residual was worse than unscaled (5.88705e-5 vs 4.83878e-5); no performance or convergence benefit is claimed.",
+    "CPU tests cover recurrence/layout/failure behavior only; production Metal parity and full-coupon outcomes remain unqualified."
+  ]
+}

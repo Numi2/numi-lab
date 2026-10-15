@@ -1,0 +1,31 @@
+{
+  "schema": "numi.cardboard.publication_cases.v1",
+  "cases": [
+    "analysis/native-cgls-block-right-preconditioning-overlay-149-001",
+    "analysis/native-cgls-block-right-preconditioning-overlay-149-002",
+    "analysis/native-cgls-right-scale-audit-463-001",
+    "analysis/native-cgls-right-scale-audit-463-002",
+    "analysis/native-cgls-right-scale-checker-149-001",
+    "analysis/native460-kernel-adjudication-001",
+    "analysis/native461-block-right-cgls-command-001",
+    "analysis/native461-block-right-cgls-command-002",
+    "analysis/native461-launch-guard-001",
+    "analysis/native462-463-right-scale-command-package-001",
+    "analysis/native462-launch-guard-001",
+    "analysis/native463-launch-guard-001",
+    "analysis/native463-launch-preflight-attempt-001",
+    "analysis/publication025-commit-and-push-001",
+    "analysis/publication025-independent-byte-audit-001",
+    "analysis/publication025-staged-source-check-001",
+    "analysis/publication026-archive-tool-001",
+    "analysis/regional-rap-transpose-reference-149-001",
+    "analysis/source149-right-block-cgls-integration-001",
+    "analysis/source149-right-scale-disabled462-parity-001",
+    "analysis/source149-root-independent-review-001",
+    "analysis/source149-root-integration-002",
+    "native/cgls-right-scale-kernel-check-460",
+    "solver/cgls-block-right-disabled-parity-462",
+    "solver/cgls-block-right-primary48-461",
+    "solver/cgls-block-right-primary48-463"
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "inputs": {
+    "/Users/home/cardboard-implementation-20261014/native/cgls-right-scale-kernel-check-460/receipt.json": "3c0204f276a2d849db10a761a4af421b03007a80088b55fdd779458c08121a70",
+    "/Users/home/cardboard-implementation-20261014/native/cgls-right-scale-kernel-check-460/identity-control/stdout.log": "494833846a2f0de785a54a6f9e52fdc403d199fc5d7cfd8e06d1bc413e3846ca",
+    "/Users/home/cardboard-implementation-20261014/native/cgls-right-scale-kernel-check-460/right-scale/stdout.log": "e7b34b4b8e7f8b61694abc64a9544bdd1bc464fa0c28ba25f574536886542527"
+  },
+  "files": {
+    "report.json": "8a71ac88ffb181e49381029688235c0054095ba367ec43bcf211390358ee74e2"
+  }
+}

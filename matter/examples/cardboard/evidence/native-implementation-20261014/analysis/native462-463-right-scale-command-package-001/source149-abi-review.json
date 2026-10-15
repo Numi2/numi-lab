@@ -1,0 +1,81 @@
+{
+  "schema": "numi.cardboard.source149_right_scale_abi_review.v1",
+  "reviewed_at_utc": "2026-10-15T23:17:43.577172+00:00",
+  "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-cgls-block-right-preconditioned-149",
+  "source_sha256": {
+    "runtime.mm": "f859b1ee45390dd844fcbd883356b931ab71d2c36260f53a4b03600b04fb3959",
+    "fgmres.metalinc": "8e0b9da3e28e7997eea9ee9db37e89a0bf3b9753d98967c80221e328e5da2af8",
+    "base_cgls.metalinc": "127d05d6323085ad6abd160ff560b95008981e9421541e9677dddbb3fa253aec"
+  },
+  "dispatch_inventory": {
+    "build_tangent_runtime_dispatch_count": 2,
+    "build_tangent_signature_slots": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21
+    ],
+    "legacy_builder_call": "slot13=production femPreconditioned; slots20/21=dummy plus onlySelected=0",
+    "selected_block3_builder_call": "slot13=private femBaseCGLSRightScalePhysical; slot16=private inverse block rows; slot20=selected environments; slot21=onlySelected=1",
+    "initializer_runtime_dispatch_count": 1,
+    "initializer_signature_slots": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14
+    ],
+    "initializer_block3": "slot13=1; slot14=private rightScaleRows",
+    "initializer_disabled": "slot13=0; slot14=valid dummy; kernel does not read rightScaleRows when useRightScale=0",
+    "direct_checker_initializer_calls": "identity checker binds 0 at slot13 and valid buffer at14; right-scale checker binds1 and explicit scale-row buffer"
+  },
+  "bounds_review": {
+    "CGLS_U": "fgmresLayout.unknownCount=2*E*N within admission scope",
+    "right_scale_rows_allocation": "multiplied(3*N), with multiplied(perEnvironment)=E*perEnvironment; exact allocation 3*E*N float4",
+    "block_builder_rows": "dispatch total E*N; each global writes rows at global*3 through +2; allocation matches",
+    "right_scale_physical_scratch": "allocated U float4; builder writes first E*N inverse-diagonal values; first subsequent S*p action writes all U rows before physical scratch is consumed",
+    "right_scale_layout_validation": "selected free nodes require finite positive mass, all-one mask xyz, row0.w=1 and rows1/2.w=0; tags1/3 require zero mask and zero S; unsupported tag2 rejects",
+    "block_failure": "missing/invalid inverse block leaves row0.w=0 and selected validator sets an error; CGLS install gate receives same error buffer"
+  },
+  "operator_math_review": {
+    "initializer": "s0=p0=S^T A^T b; r0=b; y0=0",
+    "iteration": "q=A(S p); y/r updates; then s=S^T A^T r and p=s+beta*p",
+    "final_physical_correction": "S*y is placed in private scratch, A is rerun, then existing installer/certificate path is used",
+    "transpose_formula": "row-major inverse S rows; transpose branch forms column dot-products"
+  },
+  "disabled_path": {
+    "selector": "NM_FEM_BASE_CGLS_RIGHT_SCALE absent by default",
+    "CGLS_scratch": "not allocated unless selector present; block3 requires existing CGLS fallback and exact iteration32/64",
+    "legacy_block_builder": "still binds slot20 dummy and slot21 false",
+    "physical_operator_or_certificate_modified": false
+  },
+  "result": "No remaining bounds/layout/transpose/initializer/installer/legacy-call issue found in read-only review. Native 149 selector parity and convergence remain unqualified."
+}

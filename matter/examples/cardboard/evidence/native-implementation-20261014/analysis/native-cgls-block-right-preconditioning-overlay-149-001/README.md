@@ -1,0 +1,9 @@
+# Bounded block-right-scaled CGLS overlay
+
+This external overlay is based exactly on source145 and adds an opt-in block-diagonal right scaling to the existing bounded CGLS direction experiment. The selector is `NM_FEM_BASE_CGLS_RIGHT_SCALE=block3`; it requires the existing CGLS 32- or 64-iteration selection and its existing pure-FEM Armijo fallback admission. The default path remains disabled.
+
+At each selected Newton state the runtime rebuilds the existing production 3x3 tangent block inverses from the current candidate, accepted material history, scheduler, and production tangent cache where enabled. CGLS then solves in coordinates `x = S y`: it forms `S^T A^T b`, uses `A(S p)` in the recurrence, applies `S^T` to each `A^T r`, and converts the final direction with `S y` before the existing final `A*x` check and installer. Both `S` and `S^T` are explicit; the physical operator is not changed. Unsupported tags, constraints, invalid mass, malformed masks, nonfinite or invalid inverse blocks are rejected through per-environment error bits. Selected-only block building initializes unselected rows too, so optional full-arena snapshots are deterministic.
+
+The source patch changes only `runtime.mm`, `fgmres.metalinc`, and `base_cgls.metalinc`; `base_cgls_runtime.metalinc` is retained as unchanged context. The Python FP32 reference and source-contract tests pass 13/13. No Objective-C++/Metal build or native GPU run was performed in this isolated package. Root-reported native457 results are mixed: the block scale improved the linear residual but worsened the alpha=1 nonlinear residual (5.88705e-5 vs 4.83878e-5), so this is not a qualified solver improvement. Native parity, fallback-history parity, and whole-coupon outcomes must be measured against a source-bound integrated build before adoption.
+
+See `source-overlay.json` for file hashes, exact kernel slots, test receipt, and scope boundaries.

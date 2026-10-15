@@ -1,0 +1,5 @@
+{
+  "stage": "device identity formatting",
+  "failure": "checkpoint manifest stores the bound program fingerprint as decimal string rather than hexadecimal",
+  "no_result_claim": true
+}
