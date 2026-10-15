@@ -1395,6 +1395,31 @@ public:
                         pack.indices,primitive.geometry.x,source->indexCount,pack.vertices.size());
                 }
             }
+            const std::map<unsigned,unsigned>* intercostalRibChannels=nullptr;
+            std::set<unsigned> appliedIntercostalRibVertices;
+            if(instance.identity.x==kOrganSurfaceSemantic&&instance.identity.w==313) {
+                const auto attachment=functional.intercostalRibVertexChannels.find(313);
+                if(attachment!=functional.intercostalRibVertexChannels.end()) {
+                    require(deformation==7&&instance.geometry.y==1&&torsoAnatomy!=nullptr&&
+                        instance.binding.z==MR_VISUAL_BINDING_ARTICULATED_LINK&&instance.binding.y==20,
+                        "NHA313 rib-channel attachment is not on its registered body-20 intercostal surface");
+                    const auto source=std::find_if(torsoAnatomy->records.begin(),torsoAnatomy->records.end(),
+                        [](const auto& row){return row.stableId==313;});
+                    require(source!=torsoAnatomy->records.end()&&source->layer==1&&source->bodyIndex==20&&
+                        source->vertexCount>0,
+                        "NHA313 rib-channel attachment source allocation is missing or mistyped");
+                    const auto& primitive=pack.primitives.at(instance.geometry.x);
+                    require(primitive.geometry.y==source->indexCount&&source->indexCount>0,
+                        "NHA313 rib-channel attachment topology differs from its ordered source row");
+                    base=numiHumanRestingSourceAllocationBase(
+                        torsoAnatomy->indices,source->firstIndex,source->firstVertex,source->vertexCount,
+                        pack.indices,primitive.geometry.x,source->indexCount,pack.vertices.size());
+                    for(const auto& [local,channel]:attachment->second)
+                        require(local<source->vertexCount&&channel<24,
+                            "NHA313 rib-channel attachment references a vertex or channel outside its owner");
+                    intercostalRibChannels=&attachment->second;
+                }
+            }
             for(unsigned v:vertices) {
                 require(!maps.at(v).influenceCount,"resting anatomy vertices have multiple owners");
                 maps[v].deformationKind=deformation;maps[v].chamberIndex=chamber;
@@ -1416,6 +1441,18 @@ public:
                     require(v>=base&&v-base<cardiac.size(),"passive heart pack order differs from source vertices");
                     maps[v].chamberIndex=cardiac.at(v-base).chamber;
                     maps[v].deformationWeight=cardiac.at(v-base).displacementAndWeight;
+                }
+                if(intercostalRibChannels) {
+                    require(v>=base,"NHA313 pack vertex precedes its source allocation");
+                    const unsigned local=v-base;
+                    const auto channel=intercostalRibChannels->find(local);
+                    if(channel!=intercostalRibChannels->end()) {
+                        require(maps[v].deformationKind==7&&appliedIntercostalRibVertices.insert(local).second,
+                            "NHA313 rib-channel attachment vertex is not a unique default intercostal map");
+                        maps[v].deformationKind=5;
+                        maps[v].chamberIndex=channel->second;
+                        maps[v].deformationWeight={};
+                    }
                 }
                 if(instance.identity.x==kSkinShellSemantic) {
                     maps[v].deformationKind=3;
@@ -1550,6 +1587,9 @@ public:
                         p,rotatePoint(instance.orientation,vertex.normalAndTangentSign),1);
                 }
             }
+            if(intercostalRibChannels)
+                require(appliedIntercostalRibVertices.size()==intercostalRibChannels->size(),
+                    "NHA313 rib-channel attachment contains unreferenced row-local vertices");
             // GPU skinning supplies world coordinates; identity keeps the exact
             // source semantic, stable ID and anatomical owner for inspection.
             instance.binding.z=MR_VISUAL_BINDING_WORLD;

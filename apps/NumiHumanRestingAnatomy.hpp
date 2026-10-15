@@ -14,6 +14,7 @@
 #include <vector>
 #include "NumiHumanRestingVascularBindings.hpp"
 #include "NumiHumanRestingCardiacIdentity.hpp"
+#include "NumiHumanRestingIntercostalRibAttachment.hpp"
 #include "metalrobo/numi_human_resting_common_attachment.hpp"
 
 // Asset admission for the functional anatomical surfaces. This only runs at
@@ -22,6 +23,9 @@ struct NumiHumanRestingAnatomy {
     MRHumanRestingAnatomyGPU gpu{};
     std::set<unsigned> lungs,pleura,diaphragm,intercostals,sternum;
     std::map<unsigned,unsigned> ribs;
+    // Source-bound per-vertex overrides for the existing rib-kind visual map.
+    // Keys are NHA stable IDs, then row-local vertex ID -> rib channel index.
+    std::map<unsigned,std::map<unsigned,unsigned>> intercostalRibVertexChannels;
     std::array<unsigned,4> cavities{};
     std::map<unsigned,float> enclosedVolumes;
     std::map<unsigned,float> respiratorySweptAreas;
@@ -330,6 +334,29 @@ struct NumiHumanRestingAnatomy {
         intercostals.insert(intercostalIDs.begin(),intercostalIDs.end());sternum.insert(sternumIDs.begin(),sternumIDs.end());
         for(unsigned i=0;i<ribIDs.size();++i)ribs.emplace(ribIDs[i],i);
         require(ribs.size()==24,"resting rib bindings contain duplicate IDs");
+        bool hasIntercostalRibAttachment=false;
+        for(id rawKey in bindings)if([rawKey isKindOfClass:NSString.class]&&
+            [(NSString*)rawKey hasPrefix:@"intercostal_313_rib"])
+            hasIntercostalRibAttachment=true;
+        if(hasIntercostalRibAttachment) {
+            const auto row313It=std::find_if(anatomy.records.begin(),anatomy.records.end(),
+                [](const auto& record){return record.stableId==313;});
+            const unsigned rowID=row313It==anatomy.records.end()?0:row313It->stableId;
+            const unsigned rowBody=row313It==anatomy.records.end()?0:row313It->bodyIndex;
+            const unsigned rowLayer=row313It==anatomy.records.end()?0:row313It->layer;
+            const unsigned rowVertexCount=row313It==anatomy.records.end()?0:row313It->vertexCount;
+            std::map<unsigned,unsigned> boneBodyByStableId;
+            for(const auto& record:bones.records)
+                require(boneBodyByStableId.emplace(record.stableId,record.bodyIndex).second,
+                    "intercostal attachment bone inventory has duplicate stable IDs");
+            const NumiHumanIntercostalRibAttachmentContext attachmentContext{
+                rowID,rowBody,rowLayer,rowVertexCount,bones.sourceOwnerBindingsVerified,&ribs,
+                &boneBodyByStableId};
+            auto overrides=numiHumanParseIntercostalRibAttachments(bindings,provenance,
+                hash,boneHash,attachmentContext);
+            if(!overrides.empty())
+                intercostalRibVertexChannels.emplace(313,std::move(overrides));
+        }
         require(lungIDs.size()==5,"resting anatomy requires five lobes");
         lungs.insert(lungIDs.begin(),lungIDs.end());pleura.insert(pleuraIDs.begin(),pleuraIDs.end());
         require(lungs.size()==5,"resting lung stable IDs are duplicated");std::copy(chamberIDs.begin(),chamberIDs.end(),cavities.begin());
