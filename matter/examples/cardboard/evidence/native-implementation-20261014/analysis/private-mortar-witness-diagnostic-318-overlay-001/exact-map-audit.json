@@ -1,0 +1,171 @@
+{
+  "schema": "numi.cardboard.mortar_exact_map_audit.v1",
+  "scope": "authored input maps only; no Metal partition or CCD claim",
+  "cases": [
+    {
+      "case": "three_patch_covered_crossing",
+      "source_log_line": 14,
+      "face_count": 3,
+      "captured_maps_side_a_equals_side_b_bitwise": true,
+      "all_mapped_vertices_within_parent_simplex_exactly": true,
+      "parent_xy_barycentric_area": "1/2",
+      "patch_areas": [
+        "5592405/33554432",
+        "11184811/67108864",
+        "11184811/67108864"
+      ],
+      "patch_area_sum": "1/2",
+      "sum_area_equals_parent": true,
+      "sum_pairwise_intersection_areas": "0/1",
+      "pairwise_intersections": [
+        {
+          "faces": [
+            0,
+            1
+          ],
+          "intersection_area": "0/1"
+        },
+        {
+          "faces": [
+            0,
+            2
+          ],
+          "intersection_area": "0/1"
+        },
+        {
+          "faces": [
+            1,
+            2
+          ],
+          "intersection_area": "0/1"
+        }
+      ],
+      "xyz_vertex_weight_sums": [
+        "1/1",
+        "1/1",
+        "33554433/33554432",
+        "1/1",
+        "1/1",
+        "33554433/33554432",
+        "1/1",
+        "1/1",
+        "33554433/33554432"
+      ],
+      "all_xyz_weight_sums_equal_one": false,
+      "exact_map_conclusion": "zero planar complement and no positive-area overlap in exact rational interpretation of captured binary32 x/y maps",
+      "input_status": {
+        "code": 6,
+        "environment": 0,
+        "object_index": 0,
+        "failing_index": 0,
+        "completed_microsteps": 0,
+        "fgmres_iterations": 0,
+        "contact_count": 0,
+        "event_count": 0,
+        "diagnostics": [
+          0,
+          4,
+          0,
+          0
+        ]
+      },
+      "input_record_sha256": "83976959ffc93a07ff31d85e741e483ea72054c83ab9066441e2de5e7cfa64a1",
+      "stdout_sha256": "276aea2f30ce703d6308f4d82ef256a284081ca18e3873b1195ec1fe2bf2708c"
+    },
+    {
+      "case": "four_patch_matched_crossing",
+      "source_log_line": 15,
+      "face_count": 4,
+      "captured_maps_side_a_equals_side_b_bitwise": true,
+      "all_mapped_vertices_within_parent_simplex_exactly": true,
+      "parent_xy_barycentric_area": "1/2",
+      "patch_areas": [
+        "1/8",
+        "1/8",
+        "1/8",
+        "1/8"
+      ],
+      "patch_area_sum": "1/2",
+      "sum_area_equals_parent": true,
+      "sum_pairwise_intersection_areas": "0/1",
+      "pairwise_intersections": [
+        {
+          "faces": [
+            0,
+            1
+          ],
+          "intersection_area": "0/1"
+        },
+        {
+          "faces": [
+            0,
+            2
+          ],
+          "intersection_area": "0/1"
+        },
+        {
+          "faces": [
+            0,
+            3
+          ],
+          "intersection_area": "0/1"
+        },
+        {
+          "faces": [
+            1,
+            2
+          ],
+          "intersection_area": "0/1"
+        },
+        {
+          "faces": [
+            1,
+            3
+          ],
+          "intersection_area": "0/1"
+        },
+        {
+          "faces": [
+            2,
+            3
+          ],
+          "intersection_area": "0/1"
+        }
+      ],
+      "xyz_vertex_weight_sums": [
+        "1/1",
+        "1/1",
+        "1/1",
+        "1/1",
+        "1/1",
+        "1/1",
+        "1/1",
+        "1/1",
+        "1/1",
+        "1/1",
+        "1/1",
+        "1/1"
+      ],
+      "all_xyz_weight_sums_equal_one": true,
+      "exact_map_conclusion": "zero planar complement and no positive-area overlap in exact rational interpretation of captured binary32 x/y maps",
+      "input_status": {
+        "code": 6,
+        "environment": 0,
+        "object_index": 0,
+        "failing_index": 0,
+        "completed_microsteps": 0,
+        "fgmres_iterations": 0,
+        "contact_count": 0,
+        "event_count": 0,
+        "diagnostics": [
+          0,
+          4,
+          0,
+          0
+        ]
+      },
+      "input_record_sha256": "892bcb9fa2be048991666ec8268df35eb2251f222022dd7cb0ea14b30a5f9fc9",
+      "stdout_sha256": "276aea2f30ce703d6308f4d82ef256a284081ca18e3873b1195ec1fe2bf2708c"
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "schema": "numi.cardboard.lossless-actual-operator-package.v1",
+  "source_run": "/Users/home/cardboard-implementation-20261014/solver/current-newton-augmentation-off-bounded-317",
+  "receipt": {
+    "schema": "numi.cardboard.native-run-receipt.v2",
+    "execution_started": true,
+    "source_inputs_unchanged": true,
+    "changed_inputs": [],
+    "exit_code": 2,
+    "timed_out": false,
+    "termination_errors": [],
+    "wall_seconds": 5.610499124974012,
+    "finished_at_utc": "2026-10-15T12:14:08.517523+00:00"
+  },
+  "compressed_name": "operator-capture.jsonl.gz",
+  "compressed_bytes": 4164898,
+  "compressed_sha256": "db34a532f11b1f4113bc2aef94576afb4d94f3e24cc8970a60ea155972882f97",
+  "raw_bytes": 34574053,
+  "raw_sha256": "f06490bd5489b6a342eea5d068f9bb85ff3bc9b17661ed36ffeaaf6b7771842f",
+  "records": 5606,
+  "root": 0,
+  "newton_iteration": 0,
+  "complete_cycle": false,
+  "accepted_checkpoint": false,
+  "physical_validation": false
+}

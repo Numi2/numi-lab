@@ -1,0 +1,559 @@
+--- a/matter/CMakeLists.txt
++++ b/matter/CMakeLists.txt
+@@ -572,6 +572,7 @@
+             include/numi/matter/accepted_state_proof_gpu.h
+             include/numi/matter/shared.h
+             include/numi/matter/fiber_exp_linear.h
++            include/numi/matter/mortar_shared_edge_guard.h
+             include/numi/matter/human_equality_gpu.h
+             include/numi/matter/human_limits_gpu.h
+             "${CMAKE_CURRENT_SOURCE_DIR}/../include/metalrobo/engine_types.h"
+--- a/matter/src/metal/contact.metalinc
++++ b/matter/src/metal/contact.metalinc
+@@ -1,4 +1,5 @@
+ #include "numi/matter/human_support_precision_gpu.h"
++#include "numi/matter/mortar_shared_edge_guard.h"
+ 
+ namespace numi_matter_metal {
+ 
+@@ -1323,6 +1324,19 @@
+     return isfinite(twiceArea) ? 0.5f * twiceArea : INFINITY;
+ }
+ 
++inline bool mortarExactOppositeSharedEdge(
++    thread const float3* triangleA,
++    thread const float3* triangleB
++) {
++    NMMortarGuardPoint3 a0 = {triangleA[0].x, triangleA[0].y, triangleA[0].z};
++    NMMortarGuardPoint3 a1 = {triangleA[1].x, triangleA[1].y, triangleA[1].z};
++    NMMortarGuardPoint3 a2 = {triangleA[2].x, triangleA[2].y, triangleA[2].z};
++    NMMortarGuardPoint3 b0 = {triangleB[0].x, triangleB[0].y, triangleB[0].z};
++    NMMortarGuardPoint3 b1 = {triangleB[1].x, triangleB[1].y, triangleB[1].z};
++    NMMortarGuardPoint3 b2 = {triangleB[2].x, triangleB[2].y, triangleB[2].z};
++    return nmMortarExactOppositeSharedEdge(a0, a1, a2, b0, b1, b2);
++}
++
+ inline bool appendMortarPolygonTriangulation(
+     thread NMMortarContactPartition& partition,
+     thread const float3* polygon,
+@@ -1363,8 +1377,10 @@
+     const uint gridNodeCount,
+     device const NMCohesiveFaceGPU* faces,
+     const uint faceBase,
+-    thread NMMortarContactPartition& partition
+-) {
++    thread NMMortarContactPartition& partition,
++    thread uint& failureStage
++) {
++    failureStage = 0u;
+     partition.count = 1u;
+     NMMortarContactSubtriangle parent{};
+     parent.bary[0] = float2(1.0f, 0.0f);
+@@ -1373,7 +1389,10 @@
+     parent.coveredByCohesive = 0u;
+     parent.coveredPatchIndex = NM_INVALID_INDEX;
+     partition.triangle[0] = parent;
+-    if (patchSet.count > kMaxMortarPatchesPerPrimitivePair) return false;
++    if (patchSet.count > kMaxMortarPatchesPerPrimitivePair) {
++        failureStage = 1u;
++        return false;
++    }
+ 
+     float3 patchCoordinates[kMaxMortarPatchesPerPrimitivePair][3];
+     for (uint patchIndex = 0u; patchIndex < patchSet.count; ++patchIndex) {
+@@ -1386,31 +1405,49 @@
+                 face, sideB, primitive, gridNodeCount,
+                 patchCoordinates[patchIndex][0],
+                 patchCoordinates[patchIndex][1],
+-                patchCoordinates[patchIndex][2])) return false;
++                patchCoordinates[patchIndex][2])) {
++            failureStage = 2u;
++            return false;
++        }
+         const float signedArea = crossMortarBary2(
+             patchCoordinates[patchIndex][1] - patchCoordinates[patchIndex][0],
+             patchCoordinates[patchIndex][2] - patchCoordinates[patchIndex][0]);
+-        if (!isfinite(signedArea) || abs(signedArea) <= 1.0e-10f)
++        if (!isfinite(signedArea) || abs(signedArea) <= 1.0e-10f) {
++            failureStage = 3u;
+             return false;
++        }
+         for (uint vertexIndex = 0u; vertexIndex < 3u; ++vertexIndex) {
+             const float3 bary = patchCoordinates[patchIndex][vertexIndex];
+             if (any(bary < float3(-1.0e-5f)) ||
+                 any(bary > float3(1.00001f)) ||
+-                abs(dot(bary, float3(1.0f)) - 1.0f) > 1.0e-4f)
++                abs(dot(bary, float3(1.0f)) - 1.0f) > 1.0e-4f) {
++                failureStage = 4u;
+                 return false;
++            }
+         }
+         for (uint prior = 0u; prior < patchIndex; ++prior) {
+             const float overlap = mortarTriangleIntersectionArea(
+                 patchCoordinates[prior], patchCoordinates[patchIndex]);
+-            if (!isfinite(overlap) ||
+-                overlap > kMortarPatchOverlapAreaTolerance) return false;
++            if (!isfinite(overlap)) {
++                failureStage = 5u;
++                return false;
++            }
++            if (overlap > kMortarPatchOverlapAreaTolerance &&
++                !mortarExactOppositeSharedEdge(
++                    patchCoordinates[prior], patchCoordinates[patchIndex])) {
++                failureStage = 6u;
++                return false;
++            }
+         }
+ 
+         NMMortarContactPartition next{};
+         for (uint cell = 0u; cell < partition.count; ++cell) {
+             const NMMortarContactSubtriangle source = partition.triangle[cell];
+             if (source.coveredByCohesive != 0u) {
+-                if (next.count >= kMaxMortarPartitionTriangles) return false;
++                if (next.count >= kMaxMortarPartitionTriangles) {
++                    failureStage = 7u;
++                    return false;
++                }
+                 next.triangle[next.count++] = source;
+             }
+         }
+@@ -1420,7 +1457,10 @@
+             patchCoordinates[patchIndex][2]
+         };
+         if (!appendMortarPolygonTriangulation(
+-                next, coveredPolygon, 3u, 1u, patchRef.faceIndex)) return false;
++                next, coveredPolygon, 3u, 1u, patchRef.faceIndex)) {
++            failureStage = 8u;
++            return false;
++        }
+ 
+         for (uint cell = 0u; cell < partition.count; ++cell) {
+             const NMMortarContactSubtriangle source = partition.triangle[cell];
+@@ -1438,16 +1478,25 @@
+                     patchCoordinates[patchIndex][outsideEdge],
+                     patchCoordinates[patchIndex][nextEdge],
+                     orientation, false, clippedPolygon);
+-                if (outsideCount > 6u) return false;
++                if (outsideCount > 6u) {
++                    failureStage = 9u;
++                    return false;
++                }
+                 if (!appendMortarPolygonTriangulation(
+                         next, clippedPolygon, outsideCount, 0u,
+-                        NM_INVALID_INDEX)) return false;
++                        NM_INVALID_INDEX)) {
++                    failureStage = 10u;
++                    return false;
++                }
+                 const uint intersectionCount = clipMortarBaryPolygon(
+                     insidePolygon, insideCount,
+                     patchCoordinates[patchIndex][outsideEdge],
+                     patchCoordinates[patchIndex][nextEdge],
+                     orientation, true, clippedPolygon);
+-                if (intersectionCount > 6u) return false;
++                if (intersectionCount > 6u) {
++                    failureStage = 11u;
++                    return false;
++                }
+                 insideCount = intersectionCount;
+                 for (uint vertexIndex = 0u; vertexIndex < insideCount; ++vertexIndex)
+                     insidePolygon[vertexIndex] = clippedPolygon[vertexIndex];
+@@ -1455,11 +1504,18 @@
+             }
+         }
+         if (next.count == 0u ||
+-            next.count > kMaxMortarPartitionTriangles) return false;
++            next.count > kMaxMortarPartitionTriangles) {
++            failureStage = 12u;
++            return false;
++        }
+         partition = next;
+     }
+-    return partition.count > 0u &&
+-        partition.count <= kMaxMortarPartitionTriangles;
++    if (partition.count == 0u ||
++        partition.count > kMaxMortarPartitionTriangles) {
++        failureStage = 13u;
++        return false;
++    }
++    return true;
+ }
+ 
+ inline bool activeMixedCohesivePatchesForPrimitivePair(
+@@ -1591,18 +1647,24 @@
+     thread NMMortarPairedBoundary& boundary
+ ) {
+     boundary.valid = 0u;
++    const float tolerance2 = kMortarPairedBoundaryBaryTolerance *
++        kMortarPairedBoundaryBaryTolerance;
+     uint commonCount = 0u;
+     uint matchedA[2] = {NM_INVALID_INDEX, NM_INVALID_INDEX};
+     uint matchedB[2] = {NM_INVALID_INDEX, NM_INVALID_INDEX};
+-    const float tolerance2 =
+-        kMortarPairedBoundaryBaryTolerance *
+-        kMortarPairedBoundaryBaryTolerance;
+     for (uint a = 0u; a < 3u; ++a) {
+         for (uint b = 0u; b < 3u; ++b) {
+-            if (dot(leftA[a].xy - leftB[b].xy,
+-                    leftA[a].xy - leftB[b].xy) > tolerance2 ||
+-                dot(rightA[a].xy - rightB[b].xy,
+-                    rightA[a].xy - rightB[b].xy) > tolerance2) continue;
++            const NMMortarGuardPoint3 leftPointA = {
++                leftA[a].x, leftA[a].y, leftA[a].z};
++            const NMMortarGuardPoint3 rightPointA = {
++                rightA[a].x, rightA[a].y, rightA[a].z};
++            const NMMortarGuardPoint3 leftPointB = {
++                leftB[b].x, leftB[b].y, leftB[b].z};
++            const NMMortarGuardPoint3 rightPointB = {
++                rightB[b].x, rightB[b].y, rightB[b].z};
++            if (!nmMortarGuardExactPairedVertex(
++                    leftPointA, rightPointA, leftPointB, rightPointB))
++                continue;
+             bool duplicate = false;
+             for (uint prior = 0u; prior < commonCount; ++prior)
+                 duplicate = duplicate ||
+@@ -2208,14 +2270,22 @@
+     NMMortarContactPartition leftPartition{};
+     NMMortarContactPartition rightPartition{};
+     bool validPartitions = true;
++    bool leftPartitionValid = true;
++    bool rightPartitionValid = true;
++    uint leftPartitionFailureStage = 0u;
++    uint rightPartitionFailureStage = 0u;
+     if (mortarPatches.count > 0u) {
+         const uint faceBase = environment * dispatch.cohesiveFaceCount;
+-        validPartitions = buildMortarContactPartition(
+-                mortarPatches, true, left, dispatch.gridNodeCount,
+-                cohesiveFaces, faceBase, leftPartition) &&
++        leftPartitionValid = buildMortarContactPartition(
++            mortarPatches, true, left, dispatch.gridNodeCount,
++            cohesiveFaces, faceBase, leftPartition,
++            leftPartitionFailureStage);
++        rightPartitionValid = leftPartitionValid &&
+             buildMortarContactPartition(
+                 mortarPatches, false, right, dispatch.gridNodeCount,
+-                cohesiveFaces, faceBase, rightPartition);
++                cohesiveFaces, faceBase, rightPartition,
++                rightPartitionFailureStage);
++        validPartitions = leftPartitionValid && rightPartitionValid;
+     } else {
+         const float3 unit[3] = {
+             float3(1.0f, 0.0f, 0.0f),
+@@ -2242,10 +2312,14 @@
+         environment * dispatch.cohesiveFaceCount,
+         start, finish, start + 3u, finish + 3u, collisionThickness, sweep);
+     if (!validPartitions || !certified) {
++        const uint failureCode = !leftPartitionValid
++            ? leftPartitionFailureStage
++            : (!rightPartitionValid
++                ? 100u + rightPartitionFailureStage : 200u);
+         recordFailure(statuses[environment], NM_STATUS_CONTACT_FAILURE,
+             left.nodesAndObject.w, slot,
+             float4(float(candidate.identity.x), float(candidate.identity.y),
+-                   validPartitions ? 1.0f : 0.0f, 6.0f));
++                   float(failureCode), 6.0f));
+         return;
+     }
+     if (sweep.found != 0u) {
+@@ -3326,12 +3400,19 @@
+             NMMortarContactPartition leftPartition{};
+             NMMortarContactPartition rightPartition{};
+             const uint faceBase = environment * dispatch.cohesiveFaceCount;
+-            const bool validPartitions = buildMortarContactPartition(
++            uint leftPartitionFailureStage = 0u;
++            uint rightPartitionFailureStage = 0u;
++            const bool leftPartitionValid = buildMortarContactPartition(
+                     mortarPatches, true, left, dispatch.gridNodeCount,
+-                    cohesiveFaces, faceBase, leftPartition) &&
++                    cohesiveFaces, faceBase, leftPartition,
++                    leftPartitionFailureStage);
++            const bool rightPartitionValid = leftPartitionValid &&
+                 buildMortarContactPartition(
+                     mortarPatches, false, right, dispatch.gridNodeCount,
+-                    cohesiveFaces, faceBase, rightPartition);
++                    cohesiveFaces, faceBase, rightPartition,
++                    rightPartitionFailureStage);
++            const bool validPartitions =
++                leftPartitionValid && rightPartitionValid;
+             NMMortarContactData selected{};
+             const bool certified = validPartitions &&
+                 findMortarComplementContact(
+--- a/matter/tools/cardboard_full_contact_armijo_check.mm
++++ b/matter/tools/cardboard_full_contact_armijo_check.mm
+@@ -1998,11 +1998,13 @@
+     fullyCoveredCrossing,
+     partialUncoveredCrossing,
+     partialCoveredCrossing,
++    partialUncoveredNearContact,
+     threePatchCoveredCrossing,
+     fourPatchMatchedCrossing,
+     threePatchBoundaryCommonTranslation,
+     threePatchBoundarySeparating,
+     threePatchBoundarySlidingCrossing,
++    threePatchBoundaryStaticOffEdgeOverlap,
+     threePatchUncoveredCrossing,
+     threePatchCrossIdentityCrossing,
+     threePatchOverlapRejected,
+@@ -2081,10 +2083,12 @@
+         fixtureCase == PrivateSelfSweepCase::fullyCoveredCrossing ||
+         fixtureCase == PrivateSelfSweepCase::partialUncoveredCrossing ||
+         fixtureCase == PrivateSelfSweepCase::partialCoveredCrossing ||
++        fixtureCase == PrivateSelfSweepCase::partialUncoveredNearContact ||
+         fixtureCase == PrivateSelfSweepCase::threePatchCoveredCrossing ||
+         fixtureCase == PrivateSelfSweepCase::threePatchBoundaryCommonTranslation ||
+         fixtureCase == PrivateSelfSweepCase::threePatchBoundarySeparating ||
+         fixtureCase == PrivateSelfSweepCase::threePatchBoundarySlidingCrossing ||
++        fixtureCase == PrivateSelfSweepCase::threePatchBoundaryStaticOffEdgeOverlap ||
+         fixtureCase == PrivateSelfSweepCase::fourPatchMatchedCrossing ||
+         fixtureCase == PrivateSelfSweepCase::threePatchUncoveredCrossing ||
+         fixtureCase == PrivateSelfSweepCase::threePatchCrossIdentityCrossing ||
+@@ -2094,6 +2098,7 @@
+         fixtureCase == PrivateSelfSweepCase::threePatchBoundaryCommonTranslation ||
+         fixtureCase == PrivateSelfSweepCase::threePatchBoundarySeparating ||
+         fixtureCase == PrivateSelfSweepCase::threePatchBoundarySlidingCrossing ||
++        fixtureCase == PrivateSelfSweepCase::threePatchBoundaryStaticOffEdgeOverlap ||
+         fixtureCase == PrivateSelfSweepCase::threePatchUncoveredCrossing ||
+         fixtureCase == PrivateSelfSweepCase::threePatchCrossIdentityCrossing ||
+         fixtureCase == PrivateSelfSweepCase::threePatchOverlapRejected;
+@@ -2102,6 +2107,7 @@
+     const bool partialMortar =
+         fixtureCase == PrivateSelfSweepCase::partialUncoveredCrossing ||
+         fixtureCase == PrivateSelfSweepCase::partialCoveredCrossing ||
++        fixtureCase == PrivateSelfSweepCase::partialUncoveredNearContact ||
+         fixtureCase == PrivateSelfSweepCase::threePatchUncoveredCrossing;
+     const bool separatedMiss =
+         fixtureCase == PrivateSelfSweepCase::separatedMiss;
+@@ -2141,11 +2147,20 @@
+             fixtureCase == PrivateSelfSweepCase::threePatchBoundaryCommonTranslation;
+         const bool boundarySliding =
+             fixtureCase == PrivateSelfSweepCase::threePatchBoundarySlidingCrossing;
+-        const float leftStartZ = boundaryCommonTranslation || boundarySeparating || boundarySliding
+-            ? 0.0f : (initiallyTouching ? 0.0f : 2.0e-4f);
++        const bool boundaryStaticOffEdgeOverlap =
++            fixtureCase == PrivateSelfSweepCase::threePatchBoundaryStaticOffEdgeOverlap;
++        const bool partialCovered =
++            fixtureCase == PrivateSelfSweepCase::partialCoveredCrossing;
++        const bool partialUncoveredNearContact =
++            fixtureCase == PrivateSelfSweepCase::partialUncoveredNearContact;
++        const bool partialCase = partialCovered || partialUncoveredNearContact;
++        const float leftStartZ = partialCase
++            ? 0.0f
++            : (boundaryCommonTranslation || boundarySeparating || boundarySliding
++                ? 0.0f : (initiallyTouching ? 0.0f : 2.0e-4f));
+         float leftEndZ = 2.0e-4f;
+-        float rightStartZ = leftStartZ;
+-        float rightEndZ = leftEndZ;
++        float rightStartZ = partialCase ? 2.0e-4f : leftStartZ;
++        float rightEndZ = 2.0e-4f;
+         if (fixtureCase == PrivateSelfSweepCase::unbondedCrossing ||
+             fixtureCase == PrivateSelfSweepCase::fullyCoveredCrossing ||
+             fixtureCase == PrivateSelfSweepCase::partialUncoveredCrossing ||
+@@ -2155,9 +2170,20 @@
+             fixtureCase == PrivateSelfSweepCase::threePatchCrossIdentityCrossing ||
+             fixtureCase == PrivateSelfSweepCase::threePatchOverlapRejected)
+             leftEndZ = rightEndZ = -2.0e-4f;
+-        else if (fixtureCase == PrivateSelfSweepCase::partialCoveredCrossing &&
+-                 featureIndex == 0u)
+-            leftEndZ = rightEndZ = -2.0e-4f;
++        else if (partialCovered) {
++            // The right sheet remains 0.2 mm above the left sheet. Only the
++            // covered corner moves through it; for barycentric x < 0.35, the
++            // largest left displacement is 0.14 mm, leaving at least 60 um
++            // clearance in the entire uncovered complement.
++            leftEndZ = featureIndex == 0u ? 4.0e-4f : 0.0f;
++        } else if (partialUncoveredNearContact) {
++            // Move only the vertex whose first barycentric coordinate is
++            // zero; it lies outside the active patch.
++            // The initial sheets are separated by 0.2 mm, and the endpoint
++            // crosses in the complement while maintaining at least 18 um
++            // clearance over the active patch (whose edge has y <= 0.65).
++            leftEndZ = featureIndex == 1u ? 2.8e-4f : 0.0f;
++        }
+         if (boundaryCommonTranslation) {
+             // Both parent triangles share the exact same translation under
+             // linear endpoint interpolation, so their common boundary stays
+@@ -2172,7 +2198,8 @@
+             rightStartZ = 2.0e-4f;
+             rightEndZ = -2.0e-4f;
+         }
+-        const float lateral = separatedMiss ? 2.0e-2f : 0.0f;
++        const float lateral = separatedMiss ? 2.0e-2f :
++            (boundaryStaticOffEdgeOverlap ? 4.0e-9f : 0.0f);
+         base[featureIndex + 5u].positionAndMass =
+             {point[0] + lateral, point[1], rightStartZ, 1.0f};
+         const float slideTangentX = -0.894427191f;
+@@ -2650,11 +2677,13 @@
+         case PrivateSelfSweepCase::fullyCoveredCrossing: return "fully_covered_crossing";
+         case PrivateSelfSweepCase::partialUncoveredCrossing: return "partial_uncovered_crossing";
+         case PrivateSelfSweepCase::partialCoveredCrossing: return "partial_covered_crossing";
++        case PrivateSelfSweepCase::partialUncoveredNearContact: return "partial_uncovered_near_contact";
+         case PrivateSelfSweepCase::threePatchCoveredCrossing: return "three_patch_covered_crossing";
+         case PrivateSelfSweepCase::fourPatchMatchedCrossing: return "four_patch_matched_crossing";
+         case PrivateSelfSweepCase::threePatchBoundaryCommonTranslation: return "three_patch_boundary_common_translation";
+         case PrivateSelfSweepCase::threePatchBoundarySeparating: return "three_patch_boundary_separating";
+         case PrivateSelfSweepCase::threePatchBoundarySlidingCrossing: return "three_patch_boundary_sliding_crossing";
++        case PrivateSelfSweepCase::threePatchBoundaryStaticOffEdgeOverlap: return "three_patch_boundary_static_off_edge_overlap";
+         case PrivateSelfSweepCase::threePatchUncoveredCrossing: return "three_patch_uncovered_crossing";
+         case PrivateSelfSweepCase::threePatchCrossIdentityCrossing: return "three_patch_cross_identity_crossing";
+         case PrivateSelfSweepCase::threePatchOverlapRejected: return "three_patch_overlap_rejected";
+@@ -2724,7 +2753,7 @@
+         std::uint32_t expectedCode;
+         const char* expectation;
+     };
+-    const std::array<CaseExpectation, 14> cases{{
++    const std::array<CaseExpectation, 16> cases{{
+         {PrivateSelfSweepCase::unbondedCrossing, NM_STATUS_CONTACT_FAILURE,
+          "reject unbonded swept crossing"},
+         {PrivateSelfSweepCase::separatedMiss, NM_STATUS_SUCCESS,
+@@ -2735,6 +2764,8 @@
+          "reject crossing through partial-patch complement"},
+         {PrivateSelfSweepCase::partialCoveredCrossing, NM_STATUS_SUCCESS,
+          "exclude crossing confined to partial active mortar patch"},
++        {PrivateSelfSweepCase::partialUncoveredNearContact, NM_STATUS_CONTACT_FAILURE,
++         "reject uncovered-complement crossing from a positive initial gap"},
+         {PrivateSelfSweepCase::threePatchCoveredCrossing, NM_STATUS_SUCCESS,
+          "accept closure across three matched mortar patches"},
+         {PrivateSelfSweepCase::fourPatchMatchedCrossing, NM_STATUS_SUCCESS,
+@@ -2745,6 +2776,8 @@
+          "accept paired shared-edge separation"},
+         {PrivateSelfSweepCase::threePatchBoundarySlidingCrossing, NM_STATUS_CONTACT_FAILURE,
+          "reject cross-patch collision during tangential slide"},
++        {PrivateSelfSweepCase::threePatchBoundaryStaticOffEdgeOverlap, NM_STATUS_CONTACT_FAILURE,
++         "reject initial off-edge cross-patch overlap under zero common translation"},
+         {PrivateSelfSweepCase::threePatchUncoveredCrossing, NM_STATUS_CONTACT_FAILURE,
+          "reject crossing through three-patch union complement"},
+         {PrivateSelfSweepCase::threePatchCrossIdentityCrossing, NM_STATUS_CONTACT_FAILURE,
+--- /dev/null
++++ b/matter/include/numi/matter/mortar_shared_edge_guard.h
+@@ -0,0 +1,131 @@
++#ifndef NUMI_MATTER_MORTAR_SHARED_EDGE_GUARD_H
++#define NUMI_MATTER_MORTAR_SHARED_EDGE_GUARD_H
++
++// A deliberately conservative predicate shared by the Metal partitioner and
++// its CPU controls. It proves that two mapped triangles have exactly the
++// same two FP32 edge endpoints and that their third vertices lie strictly on
++// opposite sides. The orientation test is filtered: uncertain/degenerate
++// cases return false and remain subject to the ordinary clipping rejection.
++struct NMMortarGuardPoint3 {
++    float x;
++    float y;
++    float z;
++};
++
++inline float nmMortarGuardAbs(const float value) {
++    return value < 0.0f ? -value : value;
++}
++
++inline bool nmMortarGuardFinite(const float value) {
++    return value == value &&
++        nmMortarGuardAbs(value) <= 3.402823466e+38f;
++}
++
++inline bool nmMortarGuardSamePoint(
++    const NMMortarGuardPoint3 a,
++    const NMMortarGuardPoint3 b
++) {
++    return a.x == b.x && a.y == b.y && a.z == b.z;
++}
++
++// A page-boundary correspondence is admitted only when the complete mapped
++// 3D barycentric vertex agrees on both sides. Near matches are not proof of
++// the same authored seam and must remain contact candidates.
++inline bool nmMortarGuardExactPairedVertex(
++    const NMMortarGuardPoint3 leftA,
++    const NMMortarGuardPoint3 rightA,
++    const NMMortarGuardPoint3 leftB,
++    const NMMortarGuardPoint3 rightB
++) {
++    return nmMortarGuardSamePoint(leftA, leftB) &&
++        nmMortarGuardSamePoint(rightA, rightB);
++}
++
++inline float nmMortarGuardOrientation(
++    const NMMortarGuardPoint3 a,
++    const NMMortarGuardPoint3 b,
++    const NMMortarGuardPoint3 c
++) {
++    const float edgeX = b.x - a.x;
++    const float edgeY = b.y - a.y;
++    const float pointX = c.x - a.x;
++    const float pointY = c.y - a.y;
++    return edgeX * pointY - edgeY * pointX;
++}
++
++inline float nmMortarGuardOrientationErrorBound(
++    const NMMortarGuardPoint3 a,
++    const NMMortarGuardPoint3 b,
++    const NMMortarGuardPoint3 c
++) {
++    // This bounds the rounded coordinate differences, two products and final
++    // subtraction with ample binary32 margin. If a determinant is not outside
++    // this bound, its sign is not used to suppress a partition rejection.
++    constexpr float epsilon = 1.1920928955078125e-7f;
++    const float xScale = (nmMortarGuardAbs(a.x) + nmMortarGuardAbs(b.x)) *
++        (nmMortarGuardAbs(a.y) + nmMortarGuardAbs(c.y));
++    const float yScale = (nmMortarGuardAbs(a.y) + nmMortarGuardAbs(b.y)) *
++        (nmMortarGuardAbs(a.x) + nmMortarGuardAbs(c.x));
++    return 32.0f * epsilon * (xScale + yScale);
++}
++
++inline bool nmMortarGuardStrictOppositeSides(
++    const NMMortarGuardPoint3 edgeA,
++    const NMMortarGuardPoint3 edgeB,
++    const NMMortarGuardPoint3 pointA,
++    const NMMortarGuardPoint3 pointB
++) {
++    const float sideA = nmMortarGuardOrientation(edgeA, edgeB, pointA);
++    const float sideB = nmMortarGuardOrientation(edgeA, edgeB, pointB);
++    const float boundA = nmMortarGuardOrientationErrorBound(
++        edgeA, edgeB, pointA);
++    const float boundB = nmMortarGuardOrientationErrorBound(
++        edgeA, edgeB, pointB);
++    if (!nmMortarGuardFinite(sideA) || !nmMortarGuardFinite(sideB) ||
++        !nmMortarGuardFinite(boundA) || !nmMortarGuardFinite(boundB))
++        return false;
++    return (sideA > boundA && sideB < -boundB) ||
++        (sideA < -boundA && sideB > boundB);
++}
++
++inline bool nmMortarExactOppositeSharedEdge(
++    const NMMortarGuardPoint3 a0,
++    const NMMortarGuardPoint3 a1,
++    const NMMortarGuardPoint3 a2,
++    const NMMortarGuardPoint3 b0,
++    const NMMortarGuardPoint3 b1,
++    const NMMortarGuardPoint3 b2
++) {
++    const NMMortarGuardPoint3 triangleA[3] = {a0, a1, a2};
++    const NMMortarGuardPoint3 triangleB[3] = {b0, b1, b2};
++    unsigned int matchedA[2] = {0u, 0u};
++    bool usedB[3] = {false, false, false};
++    unsigned int matchCount = 0u;
++    for (unsigned int a = 0u; a < 3u; ++a) {
++        for (unsigned int b = 0u; b < 3u; ++b) {
++            if (!usedB[b] && nmMortarGuardSamePoint(triangleA[a], triangleB[b])) {
++                if (matchCount >= 2u) return false;
++                matchedA[matchCount] = a;
++                usedB[b] = true;
++                ++matchCount;
++                break;
++            }
++        }
++    }
++    if (matchCount != 2u ||
++        (triangleA[matchedA[0]].x == triangleA[matchedA[1]].x &&
++         triangleA[matchedA[0]].y == triangleA[matchedA[1]].y))
++        return false;
++
++    unsigned int thirdA = 3u, thirdB = 3u;
++    for (unsigned int i = 0u; i < 3u; ++i) {
++        if (i != matchedA[0] && i != matchedA[1]) thirdA = i;
++        if (!usedB[i]) thirdB = i;
++    }
++    if (thirdA >= 3u || thirdB >= 3u) return false;
++    return nmMortarGuardStrictOppositeSides(
++        triangleA[matchedA[0]], triangleA[matchedA[1]],
++        triangleA[thirdA], triangleB[thirdB]);
++}
++
++#endif

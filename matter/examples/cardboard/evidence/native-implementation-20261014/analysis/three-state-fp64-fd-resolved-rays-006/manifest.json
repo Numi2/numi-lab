@@ -1,0 +1,30 @@
+{
+  "inputs": [
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/three-exact-captured-state-matrices-315-005/report.json",
+      "sha256": "afbc0695272124da1e8c482c77493669c25ce30cf680ebc517629dff9998a53e"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/medium-tangent-state-sensitivity-1634-001/replay.py",
+      "sha256": "3214549746cb872fbf089f59e96ce961b239bae3a724f5da7bbeed9f8b0497f0"
+    }
+  ],
+  "artifacts": {
+    "run.py": {
+      "bytes": 5146,
+      "sha256": "e4edab784fbc2c118c3822c8e17d40e64de3cc10823bb9cd9c31390bfff8d957"
+    },
+    "report.json": {
+      "bytes": 674527,
+      "sha256": "0392e0efaafef47ec439511f1c9419fbdfac64d57462975528628fa0ed0e3d7f"
+    },
+    "README.md": {
+      "bytes": 544,
+      "sha256": "7843425376c3665ff649956b4e5a5a923884743732b7b9473f331a3793e18c02"
+    },
+    "prediction.json": {
+      "bytes": 1198,
+      "sha256": "4e97254f3ac2524e7d43d71db979303316d311a962e23e2efb27a58bbbd33af8"
+    }
+  }
+}

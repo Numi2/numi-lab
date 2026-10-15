@@ -1,0 +1,31 @@
+runtime syntax exit=0
+
+Metal compile exit=0
+In file included from /Users/home/cardboard-implementation-20261014/analysis/center-residual-jdelta-history-overlay-001/overlay/matter/src/matter_kernels.metal:4:
+/Users/home/cardboard-implementation-20261014/analysis/center-residual-jdelta-history-overlay-001/overlay/matter/src/metal/fgmres.metalinc:2809:9: warning: variable 'sharedValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/home/cardboard-implementation-20261014/analysis/center-residual-jdelta-history-overlay-001/overlay/matter/src/metal/fgmres.metalinc:2818:9: note: uninitialized use occurs here
+    if (sharedValid == 0u) return;
+        ^~~~~~~~~~~
+/Users/home/cardboard-implementation-20261014/analysis/center-residual-jdelta-history-overlay-001/overlay/matter/src/metal/fgmres.metalinc:2809:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/home/cardboard-implementation-20261014/analysis/center-residual-jdelta-history-overlay-001/overlay/matter/src/metal/fgmres.metalinc:2799:33: note: initialize the variable 'sharedValid' to silence this warning
+    threadgroup uint sharedValid;
+                                ^
+                                 = 0
+/Users/home/cardboard-implementation-20261014/analysis/center-residual-jdelta-history-overlay-001/overlay/matter/src/metal/fgmres.metalinc:3254:9: warning: variable 'refinementValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/home/cardboard-implementation-20261014/analysis/center-residual-jdelta-history-overlay-001/overlay/matter/src/metal/fgmres.metalinc:3271:9: note: uninitialized use occurs here
+    if (refinementValid == 0u) {
+        ^~~~~~~~~~~~~~~
+/Users/home/cardboard-implementation-20261014/analysis/center-residual-jdelta-history-overlay-001/overlay/matter/src/metal/fgmres.metalinc:3254:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/home/cardboard-implementation-20261014/analysis/center-residual-jdelta-history-overlay-001/overlay/matter/src/metal/fgmres.metalinc:3134:37: note: initialize the variable 'refinementValid' to silence this warning
+    threadgroup uint refinementValid;
+                                    ^
+                                     = 0
+2 warnings generated.

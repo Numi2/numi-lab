@@ -1,0 +1,13 @@
+{
+  "schema": "numi.cardboard.analysis-files.v1",
+  "files": {
+    "report.json": {
+      "bytes": 9497,
+      "sha256": "95b51e857ef911c7a097418a3b5372f6f63ff6bee688ceb2ef7fa16b0a07ce92"
+    },
+    "cases.jsonl": {
+      "bytes": 125602,
+      "sha256": "f0b3017e023d2db3e708fd06ff8a5c039541270f5667db00a7136b83e66c0088"
+    }
+  }
+}

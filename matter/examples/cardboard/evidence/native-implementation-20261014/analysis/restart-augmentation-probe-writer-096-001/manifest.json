@@ -1,0 +1,29 @@
+{
+  "schema": "numi.cardboard.experimental-integration.v1",
+  "build096": {
+    "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-096/source-build.json",
+    "sha256": "fc0a81a7d761f034344ec1b0cb69659e2acd06c7fcf945897265d4b96f588058"
+  },
+  "files": {
+    "probe.patch": {
+      "bytes": 4498,
+      "sha256": "f7e99163d90935d4719b080b64d71c5b205ae60980224c959d9e222cadeffaaa"
+    },
+    "README.md": {
+      "bytes": 983,
+      "sha256": "3bef0a756ba8cb459cb3fb5a9b47e8267e4f8cb050cbf0925fa2b4bbc677bb7c"
+    },
+    "assemble_source_096.py": {
+      "bytes": 8031,
+      "sha256": "1857d9d87e6987261aeceadc1840f349c5a4cd8be57bb60401e72ef2fed12ac3"
+    },
+    "assemble_source_097.py": {
+      "bytes": 2668,
+      "sha256": "2bba8aa612946079b87021ba2f5c961e9215c6ecd2d26ba99dc969e0d06cead5"
+    },
+    "integration.json": {
+      "bytes": 945,
+      "sha256": "b1407cb1b145098d859a85848f2f97480e9d1c6ccda1f5f991f20ef98f48ba9b"
+    }
+  }
+}

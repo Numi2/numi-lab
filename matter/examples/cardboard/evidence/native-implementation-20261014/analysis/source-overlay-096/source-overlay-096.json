@@ -1,0 +1,35 @@
+{
+  "schema": "numi.cardboard.integrated-source-overlay.v1",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-contact-capture-and-resolved-material-sweep-095",
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-current-newton-restart-augmentation-096",
+  "packages": [
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/restart-augmentation-304-005",
+      "manifest_sha256": "3384f6715fbdad52631bf52bb31d38b72e3eec71d6ce1b0413c8905ba4b556c9"
+    }
+  ],
+  "integration_package": "/Users/home/cardboard-implementation-20261014/analysis/restart-augmentation-probe-writer-096-001",
+  "changed": {
+    "matter/include/numi/matter/matter.hpp": {
+      "before": "7f048978a6126dbf1be5e1e0293556ba5bb1a1eee39d88ebcb9180e9fcdbda95",
+      "after": "ac26950e564b78985e21ae61f9ee5fda28f7fdd4e8bcdb354ede3816e79c3a9e"
+    },
+    "matter/src/metal/fgmres.metalinc": {
+      "before": "92d5e2b57cb392076962a43733bb51b8f30deef4579fc5151b66ae9415783669",
+      "after": "a733df504bd75dcef43e20c5d3926a5cd4338d45ded0fb6d7eb6c0480671a555"
+    },
+    "matter/src/runtime.mm": {
+      "before": "aa2486012ced87656933abc7c448188575ac332b747aba2315f550e3d548edd2",
+      "after": "d2ea134b9c6ec0f00ce9b5c479d36b7f75d727d6b162281f5947cc98c69f543d"
+    },
+    "matter/src/runtime.mm.orig": {
+      "before": null,
+      "after": "aa2486012ced87656933abc7c448188575ac332b747aba2315f550e3d548edd2"
+    },
+    "matter/tools/cardboard_probe.mm": {
+      "before": "a05972522a612b4d203987e51d16c0d9d0f939a628ad4c2c00ee98969e1804c5",
+      "after": "5d826a8dd80a973181159d065f5e86622adfffafe8bb3fbe9bb259783b617978"
+    }
+  },
+  "scope": "Source095 plus opt-in current-Newton restart augmentation and bounded generation/q/Aq/RAP readback with probe serialization. Physical operator, global tolerances, restart16 and material history unchanged. Compile/native qualification pending."
+}

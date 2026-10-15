@@ -1,0 +1,145 @@
+--- /Users/home/cardboard-implementation-20261014/snapshots/source-contact-capture-and-resolved-material-sweep-095/matter/tools/cardboard_full_contact_armijo_check.mm	2026-10-15 13:29:39
++++ /Users/home/cardboard-implementation-20261014/analysis/private-mortar-ccd-314-overlay-001/build-source/matter/tools/cardboard_full_contact_armijo_check.mm	2026-10-15 14:04:22
+@@ -1998,11 +1998,13 @@
+     fullyCoveredCrossing,
+     partialUncoveredCrossing,
+     partialCoveredCrossing,
++    partialUncoveredNearContact,
+     threePatchCoveredCrossing,
+     fourPatchMatchedCrossing,
+     threePatchBoundaryCommonTranslation,
+     threePatchBoundarySeparating,
+     threePatchBoundarySlidingCrossing,
++    threePatchBoundaryStaticOffEdgeOverlap,
+     threePatchUncoveredCrossing,
+     threePatchCrossIdentityCrossing,
+     threePatchOverlapRejected,
+@@ -2081,10 +2083,12 @@
+         fixtureCase == PrivateSelfSweepCase::fullyCoveredCrossing ||
+         fixtureCase == PrivateSelfSweepCase::partialUncoveredCrossing ||
+         fixtureCase == PrivateSelfSweepCase::partialCoveredCrossing ||
++        fixtureCase == PrivateSelfSweepCase::partialUncoveredNearContact ||
+         fixtureCase == PrivateSelfSweepCase::threePatchCoveredCrossing ||
+         fixtureCase == PrivateSelfSweepCase::threePatchBoundaryCommonTranslation ||
+         fixtureCase == PrivateSelfSweepCase::threePatchBoundarySeparating ||
+         fixtureCase == PrivateSelfSweepCase::threePatchBoundarySlidingCrossing ||
++        fixtureCase == PrivateSelfSweepCase::threePatchBoundaryStaticOffEdgeOverlap ||
+         fixtureCase == PrivateSelfSweepCase::fourPatchMatchedCrossing ||
+         fixtureCase == PrivateSelfSweepCase::threePatchUncoveredCrossing ||
+         fixtureCase == PrivateSelfSweepCase::threePatchCrossIdentityCrossing ||
+@@ -2094,6 +2098,7 @@
+         fixtureCase == PrivateSelfSweepCase::threePatchBoundaryCommonTranslation ||
+         fixtureCase == PrivateSelfSweepCase::threePatchBoundarySeparating ||
+         fixtureCase == PrivateSelfSweepCase::threePatchBoundarySlidingCrossing ||
++        fixtureCase == PrivateSelfSweepCase::threePatchBoundaryStaticOffEdgeOverlap ||
+         fixtureCase == PrivateSelfSweepCase::threePatchUncoveredCrossing ||
+         fixtureCase == PrivateSelfSweepCase::threePatchCrossIdentityCrossing ||
+         fixtureCase == PrivateSelfSweepCase::threePatchOverlapRejected;
+@@ -2102,6 +2107,7 @@
+     const bool partialMortar =
+         fixtureCase == PrivateSelfSweepCase::partialUncoveredCrossing ||
+         fixtureCase == PrivateSelfSweepCase::partialCoveredCrossing ||
++        fixtureCase == PrivateSelfSweepCase::partialUncoveredNearContact ||
+         fixtureCase == PrivateSelfSweepCase::threePatchUncoveredCrossing;
+     const bool separatedMiss =
+         fixtureCase == PrivateSelfSweepCase::separatedMiss;
+@@ -2141,11 +2147,20 @@
+             fixtureCase == PrivateSelfSweepCase::threePatchBoundaryCommonTranslation;
+         const bool boundarySliding =
+             fixtureCase == PrivateSelfSweepCase::threePatchBoundarySlidingCrossing;
+-        const float leftStartZ = boundaryCommonTranslation || boundarySeparating || boundarySliding
+-            ? 0.0f : (initiallyTouching ? 0.0f : 2.0e-4f);
++        const bool boundaryStaticOffEdgeOverlap =
++            fixtureCase == PrivateSelfSweepCase::threePatchBoundaryStaticOffEdgeOverlap;
++        const bool partialCovered =
++            fixtureCase == PrivateSelfSweepCase::partialCoveredCrossing;
++        const bool partialUncoveredNearContact =
++            fixtureCase == PrivateSelfSweepCase::partialUncoveredNearContact;
++        const bool partialCase = partialCovered || partialUncoveredNearContact;
++        const float leftStartZ = partialCase
++            ? 0.0f
++            : (boundaryCommonTranslation || boundarySeparating || boundarySliding
++                ? 0.0f : (initiallyTouching ? 0.0f : 2.0e-4f));
+         float leftEndZ = 2.0e-4f;
+-        float rightStartZ = leftStartZ;
+-        float rightEndZ = leftEndZ;
++        float rightStartZ = partialCase ? 2.0e-4f : leftStartZ;
++        float rightEndZ = 2.0e-4f;
+         if (fixtureCase == PrivateSelfSweepCase::unbondedCrossing ||
+             fixtureCase == PrivateSelfSweepCase::fullyCoveredCrossing ||
+             fixtureCase == PrivateSelfSweepCase::partialUncoveredCrossing ||
+@@ -2155,9 +2170,20 @@
+             fixtureCase == PrivateSelfSweepCase::threePatchCrossIdentityCrossing ||
+             fixtureCase == PrivateSelfSweepCase::threePatchOverlapRejected)
+             leftEndZ = rightEndZ = -2.0e-4f;
+-        else if (fixtureCase == PrivateSelfSweepCase::partialCoveredCrossing &&
+-                 featureIndex == 0u)
+-            leftEndZ = rightEndZ = -2.0e-4f;
++        else if (partialCovered) {
++            // The right sheet remains 0.2 mm above the left sheet. Only the
++            // covered corner moves through it; for barycentric x < 0.35, the
++            // largest left displacement is 0.14 mm, leaving at least 60 um
++            // clearance in the entire uncovered complement.
++            leftEndZ = featureIndex == 0u ? 4.0e-4f : 0.0f;
++        } else if (partialUncoveredNearContact) {
++            // Move only the vertex whose first barycentric coordinate is
++            // zero; it lies outside the active patch.
++            // The initial sheets are separated by 0.2 mm, and the endpoint
++            // crossing must therefore be rejected by the uncovered
++            // complement rather than by an initially touching pair.
++            leftEndZ = featureIndex == 1u ? 4.0e-4f : 0.0f;
++        }
+         if (boundaryCommonTranslation) {
+             // Both parent triangles share the exact same translation under
+             // linear endpoint interpolation, so their common boundary stays
+@@ -2172,7 +2198,8 @@
+             rightStartZ = 2.0e-4f;
+             rightEndZ = -2.0e-4f;
+         }
+-        const float lateral = separatedMiss ? 2.0e-2f : 0.0f;
++        const float lateral = separatedMiss ? 2.0e-2f :
++            (boundaryStaticOffEdgeOverlap ? 4.0e-9f : 0.0f);
+         base[featureIndex + 5u].positionAndMass =
+             {point[0] + lateral, point[1], rightStartZ, 1.0f};
+         const float slideTangentX = -0.894427191f;
+@@ -2650,11 +2677,13 @@
+         case PrivateSelfSweepCase::fullyCoveredCrossing: return "fully_covered_crossing";
+         case PrivateSelfSweepCase::partialUncoveredCrossing: return "partial_uncovered_crossing";
+         case PrivateSelfSweepCase::partialCoveredCrossing: return "partial_covered_crossing";
++        case PrivateSelfSweepCase::partialUncoveredNearContact: return "partial_uncovered_near_contact";
+         case PrivateSelfSweepCase::threePatchCoveredCrossing: return "three_patch_covered_crossing";
+         case PrivateSelfSweepCase::fourPatchMatchedCrossing: return "four_patch_matched_crossing";
+         case PrivateSelfSweepCase::threePatchBoundaryCommonTranslation: return "three_patch_boundary_common_translation";
+         case PrivateSelfSweepCase::threePatchBoundarySeparating: return "three_patch_boundary_separating";
+         case PrivateSelfSweepCase::threePatchBoundarySlidingCrossing: return "three_patch_boundary_sliding_crossing";
++        case PrivateSelfSweepCase::threePatchBoundaryStaticOffEdgeOverlap: return "three_patch_boundary_static_off_edge_overlap";
+         case PrivateSelfSweepCase::threePatchUncoveredCrossing: return "three_patch_uncovered_crossing";
+         case PrivateSelfSweepCase::threePatchCrossIdentityCrossing: return "three_patch_cross_identity_crossing";
+         case PrivateSelfSweepCase::threePatchOverlapRejected: return "three_patch_overlap_rejected";
+@@ -2724,7 +2753,7 @@
+         std::uint32_t expectedCode;
+         const char* expectation;
+     };
+-    const std::array<CaseExpectation, 14> cases{{
++    const std::array<CaseExpectation, 16> cases{{
+         {PrivateSelfSweepCase::unbondedCrossing, NM_STATUS_CONTACT_FAILURE,
+          "reject unbonded swept crossing"},
+         {PrivateSelfSweepCase::separatedMiss, NM_STATUS_SUCCESS,
+@@ -2735,6 +2764,8 @@
+          "reject crossing through partial-patch complement"},
+         {PrivateSelfSweepCase::partialCoveredCrossing, NM_STATUS_SUCCESS,
+          "exclude crossing confined to partial active mortar patch"},
++        {PrivateSelfSweepCase::partialUncoveredNearContact, NM_STATUS_CONTACT_FAILURE,
++         "reject uncovered-complement crossing from a positive initial gap"},
+         {PrivateSelfSweepCase::threePatchCoveredCrossing, NM_STATUS_SUCCESS,
+          "accept closure across three matched mortar patches"},
+         {PrivateSelfSweepCase::fourPatchMatchedCrossing, NM_STATUS_SUCCESS,
+@@ -2745,6 +2776,8 @@
+          "accept paired shared-edge separation"},
+         {PrivateSelfSweepCase::threePatchBoundarySlidingCrossing, NM_STATUS_CONTACT_FAILURE,
+          "reject cross-patch collision during tangential slide"},
++        {PrivateSelfSweepCase::threePatchBoundaryStaticOffEdgeOverlap, NM_STATUS_CONTACT_FAILURE,
++         "reject initial off-edge cross-patch overlap under zero common translation"},
+         {PrivateSelfSweepCase::threePatchUncoveredCrossing, NM_STATUS_CONTACT_FAILURE,
+          "reject crossing through three-patch union complement"},
+         {PrivateSelfSweepCase::threePatchCrossIdentityCrossing, NM_STATUS_CONTACT_FAILURE,

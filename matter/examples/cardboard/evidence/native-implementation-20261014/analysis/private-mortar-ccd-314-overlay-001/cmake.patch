@@ -1,0 +1,10 @@
+--- /Users/home/cardboard-implementation-20261014/snapshots/source-contact-capture-and-resolved-material-sweep-095/matter/CMakeLists.txt	2026-10-15 11:53:41
++++ /Users/home/cardboard-implementation-20261014/analysis/private-mortar-ccd-314-overlay-001/build-source/matter/CMakeLists.txt	2026-10-15 13:56:31
+@@ -572,6 +572,7 @@
+             include/numi/matter/accepted_state_proof_gpu.h
+             include/numi/matter/shared.h
+             include/numi/matter/fiber_exp_linear.h
++            include/numi/matter/mortar_shared_edge_guard.h
+             include/numi/matter/human_equality_gpu.h
+             include/numi/matter/human_limits_gpu.h
+             "${CMAKE_CURRENT_SOURCE_DIR}/../include/metalrobo/engine_types.h"

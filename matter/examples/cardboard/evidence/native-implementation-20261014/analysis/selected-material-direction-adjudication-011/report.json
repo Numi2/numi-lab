@@ -1,0 +1,126 @@
+{
+  "schema": "numi.cardboard.selected-material-direction-adjudication.v1",
+  "inputs": [
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/three-state-fp64-fd-resolved-rays-006/report.json",
+      "sha256": "0392e0efaafef47ec439511f1c9419fbdfac64d57462975528628fa0ed0e3d7f"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/three-state-absolute-endpoint-error-007/report.json",
+      "sha256": "b60f51a724f4034d25e643c6d3eaf8e07acd52f75a831beaf409745eadfc1525"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native315-absolute-endpoint-error-009/report.json",
+      "sha256": "e7e1fae78460fcaf7bbacf267e126938d42c7cbbbf83b04d788dc13d5cd6b7e7"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native315-absolute-endpoint-error-010/report.json",
+      "sha256": "4739db10f4099d99048aed5c4f9e57cea363e9a24a893ca723985b9a3d1b169d"
+    }
+  ],
+  "results": [
+    {
+      "tets": [
+        567,
+        568,
+        569,
+        1527,
+        1528,
+        1529
+      ],
+      "fp64_resolved_steps": [
+        {
+          "epsilon": 5e-11,
+          "worst_column": 3.815852124573154e-07,
+          "all_nine_nonzero_columns_pass": true
+        },
+        {
+          "epsilon": 3.5e-11,
+          "worst_column": 8.767730777552338e-07,
+          "all_nine_nonzero_columns_pass": true
+        }
+      ],
+      "native_step": 0.0001,
+      "native_stress_finite_difference": {
+        "direct": {
+          "worst_column": 0.00010284070163945685,
+          "all_nine_nonzero_columns_pass": true
+        },
+        "tangent": {
+          "worst_column": 0.00010284070163945685,
+          "all_nine_nonzero_columns_pass": true
+        }
+      },
+      "native_actual_rate_relation_max_relative_error": 2.5262125289663508e-08,
+      "native_endpoint_branch_crossings": 0,
+      "qualification": "Selected nonzero material vectors only. Near-zero components use recorded absolute endpoint disagreement; no universal native residual floor or physical qualification."
+    },
+    {
+      "tets": [
+        1634
+      ],
+      "fp64_resolved_steps": [
+        {
+          "epsilon": 5e-11,
+          "worst_column": 4.665893283766279e-07,
+          "all_nine_nonzero_columns_pass": true
+        },
+        {
+          "epsilon": 3.5e-11,
+          "worst_column": 2.7439586929481667e-07,
+          "all_nine_nonzero_columns_pass": true
+        }
+      ],
+      "native_step": 0.0001,
+      "native_stress_finite_difference": {
+        "direct": {
+          "worst_column": 5.901535310223076e-05,
+          "all_nine_nonzero_columns_pass": true
+        },
+        "tangent": {
+          "worst_column": 5.901535310223076e-05,
+          "all_nine_nonzero_columns_pass": true
+        }
+      },
+      "native_actual_rate_relation_max_relative_error": 2.5262125289663508e-08,
+      "native_endpoint_branch_crossings": 0,
+      "qualification": "Selected nonzero material vectors only. Near-zero components use recorded absolute endpoint disagreement; no universal native residual floor or physical qualification."
+    },
+    {
+      "tets": [
+        1638
+      ],
+      "fp64_resolved_steps": [
+        {
+          "epsilon": 5e-11,
+          "worst_column": 8.762069007213834e-09,
+          "all_nine_nonzero_columns_pass": true
+        },
+        {
+          "epsilon": 3.5e-11,
+          "worst_column": 1.006814016151144e-08,
+          "all_nine_nonzero_columns_pass": true
+        }
+      ],
+      "native_step": 0.0001,
+      "native_stress_finite_difference": {
+        "direct": {
+          "worst_column": 1.446707537599627e-05,
+          "all_nine_nonzero_columns_pass": true
+        },
+        "tangent": {
+          "worst_column": 1.446707537599627e-05,
+          "all_nine_nonzero_columns_pass": true
+        }
+      },
+      "native_actual_rate_relation_max_relative_error": 2.5262125289663508e-08,
+      "native_endpoint_branch_crossings": 0,
+      "qualification": "Selected nonzero material vectors only. Near-zero components use recorded absolute endpoint disagreement; no universal native residual floor or physical qualification."
+    }
+  ],
+  "retained_failures": "FP64 smaller-step losses, native liner weak-direction misses at1e-5 and below, and failed008 consumer remain retained. No failed step is relabeled as a smooth pass.",
+  "scope": "Three unique parameter/deformation/accepted-history states representing eight selected points; nine basis directions. Actual rounded rays and exact native FP32 stress words. No production operator, stopping rule or acceptance change.",
+  "physical_steps": 0,
+  "full_solver_qualified": false,
+  "numerical_convergence_qualified": false
+}

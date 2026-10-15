@@ -1,0 +1,35 @@
+{
+  "schema": "numi.cardboard.integrated-source-overlay.v1",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-current-newton-restart-augmentation-096",
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-exact-mortar-seam-diagnostics-097",
+  "packages": [
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/private-mortar-ccd-314-overlay-001",
+      "manifest_sha256": "95142a62279f0f03a594ed58ff47fb9fd766be2ab12e9a9ee873ad77a4880140"
+    }
+  ],
+  "patch_result": {
+    "stdout": "patching file 'matter/CMakeLists.txt'\npatching file 'matter/src/metal/contact.metalinc'\npatching file 'matter/tools/cardboard_full_contact_armijo_check.mm'\npatching file 'matter/include/numi/matter/mortar_shared_edge_guard.h'\n",
+    "stderr": "",
+    "exit_code": 0
+  },
+  "changed": {
+    "matter/CMakeLists.txt": {
+      "before": "214313d74f3324fc4c861fe2135010151e43d51da1514156aca2f44b64082684",
+      "after": "08170dbb3112cb42dcdd2c46ec0bbc587dd3c950646c76b107430027c162435e"
+    },
+    "matter/include/numi/matter/mortar_shared_edge_guard.h": {
+      "before": null,
+      "after": "aa1d80c197f41a3236c4a31c0663646592b621798e09adbfc8033a6a1fb86478"
+    },
+    "matter/src/metal/contact.metalinc": {
+      "before": "c360df9e7ad53bf36ab5878eacaa150bb75c0d1fe04ce70e8b668b31e1c87be1",
+      "after": "b3e14b8a291c54c7b890d3b65eb7aa585b1ca9c1ac21d7c9417d0fc72563102b"
+    },
+    "matter/tools/cardboard_full_contact_armijo_check.mm": {
+      "before": "59d945b71bab4584cc057fe074bebe45afb8723f85cbb9f613749ab9458735dc",
+      "after": "0b6658f168db67e7a049b0bd5036a946dc9e6204607a4c3e771666c455e7b5ab"
+    }
+  },
+  "scope": "Source096 plus exact paired mortar seam identity, conservative exact shared-edge guard, corrected positive-gap synthetic fixtures, initial-overlap negative control and partition-stage diagnostics. No contact tolerances changed; native qualification pending."
+}

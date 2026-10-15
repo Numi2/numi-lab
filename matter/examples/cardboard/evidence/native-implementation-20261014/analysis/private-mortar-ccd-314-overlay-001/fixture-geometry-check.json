@@ -1,0 +1,27 @@
+{
+  "classification": "CPU fixture arithmetic only; no native CCD result",
+  "collision_thickness_m": 1e-05,
+  "partial_covered_crossing": {
+    "clearance_exceeds_collision_thickness": true,
+    "maximum_uncovered_left_z_m": 0.00014,
+    "minimum_uncovered_clearance_m": 6.000000000000002e-05,
+    "start_gap_m": 0.0002
+  },
+  "partial_patch_first_bary_coverage": "x >= 0.35",
+  "partial_uncovered_near_contact": {
+    "end_gap_at_moving_uncovered_vertex_m": -7.999999999999997e-05,
+    "linear_path_crosses_only_in_uncovered_complement": true,
+    "minimum_active_patch_clearance_m": 1.800000000000003e-05,
+    "start_gap_m": 0.0002
+  },
+  "schema": "numi.cardboard.private_mortar_fixture_geometry.v1",
+  "static_off_edge_initial_overlap": {
+    "all_displacements_zero": true,
+    "induced_barycentric_offset": 1e-06,
+    "initial_normal_separation_m": 0.0,
+    "native_expected": "contact failure; test whether paired-boundary witness exemption masks initial off-edge collision",
+    "off_edge_offset_is_inside_current_witness_tolerance": true,
+    "paired_witness_tolerance": 8e-06,
+    "parent_lateral_offset_m": 4e-09
+  }
+}

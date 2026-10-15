@@ -1,0 +1,412 @@
+{
+  "schema": "numi.cardboard.native_ccd_summary.v1",
+  "receipt": {
+    "schema": "numi.cardboard.native-run-receipt.v2",
+    "execution_started": true,
+    "source_inputs_unchanged": true,
+    "changed_inputs": [],
+    "exit_code": 1,
+    "timed_out": false,
+    "termination_errors": [],
+    "wall_seconds": 2.2980250419932418,
+    "finished_at_utc": "2026-10-15T12:14:51.343902+00:00"
+  },
+  "cases": [
+    {
+      "case": "unbonded_crossing",
+      "expected": {
+        "code": 6,
+        "outcome": "reject unbonded swept crossing"
+      },
+      "actual": {
+        "code": 6,
+        "environment": 0,
+        "object_index": 0,
+        "failing_index": 0,
+        "completed_microsteps": 0,
+        "fgmres_iterations": 0,
+        "contact_count": 0,
+        "event_count": 0,
+        "diagnostics": [
+          0,
+          4,
+          0,
+          0
+        ]
+      },
+      "passed": true
+    },
+    {
+      "case": "separated_miss",
+      "expected": {
+        "code": 0,
+        "outcome": "accept separated miss"
+      },
+      "actual": {
+        "code": 0,
+        "environment": 0,
+        "object_index": 0,
+        "failing_index": 0,
+        "completed_microsteps": 0,
+        "fgmres_iterations": 0,
+        "contact_count": 0,
+        "event_count": 0,
+        "diagnostics": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "passed": true
+    },
+    {
+      "case": "fully_covered_crossing",
+      "expected": {
+        "code": 0,
+        "outcome": "exclude fully covered active mortar crossing from self-contact"
+      },
+      "actual": {
+        "code": 0,
+        "environment": 0,
+        "object_index": 0,
+        "failing_index": 0,
+        "completed_microsteps": 0,
+        "fgmres_iterations": 0,
+        "contact_count": 0,
+        "event_count": 0,
+        "diagnostics": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "passed": true
+    },
+    {
+      "case": "partial_uncovered_crossing",
+      "expected": {
+        "code": 6,
+        "outcome": "reject crossing through partial-patch complement"
+      },
+      "actual": {
+        "code": 6,
+        "environment": 0,
+        "object_index": 0,
+        "failing_index": 0,
+        "completed_microsteps": 0,
+        "fgmres_iterations": 0,
+        "contact_count": 0,
+        "event_count": 0,
+        "diagnostics": [
+          0,
+          4,
+          0,
+          1.45519152e-11
+        ]
+      },
+      "passed": true
+    },
+    {
+      "case": "partial_covered_crossing",
+      "expected": {
+        "code": 0,
+        "outcome": "exclude crossing confined to partial active mortar patch"
+      },
+      "actual": {
+        "code": 0,
+        "environment": 0,
+        "object_index": 0,
+        "failing_index": 0,
+        "completed_microsteps": 0,
+        "fgmres_iterations": 0,
+        "contact_count": 0,
+        "event_count": 0,
+        "diagnostics": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "passed": true
+    },
+    {
+      "case": "partial_uncovered_near_contact",
+      "expected": {
+        "code": 6,
+        "outcome": "reject uncovered-complement crossing from a positive initial gap"
+      },
+      "actual": {
+        "code": 6,
+        "environment": 0,
+        "object_index": 0,
+        "failing_index": 0,
+        "completed_microsteps": 0,
+        "fgmres_iterations": 0,
+        "contact_count": 0,
+        "event_count": 0,
+        "diagnostics": [
+          0,
+          4,
+          0.678558767,
+          1.00035395e-05
+        ]
+      },
+      "passed": true
+    },
+    {
+      "case": "three_patch_covered_crossing",
+      "expected": {
+        "code": 0,
+        "outcome": "accept closure across three matched mortar patches"
+      },
+      "actual": {
+        "code": 6,
+        "environment": 0,
+        "object_index": 0,
+        "failing_index": 0,
+        "completed_microsteps": 0,
+        "fgmres_iterations": 0,
+        "contact_count": 0,
+        "event_count": 0,
+        "diagnostics": [
+          0,
+          4,
+          0,
+          0
+        ]
+      },
+      "passed": false
+    },
+    {
+      "case": "four_patch_matched_crossing",
+      "expected": {
+        "code": 0,
+        "outcome": "accept closure across four matched mortar patches"
+      },
+      "actual": {
+        "code": 6,
+        "environment": 0,
+        "object_index": 0,
+        "failing_index": 0,
+        "completed_microsteps": 0,
+        "fgmres_iterations": 0,
+        "contact_count": 0,
+        "event_count": 0,
+        "diagnostics": [
+          0,
+          4,
+          0,
+          0
+        ]
+      },
+      "passed": false
+    },
+    {
+      "case": "three_patch_boundary_common_translation",
+      "expected": {
+        "code": 0,
+        "outcome": "accept exact common translation over the whole sweep"
+      },
+      "actual": {
+        "code": 6,
+        "environment": 0,
+        "object_index": 0,
+        "failing_index": 0,
+        "completed_microsteps": 0,
+        "fgmres_iterations": 0,
+        "contact_count": 0,
+        "event_count": 0,
+        "diagnostics": [
+          0,
+          4,
+          0,
+          0
+        ]
+      },
+      "passed": false
+    },
+    {
+      "case": "three_patch_boundary_separating",
+      "expected": {
+        "code": 0,
+        "outcome": "accept paired shared-edge separation"
+      },
+      "actual": {
+        "code": 6,
+        "environment": 0,
+        "object_index": 0,
+        "failing_index": 0,
+        "completed_microsteps": 0,
+        "fgmres_iterations": 0,
+        "contact_count": 0,
+        "event_count": 0,
+        "diagnostics": [
+          0,
+          4,
+          0,
+          0
+        ]
+      },
+      "passed": false
+    },
+    {
+      "case": "three_patch_boundary_sliding_crossing",
+      "expected": {
+        "code": 6,
+        "outcome": "reject cross-patch collision during tangential slide"
+      },
+      "actual": {
+        "code": 6,
+        "environment": 0,
+        "object_index": 0,
+        "failing_index": 0,
+        "completed_microsteps": 0,
+        "fgmres_iterations": 0,
+        "contact_count": 0,
+        "event_count": 0,
+        "diagnostics": [
+          0,
+          4,
+          0.474990547,
+          1.00037842e-05
+        ]
+      },
+      "passed": true
+    },
+    {
+      "case": "three_patch_boundary_static_off_edge_overlap",
+      "expected": {
+        "code": 6,
+        "outcome": "reject initial off-edge cross-patch overlap under zero common translation"
+      },
+      "actual": {
+        "code": 6,
+        "environment": 0,
+        "object_index": 0,
+        "failing_index": 0,
+        "completed_microsteps": 0,
+        "fgmres_iterations": 0,
+        "contact_count": 0,
+        "event_count": 0,
+        "diagnostics": [
+          0,
+          4,
+          0,
+          1.69503267e-09
+        ]
+      },
+      "passed": true
+    },
+    {
+      "case": "three_patch_uncovered_crossing",
+      "expected": {
+        "code": 6,
+        "outcome": "reject crossing through three-patch union complement"
+      },
+      "actual": {
+        "code": 6,
+        "environment": 0,
+        "object_index": 0,
+        "failing_index": 0,
+        "completed_microsteps": 0,
+        "fgmres_iterations": 0,
+        "contact_count": 0,
+        "event_count": 0,
+        "diagnostics": [
+          0,
+          4,
+          0,
+          0
+        ]
+      },
+      "passed": true
+    },
+    {
+      "case": "three_patch_cross_identity_crossing",
+      "expected": {
+        "code": 6,
+        "outcome": "reject collision between different covered-patch identities"
+      },
+      "actual": {
+        "code": 6,
+        "environment": 0,
+        "object_index": 0,
+        "failing_index": 0,
+        "completed_microsteps": 0,
+        "fgmres_iterations": 0,
+        "contact_count": 0,
+        "event_count": 0,
+        "diagnostics": [
+          0,
+          4,
+          0,
+          0
+        ]
+      },
+      "passed": true
+    },
+    {
+      "case": "three_patch_overlap_rejected",
+      "expected": {
+        "code": 6,
+        "outcome": "reject overlapping active same-parent patches closed"
+      },
+      "actual": {
+        "code": 6,
+        "environment": 0,
+        "object_index": 0,
+        "failing_index": 0,
+        "completed_microsteps": 0,
+        "fgmres_iterations": 0,
+        "contact_count": 0,
+        "event_count": 0,
+        "diagnostics": [
+          0,
+          4,
+          6,
+          6
+        ]
+      },
+      "passed": true
+    },
+    {
+      "case": "initially_touching_separating",
+      "expected": {
+        "code": 6,
+        "outcome": "reject unsupported initially touching unbonded sweep"
+      },
+      "actual": {
+        "code": 6,
+        "environment": 0,
+        "object_index": 0,
+        "failing_index": 0,
+        "completed_microsteps": 0,
+        "fgmres_iterations": 0,
+        "contact_count": 0,
+        "event_count": 0,
+        "diagnostics": [
+          0,
+          4,
+          0,
+          0
+        ]
+      },
+      "passed": true
+    }
+  ],
+  "summary": {
+    "schema": "numi.matter.private_self_sweep_summary.v1",
+    "case_count": 16,
+    "passed": 12,
+    "failed": 4,
+    "direct_production_kernel": true,
+    "runtime_transaction": false
+  },
+  "limitations": [
+    "Direct synthetic production-kernel dispatches, no accepted FEM transaction or shipping validation.",
+    "Original314 fixtures and failed verdict retained. Positive fixture geometry is versioned separately."
+  ]
+}

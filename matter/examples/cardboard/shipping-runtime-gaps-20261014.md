@@ -1,5 +1,14 @@
 # Shipping-size runtime admission and memory gaps
 
+## Reference011 and experimental097 continuation
+
+Selected all-direction material comparisons now resolve the FP64 and native
+material gates, with exact endpoint arithmetic errors retained. They do not
+remove shipping admission limits. Experimental CCD318 passes12 of16 synthetic
+cases and still rejects four multi-patch sweep motions. No accepted shipping
+FEM step, complete native arena measurement or fixture-free checkpoint exists.
+See the current solver ledger for precise scopes and preserved failures.
+
 ## Source095 continuation
 
 The selected private-trial capture now validates129 arrays/19,467,248 bytes,

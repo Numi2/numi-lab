@@ -1,0 +1,79 @@
+{
+  "base_revision": "35bfb518c542a306f563cc364ef8496837068b9a",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-contact-capture-and-resolved-material-sweep-095",
+  "compile_checks": {
+    "gpu_execution": "NOT_RUN",
+    "metal_compile": "PASS",
+    "objcxx_syntax": "PASS"
+  },
+  "compile_log_sha256": "617fbaab5a3b7f5d59a64aeb73c429212f595cc02315d0c070121104e3b612d6",
+  "diagnostic_scope": {
+    "captures": "same-generation center production J*delta before Armijo, full Newton RHS, residual row map and selected Newton-center contact history inputs",
+    "material_contact_history_semantics": "accepted material/cohesive histories stay timestep-accepted; Newton-center contact history records the accepted state at Newton 0 and prior accepted-Armijo candidate at later iterations. The contact state is lagged impulse/frame estimate, not accumulated physical tangential slip.",
+    "operator_blocks": [
+      "FEM element tangent",
+      "cohesive face/node tangent",
+      "mixed field tangent",
+      "deformable and rigid contact tangent",
+      "free-rigid inertia and contact coupling"
+    ],
+    "production_kernel_bypass": "new allowConvergedState scalar is 0 at every original production dispatch and 1 only in the selected diagnostic J*delta dispatch",
+    "state_effect": "diagnostic-only extra writes to preallocated true-residual scratch and status arenas; no physical candidate/history/certificate/acceptance changes intended; native on/off parity remains required",
+    "strictly_excluded": [
+      "MPM",
+      "Human support/equality/limit/attachment blocks",
+      "vascular mechanical forces",
+      "articulated rigid generalized rows"
+    ]
+  },
+  "frozen_source_entries_verified": 774,
+  "frozen_source_manifest_sha256": "d78a0571def01bbdec0f4ae4533d087460241da2575a0bc7e416d9a6e0f32b7d",
+  "incident_hashes": {
+    "after_restored_frozen_mixed_fem": "5042632a1d44d12cabbc3d09fa6dc9c9f40ac51b3f81ab733ccedd95b58b4f0a",
+    "before_frozen_mixed_fem": "5042632a1d44d12cabbc3d09fa6dc9c9f40ac51b3f81ab733ccedd95b58b4f0a",
+    "transient_two_line_mixed_fem": "9f3fba45290c92cc782393c420520b25c7d630fa080b9e2aff1d9f52a33d1681"
+  },
+  "incident_record": "INCIDENT-frozen095-mixed-fem-transient-edit.md",
+  "known_compile_warnings": [
+    "fgmres.metalinc sharedValid threadgroup warning (pre-existing in base 095)",
+    "fgmres.metalinc refinementValid threadgroup warning (pre-existing in base 095)"
+  ],
+  "metal_air_sha256": "b3c09e0682effb775f9f8962a8eb5e50eb55dac9aa4e53022c28fc3e587bec0b",
+  "modified_files": [
+    {
+      "frozen_sha256": "aa2486012ced87656933abc7c448188575ac332b747aba2315f550e3d548edd2",
+      "overlay_sha256": "8137138dbd739fcb03f931fc95da3a3b2ad72d2fa1fd23eb1d9037c361df2358",
+      "path": "matter/src/runtime.mm"
+    },
+    {
+      "frozen_sha256": "92d5e2b57cb392076962a43733bb51b8f30deef4579fc5151b66ae9415783669",
+      "overlay_sha256": "c644c90b0b6a5b000c20cdc7bcb10fe128478b06e39abfa97dfc8720b8cf723f",
+      "path": "matter/src/metal/fgmres.metalinc"
+    },
+    {
+      "frozen_sha256": "5042632a1d44d12cabbc3d09fa6dc9c9f40ac51b3f81ab733ccedd95b58b4f0a",
+      "overlay_sha256": "9f3fba45290c92cc782393c420520b25c7d630fa080b9e2aff1d9f52a33d1681",
+      "path": "matter/src/metal/mixed_fem.metalinc"
+    }
+  ],
+  "overlay_symlink_count": 0,
+  "patch_dry_run": "PASS against frozen095 root with patch -p1",
+  "patch_sha256": "8d5ef05cd343b974a98d8fb1a57352eba7a0de524700a927fc9143db10e3b3ab",
+  "schema": "numi.matter.center_residual_jdelta_overlay_manifest.v1",
+  "verification": {
+    "capture_call_binds_newton_selected_histories": true,
+    "changed_overlay_files_regular": [
+      "matter/src/runtime.mm",
+      "matter/src/metal/fgmres.metalinc",
+      "matter/src/metal/mixed_fem.metalinc"
+    ],
+    "free_rigid_operator_call_count": 2,
+    "frozen_source_entries_verified": 774,
+    "mixed_element_call_count": 5,
+    "overlay_symlink_count": 0,
+    "primal_rigid_contact_operator_call_count": 2,
+    "schema": "numi.matter.center_residual_jdelta_overlay_check.v1",
+    "status": "PASS"
+  },
+  "verification_script_sha256": "cf50d286b24b87edd3c6bd36793829ebf524093c6da46f10998075eb611b12ae"
+}

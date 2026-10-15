@@ -1,0 +1,34 @@
+{
+  "inputs": [
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/three-exact-captured-state-matrices-315-005/report.json",
+      "sha256": "afbc0695272124da1e8c482c77493669c25ce30cf680ebc517629dff9998a53e"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/finer-controlled-material-sweep-315/output/paper-derivative-sweep-accurate.jsonl",
+      "sha256": "56de51013ea87338b8410a93d7ca078504dfb9d4d2db9553e312bbca96331c58"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/medium-tangent-state-sensitivity-1634-001/replay.py",
+      "sha256": "3214549746cb872fbf089f59e96ce961b239bae3a724f5da7bbeed9f8b0497f0"
+    }
+  ],
+  "artifacts": {
+    "run.py": {
+      "bytes": 6728,
+      "sha256": "c67e25e0c608dbb8859a2261afabf5d8f246bb8885139d0345313be89feaba06"
+    },
+    "report.json": {
+      "bytes": 1705187,
+      "sha256": "4739db10f4099d99048aed5c4f9e57cea363e9a24a893ca723985b9a3d1b169d"
+    },
+    "README.md": {
+      "bytes": 343,
+      "sha256": "2509a15d9442070f5da406bd179e4d895e95c0bb769bfa6600a4e238bc8a60b0"
+    },
+    "prediction.json": {
+      "bytes": 1450,
+      "sha256": "26d8ff24a9df107aaeb3700be3c2e6ad03be801aa56fa39564ef7488ae304d0e"
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "schema": "numi.cardboard.restored-source-audit.v1",
+  "observed_at_utc": "2026-10-15T12:27:37.651054+00:00",
+  "source_manifest_sha256": "d78a0571def01bbdec0f4ae4533d087460241da2575a0bc7e416d9a6e0f32b7d",
+  "source_bindings": 774,
+  "all_current_snapshot_bytes_match": true,
+  "all_published_commit_bytes_match": [
+    "d328c1150173b95c30d19ec4cf33262a6311baee",
+    "f2965166e65d23cf449de3781fadb56ec1b53e91"
+  ],
+  "incident": "Owner diagnostic overlay had a symlink and briefly edited two lines of frozen095 mixed_fem.metalinc; owner reported exact restoration. This independent audit verifies all774 current bytes against both original manifest and published commits. Exact incident diff/timing is retained separately by owner.",
+  "execution_scope": "Root has run no095 native GPU or build during the reported transient edit.096/097 builds and native316/317/318 used independent source copies made earlier. Existing published095 evidence remains bound to its original source/build receipts.",
+  "physical_qualification": false
+}

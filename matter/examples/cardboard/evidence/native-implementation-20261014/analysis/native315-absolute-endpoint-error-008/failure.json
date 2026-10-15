@@ -1,0 +1,5 @@
+{
+  "error": "KeyError: state",
+  "cause": "Consumer used nonexistent precision-state key before any endpoint solve; prediction retained.",
+  "physical_steps": 0
+}

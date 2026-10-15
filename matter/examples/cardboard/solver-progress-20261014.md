@@ -1,5 +1,49 @@
 # Native solver progress and unresolved qualification
 
+## Selected material derivative refinement: reference011
+
+The published source095 implementation is unchanged. A separately declared
+refined perturbation grid now resolves all nine nonzero material directions
+at the eight selected points, which contain three unique parameter/F/history
+states. FP64 actual-ray errors pass 1e-6 at both 5e-11 and 3.5e-11; the
+worst errors across those states are 4.67e-7 and 8.77e-7, respectively.
+The native315 stress finite differences pass 1e-3 in every direction at
+1e-4: worst errors are 1.03e-4 for the liner and 5.91e-5 / 1.45e-5 for
+the two medium states. Both native stress paths agree. The measured rounded
+Fdot versus H/dt direction error at this step is 2.53e-8; this source law is
+rate independent, so it does not qualify evolving rate state.
+
+Independent 90-digit projections at the actual FP64 and native two-word FP32
+endpoints now record componentwise absolute stress disagreement and separate
+arithmetic effects from finite-step curvature. These are observed envelopes
+for the selected inputs, not universal noise bounds. The smaller-step liner
+misses, all endpoint operands, branch indicators and failed008 analysis
+consumer are retained. No endpoint branch-label crossing occurs in the
+native1e-4 comparison. This closes the bounded nonzero material-direction
+checks; full element/contact/residual accuracy and complete nonlinear
+trajectories remain separate qualifications.
+
+Experimental source096 builds all 66 targets but its opt-in augmentation
+rejects the actual coupon at initialization: the fixture contains two
+independent environments and three authored material-table entries. The
+feature-off317 one-Newton diagnostic fails its unchanged terminal certificate;
+its initial linear solve needs only one iteration and cannot test restart
+augmentation. Its complete 34,574,053-byte operator capture is losslessly
+restore-tested. No enabled/disabled trajectory parity or augmentation
+performance claim follows.
+
+Experimental source097 builds the contact checker and native probe. CCD318
+executes all 16 direct production-kernel fixtures: 12 pass and four multi-patch
+sweep motions still reject. The corrected positive-gap partial-covered fixture
+accepts, while the new positive-gap complement and static4nm off-edge overlap
+negatives reject. Original314 inputs and failures remain retained. There are
+no accepted FEM transactions in this synthetic checker.
+
+The exact tables and commands are in the source-bound evidence archive under
+`analysis/selected-material-direction-adjudication-011`. No complete coupon
+resolution series, calibrated damage/debonding, fixture-free shipping box,
+qualified capacity, gravity crush or drop impact is established.
+
 ## Source095: retained failures and narrower numerical results
 
 Source095 builds all 66 targets and passes 71 selected CPU checks. No global

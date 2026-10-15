@@ -1,0 +1,24 @@
+{
+  "overlay_manifest_sha256": "3384f6715fbdad52631bf52bb31d38b72e3eec71d6ce1b0413c8905ba4b556c9",
+  "patch_results": {
+    "matter/include/numi/matter/matter.hpp": {
+      "exit_code": 0,
+      "stdout": "patching file 'matter/include/numi/matter/matter.hpp'\n",
+      "stderr": ""
+    },
+    "matter/src/metal/fgmres.metalinc": {
+      "exit_code": 0,
+      "stdout": "patching file 'matter/src/metal/fgmres.metalinc'\n",
+      "stderr": ""
+    },
+    "matter/src/runtime.mm": {
+      "exit_code": 0,
+      "stdout": "patching file 'matter/src/runtime.mm'\n",
+      "stderr": ""
+    }
+  },
+  "independent_runtime_patch_commutation": true,
+  "probe_base_sha256": "a05972522a612b4d203987e51d16c0d9d0f939a628ad4c2c00ee98969e1804c5",
+  "probe_sha256": "5d826a8dd80a973181159d065f5e86622adfffafe8bb3fbe9bb259783b617978",
+  "scope": "Diagnostic writer only, exact float words and nullable nonfinite scalars; no physical trajectory qualification."
+}

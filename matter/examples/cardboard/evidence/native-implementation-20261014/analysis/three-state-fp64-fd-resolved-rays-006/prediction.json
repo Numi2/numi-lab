@@ -1,0 +1,29 @@
+{
+  "schema": "numi.cardboard.resolved-ray-fp64-prediction.v1",
+  "question": "Do the complete declared refined step grid and actual rounded directions resolve nonzero material action finite differences at the three selected states?",
+  "epsilons": [
+    1e-09,
+    1e-10,
+    7.5e-11,
+    5e-11,
+    3.5e-11,
+    2.5e-11,
+    2e-11,
+    1.5e-11,
+    1e-11,
+    1e-12
+  ],
+  "inputs": [
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/three-exact-captured-state-matrices-315-005/report.json",
+      "sha256": "afbc0695272124da1e8c482c77493669c25ce30cf680ebc517629dff9998a53e"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/medium-tangent-state-sensitivity-1634-001/replay.py",
+      "sha256": "3214549746cb872fbf089f59e96ce961b239bae3a724f5da7bbeed9f8b0497f0"
+    }
+  ],
+  "gate": "Every nonzero action error<=1e-6 versus independently projected MP90 times the actually realized direction; also retain nominal-direction errors. Near-zero component floor remains separate/inconclusive.",
+  "stopping": "All three unique states and all ten steps; no invalid endpoint exclusion or production tolerance changes.",
+  "physical_steps": 0
+}

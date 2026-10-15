@@ -1,0 +1,34 @@
+{
+  "inputs": [
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/three-state-fp64-fd-resolved-rays-006/report.json",
+      "sha256": "0392e0efaafef47ec439511f1c9419fbdfac64d57462975528628fa0ed0e3d7f"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/three-state-absolute-endpoint-error-007/report.json",
+      "sha256": "b60f51a724f4034d25e643c6d3eaf8e07acd52f75a831beaf409745eadfc1525"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native315-absolute-endpoint-error-009/report.json",
+      "sha256": "e7e1fae78460fcaf7bbacf267e126938d42c7cbbbf83b04d788dc13d5cd6b7e7"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/native315-absolute-endpoint-error-010/report.json",
+      "sha256": "4739db10f4099d99048aed5c4f9e57cea363e9a24a893ca723985b9a3d1b169d"
+    }
+  ],
+  "artifacts": {
+    "run.py": {
+      "bytes": 3761,
+      "sha256": "4edf4c07334bcb56b9e2363849ce100ef49ae4c42b362522b094ac142fadccac"
+    },
+    "report.json": {
+      "bytes": 4715,
+      "sha256": "e244b0a52c2cf473737f423f53451fea530ff5dca0a555bea07641265f5023d0"
+    },
+    "README.md": {
+      "bytes": 525,
+      "sha256": "f04bfec46facf4b40f047037fc8ea02d0d717c3129eee7b7789692a70cbe398c"
+    }
+  }
+}

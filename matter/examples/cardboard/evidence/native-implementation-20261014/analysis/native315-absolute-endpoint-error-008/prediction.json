@@ -1,0 +1,31 @@
+{
+  "question": "What componentwise absolute native FP32 stress errors and derivative resolution occur at exact two-word F endpoints from315?",
+  "inputs": [
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/three-exact-captured-state-matrices-315-005/report.json",
+      "sha256": "afbc0695272124da1e8c482c77493669c25ce30cf680ebc517629dff9998a53e"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/finer-controlled-material-sweep-315/output/paper-derivative-sweep-accurate.jsonl",
+      "sha256": "56de51013ea87338b8410a93d7ca078504dfb9d4d2db9553e312bbca96331c58"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/medium-tangent-state-sensitivity-1634-001/replay.py",
+      "sha256": "3214549746cb872fbf089f59e96ce961b239bae3a724f5da7bbeed9f8b0497f0"
+    }
+  ],
+  "epsilons": [
+    1e-07,
+    1e-08,
+    1e-09
+  ],
+  "precision": 90,
+  "selected_tets": [
+    567,
+    1634,
+    1638
+  ],
+  "stopping": "All selected states, all nine directions, all declared signed steps, both direct and tangent stress paths; no pointwise omission. Retain total FD error, endpoint arithmetic disagreement and finite-step curvature separately.",
+  "gate": "Record <=1e-3 nonzero-vector FD error against the actual realized ray; retain absolute component errors without converting the observed envelope into a universal bound.",
+  "physical_steps": 0
+}

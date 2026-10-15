@@ -1,0 +1,171 @@
+{
+  "base": {
+    "exact_shared_edge_overlay_005_manifest": {
+      "bytes": 6515,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/mortar-union-four-patch-overlay-005/manifest.json",
+      "sha256": "b7ffe857a24eae2a0b865ea05185d475b1501075769af0362ace6a5a2b8582da"
+    },
+    "exact_shared_edge_overlay_005_patch": {
+      "bytes": 6749,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/mortar-union-four-patch-overlay-005/exact-shared-edge-guard-005.patch",
+      "sha256": "e97d077e4688bcd8e29eea0ea2abf282e1bafda95701cf060d74203c0d6801d2"
+    },
+    "frozen_source_manifest": {
+      "bytes": 94153,
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-contact-capture-and-resolved-material-sweep-095/frozen-source.json",
+      "sha256": "d78a0571def01bbdec0f4ae4533d087460241da2575a0bc7e416d9a6e0f32b7d"
+    },
+    "parent_revision": "35bfb518c542a306f563cc364ef8496837068b9a",
+    "source_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-contact-capture-and-resolved-material-sweep-095"
+  },
+  "changes": {
+    "clip_tolerance": 1e-07,
+    "fixture_additions": [
+      "positive-gap partial uncovered crossing with active-patch clearance above contact thickness",
+      "zero-motion 4 nm off-edge initial cross-patch overlap"
+    ],
+    "overlap_threshold": 1e-10,
+    "paired_map_identity": "Require exact FP32 xyz equality of both left and right reference-map endpoints; do not accept 8e-6 near matches as seam identity.",
+    "partition_diagnostic_codes": {
+      "left": "1..13",
+      "right": "101..113",
+      "sweep": 200
+    },
+    "witness_location": "Existing 8e-6 barycentric feature-location tolerance is unchanged and explicitly targeted by a zero-motion off-edge initial-overlap native negative control; that control has not been run."
+  },
+  "checks": {
+    "fixture_geometry_arithmetic": "PASS; positive-gap, covered-complement clearance and off-edge tolerance relations checked",
+    "host_shader_and_fixture_compile": "PASS; clean CMake target build regenerated NumiMatter.metallib and linked numi-matter-cardboard-full-contact-armijo-check; existing unrelated Metal warnings remain; no GPU dispatch",
+    "native_gpu_execution": "NOT RUN",
+    "patch_dry_run_against_base": "PASS with patch -p1",
+    "physical_qualification": false,
+    "shared_edge_cpu_checker": "PASS; 14 printed checks"
+  },
+  "classification": "external compile-and-CPU-check overlay; native GPU execution not run",
+  "commands": {
+    "cmake_build": "cmake --build build-host --target numi-matter-cardboard-full-contact-armijo-check -j 4",
+    "cpu_compile": "clang++ -std=c++20 -O2 -ffp-contract=fast -Wall -Wextra -Wpedantic -Werror -I build-source/matter/include mortar_shared_edge_guard_check.cpp -o mortar_shared_edge_guard_check",
+    "cpu_run": "./mortar_shared_edge_guard_check",
+    "geometry_run": "/Users/home/.pyenv/versions/3.10.12/bin/python3.10 fixture_geometry_check.py"
+  },
+  "files": {
+    "README.md": {
+      "bytes": 3104,
+      "path": "README.md",
+      "sha256": "023fb1b7bf1fba435d0c0ed4533bb008c1478b1ec7c6c8915ca8b1e3cb361ae9"
+    },
+    "build-host-clean-output.txt": {
+      "bytes": 17726,
+      "path": "build-host-clean-output.txt",
+      "sha256": "b02c718c2c21a17c92bd2b81c814a03b3264718d25c68dcf338867afb238bae6"
+    },
+    "build-host-output.txt": {
+      "bytes": 734,
+      "path": "build-host-output.txt",
+      "sha256": "e5f255cfff247c94a5188085f79c5272644f12429964890774b73fd54f89fea3"
+    },
+    "build-host/matter/numi-matter-cardboard-full-contact-armijo-check": {
+      "bytes": 6113904,
+      "path": "build-host/matter/numi-matter-cardboard-full-contact-armijo-check",
+      "sha256": "76f8c14388360da17d139812206b918ce5aeb443f73847632310d5d96392de72"
+    },
+    "build-host/matter/shaders/NumiMatter.metallib": {
+      "bytes": 6080615,
+      "path": "build-host/matter/shaders/NumiMatter.metallib",
+      "sha256": "e43b150284e754495ad54c4cc30ec555b9ccc63f725363e5482070a5a1f761ea"
+    },
+    "build-source/matter/CMakeLists.txt": {
+      "bytes": 104743,
+      "path": "build-source/matter/CMakeLists.txt",
+      "sha256": "08170dbb3112cb42dcdd2c46ec0bbc587dd3c950646c76b107430027c162435e"
+    },
+    "build-source/matter/include/numi/matter/mortar_shared_edge_guard.h": {
+      "bytes": 4779,
+      "path": "build-source/matter/include/numi/matter/mortar_shared_edge_guard.h",
+      "sha256": "aa1d80c197f41a3236c4a31c0663646592b621798e09adbfc8033a6a1fb86478"
+    },
+    "build-source/matter/src/metal/contact.metalinc": {
+      "bytes": 381819,
+      "path": "build-source/matter/src/metal/contact.metalinc",
+      "sha256": "b3e14b8a291c54c7b890d3b65eb7aa585b1ca9c1ac21d7c9417d0fc72563102b"
+    },
+    "build-source/matter/tools/cardboard_full_contact_armijo_check.mm": {
+      "bytes": 324373,
+      "path": "build-source/matter/tools/cardboard_full_contact_armijo_check.mm",
+      "sha256": "0b6658f168db67e7a049b0bd5036a946dc9e6204607a4c3e771666c455e7b5ab"
+    },
+    "cpu-check-build-output.txt": {
+      "bytes": 0,
+      "path": "cpu-check-build-output.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "cpu-check-output.txt": {
+      "bytes": 567,
+      "path": "cpu-check-output.txt",
+      "sha256": "ba3a96951b4888ad7f10329815337915fe3cd0f55c085eede3af12729d47b897"
+    },
+    "fixture-geometry-check.json": {
+      "bytes": 1131,
+      "path": "fixture-geometry-check.json",
+      "sha256": "ce6df26e8884453e6e8076ee0a7eda5a25fc78e827cddbe91bc4e90ce8302123"
+    },
+    "fixture_geometry_check.py": {
+      "bytes": 3191,
+      "path": "fixture_geometry_check.py",
+      "sha256": "a60e5a853df2c5f11a652cbd4d39cb11e0b5874b1779b8de7633f8bcebe02533"
+    },
+    "mortar_shared_edge_guard_check": {
+      "bytes": 35216,
+      "path": "mortar_shared_edge_guard_check",
+      "sha256": "c4c94d044da7596806c9f5628a1757c01b254f95f9b04e3dda840531b78777e4"
+    },
+    "mortar_shared_edge_guard_check.cpp": {
+      "bytes": 7911,
+      "path": "mortar_shared_edge_guard_check.cpp",
+      "sha256": "b1a53eb020a65320fe04cc35729379895df9dfea1abe2349ca6f55efd480589e"
+    },
+    "private-mortar-ccd-314.patch": {
+      "bytes": 26617,
+      "path": "private-mortar-ccd-314.patch",
+      "sha256": "d24d7b9102c9566c7b41593d689b741d6a6034e578612b4c3dcc8c038f5969b2"
+    }
+  },
+  "limitations": [
+    "No native result exists for the new zero-translation off-edge initial-overlap case or positive-gap complement crossing.",
+    "The 8e-6 witness-location tolerance remains; whether its numerical allowance can hide an initial off-edge collision is unresolved pending the native negative control.",
+    "The four-patch rejection in run 314 remains unexplained; stage codes only improve the next diagnostic.",
+    "The original 314 five expected-accept rejections remain preserved and unqualified.",
+    "This is a synthetic private-kernel fixture and not a shipping-board or physical validation result."
+  ],
+  "original_native_314": {
+    "directory": "/Users/home/cardboard-implementation-20261014/native/exhaustive-private-mortar-ccd-314",
+    "original_report": {
+      "bytes": 10035,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/private-mortar-all-cases-314-001/report.json",
+      "sha256": "c1ec247e4a1908bdab3cc201c78c9489b7432f7a24d0dec072e8af49811e3dcb"
+    },
+    "receipt": {
+      "bytes": 306,
+      "path": "/Users/home/cardboard-implementation-20261014/native/exhaustive-private-mortar-ccd-314/receipt.json",
+      "sha256": "b142c6db26452d679c703381aef6b5897c1752cff65814a0650fe78d267895a1"
+    },
+    "source_audit_manifest": {
+      "bytes": 1632,
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/private-mortar-all-cases-314-001/manifest.json",
+      "sha256": "0cd9cdef1a3eedc4ce0cb70bb157c8156795800f18aea49b18d85e2c79a5f6d3"
+    },
+    "stderr": {
+      "bytes": 147,
+      "path": "/Users/home/cardboard-implementation-20261014/native/exhaustive-private-mortar-ccd-314/stderr.log",
+      "sha256": "c01341f74e13ffa81d348ebe0051d82e4a9702157b45cdee3629b2fe26c88d98"
+    },
+    "stdout": {
+      "bytes": 111203,
+      "path": "/Users/home/cardboard-implementation-20261014/native/exhaustive-private-mortar-ccd-314/stdout.log",
+      "sha256": "87701986e51130cbbafd147f2b9fd307f8c9ff4ea1f018d14fef40def6086ea2"
+    },
+    "verdict": "9 of 14 expected gates passed; five expected-accept cases rejected. This overlay does not overwrite or reinterpret the run."
+  },
+  "overlay": "private-mortar-ccd-314-overlay-001",
+  "schema": "numi.cardboard.private_mortar_ccd_overlay.v1"
+}

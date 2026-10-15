@@ -1,0 +1,47 @@
+{
+  "schema": "numi.cardboard.private_mortar_witness_overlay.v1",
+  "package_id": "private-mortar-witness-diagnostic-318-overlay-001",
+  "created_date": "2026-10-15",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-exact-mortar-seam-diagnostics-097",
+  "base_parent_revision": "35bfb518c542a306f563cc364ef8496837068b9a",
+  "base_frozen_source_json_sha256": "eaabd04412d9128c7ab30881aafa720404ddcc87051b194cfc5f39c51df1a048",
+  "native_318": {
+    "run_directory": "/Users/home/cardboard-implementation-20261014/native/exact-mortar-seam-stage-diagnostics-318",
+    "source_build_json_sha256": "655c439306f4144bb1adbe2f4048ef2f7ce9f0e1cf4de9f3d024f9e30e2b698c",
+    "receipt_sha256": "bc25681ee6ff80769846dbc0bb03b3818ced53ba25dbe450c20ddcd52c19aeec",
+    "prediction_sha256": "e699a77727b8d9f6460b8dfaec261780ba48fb4a8dd6939e95a0025687462e8e",
+    "stdout_sha256": "276aea2f30ce703d6308f4d82ef256a284081ca18e3873b1195ec1fe2bf2708c",
+    "stderr_sha256": "c01341f74e13ffa81d348ebe0051d82e4a9702157b45cdee3629b2fe26c88d98",
+    "execution_started": true,
+    "exit_code": 1,
+    "overlay_witness_rows_present": false,
+    "note": "Native 318 predates this diagnostic overlay; retained as the unchanged failing baseline."
+  },
+  "changed_files": [
+    {
+      "path": "matter/src/metal/contact.metalinc",
+      "base_sha256": "b3e14b8a291c54c7b890d3b65eb7aa585b1ca9c1ac21d7c9417d0fc72563102b",
+      "overlay_sha256": "3cef6ae3dbd384d7b26ff6b0eb4ecda6da7a32be74cdea0badc5975eef692132"
+    },
+    {
+      "path": "matter/tools/cardboard_full_contact_armijo_check.mm",
+      "base_sha256": "0b6658f168db67e7a049b0bd5036a946dc9e6204607a4c3e771666c455e7b5ab",
+      "overlay_sha256": "95e52efd34aeffab1d220b4fa8840b885001dbc156d4a1d8f793210e3c40d0f3"
+    }
+  ],
+  "artifacts": {
+    "overlay.patch": "69186ac3509c197903cf53e29682d1afcf81bbe6838a0130aa4e2cb34dd609d1",
+    "mortar_exact_map_audit.py": "1349fec25aae08ad9d7ebc818667781481f197e5be1d3da52dbde44fd00f8c20",
+    "exact-map-audit.json": "be071c02e2c72bdeb022a6d4525cfa00b8025c66dbb266d9ccde2510c822f403",
+    "README.md": "419ab132120b8137a428aa3ea506fb42fe96a329dad61eb9f6491a41917e3708"
+  },
+  "verification": {
+    "compile_only_command": "cmake --build /Users/home/cardboard-implementation-20261014/analysis/private-mortar-witness-diagnostic-318-overlay-001/build-host --target numi-matter-cardboard-full-contact-armijo-check -j2",
+    "compile_only_result": "PASS",
+    "gpu_execution": "NOT RUN",
+    "apply_check_command": "git -C /Users/home/cardboard-implementation-20261014/snapshots/source-exact-mortar-seam-diagnostics-097 apply --check /Users/home/cardboard-implementation-20261014/analysis/private-mortar-witness-diagnostic-318-overlay-001/overlay.patch",
+    "apply_check_result": "PASS",
+    "production_acceptance_logic_changed": false,
+    "contact_or_history_state_written_by_debug_kernel": false
+  }
+}
