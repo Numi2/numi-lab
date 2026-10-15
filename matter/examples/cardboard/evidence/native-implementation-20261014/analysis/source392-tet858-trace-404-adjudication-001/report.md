@@ -1,0 +1,13 @@
+# Native tet 858 local projection trace adjudication
+
+Native run 404 records the exact tet-858 projection trace from source snapshot `source-native-tet858-vtccd-traces-122`. It replays the retained candidate from point 401. The run is explicitly **not** bound to the first status-5 generation in the full coupon, and it performed **zero physical transactions**.
+
+The trace contains 32 local projection records. All 32 have status 7, meaning each record accepted a local Armijo update; after the final accepted update, the projection terminates at its 32-update limit with failure code 7. Update 1 began at raw residual 46.5313263, accepted alpha 0.125 at backtrack 3, and had accepted scaled trial residual 0.612617493. Update 32 began at raw residual 4.32595158, accepted alpha 0.00390625 at backtrack 8, and had accepted scaled trial residual 0.214851126; its scaled correction norm was 17.3405857.
+
+The trace row stores raw residual before the update. The companion point output is post-update and agrees with the trace summary within float serialization precision: residual 4.30914163589, state norm 1.08902431, `projection_converged=false`, failure 7, and 32 updates. Across the trace, raw residual fell monotonically from 46.5313263 to 4.32595158 pre-update; accepted scaled trial residual fell from 0.612617493 to 0.214851126. This is accepted descent without convergence. The per-update raw rows, row scales, all trial scaled norms, and accepted step sizes are retained in `iterations.csv`.
+
+Trace-on versus trace-off direct stress, tangent-path stress, tangent, and projected-state high/low outputs have zero bit mismatches in all five reported channels. Stress and tangent validity are false; their all-zero arrays are invalid response outputs and must not be interpreted as a stress/tangent result.
+
+Binding: point401 SHA `411d522ebd281eae2b75d99f8f7927d2df3521795b1a04dc4a325953aafcc4d8`; candidate nodes `89846e4efc91c1774b52d6b3732f633e78414a7d341b6cbd8b9b4966e4be0417`; accepted state `e32909672f5ef53992fd7c798419dcdcd257662daa0f0c6cc8d960a1dced5dfd`; compiled package `cafbf36052bbfa72e8be49fdba8b23e900469c9f15136a14a4ec1e4c0b5ccf7c`; medium asset `76f2bef552822708c36b5acc9f92bd44e7bb92c578e5e46adb64a1a2e82e47f9`; source build `d170098062ae80f751d3b3b57f99016e51bf73e97063fb86eaefcd49d6c514f3`; frozen source manifest `4e19bfca0faf140ff64fb9a33058d4da24ee5f6988ddb068d242b79525056369`. Receipt reports exit 0 in 2.624s, no timeout, and unchanged source inputs.
+
+This trace establishes observer parity for this retained point and the local 32-update failure behavior. It does not establish coupon status-5 producer identity, first-failure-generation provenance, full-solver convergence, or physical material validity.

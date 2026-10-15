@@ -1,0 +1,604 @@
+{
+  "schema": "numi.cardboard.private_vtccd_exact_call_adjudication.v1",
+  "created_from_native_captures": true,
+  "checks_passed": true,
+  "source_lines": {
+    "helper": "source121/source122 contact.metalinc vertexTriangleCCD; source code is bound by per-run predictions and source physics fingerprint",
+    "effective_roundoff": "source121/source122 common.metalinc ccdDistanceRoundoff = 8*kEpsilon*max(thickness, coordinateScale, 1e-12)",
+    "failure_gate": "source121/source122 contact.metalinc un-mortared VT loop returns contact failure when certified is false"
+  },
+  "results": [
+    {
+      "trial": 21,
+      "directories": {
+        "baseline": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial21-capture-398",
+        "observed": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial21-vtccd-call-405"
+      },
+      "captures": {
+        "baseline": {
+          "manifest_sha256": "a8e33e538c0635ba0f3d47a3dc524a09e7b6125dc6a468fc5590b8562d4f47fd",
+          "payload_sha256": "2a55974dad524891abe3a456fbfa37f96360ffb09a99ee11f66733bff312c07a",
+          "payload_bytes": 19467248,
+          "array_count": 129,
+          "source_physics_fingerprint": "915f50b10edc2e46",
+          "device_program_fingerprint": "65c21efe518880f6"
+        },
+        "observed": {
+          "manifest_sha256": "a821cf7e1e166327059258a953aaf519c8ef7e8ca9f0c344f1b6681185845e64",
+          "payload_sha256": "eb6286c09081577e226eec6deb11021b4e483e104583214216b6b77c441190b5",
+          "payload_bytes": 19467584,
+          "array_count": 130,
+          "source_physics_fingerprint": "915f50b10edc2e46",
+          "device_program_fingerprint": "28f5c6c60a7f247f"
+        },
+        "common_array_count": 129,
+        "common_array_hash_mismatches": 0,
+        "extra_array": {
+          "name": "actual_vertex_triangle_ccd_call",
+          "phase": "private_contact_rebuild_before_free_body_terms",
+          "bytes": 336,
+          "sha256": "ed119deb040fcc91e33e4eafe73e948cdd34946960c4e1ecee2decc6d600d097"
+        },
+        "all_32_armijo_trace_rows_identical": true,
+        "transaction_json_identical": [
+          {
+            "name": "transaction-000000.json",
+            "sha256": "249d5249c1a4f2f165bc8468142a8f086ee615465360aac7080d9b9d6d90c5bf",
+            "identical": true
+          },
+          {
+            "name": "transaction-000001.json",
+            "sha256": "1920dcf0873634e798740a00313ae9a12fb95fa3fb760eb2a2653cdf40d28e81",
+            "identical": true
+          },
+          {
+            "name": "transaction-000002.json",
+            "sha256": "f42419d4eeae77119f4f1434fa96a732cd56664d7fa88af41b9c61d2881f426d",
+            "identical": true
+          }
+        ],
+        "transaction_binary_diffs": [
+          {
+            "name": "transaction-000000-before.bin",
+            "byte_count": 904359,
+            "difference_offsets": [
+              12,
+              19
+            ],
+            "old_device_fingerprint": "65c21efe518880f6",
+            "new_device_fingerprint": "28f5c6c60a7f247f",
+            "other_bytes_identical": true
+          },
+          {
+            "name": "transaction-000000-after.bin",
+            "byte_count": 904359,
+            "difference_offsets": [
+              12,
+              19
+            ],
+            "old_device_fingerprint": "65c21efe518880f6",
+            "new_device_fingerprint": "28f5c6c60a7f247f",
+            "other_bytes_identical": true
+          },
+          {
+            "name": "transaction-000001-before.bin",
+            "byte_count": 904359,
+            "difference_offsets": [
+              12,
+              19
+            ],
+            "old_device_fingerprint": "65c21efe518880f6",
+            "new_device_fingerprint": "28f5c6c60a7f247f",
+            "other_bytes_identical": true
+          },
+          {
+            "name": "transaction-000001-after.bin",
+            "byte_count": 904359,
+            "difference_offsets": [
+              12,
+              19
+            ],
+            "old_device_fingerprint": "65c21efe518880f6",
+            "new_device_fingerprint": "28f5c6c60a7f247f",
+            "other_bytes_identical": true
+          },
+          {
+            "name": "transaction-000002-before.bin",
+            "byte_count": 904359,
+            "difference_offsets": [
+              12,
+              19
+            ],
+            "old_device_fingerprint": "65c21efe518880f6",
+            "new_device_fingerprint": "28f5c6c60a7f247f",
+            "other_bytes_identical": true
+          },
+          {
+            "name": "transaction-000002-after.bin",
+            "byte_count": 904359,
+            "difference_offsets": [
+              12,
+              19
+            ],
+            "old_device_fingerprint": "65c21efe518880f6",
+            "new_device_fingerprint": "28f5c6c60a7f247f",
+            "other_bytes_identical": true
+          }
+        ]
+      },
+      "private_rebuild_status": {
+        "code": 6,
+        "environment": 0,
+        "object_index": 0,
+        "failing_index": 173,
+        "diagnostics": [
+          36.0,
+          123.0,
+          2.0,
+          4.0
+        ],
+        "candidate_count": [
+          400,
+          0,
+          0,
+          0
+        ],
+        "active_count": [
+          123,
+          0,
+          0,
+          0
+        ]
+      },
+      "actual_helper_record": {
+        "attempt": [
+          1,
+          0,
+          173,
+          5
+        ],
+        "candidate_identity": [
+          36,
+          123,
+          173,
+          1
+        ],
+        "left_nodes_and_object": [
+          13,
+          10,
+          14,
+          0
+        ],
+        "right_nodes_and_object": [
+          28,
+          29,
+          32,
+          0
+        ],
+        "start_left_then_right_m": [
+          [
+            7.754315412000778e-09,
+            1.0862975408088005e-08,
+            0.0010005033109337091
+          ],
+          [
+            7.642305455135556e-09,
+            -0.001999989850446582,
+            0.0010004497598856688
+          ],
+          [
+            0.002000009175390005,
+            1.0602716038476956e-08,
+            0.0010003643110394478
+          ],
+          [
+            -1.0073042489011641e-07,
+            -0.002000063192099333,
+            0.0010102950036525726
+          ],
+          [
+            0.0019998992793262005,
+            -0.002000058302655816,
+            0.0010103347012773156
+          ],
+          [
+            0.0019998939242213964,
+            -5.803402203241603e-08,
+            0.0010104248067364097
+          ]
+        ],
+        "finish_left_then_right_m": [
+          [
+            1.0520731841268116e-08,
+            1.2922650505231559e-08,
+            0.0010006178636103868
+          ],
+          [
+            1.0371958403254666e-08,
+            -0.00199998845346272,
+            0.0010005499934777617
+          ],
+          [
+            0.0020000124350190163,
+            1.2728831322306178e-08,
+            0.00100045558065176
+          ],
+          [
+            -1.0067594757856568e-07,
+            -0.0020000634249299765,
+            0.0010103353997692466
+          ],
+          [
+            0.0019998992793262005,
+            -0.002000058302655816,
+            0.0010103641543537378
+          ],
+          [
+            0.0019998939242213964,
+            -5.815108394813251e-08,
+            0.0010104539105668664
+          ]
+        ],
+        "hit": false,
+        "certified": false,
+        "toi": 0.94220370054245,
+        "reported_separation_m": 1.0001938790082932e-05,
+        "normal_valid": false,
+        "normal": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "barycentric": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "point": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "thickness_m": 9.999999747378752e-06,
+        "left_dt_s": 9.999999747378752e-05,
+        "right_dt_s": 9.999999747378752e-05,
+        "solver_iteration": 9,
+        "effective_thickness_estimate_m": 1.000190695776837e-05,
+        "roundoff_estimate_m": 1.9074091195392384e-09,
+        "reported_margin_from_effective_nm": 0.03183231456205249,
+        "independent_fp64_geometry": {
+          "distance_at_start_m": 1.0060489496898544e-05,
+          "start_barycentric": [
+            2.379146569786439e-05,
+            3.418367697578917e-05,
+            0.9999420248573263
+          ],
+          "distance_at_reported_toi_m": 1.0001915679652792e-05,
+          "reported_toi_barycentric": [
+            2.4356084787235943e-05,
+            3.520747791973e-05,
+            0.999940436437293
+          ],
+          "distance_at_finish_m": 9.998322665616636e-06,
+          "finish_barycentric": [
+            2.4390685656849875e-05,
+            3.527029236485506e-05,
+            0.9999403390219783
+          ],
+          "first_effective_threshold_crossing_t": 0.9423439985352607,
+          "independent_grid_samples": 4097,
+          "maximum_positive_distance_increment_on_grid_m": -1.5177443254350332e-11,
+          "toi_minus_first_crossing_t": -0.00014029799281078947,
+          "finish_margin_from_effective_nm": -3.5842921517337114,
+          "reported_toi_fp64_margin_from_effective_nm": 0.00872188442244137,
+          "method": "binary64 Ericson closest-point regions on the exact captured binary32 endpoint values, linearly interpolated in binary64; separate from production Metal result"
+        }
+      },
+      "verdict": {
+        "native_execution": "normal expected fixture failure; exit code 1, no timeout, source inputs unchanged",
+        "trial21": "production helper returned uncertified (hit=0, certified=0); not a certified separation or miss. Captured path independently crosses the effective threshold before t=1, so this is unresolved true swept contact under the fixed production 16-iteration loop. The helper record does not expose an iteration counter; exhaustion is inferred from the frozen helper control flow and this return state.",
+        "trial22": "production helper returned certified hit. Its reported TOI is earlier than the independent binary64 crossing; difference is within a sub-nanometre FP32 geometry/interpolation band. This is conservative early contact classification, not an unsafe missed collision.",
+        "scope": "exact-call evidence explains the trial21/22 status boundary only. The full-contact fixture still fails and remains unqualified."
+      }
+    },
+    {
+      "trial": 22,
+      "directories": {
+        "baseline": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial22-capture-399",
+        "observed": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial22-vtccd-call-406"
+      },
+      "captures": {
+        "baseline": {
+          "manifest_sha256": "3724f9e63472b606fdd05082a3212e37c5f0dfe44f7d19bcfaeb4a3f7e9bb9da",
+          "payload_sha256": "55980968e3cfa10e2ea89273fbfd3d47004501d214ce80403c559ee5f06fd119",
+          "payload_bytes": 19467248,
+          "array_count": 129,
+          "source_physics_fingerprint": "915f50b10edc2e46",
+          "device_program_fingerprint": "65c21efe518880f6"
+        },
+        "observed": {
+          "manifest_sha256": "41eb361744412ff47f338bc563a43cd940c29019a3c32c3c4de83e61677d220c",
+          "payload_sha256": "d1c3e4d3c74d3bf75a72ade703557b4cfa9a70d62f1f51683fffbcff8546bd74",
+          "payload_bytes": 19467584,
+          "array_count": 130,
+          "source_physics_fingerprint": "915f50b10edc2e46",
+          "device_program_fingerprint": "28f5c6c60a7f247f"
+        },
+        "common_array_count": 129,
+        "common_array_hash_mismatches": 0,
+        "extra_array": {
+          "name": "actual_vertex_triangle_ccd_call",
+          "phase": "private_contact_rebuild_before_free_body_terms",
+          "bytes": 336,
+          "sha256": "981fb3efe37dd2463b86e756b5a312ce33c619c8a93110c7ea4580a16d5c2277"
+        },
+        "all_32_armijo_trace_rows_identical": true,
+        "transaction_json_identical": [
+          {
+            "name": "transaction-000000.json",
+            "sha256": "249d5249c1a4f2f165bc8468142a8f086ee615465360aac7080d9b9d6d90c5bf",
+            "identical": true
+          },
+          {
+            "name": "transaction-000001.json",
+            "sha256": "1920dcf0873634e798740a00313ae9a12fb95fa3fb760eb2a2653cdf40d28e81",
+            "identical": true
+          },
+          {
+            "name": "transaction-000002.json",
+            "sha256": "f42419d4eeae77119f4f1434fa96a732cd56664d7fa88af41b9c61d2881f426d",
+            "identical": true
+          }
+        ],
+        "transaction_binary_diffs": [
+          {
+            "name": "transaction-000000-before.bin",
+            "byte_count": 904359,
+            "difference_offsets": [
+              12,
+              19
+            ],
+            "old_device_fingerprint": "65c21efe518880f6",
+            "new_device_fingerprint": "28f5c6c60a7f247f",
+            "other_bytes_identical": true
+          },
+          {
+            "name": "transaction-000000-after.bin",
+            "byte_count": 904359,
+            "difference_offsets": [
+              12,
+              19
+            ],
+            "old_device_fingerprint": "65c21efe518880f6",
+            "new_device_fingerprint": "28f5c6c60a7f247f",
+            "other_bytes_identical": true
+          },
+          {
+            "name": "transaction-000001-before.bin",
+            "byte_count": 904359,
+            "difference_offsets": [
+              12,
+              19
+            ],
+            "old_device_fingerprint": "65c21efe518880f6",
+            "new_device_fingerprint": "28f5c6c60a7f247f",
+            "other_bytes_identical": true
+          },
+          {
+            "name": "transaction-000001-after.bin",
+            "byte_count": 904359,
+            "difference_offsets": [
+              12,
+              19
+            ],
+            "old_device_fingerprint": "65c21efe518880f6",
+            "new_device_fingerprint": "28f5c6c60a7f247f",
+            "other_bytes_identical": true
+          },
+          {
+            "name": "transaction-000002-before.bin",
+            "byte_count": 904359,
+            "difference_offsets": [
+              12,
+              19
+            ],
+            "old_device_fingerprint": "65c21efe518880f6",
+            "new_device_fingerprint": "28f5c6c60a7f247f",
+            "other_bytes_identical": true
+          },
+          {
+            "name": "transaction-000002-after.bin",
+            "byte_count": 904359,
+            "difference_offsets": [
+              12,
+              19
+            ],
+            "old_device_fingerprint": "65c21efe518880f6",
+            "new_device_fingerprint": "28f5c6c60a7f247f",
+            "other_bytes_identical": true
+          }
+        ]
+      },
+      "private_rebuild_status": {
+        "code": 0,
+        "environment": 0,
+        "object_index": 0,
+        "failing_index": 0,
+        "diagnostics": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "candidate_count": [
+          400,
+          0,
+          0,
+          0
+        ],
+        "active_count": [
+          129,
+          0,
+          0,
+          0
+        ]
+      },
+      "actual_helper_record": {
+        "attempt": [
+          1,
+          0,
+          173,
+          5
+        ],
+        "candidate_identity": [
+          36,
+          123,
+          173,
+          1
+        ],
+        "left_nodes_and_object": [
+          13,
+          10,
+          14,
+          0
+        ],
+        "right_nodes_and_object": [
+          28,
+          29,
+          32,
+          0
+        ],
+        "start_left_then_right_m": [
+          [
+            7.754315412000778e-09,
+            1.0862975408088005e-08,
+            0.0010005033109337091
+          ],
+          [
+            7.642305455135556e-09,
+            -0.001999989850446582,
+            0.0010004497598856688
+          ],
+          [
+            0.002000009175390005,
+            1.0602716038476956e-08,
+            0.0010003643110394478
+          ],
+          [
+            -1.0073042489011641e-07,
+            -0.002000063192099333,
+            0.0010102950036525726
+          ],
+          [
+            0.0019998992793262005,
+            -0.002000058302655816,
+            0.0010103347012773156
+          ],
+          [
+            0.0019998939242213964,
+            -5.803402203241603e-08,
+            0.0010104248067364097
+          ]
+        ],
+        "finish_left_then_right_m": [
+          [
+            1.0520730064911277e-08,
+            1.292264872887472e-08,
+            0.0010006178636103868
+          ],
+          [
+            1.0371956626897827e-08,
+            -0.00199998845346272,
+            0.0010005499934777617
+          ],
+          [
+            0.0020000124350190163,
+            1.2728829545949338e-08,
+            0.00100045558065176
+          ],
+          [
+            -1.0067594757856568e-07,
+            -0.0020000634249299765,
+            0.0010103353997692466
+          ],
+          [
+            0.0019998992793262005,
+            -0.002000058302655816,
+            0.0010103641543537378
+          ],
+          [
+            0.0019998939242213964,
+            -5.815108039541883e-08,
+            0.0010104539105668664
+          ]
+        ],
+        "hit": true,
+        "certified": true,
+        "toi": 0.9419823288917542,
+        "reported_separation_m": 1.0001822374761105e-05,
+        "normal_valid": true,
+        "normal": [
+          6.983646744629368e-05,
+          -3.3526888728374615e-05,
+          1.0,
+          0.0
+        ],
+        "barycentric": [
+          2.4318695068359375e-05,
+          3.520720201777294e-05,
+          0.9999404549598694,
+          0.0
+        ],
+        "point": [
+          0.0019998932257294655,
+          -5.780895762086402e-08,
+          0.0010004503419622779,
+          0.0
+        ],
+        "thickness_m": 9.999999747378752e-06,
+        "left_dt_s": 9.999999747378752e-05,
+        "right_dt_s": 9.999999747378752e-05,
+        "solver_iteration": 9,
+        "effective_thickness_estimate_m": 1.000190695776837e-05,
+        "roundoff_estimate_m": 1.9074091195392384e-09,
+        "reported_margin_from_effective_nm": -0.08458300726488233,
+        "independent_fp64_geometry": {
+          "distance_at_start_m": 1.0060489496898544e-05,
+          "start_barycentric": [
+            2.379146569786439e-05,
+            3.418367697578917e-05,
+            0.9999420248573263
+          ],
+          "distance_at_reported_toi_m": 1.0001929441631158e-05,
+          "reported_toi_barycentric": [
+            2.4355954761023924e-05,
+            3.5207234820493674e-05,
+            0.9999404368104184
+          ],
+          "distance_at_finish_m": 9.998322665616419e-06,
+          "finish_barycentric": [
+            2.4390688321274112e-05,
+            3.5270289700352804e-05,
+            0.9999403390219783
+          ],
+          "first_effective_threshold_crossing_t": 0.9423439985305091,
+          "independent_grid_samples": 4097,
+          "maximum_positive_distance_increment_on_grid_m": -1.5177443254350332e-11,
+          "toi_minus_first_crossing_t": -0.00036166963875494673,
+          "finish_margin_from_effective_nm": -3.584292151950552,
+          "reported_toi_fp64_margin_from_effective_nm": 0.022483862788954763,
+          "method": "binary64 Ericson closest-point regions on the exact captured binary32 endpoint values, linearly interpolated in binary64; separate from production Metal result"
+        }
+      },
+      "verdict": {
+        "native_execution": "normal expected fixture failure; exit code 1, no timeout, source inputs unchanged",
+        "trial21": "production helper returned uncertified (hit=0, certified=0); not a certified separation or miss. Captured path independently crosses the effective threshold before t=1, so this is unresolved true swept contact under the fixed production 16-iteration loop. The helper record does not expose an iteration counter; exhaustion is inferred from the frozen helper control flow and this return state.",
+        "trial22": "production helper returned certified hit. Its reported TOI is earlier than the independent binary64 crossing; difference is within a sub-nanometre FP32 geometry/interpolation band. This is conservative early contact classification, not an unsafe missed collision.",
+        "scope": "exact-call evidence explains the trial21/22 status boundary only. The full-contact fixture still fails and remains unqualified."
+      }
+    }
+  ]
+}

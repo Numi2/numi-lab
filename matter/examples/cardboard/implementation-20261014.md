@@ -1,5 +1,9 @@
 # Cardboard implementation and evidence ledger
 
+## Current milestone: source123
+
+The [source123 report](solver-milestone-source123.md) records the two-stage local merit repair: native407 clears retained tet858 in14 updates, native408 retains tet674 in5, and native410 returns valid results for3,072 diagnostic samples. Selected independent tangent and endpoint comparisons pass while smaller-step failures remain. Native405/406 locate a separate CCD budget failure with physical-history parity. Full coupon409, mesh/time convergence, calibrated damage, shipping assembly and crush/drop qualification remain separate and open.
+
 ## Current milestone: source121
 
 The [source121 report](solver-milestone-source121.md) records the scaled material merit repair, exact674 point regression, complete rejected-contact trial captures, and the new native858 material failure. Source119 passes70 build targets and74 CPU checks; source121 freshly builds three diagnostic targets. The full coupon still rejects control zero. The previous858 CPU replay used the old merit rule and is retained with an erratum. No full resolution study, calibrated corrugated damage, released shipping assembly, capacity or crush/drop prediction is qualified. Earlier milestone headings below preserve their original revision scope.

@@ -12,7 +12,7 @@ retained convergence/contact failures, and the remaining material/assembly
 limits. Its source-bound bundle preserves the original runtime identities;
 the current host execution-policy revision is 2.
 
-The [source121 solver milestone](examples/cardboard/solver-milestone-source121.md) records the current scaled material globalization, full rejected-trial diagnostics and remaining native coupon failure. It preserves separate solver, convergence, calibration, analogue-validation, assembly and crush/impact verdicts.
+The [source123 solver milestone](examples/cardboard/solver-milestone-source123.md) records the two-stage material return-map repair, exact native regressions and contact-helper evidence. Complete coupon, convergence, calibration, assembly and crush/impact qualification remain separate and open. The earlier [source121 report](examples/cardboard/solver-milestone-source121.md) retains its source-specific failures.
 
 ## Starting material
 

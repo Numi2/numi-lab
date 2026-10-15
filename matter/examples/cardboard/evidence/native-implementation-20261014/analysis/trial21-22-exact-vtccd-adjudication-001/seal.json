@@ -1,0 +1,12 @@
+{
+  "schema": "numi.cardboard.analysis-package-seal.v1",
+  "package": "trial21-22-exact-vtccd-adjudication-001",
+  "manifest_sha256": "8f153ac029770e2652e92787ca65fd77d5c8e9cd2c1190398fae6c9225d7c5e9",
+  "files": {
+    "README.md": "dfba6b04259d62eb1f32daf0a595556dcbe88a15bc7507c43aaaee5ae11d4e11",
+    "audit.py": "cb3c3a2ef1ee82019904d522aa279f7730a424946e74d4c3bb63097abe1c7f34",
+    "report.json": "1ef5523a0cb37e92894f28a1ad88cd4c0f0d65c5d2a223e0cd60639734b2ace1",
+    "validation.log": "2d0004bd196e0626b082e6f6c8567371e30cfe52b0546451f9df5ef3289e1a2a",
+    "manifest.json": "8f153ac029770e2652e92787ca65fd77d5c8e9cd2c1190398fae6c9225d7c5e9"
+  }
+}

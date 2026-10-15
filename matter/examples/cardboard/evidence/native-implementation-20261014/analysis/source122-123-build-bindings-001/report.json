@@ -1,0 +1,38 @@
+{
+  "rows": [
+    {
+      "build": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-122",
+      "receipt_sha256": "d170098062ae80f751d3b3b57f99016e51bf73e97063fb86eaefcd49d6c514f3",
+      "success": true,
+      "targets": [
+        "numi-matter-cardboard-full-contact-armijo-check",
+        "numi-matter-cardboard-bilinear15-capture-diagnostic-check",
+        "numi-matter-cardboard-source392-tet858-point-check"
+      ],
+      "source_inputs_and_all_advertised_artifacts_and_build_metadata_verified": true
+    },
+    {
+      "build": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-123",
+      "receipt_sha256": "427923e19fd60cbef270d6878ecbb366f592c59f563ccf4eb46a63ccc177c7e5",
+      "success": false,
+      "targets": [
+        "numi-matter-cardboard-bilinear15-capture-diagnostic-check",
+        "numi-matter-cardboard-source392-tet858-point-check",
+        "numi-matter-cardboard-regional-bending-check"
+      ],
+      "source_inputs_and_all_advertised_artifacts_and_build_metadata_verified": true
+    },
+    {
+      "build": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-123a",
+      "receipt_sha256": "fc96e2521b363c821132d7a493da091aa7d36d1c125951ffa09e2d38e91d0952",
+      "success": true,
+      "targets": [
+        "numi-matter-cardboard-bilinear15-capture-diagnostic-check",
+        "numi-matter-cardboard-source392-tet858-point-check",
+        "numi-matter-cardboard-probe"
+      ],
+      "source_inputs_and_all_advertised_artifacts_and_build_metadata_verified": true
+    }
+  ],
+  "limits": "Build123 failed due to nonexistent requested target;123a uses correctprobe target and succeeds. No failure is converted into success or qualification."
+}

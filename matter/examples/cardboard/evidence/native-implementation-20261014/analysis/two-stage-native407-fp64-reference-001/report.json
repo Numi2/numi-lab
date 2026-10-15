@@ -1,0 +1,47 @@
+{
+  "status": "PASS_NATIVE407_SINGLE_POINT_ANALYTIC_REFERENCE",
+  "bindings": {
+    "/Users/home/cardboard-implementation-20261014/native/source392-tet858-point-401/output/point.json": "411d522ebd281eae2b75d99f8f7927d2df3521795b1a04dc4a325953aafcc4d8",
+    "/Users/home/cardboard-implementation-20261014/native/two-stage-material858-point-407/output/point.json": "72b8b845fe9271cf0fe5bf8db1678f839e6b11d85a1264616ec6e51251731c27",
+    "/Users/home/cardboard-implementation-20261014/analysis/two-stage-native407-fp64-reference-001/bilinear15_reference.py": "c17010564a98fe63da0c8b88be81313685a65cfbd57ff82292e797cab5a0fdf3"
+  },
+  "native_iterations": 14,
+  "native_metal_residual": 5.906139835011592e-13,
+  "independent_reference_initial_iterations": 14,
+  "extra_reference_update_metrics": [
+    {
+      "raw_residual_inf": 2.220446049250313e-16,
+      "raw_limit": 3.98614823675322e-08,
+      "scaled_correction_inf": 8.868799062432484e-15
+    }
+  ],
+  "native_candidate_promoted_fp64": {
+    "raw_residual_inf": 4.021227795192317e-13,
+    "raw_limit": 3.986148236753681e-08,
+    "scaled_correction_inf": 1.5890733855089208e-11
+  },
+  "comparisons": {
+    "state": {
+      "abs_l2": 2.45606590538044e-13,
+      "relative_l2": 2.4731575875682075e-13,
+      "max_abs": 2.30593322214645e-13
+    },
+    "stress": {
+      "abs_l2": 0.483557573950199,
+      "relative_l2": 5.196805112833584e-08,
+      "max_abs": 0.48293439857661724
+    },
+    "tangent_declared_local_Fxx": {
+      "abs_l2": 84.82860631604704,
+      "relative_l2": 3.435801751803079e-08,
+      "max_abs": 62.089848041534424
+    }
+  },
+  "limits": [
+    "One local material point and one declared analytic direction. Not complete finite-difference/noise-floor, element/assembly or fullcoupon qualification.",
+    "The current constitutive law does not depend on Fdot; native point preserves Hdot=H/dt.",
+    "Retained candidate still lacks firstfailuregeneration binding."
+  ],
+  "physical_steps": 0,
+  "physical_validation": false
+}

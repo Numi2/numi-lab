@@ -1,0 +1,25 @@
+{
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-valid-summary-tet858-121",
+  "observer_manifest_sha256": "8ef93526fdd19f6d98bc278a76c821e3df79702401ede6c0d7726d49363fafe6",
+  "trace_host_sha256": "b04bb295db1eba1c10c1001db3b2e90564099e2afb453fd630579bc5a6c76e0d",
+  "changes": {
+    "matter/include/numi/matter/shared.h": {
+      "source121": "ae84a7fb79e5b79ad813b249c720b9ace6105fde81f555cbd784afafa721e691",
+      "source122": "bd13b1baf8790956404cd564685919c5a18e339d79e7c5c5165956f94d2f010c"
+    },
+    "matter/src/metal/contact.metalinc": {
+      "source121": "28bfbee02d2ea396e171f10e1b383980da245f2c91426089b2e867493a139e23",
+      "source122": "ea5a9caf6f47588258aeeb5e8be57168826acfb94a566ecbfea7e647ad50fb5c"
+    },
+    "matter/src/runtime.mm": {
+      "source121": "ac3b2bc725a6787f342b20c1c11e8adc57ad47a80b78d9281e82cce41b9ed38c",
+      "source122": "3ddb3a29452f9006f811fe31f33293763d32be0bddb467646e4a55c72dc31ac6"
+    },
+    "matter/tools/cardboard_bilinear15_capture_diagnostic_check.mm": {
+      "source121": "f6c9a44a4d1c1142590e9818cb2de02ba61b152b613f5e6f41f8bd5f33b8aaa1",
+      "source122": "b04bb295db1eba1c10c1001db3b2e90564099e2afb453fd630579bc5a6c76e0d"
+    }
+  },
+  "physical_steps": 0
+}

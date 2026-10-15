@@ -615,6 +615,27 @@ typedef struct NM_ALIGN16 NMDeformableContactCandidateGPU {
     nm_uint4 identity;
 } NMDeformableContactCandidateGPU;
 
+// Optional exact-call diagnostic written only by a selected private Armijo
+// narrowphase invocation. It is not a solver/contact state and is never read
+// by production mechanics. Endpoint arrays are the exact float32 arguments
+// passed to vertexTriangleCCD, before any offline replay.
+typedef struct NM_ALIGN16 NMDeformableVTCCDAuditGPU {
+    // written, environment, candidate slot, direction*3 + vertex index.
+    nm_uint4 attempt;
+    nm_uint4 candidateIdentity;
+    nm_uint4 leftNodesAndObject;
+    nm_uint4 rightNodesAndObject;
+    nm_float4 start[6];
+    nm_float4 finish[6];
+    // hit, certified, TOI, separation at the production helper return.
+    nm_float4 result;
+    nm_float4 normal;
+    nm_float4 barycentric;
+    nm_float4 point;
+    // thickness, left object dt, right object dt, solver iteration.
+    nm_float4 parameters;
+} NMDeformableVTCCDAuditGPU;
+
 enum NMDeformableContactKind : nm_u32 {
     NM_DEFORMABLE_CONTACT_VERTEX_TRIANGLE = 0u,
     NM_DEFORMABLE_CONTACT_EDGE_EDGE = 1u,
@@ -1422,6 +1443,7 @@ static_assert(sizeof(NMVascularCavityFaceGPU) == 32);
 static_assert(sizeof(NMFEMHumanAttachmentGPU) == 32);
 static_assert(alignof(NMFEMHumanAttachmentGPU) == 16);
 static_assert(sizeof(NMFEMNodeStateGPU) == 80);
+static_assert(sizeof(NMDeformableVTCCDAuditGPU) == 336);
 static_assert(sizeof(NMAdaptiveStateGPU) == 160);
 static_assert(sizeof(NMSchedulerStateGPU) == 80);
 static_assert(sizeof(NMEventTokenGPU) == 48);

@@ -1,0 +1,1 @@
+Preflight stopped at build068 receipt without artifacts_sha256. No deletion occurred.

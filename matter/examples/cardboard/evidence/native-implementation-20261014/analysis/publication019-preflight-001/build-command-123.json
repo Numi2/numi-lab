@@ -1,0 +1,18 @@
+[
+  "/Users/home/.pyenv/versions/3.10.12/bin/python3",
+  "/Users/home/cardboard-implementation-20261014/snapshots/source-two-stage-material-merit-123/matter/tools/cardboard_source_bound_build.py",
+  "--source-snapshot",
+  "/Users/home/cardboard-implementation-20261014/snapshots/source-two-stage-material-merit-123",
+  "--build-dir",
+  "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-123",
+  "--cmake-source-relative",
+  ".",
+  "--jobs",
+  "4",
+  "--target",
+  "numi-matter-cardboard-bilinear15-capture-diagnostic-check",
+  "--target",
+  "numi-matter-cardboard-source392-tet858-point-check",
+  "--target",
+  "numi-matter-cardboard-regional-bending-check"
+]

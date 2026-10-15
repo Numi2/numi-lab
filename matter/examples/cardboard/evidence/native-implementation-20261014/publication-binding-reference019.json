@@ -1,0 +1,41 @@
+{
+  "schema": "numi.cardboard.reference019-publication-binding.v1",
+  "cases": [
+    "analysis/source122-integration-setup-failed-001",
+    "analysis/source122-integration-001",
+    "analysis/source123-two-stage-merit-integration-001",
+    "analysis/source122-123-build-bindings-001",
+    "analysis/source123-main-adoption-001",
+    "analysis/retained-source-snapshots122-123-001",
+    "analysis/private-trial-vtccd-call-observer-overlay-001",
+    "analysis/source392-tet858-trace-404-adjudication-001",
+    "analysis/trial21-22-exact-vtccd-adjudication-001",
+    "analysis/two-stage-native407-fp64-reference-001",
+    "analysis/two-stage-native410-sweep-summary-001",
+    "analysis/native-medium-full-matrix-410-001",
+    "analysis/controlled-material-sweep-410-001",
+    "analysis/native410-absolute-endpoint-error-001",
+    "analysis/source392-trace-input-provenance-overlay-001",
+    "analysis/generated-closed-object-dependency-retirement-007",
+    "analysis/generated-closed-object-dependency-retirement-008",
+    "native/full-contact-trial21-vtccd-call-405",
+    "native/full-contact-trial22-vtccd-call-406",
+    "native/source392-tet858-trace-baseline-404",
+    "native/two-stage-controlled-material-sweep-410",
+    "native/two-stage-material674-point-408",
+    "native/two-stage-material858-point-407",
+    "native/two-stage-material858-trace-411",
+    "analysis/publication019-preflight-001",
+    "solver/two-stage-certified-coupon-409"
+  ],
+  "summary_sha256": "a6580b68fe11bc22e6be95d1b2b19aadb903f381139f06316b759b5fb24d0fb2",
+  "copied_files": 252,
+  "all_archived_bytes_verified": true,
+  "physical_validation": false,
+  "finalization": {
+    "previous213files_verified": true,
+    "coupon409_completed_before_publication": true,
+    "coupon409_pass": false,
+    "accepted_prefix_does_not_qualify": true
+  }
+}

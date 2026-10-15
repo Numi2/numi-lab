@@ -1,0 +1,17 @@
+{
+  "schema": "numi.cardboard.analysis-package.v1",
+  "artifacts": {
+    "README.md": {
+      "bytes": 546,
+      "sha256": "07cfe79b096eed7f0c7e3c8eab4dce972cc99bd73135272741d5c93e39042c2a"
+    },
+    "audit.py": {
+      "bytes": 7169,
+      "sha256": "1acf4a50b1b778d79871331fce7a36eb69730654c94f29a5fbf5ce06b40de826"
+    },
+    "report.json": {
+      "bytes": 2544240,
+      "sha256": "2e5b3567963985427234dbcf67faab5ada147a98411b1d1da965624d15c4e46d"
+    }
+  }
+}

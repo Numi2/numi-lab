@@ -1,0 +1,19 @@
+diff --git a/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/matter/src/metal/common.metalinc b/Users/home/cardboard-implementation-20261014/snapshots/source-two-stage-material-merit-123/matter/src/metal/common.metalinc
+index 6c14acb..d63f5b9 100644
+--- a/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/matter/src/metal/common.metalinc
++++ b/Users/home/cardboard-implementation-20261014/snapshots/source-two-stage-material-merit-123/matter/src/metal/common.metalinc
+@@ -1697,7 +1697,13 @@ inline bool projectMaterialState(
+                     projectionIterationTrace[scaledTraceBase +
+                         material.stateCount + backtrack] = trialScaledNorm;
+             }
+-            const bool armijoAccepted = scaledCorrectionPolicy
++            // First reduce the existing raw residual gate. Once that gate is
++            // satisfied, resolve the dimensionless correction with the frozen
++            // row-scaled merit. A scaled-only merit can stall far from the root;
++            // a raw-only merit can reject useful near-root correction steps.
++            // Both stopping gates above and the local budget remain unchanged.
++            const bool useScaledMerit = scaledCorrectionPolicy && residualConverged;
++            const bool armijoAccepted = useScaledMerit
+                 ? (trialScaledNorm < scaledResidualNorm &&
+                     trialScaledNorm <=
+                         (1.0f - 1.0e-4f * step) * scaledResidualNorm)

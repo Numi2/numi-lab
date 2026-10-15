@@ -1,0 +1,60 @@
+{
+  "files": [
+    {
+      "bytes": 2175,
+      "path": "README.md",
+      "sha256": "fa11cabbb73dffd01d87d7b701f7dae92a41a2dd15c72b3479aa302ebd743d8e"
+    },
+    {
+      "bytes": 56614,
+      "path": "candidate/matter/include/numi/matter/shared.h",
+      "sha256": "bd13b1baf8790956404cd564685919c5a18e339d79e7c5c5165956f94d2f010c"
+    },
+    {
+      "bytes": 561,
+      "path": "candidate/matter/src/matter_kernels.metal",
+      "sha256": "37d3530284e2361b20f805409768c65446fc13186c50e94f286b73256debe168"
+    },
+    {
+      "bytes": 411676,
+      "path": "candidate/matter/src/metal/contact.metalinc",
+      "sha256": "ea5a9caf6f47588258aeeb5e8be57168826acfb94a566ecbfea7e647ad50fb5c"
+    },
+    {
+      "bytes": 1742557,
+      "path": "candidate/matter/src/runtime.mm",
+      "sha256": "3ddb3a29452f9006f811fe31f33293763d32be0bddb467646e4a55c72dc31ac6"
+    },
+    {
+      "bytes": 4119,
+      "path": "manifest.json",
+      "sha256": "8ef93526fdd19f6d98bc278a76c821e3df79702401ede6c0d7726d49363fafe6"
+    },
+    {
+      "bytes": 19007,
+      "path": "overlay.patch",
+      "sha256": "62b7172d09368d19f8f81acae046c95ea088cf81001f5dddec6b768e811d48b1"
+    },
+    {
+      "bytes": 2030,
+      "path": "validation/commands.txt",
+      "sha256": "eba70c8ec41434403c8464fe151e1777fb6c80283238bf55e16d4171a6d190f6"
+    },
+    {
+      "bytes": 2280,
+      "path": "validation/metal-compile.log",
+      "sha256": "b5ed07dab23fff00c606f7c402f23acf1aacb97a5d969977f107f8d8ad91fd7c"
+    },
+    {
+      "bytes": 140,
+      "path": "validation/patch-dry-run.log",
+      "sha256": "1439b6c008a66da9d5f747694a77765640edbfff2c17dfbff787dd7060e51587"
+    },
+    {
+      "bytes": 0,
+      "path": "validation/runtime-syntax.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "schema": "numi.matter.overlay-package-seal.v1"
+}

@@ -11070,6 +11070,116 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 }
             }
 
+            // Optional exact-call observer for one selected private VTCCD
+            // invocation. The selected kernel thread writes the helper's real
+            // return values and the exact endpoint arguments; no replay kernel
+            // or solver-state/status write is added.
+            bool femCoupledTrialVTCCDAuditRequested = false;
+            bool femCoupledTrialVTCCDAuditConfigValid = true;
+            bool femCoupledTrialVTCCDAuditCurrentTrial = false;
+            std::array<std::uint32_t, 9> femCoupledTrialVTCCDAuditFields{};
+            nm_uint4 femCoupledTrialVTCCDAuditBinding{
+                NM_INVALID_INDEX, NM_INVALID_INDEX, NM_INVALID_INDEX,
+                NM_INVALID_INDEX};
+            nm_uint4 femCoupledTrialVTCCDAuditDisabled{
+                NM_INVALID_INDEX, NM_INVALID_INDEX, NM_INVALID_INDEX,
+                NM_INVALID_INDEX};
+            id<MTLBuffer> femCoupledTrialVTCCDAuditBuffer = nil;
+            if (const char* text = std::getenv(
+                    "NM_FEM_COUPLED_TRIAL_VTCCD_AUDIT_SELECTOR")) {
+                femCoupledTrialVTCCDAuditRequested = true;
+                const auto auditError = [&](const char* reason) {
+                    femCoupledTrialVTCCDAuditConfigValid = false;
+                    femCoupledTrialCaptureConfigValid = false;
+                    std::fprintf(stderr,
+                        "fem_coupled_trial_vtccd_audit_error={\"schema\":1,\"reason\":\"%s\",\"physical_state_changed\":false}\n",
+                        reason);
+                };
+                if (trialCaptureSelector == nullptr || trialCapturePathText == nullptr ||
+                    trialSummarySelector != nullptr || trialSummaryPathText != nullptr ||
+                    femCoupledTrialCapturePhase == "pre" ||
+                    !femCoupledTrialCaptureConfigValid) {
+                    auditError("requires_valid_full_private_trial_capture_phase_both_or_post");
+                } else {
+                    const auto parseAuditField = [](const char* begin,
+                            const char* end, std::uint32_t& value) {
+                        if (begin >= end) return false;
+                        std::uint64_t wide = 0u;
+                        for (const char* it = begin; it != end; ++it) {
+                            if (*it < '0' || *it > '9') return false;
+                            const std::uint32_t digit =
+                                static_cast<std::uint32_t>(*it - '0');
+                            if (wide > (std::numeric_limits<std::uint32_t>::max() - digit) / 10u)
+                                return false;
+                            wide = wide * 10u + digit;
+                        }
+                        value = static_cast<std::uint32_t>(wide);
+                        return true;
+                    };
+                    bool parsed = true;
+                    const char* begin = text;
+                    for (std::size_t field = 0u;
+                         field < femCoupledTrialVTCCDAuditFields.size(); ++field) {
+                        const char* separator = std::strchr(begin, ':');
+                        const char* end = field + 1u ==
+                                femCoupledTrialVTCCDAuditFields.size()
+                            ? text + std::strlen(text) : separator;
+                        if (end == nullptr ||
+                            (field + 1u == femCoupledTrialVTCCDAuditFields.size() &&
+                             separator != nullptr) ||
+                            (field + 1u != femCoupledTrialVTCCDAuditFields.size() &&
+                             separator == nullptr) ||
+                            !parseAuditField(begin, end,
+                                femCoupledTrialVTCCDAuditFields[field])) {
+                            parsed = false;
+                            break;
+                        }
+                        begin = end + (field + 1u ==
+                            femCoupledTrialVTCCDAuditFields.size() ? 0 : 1);
+                    }
+                    const auto& f = femCoupledTrialVTCCDAuditFields;
+                    const std::uint64_t globalCandidate =
+                        static_cast<std::uint64_t>(f[3]) *
+                            state.dispatch.deformableContactCapacity + f[4];
+                    const bool selectorMatchesCapture =
+                        f[0] == femCoupledTrialCaptureRoot &&
+                        f[1] == femCoupledTrialCaptureIteration &&
+                        f[2] == femCoupledTrialCaptureTrial &&
+                        (femCoupledTrialCapturePhase == "both" ||
+                         femCoupledTrialCapturePhase == "post");
+                    if (!parsed || !selectorMatchesCapture ||
+                        f[3] >= environments ||
+                        f[4] >= state.dispatch.deformableContactCapacity ||
+                        f[5] >= state.dispatch.surfaceFaceCount ||
+                        f[6] >= state.dispatch.surfaceFaceCount ||
+                        f[7] >= 3u || f[8] >= 2u ||
+                        globalCandidate > std::numeric_limits<std::uint32_t>::max()) {
+                        auditError("selector_must_be_matching_root_iteration_trial_environment_slot_pair_vertex_direction");
+                    } else {
+                        const std::uint32_t packedFeature = f[8] * 3u + f[7];
+                        femCoupledTrialVTCCDAuditBinding = nm_uint4{
+                            static_cast<std::uint32_t>(globalCandidate),
+                            f[5], f[6], packedFeature};
+                        femCoupledTrialVTCCDAuditBuffer = [state.device
+                            newBufferWithLength:sizeof(NMDeformableVTCCDAuditGPU)
+                            options:MTLResourceStorageModePrivate];
+                        if (femCoupledTrialVTCCDAuditBuffer == nil ||
+                            femCoupledTrialVTCCDAuditBuffer.length !=
+                                sizeof(NMDeformableVTCCDAuditGPU) ||
+                            femCoupledTrialVTCCDAuditBuffer.length >
+                                state.device.maxBufferLength) {
+                            femCoupledTrialVTCCDAuditBuffer = nil;
+                            auditError("bounded_observer_buffer_allocation_failed");
+                        } else if (f[0] == request.controlStep) {
+                            std::fprintf(stderr,
+                                "fem_coupled_trial_vtccd_audit_enabled={\"schema\":1,\"root\":%u,\"iteration\":%u,\"trial\":%u,\"environment\":%u,\"slot\":%u,\"primitive_pair\":[%u,%u],\"vertex\":%u,\"direction\":%u,\"buffer_bytes\":%lu,\"physical_state_changed\":false}\n",
+                                f[0], f[1], f[2], f[3], f[4], f[5], f[6],
+                                f[7], f[8], static_cast<unsigned long>(
+                                    sizeof(NMDeformableVTCCDAuditGPU)));
+                        }
+                    }
+                }
+            }
             bool femResidualArmijoTraceEnabled = false;
             bool femResidualArmijoTraceNoticeLogged = false;
             std::uint32_t femResidualArmijoTraceRecords = 0u;
@@ -14528,6 +14638,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                   atIndex:16u];
                         [encoder setBuffer:state.deformableContactHistoriesCheckpoint
                                    offset:0u atIndex:17u];
+                        [encoder setBuffer:state.deformableContactFailures
+                                   offset:0u atIndex:18u];
+                        [encoder setBytes:&femCoupledTrialVTCCDAuditDisabled
+                                   length:sizeof(femCoupledTrialVTCCDAuditDisabled)
+                                  atIndex:19u];
                     }
                 );
                 if (state.captureDiagnostics) {
@@ -15098,6 +15213,18 @@ RuntimeDiagnostics Runtime::encodeImpl(
                               atIndex:16u];
                     [encoder setBuffer:state.femArmijoDeformableCandidateStatuses
                                offset:0u atIndex:17u];
+                    const bool auditThisTrial =
+                        femCoupledTrialVTCCDAuditCurrentTrial &&
+                        femCoupledTrialVTCCDAuditBuffer != nil;
+                    [encoder setBuffer:(auditThisTrial
+                            ? femCoupledTrialVTCCDAuditBuffer
+                            : state.deformableContactFailures)
+                               offset:0u atIndex:18u];
+                    const nm_uint4 auditSelector = auditThisTrial
+                        ? femCoupledTrialVTCCDAuditBinding
+                        : femCoupledTrialVTCCDAuditDisabled;
+                    [encoder setBytes:&auditSelector length:sizeof(auditSelector)
+                              atIndex:19u];
                 });
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 dispatchThreads("nm_contact_reduce_deformable_narrowphase_failures",
@@ -17159,6 +17286,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         state.femArmijoCohesiveFaceForces);
                     push("fem_armijo_constraint_reactions", "float32x4",
                         sizeof(nm_float4), state.femArmijoConstraintReactions);
+                    if (femCoupledTrialVTCCDAuditCurrentTrial) {
+                        push("actual_vertex_triangle_ccd_call",
+                            "record:NMDeformableVTCCDAuditGPU",
+                            sizeof(NMDeformableVTCCDAuditGPU),
+                            femCoupledTrialVTCCDAuditBuffer, true);
+                    }
                 }
                 push(postRebuild ? "contact_samples_private_trial"
                                  : "contact_samples_accepted_before_rebuild",
@@ -17826,6 +17959,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 const auto capturedPhysicsSubsteps = request.physicsSubsteps;
                 const auto capturedRigidWorldPhysicsSubstep =
                     request.rigidWorldPhysicsSubstep;
+                const bool capturedVTCCDAuditSelected =
+                    femCoupledTrialVTCCDAuditCurrentTrial;
+                const auto capturedVTCCDAuditFields =
+                    femCoupledTrialVTCCDAuditFields;
                 [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed) {
                     if (completed.status != MTLCommandBufferStatusCompleted) {
                         std::fprintf(stderr,
@@ -17910,6 +18047,15 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         manifest << ",\"trial\":" << trial
                             << ",\"selected_phase\":" << jsonQuoted(selectedPhase);
                     }
+                    if (!summaryMode && capturedVTCCDAuditSelected) {
+                        const auto& f = capturedVTCCDAuditFields;
+                        manifest << ",\"vtccd_audit_selector\":{\"environment\":"
+                            << f[3] << ",\"candidate_slot\":" << f[4]
+                            << ",\"primitive_pair\":[" << f[5] << ',' << f[6]
+                            << "],\"vertex\":" << f[7]
+                            << ",\"direction\":" << f[8]
+                            << ",\"execution\":\"same production call\"}";
+                    }
                     manifest << ",\"control_step\":" << capturedMicro.controlStep
                         << ",\"physics_substep\":" << capturedPhysicsSubstep
                         << ",\"physics_substeps\":" << capturedPhysicsSubsteps
@@ -17963,7 +18109,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             << "\"element_force_nodes\":\"captured after the private internal-force kernel\","
                             << "\"deformable_sweep_validation\":\"nm_contact_validate_armijo_deformable_sweep binds state.femCandidate at buffer 5 and state.femArmijoCandidate at buffer 6; pre snapshot precedes validation and post snapshot follows it\","
                             << "\"endpoint_narrowphase\":\"nm_contact_narrowphase_deformable receives trialNodes at buffer 4, history at buffer 10, and cohesiveFaces at buffer 15; caller passes state.femArmijoCandidate as trialNodes\","
-                            << "\"toi_semantics\":\"no standalone TOI scalar is exported; retain kernel status and captured contact/candidate records, and do not infer TOI from endpoint geometry\"}"
+                            << "\"toi_semantics\":\"no standalone TOI scalar is exported unless actual_vertex_triangle_ccd_call is present\"";
+                        if (capturedVTCCDAuditSelected) {
+                            manifest << ",\"vtccd_audit_semantics\":\"record is written inline at the exact production vertexTriangleCCD call return; endpoints, hit, certified, TOI, and separation are copied from that call without helper replay; normal, barycentric, and point are valid only when hit=1 and certified=1 and are otherwise zero-initialized; written=0 means the selected pair/feature call was not reached\"";
+                        }
+                        manifest << "}"
                             << ",\"phase_order\":[";
                     }
                     for (std::size_t i = 0u; i < phaseOrder.size(); ++i) {
@@ -22156,6 +22306,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 for (std::uint32_t trialIndex = 0u;
                      trialIndex < state.mixedSolverValue
                          .nonlinearIterations.w; ++trialIndex) {
+                    femCoupledTrialVTCCDAuditCurrentTrial =
+                        femCoupledTrialVTCCDAuditRequested &&
+                        femCoupledTrialVTCCDAuditConfigValid &&
+                        trialIndex == femCoupledTrialVTCCDAuditFields[2] &&
+                        femCoupledTrialCaptureSelected;
                     if (!captureTrialSummaryStart(trialIndex)) {
                         ownership->preDynamicsOpen = false;
                         return diagnostics;

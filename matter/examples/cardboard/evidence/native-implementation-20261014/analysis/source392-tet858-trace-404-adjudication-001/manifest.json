@@ -1,0 +1,46 @@
+{
+  "accepted_state_sha256": "e32909672f5ef53992fd7c798419dcdcd257662daa0f0c6cc8d960a1dced5dfd",
+  "candidate_nodes_sha256": "89846e4efc91c1774b52d6b3732f633e78414a7d341b6cbd8b9b4966e4be0417",
+  "compiled_package_sha256": "cafbf36052bbfa72e8be49fdba8b23e900469c9f15136a14a4ec1e4c0b5ccf7c",
+  "diagnostic_metallib_sha256": "2d2e84ccd4c803bdfb64dc349ca61f2a5039cad5ee4b58a8e692ca5b8d0dcbe3",
+  "executable_sha256": "75868ec838a6e1952f7fdcf6a4d10d056034f632220ff483c65d510b86a70ab2",
+  "first_failure_generation_bound": false,
+  "material_asset_sha256": "76f2bef552822708c36b5acc9f92bd44e7bb92c578e5e46adb64a1a2e82e47f9",
+  "native_receipt_sha256": "c50f893ddc063704550e595cc21828708355158877307b7be741df8653459556",
+  "native_run": "native/source392-tet858-trace-baseline-404",
+  "outputs": {
+    "iterations.csv": "1e31d15bfa1d1e19171e73d1205458ee2d95da7973cc5bc2933cfa9a823e7726",
+    "native-trace.json": "ab7543404df419a16cf42e377c7cba046297fb24c4f26a8f8de114cbbb3183d2",
+    "point401.json": "411d522ebd281eae2b75d99f8f7927d2df3521795b1a04dc4a325953aafcc4d8",
+    "receipt.json": "c50f893ddc063704550e595cc21828708355158877307b7be741df8653459556",
+    "report.md": "2af5e1d5da7959237b259c90668d4606a905dd686a9c36dc1e4a62b512ed15c1",
+    "trace-run.json": "bc3602c8dae0815e17ccc4ad4081771cc3ff07b225be263d011452d32188399e"
+  },
+  "physical_transactions": 0,
+  "point401_sha256": "411d522ebd281eae2b75d99f8f7927d2df3521795b1a04dc4a325953aafcc4d8",
+  "projection": {
+    "converged": false,
+    "failure_code": 7,
+    "iterations": 32,
+    "last_accepted_alpha": 0.00390625,
+    "last_accepted_scaled_trial_residual": 0.214851126,
+    "last_scaled_correction_norm": 17.3405857,
+    "post_final_update_raw_residual": 4.309141635894775,
+    "pre_final_update_raw_residual": 4.32595158
+  },
+  "schema": "numi.cardboard.source392-tet858-trace-adjudication.v1",
+  "source_build_sha256": "d170098062ae80f751d3b3b57f99016e51bf73e97063fb86eaefcd49d6c514f3",
+  "source_snapshot": "snapshots/source-native-tet858-vtccd-traces-122",
+  "source_snapshot_manifest_sha256": "4e19bfca0faf140ff64fb9a33058d4da24ee5f6988ddb068d242b79525056369",
+  "status": "diagnostic_only_no_physical_transactions",
+  "trace_off_bit_mismatches": {
+    "direct_stress": 0,
+    "projected_state_high": 0,
+    "projected_state_low": 0,
+    "tangent": 0,
+    "tangent_path_stress": 0
+  },
+  "trace_records": 32,
+  "trace_run_json_sha256": "bc3602c8dae0815e17ccc4ad4081771cc3ff07b225be263d011452d32188399e",
+  "trace_sha256": "ab7543404df419a16cf42e377c7cba046297fb24c4f26a8f8de114cbbb3183d2"
+}

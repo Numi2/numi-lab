@@ -1,0 +1,63 @@
+{
+  "default": {
+    "rows": 1536,
+    "invalid_count": 0,
+    "failure_counts": {},
+    "header": {
+      "record": "header",
+      "schema": "numi.cardboard.controlled-material-derivative-sweep.v1",
+      "policy": "default",
+      "compiled_local_iterations_liner": 32,
+      "compiled_local_iterations_medium": 32,
+      "capture_sha256": "4decb7be2fbfa93ad97c0f2f22cfaca974931269068bed90e98815b09066b870",
+      "base_snapshot_manifest_sha256": "769a5e34c1d919293cb263fd27fbd041a482d22016c2818eec41d44e47935752",
+      "rows": 1536,
+      "selected_points": 8,
+      "basis_order": "row_major_F_11_12_13_21_22_23_31_32_33",
+      "epsilon_unit": "s",
+      "basis_direction_unit": "per_s",
+      "rate_direction_rule": "Hdot=H/dt; actual rounded F and Fdot words recorded",
+      "center_repeat_meaning": "same-batch nondeterminism observation only; not an absolute arithmetic noise floor",
+      "original_capture_modified": false,
+      "physical_steps": 0,
+      "physical_validation": false
+    }
+  },
+  "accurate": {
+    "rows": 1536,
+    "invalid_count": 0,
+    "failure_counts": {},
+    "header": {
+      "record": "header",
+      "schema": "numi.cardboard.controlled-material-derivative-sweep.v1",
+      "policy": "accurate",
+      "compiled_local_iterations_liner": 16,
+      "compiled_local_iterations_medium": 16,
+      "capture_sha256": "4decb7be2fbfa93ad97c0f2f22cfaca974931269068bed90e98815b09066b870",
+      "base_snapshot_manifest_sha256": "769a5e34c1d919293cb263fd27fbd041a482d22016c2818eec41d44e47935752",
+      "rows": 1536,
+      "selected_points": 8,
+      "basis_order": "row_major_F_11_12_13_21_22_23_31_32_33",
+      "epsilon_unit": "s",
+      "basis_direction_unit": "per_s",
+      "rate_direction_rule": "Hdot=H/dt; actual rounded F and Fdot words recorded",
+      "center_repeat_meaning": "same-batch nondeterminism observation only; not an absolute arithmetic noise floor",
+      "original_capture_modified": false,
+      "physical_steps": 0,
+      "physical_validation": false
+    }
+  },
+  "limits": [
+    "All3072 native samples valid; accurate sweep authors16localupdates while defaultauthors32, unlike two exactfailedpoints compiled32.",
+    "The native FD sweep does not itself qualify nearzero floors or a full derivative/element/assembled gate.",
+    "Three unique states selected for MP90 endpoint comparison retain all27declaredbasisdirections perstep and bothstresspaths; at1e-4 allpass1e-3 nonzerovectornorm but smallerstepfailuresremain.",
+    "No physicaltransaction or coupon convergence qualification."
+  ],
+  "bindings": {
+    "/Users/home/cardboard-implementation-20261014/native/two-stage-controlled-material-sweep-410/receipt.json": "f7b385ca9f15f0b5993c5887d78aedc31faaf3141893944dcb466122adced5cf",
+    "/Users/home/cardboard-implementation-20261014/native/two-stage-controlled-material-sweep-410/output/paper-derivative-sweep-accurate.jsonl": "56de51013ea87338b8410a93d7ca078504dfb9d4d2db9553e312bbca96331c58",
+    "/Users/home/cardboard-implementation-20261014/native/two-stage-controlled-material-sweep-410/output/paper-derivative-sweep-default.jsonl": "0d1986d76ebde75d7749b4ae3965eddd722fa9e0ca172b342773edf7b5c479fe",
+    "/Users/home/cardboard-implementation-20261014/analysis/native410-absolute-endpoint-error-001/report.json": "9cbe9e496ab896fc7c8263991e23d7049f96ad69a5e8142802b6101a7453c58b",
+    "/Users/home/cardboard-implementation-20261014/analysis/native-medium-full-matrix-410-001/report.json": "74cec69bbbc17b0b549d9bb13ee9a201bc9a96693331dd6726b25abe6c25a85c"
+  }
+}

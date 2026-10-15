@@ -1,0 +1,21 @@
+{
+  "base_file": "matter/tools/cardboard_bilinear15_capture_diagnostic_check.mm",
+  "base_file_sha256": "b04bb295db1eba1c10c1001db3b2e90564099e2afb453fd630579bc5a6c76e0d",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122",
+  "base_snapshot_manifest_sha256": "4e19bfca0faf140ff64fb9a33058d4da24ee5f6988ddb068d242b79525056369",
+  "change": "Correct output metadata to distinguish coupon-input source118 from the diagnostic build. The rate-direction word row.input[36]=1/dt already matches the point kernel and is unchanged.",
+  "outputs": {
+    "README.md": "406c829bbfbc4624da1772e8f1e0be7d6e13f81ecd6470b8cb55c0759ae3d6be",
+    "cardboard_bilinear15_capture_diagnostic_check.mm": "865a7399791390c3a1d27f9e8d70bb0aa9a5f8e52ebec14cd350a0c3fe258b81",
+    "overlay.patch": "ed8e5f32829a0f754fa7e3a1f9186411399d756d88ddb97f5f87a3570fe4fccb"
+  },
+  "overlay_file": "cardboard_bilinear15_capture_diagnostic_check.mm",
+  "overlay_file_sha256": "865a7399791390c3a1d27f9e8d70bb0aa9a5f8e52ebec14cd350a0c3fe258b81",
+  "patch_sha256": "ed8e5f32829a0f754fa7e3a1f9186411399d756d88ddb97f5f87a3570fe4fccb",
+  "schema": "numi.cardboard.source392-trace-input-provenance-overlay.v1",
+  "validation": {
+    "one_metadata_field_changed": true,
+    "physical_or_numerical_behavior_changed": false,
+    "rate_direction_matches_point_kernel": true
+  }
+}

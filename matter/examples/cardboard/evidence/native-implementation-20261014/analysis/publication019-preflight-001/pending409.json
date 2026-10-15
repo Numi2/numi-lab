@@ -1,0 +1,7 @@
+{
+  "case": "solver/two-stage-certified-coupon-409",
+  "status": "running_at_publication_preflight",
+  "source_build_sha256": "fc96e2521b363c821132d7a493da091aa7d36d1c125951ffa09e2d38e91d0952",
+  "limits": "Complete27controlhistory not yet available; onlycommand/runner retained here. Do not infer completion or qualification from currentacceptedprefix.",
+  "physical_box_validation": false
+}

@@ -1,0 +1,555 @@
+{
+  "schema": "numi.cardboard.trial21_22_exact_vtccd_adjudication_manifest.v1",
+  "verdict": "PASS_CAPTURE_AND_INSTRUMENT_PARITY; FIXTURE_REMAINS_FAILED",
+  "scope": "Exact call observer and source-bound independent path-distance analysis; no solver/contact qualification.",
+  "outputs": [
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/trial21-22-exact-vtccd-adjudication-001/README.md",
+      "label": "README.md",
+      "bytes": 4909,
+      "sha256": "dfba6b04259d62eb1f32daf0a595556dcbe88a15bc7507c43aaaee5ae11d4e11"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/trial21-22-exact-vtccd-adjudication-001/audit.py",
+      "label": "audit.py",
+      "bytes": 16930,
+      "sha256": "cb3c3a2ef1ee82019904d522aa279f7730a424946e74d4c3bb63097abe1c7f34"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/trial21-22-exact-vtccd-adjudication-001/report.json",
+      "label": "report.json",
+      "bytes": 20526,
+      "sha256": "1ef5523a0cb37e92894f28a1ad88cd4c0f0d65c5d2a223e0cd60639734b2ace1"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/analysis/trial21-22-exact-vtccd-adjudication-001/validation.log",
+      "label": "validation.log",
+      "bytes": 423,
+      "sha256": "2d0004bd196e0626b082e6f6c8567371e30cfe52b0546451f9df5ef3289e1a2a"
+    }
+  ],
+  "input_evidence": [
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial21-capture-398/prediction.json",
+      "label": "full-contact-trial21-capture-398/prediction.json",
+      "bytes": 101660,
+      "sha256": "3d627ef693b1918c9a85c9cfaf648fed918e59b810b7877587e830a8a56abc84"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial21-capture-398/receipt.json",
+      "label": "full-contact-trial21-capture-398/receipt.json",
+      "bytes": 305,
+      "sha256": "afc5971f2abc64905e049107fec59fc3ec975dda27a8b5e46e961dc413c1ecb0"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial21-capture-398/stdout.log",
+      "label": "full-contact-trial21-capture-398/stdout.log",
+      "bytes": 1229,
+      "sha256": "6207db36146aa493ad0e5593223b154dc3a3f926f9250cca88d1635188176c5d"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial21-capture-398/stderr.log",
+      "label": "full-contact-trial21-capture-398/stderr.log",
+      "bytes": 62317,
+      "sha256": "ea0c6567d3f41e475cf5504710da5a440a6fb8c7cb51e4f51aff6ce4cd833b8a"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial21-capture-398/trial-capture.coupled.json",
+      "label": "full-contact-trial21-capture-398/trial-capture.coupled.json",
+      "bytes": 37237,
+      "sha256": "a8e33e538c0635ba0f3d47a3dc524a09e7b6125dc6a468fc5590b8562d4f47fd"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial21-capture-398/trial-capture.coupled.bin",
+      "label": "full-contact-trial21-capture-398/trial-capture.coupled.bin",
+      "bytes": 19467248,
+      "sha256": "2a55974dad524891abe3a456fbfa37f96360ffb09a99ee11f66733bff312c07a"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial21-capture-398/diagnostic-state/dense/fixture-free-body-control-1200.log",
+      "label": "full-contact-trial21-capture-398/diagnostic-state/dense/fixture-free-body-control-1200.log",
+      "bytes": 59037,
+      "sha256": "a0606b4b2af671aef658ca5e488dd80cfd12e6b17ddb9a05630a7bec0b0cffd4"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial21-capture-398/diagnostic-state/dense/fixture-free-body-control-1201.log",
+      "label": "full-contact-trial21-capture-398/diagnostic-state/dense/fixture-free-body-control-1201.log",
+      "bytes": 61364,
+      "sha256": "981c524502c7a3552f5e1c1f1a1869a72e95a0c38c19772070074211cf6ace59"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial21-capture-398/diagnostic-state/dense/transaction-000000-after.bin",
+      "label": "full-contact-trial21-capture-398/diagnostic-state/dense/transaction-000000-after.bin",
+      "bytes": 904359,
+      "sha256": "ac528890f940b0fde67a9ce0d5986c24656ad9cde692a40a5e70b1a4c99205d4"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial21-capture-398/diagnostic-state/dense/transaction-000000-before.bin",
+      "label": "full-contact-trial21-capture-398/diagnostic-state/dense/transaction-000000-before.bin",
+      "bytes": 904359,
+      "sha256": "3ba6a3b46afbad53acaf092bb2e74ef2f8ca5ac33a7f2f0c325d7a628368bf3f"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial21-capture-398/diagnostic-state/dense/transaction-000000.json",
+      "label": "full-contact-trial21-capture-398/diagnostic-state/dense/transaction-000000.json",
+      "bytes": 6559,
+      "sha256": "249d5249c1a4f2f165bc8468142a8f086ee615465360aac7080d9b9d6d90c5bf"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial21-capture-398/diagnostic-state/dense/transaction-000001-after.bin",
+      "label": "full-contact-trial21-capture-398/diagnostic-state/dense/transaction-000001-after.bin",
+      "bytes": 904359,
+      "sha256": "d4689e144e19e3e1f2d15b86d7a5d77563ce8a88ba60e41164f4a497ca2a52ad"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial21-capture-398/diagnostic-state/dense/transaction-000001-before.bin",
+      "label": "full-contact-trial21-capture-398/diagnostic-state/dense/transaction-000001-before.bin",
+      "bytes": 904359,
+      "sha256": "ac528890f940b0fde67a9ce0d5986c24656ad9cde692a40a5e70b1a4c99205d4"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial21-capture-398/diagnostic-state/dense/transaction-000001.json",
+      "label": "full-contact-trial21-capture-398/diagnostic-state/dense/transaction-000001.json",
+      "bytes": 6676,
+      "sha256": "1920dcf0873634e798740a00313ae9a12fb95fa3fb760eb2a2653cdf40d28e81"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial21-capture-398/diagnostic-state/dense/transaction-000002-after.bin",
+      "label": "full-contact-trial21-capture-398/diagnostic-state/dense/transaction-000002-after.bin",
+      "bytes": 904359,
+      "sha256": "f7b3d50d080982eca28578e34f1c8095c11029392637e2f3cf3bb0a03f006cb1"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial21-capture-398/diagnostic-state/dense/transaction-000002-before.bin",
+      "label": "full-contact-trial21-capture-398/diagnostic-state/dense/transaction-000002-before.bin",
+      "bytes": 904359,
+      "sha256": "d4689e144e19e3e1f2d15b86d7a5d77563ce8a88ba60e41164f4a497ca2a52ad"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial21-capture-398/diagnostic-state/dense/transaction-000002.json",
+      "label": "full-contact-trial21-capture-398/diagnostic-state/dense/transaction-000002.json",
+      "bytes": 6685,
+      "sha256": "f42419d4eeae77119f4f1434fa96a732cd56664d7fa88af41b9c61d2881f426d"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial21-vtccd-call-405/prediction.json",
+      "label": "full-contact-trial21-vtccd-call-405/prediction.json",
+      "bytes": 101812,
+      "sha256": "824c4c8d44bd2057827e494083fe8cf9411aa1a207097130c1017cb155d0fa6a"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial21-vtccd-call-405/receipt.json",
+      "label": "full-contact-trial21-vtccd-call-405/receipt.json",
+      "bytes": 306,
+      "sha256": "acc16ee68b597e04dd6df20b5fdf4cc4a248430c274e79e0033652f1b1569838"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial21-vtccd-call-405/stdout.log",
+      "label": "full-contact-trial21-vtccd-call-405/stdout.log",
+      "bytes": 1229,
+      "sha256": "6207db36146aa493ad0e5593223b154dc3a3f926f9250cca88d1635188176c5d"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial21-vtccd-call-405/stderr.log",
+      "label": "full-contact-trial21-vtccd-call-405/stderr.log",
+      "bytes": 62536,
+      "sha256": "b447a63d476081664e5e7dd901a631f1e0293a41a7e1d9df310522a5a9d7bd6a"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial21-vtccd-call-405/trial-capture.coupled.json",
+      "label": "full-contact-trial21-vtccd-call-405/trial-capture.coupled.json",
+      "bytes": 37990,
+      "sha256": "a821cf7e1e166327059258a953aaf519c8ef7e8ca9f0c344f1b6681185845e64"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial21-vtccd-call-405/trial-capture.coupled.bin",
+      "label": "full-contact-trial21-vtccd-call-405/trial-capture.coupled.bin",
+      "bytes": 19467584,
+      "sha256": "eb6286c09081577e226eec6deb11021b4e483e104583214216b6b77c441190b5"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial21-vtccd-call-405/diagnostic-state/dense/fixture-free-body-control-1200.log",
+      "label": "full-contact-trial21-vtccd-call-405/diagnostic-state/dense/fixture-free-body-control-1200.log",
+      "bytes": 59037,
+      "sha256": "a0606b4b2af671aef658ca5e488dd80cfd12e6b17ddb9a05630a7bec0b0cffd4"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial21-vtccd-call-405/diagnostic-state/dense/fixture-free-body-control-1201.log",
+      "label": "full-contact-trial21-vtccd-call-405/diagnostic-state/dense/fixture-free-body-control-1201.log",
+      "bytes": 61583,
+      "sha256": "4831aac73eff34de71335534325be200a07e65f2941273d25b6b94bfdcb90fe9"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial21-vtccd-call-405/diagnostic-state/dense/transaction-000000-after.bin",
+      "label": "full-contact-trial21-vtccd-call-405/diagnostic-state/dense/transaction-000000-after.bin",
+      "bytes": 904359,
+      "sha256": "752763d51fd2ff455ce64dd13d7ce5c34636b4ef5bb57de7f11bd1548c62877c"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial21-vtccd-call-405/diagnostic-state/dense/transaction-000000-before.bin",
+      "label": "full-contact-trial21-vtccd-call-405/diagnostic-state/dense/transaction-000000-before.bin",
+      "bytes": 904359,
+      "sha256": "06a6b788d54d94cb2129c24963ec7a7cef81228d1c2184140c529b44107cf118"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial21-vtccd-call-405/diagnostic-state/dense/transaction-000000.json",
+      "label": "full-contact-trial21-vtccd-call-405/diagnostic-state/dense/transaction-000000.json",
+      "bytes": 6559,
+      "sha256": "249d5249c1a4f2f165bc8468142a8f086ee615465360aac7080d9b9d6d90c5bf"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial21-vtccd-call-405/diagnostic-state/dense/transaction-000001-after.bin",
+      "label": "full-contact-trial21-vtccd-call-405/diagnostic-state/dense/transaction-000001-after.bin",
+      "bytes": 904359,
+      "sha256": "24dc63f08c7806f01890be45a9273514e5f0a218fd9711934fa933dd981b1989"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial21-vtccd-call-405/diagnostic-state/dense/transaction-000001-before.bin",
+      "label": "full-contact-trial21-vtccd-call-405/diagnostic-state/dense/transaction-000001-before.bin",
+      "bytes": 904359,
+      "sha256": "752763d51fd2ff455ce64dd13d7ce5c34636b4ef5bb57de7f11bd1548c62877c"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial21-vtccd-call-405/diagnostic-state/dense/transaction-000001.json",
+      "label": "full-contact-trial21-vtccd-call-405/diagnostic-state/dense/transaction-000001.json",
+      "bytes": 6676,
+      "sha256": "1920dcf0873634e798740a00313ae9a12fb95fa3fb760eb2a2653cdf40d28e81"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial21-vtccd-call-405/diagnostic-state/dense/transaction-000002-after.bin",
+      "label": "full-contact-trial21-vtccd-call-405/diagnostic-state/dense/transaction-000002-after.bin",
+      "bytes": 904359,
+      "sha256": "2645c44ca1b0b8f35a9e6ee5227cc8e6a8f2ae8a89d300671dff6998e141761e"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial21-vtccd-call-405/diagnostic-state/dense/transaction-000002-before.bin",
+      "label": "full-contact-trial21-vtccd-call-405/diagnostic-state/dense/transaction-000002-before.bin",
+      "bytes": 904359,
+      "sha256": "24dc63f08c7806f01890be45a9273514e5f0a218fd9711934fa933dd981b1989"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial21-vtccd-call-405/diagnostic-state/dense/transaction-000002.json",
+      "label": "full-contact-trial21-vtccd-call-405/diagnostic-state/dense/transaction-000002.json",
+      "bytes": 6685,
+      "sha256": "f42419d4eeae77119f4f1434fa96a732cd56664d7fa88af41b9c61d2881f426d"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial22-capture-399/prediction.json",
+      "label": "full-contact-trial22-capture-399/prediction.json",
+      "bytes": 101681,
+      "sha256": "8cb50516d98f2fd650cd11ef3c40d921062075a9cb9ecb80ac3ef8186760997e"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial22-capture-399/receipt.json",
+      "label": "full-contact-trial22-capture-399/receipt.json",
+      "bytes": 305,
+      "sha256": "6413a079740b05b9ac0dd7d0cc5bd4e7fbfa5bb5bd0d22bcfb04e9cfa46d5de6"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial22-capture-399/stdout.log",
+      "label": "full-contact-trial22-capture-399/stdout.log",
+      "bytes": 1229,
+      "sha256": "6207db36146aa493ad0e5593223b154dc3a3f926f9250cca88d1635188176c5d"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial22-capture-399/stderr.log",
+      "label": "full-contact-trial22-capture-399/stderr.log",
+      "bytes": 62317,
+      "sha256": "56efa15e6014ee73659d13dd27158d543543a123603c980588fd25eebbee00c5"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial22-capture-399/trial-capture.coupled.json",
+      "label": "full-contact-trial22-capture-399/trial-capture.coupled.json",
+      "bytes": 37237,
+      "sha256": "3724f9e63472b606fdd05082a3212e37c5f0dfe44f7d19bcfaeb4a3f7e9bb9da"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial22-capture-399/trial-capture.coupled.bin",
+      "label": "full-contact-trial22-capture-399/trial-capture.coupled.bin",
+      "bytes": 19467248,
+      "sha256": "55980968e3cfa10e2ea89273fbfd3d47004501d214ce80403c559ee5f06fd119"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial22-capture-399/diagnostic-state/dense/fixture-free-body-control-1200.log",
+      "label": "full-contact-trial22-capture-399/diagnostic-state/dense/fixture-free-body-control-1200.log",
+      "bytes": 59037,
+      "sha256": "a0606b4b2af671aef658ca5e488dd80cfd12e6b17ddb9a05630a7bec0b0cffd4"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial22-capture-399/diagnostic-state/dense/fixture-free-body-control-1201.log",
+      "label": "full-contact-trial22-capture-399/diagnostic-state/dense/fixture-free-body-control-1201.log",
+      "bytes": 61364,
+      "sha256": "ceeae5b2cee600d80c605cef46f6b92b9c7402ddc283a64d56661f57d224e0f4"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial22-capture-399/diagnostic-state/dense/transaction-000000-after.bin",
+      "label": "full-contact-trial22-capture-399/diagnostic-state/dense/transaction-000000-after.bin",
+      "bytes": 904359,
+      "sha256": "ac528890f940b0fde67a9ce0d5986c24656ad9cde692a40a5e70b1a4c99205d4"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial22-capture-399/diagnostic-state/dense/transaction-000000-before.bin",
+      "label": "full-contact-trial22-capture-399/diagnostic-state/dense/transaction-000000-before.bin",
+      "bytes": 904359,
+      "sha256": "3ba6a3b46afbad53acaf092bb2e74ef2f8ca5ac33a7f2f0c325d7a628368bf3f"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial22-capture-399/diagnostic-state/dense/transaction-000000.json",
+      "label": "full-contact-trial22-capture-399/diagnostic-state/dense/transaction-000000.json",
+      "bytes": 6559,
+      "sha256": "249d5249c1a4f2f165bc8468142a8f086ee615465360aac7080d9b9d6d90c5bf"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial22-capture-399/diagnostic-state/dense/transaction-000001-after.bin",
+      "label": "full-contact-trial22-capture-399/diagnostic-state/dense/transaction-000001-after.bin",
+      "bytes": 904359,
+      "sha256": "d4689e144e19e3e1f2d15b86d7a5d77563ce8a88ba60e41164f4a497ca2a52ad"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial22-capture-399/diagnostic-state/dense/transaction-000001-before.bin",
+      "label": "full-contact-trial22-capture-399/diagnostic-state/dense/transaction-000001-before.bin",
+      "bytes": 904359,
+      "sha256": "ac528890f940b0fde67a9ce0d5986c24656ad9cde692a40a5e70b1a4c99205d4"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial22-capture-399/diagnostic-state/dense/transaction-000001.json",
+      "label": "full-contact-trial22-capture-399/diagnostic-state/dense/transaction-000001.json",
+      "bytes": 6676,
+      "sha256": "1920dcf0873634e798740a00313ae9a12fb95fa3fb760eb2a2653cdf40d28e81"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial22-capture-399/diagnostic-state/dense/transaction-000002-after.bin",
+      "label": "full-contact-trial22-capture-399/diagnostic-state/dense/transaction-000002-after.bin",
+      "bytes": 904359,
+      "sha256": "f7b3d50d080982eca28578e34f1c8095c11029392637e2f3cf3bb0a03f006cb1"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial22-capture-399/diagnostic-state/dense/transaction-000002-before.bin",
+      "label": "full-contact-trial22-capture-399/diagnostic-state/dense/transaction-000002-before.bin",
+      "bytes": 904359,
+      "sha256": "d4689e144e19e3e1f2d15b86d7a5d77563ce8a88ba60e41164f4a497ca2a52ad"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial22-capture-399/diagnostic-state/dense/transaction-000002.json",
+      "label": "full-contact-trial22-capture-399/diagnostic-state/dense/transaction-000002.json",
+      "bytes": 6685,
+      "sha256": "f42419d4eeae77119f4f1434fa96a732cd56664d7fa88af41b9c61d2881f426d"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial22-vtccd-call-406/prediction.json",
+      "label": "full-contact-trial22-vtccd-call-406/prediction.json",
+      "bytes": 101812,
+      "sha256": "3cbf07deedec89ca316fd4d30d5a9c3202479321e40373b68fd62165735bba7d"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial22-vtccd-call-406/receipt.json",
+      "label": "full-contact-trial22-vtccd-call-406/receipt.json",
+      "bytes": 305,
+      "sha256": "33b73b02404af6b9df54b08854e2dad6d6bfc3f8dbe57a12665890fe240d3277"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial22-vtccd-call-406/stdout.log",
+      "label": "full-contact-trial22-vtccd-call-406/stdout.log",
+      "bytes": 1229,
+      "sha256": "6207db36146aa493ad0e5593223b154dc3a3f926f9250cca88d1635188176c5d"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial22-vtccd-call-406/stderr.log",
+      "label": "full-contact-trial22-vtccd-call-406/stderr.log",
+      "bytes": 62536,
+      "sha256": "1826642c75e4a9afdf8e69a73ce54707402eab3befe81bcd348ea5bf6c6d07f8"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial22-vtccd-call-406/trial-capture.coupled.json",
+      "label": "full-contact-trial22-vtccd-call-406/trial-capture.coupled.json",
+      "bytes": 37990,
+      "sha256": "41eb361744412ff47f338bc563a43cd940c29019a3c32c3c4de83e61677d220c"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial22-vtccd-call-406/trial-capture.coupled.bin",
+      "label": "full-contact-trial22-vtccd-call-406/trial-capture.coupled.bin",
+      "bytes": 19467584,
+      "sha256": "d1c3e4d3c74d3bf75a72ade703557b4cfa9a70d62f1f51683fffbcff8546bd74"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial22-vtccd-call-406/diagnostic-state/dense/fixture-free-body-control-1200.log",
+      "label": "full-contact-trial22-vtccd-call-406/diagnostic-state/dense/fixture-free-body-control-1200.log",
+      "bytes": 59037,
+      "sha256": "a0606b4b2af671aef658ca5e488dd80cfd12e6b17ddb9a05630a7bec0b0cffd4"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial22-vtccd-call-406/diagnostic-state/dense/fixture-free-body-control-1201.log",
+      "label": "full-contact-trial22-vtccd-call-406/diagnostic-state/dense/fixture-free-body-control-1201.log",
+      "bytes": 61583,
+      "sha256": "4239ba41cd2e84f060d4ac06b4a30ed732ca3137d52c4cf2568a8df6894148d1"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial22-vtccd-call-406/diagnostic-state/dense/transaction-000000-after.bin",
+      "label": "full-contact-trial22-vtccd-call-406/diagnostic-state/dense/transaction-000000-after.bin",
+      "bytes": 904359,
+      "sha256": "752763d51fd2ff455ce64dd13d7ce5c34636b4ef5bb57de7f11bd1548c62877c"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial22-vtccd-call-406/diagnostic-state/dense/transaction-000000-before.bin",
+      "label": "full-contact-trial22-vtccd-call-406/diagnostic-state/dense/transaction-000000-before.bin",
+      "bytes": 904359,
+      "sha256": "06a6b788d54d94cb2129c24963ec7a7cef81228d1c2184140c529b44107cf118"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial22-vtccd-call-406/diagnostic-state/dense/transaction-000000.json",
+      "label": "full-contact-trial22-vtccd-call-406/diagnostic-state/dense/transaction-000000.json",
+      "bytes": 6559,
+      "sha256": "249d5249c1a4f2f165bc8468142a8f086ee615465360aac7080d9b9d6d90c5bf"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial22-vtccd-call-406/diagnostic-state/dense/transaction-000001-after.bin",
+      "label": "full-contact-trial22-vtccd-call-406/diagnostic-state/dense/transaction-000001-after.bin",
+      "bytes": 904359,
+      "sha256": "24dc63f08c7806f01890be45a9273514e5f0a218fd9711934fa933dd981b1989"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial22-vtccd-call-406/diagnostic-state/dense/transaction-000001-before.bin",
+      "label": "full-contact-trial22-vtccd-call-406/diagnostic-state/dense/transaction-000001-before.bin",
+      "bytes": 904359,
+      "sha256": "752763d51fd2ff455ce64dd13d7ce5c34636b4ef5bb57de7f11bd1548c62877c"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial22-vtccd-call-406/diagnostic-state/dense/transaction-000001.json",
+      "label": "full-contact-trial22-vtccd-call-406/diagnostic-state/dense/transaction-000001.json",
+      "bytes": 6676,
+      "sha256": "1920dcf0873634e798740a00313ae9a12fb95fa3fb760eb2a2653cdf40d28e81"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial22-vtccd-call-406/diagnostic-state/dense/transaction-000002-after.bin",
+      "label": "full-contact-trial22-vtccd-call-406/diagnostic-state/dense/transaction-000002-after.bin",
+      "bytes": 904359,
+      "sha256": "2645c44ca1b0b8f35a9e6ee5227cc8e6a8f2ae8a89d300671dff6998e141761e"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial22-vtccd-call-406/diagnostic-state/dense/transaction-000002-before.bin",
+      "label": "full-contact-trial22-vtccd-call-406/diagnostic-state/dense/transaction-000002-before.bin",
+      "bytes": 904359,
+      "sha256": "24dc63f08c7806f01890be45a9273514e5f0a218fd9711934fa933dd981b1989"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/native/full-contact-trial22-vtccd-call-406/diagnostic-state/dense/transaction-000002.json",
+      "label": "full-contact-trial22-vtccd-call-406/diagnostic-state/dense/transaction-000002.json",
+      "bytes": 6685,
+      "sha256": "f42419d4eeae77119f4f1434fa96a732cd56664d7fa88af41b9c61d2881f426d"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-valid-summary-tet858-121/matter/include/numi/matter/shared.h",
+      "label": "source-valid-summary-tet858-121/matter/include/numi/matter/shared.h",
+      "bytes": 55682,
+      "sha256": "ae84a7fb79e5b79ad813b249c720b9ace6105fde81f555cbd784afafa721e691"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-valid-summary-tet858-121/matter/src/metal/contact.metalinc",
+      "label": "source-valid-summary-tet858-121/matter/src/metal/contact.metalinc",
+      "bytes": 409322,
+      "sha256": "28bfbee02d2ea396e171f10e1b383980da245f2c91426089b2e867493a139e23"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-valid-summary-tet858-121/matter/src/metal/common.metalinc",
+      "label": "source-valid-summary-tet858-121/matter/src/metal/common.metalinc",
+      "bytes": 100685,
+      "sha256": "66153b6ac14d361e33f9f74d228b8882db81bb35f6e425c973c206bd196a5f55"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-valid-summary-tet858-121/matter/src/runtime.mm",
+      "label": "source-valid-summary-tet858-121/matter/src/runtime.mm",
+      "bytes": 1732588,
+      "sha256": "ac3b2bc725a6787f342b20c1c11e8adc57ad47a80b78d9281e82cce41b9ed38c"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/matter/include/numi/matter/shared.h",
+      "label": "source-native-tet858-vtccd-traces-122/matter/include/numi/matter/shared.h",
+      "bytes": 56614,
+      "sha256": "bd13b1baf8790956404cd564685919c5a18e339d79e7c5c5165956f94d2f010c"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/matter/src/metal/contact.metalinc",
+      "label": "source-native-tet858-vtccd-traces-122/matter/src/metal/contact.metalinc",
+      "bytes": 411676,
+      "sha256": "ea5a9caf6f47588258aeeb5e8be57168826acfb94a566ecbfea7e647ad50fb5c"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/matter/src/metal/common.metalinc",
+      "label": "source-native-tet858-vtccd-traces-122/matter/src/metal/common.metalinc",
+      "bytes": 100685,
+      "sha256": "66153b6ac14d361e33f9f74d228b8882db81bb35f6e425c973c206bd196a5f55"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/matter/src/runtime.mm",
+      "label": "source-native-tet858-vtccd-traces-122/matter/src/runtime.mm",
+      "bytes": 1742557,
+      "sha256": "3ddb3a29452f9006f811fe31f33293763d32be0bddb467646e4a55c72dc31ac6"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-121/source-build.json",
+      "label": "build-cardboard-provenance-121/source-build.json",
+      "bytes": 96668,
+      "sha256": "8c934e5070e10a8522dc67bdc9385a985012c990d291cfa2597760b0a81643a7"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-121/matter/numi-matter-cardboard-full-contact-armijo-check",
+      "label": "build-cardboard-provenance-121/matter/numi-matter-cardboard-full-contact-armijo-check",
+      "bytes": 1856208,
+      "sha256": "ea30d3565d890010c8389c847aa6bdb014a9c6c09c0d33c8e63caaa9e15812d5"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-121/matter/shaders/NumiMatter.metallib",
+      "label": "build-cardboard-provenance-121/matter/shaders/NumiMatter.metallib",
+      "bytes": 6604182,
+      "sha256": "d91f35d7aed358ad5d2d8d4cedb6fe58dcab7357351b39c6eef63c4f2607d869"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-121/lib/libmetalrobo.dylib",
+      "label": "build-cardboard-provenance-121/lib/libmetalrobo.dylib",
+      "bytes": 8430960,
+      "sha256": "c8de8befede21892d77f133a7c29530b02dc4ff2cdef12cdc1862f4469eaa22a"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-122/source-build.json",
+      "label": "build-cardboard-provenance-122/source-build.json",
+      "bytes": 96910,
+      "sha256": "d170098062ae80f751d3b3b57f99016e51bf73e97063fb86eaefcd49d6c514f3"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-122/matter/numi-matter-cardboard-full-contact-armijo-check",
+      "label": "build-cardboard-provenance-122/matter/numi-matter-cardboard-full-contact-armijo-check",
+      "bytes": 1856208,
+      "sha256": "d972e3d85d39f4a63f9e3cd431210508b859bcef857cdf117bb0c6a9ea7309da"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-122/matter/shaders/NumiMatter.metallib",
+      "label": "build-cardboard-provenance-122/matter/shaders/NumiMatter.metallib",
+      "bytes": 6607398,
+      "sha256": "d9919a4b280eedeabbe37dc771d8475a0b719f7578d00a771056c9b2c2b78fad"
+    },
+    {
+      "path": "/Users/home/numi-cardboard-20261006/build-cardboard-provenance-122/lib/libmetalrobo.dylib",
+      "label": "build-cardboard-provenance-122/lib/libmetalrobo.dylib",
+      "bytes": 8430960,
+      "sha256": "c4f23a178ee7097f8e6e42c83c949dc4e8fdd1ba468dc03dbfc9e0920728e020"
+    },
+    {
+      "path": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122/matter/materials/nagasawa2013_medium_orthotropic.nmatter",
+      "label": "physical material input source122",
+      "bytes": 3495,
+      "sha256": "ce39e29918c0111ab1e25e9af8a69eb0e3f7f6f07d1227bfd443da735d9ea348"
+    }
+  ],
+  "source_physics_fingerprint": "915f50b10edc2e46",
+  "observation_runs": [
+    "full-contact-trial21-vtccd-call-405",
+    "full-contact-trial22-vtccd-call-406"
+  ],
+  "matching_baselines": [
+    "full-contact-trial21-capture-398",
+    "full-contact-trial22-capture-399"
+  ],
+  "array_contract": "Each capture parsed with strict JSON; contiguous payload offsets, declared element extents, per-array SHA-256, and whole-payload SHA-256 verified. 129 common arrays per matching pair have identical hashes; only the intended 336-byte actual-call observer array is new.",
+  "parity_contract": "32 Armijo rows exact per matching pair; production transaction JSON exact; diagnostic snapshot binaries differ only in device-program fingerprint bytes 12..19; source physics fingerprint and physical material bytes match.",
+  "caveat": "The binary64 continuous sweep is an independent calculation on captured float32 endpoints. The exact Metal helper record is authoritative for the production return; the full native fixture still exits 1."
+}

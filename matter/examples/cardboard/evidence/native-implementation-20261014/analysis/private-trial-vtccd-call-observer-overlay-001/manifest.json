@@ -1,0 +1,96 @@
+{
+  "base_metallib_sha256": "d91f35d7aed358ad5d2d8d4cedb6fe58dcab7357351b39c6eef63c4f2607d869",
+  "base_physics_fingerprint": "915f50b10edc2e46",
+  "base_program_fingerprint": "65c21efe518880f6",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-valid-summary-tet858-121",
+  "capture_limits": {
+    "additional_arrays": 1,
+    "existing_array_cap": 192,
+    "existing_payload_cap_bytes": 33554432,
+    "record_bytes": 336
+  },
+  "changed_files": [
+    {
+      "base_sha256": "ae84a7fb79e5b79ad813b249c720b9ace6105fde81f555cbd784afafa721e691",
+      "candidate_sha256": "bd13b1baf8790956404cd564685919c5a18e339d79e7c5c5165956f94d2f010c",
+      "path": "matter/include/numi/matter/shared.h"
+    },
+    {
+      "base_sha256": "28bfbee02d2ea396e171f10e1b383980da245f2c91426089b2e867493a139e23",
+      "candidate_sha256": "ea5a9caf6f47588258aeeb5e8be57168826acfb94a566ecbfea7e647ad50fb5c",
+      "path": "matter/src/metal/contact.metalinc"
+    },
+    {
+      "base_sha256": "ac3b2bc725a6787f342b20c1c11e8adc57ad47a80b78d9281e82cce41b9ed38c",
+      "candidate_sha256": "3ddb3a29452f9006f811fe31f33293763d32be0bddb467646e4a55c72dc31ac6",
+      "path": "matter/src/runtime.mm"
+    }
+  ],
+  "motivating_captures": [
+    {
+      "path": "native/full-contact-trial21-capture-398/trial-capture.coupled.json",
+      "sha256": "a8e33e538c0635ba0f3d47a3dc524a09e7b6125dc6a468fc5590b8562d4f47fd"
+    },
+    {
+      "path": "native/full-contact-trial21-capture-398/trial-capture.coupled.bin",
+      "sha256": "2a55974dad524891abe3a456fbfa37f96360ffb09a99ee11f66733bff312c07a"
+    },
+    {
+      "path": "native/full-contact-trial22-capture-399/trial-capture.coupled.json",
+      "sha256": "3724f9e63472b606fdd05082a3212e37c5f0dfe44f7d19bcfaeb4a3f7e9bb9da"
+    },
+    {
+      "path": "native/full-contact-trial22-capture-399/trial-capture.coupled.bin",
+      "sha256": "55980968e3cfa10e2ea89273fbfd3d47004501d214ce80403c559ee5f06fd119"
+    },
+    {
+      "path": "native/full-contact-newton9-center-capture-385/center-capture.coupled.json",
+      "sha256": "1ba486f1da055b18d59c1e54303a1170a49c1547ccb6c2800562a84f5eb6737a"
+    },
+    {
+      "path": "native/full-contact-newton9-center-capture-385/center-capture.coupled.bin",
+      "sha256": "0c4ad7045f9c6020edbb45bfae71d3146c68294fd397ad54c42004c754c61c3a"
+    },
+    {
+      "path": "native/full-contact-valid-trial-summary-396/trial-summary.summary.json",
+      "sha256": "258f2ad4943ac4ef05efac066f59af83a0304e7344d2d309635ecc46f851c380"
+    },
+    {
+      "path": "native/full-contact-valid-trial-summary-396/trial-summary.summary.bin",
+      "sha256": "38527430a6e36b378e04c56e353afae0f07f8451044f1a91ca2cb0707c7a7"
+    },
+    {
+      "path": "analysis/valid-summary-native396-verification-001/report.json",
+      "sha256": "facc1775ebbc5ce6ef23e1b574c7e8da10c0af0e29524d42dc5ecc98ace1f453"
+    }
+  ],
+  "native_cases": [
+    {
+      "capture_case": "trial21",
+      "selector": "1201:9:21:0:173:36:123:2:1"
+    },
+    {
+      "capture_case": "trial22",
+      "selector": "1201:9:22:0:173:36:123:2:1"
+    }
+  ],
+  "patch_sha256": "62b7172d09368d19f8f81acae046c95ea088cf81001f5dddec6b768e811d48b1",
+  "schema": "numi.matter.private_vtccd_call_observer_overlay.v1",
+  "scope": "The selected tuple uses the exact private deformable narrowphase invocation. It is not a separate CCD implementation and does not write solver status or accept/reject candidates. Failure to certify is not proof of collision.",
+  "selector_format": "root:iteration:trial:environment:slot:primitiveA:primitiveB:vertex:direction",
+  "unchanged_compile_entry": {
+    "path": "matter/src/matter_kernels.metal",
+    "sha256": "37d3530284e2361b20f805409768c65446fc13186c50e94f286b73256debe168"
+  },
+  "validation": {
+    "metal_translation_unit": "PASS",
+    "metal_warnings": [
+      "pre-existing sharedValid warning in source121 fgmres.metalinc",
+      "pre-existing refinementValid warning in source121 fgmres.metalinc"
+    ],
+    "native_gpu": "NOT_RUN",
+    "patch_dry_run": "PASS",
+    "physical_qualification": "NOT_CLAIMED",
+    "runtime_objcpp_syntax": "PASS"
+  }
+}

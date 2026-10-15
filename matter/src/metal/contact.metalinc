@@ -3713,11 +3713,17 @@ kernel void nm_contact_narrowphase_deformable(
     device const NMCohesiveFaceGPU* cohesiveFaces [[buffer(15)]],
     constant uint& deterministicStatusSelection [[buffer(16)]],
     device NMMatterStatusGPU* candidateStatuses [[buffer(17)]],
+    device NMDeformableVTCCDAuditGPU* vtccdAudit [[buffer(18)]],
+    constant nm_uint4& vtccdAuditSelector [[buffer(19)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint capacity = dispatch.deformableContactCapacity;
     const uint total = dispatch.environmentCount * capacity;
     if (global >= total || capacity == 0u) return;
+    // The selected candidate invocation owns this one-record diagnostic slot.
+    // Clearing here also makes a missing candidate/feature an explicit empty
+    // record, without another dispatch, barrier, or host/GPU wait.
+    if (vtccdAuditSelector.x == global) vtccdAudit[0] = {};
     if (deterministicStatusSelection != 0u)
         candidateStatuses[global] = {};
     const NMDeformableContactHistoryGPU previous = histories[global];
@@ -3967,6 +3973,38 @@ kernel void nm_contact_narrowphase_deformable(
                     start[triangleBase + 2u], finish[triangleBase + 2u],
                     thickness, toi, normal, barycentric, point, separation,
                     certified);
+                const uint packedFeature = direction * 3u + vertexIndex;
+                if (vtccdAuditSelector.x == global &&
+                    candidate.identity.x == vtccdAuditSelector.y &&
+                    candidate.identity.y == vtccdAuditSelector.z &&
+                    packedFeature == vtccdAuditSelector.w) {
+                    NMDeformableVTCCDAuditGPU observed{};
+                    observed.attempt = uint4(1u, environment, slot,
+                                             packedFeature);
+                    observed.candidateIdentity = candidate.identity;
+                    observed.leftNodesAndObject = left.nodesAndObject;
+                    observed.rightNodesAndObject = right.nodesAndObject;
+                    for (uint local = 0u; local < 6u; ++local) {
+                        observed.start[local] = float4(start[local], 0.0f);
+                        observed.finish[local] = float4(finish[local], 0.0f);
+                    }
+                    observed.result = float4(hit ? 1.0f : 0.0f,
+                        certified ? 1.0f : 0.0f, toi, separation);
+                    if (hit && certified) {
+                        observed.normal = float4(normal, 0.0f);
+                        observed.barycentric = float4(barycentric, 0.0f);
+                        observed.point = float4(point, 0.0f);
+                    }
+                    const float leftDt = objectTimestep(dispatch,
+                        schedulers[environment * dispatch.objectCount +
+                            left.nodesAndObject.w]);
+                    const float rightDt = objectTimestep(dispatch,
+                        schedulers[environment * dispatch.objectCount +
+                            right.nodesAndObject.w]);
+                    observed.parameters = float4(thickness, leftDt, rightDt,
+                        float(microstep.solverIteration));
+                    vtccdAudit[0] = observed;
+                }
                 if (!certified) {
                     recordDeformableNarrowphaseFailure(
                         deterministicStatusSelection, statuses, candidateStatuses,

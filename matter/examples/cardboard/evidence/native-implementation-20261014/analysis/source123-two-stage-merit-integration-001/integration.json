@@ -1,0 +1,13 @@
+{
+  "snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-two-stage-material-merit-123",
+  "base_snapshot": "/Users/home/cardboard-implementation-20261014/snapshots/source-native-tet858-vtccd-traces-122",
+  "cpu_prototype_manifest_sha256": "9a50f8110c4de3b1fd702bec761a9e72056f1e4715f112d4f21d285eeb3863c2",
+  "changes": {
+    "matter/src/metal/common.metalinc": {
+      "source122": "66153b6ac14d361e33f9f74d228b8882db81bb35f6e425c973c206bd196a5f55",
+      "source123": "fd05012c41c53a702f17ba1289f5df54aad54227b5c36900e71dac13059f446c"
+    }
+  },
+  "physical_steps": 0,
+  "native_qualification": false
+}
